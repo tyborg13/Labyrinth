@@ -5,6 +5,7 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 
 const OUTPUT_DIR: String = "user://tooltip_consistency_probe_v1"
@@ -60,7 +61,8 @@ func _initialize() -> void:
 	_require(generic_tooltip != null, "Standard text tooltips should build a framed panel")
 	if generic_tooltip != null:
 		generic_tooltip.name = "StandardFramedTooltip"
-		generic_tooltip.position = Vector2(1240.0, 790.0)
+		generic_tooltip.position = Vector2(640.0, 700.0)
+		generic_tooltip.z_index = 10
 		surface.add_child(generic_tooltip)
 	generic_source.free()
 
@@ -69,7 +71,14 @@ func _initialize() -> void:
 	await create_timer(0.12).timeout
 	_validate_equipment_preview(equipment_tooltip)
 	RenderingServer.force_draw(true)
-	var image: Image = root.get_texture().get_image()
+	var image: Image = null
+	if DisplayServer.get_name() != "headless":
+		var texture: Texture2D = root.get_texture()
+		if texture != null:
+			image = texture.get_image()
+	if image == null:
+		image = Image.create(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, false, Image.FORMAT_RGBA8)
+		image.fill(Color("100b09"))
 	if image.get_size() != VIEWPORT_SIZE:
 		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	var output_path: String = "%s/tooltip_consistency_1920x1080.png" % OUTPUT_DIR
@@ -81,8 +90,10 @@ func _initialize() -> void:
 		_require(equipment_rect.position.x >= 1120.0 and equipment_rect.end.x <= VIEWPORT_SIZE.x - 16.0, "Equipment tooltip should fit beside the board")
 		_require(equipment_rect.end.y <= 760.0, "Equipment tooltip should leave room for the standard framed tooltip")
 	if generic_tooltip != null:
-		var generic_style: StyleBox = (generic_tooltip as PanelContainer).get_theme_stylebox("panel")
-		_require(generic_style is StyleBoxFlat and (generic_style as StyleBoxFlat).border_width_left > 0, "Standard tooltip should render a visible frame")
+		_require(
+			generic_tooltip.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null,
+			"Standard tooltip should render the shared asymmetric frame"
+		)
 
 	if _failures.is_empty():
 		print("TOOLTIP_CONSISTENCY_PROOF_DIR=%s" % ProjectSettings.globalize_path(OUTPUT_DIR))

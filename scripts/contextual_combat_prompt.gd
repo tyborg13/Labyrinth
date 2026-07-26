@@ -35,7 +35,8 @@ func configure(prompt: Dictionary) -> void:
 	_icon.texture = ActionIcons.icon_texture(str(prompt.get("icon", "card_play")))
 	_kicker.add_theme_color_override("font_color", _accent.lightened(0.18))
 	_grimoire_button.visible = not _grimoire_entry_id.is_empty()
-	add_theme_stylebox_override("panel", _panel_style(_accent))
+	set_meta("panel_surface_accent", _accent)
+	_ui_skin.refresh_panel_surface(self)
 	set_meta("prompt_id", _prompt_id)
 	set_meta("prompt_text", _message.text)
 	set_meta("grimoire_entry", _grimoire_entry_id)
@@ -136,6 +137,10 @@ func _build() -> void:
 	skip_button.modulate = Color(1.0, 1.0, 1.0, 0.78)
 	skip_button.pressed.connect(_on_skipped_pressed)
 	actions.add_child(skip_button)
+	add_theme_stylebox_override("panel", _panel_style(_accent))
+	set_meta("panel_safe_inset", 0.0)
+	set_meta("panel_surface_accent", _accent)
+	_ui_skin.apply_inset_surface(self, UiSkin.SURFACE_HUD)
 
 func _small_button(text: String, minimum_size: Vector2) -> Button:
 	var button := Button.new()

@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const OUTPUT_DIR: String = "user://probes/pause_overlay_20260715_v1"
@@ -76,6 +77,16 @@ func _run_probe() -> void:
 	_require(choice_overlay != null and choice_overlay.visible, "Combat proof should show the Pass action")
 	_require(pass_preview != null and pass_preview.visible, "Combat proof should show the On Turn End preview")
 	_require(hand_box != null and hand_box.get_child_count() > 1, "Combat proof should show a multi-card hand")
+	var turn_order_panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
+	var pass_preview_chip: PanelContainer = instance.find_child("PassPreviewChip", true, false) as PanelContainer
+	var mini_map_overlay: PanelContainer = instance.get("mini_map_overlay") as PanelContainer
+	var log_overlay: PanelContainer = instance.get("log_overlay") as PanelContainer
+	_require(turn_order_panel != null and turn_order_panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Turn Clock should use the authored raster border")
+	_require(pass_preview_chip != null and pass_preview_chip.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null, "On Turn End should use the shared asymmetric shape")
+	_require(mini_map_overlay != null and mini_map_overlay.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Minimap should use the authored raster border")
+	_require(log_overlay != null and log_overlay.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Combat log should use the authored raster border")
+	_require(menu_dialog != null and menu_dialog.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Pause/Camp should use the raster-only outer frame")
+	_require(settings_panel != null and settings_panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Settings should use the raster-only outer frame")
 	if menu_scrim == null or menu_dialog == null or settings_panel == null or hand_box == null:
 		instance.queue_free()
 		return

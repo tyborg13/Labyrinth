@@ -2,6 +2,7 @@ extends RefCounted
 class_name UiTooltipPanel
 
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 
 const TITLE_COLOR: Color = Color("fff0d1")
 const BODY_COLOR: Color = Color("dcc7a6")
@@ -56,6 +57,10 @@ static func make_lines(title: String, body_lines: PackedStringArray) -> PanelCon
 		body_label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
 		body_label.add_theme_constant_override("outline_size", 1)
 		vbox.add_child(body_label)
+	panel.set_meta("tooltip_surface", true)
+	panel.set_meta("panel_surface_accent", BORDER_COLOR)
+	var skin := UiSkin.new()
+	skin.apply_inset_surface(panel, UiSkin.SURFACE_HUD)
 	return panel
 
 static func _panel_style() -> StyleBoxFlat:

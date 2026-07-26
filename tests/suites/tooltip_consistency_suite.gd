@@ -8,6 +8,7 @@ const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const UiTooltipLabel = preload("res://scripts/ui_tooltip_label.gd")
 const UiTooltipPanelContainer = preload("res://scripts/ui_tooltip_panel_container.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 const RunScene = preload("res://scenes/run_scene.tscn")
 
 
@@ -29,8 +30,11 @@ static func _test_shared_tooltip_controls(expect: Callable) -> void:
 		var tooltip: Variant = control.call("_make_custom_tooltip", "TITLE\nFramed body copy")
 		expect.call(tooltip is PanelContainer, "%s tooltips should use the shared framed panel" % control.get_class())
 		if tooltip is PanelContainer:
-			var style: StyleBox = (tooltip as PanelContainer).get_theme_stylebox("panel")
-			expect.call(style is StyleBoxFlat and (style as StyleBoxFlat).border_width_left > 0, "%s tooltips should expose a visible frame" % control.get_class())
+			var tooltip_panel := tooltip as PanelContainer
+			expect.call(
+				tooltip_panel.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null,
+				"%s tooltips should expose the shared asymmetric frame" % control.get_class()
+			)
 			(tooltip as PanelContainer).free()
 		control.free()
 

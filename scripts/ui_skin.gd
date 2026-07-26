@@ -3,6 +3,8 @@ class_name UiSkin
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ThemedButtonOrnament = preload("res://scripts/themed_button_ornament.gd")
+const ThemedInsetOrnament = preload("res://scripts/themed_inset_ornament.gd")
+const ThemedPanelOrnament = preload("res://scripts/themed_panel_ornament.gd")
 
 const TEXTURES := {
 	"panel_main": {
@@ -44,6 +46,14 @@ const STATE_SELECTED: String = "selected"
 const STATE_FOCUS: String = "focus"
 
 const BUTTON_ORNAMENT_NAME: String = "ThemedButtonOrnament"
+const PANEL_INSET_ORNAMENT_NAME: String = "ThemedInsetOrnament"
+const PANEL_ORNAMENT_NAME: String = "ThemedPanelOrnament"
+
+const SURFACE_DIALOG: String = "dialog"
+const SURFACE_PARCHMENT: String = "parchment"
+const SURFACE_HUD: String = "hud"
+const SURFACE_CHOICE: String = "choice"
+const SURFACE_DANGER: String = "danger"
 
 var _cache: Dictionary = {}
 # Controls may share these application-only templates because UiSkin never mutates
@@ -279,6 +289,91 @@ func _ensure_button_ornament(button: BaseButton, variant: String) -> void:
 		ornament.call("configure", button, variant)
 	else:
 		ornament.call("set_variant", variant)
+
+func apply_panel_surface(panel: PanelContainer, variant: String = SURFACE_DIALOG) -> void:
+	if panel == null:
+		return
+	var current_style: StyleBox = panel.get_theme_stylebox("panel")
+	var layout_style := StyleBoxFlat.new()
+	var safe_inset: float = 12.0 if variant == SURFACE_HUD else 20.0
+	var has_explicit_safe_inset: bool = panel.has_meta("panel_safe_inset")
+	safe_inset = float(panel.get_meta("panel_safe_inset", safe_inset))
+	if current_style != null:
+		layout_style.content_margin_left = safe_inset if has_explicit_safe_inset else maxf(safe_inset, current_style.get_content_margin(SIDE_LEFT))
+		layout_style.content_margin_top = safe_inset if has_explicit_safe_inset else maxf(safe_inset, current_style.get_content_margin(SIDE_TOP))
+		layout_style.content_margin_right = safe_inset if has_explicit_safe_inset else maxf(safe_inset, current_style.get_content_margin(SIDE_RIGHT))
+		layout_style.content_margin_bottom = safe_inset if has_explicit_safe_inset else maxf(safe_inset, current_style.get_content_margin(SIDE_BOTTOM))
+	else:
+		layout_style.content_margin_left = safe_inset
+		layout_style.content_margin_top = safe_inset
+		layout_style.content_margin_right = safe_inset
+		layout_style.content_margin_bottom = safe_inset
+	layout_style.bg_color = Color.TRANSPARENT
+	layout_style.border_color = Color.TRANSPARENT
+	panel.add_theme_stylebox_override("panel", layout_style)
+	panel.set_meta("surface_variant", variant)
+	_ensure_panel_ornament(panel, variant)
+
+func apply_outer_panel_frame(panel: PanelContainer, variant: String = SURFACE_DIALOG) -> void:
+	if panel == null:
+		return
+	# Major menus keep their baseline panel style and layout. Only the authored
+	# raster rails and corners are layered over the existing outer edge.
+	panel.set_meta("surface_variant", variant)
+	panel.set_meta("panel_outer_frame_only", true)
+	panel.set_meta("panel_frame_scale", 0.14)
+	var ornament: Control = _ensure_panel_ornament(panel, variant)
+	if ornament != null:
+		panel.move_child(ornament, panel.get_child_count() - 1)
+
+func apply_inset_surface(panel: PanelContainer, variant: String = SURFACE_DIALOG) -> void:
+	if panel == null:
+		return
+	var current_style: StyleBox = panel.get_theme_stylebox("panel")
+	var layout_style := StyleBoxFlat.new()
+	var safe_inset: float = 10.0 if variant == SURFACE_HUD else 12.0
+	var has_explicit_safe_inset: bool = panel.has_meta("panel_safe_inset")
+	safe_inset = float(panel.get_meta("panel_safe_inset", safe_inset))
+	if current_style != null:
+		layout_style.content_margin_left = safe_inset if has_explicit_safe_inset else maxf(safe_inset, current_style.get_content_margin(SIDE_LEFT))
+		layout_style.content_margin_top = safe_inset if has_explicit_safe_inset else maxf(safe_inset, current_style.get_content_margin(SIDE_TOP))
+		layout_style.content_margin_right = safe_inset if has_explicit_safe_inset else maxf(safe_inset, current_style.get_content_margin(SIDE_RIGHT))
+		layout_style.content_margin_bottom = safe_inset if has_explicit_safe_inset else maxf(safe_inset, current_style.get_content_margin(SIDE_BOTTOM))
+	else:
+		layout_style.content_margin_left = safe_inset
+		layout_style.content_margin_top = safe_inset
+		layout_style.content_margin_right = safe_inset
+		layout_style.content_margin_bottom = safe_inset
+	layout_style.bg_color = Color.TRANSPARENT
+	layout_style.border_color = Color.TRANSPARENT
+	panel.add_theme_stylebox_override("panel", layout_style)
+	panel.set_meta("surface_variant", variant)
+	panel.set_meta("surface_treatment", "inset")
+	var ornament: Node = panel.get_node_or_null(PANEL_INSET_ORNAMENT_NAME)
+	if ornament == null:
+		ornament = ThemedInsetOrnament.new()
+		panel.add_child(ornament)
+		ornament.call("configure", panel, variant)
+	else:
+		ornament.call("set_variant", variant)
+
+func refresh_panel_surface(panel: PanelContainer) -> void:
+	if panel == null:
+		return
+	for ornament_name: String in [PANEL_ORNAMENT_NAME, PANEL_INSET_ORNAMENT_NAME]:
+		var ornament: CanvasItem = panel.get_node_or_null(ornament_name) as CanvasItem
+		if ornament != null:
+			ornament.queue_redraw()
+
+func _ensure_panel_ornament(panel: PanelContainer, variant: String) -> Control:
+	var ornament: Control = panel.get_node_or_null(PANEL_ORNAMENT_NAME) as Control
+	if ornament == null:
+		ornament = ThemedPanelOrnament.new()
+		panel.add_child(ornament)
+		ornament.call("configure", panel, variant)
+	else:
+		ornament.call("set_variant", variant)
+	return ornament
 
 func _button_corner_radius(variant: String) -> int:
 	match variant:

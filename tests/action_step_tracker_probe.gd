@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 
 const OUTPUT_DIR: String = "user://probes/action_step_tracker"
 const TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
@@ -37,6 +38,7 @@ func _capture_action_step_tracker_frames() -> void:
 	_assert_tracker_statuses(instance, ["current", "remaining"], "move-attack selection")
 	_assert_tracker_copy_is_compact(instance, "move-attack selection")
 	_assert_tracker_layout(instance, "move-attack selection", piles_y_before)
+	_assert_salvaged_shapes(instance)
 	await _save_root_screenshot("%s/move_attack_selected.png" % OUTPUT_DIR)
 
 	instance.call("_on_board_tile_clicked", Vector2i(4, 4))
@@ -236,6 +238,14 @@ func _assert_tracker_copy_is_compact(instance: Node, label: String) -> void:
 		return
 	if mode_selector == null or not mode_selector.visible:
 		_fail("%s should keep the card-mode selector directly below the title" % label)
+
+func _assert_salvaged_shapes(instance: Node) -> void:
+	var play_meter: PanelContainer = instance.get("_play_meter") as PanelContainer
+	if play_meter == null or play_meter.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) == null:
+		_fail("Turn Plays should use the shared asymmetric shape")
+	var combat_note: PanelContainer = instance.get("_contextual_combat_prompt") as PanelContainer
+	if combat_note == null or combat_note.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) == null:
+		_fail("Combat Note should use the shared asymmetric shape")
 
 func _control_rect(instance: Node, path: String) -> Rect2:
 	var control: Control = instance.get_node_or_null(path) as Control
