@@ -10,7 +10,11 @@ const NPCS_PATH: String = "res://data/npcs.json"
 const RELICS_PATH: String = "res://data/relics.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
 const PROGRESSION_LEVELS_PATH: String = "res://data/progression_levels.json"
-const FIXED_POINT_SCALE: int = 10
+## Combat values are authored and resolved in the same natural, player-facing units.
+## Keep the compatibility helper names below so older callers and tests do not need
+## to reintroduce a second unit system.
+const FIXED_POINT_SCALE: int = 1
+const LEGACY_FIXED_POINT_SCALE: int = 10
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const FIXED_POINT_ATTACK_ACTION_TYPES: Array[String] = [
 	"melee", "ranged", "aoe", "push", "pull", "lightning_strikes",

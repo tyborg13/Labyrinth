@@ -112,6 +112,14 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	_assert_tree_fit_contract(tree, viewport_size, "Skills")
 	var moltshard_label := dialog.find_child("ProgressionMoltshardsLabel", true, false) as Label
 	_expect(moltshard_label != null and moltshard_label.text.contains("2"), "%s Skills dialog should prominently show two Moltshards" % viewport_size)
+	var defiance_label := dialog.find_child("ProgressionDefianceLabel", true, false) as Label
+	_expect(
+		defiance_label != null
+		and defiance_label.text.contains("DEFIANCE")
+		and defiance_label.text.contains("3/3")
+		and (defiance_label.text.contains("NEXT 16") or defiance_label.text.contains("L16")),
+		"%s Skills dialog should expose current Defiance and the next permanent milestone" % viewport_size
+	)
 	_expect(dialog.find_child("SkillResetHint", true, false) == null, "%s Skills dialog should omit permanent reset-explanation copy" % viewport_size)
 	var reset_button: Button = _button_with_text(dialog, "Reset Skills  ·  1 Moltshard")
 	_expect(reset_button != null, "%s Skills dialog should expose the whole-tree reset command" % viewport_size)
@@ -253,14 +261,16 @@ func _capture_combat_surfaces(
 		"ember_jab",
 	])
 	var combat_state: Dictionary = combat_engine.create_combat(93471 + viewport_size.y, layout, {
-		"hp": 360,
-		"max_hp": 360,
+		"hp": 24,
+		"max_hp": 24,
 		"deck_cards": deck_cards,
 		"skill_ids": ProgressionStore.selected_skill_ids(progression),
 		"level": PROGRESSION_LEVEL,
 		"relics": ["ember_lens"],
 		"hand_size": 5,
 		"heal_bonus": 0,
+		"defiance_capacity": 3,
+		"defiance_remaining": 3,
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	# This hand makes every learned manual skill legal at once: a Burn card for
@@ -274,7 +284,7 @@ func _capture_combat_surfaces(
 	combat_state["banked_play_active"] = 1
 	combat_state["banked_play_spent_this_activation"] = 0
 	var combat_player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
-	combat_player["block"] = 20
+	combat_player["block"] = 3
 	combat_state["player"] = combat_player
 	var combat_run: Dictionary = base_run_state.duplicate(true)
 	combat_run["mode"] = "combat"
@@ -288,6 +298,23 @@ func _capture_combat_surfaces(
 	instance.call("_close_dialogue")
 	await _settle()
 
+	var defiance_badge := instance.get("_defiance_badge") as Control
+	var defiance_count := defiance_badge.find_child("DefianceCount", true, false) as Label if defiance_badge != null else null
+	_expect(
+		defiance_badge != null
+		and defiance_badge.is_visible_in_tree()
+		and int(defiance_badge.get_meta("defiance_remaining", -1)) == 3
+		and int(defiance_badge.get_meta("defiance_capacity", -1)) == 3
+		and defiance_count != null
+		and defiance_count.text == "3/3",
+		"%s Combat HUD should expose three ready Defiance charges as icon plus count" % viewport_size
+	)
+	_expect(
+		defiance_badge != null
+		and defiance_badge.tooltip_text.contains("restore 25% max health")
+		and defiance_badge.tooltip_text.contains("does not refill"),
+		"%s Defiance tooltip should disclose its lethal recovery and no-refill rules" % viewport_size
+	)
 	var sigil := instance.get("_skill_sigil") as Button
 	_expect(sigil != null and sigil.is_visible_in_tree(), "%s Combat HUD should show the skill sigil" % viewport_size)
 	_expect(
@@ -353,6 +380,56 @@ func _capture_combat_surfaces(
 	_expect(banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "%s Combat HUD should explain Borrowed Time on the stored play" % viewport_size)
 	await _save_screenshot(viewport, "%s/04_combat_skill_controls.png" % output_dir)
 
+	var triggered_combat: Dictionary = combat_state.duplicate(true)
+	triggered_combat[RunEngine.DEFIANCE_REMAINING_KEY] = 2
+	triggered_combat["defiance_event_revision"] = 1
+	triggered_combat["defiance_events"] = [{
+		"revision": 1,
+		"turn": int(triggered_combat.get("turn", 1)),
+		"cause": "enemy_attack",
+		"lethal_hp_loss": 4,
+		"restored_hp": 6,
+		"charges_before": 3,
+		"charges_after": 2,
+	}]
+	var triggered_run: Dictionary = run_engine.set_combat_state(combat_run, triggered_combat)
+	instance.set("_combat_state", triggered_combat)
+	instance.set("_run_state", triggered_run)
+	instance.call("_refresh_ui")
+	await _settle()
+	defiance_badge = instance.get("_defiance_badge") as Control
+	defiance_count = defiance_badge.find_child("DefianceCount", true, false) as Label if defiance_badge != null else null
+	_expect(
+		defiance_badge != null
+		and int(defiance_badge.get_meta("defiance_remaining", -1)) == 2
+		and defiance_count != null
+		and defiance_count.text == "2/3",
+		"%s A triggered Defiance should leave a readable static 2/3 HUD state" % viewport_size
+	)
+	await _save_screenshot(viewport, "%s/04c_defiance_post_trigger.png" % output_dir)
+
+	var depleted_combat: Dictionary = triggered_combat.duplicate(true)
+	depleted_combat[RunEngine.DEFIANCE_REMAINING_KEY] = 0
+	var depleted_run: Dictionary = run_engine.set_combat_state(combat_run, depleted_combat)
+	instance.set("_combat_state", depleted_combat)
+	instance.set("_run_state", depleted_run)
+	instance.call("_refresh_ui")
+	await _settle()
+	defiance_badge = instance.get("_defiance_badge") as Control
+	defiance_count = defiance_badge.find_child("DefianceCount", true, false) as Label if defiance_badge != null else null
+	_expect(
+		defiance_badge != null
+		and int(defiance_badge.get_meta("defiance_remaining", -1)) == 0
+		and defiance_count != null
+		and defiance_count.text == "0/3",
+		"%s Depleted Defiance should remain visible as a muted 0/3 state" % viewport_size
+	)
+	await _save_screenshot(viewport, "%s/04d_defiance_depleted.png" % output_dir)
+
+	instance.set("_combat_state", combat_state)
+	instance.set("_run_state", combat_run)
+	instance.call("_refresh_ui")
+	await _settle()
 	instance.call("_toggle_skill_status_popover")
 	await _settle()
 	var popover := instance.get("_skill_status_popover") as Control
@@ -478,8 +555,8 @@ func _combat_layout() -> Dictionary:
 			"type": "crawler",
 			"name": "Tunnel Crawler",
 			"pos": Vector2i(6, 3),
-			"hp": 60,
-			"max_hp": 60,
+			"hp": 14,
+			"max_hp": 14,
 			"base_initiative": 9,
 		}],
 		"traps": [],

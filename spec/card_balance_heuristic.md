@@ -26,6 +26,9 @@ These assumptions are baked into the current coefficients:
 
 - Player pace: `2` cards per turn, `2` draw per turn, and a `7`-card
   maximum hand.
+- Combat uses natural player-facing units throughout: the player starts a new
+  run at `24` HP, and authored damage, health, healing, block, stoneskin, and
+  damaging statuses are stored and resolved without the retired `×10` layer.
 - Player turns now run on an initiative clock instead of a fixed player-then-all-
   enemies round. The player starts combat active, then their next turn is
   scheduled at `base initiative + time spent on played cards`.
@@ -44,7 +47,7 @@ These assumptions are baked into the current coefficients:
   printed actions and health cost once per snapped play, and spend all snapped
   plays. The physical card's top-level Time cost is paid once. Plays gained
   during resolution remain available after the Flurry commits.
-- Fatigue starts at `1.5` health and increases by `0.1` health each reshuffle.
+- Fatigue starts at `2` health and increases by `1` health each reshuffle.
 - Each combat tracks room-wide elemental intensity for fire, ice, lightning,
   air, and earth. The room's element starts at intensity `1`; other elements
   start at `0`. Cards and elemental enemies share this resource: both sides can
@@ -65,6 +68,10 @@ These assumptions are baked into the current coefficients:
 - Sunder removes block and stoneskin before damage lands.
 - Poison lands after a two-turn delay.
 - Stoneskin is persistent defense and is valued above temporary block.
+- Permanent levels grant one run-scoped Defiance charge at levels
+  `4/8/12/16/20`. A lethal hit spends one charge and restores `25%` max HP.
+  Defiance raises the long-run clock without changing a card's intrinsic score
+  or inflating the player's health pool.
 - Illusions are stationary, have only health, and redirect enemies that are
   closer to the illusion than to the player. If player-side actors are tied at
   the same distance, enemies choose randomly among the tied targets.
@@ -109,12 +116,14 @@ Encounter calibration is also important:
   boss gate. The first five gates draw Zekarion and the earth, fire, air, and
   ice dragons in a seeded random order without repeats. Noctyrax, the Shadow
   Dragon, is always the sixth and final gate at depth `24`. Lateral rooms remain
-  a deck-building route choice; the map only opens an emergency outward loop
-  escape when a room has no revealed, unsealed same-depth-or-deeper exit.
+  a deck-building route choice. Once the player has visited three rooms at the
+  current depth, a room with no available outward move gains a deterministic
+  outward offer; fully exhausted loops retain the same escape guarantee.
 - First-sequence standard rooms now use a wider local band. Depth `1` enemies
-  have `85%` HP and their damaging/support actions are shifted down by `1`
-  player-scale point, depth `2` uses base stats, and depth `3` enemies have
-  `112%` HP without an extra generic damage/support bump. Standard depths share
+  have `85%` HP and support actions are shifted down by `1` point, depth `2`
+  uses base stats, and depth `3` enemies have `112%` HP without an extra generic
+  damage/support bump. Damaging intents use their full authored value from
+  depth `1`, making exposed mistakes costly immediately. Standard depths share
   the same normal-room roster eligibility; local depth controls density and
   scaling instead of gating enemy types.
   Enemy base initiative
@@ -153,9 +162,11 @@ Encounter calibration is also important:
 - Frostglass Lancers enter normal local depth `1-3` pools as precision
   four-tile line-thrust enemies that can move sideways to set up a lane, so
   lateral movement and blocker-aware positioning can appear from the opener band.
-- Later sequences keep the same local density and elemental room-pressure curve, but
-  raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
-  `+2` block/stoneskin per completed sequence.
+- Later sequences keep the same local density and elemental room-pressure curve,
+  but raise enemy max HP by only `+8%` per completed sequence. Direct-damage
+  bonuses across the six sequences are `0/1/1/2/2/3`; support bonuses are
+  `0/0/1/1/2/2`. This keeps late fights viable without returning to multi-card
+  health sponges.
 - Zekarion's 2x2 footprint makes attack reach feel larger than printed range.
   His Tempest Breath is intentionally capped at ranged `3` after a one-tile
   advance so corner repositioning can produce real safe tiles in open boss
@@ -201,8 +212,8 @@ Encounter calibration is also important:
 - Generated traps retain the authored positional base-damage curve:
   `6/7/8` player-scale damage in local standard depths `1/2/3`. First-sequence
   boss-depth traps hit for `5` so they beat weak ranged attacks without
-  one-shotting full-health lightning wisps; all generated traps gain `+2`
-  player-scale damage per completed depth sequence. Live damage then multiplies
+  one-shotting full-health lightning wisps; generated traps use sequence bonuses
+  `0/1/1/2/2/3`. Live damage then multiplies
   that base by `72/94/124/162/208/262/324%` at matching elemental intensity
   `0/1/2/3/4/5/6`; scaling caps at `6` for malformed or legacy saves. Normal
   matching rooms therefore begin slightly below the previous damage, while a
@@ -211,8 +222,9 @@ Encounter calibration is also important:
 - Fire trap burn ramps gently in the first sequence: depth `1-2` fire traps
   apply shallow burn pressure, then deeper standard fire rooms restore the
   heavier trap payload.
-- Every room places a `4` HP healing potion and a `4` block rusty shield as
-  floor pickups. Combat rooms also scatter `5-7` low-HP boxes/crates across
+- A standard combat room places exactly one utility pickup: a `2` HP healing
+  vial on `25%` of rolls, otherwise a `3` block rusty shield. Boss rooms place
+  one of each. Combat rooms also scatter `5-7` `3`-HP boxes/crates across
   eligible passable floor tiles, including edge-band and corner floor tiles when
   connectivity stays intact. They block movement, do not block line of sight,
   and can be destroyed by player or enemy attacks, area effects, deterministic

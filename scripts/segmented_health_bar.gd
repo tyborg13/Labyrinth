@@ -1,7 +1,7 @@
 extends Control
 class_name SegmentedHealthBar
 
-const HP_PER_SEGMENT: int = 20
+const HP_PER_SEGMENT: int = 2
 
 @export var segment_count: int = 1
 @export var value: float = 0.0

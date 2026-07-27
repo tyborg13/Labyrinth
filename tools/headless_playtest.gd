@@ -10,12 +10,12 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
-const FALLBACK_ATTACK_BASE_DAMAGE: int = 2
+const FALLBACK_ATTACK_BASE_DAMAGE: int = 3
 const FALLBACK_MOVE_RANGE: int = 2
 const SHORTCUT_ATTACK_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull"]
 const DEFAULT_OUTPUT_DIR: String = "res://playtest/headless"
 const DEFAULT_SEED_BASE: int = 5052026
-const CAMPFIRE_LINGER_HEAL_AMOUNT: int = 100
+const CAMPFIRE_LINGER_HEAL_AMOUNT: int = RunEngine.CAMPFIRE_LINGER_HEAL
 
 var _run_engine: RunEngine = RunEngine.new()
 var _combat_engine: CombatEngine = CombatEngine.new()

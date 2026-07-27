@@ -6,7 +6,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
-const PROGRESSION_SCHEMA: int = 5
+const PROGRESSION_SCHEMA: int = 6
 const GRIMOIRE_UNLOCKED_KEY: String = "grimoire_unlocked"
 const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
 const RUN_BESTS_KEY: String = "run_bests"
@@ -18,6 +18,7 @@ const UMBRA_WARNING_SEEN_KEY: String = "umbra_warning_seen"
 const MOLTSHARD_AWARD_IDS_KEY: String = "moltshard_award_ids"
 const MOLTSHARD_AWARD_LEDGER_LIMIT: int = 64
 const PROGRESSION_ANALYTICS_OUTBOX_KEY: String = "progression_analytics_outbox"
+const DEFIANCE_LEVEL_INTERVAL: int = 4
 const RUN_RESULT_STAT_IDS := [
 	"enemies_killed",
 	"damage_dealt",
@@ -104,6 +105,8 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data = _migrated_legacy_card_upgrades(data)
 	if source_schema < 3:
 		data = _migrated_legacy_stats(data)
+	if source_schema < 6:
+		data = _migrated_legacy_combat_unit_history(data)
 	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())
 	var earned_skill_count: int = skill_points_for_level(int(data.get("level", 1)))
 	var source_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(data.get("skill_ids", []))
@@ -160,6 +163,99 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data[GRIMOIRE_UNLOCKED_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNLOCKED_KEY, []))
 	data[GRIMOIRE_UNREAD_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNREAD_KEY, []))
 	return data
+
+static func _migrated_legacy_combat_unit_history(data: Dictionary) -> Dictionary:
+	var next_data: Dictionary = data.duplicate(true)
+	if typeof(next_data.get(RUN_BESTS_KEY, null)) == TYPE_DICTIONARY:
+		next_data[RUN_BESTS_KEY] = _migrated_legacy_metric_map(
+			next_data.get(RUN_BESTS_KEY, {}) as Dictionary
+		)
+	if typeof(next_data.get(LAST_RUN_RESULT_KEY, null)) == TYPE_DICTIONARY:
+		next_data[LAST_RUN_RESULT_KEY] = _migrated_legacy_run_result(
+			next_data.get(LAST_RUN_RESULT_KEY, {}) as Dictionary
+		)
+	if typeof(next_data.get(RUN_RESULT_LEDGER_KEY, null)) == TYPE_ARRAY:
+		var results: Array = []
+		for result_var: Variant in next_data.get(RUN_RESULT_LEDGER_KEY, []) as Array:
+			if typeof(result_var) == TYPE_DICTIONARY:
+				results.append(_migrated_legacy_run_result(result_var as Dictionary))
+		next_data[RUN_RESULT_LEDGER_KEY] = results
+	if typeof(next_data.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, null)) == TYPE_ARRAY:
+		var outbox: Array = []
+		for entry_var: Variant in next_data.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, []) as Array:
+			if typeof(entry_var) != TYPE_DICTIONARY:
+				continue
+			var entry: Dictionary = (entry_var as Dictionary).duplicate(true)
+			if typeof(entry.get("context", null)) == TYPE_DICTIONARY:
+				var context: Dictionary = _migrated_legacy_analytics_units(
+					entry.get("context", {}) as Dictionary
+				)
+				context["combat_unit_scale"] = 1
+				entry["context"] = context
+			if typeof(entry.get("payload", null)) == TYPE_DICTIONARY:
+				var payload: Dictionary = _migrated_legacy_analytics_units(
+					entry.get("payload", {}) as Dictionary
+				)
+				payload["combat_unit_scale"] = 1
+				entry["payload"] = payload
+			outbox.append(entry)
+		next_data[PROGRESSION_ANALYTICS_OUTBOX_KEY] = outbox
+	return next_data
+
+static func _migrated_legacy_metric_map(metrics: Dictionary) -> Dictionary:
+	var next_metrics: Dictionary = metrics.duplicate(true)
+	for field: String in ["damage_dealt", "damage_received"]:
+		if next_metrics.has(field):
+			next_metrics[field] = _legacy_cumulative_units(int(next_metrics.get(field, 0)))
+	return next_metrics
+
+static func _migrated_legacy_run_result(result: Dictionary) -> Dictionary:
+	var next_result: Dictionary = result.duplicate(true)
+	if typeof(next_result.get("stats", null)) == TYPE_DICTIONARY:
+		next_result["stats"] = _migrated_legacy_metric_map(next_result.get("stats", {}) as Dictionary)
+	return next_result
+
+static func _migrated_legacy_analytics_units(value: Dictionary) -> Dictionary:
+	var migrated: Dictionary = value.duplicate(false)
+	var survivor_fields: Array[String] = [
+		"player_hp",
+		"player_max_hp",
+		"player_start_hp",
+		"hp_loss",
+		"block_loss",
+		"stoneskin_loss",
+		"restored_hp",
+		"lethal_hp_loss",
+		"defiance_restored"
+	]
+	var cumulative_fields: Array[String] = ["damage", "damage_dealt", "damage_received"]
+	for key_var: Variant in value.keys():
+		var key: String = str(key_var)
+		var child: Variant = value.get(key_var)
+		if typeof(child) == TYPE_DICTIONARY:
+			migrated[key_var] = _migrated_legacy_analytics_units(child as Dictionary)
+		elif typeof(child) == TYPE_ARRAY:
+			var source_array: Array = child as Array
+			var migrated_array: Array = source_array.duplicate(false)
+			for index: int in range(source_array.size()):
+				if typeof(source_array[index]) == TYPE_DICTIONARY:
+					migrated_array[index] = _migrated_legacy_analytics_units(source_array[index] as Dictionary)
+			migrated[key_var] = migrated_array
+		elif key in survivor_fields and typeof(child) in [TYPE_INT, TYPE_FLOAT]:
+			migrated[key_var] = _legacy_survivor_units(int(child))
+		elif key in cumulative_fields and typeof(child) in [TYPE_INT, TYPE_FLOAT]:
+			migrated[key_var] = _legacy_cumulative_units(int(child))
+	return migrated
+
+static func _legacy_survivor_units(value: int) -> int:
+	if value <= 0:
+		return value
+	return int((value + GameData.LEGACY_FIXED_POINT_SCALE - 1) / GameData.LEGACY_FIXED_POINT_SCALE)
+
+static func _legacy_cumulative_units(value: int) -> int:
+	if value <= 0:
+		return value
+	return int((value + int(GameData.LEGACY_FIXED_POINT_SCALE / 2)) / GameData.LEGACY_FIXED_POINT_SCALE)
 
 static func _skill_selection_has_keystone(skill_ids: Array[String]) -> bool:
 	for skill_id: String in skill_ids:
@@ -557,6 +653,9 @@ static func can_level_up(data: Dictionary) -> bool:
 
 static func skill_points_for_level(level: int) -> int:
 	return maxi(0, clampi(level, 1, GameData.max_progression_level()) - 1)
+
+static func defiance_capacity_for_level(level: int) -> int:
+	return int(clampi(level, 1, GameData.max_progression_level()) / DEFIANCE_LEVEL_INTERVAL)
 
 static func selected_skill_ids(data: Dictionary) -> Array[String]:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))

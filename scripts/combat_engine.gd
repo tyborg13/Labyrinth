@@ -8,7 +8,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
-const FATIGUE_BASE_DAMAGE: int = 15
+const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 7
@@ -21,6 +21,8 @@ const MIN_CARD_TIME_COST: int = 1
 const MAX_CARD_TIME_COST: int = 10
 const DEFAULT_ENEMY_BASE_INITIATIVE: int = 12
 const DEFAULT_ENEMY_INTENT_TIME_COST: int = 4
+const DEFIANCE_RESTORE_FRACTION: float = 0.25
+const DEFIANCE_EVENT_LIMIT: int = 16
 const TURN_ORDER_PREVIEW_LIMIT: int = 8
 const ELEMENTAL_INTENSITY_ROOM_BASE: int = 1
 const DEPTHS_PER_SEQUENCE: int = 4
@@ -51,15 +53,15 @@ const UMBRA_RADIUS_BY_STAGE := {
 	UMBRA_STAGE_HEART: 2,
 	UMBRA_STAGE_ECLIPSE: 1
 }
-const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
-const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 40
-const ENEMY_DAMAGE_BONUS_PER_SEQUENCE: int = 20
-const ENEMY_SUPPORT_BONUS_PER_SEQUENCE: int = 20
+const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.08
+const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 0
+const ENEMY_DAMAGE_BONUS_BY_SEQUENCE: Array[int] = [0, 1, 1, 2, 2, 3]
+const ENEMY_SUPPORT_BONUS_BY_SEQUENCE: Array[int] = [0, 0, 1, 1, 2, 2]
 const ENEMY_HP_SCALE_DEPTH_ONE: float = 0.85
 const ENEMY_HP_SCALE_DEPTH_THREE: float = 1.12
-const ENEMY_DAMAGE_DELTA_DEPTH_ONE: int = -10
+const ENEMY_DAMAGE_DELTA_DEPTH_ONE: int = 0
 const ENEMY_DAMAGE_DELTA_DEPTH_THREE: int = 0
-const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -10
+const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -1
 const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const BOSS_DAMAGE_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
@@ -508,6 +510,13 @@ func skill_events(state: Dictionary) -> Array[Dictionary]:
 			result.append((event_var as Dictionary).duplicate(true))
 	return result
 
+func defiance_events(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	for event_var: Variant in state.get("defiance_events", []):
+		if typeof(event_var) == TYPE_DICTIONARY:
+			result.append((event_var as Dictionary).duplicate(true))
+	return result
+
 func _skill_flags(state: Dictionary) -> Dictionary:
 	return (state.get("skill_flags", {}) as Dictionary).duplicate(true)
 
@@ -633,6 +642,14 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"skill_ids": SkillTreeLibrary.normalized_ids(player_snapshot.get("skill_ids", [])),
 		"skill_flags": {},
 		"skill_events": [],
+		"defiance_capacity": maxi(0, int(player_snapshot.get("defiance_capacity", 0))),
+		"defiance_remaining": clampi(
+			int(player_snapshot.get("defiance_remaining", 0)),
+			0,
+			maxi(0, int(player_snapshot.get("defiance_capacity", 0)))
+		),
+		"defiance_events": [],
+		"defiance_event_revision": 0,
 		"banked_plays": 0,
 		"banked_play_active": 0,
 		"banked_play_spent_this_activation": 0,
@@ -670,6 +687,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 			"first_move_bonus_used": false
 		},
 		"relic_flags": {},
+		"zekarion_summon_waves": 0,
 		"run_stats": normalized_run_stats(player_snapshot.get("run_stats", {})),
 		"death_rewards": [],
 		"room_embers": 0,
@@ -1204,7 +1222,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 		next_state["banked_play_spent_this_activation"] = 1
 	var health_cost: int = int(card.get("health_cost", 0)) * safe_plays_spent
 	if health_cost > 0:
-		next_state = _lose_player_health(next_state, health_cost, true, false)
+		next_state = _lose_player_health(next_state, health_cost, true, false, "card_health_cost")
 		_log(next_state, "Paid %d health for %s." % [health_cost, str(card.get("name", card_id))])
 	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + safe_plays_spent
 	var time_cost: int = card_time_cost_from_def(card)
@@ -2122,9 +2140,10 @@ func _record_hidden_umbra_attack_damage(before_state: Dictionary, after_state: D
 	var enemy: Dictionary = _normalized_enemy((before_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	if is_enemy_visible_to_player(before_state, enemy):
 		return
-	var before_hp: int = int((before_state.get("player", {}) as Dictionary).get("hp", 0))
-	var after_hp: int = int((after_state.get("player", {}) as Dictionary).get("hp", before_hp))
-	var hp_loss: int = maxi(0, before_hp - after_hp)
+	var hp_loss: int = 0
+	for loss: Dictionary in _actor_target_losses(before_state, after_state):
+		if str(loss.get("kind", "")) == "player":
+			hp_loss += maxi(0, int(loss.get("hp_loss", 0)))
 	if hp_loss <= 0:
 		return
 	var umbra: Dictionary = (after_state.get("umbra", {}) as Dictionary).duplicate(true)
@@ -2413,11 +2432,20 @@ func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> 
 	var losses: Array[Dictionary]
 	var before_player: Dictionary = _normalized_player(before_state.get("player", {}))
 	var after_player: Dictionary = _normalized_player(after_state.get("player", {}))
+	var defiance_events_between: Array[Dictionary] = _defiance_events_between_states(before_state, after_state)
+	var defiance_restored: int = 0
+	var defiance_remaining_after: int = int(after_state.get("defiance_remaining", 0))
 	var player_hp_loss: int = maxi(0, int(before_player.get("hp", 0)) - int(after_player.get("hp", 0)))
+	if not defiance_events_between.is_empty():
+		player_hp_loss = 0
+		for event: Dictionary in defiance_events_between:
+			player_hp_loss += maxi(0, int(event.get("lethal_hp_loss", 0)))
+			defiance_restored += maxi(0, int(event.get("restored_hp", 0)))
+			defiance_remaining_after = int(event.get("charges_after", defiance_remaining_after))
 	var player_block_loss: int = maxi(0, int(before_player.get("block", 0)) - int(after_player.get("block", 0)))
 	var player_stoneskin_loss: int = maxi(0, int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0)))
 	if player_hp_loss > 0 or player_block_loss > 0 or player_stoneskin_loss > 0:
-		losses.append({
+		var player_loss: Dictionary = {
 			"key": "player",
 			"kind": "player",
 			"tile": after_player.get("pos", before_player.get("pos", Vector2i.ZERO)),
@@ -2425,7 +2453,12 @@ func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> 
 			"block_loss": player_block_loss,
 			"stoneskin_loss": player_stoneskin_loss,
 			"amount": player_hp_loss + player_block_loss + player_stoneskin_loss
-		})
+		}
+		if defiance_restored > 0:
+			player_loss["defiance_restored"] = defiance_restored
+			player_loss["defiance_remaining"] = defiance_remaining_after
+			player_loss["defiance_trigger_count"] = defiance_events_between.size()
+		losses.append(player_loss)
 	var after_illusions_by_id: Dictionary = {}
 	for after_illusion_var: Variant in after_state.get("illusions", []):
 		if typeof(after_illusion_var) != TYPE_DICTIONARY:
@@ -2454,6 +2487,14 @@ func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> 
 			"amount": hp_loss
 			})
 	return losses
+
+func _defiance_events_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var before_revision: int = int(before_state.get("defiance_event_revision", 0))
+	var results: Array[Dictionary]
+	for event: Dictionary in defiance_events(after_state):
+		if int(event.get("revision", 0)) > before_revision:
+			results.append(event)
+	return results
 
 func _enemy_target_losses(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var losses: Array[Dictionary]
@@ -2899,7 +2940,7 @@ func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, by
 		return state
 	match str(target.get("kind", "")):
 		"player":
-			return _damage_player(state, damage, bypass_block)
+			return _damage_player(state, damage, bypass_block, true, "enemy_attack")
 		"illusion":
 			return _damage_illusion(state, int(target.get("id", -1)), damage)
 	return state
@@ -3284,7 +3325,14 @@ func _record_death_reward(state: Dictionary, enemy: Dictionary, embers: int, car
 	})
 	state["death_rewards"] = rewards
 
-func _damage_player(state: Dictionary, damage: int, bypass_block: bool, apply_freeze_multiplier: bool = true) -> Dictionary:
+func _damage_player(
+	state: Dictionary,
+	damage: int,
+	bypass_block: bool,
+	apply_freeze_multiplier: bool = true,
+	cause: String = "damage",
+	defer_defiance: bool = false
+) -> Dictionary:
 	var next_state: Dictionary = state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var hp_before: int = int(player.get("hp", 0))
@@ -3302,14 +3350,16 @@ func _damage_player(state: Dictionary, damage: int, bypass_block: bool, apply_fr
 		remaining -= applied_to_stoneskin
 		player["stoneskin"] = stoneskin_amount
 	player["hp"] = maxi(0, int(player.get("hp", 0)) - remaining)
+	var health_was_lost: bool = int(player.get("hp", 0)) < hp_before
 	next_state["player"] = player
 	_record_run_stat(next_state, RUN_STAT_DAMAGE_RECEIVED, maxi(0, hp_before - int(player.get("hp", 0))))
 	if was_alive and int(player.get("hp", 0)) <= 0:
 		next_state = _trigger_prevent_lethal_relics(next_state)
-	var final_hp: int = int((_normalized_player(next_state.get("player", {}))).get("hp", 0))
+		if not defer_defiance and int((_normalized_player(next_state.get("player", {}))).get("hp", 0)) <= 0:
+			next_state = _trigger_defiance(next_state, cause, hp_before)
 	var pain_id: String = SkillTreeLibrary.skill_id_for_effect("pain_recall")
 	var pain_flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
-	if final_hp < hp_before and has_skill(next_state, pain_id) and not skill_was_used(next_state, pain_id) and not bool(pain_flags.get("pain_recall_primed", false)):
+	if health_was_lost and has_skill(next_state, pain_id) and not skill_was_used(next_state, pain_id) and not bool(pain_flags.get("pain_recall_primed", false)):
 		_set_skill_flag(next_state, "pain_recall_primed", true)
 	return next_state
 
@@ -3320,8 +3370,15 @@ func _record_run_stat(state: Dictionary, stat_id: String, amount: int) -> void:
 	stats[stat_id] = maxi(0, int(stats.get(stat_id, 0)) + amount)
 	state["run_stats"] = stats
 
-func _lose_player_health(state: Dictionary, amount: int, bypass_block: bool, apply_freeze_multiplier: bool = true) -> Dictionary:
-	return _damage_player(state, amount, bypass_block, apply_freeze_multiplier)
+func _lose_player_health(
+	state: Dictionary,
+	amount: int,
+	bypass_block: bool,
+	apply_freeze_multiplier: bool = true,
+	cause: String = "health_loss",
+	defer_defiance: bool = false
+) -> Dictionary:
+	return _damage_player(state, amount, bypass_block, apply_freeze_multiplier, cause, defer_defiance)
 
 func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dictionary:
 	var next_state: Dictionary = state
@@ -4483,6 +4540,8 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 		intent_rng.state = int(next_state.get("rng_state", 1))
 	for minion_index: int in range(first_minion_index, first_minion_index + spawn_tiles.size()):
 		_assign_enemy_intent(next_state, minion_index, intent_rng)
+	if str(enemy.get("type", "")) == ZEKARION_TYPE and not spawn_tiles.is_empty():
+		next_state["zekarion_summon_waves"] = int(next_state.get("zekarion_summon_waves", 0)) + 1
 	if rng == null:
 		next_state["rng_state"] = intent_rng.state
 	_log(next_state, "%s summons lightning wisps." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
@@ -5152,7 +5211,7 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 		_mark_skill_used(next_state, skill_id, "%s leaves you untouched by the trap blast." % SkillTreeLibrary.display_name(skill_id))
 	elif player_hit:
 		if damage > 0:
-			next_state = _damage_player(next_state, damage, false)
+			next_state = _damage_player(next_state, damage, false, true, "trap")
 		next_state = _apply_trap_keywords_to_player(next_state, trap)
 	var illusions: Array = next_state.get("illusions", [])
 	for illusion_var: Variant in illusions:
@@ -5365,7 +5424,7 @@ func _trigger_player_bleed_for_action(state: Dictionary, action: Dictionary) -> 
 	var bleed_amount: int = int(player.get("bleed", 0))
 	if bleed_amount <= 0:
 		return next_state
-	next_state = _damage_player(next_state, bleed_amount, false)
+	next_state = _damage_player(next_state, bleed_amount, false, true, "bleed")
 	_log(next_state, "Bleed opens for %d." % bleed_amount)
 	return next_state
 
@@ -5547,7 +5606,7 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	if int(player.get("burn", 0)) > 0:
 		var burn_amount: int = int(player.get("burn", 0))
-		next_state = _damage_player(next_state, burn_amount, false)
+		next_state = _damage_player(next_state, burn_amount, false, true, "burn")
 		player = _normalized_player(next_state.get("player", {}))
 		player["burn"] = maxi(0, int(player.get("burn", 0)) - GameData.status_tick_reduction("burn"))
 		next_state["player"] = player
@@ -5559,7 +5618,7 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 		next_state["player"] = player
 		if int(player.get("poison", {}).get("trigger", 0)) > 0:
 			var poison_damage: int = int(player.get("poison", {}).get("trigger", 0))
-			next_state = _damage_player(next_state, poison_damage, false)
+			next_state = _damage_player(next_state, poison_damage, false, true, "poison")
 			player = _normalized_player(next_state.get("player", {}))
 			var poison: Dictionary = player.get("poison", {}).duplicate(true)
 			poison["trigger"] = 0
@@ -5789,8 +5848,9 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 				break
 			deck["cycles"] = int(deck.get("cycles", 0)) + 1
 			var fatigue_damage: int = int(deck.get("fatigue_base", FATIGUE_BASE_DAMAGE)) + int(deck.get("cycles", 0)) - 1
+			var fatigue_hp_before: int = int((_normalized_player(next_state.get("player", {}))).get("hp", 0))
 			next_state["deck"] = deck
-			next_state = _lose_player_health(next_state, fatigue_damage, true)
+			next_state = _lose_player_health(next_state, fatigue_damage, true, true, "fatigue", true)
 			var reserve_id: String = SkillTreeLibrary.skill_id_for_effect("survive_fatigue")
 			var fatigue_player: Dictionary = _normalized_player(next_state.get("player", {}))
 			if int(fatigue_player.get("hp", 0)) <= 0 and has_skill(next_state, reserve_id) and not skill_was_used(next_state, reserve_id):
@@ -5799,6 +5859,9 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 				fatigue_player["hp"] = reserve_health
 				next_state["player"] = fatigue_player
 				_mark_skill_used(next_state, reserve_id, "%s survives Fatigue at %d health." % [SkillTreeLibrary.display_name(reserve_id), reserve_health])
+			fatigue_player = _normalized_player(next_state.get("player", {}))
+			if int(fatigue_player.get("hp", 0)) <= 0:
+				next_state = _trigger_defiance(next_state, "fatigue", fatigue_hp_before)
 			deck = next_state.get("deck", {}).duplicate(true)
 			var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 			rng.state = int(next_state.get("rng_state", 0))
@@ -6235,6 +6298,8 @@ func _next_enemy_id(state: Dictionary) -> int:
 func _enemy_should_summon_wisps(state: Dictionary, enemy: Dictionary) -> bool:
 	if str(enemy.get("type", "")) != ZEKARION_TYPE:
 		return false
+	if int(state.get("zekarion_summon_waves", 0)) >= 1:
+		return false
 	for other: Dictionary in _live_enemies(state):
 		if str(other.get("type", "")) == LIGHTNING_WISP_TYPE:
 			return false
@@ -6592,15 +6657,17 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	var sequence_index: int = _depth_sequence_index(room_depth)
 	if sequence_index <= 0:
 		return scaled
+	var damage_bonus: int = ENEMY_DAMAGE_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_DAMAGE_BONUS_BY_SEQUENCE.size() - 1)]
+	var support_bonus: int = ENEMY_SUPPORT_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_SUPPORT_BONUS_BY_SEQUENCE.size() - 1)]
 	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES:
 		if scaled.has("damage"):
-			scaled["damage"] = int(scaled.get("damage", 0)) + ENEMY_DAMAGE_BONUS_PER_SEQUENCE * sequence_index
+			scaled["damage"] = int(scaled.get("damage", 0)) + damage_bonus
 	if action_type == "block" or action_type == "stoneskin" or action_type == "guard_ally":
-		scaled["amount"] = int(scaled.get("amount", 0)) + ENEMY_SUPPORT_BONUS_PER_SEQUENCE * sequence_index
+		scaled["amount"] = int(scaled.get("amount", 0)) + support_bonus
 	elif action_type == "heal_self" or action_type == "heal_ally":
-		scaled["amount"] = int(scaled.get("amount", 0)) + GameData.fixed_point_amount(sequence_index)
+		scaled["amount"] = int(scaled.get("amount", 0)) + support_bonus
 	elif action_type == "raise_terrain" and scaled.has("health"):
-		scaled["health"] = int(scaled.get("health", 0)) + ENEMY_SUPPORT_BONUS_PER_SEQUENCE * sequence_index
+		scaled["health"] = int(scaled.get("health", 0)) + support_bonus
 	return scaled
 
 func _local_enemy_hp_scale(room_depth: int) -> float:
@@ -7508,6 +7575,9 @@ func _trigger_enemy_death_relics(state: Dictionary, enemy: Dictionary) -> Dictio
 				var status_id: String = str(effect.get("status", ""))
 				if _unit_status_amount(enemy, status_id) <= 0:
 					continue
+				if not _relic_once_available(next_state, effect, "kill_status_heal", status_id):
+					continue
+				_mark_relic_once(next_state, effect, "kill_status_heal", status_id)
 				next_state = _heal_player(next_state, GameData.fixed_point_amount(int(effect.get("value", 0))))
 	return next_state
 
@@ -7528,6 +7598,52 @@ func _trigger_prevent_lethal_relics(state: Dictionary) -> Dictionary:
 			next_state = _burn_all_live_enemies(next_state, burn_amount)
 		_log(next_state, "%s prevents death." % _relic_effect_source_name(effect))
 		return next_state
+	return next_state
+
+func _trigger_defiance(state: Dictionary, cause: String, hp_before: int) -> Dictionary:
+	var next_state: Dictionary = state
+	var player: Dictionary = _normalized_player(next_state.get("player", {}))
+	if int(player.get("hp", 0)) > 0:
+		return next_state
+	var capacity: int = maxi(0, int(next_state.get("defiance_capacity", 0)))
+	var remaining_before: int = clampi(int(next_state.get("defiance_remaining", 0)), 0, capacity)
+	if remaining_before <= 0:
+		return next_state
+	var restored_hp: int = maxi(1, ceili(float(int(player.get("max_hp", 1))) * DEFIANCE_RESTORE_FRACTION))
+	player["hp"] = mini(int(player.get("max_hp", 1)), restored_hp)
+	next_state["player"] = player
+	next_state["defiance_remaining"] = remaining_before - 1
+	var revision: int = int(next_state.get("defiance_event_revision", 0)) + 1
+	var event: Dictionary = {
+		"revision": revision,
+		"cause": cause,
+		"hp_before": maxi(0, hp_before),
+		"lethal_hp_loss": maxi(0, hp_before),
+		"restored_hp": int(player.get("hp", restored_hp)),
+		"charges_before": remaining_before,
+		"charges_after": remaining_before - 1,
+		"capacity": capacity,
+		"turn": int(next_state.get("turn", 1))
+	}
+	var events: Array = (next_state.get("defiance_events", []) as Array).duplicate(true)
+	events.append(event)
+	while events.size() > DEFIANCE_EVENT_LIMIT:
+		events.pop_front()
+	next_state["defiance_events"] = events
+	next_state["defiance_event_revision"] = revision
+	for effect: Dictionary in _relic_effects(next_state):
+		if str(effect.get("type", "")) != "defiance_trigger_burn":
+			continue
+		var burn_amount: int = GameData.fixed_point_amount(int(effect.get("value", 0)))
+		if burn_amount > 0:
+			next_state = _burn_all_live_enemies(next_state, burn_amount)
+	_log(
+		next_state,
+		"DEFIANCE restores %d health. %d remaining." % [
+			int(player.get("hp", restored_hp)),
+			remaining_before - 1
+		]
+	)
 	return next_state
 
 func _scaled_relic_reward_amount(reward: Dictionary) -> int:

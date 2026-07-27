@@ -6,7 +6,7 @@
     "icon_path": "res://assets/art/relics/iron_lung.png",
     "accent": "#8f9499",
     "effects": [
-      {"type": "max_hp", "value": 6}
+      {"type": "max_hp", "value": 4}
     ]
   },
   "ember_lens": {
@@ -16,7 +16,7 @@
     "icon_path": "res://assets/art/relics/ember_lens.png",
     "accent": "#4b84d8",
     "effects": [
-      {"type": "first_attack_bonus", "value": 2}
+      {"type": "first_attack_bonus", "value": 3}
     ]
   },
   "pilgrim_boots": {
@@ -120,7 +120,7 @@
     "icon_path": "res://assets/art/relics/frost_prism.png",
     "accent": "#4b84d8",
     "effects": [
-      {"type": "damage_vs_status", "status": "freeze", "value": 2}
+      {"type": "damage_vs_status", "status": "freeze", "value": 3}
     ]
   },
   "storm_capacitor": {
@@ -171,17 +171,17 @@
     "icon_path": "res://assets/art/relics/thawing_charm.png",
     "accent": "#4b84d8",
     "effects": [
-      {"type": "card_action_mod", "action_types": ["heal"], "field": "amount", "amount": 2}
+      {"type": "card_action_mod", "action_types": ["heal"], "field": "amount", "amount": 1}
     ]
   },
   "ember_siphon": {
     "name": "Ember Siphon",
     "rarity": "rare",
-    "description": "When a burning enemy dies, recover {value} health.",
+    "description": "The first burning enemy killed each combat restores {value} health.",
     "icon_path": "res://assets/art/relics/ember_siphon.png",
     "accent": "#4b84d8",
     "effects": [
-      {"type": "kill_status_heal", "status": "burn", "value": 2}
+      {"type": "kill_status_heal", "status": "burn", "value": 1, "once": "combat"}
     ]
   },
   "bloodglass_knife": {
@@ -191,7 +191,7 @@
     "icon_path": "res://assets/art/relics/bloodglass_knife.png",
     "accent": "#9b62d6",
     "effects": [
-      {"type": "glass_attack_bonus", "value": 3}
+      {"type": "glass_attack_bonus", "value": 4}
     ]
   },
   "cold_mirror": {
@@ -258,11 +258,12 @@
   "phoenix_ember": {
     "name": "Phoenix Ember",
     "rarity": "legendary",
-    "description": "Once per combat, lethal damage leaves you at {lethal_health} health and burns all enemies for {burn_all_enemies}.",
+    "description": "Gain {0.value} Defiance this run. When Defiance triggers, burn all enemies for {1.value}.",
     "icon_path": "res://assets/art/relics/phoenix_ember.png",
     "accent": "#d9862f",
     "effects": [
-      {"type": "prevent_lethal_once", "burn_all_enemies": 3}
+      {"type": "defiance_capacity", "value": 1},
+      {"type": "defiance_trigger_burn", "value": 3}
     ]
   },
   "worldroot_idol": {
@@ -372,7 +373,7 @@
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "effects": [
-      {"type": "intensity_threshold_reward", "element": "any", "threshold": 5, "consume": 3, "once": "combat_per_element", "rewards": [{"type": "all_enemies_damage", "amount": 3}, {"type": "draw", "amount": 1}]}
+      {"type": "intensity_threshold_reward", "element": "any", "threshold": 5, "consume": 3, "once": "combat_per_element", "rewards": [{"type": "all_enemies_damage", "amount": 4}, {"type": "draw", "amount": 1}]}
     ]
   }
 }

@@ -11,12 +11,10 @@ standard-enemy density before each boss gate. The first five gates use the five
 non-shadow elemental dragons in seeded random order, including Zekarion, while
 Noctyrax is fixed at depth 24. Boss health, attacks, support, and authored arena
 mechanics use the same completed-sequence scaling as normal rooms. Lateral rooms
-remain deck-building route choices, and emergency outward loop escapes only
-appear when no revealed, unsealed same-depth-or-deeper exits remain. The local
-combat band is wider:
-depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
-2 uses base stats, and depth 3 enemies have 112% HP without an extra generic
-damage/support bump. Standard depths share the same normal-room roster
+remain deck-building route choices, but a guaranteed outward route appears after
+three visited rooms at the current depth when no outward route is otherwise
+available. The local combat band is wider: depth 1 enemies have 85% HP, depth 2
+uses base stats, and depth 3 enemies have 112% HP. Standard depths share the same normal-room roster
 eligibility; depth controls density and scaling instead of gating enemy types.
 Cinder Oozes join fire rooms and split into summoned, rewardless Cinder
 Droplets rather than extra ember or death-card-play payouts. Frostglass Lancers
@@ -42,7 +40,9 @@ destination, and projected attack, including action-denying statuses and
 deterministic lightning-strike tiles.
 Bleed pressure only opens on resolved move or attack actions, not skipped or
 blocked no-op action entries. Later sequences keep the local curve while raising
-enemy HP and intent baselines. Zekarion's 2x2
+enemy HP by 8% per completed sequence. Damaging intents add
+0/1/1/2/2/3 points and support intents add 0/0/1/1/2/2 points across the six
+sequences. Zekarion's 2x2
 footprint makes printed reach feel larger, so Tempest Breath is capped at range
 3 after its one-tile advance to preserve safe boss-room repositioning. Large
 enemies use actor-level targeting: one legal visible footprint tile makes the
@@ -55,12 +55,13 @@ element's intensity curve (72/94/124/162/208/262/324 percent at intensity
 0-6), so spending intensity can also calm the battlefield. Elemental specialist
 enemies build the same shared resource, gate extra effects on it, or consume it
 for stronger intents.
-First-sequence standard trap damage is 6/7/8 player-scale damage at depths
+First-sequence standard trap damage is 6/7/8 natural damage at depths
 1/2/3, first-boss traps hit for 5 to avoid one-shotting full-health lightning
-wisps, and later sequences add 2 player-scale damage per completed sequence.
+wisps, and later sequences add 0/1/1/2/2/3 damage.
 Depth 1-2 fire traps use shallow burn before depth-3 fire/earth trap statuses
-cap at 2. Every room places a 4 HP potion and
-4 block shield, and combat rooms scatter 5-7 low-HP boxes/crates across eligible
+cap at 2. Each normal room places exactly one utility pickup: a 2 HP healing vial
+25% of the time or a 3 block rusty shield 75% of the time. Boss rooms place one
+of each. Combat rooms scatter 5-7 low-HP boxes/crates across eligible
 passable floor tiles, including edge-band tiles when connectivity stays intact.
 Those crates block movement without blocking line of sight and take damage from
 area effects, deterministic lightning strikes, and adjacent trap blasts. The
@@ -71,8 +72,11 @@ broad damage get a small execute-tempo premium.
 Player flow assumes 2 cards per turn, 2 draw per turn, and a 7-card max hand;
 the scorer values printed draw without simulating current hand occupancy.
 Permanent progression uses qualitative skills and leaves player base initiative
-fixed at 9. The scorer uses a no-skill reference profile; skill effects remain a
-separate cohort dimension in local analytics instead of changing intrinsic
+fixed at 9. Every fourth character level grants one bounded Defiance charge,
+through five charges at level 20; each charge restores 25% maximum health after
+otherwise-lethal damage and does not refill within a run. The scorer uses a
+no-skill, no-Defiance reference profile; skill and Defiance effects remain
+separate cohort dimensions in local analytics instead of changing intrinsic
 printed-card coefficients.
 """
 
@@ -98,10 +102,13 @@ BASE_CARDS_PER_TURN = 2
 BASE_DRAW_PER_TURN = 2
 MAX_HAND_SIZE = 7
 SKILL_SCORE_PROFILE = "no_skills"
-ENEMY_HP_SCALE_PER_SEQUENCE = 0.45
-ENEMY_HP_FLAT_BONUS_PER_SEQUENCE = 4
-ENEMY_DAMAGE_BONUS_PER_SEQUENCE = 2
-ENEMY_SUPPORT_BONUS_PER_SEQUENCE = 2
+ENEMY_HP_SCALE_PER_SEQUENCE = 0.08
+ENEMY_HP_FLAT_BONUS_PER_SEQUENCE = 0
+ENEMY_DAMAGE_BONUS_BY_SEQUENCE = [0, 1, 1, 2, 2, 3]
+ENEMY_SUPPORT_BONUS_BY_SEQUENCE = [0, 0, 1, 1, 2, 2]
+DEFIANCE_LEVEL_INTERVAL = 4
+DEFIANCE_MAX_CHARGES = 5
+DEFIANCE_RESTORE_FRACTION = 0.25
 ELEMENTS = {"fire", "ice", "lightning", "air", "earth"}
 SOURCE_FILTERS = (
     "all",
@@ -142,6 +149,12 @@ def encounter_assumptions() -> dict[str, Any]:
             "score_profile": SKILL_SCORE_PROFILE,
             "cohort_field": "progression_skills",
             "coefficient_policy": "exclude skill effects from intrinsic printed-card scores",
+            "defiance": {
+                "level_interval": DEFIANCE_LEVEL_INTERVAL,
+                "max_charges": DEFIANCE_MAX_CHARGES,
+                "restore_fraction": DEFIANCE_RESTORE_FRACTION,
+                "score_policy": "exclude Defiance from intrinsic printed-card scores",
+            },
         },
         "elemental_intensity": {
             "matching_room_start": 1,
@@ -151,8 +164,8 @@ def encounter_assumptions() -> dict[str, Any]:
         "sequence_scaling": {
             "enemy_hp_multiplier_per_completed_sequence": ENEMY_HP_SCALE_PER_SEQUENCE,
             "enemy_hp_flat_per_completed_sequence": ENEMY_HP_FLAT_BONUS_PER_SEQUENCE,
-            "enemy_damage_per_completed_sequence": ENEMY_DAMAGE_BONUS_PER_SEQUENCE,
-            "enemy_support_per_completed_sequence": ENEMY_SUPPORT_BONUS_PER_SEQUENCE,
+            "enemy_damage_bonus_by_sequence": ENEMY_DAMAGE_BONUS_BY_SEQUENCE,
+            "enemy_support_bonus_by_sequence": ENEMY_SUPPORT_BONUS_BY_SEQUENCE,
         },
     }
 

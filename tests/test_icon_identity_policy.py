@@ -24,6 +24,7 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
     "combat:turn_clock": "turn_clock",
     "combat:card_plays": "card_play",
     "combat:health_defense": "health_defense",
+    "combat:defiance": "defiance",
     "combat:targeting": "targeting",
     "combat:fatigue": "fatigue",
     "combat:traps": "traps",

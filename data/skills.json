@@ -110,7 +110,7 @@
   "afterimage": {
     "name": "Afterimage",
     "icon": "skill_afterimage",
-    "description": "Your first Blink each combat leaves a 20-health illusion behind. You may move through your illusions; ending on one dispels it.",
+    "description": "Your first Blink each combat leaves a 2-health illusion behind. You may move through your illusions; ending on one dispels it.",
     "branch": "traverse",
     "tier": "branch",
     "position": [2, 2],
@@ -158,7 +158,7 @@
   "last_reserve": {
     "name": "Last Reserve",
     "icon": "skill_last_reserve",
-    "description": "Once per combat, lethal Fatigue leaves you at 10 health.",
+    "description": "Once per combat, lethal Fatigue leaves you at 1 health.",
     "branch": "resolve",
     "tier": "junction",
     "position": [1, 3],
@@ -284,7 +284,7 @@
   "last_door": {
     "name": "Last Door",
     "icon": "skill_last_door",
-    "description": "Once between bosses, a non-boss defeat returns you to the previous room at 10 health. Spent items stay spent.",
+    "description": "Once between bosses, a non-boss defeat returns you to the previous room at 1 health. Spent items stay spent.",
     "branch": "keystone",
     "tier": "keystone",
     "position": [3, 5],

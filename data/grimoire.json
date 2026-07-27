@@ -142,6 +142,18 @@
 			]
 		},
 		{
+			"id": "combat:defiance",
+			"section": "combat",
+			"title": "Defiance",
+			"default": true,
+			"icon": "defiance",
+			"body": [
+				"Every fourth permanent level grants one Defiance for each new run.",
+				"Lethal health loss spends one Defiance to restore 25% max health and continue the same combat.",
+				"Defiance never refills during a run. A level milestone reached mid-run adds only the newly earned charge."
+			]
+		},
+		{
 			"id": "combat:targeting",
 			"section": "combat",
 			"title": "Targeting",

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-27T02:20:27Z",
+  "updated_at": "2026-07-27T15:12:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2560,50 +2560,6 @@
       }
     },
     {
-      "id": "mnt_20260515T225647Z_b08161c0",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/game_data.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/game_data.gd",
-      "summary": "Fixed-point scaling lives at data load boundaries.",
-      "details": "Cards and enemy definitions are scaled from old small data values through GameData before combat/UI use: HP, damage, block, heal, health cost, burn, poison, terrain and pickup amounts are 10x, while embers, draw/card-play counts, movement/range, freeze, shock, chain, and intensity remain unscaled. Progression stat bonuses are intentionally small displayed increments applied after this base scaling.",
-      "status": "active",
-      "created_at": "2026-05-15T22:56:47Z",
-      "updated_at": "2026-05-15T22:56:47Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "4ff46ac"
-      }
-    },
-    {
-      "id": "mnt_20260515T233019Z_933dbaa3",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/game_data.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/game_data.gd",
-      "summary": "Relic descriptions are formatted display templates.",
-      "details": "data/relics.json descriptions may contain placeholders like {value}, {0.value}, {action.amount}, and {0.reward0.amount}. Player-facing relic copy should come from GameData.relic_def(), which replaces placeholders with effect-derived display values and applies fixed-point scaling for health, damage, block, stoneskin, burn, poison, and relevant reward/action amounts; GameData.relics() remains raw data.",
-      "status": "active",
-      "created_at": "2026-05-15T23:30:19Z",
-      "updated_at": "2026-05-15T23:30:19Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "4ff46ac"
-      }
-    },
-    {
       "id": "mnt_20260516T004333Z_d7aa4cd3",
       "layer": "shared",
       "kind": "decision",
@@ -2713,30 +2669,6 @@
       "source": {
         "branch": "master",
         "commit": "f547456"
-      }
-    },
-    {
-      "id": "mnt_20260520T035331Z_4dcac22b",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "tools/headless_playtest.gd",
-        "symbol": null
-      },
-      "scope_key": "file:tools/headless_playtest.gd",
-      "summary": "Headless drag fallback attack uses fixed-point damage.",
-      "details": "Manual headless console mirrors real drag lanes: drag play uses printed text, drag attack uses the fixed-point fallback attack for 20 damage from base 2, and drag move remains range 2. Keep play-mode analytics comparisons aligned with those generated fallback action helpers instead of hardcoded raw arrays.",
-      "status": "active",
-      "created_at": "2026-05-20T03:53:31Z",
-      "updated_at": "2026-05-20T03:53:31Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260505T062748Z_a7061cd2"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "4e8fbef"
       }
     },
     {
@@ -3396,28 +3328,6 @@
       "status": "active",
       "created_at": "2026-06-18T16:30:51Z",
       "updated_at": "2026-06-18T16:30:51Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "d7b1dd7"
-      }
-    },
-    {
-      "id": "mnt_20260618T164801Z_6dd51e9b",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "project",
-        "path": ".",
-        "symbol": null
-      },
-      "scope_key": "project:.",
-      "summary": "Card combat numbers intentionally display fixed-point scale.",
-      "details": "Player-facing card action values use the universal 10x combat scale: Quick Stab should display 90 damage, not 9. Treat the trailing zero on fixed-point-scaled damage/heal/block/status values as intentional unless the design changes explicitly.",
-      "status": "active",
-      "created_at": "2026-06-18T16:48:01Z",
-      "updated_at": "2026-06-18T16:48:01Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
@@ -6531,6 +6441,52 @@
       "source": {
         "branch": "codex/add-subdued-dungeon-board-background-and-tile-depth",
         "commit": "0163cb2"
+      }
+    },
+    {
+      "id": "mnt_20260727T150805Z_8d6b7631",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/game_data.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/game_data.gd",
+      "summary": "Relic display templates resolve in natural units",
+      "details": "data/relics.json descriptions may use placeholders such as {value}, {0.value}, {action.amount}, and nested reward values. Player-facing copy must come from GameData.relic_def(), which resolves effect-derived values through the same 1x natural-unit action formatting used by combat; GameData.relics() remains raw data.",
+      "status": "active",
+      "created_at": "2026-07-27T15:08:05Z",
+      "updated_at": "2026-07-27T15:08:05Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/major-run-pacing-and-lethality-rebalance",
+        "commit": "5812597"
+      }
+    },
+    {
+      "id": "mnt_20260727T151258Z_12c3b06d",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Combat uses natural 1x units with legacy save migration",
+      "details": "Cards, enemies, relic effects, terrain, pickups, healing, block, statuses, and fallback actions use the same natural integer values in data, combat, analytics, and UI. Player base max HP is 24. Run saves carry combat_units_schema=1; missing pre-natural saves with clear 10x evidence are converted once at load boundaries using survivor-preserving ceiling and cumulative round-half-up rules, while ambiguous conflicting saves are preserved. Defiance, not level-driven max-HP inflation, provides the permanent survivability clock.",
+      "status": "active",
+      "created_at": "2026-07-27T15:12:58Z",
+      "updated_at": "2026-07-27T15:12:58Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260727T150759Z_127a6d33"
+      ],
+      "source": {
+        "branch": "codex/major-run-pacing-and-lethality-rebalance",
+        "commit": "5812597"
       }
     }
   ]

@@ -115,6 +115,7 @@ func _initialize() -> void:
 	_test_moltshard_outbox_crash_windows(context)
 	_test_moltshard_checkpoint_retains_failed_outbox()
 	_test_combat_skill_outbox_crash_windows()
+	_test_defiance_outbox_stages_once()
 
 	AnalyticsStore.clear_storage()
 	_remove_profile_fixture()
@@ -502,6 +503,57 @@ func _test_combat_skill_outbox_crash_windows() -> void:
 	terminal_retry_host.free()
 	_expect(_event_count_for_key(AnalyticsStore.load_all_events(), terminal_key) == 1, "Terminal combat-trigger recovery should emit exactly one row")
 	_expect(ProgressionStore.progression_analytics_outbox(ProgressionStore.load_data()).is_empty(), "Terminal combat-trigger recovery should durably acknowledge every queued event")
+
+func _test_defiance_outbox_stages_once() -> void:
+	var progression: Dictionary = ProgressionStore.default_data()
+	var engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = engine.create_debug_boss_run(progression)
+	run_state["debug_boss_run"] = false
+	run_state["analytics"] = {"run_id": "defiance_outbox_run", "combat_counter": 1}
+	var combat_state: Dictionary = (run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	combat_state[RunEngine.DEFIANCE_CAPACITY_KEY] = 2
+	combat_state[RunEngine.DEFIANCE_REMAINING_KEY] = 1
+	combat_state["analytics"] = {
+		"combat_id": "defiance_outbox_run_c001",
+		"combat_skill_event_revision_staged": 0,
+		"combat_defiance_event_revision_staged": 0,
+	}
+	combat_state["defiance_event_revision"] = 1
+	combat_state["defiance_events"] = [{
+		"revision": 1,
+		"turn": 4,
+		"cause": "enemy_attack",
+		"lethal_hp_loss": 3,
+		"restored_hp": 6,
+		"charges_before": 2,
+		"charges_after": 1,
+	}]
+	run_state["combat_state"] = combat_state.duplicate(true)
+
+	var host: RunScene = RunScene.new()
+	host.set("_progression", progression)
+	var first_stage: Dictionary = host.call("_stage_combat_skill_event_analytics_for_state", run_state, combat_state) as Dictionary
+	var first_run: Dictionary = first_stage.get("run_state", {}) as Dictionary
+	var first_combat: Dictionary = first_stage.get("combat_state", {}) as Dictionary
+	first_run = engine.set_combat_state(first_run, first_combat)
+	var outbox: Array[Dictionary] = ProgressionStore.progression_analytics_outbox(first_run.get("progression", {}) as Dictionary)
+	var expected_key: String = "defiance_triggered|combat|defiance_outbox_run_c001|1"
+	_expect(outbox.size() == 1, "A Defiance trigger should enter the durable progression outbox")
+	if outbox.size() == 1:
+		var entry: Dictionary = outbox[0]
+		var payload: Dictionary = entry.get("payload", {}) as Dictionary
+		_expect(str(entry.get("event_type", "")) == "defiance_triggered" and str(entry.get("idempotency_key", "")) == expected_key, "Defiance analytics should use the revisioned combat idempotency key")
+		_expect(int(payload.get("restored_hp", 0)) == 6 and int(payload.get("capacity", 0)) == 2, "Defiance analytics should retain natural-unit restoration and capacity")
+		_expect(int(payload.get("combat_unit_scale", 0)) == 1 and str(payload.get("cause", "")) == "enemy_attack", "Defiance analytics should identify natural units and the lethal cause")
+	var first_analytics: Dictionary = first_combat.get("analytics", {}) as Dictionary
+	_expect(int(first_analytics.get("combat_defiance_event_revision_staged", 0)) == 1, "Staging Defiance should advance its cursor in the same combat snapshot")
+
+	var replay_stage: Dictionary = host.call("_stage_combat_skill_event_analytics_for_state", first_run, first_combat) as Dictionary
+	var replay_run: Dictionary = replay_stage.get("run_state", {}) as Dictionary
+	var replay_outbox: Array[Dictionary] = ProgressionStore.progression_analytics_outbox(replay_run.get("progression", {}) as Dictionary)
+	_expect(replay_outbox.size() == 1 and str(replay_outbox[0].get("idempotency_key", "")) == expected_key, "Re-staging the same Defiance revision must not duplicate its outbox entry")
+	_expect(not bool(replay_stage.get("staged", true)), "A fully staged Defiance cursor should report no new analytics work on replay")
+	host.free()
 
 func _event_count_for_key(events: Array[Dictionary], idempotency_key: String) -> int:
 	var count: int = 0

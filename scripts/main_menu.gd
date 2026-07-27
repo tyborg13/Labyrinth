@@ -4,6 +4,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 
@@ -351,6 +352,7 @@ func _refresh_saved_run_preview() -> void:
 func _build_saved_run_preview(run_state: Dictionary) -> Dictionary:
 	if run_state.is_empty():
 		return {}
+	run_state = RunEngine.migrate_combat_units(run_state)
 	var mode_value: Variant = run_state.get("mode", null)
 	var coord_value: Variant = run_state.get("current_room", null)
 	var hp_value: Variant = run_state.get("player_hp", null)

@@ -189,7 +189,7 @@ func _capture_resolution(viewport_size: Vector2i) -> void:
 	await _load_combat_fixture(instance, ["guarded_step", "quick_stab", "patch_up"], Vector2i(2, 4), [Vector2i(3, 4)], 17102, false)
 	await _choose_clicked_action(instance, 1, "attack")
 	_assert(int(instance.get("_selected_card_index")) == 1, "Clicked Basic Attack should retain the exact source-card index")
-	_assert(str(instance.get("_selected_card_label_override")) == "20 Attack", "Clicked Basic Attack should be clearly identified as a fallback")
+	_assert(str(instance.get("_selected_card_label_override")) == "3 Attack", "Clicked Basic Attack should be clearly identified as a fallback")
 	var attack_actions: Array = instance.get("_pending_actions")
 	_assert(attack_actions.size() == 1 and int((attack_actions[0] as Dictionary).get("damage", 0)) == int(instance.call("_fallback_attack_damage")), "Clicked Basic Attack should use fallback damage, not printed damage")
 	var attack_targets: Array = instance.get("_pending_target_tiles") as Array

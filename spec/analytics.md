@@ -32,6 +32,9 @@ available:
 - `umbra_stage`
 - `umbra_radius`
 - `visible_enemy_count`
+- `defiance_capacity`
+- `defiance_remaining`
+- `combat_unit_scale`, currently `1` for natural whole-number combat units
 
 ## Current Event Types
 
@@ -48,6 +51,7 @@ available:
 - `card_played`
 - `enemy_action_resolved`
 - `enemy_status_tick`
+- `defiance_triggered`
 - `progression_level_up`
 - `progression_skill_learned`
 - `progression_skill_reset`
@@ -190,9 +194,17 @@ Intermediate dragon victories emit `combat_ended` and return the run to room
 mode without `reward_offered` or `run_ended`; only defeat and the depth-24
 Noctyrax victory emit `run_ended`.
 
+`defiance_triggered` records each spent extra-life charge from the committed
+combat checkpoint. Its payload contains the lethal `cause`, actual
+`lethal_hp_loss`, `restored_hp`, post-trigger `charges_after`, `capacity`, and
+`combat_unit_scale`. It uses the stable key
+`defiance_triggered|combat|<combat_id>|<revision>` and shares the durable
+progression outbox and staged-revision checkpoint rules used by combat skill
+events, so save/resume cannot duplicate or lose a trigger.
+
 `run_ended` includes the canonical cumulative performance snapshot:
 `enemies_killed`, `damage_dealt`, and `damage_received`. Damage fields count
-actual fixed-point HP removed after block and stoneskin, capped by remaining HP;
+actual natural-unit HP removed after block and stoneskin, capped by remaining HP;
 they do not count absorbed defense or overkill. Enemy alive-to-dead transitions
 are the sole kill source. The same monotonic `run_stats` dictionary travels in
 the committed run/combat snapshot, so save/resume and animation checkpoints
@@ -229,7 +241,9 @@ terminal finalization and legitimately bypass the UI-time hooks.
 payload records `level_before`, `level_after`, the unchanged post-purchase
 `skill_ids`, `unspent_skill_points_before`,
 `unspent_skill_points_after`, ember `cost`, `held_embers_after`, and
-`room`. It grants one bankable point and never implies a skill choice.
+`room`. It grants one bankable point and never implies a skill choice. The
+shared event context records the resulting Defiance capacity and remaining
+charges; a milestone level adds exactly the capacity delta to the active run.
 
 `progression_skill_learned` fires after one legal skill is saved from the
 persistent tree. Its payload records `skill_id`, the complete post-learn
@@ -315,6 +329,8 @@ Update analytics instrumentation when changes affect:
 - ember carry, loss, extraction, or campfire level-up flow
 - skill learning, whole-tree reset, Moltshard awards, or skill activation
 - draw rules, opening hand, reshuffle, or fatigue
+- combat-unit migrations or Defiance capacity, restoration, spending, or
+  persistence
 - alternate card play modes
 - elemental intensity production, gating, spending, enemy use, trap scaling, or
   room-start rules

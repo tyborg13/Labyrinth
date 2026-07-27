@@ -189,7 +189,7 @@ static func _test_max_build_requires_keystone(expect: Callable) -> void:
 	legacy_profile["skill_ids"] = (legacy_max_builds[0] as Array).duplicate()
 	legacy_profile["progression_revision"] = 7
 	var migrated_profile: Dictionary = ProgressionStore.normalized_data(legacy_profile)
-	expect.call(int(migrated_profile.get("progression_schema", 0)) == 5, "No-keystone maximum profiles should migrate to progression schema 5")
+	expect.call(int(migrated_profile.get("progression_schema", 0)) == ProgressionStore.PROGRESSION_SCHEMA, "No-keystone maximum profiles should migrate to the current progression schema")
 	expect.call(int(migrated_profile.get("progression_revision", 0)) == 8, "Changing a legacy maximum build during migration should advance its progression revision")
 	expect.call(SkillTreeLibrary.selection_is_valid(ProgressionStore.selected_skill_ids(migrated_profile), SkillTreeLibrary.COMPLETE_BUILD_SIZE), "The migrated maximum profile should remain complete and legal")
 	expect.call(_keystone_count(ProgressionStore.selected_skill_ids(migrated_profile)) == 1, "The migrated maximum profile should contain exactly one keystone")

@@ -1,0 +1,42 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-07-27T14:28:29Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed 7272601 --output-dir res://playtest/balance_round_20260727_01`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 7272601
+- Moved to (1,0): depth 1 ice combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played dull_bolt as printed: 5 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Played bloody_lunge as printed: 12 damage, 1 kills, -3 HP, moved 1, +1 play.
+- Played sidestep_slash as printed: 6 damage, 1 kills, -2 HP, moved 2, +1 play.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played patch_up as printed: +2 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played waning_pulse as printed: 5 damage, -1 HP.
+- Played dull_bolt as printed: 5 damage, -1 HP.
+- Enemy round: 8 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played pale_spark as printed: 2 damage, 1 kills, +1 play.
+- Depth-1 normal took 6 player turns and 14 net HP despite Patch Up; lethal cards killed two enemies in one hit, but bleed plus clock mistakes made the room extremely punishing.
+- Reward: skipped for heal to 13/24.
+- Moved to (1,-1): depth 1 air combat.
+- Played sidestep_slash as printed: 6 damage, moved 2.
+- Played waning_pulse as printed: 3 damage, 3 terrain damage, 1 terrain broken, 1 kills, +1 play.
+- Played patch_up as printed: +2 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played dull_bolt as printed: 9 damage, 3 block removed, 1 trap blast.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played dull_bolt as printed: 6 damage, 6 terrain damage, 2 terrain broken, 1 trap blast, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 5 damage, drew 1.
+- Played pale_spark as printed: 4 damage, 1 kills, +1 play.
+- Depth-1 second normal ended in 4 turns with zero incoming HP damage and +2 from Patch Up; trap play and one-hit finishers felt fast and skillful.
+- Reward: skipped for heal to 18/24.
+- Moved to (2,-1): depth 2 ice combat.
+- Played sidestep_slash as printed: 6 damage, moved 3.
+- Played whirlwind_slash as printed: 4 damage, 1 kills, +1 play.

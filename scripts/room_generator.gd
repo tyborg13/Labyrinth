@@ -11,18 +11,19 @@ const ROOM_HEIGHT: int = 9
 const DEPTHS_PER_SEQUENCE: int = 4
 const ENEMY_SPAWN_SAFE_RADIUS: int = 2
 const ENEMY_SPAWN_PICK_WINDOW: int = 6
-const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
-const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 40
+const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.08
+const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 0
 const ENEMY_HP_SCALE_DEPTH_ONE: float = 0.85
 const ENEMY_HP_SCALE_DEPTH_THREE: float = 1.12
-const HEALING_POTION_AMOUNT: int = 40
-const RUSTY_SHIELD_BLOCK: int = 40
-const TERRAIN_HP: int = 30
+const HEALING_POTION_AMOUNT: int = 2
+const HEALING_POTION_CHANCE_PERCENT: int = 25
+const RUSTY_SHIELD_BLOCK: int = 3
+const TERRAIN_HP: int = 3
 const TERRAIN_TARGET_COUNT_MIN: int = 5
 const TERRAIN_TARGET_COUNT_MAX: int = 7
 # Boss-depth traps stay below first-boss wisp HP while still beating weak ranged pokes.
 const TRAP_DAMAGE_BY_ENCOUNTER_DEPTH: Array[int] = [6, 7, 8, 5]
-const TRAP_DAMAGE_PER_SEQUENCE: int = 2
+const TRAP_DAMAGE_BONUS_BY_SEQUENCE: Array[int] = [0, 1, 1, 2, 2, 3]
 
 const TILE_STONE: String = "stone"
 const TILE_EMBER: String = "ember"
@@ -724,23 +725,25 @@ func _generate_loot(grid: Array, room: Dictionary, rng: RandomNumberGenerator, o
 			continue
 		candidates.append(tile)
 	var occupied_pickups: Dictionary = occupied.duplicate(true)
-	var potion_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
-	if potion_tile.x >= 0:
-		occupied_pickups[potion_tile] = true
+	var utility_kinds: Array[String]
+	if room_type == "boss":
+		utility_kinds.append("healing_vial")
+		utility_kinds.append("rusty_shield")
+	elif rng.randi_range(1, 100) <= HEALING_POTION_CHANCE_PERCENT:
+		utility_kinds.append("healing_vial")
+	else:
+		utility_kinds.append("rusty_shield")
+	for utility_kind: String in utility_kinds:
+		var utility_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
+		if utility_tile.x < 0:
+			continue
+		occupied_pickups[utility_tile] = true
+		var is_healing: bool = utility_kind == "healing_vial"
 		loot.append({
-			"id": "loot_potion_%d_%d" % [potion_tile.x, potion_tile.y],
-			"kind": "healing_vial",
-			"amount": HEALING_POTION_AMOUNT,
-			"pos": potion_tile
-		})
-	var shield_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
-	if shield_tile.x >= 0:
-		occupied_pickups[shield_tile] = true
-		loot.append({
-			"id": "loot_shield_%d_%d" % [shield_tile.x, shield_tile.y],
-			"kind": "rusty_shield",
-			"amount": RUSTY_SHIELD_BLOCK,
-			"pos": shield_tile
+			"id": "loot_%s_%d_%d" % ["potion" if is_healing else "shield", utility_tile.x, utility_tile.y],
+			"kind": utility_kind,
+			"amount": HEALING_POTION_AMOUNT if is_healing else RUSTY_SHIELD_BLOCK,
+			"pos": utility_tile
 		})
 	var equipment_id: String = str(room.get("equipment_drop", ""))
 	if room_type == "combat" and not equipment_id.is_empty():
@@ -938,7 +941,8 @@ func _trap_for_tile(tile: Vector2i, room_element: String, encounter_depth: int, 
 
 func _trap_damage_scale(encounter_depth: int, sequence_index: int) -> int:
 	var depth_index: int = clampi(encounter_depth, 1, TRAP_DAMAGE_BY_ENCOUNTER_DEPTH.size()) - 1
-	return TRAP_DAMAGE_BY_ENCOUNTER_DEPTH[depth_index] + maxi(0, sequence_index) * TRAP_DAMAGE_PER_SEQUENCE
+	var bounded_sequence: int = mini(maxi(0, sequence_index), TRAP_DAMAGE_BONUS_BY_SEQUENCE.size() - 1)
+	return TRAP_DAMAGE_BY_ENCOUNTER_DEPTH[depth_index] + TRAP_DAMAGE_BONUS_BY_SEQUENCE[bounded_sequence]
 
 func _floor_tiles(grid: Array) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []

@@ -30,7 +30,7 @@ description: Create, rebalance, review, or implement Escape the Umbra enemies. U
 - Enemy ids are lowercase snake_case keys in `data/enemies.json`.
 - Required fields: `name`, `max_hp`, `base_initiative`, `reward_embers`, `accent`, `art_path`, and `intents`.
 - Optional presentation fields: `art_scale`, `art_offset_x`, `art_offset_y`, `idle_sheet_columns`, `idle_sheet_rows`, `idle_sheet_order`, `idle_sheet_ping_pong`, `idle_frame_seconds`, `footprint`, `boss_bar`, and `status_immunities`.
-- Numbers in `data/enemies.json` are player-scale values. `GameData.enemy_def` multiplies HP and action amounts/damage by `10` for runtime fixed-point combat. Do not pre-scale data values.
+- Numbers in `data/enemies.json` are the natural values used by combat and player-facing UI. `GameData.enemy_def` preserves HP, damage, block, healing, and status quantities at `1x`; do not pre-scale data values. Legacy run saves with the retired `10x` schema are migrated at load boundaries.
 - Each intent needs `id`, `name`, `time`, `weight`, and `actions`. Keep names short enough for board intent popups.
 - Existing enemy action verbs include `move_toward`, `move_away`, `melee`, `ranged`, `aoe`, `push`, `pull`, `block`, `stoneskin`, `heal_self`, `lightning_strikes`, and `summon_minions`.
 - Existing attack keywords include `burn`, `freeze`, `shock`, `poison`, `bleed`, `expose`, `sunder`, `immobilize`, `pierce`, `push`, and `pull`.

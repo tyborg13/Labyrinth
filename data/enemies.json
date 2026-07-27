@@ -21,7 +21,7 @@
           },
           {
             "type": "melee",
-            "damage": 3,
+            "damage": 4,
             "range": 1,
             "bleed": 1
           }
@@ -55,7 +55,7 @@
           },
           {
             "type": "melee",
-            "damage": 5,
+            "damage": 6,
             "range": 1,
             "bleed": 1
           }
@@ -88,7 +88,7 @@
           },
           {
             "type": "ranged",
-            "damage": 4,
+            "damage": 5,
             "range": 5
           }
         ]
@@ -105,7 +105,7 @@
           },
           {
             "type": "block",
-            "amount": 5
+            "amount": 4
           }
         ]
       },
@@ -121,12 +121,12 @@
           },
           {
             "type": "ranged",
-            "damage": 3,
+            "damage": 4,
             "range": 4
           },
           {
             "type": "heal_self",
-            "amount": 3
+            "amount": 2
           }
         ]
       }
@@ -149,7 +149,7 @@
         "actions": [
           {
             "type": "ranged",
-            "damage": 3,
+            "damage": 4,
             "range": 4,
             "pierce": true,
             "bleed": 1
@@ -184,7 +184,7 @@
           },
           {
             "type": "melee",
-            "damage": 4,
+            "damage": 5,
             "range": 1
           }
         ]
@@ -201,7 +201,7 @@
           },
           {
             "type": "ranged",
-            "damage": 3,
+            "damage": 4,
             "range": 4
           }
         ]
@@ -210,7 +210,7 @@
   },
   "warden": {
     "name": "Stone Warden",
-    "max_hp": 20,
+    "max_hp": 18,
     "base_initiative": 15,
     "reward_embers": 14,
     "accent": "#5f6e69",
@@ -230,7 +230,7 @@
           },
           {
             "type": "melee",
-            "damage": 7,
+            "damage": 9,
             "range": 1
           }
         ]
@@ -243,7 +243,7 @@
         "actions": [
           {
             "type": "block",
-            "amount": 8
+            "amount": 6
           }
         ]
       },
@@ -259,7 +259,7 @@
           },
           {
             "type": "aoe",
-            "damage": 5,
+            "damage": 6,
             "range": 0,
             "pattern": [
               [
@@ -288,7 +288,7 @@
   "cinder_ooze": {
     "name": "Cinder Ooze",
     "element": "fire",
-    "max_hp": 14,
+    "max_hp": 12,
     "base_initiative": 13,
     "reward_embers": 12,
     "accent": "#d96b32",
@@ -319,7 +319,7 @@
           },
           {
             "type": "melee",
-            "damage": 4,
+            "damage": 5,
             "range": 1,
             "burn": 1
           }
@@ -333,10 +333,10 @@
         "actions": [
           {
             "type": "aoe",
-            "damage": 3,
+            "damage": 4,
             "range": 0,
             "burn": 1,
-            "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 2, "burn": 1 },
+            "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3, "burn": 1 },
             "pattern": [
               [
                 0,
@@ -367,7 +367,7 @@
         "actions": [
           {
             "type": "block",
-            "amount": 5
+            "amount": 4
           },
           {
             "type": "intensity",
@@ -380,7 +380,7 @@
   },
   "cinder_droplet": {
     "name": "Cinder Droplet",
-    "max_hp": 5,
+    "max_hp": 4,
     "base_initiative": 9,
     "reward_embers": 0,
     "accent": "#f08a3a",
@@ -403,7 +403,7 @@
           },
           {
             "type": "melee",
-            "damage": 2,
+            "damage": 3,
             "range": 1,
             "burn": 1
           }
@@ -430,7 +430,7 @@
   "bile_bloomer": {
     "name": "Bile Bloomer",
     "element": "earth",
-    "max_hp": 16,
+    "max_hp": 14,
     "base_initiative": 14,
     "reward_embers": 12,
     "accent": "#b8b33a",
@@ -454,7 +454,7 @@
           },
           {
             "type": "aoe",
-            "damage": 2,
+            "damage": 3,
             "range": 0,
             "poison": 2,
             "pattern": [
@@ -538,7 +538,7 @@
         "actions": [
           {
             "type": "stoneskin",
-            "amount": 4
+            "amount": 3
           },
           {
             "type": "intensity",
@@ -552,7 +552,7 @@
   "chainbound_gaoler": {
     "name": "Chainbound Gaoler",
     "element": "air",
-    "max_hp": 16,
+    "max_hp": 14,
     "base_initiative": 13,
     "reward_embers": 12,
     "accent": "#b66a32",
@@ -572,7 +572,7 @@
         "actions": [
           {
             "type": "pull",
-            "damage": 4,
+            "damage": 5,
             "range": 4,
             "amount": 3,
             "spend_intensity": { "element": "air", "amount": 2 }
@@ -605,7 +605,7 @@
           },
           {
             "type": "melee",
-            "damage": 5,
+            "damage": 6,
             "range": 1
           }
         ]
@@ -622,7 +622,7 @@
           },
           {
             "type": "block",
-            "amount": 6
+            "amount": 5
           },
           {
             "type": "intensity",
@@ -635,7 +635,7 @@
   },
   "grave_surgeon": {
     "name": "Grave Surgeon",
-    "max_hp": 11,
+    "max_hp": 10,
     "base_initiative": 12,
     "reward_embers": 11,
     "accent": "#8aa65f",
@@ -658,7 +658,7 @@
           },
           {
             "type": "heal_ally",
-            "amount": 3,
+            "amount": 2,
             "range": 4
           }
         ]
@@ -675,7 +675,7 @@
           },
           {
             "type": "melee",
-            "damage": 2,
+            "damage": 3,
             "range": 1
           }
         ]
@@ -692,7 +692,7 @@
           },
           {
             "type": "guard_ally",
-            "amount": 4,
+            "amount": 3,
             "range": 4
           }
         ]
@@ -702,7 +702,7 @@
   "frostglass_lancer": {
     "name": "Frostglass Lancer",
     "element": "ice",
-    "max_hp": 13,
+    "max_hp": 12,
     "base_initiative": 11,
     "reward_embers": 11,
     "accent": "#a8e7f0",
@@ -726,7 +726,7 @@
           },
           {
             "type": "aoe",
-            "damage": 5,
+            "damage": 6,
             "range": 0,
             "pattern": [
               [
@@ -760,7 +760,7 @@
         "actions": [
           {
             "type": "ranged",
-            "damage": 3,
+            "damage": 4,
             "range": 4
           }
         ]
@@ -777,7 +777,7 @@
           },
           {
             "type": "block",
-            "amount": 5
+            "amount": 4
           },
           {
             "type": "intensity",
@@ -794,7 +794,7 @@
         "actions": [
           {
             "type": "ranged",
-            "damage": 2,
+            "damage": 3,
             "range": 4,
             "intensity_bonus": { "element": "ice", "threshold": 2, "damage": 1, "freeze": 1 }
           }
@@ -805,7 +805,7 @@
   "tharokh": {
     "name": "Tharokh, the Worldspine",
     "element": "earth",
-    "max_hp": 78,
+    "max_hp": 64,
     "base_initiative": 15,
     "reward_embers": 80,
     "accent": "#9faa62",
@@ -832,7 +832,7 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          {"type": "raise_terrain", "count": 4, "health": 6}
+          {"type": "raise_terrain", "count": 3, "health": 5}
         ]
       },
       {
@@ -842,7 +842,7 @@
         "weight": 4,
         "actions": [
           {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 12, "range": 1, "sunder": 2}
+          {"type": "melee", "damage": 15, "range": 1, "sunder": 2}
         ]
       },
       {
@@ -851,7 +851,7 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "terrain_burst", "damage": 8, "radius": 1}
+          {"type": "terrain_burst", "damage": 10, "radius": 1}
         ]
       },
       {
@@ -860,8 +860,8 @@
         "time": 5,
         "weight": 2,
         "actions": [
-          {"type": "stoneskin", "amount": 9},
-          {"type": "raise_terrain", "count": 2, "health": 6}
+          {"type": "stoneskin", "amount": 6},
+          {"type": "raise_terrain", "count": 2, "health": 5}
         ]
       }
     ]
@@ -869,7 +869,7 @@
   "vyraketh": {
     "name": "Vyraketh, the Cinder Crown",
     "element": "fire",
-    "max_hp": 72,
+    "max_hp": 60,
     "base_initiative": 13,
     "reward_embers": 80,
     "accent": "#e76432",
@@ -896,7 +896,7 @@
         "time": 4,
         "weight": 3,
         "actions": [
-          {"type": "cinder_marks", "count": 5, "damage": 5, "burn": 2}
+          {"type": "cinder_marks", "count": 5, "damage": 6, "burn": 2}
         ]
       },
       {
@@ -915,7 +915,7 @@
         "weight": 4,
         "actions": [
           {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 12, "range": 1, "burn": 2}
+          {"type": "melee", "damage": 15, "range": 1, "burn": 2}
         ]
       },
       {
@@ -926,7 +926,7 @@
         "actions": [
           {
             "type": "aoe",
-            "damage": 7,
+            "damage": 9,
             "range": 4,
             "burn": 1,
             "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]],
@@ -939,7 +939,7 @@
   "vaeloryx": {
     "name": "Vaeloryx, the Hollow Gale",
     "element": "air",
-    "max_hp": 68,
+    "max_hp": 58,
     "base_initiative": 12,
     "reward_embers": 80,
     "accent": "#75c8b4",
@@ -966,7 +966,7 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "gale_force", "damage": 6, "amount": 3}
+          {"type": "gale_force", "damage": 8, "amount": 3}
         ]
       },
       {
@@ -975,7 +975,7 @@
         "time": 5,
         "weight": 3,
         "actions": [
-          {"type": "pull", "damage": 7, "range": 5, "amount": 3}
+          {"type": "pull", "damage": 9, "range": 5, "amount": 3}
         ]
       },
       {
@@ -985,7 +985,7 @@
         "weight": 4,
         "actions": [
           {"type": "move_toward", "range": 3},
-          {"type": "melee", "damage": 11, "range": 1, "bleed": 2}
+          {"type": "melee", "damage": 14, "range": 1, "bleed": 2}
         ]
       },
       {
@@ -995,7 +995,7 @@
         "weight": 2,
         "actions": [
           {"type": "move_away", "range": 2},
-          {"type": "block", "amount": 8}
+          {"type": "block", "amount": 6}
         ]
       }
     ]
@@ -1003,7 +1003,7 @@
   "iskaldra": {
     "name": "Iskaldra, the Rime Tyrant",
     "element": "ice",
-    "max_hp": 74,
+    "max_hp": 62,
     "base_initiative": 14,
     "reward_embers": 80,
     "accent": "#8bd9ed",
@@ -1040,7 +1040,7 @@
         "weight": 4,
         "actions": [
           {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 10, "range": 1, "freeze": 1}
+          {"type": "melee", "damage": 12, "range": 1, "freeze": 1}
         ]
       },
       {
@@ -1049,7 +1049,7 @@
         "time": 5,
         "weight": 3,
         "actions": [
-          {"type": "ranged", "damage": 7, "range": 5, "freeze": 1}
+          {"type": "ranged", "damage": 9, "range": 5, "freeze": 1}
         ]
       },
       {
@@ -1060,7 +1060,7 @@
         "actions": [
           {
             "type": "aoe",
-            "damage": 6,
+            "damage": 8,
             "range": 0,
             "pattern": [[0, -2], [-1, -1], [0, -1], [1, -1], [-2, 0], [-1, 0], [1, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [0, 2]],
             "rotate": false
@@ -1072,7 +1072,7 @@
   "noctyrax": {
     "name": "Noctyrax, the Last Eclipse",
     "element": "shadow",
-    "max_hp": 86,
+    "max_hp": 72,
     "base_initiative": 14,
     "reward_embers": 120,
     "accent": "#a56bd6",
@@ -1098,7 +1098,7 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "umbra_eclipse", "duration": 2, "damage": 8}
+          {"type": "umbra_eclipse", "duration": 2, "damage": 10}
         ]
       },
       {
@@ -1108,7 +1108,7 @@
         "weight": 4,
         "actions": [
           {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 14, "range": 1, "expose": 2}
+          {"type": "melee", "damage": 18, "range": 1, "expose": 2}
         ]
       },
       {
@@ -1117,7 +1117,7 @@
         "time": 6,
         "weight": 3,
         "actions": [
-          {"type": "ranged", "damage": 10, "range": 4, "pierce": true}
+          {"type": "ranged", "damage": 12, "range": 4, "pierce": true}
         ]
       },
       {
@@ -1128,7 +1128,7 @@
         "actions": [
           {
             "type": "aoe",
-            "damage": 8,
+            "damage": 10,
             "range": 0,
             "pull": 1,
             "pattern": [[0, -1], [1, -1], [2, 0], [1, 1], [0, 1], [-1, 1], [-2, 0], [-1, -1]],
@@ -1140,7 +1140,7 @@
   },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
-    "max_hp": 72,
+    "max_hp": 60,
     "base_initiative": 14,
     "reward_embers": 80,
     "accent": "#f5d96c",
@@ -1173,7 +1173,7 @@
           },
           {
             "type": "melee",
-            "damage": 12,
+            "damage": 15,
             "range": 1,
             "shock": 1
           }
@@ -1191,7 +1191,7 @@
           },
           {
             "type": "ranged",
-            "damage": 8,
+            "damage": 10,
             "range": 3,
             "shock": 1
           }
@@ -1205,7 +1205,7 @@
         "actions": [
           {
             "type": "lightning_strikes",
-            "damage": 7,
+            "damage": 9,
             "count": 6,
             "shock": 1
           }
@@ -1311,7 +1311,7 @@
           },
           {
             "type": "melee",
-            "damage": 2,
+            "damage": 3,
             "range": 1
           }
         ]
@@ -1328,7 +1328,7 @@
           },
           {
             "type": "ranged",
-            "damage": 2,
+            "damage": 3,
             "range": 3,
             "shock": 1
           },
@@ -1351,7 +1351,7 @@
           },
           {
             "type": "ranged",
-            "damage": 3,
+            "damage": 4,
             "range": 4,
             "shock": 1,
             "spend_intensity": { "element": "lightning", "amount": 2 }

@@ -19,6 +19,7 @@ const SkillTreeSuite = preload("res://tests/suites/skill_tree_suite.gd")
 const SkillCombatSuite = preload("res://tests/suites/skill_combat_suite.gd")
 const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const ElementalIntensitySuite = preload("res://tests/suites/elemental_intensity_suite.gd")
+const BalancePacingSuite = preload("res://tests/suites/balance_pacing_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -68,6 +69,7 @@ func _initialize() -> void:
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
 	ElementalIntensitySuite.run(Callable(self, "_assert"))
+	BalancePacingSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
@@ -617,10 +619,10 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 		_assert(not description.contains("{") and not description.contains("}"), "%s description placeholders should be formatted for display" % relic_id)
 		var icon_path: String = str(relic.get("icon_path", ""))
 		_assert(FileAccess.file_exists(icon_path), "%s relic icon should exist" % relic_id)
-	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("10 damage"), "Thornmail Brooch should display fixed-point thorns damage")
-	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("100 stoneskin"), "Obsidian Heart should display fixed-point stoneskin")
+	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("1 damage"), "Thornmail Brooch should display natural-unit thorns damage")
+	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("10 stoneskin"), "Obsidian Heart should display natural-unit stoneskin")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("draw 1 fewer"), "Obsidian Heart should format negative draw as a positive fewer amount")
-	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("deal 30"), "Black Sun Dial should display fixed-point all-enemy damage")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("deal 4"), "Black Sun Dial should display natural-unit all-enemy damage")
 	_assert(GameData.relic_offer_weight("iron_lung") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
@@ -1008,7 +1010,7 @@ func _test_room_generation_populates_elemental_traps() -> void:
 	_assert(int(deep_fire_trap.get("damage", 0)) == GameData.fixed_point_amount(8), "Depth-three traps should be a meaningful positional payoff")
 	_assert(int(boss_lightning_trap.get("damage", 0)) == GameData.fixed_point_amount(5), "Boss-depth traps should beat weak ranged attacks without one-shotting healthy boss adds")
 	_assert(int(boss_lightning_trap.get("damage", 0)) < lightning_wisp_hp, "Boss-depth traps should leave full-health lightning wisps alive")
-	_assert(int(later_sequence_fire_trap.get("damage", 0)) == GameData.fixed_point_amount(8), "Later-sequence traps should keep pace with scaled rooms")
+	_assert(int(later_sequence_fire_trap.get("damage", 0)) == GameData.fixed_point_amount(7), "Later-sequence traps should follow the bounded authored sequence curve")
 	_assert(int(depth_two_fire_trap.get("burn", 0)) == GameData.fixed_point_amount(1), "Depth-two fire traps should keep shallow burn pressure")
 	_assert(int(deep_fire_trap.get("burn", 0)) > int(depth_two_fire_trap.get("burn", 0)), "Deep fire traps should still ramp their burn pressure")
 
@@ -1028,11 +1030,16 @@ func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 			var loot: Dictionary = loot_var
 			loot_by_kind[str(loot.get("kind", ""))] = loot
 			_assert(PathUtils.is_passable(room.get("grid", []), loot.get("pos", Vector2i(-1, -1))), "Generated pickups should sit on passable floor tiles")
-		if room_type in ["combat", "boss"]:
-			_assert(loot_by_kind.has("healing_vial"), "%s rooms should always place a healing potion" % room_type.capitalize())
-			_assert(int((loot_by_kind.get("healing_vial", {}) as Dictionary).get("amount", 0)) == 40, "Healing potions should heal 40")
-			_assert(loot_by_kind.has("rusty_shield"), "%s rooms should always place a rusty shield" % room_type.capitalize())
-			_assert(int((loot_by_kind.get("rusty_shield", {}) as Dictionary).get("amount", 0)) == 40, "Rusty shields should grant 40 block")
+		if room_type == "combat":
+			var utility_count: int = int(loot_by_kind.has("healing_vial")) + int(loot_by_kind.has("rusty_shield"))
+			_assert(utility_count == 1, "Combat rooms should place exactly one attrition-limited utility pickup")
+			if loot_by_kind.has("healing_vial"):
+				_assert(int((loot_by_kind.get("healing_vial", {}) as Dictionary).get("amount", 0)) == 2, "Healing vials should heal 2")
+			if loot_by_kind.has("rusty_shield"):
+				_assert(int((loot_by_kind.get("rusty_shield", {}) as Dictionary).get("amount", 0)) == 3, "Rusty shields should grant 3 block")
+		elif room_type == "boss":
+			_assert(loot_by_kind.has("healing_vial") and int((loot_by_kind.get("healing_vial", {}) as Dictionary).get("amount", 0)) == 2, "Boss rooms should place one 2-HP healing vial")
+			_assert(loot_by_kind.has("rusty_shield") and int((loot_by_kind.get("rusty_shield", {}) as Dictionary).get("amount", 0)) == 3, "Boss rooms should place one 3-block shield")
 		else:
 			_assert(loot_by_kind.is_empty(), "%s rooms should not place battlefield pickups" % room_type.capitalize())
 		_assert(not loot_by_kind.has("ember_cache"), "Generated tile loot should no longer spawn random ember caches")
@@ -1082,7 +1089,7 @@ func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 		var terrain: Dictionary = terrain_var
 		var pos: Vector2i = terrain.get("pos", Vector2i(-1, -1))
 		_assert(str(terrain.get("kind", "")) in ["wooden_box", "wooden_crate"], "Generated terrain should be boxes or crates")
-		_assert(int(terrain.get("hp", 0)) == 30 and int(terrain.get("max_hp", 0)) == 30, "Generated terrain should have low 30 HP")
+		_assert(int(terrain.get("hp", 0)) == 3 and int(terrain.get("max_hp", 0)) == 3, "Generated terrain should have low 3 HP")
 		_assert(PathUtils.is_passable(combat_room.get("grid", []), pos), "Generated terrain should sit on passable floor tiles")
 		_assert(not occupied.has(pos), "Generated terrain should avoid actors, traps, and pickups")
 		occupied[pos] = true
@@ -1296,7 +1303,7 @@ func _test_fatigue_draws_cost_health_and_burn_removes_card() -> void:
 	_assert((state.get("deck", {}) as Dictionary).get("burned", []).has("patch_up"), "Burn cards should move to the burned pile")
 	state = combat.prepare_next_player_turn(state)
 	var hp_after: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
-	_assert(hp_after == hp_before - 15, "Cycling the deck should deal fatigue damage")
+	_assert(hp_after == hp_before - CombatEngine.FATIGUE_BASE_DAMAGE, "Cycling the deck should deal first-cycle fatigue damage")
 	_assert((state.get("deck", {}) as Dictionary).get("hand", []).has("quick_stab"), "Discard should reshuffle into the draw and refill hand")
 
 func _test_consumable_item_card_is_destroyed_after_play() -> void:
@@ -1663,10 +1670,10 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 	deck["draw"] = []
 	deck["discard"] = []
 	state["deck"] = deck
-	state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
 	state["enemies"] = [
-		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 10, "max_hp": 10, "block": 0, "stoneskin": 0},
-		{"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0}
+		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 3, "max_hp": 3, "block": 0, "stoneskin": 0},
+		{"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
 	]
 	var actions: Array = combat.card_play_actions("cinder_fusillade", state)
 	_assert(actions.size() == 4, "Flurry should repeat its full printed action package once for each of the two base card plays")
@@ -1680,7 +1687,7 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 	_assert(int(state.get("player_turn_time_spent", 0)) == 5, "Flurry should pay its top-level time cost only once")
 	_assert(combat.cards_remaining_this_turn(state) == 1, "A kill-granted play created during Flurry should remain available after the snapshotted plays are spent")
 	_assert(int((state.get("elemental_intensity", {}) as Dictionary).get("fire", 0)) == 2, "Each Flurry copy should resolve its intensity action")
-	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 180, "Each Flurry copy should resolve its attack against the selected target")
+	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 17, "Each Flurry copy should resolve its attack against the selected target")
 	var bonus_state: Dictionary = state.duplicate(true)
 	bonus_state["cards_played_this_turn"] = 0
 	bonus_state["death_bonus_card_plays_this_turn"] = 0
@@ -1700,9 +1707,9 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 	cost_deck["draw"] = []
 	cost_deck["discard"] = []
 	cost_state["deck"] = cost_deck
-	cost_state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	cost_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
 	cost_state = combat.finish_player_card(cost_state, 0, 2)
-	_assert(int((cost_state.get("player", {}) as Dictionary).get("hp", 0)) == 220, "A two-copy Flurry commit should pay a printed health cost for both copies")
+	_assert(int((cost_state.get("player", {}) as Dictionary).get("hp", 0)) == 22, "A two-copy Flurry commit should pay a printed health cost for both copies")
 	_assert(int(cost_state.get("player_turn_time_spent", 0)) == 8, "A two-copy Flurry commit should still pay the printed Time only once")
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
@@ -2434,8 +2441,8 @@ func _test_elemental_intensity_bonus_modifies_single_attack() -> void:
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(3, 4),
-		"hp": 200,
-		"max_hp": 200,
+		"hp": 20,
+		"max_hp": 20,
 		"block": 0,
 		"stoneskin": 0
 	}]
@@ -2443,12 +2450,12 @@ func _test_elemental_intensity_bonus_modifies_single_attack() -> void:
 	var venom_actions: Array = venom_card.get("actions", [])
 	venom_state = combat.apply_player_action(venom_state, venom_actions[0] as Dictionary)
 	_assert(combat.elemental_intensity(venom_state, ElementData.EARTH) == 2, "Venom Claw should self-enable its Earth 2+ rider in an Earth room")
-	_assert(combat.final_damage_for_player_action(venom_state, venom_actions[1] as Dictionary) == 100, "Venom Claw's active Earth rider should increase same-attack damage")
+	_assert(combat.final_damage_for_player_action(venom_state, venom_actions[1] as Dictionary) == 13, "Venom Claw's active Earth rider should increase same-attack damage")
 	venom_state = combat.apply_player_action(venom_state, venom_actions[1] as Dictionary, Vector2i(3, 4))
 	var venom_enemy: Dictionary = ((venom_state.get("enemies", []) as Array)[0] as Dictionary)
-	_assert(int(venom_enemy.get("hp", 0)) == 100, "Venom Claw should apply its conditional damage to the target")
+	_assert(int(venom_enemy.get("hp", 0)) == 7, "Venom Claw should apply its conditional damage to the target")
 	var venom_poison: Dictionary = venom_enemy.get("poison", {}) as Dictionary
-	_assert(int(venom_poison.get("damage", 0)) == 40, "Venom Claw should apply its conditional poison to the target")
+	_assert(int(venom_poison.get("damage", 0)) == 4, "Venom Claw should apply its conditional poison to the target")
 
 func _test_cards_do_not_define_multiple_player_attacks() -> void:
 	var attack_types: Array = ["melee", "ranged", "aoe", "push", "pull"]
@@ -2742,17 +2749,17 @@ func _test_first_attack_bonus_damage_math() -> void:
 			"id": 1,
 			"type": "crawler",
 			"pos": Vector2i(3, 4),
-			"hp": 140,
-			"max_hp": 140,
-			"block": 40
+			"hp": 14,
+			"max_hp": 14,
+			"block": 4
 		}
 	]
-	var action: Dictionary = {"type": "melee", "damage": 60, "range": 1}
-	_assert(combat.final_damage_for_player_action(state, action) == 80, "Displayed attack damage should include the first-attack bonus before the card resolves")
+	var action: Dictionary = {"type": "melee", "damage": 6, "range": 1}
+	_assert(combat.final_damage_for_player_action(state, action) == 9, "Displayed attack damage should include the first-attack bonus before the card resolves")
 	state = combat.apply_player_action(state, action, Vector2i(3, 4))
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
 	_assert(int(enemy.get("block", 0)) == 0, "Damage should remove enemy block before health")
-	_assert(int(enemy.get("hp", 0)) == 100, "A 60-damage strike with Ember Lens into 40 block should deal 40 health damage")
+	_assert(int(enemy.get("hp", 0)) == 9, "A 6-damage strike with Ember Lens into 4 block should deal 5 health damage")
 	_assert(combat.attack_bonus_for_current_turn(state) == 0, "The first-attack bonus should be consumed after the hit resolves")
 
 func _test_relic_effect_hooks() -> void:
@@ -2765,27 +2772,27 @@ func _test_relic_effect_hooks() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_assert(int((shield_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 40, "Start-combat relic effects should apply before the first turn")
+	_assert(int((shield_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 4, "Start-combat relic effects should apply before the first turn")
 	var thorn_state: Dictionary = combat.create_combat(1611, _simple_room_layout(), {
-		"hp": 240,
-		"max_hp": 240,
+		"hp": 24,
+		"max_hp": 24,
 		"deck_cards": ["stone_plate"],
 		"relics": ["thornmail_brooch"],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	thorn_state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	thorn_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
 	thorn_state["enemies"] = [{
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(3, 4),
-		"hp": 140,
-		"max_hp": 140,
+		"hp": 14,
+		"max_hp": 14,
 		"block": 0,
 		"stoneskin": 0
 	}]
-	thorn_state = combat.apply_player_action(thorn_state, {"type": "stoneskin", "amount": 40})
-	_assert(int(((thorn_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 130, "Thornmail Brooch should use fixed-point thorns damage")
+	thorn_state = combat.apply_player_action(thorn_state, {"type": "stoneskin", "amount": 4})
+	_assert(int(((thorn_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 13, "Thornmail Brooch should use natural-unit thorns damage")
 	var fire_card: Dictionary = combat.card_def("hearth_rush", {"relics": ["flint_edge"]})
 	var fire_base_melee: Dictionary = {}
 	for action_var: Variant in fire_card.get("actions", []):
@@ -2795,8 +2802,8 @@ func _test_relic_effect_hooks() -> void:
 		if str(action.get("type", "")) != "melee":
 			continue
 		fire_base_melee = action
-	_assert(int(fire_base_melee.get("burn", 0)) == 10, "Elemental relic action mods should augment matching base card actions")
-	_assert(int((fire_base_melee.get("intensity_bonus", {}) as Dictionary).get("burn", 0)) == 20, "Elemental relic action mods should preserve matching intensity-gated bonus actions")
+	_assert(int(fire_base_melee.get("burn", 0)) == 1, "Elemental relic action mods should augment matching base card actions")
+	_assert(int((fire_base_melee.get("intensity_bonus", {}) as Dictionary).get("burn", 0)) == 2, "Elemental relic action mods should preserve matching intensity-gated bonus actions")
 	var storm_card: Dictionary = combat.card_def("spark_dart", {"relics": ["storm_crown"]})
 	var storm_actions: Array = storm_card.get("actions", [])
 	_assert(str((storm_actions[storm_actions.size() - 1] as Dictionary).get("type", "")) == "card_play", "Append-action relic effects should add reusable card actions")
@@ -2808,39 +2815,42 @@ func _test_relic_effect_hooks() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	frost_state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	frost_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
 	frost_state["enemies"] = [{
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(3, 4),
-		"hp": 140,
-		"max_hp": 140,
+		"hp": 14,
+		"max_hp": 14,
 		"block": 0,
 		"stoneskin": 0,
 		"freeze": 1
 	}]
-	frost_state = combat.apply_player_action(frost_state, {"type": "melee", "damage": 40, "range": 1}, Vector2i(3, 4))
-	_assert(int(((frost_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 20, "Target-status relic effects should add damage before existing freeze vulnerability")
+	frost_state = combat.apply_player_action(frost_state, {"type": "melee", "damage": 4, "range": 1}, Vector2i(3, 4))
+	_assert(int(((frost_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 0, "Target-status relic effects should add damage before existing freeze vulnerability")
 	var phoenix_state: Dictionary = combat.create_combat(1603, _simple_room_layout(), {
-		"hp": 30,
-		"max_hp": 240,
+		"hp": 3,
+		"max_hp": 24,
 		"deck_cards": ["quick_stab"],
 		"relics": ["phoenix_ember"],
 		"hand_size": 1,
-		"heal_bonus": 0
+		"heal_bonus": 0,
+		"defiance_capacity": 1,
+		"defiance_remaining": 1
 	})
 	phoenix_state["enemies"] = [{
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(3, 4),
-		"hp": 140,
-		"max_hp": 140,
+		"hp": 14,
+		"max_hp": 14,
 		"block": 0,
 		"stoneskin": 0
 	}]
-	phoenix_state = combat.call("_damage_player", phoenix_state, 90, true)
-	_assert(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 10, "Prevent-lethal relic effects should rescue the player once")
-	_assert(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 30, "Prevent-lethal relic effects should be able to apply follow-up status")
+	phoenix_state = combat.call("_damage_player", phoenix_state, 9, true)
+	_assert(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 6, "Phoenix Ember's added Defiance should restore a quarter of maximum health")
+	_assert(int(phoenix_state.get("defiance_remaining", -1)) == 0, "Phoenix Ember's Defiance should spend exactly one charge")
+	_assert(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Phoenix Ember should apply its follow-up burn when Defiance triggers")
 	var cinder_state: Dictionary = combat.create_combat(1604, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
@@ -2853,10 +2863,10 @@ func _test_relic_effect_hooks() -> void:
 	cinder_intensity[ElementData.FIRE] = 3
 	cinder_state["elemental_intensity"] = cinder_intensity
 	cinder_state["player"] = {"pos": Vector2i(4, 2), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
-	cinder_state = combat.apply_player_action(cinder_state, {"type": "melee", "damage": 10, "range": 1, "burn": 10}, Vector2i(5, 2))
+	cinder_state = combat.apply_player_action(cinder_state, {"type": "melee", "damage": 1, "range": 1, "burn": 1}, Vector2i(5, 2))
 	_assert(combat.elemental_intensity(cinder_state, ElementData.FIRE) == 2, "Fire threshold relics should be able to consume intensity after crossing")
 	_assert(int(cinder_state.get("card_play_bonus_this_turn", 0)) == 1, "Intensity threshold rewards should be able to grant card plays")
-	_assert(int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 30, "Intensity threshold rewards should apply all-enemy statuses")
+	_assert(int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Intensity threshold rewards should apply all-enemy statuses")
 	var cinder_spent: Dictionary = combat.elemental_intensity_counter(cinder_state, "elemental_intensity_spent_total")
 	_assert(int(cinder_spent.get(ElementData.FIRE, 0)) == 2, "Combat state should track gross intensity spent by relic payoffs")
 	var overflow_state: Dictionary = combat.create_combat(1610, _simple_room_layout(), {
@@ -2871,7 +2881,7 @@ func _test_relic_effect_hooks() -> void:
 	overflow_intensity[ElementData.ICE] = 2
 	overflow_state["elemental_intensity"] = overflow_intensity
 	overflow_state = combat.apply_player_action(overflow_state, {"type": "intensity", "element": ElementData.ICE, "amount": 1})
-	_assert(int((overflow_state.get("player", {}) as Dictionary).get("block", 0)) == 50, "Any-element threshold rewards should trigger from matching crossings")
+	_assert(int((overflow_state.get("player", {}) as Dictionary).get("block", 0)) == 5, "Any-element threshold rewards should trigger from matching crossings")
 	var voltaic_state: Dictionary = combat.create_combat(1605, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
@@ -2927,7 +2937,7 @@ func _test_relic_effect_hooks() -> void:
 	tectonic_state["elemental_intensity"] = tectonic_intensity
 	tectonic_state = combat.apply_player_action(tectonic_state, {"type": "intensity", "element": ElementData.EARTH, "amount": 1})
 	_assert(combat.elemental_intensity(tectonic_state, ElementData.EARTH) == 2, "Earth threshold relics should consume their configured intensity")
-	_assert(int((tectonic_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 80, "Earth threshold relics should be able to grant stoneskin")
+	_assert(int((tectonic_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 8, "Earth threshold relics should be able to grant stoneskin")
 	var black_sun_state: Dictionary = combat.create_combat(1609, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
@@ -2949,14 +2959,14 @@ func _test_relic_effect_hooks() -> void:
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(5, 2),
-		"hp": 140,
-		"max_hp": 140,
+		"hp": 14,
+		"max_hp": 14,
 		"block": 0,
 		"stoneskin": 0
 	}]
 	black_sun_state = combat.apply_player_action(black_sun_state, {"type": "intensity", "element": ElementData.FIRE, "amount": 1})
 	_assert(combat.elemental_intensity(black_sun_state, ElementData.FIRE) == 2, "Any-element consuming relics should spend the triggering element")
-	_assert(int(((black_sun_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 110, "Any-element threshold rewards should be able to damage all enemies")
+	_assert(int(((black_sun_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 10, "Any-element threshold rewards should be able to damage all enemies")
 	_assert(((black_sun_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Any-element threshold rewards should be able to draw")
 
 func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
@@ -3515,7 +3525,7 @@ func _test_immobilize_cards_stay_in_allowed_elements() -> void:
 func _test_healing_cards_are_burned_and_downweighted() -> void:
 	var patch_up: Dictionary = GameData.card_def("patch_up")
 	_assert(bool(patch_up.get("burn", false)), "Starter recovery should burn so recovery is a shorter-term tactical choice")
-	_assert(int((patch_up.get("actions", [])[0] as Dictionary).get("amount", 0)) <= 30, "Patch Up should heal less than the original starter version")
+	_assert(int((patch_up.get("actions", [])[0] as Dictionary).get("amount", 0)) <= 3, "Patch Up should provide only modest tactical recovery")
 	var cinch_straps: Dictionary = GameData.card_def("rallying_breath")
 	_assert(str(cinch_straps.get("name", "")) == "Cinch Straps", "Boiled Leather should own a defensive strap-tightening card instead of generic healing")
 	_assert(not bool(cinch_straps.get("reward_pool", true)), "Equipment-owned neutral utility should stay out of normal reward offers")
@@ -3523,7 +3533,7 @@ func _test_healing_cards_are_burned_and_downweighted() -> void:
 	var glass_mending: Dictionary = GameData.card_def("last_light")
 	_assert(str(glass_mending.get("name", "")) == "Glass Mending", "Glassbone Cuirass should own a thematic mending card")
 	_assert(not bool(glass_mending.get("reward_pool", true)), "Equipment-owned mending should stay out of normal reward offers")
-	_assert(int(((glass_mending.get("actions", []) as Array)[0] as Dictionary).get("amount", 0)) <= 30, "Glass Mending should be modest equipment recovery")
+	_assert(int(((glass_mending.get("actions", []) as Array)[0] as Dictionary).get("amount", 0)) <= 3, "Glass Mending should be modest equipment recovery")
 
 func _test_low_movement_enemies_advance_without_outpacing_crawlers() -> void:
 	var crawler_weighted_average: float = _weighted_average_enemy_toward_move("crawler")
@@ -3564,7 +3574,7 @@ func _test_harrier_has_moving_ranged_attack() -> void:
 func _test_chainbound_gaoler_profile_and_mechanics() -> void:
 	var gaoler_def: Dictionary = GameData.enemy_def("chainbound_gaoler")
 	_assert(str(gaoler_def.get("name", "")) == "Chainbound Gaoler", "Chainbound Gaoler enemy data should load by id")
-	_assert(int(gaoler_def.get("max_hp", 0)) == 160, "Chainbound Gaoler HP should be scaled from 16 player-scale HP")
+	_assert(int(gaoler_def.get("max_hp", 0)) == 14, "Chainbound Gaoler HP should keep its natural-unit control-anchor profile")
 	_assert(int(gaoler_def.get("base_initiative", 0)) == 13, "Chainbound Gaoler should sit between acolyte and warden initiative")
 	_assert(int(gaoler_def.get("reward_embers", 0)) == 12, "Chainbound Gaoler should reward mid-depth normal enemy embers")
 	_assert(FileAccess.file_exists(str(gaoler_def.get("art_path", ""))), "Chainbound Gaoler should use runtime-visible raster art")
@@ -3617,7 +3627,7 @@ func _test_grave_surgeon_data_and_pool_role() -> void:
 	var surgeon_def: Dictionary = GameData.enemy_def("grave_surgeon")
 	_assert(str(surgeon_def.get("name", "")) == "Grave Surgeon", "Grave Surgeon enemy data should load")
 	_assert(FileAccess.file_exists(str(surgeon_def.get("art_path", ""))), "Grave Surgeon should use project enemy art")
-	_assert(int(surgeon_def.get("max_hp", 0)) == 110, "Grave Surgeon HP should stay in support-enemy range")
+	_assert(int(surgeon_def.get("max_hp", 0)) == 10, "Grave Surgeon HP should stay in support-enemy range")
 	_assert(int(surgeon_def.get("reward_embers", 0)) == 11, "Grave Surgeon should reward normal support-enemy embers")
 	var support_intent_count: int = 0
 	var attack_damage_total: int = 0
@@ -3634,7 +3644,7 @@ func _test_grave_surgeon_data_and_pool_role() -> void:
 				"melee", "ranged", "aoe", "push", "pull":
 					attack_damage_total += int(action.get("damage", 0))
 	_assert(support_intent_count >= 2, "Grave Surgeon should be defined by reusable support actions")
-	_assert(attack_damage_total <= 20, "Grave Surgeon's offensive pressure should stay low")
+	_assert(attack_damage_total <= 3, "Grave Surgeon's offensive pressure should stay low")
 	var generator := RoomGenerator.new()
 	var rng := RandomNumberGenerator.new()
 	var saw_surgeon: bool = false
@@ -3659,25 +3669,25 @@ func _test_grave_surgeon_support_actions_scale() -> void:
 	var brace_action: Dictionary = (brace.get("actions", []) as Array)[1]
 	_assert(str(suture_action.get("type", "")) == "heal_ally", "Triage Suture should use the reusable heal_ally action")
 	_assert(str(brace_action.get("type", "")) == "guard_ally", "Field Brace should use the reusable guard_ally action")
-	_assert(int(suture_action.get("amount", 0)) == 30, "heal_ally amount should scale from player units into fixed-point combat values")
-	_assert(int(brace_action.get("amount", 0)) == 40, "guard_ally amount should scale from player units into fixed-point combat values")
+	_assert(int(suture_action.get("amount", 0)) == 2, "heal_ally should use authored natural units")
+	_assert(int(brace_action.get("amount", 0)) == 3, "guard_ally should use authored natural units")
 	var combat := CombatEngine.new()
 	var shallow_suture: Dictionary = combat.call("_scale_enemy_intent", suture, 1)
 	var shallow_heal: Dictionary = (shallow_suture.get("actions", []) as Array)[1]
-	_assert(int(shallow_heal.get("amount", 0)) == 20, "Depth-one support scaling should downshift heal_ally")
-	var later_brace: Dictionary = combat.call("_scale_enemy_intent", brace, 6)
+	_assert(int(shallow_heal.get("amount", 0)) == 1, "Depth-one support scaling should downshift heal_ally")
+	var later_brace: Dictionary = combat.call("_scale_enemy_intent", brace, 10)
 	var later_guard: Dictionary = (later_brace.get("actions", []) as Array)[1]
-	_assert(int(later_guard.get("amount", 0)) == 60, "Later-sequence support scaling should raise guard_ally")
+	_assert(int(later_guard.get("amount", 0)) == 4, "Later-sequence support scaling should raise guard_ally on the bounded curve")
 
 func _test_heal_ally_targets_most_injured_ally() -> void:
 	var combat := CombatEngine.new()
 	var state: Dictionary = _support_action_test_state()
-	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var action: Dictionary = {"type": "heal_ally", "amount": 2, "range": 4}
 	var before: Dictionary = state.duplicate(true)
 	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
 	var enemies: Array = resolved.get("enemies", [])
-	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 70, "heal_ally should target the ally with the most missing HP")
-	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 70, "heal_ally should not heal a less injured ally first")
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 6, "heal_ally should target the ally with the most missing HP")
+	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 7, "heal_ally should not heal a less injured ally first")
 	_assert(_combat_log_contains(resolved, "Grave Surgeon stitches Tunnel Crawler"), "heal_ally logs should name the supported ally")
 	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
 	_assert(str(step.get("kind", "")) == "heal", "heal_ally should produce a heal animation step")
@@ -3689,7 +3699,7 @@ func _test_heal_ally_falls_back_to_self() -> void:
 	var state: Dictionary = _support_action_test_state()
 	var enemies: Array = state.get("enemies", [])
 	var surgeon: Dictionary = enemies[0]
-	surgeon["hp"] = 50
+	surgeon["hp"] = 5
 	enemies[0] = surgeon
 	var crawler: Dictionary = enemies[1]
 	crawler["hp"] = int(crawler.get("max_hp", 1))
@@ -3698,11 +3708,11 @@ func _test_heal_ally_falls_back_to_self() -> void:
 	harrier["hp"] = int(harrier.get("max_hp", 1))
 	enemies[2] = harrier
 	state["enemies"] = enemies
-	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var action: Dictionary = {"type": "heal_ally", "amount": 2, "range": 4}
 	var before: Dictionary = state.duplicate(true)
 	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
 	var resolved_enemies: Array = resolved.get("enemies", [])
-	_assert(int((resolved_enemies[0] as Dictionary).get("hp", 0)) == 80, "heal_ally should fall back to the source when it is the only injured ally")
+	_assert(int((resolved_enemies[0] as Dictionary).get("hp", 0)) == 7, "heal_ally should fall back to the source when it is the only injured ally")
 	_assert(_combat_log_contains(resolved, "Grave Surgeon stitches itself"), "Self fallback logs should say itself")
 	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
 	_assert(str(step.get("actor_key", "")) == "enemy_1", "Self fallback heal step should focus the Surgeon")
@@ -3717,7 +3727,7 @@ func _test_heal_ally_no_target_noops() -> void:
 		enemy["hp"] = int(enemy.get("max_hp", 1))
 		enemies[index] = enemy
 	state["enemies"] = enemies
-	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var action: Dictionary = {"type": "heal_ally", "amount": 2, "range": 4}
 	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
 	var resolved_enemies: Array = resolved.get("enemies", [])
 	for index: int in range(resolved_enemies.size()):
@@ -3729,11 +3739,11 @@ func _test_heal_ally_no_target_noops() -> void:
 func _test_guard_ally_targets_threatened_ally() -> void:
 	var combat := CombatEngine.new()
 	var state: Dictionary = _support_action_test_state()
-	var action: Dictionary = {"type": "guard_ally", "amount": 40, "range": 4}
+	var action: Dictionary = {"type": "guard_ally", "amount": 3, "range": 4}
 	var before: Dictionary = state.duplicate(true)
 	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
 	var enemies: Array = resolved.get("enemies", [])
-	_assert(int((enemies[1] as Dictionary).get("block", 0)) == 40, "guard_ally should target the ally nearest the player")
+	_assert(int((enemies[1] as Dictionary).get("block", 0)) == 3, "guard_ally should target the ally nearest the player")
 	_assert(int((enemies[0] as Dictionary).get("block", 0)) == 0, "guard_ally should not guard itself when a more threatened ally exists")
 	_assert(_combat_log_contains(resolved, "Grave Surgeon guards Tunnel Crawler"), "guard_ally logs should name the guarded ally")
 	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
@@ -3750,16 +3760,16 @@ func _test_support_intent_rows_name_target() -> void:
 		"role": "enemy",
 		"type": "grave_surgeon",
 		"pos": Vector2i(5, 4),
-		"hp": 110,
-		"max_hp": 110
+		"hp": 10,
+		"max_hp": 10
 	}
-	var heal_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	var heal_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 2, "range": 4}]})
 	_assert(heal_rows.size() == 1, "heal_ally should surface an intent row")
 	_assert(ActionIcons.plain_text_for_tokens(heal_rows[0] as Array).find("-> Crawler") >= 0, "heal_ally intent row should name the ally target")
 	var state: Dictionary = _support_action_test_state()
 	var enemies: Array = state.get("enemies", [])
 	var surgeon: Dictionary = enemies[0]
-	surgeon["hp"] = 50
+	surgeon["hp"] = 5
 	enemies[0] = surgeon
 	for index: int in range(1, enemies.size()):
 		var enemy: Dictionary = enemies[index]
@@ -3767,7 +3777,7 @@ func _test_support_intent_rows_name_target() -> void:
 		enemies[index] = enemy
 	state["enemies"] = enemies
 	board.combat_state = state
-	var self_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	var self_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 2, "range": 4}]})
 	_assert(ActionIcons.plain_text_for_tokens(self_rows[0] as Array).find("-> Self") >= 0, "heal_ally intent row should say when the Surgeon targets itself")
 	board.free()
 
@@ -3780,17 +3790,17 @@ func _test_support_intent_target_marker_is_text_only() -> void:
 		"role": "enemy",
 		"type": "grave_surgeon",
 		"pos": Vector2i(5, 4),
-		"hp": 110,
-		"max_hp": 110
+		"hp": 10,
+		"max_hp": 10
 	}
-	var rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	var rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 2, "range": 4}]})
 	_assert(rows.size() == 1, "heal_ally should still surface one intent row")
 	var tokens: Array = rows[0] as Array
 	_assert(tokens.size() == 2, "heal_ally support rows should show the action token and a target marker")
 	_assert(str((tokens[0] as Dictionary).get("icon", "")) == "heal", "heal_ally should keep the heal icon as the only action icon")
 	_assert(str((tokens[1] as Dictionary).get("kind", "")) == "text", "Support targets should render as text-only markers")
 	_assert(not (tokens[1] as Dictionary).has("icon"), "Support target markers should not add a health icon")
-	_assert(ActionIcons.plain_text_for_tokens(tokens) == "Heal 30  -> Crawler", "Support target plain text should not include a Health label")
+	_assert(ActionIcons.plain_text_for_tokens(tokens) == "Heal 2  -> Crawler", "Support target plain text should not include a Health label")
 	board.free()
 
 func _test_turn_order_uses_explicit_portraits_for_new_enemy_types() -> void:
@@ -3967,18 +3977,18 @@ func _test_close_aoe_hits_adjacent_targets() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	state["player"] = {"pos": Vector2i(4, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0}
+	state["player"] = {"pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
 	state["enemies"] = [
-		{"id": 1, "type": "crawler", "pos": Vector2i(4, 3), "hp": 140, "max_hp": 140, "block": 0},
-		{"id": 2, "type": "harrier", "pos": Vector2i(5, 4), "hp": 100, "max_hp": 100, "block": 0},
-		{"id": 3, "type": "acolyte", "pos": Vector2i(5, 5), "hp": 120, "max_hp": 120, "block": 0}
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 3), "hp": 14, "max_hp": 14, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(5, 4), "hp": 10, "max_hp": 10, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(5, 5), "hp": 12, "max_hp": 12, "block": 0}
 	]
 	var action: Dictionary = GameData.card_def("whirlwind_slash").get("actions", [])[0]
 	state = combat.apply_player_action(state, action)
 	var enemies: Array = state.get("enemies", [])
-	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 60, "Close AOE should hit the northern adjacent tile")
-	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 20, "Close AOE should hit the eastern adjacent tile")
-	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 120, "Close AOE should not hit diagonal tiles")
+	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 4, "Close AOE should hit the northern adjacent tile")
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 0, "Close AOE should hit the eastern adjacent tile")
+	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 12, "Close AOE should not hit diagonal tiles")
 
 func _test_player_aoe_damages_incidental_terrain() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4917,13 +4927,13 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 		"id": 1,
 		"type": "frostglass_lancer",
 		"pos": Vector2i(2, 2),
-		"hp": 130,
-		"max_hp": 130,
+		"hp": 12,
+		"max_hp": 12,
 		"block": 0
 	}]
 	var state: Dictionary = combat.create_combat(1783, layout, {
-		"hp": 30,
-		"max_hp": 30,
+		"hp": 5,
+		"max_hp": 5,
 		"deck_cards": ["quick_stab"],
 		"relics": [],
 		"hand_size": 1,
@@ -4954,13 +4964,13 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 		"id": 1,
 		"type": "frostglass_lancer",
 		"pos": Vector2i(2, 2),
-		"hp": 130,
-		"max_hp": 130,
+		"hp": 12,
+		"max_hp": 12,
 		"block": 0
 	}]
 	var blocked_state: Dictionary = combat.create_combat(1784, blocked_layout, {
-		"hp": 30,
-		"max_hp": 30,
+		"hp": 5,
+		"max_hp": 5,
 		"deck_cards": ["quick_stab"],
 		"relics": [],
 		"hand_size": 1,
@@ -4971,7 +4981,7 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 	var blocked_attack_tiles: Array = blocked_threat.get("attack", [])
 	_assert(not blocked_attack_tiles.has(Vector2i(4, 4)) and not blocked_attack_tiles.has(Vector2i(5, 4)) and not blocked_attack_tiles.has(Vector2i(6, 4)), "Frostglass Lancer blocked-line preview should not include impassable, behind-blocker, or player tiles")
 	var blocked_after: Dictionary = combat.resolve_enemy_phase(blocked_state)
-	_assert(int((blocked_after.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Frostglass Lancer line thrust should not hit through blocking tiles")
+	_assert(int((blocked_after.get("player", {}) as Dictionary).get("hp", 0)) == 5, "Frostglass Lancer line thrust should not hit through blocking tiles")
 
 func _test_enemy_intents_ignore_room_element() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -5003,7 +5013,7 @@ func _test_enemy_intents_ignore_room_element() -> void:
 		_assert(elemental_intent == neutral_intent, "%s rooms should not rewrite generic enemy intents" % ElementData.name(room_element))
 		_assert(not elemental_intent.has("element"), "%s rooms should not stamp room element markers onto enemy intents" % ElementData.name(room_element))
 
-	var base_intent: Dictionary = {"weight": 2, "actions": [{"type": "ranged", "damage": 40, "range": 5}]}
+	var base_intent: Dictionary = {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}
 	var shallow_intent: Dictionary = combat.call("_scale_enemy_intent", base_intent, 1)
 	var depth_two_intent: Dictionary = combat.call("_scale_enemy_intent", base_intent, 2)
 	var later_intent: Dictionary = combat.call("_scale_enemy_intent", base_intent, 6)
@@ -5011,9 +5021,9 @@ func _test_enemy_intents_ignore_room_element() -> void:
 	var depth_two_action: Dictionary = (depth_two_intent.get("actions", []) as Array)[0]
 	var later_action: Dictionary = (later_intent.get("actions", []) as Array)[0]
 	_assert(str(shallow_action.get("type", "")) == "ranged" and int(shallow_action.get("range", 0)) == 5, "Depth scaling should not change enemy attack shape")
-	_assert(int(shallow_action.get("damage", 0)) == 30, "Depth-one enemy attacks should still downshift damage")
-	_assert(int(depth_two_action.get("damage", 0)) == 40, "Depth-two enemy attacks should keep base damage")
-	_assert(int(later_action.get("damage", 0)) == 60, "Later sequences should still raise enemy attack damage")
+	_assert(int(shallow_action.get("damage", 0)) == 4, "Depth-one enemy attacks should retain the authored lethal baseline")
+	_assert(int(depth_two_action.get("damage", 0)) == 4, "Depth-two enemy attacks should keep base damage")
+	_assert(int(later_action.get("damage", 0)) == 5, "Later sequences should raise enemy attack damage on the bounded curve")
 
 func _test_enemy_threat_tiles_follow_intent() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -5528,10 +5538,10 @@ func _test_terrain_health_bars_are_contextual() -> void:
 
 func _test_health_bar_segments_use_fixed_point_scale() -> void:
 	var board := CombatBoardView.new()
-	_assert(SegmentedHealthBar.segment_count_for_max_hp(140.0) == 7, "Segmented health bars should default to 20 HP per divider after fixed-point scaling")
-	_assert(int(board.call("_health_bar_segment_count", 140)) == 7, "Combat board unit health bars should use the shared fixed-point segment size")
-	_assert(int(board.call("_health_bar_segment_count", 30)) == 2, "Low-HP terrain should avoid one segment per HP")
-	_assert(int(board.call("_health_bar_segment_count", 10)) == 1, "Tiny health bars should keep at least one filled segment")
+	_assert(SegmentedHealthBar.segment_count_for_max_hp(14.0) == 7, "Segmented health bars should default to two natural HP per divider")
+	_assert(int(board.call("_health_bar_segment_count", 14)) == 7, "Combat board unit health bars should use the shared natural-unit segment size")
+	_assert(int(board.call("_health_bar_segment_count", 3)) == 2, "Low-HP terrain should avoid one segment per HP")
+	_assert(int(board.call("_health_bar_segment_count", 1)) == 1, "Tiny health bars should keep at least one filled segment")
 
 func _test_run_scene_terrain_damage_previews_use_terrain_keys() -> void:
 	var run_scene_script: Script = load("res://scripts/run_scene.gd")
@@ -5745,9 +5755,9 @@ func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
 
 func _test_boss_health_dossier_caps_divider_density() -> void:
 	var instance: Node = RunSceneScript.new()
-	_assert(int(instance.call("_turn_order_boss_segment_count", 2995)) == 48, "Deep boss health should cap divider density inside the compact turn-order dossier")
-	_assert(int(instance.call("_turn_order_boss_segment_count", 330)) == 17, "Moderate boss health should retain the shared fixed-point segment scale")
-	_assert(int(instance.call("_turn_order_boss_segment_count", 10)) == 1, "Tiny boss health should keep at least one segment")
+	_assert(int(instance.call("_turn_order_boss_segment_count", 120)) == 48, "Deep boss health should cap divider density inside the compact turn-order dossier")
+	_assert(int(instance.call("_turn_order_boss_segment_count", 33)) == 17, "Moderate boss health should retain the shared natural-unit segment scale")
+	_assert(int(instance.call("_turn_order_boss_segment_count", 1)) == 1, "Tiny boss health should keep at least one segment")
 	instance.free()
 
 func _test_enemy_art_scale_preserves_center() -> void:
@@ -7531,15 +7541,15 @@ func _test_run_map_last_loop_room_opens_outward() -> void:
 	run_state = run_engine.repair_loaded_run_state(run_state)
 	_assert(run_engine.available_moves(run_state).has(outward), "A loop-closing room with no remaining progressive exits should open an outward escape")
 	var repaired_room: Dictionary = run_engine.room_metadata(run_state, current)
-	var found_loop_escape: bool = false
+	var found_outward_offer: bool = false
 	for connection_var: Variant in repaired_room.get("connections", []):
 		if typeof(connection_var) != TYPE_DICTIONARY:
 			continue
 		var connection: Dictionary = connection_var
-		if connection.get("coord", Vector2i.ZERO) == outward and bool(connection.get("loop_escape", false)):
-			found_loop_escape = true
+		if connection.get("coord", Vector2i.ZERO) == outward and bool(connection.get("attrition_offer", false)):
+			found_outward_offer = true
 			break
-	_assert(found_loop_escape, "The emergency outward connection should be persisted on the current room")
+	_assert(found_outward_offer, "The three-room attrition outward connection should be persisted on the current room")
 	var layout: Dictionary = run_state.get("current_room_layout", {})
 	var grid: Array = layout.get("grid", [])
 	var door_tile: Vector2i = RoomGenerator.door_tile_for_direction(Vector2i(1, 0))
@@ -7695,7 +7705,7 @@ func _test_intermediate_boss_opens_next_sequence() -> void:
 	run_state = run_engine.finish_combat(run_state, combat_state)
 	_assert(str(run_state.get("mode", "")) == "room", "Defeating a non-final sequence boss should return to room mode")
 	_assert(not bool(run_state.get("victory", false)), "The first sequence boss should not end the expanded run")
-	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating an intermediate boss should restore the player to full health")
+	_assert(int(run_state.get("player_hp", 0)) == 18, "Defeating an intermediate boss should restore 25% of maximum health")
 	var has_next_sequence_move: bool = false
 	var exposes_lateral_boss_move: bool = false
 	for coord: Vector2i in run_engine.available_moves(run_state):
@@ -7739,7 +7749,7 @@ func _test_boss_victory_restores_player_health() -> void:
 	combat_state["enemies"] = enemies
 	run_state = run_engine.finish_combat(run_state, combat_state)
 	_assert(str(run_state.get("mode", "")) == "victory", "Defeating Noctyrax at depth 24 should end the run in victory")
-	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating Noctyrax should restore the player to full health")
+	_assert(int(run_state.get("player_hp", 0)) == 18, "Defeating Noctyrax should apply the same 25% boss-victory recovery")
 
 func _test_progression_save_and_purchase(default_progression: Dictionary) -> void:
 	var data: Dictionary = ProgressionStore.add_embers(default_progression, 180)
@@ -7761,7 +7771,7 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 	_assert(not loaded.has("stats") and not loaded.has("unspent_stat_points"), "The live progression profile should not retain retired stat allocation fields")
 	var unchanged_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
 	var unchanged_action: Dictionary = (unchanged_card.get("actions", []) as Array)[0]
-	_assert(int(unchanged_action.get("damage", 0)) == 90, "Learning a skill should not disguise a permanent raw damage increase")
+	_assert(int(unchanged_action.get("damage", 0)) == 11, "Learning a skill should not disguise a permanent raw damage increase")
 	loaded = ProgressionStore.set_embers(loaded, 42)
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(9, _simple_room_layout(), {
@@ -7774,7 +7784,7 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 90, "Combat should keep card damage unchanged when it receives a skill snapshot")
+	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 11, "Combat should keep card damage unchanged when it receives a skill snapshot")
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(9, loaded)
 	_assert(run_engine.held_embers(run_state) == 42, "New runs should carry the current held ember count")
@@ -8316,7 +8326,7 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	_assert(bool(run_state.get("debug_boss_run", false)), "Debug boss fixture should mark its run as independent")
 	_assert(str(run_state.get("mode", "")) == "combat", "Debug boss fixture should boot directly into combat")
 	_assert(str(combat_state.get("room_type", "")) == "boss", "Debug boss fixture should load the boss room")
-	_assert(int(run_state.get("player_max_hp", 0)) >= 40, "Debug boss fixture should grant plausible late-run max health")
+	_assert(int(run_state.get("player_max_hp", 0)) >= RunEngine.BASE_MAX_HP, "Debug boss fixture should grant plausible late-run max health")
 	_assert(int(run_state.get("hand_size", 0)) == 5, "Debug boss fixture should keep the normal hand UI footprint")
 	_assert((run_state.get("attuned_magic_cards", []) as Array).size() == GameData.magic_loadout_limit(), "Debug boss fixture should obey the attuned magic cap")
 	_assert((run_state.get("magic_inventory", []) as Array).size() > 0, "Debug boss fixture should keep extra progressed cards in reserve magic")
@@ -8764,7 +8774,7 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	await process_frame
 	await _choose_clicked_card_action(instance, 0, "attack")
 	pending_actions = instance.get("_pending_actions")
-	_assert(str(instance.get("_selected_card_label_override")) == "20 Attack", "Clicked Basic Attack should keep its concise fallback identity")
+	_assert(str(instance.get("_selected_card_label_override")) == "3 Attack", "Clicked Basic Attack should keep its concise fallback identity")
 	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) == int(instance.call("_fallback_attack_damage")), "Clicked Basic Attack should preserve scaled default damage")
 	instance.call("_on_cancel_requested")
 	await process_frame
@@ -8929,8 +8939,8 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	await process_frame
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "reward"
-	run_state["player_hp"] = 240
-	run_state["player_max_hp"] = 360
+	run_state["player_hp"] = 12
+	run_state["player_max_hp"] = 24
 	run_state["pending_reward"] = {
 		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
 		"heal_amount": RunEngine.REWARD_HEAL,
@@ -8951,15 +8961,15 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	_assert(heal_choice != null, "Reward heal choice should render as a card-like tile beside the offered cards")
 	if heal_choice != null:
 		_assert(int(heal_choice.get_meta("reward_heal_amount", 0)) == RunEngine.REWARD_HEAL, "Reward heal tile should keep the offered heal amount")
-		_assert(int(heal_choice.get_meta("reward_heal_current_hp", 0)) == 240, "Reward heal tile should keep current health context")
-		_assert(int(heal_choice.get_meta("reward_heal_result_hp", 0)) == 300, "Reward heal tile should show the capped post-claim health result")
+		_assert(int(heal_choice.get_meta("reward_heal_current_hp", 0)) == 12, "Reward heal tile should keep current health context")
+		_assert(int(heal_choice.get_meta("reward_heal_result_hp", 0)) == 15, "Reward heal tile should show the capped post-claim health result")
 		_assert(int(heal_choice.get_meta("reward_heal_effective", 0)) == RunEngine.REWARD_HEAL, "Injured Recover should show its effective healing")
 		_assert(int(heal_choice.get_meta("reward_heal_wasted", -1)) == 0, "Injured Recover should not report wasted healing when the full amount fits")
 		_assert(heal_choice.mouse_filter == Control.MOUSE_FILTER_STOP, "Reward heal tile should receive clicks directly")
 		_assert(heal_choice.tooltip_text.is_empty(), "Recover should not hide explanatory reward copy in a tooltip")
 		_assert(_button_with_text(hand_box, "+%d" % RunEngine.REWARD_HEAL) == null, "Reward heal choice should not render as a floating button over the cards")
 		_assert(_label_with_text(heal_choice, "+%d" % RunEngine.REWARD_HEAL) != null, "Recover should prominently show the offered heal value")
-		_assert(_label_with_text(heal_choice, "240 → 300") != null, "Recover should show exact current-to-clamped HP values")
+		_assert(_label_with_text(heal_choice, "12 → 15") != null, "Recover should show exact current-to-clamped HP values")
 		var heal_labels: Array[Label] = _labels_under(heal_choice)
 		_assert(heal_labels.size() == 2, "Recover should contain only the amount and HP projection text")
 		_assert(heal_slot != null and heal_slot.get_parent() == hand_box, "Reward heal choice should be parented as a hand choice slot")
@@ -8977,8 +8987,8 @@ func _test_run_scene_reward_acquisition_is_single_choice() -> void:
 	await process_frame
 	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	reward_state["mode"] = "reward"
-	reward_state["player_hp"] = 180
-	reward_state["player_max_hp"] = 360
+	reward_state["player_hp"] = 12
+	reward_state["player_max_hp"] = 24
 	reward_state["pending_reward"] = {
 		"cards": ["spark_dart", "frostbolt"],
 		"heal_amount": RunEngine.REWARD_HEAL,
@@ -8990,7 +9000,7 @@ func _test_run_scene_reward_acquisition_is_single_choice() -> void:
 	instance.call("_on_skip_reward_pressed")
 	var locked_state: Dictionary = instance.get("_run_state")
 	_assert(str(locked_state.get("mode", "")) == "reward", "Recover should not resolve while a reward-card acquisition animation owns the choice")
-	_assert(int(locked_state.get("player_hp", 0)) == 180, "A blocked Recover click should not heal during reward-card acquisition")
+	_assert(int(locked_state.get("player_hp", 0)) == 12, "A blocked Recover click should not heal during reward-card acquisition")
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
@@ -9005,7 +9015,7 @@ func _test_run_scene_reward_acquisition_is_single_choice() -> void:
 	instance.call("_on_skip_reward_pressed")
 	var resolved_state: Dictionary = instance.get("_run_state")
 	_assert(str(resolved_state.get("mode", "")) == "room", "Recover should resolve normally after the acquisition lock releases")
-	_assert(int(resolved_state.get("player_hp", 0)) == 240, "Exactly one unlocked Recover choice should apply its offered healing")
+	_assert(int(resolved_state.get("player_hp", 0)) == 15, "Exactly one unlocked Recover choice should apply its offered healing")
 	_assert(not (resolved_state.get("magic_inventory", []) as Array).has("frostbolt"), "Resolving Recover should leave the mutually exclusive reward spell unclaimed")
 	instance.queue_free()
 	await process_frame
@@ -9021,8 +9031,8 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	var engine := RunEngine.new()
 	var open_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	open_state["mode"] = "reward"
-	open_state["player_hp"] = 180
-	open_state["player_max_hp"] = 360
+	open_state["player_hp"] = 12
+	open_state["player_max_hp"] = 24
 	open_state["attuned_magic_cards"] = ["pale_spark", "dull_bolt", "waning_pulse", "chain_bolt"]
 	open_state["magic_inventory"] = ["spark_dart"]
 	open_state["reward_cards"] = ["spark_dart"]
@@ -9064,7 +9074,7 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	_assert((duplicate_claimed.get("magic_inventory", []) as Array).count("spark_dart") == 2, "Actual duplicate claim should add another reserve copy")
 
 	var full_state: Dictionary = open_state.duplicate(true)
-	full_state["player_hp"] = 360
+	full_state["player_hp"] = 24
 	full_state["attuned_magic_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "threaded_path", "stone_plate"]
 	full_state["magic_inventory"] = ["spark_dart"]
 	full_state["reward_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "threaded_path", "stone_plate"]
@@ -9080,11 +9090,11 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	await process_frame
 	await process_frame
 	var heal_choice: PanelContainer = hand_box.find_child("RewardHealChoice", true, false) as PanelContainer
-	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_result_hp", -1)) == 360, "Full-health Recover should show unchanged capped health")
+	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_result_hp", -1)) == 24, "Full-health Recover should show unchanged capped health")
 	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_effective", -1)) == 0, "Full-health Recover should show zero effective healing")
 	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_wasted", -1)) == RunEngine.REWARD_HEAL, "Full-health Recover should retain accurate clamping metadata")
 	_assert(heal_choice != null and _label_with_text(heal_choice, "+%d" % RunEngine.REWARD_HEAL) != null, "Full-health Recover should still show the offered value")
-	_assert(heal_choice != null and _label_with_text(heal_choice, "360 → 360") != null, "Full-health Recover should concisely show unchanged clamped HP")
+	_assert(heal_choice != null and _label_with_text(heal_choice, "24 → 24") != null, "Full-health Recover should concisely show unchanged clamped HP")
 	_assert(heal_choice != null and _labels_under(heal_choice).size() == 2, "Full-health Recover should not add prose about capped healing")
 	var healed_full: Dictionary = engine.skip_reward_for_heal(full_state)
 	var displayed_full_result: int = int(heal_choice.get_meta("reward_heal_result_hp", -2)) if heal_choice != null else -2
@@ -9257,14 +9267,14 @@ func _test_run_scene_fatigue_damage_visual_event() -> void:
 	if not fatigue_events.is_empty():
 		var event: Dictionary = fatigue_events[0]
 		var player_tile: Vector2i = (after_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-		_assert(int(event.get("amount", 0)) == 15, "First fatigue visual event should carry the first fatigue damage amount")
+		_assert(int(event.get("amount", 0)) == CombatEngine.FATIGUE_BASE_DAMAGE, "First fatigue visual event should carry the first fatigue damage amount")
 		_assert(event.get("tile", Vector2i(-1, -1)) == player_tile, "Fatigue visual text should anchor to the player tile")
 	var fatigue_texts: Array = instance.call("_fatigue_floating_texts_for_events", after_state, fatigue_events)
 	var found_damage_number: bool = false
 	var found_fatigue_text: bool = false
 	for text_var: Variant in fatigue_texts:
 		var text_entry: Dictionary = text_var
-		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "-15"
+		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "-2"
 		found_fatigue_text = found_fatigue_text or str(text_entry.get("text", "")) == "fatigue sets in"
 	_assert(found_damage_number, "Fatigue visual should include the normal floating damage number")
 	_assert(found_fatigue_text, "Fatigue visual should include the fatigue text callout")
@@ -9312,7 +9322,7 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(_label_with_text(relic_overlay, "Linger for a moment") != null, "Campfire overlay should label the continue option")
 	_assert(_label_with_text(relic_overlay, "Embrace the fire's warmth") != null, "Campfire overlay should label the abandon option")
 	_assert(_label_with_text(relic_overlay, "Learn a new skill") != null, "Campfire overlay should label the level-up option")
-	_assert(_label_with_text(relic_overlay, "+100 HP") != null, "Campfire linger choice should show a compact heal chip")
+	_assert(_label_with_text(relic_overlay, "+4 HP") != null, "Campfire linger choice should show a compact heal chip")
 	_assert(_label_with_text(relic_overlay, "CONTINUE") == null, "Campfire linger choice should not duplicate continue text in a chip")
 	_assert(_label_with_text(relic_overlay, "BANK HELD") == null, "Campfire abandon choice should not duplicate bank text in a chip")
 	_assert(_label_with_text(relic_overlay, "END RUN") == null, "Campfire abandon choice should not duplicate end-run text in a chip")
@@ -9366,8 +9376,8 @@ func _test_run_scene_campfire_choice_press_is_single_shot() -> void:
 	run_state["progression"] = ProgressionStore.default_data()
 	run_state["held_embers"] = 0
 	run_state["unbanked_embers"] = 0
-	run_state["player_hp"] = 100
-	run_state["player_max_hp"] = 360
+	run_state["player_hp"] = 10
+	run_state["player_max_hp"] = 24
 	instance.set("_run_state", run_state)
 	instance.set("_progression", ProgressionStore.default_data())
 	instance.call("_refresh_choice_bar")
@@ -9387,7 +9397,7 @@ func _test_run_scene_campfire_choice_press_is_single_shot() -> void:
 	await process_frame
 	var next_state: Dictionary = instance.get("_run_state")
 	_assert(str(next_state.get("mode", "")) == "room", "Campfire linger press should still leave campfire mode")
-	_assert(int(next_state.get("player_hp", 0)) == 200, "Rapid duplicate linger presses should heal only once")
+	_assert(int(next_state.get("player_hp", 0)) == 14, "Rapid duplicate linger presses should heal only once")
 	instance.queue_free()
 	await process_frame
 
@@ -9672,8 +9682,8 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(5, 5),
-		"hp": 140,
-		"max_hp": 140,
+		"hp": 14,
+		"max_hp": 14,
 		"block": 0
 	}]
 	var combat_state: Dictionary = combat.create_combat(92, layout, {
@@ -9716,7 +9726,7 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	_assert(player_tile == Vector2i(4, 5), "Enemy shortcut clicks should move only the minimum distance needed to attack")
 	var enemies: Array = final_state.get("enemies", [])
 	var enemy: Dictionary = enemies[0] if not enemies.is_empty() else {}
-	_assert(int(enemy.get("hp", 0)) == 90, "Enemy shortcut clicks should still resolve the follow-up attack")
+	_assert(int(enemy.get("hp", 0)) == 8, "Enemy shortcut clicks should still resolve the follow-up attack")
 	instance.queue_free()
 	await process_frame
 
@@ -9868,15 +9878,15 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	await process_frame
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(95, _simple_room_layout(), {
-		"hp": 120,
-		"max_hp": 200,
+		"hp": 12,
+		"max_hp": 20,
 		"deck_cards": ["patch_up", "quick_stab"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
-	player["hp"] = 120
+	player["hp"] = 12
 	combat_state["player"] = player
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["patch_up", "quick_stab"]
@@ -9896,7 +9906,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var armed_player: Dictionary = armed_state.get("player", {})
 	var context: Control = instance.get("_action_step_tracker") as Control
 	var play_button: Button = _button_with_text(context, "Play Card")
-	_assert(int(armed_player.get("hp", 0)) == 120 and int(armed_player.get("block", 0)) == 0, "Selecting a targetless card should preview without applying its effects")
+	_assert(int(armed_player.get("hp", 0)) == 12 and int(armed_player.get("block", 0)) == 0, "Selecting a targetless card should preview without applying its effects")
 	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0, "Selecting a targetless card should not spend a card play")
 	_assert(((armed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "quick_stab"], "Selecting a targetless card should leave the exact hand intact")
 	_assert(play_button != null and not play_button.disabled, "A targetless card should expose a clear Play Card confirmation action")
@@ -9908,7 +9918,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	await instance.call("_on_card_action_choice_pressed", "play")
 	await process_frame
 	armed_state = instance.get("_combat_state")
-	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 120, "Switching back to Printed should re-arm the card without committing it")
+	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Switching back to Printed should re-arm the card without committing it")
 
 	instance.call("_on_cancel_requested")
 	await process_frame
@@ -9919,7 +9929,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	instance.call("_on_card_pressed", 1)
 	await process_frame
 	armed_state = instance.get("_combat_state")
-	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 120, "Selecting another card should replace targetless confirmation without committing the first card")
+	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Selecting another card should replace targetless confirmation without committing the first card")
 	_assert(int(instance.get("_card_action_choice_index")) == 1, "Selecting another card should move the play-mode rail to that card")
 	instance.call("_on_cancel_requested")
 	await process_frame
@@ -9929,8 +9939,8 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	await create_timer(1.5).timeout
 	var committed_state: Dictionary = instance.get("_combat_state")
 	var committed_player: Dictionary = committed_state.get("player", {})
-	_assert(int(committed_player.get("hp", 0)) == 150, "Confirming a targetless self card should commit its heal")
-	_assert(int(committed_player.get("block", 0)) == 20, "Confirming a targetless self card should commit its block")
+	_assert(int(committed_player.get("hp", 0)) == 14, "Confirming a targetless self card should commit its heal")
+	_assert(int(committed_player.get("block", 0)) == 2, "Confirming a targetless self card should commit its block")
 	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["quick_stab"], "Confirming should consume only the armed targetless card")
 	instance.queue_free()
 	await process_frame
@@ -9959,8 +9969,8 @@ func _test_run_scene_fallback_attack_uses_scaled_damage() -> void:
 	var instance: Node = run_scene_script.new()
 	var attack_actions: Array = instance.call("_fallback_actions", "attack")
 	var attack_action: Dictionary = attack_actions[0] as Dictionary
-	_assert(int(attack_action.get("damage", 0)) == GameData.fixed_point_amount(2), "Fallback attack should use scaled fixed-point damage")
-	_assert(str(instance.call("_fallback_label", "attack")) == "20 Attack", "Fallback attack drag labels should match scaled damage")
+	_assert(int(attack_action.get("damage", 0)) == 3, "Fallback attack should use the raised natural-unit damage")
+	_assert(str(instance.call("_fallback_label", "attack")) == "3 Attack", "Fallback attack drag labels should match natural-unit damage")
 	instance.free()
 
 func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
@@ -10059,7 +10069,7 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	_assert(not summary_rows.is_empty(), "Damage cards should render icon summary rows")
 	var damage_token: Dictionary = ((summary_rows[0] as Array)[0] as Dictionary)
 	_assert(str(damage_token.get("icon", "")) == "melee", "Damage cards should render the action keyword as an icon")
-	_assert(int(damage_token.get("value", 0)) == 110, "Damage cards should show final damage, not base damage, when a modifier applies")
+	_assert(int(damage_token.get("value", 0)) == 14, "Damage cards should show final damage, not base damage, when a modifier applies")
 	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
 	_assert(modifier_lines.is_empty(), "Damage modifiers should live on the modified token instead of a duplicate card-level tooltip")
 	_assert(ActionIcons.token_is_modified(damage_token), "Damage cards should mark dynamically modified tokens")
@@ -11450,15 +11460,15 @@ func _test_run_scene_logs_local_analytics() -> void:
 	await process_frame
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(118, _simple_room_layout(), {
-		"hp": 120,
-		"max_hp": 200,
+		"hp": 12,
+		"max_hp": 20,
 		"deck_cards": ["patch_up"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
-	player["hp"] = 120
+	player["hp"] = 12
 	combat_state["player"] = player
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["patch_up"]
@@ -11542,8 +11552,8 @@ func _test_run_scene_logs_local_analytics() -> void:
 	var play_event: Dictionary = played_events[played_events.size() - 1]
 	var play_payload: Dictionary = play_event.get("payload", {})
 	_assert(str(play_event.get("card_id", "")) == "patch_up", "Card play analytics should record the played card id")
-	_assert(int(play_payload.get("player_heal_gained", 0)) == 30, "Card play analytics should capture observed healing")
-	_assert(int(play_payload.get("player_block_gained", 0)) == 20, "Card play analytics should capture observed block gain")
+	_assert(int(play_payload.get("player_heal_gained", 0)) == 2, "Card play analytics should capture observed healing")
+	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
 	_assert(play_payload.has("elemental_intensity_spent"), "Card play analytics should include intensity spent by printed costs or relic payoffs")
@@ -11873,11 +11883,11 @@ func _support_action_test_state() -> Dictionary:
 		"grid": _simple_grid(),
 		"room_depth": 2,
 		"room_element": ElementData.NONE,
-		"player": {"pos": Vector2i(2, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0},
+		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0},
 		"enemies": [
-			{"id": 1, "type": "grave_surgeon", "pos": Vector2i(5, 4), "hp": 110, "max_hp": 110, "block": 0, "stoneskin": 0},
-			{"id": 2, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 100, "block": 0, "stoneskin": 0},
-			{"id": 3, "type": "harrier", "pos": Vector2i(5, 3), "hp": 70, "max_hp": 100, "block": 0, "stoneskin": 0}
+			{"id": 1, "type": "grave_surgeon", "pos": Vector2i(5, 4), "hp": 10, "max_hp": 10, "block": 0, "stoneskin": 0},
+			{"id": 2, "type": "crawler", "pos": Vector2i(3, 4), "hp": 4, "max_hp": 10, "block": 0, "stoneskin": 0},
+			{"id": 3, "type": "harrier", "pos": Vector2i(5, 3), "hp": 7, "max_hp": 10, "block": 0, "stoneskin": 0}
 		],
 		"illusions": [],
 		"terrain": [],

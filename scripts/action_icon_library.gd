@@ -294,6 +294,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Health protected by block and stoneskin.",
 		"path": "%s/health_defense.png" % ICON_ROOT
 	},
+	"defiance": {
+		"label": "Defiance",
+		"description": "A per-run rescue that restores health after lethal loss.",
+		"path": "%s/defiance.png" % ICON_ROOT
+	},
 	"targeting": {
 		"label": "Targeting",
 		"description": "Range, line of sight, patterns, and legal targets.",

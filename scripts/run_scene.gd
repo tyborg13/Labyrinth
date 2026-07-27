@@ -36,6 +36,7 @@ const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
 const MOLTSHARD_GAIN_EVENT_TYPE: String = "progression_moltshard_gained"
 const COMBAT_SKILL_EVENT_STAGED_REVISION_KEY: String = "combat_skill_event_revision_staged"
+const COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY: String = "combat_defiance_event_revision_staged"
 const BOARD_BACKDROP_PATH: String = "res://assets/art/backgrounds/sealed_dungeon_hall.png"
 
 class TooltipPanelContainer:
@@ -881,7 +882,7 @@ const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const INVALID_ROOM_COORD: Vector2i = Vector2i(999, 999)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
-const FALLBACK_ATTACK_BASE_DAMAGE: int = 2
+const FALLBACK_ATTACK_BASE_DAMAGE: int = 3
 const FALLBACK_MOVE_RANGE: int = 2
 const CARD_WIDGET_BASE_SIZE: Vector2 = Vector2(250.0, 352.0)
 const CARD_ASPECT_RATIO: float = 352.0 / 250.0
@@ -943,7 +944,7 @@ const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
 const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
 const INTENSITY_ICON_INSET: float = 8.0
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
-const CAMPFIRE_LINGER_HEAL_AMOUNT: int = 100
+const CAMPFIRE_LINGER_HEAL_AMOUNT: int = RunEngineScript.CAMPFIRE_LINGER_HEAL
 const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger.png"
 const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace.png"
 const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire_choice_strength.png"
@@ -1005,6 +1006,7 @@ const CHARACTER_DIALOG_SIZE: Vector2 = Vector2(1500.0, 900.0)
 const CHARACTER_DIALOG_MIN_SIZE: Vector2 = Vector2(1120.0, 620.0)
 const SKILL_TREE_DIALOG_SIZE: Vector2 = Vector2(1500.0, 900.0)
 const SKILL_TREE_DIALOG_MIN_SIZE: Vector2 = Vector2(1120.0, 620.0)
+const PROGRESSION_SUMMARY_COMPACT_VIEWPORT_WIDTH: float = 1200.0
 const CHARACTER_BODY_MIN_HEIGHT: float = 360.0
 const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(178.0, 92.0)
 const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 58.0)
@@ -1046,6 +1048,7 @@ const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(54.0, 34.0)
 const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stoneskin.png"
 const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
 const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
+const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance.png"
 const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
@@ -1198,6 +1201,7 @@ var _active_pile_kind: String = ""
 var _pile_visual_signature: String = "<unset>"
 var _relic_bar_signature: String = "<unset>"
 var _skill_sigil: Button
+var _defiance_badge: Control
 var _skill_status_scrim: ColorRect
 var _skill_status_popover: PanelContainer
 var _skill_status_grid: GridContainer
@@ -1233,6 +1237,7 @@ var _combat_skill_card_selection_label: Label
 var _combat_skill_card_selection_cancel_button: Button
 var _skill_event_revision_seen: int = 0
 var _run_skill_event_revision_seen: int = 0
+var _defiance_event_revision_seen: int = 0
 var _analytics_skill_event_revision: int = 0
 var _hand_panel_signature: String = "<unset>"
 var _play_meter: PanelContainer
@@ -1357,6 +1362,8 @@ var _progression_focused_skill_id: String = ""
 var _progression_level_label: Label
 var _progression_skill_points_label: Label
 var _progression_moltshards_label: Label
+var _progression_defiance_label: Label
+var _progression_summary_compact: bool = false
 var _progression_overlay_notice: String = ""
 var _progression_overlay_notice_is_error: bool = false
 var _skill_tree_view: SkillTreeView
@@ -3226,6 +3233,33 @@ func _build_pre_battle_hp_chip(accent: Color) -> Control:
 	label.add_theme_color_override("font_outline_color", Color("120b08"))
 	label.add_theme_constant_override("outline_size", 1)
 	row.add_child(label)
+	var defiance_capacity: int = _run_engine.defiance_capacity(_run_state)
+	if defiance_capacity > 0:
+		var separator := ColorRect.new()
+		separator.custom_minimum_size = Vector2(1.0, 22.0)
+		separator.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		separator.color = Color("725f76")
+		separator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(separator)
+		var defiance_icon := TextureRect.new()
+		defiance_icon.texture = ActionIcons.icon_texture("defiance")
+		defiance_icon.custom_minimum_size = Vector2(24.0, 24.0)
+		defiance_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		defiance_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		defiance_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		defiance_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(defiance_icon)
+		var defiance_label := Label.new()
+		defiance_label.name = "PreBattleDefianceCount"
+		defiance_label.text = "%d/%d" % [
+			_run_engine.defiance_remaining(_run_state),
+			defiance_capacity
+		]
+		UiTypography.apply_label_role(defiance_label, UiTypography.ROLE_BODY)
+		defiance_label.add_theme_color_override("font_color", Color("f6d77d"))
+		defiance_label.add_theme_color_override("font_outline_color", Color("120b08"))
+		defiance_label.add_theme_constant_override("outline_size", 1)
+		row.add_child(defiance_label)
 	return chip
 
 func _pre_battle_section_label(text: String, icon_texture: Texture2D, accent: Color) -> Control:
@@ -6758,6 +6792,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_merchant_shop_open = true
 	_committed_run_state_override.clear()
 	var content_migration_required: bool = _run_engine.run_content_migration_required(next_run_state)
+	var combat_units_migration_required: bool = _run_engine.combat_units_migration_required(next_run_state)
 	var migrated_profile: Dictionary = _run_engine.migrate_renamed_content_ids(_progression)
 	if migrated_profile != _progression:
 		_progression = migrated_profile
@@ -6775,8 +6810,12 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_sync_progression_analytics_outbox_to_run()
 	_sync_combat_state_from_run()
 	_repair_legacy_empty_actor_transition()
-	if content_migration_required and not bool(_run_state.get("debug_boss_run", false)) and not ProgressionStore.save_run_state(_run_state):
-		push_error("Failed to persist migrated run content references.")
+	if (
+		(content_migration_required or combat_units_migration_required)
+		and not bool(_run_state.get("debug_boss_run", false))
+		and not ProgressionStore.save_run_state(_run_state)
+	):
+		push_error("Failed to persist migrated run content or combat units.")
 	_sync_analytics_combat_tracker()
 	_reset_card_resolution()
 	_victory_carry_processed = false
@@ -6891,22 +6930,38 @@ func _refresh_relic_bar() -> void:
 	var relic_ids: Array = (_run_state.get("relics", []) as Array).duplicate()
 	var skill_ids: Array[String] = _selected_skill_ids_for_hud()
 	var event_revision: int = int(_combat_state.get("skill_event_revision", 0)) if not _combat_state.is_empty() else 0
+	var defiance_event_revision: int = int(_combat_state.get("defiance_event_revision", 0)) if not _combat_state.is_empty() else 0
+	var defiance_capacity: int = (
+		maxi(0, int(_combat_state.get(RunEngineScript.DEFIANCE_CAPACITY_KEY, 0)))
+		if not _combat_state.is_empty()
+		else _run_engine.defiance_capacity(_run_state)
+	)
+	var defiance_remaining: int = (
+		clampi(int(_combat_state.get(RunEngineScript.DEFIANCE_REMAINING_KEY, 0)), 0, defiance_capacity)
+		if not _combat_state.is_empty()
+		else _run_engine.defiance_remaining(_run_state)
+	)
 	var run_event_revision: int = _run_engine.run_skill_event_revision(_run_state)
 	var should_pulse: bool = (
 		event_revision > _skill_event_revision_seen
 		or run_event_revision > _run_skill_event_revision_seen
 	)
+	var should_pulse_defiance: bool = defiance_event_revision > _defiance_event_revision_seen
 	_reconcile_skill_event_analytics()
 	_flush_run_skill_event_analytics("hud_run_skill")
 	_skill_event_revision_seen = maxi(_skill_event_revision_seen, event_revision)
 	_run_skill_event_revision_seen = maxi(_run_skill_event_revision_seen, run_event_revision)
+	_defiance_event_revision_seen = maxi(_defiance_event_revision_seen, defiance_event_revision)
 	var signature: String = str(hash([
 		relic_ids,
 		skill_ids,
 		_combat_state.get("skill_flags", {}),
-		_run_state.get(RunEngineScript.SKILL_STATE_KEY, {}),
-		event_revision,
-		run_event_revision,
+			_run_state.get(RunEngineScript.SKILL_STATE_KEY, {}),
+			event_revision,
+			defiance_event_revision,
+			defiance_capacity,
+			defiance_remaining,
+			run_event_revision,
 		str(_run_state.get("mode", "room"))
 	]))
 	if signature == _relic_bar_signature:
@@ -6916,19 +6971,18 @@ func _refresh_relic_bar() -> void:
 	_relic_bar_signature = signature
 	_clear_children(relic_bar)
 	_skill_sigil = null
-	relic_bar.visible = not relic_ids.is_empty() or not skill_ids.is_empty()
+	_defiance_badge = null
+	relic_bar.visible = defiance_capacity > 0 or not relic_ids.is_empty() or not skill_ids.is_empty()
+	if defiance_capacity > 0:
+		_defiance_badge = _build_defiance_badge(defiance_remaining, defiance_capacity)
+		relic_bar.add_child(_defiance_badge)
+		if not skill_ids.is_empty() or not relic_ids.is_empty():
+			relic_bar.add_child(_build_header_utility_divider("DefianceUtilityDivider"))
 	if not skill_ids.is_empty():
 		_skill_sigil = _build_skill_sigil(skill_ids)
 		relic_bar.add_child(_skill_sigil)
 		if not relic_ids.is_empty():
-			var divider := ColorRect.new()
-			divider.name = "SkillRelicDivider"
-			divider.custom_minimum_size = Vector2(2.0, RELIC_BADGE_SIZE.y - 12.0)
-			divider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			divider.color = Color("765e96")
-			divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			divider.set_meta("header_utility", true)
-			relic_bar.add_child(divider)
+			relic_bar.add_child(_build_header_utility_divider("SkillRelicDivider"))
 	for relic_id_var: Variant in relic_ids:
 		var relic_id: String = str(relic_id_var)
 		var relic: Dictionary = GameData.relic_def(relic_id)
@@ -6985,6 +7039,69 @@ func _refresh_relic_bar() -> void:
 	call_deferred("_layout_elemental_intensity_bar")
 	if should_pulse and _skill_sigil != null:
 		call_deferred("_pulse_skill_sigil")
+	if should_pulse_defiance and _defiance_badge != null:
+		call_deferred("_pulse_defiance_badge")
+
+func _build_header_utility_divider(node_name: String) -> ColorRect:
+	var divider := ColorRect.new()
+	divider.name = node_name
+	divider.custom_minimum_size = Vector2(2.0, RELIC_BADGE_SIZE.y - 12.0)
+	divider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	divider.color = Color("765e96")
+	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	divider.set_meta("header_utility", true)
+	return divider
+
+func _build_defiance_badge(remaining: int, capacity: int) -> Control:
+	var frame := TooltipPanelContainer.new()
+	frame.name = "DefianceBadge"
+	frame.custom_minimum_size = RELIC_BADGE_SIZE
+	frame.tooltip_text = (
+		"DEFIANCE %d / %d\nLethal health loss spends 1 to restore 25%% max health.\n"
+		+ "Every fourth permanent level grants 1. Defiance does not refill during a run."
+	) % [remaining, capacity]
+	frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
+	frame.mouse_filter = Control.MOUSE_FILTER_PASS
+	frame.set_meta("header_utility", true)
+	frame.set_meta("defiance_remaining", remaining)
+	frame.set_meta("defiance_capacity", capacity)
+	var accent: Color = Color("d6aa5e") if remaining > 0 else Color("62556e")
+	frame.add_theme_stylebox_override("panel", _pile_card_style(
+		Color("211326") if remaining > 0 else Color("19151c"),
+		accent,
+		4.0
+	))
+	var icon := TextureRect.new()
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icon.anchor_right = 1.0
+	icon.anchor_bottom = 1.0
+	icon.offset_left = 7.0
+	icon.offset_top = 4.0
+	icon.offset_right = -7.0
+	icon.offset_bottom = -12.0
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture("res://assets/art/icons/defiance.png")
+	icon.modulate = Color.WHITE if remaining > 0 else Color(0.55, 0.50, 0.60, 0.86)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(icon)
+	var count := Label.new()
+	count.name = "DefianceCount"
+	count.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	count.anchor_top = 1.0
+	count.anchor_bottom = 1.0
+	count.offset_top = -17.0
+	count.offset_bottom = -2.0
+	count.text = "%d/%d" % [remaining, capacity]
+	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(count, UiTypography.SIZE_CAPTION)
+	count.add_theme_color_override("font_color", Color("ffe7a3") if remaining > 0 else Color("8d8296"))
+	count.add_theme_color_override("font_outline_color", Color("160d19"))
+	count.add_theme_constant_override("outline_size", 2)
+	frame.add_child(count)
+	return frame
 
 func _selected_skill_ids_for_hud() -> Array[String]:
 	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
@@ -7595,6 +7712,14 @@ func _pulse_skill_sigil() -> void:
 	var tween := create_tween()
 	tween.tween_property(_skill_sigil, "scale", Vector2(1.16, 1.16), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_skill_sigil, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+func _pulse_defiance_badge() -> void:
+	if _defiance_badge == null or not is_instance_valid(_defiance_badge):
+		return
+	_defiance_badge.pivot_offset = _defiance_badge.size * 0.5
+	var tween := create_tween()
+	tween.tween_property(_defiance_badge, "scale", Vector2(1.20, 1.20), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_defiance_badge, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 func _setup_turn_order_bar() -> void:
 	if _turn_order_panel != null:
@@ -9089,6 +9214,9 @@ func _update_action_context_risk() -> void:
 	if bool(summary.get("defeat", false)):
 		risk_text = "TURN END · DEFEAT"
 		tone = "danger"
+	elif int(summary.get("defiance_spent", 0)) > 0:
+		risk_text = "TURN END · DEFIANCE · %d LEFT" % int(summary.get("defiance_remaining_after", 0))
+		tone = "danger"
 	else:
 		var values: PackedStringArray = []
 		if int(summary.get("stoneskin_loss", 0)) > 0:
@@ -10131,9 +10259,8 @@ func _pass_preview_summary() -> Dictionary:
 		return {}
 	var losses: Dictionary = _pass_preview_player_damage_losses(phase_result.get("steps", []) as Array)
 	var outcome: String = _combat_engine.combat_outcome(after_state)
-	var source_player: Dictionary = (source_state.get("player", {}) as Dictionary)
 	var umbra_unknown_before_player: bool = _pass_preview_has_hidden_umbra_action(phase_result.get("steps", []) as Array)
-	var defeat: bool = not umbra_unknown_before_player and (outcome == "defeat" or int(source_player.get("hp", 0)) - int(losses.get("hp", 0)) <= 0)
+	var defeat: bool = not umbra_unknown_before_player and outcome == "defeat"
 	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
 	var entries: Array[Dictionary] = _pass_preview_damage_entries(losses)
 	var tone: String = "safe"
@@ -10148,6 +10275,9 @@ func _pass_preview_summary() -> Dictionary:
 		"hp_loss": int(losses.get("hp", 0)),
 		"block_loss": int(losses.get("block", 0)),
 		"stoneskin_loss": int(losses.get("stoneskin", 0)),
+		"defiance_spent": int(losses.get("defiance_spent", 0)),
+		"defiance_restored": int(losses.get("defiance_restored", 0)),
+		"defiance_remaining_after": int(losses.get("defiance_remaining_after", 0)),
 		"unrevealed_before_player": unrevealed_before_player,
 		"umbra_unknown_before_player": umbra_unknown_before_player,
 		"outcome": outcome
@@ -10156,7 +10286,14 @@ func _pass_preview_summary() -> Dictionary:
 	return summary
 
 func _pass_preview_player_damage_losses(steps: Array) -> Dictionary:
-	var losses: Dictionary = {"hp": 0, "block": 0, "stoneskin": 0}
+	var losses: Dictionary = {
+		"hp": 0,
+		"block": 0,
+		"stoneskin": 0,
+		"defiance_spent": 0,
+		"defiance_restored": 0,
+		"defiance_remaining_after": 0
+	}
 	for step_var: Variant in steps:
 		if typeof(step_var) != TYPE_DICTIONARY:
 			continue
@@ -10179,6 +10316,11 @@ func _pass_preview_player_damage_losses(steps: Array) -> Dictionary:
 			losses["hp"] = int(losses.get("hp", 0)) + maxi(0, int(loss.get("hp_loss", 0)))
 			losses["block"] = int(losses.get("block", 0)) + maxi(0, int(loss.get("block_loss", 0)))
 			losses["stoneskin"] = int(losses.get("stoneskin", 0)) + maxi(0, int(loss.get("stoneskin_loss", 0)))
+			var trigger_count: int = maxi(0, int(loss.get("defiance_trigger_count", 0)))
+			if trigger_count > 0:
+				losses["defiance_spent"] = int(losses.get("defiance_spent", 0)) + trigger_count
+				losses["defiance_restored"] = int(losses.get("defiance_restored", 0)) + maxi(0, int(loss.get("defiance_restored", 0)))
+				losses["defiance_remaining_after"] = maxi(0, int(loss.get("defiance_remaining", 0)))
 	return losses
 
 func _pass_preview_has_hidden_umbra_action(steps: Array) -> bool:
@@ -10195,6 +10337,7 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 	var stoneskin_loss: int = int(losses.get("stoneskin", 0))
 	var block_loss: int = int(losses.get("block", 0))
 	var hp_loss: int = int(losses.get("hp", 0))
+	var defiance_spent: int = int(losses.get("defiance_spent", 0))
 	if stoneskin_loss > 0:
 		entries.append({
 			"name": "PassPreviewStoneSkinLoss",
@@ -10209,7 +10352,14 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 			"color": Color("90d9ff"),
 			"icon_path": PASS_PREVIEW_BLOCK_ICON_PATH
 		})
-	if hp_loss > 0:
+	if defiance_spent > 0:
+		entries.append({
+			"name": "PassPreviewDefianceSpent",
+			"text": "-%d" % defiance_spent,
+			"color": Color("f6d77d"),
+			"icon_path": PASS_PREVIEW_DEFIANCE_ICON_PATH
+		})
+	elif hp_loss > 0:
 		entries.append({
 			"name": "PassPreviewHpLoss",
 			"text": "-%d" % hp_loss,
@@ -10221,6 +10371,12 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 func _pass_preview_tooltip(summary: Dictionary) -> String:
 	if bool(summary.get("umbra_unknown_before_player", false)):
 		return "One or more hidden presences act before your next turn. Their intents and possible damage are unknown."
+	if int(summary.get("defiance_spent", 0)) > 0:
+		return "A revealed lethal hit will spend %d Defiance, restore %d HP, and leave %d Defiance." % [
+			int(summary.get("defiance_spent", 0)),
+			int(summary.get("defiance_restored", 0)),
+			int(summary.get("defiance_remaining_after", 0))
+		]
 	if bool(summary.get("unrevealed_before_player", false)):
 		return "Enemies have unrevealed actions before your next turn, you may take additional damage."
 	return ""
@@ -15175,6 +15331,22 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 				"color": ElementData.accent(ElementData.EARTH),
 				"offset": 22.0
 			})
+		if int(loss.get("defiance_restored", 0)) > 0:
+			floats.append({
+				"tile": tile,
+				"text": "DEFIANCE +%d · %d LEFT" % [
+					int(loss.get("defiance_restored", 0)),
+					int(loss.get("defiance_remaining", 0))
+				],
+				"color": Color("f6d77d"),
+				"offset": -30.0,
+				"x_offset": -26.0,
+				"width": 184.0,
+				"icon": "defiance",
+				"icon_tint": Color("fff3c4"),
+				"icon_fill": Color(0.14, 0.08, 0.20, 0.96),
+				"icon_border": Color("d6aa5e")
+			})
 		if str(loss.get("kind", "")) == "player":
 			status_tile = tile
 	if not status_text.is_empty():
@@ -15328,6 +15500,12 @@ func _apply_actor_losses(state: Dictionary, target_losses: Array) -> void:
 		match str(loss.get("kind", "")):
 			"player":
 				_apply_player_losses(state, int(loss.get("hp_loss", 0)), int(loss.get("block_loss", 0)), int(loss.get("stoneskin_loss", 0)))
+				var restored_hp: int = maxi(0, int(loss.get("defiance_restored", 0)))
+				if restored_hp > 0:
+					var player: Dictionary = state.get("player", {})
+					player["hp"] = mini(int(player.get("max_hp", 1)), int(player.get("hp", 0)) + restored_hp)
+					state["player"] = player
+					state["defiance_remaining"] = maxi(0, int(loss.get("defiance_remaining", 0)))
 			"illusion":
 				_apply_illusion_loss_by_key(state, str(loss.get("key", "")), int(loss.get("hp_loss", 0)))
 
@@ -16922,7 +17100,15 @@ func _open_level_up_overlay() -> void:
 	_analytics_log_level_up(before_progression, _progression)
 	_refresh_ui()
 	_progression_overlay_mode = "skills"
-	_progression_overlay_notice = "Skill point gained. Spend it now or save it for later."
+	var defiance_gained: int = (
+		ProgressionStore.defiance_capacity_for_level(int(_progression.get("level", 1)))
+		- ProgressionStore.defiance_capacity_for_level(int(before_progression.get("level", 1)))
+	)
+	_progression_overlay_notice = (
+		"Skill point gained. Defiance +%d. Spend the point now or save it for later." % defiance_gained
+		if defiance_gained > 0
+		else "Skill point gained. Spend it now or save it for later."
+	)
 	_progression_overlay_notice_is_error = false
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
@@ -16938,6 +17124,7 @@ func _close_card_upgrade_overlay() -> void:
 	_progression_level_label = null
 	_progression_skill_points_label = null
 	_progression_moltshards_label = null
+	_progression_defiance_label = null
 	_skill_reset_button = null
 	_skill_tree_view = null
 	_clear_equipment_drag_state(true)
@@ -17043,17 +17230,45 @@ func _on_progression_overlay_close_pressed() -> void:
 func _build_progression_resource_summary() -> Control:
 	var row := HBoxContainer.new()
 	row.name = "ProgressionOverlaySummary"
-	row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	_progression_level_label = _add_progression_resource_chip(row, "ProgressionLevel", Color("e5b95f"))
-	_progression_skill_points_label = _add_progression_resource_chip(row, "ProgressionSkillPoints", Color("72d4c6"))
-	_progression_moltshards_label = _add_progression_resource_chip(row, "ProgressionMoltshards", Color("b58ae0"))
+	_progression_summary_compact = (
+		_upgrade_dialog != null
+		and _upgrade_dialog.get_viewport_rect().size.x < PROGRESSION_SUMMARY_COMPACT_VIEWPORT_WIDTH
+	)
+	row.add_theme_constant_override(
+		"separation",
+		UiTypography.SPACE_TIGHT if _progression_summary_compact else UiTypography.SPACE_SMALL
+	)
+	_progression_level_label = _add_progression_resource_chip(
+		row,
+		"ProgressionLevel",
+		Color("e5b95f"),
+		68.0 if _progression_summary_compact else 124.0
+	)
+	_progression_skill_points_label = _add_progression_resource_chip(
+		row,
+		"ProgressionSkillPoints",
+		Color("72d4c6"),
+		68.0 if _progression_summary_compact else 124.0
+	)
+	_progression_moltshards_label = _add_progression_resource_chip(
+		row,
+		"ProgressionMoltshards",
+		Color("b58ae0"),
+		76.0 if _progression_summary_compact else 124.0
+	)
+	_progression_defiance_label = _add_progression_resource_chip(
+		row,
+		"ProgressionDefiance",
+		Color("d6aa5e"),
+		160.0 if _progression_summary_compact else 220.0
+	)
 	_refresh_progression_resource_summary()
 	return row
 
-func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accent: Color) -> Label:
+func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accent: Color, minimum_width: float = 124.0) -> Label:
 	var panel := PanelContainer.new()
 	panel.name = "%sChip" % chip_name
-	panel.custom_minimum_size = Vector2(124.0, 44.0)
+	panel.custom_minimum_size = Vector2(minimum_width, 36.0 if _progression_summary_compact else 44.0)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.055, 0.042, 0.052, 0.96)
 	style.border_color = accent.darkened(0.14)
@@ -17069,7 +17284,10 @@ func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accen
 	label.name = "%sLabel" % chip_name
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.apply_label_role(label, UiTypography.ROLE_SECTION)
+	UiTypography.apply_label_role(
+		label,
+		UiTypography.ROLE_CAPTION if _progression_summary_compact else UiTypography.ROLE_SECTION
+	)
 	label.add_theme_color_override("font_color", accent.lightened(0.10))
 	label.add_theme_color_override("font_outline_color", Color("21151b"))
 	label.add_theme_constant_override("outline_size", 2)
@@ -17078,11 +17296,49 @@ func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accen
 
 func _refresh_progression_resource_summary() -> void:
 	if _progression_level_label != null:
-		_progression_level_label.text = "LEVEL  %d" % int(_progression.get("level", 1))
+		_progression_level_label.text = (
+			"LV %d" % int(_progression.get("level", 1))
+			if _progression_summary_compact
+			else "LEVEL  %d" % int(_progression.get("level", 1))
+		)
 	if _progression_skill_points_label != null:
-		_progression_skill_points_label.text = "POINTS  %d" % ProgressionStore.unspent_skill_points(_progression)
+		_progression_skill_points_label.text = (
+			"PTS %d" % ProgressionStore.unspent_skill_points(_progression)
+			if _progression_summary_compact
+			else "POINTS  %d" % ProgressionStore.unspent_skill_points(_progression)
+		)
 	if _progression_moltshards_label != null:
-		_progression_moltshards_label.text = "MOLTSHARDS  %d" % ProgressionStore.moltshard_count(_progression)
+		_progression_moltshards_label.text = (
+			"MOLT %d" % ProgressionStore.moltshard_count(_progression)
+			if _progression_summary_compact
+			else "MOLTSHARDS  %d" % ProgressionStore.moltshard_count(_progression)
+		)
+	if _progression_defiance_label != null:
+		var level: int = int(_progression.get("level", 1))
+		var permanent_capacity: int = ProgressionStore.defiance_capacity_for_level(level)
+		var capacity: int = (
+			_run_engine.defiance_capacity(_run_state)
+			if not _run_state.is_empty()
+			else permanent_capacity
+		)
+		var remaining: int = _run_engine.defiance_remaining(_run_state) if not _run_state.is_empty() else capacity
+		var next_level: int = mini(
+			GameData.max_progression_level(),
+			(permanent_capacity + 1) * ProgressionStore.DEFIANCE_LEVEL_INTERVAL
+		)
+		_progression_defiance_label.text = (
+			(
+				"DEFIANCE %d/%d · MAX" % [remaining, capacity]
+				if level >= GameData.max_progression_level()
+				else "DEFIANCE %d/%d · L%d" % [remaining, capacity, next_level]
+			)
+			if _progression_summary_compact
+			else (
+				"DEFIANCE  %d/%d  ·  MAX" % [remaining, capacity]
+				if level >= GameData.max_progression_level()
+				else "DEFIANCE  %d/%d  ·  NEXT %d" % [remaining, capacity, next_level]
+			)
+		)
 
 func _build_character_overlay_tabs() -> Control:
 	var row := HBoxContainer.new()
@@ -19826,6 +20082,15 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"room_element": str(combat_state.get("room_element", room_meta.get("element", ""))),
 		"player_hp": int(player.get("hp", run_state.get("player_hp", -1))),
 		"player_max_hp": int(player.get("max_hp", run_state.get("player_max_hp", -1))),
+		"defiance_capacity": int(combat_state.get(
+			RunEngineScript.DEFIANCE_CAPACITY_KEY,
+			run_state.get(RunEngineScript.DEFIANCE_CAPACITY_KEY, 0)
+		)),
+		"defiance_remaining": int(combat_state.get(
+			RunEngineScript.DEFIANCE_REMAINING_KEY,
+			run_state.get(RunEngineScript.DEFIANCE_REMAINING_KEY, 0)
+		)),
+		"combat_unit_scale": 1,
 		"progression_level": int(progression.get("level", 1)),
 		"progression_skills": ProgressionStore.selected_skill_ids(progression),
 		"moltshards": ProgressionStore.moltshard_count(progression),
@@ -20015,6 +20280,12 @@ func _stage_combat_skill_event_analytics_for_state(run_state: Dictionary, combat
 		next_combat.get("skill_event_revision", 0)
 	))
 	var latest_staged_revision: int = staged_revision
+	var had_defiance_staged_cursor: bool = combat_analytics.has(COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY)
+	var defiance_staged_revision: int = int(combat_analytics.get(
+		COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY,
+		next_combat.get("defiance_event_revision", 0)
+	))
+	var latest_defiance_staged_revision: int = defiance_staged_revision
 	var progression: Dictionary = ProgressionStore.merge_progression_analytics_outbox(
 		next_run.get("progression", _progression) as Dictionary,
 		_progression
@@ -20042,16 +20313,51 @@ func _stage_combat_skill_event_analytics_for_state(run_state: Dictionary, combat
 			}
 		)
 		latest_staged_revision = maxi(latest_staged_revision, revision)
+	for event: Dictionary in _combat_engine.defiance_events(next_combat):
+		var revision: int = int(event.get("revision", 0))
+		if revision <= defiance_staged_revision:
+			continue
+		var idempotency_key: String = _combat_defiance_event_idempotency_key(next_combat, revision)
+		if idempotency_key.is_empty():
+			break
+		progression = ProgressionStore.queue_progression_analytics_event(
+			progression,
+			"defiance_triggered",
+			idempotency_key,
+			_analytics_context_from_states(next_run, next_combat),
+			{
+				"trigger_revision": revision,
+				"trigger_scope": "combat",
+				"turn": int(event.get("turn", next_combat.get("turn", 0))),
+				"cause": str(event.get("cause", "")),
+				"lethal_hp_loss": int(event.get("lethal_hp_loss", 0)),
+				"restored_hp": int(event.get("restored_hp", 0)),
+				"charges_before": int(event.get("charges_before", 0)),
+				"charges_after": int(event.get("charges_after", 0)),
+				"capacity": int(next_combat.get(RunEngineScript.DEFIANCE_CAPACITY_KEY, 0)),
+				"combat_unit_scale": 1,
+			}
+		)
+		latest_defiance_staged_revision = maxi(latest_defiance_staged_revision, revision)
 	combat_analytics[COMBAT_SKILL_EVENT_STAGED_REVISION_KEY] = latest_staged_revision
+	combat_analytics[COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY] = latest_defiance_staged_revision
 	next_combat["analytics"] = combat_analytics
 	next_run["progression"] = progression
-	if latest_staged_revision > staged_revision:
+	if latest_staged_revision > staged_revision or latest_defiance_staged_revision > defiance_staged_revision:
 		_progression = ProgressionStore.merge_progression_analytics_outbox(_progression, progression)
 	return {
 		"run_state": next_run,
 		"combat_state": next_combat,
-		"changed": not had_staged_cursor or latest_staged_revision > staged_revision,
-		"staged": latest_staged_revision > staged_revision,
+		"changed": (
+			not had_staged_cursor
+			or not had_defiance_staged_cursor
+			or latest_staged_revision > staged_revision
+			or latest_defiance_staged_revision > defiance_staged_revision
+		),
+		"staged": (
+			latest_staged_revision > staged_revision
+			or latest_defiance_staged_revision > defiance_staged_revision
+		),
 	}
 
 func _combat_skill_event_staged_revision(combat_state: Dictionary) -> int:
@@ -20069,12 +20375,17 @@ func _combat_skill_event_idempotency_key(run_state: Dictionary, combat_state: Di
 		return ""
 	return "skill_triggered|combat|%s|%d|%s" % [combat_id, revision, skill_id]
 
+func _combat_defiance_event_idempotency_key(combat_state: Dictionary, revision: int) -> String:
+	var combat_id: String = str((combat_state.get("analytics", {}) as Dictionary).get("combat_id", ""))
+	if combat_id.is_empty() or revision <= 0:
+		return ""
+	return "defiance_triggered|combat|%s|%d" % [combat_id, revision]
+
 func _has_pending_combat_skill_event_analytics() -> bool:
 	for entry: Dictionary in ProgressionStore.progression_analytics_outbox(_progression):
-		if str(entry.get("event_type", "")) != "skill_triggered":
-			continue
+		var event_type: String = str(entry.get("event_type", ""))
 		var payload: Dictionary = entry.get("payload", {}) as Dictionary
-		if str(payload.get("trigger_scope", "")) == "combat":
+		if event_type in ["skill_triggered", "defiance_triggered"] and str(payload.get("trigger_scope", "")) == "combat":
 			return true
 	return false
 
@@ -20229,6 +20540,8 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 		var combat_analytics: Dictionary = (_combat_state.get("analytics", {}) as Dictionary).duplicate(true)
 		combat_analytics["combat_id"] = "%s_c%03d" % [str(analytics.get("run_id", "")), int(analytics.get("combat_counter", 0))]
 		combat_analytics[COMBAT_SKILL_EVENT_STAGED_REVISION_KEY] = 0
+		combat_analytics[COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY] = 0
+		_defiance_event_revision_seen = 0
 		_combat_state["analytics"] = combat_analytics
 		_run_state["combat_state"] = _combat_state.duplicate(true)
 		_analytics_initialize_combat_tracker(_combat_state)
@@ -20306,6 +20619,8 @@ func _sync_analytics_combat_tracker() -> void:
 		_run_state["analytics"] = analytics
 		combat_analytics["combat_id"] = "%s_c%03d" % [str(analytics.get("run_id", "")), int(analytics.get("combat_counter", 0))]
 		combat_analytics[COMBAT_SKILL_EVENT_STAGED_REVISION_KEY] = 0
+		combat_analytics[COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY] = 0
+		_defiance_event_revision_seen = 0
 		_combat_state["analytics"] = combat_analytics
 		_run_state["combat_state"] = _combat_state.duplicate(true)
 	if _analytics_combat_tracker.is_empty() or str(_analytics_combat_tracker.get("combat_id", "")) != str(combat_analytics.get("combat_id", "")):

@@ -15,11 +15,13 @@ const PLANNED_DEPTH_SEQUENCES: int = 6
 const ACTIVE_DEPTH_SEQUENCES: int = 6
 const DEPTHS_PER_SEQUENCE: int = 4
 const MAX_DEPTH: int = ACTIVE_DEPTH_SEQUENCES * DEPTHS_PER_SEQUENCE
-const BASE_MAX_HP: int = 360
+const BASE_MAX_HP: int = 24
 const BASE_HAND_SIZE: int = 5
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
-const REWARD_HEAL: int = 60
+const REWARD_HEAL: int = 3
+const CAMPFIRE_LINGER_HEAL: int = 4
+const BOSS_VICTORY_HEAL_FRACTION: float = 0.25
 const BOSS_VICTORY_EMBERS: int = 30
 const DEBUG_BOSS_SEED: int = 90429
 const DEBUG_BOSS_COORD: Vector2i = Vector2i(4, 0)
@@ -28,6 +30,7 @@ const MERCHANT_ROOM_CANDIDATE_PERCENT: int = 22
 const MERCHANT_ROOM_MIN_DEPTH: int = 2
 const EQUIPMENT_ROOM_DROP_PERCENT: int = 38
 const EQUIPMENT_DROP_PITY_MISSES: int = 2
+const MAX_VISITED_ROOMS_BEFORE_OUTWARD_OFFER: int = 3
 const MISSED_EQUIPMENT_NOTICE: String = "Unclaimed gear crumbles into dust."
 const SKILL_STATE_KEY: String = "skill_state"
 const RUN_SKILL_EVENT_LIMIT: int = 48
@@ -68,6 +71,11 @@ const NEW_LOADOUT_EQUIPMENT_KEY: String = "new_loadout_equipment"
 const NEW_LOADOUT_MAGIC_KEY: String = "new_loadout_magic"
 const RUN_CONTENT_SCHEMA_KEY: String = "run_content_schema"
 const RUN_CONTENT_SCHEMA: int = 2
+const COMBAT_UNITS_SCHEMA_KEY: String = "combat_units_schema"
+const COMBAT_UNITS_SCHEMA: int = 1
+const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
+const DEFIANCE_CAPACITY_KEY: String = "defiance_capacity"
+const DEFIANCE_REMAINING_KEY: String = "defiance_remaining"
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -96,10 +104,14 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	var attuned_magic_cards: Array = GameData.starting_magic_cards()
 	var magic_inventory: Array = []
 	var equipped_items: Array = []
+	var defiance_capacity: int = ProgressionStore.defiance_capacity_for_level(
+		int(normalized_progression.get("level", 1))
+	)
 	var run_state: Dictionary = {
 		"seed": seed,
 		"run_index": int(normalized_progression.get("run_counter", 0)),
 		RUN_CONTENT_SCHEMA_KEY: RUN_CONTENT_SCHEMA,
+		COMBAT_UNITS_SCHEMA_KEY: COMBAT_UNITS_SCHEMA,
 		"mode": "room",
 		"current_room": Vector2i.ZERO,
 		"current_room_layout": start_layout,
@@ -121,6 +133,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"relics": [],
 		"player_hp": max_hp,
 		"player_max_hp": max_hp,
+		DEFIANCE_CAPACITY_KEY: defiance_capacity,
+		DEFIANCE_REMAINING_KEY: defiance_capacity,
 		"hand_size": hand_size,
 		"heal_bonus": heal_bonus,
 		"held_embers": starting_embers,
@@ -142,8 +156,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	return run_state
 
 func create_debug_boss_run(progression: Dictionary) -> Dictionary:
-	var max_hp: int = 420
-	var current_hp: int = 340
+	var max_hp: int = 28
+	var current_hp: int = 22
 	var deck_cards: Array = []
 	for card_id: String in [
 		"quick_stab",
@@ -190,7 +204,9 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"hand_size": BASE_HAND_SIZE,
 		"cards_per_turn": BASE_CARDS_PER_TURN,
 		"draw_per_turn": BASE_DRAW_PER_TURN,
-		"heal_bonus": 2
+		"heal_bonus": 0,
+		DEFIANCE_CAPACITY_KEY: ProgressionStore.defiance_capacity_for_level(int(progression.get("level", 1))),
+		DEFIANCE_REMAINING_KEY: ProgressionStore.defiance_capacity_for_level(int(progression.get("level", 1)))
 	}
 	var combat_state: Dictionary = _combat_engine.create_combat(DEBUG_BOSS_SEED, layout, player_snapshot)
 	var rooms: Dictionary = {}
@@ -199,6 +215,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"seed": DEBUG_BOSS_SEED,
 		"run_index": -1,
 		RUN_CONTENT_SCHEMA_KEY: RUN_CONTENT_SCHEMA,
+		COMBAT_UNITS_SCHEMA_KEY: COMBAT_UNITS_SCHEMA,
 		"mode": "combat",
 		"current_room": DEBUG_BOSS_COORD,
 		"current_room_layout": layout,
@@ -219,7 +236,9 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"hand_size": BASE_HAND_SIZE,
 		"cards_per_turn": BASE_CARDS_PER_TURN,
 		"draw_per_turn": BASE_DRAW_PER_TURN,
-		"heal_bonus": 2,
+		"heal_bonus": 0,
+		DEFIANCE_CAPACITY_KEY: int(player_snapshot.get(DEFIANCE_CAPACITY_KEY, 0)),
+		DEFIANCE_REMAINING_KEY: int(player_snapshot.get(DEFIANCE_REMAINING_KEY, 0)),
 		"held_embers": 44,
 		"unbanked_embers": 44,
 		"combat_state": combat_state,
@@ -240,19 +259,30 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = migrate_renamed_content_ids(run_state) if run_content_migration_required(run_state) else run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
+	next_state = migrate_combat_units(next_state)
 	next_state[RUN_CONTENT_SCHEMA_KEY] = RUN_CONTENT_SCHEMA
+	next_state[COMBAT_UNITS_SCHEMA_KEY] = COMBAT_UNITS_SCHEMA
 	next_state = GrimoireLibrary.ensure_run_state(next_state)
 	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(next_state.get("run_stats", {}))
 	next_state[SKILL_STATE_KEY] = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	next_state["progression"] = ProgressionStore.normalized_data(next_state.get("progression", {}) as Dictionary)
 	next_state.erase("stats")
+	next_state = _sync_defiance_capacity(next_state, false)
 	var repaired_combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if not repaired_combat_state.is_empty():
 		repaired_combat_state["skill_ids"] = ProgressionStore.selected_skill_ids(next_state.get("progression", {}) as Dictionary)
 		repaired_combat_state.erase("stats")
 		repaired_combat_state.erase("card_upgrades")
 		repaired_combat_state.erase("card_mods")
-		next_state["combat_state"] = _repair_combat_skill_state(repaired_combat_state)
+		repaired_combat_state = _repair_combat_defiance_state(
+			_repair_combat_skill_state(repaired_combat_state),
+			defiance_capacity(next_state),
+			defiance_remaining(next_state)
+		)
+		next_state["combat_state"] = repaired_combat_state
+		next_state[DEFIANCE_CAPACITY_KEY] = int(repaired_combat_state.get(DEFIANCE_CAPACITY_KEY, defiance_capacity(next_state)))
+		next_state[DEFIANCE_REMAINING_KEY] = int(repaired_combat_state.get(DEFIANCE_REMAINING_KEY, defiance_remaining(next_state)))
+	next_state = _repair_pending_combat_checkpoints(next_state)
 	if not next_state.has("held_embers"):
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
@@ -271,6 +301,188 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 
 static func run_content_migration_required(run_state: Dictionary) -> bool:
 	return int(run_state.get(RUN_CONTENT_SCHEMA_KEY, 0)) < RUN_CONTENT_SCHEMA
+
+static func combat_units_migration_required(run_state: Dictionary) -> bool:
+	return int(run_state.get(COMBAT_UNITS_SCHEMA_KEY, 0)) < COMBAT_UNITS_SCHEMA
+
+static func migrate_combat_units(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if next_state.is_empty() or not combat_units_migration_required(next_state):
+		return next_state
+	var classification: String = _legacy_combat_unit_classification(next_state)
+	if classification == "legacy_fixed_10x":
+		next_state = _migrated_legacy_fixed_point_run(next_state)
+	elif classification == "conflict":
+		push_warning("Conflicting legacy combat-unit evidence; preserving serialized values rather than risking destructive conversion.")
+	next_state[COMBAT_UNITS_SCHEMA_KEY] = COMBAT_UNITS_SCHEMA
+	return next_state
+
+static func _legacy_combat_unit_classification(run_state: Dictionary) -> String:
+	# Content schema 2 shipped entirely inside the former x10 unit era.
+	if int(run_state.get(RUN_CONTENT_SCHEMA_KEY, 0)) >= 2:
+		return "legacy_fixed_10x"
+	var natural_evidence: bool = false
+	var fixed_evidence: bool = false
+	var outer_max_hp: int = int(run_state.get("player_max_hp", 0))
+	if outer_max_hp > 0:
+		fixed_evidence = outer_max_hp >= 100
+		natural_evidence = outer_max_hp < 100
+	var combat_state: Dictionary = run_state.get("combat_state", {}) as Dictionary
+	var combat_player: Dictionary = combat_state.get("player", {}) as Dictionary
+	var combat_max_hp: int = int(combat_player.get("max_hp", 0))
+	if combat_max_hp > 0:
+		fixed_evidence = fixed_evidence or combat_max_hp >= 100
+		natural_evidence = natural_evidence or combat_max_hp < 100
+	if fixed_evidence and natural_evidence:
+		return "conflict"
+	if fixed_evidence:
+		return "legacy_fixed_10x"
+	return "natural"
+
+static func _migrated_legacy_fixed_point_run(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	for field: String in ["player_hp", "player_max_hp", "heal_bonus"]:
+		if next_state.has(field):
+			next_state[field] = _legacy_survivor_units(int(next_state.get(field, 0)))
+	if next_state.has("run_stats"):
+		next_state["run_stats"] = _migrated_legacy_run_stats(next_state.get("run_stats", {}))
+	if typeof(next_state.get("pending_reward", null)) == TYPE_DICTIONARY:
+		var pending_reward: Dictionary = (next_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+		if pending_reward.has("heal_amount"):
+			pending_reward["heal_amount"] = _legacy_survivor_units(int(pending_reward.get("heal_amount", 0)))
+		next_state["pending_reward"] = pending_reward
+	if typeof(next_state.get("current_room_layout", null)) == TYPE_DICTIONARY:
+		next_state["current_room_layout"] = _migrated_legacy_combat_state_units(
+			next_state.get("current_room_layout", {}) as Dictionary
+		)
+	if typeof(next_state.get("combat_state", null)) == TYPE_DICTIONARY:
+		next_state["combat_state"] = _migrated_legacy_combat_state_units(
+			next_state.get("combat_state", {}) as Dictionary
+		)
+	if typeof(next_state.get(COMBAT_CONTINUATION_KEY, null)) == TYPE_ARRAY:
+		var checkpoints: Array = []
+		for checkpoint_var: Variant in next_state.get(COMBAT_CONTINUATION_KEY, []) as Array:
+			if typeof(checkpoint_var) != TYPE_DICTIONARY:
+				continue
+			var checkpoint: Dictionary = (checkpoint_var as Dictionary).duplicate(true)
+			if typeof(checkpoint.get("state", null)) == TYPE_DICTIONARY:
+				checkpoint["state"] = _migrated_legacy_combat_state_units(checkpoint.get("state", {}) as Dictionary)
+			checkpoints.append(checkpoint)
+		next_state[COMBAT_CONTINUATION_KEY] = checkpoints
+	return next_state
+
+static func _migrated_legacy_combat_state_units(combat_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = combat_state.duplicate(true)
+	if typeof(next_state.get("player", null)) == TYPE_DICTIONARY:
+		next_state["player"] = _migrated_legacy_unit(next_state.get("player", {}) as Dictionary)
+	for collection_key: String in ["enemies", "illusions", "terrain"]:
+		if typeof(next_state.get(collection_key, null)) != TYPE_ARRAY:
+			continue
+		var migrated_units: Array = []
+		for unit_var: Variant in next_state.get(collection_key, []) as Array:
+			if typeof(unit_var) == TYPE_DICTIONARY:
+				migrated_units.append(_migrated_legacy_unit(unit_var as Dictionary))
+		next_state[collection_key] = migrated_units
+	if typeof(next_state.get("traps", null)) == TYPE_ARRAY:
+		var traps: Array = []
+		for trap_var: Variant in next_state.get("traps", []) as Array:
+			if typeof(trap_var) != TYPE_DICTIONARY:
+				continue
+			var trap: Dictionary = (trap_var as Dictionary).duplicate(true)
+			for field: String in ["damage", "base_damage", "burn", "bleed", "poison"]:
+				if trap.has(field):
+					trap[field] = _legacy_survivor_units(int(trap.get(field, 0)))
+			traps.append(trap)
+		next_state["traps"] = traps
+	if typeof(next_state.get("loot", null)) == TYPE_ARRAY:
+		var loot_entries: Array = []
+		for loot_var: Variant in next_state.get("loot", []) as Array:
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			var loot: Dictionary = (loot_var as Dictionary).duplicate(true)
+			if str(loot.get("kind", "")) in ["healing_vial", "rusty_shield"] and loot.has("amount"):
+				loot["amount"] = _legacy_survivor_units(int(loot.get("amount", 0)))
+			loot_entries.append(loot)
+		next_state["loot"] = loot_entries
+	if typeof(next_state.get("deck", null)) == TYPE_DICTIONARY:
+		var deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
+		if deck.has("fatigue_base"):
+			deck["fatigue_base"] = _legacy_survivor_units(int(deck.get("fatigue_base", 0)))
+		next_state["deck"] = deck
+	if next_state.has("heal_bonus"):
+		next_state["heal_bonus"] = _legacy_survivor_units(int(next_state.get("heal_bonus", 0)))
+	if next_state.has("run_stats"):
+		next_state["run_stats"] = _migrated_legacy_run_stats(next_state.get("run_stats", {}))
+	if typeof(next_state.get("umbra", null)) == TYPE_DICTIONARY:
+		var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
+		if umbra.has("hidden_attack_damage_received_total"):
+			umbra["hidden_attack_damage_received_total"] = _legacy_cumulative_units(
+				int(umbra.get("hidden_attack_damage_received_total", 0))
+			)
+		next_state["umbra"] = umbra
+	var migrated_actions: Variant = _migrated_legacy_action_tree(next_state)
+	return migrated_actions as Dictionary if typeof(migrated_actions) == TYPE_DICTIONARY else next_state
+
+static func _migrated_legacy_unit(unit: Dictionary) -> Dictionary:
+	var next_unit: Dictionary = unit.duplicate(true)
+	for field: String in ["hp", "max_hp", "block", "stoneskin", "burn", "bleed", "expose", "sunder"]:
+		if next_unit.has(field):
+			next_unit[field] = _legacy_survivor_units(int(next_unit.get(field, 0)))
+	if typeof(next_unit.get("poison", null)) == TYPE_DICTIONARY:
+		var poison: Dictionary = (next_unit.get("poison", {}) as Dictionary).duplicate(true)
+		for field: String in ["damage", "trigger"]:
+			if poison.has(field):
+				poison[field] = _legacy_survivor_units(int(poison.get(field, 0)))
+		next_unit["poison"] = poison
+	return next_unit
+
+static func _migrated_legacy_action_tree(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_DICTIONARY:
+			var source: Dictionary = value as Dictionary
+			var migrated: Dictionary = source.duplicate(false)
+			for key: Variant in source.keys():
+				migrated[key] = _migrated_legacy_action_tree(source.get(key))
+			var action_type: String = str(source.get("type", ""))
+			if not action_type.is_empty():
+				for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
+					if migrated.has(field) and GameData.action_field_uses_fixed_point(action_type, field):
+						migrated[field] = _legacy_survivor_units(int(migrated.get(field, 0)))
+				if typeof(migrated.get("intensity_bonus", null)) == TYPE_DICTIONARY:
+					var bonus: Dictionary = (migrated.get("intensity_bonus", {}) as Dictionary).duplicate(true)
+					for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
+						if bonus.has(field) and GameData.action_field_uses_fixed_point(action_type, field):
+							bonus[field] = _legacy_survivor_units(int(bonus.get(field, 0)))
+					migrated["intensity_bonus"] = bonus
+			if migrated.has("health_cost"):
+				migrated["health_cost"] = _legacy_survivor_units(int(migrated.get("health_cost", 0)))
+			return migrated
+		TYPE_ARRAY:
+			var source_array: Array = value as Array
+			var migrated_array: Array = source_array.duplicate(false)
+			for index: int in range(source_array.size()):
+				migrated_array[index] = _migrated_legacy_action_tree(source_array[index])
+			return migrated_array
+		_:
+			return value
+
+static func _migrated_legacy_run_stats(value: Variant) -> Dictionary:
+	var stats: Dictionary = value as Dictionary if typeof(value) == TYPE_DICTIONARY else {}
+	var migrated: Dictionary = stats.duplicate(true)
+	for field: String in ["damage_dealt", "damage_received"]:
+		if migrated.has(field):
+			migrated[field] = _legacy_cumulative_units(int(migrated.get(field, 0)))
+	return migrated
+
+static func _legacy_survivor_units(value: int) -> int:
+	if value <= 0:
+		return 0
+	return int((value + GameData.LEGACY_FIXED_POINT_SCALE - 1) / GameData.LEGACY_FIXED_POINT_SCALE)
+
+static func _legacy_cumulative_units(value: int) -> int:
+	if value <= 0:
+		return 0
+	return int((value + int(GameData.LEGACY_FIXED_POINT_SCALE / 2)) / GameData.LEGACY_FIXED_POINT_SCALE)
 
 static func migrate_renamed_content_ids(run_state: Dictionary) -> Dictionary:
 	# Serialized runs can hold content ids in loadouts, rewards, combat piles,
@@ -718,6 +930,12 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 	next_state["combat_state"] = combat_state.duplicate(true)
 	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(combat_state.get("run_stats", next_state.get("run_stats", {})))
 	next_state["player_hp"] = int((combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
+	next_state[DEFIANCE_CAPACITY_KEY] = maxi(0, int(combat_state.get(DEFIANCE_CAPACITY_KEY, next_state.get(DEFIANCE_CAPACITY_KEY, 0))))
+	next_state[DEFIANCE_REMAINING_KEY] = clampi(
+		int(combat_state.get(DEFIANCE_REMAINING_KEY, next_state.get(DEFIANCE_REMAINING_KEY, 0))),
+		0,
+		int(next_state.get(DEFIANCE_CAPACITY_KEY, 0))
+	)
 	next_state = _apply_recovered_embers_from_combat(next_state, combat_state)
 	next_state = _apply_collected_equipment_from_combat(next_state, combat_state)
 	return next_state
@@ -781,7 +999,12 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 			next_state["progression"] = progression_after_award
 			boss_skill_state["moltshard_awarded"] = true
 			next_state[SKILL_STATE_KEY] = boss_skill_state
-		next_state["player_hp"] = int(next_state.get("player_max_hp", next_state.get("player_hp", 1)))
+			var boss_max_hp: int = maxi(1, int(next_state.get("player_max_hp", 1)))
+			var boss_heal: int = ceili(float(boss_max_hp) * BOSS_VICTORY_HEAL_FRACTION)
+			next_state["player_hp"] = mini(
+				boss_max_hp,
+				int(next_state.get("player_hp", 1)) + boss_heal
+			)
 		next_state = add_held_embers(next_state, BOSS_VICTORY_EMBERS)
 		next_state["pending_reward"] = {}
 		if _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false)):
@@ -1292,6 +1515,7 @@ func claim_relic(run_state: Dictionary, relic_id: String, deferred_relic_id: Str
 	if bonus != 0:
 		next_state["player_max_hp"] = int(next_state.get("player_max_hp", 1)) + bonus
 		next_state["player_hp"] = int(next_state.get("player_hp", 1)) + bonus
+	next_state = _sync_defiance_capacity(next_state, true)
 	if has_run_skill(next_state, "curators_patience") and deferred_relic_id != relic_id and offered_relics.has(deferred_relic_id) and not relics.has(deferred_relic_id):
 		var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 		if str(skill_state.get("pending_relic", "")) != deferred_relic_id:
@@ -1335,6 +1559,7 @@ func apply_progression_update(run_state: Dictionary, progression: Dictionary, pr
 	var previous_skills: Array[String] = run_skill_ids(next_state)
 	var normalized_progression: Dictionary = ProgressionStore.normalized_data(progression)
 	next_state["progression"] = normalized_progression
+	next_state = _sync_defiance_capacity(next_state, true)
 	var held_after: int = held_before if preserve_held_embers else int(normalized_progression.get("embers", held_before))
 	next_state = set_held_embers(next_state, held_after)
 	next_state = _clear_removed_skill_pending(next_state, previous_skills, run_skill_ids(next_state))
@@ -1367,6 +1592,67 @@ func _repair_combat_skill_state(combat_state: Dictionary) -> Dictionary:
 		next_state["banked_play_active"] = 0
 		next_state["banked_play_spent_this_activation"] = 0
 	next_state["skill_flags"] = flags
+	return next_state
+
+func _repair_combat_defiance_state(combat_state: Dictionary, capacity: int, fallback_remaining: int) -> Dictionary:
+	var next_state: Dictionary = combat_state.duplicate(true)
+	var safe_capacity: int = maxi(0, capacity)
+	next_state[DEFIANCE_CAPACITY_KEY] = safe_capacity
+	next_state[DEFIANCE_REMAINING_KEY] = clampi(
+		int(next_state.get(DEFIANCE_REMAINING_KEY, fallback_remaining)),
+		0,
+		safe_capacity
+	)
+	var events: Array = []
+	var latest_revision: int = maxi(0, int(next_state.get("defiance_event_revision", 0)))
+	if typeof(next_state.get("defiance_events", null)) == TYPE_ARRAY:
+		for event_var: Variant in next_state.get("defiance_events", []) as Array:
+			if typeof(event_var) != TYPE_DICTIONARY:
+				continue
+			var event: Dictionary = (event_var as Dictionary).duplicate(true)
+			var revision: int = maxi(0, int(event.get("revision", 0)))
+			if revision <= 0:
+				continue
+			event["revision"] = revision
+			latest_revision = maxi(latest_revision, revision)
+			events.append(event)
+	while events.size() > CombatEngineScript.DEFIANCE_EVENT_LIMIT:
+		events.pop_front()
+	next_state["defiance_events"] = events
+	next_state["defiance_event_revision"] = latest_revision
+	return next_state
+
+func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if typeof(next_state.get(COMBAT_CONTINUATION_KEY, null)) != TYPE_ARRAY:
+		return next_state
+	var checkpoints: Array = []
+	var skill_ids: Array[String] = ProgressionStore.selected_skill_ids(
+		next_state.get("progression", {}) as Dictionary
+	)
+	var capacity: int = defiance_capacity(next_state)
+	var fallback_remaining: int = defiance_remaining(next_state)
+	for checkpoint_var: Variant in next_state.get(COMBAT_CONTINUATION_KEY, []) as Array:
+		if typeof(checkpoint_var) != TYPE_DICTIONARY:
+			continue
+		var checkpoint: Dictionary = (checkpoint_var as Dictionary).duplicate(true)
+		if typeof(checkpoint.get("state", null)) != TYPE_DICTIONARY:
+			continue
+		var checkpoint_state: Dictionary = (checkpoint.get("state", {}) as Dictionary).duplicate(true)
+		checkpoint_state["skill_ids"] = skill_ids
+		checkpoint_state.erase("stats")
+		checkpoint_state.erase("card_upgrades")
+		checkpoint_state.erase("card_mods")
+		checkpoint_state = _repair_combat_defiance_state(
+			_repair_combat_skill_state(checkpoint_state),
+			capacity,
+			fallback_remaining
+		)
+		checkpoint["state"] = checkpoint_state
+		checkpoints.append(checkpoint)
+	next_state.erase(COMBAT_CONTINUATION_KEY)
+	if not checkpoints.is_empty() and str(next_state.get("mode", "")) == "combat":
+		next_state[COMBAT_CONTINUATION_KEY] = checkpoints
 	return next_state
 
 func reconcile_progression_revision(run_state: Dictionary, profile_progression: Dictionary) -> Dictionary:
@@ -1620,6 +1906,8 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
 		"skill_ids": ((run_state.get("progression", {}) as Dictionary).get("skill_ids", []) as Array).duplicate(),
 		"level": int((run_state.get("progression", {}) as Dictionary).get("level", 1)),
+		DEFIANCE_CAPACITY_KEY: int(run_state.get(DEFIANCE_CAPACITY_KEY, 0)),
+		DEFIANCE_REMAINING_KEY: int(run_state.get(DEFIANCE_REMAINING_KEY, 0)),
 		"relics": run_state.get("relics", []).duplicate(),
 		"hand_size": int(run_state.get("hand_size", BASE_HAND_SIZE)),
 		"heal_bonus": int(run_state.get("heal_bonus", 0)),
@@ -1627,6 +1915,43 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"draw_per_turn": BASE_DRAW_PER_TURN,
 		"run_stats": CombatEngineScript.normalized_run_stats(run_state.get("run_stats", {}))
 	}
+
+func defiance_capacity(run_state: Dictionary) -> int:
+	return maxi(0, int(run_state.get(DEFIANCE_CAPACITY_KEY, _derived_defiance_capacity(run_state))))
+
+func defiance_remaining(run_state: Dictionary) -> int:
+	return clampi(
+		int(run_state.get(DEFIANCE_REMAINING_KEY, defiance_capacity(run_state))),
+		0,
+		defiance_capacity(run_state)
+	)
+
+func _derived_defiance_capacity(run_state: Dictionary) -> int:
+	var progression: Dictionary = ProgressionStore.normalized_data(run_state.get("progression", {}) as Dictionary)
+	return (
+		ProgressionStore.defiance_capacity_for_level(int(progression.get("level", 1)))
+		+ GameData.stat_bonus_from_relics(run_state.get("relics", []), "defiance_capacity")
+	)
+
+func _sync_defiance_capacity(run_state: Dictionary, grant_new_capacity: bool) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var desired_capacity: int = maxi(0, _derived_defiance_capacity(next_state))
+	var previous_capacity: int = maxi(0, int(next_state.get(DEFIANCE_CAPACITY_KEY, desired_capacity)))
+	var remaining: int = clampi(
+		int(next_state.get(DEFIANCE_REMAINING_KEY, previous_capacity)),
+		0,
+		previous_capacity
+	)
+	if grant_new_capacity and desired_capacity > previous_capacity:
+		remaining += desired_capacity - previous_capacity
+	next_state[DEFIANCE_CAPACITY_KEY] = desired_capacity
+	next_state[DEFIANCE_REMAINING_KEY] = clampi(remaining, 0, desired_capacity)
+	var combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	if not combat_state.is_empty():
+		combat_state[DEFIANCE_CAPACITY_KEY] = desired_capacity
+		combat_state[DEFIANCE_REMAINING_KEY] = int(next_state.get(DEFIANCE_REMAINING_KEY, 0))
+		next_state["combat_state"] = combat_state
+	return next_state
 
 func _build_room_metadata(seed: int, coord: Vector2i) -> Dictionary:
 	var depth: int = _room_depth(coord)
@@ -2534,7 +2859,13 @@ func _ensure_loop_escape_connection(run_state: Dictionary, coord: Vector2i) -> v
 	var room: Dictionary = room_metadata(run_state, coord)
 	if not _room_can_gain_loop_escape(room):
 		return
-	if _room_has_progressive_available_move(run_state, room):
+	if _room_has_available_outward_move(run_state, room):
+		return
+	var attrition_offer: bool = (
+		_visited_room_count_at_depth(run_state, int(room.get("depth", 0)))
+		>= MAX_VISITED_ROOMS_BEFORE_OUTWARD_OFFER
+	)
+	if not attrition_offer and _room_has_progressive_available_move(run_state, room):
 		return
 	var outward_coord: Vector2i = _outward_coord_for_room(coord)
 	if _room_depth(outward_coord) != int(room.get("depth", 0)) + 1:
@@ -2543,7 +2874,8 @@ func _ensure_loop_escape_connection(run_state: Dictionary, coord: Vector2i) -> v
 		"door_dir": outward_coord - coord,
 		"coord": outward_coord,
 		"kind": "outward",
-		"loop_escape": true
+		"loop_escape": not attrition_offer,
+		"attrition_offer": attrition_offer
 	}
 	var connections: Array = (room.get("connections", []) as Array).duplicate(true)
 	for connection_var: Variant in connections:
@@ -2561,6 +2893,16 @@ func _ensure_loop_escape_connection(run_state: Dictionary, coord: Vector2i) -> v
 	outward_room["revealed"] = true
 	rooms[outward_key] = outward_room
 	run_state["rooms"] = rooms
+
+func _visited_room_count_at_depth(run_state: Dictionary, depth: int) -> int:
+	var visited_count: int = 0
+	for room_var: Variant in (run_state.get("rooms", {}) as Dictionary).values():
+		if typeof(room_var) != TYPE_DICTIONARY:
+			continue
+		var room: Dictionary = room_var as Dictionary
+		if int(room.get("depth", -1)) == depth and bool(room.get("visited", false)):
+			visited_count += 1
+	return visited_count
 
 func _room_can_gain_loop_escape(room: Dictionary) -> bool:
 	var depth: int = int(room.get("depth", 0))
@@ -2585,6 +2927,19 @@ func _room_has_progressive_available_move(run_state: Dictionary, room: Dictionar
 		if bool(candidate_room.get("sealed", false)):
 			continue
 		return true
+	return false
+
+func _room_has_available_outward_move(run_state: Dictionary, room: Dictionary) -> bool:
+	for connection_var: Variant in room.get("connections", []):
+		if typeof(connection_var) != TYPE_DICTIONARY:
+			continue
+		var connection: Dictionary = connection_var as Dictionary
+		if str(connection.get("kind", "")) != "outward":
+			continue
+		var candidate: Vector2i = connection.get("coord", Vector2i(999, 999))
+		var candidate_room: Dictionary = room_metadata(run_state, candidate)
+		if bool(candidate_room.get("revealed", false)) and not bool(candidate_room.get("sealed", false)):
+			return true
 	return false
 
 func _sync_current_layout_doors(run_state: Dictionary, coord: Vector2i) -> void:

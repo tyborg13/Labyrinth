@@ -247,7 +247,7 @@ func _print_help() -> void:
 	print("  --umbra-warning (start with the one-time Emaciated Man Umbra warning due)")
 	print("  --embers N --held-embers N --level N --skills id_a,id_b --moltshards N")
 	print("    --skills may contain any legal selection up to the level's earned point cap; omitted points remain unspent.")
-	print("  --player-hp N --player-max-hp N (fixed-point: 360 = 36 HP) --player-position 2:4 --relics ember_lens,pilgrim_boots")
+	print("  --player-hp N --player-max-hp N (natural units: 24 = 24 HP) --player-position 2:4 --relics ember_lens,pilgrim_boots")
 	print("  --attuned-magic card_a,card_b --magic-inventory card_c,card_d")
 	print("  --equip weapon=training_sword,offhand=splintered_shield")
 	print("  --equipment-inventory item_a,item_b")
@@ -405,7 +405,7 @@ func _build_room_mode_run(progression: Dictionary, mode: String) -> Dictionary:
 	var coord: Vector2i = requested_coord if requested_coord != INVALID_COORD else _first_room_coord_of_type(state, mode)
 	state = _run_state_for_room(state, coord, mode, Vector2i(1, 0))
 	if mode == "campfire":
-		state["player_hp"] = _option_or_default("player_hp", mini(120, int(state.get("player_max_hp", 360))))
+		state["player_hp"] = _option_or_default("player_hp", mini(8, int(state.get("player_max_hp", 24))))
 		if str(_options.get("notice", "")).is_empty():
 			state["notice"] = "Inspection fixture: campfire."
 	elif mode == "treasure":
