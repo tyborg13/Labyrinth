@@ -1622,6 +1622,7 @@ func _apply_style() -> void:
 	mini_map_style.shadow_color = Color(0.0, 0.0, 0.0, 0.0)
 	mini_map_style.shadow_size = 0
 	mini_map_overlay.add_theme_stylebox_override("panel", mini_map_style)
+	_ui_skin.apply_panel_surface(mini_map_overlay, UiSkin.SURFACE_HUD)
 	mini_map_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	mini_map_overlay.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	mini_map_overlay.set_meta("cursor_feedback_context_provider", _mini_map_cursor_feedback_context)
@@ -1642,7 +1643,10 @@ func _apply_style() -> void:
 	log_style.shadow_color = Color(0.0, 0.0, 0.0, 0.72)
 	log_style.shadow_size = 18
 	log_style.shadow_offset = Vector2(0.0, 6.0)
+	# The scene already owns the combat log's content margins.
+	log_overlay.set_meta("panel_safe_inset", 0.0)
 	log_overlay.add_theme_stylebox_override("panel", log_style)
+	_ui_skin.apply_panel_surface(log_overlay, UiSkin.SURFACE_HUD)
 	for pile_panel: PanelContainer in [draw_pile, discard_pile, burn_pile]:
 		pile_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		pile_panel.clip_contents = true
@@ -2767,6 +2771,8 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.custom_minimum_size = Vector2(640.0, 400.0)
 	_large_map_view.connect("room_selected", _on_large_map_room_selected)
 	vbox.add_child(_large_map_view)
+	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_PARCHMENT)
+
 func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim = ColorRect.new()
 	_pre_battle_scrim.name = "PreBattleScrim"
@@ -4032,6 +4038,7 @@ func _build_menu_overlay() -> void:
 		_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, MENU_DIALOG_BUTTON_MIN_WIDTH, true, variant)
 		button.pressed.connect(entry.get("callback", Callable()))
 		vbox.add_child(button)
+	_ui_skin.apply_outer_panel_frame(_menu_dialog, UiSkin.SURFACE_DIALOG)
 
 func _build_grimoire_overlay() -> void:
 	_grimoire_scrim = ColorRect.new()
@@ -4243,6 +4250,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_detail_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_content.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	detail_stack.add_child(_grimoire_detail_content)
+	_ui_skin.apply_outer_panel_frame(_grimoire_dialog, UiSkin.SURFACE_PARCHMENT)
 
 func _grimoire_cover_style() -> StyleBoxFlat:
 	var style := _ui_skin.make_plain_card_style(Color(0.12, 0.065, 0.035, 0.98), Color("7c4a24"), 18.0)
@@ -6342,6 +6350,8 @@ func _setup_play_meter() -> void:
 			break
 	hand_row.add_child(_play_meter)
 	hand_row.move_child(_play_meter, insert_index)
+	_play_meter.set_meta("panel_surface_accent", Color("c28a53"))
+	_ui_skin.apply_inset_surface(_play_meter, UiSkin.SURFACE_HUD)
 	_refresh_card_play_meter()
 
 func _setup_elemental_intensity_bar() -> void:
@@ -7602,14 +7612,15 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_panel.custom_minimum_size = TURN_ORDER_PANEL_MIN_SIZE
 	_turn_order_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_turn_order_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_turn_order_panel.set_meta("panel_safe_inset", 0.0)
 	_turn_order_panel.add_theme_stylebox_override("panel", _turn_order_panel_style())
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_left", 46)
 	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_right", 32)
 	margin.add_theme_constant_override("margin_bottom", 10)
 	_turn_order_panel.add_child(margin)
 	var row := HBoxContainer.new()
@@ -7627,6 +7638,8 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_label.anchor_right = 1.0
 	_turn_order_label.anchor_bottom = 1.0
 	_turn_order_label.text = "TURN\nCLOCK"
+	_turn_order_label.offset_left = 20.0
+	_turn_order_label.offset_right = -8.0
 	_turn_order_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_turn_order_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_turn_order_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7643,6 +7656,7 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_bar.custom_minimum_size = TURN_ORDER_PORTRAIT_SIZE
 	row.add_child(_turn_order_bar)
 	_turn_order_anchor.add_child(_turn_order_panel)
+	_ui_skin.apply_panel_surface(_turn_order_panel, UiSkin.SURFACE_HUD)
 
 func _setup_turn_order_boss_dossier() -> void:
 	_turn_order_boss_dossier = PanelContainer.new()
@@ -9926,6 +9940,15 @@ func _add_pass_preview_chip() -> void:
 		danger_label.add_theme_color_override("font_outline_color", Color("200806"))
 		danger_label.add_theme_constant_override("outline_size", 2)
 		vbox.add_child(danger_label)
+	var danger_state: bool = (
+		bool(summary.get("defeat", false))
+		or bool(summary.get("unrevealed_before_player", false))
+		or bool(summary.get("umbra_unknown_before_player", false))
+	)
+	var accent: Color = _action_context_risk_color("danger" if danger_state else str(summary.get("tone", "safe")))
+	chip.set_meta("panel_surface_accent", accent)
+	chip.set_meta("panel_selected", danger_state)
+	_ui_skin.apply_inset_surface(chip, UiSkin.SURFACE_DANGER if danger_state else UiSkin.SURFACE_HUD)
 
 	if _choice_buttons_use_overlay():
 		_pass_preview_overlay.add_child(chip)
@@ -16991,6 +17014,7 @@ func _rebuild_progression_overlay() -> void:
 		vbox.add_child(_build_magic_overlay_body())
 	else:
 		vbox.add_child(_build_skill_tree_overlay_body())
+	_ui_skin.apply_outer_panel_frame(_upgrade_dialog, UiSkin.SURFACE_DIALOG)
 	# A freshly built auto-wrapping detail panel can briefly report its minimum
 	# height before receiving its final width. CenterContainer preserves that
 	# transient growth in its offsets, so refit once layout has settled.
@@ -20777,7 +20801,13 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 		})
 
 func _sync_combat_state_from_run() -> void:
+	var entering_combat: bool = _combat_state.is_empty()
 	_combat_state = (_run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	if entering_combat and not _combat_state.is_empty():
+		# Never let a prior room's cached render signature suppress the first
+		# complete Turn Clock render on combat-room entry.
+		_turn_order_source_signature = "<room-entry>"
+		_turn_order_render_signature = "<room-entry>"
 	_mark_combat_preview_state_changed()
 
 func _sync_progression_from_run() -> void:

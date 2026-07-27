@@ -397,6 +397,49 @@ func _test_ui_skin_button_system() -> void:
 		_assert(button.get_theme_stylebox(state_name) is StyleBoxFlat, "Applied %s button state should remain code-native" % state_name)
 	button.free()
 
+	var outer_panel := PanelContainer.new()
+	var outer_style := skin.make_plain_card_style(Color("201714"), Color("8f6f46"), 19.0)
+	outer_panel.add_theme_stylebox_override("panel", outer_style)
+	var preserved_child := Control.new()
+	preserved_child.name = "PreservedMenuInternals"
+	preserved_child.custom_minimum_size = Vector2(240.0, 160.0)
+	outer_panel.add_child(preserved_child)
+	var baseline_margins := Vector4(
+		outer_style.get_content_margin(SIDE_LEFT),
+		outer_style.get_content_margin(SIDE_TOP),
+		outer_style.get_content_margin(SIDE_RIGHT),
+		outer_style.get_content_margin(SIDE_BOTTOM)
+	)
+	skin.apply_outer_panel_frame(outer_panel, UiSkin.SURFACE_DIALOG)
+	var raster_backing_style: StyleBoxFlat = outer_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	_assert(raster_backing_style != null, "Outer-only menu framing should preserve the baseline panel fill")
+	if raster_backing_style != null:
+		_assert(raster_backing_style.bg_color == outer_style.bg_color, "Outer-only menu framing should preserve the baseline panel fill color")
+		_assert(
+			Vector4(
+				raster_backing_style.get_content_margin(SIDE_LEFT),
+				raster_backing_style.get_content_margin(SIDE_TOP),
+				raster_backing_style.get_content_margin(SIDE_RIGHT),
+				raster_backing_style.get_content_margin(SIDE_BOTTOM)
+			) == baseline_margins,
+			"Outer-only menu framing should preserve all baseline content margins"
+		)
+		_assert(
+			raster_backing_style.border_width_left == 0
+			and raster_backing_style.border_width_top == 0
+			and raster_backing_style.border_width_right == 0
+			and raster_backing_style.border_width_bottom == 0,
+			"Outer-only menu framing should remove the legacy outline behind the raster"
+		)
+	_assert(preserved_child.get_parent() == outer_panel and preserved_child.custom_minimum_size == Vector2(240.0, 160.0), "Outer-only menu framing should preserve baseline internals")
+	_assert(outer_panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Outer-only menu framing should add the authored raster border")
+	_assert(
+		outer_panel.get_node_or_null("%s/%s" % [UiSkin.PANEL_ORNAMENT_NAME, UiSkin.OUTER_PANEL_RENDERER_NAME]) != null,
+		"Outer-only menu framing should isolate its renderer from PanelContainer content layout"
+	)
+	_assert(bool(outer_panel.get_meta("panel_outer_frame_only", false)), "Outer-only menu framing should stay isolated from full panel restyling")
+	outer_panel.free()
+
 func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(GrimoireLibrary.sections().size() == 8, "Grimoire should expose the planned navigation sections")
 	var entries: Dictionary = GrimoireLibrary.entry_map()
@@ -6854,7 +6897,11 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(ActionIcons.tooltip("exhaust").contains("Removes this card"), "Exhaust cost tooltip should describe card removal")
 	_assert(ActionIcons.tooltip("consume").contains("once"), "Consume cost tooltip should describe one-time item use")
 	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
-	_assert(tooltip_panel.get_child_count() == 1, "Keyword tooltip text should render as a custom panel instead of the default engine tooltip")
+	_assert(
+		tooltip_panel.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null
+		and not tooltip_panel.find_children("*", "VBoxContainer", true, false).is_empty(),
+		"Keyword tooltip text should render as a shaped custom panel instead of the default engine tooltip"
+	)
 	tooltip_panel.free()
 
 func _test_merchant_assets_load_for_board() -> void:
@@ -7915,8 +7962,12 @@ func _test_run_scene_combat_log_prominence() -> void:
 	await process_frame
 	var log_style: StyleBoxFlat = log_overlay.get_theme_stylebox("panel") as StyleBoxFlat
 	_assert(log_overlay.size.x >= 390.0 and log_overlay.size.y >= 100.0, "Combat log should have a prominent readable footprint")
-	_assert(log_style != null and log_style.bg_color.a >= 0.94, "Combat log should use a high-opacity background")
-	_assert(log_style != null and log_style.border_width_left >= 5 and log_style.border_width_top >= 2, "Combat log should use an obvious framed accent")
+	_assert(log_style != null and log_style.bg_color.a <= 0.01, "Combat log layout style should remain transparent beneath its authored frame")
+	_assert(
+		str(log_overlay.get_meta("surface_variant", "")) == UiSkin.SURFACE_HUD
+		and log_overlay.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null,
+		"Combat log should use the shared authored HUD frame"
+	)
 	_assert(log_label.get_theme_font_size("normal_font_size") >= UiTypography.SIZE_BODY_LARGE, "Combat log should use body-large text")
 	_assert(log_label.get_theme_constant("outline_size") >= 2, "Combat log text should retain a strong outline against the board")
 	_assert(log_overlay.visible and log_label.text == RunEngine.MISSED_EQUIPMENT_NOTICE, "Combat-log messages should be visible and exact")
@@ -7936,6 +7987,7 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	var mini_map: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap") as Control
 	_assert(mini_map_overlay.mouse_filter == Control.MOUSE_FILTER_STOP, "Minimap overlay should receive clicks")
 	_assert(mini_map.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Embedded minimap should not consume clicks before the overlay can open the large map")
+	_assert(mini_map_overlay.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Minimap should use the authored HUD frame")
 	instance.call("_close_dialogue")
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
@@ -7951,6 +8003,19 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	var large_map_dialog: PanelContainer = instance.get("_large_map_dialog") as PanelContainer
 	var close_button: Button = null
 	if large_map_dialog != null:
+		_assert(
+			large_map_dialog.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null,
+			"Large map should use the authored outer raster frame"
+		)
+		var large_map_style: StyleBoxFlat = large_map_dialog.get_theme_stylebox("panel") as StyleBoxFlat
+		_assert(
+			large_map_style != null
+			and large_map_style.border_width_left == 0
+			and large_map_style.border_width_top == 0
+			and large_map_style.border_width_right == 0
+			and large_map_style.border_width_bottom == 0,
+			"Large map should not retain a legacy outline outside its raster frame"
+		)
 		close_button = large_map_dialog.find_child("CloseButton", true, false) as Button
 	_assert(close_button != null, "Large map should expose a close button")
 	if close_button != null:
@@ -12623,6 +12688,7 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 	if chip != null:
 		var chip_rect: Rect2 = chip.get_global_rect()
 		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
+		_assert(chip.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null, "%s On Turn End preview should use the shared asymmetric shape" % context)
 		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
 		var choice_host: Control = _run_scene_choice_button_host(instance) as Control
 		var piles_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control

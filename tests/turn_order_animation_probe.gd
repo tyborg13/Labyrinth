@@ -3,6 +3,7 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 
 func _initialize() -> void:
 	print("turn order probe: start")
@@ -35,13 +36,14 @@ func _initialize() -> void:
 		quit(1)
 		return
 	print("turn order probe: entering combat")
-	instance.call("_on_map_view_room_selected", combat_coord)
-	await create_timer(0.95).timeout
+	run_state = probe_run_engine.move_to_pre_battle(run_state, combat_coord)
+	run_state = probe_run_engine.begin_pre_battle_combat(run_state)
+	instance.call("_load_run_state", run_state)
 	await process_frame
 	await process_frame
 	print("turn order probe: combat ready")
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
-	_assert_turn_order_slot_count(instance, 10)
+	_assert_complete_initial_turn_order(instance, combat_state)
 	_assert_turn_order_label(instance)
 	_assert_turn_order_panel_centered(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, combat_state)
@@ -121,6 +123,27 @@ func _assert_turn_order_slot_count(instance: Node, max_count: int) -> void:
 		push_error("Turn order bar showed %d slots; expected at most %d." % [bar.get_child_count(), max_count])
 		quit(1)
 
+func _assert_complete_initial_turn_order(instance: Node, state: Dictionary) -> void:
+	var bar: Control = instance.get("_turn_order_bar") as Control
+	var panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
+	var combat_engine = instance.get("_combat_engine")
+	if bar == null or panel == null or combat_engine == null:
+		push_error("Turn order initialization probe is missing the bar, panel, or engine.")
+		quit(1)
+		return
+	var expected: Array = combat_engine.current_turn_order(state, 10)
+	if expected.is_empty():
+		push_error("Turn order initialization fixture produced no expected entries.")
+		quit(1)
+		return
+	if bar.get_child_count() != expected.size():
+		push_error("Turn order showed %d of %d entries on room entry before any action." % [bar.get_child_count(), expected.size()])
+		quit(1)
+		return
+	if panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) == null:
+		push_error("Turn order panel is missing the authored raster border.")
+		quit(1)
+
 func _assert_turn_order_label(instance: Node) -> void:
 	var panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
 	if panel == null:
@@ -130,6 +153,9 @@ func _assert_turn_order_label(instance: Node) -> void:
 	var labels: Array[Label] = _labels_under(panel)
 	for label: Label in labels:
 		if label.text == "TURN\nCLOCK":
+			if label.horizontal_alignment != HORIZONTAL_ALIGNMENT_LEFT or label.offset_left < 19.5:
+				push_error("Turn Clock title should be centered vertically in its left-hand legend rail.")
+				quit(1)
 			return
 	push_error("Turn order panel should be labeled TURN CLOCK.")
 	quit(1)

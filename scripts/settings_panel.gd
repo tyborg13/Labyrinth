@@ -89,6 +89,7 @@ func _build_surface() -> void:
 	sections.add_child(_build_display_section())
 	sections.add_child(_build_accessibility_section())
 	root.add_child(_build_footer())
+	_ui_skin.apply_outer_panel_frame(self, UiSkin.SURFACE_DIALOG)
 
 func _build_header() -> Control:
 	var header := HBoxContainer.new()
