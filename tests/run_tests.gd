@@ -8489,6 +8489,29 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	_assert_pass_preview_chip(instance, ["-4", "-3", "-5"], false, false, "layered pass")
 
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("defiance_followup"))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["-1", "4"], false, false, "Defiance plus follow-up damage pass")
+	var defiance_summary: Dictionary = instance.call("_pass_preview_summary")
+	_assert(int(defiance_summary.get("defiance_spent", 0)) == 1, "Pass preview should surface the Defiance charge spent by the first lethal hit")
+	_assert(int(defiance_summary.get("projected_hp", -1)) == 4 and int(defiance_summary.get("net_hp_change", 0)) == -1, "Pass preview should retain the resulting HP after a later revealed enemy damages restored health")
+	instance.call("_update_action_context_risk")
+	var defiance_risk_text: String = str((instance.get("_action_step_tracker") as Control).get_meta("risk_text", ""))
+	_assert(defiance_risk_text.contains("DEFIANCE -1") and defiance_risk_text.contains("4 HP") and defiance_risk_text.contains("0 LEFT"), "Action-context risk should show both the spent charge and resulting HP")
+	var defiance_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	_assert(defiance_chip != null and defiance_chip.tooltip_text.contains("4/24 HP") and defiance_chip.tooltip_text.contains("net -1 HP"), "Defiance preview tooltip should explain the projected end state and net HP consequence")
+
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("defiance_umbra"))
+	await process_frame
+	await process_frame
+	var mixed_umbra_summary: Dictionary = instance.call("_pass_preview_summary")
+	_assert(int(mixed_umbra_summary.get("defiance_spent", 0)) == 1 and bool(mixed_umbra_summary.get("umbra_unknown_before_player", false)), "Mixed revealed/hidden preview should retain the visible Defiance spend and flag the hidden follow-up")
+	_assert(int(mixed_umbra_summary.get("projected_hp", -1)) < 0, "Mixed Umbra preview should not expose a falsely precise ending HP")
+	instance.call("_update_action_context_risk")
+	var mixed_risk_text: String = str((instance.get("_action_step_tracker") as Control).get_meta("risk_text", ""))
+	_assert(mixed_risk_text.contains("? HP") and not mixed_risk_text.contains("0 HP"), "Mixed Umbra Defiance risk should show unknown ending HP instead of a false zero")
+
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("lethal"))
 	await process_frame
 	await process_frame
@@ -12560,13 +12583,17 @@ func _button_with_text(node: Node, text: String) -> Button:
 
 func _pass_preview_chip_state(kind: String) -> Dictionary:
 	var combat: CombatEngine = CombatEngine.new()
+	var has_defiance_followup: bool = kind in ["defiance_followup", "defiance_umbra"]
+	var starting_hp: int = 5 if has_defiance_followup else 24
 	var state: Dictionary = combat.create_combat(7826, _simple_room_layout(), {
-		"hp": 24,
+		"hp": starting_hp,
 		"max_hp": 24,
 		"deck_cards": ["guarded_step", "quick_stab", "patch_up", "bone_dart"],
 		"relics": [],
 		"hand_size": 2,
-		"heal_bonus": 0
+		"heal_bonus": 0,
+		"defiance_capacity": 1 if has_defiance_followup else 0,
+		"defiance_remaining": 1 if has_defiance_followup else 0
 	})
 	var enemy_pos: Vector2i = Vector2i(3, 4)
 	var enemy_intent: Dictionary = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
@@ -12576,13 +12603,15 @@ func _pass_preview_chip_state(kind: String) -> Dictionary:
 		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 12, "range": 1}]}
 	elif kind == "lethal":
 		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 30, "range": 1}]}
+	elif has_defiance_followup:
+		enemy_intent = {"name": "Lethal Claw", "time": 1, "actions": [{"type": "melee", "damage": 6, "range": 1}]}
 	elif kind == "unrevealed":
 		enemy_pos = Vector2i(6, 4)
 	elif kind == "umbra":
 		enemy_pos = Vector2i(6, 4)
 	state["player"] = {
 		"pos": Vector2i(2, 4),
-		"hp": 24,
+		"hp": starting_hp,
 		"max_hp": 24,
 		"block": 3 if kind == "layered" else 0,
 		"stoneskin": 4 if kind == "layered" else 0,
@@ -12611,6 +12640,25 @@ func _pass_preview_chip_state(kind: String) -> Dictionary:
 		"poison": {"damage": 0, "trigger": 0, "stacks": []},
 		"intent": enemy_intent
 	}]
+	if has_defiance_followup:
+		var followup_pos := Vector2i(6, 4) if kind == "defiance_umbra" else Vector2i(2, 3)
+		state["enemies"].append({
+			"id": 2,
+			"type": "crawler",
+			"pos": followup_pos,
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"stoneskin": 0,
+			"burn": 0,
+			"bleed": 0,
+			"expose": 0,
+			"freeze": 0,
+			"shock": 0,
+			"immobilize": false,
+			"poison": {"damage": 0, "trigger": 0, "stacks": []},
+			"intent": {"name": "Follow-up", "time": 1, "actions": [{"type": "melee", "damage": 2, "range": 1}]}
+		})
 	state["illusions"] = []
 	state["traps"] = []
 	state["terrain"] = []
@@ -12653,7 +12701,20 @@ func _pass_preview_chip_state(kind: String) -> Dictionary:
 		"seq": 1,
 		"pos": enemy_pos
 	}]
-	if kind == "umbra":
+	if has_defiance_followup:
+		var followup_queue_pos := Vector2i(6, 4) if kind == "defiance_umbra" else Vector2i(2, 3)
+		state["turn_queue"].append({
+			"kind": "enemy",
+			"actor_key": "enemy_2",
+			"enemy_id": 2,
+			"type": "crawler",
+			"name": "Tunnel Crawler",
+			"team": "enemy",
+			"time": 2,
+			"seq": 2,
+			"pos": followup_queue_pos
+		})
+	if kind in ["umbra", "defiance_umbra"]:
 		var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
 		umbra["stage"] = "eclipse"
 		umbra["stage_reduction"] = 0
@@ -12756,6 +12817,8 @@ func _pass_preview_chip_label_is_value(label: Label) -> bool:
 		"PassPreviewStoneSkinLoss",
 		"PassPreviewBlockLoss",
 		"PassPreviewHpLoss",
+		"PassPreviewDefianceSpent",
+		"PassPreviewHpAfterDefiance",
 		"PassPreviewSafe",
 		"PassPreviewUmbraUnknown",
 		"PassPreviewDefeat"
@@ -12765,7 +12828,9 @@ func _pass_preview_chip_label_uses_icon(label: Label) -> bool:
 	return [
 		"PassPreviewStoneSkinLoss",
 		"PassPreviewBlockLoss",
-		"PassPreviewHpLoss"
+		"PassPreviewHpLoss",
+		"PassPreviewDefianceSpent",
+		"PassPreviewHpAfterDefiance"
 	].has(str(label.name))
 
 func _pass_preview_chip_move_target(target_tiles: Array, enemy_pos: Vector2i) -> Vector2i:

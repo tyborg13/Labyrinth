@@ -94,8 +94,8 @@ func _capture_pass_preview_states() -> void:
 	await instance.call("_on_card_pressed", 0)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "selected card")
-	_log_pass_preview_text(instance, "selected")
+	_require_action_context_risk(instance, "selected card")
+	_log_action_context_risk(instance, "selected")
 	await _save_root_screenshot("%s/selected_card.png" % OUTPUT_DIR)
 
 	var move_target: Vector2i = _pass_preview_probe_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
@@ -103,8 +103,8 @@ func _capture_pass_preview_states() -> void:
 		instance.call("_on_board_tile_hovered", move_target)
 		await process_frame
 		await process_frame
-		_require_pass_preview_chip(instance, "selected move hover")
-		_log_pass_preview_text(instance, "selected_move_hover")
+		_require_action_context_risk(instance, "selected move hover")
+		_log_action_context_risk(instance, "selected_move_hover")
 		await _save_root_screenshot("%s/selected_move_hover.png" % OUTPUT_DIR)
 
 	var attack_hover_state: Dictionary = _pass_preview_probe_state(base_state, "danger")
@@ -120,8 +120,8 @@ func _capture_pass_preview_states() -> void:
 		instance.call("_on_board_tile_hovered", attack_target)
 		await process_frame
 		await process_frame
-		_require_pass_preview_chip(instance, "selected attack hover")
-		_log_pass_preview_text(instance, "selected_attack_hover")
+		_require_action_context_risk(instance, "selected attack hover")
+		_log_action_context_risk(instance, "selected_attack_hover")
 		await _save_root_screenshot("%s/selected_attack_hover.png" % OUTPUT_DIR)
 
 	var after_card_state: Dictionary = _pass_preview_probe_after_guarded_step(instance, danger_state)
@@ -147,6 +147,22 @@ func _capture_pass_preview_states() -> void:
 	_require_pass_preview_chip(instance, "layered")
 	_log_pass_preview_text(instance, "layered")
 	await _save_root_screenshot("%s/layered.png" % OUTPUT_DIR)
+
+	var defiance_state: Dictionary = _pass_preview_probe_state(base_state, "defiance_followup")
+	_install_pass_preview_probe_state(instance, defiance_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "Defiance plus follow-up damage")
+	_log_pass_preview_text(instance, "defiance_followup")
+	await _save_root_screenshot("%s/defiance_followup.png" % OUTPUT_DIR)
+
+	var defiance_umbra_state: Dictionary = _pass_preview_probe_state(base_state, "defiance_umbra")
+	_install_pass_preview_probe_state(instance, defiance_umbra_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "Defiance plus hidden Umbra follow-up")
+	_log_pass_preview_text(instance, "defiance_umbra")
+	await _save_root_screenshot("%s/defiance_umbra.png" % OUTPUT_DIR)
 
 	var unrevealed_state: Dictionary = _pass_preview_probe_state(base_state, "unrevealed")
 	_install_pass_preview_probe_state(instance, unrevealed_state)
@@ -188,6 +204,7 @@ func _install_pass_preview_probe_state(instance: Node, combat_state: Dictionary)
 
 func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictionary:
 	var state: Dictionary = base_state.duplicate(true)
+	var has_defiance_followup: bool = kind in ["defiance_followup", "defiance_umbra"]
 	var enemy_pos: Vector2i = Vector2i(3, 4)
 	var enemy_intent: Dictionary = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
 	if kind == "safe":
@@ -199,9 +216,12 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 30, "range": 1}]}
 	elif kind == "unrevealed":
 		enemy_pos = Vector2i(6, 4)
+	elif has_defiance_followup:
+		enemy_intent = {"name": "Lethal Claw", "time": 1, "actions": [{"type": "melee", "damage": 6, "range": 1}]}
+	var starting_hp: int = 5 if has_defiance_followup else 24
 	state["player"] = {
 		"pos": Vector2i(2, 4),
-		"hp": 24,
+		"hp": starting_hp,
 		"max_hp": 24,
 		"block": 3 if kind == "layered" else 0,
 		"stoneskin": 4 if kind == "layered" else 0,
@@ -230,6 +250,29 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 		"poison": {"damage": 0, "trigger": 0, "stacks": []},
 		"intent": enemy_intent
 	}]
+	if has_defiance_followup:
+		var followup_pos := Vector2i(6, 4) if kind == "defiance_umbra" else Vector2i(2, 3)
+		state["enemies"].append({
+			"id": 2,
+			"type": "crawler",
+			"pos": followup_pos,
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"stoneskin": 0,
+			"burn": 0,
+			"bleed": 0,
+			"expose": 0,
+			"freeze": 0,
+			"shock": 0,
+			"immobilize": false,
+			"poison": {"damage": 0, "trigger": 0, "stacks": []},
+			"intent": {"name": "Follow-up", "time": 1, "actions": [{"type": "melee", "damage": 2, "range": 1}]}
+		})
+	state["defiance_capacity"] = 1 if has_defiance_followup else 0
+	state["defiance_remaining"] = 1 if has_defiance_followup else 0
+	state["defiance_events"] = []
+	state["defiance_event_revision"] = 0
 	state["illusions"] = []
 	state["traps"] = []
 	state["terrain"] = []
@@ -273,6 +316,24 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 		"seq": 1,
 		"pos": enemy_pos
 	}]
+	if has_defiance_followup:
+		var followup_queue_pos := Vector2i(6, 4) if kind == "defiance_umbra" else Vector2i(2, 3)
+		state["turn_queue"].append({
+			"kind": "enemy",
+			"actor_key": "enemy_2",
+			"enemy_id": 2,
+			"type": "crawler",
+			"name": "Tunnel Crawler",
+			"team": "enemy",
+			"time": 2,
+			"seq": 2,
+			"pos": followup_queue_pos
+		})
+	if kind == "defiance_umbra":
+		var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
+		umbra["stage"] = "eclipse"
+		umbra["stage_reduction"] = 0
+		state["umbra"] = umbra
 	return state
 
 func _weaken_first_enemy_for_pass_preview_probe(state: Dictionary, hp: int) -> void:
@@ -336,6 +397,17 @@ func _log_pass_preview_text(instance: Node, label: String) -> void:
 	var danger_text: String = danger_label.text if danger_label != null else ""
 	print("%s: %s %s" % [label, damage_text, danger_text])
 
+func _require_action_context_risk(instance: Node, label: String) -> void:
+	var tracker: Control = instance.get("_action_step_tracker") as Control
+	var risk_text: String = str(tracker.get_meta("risk_text", "")) if tracker != null else ""
+	if tracker == null or not tracker.visible or risk_text.is_empty():
+		push_error("Missing action-context risk during %s pass preview probe" % label)
+
+func _log_action_context_risk(instance: Node, label: String) -> void:
+	var tracker: Control = instance.get("_action_step_tracker") as Control
+	var risk_text: String = str(tracker.get_meta("risk_text", "")) if tracker != null else ""
+	print("%s: %s" % [label, risk_text])
+
 func _pass_preview_probe_damage_text(row: Node) -> String:
 	if row == null:
 		return ""
@@ -357,7 +429,10 @@ func _pass_preview_probe_is_damage_value(label: Label) -> bool:
 		"PassPreviewStoneSkinLoss",
 		"PassPreviewBlockLoss",
 		"PassPreviewHpLoss",
+		"PassPreviewDefianceSpent",
+		"PassPreviewHpAfterDefiance",
 		"PassPreviewSafe",
+		"PassPreviewUmbraUnknown",
 		"PassPreviewDefeat"
 	].has(str(label.name))
 

@@ -301,7 +301,7 @@ static func _test_last_reserve(expect: Callable) -> void:
 	state["draw_per_turn"] = 1
 	state["deck"] = _deck([], [], ["quick_stab"])
 	state = combat.prepare_next_player_turn(state)
-	expect.call(int((state.get("player", {}) as Dictionary).get("hp", 0)) == GameData.fixed_point_amount(1), "Last Reserve should leave a lethal Fatigue draw at 10 health")
+	expect.call(int((state.get("player", {}) as Dictionary).get("hp", 0)) == GameData.fixed_point_amount(1), "Last Reserve should leave a lethal Fatigue draw at 1 health")
 	expect.call(combat.skill_was_used(state, "last_reserve"), "Last Reserve should spend only after preventing lethal Fatigue")
 
 static func _test_living_shadow(expect: Callable) -> void:

@@ -9215,7 +9215,14 @@ func _update_action_context_risk() -> void:
 		risk_text = "TURN END · DEFEAT"
 		tone = "danger"
 	elif int(summary.get("defiance_spent", 0)) > 0:
-		risk_text = "TURN END · DEFIANCE · %d LEFT" % int(summary.get("defiance_remaining_after", 0))
+		var projected_hp: int = int(summary.get("projected_hp", -1))
+		var projected_hp_text: String = str(projected_hp) if projected_hp >= 0 else "?"
+		risk_text = "TURN END · DEFIANCE -%d · %s HP · %d LEFT%s" % [
+			int(summary.get("defiance_spent", 0)),
+			projected_hp_text,
+			int(summary.get("defiance_remaining_after", 0)),
+			" · UMBRA ?" if bool(summary.get("umbra_unknown_before_player", false)) else ""
+		]
 		tone = "danger"
 	else:
 		var values: PackedStringArray = []
@@ -10260,11 +10267,20 @@ func _pass_preview_summary() -> Dictionary:
 	var losses: Dictionary = _pass_preview_player_damage_losses(phase_result.get("steps", []) as Array)
 	var outcome: String = _combat_engine.combat_outcome(after_state)
 	var umbra_unknown_before_player: bool = _pass_preview_has_hidden_umbra_action(phase_result.get("steps", []) as Array)
+	var source_player: Dictionary = source_state.get("player", {}) as Dictionary
+	var after_player: Dictionary = after_state.get("player", {}) as Dictionary
+	if not umbra_unknown_before_player:
+		var source_hp: int = maxi(0, int(source_player.get("hp", 0)))
+		var projected_hp: int = maxi(0, int(after_player.get("hp", source_hp)))
+		losses["source_hp"] = source_hp
+		losses["projected_hp"] = projected_hp
+		losses["projected_max_hp"] = maxi(1, int(after_player.get("max_hp", source_player.get("max_hp", 1))))
+		losses["net_hp_change"] = projected_hp - source_hp
 	var defeat: bool = not umbra_unknown_before_player and outcome == "defeat"
 	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
 	var entries: Array[Dictionary] = _pass_preview_damage_entries(losses)
 	var tone: String = "safe"
-	if defeat or int(losses.get("hp", 0)) > 0:
+	if defeat or int(losses.get("hp", 0)) > 0 or int(losses.get("defiance_spent", 0)) > 0:
 		tone = "danger"
 	elif int(losses.get("block", 0)) > 0 or int(losses.get("stoneskin", 0)) > 0 or unrevealed_before_player or umbra_unknown_before_player:
 		tone = "warning"
@@ -10278,6 +10294,10 @@ func _pass_preview_summary() -> Dictionary:
 		"defiance_spent": int(losses.get("defiance_spent", 0)),
 		"defiance_restored": int(losses.get("defiance_restored", 0)),
 		"defiance_remaining_after": int(losses.get("defiance_remaining_after", 0)),
+		"source_hp": int(losses.get("source_hp", -1)),
+		"projected_hp": int(losses.get("projected_hp", -1)),
+		"projected_max_hp": int(losses.get("projected_max_hp", -1)),
+		"net_hp_change": int(losses.get("net_hp_change", 0)),
 		"unrevealed_before_player": unrevealed_before_player,
 		"umbra_unknown_before_player": umbra_unknown_before_player,
 		"outcome": outcome
@@ -10359,6 +10379,14 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 			"color": Color("f6d77d"),
 			"icon_path": PASS_PREVIEW_DEFIANCE_ICON_PATH
 		})
+		var projected_hp: int = int(losses.get("projected_hp", -1))
+		if projected_hp >= 0:
+			entries.append({
+				"name": "PassPreviewHpAfterDefiance",
+				"text": "%d" % projected_hp,
+				"color": Color("f39779"),
+				"icon_path": PASS_PREVIEW_HEALTH_ICON_PATH
+			})
 	elif hp_loss > 0:
 		entries.append({
 			"name": "PassPreviewHpLoss",
@@ -10372,9 +10400,20 @@ func _pass_preview_tooltip(summary: Dictionary) -> String:
 	if bool(summary.get("umbra_unknown_before_player", false)):
 		return "One or more hidden presences act before your next turn. Their intents and possible damage are unknown."
 	if int(summary.get("defiance_spent", 0)) > 0:
-		return "A revealed lethal hit will spend %d Defiance, restore %d HP, and leave %d Defiance." % [
+		var net_hp_change: int = int(summary.get("net_hp_change", 0))
+		var net_text: String = (
+			"net +%d HP" % net_hp_change
+			if net_hp_change > 0
+			else "net -%d HP" % -net_hp_change
+			if net_hp_change < 0
+			else "no net HP change"
+		)
+		return "A revealed lethal hit will spend %d Defiance and restore %d HP. You return with %d/%d HP (%s) and %d Defiance." % [
 			int(summary.get("defiance_spent", 0)),
 			int(summary.get("defiance_restored", 0)),
+			int(summary.get("projected_hp", 0)),
+			int(summary.get("projected_max_hp", 1)),
+			net_text,
 			int(summary.get("defiance_remaining_after", 0))
 		]
 	if bool(summary.get("unrevealed_before_player", false)):

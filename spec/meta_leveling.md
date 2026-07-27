@@ -151,7 +151,7 @@ without filling deliberately unspent points.
 | Carry the Guard | Measured Breath | Once per combat, after gaining block, arm during an activation to convert all block remaining at its end into stoneskin. |
 | Pain Remembers | Measured Breath | After the first health loss each combat, when the hand has room, return the next non-item discard to it. |
 | Sure-Footed | Ghost Stride | Once per combat, the first trap blast that would affect the player leaves them untouched and resolves normally against everything else. |
-| Afterimage | Ghost Stride | The first Blink each combat leaves a `20`-health illusion behind. The player may move through friendly illusions; ending on one dispels it. |
+| Afterimage | Ghost Stride | The first Blink each combat leaves a `2`-health illusion behind. The player may move through friendly illusions; ending on one dispels it. |
 | Deferred Choice | Discerning Eye | Skip a card reward to save one offered card; it replaces a card in the next reward. |
 | Salvager | Discerning Eye | Once between bosses, recover the first equipment drop left uncollected after victory. |
 
@@ -160,7 +160,7 @@ without filling deliberately unspent points.
 | Skill | Requires | Effect |
 | --- | --- | --- |
 | Borrowed Time | Quick Wits + Measured Breath | The first card paid for with a banked play each combat adds no Time. |
-| Last Reserve | Carry the Guard + Pain Remembers | Once per combat, lethal Fatigue leaves the player at `10` health. |
+| Last Reserve | Carry the Guard + Pain Remembers | Once per combat, lethal Fatigue leaves the player at `1` health. |
 | Plunderer's Step | Ghost Stride + Discerning Eye | The first Move or Blink to collect loot each combat refunds its play. |
 | Prismatic Instinct | Quick Wits + Discerning Eye | Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions; basic uses do not consume it. Duplicate names appear as one choice. |
 | Curator's Patience | Quick Wits + Deferred Choice | After choosing a relic, save one unchosen relic for the next relic offer. |
@@ -175,7 +175,7 @@ without filling deliberately unspent points.
 | Encore | Borrowed Time | Once per combat, manually return a non-item discard to hand without spending a play or Time. |
 | Open Arsenal | Living Shadow | Passively equip any equipment in the trinket slot, ignoring its normal slot. |
 | Confluence | Prismatic Instinct | Passively let intensity conditions use the player's highest intensity, regardless of element. A draw enabled solely by Confluence stops before it would trigger Fatigue. |
-| Last Door | True Bearing | Once between bosses, a non-boss defeat returns the player to the previous room at `10` health; spent items remain spent. |
+| Last Door | True Bearing | Once between bosses, a non-boss defeat returns the player to the previous room at `1` health; spent items remain spent. |
 
 The small numbers inside a few effects define new objects, distances, or
 survival states. They are not scalable permanent bonuses and cannot be ranked

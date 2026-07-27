@@ -15,6 +15,7 @@ static func run(expect: Callable) -> void:
 	_test_defiance_trigger_and_phoenix_payoff(expect)
 	_test_defiance_feedback_does_not_require_block_loss(expect)
 	_test_last_reserve_precedes_defiance(expect)
+	_test_every_boss_victory_restores_health(expect)
 	_test_sustain_is_bounded(expect)
 	_test_outward_route_appears_after_three_rooms(expect)
 
@@ -223,6 +224,50 @@ static func _test_last_reserve_precedes_defiance(expect: Callable) -> void:
 	expect.call(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 6, "A later lethal Fatigue should fall through to Defiance")
 	expect.call(int(state.get("defiance_remaining", -1)) == 0, "The fallback Defiance recovery should spend its charge")
 	expect.call(str(combat.defiance_events(state)[0].get("cause", "")) == "fatigue", "Fatigue-triggered Defiance should retain its cause")
+
+
+static func _test_every_boss_victory_restores_health(expect: Callable) -> void:
+	var engine := RunEngine.new()
+	var state: Dictionary = engine.create_new_run(290736, ProgressionStore.default_data())
+	var boss_coord := Vector2i(8, 0)
+	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
+	rooms["8,0"] = {
+		"coord": boss_coord,
+		"depth": 8,
+		"type": "boss",
+		"element": "fire",
+		"revealed": true,
+		"visited": true,
+		"cleared": false,
+		"sealed": false,
+	}
+	state["rooms"] = rooms
+	state["current_room"] = boss_coord
+	state["mode"] = "combat"
+	state["player_hp"] = 5
+	state["player_max_hp"] = 24
+	state[RunEngine.SKILL_STATE_KEY] = {"moltshard_awarded": true}
+	var defeated_boss: Dictionary = {
+		"player": {"hp": 5, "max_hp": 24, "pos": Vector2i(2, 4)},
+		"enemies": [],
+		"room_name": "Later Boss Recovery Test",
+		"room_coord": boss_coord,
+		"room_depth": 8,
+		"room_type": "boss",
+		"room_element": "fire",
+		"room_embers": 0,
+		"grid": _combat_layout().get("grid", []),
+		"moss": {},
+		"loot": [],
+		"traps": [],
+		"terrain": [],
+		"collected_equipment": [],
+		"missed_equipment": [],
+		"run_stats": CombatEngine.normalized_run_stats({}),
+	}
+	var resolved: Dictionary = engine.finish_combat(state, defeated_boss)
+	expect.call(int(resolved.get("player_hp", 0)) == 11, "Every boss should restore 25% max HP, even after the one-time Moltshard has already been awarded")
+	expect.call(ProgressionStore.moltshard_count(resolved.get("progression", {}) as Dictionary) == 0, "Later-boss recovery should not duplicate the first-boss Moltshard")
 
 
 static func _test_sustain_is_bounded(expect: Callable) -> void:

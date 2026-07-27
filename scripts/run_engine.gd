@@ -999,12 +999,12 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 			next_state["progression"] = progression_after_award
 			boss_skill_state["moltshard_awarded"] = true
 			next_state[SKILL_STATE_KEY] = boss_skill_state
-			var boss_max_hp: int = maxi(1, int(next_state.get("player_max_hp", 1)))
-			var boss_heal: int = ceili(float(boss_max_hp) * BOSS_VICTORY_HEAL_FRACTION)
-			next_state["player_hp"] = mini(
-				boss_max_hp,
-				int(next_state.get("player_hp", 1)) + boss_heal
-			)
+		var boss_max_hp: int = maxi(1, int(next_state.get("player_max_hp", 1)))
+		var boss_heal: int = ceili(float(boss_max_hp) * BOSS_VICTORY_HEAL_FRACTION)
+		next_state["player_hp"] = mini(
+			boss_max_hp,
+			int(next_state.get("player_hp", 1)) + boss_heal
+		)
 		next_state = add_held_embers(next_state, BOSS_VICTORY_EMBERS)
 		next_state["pending_reward"] = {}
 		if _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false)):
