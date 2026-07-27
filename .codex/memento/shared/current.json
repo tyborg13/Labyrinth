@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-27T00:55:58Z",
+  "updated_at": "2026-07-27T02:20:27Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6510,7 +6510,7 @@
       }
     },
     {
-      "id": "mnt_20260727T005558Z_c5203387",
+      "id": "mnt_20260727T022027Z_5d4c1c81",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -6519,16 +6519,18 @@
         "symbol": null
       },
       "scope_key": "file:scenes/run_scene.tscn",
-      "summary": "Combat backdrops must share the board's axonometric perspective",
-      "details": "Dungeon background art must use the same elevated near-orthographic camera as the isometric board: vertical pillars, floor axes aligned to the board's opposing diagonals (about +/-27 degrees), and architecture framing a quiet board-shaped center. Reject frontal one-point-perspective halls even when their palette and detail level are otherwise suitable. Keep the backdrop dim, low-detail, and subordinate to tiles, actors, targets, cards, and HUD.",
+      "summary": "Board backdrops persist across every in-run board state",
+      "details": "Dungeon background art must use the same elevated near-orthographic camera as the isometric board: vertical pillars, floor axes aligned to the board's opposing diagonals (about +/-27 degrees), and architecture framing a quiet board-shaped center. Reject frontal one-point-perspective halls. Keep the backdrop dim, low-detail, and subordinate to gameplay, and show it whenever the in-run board is visible rather than gating it to combat. Every normal and transient board render submission must carry the backdrop transparency state, and that state must invalidate cached static rendering so an opaque grey/black fallback cannot linger.",
       "status": "active",
-      "created_at": "2026-07-27T00:55:58Z",
-      "updated_at": "2026-07-27T00:55:58Z",
+      "created_at": "2026-07-27T02:20:27Z",
+      "updated_at": "2026-07-27T02:20:27Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260727T005558Z_c5203387"
+      ],
       "source": {
         "branch": "codex/add-subdued-dungeon-board-background-and-tile-depth",
-        "commit": "e1b29df"
+        "commit": "0163cb2"
       }
     }
   ]

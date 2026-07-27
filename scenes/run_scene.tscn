@@ -31,8 +31,7 @@ mouse_filter = 2
 z_index = -10
 color = Color(0.0705882, 0.0509804, 0.0431373, 1)
 
-[node name="CombatBackdrop" type="TextureRect" parent="BoardUnderlay"]
-visible = false
+[node name="BoardBackdrop" type="TextureRect" parent="BoardUnderlay"]
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15

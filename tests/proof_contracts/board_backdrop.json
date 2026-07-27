@@ -1,0 +1,84 @@
+{
+  "min_images": 13,
+  "expected_sizes": ["1280x720", "1280x800", "1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*1920x1080_ui100_room.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [320, 120, 1280, 650], "min_luma_range": 65, "min_luma_stdev": 9}]
+    },
+    {
+      "pattern": "*1920x1080_ui100_campfire.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [320, 120, 1280, 650], "min_luma_range": 65, "min_luma_stdev": 9}]
+    },
+    {
+      "pattern": "*1920x1080_ui100_reward.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [320, 120, 1280, 650], "min_luma_range": 65, "min_luma_stdev": 9}]
+    },
+    {
+      "pattern": "*1920x1080_ui100_transient.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [320, 120, 1280, 650], "min_luma_range": 70, "min_luma_stdev": 10}]
+    },
+    {
+      "pattern": "*1920x1080_ui100_target.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [380, 180, 1160, 570], "min_luma_range": 80, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*1280x720_ui100_room.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [{"rect": [210, 80, 860, 430], "min_luma_range": 60, "min_luma_stdev": 8}]
+    },
+    {
+      "pattern": "*1280x720_ui100_campfire.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [{"rect": [210, 80, 860, 430], "min_luma_range": 60, "min_luma_stdev": 8}]
+    },
+    {
+      "pattern": "*1280x720_ui100_transient.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [{"rect": [210, 80, 860, 430], "min_luma_range": 65, "min_luma_stdev": 9}]
+    },
+    {
+      "pattern": "*1280x720_ui100_target.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [{"rect": [250, 110, 780, 390], "min_luma_range": 75, "min_luma_stdev": 10}]
+    },
+    {
+      "pattern": "*1280x800_ui125_room.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [{"rect": [200, 90, 880, 480], "min_luma_range": 60, "min_luma_stdev": 8}]
+    },
+    {
+      "pattern": "*1280x800_ui125_campfire.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [{"rect": [200, 90, 880, 480], "min_luma_range": 60, "min_luma_stdev": 8}]
+    },
+    {
+      "pattern": "*1280x800_ui125_transient.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [{"rect": [200, 90, 880, 480], "min_luma_range": 65, "min_luma_stdev": 9}]
+    },
+    {
+      "pattern": "*1280x800_ui125_target.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [{"rect": [240, 120, 800, 430], "min_luma_range": 75, "min_luma_stdev": 10}]
+    }
+  ]
+}

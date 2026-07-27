@@ -958,7 +958,7 @@ func _draw() -> void:
 
 func _draw_static_board() -> void:
 	_static_draw_count += 1
-	if not bool(presentation.get("combat_backdrop_visible", false)):
+	if not bool(presentation.get("board_backdrop_visible", false)):
 		draw_rect(Rect2(Vector2.ZERO, size), Color("18120f"), true)
 	if combat_state.is_empty():
 		_draw_empty_state()
@@ -5525,6 +5525,7 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("exit:%s" % _vector2i_dict_key_signature(next_exit_tiles))
 	parts.append("active:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("active_door_tiles", {}) as Dictionary))
 	parts.append("locked:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("locked_door_tiles", {}) as Dictionary))
+	parts.append("backdrop:%s" % bool(next_presentation.get("board_backdrop_visible", false)))
 	return "|".join(parts)
 
 func _moss_signature_for_state(next_state: Dictionary) -> String:

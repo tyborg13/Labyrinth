@@ -6,17 +6,18 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://combat_backdrop_probe"
+const OUTPUT_DIR: String = "user://board_backdrop_probe"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
-const BACKDROP_PATH: String = "BoardUnderlay/CombatBackdrop"
+const BACKDROP_PATH: String = "BoardUnderlay/BoardBackdrop"
+const BACKDROP_PRESENTATION_KEY: String = "board_backdrop_visible"
 
 var _errors: Array[String] = []
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
-	ProgressionStore.set_storage_path("user://labyrinth_progression_combat_backdrop_probe.json")
-	ProgressionStore.set_run_storage_path("user://labyrinth_run_combat_backdrop_probe.save")
-	SettingsStore.set_storage_path("user://labyrinth_settings_combat_backdrop_probe.json")
+	ProgressionStore.set_storage_path("user://labyrinth_progression_board_backdrop_probe.json")
+	ProgressionStore.set_run_storage_path("user://labyrinth_run_board_backdrop_probe.save")
+	SettingsStore.set_storage_path("user://labyrinth_settings_board_backdrop_probe.json")
 	ProgressionStore.clear_saved_run()
 	SettingsStore.clear_storage()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -30,13 +31,13 @@ func _initialize() -> void:
 	SettingsStore.save_settings(defaults)
 	SettingsStore.apply_settings(defaults, root, false)
 	if _errors.is_empty():
-		print("COMBAT BACKDROP PROBE: PASS")
-		print("COMBAT_BACKDROP_PROOF_DIR=%s" % ProjectSettings.globalize_path(OUTPUT_DIR))
+		print("BOARD BACKDROP PROBE: PASS")
+		print("BOARD_BACKDROP_PROOF_DIR=%s" % ProjectSettings.globalize_path(OUTPUT_DIR))
 		quit(0)
 	else:
 		for error: String in _errors:
 			push_error(error)
-		print("COMBAT BACKDROP PROBE: FAIL (%d errors)" % _errors.size())
+		print("BOARD BACKDROP PROBE: FAIL (%d errors)" % _errors.size())
 		quit(1)
 
 func _capture_configuration(resolution: Vector2i, ui_scale: float, seed: int) -> void:
@@ -58,12 +59,30 @@ func _capture_configuration(resolution: Vector2i, ui_scale: float, seed: int) ->
 	instance.call("_load_run_state", RunEngine.new().create_new_run(seed, ProgressionStore.default_data()))
 	if bool(instance.get("_dialogue_active")):
 		instance.call("_close_dialogue")
+	var label: String = "%dx%d_ui%d" % [resolution.x, resolution.y, roundi(ui_scale * 100.0)]
 	var initial_backdrop: TextureRect = instance.get_node(BACKDROP_PATH) as TextureRect
-	_expect(initial_backdrop != null and not initial_backdrop.visible, "%s should keep the dungeon backdrop hidden outside combat" % resolution)
+	var initial_board: Control = instance.get_node(BOARD_PATH) as Control
+	_expect(initial_backdrop != null and initial_backdrop.visible, "%s should show the dungeon backdrop in a normal room" % label)
+	_expect(initial_backdrop != null and initial_backdrop.texture != null, "%s should load the project-bound dungeon texture outside combat" % label)
+	_expect(
+		initial_board != null and bool((initial_board.get("presentation") as Dictionary).get(BACKDROP_PRESENTATION_KEY, false)),
+		"%s normal-room board should preserve the transparent backdrop state" % label
+	)
+	await _save_screenshot("%s/%s_room.png" % [OUTPUT_DIR, label], resolution)
+
+	await _set_non_combat_mode(instance, "campfire")
+	_expect_backdrop_and_transparent_board(instance, "%s campfire" % label)
+	await _save_screenshot("%s/%s_campfire.png" % [OUTPUT_DIR, label], resolution)
+
+	if resolution == Vector2i(1920, 1080):
+		await _set_non_combat_mode(instance, "reward")
+		_expect_backdrop_and_transparent_board(instance, "%s reward" % label)
+		await _save_screenshot("%s/%s_reward.png" % [OUTPUT_DIR, label], resolution)
+
+	_assert_refresh_modes_keep_backdrop(instance, label)
 	await _load_combat_fixture(instance, seed)
 	await _settle_ui()
 
-	var label: String = "%dx%d_ui%d" % [resolution.x, resolution.y, roundi(ui_scale * 100.0)]
 	var backdrop: TextureRect = instance.get_node(BACKDROP_PATH) as TextureRect
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	_expect(backdrop != null and backdrop.visible, "%s should show the dungeon backdrop during combat" % label)
@@ -72,14 +91,18 @@ func _capture_configuration(resolution: Vector2i, ui_scale: float, seed: int) ->
 		backdrop != null and backdrop.get_global_rect().encloses(instance.get_viewport().get_visible_rect()),
 		"%s backdrop should cover the complete visible combat canvas" % label
 	)
-	_expect(board != null and bool((board.get("presentation") as Dictionary).get("combat_backdrop_visible", false)), "%s board should expose the transparent combat-underlay state" % label)
+	_expect(
+		board != null and bool((board.get("presentation") as Dictionary).get(BACKDROP_PRESENTATION_KEY, false)),
+		"%s combat board should expose the transparent board-backdrop state" % label
+	)
 	if board != null:
 		var player_tile: Vector2i = ((board.get("combat_state") as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
 		var depth_faces: Array = board.call("_tile_depth_faces", player_tile)
 		_expect(depth_faces.size() == 2, "%s player tile should render two depth faces" % label)
 		var player_center: Vector2 = board.call("world_position_for_tile", player_tile)
 		_expect(board.call("_tile_at_point", player_center) == player_tile, "%s tile depth should preserve top-face hit testing" % label)
-	await _save_screenshot("%s/%s_idle.png" % [OUTPUT_DIR, label], resolution)
+	await _exercise_transient_render_path(instance, board, label)
+	await _save_screenshot("%s/%s_transient.png" % [OUTPUT_DIR, label], resolution)
 
 	instance.call("_on_card_pressed", 0)
 	await _settle_ui()
@@ -95,6 +118,52 @@ func _capture_configuration(resolution: Vector2i, ui_scale: float, seed: int) ->
 	instance.call("_on_cancel_requested")
 	instance.queue_free()
 	await _settle_ui()
+
+func _set_non_combat_mode(instance: Node, mode: String) -> void:
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = mode
+	run_state["combat_state"] = {}
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", {})
+	instance.call("_reset_card_resolution")
+	instance.call("_refresh_ui")
+	await _settle_ui()
+
+func _expect_backdrop_and_transparent_board(instance: Node, label: String) -> void:
+	var backdrop: TextureRect = instance.get_node(BACKDROP_PATH) as TextureRect
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	_expect(backdrop != null and backdrop.visible, "%s should keep the dungeon backdrop visible" % label)
+	_expect(
+		board != null and bool((board.get("presentation") as Dictionary).get(BACKDROP_PRESENTATION_KEY, false)),
+		"%s should keep the board's static layer transparent over the backdrop" % label
+	)
+
+func _assert_refresh_modes_keep_backdrop(instance: Node, label: String) -> void:
+	var base_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	for mode: String in ["room", "campfire", "reward", RunEngine.MODE_PRE_BATTLE, "victory", "defeat"]:
+		var mode_state: Dictionary = base_state.duplicate(true)
+		mode_state["mode"] = mode
+		instance.set("_run_state", mode_state)
+		instance.call("_refresh_stage_view")
+		_expect_backdrop_and_transparent_board(instance, "%s %s refresh" % [label, mode])
+	instance.set("_run_state", base_state)
+	instance.call("_refresh_stage_view")
+
+func _exercise_transient_render_path(instance: Node, board: Control, label: String) -> void:
+	var base_state: Dictionary = (board.get("combat_state") as Dictionary).duplicate(true)
+	for refresh_index: int in range(8):
+		var transient_state: Dictionary = base_state.duplicate(true)
+		transient_state["moss"] = {
+			"floor": [Vector2i(3 + posmod(refresh_index, 2), 3)],
+			"wall": [],
+			"pillar": []
+		}
+		instance.call("_render_board_state", transient_state, {})
+		await process_frame
+		_expect_backdrop_and_transparent_board(instance, "%s transient render %d" % [label, refresh_index])
+	instance.call("_render_board_state", base_state, {})
+	await _settle_ui()
+	_expect_backdrop_and_transparent_board(instance, "%s restored transient render" % label)
 
 func _load_combat_fixture(instance: Node, seed: int) -> void:
 	var layout: Dictionary = {

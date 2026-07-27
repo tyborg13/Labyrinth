@@ -25,6 +25,7 @@ func _initialize() -> void:
 	await process_frame
 	_test_navigation_reuses_content_cache(board)
 	_test_tile_depth_preserves_top_face_hit_testing(board)
+	_test_backdrop_visibility_invalidates_static_layout(board, state)
 	_test_bounded_zoom_and_hit_testing(board)
 	_test_wheel_zoom(board)
 	_test_click_without_drag(board)
@@ -68,6 +69,35 @@ func _test_tile_depth_preserves_top_face_hit_testing(board: Control) -> void:
 			_expect(maxf(face[2].y, face[3].y) > top_bottom_y + 1.0, "Tile depth should extend visibly below the top diamond")
 	var center: Vector2 = board.call("world_position_for_tile", tile)
 	_expect(board.call("_tile_at_point", center) == tile, "Adding visual tile depth must not change top-face hit testing")
+
+func _test_backdrop_visibility_invalidates_static_layout(board: Control, state: Dictionary) -> void:
+	var room_grid_signature: String = str(board.call("_room_grid_signature", state))
+	var opaque_signature: String = str(board.call(
+		"_layout_signature_for_state",
+		state,
+		{},
+		{"board_backdrop_visible": false},
+		room_grid_signature
+	))
+	var transparent_signature: String = str(board.call(
+		"_layout_signature_for_state",
+		state,
+		{},
+		{"board_backdrop_visible": true},
+		room_grid_signature
+	))
+	_expect(
+		opaque_signature != transparent_signature,
+		"Changing board-backdrop visibility should invalidate the cached static board layer"
+	)
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"board_backdrop_visible": false})
+	var before_signature: String = str(board.get("_board_layout_signature"))
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"board_backdrop_visible": true})
+	var after_signature: String = str(board.get("_board_layout_signature"))
+	_expect(
+		before_signature != after_signature,
+		"Submitting the same room with a newly visible backdrop should rebuild its opaque/transparent static state"
+	)
 
 func _test_bounded_zoom_and_hit_testing(board: Control) -> void:
 	var focus_tile := Vector2i(4, 3)
