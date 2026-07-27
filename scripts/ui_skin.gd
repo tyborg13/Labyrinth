@@ -48,6 +48,8 @@ const STATE_FOCUS: String = "focus"
 const BUTTON_ORNAMENT_NAME: String = "ThemedButtonOrnament"
 const PANEL_INSET_ORNAMENT_NAME: String = "ThemedInsetOrnament"
 const PANEL_ORNAMENT_NAME: String = "ThemedPanelOrnament"
+const OUTER_PANEL_RENDERER_NAME: String = "OuterFrameRenderer"
+const OUTER_PANEL_BASELINE_STYLE_META: String = "outer_panel_baseline_style"
 
 const SURFACE_DIALOG: String = "dialog"
 const SURFACE_PARCHMENT: String = "parchment"
@@ -317,12 +319,14 @@ func apply_panel_surface(panel: PanelContainer, variant: String = SURFACE_DIALOG
 func apply_outer_panel_frame(panel: PanelContainer, variant: String = SURFACE_DIALOG) -> void:
 	if panel == null:
 		return
-	# Major menus keep their baseline panel style and layout. Only the authored
-	# raster rails and corners are layered over the existing outer edge.
+	# Major menus keep their baseline panel fill, shadow, margins, and internals.
+	# The raster is the sole visible outline so a second code-native border cannot
+	# peek out around its authored rails and corners.
+	_suppress_outer_panel_outline(panel)
 	panel.set_meta("surface_variant", variant)
 	panel.set_meta("panel_outer_frame_only", true)
 	panel.set_meta("panel_frame_scale", 0.14)
-	var ornament: Control = _ensure_panel_ornament(panel, variant)
+	var ornament: Node2D = _ensure_outer_panel_ornament(panel, variant)
 	if ornament != null:
 		panel.move_child(ornament, panel.get_child_count() - 1)
 
@@ -364,16 +368,53 @@ func refresh_panel_surface(panel: PanelContainer) -> void:
 		var ornament: CanvasItem = panel.get_node_or_null(ornament_name) as CanvasItem
 		if ornament != null:
 			ornament.queue_redraw()
+			var renderer: CanvasItem = ornament.get_node_or_null(OUTER_PANEL_RENDERER_NAME) as CanvasItem
+			if renderer != null:
+				renderer.queue_redraw()
 
 func _ensure_panel_ornament(panel: PanelContainer, variant: String) -> Control:
 	var ornament: Control = panel.get_node_or_null(PANEL_ORNAMENT_NAME) as Control
 	if ornament == null:
 		ornament = ThemedPanelOrnament.new()
+		ornament.name = PANEL_ORNAMENT_NAME
 		panel.add_child(ornament)
 		ornament.call("configure", panel, variant)
 	else:
 		ornament.call("set_variant", variant)
 	return ornament
+
+func _suppress_outer_panel_outline(panel: PanelContainer) -> void:
+	var baseline_style: StyleBox = null
+	if panel.has_meta(OUTER_PANEL_BASELINE_STYLE_META):
+		baseline_style = panel.get_meta(OUTER_PANEL_BASELINE_STYLE_META) as StyleBox
+	if baseline_style == null:
+		baseline_style = panel.get_theme_stylebox("panel")
+		if baseline_style != null:
+			panel.set_meta(OUTER_PANEL_BASELINE_STYLE_META, baseline_style)
+	if not baseline_style is StyleBoxFlat:
+		return
+	var raster_backing_style: StyleBoxFlat = baseline_style.duplicate() as StyleBoxFlat
+	raster_backing_style.set_border_width_all(0)
+	raster_backing_style.border_color = Color.TRANSPARENT
+	panel.add_theme_stylebox_override("panel", raster_backing_style)
+
+func _ensure_outer_panel_ornament(panel: PanelContainer, variant: String) -> Node2D:
+	var host: Node2D = panel.get_node_or_null(PANEL_ORNAMENT_NAME) as Node2D
+	if host == null:
+		host = Node2D.new()
+		host.name = PANEL_ORNAMENT_NAME
+		host.z_index = 1
+		panel.add_child(host)
+	var renderer: Control = host.get_node_or_null(OUTER_PANEL_RENDERER_NAME) as Control
+	if renderer == null:
+		renderer = ThemedPanelOrnament.new()
+		renderer.name = OUTER_PANEL_RENDERER_NAME
+		host.add_child(renderer)
+		renderer.call("configure", panel, variant)
+	else:
+		renderer.call("set_variant", variant)
+		renderer.call("sync_outer_frame_rect")
+	return host
 
 func _button_corner_radius(variant: String) -> int:
 	match variant:

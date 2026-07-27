@@ -2768,6 +2768,8 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.custom_minimum_size = Vector2(640.0, 400.0)
 	_large_map_view.connect("room_selected", _on_large_map_room_selected)
 	vbox.add_child(_large_map_view)
+	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_PARCHMENT)
+
 func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim = ColorRect.new()
 	_pre_battle_scrim.name = "PreBattleScrim"

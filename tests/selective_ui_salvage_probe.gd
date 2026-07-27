@@ -106,6 +106,14 @@ func _capture_configuration(packed: PackedScene, viewport_size: Vector2i) -> voi
 	await _save_viewport_screenshot(viewport, "%s/06_character.png" % output_dir)
 	instance.call("_close_card_upgrade_overlay")
 	await _settle()
+
+	instance.call("_open_large_map")
+	await _settle()
+	var large_map_dialog: PanelContainer = instance.get("_large_map_dialog") as PanelContainer
+	_assert_outer_frame(large_map_dialog, viewport_size, "%s Full Map" % suffix)
+	await _save_viewport_screenshot(viewport, "%s/07_full_map.png" % output_dir)
+	instance.call("_close_large_map")
+	await _settle()
 	await _dispose_configuration(viewport, instance)
 
 
@@ -170,6 +178,28 @@ func _assert_outer_frame(panel: PanelContainer, viewport_size: Vector2i, context
 	if panel == null:
 		return
 	_require(bool(panel.get_meta("panel_outer_frame_only", false)), "%s should apply only the outer raster frame" % context)
+	var legacy_style: StyleBoxFlat = panel.get_theme_stylebox("panel") as StyleBoxFlat
+	_require(
+		legacy_style != null
+		and legacy_style.border_width_left == 0
+		and legacy_style.border_width_top == 0
+		and legacy_style.border_width_right == 0
+		and legacy_style.border_width_bottom == 0,
+		"%s should not retain a legacy outline outside the raster" % context
+	)
+	var renderer: Control = panel.get_node_or_null(
+		"%s/%s" % [UiSkin.PANEL_ORNAMENT_NAME, UiSkin.OUTER_PANEL_RENDERER_NAME]
+	) as Control
+	_require(renderer != null, "%s should isolate the raster from PanelContainer content layout" % context)
+	if renderer != null:
+		var panel_rect: Rect2 = panel.get_global_rect()
+		var renderer_rect: Rect2 = renderer.get_global_rect()
+		_require(
+			panel_rect.position.distance_to(renderer_rect.position) <= 1.0
+			and panel_rect.size.distance_to(renderer_rect.size) <= 1.0,
+			"%s raster should align to the true panel bounds: panel=%s raster=%s"
+			% [context, panel_rect, renderer_rect]
+		)
 	_assert_inside_viewport(panel, viewport_size, context)
 
 

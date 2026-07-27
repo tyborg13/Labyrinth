@@ -29,21 +29,31 @@ var _frame_atlas: Texture2D
 func configure(panel: PanelContainer, variant: String) -> void:
 	_panel = panel
 	_variant = variant
-	name = "ThemedPanelOrnament"
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	focus_mode = Control.FOCUS_NONE
 	var outer_frame_only: bool = bool(panel.get_meta("panel_outer_frame_only", false))
 	show_behind_parent = not outer_frame_only
-	z_index = 1 if outer_frame_only else 0
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	z_index = 0 if outer_frame_only and get_parent() is Node2D else (1 if outer_frame_only else 0)
+	if outer_frame_only and get_parent() is Node2D:
+		sync_outer_frame_rect()
+	else:
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_frame_atlas = AssetLoader.load_texture(FRAME_ATLAS_PATH)
-	var redraw := Callable(self, "queue_redraw")
-	if not panel.resized.is_connected(redraw):
-		panel.resized.connect(redraw)
+	var resize_callback := Callable(self, "sync_outer_frame_rect")
+	if not panel.resized.is_connected(resize_callback):
+		panel.resized.connect(resize_callback)
 	queue_redraw()
 
 func set_variant(variant: String) -> void:
 	_variant = variant
+	queue_redraw()
+
+func sync_outer_frame_rect() -> void:
+	if _panel == null:
+		return
+	if bool(_panel.get_meta("panel_outer_frame_only", false)) and get_parent() is Node2D:
+		position = Vector2.ZERO
+		size = _panel.size
 	queue_redraw()
 
 func _draw() -> void:

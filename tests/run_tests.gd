@@ -404,10 +404,39 @@ func _test_ui_skin_button_system() -> void:
 	preserved_child.name = "PreservedMenuInternals"
 	preserved_child.custom_minimum_size = Vector2(240.0, 160.0)
 	outer_panel.add_child(preserved_child)
+	var baseline_margins := Vector4(
+		outer_style.get_content_margin(SIDE_LEFT),
+		outer_style.get_content_margin(SIDE_TOP),
+		outer_style.get_content_margin(SIDE_RIGHT),
+		outer_style.get_content_margin(SIDE_BOTTOM)
+	)
 	skin.apply_outer_panel_frame(outer_panel, UiSkin.SURFACE_DIALOG)
-	_assert(outer_panel.get_theme_stylebox("panel") == outer_style, "Outer-only menu framing should preserve the exact baseline style resource")
+	var raster_backing_style: StyleBoxFlat = outer_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	_assert(raster_backing_style != null, "Outer-only menu framing should preserve the baseline panel fill")
+	if raster_backing_style != null:
+		_assert(raster_backing_style.bg_color == outer_style.bg_color, "Outer-only menu framing should preserve the baseline panel fill color")
+		_assert(
+			Vector4(
+				raster_backing_style.get_content_margin(SIDE_LEFT),
+				raster_backing_style.get_content_margin(SIDE_TOP),
+				raster_backing_style.get_content_margin(SIDE_RIGHT),
+				raster_backing_style.get_content_margin(SIDE_BOTTOM)
+			) == baseline_margins,
+			"Outer-only menu framing should preserve all baseline content margins"
+		)
+		_assert(
+			raster_backing_style.border_width_left == 0
+			and raster_backing_style.border_width_top == 0
+			and raster_backing_style.border_width_right == 0
+			and raster_backing_style.border_width_bottom == 0,
+			"Outer-only menu framing should remove the legacy outline behind the raster"
+		)
 	_assert(preserved_child.get_parent() == outer_panel and preserved_child.custom_minimum_size == Vector2(240.0, 160.0), "Outer-only menu framing should preserve baseline internals")
 	_assert(outer_panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null, "Outer-only menu framing should add the authored raster border")
+	_assert(
+		outer_panel.get_node_or_null("%s/%s" % [UiSkin.PANEL_ORNAMENT_NAME, UiSkin.OUTER_PANEL_RENDERER_NAME]) != null,
+		"Outer-only menu framing should isolate its renderer from PanelContainer content layout"
+	)
 	_assert(bool(outer_panel.get_meta("panel_outer_frame_only", false)), "Outer-only menu framing should stay isolated from full panel restyling")
 	outer_panel.free()
 
@@ -7974,6 +8003,19 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	var large_map_dialog: PanelContainer = instance.get("_large_map_dialog") as PanelContainer
 	var close_button: Button = null
 	if large_map_dialog != null:
+		_assert(
+			large_map_dialog.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null,
+			"Large map should use the authored outer raster frame"
+		)
+		var large_map_style: StyleBoxFlat = large_map_dialog.get_theme_stylebox("panel") as StyleBoxFlat
+		_assert(
+			large_map_style != null
+			and large_map_style.border_width_left == 0
+			and large_map_style.border_width_top == 0
+			and large_map_style.border_width_right == 0
+			and large_map_style.border_width_bottom == 0,
+			"Large map should not retain a legacy outline outside its raster frame"
+		)
 		close_button = large_map_dialog.find_child("CloseButton", true, false) as Button
 	_assert(close_button != null, "Large map should expose a close button")
 	if close_button != null:
