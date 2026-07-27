@@ -36,6 +36,7 @@ const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
 const MOLTSHARD_GAIN_EVENT_TYPE: String = "progression_moltshard_gained"
 const COMBAT_SKILL_EVENT_STAGED_REVISION_KEY: String = "combat_skill_event_revision_staged"
+const COMBAT_BACKDROP_PATH: String = "res://assets/art/backgrounds/sealed_dungeon_hall.png"
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -1097,6 +1098,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var grimoire_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/GrimoireButton
 @onready var menu_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton
 @onready var stage_root: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot
+@onready var combat_backdrop: TextureRect = $BoardUnderlay/CombatBackdrop
 @onready var board_view = $BoardUnderlay/CombatBoard
 @onready var action_banner: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ActionBanner
 @onready var mini_map_overlay: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay
@@ -1605,6 +1607,7 @@ func _notification(what: int) -> void:
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
 	$BoardUnderlay/BaseBackdrop.color = Color("18120f")
+	combat_backdrop.texture = AssetLoader.load_texture(COMBAT_BACKDROP_PATH)
 	var mini_map_style := StyleBoxFlat.new()
 	mini_map_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
 	mini_map_style.corner_radius_top_left = 10
@@ -6797,6 +6800,8 @@ func _start_debug_boss_run() -> void:
 func _refresh_ui() -> void:
 	if _dialogue_active and str(_run_state.get("mode", "room")) != "room":
 		_close_dialogue()
+	if combat_backdrop != null:
+		combat_backdrop.visible = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
 	_sync_analytics_combat_tracker()
 	if str(_run_state.get("mode", "room")) == "victory" and not _victory_carry_processed:
 		_process_victory_carry()
@@ -11715,6 +11720,7 @@ func _refresh_stage_view() -> void:
 	var attack_tiles: Array[Vector2i] = []
 	var ability_tiles: Array[Vector2i] = []
 	var presentation: Dictionary = _board_presentation.duplicate(false)
+	presentation["combat_backdrop_visible"] = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
 	if str(_run_state.get("mode", "room")) == "combat" and not display_state.is_empty():
 		presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(visibility_state)
 		presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(visibility_state)

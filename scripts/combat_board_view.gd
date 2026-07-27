@@ -107,6 +107,10 @@ const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
 const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
 const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
 const OUTER_WALL_RENDERING_ENABLED: bool = false
+const TILE_DEPTH_HEIGHT_RATIO: float = 0.30
+const TILE_DEPTH_LEFT_FACE: Color = Color("241914")
+const TILE_DEPTH_RIGHT_FACE: Color = Color("33231b")
+const TILE_DEPTH_EDGE: Color = Color("130e0c")
 const BOARD_SIDE_MARGIN: float = 36.0
 const BOARD_VERTICAL_MARGIN: float = 8.0
 const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
@@ -954,7 +958,8 @@ func _draw() -> void:
 
 func _draw_static_board() -> void:
 	_static_draw_count += 1
-	draw_rect(Rect2(Vector2.ZERO, size), Color("18120f"), true)
+	if not bool(presentation.get("combat_backdrop_visible", false)):
+		draw_rect(Rect2(Vector2.ZERO, size), Color("18120f"), true)
 	if combat_state.is_empty():
 		_draw_empty_state()
 		return
@@ -2045,6 +2050,7 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 	var polygon: PackedVector2Array = _tile_polygon(tile)
 	var base_color: Color = _tile_color(tile_id)
+	_draw_floor_tile_depth(tile)
 	draw_colored_polygon(polygon, base_color)
 	var texture: Texture2D = _floor_texture_for_tile(tile_id, tile)
 	if texture != null:
@@ -2054,6 +2060,40 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 		draw_texture_rect(texture, rect, false)
 	_draw_floor_moss_overlay(tile)
 	draw_polyline(polygon, GRID_OUTLINE, 2.0, true)
+
+func _draw_floor_tile_depth(tile: Vector2i) -> void:
+	var faces: Array[PackedVector2Array] = _tile_depth_faces(tile)
+	for face_index: int in range(faces.size()):
+		var face: PackedVector2Array = faces[face_index]
+		var face_color: Color = TILE_DEPTH_RIGHT_FACE if face_index == 0 else TILE_DEPTH_LEFT_FACE
+		draw_colored_polygon(face, face_color)
+		if face.size() >= 4:
+			draw_polyline(
+				PackedVector2Array([face[0], face[1], face[2], face[3], face[0]]),
+				TILE_DEPTH_EDGE,
+				1.5,
+				true
+			)
+
+func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
+	var faces: Array[PackedVector2Array] = []
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	if polygon.size() < 4:
+		return faces
+	var depth_offset := Vector2(0.0, _tile_height() * TILE_DEPTH_HEIGHT_RATIO)
+	faces.append(PackedVector2Array([
+		polygon[1],
+		polygon[2],
+		polygon[2] + depth_offset,
+		polygon[1] + depth_offset
+	]))
+	faces.append(PackedVector2Array([
+		polygon[2],
+		polygon[3],
+		polygon[3] + depth_offset,
+		polygon[2] + depth_offset
+	]))
+	return faces
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)

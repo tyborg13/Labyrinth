@@ -24,6 +24,7 @@ func _initialize() -> void:
 	board.set_combat_state(state)
 	await process_frame
 	_test_navigation_reuses_content_cache(board)
+	_test_tile_depth_preserves_top_face_hit_testing(board)
 	_test_bounded_zoom_and_hit_testing(board)
 	_test_wheel_zoom(board)
 	_test_click_without_drag(board)
@@ -51,6 +52,22 @@ func _test_navigation_reuses_content_cache(board: Control) -> void:
 	var after_count: int = int((board.call("render_instrumentation_snapshot") as Dictionary).get("layout_content_rebuild_count", -1))
 	_expect(after_count == before_count, "Pan and zoom should reuse cached tile order/extents instead of rebuilding room content each frame")
 	board.call("reset_navigation")
+
+func _test_tile_depth_preserves_top_face_hit_testing(board: Control) -> void:
+	var tile := Vector2i(4, 3)
+	var top_face: PackedVector2Array = board.call("_tile_polygon", tile)
+	var depth_faces: Array = board.call("_tile_depth_faces", tile)
+	_expect(depth_faces.size() == 2, "Every rendered tile should expose two isometric depth faces")
+	if top_face.size() < 4 or depth_faces.size() != 2:
+		return
+	var top_bottom_y: float = top_face[2].y
+	for face_var: Variant in depth_faces:
+		var face: PackedVector2Array = face_var as PackedVector2Array
+		_expect(face.size() == 4, "Each tile depth face should remain a stable quadrilateral")
+		if face.size() == 4:
+			_expect(maxf(face[2].y, face[3].y) > top_bottom_y + 1.0, "Tile depth should extend visibly below the top diamond")
+	var center: Vector2 = board.call("world_position_for_tile", tile)
+	_expect(board.call("_tile_at_point", center) == tile, "Adding visual tile depth must not change top-face hit testing")
 
 func _test_bounded_zoom_and_hit_testing(board: Control) -> void:
 	var focus_tile := Vector2i(4, 3)
