@@ -7787,7 +7787,7 @@ func _trigger_status_relics(state: Dictionary, status_id: String) -> Dictionary:
 				if _turn_flag(next_state, turn_key):
 					continue
 				_set_turn_flag(next_state, turn_key, true)
-				next_state = _draw_cards_in_place(next_state, int(effect.get("value", 1)))
+				next_state = _draw_relic_cards_in_place(next_state, int(effect.get("value", 1)))
 			"status_intensity_gain":
 				var intensity_key: String = _turn_relic_flag_key(effect, "status_intensity")
 				if _turn_flag(next_state, intensity_key):
