@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-27T15:12:58Z",
+  "updated_at": "2026-07-28T21:53:14Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1793,30 +1793,6 @@
       "source": {
         "branch": "master",
         "commit": "6f7984e"
-      }
-    },
-    {
-      "id": "mnt_20260505T013132Z_8b8a8963",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/ui_skin.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/ui_skin.gd",
-      "summary": "Wood UI buttons use muted antique-gold raised 4.5:1 sprites",
-      "details": "button_wood_gold_*.png remain crisp 216x48 RGBA sprites, but the trim is muted toward the card_back/card_frame gold palette with sparse light glints instead of bright brass. UiSkin keeps BUTTON_TEXTURE_ASPECT at 4.5 and sizes small/standard/large/action buttons at 38/46/52/58 px; Pass/Skip/Cancel use the action height in the left bottom stack directly above the deck/discard piles, while reward +HP is rendered as a hand-row choice slot to the right of reward cards.",
-      "status": "active",
-      "created_at": "2026-05-05T01:31:32Z",
-      "updated_at": "2026-05-05T01:31:32Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260505T010605Z_d3ebd793"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "b171180"
       }
     },
     {
@@ -4144,28 +4120,6 @@
       }
     },
     {
-      "id": "mnt_20260702T151151Z_519dd3d9",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Selection prompt depth effects should be glyph-shaped",
-      "details": "For large non-combat selection prompts such as GROW YOUR POWER and CLAIM YOUR TREASURE, avoid simple geometric halos, underlines, sweep parallelograms, or other obvious decorative shapes behind the text. Keep depth/life treatments tied to the letterforms themselves: text-shaped shadow, glow, bevel/highlight, or similarly professional glyph-based effects.",
-      "status": "active",
-      "created_at": "2026-07-02T15:11:51Z",
-      "updated_at": "2026-07-02T15:11:51Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/polish-non-combat-room-title-text",
-        "commit": "87f32c4"
-      }
-    },
-    {
       "id": "mnt_20260702T192213Z_67905c06",
       "layer": "shared",
       "kind": "user_preference",
@@ -6487,6 +6441,53 @@
       "source": {
         "branch": "codex/major-run-pacing-and-lethality-rebalance",
         "commit": "5812597"
+      }
+    },
+    {
+      "id": "mnt_20260728T215302Z_7c3daf33",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Reward offers use a centered ruined raster banner and subordinate Recover",
+      "details": "Post-combat reward presentation uses one darkened stage stack: a reusable frayed raster instruction banner with restrained runtime text, exactly three centered card choices, then a compact Skip & Recover button with heal and HP projection. Relic rewards reuse the banner-and-centered-offer composition. Reward fixtures must default to the production three-card offer, never a hand-authored fourth card.",
+      "status": "active",
+      "created_at": "2026-07-28T21:53:02Z",
+      "updated_at": "2026-07-28T21:53:02Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260702T151151Z_519dd3d9",
+        "mnt_20260505T013132Z_8b8a8963"
+      ],
+      "source": {
+        "branch": "codex/recompose-card-and-relic-reward-screens-after-slay-the-spire-reference",
+        "commit": "c9b151c"
+      }
+    },
+    {
+      "id": "mnt_20260728T215314Z_734ebdb8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/ui_skin.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/ui_skin.gd",
+      "summary": "Wood UI buttons use muted antique-gold raised 4.5:1 sprites",
+      "details": "button_wood_gold_*.png remain crisp 216x48 RGBA sprites, with trim muted toward the card_back/card_frame gold palette and sparse light glints instead of bright brass. UiSkin keeps BUTTON_TEXTURE_ASPECT at 4.5 and sizes small/standard/large/action buttons at 38/46/52/58 px; Pass, Skip, and Cancel use the action height where they remain primary bottom-stack actions. Reward presentation is governed separately by the centered-banner convention in scripts/run_scene.gd.",
+      "status": "active",
+      "created_at": "2026-07-28T21:53:14Z",
+      "updated_at": "2026-07-28T21:53:14Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/recompose-card-and-relic-reward-screens-after-slay-the-spire-reference",
+        "commit": "c9b151c"
       }
     }
   ]

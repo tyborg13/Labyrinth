@@ -220,7 +220,7 @@ func _capture_run_states() -> void:
 	var reward_run_state: Dictionary = instance.get("_run_state")
 	reward_run_state["mode"] = "reward"
 	reward_run_state["pending_reward"] = {
-		"cards": ["quick_stab", "bone_dart", "sidestep_slash", "patch_up"],
+		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
 		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}

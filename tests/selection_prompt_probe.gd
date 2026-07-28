@@ -40,20 +40,14 @@ func _capture_reward_prompt(instance: Node) -> void:
 	var base_state: Dictionary = probe_run_engine.create_new_run(321, ProgressionStore.default_data())
 	var reward_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, Vector2i(1, 0), "reward", Vector2i(1, 0))
 	reward_state["pending_reward"] = {
-		"cards": ["quick_stab", "bone_dart", "sidestep_slash", "patch_up"],
+		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
 		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
 	instance.call("_load_run_state", reward_state)
 	await _settle_prompt()
 	_assert_prompt_ready(instance, "GROW YOUR POWER")
-	var shimmer_start: String = _shimmer_text(instance)
 	await _save_root_screenshot("%s/reward_prompt.png" % OUTPUT_DIR)
-	await _advance_prompt_motion(1.15)
-	var shimmer_after: String = _shimmer_text(instance)
-	if shimmer_start == shimmer_after:
-		_fail("Expected reward prompt shimmer to advance over time")
-	await _save_root_screenshot("%s/reward_prompt_shimmer.png" % OUTPUT_DIR)
 
 func _capture_treasure_prompt(instance: Node) -> void:
 	var probe_run_engine := RunEngine.new()
@@ -70,35 +64,20 @@ func _capture_treasure_prompt(instance: Node) -> void:
 	await _save_root_screenshot("%s/treasure_prompt.png" % OUTPUT_DIR)
 
 func _assert_prompt_ready(instance: Node, expected_text: String) -> void:
+	var prompt_banner: TextureRect = instance.get("_relic_choice_banner") as TextureRect
 	var prompt_title: Label = instance.get("_relic_choice_title") as Label
 	var prompt_effect: Control = instance.get("_relic_choice_title_effect") as Control
+	if prompt_banner == null or not prompt_banner.visible or prompt_banner.texture == null:
+		_fail("Expected visible raster selection banner for: %s" % expected_text)
 	if prompt_title == null or not prompt_title.visible or prompt_title.text != expected_text:
 		_fail("Expected visible selection prompt title: %s" % expected_text)
-	if prompt_effect == null or not prompt_effect.visible:
-		_fail("Expected visible animated title effect for: %s" % expected_text)
-	var shimmer_label: RichTextLabel = null
-	if prompt_effect != null:
-		shimmer_label = prompt_effect.get_node_or_null("TreasureTitleShimmer") as RichTextLabel
-	if shimmer_label == null or not shimmer_label.bbcode_enabled:
-		_fail("Expected glyph shimmer layer for: %s" % expected_text)
-
-func _shimmer_text(instance: Node) -> String:
-	var prompt_effect: Control = instance.get("_relic_choice_title_effect") as Control
-	if prompt_effect == null:
-		return ""
-	var shimmer_label := prompt_effect.get_node_or_null("TreasureTitleShimmer") as RichTextLabel
-	if shimmer_label == null:
-		return ""
-	return shimmer_label.text
+	if prompt_effect != null and prompt_effect.visible:
+		_fail("Selection prompt should not retain the oversized animated title effect: %s" % expected_text)
 
 func _settle_prompt() -> void:
 	root.warp_mouse(Vector2(8.0, 8.0))
 	await process_frame
 	await process_frame
-	await process_frame
-
-func _advance_prompt_motion(seconds: float) -> void:
-	await create_timer(seconds).timeout
 	await process_frame
 
 func _run_state_for_room(probe_run_engine: RunEngine, source_state: Dictionary, coord: Vector2i, mode: String, travel_dir: Vector2i) -> Dictionary:
