@@ -227,7 +227,12 @@ const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
 const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
 const PROJECTILE_SPRITE_PATH_ANCHOR_X: float = 0.78
 const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
-const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
+const LETHAL_DEATH_MARK_EFFECT_PATH: String = "res://assets/art/effects/lethal_death_mark.png"
+const LETHAL_DEATH_MARK_PULSE_SECONDS: float = 1.4
+const LETHAL_DEATH_MARK_MIN_SCALE: float = 0.92
+const LETHAL_DEATH_MARK_MAX_SCALE: float = 1.08
+const LETHAL_DEATH_MARK_MIN_ALPHA: float = 0.80
+const LETHAL_DEATH_MARK_MAX_ALPHA: float = 0.98
 const BLINK_RIFT_PREVIEW_TEXTURE_PATH: String = "res://assets/art/effects/blink_rift_preview.png"
 const DEFENSE_HEAL_CASTS_PATH: String = "res://assets/art/effects/defense_heal_casts.png"
 const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
@@ -3537,16 +3542,42 @@ func _draw_lethal_preview_icons(units_to_draw: Array[Dictionary]) -> void:
 		_draw_lethal_preview_icon(_unit_draw_rect(unit))
 
 func _draw_lethal_preview_icon(unit_rect: Rect2) -> void:
-	var texture: Texture2D = _effect_textures.get("lethal_skull", null)
+	var texture: Texture2D = _effect_textures.get("lethal_death_mark", null)
 	if texture == null or unit_rect.size.x <= 0.0 or unit_rect.size.y <= 0.0:
 		return
-	var icon_size: float = clampf(minf(unit_rect.size.x, unit_rect.size.y) * 0.42, 30.0, 58.0)
+	var pulse: float = _lethal_death_mark_pulse(_lethal_death_mark_time_seconds())
+	var draw_scale: float = lerpf(
+		LETHAL_DEATH_MARK_MIN_SCALE,
+		LETHAL_DEATH_MARK_MAX_SCALE,
+		pulse
+	)
+	var icon_size: float = clampf(
+		minf(unit_rect.size.x, unit_rect.size.y) * 0.58,
+		42.0,
+		76.0
+	) * draw_scale
 	var icon_center := Vector2(
 		unit_rect.get_center().x,
-		unit_rect.position.y + unit_rect.size.y * 0.42
+		unit_rect.position.y + unit_rect.size.y * 0.43
 	)
 	var icon_rect := Rect2(icon_center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
-	draw_texture_rect(texture, icon_rect, false, Color(1.0, 1.0, 1.0, 0.94))
+	var alpha: float = lerpf(
+		LETHAL_DEATH_MARK_MIN_ALPHA,
+		LETHAL_DEATH_MARK_MAX_ALPHA,
+		pulse
+	)
+	draw_texture_rect(texture, icon_rect, false, Color(1.0, 1.0, 1.0, alpha))
+
+func _lethal_death_mark_time_seconds() -> float:
+	if presentation.has("lethal_preview_time_seconds"):
+		return float(presentation.get("lethal_preview_time_seconds", 0.0))
+	return float(Time.get_ticks_msec()) / 1000.0
+
+func _lethal_death_mark_pulse(time_seconds: float) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.5
+	var phase: float = time_seconds * TAU / LETHAL_DEATH_MARK_PULSE_SECONDS
+	return 0.5 + sin(phase) * 0.5
 
 func _unit_impact_strength(unit: Dictionary) -> float:
 	var actor_key: String = str(unit.get("key", ""))
@@ -5727,7 +5758,7 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 		)
 	}
 	_effect_textures = {
-		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH),
+		"lethal_death_mark": AssetLoader.load_texture(LETHAL_DEATH_MARK_EFFECT_PATH),
 		"blink_rift_preview": AssetLoader.load_texture(BLINK_RIFT_PREVIEW_TEXTURE_PATH)
 	}
 	_effect_frames = {

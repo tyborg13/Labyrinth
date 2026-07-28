@@ -1,11 +1,12 @@
 extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/lethal_preview_v1"
+const OUTPUT_DIR: String = "user://probes/lethal_preview_v2"
 const PROGRESSION_PATH: String = "user://lethal_preview_probe_progression.json"
 const RUN_PATH: String = "user://lethal_preview_probe_run.save"
 const SETTINGS_PATH: String = "user://lethal_preview_probe_settings.json"
@@ -48,7 +49,7 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 		maxi(1, roundi(float(screenshot_size.y) / ui_scale))
 	)
 	var settings: Dictionary = SettingsStore.default_settings()
-	settings["reduced_motion"] = true
+	settings["reduced_motion"] = false
 	settings["ui_scale"] = ui_scale
 	SettingsStore.save_settings(settings)
 	SettingsStore.apply_settings(settings, root, false)
@@ -94,11 +95,27 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 	await _settle()
 	_assert_single_target_preview(single_instance, single_before, screenshot_size)
 	_hide_log(single_instance)
+	await _set_lethal_marker_frame(
+		single_instance,
+		false,
+		CombatBoardView.LETHAL_DEATH_MARK_PULSE_SECONDS * 0.25
+	)
 	await _save_screenshot(
 		viewport,
 		"%s/single_target_lethal.png" % output_dir,
 		screenshot_size
 	)
+	if screenshot_size == Vector2i(1920, 1080):
+		await _set_lethal_marker_frame(
+			single_instance,
+			false,
+			CombatBoardView.LETHAL_DEATH_MARK_PULSE_SECONDS * 0.75
+		)
+		await _save_screenshot(
+			viewport,
+			"%s/single_target_pulse_trough.png" % output_dir,
+			screenshot_size
+		)
 	single_instance.queue_free()
 	await process_frame
 
@@ -113,15 +130,67 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 	await _settle()
 	_assert_aoe_preview(aoe_instance, aoe_before, screenshot_size)
 	_hide_log(aoe_instance)
+	await _set_lethal_marker_frame(
+		aoe_instance,
+		false,
+		CombatBoardView.LETHAL_DEATH_MARK_PULSE_SECONDS * 0.25
+	)
 	await _save_screenshot(
 		viewport,
 		"%s/aoe_lethal.png" % output_dir,
 		screenshot_size
 	)
+	if screenshot_size == Vector2i(1280, 800):
+		await _set_lethal_marker_frame(
+			aoe_instance,
+			true,
+			CombatBoardView.LETHAL_DEATH_MARK_PULSE_SECONDS * 0.75
+		)
+		await _save_screenshot(
+			viewport,
+			"%s/aoe_reduced_motion.png" % output_dir,
+			screenshot_size
+		)
 	aoe_instance.queue_free()
 	await process_frame
 	viewport.queue_free()
 	await process_frame
+
+
+func _set_lethal_marker_frame(
+	instance: Node,
+	reduced_motion: bool,
+	time_seconds: float
+) -> void:
+	var settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	settings["reduced_motion"] = reduced_motion
+	instance.set("_settings", settings)
+	var board_presentation: Dictionary = (
+		instance.get("_board_presentation") as Dictionary
+	).duplicate(true)
+	board_presentation["lethal_preview_time_seconds"] = time_seconds
+	instance.set("_board_presentation", board_presentation)
+	instance.call("_refresh_stage_view")
+	await _settle()
+	var board: Control = instance.get("board_view") as Control
+	if board == null:
+		_expect(false, "Lethal marker proof frame should expose the combat board")
+		return
+	var rendered_presentation: Dictionary = board.get("presentation") as Dictionary
+	_expect(
+		bool(rendered_presentation.get("reduced_motion", false)) == reduced_motion,
+		"Lethal marker proof frame should propagate reduced-motion state"
+	)
+	var rendered_pulse: float = float(board.call("_lethal_death_mark_pulse", time_seconds))
+	_expect(
+		rendered_pulse >= 0.0 and rendered_pulse <= 1.0,
+		"Lethal marker proof frame should keep pulse strength normalized"
+	)
+	if reduced_motion:
+		_expect(
+			is_equal_approx(rendered_pulse, 0.5),
+			"Reduced motion should hold the lethal marker at its neutral frame"
+		)
 
 
 func _install_combat_fixture(instance: Node, aoe: bool) -> void:
@@ -302,7 +371,7 @@ func _assert_board_units(
 	)
 	_expect(
 		lethal_count == expected_lethal_count,
-		"%s preview should show %d lethal skulls, got %d" % [
+		"%s preview should show %d lethal death marks, got %d" % [
 			label,
 			expected_lethal_count,
 			lethal_count,

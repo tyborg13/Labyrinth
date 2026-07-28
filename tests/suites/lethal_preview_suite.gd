@@ -6,6 +6,7 @@ const RunScene = preload("res://scripts/run_scene.gd")
 
 static func run(expect: Callable) -> void:
 	_test_cumulative_lethal_preview_keeps_units_visible(expect)
+	_test_lethal_death_mark_motion(expect)
 
 
 static func _test_cumulative_lethal_preview_keeps_units_visible(expect: Callable) -> void:
@@ -84,6 +85,30 @@ static func _test_cumulative_lethal_preview_keeps_units_visible(expect: Callable
 	)
 	board.free()
 	instance.free()
+
+
+static func _test_lethal_death_mark_motion(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	board.set("presentation", {"reduced_motion": false})
+	var pulse_period: float = CombatBoardView.LETHAL_DEATH_MARK_PULSE_SECONDS
+	var neutral_pulse: float = float(board.call("_lethal_death_mark_pulse", 0.0))
+	var peak_pulse: float = float(board.call("_lethal_death_mark_pulse", pulse_period * 0.25))
+	var trough_pulse: float = float(board.call("_lethal_death_mark_pulse", pulse_period * 0.75))
+	expect.call(
+		is_equal_approx(neutral_pulse, 0.5)
+		and is_equal_approx(peak_pulse, 1.0)
+		and is_equal_approx(trough_pulse, 0.0),
+		"Lethal death mark should breathe through deterministic neutral, peak, and trough phases"
+	)
+
+	board.set("presentation", {"reduced_motion": true})
+	var reduced_start: float = float(board.call("_lethal_death_mark_pulse", 0.0))
+	var reduced_later: float = float(board.call("_lethal_death_mark_pulse", pulse_period * 0.25))
+	expect.call(
+		is_equal_approx(reduced_start, 0.5) and is_equal_approx(reduced_later, 0.5),
+		"Reduced motion should hold the lethal death mark at a stable neutral frame"
+	)
+	board.free()
 
 
 static func _state(enemies: Array) -> Dictionary:

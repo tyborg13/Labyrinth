@@ -12050,6 +12050,7 @@ func _refresh_stage_view() -> void:
 		and not _animation_lock
 		and _current_action_is_aimed_aoe()
 	)
+	presentation["reduced_motion"] = _reduced_motion_enabled()
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
