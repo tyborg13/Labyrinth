@@ -7732,7 +7732,7 @@ func _trigger_blink_relics(state: Dictionary, distance: int = 0) -> Dictionary:
 				if _turn_flag(next_state, draw_key):
 					continue
 				_set_turn_flag(next_state, draw_key, true)
-				next_state = _draw_cards_in_place(next_state, int(effect.get("value", 1)))
+				next_state = _draw_relic_cards_in_place(next_state, int(effect.get("value", 1)))
 			"blink_intensity_gain_once_per_turn":
 				var intensity_key: String = _turn_relic_flag_key(effect, "blink_intensity")
 				if _turn_flag(next_state, intensity_key):
@@ -7808,7 +7808,8 @@ func _trigger_intensity_threshold_relics(state: Dictionary, element_id: String, 
 	var next_state: Dictionary = state
 	if not ElementData.is_elemental(element_id) or after_value <= before_value:
 		return next_state
-	for effect: Dictionary in _relic_effects(next_state):
+	var triggered_effects: Array[Dictionary]
+	for effect: Dictionary in _relic_effects(state):
 		if str(effect.get("type", "")) != "intensity_threshold_reward":
 			continue
 		if not _relic_effect_matches_intensity_element(effect, element_id):
@@ -7816,19 +7817,39 @@ func _trigger_intensity_threshold_relics(state: Dictionary, element_id: String, 
 		var threshold: int = int(effect.get("threshold", effect.get("amount", 0)))
 		if threshold <= 0 or before_value >= threshold or after_value < threshold:
 			continue
-		var qualifying_elements: Array[String] = _elements_at_or_above_intensity(next_state, threshold)
+		var qualifying_elements: Array[String] = _elements_at_or_above_intensity(state, threshold)
 		if qualifying_elements.size() < int(effect.get("required_elements", 1)):
 			continue
-		if not _relic_once_available(next_state, effect, "intensity_threshold", element_id):
+		if not _relic_once_available(state, effect, "intensity_threshold", element_id):
 			continue
+		triggered_effects.append({
+			"effect": effect,
+			"qualifying_elements": qualifying_elements
+		})
+
+	# Resolve every trigger from the same post-gain snapshot. Mark them before
+	# applying rewards so a reward that raises intensity cannot re-enter a
+	# trigger that is already waiting to resolve.
+	var intensity_to_consume: Dictionary = {}
+	for trigger: Dictionary in triggered_effects:
+		var effect: Dictionary = trigger.get("effect", {}) as Dictionary
 		_mark_relic_once(next_state, effect, "intensity_threshold", element_id)
-		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
 		var consume_amount: int = int(effect.get("consume", 0))
 		if bool(effect.get("consume_all_qualifying", false)):
+			var qualifying_elements: Array[String]
+			qualifying_elements.assign(trigger.get("qualifying_elements", []))
 			for qualifying_element: String in qualifying_elements:
-				next_state = _consume_elemental_intensity(next_state, qualifying_element, consume_amount)
+				intensity_to_consume[qualifying_element] = int(intensity_to_consume.get(qualifying_element, 0)) + consume_amount
 		else:
-			next_state = _consume_elemental_intensity(next_state, element_id, consume_amount)
+			intensity_to_consume[element_id] = int(intensity_to_consume.get(element_id, 0)) + consume_amount
+
+	for trigger: Dictionary in triggered_effects:
+		var effect: Dictionary = trigger.get("effect", {}) as Dictionary
+		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
+
+	for consumed_element_var: Variant in intensity_to_consume.keys():
+		var consumed_element: String = str(consumed_element_var)
+		next_state = _consume_elemental_intensity(next_state, consumed_element, int(intensity_to_consume[consumed_element]))
 	return next_state
 
 func _elements_at_or_above_intensity(state: Dictionary, threshold: int) -> Array[String]:
@@ -7973,10 +7994,10 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 		var amount: int = _scaled_relic_reward_amount(reward)
 		match str(reward.get("type", "")):
 			"draw":
-				var draw_amount: int = amount
 				if bool(reward.get("safe", true)):
-					draw_amount = mini(draw_amount, _relic_safe_draws_available(next_state))
-				next_state = _draw_cards_in_place(next_state, draw_amount)
+					next_state = _draw_relic_cards_in_place(next_state, amount)
+				else:
+					next_state = _draw_cards_in_place(next_state, amount)
 			"card_play":
 				if amount > 0:
 					next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + amount
@@ -8005,7 +8026,10 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 
 func _relic_safe_draws_available(state: Dictionary) -> int:
 	var deck: Dictionary = state.get("deck", {}) as Dictionary
-	return (deck.get("draw", []) as Array).size() + (deck.get("discard", []) as Array).size()
+	return (deck.get("draw", []) as Array).size()
+
+func _draw_relic_cards_in_place(state: Dictionary, count: int) -> Dictionary:
+	return _draw_cards_in_place(state, mini(maxi(0, count), _relic_safe_draws_available(state)))
 
 func _apply_status_to_all_live_enemies(state: Dictionary, status_id: String, amount: int) -> Dictionary:
 	var next_state: Dictionary = state

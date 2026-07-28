@@ -302,7 +302,7 @@
   "thornmail_brooch": {
     "name": "Thornmail Brooch",
     "rarity": "epic",
-    "description": "When a card grants stoneskin, deal half that much damage to adjacent enemies, up to {max_value}.",
+    "description": "Whenever you gain stoneskin, deal half that much damage to adjacent enemies, up to {max_value}.",
     "icon_path": "res://assets/art/relics/thornmail_brooch.png",
     "accent": "#9b62d6",
     "design_version": 2,

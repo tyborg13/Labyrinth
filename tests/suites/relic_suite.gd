@@ -122,6 +122,15 @@ static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 	hollow_state["deck"] = _deck([], ["brace"], [])
 	hollow_state = _trigger_card(combat, hollow_state, _card("", 1, [{"type": "block", "amount": 3}]), "hollow")
 	expect.call((hollow_state.get("deck", {}) as Dictionary).get("hand", []) == ["brace"], "Hollow Die should draw from a one-action card")
+	var hollow_fatigue_state: Dictionary = _state(combat, ["hollow_die"], 10, 24)
+	hollow_fatigue_state["deck"] = _deck([], [], ["brace"])
+	hollow_fatigue_state = _trigger_card(combat, hollow_fatigue_state, _card("", 1, [{"type": "block", "amount": 3}]), "hollow")
+	expect.call(
+		int((hollow_fatigue_state.get("player", {}) as Dictionary).get("hp", 0)) == 10
+		and int((hollow_fatigue_state.get("deck", {}) as Dictionary).get("cycles", 0)) == 0
+		and ((hollow_fatigue_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(),
+		"Relic reward draws should stop instead of reshuffling the discard pile and inflicting Fatigue"
+	)
 
 	var chorus_state: Dictionary = _state(combat, ["chorus_mask"])
 	chorus_state["deck"] = _deck([], ["brace", "quick_stab"], [])
@@ -198,6 +207,23 @@ static func _test_intensity_engines(expect: Callable) -> void:
 	overflow_state = combat.apply_player_action(overflow_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
 	expect.call(int((overflow_state.get("player", {}) as Dictionary).get("block", 0)) == 10 and int(overflow_state.get("card_play_bonus_this_turn", 0)) == 2, "Overflow Censer should require three simultaneous intensity thresholds")
 
+	for relic_order: Array in [
+		["ion_spool", "voltaic_tuning_fork"],
+		["voltaic_tuning_fork", "ion_spool"]
+	]:
+		var stacked_state: Dictionary = _state(combat, relic_order)
+		stacked_state["elemental_intensity"] = _intensities({ElementData.LIGHTNING: 3})
+		stacked_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
+		stacked_state = combat.apply_player_action(stacked_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
+		expect.call(
+			((stacked_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3,
+			"Every relic sharing a crossed intensity threshold should resolve regardless of acquisition order"
+		)
+		expect.call(
+			combat.elemental_intensity(stacked_state, ElementData.LIGHTNING) == 0,
+			"Stacked intensity relics should aggregate and clamp their consumption after all rewards resolve"
+		)
+
 	var black_state: Dictionary = _state(combat, ["black_sun_dial"])
 	var final_element: String = ElementData.EARTH
 	black_state["elemental_intensity"] = _intensities({
@@ -259,6 +285,15 @@ static func _test_defense_risk_and_mobility_engines(expect: Callable) -> void:
 	expect.call(((gale_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(), "Gale Tabi should ignore short blinks")
 	gale_state = combat.call("_trigger_blink_relics", gale_state, 3)
 	expect.call(((gale_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2, "Gale Tabi should draw two after a three-tile blink")
+	var gale_fatigue_state: Dictionary = _state(combat, ["gale_tabi"], 10, 24)
+	gale_fatigue_state["deck"] = _deck([], [], ["brace", "quick_stab"])
+	gale_fatigue_state = combat.call("_trigger_blink_relics", gale_fatigue_state, 3)
+	expect.call(
+		int((gale_fatigue_state.get("player", {}) as Dictionary).get("hp", 0)) == 10
+		and int((gale_fatigue_state.get("deck", {}) as Dictionary).get("cycles", 0)) == 0
+		and ((gale_fatigue_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(),
+		"Legacy relic draw hooks should share the no-Fatigue draw contract"
+	)
 
 static func _test_defiance_and_mono_earth_payoffs(expect: Callable) -> void:
 	var combat := CombatEngine.new()
