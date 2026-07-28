@@ -221,7 +221,7 @@ static func _test_intensity_engines(expect: Callable) -> void:
 		)
 		expect.call(
 			combat.elemental_intensity(stacked_state, ElementData.LIGHTNING) == 0,
-			"Stacked intensity relics should aggregate and clamp their consumption after all rewards resolve"
+			"Stacked intensity relics should aggregate and clamp their snapshotted consumption before rewards resolve"
 		)
 
 	var black_state: Dictionary = _state(combat, ["black_sun_dial"])
