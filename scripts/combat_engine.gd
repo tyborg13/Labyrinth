@@ -7843,13 +7843,13 @@ func _trigger_intensity_threshold_relics(state: Dictionary, element_id: String, 
 		else:
 			intensity_to_consume[element_id] = int(intensity_to_consume.get(element_id, 0)) + consume_amount
 
-	for trigger: Dictionary in triggered_effects:
-		var effect: Dictionary = trigger.get("effect", {}) as Dictionary
-		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
-
 	for consumed_element_var: Variant in intensity_to_consume.keys():
 		var consumed_element: String = str(consumed_element_var)
 		next_state = _consume_elemental_intensity(next_state, consumed_element, int(intensity_to_consume[consumed_element]))
+
+	for trigger: Dictionary in triggered_effects:
+		var effect: Dictionary = trigger.get("effect", {}) as Dictionary
+		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
 	return next_state
 
 func _elements_at_or_above_intensity(state: Dictionary, threshold: int) -> Array[String]:

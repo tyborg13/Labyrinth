@@ -241,6 +241,27 @@ static func _test_intensity_engines(expect: Callable) -> void:
 		expect.call(combat.elemental_intensity(black_state, element_id) == 0, "Black Sun Dial should consume four from every qualifying element")
 	expect.call(((black_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5 and int(black_state.get("card_play_bonus_this_turn", 0)) == 5, "Black Sun Dial should supply a legendary continuation turn")
 
+	var nested_intensity_state: Dictionary = _state(combat, ["black_sun_dial", "ember_siphon"], 20, 24)
+	nested_intensity_state["elemental_intensity"] = _intensities({
+		ElementData.FIRE: 4,
+		ElementData.ICE: 4,
+		ElementData.LIGHTNING: 4,
+		ElementData.AIR: 4,
+		ElementData.EARTH: 3
+	})
+	nested_intensity_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart", "brace", "quick_stab"], [])
+	var nested_enemies: Array = (nested_intensity_state.get("enemies", []) as Array).duplicate(true)
+	var burning_enemy: Dictionary = (nested_enemies[0] as Dictionary).duplicate(true)
+	burning_enemy["hp"] = 12
+	burning_enemy["burn"] = 1
+	nested_enemies[0] = burning_enemy
+	nested_intensity_state["enemies"] = nested_enemies
+	nested_intensity_state = combat.apply_player_action(nested_intensity_state, {"type": "intensity", "element": ElementData.EARTH, "amount": 1})
+	expect.call(
+		combat.elemental_intensity(nested_intensity_state, ElementData.FIRE) == 1,
+		"Intensity threshold costs should resolve before rewards so nested payoff intensity is preserved"
+	)
+
 static func _test_defense_risk_and_mobility_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var thaw_state: Dictionary = _state(combat, ["thawing_charm"], 24, 24)
