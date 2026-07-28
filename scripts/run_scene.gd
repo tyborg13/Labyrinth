@@ -12349,7 +12349,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 				var attack_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(attack_damage_modifiers)
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": attack_final_damage,
-					"tone_base_damage": _damage_tone_base_excluding_modifiers(attack_final_damage, attack_visible_modifiers),
+					"tone_base_damage": _damage_tone_base_excluding_modifiers(attack_final_damage, attack_visible_modifiers, action),
 					"damage_modifiers": attack_visible_modifiers
 				})
 				_consume_preview_damage_modifiers(preview_state, action)
@@ -12359,7 +12359,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 				var shove_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(shove_damage_modifiers)
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": shove_final_damage,
-					"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers),
+					"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers, action),
 					"damage_modifiers": shove_visible_modifiers
 				})
 				_consume_preview_damage_modifiers(preview_state, action)
@@ -12420,10 +12420,18 @@ func _non_intensity_damage_modifiers(modifiers: Array[Dictionary]) -> Array[Dict
 		filtered.append(modifier)
 	return filtered
 
-func _damage_tone_base_excluding_modifiers(final_damage: int, visible_modifiers: Array[Dictionary]) -> int:
+func _damage_tone_base_excluding_modifiers(
+	final_damage: int,
+	visible_modifiers: Array[Dictionary],
+	action: Dictionary = {}
+) -> int:
 	var tone_base: int = final_damage
 	for modifier: Dictionary in visible_modifiers:
 		tone_base -= int(modifier.get("amount", 0))
+	var action_modifiers: Dictionary = action.get("_modifiers", {}) as Dictionary
+	for modifier_var: Variant in action_modifiers.get("damage", []):
+		if typeof(modifier_var) == TYPE_DICTIONARY:
+			tone_base -= int((modifier_var as Dictionary).get("amount", 0))
 	return tone_base
 
 func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) -> void:
@@ -20132,6 +20140,7 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"combat_unit_scale": 1,
 		"progression_level": int(progression.get("level", 1)),
 		"progression_skills": ProgressionStore.selected_skill_ids(progression),
+		"relics": (combat_state.get("relics", run_state.get("relics", [])) as Array).duplicate(true),
 		"moltshards": ProgressionStore.moltshard_count(progression),
 		"deck_size": int((run_state.get("deck_cards", []) as Array).size()),
 		"card_id": card_id,

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-27T15:12:58Z",
+  "updated_at": "2026-07-28T02:50:10Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6487,6 +6487,50 @@
       "source": {
         "branch": "codex/major-run-pacing-and-lethality-rebalance",
         "commit": "5812597"
+      }
+    },
+    {
+      "id": "mnt_20260728T025010Z_c65b555e",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "data/relics.json",
+        "symbol": null
+      },
+      "scope_key": "file:data/relics.json",
+      "summary": "Relic rarity is a conditional-power ladder, not a flat efficiency ladder.",
+      "details": "Common relics should be easy-to-trigger synergy nudges; rare and epic relics demand narrower or accumulated setup for larger engine payoffs; legendary relics should create run-defining turns only after mythic-level conditions. Avoid unconditional primary attack, health, block, or opening-resource boosts as the obvious picks.",
+      "status": "active",
+      "created_at": "2026-07-28T02:50:10Z",
+      "updated_at": "2026-07-28T02:50:10Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/rework-all-relics-and-add-ten-synergy-relics",
+        "commit": "c9b151c"
+      }
+    },
+    {
+      "id": "mnt_20260728T025010Z_4689c843",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "_apply_card_play_relic_rewards"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#_apply_card_play_relic_rewards",
+      "summary": "Card-play relic draws must not redraw the card that triggered them or create Fatigue.",
+      "details": "When a finished card goes to discard, temporarily hold that card out while applying its relic rewards, restore it afterward, and safe-cap default relic draw rewards to the real draw+discard supply. Otherwise draw-trigger relics can self-loop or turn upside into accidental Fatigue damage.",
+      "status": "active",
+      "created_at": "2026-07-28T02:50:10Z",
+      "updated_at": "2026-07-28T02:50:10Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/rework-all-relics-and-add-ten-synergy-relics",
+        "commit": "c9b151c"
       }
     }
   ]
