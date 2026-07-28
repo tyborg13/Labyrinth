@@ -283,6 +283,12 @@ func _assert_board_units(
 		hp_values.append(int(unit.get("hp", 0)))
 		if bool(board.call("_unit_is_preview_lethal", unit)):
 			lethal_count += 1
+			var lethal_preview: Dictionary = board.call("_unit_damage_preview", unit) as Dictionary
+			_expect(
+				int(board.call("_health_bar_fill_hp", unit, lethal_preview)) == 0
+				and not bool(board.call("_damage_preview_shows_lost_hp", lethal_preview)),
+				"%s lethal enemy should render a genuinely empty health bar" % label
+			)
 	hp_values.sort()
 	var sorted_expected: Array = expected_hp.duplicate()
 	sorted_expected.sort()

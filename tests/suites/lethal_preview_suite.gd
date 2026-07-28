@@ -71,6 +71,17 @@ static func _test_cumulative_lethal_preview_keeps_units_visible(expect: Callable
 		visible_enemy_count == 3 and lethal_unit_count == 2,
 		"Combat board should keep all enemies visible while marking both lethal previews"
 	)
+	var lethal_preview: Dictionary = damage_preview.get("enemy_2", {}) as Dictionary
+	expect.call(
+		int(board.call("_health_bar_fill_hp", display_by_id.get(2, {}), lethal_preview)) == 0
+		and not bool(board.call("_damage_preview_shows_lost_hp", lethal_preview)),
+		"Lethal previews should render an empty health bar without a full-width damage fill"
+	)
+	expect.call(
+		int(board.call("_health_bar_fill_hp", display_by_id.get(3, {}), survivor_preview)) == 6
+		and bool(board.call("_damage_preview_shows_lost_hp", survivor_preview)),
+		"Nonlethal previews should retain their projected fill and lost-health overlay"
+	)
 	board.free()
 	instance.free()
 

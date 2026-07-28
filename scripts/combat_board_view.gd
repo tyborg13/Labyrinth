@@ -3424,13 +3424,13 @@ func _npc_nameplate_rect(unit: Dictionary, center: Vector2, font: Font = null) -
 func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
 	var preview: Dictionary = _unit_damage_preview(unit)
-	var display_hp: int = int(preview.get("hp", unit.get("hp", 0)))
+	var display_hp: int = _health_bar_fill_hp(unit, preview)
 	var role: String = str(unit.get("role", ""))
 	var fill_color: Color = ILLUSION_BAR_FILL if role == "illusion" else PLAYER_BAR_FILL if role == "player" else ENEMY_BAR_FILL
 	SegmentedHealthBar.draw_bar(
 		self,
 		rect,
-		float(unit.get("hp", 0)),
+		float(display_hp),
 		float(maxi(1, int(unit.get("max_hp", 1)))),
 		_health_bar_segment_count(int(unit.get("max_hp", 1))),
 		Color("2d1f18"),
@@ -3441,7 +3441,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		1.0,
 		1.0
 	)
-	if not preview.is_empty():
+	if _damage_preview_shows_lost_hp(preview):
 		_draw_health_damage_preview(unit, rect, preview)
 	if font != null:
 		var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 1.0)
@@ -3484,6 +3484,12 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 
 func _health_bar_segment_count(max_hp_value: int) -> int:
 	return SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp_value)))
+
+func _health_bar_fill_hp(unit: Dictionary, preview: Dictionary) -> int:
+	return int(preview.get("hp", unit.get("hp", 0)))
+
+func _damage_preview_shows_lost_hp(preview: Dictionary) -> bool:
+	return not preview.is_empty() and not bool(preview.get("lethal", false))
 
 func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
 	var current_hp: float = float(unit.get("hp", 0))
