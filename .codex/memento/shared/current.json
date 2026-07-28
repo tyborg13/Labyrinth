@@ -6284,28 +6284,6 @@
       }
     },
     {
-      "id": "mnt_20260723T070937Z_5f23daf7",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "project",
-        "path": ".",
-        "symbol": null
-      },
-      "scope_key": "project:.",
-      "summary": "Every distinct player-facing icon-bearing concept must own a unique purpose-built icon.",
-      "details": "Abilities, relics, equipment, keywords, statuses, resources, and future icon-bearing families may reuse an icon only for the exact same concept. Different concepts may not share a resource path, byte-identical copy, recolor, badge overlay, or generic stand-in. Enforced by spec/icon_identity_policy.md and tests/test_icon_identity_policy.py.",
-      "status": "active",
-      "created_at": "2026-07-23T07:09:37Z",
-      "updated_at": "2026-07-23T07:09:37Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/implement-qualitative-skill-tree-progression",
-        "commit": "7caf8fe"
-      }
-    },
-    {
       "id": "mnt_20260723T070937Z_1c5381f2",
       "layer": "shared",
       "kind": "user_preference",
@@ -6317,6 +6295,28 @@
       "scope_key": "project:.",
       "summary": "Player-facing horizontal scrollbars are banned, and skill trees must have no scrollbars on any sub-surface.",
       "details": "Use fit-to-view and responsive reflow. The complete tree topology and selected ability rule/action must remain visible; compact layouts may rely on highlighted graph connections instead of redundant prerequisite prose. Enforced by spec/game_ui_rubric.md and tests/test_game_ui_rubric_inventory.py.",
+      "status": "active",
+      "created_at": "2026-07-23T07:09:37Z",
+      "updated_at": "2026-07-23T07:09:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "7caf8fe"
+      }
+    },
+    {
+      "id": "mnt_20260723T070937Z_5f23daf7",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Every distinct player-facing icon-bearing concept must own a unique purpose-built icon.",
+      "details": "Abilities, relics, equipment, keywords, statuses, resources, and future icon-bearing families may reuse an icon only for the exact same concept. Different concepts may not share a resource path, byte-identical copy, recolor, badge overlay, or generic stand-in. Enforced by spec/icon_identity_policy.md and tests/test_icon_identity_policy.py.",
       "status": "active",
       "created_at": "2026-07-23T07:09:37Z",
       "updated_at": "2026-07-23T07:09:37Z",
@@ -6441,6 +6441,28 @@
       "source": {
         "branch": "codex/major-run-pacing-and-lethality-rebalance",
         "commit": "5812597"
+      }
+    },
+    {
+      "id": "mnt_20260728T014835Z_79b288d1",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Render unconfirmed combat previews from committed enemy durability plus projected overlays",
+      "details": "Targetless/self-centered AOE and earlier steps in multi-action cards can advance _preview_combat_state to zero HP or remove an enemy before Play Card confirmation. Feeding that projected state directly to CombatBoardView makes _build_visible_units drop the enemy. Keep projected position/status information, restore committed hp/block/stoneskin and missing committed enemies for display, and derive cumulative damage_preview from committed to projected state so empty bars and lethal markers remain visible.",
+      "status": "active",
+      "created_at": "2026-07-28T01:48:35Z",
+      "updated_at": "2026-07-28T01:48:35Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-lethal-attack-preview-icon-and-enemy-visibility",
+        "commit": "c9b151c"
       }
     },
     {
