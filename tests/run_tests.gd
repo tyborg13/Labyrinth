@@ -9260,6 +9260,15 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	_assert(prompt_title != null and not prompt_title.visible, "Relic title should hide after picking a relic")
 	_assert(prompt_banner != null and not prompt_banner.visible, "Relic instruction banner should hide after picking a relic")
 
+	run_state = instance.get("_run_state")
+	run_state["mode"] = "room"
+	instance.set("_run_state", run_state)
+	instance.call("_set_relic_choice_title", "BLACKSMITH")
+	_assert(prompt_banner != null and not prompt_banner.visible, "Reward raster banner should not leak into merchant titles")
+	_assert(prompt_effect != null and prompt_effect.visible, "Merchant titles should retain their prior animated treatment")
+	if prompt_title != null:
+		_assert(prompt_title.get_theme_font_size("font_size") > 32, "Merchant title typography should remain independent from restrained reward-banner text")
+
 	instance.queue_free()
 	await process_frame
 

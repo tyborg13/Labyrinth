@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const OUTPUT_DIR: String = "user://reward_composition_v1_proof"
 const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_volley"]
@@ -76,6 +77,13 @@ func _capture_configuration(resolution: Vector2i, ui_scale: float) -> void:
 		resolution
 	)
 
+	await _show_state(instance, _reward_state(false, true))
+	_assert_reward_layout(instance, resolution, ui_scale, false, true)
+	await _save_root_screenshot(
+		"%s/card_reward_reroll_%s.png" % [output_dir, PROOF_VERSION],
+		resolution
+	)
+
 	await _show_state(instance, _treasure_state())
 	var relic_parts: Dictionary = _assert_relic_layout(instance, resolution, ui_scale)
 	await _save_root_screenshot(
@@ -111,9 +119,14 @@ func _configure_window(resolution: Vector2i, ui_scale: float) -> void:
 		roundi(ui_scale * 100.0)
 	])
 
-func _reward_state(full_health: bool) -> Dictionary:
+func _reward_state(full_health: bool, with_reroll: bool = false) -> Dictionary:
 	var engine := RunEngine.new()
-	var state: Dictionary = engine.create_new_run(7319, ProgressionStore.default_data())
+	var progression: Dictionary = ProgressionStore.default_data()
+	if with_reroll:
+		progression["level"] = 3
+		progression["skill_ids"] = ["quick_wits", "discerning_eye"]
+		progression = ProgressionStore.normalized_data(progression)
+	var state: Dictionary = engine.create_new_run(7319, progression)
 	state["mode"] = "reward"
 	state["player_hp"] = 24 if full_health else 12
 	state["player_max_hp"] = 24
@@ -154,6 +167,7 @@ func _treasure_state() -> Dictionary:
 	return state
 
 func _show_state(instance: Node, state: Dictionary) -> void:
+	root.gui_release_focus()
 	root.warp_mouse(Vector2(8.0, 8.0))
 	instance.call("_load_run_state", state)
 	await _settle()
@@ -167,6 +181,7 @@ func _show_state(instance: Node, state: Dictionary) -> void:
 	instance.set("_run_state", settled_state)
 	instance.call("_refresh_ui")
 	await _freeze_reward_title(instance)
+	root.gui_release_focus()
 	await _settle()
 
 func _freeze_reward_title(instance: Node) -> void:
@@ -177,7 +192,13 @@ func _freeze_reward_title(instance: Node) -> void:
 		title_effect.set("phase", 0.0)
 		title_effect.call("_animate_labels")
 
-func _assert_reward_layout(instance: Node, resolution: Vector2i, ui_scale: float, full_health: bool) -> Dictionary:
+func _assert_reward_layout(
+	instance: Node,
+	resolution: Vector2i,
+	ui_scale: float,
+	full_health: bool,
+	expects_reroll: bool = false
+) -> Dictionary:
 	var result: Dictionary = {}
 	var label: String = "%dx%d @ %d%%" % [resolution.x, resolution.y, roundi(ui_scale * 100.0)]
 	var overlay: Control = instance.get("_relic_choice_overlay") as Control
@@ -186,6 +207,8 @@ func _assert_reward_layout(instance: Node, resolution: Vector2i, ui_scale: float
 	var title: Label = instance.get("_relic_choice_title") as Label
 	var stack: VBoxContainer = instance.find_child("RewardChoiceStack", true, false) as VBoxContainer
 	var card_row: HBoxContainer = instance.find_child("RewardCardRow", true, false) as HBoxContainer
+	var secondary_actions: HBoxContainer = instance.find_child("RewardSecondaryActions", true, false) as HBoxContainer
+	var reroll_button: Button = instance.find_child("RewardRerollButton", true, false) as Button
 	var recover_button: Button = instance.find_child("RewardRecoverButton", true, false) as Button
 	var hand_row: Control = instance.get_node(
 		"UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow"
@@ -198,7 +221,10 @@ func _assert_reward_layout(instance: Node, resolution: Vector2i, ui_scale: float
 		_fail("%s card reward should put its instruction text on a raster foreground banner" % label)
 	if title == null or title.text != "GROW YOUR POWER" or not title.visible:
 		_fail("%s card reward should keep the game-native selection title" % label)
-	elif title.get_theme_font_size("font_size") > 32 or title.get_theme_constant("outline_size") > 2:
+	elif (
+		title.get_theme_font_size("font_size") > UiTypography.scaled_size(title, 32)
+		or title.get_theme_constant("outline_size") > 2
+	):
 		_fail("%s card reward should use restrained runtime text on the raster banner" % label)
 	if hand_row == null or hand_row.visible:
 		_fail("%s card reward should not occupy the combat hand strip" % label)
@@ -208,6 +234,14 @@ func _assert_reward_layout(instance: Node, resolution: Vector2i, ui_scale: float
 	if recover_button == null:
 		_fail("%s should place Recover in a button below the three cards" % label)
 		return result
+	if expects_reroll:
+		if reroll_button == null or secondary_actions == null:
+			_fail("%s ready Discerning Eye should add a compact Reroll action" % label)
+			return result
+		if reroll_button.text != "REROLL":
+			_fail("%s reward reroll should use the compact secondary-action label" % label)
+	elif reroll_button != null:
+		_fail("%s reward should not show Reroll without a ready Discerning Eye" % label)
 	var title_rect: Rect2 = title.get_global_rect()
 	var banner_rect: Rect2 = banner.get_global_rect()
 	var row_rect: Rect2 = card_row.get_global_rect()
@@ -219,6 +253,12 @@ func _assert_reward_layout(instance: Node, resolution: Vector2i, ui_scale: float
 		_fail("%s Recover should sit beneath the card row" % label)
 	if button_rect.size.x >= row_rect.size.x:
 		_fail("%s Recover should remain visually subordinate to the offer row" % label)
+	if expects_reroll and secondary_actions != null:
+		var action_rect: Rect2 = secondary_actions.get_global_rect()
+		if action_rect.size.x >= row_rect.size.x:
+			_fail("%s Reroll plus Recover should remain narrower than the three-card offer row" % label)
+		if not viewport_rect.encloses(action_rect):
+			_fail("%s Reroll plus Recover should fit the visible viewport" % label)
 	if (
 		banner_rect.get_center().distance_to(title_rect.get_center()) > 2.0
 		or title_rect.size.x > banner_rect.size.x + 2.0
@@ -303,6 +343,12 @@ func _assert_relic_layout(instance: Node, resolution: Vector2i, ui_scale: float)
 			_fail("%s relic choices should be keyboard/controller focusable" % label)
 		if choice.focus_neighbor_left == NodePath() or choice.focus_neighbor_right == NodePath():
 			_fail("%s relic choices should expose complete horizontal focus navigation" % label)
+	if (
+		bool(middle_choice.get_meta("relic_keyboard_focused", false))
+		or bool(middle_choice.get_meta("relic_pointer_hovered", false))
+		or middle_choice.z_index != 30
+	):
+		_fail("%s normal relic proof should begin from a clean unfocused baseline" % label)
 	if banner != null:
 		var composition_rect: Rect2 = banner.get_global_rect().merge(row_rect)
 		if absf(composition_rect.get_center().x - viewport_rect.get_center().x) > viewport_rect.size.x * 0.06:
@@ -342,10 +388,15 @@ func _capture_relic_focus(choice: Control, output_path: String, resolution: Vect
 		return
 	choice.grab_focus()
 	await _settle()
-	if not choice.has_focus() or choice.z_index != 40:
+	if (
+		not choice.has_focus()
+		or not bool(choice.get_meta("relic_keyboard_focused", false))
+		or choice.z_index != 40
+	):
 		_fail("Focused relic should use the same visible emphasis as pointer hover")
 	await _save_root_screenshot(output_path, resolution)
 	choice.release_focus()
+	root.gui_release_focus()
 	await _settle()
 
 func _assert_badge_text(badge: Control, expected: String, label: String) -> void:

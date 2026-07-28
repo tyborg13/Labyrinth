@@ -914,12 +914,10 @@ func _test_reward_reroll(instance: Node) -> void:
 	await process_frame
 	var loaded_reward_skills: Array[String] = RunEngine.new().run_skill_ids(instance.get("_run_state") as Dictionary)
 	_expect(loaded_reward_skills.has("discerning_eye"), "Reward state should retain its learned reroll ability: %s" % [loaded_reward_skills])
-	var choice_overlay := instance.get("_choice_button_overlay") as Control
-	var choice_bar := instance.get("choice_bar") as Control
-	var reroll_button: Button = _visible_button_with_text(choice_overlay, "Reroll Reward")
-	if reroll_button == null:
-		reroll_button = _visible_button_with_text(choice_bar, "Reroll Reward")
+	var reroll_button: Button = instance.find_child("RewardRerollButton", true, false) as Button
 	_expect(reroll_button != null, "Ready reward ability should expose the reroll control")
+	if reroll_button != null:
+		_expect(reroll_button.text == "REROLL", "Reward reroll should use the compact secondary-action label")
 	if reroll_button != null:
 		reroll_button.pressed.emit()
 	await process_frame
@@ -927,7 +925,7 @@ func _test_reward_reroll(instance: Node) -> void:
 	var rerolled_state: Dictionary = instance.get("_run_state") as Dictionary
 	var run_engine := RunEngine.new()
 	_expect(not run_engine.run_skill_is_ready(rerolled_state, "discerning_eye"), "Using reward reroll should spend it for the current sequence")
-	_expect(_visible_button_with_text(instance, "Reroll Reward") == null, "Spent reward reroll should leave the active choice controls")
+	_expect(instance.find_child("RewardRerollButton", true, false) == null, "Spent reward reroll should leave the active choice controls")
 	_expect(not rerolled_state.has("moltshards"), "Reward flow should not copy respec resources into run inventory state")
 	_expect(not _array_contains_fragment(rerolled_state.get("item_inventory", []), "molt"), "Reward flow should keep respec resources out of item inventory")
 	var run_event_revision: int = run_engine.run_skill_event_revision(rerolled_state)

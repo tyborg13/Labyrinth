@@ -1059,16 +1059,19 @@ const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
 const REWARD_CHOICE_CARD_GAP: float = 30.0
 const REWARD_CHOICE_STACK_GAP: float = 18.0
 const REWARD_ACTION_BUTTON_MIN_WIDTH: float = 360.0
+const REWARD_REROLL_BUTTON_MIN_WIDTH: float = 160.0
 const REWARD_CARD_HOVER_LIFT: float = -20.0
 const REWARD_CARD_HOVER_SCALE: float = 1.10
 const RELIC_CHOICE_TITLE_TEXT: String = "CLAIM YOUR TREASURE"
-const RELIC_CHOICE_TITLE_FONT_SIZE: int = 32
-const RELIC_CHOICE_TITLE_HEIGHT: float = 110.0
+const RELIC_CHOICE_TITLE_FONT_SIZE: int = UiTypography.SIZE_BANNER
+const RELIC_CHOICE_TITLE_HEIGHT: float = 118.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 44.0
 const SELECTION_BANNER_TEXTURE_PATH: String = "res://assets/art/ui/reward_selection_banner_v1.png"
 const SELECTION_BANNER_MIN_WIDTH: float = 680.0
 const SELECTION_BANNER_MAX_WIDTH: float = 760.0
+const SELECTION_TITLE_FONT_SIZE: int = 32
+const SELECTION_TITLE_HEIGHT: float = 110.0
 const SELECTION_TITLE_TO_OFFERS_GAP: float = 14.0
 const SELECTION_GROUP_TOP_BIAS: float = 0.44
 const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choice_rune_halo.png"
@@ -3991,6 +3994,13 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_banner.z_index = 1
 	_relic_choice_overlay.add_child(_relic_choice_banner)
 
+	_relic_choice_title_effect = RelicChoiceTitleEffect.new()
+	_relic_choice_title_effect.name = "TreasureTitleEffect"
+	_relic_choice_title_effect.visible = false
+	_relic_choice_title_effect.font_size = RELIC_CHOICE_TITLE_FONT_SIZE
+	_relic_choice_title_effect.z_index = 1
+	_relic_choice_overlay.add_child(_relic_choice_title_effect)
+
 	_relic_choice_title = Label.new()
 	_relic_choice_title.name = "TreasureTitle"
 	_relic_choice_title.visible = false
@@ -4027,7 +4037,11 @@ func _layout_relic_choice_overlay() -> void:
 	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
 	var mode: String = str(_run_state.get("mode", "room"))
 	var selection_mode: bool = mode in ["reward", "treasure"]
-	var title_height: float = clampf(stage_size.y * 0.13, 72.0, RELIC_CHOICE_TITLE_HEIGHT)
+	var title_height: float = (
+		clampf(stage_size.y * 0.13, 72.0, SELECTION_TITLE_HEIGHT)
+		if selection_mode
+		else clampf(stage_size.y * 0.18, 96.0, RELIC_CHOICE_TITLE_HEIGHT)
+	)
 	var content_height: float = 0.0
 	if _relic_choice_bar != null:
 		content_height = _relic_choice_bar.get_combined_minimum_size().y
@@ -4050,7 +4064,7 @@ func _layout_relic_choice_overlay() -> void:
 	if _relic_choice_title != null:
 		var title_left: float = 0.0
 		var title_width: float = stage_size.x
-		if _relic_choice_banner != null:
+		if selection_mode and _relic_choice_banner != null:
 			var banner_available_width: float = maxf(180.0, stage_size.x - 24.0)
 			var banner_width: float = clampf(
 				stage_size.x * 0.55,
@@ -10691,7 +10705,8 @@ func _add_reward_choice_stack() -> void:
 			"RewardRerollButton",
 			"REROLL",
 			_on_reward_reroll_pressed,
-			SkillTreeLibrary.description("discerning_eye")
+			SkillTreeLibrary.description("discerning_eye"),
+			REWARD_REROLL_BUTTON_MIN_WIDTH
 		)
 		action_row.add_child(reroll_button)
 		action_buttons.append(reroll_button)
@@ -10741,7 +10756,13 @@ func _reward_choice_card_size(card_count: int, has_secondary_action: bool) -> Ve
 	var width_from_height: float = maxf(152.0, (estimated_stage_height - reserved_height) / CARD_ASPECT_RATIO)
 	return _card_size_from_width(clampf(minf(width_from_row, width_from_height), 152.0, 224.0))
 
-func _reward_secondary_button(button_name: String, text: String, callback: Callable, tooltip: String) -> UiTooltipButton:
+func _reward_secondary_button(
+	button_name: String,
+	text: String,
+	callback: Callable,
+	tooltip: String,
+	minimum_width: float = REWARD_ACTION_BUTTON_MIN_WIDTH
+) -> UiTooltipButton:
 	var button := UiTooltipButton.new()
 	button.name = button_name
 	button.text = text
@@ -10752,7 +10773,7 @@ func _reward_secondary_button(button_name: String, text: String, callback: Calla
 	_ui_skin.apply_button_native_size(
 		button,
 		UiSkin.BUTTON_HEIGHT_STANDARD,
-		REWARD_ACTION_BUTTON_MIN_WIDTH,
+		minimum_width,
 		true,
 		UiSkin.VARIANT_STANDARD
 	)
@@ -10792,27 +10813,43 @@ func _set_relic_choice_title(text: String) -> void:
 	if _relic_choice_title == null:
 		return
 	var should_show: bool = not text.is_empty()
+	var mode: String = str(_run_state.get("mode", "room"))
+	var selection_mode: bool = mode in ["reward", "treasure"]
 	var accent: Color = _relic_choice_title_accent(text)
-	_apply_relic_choice_title_depth(accent)
+	UiTypography.set_label_size(
+		_relic_choice_title,
+		SELECTION_TITLE_FONT_SIZE if selection_mode else RELIC_CHOICE_TITLE_FONT_SIZE
+	)
+	_relic_choice_title.vertical_alignment = (
+		VERTICAL_ALIGNMENT_CENTER if selection_mode else VERTICAL_ALIGNMENT_TOP
+	)
+	_apply_relic_choice_title_depth(accent, selection_mode)
 	_relic_choice_title.text = text
 	_relic_choice_title.visible = should_show
 	if _relic_choice_banner != null:
-		_relic_choice_banner.visible = should_show
+		_relic_choice_banner.visible = should_show and selection_mode
 	if _relic_choice_title_effect != null:
 		_relic_choice_title_effect.accent = accent
 		_relic_choice_title_effect.title_text = text
-		_relic_choice_title_effect.visible = should_show
+		_relic_choice_title_effect.visible = should_show and not selection_mode
 
-func _apply_relic_choice_title_depth(accent: Color) -> void:
+func _apply_relic_choice_title_depth(accent: Color, restrained: bool) -> void:
 	if _relic_choice_title == null:
 		return
-	var face_color: Color = Color("f6e2b9").lerp(accent.lightened(0.14), 0.16)
+	var face_color: Color = (
+		Color("f6e2b9").lerp(accent.lightened(0.14), 0.16)
+		if restrained
+		else Color("fff0bd").lerp(accent.lightened(0.18), 0.24)
+	)
 	_relic_choice_title.add_theme_color_override("font_color", face_color)
 	_relic_choice_title.add_theme_color_override("font_outline_color", Color("1a0d08"))
-	_relic_choice_title.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.62))
-	_relic_choice_title.add_theme_constant_override("outline_size", 2)
+	_relic_choice_title.add_theme_color_override(
+		"font_shadow_color",
+		Color(0.0, 0.0, 0.0, 0.62 if restrained else 0.76)
+	)
+	_relic_choice_title.add_theme_constant_override("outline_size", 2 if restrained else 9)
 	_relic_choice_title.add_theme_constant_override("shadow_offset_x", 0)
-	_relic_choice_title.add_theme_constant_override("shadow_offset_y", 2)
+	_relic_choice_title.add_theme_constant_override("shadow_offset_y", 2 if restrained else 7)
 
 func _relic_choice_title_accent(text: String) -> Color:
 	match text:
