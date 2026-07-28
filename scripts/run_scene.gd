@@ -11950,6 +11950,10 @@ func _refresh_stage_view() -> void:
 	var preview: Dictionary = {}
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
+		if not _preview_combat_state.is_empty():
+			var cumulative_damage_preview: Dictionary = _damage_preview_between_states(_combat_state, _preview_combat_state)
+			if not cumulative_damage_preview.is_empty():
+				presentation["damage_preview"] = cumulative_damage_preview
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
 			var action: Dictionary = preview.get("action", {})
 			var action_type: String = str(action.get("type", ""))
@@ -12079,7 +12083,7 @@ func _board_display_state() -> Dictionary:
 			if not _combat_state.is_empty():
 				return _combat_state
 		elif not _preview_combat_state.is_empty():
-			return _visibility_safe_preview_display_state(_preview_combat_state)
+			return _visibility_safe_preview_display_state(_combat_preview_display_state(_preview_combat_state))
 		if not _combat_state.is_empty():
 			return _combat_state
 	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
@@ -12103,6 +12107,36 @@ func _board_display_state() -> Dictionary:
 		"terrain": layout.get("terrain", []),
 		"log": []
 	}
+
+func _combat_preview_display_state(preview_state: Dictionary) -> Dictionary:
+	if preview_state.is_empty() or _combat_state.is_empty():
+		return preview_state
+	var display_state: Dictionary = preview_state.duplicate(false)
+	var committed_by_id: Dictionary = {}
+	for committed_var: Variant in _combat_state.get("enemies", []):
+		if typeof(committed_var) != TYPE_DICTIONARY:
+			continue
+		var committed_enemy: Dictionary = committed_var
+		committed_by_id[int(committed_enemy.get("id", -1))] = committed_enemy
+	var display_enemies: Array = []
+	var projected_ids: Dictionary = {}
+	for projected_var: Variant in preview_state.get("enemies", []):
+		if typeof(projected_var) != TYPE_DICTIONARY:
+			continue
+		var projected_enemy: Dictionary = (projected_var as Dictionary).duplicate(true)
+		var enemy_id: int = int(projected_enemy.get("id", -1))
+		projected_ids[enemy_id] = true
+		if committed_by_id.has(enemy_id):
+			var committed_enemy: Dictionary = committed_by_id[enemy_id]
+			for key: String in ["hp", "block", "stoneskin"]:
+				projected_enemy[key] = committed_enemy.get(key, projected_enemy.get(key, 0))
+		display_enemies.append(projected_enemy)
+	for committed_id: Variant in committed_by_id.keys():
+		if projected_ids.has(committed_id):
+			continue
+		display_enemies.append((committed_by_id[committed_id] as Dictionary).duplicate(true))
+	display_state["enemies"] = display_enemies
+	return display_state
 
 func _board_visibility_state(display_state: Dictionary) -> Dictionary:
 	if _unconfirmed_preview_must_preserve_umbra_information():
@@ -12851,30 +12885,40 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 	if action_type != "aoe" and target_tile.x < 0:
 		return {}
 	var after_state: Dictionary = _combat_engine.apply_player_action(state, action, target_tile)
+	return _damage_preview_between_states(state, after_state)
+
+func _damage_preview_between_states(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
 	var after_by_id: Dictionary = {}
 	for after_var: Variant in after_state.get("enemies", []):
+		if typeof(after_var) != TYPE_DICTIONARY:
+			continue
 		var after_enemy: Dictionary = after_var
 		after_by_id[int(after_enemy.get("id", -1))] = after_enemy
 	var preview: Dictionary = {}
-	for before_var: Variant in state.get("enemies", []):
+	for before_var: Variant in before_state.get("enemies", []):
+		if typeof(before_var) != TYPE_DICTIONARY:
+			continue
 		var before_enemy: Dictionary = before_var
 		var enemy_id: int = int(before_enemy.get("id", -1))
-		if not after_by_id.has(enemy_id):
+		if int(before_enemy.get("hp", 0)) <= 0:
 			continue
-		var after_enemy: Dictionary = after_by_id[enemy_id]
-		var hp_loss: int = maxi(0, int(before_enemy.get("hp", 0)) - int(after_enemy.get("hp", 0)))
-		var block_loss: int = maxi(0, int(before_enemy.get("block", 0)) - int(after_enemy.get("block", 0)))
-		var stoneskin_loss: int = maxi(0, int(before_enemy.get("stoneskin", 0)) - int(after_enemy.get("stoneskin", 0)))
+		var after_enemy: Dictionary = after_by_id.get(enemy_id, {}) as Dictionary
+		var after_hp: int = int(after_enemy.get("hp", 0))
+		var after_block: int = int(after_enemy.get("block", 0))
+		var after_stoneskin: int = int(after_enemy.get("stoneskin", 0))
+		var hp_loss: int = maxi(0, int(before_enemy.get("hp", 0)) - after_hp)
+		var block_loss: int = maxi(0, int(before_enemy.get("block", 0)) - after_block)
+		var stoneskin_loss: int = maxi(0, int(before_enemy.get("stoneskin", 0)) - after_stoneskin)
 		if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0:
 			continue
 		preview[_enemy_key(before_enemy)] = {
-			"hp": int(after_enemy.get("hp", 0)),
+			"hp": after_hp,
 			"hp_loss": hp_loss,
-			"block": int(after_enemy.get("block", 0)),
+			"block": after_block,
 			"block_loss": block_loss,
-			"stoneskin": int(after_enemy.get("stoneskin", 0)),
+			"stoneskin": after_stoneskin,
 			"stoneskin_loss": stoneskin_loss,
-			"lethal": int(after_enemy.get("hp", 0)) <= 0
+			"lethal": after_hp <= 0
 		}
 	var after_terrain_by_id: Dictionary = {}
 	for after_terrain_var: Variant in after_state.get("terrain", []):
@@ -12882,7 +12926,7 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 			continue
 		var after_terrain: Dictionary = after_terrain_var
 		after_terrain_by_id[str(after_terrain.get("id", ""))] = after_terrain
-	for before_terrain_var: Variant in state.get("terrain", []):
+	for before_terrain_var: Variant in before_state.get("terrain", []):
 		if typeof(before_terrain_var) != TYPE_DICTIONARY:
 			continue
 		var before_terrain: Dictionary = before_terrain_var
@@ -12890,13 +12934,14 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 		if terrain_id.is_empty() or not after_terrain_by_id.has(terrain_id):
 			continue
 		var after_terrain: Dictionary = after_terrain_by_id[terrain_id]
-		var hp_loss: int = maxi(0, int(before_terrain.get("hp", 0)) - int(after_terrain.get("hp", 0)))
+		var after_hp: int = int(after_terrain.get("hp", 0))
+		var hp_loss: int = maxi(0, int(before_terrain.get("hp", 0)) - after_hp)
 		if hp_loss <= 0:
 			continue
 		preview[_terrain_key(before_terrain)] = {
-			"hp": int(after_terrain.get("hp", 0)),
+			"hp": after_hp,
 			"hp_loss": hp_loss,
-			"lethal": int(after_terrain.get("hp", 0)) <= 0
+			"lethal": after_hp <= 0
 		}
 	return preview
 

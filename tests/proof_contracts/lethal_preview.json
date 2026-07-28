@@ -1,0 +1,54 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1280x720", "1280x800", "1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*1920x1080_ui100/single_target_lethal.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [420, 170, 1080, 610], "min_luma_range": 75, "min_luma_stdev": 10}
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/aoe_lethal.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [420, 170, 1080, 610], "min_luma_range": 75, "min_luma_stdev": 10}
+      ]
+    },
+    {
+      "pattern": "*1280x720_ui100/single_target_lethal.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [270, 100, 740, 420], "min_luma_range": 70, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*1280x720_ui100/aoe_lethal.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [270, 100, 740, 420], "min_luma_range": 70, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*1280x800_ui125/single_target_lethal.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {"rect": [240, 110, 800, 470], "min_luma_range": 70, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*1280x800_ui125/aoe_lethal.png",
+      "width": 1280,
+      "height": 800,
+      "regions": [
+        {"rect": [240, 110, 800, 470], "min_luma_range": 70, "min_luma_stdev": 9}
+      ]
+    }
+  ]
+}

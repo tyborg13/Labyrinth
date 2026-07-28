@@ -991,6 +991,7 @@ func _draw_dynamic_board() -> void:
 	_draw_campfire_ember_motes()
 	_draw_unit_huds(units_to_draw)
 	_draw_effect_overlay()
+	_draw_lethal_preview_icons(units_to_draw)
 	_draw_movement_risk_chips()
 	_draw_status_text()
 	_draw_floating_texts()
@@ -3361,8 +3362,6 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
 			draw_texture_rect(texture, shifted_rect, false, flash)
-		if _unit_is_preview_lethal(unit):
-			_draw_lethal_preview_icon(shifted_rect)
 
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	var font: Font = get_theme_default_font()
@@ -3524,6 +3523,12 @@ func _build_damage_preview_map(source_presentation: Dictionary) -> Dictionary:
 
 func _unit_is_preview_lethal(unit: Dictionary) -> bool:
 	return bool(_unit_damage_preview(unit).get("lethal", false))
+
+func _draw_lethal_preview_icons(units_to_draw: Array[Dictionary]) -> void:
+	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("death_animation", false)) or not _unit_is_preview_lethal(unit):
+			continue
+		_draw_lethal_preview_icon(_unit_draw_rect(unit))
 
 func _draw_lethal_preview_icon(unit_rect: Rect2) -> void:
 	var texture: Texture2D = _effect_textures.get("lethal_skull", null)

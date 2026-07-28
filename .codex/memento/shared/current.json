@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-27T15:12:58Z",
+  "updated_at": "2026-07-28T01:48:35Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6487,6 +6487,28 @@
       "source": {
         "branch": "codex/major-run-pacing-and-lethality-rebalance",
         "commit": "5812597"
+      }
+    },
+    {
+      "id": "mnt_20260728T014835Z_79b288d1",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Render unconfirmed combat previews from committed enemy durability plus projected overlays",
+      "details": "Targetless/self-centered AOE and earlier steps in multi-action cards can advance _preview_combat_state to zero HP or remove an enemy before Play Card confirmation. Feeding that projected state directly to CombatBoardView makes _build_visible_units drop the enemy. Keep projected position/status information, restore committed hp/block/stoneskin and missing committed enemies for display, and derive cumulative damage_preview from committed to projected state so empty bars and lethal markers remain visible.",
+      "status": "active",
+      "created_at": "2026-07-28T01:48:35Z",
+      "updated_at": "2026-07-28T01:48:35Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-lethal-attack-preview-icon-and-enemy-visibility",
+        "commit": "c9b151c"
       }
     }
   ]
