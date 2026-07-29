@@ -543,6 +543,96 @@ class RelicChoiceSparkleLayer:
 			alpha
 		)
 
+class SelectionBannerEffect:
+	extends Control
+
+	var accent: Color = Color("f0c978"):
+		set(value):
+			accent = value
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip_contents = false
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			queue_redraw()
+
+	func _draw() -> void:
+		if size.x < 180.0 or size.y < 52.0:
+			return
+		var width: float = size.x
+		var height: float = size.y
+		var tail_inset: float = clampf(width * 0.085, 34.0, 54.0)
+		var body_points := PackedVector2Array([
+			Vector2(tail_inset, 7.0),
+			Vector2(width - tail_inset, 7.0),
+			Vector2(width - tail_inset + 11.0, height * 0.5),
+			Vector2(width - tail_inset, height - 9.0),
+			Vector2(tail_inset, height - 9.0),
+			Vector2(tail_inset - 11.0, height * 0.5),
+		])
+		var left_tail := PackedVector2Array([
+			Vector2(2.0, 17.0),
+			Vector2(tail_inset + 5.0, 11.0),
+			Vector2(tail_inset, height - 13.0),
+			Vector2(2.0, height - 18.0),
+			Vector2(13.0, height * 0.5),
+		])
+		var right_tail := PackedVector2Array([
+			Vector2(width - 2.0, 17.0),
+			Vector2(width - tail_inset - 5.0, 11.0),
+			Vector2(width - tail_inset, height - 13.0),
+			Vector2(width - 2.0, height - 18.0),
+			Vector2(width - 13.0, height * 0.5),
+		])
+		var shadow_offset := Vector2(0.0, 7.0)
+		draw_colored_polygon(_offset_banner_points(left_tail, shadow_offset), Color(0.0, 0.0, 0.0, 0.55))
+		draw_colored_polygon(_offset_banner_points(right_tail, shadow_offset), Color(0.0, 0.0, 0.0, 0.55))
+		draw_colored_polygon(_offset_banner_points(body_points, shadow_offset), Color(0.0, 0.0, 0.0, 0.68))
+		var tail_color: Color = Color("38221d").lerp(accent.darkened(0.62), 0.22)
+		var body_color: Color = Color("25151b").lerp(accent.darkened(0.78), 0.18)
+		draw_colored_polygon(left_tail, tail_color)
+		draw_colored_polygon(right_tail, tail_color)
+		draw_colored_polygon(body_points, body_color)
+		draw_polyline(_closed_banner_points(body_points), Color(accent.r, accent.g, accent.b, 0.82), 2.0, true)
+		var inner_rect := Rect2(
+			Vector2(tail_inset + 6.0, 13.0),
+			Vector2(width - (tail_inset + 6.0) * 2.0, height - 28.0)
+		)
+		draw_rect(inner_rect, Color(0.02, 0.012, 0.018, 0.30), true)
+		draw_rect(inner_rect, Color(accent.r, accent.g, accent.b, 0.28), false, 1.0)
+		draw_line(
+			Vector2(tail_inset + 12.0, 12.0),
+			Vector2(width - tail_inset - 12.0, 12.0),
+			Color(1.0, 0.88, 0.58, 0.20),
+			1.0,
+			true
+		)
+		draw_line(
+			Vector2(tail_inset + 7.0, height - 13.0),
+			Vector2(width - tail_inset - 7.0, height - 13.0),
+			Color(0.0, 0.0, 0.0, 0.58),
+			2.0,
+			true
+		)
+		var fold_color: Color = Color(accent.r, accent.g, accent.b, 0.36)
+		draw_line(Vector2(tail_inset, 14.0), Vector2(tail_inset - 8.0, height * 0.5), fold_color, 2.0, true)
+		draw_line(Vector2(width - tail_inset, 14.0), Vector2(width - tail_inset + 8.0, height * 0.5), fold_color, 2.0, true)
+
+	func _offset_banner_points(points: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
+		var shifted := PackedVector2Array()
+		for point: Vector2 in points:
+			shifted.append(point + offset)
+		return shifted
+
+	func _closed_banner_points(points: PackedVector2Array) -> PackedVector2Array:
+		var closed: PackedVector2Array = points.duplicate()
+		if not closed.is_empty():
+			closed.append(closed[0])
+		return closed
+
 class RelicChoiceTitleEffect:
 	extends Control
 
@@ -609,7 +699,7 @@ class RelicChoiceTitleEffect:
 		label.name = node_name
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		label.autowrap_mode = TextServer.AUTOWRAP_OFF
 		label.clip_text = false
 		label.z_index = draw_order
@@ -658,7 +748,7 @@ class RelicChoiceTitleEffect:
 
 	func _layout_labels() -> void:
 		_ensure_labels()
-		var center_pivot := Vector2(size.x * 0.5, size.y * 0.42)
+		var center_pivot := Vector2(size.x * 0.5, size.y * 0.5)
 		_shadow_label.position = Vector2(0.0, 8.0)
 		_glow_label.position = Vector2.ZERO
 		_bevel_label.position = Vector2(0.0, -2.0)
@@ -667,8 +757,9 @@ class RelicChoiceTitleEffect:
 			label.size = size
 			label.pivot_offset = center_pivot
 		_shimmer_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		_shimmer_label.position = Vector2(0.0, -2.0)
-		_shimmer_label.size = size
+		var shimmer_top: float = maxf(0.0, (size.y - float(font_size) * 1.18) * 0.5)
+		_shimmer_label.position = Vector2(0.0, shimmer_top - 2.0)
+		_shimmer_label.size = Vector2(size.x, size.y - shimmer_top)
 		_shimmer_label.pivot_offset = center_pivot
 
 	func _animate_labels() -> void:
@@ -965,6 +1056,10 @@ const MERCHANT_TITLE_SCAVENGER: String = "SCAVENGER"
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
+const REWARD_CHOICE_CARD_GAP: float = 30.0
+const REWARD_CHOICE_STACK_GAP: float = 18.0
+const REWARD_ACTION_BUTTON_MIN_WIDTH: float = 360.0
+const REWARD_REROLL_BUTTON_MIN_WIDTH: float = 160.0
 const REWARD_CARD_HOVER_LIFT: float = -20.0
 const REWARD_CARD_HOVER_SCALE: float = 1.10
 const RELIC_CHOICE_TITLE_TEXT: String = "CLAIM YOUR TREASURE"
@@ -972,6 +1067,13 @@ const RELIC_CHOICE_TITLE_FONT_SIZE: int = UiTypography.SIZE_BANNER
 const RELIC_CHOICE_TITLE_HEIGHT: float = 118.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 44.0
+const SELECTION_BANNER_TEXTURE_PATH: String = "res://assets/art/ui/reward_selection_banner_v1.png"
+const SELECTION_BANNER_MIN_WIDTH: float = 680.0
+const SELECTION_BANNER_MAX_WIDTH: float = 760.0
+const SELECTION_TITLE_FONT_SIZE: int = 32
+const SELECTION_TITLE_HEIGHT: float = 110.0
+const SELECTION_TITLE_TO_OFFERS_GAP: float = 14.0
+const SELECTION_GROUP_TOP_BIAS: float = 0.44
 const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choice_rune_halo.png"
 const RELIC_CHOICE_GLINT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
 const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acquisition_beam.png"
@@ -1296,6 +1398,8 @@ var _pass_preview_overlay: CenterContainer
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
 var _relic_choice_overlay: Control
+var _relic_choice_backdrop: ColorRect
+var _relic_choice_banner: TextureRect
 var _relic_choice_title_effect: RelicChoiceTitleEffect
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
@@ -3869,6 +3973,27 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_overlay.z_index = 70
 	stage_root.add_child(_relic_choice_overlay)
 
+	_relic_choice_backdrop = ColorRect.new()
+	_relic_choice_backdrop.name = "SelectionBackdrop"
+	_relic_choice_backdrop.visible = false
+	_relic_choice_backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_relic_choice_backdrop.anchor_right = 1.0
+	_relic_choice_backdrop.anchor_bottom = 1.0
+	_relic_choice_backdrop.color = Color(0.012, 0.008, 0.006, 0.62)
+	_relic_choice_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_relic_choice_overlay.add_child(_relic_choice_backdrop)
+
+	_relic_choice_banner = TextureRect.new()
+	_relic_choice_banner.name = "SelectionBanner"
+	_relic_choice_banner.visible = false
+	_relic_choice_banner.texture = AssetLoader.load_texture(SELECTION_BANNER_TEXTURE_PATH)
+	_relic_choice_banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_relic_choice_banner.stretch_mode = TextureRect.STRETCH_SCALE
+	_relic_choice_banner.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	_relic_choice_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_relic_choice_banner.z_index = 1
+	_relic_choice_overlay.add_child(_relic_choice_banner)
+
 	_relic_choice_title_effect = RelicChoiceTitleEffect.new()
 	_relic_choice_title_effect.name = "TreasureTitleEffect"
 	_relic_choice_title_effect.visible = false
@@ -3882,9 +4007,10 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_title.text = ""
 	_relic_choice_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_relic_choice_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_relic_choice_title.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_relic_choice_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_relic_choice_title.autowrap_mode = TextServer.AUTOWRAP_OFF
 	UiTypography.apply_label_role(_relic_choice_title, UiTypography.ROLE_BANNER)
+	UiTypography.set_label_size(_relic_choice_title, RELIC_CHOICE_TITLE_FONT_SIZE)
 	_relic_choice_title.add_theme_color_override("font_color", Color("ffe4a5"))
 	_relic_choice_title.add_theme_color_override("font_outline_color", Color("26160e"))
 	_relic_choice_title.add_theme_constant_override("outline_size", 8)
@@ -3909,6 +4035,24 @@ func _layout_relic_choice_overlay() -> void:
 	if _relic_choice_overlay == null:
 		return
 	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
+	var mode: String = str(_run_state.get("mode", "room"))
+	var selection_mode: bool = mode in ["reward", "treasure"]
+	var title_height: float = (
+		clampf(stage_size.y * 0.13, 72.0, SELECTION_TITLE_HEIGHT)
+		if selection_mode
+		else clampf(stage_size.y * 0.18, 96.0, RELIC_CHOICE_TITLE_HEIGHT)
+	)
+	var content_height: float = 0.0
+	if _relic_choice_bar != null:
+		content_height = _relic_choice_bar.get_combined_minimum_size().y
+	var host_height: float = content_height if selection_mode else maxf(RELIC_CHOICE_OVERLAY_SIZE.y, content_height)
+	var title_top: float = maxf(10.0, stage_size.y * RELIC_CHOICE_TITLE_TOP_RATIO)
+	var host_top: float = stage_size.y - host_height - RELIC_CHOICE_BOTTOM_MARGIN
+	if selection_mode and _relic_choice_title != null and _relic_choice_title.visible:
+		var group_height: float = title_height + SELECTION_TITLE_TO_OFFERS_GAP + host_height
+		var available_slack: float = maxf(0.0, stage_size.y - group_height)
+		title_top = maxf(18.0, available_slack * SELECTION_GROUP_TOP_BIAS)
+		host_top = title_top + title_height + SELECTION_TITLE_TO_OFFERS_GAP
 	_relic_choice_overlay.anchor_left = 0.0
 	_relic_choice_overlay.anchor_top = 0.0
 	_relic_choice_overlay.anchor_right = 1.0
@@ -3918,28 +4062,35 @@ func _layout_relic_choice_overlay() -> void:
 	_relic_choice_overlay.offset_right = 0.0
 	_relic_choice_overlay.offset_bottom = 0.0
 	if _relic_choice_title != null:
-		var title_height: float = clampf(stage_size.y * 0.18, 96.0, RELIC_CHOICE_TITLE_HEIGHT)
-		var title_top: float = maxf(10.0, stage_size.y * RELIC_CHOICE_TITLE_TOP_RATIO)
+		var title_left: float = 0.0
+		var title_width: float = stage_size.x
+		if selection_mode and _relic_choice_banner != null:
+			var banner_available_width: float = maxf(180.0, stage_size.x - 24.0)
+			var banner_width: float = clampf(
+				stage_size.x * 0.55,
+				minf(SELECTION_BANNER_MIN_WIDTH, banner_available_width),
+				minf(SELECTION_BANNER_MAX_WIDTH, banner_available_width)
+			)
+			title_left = (stage_size.x - banner_width) * 0.5
+			title_width = banner_width
+			_relic_choice_banner.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			_relic_choice_banner.position = Vector2(title_left, title_top)
+			_relic_choice_banner.size = Vector2(banner_width, title_height)
 		if _relic_choice_title_effect != null:
 			_relic_choice_title_effect.set_anchors_preset(Control.PRESET_TOP_LEFT)
-			_relic_choice_title_effect.position = Vector2(0.0, title_top)
-			_relic_choice_title_effect.size = Vector2(stage_size.x, title_height)
+			_relic_choice_title_effect.position = Vector2(title_left, title_top)
+			_relic_choice_title_effect.size = Vector2(title_width, title_height)
 		_relic_choice_title.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		_relic_choice_title.position = Vector2(0.0, title_top)
-		_relic_choice_title.size = Vector2(stage_size.x, title_height)
+		_relic_choice_title.position = Vector2(title_left, title_top)
+		_relic_choice_title.size = Vector2(title_width, title_height)
 	if _relic_choice_host != null:
 		var max_width: float = minf(RELIC_CHOICE_OVERLAY_SIZE.x, maxf(360.0, stage_size.x - 24.0))
 		var min_width: float = minf(640.0, max_width)
 		var width: float = clampf(stage_size.x * 0.90, min_width, max_width)
-		var content_height: float = 0.0
-		if _relic_choice_bar != null:
-			content_height = _relic_choice_bar.get_combined_minimum_size().y
-		var height: float = maxf(RELIC_CHOICE_OVERLAY_SIZE.y, content_height)
 		var left: float = (stage_size.x - width) * 0.5
-		var top: float = stage_size.y - height - RELIC_CHOICE_BOTTOM_MARGIN
 		_relic_choice_host.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		_relic_choice_host.position = Vector2(left, top)
-		_relic_choice_host.size = Vector2(width, height)
+		_relic_choice_host.position = Vector2(left, host_top)
+		_relic_choice_host.size = Vector2(width, host_height)
 
 func _build_run_end_recap(stage_root: Control) -> void:
 	_run_end_recap = RunEndRecapOverlay.new()
@@ -9670,9 +9821,9 @@ func _deck_piles() -> Dictionary:
 
 func _refresh_visibility() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
-	hand_row.visible = mode in ["combat", "reward"]
+	hand_row.visible = mode == "combat"
 	piles_bar.visible = mode == "combat"
-	hand_scroll.visible = mode in ["combat", "reward"]
+	hand_scroll.visible = mode == "combat"
 	var action_step_tracker_visible: bool = _action_step_tracker != null and _action_step_tracker.visible
 	left_action_stack.visible = action_step_tracker_visible or choice_bar.visible or piles_bar.visible
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
@@ -9762,12 +9913,7 @@ func _refresh_choice_bar() -> void:
 		"reward":
 			if _reward_choices_available():
 				_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
-			if _run_engine.run_skill_is_ready(_run_state, "discerning_eye"):
-				_add_choice_button(
-					"Reroll Reward",
-					_on_reward_reroll_pressed,
-					SkillTreeLibrary.description("discerning_eye")
-				)
+				_add_reward_choice_stack()
 		"treasure":
 			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
@@ -9776,6 +9922,7 @@ func _refresh_choice_bar() -> void:
 				var relic_id: String = str(relic_id_var)
 				var relic: Dictionary = GameData.relic_def(relic_id)
 				_add_relic_choice(relic_id, relic)
+			_configure_relic_choice_focus()
 		"victory", "defeat":
 			_show_run_end_recap(mode)
 	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
@@ -9794,6 +9941,8 @@ func _refresh_choice_bar() -> void:
 	if _relic_choice_overlay != null:
 		var has_relic_choices: bool = _relic_choice_bar != null and _relic_choice_bar.get_child_count() > 0
 		var has_selection_title: bool = _relic_choice_title != null and _relic_choice_title.visible
+		if _relic_choice_backdrop != null:
+			_relic_choice_backdrop.visible = mode in ["reward", "treasure"] and (has_relic_choices or has_selection_title)
 		if _relic_choice_host != null:
 			_relic_choice_host.visible = has_relic_choices
 		_relic_choice_overlay.visible = has_relic_choices or has_selection_title
@@ -10474,6 +10623,10 @@ func _clear_context_choice_overlay() -> void:
 func _clear_relic_choice_overlay() -> void:
 	if _relic_choice_bar != null:
 		_clear_children_now(_relic_choice_bar)
+	if _relic_choice_backdrop != null:
+		_relic_choice_backdrop.visible = false
+	if _relic_choice_banner != null:
+		_relic_choice_banner.visible = false
 	if _relic_choice_host != null:
 		_relic_choice_host.visible = false
 	if _relic_choice_title != null:
@@ -10495,29 +10648,208 @@ func _reward_choices_available() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
 	return (reward_state.get("cards", []) as Array).size() > 0 or int(reward_state.get("heal_amount", 0)) > 0
 
+func _add_reward_choice_stack() -> void:
+	if _relic_choice_bar == null:
+		return
+	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+	var reward_cards: Array = reward_state.get("cards", []) as Array
+	var heal_amount: int = maxi(0, int(reward_state.get("heal_amount", 0)))
+	var stack := VBoxContainer.new()
+	stack.name = "RewardChoiceStack"
+	stack.alignment = BoxContainer.ALIGNMENT_CENTER
+	stack.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	stack.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	stack.add_theme_constant_override("separation", int(REWARD_CHOICE_STACK_GAP))
+	_relic_choice_bar.add_child(stack)
+	var focusable_cards: Array[Control] = []
+	var action_buttons: Array[Control] = []
+
+	if not reward_cards.is_empty():
+		var card_row := HBoxContainer.new()
+		card_row.name = "RewardCardRow"
+		card_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		card_row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		card_row.add_theme_constant_override("separation", int(REWARD_CHOICE_CARD_GAP))
+		stack.add_child(card_row)
+		var reward_card_size: Vector2 = _reward_choice_card_size(reward_cards.size(), heal_amount > 0)
+		for card_id_var: Variant in reward_cards:
+			var card_id: String = str(card_id_var)
+			var widget = CardWidgetScene.instantiate()
+			widget.custom_minimum_size = reward_card_size
+			widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id))
+			widget.set_hover_pose(REWARD_CARD_HOVER_LIFT, REWARD_CARD_HOVER_SCALE)
+			widget.activated.connect(_on_reward_card_pressed.bind(card_id, widget))
+			var card_slot: Control = _reward_card_choice_slot(widget, card_id, reward_card_size)
+			card_row.add_child(card_slot)
+			widget.focus_mode = Control.FOCUS_ALL
+			widget.focus_entered.connect(widget.set_external_highlighted.bind(true))
+			widget.focus_exited.connect(widget.set_external_highlighted.bind(false))
+			widget.gui_input.connect(_on_reward_card_keyboard_input.bind(card_id, widget))
+			focusable_cards.append(widget)
+
+	var has_reroll: bool = _run_engine.run_skill_is_ready(_run_state, "discerning_eye")
+	if heal_amount <= 0 and not has_reroll:
+		_configure_reward_choice_focus(focusable_cards, action_buttons)
+		return
+	var action_center := CenterContainer.new()
+	action_center.name = "RewardSecondaryActionCenter"
+	action_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.add_child(action_center)
+	var action_row := HBoxContainer.new()
+	action_row.name = "RewardSecondaryActions"
+	action_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	action_row.add_theme_constant_override("separation", 14)
+	action_center.add_child(action_row)
+	if has_reroll:
+		var reroll_button: UiTooltipButton = _reward_secondary_button(
+			"RewardRerollButton",
+			"REROLL",
+			_on_reward_reroll_pressed,
+			SkillTreeLibrary.description("discerning_eye"),
+			REWARD_REROLL_BUTTON_MIN_WIDTH
+		)
+		action_row.add_child(reroll_button)
+		action_buttons.append(reroll_button)
+	if heal_amount > 0:
+		var recover_button: UiTooltipButton = _reward_recover_button(heal_amount)
+		action_row.add_child(recover_button)
+		action_buttons.append(recover_button)
+	_configure_reward_choice_focus(focusable_cards, action_buttons)
+
+func _on_reward_card_keyboard_input(event: InputEvent, card_id: String, widget: Control) -> void:
+	if not event.is_action_pressed("ui_accept") or event.is_echo():
+		return
+	if widget != null:
+		widget.accept_event()
+	_on_reward_card_pressed(card_id, widget)
+
+func _configure_reward_choice_focus(cards: Array[Control], actions: Array[Control]) -> void:
+	if cards.is_empty():
+		return
+	var action_target: Control = actions[actions.size() - 1] if not actions.is_empty() else null
+	for index: int in range(cards.size()):
+		var card: Control = cards[index]
+		_set_skill_status_focus_neighbor(card, "left", cards[posmod(index - 1, cards.size())])
+		_set_skill_status_focus_neighbor(card, "right", cards[(index + 1) % cards.size()])
+		if action_target != null:
+			_set_skill_status_focus_neighbor(card, "up", action_target)
+			_set_skill_status_focus_neighbor(card, "down", action_target)
+	if actions.is_empty():
+		return
+	var middle_card: Control = cards[floori(float(cards.size()) * 0.5)]
+	for index: int in range(actions.size()):
+		var action: Control = actions[index]
+		_set_skill_status_focus_neighbor(action, "left", actions[posmod(index - 1, actions.size())])
+		_set_skill_status_focus_neighbor(action, "right", actions[(index + 1) % actions.size()])
+		_set_skill_status_focus_neighbor(action, "up", middle_card)
+		_set_skill_status_focus_neighbor(action, "down", middle_card)
+
+func _reward_choice_card_size(card_count: int, has_secondary_action: bool) -> Vector2:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var max_row_width: float = minf(960.0, maxf(540.0, viewport_size.x - 64.0))
+	var gaps: float = float(maxi(0, card_count - 1)) * REWARD_CHOICE_CARD_GAP
+	var width_from_row: float = (max_row_width - gaps) / float(maxi(1, card_count))
+	var estimated_stage_height: float = maxf(360.0, viewport_size.y - 120.0)
+	var reserved_height: float = 96.0 + SELECTION_TITLE_TO_OFFERS_GAP + 24.0
+	if has_secondary_action:
+		reserved_height += UiSkin.BUTTON_HEIGHT_STANDARD + REWARD_CHOICE_STACK_GAP
+	var width_from_height: float = maxf(152.0, (estimated_stage_height - reserved_height) / CARD_ASPECT_RATIO)
+	return _card_size_from_width(clampf(minf(width_from_row, width_from_height), 152.0, 224.0))
+
+func _reward_secondary_button(
+	button_name: String,
+	text: String,
+	callback: Callable,
+	tooltip: String,
+	minimum_width: float = REWARD_ACTION_BUTTON_MIN_WIDTH
+) -> UiTooltipButton:
+	var button := UiTooltipButton.new()
+	button.name = button_name
+	button.text = text
+	button.tooltip_text = tooltip
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_BODY_LARGE)
+	_ui_skin.apply_button_native_size(
+		button,
+		UiSkin.BUTTON_HEIGHT_STANDARD,
+		minimum_width,
+		true,
+		UiSkin.VARIANT_STANDARD
+	)
+	button.pressed.connect(callback)
+	return button
+
+func _reward_recover_button(heal_amount: int) -> UiTooltipButton:
+	var current_hp: int = maxi(0, int(_run_state.get("player_hp", 0)))
+	var max_hp: int = maxi(1, int(_run_state.get("player_max_hp", current_hp)))
+	var result_hp: int = mini(max_hp, current_hp + heal_amount)
+	var effective_heal: int = maxi(0, result_hp - current_hp)
+	var wasted_heal: int = maxi(0, heal_amount - effective_heal)
+	var fully_wasted: bool = heal_amount > 0 and effective_heal == 0
+	var tooltip: String = "Leave every offered card behind and recover %d HP." % heal_amount
+	if _run_engine.has_run_skill(_run_state, "deferred_choice"):
+		tooltip = "Recover %d HP, then choose whether one offered card follows you to the next reward." % heal_amount
+	elif fully_wasted:
+		tooltip = "Leave every offered card behind. Health is already full."
+	var button: UiTooltipButton = _reward_secondary_button(
+		"RewardRecoverButton",
+		"SKIP & RECOVER  +%d HP   %d → %d" % [heal_amount, current_hp, result_hp],
+		_on_skip_reward_pressed,
+		tooltip
+	)
+	button.icon = AssetLoader.load_texture(HEALTH_ICON_PATH)
+	button.expand_icon = true
+	button.set_meta("reward_heal_amount", heal_amount)
+	button.set_meta("reward_heal_current_hp", current_hp)
+	button.set_meta("reward_heal_max_hp", max_hp)
+	button.set_meta("reward_heal_result_hp", result_hp)
+	button.set_meta("reward_heal_effective", effective_heal)
+	button.set_meta("reward_heal_wasted", wasted_heal)
+	button.set_meta("reward_heal_fully_wasted", fully_wasted)
+	return button
+
 func _set_relic_choice_title(text: String) -> void:
 	if _relic_choice_title == null:
 		return
 	var should_show: bool = not text.is_empty()
+	var mode: String = str(_run_state.get("mode", "room"))
+	var selection_mode: bool = mode in ["reward", "treasure"]
 	var accent: Color = _relic_choice_title_accent(text)
-	_apply_relic_choice_title_depth(accent)
+	UiTypography.set_label_size(
+		_relic_choice_title,
+		SELECTION_TITLE_FONT_SIZE if selection_mode else RELIC_CHOICE_TITLE_FONT_SIZE
+	)
+	_relic_choice_title.vertical_alignment = (
+		VERTICAL_ALIGNMENT_CENTER if selection_mode else VERTICAL_ALIGNMENT_TOP
+	)
+	_apply_relic_choice_title_depth(accent, selection_mode)
 	_relic_choice_title.text = text
 	_relic_choice_title.visible = should_show
+	if _relic_choice_banner != null:
+		_relic_choice_banner.visible = should_show and selection_mode
 	if _relic_choice_title_effect != null:
 		_relic_choice_title_effect.accent = accent
 		_relic_choice_title_effect.title_text = text
-		_relic_choice_title_effect.visible = should_show
+		_relic_choice_title_effect.visible = should_show and not selection_mode
 
-func _apply_relic_choice_title_depth(accent: Color) -> void:
+func _apply_relic_choice_title_depth(accent: Color, restrained: bool) -> void:
 	if _relic_choice_title == null:
 		return
-	var face_color: Color = Color("fff0bd").lerp(accent.lightened(0.18), 0.24)
+	var face_color: Color = (
+		Color("f6e2b9").lerp(accent.lightened(0.14), 0.16)
+		if restrained
+		else Color("fff0bd").lerp(accent.lightened(0.18), 0.24)
+	)
 	_relic_choice_title.add_theme_color_override("font_color", face_color)
 	_relic_choice_title.add_theme_color_override("font_outline_color", Color("1a0d08"))
-	_relic_choice_title.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.76))
-	_relic_choice_title.add_theme_constant_override("outline_size", 9)
+	_relic_choice_title.add_theme_color_override(
+		"font_shadow_color",
+		Color(0.0, 0.0, 0.0, 0.62 if restrained else 0.76)
+	)
+	_relic_choice_title.add_theme_constant_override("outline_size", 2 if restrained else 9)
 	_relic_choice_title.add_theme_constant_override("shadow_offset_x", 0)
-	_relic_choice_title.add_theme_constant_override("shadow_offset_y", 7)
+	_relic_choice_title.add_theme_constant_override("shadow_offset_y", 2 if restrained else 7)
 
 func _relic_choice_title_accent(text: String) -> Color:
 	match text:
@@ -10535,16 +10867,22 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	if _relic_choice_bar == null:
 		return
 	var panel := TooltipPanelContainer.new()
+	panel.name = "RelicChoice_%s" % relic_id
 	panel.custom_minimum_size = RELIC_CHOICE_CARD_SIZE
 	panel.clip_contents = false
 	panel.z_index = 30
+	panel.focus_mode = Control.FOCUS_ALL
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.set_meta("relic_id", relic_id)
+	panel.set_meta("relic_pointer_hovered", false)
+	panel.set_meta("relic_keyboard_focused", false)
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(GameData.relic_accent(relic_id)), false))
 	panel.gui_input.connect(_on_relic_choice_gui_input.bind(panel, relic_id))
 	panel.mouse_entered.connect(_set_relic_choice_hovered.bind(panel, relic, true))
 	panel.mouse_exited.connect(_set_relic_choice_hovered.bind(panel, relic, false))
+	panel.focus_entered.connect(_set_relic_choice_focused.bind(panel, relic, true))
+	panel.focus_exited.connect(_set_relic_choice_focused.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
 
 	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))
@@ -10599,6 +10937,21 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(description)
+
+func _configure_relic_choice_focus() -> void:
+	if _relic_choice_bar == null:
+		return
+	var choices: Array[Control] = []
+	for child: Node in _relic_choice_bar.get_children():
+		var choice: Control = child as Control
+		if choice != null and not str(choice.get_meta("relic_id", "")).is_empty():
+			choices.append(choice)
+	if choices.is_empty():
+		return
+	for index: int in range(choices.size()):
+		var choice: Control = choices[index]
+		_set_skill_status_focus_neighbor(choice, "left", choices[posmod(index - 1, choices.size())])
+		_set_skill_status_focus_neighbor(choice, "right", choices[(index + 1) % choices.size()])
 
 func _add_relic_choice_sparkles(panel: PanelContainer, accent: Color) -> void:
 	if panel == null:
@@ -11250,9 +11603,23 @@ func _campfire_strength_description() -> String:
 func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
 	if panel == null:
 		return
+	panel.set_meta("relic_pointer_hovered", hovered)
+	_refresh_relic_choice_emphasis(panel, relic)
+
+func _set_relic_choice_focused(panel: PanelContainer, relic: Dictionary, focused: bool) -> void:
+	if panel == null:
+		return
+	panel.set_meta("relic_keyboard_focused", focused)
+	_refresh_relic_choice_emphasis(panel, relic)
+
+func _refresh_relic_choice_emphasis(panel: PanelContainer, relic: Dictionary) -> void:
+	var emphasized: bool = (
+		bool(panel.get_meta("relic_pointer_hovered", false))
+		or bool(panel.get_meta("relic_keyboard_focused", false))
+	)
 	var accent: String = str(relic.get("accent", GameData.relic_rarity_accent(str(relic.get("rarity", "common")))))
-	panel.z_index = 40 if hovered else 30
-	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(accent), hovered))
+	panel.z_index = 40 if emphasized else 30
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(accent), emphasized))
 
 func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
 	if panel == null:
@@ -11399,11 +11766,16 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	return style
 
 func _on_relic_choice_gui_input(event: InputEvent, panel: PanelContainer, relic_id: String) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		var source_rect: Rect2 = Rect2()
-		if panel != null:
-			source_rect = panel.get_global_rect()
-		await _on_relic_pressed(relic_id, source_rect)
+	var pointer_activation: bool = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
+	var focus_activation: bool = event.is_action_pressed("ui_accept") and not event.is_echo()
+	if not pointer_activation and not focus_activation:
+		return
+	if focus_activation and panel != null:
+		panel.accept_event()
+	var source_rect: Rect2 = Rect2()
+	if panel != null:
+		source_rect = panel.get_global_rect()
+	await _on_relic_pressed(relic_id, source_rect)
 
 func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: PanelContainer, accent: Color) -> void:
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
@@ -11587,23 +11959,8 @@ func _refresh_hand_panel() -> void:
 				call_deferred("_focus_skill_hand_selection_card", skill_selection_buttons[0])
 		_consume_hand_ready_wave()
 	elif mode == "reward":
-		var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
-		var reward_cards: Array = reward_state.get("cards", [])
-		var heal_amount: int = int(reward_state.get("heal_amount", 0))
-		var reward_choice_count: int = reward_cards.size() + (1 if heal_amount > 0 else 0)
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		var reward_card_size: Vector2 = _hand_card_size(reward_choice_count, true)
-		for card_id_var: Variant in reward_cards:
-			var card_id: String = str(card_id_var)
-			var widget = CardWidgetScene.instantiate()
-			widget.custom_minimum_size = reward_card_size
-			widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id))
-			widget.set_hover_pose(REWARD_CARD_HOVER_LIFT, REWARD_CARD_HOVER_SCALE)
-			widget.activated.connect(_on_reward_card_pressed.bind(card_id, widget))
-			hand_box.add_child(_reward_card_choice_slot(widget, card_id, reward_card_size))
-		if heal_amount > 0:
-			hand_box.add_child(_reward_heal_choice_slot(heal_amount, reward_card_size))
 		hand_box.configure_layout(HAND_CARD_GAP, false)
 	else:
 		hand_box.configure_layout(HAND_CARD_GAP, false)
@@ -11778,100 +12135,6 @@ func _card_widget_scale_for_size(card_size: Vector2) -> float:
 		return 1.0
 	return minf(card_size.x / CARD_WIDGET_BASE_SIZE.x, card_size.y / CARD_WIDGET_BASE_SIZE.y)
 
-func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
-	var current_hp: int = maxi(0, int(_run_state.get("player_hp", 0)))
-	var max_hp: int = maxi(1, int(_run_state.get("player_max_hp", current_hp)))
-	var result_hp: int = mini(max_hp, current_hp + maxi(0, heal_amount))
-	var effective_heal: int = maxi(0, result_hp - current_hp)
-	var wasted_heal: int = maxi(0, heal_amount - effective_heal)
-	var fully_wasted: bool = heal_amount > 0 and effective_heal == 0
-	var slot := Control.new()
-	slot.name = "RewardHealChoiceSlot"
-	slot.custom_minimum_size = slot_size
-	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var panel := PanelContainer.new()
-	panel.name = "RewardHealChoice"
-	panel.custom_minimum_size = slot_size
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	panel.set_meta("cursor_feedback_context_provider", _reward_heal_cursor_feedback_context)
-	panel.tooltip_text = ""
-	panel.set_meta("reward_heal_amount", heal_amount)
-	panel.set_meta("reward_heal_current_hp", current_hp)
-	panel.set_meta("reward_heal_max_hp", max_hp)
-	panel.set_meta("reward_heal_result_hp", result_hp)
-	panel.set_meta("reward_heal_effective", effective_heal)
-	panel.set_meta("reward_heal_wasted", wasted_heal)
-	panel.set_meta("reward_heal_fully_wasted", fully_wasted)
-	panel.add_theme_stylebox_override("panel", _reward_heal_choice_style(false))
-	panel.gui_input.connect(_on_reward_heal_choice_gui_input)
-	panel.mouse_entered.connect(_set_reward_heal_choice_hovered.bind(panel, true))
-	panel.mouse_exited.connect(_set_reward_heal_choice_hovered.bind(panel, false))
-	slot.add_child(panel)
-	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.anchor_right = 1.0
-	margin.anchor_bottom = 1.0
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 18)
-	panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 14)
-	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(vbox)
-
-	var art_panel := PanelContainer.new()
-	art_panel.name = "RewardHealArt"
-	art_panel.custom_minimum_size = Vector2(0.0, clampf(slot_size.y * 0.38, 104.0, 132.0))
-	art_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	art_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_panel.add_theme_stylebox_override("panel", _reward_heal_art_style())
-	vbox.add_child(art_panel)
-
-	var art_center := CenterContainer.new()
-	art_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_panel.add_child(art_center)
-
-	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(86.0, 86.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = AssetLoader.load_texture(HEALTH_ICON_PATH)
-	icon.modulate = Color.WHITE
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_center.add_child(icon)
-
-	var amount := Label.new()
-	amount.name = "RewardHealAmount"
-	amount.text = "+%d" % heal_amount
-	amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	amount.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	amount.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.apply_label_role(amount, UiTypography.ROLE_HERO)
-	amount.add_theme_color_override("font_color", Color("b9ef86"))
-	amount.add_theme_color_override("font_outline_color", Color("1f170f"))
-	amount.add_theme_constant_override("outline_size", 3)
-	vbox.add_child(amount)
-
-	var hp_context := Label.new()
-	hp_context.name = "RewardHealProjection"
-	hp_context.text = "%d → %d" % [current_hp, result_hp]
-	hp_context.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hp_context.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	hp_context.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(hp_context, UiTypography.SIZE_BODY_LARGE)
-	hp_context.add_theme_color_override("font_color", Color("f0ddbd"))
-	hp_context.add_theme_color_override("font_outline_color", Color("21150e"))
-	hp_context.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(hp_context)
-	return slot
-
 func _clear_idle_card_fx_layer() -> void:
 	if _animation_lock or _card_fx_layer == null or _card_fx_layer.get_child_count() <= 0:
 		return
@@ -11879,55 +12142,6 @@ func _clear_idle_card_fx_layer() -> void:
 		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
 			_release_card_proxy(child)
 	_clear_children_now(_card_fx_layer)
-
-func _on_reward_heal_choice_gui_input(event: InputEvent) -> void:
-	if _animation_lock or _loadout_acquisition_in_progress:
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_on_skip_reward_pressed()
-
-func _reward_heal_cursor_feedback_context(_local_position: Vector2) -> String:
-	return "action" if not _animation_lock and not _loadout_acquisition_in_progress else "inert"
-
-func _set_reward_heal_choice_hovered(panel: PanelContainer, hovered: bool) -> void:
-	if panel == null:
-		return
-	panel.z_index = 40 if hovered else 30
-	panel.add_theme_stylebox_override("panel", _reward_heal_choice_style(hovered))
-
-func _reward_heal_choice_style(hovered: bool) -> StyleBoxFlat:
-	var accent := Color("a9d16e")
-	var style := StyleBoxFlat.new()
-	var base_bg: Color = Color(0.13, 0.085, 0.055, 0.92)
-	style.bg_color = base_bg.lightened(0.06) if hovered else base_bg
-	style.border_color = accent.lightened(0.16) if hovered else accent.darkened(0.16)
-	style.border_width_left = 4
-	style.border_width_top = 4
-	style.border_width_right = 4
-	style.border_width_bottom = 4
-	style.corner_radius_top_left = 9
-	style.corner_radius_top_right = 9
-	style.corner_radius_bottom_right = 9
-	style.corner_radius_bottom_left = 9
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48 if hovered else 0.38)
-	style.shadow_size = 22 if hovered else 16
-	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
-	return style
-
-func _reward_heal_art_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.040, 0.030, 0.88)
-	style.border_color = Color("74664a")
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	return style
-
 func _refresh_stage_view() -> void:
 	_exit_destinations_by_tile = _exit_tile_lookup()
 	var display_state: Dictionary = _board_display_state()
@@ -11950,6 +12164,10 @@ func _refresh_stage_view() -> void:
 	var preview: Dictionary = {}
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
+		if not _preview_combat_state.is_empty():
+			var cumulative_damage_preview: Dictionary = _damage_preview_between_states(_combat_state, _preview_combat_state)
+			if not cumulative_damage_preview.is_empty():
+				presentation["damage_preview"] = cumulative_damage_preview
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
 			var action: Dictionary = preview.get("action", {})
 			var action_type: String = str(action.get("type", ""))
@@ -12046,6 +12264,7 @@ func _refresh_stage_view() -> void:
 		and not _animation_lock
 		and _current_action_is_aimed_aoe()
 	)
+	presentation["reduced_motion"] = _reduced_motion_enabled()
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -12079,7 +12298,7 @@ func _board_display_state() -> Dictionary:
 			if not _combat_state.is_empty():
 				return _combat_state
 		elif not _preview_combat_state.is_empty():
-			return _visibility_safe_preview_display_state(_preview_combat_state)
+			return _visibility_safe_preview_display_state(_combat_preview_display_state(_preview_combat_state))
 		if not _combat_state.is_empty():
 			return _combat_state
 	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
@@ -12103,6 +12322,36 @@ func _board_display_state() -> Dictionary:
 		"terrain": layout.get("terrain", []),
 		"log": []
 	}
+
+func _combat_preview_display_state(preview_state: Dictionary) -> Dictionary:
+	if preview_state.is_empty() or _combat_state.is_empty():
+		return preview_state
+	var display_state: Dictionary = preview_state.duplicate(false)
+	var committed_by_id: Dictionary = {}
+	for committed_var: Variant in _combat_state.get("enemies", []):
+		if typeof(committed_var) != TYPE_DICTIONARY:
+			continue
+		var committed_enemy: Dictionary = committed_var
+		committed_by_id[int(committed_enemy.get("id", -1))] = committed_enemy
+	var display_enemies: Array = []
+	var projected_ids: Dictionary = {}
+	for projected_var: Variant in preview_state.get("enemies", []):
+		if typeof(projected_var) != TYPE_DICTIONARY:
+			continue
+		var projected_enemy: Dictionary = (projected_var as Dictionary).duplicate(true)
+		var enemy_id: int = int(projected_enemy.get("id", -1))
+		projected_ids[enemy_id] = true
+		if committed_by_id.has(enemy_id):
+			var committed_enemy: Dictionary = committed_by_id[enemy_id]
+			for key: String in ["hp", "block", "stoneskin"]:
+				projected_enemy[key] = committed_enemy.get(key, projected_enemy.get(key, 0))
+		display_enemies.append(projected_enemy)
+	for committed_id: Variant in committed_by_id.keys():
+		if projected_ids.has(committed_id):
+			continue
+		display_enemies.append((committed_by_id[committed_id] as Dictionary).duplicate(true))
+	display_state["enemies"] = display_enemies
+	return display_state
 
 func _board_visibility_state(display_state: Dictionary) -> Dictionary:
 	if _unconfirmed_preview_must_preserve_umbra_information():
@@ -12859,30 +13108,40 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 	if action_type != "aoe" and target_tile.x < 0:
 		return {}
 	var after_state: Dictionary = _combat_engine.apply_player_action(state, action, target_tile)
+	return _damage_preview_between_states(state, after_state)
+
+func _damage_preview_between_states(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
 	var after_by_id: Dictionary = {}
 	for after_var: Variant in after_state.get("enemies", []):
+		if typeof(after_var) != TYPE_DICTIONARY:
+			continue
 		var after_enemy: Dictionary = after_var
 		after_by_id[int(after_enemy.get("id", -1))] = after_enemy
 	var preview: Dictionary = {}
-	for before_var: Variant in state.get("enemies", []):
+	for before_var: Variant in before_state.get("enemies", []):
+		if typeof(before_var) != TYPE_DICTIONARY:
+			continue
 		var before_enemy: Dictionary = before_var
 		var enemy_id: int = int(before_enemy.get("id", -1))
-		if not after_by_id.has(enemy_id):
+		if int(before_enemy.get("hp", 0)) <= 0:
 			continue
-		var after_enemy: Dictionary = after_by_id[enemy_id]
-		var hp_loss: int = maxi(0, int(before_enemy.get("hp", 0)) - int(after_enemy.get("hp", 0)))
-		var block_loss: int = maxi(0, int(before_enemy.get("block", 0)) - int(after_enemy.get("block", 0)))
-		var stoneskin_loss: int = maxi(0, int(before_enemy.get("stoneskin", 0)) - int(after_enemy.get("stoneskin", 0)))
+		var after_enemy: Dictionary = after_by_id.get(enemy_id, {}) as Dictionary
+		var after_hp: int = int(after_enemy.get("hp", 0))
+		var after_block: int = int(after_enemy.get("block", 0))
+		var after_stoneskin: int = int(after_enemy.get("stoneskin", 0))
+		var hp_loss: int = maxi(0, int(before_enemy.get("hp", 0)) - after_hp)
+		var block_loss: int = maxi(0, int(before_enemy.get("block", 0)) - after_block)
+		var stoneskin_loss: int = maxi(0, int(before_enemy.get("stoneskin", 0)) - after_stoneskin)
 		if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0:
 			continue
 		preview[_enemy_key(before_enemy)] = {
-			"hp": int(after_enemy.get("hp", 0)),
+			"hp": after_hp,
 			"hp_loss": hp_loss,
-			"block": int(after_enemy.get("block", 0)),
+			"block": after_block,
 			"block_loss": block_loss,
-			"stoneskin": int(after_enemy.get("stoneskin", 0)),
+			"stoneskin": after_stoneskin,
 			"stoneskin_loss": stoneskin_loss,
-			"lethal": int(after_enemy.get("hp", 0)) <= 0
+			"lethal": after_hp <= 0
 		}
 	var after_terrain_by_id: Dictionary = {}
 	for after_terrain_var: Variant in after_state.get("terrain", []):
@@ -12890,7 +13149,7 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 			continue
 		var after_terrain: Dictionary = after_terrain_var
 		after_terrain_by_id[str(after_terrain.get("id", ""))] = after_terrain
-	for before_terrain_var: Variant in state.get("terrain", []):
+	for before_terrain_var: Variant in before_state.get("terrain", []):
 		if typeof(before_terrain_var) != TYPE_DICTIONARY:
 			continue
 		var before_terrain: Dictionary = before_terrain_var
@@ -12898,13 +13157,14 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 		if terrain_id.is_empty() or not after_terrain_by_id.has(terrain_id):
 			continue
 		var after_terrain: Dictionary = after_terrain_by_id[terrain_id]
-		var hp_loss: int = maxi(0, int(before_terrain.get("hp", 0)) - int(after_terrain.get("hp", 0)))
+		var after_hp: int = int(after_terrain.get("hp", 0))
+		var hp_loss: int = maxi(0, int(before_terrain.get("hp", 0)) - after_hp)
 		if hp_loss <= 0:
 			continue
 		preview[_terrain_key(before_terrain)] = {
-			"hp": int(after_terrain.get("hp", 0)),
+			"hp": after_hp,
 			"hp_loss": hp_loss,
-			"lethal": int(after_terrain.get("hp", 0)) <= 0
+			"lethal": after_hp <= 0
 		}
 	return preview
 

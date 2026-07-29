@@ -10,7 +10,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
-const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "bone_dart", "sidestep_slash", "patch_up"]
+const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "bone_dart", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]

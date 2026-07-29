@@ -148,7 +148,7 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	var reward_state: Dictionary = base_state.duplicate(true)
 	reward_state["mode"] = "reward"
 	reward_state["pending_reward"] = {
-		"cards": ["quick_stab", "bone_dart", "sidestep_slash", "patch_up"],
+		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
 		"heal_amount": RunEngineScript.REWARD_HEAL,
 		"ember_amount": 0
 	}

@@ -3,107 +3,133 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
-const OUTPUT_DIR: String = "user://reward_simplification_v2_proof"
-const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_volley", "threaded_path"]
+const OUTPUT_DIR: String = "user://reward_composition_v1_proof"
+const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_volley"]
+const OFFERED_RELICS: Array[String] = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const OWNED_CARD_ID: String = "spark_dart"
 const NEW_CARD_ID: String = "frostbolt"
-const PROOF_VERSION: String = "v7"
+const PROOF_VERSION: String = "v1"
 
 var _failed: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
-	ProgressionStore.set_storage_path("user://labyrinth_progression_reward_simplification_v2_probe.json")
-	ProgressionStore.set_run_storage_path("user://labyrinth_run_reward_simplification_v2_probe.save")
+	ProgressionStore.set_storage_path("user://labyrinth_progression_reward_composition_probe.json")
+	ProgressionStore.set_run_storage_path("user://labyrinth_run_reward_composition_probe.save")
+	SettingsStore.set_storage_path("user://labyrinth_settings_reward_composition_probe.json")
 	ProgressionStore.clear_saved_run()
+	SettingsStore.clear_storage()
 	_clear_probe_output(OUTPUT_DIR)
 	if DisplayServer.get_name().to_lower() == "headless":
-		_fail("Reward simplification proof must run with a real display renderer")
+		_fail("Reward composition proof must run with a real display renderer")
 	else:
-		for resolution_var: Variant in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
-			var resolution: Vector2i = resolution_var
-			await _capture_resolution(resolution)
+		await _capture_configuration(Vector2i(1920, 1080), 1.00)
+		await _capture_configuration(Vector2i(1280, 720), 1.00)
+		await _capture_configuration(Vector2i(1280, 800), 1.25)
+	var defaults: Dictionary = SettingsStore.default_settings()
+	SettingsStore.save_settings(defaults)
+	SettingsStore.apply_settings(defaults, root, false)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	print("TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
 
-func _capture_resolution(resolution: Vector2i) -> void:
-	await _configure_window(resolution)
-	var output_dir: String = "%s/%dx%d" % [OUTPUT_DIR, resolution.x, resolution.y]
+func _capture_configuration(resolution: Vector2i, ui_scale: float) -> void:
+	await _configure_window(resolution, ui_scale)
+	var output_dir: String = "%s/%dx%d_ui%d" % [
+		OUTPUT_DIR,
+		resolution.x,
+		resolution.y,
+		roundi(ui_scale * 100.0)
+	]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	if packed == null:
-		_fail("Run scene should load for reward simplification proof")
+		_fail("Run scene should load for reward composition proof")
 		return
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle()
-	var injured_state: Dictionary = _reward_state(false)
-	await _show_reward_state(instance, injured_state)
-	var slots: Dictionary = _assert_reward_layout(instance, resolution)
-	var owned_slot: Control = slots.get(OWNED_CARD_ID) as Control
-	var new_slot: Control = slots.get(NEW_CARD_ID) as Control
-	_assert_ownership_badge(owned_slot, "OWNED")
-	_assert_ownership_badge(new_slot, "NEW")
-	_assert_injured_recover(instance)
+
+	await _show_state(instance, _reward_state(false))
+	var reward_parts: Dictionary = _assert_reward_layout(instance, resolution, ui_scale, false)
 	await _save_root_screenshot(
-		"%s/reward_%dx%d_injured_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
-		instance,
+		"%s/card_reward_injured_%s.png" % [output_dir, PROOF_VERSION],
 		resolution
 	)
+	await _capture_card_focus(
+		reward_parts.get("new_card") as Control,
+		"%s/card_reward_focused_%s.png" % [output_dir, PROOF_VERSION],
+		resolution
+	)
+	await _capture_button_focus(
+		reward_parts.get("recover_button") as Button,
+		"%s/card_reward_recover_focused_%s.png" % [output_dir, PROOF_VERSION],
+		resolution
+	)
+
+	await _show_state(instance, _reward_state(true))
+	_assert_reward_layout(instance, resolution, ui_scale, true)
 	await _save_root_screenshot(
-		"%s/reward_%dx%d_new_before_hover_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
-		instance,
+		"%s/card_reward_full_health_%s.png" % [output_dir, PROOF_VERSION],
 		resolution
 	)
-	await _hover_card_and_capture(
-		new_slot,
-		"NEW",
-		"%s/reward_%dx%d_new_hovered_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
-		instance,
-		resolution
-	)
+
+	await _show_state(instance, _reward_state(false, true))
+	_assert_reward_layout(instance, resolution, ui_scale, false, true)
 	await _save_root_screenshot(
-		"%s/reward_%dx%d_owned_before_hover_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
-		instance,
+		"%s/card_reward_reroll_%s.png" % [output_dir, PROOF_VERSION],
 		resolution
 	)
-	await _hover_card_and_capture(
-		owned_slot,
-		"OWNED",
-		"%s/reward_%dx%d_owned_hovered_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
-		instance,
-		resolution
-	)
-	await _show_reward_state(instance, _reward_state(true))
-	_assert_reward_layout(instance, resolution)
-	_assert_full_health_recover(instance)
+
+	await _show_state(instance, _treasure_state())
+	var relic_parts: Dictionary = _assert_relic_layout(instance, resolution, ui_scale)
 	await _save_root_screenshot(
-		"%s/reward_%dx%d_full_health_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
-		instance,
+		"%s/relic_reward_%s.png" % [output_dir, PROOF_VERSION],
 		resolution
 	)
+	await _capture_relic_focus(
+		relic_parts.get("middle_relic") as Control,
+		"%s/relic_reward_focused_%s.png" % [output_dir, PROOF_VERSION],
+		resolution
+	)
+
 	instance.queue_free()
 	await _settle()
 
-func _configure_window(resolution: Vector2i) -> void:
+func _configure_window(resolution: Vector2i, ui_scale: float) -> void:
 	root.mode = Window.MODE_WINDOWED
 	root.content_scale_size = resolution
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.size = resolution
-	await process_frame
-	await process_frame
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = ui_scale
+	settings["reduced_motion"] = true
+	SettingsStore.save_settings(settings)
+	SettingsStore.apply_settings(settings, root, false)
+	await _settle()
 	root.size = resolution
-	await process_frame
-	print("Reward proof viewport=%s window=%s target=%s" % [root.get_viewport().get_visible_rect().size, root.size, resolution])
+	await _settle()
+	print("Reward proof viewport=%s window=%s target=%s ui=%d" % [
+		root.get_viewport().get_visible_rect().size,
+		root.size,
+		resolution,
+		roundi(ui_scale * 100.0)
+	])
 
-func _reward_state(full_health: bool) -> Dictionary:
+func _reward_state(full_health: bool, with_reroll: bool = false) -> Dictionary:
 	var engine := RunEngine.new()
-	var state: Dictionary = engine.create_new_run(7319, ProgressionStore.default_data())
+	var progression: Dictionary = ProgressionStore.default_data()
+	if with_reroll:
+		progression["level"] = 3
+		progression["skill_ids"] = ["quick_wits", "discerning_eye"]
+		progression = ProgressionStore.normalized_data(progression)
+	var state: Dictionary = engine.create_new_run(7319, progression)
 	state["mode"] = "reward"
-	state["player_hp"] = 360 if full_health else 180
-	state["player_max_hp"] = 360
+	state["player_hp"] = 24 if full_health else 12
+	state["player_max_hp"] = 24
 	state["attuned_magic_cards"] = ["pale_spark", "dull_bolt", "waning_pulse", "chain_bolt"]
 	state["magic_inventory"] = [OWNED_CARD_ID]
 	state["reward_cards"] = [OWNED_CARD_ID]
@@ -114,13 +140,37 @@ func _reward_state(full_health: bool) -> Dictionary:
 	}
 	return state
 
-func _show_reward_state(instance: Node, state: Dictionary) -> void:
+func _treasure_state() -> Dictionary:
+	var engine := RunEngine.new()
+	var state: Dictionary = engine.create_new_run(7321, ProgressionStore.default_data())
+	var treasure_coord: Vector2i = _first_room_coord_of_type(engine, state, "treasure")
+	if treasure_coord == Vector2i.ZERO:
+		_fail("Reward proof run should include a treasure room")
+		return state
+	var room: Dictionary = engine.room_metadata(state, treasure_coord).duplicate(true)
+	room["revealed"] = true
+	room["visited"] = true
+	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
+	rooms["%d,%d" % [treasure_coord.x, treasure_coord.y]] = room
+	state["rooms"] = rooms
+	state["current_room"] = treasure_coord
+	state["current_room_layout"] = engine.call(
+		"_display_layout_for_room",
+		int(state.get("seed", 0)),
+		room,
+		Vector2i(1, 0)
+	)
+	state["mode"] = "treasure"
+	state["combat_state"] = {}
+	state["pending_reward"] = {}
+	state["pending_relics"] = OFFERED_RELICS.duplicate()
+	return state
+
+func _show_state(instance: Node, state: Dictionary) -> void:
+	root.gui_release_focus()
 	root.warp_mouse(Vector2(8.0, 8.0))
-	instance.set("_run_state", state.duplicate(true))
-	instance.set("_combat_state", {})
-	instance.set("_selected_card_index", -1)
-	instance.set("_drag_card_index", -1)
-	instance.call("_refresh_ui")
+	instance.call("_load_run_state", state)
+	await _settle()
 	var settled_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	settled_state["notice"] = ""
 	settled_state["grimoire_notice"] = ""
@@ -130,235 +180,253 @@ func _show_reward_state(instance: Node, state: Dictionary) -> void:
 	settled_state["progression"] = progression
 	instance.set("_run_state", settled_state)
 	instance.call("_refresh_ui")
-	await _settle()
 	await _freeze_reward_title(instance)
+	root.gui_release_focus()
+	await _settle()
 
 func _freeze_reward_title(instance: Node) -> void:
-	await create_timer(0.70).timeout
+	await create_timer(0.12).timeout
 	var title_effect: Node = instance.get("_relic_choice_title_effect") as Node
 	if title_effect != null:
 		title_effect.set_process(false)
 		title_effect.set("phase", 0.0)
 		title_effect.call("_animate_labels")
-	await _settle()
 
-func _assert_reward_layout(instance: Node, resolution: Vector2i) -> Dictionary:
-	var slots: Dictionary = {}
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
-	if hand_box.get_child_count() != 5:
-		_fail("%s should show four reward cards plus Recover" % resolution)
-		return slots
-	var scroll_rect: Rect2 = hand_scroll.get_global_rect()
+func _assert_reward_layout(
+	instance: Node,
+	resolution: Vector2i,
+	ui_scale: float,
+	full_health: bool,
+	expects_reroll: bool = false
+) -> Dictionary:
+	var result: Dictionary = {}
+	var label: String = "%dx%d @ %d%%" % [resolution.x, resolution.y, roundi(ui_scale * 100.0)]
+	var overlay: Control = instance.get("_relic_choice_overlay") as Control
+	var backdrop: ColorRect = instance.get("_relic_choice_backdrop") as ColorRect
+	var banner: TextureRect = instance.get("_relic_choice_banner") as TextureRect
+	var title: Label = instance.get("_relic_choice_title") as Label
+	var stack: VBoxContainer = instance.find_child("RewardChoiceStack", true, false) as VBoxContainer
+	var card_row: HBoxContainer = instance.find_child("RewardCardRow", true, false) as HBoxContainer
+	var secondary_actions: HBoxContainer = instance.find_child("RewardSecondaryActions", true, false) as HBoxContainer
+	var reroll_button: Button = instance.find_child("RewardRerollButton", true, false) as Button
+	var recover_button: Button = instance.find_child("RewardRecoverButton", true, false) as Button
+	var hand_row: Control = instance.get_node(
+		"UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow"
+	) as Control
+	if overlay == null or not overlay.visible:
+		_fail("%s card reward should show the stage selection overlay" % label)
+	if backdrop == null or not backdrop.visible or backdrop.color.a < 0.60:
+		_fail("%s card reward should visibly dim the room behind the decision" % label)
+	if banner == null or not banner.visible or banner.texture == null:
+		_fail("%s card reward should put its instruction text on a raster foreground banner" % label)
+	if title == null or title.text != "GROW YOUR POWER" or not title.visible:
+		_fail("%s card reward should keep the game-native selection title" % label)
+	elif (
+		title.get_theme_font_size("font_size") > UiTypography.scaled_size(title, 32)
+		or title.get_theme_constant("outline_size") > 2
+	):
+		_fail("%s card reward should use restrained runtime text on the raster banner" % label)
+	if hand_row == null or hand_row.visible:
+		_fail("%s card reward should not occupy the combat hand strip" % label)
+	if stack == null or card_row == null or card_row.get_child_count() != 3:
+		_fail("%s should show one centered stack with exactly three card choices" % label)
+		return result
+	if recover_button == null:
+		_fail("%s should place Recover in a button below the three cards" % label)
+		return result
+	if expects_reroll:
+		if reroll_button == null or secondary_actions == null:
+			_fail("%s ready Discerning Eye should add a compact Reroll action" % label)
+			return result
+		if reroll_button.text != "REROLL":
+			_fail("%s reward reroll should use the compact secondary-action label" % label)
+	elif reroll_button != null:
+		_fail("%s reward should not show Reroll without a ready Discerning Eye" % label)
+	var title_rect: Rect2 = title.get_global_rect()
+	var banner_rect: Rect2 = banner.get_global_rect()
+	var row_rect: Rect2 = card_row.get_global_rect()
+	var button_rect: Rect2 = recover_button.get_global_rect()
 	var viewport_rect := Rect2(Vector2.ZERO, root.get_viewport().get_visible_rect().size)
-	var first_rect: Rect2 = (hand_box.get_child(0) as Control).get_global_rect()
-	var last_rect: Rect2 = (hand_box.get_child(4) as Control).get_global_rect()
-	if first_rect.position.x < scroll_rect.position.x - 1.0 or last_rect.end.x > scroll_rect.end.x + 1.0:
-		_fail("%s reward choices should fit the hand viewport without horizontal clipping" % resolution)
+	if title_rect.end.y > row_rect.position.y + 2.0:
+		_fail("%s selection title should sit above the card row" % label)
+	if button_rect.position.y < row_rect.end.y - 2.0:
+		_fail("%s Recover should sit beneath the card row" % label)
+	if button_rect.size.x >= row_rect.size.x:
+		_fail("%s Recover should remain visually subordinate to the offer row" % label)
+	if expects_reroll and secondary_actions != null:
+		var action_rect: Rect2 = secondary_actions.get_global_rect()
+		if action_rect.size.x >= row_rect.size.x:
+			_fail("%s Reroll plus Recover should remain narrower than the three-card offer row" % label)
+		if not viewport_rect.encloses(action_rect):
+			_fail("%s Reroll plus Recover should fit the visible viewport" % label)
+	if (
+		banner_rect.get_center().distance_to(title_rect.get_center()) > 2.0
+		or title_rect.size.x > banner_rect.size.x + 2.0
+		or title_rect.size.y > banner_rect.size.y + 2.0
+	):
+		_fail("%s instruction text should read as part of its banner" % label)
+	var composition_rect: Rect2 = banner_rect.merge(row_rect).merge(button_rect)
+	if absf(composition_rect.get_center().x - viewport_rect.get_center().x) > viewport_rect.size.x * 0.06:
+		_fail("%s reward composition should remain horizontally centered" % label)
+	if absf(composition_rect.get_center().y - viewport_rect.get_center().y) > viewport_rect.size.y * 0.18:
+		_fail("%s reward composition should sit in the central foreground" % label)
+	if not viewport_rect.encloses(banner_rect) or not viewport_rect.encloses(row_rect) or not viewport_rect.encloses(button_rect):
+		_fail("%s reward stack should fit the visible viewport" % label)
+	if not recover_button.text.contains("SKIP & RECOVER"):
+		_fail("%s Recover should make the skipped-card consequence explicit" % label)
+	var expected_projection: String = "24 → 24" if full_health else "12 → 15"
+	if not recover_button.text.contains("+%d HP" % RunEngine.REWARD_HEAL) or not recover_button.text.contains(expected_projection):
+		_fail("%s Recover should show exact healing and %s" % [label, expected_projection])
+	if recover_button.focus_mode != Control.FOCUS_ALL or recover_button.focus_neighbor_top == NodePath():
+		_fail("%s Recover should expose visible focus and return navigation to the cards" % label)
 	var visible_cards: int = 0
-	for child: Node in hand_box.get_children():
+	for child: Node in card_row.get_children():
 		var slot: Control = child as Control
 		if slot == null:
 			continue
-		var slot_rect: Rect2 = slot.get_global_rect()
-		if not viewport_rect.encloses(slot_rect):
-			_fail("%s reward choice should fit the visible viewport: %s" % [resolution, slot_rect])
-		if absf(slot_rect.position.y - first_rect.position.y) > 1.0:
-			_fail("%s reward choices should remain vertically aligned" % resolution)
 		var card_id: String = str(slot.get_meta("reward_card_id", ""))
-		if card_id.is_empty():
-			continue
-		slots[card_id] = slot
 		var card_widget: Control = slot.find_child("CardWidget", true, false) as Control
-		if card_widget == null or not card_widget.is_visible_in_tree() or card_widget.get_global_rect().size.x <= 1.0:
-			_fail("%s should visibly render reward card %s" % [resolution, card_id])
-		else:
-			visible_cards += 1
-	if visible_cards != 4:
-		_fail("%s should visibly render all four reward cards" % resolution)
-	if instance.find_child("RewardAttunementContext", true, false) != null:
-		_fail("Reward surface should not render attunement/loadout context")
-	if instance.find_child("RewardDestinationBadge", true, false) != null:
-		_fail("Reward surface should not render destination badges")
-	var stage_root: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot") as Control
-	if stage_root.size.y < float(resolution.y) * 0.32:
-		_fail("%s reward choices should preserve meaningful room-state height" % resolution)
-	return slots
+		var badge: Control = slot.find_child("RewardOwnershipBadge", true, false) as Control
+		if card_id.is_empty() or card_widget == null or badge == null:
+			_fail("%s reward slot should contain card identity and ownership state" % label)
+			continue
+		visible_cards += 1
+		if card_widget.focus_mode != Control.FOCUS_ALL or card_widget.focus_neighbor_bottom == NodePath():
+			_fail("%s card %s should support focus navigation to Recover" % [label, card_id])
+		if not viewport_rect.encloses(card_widget.get_global_rect()):
+			_fail("%s card %s should fit the visible viewport" % [label, card_id])
+		if card_id == OWNED_CARD_ID:
+			result["owned_card"] = card_widget
+			_assert_badge_text(badge, "OWNED", label)
+		elif card_id == NEW_CARD_ID:
+			result["new_card"] = card_widget
+			_assert_badge_text(badge, "NEW", label)
+	if visible_cards != 3:
+		_fail("%s should visibly render all three reward cards" % label)
+	result["recover_button"] = recover_button
+	return result
 
-func _assert_ownership_badge(slot: Control, expected_text: String) -> void:
-	if slot == null:
-		_fail("Missing reward slot for %s proof" % expected_text)
-		return
-	var card_widget: Control = slot.find_child("CardWidget", true, false) as Control
-	var badge: Control = slot.find_child("RewardOwnershipBadge", true, false) as Control
-	if card_widget == null or badge == null:
-		_fail("%s reward card should contain its ownership badge" % expected_text)
-		return
-	var label: Label = _label_with_text(badge, expected_text)
-	if label == null:
-		_fail("Ownership badge should read %s" % expected_text)
-	if badge.get_parent() != card_widget:
-		_fail("%s badge should be a direct child of CardWidget" % expected_text)
-	if badge.mouse_filter != Control.MOUSE_FILTER_IGNORE or not _control_descendants_ignore_mouse(badge):
-		_fail("%s badge should ignore all mouse input" % expected_text)
-	if not badge.z_as_relative or badge.z_index <= 0:
-		_fail("%s badge should inherit card z-order and draw above its face" % expected_text)
-	if not card_widget.get_global_rect().encloses(badge.get_global_rect()):
-		_fail("%s badge should remain physically inside the card presentation" % expected_text)
-	var title: Control = card_widget.get_node_or_null("Margin/VBox/TopRow/Title") as Control
-	var cost: Control = card_widget.find_child("TimeCostBadge", true, false) as Control
-	if title != null and badge.get_global_rect().intersects(title.get_global_rect()):
-		_fail("%s badge should not cover its card title" % expected_text)
-	if cost != null and badge.get_global_rect().intersects(cost.get_global_rect()):
-		_fail("%s badge should not cover its card cost" % expected_text)
-
-func _hover_card_and_capture(slot: Control, expected_text: String, output_path: String, instance: Node, resolution: Vector2i) -> void:
-	if slot == null:
-		_fail("Missing %s slot for hover proof" % expected_text)
-		return
-	var card_widget: Control = slot.find_child("CardWidget", true, false) as Control
-	var badge: Control = slot.find_child("RewardOwnershipBadge", true, false) as Control
-	if card_widget == null or badge == null:
-		_fail("Missing %s card/badge for hover proof" % expected_text)
-		return
-	var initial_badge_position: Vector2 = badge.position
-	var initial_badge_local_scale: Vector2 = badge.scale
-	var initial_card_rect: Rect2 = card_widget.get_global_rect()
-	var initial_badge_rect: Rect2 = badge.get_global_rect()
-	var initial_badge_anchor: Vector2 = _rect_anchor_within(initial_badge_rect, initial_card_rect)
-	root.warp_mouse(card_widget.get_global_rect().get_center())
-	card_widget.mouse_entered.emit()
-	await create_timer(0.22).timeout
-	await process_frame
-	var hovered_card_rect: Rect2 = card_widget.get_global_rect()
-	var hovered_badge_rect: Rect2 = badge.get_global_rect()
-	var card_growth: Vector2 = Vector2(
-		hovered_card_rect.size.x / initial_card_rect.size.x,
-		hovered_card_rect.size.y / initial_card_rect.size.y
-	)
-	var badge_growth: Vector2 = Vector2(
-		hovered_badge_rect.size.x / initial_badge_rect.size.x,
-		hovered_badge_rect.size.y / initial_badge_rect.size.y
-	)
-	if card_growth.x < 1.085 or card_growth.y < 1.085 or card_widget.z_index != 20:
-		_fail("%s card should reach its real hover scale and z-order" % expected_text)
-	if badge.position != initial_badge_position or badge.scale != initial_badge_local_scale:
-		_fail("%s badge local attachment should remain exact during hover" % expected_text)
-	if not card_growth.is_equal_approx(badge_growth):
-		_fail("%s badge rendered bounds should enlarge by exactly the card hover ratio" % expected_text)
-	if _rect_anchor_within(hovered_badge_rect, hovered_card_rect).distance_to(initial_badge_anchor) > 0.002:
-		_fail("%s badge should preserve its exact rendered anchor within the hovered card" % expected_text)
-	if hovered_badge_rect.get_center().distance_to(initial_badge_rect.get_center()) < 8.0:
-		_fail("%s badge should visibly move with the hovered card" % expected_text)
-	if badge.z_index <= card_widget.z_index:
-		_fail("%s badge should remain above the hovered card face" % expected_text)
-	var title: Control = card_widget.get_node_or_null("Margin/VBox/TopRow/Title") as Control
-	var cost: Control = card_widget.find_child("TimeCostBadge", true, false) as Control
-	if title != null and hovered_badge_rect.intersects(title.get_global_rect()):
-		_fail("%s badge should stay clear of its title while enlarged" % expected_text)
-	if cost != null and hovered_badge_rect.intersects(cost.get_global_rect()):
-		_fail("%s badge should stay clear of its cost while enlarged" % expected_text)
+func _assert_relic_layout(instance: Node, resolution: Vector2i, ui_scale: float) -> Dictionary:
+	var result: Dictionary = {}
+	var label: String = "%dx%d @ %d%%" % [resolution.x, resolution.y, roundi(ui_scale * 100.0)]
+	var overlay: Control = instance.get("_relic_choice_overlay") as Control
+	var backdrop: ColorRect = instance.get("_relic_choice_backdrop") as ColorRect
+	var banner: TextureRect = instance.get("_relic_choice_banner") as TextureRect
+	var title: Label = instance.get("_relic_choice_title") as Label
+	var bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
+	if overlay == null or not overlay.visible:
+		_fail("%s relic reward should show the stage selection overlay" % label)
+	if backdrop == null or not backdrop.visible or backdrop.color.a < 0.60:
+		_fail("%s relic reward should visibly dim the room behind the decision" % label)
+	if banner == null or not banner.visible or banner.texture == null:
+		_fail("%s relic reward should put its instruction text on a raster foreground banner" % label)
+	if title == null or title.text != "CLAIM YOUR TREASURE" or not title.visible:
+		_fail("%s relic reward should keep the game-native selection title" % label)
+	if bar == null or bar.get_child_count() != 3:
+		_fail("%s relic reward should show exactly three centered relic choices" % label)
+		return result
+	var first_choice: Control = bar.get_child(0) as Control
+	var middle_choice: Control = bar.get_child(1) as Control
+	var last_choice: Control = bar.get_child(2) as Control
+	var row_rect: Rect2 = first_choice.get_global_rect().merge(last_choice.get_global_rect())
 	var viewport_rect := Rect2(Vector2.ZERO, root.get_viewport().get_visible_rect().size)
-	if not viewport_rect.encloses(card_widget.get_global_rect()):
-		_fail("%s hovered card should remain inside %s" % [expected_text, resolution])
-	await _save_root_screenshot(output_path, instance, resolution)
-	root.warp_mouse(Vector2(8.0, 8.0))
-	card_widget.mouse_exited.emit()
-	await create_timer(0.22).timeout
-	await process_frame
-	if not card_widget.get_global_rect().is_equal_approx(initial_card_rect) or not badge.get_global_rect().is_equal_approx(initial_badge_rect) or card_widget.z_index != 0:
-		_fail("%s card and badge should complete their return animation" % expected_text)
+	if title.get_global_rect().end.y > row_rect.position.y + 2.0:
+		_fail("%s treasure title should sit directly above the relic offer row" % label)
+	if not viewport_rect.encloses(row_rect):
+		_fail("%s relic offer row should fit the visible viewport" % label)
+	var relic_choices: Array[Control] = []
+	relic_choices.append(first_choice)
+	relic_choices.append(middle_choice)
+	relic_choices.append(last_choice)
+	for choice: Control in relic_choices:
+		if choice.focus_mode != Control.FOCUS_ALL:
+			_fail("%s relic choices should be keyboard/controller focusable" % label)
+		if choice.focus_neighbor_left == NodePath() or choice.focus_neighbor_right == NodePath():
+			_fail("%s relic choices should expose complete horizontal focus navigation" % label)
+	if (
+		bool(middle_choice.get_meta("relic_keyboard_focused", false))
+		or bool(middle_choice.get_meta("relic_pointer_hovered", false))
+		or middle_choice.z_index != 30
+	):
+		_fail("%s normal relic proof should begin from a clean unfocused baseline" % label)
+	if banner != null:
+		var composition_rect: Rect2 = banner.get_global_rect().merge(row_rect)
+		if absf(composition_rect.get_center().x - viewport_rect.get_center().x) > viewport_rect.size.x * 0.06:
+			_fail("%s relic composition should remain horizontally centered" % label)
+		if absf(composition_rect.get_center().y - viewport_rect.get_center().y) > viewport_rect.size.y * 0.18:
+			_fail("%s relic composition should sit in the central foreground" % label)
+	result["middle_relic"] = middle_choice
+	return result
 
-func _rect_anchor_within(child_rect: Rect2, parent_rect: Rect2) -> Vector2:
-	if parent_rect.size.x <= 0.0 or parent_rect.size.y <= 0.0:
-		return Vector2.ZERO
-	return Vector2(
-		(child_rect.get_center().x - parent_rect.position.x) / parent_rect.size.x,
-		(child_rect.get_center().y - parent_rect.position.y) / parent_rect.size.y
-	)
-
-func _assert_injured_recover(instance: Node) -> void:
-	var heal_choice: PanelContainer = instance.find_child("RewardHealChoice", true, false) as PanelContainer
-	if heal_choice == null:
-		_fail("Injured proof should render Recover")
+func _capture_card_focus(card_widget: Control, output_path: String, resolution: Vector2i) -> void:
+	if card_widget == null:
+		_fail("Missing New reward card for focus proof")
 		return
-	if int(heal_choice.get_meta("reward_heal_result_hp", -1)) != 240:
-		_fail("Injured Recover should clamp to exactly 240 HP")
-	_assert_recover_copy(heal_choice, "+60", "180 → 240")
+	card_widget.grab_focus()
+	await create_timer(0.16).timeout
+	if not card_widget.has_focus() or card_widget.z_index != 20:
+		_fail("Focused reward card should use the same visible lift as pointer hover")
+	await _save_root_screenshot(output_path, resolution)
+	card_widget.release_focus()
+	await create_timer(0.16).timeout
 
-func _assert_full_health_recover(instance: Node) -> void:
-	var heal_choice: PanelContainer = instance.find_child("RewardHealChoice", true, false) as PanelContainer
-	if heal_choice == null:
-		_fail("Full-health proof should render Recover")
+func _capture_button_focus(button: Button, output_path: String, resolution: Vector2i) -> void:
+	if button == null:
+		_fail("Missing Recover button for focus proof")
 		return
-	if int(heal_choice.get_meta("reward_heal_result_hp", -1)) != 360:
-		_fail("Full-health Recover should remain clamped at exactly 360 HP")
-	_assert_recover_copy(heal_choice, "+60", "360 → 360")
+	button.grab_focus()
+	await _settle()
+	if not button.has_focus():
+		_fail("Recover button should accept visible keyboard/controller focus")
+	await _save_root_screenshot(output_path, resolution)
+	button.release_focus()
+	await _settle()
 
-func _assert_recover_copy(heal_choice: PanelContainer, amount_text: String, projection_text: String) -> void:
-	var labels: Array[Label] = _labels_under(heal_choice)
-	if labels.size() != 2:
-		_fail("Recover should contain only amount and HP projection labels")
-	if _label_with_text(heal_choice, amount_text) == null:
-		_fail("Recover should prominently show %s" % amount_text)
-	if _label_with_text(heal_choice, projection_text) == null:
-		_fail("Recover should show exact clamped values %s" % projection_text)
-	if not heal_choice.tooltip_text.is_empty():
-		_fail("Recover should not relocate explanatory copy into a tooltip")
+func _capture_relic_focus(choice: Control, output_path: String, resolution: Vector2i) -> void:
+	if choice == null:
+		_fail("Missing middle relic for focus proof")
+		return
+	choice.grab_focus()
+	await _settle()
+	if (
+		not choice.has_focus()
+		or not bool(choice.get_meta("relic_keyboard_focused", false))
+		or choice.z_index != 40
+	):
+		_fail("Focused relic should use the same visible emphasis as pointer hover")
+	await _save_root_screenshot(output_path, resolution)
+	choice.release_focus()
+	root.gui_release_focus()
+	await _settle()
 
-func _save_root_screenshot(output_path: String, instance: Node, resolution: Vector2i) -> void:
+func _assert_badge_text(badge: Control, expected: String, label: String) -> void:
+	if _label_with_text(badge, expected) == null:
+		_fail("%s reward badge should read %s" % [label, expected])
+
+func _save_root_screenshot(output_path: String, resolution: Vector2i) -> void:
 	RenderingServer.force_draw(true, 0.0)
 	await process_frame
 	RenderingServer.force_draw(true, 0.0)
 	var image: Image = root.get_viewport().get_texture().get_image()
-	_assert_screenshot_regions(instance, image)
 	if image.get_size() != resolution:
+		# macOS exposes the Retina backing texture even though content_scale_size is
+		# the requested proof viewport. Preserve that real Metal render and
+		# downsample it to the exact review resolution.
 		image.resize(resolution.x, resolution.y, Image.INTERPOLATE_LANCZOS)
 	var error: Error = image.save_png(output_path)
 	if error != OK:
 		_fail("Failed to save screenshot: %s" % output_path)
 
-func _assert_screenshot_regions(instance: Node, image: Image) -> void:
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	for child: Node in hand_box.get_children():
-		var slot: Control = child as Control
-		if slot == null:
-			continue
-		var card_id: String = str(slot.get_meta("reward_card_id", ""))
-		if card_id.is_empty():
-			continue
-		var card_widget: Control = slot.find_child("CardWidget", true, false) as Control
-		var badge: Control = slot.find_child("RewardOwnershipBadge", true, false) as Control
-		if not _image_region_has_content(image, card_widget, 0.10):
-			_fail("Captured framebuffer is missing card pixels for %s" % card_id)
-		if not _image_region_has_content(image, badge, 0.035):
-			_fail("Captured framebuffer is missing ownership badge pixels for %s" % card_id)
-	var heal_choice: Control = instance.find_child("RewardHealChoice", true, false) as Control
-	if not _image_region_has_content(image, heal_choice, 0.08):
-		_fail("Captured framebuffer is missing Recover pixels")
-
-func _image_region_has_content(image: Image, control: Control, minimum_ratio: float) -> bool:
-	if image == null or image.is_empty() or control == null:
-		return false
-	var viewport_size: Vector2 = root.get_viewport().get_visible_rect().size
-	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
-		return false
-	var image_scale := Vector2(float(image.get_width()) / viewport_size.x, float(image.get_height()) / viewport_size.y)
-	var rect: Rect2 = control.get_global_rect()
-	var left: int = clampi(int(floor(rect.position.x * image_scale.x)), 0, image.get_width() - 1)
-	var top: int = clampi(int(floor(rect.position.y * image_scale.y)), 0, image.get_height() - 1)
-	var right: int = clampi(int(ceil(rect.end.x * image_scale.x)), left + 1, image.get_width())
-	var bottom: int = clampi(int(ceil(rect.end.y * image_scale.y)), top + 1, image.get_height())
-	var step: int = maxi(1, mini(right - left, bottom - top) / 28)
-	var samples: int = 0
-	var content: int = 0
-	for y: int in range(top, bottom, step):
-		for x: int in range(left, right, step):
-			var pixel: Color = image.get_pixel(x, y)
-			samples += 1
-			if maxf(pixel.r, maxf(pixel.g, pixel.b)) >= 0.08:
-				content += 1
-	return samples > 0 and float(content) / float(samples) >= minimum_ratio
+func _first_room_coord_of_type(engine: RunEngine, state: Dictionary, room_type: String) -> Vector2i:
+	for radius: int in range(1, 9):
+		for x: int in range(-radius, radius + 1):
+			for y: int in range(-radius, radius + 1):
+				var coord := Vector2i(x, y)
+				if maxi(absi(x), absi(y)) != radius:
+					continue
+				if str(engine.room_metadata(state, coord).get("type", "")) == room_type:
+					return coord
+	return Vector2i.ZERO
 
 func _labels_under(node: Node) -> Array[Label]:
 	var labels: Array[Label] = []
@@ -373,14 +441,6 @@ func _label_with_text(node: Node, text: String) -> Label:
 		if label.text == text:
 			return label
 	return null
-
-func _control_descendants_ignore_mouse(node: Node) -> bool:
-	for child: Node in node.get_children():
-		if child is Control and (child as Control).mouse_filter != Control.MOUSE_FILTER_IGNORE:
-			return false
-		if not _control_descendants_ignore_mouse(child):
-			return false
-	return true
 
 func _settle() -> void:
 	await process_frame
@@ -399,10 +459,11 @@ func _clear_probe_output(output_dir: String) -> void:
 	directory.list_dir_begin()
 	var file_name: String = directory.get_next()
 	while not file_name.is_empty():
+		var child_path: String = absolute_dir.path_join(file_name)
 		if directory.current_is_dir():
 			_clear_probe_output("%s/%s" % [output_dir, file_name])
-			directory.remove(file_name)
+			DirAccess.remove_absolute(child_path)
 		else:
-			directory.remove(file_name)
+			DirAccess.remove_absolute(child_path)
 		file_name = directory.get_next()
 	directory.list_dir_end()

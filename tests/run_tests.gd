@@ -21,6 +21,7 @@ const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const RelicSuite = preload("res://tests/suites/relic_suite.gd")
 const ElementalIntensitySuite = preload("res://tests/suites/elemental_intensity_suite.gd")
 const BalancePacingSuite = preload("res://tests/suites/balance_pacing_suite.gd")
+const LethalPreviewSuite = preload("res://tests/suites/lethal_preview_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -72,6 +73,7 @@ func _initialize() -> void:
 	RelicSuite.run(Callable(self, "_assert"))
 	ElementalIntensitySuite.run(Callable(self, "_assert"))
 	BalancePacingSuite.run(Callable(self, "_assert"))
+	LethalPreviewSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
@@ -300,7 +302,7 @@ func _initialize() -> void:
 	await _test_run_scene_combat_interaction_context_paths()
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
-	await _test_run_scene_reward_heal_choice_sits_with_cards()
+	await _test_run_scene_reward_heal_choice_sits_below_cards()
 	await _test_run_scene_reward_acquisition_is_single_choice()
 	await _test_run_scene_reward_decision_support_matches_claims()
 	await _test_run_scene_selection_prompts_clear_after_pick()
@@ -8951,7 +8953,7 @@ func _test_run_scene_ready_wave_marks_only_playable_hand_cards() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
+func _test_run_scene_reward_heal_choice_sits_below_cards() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
 		_failures.append("Run scene should load for reward heal-choice coverage")
@@ -8969,33 +8971,28 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 		"ember_amount": 0
 	}
 	instance.set("_run_state", run_state)
-	instance.call("_refresh_choice_bar")
-	instance.call("_refresh_hand_panel")
-	instance.call("_refresh_visibility")
+	instance.call("_refresh_ui")
+	await process_frame
 	await process_frame
 	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	_assert(not choice_bar.visible and choice_bar.get_child_count() == 0, "Reward heal choice should not appear in the combat choice bar")
-	var heal_slot: Node = hand_box.get_child(3) if hand_box.get_child_count() >= 4 else null
-	var heal_choice: PanelContainer = null
-	if heal_slot != null:
-		heal_choice = heal_slot.find_child("RewardHealChoice", true, false) as PanelContainer
-	_assert(heal_choice != null, "Reward heal choice should render as a card-like tile beside the offered cards")
-	if heal_choice != null:
-		_assert(int(heal_choice.get_meta("reward_heal_amount", 0)) == RunEngine.REWARD_HEAL, "Reward heal tile should keep the offered heal amount")
-		_assert(int(heal_choice.get_meta("reward_heal_current_hp", 0)) == 12, "Reward heal tile should keep current health context")
-		_assert(int(heal_choice.get_meta("reward_heal_result_hp", 0)) == 15, "Reward heal tile should show the capped post-claim health result")
-		_assert(int(heal_choice.get_meta("reward_heal_effective", 0)) == RunEngine.REWARD_HEAL, "Injured Recover should show its effective healing")
-		_assert(int(heal_choice.get_meta("reward_heal_wasted", -1)) == 0, "Injured Recover should not report wasted healing when the full amount fits")
-		_assert(heal_choice.mouse_filter == Control.MOUSE_FILTER_STOP, "Reward heal tile should receive clicks directly")
-		_assert(heal_choice.tooltip_text.is_empty(), "Recover should not hide explanatory reward copy in a tooltip")
-		_assert(_button_with_text(hand_box, "+%d" % RunEngine.REWARD_HEAL) == null, "Reward heal choice should not render as a floating button over the cards")
-		_assert(_label_with_text(heal_choice, "+%d" % RunEngine.REWARD_HEAL) != null, "Recover should prominently show the offered heal value")
-		_assert(_label_with_text(heal_choice, "12 → 15") != null, "Recover should show exact current-to-clamped HP values")
-		var heal_labels: Array[Label] = _labels_under(heal_choice)
-		_assert(heal_labels.size() == 2, "Recover should contain only the amount and HP projection text")
-		_assert(heal_slot != null and heal_slot.get_parent() == hand_box, "Reward heal choice should be parented as a hand choice slot")
-		_assert(hand_box.get_child_count() == 4 and hand_box.get_child(3) == heal_slot, "Reward heal choice should sit immediately to the right of the offered cards")
+	var card_row: HBoxContainer = instance.find_child("RewardCardRow", true, false) as HBoxContainer
+	var recover_button: Button = instance.find_child("RewardRecoverButton", true, false) as Button
+	_assert(not choice_bar.visible and choice_bar.get_child_count() == 0, "Reward healing should not appear in the combat choice bar")
+	_assert(hand_box.get_child_count() == 0 and not hand_box.is_visible_in_tree(), "Reward choices should not reuse the combat hand row")
+	_assert(card_row != null and card_row.get_child_count() == 3, "Reward presentation should preserve the canonical three-card offer")
+	_assert(recover_button != null, "Reward healing should render as the secondary Skip and Recover button")
+	if card_row != null and recover_button != null:
+		_assert(recover_button.get_global_rect().position.y >= card_row.get_global_rect().end.y, "Skip and Recover should sit beneath the card offer")
+		_assert(recover_button.get_global_rect().size.x < card_row.get_global_rect().size.x, "Skip and Recover should remain subordinate to the card row")
+		_assert(int(recover_button.get_meta("reward_heal_amount", 0)) == RunEngine.REWARD_HEAL, "Recover should keep the offered heal amount")
+		_assert(int(recover_button.get_meta("reward_heal_current_hp", 0)) == 12, "Recover should keep current health context")
+		_assert(int(recover_button.get_meta("reward_heal_result_hp", 0)) == 15, "Recover should show the capped post-claim health result")
+		_assert(int(recover_button.get_meta("reward_heal_effective", 0)) == RunEngine.REWARD_HEAL, "Injured Recover should show its effective healing")
+		_assert(int(recover_button.get_meta("reward_heal_wasted", -1)) == 0, "Injured Recover should not report wasted healing when the full amount fits")
+		_assert(recover_button.text.contains("SKIP & RECOVER"), "Recover should explicitly communicate that every card is skipped")
+		_assert(recover_button.text.contains("+%d HP" % RunEngine.REWARD_HEAL), "Recover should show the offered healing")
+		_assert(recover_button.text.contains("12 → 15"), "Recover should show exact current-to-clamped HP values")
 	instance.queue_free()
 	await process_frame
 
@@ -9017,18 +9014,21 @@ func _test_run_scene_reward_acquisition_is_single_choice() -> void:
 		"ember_amount": 0
 	}
 	instance.set("_run_state", reward_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
 	instance.set("_loadout_acquisition_in_progress", true)
 	instance.set("_animation_lock", true)
 	instance.call("_on_skip_reward_pressed")
 	var locked_state: Dictionary = instance.get("_run_state")
 	_assert(str(locked_state.get("mode", "")) == "reward", "Recover should not resolve while a reward-card acquisition animation owns the choice")
 	_assert(int(locked_state.get("player_hp", 0)) == 12, "A blocked Recover click should not heal during reward-card acquisition")
-	var click := InputEventMouseButton.new()
-	click.button_index = MOUSE_BUTTON_LEFT
-	click.pressed = true
-	instance.call("_on_reward_heal_choice_gui_input", click)
+	var recover_button: Button = instance.find_child("RewardRecoverButton", true, false) as Button
+	_assert(recover_button != null, "Reward composition should expose Recover as a button")
+	if recover_button != null:
+		recover_button.pressed.emit()
 	locked_state = instance.get("_run_state")
-	_assert(str(locked_state.get("mode", "")) == "reward", "The Recover tile input path should also stay blocked during reward-card acquisition")
+	_assert(str(locked_state.get("mode", "")) == "reward", "The Recover button input path should also stay blocked during reward-card acquisition")
 	instance.call("_on_reward_card_pressed", "frostbolt")
 	locked_state = instance.get("_run_state")
 	_assert(not (locked_state.get("magic_inventory", []) as Array).has("frostbolt"), "A second reward card should not resolve while another acquisition owns the choice")
@@ -9059,21 +9059,30 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	open_state["magic_inventory"] = ["spark_dart"]
 	open_state["reward_cards"] = ["spark_dart"]
 	open_state["pending_reward"] = {
-		"cards": ["spark_dart", "frostbolt", "firebrand_volley", "threaded_path"],
+		"cards": ["spark_dart", "frostbolt", "firebrand_volley"],
 		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
 	instance.set("_run_state", open_state)
-	instance.call("_refresh_choice_bar")
-	instance.call("_refresh_hand_panel")
-	instance.call("_refresh_visibility")
+	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
+	var reward_stack: VBoxContainer = instance.find_child("RewardChoiceStack", true, false) as VBoxContainer
+	var card_row: HBoxContainer = instance.find_child("RewardCardRow", true, false) as HBoxContainer
+	var recover_button: Button = instance.find_child("RewardRecoverButton", true, false) as Button
+	var selection_backdrop: ColorRect = instance.find_child("SelectionBackdrop", true, false) as ColorRect
+	var selection_banner: Control = instance.find_child("SelectionBanner", true, false) as Control
+	var hand_row: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow") as Control
+	_assert(reward_stack != null and reward_stack.is_visible_in_tree(), "Reward cards and secondary actions should share one centered stage stack")
+	_assert(card_row != null and card_row.get_child_count() == 3, "A normal post-combat reward should show exactly three card choices")
+	_assert(recover_button != null and recover_button.get_parent().name == "RewardSecondaryActions", "Recover should be a subordinate button beneath the card row")
+	_assert(selection_backdrop != null and selection_backdrop.visible and selection_backdrop.color.a >= 0.60, "Card rewards should dim the room behind the decision")
+	_assert(selection_banner != null and selection_banner.visible, "Card rewards should put their instruction text on a foreground banner")
+	_assert(hand_row != null and not hand_row.visible, "Post-combat rewards should not reuse the combat hand strip")
 	var owned_slot: Control = null
 	var new_slot: Control = null
-	for slot_var: Node in hand_box.get_children():
+	var reward_slots: Array = card_row.get_children() if card_row != null else []
+	for slot_var: Node in reward_slots:
 		var slot: Control = slot_var as Control
 		if slot == null:
 			continue
@@ -9082,13 +9091,21 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 				owned_slot = slot
 			"frostbolt":
 				new_slot = slot
-	_assert(hand_box.get_child_count() == 5, "Four reward cards plus Recover should remain in the five-choice row")
 	_assert(owned_slot != null and str(owned_slot.get_meta("reward_status", "")) == "owned", "Already-owned reward magic should carry Owned status")
 	_assert(owned_slot != null and _label_with_text(owned_slot, "OWNED") != null, "Owned status should be visible on its reward card")
 	_assert(new_slot != null and str(new_slot.get_meta("reward_status", "")) == "new", "Unowned reward magic should display New")
 	_assert(new_slot != null and _label_with_text(new_slot, "NEW") != null, "New status should be visible on its reward card")
 	_assert(instance.find_child("RewardAttunementContext", true, false) == null, "Reward choices should not render attunement/loadout capacity copy")
 	_assert(instance.find_child("RewardDestinationBadge", true, false) == null, "Reward cards should not render destination copy")
+	_assert(recover_button != null and recover_button.text.contains("SKIP & RECOVER"), "The secondary health action should make its skip consequence explicit")
+	_assert(recover_button != null and recover_button.text.contains("+%d HP" % RunEngine.REWARD_HEAL), "Recover should show the exact offered healing in its button label")
+	_assert(recover_button != null and recover_button.text.contains("12 → 15"), "Recover should show the clamped HP projection in its button label")
+	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_result_hp", -1)) == 15, "Recover metadata should match the visible HP projection")
+	if card_row != null and card_row.get_child_count() > 0:
+		var first_card: Control = (card_row.get_child(0) as Control).find_child("CardWidget", true, false) as Control
+		_assert(first_card != null and first_card.focus_mode == Control.FOCUS_ALL, "Reward cards should be keyboard/controller focusable")
+		_assert(first_card != null and first_card.focus_neighbor_bottom != NodePath(), "Reward card focus should navigate down to the secondary action")
+		_assert(recover_button != null and recover_button.focus_neighbor_top != NodePath(), "Recover focus should navigate back to the card row")
 	var open_claimed: Dictionary = engine.claim_card_reward(open_state, "frostbolt")
 	_assert((open_claimed.get("magic_inventory", []) as Array).count("frostbolt") == 1, "Actual open-capacity claim should add the displayed card to reserve")
 	_assert(not (open_claimed.get("attuned_magic_cards", []) as Array).has("frostbolt"), "Actual open-capacity claim should not imply the reward became active")
@@ -9101,38 +9118,37 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	full_state["magic_inventory"] = ["spark_dart"]
 	full_state["reward_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "threaded_path", "stone_plate"]
 	full_state["pending_reward"] = {
-		"cards": ["spark_dart", "white_silence", "wildfire_halo", "royal_bramble"],
+		"cards": ["spark_dart", "white_silence", "wildfire_halo"],
 		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
 	instance.set("_run_state", full_state)
-	instance.call("_refresh_choice_bar")
-	instance.call("_refresh_hand_panel")
-	instance.call("_refresh_visibility")
+	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var heal_choice: PanelContainer = hand_box.find_child("RewardHealChoice", true, false) as PanelContainer
-	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_result_hp", -1)) == 24, "Full-health Recover should show unchanged capped health")
-	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_effective", -1)) == 0, "Full-health Recover should show zero effective healing")
-	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_wasted", -1)) == RunEngine.REWARD_HEAL, "Full-health Recover should retain accurate clamping metadata")
-	_assert(heal_choice != null and _label_with_text(heal_choice, "+%d" % RunEngine.REWARD_HEAL) != null, "Full-health Recover should still show the offered value")
-	_assert(heal_choice != null and _label_with_text(heal_choice, "24 → 24") != null, "Full-health Recover should concisely show unchanged clamped HP")
-	_assert(heal_choice != null and _labels_under(heal_choice).size() == 2, "Full-health Recover should not add prose about capped healing")
+	recover_button = instance.find_child("RewardRecoverButton", true, false) as Button
+	card_row = instance.find_child("RewardCardRow", true, false) as HBoxContainer
+	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_result_hp", -1)) == 24, "Full-health Recover should show unchanged capped health")
+	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_effective", -1)) == 0, "Full-health Recover should show zero effective healing")
+	_assert(recover_button != null and int(recover_button.get_meta("reward_heal_wasted", -1)) == RunEngine.REWARD_HEAL, "Full-health Recover should retain accurate clamping metadata")
+	_assert(recover_button != null and recover_button.text.contains("+%d HP" % RunEngine.REWARD_HEAL), "Full-health Recover should still show the offered value")
+	_assert(recover_button != null and recover_button.text.contains("24 → 24"), "Full-health Recover should concisely show unchanged clamped HP")
 	var healed_full: Dictionary = engine.skip_reward_for_heal(full_state)
-	var displayed_full_result: int = int(heal_choice.get_meta("reward_heal_result_hp", -2)) if heal_choice != null else -2
+	var displayed_full_result: int = int(recover_button.get_meta("reward_heal_result_hp", -2)) if recover_button != null else -2
 	_assert(int(healed_full.get("player_hp", -1)) == displayed_full_result, "Displayed full-health Recover result should match the actual claim result")
 	var full_claimed: Dictionary = engine.claim_card_reward(full_state, "white_silence")
 	_assert((full_claimed.get("magic_inventory", []) as Array).has("white_silence"), "Actual full-attunement claim should add the displayed card to reserve")
 	_assert((full_claimed.get("attuned_magic_cards", []) as Array) == (full_state.get("attuned_magic_cards", []) as Array), "Actual full-attunement claim should leave active magic unchanged")
 	var visible_reward_card_widgets: int = 0
-	for slot_var: Node in hand_box.get_children():
+	reward_slots = card_row.get_children() if card_row != null else []
+	for slot_var: Node in reward_slots:
 		var slot: Control = slot_var as Control
 		if slot == null or str(slot.get_meta("reward_card_id", "")).is_empty():
 			continue
 		var card_widget: Control = slot.find_child("CardWidget", true, false) as Control
 		var ownership_badge: Control = slot.find_child("RewardOwnershipBadge", true, false) as Control
 		var card_widget_visible: bool = card_widget != null and card_widget.is_visible_in_tree() and card_widget.modulate.a > 0.1 and card_widget.get_global_rect().size.x > 1.0
-		_assert(card_widget_visible, "Each of the four reward choices should contain a visibly rendered card widget")
+		_assert(card_widget_visible, "Each reward choice should contain a visibly rendered card widget")
 		if card_widget_visible:
 			visible_reward_card_widgets += 1
 		_assert(ownership_badge != null and ownership_badge.is_visible_in_tree() and card_widget != null and card_widget.get_global_rect().encloses(ownership_badge.get_global_rect()), "Each reward card should visibly contain its ownership badge")
@@ -9165,16 +9181,16 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 		card_widget.mouse_exited.emit()
 		await create_timer(0.15).timeout
 		_assert(card_widget.z_index == 0 and card_widget.get_global_rect().is_equal_approx(initial_card_rect) and ownership_badge.get_global_rect().is_equal_approx(initial_badge_rect), "Ownership badge should return exactly with its card")
-	_assert(visible_reward_card_widgets == 4, "All four reward card widgets should be visibly rendered in the five-choice row")
-	if hand_box.get_child_count() == 5:
-		var scroll_rect: Rect2 = hand_scroll.get_global_rect()
-		var first_rect: Rect2 = (hand_box.get_child(0) as Control).get_global_rect()
-		var last_rect: Rect2 = (hand_box.get_child(hand_box.get_child_count() - 1) as Control).get_global_rect()
-		_assert(first_rect.position.x >= scroll_rect.position.x - 1.0 and last_rect.end.x <= scroll_rect.end.x + 1.0, "All five reward choices should fit inside the reference hand viewport without overflow")
-		for slot_var: Node in hand_box.get_children():
+	_assert(visible_reward_card_widgets == 3, "All three reward card widgets should be visibly rendered in the centered offer row")
+	if card_row != null and card_row.get_child_count() == 3:
+		var first_rect: Rect2 = (card_row.get_child(0) as Control).get_global_rect()
+		var last_rect: Rect2 = (card_row.get_child(card_row.get_child_count() - 1) as Control).get_global_rect()
+		var stage_rect: Rect2 = (instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot") as Control).get_global_rect()
+		_assert(stage_rect.encloses(first_rect) and stage_rect.encloses(last_rect), "The full reward row should fit inside the stage without clipping")
+		for slot_var: Node in card_row.get_children():
 			var slot: Control = slot_var as Control
 			if slot != null:
-				_assert(absf(slot.get_global_rect().position.y - first_rect.position.y) <= 1.0, "All five reward choices should remain vertically aligned")
+				_assert(absf(slot.get_global_rect().position.y - first_rect.position.y) <= 1.0, "The three card choices should remain vertically aligned")
 	instance.set("_run_state", open_state.duplicate(true))
 	instance.call("_on_reward_card_pressed", "frostbolt")
 	await process_frame
@@ -9205,28 +9221,19 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	var prompt_overlay: Control = instance.get("_relic_choice_overlay") as Control
 	var prompt_title: Label = instance.get("_relic_choice_title") as Label
 	var prompt_effect: Control = instance.get("_relic_choice_title_effect") as Control
-	var shimmer_label: RichTextLabel = null
-	if prompt_effect != null:
-		shimmer_label = prompt_effect.get_node_or_null("TreasureTitleShimmer") as RichTextLabel
+	var prompt_banner: TextureRect = instance.get("_relic_choice_banner") as TextureRect
 	_assert(prompt_overlay != null and prompt_overlay.visible, "Card reward selection should show the shared stage prompt overlay")
 	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "GROW YOUR POWER", "Card reward selection should use the Grow your power prompt")
-	_assert(prompt_effect != null and prompt_effect.visible and prompt_effect.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Card reward prompt should include a non-interactive animated depth layer")
-	_assert(shimmer_label != null and shimmer_label.bbcode_enabled and shimmer_label.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Card reward prompt should include a non-interactive glyph shimmer layer")
-	if prompt_effect != null and shimmer_label != null:
-		prompt_effect.set("phase", 0.0)
-		prompt_effect.call("_animate_labels")
-		var shimmer_start: String = shimmer_label.text
-		prompt_effect.set("phase", 1.15)
-		prompt_effect.call("_animate_labels")
-		_assert(shimmer_label.text != shimmer_start, "Selection prompt shimmer should advance across the title glyphs over time")
+	_assert(prompt_banner != null and prompt_banner.visible and prompt_banner.texture != null and prompt_banner.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Card reward instruction should sit on a non-interactive raster banner")
+	_assert(prompt_effect == null or not prompt_effect.visible, "Card reward prompt should not retain the oversized animated title effect")
 	if prompt_title != null:
-		_assert(prompt_title.get_theme_constant("outline_size") >= 9, "Selection prompt title should keep a heavy outline for depth")
-		_assert(prompt_title.has_theme_color_override("font_shadow_color") and prompt_title.get_theme_constant("shadow_offset_y") >= 7, "Selection prompt title should keep a visible drop shadow")
+		_assert(prompt_title.get_theme_font_size("font_size") <= 32, "Selection prompt should use normal banner text rather than oversized display type")
+		_assert(prompt_title.get_theme_constant("outline_size") <= 2, "Selection prompt text should use only a restrained readability outline")
 	instance.call("_on_reward_card_pressed", "quick_stab")
 	await process_frame
 	_assert(prompt_overlay != null and not prompt_overlay.visible, "Card reward prompt should clear after picking a reward")
 	_assert(prompt_title != null and not prompt_title.visible, "Card reward title should hide after picking a reward")
-	_assert(prompt_effect != null and not prompt_effect.visible, "Card reward title effect should hide after picking a reward")
+	_assert(prompt_banner != null and not prompt_banner.visible, "Card reward banner should hide after picking a reward")
 
 	run_state = instance.get("_run_state")
 	run_state["mode"] = "treasure"
@@ -9235,10 +9242,8 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	instance.call("_refresh_choice_bar")
 	_assert(prompt_overlay != null and prompt_overlay.visible, "Relic selection should show the shared stage prompt overlay")
 	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "CLAIM YOUR TREASURE", "Relic selection should keep the treasure prompt")
-	_assert(prompt_effect != null and prompt_effect.visible, "Relic selection should keep the animated prompt depth layer visible")
-	if prompt_effect != null:
-		shimmer_label = prompt_effect.get_node_or_null("TreasureTitleShimmer") as RichTextLabel
-	_assert(shimmer_label != null and shimmer_label.get_parsed_text() == "CLAIM YOUR TREASURE", "Relic selection should route the treasure prompt through the glyph shimmer layer")
+	_assert(prompt_banner != null and prompt_banner.visible, "Relic selection should share the centered instruction banner")
+	_assert(prompt_effect == null or not prompt_effect.visible, "Relic selection should use the raster banner without an animated text layer")
 	var relic_choice_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
 	var first_relic_choice: Control = null
 	if relic_choice_bar != null and relic_choice_bar.get_child_count() > 0:
@@ -9254,6 +9259,16 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	await process_frame
 	_assert(prompt_overlay != null and not prompt_overlay.visible, "Relic prompt should clear after picking a relic")
 	_assert(prompt_title != null and not prompt_title.visible, "Relic title should hide after picking a relic")
+	_assert(prompt_banner != null and not prompt_banner.visible, "Relic instruction banner should hide after picking a relic")
+
+	run_state = instance.get("_run_state")
+	run_state["mode"] = "room"
+	instance.set("_run_state", run_state)
+	instance.call("_set_relic_choice_title", "BLACKSMITH")
+	_assert(prompt_banner != null and not prompt_banner.visible, "Reward raster banner should not leak into merchant titles")
+	_assert(prompt_effect != null and prompt_effect.visible, "Merchant titles should retain their prior animated treatment")
+	if prompt_title != null:
+		_assert(prompt_title.get_theme_font_size("font_size") > 32, "Merchant title typography should remain independent from restrained reward-banner text")
 
 	instance.queue_free()
 	await process_frame

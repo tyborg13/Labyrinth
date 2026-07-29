@@ -456,6 +456,7 @@ var _left_pressed: bool = false
 var _drag_emitted: bool = false
 var _press_position: Vector2 = Vector2.ZERO
 var _local_hovered: bool = false
+var _external_highlighted: bool = false
 var _hover_lift: float = HOVER_LIFT
 var _hover_scale: float = HOVER_SCALE
 var _pose_tween: Tween
@@ -600,8 +601,16 @@ func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = 
 func set_hover_pose(next_lift: float, next_scale: float) -> void:
 	_hover_lift = clampf(next_lift, -40.0, 0.0)
 	_hover_scale = clampf(next_scale, 1.0, 1.20)
-	if is_node_ready() and _local_hovered:
+	if is_node_ready() and (_local_hovered or _external_highlighted):
 		_update_pose()
+
+func set_external_highlighted(highlighted: bool) -> void:
+	if _external_highlighted == highlighted:
+		return
+	_external_highlighted = highlighted
+	if _time_badge != null:
+		_time_badge.set_hovered(_local_hovered or _external_highlighted)
+	_update_pose()
 
 func _apply_configuration() -> void:
 	if not is_node_ready():
@@ -1391,7 +1400,7 @@ func _on_local_mouse_entered() -> void:
 func _on_local_mouse_exited() -> void:
 	_local_hovered = false
 	if _time_badge != null:
-		_time_badge.set_hovered(false)
+		_time_badge.set_hovered(_external_highlighted)
 	_update_pose()
 
 func play_ready_wave(delay_seconds: float = 0.0) -> void:
@@ -1497,7 +1506,7 @@ func _update_pose(immediate: bool = false) -> void:
 func _pose_target() -> Dictionary:
 	var lift: float = 0.0
 	var target_scale: Vector2 = Vector2.ONE
-	if _local_hovered and _interactive and not _dimmed:
+	if (_local_hovered or _external_highlighted) and _interactive and not _dimmed:
 		lift = _hover_lift
 		target_scale = Vector2.ONE * _hover_scale
 	elif _selected or _previewed:
