@@ -58,7 +58,7 @@
   "coffin_nails": {
     "name": "Coffin Nails",
     "rarity": "common",
-    "description": "While you have block, your attacks inflict +{amount} bleed.",
+    "description": "While you have block, attacks on your cards inflict +{amount} bleed.",
     "icon_path": "res://assets/art/relics/coffin_nails.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -314,7 +314,7 @@
   "vaulting_sigil": {
     "name": "Vaulting Sigil",
     "rarity": "epic",
-    "description": "The first time you move {threshold}+ tiles each turn, gain {0.reward0.amount} card play and {0.reward1.amount} block.",
+    "description": "The first time you move or blink {threshold}+ tiles each turn, gain {0.reward0.amount} card play and {0.reward1.amount} block.",
     "icon_path": "res://assets/art/relics/vaulting_sigil.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -387,7 +387,7 @@
   "cinderbrand_tongs": {
     "name": "Cinderbrand Tongs",
     "rarity": "common",
-    "description": "The first Burn you apply each turn raises Fire intensity by {0.amount}. If that reaches {1.threshold}, consume {1.consume} Fire, deal {1.reward0.amount} damage to all enemies, and Burn them for {1.reward1.amount}.",
+    "description": "The first Burn you apply each turn raises Fire intensity by {0.amount}. Once each turn, when Fire intensity reaches {1.threshold}+, consume {1.consume} Fire, deal {1.reward0.amount} damage to all enemies, and Burn them for {1.reward1.amount}.",
     "icon_path": "res://assets/art/relics/cinderbrand_tongs.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -402,7 +402,7 @@
   "rimecatcher_vial": {
     "name": "Rimecatcher Vial",
     "rarity": "common",
-    "description": "The first Freeze you apply each turn raises Ice intensity by {0.amount}. If that reaches {1.threshold}, consume {1.consume} Ice and gain {1.reward0.amount} block.",
+    "description": "The first Freeze you apply each turn raises Ice intensity by {0.amount}. Once each turn, when Ice intensity reaches {1.threshold}+, consume {1.consume} Ice and gain {1.reward0.amount} block.",
     "icon_path": "res://assets/art/relics/rimecatcher_vial.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -417,7 +417,7 @@
   "ion_spool": {
     "name": "Ion Spool",
     "rarity": "common",
-    "description": "The first Shock you apply each turn raises Lightning intensity by {0.amount}. If that reaches {1.threshold}, consume {1.consume} Lightning and deal {1.reward0.amount} damage to all enemies.",
+    "description": "The first Shock you apply each turn raises Lightning intensity by {0.amount}. Once each turn, when Lightning intensity reaches {1.threshold}+, consume {1.consume} Lightning and deal {1.reward0.amount} damage to all enemies.",
     "icon_path": "res://assets/art/relics/ion_spool.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -432,7 +432,7 @@
   "updraft_bottle": {
     "name": "Updraft Bottle",
     "rarity": "rare",
-    "description": "Your first Blink each turn raises Air intensity by {0.amount}. If that reaches {1.threshold}, consume {1.consume} Air, draw {1.reward0.amount}, and gain {1.reward1.amount} card play.",
+    "description": "Your first Blink each turn raises Air intensity by {0.amount}. Once each turn, when Air intensity reaches {1.threshold}+, consume {1.consume} Air, draw {1.reward0.amount}, and gain {1.reward1.amount} card play.",
     "icon_path": "res://assets/art/relics/updraft_bottle.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -447,7 +447,7 @@
   "basalt_calendar": {
     "name": "Basalt Calendar",
     "rarity": "rare",
-    "description": "Start combat with +1 Earth intensity for every {cards_per_point} Earth cards in your deck, up to +{max_value}.",
+    "description": "Once per combat, after you play your first Earth card, gain 1 stoneskin per Earth card in your deck, up to {0.reward0.max_value}; then gain 1 Earth intensity per {0.reward1.cards_per_point} Earth cards, up to {0.reward1.max_value}.",
     "icon_path": "res://assets/art/relics/basalt_calendar.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -455,7 +455,7 @@
     "upside_tier": 2,
     "build_tags": ["earth", "deck_scaling"],
     "effects": [
-      {"type": "start_combat_intensity_per_deck_element", "element": "earth", "deck_element": "earth", "cards_per_point": 3, "max_value": 2}
+      {"type": "card_play_reward", "element": "earth", "once": "combat", "rewards": [{"type": "stoneskin_per_deck_element", "deck_element": "earth", "value": 1, "max_value": 6}, {"type": "intensity_per_deck_element", "element": "earth", "deck_element": "earth", "cards_per_point": 3, "max_value": 2}]}
     ]
   },
   "coalheart_crucible": {
@@ -517,7 +517,7 @@
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "When all {required_elements} elements reach {threshold}+ intensity, consume {consume} from each, deal {0.reward0.amount} to all enemies, gain {0.reward1.amount} stoneskin, draw {0.reward2.amount}, and gain {0.reward3.amount} card plays.",
+    "description": "Once per combat, when all {required_elements} elements reach {threshold}+ intensity, consume {consume} from each, deal {0.reward0.amount} to all enemies, gain {0.reward1.amount} stoneskin, draw {0.reward2.amount}, and gain {0.reward3.amount} card plays.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "design_version": 2,
@@ -643,7 +643,7 @@
   "fivefold_knot": {
     "name": "Fivefold Knot",
     "rarity": "legendary",
-    "description": "After you play all {unique_elements_threshold} elements in one turn, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
+    "description": "Once per combat, after you play all {unique_elements_threshold} elements in one turn, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
     "icon_path": "res://assets/art/relics/fivefold_knot.png",
     "accent": "#d9862f",
     "design_version": 2,

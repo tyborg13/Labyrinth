@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-28T22:04:09Z",
+  "updated_at": "2026-07-29T20:03:33Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6556,6 +6556,28 @@
       "source": {
         "branch": "codex/recompose-card-and-relic-reward-screens-after-slay-the-spire-reference",
         "commit": "20096b6"
+      }
+    },
+    {
+      "id": "mnt_20260729T200333Z_ffcffdd0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "_trigger_card_play_relics,_trigger_status_relics,_grant_relic_card_plays"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#_trigger_card_play_relics,_trigger_status_relics,_grant_relic_card_plays",
+      "summary": "Relic event conditions use snapshots and off-turn plays carry forward",
+      "details": "For one card-play or status event, evaluate qualifying relic conditions from a shared post-action/post-intensity snapshot before applying same-event rewards, so acquisition order cannot create conditions. Relic card-play rewards earned off the player turn or while player_turn_ending is true accumulate in pending_relic_card_plays and transfer exactly once in prepare_next_player_turn.",
+      "status": "active",
+      "created_at": "2026-07-29T20:03:33Z",
+      "updated_at": "2026-07-29T20:03:33Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/rework-all-relics-and-add-ten-synergy-relics",
+        "commit": "9be0850"
       }
     }
   ]

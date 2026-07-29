@@ -40,7 +40,6 @@ const SUPPORTED_EFFECT_TYPES := [
 	"opening_draw_bonus",
 	"overheal_to_stoneskin",
 	"player_state_action_mod",
-	"start_combat_intensity_per_deck_element",
 	"start_combat_stoneskin_per_deck_element",
 	"status_count_reward",
 	"status_intensity_gain",
@@ -170,6 +169,22 @@ static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 	for index: int in range(3):
 		funeral_state = combat.call("_trigger_enemy_death_relics", funeral_state, {"burn": 1, "hp": 0, "id": index})
 	expect.call(((funeral_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3 and int(funeral_state.get("card_play_bonus_this_turn", 0)) == 2, "Funeral Bell should pay only after a third statused death")
+	var off_turn_funeral_state: Dictionary = _state(combat, ["funeral_bell"])
+	off_turn_funeral_state["current_actor"] = {"kind": "enemy", "enemy_id": 1}
+	off_turn_funeral_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
+	for index: int in range(3):
+		off_turn_funeral_state = combat.call("_trigger_enemy_death_relics", off_turn_funeral_state, {"burn": 1, "hp": 0, "id": index})
+	expect.call(
+		int(off_turn_funeral_state.get("card_play_bonus_this_turn", 0)) == 0
+		and int(off_turn_funeral_state.get("pending_relic_card_plays", 0)) == 2,
+		"Funeral Bell should hold enemy-turn card plays for the next player turn"
+	)
+	off_turn_funeral_state = combat.prepare_next_player_turn(off_turn_funeral_state)
+	expect.call(
+		int(off_turn_funeral_state.get("card_play_bonus_this_turn", 0)) == 2
+		and int(off_turn_funeral_state.get("pending_relic_card_plays", -1)) == 0,
+		"Funeral Bell should deliver exactly two held plays on the next player turn"
+	)
 
 	var chalice_state: Dictionary = _state(combat, ["bloodmoon_chalice"], 10, 24)
 	chalice_state["deck"] = _deck([], ["brace", "quick_stab"], [])
@@ -225,6 +240,18 @@ static func _test_status_and_enemy_death_engines(expect: Callable) -> void:
 	expect.call(int(((thunder_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 97, "Thunder Relay should discharge on the first feasible Shock each turn")
 	thunder_state = combat.call("_trigger_status_relics", thunder_state, "shock")
 	expect.call(int(((thunder_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 97, "Thunder Relay should discharge only once per turn")
+	for relic_order: Array in [
+		["ion_spool", "thunder_relay"],
+		["thunder_relay", "ion_spool"]
+	]:
+		var relay_state: Dictionary = _state(combat, relic_order)
+		relay_state["elemental_intensity"] = _intensities({ElementData.LIGHTNING: 1})
+		relay_state = combat.call("_trigger_status_relics", relay_state, "shock")
+		expect.call(
+			combat.elemental_intensity(relay_state, ElementData.LIGHTNING) == 2
+			and int(((relay_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 97,
+			"Status intensity should resolve before status conditions regardless of relic acquisition order"
+		)
 
 	var ember_state: Dictionary = _state(combat, ["ember_siphon"], 10, 24)
 	ember_state = combat.call("_trigger_enemy_death_relics", ember_state, {"burn": 2, "hp": 0})
@@ -252,11 +279,38 @@ static func _test_intensity_engines(expect: Callable) -> void:
 		and int(((ion_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 96,
 		"Ion Spool should cash out its Shock loop as an all-enemy discharge"
 	)
+	var frozen_ion_state: Dictionary = _state(combat, ["ion_spool"])
+	frozen_ion_state["elemental_intensity"] = _intensities({ElementData.LIGHTNING: 3})
+	var frozen_enemies: Array = (frozen_ion_state.get("enemies", []) as Array).duplicate(true)
+	var frozen_enemy: Dictionary = (frozen_enemies[0] as Dictionary).duplicate(true)
+	frozen_enemy["freeze"] = 1
+	frozen_enemies[0] = frozen_enemy
+	frozen_ion_state["enemies"] = frozen_enemies
+	frozen_ion_state = combat.call("_trigger_status_relics", frozen_ion_state, "shock")
+	expect.call(
+		int(((frozen_ion_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 92,
+		"Relic discharge damage should intentionally retain the cross-package Frozen damage multiplier"
+	)
 
 	var overflow_state: Dictionary = _state(combat, ["overflow_censer"])
 	overflow_state["elemental_intensity"] = _intensities({ElementData.FIRE: 3, ElementData.ICE: 3, ElementData.LIGHTNING: 2})
 	overflow_state = combat.apply_player_action(overflow_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
 	expect.call(int((overflow_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 12 and int(overflow_state.get("card_play_bonus_this_turn", 0)) == 2, "Overflow Censer should require three simultaneous intensity thresholds and pay in persistent defense")
+	var off_turn_overflow_state: Dictionary = _state(combat, ["overflow_censer"])
+	off_turn_overflow_state["current_actor"] = {"kind": "enemy", "enemy_id": 1}
+	off_turn_overflow_state["elemental_intensity"] = _intensities({ElementData.FIRE: 3, ElementData.ICE: 3, ElementData.LIGHTNING: 2})
+	off_turn_overflow_state = combat.apply_player_action(off_turn_overflow_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
+	expect.call(
+		int(off_turn_overflow_state.get("card_play_bonus_this_turn", 0)) == 0
+		and int(off_turn_overflow_state.get("pending_relic_card_plays", 0)) == 2,
+		"Enemy-turn intensity threshold rewards should hold their card plays"
+	)
+	off_turn_overflow_state = combat.prepare_next_player_turn(off_turn_overflow_state)
+	expect.call(
+		int(off_turn_overflow_state.get("card_play_bonus_this_turn", 0)) == 2
+		and int(off_turn_overflow_state.get("pending_relic_card_plays", -1)) == 0,
+		"Held intensity-threshold plays should arrive on the next player turn"
+	)
 
 	for relic_order: Array in [
 		["ion_spool", "voltaic_tuning_fork"],
@@ -362,6 +416,19 @@ static func _test_defense_risk_and_mobility_engines(expect: Callable) -> void:
 		and int((vault_state.get("player", {}) as Dictionary).get("block", 0)) == 4,
 		"Vaulting Sigil should reward an achievable four-tile move with tempo and defense"
 	)
+	vault_state = combat.call("_trigger_blink_relics", vault_state, 4)
+	expect.call(
+		int(vault_state.get("card_play_bonus_this_turn", 0)) == 1
+		and int((vault_state.get("player", {}) as Dictionary).get("block", 0)) == 4,
+		"Vaulting Sigil should not retrigger from a later long Blink in the same turn"
+	)
+	var vault_blink_state: Dictionary = _state(combat, ["vaulting_sigil"])
+	vault_blink_state = combat.call("_trigger_blink_relics", vault_blink_state, 4)
+	expect.call(
+		int(vault_blink_state.get("card_play_bonus_this_turn", 0)) == 1
+		and int((vault_blink_state.get("player", {}) as Dictionary).get("block", 0)) == 4,
+		"Vaulting Sigil should treat a four-tile Blink as a valid movement build payoff"
+	)
 
 	var gale_state: Dictionary = _state(combat, ["gale_tabi"])
 	gale_state["deck"] = _deck([], ["brace", "quick_stab"], [])
@@ -399,6 +466,29 @@ static func _test_defiance_and_mono_earth_payoffs(expect: Callable) -> void:
 	expect.call(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 6 and int(phoenix_state.get("defiance_remaining", -1)) == 0, "Phoenix Ember should recover through its added Defiance")
 	expect.call(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 6, "Phoenix Ember should burn every enemy for six")
 	expect.call(((phoenix_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 4 and int(phoenix_state.get("card_play_bonus_this_turn", 0)) == 3, "Phoenix Ember should create a large comeback turn")
+	var enemy_turn_phoenix_state: Dictionary = combat.create_combat(993, _room(), {
+		"hp": 3,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "brace", "bone_dart", "quick_stab"],
+		"relics": ["phoenix_ember"],
+		"hand_size": 1,
+		"defiance_capacity": 1,
+		"defiance_remaining": 1
+	})
+	enemy_turn_phoenix_state["current_actor"] = {"kind": "enemy", "enemy_id": 1}
+	enemy_turn_phoenix_state["deck"] = _deck(["quick_stab"], ["brace", "bone_dart", "quick_stab"], [])
+	enemy_turn_phoenix_state = combat.call("_damage_player", enemy_turn_phoenix_state, 9, true)
+	expect.call(
+		int(enemy_turn_phoenix_state.get("card_play_bonus_this_turn", 0)) == 0
+		and int(enemy_turn_phoenix_state.get("pending_relic_card_plays", 0)) == 3,
+		"Phoenix Ember should preserve its comeback plays when Defiance happens on an enemy turn"
+	)
+	enemy_turn_phoenix_state = combat.prepare_next_player_turn(enemy_turn_phoenix_state)
+	expect.call(
+		int(enemy_turn_phoenix_state.get("card_play_bonus_this_turn", 0)) == 3
+		and int(enemy_turn_phoenix_state.get("pending_relic_card_plays", -1)) == 0,
+		"Phoenix Ember should deliver all three comeback plays on the next player turn"
+	)
 
 	var earth_cards: Array[String]
 	for index: int in range(6):
@@ -428,11 +518,54 @@ static func _test_defiance_and_mono_earth_payoffs(expect: Callable) -> void:
 			"relics": ["basalt_calendar"],
 			"hand_size": 1
 		})
+		expect.call(
+			combat.elemental_intensity(calendar_state, ElementData.EARTH) == 0,
+			"Basalt Calendar should never skip Earth setup at combat start"
+		)
+		calendar_state = _trigger_card(combat, calendar_state, _card(ElementData.EARTH, 4, [{"type": "melee", "damage": 3}]), "calendar_first_earth")
 		var expected_intensity: int = mini(2, earth_count / 3)
 		expect.call(
-			combat.elemental_intensity(calendar_state, ElementData.EARTH) == expected_intensity,
-			"Basalt Calendar should scale every three Earth cards and cap at two"
+			combat.elemental_intensity(calendar_state, ElementData.EARTH) == expected_intensity
+			and int((calendar_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == mini(6, earth_count),
+			"Basalt Calendar should reward every Earth card while capping its progressive intensity"
 		)
+		calendar_state = _trigger_card(combat, calendar_state, _card(ElementData.EARTH, 4, [{"type": "melee", "damage": 3}]), "calendar_second_earth")
+		expect.call(
+			combat.elemental_intensity(calendar_state, ElementData.EARTH) == expected_intensity,
+			"Basalt Calendar should grant its progressive intensity only once per combat"
+		)
+	var live_calendar_state: Dictionary = combat.create_combat(1013, _room(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["venom_claw", "venom_claw", "venom_claw"],
+		"relics": ["basalt_calendar"],
+		"hand_size": 1
+	})
+	live_calendar_state["deck"] = _deck(["venom_claw"], ["venom_claw", "venom_claw"], [])
+	live_calendar_state = combat.finish_player_card(live_calendar_state, 0)
+	expect.call(
+		combat.elemental_intensity(live_calendar_state, ElementData.EARTH) == 1
+		and int((live_calendar_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 3,
+		"Basalt Calendar should count the real triggering Earth card after it enters discard"
+	)
+	var carry_state: Dictionary = combat.create_combat(994, _room(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"skill_ids": ["carry_the_guard"],
+		"relics": ["worldroot_idol"],
+		"hand_size": 1
+	})
+	var carry_player: Dictionary = (carry_state.get("player", {}) as Dictionary).duplicate(true)
+	carry_player["block"] = 4
+	carry_state["player"] = carry_player
+	carry_state = combat.arm_carry_the_guard(carry_state)
+	carry_state = combat.finish_player_activation(carry_state)
+	expect.call(
+		int((carry_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 4
+		and combat.elemental_intensity(carry_state, ElementData.EARTH) == 1,
+		"Carry the Guard should announce its Stoneskin gain to Worldroot Idol"
+	)
 
 static func _test_state_sequence_bridges(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -467,8 +600,34 @@ static func _test_state_sequence_bridges(expect: Callable) -> void:
 	moss_state["player"] = moss_player
 	moss_state = _trigger_card(combat, moss_state, _card(ElementData.EARTH, 4, [{"type": "melee", "damage": 3}]), "earth_with_block")
 	expect.call(int((moss_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 3, "Mossbound Wraps should turn Block-then-Earth sequencing into persistent defense")
+	for relic_order: Array in [
+		["chorus_mask", "mossbound_wraps"],
+		["mossbound_wraps", "chorus_mask"]
+	]:
+		var sequence_state: Dictionary = _state(combat, relic_order)
+		sequence_state = _trigger_card(combat, sequence_state, _card(ElementData.FIRE, 3, [{"type": "melee", "damage": 1}]), "sequence_fire")
+		sequence_state = _trigger_card(combat, sequence_state, _card(ElementData.EARTH, 3, [{"type": "melee", "damage": 1}]), "sequence_earth")
+		expect.call(
+			int((sequence_state.get("player", {}) as Dictionary).get("block", 0)) == 3
+			and int((sequence_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 0,
+			"Same-card relic rewards should not create conditions for another relic regardless of acquisition order"
+		)
 
 static func _test_player_facing_turn_terminology(expect: Callable) -> void:
+	var relics: Dictionary = GameData.relics()
+	for relic_id_var: Variant in relics.keys():
+		var relic_id: String = str(relic_id_var)
+		var relic: Dictionary = relics.get(relic_id, {}) as Dictionary
+		var has_once_per_combat: bool = false
+		for effect_var: Variant in relic.get("effects", []):
+			if typeof(effect_var) == TYPE_DICTIONARY and str((effect_var as Dictionary).get("once", "")).begins_with("combat"):
+				has_once_per_combat = true
+				break
+		if has_once_per_combat:
+			expect.call(
+				str(relic.get("description", "")).to_lower().contains("combat"),
+				"%s should disclose its once-per-combat limit in player-facing copy" % relic_id
+			)
 	for data_path: String in [
 		"res://data/cards.json",
 		"res://data/relics.json",
