@@ -695,7 +695,7 @@ static func _relic_effect_display_value(effect: Dictionary, key: String) -> Vari
 	var amount: int = int(raw_value)
 	var effect_type: String = str(effect.get("type", ""))
 	match effect_type:
-		"max_hp", "first_attack_bonus", "start_combat_stoneskin", "start_combat_block", "damage_vs_status", "kill_status_heal", "glass_attack_bonus", "bloodied_glass_attack_bonus", "stoneskin_thorns":
+		"max_hp", "first_attack_bonus", "start_combat_stoneskin", "start_combat_block", "damage_vs_status", "kill_status_heal", "glass_attack_bonus", "bloodied_glass_attack_bonus", "stoneskin_thorns", "first_card_attack_bonus":
 			if key == "value":
 				return fixed_point_amount(amount)
 		"prevent_lethal_once":
@@ -707,7 +707,7 @@ static func _relic_effect_display_value(effect: Dictionary, key: String) -> Vari
 		"start_combat_stoneskin_per_deck_element":
 			if key == "value" or key == "max_value":
 				return fixed_point_amount(amount)
-		"card_action_mod":
+		"card_action_mod", "player_state_action_mod":
 			if (key == "amount" or key == "value") and _relic_card_action_mod_uses_fixed_point(effect):
 				return fixed_point_amount(amount)
 	return amount
@@ -727,7 +727,7 @@ static func _relic_reward_display_value(reward: Dictionary, key: String) -> Vari
 	if key != "amount" and key != "value":
 		return amount
 	match str(reward.get("type", "")):
-		"block", "stoneskin", "heal", "all_enemies_damage":
+		"block", "stoneskin", "heal", "all_enemies_damage", "block_to_stoneskin":
 			return fixed_point_amount(amount)
 		"all_enemies_status":
 			var status_id: String = str(reward.get("status", ""))
@@ -1246,12 +1246,14 @@ static func _action_has_field_or_intensity_bonus(action: Dictionary, field: Stri
 static func _tag_card_actions_for_combat(card: Dictionary) -> Dictionary:
 	var next_card: Dictionary = card.duplicate(true)
 	var element_id: String = card_element_from_def(card)
+	var card_action_types: Array[String] = _relic_card_action_types(card)
 	var actions: Array = (next_card.get("actions", []) as Array).duplicate(true)
 	for index: int in range(actions.size()):
 		if typeof(actions[index]) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
 		action["_card_element"] = element_id
+		action["_card_action_types"] = card_action_types.duplicate()
 		actions[index] = action
 	next_card["actions"] = actions
 	return next_card

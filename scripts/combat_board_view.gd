@@ -1237,7 +1237,7 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		_draw_umbra_light_orb(orb_center, orb_radius, glow_brightness, source_seed, time_seconds)
 		var count_text: String = "∞" if remaining < 0 else str(maxi(0, remaining))
 		var chip_rect: Rect2 = _draw_umbra_light_orb_counter(orb_center, orb_radius, count_text, font, glow_brightness)
-		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player activation%s remaining." % [remaining, "" if remaining == 1 else "s"]
+		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player turn%s remaining." % [remaining, "" if remaining == 1 else "s"]
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
 		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
 		_register_tooltip(marker_rect, tooltip)
@@ -6976,7 +6976,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = []
 	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))
 	if str(unit.get("role", "")) == "player" and truesight_activations != 0:
-		var duration_text: String = "Lasts for this combat." if truesight_activations < 0 else "%d player activation%s remaining." % [truesight_activations, "" if truesight_activations == 1 else "s"]
+		var duration_text: String = "Lasts for this combat." if truesight_activations < 0 else "%d player turn%s remaining." % [truesight_activations, "" if truesight_activations == 1 else "s"]
 		badges.append({
 			"icon": "truesight",
 			"count_text": "∞" if truesight_activations < 0 else str(truesight_activations),

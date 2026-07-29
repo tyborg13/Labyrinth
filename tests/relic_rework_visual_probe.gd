@@ -27,13 +27,13 @@ func _initialize() -> void:
 	await _capture(
 		Vector2i(1920, 1080),
 		1.0,
-		_string_array(["cinderbrand_tongs", "updraft_bottle", "black_sun_dial"]),
+		_string_array(["cinderbrand_tongs", "anchor_chain", "black_sun_dial"]),
 		88001
 	)
 	await _capture(
 		Vector2i(1280, 720),
 		1.25,
-		_string_array(["bloodmoon_chalice", "fivefold_knot", "borrowed_hourglass"]),
+		_string_array(["moonless_compass", "cold_mirror", "worldroot_idol"]),
 		88002
 	)
 

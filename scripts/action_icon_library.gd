@@ -737,11 +737,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "illuminate", "radius", int(action.get("radius", action.get("amount", 1))), "neutral", "Light radius in tiles."))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Light placement range."))
 			var light_duration: int = int(action.get("duration", 1))
-			tokens.append(token_for("time", "∞" if light_duration < 0 else light_duration, "neutral", "Player activations this light remains."))
+			tokens.append(token_for("time", "∞" if light_duration < 0 else light_duration, "neutral", "Player turns this light remains."))
 		"vision":
 			tokens.append(_token_for_action_field(action, "vision", "amount", int(action.get("amount", 0))))
 			var vision_duration: int = int(action.get("duration", 1))
-			tokens.append(token_for("time", "∞" if vision_duration < 0 else vision_duration, "neutral", "Player activations this vision remains."))
+			tokens.append(token_for("time", "∞" if vision_duration < 0 else vision_duration, "neutral", "Player turns this vision remains."))
 		"truesight":
 			var truesight_duration: int = int(action.get("duration", action.get("amount", 1)))
 			tokens.append(token_for("truesight", "∞" if truesight_duration < 0 else truesight_duration))
@@ -760,7 +760,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, "melee", action, options)
 			tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
 		"cinder_marks":
-			tokens.append(_token_for_action_field(action, "burn", "count", int(action.get("count", 0)), "neutral", "Places attackable cinder marks; surviving marks detonate on the dragon's next activation."))
+			tokens.append(_token_for_action_field(action, "burn", "count", int(action.get("count", 0)), "neutral", "Places attackable cinder marks; surviving marks detonate on the dragon's next turn."))
 			_append_damage_token(tokens, "ranged", action, options)
 			_append_keyword_tokens(tokens, action)
 		"detonate_cinders":
@@ -772,7 +772,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "freeze", "amount", int(action.get("amount", 0)), "neutral", "Forms crystal armor. Each damaging hit breaks one layer instead of dealing damage."))
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player activations. Radiance and light protect affected tiles."))
+			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and light protect affected tiles."))
 	var attached_spend: Dictionary = ElementalIntensityRules.action_spend(action)
 	if action_type != "intensity_spend" and not attached_spend.is_empty() and not tokens.is_empty():
 		tokens.push_front(intensity_spend_token(attached_spend))

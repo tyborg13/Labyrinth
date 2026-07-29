@@ -3,6 +3,7 @@ extends RefCounted
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 
 const NEW_RELIC_IDS := [
 	"duelist_whetstone",
@@ -33,14 +34,17 @@ const SUPPORTED_EFFECT_TYPES := [
 	"defiance_trigger_reward",
 	"end_turn_block_to_stoneskin",
 	"enemy_death_reward",
+	"first_card_attack_bonus",
 	"intensity_threshold_reward",
 	"long_move_card_play",
 	"opening_draw_bonus",
 	"overheal_to_stoneskin",
-	"start_combat_intensity",
+	"player_state_action_mod",
+	"start_combat_intensity_per_deck_element",
 	"start_combat_stoneskin_per_deck_element",
 	"status_count_reward",
 	"status_intensity_gain",
+	"stoneskin_intensity_gain_once_per_turn",
 	"stoneskin_thorns"
 ]
 
@@ -53,6 +57,8 @@ static func run(expect: Callable) -> void:
 	_test_intensity_engines(expect)
 	_test_defense_risk_and_mobility_engines(expect)
 	_test_defiance_and_mono_earth_payoffs(expect)
+	_test_state_sequence_bridges(expect)
+	_test_player_facing_turn_terminology(expect)
 
 static func _test_complete_set_contract(expect: Callable) -> void:
 	var relics: Dictionary = GameData.relics()
@@ -100,13 +106,18 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 
 static func _test_conditional_card_mutations(expect: Callable) -> void:
 	_expect_action_delta(expect, "ricochet_knife", "ember_lens", "ranged", "damage", 3)
-	_expect_action_delta(expect, "iron_wheel", "pilgrim_boots", "melee", "damage", 2)
+	_expect_action_delta(expect, "threaded_path", "pilgrim_boots", "move", "range", 1)
 	_expect_action_delta(expect, "riposte_lunge", "reinforced_shield", "block", "amount", 3)
 	_expect_action_delta(expect, "hearth_rush", "flint_edge", "melee", "burn", 2)
-	_expect_action_delta(expect, "chain_bolt", "storm_capacitor", "ranged", "chain", 2)
-	_expect_action_delta(expect, "chain_bolt", "storm_capacitor", "ranged", "damage", 2)
-	_expect_action_delta(expect, "chain_catch", "anchor_chain", "pull", "amount", 1)
+	_expect_action_delta(expect, "chain_bolt", "storm_capacitor", "ranged", "chain", 1)
+	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "damage", 1)
+	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "amount", 1)
 	_expect_action_delta(expect, "rime_shard", "widow_thread", "ranged", "expose", 3)
+	var iron_wheel_with_boots: Dictionary = GameData.card_def_for_progression("iron_wheel", {"relics": ["pilgrim_boots"]})
+	expect.call(
+		int(_first_action_of_type(iron_wheel_with_boots, "move").get("range", 0)) == int(_first_action_of_type(GameData.card_def("iron_wheel"), "move").get("range", 0)),
+		"Pilgrim Boots should leave move-and-attack cards to Duelist Whetstone"
+	)
 	var plain_stab: Dictionary = GameData.card_def_for_progression("quick_stab", {"relics": ["ember_lens", "reinforced_shield", "widow_thread"]})
 	var plain_action: Dictionary = _first_action_of_type(plain_stab, "melee")
 	var base_plain_action: Dictionary = _first_action_of_type(GameData.card_def("quick_stab"), "melee")
@@ -115,8 +126,11 @@ static func _test_conditional_card_mutations(expect: Callable) -> void:
 static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var duelist_state: Dictionary = _state(combat, ["duelist_whetstone"])
-	duelist_state = _trigger_card(combat, duelist_state, _card("", 4, [{"type": "move", "range": 2}, {"type": "melee", "damage": 3}]), "duelist")
-	expect.call(int((duelist_state.get("player", {}) as Dictionary).get("block", 0)) == 3, "Duelist Whetstone should reward a move-attack card")
+	var duelist_card: Dictionary = GameData.card_def_for_progression("iron_wheel", {})
+	var duelist_attack: Dictionary = _first_action_of_type(duelist_card, "melee")
+	expect.call(combat.final_damage_for_player_action(duelist_state, duelist_attack) == 12, "Duelist Whetstone should add two damage to the first move-attack card")
+	duelist_state = _trigger_card(combat, duelist_state, duelist_card, "iron_wheel")
+	expect.call(combat.final_damage_for_player_action(duelist_state, duelist_attack) == 10, "Duelist Whetstone should apply only once per turn")
 
 	var hollow_state: Dictionary = _state(combat, ["hollow_die"])
 	hollow_state["deck"] = _deck([], ["brace"], [])
@@ -134,9 +148,13 @@ static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 
 	var chorus_state: Dictionary = _state(combat, ["chorus_mask"])
 	chorus_state["deck"] = _deck([], ["brace", "quick_stab"], [])
-	for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.AIR]:
-		chorus_state = _trigger_card(combat, chorus_state, _card(element_id, 3, [{"type": "block", "amount": 1}]), "chorus_%s" % element_id)
-	expect.call(((chorus_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2, "Chorus Mask should pay after the second elemental pivot in an activation")
+	chorus_state = _trigger_card(combat, chorus_state, _card(ElementData.FIRE, 3, [{"type": "block", "amount": 1}]), "chorus_fire")
+	chorus_state = _trigger_card(combat, chorus_state, _card(ElementData.ICE, 3, [{"type": "block", "amount": 1}]), "chorus_ice")
+	expect.call(
+		int(chorus_state.get("card_play_bonus_this_turn", 0)) == 1
+		and int((chorus_state.get("player", {}) as Dictionary).get("block", 0)) == 3,
+		"Chorus Mask should turn a two-element sequence into usable tempo and defense"
+	)
 
 	var hourglass_state: Dictionary = _state(combat, ["hourglass_splinter"])
 	hourglass_state = _trigger_card(combat, hourglass_state, _card("", 7, [{"type": "melee", "damage": 1}]), "hourglass")
@@ -164,13 +182,17 @@ static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 	compass_state = _trigger_card(combat, compass_state, _card(ElementData.AIR, 3, [{"type": "move", "range": 2}]), "compass_move")
 	expect.call(int(compass_state.get("card_play_bonus_this_turn", 0)) == 0, "Moonless Compass should wait for the other half of its cross-card combo")
 	compass_state = _trigger_card(combat, compass_state, _card(ElementData.FIRE, 4, [{"type": "illuminate", "radius": 2}]), "compass_light")
-	expect.call(((compass_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2 and int(compass_state.get("card_play_bonus_this_turn", 0)) == 2, "Moonless Compass should reward separate mobility and Radiance cards in one activation")
+	expect.call(
+		int((compass_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 6
+		and int(compass_state.get("card_play_bonus_this_turn", 0)) == 2,
+		"Moonless Compass should reward separate repositioning and Light cards in one turn"
+	)
 
 	var knot_state: Dictionary = _state(combat, ["fivefold_knot"])
 	knot_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart", "brace", "quick_stab"], [])
 	for element_id: String in ElementData.all_elements():
 		knot_state = _trigger_card(combat, knot_state, _card(element_id, 3, [{"type": "block", "amount": 1}]), "knot_%s" % element_id)
-	expect.call(((knot_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5 and int(knot_state.get("card_play_bonus_this_turn", 0)) == 5, "Fivefold Knot should deliver a legendary payoff only after all five elements in one activation")
+	expect.call(((knot_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5 and int(knot_state.get("card_play_bonus_this_turn", 0)) == 5, "Fivefold Knot should deliver a legendary payoff only after all five elements in one turn")
 
 	var borrowed_state: Dictionary = _state(combat, ["borrowed_hourglass"])
 	borrowed_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart", "brace"], [])
@@ -181,31 +203,60 @@ static func _test_status_and_enemy_death_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var cold_state: Dictionary = _state(combat, ["cold_mirror"])
 	cold_state = combat.call("_trigger_status_relics", cold_state, "freeze")
-	expect.call(int(cold_state.get("card_play_bonus_this_turn", 0)) == 0, "Cold Mirror should wait for a second Freeze")
+	expect.call(int((cold_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 0, "Cold Mirror should require block before Freeze")
+	var cold_player: Dictionary = (cold_state.get("player", {}) as Dictionary).duplicate(true)
+	cold_player["block"] = 8
+	cold_state["player"] = cold_player
 	cold_state = combat.call("_trigger_status_relics", cold_state, "freeze")
-	expect.call(int(cold_state.get("card_play_bonus_this_turn", 0)) == 2, "Cold Mirror should grant two plays at its repeated-status threshold")
+	expect.call(
+		int((cold_state.get("player", {}) as Dictionary).get("block", 0)) == 2
+		and int((cold_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 6,
+		"Cold Mirror should convert up to six existing block on the first qualifying Freeze"
+	)
+	cold_state = combat.call("_trigger_status_relics", cold_state, "freeze")
+	expect.call(int((cold_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 6, "Cold Mirror should trigger only once per turn")
 
 	var thunder_state: Dictionary = _state(combat, ["thunder_relay"])
-	thunder_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
-	for index: int in range(3):
-		thunder_state = combat.call("_trigger_status_relics", thunder_state, "shock")
-	expect.call(((thunder_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3 and int(thunder_state.get("card_play_bonus_this_turn", 0)) == 2, "Thunder Relay should pay after three Shock applications")
+	thunder_state["elemental_intensity"] = _intensities({ElementData.LIGHTNING: 1})
+	thunder_state = combat.call("_trigger_status_relics", thunder_state, "shock")
+	expect.call(int(((thunder_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 100, "Thunder Relay should require its Lightning setup")
+	thunder_state["elemental_intensity"] = _intensities({ElementData.LIGHTNING: 2})
+	thunder_state = combat.call("_trigger_status_relics", thunder_state, "shock")
+	expect.call(int(((thunder_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 97, "Thunder Relay should discharge on the first feasible Shock each turn")
+	thunder_state = combat.call("_trigger_status_relics", thunder_state, "shock")
+	expect.call(int(((thunder_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 97, "Thunder Relay should discharge only once per turn")
 
 	var ember_state: Dictionary = _state(combat, ["ember_siphon"], 10, 24)
 	ember_state = combat.call("_trigger_enemy_death_relics", ember_state, {"burn": 2, "hp": 0})
 	expect.call(int((ember_state.get("player", {}) as Dictionary).get("hp", 0)) == 13 and combat.elemental_intensity(ember_state, ElementData.FIRE) == 1, "Ember Siphon should convert a burning execute into healing and Fire intensity")
+	ember_state = combat.call("_trigger_enemy_death_relics", ember_state, {"burn": 2, "hp": 0})
+	expect.call(int((ember_state.get("player", {}) as Dictionary).get("hp", 0)) == 13 and combat.elemental_intensity(ember_state, ElementData.FIRE) == 1, "Ember Siphon should heal only once per combat")
 
 static func _test_intensity_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var cinder_state: Dictionary = _state(combat, ["cinderbrand_tongs"])
 	cinder_state["elemental_intensity"] = _intensities({ElementData.FIRE: 3})
 	cinder_state = combat.call("_trigger_status_relics", cinder_state, "burn")
-	expect.call(combat.elemental_intensity(cinder_state, ElementData.FIRE) == 2 and int(cinder_state.get("card_play_bonus_this_turn", 0)) == 1, "Cinderbrand Tongs should feed and cash out its Fire loop")
+	expect.call(
+		combat.elemental_intensity(cinder_state, ElementData.FIRE) == 2
+		and int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 98
+		and int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 1,
+		"Cinderbrand Tongs should cash out its Fire loop as damage and Burn"
+	)
+
+	var ion_state: Dictionary = _state(combat, ["ion_spool"])
+	ion_state["elemental_intensity"] = _intensities({ElementData.LIGHTNING: 3})
+	ion_state = combat.call("_trigger_status_relics", ion_state, "shock")
+	expect.call(
+		combat.elemental_intensity(ion_state, ElementData.LIGHTNING) == 2
+		and int(((ion_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 96,
+		"Ion Spool should cash out its Shock loop as an all-enemy discharge"
+	)
 
 	var overflow_state: Dictionary = _state(combat, ["overflow_censer"])
 	overflow_state["elemental_intensity"] = _intensities({ElementData.FIRE: 3, ElementData.ICE: 3, ElementData.LIGHTNING: 2})
 	overflow_state = combat.apply_player_action(overflow_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
-	expect.call(int((overflow_state.get("player", {}) as Dictionary).get("block", 0)) == 10 and int(overflow_state.get("card_play_bonus_this_turn", 0)) == 2, "Overflow Censer should require three simultaneous intensity thresholds")
+	expect.call(int((overflow_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 12 and int(overflow_state.get("card_play_bonus_this_turn", 0)) == 2, "Overflow Censer should require three simultaneous intensity thresholds and pay in persistent defense")
 
 	for relic_order: Array in [
 		["ion_spool", "voltaic_tuning_fork"],
@@ -216,7 +267,8 @@ static func _test_intensity_engines(expect: Callable) -> void:
 		stacked_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
 		stacked_state = combat.apply_player_action(stacked_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
 		expect.call(
-			((stacked_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3,
+			((stacked_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2
+			and int(((stacked_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 96,
 			"Every relic sharing a crossed intensity threshold should resolve regardless of acquisition order"
 		)
 		expect.call(
@@ -227,29 +279,34 @@ static func _test_intensity_engines(expect: Callable) -> void:
 	var black_state: Dictionary = _state(combat, ["black_sun_dial"])
 	var final_element: String = ElementData.EARTH
 	black_state["elemental_intensity"] = _intensities({
-		ElementData.FIRE: 4,
-		ElementData.ICE: 4,
-		ElementData.LIGHTNING: 4,
-		ElementData.AIR: 4,
-		final_element: 3
+		ElementData.FIRE: 2,
+		ElementData.ICE: 2,
+		ElementData.LIGHTNING: 2,
+		ElementData.AIR: 2,
+		final_element: 1
 	})
-	black_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart", "brace", "quick_stab"], [])
+	black_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
 	black_state = combat.apply_player_action(black_state, {"type": "intensity", "element": final_element, "amount": 1})
 	var black_enemy: Dictionary = (black_state.get("enemies", []) as Array)[0]
 	expect.call(int(black_enemy.get("hp", 0)) == 88, "Black Sun Dial should deal its 12-damage five-element payoff")
 	for element_id: String in ElementData.all_elements():
-		expect.call(combat.elemental_intensity(black_state, element_id) == 0, "Black Sun Dial should consume four from every qualifying element")
-	expect.call(((black_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5 and int(black_state.get("card_play_bonus_this_turn", 0)) == 5, "Black Sun Dial should supply a legendary continuation turn")
+		expect.call(combat.elemental_intensity(black_state, element_id) == 0, "Black Sun Dial should consume two from every qualifying element")
+	expect.call(
+		((black_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3
+		and int(black_state.get("card_play_bonus_this_turn", 0)) == 3
+		and int((black_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 12,
+		"Black Sun Dial should supply a dramatic but usable continuation turn"
+	)
 
 	var nested_intensity_state: Dictionary = _state(combat, ["black_sun_dial", "ember_siphon"], 20, 24)
 	nested_intensity_state["elemental_intensity"] = _intensities({
-		ElementData.FIRE: 4,
-		ElementData.ICE: 4,
-		ElementData.LIGHTNING: 4,
-		ElementData.AIR: 4,
-		ElementData.EARTH: 3
+		ElementData.FIRE: 2,
+		ElementData.ICE: 2,
+		ElementData.LIGHTNING: 2,
+		ElementData.AIR: 2,
+		ElementData.EARTH: 1
 	})
-	nested_intensity_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart", "brace", "quick_stab"], [])
+	nested_intensity_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
 	var nested_enemies: Array = (nested_intensity_state.get("enemies", []) as Array).duplicate(true)
 	var burning_enemy: Dictionary = (nested_enemies[0] as Dictionary).duplicate(true)
 	burning_enemy["hp"] = 12
@@ -297,15 +354,25 @@ static func _test_defense_risk_and_mobility_engines(expect: Callable) -> void:
 	expect.call(int(heart_player.get("block", 0)) == 0 and int(heart_player.get("stoneskin", 0)) == 6, "Obsidian Heart should carry remaining block into persistent stoneskin")
 
 	var vault_state: Dictionary = _state(combat, ["vaulting_sigil"])
-	vault_state = combat.call("_trigger_long_move_relics", vault_state, 6)
-	expect.call(int(vault_state.get("card_play_bonus_this_turn", 0)) == 2, "Vaulting Sigil should grant two plays after a six-tile move")
+	vault_state = combat.call("_trigger_long_move_relics", vault_state, 3)
+	expect.call(int(vault_state.get("card_play_bonus_this_turn", 0)) == 0, "Vaulting Sigil should ignore ordinary movement")
+	vault_state = combat.call("_trigger_long_move_relics", vault_state, 4)
+	expect.call(
+		int(vault_state.get("card_play_bonus_this_turn", 0)) == 1
+		and int((vault_state.get("player", {}) as Dictionary).get("block", 0)) == 4,
+		"Vaulting Sigil should reward an achievable four-tile move with tempo and defense"
+	)
 
 	var gale_state: Dictionary = _state(combat, ["gale_tabi"])
 	gale_state["deck"] = _deck([], ["brace", "quick_stab"], [])
 	gale_state = combat.call("_trigger_blink_relics", gale_state, 2)
 	expect.call(((gale_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(), "Gale Tabi should ignore short blinks")
 	gale_state = combat.call("_trigger_blink_relics", gale_state, 3)
-	expect.call(((gale_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2, "Gale Tabi should draw two after a three-tile blink")
+	expect.call(
+		((gale_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1
+		and int(gale_state.get("card_play_bonus_this_turn", 0)) == 1,
+		"Gale Tabi should pair one drawn card with the play needed to use it"
+	)
 	var gale_fatigue_state: Dictionary = _state(combat, ["gale_tabi"], 10, 24)
 	gale_fatigue_state["deck"] = _deck([], [], ["brace", "quick_stab"])
 	gale_fatigue_state = combat.call("_trigger_blink_relics", gale_fatigue_state, 3)
@@ -313,7 +380,7 @@ static func _test_defense_risk_and_mobility_engines(expect: Callable) -> void:
 		int((gale_fatigue_state.get("player", {}) as Dictionary).get("hp", 0)) == 10
 		and int((gale_fatigue_state.get("deck", {}) as Dictionary).get("cycles", 0)) == 0
 		and ((gale_fatigue_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(),
-		"Legacy relic draw hooks should share the no-Fatigue draw contract"
+		"Gale Tabi's draw should stop before Fatigue even though its card play still resolves"
 	)
 
 static func _test_defiance_and_mono_earth_payoffs(expect: Callable) -> void:
@@ -343,8 +410,100 @@ static func _test_defiance_and_mono_earth_payoffs(expect: Callable) -> void:
 		"relics": ["worldroot_idol"],
 		"hand_size": 1
 	})
-	expect.call(int((worldroot_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 24, "Worldroot Idol should scale stoneskin from a six-card Earth commitment")
-	expect.call(combat.elemental_intensity(worldroot_state, ElementData.EARTH) == 4, "Worldroot Idol should seed four Earth intensity for its mono-element build")
+	expect.call(int((worldroot_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 12, "Worldroot Idol should scale gradually at two stoneskin per Earth card")
+	expect.call(combat.elemental_intensity(worldroot_state, ElementData.EARTH) == 0, "Worldroot Idol should not bypass Earth setup at combat start")
+	worldroot_state = combat.apply_player_action(worldroot_state, {"type": "stoneskin", "amount": 4})
+	expect.call(combat.elemental_intensity(worldroot_state, ElementData.EARTH) == 1, "Worldroot Idol should bridge active Stoneskin gain into Earth intensity")
+	worldroot_state = combat.apply_player_action(worldroot_state, {"type": "stoneskin", "amount": 2})
+	expect.call(combat.elemental_intensity(worldroot_state, ElementData.EARTH) == 1, "Worldroot Idol should raise Earth intensity only once per turn")
+
+	for earth_count: int in [2, 3, 6, 9]:
+		var calendar_cards: Array[String]
+		for index: int in range(earth_count):
+			calendar_cards.append("venom_claw")
+		var calendar_state: Dictionary = combat.create_combat(1000 + earth_count, _room(), {
+			"hp": 24,
+			"max_hp": 24,
+			"deck_cards": calendar_cards,
+			"relics": ["basalt_calendar"],
+			"hand_size": 1
+		})
+		var expected_intensity: int = mini(2, earth_count / 3)
+		expect.call(
+			combat.elemental_intensity(calendar_state, ElementData.EARTH) == expected_intensity,
+			"Basalt Calendar should scale every three Earth cards and cap at two"
+		)
+
+static func _test_state_sequence_bridges(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var anchor_state: Dictionary = _state(combat, ["anchor_chain"])
+	var chain_catch: Dictionary = GameData.card_def_for_progression("chain_catch", {})
+	var pull_action: Dictionary = _first_action_of_type(chain_catch, "pull")
+	expect.call(combat.final_damage_for_player_action(anchor_state, pull_action) == 3, "Anchor Chain should stay dormant without prior block")
+	var anchor_player: Dictionary = (anchor_state.get("player", {}) as Dictionary).duplicate(true)
+	anchor_player["block"] = 1
+	anchor_state["player"] = anchor_player
+	var anchored_pull: Dictionary = combat.call("_action_with_intensity_bonus", anchor_state, pull_action)
+	expect.call(
+		combat.final_damage_for_player_action(anchor_state, pull_action) == 5
+		and int(anchored_pull.get("amount", 0)) == 3,
+		"Anchor Chain should let a separate Block card empower later Push or Pull"
+	)
+
+	var coffin_state: Dictionary = _state(combat, ["coffin_nails"])
+	var quick_stab: Dictionary = GameData.card_def_for_progression("quick_stab", {})
+	var quick_attack: Dictionary = _first_action_of_type(quick_stab, "melee")
+	expect.call(int((combat.call("_action_with_intensity_bonus", coffin_state, quick_attack) as Dictionary).get("bleed", 0)) == 0, "Coffin Nails should require block")
+	var coffin_player: Dictionary = (coffin_state.get("player", {}) as Dictionary).duplicate(true)
+	coffin_player["block"] = 1
+	coffin_state["player"] = coffin_player
+	expect.call(int((combat.call("_action_with_intensity_bonus", coffin_state, quick_attack) as Dictionary).get("bleed", 0)) == 1, "Coffin Nails should bridge existing block into Bleed attacks")
+
+	var moss_state: Dictionary = _state(combat, ["mossbound_wraps"])
+	moss_state = _trigger_card(combat, moss_state, _card(ElementData.EARTH, 4, [{"type": "melee", "damage": 3}]), "earth_without_block")
+	expect.call(int((moss_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 0, "Mossbound Wraps should require a defended state")
+	var moss_player: Dictionary = (moss_state.get("player", {}) as Dictionary).duplicate(true)
+	moss_player["block"] = 2
+	moss_state["player"] = moss_player
+	moss_state = _trigger_card(combat, moss_state, _card(ElementData.EARTH, 4, [{"type": "melee", "damage": 3}]), "earth_with_block")
+	expect.call(int((moss_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 3, "Mossbound Wraps should turn Block-then-Earth sequencing into persistent defense")
+
+static func _test_player_facing_turn_terminology(expect: Callable) -> void:
+	for data_path: String in [
+		"res://data/cards.json",
+		"res://data/relics.json",
+		"res://data/skills.json",
+		"res://data/grimoire.json"
+	]:
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(data_path))
+		expect.call(not _variant_contains_activation_copy(parsed), "%s should use turn terminology in player-facing strings" % data_path)
+	for action: Dictionary in [
+		{"type": "illuminate", "radius": 1, "duration": 2},
+		{"type": "vision", "amount": 2, "duration": 2},
+		{"type": "cinder_marks", "count": 3},
+		{"type": "umbra_eclipse", "duration": 2}
+	]:
+		for token_var: Variant in ActionIcons.tokens_for_action(action):
+			if typeof(token_var) != TYPE_DICTIONARY:
+				continue
+			expect.call(
+				not ActionIcons.token_tooltip(token_var as Dictionary).to_lower().contains("activation"),
+				"Action tooltips should describe duration in turns"
+			)
+
+static func _variant_contains_activation_copy(value: Variant) -> bool:
+	match typeof(value):
+		TYPE_STRING:
+			return str(value).to_lower().contains("activation")
+		TYPE_ARRAY:
+			for child: Variant in value as Array:
+				if _variant_contains_activation_copy(child):
+					return true
+		TYPE_DICTIONARY:
+			for child: Variant in (value as Dictionary).values():
+				if _variant_contains_activation_copy(child):
+					return true
+	return false
 
 static func _expect_action_delta(expect: Callable, card_id: String, relic_id: String, action_type: String, field: String, expected_delta: int) -> void:
 	var base_action: Dictionary = _first_action_of_type(GameData.card_def(card_id), action_type)

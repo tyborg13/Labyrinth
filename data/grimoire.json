@@ -116,7 +116,7 @@
 			"icon": "turn_clock",
 			"body": [
 				"Each played card adds its printed time to the acting unit's turn delay.",
-				"The turn clock orders actors by current delay and previews the next activations."
+				"The turn clock orders actors by current delay and previews the next turns."
 			]
 		},
 		{
@@ -206,7 +206,7 @@
 			"icon": "lightning_strikes",
 			"body": [
 				"Lightning strikes select a set of target tiles from the action definition and resolve shock damage on those tiles.",
-				"Strike tiles are previewed before the enemy activation resolves."
+				"Strike tiles are previewed before the enemy turn resolves."
 			]
 		},
 		{
@@ -289,7 +289,7 @@
 			"icon": "block",
 			"body": [
 				"Block absorbs non-piercing damage before stoneskin and health.",
-				"Block is cleared when that unit begins its next activation."
+				"Block is cleared when that unit begins its next turn."
 			]
 		},
 		{
@@ -363,8 +363,8 @@
 			"default": true,
 			"icon": "immobilize",
 			"body": [
-				"Immobilize prevents move and blink actions on the affected unit's next activation.",
-				"The immobilize flag clears after that activation is processed."
+				"Immobilize prevents move and blink actions on the affected unit's next turn.",
+				"The immobilize flag clears after that turn is processed."
 			]
 		},
 		{
@@ -406,7 +406,7 @@
 			"icon": "bleed",
 			"body": [
 				"Bleed stores a damage value on the affected unit.",
-				"Before that unit resolves a real move or attack action, bleed deals its stored damage. The bleed value clears after that unit's next activation."
+				"Before that unit resolves a real move or attack action, bleed deals its stored damage. The bleed value clears after that unit's next turn."
 			]
 		},
 		{
@@ -415,7 +415,7 @@
 			"title": "Burn",
 			"icon": "burn",
 			"body": [
-				"Burn deals its current value as damage at the start of the affected unit's activation.",
+				"Burn deals its current value as damage at the start of the affected unit's turn.",
 				"After the tick, burn is reduced by the status decay value."
 			]
 		},
@@ -435,7 +435,7 @@
 			"title": "Freeze",
 			"icon": "freeze",
 			"body": [
-				"Freeze skips the affected unit's next activation.",
+				"Freeze skips the affected unit's next turn.",
 				"Freeze also doubles incoming damage while its stored value is above zero."
 			]
 		},
@@ -525,7 +525,7 @@
 			"icon": "illuminate",
 			"body": [
 				"Illuminate places a light source on the targeted tile and reveals Umbra within its printed radius.",
-				"Its counter shows how many player activations remain. A lasting light displays an infinity symbol instead."
+				"Its counter shows how many player turns remain. A lasting light displays an infinity symbol instead."
 			]
 		},
 		{
@@ -535,7 +535,7 @@
 			"icon": "vision",
 			"body": [
 				"Vision temporarily increases the radius of light centered on the player by the printed amount.",
-				"The bonus counts down on player activations; when it ends, the Umbra gradually closes over newly hidden tiles."
+				"The bonus counts down on player turns; when it ends, the Umbra gradually closes over newly hidden tiles."
 			]
 		},
 		{
@@ -545,7 +545,7 @@
 			"icon": "truesight",
 			"body": [
 				"Truesight reveals enemies through the Umbra and permits direct attacks against them even while their tiles remain dark.",
-				"Its player-HUD counter shows how many player activations remain. Truesight does not illuminate board tiles."
+				"Its player-HUD counter shows how many player turns remain. Truesight does not illuminate board tiles."
 			]
 		},
 		{
@@ -695,7 +695,7 @@
 			"icon": "cinder_marks",
 			"body": [
 				"Vyraketh brands open tiles with cinder marks that can be attacked and triggered like traps.",
-				"On its next activation, Crownfire detonates every mark that remains. Each blast can overlap adjacent marks."
+				"On its next turn, Crownfire detonates every mark that remains. Each blast can overlap adjacent marks."
 			]
 		},
 		{
@@ -750,7 +750,7 @@
 			"section": "creatures",
 			"enemy_id": "vyraketh",
 			"title": "Vyraketh, the Cinder Crown",
-			"body": ["Fire dragon boss that covers the arena in cinder marks.", "Crownfire always follows a successful Kindle Ground, creating a one-activation disarm window."]
+			"body": ["Fire dragon boss that covers the arena in cinder marks.", "Crownfire always follows a successful Kindle Ground, creating a one-turn disarm window."]
 		},
 		{
 			"id": "enemy:vaeloryx",

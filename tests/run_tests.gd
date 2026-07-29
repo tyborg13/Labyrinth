@@ -621,7 +621,7 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 		var icon_path: String = str(relic.get("icon_path", ""))
 		_assert(FileAccess.file_exists(icon_path), "%s relic icon should exist" % relic_id)
 	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("half that much"), "Thornmail Brooch should explain its conditional stoneskin scaling")
-	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("all remaining block"), "Obsidian Heart should explain its end-of-activation block conversion")
+	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("all remaining block"), "Obsidian Heart should explain its end-of-turn block conversion")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("Draw 1 fewer"), "Obsidian Heart should format negative draw as a positive fewer amount")
 	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("deal 12"), "Black Sun Dial should display its legendary all-enemy payoff")
 	_assert(GameData.relic_offer_weight("iron_lung") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")

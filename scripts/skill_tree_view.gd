@@ -1093,7 +1093,7 @@ func _refresh_detail() -> void:
 	_detail_status.add_theme_color_override("font_color", _state_color(state).lightened(0.12))
 	_detail_title.text = SkillTreeLibrary.display_name(_focused_id)
 	_detail_description.text = SkillTreeLibrary.description(_focused_id)
-	_detail_activation.text = "ACTIVATION  ·  %s" % SkillTreeLibrary.activation_kind(_focused_id).to_upper()
+	_detail_activation.text = "TIMING  ·  %s" % SkillTreeLibrary.activation_kind(_focused_id).to_upper()
 	_detail_requirements.text = _requirements_text(_focused_id)
 	_detail_unlocks.text = _unlocks_text(_focused_id)
 	_detail_reason.text = _detail_reason_text(_focused_id, state)
