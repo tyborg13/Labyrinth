@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-29T14:59:43Z",
+  "updated_at": "2026-07-29T16:46:53Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6537,7 +6537,7 @@
       }
     },
     {
-      "id": "mnt_20260729T145943Z_e3906877",
+      "id": "mnt_20260729T164653Z_f5d97fb4",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -6546,16 +6546,18 @@
         "symbol": null
       },
       "scope_key": "folder:scripts",
-      "summary": "All combat on-effect popups share the pop-settle-drift-linger treatment",
-      "details": "Damage, defense, stoneskin, healing, status, resource, fatigue, terrain, and other nonempty combat floating-text presentations use the shared FloatingCombatText curve and roughly 0.78-second schedule. Reduced motion holds one stable readable size and position before fading. Preserve semantic colors and icons.",
+      "summary": "Combat popups use actor-local continuous arcs with per-target staggering",
+      "details": "Anchor every damage, defense, healing, status, resource, card-play, and terrain popup to the affected unit or terrain draw rect. At normal motion, update every display frame; start at impact size, reach a 58 px outward apex around 34% of the 0.84 s lifetime, then drift down while shrinking and lingering. Stagger same-target results by 0.13 s so each reclaims the impact beat; simultaneous different targets remain simultaneous. Reduced motion keeps a fixed size and position with a 36 px stable stack. Visual proof defaults to 1920x1080 at 100% UI.",
       "status": "active",
-      "created_at": "2026-07-29T14:59:43Z",
-      "updated_at": "2026-07-29T14:59:43Z",
+      "created_at": "2026-07-29T16:46:53Z",
+      "updated_at": "2026-07-29T16:46:53Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260729T145943Z_e3906877"
+      ],
       "source": {
         "branch": "codex/improve-combat-damage-number-dynamics-inspired-by-slay-the-spire",
-        "commit": "1760679"
+        "commit": "1d99663"
       }
     }
   ]

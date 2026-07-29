@@ -5102,28 +5102,32 @@ func _draw_floating_texts() -> void:
 		var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
 		if tile.x < 0:
 			continue
-		var rise: float = float(entry.get("rise", 0.0))
-		var anchor_y: float = float(entry.get("anchor_y", -84.0))
-		var drift_y: float = rise if is_popup else -rise
-		var tile_center: Vector2 = _tile_center(tile)
 		var label_width: float = float(entry.get("width", 48.0))
-		var text_pos: Vector2 = tile_center + Vector2(
-			float(entry.get("x_offset", -18.0)),
-			anchor_y + float(entry.get("offset", 0.0)) + drift_y
-		)
-		if is_popup and _floating_text_targets_player(tile):
-			text_pos.y += maxf(56.0, _tile_height() * 0.72)
-			if bool(entry.get("automatic_lane", false)):
-				text_pos.x = tile_center.x - label_width * 0.5
+		var font_scale: float = clampf(float(entry.get("font_scale", 1.0)), 0.1, 2.0)
+		var motion_offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
+		var text_pos: Vector2
+		if is_popup and bool(entry.get("automatic_anchor", false)):
+			var place_right: bool = _floating_text_places_right(tile)
+			motion_offset.x = absf(motion_offset.x) * (1.0 if place_right else -1.0)
+			text_pos = _floating_text_local_origin(tile, label_width * font_scale)
+		else:
+			var tile_center: Vector2 = _tile_center(tile)
+			text_pos = tile_center + Vector2(
+				float(entry.get("x_offset", -18.0)),
+				float(entry.get("anchor_y", -84.0))
+			)
+		text_pos += motion_offset + Vector2(0.0, float(entry.get("offset", 0.0)))
 		var color: Color = entry.get("color", Color("f8f0da"))
 		color.a *= clampf(float(entry.get("alpha", 1.0)), 0.0, 1.0)
 		var font_size: int = int(entry.get("font_size", 16))
 		var text: String = str(entry.get("text", ""))
 		var alignment: HorizontalAlignment = entry.get("alignment", HORIZONTAL_ALIGNMENT_LEFT)
+		draw_set_transform(text_pos, 0.0, Vector2(font_scale, font_scale))
+		var local_text_pos := Vector2.ZERO
 		var icon_key: String = str(entry.get("icon", ""))
 		if not icon_key.is_empty():
 			var icon_size: float = float(entry.get("icon_size", 18.0))
-			var icon_rect := Rect2(text_pos + Vector2(0.0, -icon_size + 2.0), Vector2(icon_size, icon_size))
+			var icon_rect := Rect2(Vector2(0.0, -icon_size + 2.0), Vector2(icon_size, icon_size))
 			var icon_fill: Color = entry.get("icon_fill", Color(0.12, 0.06, 0.05, 0.90))
 			icon_fill.a *= color.a
 			var icon_border: Color = entry.get("icon_border", color)
@@ -5133,14 +5137,14 @@ func _draw_floating_texts() -> void:
 			draw_circle(icon_rect.get_center(), icon_size * 0.56, icon_fill)
 			draw_arc(icon_rect.get_center(), icon_size * 0.56, 0.0, TAU, 20, icon_border, 1.3)
 			_draw_keyword_icon(icon_key, icon_rect.grow(-2.0), "", icon_tint)
-			text_pos.x += icon_size + 4.0
+			local_text_pos.x += icon_size + 4.0
 			label_width = maxf(0.0, label_width - icon_size - 4.0)
 		var outline_size: int = int(entry.get("outline_size", 2))
 		var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
 		if not shadow_offset.is_zero_approx():
 			var shadow_color: Color = entry.get("shadow_color", Color(0.03, 0.01, 0.01, 0.70))
 			shadow_color.a *= color.a
-			draw_string(font, text_pos + shadow_offset, text, alignment, label_width, font_size, shadow_color)
+			draw_string(font, local_text_pos + shadow_offset, text, alignment, label_width, font_size, shadow_color)
 		if outline_size > 0:
 			var outline_color: Color = entry.get("outline_color", Color("200806"))
 			outline_color.a *= color.a
@@ -5150,13 +5154,40 @@ func _draw_floating_texts() -> void:
 						continue
 					if Vector2(outline_x, outline_y).length() > float(outline_size) + 0.35:
 						continue
-					draw_string(font, text_pos + Vector2(outline_x, outline_y), text, alignment, label_width, font_size, outline_color)
-		draw_string(font, text_pos, text, alignment, label_width, font_size, color)
+					draw_string(font, local_text_pos + Vector2(outline_x, outline_y), text, alignment, label_width, font_size, outline_color)
+		draw_string(font, local_text_pos, text, alignment, label_width, font_size, color)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
-func _floating_text_targets_player(tile: Vector2i) -> bool:
-	var player: Dictionary = combat_state.get("player", {})
-	var player_pos: Vector2i = player.get("pos", Vector2i(-1, -1))
-	return not player.is_empty() and player_pos == tile
+func _floating_text_local_origin(tile: Vector2i, rendered_width: float) -> Vector2:
+	var target_rect: Rect2 = _floating_text_target_rect(tile)
+	var place_right: bool = _floating_text_places_right(tile)
+	var gap: float = clampf(_tile_width() * 0.07, 8.0, 14.0)
+	var x: float = target_rect.end.x + gap if place_right else target_rect.position.x - gap - rendered_width
+	var y: float = lerpf(target_rect.position.y, target_rect.end.y, 0.42)
+	x = clampf(x, 12.0, maxf(12.0, size.x - rendered_width - 12.0))
+	y = clampf(y, 36.0, maxf(36.0, size.y - 28.0))
+	return Vector2(x, y)
+
+func _floating_text_places_right(tile: Vector2i) -> bool:
+	return _floating_text_target_rect(tile).get_center().x >= size.x * 0.5
+
+func _floating_text_target_rect(tile: Vector2i) -> Rect2:
+	for unit: Dictionary in _visible_units():
+		if _unit_footprint_tiles(unit).has(tile):
+			return _unit_draw_rect(unit)
+	for terrain_var: Variant in combat_state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if terrain.get("pos", Vector2i(-1, -1)) != tile:
+			continue
+		var terrain_kind: String = str(terrain.get("kind", ""))
+		var texture: Texture2D = _terrain_textures.get(terrain_kind, null)
+		return _terrain_rect_for_tile(tile, texture, terrain_kind)
+	var center: Vector2 = _tile_center(tile)
+	var width: float = _tile_width() * 0.72
+	var height: float = _tile_height() * 0.92
+	return Rect2(center - Vector2(width * 0.5, height * 0.72), Vector2(width, height))
 
 func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
 	if progress >= 0.82:

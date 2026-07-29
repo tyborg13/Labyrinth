@@ -7,6 +7,7 @@ const RunScene = preload("res://scripts/run_scene.gd")
 static func run(expect: Callable) -> void:
 	_test_damage_motion_curve(expect)
 	_test_effect_popup_motion_curve(expect)
+	_test_compound_popups_stagger_per_target(expect)
 	_test_reduced_motion_hold(expect)
 	_test_damage_entries_are_explicit(expect)
 
@@ -14,26 +15,41 @@ static func run(expect: Callable) -> void:
 static func _test_damage_motion_curve(expect: Callable) -> void:
 	var base: Dictionary = FloatingCombatText.damage_entry(Vector2i(4, 3), "-13", Color("f39779"))
 	var impact: Dictionary = FloatingCombatText.animate_entry(base, 0.0, false)
-	var settled: Dictionary = FloatingCombatText.animate_entry(base, 0.32, false)
+	var rising: Dictionary = FloatingCombatText.animate_entry(base, 0.25, false)
+	var apex: Dictionary = FloatingCombatText.animate_entry(
+		base,
+		FloatingCombatText.ARC_APEX_PROGRESS,
+		false
+	)
 	var linger: Dictionary = FloatingCombatText.animate_entry(base, 0.76, false)
 	var finished: Dictionary = FloatingCombatText.animate_entry(base, 1.0, false)
 	expect.call(
-		int(impact.get("font_size", 0)) >= FloatingCombatText.DAMAGE_PEAK_FONT_SIZE,
+		FloatingCombatText.rendered_font_size(impact) >= float(FloatingCombatText.DAMAGE_PEAK_FONT_SIZE),
 		"Damage feedback should arrive at a hero-sized impact peak"
 	)
 	expect.call(
-		int(impact.get("font_size", 0)) > int(settled.get("font_size", 0))
-		and int(settled.get("font_size", 0)) > int(linger.get("font_size", 0)),
-		"Damage feedback should settle quickly, then shrink more gently while it drifts"
+		FloatingCombatText.rendered_font_size(impact) > FloatingCombatText.rendered_font_size(rising)
+		and FloatingCombatText.rendered_font_size(rising) > FloatingCombatText.rendered_font_size(linger),
+		"Damage feedback should scale continuously from its impact peak into its linger size"
+	)
+	var impact_motion: Vector2 = impact.get("motion_offset", Vector2.INF)
+	var rising_motion: Vector2 = rising.get("motion_offset", Vector2.INF)
+	var apex_motion: Vector2 = apex.get("motion_offset", Vector2.INF)
+	var linger_motion: Vector2 = linger.get("motion_offset", Vector2.INF)
+	var finished_motion: Vector2 = finished.get("motion_offset", Vector2.INF)
+	expect.call(
+		impact_motion.is_zero_approx()
+		and rising_motion.y < impact_motion.y
+		and apex_motion.y < rising_motion.y
+		and linger_motion.y > apex_motion.y
+		and finished_motion.y > impact_motion.y
+		and absf(linger_motion.x) > absf(rising_motion.x),
+		"Damage feedback should rise, bend laterally, then fall through a real two-dimensional arc"
 	)
 	expect.call(
-		float(impact.get("rise", -1.0)) < float(settled.get("rise", -1.0))
-		and float(settled.get("rise", -1.0)) < float(linger.get("rise", -1.0)),
-		"Damage feedback should drift monotonically away from its target"
-	)
-	expect.call(
-		float(base.get("anchor_y", -1.0)) > 0.0,
-		"Damage feedback should occupy the struck actor lane instead of the HUD lane"
+		bool(base.get("automatic_anchor", false))
+		and base.get("tile", Vector2i(-1, -1)) == Vector2i(4, 3),
+		"Damage feedback should keep a target-local actor anchor"
 	)
 	expect.call(
 		is_equal_approx(float(linger.get("alpha", 0.0)), 1.0)
@@ -41,8 +57,9 @@ static func _test_damage_motion_curve(expect: Callable) -> void:
 		"Damage feedback should remain fully readable into its linger beat before fading"
 	)
 	expect.call(
-		FloatingCombatText.DAMAGE_FRAME_COUNT * FloatingCombatText.DAMAGE_FRAME_SECONDS >= 0.72,
-		"Damage feedback should remain scheduled for at least 0.72 seconds"
+		FloatingCombatText.ANIMATION_DURATION_SECONDS >= 0.80
+		and FloatingCombatText.TARGET_FRAME_SECONDS <= (1.0 / 60.0) + 0.0001,
+		"Damage feedback should linger while targeting display-frame updates instead of coarse timer steps"
 	)
 
 
@@ -51,8 +68,8 @@ static func _test_reduced_motion_hold(expect: Callable) -> void:
 	var early: Dictionary = FloatingCombatText.animate_entry(base, 0.0, true)
 	var late: Dictionary = FloatingCombatText.animate_entry(base, 0.82, true)
 	expect.call(
-		int(early.get("font_size", 0)) == int(late.get("font_size", -1))
-		and is_equal_approx(float(early.get("rise", -1.0)), float(late.get("rise", -2.0))),
+		is_equal_approx(FloatingCombatText.rendered_font_size(early), FloatingCombatText.rendered_font_size(late))
+		and (early.get("motion_offset", Vector2.INF) as Vector2).is_equal_approx(late.get("motion_offset", Vector2.ZERO)),
 		"Reduced motion should hold damage at one readable size and position"
 	)
 	expect.call(
@@ -67,9 +84,21 @@ static func _test_reduced_motion_hold(expect: Callable) -> void:
 	var effect_early: Dictionary = FloatingCombatText.animate_entry(effect_base, 0.0, true)
 	var effect_late: Dictionary = FloatingCombatText.animate_entry(effect_base, 0.82, true)
 	expect.call(
-		int(effect_early.get("font_size", 0)) == int(effect_late.get("font_size", -1))
-		and is_equal_approx(float(effect_early.get("rise", -1.0)), float(effect_late.get("rise", -2.0))),
+		is_equal_approx(FloatingCombatText.rendered_font_size(effect_early), FloatingCombatText.rendered_font_size(effect_late))
+		and (effect_early.get("motion_offset", Vector2.INF) as Vector2).is_equal_approx(effect_late.get("motion_offset", Vector2.ZERO)),
 		"Reduced motion should hold every effect popup at one readable size and position"
+	)
+	var compound: Array[Dictionary] = FloatingCombatText.animate_entries([
+		base,
+		{"tile": Vector2i(4, 3), "text": "-4 B", "color": Color("90d9ff")},
+		{"tile": Vector2i(4, 3), "text": "Bleed", "color": Color("f1d18b")},
+	], FloatingCombatText.STAGGER_SECONDS * 2.0 + 0.03, true)
+	expect.call(
+		compound.size() == 3
+		and (compound[0].get("motion_offset", Vector2.INF) as Vector2) == Vector2.ZERO
+		and (compound[1].get("motion_offset", Vector2.INF) as Vector2) == Vector2(0.0, -FloatingCombatText.REDUCED_STACK_STEP_Y)
+		and (compound[2].get("motion_offset", Vector2.INF) as Vector2) == Vector2(0.0, -FloatingCombatText.REDUCED_STACK_STEP_Y * 2.0),
+		"Reduced motion should sequence compound feedback in a stable local stack"
 	)
 
 
@@ -84,24 +113,64 @@ static func _test_effect_popup_motion_curve(expect: Callable) -> void:
 	var linger: Dictionary = FloatingCombatText.animate_entry(base, 0.76, false)
 	expect.call(
 		FloatingCombatText.is_effect_entry(impact)
-		and int(impact.get("font_size", 0)) >= FloatingCombatText.EFFECT_PEAK_FONT_SIZE,
+		and FloatingCombatText.rendered_font_size(impact) >= float(FloatingCombatText.EFFECT_PEAK_FONT_SIZE),
 		"Defense, healing, status, and other effect popups should receive the same readable impact treatment"
 	)
 	expect.call(
-		int(impact.get("font_size", 0)) > int(settled.get("font_size", 0))
-		and int(settled.get("font_size", 0)) > int(linger.get("font_size", 0))
-		and float(impact.get("rise", -1.0)) < float(linger.get("rise", -1.0)),
+		FloatingCombatText.rendered_font_size(impact) > FloatingCombatText.rendered_font_size(settled)
+		and FloatingCombatText.rendered_font_size(settled) > FloatingCombatText.rendered_font_size(linger)
+		and absf((impact.get("motion_offset", Vector2.ZERO) as Vector2).x)
+		< absf((linger.get("motion_offset", Vector2.ZERO) as Vector2).x),
 		"Every effect popup should pop, settle, shrink, and drift through the shared motion curve"
 	)
 	expect.call(
-		FloatingCombatText.frame_count([base]) == FloatingCombatText.DAMAGE_FRAME_COUNT
+		is_equal_approx(FloatingCombatText.total_duration([base]), FloatingCombatText.ANIMATION_DURATION_SECONDS)
 		and is_equal_approx(float(linger.get("alpha", 0.0)), 1.0),
 		"Every effect popup should receive the longer shared linger schedule"
 	)
+
+
+static func _test_compound_popups_stagger_per_target(expect: Callable) -> void:
+	var same_target: Array = [
+		FloatingCombatText.damage_entry(Vector2i(5, 3), "-13", Color("f39779")),
+		{"tile": Vector2i(5, 3), "text": "-4 B", "color": Color("90d9ff")},
+		{"tile": Vector2i(5, 3), "text": "Bleed", "color": Color("f1d18b")},
+	]
+	var first_pop: Array[Dictionary] = FloatingCombatText.animate_entries(same_target, 0.05, false)
+	var second_pop: Array[Dictionary] = FloatingCombatText.animate_entries(
+		same_target,
+		FloatingCombatText.STAGGER_SECONDS + 0.03,
+		false
+	)
+	var third_pop: Array[Dictionary] = FloatingCombatText.animate_entries(
+		same_target,
+		FloatingCombatText.STAGGER_SECONDS * 2.0 + 0.03,
+		false
+	)
 	expect.call(
-		RunScene.FATIGUE_EFFECT_FRAMES * RunScene.FATIGUE_EFFECT_FRAME_SECONDS
-		>= FloatingCombatText.DAMAGE_FRAME_COUNT * FloatingCombatText.DAMAGE_FRAME_SECONDS,
-		"Fatigue feedback should keep the full shared popup schedule"
+		first_pop.size() == 1 and second_pop.size() == 2 and third_pop.size() == 3,
+		"Compound feedback on one actor should arrive pop-pop-pop instead of appearing in one batch"
+	)
+	expect.call(
+		FloatingCombatText.rendered_font_size(third_pop[2]) > FloatingCombatText.rendered_font_size(third_pop[1])
+		and FloatingCombatText.rendered_font_size(third_pop[2]) > FloatingCombatText.rendered_font_size(third_pop[0]),
+		"Each newly staggered popup should reclaim the large impact emphasis over the settling stack"
+	)
+	expect.call(
+		is_equal_approx(
+			FloatingCombatText.total_duration(same_target),
+			FloatingCombatText.ANIMATION_DURATION_SECONDS + FloatingCombatText.STAGGER_SECONDS * 2.0
+		),
+		"Compound feedback should give the final popup its own complete arc and linger"
+	)
+	var separate_targets: Array = [
+		FloatingCombatText.damage_entry(Vector2i(4, 2), "-7", Color("f39779")),
+		FloatingCombatText.damage_entry(Vector2i(5, 3), "-13", Color("f39779")),
+		FloatingCombatText.damage_entry(Vector2i(6, 4), "-21", Color("f39779")),
+	]
+	expect.call(
+		FloatingCombatText.animate_entries(separate_targets, 0.02, false).size() == 3,
+		"Simultaneous multi-target feedback should stay local to each independently affected actor"
 	)
 
 
@@ -127,7 +196,7 @@ static func _test_damage_entries_are_explicit(expect: Callable) -> void:
 	expect.call(
 		player_damage.size() == 1
 		and FloatingCombatText.is_damage_entry(player_damage[0] as Dictionary)
-		and int((player_damage[0] as Dictionary).get("font_size", 0)) == FloatingCombatText.DAMAGE_BASE_FONT_SIZE,
+		and bool((player_damage[0] as Dictionary).get("automatic_anchor", false)),
 		"Direct HP losses should opt into the large damage-number composition"
 	)
 	expect.call(
@@ -135,5 +204,17 @@ static func _test_damage_entries_are_explicit(expect: Callable) -> void:
 		and FloatingCombatText.is_damage_entry(bleed_damage[0] as Dictionary)
 		and str((bleed_damage[0] as Dictionary).get("icon", "")) == "bleed",
 		"Status damage should share the damage dynamics without losing its semantic icon"
+	)
+	var player_effects: Array = scene.call("_floating_texts_for_step", {
+		"kind": "block",
+		"tile": Vector2i(2, 4),
+		"amount": 8,
+	})
+	var animated_player_effects: Array[Dictionary] = FloatingCombatText.animate_entries(player_effects, 0.0, false)
+	expect.call(
+		animated_player_effects.size() == 1
+		and (animated_player_effects[0] as Dictionary).get("tile", Vector2i(-1, -1)) == Vector2i(2, 4)
+		and bool((animated_player_effects[0] as Dictionary).get("automatic_anchor", false)),
+		"Player gains should preserve the receiving player's tile for local popup anchoring"
 	)
 	scene.free()

@@ -4,10 +4,10 @@ class_name FloatingCombatText
 const KIND_DAMAGE: String = "damage"
 const KIND_EFFECT: String = "effect"
 
-const GENERIC_FRAME_COUNT: int = 7
-const GENERIC_FRAME_SECONDS: float = 0.05
-const DAMAGE_FRAME_COUNT: int = 13
-const DAMAGE_FRAME_SECONDS: float = 0.06
+const GENERIC_PRESENTATION_SECONDS: float = 0.35
+const ANIMATION_DURATION_SECONDS: float = 0.84
+const STAGGER_SECONDS: float = 0.13
+const TARGET_FRAME_SECONDS: float = 1.0 / 60.0
 
 const DAMAGE_BASE_FONT_SIZE: int = 30
 const DAMAGE_PEAK_FONT_SIZE: int = 52
@@ -15,16 +15,15 @@ const DAMAGE_EXIT_FONT_SIZE: int = 23
 const DAMAGE_REDUCED_MOTION_FONT_SIZE: int = 32
 const DAMAGE_OUTLINE_SIZE: int = 4
 const DAMAGE_WIDTH: float = 112.0
-const DAMAGE_ANCHOR_Y: float = 8.0
-const DAMAGE_DRIFT_Y: float = 30.0
-const DAMAGE_LANE_OFFSET_X: float = 104.0
-const EFFECT_LANE_OFFSET_X: float = 120.0
-const COMPANION_X_OFFSET: float = 136.0
-const COMPANION_WIDTH: float = 112.0
-const WIDE_COMPANION_WIDTH: float = 184.0
 const DAMAGE_SETTLE_PROGRESS: float = 0.28
 const DAMAGE_FADE_START: float = 0.78
 const DAMAGE_REDUCED_FADE_START: float = 0.88
+const ARC_RISE_HEIGHT: float = 58.0
+const ARC_LATERAL_DRIFT: float = 34.0
+const ARC_END_DROP: float = 18.0
+const ARC_APEX_PROGRESS: float = 0.34
+const NORMAL_STACK_STEP_Y: float = 0.0
+const REDUCED_STACK_STEP_Y: float = 36.0
 
 const EFFECT_BASE_FONT_SIZE: int = 24
 const EFFECT_PEAK_FONT_SIZE: int = 42
@@ -39,15 +38,12 @@ static func damage_entry(
 	color: Color,
 	overrides: Dictionary = {}
 ) -> Dictionary:
-	var lane_offset_x: float = _lane_offset_x(tile, DAMAGE_LANE_OFFSET_X)
 	var entry: Dictionary = {
 		"kind": KIND_DAMAGE,
 		"tile": tile,
 		"text": text,
 		"color": color,
-		"x_offset": -DAMAGE_WIDTH * 0.5 + lane_offset_x,
-		"automatic_lane": true,
-		"anchor_y": DAMAGE_ANCHOR_Y,
+		"automatic_anchor": true,
 		"width": DAMAGE_WIDTH,
 		"font_size": DAMAGE_BASE_FONT_SIZE,
 		"outline_size": DAMAGE_OUTLINE_SIZE,
@@ -72,30 +68,73 @@ static func is_popup_entry(entry: Dictionary) -> bool:
 	return is_damage_entry(entry) or is_effect_entry(entry)
 
 
-static func frame_count(entries: Array) -> int:
-	return DAMAGE_FRAME_COUNT if not entries.is_empty() else GENERIC_FRAME_COUNT
+static func animate_entries(base_entries: Array, elapsed_seconds: float, reduced_motion: bool) -> Array[Dictionary]:
+	var animated: Array[Dictionary] = []
+	var sequence_count_by_anchor: Dictionary = {}
+	for base_var: Variant in base_entries:
+		if typeof(base_var) != TYPE_DICTIONARY:
+			continue
+		var base_entry: Dictionary = base_var
+		var anchor_key: String = _anchor_key(base_entry)
+		var sequence_index: int = int(sequence_count_by_anchor.get(anchor_key, 0))
+		sequence_count_by_anchor[anchor_key] = sequence_index + 1
+		var delay_seconds: float = float(sequence_index) * STAGGER_SECONDS
+		if elapsed_seconds + 0.0001 < delay_seconds:
+			continue
+		var local_elapsed: float = maxf(0.0, elapsed_seconds - delay_seconds)
+		var local_progress: float = clampf(local_elapsed / ANIMATION_DURATION_SECONDS, 0.0, 1.0)
+		var entry: Dictionary = animate_entry(base_entry, local_progress, reduced_motion)
+		entry["sequence_index"] = sequence_index
+		entry["sequence_delay_seconds"] = delay_seconds
+		var motion_offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
+		if reduced_motion:
+			motion_offset.y -= float(sequence_index) * REDUCED_STACK_STEP_Y
+		else:
+			motion_offset.y -= float(sequence_index) * NORMAL_STACK_STEP_Y
+		entry["motion_offset"] = motion_offset
+		animated.append(entry)
+	return animated
 
 
-static func frame_seconds(entries: Array) -> float:
-	return DAMAGE_FRAME_SECONDS if not entries.is_empty() else GENERIC_FRAME_SECONDS
+static func total_duration(base_entries: Array) -> float:
+	if base_entries.is_empty():
+		return GENERIC_PRESENTATION_SECONDS
+	var sequence_count_by_anchor: Dictionary = {}
+	var largest_sequence_index: int = 0
+	for base_var: Variant in base_entries:
+		if typeof(base_var) != TYPE_DICTIONARY:
+			continue
+		var base_entry: Dictionary = base_var
+		var anchor_key: String = _anchor_key(base_entry)
+		var sequence_index: int = int(sequence_count_by_anchor.get(anchor_key, 0))
+		sequence_count_by_anchor[anchor_key] = sequence_index + 1
+		largest_sequence_index = maxi(largest_sequence_index, sequence_index)
+	return ANIMATION_DURATION_SECONDS + float(largest_sequence_index) * STAGGER_SECONDS
+
+
+static func rendered_font_size(entry: Dictionary) -> float:
+	return float(entry.get("font_size", 0)) * float(entry.get("font_scale", 1.0))
 
 
 static func animate_entry(base_entry: Dictionary, progress: float, reduced_motion: bool) -> Dictionary:
 	var entry: Dictionary = base_entry.duplicate(true)
 	var t: float = clampf(progress, 0.0, 1.0)
 	if is_damage_entry(entry):
-		return _animate_damage_entry(entry, t, reduced_motion)
-	return _animate_effect_entry(entry, t, reduced_motion)
+		entry = _animate_damage_entry(entry, t, reduced_motion)
+	else:
+		entry = _animate_effect_entry(entry, t, reduced_motion)
+	entry["motion_offset"] = _motion_offset(entry, t, reduced_motion)
+	entry["animation_progress"] = t
+	return entry
 
 
 static func _animate_damage_entry(entry: Dictionary, t: float, reduced_motion: bool) -> Dictionary:
 	var base_font_size: int = int(entry.get("font_size", DAMAGE_BASE_FONT_SIZE))
 	if reduced_motion:
 		entry["font_size"] = maxi(base_font_size, DAMAGE_REDUCED_MOTION_FONT_SIZE)
+		entry["font_scale"] = 1.0
 		entry["outline_size"] = maxi(int(entry.get("outline_size", DAMAGE_OUTLINE_SIZE)), DAMAGE_OUTLINE_SIZE)
-		entry["rise"] = 8.0
 		entry["alpha"] = _alpha_for_progress(t, DAMAGE_REDUCED_FADE_START)
-		_scale_entry_icon(entry, float(entry["font_size"]) / float(maxi(1, base_font_size)))
 		return entry
 
 	var peak_font_size: int = maxi(base_font_size, int(entry.get("impact_font_size", DAMAGE_PEAK_FONT_SIZE)))
@@ -103,16 +142,16 @@ static func _animate_damage_entry(entry: Dictionary, t: float, reduced_motion: b
 	var animated_font_size: float
 	if t <= DAMAGE_SETTLE_PROGRESS:
 		var settle_t: float = clampf(t / DAMAGE_SETTLE_PROGRESS, 0.0, 1.0)
-		var settle_ease: float = 1.0 - pow(1.0 - settle_t, 3.0)
+		var settle_ease: float = smoothstep(0.0, 1.0, settle_t)
 		animated_font_size = lerpf(float(peak_font_size), float(base_font_size), settle_ease)
 	else:
 		var exit_t: float = clampf((t - DAMAGE_SETTLE_PROGRESS) / (1.0 - DAMAGE_SETTLE_PROGRESS), 0.0, 1.0)
 		animated_font_size = lerpf(float(base_font_size), float(exit_font_size), smoothstep(0.0, 1.0, exit_t))
-	entry["font_size"] = maxi(1, roundi(animated_font_size))
-	entry["outline_size"] = maxi(3, roundi(lerpf(5.0, 3.0, t)))
-	entry["rise"] = DAMAGE_DRIFT_Y * (1.0 - pow(1.0 - t, 2.0))
+	entry["font_size"] = peak_font_size
+	entry["font_scale"] = animated_font_size / float(maxi(1, peak_font_size))
+	entry["outline_size"] = 5
 	entry["alpha"] = _alpha_for_progress(t, DAMAGE_FADE_START)
-	_scale_entry_icon(entry, animated_font_size / float(maxi(1, base_font_size)))
+	_prepare_scaled_icon(entry, float(peak_font_size) / float(maxi(1, base_font_size)))
 	return entry
 
 
@@ -128,38 +167,32 @@ static func _animate_effect_entry(entry: Dictionary, t: float, reduced_motion: b
 	_prepare_effect_composition(entry, text_length, base_font_size)
 	if reduced_motion:
 		entry["font_size"] = maxi(base_font_size, EFFECT_REDUCED_MOTION_FONT_SIZE if text_length <= 7 else base_font_size)
+		entry["font_scale"] = 1.0
 		entry["outline_size"] = maxi(int(entry.get("outline_size", EFFECT_OUTLINE_SIZE)), EFFECT_OUTLINE_SIZE)
-		entry["rise"] = 8.0
 		entry["alpha"] = _alpha_for_progress(t, DAMAGE_REDUCED_FADE_START)
-		_scale_entry_icon(entry, float(entry["font_size"]) / float(maxi(1, base_font_size)))
 		return entry
 
 	var animated_font_size: float
 	if t <= DAMAGE_SETTLE_PROGRESS:
 		var settle_t: float = clampf(t / DAMAGE_SETTLE_PROGRESS, 0.0, 1.0)
-		var settle_ease: float = 1.0 - pow(1.0 - settle_t, 3.0)
+		var settle_ease: float = smoothstep(0.0, 1.0, settle_t)
 		animated_font_size = lerpf(float(peak_font_size), float(base_font_size), settle_ease)
 	else:
 		var exit_t: float = clampf((t - DAMAGE_SETTLE_PROGRESS) / (1.0 - DAMAGE_SETTLE_PROGRESS), 0.0, 1.0)
 		animated_font_size = lerpf(float(base_font_size), float(exit_font_size), smoothstep(0.0, 1.0, exit_t))
-	entry["font_size"] = maxi(1, roundi(animated_font_size))
-	entry["outline_size"] = maxi(2, roundi(lerpf(4.0, 2.0, t)))
-	entry["rise"] = DAMAGE_DRIFT_Y * (1.0 - pow(1.0 - t, 2.0))
+	entry["font_size"] = peak_font_size
+	entry["font_scale"] = animated_font_size / float(maxi(1, peak_font_size))
+	entry["outline_size"] = 4
 	entry["alpha"] = _alpha_for_progress(t, DAMAGE_FADE_START)
-	_scale_entry_icon(entry, animated_font_size / float(maxi(1, base_font_size)))
+	_prepare_scaled_icon(entry, float(peak_font_size) / float(maxi(1, base_font_size)))
 	return entry
 
 
 static func _prepare_effect_composition(entry: Dictionary, text_length: int, base_font_size: int) -> void:
-	var tile: Vector2i = entry.get("tile", Vector2i.ZERO)
-	var lane_offset_x: float = _lane_offset_x(tile, EFFECT_LANE_OFFSET_X)
 	if not entry.has("width"):
 		entry["width"] = clampf(34.0 + float(text_length) * float(base_font_size) * 0.68, 86.0, 220.0)
-	if not entry.has("x_offset"):
-		entry["x_offset"] = -float(entry.get("width", 86.0)) * 0.5 + lane_offset_x
-		entry["automatic_lane"] = true
-	if not entry.has("anchor_y"):
-		entry["anchor_y"] = DAMAGE_ANCHOR_Y
+	if not entry.has("automatic_anchor"):
+		entry["automatic_anchor"] = true
 	if not entry.has("alignment"):
 		entry["alignment"] = HORIZONTAL_ALIGNMENT_CENTER
 	if not entry.has("outline_color"):
@@ -170,17 +203,43 @@ static func _prepare_effect_composition(entry: Dictionary, text_length: int, bas
 		entry["shadow_color"] = Color(0.03, 0.01, 0.01, 0.72)
 
 
-static func _lane_offset_x(tile: Vector2i, magnitude: float) -> float:
-	# On the usual nine-column combat board, pushing away from the middle column
-	# keeps the impact headline beside the actor instead of covering its HUD stack.
-	return -magnitude if tile.x < 4 else magnitude
+static func _anchor_key(entry: Dictionary) -> String:
+	if not str(entry.get("anchor_id", "")).is_empty():
+		return str(entry.get("anchor_id", ""))
+	var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+	return "%d:%d" % [tile.x, tile.y]
 
 
-static func _scale_entry_icon(entry: Dictionary, scale: float) -> void:
+static func _motion_offset(entry: Dictionary, progress: float, reduced_motion: bool) -> Vector2:
+	if reduced_motion:
+		return Vector2.ZERO
+	var t: float = clampf(progress, 0.0, 1.0)
+	var tile: Vector2i = entry.get("tile", Vector2i.ZERO)
+	var default_direction: float = 1.0 if tile.x <= 4 else -1.0
+	var direction: float = signf(float(entry.get("arc_direction", default_direction)))
+	if is_zero_approx(direction):
+		direction = default_direction
+	var lateral_t: float = sin(t * PI * 0.5)
+	var x: float = direction * ARC_LATERAL_DRIFT * lateral_t
+	var y: float
+	if t <= ARC_APEX_PROGRESS:
+		var rise_t: float = clampf(t / ARC_APEX_PROGRESS, 0.0, 1.0)
+		y = -ARC_RISE_HEIGHT * sin(rise_t * PI * 0.5)
+	else:
+		var fall_t: float = clampf(
+			(t - ARC_APEX_PROGRESS) / (1.0 - ARC_APEX_PROGRESS),
+			0.0,
+			1.0
+		)
+		y = lerpf(-ARC_RISE_HEIGHT, ARC_END_DROP, smoothstep(0.0, 1.0, fall_t))
+	return Vector2(x, y)
+
+
+static func _prepare_scaled_icon(entry: Dictionary, peak_scale: float) -> void:
 	if str(entry.get("icon", "")).is_empty():
 		return
 	var base_icon_size: float = float(entry.get("base_icon_size", entry.get("icon_size", 22.0)))
-	entry["icon_size"] = clampf(base_icon_size * scale, 18.0, 38.0)
+	entry["icon_size"] = clampf(base_icon_size * peak_scale, 18.0, 42.0)
 
 
 static func _alpha_for_progress(progress: float, fade_start: float) -> float:

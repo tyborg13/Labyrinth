@@ -6,7 +6,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/floating_damage_v1"
+const OUTPUT_DIR: String = "user://probes/floating_combat_v2"
 const PROGRESSION_PATH: String = "user://floating_damage_probe_progression.json"
 const RUN_PATH: String = "user://floating_damage_probe_run.save"
 const SETTINGS_PATH: String = "user://floating_damage_probe_settings.json"
@@ -86,52 +86,95 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 		]
 	)
 	_hide_log(instance)
+	_assert_arc_continuity()
 
-	await _capture_damage_state(
+	var enemy_damage: Array = [
+		FloatingCombatText.damage_entry(Vector2i(5, 3), "-13", Color("f39779")),
+	]
+	for arc_capture: Dictionary in [
+		{"name": "enemy_arc_impact.png", "elapsed": 0.0},
+		{"name": "enemy_arc_rise.png", "elapsed": FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.17},
+		{"name": "enemy_arc_apex.png", "elapsed": FloatingCombatText.ANIMATION_DURATION_SECONDS * FloatingCombatText.ARC_APEX_PROGRESS},
+		{"name": "enemy_arc_fall.png", "elapsed": FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.78},
+	]:
+		await _capture_popup_state(
+			instance,
+			viewport,
+			combat_state,
+			enemy_damage,
+			float(arc_capture.get("elapsed", 0.0)),
+			false,
+			["enemy_2"],
+			"%s/%s" % [output_dir, str(arc_capture.get("name", ""))],
+			screenshot_size
+		)
+
+	await _capture_popup_state(
 		instance,
 		viewport,
 		combat_state,
+		[{
+			"tile": Vector2i(3, 3),
+			"text": "+1 play",
+			"color": Color("ffe27a"),
+			"offset": -6.0,
+		}],
 		0.0,
 		false,
-		false,
-		"%s/impact_peak.png" % output_dir,
+		["player"],
+		"%s/player_card_play_local.png" % output_dir,
 		screenshot_size
 	)
-	await _capture_damage_state(
+	await _capture_popup_state(
 		instance,
 		viewport,
 		combat_state,
-		0.32,
+		[
+			FloatingCombatText.damage_entry(Vector2i(2, 4), "-9", Color("f0c85c")),
+		],
+		FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.18,
 		false,
+		[],
+		"%s/terrain_damage_local.png" % output_dir,
+		screenshot_size
+	)
+
+	var compound_entries: Array = [
+		FloatingCombatText.damage_entry(Vector2i(5, 3), "-13", Color("f39779")),
+		{
+			"tile": Vector2i(5, 3),
+			"text": "-4 B",
+			"color": Color("90d9ff"),
+			"width": 112.0,
+		},
+		{
+			"tile": Vector2i(5, 3),
+			"text": "Bleed",
+			"color": Color("f1d18b"),
+			"width": 112.0,
+		},
+	]
+	for pop_index: int in range(3):
+		await _capture_popup_state(
+			instance,
+			viewport,
+			combat_state,
+			compound_entries,
+			0.03 + float(pop_index) * FloatingCombatText.STAGGER_SECONDS,
+			false,
+			["enemy_2"],
+			"%s/compound_pop_%d.png" % [output_dir, pop_index + 1],
+			screenshot_size
+		)
+	await _capture_popup_state(
+		instance,
+		viewport,
+		combat_state,
+		compound_entries,
+		0.03 + FloatingCombatText.STAGGER_SECONDS * 2.0,
 		true,
-		"%s/settled_multi_hit.png" % output_dir,
-		screenshot_size
-	)
-	await _capture_effect_state(
-		instance,
-		viewport,
-		combat_state,
-		"%s/effect_impact.png" % output_dir,
-		screenshot_size
-	)
-	await _capture_damage_state(
-		instance,
-		viewport,
-		combat_state,
-		0.76,
-		false,
-		false,
-		"%s/late_linger.png" % output_dir,
-		screenshot_size
-	)
-	await _capture_damage_state(
-		instance,
-		viewport,
-		combat_state,
-		0.52,
-		true,
-		true,
-		"%s/reduced_motion_hold.png" % output_dir,
+		["enemy_2"],
+		"%s/reduced_motion_stack.png" % output_dir,
 		screenshot_size
 	)
 
@@ -141,68 +184,35 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 	await process_frame
 
 
-func _capture_damage_state(
+func _capture_popup_state(
 	instance: Node,
 	viewport: SubViewport,
 	combat_state: Dictionary,
-	progress: float,
+	base_entries: Array,
+	elapsed_seconds: float,
 	reduced_motion: bool,
-	multi_hit: bool,
+	impact_keys: Array,
 	path: String,
 	expected_size: Vector2i
 ) -> void:
 	var settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
 	settings["reduced_motion"] = reduced_motion
 	instance.set("_settings", settings)
-	var base_entries: Array[Dictionary] = [
-		FloatingCombatText.damage_entry(
-			Vector2i(5, 3),
-			"-13",
-			Color("f39779")
-		),
-	]
-	var impact_keys: Array[String] = ["enemy_2"]
-	if multi_hit:
-		base_entries.append(FloatingCombatText.damage_entry(
-			Vector2i(4, 2),
-			"-7",
-			Color("f39779")
-		))
-		base_entries.append(FloatingCombatText.damage_entry(
-			Vector2i(6, 4),
-			"-21",
-			Color("f39779")
-		))
-		base_entries.append({
-			"tile": Vector2i(5, 3),
-			"text": "-4 B",
-			"color": Color("90d9ff"),
-			"offset": 0.0,
-			"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
-			"width": FloatingCombatText.COMPANION_WIDTH,
-		})
-		impact_keys = ["enemy_1", "enemy_2", "enemy_3"]
-	var animated_entries: Array[Dictionary] = []
-	for entry: Dictionary in base_entries:
-		animated_entries.append(FloatingCombatText.animate_entry(entry, progress, reduced_motion))
-	var lead_damage: Dictionary = animated_entries[0]
-	if reduced_motion:
-		var comparison: Dictionary = FloatingCombatText.animate_entry(base_entries[0], 0.82, true)
-		_expect(
-			int(lead_damage.get("font_size", 0)) == int(comparison.get("font_size", -1))
-			and is_equal_approx(float(lead_damage.get("rise", -1.0)), float(comparison.get("rise", -2.0))),
-			"Reduced-motion proof should hold one stable damage-number composition"
-		)
-	else:
-		_expect(
-			int(lead_damage.get("font_size", 0)) >= FloatingCombatText.DAMAGE_EXIT_FONT_SIZE,
-			"Normal damage proof should retain a readable type floor"
-		)
+	var animated_entries: Array[Dictionary] = FloatingCombatText.animate_entries(
+		base_entries,
+		elapsed_seconds,
+		reduced_motion
+	)
+	_expect(not animated_entries.is_empty(), "%s should expose at least one active popup" % path)
 	instance.call("_render_board_state", combat_state, {
 		"focus_actor_keys": impact_keys,
 		"focus_actor_color": Color("f08c53"),
 		"impact_actor_keys": impact_keys,
-		"impact_progress": progress,
+		"impact_progress": clampf(
+			elapsed_seconds / FloatingCombatText.ANIMATION_DURATION_SECONDS,
+			0.0,
+			1.0
+		),
 		"floating_texts": animated_entries,
 	})
 	await _settle()
@@ -212,54 +222,45 @@ func _capture_damage_state(
 		var rendered_entries: Array = (board.get("presentation") as Dictionary).get("floating_texts", []) as Array
 		_expect(
 			rendered_entries.size() == animated_entries.size(),
-			"%s should render every requested damage and defense float" % path
+			"%s should render every popup active at this stagger time" % path
 		)
+		for entry: Dictionary in animated_entries:
+			var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+			var target_rect: Rect2 = board.call("_floating_text_target_rect", tile) as Rect2
+			var rendered_width: float = float(entry.get("width", 48.0)) * float(entry.get("font_scale", 1.0))
+			var origin: Vector2 = board.call("_floating_text_local_origin", tile, rendered_width) as Vector2
+			_expect(
+				target_rect.grow(maxf(96.0, rendered_width + 18.0)).has_point(origin),
+				"%s popup origin should remain beside its receiving actor or terrain tile" % path
+			)
 	await _save_screenshot(viewport, path, expected_size)
 
 
-func _capture_effect_state(
-	instance: Node,
-	viewport: SubViewport,
-	combat_state: Dictionary,
-	path: String,
-	expected_size: Vector2i
-) -> void:
-	var base_entries: Array[Dictionary] = [
-		{
-			"tile": Vector2i(3, 3),
-			"text": "+8",
-			"color": Color("90d9ff"),
-			"offset": 8.0,
-		},
-		{
-			"tile": Vector2i(4, 2),
-			"text": "Bleed",
-			"color": Color("ff9a7e"),
-			"offset": -8.0,
-		},
-		{
-			"tile": Vector2i(6, 4),
-			"text": "+5",
-			"color": Color("9ee27e"),
-			"offset": 8.0,
-		},
-	]
-	var animated_entries: Array[Dictionary] = []
-	for entry: Dictionary in base_entries:
-		animated_entries.append(FloatingCombatText.animate_entry(entry, 0.0, false))
-	_expect(
-		animated_entries.all(func(entry: Dictionary) -> bool: return FloatingCombatText.is_effect_entry(entry) and int(entry.get("font_size", 0)) >= FloatingCombatText.EFFECT_PEAK_FONT_SIZE),
-		"Defense, status, and healing proof entries should all use the shared effect-popup impact"
-	)
-	instance.call("_render_board_state", combat_state, {
-		"focus_actor_keys": ["player", "enemy_1", "enemy_3"],
-		"focus_actor_color": Color("f08c53"),
-		"impact_actor_keys": ["player", "enemy_1", "enemy_3"],
-		"impact_progress": 0.0,
-		"floating_texts": animated_entries,
-	})
-	await _settle()
-	await _save_screenshot(viewport, path, expected_size)
+func _assert_arc_continuity() -> void:
+	var base: Dictionary = FloatingCombatText.damage_entry(Vector2i(5, 3), "-13", Color("f39779"))
+	var previous: Dictionary = FloatingCombatText.animate_entry(base, 0.0, false)
+	for frame: int in range(1, 52):
+		var elapsed_seconds: float = float(frame) * FloatingCombatText.TARGET_FRAME_SECONDS
+		var progress: float = clampf(
+			elapsed_seconds / FloatingCombatText.ANIMATION_DURATION_SECONDS,
+			0.0,
+			1.0
+		)
+		var current: Dictionary = FloatingCombatText.animate_entry(base, progress, false)
+		var previous_motion: Vector2 = previous.get("motion_offset", Vector2.ZERO)
+		var current_motion: Vector2 = current.get("motion_offset", Vector2.ZERO)
+		_expect(
+			previous_motion.distance_to(current_motion) < 6.0,
+			"Display-frame popup samples should move continuously without positional jumps"
+		)
+		_expect(
+			absf(
+				FloatingCombatText.rendered_font_size(previous)
+				- FloatingCombatText.rendered_font_size(current)
+			) < 2.5,
+			"Display-frame popup samples should scale continuously without integer size jumps"
+		)
+		previous = current
 
 
 func _install_combat_fixture(instance: Node) -> Dictionary:
@@ -318,7 +319,13 @@ func _combat_layout() -> Dictionary:
 			_enemy(3, Vector2i(6, 4), 50),
 		],
 		"traps": [],
-		"terrain": [],
+		"terrain": [{
+			"id": "probe_crate",
+			"kind": "wooden_crate",
+			"pos": Vector2i(2, 4),
+			"hp": 18,
+			"max_hp": 18,
+		}],
 		"loot": [],
 	}
 

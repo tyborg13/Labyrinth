@@ -1,9 +1,9 @@
 {
-  "min_images": 5,
+  "min_images": 10,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
-      "pattern": "*impact_peak.png",
+      "pattern": "*enemy_arc_impact.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "pattern": "*settled_multi_hit.png",
+      "pattern": "*enemy_arc_rise.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "pattern": "*late_linger.png",
+      "pattern": "*enemy_arc_apex.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "pattern": "*effect_impact.png",
+      "pattern": "*enemy_arc_fall.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -35,7 +35,47 @@
       ]
     },
     {
-      "pattern": "*reduced_motion_hold.png",
+      "pattern": "*player_card_play_local.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*terrain_damage_local.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*compound_pop_1.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*compound_pop_2.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*compound_pop_3.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*reduced_motion_stack.png",
       "width": 1920,
       "height": 1080,
       "regions": [
