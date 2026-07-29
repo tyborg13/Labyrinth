@@ -8,6 +8,8 @@ const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
+const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 
 signal tile_clicked(tile: Vector2i)
@@ -5087,21 +5089,37 @@ func _effect_element(effect: Dictionary) -> String:
 	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
 
 func _draw_floating_texts() -> void:
-	var font: Font = get_theme_default_font()
-	if font == null:
+	var default_font: Font = get_theme_default_font()
+	if default_font == null:
 		return
 	for entry_var: Variant in presentation.get("floating_texts", []):
 		var entry: Dictionary = entry_var
+		var is_damage: bool = FloatingCombatText.is_damage_entry(entry)
+		var is_popup: bool = FloatingCombatText.is_popup_entry(entry)
+		var font: Font = UiTypography.body_font() if is_damage else default_font
+		if font == null:
+			font = default_font
 		var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
 		if tile.x < 0:
 			continue
 		var rise: float = float(entry.get("rise", 0.0))
-		var text_pos: Vector2 = _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), -84.0 + float(entry.get("offset", 0.0)) - rise)
+		var anchor_y: float = float(entry.get("anchor_y", -84.0))
+		var drift_y: float = rise if is_popup else -rise
+		var tile_center: Vector2 = _tile_center(tile)
+		var label_width: float = float(entry.get("width", 48.0))
+		var text_pos: Vector2 = tile_center + Vector2(
+			float(entry.get("x_offset", -18.0)),
+			anchor_y + float(entry.get("offset", 0.0)) + drift_y
+		)
+		if is_popup and _floating_text_targets_player(tile):
+			text_pos.y += maxf(56.0, _tile_height() * 0.72)
+			if bool(entry.get("automatic_lane", false)):
+				text_pos.x = tile_center.x - label_width * 0.5
 		var color: Color = entry.get("color", Color("f8f0da"))
 		color.a *= clampf(float(entry.get("alpha", 1.0)), 0.0, 1.0)
-		var label_width: float = float(entry.get("width", 48.0))
 		var font_size: int = int(entry.get("font_size", 16))
 		var text: String = str(entry.get("text", ""))
+		var alignment: HorizontalAlignment = entry.get("alignment", HORIZONTAL_ALIGNMENT_LEFT)
 		var icon_key: String = str(entry.get("icon", ""))
 		if not icon_key.is_empty():
 			var icon_size: float = float(entry.get("icon_size", 18.0))
@@ -5118,21 +5136,27 @@ func _draw_floating_texts() -> void:
 			text_pos.x += icon_size + 4.0
 			label_width = maxf(0.0, label_width - icon_size - 4.0)
 		var outline_size: int = int(entry.get("outline_size", 2))
+		var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
+		if not shadow_offset.is_zero_approx():
+			var shadow_color: Color = entry.get("shadow_color", Color(0.03, 0.01, 0.01, 0.70))
+			shadow_color.a *= color.a
+			draw_string(font, text_pos + shadow_offset, text, alignment, label_width, font_size, shadow_color)
 		if outline_size > 0:
 			var outline_color: Color = entry.get("outline_color", Color("200806"))
 			outline_color.a *= color.a
-			for outline_offset: Vector2 in [
-				Vector2(-outline_size, 0.0),
-				Vector2(outline_size, 0.0),
-				Vector2(0.0, -outline_size),
-				Vector2(0.0, outline_size),
-				Vector2(-outline_size, -outline_size),
-				Vector2(outline_size, -outline_size),
-				Vector2(-outline_size, outline_size),
-				Vector2(outline_size, outline_size)
-			]:
-				draw_string(font, text_pos + outline_offset, text, HORIZONTAL_ALIGNMENT_LEFT, label_width, font_size, outline_color)
-		draw_string(font, text_pos, text, HORIZONTAL_ALIGNMENT_LEFT, label_width, font_size, color)
+			for outline_y: int in range(-outline_size, outline_size + 1):
+				for outline_x: int in range(-outline_size, outline_size + 1):
+					if outline_x == 0 and outline_y == 0:
+						continue
+					if Vector2(outline_x, outline_y).length() > float(outline_size) + 0.35:
+						continue
+					draw_string(font, text_pos + Vector2(outline_x, outline_y), text, alignment, label_width, font_size, outline_color)
+		draw_string(font, text_pos, text, alignment, label_width, font_size, color)
+
+func _floating_text_targets_player(tile: Vector2i) -> bool:
+	var player: Dictionary = combat_state.get("player", {})
+	var player_pos: Vector2i = player.get("pos", Vector2i(-1, -1))
+	return not player.is_empty() and player_pos == tile
 
 func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
 	if progress >= 0.82:

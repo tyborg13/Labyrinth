@@ -32,10 +32,8 @@ class GameUiRubricInventoryTests(unittest.TestCase):
             "UiTypography",
             "UiTooltipPanel",
             "CardWidget",
-            "1280x720",
-            "1280x800",
             "1920x1080",
-            "125%",
+            "only default resolution/scale requirement",
             "reduced motion",
             "Preserve every input path",
             "controller or Steam Deck",
@@ -45,6 +43,8 @@ class GameUiRubricInventoryTests(unittest.TestCase):
             "any part of a skill tree/dependency graph",
         ):
             self.assertIn(required_anchor, rubric)
+        self.assertNotIn("1280x720", rubric)
+        self.assertNotIn("1280x800", rubric)
 
     def test_player_ui_does_not_enable_visible_horizontal_scrollbars(self) -> None:
         auto_assignment = re.compile(

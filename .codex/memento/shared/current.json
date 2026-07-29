@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-28T22:04:09Z",
+  "updated_at": "2026-07-29T14:59:43Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6512,6 +6512,50 @@
       "source": {
         "branch": "codex/recompose-card-and-relic-reward-screens-after-slay-the-spire-reference",
         "commit": "20096b6"
+      }
+    },
+    {
+      "id": "mnt_20260729T145943Z_53e9e9a7",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Default UI visual QA to 1920x1080 at 100% UI scale",
+      "details": "Do not spend routine UI implementation time or proof budget on 720p, handheld, lower-resolution, or alternate-scale captures unless the user or task explicitly requests them; lower-resolution cleanup is intentionally deferred.",
+      "status": "active",
+      "created_at": "2026-07-29T14:59:43Z",
+      "updated_at": "2026-07-29T14:59:43Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-combat-damage-number-dynamics-inspired-by-slay-the-spire",
+        "commit": "1760679"
+      }
+    },
+    {
+      "id": "mnt_20260729T145943Z_e3906877",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "All combat on-effect popups share the pop-settle-drift-linger treatment",
+      "details": "Damage, defense, stoneskin, healing, status, resource, fatigue, terrain, and other nonempty combat floating-text presentations use the shared FloatingCombatText curve and roughly 0.78-second schedule. Reduced motion holds one stable readable size and position before fading. Preserve semantic colors and icons.",
+      "status": "active",
+      "created_at": "2026-07-29T14:59:43Z",
+      "updated_at": "2026-07-29T14:59:43Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-combat-damage-number-dynamics-inspired-by-slay-the-spire",
+        "commit": "1760679"
       }
     }
   ]

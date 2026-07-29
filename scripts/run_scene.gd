@@ -7,6 +7,7 @@ const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
+const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
@@ -954,16 +955,14 @@ const CARD_PROXY_POOL_LIMIT: int = 2
 const DOOR_OPENING_FRAMES: int = 8
 const DOOR_OPENING_FRAME_SECONDS: float = 0.075
 const DOOR_OPENING_SETTLE_SECONDS: float = 0.04
-const FLOAT_TEXT_FRAMES: int = 7
-const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
 const ENEMY_DEATH_MIN_FRAMES: int = 8
 const ENEMY_DEATH_FALLBACK_FRAMES: int = 16
 const ENEMY_DEATH_FALLBACK_FRAME_SECONDS: float = 0.065
 const TERRAIN_DESTRUCTION_FALLBACK_FRAMES: int = 16
 const TERRAIN_DESTRUCTION_FALLBACK_FRAME_SECONDS: float = 0.065
 const IMPACT_DECAL_MAX_TILES: int = 7
-const FATIGUE_EFFECT_FRAMES: int = 9
-const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.045
+const FATIGUE_EFFECT_FRAMES: int = 13
+const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.06
 const FATIGUE_EDGE_LINGER_FRAMES: int = 3
 const FATIGUE_EDGE_HOLD_PROGRESS: float = 0.82
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
@@ -14416,15 +14415,17 @@ func _set_ember_reward_display_count(value: int) -> void:
 func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
 	return board_view.global_position + board_view.world_position_for_tile(tile)
 
-func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, frames: int = FLOAT_TEXT_FRAMES, frame_seconds: float = FLOAT_TEXT_FRAME_SECONDS) -> void:
+func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, frames: int = -1, frame_seconds: float = -1.0) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
+	var frame_count: int = FloatingCombatText.frame_count(base_texts) if frames <= 0 else maxi(1, frames)
+	var seconds_per_frame: float = FloatingCombatText.frame_seconds(base_texts) if frame_seconds <= 0.0 else frame_seconds
 	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
 		_render_board_state(display_state, base_presentation)
-		await get_tree().create_timer(frame_seconds * float(maxi(1, frames))).timeout
+		await get_tree().create_timer(seconds_per_frame * float(frame_count)).timeout
 		return
-	var frame_count: int = maxi(1, frames)
+	var reduced_motion: bool = _reduced_motion_enabled()
 	for frame: int in range(frame_count):
 		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var presentation: Dictionary = base_presentation.duplicate(true)
@@ -14433,13 +14434,10 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 			presentation["effect_progress"] = t
 		var animated_texts: Array[Dictionary] = []
 		for text_var: Variant in base_texts:
-			var text_entry: Dictionary = (text_var as Dictionary).duplicate(true)
-			text_entry["rise"] = lerpf(0.0, 14.0, t)
-			text_entry["alpha"] = 1.0 if t < 0.72 else clampf(1.0 - ((t - 0.72) / 0.28), 0.0, 1.0)
-			animated_texts.append(text_entry)
+			animated_texts.append(FloatingCombatText.animate_entry(text_var as Dictionary, t, reduced_motion))
 		presentation["floating_texts"] = animated_texts
 		_render_board_state(display_state, presentation)
-		await get_tree().create_timer(frame_seconds).timeout
+		await get_tree().create_timer(seconds_per_frame).timeout
 
 func _animate_defeats_and_terrain_destruction(before_state: Dictionary, after_state: Dictionary, base_presentation: Dictionary = {}) -> void:
 	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
@@ -14570,24 +14568,21 @@ func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_event
 		total_damage += maxi(0, int(event.get("amount", 0)))
 		player_tile = event.get("tile", player_tile)
 	if total_damage > 0:
-		floats.append({
-			"tile": player_tile,
-			"text": "-%d" % total_damage,
-			"color": Color("f39779"),
-			"offset": -36.0,
-			"x_offset": -34.0,
-			"width": 84.0,
-			"font_size": 20,
-			"outline_size": 2,
-			"outline_color": Color("270806")
-		})
+		floats.append(FloatingCombatText.damage_entry(
+			player_tile,
+			"-%d" % total_damage,
+			Color("f39779"),
+			{
+				"outline_color": Color("270806")
+			}
+		))
 	floats.append({
 		"tile": player_tile,
 		"text": "fatigue sets in",
 		"color": Color("ff695f"),
-		"offset": -4.0,
-		"x_offset": 20.0,
-		"width": 152.0,
+		"offset": 0.0,
+		"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+		"width": FloatingCombatText.WIDE_COMPANION_WIDTH,
 		"font_size": 16,
 		"outline_size": 2,
 		"outline_color": Color("270806")
@@ -14599,10 +14594,7 @@ func _fatigue_damage_presentation_for_progress(display_state: Dictionary, fatigu
 	var animated_texts: Array[Dictionary] = []
 	var t: float = clampf(progress, 0.0, 1.0)
 	for text_var: Variant in base_texts:
-		var text_entry: Dictionary = (text_var as Dictionary).duplicate(true)
-		text_entry["rise"] = lerpf(0.0, 18.0, t)
-		text_entry["alpha"] = 1.0 if t < 0.66 else clampf(1.0 - ((t - 0.66) / 0.34), 0.0, 1.0)
-		animated_texts.append(text_entry)
+		animated_texts.append(FloatingCombatText.animate_entry(text_var as Dictionary, t, _reduced_motion_enabled()))
 	return {
 		"impact_actor_keys": ["player"],
 		"impact_progress": t,
@@ -15548,19 +15540,17 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"offset": -6.0
 			}]
 		"status_damage":
-			var status_float: Dictionary = {
-				"tile": step.get("tile", Vector2i.ZERO),
-				"text": "-%d" % int(step.get("amount", 0)),
-				"color": Color("f39779"),
-				"offset": -6.0
-			}
+			var status_float: Dictionary = FloatingCombatText.damage_entry(
+				step.get("tile", Vector2i.ZERO),
+				"-%d" % int(step.get("amount", 0)),
+				Color("f39779")
+			)
 			if str(step.get("label", "")) == "Bleed":
 				status_float["icon"] = "bleed"
 				status_float["icon_tint"] = Color("ffe9df")
 				status_float["icon_fill"] = Color(0.18, 0.05, 0.05, 0.94)
 				status_float["icon_border"] = Color("ff8a76")
-				status_float["width"] = 70.0
-				status_float["x_offset"] = -26.0
+				status_float["base_icon_size"] = 22.0
 			return [status_float]
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
@@ -15570,32 +15560,37 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				floats.append_array(_floating_texts_for_target_losses(target_losses, str(step.get("status_text", "")), step.get("to", Vector2i.ZERO)))
 			else:
 				if int(step.get("hp_loss", 0)) > 0:
-					floats.append({
-						"tile": step.get("to", Vector2i.ZERO),
-						"text": "-%d" % int(step.get("hp_loss", 0)),
-						"color": Color("f39779"),
-						"offset": -10.0
-					})
+					floats.append(FloatingCombatText.damage_entry(
+						step.get("to", Vector2i.ZERO),
+						"-%d" % int(step.get("hp_loss", 0)),
+						Color("f39779")
+					))
 				if int(step.get("block_loss", 0)) > 0:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
 						"text": "-%d B" % int(step.get("block_loss", 0)),
 						"color": Color("90d9ff"),
-						"offset": 10.0
+						"offset": 0.0,
+						"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+						"width": FloatingCombatText.COMPANION_WIDTH
 					})
 				if int(step.get("stoneskin_loss", 0)) > 0:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
 						"text": "-%d S" % int(step.get("stoneskin_loss", 0)),
 						"color": ElementData.accent(ElementData.EARTH),
-						"offset": 22.0
+						"offset": 54.0,
+						"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+						"width": FloatingCombatText.COMPANION_WIDTH
 					})
 				if not str(step.get("status_text", "")).is_empty():
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
 						"text": str(step.get("status_text", "")),
 						"color": Color("f1d18b"),
-						"offset": -24.0
+						"offset": 0.0,
+						"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+						"width": FloatingCombatText.WIDE_COMPANION_WIDTH
 					})
 			floats.append_array(_floating_texts_for_terrain_losses(terrain_losses))
 			return floats
@@ -15610,25 +15605,28 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 		var loss: Dictionary = loss_var
 		var tile: Vector2i = loss.get("tile", Vector2i.ZERO)
 		if int(loss.get("hp_loss", 0)) > 0:
-			floats.append({
-				"tile": tile,
-				"text": "-%d" % int(loss.get("hp_loss", 0)),
-				"color": Color("f39779"),
-				"offset": -10.0
-			})
+			floats.append(FloatingCombatText.damage_entry(
+				tile,
+				"-%d" % int(loss.get("hp_loss", 0)),
+				Color("f39779")
+			))
 		if int(loss.get("block_loss", 0)) > 0:
 			floats.append({
 				"tile": tile,
 				"text": "-%d B" % int(loss.get("block_loss", 0)),
 				"color": Color("90d9ff"),
-				"offset": 10.0
+				"offset": 0.0,
+				"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+				"width": FloatingCombatText.COMPANION_WIDTH
 			})
 		if int(loss.get("stoneskin_loss", 0)) > 0:
 			floats.append({
 				"tile": tile,
 				"text": "-%d S" % int(loss.get("stoneskin_loss", 0)),
 				"color": ElementData.accent(ElementData.EARTH),
-				"offset": 22.0
+				"offset": 54.0,
+				"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+				"width": FloatingCombatText.COMPANION_WIDTH
 			})
 		if int(loss.get("defiance_restored", 0)) > 0:
 			floats.append({
@@ -15639,8 +15637,8 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 				],
 				"color": Color("f6d77d"),
 				"offset": -30.0,
-				"x_offset": -26.0,
-				"width": 184.0,
+				"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+				"width": FloatingCombatText.WIDE_COMPANION_WIDTH,
 				"icon": "defiance",
 				"icon_tint": Color("fff3c4"),
 				"icon_fill": Color(0.14, 0.08, 0.20, 0.96),
@@ -15653,7 +15651,9 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 			"tile": status_tile,
 			"text": status_text,
 			"color": Color("f1d18b"),
-			"offset": -24.0
+			"offset": 0.0,
+			"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+			"width": FloatingCombatText.WIDE_COMPANION_WIDTH
 		})
 	return floats
 
@@ -15666,12 +15666,11 @@ func _floating_texts_for_terrain_losses(terrain_losses: Array) -> Array[Dictiona
 		var hp_loss: int = int(loss.get("hp_loss", loss.get("amount", 0)))
 		if hp_loss <= 0:
 			continue
-		floats.append({
-			"tile": loss.get("tile", Vector2i.ZERO),
-			"text": "-%d" % hp_loss,
-			"color": Color("f0c85c"),
-			"offset": -4.0
-		})
+		floats.append(FloatingCombatText.damage_entry(
+			loss.get("tile", Vector2i.ZERO),
+			"-%d" % hp_loss,
+			Color("f0c85c")
+		))
 	return floats
 
 func _terrain_target_losses_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
@@ -16091,25 +16090,28 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 	var stoneskin_loss: int = int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0))
 	var floats: Array[Dictionary] = []
 	if hp_loss > 0:
-		floats.append({
-			"tile": player_tile,
-			"text": "-%d" % hp_loss,
-			"color": Color("f39779"),
-			"offset": -10.0
-		})
+		floats.append(FloatingCombatText.damage_entry(
+			player_tile,
+			"-%d" % hp_loss,
+			Color("f39779")
+		))
 	if block_loss > 0:
 		floats.append({
 			"tile": player_tile,
 			"text": "-%d B" % block_loss,
 			"color": Color("90d9ff"),
-			"offset": 10.0
+			"offset": 0.0,
+			"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+			"width": FloatingCombatText.COMPANION_WIDTH
 		})
 	if stoneskin_loss > 0:
 		floats.append({
 			"tile": player_tile,
 			"text": "-%d S" % stoneskin_loss,
 			"color": ElementData.accent(ElementData.EARTH),
-			"offset": 22.0
+			"offset": 54.0,
+			"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+			"width": FloatingCombatText.COMPANION_WIDTH
 		})
 	return floats
 
@@ -16129,31 +16131,28 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 		var block_loss: int = int(before_enemy.get("block", 0)) - int(enemy.get("block", 0))
 		var stoneskin_loss: int = int(before_enemy.get("stoneskin", 0)) - int(enemy.get("stoneskin", 0))
 		if hp_loss > 0:
-			floats.append({
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"text": "-%d" % hp_loss,
-				"color": Color("f39779"),
-				"offset": -60.0,
-				"x_offset": -24.0,
-				"width": 72.0
-			})
+			floats.append(FloatingCombatText.damage_entry(
+				enemy.get("pos", Vector2i.ZERO),
+				"-%d" % hp_loss,
+				Color("f39779")
+			))
 		if block_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"text": "-%d B" % block_loss,
 				"color": Color("90d9ff"),
-				"offset": -40.0,
-				"x_offset": -24.0,
-				"width": 72.0
+				"offset": 0.0,
+				"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+				"width": FloatingCombatText.COMPANION_WIDTH
 			})
 		if stoneskin_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"text": "-%d S" % stoneskin_loss,
 				"color": ElementData.accent(ElementData.EARTH),
-				"offset": -20.0,
-				"x_offset": -24.0,
-				"width": 72.0
+				"offset": 54.0,
+				"x_offset": FloatingCombatText.COMPANION_X_OFFSET,
+				"width": FloatingCombatText.COMPANION_WIDTH
 			})
 	return floats
 

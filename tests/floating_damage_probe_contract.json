@@ -1,0 +1,46 @@
+{
+  "min_images": 5,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*impact_peak.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*settled_multi_hit.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*late_linger.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*effect_impact.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*reduced_motion_hold.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    }
+  ]
+}
