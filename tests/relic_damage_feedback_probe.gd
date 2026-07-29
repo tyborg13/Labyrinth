@@ -89,8 +89,8 @@ func _capture_ion_spool(
 	var instance: Node = await _new_run_scene(packed, viewport, 97310, ui_scale, reduced_motion)
 	var layout: Dictionary = _combat_layout([
 		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0},
-		{"id": 2, "type": "harrier", "pos": Vector2i(5, 5), "hp": 20, "max_hp": 20, "block": 0},
-		{"id": 3, "type": "acolyte", "pos": Vector2i(4, 6), "hp": 20, "max_hp": 20, "block": 0}
+		{"id": 2, "type": "harrier", "pos": Vector2i(5, 5), "hp": 20, "max_hp": 20, "block": 2},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(4, 6), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 2}
 	])
 	var combat := CombatEngine.new()
 	var before_state: Dictionary = combat.create_combat(97310, layout, {
@@ -107,7 +107,17 @@ func _capture_ion_spool(
 
 	var action: Dictionary = {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1}
 	var after_state: Dictionary = combat.apply_player_action(before_state, action)
-	_expect(_all_live_enemies_lost(after_state, before_state, 4), "Ion Spool fixture should deal four to every enemy")
+	_expect(_enemy_hp_loss(before_state, after_state, 1) == 4, "Ion Spool should deal four HP damage to the undefended enemy")
+	_expect(
+		_enemy_hp_loss(before_state, after_state, 2) == 2
+		and _enemy_defense_loss(before_state, after_state, 2, "block") == 2,
+		"Ion Spool should visibly split damage across Block and HP"
+	)
+	_expect(
+		_enemy_hp_loss(before_state, after_state, 3) == 2
+		and _enemy_defense_loss(before_state, after_state, 3, "stoneskin") == 2,
+		"Ion Spool should visibly split damage across Stoneskin and HP"
+	)
 	instance.call(
 		"_animate_player_action_step",
 		before_state.duplicate(true),
@@ -116,8 +126,13 @@ func _capture_ion_spool(
 		action,
 		INVALID_TARGET_TILE
 	)
-	var captured: bool = await _wait_for_damage_feedback(instance, 3, reduced_motion)
-	_expect(captured, "Ion Spool should expose three damage numbers and three hit reactions")
+	var captured: bool = await _wait_for_damage_feedback(
+		instance,
+		{"-4": 1, "-2": 2, "-2 B": 1, "-2 S": 1},
+		3,
+		reduced_motion
+	)
+	_expect(captured, "Ion Spool should expose exact HP, Block, and Stoneskin losses plus three hit reactions")
 	if captured:
 		await _save_screenshot(
 			viewport,
@@ -171,7 +186,7 @@ func _capture_thornmail(
 		action,
 		INVALID_TARGET_TILE
 	)
-	var captured: bool = await _wait_for_damage_feedback(instance, 2, reduced_motion)
+	var captured: bool = await _wait_for_damage_feedback(instance, {"-4": 2}, 2, reduced_motion)
 	_expect(captured, "Thornmail Brooch should expose two damage numbers and two hit reactions")
 	if captured:
 		await _save_screenshot(
@@ -222,19 +237,30 @@ func _install_combat_state(instance: Node, combat_state: Dictionary, layout: Dic
 	instance.call("_refresh_ui")
 
 
-func _wait_for_damage_feedback(instance: Node, expected_damage_numbers: int, reduced_motion: bool) -> bool:
+func _wait_for_damage_feedback(
+	instance: Node,
+	expected_text_counts: Dictionary,
+	expected_impact_count: int,
+	reduced_motion: bool
+) -> bool:
 	for _attempt: int in range(240):
 		var board: Control = instance.get("board_view") as Control
 		if board != null:
 			var presentation: Dictionary = board.get("presentation") as Dictionary
-			var damage_numbers: int = 0
+			var observed_text_counts: Dictionary = {}
 			for floating_text_var: Variant in presentation.get("floating_texts", []):
 				if typeof(floating_text_var) != TYPE_DICTIONARY:
 					continue
-				if str((floating_text_var as Dictionary).get("text", "")) == "-4":
-					damage_numbers += 1
+				var floating_text: String = str((floating_text_var as Dictionary).get("text", ""))
+				observed_text_counts[floating_text] = int(observed_text_counts.get(floating_text, 0)) + 1
 			var impact_keys: Array = presentation.get("impact_actor_keys", [])
-			if damage_numbers == expected_damage_numbers and impact_keys.size() == expected_damage_numbers:
+			var expected_texts_present: bool = true
+			for expected_text_var: Variant in expected_text_counts.keys():
+				var expected_text: String = str(expected_text_var)
+				if int(observed_text_counts.get(expected_text, 0)) != int(expected_text_counts.get(expected_text, 0)):
+					expected_texts_present = false
+					break
+			if expected_texts_present and impact_keys.size() == expected_impact_count:
 				_expect(
 					bool(presentation.get("reduced_motion", false)) == reduced_motion,
 					"Damage feedback should preserve the active reduced-motion setting"
@@ -247,6 +273,28 @@ func _wait_for_damage_feedback(instance: Node, expected_damage_numbers: int, red
 					float(board.call("_unit_impact_strength", {"key": str(impact_keys[0])})) > 0.0,
 					"An impacted enemy should receive nonzero hit-response strength"
 				)
+				_expect(
+					(presentation.get("impact_decals", []) as Array).size() == expected_impact_count,
+					"Every impacted enemy should receive the established impact decal"
+				)
+				var shake_strength: float = float(board.call(
+					"_unit_impact_shake_strength",
+					{"key": str(impact_keys[0])}
+				))
+				_expect(
+					is_zero_approx(shake_strength) if reduced_motion else shake_strength > 0.0,
+					"Reduced motion should suppress hit shake while normal motion keeps it"
+				)
+				if reduced_motion:
+					for floating_text_var: Variant in presentation.get("floating_texts", []):
+						if typeof(floating_text_var) != TYPE_DICTIONARY:
+							continue
+						var floating_text: Dictionary = floating_text_var
+						_expect(
+							is_zero_approx(float(floating_text.get("rise", 0.0)))
+							and is_equal_approx(float(floating_text.get("alpha", 1.0)), 1.0),
+							"Reduced-motion damage numbers should remain static and fully visible"
+						)
 				return true
 		await create_timer(0.02).timeout
 	return false
@@ -280,16 +328,6 @@ func _intensities(overrides: Dictionary) -> Dictionary:
 	return result
 
 
-func _all_live_enemies_lost(after_state: Dictionary, before_state: Dictionary, amount: int) -> bool:
-	for before_enemy_var: Variant in before_state.get("enemies", []):
-		if typeof(before_enemy_var) != TYPE_DICTIONARY:
-			continue
-		var before_enemy: Dictionary = before_enemy_var as Dictionary
-		if _enemy_hp_loss(before_state, after_state, int(before_enemy.get("id", -1))) != amount:
-			return false
-	return true
-
-
 func _enemy_hp_loss(before_state: Dictionary, after_state: Dictionary, enemy_id: int) -> int:
 	var before_hp: int = -1
 	for enemy_var: Variant in before_state.get("enemies", []):
@@ -302,6 +340,23 @@ func _enemy_hp_loss(before_state: Dictionary, after_state: Dictionary, enemy_id:
 		if typeof(enemy_var) == TYPE_DICTIONARY and int((enemy_var as Dictionary).get("id", -1)) == enemy_id:
 			return maxi(0, before_hp - int((enemy_var as Dictionary).get("hp", 0)))
 	return 0
+
+
+func _enemy_defense_loss(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	enemy_id: int,
+	field: String
+) -> int:
+	var before_value: int = 0
+	for enemy_var: Variant in before_state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY and int((enemy_var as Dictionary).get("id", -1)) == enemy_id:
+			before_value = int((enemy_var as Dictionary).get(field, 0))
+			break
+	for enemy_var: Variant in after_state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY and int((enemy_var as Dictionary).get("id", -1)) == enemy_id:
+			return maxi(0, before_value - int((enemy_var as Dictionary).get(field, 0)))
+	return before_value
 
 
 func _size_label(size: Vector2i, ui_scale: float) -> String:

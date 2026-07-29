@@ -14440,17 +14440,18 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		await get_tree().create_timer(frame_seconds * float(maxi(1, frames))).timeout
 		return
 	var frame_count: int = maxi(1, frames)
+	var reduced_motion: bool = _reduced_motion_enabled()
 	for frame: int in range(frame_count):
 		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var presentation: Dictionary = base_presentation.duplicate(true)
-		presentation["impact_progress"] = t
+		presentation["impact_progress"] = 0.18 if reduced_motion else t
 		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
-			presentation["effect_progress"] = t
+			presentation["effect_progress"] = 1.0 if reduced_motion else t
 		var animated_texts: Array[Dictionary] = []
 		for text_var: Variant in base_texts:
 			var text_entry: Dictionary = (text_var as Dictionary).duplicate(true)
-			text_entry["rise"] = lerpf(0.0, 14.0, t)
-			text_entry["alpha"] = 1.0 if t < 0.72 else clampf(1.0 - ((t - 0.72) / 0.28), 0.0, 1.0)
+			text_entry["rise"] = 0.0 if reduced_motion else lerpf(0.0, 14.0, t)
+			text_entry["alpha"] = 1.0 if reduced_motion or t < 0.72 else clampf(1.0 - ((t - 0.72) / 0.28), 0.0, 1.0)
 			animated_texts.append(text_entry)
 		presentation["floating_texts"] = animated_texts
 		_render_board_state(display_state, presentation)
@@ -15196,15 +15197,14 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 				if str(step.get("kind", "")) == "block":
 					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
-				await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_status_step_state, animated_state, {
-					"focus_actor_keys": [step_actor_key],
-					"focus_actor_color": PLAYER_ATTACK_FOCUS,
-					"focus_tiles": _vector2i_array(step.get("focus_tiles", [step.get("tile", Vector2i(-1, -1))])),
-					"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-					"effect": step,
-					"impact_actor_keys": step.get("impact_actor_keys", []),
-					"floating_texts": _floating_texts_for_step(step)
-				}))
+				await _animate_floating_text_presentation(
+					animated_state,
+					_death_hold_presentation(
+						before_status_step_state,
+						animated_state,
+						_enemy_phase_status_presentation(step)
+					)
+				)
 				await _animate_defeats_and_terrain_destruction(before_status_step_state, animated_state)
 			"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 				var focus_tiles: Array[Vector2i] = _vector2i_array([step.get("to", Vector2i(-1, -1))])
@@ -15524,7 +15524,16 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 		"heal":
 			_add_enemy_heal_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"status_damage":
-			_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+			if step.has("enemies_after"):
+				animated_state["enemies"] = (step.get("enemies_after", []) as Array).duplicate(true)
+			elif not (step.get("enemy_losses", []) as Array).is_empty():
+				_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
+			else:
+				_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+			if step.has("elemental_intensity_after"):
+				animated_state["elemental_intensity"] = (step.get("elemental_intensity_after", {}) as Dictionary).duplicate(true)
+			if step.has("player_after"):
+				animated_state["player"] = (step.get("player_after", {}) as Dictionary).duplicate(true)
 		"status":
 			if step.has("terrain_after"):
 				animated_state["terrain"] = (step.get("terrain_after", []) as Array).duplicate(true)
@@ -15589,20 +15598,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"offset": -6.0
 			}]
 		"status_damage":
-			var status_float: Dictionary = {
-				"tile": step.get("tile", Vector2i.ZERO),
-				"text": "-%d" % int(step.get("amount", 0)),
-				"color": Color("f39779"),
-				"offset": -6.0
-			}
-			if str(step.get("label", "")) == "Bleed":
-				status_float["icon"] = "bleed"
-				status_float["icon_tint"] = Color("ffe9df")
-				status_float["icon_fill"] = Color(0.18, 0.05, 0.05, 0.94)
-				status_float["icon_border"] = Color("ff8a76")
-				status_float["width"] = 70.0
-				status_float["x_offset"] = -26.0
-			return [status_float]
+			return _status_damage_floating_texts(step)
 		"intensity":
 			var intensity_floats: Array[Dictionary] = []
 			var intensity_before: int = int(step.get("value_before", 0))
@@ -15655,6 +15651,76 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 			return floats
 		_:
 			return []
+
+func _enemy_phase_status_presentation(step: Dictionary) -> Dictionary:
+	var presentation: Dictionary = {
+		"focus_actor_keys": [str(step.get("actor_key", ""))],
+		"focus_actor_color": PLAYER_ATTACK_FOCUS,
+		"focus_tiles": _vector2i_array(step.get("focus_tiles", [step.get("tile", Vector2i(-1, -1))])),
+		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
+		"effect": step,
+		"impact_actor_keys": step.get("impact_actor_keys", []),
+		"floating_texts": _floating_texts_for_step(step)
+	}
+	if (step.get("enemy_losses", []) as Array).is_empty():
+		return presentation
+	var element_id: String = _enemy_phase_damage_feedback_element(step)
+	presentation["effect"] = {
+		"kind": "lightning_strikes" if element_id == ElementData.LIGHTNING else "aoe",
+		"element": element_id
+	}
+	return _attack_impact_presentation(presentation)
+
+func _enemy_phase_damage_feedback_element(step: Dictionary) -> String:
+	var element_id: String = str(step.get("damage_feedback_element", step.get("element", ElementData.NONE)))
+	if ElementData.is_elemental(element_id):
+		return element_id
+	match str(step.get("label", "")):
+		"Burn":
+			return ElementData.FIRE
+		"Poison":
+			return ElementData.EARTH
+		_:
+			return ElementData.NONE
+
+func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
+	var enemy_losses: Array = step.get("enemy_losses", [])
+	if enemy_losses.is_empty():
+		var legacy_float: Dictionary = {
+			"tile": step.get("tile", Vector2i.ZERO),
+			"text": "-%d" % int(step.get("amount", 0)),
+			"color": Color("f39779"),
+			"offset": -6.0
+		}
+		if str(step.get("label", "")) == "Bleed":
+			_decorate_bleed_damage_float(legacy_float)
+		return [legacy_float]
+	var floats: Array[Dictionary] = _floating_texts_for_target_losses(enemy_losses)
+	if str(step.get("label", "")) != "Bleed":
+		return floats
+	var actor_key: String = str(step.get("actor_key", ""))
+	var actor_tile: Vector2i = step.get("tile", Vector2i.ZERO)
+	for loss_var: Variant in enemy_losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		if str(loss.get("key", "")) == actor_key:
+			actor_tile = loss.get("tile", actor_tile)
+			break
+	for float_entry: Dictionary in floats:
+		if float_entry.get("tile", Vector2i.ZERO) != actor_tile:
+			continue
+		_decorate_bleed_damage_float(float_entry)
+		break
+	return floats
+
+func _decorate_bleed_damage_float(float_entry: Dictionary) -> void:
+	float_entry["icon"] = "bleed"
+	float_entry["icon_tint"] = Color("ffe9df")
+	float_entry["icon_fill"] = Color(0.18, 0.05, 0.05, 0.94)
+	float_entry["icon_border"] = Color("ff8a76")
+	float_entry["width"] = 70.0
+	float_entry["x_offset"] = -26.0
 
 func _floating_texts_for_target_losses(target_losses: Array, status_text: String = "", status_tile: Vector2i = Vector2i.ZERO) -> Array[Dictionary]:
 	var floats: Array[Dictionary] = []

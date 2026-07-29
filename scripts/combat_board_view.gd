@@ -520,6 +520,8 @@ func _impact_animation_active() -> bool:
 		return false
 	if float(presentation.get("impact_strength", 1.0)) <= 0.0:
 		return false
+	if bool(presentation.get("reduced_motion", false)):
+		return false
 	return float(presentation.get("impact_progress", 0.0)) < 1.0
 
 func _preview_unit_pulse_active() -> bool:
@@ -3343,9 +3345,10 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		var death_animation: bool = bool(unit.get("death_animation", false))
 		var draw_rect: Rect2 = _unit_draw_rect(unit)
 		var impact: float = _unit_impact_strength(unit)
+		var impact_shake: float = _unit_impact_shake_strength(unit)
 		var impact_offset := Vector2.ZERO
-		if impact > 0.0:
-			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact, 0.0)
+		if impact_shake > 0.0:
+			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact_shake, 0.0)
 		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
 		if death_animation:
 			shifted_rect = _death_animation_draw_rect(shifted_rect, float(unit.get("death_progress", 0.0)))
@@ -3589,6 +3592,11 @@ func _unit_impact_strength(unit: Dictionary) -> float:
 	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
 	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
 	return clampf(1.0 - progress, 0.0, 1.0) * strength
+
+func _unit_impact_shake_strength(unit: Dictionary) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.0
+	return _unit_impact_strength(unit)
 
 func _draw_icon_value_badge(rect: Rect2, icon_key: String, amount: int, fill: Color, border: Color, text_color: Color, font: Font) -> void:
 	draw_rect(rect, fill, true)

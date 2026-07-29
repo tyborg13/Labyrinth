@@ -1,6 +1,7 @@
 extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -718,11 +719,94 @@ static func _test_damage_feedback_contract(expect: Callable) -> void:
 	)
 	var animated_enemy_state: Dictionary = ion_before.duplicate(true)
 	scene.call("_apply_animation_step", animated_enemy_state, enemy_intensity_step)
+	var enemy_intensity_presentation: Dictionary = scene.call(
+		"_enemy_phase_status_presentation",
+		enemy_intensity_step
+	) as Dictionary
 	expect.call(
 		(animated_enemy_state.get("enemies", []) as Array) == (enemy_intensity_after.get("enemies", []) as Array)
 		and combat.elemental_intensity(animated_enemy_state, ElementData.LIGHTNING) == combat.elemental_intensity(enemy_intensity_after, ElementData.LIGHTNING),
 		"Enemy intensity playback should commit every discharged enemy loss and the final contested intensity"
 	)
+	expect.call(
+		(enemy_intensity_presentation.get("impact_decals", []) as Array).size() == 2,
+		"Off-turn intensity discharges should reuse the standard impact decals for every damaged enemy"
+	)
+
+	var status_chain_before: Dictionary = _state(
+		combat,
+		["ember_siphon", "cinderbrand_tongs"],
+		10,
+		24
+	)
+	status_chain_before["elemental_intensity"] = _intensities({ElementData.FIRE: 3})
+	var status_enemies: Array = (status_chain_before.get("enemies", []) as Array).duplicate(true)
+	var burning_enemy: Dictionary = (status_enemies[0] as Dictionary).duplicate(true)
+	burning_enemy["hp"] = 1
+	burning_enemy["burn"] = 1
+	status_enemies[0] = burning_enemy
+	var defended_survivor: Dictionary = burning_enemy.duplicate(true)
+	defended_survivor["id"] = 2
+	defended_survivor["pos"] = Vector2i(4, 2)
+	defended_survivor["hp"] = 20
+	defended_survivor["max_hp"] = 20
+	defended_survivor["burn"] = 0
+	defended_survivor["stoneskin"] = 1
+	status_enemies.append(defended_survivor)
+	status_chain_before["enemies"] = status_enemies
+	var status_result: Dictionary = combat.call(
+		"_resolve_enemy_start_of_turn",
+		status_chain_before.duplicate(true),
+		0
+	) as Dictionary
+	var status_chain_after: Dictionary = status_result.get("state", {})
+	var status_steps: Array = status_result.get("steps", [])
+	var status_step: Dictionary = status_steps[0] if not status_steps.is_empty() else {}
+	var status_floats: Array = scene.call("_floating_texts_for_step", status_step) as Array
+	expect.call(
+		(status_step.get("enemy_losses", []) as Array).size() == 2
+		and (status_step.get("impact_actor_keys", []) as Array).size() == 2,
+		"A lethal status tick should carry its primary loss and every nested relic-discharge loss"
+	)
+	expect.call(
+		_floating_text_count(status_floats, "-1") == 2
+		and _floating_text_count(status_floats, "-1 S") == 1,
+		"Nested status-trigger damage should show exact primary HP and secondary defense losses"
+	)
+	var status_presentation: Dictionary = scene.call("_enemy_phase_status_presentation", status_step) as Dictionary
+	expect.call(
+		(status_presentation.get("impact_decals", []) as Array).size() == 2,
+		"Nested status-trigger damage should reuse the standard impact decals"
+	)
+	var animated_status_state: Dictionary = status_chain_before.duplicate(true)
+	scene.call("_apply_animation_step", animated_status_state, status_step)
+	expect.call(
+		(animated_status_state.get("enemies", []) as Array) == (status_chain_after.get("enemies", []) as Array)
+		and (animated_status_state.get("player", {}) as Dictionary) == (status_chain_after.get("player", {}) as Dictionary)
+		and combat.elemental_intensity(animated_status_state, ElementData.FIRE) == combat.elemental_intensity(status_chain_after, ElementData.FIRE),
+		"Status playback should commit nested damage, Ember Siphon healing, and contested Fire intensity in sequence"
+	)
+
+	var board := CombatBoardView.new()
+	var impacted_unit: Dictionary = {"key": "enemy_1"}
+	board.presentation = {
+		"impact_actor_keys": ["enemy_1"],
+		"impact_progress": 0.18,
+		"reduced_motion": false
+	}
+	expect.call(
+		float(board.call("_unit_impact_strength", impacted_unit)) > 0.0
+		and float(board.call("_unit_impact_shake_strength", impacted_unit)) > 0.0,
+		"Normal motion should retain the established hit flash and shake"
+	)
+	board.presentation["reduced_motion"] = true
+	expect.call(
+		float(board.call("_unit_impact_strength", impacted_unit)) > 0.0
+		and is_zero_approx(float(board.call("_unit_impact_shake_strength", impacted_unit)))
+		and not bool(board.call("_impact_animation_active")),
+		"Reduced motion should retain a static hit flash while suppressing continuous shake"
+	)
+	board.free()
 	scene.free()
 
 static func _floating_text_count(floating_texts: Array, expected_text: String) -> int:
