@@ -1,0 +1,70 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1280x720", "1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*ion_1920x1080_ui100_normal.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [280, 120, 1360, 760], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*ion_1920x1080_ui100_reduced.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [280, 120, 1360, 760], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*thornmail_1920x1080_ui100_normal.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [280, 120, 1360, 760], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*thornmail_1920x1080_ui100_reduced.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [280, 120, 1360, 760], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*ion_1280x720_ui125_normal.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [120, 70, 1040, 520], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*ion_1280x720_ui125_reduced.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [120, 70, 1040, 520], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*thornmail_1280x720_ui125_normal.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [120, 70, 1040, 520], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*thornmail_1280x720_ui125_reduced.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [120, 70, 1040, 520], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    }
+  ]
+}

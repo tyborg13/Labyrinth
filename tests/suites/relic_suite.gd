@@ -4,6 +4,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const RunScene = preload("res://scripts/run_scene.gd")
 
 const NEW_RELIC_IDS := [
 	"duelist_whetstone",
@@ -57,6 +58,7 @@ static func run(expect: Callable) -> void:
 	_test_defense_risk_and_mobility_engines(expect)
 	_test_defiance_and_mono_earth_payoffs(expect)
 	_test_state_sequence_bridges(expect)
+	_test_damage_feedback_contract(expect)
 	_test_player_facing_turn_terminology(expect)
 
 static func _test_complete_set_contract(expect: Callable) -> void:
@@ -612,6 +614,125 @@ static func _test_state_sequence_bridges(expect: Callable) -> void:
 			and int((sequence_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 0,
 			"Same-card relic rewards should not create conditions for another relic regardless of acquisition order"
 		)
+
+static func _test_damage_feedback_contract(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var scene := RunScene.new()
+	var intensity_action: Dictionary = {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1}
+	var ion_before: Dictionary = _state(combat, ["ion_spool"])
+	ion_before["elemental_intensity"] = _intensities({ElementData.LIGHTNING: 3})
+	var ion_enemies: Array = (ion_before.get("enemies", []) as Array).duplicate(true)
+	var defended_enemy: Dictionary = (ion_enemies[0] as Dictionary).duplicate(true)
+	defended_enemy["id"] = 2
+	defended_enemy["pos"] = Vector2i(4, 2)
+	defended_enemy["block"] = 2
+	ion_enemies.append(defended_enemy)
+	ion_before["enemies"] = ion_enemies
+	var ion_after: Dictionary = combat.apply_player_action(ion_before, intensity_action)
+	var ion_presentation: Dictionary = scene.call(
+		"_secondary_player_action_enemy_loss_presentation",
+		ion_before,
+		ion_after,
+		"static_lash",
+		intensity_action,
+		[]
+	) as Dictionary
+	expect.call(
+		(ion_presentation.get("impact_actor_keys", []) as Array).size() == 2,
+		"Ion Spool should mark every discharged enemy for the standard hit reaction"
+	)
+	var ion_floats: Array = ion_presentation.get("floating_texts", [])
+	expect.call(
+		_floating_text_count(ion_floats, "-4") == 1
+		and _floating_text_count(ion_floats, "-2") == 1
+		and _floating_text_count(ion_floats, "-2 B") == 1,
+		"Ion Spool should show exact per-target HP and defense losses"
+	)
+	expect.call(
+		(ion_presentation.get("impact_decals", []) as Array).size() == 2,
+		"Relic discharge feedback should reuse the standard attack-impact decals for every damaged enemy"
+	)
+
+	var attack_before: Dictionary = _state(combat, [])
+	var ranged_action: Dictionary = {"type": "ranged", "damage": 4, "range": 8}
+	var attack_target: Vector2i = ((attack_before.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO)
+	var attack_after: Dictionary = combat.apply_player_action(attack_before, ranged_action, attack_target)
+	expect.call(
+		(scene.call(
+			"_secondary_player_action_enemy_loss_presentation",
+			attack_before,
+			attack_after,
+			"bone_dart",
+			ranged_action,
+			[]
+		) as Dictionary).is_empty(),
+		"Attack actions should not duplicate their existing inline damage feedback"
+	)
+	expect.call(
+		bool(scene.call("_player_action_enemy_losses_presented_inline", "move", [{"id": "trap"}]))
+		and not bool(scene.call("_player_action_enemy_losses_presented_inline", "move", [])),
+		"Movement should defer to trap feedback only when a trap already presents the losses"
+	)
+
+	var thorn_before: Dictionary = _state(combat, ["thornmail_brooch"])
+	var thorn_enemies: Array = (thorn_before.get("enemies", []) as Array).duplicate(true)
+	var adjacent_enemy: Dictionary = (thorn_enemies[0] as Dictionary).duplicate(true)
+	adjacent_enemy["pos"] = Vector2i(3, 4)
+	thorn_enemies[0] = adjacent_enemy
+	thorn_before["enemies"] = thorn_enemies
+	var stoneskin_action: Dictionary = {"type": "stoneskin", "amount": 8}
+	var thorn_after: Dictionary = combat.apply_player_action(thorn_before, stoneskin_action)
+	var thorn_presentation: Dictionary = scene.call(
+		"_secondary_player_action_enemy_loss_presentation",
+		thorn_before,
+		thorn_after,
+		"stone_plate",
+		stoneskin_action,
+		[]
+	) as Dictionary
+	expect.call(
+		_floating_text_count(thorn_presentation.get("floating_texts", []), "-4") == 1
+		and (thorn_presentation.get("impact_actor_keys", []) as Array).size() == 1,
+		"Thornmail Brooch should present retaliation nested under a Stoneskin action"
+	)
+
+	var enemy_intensity_after: Dictionary = combat.call(
+		"_gain_elemental_intensity",
+		ion_before.duplicate(true),
+		ElementData.LIGHTNING,
+		1,
+		"Enemy builder"
+	) as Dictionary
+	var enemy_intensity_step: Dictionary = combat.call(
+		"_enemy_action_step",
+		ion_before,
+		enemy_intensity_after,
+		0,
+		intensity_action,
+		{}
+	) as Dictionary
+	expect.call(
+		(enemy_intensity_step.get("enemy_losses", []) as Array).size() == 2
+		and _floating_text_count(scene.call("_floating_texts_for_step", enemy_intensity_step) as Array, "-4") == 1,
+		"Off-turn intensity gains should carry relic discharge losses into enemy-step feedback"
+	)
+	var animated_enemy_state: Dictionary = ion_before.duplicate(true)
+	scene.call("_apply_animation_step", animated_enemy_state, enemy_intensity_step)
+	expect.call(
+		(animated_enemy_state.get("enemies", []) as Array) == (enemy_intensity_after.get("enemies", []) as Array)
+		and combat.elemental_intensity(animated_enemy_state, ElementData.LIGHTNING) == combat.elemental_intensity(enemy_intensity_after, ElementData.LIGHTNING),
+		"Enemy intensity playback should commit every discharged enemy loss and the final contested intensity"
+	)
+	scene.free()
+
+static func _floating_text_count(floating_texts: Array, expected_text: String) -> int:
+	var count: int = 0
+	for floating_text_var: Variant in floating_texts:
+		if typeof(floating_text_var) != TYPE_DICTIONARY:
+			continue
+		if str((floating_text_var as Dictionary).get("text", "")) == expected_text:
+			count += 1
+	return count
 
 static func _test_player_facing_turn_terminology(expect: Callable) -> void:
 	var relics: Dictionary = GameData.relics()

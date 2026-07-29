@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-29T20:03:33Z",
+  "updated_at": "2026-07-29T21:03:34Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6578,6 +6578,28 @@
       "source": {
         "branch": "codex/rework-all-relics-and-add-ten-synergy-relics",
         "commit": "9be0850"
+      }
+    },
+    {
+      "id": "mnt_20260729T210334Z_4a60ce9b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_enemy_loss_feedback_presentation_between_states"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_enemy_loss_feedback_presentation_between_states",
+      "summary": "Present indirect enemy damage at animation boundaries with standard hit feedback",
+      "details": "Relic and other secondary damage can occur during non-attack actions, card-play rewards, end-turn conversion, or enemy intensity actions. Diff HP/Block/Stoneskin at those boundaries, use existing _attack_impact_presentation plus damage floats and impact actor keys, and skip attack or trap paths that already present the same loss to prevent duplicates.",
+      "status": "active",
+      "created_at": "2026-07-29T21:03:34Z",
+      "updated_at": "2026-07-29T21:03:34Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/rework-all-relics-and-add-ten-synergy-relics",
+        "commit": "1ad044c"
       }
     }
   ]

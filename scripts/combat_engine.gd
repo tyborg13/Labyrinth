@@ -2210,7 +2210,8 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 			var before_value: int = elemental_intensity(before_state, element_id)
 			var after_value: int = elemental_intensity(after_state, element_id)
 			var gained: int = maxi(0, after_value - before_value)
-			if gained <= 0:
+			var enemy_losses: Array[Dictionary] = _enemy_target_losses(before_state, after_state)
+			if gained <= 0 and before_value == after_value and enemy_losses.is_empty():
 				return {}
 			return {
 				"kind": "intensity",
@@ -2219,7 +2220,11 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"tile": after_enemy.get("pos", Vector2i.ZERO),
 				"element": element_id,
 				"amount": gained,
-				"label": "%s Intensity +%d" % [ElementData.name(element_id), gained]
+				"value_before": before_value,
+				"value_after": after_value,
+				"enemy_losses": enemy_losses,
+				"impact_actor_keys": _target_loss_keys(enemy_losses),
+				"label": "%s Intensity %d" % [ElementData.name(element_id), after_value]
 			}
 		"block":
 			var block_gain: int = int(after_enemy.get("block", 0)) - int(before_enemy.get("block", 0))

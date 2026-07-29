@@ -14099,6 +14099,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var card_size: Vector2 = source_rect.size if source_rect.size.length() > 0.0 else _hand_card_size(5, false)
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
+	var pre_commit_combat_state: Dictionary = resolved_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
 	var plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
@@ -14123,6 +14124,12 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
+	await _animate_enemy_loss_feedback_between_states(
+		pre_commit_combat_state,
+		committed_combat_state,
+		GameData.card_element(card_id)
+	)
+	await _animate_defeats_and_terrain_destruction(pre_commit_combat_state, committed_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	if outcome == "victory":
@@ -15045,19 +15052,36 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var before_value: int = _combat_engine.elemental_intensity(before_state, element_id)
 			var after_value: int = _combat_engine.elemental_intensity(after_state, element_id)
 			var gained: int = maxi(0, after_value - before_value)
+			var intensity_text: String = (
+				"+%d %s" % [gained, ElementData.name(element_id)]
+				if after_value >= before_value
+				else "%s %d" % [ElementData.name(element_id), after_value]
+			)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"floating_texts": [{
 					"tile": player_after_tile,
-					"text": "+%d %s" % [gained, ElementData.name(element_id)],
+					"text": intensity_text,
 					"color": ElementData.accent(element_id),
 					"offset": -6.0
 				}]
 			}))
 			await _animate_intensity_gain(element_id, after_value)
 			await get_tree().create_timer(0.08).timeout
+	var secondary_enemy_loss_presentation: Dictionary = _secondary_player_action_enemy_loss_presentation(
+		before_state,
+		after_state,
+		card_id,
+		action,
+		triggered_traps
+	)
+	if not secondary_enemy_loss_presentation.is_empty():
+		await _animate_floating_text_presentation(
+			after_state,
+			_death_hold_presentation(before_state, after_state, secondary_enemy_loss_presentation)
+		)
 	await _animate_defeats_and_terrain_destruction(before_state, after_state)
 	await _animate_death_rewards(before_state, after_state)
 	for loot_var: Variant in _movement_picked_loot_between(before_state, after_state):
@@ -15088,6 +15112,8 @@ func _resolve_enemy_round() -> void:
 		),
 		"player_activation_finished"
 	)
+	await _animate_enemy_loss_feedback_between_states(_combat_state, scheduled_state)
+	await _animate_defeats_and_terrain_destruction(_combat_state, scheduled_state)
 	await _animate_turn_order_transition_between_states(_combat_state, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
 	_mark_combat_preview_state_changed()
@@ -15164,7 +15190,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 				await get_tree().create_timer(0.20).timeout
 			"move":
 				await _animate_move_step(animated_state, step)
-			"block", "heal", "stoneskin", "status", "status_damage":
+			"block", "heal", "stoneskin", "status", "status_damage", "intensity":
 				var before_status_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
@@ -15176,6 +15202,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					"focus_tiles": _vector2i_array(step.get("focus_tiles", [step.get("tile", Vector2i(-1, -1))])),
 					"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 					"effect": step,
+					"impact_actor_keys": step.get("impact_actor_keys", []),
 					"floating_texts": _floating_texts_for_step(step)
 				}))
 				await _animate_defeats_and_terrain_destruction(before_status_step_state, animated_state)
@@ -15438,6 +15465,7 @@ func _stop_music_tween() -> void:
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
+	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
 	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	rendered_presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
@@ -15504,6 +15532,11 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 				animated_state["traps"] = (step.get("traps_after", []) as Array).duplicate(true)
 			if step.has("enemy_after"):
 				_set_enemy_snapshot_by_key(animated_state, str(step.get("actor_key", "")), step.get("enemy_after", {}) as Dictionary)
+		"intensity":
+			var elemental_intensity: Dictionary = (animated_state.get("elemental_intensity", {}) as Dictionary).duplicate(true)
+			elemental_intensity[str(step.get("element", ElementData.NONE))] = int(step.get("value_after", 0))
+			animated_state["elemental_intensity"] = elemental_intensity
+			_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			if target_losses.is_empty():
@@ -15570,6 +15603,19 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				status_float["width"] = 70.0
 				status_float["x_offset"] = -26.0
 			return [status_float]
+		"intensity":
+			var intensity_floats: Array[Dictionary] = []
+			var intensity_before: int = int(step.get("value_before", 0))
+			var intensity_after: int = int(step.get("value_after", intensity_before))
+			if intensity_after != intensity_before:
+				intensity_floats.append({
+					"tile": step.get("tile", Vector2i.ZERO),
+					"text": "%s %d" % [ElementData.name(str(step.get("element", ElementData.NONE))), intensity_after],
+					"color": ElementData.accent(str(step.get("element", ElementData.NONE))),
+					"offset": -6.0
+				})
+			intensity_floats.append_array(_floating_texts_for_target_losses(step.get("enemy_losses", [])))
+			return intensity_floats
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			var terrain_losses: Array = step.get("terrain_losses", [])
@@ -16074,6 +16120,67 @@ func _player_action_floating_texts(before_state: Dictionary, after_state: Dictio
 	floats.append_array(_player_loss_floating_texts(before_state, after_state))
 	floats.append_array(_floating_texts_for_terrain_losses(_terrain_target_losses_between(before_state, after_state)))
 	return floats
+
+func _secondary_player_action_enemy_loss_presentation(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	card_id: String,
+	action: Dictionary,
+	triggered_traps: Array
+) -> Dictionary:
+	var action_type: String = str(action.get("type", ""))
+	if _player_action_enemy_losses_presented_inline(action_type, triggered_traps):
+		return {}
+	return _enemy_loss_feedback_presentation_between_states(
+		before_state,
+		after_state,
+		_player_action_feedback_element(card_id, action, before_state)
+	)
+
+func _player_action_enemy_losses_presented_inline(action_type: String, triggered_traps: Array) -> bool:
+	if action_type in ["melee", "ranged", "aoe", "push", "pull"]:
+		return true
+	return action_type in ["move", "blink"] and not triggered_traps.is_empty()
+
+func _player_action_feedback_element(card_id: String, action: Dictionary, state: Dictionary) -> String:
+	var action_element: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
+	if ElementData.is_elemental(action_element):
+		return action_element
+	var card_element: String = str(_card_def(card_id, state).get("element", ElementData.NONE))
+	return card_element if ElementData.is_elemental(card_element) else ElementData.NONE
+
+func _enemy_loss_feedback_presentation_between_states(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	element_id: String = ElementData.NONE
+) -> Dictionary:
+	var floating_texts: Array[Dictionary] = _player_damage_floating_texts(before_state, after_state)
+	var impact_actor_keys: Array[String] = _damaged_enemy_keys(before_state, after_state)
+	if floating_texts.is_empty() or impact_actor_keys.is_empty():
+		return {}
+	return _attack_impact_presentation({
+		"focus_actor_keys": impact_actor_keys,
+		"focus_actor_color": PLAYER_ATTACK_FOCUS,
+		"impact_actor_keys": impact_actor_keys,
+		"effect": {
+			"kind": "lightning_strikes" if element_id == ElementData.LIGHTNING else "aoe",
+			"element": element_id
+		},
+		"floating_texts": floating_texts
+	})
+
+func _animate_enemy_loss_feedback_between_states(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	element_id: String = ElementData.NONE
+) -> void:
+	var presentation: Dictionary = _enemy_loss_feedback_presentation_between_states(before_state, after_state, element_id)
+	if presentation.is_empty():
+		return
+	await _animate_floating_text_presentation(
+		after_state,
+		_death_hold_presentation(before_state, after_state, presentation)
+	)
 
 func _player_action_impact_actor_keys(before_state: Dictionary, after_state: Dictionary) -> Array[String]:
 	var keys: Array[String] = _damaged_enemy_keys(before_state, after_state)
