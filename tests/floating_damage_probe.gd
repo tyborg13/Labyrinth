@@ -6,7 +6,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/floating_combat_v2"
+const OUTPUT_DIR: String = "user://probes/floating_combat_v3"
 const PROGRESSION_PATH: String = "user://floating_damage_probe_progression.json"
 const RUN_PATH: String = "user://floating_damage_probe_run.save"
 const SETTINGS_PATH: String = "user://floating_damage_probe_settings.json"
@@ -229,9 +229,16 @@ func _capture_popup_state(
 			var target_rect: Rect2 = board.call("_floating_text_target_rect", tile) as Rect2
 			var rendered_width: float = float(entry.get("width", 48.0)) * float(entry.get("font_scale", 1.0))
 			var origin: Vector2 = board.call("_floating_text_local_origin", tile, rendered_width) as Vector2
+			var anchor_delta_x: float = origin.x + rendered_width * 0.5 - target_rect.get_center().x
 			_expect(
-				target_rect.grow(maxf(96.0, rendered_width + 18.0)).has_point(origin),
-				"%s popup origin should remain beside its receiving actor or terrain tile" % path
+				anchor_delta_x >= 16.0 and anchor_delta_x <= 20.0,
+				"%s popup center should begin at one consistent tiny right-side offset" % path
+			)
+			_expect(
+				target_rect.grow(1.0).has_point(
+					Vector2(origin.x + rendered_width * 0.5, target_rect.get_center().y)
+				),
+				"%s popup center should overlap its receiving actor or terrain target" % path
 			)
 	await _save_screenshot(viewport, path, expected_size)
 

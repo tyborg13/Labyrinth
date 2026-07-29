@@ -24,8 +24,9 @@ static func _test_damage_motion_curve(expect: Callable) -> void:
 	var linger: Dictionary = FloatingCombatText.animate_entry(base, 0.76, false)
 	var finished: Dictionary = FloatingCombatText.animate_entry(base, 1.0, false)
 	expect.call(
-		FloatingCombatText.rendered_font_size(impact) >= float(FloatingCombatText.DAMAGE_PEAK_FONT_SIZE),
-		"Damage feedback should arrive at a hero-sized impact peak"
+		FloatingCombatText.DAMAGE_PEAK_FONT_SIZE >= 60
+		and FloatingCombatText.rendered_font_size(impact) >= float(FloatingCombatText.DAMAGE_PEAK_FONT_SIZE),
+		"Damage feedback should arrive at the enlarged hero-sized impact peak"
 	)
 	expect.call(
 		FloatingCombatText.rendered_font_size(impact) > FloatingCombatText.rendered_font_size(rising)
@@ -57,9 +58,21 @@ static func _test_damage_motion_curve(expect: Callable) -> void:
 		"Damage feedback should remain fully readable into its linger beat before fading"
 	)
 	expect.call(
-		FloatingCombatText.ANIMATION_DURATION_SECONDS >= 0.80
+		FloatingCombatText.ANIMATION_DURATION_SECONDS >= 0.95
 		and FloatingCombatText.TARGET_FRAME_SECONDS <= (1.0 / 60.0) + 0.0001,
-		"Damage feedback should linger while targeting display-frame updates instead of coarse timer steps"
+		"Damage feedback should drift for the modestly longer schedule at display-frame cadence"
+	)
+	var right_half_motion: Vector2 = (
+		FloatingCombatText.animate_entry(
+			FloatingCombatText.damage_entry(Vector2i(7, 3), "-9", Color("f39779")),
+			0.50,
+			false
+		).get("motion_offset", Vector2.ZERO)
+		as Vector2
+	)
+	expect.call(
+		rising_motion.x > 0.0 and right_half_motion.x > 0.0,
+		"Every popup arc should drift toward the same right side regardless of board position"
 	)
 
 
@@ -113,8 +126,9 @@ static func _test_effect_popup_motion_curve(expect: Callable) -> void:
 	var linger: Dictionary = FloatingCombatText.animate_entry(base, 0.76, false)
 	expect.call(
 		FloatingCombatText.is_effect_entry(impact)
+		and FloatingCombatText.EFFECT_PEAK_FONT_SIZE >= 48
 		and FloatingCombatText.rendered_font_size(impact) >= float(FloatingCombatText.EFFECT_PEAK_FONT_SIZE),
-		"Defense, healing, status, and other effect popups should receive the same readable impact treatment"
+		"Defense, healing, status, and other effect popups should receive the enlarged impact treatment"
 	)
 	expect.call(
 		FloatingCombatText.rendered_font_size(impact) > FloatingCombatText.rendered_font_size(settled)

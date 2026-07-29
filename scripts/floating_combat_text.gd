@@ -5,17 +5,17 @@ const KIND_DAMAGE: String = "damage"
 const KIND_EFFECT: String = "effect"
 
 const GENERIC_PRESENTATION_SECONDS: float = 0.35
-const ANIMATION_DURATION_SECONDS: float = 0.84
+const ANIMATION_DURATION_SECONDS: float = 0.96
 const STAGGER_SECONDS: float = 0.13
 const TARGET_FRAME_SECONDS: float = 1.0 / 60.0
 
 const DAMAGE_BASE_FONT_SIZE: int = 30
-const DAMAGE_PEAK_FONT_SIZE: int = 52
+const DAMAGE_PEAK_FONT_SIZE: int = 60
 const DAMAGE_EXIT_FONT_SIZE: int = 23
 const DAMAGE_REDUCED_MOTION_FONT_SIZE: int = 32
 const DAMAGE_OUTLINE_SIZE: int = 4
 const DAMAGE_WIDTH: float = 112.0
-const DAMAGE_SETTLE_PROGRESS: float = 0.28
+const DAMAGE_SETTLE_PROGRESS: float = 0.32
 const DAMAGE_FADE_START: float = 0.78
 const DAMAGE_REDUCED_FADE_START: float = 0.88
 const ARC_RISE_HEIGHT: float = 58.0
@@ -26,7 +26,7 @@ const NORMAL_STACK_STEP_Y: float = 0.0
 const REDUCED_STACK_STEP_Y: float = 36.0
 
 const EFFECT_BASE_FONT_SIZE: int = 24
-const EFFECT_PEAK_FONT_SIZE: int = 42
+const EFFECT_PEAK_FONT_SIZE: int = 48
 const EFFECT_EXIT_FONT_SIZE: int = 20
 const EFFECT_REDUCED_MOTION_FONT_SIZE: int = 28
 const EFFECT_OUTLINE_SIZE: int = 3
@@ -159,7 +159,7 @@ static func _animate_effect_entry(entry: Dictionary, t: float, reduced_motion: b
 	entry["kind"] = KIND_EFFECT
 	var text_length: int = str(entry.get("text", "")).length()
 	var default_base_size: int = EFFECT_BASE_FONT_SIZE if text_length <= 7 else (22 if text_length <= 16 else 18)
-	var default_peak_size: int = EFFECT_PEAK_FONT_SIZE if text_length <= 7 else (34 if text_length <= 16 else 27)
+	var default_peak_size: int = EFFECT_PEAK_FONT_SIZE if text_length <= 7 else (39 if text_length <= 16 else 31)
 	var default_exit_size: int = EFFECT_EXIT_FONT_SIZE if text_length <= 7 else (18 if text_length <= 16 else 16)
 	var base_font_size: int = maxi(int(entry.get("font_size", 0)), default_base_size)
 	var peak_font_size: int = maxi(base_font_size, int(entry.get("impact_font_size", default_peak_size)))
@@ -214,13 +214,8 @@ static func _motion_offset(entry: Dictionary, progress: float, reduced_motion: b
 	if reduced_motion:
 		return Vector2.ZERO
 	var t: float = clampf(progress, 0.0, 1.0)
-	var tile: Vector2i = entry.get("tile", Vector2i.ZERO)
-	var default_direction: float = 1.0 if tile.x <= 4 else -1.0
-	var direction: float = signf(float(entry.get("arc_direction", default_direction)))
-	if is_zero_approx(direction):
-		direction = default_direction
 	var lateral_t: float = sin(t * PI * 0.5)
-	var x: float = direction * ARC_LATERAL_DRIFT * lateral_t
+	var x: float = ARC_LATERAL_DRIFT * lateral_t
 	var y: float
 	if t <= ARC_APEX_PROGRESS:
 		var rise_t: float = clampf(t / ARC_APEX_PROGRESS, 0.0, 1.0)

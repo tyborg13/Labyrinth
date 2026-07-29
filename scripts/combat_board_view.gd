@@ -49,6 +49,7 @@ const MOVE_RISK_CHIP_GAP: float = 3.0
 const IMPACT_FLASH_COLOR: Color = Color(1.0, 0.22, 0.15, 0.72)
 const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
+const FLOATING_TEXT_RIGHT_OFFSET: float = 18.0
 const PLAYER_BAR_FILL: Color = Color("8ec26c")
 const ILLUSION_BAR_FILL: Color = Color("7bd8ee")
 const ENEMY_BAR_FILL: Color = Color("d06752")
@@ -5107,8 +5108,7 @@ func _draw_floating_texts() -> void:
 		var motion_offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
 		var text_pos: Vector2
 		if is_popup and bool(entry.get("automatic_anchor", false)):
-			var place_right: bool = _floating_text_places_right(tile)
-			motion_offset.x = absf(motion_offset.x) * (1.0 if place_right else -1.0)
+			motion_offset.x = absf(motion_offset.x)
 			text_pos = _floating_text_local_origin(tile, label_width * font_scale)
 		else:
 			var tile_center: Vector2 = _tile_center(tile)
@@ -5160,16 +5160,11 @@ func _draw_floating_texts() -> void:
 
 func _floating_text_local_origin(tile: Vector2i, rendered_width: float) -> Vector2:
 	var target_rect: Rect2 = _floating_text_target_rect(tile)
-	var place_right: bool = _floating_text_places_right(tile)
-	var gap: float = clampf(_tile_width() * 0.07, 8.0, 14.0)
-	var x: float = target_rect.end.x + gap if place_right else target_rect.position.x - gap - rendered_width
+	var x: float = target_rect.get_center().x + FLOATING_TEXT_RIGHT_OFFSET - rendered_width * 0.5
 	var y: float = lerpf(target_rect.position.y, target_rect.end.y, 0.42)
 	x = clampf(x, 12.0, maxf(12.0, size.x - rendered_width - 12.0))
 	y = clampf(y, 36.0, maxf(36.0, size.y - 28.0))
 	return Vector2(x, y)
-
-func _floating_text_places_right(tile: Vector2i) -> bool:
-	return _floating_text_target_rect(tile).get_center().x >= size.x * 0.5
 
 func _floating_text_target_rect(tile: Vector2i) -> Rect2:
 	for unit: Dictionary in _visible_units():
