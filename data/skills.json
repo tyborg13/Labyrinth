@@ -14,7 +14,7 @@
   "measured_breath": {
     "name": "Measured Breath",
     "icon": "skill_measured_breath",
-    "description": "End an activation with an unused play to bank it for your next activation. One banked play maximum.",
+    "description": "End your turn with an unused play to bank it for your next turn. One banked play maximum.",
     "branch": "resolve",
     "tier": "root",
     "position": [1, 0],
@@ -74,7 +74,7 @@
   "carry_the_guard": {
     "name": "Carry the Guard",
     "icon": "skill_carry_the_guard",
-    "description": "Once per combat, while you have block, arm during your activation to convert all block remaining at its end into stoneskin.",
+    "description": "Once per combat, while you have block, arm during your turn to convert all block remaining at turn end into stoneskin.",
     "branch": "resolve",
     "tier": "branch",
     "position": [1, 1],
@@ -206,7 +206,7 @@
   "living_shadow": {
     "name": "Living Shadow",
     "icon": "skill_living_shadow",
-    "description": "Once between your activations, when an illusion is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
+    "description": "Once between your turns, when an illusion is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
     "branch": "resolve",
     "tier": "junction",
     "position": [1, 4],

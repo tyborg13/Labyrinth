@@ -2,378 +2,670 @@
   "iron_lung": {
     "name": "Iron Lung",
     "rarity": "common",
-    "description": "Gain {value} max health.",
+    "description": "The first health-cost card you play each turn grants {0.reward0.amount} stoneskin.",
     "icon_path": "res://assets/art/relics/iron_lung.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["health_cost", "stoneskin"],
     "effects": [
-      {"type": "max_hp", "value": 4}
+      {"type": "card_play_reward", "min_health_cost": 1, "once": "turn", "rewards": [{"type": "stoneskin", "amount": 3}]}
     ]
   },
   "ember_lens": {
     "name": "Ember Lens",
     "rarity": "rare",
-    "description": "Your first attack each turn deals {value} extra damage.",
+    "description": "Attacks on cards that also draw deal +{amount} damage.",
     "icon_path": "res://assets/art/relics/ember_lens.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["draw", "attack"],
     "effects": [
-      {"type": "first_attack_bonus", "value": 3}
+      {"type": "card_action_mod", "requires_action_types": ["draw"], "action_types": ["melee", "ranged", "aoe", "push", "pull"], "field": "damage", "amount": 3}
     ]
   },
   "pilgrim_boots": {
     "name": "Pilgrim Boots",
     "rarity": "common",
-    "description": "Your first move each turn gains +{value} range.",
+    "description": "Move and Blink actions on cards without attacks travel {amount} tile farther.",
     "icon_path": "res://assets/art/relics/pilgrim_boots.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["move", "positioning"],
     "effects": [
-      {"type": "first_move_bonus", "value": 1}
+      {"type": "card_action_mod", "requires_any_action_types": ["move", "blink"], "excludes_action_types": ["melee", "ranged", "aoe", "push", "pull"], "action_types": ["move", "blink"], "field": "range", "amount": 1}
     ]
   },
   "mirror_shard": {
     "name": "Mirror Shard",
     "rarity": "rare",
-    "description": "Draw {value} extra card at the start of each combat.",
+    "description": "The first card that creates an illusion each turn draws {0.reward0.amount} and grants {0.reward1.amount} card play.",
     "icon_path": "res://assets/art/relics/mirror_shard.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["illusion", "card_play"],
     "effects": [
-      {"type": "opening_draw_bonus", "value": 1}
+      {"type": "card_play_reward", "requires_action_types": ["illusion"], "once": "turn", "rewards": [{"type": "draw", "amount": 1}, {"type": "card_play", "amount": 1}]}
     ]
   },
   "coffin_nails": {
     "name": "Coffin Nails",
     "rarity": "common",
-    "description": "Gain {value} extra embers after each combat.",
+    "description": "While you have block, attacks on your cards inflict +{amount} bleed.",
     "icon_path": "res://assets/art/relics/coffin_nails.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["block", "bleed"],
     "effects": [
-      {"type": "combat_ember_bonus", "value": 2}
+      {"type": "player_state_action_mod", "player_min_block": 1, "action_types": ["melee", "ranged", "aoe", "push", "pull"], "field": "bleed", "amount": 1}
     ]
   },
   "reinforced_shield": {
     "name": "Reinforced Shield",
     "rarity": "common",
-    "description": "Start each combat with {value} stoneskin.",
+    "description": "Block actions on cards that also attack grant +{amount} block.",
     "icon_path": "res://assets/art/relics/reinforced_shield.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["block", "attack"],
     "effects": [
-      {"type": "start_combat_stoneskin", "value": 4}
+      {"type": "card_action_mod", "requires_any_action_types": ["melee", "ranged", "aoe", "push", "pull"], "action_types": ["block"], "field": "amount", "amount": 3}
     ]
   },
   "iron_buckler": {
     "name": "Iron Buckler",
     "rarity": "common",
-    "description": "Start each combat with {value} block.",
+    "description": "The first card each turn that defends without attacking draws {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/iron_buckler.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["block", "draw"],
     "effects": [
-      {"type": "start_combat_block", "value": 6}
+      {"type": "card_play_reward", "requires_any_action_types": ["block", "stoneskin"], "excludes_action_types": ["melee", "ranged", "aoe", "push", "pull"], "once": "turn", "rewards": [{"type": "draw", "amount": 1}]}
     ]
   },
   "flint_edge": {
     "name": "Flint Edge",
     "rarity": "common",
-    "description": "Melee attacks on Fire cards inflict +{amount} burn.",
+    "description": "Melee attacks on Fire cards that also move inflict +{amount} burn.",
     "icon_path": "res://assets/art/relics/flint_edge.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["fire", "move_attack"],
     "effects": [
-      {"type": "card_action_mod", "element": "fire", "action_types": ["melee"], "field": "burn", "amount": 1}
+      {"type": "card_action_mod", "element": "fire", "requires_action_types": ["move"], "action_types": ["melee"], "field": "burn", "amount": 2}
     ]
   },
   "static_soles": {
     "name": "Static Soles",
     "rarity": "common",
-    "description": "Move and blink actions on Lightning cards gain +{amount} range.",
+    "description": "The first Lightning card that moves or blinks each turn raises Lightning intensity by {0.reward0.amount} and grants {0.reward1.amount} block.",
     "icon_path": "res://assets/art/relics/static_soles.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["lightning", "mobility"],
     "effects": [
-      {"type": "card_action_mod", "element": "lightning", "action_types": ["move", "blink"], "field": "range", "amount": 1}
+      {"type": "card_play_reward", "element": "lightning", "requires_any_action_types": ["move", "blink"], "once": "turn", "rewards": [{"type": "intensity", "element": "lightning", "amount": 1}, {"type": "block", "amount": 2}]}
     ]
   },
   "mossbound_wraps": {
     "name": "Mossbound Wraps",
     "rarity": "common",
-    "description": "Earth cards that grant block or stoneskin grant +{amount} more.",
+    "description": "The first Earth card you play while you have block each turn grants {0.reward0.amount} stoneskin.",
     "icon_path": "res://assets/art/relics/mossbound_wraps.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["earth", "block"],
     "effects": [
-      {"type": "card_action_mod", "element": "earth", "action_types": ["block", "stoneskin"], "field": "amount", "amount": 2}
+      {"type": "card_play_reward", "element": "earth", "player_min_block": 1, "once": "turn", "rewards": [{"type": "stoneskin", "amount": 3}]}
     ]
   },
   "tailwind_fletching": {
     "name": "Tailwind Fletching",
     "rarity": "common",
-    "description": "Ranged attacks on Air cards gain +{0.amount} range. Air attacks with push or pull gain +{1.amount} push or pull distance.",
+    "description": "Air push and pull actions deal +{0.amount} damage and move enemies {1.amount} farther.",
     "icon_path": "res://assets/art/relics/tailwind_fletching.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["air", "forced_movement"],
     "effects": [
-      {"type": "card_action_mod", "element": "air", "action_types": ["ranged"], "field": "range", "amount": 1},
-      {"type": "card_action_mod", "element": "air", "action_types": ["melee", "ranged", "aoe"], "requires_field": "push", "field": "push", "amount": 1, "modifier_label": "+1 push distance"},
-      {"type": "card_action_mod", "element": "air", "action_types": ["melee", "ranged", "aoe"], "requires_field": "pull", "field": "pull", "amount": 1, "modifier_label": "+1 pull distance"},
-      {"type": "card_action_mod", "element": "air", "action_types": ["push"], "requires_field": "amount", "field": "amount", "amount": 1, "modifier_label": "+1 push distance"},
-      {"type": "card_action_mod", "element": "air", "action_types": ["pull"], "requires_field": "amount", "field": "amount", "amount": 1, "modifier_label": "+1 pull distance"}
+      {"type": "card_action_mod", "element": "air", "action_types": ["push", "pull"], "field": "damage", "amount": 1},
+      {"type": "card_action_mod", "element": "air", "action_types": ["push", "pull"], "field": "amount", "amount": 1}
     ]
   },
   "frost_prism": {
     "name": "Frost Prism",
     "rarity": "rare",
-    "description": "Your attacks deal +{value} damage to frozen enemies.",
+    "description": "Attacks deal +{0.value} damage to frozen enemies. The first frozen enemy killed each turn draws {1.reward0.amount}.",
     "icon_path": "res://assets/art/relics/frost_prism.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["freeze", "attack"],
     "effects": [
-      {"type": "damage_vs_status", "status": "freeze", "value": 3}
+      {"type": "damage_vs_status", "status": "freeze", "value": 4},
+      {"type": "enemy_death_reward", "statuses": ["freeze"], "once": "turn", "rewards": [{"type": "draw", "amount": 1}]}
     ]
   },
   "storm_capacitor": {
     "name": "Storm Capacitor",
     "rarity": "rare",
-    "description": "Ranged attacks on Lightning cards chain {amount} additional tile.",
+    "description": "Lightning ranged attacks that already chain gain +{amount} Chain range.",
     "icon_path": "res://assets/art/relics/storm_capacitor.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["lightning", "chain"],
     "effects": [
-      {"type": "card_action_mod", "element": "lightning", "action_types": ["ranged"], "field": "chain", "amount": 1}
+      {"type": "card_action_mod", "element": "lightning", "action_types": ["ranged"], "requires_field": "chain", "field": "chain", "amount": 1}
     ]
   },
   "gale_tabi": {
     "name": "Gale Tabi",
     "rarity": "rare",
-    "description": "The first time you blink each turn, draw {value}.",
+    "description": "The first time you blink {threshold}+ tiles each turn, draw {value} and gain {card_play} card play.",
     "icon_path": "res://assets/art/relics/gale_tabi.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["blink", "card_play"],
     "effects": [
-      {"type": "blink_draw_once_per_turn", "value": 1}
+      {"type": "blink_draw_once_per_turn", "threshold": 3, "value": 1, "card_play": 1}
     ]
   },
   "anchor_chain": {
     "name": "Anchor Chain",
     "rarity": "rare",
-    "description": "Push and pull actions deal +{0.amount} damage and move enemies {1.amount} farther.",
+    "description": "While you have block, Push and Pull actions deal +{0.amount} damage and move enemies {1.amount} tile farther.",
     "icon_path": "res://assets/art/relics/anchor_chain.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["forced_movement", "block"],
     "effects": [
-      {"type": "card_action_mod", "action_types": ["push", "pull"], "field": "damage", "amount": 1},
-      {"type": "card_action_mod", "action_types": ["push", "pull"], "field": "amount", "amount": 1}
+      {"type": "player_state_action_mod", "player_min_block": 1, "action_types": ["push", "pull"], "field": "damage", "amount": 2},
+      {"type": "player_state_action_mod", "player_min_block": 1, "action_types": ["push", "pull"], "field": "amount", "amount": 1}
     ]
   },
   "venom_signet": {
     "name": "Venom Signet",
     "rarity": "rare",
-    "description": "Attacks that already poison apply +{amount} poison.",
+    "description": "Attacks deal +{0.value} damage to poisoned enemies. Attacks that already poison apply +{1.amount} poison.",
     "icon_path": "res://assets/art/relics/venom_signet.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["poison", "attack"],
     "effects": [
-      {"type": "card_action_mod", "action_types": ["melee", "ranged", "aoe"], "requires_field": "poison", "field": "poison", "amount": 2}
+      {"type": "damage_vs_status", "status": "poison", "value": 3},
+      {"type": "card_action_mod", "action_types": ["melee", "ranged", "aoe", "push", "pull"], "requires_field": "poison", "field": "poison", "amount": 2}
     ]
   },
   "thawing_charm": {
     "name": "Thawing Charm",
     "rarity": "rare",
-    "description": "Heal actions restore {amount} additional health.",
+    "description": "Excess healing becomes stoneskin, up to {cap} each turn.",
     "icon_path": "res://assets/art/relics/thawing_charm.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["heal", "stoneskin"],
     "effects": [
-      {"type": "card_action_mod", "action_types": ["heal"], "field": "amount", "amount": 1}
+      {"type": "overheal_to_stoneskin", "cap": 8}
     ]
   },
   "ember_siphon": {
     "name": "Ember Siphon",
     "rarity": "rare",
-    "description": "The first burning enemy killed each combat restores {value} health.",
+    "description": "Once per combat, when you kill a Burning enemy, heal {0.reward0.amount} and gain {0.reward1.amount} Fire intensity.",
     "icon_path": "res://assets/art/relics/ember_siphon.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["burn", "execute"],
     "effects": [
-      {"type": "kill_status_heal", "status": "burn", "value": 1, "once": "combat"}
+      {"type": "enemy_death_reward", "statuses": ["burn"], "once": "combat", "rewards": [{"type": "heal", "amount": 3}, {"type": "intensity", "element": "fire", "amount": 1}]}
     ]
   },
   "bloodglass_knife": {
     "name": "Bloodglass Knife",
     "rarity": "epic",
-    "description": "Your attacks deal +{value} damage while you have no block or stoneskin.",
+    "description": "While at half health or less with no block or stoneskin, your attacks deal +{value} damage.",
     "icon_path": "res://assets/art/relics/bloodglass_knife.png",
     "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["bloodied", "glass_cannon"],
     "effects": [
-      {"type": "glass_attack_bonus", "value": 4}
+      {"type": "bloodied_glass_attack_bonus", "value": 7}
     ]
   },
   "cold_mirror": {
     "name": "Cold Mirror",
     "rarity": "epic",
-    "description": "The first time each combat you freeze an enemy, gain {value} card play.",
+    "description": "The first time you Freeze an enemy while you have block each turn, turn up to {0.reward0.amount} block into stoneskin.",
     "icon_path": "res://assets/art/relics/cold_mirror.png",
     "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["freeze", "block"],
     "effects": [
-      {"type": "first_status_card_play", "status": "freeze", "value": 1}
+      {"type": "status_count_reward", "status": "freeze", "threshold": 1, "player_min_block": 1, "count_scope": "turn", "once": "turn", "rewards": [{"type": "block_to_stoneskin", "amount": 6}]}
     ]
   },
   "thunder_relay": {
     "name": "Thunder Relay",
     "rarity": "epic",
-    "description": "The first time each turn you shock an enemy, draw {value}.",
+    "description": "The first time you Shock an enemy while at {min_intensity}+ Lightning intensity each turn, deal {0.reward0.amount} damage to all enemies.",
     "icon_path": "res://assets/art/relics/thunder_relay.png",
     "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["shock", "lightning_intensity"],
     "effects": [
-      {"type": "status_draw_once_per_turn", "status": "shock", "value": 1}
+      {"type": "status_count_reward", "status": "shock", "threshold": 1, "intensity_element": "lightning", "min_intensity": 2, "count_scope": "turn", "once": "turn", "rewards": [{"type": "all_enemies_damage", "amount": 3}]}
     ]
   },
   "thornmail_brooch": {
     "name": "Thornmail Brooch",
     "rarity": "epic",
-    "description": "When a card grants stoneskin, deal {value} damage to adjacent enemies.",
+    "description": "Whenever you gain stoneskin, deal half that much damage to adjacent enemies, up to {max_value}.",
     "icon_path": "res://assets/art/relics/thornmail_brooch.png",
     "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["stoneskin", "adjacent_damage"],
     "effects": [
-      {"type": "stoneskin_thorns", "value": 1}
+      {"type": "stoneskin_thorns", "scale_from_gain": true, "divisor": 2, "max_value": 8}
     ]
   },
   "vaulting_sigil": {
     "name": "Vaulting Sigil",
     "rarity": "epic",
-    "description": "The first time each turn a move travels {threshold} or more tiles, gain {value} card play.",
+    "description": "The first time you move or blink {threshold}+ tiles each turn, gain {0.reward0.amount} card play and {0.reward1.amount} block.",
     "icon_path": "res://assets/art/relics/vaulting_sigil.png",
     "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["long_move", "card_play"],
     "effects": [
-      {"type": "long_move_card_play", "threshold": 5, "value": 1}
+      {"type": "long_move_card_play", "threshold": 4, "once": "turn", "rewards": [{"type": "card_play", "amount": 1}, {"type": "block", "amount": 4}]}
     ]
   },
   "obsidian_heart": {
     "name": "Obsidian Heart",
     "rarity": "epic",
-    "description": "Start each combat with {0.value} stoneskin, but draw {1.abs_value} fewer opening card.",
+    "description": "Draw {0.abs_value} fewer opening card. At turn end, convert all remaining block into stoneskin.",
     "icon_path": "res://assets/art/relics/obsidian_heart.png",
     "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["block", "stoneskin"],
     "effects": [
-      {"type": "start_combat_stoneskin", "value": 10},
-      {"type": "opening_draw_bonus", "value": -1}
+      {"type": "opening_draw_bonus", "value": -1},
+      {"type": "end_turn_block_to_stoneskin", "multiplier": 1}
     ]
   },
   "storm_crown": {
     "name": "Storm Crown",
     "rarity": "legendary",
-    "description": "Lightning cards that shock also grant {action.amount} card play.",
+    "description": "After you play a third Lightning card in one turn, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
     "icon_path": "res://assets/art/relics/storm_crown.png",
     "accent": "#d9862f",
+    "design_version": 2,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": ["lightning", "combo_turn"],
     "effects": [
-      {"type": "card_append_action", "element": "lightning", "requires_field": "shock", "action": {"type": "card_play", "amount": 1}}
+      {"type": "card_play_reward", "element": "lightning", "trigger_count": 3, "count_scope": "turn", "once": "turn", "rewards": [{"type": "draw", "amount": 3}, {"type": "card_play", "amount": 3}]}
     ]
   },
   "phoenix_ember": {
     "name": "Phoenix Ember",
     "rarity": "legendary",
-    "description": "Gain {0.value} Defiance this run. When Defiance triggers, burn all enemies for {1.value}.",
+    "description": "Gain {0.value} Defiance this run. When Defiance triggers, burn all enemies for {1.reward0.amount}, draw {1.reward1.amount}, and gain {1.reward2.amount} card plays.",
     "icon_path": "res://assets/art/relics/phoenix_ember.png",
     "accent": "#d9862f",
+    "design_version": 2,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": ["defiance", "comeback"],
     "effects": [
       {"type": "defiance_capacity", "value": 1},
-      {"type": "defiance_trigger_burn", "value": 3}
+      {"type": "defiance_trigger_reward", "rewards": [{"type": "all_enemies_status", "status": "burn", "amount": 6}, {"type": "draw", "amount": 3}, {"type": "card_play", "amount": 3}]}
     ]
   },
   "worldroot_idol": {
     "name": "Worldroot Idol",
     "rarity": "legendary",
-    "description": "If your deck has {threshold} or more Earth cards, start combat with {value} stoneskin per Earth card, up to {max_value}.",
+    "description": "Start combat with {0.value} stoneskin per Earth card, up to {0.max_value}. The first time you gain stoneskin each turn, gain {1.amount} Earth intensity.",
     "icon_path": "res://assets/art/relics/worldroot_idol.png",
     "accent": "#d9862f",
+    "design_version": 2,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": ["earth", "stoneskin"],
     "effects": [
-      {"type": "start_combat_stoneskin_per_deck_element", "element": "earth", "threshold": 4, "value": 3, "max_value": 15}
+      {"type": "start_combat_stoneskin_per_deck_element", "element": "earth", "threshold": 1, "value": 2, "max_value": 16},
+      {"type": "stoneskin_intensity_gain_once_per_turn", "element": "earth", "amount": 1}
     ]
   },
   "cinderbrand_tongs": {
     "name": "Cinderbrand Tongs",
     "rarity": "common",
-    "description": "The first time each turn you burn an enemy, raise Fire intensity by {amount}.",
+    "description": "The first Burn you apply each turn raises Fire intensity by {0.amount}. Once each turn, when Fire intensity reaches {1.threshold}+, consume {1.consume} Fire, deal {1.reward0.amount} damage to all enemies, and Burn them for {1.reward1.amount}.",
     "icon_path": "res://assets/art/relics/cinderbrand_tongs.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["burn", "fire_intensity"],
     "effects": [
-      {"type": "status_intensity_gain", "status": "burn", "element": "fire", "amount": 1, "once": "turn"}
+      {"type": "status_intensity_gain", "status": "burn", "element": "fire", "amount": 1, "once": "turn"},
+      {"type": "intensity_threshold_reward", "element": "fire", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "all_enemies_damage", "amount": 2}, {"type": "all_enemies_status", "status": "burn", "amount": 1}]}
     ]
   },
   "rimecatcher_vial": {
     "name": "Rimecatcher Vial",
     "rarity": "common",
-    "description": "The first time each turn you freeze an enemy, raise Ice intensity by {amount}.",
+    "description": "The first Freeze you apply each turn raises Ice intensity by {0.amount}. Once each turn, when Ice intensity reaches {1.threshold}+, consume {1.consume} Ice and gain {1.reward0.amount} block.",
     "icon_path": "res://assets/art/relics/rimecatcher_vial.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["freeze", "ice_intensity"],
     "effects": [
-      {"type": "status_intensity_gain", "status": "freeze", "element": "ice", "amount": 1, "once": "turn"}
+      {"type": "status_intensity_gain", "status": "freeze", "element": "ice", "amount": 1, "once": "turn"},
+      {"type": "intensity_threshold_reward", "element": "ice", "threshold": 3, "consume": 1, "once": "turn", "rewards": [{"type": "block", "amount": 4}]}
     ]
   },
   "ion_spool": {
     "name": "Ion Spool",
     "rarity": "common",
-    "description": "The first time each turn you shock an enemy, raise Lightning intensity by {amount}.",
+    "description": "The first Shock you apply each turn raises Lightning intensity by {0.amount}. Once each turn, when Lightning intensity reaches {1.threshold}+, consume {1.consume} Lightning and deal {1.reward0.amount} damage to all enemies.",
     "icon_path": "res://assets/art/relics/ion_spool.png",
     "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["shock", "lightning_intensity"],
     "effects": [
-      {"type": "status_intensity_gain", "status": "shock", "element": "lightning", "amount": 1, "once": "turn"}
+      {"type": "status_intensity_gain", "status": "shock", "element": "lightning", "amount": 1, "once": "turn"},
+      {"type": "intensity_threshold_reward", "element": "lightning", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "all_enemies_damage", "amount": 4}]}
     ]
   },
   "updraft_bottle": {
     "name": "Updraft Bottle",
     "rarity": "rare",
-    "description": "The first time you blink each turn, raise Air intensity by {amount}.",
+    "description": "Your first Blink each turn raises Air intensity by {0.amount}. Once each turn, when Air intensity reaches {1.threshold}+, consume {1.consume} Air, draw {1.reward0.amount}, and gain {1.reward1.amount} card play.",
     "icon_path": "res://assets/art/relics/updraft_bottle.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["blink", "air_intensity"],
     "effects": [
-      {"type": "blink_intensity_gain_once_per_turn", "element": "air", "amount": 1}
+      {"type": "blink_intensity_gain_once_per_turn", "element": "air", "amount": 2},
+      {"type": "intensity_threshold_reward", "element": "air", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "draw", "amount": 1}, {"type": "card_play", "amount": 1}]}
     ]
   },
   "basalt_calendar": {
     "name": "Basalt Calendar",
     "rarity": "rare",
-    "description": "If your deck has {threshold} or more Earth cards, start combat with +{amount} Earth intensity.",
+    "description": "Once per combat, after you play your first Earth card, gain 1 stoneskin per Earth card in your deck, up to {0.reward0.max_value}; then gain 1 Earth intensity per {0.reward1.cards_per_point} Earth cards, up to {0.reward1.max_value}.",
     "icon_path": "res://assets/art/relics/basalt_calendar.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["earth", "deck_scaling"],
     "effects": [
-      {"type": "start_combat_intensity", "element": "earth", "deck_element": "earth", "threshold": 4, "amount": 1}
+      {"type": "card_play_reward", "element": "earth", "once": "combat", "rewards": [{"type": "stoneskin_per_deck_element", "deck_element": "earth", "value": 1, "max_value": 6}, {"type": "intensity_per_deck_element", "element": "earth", "deck_element": "earth", "cards_per_point": 3, "max_value": 2}]}
     ]
   },
   "coalheart_crucible": {
     "name": "Coalheart Crucible",
     "rarity": "rare",
-    "description": "Once each turn, when Fire intensity reaches {threshold}+, consume {consume} Fire, gain {0.reward0.amount} card play, and burn all enemies for {0.reward1.amount}.",
+    "description": "Once each turn, when Fire intensity reaches {threshold}+, consume {consume} Fire, gain {0.reward0.amount} card plays, and burn all enemies for {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/coalheart_crucible.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["fire_intensity", "burn"],
     "effects": [
-      {"type": "intensity_threshold_reward", "element": "fire", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "card_play", "amount": 1}, {"type": "all_enemies_status", "status": "burn", "amount": 2}]}
+      {"type": "intensity_threshold_reward", "element": "fire", "threshold": 5, "consume": 3, "once": "turn", "rewards": [{"type": "card_play", "amount": 2}, {"type": "all_enemies_status", "status": "burn", "amount": 3}]}
     ]
   },
   "voltaic_tuning_fork": {
     "name": "Voltaic Tuning Fork",
     "rarity": "rare",
-    "description": "Once each turn, when Lightning intensity reaches {threshold}+, draw {0.reward0.amount}.",
+    "description": "Once each turn, when Lightning intensity reaches {threshold}+, consume {consume} Lightning and draw {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/voltaic_tuning_fork.png",
     "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["lightning_intensity", "draw"],
     "effects": [
-      {"type": "intensity_threshold_reward", "element": "lightning", "threshold": 3, "once": "turn", "rewards": [{"type": "draw", "amount": 1}]}
+      {"type": "intensity_threshold_reward", "element": "lightning", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "draw", "amount": 2}]}
     ]
   },
   "tectonic_abacus": {
     "name": "Tectonic Abacus",
     "rarity": "epic",
-    "description": "Once each turn, when Earth intensity reaches {threshold}+, consume {consume} Earth and gain {0.reward0.amount} stoneskin.",
+    "description": "Once each turn, when Earth intensity reaches {threshold}+, consume {consume} Earth, gain {0.reward0.amount} stoneskin and {0.reward1.amount} card plays.",
     "icon_path": "res://assets/art/relics/tectonic_abacus.png",
     "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["earth_intensity", "stoneskin"],
     "effects": [
-      {"type": "intensity_threshold_reward", "element": "earth", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "stoneskin", "amount": 8}]}
+      {"type": "intensity_threshold_reward", "element": "earth", "threshold": 5, "consume": 4, "once": "turn", "rewards": [{"type": "stoneskin", "amount": 12}, {"type": "card_play", "amount": 2}]}
     ]
   },
   "overflow_censer": {
     "name": "Overflow Censer",
     "rarity": "epic",
-    "description": "The first time each turn any intensity reaches {threshold}+, gain {0.reward0.amount} block.",
+    "description": "The first time {required_elements} elements reach {threshold}+ intensity in one combat, gain {0.reward0.amount} stoneskin, draw {0.reward1.amount}, and gain {0.reward2.amount} card plays.",
     "icon_path": "res://assets/art/relics/overflow_censer.png",
     "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["multi_element", "intensity"],
     "effects": [
-      {"type": "intensity_threshold_reward", "element": "any", "threshold": 3, "once": "turn", "rewards": [{"type": "block", "amount": 5}]}
+      {"type": "intensity_threshold_reward", "element": "any", "threshold": 3, "required_elements": 3, "once": "combat", "rewards": [{"type": "stoneskin", "amount": 12}, {"type": "draw", "amount": 2}, {"type": "card_play", "amount": 2}]}
     ]
   },
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "The first time each combat each element reaches {threshold}+, consume {consume} of it, deal {0.reward0.amount} to all enemies, and draw {0.reward1.amount}.",
+    "description": "Once per combat, when all {required_elements} elements reach {threshold}+ intensity, consume {consume} from each, deal {0.reward0.amount} to all enemies, gain {0.reward1.amount} stoneskin, draw {0.reward2.amount}, and gain {0.reward3.amount} card plays.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
+    "design_version": 2,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": ["five_element", "intensity_combo"],
     "effects": [
-      {"type": "intensity_threshold_reward", "element": "any", "threshold": 5, "consume": 3, "once": "combat_per_element", "rewards": [{"type": "all_enemies_damage", "amount": 4}, {"type": "draw", "amount": 1}]}
+      {"type": "intensity_threshold_reward", "element": "any", "threshold": 2, "required_elements": 5, "consume": 2, "consume_all_qualifying": true, "once": "combat", "rewards": [{"type": "all_enemies_damage", "amount": 12}, {"type": "stoneskin", "amount": 12}, {"type": "draw", "amount": 3}, {"type": "card_play", "amount": 3}]}
+    ]
+  },
+  "duelist_whetstone": {
+    "name": "Duelist Whetstone",
+    "rarity": "common",
+    "description": "Attacks on the first card each turn that also moves or blinks deal +{value} damage.",
+    "icon_path": "res://assets/art/relics/duelist_whetstone.png",
+    "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["move_attack", "damage"],
+    "effects": [
+      {"type": "first_card_attack_bonus", "requires_any_action_type_groups": [["move", "blink"], ["melee", "ranged", "aoe", "push", "pull"]], "value": 2}
+    ]
+  },
+  "hollow_die": {
+    "name": "Hollow Die",
+    "rarity": "common",
+    "description": "The first card with exactly one printed action each turn draws {0.reward0.amount}.",
+    "icon_path": "res://assets/art/relics/hollow_die.png",
+    "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["single_action", "draw"],
+    "effects": [
+      {"type": "card_play_reward", "min_action_count": 1, "max_action_count": 1, "once": "turn", "rewards": [{"type": "draw", "amount": 1}]}
+    ]
+  },
+  "chorus_mask": {
+    "name": "Chorus Mask",
+    "rarity": "rare",
+    "description": "The first time you play an elemental card after a card of a different element each turn, gain {0.reward0.amount} card play and {0.reward1.amount} block.",
+    "icon_path": "res://assets/art/relics/chorus_mask.png",
+    "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["multi_element", "sequence"],
+    "effects": [
+      {"type": "card_play_reward", "previous_element": "different", "once": "turn", "rewards": [{"type": "card_play", "amount": 1}, {"type": "block", "amount": 3}]}
+    ]
+  },
+  "hourglass_splinter": {
+    "name": "Hourglass Splinter",
+    "rarity": "rare",
+    "description": "The first card with {min_time}+ Time each turn grants {0.reward0.amount} card play and {0.reward1.amount} block.",
+    "icon_path": "res://assets/art/relics/hourglass_splinter.png",
+    "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["high_time", "card_play"],
+    "effects": [
+      {"type": "card_play_reward", "min_time": 7, "once": "turn", "rewards": [{"type": "card_play", "amount": 1}, {"type": "block", "amount": 4}]}
+    ]
+  },
+  "widow_thread": {
+    "name": "Widow Thread",
+    "rarity": "rare",
+    "description": "Attacks on cards that also create an illusion inflict {amount} expose.",
+    "icon_path": "res://assets/art/relics/widow_thread.png",
+    "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["illusion", "expose"],
+    "effects": [
+      {"type": "card_action_mod", "requires_action_types": ["illusion"], "action_types": ["melee", "ranged", "aoe", "push", "pull"], "field": "expose", "amount": 3}
+    ]
+  },
+  "funeral_bell": {
+    "name": "Funeral Bell",
+    "rarity": "epic",
+    "description": "After a third statused enemy dies each combat, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
+    "icon_path": "res://assets/art/relics/funeral_bell.png",
+    "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["status", "execute"],
+    "effects": [
+      {"type": "enemy_death_reward", "requires_status": true, "threshold": 3, "count_scope": "combat", "once": "combat", "rewards": [{"type": "draw", "amount": 3}, {"type": "card_play", "amount": 2}]}
+    ]
+  },
+  "bloodmoon_chalice": {
+    "name": "Bloodmoon Chalice",
+    "rarity": "epic",
+    "description": "The first health-cost card you finish at half health or less each combat heals {0.reward0.amount}, draws {0.reward1.amount}, and grants {0.reward2.amount} card play.",
+    "icon_path": "res://assets/art/relics/bloodmoon_chalice.png",
+    "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["health_cost", "bloodied"],
+    "effects": [
+      {"type": "card_play_reward", "min_health_cost": 1, "player_hp_percent_max": 50, "once": "combat", "rewards": [{"type": "heal", "amount": 5}, {"type": "draw", "amount": 2}, {"type": "card_play", "amount": 1}]}
+    ]
+  },
+  "moonless_compass": {
+    "name": "Moonless Compass",
+    "rarity": "epic",
+    "description": "Once per combat, after one card moves or blinks you and another creates Light, grants Vision or Truesight, or dispels Umbra in the same turn, gain {0.reward0.amount} stoneskin and {0.reward1.amount} card plays.",
+    "icon_path": "res://assets/art/relics/moonless_compass.png",
+    "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["radiance", "mobility"],
+    "effects": [
+      {"type": "card_play_reward", "cross_card_action_type_groups": [["move", "blink"], ["illuminate", "vision", "truesight", "dispel_umbra"]], "once": "combat", "rewards": [{"type": "stoneskin", "amount": 6}, {"type": "card_play", "amount": 2}]}
+    ]
+  },
+  "fivefold_knot": {
+    "name": "Fivefold Knot",
+    "rarity": "legendary",
+    "description": "Once per combat, after you play all {unique_elements_threshold} elements in one turn, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
+    "icon_path": "res://assets/art/relics/fivefold_knot.png",
+    "accent": "#d9862f",
+    "design_version": 2,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": ["five_element", "combo_turn"],
+    "effects": [
+      {"type": "card_play_reward", "unique_elements_threshold": 5, "unique_elements_scope": "turn", "once": "combat", "rewards": [{"type": "draw", "amount": 5}, {"type": "card_play", "amount": 5}]}
+    ]
+  },
+  "borrowed_hourglass": {
+    "name": "Borrowed Hourglass",
+    "rarity": "legendary",
+    "description": "The first time a banked play pays for a {min_time}+ Time card each combat, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
+    "icon_path": "res://assets/art/relics/borrowed_hourglass.png",
+    "accent": "#d9862f",
+    "design_version": 2,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": ["banked_play", "high_time"],
+    "effects": [
+      {"type": "card_play_reward", "used_banked_play": true, "min_time": 7, "once": "combat", "rewards": [{"type": "draw", "amount": 4}, {"type": "card_play", "amount": 3}]}
     ]
   }
 }

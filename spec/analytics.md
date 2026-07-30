@@ -21,6 +21,7 @@ their context when available:
 - `progression_stats`, retained as an empty deprecated compatibility field for
   existing JSONL readers
 - `progression_skills`, as the ordered learned skill ids
+- `relics`, as the ordered run relic ids active for the event
 - `moltshards`
 
 Combat-mode events also include initiative context when combat state is
@@ -92,6 +93,10 @@ Card-performance queries should group or filter by `progression_skills` when
 qualitative progression can alter access, timing, card persistence, or target
 selection. The event stream records realized outcomes; it does not assign a
 scalar value to a learned skill.
+
+They should likewise group or filter by `relics` when evaluating card results.
+Relic engines can mutate printed actions or add draw, play, defense, status,
+movement, and elemental-intensity payoffs during the resolved transition.
 
 `card_played.payload` currently logs raw observed ingredients instead of a single heuristic score:
 

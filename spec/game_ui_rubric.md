@@ -10,7 +10,7 @@ The rubric is not a mandate to replace clear text with obscure icons. Escape the
 
 - The board, actors, cards, turn clock, and current decision are the visual center. Framing should clarify them, not cover or outshout them.
 - Reuse the established dark wood/parchment, inset metal, brass, ember, and distressed-fantasy vocabulary. Start with `UiSkin`, `UiTypography`, `UiTooltipPanel`, `CardWidget`, existing icon libraries, and `spec/ui_button_system.md` before creating a new component or visual language.
-- The authored canvas and the current routine visual-QA target are `1920x1080` at `100%` UI scale. Other resolutions and scales remain product capabilities, but they are outside routine proof until a dedicated resolution-focused pass; add them only when the user or task explicitly requests one. Motion can be reduced.
+- The authored canvas and current routine visual-QA target are `1920x1080` at `100%` UI scale. Lower-resolution, handheld, and alternate-scale QA are outside routine proof unless the user or task explicitly targets them; player UI scale still supports `90%`, `100%`, `115%`, and `125%`, and motion can be reduced.
 - Input support is a capability of the current branch/build, not a permanent assumption. Preserve every input path the changed surface already supports. When controller or Steam Deck support is present, navigation, focus recovery, activation, back/cancel, and active-input cues are first-class requirements. Do not fabricate device glyphs or claim a path the complete surface does not support.
 
 ## Required design statement
@@ -40,8 +40,8 @@ Rate every row **Pass**, **Exception**, or **Fail**. A change is ready only when
 | Interaction completeness | All required information and actions are reachable without hover; every supported input path remains complete, with visible focus wherever navigation uses it. | Hover-only mechanics, invisible focus, tiny targets, mouse-only dismissal, or a stranded keyboard/controller path. |
 | Visual cohesion | Existing typography, spacing, panels, buttons, icons, cards, and tooltips are reused or deliberately extended. | A one-off skin, generic dashboard pattern, or duplicate component vocabulary. |
 | Accessibility | Meaning is not carried by color, motion, or audio alone; type remains readable; UI scale and reduced motion are respected. | Clipping at larger scale, low contrast over gameplay, or essential animation with no static end state. |
-| Layout resilience | The changed surface remains operable without clipping, overlap, or unreachable controls at its required proof configuration. | The required `1920x1080`/`100%` presentation clips, overlaps, or makes controls unreachable. |
-| Visual proof | Fresh screenshots show the real changed surface and relevant interaction states; the implementer inspects the pixels, not only file existence. | Code-only proof, stale images, a synthetic mockup, or only an unchanged state. |
+| Layout resilience | The changed surface remains operable without clipping, overlap, or unreachable controls at every required proof configuration. | The required `1920x1080`/`100%` presentation, or another explicitly requested configuration, clips, overlaps, or makes controls unreachable. |
+| Visual proof | Fresh `1920x1080` screenshots show the real changed surface and relevant interaction states; the implementer inspects the pixels, not only file existence. | Code-only proof, stale images, a synthetic mockup, or only one state when the change materially alters several states. |
 
 ## Copy and disclosure budgets
 
@@ -109,11 +109,12 @@ Revise copy that repeats a visible label, narrates navigation, starts with flavo
 
 Use the repository's task-safe probe workflow. A visually changed surface needs a focused probe; extend an existing one when it already owns the surface.
 
-1. Render routine visual proof only at `1920x1080` and `100%` UI scale. Do not add constrained resolutions, handheld dimensions, minimum-window checks, or alternate UI scales unless the user or task explicitly requests a resolution-focused pass.
-2. Capture every changed state that can materially alter comprehension or geometry: normal, hover/focus, selected, disabled/unaffordable, warning/error, expanded detail, and before/after result as applicable.
-3. Use fresh versioned screenshot filenames. Inspect every delivered image at the exact review resolution and check clipping, overlap, legibility, hierarchy, background contrast, and gameplay occlusion.
-4. Exercise every input path the changed surface currently supports. Verify pointer behavior, keyboard focus/order, and controller/Steam Deck focus traversal, activation, back/cancel, and focus recovery as applicable. Verify input-device handoff and displayed cues when an active-input system exists. Capture changed input states at the routine `1920x1080`/`100%` configuration and verify reduced-motion behavior for new motion.
-5. Run focused logic/tests in addition to visual proof when actions, persistence, or state transitions change. A screenshot cannot prove behavior; a test cannot prove presentation.
+1. Render routine visual proof at `1920x1080` and `100%` UI scale. This is the only default resolution/scale requirement. Do not add constrained-resolution, handheld, or alternate-scale runs unless the user or task explicitly requests them.
+2. When a task explicitly targets a lower resolution, handheld layout, or alternate UI scale, add only the configurations named by that task and keep the normal `1920x1080` proof as the comparison baseline.
+3. Capture every changed state that can materially alter comprehension or geometry: normal, hover/focus, selected, disabled/unaffordable, warning/error, expanded detail, and before/after result as applicable.
+4. Use fresh versioned screenshot filenames. Inspect every delivered image at the exact review resolution and check clipping, overlap, legibility, hierarchy, background contrast, and gameplay occlusion.
+5. Exercise every input path the changed surface currently supports. Verify pointer behavior, keyboard focus/order, and controller/Steam Deck focus traversal, activation, back/cancel, and focus recovery as applicable. Verify input-device handoff and displayed cues when an active-input system exists. Capture changed input states at the routine `1920x1080`/`100%` configuration and verify reduced-motion behavior for new motion; input coverage does not imply extra resolution runs unless the task explicitly requests them.
+6. Run focused logic/tests in addition to visual proof when actions, persistence, or state transitions change. A screenshot cannot prove behavior; a test cannot prove presentation.
 
 Relevant starting points include `tests/ui_probe.gd`, `tests/button_system_probe.gd`, `tests/settings_probe.gd`, `tests/tooltip_consistency_probe.gd`, and screen-specific probes under `tests/`. Run them through `tools/visual_probe_runner.py` in isolated tasks.
 

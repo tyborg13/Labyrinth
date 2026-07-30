@@ -7,6 +7,7 @@ const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
+const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
@@ -954,17 +955,13 @@ const CARD_PROXY_POOL_LIMIT: int = 2
 const DOOR_OPENING_FRAMES: int = 8
 const DOOR_OPENING_FRAME_SECONDS: float = 0.075
 const DOOR_OPENING_SETTLE_SECONDS: float = 0.04
-const FLOAT_TEXT_FRAMES: int = 7
-const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
 const ENEMY_DEATH_MIN_FRAMES: int = 8
 const ENEMY_DEATH_FALLBACK_FRAMES: int = 16
 const ENEMY_DEATH_FALLBACK_FRAME_SECONDS: float = 0.065
 const TERRAIN_DESTRUCTION_FALLBACK_FRAMES: int = 16
 const TERRAIN_DESTRUCTION_FALLBACK_FRAME_SECONDS: float = 0.065
 const IMPACT_DECAL_MAX_TILES: int = 7
-const FATIGUE_EFFECT_FRAMES: int = 9
-const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.045
-const FATIGUE_EDGE_LINGER_FRAMES: int = 3
+const FATIGUE_EDGE_LINGER_SECONDS: float = 0.18
 const FATIGUE_EDGE_HOLD_PROGRESS: float = 0.82
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
@@ -12438,32 +12435,57 @@ func _board_display_state() -> Dictionary:
 func _combat_preview_display_state(preview_state: Dictionary) -> Dictionary:
 	if preview_state.is_empty() or _combat_state.is_empty():
 		return preview_state
-	var display_state: Dictionary = preview_state.duplicate(false)
-	var committed_by_id: Dictionary = {}
-	for committed_var: Variant in _combat_state.get("enemies", []):
-		if typeof(committed_var) != TYPE_DICTIONARY:
+	return _state_with_enemy_durability_from(preview_state, _combat_state)
+
+func _state_with_enemy_durability_from(display_state: Dictionary, durability_state: Dictionary) -> Dictionary:
+	var held_state: Dictionary = display_state.duplicate(false)
+	var durability_by_id: Dictionary = {}
+	for durability_var: Variant in durability_state.get("enemies", []):
+		if typeof(durability_var) != TYPE_DICTIONARY:
 			continue
-		var committed_enemy: Dictionary = committed_var
-		committed_by_id[int(committed_enemy.get("id", -1))] = committed_enemy
-	var display_enemies: Array = []
-	var projected_ids: Dictionary = {}
-	for projected_var: Variant in preview_state.get("enemies", []):
-		if typeof(projected_var) != TYPE_DICTIONARY:
+		var durability_enemy: Dictionary = durability_var
+		durability_by_id[int(durability_enemy.get("id", -1))] = durability_enemy
+	var held_enemies: Array = []
+	var displayed_ids: Dictionary = {}
+	for display_var: Variant in display_state.get("enemies", []):
+		if typeof(display_var) != TYPE_DICTIONARY:
 			continue
-		var projected_enemy: Dictionary = (projected_var as Dictionary).duplicate(true)
-		var enemy_id: int = int(projected_enemy.get("id", -1))
-		projected_ids[enemy_id] = true
-		if committed_by_id.has(enemy_id):
-			var committed_enemy: Dictionary = committed_by_id[enemy_id]
+		var held_enemy: Dictionary = (display_var as Dictionary).duplicate(true)
+		var enemy_id: int = int(held_enemy.get("id", -1))
+		displayed_ids[enemy_id] = true
+		if durability_by_id.has(enemy_id):
+			var durability_enemy: Dictionary = durability_by_id[enemy_id]
 			for key: String in ["hp", "block", "stoneskin"]:
-				projected_enemy[key] = committed_enemy.get(key, projected_enemy.get(key, 0))
-		display_enemies.append(projected_enemy)
-	for committed_id: Variant in committed_by_id.keys():
-		if projected_ids.has(committed_id):
+				held_enemy[key] = durability_enemy.get(key, held_enemy.get(key, 0))
+		held_enemies.append(held_enemy)
+	for durability_id: Variant in durability_by_id.keys():
+		if displayed_ids.has(durability_id):
 			continue
-		display_enemies.append((committed_by_id[committed_id] as Dictionary).duplicate(true))
-	display_state["enemies"] = display_enemies
-	return display_state
+		held_enemies.append((durability_by_id[durability_id] as Dictionary).duplicate(true))
+	held_state["enemies"] = held_enemies
+	return held_state
+
+func _state_with_combatant_durability_from(display_state: Dictionary, durability_state: Dictionary) -> Dictionary:
+	var held_state: Dictionary = _state_with_enemy_durability_from(display_state, durability_state)
+	var held_player: Dictionary = (display_state.get("player", {}) as Dictionary).duplicate(true)
+	var durability_player: Dictionary = durability_state.get("player", {})
+	for key: String in ["hp", "block", "stoneskin"]:
+		held_player[key] = durability_player.get(key, held_player.get(key, 0))
+	held_state["player"] = held_player
+	return held_state
+
+func _player_action_primary_display_state(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	action_type: String,
+	triggered_traps: Array,
+	secondary_enemy_loss_presentation: Dictionary
+) -> Dictionary:
+	if not secondary_enemy_loss_presentation.is_empty():
+		return _state_with_enemy_durability_from(after_state, before_state)
+	if action_type in ["move", "blink"] and not triggered_traps.is_empty():
+		return _state_with_combatant_durability_from(after_state, before_state)
+	return after_state
 
 func _board_visibility_state(display_state: Dictionary) -> Dictionary:
 	if _unconfirmed_preview_must_preserve_umbra_information():
@@ -12710,7 +12732,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 				var attack_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(attack_damage_modifiers)
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": attack_final_damage,
-					"tone_base_damage": _damage_tone_base_excluding_modifiers(attack_final_damage, attack_visible_modifiers),
+					"tone_base_damage": _damage_tone_base_excluding_modifiers(attack_final_damage, attack_visible_modifiers, action),
 					"damage_modifiers": attack_visible_modifiers
 				})
 				_consume_preview_damage_modifiers(preview_state, action)
@@ -12720,7 +12742,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 				var shove_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(shove_damage_modifiers)
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": shove_final_damage,
-					"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers),
+					"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers, action),
 					"damage_modifiers": shove_visible_modifiers
 				})
 				_consume_preview_damage_modifiers(preview_state, action)
@@ -12781,10 +12803,18 @@ func _non_intensity_damage_modifiers(modifiers: Array[Dictionary]) -> Array[Dict
 		filtered.append(modifier)
 	return filtered
 
-func _damage_tone_base_excluding_modifiers(final_damage: int, visible_modifiers: Array[Dictionary]) -> int:
+func _damage_tone_base_excluding_modifiers(
+	final_damage: int,
+	visible_modifiers: Array[Dictionary],
+	action: Dictionary = {}
+) -> int:
 	var tone_base: int = final_damage
 	for modifier: Dictionary in visible_modifiers:
 		tone_base -= int(modifier.get("amount", 0))
+	var action_modifiers: Dictionary = action.get("_modifiers", {}) as Dictionary
+	for modifier_var: Variant in action_modifiers.get("damage", []):
+		if typeof(modifier_var) == TYPE_DICTIONARY:
+			tone_base -= int((modifier_var as Dictionary).get("amount", 0))
 	return tone_base
 
 func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) -> void:
@@ -14206,6 +14236,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var card_size: Vector2 = source_rect.size if source_rect.size.length() > 0.0 else _hand_card_size(5, false)
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
+	var pre_commit_combat_state: Dictionary = resolved_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
 	var plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
@@ -14230,6 +14261,12 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
+	await _animate_enemy_loss_feedback_between_states(
+		pre_commit_combat_state,
+		committed_combat_state,
+		GameData.card_element(card_id)
+	)
+	await _animate_defeats_and_terrain_destruction(pre_commit_combat_state, committed_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	if outcome == "victory":
@@ -14531,30 +14568,29 @@ func _set_ember_reward_display_count(value: int) -> void:
 func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
 	return board_view.global_position + board_view.world_position_for_tile(tile)
 
-func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, frames: int = FLOAT_TEXT_FRAMES, frame_seconds: float = FLOAT_TEXT_FRAME_SECONDS) -> void:
+func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
+	var duration_seconds: float = FloatingCombatText.total_duration(base_texts)
 	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
 		_render_board_state(display_state, base_presentation)
-		await get_tree().create_timer(frame_seconds * float(maxi(1, frames))).timeout
+		await get_tree().create_timer(duration_seconds).timeout
 		return
-	var frame_count: int = maxi(1, frames)
-	for frame: int in range(frame_count):
-		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
+	var reduced_motion: bool = _reduced_motion_enabled()
+	var started_usec: int = Time.get_ticks_usec()
+	while true:
+		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
+		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 		var presentation: Dictionary = base_presentation.duplicate(true)
-		presentation["impact_progress"] = t
+		presentation["impact_progress"] = 0.18 if reduced_motion else t
 		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
-			presentation["effect_progress"] = t
-		var animated_texts: Array[Dictionary] = []
-		for text_var: Variant in base_texts:
-			var text_entry: Dictionary = (text_var as Dictionary).duplicate(true)
-			text_entry["rise"] = lerpf(0.0, 14.0, t)
-			text_entry["alpha"] = 1.0 if t < 0.72 else clampf(1.0 - ((t - 0.72) / 0.28), 0.0, 1.0)
-			animated_texts.append(text_entry)
-		presentation["floating_texts"] = animated_texts
+			presentation["effect_progress"] = 1.0 if reduced_motion else t
+		presentation["floating_texts"] = FloatingCombatText.animate_entries(base_texts, elapsed_seconds, reduced_motion)
 		_render_board_state(display_state, presentation)
-		await get_tree().create_timer(frame_seconds).timeout
+		if elapsed_seconds >= duration_seconds:
+			break
+		await get_tree().process_frame
 
 func _animate_defeats_and_terrain_destruction(before_state: Dictionary, after_state: Dictionary, base_presentation: Dictionary = {}) -> void:
 	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
@@ -14685,59 +14721,65 @@ func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_event
 		total_damage += maxi(0, int(event.get("amount", 0)))
 		player_tile = event.get("tile", player_tile)
 	if total_damage > 0:
-		floats.append({
-			"tile": player_tile,
-			"text": "-%d" % total_damage,
-			"color": Color("f39779"),
-			"offset": -36.0,
-			"x_offset": -34.0,
-			"width": 84.0,
-			"font_size": 20,
-			"outline_size": 2,
-			"outline_color": Color("270806")
-		})
+		floats.append(FloatingCombatText.damage_entry(
+			player_tile,
+			"-%d" % total_damage,
+			Color("f39779"),
+			{
+				"outline_color": Color("270806")
+			}
+		))
 	floats.append({
 		"tile": player_tile,
 		"text": "fatigue sets in",
 		"color": Color("ff695f"),
-		"offset": -4.0,
-		"x_offset": 20.0,
-		"width": 152.0,
+		"offset": 0.0,
+		"width": 184.0,
 		"font_size": 16,
 		"outline_size": 2,
 		"outline_color": Color("270806")
 	})
 	return floats
 
-func _fatigue_damage_presentation_for_progress(display_state: Dictionary, fatigue_events: Array[Dictionary], progress: float) -> Dictionary:
+func _fatigue_damage_presentation_for_elapsed(display_state: Dictionary, fatigue_events: Array[Dictionary], elapsed_seconds: float) -> Dictionary:
 	var base_texts: Array[Dictionary] = _fatigue_floating_texts_for_events(display_state, fatigue_events)
-	var animated_texts: Array[Dictionary] = []
-	var t: float = clampf(progress, 0.0, 1.0)
-	for text_var: Variant in base_texts:
-		var text_entry: Dictionary = (text_var as Dictionary).duplicate(true)
-		text_entry["rise"] = lerpf(0.0, 18.0, t)
-		text_entry["alpha"] = 1.0 if t < 0.66 else clampf(1.0 - ((t - 0.66) / 0.34), 0.0, 1.0)
-		animated_texts.append(text_entry)
+	var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 	return {
 		"impact_actor_keys": ["player"],
 		"impact_progress": t,
 		"impact_strength": 1.35,
-		"floating_texts": animated_texts
+		"floating_texts": FloatingCombatText.animate_entries(base_texts, elapsed_seconds, _reduced_motion_enabled())
 	}
+
+func _fatigue_damage_presentation_for_progress(display_state: Dictionary, fatigue_events: Array[Dictionary], progress: float) -> Dictionary:
+	return _fatigue_damage_presentation_for_elapsed(
+		display_state,
+		fatigue_events,
+		clampf(progress, 0.0, 1.0) * FloatingCombatText.ANIMATION_DURATION_SECONDS
+	)
 
 func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Dictionary]) -> void:
 	if fatigue_events.is_empty():
 		return
-	var frame_count: int = maxi(1, FATIGUE_EFFECT_FRAMES)
-	for frame: int in range(frame_count):
-		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
+	var base_texts: Array[Dictionary] = _fatigue_floating_texts_for_events(display_state, fatigue_events)
+	var duration_seconds: float = FloatingCombatText.total_duration(base_texts)
+	var started_usec: int = Time.get_ticks_usec()
+	while true:
+		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
+		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 		_set_fatigue_edge_progress(minf(t, FATIGUE_EDGE_HOLD_PROGRESS))
-		_render_board_state(display_state, _fatigue_damage_presentation_for_progress(display_state, fatigue_events, t))
-		await get_tree().create_timer(FATIGUE_EFFECT_FRAME_SECONDS).timeout
-	for linger_frame: int in range(FATIGUE_EDGE_LINGER_FRAMES):
-		var linger_t: float = float(linger_frame + 1) / float(FATIGUE_EDGE_LINGER_FRAMES)
+		_render_board_state(display_state, _fatigue_damage_presentation_for_elapsed(display_state, fatigue_events, elapsed_seconds))
+		if elapsed_seconds >= duration_seconds:
+			break
+		await get_tree().process_frame
+	var linger_started_usec: int = Time.get_ticks_usec()
+	while true:
+		var linger_elapsed: float = float(Time.get_ticks_usec() - linger_started_usec) / 1000000.0
+		var linger_t: float = clampf(linger_elapsed / FATIGUE_EDGE_LINGER_SECONDS, 0.0, 1.0)
 		_set_fatigue_edge_progress(lerpf(FATIGUE_EDGE_HOLD_PROGRESS, 1.0, linger_t))
-		await get_tree().create_timer(FATIGUE_EFFECT_FRAME_SECONDS).timeout
+		if linger_t >= 1.0:
+			break
+		await get_tree().process_frame
 	_set_fatigue_edge_progress(-1.0)
 	_render_board_state(display_state, {})
 
@@ -14920,6 +14962,20 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	var player_before_tile: Vector2i = player_before.get("pos", Vector2i.ZERO)
 	var player_after_tile: Vector2i = player_after.get("pos", player_before_tile)
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
+	var secondary_enemy_loss_presentation: Dictionary = _secondary_player_action_enemy_loss_presentation(
+		before_state,
+		after_state,
+		card_id,
+		action,
+		triggered_traps
+	)
+	var primary_display_state: Dictionary = _player_action_primary_display_state(
+		before_state,
+		after_state,
+		action_type,
+		triggered_traps,
+		secondary_enemy_loss_presentation
+	)
 	var base_presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
 		"focus_actor_color": PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink"] else PLAYER_ATTACK_FOCUS
@@ -14937,7 +14993,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			movement_presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
 			movement_presentation["path_tiles"] = move_path
 			await _animate_actor_along_path(before_state, "player", move_path, movement_presentation)
-			_render_board_state(after_state, _death_hold_presentation(before_state, after_state, base_presentation))
+			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
 			await _animate_player_trap_result(after_state, before_state, triggered_traps, base_presentation)
 		"blink":
@@ -14953,7 +15009,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"effect_progress": t
 				})
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			_render_board_state(after_state, _death_hold_presentation(before_state, after_state, {
+			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": [player_after_tile],
@@ -14980,7 +15036,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_color": Color(0.40, 0.86, 0.94, 0.18 + 0.12 * t)
 				})
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": focus_tiles,
@@ -14996,14 +15052,14 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			for frame: int in range(1, ATTACK_FRAMES + 1):
 				var t: float = float(frame) / float(ATTACK_FRAMES)
-				_render_board_state(after_state, {
+				_render_board_state(primary_display_state, {
 					"focus_actor_keys": ["player"],
 					"focus_actor_color": Color("ffe394"),
 					"focus_tiles": [target_tile],
 					"focus_color": Color(1.0, 0.82, 0.34, 0.16 + 0.22 * sin(t * PI))
 				})
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			await _animate_floating_text_presentation(after_state, {
+			await _animate_floating_text_presentation(primary_display_state, {
 				"focus_tiles": [target_tile],
 				"focus_color": Color(1.0, 0.84, 0.42, 0.30),
 				"floating_texts": [{
@@ -15016,7 +15072,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"vision", "truesight", "dispel_umbra":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra -%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
-			await _animate_floating_text_presentation(after_state, {
+			await _animate_floating_text_presentation(primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": Color("ffe394"),
 				"floating_texts": [{
@@ -15063,7 +15119,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					presentation["unit_draw_tiles"] = {"player": effect_target_tile}
 				_render_board_state(before_state, presentation)
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, _attack_impact_presentation({
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, _attack_impact_presentation({
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_ATTACK_FOCUS,
 				"focus_tiles": focus_tiles,
@@ -15078,7 +15134,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			_play_sfx(AttackSfxLibrary.entry_for_block_action(_card_def(card_id, before_state), action))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "block", "tile": player_after_tile},
@@ -15092,7 +15148,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"stoneskin":
 			var skin_gain: int = int(player_after.get("stoneskin", 0)) - int(player_before.get("stoneskin", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "stoneskin", "tile": player_after_tile},
@@ -15106,7 +15162,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"heal":
 			var heal_amount: int = int(player_after.get("hp", 0)) - int(player_before.get("hp", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "heal", "tile": player_after_tile},
@@ -15120,7 +15176,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"draw":
 			var draw_amount: int = int(((after_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) - int(((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size())
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"floating_texts": [{
@@ -15135,7 +15191,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"card_play":
 			var card_plays_gained: int = maxi(0, _card_play_count_for_resolution_state(after_state) - _card_play_count_for_resolution_state(before_state))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"floating_texts": [{
@@ -15152,19 +15208,29 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var before_value: int = _combat_engine.elemental_intensity(before_state, element_id)
 			var after_value: int = _combat_engine.elemental_intensity(after_state, element_id)
 			var gained: int = maxi(0, after_value - before_value)
+			var intensity_text: String = (
+				"+%d %s" % [gained, ElementData.name(element_id)]
+				if after_value >= before_value
+				else "%s %d" % [ElementData.name(element_id), after_value]
+			)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"floating_texts": [{
 					"tile": player_after_tile,
-					"text": "+%d %s" % [gained, ElementData.name(element_id)],
+					"text": intensity_text,
 					"color": ElementData.accent(element_id),
 					"offset": -6.0
 				}]
 			}))
 			await _animate_intensity_gain(element_id, after_value)
 			await get_tree().create_timer(0.08).timeout
+	if not secondary_enemy_loss_presentation.is_empty():
+		await _animate_floating_text_presentation(
+			after_state,
+			_death_hold_presentation(before_state, after_state, secondary_enemy_loss_presentation)
+		)
 	await _animate_defeats_and_terrain_destruction(before_state, after_state)
 	await _animate_death_rewards(before_state, after_state)
 	for loot_var: Variant in _movement_picked_loot_between(before_state, after_state):
@@ -15195,6 +15261,8 @@ func _resolve_enemy_round() -> void:
 		),
 		"player_activation_finished"
 	)
+	await _animate_enemy_loss_feedback_between_states(_combat_state, scheduled_state)
+	await _animate_defeats_and_terrain_destruction(_combat_state, scheduled_state)
 	await _animate_turn_order_transition_between_states(_combat_state, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
 	_mark_combat_preview_state_changed()
@@ -15271,20 +15339,20 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 				await get_tree().create_timer(0.20).timeout
 			"move":
 				await _animate_move_step(animated_state, step)
-			"block", "heal", "stoneskin", "status", "status_damage":
+			"block", "heal", "stoneskin", "status", "status_damage", "intensity":
 				var before_status_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 				if str(step.get("kind", "")) == "block":
 					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
-				await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_status_step_state, animated_state, {
-					"focus_actor_keys": [step_actor_key],
-					"focus_actor_color": PLAYER_ATTACK_FOCUS,
-					"focus_tiles": _vector2i_array(step.get("focus_tiles", [step.get("tile", Vector2i(-1, -1))])),
-					"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-					"effect": step,
-					"floating_texts": _floating_texts_for_step(step)
-				}))
+				await _animate_floating_text_presentation(
+					animated_state,
+					_death_hold_presentation(
+						before_status_step_state,
+						animated_state,
+						_enemy_phase_status_presentation(step)
+					)
+				)
 				await _animate_defeats_and_terrain_destruction(before_status_step_state, animated_state)
 			"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 				var focus_tiles: Array[Vector2i] = _vector2i_array([step.get("to", Vector2i(-1, -1))])
@@ -15545,6 +15613,7 @@ func _stop_music_tween() -> void:
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
+	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
 	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	rendered_presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
@@ -15603,7 +15672,16 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 		"heal":
 			_add_enemy_heal_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"status_damage":
-			_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+			if step.has("enemies_after"):
+				animated_state["enemies"] = (step.get("enemies_after", []) as Array).duplicate(true)
+			elif not (step.get("enemy_losses", []) as Array).is_empty():
+				_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
+			else:
+				_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+			if step.has("elemental_intensity_after"):
+				animated_state["elemental_intensity"] = (step.get("elemental_intensity_after", {}) as Dictionary).duplicate(true)
+			if step.has("player_after"):
+				animated_state["player"] = (step.get("player_after", {}) as Dictionary).duplicate(true)
 		"status":
 			if step.has("terrain_after"):
 				animated_state["terrain"] = (step.get("terrain_after", []) as Array).duplicate(true)
@@ -15611,6 +15689,11 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 				animated_state["traps"] = (step.get("traps_after", []) as Array).duplicate(true)
 			if step.has("enemy_after"):
 				_set_enemy_snapshot_by_key(animated_state, str(step.get("actor_key", "")), step.get("enemy_after", {}) as Dictionary)
+		"intensity":
+			var elemental_intensity: Dictionary = (animated_state.get("elemental_intensity", {}) as Dictionary).duplicate(true)
+			elemental_intensity[str(step.get("element", ElementData.NONE))] = int(step.get("value_after", 0))
+			animated_state["elemental_intensity"] = elemental_intensity
+			_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			if target_losses.is_empty():
@@ -15663,20 +15746,20 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"offset": -6.0
 			}]
 		"status_damage":
-			var status_float: Dictionary = {
-				"tile": step.get("tile", Vector2i.ZERO),
-				"text": "-%d" % int(step.get("amount", 0)),
-				"color": Color("f39779"),
-				"offset": -6.0
-			}
-			if str(step.get("label", "")) == "Bleed":
-				status_float["icon"] = "bleed"
-				status_float["icon_tint"] = Color("ffe9df")
-				status_float["icon_fill"] = Color(0.18, 0.05, 0.05, 0.94)
-				status_float["icon_border"] = Color("ff8a76")
-				status_float["width"] = 70.0
-				status_float["x_offset"] = -26.0
-			return [status_float]
+			return _status_damage_floating_texts(step)
+		"intensity":
+			var intensity_floats: Array[Dictionary] = []
+			var intensity_before: int = int(step.get("value_before", 0))
+			var intensity_after: int = int(step.get("value_after", intensity_before))
+			if intensity_after != intensity_before:
+				intensity_floats.append({
+					"tile": step.get("tile", Vector2i.ZERO),
+					"text": "%s %d" % [ElementData.name(str(step.get("element", ElementData.NONE))), intensity_after],
+					"color": ElementData.accent(str(step.get("element", ElementData.NONE))),
+					"offset": -6.0
+				})
+			intensity_floats.append_array(_floating_texts_for_target_losses(step.get("enemy_losses", [])))
+			return intensity_floats
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			var terrain_losses: Array = step.get("terrain_losses", [])
@@ -15685,37 +15768,108 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				floats.append_array(_floating_texts_for_target_losses(target_losses, str(step.get("status_text", "")), step.get("to", Vector2i.ZERO)))
 			else:
 				if int(step.get("hp_loss", 0)) > 0:
-					floats.append({
-						"tile": step.get("to", Vector2i.ZERO),
-						"text": "-%d" % int(step.get("hp_loss", 0)),
-						"color": Color("f39779"),
-						"offset": -10.0
-					})
+					floats.append(FloatingCombatText.damage_entry(
+						step.get("to", Vector2i.ZERO),
+						"-%d" % int(step.get("hp_loss", 0)),
+						Color("f39779")
+					))
 				if int(step.get("block_loss", 0)) > 0:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
 						"text": "-%d B" % int(step.get("block_loss", 0)),
 						"color": Color("90d9ff"),
-						"offset": 10.0
+						"offset": 0.0,
+						"width": 112.0
 					})
 				if int(step.get("stoneskin_loss", 0)) > 0:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
 						"text": "-%d S" % int(step.get("stoneskin_loss", 0)),
 						"color": ElementData.accent(ElementData.EARTH),
-						"offset": 22.0
+						"offset": 0.0,
+						"width": 112.0
 					})
 				if not str(step.get("status_text", "")).is_empty():
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
 						"text": str(step.get("status_text", "")),
 						"color": Color("f1d18b"),
-						"offset": -24.0
+						"offset": 0.0,
+						"width": 184.0
 					})
 			floats.append_array(_floating_texts_for_terrain_losses(terrain_losses))
 			return floats
 		_:
 			return []
+
+func _enemy_phase_status_presentation(step: Dictionary) -> Dictionary:
+	var presentation: Dictionary = {
+		"focus_actor_keys": [str(step.get("actor_key", ""))],
+		"focus_actor_color": PLAYER_ATTACK_FOCUS,
+		"focus_tiles": _vector2i_array(step.get("focus_tiles", [step.get("tile", Vector2i(-1, -1))])),
+		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
+		"effect": step,
+		"impact_actor_keys": step.get("impact_actor_keys", []),
+		"floating_texts": _floating_texts_for_step(step)
+	}
+	if (step.get("enemy_losses", []) as Array).is_empty():
+		return presentation
+	var element_id: String = _enemy_phase_damage_feedback_element(step)
+	presentation["effect"] = {
+		"kind": "lightning_strikes" if element_id == ElementData.LIGHTNING else "aoe",
+		"element": element_id
+	}
+	return _attack_impact_presentation(presentation)
+
+func _enemy_phase_damage_feedback_element(step: Dictionary) -> String:
+	var element_id: String = str(step.get("damage_feedback_element", step.get("element", ElementData.NONE)))
+	if ElementData.is_elemental(element_id):
+		return element_id
+	match str(step.get("label", "")):
+		"Burn":
+			return ElementData.FIRE
+		"Poison":
+			return ElementData.EARTH
+		_:
+			return ElementData.NONE
+
+func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
+	var enemy_losses: Array = step.get("enemy_losses", [])
+	if enemy_losses.is_empty():
+		var legacy_float: Dictionary = FloatingCombatText.damage_entry(
+			step.get("tile", Vector2i.ZERO),
+			"-%d" % int(step.get("amount", 0)),
+			Color("f39779")
+		)
+		if str(step.get("label", "")) == "Bleed":
+			_decorate_bleed_damage_float(legacy_float)
+		return [legacy_float]
+	var floats: Array[Dictionary] = _floating_texts_for_target_losses(enemy_losses)
+	if str(step.get("label", "")) != "Bleed":
+		return floats
+	var actor_key: String = str(step.get("actor_key", ""))
+	var actor_tile: Vector2i = step.get("tile", Vector2i.ZERO)
+	for loss_var: Variant in enemy_losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		if str(loss.get("key", "")) == actor_key:
+			actor_tile = loss.get("tile", actor_tile)
+			break
+	for float_entry: Dictionary in floats:
+		if float_entry.get("tile", Vector2i.ZERO) != actor_tile:
+			continue
+		_decorate_bleed_damage_float(float_entry)
+		break
+	return floats
+
+func _decorate_bleed_damage_float(float_entry: Dictionary) -> void:
+	float_entry["icon"] = "bleed"
+	float_entry["icon_tint"] = Color("ffe9df")
+	float_entry["icon_fill"] = Color(0.18, 0.05, 0.05, 0.94)
+	float_entry["icon_border"] = Color("ff8a76")
+	float_entry["width"] = 70.0
+	float_entry["x_offset"] = -26.0
 
 func _floating_texts_for_target_losses(target_losses: Array, status_text: String = "", status_tile: Vector2i = Vector2i.ZERO) -> Array[Dictionary]:
 	var floats: Array[Dictionary] = []
@@ -15725,25 +15879,26 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 		var loss: Dictionary = loss_var
 		var tile: Vector2i = loss.get("tile", Vector2i.ZERO)
 		if int(loss.get("hp_loss", 0)) > 0:
-			floats.append({
-				"tile": tile,
-				"text": "-%d" % int(loss.get("hp_loss", 0)),
-				"color": Color("f39779"),
-				"offset": -10.0
-			})
+			floats.append(FloatingCombatText.damage_entry(
+				tile,
+				"-%d" % int(loss.get("hp_loss", 0)),
+				Color("f39779")
+			))
 		if int(loss.get("block_loss", 0)) > 0:
 			floats.append({
 				"tile": tile,
 				"text": "-%d B" % int(loss.get("block_loss", 0)),
 				"color": Color("90d9ff"),
-				"offset": 10.0
+				"offset": 0.0,
+				"width": 112.0
 			})
 		if int(loss.get("stoneskin_loss", 0)) > 0:
 			floats.append({
 				"tile": tile,
 				"text": "-%d S" % int(loss.get("stoneskin_loss", 0)),
 				"color": ElementData.accent(ElementData.EARTH),
-				"offset": 22.0
+				"offset": 0.0,
+				"width": 112.0
 			})
 		if int(loss.get("defiance_restored", 0)) > 0:
 			floats.append({
@@ -15753,8 +15908,7 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 					int(loss.get("defiance_remaining", 0))
 				],
 				"color": Color("f6d77d"),
-				"offset": -30.0,
-				"x_offset": -26.0,
+				"offset": 0.0,
 				"width": 184.0,
 				"icon": "defiance",
 				"icon_tint": Color("fff3c4"),
@@ -15768,7 +15922,8 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 			"tile": status_tile,
 			"text": status_text,
 			"color": Color("f1d18b"),
-			"offset": -24.0
+			"offset": 0.0,
+			"width": 184.0
 		})
 	return floats
 
@@ -15781,12 +15936,11 @@ func _floating_texts_for_terrain_losses(terrain_losses: Array) -> Array[Dictiona
 		var hp_loss: int = int(loss.get("hp_loss", loss.get("amount", 0)))
 		if hp_loss <= 0:
 			continue
-		floats.append({
-			"tile": loss.get("tile", Vector2i.ZERO),
-			"text": "-%d" % hp_loss,
-			"color": Color("f0c85c"),
-			"offset": -4.0
-		})
+		floats.append(FloatingCombatText.damage_entry(
+			loss.get("tile", Vector2i.ZERO),
+			"-%d" % hp_loss,
+			Color("f0c85c")
+		))
 	return floats
 
 func _terrain_target_losses_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
@@ -16182,6 +16336,67 @@ func _player_action_floating_texts(before_state: Dictionary, after_state: Dictio
 	floats.append_array(_floating_texts_for_terrain_losses(_terrain_target_losses_between(before_state, after_state)))
 	return floats
 
+func _secondary_player_action_enemy_loss_presentation(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	card_id: String,
+	action: Dictionary,
+	triggered_traps: Array
+) -> Dictionary:
+	var action_type: String = str(action.get("type", ""))
+	if _player_action_enemy_losses_presented_inline(action_type, triggered_traps):
+		return {}
+	return _enemy_loss_feedback_presentation_between_states(
+		before_state,
+		after_state,
+		_player_action_feedback_element(card_id, action, before_state)
+	)
+
+func _player_action_enemy_losses_presented_inline(action_type: String, triggered_traps: Array) -> bool:
+	if action_type in ["melee", "ranged", "aoe", "push", "pull"]:
+		return true
+	return action_type in ["move", "blink"] and not triggered_traps.is_empty()
+
+func _player_action_feedback_element(card_id: String, action: Dictionary, state: Dictionary) -> String:
+	var action_element: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
+	if ElementData.is_elemental(action_element):
+		return action_element
+	var card_element: String = str(_card_def(card_id, state).get("element", ElementData.NONE))
+	return card_element if ElementData.is_elemental(card_element) else ElementData.NONE
+
+func _enemy_loss_feedback_presentation_between_states(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	element_id: String = ElementData.NONE
+) -> Dictionary:
+	var floating_texts: Array[Dictionary] = _player_damage_floating_texts(before_state, after_state)
+	var impact_actor_keys: Array[String] = _damaged_enemy_keys(before_state, after_state)
+	if floating_texts.is_empty() or impact_actor_keys.is_empty():
+		return {}
+	return _attack_impact_presentation({
+		"focus_actor_keys": impact_actor_keys,
+		"focus_actor_color": PLAYER_ATTACK_FOCUS,
+		"impact_actor_keys": impact_actor_keys,
+		"effect": {
+			"kind": "lightning_strikes" if element_id == ElementData.LIGHTNING else "aoe",
+			"element": element_id
+		},
+		"floating_texts": floating_texts
+	})
+
+func _animate_enemy_loss_feedback_between_states(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	element_id: String = ElementData.NONE
+) -> void:
+	var presentation: Dictionary = _enemy_loss_feedback_presentation_between_states(before_state, after_state, element_id)
+	if presentation.is_empty():
+		return
+	await _animate_floating_text_presentation(
+		after_state,
+		_death_hold_presentation(before_state, after_state, presentation)
+	)
+
 func _player_action_impact_actor_keys(before_state: Dictionary, after_state: Dictionary) -> Array[String]:
 	var keys: Array[String] = _damaged_enemy_keys(before_state, after_state)
 	if _player_took_loss(before_state, after_state):
@@ -16206,25 +16421,26 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 	var stoneskin_loss: int = int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0))
 	var floats: Array[Dictionary] = []
 	if hp_loss > 0:
-		floats.append({
-			"tile": player_tile,
-			"text": "-%d" % hp_loss,
-			"color": Color("f39779"),
-			"offset": -10.0
-		})
+		floats.append(FloatingCombatText.damage_entry(
+			player_tile,
+			"-%d" % hp_loss,
+			Color("f39779")
+		))
 	if block_loss > 0:
 		floats.append({
 			"tile": player_tile,
 			"text": "-%d B" % block_loss,
 			"color": Color("90d9ff"),
-			"offset": 10.0
+			"offset": 0.0,
+			"width": 112.0
 		})
 	if stoneskin_loss > 0:
 		floats.append({
 			"tile": player_tile,
 			"text": "-%d S" % stoneskin_loss,
 			"color": ElementData.accent(ElementData.EARTH),
-			"offset": 22.0
+			"offset": 0.0,
+			"width": 112.0
 		})
 	return floats
 
@@ -16244,31 +16460,26 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 		var block_loss: int = int(before_enemy.get("block", 0)) - int(enemy.get("block", 0))
 		var stoneskin_loss: int = int(before_enemy.get("stoneskin", 0)) - int(enemy.get("stoneskin", 0))
 		if hp_loss > 0:
-			floats.append({
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"text": "-%d" % hp_loss,
-				"color": Color("f39779"),
-				"offset": -60.0,
-				"x_offset": -24.0,
-				"width": 72.0
-			})
+			floats.append(FloatingCombatText.damage_entry(
+				enemy.get("pos", Vector2i.ZERO),
+				"-%d" % hp_loss,
+				Color("f39779")
+			))
 		if block_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"text": "-%d B" % block_loss,
 				"color": Color("90d9ff"),
-				"offset": -40.0,
-				"x_offset": -24.0,
-				"width": 72.0
+				"offset": 0.0,
+				"width": 112.0
 			})
 		if stoneskin_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"text": "-%d S" % stoneskin_loss,
 				"color": ElementData.accent(ElementData.EARTH),
-				"offset": -20.0,
-				"x_offset": -24.0,
-				"width": 72.0
+				"offset": 0.0,
+				"width": 112.0
 			})
 	return floats
 
@@ -20528,6 +20739,7 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"combat_unit_scale": 1,
 		"progression_level": int(progression.get("level", 1)),
 		"progression_skills": ProgressionStore.selected_skill_ids(progression),
+		"relics": (combat_state.get("relics", run_state.get("relics", [])) as Array).duplicate(true),
 		"moltshards": ProgressionStore.moltshard_count(progression),
 		"deck_size": int((run_state.get("deck_cards", []) as Array).size()),
 		"card_id": card_id,
