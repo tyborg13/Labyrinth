@@ -892,7 +892,8 @@ func _position_time_badge() -> void:
 	_time_badge.size = Vector2(badge_size, badge_size)
 	var overhang: float = clampf(width * 0.020, _scaled_card_value(3.5, 1.5), _scaled_card_value(5.0, 3.0))
 	var vertical_lift: float = badge_size * 0.10
-	_time_badge.position = Vector2(-overhang, -overhang - vertical_lift)
+	var edge_overhang: float = overhang * 0.5
+	_time_badge.position = Vector2(-edge_overhang, -edge_overhang - vertical_lift)
 	_time_badge.z_index = 12
 
 func _ensure_intensity_active_glow() -> void:

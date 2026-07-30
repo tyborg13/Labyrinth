@@ -4,7 +4,7 @@ class_name HandFanContainer
 const DEFAULT_ARCH_HEIGHT: float = 65.0
 const DEFAULT_MAX_ROTATION_DEGREES: float = 14.0
 const DEFAULT_BOTTOM_OVERFLOW_ALLOWANCE: float = 6.0
-const DEFAULT_RIGHT_OVERFLOW_ALLOWANCE: float = 92.0
+const DEFAULT_HORIZONTAL_OVERFLOW_ALLOWANCE: float = 92.0
 const DEFAULT_EMPHASIS_SCALE: float = 1.22
 const DEFAULT_EMPHASIS_REMAINING_OVERLAP: float = 12.0
 const DEFAULT_EMPHASIS_MAX_SIDE_SHIFT: float = 40.0
@@ -143,7 +143,7 @@ func _get_minimum_size() -> Vector2:
 		max_child_height = maxf(max_child_height, child_size.y)
 		bounds = bounds.merge(card_rect_for_layout(index, children.size(), child_size, _card_gap, _fan_enabled, _arch_height))
 	if _fan_enabled and children.size() > 1:
-		bounds.size.x += DEFAULT_RIGHT_OVERFLOW_ALLOWANCE
+		bounds.size.x += DEFAULT_HORIZONTAL_OVERFLOW_ALLOWANCE
 	bounds.size.y = maxf(max_child_height, bounds.size.y - bottom_overflow_allowance_for_layout(children.size(), _fan_enabled, _arch_height, _bottom_overflow_allowance))
 	return bounds.size
 
@@ -167,7 +167,7 @@ static func content_size_for_layout(total: int, card_size: Vector2, card_gap: fl
 		return Vector2.ZERO
 	var width: float = card_size.x + maxf(0.0, float(total - 1)) * (card_size.x + card_gap)
 	if fan_enabled and total > 1:
-		width += DEFAULT_RIGHT_OVERFLOW_ALLOWANCE
+		width += DEFAULT_HORIZONTAL_OVERFLOW_ALLOWANCE
 	var full_height: float = card_size.y + (arch_height if fan_enabled and total > 1 else 0.0)
 	var height: float = maxf(card_size.y, full_height - bottom_overflow_allowance_for_layout(total, fan_enabled, arch_height, bottom_overflow_allowance))
 	return Vector2(width, height)
@@ -176,7 +176,8 @@ static func card_rect_for_layout(index: int, total: int, card_size: Vector2, car
 	if total <= 0:
 		return Rect2(Vector2.ZERO, card_size)
 	var stride: float = card_size.x + card_gap
-	var x: float = maxf(0.0, float(index) * stride)
+	var horizontal_inset: float = DEFAULT_HORIZONTAL_OVERFLOW_ALLOWANCE * 0.5 if fan_enabled and total > 1 else 0.0
+	var x: float = horizontal_inset + maxf(0.0, float(index) * stride)
 	var y: float = fan_offset_y_for_layout(index, total, fan_enabled, arch_height)
 	return Rect2(Vector2(x, y), card_size)
 
@@ -228,7 +229,7 @@ static func card_gap_for_available_width(
 ) -> float:
 	if total <= 1 or available_width <= 0.0:
 		return preferred_gap
-	var reserved_width: float = maxf(0.0, emphasis_reserve) + DEFAULT_RIGHT_OVERFLOW_ALLOWANCE
+	var reserved_width: float = maxf(0.0, emphasis_reserve) + DEFAULT_HORIZONTAL_OVERFLOW_ALLOWANCE
 	var fitted_stride: float = (
 		available_width - reserved_width - card_size.x
 	) / float(total - 1)

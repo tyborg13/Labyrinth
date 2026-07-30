@@ -128,6 +128,18 @@ func _assert_hand_hud_layout(instance: Node, label: String) -> void:
 	_expect(play_meter.get_global_rect().position.x >= hand_scroll.get_global_rect().end.x - 1.0, "%s should place the play meter to the right of the hand" % label)
 	_expect(absf(hand_scroll.get_global_rect().get_center().x - row_center_x) <= 16.0, "%s should center the hand viewport in its full-screen row" % label)
 	_expect(absf(hand_box.get_global_rect().get_center().x - row_center_x) <= 16.0, "%s should center the rendered hand in its full-screen row" % label)
+	var visual_bounds: Rect2 = _hand_visual_bounds(instance, hand_box)
+	_expect(not visual_bounds.has_area() or absf(visual_bounds.get_center().x - row_center_x) <= 2.0, "%s should center the visible card fan, not only its layout container" % label)
+
+func _hand_visual_bounds(instance: Node, hand_box: Control) -> Rect2:
+	var bounds := Rect2()
+	for index: int in range(hand_box.get_child_count()):
+		var card_control: Control = instance.call("_hand_card_control", index) as Control
+		if card_control == null:
+			continue
+		var card_rect: Rect2 = instance.call("_control_visual_global_rect", card_control)
+		bounds = card_rect if not bounds.has_area() else bounds.merge(card_rect)
+	return bounds
 
 func _load_combat_fixture(instance: Node, seed: int) -> void:
 	root.gui_release_focus()

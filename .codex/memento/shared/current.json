@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-30T13:42:05Z",
+  "updated_at": "2026-07-30T13:50:28Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -3172,28 +3172,6 @@
       "status": "active",
       "created_at": "2026-06-17T15:28:02Z",
       "updated_at": "2026-06-17T15:28:02Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "d7b1dd7"
-      }
-    },
-    {
-      "id": "mnt_20260618T135928Z_2bdec64a",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/hand_fan_container.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/hand_fan_container.gd",
-      "summary": "Hand fan measured width includes asymmetric right overflow",
-      "details": "The combat hand uses rotated rightmost cards with left-to-right z-order, so the visual edge can extend past the fan container's nominal card bounds even when card sizes fit. Keep an asymmetric right-overflow allowance in HandFanContainer's minimum/content width so CenterContainer shifts the fan slightly left and prevents edge cards from clipping at the viewport.",
-      "status": "active",
-      "created_at": "2026-06-18T13:59:28Z",
-      "updated_at": "2026-06-18T13:59:28Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
@@ -6585,7 +6563,31 @@
       }
     },
     {
-      "id": "mnt_20260730T134205Z_7996e07c",
+      "id": "mnt_20260730T135028Z_a582d748",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/hand_fan_container.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/hand_fan_container.gd",
+      "summary": "Hand fan overflow reserve is symmetric around the visible cards",
+      "details": "Centering the HandFanContainer is insufficient when its 92px focus/rotation reserve exists only on the right: the visible five-card fan lands about 46px left of screen center. Keep the same total horizontal reserve but inset card layout by half so the fan itself, its draw targets, and focused expansion are visually centered.",
+      "status": "active",
+      "created_at": "2026-07-30T13:50:28Z",
+      "updated_at": "2026-07-30T13:50:28Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260618T135928Z_2bdec64a"
+      ],
+      "source": {
+        "branch": "codex/improve-focused-hand-card-legibility",
+        "commit": "fcdbee6"
+      }
+    },
+    {
+      "id": "mnt_20260730T135028Z_5defb503",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -6594,18 +6596,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/card_widget.gd",
-      "summary": "Card time badge uses a raised exposed upper-left placement",
-      "details": "Hand-card fanning makes a literal same-y mirror read lower on the sloped left corner. Mirror the clock to the upper-left and add vertical clearance equal to 10% of its size so it stays visibly perched above the frame while remaining exposed in a tight fan.",
+      "summary": "Card time badge uses a lightly inset raised upper-left placement",
+      "details": "Keep the time clock exposed on the upper-left edge for tightly fanned hands. Use half the former frame overhang on both left and top, plus the existing 10%-of-badge vertical lift, so it sits slightly farther inside the card without entering the reserved title space.",
       "status": "active",
-      "created_at": "2026-07-30T13:42:05Z",
-      "updated_at": "2026-07-30T13:42:05Z",
+      "created_at": "2026-07-30T13:50:28Z",
+      "updated_at": "2026-07-30T13:50:28Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260730T133844Z_a3e609d9"
+        "mnt_20260730T134205Z_7996e07c"
       ],
       "source": {
         "branch": "codex/improve-focused-hand-card-legibility",
-        "commit": "f8a398b"
+        "commit": "fcdbee6"
       }
     }
   ]
