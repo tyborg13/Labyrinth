@@ -8681,6 +8681,8 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	var left_action_stack: VBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack")
 	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
+	var play_meter: Control = instance.get("_play_meter") as Control
+	var play_meter_slot: Control = instance.get("_play_meter_slot") as Control
 	var pass_hand_x: float = hand_scroll.global_position.x
 	var pass_action_width: float = left_action_stack.size.x
 	var single_action_width: float = UiSkin.new().button_native_size(UiSkin.BUTTON_HEIGHT_ACTION, 0.0, UiSkin.VARIANT_LARGE).x
@@ -8688,6 +8690,13 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	var two_action_width: float = single_action_width * 2.0 + float(choice_bar.get_theme_constant("separation"))
 	_assert(absf(pass_action_width - expected_action_width) <= 1.0, "Combat action controls should keep the original pile/pass layout footprint")
 	_assert(pass_action_width < two_action_width - 1.0, "Combat action controls should not permanently reserve the wider Skip/Cancel footprint")
+	_assert(play_meter_slot != null and play_meter_slot.get_parent() == hand_scroll.get_parent() and play_meter_slot.get_index() > hand_scroll.get_index(), "Card-play meter slot should follow the hand viewport in the combat HUD")
+	if play_meter != null:
+		var hand_row: Control = hand_scroll.get_parent() as Control
+		var row_center_x: float = hand_row.get_global_rect().get_center().x
+		var hand_center_x: float = hand_scroll.get_global_rect().get_center().x
+		_assert(play_meter.get_global_rect().position.x >= hand_scroll.get_global_rect().end.x - 1.0, "Card-play meter should sit to the right of the hand")
+		_assert(absf(hand_center_x - row_center_x) <= 16.0, "Balanced hand-side controls should keep the hand viewport centered in its full-screen row")
 	instance.set("_selected_card_index", 0)
 	instance.set("_pending_actions", [{"type": "move"}])
 	instance.set("_pending_action_index", 0)

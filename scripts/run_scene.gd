@@ -1343,6 +1343,7 @@ var _defiance_event_revision_seen: int = 0
 var _analytics_skill_event_revision: int = 0
 var _hand_panel_signature: String = "<unset>"
 var _play_meter: PanelContainer
+var _play_meter_slot: HBoxContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
 var _play_meter_banked_badge: PanelContainer
@@ -6469,10 +6470,19 @@ func _setup_action_step_tracker() -> void:
 	action_row.add_child(_action_context_command_bar)
 
 func _setup_play_meter() -> void:
+	_play_meter_slot = HBoxContainer.new()
+	_play_meter_slot.name = "CardPlayMeterSlot"
+	_play_meter_slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var meter_spacer := Control.new()
+	meter_spacer.name = "CardPlayMeterSpacer"
+	meter_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	meter_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_play_meter_slot.add_child(meter_spacer)
+
 	_play_meter = PanelContainer.new()
 	_play_meter.name = "CardPlayMeter"
 	_play_meter.custom_minimum_size = Vector2(222.0, 108.0)
-	_play_meter.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_play_meter.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_play_meter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_play_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_play_meter.tooltip_text = "Card plays remaining"
@@ -6541,16 +6551,39 @@ func _setup_play_meter() -> void:
 	_play_meter_banked_label.add_theme_color_override("font_color", Color("f0d9ff"))
 	_play_meter_banked_badge.add_child(_play_meter_banked_label)
 
-	var insert_index: int = hand_row.get_child_count()
-	for index: int in range(hand_row.get_child_count()):
-		if hand_row.get_child(index) == hand_scroll:
-			insert_index = index
-			break
-	hand_row.add_child(_play_meter)
-	hand_row.move_child(_play_meter, insert_index)
+	# Mirror the changing action/pile footprint on the right while keeping the
+	# compact meter itself aligned to the outer edge.
+	_play_meter_slot.add_child(_play_meter)
+	hand_row.add_child(_play_meter_slot)
+	_sync_hand_side_widths()
 	_play_meter.set_meta("panel_surface_accent", Color("c28a53"))
 	_ui_skin.apply_inset_surface(_play_meter, UiSkin.SURFACE_HUD)
 	_refresh_card_play_meter()
+
+func _sync_hand_side_widths() -> void:
+	if _play_meter_slot == null or left_action_stack == null or _play_meter == null:
+		return
+	var left_width: float = left_action_stack.get_combined_minimum_size().x
+	left_width = maxf(left_width, _visible_hbox_minimum_width(piles_bar))
+	if choice_bar.visible:
+		left_width = maxf(left_width, _visible_hbox_minimum_width(choice_bar))
+	var meter_width: float = _play_meter.get_combined_minimum_size().x
+	_play_meter_slot.custom_minimum_size.x = maxf(left_width, meter_width)
+
+func _visible_hbox_minimum_width(container: HBoxContainer) -> float:
+	if container == null:
+		return 0.0
+	var width: float = 0.0
+	var visible_children: int = 0
+	for child: Node in container.get_children():
+		var control: Control = child as Control
+		if control == null or not control.visible:
+			continue
+		width += control.get_combined_minimum_size().x
+		visible_children += 1
+	if visible_children > 1:
+		width += float(container.get_theme_constant("separation")) * float(visible_children - 1)
+	return width
 
 func _setup_elemental_intensity_bar() -> void:
 	_intensity_bar = Control.new()
@@ -8703,6 +8736,8 @@ func _refresh_pile_visuals() -> void:
 		card_size.y
 	]
 	if signature == _pile_visual_signature:
+		_sync_hand_side_widths()
+		call_deferred("_sync_hand_side_widths")
 		return
 	_pile_visual_signature = signature
 	for kind: String in ["draw", "discard"]:
@@ -8719,6 +8754,8 @@ func _refresh_pile_visuals() -> void:
 			_populate_draw_pile(host, cards, card_size)
 			continue
 		_populate_discard_pile(host, cards, card_size)
+	_sync_hand_side_widths()
+	call_deferred("_sync_hand_side_widths")
 
 func _refresh_card_play_meter() -> void:
 	if _play_meter == null or _play_meter_count == null:

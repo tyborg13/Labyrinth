@@ -15,7 +15,7 @@ description: Create, modify, refactor, or review player-facing UI for Escape the
 3. Classify the surface and write the rubric's design statement: player question, primary action, hierarchy/disclosure, every currently supported interaction path, and proof matrix.
 4. Inspect the live surface, its component builders, and its existing visual probe. Reuse `UiSkin`, `UiTypography`, `UiTooltipPanel`, `CardWidget`, and established icon libraries where applicable. Extend shared components when the pattern recurs.
 5. Implement for the player's decision, not for a generic app layout. Keep immediate state and actions scan-level; progressively disclose precise rules and optional detail.
-6. Add or update a focused real-renderer probe. Capture fresh versioned images for the changed states, constrained and normal sizes, relevant UI scales, focus/input behavior, and reduced motion as required by the rubric.
+6. Add or update a focused real-renderer probe. By default, capture fresh versioned images only at `1920x1080` and `100%` UI scale for the changed states, focus/input behavior, and reduced motion as required by the rubric. Add another resolution or UI scale only when the user or task explicitly requests a resolution-focused pass.
 7. Inspect the rendered images at exact resolution. Fix Fail rows before handoff; do not substitute code inspection or file-existence checks for visual review.
 8. Include the rubric handoff record with the normal parallel-task proof and peer review. A visual UI task without screenshot proof is incomplete.
 
@@ -24,7 +24,7 @@ description: Create, modify, refactor, or review player-facing UI for Escape the
 - Keep exact card, relic, equipment, settings, accessibility, and detailed-inspection text when it is clearer than an unfamiliar symbol. Improve hierarchy before deleting necessary rules.
 - Give every distinct player-facing ability, relic, equipment item, keyword, status, and resource its own purpose-built icon asset. Reusing a generic icon, copying/recoloring another asset, or pointing distinct identities at the same path is a rejection, not a shortcut.
 - Prefer an existing icon plus short label, meter, counter, state treatment, target preview, or contextual callout over instructional prose.
-- Preserve every input path the current surface supports. When controller or Steam Deck support is present, include focus traversal, activation, back/cancel, focus recovery, input handoff where applicable, and `1280x800` proof.
+- Preserve every input path the current surface supports. When controller or Steam Deck support is present, include focus traversal, activation, back/cancel, focus recovery, and input handoff where applicable. Prove those paths logically and capture their changed visual states at `1920x1080`/`100%` unless the task explicitly requests another display configuration.
 - Do not claim an unsupported input path or add fixed device glyphs unless the task implements and proves the complete active-device and navigation path. Reuse the current device/glyph system when one exists.
 - Do not create one-off buttons, tooltips, typography scales, or panel languages when a shared system covers the need.
 - Do not shrink type, hide the current decision, or cover gameplay evidence to make a layout fit.

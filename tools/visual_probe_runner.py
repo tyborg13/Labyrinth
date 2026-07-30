@@ -12,9 +12,11 @@ import math
 import os
 from pathlib import Path
 import re
+import signal
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 from typing import Any
 import zlib
@@ -33,9 +35,21 @@ FAILURE_MARKERS = (
     "ERROR: Failed to load script",
     "TEST RESULT: FAIL",
 )
+DEFAULT_PROBE_TIMEOUT_SECONDS = 30.0
+DEFAULT_STARTUP_TIMEOUT_SECONDS = 8.0
+DEFAULT_GUI_LEASE_TIMEOUT_SECONDS = 30.0
+DEFAULT_ATTEMPTS = 1
 
 
 class ProbeError(RuntimeError):
+    pass
+
+
+class ProbeExecutionTimeout(ProbeError):
+    pass
+
+
+class ProbeStartupTimeout(ProbeError):
     pass
 
 
@@ -89,6 +103,93 @@ def build_command(args: argparse.Namespace, rendering_driver: str, log_file: Pat
     return cmd
 
 
+def stop_process_tree(process: subprocess.Popen[str]) -> None:
+    if process.poll() is not None:
+        return
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    else:  # pragma: no cover - exercised by Windows task hosts.
+        process.terminate()
+    try:
+        process.wait(timeout=1.0)
+        return
+    except subprocess.TimeoutExpired:
+        pass
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    else:  # pragma: no cover - exercised by Windows task hosts.
+        process.kill()
+    try:
+        process.wait(timeout=1.0)
+    except subprocess.TimeoutExpired:
+        process.kill()
+
+
+def run_process_with_watchdogs(
+    cmd: list[str],
+    *,
+    cwd: Path,
+    env: dict[str, str],
+    timeout: float,
+    startup_log: Path | None,
+    startup_timeout: float,
+) -> subprocess.CompletedProcess[str]:
+    started_at = time.monotonic()
+    startup_confirmed = startup_log is None or startup_timeout <= 0.0
+    with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stdout_file:
+        with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stderr_file:
+            process = subprocess.Popen(
+                cmd,
+                cwd=str(cwd),
+                env=env,
+                text=True,
+                stdout=stdout_file,
+                stderr=stderr_file,
+                start_new_session=os.name == "posix",
+            )
+            failure: ProbeError | None = None
+            while process.poll() is None:
+                elapsed = time.monotonic() - started_at
+                if not startup_confirmed and startup_log is not None and startup_log.exists():
+                    startup_confirmed = True
+                if not startup_confirmed and elapsed >= startup_timeout:
+                    failure = ProbeStartupTimeout(
+                        "Godot did not initialize within %.1f seconds: %s was never created. "
+                        "This usually means the GUI process could not start; fix the launch/permission issue "
+                        "or override --startup-timeout for a known slow host."
+                        % (startup_timeout, startup_log)
+                    )
+                    break
+                if elapsed >= timeout:
+                    failure = ProbeExecutionTimeout(
+                        "Godot probe exceeded the %.1f-second total timeout. "
+                        "Use --timeout only when the probe intentionally waits longer."
+                        % timeout
+                    )
+                    break
+                time.sleep(0.05)
+            if failure is not None:
+                stop_process_tree(process)
+            returncode = process.wait()
+            stdout_file.seek(0)
+            stderr_file.seek(0)
+            stdout = stdout_file.read()
+            stderr = stderr_file.read()
+            if failure is not None:
+                if stdout:
+                    print(stdout, end="" if stdout.endswith("\n") else "\n")
+                if stderr:
+                    print(stderr, file=sys.stderr, end="" if stderr.endswith("\n") else "\n")
+                raise failure
+            return subprocess.CompletedProcess(cmd, returncode, stdout, stderr)
+
+
 def run_probe(args: argparse.Namespace, namespace: str, rendering_driver: str) -> tuple[subprocess.CompletedProcess[str], Path | None]:
     env = os.environ.copy()
     home_dir: Path | None = None
@@ -98,6 +199,10 @@ def run_probe(args: argparse.Namespace, namespace: str, rendering_driver: str) -
         home_dir.mkdir(parents=True, exist_ok=True)
         env["HOME"] = str(home_dir)
         log_file = home_dir / "godot.log"
+    else:
+        log_dir = Path(args.godot_home_root).expanduser().resolve() / namespace
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "godot.log"
     env["LABYRINTH_TASK_ID"] = namespace
     env["LABYRINTH_USER_DIR_NAME"] = "Escape the Umbra Visual Probe %s" % namespace
     env["LABYRINTH_DISABLE_STEAM"] = "1"
@@ -107,14 +212,13 @@ def run_probe(args: argparse.Namespace, namespace: str, rendering_driver: str) -
     if home_dir is not None:
         print("  HOME: %s" % home_dir)
     print("  command: %s" % " ".join(shell_quote(part) for part in cmd))
-    result = subprocess.run(
+    result = run_process_with_watchdogs(
         cmd,
-        cwd=str(Path(args.project).resolve()),
+        cwd=Path(args.project).resolve(),
         env=env,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
         timeout=args.timeout,
+        startup_log=log_file,
+        startup_timeout=args.startup_timeout,
     )
     if result.stdout:
         print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
@@ -540,6 +644,14 @@ def write_result_manifest(path_value: str, payload: dict[str, Any], *, overwrite
 
 
 def command_run(args: argparse.Namespace) -> int:
+    if args.timeout <= 0.0:
+        raise ProbeError("--timeout must be greater than zero")
+    if args.startup_timeout < 0.0:
+        raise ProbeError("--startup-timeout cannot be negative")
+    if args.gui_lease_timeout <= 0.0:
+        raise ProbeError("--gui-lease-timeout must be greater than zero")
+    if args.attempts < 1:
+        raise ProbeError("--attempts must be at least one")
     project = Path(args.project).resolve()
     resolve_probe_rendering_mode(args, project)
     if args.result_manifest and Path(args.result_manifest).expanduser().resolve().exists() and not args.overwrite_result_manifest:
@@ -560,17 +672,19 @@ def command_run(args: argparse.Namespace) -> int:
     metadata_before = generated_metadata_snapshot(project)
     attempt_records: list[dict[str, Any]] = []
     last_error = ""
+    fatal_timeout = False
     for driver in drivers:
         for attempt in range(1, args.attempts + 1):
             namespace = make_probe_namespace(task_id, script_stem, attempt)
             try:
                 with gui_render_lease(args):
                     result, home_dir = run_probe(args, namespace, driver)
-            except subprocess.TimeoutExpired:
-                last_error = "Godot probe timed out after %d seconds" % args.timeout
+            except (ProbeExecutionTimeout, ProbeStartupTimeout) as exc:
+                last_error = str(exc)
                 attempt_records.append({"namespace": namespace, "driver": driver, "attempt": attempt, "accepted": False, "error": last_error, "images": []})
                 print("visual probe attempt failed: %s" % last_error, file=sys.stderr)
-                continue
+                fatal_timeout = True
+                break
             combined_output = result.stdout + "\n" + result.stderr
             if not args.allow_generated_metadata:
                 metadata_changed = generated_metadata_changes(metadata_before, generated_metadata_snapshot(project))
@@ -633,6 +747,8 @@ def command_run(args: argparse.Namespace) -> int:
                 overwrite=args.overwrite_result_manifest,
             )
             return 0
+        if fatal_timeout:
+            break
     if args.result_manifest:
         write_result_manifest(
             args.result_manifest,
@@ -660,8 +776,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--project", default=".", help="Godot project directory.")
     parser.add_argument("--task-id", default="", help="Stable task id for user:// namespacing.")
     parser.add_argument("--godot", default="godot")
-    parser.add_argument("--timeout", type=int, default=180)
-    parser.add_argument("--attempts", type=int, default=2)
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_PROBE_TIMEOUT_SECONDS,
+        help="Total seconds allowed for one probe process (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--startup-timeout",
+        type=float,
+        default=DEFAULT_STARTUP_TIMEOUT_SECONDS,
+        help="Seconds allowed for Godot to create its log; use 0 to disable (default: %(default)s).",
+    )
+    parser.add_argument("--attempts", type=int, default=DEFAULT_ATTEMPTS)
     parser.add_argument("--min-images", type=int, default=1)
     parser.add_argument("--expect-size", action="append", type=parse_size, default=[], help="Require an emitted screenshot at exact WIDTHxHEIGHT; repeatable.")
     parser.add_argument("--proof-contract", default="", help="JSON contract with expected_sizes and semantic required_images/regions.")
@@ -681,7 +808,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--gui-lease", dest="gui_lease", action="store_true", default=True, help="Serialize non-headless renderer access.")
     parser.add_argument("--no-gui-lease", dest="gui_lease", action="store_false")
     parser.add_argument("--gui-lease-path", default="/private/tmp/labyrinth-gui-render.lock")
-    parser.add_argument("--gui-lease-timeout", type=float, default=120.0)
+    parser.add_argument(
+        "--gui-lease-timeout",
+        type=float,
+        default=DEFAULT_GUI_LEASE_TIMEOUT_SECONDS,
+        help="Seconds allowed to wait for another GUI probe (default: %(default)s).",
+    )
     parser.add_argument("--allow-generated-metadata", action="store_true", help="Allow probe-created .import/.uid changes in the worktree.")
     parser.set_defaults(func=command_run)
     return parser

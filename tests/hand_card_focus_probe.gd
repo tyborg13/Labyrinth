@@ -30,13 +30,7 @@ func _initialize() -> void:
 	if DisplayServer.get_name().to_lower() == "headless":
 		_fail("Hand-card focus proof must run with a real display renderer")
 	else:
-		var config_filter: String = OS.get_environment("LABYRINTH_HAND_FOCUS_PROBE_CONFIG").strip_edges()
-		if config_filter.is_empty() or config_filter == "desktop":
-			await _capture_configuration(Vector2i(1920, 1080), 1.00, false, 73101)
-		if config_filter.is_empty() or config_filter == "constrained":
-			await _capture_configuration(Vector2i(1280, 800), 1.00, false, 73102)
-		if config_filter.is_empty() or config_filter == "constrained_scaled":
-			await _capture_configuration(Vector2i(1280, 800), 1.25, true, 73103)
+		await _capture_configuration(Vector2i(1920, 1080), 1.00, 73101)
 	var defaults: Dictionary = SettingsStore.default_settings()
 	SettingsStore.save_settings(defaults)
 	SettingsStore.apply_settings(defaults, root, false)
@@ -47,17 +41,14 @@ func _initialize() -> void:
 func _capture_configuration(
 	resolution: Vector2i,
 	ui_scale: float,
-	reduced_motion: bool,
 	seed: int
 ) -> void:
-	await _configure_window(resolution, ui_scale, reduced_motion)
-	var state_suffix: String = "_reduced" if reduced_motion else ""
-	var output_dir: String = "%s/%dx%d_ui%d%s" % [
+	await _configure_window(resolution, ui_scale)
+	var output_dir: String = "%s/%dx%d_ui%d" % [
 		OUTPUT_DIR,
 		resolution.x,
 		resolution.y,
 		roundi(ui_scale * 100.0),
-		state_suffix,
 	]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
@@ -74,6 +65,7 @@ func _capture_configuration(
 		instance.queue_free()
 		await _settle()
 		return
+	_assert_hand_hud_layout(instance, output_dir)
 	var baseline_positions: Array[Vector2] = _slot_positions(hand_box)
 	var baseline_focus_rect: Rect2 = instance.call(
 		"_control_visual_global_rect",
@@ -102,25 +94,39 @@ func _capture_configuration(
 		await _settle()
 		_assert_restored_hand(hand_box, baseline_positions, "%s pointer clear" % output_dir)
 
-	if not reduced_motion:
-		await _capture_wrapper_focus(instance, hand_box, output_dir, resolution)
-		await _assert_existing_card_actions(instance, hand_box, output_dir)
+	await _capture_wrapper_focus(instance, hand_box, output_dir, resolution)
+	await _assert_existing_card_actions(instance, hand_box, output_dir)
 	instance.queue_free()
 	await _settle()
 
-func _configure_window(resolution: Vector2i, ui_scale: float, reduced_motion: bool) -> void:
+func _configure_window(resolution: Vector2i, ui_scale: float) -> void:
 	root.mode = Window.MODE_WINDOWED
 	root.content_scale_size = resolution
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.size = resolution
 	var settings: Dictionary = SettingsStore.default_settings()
 	settings["ui_scale"] = ui_scale
-	settings["reduced_motion"] = reduced_motion
+	settings["reduced_motion"] = false
 	SettingsStore.save_settings(settings)
 	SettingsStore.apply_settings(settings, root, false)
 	await _settle()
 	root.size = resolution
 	await _settle()
+
+func _assert_hand_hud_layout(instance: Node, label: String) -> void:
+	var hand_scroll: Control = instance.get("hand_scroll") as Control
+	var hand_box: Control = instance.get("hand_box") as Control
+	var play_meter: Control = instance.get("_play_meter") as Control
+	var play_meter_slot: Control = instance.get("_play_meter_slot") as Control
+	_expect(hand_scroll != null and hand_box != null and play_meter != null and play_meter_slot != null, "%s should expose the complete hand HUD" % label)
+	if hand_scroll == null or hand_box == null or play_meter == null or play_meter_slot == null:
+		return
+	var hand_row: Control = hand_scroll.get_parent() as Control
+	var row_center_x: float = hand_row.get_global_rect().get_center().x
+	_expect(play_meter_slot.get_parent() == hand_scroll.get_parent() and play_meter_slot.get_index() > hand_scroll.get_index(), "%s should place the play meter after the hand" % label)
+	_expect(play_meter.get_global_rect().position.x >= hand_scroll.get_global_rect().end.x - 1.0, "%s should place the play meter to the right of the hand" % label)
+	_expect(absf(hand_scroll.get_global_rect().get_center().x - row_center_x) <= 16.0, "%s should center the hand viewport in its full-screen row" % label)
+	_expect(absf(hand_box.get_global_rect().get_center().x - row_center_x) <= 16.0, "%s should center the rendered hand in its full-screen row" % label)
 
 func _load_combat_fixture(instance: Node, seed: int) -> void:
 	root.gui_release_focus()

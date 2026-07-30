@@ -3,8 +3,11 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 import argparse
+import os
 import struct
+import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 import zlib
@@ -50,6 +53,60 @@ def write_solid_png(path: Path, width: int, height: int, value: int = 80) -> Non
 
 
 class VisualProbeRunnerTests(unittest.TestCase):
+    def test_short_fail_fast_defaults_remain_configurable(self) -> None:
+        defaults = VISUAL.build_parser().parse_args(["tests/ui_probe.gd"])
+        self.assertEqual(defaults.timeout, 30.0)
+        self.assertEqual(defaults.startup_timeout, 8.0)
+        self.assertEqual(defaults.gui_lease_timeout, 30.0)
+        self.assertEqual(defaults.attempts, 1)
+        custom = VISUAL.build_parser().parse_args(
+            [
+                "tests/ui_probe.gd",
+                "--timeout",
+                "42",
+                "--startup-timeout",
+                "12",
+                "--gui-lease-timeout",
+                "18",
+                "--attempts",
+                "3",
+            ]
+        )
+        self.assertEqual(custom.timeout, 42.0)
+        self.assertEqual(custom.startup_timeout, 12.0)
+        self.assertEqual(custom.gui_lease_timeout, 18.0)
+        self.assertEqual(custom.attempts, 3)
+
+    def test_startup_watchdog_stops_process_before_total_timeout(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            started_at = time.monotonic()
+            with self.assertRaisesRegex(VISUAL.ProbeStartupTimeout, "did not initialize"):
+                VISUAL.run_process_with_watchdogs(
+                    [sys.executable, "-c", "import time; time.sleep(5)"],
+                    cwd=root,
+                    env=os.environ.copy(),
+                    timeout=4.0,
+                    startup_log=root / "never-created.log",
+                    startup_timeout=0.1,
+                )
+            self.assertLess(time.monotonic() - started_at, 1.5)
+
+    def test_total_watchdog_stops_an_initialized_hung_process(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            started_at = time.monotonic()
+            with self.assertRaisesRegex(VISUAL.ProbeExecutionTimeout, "total timeout"):
+                VISUAL.run_process_with_watchdogs(
+                    [sys.executable, "-c", "import time; time.sleep(5)"],
+                    cwd=root,
+                    env=os.environ.copy(),
+                    timeout=0.1,
+                    startup_log=None,
+                    startup_timeout=0.0,
+                )
+            self.assertLess(time.monotonic() - started_at, 1.5)
+
     def test_exact_sizes_and_semantic_regions_are_enforced(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             image = Path(raw) / "proof.png"

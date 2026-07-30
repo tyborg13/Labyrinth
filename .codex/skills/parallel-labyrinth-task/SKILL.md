@@ -80,11 +80,11 @@ The runner gives each Godot process an isolated temp `HOME`, a safe `--log-file`
 For visual probes, use the validated runner instead of invoking probe scripts directly:
 
 ```bash
-cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 tests/ui_probe.gd --task-id <task-id>
-cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 tests/motion_probe.gd --task-id <task-id>
+cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy tests/ui_probe.gd --task-id <task-id>
+cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy tests/motion_probe.gd --task-id <task-id>
 ```
 
-The visual runner uses the same temp-home isolation, disables Steam, assigns a unique `user://` namespace per process, serializes non-headless GUI renderer access, defaults macOS capture to ANGLE with native fallback, rejects generated `.import`/`.uid` noise, validates emitted PNGs, and retries blank or near-blank screenshots. Use repeatable `--expect-size`, `--proof-contract`, and `--result-manifest` for exact-resolution and semantic proof. If a probe still fails under the default renderer, retry with an explicit backend such as:
+The visual runner uses the same temp-home isolation, disables Steam, assigns a unique `user://` namespace per process, serializes non-headless GUI renderer access, defaults macOS capture to ANGLE with native fallback, rejects generated `.import`/`.uid` noise, and validates emitted PNGs. It defaults to one attempt, a 30-second total process timeout, an 8-second startup watchdog, and a 30-second GUI-lease wait. A startup or execution timeout fails immediately instead of retrying another backend; `--timeout`, `--startup-timeout`, `--gui-lease-timeout`, and `--attempts` remain configurable for known probe behavior. Use repeatable `--expect-size`, `--proof-contract`, and `--result-manifest` for exact-resolution and semantic proof. If a completed probe fails under the default renderer, retry with an explicit backend such as:
 
 ```bash
 cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --rendering-driver opengl3_angle tests/ui_probe.gd --task-id <task-id>

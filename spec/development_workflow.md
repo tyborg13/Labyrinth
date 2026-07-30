@@ -53,6 +53,8 @@ The task runner disables Steam by default for deterministic tests and fixtures. 
 - exact-resolution checks via repeatable `--expect-size WIDTHxHEIGHT`;
 - semantic image/region validation via `--proof-contract`;
 - a result manifest via `--result-manifest`;
+- a 30-second default process timeout and 8-second startup watchdog, both configurable;
+- one default attempt with fail-fast startup/execution timeouts, preventing a hung launch from multiplying across retries and renderer fallbacks;
 - failure if a probe creates or modifies `.import` or `.uid` files.
 
 Proof-contract example:
@@ -60,14 +62,14 @@ Proof-contract example:
 ```json
 {
   "min_images": 2,
-  "expected_sizes": ["1280x720", "1920x1080"],
+  "expected_sizes": ["1920x1080"],
   "required_images": [
     {
       "pattern": "*combat*.png",
-      "width": 1280,
-      "height": 720,
+      "width": 1920,
+      "height": 1080,
       "regions": [
-        {"rect": [0, 500, 1280, 220], "min_luma_range": 8, "min_luma_stdev": 2}
+        {"rect": [0, 760, 1920, 320], "min_luma_range": 8, "min_luma_stdev": 2}
       ]
     }
   ]
@@ -75,6 +77,7 @@ Proof-contract example:
 ```
 
 Region checks are intentionally generic pixel contracts. Probe scripts remain responsible for asserting gameplay/UI semantics before saving an image.
+Routine player-facing proof uses only `1920x1080` at `100%` UI scale unless the user or task explicitly requests another configuration.
 
 ## Inspection And Queue Handoff
 
