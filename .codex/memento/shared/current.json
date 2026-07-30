@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-28T22:04:09Z",
+  "updated_at": "2026-07-30T03:41:06Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6512,6 +6512,28 @@
       "source": {
         "branch": "codex/recompose-card-and-relic-reward-screens-after-slay-the-spire-reference",
         "commit": "20096b6"
+      }
+    },
+    {
+      "id": "mnt_20260730T034106Z_2c8f311d",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/main_menu.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/main_menu.gd",
+      "summary": "Main-menu pointer handoff must not queue focus clearing behind mouse-down",
+      "details": "Clear keyboard focus synchronously on mouse motion only when no mouse button is held. A deferred clear from hover can run between a same-frame press and release and cancel native Button activation; preserve focus while button_mask is nonzero and defer the release-path clear until after activation.",
+      "status": "active",
+      "created_at": "2026-07-30T03:41:06Z",
+      "updated_at": "2026-07-30T03:41:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-intermittent-main-menu-double-click",
+        "commit": "1760679"
       }
     }
   ]

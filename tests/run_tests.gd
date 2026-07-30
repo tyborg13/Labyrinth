@@ -11778,8 +11778,26 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	instance.call("_input", mouse_press)
 	await process_frame
 	_assert(continue_button.has_focus(), "Main menu should not clear focus on mouse down before button clicks can complete")
-	settings_button.pressed.emit()
-	_assert(settings_panel.visible, "Main menu Settings should open the complete shared settings panel")
+	var settings_center: Vector2 = settings_button.get_global_rect().get_center()
+	var hover_then_click := InputEventMouseMotion.new()
+	hover_then_click.position = settings_center
+	hover_then_click.global_position = settings_center
+	instance.get_viewport().push_input(hover_then_click, true)
+	var settings_press := InputEventMouseButton.new()
+	settings_press.button_index = MOUSE_BUTTON_LEFT
+	settings_press.pressed = true
+	settings_press.position = settings_center
+	settings_press.global_position = settings_center
+	instance.get_viewport().push_input(settings_press, true)
+	await process_frame
+	var settings_release := InputEventMouseButton.new()
+	settings_release.button_index = MOUSE_BUTTON_LEFT
+	settings_release.pressed = false
+	settings_release.position = settings_center
+	settings_release.global_position = settings_center
+	instance.get_viewport().push_input(settings_release, true)
+	await process_frame
+	_assert(settings_panel.visible, "Main menu Settings should open on the first pointer click even when hover and press arrive in the same frame")
 	_assert((settings_panel.call("current_settings") as Dictionary) == SettingsStore.load_settings(), "Main menu settings panel should reflect the persisted profile")
 	_assert(not settings_back_button.has_focus(), "Mouse-clicked Settings should not force keyboard focus")
 	settings_back_button.pressed.emit()

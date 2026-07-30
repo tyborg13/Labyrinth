@@ -132,7 +132,12 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_using_keyboard_navigation = false
-		call_deferred("_clear_menu_keyboard_focus")
+		var mouse_motion := event as InputEventMouseMotion
+		# Clear stale keyboard focus before a later mouse-down can begin. A
+		# deferred clear may otherwise run between press and release when hover
+		# and click arrive in the same frame, canceling the button activation.
+		if mouse_motion.button_mask == 0:
+			_clear_menu_keyboard_focus()
 	elif event is InputEventMouseButton:
 		_using_keyboard_navigation = false
 		var mouse_button := event as InputEventMouseButton
