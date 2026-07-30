@@ -1,5 +1,5 @@
 {
-  "min_images": 20,
+  "min_images": 28,
   "expected_sizes": ["1280x720", "1920x1080"],
   "required_images": [
     {
@@ -31,6 +31,24 @@
     },
     {
       "pattern": "*attack_impact_1920x1080_ui100_*.png",
+      "min_count": 2,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [280, 120, 1360, 760], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*trap_setup_1920x1080_ui100_*.png",
+      "min_count": 2,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [280, 120, 1360, 760], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*trap_impact_1920x1080_ui100_*.png",
       "min_count": 2,
       "width": 1920,
       "height": 1080,
@@ -76,6 +94,24 @@
     },
     {
       "pattern": "*attack_impact_1280x720_ui125_*.png",
+      "min_count": 2,
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [120, 70, 1040, 520], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*trap_setup_1280x720_ui125_*.png",
+      "min_count": 2,
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [120, 70, 1040, 520], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*trap_impact_1280x720_ui125_*.png",
       "min_count": 2,
       "width": 1280,
       "height": 720,

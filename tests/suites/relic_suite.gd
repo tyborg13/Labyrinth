@@ -696,6 +696,51 @@ static func _test_damage_feedback_contract(expect: Callable) -> void:
 		and not bool(scene.call("_player_action_enemy_losses_presented_inline", "move", [])),
 		"Movement should defer to trap feedback only when a trap already presents the losses"
 	)
+	var trap_before: Dictionary = _state(combat, [])
+	var trap_player: Dictionary = (trap_before.get("player", {}) as Dictionary).duplicate(true)
+	trap_player["block"] = 1
+	trap_before["player"] = trap_player
+	var trap_enemies: Array = (trap_before.get("enemies", []) as Array).duplicate(true)
+	var blast_enemy: Dictionary = (trap_enemies[0] as Dictionary).duplicate(true)
+	blast_enemy["pos"] = Vector2i(4, 4)
+	blast_enemy["block"] = 1
+	trap_enemies[0] = blast_enemy
+	trap_before["enemies"] = trap_enemies
+	trap_before["traps"] = [{
+		"id": "timing_trap",
+		"element": ElementData.FIRE,
+		"pos": Vector2i(3, 4),
+		"base_damage": 6,
+		"damage": 6,
+		"armed": true
+	}]
+	var move_action: Dictionary = {"type": "move", "range": 2}
+	var trap_after: Dictionary = combat.apply_player_action(trap_before, move_action, Vector2i(3, 4))
+	var triggered_traps: Array = scene.call("_triggered_traps_between", trap_before, trap_after) as Array
+	var trap_setup_display: Dictionary = scene.call(
+		"_player_action_primary_display_state",
+		trap_before,
+		trap_after,
+		"move",
+		triggered_traps,
+		{}
+	) as Dictionary
+	expect.call(
+		_enemy_durability(trap_setup_display, 1) == _enemy_durability(trap_before, 1)
+		and _player_durability(trap_setup_display) == _player_durability(trap_before),
+		"Movement into a trap should hold enemy and player durability until trap impact feedback"
+	)
+	expect.call(
+		(trap_setup_display.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+		== (trap_after.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+		and (trap_setup_display.get("traps", []) as Array) == (trap_after.get("traps", []) as Array),
+		"Trap setup should preserve the resolved destination and consumed-trap state"
+	)
+	expect.call(
+		_enemy_durability(trap_after, 1) != _enemy_durability(trap_setup_display, 1)
+		and _player_durability(trap_after) != _player_durability(trap_setup_display),
+		"Trap impact should commit both enemy and player durability losses"
+	)
 
 	var thorn_before: Dictionary = _state(combat, ["thornmail_brooch"])
 	var thorn_enemies: Array = (thorn_before.get("enemies", []) as Array).duplicate(true)
@@ -853,6 +898,14 @@ static func _enemy_durability(state: Dictionary, enemy_id: int) -> Dictionary:
 			"stoneskin": int(enemy.get("stoneskin", 0))
 		}
 	return {}
+
+static func _player_durability(state: Dictionary) -> Dictionary:
+	var player: Dictionary = state.get("player", {})
+	return {
+		"hp": int(player.get("hp", 0)),
+		"block": int(player.get("block", 0)),
+		"stoneskin": int(player.get("stoneskin", 0))
+	}
 
 static func _test_player_facing_turn_terminology(expect: Callable) -> void:
 	var relics: Dictionary = GameData.relics()

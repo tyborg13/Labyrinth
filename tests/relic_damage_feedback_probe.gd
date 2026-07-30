@@ -76,6 +76,7 @@ func _capture_config(packed: PackedScene, config: Dictionary, reduced_motion: bo
 
 	await _capture_ion_spool(packed, viewport, screenshot_size, ui_scale, reduced_motion)
 	await _capture_direct_attack(packed, viewport, screenshot_size, ui_scale, reduced_motion)
+	await _capture_movement_trap(packed, viewport, screenshot_size, ui_scale, reduced_motion)
 	await _capture_thornmail(packed, viewport, screenshot_size, ui_scale, reduced_motion)
 	viewport.queue_free()
 	await _settle()
@@ -246,6 +247,110 @@ func _capture_direct_attack(
 	await _settle()
 
 
+func _capture_movement_trap(
+	packed: PackedScene,
+	viewport: SubViewport,
+	screenshot_size: Vector2i,
+	ui_scale: float,
+	reduced_motion: bool
+) -> void:
+	var trap: Dictionary = {
+		"id": "timing_trap",
+		"element": ElementData.LIGHTNING,
+		"pos": Vector2i(3, 4),
+		"base_damage": 6,
+		"damage": 6,
+		"armed": true
+	}
+	var layout: Dictionary = _combat_layout(
+		[{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 2}],
+		Vector2i(2, 4),
+		[trap]
+	)
+	var instance: Node = await _new_run_scene(packed, viewport, 97313, ui_scale, reduced_motion)
+	var combat := CombatEngine.new()
+	var before_state: Dictionary = combat.create_combat(97313, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["threaded_path"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var player_before: Dictionary = (before_state.get("player", {}) as Dictionary).duplicate(true)
+	player_before["block"] = 2
+	before_state["player"] = player_before
+	_install_combat_state(instance, before_state, layout)
+	await _settle()
+
+	var action: Dictionary = {"type": "move", "range": 2}
+	var target_tile := Vector2i(3, 4)
+	var after_state: Dictionary = combat.apply_player_action(before_state, action, target_tile)
+	var triggered_traps: Array = instance.call("_triggered_traps_between", before_state, after_state) as Array
+	var player_after: Dictionary = after_state.get("player", {})
+	var player_hp_loss: int = int(player_before.get("hp", 0)) - int(player_after.get("hp", 0))
+	var player_block_loss: int = int(player_before.get("block", 0)) - int(player_after.get("block", 0))
+	var enemy_hp_loss: int = _enemy_hp_loss(before_state, after_state, 1)
+	var enemy_block_loss: int = _enemy_defense_loss(before_state, after_state, 1, "block")
+	_expect(
+		triggered_traps.size() == 1
+		and player_hp_loss > 0
+		and player_block_loss > 0
+		and enemy_hp_loss > 0
+		and enemy_block_loss > 0,
+		"The movement trap fixture should damage player and enemy durability"
+	)
+	instance.call(
+		"_animate_player_action_step",
+		before_state.duplicate(true),
+		after_state,
+		"threaded_path",
+		action,
+		target_tile
+	)
+	var setup_captured: bool = await _wait_for_movement_trap_setup(instance, before_state, after_state)
+	print("  Trap setup: %s" % setup_captured)
+	_expect(setup_captured, "Movement should resolve its destination while retaining pre-trap durability")
+	if setup_captured:
+		await _save_screenshot(
+			viewport,
+			"%s/trap_setup_%s_%s.png" % [
+				OUTPUT_DIR,
+				_size_label(screenshot_size, ui_scale),
+				"reduced" if reduced_motion else "normal"
+			],
+			screenshot_size
+		)
+	var expected_text_counts: Dictionary = {}
+	_increment_text_count(expected_text_counts, "-%d" % player_hp_loss)
+	_increment_text_count(expected_text_counts, "-%d B" % player_block_loss)
+	_increment_text_count(expected_text_counts, "-%d" % enemy_hp_loss)
+	_increment_text_count(expected_text_counts, "-%d B" % enemy_block_loss)
+	var impact_captured: bool = await _wait_for_damage_feedback(
+		instance,
+		expected_text_counts,
+		2,
+		reduced_motion,
+		after_state,
+		1
+	)
+	print("  Trap impact: %s" % impact_captured)
+	_expect(impact_captured, "Movement trap impact should switch player and enemy durability with its hit feedback")
+	if impact_captured:
+		await _save_screenshot(
+			viewport,
+			"%s/trap_impact_%s_%s.png" % [
+				OUTPUT_DIR,
+				_size_label(screenshot_size, ui_scale),
+				"reduced" if reduced_motion else "normal"
+			],
+			screenshot_size
+		)
+	await create_timer(0.9).timeout
+	instance.queue_free()
+	await _settle()
+
+
 func _capture_thornmail(
 	packed: PackedScene,
 	viewport: SubViewport,
@@ -391,12 +496,42 @@ func _wait_for_action_windup(instance: Node, expected_effect_kind: String, expec
 	return false
 
 
+func _wait_for_movement_trap_setup(
+	instance: Node,
+	expected_durability_state: Dictionary,
+	expected_resolved_state: Dictionary
+) -> bool:
+	var expected_player_pos: Vector2i = (expected_resolved_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var expected_traps: Array = expected_resolved_state.get("traps", [])
+	for _attempt: int in range(240):
+		var board: Control = instance.get("board_view") as Control
+		if board != null:
+			var presentation: Dictionary = board.get("presentation") as Dictionary
+			var display_state: Dictionary = board.get("combat_state") as Dictionary
+			if (
+				(display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == expected_player_pos
+				and (display_state.get("traps", []) as Array) == expected_traps
+				and (presentation.get("floating_texts", []) as Array).is_empty()
+				and (presentation.get("impact_actor_keys", []) as Array).is_empty()
+				and (presentation.get("trap_effects", []) as Array).is_empty()
+			):
+				_expect(
+					_enemy_durability_matches(display_state, expected_durability_state)
+					and _player_durability_matches(display_state, expected_durability_state),
+					"Post-movement trap setup should retain exact pre-hit player and enemy durability"
+				)
+				return true
+		await create_timer(0.01).timeout
+	return false
+
+
 func _wait_for_damage_feedback(
 	instance: Node,
 	expected_text_counts: Dictionary,
 	expected_impact_count: int,
 	reduced_motion: bool,
-	expected_state: Dictionary
+	expected_state: Dictionary,
+	expected_trap_count: int = 0
 ) -> bool:
 	for _attempt: int in range(240):
 		var board: Control = instance.get("board_view") as Control
@@ -415,10 +550,15 @@ func _wait_for_damage_feedback(
 				if int(observed_text_counts.get(expected_text, 0)) != int(expected_text_counts.get(expected_text, 0)):
 					expected_texts_present = false
 					break
-			if expected_texts_present and impact_keys.size() == expected_impact_count:
+			if (
+				expected_texts_present
+				and impact_keys.size() == expected_impact_count
+				and (presentation.get("trap_effects", []) as Array).size() == expected_trap_count
+			):
 				_expect(
-					_enemy_durability_matches(board.get("combat_state") as Dictionary, expected_state),
-					"Impact feedback should switch every enemy to exact post-hit durability"
+					_enemy_durability_matches(board.get("combat_state") as Dictionary, expected_state)
+					and _player_durability_matches(board.get("combat_state") as Dictionary, expected_state),
+					"Impact feedback should switch player and enemy to exact post-hit durability"
 				)
 				_expect(
 					bool(presentation.get("reduced_motion", false)) == reduced_motion,
@@ -432,10 +572,11 @@ func _wait_for_damage_feedback(
 					float(board.call("_unit_impact_strength", {"key": str(impact_keys[0])})) > 0.0,
 					"An impacted enemy should receive nonzero hit-response strength"
 				)
-				_expect(
-					(presentation.get("impact_decals", []) as Array).size() == expected_impact_count,
-					"Every impacted enemy should receive the established impact decal"
-				)
+				if expected_trap_count == 0:
+					_expect(
+						(presentation.get("impact_decals", []) as Array).size() == expected_impact_count,
+						"Every impacted enemy should receive the established impact decal"
+					)
 				var shake_strength: float = float(board.call(
 					"_unit_impact_shake_strength",
 					{"key": str(impact_keys[0])}
@@ -469,6 +610,10 @@ func _floating_text_count(floating_texts: Array, expected_text: String) -> int:
 	return count
 
 
+func _increment_text_count(text_counts: Dictionary, text_value: String) -> void:
+	text_counts[text_value] = int(text_counts.get(text_value, 0)) + 1
+
+
 func _enemy_durability_matches(display_state: Dictionary, expected_state: Dictionary) -> bool:
 	var displayed_by_id: Dictionary = {}
 	for enemy_var: Variant in display_state.get("enemies", []):
@@ -490,6 +635,15 @@ func _enemy_durability_matches(display_state: Dictionary, expected_state: Dictio
 	return true
 
 
+func _player_durability_matches(display_state: Dictionary, expected_state: Dictionary) -> bool:
+	var displayed_player: Dictionary = display_state.get("player", {})
+	var expected_player: Dictionary = expected_state.get("player", {})
+	for field: String in ["hp", "block", "stoneskin"]:
+		if int(displayed_player.get(field, 0)) != int(expected_player.get(field, 0)):
+			return false
+	return true
+
+
 func _intensity_matches(display_state: Dictionary, expected_state: Dictionary) -> bool:
 	var combat := CombatEngine.new()
 	for element_id: String in ElementData.all_elements():
@@ -501,7 +655,11 @@ func _intensity_matches(display_state: Dictionary, expected_state: Dictionary) -
 	return true
 
 
-func _combat_layout(enemies: Array, player_start: Vector2i = Vector2i(3, 4)) -> Dictionary:
+func _combat_layout(
+	enemies: Array,
+	player_start: Vector2i = Vector2i(3, 4),
+	traps: Array = []
+) -> Dictionary:
 	var grid: Array = []
 	for y: int in range(8):
 		var row: Array[String]
@@ -518,7 +676,7 @@ func _combat_layout(enemies: Array, player_start: Vector2i = Vector2i(3, 4)) -> 
 		"player_start": player_start,
 		"enemies": enemies.duplicate(true),
 		"loot": [],
-		"traps": []
+		"traps": traps.duplicate(true)
 	}
 
 

@@ -12356,6 +12356,28 @@ func _state_with_enemy_durability_from(display_state: Dictionary, durability_sta
 	held_state["enemies"] = held_enemies
 	return held_state
 
+func _state_with_combatant_durability_from(display_state: Dictionary, durability_state: Dictionary) -> Dictionary:
+	var held_state: Dictionary = _state_with_enemy_durability_from(display_state, durability_state)
+	var held_player: Dictionary = (display_state.get("player", {}) as Dictionary).duplicate(true)
+	var durability_player: Dictionary = durability_state.get("player", {})
+	for key: String in ["hp", "block", "stoneskin"]:
+		held_player[key] = durability_player.get(key, held_player.get(key, 0))
+	held_state["player"] = held_player
+	return held_state
+
+func _player_action_primary_display_state(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	action_type: String,
+	triggered_traps: Array,
+	secondary_enemy_loss_presentation: Dictionary
+) -> Dictionary:
+	if not secondary_enemy_loss_presentation.is_empty():
+		return _state_with_enemy_durability_from(after_state, before_state)
+	if action_type in ["move", "blink"] and not triggered_traps.is_empty():
+		return _state_with_combatant_durability_from(after_state, before_state)
+	return after_state
+
 func _board_visibility_state(display_state: Dictionary) -> Dictionary:
 	if _unconfirmed_preview_must_preserve_umbra_information():
 		return _combat_state
@@ -14831,10 +14853,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		action,
 		triggered_traps
 	)
-	var primary_display_state: Dictionary = (
-		_state_with_enemy_durability_from(after_state, before_state)
-		if not secondary_enemy_loss_presentation.is_empty()
-		else after_state
+	var primary_display_state: Dictionary = _player_action_primary_display_state(
+		before_state,
+		after_state,
+		action_type,
+		triggered_traps,
+		secondary_enemy_loss_presentation
 	)
 	var base_presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
