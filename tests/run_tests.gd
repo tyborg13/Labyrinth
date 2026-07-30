@@ -18,9 +18,11 @@ const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_
 const SkillTreeSuite = preload("res://tests/suites/skill_tree_suite.gd")
 const SkillCombatSuite = preload("res://tests/suites/skill_combat_suite.gd")
 const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
+const RelicSuite = preload("res://tests/suites/relic_suite.gd")
 const ElementalIntensitySuite = preload("res://tests/suites/elemental_intensity_suite.gd")
 const BalancePacingSuite = preload("res://tests/suites/balance_pacing_suite.gd")
 const LethalPreviewSuite = preload("res://tests/suites/lethal_preview_suite.gd")
+const FloatingCombatTextSuite = preload("res://tests/suites/floating_combat_text_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -69,9 +71,11 @@ func _initialize() -> void:
 	SkillTreeSuite.run(Callable(self, "_assert"))
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
+	RelicSuite.run(Callable(self, "_assert"))
 	ElementalIntensitySuite.run(Callable(self, "_assert"))
 	BalancePacingSuite.run(Callable(self, "_assert"))
 	LethalPreviewSuite.run(Callable(self, "_assert"))
+	FloatingCombatTextSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
@@ -128,9 +132,6 @@ func _initialize() -> void:
 	_test_cinder_droplet_death_suppresses_rewards()
 	_test_cinder_droplet_does_not_resplit()
 	_test_hand_draw_caps_at_seven()
-	_test_first_attack_bonus_damage_math()
-	_test_relic_effect_hooks()
-	_test_tailwind_fletching_modifies_existing_forced_movement()
 	_test_pierce_ignores_defenses()
 	_test_bleed_expose_and_sunder_keywords()
 	_test_enemy_bleed_intents_apply_and_surface_icons()
@@ -621,10 +622,10 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 		_assert(not description.contains("{") and not description.contains("}"), "%s description placeholders should be formatted for display" % relic_id)
 		var icon_path: String = str(relic.get("icon_path", ""))
 		_assert(FileAccess.file_exists(icon_path), "%s relic icon should exist" % relic_id)
-	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("1 damage"), "Thornmail Brooch should display natural-unit thorns damage")
-	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("10 stoneskin"), "Obsidian Heart should display natural-unit stoneskin")
-	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("draw 1 fewer"), "Obsidian Heart should format negative draw as a positive fewer amount")
-	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("deal 4"), "Black Sun Dial should display natural-unit all-enemy damage")
+	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("half that much"), "Thornmail Brooch should explain its conditional stoneskin scaling")
+	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("all remaining block"), "Obsidian Heart should explain its end-of-turn block conversion")
+	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("Draw 1 fewer"), "Obsidian Heart should format negative draw as a positive fewer amount")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("deal 12"), "Black Sun Dial should display its legendary all-enemy payoff")
 	_assert(GameData.relic_offer_weight("iron_lung") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
@@ -10089,25 +10090,25 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	var combat_state: Dictionary = combat.create_combat(97, _simple_room_layout(), {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["quick_stab"],
+		"deck_cards": ["ricochet_knife"],
 		"relics": ["ember_lens"],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab"]
+	deck["hand"] = ["ricochet_knife"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
 	instance.set("_combat_state", combat_state)
-	var display: Dictionary = instance.call("_card_widget_display", "quick_stab", combat_state)
+	var display: Dictionary = instance.call("_card_widget_display", "ricochet_knife", combat_state)
 	var summary_rows: Array = display.get("summary_rows", [])
 	var modifier_lines: Array = display.get("modifier_lines", [])
 	_assert(not summary_rows.is_empty(), "Damage cards should render icon summary rows")
 	var damage_token: Dictionary = ((summary_rows[0] as Array)[0] as Dictionary)
-	_assert(str(damage_token.get("icon", "")) == "melee", "Damage cards should render the action keyword as an icon")
-	_assert(int(damage_token.get("value", 0)) == 14, "Damage cards should show final damage, not base damage, when a modifier applies")
+	_assert(str(damage_token.get("icon", "")) == "ranged", "Damage cards should render the action keyword as an icon")
+	_assert(int(damage_token.get("value", 0)) == 11, "Damage cards should show final damage, not base damage, when a conditional modifier applies")
 	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
 	_assert(modifier_lines.is_empty(), "Damage modifiers should live on the modified token instead of a duplicate card-level tooltip")
 	_assert(ActionIcons.token_is_modified(damage_token), "Damage cards should mark dynamically modified tokens")

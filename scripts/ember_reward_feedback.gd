@@ -19,11 +19,22 @@ static func play(host: Node, fx_layer: Control, stats_label: Label, amount: int,
 	var pulse: Tween = _start_counter_pulse(host, stats_label, reduced_motion)
 	var roll_seconds: float = ROLL_SECONDS * (0.55 if reduced_motion else 1.0)
 	var step_seconds: float = roll_seconds / float(values.size())
-	for value_var: Variant in values:
-		update_count.call(int(value_var))
-		await host.get_tree().create_timer(step_seconds).timeout
+	var roll_started_usec: int = Time.get_ticks_usec()
+	var next_value_index: int = 0
+	while next_value_index < values.size():
+		var elapsed_seconds: float = float(Time.get_ticks_usec() - roll_started_usec) / 1000000.0
+		var due_value_index: int = mini(
+			values.size() - 1,
+			floori(elapsed_seconds / maxf(0.001, step_seconds))
+		)
+		while next_value_index <= due_value_index:
+			update_count.call(int(values[next_value_index]))
+			next_value_index += 1
+		if next_value_index >= values.size():
+			break
+		await host.get_tree().process_frame
 	update_count.call(to_count)
-	# Frame-quantized roll timers can outlast the pulse, whose signal has already fired.
+	# A slow frame can catch the roll up to wall-clock time; the pulse may already be done.
 	if pulse != null and pulse.is_valid() and pulse.is_running():
 		await pulse.finished
 	if _node_is_alive(gain_label):

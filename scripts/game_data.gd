@@ -695,16 +695,19 @@ static func _relic_effect_display_value(effect: Dictionary, key: String) -> Vari
 	var amount: int = int(raw_value)
 	var effect_type: String = str(effect.get("type", ""))
 	match effect_type:
-		"max_hp", "first_attack_bonus", "start_combat_stoneskin", "start_combat_block", "damage_vs_status", "kill_status_heal", "glass_attack_bonus", "stoneskin_thorns":
+		"max_hp", "first_attack_bonus", "start_combat_stoneskin", "start_combat_block", "damage_vs_status", "kill_status_heal", "glass_attack_bonus", "bloodied_glass_attack_bonus", "stoneskin_thorns", "first_card_attack_bonus":
 			if key == "value":
 				return fixed_point_amount(amount)
 		"prevent_lethal_once":
 			if key == "burn_all_enemies":
 				return fixed_point_amount(amount)
+		"overheal_to_stoneskin":
+			if key in ["cap", "value", "max_value"]:
+				return fixed_point_amount(amount)
 		"start_combat_stoneskin_per_deck_element":
 			if key == "value" or key == "max_value":
 				return fixed_point_amount(amount)
-		"card_action_mod":
+		"card_action_mod", "player_state_action_mod":
 			if (key == "amount" or key == "value") and _relic_card_action_mod_uses_fixed_point(effect):
 				return fixed_point_amount(amount)
 	return amount
@@ -724,7 +727,7 @@ static func _relic_reward_display_value(reward: Dictionary, key: String) -> Vari
 	if key != "amount" and key != "value":
 		return amount
 	match str(reward.get("type", "")):
-		"block", "stoneskin", "heal", "all_enemies_damage":
+		"block", "stoneskin", "heal", "all_enemies_damage", "block_to_stoneskin":
 			return fixed_point_amount(amount)
 		"all_enemies_status":
 			var status_id: String = str(reward.get("status", ""))
@@ -1163,7 +1166,49 @@ static func _relic_effect_source_name(effect: Dictionary) -> String:
 
 static func _relic_effect_matches_card(card: Dictionary, effect: Dictionary) -> bool:
 	var element: String = str(effect.get("element", ""))
-	return element.is_empty() or element == card_element_from_def(card)
+	if not element.is_empty() and element != card_element_from_def(card):
+		return false
+	var action_types: Array[String] = _relic_card_action_types(card)
+	for required_type_var: Variant in effect.get("requires_action_types", []):
+		if not action_types.has(str(required_type_var)):
+			return false
+	var any_required: Array = effect.get("requires_any_action_types", [])
+	if not any_required.is_empty():
+		var matched_any: bool = false
+		for required_type_var: Variant in any_required:
+			if action_types.has(str(required_type_var)):
+				matched_any = true
+				break
+		if not matched_any:
+			return false
+	for excluded_type_var: Variant in effect.get("excludes_action_types", []):
+		if action_types.has(str(excluded_type_var)):
+			return false
+	var action_count: int = (card.get("actions", []) as Array).size()
+	if effect.has("min_action_count") and action_count < int(effect.get("min_action_count", 0)):
+		return false
+	if effect.has("max_action_count") and action_count > int(effect.get("max_action_count", action_count)):
+		return false
+	var card_time: int = int(card.get("time", 0))
+	if effect.has("min_time") and card_time < int(effect.get("min_time", 0)):
+		return false
+	if effect.has("max_time") and card_time > int(effect.get("max_time", card_time)):
+		return false
+	if effect.has("min_health_cost") and int(card.get("health_cost", 0)) < int(effect.get("min_health_cost", 0)):
+		return false
+	if effect.has("burn_card") and bool(card.get("burn", false)) != bool(effect.get("burn_card", false)):
+		return false
+	return true
+
+static func _relic_card_action_types(card: Dictionary) -> Array[String]:
+	var result: Array[String]
+	for action_var: Variant in card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action_type: String = str((action_var as Dictionary).get("type", ""))
+		if not action_type.is_empty() and not result.has(action_type):
+			result.append(action_type)
+	return result
 
 static func _relic_effect_matches_action(action: Dictionary, effect: Dictionary) -> bool:
 	var action_types: Array = effect.get("action_types", [])
@@ -1201,12 +1246,14 @@ static func _action_has_field_or_intensity_bonus(action: Dictionary, field: Stri
 static func _tag_card_actions_for_combat(card: Dictionary) -> Dictionary:
 	var next_card: Dictionary = card.duplicate(true)
 	var element_id: String = card_element_from_def(card)
+	var card_action_types: Array[String] = _relic_card_action_types(card)
 	var actions: Array = (next_card.get("actions", []) as Array).duplicate(true)
 	for index: int in range(actions.size()):
 		if typeof(actions[index]) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
 		action["_card_element"] = element_id
+		action["_card_action_types"] = card_action_types.duplicate()
 		actions[index] = action
 	next_card["actions"] = actions
 	return next_card

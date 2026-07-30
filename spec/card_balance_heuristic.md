@@ -109,6 +109,11 @@ When reviewing a card with an unusually strong skill interaction, record that
 interaction beside the neutral score and verify it in playtests. Do not add the
 skill's full benefit to the card formula.
 
+Run-scoped relics follow the same context boundary. The neutral card score does
+not include relic action mutations or triggered rewards; unusually strong
+card/relic interactions belong in relic-focused tests and analytics cohorts
+grouped by active relic ids.
+
 Encounter calibration is also important:
 
 - A complete run has six four-depth sequences. The first three depths of each
