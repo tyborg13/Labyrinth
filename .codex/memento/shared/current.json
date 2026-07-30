@@ -6559,6 +6559,52 @@
       }
     },
     {
+      "id": "mnt_20260729T145943Z_53e9e9a7",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Default UI visual QA to 1920x1080 at 100% UI scale",
+      "details": "Do not spend routine UI implementation time or proof budget on 720p, handheld, lower-resolution, or alternate-scale captures unless the user or task explicitly requests them; lower-resolution cleanup is intentionally deferred.",
+      "status": "active",
+      "created_at": "2026-07-29T14:59:43Z",
+      "updated_at": "2026-07-29T14:59:43Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-combat-damage-number-dynamics-inspired-by-slay-the-spire",
+        "commit": "1760679"
+      }
+    },
+    {
+      "id": "mnt_20260729T173813Z_fe111be6",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Combat popups begin close on the target's right side",
+      "details": "At the current 1920x1080/100% UI proof target, center every automatic combat popup 18 px to the right of the affected unit or terrain draw-rect center so overlap is expected and attribution stays immediate. Use the same rightward arc regardless of board position. Damage peaks at 60 px, short effects at 48 px, then both shrink along the continuous 0.96 s rise-and-fall arc; hold the peak through 0.32 progress to avoid stepped shrink. Compound effects keep 0.13 s pop-pop-pop staggering, while reduced motion remains a fixed local stack.",
+      "status": "active",
+      "created_at": "2026-07-29T17:38:13Z",
+      "updated_at": "2026-07-29T17:38:13Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260729T164653Z_f5d97fb4"
+      ],
+      "source": {
+        "branch": "codex/improve-combat-damage-number-dynamics-inspired-by-slay-the-spire",
+        "commit": "2f54b3c"
+      }
+    },
+    {
       "id": "mnt_20260729T200333Z_ffcffdd0",
       "layer": "shared",
       "kind": "decision",

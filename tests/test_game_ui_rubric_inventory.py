@@ -23,6 +23,9 @@ class GameUiRubricInventoryTests(unittest.TestCase):
         metadata = (skill_root / "agents" / "openai.yaml").read_text(encoding="utf-8")
         self.assertIn(RUBRIC_PATH, skill)
         self.assertIn("visual", skill.lower())
+        self.assertIn("only at `1920x1080`", skill)
+        self.assertNotIn("1280x720", skill)
+        self.assertNotIn("1280x800", skill)
         self.assertIn(f"${SKILL_NAME}", metadata)
 
     def test_rubric_is_anchored_to_live_game_ui_systems(self) -> None:
@@ -32,10 +35,8 @@ class GameUiRubricInventoryTests(unittest.TestCase):
             "UiTypography",
             "UiTooltipPanel",
             "CardWidget",
-            "1280x720",
-            "1280x800",
             "1920x1080",
-            "125%",
+            "only default resolution/scale requirement",
             "reduced motion",
             "Preserve every input path",
             "controller or Steam Deck",
@@ -45,6 +46,8 @@ class GameUiRubricInventoryTests(unittest.TestCase):
             "any part of a skill tree/dependency graph",
         ):
             self.assertIn(required_anchor, rubric)
+        self.assertNotIn("1280x720", rubric)
+        self.assertNotIn("1280x800", rubric)
 
     def test_player_ui_does_not_enable_visible_horizontal_scrollbars(self) -> None:
         auto_assignment = re.compile(

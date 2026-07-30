@@ -42,7 +42,7 @@ This repo uses `memento` for code-scoped project memory.
 - Run `python3 tests/test_icon_identity_policy.py` when adding or changing player-facing identities or icon registries.
 - Treat the rubric as an acceptance gate, including for UI copy, icons, cards, HUD state, menus, tooltips, tutorials, focus/selection behavior, and visual effects that communicate gameplay state.
 - Prefer compact, game-native, progressively disclosed presentation over generic web/app layouts or explanatory prose. Preserve precise rules text when it is the clearest way to explain a card, relic, equipment item, setting, or detailed inspection view.
-- UI work is not complete with code-only proof. Render the changed surface through a focused visual probe, inspect fresh screenshots at the rubric's relevant sizes/states, and report any documented exception.
+- UI work is not complete with code-only proof. Render the changed surface through a focused visual probe and inspect fresh screenshots at the rubric's relevant states. The default and only required visual-QA resolution is `1920x1080` at `100%` UI scale; do not add lower-resolution or alternate-scale proof unless the user or task explicitly asks for it.
 
 ## Card Balance Heuristic
 
