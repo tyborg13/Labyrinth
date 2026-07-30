@@ -107,6 +107,63 @@ class VisualProbeRunnerTests(unittest.TestCase):
                 )
             self.assertLess(time.monotonic() - started_at, 1.5)
 
+    @unittest.skipUnless(os.name == "posix", "POSIX process-group interruption coverage")
+    def test_interruption_reaps_the_spawned_process(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            pid_file = root / "child.pid"
+            child_code = (
+                "import os, pathlib, time; "
+                "pathlib.Path(%r).write_text(str(os.getpid())); "
+                "time.sleep(5)"
+                % str(pid_file)
+            )
+            real_monotonic = time.monotonic
+            monotonic_calls = 0
+
+            def interrupt_after_child_starts() -> float:
+                nonlocal monotonic_calls
+                monotonic_calls += 1
+                if monotonic_calls == 1:
+                    return real_monotonic()
+                deadline = real_monotonic() + 1.0
+                while real_monotonic() < deadline:
+                    if pid_file.exists() and pid_file.read_text().strip():
+                        break
+                raise KeyboardInterrupt()
+
+            with mock.patch.object(VISUAL.time, "monotonic", side_effect=interrupt_after_child_starts):
+                with self.assertRaises(KeyboardInterrupt):
+                    VISUAL.run_process_with_watchdogs(
+                        [sys.executable, "-c", child_code],
+                        cwd=root,
+                        env=os.environ.copy(),
+                        timeout=4.0,
+                        startup_log=None,
+                        startup_timeout=0.0,
+                    )
+            self.assertTrue(pid_file.exists())
+            child_pid = int(pid_file.read_text())
+            with self.assertRaises(ProcessLookupError):
+                os.kill(child_pid, 0)
+
+    def test_windows_tree_termination_uses_taskkill(self) -> None:
+        process = mock.Mock()
+        process.pid = 321
+        process.poll.return_value = None
+        process.wait.return_value = 0
+        with mock.patch.object(VISUAL.os, "name", "nt"):
+            with mock.patch.object(VISUAL.subprocess, "run") as run:
+                VISUAL.stop_process_tree(process)
+        run.assert_called_once_with(
+            ["taskkill", "/PID", "321", "/T", "/F"],
+            stdout=VISUAL.subprocess.DEVNULL,
+            stderr=VISUAL.subprocess.DEVNULL,
+            timeout=2.0,
+            check=False,
+        )
+        process.wait.assert_called_once_with(timeout=1.0)
+
     def test_exact_sizes_and_semantic_regions_are_enforced(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             image = Path(raw) / "proof.png"

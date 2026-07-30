@@ -10094,9 +10094,17 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_card_play_meter")
+	await process_frame
+	await process_frame
 	var banked_label: Label = instance.get("_play_meter_banked_label") as Label
 	_assert(count_label != null and count_label.text == "2", "The large card-play count should reserve its number for ordinary plays")
 	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
+	var hand_scroll: Control = instance.get("hand_scroll") as Control
+	var hand_row: Control = instance.get("hand_row") as Control
+	var left_action_stack: Control = instance.get("left_action_stack") as Control
+	var play_meter_slot: Control = instance.get("_play_meter_slot") as Control
+	_assert(left_action_stack != null and play_meter_slot != null and absf(left_action_stack.size.x - play_meter_slot.size.x) <= 1.0, "Wide banked-play copy should preserve equal hand-side footprints")
+	_assert(hand_scroll != null and hand_row != null and absf(hand_scroll.get_global_rect().get_center().x - hand_row.get_global_rect().get_center().x) <= 1.0, "Wide banked-play copy should keep the hand centered")
 	combat_state["cards_played_this_turn"] = 2
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_card_play_meter")

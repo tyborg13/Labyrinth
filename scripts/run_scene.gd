@@ -6563,12 +6563,13 @@ func _setup_play_meter() -> void:
 func _sync_hand_side_widths() -> void:
 	if _play_meter_slot == null or left_action_stack == null or _play_meter == null:
 		return
-	var left_width: float = left_action_stack.get_combined_minimum_size().x
-	left_width = maxf(left_width, _visible_hbox_minimum_width(piles_bar))
+	var left_width: float = _visible_hbox_minimum_width(piles_bar)
 	if choice_bar.visible:
 		left_width = maxf(left_width, _visible_hbox_minimum_width(choice_bar))
 	var meter_width: float = _play_meter.get_combined_minimum_size().x
-	_play_meter_slot.custom_minimum_size.x = maxf(left_width, meter_width)
+	var side_width: float = maxf(left_width, meter_width)
+	left_action_stack.custom_minimum_size.x = side_width
+	_play_meter_slot.custom_minimum_size.x = side_width
 
 func _visible_hbox_minimum_width(container: HBoxContainer) -> float:
 	if container == null:
@@ -8767,6 +8768,7 @@ func _refresh_card_play_meter() -> void:
 		_play_meter_count.text = ""
 		if _play_meter_banked_badge != null:
 			_play_meter_banked_badge.visible = false
+		_sync_hand_side_widths()
 		return
 	var budget: Dictionary = _displayed_card_play_budget()
 	var ordinary_left: int = int(budget.get("ordinary_remaining", 0))
@@ -8788,6 +8790,8 @@ func _refresh_card_play_meter() -> void:
 				_play_meter.tooltip_text = "%d banked %s remain after your ordinary plays." % [banked_left, "play" if banked_left == 1 else "plays"]
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
+	_sync_hand_side_widths()
+	call_deferred("_sync_hand_side_widths")
 
 func _refresh_action_step_tracker() -> void:
 	if _action_step_tracker == null or _action_step_tracker_steps == null or _action_context_command_bar == null:

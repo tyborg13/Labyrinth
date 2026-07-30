@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-30T13:11:01Z",
+  "updated_at": "2026-07-30T13:27:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6559,7 +6559,7 @@
       }
     },
     {
-      "id": "mnt_20260730T131101Z_c2703f3a",
+      "id": "mnt_20260730T132757Z_bdcce448",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -6568,20 +6568,22 @@
         "symbol": null
       },
       "scope_key": "file:tools/visual_probe_runner.py",
-      "summary": "Visual probes fail fast with short configurable watchdogs",
-      "details": "The runner defaults each probe process to a 30-second total timeout, an 8-second Godot log/startup watchdog, one attempt, and a 30-second GUI-lease wait. Startup and execution timeouts terminate the process group and do not multiply across retries or renderer fallbacks; override limits only for a known authored wait.",
+      "summary": "Visual probes fail fast and always reap their process trees",
+      "details": "The runner defaults each probe process to a 30-second total timeout, an 8-second Godot log/startup watchdog, one attempt, and a 30-second GUI-lease wait. Timeout failures bypass retries. Timeouts, interruption, and unexpected monitor exceptions terminate and reap the live process group; Windows uses taskkill /T /F. Override limits only for a known authored wait.",
       "status": "active",
-      "created_at": "2026-07-30T13:11:01Z",
-      "updated_at": "2026-07-30T13:11:01Z",
+      "created_at": "2026-07-30T13:27:57Z",
+      "updated_at": "2026-07-30T13:27:57Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260730T131101Z_c2703f3a"
+      ],
       "source": {
         "branch": "codex/improve-focused-hand-card-legibility",
-        "commit": "d6462af"
+        "commit": "2c57f04"
       }
     },
     {
-      "id": "mnt_20260730T131101Z_20fad2a2",
+      "id": "mnt_20260730T132758Z_ce6bb84d",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -6590,16 +6592,18 @@
         "symbol": "_sync_hand_side_widths"
       },
       "scope_key": "symbol:scripts/run_scene.gd#_sync_hand_side_widths",
-      "summary": "Combat hand centers by mirroring the left HUD footprint on the right",
-      "details": "CardPlayMeter lives inside a right-side slot whose minimum width is synchronized to the visible pile/action controls. The compact meter remains outer-right while equal side footprints keep HandScroll and HandBox centered; calculate child minimum widths directly so layout does not depend on a later Container frame.",
+      "summary": "Combat hand centers by mirroring the widest side HUD footprint",
+      "details": "CardPlayMeter lives inside a right-side slot. Compute the natural visible pile/action width and meter width directly, then apply their maximum to both LeftActionStack and CardPlayMeterSlot. This keeps HandScroll/HandBox centered even when banked-play copy widens the meter and avoids relying on a later Container frame.",
       "status": "active",
-      "created_at": "2026-07-30T13:11:01Z",
-      "updated_at": "2026-07-30T13:11:01Z",
+      "created_at": "2026-07-30T13:27:58Z",
+      "updated_at": "2026-07-30T13:27:58Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260730T131101Z_20fad2a2"
+      ],
       "source": {
         "branch": "codex/improve-focused-hand-card-legibility",
-        "commit": "d6462af"
+        "commit": "2c57f04"
       }
     }
   ]

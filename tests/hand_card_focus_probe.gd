@@ -96,6 +96,7 @@ func _capture_configuration(
 
 	await _capture_wrapper_focus(instance, hand_box, output_dir, resolution)
 	await _assert_existing_card_actions(instance, hand_box, output_dir)
+	_assert_reduced_motion_focus(instance, hand_box, output_dir)
 	instance.queue_free()
 	await _settle()
 
@@ -276,6 +277,23 @@ func _assert_existing_card_actions(
 	_expect(int(instance.get("_card_action_choice_index")) == FOCUSED_INDEX, "%s should preserve click activation from the enlarged card" % label)
 	instance.call("_on_cancel_requested")
 	await _settle()
+
+func _assert_reduced_motion_focus(
+	instance: Node,
+	hand_box: HandFanContainer,
+	label: String
+) -> void:
+	var settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	settings["reduced_motion"] = true
+	instance.set("_settings", SettingsStore.normalize_settings(settings))
+	hand_box.set_emphasized_index(-1, false)
+	instance.call("_set_hand_emphasized_index", FOCUSED_INDEX, true)
+	_expect(hand_box.emphasized_index() == FOCUSED_INDEX, "%s reduced motion should focus the requested card immediately" % label)
+	_expect(hand_box.emphasis_strength() >= 0.999, "%s reduced motion should settle the final focus pose without tweening" % label)
+	_expect(hand_box.get("_emphasis_tween") == null, "%s reduced motion should not create a focus tween" % label)
+	instance.call("_set_hand_emphasized_index", -1, false)
+	settings["reduced_motion"] = false
+	instance.set("_settings", SettingsStore.normalize_settings(settings))
 
 func _slot_positions(hand_box: HandFanContainer) -> Array[Vector2]:
 	var positions: Array[Vector2] = []

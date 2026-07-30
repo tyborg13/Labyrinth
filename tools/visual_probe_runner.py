@@ -106,12 +106,30 @@ def build_command(args: argparse.Namespace, rendering_driver: str, log_file: Pat
 def stop_process_tree(process: subprocess.Popen[str]) -> None:
     if process.poll() is not None:
         return
+    if os.name == "nt":  # pragma: no cover - behavior is covered through platform-mocked tests.
+        try:
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=2.0,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+        if process.poll() is None:
+            process.kill()
+        try:
+            process.wait(timeout=1.0)
+        except subprocess.TimeoutExpired:
+            process.kill()
+        return
     if os.name == "posix":
         try:
             os.killpg(process.pid, signal.SIGTERM)
         except ProcessLookupError:
             pass
-    else:  # pragma: no cover - exercised by Windows task hosts.
+    else:  # pragma: no cover - fallback for non-POSIX, non-Windows task hosts.
         process.terminate()
     try:
         process.wait(timeout=1.0)
@@ -154,29 +172,33 @@ def run_process_with_watchdogs(
                 start_new_session=os.name == "posix",
             )
             failure: ProbeError | None = None
-            while process.poll() is None:
-                elapsed = time.monotonic() - started_at
-                if not startup_confirmed and startup_log is not None and startup_log.exists():
-                    startup_confirmed = True
-                if not startup_confirmed and elapsed >= startup_timeout:
-                    failure = ProbeStartupTimeout(
-                        "Godot did not initialize within %.1f seconds: %s was never created. "
-                        "This usually means the GUI process could not start; fix the launch/permission issue "
-                        "or override --startup-timeout for a known slow host."
-                        % (startup_timeout, startup_log)
-                    )
-                    break
-                if elapsed >= timeout:
-                    failure = ProbeExecutionTimeout(
-                        "Godot probe exceeded the %.1f-second total timeout. "
-                        "Use --timeout only when the probe intentionally waits longer."
-                        % timeout
-                    )
-                    break
-                time.sleep(0.05)
-            if failure is not None:
+            try:
+                while process.poll() is None:
+                    elapsed = time.monotonic() - started_at
+                    if not startup_confirmed and startup_log is not None and startup_log.exists():
+                        startup_confirmed = True
+                    if not startup_confirmed and elapsed >= startup_timeout:
+                        failure = ProbeStartupTimeout(
+                            "Godot did not initialize within %.1f seconds: %s was never created. "
+                            "This usually means the GUI process could not start; fix the launch/permission issue "
+                            "or override --startup-timeout for a known slow host."
+                            % (startup_timeout, startup_log)
+                        )
+                        break
+                    if elapsed >= timeout:
+                        failure = ProbeExecutionTimeout(
+                            "Godot probe exceeded the %.1f-second total timeout. "
+                            "Use --timeout only when the probe intentionally waits longer."
+                            % timeout
+                        )
+                        break
+                    time.sleep(0.05)
+                if failure is not None:
+                    stop_process_tree(process)
+                returncode = process.wait()
+            except BaseException:
                 stop_process_tree(process)
-            returncode = process.wait()
+                raise
             stdout_file.seek(0)
             stderr_file.seek(0)
             stdout = stdout_file.read()
