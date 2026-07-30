@@ -653,6 +653,28 @@ static func _test_damage_feedback_contract(expect: Callable) -> void:
 		(ion_presentation.get("impact_decals", []) as Array).size() == 2,
 		"Relic discharge feedback should reuse the standard attack-impact decals for every damaged enemy"
 	)
+	var ion_pre_impact_display: Dictionary = scene.call(
+		"_state_with_enemy_durability_from",
+		ion_after,
+		ion_before
+	) as Dictionary
+	expect.call(
+		_enemy_durability(ion_pre_impact_display, 1) == _enemy_durability(ion_before, 1)
+		and _enemy_durability(ion_pre_impact_display, 2) == _enemy_durability(ion_before, 2),
+		"Relic discharge setup should hold every enemy at its exact pre-hit HP, Block, and Stoneskin"
+	)
+	expect.call(
+		combat.elemental_intensity(ion_pre_impact_display, ElementData.LIGHTNING)
+		== combat.elemental_intensity(ion_after, ElementData.LIGHTNING)
+		and (ion_pre_impact_display.get("player", {}) as Dictionary)
+		== (ion_after.get("player", {}) as Dictionary),
+		"Holding enemy durability should preserve the already-resolved intensity and player state"
+	)
+	expect.call(
+		_enemy_durability(ion_after, 1) != _enemy_durability(ion_pre_impact_display, 1)
+		and _enemy_durability(ion_after, 2) != _enemy_durability(ion_pre_impact_display, 2),
+		"The impact state should commit the durability loss that its hit feedback communicates"
+	)
 
 	var attack_before: Dictionary = _state(combat, [])
 	var ranged_action: Dictionary = {"type": "ranged", "damage": 4, "range": 8}
@@ -817,6 +839,20 @@ static func _floating_text_count(floating_texts: Array, expected_text: String) -
 		if str((floating_text_var as Dictionary).get("text", "")) == expected_text:
 			count += 1
 	return count
+
+static func _enemy_durability(state: Dictionary, enemy_id: int) -> Dictionary:
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if int(enemy.get("id", -1)) != enemy_id:
+			continue
+		return {
+			"hp": int(enemy.get("hp", 0)),
+			"block": int(enemy.get("block", 0)),
+			"stoneskin": int(enemy.get("stoneskin", 0))
+		}
+	return {}
 
 static func _test_player_facing_turn_terminology(expect: Callable) -> void:
 	var relics: Dictionary = GameData.relics()

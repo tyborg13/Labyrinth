@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-29T21:27:01Z",
+  "updated_at": "2026-07-30T00:09:04Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6581,27 +6581,27 @@
       }
     },
     {
-      "id": "mnt_20260729T212701Z_b180b8d0",
+      "id": "mnt_20260730T000904Z_0ef4d97b",
       "layer": "shared",
       "kind": "decision",
       "scope": {
         "level": "symbol",
         "path": "scripts/run_scene.gd",
-        "symbol": "_enemy_loss_feedback_presentation_between_states,_enemy_phase_status_presentation"
+        "symbol": "_animate_player_action_step,_enemy_loss_feedback_presentation_between_states,_enemy_phase_status_presentation"
       },
-      "scope_key": "symbol:scripts/run_scene.gd#_enemy_loss_feedback_presentation_between_states,_enemy_phase_status_presentation",
-      "summary": "Indirect damage feedback covers nested status chains with reduced-motion static cues",
-      "details": "Diff enemy HP/Block/Stoneskin at player actions, card completion, turn end, enemy intensity, and enemy status steps. Status steps carry full post-step enemy/player/intensity snapshots so lethal Burn/Poison/Bleed can visibly sequence Ember Siphon and threshold discharges without state jumps. Reuse standard impact decals and hit flashes, skip paths that already present losses, and in reduced motion keep numbers/flash/decals static while suppressing unit shake and text rise/fade.",
+      "scope_key": "symbol:scripts/run_scene.gd#_animate_player_action_step,_enemy_loss_feedback_presentation_between_states,_enemy_phase_status_presentation",
+      "summary": "Indirect enemy damage feedback is sequenced and snapshot-complete",
+      "details": "Diff enemy HP/Block/Stoneskin at player actions, card completion, turn end, enemy intensity, and enemy status steps. Status steps carry full post-step enemy/player/intensity snapshots so lethal Burn/Poison/Bleed can visibly sequence Ember Siphon and threshold discharges without state jumps. Reuse standard impact decals and hit flashes, skip paths that already present losses, and in reduced motion keep numbers/flash/decals static while suppressing shake and text rise/fade. Direct attacks render before_state through wind-up and after_state at impact. For non-attack actions with secondary enemy loss, render the resolved primary state with enemy hp/block/stoneskin restored from before_state, then switch to the exact after_state with secondary hit feedback; _state_with_enemy_durability_from shares this preservation rule with combat previews without rolling back intensity, player state, statuses, or other results.",
       "status": "active",
-      "created_at": "2026-07-29T21:27:01Z",
-      "updated_at": "2026-07-29T21:27:01Z",
+      "created_at": "2026-07-30T00:09:04Z",
+      "updated_at": "2026-07-30T00:09:04Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260729T210334Z_4a60ce9b"
+        "mnt_20260730T000854Z_6a2e43f1"
       ],
       "source": {
         "branch": "codex/rework-all-relics-and-add-ten-synergy-relics",
-        "commit": "c34cd54"
+        "commit": "5ccf380"
       }
     }
   ]

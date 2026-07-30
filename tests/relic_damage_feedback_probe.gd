@@ -50,6 +50,7 @@ func _initialize() -> void:
 func _capture_config(packed: PackedScene, config: Dictionary, reduced_motion: bool) -> void:
 	var screenshot_size: Vector2i = config.get("size", Vector2i(1920, 1080))
 	var ui_scale: float = float(config.get("scale", 1.0))
+	print("Capture %s %s" % [_size_label(screenshot_size, ui_scale), "reduced" if reduced_motion else "normal"])
 	var logical_size := Vector2i(
 		maxi(1, roundi(float(screenshot_size.x) / ui_scale)),
 		maxi(1, roundi(float(screenshot_size.y) / ui_scale))
@@ -74,6 +75,7 @@ func _capture_config(packed: PackedScene, config: Dictionary, reduced_motion: bo
 	root.add_child(viewport)
 
 	await _capture_ion_spool(packed, viewport, screenshot_size, ui_scale, reduced_motion)
+	await _capture_direct_attack(packed, viewport, screenshot_size, ui_scale, reduced_motion)
 	await _capture_thornmail(packed, viewport, screenshot_size, ui_scale, reduced_motion)
 	viewport.queue_free()
 	await _settle()
@@ -126,17 +128,113 @@ func _capture_ion_spool(
 		action,
 		INVALID_TARGET_TILE
 	)
-	var captured: bool = await _wait_for_damage_feedback(
+	var setup_captured: bool = await _wait_for_primary_feedback(
+		instance,
+		"Lightning 2",
+		before_state,
+		after_state
+	)
+	print("  Ion setup: %s" % setup_captured)
+	_expect(setup_captured, "Ion Spool should retain pre-hit durability throughout its threshold-consumption feedback")
+	if setup_captured:
+		await _save_screenshot(
+			viewport,
+			"%s/ion_setup_%s_%s.png" % [
+				OUTPUT_DIR,
+				_size_label(screenshot_size, ui_scale),
+				"reduced" if reduced_motion else "normal"
+			],
+			screenshot_size
+		)
+	var impact_captured: bool = await _wait_for_damage_feedback(
 		instance,
 		{"-4": 1, "-2": 2, "-2 B": 1, "-2 S": 1},
 		3,
-		reduced_motion
+		reduced_motion,
+		after_state
 	)
-	_expect(captured, "Ion Spool should expose exact HP, Block, and Stoneskin losses plus three hit reactions")
-	if captured:
+	print("  Ion impact: %s" % impact_captured)
+	_expect(impact_captured, "Ion Spool should expose exact HP, Block, and Stoneskin losses plus three hit reactions")
+	if impact_captured:
 		await _save_screenshot(
 			viewport,
-			"%s/ion_%s_%s.png" % [
+			"%s/ion_impact_%s_%s.png" % [
+				OUTPUT_DIR,
+				_size_label(screenshot_size, ui_scale),
+				"reduced" if reduced_motion else "normal"
+			],
+			screenshot_size
+		)
+	await create_timer(0.9).timeout
+	instance.queue_free()
+	await _settle()
+
+
+func _capture_direct_attack(
+	packed: PackedScene,
+	viewport: SubViewport,
+	screenshot_size: Vector2i,
+	ui_scale: float,
+	reduced_motion: bool
+) -> void:
+	var instance: Node = await _new_run_scene(packed, viewport, 97312, ui_scale, reduced_motion)
+	var layout: Dictionary = _combat_layout([
+		{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 20, "max_hp": 20, "block": 2}
+	])
+	var combat := CombatEngine.new()
+	var before_state: Dictionary = combat.create_combat(97312, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["bone_dart"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_install_combat_state(instance, before_state, layout)
+	await _settle()
+
+	var action: Dictionary = {"type": "ranged", "damage": 4, "range": 8}
+	var target_tile: Vector2i = ((before_state.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO)
+	var after_state: Dictionary = combat.apply_player_action(before_state, action, target_tile)
+	_expect(
+		_enemy_hp_loss(before_state, after_state, 1) == 2
+		and _enemy_defense_loss(before_state, after_state, 1, "block") == 2,
+		"A direct attack should split its four damage across Block and HP"
+	)
+	instance.call(
+		"_animate_player_action_step",
+		before_state.duplicate(true),
+		after_state,
+		"bone_dart",
+		action,
+		target_tile
+	)
+	var windup_captured: bool = await _wait_for_action_windup(instance, "ranged", before_state)
+	print("  Attack wind-up: %s" % windup_captured)
+	_expect(windup_captured, "A direct attack should retain pre-hit durability throughout its wind-up")
+	if windup_captured:
+		await _save_screenshot(
+			viewport,
+			"%s/attack_windup_%s_%s.png" % [
+				OUTPUT_DIR,
+				_size_label(screenshot_size, ui_scale),
+				"reduced" if reduced_motion else "normal"
+			],
+			screenshot_size
+		)
+	var impact_captured: bool = await _wait_for_damage_feedback(
+		instance,
+		{"-2": 1, "-2 B": 1},
+		1,
+		reduced_motion,
+		after_state
+	)
+	print("  Attack impact: %s" % impact_captured)
+	_expect(impact_captured, "A direct attack should switch to post-hit durability with its damage numbers and hit reaction")
+	if impact_captured:
+		await _save_screenshot(
+			viewport,
+			"%s/attack_impact_%s_%s.png" % [
 				OUTPUT_DIR,
 				_size_label(screenshot_size, ui_scale),
 				"reduced" if reduced_motion else "normal"
@@ -186,7 +284,14 @@ func _capture_thornmail(
 		action,
 		INVALID_TARGET_TILE
 	)
-	var captured: bool = await _wait_for_damage_feedback(instance, {"-4": 2}, 2, reduced_motion)
+	var captured: bool = await _wait_for_damage_feedback(
+		instance,
+		{"-4": 2},
+		2,
+		reduced_motion,
+		after_state
+	)
+	print("  Thornmail impact: %s" % captured)
 	_expect(captured, "Thornmail Brooch should expose two damage numbers and two hit reactions")
 	if captured:
 		await _save_screenshot(
@@ -237,11 +342,61 @@ func _install_combat_state(instance: Node, combat_state: Dictionary, layout: Dic
 	instance.call("_refresh_ui")
 
 
+func _wait_for_primary_feedback(
+	instance: Node,
+	expected_text: String,
+	expected_durability_state: Dictionary,
+	expected_resolved_state: Dictionary
+) -> bool:
+	for _attempt: int in range(240):
+		var board: Control = instance.get("board_view") as Control
+		if board != null:
+			var presentation: Dictionary = board.get("presentation") as Dictionary
+			if (
+				_floating_text_count(presentation.get("floating_texts", []), expected_text) == 1
+				and (presentation.get("impact_actor_keys", []) as Array).is_empty()
+			):
+				var display_state: Dictionary = board.get("combat_state") as Dictionary
+				_expect(
+					_enemy_durability_matches(display_state, expected_durability_state),
+					"Primary action feedback should retain exact pre-hit enemy durability"
+				)
+				_expect(
+					_intensity_matches(display_state, expected_resolved_state),
+					"Primary action feedback should retain the already-resolved elemental intensity"
+				)
+				return true
+		await create_timer(0.02).timeout
+	return false
+
+
+func _wait_for_action_windup(instance: Node, expected_effect_kind: String, expected_state: Dictionary) -> bool:
+	for _attempt: int in range(240):
+		var board: Control = instance.get("board_view") as Control
+		if board != null:
+			var presentation: Dictionary = board.get("presentation") as Dictionary
+			var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+			if (
+				str(effect.get("kind", "")) == expected_effect_kind
+				and float(presentation.get("effect_progress", 1.0)) < 1.0
+				and (presentation.get("floating_texts", []) as Array).is_empty()
+				and (presentation.get("impact_actor_keys", []) as Array).is_empty()
+			):
+				_expect(
+					_enemy_durability_matches(board.get("combat_state") as Dictionary, expected_state),
+					"Attack wind-up should retain exact pre-hit enemy durability"
+				)
+				return true
+		await create_timer(0.02).timeout
+	return false
+
+
 func _wait_for_damage_feedback(
 	instance: Node,
 	expected_text_counts: Dictionary,
 	expected_impact_count: int,
-	reduced_motion: bool
+	reduced_motion: bool,
+	expected_state: Dictionary
 ) -> bool:
 	for _attempt: int in range(240):
 		var board: Control = instance.get("board_view") as Control
@@ -261,6 +416,10 @@ func _wait_for_damage_feedback(
 					expected_texts_present = false
 					break
 			if expected_texts_present and impact_keys.size() == expected_impact_count:
+				_expect(
+					_enemy_durability_matches(board.get("combat_state") as Dictionary, expected_state),
+					"Impact feedback should switch every enemy to exact post-hit durability"
+				)
 				_expect(
 					bool(presentation.get("reduced_motion", false)) == reduced_motion,
 					"Damage feedback should preserve the active reduced-motion setting"
@@ -298,6 +457,48 @@ func _wait_for_damage_feedback(
 				return true
 		await create_timer(0.02).timeout
 	return false
+
+
+func _floating_text_count(floating_texts: Array, expected_text: String) -> int:
+	var count: int = 0
+	for floating_text_var: Variant in floating_texts:
+		if typeof(floating_text_var) != TYPE_DICTIONARY:
+			continue
+		if str((floating_text_var as Dictionary).get("text", "")) == expected_text:
+			count += 1
+	return count
+
+
+func _enemy_durability_matches(display_state: Dictionary, expected_state: Dictionary) -> bool:
+	var displayed_by_id: Dictionary = {}
+	for enemy_var: Variant in display_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		displayed_by_id[int(enemy.get("id", -1))] = enemy
+	for expected_var: Variant in expected_state.get("enemies", []):
+		if typeof(expected_var) != TYPE_DICTIONARY:
+			continue
+		var expected_enemy: Dictionary = expected_var as Dictionary
+		var enemy_id: int = int(expected_enemy.get("id", -1))
+		if not displayed_by_id.has(enemy_id):
+			return false
+		var displayed_enemy: Dictionary = displayed_by_id[enemy_id] as Dictionary
+		for field: String in ["hp", "block", "stoneskin"]:
+			if int(displayed_enemy.get(field, 0)) != int(expected_enemy.get(field, 0)):
+				return false
+	return true
+
+
+func _intensity_matches(display_state: Dictionary, expected_state: Dictionary) -> bool:
+	var combat := CombatEngine.new()
+	for element_id: String in ElementData.all_elements():
+		if (
+			combat.elemental_intensity(display_state, element_id)
+			!= combat.elemental_intensity(expected_state, element_id)
+		):
+			return false
+	return true
 
 
 func _combat_layout(enemies: Array, player_start: Vector2i = Vector2i(3, 4)) -> Dictionary:
@@ -364,7 +565,8 @@ func _size_label(size: Vector2i, ui_scale: float) -> String:
 
 
 func _save_screenshot(viewport: SubViewport, output_path: String, expected_size: Vector2i) -> void:
-	await RenderingServer.frame_post_draw
+	await process_frame
+	RenderingServer.force_draw(false)
 	var image: Image = viewport.get_texture().get_image()
 	_expect(image.get_size() == expected_size, "%s should render exactly %s" % [output_path, expected_size])
 	var error: Error = image.save_png(output_path)

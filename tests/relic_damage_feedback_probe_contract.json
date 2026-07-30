@@ -1,9 +1,10 @@
 {
-  "min_images": 8,
+  "min_images": 20,
   "expected_sizes": ["1280x720", "1920x1080"],
   "required_images": [
     {
-      "pattern": "*ion_1920x1080_ui100_normal.png",
+      "pattern": "*ion_setup_1920x1080_ui100_*.png",
+      "min_count": 2,
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -11,7 +12,8 @@
       ]
     },
     {
-      "pattern": "*ion_1920x1080_ui100_reduced.png",
+      "pattern": "*ion_impact_1920x1080_ui100_*.png",
+      "min_count": 2,
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -19,7 +21,8 @@
       ]
     },
     {
-      "pattern": "*thornmail_1920x1080_ui100_normal.png",
+      "pattern": "*attack_windup_1920x1080_ui100_*.png",
+      "min_count": 2,
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -27,7 +30,8 @@
       ]
     },
     {
-      "pattern": "*thornmail_1920x1080_ui100_reduced.png",
+      "pattern": "*attack_impact_1920x1080_ui100_*.png",
+      "min_count": 2,
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -35,7 +39,17 @@
       ]
     },
     {
-      "pattern": "*ion_1280x720_ui125_normal.png",
+      "pattern": "*thornmail_1920x1080_ui100_*.png",
+      "min_count": 2,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [280, 120, 1360, 760], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*ion_setup_1280x720_ui125_*.png",
+      "min_count": 2,
       "width": 1280,
       "height": 720,
       "regions": [
@@ -43,7 +57,8 @@
       ]
     },
     {
-      "pattern": "*ion_1280x720_ui125_reduced.png",
+      "pattern": "*ion_impact_1280x720_ui125_*.png",
+      "min_count": 2,
       "width": 1280,
       "height": 720,
       "regions": [
@@ -51,7 +66,8 @@
       ]
     },
     {
-      "pattern": "*thornmail_1280x720_ui125_normal.png",
+      "pattern": "*attack_windup_1280x720_ui125_*.png",
+      "min_count": 2,
       "width": 1280,
       "height": 720,
       "regions": [
@@ -59,7 +75,17 @@
       ]
     },
     {
-      "pattern": "*thornmail_1280x720_ui125_reduced.png",
+      "pattern": "*attack_impact_1280x720_ui125_*.png",
+      "min_count": 2,
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [120, 70, 1040, 520], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*thornmail_1280x720_ui125_*.png",
+      "min_count": 2,
       "width": 1280,
       "height": 720,
       "regions": [

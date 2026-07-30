@@ -12326,32 +12326,35 @@ func _board_display_state() -> Dictionary:
 func _combat_preview_display_state(preview_state: Dictionary) -> Dictionary:
 	if preview_state.is_empty() or _combat_state.is_empty():
 		return preview_state
-	var display_state: Dictionary = preview_state.duplicate(false)
-	var committed_by_id: Dictionary = {}
-	for committed_var: Variant in _combat_state.get("enemies", []):
-		if typeof(committed_var) != TYPE_DICTIONARY:
+	return _state_with_enemy_durability_from(preview_state, _combat_state)
+
+func _state_with_enemy_durability_from(display_state: Dictionary, durability_state: Dictionary) -> Dictionary:
+	var held_state: Dictionary = display_state.duplicate(false)
+	var durability_by_id: Dictionary = {}
+	for durability_var: Variant in durability_state.get("enemies", []):
+		if typeof(durability_var) != TYPE_DICTIONARY:
 			continue
-		var committed_enemy: Dictionary = committed_var
-		committed_by_id[int(committed_enemy.get("id", -1))] = committed_enemy
-	var display_enemies: Array = []
-	var projected_ids: Dictionary = {}
-	for projected_var: Variant in preview_state.get("enemies", []):
-		if typeof(projected_var) != TYPE_DICTIONARY:
+		var durability_enemy: Dictionary = durability_var
+		durability_by_id[int(durability_enemy.get("id", -1))] = durability_enemy
+	var held_enemies: Array = []
+	var displayed_ids: Dictionary = {}
+	for display_var: Variant in display_state.get("enemies", []):
+		if typeof(display_var) != TYPE_DICTIONARY:
 			continue
-		var projected_enemy: Dictionary = (projected_var as Dictionary).duplicate(true)
-		var enemy_id: int = int(projected_enemy.get("id", -1))
-		projected_ids[enemy_id] = true
-		if committed_by_id.has(enemy_id):
-			var committed_enemy: Dictionary = committed_by_id[enemy_id]
+		var held_enemy: Dictionary = (display_var as Dictionary).duplicate(true)
+		var enemy_id: int = int(held_enemy.get("id", -1))
+		displayed_ids[enemy_id] = true
+		if durability_by_id.has(enemy_id):
+			var durability_enemy: Dictionary = durability_by_id[enemy_id]
 			for key: String in ["hp", "block", "stoneskin"]:
-				projected_enemy[key] = committed_enemy.get(key, projected_enemy.get(key, 0))
-		display_enemies.append(projected_enemy)
-	for committed_id: Variant in committed_by_id.keys():
-		if projected_ids.has(committed_id):
+				held_enemy[key] = durability_enemy.get(key, held_enemy.get(key, 0))
+		held_enemies.append(held_enemy)
+	for durability_id: Variant in durability_by_id.keys():
+		if displayed_ids.has(durability_id):
 			continue
-		display_enemies.append((committed_by_id[committed_id] as Dictionary).duplicate(true))
-	display_state["enemies"] = display_enemies
-	return display_state
+		held_enemies.append((durability_by_id[durability_id] as Dictionary).duplicate(true))
+	held_state["enemies"] = held_enemies
+	return held_state
 
 func _board_visibility_state(display_state: Dictionary) -> Dictionary:
 	if _unconfirmed_preview_must_preserve_umbra_information():
@@ -14821,6 +14824,18 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	var player_before_tile: Vector2i = player_before.get("pos", Vector2i.ZERO)
 	var player_after_tile: Vector2i = player_after.get("pos", player_before_tile)
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
+	var secondary_enemy_loss_presentation: Dictionary = _secondary_player_action_enemy_loss_presentation(
+		before_state,
+		after_state,
+		card_id,
+		action,
+		triggered_traps
+	)
+	var primary_display_state: Dictionary = (
+		_state_with_enemy_durability_from(after_state, before_state)
+		if not secondary_enemy_loss_presentation.is_empty()
+		else after_state
+	)
 	var base_presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
 		"focus_actor_color": PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink"] else PLAYER_ATTACK_FOCUS
@@ -14838,7 +14853,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			movement_presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
 			movement_presentation["path_tiles"] = move_path
 			await _animate_actor_along_path(before_state, "player", move_path, movement_presentation)
-			_render_board_state(after_state, _death_hold_presentation(before_state, after_state, base_presentation))
+			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
 			await _animate_player_trap_result(after_state, before_state, triggered_traps, base_presentation)
 		"blink":
@@ -14854,7 +14869,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"effect_progress": t
 				})
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			_render_board_state(after_state, _death_hold_presentation(before_state, after_state, {
+			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": [player_after_tile],
@@ -14881,7 +14896,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_color": Color(0.40, 0.86, 0.94, 0.18 + 0.12 * t)
 				})
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": focus_tiles,
@@ -14897,14 +14912,14 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			for frame: int in range(1, ATTACK_FRAMES + 1):
 				var t: float = float(frame) / float(ATTACK_FRAMES)
-				_render_board_state(after_state, {
+				_render_board_state(primary_display_state, {
 					"focus_actor_keys": ["player"],
 					"focus_actor_color": Color("ffe394"),
 					"focus_tiles": [target_tile],
 					"focus_color": Color(1.0, 0.82, 0.34, 0.16 + 0.22 * sin(t * PI))
 				})
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			await _animate_floating_text_presentation(after_state, {
+			await _animate_floating_text_presentation(primary_display_state, {
 				"focus_tiles": [target_tile],
 				"focus_color": Color(1.0, 0.84, 0.42, 0.30),
 				"floating_texts": [{
@@ -14917,7 +14932,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"vision", "truesight", "dispel_umbra":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra -%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
-			await _animate_floating_text_presentation(after_state, {
+			await _animate_floating_text_presentation(primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": Color("ffe394"),
 				"floating_texts": [{
@@ -14964,7 +14979,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					presentation["unit_draw_tiles"] = {"player": effect_target_tile}
 				_render_board_state(before_state, presentation)
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, _attack_impact_presentation({
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, _attack_impact_presentation({
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_ATTACK_FOCUS,
 				"focus_tiles": focus_tiles,
@@ -14979,7 +14994,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			_play_sfx(AttackSfxLibrary.entry_for_block_action(_card_def(card_id, before_state), action))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "block", "tile": player_after_tile},
@@ -14993,7 +15008,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"stoneskin":
 			var skin_gain: int = int(player_after.get("stoneskin", 0)) - int(player_before.get("stoneskin", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "stoneskin", "tile": player_after_tile},
@@ -15007,7 +15022,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"heal":
 			var heal_amount: int = int(player_after.get("hp", 0)) - int(player_before.get("hp", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"effect": {"kind": "heal", "tile": player_after_tile},
@@ -15021,7 +15036,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"draw":
 			var draw_amount: int = int(((after_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) - int(((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size())
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"floating_texts": [{
@@ -15036,7 +15051,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"card_play":
 			var card_plays_gained: int = maxi(0, _card_play_count_for_resolution_state(after_state) - _card_play_count_for_resolution_state(before_state))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"floating_texts": [{
@@ -15059,7 +15074,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				else "%s %d" % [ElementData.name(element_id), after_value]
 			)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(after_state, _death_hold_presentation(before_state, after_state, {
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"floating_texts": [{
@@ -15071,13 +15086,6 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			}))
 			await _animate_intensity_gain(element_id, after_value)
 			await get_tree().create_timer(0.08).timeout
-	var secondary_enemy_loss_presentation: Dictionary = _secondary_player_action_enemy_loss_presentation(
-		before_state,
-		after_state,
-		card_id,
-		action,
-		triggered_traps
-	)
 	if not secondary_enemy_loss_presentation.is_empty():
 		await _animate_floating_text_presentation(
 			after_state,
