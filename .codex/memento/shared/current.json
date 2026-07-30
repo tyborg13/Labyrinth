@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-28T22:04:09Z",
+  "updated_at": "2026-07-30T05:07:43Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6512,6 +6512,28 @@
       "source": {
         "branch": "codex/recompose-card-and-relic-reward-screens-after-slay-the-spire-reference",
         "commit": "20096b6"
+      }
+    },
+    {
+      "id": "mnt_20260730T050743Z_cb0b1db4",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/hand_fan_container.gd",
+        "symbol": "set_emphasized_index"
+      },
+      "scope_key": "symbol:scripts/hand_fan_container.gd#set_emphasized_index",
+      "summary": "Focused combat-hand cards should become materially larger and upright while their neighbors move aside.",
+      "details": "The accepted interaction uses 1.22x bottom-anchored scale, foreground z-order, upward lift, and up to 40 px of neighbor separation. Dense hands may tighten idle overlap to a 36 px exposed logical strip so every card remains selectable at 1280x800 and 125% UI scale; reduced motion applies the final pose immediately.",
+      "status": "active",
+      "created_at": "2026-07-30T05:07:43Z",
+      "updated_at": "2026-07-30T05:07:43Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-focused-hand-card-legibility",
+        "commit": "1760679"
       }
     }
   ]

@@ -1547,7 +1547,19 @@ func _ready() -> void:
 	_connect_header_layout_signals()
 	_connect_choice_overlay_layout_signals()
 	_connect_board_aim_signals()
+	if not get_viewport().size_changed.is_connected(_on_hand_viewport_size_changed):
+		get_viewport().size_changed.connect(_on_hand_viewport_size_changed)
 	_boot_run()
+	call_deferred("_refresh_hand_panel_after_viewport_change")
+
+func _on_hand_viewport_size_changed() -> void:
+	call_deferred("_refresh_hand_panel_after_viewport_change")
+
+func _refresh_hand_panel_after_viewport_change() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_hand_panel_signature = "<unset>"
+	_refresh_hand_panel()
 
 func _process(delta: float) -> void:
 	if not _dialogue_active or _dialogue_text_complete or _dialogue_text_label == null:
@@ -5966,8 +5978,9 @@ func _rect_from_center(center: Vector2, rect_size: Vector2) -> Rect2:
 
 func _hand_receive_rect(index: int, total: int, size_hint: Vector2) -> Rect2:
 	var hand_rect := Rect2(hand_scroll.global_position, hand_scroll.size)
-	var content_size: Vector2 = HandFanContainer.content_size_for_layout(total, size_hint, HAND_CARD_OVERLAP, true)
-	var local_rect: Rect2 = HandFanContainer.card_rect_for_layout(index, total, size_hint, HAND_CARD_OVERLAP, true)
+	var card_gap: float = _hand_layout_gap(total, size_hint)
+	var content_size: Vector2 = HandFanContainer.content_size_for_layout(total, size_hint, card_gap, true)
+	var local_rect: Rect2 = HandFanContainer.card_rect_for_layout(index, total, size_hint, card_gap, true)
 	var origin: Vector2 = hand_rect.get_center() - content_size * 0.5
 	return Rect2(origin + local_rect.position, local_rect.size)
 
@@ -11925,6 +11938,9 @@ func _refresh_hand_panel() -> void:
 				valid_skill_target if selecting_skill_card else bool(options.get("printed_playable", false)),
 				_card_def(str(hand[index]), _combat_state)
 			)
+			# HandFanContainer owns the full-card emphasis pose so the focused card
+			# and its neighbors move as one readable composition.
+			widget.set_hover_pose(0.0, 1.0)
 			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 			var ready_wave_delay: float = _ready_wave_delay_for_hand_index(index, options)
 			if ready_wave_delay >= 0.0:
@@ -11952,7 +11968,17 @@ func _refresh_hand_panel() -> void:
 				hand_box.add_child(card_slot)
 			if ready_wave_delay >= 0.0:
 				widget.call_deferred("play_ready_wave", ready_wave_delay)
-		hand_box.configure_layout(HAND_CARD_OVERLAP, true)
+		hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
+		call_deferred("_fit_current_hand_layout_to_visible_width")
+		var emphasized_hand_index: int = (
+			_hovered_card_index
+			if active_hand_index < 0
+			and not selecting_skill_card
+			and _drag_card_index < 0
+			and _animating_hand_card_index < 0
+			else -1
+		)
+		hand_box.set_emphasized_index(emphasized_hand_index, false)
 		if selecting_skill_card:
 			_configure_skill_hand_selection_focus(skill_selection_buttons)
 			if not skill_selection_buttons.is_empty():
@@ -11962,8 +11988,26 @@ func _refresh_hand_panel() -> void:
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		hand_box.configure_layout(HAND_CARD_GAP, false)
+		hand_box.set_emphasized_index(-1, false)
 	else:
 		hand_box.configure_layout(HAND_CARD_GAP, false)
+		hand_box.set_emphasized_index(-1, false)
+
+func _fit_current_hand_layout_to_visible_width() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if str(_run_state.get("mode", "")) != "combat":
+		return
+	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+	if hand.is_empty() or hand_box.get_child_count() != hand.size():
+		return
+	var first_card: Control = hand_box.get_child(0) as Control
+	if first_card == null:
+		return
+	var card_size: Vector2 = first_card.custom_minimum_size
+	if card_size.x <= 0.0 or card_size.y <= 0.0:
+		card_size = first_card.size
+	hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
 
 func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	return _scaled_card_slot(widget, card_size)
@@ -11988,9 +12032,36 @@ func _build_skill_hand_selection_card(card_slot: Control, hand_index: int, card_
 	if valid_target:
 		button.pressed.connect(_on_combat_skill_hand_card_selected.bind(hand_index))
 		button.focus_entered.connect(_ensure_skill_hand_selection_card_visible.bind(button))
+		button.mouse_entered.connect(_set_skill_hand_selection_emphasis.bind(button, hand_index, "pointer", true))
+		button.mouse_exited.connect(_set_skill_hand_selection_emphasis.bind(button, hand_index, "pointer", false))
+		button.focus_entered.connect(_set_skill_hand_selection_emphasis.bind(button, hand_index, "focus", true))
+		button.focus_exited.connect(_set_skill_hand_selection_emphasis.bind(button, hand_index, "focus", false))
 	else:
 		button.modulate = Color(1.0, 1.0, 1.0, 0.42)
 	return button
+
+func _set_skill_hand_selection_emphasis(
+	button: Button,
+	hand_index: int,
+	source: String,
+	active: bool
+) -> void:
+	if button == null:
+		return
+	button.set_meta("hand_emphasis_%s" % source, active)
+	var emphasized: bool = (
+		bool(button.get_meta("hand_emphasis_pointer", false))
+		or bool(button.get_meta("hand_emphasis_focus", false))
+	)
+	if emphasized:
+		_set_hand_emphasized_index(hand_index)
+	elif hand_box != null and hand_box.emphasized_index() == hand_index:
+		_set_hand_emphasized_index(-1)
+
+func _set_hand_emphasized_index(index: int, animated: bool = true) -> void:
+	if hand_box == null:
+		return
+	hand_box.set_emphasized_index(index, animated and not _reduced_motion_enabled())
 
 func _skill_card_selection_frame_style(accent: Color, emphasized: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -13711,6 +13782,7 @@ func _on_card_drag_started(index: int) -> void:
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.FULL_CARD_FALLBACK)
 	var source_rect: Rect2 = _hand_card_global_rect(index)
 	_drag_card_index = index
+	_set_hand_emphasized_index(-1, false)
 	_drag_card_options = options.duplicate(true)
 	_drag_hover_zone = ""
 	_drag_card_source_rect = source_rect
@@ -13789,6 +13861,7 @@ func _on_card_hover_started(index: int) -> void:
 	if _animation_lock or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
 		return
 	_hovered_card_index = index
+	_set_hand_emphasized_index(index)
 	_refresh_stage_view()
 	_refresh_turn_order_bar()
 	_refresh_contextual_combat_tutorial()
@@ -13798,6 +13871,7 @@ func _on_card_hover_ended(index: int) -> void:
 		return
 	if _hovered_card_index == index:
 		_hovered_card_index = -1
+		_set_hand_emphasized_index(-1)
 		if _animation_lock:
 			return
 		_refresh_stage_view()
@@ -20247,7 +20321,7 @@ func _new_seed() -> int:
 	return int(Time.get_unix_time_from_system()) & 0x7fffffff
 
 func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
-	var available_width: float = maxf(620.0, hand_scroll.size.x if hand_scroll.size.x > 0.0 else get_viewport_rect().size.x - 280.0)
+	var available_width: float = maxf(620.0, _hand_available_width())
 	var card_gap: float = HAND_CARD_GAP if reward_mode else HAND_CARD_OVERLAP
 	var gaps: float = float(maxi(0, card_count - 1)) * card_gap
 	var target_width: float = (available_width - gaps) / float(maxi(1, card_count))
@@ -20255,6 +20329,26 @@ func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 	var min_width: float = 188.0 if reward_mode else 184.0
 	var width: float = clampf(target_width, min_width, max_width)
 	return _card_size_from_width(width)
+
+func _hand_layout_gap(card_count: int, card_size: Vector2) -> float:
+	var available_width: float = _hand_available_width()
+	return HandFanContainer.card_gap_for_available_width(
+		card_count,
+		card_size,
+		HAND_CARD_OVERLAP,
+		available_width
+	)
+
+func _hand_available_width() -> float:
+	if hand_scroll == null:
+		return maxf(0.0, get_viewport_rect().size.x - 280.0)
+	var visible_width: float = maxf(
+		0.0,
+		get_viewport_rect().size.x - hand_scroll.global_position.x
+	)
+	if hand_scroll.size.x <= 0.0:
+		return visible_width
+	return minf(hand_scroll.size.x, visible_width)
 
 func _card_size_from_width(width: float) -> Vector2:
 	return Vector2(width, width * CARD_ASPECT_RATIO)
@@ -20293,6 +20387,7 @@ func _clear_active_card_preview_state() -> void:
 	_selected_card_index = -1
 	_selected_card_label_override = ""
 	_hovered_card_index = -1
+	_set_hand_emphasized_index(-1, false)
 	_pending_actions.clear()
 	_pending_action_index = 0
 	_pending_action_can_skip = false
