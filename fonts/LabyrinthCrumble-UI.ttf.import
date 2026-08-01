@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dod4ecfun0qki"
-path="res://.godot/imported/LabyrinthCrumble-Header.ttf-6e8ca5928ff9cd78d6b6fb491a0a9320.fontdata"
+uid="uid://dmcqwfnuq1l1u"
+path="res://.godot/imported/LabyrinthCrumble-UI.ttf-ce8fb8b224e75d124dbd94a7c4497603.fontdata"
 
 [deps]
 
-source_file="res://fonts/LabyrinthCrumble-Header.ttf"
-dest_files=["res://.godot/imported/LabyrinthCrumble-Header.ttf-6e8ca5928ff9cd78d6b6fb491a0a9320.fontdata"]
+source_file="res://fonts/LabyrinthCrumble-UI.ttf"
+dest_files=["res://.godot/imported/LabyrinthCrumble-UI.ttf-ce8fb8b224e75d124dbd94a7c4497603.fontdata"]
 
 [params]
 

@@ -1,7 +1,7 @@
 [gd_resource type="Theme" load_steps=2 format=3]
 
-[ext_resource type="FontFile" path="res://fonts/LabyrinthCrumble-Regular.tres" id="1_pixel_font"]
+[ext_resource type="FontFile" path="res://fonts/LabyrinthCrumble-Text.tres" id="1_text_font"]
 
 [resource]
-default_font = ExtResource("1_pixel_font")
+default_font = ExtResource("1_text_font")
 default_font_size = 16

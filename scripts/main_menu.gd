@@ -9,12 +9,13 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
-const HEADER_FONT = preload("res://fonts/LabyrinthCrumble-Header.tres")
-const REGULAR_FONT = preload("res://fonts/LabyrinthCrumble-Regular.tres")
+const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
+const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
+const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
-const TITLE_LINE_TEXTS := ["Escape", "the", "Umbra"]
+const TITLE_LINE_TEXTS := ["ESCAPE", "THE", "UMBRA"]
 const TITLE_LINE_ROW_INDICES := [0, 1, 1]
-const TITLE_LINE_SCALE_FACTORS := [1.0, 0.58, 1.0]
+const TITLE_LINE_SCALE_FACTORS := [1.0, 0.52, 1.0]
 const TITLE_ROW_OFFSET_FACTORS := [0.0, 0.72]
 const TITLE_WORD_GAP_FACTOR: float = 0.10
 const FALLBACK_PROFILE_TEXT: String = "Profile Reaver"
@@ -167,9 +168,9 @@ func _apply_style() -> void:
 	_configure_title_container(title_label)
 	_configure_title_container(title_face_blend)
 	_ensure_title_line_labels()
-	_apply_title_layer_style(_title_shadow_lines, Color("5b2d74"), Color("0b040f"), 18, Color(1.0, 0.78, 1.0, 0.78))
-	_apply_title_layer_style(_title_rim_lines, Color("c0522f"), Color("170508"), 13, Color(1.0, 0.78, 0.56, 0.88))
-	_apply_title_layer_style(_title_base_lines, Color("ffd98d"), Color("210725"), 12, Color.WHITE)
+	_apply_title_layer_style(_title_shadow_lines, Color("5b2d74"), Color("0b040f"), 9, Color(1.0, 0.78, 1.0, 0.78))
+	_apply_title_layer_style(_title_rim_lines, Color("c0522f"), Color("170508"), 6, Color(1.0, 0.78, 0.56, 0.88))
+	_apply_title_layer_style(_title_base_lines, Color("ffd98d"), Color("210725"), 5, Color.WHITE)
 	_apply_title_layer_style(_title_face_lines, Color.WHITE, Color.TRANSPARENT, 0, Color.WHITE)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
@@ -180,19 +181,19 @@ func _apply_style() -> void:
 	boss_button.visible = false
 
 	resume_panel.add_theme_stylebox_override("panel", _make_context_panel_style(EDGE_ACCENT, 0.90))
-	_apply_label_style($ResumePanel/ResumeMargin/ResumeVBox/ResumeEyebrow, REGULAR_FONT, 14, Color("c9a86c"), Color("100908"), 2)
-	_apply_label_style(resume_location_label, HEADER_FONT, 23, Color("fff0c4"), Color("100908"), 4)
-	_apply_label_style(resume_stats_label, REGULAR_FONT, 17, Color("e7d7ba"), Color("100908"), 2)
+	_apply_label_style($ResumePanel/ResumeMargin/ResumeVBox/ResumeEyebrow, TEXT_FONT, 14, Color("c9a86c"), Color("100908"), 2)
+	_apply_label_style(resume_location_label, UI_FONT, 23, Color("fff0c4"), Color("100908"), 3)
+	_apply_label_style(resume_stats_label, TEXT_FONT, 17, Color("e7d7ba"), Color("100908"), 2)
 
-	_apply_label_style(embers_label, HEADER_FONT, 22, Color("f6d99f"), Color("100908"), 3)
-	_apply_label_style(footer_label, REGULAR_FONT, 15, Color("dbc59b"), Color("100908"), 2)
+	_apply_label_style(embers_label, UI_FONT, 22, Color("f6d99f"), Color("100908"), 3)
+	_apply_label_style(footer_label, TEXT_FONT, 15, Color("dbc59b"), Color("100908"), 2)
 	footer_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	replacement_panel.add_theme_stylebox_override("panel", _make_context_panel_style(DANGER_ACCENT, 0.94))
-	_apply_label_style($ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementTitle, HEADER_FONT, 27, Color("fff1cf"), Color("090708"), 5)
-	_apply_label_style($ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementWarning, REGULAR_FONT, 15, Color("d9b8a4"), Color("090708"), 2)
-	_apply_label_style(replacement_location_label, HEADER_FONT, 20, Color("ffe2b0"), Color("090708"), 4)
-	_apply_label_style(replacement_stats_label, REGULAR_FONT, 16, Color("e7d7ba"), Color("090708"), 2)
+	_apply_label_style($ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementTitle, UI_FONT, 27, Color("fff1cf"), Color("090708"), 4)
+	_apply_label_style($ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementWarning, TEXT_FONT, 15, Color("d9b8a4"), Color("090708"), 2)
+	_apply_label_style(replacement_location_label, UI_FONT, 20, Color("ffe2b0"), Color("090708"), 3)
+	_apply_label_style(replacement_stats_label, TEXT_FONT, 16, Color("e7d7ba"), Color("090708"), 2)
 
 func _configure_title_container(control: Control) -> void:
 	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -248,7 +249,7 @@ func _apply_title_style(label: Label, text: String, color: Color, outline_color:
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	label.add_theme_font_override("font", HEADER_FONT)
+	label.add_theme_font_override("font", DISPLAY_FONT)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", outline_color)
 	label.add_theme_constant_override("outline_size", outline_size)
@@ -275,7 +276,7 @@ func _apply_label_style(label: Label, font: Font, size: int, color: Color, outli
 func _apply_menu_button_style(button: Button) -> void:
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.focus_mode = Control.FOCUS_ALL
-	button.add_theme_font_override("font", HEADER_FONT)
+	button.add_theme_font_override("font", UI_FONT)
 	button.add_theme_font_size_override("font_size", MENU_FONT_SIZE)
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
 	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
@@ -492,8 +493,8 @@ func _update_layout() -> void:
 	title_shadow_label.add_theme_font_size_override("font_size", title_font_size)
 	title_rim_label.add_theme_font_size_override("font_size", title_font_size)
 	title_label.position = Vector2(margin_x, title_y)
-	title_shadow_label.position = title_label.position + Vector2(18.0, 15.0)
-	title_rim_label.position = title_label.position + Vector2(7.0, 6.0)
+	title_shadow_label.position = title_label.position + Vector2(8.0, 7.0)
+	title_rim_label.position = title_label.position + Vector2(3.0, 2.0)
 	title_label.size = title_size
 	title_shadow_label.size = title_size
 	title_rim_label.size = title_size
@@ -549,8 +550,8 @@ func _layout_title_lines(title_font_size: int) -> void:
 		var row_index: int = _title_line_row_index(index)
 		var line_font_size: int = _title_line_font_size(title_font_size, index)
 		var line_text := str(TITLE_LINE_TEXTS[index])
-		var line_width: float = HEADER_FONT.get_string_size(line_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, line_font_size).x
-		var line_height: float = HEADER_FONT.get_height(line_font_size)
+		var line_width: float = DISPLAY_FONT.get_string_size(line_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, line_font_size).x
+		var line_height: float = DISPLAY_FONT.get_height(line_font_size)
 		var line_size := Vector2(line_width + 80.0, line_height + 38.0)
 		var line_position := Vector2(float(row_next_x[row_index]), float(row_ys[row_index]))
 		_layout_title_line(_title_shadow_lines, index, line_position, line_size, line_font_size)
@@ -592,7 +593,7 @@ func _title_max_line_width(font_size: int) -> float:
 		var row_index: int = _title_line_row_index(index)
 		var line_font_size: int = _title_line_font_size(font_size, index)
 		var line := str(TITLE_LINE_TEXTS[index])
-		var line_width: float = HEADER_FONT.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1.0, line_font_size).x
+		var line_width: float = DISPLAY_FONT.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1.0, line_font_size).x
 		var line_x: float = float(row_next_x[row_index])
 		width = maxf(width, line_x + line_width)
 		row_next_x[row_index] = line_x + line_width + _title_word_gap(font_size)
@@ -613,7 +614,7 @@ func _title_row_heights(font_size: int) -> Array:
 		row_heights.append(0.0)
 	for index: int in range(TITLE_LINE_TEXTS.size()):
 		var row_index: int = _title_line_row_index(index)
-		var line_height: float = HEADER_FONT.get_height(_title_line_font_size(font_size, index))
+		var line_height: float = DISPLAY_FONT.get_height(_title_line_font_size(font_size, index))
 		row_heights[row_index] = maxf(float(row_heights[row_index]), line_height)
 	return row_heights
 

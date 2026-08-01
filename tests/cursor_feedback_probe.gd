@@ -190,7 +190,7 @@ func _capture_runtime_map_context(valid_target: bool) -> void:
 	title.size = Vector2(viewport.size.x, 42.0)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-Header.tres"))
+	title.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-UI.tres"))
 	title.add_theme_font_size_override("font_size", 26)
 	title.add_theme_color_override("font_color", Color("f2d394"))
 	title.add_theme_color_override("font_outline_color", Color("120a09"))
@@ -288,7 +288,7 @@ func _build_gallery(viewport_size: Vector2i) -> Control:
 	title.position = Vector2(0.0, 48.0 if viewport_size.y <= 720 else 150.0)
 	title.size = Vector2(viewport_size.x, 42.0)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-Header.tres"))
+	title.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-UI.tres"))
 	title.add_theme_font_size_override("font_size", 30)
 	title.add_theme_color_override("font_color", Color("f2d394"))
 	title.add_theme_color_override("font_outline_color", Color("120a09"))
@@ -300,7 +300,7 @@ func _build_gallery(viewport_size: Vector2i) -> Control:
 	subtitle.position = title.position + Vector2(0.0, 40.0)
 	subtitle.size = Vector2(viewport_size.x, 28.0)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-Regular.tres"))
+	subtitle.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-Text.tres"))
 	subtitle.add_theme_font_size_override("font_size", 15)
 	subtitle.add_theme_color_override("font_color", Color("a99980"))
 	root_control.add_child(subtitle)
@@ -351,7 +351,7 @@ func _build_gallery(viewport_size: Vector2i) -> Control:
 		label.size = Vector2(panel_size.x - 16.0, 30.0)
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		label.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-Regular.tres"))
+		label.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-Text.tres"))
 		label.add_theme_font_size_override("font_size", 14)
 		label.add_theme_color_override("font_color", Color("ddc7a2"))
 		panel.add_child(label)

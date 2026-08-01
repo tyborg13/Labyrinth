@@ -1,0 +1,2064 @@
+{
+  "family": "Labyrinth Crumble",
+  "version": "Version 2.0",
+  "source": "Bitter[wght].ttf",
+  "source_license": "SIL Open Font License 1.1",
+  "source_reserved_name": "Bitter Pro",
+  "policy": {
+    "chips": "exterior silhouette only",
+    "interior_cracks": false,
+    "preserve_component_count": true,
+    "preserve_counter_count": true
+  },
+  "cuts": [
+    {
+      "key": "display",
+      "style_name": "Display Heavy",
+      "weight": 800,
+      "ttf": "LabyrinthCrumble-Display.ttf",
+      "tres": "LabyrinthCrumble-Display.tres",
+      "total_chips": 175,
+      "total_removed_pixels": 3145,
+      "glyphs": {
+        "!": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "\"": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "#": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "$": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "%": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 3,
+          "counters": 2
+        },
+        "&": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "'": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "(": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ")": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "*": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "+": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ",": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "-": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ".": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "/": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "0": {
+          "chips": 3,
+          "removed_pixels": 46,
+          "components": 1,
+          "counters": 1
+        },
+        "1": {
+          "chips": 3,
+          "removed_pixels": 38,
+          "components": 1,
+          "counters": 0
+        },
+        "2": {
+          "chips": 3,
+          "removed_pixels": 43,
+          "components": 1,
+          "counters": 0
+        },
+        "3": {
+          "chips": 2,
+          "removed_pixels": 37,
+          "components": 1,
+          "counters": 0
+        },
+        "4": {
+          "chips": 4,
+          "removed_pixels": 80,
+          "components": 1,
+          "counters": 1
+        },
+        "5": {
+          "chips": 2,
+          "removed_pixels": 34,
+          "components": 1,
+          "counters": 0
+        },
+        "6": {
+          "chips": 4,
+          "removed_pixels": 64,
+          "components": 1,
+          "counters": 1
+        },
+        "7": {
+          "chips": 2,
+          "removed_pixels": 26,
+          "components": 1,
+          "counters": 0
+        },
+        "8": {
+          "chips": 3,
+          "removed_pixels": 47,
+          "components": 1,
+          "counters": 2
+        },
+        "9": {
+          "chips": 2,
+          "removed_pixels": 28,
+          "components": 1,
+          "counters": 1
+        },
+        ":": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        ";": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "<": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "=": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        ">": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "?": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "@": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "A": {
+          "chips": 3,
+          "removed_pixels": 44,
+          "components": 1,
+          "counters": 1
+        },
+        "B": {
+          "chips": 3,
+          "removed_pixels": 46,
+          "components": 1,
+          "counters": 2
+        },
+        "C": {
+          "chips": 3,
+          "removed_pixels": 59,
+          "components": 1,
+          "counters": 0
+        },
+        "D": {
+          "chips": 2,
+          "removed_pixels": 35,
+          "components": 1,
+          "counters": 1
+        },
+        "E": {
+          "chips": 3,
+          "removed_pixels": 49,
+          "components": 1,
+          "counters": 0
+        },
+        "F": {
+          "chips": 2,
+          "removed_pixels": 44,
+          "components": 1,
+          "counters": 0
+        },
+        "G": {
+          "chips": 4,
+          "removed_pixels": 82,
+          "components": 1,
+          "counters": 0
+        },
+        "H": {
+          "chips": 3,
+          "removed_pixels": 67,
+          "components": 1,
+          "counters": 0
+        },
+        "I": {
+          "chips": 3,
+          "removed_pixels": 59,
+          "components": 1,
+          "counters": 0
+        },
+        "J": {
+          "chips": 3,
+          "removed_pixels": 75,
+          "components": 1,
+          "counters": 0
+        },
+        "K": {
+          "chips": 2,
+          "removed_pixels": 21,
+          "components": 1,
+          "counters": 0
+        },
+        "L": {
+          "chips": 3,
+          "removed_pixels": 57,
+          "components": 1,
+          "counters": 0
+        },
+        "M": {
+          "chips": 2,
+          "removed_pixels": 34,
+          "components": 1,
+          "counters": 0
+        },
+        "N": {
+          "chips": 3,
+          "removed_pixels": 58,
+          "components": 1,
+          "counters": 0
+        },
+        "O": {
+          "chips": 2,
+          "removed_pixels": 52,
+          "components": 1,
+          "counters": 1
+        },
+        "P": {
+          "chips": 3,
+          "removed_pixels": 47,
+          "components": 1,
+          "counters": 1
+        },
+        "Q": {
+          "chips": 2,
+          "removed_pixels": 21,
+          "components": 1,
+          "counters": 1
+        },
+        "R": {
+          "chips": 2,
+          "removed_pixels": 29,
+          "components": 1,
+          "counters": 1
+        },
+        "S": {
+          "chips": 3,
+          "removed_pixels": 41,
+          "components": 1,
+          "counters": 0
+        },
+        "T": {
+          "chips": 2,
+          "removed_pixels": 28,
+          "components": 1,
+          "counters": 0
+        },
+        "U": {
+          "chips": 4,
+          "removed_pixels": 93,
+          "components": 1,
+          "counters": 0
+        },
+        "V": {
+          "chips": 4,
+          "removed_pixels": 69,
+          "components": 1,
+          "counters": 0
+        },
+        "W": {
+          "chips": 4,
+          "removed_pixels": 79,
+          "components": 1,
+          "counters": 0
+        },
+        "X": {
+          "chips": 2,
+          "removed_pixels": 36,
+          "components": 1,
+          "counters": 0
+        },
+        "Y": {
+          "chips": 2,
+          "removed_pixels": 45,
+          "components": 1,
+          "counters": 0
+        },
+        "Z": {
+          "chips": 4,
+          "removed_pixels": 84,
+          "components": 1,
+          "counters": 0
+        },
+        "[": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "\\": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "]": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "^": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "_": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "`": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "a": {
+          "chips": 3,
+          "removed_pixels": 65,
+          "components": 1,
+          "counters": 1
+        },
+        "b": {
+          "chips": 2,
+          "removed_pixels": 34,
+          "components": 1,
+          "counters": 1
+        },
+        "c": {
+          "chips": 4,
+          "removed_pixels": 61,
+          "components": 1,
+          "counters": 0
+        },
+        "d": {
+          "chips": 2,
+          "removed_pixels": 35,
+          "components": 1,
+          "counters": 1
+        },
+        "e": {
+          "chips": 2,
+          "removed_pixels": 19,
+          "components": 1,
+          "counters": 1
+        },
+        "f": {
+          "chips": 2,
+          "removed_pixels": 51,
+          "components": 1,
+          "counters": 0
+        },
+        "g": {
+          "chips": 2,
+          "removed_pixels": 37,
+          "components": 1,
+          "counters": 2
+        },
+        "h": {
+          "chips": 3,
+          "removed_pixels": 68,
+          "components": 1,
+          "counters": 0
+        },
+        "i": {
+          "chips": 2,
+          "removed_pixels": 36,
+          "components": 2,
+          "counters": 0
+        },
+        "j": {
+          "chips": 2,
+          "removed_pixels": 28,
+          "components": 2,
+          "counters": 0
+        },
+        "k": {
+          "chips": 4,
+          "removed_pixels": 60,
+          "components": 1,
+          "counters": 0
+        },
+        "l": {
+          "chips": 3,
+          "removed_pixels": 54,
+          "components": 1,
+          "counters": 0
+        },
+        "m": {
+          "chips": 4,
+          "removed_pixels": 75,
+          "components": 1,
+          "counters": 0
+        },
+        "n": {
+          "chips": 4,
+          "removed_pixels": 76,
+          "components": 1,
+          "counters": 0
+        },
+        "o": {
+          "chips": 3,
+          "removed_pixels": 55,
+          "components": 1,
+          "counters": 1
+        },
+        "p": {
+          "chips": 4,
+          "removed_pixels": 61,
+          "components": 1,
+          "counters": 1
+        },
+        "q": {
+          "chips": 3,
+          "removed_pixels": 66,
+          "components": 1,
+          "counters": 1
+        },
+        "r": {
+          "chips": 3,
+          "removed_pixels": 64,
+          "components": 1,
+          "counters": 0
+        },
+        "s": {
+          "chips": 2,
+          "removed_pixels": 52,
+          "components": 1,
+          "counters": 0
+        },
+        "t": {
+          "chips": 4,
+          "removed_pixels": 69,
+          "components": 1,
+          "counters": 0
+        },
+        "u": {
+          "chips": 3,
+          "removed_pixels": 48,
+          "components": 1,
+          "counters": 0
+        },
+        "v": {
+          "chips": 2,
+          "removed_pixels": 39,
+          "components": 1,
+          "counters": 0
+        },
+        "w": {
+          "chips": 3,
+          "removed_pixels": 67,
+          "components": 1,
+          "counters": 0
+        },
+        "x": {
+          "chips": 2,
+          "removed_pixels": 27,
+          "components": 1,
+          "counters": 0
+        },
+        "y": {
+          "chips": 3,
+          "removed_pixels": 47,
+          "components": 1,
+          "counters": 0
+        },
+        "z": {
+          "chips": 3,
+          "removed_pixels": 54,
+          "components": 1,
+          "counters": 0
+        },
+        "{": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "|": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "}": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "~": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "·": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "→": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "∞": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 2
+        },
+        "±": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "–": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "—": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "◆": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "↻": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "←": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "›": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "•": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "×": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "−": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "…": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 3,
+          "counters": 0
+        },
+        "“": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "”": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "‘": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "’": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        }
+      }
+    },
+    {
+      "key": "ui",
+      "style_name": "UI Semibold",
+      "weight": 650,
+      "ttf": "LabyrinthCrumble-UI.ttf",
+      "tres": "LabyrinthCrumble-UI.tres",
+      "total_chips": 84,
+      "total_removed_pixels": 627,
+      "glyphs": {
+        "!": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "\"": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "#": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "$": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "%": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 3,
+          "counters": 2
+        },
+        "&": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "'": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "(": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ")": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "*": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 2
+        },
+        "+": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ",": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "-": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ".": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "/": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "0": {
+          "chips": 2,
+          "removed_pixels": 19,
+          "components": 1,
+          "counters": 1
+        },
+        "1": {
+          "chips": 1,
+          "removed_pixels": 9,
+          "components": 1,
+          "counters": 0
+        },
+        "2": {
+          "chips": 2,
+          "removed_pixels": 14,
+          "components": 1,
+          "counters": 0
+        },
+        "3": {
+          "chips": 1,
+          "removed_pixels": 9,
+          "components": 1,
+          "counters": 0
+        },
+        "4": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 1
+        },
+        "5": {
+          "chips": 1,
+          "removed_pixels": 7,
+          "components": 1,
+          "counters": 0
+        },
+        "6": {
+          "chips": 2,
+          "removed_pixels": 14,
+          "components": 1,
+          "counters": 1
+        },
+        "7": {
+          "chips": 1,
+          "removed_pixels": 7,
+          "components": 1,
+          "counters": 0
+        },
+        "8": {
+          "chips": 1,
+          "removed_pixels": 9,
+          "components": 1,
+          "counters": 2
+        },
+        "9": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        ":": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        ";": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "<": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "=": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        ">": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "?": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "@": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "A": {
+          "chips": 2,
+          "removed_pixels": 11,
+          "components": 1,
+          "counters": 1
+        },
+        "B": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 2
+        },
+        "C": {
+          "chips": 1,
+          "removed_pixels": 4,
+          "components": 1,
+          "counters": 0
+        },
+        "D": {
+          "chips": 1,
+          "removed_pixels": 6,
+          "components": 1,
+          "counters": 1
+        },
+        "E": {
+          "chips": 2,
+          "removed_pixels": 11,
+          "components": 1,
+          "counters": 0
+        },
+        "F": {
+          "chips": 2,
+          "removed_pixels": 16,
+          "components": 1,
+          "counters": 0
+        },
+        "G": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 0
+        },
+        "H": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 0
+        },
+        "I": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 0
+        },
+        "J": {
+          "chips": 1,
+          "removed_pixels": 4,
+          "components": 1,
+          "counters": 0
+        },
+        "K": {
+          "chips": 1,
+          "removed_pixels": 4,
+          "components": 1,
+          "counters": 0
+        },
+        "L": {
+          "chips": 1,
+          "removed_pixels": 11,
+          "components": 1,
+          "counters": 0
+        },
+        "M": {
+          "chips": 2,
+          "removed_pixels": 12,
+          "components": 1,
+          "counters": 0
+        },
+        "N": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 0
+        },
+        "O": {
+          "chips": 1,
+          "removed_pixels": 7,
+          "components": 1,
+          "counters": 1
+        },
+        "P": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 1
+        },
+        "Q": {
+          "chips": 2,
+          "removed_pixels": 21,
+          "components": 1,
+          "counters": 1
+        },
+        "R": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "S": {
+          "chips": 2,
+          "removed_pixels": 12,
+          "components": 1,
+          "counters": 0
+        },
+        "T": {
+          "chips": 2,
+          "removed_pixels": 10,
+          "components": 1,
+          "counters": 0
+        },
+        "U": {
+          "chips": 2,
+          "removed_pixels": 12,
+          "components": 1,
+          "counters": 0
+        },
+        "V": {
+          "chips": 2,
+          "removed_pixels": 18,
+          "components": 1,
+          "counters": 0
+        },
+        "W": {
+          "chips": 1,
+          "removed_pixels": 5,
+          "components": 1,
+          "counters": 0
+        },
+        "X": {
+          "chips": 1,
+          "removed_pixels": 4,
+          "components": 1,
+          "counters": 0
+        },
+        "Y": {
+          "chips": 2,
+          "removed_pixels": 12,
+          "components": 1,
+          "counters": 0
+        },
+        "Z": {
+          "chips": 2,
+          "removed_pixels": 18,
+          "components": 1,
+          "counters": 0
+        },
+        "[": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "\\": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "]": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "^": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "_": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "`": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "a": {
+          "chips": 1,
+          "removed_pixels": 6,
+          "components": 1,
+          "counters": 1
+        },
+        "b": {
+          "chips": 2,
+          "removed_pixels": 11,
+          "components": 1,
+          "counters": 1
+        },
+        "c": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 0
+        },
+        "d": {
+          "chips": 1,
+          "removed_pixels": 5,
+          "components": 1,
+          "counters": 1
+        },
+        "e": {
+          "chips": 2,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 1
+        },
+        "f": {
+          "chips": 1,
+          "removed_pixels": 7,
+          "components": 1,
+          "counters": 0
+        },
+        "g": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 2
+        },
+        "h": {
+          "chips": 1,
+          "removed_pixels": 8,
+          "components": 1,
+          "counters": 0
+        },
+        "i": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "j": {
+          "chips": 2,
+          "removed_pixels": 19,
+          "components": 2,
+          "counters": 0
+        },
+        "k": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "l": {
+          "chips": 2,
+          "removed_pixels": 15,
+          "components": 1,
+          "counters": 0
+        },
+        "m": {
+          "chips": 2,
+          "removed_pixels": 19,
+          "components": 1,
+          "counters": 0
+        },
+        "n": {
+          "chips": 1,
+          "removed_pixels": 13,
+          "components": 1,
+          "counters": 0
+        },
+        "o": {
+          "chips": 2,
+          "removed_pixels": 21,
+          "components": 1,
+          "counters": 1
+        },
+        "p": {
+          "chips": 2,
+          "removed_pixels": 18,
+          "components": 1,
+          "counters": 1
+        },
+        "q": {
+          "chips": 1,
+          "removed_pixels": 10,
+          "components": 1,
+          "counters": 1
+        },
+        "r": {
+          "chips": 2,
+          "removed_pixels": 20,
+          "components": 1,
+          "counters": 0
+        },
+        "s": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "t": {
+          "chips": 2,
+          "removed_pixels": 13,
+          "components": 1,
+          "counters": 0
+        },
+        "u": {
+          "chips": 2,
+          "removed_pixels": 13,
+          "components": 1,
+          "counters": 0
+        },
+        "v": {
+          "chips": 2,
+          "removed_pixels": 13,
+          "components": 1,
+          "counters": 0
+        },
+        "w": {
+          "chips": 2,
+          "removed_pixels": 19,
+          "components": 1,
+          "counters": 0
+        },
+        "x": {
+          "chips": 2,
+          "removed_pixels": 10,
+          "components": 1,
+          "counters": 0
+        },
+        "y": {
+          "chips": 2,
+          "removed_pixels": 16,
+          "components": 1,
+          "counters": 0
+        },
+        "z": {
+          "chips": 1,
+          "removed_pixels": 13,
+          "components": 1,
+          "counters": 0
+        },
+        "{": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "|": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "}": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "~": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "·": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "→": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "∞": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 2
+        },
+        "±": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "–": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "—": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "◆": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "↻": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "←": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "›": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "•": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "×": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "−": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "…": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 3,
+          "counters": 0
+        },
+        "“": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "”": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "‘": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "’": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        }
+      }
+    },
+    {
+      "key": "text",
+      "style_name": "Text Regular",
+      "weight": 425,
+      "ttf": "LabyrinthCrumble-Text.ttf",
+      "tres": "LabyrinthCrumble-Text.tres",
+      "total_chips": 9,
+      "total_removed_pixels": 23,
+      "glyphs": {
+        "!": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "\"": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "#": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "$": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "%": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 3,
+          "counters": 2
+        },
+        "&": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "'": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "(": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ")": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "*": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "+": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ",": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "-": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        ".": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "/": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "0": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "1": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "2": {
+          "chips": 1,
+          "removed_pixels": 3,
+          "components": 1,
+          "counters": 0
+        },
+        "3": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "4": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "5": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "6": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "7": {
+          "chips": 1,
+          "removed_pixels": 3,
+          "components": 1,
+          "counters": 0
+        },
+        "8": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 2
+        },
+        "9": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        ":": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        ";": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "<": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "=": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        ">": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "?": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "@": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "A": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "B": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 2
+        },
+        "C": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "D": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "E": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "F": {
+          "chips": 1,
+          "removed_pixels": 3,
+          "components": 1,
+          "counters": 0
+        },
+        "G": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "H": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "I": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "J": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "K": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "L": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "M": {
+          "chips": 1,
+          "removed_pixels": 2,
+          "components": 1,
+          "counters": 0
+        },
+        "N": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "O": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "P": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "Q": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "R": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "S": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "T": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "U": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "V": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "W": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "X": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "Y": {
+          "chips": 1,
+          "removed_pixels": 2,
+          "components": 1,
+          "counters": 0
+        },
+        "Z": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "[": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "\\": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "]": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "^": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "_": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "`": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "a": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "b": {
+          "chips": 1,
+          "removed_pixels": 2,
+          "components": 1,
+          "counters": 1
+        },
+        "c": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "d": {
+          "chips": 1,
+          "removed_pixels": 3,
+          "components": 1,
+          "counters": 1
+        },
+        "e": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "f": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "g": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 2
+        },
+        "h": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "i": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "j": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "k": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "l": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "m": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "n": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "o": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "p": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "q": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 1
+        },
+        "r": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "s": {
+          "chips": 1,
+          "removed_pixels": 3,
+          "components": 1,
+          "counters": 0
+        },
+        "t": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "u": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "v": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "w": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "x": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "y": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "z": {
+          "chips": 1,
+          "removed_pixels": 2,
+          "components": 1,
+          "counters": 0
+        },
+        "{": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "|": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "}": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "~": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "·": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "→": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "∞": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 2
+        },
+        "±": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "–": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "—": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "◆": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "↻": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "←": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "›": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "•": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "×": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "−": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "…": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 3,
+          "counters": 0
+        },
+        "“": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "”": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 2,
+          "counters": 0
+        },
+        "‘": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        },
+        "’": {
+          "chips": 0,
+          "removed_pixels": 0,
+          "components": 1,
+          "counters": 0
+        }
+      }
+    }
+  ]
+}

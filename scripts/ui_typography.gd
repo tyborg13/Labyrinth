@@ -3,9 +3,9 @@ class_name UiTypography
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 
-const DISPLAY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Header.tres"
-const BODY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Regular.tres"
-const PIXEL_FONT_PATH: String = BODY_FONT_PATH
+const DISPLAY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Display.tres"
+const UI_FONT_PATH: String = "res://fonts/LabyrinthCrumble-UI.tres"
+const TEXT_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Text.tres"
 
 const ROLE_CAPTION: String = "caption"
 const ROLE_BODY: String = "body"
@@ -15,8 +15,9 @@ const ROLE_TITLE: String = "title"
 const ROLE_HERO: String = "hero"
 const ROLE_BANNER: String = "banner"
 
-# Utility UI type scale. Caption and body are deliberate readability floors;
-# display roles retain the distressed header face used by the game's art.
+# Utility UI type scale. Caption and body are deliberate readability floors.
+# Crumble intensity falls with size: display is visibly worn, UI is restrained,
+# and gameplay text keeps only a trace of the shared silhouette treatment.
 const SIZE_CAPTION: int = 14
 const SIZE_SMALL: int = 15
 const SIZE_BODY: int = 16
@@ -50,14 +51,20 @@ const MAX_UI_SCALE: float = 1.12
 static func display_font() -> Font:
 	return AssetLoader.load_font(DISPLAY_FONT_PATH)
 
+static func ui_font() -> Font:
+	return AssetLoader.load_font(UI_FONT_PATH)
+
+static func text_font() -> Font:
+	return AssetLoader.load_font(TEXT_FONT_PATH)
+
 static func body_font() -> Font:
-	return AssetLoader.load_font(BODY_FONT_PATH)
+	return text_font()
 
 static func default_font(control: Control) -> Font:
 	var font: Font = control.get_theme_default_font()
 	if font != null:
 		return font
-	return body_font()
+	return text_font()
 
 static func ui_scale(control: Control) -> float:
 	if control == null:
@@ -114,13 +121,18 @@ static func role_size(role: String) -> int:
 			return SIZE_BANNER
 	return SIZE_BODY
 
-static func role_uses_display_font(role: String) -> bool:
-	return role in [ROLE_SECTION, ROLE_TITLE, ROLE_HERO, ROLE_BANNER]
+static func font_for_role(role: String) -> Font:
+	match role:
+		ROLE_HERO, ROLE_BANNER:
+			return display_font()
+		ROLE_SECTION, ROLE_TITLE:
+			return ui_font()
+	return text_font()
 
 static func apply_label_role(label: Label, role: String) -> void:
 	if label == null:
 		return
-	var font: Font = display_font() if role_uses_display_font(role) else body_font()
+	var font: Font = font_for_role(role)
 	if font != null:
 		label.add_theme_font_override("font", font)
 	set_label_size(label, role_size(role))
@@ -128,7 +140,7 @@ static func apply_label_role(label: Label, role: String) -> void:
 static func apply_button_role(button: Button, role: String = ROLE_BODY) -> void:
 	if button == null:
 		return
-	var font: Font = body_font()
+	var font: Font = ui_font()
 	if font != null:
 		button.add_theme_font_override("font", font)
 	set_button_size(button, role_size(role))
@@ -136,7 +148,7 @@ static func apply_button_role(button: Button, role: String = ROLE_BODY) -> void:
 static func apply_rich_text_role(label: RichTextLabel, role: String = ROLE_BODY) -> void:
 	if label == null:
 		return
-	var font: Font = display_font() if role_uses_display_font(role) else body_font()
+	var font: Font = font_for_role(role)
 	if font != null:
 		for property_name: String in ["normal_font", "bold_font", "italics_font", "bold_italics_font", "mono_font"]:
 			label.add_theme_font_override(property_name, font)

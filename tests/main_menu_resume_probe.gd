@@ -8,9 +8,14 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const PROGRESSION_PATH: String = "user://main_menu_resume_probe_progression.json"
 const RUN_PATH: String = "user://main_menu_resume_probe_run.save"
 const OUTPUT_DIR: String = "user://probes/main_menu_resume_safety_20260709_v4"
+const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	root.mode = Window.MODE_WINDOWED
+	root.content_scale_size = VIEWPORT_SIZE
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.size = VIEWPORT_SIZE
 	ProgressionStore.set_storage_path(PROGRESSION_PATH)
 	ProgressionStore.set_run_storage_path(RUN_PATH)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -50,6 +55,12 @@ func _capture_valid_save_states() -> void:
 	ProgressionStore.save_run_state(run_state)
 	var instance: Node = await _instantiate_menu()
 	await _save_screenshot("%s/valid_resume.png" % OUTPUT_DIR)
+	instance.call("_on_settings_button_pressed")
+	await process_frame
+	await process_frame
+	await _save_screenshot("%s/settings.png" % OUTPUT_DIR)
+	instance.call("_on_settings_back_button_pressed")
+	await process_frame
 	instance.call("_on_start_button_pressed")
 	await process_frame
 	await _save_screenshot("%s/replacement_confirmation.png" % OUTPUT_DIR)
@@ -98,6 +109,8 @@ func _instantiate_menu() -> Node:
 func _save_screenshot(path: String) -> void:
 	await process_frame
 	var image: Image = root.get_texture().get_image()
+	if image.get_size() != VIEWPORT_SIZE:
+		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	var error: Error = image.save_png(ProjectSettings.globalize_path(path))
 	if error != OK:
 		push_error("Could not save %s (error %d)" % [path, error])

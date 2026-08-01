@@ -478,6 +478,9 @@ func _ready() -> void:
 	text = ""
 	art_frame.clip_contents = true
 	art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	var ui_font: Font = UiTypography.ui_font()
+	if ui_font != null:
+		title_label.add_theme_font_override("font", ui_font)
 	title_label.add_theme_color_override("font_color", Color("39271b"))
 	title_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
 	title_label.add_theme_constant_override("outline_size", 2)
@@ -486,6 +489,11 @@ func _ready() -> void:
 	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	title_label.clip_text = true
+	var text_font: Font = UiTypography.text_font()
+	if text_font != null:
+		for property_name: String in ["normal_font", "bold_font", "italics_font", "bold_italics_font", "mono_font"]:
+			desc_label.add_theme_font_override(property_name, text_font)
+		footer_label.add_theme_font_override("font", text_font)
 	desc_label.add_theme_color_override("default_color", Color("503d2c"))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_label.fit_content = true

@@ -287,7 +287,7 @@ func _initialize() -> void:
 	_test_recovery_marker_expires_after_next_run()
 	_test_run_state_save_and_load()
 	_test_hand_fan_layout_lifts_center_cards()
-	_test_default_theme_uses_pixel_font()
+	_test_default_theme_uses_readable_text_font()
 	_test_ui_typography_system()
 	await _test_main_scenes_instantiate()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
@@ -5651,7 +5651,7 @@ func _test_enemy_intent_name_reserves_header_line() -> void:
 func _test_enemy_intent_panels_expand_on_hover_or_toggle() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var center := Vector2(320.0, 320.0)
 	var enemy := {
 		"id": 7,
@@ -5686,7 +5686,7 @@ func _test_enemy_intent_panels_expand_on_hover_or_toggle() -> void:
 func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var center := Vector2(320.0, 320.0)
 	var enemy := {
 		"type": "harrier",
@@ -5704,7 +5704,7 @@ func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	board.presentation = {"show_all_enemy_intents": true}
-	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var center := Vector2(320.0, 240.0)
 	var enemy := {
 		"type": "harrier",
@@ -5733,7 +5733,7 @@ func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 func _test_enemy_hud_layout_offsets_down_from_top_edge() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var enemy := {
 		"type": "harrier",
 		"role": "enemy",
@@ -5751,7 +5751,7 @@ func _test_enemy_hud_layout_offsets_down_from_top_edge() -> void:
 func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var boss := {
 		"type": "zekarion",
 		"role": "enemy",
@@ -5852,7 +5852,7 @@ func _test_chainbound_gaoler_board_art_is_taller_and_centered() -> void:
 
 func _test_enemy_intent_popup_expands_for_long_titles() -> void:
 	var board := CombatBoardView.new()
-	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var width: float = float(board.call("_enemy_intent_popup_width", {
 		"name": "Skittering Stonebreaker Strike",
 		"actions": [{"type": "melee", "damage": 4, "range": 1}]
@@ -7938,7 +7938,7 @@ func _test_run_state_save_and_load() -> void:
 	ProgressionStore.clear_saved_run()
 	_assert(not ProgressionStore.has_saved_run(), "Clearing the saved run should remove the save slot")
 
-func _test_default_theme_uses_pixel_font() -> void:
+func _test_default_theme_uses_readable_text_font() -> void:
 	var theme: Theme = load("res://themes/default_theme.tres")
 	_assert(theme != null, "The project should ship a default UI theme")
 	if theme == null:
@@ -7949,7 +7949,7 @@ func _test_default_theme_uses_pixel_font() -> void:
 	var font: Font = probe.get_theme_default_font()
 	_assert(font != null, "The default theme should expose a default font")
 	if font != null:
-		_assert(font.resource_path.ends_with("LabyrinthCrumble-Regular.tres"), "The default theme should use the custom crumbly pixel font")
+		_assert(font.resource_path.ends_with("LabyrinthCrumble-Text.tres"), "The default theme should use the readable Labyrinth Crumble text cut")
 	_assert(theme.default_font_size >= UiTypography.SIZE_BODY, "The default theme should preserve the shared readable body-text floor")
 	probe.queue_free()
 
@@ -7959,9 +7959,11 @@ func _test_ui_typography_system() -> void:
 	_assert(UiTypography.SIZE_TITLE > UiTypography.SIZE_SECTION and UiTypography.SIZE_SECTION > UiTypography.SIZE_BODY, "Shared typography roles should preserve title, section, and body hierarchy")
 	_assert(UiTypography.SPACE_TIGHT < UiTypography.SPACE_SMALL and UiTypography.SPACE_SMALL < UiTypography.SPACE_LARGE, "Shared spacing tokens should form a coherent progression")
 	var display_font: Font = UiTypography.display_font()
-	var body_font: Font = UiTypography.body_font()
-	_assert(display_font != null and display_font.resource_path.ends_with("LabyrinthCrumble-Header.tres"), "Display roles should retain the distressed pixel heading face")
-	_assert(body_font != null and body_font.resource_path.ends_with("LabyrinthCrumble-Regular.tres"), "Body roles should use the cleaner readable pixel face")
+	var ui_font: Font = UiTypography.ui_font()
+	var text_font: Font = UiTypography.text_font()
+	_assert(display_font != null and display_font.resource_path.ends_with("LabyrinthCrumble-Display.tres"), "Hero roles should use the expressive Labyrinth Crumble display cut")
+	_assert(ui_font != null and ui_font.resource_path.ends_with("LabyrinthCrumble-UI.tres"), "Headings and controls should use the restrained Labyrinth Crumble UI cut")
+	_assert(text_font != null and text_font.resource_path.ends_with("LabyrinthCrumble-Text.tres"), "Body roles should use the clean Labyrinth Crumble text cut")
 
 func _test_main_scenes_instantiate() -> void:
 	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")

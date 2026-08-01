@@ -5,8 +5,8 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
-const HEADER_FONT = preload("res://fonts/LabyrinthCrumble-Header.tres")
-const REGULAR_FONT = preload("res://fonts/LabyrinthCrumble-Regular.tres")
+const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
+const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
 const OUTPUT_DIR: String = "user://button_system_overhaul_v2"
 
@@ -120,7 +120,7 @@ func _build_gallery(scale: float) -> Control:
 	var footer := Label.new()
 	footer.text = "INK / BRASS / EMBER / STONE     •     NO STRETCHED BUTTON BITMAPS"
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	footer.add_theme_font_override("font", REGULAR_FONT)
+	footer.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(footer, UiTypography.SIZE_CAPTION)
 	footer.add_theme_color_override("font_color", Color("a89b85"))
 	root_box.add_child(footer)
@@ -141,7 +141,7 @@ func _build_header(scale: float) -> Control:
 	row.add_child(copy)
 	var title := Label.new()
 	title.text = "THEMED BUTTON FORGE"
-	title.add_theme_font_override("font", HEADER_FONT)
+	title.add_theme_font_override("font", UI_FONT)
 	UiTypography.set_label_size(title, UiTypography.SIZE_TITLE)
 	title.add_theme_color_override("font_color", Color("fff0cb"))
 	title.add_theme_color_override("font_outline_color", Color("07070a"))
@@ -149,7 +149,7 @@ func _build_header(scale: float) -> Control:
 	copy.add_child(title)
 	var subtitle := Label.new()
 	subtitle.text = "Code-native interaction language • %d%% UI scale" % roundi(scale * 100.0)
-	subtitle.add_theme_font_override("font", REGULAR_FONT)
+	subtitle.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(subtitle, UiTypography.SIZE_SMALL)
 	subtitle.add_theme_color_override("font_color", Color("bbaa8c"))
 	copy.add_child(subtitle)
@@ -210,7 +210,7 @@ func _gallery_button(text: String, variant: String, height: float, min_width: fl
 	var button := Button.new()
 	button.text = text
 	button.toggle_mode = toggle_mode
-	button.add_theme_font_override("font", REGULAR_FONT)
+	button.add_theme_font_override("font", UI_FONT)
 	_ui_skin.apply_button_stylebox_overrides(button, variant)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
@@ -273,7 +273,7 @@ func _section_title(title_text: String, detail_text: String) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	var title := _small_label(title_text, Color("f1d59d"))
-	title.add_theme_font_override("font", HEADER_FONT)
+	title.add_theme_font_override("font", UI_FONT)
 	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
 	row.add_child(title)
 	var detail := _small_label(detail_text, Color("9e927f"))
@@ -285,7 +285,7 @@ func _section_title(title_text: String, detail_text: String) -> Control:
 func _small_label(text: String, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_override("font", REGULAR_FONT)
+	label.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
 	label.add_theme_color_override("font_color", color)
 	return label

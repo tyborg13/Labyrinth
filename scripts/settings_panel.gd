@@ -7,8 +7,8 @@ signal settings_changed(settings: Dictionary)
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
-const HEADER_FONT = preload("res://fonts/LabyrinthCrumble-Header.tres")
-const REGULAR_FONT = preload("res://fonts/LabyrinthCrumble-Regular.tres")
+const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
+const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
 const PANEL_MINIMUM_SIZE := Vector2(820.0, 720.0)
 const CONTROL_WIDTH: float = 276.0
@@ -105,7 +105,7 @@ func _build_header() -> Control:
 	header.add_child(copy)
 	var title := Label.new()
 	title.text = "SETTINGS"
-	title.add_theme_font_override("font", HEADER_FONT)
+	title.add_theme_font_override("font", UI_FONT)
 	title.add_theme_font_size_override("font_size", 32)
 	title.add_theme_color_override("font_color", Color("fff1cc"))
 	title.add_theme_color_override("font_outline_color", Color("090609"))
@@ -113,14 +113,14 @@ func _build_header() -> Control:
 	copy.add_child(title)
 	var subtitle := Label.new()
 	subtitle.text = "One profile. Every run."
-	subtitle.add_theme_font_override("font", REGULAR_FONT)
+	subtitle.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(subtitle, UiTypography.SIZE_BODY)
 	subtitle.add_theme_color_override("font_color", MUTED_TEXT)
 	copy.add_child(subtitle)
 	var badge := Label.new()
 	badge.text = "AUTO-SAVE"
 	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	badge.add_theme_font_override("font", HEADER_FONT)
+	badge.add_theme_font_override("font", UI_FONT)
 	UiTypography.set_label_size(badge, UiTypography.SIZE_SMALL)
 	badge.add_theme_color_override("font_color", Color("82d7b0"))
 	badge.add_theme_stylebox_override("normal", _chip_style(Color("18342d"), Color("4d9a7c")))
@@ -202,7 +202,7 @@ func _build_footer() -> Control:
 	warning.text = "Reset every setting?"
 	warning.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	warning.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	warning.add_theme_font_override("font", HEADER_FONT)
+	warning.add_theme_font_override("font", UI_FONT)
 	UiTypography.set_label_size(warning, UiTypography.SIZE_BODY)
 	warning.add_theme_color_override("font_color", Color("ffd0bb"))
 	confirm_row.add_child(warning)
@@ -224,7 +224,7 @@ func _build_footer() -> Control:
 	_status_label = Label.new()
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_status_label.add_theme_font_override("font", REGULAR_FONT)
+	_status_label.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(_status_label, UiTypography.SIZE_BODY)
 	_status_label.add_theme_color_override("font_color", Color("82d7b0"))
 	actions.add_child(_status_label)
@@ -259,7 +259,7 @@ func _section_shell(title_text: String, subtitle_text: String) -> PanelContainer
 	stack.add_child(header)
 	var title := Label.new()
 	title.text = title_text
-	title.add_theme_font_override("font", HEADER_FONT)
+	title.add_theme_font_override("font", UI_FONT)
 	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
 	title.add_theme_color_override("font_color", PALE_GOLD)
 	header.add_child(title)
@@ -267,7 +267,7 @@ func _section_shell(title_text: String, subtitle_text: String) -> PanelContainer
 	subtitle.text = subtitle_text
 	subtitle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_override("font", REGULAR_FONT)
+	subtitle.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(subtitle, UiTypography.SIZE_SMALL)
 	subtitle.add_theme_color_override("font_color", MUTED_TEXT)
 	header.add_child(subtitle)
@@ -291,7 +291,7 @@ func _add_volume_row(rows: VBoxContainer, title: String, detail: String, key: St
 	value_label.custom_minimum_size = Vector2(52.0, 38.0)
 	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	value_label.add_theme_font_override("font", HEADER_FONT)
+	value_label.add_theme_font_override("font", UI_FONT)
 	UiTypography.set_label_size(value_label, UiTypography.SIZE_BODY)
 	value_label.add_theme_color_override("font_color", PALE_GOLD)
 	slider.value_changed.connect(_on_volume_changed.bind(key, value_label))
@@ -319,13 +319,13 @@ func _setting_row(title_text: String, detail_text: String, setting_control: Cont
 	content.add_child(copy)
 	var title := Label.new()
 	title.text = title_text
-	title.add_theme_font_override("font", HEADER_FONT)
+	title.add_theme_font_override("font", UI_FONT)
 	UiTypography.set_label_size(title, UiTypography.SIZE_BODY_LARGE)
 	title.add_theme_color_override("font_color", Color("f3e7cc"))
 	copy.add_child(title)
 	var detail := Label.new()
 	detail.text = detail_text
-	detail.add_theme_font_override("font", REGULAR_FONT)
+	detail.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(detail, UiTypography.SIZE_SMALL)
 	detail.add_theme_color_override("font_color", MUTED_TEXT)
 	copy.add_child(detail)

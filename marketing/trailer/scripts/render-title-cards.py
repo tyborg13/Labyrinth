@@ -7,7 +7,7 @@ from PIL import Image, ImageChops, ImageColor, ImageDraw, ImageFilter, ImageFont
 
 
 TRAILER_DIR = Path(__file__).resolve().parents[1]
-FONT_PATH = TRAILER_DIR.parents[1] / "fonts" / "LabyrinthCrumble-Regular.ttf"
+FONT_PATH = TRAILER_DIR.parents[1] / "fonts" / "LabyrinthCrumble-Display.ttf"
 OUTPUT_DIR = TRAILER_DIR / "public" / "title-cards"
 SCALE = 4
 

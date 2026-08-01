@@ -6,8 +6,9 @@ const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
-const HEADER_FONT = preload("res://fonts/LabyrinthCrumble-Header.tres")
-const REGULAR_FONT = preload("res://fonts/LabyrinthCrumble-Regular.tres")
+const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
+const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
+const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
 signal new_run_pressed
 signal main_menu_pressed
@@ -252,7 +253,7 @@ func _build_children() -> void:
 	content.add_child(_kicker_label)
 
 	_title_label = _label("OutcomeTitle", 44, HORIZONTAL_ALIGNMENT_LEFT)
-	_title_label.add_theme_font_override("font", HEADER_FONT)
+	_title_label.add_theme_font_override("font", DISPLAY_FONT)
 	_title_label.add_theme_constant_override("outline_size", 5)
 	content.add_child(_title_label)
 
@@ -297,7 +298,7 @@ func _build_children() -> void:
 	_ember_label = _label("EmberLabel", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
 	amount_box.add_child(_ember_label)
 	_ember_value = _label("EmberValue", UiTypography.SIZE_HERO, HORIZONTAL_ALIGNMENT_LEFT)
-	_ember_value.add_theme_font_override("font", HEADER_FONT)
+	_ember_value.add_theme_font_override("font", UI_FONT)
 	amount_box.add_child(_ember_value)
 	var recovery_box := VBoxContainer.new()
 	recovery_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -346,7 +347,7 @@ func _add_stat_metric(host: GridContainer, spec: Dictionary) -> void:
 	heading.text = str(spec.get("label", stat_id.to_upper()))
 	box.add_child(heading)
 	var value := _label("%sValue" % stat_id.to_pascal_case(), 30, HORIZONTAL_ALIGNMENT_LEFT)
-	value.add_theme_font_override("font", HEADER_FONT)
+	value.add_theme_font_override("font", UI_FONT)
 	value.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(value)
 	var best := _label("%sBest" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
@@ -365,7 +366,7 @@ func _label(node_name: String, font_size: int, alignment: HorizontalAlignment) -
 	label.horizontal_alignment = alignment
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_override("font", REGULAR_FONT)
+	label.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(label, font_size)
 	label.add_theme_color_override("font_color", Color("f2e8d2"))
 	label.add_theme_color_override("font_outline_color", Color("160f0c"))
@@ -376,7 +377,7 @@ func _button(node_name: String, text: String) -> Button:
 	var button := Button.new()
 	button.name = node_name
 	button.text = text
-	button.add_theme_font_override("font", REGULAR_FONT)
+	button.add_theme_font_override("font", UI_FONT)
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
