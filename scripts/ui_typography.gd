@@ -16,8 +16,8 @@ const ROLE_HERO: String = "hero"
 const ROLE_BANNER: String = "banner"
 
 # Utility UI type scale. Caption and body are deliberate readability floors.
-# Crumble intensity falls with size: display is visibly worn, UI is restrained,
-# and gameplay text keeps only a trace of the shared silhouette treatment.
+# Crumble intensity falls with size: display is boldly worn, UI keeps visible
+# edge loss, and gameplay text uses smaller bites on its heavier skeleton.
 const SIZE_CAPTION: int = 14
 const SIZE_SMALL: int = 15
 const SIZE_BODY: int = 16
@@ -175,11 +175,13 @@ static func set_option_button_size(button: OptionButton, size: int) -> void:
 	if button == null:
 		return
 	var scaled_font_size: int = scaled_size(button, size)
+	var font: Font = ui_font()
+	if font != null:
+		button.add_theme_font_override("font", font)
 	button.add_theme_font_size_override("font_size", scaled_font_size)
 	var popup: PopupMenu = button.get_popup()
 	if popup == null:
 		return
-	var font: Font = default_font(button)
 	if font != null:
 		popup.add_theme_font_override("font", font)
 	popup.add_theme_font_size_override("font_size", scaled_font_size)

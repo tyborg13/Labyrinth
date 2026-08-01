@@ -354,7 +354,7 @@ func _style_button(
 ) -> void:
 	_ui_skin.apply_button_stylebox_overrides(button, variant)
 	_ui_skin.apply_button_text_overrides(button, font_color)
-	UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
+	UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
 	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, width, false, variant)
 	button.custom_minimum_size.x = width
 	button.alignment = HORIZONTAL_ALIGNMENT_CENTER

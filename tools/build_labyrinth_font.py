@@ -8,7 +8,7 @@ Bitter variable font.  Three optical cuts share one sturdy slab-serif skeleton:
 * UI ExtraBold: headings, buttons, card names, and short action labels.
 * Text Semibold: rules, dialogue, tooltips, logs, stats, and captions.
 
-Glyphs are rasterized at a high design resolution, receive shallow chips only
+Glyphs are rasterized at a high design resolution, receive stepped chips only
 from the exterior silhouette, and are traced back into TrueType outlines.  A
 chip is accepted only when it preserves both filled-component and counter
 counts, so distress cannot cut a stem apart or punch through a counter.

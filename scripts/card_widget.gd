@@ -1344,7 +1344,7 @@ func _queue_title_refit() -> void:
 func _fit_title_label(base_size: int) -> void:
 	if title_label == null:
 		return
-	var font: Font = UiTypography.default_font(title_label)
+	var font: Font = UiTypography.ui_font()
 	if font == null:
 		UiTypography.set_label_size(title_label, _relieved_title_size(base_size))
 		return

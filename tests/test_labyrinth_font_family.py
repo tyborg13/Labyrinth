@@ -128,6 +128,31 @@ class LabyrinthFontFamilyTests(unittest.TestCase):
         self.assertIn("ROLE_SECTION, ROLE_TITLE", source)
         self.assertIn("var font: Font = ui_font()", source)
 
+    def test_interactive_controls_and_card_title_fitting_use_the_ui_cut(self) -> None:
+        typography_source = (ROOT / "scripts" / "ui_typography.gd").read_text(encoding="utf-8")
+        option_helper = typography_source.split("static func set_option_button_size", 1)[1].split(
+            "static func set_rich_text_size", 1
+        )[0]
+        self.assertIn("var font: Font = ui_font()", option_helper)
+        self.assertIn('button.add_theme_font_override("font", font)', option_helper)
+        self.assertIn('popup.add_theme_font_override("font", font)', option_helper)
+
+        settings_source = (ROOT / "scripts" / "settings_panel.gd").read_text(encoding="utf-8")
+        style_button = settings_source.split("func _style_button", 1)[1].split(
+            "func _sync_controls_from_settings", 1
+        )[0]
+        self.assertIn(
+            "UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)",
+            style_button,
+        )
+
+        card_source = (ROOT / "scripts" / "card_widget.gd").read_text(encoding="utf-8")
+        fit_title = card_source.split("func _fit_title_label", 1)[1].split(
+            "func _relieved_title_size", 1
+        )[0]
+        self.assertIn("var font: Font = UiTypography.ui_font()", fit_title)
+        self.assertNotIn("UiTypography.default_font(title_label)", fit_title)
+
 
 if __name__ == "__main__":
     unittest.main()
