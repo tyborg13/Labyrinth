@@ -38,9 +38,9 @@ class LabyrinthFontFamilyTests(unittest.TestCase):
 
     def test_family_contains_three_optical_cuts_with_complete_project_coverage(self) -> None:
         expected = {
-            "display": ("Display Heavy", 800),
-            "ui": ("UI Semibold", 650),
-            "text": ("Text Regular", 425),
+            "display": ("Display Black", 900),
+            "ui": ("UI ExtraBold", 800),
+            "text": ("Text Semibold", 600),
         }
         cuts = {cut["key"]: cut for cut in self.manifest["cuts"]}
         self.assertEqual(set(cuts), set(expected))
@@ -90,6 +90,9 @@ class LabyrinthFontFamilyTests(unittest.TestCase):
             cuts["ui"]["total_removed_pixels"],
             cuts["text"]["total_removed_pixels"],
         )
+        self.assertGreaterEqual(cuts["display"]["total_chips"], 220)
+        self.assertGreaterEqual(cuts["ui"]["total_chips"], 150)
+        self.assertGreaterEqual(cuts["text"]["total_chips"], 60)
 
     def test_source_attribution_and_license_are_vendored(self) -> None:
         self.assertEqual(self.manifest["source"], "Bitter[wght].ttf")

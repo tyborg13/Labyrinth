@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-01T20:16:33Z",
+  "updated_at": "2026-08-01T20:34:59Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6723,30 +6723,6 @@
       }
     },
     {
-      "id": "mnt_20260801T201621Z_e9a604e4",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "folder",
-        "path": "fonts",
-        "symbol": null
-      },
-      "scope_key": "folder:fonts",
-      "summary": "Labyrinth Crumble is a generated three-cut readable font family",
-      "details": "Run tools/build_labyrinth_font.py to deterministically regenerate Display, UI, and Text TTF/TRES assets, the preview, and the family manifest from the vendored OFL Bitter source. UiTypography maps hero/banner roles to Display, section/title/buttons/card names to UI, and body/rules/dialogue/tooltips/HUD copy to Text. Distress is exterior-only and decreases by cut; do not hand-edit generated binaries.",
-      "status": "active",
-      "created_at": "2026-08-01T20:16:21Z",
-      "updated_at": "2026-08-01T20:16:21Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260422T033451Z_5da89721"
-      ],
-      "source": {
-        "branch": "codex/implement-readable-labyrinth-crumble-font-family-across-the-game",
-        "commit": "05ae2a4"
-      }
-    },
-    {
       "id": "mnt_20260801T201633Z_b5a35aae",
       "layer": "shared",
       "kind": "pitfall",
@@ -6768,6 +6744,30 @@
       "source": {
         "branch": "codex/implement-readable-labyrinth-crumble-font-family-across-the-game",
         "commit": "05ae2a4"
+      }
+    },
+    {
+      "id": "mnt_20260801T203459Z_9bfd758c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "fonts",
+        "symbol": null
+      },
+      "scope_key": "folder:fonts",
+      "summary": "Labyrinth Crumble uses visibly heavy, strongly chipped optical cuts",
+      "details": "Generate Display at weight 900, UI at 800, and Text at 600. Exterior-only chips must remain visible at actual game sizes: current contract floors are 220/150/60 accepted chips for Display/UI/Text, while component and counter counts stay unchanged. Reuse fresh proof filenames because Codex image previews cache by path.",
+      "status": "active",
+      "created_at": "2026-08-01T20:34:59Z",
+      "updated_at": "2026-08-01T20:34:59Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260801T201621Z_e9a604e4"
+      ],
+      "source": {
+        "branch": "codex/implement-readable-labyrinth-crumble-font-family-across-the-game",
+        "commit": "c6f55f2"
       }
     }
   ]

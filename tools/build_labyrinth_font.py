@@ -4,9 +4,9 @@
 The family is a deterministic, project-owned derivative of the OFL-licensed
 Bitter variable font.  Three optical cuts share one sturdy slab-serif skeleton:
 
-* Display Heavy: hero titles and banners, with visible exterior edge wear.
-* UI Semibold: headings, buttons, card names, and short action labels.
-* Text Regular: rules, dialogue, tooltips, logs, stats, and captions.
+* Display Black: hero titles and banners, with bold exterior edge wear.
+* UI ExtraBold: headings, buttons, card names, and short action labels.
+* Text Semibold: rules, dialogue, tooltips, logs, stats, and captions.
 
 Glyphs are rasterized at a high design resolution, receive shallow chips only
 from the exterior silhouette, and are traced back into TrueType outlines.  A
@@ -75,38 +75,38 @@ class FontCut:
 CUTS = (
     FontCut(
         key="display",
-        style_name="Display Heavy",
+        style_name="Display Black",
         filename_stem="LabyrinthCrumble-Display",
-        weight=800,
-        chip_min=2,
-        chip_max=4,
-        chip_width=(5, 10),
-        chip_depth=(3, 5),
+        weight=900,
+        chip_min=3,
+        chip_max=5,
+        chip_width=(12, 24),
+        chip_depth=(7, 12),
         chip_probability=1.0,
         seed=0xD15A,
     ),
     FontCut(
         key="ui",
-        style_name="UI Semibold",
+        style_name="UI ExtraBold",
         filename_stem="LabyrinthCrumble-UI",
-        weight=650,
-        chip_min=1,
-        chip_max=2,
-        chip_width=(3, 6),
-        chip_depth=(2, 3),
-        chip_probability=0.88,
+        weight=800,
+        chip_min=2,
+        chip_max=4,
+        chip_width=(10, 18),
+        chip_depth=(6, 10),
+        chip_probability=1.0,
         seed=0x51B0,
     ),
     FontCut(
         key="text",
-        style_name="Text Regular",
+        style_name="Text Semibold",
         filename_stem="LabyrinthCrumble-Text",
-        weight=425,
-        chip_min=0,
-        chip_max=1,
-        chip_width=(2, 3),
-        chip_depth=(1, 1),
-        chip_probability=0.38,
+        weight=600,
+        chip_min=1,
+        chip_max=2,
+        chip_width=(7, 13),
+        chip_depth=(4, 7),
+        chip_probability=0.9,
         seed=0x7E47,
     ),
 )
@@ -622,14 +622,14 @@ def _render_preview(output_dir: Path) -> None:
     image = Image.new("RGB", (1920, 1080), "#0b0e13")
     draw = ImageDraw.Draw(image)
     draw.rectangle((24, 24, 1896, 1056), outline="#654a2d", width=2)
-    draw.text((54, 44), "DISPLAY HEAVY · 58–114 PX", font=text_18, fill="#c59653")
+    draw.text((54, 44), "DISPLAY BLACK · 58–114 PX", font=text_18, fill="#c59653")
     draw.line((365, 62, 1860, 62), fill="#75532f", width=2)
     draw.text((54, 84), "ESCAPE THE UMBRA", font=display_112, fill="#f0dfbd", stroke_width=1, stroke_fill="#4c281d")
     draw.text((60, 235), "THE LABYRINTH ANSWERS", font=display_48, fill="#ead5aa")
     draw.text((1060, 235), "CHOOSE A REWARD", font=display_48, fill="#e7c786")
 
     draw.line((54, 318, 1866, 318), fill="#75532f", width=2)
-    draw.text((54, 337), "UI SEMIBOLD · 21–38 PX", font=text_18, fill="#c59653")
+    draw.text((54, 337), "UI EXTRABOLD · 21–38 PX", font=text_18, fill="#c59653")
     _draw_button(draw, (54, 385, 360, 463), "Continue Run", ui_34)
     _draw_button(draw, (386, 385, 674, 463), "New Game", ui_34)
     _draw_button(draw, (700, 385, 970, 463), "Settings", ui_34)
@@ -637,7 +637,7 @@ def _render_preview(output_dir: Path) -> None:
     draw.text((1040, 404), "Rallying Breath    Firebrand Volley", font=ui_34, fill="#ead8b7")
 
     draw.line((54, 520, 1866, 520), fill="#75532f", width=2)
-    draw.text((54, 539), "TEXT REGULAR · 14–18 PX", font=text_18, fill="#c59653")
+    draw.text((54, 539), "TEXT SEMIBOLD · 14–18 PX", font=text_18, fill="#c59653")
     draw.rounded_rectangle((54, 584, 720, 790), radius=5, fill="#111319", outline="#8a6539", width=2)
     draw.text((84, 614), "Deal 8 damage. Move 2 tiles.", font=text_22, fill="#f0dfbd")
     draw.text((84, 656), "Hidden enemies cannot be targeted.", font=text_22, fill="#f0dfbd")
