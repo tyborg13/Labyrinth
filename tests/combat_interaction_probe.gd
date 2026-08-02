@@ -4,7 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
-const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v3"
+const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v4"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
 const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
@@ -36,6 +36,7 @@ func _capture_states() -> void:
 	)
 	_assert(not (instance.get("_action_step_tracker") as Control).visible, "Idle hand should not show action context")
 	await _save_root_screenshot("%s/idle_hand.png" % OUTPUT_DIR)
+	await _capture_pile_interaction_states(instance)
 
 	await _load_combat_fixture(instance, ["stone_plate", "quick_stab"], Vector2i(2, 4), [Vector2i(5, 4)], 9800)
 	var targetless_before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -149,6 +150,55 @@ func _capture_states() -> void:
 
 	instance.queue_free()
 	await process_frame
+
+func _capture_pile_interaction_states(instance: Node) -> void:
+	var draw_pile: PanelContainer = instance.get("draw_pile") as PanelContainer
+	var pile_scrim: Control = instance.get("_pile_scrim") as Control
+	var overlays: Dictionary = instance.get("_pile_state_overlays") as Dictionary
+	var draw_overlay: PanelContainer = overlays.get("draw", null) as PanelContainer
+	_assert(draw_pile != null and draw_pile.visible, "Draw pile should be available for compact interaction-state proof")
+	_assert(draw_overlay != null and draw_overlay.focus_mode == Control.FOCUS_NONE, "Pile state treatment should not introduce an extra keyboard focus stop")
+	if draw_pile == null or draw_overlay == null:
+		return
+
+	draw_pile.emit_signal("mouse_entered")
+	await _settle_ui()
+	_assert(str(draw_pile.get_meta("pile_interaction_state", "")) == "hover", "Draw pile pointer hover should expose a visible hover state")
+	_assert(draw_overlay.visible, "Draw pile hover should show its tight state outline")
+	await _save_root_screenshot("%s/draw_pile_hover.png" % OUTPUT_DIR)
+	draw_pile.emit_signal("mouse_exited")
+
+	draw_pile.grab_focus()
+	await _settle_ui()
+	_assert(str(draw_pile.get_meta("pile_interaction_state", "")) == "focus", "Draw pile keyboard/controller focus should expose a visible focus state")
+	_assert(draw_overlay.visible, "Draw pile focus should show its tight card-shaped outline")
+	await _save_root_screenshot("%s/draw_pile_focus.png" % OUTPUT_DIR)
+
+	instance.call("_set_pile_pressed", "draw", true)
+	await _settle_ui()
+	_assert(str(draw_pile.get_meta("pile_interaction_state", "")) == "pressed", "Draw pile pressed state should be explicit in control metadata")
+	_assert(draw_overlay.visible and (pile_scrim == null or not pile_scrim.visible), "Pressed proof should not activate or open the draw pile")
+	await _save_root_screenshot("%s/draw_pile_pressed.png" % OUTPUT_DIR)
+	instance.call("_set_pile_pressed", "draw", false)
+	await _settle_ui()
+
+	instance.set("_selected_card_index", 0)
+	instance.call("_refresh_pile_interaction_states")
+	await _settle_ui()
+	_assert(str(draw_pile.get_meta("pile_interaction_state", "")) == "disabled", "Unavailable pile actions should expose a disabled state")
+	_assert(draw_pile.focus_mode == Control.FOCUS_ALL, "Unavailable pile actions should preserve the established single focus stop")
+	instance.set("_selected_card_index", -1)
+	instance.call("_refresh_pile_interaction_states")
+	await _settle_ui()
+	_assert(draw_pile.focus_mode == Control.FOCUS_ALL, "Available draw pile should restore its single keyboard/controller focus stop")
+	var accept := InputEventAction.new()
+	accept.action = "ui_accept"
+	accept.pressed = true
+	instance.call("_on_pile_gui_input", accept, "draw")
+	await _settle_ui()
+	_assert(pile_scrim != null and pile_scrim.visible, "Draw pile ui_accept should preserve pile inspection activation")
+	instance.call("_close_pile_view")
+	await _settle_ui()
 
 func _load_combat_fixture(instance: Node, hand: Array, player_pos: Vector2i, enemy_positions: Array, seed: int) -> void:
 	instance.call("_cancel_drag_play")

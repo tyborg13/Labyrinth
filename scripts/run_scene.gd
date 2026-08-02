@@ -1305,6 +1305,7 @@ var _pile_dialog_empty: Label
 var _pile_content_hosts: Dictionary = {}
 var _pile_visual_hosts: Dictionary = {}
 var _pile_badges: Dictionary = {}
+var _pile_state_overlays: Dictionary = {}
 var _active_pile_kind: String = ""
 var _pile_visual_signature: String = "<unset>"
 var _relic_bar_signature: String = "<unset>"
@@ -6887,8 +6888,22 @@ func _build_pile_widget(spec: Dictionary) -> void:
 	content.add_child(badge)
 	_pile_badges[kind] = badge
 
+	var state_overlay := PanelContainer.new()
+	state_overlay.name = "PileInteractionOverlay_%s" % kind
+	state_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	state_overlay.focus_mode = Control.FOCUS_NONE
+	state_overlay.visible = false
+	state_overlay.z_index = 20
+	content.add_child(state_overlay)
+	_pile_state_overlays[kind] = state_overlay
+
 	panel.set_meta("cursor_feedback_context_provider", _pile_cursor_feedback_context.bind(kind))
 	panel.gui_input.connect(_on_pile_gui_input.bind(kind))
+	panel.mouse_entered.connect(_set_pile_pointer_hover.bind(kind, true))
+	panel.mouse_exited.connect(_set_pile_pointer_hover.bind(kind, false))
+	panel.focus_entered.connect(_set_pile_keyboard_focus.bind(kind, true))
+	panel.focus_exited.connect(_set_pile_keyboard_focus.bind(kind, false))
+	_refresh_pile_interaction_states()
 
 func _pile_panel_for_kind(kind: String) -> PanelContainer:
 	match kind:
@@ -6927,10 +6942,76 @@ func _layout_pile_widget(kind: String, card_size: Vector2) -> void:
 	host.custom_minimum_size = widget_size
 	host.position = Vector2.ZERO
 	host.size = widget_size
+	var state_overlay: PanelContainer = _pile_state_overlays.get(kind, null)
+	if state_overlay != null:
+		state_overlay.position = Vector2(1.0, 1.0)
+		state_overlay.size = widget_size - Vector2(2.0, 2.0)
 	var badge: Label = _pile_badges.get(kind, null)
 	if badge != null:
 		badge.position = Vector2(card_size.x - 46.0, 7.0)
 		badge.size = Vector2(38.0, 30.0)
+
+func _set_pile_pointer_hover(kind: String, hovered: bool) -> void:
+	var panel: PanelContainer = _pile_panel_for_kind(kind)
+	if panel == null:
+		return
+	panel.set_meta("pile_pointer_hover", hovered)
+	_refresh_pile_interaction_states()
+
+func _set_pile_keyboard_focus(kind: String, focused: bool) -> void:
+	var panel: PanelContainer = _pile_panel_for_kind(kind)
+	if panel == null:
+		return
+	panel.set_meta("pile_keyboard_focus", focused)
+	_refresh_pile_interaction_states()
+
+func _set_pile_pressed(kind: String, pressed: bool) -> void:
+	var panel: PanelContainer = _pile_panel_for_kind(kind)
+	if panel == null:
+		return
+	panel.set_meta("pile_pressed", pressed)
+	_refresh_pile_interaction_states()
+
+func _pile_actions_available() -> bool:
+	return pile_cursor_feedback_context_for_state(
+		_animation_lock,
+		str(_run_state.get("mode", "room")),
+		_selected_card_index,
+		_drag_card_index,
+		_pile_scrim != null
+	) == "action"
+
+func _refresh_pile_interaction_states() -> void:
+	var actions_available: bool = _pile_actions_available()
+	for kind: String in ["draw", "discard"]:
+		var panel: PanelContainer = _pile_panel_for_kind(kind)
+		var content: Control = _pile_content_hosts.get(kind, null)
+		var state_overlay: PanelContainer = _pile_state_overlays.get(kind, null)
+		if panel == null or content == null or state_overlay == null:
+			continue
+		# These compact piles have always been one stop each in the combat focus loop.
+		# Keep that traversal stable even while their inspection action is unavailable;
+		# the disabled silhouette explains why ui_accept will not open the pile.
+		panel.focus_mode = Control.FOCUS_ALL
+		var pressed: bool = bool(panel.get_meta("pile_pressed", false)) and actions_available
+		var focused: bool = bool(panel.get_meta("pile_keyboard_focus", false)) and actions_available
+		var hovered: bool = bool(panel.get_meta("pile_pointer_hover", false)) and actions_available
+		var state: String = "disabled" if not actions_available else "pressed" if pressed else "focus" if focused else "hover" if hovered else "idle"
+		panel.set_meta("pile_interaction_state", state)
+		panel.set_meta("pile_action_available", actions_available)
+		panel.set_meta("pile_empty", (_deck_piles().get(kind, []) as Array).is_empty())
+		content.position = Vector2(0.0, 1.0) if pressed else Vector2.ZERO
+		content.modulate = Color(0.55, 0.55, 0.55, 0.64) if not actions_available else Color.WHITE
+		state_overlay.visible = state != "idle"
+		var accent: Color = Color("d9aa62") if kind == "draw" else Color("9eb8d4")
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(accent.r, accent.g, accent.b, 0.05 if state == "disabled" else 0.10 if state == "pressed" else 0.07)
+		style.border_color = Color("6b5a48") if state == "disabled" else Color(accent.r, accent.g, accent.b, 1.0 if state == "focus" else 0.78)
+		style.set_border_width_all(2 if state == "focus" else 1)
+		style.set_corner_radius_all(7)
+		style.shadow_color = Color(accent.r, accent.g, accent.b, 0.30 if state == "focus" else 0.18)
+		style.shadow_size = 5 if state == "focus" else 3
+		state_overlay.add_theme_stylebox_override("panel", style)
 
 func _populate_draw_pile(host: Control, cards: Array, card_size: Vector2) -> void:
 	_clear_children_now(host)
@@ -7121,6 +7202,7 @@ func _refresh_ui() -> void:
 	_refresh_choice_bar()
 	_refresh_stage_view()
 	_refresh_hand_panel()
+	_refresh_pile_interaction_states()
 	_refresh_visibility()
 	_sync_pre_battle_preview_after_refresh()
 	_layout_action_step_tracker()
@@ -8865,6 +8947,7 @@ func _refresh_pile_visuals() -> void:
 		card_size.y
 	]
 	if signature == _pile_visual_signature:
+		_refresh_pile_interaction_states()
 		_sync_hand_side_widths()
 		call_deferred("_sync_hand_side_widths")
 		return
@@ -8883,6 +8966,7 @@ func _refresh_pile_visuals() -> void:
 			_populate_draw_pile(host, cards, card_size)
 			continue
 		_populate_discard_pile(host, cards, card_size)
+	_refresh_pile_interaction_states()
 	_sync_hand_side_widths()
 	call_deferred("_sync_hand_side_widths")
 
@@ -17832,14 +17916,19 @@ func _change_scene_to_file(path: String) -> void:
 	get_tree().change_scene_to_file(path)
 
 func _on_pile_gui_input(event: InputEvent, pile_kind: String) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_set_pile_pressed(pile_kind, event.pressed)
 	if pile_cursor_feedback_context_for_state(_animation_lock, str(_run_state.get("mode", "room")), _selected_card_index, _drag_card_index, _pile_scrim != null) != "action":
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_open_pile_view(pile_kind)
+		call_deferred("_set_pile_pressed", pile_kind, false)
 		accept_event()
 		return
 	if event.is_action_pressed("ui_accept"):
+		_set_pile_pressed(pile_kind, true)
 		_open_pile_view(pile_kind)
+		call_deferred("_set_pile_pressed", pile_kind, false)
 		accept_event()
 
 func _pile_cursor_feedback_context(_local_position: Vector2, _pile_kind: String) -> String:
