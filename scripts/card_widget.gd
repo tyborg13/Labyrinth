@@ -45,8 +45,8 @@ const SUMMARY_VERTICAL_PADDING: float = 10.0
 const FLURRY_ICON_WIDTH_SCALE: float = 1.80
 const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
 const TITLE_MIN_SIZE: int = 10
-const TITLE_FIT_RELIEF: int = 2
-const TITLE_MAX_RENDER_SIZE: int = 15
+const TITLE_FIT_RELIEF: int = 1
+const TITLE_MAX_RENDER_SIZE: int = 17
 const TITLE_NAMEPLATE_WIDTH_RATIO: float = 0.500
 const HAND_TITLE_WIDTH_MAX: float = 236.0
 const ELEMENT_FRAME_BAND: int = 42
@@ -213,13 +213,13 @@ class TimeCostBadge:
 		var center: Vector2 = size * 0.5
 		var radius: float = minf(size.x, size.y) * 0.48
 		_draw_clock_face(center, radius)
-		var font: Font = UiTypographyScript.default_font(self)
+		var font: Font = UiTypographyScript.ui_font()
 		if font == null:
 			return
-		var font_size: int = UiTypographyScript.scaled_size(self, 16 if size.x <= 42.0 else 18)
+		var font_size: int = UiTypographyScript.scaled_size(self, 20 if size.x <= 42.0 else 23)
 		var text: String = str(value)
 		var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
-		while font_size > 10 and text_size.x > size.x * 0.50:
+		while font_size > 12 and text_size.x > size.x * 0.62:
 			font_size -= 1
 			text_size = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
 		_draw_number_medallion(center, radius)
@@ -272,10 +272,10 @@ class TimeCostBadge:
 		draw_circle(center + Vector2(-radius * 0.030, -radius * 0.040), radius * 0.020, Color(1.0, 0.88, 0.58, 0.60))
 
 	func _draw_number_medallion(center: Vector2, radius: float) -> void:
-		draw_circle(center + Vector2(0.0, radius * 0.06), radius * 0.34, Color(0.02, 0.01, 0.004, 0.58))
-		draw_circle(center, radius * 0.30, Color(0.10, 0.055, 0.026, 0.84))
-		draw_arc(center, radius * 0.29, -PI * 0.82, -PI * 0.18, 16, Color(1.0, 0.80, 0.42, 0.26), 0.9, true)
-		draw_arc(center, radius * 0.29, PI * 0.10, PI * 0.84, 16, Color(0.0, 0.0, 0.0, 0.26), 1.0, true)
+		draw_circle(center + Vector2(0.0, radius * 0.06), radius * 0.40, Color(0.02, 0.01, 0.004, 0.58))
+		draw_circle(center, radius * 0.36, Color(0.10, 0.055, 0.026, 0.88))
+		draw_arc(center, radius * 0.35, -PI * 0.82, -PI * 0.18, 16, Color(1.0, 0.80, 0.42, 0.30), 0.9, true)
+		draw_arc(center, radius * 0.35, PI * 0.10, PI * 0.84, 16, Color(0.0, 0.0, 0.0, 0.30), 1.0, true)
 
 	func _draw_clock_hand(center: Vector2, angle: float, length: float, width: float, color: Color, highlight: Color) -> void:
 		var direction: Vector2 = Vector2(cos(angle), sin(angle))
@@ -664,7 +664,7 @@ func _update_layout_metrics() -> void:
 	var height: float = size.y if size.y > 0.0 else custom_minimum_size.y
 	var layout_scale: float = _card_layout_scale()
 	var compact: bool = width <= COMPACT_CARD_WIDTH
-	var detail_size: int = _scaled_card_font_size(13 if compact else 15, 8)
+	var detail_size: int = _scaled_card_font_size(14 if compact else 16, 9)
 	_fit_title_label(_base_title_size())
 	UiTypography.set_rich_text_size(desc_label, detail_size)
 	UiTypography.set_label_size(footer_label, detail_size)
@@ -1159,7 +1159,7 @@ func _add_token_modifier_marker(row: HBoxContainer, tooltip: String, label_size:
 
 func _summary_icon_size() -> float:
 	var width: float = _card_visual_width()
-	return _scaled_card_value(22.0 if width <= COMPACT_CARD_WIDTH else 26.0, 10.0)
+	return _scaled_card_value(24.0 if width <= COMPACT_CARD_WIDTH else 28.0, 11.0)
 
 func _aoe_pattern_scale(icon_size: float) -> float:
 	var width: float = _card_visual_width()
@@ -1173,7 +1173,7 @@ func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
 	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
 	var available_width: float = maxf(_scaled_card_value(52.0, 28.0), width - _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - _scaled_card_value(12.0, 4.0))
-	var base_candidates: Array = [28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
+	var base_candidates: Array = [30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
 	var icon_candidates: Array = []
 	for candidate_var: Variant in base_candidates:
 		icon_candidates.append(_scaled_card_value(float(candidate_var), 10.0))
@@ -1206,7 +1206,7 @@ func _summary_row_gap(icon_size: float, row_count: int) -> int:
 	return maxi(1, gap)
 
 func _summary_min_label_size() -> int:
-	return _scaled_card_font_size(12, 7)
+	return _scaled_card_font_size(13, 8)
 
 func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int) -> float:
 	var font: Font = UiTypography.default_font(self)

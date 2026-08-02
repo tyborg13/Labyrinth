@@ -6,15 +6,15 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://hand_card_focus_v1_proof"
-const PROOF_VERSION: String = "v1"
+const OUTPUT_DIR: String = "user://hand_card_focus_v2_proof"
+const PROOF_VERSION: String = "v2"
 const FOCUSED_INDEX: int = 2
 const HAND: Array = [
-	"sidestep_slash",
 	"quick_stab",
-	"patch_up",
+	"wildfire_halo",
+	"stormstring_shot",
+	"rallying_breath",
 	"guarded_step",
-	"pale_spark",
 ]
 
 var _failed: bool = false

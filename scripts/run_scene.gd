@@ -1771,7 +1771,9 @@ func _apply_style() -> void:
 	for pile_panel: PanelContainer in [draw_pile, discard_pile, burn_pile]:
 		pile_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		pile_panel.clip_contents = true
+	UiTypography.apply_label_role(room_title, UiTypography.ROLE_TITLE)
 	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE + 3)
+	UiTypography.apply_stone_text(room_title, 0.13, 3.5)
 	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(umbra_subtitle, UiTypography.SIZE_BODY_LARGE)
 	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION)
@@ -2864,6 +2866,7 @@ func _build_large_map_overlay() -> void:
 	title.text = "Map"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
+	UiTypography.apply_stone_text(title, 0.11, 3.5)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
@@ -3081,6 +3084,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	title.clip_text = true
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
+	UiTypography.apply_stone_text(title, 0.11, 3.5)
 	title.add_theme_color_override("font_color", accent if ElementData.is_elemental(str(header_room.get("element", ElementData.NONE))) else Color("f0e6d2"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)

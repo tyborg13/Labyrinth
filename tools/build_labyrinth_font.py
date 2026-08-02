@@ -6,7 +6,8 @@ Bitter variable font.  Three optical cuts share one sturdy slab-serif skeleton:
 
 * Display Black: hero titles and banners, with bold exterior edge wear.
 * UI ExtraBold: headings, buttons, card names, and short action labels.
-* Text Semibold: rules, dialogue, tooltips, logs, stats, and captions.
+* Text Semibold: rules, dialogue, tooltips, logs, stats, and captions, with
+  optically reinforced numerals for small HUD and card values.
 
 Glyphs are rasterized at a high design resolution, receive stepped chips only
 from the exterior silhouette, and are traced back into TrueType outlines.  A
@@ -64,6 +65,7 @@ class FontCut:
     style_name: str
     filename_stem: str
     weight: int
+    digit_weight: int
     chip_min: int
     chip_max: int
     chip_width: tuple[int, int]
@@ -78,6 +80,7 @@ CUTS = (
         style_name="Display Black",
         filename_stem="LabyrinthCrumble-Display",
         weight=900,
+        digit_weight=900,
         chip_min=3,
         chip_max=5,
         chip_width=(12, 24),
@@ -90,6 +93,7 @@ CUTS = (
         style_name="UI ExtraBold",
         filename_stem="LabyrinthCrumble-UI",
         weight=800,
+        digit_weight=800,
         chip_min=2,
         chip_max=4,
         chip_width=(10, 18),
@@ -102,6 +106,7 @@ CUTS = (
         style_name="Text Semibold",
         filename_stem="LabyrinthCrumble-Text",
         weight=600,
+        digit_weight=725,
         chip_min=1,
         chip_max=2,
         chip_width=(7, 13),
@@ -480,17 +485,23 @@ def _notdef_glyph() -> object:
     return pen.glyph()
 
 
-def _static_source_font(cut: FontCut, destination: Path) -> None:
+def _static_source_font(weight: int, destination: Path) -> None:
     source = TTFont(SOURCE_FONT_PATH, recalcTimestamp=False)
-    instance = instantiateVariableFont(source, {"wght": cut.weight}, inplace=False, optimize=True)
+    instance = instantiateVariableFont(source, {"wght": weight}, inplace=False, optimize=True)
     instance.recalcTimestamp = False
     instance["head"].created = FIXED_FONT_TIMESTAMP
     instance["head"].modified = FIXED_FONT_TIMESTAMP
     instance.save(destination, reorderTables=False)
 
 
-def _build_cut(cut: FontCut, source_path: Path, output_dir: Path) -> dict[str, object]:
+def _build_cut(
+    cut: FontCut,
+    source_path: Path,
+    digit_source_path: Path,
+    output_dir: Path,
+) -> dict[str, object]:
     font = ImageFont.truetype(str(source_path), RASTER_EM)
+    digit_font = ImageFont.truetype(str(digit_source_path), RASTER_EM)
     glyph_order = [".notdef", "space"]
     glyphs = {".notdef": _notdef_glyph(), "space": TTGlyphPen(None).glyph()}
     metrics: dict[str, tuple[int, int]] = {
@@ -505,7 +516,8 @@ def _build_cut(cut: FontCut, source_path: Path, output_dir: Path) -> dict[str, o
         if char == " ":
             continue
         name = _safe_glyph_name(char)
-        image, origin_x, baseline_y, source_advance = _render_char(font, char)
+        render_font = digit_font if char.isdigit() else font
+        image, origin_x, baseline_y, source_advance = _render_char(render_font, char)
         original_mask = _boolean_mask(image)
         chipped_mask, chips, removed_pixels = chip_exterior_mask(original_mask, char, cut)
         glyph, x_min, x_max = _mask_to_glyph(chipped_mask, origin_x, baseline_y)
@@ -565,6 +577,7 @@ def _build_cut(cut: FontCut, source_path: Path, output_dir: Path) -> dict[str, o
         "key": cut.key,
         "style_name": cut.style_name,
         "weight": cut.weight,
+        "digit_weight": cut.digit_weight,
         "ttf": ttf_path.name,
         "tres": f"{cut.filename_stem}.tres",
         "total_chips": total_chips,
@@ -675,8 +688,13 @@ def build_family(output_dir: Path) -> None:
         temp_dir = Path(temp_dir_name)
         for cut in CUTS:
             source_path = temp_dir / f"source-{cut.key}.ttf"
-            _static_source_font(cut, source_path)
-            cut_results.append(_build_cut(cut, source_path, output_dir))
+            digit_source_path = temp_dir / f"source-{cut.key}-digits.ttf"
+            _static_source_font(cut.weight, source_path)
+            if cut.digit_weight == cut.weight:
+                digit_source_path = source_path
+            else:
+                _static_source_font(cut.digit_weight, digit_source_path)
+            cut_results.append(_build_cut(cut, source_path, digit_source_path, output_dir))
     _render_preview(output_dir)
     manifest = {
         "family": FAMILY_NAME,

@@ -38,15 +38,15 @@ class LabyrinthFontFamilyTests(unittest.TestCase):
 
     def test_family_contains_three_optical_cuts_with_complete_project_coverage(self) -> None:
         expected = {
-            "display": ("Display Black", 900),
-            "ui": ("UI ExtraBold", 800),
-            "text": ("Text Semibold", 600),
+            "display": ("Display Black", 900, 900),
+            "ui": ("UI ExtraBold", 800, 800),
+            "text": ("Text Semibold", 600, 725),
         }
         cuts = {cut["key"]: cut for cut in self.manifest["cuts"]}
         self.assertEqual(set(cuts), set(expected))
         required_codepoints = {ord(char) for char in GENERATOR.SUPPORTED_CHARS}
 
-        for key, (style_name, weight) in expected.items():
+        for key, (style_name, weight, digit_weight) in expected.items():
             cut = cuts[key]
             font_path = FONT_DIR / cut["ttf"]
             resource_path = FONT_DIR / cut["tres"]
@@ -61,6 +61,7 @@ class LabyrinthFontFamilyTests(unittest.TestCase):
                 cmap = font.getBestCmap()
                 self.assertTrue(required_codepoints.issubset(cmap))
                 self.assertEqual(font["OS/2"].usWeightClass, weight)
+                self.assertEqual(cut["digit_weight"], digit_weight)
                 names = {
                     record.nameID: record.toUnicode()
                     for record in font["name"].names
@@ -152,6 +153,27 @@ class LabyrinthFontFamilyTests(unittest.TestCase):
         )[0]
         self.assertIn("var font: Font = UiTypography.ui_font()", fit_title)
         self.assertNotIn("UiTypography.default_font(title_label)", fit_title)
+
+    def test_large_identity_text_and_card_scan_values_keep_readable_emphasis(self) -> None:
+        typography_source = (ROOT / "scripts" / "ui_typography.gd").read_text(encoding="utf-8")
+        self.assertIn("STONE_TEXT_SHADER_CODE", typography_source)
+        self.assertIn("static func apply_stone_text", typography_source)
+
+        main_menu_source = (ROOT / "scripts" / "main_menu.gd").read_text(encoding="utf-8")
+        self.assertIn("uniform float texture_strength = 0.12", main_menu_source)
+
+        run_source = (ROOT / "scripts" / "run_scene.gd").read_text(encoding="utf-8")
+        self.assertIn(
+            "UiTypography.apply_stone_text(room_title, 0.13, 3.5)",
+            run_source,
+        )
+
+        card_source = (ROOT / "scripts" / "card_widget.gd").read_text(encoding="utf-8")
+        self.assertIn("const TITLE_FIT_RELIEF: int = 1", card_source)
+        self.assertIn("const TITLE_MAX_RENDER_SIZE: int = 17", card_source)
+        self.assertIn("var font: Font = UiTypographyScript.ui_font()", card_source)
+        self.assertIn("20 if size.x <= 42.0 else 23", card_source)
+        self.assertIn("_scaled_card_font_size(13, 8)", card_source)
 
 
 if __name__ == "__main__":

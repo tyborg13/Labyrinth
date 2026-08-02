@@ -15,6 +15,7 @@
       "key": "display",
       "style_name": "Display Black",
       "weight": 900,
+      "digit_weight": 900,
       "ttf": "LabyrinthCrumble-Display.ttf",
       "tres": "LabyrinthCrumble-Display.tres",
       "total_chips": 237,
@@ -698,6 +699,7 @@
       "key": "ui",
       "style_name": "UI ExtraBold",
       "weight": 800,
+      "digit_weight": 800,
       "ttf": "LabyrinthCrumble-UI.ttf",
       "tres": "LabyrinthCrumble-UI.tres",
       "total_chips": 180,
@@ -1381,10 +1383,11 @@
       "key": "text",
       "style_name": "Text Semibold",
       "weight": 600,
+      "digit_weight": 725,
       "ttf": "LabyrinthCrumble-Text.ttf",
       "tres": "LabyrinthCrumble-Text.tres",
       "total_chips": 89,
-      "total_removed_pixels": 2844,
+      "total_removed_pixels": 2852,
       "glyphs": {
         "!": {
           "chips": 0,
@@ -1478,7 +1481,7 @@
         },
         "0": {
           "chips": 2,
-          "removed_pixels": 84,
+          "removed_pixels": 88,
           "components": 1,
           "counters": 1
         },
@@ -1490,7 +1493,7 @@
         },
         "2": {
           "chips": 2,
-          "removed_pixels": 47,
+          "removed_pixels": 44,
           "components": 1,
           "counters": 0
         },
@@ -1514,13 +1517,13 @@
         },
         "6": {
           "chips": 2,
-          "removed_pixels": 43,
+          "removed_pixels": 46,
           "components": 1,
           "counters": 1
         },
         "7": {
           "chips": 2,
-          "removed_pixels": 63,
+          "removed_pixels": 64,
           "components": 1,
           "counters": 0
         },
@@ -1532,7 +1535,7 @@
         },
         "9": {
           "chips": 1,
-          "removed_pixels": 31,
+          "removed_pixels": 34,
           "components": 1,
           "counters": 1
         },

@@ -255,6 +255,7 @@ func _build_children() -> void:
 	_title_label = _label("OutcomeTitle", 44, HORIZONTAL_ALIGNMENT_LEFT)
 	_title_label.add_theme_font_override("font", DISPLAY_FONT)
 	_title_label.add_theme_constant_override("outline_size", 5)
+	UiTypography.apply_stone_text(_title_label, 0.13, 4.0)
 	content.add_child(_title_label)
 
 	_accent_rule = ColorRect.new()

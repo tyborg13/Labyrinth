@@ -5,12 +5,12 @@
   ],
   "required_images": [
     {
-      "pattern": "*/1920x1080_ui100/idle_v1.png",
+      "pattern": "*/1920x1080_ui100/idle_v2.png",
       "width": 1920,
       "height": 1080
     },
     {
-      "pattern": "*/1920x1080_ui100/pointer_focused_v1.png",
+      "pattern": "*/1920x1080_ui100/pointer_focused_v2.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -22,7 +22,7 @@
       ]
     },
     {
-      "pattern": "*/1920x1080_ui100/wrapper_focused_v1.png",
+      "pattern": "*/1920x1080_ui100/wrapper_focused_v2.png",
       "width": 1920,
       "height": 1080
     }

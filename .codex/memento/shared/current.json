@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-01T20:34:59Z",
+  "updated_at": "2026-08-02T01:06:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6747,7 +6747,7 @@
       }
     },
     {
-      "id": "mnt_20260801T203459Z_9bfd758c",
+      "id": "mnt_20260802T010632Z_379f2733",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -6756,18 +6756,18 @@
         "symbol": null
       },
       "scope_key": "folder:fonts",
-      "summary": "Labyrinth Crumble uses visibly heavy, strongly chipped optical cuts",
-      "details": "Generate Display at weight 900, UI at 800, and Text at 600. Exterior-only chips must remain visible at actual game sizes: current contract floors are 220/150/60 accepted chips for Display/UI/Text, while component and counter counts stay unchanged. Reuse fresh proof filenames because Codex image previews cache by path.",
+      "summary": "Labyrinth Crumble uses heavy numerals and subtle stone-textured identity roles",
+      "details": "Keep body letters readable at the Text cut's 600 source weight while optically reinforcing digits from a 725 source so compact combat values remain legible. Time badges use the UI cut at a larger size; short card names may render up to 17 px while measured fitting protects long names such as Stormstring Shot. Give only large identity text (main title, room/map titles, recap title) smooth low-contrast organic stone mottling over the crisp chipped silhouette. Avoid tiled or blocky noise and internal cracks because they make letters look dirty or broken. Use newly generated screenshot paths for font iterations so visual feedback cannot be confused by cached images.",
       "status": "active",
-      "created_at": "2026-08-01T20:34:59Z",
-      "updated_at": "2026-08-01T20:34:59Z",
+      "created_at": "2026-08-02T01:06:32Z",
+      "updated_at": "2026-08-02T01:06:32Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260801T201621Z_e9a604e4"
+        "mnt_20260801T203459Z_9bfd758c"
       ],
       "source": {
         "branch": "codex/implement-readable-labyrinth-crumble-font-family-across-the-game",
-        "commit": "c6f55f2"
+        "commit": "e700ee6"
       }
     }
   ]

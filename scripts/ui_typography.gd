@@ -6,6 +6,46 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const DISPLAY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Display.tres"
 const UI_FONT_PATH: String = "res://fonts/LabyrinthCrumble-UI.tres"
 const TEXT_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Text.tres"
+const STONE_TEXT_SHADER_CODE: String = """
+shader_type canvas_item;
+
+uniform float texture_strength = 0.12;
+uniform float grain_scale = 4.0;
+
+varying vec2 local_position;
+
+float stone_hash(vec2 point) {
+	return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float stone_noise(vec2 point) {
+	vec2 cell = floor(point);
+	vec2 blend = fract(point);
+	blend = blend * blend * (3.0 - 2.0 * blend);
+	float top = mix(stone_hash(cell), stone_hash(cell + vec2(1.0, 0.0)), blend.x);
+	float bottom = mix(stone_hash(cell + vec2(0.0, 1.0)), stone_hash(cell + vec2(1.0, 1.0)), blend.x);
+	return mix(top, bottom, blend.y);
+}
+
+void vertex() {
+	local_position = VERTEX;
+}
+
+void fragment() {
+	vec4 glyph = texture(TEXTURE, UV);
+	float scale = max(grain_scale, 1.0);
+	float fine_grain = stone_noise(local_position / scale);
+	float broad_grain = stone_noise(local_position / (scale * 3.8) + vec2(19.0, 7.0));
+	float fleck_noise = stone_noise(local_position / (scale * 0.72) + vec2(5.0, 13.0));
+	float dark_fleck = smoothstep(0.82, 0.97, fleck_noise);
+	float pale_fleck = smoothstep(0.86, 0.98, stone_noise(local_position / scale + vec2(31.0, 11.0)));
+	float stone_value = (broad_grain - 0.5) * 0.82 + (fine_grain - 0.5) * 0.30;
+	stone_value -= dark_fleck * 0.20;
+	stone_value += pale_fleck * 0.10;
+	vec3 textured_color = clamp(COLOR.rgb * (1.0 + stone_value * texture_strength), vec3(0.0), vec3(1.0));
+	COLOR = vec4(textured_color, glyph.a * COLOR.a);
+}
+"""
 
 const ROLE_CAPTION: String = "caption"
 const ROLE_BODY: String = "body"
@@ -56,6 +96,18 @@ static func ui_font() -> Font:
 
 static func text_font() -> Font:
 	return AssetLoader.load_font(TEXT_FONT_PATH)
+
+static func apply_stone_text(control: CanvasItem, texture_strength: float = 0.12, grain_scale: float = 4.0) -> void:
+	if control == null:
+		return
+	var shader := Shader.new()
+	shader.code = STONE_TEXT_SHADER_CODE
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	material.set_shader_parameter("texture_strength", texture_strength)
+	material.set_shader_parameter("grain_scale", grain_scale)
+	control.material = material
+	control.set_meta("stone_text_texture", true)
 
 static func body_font() -> Font:
 	return text_font()

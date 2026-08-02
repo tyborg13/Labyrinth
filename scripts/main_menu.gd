@@ -59,11 +59,27 @@ uniform vec4 mid_color : source_color;
 uniform vec4 low_color : source_color;
 uniform vec4 bottom_color : source_color;
 uniform float gradient_height = 1.0;
+uniform float texture_strength = 0.12;
 
 varying float local_y;
+varying vec2 local_position;
+
+float stone_hash(vec2 point) {
+	return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float stone_noise(vec2 point) {
+	vec2 cell = floor(point);
+	vec2 blend = fract(point);
+	blend = blend * blend * (3.0 - 2.0 * blend);
+	float top = mix(stone_hash(cell), stone_hash(cell + vec2(1.0, 0.0)), blend.x);
+	float bottom = mix(stone_hash(cell + vec2(0.0, 1.0)), stone_hash(cell + vec2(1.0, 1.0)), blend.x);
+	return mix(top, bottom, blend.y);
+}
 
 void vertex() {
 	local_y = VERTEX.y;
+	local_position = VERTEX;
 }
 
 void fragment() {
@@ -73,6 +89,15 @@ void fragment() {
 	ramp = mix(ramp, mid_color, smoothstep(0.22, 0.62, y));
 	ramp = mix(ramp, low_color, smoothstep(0.50, 0.86, y));
 	ramp = mix(ramp, bottom_color, smoothstep(0.76, 1.00, y));
+	float fine_grain = stone_noise(local_position / 5.0);
+	float broad_grain = stone_noise(local_position / 19.0 + vec2(19.0, 7.0));
+	float fleck_noise = stone_noise(local_position / 3.6 + vec2(5.0, 13.0));
+	float dark_fleck = smoothstep(0.82, 0.97, fleck_noise);
+	float pale_fleck = smoothstep(0.86, 0.98, stone_noise(local_position / 5.0 + vec2(31.0, 11.0)));
+	float stone_value = (broad_grain - 0.5) * 0.82 + (fine_grain - 0.5) * 0.30;
+	stone_value -= dark_fleck * 0.20;
+	stone_value += pale_fleck * 0.10;
+	ramp.rgb = clamp(ramp.rgb * (1.0 + stone_value * texture_strength), vec3(0.0), vec3(1.0));
 	COLOR = vec4(ramp.rgb, glyph.a * COLOR.a);
 }
 """
@@ -264,6 +289,7 @@ func _make_title_face_material() -> ShaderMaterial:
 	material.set_shader_parameter("mid_color", TITLE_FACE_MID_COLOR)
 	material.set_shader_parameter("low_color", TITLE_FACE_LOW_COLOR)
 	material.set_shader_parameter("bottom_color", TITLE_FACE_BOTTOM_COLOR)
+	material.set_shader_parameter("texture_strength", 0.12)
 	return material
 
 func _apply_label_style(label: Label, font: Font, size: int, color: Color, outline_color: Color, outline_size: int) -> void:
