@@ -440,7 +440,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false) -> void:
 	for field: String in [
 		"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
 		"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile",
-		"_navigation_zoom", "_navigation_pan", "_navigation_content_signature",
+		"_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_navigation_content_signature",
 		"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
 		"_floor_variant_signature", "_moss_signature", "_damage_preview_cache",
 		"_visible_units_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",

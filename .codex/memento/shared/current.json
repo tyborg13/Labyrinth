@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-02T21:01:46Z",
+  "updated_at": "2026-08-02T21:09:39Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6838,6 +6838,28 @@
       "source": {
         "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
         "commit": "c2f8abf"
+      }
+    },
+    {
+      "id": "mnt_20260802T210938Z_06fceba3",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "DynamicRenderLayer must mirror default-versus-explicit board zoom state.",
+      "details": "When adaptive framing adds _navigation_uses_default_zoom, synchronize it with _navigation_zoom and _navigation_pan. Otherwise the dynamic layer resets an explicit min/max zoom to its aspect default, so tiles scale while rendered actors and pickups do not. The pickup probe must measure dynamic-layer geometry, not only the parent layout.",
+      "status": "active",
+      "created_at": "2026-08-02T21:09:38Z",
+      "updated_at": "2026-08-02T21:09:38Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
+        "commit": "6311042"
       }
     }
   ]

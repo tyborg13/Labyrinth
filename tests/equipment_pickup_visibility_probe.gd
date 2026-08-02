@@ -63,7 +63,13 @@ func _capture_zoom(viewport: SubViewport, board: Control, state: Dictionary, zoo
 	board.queue_redraw()
 	for _frame: int in range(3):
 		await process_frame
-	var geometry: Dictionary = _pickup_and_actor_geometry(board, state)
+	var dynamic_layer: Control = board.get("_dynamic_render_layer") as Control
+	_expect(dynamic_layer != null and dynamic_layer.is_inside_tree(), "Pickup proof needs the live DynamicRenderLayer that owns the rendered actors and pickups")
+	if dynamic_layer == null:
+		return
+	var geometry: Dictionary = _pickup_and_actor_geometry(dynamic_layer, state)
+	var parent_geometry: Dictionary = _pickup_and_actor_geometry(board, state)
+	_verify_dynamic_layer_geometry(geometry, parent_geometry, zoom)
 	var widths: Dictionary = {}
 	for object_id: String in ["player", "healing_vial", "rusty_shield", "equipment"]:
 		var rect: Rect2 = geometry.get(object_id, Rect2()) as Rect2
@@ -169,18 +175,27 @@ func _draw_geometry_label(overlay: Control, font: Font, source_rect: Rect2, text
 		Color("fff8e8")
 	)
 
-func _pickup_and_actor_geometry(board: Control, state: Dictionary) -> Dictionary:
+func _pickup_and_actor_geometry(render_layer: Control, state: Dictionary) -> Dictionary:
 	var player_unit: Dictionary = {}
-	for unit_var: Variant in board.call("_visible_units") as Array:
+	for unit_var: Variant in render_layer.call("_visible_units") as Array:
 		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "player":
 			player_unit = unit_var as Dictionary
 			break
-	var geometry: Dictionary = {"player": board.call("_unit_draw_rect", player_unit) as Rect2}
+	var geometry: Dictionary = {"player": render_layer.call("_unit_draw_rect", player_unit) as Rect2}
 	for loot_var: Variant in state.get("loot", []) as Array:
 		var loot: Dictionary = loot_var as Dictionary
-		var texture: Texture2D = board.call("_loot_texture", loot) as Texture2D
-		geometry[str(loot.get("kind", ""))] = board.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
+		var texture: Texture2D = render_layer.call("_loot_texture", loot) as Texture2D
+		geometry[str(loot.get("kind", ""))] = render_layer.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
 	return geometry
+
+func _verify_dynamic_layer_geometry(dynamic_geometry: Dictionary, parent_geometry: Dictionary, zoom: float) -> void:
+	for object_id: String in ["player", "healing_vial", "rusty_shield", "equipment"]:
+		var dynamic_rect: Rect2 = dynamic_geometry.get(object_id, Rect2()) as Rect2
+		var parent_rect: Rect2 = parent_geometry.get(object_id, Rect2()) as Rect2
+		_expect(
+			is_equal_approx(dynamic_rect.size.x, parent_rect.size.x) and is_equal_approx(dynamic_rect.size.y, parent_rect.size.y),
+			"DynamicRenderLayer %s geometry must match the parent at %.2fx zoom so visible board actors and pickups scale together" % [object_id, zoom]
+		)
 
 func _verify_zoom_geometry(snapshots: Dictionary) -> void:
 	var min_widths: Dictionary = snapshots.get("min", {}) as Dictionary
