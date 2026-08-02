@@ -11,6 +11,7 @@ const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/H
 const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
 const LOG_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
+const PRODUCTION_VIEWPORT: Vector2i = Vector2i(1920, 1227)
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -177,6 +178,7 @@ func _capture_states() -> void:
 	_assert_context(instance, "MOVE", "STEP 1/2", "HUD stress")
 	_assert_hud_collision_free(instance)
 	await _save_root_screenshot("%s/hud_stress.png" % OUTPUT_DIR)
+	await _capture_production_aspect_geometry(instance)
 
 	instance.queue_free()
 	await process_frame
@@ -353,7 +355,6 @@ func _assert_pass_meter_layout(instance: Node, state_kind: String) -> void:
 	_assert(ribbon_rect.position.y >= chip_rect.position.y + 71.0 and ribbon_rect.end.y <= chip_rect.position.y + 91.0, "%s TURN END forecast should stay contained in the authored lower ribbon" % state_kind)
 	_assert(absf(meter_label.get_global_rect().get_center().y - meter.get_global_rect().get_center().y) <= 1.0, "%s ordinary meter label should stay vertically centered" % state_kind)
 	_assert(chip.get_global_rect().position.y >= meter.get_global_rect().end.y + 5.0, "%s pass ribbon should stay below the meter plaque" % state_kind)
-	_assert(absf(meter.get_global_rect().position.x - 303.0) <= 1.0 and absf(meter.get_global_rect().position.y - 814.0) <= 1.0, "%s action dock should hold its fixed left-side anchor" % state_kind)
 	_assert(absf(meter.get_global_rect().get_center().x - chip_rect.get_center().x) <= 1.0, "%s meter should center over the wider Pass control" % state_kind)
 	_assert(_rect_is_onscreen(meter.get_global_rect()) and _rect_is_onscreen(chip_rect), "%s action dock should remain wholly on screen" % state_kind)
 	_assert(not meter.get_global_rect().intersects(chip_rect), "%s meter and Pass controls should not overlap" % state_kind)
@@ -383,6 +384,11 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 		var card_rect: Rect2 = instance.call("_control_visual_global_rect", card)
 		for dock_rect: Rect2 in dock_rects:
 			_assert(not dock_rect.intersects(card_rect), "%s action dock should stay left of hand card %d" % [state_kind, index + 1])
+	if not hand.is_empty():
+		var leftmost_card: Control = instance.call("_hand_card_control", 0) as Control
+		if leftmost_card != null and leftmost_card.visible:
+			var leftmost_rect: Rect2 = instance.call("_control_visual_global_rect", leftmost_card)
+			_assert(pass_rect.end.x <= leftmost_rect.position.x - 20.0, "%s Pass dock should keep a visible gap before the leftmost full-hand card" % state_kind)
 
 func _rect_is_onscreen(rect: Rect2) -> bool:
 	var viewport := Rect2(Vector2.ZERO, get_root().get_visible_rect().size)
@@ -495,13 +501,15 @@ func _assert_hud_collision_free(instance: Node) -> void:
 	_assert(card_anchor.position.y - context_rect.end.y <= 24.0, "Action context should stay close to the cards instead of floating beside the board")
 
 func _assert_full_hd_normal_hud(instance: Node) -> void:
+	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
+	var hand_top: float = float(instance.call("_hand_visual_top"))
 	if DisplayServer.get_name() == "headless":
+		print("HUD GEOMETRY 1920x1080 (headless layout) board=%s hand_top=%.1f gap=%.1f" % [board_bounds, hand_top, hand_top - board_bounds.end.y])
 		return
 	var viewport: Vector2 = instance.get_viewport().get_visible_rect().size
 	_assert(viewport == Vector2(PROBE_VIEWPORT), "Combat HUD proof must use an exact 1920x1080 logical viewport")
 	var tutorial: Control = instance.get("_contextual_combat_prompt_host") as Control
 	_assert(tutorial == null or not tutorial.visible, "Normal combat proof must not show the transient COMBAT NOTE tutorial")
-	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
 	_assert(board_bounds.size.x >= viewport.x * 0.65 and board_bounds.size.y >= viewport.y * 0.55, "Normal combat board should remain the dominant 65%% x 55%% playfield (got %.1f%% x %.1f%%)" % [board_bounds.size.x / viewport.x * 100.0, board_bounds.size.y / viewport.y * 100.0])
 	_assert(board_bounds.position.y <= viewport.y * 0.11, "Normal combat board should begin in the top 11%% of the viewport (got %.1f%% / %.0fpx)" % [board_bounds.position.y / viewport.y * 100.0, board_bounds.position.y])
 	var hand_box: Control = instance.get_node(HAND_PATH) as Control
@@ -520,6 +528,9 @@ func _assert_full_hd_normal_hud(instance: Node) -> void:
 	# ceiling while allowing sub-pixel transform noise, never a 209px card.
 	_assert(fixture_card_width > 203.5 and fixture_card_width <= 208.5, "Five-card combat fixture should use cards just above the original 204px width (got %.2fpx rendered)" % fixture_card_width)
 	_assert(has_hand_bounds and hand_bounds.size.y <= viewport.y * 0.36, "Five-card combat fan should stay below 36%% of viewport height (got %.1f%% / %.0fpx)" % [hand_bounds.size.y / viewport.y * 100.0, hand_bounds.size.y])
+	_assert(board_bounds.position.y >= 8.0, "Default board framing should not crop the top rendered tiles at 1920x1080 (board=%s hand_top=%.1f)" % [board_bounds, hand_top])
+	_assert(hand_top >= board_bounds.end.y + 36.0, "Default board framing should leave at least 36px between the rendered board and hand at 1920x1080 (board=%s hand_top=%.1f)" % [board_bounds, hand_top])
+	print("HUD GEOMETRY 1920x1080 board=%s hand_top=%.1f gap=%.1f" % [board_bounds, hand_top, hand_top - board_bounds.end.y])
 	var meter: Control = instance.get("_play_meter") as Control
 	var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	_assert(meter != null and meter.visible and pass_chip != null and pass_chip.visible, "Normal combat should show the separate card-play and Pass forecast dock")
@@ -547,6 +558,55 @@ func _assert_dense_turn_order_rail(instance: Node) -> void:
 		rail_bottom = maxf(rail_bottom, slot.get_global_rect().end.y)
 	var meter: Control = instance.get("_play_meter") as Control
 	_assert(meter != null and not rail.get_global_rect().intersects(meter.get_global_rect()), "Dense initiative rail should remain separate from the fixed left-side action dock" if meter != null else "Dense initiative rail needs its action dock")
+	var utility_bottom: float = float(instance.call("_utility_stack_visible_bottom"))
+	if slots.size() > 0 and utility_bottom > -INF:
+		_assert(slots[0].get_global_rect().position.y >= utility_bottom + 12.0, "First initiative portrait should clear the actual visible utility buttons and badges")
+
+func _capture_production_aspect_geometry(instance: Node) -> void:
+	DisplayServer.window_set_size(PRODUCTION_VIEWPORT)
+	root.content_scale_size = PRODUCTION_VIEWPORT
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	root.size = PRODUCTION_VIEWPORT
+	await _settle_ui()
+	await _load_combat_fixture(
+		instance,
+		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"],
+		Vector2i(2, 4),
+		[Vector2i(3, 2), Vector2i(4, 2), Vector2i(5, 2), Vector2i(2, 3), Vector2i(3, 3), Vector2i(4, 3), Vector2i(5, 3), Vector2i(3, 4), Vector2i(4, 4)],
+		9811
+	)
+	var live_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	live_state["skill_ids"] = ["quick_wits"]
+	var live_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	live_run_state["combat_state"] = live_state.duplicate(true)
+	instance.set("_combat_state", live_state)
+	instance.set("_run_state", live_run_state)
+	instance.call("_refresh_ui")
+	instance.call("_refresh_relic_bar")
+	instance.call("_layout_header_hud")
+	await _settle_ui()
+	var ability_sigil: Button = instance.get("_skill_sigil") as Button
+	var ability_title: Label = ability_sigil.find_child("SkillSigilTitle", true, false) as Label if ability_sigil != null else null
+	_assert(ability_sigil != null and ability_sigil.visible and ability_title != null and ability_title.text == "ABILITIES", "Production geometry proof should enable the live ABILITIES header panel")
+	var loadout_badge: Control = instance.get("_loadout_badge") as Control
+	var grimoire_badge: Control = instance.get("_grimoire_badge") as Control
+	if loadout_badge != null:
+		loadout_badge.visible = true
+	if grimoire_badge != null:
+		grimoire_badge.visible = true
+	instance.call("_layout_turn_order_anchor")
+	await _settle_ui()
+	_assert(instance.get_viewport().get_visible_rect().size == Vector2(PRODUCTION_VIEWPORT), "Production geometry proof must use the live 1920x1227 expanded-aspect canvas")
+	_assert_dense_turn_order_rail(instance)
+	_assert_pass_meter_layout(instance, "production expanded-aspect")
+	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
+	var hand_top: float = float(instance.call("_hand_visual_top"))
+	await _save_root_screenshot("%s/production_live_1920x1227.png" % OUTPUT_DIR, PRODUCTION_VIEWPORT)
+	_assert(board_bounds.position.y >= 48.0 and board_bounds.position.y <= 84.0, "Production board should begin in the intended upper framing band instead of leaving dead space (board=%s)" % board_bounds)
+	_assert(board_bounds.size.x >= 1475.0 and board_bounds.size.x <= 1525.0 and board_bounds.size.y >= 735.0 and board_bounds.size.y <= 790.0, "Production board should dominate at the expanded aspect (board=%s)" % board_bounds)
+	var production_gap: float = hand_top - board_bounds.end.y
+	_assert(production_gap >= 24.0 and production_gap <= 80.0, "Production board should end just above the hand with a clear but compact gap (board=%s hand_top=%.1f gap=%.1f)" % [board_bounds, hand_top, production_gap])
+	print("HUD GEOMETRY 1920x1227 board=%s hand_top=%.1f gap=%.1f" % [board_bounds, hand_top, hand_top - board_bounds.end.y])
 
 func _assert_compact_pile_controls(instance: Node) -> void:
 	for pile_name: String in ["draw_pile", "discard_pile"]:
@@ -630,7 +690,7 @@ func _settle_ui() -> void:
 	RenderingServer.force_draw()
 	await process_frame
 
-func _save_root_screenshot(output_path: String) -> void:
+func _save_root_screenshot(output_path: String, expected_size: Vector2i = PROBE_VIEWPORT) -> void:
 	if DisplayServer.get_name() == "headless":
 		return
 	var texture: Texture2D = root.get_viewport().get_texture()
@@ -639,14 +699,14 @@ func _save_root_screenshot(output_path: String) -> void:
 	if image == null:
 		return
 	var source_size: Vector2i = image.get_size()
-	var scale_x: float = float(source_size.x) / float(PROBE_VIEWPORT.x)
-	var scale_y: float = float(source_size.y) / float(PROBE_VIEWPORT.y)
-	var valid_backing_size: bool = is_equal_approx(scale_x, scale_y) and is_equal_approx(float(source_size.x) / float(source_size.y), 16.0 / 9.0)
-	_assert(valid_backing_size, "Combat HUD proof must keep an exact 16:9 proportional backing, got %s (scale %.4f x %.4f)" % [source_size, scale_x, scale_y])
+	var scale_x: float = float(source_size.x) / float(expected_size.x)
+	var scale_y: float = float(source_size.y) / float(expected_size.y)
+	var valid_backing_size: bool = is_equal_approx(scale_x, scale_y) and is_equal_approx(float(source_size.x) / float(source_size.y), float(expected_size.x) / float(expected_size.y))
+	_assert(valid_backing_size, "Combat HUD proof must preserve the expected proportional backing, got %s for %s (scale %.4f x %.4f)" % [source_size, expected_size, scale_x, scale_y])
 	if not valid_backing_size:
 		return
-	if source_size != PROBE_VIEWPORT:
-		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
+	if source_size != expected_size:
+		image.resize(expected_size.x, expected_size.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
 
 func _assert(condition: bool, message: String) -> void:

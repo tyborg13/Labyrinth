@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-02T19:46:11Z",
+  "updated_at": "2026-08-02T21:01:46Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6793,28 +6793,6 @@
       }
     },
     {
-      "id": "mnt_20260802T185654Z_d88aa06a",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Combat Pass control uses a fixed bottom-left dock at 1920\u00d71080.",
-      "details": "Keep the 228px meter at (303,814) and center it above the native 270px Pass art at x=282; this intentional placement preserves full-hand and tactical-rail clearance.",
-      "status": "active",
-      "created_at": "2026-08-02T18:56:54Z",
-      "updated_at": "2026-08-02T18:56:54Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
-        "commit": "8dfdc23"
-      }
-    },
-    {
       "id": "mnt_20260802T194611Z_df50e3c8",
       "layer": "shared",
       "kind": "decision",
@@ -6836,6 +6814,30 @@
       "source": {
         "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
         "commit": "8dfdc23"
+      }
+    },
+    {
+      "id": "mnt_20260802T210146Z_3e615498",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat dock placement follows rendered hand and pile bounds, not a fixed viewport anchor.",
+      "details": "Derive the Pass/meter dock from transformed hand and pile bounds with a visible card gap. Pair this with aspect-aware CombatBoardView defaults: compact 1080 framing remains safe while the expanded live canvas is larger and higher. Production aspect=expand with live ABILITIES/utility badges changes HUD geometry, so validate it in tests/combat_interaction_probe.gd; popup coverage remains in tests/floating_damage_probe.gd.",
+      "status": "active",
+      "created_at": "2026-08-02T21:01:46Z",
+      "updated_at": "2026-08-02T21:01:46Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260802T185654Z_d88aa06a"
+      ],
+      "source": {
+        "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
+        "commit": "c2f8abf"
       }
     }
   ]

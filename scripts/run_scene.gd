@@ -6801,18 +6801,13 @@ func _layout_turn_order_anchor() -> void:
 	if _turn_order_anchor == null:
 		return
 	var header_bottom: float = TURN_ORDER_RAIL_TOP_GAP
-	# Anchor to the compact right-side utility group, not the title/relic column
-	# that can make TopBar much taller. This preserves a visual pause before the
-	# separate lower-right action dock in dense initiative states.
-	var utility_height: float = 0.0
-	for utility: Control in [stats_label, loadout_button, grimoire_button, menu_button]:
-		if utility != null and utility.visible:
-			utility_height = maxf(utility_height, utility.get_combined_minimum_size().y)
-	if utility_height > 0.0 and top_bar != null and ui_root != null:
-		# TopBar applies its own vertical centering/padding around this compact row.
-		# Cancel that extra reserved title-column slack while retaining a clear gap
-		# below the utility controls themselves.
-		header_bottom = top_bar.get_global_rect().position.y - ui_root.get_global_rect().position.y + utility_height + TURN_ORDER_RAIL_TOP_GAP - 40.0
+	# The live header can grow independently of the compact utility buttons (and
+	# their unread badges). Anchor beneath their rendered bottom edge instead of
+	# reconstructing it from TopBar minimum sizes: expanded-aspect production
+	# windows otherwise let the active portrait collide with the first button.
+	var utility_bottom: float = _utility_stack_visible_bottom()
+	if utility_bottom > -INF and ui_root != null:
+		header_bottom = utility_bottom - ui_root.get_global_rect().position.y + TURN_ORDER_RAIL_TOP_GAP
 	elif top_bar != null:
 		var top_bar_rect: Rect2 = top_bar.get_global_rect()
 		header_bottom = top_bar_rect.end.y - ui_root.get_global_rect().position.y + TURN_ORDER_RAIL_TOP_GAP
@@ -6825,6 +6820,21 @@ func _layout_turn_order_anchor() -> void:
 	_turn_order_anchor.size = rail_size
 	_layout_boss_health_overlay()
 	_layout_combat_action_dock()
+
+func _utility_stack_visible_bottom() -> float:
+	var bottom: float = -INF
+	for utility: Control in [stats_label, loadout_button, grimoire_button, menu_button]:
+		if utility == null or not utility.visible or not utility.is_inside_tree():
+			continue
+		bottom = maxf(bottom, utility.get_global_rect().end.y)
+		# Badges are children of the utility controls and may deliberately overhang
+		# their art. Include their actual visible extents rather than assuming that
+		# the button's minimum height bounds every production state.
+		for descendant_var: Variant in utility.find_children("*", "Control", true, false):
+			var descendant: Control = descendant_var as Control
+			if descendant != null and descendant.visible:
+				bottom = maxf(bottom, descendant.get_global_rect().end.y)
+	return bottom
 
 func _layout_boss_health_overlay() -> void:
 	if _boss_health_overlay == null:
@@ -6856,18 +6866,50 @@ func _layout_combat_action_dock() -> void:
 	if not in_combat:
 		return
 	var viewport_size: Vector2 = get_viewport_rect().size
+	# These positions share the canvas coordinate space used by the rendered hand
+	# bounds. Window backing scale is intentionally not applied a second time.
 	var meter_size: Vector2 = _play_meter.get_combined_minimum_size()
-	# Keep the player-turn dock in one authored, negative-space anchor. It must not
-	# follow hand reflow: the hand, tutorial, piles, and initiative rail all change
-	# independently while this compact decision remains stable.
-	# The 228px meter is centered over the 270px Pass frame, so this anchor is
-	# 21px to the right of the larger frame's left edge.
-	var dock_anchor := Vector2(303.0, 814.0)
-	var dock_height: float = meter_size.y + PASS_PREVIEW_STACK_GAP + PASS_PREVIEW_CHIP_SIZE.y
+	var pass_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
+	var dock_height: float = meter_size.y + PASS_PREVIEW_STACK_GAP + pass_size.y
+	var hand_bounds: Rect2 = _combat_hand_visual_bounds()
+	var dock_left: float = 8.0
+	for pile: Control in [draw_pile, discard_pile, burn_pile]:
+		if pile != null and pile.visible and pile.is_inside_tree():
+			dock_left = maxf(dock_left, pile.get_global_rect().end.x + 12.0)
+	# Put the final-action dock in the real negative space immediately before the
+	# rendered fan. This stays correct when aspect expansion or card scaling moves
+	# the leftmost card, while preserving the authored meter-over-Pass composition.
+	if hand_bounds.size.x > 0.0:
+		dock_left = maxf(dock_left, hand_bounds.position.x - pass_size.x - 24.0)
+	var pass_left: float = clampf(dock_left, 8.0, maxf(8.0, viewport_size.x - pass_size.x - 8.0))
+	var meter_left: float = pass_left + (pass_size.x - meter_size.x) * 0.5
+	var dock_top: float = viewport_size.y * 0.754
+	if hand_bounds.size.y > 0.0:
+		dock_top = hand_bounds.position.y - meter_size.y - 12.0
+	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
+	var top_limit: float = 8.0
+	if board_bounds.size.y > 0.0:
+		top_limit = maxf(top_limit, board_bounds.end.y + 12.0)
+	var bottom_limit: float = maxf(8.0, viewport_size.y - dock_height - 8.0)
+	dock_top = clampf(dock_top, minf(top_limit, bottom_limit), bottom_limit)
 	_play_meter.global_position = Vector2(
-		clampf(dock_anchor.x, 8.0, maxf(8.0, viewport_size.x - meter_size.x - 8.0)),
-		clampf(dock_anchor.y, 8.0, maxf(8.0, viewport_size.y - dock_height - 8.0))
+		clampf(meter_left, 8.0, maxf(8.0, viewport_size.x - meter_size.x - 8.0)),
+		dock_top
 	)
+
+func _combat_hand_visual_bounds() -> Rect2:
+	var bounds := Rect2()
+	var has_bounds: bool = false
+	if hand_box == null:
+		return bounds
+	for index: int in range(hand_box.get_child_count()):
+		var card: Control = _hand_card_control(index)
+		if card == null or not card.visible:
+			continue
+		var card_bounds: Rect2 = _control_visual_global_rect(card)
+		bounds = card_bounds if not has_bounds else bounds.merge(card_bounds)
+		has_bounds = true
+	return bounds
 
 func _relic_bar_visible_bottom_y() -> float:
 	if relic_bar == null:
@@ -12407,6 +12449,11 @@ func _fit_current_hand_layout_to_visible_width() -> void:
 	if card_size.x <= 0.0 or card_size.y <= 0.0:
 		card_size = first_card.size
 	hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
+	# The fan may settle after the initial combat refresh (particularly when the
+	# expanded-aspect window changes its available width). Place the dock only
+	# after these final transformed card bounds are authoritative.
+	_layout_combat_action_dock()
+	_layout_choice_button_overlay()
 
 func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	return _scaled_card_slot(widget, card_size)

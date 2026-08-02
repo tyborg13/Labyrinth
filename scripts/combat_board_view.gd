@@ -116,12 +116,16 @@ const BOARD_SIDE_MARGIN: float = 36.0
 const BOARD_VERTICAL_MARGIN: float = 8.0
 const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
 const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.34
-const BOARD_VERTICAL_BIAS: float = 0.28
+const BOARD_VERTICAL_BIAS: float = 1.20
 const BOARD_MAX_TILE_WIDTH: float = 184.0
 const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
 const BOARD_MAX_NAVIGATION_ZOOM: float = 1.40
 const BOARD_ZOOM_STEP: float = 1.10
 const BOARD_DEFAULT_NAVIGATION_ZOOM: float = 1.26
+const BOARD_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.22
+const BOARD_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.36
+const BOARD_COMPACT_VIEWPORT_HEIGHT: float = 1080.0
+const BOARD_EXPANDED_VIEWPORT_HEIGHT: float = 1227.0
 const BOARD_PAN_DRAG_THRESHOLD: float = 8.0
 const BOARD_PAN_OVERSCROLL_FRACTION: float = 0.08
 const BOARD_PAN_OVERSCROLL_MAX: float = 72.0
@@ -284,6 +288,7 @@ var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_moved: bool = false
 var _navigation_zoom: float = BOARD_DEFAULT_NAVIGATION_ZOOM
 var _navigation_pan: Vector2 = Vector2.ZERO
+var _navigation_uses_default_zoom: bool = true
 var _navigation_content_signature: String = ""
 var _navigation_pointer_button: int = MOUSE_BUTTON_NONE
 var _navigation_pointer_start: Vector2 = Vector2.ZERO
@@ -856,6 +861,7 @@ func set_navigation_zoom(next_zoom: float, focus_position: Vector2 = Vector2(-1.
 	_navigation_zoom = clamped_zoom
 	var next_tile_width: float = _tile_width_for_extents(_board_layout_cache_extents) * _navigation_zoom
 	_navigation_pan = _clamped_navigation_pan_for_layout(anchored_pan, _board_layout_cache_extents, next_tile_width)
+	_navigation_uses_default_zoom = false
 	_navigation_transform_changed(true)
 
 func set_navigation_pan(next_pan: Vector2, update_hover: bool = true) -> void:
@@ -867,11 +873,22 @@ func set_navigation_pan(next_pan: Vector2, update_hover: bool = true) -> void:
 	_navigation_transform_changed(update_hover)
 
 func reset_navigation() -> void:
-	var changed: bool = not is_equal_approx(_navigation_zoom, BOARD_DEFAULT_NAVIGATION_ZOOM) or not _navigation_pan.is_zero_approx()
-	_navigation_zoom = BOARD_DEFAULT_NAVIGATION_ZOOM
+	var default_zoom: float = _default_navigation_zoom_for_viewport()
+	var changed: bool = not is_equal_approx(_navigation_zoom, default_zoom) or not _navigation_pan.is_zero_approx() or not _navigation_uses_default_zoom
+	_navigation_zoom = default_zoom
 	_navigation_pan = Vector2.ZERO
+	_navigation_uses_default_zoom = true
 	if changed:
 		_navigation_transform_changed(true)
+
+func _default_navigation_zoom_for_viewport() -> float:
+	var viewport_height: float = get_viewport_rect().size.y
+	var expansion: float = clampf(
+		(viewport_height - BOARD_COMPACT_VIEWPORT_HEIGHT) / (BOARD_EXPANDED_VIEWPORT_HEIGHT - BOARD_COMPACT_VIEWPORT_HEIGHT),
+		0.0,
+		1.0
+	)
+	return lerpf(BOARD_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
 
 func navigation_snapshot() -> Dictionary:
 	_ensure_board_layout_cache()
@@ -5112,7 +5129,7 @@ func _draw_floating_texts() -> void:
 		var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
 		if tile.x < 0:
 			continue
-		var label_width: float = float(entry.get("width", 48.0))
+		var label_width: float = _floating_text_rendered_width(entry, font)
 		var font_scale: float = clampf(float(entry.get("font_scale", 1.0)), 0.1, 2.0)
 		var motion_offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
 		var text_pos: Vector2
@@ -5166,6 +5183,34 @@ func _draw_floating_texts() -> void:
 					draw_string(font, local_text_pos + Vector2(outline_x, outline_y), text, alignment, label_width, font_size, outline_color)
 		draw_string(font, local_text_pos, text, alignment, label_width, font_size, color)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _floating_text_rendered_width(entry: Dictionary, font: Font = null) -> float:
+	var resolved_font: Font = font
+	if resolved_font == null:
+		resolved_font = UiTypography.body_font() if FloatingCombatText.is_damage_entry(entry) else get_theme_default_font()
+	if resolved_font == null:
+		return float(entry.get("width", 48.0))
+	var text: String = str(entry.get("text", ""))
+	var font_size: int = int(entry.get("font_size", 16))
+	var outline_size: int = int(entry.get("outline_size", 2))
+	var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
+	var text_width: float = resolved_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	# draw_string's width bounds the glyph layout. Reserve its outline and shadow
+	# as well, so short status words such as Draw and Play cannot lose their final
+	# glyph at the impact scale.
+	var required_width: float = ceilf(text_width) + float(outline_size * 2) + absf(shadow_offset.x)
+	var icon_key: String = str(entry.get("icon", ""))
+	if not icon_key.is_empty():
+		required_width += float(entry.get("icon_size", 18.0)) + 4.0
+	return maxf(float(entry.get("width", 48.0)), required_width)
+
+func _floating_text_glyph_width(entry: Dictionary, font: Font = null) -> float:
+	var resolved_font: Font = font
+	if resolved_font == null:
+		resolved_font = UiTypography.body_font() if FloatingCombatText.is_damage_entry(entry) else get_theme_default_font()
+	if resolved_font == null:
+		return 0.0
+	return resolved_font.get_string_size(str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(entry.get("font_size", 16))).x
 
 func _floating_text_local_origin(tile: Vector2i, rendered_width: float) -> Vector2:
 	var target_rect: Rect2 = _floating_text_target_rect(tile)
@@ -6418,7 +6463,7 @@ func _board_origin() -> Vector2:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_origin
 
-func _board_origin_for_extents(extents: Dictionary, tile_width: float) -> Vector2:
+func _board_origin_for_extents(extents: Dictionary, tile_width: float, tiles: Array[Vector2i]) -> Vector2:
 	var half_height: float = tile_width * 0.25
 	var half_width: float = tile_width * 0.5
 	var min_diag: float = float(extents.get("min_diag", -4.0))
@@ -6433,13 +6478,38 @@ func _board_origin_for_extents(extents: Dictionary, tile_width: float) -> Vector
 	var target_center_x: float = content_left + content_width * 0.5
 	var origin_x: float = target_center_x - ((min_diag + max_diag) * 0.5 * half_width)
 	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
+	# Bias the default composition upward for the lower hand clearance, but never
+	# let that presentation offset crop the topmost rendered tile. This is a base
+	# framing correction, not a clamp on _navigation_pan, so player pan and zoom
+	# preferences retain their existing behavior.
+	origin_y += _default_vertical_framing_offset(extents, tile_width, content_top, tiles)
 	return Vector2(origin_x, origin_y) + _navigation_pan
+
+func _default_vertical_framing_offset(extents: Dictionary, tile_width: float, content_top: float, tiles: Array[Vector2i]) -> float:
+	var half_height: float = tile_width * 0.25
+	var min_sum: float = float(extents.get("min_sum", 0.0))
+	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
+	var visual_top: float = INF
+	for tile: Vector2i in tiles:
+		visual_top = minf(visual_top, origin_y + float(tile.x + tile.y) * half_height - half_height)
+	if not is_finite(visual_top):
+		visual_top = origin_y - half_height
+	# The board is nested below the stage chrome, so the screenshot-safe top edge
+	# lives in global canvas space rather than at local y=BOARD_VERTICAL_MARGIN.
+	var global_safe_top: float = BOARD_VERTICAL_MARGIN
+	var local_safe_top: float = global_safe_top - get_global_transform().origin.y
+	return maxf(0.0, local_safe_top - visual_top)
 
 func _navigation_zoom_anchor() -> Vector2:
 	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+	var extents: Dictionary = _board_layout_cache_extents
+	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
+	var content_height: float = _board_layout_height_units(extents) * tile_width
+	var content_top: float = BOARD_VERTICAL_MARGIN + (available_height - content_height) * BOARD_VERTICAL_BIAS
+	var framing_offset: float = _default_vertical_framing_offset(extents, tile_width, content_top, _board_layout_cache_tiles)
 	return Vector2(
 		size.x * 0.5,
-		BOARD_VERTICAL_MARGIN + available_height * BOARD_VERTICAL_BIAS
+		BOARD_VERTICAL_MARGIN + available_height * BOARD_VERTICAL_BIAS + framing_offset
 	)
 
 func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
@@ -6455,6 +6525,7 @@ func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vecto
 		BOARD_SIDE_MARGIN + (available_size.x - content_size.x) * 0.5,
 		BOARD_VERTICAL_MARGIN + (available_size.y - content_size.y) * BOARD_VERTICAL_BIAS
 	)
+	content_position.y += _default_vertical_framing_offset(extents, tile_width, content_position.y, _board_layout_cache_tiles)
 	return Rect2(content_position + pan, content_size)
 
 func _navigation_pan_limits(extents: Dictionary, tile_width: float) -> Rect2:
@@ -6786,6 +6857,8 @@ func _invalidate_board_layout_cache(content_changed: bool = true) -> void:
 func _ensure_board_layout_cache() -> void:
 	if _board_layout_cache_valid and _board_layout_cache_size == size:
 		return
+	if _navigation_uses_default_zoom:
+		_navigation_zoom = _default_navigation_zoom_for_viewport()
 	var tiles: Array[Vector2i] = _board_layout_cache_tiles
 	var extents: Dictionary = _board_layout_cache_extents
 	if not _board_layout_content_cache_valid:
@@ -6800,7 +6873,7 @@ func _ensure_board_layout_cache() -> void:
 	_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
 	_board_layout_cache_size = size
 	_board_layout_cache_tile_width = tile_width
-	_board_layout_cache_origin = _board_origin_for_extents(extents, tile_width)
+	_board_layout_cache_origin = _board_origin_for_extents(extents, tile_width, tiles)
 	_board_layout_cache_tile_centers = {}
 	_board_layout_cache_tile_polygons = {}
 	var tile_height: float = tile_width * 0.5

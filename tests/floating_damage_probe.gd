@@ -138,6 +138,26 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 		"%s/terrain_damage_local.png" % output_dir,
 		screenshot_size
 	)
+	var effect_words: Array = [
+		{"tile": Vector2i(4, 2), "text": "Draw", "color": Color("ffe27a")},
+		{"tile": Vector2i(5, 3), "text": "Play", "color": Color("a8e6ff")},
+	]
+	for effect_capture: Dictionary in [
+		{"name": "effect_words_impact.png", "elapsed": 0.0, "reduced": false},
+		{"name": "effect_words_settled.png", "elapsed": FloatingCombatText.ANIMATION_DURATION_SECONDS * FloatingCombatText.DAMAGE_SETTLE_PROGRESS, "reduced": false},
+		{"name": "effect_words_reduced_motion.png", "elapsed": FloatingCombatText.ANIMATION_DURATION_SECONDS * FloatingCombatText.DAMAGE_SETTLE_PROGRESS, "reduced": true},
+	]:
+		await _capture_popup_state(
+			instance,
+			viewport,
+			combat_state,
+			effect_words,
+			float(effect_capture.get("elapsed", 0.0)),
+			bool(effect_capture.get("reduced", false)),
+			["enemy_1", "enemy_2"],
+			"%s/%s" % [output_dir, str(effect_capture.get("name", ""))],
+			screenshot_size
+		)
 
 	var compound_entries: Array = [
 		FloatingCombatText.damage_entry(Vector2i(5, 3), "-13", Color("f39779")),
@@ -227,7 +247,7 @@ func _capture_popup_state(
 		for entry: Dictionary in animated_entries:
 			var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
 			var target_rect: Rect2 = board.call("_floating_text_target_rect", tile) as Rect2
-			var rendered_width: float = float(entry.get("width", 48.0)) * float(entry.get("font_scale", 1.0))
+			var rendered_width: float = float(board.call("_floating_text_rendered_width", entry)) * float(entry.get("font_scale", 1.0))
 			var origin: Vector2 = board.call("_floating_text_local_origin", tile, rendered_width) as Vector2
 			var anchor_delta_x: float = origin.x + rendered_width * 0.5 - target_rect.get_center().x
 			_expect(
@@ -240,6 +260,13 @@ func _capture_popup_state(
 				),
 				"%s popup center should overlap its receiving actor or terrain target" % path
 			)
+			if FloatingCombatText.is_effect_entry(entry):
+				var glyph_width: float = float(board.call("_floating_text_glyph_width", entry))
+				var allocated_width: float = float(board.call("_floating_text_rendered_width", entry))
+				_expect(
+					allocated_width >= glyph_width + float(int(entry.get("outline_size", 0)) * 2),
+					"%s should allocate every Draw/Play glyph plus its outline at this animation state" % path
+				)
 	await _save_screenshot(viewport, path, expected_size)
 
 
