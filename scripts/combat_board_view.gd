@@ -2221,6 +2221,7 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 	for tile: Vector2i in tiles:
 		_draw_scene_props_for_tile(tile, obstruction_entries)
 		_draw_tile_props(grid, tile, obstruction_entries)
+		_draw_exit_marker_for_tile(tile)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
 
 func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
@@ -4212,25 +4213,53 @@ func _draw_status_text() -> void:
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
-	draw_string(font, Vector2(22.0, 30.0), status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color("f4ebd7"))
+	var layout: Dictionary = _status_text_layout(font)
+	var label_rect: Rect2 = layout.get("label", Rect2()) as Rect2
+	draw_string(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 20, Color("f4ebd7"))
 	if not status_detail.is_empty():
-		draw_string(font, Vector2(22.0, 54.0), status_detail, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, 14, Color("d8ccb6"))
+		var detail_rect: Rect2 = layout.get("detail", Rect2()) as Rect2
+		draw_string(font, detail_rect.position + Vector2(0.0, detail_rect.size.y), status_detail, HORIZONTAL_ALIGNMENT_CENTER, detail_rect.size.x, 14, Color("d8ccb6"))
+
+func _status_text_layout(font: Font) -> Dictionary:
+	var safe_rect: Rect2 = Rect2(Vector2(280.0, 0.0), Vector2(maxf(1.0, size.x - 560.0), 64.0))
+	var safe_global_rect: Rect2 = presentation.get("status_safe_global_rect", Rect2()) as Rect2
+	if safe_global_rect.size.x > 0.0 and safe_global_rect.size.y > 0.0:
+		# The board camera's transform can settle after RunScene builds its
+		# presentation. Convert the screen-safe band at draw time so its label stays
+		# centered between the actual header groups rather than drifting with a stale
+		# board-local transform.
+		var inverse_transform: Transform2D = get_global_transform().affine_inverse()
+		var local_top_left: Vector2 = inverse_transform * safe_global_rect.position
+		var local_bottom_right: Vector2 = inverse_transform * safe_global_rect.end
+		safe_rect = Rect2(local_top_left, local_bottom_right - local_top_left)
+	if safe_rect.size.x <= 0.0 or safe_rect.size.y <= 0.0:
+		safe_rect = Rect2(Vector2.ZERO, Vector2(maxf(1.0, size.x), 64.0))
+	var label_size: Vector2 = font.get_string_size(status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20)
+	var label_rect := Rect2(
+		Vector2(safe_rect.get_center().x - label_size.x * 0.5, safe_rect.position.y + 10.0),
+		label_size
+	)
+	var detail_rect := Rect2()
+	if not status_detail.is_empty():
+		var detail_size: Vector2 = font.get_string_size(status_detail, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14)
+		detail_rect = Rect2(
+			Vector2(safe_rect.get_center().x - detail_size.x * 0.5, safe_rect.position.y + 34.0),
+			detail_size
+		)
+	return {"label": label_rect, "detail": detail_rect}
 
 func status_text_local_bounds() -> Rect2:
-	# Keep UI probes coupled to the exact board-owned status paint region. An
-	# empty label means nothing is drawn, which is intentional for room movement:
-	# its door markers carry that affordance without competing with the HUD title.
+	# Keep UI probes coupled to the exact board-owned status paint region.
 	if status_label.is_empty():
 		return Rect2()
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return Rect2()
-	var label_size: Vector2 = font.get_string_size(status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20)
-	var label_bounds := Rect2(Vector2(22.0, 30.0 - label_size.y), label_size)
+	var layout: Dictionary = _status_text_layout(font)
+	var label_bounds: Rect2 = layout.get("label", Rect2()) as Rect2
 	if status_detail.is_empty():
 		return label_bounds
-	var detail_size: Vector2 = font.get_string_size(status_detail, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, 14)
-	var detail_bounds := Rect2(Vector2(22.0, 54.0 - detail_size.y), detail_size)
+	var detail_bounds: Rect2 = layout.get("detail", Rect2()) as Rect2
 	return label_bounds.merge(detail_bounds)
 
 func _draw_target_reticle(center: Vector2, color: Color, radius: float = 10.0) -> void:

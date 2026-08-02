@@ -1356,6 +1356,9 @@ var _run_skill_event_revision_seen: int = 0
 var _defiance_event_revision_seen: int = 0
 var _analytics_skill_event_revision: int = 0
 var _hand_panel_signature: String = "<unset>"
+var _hand_layout_revision: int = 0
+var _hand_layout_pending_revision: int = -1
+var _hand_layout_envelope_signature: String = "<unset>"
 var _play_meter: PanelContainer
 var _play_meter_slot: HBoxContainer
 var _play_meter_count: Label
@@ -2750,6 +2753,10 @@ func _layout_choice_button_overlay() -> void:
 	if _choice_button_overlay == null:
 		return
 	if not choice_bar.is_inside_tree():
+		return
+	if str(_run_state.get("mode", "room")) == "combat" and _hand_layout_pending_revision == _hand_layout_revision:
+		if _pass_preview_overlay != null:
+			_pass_preview_overlay.visible = false
 		return
 	if not choice_bar.visible and not (_choice_button_overlay.visible or (_pass_preview_overlay != null and _pass_preview_overlay.visible)):
 		return
@@ -6868,6 +6875,14 @@ func _layout_combat_action_dock() -> void:
 	if _play_meter == null:
 		return
 	var in_combat: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
+	# A new hand changes the authored fan envelope asynchronously. Never show the
+	# dock at the old envelope while the container is between layouts: a short
+	# absence is preferable to a Pass button covering a newly drawn card.
+	if in_combat and _hand_layout_pending_revision == _hand_layout_revision:
+		_play_meter.visible = false
+		if _pass_preview_overlay != null:
+			_pass_preview_overlay.visible = false
+		return
 	_play_meter.visible = in_combat
 	if not in_combat:
 		return
@@ -6924,9 +6939,18 @@ func _combat_hand_visual_bounds() -> Rect2:
 
 func _combat_hand_resting_visual_bounds() -> Rect2:
 	if hand_box != null and hand_box.get_child_count() > 0:
-		# The fan container's left edge is the authored resting envelope. Unlike a
-		# card's live transform, it is invariant through hover/focus animation and
-		# remains valid if the hand changes before an old hover has cleared.
+		# Build the resting envelope from the HandScroll's stable center plus the
+		# container's authored minimum size. This is valid as soon as configure_layout
+		# updates that minimum size, before the deferred CenterContainer sort has
+		# written the new HandFanContainer global rect. It keeps the dock from using
+		# stale five-card geometry during a 5-to-7 draw transition.
+		var authored_size: Vector2 = hand_box.get_combined_minimum_size()
+		if hand_scroll != null and authored_size.x > 0.0 and authored_size.y > 0.0:
+			var scroll_rect := Rect2(hand_scroll.global_position, hand_scroll.size)
+			if scroll_rect.size.x > 0.0 and scroll_rect.size.y > 0.0:
+				return Rect2(scroll_rect.get_center() - authored_size * 0.5, authored_size)
+		# Fall back to the rendered container only during startup before the scroll
+		# owns a usable rect. Unlike a card's transform it remains hover-invariant.
 		return hand_box.get_global_rect()
 	return _combat_hand_visual_bounds()
 
@@ -12347,6 +12371,24 @@ func _consume_hand_ready_wave() -> void:
 func _refresh_hand_panel() -> void:
 	_clear_idle_card_fx_layer()
 	var mode: String = str(_run_state.get("mode", "room"))
+	# This signature intentionally excludes hover/focus/card identity. Those states
+	# rebuild card visuals, but retain the same fan envelope and must never hide
+	# the combat dock for a frame during an ordinary card inspection.
+	var hand_layout_envelope_signature: String = mode
+	if mode == "combat":
+		var layout_hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+		var layout_card_size: Vector2 = _hand_card_size(layout_hand.size(), false)
+		hand_layout_envelope_signature = "%s|%d|%.1f,%.1f|%.2f|%.1f,%.1f" % [
+			mode,
+			layout_hand.size(),
+			layout_card_size.x,
+			layout_card_size.y,
+			_hand_layout_gap(layout_hand.size(), layout_card_size),
+			hand_scroll.size.x,
+			hand_scroll.size.y
+		]
+	var hand_layout_envelope_changed: bool = hand_layout_envelope_signature != _hand_layout_envelope_signature
+	_hand_layout_envelope_signature = hand_layout_envelope_signature
 	var signature: String = "%s|%d|%d|%d|%s|%d|%d|%d|%d|%d|%d|%d|%d|%.1f,%.1f" % [
 		mode,
 		hash(_combat_state),
@@ -12372,9 +12414,26 @@ func _refresh_hand_panel() -> void:
 	if signature == _hand_panel_signature:
 		return
 	_hand_panel_signature = signature
+	# If a geometry-changing rebuild is still settling, a hover rebuild must carry
+	# that pending state into its own revision. Otherwise it would expose the old
+	# dock between the draw and the newest hand container sort.
+	var hand_layout_was_pending: bool = _hand_layout_pending_revision == _hand_layout_revision
+	_hand_layout_revision += 1
+	var hand_layout_revision: int = _hand_layout_revision
+	_hand_layout_pending_revision = hand_layout_revision if mode == "combat" and (hand_layout_envelope_changed or hand_layout_was_pending) else -1
+	if _hand_layout_pending_revision == hand_layout_revision:
+		# _refresh_ui can lay out the dock before it reaches this panel rebuild.
+		# Hide synchronously here as well as in the layout guard so a draw followed
+		# by an immediate hover cannot flash the stale five-card placement.
+		if _play_meter != null:
+			_play_meter.visible = false
+		if _pass_preview_overlay != null:
+			_pass_preview_overlay.visible = false
 	_clear_children_now(hand_box)
 	if mode == "combat":
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+		if hand.is_empty():
+			_hand_layout_pending_revision = -1
 		var selecting_skill_card: bool = _combat_skill_card_selection_zone == "hand"
 		var skill_selection_buttons: Array[Button]
 		var active_hand_index: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
@@ -12429,7 +12488,7 @@ func _refresh_hand_panel() -> void:
 			if ready_wave_delay >= 0.0:
 				widget.call_deferred("play_ready_wave", ready_wave_delay)
 		hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
-		call_deferred("_fit_current_hand_layout_to_visible_width")
+		call_deferred("_fit_current_hand_layout_to_visible_width", hand_layout_revision)
 		var emphasized_hand_index: int = (
 			_hovered_card_index
 			if active_hand_index < 0
@@ -12453,26 +12512,48 @@ func _refresh_hand_panel() -> void:
 		hand_box.configure_layout(HAND_CARD_GAP, false)
 		hand_box.set_emphasized_index(-1, false)
 
-func _fit_current_hand_layout_to_visible_width() -> void:
+func _fit_current_hand_layout_to_visible_width(expected_revision: int, retry_count: int = 0) -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
-	if str(_run_state.get("mode", "")) != "combat":
+	if expected_revision != _hand_layout_revision or str(_run_state.get("mode", "")) != "combat":
 		return
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if hand.is_empty() or hand_box.get_child_count() != hand.size():
+		_complete_hand_layout_pending(expected_revision)
 		return
 	var first_card: Control = hand_box.get_child(0) as Control
 	if first_card == null:
+		_complete_hand_layout_pending(expected_revision)
 		return
 	var card_size: Vector2 = first_card.custom_minimum_size
 	if card_size.x <= 0.0 or card_size.y <= 0.0:
 		card_size = first_card.size
 	hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
-	# The dock derives from the HandFanContainer's stable authored envelope, not
-	# from these child transforms, so no extra deferred settle is required here.
-	# The fan may settle after the initial combat refresh (particularly when the
-	# expanded-aspect window changes its available width). Place the dock only
-	# after these final transformed card bounds are authoritative.
+	# configure_layout queues both the container minimum-size propagation and its
+	# child sort. Wait for that authored envelope to reach global space before
+	# positioning the dock; an older deferred fit must never reapply five-card
+	# geometry after a draw rebuilt a seven-card hand.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if expected_revision != _hand_layout_revision or str(_run_state.get("mode", "")) != "combat":
+		return
+	if hand_box.get_child_count() != hand.size() or hand_box.get_global_rect().size.x <= 0.0:
+		if retry_count < 2:
+			call_deferred("_fit_current_hand_layout_to_visible_width", expected_revision, retry_count + 1)
+			return
+		_complete_hand_layout_pending(expected_revision)
+		return
+	_complete_hand_layout_pending(expected_revision)
+
+func _complete_hand_layout_pending(expected_revision: int) -> void:
+	# Deferred fits for an old hand cannot release a newer hand from its pending
+	# state. For the current one, always fail open after the bounded validation
+	# path so an unexpected container failure never hides Pass indefinitely.
+	if expected_revision != _hand_layout_revision:
+		return
+	_hand_layout_pending_revision = -1
+	if _pass_preview_overlay != null:
+		_pass_preview_overlay.visible = _pass_preview_overlay.get_child_count() > 0
 	_layout_combat_action_dock()
 	_layout_choice_button_overlay()
 
@@ -12692,6 +12773,7 @@ func _refresh_stage_view() -> void:
 	# Make that framing intent explicit: no-hand rooms center their complete board
 	# instead of inheriting the combat hand-clearance composition.
 	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" else "room"
+	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	if str(_run_state.get("mode", "room")) == "combat" and not display_state.is_empty():
 		presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(visibility_state)
@@ -16048,6 +16130,7 @@ func _stop_music_tween() -> void:
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" else "room"
+	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
@@ -16713,6 +16796,15 @@ func _set_action_banner(text: String) -> void:
 	action_banner.visible = not text.is_empty()
 	action_banner.text = text
 
+func _board_status_safe_global_rect() -> Rect2:
+	# CombatBoard deliberately borrows 56px beneath the header. Keep the compact
+	# room prompt in the literal visual center of that clear top-stage band rather
+	# than deriving it from board-space transforms or a utility group that may be
+	# laid out in a different canvas coordinate space.
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var band_width: float = minf(360.0, maxf(220.0, viewport_size.x - 640.0))
+	return Rect2(Vector2(viewport_size.x * 0.5 - band_width * 0.5, 0.0), Vector2(band_width, 64.0))
+
 func _board_status_label(preview: Dictionary) -> String:
 	var mode: String = str(_run_state.get("mode", "room"))
 	if _animation_lock:
@@ -16720,11 +16812,7 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "combat":
 		return ""
 	if mode == "room":
-		# Door markers already identify the available exits.
-		# Repeating that instruction in the board's borrowed header band collides
-		# with the room title/depth column, so room navigation intentionally relies
-		# on the authored door affordances instead.
-		return ""
+		return "Choose door"
 	if mode == "reward":
 		return "Choose reward"
 	if mode == "campfire":
@@ -16744,8 +16832,17 @@ func _board_status_detail(preview: Dictionary) -> String:
 	if mode == "combat":
 		return ""
 	if mode == "room":
-		return ""
+		return _room_hover_hint()
 	return ""
+
+func _room_hover_hint() -> String:
+	if _hovered_board_tile.x < 0 or not _exit_destinations_by_tile.has(_hovered_board_tile):
+		return ""
+	var destination: Vector2i = _exit_destinations_by_tile[_hovered_board_tile]
+	var room: Dictionary = _run_engine.room_metadata(_run_state, destination)
+	var room_element: String = str(room.get("element", ElementData.NONE))
+	var prefix: String = "%s " % ElementData.name(room_element) if ElementData.is_elemental(room_element) else ""
+	return "%s%s %d" % [prefix, str(room.get("type", "combat")).capitalize(), int(room.get("depth", 1))]
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
 		"move", "blink", "illusion", "illuminate":

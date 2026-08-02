@@ -8450,8 +8450,10 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	for frame_index: int in range(5):
+		await process_frame
 	instance.call("_refresh_turn_order_bar")
-	instance.call("_refresh_choice_bar")
 	instance.call("_layout_combat_action_dock")
 	instance.call("_layout_choice_button_overlay")
 	await process_frame
@@ -8496,13 +8498,8 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	if pass_button != null:
 		_assert(pass_button.focus_mode == Control.FOCUS_ALL and pass_button.get_global_rect().size == Vector2(270.0, 100.0), "Combat Pass forecast should remain one large, keyboard-focusable native control")
 	var overlay: Control = instance.get("_pass_preview_overlay") as Control
-	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	_assert(overlay != null and overlay.visible, "Combat Pass forecast should render in its stable overlay host")
-	if pass_button != null and piles_bar != null:
-		var pass_rect: Rect2 = pass_button.get_global_rect()
-		var meter: Control = instance.get("_play_meter") as Control
-		_assert(meter != null and meter.visible and pass_rect.position.y >= meter.get_global_rect().end.y + 5.0, "Combat Pass forecast should sit below its fixed card-play plaque")
-		_assert(pass_rect.position.x >= piles_bar.get_global_rect().end.x + 12.0, "Combat Pass forecast should occupy the negative space right of the pile widgets")
+	_assert_current_combat_dock_geometry(instance, "Combat Pass forecast")
 	instance.queue_free()
 	await process_frame
 
@@ -8755,7 +8752,7 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	_assert(absf(pass_action_width - expected_action_width) <= 1.0, "Combat action controls should keep the original pile/pass layout footprint")
 	_assert(pass_action_width < two_action_width - 1.0, "Combat action controls should not permanently reserve the wider Skip/Cancel footprint")
 	if play_meter != null and play_meter.visible:
-		_assert(absf(play_meter.get_global_rect().position.x - 303.0) <= 1.0 and absf(play_meter.get_global_rect().position.y - 814.0) <= 1.0, "Card-play meter should use the stable left-side dock anchor rather than follow hand reflow")
+		_assert_current_combat_dock_geometry(instance, "Card-play meter")
 	instance.set("_selected_card_index", 0)
 	instance.set("_pending_actions", [{"type": "move"}])
 	instance.set("_pending_action_index", 0)
@@ -10163,7 +10160,8 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
 	_assert(count_label != null and count_label.position.y >= 3.0 and count_label.size.y <= 26.0, "Banked-play state should intentionally split the plaque into count and banked rows")
 	var play_meter: Control = instance.get("_play_meter") as Control
-	_assert(play_meter != null and absf(play_meter.get_global_rect().position.x - 303.0) <= 1.0 and absf(play_meter.get_global_rect().position.y - 814.0) <= 1.0, "Wide banked-play copy should preserve the stable left-side dock anchor")
+	_assert(play_meter != null and play_meter.visible, "Wide banked-play copy should retain the visible card-play dock")
+	_assert_current_combat_dock_geometry(instance, "Wide banked-play copy")
 	combat_state["cards_played_this_turn"] = 2
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_card_play_meter")
@@ -12889,6 +12887,27 @@ func _label_text_fits(label: Label) -> bool:
 	var font_size: int = label.get_theme_font_size("font_size")
 	return font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x <= label.size.x + 1.0
 
+func _assert_current_combat_dock_geometry(instance: Node, context: String) -> void:
+	var meter: Control = instance.get("_play_meter") as Control
+	var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	var pass_overlay: Control = instance.get("_pass_preview_overlay") as Control
+	_assert(meter != null and meter.visible, "%s should retain a visible card-play dock" % context)
+	_assert(pass_chip != null and pass_overlay != null and pass_overlay.visible, "%s should retain a visible Pass dock" % context)
+	if meter == null or pass_chip == null:
+		return
+	var meter_rect: Rect2 = meter.get_global_rect()
+	var pass_rect: Rect2 = pass_chip.get_global_rect()
+	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
+	_assert(viewport_rect.encloses(meter_rect) and viewport_rect.encloses(pass_rect), "%s dock should remain fully inside the viewport" % context)
+	_assert(absf(pass_rect.get_center().x - meter_rect.get_center().x) <= 1.0 and pass_rect.position.y >= meter_rect.end.y + 5.0, "%s Pass should remain centered below the card-play plaque" % context)
+	var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
+	if hand_bounds.size.x > 0.0:
+		_assert(pass_rect.end.x <= hand_bounds.position.x - 20.0, "%s dock should clear the resting hand envelope" % context)
+	for pile_property: String in ["draw_pile", "discard_pile"]:
+		var pile: Control = instance.get(pile_property) as Control
+		if pile != null and pile.visible:
+			_assert(not meter_rect.intersects(pile.get_global_rect()) and not pass_rect.intersects(pile.get_global_rect()), "%s dock should remain independent of %s" % [context, pile.name])
+
 func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_defeat: bool, expect_danger: bool, context: String) -> void:
 	var chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	var row: Node = instance.find_child("PassPreviewDamageRow", true, false)
@@ -12911,7 +12930,10 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 			if meter != null:
 				var meter_rect: Rect2 = meter.get_global_rect()
 				_assert(absf(chip_rect.get_center().x - meter_rect.get_center().x) <= 1.0 and chip_rect.position.y >= meter_rect.end.y + 5.0, "%s pass forecast should center under the card-play plaque" % context)
-			_assert(chip_rect.position.x >= piles_rect.end.x + 12.0, "%s Pass dock should remain right of the pile column" % context)
+			_assert(not chip_rect.intersects(piles_rect), "%s Pass dock should remain independent of the pile icons" % context)
+			var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
+			if hand_bounds.size.x > 0.0:
+				_assert(chip_rect.end.x <= hand_bounds.position.x - 20.0, "%s Pass dock should clear the resting hand envelope" % context)
 			_assert(chip_rect.position.x >= -1.0 and chip_rect.end.x <= viewport_width + 1.0, "%s Pass dock should stay inside the viewport" % context)
 		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
 			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()

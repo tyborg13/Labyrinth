@@ -4,6 +4,8 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const HandFanContainerScript = preload("res://scripts/hand_fan_container.gd")
+const RoomGenerator = preload("res://scripts/room_generator.gd")
 
 const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v4"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
@@ -398,6 +400,8 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up", "bone_dart"],
 		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up", "bone_dart", "updraft"]
 	]
+	var stable_seven_meter := Rect2()
+	var stable_seven_pass := Rect2()
 	for cards_var: Variant in hand_sets:
 		var cards: Array = cards_var as Array
 		instance.set("_hovered_card_index", -1)
@@ -409,10 +413,22 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 			continue
 		var resting_meter: Rect2 = meter.get_global_rect()
 		var resting_pass: Rect2 = pass_chip.get_global_rect()
+		if cards.size() == 7:
+			stable_seven_meter = resting_meter
+			stable_seven_pass = resting_pass
+			print("HAND DOCK 7-CARD BASELINE meter=%s pass=%s" % [stable_seven_meter, stable_seven_pass])
 		_assert_pass_meter_layout(instance, "%d-card idle" % cards.size())
 		await _save_root_screenshot("%s/dock_%d_card_idle.png" % [OUTPUT_DIR, cards.size()])
 		for index: int in range(cards.size()):
 			instance.call("_on_card_hover_started", index)
+			await process_frame
+			_assert(meter.visible and pass_chip.visible, "%d-card hover %d must keep the dock visible on its first transition frame" % [cards.size(), index + 1])
+			_assert(_rect_approximately_equal(meter.get_global_rect(), resting_meter), "%d-card hover %d must not move the meter during its transition" % [cards.size(), index + 1])
+			_assert(_rect_approximately_equal(pass_chip.get_global_rect(), resting_pass), "%d-card hover %d must not move Pass during its transition" % [cards.size(), index + 1])
+			await create_timer(HandFanContainerScript.EMPHASIS_TRANSITION_SECONDS * 0.5).timeout
+			_assert(meter.visible and pass_chip.visible, "%d-card hover %d must keep the dock visible through its transition" % [cards.size(), index + 1])
+			_assert(_rect_approximately_equal(meter.get_global_rect(), resting_meter), "%d-card hover %d must not move the meter mid-transition" % [cards.size(), index + 1])
+			_assert(_rect_approximately_equal(pass_chip.get_global_rect(), resting_pass), "%d-card hover %d must not move Pass mid-transition" % [cards.size(), index + 1])
 			await _settle_ui()
 			_assert(_rect_approximately_equal(meter.get_global_rect(), resting_meter), "%d-card hover %d must not move the card-play meter (idle=%s hover=%s)" % [cards.size(), index + 1, resting_meter, meter.get_global_rect()])
 			_assert(_rect_approximately_equal(pass_chip.get_global_rect(), resting_pass), "%d-card hover %d must not move Pass (idle=%s hover=%s)" % [cards.size(), index + 1, resting_pass, pass_chip.get_global_rect()])
@@ -421,9 +437,10 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 				await _save_root_screenshot("%s/dock_%d_card_worst_hover.png" % [OUTPUT_DIR, cards.size()])
 			instance.call("_on_card_hover_ended", index)
 			await _settle_ui()
-	# A real draw can change hand size before a hover animation clears. Dense
-	# placement must still use its stable container envelope, never current hover
-	# transforms as a fallback.
+	# A real draw can change hand size before a hover animation clears. The final
+	# dock must become the known seven-card resting geometry, not retain a stale
+	# five-card position while the HandFanContainer settles its minimum size/sort.
+	_assert(stable_seven_meter.size != Vector2.ZERO and stable_seven_pass.size != Vector2.ZERO, "Seven-card idle proof must establish the final dock baseline")
 	var five_cards: Array = hand_sets[0] as Array
 	await _load_combat_fixture(instance, five_cards, Vector2i(2, 4), [Vector2i(5, 4)], 9921)
 	instance.call("_on_card_hover_started", 3)
@@ -437,13 +454,42 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 	instance.set("_combat_state", changing_state)
 	instance.set("_run_state", changing_run)
 	instance.call("_refresh_ui")
-	await _settle_ui()
+	# Rebuild emphasis before the new fan has settled. This reproduces the real
+	# draw-then-hover race: the pending geometry guard must transfer to the newer
+	# revision instead of revealing the stale five-card dock.
+	await process_frame
+	var pending_revision_before: int = int(instance.get("_hand_layout_revision"))
+	instance.call("_on_card_hover_started", 1)
+	instance.call("_refresh_ui")
+	await process_frame
+	var pending_revision_after: int = int(instance.get("_hand_layout_revision"))
+	_assert(pending_revision_after > pending_revision_before, "Hovering during a pending draw must rebuild the hand at a newer revision")
+	_assert(int(instance.get("_hand_layout_pending_revision")) == pending_revision_after, "Hover rebuild must carry the pending fan layout into its newer revision")
+	var pending_meter: Control = instance.get("_play_meter") as Control
+	var pending_pass_overlay: Control = instance.get("_pass_preview_overlay") as Control
+	_assert(pending_meter != null and pending_pass_overlay != null and not pending_meter.visible and not pending_pass_overlay.visible, "Hovering during a pending 5-to-7 draw must keep the stale dock hidden until the seven-card fan settles")
+	await _settle_hand_dock_transition()
 	var changed_meter: Control = instance.get("_play_meter") as Control
 	var changed_pass: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	_assert(changed_meter != null and changed_pass != null, "Hovering hand-size-change proof must retain dock controls")
 	if changed_meter != null and changed_pass != null:
+		print("HAND DOCK 5-TO-7 FINAL meter=%s pass=%s" % [changed_meter.get_global_rect(), changed_pass.get_global_rect()])
+		_assert(_rect_approximately_equal(changed_meter.get_global_rect(), stable_seven_meter), "Hovering 5-to-7-card change must settle the card-play meter at the stable seven-card dock (expected=%s actual=%s)" % [stable_seven_meter, changed_meter.get_global_rect()])
+		_assert(_rect_approximately_equal(changed_pass.get_global_rect(), stable_seven_pass), "Hovering 5-to-7-card change must settle Pass at the stable seven-card dock (expected=%s actual=%s)" % [stable_seven_pass, changed_pass.get_global_rect()])
 		_assert_pass_meter_layout(instance, "hovered 5-to-7-card change")
 		await _save_root_screenshot("%s/hovered_hand_size_change.png" % OUTPUT_DIR)
+		for hover_index: int in [0, 6]:
+			instance.call("_on_card_hover_started", hover_index)
+			await _settle_hand_dock_transition()
+			_assert(_rect_approximately_equal(changed_meter.get_global_rect(), stable_seven_meter), "Post-draw hover %d must not move the settled seven-card meter" % [hover_index + 1])
+			_assert(_rect_approximately_equal(changed_pass.get_global_rect(), stable_seven_pass), "Post-draw hover %d must not move settled seven-card Pass" % [hover_index + 1])
+			_assert_pass_meter_layout(instance, "hovered 5-to-7-card post-draw hover %d" % [hover_index + 1])
+			instance.call("_on_card_hover_ended", hover_index)
+			await _settle_hand_dock_transition()
+
+func _settle_hand_dock_transition() -> void:
+	await create_timer(HandFanContainerScript.EMPHASIS_TRANSITION_SECONDS + 0.08).timeout
+	await _settle_ui()
 
 func _capture_no_hand_board_framing(instance: Node) -> void:
 	for viewport_size: Vector2i in [PROBE_VIEWPORT, PRODUCTION_VIEWPORT]:
@@ -451,14 +497,11 @@ func _capture_no_hand_board_framing(instance: Node) -> void:
 		root.content_scale_size = viewport_size
 		root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND if viewport_size == PRODUCTION_VIEWPORT else Window.CONTENT_SCALE_ASPECT_KEEP
 		root.size = viewport_size
-		var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
-		run_state["mode"] = "room"
-		run_state.erase("combat_state")
-		instance.set("_run_state", run_state)
-		instance.set("_combat_state", {})
-		instance.call("_refresh_ui")
+		var room_fixture: Dictionary = _load_room_exit_fixture(instance)
 		await _settle_ui()
-		_assert_room_status_clears_header(instance, viewport_size)
+		var door_tile: Vector2i = room_fixture.get("door_tile", Vector2i(-1, -1))
+		var destination: Vector2i = room_fixture.get("destination", Vector2i(-1, -1))
+		_assert_room_exit_affordance(instance, viewport_size, door_tile, destination, false)
 		var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
 		var viewport_rect := Rect2(Vector2.ZERO, Vector2(viewport_size))
 		_assert(board_bounds.size.x > viewport_size.x * 0.55 and board_bounds.size.y > viewport_size.y * 0.45, "%s no-hand board should remain prominent" % viewport_size)
@@ -466,28 +509,119 @@ func _capture_no_hand_board_framing(instance: Node) -> void:
 		_assert(absf(board_bounds.get_center().y - viewport_rect.get_center().y) <= viewport_size.y * 0.16, "%s no-hand board should be roughly vertically centered (board=%s)" % [viewport_size, board_bounds])
 		print("NO-HAND GEOMETRY %s board=%s" % [viewport_size, board_bounds])
 		await _save_root_screenshot("%s/no_hand_room_%dx%d.png" % [OUTPUT_DIR, viewport_size.x, viewport_size.y], viewport_size)
+		instance.call("_on_board_tile_hovered", door_tile)
+		await _settle_ui()
+		_assert_room_exit_affordance(instance, viewport_size, door_tile, destination, true)
+		await _save_root_screenshot("%s/no_hand_room_exit_hover_%dx%d.png" % [OUTPUT_DIR, viewport_size.x, viewport_size.y], viewport_size)
 
-func _assert_room_status_clears_header(instance: Node, viewport_size: Vector2i) -> void:
+func _load_room_exit_fixture(instance: Node) -> Dictionary:
+	var current_coord := Vector2i(4, 3)
+	var destination := Vector2i(4, 2)
+	var door_direction := Vector2i(0, -1)
+	var door_tile: Vector2i = RoomGenerator.door_tile_for_direction(door_direction)
+	var layout: Dictionary = _room_layout(Vector2i(3, 4), [])
+	var grid: Array = (layout.get("grid", []) as Array).duplicate(true)
+	(grid[door_tile.y] as Array)[door_tile.x] = "door"
+	layout["coord"] = current_coord
+	layout["name"] = "Doorway Gallery"
+	layout["type"] = "combat"
+	layout["element"] = "fire"
+	layout["grid"] = grid
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "room"
+	run_state["current_room"] = current_coord
+	run_state["current_room_layout"] = layout
+	run_state["rooms"] = {
+		"4,3": {
+			"coord": current_coord,
+			"name": "Doorway Gallery",
+			"depth": 3,
+			"type": "combat",
+			"element": "fire",
+			"revealed": true,
+			"visited": true,
+			"cleared": true,
+			"sealed": false,
+			"connections": [{"coord": destination, "door_dir": door_direction}]
+		},
+		"4,2": {
+			"coord": destination,
+			"name": "Gale Reliquary",
+			"depth": 4,
+			"type": "combat",
+			"element": "air",
+			"revealed": true,
+			"visited": false,
+			"cleared": false,
+			"sealed": false,
+			"connections": [{"coord": current_coord, "door_dir": Vector2i(0, 1)}]
+		}
+	}
+	instance.set("_hovered_board_tile", Vector2i(-1, -1))
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", {})
+	instance.set("_animation_lock", false)
+	instance.call("_refresh_ui")
+	return {"door_tile": door_tile, "destination": destination}
+
+func _assert_room_exit_affordance(instance: Node, viewport_size: Vector2i, door_tile: Vector2i, destination: Vector2i, hovered: bool) -> void:
 	var board: Control = instance.get_node(BOARD_PATH) as Control
-	_assert(board != null, "%s no-hand status proof needs the board" % viewport_size)
+	_assert(board != null, "%s room-exit proof needs the board" % viewport_size)
 	if board == null:
 		return
+	var run_engine: Object = instance.get("_run_engine") as Object
+	var exits: Array = run_engine.call("exit_options", instance.get("_run_state")) as Array if run_engine != null else []
+	_assert(not exits.is_empty(), "%s room fixture must expose a real RunEngine exit" % viewport_size)
+	var exit_tiles: Dictionary = board.get("exit_tiles") as Dictionary
+	var exit_icons: Dictionary = board.get("exit_icon_ids") as Dictionary
+	var destination_lookup: Dictionary = instance.get("_exit_destinations_by_tile") as Dictionary
+	_assert(exit_tiles.has(door_tile) and exit_icons.has(door_tile), "%s board must render the real exit marker and icon for %s" % [viewport_size, door_tile])
+	_assert(destination_lookup.get(door_tile, Vector2i(-1, -1)) == destination, "%s exit tile must map to the legal destination" % viewport_size)
+	var door_center: Vector2 = board.call("_tile_center", door_tile) as Vector2
+	_assert(board.call("_tile_at_point", door_center) == door_tile, "%s exit tile must retain board hit-testing for pointer click" % viewport_size)
 	var local_status_bounds: Rect2 = board.call("status_text_local_bounds") as Rect2
 	var status_global_bounds: Rect2 = _global_rect_for_board_local_rect(board, local_status_bounds)
-	# Room status is deliberately absent: the labeled door affordances own the
-	# navigation cue, keeping this borrowed header band clear of room title, depth,
-	# and top-bar controls at both target canvases.
-	_assert(local_status_bounds.size == Vector2.ZERO, "%s room navigation must not draw redundant board status in the header band (bounds=%s)" % [viewport_size, local_status_bounds])
-	for header_control: Control in _room_status_header_controls(instance):
-		_assert(not status_global_bounds.intersects(header_control.get_global_rect()), "%s drawn board status must clear %s (status=%s header=%s)" % [viewport_size, header_control.name, status_global_bounds, header_control.get_global_rect()])
+	print("ROOM EXIT STATUS %s hovered=%s bounds=%s" % [viewport_size, hovered, status_global_bounds])
+	_assert(local_status_bounds.size.x > 0.0 and local_status_bounds.size.y > 0.0, "%s room navigation must draw centered status guidance (bounds=%s)" % [viewport_size, local_status_bounds])
+	for header_bounds: Dictionary in _room_status_header_painted_bounds(instance):
+		var painted_rect: Rect2 = header_bounds.get("rect", Rect2()) as Rect2
+		_assert(not status_global_bounds.intersects(painted_rect), "%s drawn board status must clear %s (status=%s header=%s)" % [viewport_size, str(header_bounds.get("name", "header")), status_global_bounds, painted_rect])
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	if hovered:
+		_assert((presentation.get("focus_tiles", []) as Array).has(door_tile), "%s hovered exit must enter the board focus treatment" % viewport_size)
+		_assert(str(board.get("status_detail")) == "Air Combat 4", "%s hovered exit must name its destination in the centered status detail" % viewport_size)
+	else:
+		_assert(bool(presentation.get("pulse_exit_tiles", false)), "%s idle room must pulse the actual exit tile before it is hovered" % viewport_size)
+		_assert(str(board.get("status_label")) == "Choose door" and str(board.get("status_detail")).is_empty(), "%s idle room status must provide concise door guidance without stale hover detail" % viewport_size)
 
-func _room_status_header_controls(instance: Node) -> Array[Control]:
-	var controls: Array[Control] = []
-	for property_name: String in ["title_box", "stats_label", "loadout_button", "grimoire_button", "menu_button"]:
+func _room_status_header_painted_bounds(instance: Node) -> Array[Dictionary]:
+	var bounds: Array[Dictionary] = []
+	# The header uses expansive containers for flex layout. Those rectangles are
+	# deliberately wider than the visible title/depth glyphs, so collision proof
+	# must use the actual painted labels plus interactive controls.
+	for property_name: String in ["room_title", "room_subtitle", "umbra_subtitle", "stats_label"]:
+		var label: Label = instance.get(property_name) as Label
+		if label != null and label.visible and not label.text.is_empty():
+			bounds.append({"name": label.name, "rect": _painted_label_global_rect(label)})
+	for property_name: String in ["relic_bar", "loadout_button", "grimoire_button", "menu_button", "_skill_sigil"]:
 		var control: Control = instance.get(property_name) as Control
 		if control != null and control.visible:
-			controls.append(control)
-	return controls
+			bounds.append({"name": control.name, "rect": control.get_global_rect()})
+	return bounds
+
+func _painted_label_global_rect(label: Label) -> Rect2:
+	var font: Font = label.get_theme_font("font")
+	if font == null:
+		return label.get_global_rect()
+	var font_size: int = label.get_theme_font_size("font_size")
+	var text_size: Vector2 = font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size)
+	var position: Vector2 = label.global_position
+	if label.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER:
+		position.x += (label.size.x - text_size.x) * 0.5
+	elif label.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT:
+		position.x += label.size.x - text_size.x
+	var outline: float = float(label.get_theme_constant("outline_size"))
+	return Rect2(position - Vector2(outline, outline), text_size + Vector2(outline * 2.0, outline * 2.0))
 
 func _global_rect_for_board_local_rect(board: Control, local_rect: Rect2) -> Rect2:
 	if local_rect.size == Vector2.ZERO:
@@ -566,7 +700,7 @@ func _load_combat_fixture(instance: Node, hand: Array, player_pos: Vector2i, ene
 	instance.set("_combat_state", combat_state)
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
-	await _settle_ui()
+	await _settle_hand_dock_transition()
 
 func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: String) -> void:
 	instance.call("_on_card_pressed", hand_index)
