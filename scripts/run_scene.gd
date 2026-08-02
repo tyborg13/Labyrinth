@@ -999,6 +999,8 @@ const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
 const CARD_PLAY_METER_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_play_meter_frame_v2.png"
 const PASS_FORECAST_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_v2.png"
+const PASS_FORECAST_HOVER_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_hover_v2.png"
+const PASS_FORECAST_PRESSED_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_pressed_v1.png"
 const DRAW_PILE_ICON_TEXTURE_PATH: String = "res://assets/art/ui/draw_pile_icon_v2.png"
 const DISCARD_PILE_ICON_TEXTURE_PATH: String = "res://assets/art/ui/discard_pile_icon_v1.png"
 const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(328.0, 116.0)
@@ -1133,9 +1135,13 @@ const PINNED_TOOLTIP_CURSOR_OFFSET: Vector2 = Vector2(12.0, 0.0)
 const TURN_ORDER_PANEL_MIN_SIZE: Vector2 = Vector2(176.0, 0.0)
 const TURN_ORDER_PANEL_MIN_WIDTH: float = 176.0
 const TURN_ORDER_LABEL_WIDTH: float = 156.0
-const TURN_ORDER_BOSS_DOSSIER_WIDTH: float = 196.0
-const TURN_ORDER_BOSS_HEALTH_HEIGHT: float = 16.0
-const TURN_ORDER_BOSS_MAX_SEGMENTS: int = 48
+const TURN_ORDER_NORMAL_RAIL_TOP_CLEARANCE: float = 44.0
+const BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH: float = 780.0
+const BOSS_HEALTH_OVERLAY_MIN_WIDTH: float = 700.0
+const BOSS_HEALTH_OVERLAY_HEIGHT: float = 78.0
+const BOSS_HEALTH_OVERLAY_TOP: float = 18.0
+const BOSS_HEALTH_OVERLAY_HEALTH_HEIGHT: float = 26.0
+const BOSS_HEALTH_MAX_SEGMENTS: int = 48
 const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(116.0, 87.0)
 const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(132.0, 99.0)
 const TURN_ORDER_SLOT_GAP: float = 3.0
@@ -1385,12 +1391,12 @@ var _turn_order_anchor: Control
 var _turn_order_bar: Control
 var _turn_order_header_host: Control
 var _turn_order_label: Label
-var _turn_order_boss_dossier: PanelContainer
-var _turn_order_boss_name: Label
-var _turn_order_boss_health_host: Control
-var _turn_order_boss_health_bar: SegmentedHealthBar
-var _turn_order_boss_damage_preview: ColorRect
-var _turn_order_boss_hp_label: Label
+var _boss_health_overlay: Control
+var _boss_health_name: Label
+var _boss_health_host: Control
+var _boss_health_bar: SegmentedHealthBar
+var _boss_health_damage_preview: ColorRect
+var _boss_health_hp_label: Label
 var _turn_order_animating: bool = false
 var _turn_order_hovered_enemy_key: String = ""
 var _turn_order_panel_locked_width: float = -1.0
@@ -2767,7 +2773,7 @@ func _layout_choice_button_overlay() -> void:
 	if combat_dock:
 		var meter_rect: Rect2 = _play_meter.get_global_rect()
 		_pass_preview_overlay.global_position = Vector2(
-			meter_rect.position.x,
+			meter_rect.get_center().x - preview_size.x * 0.5,
 			meter_rect.position.y + meter_rect.size.y + PASS_PREVIEW_STACK_GAP
 		)
 	else:
@@ -6817,7 +6823,30 @@ func _layout_turn_order_anchor() -> void:
 	_turn_order_anchor.offset_right = -TURN_ORDER_RAIL_EDGE_GAP
 	_turn_order_anchor.offset_bottom = header_bottom + rail_size.y
 	_turn_order_anchor.size = rail_size
+	_layout_boss_health_overlay()
 	_layout_combat_action_dock()
+
+func _layout_boss_health_overlay() -> void:
+	if _boss_health_overlay == null:
+		return
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var overlay_width: float = clampf(viewport_size.x * 0.40625, BOSS_HEALTH_OVERLAY_MIN_WIDTH, BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH)
+	# The authored 1920px layout lands at 780px wide (x=570): clear of the
+	# left title column and the right-side utility/initiative rail while keeping
+	# the encounter identity deliberately centered over the board.
+	overlay_width = minf(overlay_width, maxf(BOSS_HEALTH_OVERLAY_MIN_WIDTH, viewport_size.x - 720.0))
+	var overlay_size := Vector2(overlay_width, BOSS_HEALTH_OVERLAY_HEIGHT)
+	_boss_health_overlay.size = overlay_size
+	_boss_health_overlay.global_position = Vector2(
+		clampf((viewport_size.x - overlay_size.x) * 0.5, 32.0, maxf(32.0, viewport_size.x - overlay_size.x - 32.0)),
+		BOSS_HEALTH_OVERLAY_TOP
+	)
+	if _boss_health_name != null:
+		_boss_health_name.position = Vector2(18.0, 0.0)
+		_boss_health_name.size = Vector2(maxf(1.0, overlay_size.x - 36.0), 40.0)
+	if _boss_health_host != null:
+		_boss_health_host.position = Vector2(24.0, 43.0)
+		_boss_health_host.size = Vector2(maxf(1.0, overlay_size.x - 48.0), BOSS_HEALTH_OVERLAY_HEALTH_HEIGHT)
 
 func _layout_combat_action_dock() -> void:
 	if _play_meter == null:
@@ -6828,13 +6857,16 @@ func _layout_combat_action_dock() -> void:
 		return
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var meter_size: Vector2 = _play_meter.get_combined_minimum_size()
-	# The action dock owns a quiet lower-right band. This keeps it visually and
-	# spatially distinct from the initiative rail instead of compressing both into
-	# one ornamental stack.
-	var dock_y: float = viewport_size.y - meter_size.y - PASS_PREVIEW_DANGER_CHIP_HEIGHT - 28.0
+	# Keep the player-turn dock in one authored, negative-space anchor. It must not
+	# follow hand reflow: the hand, tutorial, piles, and initiative rail all change
+	# independently while this compact decision remains stable.
+	# The 228px meter is centered over the 270px Pass frame, so this anchor is
+	# 21px to the right of the larger frame's left edge.
+	var dock_anchor := Vector2(303.0, 814.0)
+	var dock_height: float = meter_size.y + PASS_PREVIEW_STACK_GAP + PASS_PREVIEW_CHIP_SIZE.y
 	_play_meter.global_position = Vector2(
-		maxf(TURN_ORDER_RAIL_EDGE_GAP, viewport_size.x - meter_size.x - 26.0),
-		dock_y
+		clampf(dock_anchor.x, 8.0, maxf(8.0, viewport_size.x - meter_size.x - 8.0)),
+		clampf(dock_anchor.y, 8.0, maxf(8.0, viewport_size.y - dock_height - 8.0))
 	)
 
 func _relic_bar_visible_bottom_y() -> float:
@@ -8091,98 +8123,84 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_label.add_theme_color_override("font_outline_color", Color("21150f"))
 	_turn_order_label.add_theme_constant_override("outline_size", 2)
 	_turn_order_header_host.add_child(_turn_order_label)
-	_setup_turn_order_boss_dossier()
 	_turn_order_bar = Control.new()
 	_turn_order_bar.name = "TurnOrderBar"
 	_turn_order_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_turn_order_bar.custom_minimum_size = Vector2(TURN_ORDER_ACTIVE_SIZE.x, 0.0)
 	rail.add_child(_turn_order_bar)
 	_turn_order_anchor.add_child(_turn_order_panel)
+	_setup_boss_health_overlay()
 
-func _setup_turn_order_boss_dossier() -> void:
-	_turn_order_boss_dossier = PanelContainer.new()
-	_turn_order_boss_dossier.name = "BossDossier"
-	_turn_order_boss_dossier.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_turn_order_boss_dossier.anchor_right = 1.0
-	_turn_order_boss_dossier.anchor_bottom = 1.0
-	_turn_order_boss_dossier.visible = false
-	_turn_order_boss_dossier.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_turn_order_boss_dossier.add_theme_stylebox_override("panel", _turn_order_boss_dossier_style(Color("d36a55")))
-	_turn_order_header_host.add_child(_turn_order_boss_dossier)
-	var dossier_margin := MarginContainer.new()
-	dossier_margin.add_theme_constant_override("margin_left", 8)
-	dossier_margin.add_theme_constant_override("margin_top", 3)
-	dossier_margin.add_theme_constant_override("margin_right", 8)
-	dossier_margin.add_theme_constant_override("margin_bottom", 3)
-	_turn_order_boss_dossier.add_child(dossier_margin)
-	var dossier_stack := VBoxContainer.new()
-	dossier_stack.add_theme_constant_override("separation", 1)
-	dossier_margin.add_child(dossier_stack)
-	var kicker := Label.new()
-	kicker.name = "BossDossierKicker"
-	kicker.text = "TURN CLOCK  ·  BOSS"
-	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	kicker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(kicker, UiTypography.SIZE_CAPTION)
-	kicker.add_theme_color_override("font_color", Color("d8b96f"))
-	kicker.add_theme_color_override("font_outline_color", Color("160e0a"))
-	kicker.add_theme_constant_override("outline_size", 1)
-	dossier_stack.add_child(kicker)
-	_turn_order_boss_name = Label.new()
-	_turn_order_boss_name.name = "BossName"
-	_turn_order_boss_name.custom_minimum_size = Vector2(0.0, 32.0)
-	_turn_order_boss_name.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_turn_order_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	_turn_order_boss_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_turn_order_boss_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_turn_order_boss_name.max_lines_visible = 2
-	_turn_order_boss_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	_turn_order_boss_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_turn_order_boss_name, UiTypography.SIZE_BODY)
-	_turn_order_boss_name.add_theme_color_override("font_color", Color("ffe66d"))
-	_turn_order_boss_name.add_theme_color_override("font_outline_color", Color("120b07"))
-	_turn_order_boss_name.add_theme_constant_override("outline_size", 2)
-	dossier_stack.add_child(_turn_order_boss_name)
-	_turn_order_boss_health_host = Control.new()
-	_turn_order_boss_health_host.name = "BossHealthHost"
-	_turn_order_boss_health_host.custom_minimum_size = Vector2(0.0, TURN_ORDER_BOSS_HEALTH_HEIGHT)
-	_turn_order_boss_health_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	dossier_stack.add_child(_turn_order_boss_health_host)
-	_turn_order_boss_health_bar = SegmentedHealthBar.new()
-	_turn_order_boss_health_bar.name = "BossHealthBar"
-	_turn_order_boss_health_bar.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_turn_order_boss_health_bar.anchor_right = 1.0
-	_turn_order_boss_health_bar.anchor_bottom = 1.0
-	_turn_order_boss_health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_turn_order_boss_health_bar.set_fill(Color("b83d3a"), Color("f5efdf"))
-	_turn_order_boss_health_bar.set_appearance(Color("1a1110"), Color("f5d96c"), Color(0.0, 0.0, 0.0, 0.38))
-	_turn_order_boss_health_bar.separator_width = 1.0
-	_turn_order_boss_health_bar.border_width = 1.0
-	_turn_order_boss_health_host.add_child(_turn_order_boss_health_bar)
-	_turn_order_boss_damage_preview = ColorRect.new()
-	_turn_order_boss_damage_preview.name = "BossDamagePreview"
-	_turn_order_boss_damage_preview.anchor_top = 0.0
-	_turn_order_boss_damage_preview.anchor_bottom = 1.0
-	_turn_order_boss_damage_preview.offset_top = 1.0
-	_turn_order_boss_damage_preview.offset_bottom = -1.0
-	_turn_order_boss_damage_preview.color = Color(1.0, 0.72, 0.34, 0.76)
-	_turn_order_boss_damage_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_turn_order_boss_damage_preview.visible = false
-	_turn_order_boss_health_host.add_child(_turn_order_boss_damage_preview)
-	_turn_order_boss_hp_label = Label.new()
-	_turn_order_boss_hp_label.name = "BossHpLabel"
-	_turn_order_boss_hp_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_turn_order_boss_hp_label.anchor_right = 1.0
-	_turn_order_boss_hp_label.anchor_bottom = 1.0
-	_turn_order_boss_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_turn_order_boss_hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_turn_order_boss_hp_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_turn_order_boss_hp_label.z_index = 2
-	UiTypography.set_label_size(_turn_order_boss_hp_label, 10)
-	_turn_order_boss_hp_label.add_theme_color_override("font_color", Color("fff4dc"))
-	_turn_order_boss_hp_label.add_theme_color_override("font_outline_color", Color("140f0b"))
-	_turn_order_boss_hp_label.add_theme_constant_override("outline_size", 1)
-	_turn_order_boss_health_host.add_child(_turn_order_boss_hp_label)
+func _setup_boss_health_overlay() -> void:
+	_boss_health_overlay = Control.new()
+	_boss_health_overlay.name = "BossHealthOverlay"
+	_boss_health_overlay.visible = false
+	_boss_health_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_overlay.z_index = 38
+	ui_root.add_child(_boss_health_overlay)
+	var linework := PanelContainer.new()
+	linework.name = "BossHealthLinework"
+	linework.set_anchors_preset(Control.PRESET_FULL_RECT)
+	linework.anchor_right = 1.0
+	linework.anchor_bottom = 1.0
+	linework.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	linework.add_theme_stylebox_override("panel", _boss_health_overlay_style(Color("d36a55")))
+	_boss_health_overlay.add_child(linework)
+	_boss_health_name = Label.new()
+	_boss_health_name.name = "BossEncounterName"
+	_boss_health_name.position = Vector2(18.0, 0.0)
+	_boss_health_name.size = Vector2(BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH - 36.0, 40.0)
+	_boss_health_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_health_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_boss_health_name.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_boss_health_name.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	_boss_health_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_label_role(_boss_health_name, UiTypography.ROLE_TITLE)
+	_boss_health_name.add_theme_color_override("font_color", Color("f5e4c3"))
+	_boss_health_name.add_theme_color_override("font_outline_color", Color("140b08"))
+	_boss_health_name.add_theme_constant_override("outline_size", 3)
+	_boss_health_overlay.add_child(_boss_health_name)
+	_boss_health_host = Control.new()
+	_boss_health_host.name = "BossHealthBarHost"
+	_boss_health_host.position = Vector2(24.0, 43.0)
+	_boss_health_host.size = Vector2(BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH - 48.0, BOSS_HEALTH_OVERLAY_HEALTH_HEIGHT)
+	_boss_health_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_overlay.add_child(_boss_health_host)
+	_boss_health_bar = SegmentedHealthBar.new()
+	_boss_health_bar.name = "BossHealthBar"
+	_boss_health_bar.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_boss_health_bar.anchor_right = 1.0
+	_boss_health_bar.anchor_bottom = 1.0
+	_boss_health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_bar.set_fill(Color("9d2428"), Color("ffe5bf"))
+	_boss_health_bar.set_appearance(Color("170b0a"), Color("caa45b"), Color(0.0, 0.0, 0.0, 0.58))
+	_boss_health_bar.separator_width = 1.0
+	_boss_health_bar.border_width = 2.0
+	_boss_health_host.add_child(_boss_health_bar)
+	_boss_health_damage_preview = ColorRect.new()
+	_boss_health_damage_preview.name = "BossHealthDamagePreview"
+	_boss_health_damage_preview.anchor_top = 0.0
+	_boss_health_damage_preview.anchor_bottom = 1.0
+	_boss_health_damage_preview.offset_top = 2.0
+	_boss_health_damage_preview.offset_bottom = -2.0
+	_boss_health_damage_preview.color = Color(1.0, 0.72, 0.34, 0.76)
+	_boss_health_damage_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_damage_preview.visible = false
+	_boss_health_host.add_child(_boss_health_damage_preview)
+	_boss_health_hp_label = Label.new()
+	_boss_health_hp_label.name = "BossHealthValue"
+	_boss_health_hp_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_boss_health_hp_label.anchor_right = 1.0
+	_boss_health_hp_label.anchor_bottom = 1.0
+	_boss_health_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_health_hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_boss_health_hp_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_hp_label.z_index = 2
+	UiTypography.set_label_size(_boss_health_hp_label, UiTypography.SIZE_SMALL)
+	_boss_health_hp_label.add_theme_color_override("font_color", Color("fff4dc"))
+	_boss_health_hp_label.add_theme_color_override("font_outline_color", Color("140f0b"))
+	_boss_health_hp_label.add_theme_constant_override("outline_size", 1)
+	_boss_health_host.add_child(_boss_health_hp_label)
 
 func _refresh_turn_order_bar() -> void:
 	if _turn_order_bar == null:
@@ -8191,14 +8209,14 @@ func _refresh_turn_order_bar() -> void:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode != "combat" or _combat_state.is_empty():
-		_refresh_turn_order_boss_dossier({}, {})
+		_refresh_boss_health_overlay({}, {})
 		_clear_children(_turn_order_bar)
 		_turn_order_source_signature = "<unset>"
 		_turn_order_render_signature = "<unset>"
 		_turn_order_panel_locked_width = -1.0
 		_set_turn_order_visible(false)
 		return
-	_refresh_turn_order_boss_dossier(_board_display_state(), _board_presentation)
+	_refresh_boss_health_overlay(_board_display_state(), _board_presentation)
 	var source_signature: String = "%d|%d|%d|%d|%d" % [
 		_combat_preview_revision,
 		hash(_combat_state),
@@ -8261,7 +8279,8 @@ func _set_turn_order_bar_entries(entries: Array[Dictionary], overflow_count: int
 	_turn_order_bar.size = _turn_order_bar.custom_minimum_size
 	if _turn_order_panel != null:
 		var panel_width: float = _turn_order_panel_locked_width if _turn_order_panel_locked_width > 0.0 else _turn_order_panel_width_for_count(entries.size())
-		var panel_height: float = maxf(TURN_ORDER_PANEL_MIN_SIZE.y, entries_height + disclosure_height + 30.0)
+		var header_height: float = _turn_order_header_host.get_combined_minimum_size().y if _turn_order_header_host != null else 0.0
+		var panel_height: float = maxf(TURN_ORDER_PANEL_MIN_SIZE.y, header_height + entries_height + disclosure_height + 30.0)
 		_turn_order_panel.custom_minimum_size = Vector2(panel_width, panel_height)
 		_set_turn_order_visible(not entries.is_empty())
 	for index: int in range(entries.size()):
@@ -8325,29 +8344,26 @@ func _turn_order_panel_width_for_count(count: int) -> float:
 	return maxf(TURN_ORDER_PANEL_MIN_WIDTH, _turn_order_header_width() + 20.0)
 
 func _turn_order_header_width() -> float:
-	if _turn_order_boss_dossier != null and _turn_order_boss_dossier.visible:
-		return TURN_ORDER_BOSS_DOSSIER_WIDTH
 	return TURN_ORDER_LABEL_WIDTH
 
-func _refresh_turn_order_boss_dossier(display_state: Dictionary, source_presentation: Dictionary) -> void:
-	if _turn_order_boss_dossier == null or _turn_order_header_host == null:
+func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation: Dictionary) -> void:
+	if _boss_health_overlay == null or _turn_order_header_host == null:
 		return
-	var boss: Dictionary = _boss_unit_for_turn_order_dossier(display_state)
+	var boss: Dictionary = _boss_unit_for_health_overlay(display_state)
 	var visible: bool = not boss.is_empty()
-	_turn_order_boss_dossier.visible = visible
+	_boss_health_overlay.visible = visible
 	if _turn_order_label != null:
-		_turn_order_label.visible = not visible
-	_turn_order_header_host.custom_minimum_size = Vector2(
-		TURN_ORDER_BOSS_DOSSIER_WIDTH if visible else TURN_ORDER_LABEL_WIDTH,
-		44.0
-	)
+		_turn_order_label.visible = false
+	# Boss fights use the identical frameless turn rail; only the independent
+	# top-center encounter overlay changes.
+	_turn_order_header_host.custom_minimum_size = Vector2(TURN_ORDER_LABEL_WIDTH, TURN_ORDER_NORMAL_RAIL_TOP_CLEARANCE)
 	if not visible:
-		if _turn_order_boss_damage_preview != null:
-			_turn_order_boss_damage_preview.visible = false
+		if _boss_health_damage_preview != null:
+			_boss_health_damage_preview.visible = false
 		return
 	var boss_def: Dictionary = GameData.enemy_def(str(boss.get("type", "")))
 	var boss_name: String = str(boss_def.get("name", boss.get("name", "Boss")))
-	var preview: Dictionary = _boss_damage_preview_for_dossier(boss, source_presentation)
+	var preview: Dictionary = _boss_damage_preview_for_overlay(boss, source_presentation)
 	var current_boss: Dictionary = boss
 	if not preview.is_empty():
 		var boss_id: int = int(boss.get("id", -1))
@@ -8361,25 +8377,28 @@ func _refresh_turn_order_boss_dossier(display_state: Dictionary, source_presenta
 	var max_hp: int = maxi(1, int(current_boss.get("max_hp", boss.get("max_hp", 1))))
 	var hp: int = clampi(int(current_boss.get("hp", boss.get("hp", 0))), 0, max_hp)
 	var preview_hp: int = clampi(int(preview.get("hp", hp)), 0, max_hp)
-	if _turn_order_boss_name != null:
-		_turn_order_boss_name.text = boss_name
-	if _turn_order_boss_health_bar != null:
-		_turn_order_boss_health_bar.set_health(float(hp), float(max_hp))
-		_turn_order_boss_health_bar.set_segment_count(_turn_order_boss_segment_count(max_hp))
-	if _turn_order_boss_hp_label != null:
-		_turn_order_boss_hp_label.text = "%d/%d" % [hp, max_hp]
-	if _turn_order_boss_damage_preview != null:
+	if _boss_health_name != null:
+		_boss_health_name.text = boss_name
+	if _boss_health_bar != null:
+		_boss_health_bar.set_health(float(hp), float(max_hp))
+		_boss_health_bar.set_segment_count(_boss_health_segment_count(max_hp))
+	if _boss_health_hp_label != null:
+		_boss_health_hp_label.text = "%d/%d" % [hp, max_hp]
+	if _boss_health_damage_preview != null:
 		var current_ratio: float = clampf(float(hp) / float(max_hp), 0.0, 1.0)
 		var preview_ratio: float = clampf(float(preview_hp) / float(max_hp), 0.0, current_ratio)
-		_turn_order_boss_damage_preview.anchor_left = preview_ratio
-		_turn_order_boss_damage_preview.anchor_right = current_ratio
-		_turn_order_boss_damage_preview.offset_left = 0.0
-		_turn_order_boss_damage_preview.offset_right = 0.0
-		_turn_order_boss_damage_preview.visible = preview_hp < hp
+		_boss_health_damage_preview.anchor_left = preview_ratio
+		_boss_health_damage_preview.anchor_right = current_ratio
+		_boss_health_damage_preview.offset_left = 0.0
+		_boss_health_damage_preview.offset_right = 0.0
+		_boss_health_damage_preview.visible = preview_hp < hp
 	var accent: Color = Color(str(boss_def.get("accent", "#d36a55")))
-	_turn_order_boss_dossier.add_theme_stylebox_override("panel", _turn_order_boss_dossier_style(accent))
+	var linework: PanelContainer = _boss_health_overlay.get_node_or_null("BossHealthLinework") as PanelContainer
+	if linework != null:
+		linework.add_theme_stylebox_override("panel", _boss_health_overlay_style(accent))
+	_layout_boss_health_overlay()
 
-func _boss_unit_for_turn_order_dossier(display_state: Dictionary) -> Dictionary:
+func _boss_unit_for_health_overlay(display_state: Dictionary) -> Dictionary:
 	for enemy_var: Variant in display_state.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
@@ -8388,7 +8407,7 @@ func _boss_unit_for_turn_order_dossier(display_state: Dictionary) -> Dictionary:
 			return enemy
 	return {}
 
-func _boss_damage_preview_for_dossier(boss: Dictionary, source_presentation: Dictionary) -> Dictionary:
+func _boss_damage_preview_for_overlay(boss: Dictionary, source_presentation: Dictionary) -> Dictionary:
 	var actor_key: String = _enemy_key(boss)
 	var preview_map: Dictionary = source_presentation.get("damage_preview", {}) as Dictionary
 	var effect: Dictionary = source_presentation.get("effect", {}) as Dictionary
@@ -8397,8 +8416,8 @@ func _boss_damage_preview_for_dossier(boss: Dictionary, source_presentation: Dic
 		return effect_preview_map.get(actor_key, {}) as Dictionary
 	return preview_map.get(actor_key, {}) as Dictionary
 
-func _turn_order_boss_segment_count(max_hp: int) -> int:
-	return mini(TURN_ORDER_BOSS_MAX_SEGMENTS, SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp))))
+func _boss_health_segment_count(max_hp: int) -> int:
+	return mini(BOSS_HEALTH_MAX_SEGMENTS, SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp))))
 
 func _turn_order_slot_position(index: int) -> Vector2:
 	var y: float = 0.0
@@ -8600,19 +8619,24 @@ func _turn_order_panel_style() -> StyleBoxFlat:
 	style.shadow_offset = Vector2(0.0, 7.0)
 	return style
 
-func _turn_order_boss_dossier_style(accent: Color) -> StyleBoxFlat:
+func _boss_health_overlay_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.075, 0.045, 0.035, 0.94)
+	# A shallow encounter plaque: restrained stone field and brass rules, not a
+	# dashboard panel competing with the board or turn portraits.
+	style.bg_color = Color(0.038, 0.020, 0.016, 0.38)
 	style.border_color = accent.lightened(0.28)
-	style.border_color.a = 0.82
-	style.border_width_left = 3
-	style.border_width_top = 1
+	style.border_color.a = 0.72
+	style.border_width_left = 1
+	style.border_width_top = 2
 	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 3
+	style.corner_radius_top_right = 3
+	style.corner_radius_bottom_right = 3
+	style.corner_radius_bottom_left = 3
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
+	style.shadow_size = 8
+	style.shadow_offset = Vector2(0.0, 3.0)
 	return style
 
 func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
@@ -10433,6 +10457,7 @@ func _add_pass_preview_chip() -> void:
 	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_host.z_index = 2
 	art_host.set_meta("expected_target_size", Vector2i(270, 100))
+	art_host.set_meta("pass_forecast_art_state", "normal")
 	chip.add_child(art_host)
 
 	var content := Control.new()
@@ -10443,17 +10468,16 @@ func _add_pass_preview_chip() -> void:
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.z_index = 3
 	chip.add_child(content)
-	var pass_glow := PanelContainer.new()
-	pass_glow.name = "PassActionStateGlow"
-	# The v2 silhouette is one wide action bay plus a narrow forecast ribbon. Keep
-	# all information as visual children of the one button instead of reviving a
-	# left-action/right-data split panel.
-	pass_glow.position = Vector2(12.0, 12.0)
-	pass_glow.size = Vector2(246.0, 57.0)
-	pass_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pass_glow.visible = false
-	pass_glow.z_index = 4
-	content.add_child(pass_glow)
+	var focus_edge := PanelContainer.new()
+	focus_edge.name = "PassFocusEdgeCue"
+	# Keyboard/controller focus is the only code-drawn state treatment. Pointer
+	# hover and press use their authored native frames without a colored wash.
+	focus_edge.position = Vector2(10.0, 10.0)
+	focus_edge.size = Vector2(250.0, 61.0)
+	focus_edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	focus_edge.visible = false
+	focus_edge.z_index = 4
+	content.add_child(focus_edge)
 	var action_label := Label.new()
 	action_label.name = "PassActionLabel"
 	action_label.text = "PASS"
@@ -10481,8 +10505,11 @@ func _add_pass_preview_chip() -> void:
 
 	var damage_row := Control.new()
 	damage_row.name = "PassPreviewDamageRow"
-	damage_row.position = Vector2(12.0, 74.0)
-	damage_row.size = Vector2(246.0, 20.0)
+	# The lower authored ribbon ends above the distressed lower edge. Keep the
+	# forecast vertically contained inside it instead of centering against the
+	# whole lower strip.
+	damage_row.position = Vector2(12.0, 72.0)
+	damage_row.size = Vector2(246.0, 18.0)
 	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(damage_row)
 	var forecast_entries: Array[Dictionary] = _pass_preview_forecast_entries(summary)
@@ -10498,12 +10525,14 @@ func _add_pass_preview_chip() -> void:
 		forecast_color,
 		false
 	)
-	forecast_line.position = Vector2.ZERO
-	forecast_line.size = damage_row.size
 	forecast_line.custom_minimum_size = Vector2.ZERO
 	forecast_line.tooltip_text = tooltip_text
 	UiTypography.set_label_size(forecast_line, UiTypography.SIZE_SMALL)
 	damage_row.add_child(forecast_line)
+	# Set explicit bounds after parenting so the Label's previous standalone
+	# minimum does not reclaim height beyond the art's lower ribbon.
+	forecast_line.position = Vector2.ZERO
+	forecast_line.size = damage_row.size
 	var danger_state: bool = (
 		bool(summary.get("defeat", false))
 		or bool(summary.get("unrevealed_before_player", false))
@@ -10513,13 +10542,13 @@ func _add_pass_preview_chip() -> void:
 	chip.set_meta("panel_surface_accent", accent)
 	chip.set_meta("panel_selected", danger_state)
 	chip.set_meta("pass_interaction_state", "disabled" if chip.disabled else "idle")
-	chip.mouse_entered.connect(_set_pass_preview_pointer_hover.bind(chip, art_host, content, pass_glow, accent))
-	chip.mouse_exited.connect(_set_pass_preview_pointer_exit.bind(chip, art_host, content, pass_glow, accent))
-	chip.focus_entered.connect(_set_pass_preview_focus_entered.bind(chip, art_host, content, pass_glow, accent))
-	chip.focus_exited.connect(_set_pass_preview_focus_exited.bind(chip, art_host, content, pass_glow, accent))
-	chip.button_down.connect(_set_pass_preview_pressed.bind(chip, art_host, content, pass_glow, accent))
-	chip.button_up.connect(_set_pass_preview_released.bind(chip, art_host, content, pass_glow, accent))
-	_refresh_pass_preview_interaction(chip, art_host, content, pass_glow, accent)
+	chip.mouse_entered.connect(_set_pass_preview_pointer_hover.bind(chip, art_host, content, focus_edge, accent))
+	chip.mouse_exited.connect(_set_pass_preview_pointer_exit.bind(chip, art_host, content, focus_edge, accent))
+	chip.focus_entered.connect(_set_pass_preview_focus_entered.bind(chip, art_host, content, focus_edge, accent))
+	chip.focus_exited.connect(_set_pass_preview_focus_exited.bind(chip, art_host, content, focus_edge, accent))
+	chip.button_down.connect(_set_pass_preview_pressed.bind(chip, art_host, content, focus_edge, accent))
+	chip.button_up.connect(_set_pass_preview_released.bind(chip, art_host, content, focus_edge, accent))
+	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
 	if _choice_buttons_use_overlay():
 		_pass_preview_overlay.add_child(chip)
@@ -10538,32 +10567,32 @@ func _pass_preview_action_available() -> bool:
 		and _combat_skill_card_selection_zone.is_empty()
 	)
 
-func _set_pass_preview_pointer_hover(chip: Button, art_host: TextureRect, content: Control, glow: PanelContainer, accent: Color) -> void:
+func _set_pass_preview_pointer_hover(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color) -> void:
 	chip.set_meta("pass_pointer_hover", true)
-	_refresh_pass_preview_interaction(chip, art_host, content, glow, accent)
+	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
-func _set_pass_preview_pointer_exit(chip: Button, art_host: TextureRect, content: Control, glow: PanelContainer, accent: Color) -> void:
+func _set_pass_preview_pointer_exit(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color) -> void:
 	chip.set_meta("pass_pointer_hover", false)
-	_refresh_pass_preview_interaction(chip, art_host, content, glow, accent)
+	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
-func _set_pass_preview_focus_entered(chip: Button, art_host: TextureRect, content: Control, glow: PanelContainer, accent: Color) -> void:
+func _set_pass_preview_focus_entered(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color) -> void:
 	chip.set_meta("pass_keyboard_focus", true)
-	_refresh_pass_preview_interaction(chip, art_host, content, glow, accent)
+	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
-func _set_pass_preview_focus_exited(chip: Button, art_host: TextureRect, content: Control, glow: PanelContainer, accent: Color) -> void:
+func _set_pass_preview_focus_exited(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color) -> void:
 	chip.set_meta("pass_keyboard_focus", false)
-	_refresh_pass_preview_interaction(chip, art_host, content, glow, accent)
+	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
-func _set_pass_preview_pressed(chip: Button, art_host: TextureRect, content: Control, glow: PanelContainer, accent: Color) -> void:
+func _set_pass_preview_pressed(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color) -> void:
 	chip.set_meta("pass_pressed", true)
-	_refresh_pass_preview_interaction(chip, art_host, content, glow, accent)
+	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
-func _set_pass_preview_released(chip: Button, art_host: TextureRect, content: Control, glow: PanelContainer, accent: Color) -> void:
+func _set_pass_preview_released(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color) -> void:
 	chip.set_meta("pass_pressed", false)
-	_refresh_pass_preview_interaction(chip, art_host, content, glow, accent)
+	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
-func _refresh_pass_preview_interaction(chip: Button, art_host: TextureRect, content: Control, glow: PanelContainer, accent: Color) -> void:
-	if chip == null or art_host == null or content == null or glow == null:
+func _refresh_pass_preview_interaction(chip: Button, art_host: TextureRect, content: Control, focus_edge: PanelContainer, accent: Color) -> void:
+	if chip == null or art_host == null or content == null or focus_edge == null:
 		return
 	var disabled: bool = chip.disabled
 	var pressed: bool = bool(chip.get_meta("pass_pressed", false)) and not disabled
@@ -10572,16 +10601,18 @@ func _refresh_pass_preview_interaction(chip: Button, art_host: TextureRect, cont
 	var state: String = "disabled" if disabled else "pressed" if pressed else "focus" if focused else "hover" if hovered else "idle"
 	chip.set_meta("pass_interaction_state", state)
 	content.position = Vector2(0.0, 1.0) if pressed else Vector2.ZERO
-	art_host.modulate = Color(0.56, 0.56, 0.56, 0.92) if disabled else Color(0.92, 0.92, 0.92, 1.0) if pressed else Color(1.12, 1.12, 1.12, 1.0) if hovered or focused else Color.WHITE
-	glow.visible = pressed or hovered or focused
+	var art_state: String = "pressed" if pressed else "hover" if hovered or focused else "normal"
+	art_host.texture = AssetLoader.load_texture(PASS_FORECAST_PRESSED_TEXTURE_PATH) if art_state == "pressed" else AssetLoader.load_texture(PASS_FORECAST_HOVER_TEXTURE_PATH) if art_state == "hover" else AssetLoader.load_texture(PASS_FORECAST_FRAME_TEXTURE_PATH)
+	art_host.set_meta("pass_forecast_art_state", art_state)
+	art_host.modulate = Color(0.56, 0.56, 0.56, 0.92) if disabled else Color.WHITE
+	focus_edge.visible = focused
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(accent.r, accent.g, accent.b, 0.08 if focused or hovered else 0.14)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.96 if focused else 0.72)
-	style.set_border_width_all(2 if focused else 1)
+	style.bg_color = Color.TRANSPARENT
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.94)
+	style.set_border_width_all(2)
 	style.set_corner_radius_all(5)
-	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.28 if focused else 0.16)
-	style.shadow_size = 5 if focused else 3
-	glow.add_theme_stylebox_override("panel", style)
+	style.shadow_size = 0
+	focus_edge.add_theme_stylebox_override("panel", style)
 
 func _pass_preview_forecast_entries(summary: Dictionary) -> Array[Dictionary]:
 	# The frame provides exactly two small right-side cells. Keep complete detail in
@@ -12715,7 +12746,7 @@ func _refresh_stage_view() -> void:
 		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
 		presentation
 	)
-	_refresh_turn_order_boss_dossier(display_state, presentation)
+	_refresh_boss_health_overlay(display_state, presentation)
 
 func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 	for enemy_index: int in range((display_state.get("enemies", []) as Array).size()):
@@ -15959,7 +15990,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		{},
 		rendered_presentation
 	)
-	_refresh_turn_order_boss_dossier(display_state, rendered_presentation)
+	_refresh_boss_health_overlay(display_state, rendered_presentation)
 
 func _board_backdrop_visible_for_board() -> bool:
 	return (

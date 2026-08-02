@@ -210,7 +210,7 @@ func _initialize() -> void:
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_hud_layout_offsets_down_from_top_edge()
 	_test_boss_intent_layout_needs_no_global_board_banner()
-	_test_boss_health_dossier_caps_divider_density()
+	_test_boss_health_overlay_caps_divider_density()
 	_test_turn_order_portraits_cover_enemy_roster()
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
@@ -5633,7 +5633,7 @@ func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
 	var bottom_inner_tile: Vector2 = board.call("_tile_center", Vector2i(6, 6))
 	_assert(tile_width > 176.0, "Combat board should use the enlarged default combat zoom on large stage space")
 	_assert(top_inner_tile.y < 220.0, "Combat board layout should use hidden-wall-free bounds and sit higher in the stage")
-	_assert(bottom_inner_tile.y + tile_width * 0.30 < board.size.y - 24.0, "Combat board should keep the lower room clear of the hand area")
+	_assert(bottom_inner_tile.y < board.size.y - 24.0, "Combat board's playable lower-row centers should remain inside the stage while the hand intentionally overlays its lower edge")
 
 func _test_enemy_intent_name_reserves_header_line() -> void:
 	var board := CombatBoardView.new()
@@ -5780,11 +5780,11 @@ func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
 	_assert(is_equal_approx(compact_rect.end.y, expanded_rect.end.y), "Compact boss intent placement should be anchored to the expanded layout")
 	board.free()
 
-func _test_boss_health_dossier_caps_divider_density() -> void:
+func _test_boss_health_overlay_caps_divider_density() -> void:
 	var instance: Node = RunSceneScript.new()
-	_assert(int(instance.call("_turn_order_boss_segment_count", 120)) == 48, "Deep boss health should cap divider density inside the compact turn-order dossier")
-	_assert(int(instance.call("_turn_order_boss_segment_count", 33)) == 17, "Moderate boss health should retain the shared natural-unit segment scale")
-	_assert(int(instance.call("_turn_order_boss_segment_count", 1)) == 1, "Tiny boss health should keep at least one segment")
+	_assert(int(instance.call("_boss_health_segment_count", 120)) == 48, "Deep boss health should cap divider density in the dedicated encounter overlay")
+	_assert(int(instance.call("_boss_health_segment_count", 33)) == 17, "Moderate boss health should retain the shared natural-unit segment scale")
+	_assert(int(instance.call("_boss_health_segment_count", 1)) == 1, "Tiny boss health should keep at least one segment")
 	instance.free()
 
 func _test_enemy_art_scale_preserves_center() -> void:
@@ -8368,26 +8368,53 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 			break
 	_assert(not found_boss.is_empty(), "Debug boss fixture should spawn Zekarion")
 	var turn_order_panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
-	var boss_dossier: PanelContainer = instance.get("_turn_order_boss_dossier") as PanelContainer
-	var header_host: Control = instance.get("_turn_order_header_host") as Control
-	var boss_name: Label = instance.get("_turn_order_boss_name") as Label
-	var boss_hp: Label = instance.get("_turn_order_boss_hp_label") as Label
-	_assert(turn_order_panel != null and boss_dossier != null and boss_dossier.visible, "Boss combat should transform the turn-clock legend into a visible boss dossier")
-	_assert(turn_order_panel != null and turn_order_panel.size.y <= 110.0, "The boss dossier should reuse the existing turn-order height instead of extending over the arena (found %.1fpx)" % (turn_order_panel.size.y if turn_order_panel != null else -1.0))
-	_assert(turn_order_panel != null and boss_dossier != null and turn_order_panel.get_global_rect().encloses(boss_dossier.get_global_rect()), "The boss dossier should live entirely inside the turn-order panel")
-	_assert(header_host != null and header_host.custom_minimum_size.x > 118.0, "Boss combat should widen only the turn-clock legend column for readable boss data")
-	_assert(boss_name != null and boss_name.text.contains("Zekarion"), "The integrated dossier should keep the boss name visible")
-	_assert(boss_hp != null and boss_hp.text == "%d/%d" % [int(found_boss.get("hp", 0)), int(found_boss.get("max_hp", 1))], "The integrated dossier should show exact boss health")
+	var boss_overlay: Control = instance.get("_boss_health_overlay") as Control
+	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
+	var boss_name: Label = instance.get("_boss_health_name") as Label
+	var boss_hp: Label = instance.get("_boss_health_hp_label") as Label
+	_assert(instance.find_child("BossDossier", true, false) == null, "Boss combat should remove the obsolete turn-clock dossier widget")
+	_assert(boss_overlay != null and boss_overlay.visible, "Boss combat should show a dedicated top-center health overlay")
+	if boss_overlay != null:
+		_assert(boss_overlay.size.x >= 700.0 and boss_overlay.size.x <= 820.0 and boss_overlay.size.y <= 90.0, "The boss overlay should stay wide and shallow at the authored combat size")
+	var boss_slots: Array[Control] = []
+	if turn_order_bar != null:
+		for child: Node in turn_order_bar.get_children():
+			if child is Control and child.name != "TurnOrderOverflowBadge":
+				boss_slots.append(child as Control)
+	var expected_boss_slot_count: int = mini(10, CombatEngine.new().current_turn_order(combat_state, 10).size())
+	_assert(boss_slots.size() == expected_boss_slot_count, "Boss combat should retain the same frameless rail with up to ten scheduled portraits")
+	if expected_boss_slot_count == 10:
+		_assert(turn_order_bar == null or turn_order_bar.find_child("TurnOrderOverflowBadge", false, false) == null, "A ten-slot boss rail should not add a redundant overflow badge")
+	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
+	for slot: Control in boss_slots:
+		_assert(viewport_rect.encloses(slot.get_global_rect()), "Every visible boss turn portrait should remain on-screen")
+	if boss_overlay != null:
+		var overlay_rect: Rect2 = boss_overlay.get_global_rect()
+		_assert(viewport_rect.encloses(overlay_rect), "The dedicated boss overlay should remain on-screen")
+		_assert(turn_order_panel == null or not overlay_rect.intersects(turn_order_panel.get_global_rect()), "The top-center boss overlay should not overlap the turn rail")
+		var title_label: Label = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle") as Label
+		var title_font: Font = title_label.get_theme_font("font") if title_label != null else null
+		var title_width: float = title_font.get_string_size(title_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, title_label.get_theme_font_size("font_size")).x if title_font != null and title_label != null else 0.0
+		var title_rect := Rect2(title_label.get_global_rect().position, Vector2(title_width, title_label.size.y)) if title_label != null else Rect2()
+		_assert(not overlay_rect.intersects(title_rect), "The top-center boss overlay should not cover the visible room title")
+		for utility: Control in [instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel") as Control, instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton") as Control, instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/GrimoireButton") as Control, instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton") as Control]:
+			_assert(utility == null or not utility.visible or not overlay_rect.intersects(utility.get_global_rect()), "The top-center boss overlay should clear visible utility controls")
+		var meter: Control = instance.get("_play_meter") as Control
+		var hand: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll") as Control
+		_assert(meter == null or not meter.visible or not overlay_rect.intersects(meter.get_global_rect()), "The top-center boss overlay should not overlap the action dock")
+		_assert(hand == null or not hand.visible or not overlay_rect.intersects(hand.get_global_rect()), "The top-center boss overlay should not overlap the hand")
+	_assert(boss_name != null and boss_name.text.contains("Zekarion"), "The dedicated boss overlay should keep the full boss name readable")
+	_assert(boss_hp != null and boss_hp.text == "%d/%d" % [int(found_boss.get("hp", 0)), int(found_boss.get("max_hp", 1))], "The dedicated boss overlay should show exact health")
 	var preview_hp: int = maxi(0, int(found_boss.get("hp", 0)) - 50)
-	instance.call("_refresh_turn_order_boss_dossier", combat_state, {
+	instance.call("_refresh_boss_health_overlay", combat_state, {
 		"effect": {
 			"damage_preview": {
 				"enemy_%d" % int(found_boss.get("id", -1)): {"hp": preview_hp, "hp_loss": 50}
 			}
 		}
 	})
-	var preview_band: ColorRect = instance.get("_turn_order_boss_damage_preview") as ColorRect
-	_assert(preview_band != null and preview_band.visible and preview_band.anchor_left < preview_band.anchor_right, "Boss damage previews should remain visible in the integrated health rail")
+	var preview_band: ColorRect = instance.get("_boss_health_damage_preview") as ColorRect
+	_assert(preview_band != null and preview_band.visible and preview_band.anchor_left < preview_band.anchor_right, "Boss damage previews should remain visible in the dedicated health overlay")
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	_assert(board != null and not (board.get("presentation") as Dictionary).has("boss_health_name_min_y"), "The combat board should no longer carry boss-banner positioning state")
 	instance.queue_free()
@@ -8423,26 +8450,59 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_turn_order_bar")
 	instance.call("_refresh_choice_bar")
+	instance.call("_layout_combat_action_dock")
+	instance.call("_layout_choice_button_overlay")
 	await process_frame
-	var choice_host: Node = _run_scene_choice_button_host(instance)
-	var pass_button: Button = _button_with_text(choice_host, "Pass")
-	_assert(pass_button != null, "Combat UI should always offer Pass when the player can end the turn manually")
+	var actual_turn_order_bar: Control = instance.get("_turn_order_bar") as Control
+	var actual_normal_slots: Array[Control] = []
+	if actual_turn_order_bar != null:
+		for child: Node in actual_turn_order_bar.get_children():
+			if child is Control and child.name != "TurnOrderOverflowBadge":
+				actual_normal_slots.append(child as Control)
+	_assert(not actual_normal_slots.is_empty(), "A visible normal combat should render at least one turn portrait")
+	if not actual_normal_slots.is_empty():
+		var grimoire: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/GrimoireButton") as Control
+		var menu: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton") as Control
+		var utility_bottom: float = maxf(grimoire.get_global_rect().end.y if grimoire != null and grimoire.visible else 0.0, menu.get_global_rect().end.y if menu != null and menu.visible else 0.0)
+		_assert(actual_normal_slots[0].get_global_rect().position.y >= utility_bottom + 4.0, "The normal rail's first portrait should clear the visible top utility buttons")
+	var normal_rail_entries: Array[Dictionary] = []
+	for index: int in range(10):
+		normal_rail_entries.append({
+			"kind": "player" if index % 2 == 0 else "enemy",
+			"type": "player" if index % 2 == 0 else "crawler",
+			"name": "Reaver" if index % 2 == 0 else "Crawler",
+			"pos": Vector2i(3, 3),
+			"actor_key": "player" if index % 2 == 0 else "enemy_1",
+			"time": index * 3,
+			"active": index == 0
+	})
+	instance.call("_set_turn_order_bar_entries", normal_rail_entries)
+	await process_frame
+	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
+	var normal_slots: Array[Control] = []
+	if turn_order_bar != null:
+		for child: Node in turn_order_bar.get_children():
+			if child is Control and child.name != "TurnOrderOverflowBadge":
+				normal_slots.append(child as Control)
+	_assert(normal_slots.size() == 10, "Normal combat should retain its ten-slot turn rail")
+	if not normal_slots.is_empty():
+		var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
+		for slot: Control in normal_slots:
+			_assert(viewport_rect.encloses(slot.get_global_rect()), "Every normal-rail turn portrait should remain on-screen")
+	var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	_assert(pass_button != null and not pass_button.disabled, "Combat UI should always offer its actionable Pass forecast when the player can end the turn manually")
 	if pass_button != null:
-		_assert_button_uses_variant(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, UiSkin.VARIANT_LARGE, "Combat Pass button should use the large themed variant")
-	var overlay: Control = instance.get("_choice_button_overlay") as Control
+		_assert(pass_button.focus_mode == Control.FOCUS_ALL and pass_button.get_global_rect().size == Vector2(270.0, 100.0), "Combat Pass forecast should remain one large, keyboard-focusable native control")
+	var overlay: Control = instance.get("_pass_preview_overlay") as Control
 	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
-	_assert(overlay != null and overlay.visible, "Combat Pass button should render in the stable overlay host")
-	if overlay != null and piles_bar != null:
-		_assert(overlay.global_position.y >= piles_bar.global_position.y - overlay.size.y - 10.0 and overlay.global_position.y < piles_bar.global_position.y, "Combat choice overlay should stay directly above the pile widgets instead of jumping near the top of the screen")
+	_assert(overlay != null and overlay.visible, "Combat Pass forecast should render in its stable overlay host")
 	if pass_button != null and piles_bar != null:
 		var pass_rect: Rect2 = pass_button.get_global_rect()
-		_assert(pass_rect.position.y + pass_rect.size.y <= piles_bar.global_position.y + 1.0, "Combat Pass button should remain above the pile widgets")
-	var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
-	if preview_overlay != null and preview_overlay.visible and pass_button != null:
-		var preview_rect: Rect2 = preview_overlay.get_global_rect()
-		var preview_pass_rect: Rect2 = pass_button.get_global_rect()
-		_assert(preview_rect.position.y >= preview_pass_rect.position.y + preview_pass_rect.size.y + 5.0, "The independent combat dock forecast should sit below its card-play plaque")
+		var meter: Control = instance.get("_play_meter") as Control
+		_assert(meter != null and meter.visible and pass_rect.position.y >= meter.get_global_rect().end.y + 5.0, "Combat Pass forecast should sit below its fixed card-play plaque")
+		_assert(pass_rect.position.x >= piles_bar.get_global_rect().end.x + 12.0, "Combat Pass forecast should occupy the negative space right of the pile widgets")
 	instance.queue_free()
 	await process_frame
 
@@ -8475,11 +8535,12 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_choice_bar")
-	var choice_host: Node = _run_scene_choice_button_host(instance)
-	var pass_button: Button = _button_with_text(choice_host, "Pass")
-	_assert(pass_button != null, "Combat UI should offer Pass when the hand has no playable cards")
+	instance.call("_layout_combat_action_dock")
+	instance.call("_layout_choice_button_overlay")
+	var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	_assert(pass_button != null and not pass_button.disabled, "Combat UI should offer Pass when the hand has no playable cards")
 	if pass_button != null:
-		_assert_button_uses_variant(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, UiSkin.VARIANT_LARGE, "Dead-hand Pass button should use the large themed variant")
+		_assert(pass_button.focus_mode == Control.FOCUS_ALL and pass_button.get_global_rect().size == Vector2(270.0, 100.0), "Dead-hand Pass should retain the large native forecast control")
 	instance.queue_free()
 	await process_frame
 
@@ -8496,9 +8557,8 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_install_pass_preview_chip_state(instance, danger_state)
 	await process_frame
 	await process_frame
-	var choice_host: Node = _run_scene_choice_button_host(instance)
-	var pass_button: Button = _button_with_text(choice_host, "Pass")
-	_assert(pass_button != null, "Pass preview should keep the Pass button available")
+	var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	_assert(pass_button != null and not pass_button.disabled, "Pass preview should keep the Pass control available")
 	_assert_pass_preview_chip(instance, ["-5"], false, false, "danger pass")
 	_assert(instance.find_child("PassPreviewDetail", true, false) == null, "Pass preview should not render the old wordy detail line")
 	var summary: Dictionary = instance.call("_pass_preview_summary")
@@ -8516,7 +8576,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("layered"))
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["-4", "-3", "-5"], false, false, "layered pass")
+	_assert_pass_preview_chip(instance, ["-4", "-5"], false, false, "layered pass")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("defiance_followup"))
 	await process_frame
@@ -8549,9 +8609,9 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("unrevealed"))
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["SAFE"], false, true, "unrevealed pass")
+	_assert_pass_preview_chip(instance, ["UNKNOWN"], false, true, "unrevealed pass")
 	var danger_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
-	_assert(danger_line != null and danger_line.text.contains("TURN END") and danger_line.text.contains("SAFE"), "Unrevealed follow-up preview should keep its compact forecast ribbon")
+	_assert(danger_line != null and danger_line.text.contains("TURN END") and danger_line.text.contains("UNKNOWN"), "Unrevealed follow-up preview should keep its compact uncertainty ribbon")
 	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	_assert(danger_chip != null and danger_chip.tooltip_text == "Enemies have unrevealed actions before your next turn, you may take additional damage.", "DANGER! pass preview should expose the unrevealed-action tooltip")
 
@@ -8679,13 +8739,14 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	instance.set("_pending_action_can_skip", false)
 	instance.call("_refresh_choice_bar")
 	instance.call("_refresh_visibility")
+	instance.call("_layout_combat_action_dock")
+	instance.call("_layout_choice_button_overlay")
 	await process_frame
 	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
 	var left_action_stack: VBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack")
 	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	var play_meter: Control = instance.get("_play_meter") as Control
-	var play_meter_slot: Control = instance.get("_play_meter_slot") as Control
 	var pass_hand_x: float = hand_scroll.global_position.x
 	var pass_action_width: float = left_action_stack.size.x
 	var single_action_width: float = UiSkin.new().button_native_size(UiSkin.BUTTON_HEIGHT_ACTION, 0.0, UiSkin.VARIANT_LARGE).x
@@ -8693,13 +8754,8 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	var two_action_width: float = single_action_width * 2.0 + float(choice_bar.get_theme_constant("separation"))
 	_assert(absf(pass_action_width - expected_action_width) <= 1.0, "Combat action controls should keep the original pile/pass layout footprint")
 	_assert(pass_action_width < two_action_width - 1.0, "Combat action controls should not permanently reserve the wider Skip/Cancel footprint")
-	_assert(play_meter_slot != null and play_meter_slot.get_parent() == hand_scroll.get_parent() and play_meter_slot.get_index() > hand_scroll.get_index(), "Card-play meter slot should follow the hand viewport in the combat HUD")
-	if play_meter != null:
-		var hand_row: Control = hand_scroll.get_parent() as Control
-		var row_center_x: float = hand_row.get_global_rect().get_center().x
-		var hand_center_x: float = hand_scroll.get_global_rect().get_center().x
-		_assert(play_meter.get_global_rect().position.x >= hand_scroll.get_global_rect().end.x - 1.0, "Card-play meter should sit to the right of the hand")
-		_assert(absf(hand_center_x - row_center_x) <= 16.0, "Balanced hand-side controls should keep the hand viewport centered in its full-screen row")
+	if play_meter != null and play_meter.visible:
+		_assert(absf(play_meter.get_global_rect().position.x - 303.0) <= 1.0 and absf(play_meter.get_global_rect().position.y - 814.0) <= 1.0, "Card-play meter should use the stable left-side dock anchor rather than follow hand reflow")
 	instance.set("_selected_card_index", 0)
 	instance.set("_pending_actions", [{"type": "move"}])
 	instance.set("_pending_action_index", 0)
@@ -10076,6 +10132,8 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_ui")
+	instance.call("_layout_combat_action_dock")
+	instance.call("_layout_choice_button_overlay")
 	var count_label: Label = instance.get("_play_meter_count") as Label
 	_assert(count_label != null and count_label.text == "2 card plays", "Card play meter should start from available combat plays")
 	var banked_badge: Control = instance.get("_play_meter_banked_badge") as Control
@@ -10104,12 +10162,8 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	_assert(count_label != null and count_label.text == "2 card plays", "The large card-play count should reserve its number for ordinary plays")
 	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
 	_assert(count_label != null and count_label.position.y >= 3.0 and count_label.size.y <= 26.0, "Banked-play state should intentionally split the plaque into count and banked rows")
-	var hand_scroll: Control = instance.get("hand_scroll") as Control
-	var hand_row: Control = instance.get("hand_row") as Control
-	var left_action_stack: Control = instance.get("left_action_stack") as Control
-	var play_meter_slot: Control = instance.get("_play_meter_slot") as Control
-	_assert(left_action_stack != null and play_meter_slot != null and absf(left_action_stack.size.x - play_meter_slot.size.x) <= 1.0, "Wide banked-play copy should preserve equal hand-side footprints")
-	_assert(hand_scroll != null and hand_row != null and absf(hand_scroll.get_global_rect().get_center().x - hand_row.get_global_rect().get_center().x) <= 1.0, "Wide banked-play copy should keep the hand centered")
+	var play_meter: Control = instance.get("_play_meter") as Control
+	_assert(play_meter != null and absf(play_meter.get_global_rect().position.x - 303.0) <= 1.0 and absf(play_meter.get_global_rect().position.y - 814.0) <= 1.0, "Wide banked-play copy should preserve the stable left-side dock anchor")
 	combat_state["cards_played_this_turn"] = 2
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_card_play_meter")
@@ -10839,7 +10893,7 @@ func _test_run_scene_discard_pile_uses_distinct_icon_controls() -> void:
 	var pile_card_size: Vector2 = instance.call("_pile_display_card_size")
 	_assert(draw_badge != null and draw_badge.visible and draw_badge.text == "2", "The draw pile should show its remaining card count")
 	_assert(draw_badge != null and draw_badge.get_parent() == (instance.get("_pile_content_hosts") as Dictionary).get("draw", null), "The draw count badge should be positioned inside the pile content layer")
-	_assert(draw_badge != null and draw_badge.size.x < pile_card_size.x * 0.4 and draw_badge.position.x > pile_card_size.x * 0.65, "The draw count badge should stay as a small top-right badge")
+	_assert(draw_badge != null and draw_badge.size.x < pile_card_size.x * 0.4 and draw_badge.position.x >= 0.0 and draw_badge.position.y >= 0.0 and draw_badge.position.y + draw_badge.size.y <= pile_card_size.y and pile_card_size.x - (draw_badge.position.x + draw_badge.size.x) >= 0.0 and pile_card_size.x - (draw_badge.position.x + draw_badge.size.x) <= 6.0, "The draw count badge should stay as a small top-right badge (badge %s/%s, pile %s)" % [draw_badge.position if draw_badge != null else Vector2.ZERO, draw_badge.size if draw_badge != null else Vector2.ZERO, pile_card_size])
 	var discard_badge: Label = badges.get("discard", null)
 	_assert(discard_badge != null and discard_badge.visible and discard_badge.text == "0", "The discard pile should retain its established numeric badge even when empty")
 	deck["discard"] = ["quick_stab"]
@@ -12813,6 +12867,8 @@ func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) 
 	instance.set("_card_play_count_override", -1)
 	instance.call("_reset_card_resolution")
 	instance.call("_refresh_ui")
+	instance.call("_layout_combat_action_dock")
+	instance.call("_layout_choice_button_overlay")
 
 func _assert_action_context_risk(instance: Node, expected_fragment: String, expected_tone: String, context: String) -> void:
 	var action_context: Control = instance.get("_action_step_tracker") as Control
@@ -12823,7 +12879,8 @@ func _assert_action_context_risk(instance: Node, expected_fragment: String, expe
 	var risk_tone: String = str(action_context.get_meta("risk_tone", ""))
 	_assert(risk_text.contains(expected_fragment), "%s should include risk '%s', got '%s'" % [context, expected_fragment, risk_text])
 	_assert(risk_tone == expected_tone, "%s should use risk tone %s, got %s" % [context, expected_tone, risk_tone])
-	_assert(instance.find_child("PassPreviewChip", true, false) == null, "%s should compose risk into the action context instead of duplicating the pass-preview chip" % context)
+	var pass_chip: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	_assert(pass_chip != null and pass_chip.disabled and pass_chip.focus_mode == Control.FOCUS_NONE, "%s should retain the stable Pass forecast as a visibly unavailable, non-focusable control while the action context owns the current risk" % context)
 
 func _label_text_fits(label: Label) -> bool:
 	if label == null:
@@ -12841,23 +12898,21 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		var chip_rect: Rect2 = chip.get_global_rect()
 		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
 		var pass_art: TextureRect = chip.find_child("PassForecastFrameArtHost", true, false) as TextureRect
-		_assert(pass_art != null and pass_art.get_meta("expected_target_size", Vector2i.ZERO) == Vector2i(270, 100), "%s pass forecast should use the native v2 Pass frame" % context)
+		_assert(pass_art != null and pass_art.get_meta("expected_target_size", Vector2i.ZERO) == Vector2i(270, 100) and pass_art.texture != null and str(pass_art.get_meta("pass_forecast_art_state", "")) == "normal", "%s pass forecast should use the native v2 normal frame" % context)
+		_assert(chip.find_child("PassFocusEdgeCue", true, false) != null and chip.find_child("PassActionStateGlow", true, false) == null, "%s pass forecast should reserve code-drawn treatment for the narrow focus edge, not a colored action wash" % context)
 		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
-		var choice_host: Control = _run_scene_choice_button_host(instance) as Control
 		var piles_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
 		var action_step_tracker: Control = instance.find_child(ACTION_STEP_TRACKER_PATH, true, false) as Control
-		if preview_overlay != null and preview_overlay.visible and choice_host != null and piles_bar != null:
-			var choice_rect: Rect2 = choice_host.get_global_rect()
+		if preview_overlay != null and preview_overlay.visible and piles_bar != null:
 			var piles_rect: Rect2 = piles_bar.get_global_rect()
 			var viewport_width: float = instance.get_viewport().get_visible_rect().size.x
 			var meter: Control = instance.get("_play_meter") as Control
 			_assert(meter != null and meter.visible, "%s pass forecast should pair with the independent card-play dock" % context)
 			if meter != null:
 				var meter_rect: Rect2 = meter.get_global_rect()
-				_assert(absf(chip_rect.position.x - meter_rect.position.x) <= 1.0 and chip_rect.position.y >= meter_rect.end.y + 5.0, "%s pass forecast should sit directly below the card-play plaque" % context)
-			_assert(choice_rect.position.y + choice_rect.size.y <= piles_rect.position.y + 1.0, "%s action buttons should stay above the pile widgets" % context)
-			_assert(choice_rect.position.x >= -1.0 and choice_rect.position.x + choice_rect.size.x <= viewport_width + 1.0, "%s action buttons should stay inside the viewport" % context)
-			_assert(absf(choice_rect.position.x - piles_rect.position.x) <= 1.0, "%s action buttons should be left-aligned with the pile column" % context)
+				_assert(absf(chip_rect.get_center().x - meter_rect.get_center().x) <= 1.0 and chip_rect.position.y >= meter_rect.end.y + 5.0, "%s pass forecast should center under the card-play plaque" % context)
+			_assert(chip_rect.position.x >= piles_rect.end.x + 12.0, "%s Pass dock should remain right of the pile column" % context)
+			_assert(chip_rect.position.x >= -1.0 and chip_rect.end.x <= viewport_width + 1.0, "%s Pass dock should stay inside the viewport" % context)
 		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
 			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()
 			_assert(tracker_rect.position.y + tracker_rect.size.y <= chip_rect.position.y + 1.0, "%s action-step tracker should stack above the pass preview" % context)

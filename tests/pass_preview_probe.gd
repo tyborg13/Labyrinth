@@ -409,25 +409,28 @@ func _require_pass_preview_chip(instance: Node, label: String) -> void:
 	_assert_pass_interaction_states(chip, label)
 
 func _assert_pass_interaction_states(chip: Button, label: String) -> void:
-	var glow: Control = chip.get_node_or_null("PassForecastContent/PassActionStateGlow") as Control
-	if glow == null:
-		push_error("Pass control should expose a tight action-bay state treatment during %s." % label)
+	var focus_edge: Control = chip.get_node_or_null("PassForecastContent/PassFocusEdgeCue") as Control
+	var art: TextureRect = chip.get_node_or_null("PassForecastFrameArtHost") as TextureRect
+	var content: Control = chip.get_node_or_null("PassForecastContent") as Control
+	if focus_edge == null or art == null:
+		push_error("Pass control should expose native art states plus a narrow keyboard-focus edge during %s." % label)
 		return
 	if chip.disabled:
 		if chip.focus_mode != Control.FOCUS_NONE or str(chip.get_meta("pass_interaction_state", "")) != "disabled":
 			push_error("Disabled Pass forecast should not be focusable or activatable during %s." % label)
 		return
 	chip.mouse_entered.emit()
-	if str(chip.get_meta("pass_interaction_state", "")) != "hover" or not glow.visible:
-		push_error("Pass control should expose a distinct hover state during %s." % label)
+	if str(chip.get_meta("pass_interaction_state", "")) != "hover" or art.texture == null or str(art.get_meta("pass_forecast_art_state", "")) != "hover" or focus_edge.visible:
+		push_error("Pass control should expose its authored hover frame without a colored overlay during %s." % label)
 	chip.button_down.emit()
-	if str(chip.get_meta("pass_interaction_state", "")) != "pressed":
-		push_error("Pass control should expose a distinct pressed state during %s." % label)
+	if str(chip.get_meta("pass_interaction_state", "")) != "pressed" or art.texture == null or str(art.get_meta("pass_forecast_art_state", "")) != "pressed" or (content != null and content.position.y > 2.0):
+		push_error("Pass control should expose its authored pressed frame with no more than subtle travel during %s." % label)
 	chip.button_up.emit()
 	chip.mouse_exited.emit()
 	chip.focus_entered.emit()
-	if str(chip.get_meta("pass_interaction_state", "")) != "focus" or not glow.visible:
-		push_error("Pass control should expose a distinct keyboard/controller focus state during %s." % label)
+	var focus_style: StyleBoxFlat = focus_edge.get_theme_stylebox("panel") as StyleBoxFlat
+	if str(chip.get_meta("pass_interaction_state", "")) != "focus" or art.texture == null or str(art.get_meta("pass_forecast_art_state", "")) != "hover" or not focus_edge.visible or focus_style == null or focus_style.bg_color.a > 0.001 or focus_style.border_width_left > 2 or focus_style.shadow_size != 0:
+		push_error("Pass control should expose authored focus art plus a narrow, wash-free keyboard/controller edge during %s." % label)
 	chip.focus_exited.emit()
 
 func _log_pass_preview_text(instance: Node, label: String) -> void:
@@ -473,7 +476,8 @@ func _pass_preview_probe_is_damage_value(label: Label) -> bool:
 		"PassPreviewHpAfterDefiance",
 		"PassPreviewSafe",
 		"PassPreviewUmbraUnknown",
-		"PassPreviewDefeat"
+		"PassPreviewDefeat",
+		"PassPreviewForecastLine"
 	].has(str(label.name))
 
 func _first_node_named(node: Node, node_name: String) -> Node:

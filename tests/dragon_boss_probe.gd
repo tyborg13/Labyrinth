@@ -265,21 +265,50 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 	if board == null or not board.visible:
 		_fail("%s proof should render the tactical board" % boss_id)
 	var turn_order_panel: Control = instance.get("_turn_order_panel") as Control
-	var boss_dossier: Control = instance.get("_turn_order_boss_dossier") as Control
-	var boss_name_label: Label = instance.get("_turn_order_boss_name") as Label
-	var boss_hp_label: Label = instance.get("_turn_order_boss_hp_label") as Label
-	if turn_order_panel == null or boss_dossier == null or not boss_dossier.visible:
-		_fail("%s boss health should be integrated into the turn-order panel" % boss_id)
-	else:
-		if turn_order_panel.size.y > 110.0:
-			_fail("%s boss dossier should not increase the turn-order panel height over the board (found %.1fpx)" % [boss_id, turn_order_panel.size.y])
-		if not turn_order_panel.get_global_rect().encloses(boss_dossier.get_global_rect()):
-			_fail("%s boss dossier should remain entirely inside the turn-order chrome" % boss_id)
+	var boss_overlay: Control = instance.get("_boss_health_overlay") as Control
+	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
+	var boss_name_label: Label = instance.get("_boss_health_name") as Label
+	var boss_hp_label: Label = instance.get("_boss_health_hp_label") as Label
+	if instance.find_child("BossDossier", true, false) != null:
+		_fail("%s should not retain the obsolete turn-clock boss widget" % boss_id)
+	if boss_overlay == null or not boss_overlay.visible:
+		_fail("%s should show the dedicated top-center boss health overlay" % boss_id)
+	elif boss_overlay.size.x < 700.0 or boss_overlay.size.x > 820.0 or boss_overlay.size.y > 90.0:
+		_fail("%s boss health overlay should stay wide and shallow (found %s)" % [boss_id, boss_overlay.size])
+	var visible_slots: Array[Control] = []
+	if turn_order_bar != null:
+		for child: Node in turn_order_bar.get_children():
+			if child is Control and child.name != "TurnOrderOverflowBadge":
+				visible_slots.append(child as Control)
+	var expected_slot_count: int = mini(10, CombatEngine.new().current_turn_order(combat_state, 10).size())
+	if visible_slots.size() != expected_slot_count:
+		_fail("%s boss rail should retain the normal frameless rail with up to ten scheduled portraits (found %d expected %d)" % [boss_id, visible_slots.size(), expected_slot_count])
+	if expected_slot_count == 10 and turn_order_bar != null and turn_order_bar.find_child("TurnOrderOverflowBadge", false, false) != null:
+		_fail("%s ten-slot boss rail should not add an overflow badge" % boss_id)
+	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
+	for slot: Control in visible_slots:
+		if not viewport_rect.encloses(slot.get_global_rect()):
+			_fail("%s visible turn portrait should remain on-screen" % boss_id)
+	if boss_overlay != null:
+		var overlay_rect: Rect2 = boss_overlay.get_global_rect()
+		if not viewport_rect.encloses(overlay_rect):
+			_fail("%s dedicated boss health overlay should remain on-screen" % boss_id)
+		if turn_order_panel != null and overlay_rect.intersects(turn_order_panel.get_global_rect()):
+			_fail("%s dedicated boss health overlay should not overlap the turn rail" % boss_id)
+		var title_label: Label = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle") as Label
+		var title_font: Font = title_label.get_theme_font("font") if title_label != null else null
+		var title_width: float = title_font.get_string_size(title_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, title_label.get_theme_font_size("font_size")).x if title_font != null and title_label != null else 0.0
+		var title_rect := Rect2(title_label.get_global_rect().position, Vector2(title_width, title_label.size.y)) if title_label != null else Rect2()
+		if overlay_rect.intersects(title_rect):
+			_fail("%s dedicated boss health overlay should not cover the visible room title" % boss_id)
+		for utility: Control in [instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel") as Control, instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton") as Control, instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/GrimoireButton") as Control, instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton") as Control]:
+			if utility != null and utility.visible and overlay_rect.intersects(utility.get_global_rect()):
+				_fail("%s dedicated boss health overlay should clear visible utility controls" % boss_id)
 	var expected_boss_name: String = str(GameData.enemy_def(str(boss.get("type", ""))).get("name", boss_id)).split(",")[0]
 	if boss_name_label == null or not boss_name_label.text.contains(expected_boss_name):
-		_fail("%s integrated boss dossier should keep the boss name readable" % boss_id)
+		_fail("%s dedicated boss overlay should keep the boss name readable" % boss_id)
 	if boss_hp_label == null or boss_hp_label.text != "%d/%d" % [int(boss.get("hp", 0)), int(boss.get("max_hp", 1))]:
-		_fail("%s integrated boss dossier should show exact health" % boss_id)
+		_fail("%s dedicated boss overlay should show exact health" % boss_id)
 	if after_gimmick and boss_id != "zekarion" and not bool(boss.get("boss_mechanic_opened", false)):
 		_fail("%s opening gimmick should mark itself active" % boss_id)
 	match boss_id:

@@ -27,6 +27,7 @@ func _initialize() -> void:
 	_test_tile_depth_preserves_top_face_hit_testing(board)
 	_test_backdrop_visibility_invalidates_static_layout(board, state)
 	_test_bounded_zoom_and_hit_testing(board)
+	_test_pickup_zoom_geometry_matches_actor(board)
 	_test_wheel_zoom(board)
 	_test_click_without_drag(board)
 	_test_left_drag_pans_without_clicking(board)
@@ -134,6 +135,48 @@ func _test_wheel_zoom(board: Control) -> void:
 	board.call("_gui_input", wheel)
 	var after_zoom: float = float((board.call("navigation_snapshot") as Dictionary).get("zoom", 0.0))
 	_expect(after_zoom > before_zoom, "Mouse-wheel input should zoom the board in")
+
+func _test_pickup_zoom_geometry_matches_actor(board: Control) -> void:
+	var state: Dictionary = _board_state(Vector2i(2, 3))
+	state["loot"] = [
+		{"id": "zoom_vial", "kind": "healing_vial", "amount": 4, "pos": Vector2i(2, 2)},
+		{"id": "zoom_shield", "kind": "rusty_shield", "amount": 4, "pos": Vector2i(3, 2)},
+		{"id": "zoom_equipment", "kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(4, 2)}
+	]
+	board.set_combat_state(state)
+	var minimum_zoom: float = float((board.call("navigation_snapshot") as Dictionary).get("min_zoom", 0.0))
+	var maximum_zoom: float = float((board.call("navigation_snapshot") as Dictionary).get("max_zoom", 0.0))
+	board.call("set_navigation_zoom", minimum_zoom, board.size * 0.5)
+	var minimum: Dictionary = _pickup_and_actor_geometry(board, state)
+	board.call("reset_navigation")
+	var default_zoom: Dictionary = _pickup_and_actor_geometry(board, state)
+	board.call("set_navigation_zoom", maximum_zoom, board.size * 0.5)
+	var maximum: Dictionary = _pickup_and_actor_geometry(board, state)
+	for object_id: String in ["healing_vial", "rusty_shield", "equipment"]:
+		var min_width: float = float((minimum.get(object_id, Rect2()) as Rect2).size.x)
+		var default_width: float = float((default_zoom.get(object_id, Rect2()) as Rect2).size.x)
+		var max_width: float = float((maximum.get(object_id, Rect2()) as Rect2).size.x)
+		_expect(min_width > 0.0, "%s pickup should produce a rendered geometry bound at minimum zoom" % object_id)
+		_expect(min_width < default_width and default_width < max_width, "%s pickup should grow monotonically from minimum through default to maximum board zoom" % object_id)
+		var min_actor_ratio: float = min_width / maxf(0.001, float((minimum.get("player", Rect2()) as Rect2).size.x))
+		var default_actor_ratio: float = default_width / maxf(0.001, float((default_zoom.get("player", Rect2()) as Rect2).size.x))
+		var max_actor_ratio: float = max_width / maxf(0.001, float((maximum.get("player", Rect2()) as Rect2).size.x))
+		_expect(is_equal_approx(min_actor_ratio, default_actor_ratio) and is_equal_approx(default_actor_ratio, max_actor_ratio), "%s pickup should retain its actor-relative screen proportion across board zoom" % object_id)
+	board.call("reset_navigation")
+	board.set_combat_state(_board_state(Vector2i(2, 3)))
+
+func _pickup_and_actor_geometry(board: Control, state: Dictionary) -> Dictionary:
+	var player_unit: Dictionary = {}
+	for unit_var: Variant in board.call("_visible_units") as Array:
+		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "player":
+			player_unit = unit_var as Dictionary
+			break
+	var geometry: Dictionary = {"player": board.call("_unit_draw_rect", player_unit) as Rect2}
+	for loot_var: Variant in state.get("loot", []) as Array:
+		var loot: Dictionary = loot_var as Dictionary
+		var texture: Texture2D = board.call("_loot_texture", loot) as Texture2D
+		geometry[str(loot.get("kind", ""))] = board.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
+	return geometry
 
 func _test_click_without_drag(board: Control) -> void:
 	var pointer: Vector2 = board.call("world_position_for_tile", Vector2i(4, 3))

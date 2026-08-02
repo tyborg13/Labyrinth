@@ -53,6 +53,7 @@ func _capture_states() -> void:
 	await _settle_ui()
 	_assert(not (instance.get("_action_step_tracker") as Control).visible, "Idle hand should not show action context")
 	_assert_full_hd_normal_hud(instance)
+	_assert_pass_meter_layout(instance, "normal")
 	await _save_root_screenshot("%s/idle_hand.png" % OUTPUT_DIR)
 	await _capture_pile_interaction_states(instance)
 
@@ -242,17 +243,29 @@ func _capture_pass_and_meter_states(instance: Node) -> void:
 		await _save_root_screenshot("%s/pass_%s.png" % [OUTPUT_DIR, state_kind])
 	var chip: Button = instance.find_child("PassPreviewChip", true, false) as Button
 	if chip != null:
+		var pass_art: TextureRect = chip.find_child("PassForecastFrameArtHost", true, false) as TextureRect
+		var focus_edge: Control = chip.find_child("PassFocusEdgeCue", true, false) as Control
+		var pass_content: Control = chip.find_child("PassForecastContent", true, false) as Control
+		_assert(pass_art != null and pass_art.texture != null and str(pass_art.get_meta("pass_forecast_art_state", "")) == "normal", "Pass idle proof should use the authored v2 normal frame")
 		chip.emit_signal("mouse_entered")
 		await _settle_ui()
 		_assert(str(chip.get_meta("pass_interaction_state", "")) == "hover", "Pass hover proof should expose its interaction state")
+		_assert(pass_art != null and pass_art.texture != null and str(pass_art.get_meta("pass_forecast_art_state", "")) == "hover", "Pass hover proof should use the authored hover frame without a code overlay")
+		_assert(focus_edge != null and not focus_edge.visible, "Pass hover should not add a colored focus wash")
 		await _save_root_screenshot("%s/pass_hover.png" % OUTPUT_DIR)
+		chip.emit_signal("mouse_exited")
 		chip.grab_focus()
 		await _settle_ui()
 		_assert(str(chip.get_meta("pass_interaction_state", "")) == "focus", "Pass focus proof should expose its interaction state")
+		_assert(pass_art != null and pass_art.texture != null and str(pass_art.get_meta("pass_forecast_art_state", "")) == "hover", "Pass focus should reuse the authored hover frame")
+		var focus_style: StyleBoxFlat = focus_edge.get_theme_stylebox("panel") as StyleBoxFlat if focus_edge != null else null
+		_assert(focus_edge != null and focus_edge.visible and focus_style != null and focus_style.bg_color.a <= 0.001 and focus_style.border_width_left <= 2 and focus_style.shadow_size == 0, "Pass focus should add only a narrow shape-aware edge cue")
 		await _save_root_screenshot("%s/pass_focus.png" % OUTPUT_DIR)
 		chip.emit_signal("button_down")
 		await _settle_ui()
 		_assert(str(chip.get_meta("pass_interaction_state", "")) == "pressed", "Pass pressed proof should expose its interaction state")
+		_assert(pass_art != null and pass_art.texture != null and str(pass_art.get_meta("pass_forecast_art_state", "")) == "pressed", "Pass pressed proof should use the authored pressed frame")
+		_assert(pass_content != null and pass_content.position.y >= 0.0 and pass_content.position.y <= 2.0, "Pass pressed travel must remain a subtle one-to-two pixels")
 		await _save_root_screenshot("%s/pass_pressed.png" % OUTPUT_DIR)
 		chip.emit_signal("button_up")
 
@@ -268,18 +281,40 @@ func _capture_pass_and_meter_states(instance: Node) -> void:
 	_assert(banked_badge != null and banked_badge.visible, "Banked meter proof should expose the secondary banked row")
 	await _save_root_screenshot("%s/meter_banked.png" % OUTPUT_DIR)
 
+	# The dock is deliberately independent of tutorial placement. Restore a fresh
+	# prompt here so the focused interaction proof checks that both surfaces can
+	# coexist with the complete five-card hand.
+	_install_pass_meter_fixture(instance, "safe")
+	await _settle_ui()
+	var tutorial_progression: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
+	tutorial_progression.erase(ContextualCombatTutorial.PROGRESSION_KEY)
+	tutorial_progression["run_counter"] = 0
+	instance.set("_progression", tutorial_progression)
+	instance.call("_refresh_contextual_combat_tutorial")
+	await _settle_ui()
+	var tutorial: Control = instance.get("_contextual_combat_prompt") as Control
+	_assert(tutorial != null and tutorial.visible, "Tutorial-clearance proof should display the contextual combat prompt")
+	_assert_pass_meter_layout(instance, "tutorial")
+	await _save_root_screenshot("%s/pass_tutorial_clear.png" % OUTPUT_DIR)
+	for prompt_id: String in ContextualCombatTutorial.prompt_ids():
+		tutorial_progression = ContextualCombatTutorial.resolve_progression(tutorial_progression, prompt_id)
+	instance.set("_progression", tutorial_progression)
+	instance.call("_refresh_contextual_combat_tutorial")
+	await _settle_ui()
+
 func _install_pass_meter_fixture(instance: Node, state_kind: String) -> void:
 	var combat := CombatEngine.new()
+	var full_hand: Array = ["guarded_step", "quick_stab", "sidestep_slash", "thunderline", "patch_up"]
 	var state: Dictionary = combat.create_combat(9821, _room_layout(Vector2i(2, 4), [Vector2i(3, 4)]), {
-		"hp": 24, "max_hp": 24, "deck_cards": ["guarded_step", "quick_stab"], "relics": [], "hand_size": 2, "heal_bonus": 0
+		"hp": 24, "max_hp": 24, "deck_cards": full_hand, "relics": [], "hand_size": full_hand.size(), "heal_bonus": 0
 	})
 	var enemy_pos: Vector2i = Vector2i(6, 4) if state_kind in ["safe", "unknown"] else Vector2i(3, 4)
 	var enemy_intent: Dictionary = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
 	state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
 	state["enemies"] = [{"id": 1, "type": "crawler", "pos": enemy_pos, "hp": 14, "max_hp": 14, "block": 0, "intent": enemy_intent}]
-	state["deck"] = {"hand": ["guarded_step", "quick_stab"], "draw": ["patch_up"], "discard": ["sidestep_slash"], "burned": [], "cycles": 0, "fatigue_base": 15}
-	state["cards_per_turn"] = 2
-	state["draw_per_turn"] = 2
+	state["deck"] = {"hand": full_hand, "draw": ["bone_dart"], "discard": ["updraft"], "burned": [], "cycles": 0, "fatigue_base": 15}
+	state["cards_per_turn"] = full_hand.size()
+	state["draw_per_turn"] = full_hand.size()
 	state["cards_played_this_turn"] = 0
 	state["death_bonus_card_plays_this_turn"] = 0
 	state["card_play_bonus_this_turn"] = 0
@@ -313,8 +348,45 @@ func _assert_pass_meter_layout(instance: Node, state_kind: String) -> void:
 		return
 	_assert(absf(pass_label.get_global_rect().get_center().x - chip.get_global_rect().get_center().x) <= 1.0, "%s PASS label should stay centered" % state_kind)
 	_assert(_label_text_fits(ribbon), "%s forecast ribbon should fit its text" % state_kind)
+	var ribbon_rect: Rect2 = ribbon.get_global_rect()
+	var chip_rect: Rect2 = chip.get_global_rect()
+	_assert(ribbon_rect.position.y >= chip_rect.position.y + 71.0 and ribbon_rect.end.y <= chip_rect.position.y + 91.0, "%s TURN END forecast should stay contained in the authored lower ribbon" % state_kind)
 	_assert(absf(meter_label.get_global_rect().get_center().y - meter.get_global_rect().get_center().y) <= 1.0, "%s ordinary meter label should stay vertically centered" % state_kind)
 	_assert(chip.get_global_rect().position.y >= meter.get_global_rect().end.y + 5.0, "%s pass ribbon should stay below the meter plaque" % state_kind)
+	_assert(absf(meter.get_global_rect().position.x - 303.0) <= 1.0 and absf(meter.get_global_rect().position.y - 814.0) <= 1.0, "%s action dock should hold its fixed left-side anchor" % state_kind)
+	_assert(absf(meter.get_global_rect().get_center().x - chip_rect.get_center().x) <= 1.0, "%s meter should center over the wider Pass control" % state_kind)
+	_assert(_rect_is_onscreen(meter.get_global_rect()) and _rect_is_onscreen(chip_rect), "%s action dock should remain wholly on screen" % state_kind)
+	_assert(not meter.get_global_rect().intersects(chip_rect), "%s meter and Pass controls should not overlap" % state_kind)
+	_assert_combat_dock_clearance(instance, meter.get_global_rect(), chip_rect, state_kind)
+
+func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect: Rect2, state_kind: String) -> void:
+	var dock_rects: Array = [meter_rect, pass_rect]
+	var board_rect: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
+	var turn_rail: Control = instance.get("_turn_order_panel") as Control
+	var tutorial: Control = instance.get("_contextual_combat_prompt") as Control
+	for dock_rect: Rect2 in dock_rects:
+		_assert(not dock_rect.intersects(board_rect), "%s action dock should not cover the combat board" % state_kind)
+		for pile: Control in [instance.get("draw_pile") as Control, instance.get("discard_pile") as Control]:
+			if pile != null and pile.visible:
+				_assert(not dock_rect.intersects(pile.get_global_rect()), "%s action dock should stay clear of the %s pile" % [state_kind, pile.name])
+				_assert(dock_rect.position.x >= pile.get_global_rect().end.x + 12.0, "%s action dock should sit in the negative space right of the %s pile" % [state_kind, pile.name])
+		if turn_rail != null and turn_rail.visible:
+			_assert(not dock_rect.intersects(turn_rail.get_global_rect()), "%s action dock should stay clear of the turn rail" % state_kind)
+		if tutorial != null and tutorial.visible:
+			_assert(not dock_rect.intersects(tutorial.get_global_rect()), "%s action dock should stay clear of the contextual tutorial" % state_kind)
+	var hand: Array = ((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array
+	_assert(hand.size() >= 5, "%s fixture should keep a full five-card hand" % state_kind)
+	for index: int in range(hand.size()):
+		var card: Control = instance.call("_hand_card_control", index) as Control
+		if card == null or not card.visible:
+			continue
+		var card_rect: Rect2 = instance.call("_control_visual_global_rect", card)
+		for dock_rect: Rect2 in dock_rects:
+			_assert(not dock_rect.intersects(card_rect), "%s action dock should stay left of hand card %d" % [state_kind, index + 1])
+
+func _rect_is_onscreen(rect: Rect2) -> bool:
+	var viewport := Rect2(Vector2.ZERO, get_root().get_visible_rect().size)
+	return rect.position.x >= viewport.position.x and rect.position.y >= viewport.position.y and rect.end.x <= viewport.end.x and rect.end.y <= viewport.end.y
 
 func _load_combat_fixture(instance: Node, hand: Array, player_pos: Vector2i, enemy_positions: Array, seed: int) -> void:
 	instance.call("_cancel_drag_play")
@@ -474,7 +546,7 @@ func _assert_dense_turn_order_rail(instance: Node) -> void:
 		_assert(slot_style != null and slot_style.bg_color.a <= 0.001 and slot_style.border_color.a <= 0.001 and slot_style.shadow_size == 0, "Dense initiative slot surfaces should be transparent and borderless")
 		rail_bottom = maxf(rail_bottom, slot.get_global_rect().end.y)
 	var meter: Control = instance.get("_play_meter") as Control
-	_assert(meter != null and rail_bottom <= meter.get_global_rect().position.y - 32.0, "Dense initiative rail should end at least 32px above the separate action dock (rail %.0fpx, meter %.0fpx)" % [rail_bottom, meter.get_global_rect().position.y] if meter != null else "Dense initiative rail needs its action dock")
+	_assert(meter != null and not rail.get_global_rect().intersects(meter.get_global_rect()), "Dense initiative rail should remain separate from the fixed left-side action dock" if meter != null else "Dense initiative rail needs its action dock")
 
 func _assert_compact_pile_controls(instance: Node) -> void:
 	for pile_name: String in ["draw_pile", "discard_pile"]:

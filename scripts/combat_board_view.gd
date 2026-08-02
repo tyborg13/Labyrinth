@@ -77,9 +77,7 @@ const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
-const LOOT_DRAW_WIDTH: float = 58.0
-const EQUIPMENT_LOOT_MIN_DRAW_WIDTH: float = 64.0
-const EQUIPMENT_LOOT_MAX_DRAW_WIDTH: float = 90.0
+const LOOT_DRAW_TILE_WIDTH_SCALE: float = 0.34
 const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
 const EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE: float = -0.02
 const IDLE_FRAME_SECONDS: float = 0.10
@@ -3006,9 +3004,11 @@ func _equipment_pickup_glow_color(accent: Color) -> Color:
 	return Color("f1d18b").lerp(accent.lightened(0.24), 0.34)
 
 func _loot_draw_width(loot: Dictionary) -> float:
-	if _is_equipment_loot(loot):
-		return clampf(_tile_width() * EQUIPMENT_LOOT_TILE_WIDTH_SCALE, EQUIPMENT_LOOT_MIN_DRAW_WIDTH, EQUIPMENT_LOOT_MAX_DRAW_WIDTH)
-	return LOOT_DRAW_WIDTH
+	# Board objects share the zoomed tile-space basis used by actor frames. Fixed
+	# pixel widths (and equipment's old min/max clamp) made pickups appear to
+	# shrink relative to actors, or stop growing altogether, when navigating in.
+	var width_scale: float = EQUIPMENT_LOOT_TILE_WIDTH_SCALE if _is_equipment_loot(loot) else LOOT_DRAW_TILE_WIDTH_SCALE
+	return _tile_width() * width_scale
 
 func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null, loot: Dictionary = {}) -> Rect2:
 	var draw_width: float = _loot_draw_width(loot)
