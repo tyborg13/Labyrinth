@@ -386,9 +386,49 @@ func _pass_preview_probe_move_target(target_tiles: Array, enemy_pos: Vector2i) -
 	return best_tile
 
 func _require_pass_preview_chip(instance: Node, label: String) -> void:
+	var chip: Button = _first_node_named(instance, "PassPreviewChip") as Button
+	var meter: Control = instance.get("_play_meter") as Control
+	var card_play_copy: Label = instance.get("_play_meter_count") as Label
+	var turn_rail: Control = instance.get("_turn_order_panel") as Control
 	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")
-	if row == null or _pass_preview_probe_damage_text(row).is_empty():
+	if row == null or _pass_preview_probe_damage_text(row).is_empty() or chip == null:
 		push_error("Missing pass preview damage values during %s pass preview probe" % label)
+		return
+	if (not chip.disabled and chip.focus_mode == Control.FOCUS_NONE) or (chip.disabled and chip.focus_mode != Control.FOCUS_NONE) or _first_node_named(chip, "CombinedPassButton") != null:
+		push_error("Pass forecast should remain one focusable, actionable end-turn control during %s." % label)
+	var pass_art: TextureRect = chip.get_node_or_null("PassForecastFrameArtHost") as TextureRect
+	if pass_art == null or pass_art.texture == null or pass_art.z_index < 1:
+		push_error("Pass forecast is missing the pending raster frame-art hook during %s." % label)
+	var meter_art: TextureRect = meter.get_node_or_null("CardPlayFrameArtHost") as TextureRect if meter != null else null
+	if meter == null or meter_art == null or meter_art.texture == null or meter_art.z_index < 1:
+		push_error("Card-play dock is missing its raster frame-art hook during %s." % label)
+	if card_play_copy == null or not card_play_copy.text.ends_with(" card plays"):
+		push_error("Card-play dock should use the exact compact '%d card plays' copy during %s." % label)
+	if turn_rail != null and turn_rail.visible and turn_rail.get_global_rect().intersects(chip.get_global_rect()):
+		push_error("Combined Pass dock should start below, not overlap, the dense turn rail during %s." % label)
+	_assert_pass_interaction_states(chip, label)
+
+func _assert_pass_interaction_states(chip: Button, label: String) -> void:
+	var glow: Control = chip.get_node_or_null("PassForecastContent/PassActionStateGlow") as Control
+	if glow == null:
+		push_error("Pass control should expose a tight action-bay state treatment during %s." % label)
+		return
+	if chip.disabled:
+		if chip.focus_mode != Control.FOCUS_NONE or str(chip.get_meta("pass_interaction_state", "")) != "disabled":
+			push_error("Disabled Pass forecast should not be focusable or activatable during %s." % label)
+		return
+	chip.mouse_entered.emit()
+	if str(chip.get_meta("pass_interaction_state", "")) != "hover" or not glow.visible:
+		push_error("Pass control should expose a distinct hover state during %s." % label)
+	chip.button_down.emit()
+	if str(chip.get_meta("pass_interaction_state", "")) != "pressed":
+		push_error("Pass control should expose a distinct pressed state during %s." % label)
+	chip.button_up.emit()
+	chip.mouse_exited.emit()
+	chip.focus_entered.emit()
+	if str(chip.get_meta("pass_interaction_state", "")) != "focus" or not glow.visible:
+		push_error("Pass control should expose a distinct keyboard/controller focus state during %s." % label)
+	chip.focus_exited.emit()
 
 func _log_pass_preview_text(instance: Node, label: String) -> void:
 	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")

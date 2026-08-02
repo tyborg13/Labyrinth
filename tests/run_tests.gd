@@ -5631,7 +5631,7 @@ func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
 	var tile_width: float = board.call("_tile_width")
 	var top_inner_tile: Vector2 = board.call("_tile_center", Vector2i(1, 1))
 	var bottom_inner_tile: Vector2 = board.call("_tile_center", Vector2i(6, 6))
-	_assert(tile_width > 160.0, "Combat board should zoom past the old conservative tile cap on large stage space")
+	_assert(tile_width > 176.0, "Combat board should use the enlarged default combat zoom on large stage space")
 	_assert(top_inner_tile.y < 220.0, "Combat board layout should use hidden-wall-free bounds and sit higher in the stage")
 	_assert(bottom_inner_tile.y + tile_width * 0.30 < board.size.y - 24.0, "Combat board should keep the lower room clear of the hand area")
 

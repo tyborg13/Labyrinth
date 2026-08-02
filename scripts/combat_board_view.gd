@@ -123,6 +123,7 @@ const BOARD_MAX_TILE_WIDTH: float = 184.0
 const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
 const BOARD_MAX_NAVIGATION_ZOOM: float = 1.40
 const BOARD_ZOOM_STEP: float = 1.10
+const BOARD_DEFAULT_NAVIGATION_ZOOM: float = 1.10
 const BOARD_PAN_DRAG_THRESHOLD: float = 8.0
 const BOARD_PAN_OVERSCROLL_FRACTION: float = 0.08
 const BOARD_PAN_OVERSCROLL_MAX: float = 72.0
@@ -283,7 +284,7 @@ var presentation: Dictionary = {}
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_moved: bool = false
-var _navigation_zoom: float = 1.0
+var _navigation_zoom: float = BOARD_DEFAULT_NAVIGATION_ZOOM
 var _navigation_pan: Vector2 = Vector2.ZERO
 var _navigation_content_signature: String = ""
 var _navigation_pointer_button: int = MOUSE_BUTTON_NONE
@@ -868,8 +869,8 @@ func set_navigation_pan(next_pan: Vector2, update_hover: bool = true) -> void:
 	_navigation_transform_changed(update_hover)
 
 func reset_navigation() -> void:
-	var changed: bool = not is_equal_approx(_navigation_zoom, 1.0) or not _navigation_pan.is_zero_approx()
-	_navigation_zoom = 1.0
+	var changed: bool = not is_equal_approx(_navigation_zoom, BOARD_DEFAULT_NAVIGATION_ZOOM) or not _navigation_pan.is_zero_approx()
+	_navigation_zoom = BOARD_DEFAULT_NAVIGATION_ZOOM
 	_navigation_pan = Vector2.ZERO
 	if changed:
 		_navigation_transform_changed(true)

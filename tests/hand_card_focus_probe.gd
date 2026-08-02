@@ -124,8 +124,8 @@ func _assert_hand_hud_layout(instance: Node, label: String) -> void:
 		return
 	var hand_row: Control = hand_scroll.get_parent() as Control
 	var row_center_x: float = hand_row.get_global_rect().get_center().x
-	_expect(play_meter_slot.get_parent() == hand_scroll.get_parent() and play_meter_slot.get_index() > hand_scroll.get_index(), "%s should place the play meter after the hand" % label)
-	_expect(play_meter.get_global_rect().position.x >= hand_scroll.get_global_rect().end.x - 1.0, "%s should place the play meter to the right of the hand" % label)
+	_expect(play_meter.get_parent() == instance.get("ui_root"), "%s should move the play meter into the independent combat action dock" % label)
+	_expect(play_meter.get_global_rect().position.x >= hand_scroll.get_global_rect().end.x - 1.0, "%s should keep the play meter in the right-side dock beyond the hand" % label)
 	_expect(absf(hand_scroll.get_global_rect().get_center().x - row_center_x) <= 16.0, "%s should center the hand viewport in its full-screen row" % label)
 	_expect(absf(hand_box.get_global_rect().get_center().x - row_center_x) <= 16.0, "%s should center the rendered hand in its full-screen row" % label)
 	var visual_bounds: Rect2 = _hand_visual_bounds(instance, hand_box)

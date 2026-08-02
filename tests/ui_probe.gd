@@ -453,6 +453,7 @@ func _capture_pass_preview_probe(instance: Node) -> void:
 	await process_frame
 	_require_pass_preview_chip(instance, "safe")
 	await _save_root_screenshot("user://probes/run_pass_preview_safe.png")
+	await _capture_pass_preview_interaction_states(instance)
 
 	var layered_state: Dictionary = _pass_preview_probe_state(base_state, "layered")
 	_install_pass_preview_probe_state(instance, layered_state)
@@ -469,6 +470,31 @@ func _capture_pass_preview_probe(instance: Node) -> void:
 	await _save_root_screenshot("user://probes/run_pass_preview_unrevealed.png")
 
 	_install_pass_preview_probe_state(instance, safe_state)
+	await process_frame
+
+func _capture_pass_preview_interaction_states(instance: Node) -> void:
+	var chip: Button = _first_node_named(instance, "PassPreviewChip") as Button
+	if chip == null or chip.disabled:
+		push_error("Safe pass-preview fixture needs an enabled combined Pass control for interaction capture.")
+		return
+	chip.mouse_entered.emit()
+	await process_frame
+	if str(chip.get_meta("pass_interaction_state", "")) != "hover":
+		push_error("Pass hover capture did not enter the hover state.")
+	await _save_root_screenshot("user://probes/run_pass_preview_hover.png")
+	chip.mouse_exited.emit()
+	chip.grab_focus()
+	await process_frame
+	if str(chip.get_meta("pass_interaction_state", "")) != "focus":
+		push_error("Pass focus capture did not enter the keyboard/controller focus state.")
+	await _save_root_screenshot("user://probes/run_pass_preview_focus.png")
+	chip.button_down.emit()
+	await process_frame
+	if str(chip.get_meta("pass_interaction_state", "")) != "pressed":
+		push_error("Pass pressed capture did not enter the pressed state.")
+	await _save_root_screenshot("user://probes/run_pass_preview_pressed.png")
+	chip.button_up.emit()
+	chip.release_focus()
 	await process_frame
 
 func _install_pass_preview_probe_state(instance: Node, combat_state: Dictionary) -> void:
@@ -635,8 +661,12 @@ func _pass_preview_probe_is_damage_value(label: Label) -> bool:
 		"PassPreviewStoneSkinLoss",
 		"PassPreviewBlockLoss",
 		"PassPreviewHpLoss",
+		"PassPreviewDefianceSpent",
+		"PassPreviewHpAfterDefiance",
 		"PassPreviewSafe",
-		"PassPreviewDefeat"
+		"PassPreviewUmbraUnknown",
+		"PassPreviewDefeat",
+		"PassPreviewForecast"
 	].has(str(label.name))
 
 func _first_node_named(node: Node, node_name: String) -> Node:

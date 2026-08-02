@@ -244,8 +244,9 @@ func _assert_hud_collision_free(instance: Node) -> void:
 	var board_rect: Rect2 = board.get_global_rect()
 	var viewport_rect: Rect2 = instance.get_viewport().get_visible_rect()
 	_assert(viewport_rect.encloses(context_rect), "Action context should stay inside the viewport under HUD stress")
-	_assert(not context_rect.intersects(mini_map.get_global_rect()), "Action context should not collide with the minimap")
-	_assert(not context_rect.intersects(log_overlay.get_global_rect()), "Action context should not collide with combat log")
+	_assert(not mini_map.visible, "Combat should hide the compact minimap and reclaim its board corner")
+	_assert(not log_overlay.visible, "Normal combat should not reserve a persistent combat-log panel")
+	_assert_compact_pile_controls(instance)
 	var board_overlap: Rect2 = context_rect.intersection(board_rect)
 	_assert(board_overlap.get_area() <= board_rect.get_area() * 0.12, "Action context should preserve at least 88% of the battlefield control area")
 	var selected_card: Control = _hand_card_control(hand_box, int(instance.get("_selected_card_index")))
@@ -254,6 +255,15 @@ func _assert_hud_collision_free(instance: Node) -> void:
 	var card_anchor: Rect2 = instance.call("_action_step_tracker_anchor_rect") as Rect2
 	_assert(absf(context_rect.get_center().x - card_anchor.get_center().x) <= 48.0, "Action context should remain visually connected to the active hand card")
 	_assert(card_anchor.position.y - context_rect.end.y <= 24.0, "Action context should stay close to the cards instead of floating beside the board")
+
+func _assert_compact_pile_controls(instance: Node) -> void:
+	for pile_name: String in ["draw_pile", "discard_pile"]:
+		var pile: Control = instance.get(pile_name) as Control
+		_assert(pile != null and pile.visible, "%s should remain a visible combat pile control" % pile_name)
+		if pile == null:
+			continue
+		_assert(pile.focus_mode != Control.FOCUS_NONE and pile.mouse_filter == Control.MOUSE_FILTER_STOP, "%s should remain keyboard and pointer accessible" % pile_name)
+		_assert(pile.get_combined_minimum_size().x <= 116.0, "%s should stay compact beside the enlarged hand" % pile_name)
 
 func _hand_card_control(hand_box: Control, index: int) -> Control:
 	if hand_box == null or index < 0 or index >= hand_box.get_child_count():

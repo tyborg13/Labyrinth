@@ -45,7 +45,8 @@ func _initialize() -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	_assert_complete_initial_turn_order(instance, combat_state)
 	_assert_turn_order_label(instance)
-	_assert_turn_order_panel_centered(instance)
+	_assert_turn_order_panel_right_rail(instance)
+	_assert_vertical_turn_order_geometry(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, combat_state)
 	await _save_root_screenshot("user://probes/turn_order_anim_00_before.png")
 	var combat_engine = instance.get("_combat_engine")
@@ -65,8 +66,9 @@ func _initialize() -> void:
 	await _save_root_screenshot("user://probes/turn_order_anim_03_insert.png")
 	await create_timer(0.35).timeout
 	await process_frame
-	_assert_turn_order_slot_count(instance, 10)
-	_assert_turn_order_panel_centered(instance)
+	_assert_turn_order_slot_count(instance, 5)
+	_assert_turn_order_panel_right_rail(instance)
+	_assert_vertical_turn_order_geometry(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, scheduled_state)
 	await _save_root_screenshot("user://probes/turn_order_anim_04_final.png")
 	print("turn order probe: done")
@@ -119,8 +121,8 @@ func _assert_turn_order_slot_count(instance: Node, max_count: int) -> void:
 		push_error("Turn order bar missing during slot-count probe.")
 		quit(1)
 		return
-	if bar.get_child_count() > max_count:
-		push_error("Turn order bar showed %d slots; expected at most %d." % [bar.get_child_count(), max_count])
+	if _turn_order_slot_controls(bar).size() > max_count:
+		push_error("Turn order bar showed %d slots; expected at most %d." % [_turn_order_slot_controls(bar).size(), max_count])
 		quit(1)
 
 func _assert_complete_initial_turn_order(instance: Node, state: Dictionary) -> void:
@@ -131,17 +133,20 @@ func _assert_complete_initial_turn_order(instance: Node, state: Dictionary) -> v
 		push_error("Turn order initialization probe is missing the bar, panel, or engine.")
 		quit(1)
 		return
-	var expected: Array = combat_engine.current_turn_order(state, 10)
+	var expected: Array = combat_engine.current_turn_order(state, 5)
 	if expected.is_empty():
 		push_error("Turn order initialization fixture produced no expected entries.")
 		quit(1)
 		return
-	if bar.get_child_count() != expected.size():
-		push_error("Turn order showed %d of %d entries on room entry before any action." % [bar.get_child_count(), expected.size()])
+	if _turn_order_slot_controls(bar).size() != expected.size():
+		push_error("Turn order showed %d of %d entries on room entry before any action." % [_turn_order_slot_controls(bar).size(), expected.size()])
 		quit(1)
 		return
-	if panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) == null:
-		push_error("Turn order panel is missing the authored raster border.")
+	if panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null:
+		push_error("Turn order should present floating portrait frames, not a full-height ornamental enclosure.")
+		quit(1)
+	if bar.get_node_or_null("TurnOrderOverflowBadge") == null:
+		push_error("A capped dense rail should disclose additional scheduled actors with a compact +N badge.")
 		quit(1)
 
 func _assert_turn_order_label(instance: Node) -> void:
@@ -152,25 +157,76 @@ func _assert_turn_order_label(instance: Node) -> void:
 		return
 	var labels: Array[Label] = _labels_under(panel)
 	for label: Label in labels:
-		if label.text == "TURN\nCLOCK":
-			if label.horizontal_alignment != HORIZONTAL_ALIGNMENT_LEFT or label.offset_left < 19.5:
-				push_error("Turn Clock title should be centered vertically in its left-hand legend rail.")
+		if label.text == "NEXT":
+			if label.horizontal_alignment != HORIZONTAL_ALIGNMENT_CENTER:
+				push_error("Next-turn title should be centered in the narrow right-hand rail.")
 				quit(1)
 			return
-	push_error("Turn order panel should be labeled TURN CLOCK.")
+	push_error("Turn order panel should be labeled NEXT.")
 	quit(1)
 
-func _assert_turn_order_panel_centered(instance: Node) -> void:
+func _assert_turn_order_panel_right_rail(instance: Node) -> void:
 	var panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
 	if panel == null:
-		push_error("Turn order panel missing during center probe.")
+		push_error("Turn order panel missing during right-rail probe.")
 		quit(1)
 		return
-	var panel_center_x: float = panel.get_global_rect().get_center().x
-	var viewport_center_x: float = panel.get_viewport_rect().size.x * 0.5
-	if absf(panel_center_x - viewport_center_x) > 1.5:
-		push_error("Turn order panel center %.1f did not match viewport center %.1f." % [panel_center_x, viewport_center_x])
+	var panel_rect: Rect2 = panel.get_global_rect()
+	var viewport_rect: Rect2 = panel.get_viewport_rect()
+	if panel_rect.end.x > viewport_rect.end.x - 8.0 or panel_rect.position.x < viewport_rect.size.x * 0.70:
+		push_error("Turn order panel should stay inside the narrow right edge rail.")
 		quit(1)
+
+func _assert_vertical_turn_order_geometry(instance: Node) -> void:
+	var bar: Control = instance.get("_turn_order_bar") as Control
+	var panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
+	if bar == null or panel == null:
+		push_error("Turn order rail geometry needs the bar and panel.")
+		quit(1)
+		return
+	var slots: Array[Control] = _turn_order_slot_controls(bar)
+	var previous_rect := Rect2()
+	var first_width: float = 0.0
+	for index: int in range(slots.size()):
+		var slot: Control = slots[index]
+		var rect: Rect2 = slot.get_global_rect()
+		if index == 0:
+			first_width = rect.size.x
+		else:
+			if rect.position.y < previous_rect.end.y - 0.5:
+				push_error("Turn entries must descend without vertical overlap.")
+				quit(1)
+				return
+			if rect.size.x > previous_rect.size.x + 0.5:
+				push_error("Queued turn portraits must progressively shrink.")
+				quit(1)
+				return
+			if index > 1 and previous_rect.size.x - rect.size.x < 2.0:
+				push_error("Queued turn portraits should have a clearly descending rhythm.")
+				quit(1)
+				return
+		if not panel.get_global_rect().encloses(rect):
+			push_error("Turn entry escaped the rail panel bounds.")
+			quit(1)
+			return
+		var art_name: String = "TurnOrderActiveFrameArtHost" if index == 0 else "TurnOrderQueuedFrameArtHost"
+		var art_host: TextureRect = slot.get_node_or_null(art_name) as TextureRect
+		if art_host == null or art_host.texture == null or art_host.z_index < 1:
+			push_error("Turn entry is missing its named frame-art hook.")
+			quit(1)
+			return
+		previous_rect = rect
+	if slots.size() >= 5 and (first_width < 150.0 or previous_rect.size.x < 90.0):
+		push_error("Dense rail should keep its leading and final portraits readable.")
+		quit(1)
+
+func _turn_order_slot_controls(bar: Control) -> Array[Control]:
+	var result: Array[Control] = []
+	for child: Node in bar.get_children():
+		var slot: Control = child as Control
+		if slot != null and slot.has_meta("turn_order_rail_index"):
+			result.append(slot)
+	return result
 
 func _labels_under(node: Node) -> Array[Label]:
 	var labels: Array[Label] = []
@@ -187,16 +243,15 @@ func _assert_turn_order_badges_match_relative_clocks(instance: Node, state: Dict
 		push_error("Turn order bar or combat engine missing during badge probe.")
 		quit(1)
 		return
-	var order: Array = combat_engine.current_turn_order(state, 12)
-	if order.is_empty() or bar.get_child_count() == 0:
+	var order: Array = combat_engine.current_turn_order(state, 5)
+	var slots: Array[Control] = _turn_order_slot_controls(bar)
+	if order.is_empty() or slots.is_empty():
 		push_error("Turn order badge probe found no entries.")
 		quit(1)
 		return
-	var count: int = mini(order.size(), bar.get_child_count())
+	var count: int = mini(order.size(), slots.size())
 	for index: int in range(count):
-		var child: Control = bar.get_child(index) as Control
-		if child == null:
-			continue
+		var child: Control = slots[index]
 		var entry: Dictionary = order[index] as Dictionary
 		var expected: String = str(int(entry.get("eta", 0)))
 		var actual: String = str(child.get_meta("turn_order_badge_text", ""))

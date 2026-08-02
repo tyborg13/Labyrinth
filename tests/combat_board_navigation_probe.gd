@@ -119,7 +119,7 @@ func _capture_navigation_states() -> void:
 	await _settle_ui()
 	await _save_root_screenshot("%s/01_default_fit.png" % OUTPUT_DIR)
 	var default_snapshot: Dictionary = board.call("navigation_snapshot")
-	_expect(is_equal_approx(float(default_snapshot.get("zoom", 0.0)), 1.0), "Board should begin at its fitted default zoom")
+	_expect(is_equal_approx(float(default_snapshot.get("zoom", 0.0)), 1.10), "Board should begin at the enlarged default combat zoom")
 
 	var focus_tile := Vector2i(10, 2)
 	for _step: int in range(4):
