@@ -178,6 +178,9 @@ func _capture_states() -> void:
 	_assert_context(instance, "MOVE", "STEP 1/2", "HUD stress")
 	_assert_hud_collision_free(instance)
 	await _save_root_screenshot("%s/hud_stress.png" % OUTPUT_DIR)
+	await _capture_hand_dock_resilience(instance)
+	await _capture_top_row_prop_framing(instance)
+	await _capture_no_hand_board_framing(instance)
 	await _capture_production_aspect_geometry(instance)
 
 	instance.queue_free()
@@ -370,7 +373,6 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 		for pile: Control in [instance.get("draw_pile") as Control, instance.get("discard_pile") as Control]:
 			if pile != null and pile.visible:
 				_assert(not dock_rect.intersects(pile.get_global_rect()), "%s action dock should stay clear of the %s pile" % [state_kind, pile.name])
-				_assert(dock_rect.position.x >= pile.get_global_rect().end.x + 12.0, "%s action dock should sit in the negative space right of the %s pile" % [state_kind, pile.name])
 		if turn_rail != null and turn_rail.visible:
 			_assert(not dock_rect.intersects(turn_rail.get_global_rect()), "%s action dock should stay clear of the turn rail" % state_kind)
 		if tutorial != null and tutorial.visible:
@@ -389,6 +391,106 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 		if leftmost_card != null and leftmost_card.visible:
 			var leftmost_rect: Rect2 = instance.call("_control_visual_global_rect", leftmost_card)
 			_assert(pass_rect.end.x <= leftmost_rect.position.x - 20.0, "%s Pass dock should keep a visible gap before the leftmost full-hand card" % state_kind)
+
+func _capture_hand_dock_resilience(instance: Node) -> void:
+	var hand_sets: Array = [
+		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"],
+		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up", "bone_dart"],
+		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up", "bone_dart", "updraft"]
+	]
+	for cards_var: Variant in hand_sets:
+		var cards: Array = cards_var as Array
+		instance.set("_hovered_card_index", -1)
+		await _load_combat_fixture(instance, cards, Vector2i(2, 4), [Vector2i(5, 4), Vector2i(5, 2)], 9910 + cards.size())
+		var meter: Control = instance.get("_play_meter") as Control
+		var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+		_assert(meter != null and pass_chip != null, "%d-card dock proof needs meter and Pass controls" % cards.size())
+		if meter == null or pass_chip == null:
+			continue
+		var resting_meter: Rect2 = meter.get_global_rect()
+		var resting_pass: Rect2 = pass_chip.get_global_rect()
+		_assert_pass_meter_layout(instance, "%d-card idle" % cards.size())
+		await _save_root_screenshot("%s/dock_%d_card_idle.png" % [OUTPUT_DIR, cards.size()])
+		for index: int in range(cards.size()):
+			instance.call("_on_card_hover_started", index)
+			await _settle_ui()
+			_assert(_rect_approximately_equal(meter.get_global_rect(), resting_meter), "%d-card hover %d must not move the card-play meter (idle=%s hover=%s)" % [cards.size(), index + 1, resting_meter, meter.get_global_rect()])
+			_assert(_rect_approximately_equal(pass_chip.get_global_rect(), resting_pass), "%d-card hover %d must not move Pass (idle=%s hover=%s)" % [cards.size(), index + 1, resting_pass, pass_chip.get_global_rect()])
+			_assert_pass_meter_layout(instance, "%d-card hover %d" % [cards.size(), index + 1])
+			if index == cards.size() - 1:
+				await _save_root_screenshot("%s/dock_%d_card_worst_hover.png" % [OUTPUT_DIR, cards.size()])
+			instance.call("_on_card_hover_ended", index)
+			await _settle_ui()
+	# A real draw can change hand size before a hover animation clears. Dense
+	# placement must still use its stable container envelope, never current hover
+	# transforms as a fallback.
+	var five_cards: Array = hand_sets[0] as Array
+	await _load_combat_fixture(instance, five_cards, Vector2i(2, 4), [Vector2i(5, 4)], 9921)
+	instance.call("_on_card_hover_started", 3)
+	await _settle_ui()
+	var changing_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var changing_deck: Dictionary = (changing_state.get("deck", {}) as Dictionary).duplicate(true)
+	changing_deck["hand"] = hand_sets[2].duplicate()
+	changing_state["deck"] = changing_deck
+	var changing_run: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	changing_run["combat_state"] = changing_state.duplicate(true)
+	instance.set("_combat_state", changing_state)
+	instance.set("_run_state", changing_run)
+	instance.call("_refresh_ui")
+	await _settle_ui()
+	var changed_meter: Control = instance.get("_play_meter") as Control
+	var changed_pass: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	_assert(changed_meter != null and changed_pass != null, "Hovering hand-size-change proof must retain dock controls")
+	if changed_meter != null and changed_pass != null:
+		_assert_pass_meter_layout(instance, "hovered 5-to-7-card change")
+		await _save_root_screenshot("%s/hovered_hand_size_change.png" % OUTPUT_DIR)
+
+func _capture_no_hand_board_framing(instance: Node) -> void:
+	for viewport_size: Vector2i in [PROBE_VIEWPORT, PRODUCTION_VIEWPORT]:
+		DisplayServer.window_set_size(viewport_size)
+		root.content_scale_size = viewport_size
+		root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND if viewport_size == PRODUCTION_VIEWPORT else Window.CONTENT_SCALE_ASPECT_KEEP
+		root.size = viewport_size
+		var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+		run_state["mode"] = "room"
+		run_state.erase("combat_state")
+		instance.set("_run_state", run_state)
+		instance.set("_combat_state", {})
+		instance.call("_refresh_ui")
+		await _settle_ui()
+		var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
+		var viewport_rect := Rect2(Vector2.ZERO, Vector2(viewport_size))
+		_assert(board_bounds.size.x > viewport_size.x * 0.55 and board_bounds.size.y > viewport_size.y * 0.45, "%s no-hand board should remain prominent" % viewport_size)
+		_assert(board_bounds.position.y >= 8.0 and board_bounds.end.y <= viewport_rect.end.y - 12.0, "%s no-hand board visual bounds should stay fully onscreen (board=%s)" % [viewport_size, board_bounds])
+		_assert(absf(board_bounds.get_center().y - viewport_rect.get_center().y) <= viewport_size.y * 0.16, "%s no-hand board should be roughly vertically centered (board=%s)" % [viewport_size, board_bounds])
+		print("NO-HAND GEOMETRY %s board=%s" % [viewport_size, board_bounds])
+		await _save_root_screenshot("%s/no_hand_room_%dx%d.png" % [OUTPUT_DIR, viewport_size.x, viewport_size.y], viewport_size)
+
+func _capture_top_row_prop_framing(instance: Node) -> void:
+	await _load_combat_fixture(instance, ["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"], Vector2i(2, 4), [Vector2i(3, 2)], 9931)
+	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var grid: Array = (combat_state.get("grid", []) as Array).duplicate(true)
+	(grid[1] as Array)[3] = "wall" # Interior walls render as the tall pillar/column prop.
+	combat_state["grid"] = grid
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var room_layout: Dictionary = (run_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	room_layout["grid"] = grid.duplicate(true)
+	run_state["current_room_layout"] = room_layout
+	run_state["combat_state"] = combat_state.duplicate(true)
+	instance.set("_combat_state", combat_state)
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_ui")
+	await _settle_ui()
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var local_visual_bounds: Rect2 = board.call("rendered_visual_bounds") as Rect2
+	var visual_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
+	var viewport_rect := Rect2(Vector2.ZERO, Vector2(PROBE_VIEWPORT))
+	_assert(local_visual_bounds.size.y > 0.0 and visual_bounds.position.y >= 8.0 and visual_bounds.end.y <= viewport_rect.end.y - 12.0, "Top-row pillar/actor fixture must keep actual rendered prop bounds onscreen (bounds=%s)" % visual_bounds)
+	_assert(float(board.call("_tile_width")) < 210.0, "Combat default zoom should back off from the old prop-clipping scale (tile_width=%.2f)" % float(board.call("_tile_width")))
+	await _save_root_screenshot("%s/top_row_pillar_prop_bounds.png" % OUTPUT_DIR)
+
+func _rect_approximately_equal(first: Rect2, second: Rect2, epsilon: float = 0.25) -> bool:
+	return first.position.distance_to(second.position) <= epsilon and first.size.distance_to(second.size) <= epsilon
 
 func _rect_is_onscreen(rect: Rect2) -> bool:
 	var viewport := Rect2(Vector2.ZERO, get_root().get_visible_rect().size)
@@ -510,7 +612,7 @@ func _assert_full_hd_normal_hud(instance: Node) -> void:
 	_assert(viewport == Vector2(PROBE_VIEWPORT), "Combat HUD proof must use an exact 1920x1080 logical viewport")
 	var tutorial: Control = instance.get("_contextual_combat_prompt_host") as Control
 	_assert(tutorial == null or not tutorial.visible, "Normal combat proof must not show the transient COMBAT NOTE tutorial")
-	_assert(board_bounds.size.x >= viewport.x * 0.65 and board_bounds.size.y >= viewport.y * 0.55, "Normal combat board should remain the dominant 65%% x 55%% playfield (got %.1f%% x %.1f%%)" % [board_bounds.size.x / viewport.x * 100.0, board_bounds.size.y / viewport.y * 100.0])
+	_assert(board_bounds.size.x >= viewport.x * 0.62 and board_bounds.size.y >= viewport.y * 0.55, "Normal combat board should remain the dominant 62%% x 55%% playfield while safely framing tall props (got %.1f%% x %.1f%%)" % [board_bounds.size.x / viewport.x * 100.0, board_bounds.size.y / viewport.y * 100.0])
 	_assert(board_bounds.position.y <= viewport.y * 0.11, "Normal combat board should begin in the top 11%% of the viewport (got %.1f%% / %.0fpx)" % [board_bounds.position.y / viewport.y * 100.0, board_bounds.position.y])
 	var hand_box: Control = instance.get_node(HAND_PATH) as Control
 	var hand_bounds := Rect2()
@@ -602,8 +704,8 @@ func _capture_production_aspect_geometry(instance: Node) -> void:
 	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
 	var hand_top: float = float(instance.call("_hand_visual_top"))
 	await _save_root_screenshot("%s/production_live_1920x1227.png" % OUTPUT_DIR, PRODUCTION_VIEWPORT)
-	_assert(board_bounds.position.y >= 48.0 and board_bounds.position.y <= 84.0, "Production board should begin in the intended upper framing band instead of leaving dead space (board=%s)" % board_bounds)
-	_assert(board_bounds.size.x >= 1475.0 and board_bounds.size.x <= 1525.0 and board_bounds.size.y >= 735.0 and board_bounds.size.y <= 790.0, "Production board should dominate at the expanded aspect (board=%s)" % board_bounds)
+	_assert(board_bounds.position.y >= 80.0 and board_bounds.position.y <= 112.0, "Production board should begin in the intended upper framing band instead of leaving dead space (board=%s)" % board_bounds)
+	_assert(board_bounds.size.x >= 1400.0 and board_bounds.size.x <= 1470.0 and board_bounds.size.y >= 690.0 and board_bounds.size.y <= 745.0, "Production board should remain dominant while backing off from the former prop-clipping zoom (board=%s)" % board_bounds)
 	var production_gap: float = hand_top - board_bounds.end.y
 	_assert(production_gap >= 24.0 and production_gap <= 80.0, "Production board should end just above the hand with a clear but compact gap (board=%s hand_top=%.1f gap=%.1f)" % [board_bounds, hand_top, production_gap])
 	print("HUD GEOMETRY 1920x1227 board=%s hand_top=%.1f gap=%.1f" % [board_bounds, hand_top, hand_top - board_bounds.end.y])

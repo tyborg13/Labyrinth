@@ -116,14 +116,17 @@ const BOARD_SIDE_MARGIN: float = 36.0
 const BOARD_VERTICAL_MARGIN: float = 8.0
 const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
 const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.34
-const BOARD_VERTICAL_BIAS: float = 1.20
+const BOARD_COMBAT_VERTICAL_BIAS: float = 1.20
+const BOARD_ROOM_VERTICAL_BIAS: float = 0.50
 const BOARD_MAX_TILE_WIDTH: float = 184.0
 const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
 const BOARD_MAX_NAVIGATION_ZOOM: float = 1.40
 const BOARD_ZOOM_STEP: float = 1.10
 const BOARD_DEFAULT_NAVIGATION_ZOOM: float = 1.26
-const BOARD_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.22
-const BOARD_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.36
+const BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.10
+const BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.30
+const BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.22
+const BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.36
 const BOARD_COMPACT_VIEWPORT_HEIGHT: float = 1080.0
 const BOARD_EXPANDED_VIEWPORT_HEIGHT: float = 1227.0
 const BOARD_PAN_DRAG_THRESHOLD: float = 8.0
@@ -888,7 +891,9 @@ func _default_navigation_zoom_for_viewport() -> float:
 		0.0,
 		1.0
 	)
-	return lerpf(BOARD_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
+	if str(presentation.get("board_framing_mode", "room")) == "combat":
+		return lerpf(BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
+	return lerpf(BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
 
 func navigation_snapshot() -> Dictionary:
 	_ensure_board_layout_cache()
@@ -5672,6 +5677,7 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("active:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("active_door_tiles", {}) as Dictionary))
 	parts.append("locked:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("locked_door_tiles", {}) as Dictionary))
 	parts.append("backdrop:%s" % bool(next_presentation.get("board_backdrop_visible", false)))
+	parts.append("framing:%s" % str(next_presentation.get("board_framing_mode", "room")))
 	return "|".join(parts)
 
 func _moss_signature_for_state(next_state: Dictionary) -> String:
@@ -6397,6 +6403,85 @@ func _rendered_tiles_in_draw_order() -> Array[Vector2i]:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_tiles
 
+func rendered_visual_bounds() -> Rect2:
+	# This is deliberately based on the exact draw rectangles used by the static
+	# board and DynamicRenderLayer, rather than only tile diamonds. Consumers use
+	# it for framing/collision proof so tall pillars, doors, actors, pickups, and
+	# room props cannot be silently clipped while the tile polygon still fits.
+	_ensure_board_layout_cache()
+	var rects: Array[Rect2] = []
+	var grid: Array = combat_state.get("grid", [])
+	for tile: Vector2i in _board_layout_cache_tiles:
+		var polygon: PackedVector2Array = _tile_polygon(tile)
+		if not polygon.is_empty():
+			var tile_bounds := Rect2(polygon[0], Vector2.ZERO)
+			for point: Vector2 in polygon:
+				tile_bounds = tile_bounds.expand(point)
+			rects.append(tile_bounds)
+		if tile.y < 0 or tile.y >= grid.size() or tile.x < 0 or tile.x >= (grid[tile.y] as Array).size():
+			continue
+		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+		if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
+			tile_id = "pillar"
+		if tile_id == "pillar":
+			var pillar: Texture2D = _prop_textures.get("pillar", null)
+			if pillar != null:
+				var pillar_rect: Rect2 = _prop_draw_rect(pillar, _prop_rect_for_tile(tile))
+				rects.append(pillar_rect)
+				var left_torch: Texture2D = _pillar_torch_texture("left")
+				var right_torch: Texture2D = _pillar_torch_texture("right")
+				if left_torch != null:
+					rects.append(_pillar_torch_rect(pillar_rect, left_torch, -1.0))
+				if right_torch != null:
+					rects.append(_pillar_torch_rect(pillar_rect, right_torch, 1.0))
+		elif tile_id == "wall":
+			for segment: Dictionary in _boundary_prop_segments(tile_id, grid, tile):
+				rects.append(segment.get("draw_rect", Rect2()) as Rect2)
+		elif tile_id == "door":
+			var door: Texture2D = _door_texture_for_tile(grid, tile)
+			if door != null:
+				var door_rect: Rect2 = _prop_draw_rect(door, _door_rect_for_tile(tile, grid))
+				var opening: Texture2D = _door_opening_texture_for_tile(grid, tile)
+				rects.append(_door_opening_draw_rect(opening, door, door_rect, _door_uses_flipped_orientation(grid, tile)) if opening != null else door_rect)
+	for unit: Dictionary in _visible_units():
+		rects.append(_unit_draw_rect(unit))
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		var prop_texture: Texture2D = _texture_for_scene_prop(prop)
+		if prop_texture != null:
+			rects.append(_scene_prop_rect(prop_texture, prop))
+	for terrain_var: Variant in combat_state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
+		if terrain_texture != null:
+			rects.append(_terrain_rect_for_tile(terrain.get("pos", Vector2i(-1, -1)), terrain_texture, str(terrain.get("kind", ""))))
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if bool(loot.get("claimed", false)):
+			continue
+		var loot_texture: Texture2D = _loot_texture(loot)
+		if loot_texture != null:
+			rects.append(_loot_rect_for_tile(loot.get("pos", Vector2i(-1, -1)), loot_texture, loot))
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY:
+			rects.append(_trap_draw_rect((trap_var as Dictionary).get("pos", Vector2i(-1, -1))))
+	var bounds := Rect2()
+	var has_bounds: bool = false
+	for rect: Rect2 in rects:
+		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+			continue
+		bounds = rect if not has_bounds else bounds.merge(rect)
+		has_bounds = true
+	return bounds
+
 func _tile_draws_before(a: Vector2i, b: Vector2i) -> bool:
 	var a_score: int = a.x + a.y
 	var b_score: int = b.x + b.y
@@ -6474,7 +6559,7 @@ func _board_origin_for_extents(extents: Dictionary, tile_width: float, tiles: Ar
 	var available_width: float = maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0)
 	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
 	var content_left: float = BOARD_SIDE_MARGIN + (available_width - content_width) * 0.5
-	var content_top: float = BOARD_VERTICAL_MARGIN + (available_height - content_height) * BOARD_VERTICAL_BIAS
+	var content_top: float = BOARD_VERTICAL_MARGIN + (available_height - content_height) * _board_vertical_bias()
 	var target_center_x: float = content_left + content_width * 0.5
 	var origin_x: float = target_center_x - ((min_diag + max_diag) * 0.5 * half_width)
 	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
@@ -6491,7 +6576,8 @@ func _default_vertical_framing_offset(extents: Dictionary, tile_width: float, co
 	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
 	var visual_top: float = INF
 	for tile: Vector2i in tiles:
-		visual_top = minf(visual_top, origin_y + float(tile.x + tile.y) * half_height - half_height)
+		var tile_center_y: float = origin_y + float(tile.x + tile.y) * half_height
+		visual_top = minf(visual_top, tile_center_y - half_height)
 	if not is_finite(visual_top):
 		visual_top = origin_y - half_height
 	# The board is nested below the stage chrome, so the screenshot-safe top edge
@@ -6505,11 +6591,11 @@ func _navigation_zoom_anchor() -> Vector2:
 	var extents: Dictionary = _board_layout_cache_extents
 	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
 	var content_height: float = _board_layout_height_units(extents) * tile_width
-	var content_top: float = BOARD_VERTICAL_MARGIN + (available_height - content_height) * BOARD_VERTICAL_BIAS
+	var content_top: float = BOARD_VERTICAL_MARGIN + (available_height - content_height) * _board_vertical_bias()
 	var framing_offset: float = _default_vertical_framing_offset(extents, tile_width, content_top, _board_layout_cache_tiles)
 	return Vector2(
 		size.x * 0.5,
-		BOARD_VERTICAL_MARGIN + available_height * BOARD_VERTICAL_BIAS + framing_offset
+		BOARD_VERTICAL_MARGIN + available_height * _board_vertical_bias() + framing_offset
 	)
 
 func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
@@ -6523,10 +6609,13 @@ func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vecto
 	)
 	var content_position := Vector2(
 		BOARD_SIDE_MARGIN + (available_size.x - content_size.x) * 0.5,
-		BOARD_VERTICAL_MARGIN + (available_size.y - content_size.y) * BOARD_VERTICAL_BIAS
+		BOARD_VERTICAL_MARGIN + (available_size.y - content_size.y) * _board_vertical_bias()
 	)
 	content_position.y += _default_vertical_framing_offset(extents, tile_width, content_position.y, _board_layout_cache_tiles)
 	return Rect2(content_position + pan, content_size)
+
+func _board_vertical_bias() -> float:
+	return BOARD_COMBAT_VERTICAL_BIAS if str(presentation.get("board_framing_mode", "room")) == "combat" else BOARD_ROOM_VERTICAL_BIAS
 
 func _navigation_pan_limits(extents: Dictionary, tile_width: float) -> Rect2:
 	var content_rect: Rect2 = _navigation_content_rect(extents, tile_width)

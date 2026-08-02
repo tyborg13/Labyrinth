@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-02T21:09:39Z",
+  "updated_at": "2026-08-02T22:43:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6817,30 +6817,6 @@
       }
     },
     {
-      "id": "mnt_20260802T210146Z_3e615498",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Combat dock placement follows rendered hand and pile bounds, not a fixed viewport anchor.",
-      "details": "Derive the Pass/meter dock from transformed hand and pile bounds with a visible card gap. Pair this with aspect-aware CombatBoardView defaults: compact 1080 framing remains safe while the expanded live canvas is larger and higher. Production aspect=expand with live ABILITIES/utility badges changes HUD geometry, so validate it in tests/combat_interaction_probe.gd; popup coverage remains in tests/floating_damage_probe.gd.",
-      "status": "active",
-      "created_at": "2026-08-02T21:01:46Z",
-      "updated_at": "2026-08-02T21:01:46Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260802T185654Z_d88aa06a"
-      ],
-      "source": {
-        "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
-        "commit": "c2f8abf"
-      }
-    },
-    {
       "id": "mnt_20260802T210938Z_06fceba3",
       "layer": "shared",
       "kind": "pitfall",
@@ -6860,6 +6836,28 @@
       "source": {
         "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
         "commit": "6311042"
+      }
+    },
+    {
+      "id": "mnt_20260802T224121Z_f57da1f2",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat dock and board framing use stable authored state, not transient live transforms",
+      "details": "Keep the Pass/card-play dock anchored from the resting hand container plus the authored hover-side reserve for every supported hand size, so hover cannot move it. Pass explicit board_framing_mode from RunScene: combat reserves room for the hand while room/post-combat uses its own centered framing; do not infer either mode from incidental UI geometry.",
+      "status": "active",
+      "created_at": "2026-08-02T22:41:21Z",
+      "updated_at": "2026-08-02T22:41:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
+        "commit": "0628441"
       }
     }
   ]

@@ -6208,6 +6208,12 @@ func _contextual_combat_prompt_protected_rects() -> Array:
 func _contextual_combat_rendered_board_bounds() -> Rect2:
 	if board_view == null or not board_view.is_inside_tree():
 		return Rect2()
+	var local_visual_bounds: Rect2 = board_view.call("rendered_visual_bounds") as Rect2
+	if local_visual_bounds.size.x > 0.0 and local_visual_bounds.size.y > 0.0:
+		var board_transform: Transform2D = board_view.get_global_transform()
+		var global_top_left: Vector2 = board_transform * local_visual_bounds.position
+		var global_bottom_right: Vector2 = board_transform * local_visual_bounds.end
+		return Rect2(global_top_left, global_bottom_right - global_top_left)
 	var bounds := Rect2()
 	var has_bounds: bool = false
 	var board_transform: Transform2D = board_view.get_global_transform()
@@ -6871,16 +6877,21 @@ func _layout_combat_action_dock() -> void:
 	var meter_size: Vector2 = _play_meter.get_combined_minimum_size()
 	var pass_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
 	var dock_height: float = meter_size.y + PASS_PREVIEW_STACK_GAP + pass_size.y
-	var hand_bounds: Rect2 = _combat_hand_visual_bounds()
+	# The dock answers a stable question: where does the resting hand begin?  Do
+	# not feed the transient hover/focus transforms back into this placement or
+	# the meter visibly slides whenever the player inspects a card.
+	var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
 	var dock_left: float = 8.0
-	for pile: Control in [draw_pile, discard_pile, burn_pile]:
-		if pile != null and pile.visible and pile.is_inside_tree():
-			dock_left = maxf(dock_left, pile.get_global_rect().end.x + 12.0)
 	# Put the final-action dock in the real negative space immediately before the
 	# rendered fan. This stays correct when aspect expansion or card scaling moves
 	# the leftmost card, while preserving the authored meter-over-Pass composition.
 	if hand_bounds.size.x > 0.0:
-		dock_left = maxf(dock_left, hand_bounds.position.x - pass_size.x - 24.0)
+		# The container is stable, but a focused card can expand leftward and cards
+		# preceding a later focus can fan outside its left edge. Reserve that
+		# authored maximum for every supported hand size rather than moving the dock
+		# in response to a transient hover animation.
+		var hover_reserve: float = HandFanContainer.DEFAULT_EMPHASIS_MAX_SIDE_SHIFT
+		dock_left = maxf(dock_left, hand_bounds.position.x - pass_size.x - 24.0 - hover_reserve)
 	var pass_left: float = clampf(dock_left, 8.0, maxf(8.0, viewport_size.x - pass_size.x - 8.0))
 	var meter_left: float = pass_left + (pass_size.x - meter_size.x) * 0.5
 	var dock_top: float = viewport_size.y * 0.754
@@ -6910,6 +6921,14 @@ func _combat_hand_visual_bounds() -> Rect2:
 		bounds = card_bounds if not has_bounds else bounds.merge(card_bounds)
 		has_bounds = true
 	return bounds
+
+func _combat_hand_resting_visual_bounds() -> Rect2:
+	if hand_box != null and hand_box.get_child_count() > 0:
+		# The fan container's left edge is the authored resting envelope. Unlike a
+		# card's live transform, it is invariant through hover/focus animation and
+		# remains valid if the hand changes before an old hover has cleared.
+		return hand_box.get_global_rect()
+	return _combat_hand_visual_bounds()
 
 func _relic_bar_visible_bottom_y() -> float:
 	if relic_bar == null:
@@ -12449,6 +12468,8 @@ func _fit_current_hand_layout_to_visible_width() -> void:
 	if card_size.x <= 0.0 or card_size.y <= 0.0:
 		card_size = first_card.size
 	hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
+	# The dock derives from the HandFanContainer's stable authored envelope, not
+	# from these child transforms, so no extra deferred settle is required here.
 	# The fan may settle after the initial combat refresh (particularly when the
 	# expanded-aspect window changes its available width). Place the dock only
 	# after these final transformed card bounds are authoritative.
@@ -12667,6 +12688,10 @@ func _refresh_stage_view() -> void:
 	var attack_tiles: Array[Vector2i] = []
 	var ability_tiles: Array[Vector2i] = []
 	var presentation: Dictionary = _board_presentation.duplicate(false)
+	# The same room grid is shown both while cards are available and after combat.
+	# Make that framing intent explicit: no-hand rooms center their complete board
+	# instead of inheriting the combat hand-clearance composition.
+	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" else "room"
 	presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	if str(_run_state.get("mode", "room")) == "combat" and not display_state.is_empty():
 		presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(visibility_state)
@@ -14341,6 +14366,8 @@ func _on_card_hover_started(index: int) -> void:
 		return
 	_hovered_card_index = index
 	_set_hand_emphasized_index(index)
+	# The persistent dock uses the resting fan envelope and must not move with
+	# this visual emphasis.
 	_refresh_stage_view()
 	_refresh_turn_order_bar()
 	_refresh_contextual_combat_tutorial()
@@ -16020,6 +16047,7 @@ func _stop_music_tween() -> void:
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
+	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" else "room"
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
