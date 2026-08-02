@@ -3,15 +3,25 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 
 const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v4"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
 const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
 const LOG_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay"
+const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	# Force a logical Full HD canvas before the scene exists. macOS can return a
+	# Retina backing image, which _save_root_screenshot deliberately normalizes.
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(PROBE_VIEWPORT)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = PROBE_VIEWPORT
+	root.size = PROBE_VIEWPORT
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path("user://labyrinth_progression_combat_interaction_probe.json")
@@ -26,7 +36,6 @@ func _capture_states() -> void:
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
-
 	await _load_combat_fixture(
 		instance,
 		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"],
@@ -34,9 +43,29 @@ func _capture_states() -> void:
 		[Vector2i(5, 4), Vector2i(5, 2)],
 		9801
 	)
+	# Fixture refresh owns the live progression snapshot, so resolve all prompts
+	# afterwards to prove the normal returning-combat surface is tutorial-free.
+	var progression: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
+	for prompt_id: String in ContextualCombatTutorial.prompt_ids():
+		progression = ContextualCombatTutorial.resolve_progression(progression, prompt_id)
+	instance.set("_progression", progression)
+	instance.call("_refresh_contextual_combat_tutorial")
+	await _settle_ui()
 	_assert(not (instance.get("_action_step_tracker") as Control).visible, "Idle hand should not show action context")
+	_assert_full_hd_normal_hud(instance)
 	await _save_root_screenshot("%s/idle_hand.png" % OUTPUT_DIR)
 	await _capture_pile_interaction_states(instance)
+
+	await _load_combat_fixture(
+		instance,
+		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"],
+		Vector2i(2, 4),
+		[Vector2i(3, 2), Vector2i(4, 2), Vector2i(5, 2), Vector2i(2, 3), Vector2i(3, 3), Vector2i(4, 3), Vector2i(5, 3), Vector2i(3, 4), Vector2i(4, 4)],
+		9810
+	)
+	_assert_dense_turn_order_rail(instance)
+	await _save_root_screenshot("%s/dense_ten_actor_rail.png" % OUTPUT_DIR)
+	await _capture_pass_and_meter_states(instance)
 
 	await _load_combat_fixture(instance, ["stone_plate", "quick_stab"], Vector2i(2, 4), [Vector2i(5, 4)], 9800)
 	var targetless_before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -165,6 +194,7 @@ func _capture_pile_interaction_states(instance: Node) -> void:
 	await _settle_ui()
 	_assert(str(draw_pile.get_meta("pile_interaction_state", "")) == "hover", "Draw pile pointer hover should expose a visible hover state")
 	_assert(draw_overlay.visible, "Draw pile hover should show its tight state outline")
+	var hover_style: StyleBoxFlat = draw_overlay.get_theme_stylebox("panel") as StyleBoxFlat
 	await _save_root_screenshot("%s/draw_pile_hover.png" % OUTPUT_DIR)
 	draw_pile.emit_signal("mouse_exited")
 
@@ -178,6 +208,10 @@ func _capture_pile_interaction_states(instance: Node) -> void:
 	await _settle_ui()
 	_assert(str(draw_pile.get_meta("pile_interaction_state", "")) == "pressed", "Draw pile pressed state should be explicit in control metadata")
 	_assert(draw_overlay.visible and (pile_scrim == null or not pile_scrim.visible), "Pressed proof should not activate or open the draw pile")
+	var draw_content: Control = (instance.get("_pile_content_hosts") as Dictionary).get("draw", null) as Control
+	var pressed_style: StyleBoxFlat = draw_overlay.get_theme_stylebox("panel") as StyleBoxFlat
+	_assert(draw_content != null and draw_content.position.y >= 3.0, "Pressed draw pile should travel a deliberate 3px downward")
+	_assert(hover_style != null and pressed_style != null and pressed_style.bg_color.a > hover_style.bg_color.a and pressed_style.shadow_size < hover_style.shadow_size, "Pressed draw pile should be darker and tighter than hover")
 	await _save_root_screenshot("%s/draw_pile_pressed.png" % OUTPUT_DIR)
 	instance.call("_set_pile_pressed", "draw", false)
 	await _settle_ui()
@@ -199,6 +233,88 @@ func _capture_pile_interaction_states(instance: Node) -> void:
 	_assert(pile_scrim != null and pile_scrim.visible, "Draw pile ui_accept should preserve pile inspection activation")
 	instance.call("_close_pile_view")
 	await _settle_ui()
+
+func _capture_pass_and_meter_states(instance: Node) -> void:
+	for state_kind: String in ["safe", "danger", "unknown"]:
+		_install_pass_meter_fixture(instance, state_kind)
+		await _settle_ui()
+		_assert_pass_meter_layout(instance, state_kind)
+		await _save_root_screenshot("%s/pass_%s.png" % [OUTPUT_DIR, state_kind])
+	var chip: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	if chip != null:
+		chip.emit_signal("mouse_entered")
+		await _settle_ui()
+		_assert(str(chip.get_meta("pass_interaction_state", "")) == "hover", "Pass hover proof should expose its interaction state")
+		await _save_root_screenshot("%s/pass_hover.png" % OUTPUT_DIR)
+		chip.grab_focus()
+		await _settle_ui()
+		_assert(str(chip.get_meta("pass_interaction_state", "")) == "focus", "Pass focus proof should expose its interaction state")
+		await _save_root_screenshot("%s/pass_focus.png" % OUTPUT_DIR)
+		chip.emit_signal("button_down")
+		await _settle_ui()
+		_assert(str(chip.get_meta("pass_interaction_state", "")) == "pressed", "Pass pressed proof should expose its interaction state")
+		await _save_root_screenshot("%s/pass_pressed.png" % OUTPUT_DIR)
+		chip.emit_signal("button_up")
+
+	_install_pass_meter_fixture(instance, "safe")
+	var banked_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	banked_state["skill_ids"] = ["measured_breath", "borrowed_time"]
+	banked_state["banked_play_active"] = 1
+	banked_state["banked_play_spent_this_activation"] = 0
+	instance.set("_combat_state", banked_state)
+	instance.call("_refresh_card_play_meter")
+	await _settle_ui()
+	var banked_badge: Control = instance.get("_play_meter_banked_badge") as Control
+	_assert(banked_badge != null and banked_badge.visible, "Banked meter proof should expose the secondary banked row")
+	await _save_root_screenshot("%s/meter_banked.png" % OUTPUT_DIR)
+
+func _install_pass_meter_fixture(instance: Node, state_kind: String) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = combat.create_combat(9821, _room_layout(Vector2i(2, 4), [Vector2i(3, 4)]), {
+		"hp": 24, "max_hp": 24, "deck_cards": ["guarded_step", "quick_stab"], "relics": [], "hand_size": 2, "heal_bonus": 0
+	})
+	var enemy_pos: Vector2i = Vector2i(6, 4) if state_kind in ["safe", "unknown"] else Vector2i(3, 4)
+	var enemy_intent: Dictionary = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
+	state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	state["enemies"] = [{"id": 1, "type": "crawler", "pos": enemy_pos, "hp": 14, "max_hp": 14, "block": 0, "intent": enemy_intent}]
+	state["deck"] = {"hand": ["guarded_step", "quick_stab"], "draw": ["patch_up"], "discard": ["sidestep_slash"], "burned": [], "cycles": 0, "fatigue_base": 15}
+	state["cards_per_turn"] = 2
+	state["draw_per_turn"] = 2
+	state["cards_played_this_turn"] = 0
+	state["death_bonus_card_plays_this_turn"] = 0
+	state["card_play_bonus_this_turn"] = 0
+	state["player_turn_time_spent"] = 20 if state_kind == "unknown" else 0
+	state["player_turn_restrictions"] = {"frozen": false, "shocked": false, "immobilized": false}
+	state["initiative_clock"] = 0
+	state["current_actor"] = {"kind": "player", "actor_key": "player", "name": "Reaver", "type": "player", "team": "player", "time": 0, "seq": 0}
+	state["turn_queue"] = [{"kind": "enemy", "actor_key": "enemy_1", "enemy_id": 1, "type": "crawler", "name": "Tunnel Crawler", "team": "enemy", "time": 1, "seq": 1, "pos": enemy_pos}]
+	if state_kind == "unknown":
+		var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
+		umbra["stage"] = "eclipse"
+		umbra["stage_reduction"] = 0
+		state["umbra"] = umbra
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = state.duplicate(true)
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", state.duplicate(true))
+	instance.set("_animation_lock", false)
+	instance.call("_reset_card_resolution")
+	instance.call("_refresh_ui")
+
+func _assert_pass_meter_layout(instance: Node, state_kind: String) -> void:
+	var chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	var pass_label: Label = instance.find_child("PassActionLabel", true, false) as Label
+	var ribbon: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
+	var meter: Control = instance.get("_play_meter") as Control
+	var meter_label: Label = instance.get("_play_meter_count") as Label
+	_assert(chip != null and pass_label != null and ribbon != null and meter != null and meter_label != null, "%s pass/meter proof should build all dock controls" % state_kind)
+	if chip == null or pass_label == null or ribbon == null or meter == null or meter_label == null:
+		return
+	_assert(absf(pass_label.get_global_rect().get_center().x - chip.get_global_rect().get_center().x) <= 1.0, "%s PASS label should stay centered" % state_kind)
+	_assert(_label_text_fits(ribbon), "%s forecast ribbon should fit its text" % state_kind)
+	_assert(absf(meter_label.get_global_rect().get_center().y - meter.get_global_rect().get_center().y) <= 1.0, "%s ordinary meter label should stay vertically centered" % state_kind)
+	_assert(chip.get_global_rect().position.y >= meter.get_global_rect().end.y + 5.0, "%s pass ribbon should stay below the meter plaque" % state_kind)
 
 func _load_combat_fixture(instance: Node, hand: Array, player_pos: Vector2i, enemy_positions: Array, seed: int) -> void:
 	instance.call("_cancel_drag_play")
@@ -306,6 +422,60 @@ func _assert_hud_collision_free(instance: Node) -> void:
 	_assert(absf(context_rect.get_center().x - card_anchor.get_center().x) <= 48.0, "Action context should remain visually connected to the active hand card")
 	_assert(card_anchor.position.y - context_rect.end.y <= 24.0, "Action context should stay close to the cards instead of floating beside the board")
 
+func _assert_full_hd_normal_hud(instance: Node) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	var viewport: Vector2 = instance.get_viewport().get_visible_rect().size
+	_assert(viewport == Vector2(PROBE_VIEWPORT), "Combat HUD proof must use an exact 1920x1080 logical viewport")
+	var tutorial: Control = instance.get("_contextual_combat_prompt_host") as Control
+	_assert(tutorial == null or not tutorial.visible, "Normal combat proof must not show the transient COMBAT NOTE tutorial")
+	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
+	_assert(board_bounds.size.x >= viewport.x * 0.65 and board_bounds.size.y >= viewport.y * 0.55, "Normal combat board should remain the dominant 65%% x 55%% playfield (got %.1f%% x %.1f%%)" % [board_bounds.size.x / viewport.x * 100.0, board_bounds.size.y / viewport.y * 100.0])
+	_assert(board_bounds.position.y <= viewport.y * 0.11, "Normal combat board should begin in the top 11%% of the viewport (got %.1f%% / %.0fpx)" % [board_bounds.position.y / viewport.y * 100.0, board_bounds.position.y])
+	var hand_box: Control = instance.get_node(HAND_PATH) as Control
+	var hand_bounds := Rect2()
+	var has_hand_bounds: bool = false
+	var fixture_card_width: float = 0.0
+	for index: int in range(hand_box.get_child_count()):
+		var card: Control = _hand_card_control(hand_box, index)
+		if card == null:
+			continue
+		fixture_card_width = maxf(fixture_card_width, card.size.x * card.get_global_transform().get_scale().x)
+		var rect: Rect2 = card.get_global_rect()
+		hand_bounds = rect if not has_hand_bounds else hand_bounds.merge(rect)
+		has_hand_bounds = true
+	# CardScaleFrame applies a floating-point transform; retain the authored 208px
+	# ceiling while allowing sub-pixel transform noise, never a 209px card.
+	_assert(fixture_card_width > 203.5 and fixture_card_width <= 208.5, "Five-card combat fixture should use cards just above the original 204px width (got %.2fpx rendered)" % fixture_card_width)
+	_assert(has_hand_bounds and hand_bounds.size.y <= viewport.y * 0.36, "Five-card combat fan should stay below 36%% of viewport height (got %.1f%% / %.0fpx)" % [hand_bounds.size.y / viewport.y * 100.0, hand_bounds.size.y])
+	var meter: Control = instance.get("_play_meter") as Control
+	var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	_assert(meter != null and meter.visible and pass_chip != null and pass_chip.visible, "Normal combat should show the separate card-play and Pass forecast dock")
+	if meter != null and pass_chip != null:
+		_assert(pass_chip.get_global_rect().position.y >= meter.get_global_rect().end.y + 5.0, "Pass forecast must stay separated below the card-play plaque")
+
+func _assert_dense_turn_order_rail(instance: Node) -> void:
+	var rail: Control = instance.get("_turn_order_bar") as Control
+	var slots: Array[Control] = []
+	if rail != null:
+		for child: Node in rail.get_children():
+			var slot: Control = child as Control
+			if slot != null and slot.has_meta("turn_order_rail_index") and slot.find_child("TurnOrderPortraitCrop", true, false) != null:
+				slots.append(slot)
+	_assert(slots.size() >= 10, "Dense combat proof should expose at least ten individual initiative portraits")
+	if rail == null:
+		return
+	var rail_bottom: float = -INF
+	for slot: Control in slots:
+		_assert(slot.size.x >= 74.0 and slot.size.y >= 55.0, "Dense initiative entries must remain readable portrait controls")
+		var slot_panel: PanelContainer = slot.get_child(0) as PanelContainer if slot.get_child_count() > 0 else null
+		var slot_style: StyleBoxFlat = slot_panel.get_theme_stylebox("panel") as StyleBoxFlat if slot_panel != null else null
+		_assert(slot.find_child("TurnOrderActiveFrameArtHost", true, false) == null and slot.find_child("TurnOrderQueuedFrameArtHost", true, false) == null, "Dense initiative rail should use portrait-only slots with no frame art")
+		_assert(slot_style != null and slot_style.bg_color.a <= 0.001 and slot_style.border_color.a <= 0.001 and slot_style.shadow_size == 0, "Dense initiative slot surfaces should be transparent and borderless")
+		rail_bottom = maxf(rail_bottom, slot.get_global_rect().end.y)
+	var meter: Control = instance.get("_play_meter") as Control
+	_assert(meter != null and rail_bottom <= meter.get_global_rect().position.y - 32.0, "Dense initiative rail should end at least 32px above the separate action dock (rail %.0fpx, meter %.0fpx)" % [rail_bottom, meter.get_global_rect().position.y] if meter != null else "Dense initiative rail needs its action dock")
+
 func _assert_compact_pile_controls(instance: Node) -> void:
 	for pile_name: String in ["draw_pile", "discard_pile"]:
 		var pile: Control = instance.get(pile_name) as Control
@@ -389,8 +559,22 @@ func _settle_ui() -> void:
 	await process_frame
 
 func _save_root_screenshot(output_path: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
 	var texture: Texture2D = root.get_viewport().get_texture()
 	var image: Image = texture.get_image()
+	_assert(image != null, "Combat HUD proof should capture a renderer image")
+	if image == null:
+		return
+	var source_size: Vector2i = image.get_size()
+	var scale_x: float = float(source_size.x) / float(PROBE_VIEWPORT.x)
+	var scale_y: float = float(source_size.y) / float(PROBE_VIEWPORT.y)
+	var valid_backing_size: bool = is_equal_approx(scale_x, scale_y) and is_equal_approx(float(source_size.x) / float(source_size.y), 16.0 / 9.0)
+	_assert(valid_backing_size, "Combat HUD proof must keep an exact 16:9 proportional backing, got %s (scale %.4f x %.4f)" % [source_size, scale_x, scale_y])
+	if not valid_backing_size:
+		return
+	if source_size != PROBE_VIEWPORT:
+		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
 
 func _assert(condition: bool, message: String) -> void:

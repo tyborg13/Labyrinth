@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-02T01:06:32Z",
+  "updated_at": "2026-08-02T15:49:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6768,6 +6768,28 @@
       "source": {
         "branch": "codex/implement-readable-labyrinth-crumble-font-family-across-the-game",
         "commit": "e700ee6"
+      }
+    },
+    {
+      "id": "mnt_20260802T154932Z_a1d84ddd",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "tests",
+        "symbol": null
+      },
+      "scope_key": "folder:tests",
+      "summary": "Combat HUD visual proof must establish a 1920x1080 logical canvas and only normalize proportional 16:9 Retina backing buffers; reject physical desktop-aspect captures rather than stretching them.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-08-02T15:49:32Z",
+      "updated_at": "2026-08-02T15:49:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
+        "commit": "eb72bf7"
       }
     }
   ]

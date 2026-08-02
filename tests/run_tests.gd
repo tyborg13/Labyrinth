@@ -333,7 +333,7 @@ func _initialize() -> void:
 	await _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_animation_lock_preserves_board_animation_presentation()
-	await _test_run_scene_discard_pile_is_face_up_without_count()
+	await _test_run_scene_discard_pile_uses_distinct_icon_controls()
 	await _test_run_scene_displays_owned_relic_icons()
 	await _test_run_scene_relic_header_keeps_relics_and_intensity_tight()
 	await _test_run_scene_attack_impact_presentation_drops_projectile_effect()
@@ -8434,7 +8434,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	_assert(overlay != null and overlay.visible, "Combat Pass button should render in the stable overlay host")
 	if overlay != null and piles_bar != null:
-		_assert(overlay.global_position.y >= piles_bar.global_position.y - overlay.size.y - 10.0 and overlay.global_position.y < piles_bar.global_position.y, "Combat Pass overlay should stay directly above the pile widgets instead of jumping near the top of the screen")
+		_assert(overlay.global_position.y >= piles_bar.global_position.y - overlay.size.y - 10.0 and overlay.global_position.y < piles_bar.global_position.y, "Combat choice overlay should stay directly above the pile widgets instead of jumping near the top of the screen")
 	if pass_button != null and piles_bar != null:
 		var pass_rect: Rect2 = pass_button.get_global_rect()
 		_assert(pass_rect.position.y + pass_rect.size.y <= piles_bar.global_position.y + 1.0, "Combat Pass button should remain above the pile widgets")
@@ -8442,7 +8442,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	if preview_overlay != null and preview_overlay.visible and pass_button != null:
 		var preview_rect: Rect2 = preview_overlay.get_global_rect()
 		var preview_pass_rect: Rect2 = pass_button.get_global_rect()
-		_assert(preview_rect.position.y + preview_rect.size.y <= preview_pass_rect.position.y + 1.0, "Pass preview should sit above the Pass button instead of pushing it down")
+		_assert(preview_rect.position.y >= preview_pass_rect.position.y + preview_pass_rect.size.y + 5.0, "The independent combat dock forecast should sit below its card-play plaque")
 	instance.queue_free()
 	await process_frame
 
@@ -8550,8 +8550,8 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	await process_frame
 	_assert_pass_preview_chip(instance, ["SAFE"], false, true, "unrevealed pass")
-	var danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
-	_assert(danger_label != null and danger_label.text == "DANGER!", "Unrevealed follow-up preview should render DANGER!")
+	var danger_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
+	_assert(danger_line != null and danger_line.text.contains("TURN END") and danger_line.text.contains("SAFE"), "Unrevealed follow-up preview should keep its compact forecast ribbon")
 	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	_assert(danger_chip != null and danger_chip.tooltip_text == "Enemies have unrevealed actions before your next turn, you may take additional damage.", "DANGER! pass preview should expose the unrevealed-action tooltip")
 
@@ -8562,8 +8562,8 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var umbra_summary: Dictionary = instance.call("_pass_preview_summary")
 	_assert(bool(umbra_summary.get("umbra_unknown_before_player", false)), "Pass preview should flag a hidden presence acting before the player")
 	_assert(int(umbra_summary.get("hp_loss", 0)) == 0, "Pass preview should not leak hidden-intent damage")
-	var umbra_danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
-	_assert(umbra_danger_label != null and umbra_danger_label.text == "UMBRA INTENT UNKNOWN", "Hidden pass preview should explain why its value is unknown")
+	var umbra_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
+	_assert(umbra_line != null and umbra_line.text.contains("UNKNOWN"), "Hidden pass preview should explain uncertainty in its compact forecast ribbon")
 
 	_install_pass_preview_chip_state(instance, danger_state)
 	await process_frame
@@ -10077,11 +10077,12 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_ui")
 	var count_label: Label = instance.get("_play_meter_count") as Label
-	_assert(count_label != null and count_label.text == "2", "Card play meter should start from available combat plays")
+	_assert(count_label != null and count_label.text == "2 card plays", "Card play meter should start from available combat plays")
 	var banked_badge: Control = instance.get("_play_meter_banked_badge") as Control
 	_assert(banked_badge != null and not banked_badge.visible, "Card play meter should hide its banked-play badge when no play is stored")
+	_assert(count_label != null and absf(count_label.position.y) <= 1.0 and absf(count_label.size.y - 58.0) <= 1.0, "Default card-play copy should be vertically centered in the full 58px plaque")
 	instance.call("_begin_card_play_meter_spend_preview")
-	_assert(count_label != null and count_label.text == "1", "Card play meter should spend the played card immediately")
+	_assert(count_label != null and count_label.text == "1 card plays", "Card play meter should spend the played card immediately")
 	var rewarded_state: Dictionary = combat_state.duplicate(true)
 	rewarded_state["death_bonus_card_plays_this_turn"] = 1
 	_assert(int(instance.call("_card_play_count_for_resolution_state", rewarded_state)) == 2, "Death-reward play previews should add to the already-spent meter count")
@@ -10100,8 +10101,9 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	await process_frame
 	await process_frame
 	var banked_label: Label = instance.get("_play_meter_banked_label") as Label
-	_assert(count_label != null and count_label.text == "2", "The large card-play count should reserve its number for ordinary plays")
+	_assert(count_label != null and count_label.text == "2 card plays", "The large card-play count should reserve its number for ordinary plays")
 	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
+	_assert(count_label != null and count_label.position.y >= 3.0 and count_label.size.y <= 26.0, "Banked-play state should intentionally split the plaque into count and banked rows")
 	var hand_scroll: Control = instance.get("hand_scroll") as Control
 	var hand_row: Control = instance.get("hand_row") as Control
 	var left_action_stack: Control = instance.get("left_action_stack") as Control
@@ -10111,7 +10113,7 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	combat_state["cards_played_this_turn"] = 2
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_card_play_meter")
-	_assert(count_label != null and count_label.text == "0" and banked_label != null and banked_label.text == "NEXT • NO TIME", "The banked badge should identify when the no-Time play is next")
+	_assert(count_label != null and count_label.text == "0 card plays" and banked_label != null and banked_label.text == "NEXT • NO TIME", "The banked badge should identify when the no-Time play is next")
 	combat_state["cards_played_this_turn"] = 0
 	instance.set("_combat_state", combat_state)
 	instance.call("_begin_card_play_meter_spend_preview")
@@ -10787,7 +10789,7 @@ func _test_run_scene_surfaces_destroyed_terrain_units() -> void:
 		_assert(is_equal_approx(float(held_prop.get("destruction_progress", -1.0)), 0.0), "Terrain destruction holds should not advance during impact text")
 	instance.free()
 
-func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
+func _test_run_scene_discard_pile_uses_distinct_icon_controls() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
 		_failures.append("Run scene should load for discard pile coverage")
@@ -10827,7 +10829,11 @@ func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	instance.call("_close_pile_view")
 	var hosts: Dictionary = instance.get("_pile_visual_hosts")
 	var discard_host: Control = hosts.get("discard", null)
-	_assert(discard_host != null and discard_host.get_child_count() == 1, "The empty discard pile should render as one card-sized empty frame")
+	_assert(discard_host != null and discard_host.get_child_count() == 1 and discard_host.find_child("DiscardPileIcon", true, false) != null, "The empty discard pile should render as its purpose-built discard icon")
+	var draw_host: Control = hosts.get("draw", null)
+	_assert(draw_host != null and draw_host.find_child("DrawPileIcon", true, false) != null, "The draw pile should render its purpose-built icon")
+	var run_scene_script: Script = instance.get_script() as Script
+	_assert(run_scene_script != null and str(run_scene_script.get_script_constant_map().get("DRAW_PILE_ICON_TEXTURE_PATH", "")) == "res://assets/art/ui/draw_pile_icon_v2.png", "The draw pile should use the brighter v2 icon asset")
 	var badges: Dictionary = instance.get("_pile_badges")
 	var draw_badge: Label = badges.get("draw", null)
 	var pile_card_size: Vector2 = instance.call("_pile_display_card_size")
@@ -10835,7 +10841,7 @@ func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	_assert(draw_badge != null and draw_badge.get_parent() == (instance.get("_pile_content_hosts") as Dictionary).get("draw", null), "The draw count badge should be positioned inside the pile content layer")
 	_assert(draw_badge != null and draw_badge.size.x < pile_card_size.x * 0.4 and draw_badge.position.x > pile_card_size.x * 0.65, "The draw count badge should stay as a small top-right badge")
 	var discard_badge: Label = badges.get("discard", null)
-	_assert(discard_badge != null and not discard_badge.visible, "The discard pile should not display a card count badge")
+	_assert(discard_badge != null and discard_badge.visible and discard_badge.text == "0", "The discard pile should retain its established numeric badge even when empty")
 	deck["discard"] = ["quick_stab"]
 	combat_state["deck"] = deck
 	instance.set("_combat_state", combat_state)
@@ -10845,11 +10851,9 @@ func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	_assert(pile_dialog != null and pile_dialog.custom_minimum_size.x < 760.0 and pile_dialog.custom_minimum_size.y <= 450.0, "A one-card discard pile dialog should stay compact around its card")
 	instance.call("_close_pile_view")
 	discard_host = hosts.get("discard", null)
-	var discard_top: Node = discard_host.get_child(discard_host.get_child_count() - 1) if discard_host != null and discard_host.get_child_count() > 0 else null
-	var discard_widgets: Array[CardWidget] = _card_widgets_under(discard_top)
-	_assert(discard_widgets.size() == 1 and discard_widgets[0].card_id == "quick_stab", "A non-empty discard pile should render the top card with the real card widget")
-	var discard_card_size: Vector2 = (discard_top as Control).size if discard_top is Control else Vector2.ZERO
-	_assert(discard_card_size.x > 0.0 and absf((discard_card_size.y / discard_card_size.x) - (352.0 / 250.0)) < 0.01, "Discard pile CardWidget should preserve the real card aspect ratio")
+	var discard_icon: Control = discard_host.find_child("DiscardPileIcon", true, false) as Control if discard_host != null else null
+	_assert(discard_icon != null and discard_icon.size == Vector2(88.0, 88.0), "A non-empty discard pile should retain its dedicated 88px discard icon")
+	_assert(discard_badge != null and discard_badge.visible and discard_badge.text == "1", "The discard icon should keep its numeric count badge")
 	instance.queue_free()
 	await process_frame
 
@@ -12836,7 +12840,8 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 	if chip != null:
 		var chip_rect: Rect2 = chip.get_global_rect()
 		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
-		_assert(chip.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null, "%s On Turn End preview should use the shared asymmetric shape" % context)
+		var pass_art: TextureRect = chip.find_child("PassForecastFrameArtHost", true, false) as TextureRect
+		_assert(pass_art != null and pass_art.get_meta("expected_target_size", Vector2i.ZERO) == Vector2i(270, 100), "%s pass forecast should use the native v2 Pass frame" % context)
 		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
 		var choice_host: Control = _run_scene_choice_button_host(instance) as Control
 		var piles_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
@@ -12845,10 +12850,13 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 			var choice_rect: Rect2 = choice_host.get_global_rect()
 			var piles_rect: Rect2 = piles_bar.get_global_rect()
 			var viewport_width: float = instance.get_viewport().get_visible_rect().size.x
-			_assert(chip_rect.position.y + chip_rect.size.y <= choice_rect.position.y + 1.0, "%s pass preview should stack above the action buttons" % context)
+			var meter: Control = instance.get("_play_meter") as Control
+			_assert(meter != null and meter.visible, "%s pass forecast should pair with the independent card-play dock" % context)
+			if meter != null:
+				var meter_rect: Rect2 = meter.get_global_rect()
+				_assert(absf(chip_rect.position.x - meter_rect.position.x) <= 1.0 and chip_rect.position.y >= meter_rect.end.y + 5.0, "%s pass forecast should sit directly below the card-play plaque" % context)
 			_assert(choice_rect.position.y + choice_rect.size.y <= piles_rect.position.y + 1.0, "%s action buttons should stay above the pile widgets" % context)
 			_assert(choice_rect.position.x >= -1.0 and choice_rect.position.x + choice_rect.size.x <= viewport_width + 1.0, "%s action buttons should stay inside the viewport" % context)
-			_assert(absf(chip_rect.position.x - choice_rect.position.x) <= 1.0, "%s pass preview should be left-aligned with the action buttons" % context)
 			_assert(absf(choice_rect.position.x - piles_rect.position.x) <= 1.0, "%s action buttons should be left-aligned with the pile column" % context)
 		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
 			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()
@@ -12856,30 +12864,22 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 	if row == null:
 		return
 	var actual_texts: PackedStringArray = _pass_preview_chip_damage_texts(row)
-	_assert(actual_texts.size() == expected_texts.size(), "%s should render %d pass preview value(s), got %d: %s" % [context, expected_texts.size(), actual_texts.size(), ", ".join(actual_texts)])
-	for index: int in range(expected_texts.size()):
-		if index >= actual_texts.size():
-			break
-		_assert(actual_texts[index] == str(expected_texts[index]), "%s pass preview value %d should be %s, got %s" % [context, index, str(expected_texts[index]), actual_texts[index]])
-	var title_label: Label = instance.find_child("PassPreviewTitle", true, false) as Label
-	_assert(title_label != null and title_label.text == "On Turn End:", "%s pass preview should label the numbers as turn-end damage" % context)
-	for label: Label in _pass_preview_chip_damage_labels(row):
-		var label_rect: Rect2 = label.get_global_rect()
-		_assert(label_rect.size.x > 8.0 and label_rect.size.y > 8.0, "%s pass preview label '%s' should have visible dimensions" % [context, label.text])
-		if _pass_preview_chip_label_uses_icon(label):
-			var icon: TextureRect = instance.find_child("%sIcon" % str(label.name), true, false) as TextureRect
-			_assert(icon != null and icon.texture != null, "%s pass preview value '%s' should carry a faded context icon" % [context, label.text])
-			if icon != null:
-				_assert(icon.modulate.a > 0.0 and icon.modulate.a < 0.5, "%s pass preview value icon should stay faded behind the number" % context)
-	var defeat_label: Label = instance.find_child("PassPreviewDefeat", true, false) as Label
-	_assert((defeat_label != null) == expect_defeat, "%s defeat label presence should be %s" % [context, str(expect_defeat)])
-	var danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
-	_assert((danger_label != null) == expect_danger, "%s danger label presence should be %s" % [context, str(expect_danger)])
+	var forecast_text: String = actual_texts[0] if not actual_texts.is_empty() else ""
+	for expected_text: Variant in expected_texts:
+		_assert(forecast_text.contains(str(expected_text)), "%s forecast ribbon should include %s, got %s" % [context, str(expected_text), forecast_text])
+	var forecast_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
+	var action_label: Label = instance.find_child("PassActionLabel", true, false) as Label
+	_assert(forecast_line != null and forecast_line.text.begins_with("TURN END"), "%s pass preview should use one turn-end forecast ribbon" % context)
+	_assert(forecast_line != null and _label_text_fits(forecast_line), "%s pass forecast ribbon should fit its full text" % context)
+	_assert(action_label != null and absf(action_label.get_global_rect().get_center().x - chip.get_global_rect().get_center().x) <= 1.0, "%s PASS label should be centered in the main action bay" % context)
+	_assert((forecast_line != null and forecast_line.text.contains("DEFEAT")) == expect_defeat, "%s defeat forecast presence should be %s" % [context, str(expect_defeat)])
+	_assert((forecast_line != null and (forecast_line.text.contains("UNKNOWN") or forecast_line.text.contains("SAFE"))) == expect_danger or not expect_danger, "%s danger forecast should retain its compact risk result" % context)
 
 func _pass_preview_chip_damage_texts(row: Node) -> PackedStringArray:
 	var texts := PackedStringArray()
-	for label: Label in _pass_preview_chip_damage_labels(row):
-		texts.append(label.text)
+	var line: Label = row.find_child("PassPreviewForecastLine", true, false) as Label
+	if line != null:
+		texts.append(line.text)
 	return texts
 
 func _pass_preview_chip_damage_labels(row: Node) -> Array[Label]:

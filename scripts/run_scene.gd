@@ -992,14 +992,15 @@ const PILE_DIALOG_MIN_CARD_WIDTH: float = 620.0
 const PILE_CARD_SCALE: float = 0.42
 const PILE_STACK_OFFSET: Vector2 = Vector2(6.0, 7.0)
 const PILE_STACK_LAYERS: int = 3
+const PILE_ICON_SIZE: Vector2 = Vector2(88.0, 88.0)
 const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
-const TURN_ORDER_ACTIVE_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/turn_order_frame_active_v1.png"
-const TURN_ORDER_QUEUED_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/turn_order_frame_queue_v1.png"
-const CARD_PLAY_METER_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_play_meter_frame_v1.png"
-const PASS_FORECAST_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_frame_v1.png"
+const CARD_PLAY_METER_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_play_meter_frame_v2.png"
+const PASS_FORECAST_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_v2.png"
+const DRAW_PILE_ICON_TEXTURE_PATH: String = "res://assets/art/ui/draw_pile_icon_v2.png"
+const DISCARD_PILE_ICON_TEXTURE_PATH: String = "res://assets/art/ui/discard_pile_icon_v1.png"
 const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(328.0, 116.0)
 const ACTION_STEP_CHIP_SIZE: Vector2 = Vector2(46.0, 46.0)
 const ACTION_STEP_ICON_INSET: float = 9.0
@@ -1135,23 +1136,23 @@ const TURN_ORDER_LABEL_WIDTH: float = 156.0
 const TURN_ORDER_BOSS_DOSSIER_WIDTH: float = 196.0
 const TURN_ORDER_BOSS_HEALTH_HEIGHT: float = 16.0
 const TURN_ORDER_BOSS_MAX_SEGMENTS: int = 48
-const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(136.0, 80.0)
-const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(156.0, 92.0)
-const TURN_ORDER_SLOT_GAP: float = 5.0
-const TURN_ORDER_QUEUED_MIN_WIDTH: float = 92.0
+const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(116.0, 87.0)
+const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(132.0, 99.0)
+const TURN_ORDER_SLOT_GAP: float = 3.0
+const TURN_ORDER_QUEUED_MIN_WIDTH: float = 76.0
 const TURN_ORDER_RAIL_TOP_GAP: float = 14.0
 const TURN_ORDER_RAIL_EDGE_GAP: float = 18.0
-const TURN_ORDER_MAX_SLOTS: int = 5
-const TURN_ORDER_DISCLOSURE_LIMIT: int = 32
+const TURN_ORDER_MAX_SLOTS: int = 10
+const TURN_ORDER_DISCLOSURE_LIMIT: int = 10
 const TURN_ORDER_REMOVE_SECONDS: float = 0.18
 const TURN_ORDER_REFLOW_SECONDS: float = 0.24
 const TURN_ORDER_INSERT_SECONDS: float = 0.20
 const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
-const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(232.0, 84.0)
-const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 84.0
+const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 100.0)
+const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 100.0
 const PASS_PREVIEW_STACK_GAP: float = 6.0
-const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(54.0, 34.0)
+const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(60.0, 38.0)
 const COMBAT_LOG_TRANSIENT_SECONDS: float = 3.0
 const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stoneskin.png"
 const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
@@ -1709,8 +1710,10 @@ func _queue_board_view_rect_sync() -> void:
 func _sync_board_view_rect() -> void:
 	if board_view == null or stage_root == null or not board_view.is_inside_tree() or not stage_root.is_inside_tree():
 		return
-	board_view.position = stage_root.global_position
-	board_view.size = stage_root.size
+	# The board deliberately borrows a thin band beneath the header. It is rendered
+	# below the HUD, so this gains useful combat space without stealing input from it.
+	board_view.position = stage_root.global_position - Vector2(0.0, 56.0)
+	board_view.size = stage_root.size + Vector2(0.0, 56.0)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -1837,7 +1840,9 @@ func _apply_style() -> void:
 	piles_bar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	piles_bar.size_flags_vertical = Control.SIZE_SHRINK_END
 	piles_bar.add_theme_constant_override("separation", 18)
-	hand_row.custom_minimum_size = Vector2(0.0, 352.0)
+	# Preserve a full readable fan, but return enough vertical budget to make the
+	# board the combat focal plane rather than a backdrop behind oversized cards.
+	hand_row.custom_minimum_size = Vector2(0.0, 324.0)
 	for pile_label: Label in [
 		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
 		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
@@ -6500,7 +6505,7 @@ func _setup_play_meter() -> void:
 
 	_play_meter = PanelContainer.new()
 	_play_meter.name = "CardPlayMeter"
-	_play_meter.custom_minimum_size = Vector2(220.0, 64.0)
+	_play_meter.custom_minimum_size = Vector2(228.0, 58.0)
 	_play_meter.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_play_meter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_play_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -6516,7 +6521,7 @@ func _setup_play_meter() -> void:
 	art_host.texture = AssetLoader.load_texture(CARD_PLAY_METER_FRAME_TEXTURE_PATH)
 	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_host.z_index = 2
-	art_host.set_meta("expected_target_size", Vector2i(220, 64))
+	art_host.set_meta("expected_target_size", Vector2i(228, 58))
 	_play_meter.add_child(art_host)
 
 	var content := Control.new()
@@ -6529,8 +6534,8 @@ func _setup_play_meter() -> void:
 	_play_meter.add_child(content)
 
 	_play_meter_icon = TextureRect.new()
-	_play_meter_icon.position = Vector2(11.0, 13.0)
-	_play_meter_icon.size = Vector2(36.0, 36.0)
+	_play_meter_icon.position = Vector2(12.0, 11.0)
+	_play_meter_icon.size = Vector2(34.0, 34.0)
 	_play_meter_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_play_meter_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_play_meter_icon.texture = AssetLoader.load_texture(CARD_PLAY_ICON_PATH)
@@ -6538,8 +6543,8 @@ func _setup_play_meter() -> void:
 	content.add_child(_play_meter_icon)
 
 	_play_meter_count = Label.new()
-	_play_meter_count.position = Vector2(55.0, 7.0)
-	_play_meter_count.size = Vector2(154.0, 26.0)
+	_play_meter_count.position = Vector2(50.0, 0.0)
+	_play_meter_count.size = Vector2(166.0, 58.0)
 	_play_meter_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_play_meter_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_play_meter_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -6551,8 +6556,8 @@ func _setup_play_meter() -> void:
 
 	_play_meter_banked_badge = PanelContainer.new()
 	_play_meter_banked_badge.name = "BankedPlayBadge"
-	_play_meter_banked_badge.position = Vector2(55.0, 36.0)
-	_play_meter_banked_badge.size = Vector2(154.0, 20.0)
+	_play_meter_banked_badge.position = Vector2(50.0, 31.0)
+	_play_meter_banked_badge.size = Vector2(166.0, 20.0)
 	_play_meter_banked_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var banked_style := StyleBoxFlat.new()
 	banked_style.bg_color = Color(0.25, 0.12, 0.34, 0.96)
@@ -6790,7 +6795,19 @@ func _layout_turn_order_anchor() -> void:
 	if _turn_order_anchor == null:
 		return
 	var header_bottom: float = TURN_ORDER_RAIL_TOP_GAP
-	if top_bar != null:
+	# Anchor to the compact right-side utility group, not the title/relic column
+	# that can make TopBar much taller. This preserves a visual pause before the
+	# separate lower-right action dock in dense initiative states.
+	var utility_height: float = 0.0
+	for utility: Control in [stats_label, loadout_button, grimoire_button, menu_button]:
+		if utility != null and utility.visible:
+			utility_height = maxf(utility_height, utility.get_combined_minimum_size().y)
+	if utility_height > 0.0 and top_bar != null and ui_root != null:
+		# TopBar applies its own vertical centering/padding around this compact row.
+		# Cancel that extra reserved title-column slack while retaining a clear gap
+		# below the utility controls themselves.
+		header_bottom = top_bar.get_global_rect().position.y - ui_root.get_global_rect().position.y + utility_height + TURN_ORDER_RAIL_TOP_GAP - 40.0
+	elif top_bar != null:
 		var top_bar_rect: Rect2 = top_bar.get_global_rect()
 		header_bottom = top_bar_rect.end.y - ui_root.get_global_rect().position.y + TURN_ORDER_RAIL_TOP_GAP
 	var rail_size: Vector2 = _turn_order_panel.get_combined_minimum_size() if _turn_order_panel != null else TURN_ORDER_PANEL_MIN_SIZE
@@ -6811,12 +6828,12 @@ func _layout_combat_action_dock() -> void:
 		return
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var meter_size: Vector2 = _play_meter.get_combined_minimum_size()
-	var rail_bottom: float = TURN_ORDER_RAIL_TOP_GAP
-	if _turn_order_panel != null and _turn_order_panel.visible:
-		rail_bottom = _turn_order_panel.get_global_rect().end.y
-	var dock_y: float = clampf(rail_bottom + 8.0, TURN_ORDER_RAIL_TOP_GAP, maxf(TURN_ORDER_RAIL_TOP_GAP, viewport_size.y - meter_size.y - PASS_PREVIEW_DANGER_CHIP_HEIGHT - 8.0))
+	# The action dock owns a quiet lower-right band. This keeps it visually and
+	# spatially distinct from the initiative rail instead of compressing both into
+	# one ornamental stack.
+	var dock_y: float = viewport_size.y - meter_size.y - PASS_PREVIEW_DANGER_CHIP_HEIGHT - 28.0
 	_play_meter.global_position = Vector2(
-		maxf(TURN_ORDER_RAIL_EDGE_GAP, viewport_size.x - meter_size.x - TURN_ORDER_RAIL_EDGE_GAP),
+		maxf(TURN_ORDER_RAIL_EDGE_GAP, viewport_size.x - meter_size.x - 26.0),
 		dock_y
 	)
 
@@ -6916,14 +6933,10 @@ func _pile_panel_for_kind(kind: String) -> PanelContainer:
 	return null
 
 func _pile_display_card_size() -> Vector2:
-	var hand_count: int = 1
-	if not _combat_state.is_empty():
-		var deck: Dictionary = _combat_state.get("deck", {})
-		hand_count = maxi(1, (deck.get("hand", []) as Array).size())
-	return _hand_card_size(hand_count, false) * PILE_CARD_SCALE
+	return PILE_ICON_SIZE
 
-func _pile_widget_size(card_size: Vector2) -> Vector2:
-	return card_size + _pile_stack_offset() * float(PILE_STACK_LAYERS - 1)
+func _pile_widget_size(_card_size: Vector2) -> Vector2:
+	return PILE_ICON_SIZE
 
 func _pile_stack_offset() -> Vector2:
 	return PILE_STACK_OFFSET * PILE_CARD_SCALE
@@ -6948,8 +6961,8 @@ func _layout_pile_widget(kind: String, card_size: Vector2) -> void:
 		state_overlay.size = widget_size - Vector2(2.0, 2.0)
 	var badge: Label = _pile_badges.get(kind, null)
 	if badge != null:
-		badge.position = Vector2(card_size.x - 46.0, 7.0)
-		badge.size = Vector2(38.0, 30.0)
+		badge.position = Vector2(widget_size.x - 31.0, 4.0)
+		badge.size = Vector2(27.0, 24.0)
 
 func _set_pile_pointer_hover(kind: String, hovered: bool) -> void:
 	var panel: PanelContainer = _pile_panel_for_kind(kind)
@@ -7000,52 +7013,38 @@ func _refresh_pile_interaction_states() -> void:
 		panel.set_meta("pile_interaction_state", state)
 		panel.set_meta("pile_action_available", actions_available)
 		panel.set_meta("pile_empty", (_deck_piles().get(kind, []) as Array).is_empty())
-		content.position = Vector2(0.0, 1.0) if pressed else Vector2.ZERO
+		# Pressed needs a clear, tactile travel distinct from the warm hover glow.
+		content.position = Vector2(0.0, 3.0) if pressed else Vector2.ZERO
 		content.modulate = Color(0.55, 0.55, 0.55, 0.64) if not actions_available else Color.WHITE
 		state_overlay.visible = state != "idle"
 		var accent: Color = Color("d9aa62") if kind == "draw" else Color("9eb8d4")
 		var style := StyleBoxFlat.new()
-		style.bg_color = Color(accent.r, accent.g, accent.b, 0.05 if state == "disabled" else 0.10 if state == "pressed" else 0.07)
-		style.border_color = Color("6b5a48") if state == "disabled" else Color(accent.r, accent.g, accent.b, 1.0 if state == "focus" else 0.78)
+		style.bg_color = Color(accent.r, accent.g, accent.b, 0.05 if state == "disabled" else 0.20 if state == "pressed" else 0.07)
+		style.border_color = Color("6b5a48") if state == "disabled" else Color(accent.r, accent.g, accent.b, 1.0 if state == "focus" else 0.62 if state == "pressed" else 0.78)
 		style.set_border_width_all(2 if state == "focus" else 1)
 		style.set_corner_radius_all(7)
-		style.shadow_color = Color(accent.r, accent.g, accent.b, 0.30 if state == "focus" else 0.18)
-		style.shadow_size = 5 if state == "focus" else 3
+		style.shadow_color = Color(accent.r, accent.g, accent.b, 0.30 if state == "focus" else 0.08 if state == "pressed" else 0.18)
+		style.shadow_size = 5 if state == "focus" else 1 if state == "pressed" else 3
 		state_overlay.add_theme_stylebox_override("panel", style)
 
 func _populate_draw_pile(host: Control, cards: Array, card_size: Vector2) -> void:
-	_clear_children_now(host)
-	var visible_layers: int = clampi(cards.size(), 1, PILE_STACK_LAYERS)
-	for stack_index: int in range(visible_layers - 1, -1, -1):
-		var alpha: float = 0.34 if cards.is_empty() else clampf(1.0 - float(stack_index) * 0.12, 0.72, 1.0)
-		_add_card_back_layer(host, card_size, stack_index, alpha)
+	_populate_pile_icon(host, DRAW_PILE_ICON_TEXTURE_PATH, cards.is_empty(), "DrawPileIcon")
 
 func _populate_discard_pile(host: Control, cards: Array, card_size: Vector2) -> void:
+	_populate_pile_icon(host, DISCARD_PILE_ICON_TEXTURE_PATH, cards.is_empty(), "DiscardPileIcon")
+
+func _populate_pile_icon(host: Control, icon_path: String, empty: bool, icon_name: String) -> void:
 	_clear_children_now(host)
-	if cards.is_empty():
-		var empty_frame := TextureRect.new()
-		empty_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		empty_frame.position = Vector2.ZERO
-		empty_frame.size = card_size
-		empty_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		empty_frame.stretch_mode = TextureRect.STRETCH_SCALE
-		empty_frame.texture = AssetLoader.load_texture(CARD_FRAME_TEXTURE_PATH)
-		empty_frame.modulate = Color(1.0, 1.0, 1.0, 0.16)
-		host.add_child(empty_frame)
-		return
-	var visible_layers: int = clampi(cards.size(), 1, PILE_STACK_LAYERS)
-	for stack_index: int in range(visible_layers - 1, 0, -1):
-		_add_card_back_layer(host, card_size, stack_index, 0.58)
-	var top_card_id: String = str(cards[cards.size() - 1])
-	var display: Dictionary = _card_widget_display(top_card_id, _combat_state)
-	var widget := CardWidgetScene.instantiate() as CardWidget
-	widget.configure(top_card_id, false, false, true, false, false, true, _card_def(top_card_id, _combat_state))
-	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
-	var slot: Control = _scaled_card_slot(widget, card_size)
-	host.add_child(slot)
-	slot.position = Vector2.ZERO
-	slot.size = _normalized_card_size(card_size)
-	_set_mouse_filter_recursive(slot, Control.MOUSE_FILTER_IGNORE)
+	var icon := TextureRect.new()
+	icon.name = icon_name
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.position = Vector2.ZERO
+	icon.size = PILE_ICON_SIZE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture(icon_path)
+	icon.modulate = Color(1.0, 1.0, 1.0, 0.42) if empty else Color.WHITE
+	host.add_child(icon)
 
 func _add_card_back_layer(host: Control, card_size: Vector2, stack_index: int, alpha: float) -> void:
 	var card_back := TextureRect.new()
@@ -8066,11 +8065,13 @@ func _setup_turn_order_bar() -> void:
 	var rail := VBoxContainer.new()
 	rail.name = "TurnOrderRail"
 	rail.alignment = BoxContainer.ALIGNMENT_BEGIN
-	rail.add_theme_constant_override("separation", 2)
+	# The normal rail has no header; keep its zero-height host from reserving a
+	# phantom gap ahead of the first portrait.
+	rail.add_theme_constant_override("separation", 0)
 	margin.add_child(rail)
 	_turn_order_header_host = Control.new()
 	_turn_order_header_host.name = "TurnOrderHeaderHost"
-	_turn_order_header_host.custom_minimum_size = Vector2(TURN_ORDER_LABEL_WIDTH, 26.0)
+	_turn_order_header_host.custom_minimum_size = Vector2(TURN_ORDER_LABEL_WIDTH, 0.0)
 	_turn_order_header_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rail.add_child(_turn_order_header_host)
 	_turn_order_label = Label.new()
@@ -8078,7 +8079,8 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_turn_order_label.anchor_right = 1.0
 	_turn_order_label.anchor_bottom = 1.0
-	_turn_order_label.text = "NEXT"
+	_turn_order_label.text = ""
+	_turn_order_label.visible = false
 	_turn_order_label.offset_left = 0.0
 	_turn_order_label.offset_right = 0.0
 	_turn_order_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -8408,13 +8410,14 @@ func _turn_order_slot_position(index: int) -> Vector2:
 func _turn_order_slot_size(index: int, active: bool) -> Vector2:
 	if active or index == 0:
 		return TURN_ORDER_ACTIVE_SIZE
-	var scale: float = maxf(TURN_ORDER_QUEUED_MIN_WIDTH / TURN_ORDER_ACTIVE_SIZE.x, 0.872 - float(index - 1) * 0.13)
+	# Keep the entire forecast readable as portraits instead of tapering it into
+	# horizontal slivers. The lower entries are smaller, never thinner.
+	var scale: float = maxf(TURN_ORDER_QUEUED_MIN_WIDTH / TURN_ORDER_ACTIVE_SIZE.x, 0.88 - float(index - 1) * 0.04)
 	var width: float = roundf(TURN_ORDER_ACTIVE_SIZE.x * scale)
 	return Vector2(width, roundf(width * TURN_ORDER_PORTRAIT_SIZE.y / TURN_ORDER_PORTRAIT_SIZE.x))
 
 func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	var active: bool = bool(entry.get("active", false))
-	var uses_active_frame: bool = active or index == 0
 	var slot_size: Vector2 = _turn_order_slot_size(index, active)
 	var frame := UiTooltipControl.new()
 	frame.custom_minimum_size = slot_size
@@ -8430,18 +8433,7 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
 	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	frame.set_meta("turn_order_rail_index", index)
-	frame.set_meta("turn_order_art_hook", "active" if uses_active_frame else "queued")
-	var art_host := TextureRect.new()
-	art_host.name = "TurnOrderActiveFrameArtHost" if uses_active_frame else "TurnOrderQueuedFrameArtHost"
-	art_host.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art_host.anchor_right = 1.0
-	art_host.anchor_bottom = 1.0
-	art_host.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art_host.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art_host.texture = AssetLoader.load_texture(TURN_ORDER_ACTIVE_FRAME_TEXTURE_PATH if uses_active_frame else TURN_ORDER_QUEUED_FRAME_TEXTURE_PATH)
-	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_host.z_index = 2
-	art_host.set_meta("expected_target_size", Vector2i(156, 92) if uses_active_frame else Vector2i(136, 80))
+	frame.set_meta("turn_order_art_hook", "none")
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.anchor_right = 1.0
@@ -8453,13 +8445,11 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	# The authored frames have transparent portrait windows. Scale those window
-	# insets with the queued frame rather than stretching the portrait over its rim.
-	var native_size: Vector2 = TURN_ORDER_ACTIVE_SIZE if uses_active_frame else TURN_ORDER_PORTRAIT_SIZE
-	var native_scale: float = slot_size.x / native_size.x
-	var side_inset: int = roundi(10.0 * native_scale)
-	var top_inset: int = roundi((12.0 if uses_active_frame else 18.0) * native_scale)
-	var bottom_inset: int = roundi((13.0 if uses_active_frame else 20.0) * native_scale)
+	# Portrait-only rail: retain a tiny crop safety inset, but no decorative frame,
+	# opaque backing, or black-box silhouette around the actor.
+	var side_inset: int = 1
+	var top_inset: int = 1
+	var bottom_inset: int = 1
 	margin.add_theme_constant_override("margin_left", side_inset)
 	margin.add_theme_constant_override("margin_top", top_inset)
 	margin.add_theme_constant_override("margin_right", side_inset)
@@ -8477,7 +8467,7 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.set_anchors_preset(Control.PRESET_FULL_RECT)
 	portrait.anchor_right = 1.0
 	portrait.anchor_bottom = 1.0
-	var portrait_zoom: float = 1.18 if uses_active_frame else 1.34
+	var portrait_zoom: float = 1.04
 	var portrait_bleed: Vector2 = slot_size * (portrait_zoom - 1.0) * 0.5
 	portrait.offset_left = -portrait_bleed.x
 	portrait.offset_top = -portrait_bleed.y
@@ -8489,10 +8479,6 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.modulate = _turn_order_portrait_modulate(entry, active)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
-	# This host is deliberately above the opaque fallback panel and portrait. The
-	# future raster frame is transparent in its center, so it can supply the border
-	# without hiding the actor artwork beneath it.
-	frame.add_child(art_host)
 	if _turn_order_is_card_preview_projection(entry):
 		frame.add_child(_turn_order_projection_badge(entry, slot_size))
 	var badge_text: String = _turn_order_clock_badge_text(entry)
@@ -8522,7 +8508,9 @@ func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
 		return Color(1.0, 1.0, 1.0, 0.98)
 	if bool(entry.get("projected", false)):
 		return Color(1.0, 1.0, 1.0, 0.74)
-	return Color.WHITE
+	# Active actor reads first through scale plus a barely brighter subject, not a
+	# surrounding frame or panel.
+	return Color(0.92, 0.92, 0.92, 0.94)
 
 func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Control:
 	var badge := PanelContainer.new()
@@ -8574,8 +8562,10 @@ func _turn_order_projection_badge_style() -> StyleBoxFlat:
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slot_size: Vector2) -> Control:
 	var badge := PanelContainer.new()
-	var badge_size := Vector2(clampf(18.0 + float(text.length()) * 6.0, 22.0, 36.0), 18.0)
-	badge.position = Vector2(5.0, 4.0) if slot_size.x >= 120.0 else Vector2(3.0, 3.0)
+	# Relative time is a supporting cue: keep its small medallion out of the
+	# portrait's center so actor identity and active/queued state read first.
+	var badge_size := Vector2(clampf(15.0 + float(text.length()) * 5.0, 19.0, 31.0), 16.0)
+	badge.position = Vector2(slot_size.x - badge_size.x - 5.0, 4.0) if slot_size.x >= 120.0 else Vector2(slot_size.x - badge_size.x - 3.0, 3.0)
 	badge.custom_minimum_size = badge_size
 	badge.size = badge_size
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -8586,7 +8576,7 @@ func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slo
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL if text.length() >= 3 else UiTypography.SIZE_BODY)
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
 	label.add_theme_color_override("font_color", Color("fff4d2"))
 	label.add_theme_color_override("font_outline_color", Color("120b07"))
 	label.add_theme_constant_override("outline_size", 1)
@@ -8634,14 +8624,9 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 		if not enemy_def.is_empty():
 			accent = Color(str(enemy_def.get("accent", "#d36a55")))
 	var style := StyleBoxFlat.new()
-	var projected: bool = bool(entry.get("projected", false)) and not active
-	var card_preview_projected: bool = _turn_order_is_card_preview_projection(entry) and not active
-	style.bg_color = Color(0.035, 0.025, 0.020, 0.94 if not projected else 0.78)
+	style.bg_color = Color.TRANSPARENT
 	style.border_color = Color(0.0, 0.0, 0.0, 0.0)
 	var border_width: int = 0
-	if card_preview_projected:
-		style.bg_color = Color(0.075, 0.105, 0.125, 0.96)
-		style.border_color = Color(0.0, 0.0, 0.0, 0.0)
 	style.border_width_left = border_width
 	style.border_width_top = border_width
 	style.border_width_right = border_width
@@ -8650,13 +8635,9 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34 if active else 0.26)
-	style.shadow_size = 14 if active else 9
-	style.shadow_offset = Vector2(0.0, 4.0)
-	if card_preview_projected:
-		style.shadow_color = Color(0.10, 0.32, 0.45, 0.48)
-		style.shadow_size = 18
-		style.shadow_offset = Vector2(0.0, 5.0)
+	style.shadow_color = Color.TRANSPARENT
+	style.shadow_size = 0
+	style.shadow_offset = Vector2.ZERO
 	return style
 
 func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
@@ -8987,6 +8968,10 @@ func _refresh_card_play_meter() -> void:
 	var banked_left: int = int(budget.get("banked_remaining", 0))
 	var cards_left: int = int(budget.get("total_remaining", ordinary_left + banked_left))
 	_play_meter_count.text = "%d card plays" % ordinary_left
+	# The default plaque is a single centered line. It only becomes a two-line
+	# layout when the banked-play state is actually present.
+	_play_meter_count.position = Vector2(50.0, 4.0) if banked_left > 0 else Vector2(50.0, 0.0)
+	_play_meter_count.size = Vector2(166.0, 25.0) if banked_left > 0 else Vector2(166.0, 58.0)
 	_play_meter.tooltip_text = "%d ordinary card %s remaining." % [ordinary_left, "play" if ordinary_left == 1 else "plays"]
 	if _play_meter_banked_badge != null and _play_meter_banked_label != null:
 		_play_meter_banked_badge.visible = banked_left > 0
@@ -10447,7 +10432,7 @@ func _add_pass_preview_chip() -> void:
 	art_host.texture = AssetLoader.load_texture(PASS_FORECAST_FRAME_TEXTURE_PATH)
 	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_host.z_index = 2
-	art_host.set_meta("expected_target_size", Vector2i(232, 84))
+	art_host.set_meta("expected_target_size", Vector2i(270, 100))
 	chip.add_child(art_host)
 
 	var content := Control.new()
@@ -10460,8 +10445,11 @@ func _add_pass_preview_chip() -> void:
 	chip.add_child(content)
 	var pass_glow := PanelContainer.new()
 	pass_glow.name = "PassActionStateGlow"
-	pass_glow.position = Vector2(7.0, 11.0)
-	pass_glow.size = Vector2(91.0, 61.0)
+	# The v2 silhouette is one wide action bay plus a narrow forecast ribbon. Keep
+	# all information as visual children of the one button instead of reviving a
+	# left-action/right-data split panel.
+	pass_glow.position = Vector2(12.0, 12.0)
+	pass_glow.size = Vector2(246.0, 57.0)
 	pass_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pass_glow.visible = false
 	pass_glow.z_index = 4
@@ -10469,12 +10457,12 @@ func _add_pass_preview_chip() -> void:
 	var action_label := Label.new()
 	action_label.name = "PassActionLabel"
 	action_label.text = "PASS"
-	action_label.position = Vector2(10.0, 18.0)
-	action_label.size = Vector2(84.0, 40.0)
+	action_label.position = Vector2(18.0, 15.0)
+	action_label.size = Vector2(234.0, 50.0)
 	action_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	action_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	action_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(action_label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(action_label, UiTypography.SIZE_BODY_LARGE)
 	action_label.add_theme_color_override("font_color", Color("fff4dc"))
 	action_label.add_theme_color_override("font_outline_color", Color("20120b"))
 	action_label.add_theme_constant_override("outline_size", 2)
@@ -10482,9 +10470,8 @@ func _add_pass_preview_chip() -> void:
 	content.add_child(action_label)
 	var forecast_title := Label.new()
 	forecast_title.name = "PassPreviewTitle"
-	forecast_title.text = "TURN END"
-	forecast_title.position = Vector2(108.0, 8.0)
-	forecast_title.size = Vector2(112.0, 16.0)
+	forecast_title.text = ""
+	forecast_title.visible = false
 	forecast_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	forecast_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	forecast_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -10494,26 +10481,29 @@ func _add_pass_preview_chip() -> void:
 
 	var damage_row := Control.new()
 	damage_row.name = "PassPreviewDamageRow"
-	damage_row.position = Vector2(108.0, 28.0)
-	damage_row.size = Vector2(112.0, 28.0)
+	damage_row.position = Vector2(12.0, 74.0)
+	damage_row.size = Vector2(246.0, 20.0)
 	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(damage_row)
 	var forecast_entries: Array[Dictionary] = _pass_preview_forecast_entries(summary)
 	damage_row.set_meta("pass_preview_values", forecast_entries.duplicate(true))
-	for index: int in range(forecast_entries.size()):
-		var entry: Dictionary = forecast_entries[index]
-		var value := _pass_preview_damage_label(
-			str(entry.get("text", "")),
-			str(entry.get("name", "PassPreviewForecast")),
-			entry.get("color", Color("d9cdb4")),
-			false
-		)
-		value.position = Vector2.ZERO if forecast_entries.size() == 1 else Vector2(float(index) * 56.0, 0.0)
-		value.size = Vector2(112.0, 28.0) if forecast_entries.size() == 1 else Vector2(54.0, 28.0)
-		value.custom_minimum_size = Vector2.ZERO
-		value.tooltip_text = tooltip_text
-		UiTypography.set_label_size(value, UiTypography.SIZE_SMALL)
-		damage_row.add_child(value)
+	var forecast_parts: PackedStringArray = PackedStringArray()
+	var forecast_color: Color = Color("d9cdb4")
+	for entry: Dictionary in forecast_entries:
+		forecast_parts.append(str(entry.get("text", "")))
+		forecast_color = entry.get("color", forecast_color) as Color
+	var forecast_line := _pass_preview_damage_label(
+		"TURN END  •  %s" % "  •  ".join(forecast_parts),
+		"PassPreviewForecastLine",
+		forecast_color,
+		false
+	)
+	forecast_line.position = Vector2.ZERO
+	forecast_line.size = damage_row.size
+	forecast_line.custom_minimum_size = Vector2.ZERO
+	forecast_line.tooltip_text = tooltip_text
+	UiTypography.set_label_size(forecast_line, UiTypography.SIZE_SMALL)
+	damage_row.add_child(forecast_line)
 	var danger_state: bool = (
 		bool(summary.get("defeat", false))
 		or bool(summary.get("unrevealed_before_player", false))
@@ -20941,8 +20931,8 @@ func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 	var card_gap: float = HAND_CARD_GAP if reward_mode else HAND_CARD_OVERLAP
 	var gaps: float = float(maxi(0, card_count - 1)) * card_gap
 	var target_width: float = (available_width - gaps) / float(maxi(1, card_count))
-	var max_width: float = 224.0 if reward_mode else 250.0
-	var min_width: float = 188.0 if reward_mode else 214.0
+	var max_width: float = 224.0 if reward_mode else 208.0
+	var min_width: float = 188.0 if reward_mode else 190.0
 	var width: float = clampf(target_width, min_width, max_width)
 	return _card_size_from_width(width)
 

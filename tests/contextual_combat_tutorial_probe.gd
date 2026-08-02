@@ -8,11 +8,20 @@ const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutori
 const OUTPUT_DIR: String = "user://probes/contextual_combat_tutorial"
 const STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_progression.json"
 const RUN_STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_run.save"
+const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
 var _failed: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	# Keep tutorial collision proof on the same fixed combat-HUD canvas as the
+	# normal-state probe, even on a Retina host.
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(PROBE_VIEWPORT)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = PROBE_VIEWPORT
+	root.size = PROBE_VIEWPORT
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path(STORAGE_PATH)
@@ -351,6 +360,18 @@ func _save_root_screenshot(output_path: String) -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var image: Image = root.get_viewport().get_texture().get_image()
+	if image == null:
+		_fail("Tutorial proof should capture a renderer image")
+		return
+	var source_size: Vector2i = image.get_size()
+	var scale_x: float = float(source_size.x) / float(PROBE_VIEWPORT.x)
+	var scale_y: float = float(source_size.y) / float(PROBE_VIEWPORT.y)
+	var valid_backing_size: bool = is_equal_approx(scale_x, scale_y) and is_equal_approx(float(source_size.x) / float(source_size.y), 16.0 / 9.0)
+	if not valid_backing_size:
+		_fail("Tutorial proof must keep an exact 16:9 proportional backing, got %s (scale %.4f x %.4f)" % [source_size, scale_x, scale_y])
+		return
+	if source_size != PROBE_VIEWPORT:
+		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
 
 func _assert(condition: bool, message: String) -> void:

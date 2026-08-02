@@ -66,7 +66,7 @@ func _initialize() -> void:
 	await _save_root_screenshot("user://probes/turn_order_anim_03_insert.png")
 	await create_timer(0.35).timeout
 	await process_frame
-	_assert_turn_order_slot_count(instance, 5)
+	_assert_turn_order_slot_count(instance, 10)
 	_assert_turn_order_panel_right_rail(instance)
 	_assert_vertical_turn_order_geometry(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, scheduled_state)
@@ -133,7 +133,7 @@ func _assert_complete_initial_turn_order(instance: Node, state: Dictionary) -> v
 		push_error("Turn order initialization probe is missing the bar, panel, or engine.")
 		quit(1)
 		return
-	var expected: Array = combat_engine.current_turn_order(state, 5)
+	var expected: Array = combat_engine.current_turn_order(state, 10)
 	if expected.is_empty():
 		push_error("Turn order initialization fixture produced no expected entries.")
 		quit(1)
@@ -145,8 +145,8 @@ func _assert_complete_initial_turn_order(instance: Node, state: Dictionary) -> v
 	if panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null:
 		push_error("Turn order should present floating portrait frames, not a full-height ornamental enclosure.")
 		quit(1)
-	if bar.get_node_or_null("TurnOrderOverflowBadge") == null:
-		push_error("A capped dense rail should disclose additional scheduled actors with a compact +N badge.")
+	if bar.get_node_or_null("TurnOrderOverflowBadge") != null:
+		push_error("The expanded rail should show scheduled portraits directly, not a +N overflow label.")
 		quit(1)
 
 func _assert_turn_order_label(instance: Node) -> void:
@@ -157,13 +157,9 @@ func _assert_turn_order_label(instance: Node) -> void:
 		return
 	var labels: Array[Label] = _labels_under(panel)
 	for label: Label in labels:
-		if label.text == "NEXT":
-			if label.horizontal_alignment != HORIZONTAL_ALIGNMENT_CENTER:
-				push_error("Next-turn title should be centered in the narrow right-hand rail.")
-				quit(1)
-			return
-	push_error("Turn order panel should be labeled NEXT.")
-	quit(1)
+		if label.text == "NEXT" or label.text.begins_with("+"):
+			push_error("Expanded turn rail should not render detached NEXT or +N labels.")
+			quit(1)
 
 func _assert_turn_order_panel_right_rail(instance: Node) -> void:
 	var panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
@@ -209,14 +205,24 @@ func _assert_vertical_turn_order_geometry(instance: Node) -> void:
 			push_error("Turn entry escaped the rail panel bounds.")
 			quit(1)
 			return
-		var art_name: String = "TurnOrderActiveFrameArtHost" if index == 0 else "TurnOrderQueuedFrameArtHost"
-		var art_host: TextureRect = slot.get_node_or_null(art_name) as TextureRect
-		if art_host == null or art_host.texture == null or art_host.z_index < 1:
-			push_error("Turn entry is missing its named frame-art hook.")
+		var aspect: float = rect.size.x / maxf(1.0, rect.size.y)
+		if aspect < 1.18 or aspect > 1.52:
+			push_error("Turn entries must remain portrait-shaped near 4:3 instead of collapsing into slivers.")
+			quit(1)
+			return
+		var portrait_crop: Control = slot.find_child("TurnOrderPortraitCrop", true, false) as Control
+		var slot_panel: PanelContainer = slot.get_child(0) as PanelContainer if slot.get_child_count() > 0 else null
+		var slot_style: StyleBoxFlat = slot_panel.get_theme_stylebox("panel") as StyleBoxFlat if slot_panel != null else null
+		if portrait_crop == null or slot.find_child("TurnOrderActiveFrameArtHost", true, false) != null or slot.find_child("TurnOrderQueuedFrameArtHost", true, false) != null:
+			push_error("Turn entry should be portrait-only with no frame-art host.")
+			quit(1)
+			return
+		if slot_style == null or slot_style.bg_color.a > 0.001 or slot_style.border_color.a > 0.001 or slot_style.shadow_size > 0:
+			push_error("Turn entry surface should remain fully transparent and borderless.")
 			quit(1)
 			return
 		previous_rect = rect
-	if slots.size() >= 5 and (first_width < 150.0 or previous_rect.size.x < 90.0):
+	if slots.size() >= 8 and (first_width < 128.0 or previous_rect.size.x < 74.0):
 		push_error("Dense rail should keep its leading and final portraits readable.")
 		quit(1)
 
@@ -243,7 +249,7 @@ func _assert_turn_order_badges_match_relative_clocks(instance: Node, state: Dict
 		push_error("Turn order bar or combat engine missing during badge probe.")
 		quit(1)
 		return
-	var order: Array = combat_engine.current_turn_order(state, 5)
+	var order: Array = combat_engine.current_turn_order(state, 10)
 	var slots: Array[Control] = _turn_order_slot_controls(bar)
 	if order.is_empty() or slots.is_empty():
 		push_error("Turn order badge probe found no entries.")
