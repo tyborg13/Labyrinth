@@ -458,6 +458,7 @@ func _capture_no_hand_board_framing(instance: Node) -> void:
 		instance.set("_combat_state", {})
 		instance.call("_refresh_ui")
 		await _settle_ui()
+		_assert_room_status_clears_header(instance, viewport_size)
 		var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
 		var viewport_rect := Rect2(Vector2.ZERO, Vector2(viewport_size))
 		_assert(board_bounds.size.x > viewport_size.x * 0.55 and board_bounds.size.y > viewport_size.y * 0.45, "%s no-hand board should remain prominent" % viewport_size)
@@ -465,6 +466,36 @@ func _capture_no_hand_board_framing(instance: Node) -> void:
 		_assert(absf(board_bounds.get_center().y - viewport_rect.get_center().y) <= viewport_size.y * 0.16, "%s no-hand board should be roughly vertically centered (board=%s)" % [viewport_size, board_bounds])
 		print("NO-HAND GEOMETRY %s board=%s" % [viewport_size, board_bounds])
 		await _save_root_screenshot("%s/no_hand_room_%dx%d.png" % [OUTPUT_DIR, viewport_size.x, viewport_size.y], viewport_size)
+
+func _assert_room_status_clears_header(instance: Node, viewport_size: Vector2i) -> void:
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	_assert(board != null, "%s no-hand status proof needs the board" % viewport_size)
+	if board == null:
+		return
+	var local_status_bounds: Rect2 = board.call("status_text_local_bounds") as Rect2
+	var status_global_bounds: Rect2 = _global_rect_for_board_local_rect(board, local_status_bounds)
+	# Room status is deliberately absent: the labeled door affordances own the
+	# navigation cue, keeping this borrowed header band clear of room title, depth,
+	# and top-bar controls at both target canvases.
+	_assert(local_status_bounds.size == Vector2.ZERO, "%s room navigation must not draw redundant board status in the header band (bounds=%s)" % [viewport_size, local_status_bounds])
+	for header_control: Control in _room_status_header_controls(instance):
+		_assert(not status_global_bounds.intersects(header_control.get_global_rect()), "%s drawn board status must clear %s (status=%s header=%s)" % [viewport_size, header_control.name, status_global_bounds, header_control.get_global_rect()])
+
+func _room_status_header_controls(instance: Node) -> Array[Control]:
+	var controls: Array[Control] = []
+	for property_name: String in ["title_box", "stats_label", "loadout_button", "grimoire_button", "menu_button"]:
+		var control: Control = instance.get(property_name) as Control
+		if control != null and control.visible:
+			controls.append(control)
+	return controls
+
+func _global_rect_for_board_local_rect(board: Control, local_rect: Rect2) -> Rect2:
+	if local_rect.size == Vector2.ZERO:
+		return Rect2()
+	var transform: Transform2D = board.get_global_transform()
+	var global_top_left: Vector2 = transform * local_rect.position
+	var global_bottom_right: Vector2 = transform * local_rect.end
+	return Rect2(global_top_left, global_bottom_right - global_top_left)
 
 func _capture_top_row_prop_framing(instance: Node) -> void:
 	await _load_combat_fixture(instance, ["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"], Vector2i(2, 4), [Vector2i(3, 2)], 9931)

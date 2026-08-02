@@ -16720,7 +16720,11 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "combat":
 		return ""
 	if mode == "room":
-		return "Choose door"
+		# Door markers already identify the available exits.
+		# Repeating that instruction in the board's borrowed header band collides
+		# with the room title/depth column, so room navigation intentionally relies
+		# on the authored door affordances instead.
+		return ""
 	if mode == "reward":
 		return "Choose reward"
 	if mode == "campfire":
@@ -16740,18 +16744,8 @@ func _board_status_detail(preview: Dictionary) -> String:
 	if mode == "combat":
 		return ""
 	if mode == "room":
-		return _room_hover_hint()
-	return ""
-
-func _room_hover_hint() -> String:
-	if _hovered_board_tile.x < 0 or not _exit_destinations_by_tile.has(_hovered_board_tile):
 		return ""
-	var destination: Vector2i = _exit_destinations_by_tile[_hovered_board_tile]
-	var room: Dictionary = _run_engine.room_metadata(_run_state, destination)
-	var room_element: String = str(room.get("element", ElementData.NONE))
-	var prefix: String = "%s " % ElementData.name(room_element) if ElementData.is_elemental(room_element) else ""
-	return "%s%s %d" % [prefix, str(room.get("type", "combat")).capitalize(), int(room.get("depth", 1))]
-
+	return ""
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
 		"move", "blink", "illusion", "illuminate":

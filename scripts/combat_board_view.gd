@@ -4216,6 +4216,23 @@ func _draw_status_text() -> void:
 	if not status_detail.is_empty():
 		draw_string(font, Vector2(22.0, 54.0), status_detail, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, 14, Color("d8ccb6"))
 
+func status_text_local_bounds() -> Rect2:
+	# Keep UI probes coupled to the exact board-owned status paint region. An
+	# empty label means nothing is drawn, which is intentional for room movement:
+	# its door markers carry that affordance without competing with the HUD title.
+	if status_label.is_empty():
+		return Rect2()
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return Rect2()
+	var label_size: Vector2 = font.get_string_size(status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20)
+	var label_bounds := Rect2(Vector2(22.0, 30.0 - label_size.y), label_size)
+	if status_detail.is_empty():
+		return label_bounds
+	var detail_size: Vector2 = font.get_string_size(status_detail, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, 14)
+	var detail_bounds := Rect2(Vector2(22.0, 54.0 - detail_size.y), detail_size)
+	return label_bounds.merge(detail_bounds)
+
 func _draw_target_reticle(center: Vector2, color: Color, radius: float = 10.0) -> void:
 	draw_circle(center, radius * 0.28, Color(color.r, color.g, color.b, color.a * 0.30))
 	draw_arc(center, radius, 0.0, TAU, 24, color, 2.2)
