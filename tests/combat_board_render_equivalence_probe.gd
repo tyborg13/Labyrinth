@@ -4,7 +4,7 @@ const CombatBoardViewScript = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
 const OUTPUT_DIR: String = "user://combat_board_render_equivalence_probe"
-const VIEWPORT_SIZE: Vector2i = Vector2i(960, 680)
+const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 
 var _errors: Array[String] = []
 
@@ -16,9 +16,14 @@ func _initialize() -> void:
 	_clear_probe_output(OUTPUT_DIR)
 	await process_frame
 
+	var viewport := SubViewport.new()
+	viewport.size = VIEWPORT_SIZE
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	viewport.disable_3d = true
+	root.add_child(viewport)
 	var board: Control = CombatBoardViewScript.new()
-	board.size = root.get_visible_rect().size
-	root.add_child(board)
+	board.size = Vector2(VIEWPORT_SIZE)
+	viewport.add_child(board)
 	# The fixture intentionally excludes every wall-clock presentation effect.
 	# Freezing processing also pins sprite-sheet animation to frame zero so a base
 	# and candidate worktree produce directly comparable pixels.
@@ -26,8 +31,9 @@ func _initialize() -> void:
 	await process_frame
 
 	var state: Dictionary = _probe_state()
-	await _capture(board, state, _vector2i_array([]), _vector2i_array([]), Vector2i(-1, -1), {}, {}, {}, "idle.png")
+	await _capture(viewport, board, state, _vector2i_array([]), _vector2i_array([]), Vector2i(-1, -1), {}, {}, {}, "idle.png")
 	await _capture(
+		viewport,
 		board,
 		state,
 		_vector2i_array([Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3)]),
@@ -43,6 +49,7 @@ func _initialize() -> void:
 		"move_preview.png"
 	)
 	await _capture(
+		viewport,
 		board,
 		state,
 		_vector2i_array([]),
@@ -59,6 +66,7 @@ func _initialize() -> void:
 		"attack_preview.png"
 	)
 	await _capture(
+		viewport,
 		board,
 		state,
 		_vector2i_array([]),
@@ -85,6 +93,7 @@ func _initialize() -> void:
 		quit(1)
 
 func _capture(
+	viewport: SubViewport,
 	board: Control,
 	state: Dictionary,
 	move_tiles: Array[Vector2i],
@@ -109,9 +118,9 @@ func _capture(
 	)
 	await process_frame
 	await process_frame
-	var image: Image = root.get_texture().get_image()
+	var image: Image = viewport.get_texture().get_image()
 	var output_path: String = ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name])
-	_expect(image.get_width() >= 32 and image.get_height() >= 32, "%s captured at an invalid size" % file_name)
+	_expect(image.get_size() == VIEWPORT_SIZE, "%s must capture the standard 1920x1080 proof surface" % file_name)
 	_expect(image.save_png(output_path) == OK, "%s could not be saved" % file_name)
 
 func _probe_state() -> Dictionary:

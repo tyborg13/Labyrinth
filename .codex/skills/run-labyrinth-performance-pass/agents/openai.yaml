@@ -1,0 +1,4 @@
+interface:
+  display_name: "Labyrinth Performance Pass"
+  short_description: "Profile and optimize Labyrinth frame pacing"
+  default_prompt: "Use $run-labyrinth-performance-pass to profile a gameplay workload, make transparent optimizations, and compare native performance proof."

@@ -205,6 +205,12 @@ const COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE: float = 0.52
 const COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE: float = 0.020
 const COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE: float = 0.040
 const CONTINUOUS_PRESENTATION_REDRAW_SECONDS: float = 1.0 / 30.0
+const RENDER_LAYER_AMBIENT: String = "ambient"
+const RENDER_LAYER_WORLD: String = "world"
+const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
+const RENDER_LAYER_FOREGROUND: String = "foreground"
+const RENDER_LAYER_HUD: String = "hud"
+const RENDER_LAYER_EFFECTS: String = "effects"
 const UMBRA_RETURN_STAGGER_SECONDS: float = 0.52
 const UMBRA_RETURN_FADE_SECONDS: float = 0.46
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
@@ -323,6 +329,19 @@ var _ambient_fire_soft_textures: Dictionary = {}
 var _ambient_air_wisp_textures: Dictionary = {}
 var _ambient_air_wisp_soft_textures: Dictionary = {}
 var _ambient_air_wisp_glow_textures: Dictionary = {}
+var _ambient_hash_cache: Dictionary = {}
+var _ambient_hash01_cache: Dictionary = {}
+var _ambient_hash_cache_room_key: String = ""
+var _ambient_particle_batch_enabled: bool = true
+var _ambient_batch_active: bool = false
+var _ambient_batch_vertices: PackedVector3Array = PackedVector3Array()
+var _ambient_batch_uvs: PackedVector2Array = PackedVector2Array()
+var _ambient_batch_colors: PackedColorArray = PackedColorArray()
+var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
+var _ambient_combined_atlas: Texture2D = null
+var _ambient_combined_atlas_regions: Dictionary = {}
+var _ambient_combined_atlas_element_id: String = ""
+var _ambient_batch_mesh: ArrayMesh = null
 var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
@@ -335,6 +354,7 @@ var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
 var _unit_shadow_polygon_cache: Dictionary = {}
 var _unit_shadow_bottom_ratio_cache: Dictionary = {}
+var _unit_shadow_draw_geometry_cache: Dictionary = {}
 var _door_opening_frames: Array[Texture2D] = []
 var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
@@ -374,9 +394,24 @@ var _texture_used_rect_cache: Dictionary = {}
 var _submission_cache_source_snapshot: Dictionary = {}
 var _submission_cache_initialized: bool = false
 var _is_dynamic_render_layer: bool = false
+var _render_layer_kind: String = ""
+var _render_layer_tile: Vector2i = Vector2i(-1, -1)
+var _ambient_render_layer: Control = null
 var _dynamic_render_layer: Control = null
+var _scene_render_layers_by_tile: Dictionary = {}
+var _scene_render_layers: Array = []
+var _foreground_render_layer: Control = null
+var _hud_render_layer: Control = null
+var _effects_render_layer: Control = null
+var _foreground_obstruction_entries_cache: Array[Dictionary]
 var _static_draw_count: int = 0
 var _dynamic_draw_count: int = 0
+var _static_draw_total_usec: int = 0
+var _static_draw_max_usec: int = 0
+var _dynamic_draw_total_usec: int = 0
+var _dynamic_draw_max_usec: int = 0
+var _render_section_total_usec: Dictionary = {}
+var _render_section_max_usec: Dictionary = {}
 var _umbra_return_start_by_tile: Dictionary = {}
 var _board_layout_content_rebuild_count: int = 0
 
@@ -392,94 +427,210 @@ func _ready() -> void:
 	clip_contents = false
 	custom_minimum_size = Vector2(960.0, 680.0)
 	set_process(true)
+	resized.connect(_on_board_resized)
 	_load_assets(false)
 	_create_dynamic_render_layer()
+
+func _on_board_resized() -> void:
+	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer) or combat_state.is_empty():
+		return
+	_invalidate_board_layout_cache(false)
+	_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units())
+	_sync_dynamic_render_state(false)
+	for layer: Control in _retained_render_layers():
+		layer.call("_invalidate_board_layout_cache", false)
+	queue_redraw()
+	_queue_dynamic_redraw()
 
 func _create_dynamic_render_layer() -> void:
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
 		return
+	_ambient_render_layer = _create_retained_render_layer("AmbientRenderLayer", RENDER_LAYER_AMBIENT)
+	_dynamic_render_layer = _create_retained_render_layer("DynamicRenderLayer", RENDER_LAYER_WORLD)
+	_foreground_render_layer = _create_retained_render_layer("ForegroundRenderLayer", RENDER_LAYER_FOREGROUND)
+	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
+	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
+	_sync_dynamic_render_assets()
+	_sync_dynamic_render_state(true)
+	_queue_dynamic_redraw()
+
+func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Control:
 	var layer: Control = get_script().new() as Control
-	layer.name = "DynamicRenderLayer"
+	layer.name = layer_name
 	layer.set("_is_dynamic_render_layer", true)
+	layer.set("_render_layer_kind", layer_kind)
 	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.focus_mode = Control.FOCUS_NONE
 	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(layer)
-	_dynamic_render_layer = layer
-	_sync_dynamic_render_assets()
-	_sync_dynamic_render_state(true)
-	_dynamic_render_layer.queue_redraw()
+	return layer
+
+func _retained_render_layers() -> Array:
+	var layers: Array = []
+	for layer: Control in [_ambient_render_layer, _dynamic_render_layer]:
+		if layer != null and is_instance_valid(layer):
+			layers.append(layer)
+	for layer_var: Variant in _scene_render_layers:
+		var layer: Control = layer_var as Control
+		if layer != null and is_instance_valid(layer):
+			layers.append(layer)
+	for layer: Control in [_foreground_render_layer, _hud_render_layer, _effects_render_layer]:
+		if layer != null and is_instance_valid(layer):
+			layers.append(layer)
+	return layers
+
+func _sync_scene_render_layers() -> void:
+	var desired_tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var desired_lookup: Dictionary = {}
+	for tile: Vector2i in desired_tiles:
+		desired_lookup[tile] = true
+	for tile_var: Variant in _scene_render_layers_by_tile.keys():
+		if desired_lookup.has(tile_var):
+			continue
+		var stale_layer: Control = _scene_render_layers_by_tile.get(tile_var, null) as Control
+		_scene_render_layers_by_tile.erase(tile_var)
+		if stale_layer != null and is_instance_valid(stale_layer):
+			remove_child(stale_layer)
+			stale_layer.queue_free()
+	_scene_render_layers.clear()
+	for tile: Vector2i in desired_tiles:
+		var layer: Control = _scene_render_layers_by_tile.get(tile, null) as Control
+		if layer == null or not is_instance_valid(layer):
+			layer = _create_retained_render_layer("SceneTile_%d_%d" % [tile.x, tile.y], RENDER_LAYER_SCENE_TILE)
+			layer.set("_render_layer_tile", tile)
+			_scene_render_layers_by_tile[tile] = layer
+		_scene_render_layers.append(layer)
+	var insertion_index: int = _dynamic_render_layer.get_index() + 1
+	for layer_var: Variant in _scene_render_layers:
+		move_child(layer_var as Control, insertion_index)
+		insertion_index += 1
 
 func _sync_dynamic_render_assets() -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
-	var layer: Control = _dynamic_render_layer
-	for field: String in [
-		"_tile_textures", "_floor_texture_variants", "_moss_texture_variants",
-		"_prop_textures", "_scene_prop_textures", "_scene_prop_idle_frames",
-		"_pillar_torch_idle_frames", "_effect_textures", "_effect_frames",
-		"_projectile_atlas", "_projectile_textures", "_ambient_particle_atlas",
-		"_ambient_particle_glow_atlas", "_ambient_fire_soft_atlas", "_ambient_air_wisp_atlas",
-		"_ambient_air_wisp_soft_atlas", "_ambient_air_wisp_glow_atlas",
-		"_ambient_particle_textures", "_ambient_particle_glow_textures",
-		"_ambient_fire_soft_textures", "_ambient_air_wisp_textures",
-		"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
-		"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-		"_unit_textures", "_unit_assets_loaded",
-		"_element_textures", "_trap_textures", "_trap_blast_textures",
-		"_door_icon_textures", "_keyword_icon_textures", "_unit_shadow_polygon_cache",
-		"_unit_shadow_bottom_ratio_cache", "_door_opening_frames", "_door_opening_flipped_frames",
-		"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
-	]:
-		layer.set(field, get(field))
-	layer.set("_tooltip_regions", _tooltip_regions)
+	for layer: Control in _retained_render_layers():
+		for field: String in [
+			"_tile_textures", "_floor_texture_variants", "_moss_texture_variants",
+			"_prop_textures", "_scene_prop_textures", "_scene_prop_idle_frames",
+			"_pillar_torch_idle_frames", "_effect_textures", "_effect_frames",
+			"_projectile_atlas", "_projectile_textures", "_ambient_particle_atlas",
+			"_ambient_particle_glow_atlas", "_ambient_fire_soft_atlas", "_ambient_air_wisp_atlas",
+			"_ambient_air_wisp_soft_atlas", "_ambient_air_wisp_glow_atlas",
+			"_ambient_particle_textures", "_ambient_particle_glow_textures",
+			"_ambient_fire_soft_textures", "_ambient_air_wisp_textures",
+			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
+			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
+			"_unit_textures", "_unit_assets_loaded",
+			"_element_textures", "_trap_textures", "_trap_blast_textures",
+			"_door_icon_textures", "_keyword_icon_textures", "_unit_shadow_polygon_cache",
+			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_door_opening_frames", "_door_opening_flipped_frames",
+			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
+		]:
+			layer.set(field, get(field))
 
 func _sync_dynamic_render_state(layout_changed: bool = false) -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
-	var layer: Control = _dynamic_render_layer
-	if layout_changed:
-		layer.call("_invalidate_board_layout_cache")
-	for field: String in [
-		"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
-		"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile",
-		"_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_navigation_content_signature",
-		"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
-		"_floor_variant_signature", "_moss_signature", "_damage_preview_cache",
-		"_visible_units_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
-		"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
-		"_ability_tiles_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
-		"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
-		"_umbra_return_start_by_tile"
-	]:
-		layer.set(field, get(field))
+	for layer: Control in _retained_render_layers():
+		if layout_changed:
+			layer.call("_invalidate_board_layout_cache")
+		for field: String in [
+			"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
+			"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile",
+			"_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_navigation_content_signature",
+			"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
+			"_floor_variant_signature", "_moss_signature", "_damage_preview_cache",
+			"_visible_units_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
+			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
+			"_ability_tiles_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
+			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
+			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache"
+		]:
+			layer.set(field, get(field))
 
 func _queue_dynamic_redraw() -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		queue_redraw()
 		return
-	_dynamic_render_layer.set("_idle_elapsed", _idle_elapsed)
-	_dynamic_render_layer.set("_hover_tile", _hover_tile)
-	_dynamic_render_layer.queue_redraw()
+	for layer: Control in _retained_render_layers():
+		layer.set("_idle_elapsed", _idle_elapsed)
+		layer.set("_hover_tile", _hover_tile)
+		layer.queue_redraw()
+
+func _queue_render_layer_redraw(layer: Control) -> void:
+	if layer == null or not is_instance_valid(layer):
+		return
+	layer.set("_idle_elapsed", _idle_elapsed)
+	layer.set("_hover_tile", _hover_tile)
+	layer.queue_redraw()
 
 func render_instrumentation_snapshot() -> Dictionary:
 	var dynamic_count: int = _dynamic_draw_count
-	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
-		dynamic_count = int(_dynamic_render_layer.get("_dynamic_draw_count"))
+	var dynamic_total_usec: int = _dynamic_draw_total_usec
+	var dynamic_max_usec: int = _dynamic_draw_max_usec
+	var section_total_usec: Dictionary = _render_section_total_usec.duplicate()
+	var section_max_usec: Dictionary = _render_section_max_usec.duplicate()
+	var layer_draw_counts: Dictionary = {}
+	var layer_draw_total_usec: Dictionary = {}
+	if not _retained_render_layers().is_empty():
+		dynamic_count = 0
+		dynamic_total_usec = 0
+		dynamic_max_usec = 0
+		for layer: Control in _retained_render_layers():
+			var layer_kind: String = str(layer.get("_render_layer_kind"))
+			var layer_count: int = int(layer.get("_dynamic_draw_count"))
+			var layer_total: int = int(layer.get("_dynamic_draw_total_usec"))
+			dynamic_count += layer_count
+			dynamic_total_usec += layer_total
+			dynamic_max_usec = maxi(dynamic_max_usec, int(layer.get("_dynamic_draw_max_usec")))
+			layer_draw_counts[layer_kind] = int(layer_draw_counts.get(layer_kind, 0)) + layer_count
+			layer_draw_total_usec[layer_kind] = int(layer_draw_total_usec.get(layer_kind, 0)) + layer_total
+			_merge_render_section_metrics(section_total_usec, layer.get("_render_section_total_usec") as Dictionary, false)
+			_merge_render_section_metrics(section_max_usec, layer.get("_render_section_max_usec") as Dictionary, true)
 	return {
 		"static_draw_count": _static_draw_count,
 		"dynamic_draw_count": dynamic_count,
+		"static_draw_total_usec": _static_draw_total_usec,
+		"static_draw_max_usec": _static_draw_max_usec,
+		"dynamic_draw_total_usec": dynamic_total_usec,
+		"dynamic_draw_max_usec": dynamic_max_usec,
+		"render_section_total_usec": section_total_usec,
+		"render_section_max_usec": section_max_usec,
+		"layer_draw_counts": layer_draw_counts,
+		"layer_draw_total_usec": layer_draw_total_usec,
 		"split_layers_active": _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer),
+		"retained_layer_count": _retained_render_layers().size(),
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
 		"layout_content_rebuild_count": _board_layout_content_rebuild_count
 	}
+
+func _merge_render_section_metrics(target: Dictionary, source: Dictionary, keep_maximum: bool) -> void:
+	for key_var: Variant in source:
+		var key: String = str(key_var)
+		var value: int = int(source.get(key_var, 0))
+		if keep_maximum:
+			target[key] = maxi(int(target.get(key, 0)), value)
+		else:
+			target[key] = int(target.get(key, 0)) + value
+
+func reset_render_instrumentation() -> void:
+	_static_draw_count = 0
+	_static_draw_total_usec = 0
+	_static_draw_max_usec = 0
+	_dynamic_draw_count = 0
+	_dynamic_draw_total_usec = 0
+	_dynamic_draw_max_usec = 0
+	_render_section_total_usec.clear()
+	_render_section_max_usec.clear()
+	for layer: Control in _retained_render_layers():
+		layer.call("reset_render_instrumentation")
 
 func _process(delta: float) -> void:
 	if _presentation_needs_continuous_redraw():
 		_continuous_presentation_elapsed += delta
 		if _continuous_presentation_elapsed >= CONTINUOUS_PRESENTATION_REDRAW_SECONDS:
 			_continuous_presentation_elapsed = 0.0
-			_queue_dynamic_redraw()
+			_queue_continuous_render_redraws()
 	else:
 		_continuous_presentation_elapsed = 0.0
 	var animating: bool = _any_idle_animation_active()
@@ -487,14 +638,75 @@ func _process(delta: float) -> void:
 		_idle_animating = animating
 		_idle_elapsed = 0.0
 		_idle_frame_key = ""
-		_queue_dynamic_redraw()
+		_queue_active_idle_scene_redraws()
 	if not animating:
 		return
 	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, 3600.0)
 	var next_frame_key: String = _active_idle_frame_key()
 	if next_frame_key != _idle_frame_key:
 		_idle_frame_key = next_frame_key
-		_queue_dynamic_redraw()
+		_queue_active_idle_scene_redraws()
+
+func _queue_continuous_render_redraws() -> void:
+	if _ambient_particles_active() or _campfire_atmosphere_active():
+		_queue_render_layer_redraw(_ambient_render_layer)
+	if (
+		str(presentation.get("umbra_stage", "clear")) != "clear"
+		or (bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
+		or (bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty())
+		or _impact_animation_active()
+	):
+		_queue_render_layer_redraw(_dynamic_render_layer)
+	if _campfire_atmosphere_active() or _pillar_torch_ember_motes_active() or str(presentation.get("umbra_stage", "clear")) != "clear":
+		_queue_render_layer_redraw(_foreground_render_layer)
+	_queue_continuously_animated_scene_redraws()
+	if not _damage_preview_map().is_empty() or _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
+		_queue_render_layer_redraw(_effects_render_layer)
+
+func _queue_continuously_animated_scene_redraws() -> void:
+	if _campfire_atmosphere_active():
+		for prop_var: Variant in _campfire_scene_props_cache:
+			if typeof(prop_var) == TYPE_DICTIONARY:
+				_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+	if _pillar_torch_ember_motes_active():
+		for prop_var: Variant in presentation.get("scene_props", []):
+			if typeof(prop_var) == TYPE_DICTIONARY and str((prop_var as Dictionary).get("kind", "")) == "pillar_torch":
+				_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+	if _equipment_pickup_beacon_active():
+		for loot_var: Variant in combat_state.get("loot", []):
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			var loot: Dictionary = loot_var
+			if not bool(loot.get("claimed", false)) and str(loot.get("kind", "")) == "equipment":
+				_queue_scene_render_layer_for_tile(loot.get("pos", Vector2i(-1, -1)))
+	if _impact_animation_active():
+		_queue_impact_scene_redraws()
+	if _preview_unit_pulse_active():
+		for unit: Dictionary in _visible_units():
+			if str(unit.get("role", "")) == "illusion_preview":
+				_queue_scene_render_layer_for_tile(unit.get("draw_tile", unit.get("pos", Vector2i(-1, -1))))
+
+func _queue_impact_scene_redraws() -> void:
+	var impact_keys: Array = presentation.get("impact_actor_keys", [])
+	for unit: Dictionary in _visible_units():
+		if impact_keys.has(str(unit.get("key", ""))):
+			_queue_scene_render_layer_for_tile(unit.get("draw_tile", unit.get("pos", Vector2i(-1, -1))))
+
+func _queue_active_idle_scene_redraws() -> void:
+	for unit: Dictionary in _visible_units():
+		if _unit_idle_animation_active(unit):
+			_queue_scene_render_layer_for_tile(unit.get("draw_tile", unit.get("pos", Vector2i(-1, -1))))
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
+			_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+	if _pillar_torch_idle_animation_active():
+		for prop_var: Variant in presentation.get("scene_props", []):
+			if typeof(prop_var) == TYPE_DICTIONARY and str((prop_var as Dictionary).get("kind", "")) == "pillar_torch":
+				_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+
+func _queue_scene_render_layer_for_tile(tile: Vector2i) -> void:
+	var layer: Control = _scene_render_layers_by_tile.get(tile, null) as Control
+	_queue_render_layer_redraw(layer)
 
 func _presentation_needs_continuous_redraw() -> bool:
 	if not visible:
@@ -580,6 +792,21 @@ func _any_idle_animation_active() -> bool:
 	return false
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
+	var state_changed: bool = next_state != combat_state
+	var interaction_changed: bool = (
+		next_move_tiles != move_tiles
+		or next_attack_tiles != attack_tiles
+		or next_selected_tile != selected_tile
+		or next_status_label != status_label
+		or next_status_detail != status_detail
+		or next_exit_tiles != exit_tiles
+		or next_exit_icon_ids != exit_icon_ids
+	)
+	var presentation_changes: Dictionary = {}
+	var previous_damage_preview: Dictionary = {}
+	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
+		presentation_changes = _changed_presentation_keys(presentation, next_presentation)
+		previous_damage_preview = _damage_preview_map().duplicate(true)
 	var next_room_grid_signature: String = _room_grid_signature(next_state)
 	var next_navigation_content_signature: String = "%s|%s" % [
 		next_room_grid_signature,
@@ -619,11 +846,77 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_moss_signature = next_moss_signature
 		_moss_tiles_by_surface = _build_moss_tile_lookup(combat_state.get("moss", {}))
 	_rebuild_submission_caches()
+	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer) and (layout_changed or _scene_render_layers.is_empty()):
+		_sync_scene_render_layers()
+		_sync_dynamic_render_assets()
 	_sync_dynamic_render_state(layout_changed)
 	_update_cursor_shape()
 	if layout_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
-	_queue_dynamic_redraw()
+	if state_changed or interaction_changed or layout_changed or floor_changed or moss_changed:
+		_queue_dynamic_redraw()
+	else:
+		_queue_presentation_change_redraws(presentation_changes, previous_damage_preview != _damage_preview_cache)
+
+func _changed_presentation_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
+	var changed: Dictionary = {}
+	for key_var: Variant in previous:
+		if not next.has(key_var) or previous.get(key_var) != next.get(key_var):
+			changed[str(key_var)] = true
+	for key_var: Variant in next:
+		if not previous.has(key_var) or previous.get(key_var) != next.get(key_var):
+			changed[str(key_var)] = true
+	return changed
+
+func _queue_presentation_change_redraws(changed_keys: Dictionary, damage_preview_changed: bool = false) -> void:
+	if changed_keys.is_empty() and not damage_preview_changed:
+		return
+	var ambient_changed: bool = false
+	var world_changed: bool = false
+	var impact_changed: bool = false
+	var all_scene_tiles_changed: bool = false
+	var hud_changed: bool = false
+	var effects_changed: bool = false
+	for key_var: Variant in changed_keys:
+		match str(key_var):
+			"ambient_time_seconds":
+				ambient_changed = true
+			"effect", "effect_progress", "floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "trap_effects":
+				effects_changed = true
+			"damage_preview":
+				effects_changed = true
+			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
+				hud_changed = true
+			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
+				world_changed = true
+				impact_changed = true
+			"unit_world_positions":
+				all_scene_tiles_changed = true
+				hud_changed = true
+			_:
+				# Unclassified presentation state remains conservative. The retained
+				# layers optimize known animation-only submissions without risking a
+				# stale frame when a new presentation field is introduced.
+				_queue_dynamic_redraw()
+				return
+	if ambient_changed:
+		_queue_render_layer_redraw(_ambient_render_layer)
+	if world_changed:
+		_queue_render_layer_redraw(_dynamic_render_layer)
+	if impact_changed:
+		_queue_impact_scene_redraws()
+	if all_scene_tiles_changed:
+		for layer_var: Variant in _scene_render_layers:
+			_queue_render_layer_redraw(layer_var as Control)
+	if damage_preview_changed:
+		hud_changed = true
+		for terrain_var: Variant in combat_state.get("terrain", []):
+			if typeof(terrain_var) == TYPE_DICTIONARY:
+				_queue_scene_render_layer_for_tile((terrain_var as Dictionary).get("pos", Vector2i(-1, -1)))
+	if hud_changed:
+		_queue_render_layer_redraw(_hud_render_layer)
+	if effects_changed:
+		_queue_render_layer_redraw(_effects_render_layer)
 
 func _update_umbra_return_transition(previous_state: Dictionary, previous_presentation: Dictionary, next_state: Dictionary, next_presentation: Dictionary, layout_changed: bool) -> void:
 	if layout_changed or str(next_presentation.get("umbra_stage", "clear")) == "clear":
@@ -743,6 +1036,10 @@ func _rebuild_submission_caches() -> void:
 			_equipment_pickup_beacon_cache = true
 			break
 	_visible_units_cache = _build_visible_units()
+	if is_inside_tree():
+		_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units_cache)
+	else:
+		_foreground_obstruction_entries_cache.clear()
 	_preview_unit_pulse_cache = false
 	for unit: Dictionary in _visible_units_cache:
 		if str(unit.get("role", "")) == "illusion_preview":
@@ -951,9 +1248,10 @@ func _clear_hover_for_navigation() -> void:
 
 func _navigation_transform_changed(update_hover: bool) -> void:
 	_invalidate_board_layout_cache(false)
+	_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units())
 	_sync_dynamic_render_state(false)
-	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
-		_dynamic_render_layer.call("_invalidate_board_layout_cache", false)
+	for layer: Control in _retained_render_layers():
+		layer.call("_invalidate_board_layout_cache", false)
 	queue_redraw()
 	_queue_dynamic_redraw()
 	if update_hover:
@@ -962,11 +1260,17 @@ func _navigation_transform_changed(update_hover: bool) -> void:
 	navigation_changed.emit()
 
 func _get_tooltip(at_position: Vector2) -> String:
-	for index: int in range(_tooltip_regions.size() - 1, -1, -1):
-		var region: Dictionary = _tooltip_regions[index]
-		var rect: Rect2 = region.get("rect", Rect2())
-		if rect.has_point(at_position):
-			return str(region.get("tooltip", ""))
+	var tooltip_sources: Array = _retained_render_layers()
+	tooltip_sources.reverse()
+	tooltip_sources.append(self)
+	for source_var: Variant in tooltip_sources:
+		var source: Control = source_var as Control
+		var regions: Array = source.get("_tooltip_regions") as Array
+		for index: int in range(regions.size() - 1, -1, -1):
+			var region: Dictionary = regions[index]
+			var rect: Rect2 = region.get("rect", Rect2())
+			if rect.has_point(at_position):
+				return str(region.get("tooltip", ""))
 	return ""
 
 func _make_custom_tooltip(for_text: String) -> Object:
@@ -981,51 +1285,171 @@ func _make_custom_tooltip(for_text: String) -> Object:
 
 func _draw() -> void:
 	if _is_dynamic_render_layer:
-		_draw_dynamic_board()
+		match _render_layer_kind:
+			RENDER_LAYER_AMBIENT:
+				_draw_ambient_render_layer()
+			RENDER_LAYER_WORLD:
+				_draw_world_render_layer()
+			RENDER_LAYER_SCENE_TILE:
+				_draw_scene_tile_render_layer()
+			RENDER_LAYER_FOREGROUND:
+				_draw_foreground_render_layer()
+			RENDER_LAYER_HUD:
+				_draw_hud_render_layer()
+			RENDER_LAYER_EFFECTS:
+				_draw_effects_render_layer()
+			_:
+				_draw_dynamic_board()
 		return
 	_draw_static_board()
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		_draw_dynamic_board()
 
 func _draw_static_board() -> void:
+	var started_usec: int = Time.get_ticks_usec()
 	_static_draw_count += 1
 	if not bool(presentation.get("board_backdrop_visible", false)):
 		draw_rect(Rect2(Vector2.ZERO, size), Color("18120f"), true)
 	if combat_state.is_empty():
 		_draw_empty_state()
+		_record_static_draw_time(started_usec)
 		return
 	var grid: Array = combat_state.get("grid", [])
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	for tile: Vector2i in tiles:
 		_draw_floor_tile(grid, tile)
+	_record_static_draw_time(started_usec)
 
 func _draw_dynamic_board() -> void:
+	_draw_ambient_render_layer()
+	_draw_world_render_layer()
+	if not combat_state.is_empty():
+		var grid: Array = combat_state.get("grid", [])
+		var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+		var units_to_draw: Array[Dictionary] = _visible_units()
+		_draw_scene_objects(grid, tiles, units_to_draw)
+		_draw_large_enemy_attack_highlights(units_to_draw)
+		_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
+		_draw_pillar_torch_ember_motes(tiles, units_to_draw)
+		_draw_campfire_ember_motes()
+	_draw_hud_render_layer()
+	_draw_effects_render_layer()
+
+func _draw_ambient_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
 	_dynamic_draw_count += 1
 	_tooltip_regions.clear()
 	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
 		return
-	var grid: Array = combat_state.get("grid", [])
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var section_started_usec: int = Time.get_ticks_usec()
 	_draw_campfire_room_firelight(tiles)
+	_record_render_section_time("campfire_light", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
 	_draw_ambient_particles(tiles)
+	_record_render_section_time("ambient_particles", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_world_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var section_started_usec: int = Time.get_ticks_usec()
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
+	_record_render_section_time("tile_overlays", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
 	_draw_ground_items_below_path(tiles)
 	_draw_path_preview()
 	_draw_impact_decals()
 	_draw_umbra_overlay(tiles)
+	_record_render_section_time("ground_path_decals_umbra", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_scene_tile_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty() or _render_layer_tile.x < 0:
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	var grid: Array = combat_state.get("grid", [])
 	var units_to_draw: Array[Dictionary] = _visible_units()
-	_draw_scene_objects(grid, tiles, units_to_draw)
+	var obstruction_entries: Array = _foreground_obstruction_entries_cache
+	_draw_scene_props_for_tile(_render_layer_tile, obstruction_entries)
+	_draw_tile_props(grid, _render_layer_tile, obstruction_entries)
+	_draw_exit_marker_for_tile(_render_layer_tile)
+	_draw_unit_bodies_for_tile(_render_layer_tile, units_to_draw)
+	_record_render_section_time("scene_tiles", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_foreground_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_large_enemy_attack_highlights(units_to_draw)
 	_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
 	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 	_draw_campfire_ember_motes()
+	_record_render_section_time("foreground_atmosphere", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_hud_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_unit_huds(units_to_draw)
+	_record_render_section_time("unit_huds", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_effects_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_effect_overlay()
 	_draw_lethal_preview_icons(units_to_draw)
 	_draw_movement_risk_chips()
 	_draw_status_text()
 	_draw_floating_texts()
+	_record_render_section_time("effects_and_feedback", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _record_static_draw_time(started_usec: int) -> void:
+	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
+	_static_draw_total_usec += elapsed_usec
+	_static_draw_max_usec = maxi(_static_draw_max_usec, elapsed_usec)
+
+func _record_dynamic_draw_time(started_usec: int) -> void:
+	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
+	_dynamic_draw_total_usec += elapsed_usec
+	_dynamic_draw_max_usec = maxi(_dynamic_draw_max_usec, elapsed_usec)
+
+func _record_render_section_time(section: String, started_usec: int) -> void:
+	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
+	_render_section_total_usec[section] = int(_render_section_total_usec.get(section, 0)) + elapsed_usec
+	_render_section_max_usec[section] = maxi(int(_render_section_max_usec.get(section, 0)), elapsed_usec)
 
 func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
@@ -1575,13 +1999,16 @@ func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 	var particle_count: int = _ambient_particle_count(element_id, tiles.size())
 	if particle_count <= 0:
 		return
-	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	_prepare_ambient_hash_cache(element_id)
+	_begin_ambient_particle_batch(element_id)
+	var time_seconds: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
 	var room_seed: int = _ambient_room_seed(element_id)
 	for index: int in range(particle_count):
 		var particle_seed: int = room_seed + index * 7919
 		var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
 		var base_point: Vector2 = _tile_center(tiles[tile_index])
 		_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds)
+	_flush_ambient_particle_batch()
 
 func _ambient_particle_count(element_id: String, tile_count: int, intensity_override: int = -1) -> int:
 	var base_count: int = 0
@@ -1620,13 +2047,29 @@ func _ambient_element_seed(element_id: String) -> int:
 			return 3
 
 func _ambient_hash(seed: int) -> int:
+	if _ambient_hash_cache.has(seed):
+		return int(_ambient_hash_cache.get(seed, 0))
 	var value: int = posmod(seed, 2147483647)
 	value = posmod(value * 1103515245 + 12345, 2147483647)
 	value = posmod(value * 1103515245 + 12345, 2147483647)
+	_ambient_hash_cache[seed] = value
 	return value
 
 func _ambient_hash01(seed: int) -> float:
-	return float(posmod(_ambient_hash(seed), 10000)) / 10000.0
+	if _ambient_hash01_cache.has(seed):
+		return float(_ambient_hash01_cache.get(seed, 0.0))
+	var value: float = float(posmod(_ambient_hash(seed), 10000)) / 10000.0
+	_ambient_hash01_cache[seed] = value
+	return value
+
+func _prepare_ambient_hash_cache(element_id: String) -> void:
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	var room_key: String = "%d,%d|%s" % [room_coord.x, room_coord.y, element_id]
+	if room_key == _ambient_hash_cache_room_key:
+		return
+	_ambient_hash_cache_room_key = room_key
+	_ambient_hash_cache.clear()
+	_ambient_hash01_cache.clear()
 
 func _ambient_cycle(seed: int, time_seconds: float, speed: float) -> float:
 	return wrapf(_ambient_hash01(seed) + time_seconds * speed * AMBIENT_PARTICLE_SPEED_SCALE, 0.0, 1.0)
@@ -2062,9 +2505,114 @@ func _ambient_trail_height_scale(element_id: String) -> float:
 	return 0.50 if element_id in ["fire", "lightning", "air"] else 0.62
 
 func _draw_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size: Vector2, rotation: float, alpha: float, modulate: Color = Color(1.0, 1.0, 1.0, 1.0)) -> void:
+	if _ambient_batch_active:
+		_queue_ambient_particle_sprite(texture, point, draw_size, rotation, alpha, modulate)
+		return
 	draw_set_transform(point, rotation, Vector2.ONE)
 	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, Color(modulate.r, modulate.g, modulate.b, modulate.a * alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _begin_ambient_particle_batch(element_id: String) -> void:
+	if not _ambient_particle_batch_enabled:
+		_ambient_batch_active = false
+		return
+	_ensure_ambient_combined_atlas(element_id)
+	_ambient_batch_active = _ambient_combined_atlas != null
+	_ambient_batch_vertices = PackedVector3Array()
+	_ambient_batch_uvs = PackedVector2Array()
+	_ambient_batch_colors = PackedColorArray()
+	_ambient_batch_indices = PackedInt32Array()
+
+func _queue_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size: Vector2, rotation: float, alpha: float, modulate: Color) -> void:
+	if texture == null or alpha <= 0.0 or draw_size.x <= 0.0 or draw_size.y <= 0.0:
+		return
+	var uv_rect: Rect2 = _ambient_combined_uv_rect(texture)
+	if uv_rect.size.x <= 0.0 or uv_rect.size.y <= 0.0:
+		return
+	var axis_x := Vector2(cos(rotation), sin(rotation)) * draw_size.x
+	var axis_y := Vector2(-sin(rotation), cos(rotation)) * draw_size.y
+	var first_vertex: int = _ambient_batch_vertices.size()
+	for vertex: Vector2 in [
+		point - axis_x * 0.5 - axis_y * 0.5,
+		point + axis_x * 0.5 - axis_y * 0.5,
+		point + axis_x * 0.5 + axis_y * 0.5,
+		point - axis_x * 0.5 + axis_y * 0.5
+	]:
+		_ambient_batch_vertices.append(Vector3(vertex.x, vertex.y, 0.0))
+	_ambient_batch_uvs.append(uv_rect.position)
+	_ambient_batch_uvs.append(Vector2(uv_rect.end.x, uv_rect.position.y))
+	_ambient_batch_uvs.append(uv_rect.end)
+	_ambient_batch_uvs.append(Vector2(uv_rect.position.x, uv_rect.end.y))
+	var color := Color(modulate.r, modulate.g, modulate.b, modulate.a * alpha)
+	for _index: int in range(4):
+		_ambient_batch_colors.append(color)
+	for offset: int in [0, 1, 2, 0, 2, 3]:
+		_ambient_batch_indices.append(first_vertex + offset)
+
+func _flush_ambient_particle_batch() -> void:
+	_ambient_batch_active = false
+	if _ambient_batch_vertices.is_empty() or _ambient_combined_atlas == null:
+		return
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = _ambient_batch_vertices
+	arrays[Mesh.ARRAY_TEX_UV] = _ambient_batch_uvs
+	arrays[Mesh.ARRAY_COLOR] = _ambient_batch_colors
+	arrays[Mesh.ARRAY_INDEX] = _ambient_batch_indices
+	_ambient_batch_mesh = ArrayMesh.new()
+	_ambient_batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	draw_mesh(_ambient_batch_mesh, _ambient_combined_atlas)
+
+func _ensure_ambient_combined_atlas(element_id: String) -> void:
+	if _ambient_combined_atlas != null and element_id == _ambient_combined_atlas_element_id:
+		return
+	_ambient_combined_atlas = null
+	_ambient_combined_atlas_regions.clear()
+	_ambient_combined_atlas_element_id = element_id
+	var sources: Array[Texture2D]
+	for variant_index: int in range(AMBIENT_PARTICLE_ATLAS_COLUMNS):
+		_append_unique_ambient_atlas_source(sources, _ambient_particle_texture(element_id, variant_index))
+		_append_unique_ambient_atlas_source(sources, _ambient_particle_glow_texture(element_id, variant_index))
+		if element_id == "fire":
+			_append_unique_ambient_atlas_source(sources, _ambient_fire_soft_texture(variant_index))
+	if element_id == "air":
+		for variant_index: int in range(AMBIENT_AIR_WISP_VARIANTS):
+			_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_texture(variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+			_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_soft_texture(variant_index))
+			_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_glow_texture(variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+	if sources.is_empty():
+		return
+	const ATLAS_GAP: int = 2
+	var atlas_width: int = ATLAS_GAP
+	var atlas_height: int = 1
+	for source: Texture2D in sources:
+		atlas_width += source.get_width() + ATLAS_GAP
+		atlas_height = maxi(atlas_height, source.get_height() + ATLAS_GAP * 2)
+	var image := Image.create(atlas_width, atlas_height, false, Image.FORMAT_RGBA8)
+	image.fill(Color.TRANSPARENT)
+	var cursor_x: int = ATLAS_GAP
+	for source: Texture2D in sources:
+		var source_image: Image = source.get_image()
+		if source_image == null or source_image.is_empty():
+			_ambient_combined_atlas_regions.clear()
+			return
+		if source_image.get_format() != Image.FORMAT_RGBA8:
+			source_image.convert(Image.FORMAT_RGBA8)
+		image.blit_rect(source_image, Rect2i(Vector2i.ZERO, source_image.get_size()), Vector2i(cursor_x, ATLAS_GAP))
+		_ambient_combined_atlas_regions[source.get_instance_id()] = Rect2i(cursor_x, ATLAS_GAP, source.get_width(), source.get_height())
+		cursor_x += source.get_width() + ATLAS_GAP
+	_ambient_combined_atlas = ImageTexture.create_from_image(image)
+
+func _append_unique_ambient_atlas_source(sources: Array[Texture2D], source: Texture2D) -> void:
+	if source != null and not sources.has(source):
+		sources.append(source)
+
+func _ambient_combined_uv_rect(texture: Texture2D) -> Rect2:
+	var packed_region: Rect2 = _ambient_combined_atlas_regions.get(texture.get_instance_id(), Rect2()) as Rect2
+	if packed_region.size.x <= 0.0 or _ambient_combined_atlas == null:
+		return Rect2()
+	var atlas_size: Vector2 = _ambient_combined_atlas.get_size()
+	return Rect2(packed_region.position / atlas_size, packed_region.size / atlas_size)
 
 func _draw_floor_moss_overlay(tile: Vector2i) -> void:
 	if not _tile_has_moss("floor", tile):
@@ -5984,6 +6532,7 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	_death_frames_by_type.clear()
 	_unit_shadow_polygon_cache.clear()
 	_unit_shadow_bottom_ratio_cache.clear()
+	_unit_shadow_draw_geometry_cache.clear()
 	_ensure_unit_assets_for_type("player")
 	if load_full_unit_roster:
 		for enemy_type: String in GameData.enemies().keys():
@@ -6019,6 +6568,21 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 			definition = GameData.enemy_def(unit_type)
 		art_path = str(definition.get("art_path", ""))
 	_unit_textures[unit_type] = _load_unit_texture_with_idle(unit_type, art_path)
+	_prewarm_unit_shadow_source_data(unit_type)
+
+func _prewarm_unit_shadow_source_data(unit_type: String) -> void:
+	var textures: Array[Texture2D]
+	var base_texture: Texture2D = _unit_textures.get(unit_type, null) as Texture2D
+	if base_texture != null:
+		textures.append(base_texture)
+	for frame_var: Variant in _idle_frames_by_type.get(unit_type, []):
+		if frame_var is Texture2D and not textures.has(frame_var):
+			textures.append(frame_var)
+	for frame_var: Variant in _death_frames_by_type.get(unit_type, []):
+		if frame_var is Texture2D and not textures.has(frame_var):
+			textures.append(frame_var)
+	for texture: Texture2D in textures:
+		_unit_shadow_data_for_texture(texture)
 
 func _load_floor_variants(paths: PackedStringArray) -> Array[Texture2D]:
 	var textures: Array[Texture2D] = []
@@ -6712,30 +7276,54 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 		_draw_unit_shadow_fallback(unit)
 		return
 	var draw_rect: Rect2 = _unit_draw_rect(unit)
-	var shadow_polygons: Array[PackedVector2Array] = _unit_shadow_polygons_for_texture(texture)
-	if shadow_polygons.is_empty():
+	var shadow_geometry: Array = _unit_shadow_draw_geometry(texture, draw_rect, str(unit.get("type", "")))
+	if shadow_geometry.is_empty():
 		_draw_unit_shadow_fallback(unit)
 		return
-	var bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
-	var shadow_size: Vector2 = _unit_shadow_draw_size(texture, draw_rect.size, bounds)
-	var foot_point: Vector2 = _unit_shadow_foot_point(texture, draw_rect, bounds, str(unit.get("type", "")))
-	var shadow_origin: Vector2 = foot_point + Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
 	var drew_shadow: bool = false
 	var shadow_color: Color = UNIT_SHADOW_COLOR
 	var soft_color: Color = UNIT_SHADOW_SOFT_COLOR
 	shadow_color.a *= shadow_alpha_scale
 	soft_color.a *= shadow_alpha_scale
-	for local_polygon: PackedVector2Array in shadow_polygons:
-		var shadow_polygon: PackedVector2Array = _project_unit_shadow_polygon(local_polygon, shadow_size, shadow_origin)
-		if not _polygon_can_draw(shadow_polygon):
-			continue
-		var soft_polygon: PackedVector2Array = _scaled_polygon(shadow_polygon, UNIT_SHADOW_SOFT_SCALE)
-		if _polygon_can_draw(soft_polygon):
+	for geometry_var: Variant in shadow_geometry:
+		var geometry: Dictionary = geometry_var as Dictionary
+		var shadow_polygon: PackedVector2Array = geometry.get("hard", PackedVector2Array()) as PackedVector2Array
+		var soft_polygon: PackedVector2Array = geometry.get("soft", PackedVector2Array()) as PackedVector2Array
+		if not soft_polygon.is_empty():
 			draw_colored_polygon(soft_polygon, soft_color)
 		draw_colored_polygon(shadow_polygon, shadow_color)
 		drew_shadow = true
 	if not drew_shadow:
 		_draw_unit_shadow_fallback(unit)
+
+func _unit_shadow_draw_geometry(texture: Texture2D, draw_rect: Rect2, unit_type: String) -> Array:
+	var cache_key: String = "%d|%.3f,%.3f,%.3f,%.3f|%s" % [
+		texture.get_instance_id(),
+		draw_rect.position.x,
+		draw_rect.position.y,
+		draw_rect.size.x,
+		draw_rect.size.y,
+		unit_type
+	]
+	if _unit_shadow_draw_geometry_cache.has(cache_key):
+		return _unit_shadow_draw_geometry_cache.get(cache_key, []) as Array
+	var geometry: Array = []
+	var shadow_polygons: Array[PackedVector2Array] = _unit_shadow_polygons_for_texture(texture)
+	var bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
+	if shadow_polygons.is_empty() or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		_unit_shadow_draw_geometry_cache[cache_key] = geometry
+		return geometry
+	var shadow_size: Vector2 = _unit_shadow_draw_size(texture, draw_rect.size, bounds)
+	var foot_point: Vector2 = _unit_shadow_foot_point(texture, draw_rect, bounds, unit_type)
+	var shadow_origin: Vector2 = foot_point + Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
+	for local_polygon: PackedVector2Array in shadow_polygons:
+		var shadow_polygon: PackedVector2Array = _project_unit_shadow_polygon(local_polygon, shadow_size, shadow_origin)
+		if not _polygon_can_draw(shadow_polygon):
+			continue
+		var soft_polygon: PackedVector2Array = _scaled_polygon(shadow_polygon, UNIT_SHADOW_SOFT_SCALE)
+		geometry.append({"hard": shadow_polygon, "soft": soft_polygon if _polygon_can_draw(soft_polygon) else PackedVector2Array()})
+	_unit_shadow_draw_geometry_cache[cache_key] = geometry
+	return geometry
 
 func _draw_unit_shadow_fallback(unit: Dictionary) -> void:
 	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
@@ -6984,6 +7572,7 @@ func _invalidate_board_layout_cache(content_changed: bool = true) -> void:
 	_board_layout_cache_valid = false
 	_board_layout_cache_tile_centers.clear()
 	_board_layout_cache_tile_polygons.clear()
+	_unit_shadow_draw_geometry_cache.clear()
 	if content_changed:
 		_board_layout_content_cache_valid = false
 		_board_layout_cache_tiles.clear()
