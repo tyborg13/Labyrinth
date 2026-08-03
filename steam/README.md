@@ -1,5 +1,22 @@
 # Steam Build/Upload Workflow
 
+## Store presence asset refresh
+
+The current Steam store, library, client-icon, screenshot, and trailer deliverables live in [`assets/`](assets/). They are regenerated from current production visuals while preserving the existing store compositions.
+
+From the repository root:
+
+```bash
+python3 steam/scripts/generate_store_assets.py
+bash steam/scripts/capture_store_screenshots.sh
+python3 steam/scripts/build_contact_sheets.py
+python3 steam/scripts/validate_store_assets.py
+```
+
+Trailer footage is captured through the production-scene harness documented in [`../.codex/skills/create-escape-the-umbra-trailer/references/capture-workflow.md`](../.codex/skills/create-escape-the-umbra-trailer/references/capture-workflow.md). After replacing footage, regenerate the title-card PNGs and render the Remotion master from `marketing/trailer/` before copying it to `assets/trailer/`.
+
+See [`assets/UPLOAD_MANIFEST.md`](assets/UPLOAD_MANIFEST.md) for the exact Steamworks field mapping, screenshot order, and pre-upload proof. Do not publish store changes until the committed asset set has passed user inspection.
+
 This repository now includes a Mac-run Steam pipeline at:
 
 ```bash

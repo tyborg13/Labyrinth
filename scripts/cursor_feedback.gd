@@ -19,7 +19,7 @@ const SCENE_TRANSITION_MINIMUM_SECONDS: float = 0.44
 const NATIVE_CURSOR_REFRESH_SECONDS: float = 0.24
 const TRANSPARENT_CURSOR_SIZE: int = 16
 
-var _glyph: CustomCursorGlyph
+var _glyph
 var _audio_players: Array[AudioStreamPlayer] = []
 var _audio_cursor: int = 0
 var _valid_click_stream: AudioStreamWAV
@@ -71,7 +71,7 @@ func _process(delta: float) -> void:
 		return
 	var viewport: Viewport = get_viewport()
 	var pointer_position: Vector2 = viewport.get_mouse_position()
-	_glyph.position = pointer_position - CustomCursorGlyph.HOTSPOT
+	_glyph.position = pointer_position - CustomCursorGlyphScript.HOTSPOT
 	var window: Window = get_window()
 	var pointer_inside: bool = viewport.get_visible_rect().grow(2.0).has_point(pointer_position)
 	_glyph.visible = pointer_inside and (window == null or window.has_focus())
@@ -129,7 +129,7 @@ func last_feedback_kind() -> String:
 func feedback_counts() -> Dictionary:
 	return _feedback_counts.duplicate(true)
 
-func glyph_for_test() -> CustomCursorGlyph:
+func glyph_for_test() -> Control:
 	return _glyph
 
 func native_suppression_snapshot_for_test() -> Dictionary:
@@ -208,11 +208,11 @@ func _clear_transparent_native_cursors() -> void:
 
 func _resolved_cursor_state(hovered: Control, pointer_position: Variant = null) -> String:
 	if is_loading():
-		return CustomCursorGlyph.STATE_LOADING
+		return CustomCursorGlyphScript.STATE_LOADING
 	if _left_pressed:
 		if _press_drag_source and _drag_started:
-			return CustomCursorGlyph.STATE_DRAGGING
-		return CustomCursorGlyph.STATE_PRESSED_VALID if _press_actionable or _press_drag_source else CustomCursorGlyph.STATE_PRESSED_INVALID
+			return CustomCursorGlyphScript.STATE_DRAGGING
+		return CustomCursorGlyphScript.STATE_PRESSED_VALID if _press_actionable or _press_drag_source else CustomCursorGlyphScript.STATE_PRESSED_INVALID
 	return state_for_context(context_for_control(hovered, pointer_position), false, false)
 
 func _begin_pointer_press(position: Vector2) -> void:
@@ -373,18 +373,18 @@ static func _context_from_shape(shape: int) -> Dictionary:
 
 static func state_for_context(context: Dictionary, pressed: bool, dragged: bool) -> String:
 	if bool(context.get("loading", false)):
-		return CustomCursorGlyph.STATE_LOADING
+		return CustomCursorGlyphScript.STATE_LOADING
 	if pressed:
 		if dragged and bool(context.get("drag_source", false)):
-			return CustomCursorGlyph.STATE_DRAGGING
-		return CustomCursorGlyph.STATE_PRESSED_VALID if bool(context.get("actionable", false)) or bool(context.get("drag_source", false)) else CustomCursorGlyph.STATE_PRESSED_INVALID
+			return CustomCursorGlyphScript.STATE_DRAGGING
+		return CustomCursorGlyphScript.STATE_PRESSED_VALID if bool(context.get("actionable", false)) or bool(context.get("drag_source", false)) else CustomCursorGlyphScript.STATE_PRESSED_INVALID
 	if bool(context.get("invalid", false)):
-		return CustomCursorGlyph.STATE_INVALID
+		return CustomCursorGlyphScript.STATE_INVALID
 	if bool(context.get("drag_source", false)):
-		return CustomCursorGlyph.STATE_DRAG_READY
+		return CustomCursorGlyphScript.STATE_DRAG_READY
 	if bool(context.get("actionable", false)):
-		return CustomCursorGlyph.STATE_ACTION
-	return CustomCursorGlyph.STATE_IDLE
+		return CustomCursorGlyphScript.STATE_ACTION
+	return CustomCursorGlyphScript.STATE_IDLE
 
 static func click_feedback_contract() -> Dictionary:
 	return {

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-02T22:43:58Z",
+  "updated_at": "2026-08-03T03:14:42Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6858,6 +6858,28 @@
       "source": {
         "branch": "codex/redesign-combat-hud-hierarchy-and-controls",
         "commit": "0628441"
+      }
+    },
+    {
+      "id": "mnt_20260803T031442Z_5bd90496",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "For Godot 4.6 marketing capture, preload cursor constants, hide both cursors, and inset only RunScene/UiLayer; leave BoardUnderlay full bleed.",
+      "details": "The production movie writer parsed the CursorFeedback autoload before the global class cache and failed on typed CustomCursorGlyph references. Preload res://scripts/custom_cursor_glyph.gd, use the script constants, keep the glyph local untyped/Control-returning, and suppress CursorFeedback plus the native pointer in every capture. Scaling BoardUnderlay creates visible frame gutters, so leave it at identity when UiLayer uses the 0.82 Steam screenshot safe frame.",
+      "status": "active",
+      "created_at": "2026-08-03T03:14:42Z",
+      "updated_at": "2026-08-03T03:14:42Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/refresh-all-steam-store-materials-from-current-visuals",
+        "commit": "bb8269e"
       }
     }
   ]

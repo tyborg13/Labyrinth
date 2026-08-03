@@ -4,6 +4,7 @@ const RunScene = preload("res://scenes/run_scene.tscn")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const GameDataScript = preload("res://scripts/game_data.gd")
+const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -11,6 +12,8 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CAPTURE_SEED: int = 126044
 const REWARD_CAPTURE_SIZE: Vector2i = Vector2i(2304, 1296)
 const REWARD_CAPTURE_RAISE: float = 220.0
+const SAFE_FRAME_SCALE: float = 0.82
+const CAPTURE_OUTPUT_SIZE: Vector2 = Vector2(1920.0, 1080.0)
 const INVALID_TILE: Vector2i = Vector2i(-1, -1)
 const INVALID_ROOM: Vector2i = Vector2i(999, 999)
 
@@ -18,6 +21,7 @@ var _run_scene: Control
 var _run_engine = RunEngineScript.new()
 var _combat_engine = CombatEngineScript.new()
 var _clip_id: String = "route"
+var _safe_frame_capture: bool = false
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -26,6 +30,8 @@ func _ready() -> void:
 	ProgressionStore.set_run_storage_path("user://steam_trailer_current_run.save")
 	ProgressionStore.clear_saved_run()
 	_clip_id = _requested_clip_id()
+	_safe_frame_capture = OS.get_cmdline_user_args().has("--safe-frame")
+	_configure_capture_cursor()
 	_run_scene = RunScene.instantiate()
 	_mount_run_scene_for_capture()
 	_run_scene.visible = false
@@ -44,6 +50,8 @@ func _mount_run_scene_for_capture() -> void:
 		add_child(reward_viewport)
 		reward_viewport.add_child(_run_scene)
 		_run_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		if _safe_frame_capture:
+			_apply_safe_frame_transform(Vector2(REWARD_CAPTURE_SIZE))
 
 		var reward_display := TextureRect.new()
 		reward_display.name = "RewardCaptureDisplay"
@@ -56,6 +64,35 @@ func _mount_run_scene_for_capture() -> void:
 		return
 	add_child(_run_scene)
 	_run_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if _safe_frame_capture:
+		_apply_safe_frame_transform()
+
+
+func _configure_capture_cursor() -> void:
+	var cursor_feedback: CanvasLayer = get_node_or_null("/root/CursorFeedback") as CanvasLayer
+	if cursor_feedback != null:
+		cursor_feedback.visible = false
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	_assert_capture(cursor_feedback == null or not cursor_feedback.visible, "Steam marketing capture must hide the custom cursor layer")
+
+
+func _apply_safe_frame_transform(frame_size: Vector2 = CAPTURE_OUTPUT_SIZE) -> void:
+	var safe_offset: Vector2 = frame_size * (1.0 - SAFE_FRAME_SCALE) * 0.5
+	var safe_transform := Transform2D(
+		Vector2(SAFE_FRAME_SCALE, 0.0),
+		Vector2(0.0, SAFE_FRAME_SCALE),
+		safe_offset
+	)
+	var ui_layer: CanvasLayer = _run_scene.get_node_or_null("UiLayer") as CanvasLayer
+	var board_layer: CanvasLayer = _run_scene.get_node_or_null("BoardUnderlay") as CanvasLayer
+	_assert_capture(ui_layer != null, "Steam screenshot safe frame requires the production UiLayer")
+	_assert_capture(board_layer != null and board_layer.transform == Transform2D.IDENTITY, "Steam screenshot capture must leave the production board full-bleed")
+	ui_layer.transform = safe_transform
+	print("STEAM_TRAILER_SAFE_FRAME ui_scale=%.2f offset=%s output=%s board_full_bleed=true cursor_hidden=true" % [
+		SAFE_FRAME_SCALE,
+		str(safe_offset),
+		str(frame_size)
+	])
 
 func _requested_clip_id() -> String:
 	for argument: String in OS.get_cmdline_user_args():
@@ -100,6 +137,7 @@ func _seed_showcase_run() -> void:
 	progression["embers"] = 22
 	progression["run_counter"] = 3
 	progression["card_upgrades_unlocked"] = true
+	_seed_known_grimoire_entries(progression)
 	if _clip_id in ["merchant", "relic", "spell", "magic_equip", "equipment"]:
 		progression["level"] = 7
 	var state: Dictionary = _run_engine.create_new_run(CAPTURE_SEED, progression)
@@ -134,6 +172,22 @@ func _seed_showcase_run() -> void:
 			state["unbanked_embers"] = 11
 	_run_scene.call("_load_run_state", state)
 	_suppress_current_room_dialogue()
+
+
+func _seed_known_grimoire_entries(progression: Dictionary) -> void:
+	# The trailer presents an established run, not first-discovery onboarding.
+	# Pre-unlock every current entry so captures stay free of discovery toasts.
+	var known_entry_ids: Array[String] = []
+	for entry_var: Variant in GrimoireLibrary.entries():
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var
+		var entry_id: String = str(entry.get("id", ""))
+		if not entry_id.is_empty():
+			known_entry_ids.append(entry_id)
+	progression[GrimoireLibrary.UNLOCKED_KEY] = known_entry_ids
+	progression[GrimoireLibrary.UNREAD_KEY] = []
+	progression[GrimoireLibrary.NOTICE_KEY] = ""
 
 func _show_run_scene() -> void:
 	_run_scene.visible = true
@@ -482,9 +536,9 @@ func _capture_trap_combo() -> void:
 	var trap_tile: Vector2i = anchor + Vector2i(2, 0)
 	layout["player_start"] = anchor
 	layout["enemies"] = [
-		_enemy(1, "crawler", primary_target, 90),
-		_enemy(2, "harrier", trap_tile + Vector2i(0, -1), 30),
-		_enemy(3, "acolyte", trap_tile + Vector2i(0, 1), 30)
+		_enemy(1, "crawler", primary_target),
+		_enemy(2, "harrier", trap_tile + Vector2i(0, -1)),
+		_enemy(3, "acolyte", trap_tile + Vector2i(0, 1))
 	]
 	layout["traps"] = [{
 		"id": "trailer_fire_snare",
@@ -525,9 +579,9 @@ func _capture_aoe_combo() -> void:
 	_assert_capture(center != INVALID_TILE, "Generated AOE room must contain a legal card-and-impact showcase cluster")
 	layout["player_start"] = center + Vector2i(-3, 0)
 	layout["enemies"] = [
-		_enemy(1, "crawler", center, 110),
-		_enemy(2, "harrier", center + Vector2i(1, 0), 110),
-		_enemy(3, "acolyte", center + Vector2i(0, 1), 110)
+		_enemy(1, "crawler", center),
+		_enemy(2, "harrier", center + Vector2i(1, 0)),
+		_enemy(3, "acolyte", center + Vector2i(0, 1))
 	]
 	layout["traps"] = []
 	var state: Dictionary = _create_showcase_combat(layout, ["wildfire_halo", "cinder_bloom", "hearth_rush"])
@@ -554,9 +608,9 @@ func _capture_umbra_reveal() -> void:
 	var enemy_tiles: Array[Vector2i] = _vector2i_array(placement.get("enemies", []))
 	layout["player_start"] = placement.get("player", INVALID_TILE)
 	layout["enemies"] = [
-		_enemy(1, "grave_surgeon", enemy_tiles[0], 360),
-		_enemy(2, "crawler", enemy_tiles[1], 220),
-		_enemy(3, "harrier", enemy_tiles[2], 240)
+		_enemy(1, "grave_surgeon", enemy_tiles[0]),
+		_enemy(2, "crawler", enemy_tiles[1]),
+		_enemy(3, "harrier", enemy_tiles[2])
 	]
 	layout["traps"] = []
 	var state: Dictionary = _create_showcase_combat(layout, ["lantern_shot", "guiding_flare", "dawnstep"])
@@ -1032,7 +1086,8 @@ func _first_combat_destination() -> Vector2i:
 			return coord
 	return INVALID_TILE
 
-func _enemy(id: int, type: String, pos: Vector2i, hp: int) -> Dictionary:
+func _enemy(id: int, type: String, pos: Vector2i) -> Dictionary:
+	var hp: int = int(GameDataScript.enemy_def(type).get("max_hp", 1))
 	return {"id": id, "type": type, "pos": pos, "hp": hp, "max_hp": hp, "block": 0, "stoneskin": 0}
 
 func _vector2i_array(values: Array) -> Array[Vector2i]:

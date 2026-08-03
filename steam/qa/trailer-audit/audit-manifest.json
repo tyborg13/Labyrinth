@@ -1,0 +1,163 @@
+{
+  "source": "/Users/borgerding/workspace/Labyrinth.worktrees/refresh-all-steam-store-materials-from-current-visuals/marketing/trailer/out/escape-the-umbra-steam-trailer.mp4",
+  "sha256": "563a3ba025fc25fec36400f1ff7a1be443d6c3a6f1cd975d4f0a2ce3296d69b1",
+  "video": {
+    "codec": "h264",
+    "profile": "High",
+    "width": 1920,
+    "height": 1080,
+    "frame_rate": 30.0,
+    "frame_count": 1724,
+    "duration_seconds": 57.466667
+  },
+  "audio": {
+    "codec": "aac",
+    "channels": 2,
+    "sample_rate": 48000
+  },
+  "findings": {
+    "black_intervals": [
+      {
+        "start": 0.0,
+        "end": 0.1,
+        "duration": 0.1
+      }
+    ],
+    "freeze_intervals": [
+      {
+        "start": 32.166667,
+        "end": 33.0,
+        "duration": 0.833333
+      },
+      {
+        "start": 35.566667,
+        "end": 36.566667,
+        "duration": 1.0
+      },
+      {
+        "start": 40.666667,
+        "end": 41.433333,
+        "duration": 0.766667
+      }
+    ],
+    "volume": {
+      "mean_db": -22.1,
+      "max_db": -4.2
+    }
+  },
+  "proof": {
+    "probe": "probe.json",
+    "blackdetect": "blackdetect.log",
+    "freezedetect": "freezedetect.log",
+    "volumedetect": "volumedetect.log",
+    "master_sheet": "master-sheet.png",
+    "focused_sheets": [
+      {
+        "name": "opening-title",
+        "start_frame": 0,
+        "end_frame": 119,
+        "file": "focus-opening-title-0-119.png"
+      },
+      {
+        "name": "final-crumble",
+        "start_frame": 1596,
+        "end_frame": 1715,
+        "file": "focus-final-crumble-1596-1715.png"
+      }
+    ],
+    "boundary_sheet": "boundary-sheet.png",
+    "boundary_frames": [
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      222,
+      223,
+      224,
+      225,
+      226,
+      227,
+      228,
+      229,
+      230,
+      231,
+      232,
+      233,
+      234,
+      354,
+      355,
+      356,
+      357,
+      358,
+      359,
+      360,
+      361,
+      362,
+      363,
+      364,
+      365,
+      366,
+      510,
+      511,
+      512,
+      513,
+      514,
+      515,
+      516,
+      517,
+      518,
+      519,
+      520,
+      521,
+      522,
+      666,
+      667,
+      668,
+      669,
+      670,
+      671,
+      672,
+      673,
+      674,
+      675,
+      676,
+      677,
+      678,
+      834,
+      835,
+      836,
+      837,
+      838,
+      839,
+      840,
+      841,
+      842,
+      843,
+      844,
+      845,
+      846,
+      1418,
+      1419,
+      1420,
+      1421,
+      1422,
+      1423,
+      1424,
+      1425,
+      1426,
+      1427,
+      1428,
+      1429,
+      1430
+    ]
+  }
+}
