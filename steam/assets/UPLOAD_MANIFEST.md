@@ -31,6 +31,19 @@ Upload the PNGs in filename order so the first four tell the combat-to-progressi
 
 Every screenshot is a cursor-free, current-build 1920 × 1080 capture with the gameplay composition preserved and the UI safely inset for Steam cropping.
 
+## Rich-description images
+
+These four images are embedded in the English store description. Replace each live image with its composition-matched current-build PNG without changing the surrounding copy or image order. Steam may transcode the uploaded PNGs to AVIF automatically.
+
+| Existing live image | Replacement | Composition |
+| --- | --- | --- |
+| `extras/aa79868f768b4d38a4fc4f6c68dddd96.avif` | `rich-description/01-lantern-shot.png` | Lantern Shot targeting |
+| `extras/38d407f3583c2250b763fe3fc1ca0744.avif` | `rich-description/02-cleaver-hook.png` | Cleaver Hook targeting |
+| `extras/a96001d098eef695f7f588fba3db6a08.avif` | `rich-description/03-character-loadout.png` | Character/loadout panel |
+| `extras/1cbed662c75a18c3a1a235f1cbd76b67.avif` | `rich-description/04-route-map.png` | Route map |
+
+Each replacement is 1560 × 878, matching the current live image dimensions. If the rich-text editor will not accept an automated file selection, drag each file onto its matching image slot and verify the preview before saving.
+
 ## Library assets
 
 | Steamworks field | File | Dimensions |
@@ -60,6 +73,7 @@ The trailer is 57.47 seconds. It preserves the existing composition, pacing, mus
 
 - `../qa/store-assets-contact-sheet.jpg` shows every still asset together.
 - `../qa/screenshots-contact-sheet.jpg` shows screenshot order and crop safety.
+- `../qa/rich-description-comparison.jpg` pairs each previous live description image with its current-build replacement.
 - `../qa/trailer-audit/audit-manifest.json` records the final trailer stream metadata and SHA-256.
 - `../qa/trailer-audit/master-sheet.png` covers the full edit at one frame per second.
 - `../qa/trailer-audit/focus-final-crumble-1596-1715.png` proves the filled-title arrival and crumble reveal.

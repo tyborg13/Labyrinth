@@ -42,4 +42,4 @@ Output #0, null, to 'pipe:':
 [Parsed_volumedetect_0 @ 0x84d034a80] histogram_10db: 1307
 [Parsed_volumedetect_0 @ 0x84d034a80] histogram_11db: 2937
 [out#0/null @ 0x84d034300] video:0KiB audio:10736KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
-size=N/A time=00:00:57.25 bitrate=N/A speed=1.55e+03x elapsed=0:00:00.03    
+size=N/A time=00:00:57.25 bitrate=N/A speed=1.55e+03x elapsed=0:00:00.03

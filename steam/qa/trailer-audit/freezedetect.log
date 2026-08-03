@@ -31,16 +31,16 @@ Output #0, null, to 'pipe:':
       handler_name    : VideoHandler
     Side data:
       ICC Profile: (456 bytes)
-frame=  555 fps=0.0 q=-0.0 size=N/A time=00:00:18.50 bitrate=N/A speed=36.3x elapsed=0:00:00.51    
+frame=  555 fps=0.0 q=-0.0 size=N/A time=00:00:18.50 bitrate=N/A speed=36.3x elapsed=0:00:00.51
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_start: 32.166667
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_duration: 0.833333
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_end: 33
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_start: 35.566667
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_duration: 1
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_end: 36.566667
-frame= 1129 fps=1111 q=-0.0 size=N/A time=00:00:37.63 bitrate=N/A speed=  37x elapsed=0:00:01.01    
+frame= 1129 fps=1111 q=-0.0 size=N/A time=00:00:37.63 bitrate=N/A speed=  37x elapsed=0:00:01.01
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_start: 40.666667
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_duration: 0.766667
 [Parsed_freezedetect_0 @ 0x828c69f80] lavfi.freezedetect.freeze_end: 41.433333
 [out#0/null @ 0x828c68300] video:714KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
-frame= 1724 fps=1132 q=-0.0 Lsize=N/A time=00:00:57.46 bitrate=N/A speed=37.7x elapsed=0:00:01.52    
+frame= 1724 fps=1132 q=-0.0 Lsize=N/A time=00:00:57.46 bitrate=N/A speed=37.7x elapsed=0:00:01.52

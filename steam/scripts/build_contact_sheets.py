@@ -18,7 +18,7 @@ MUTED = (170, 151, 122)
 
 
 def _font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    font_path = ROOT / "assets" / "fonts" / "LabyrinthCrumble-Display.ttf"
+    font_path = ROOT / "fonts" / "LabyrinthCrumble-Display.ttf"
     if font_path.exists():
         return ImageFont.truetype(str(font_path), size)
     return ImageFont.load_default()
@@ -91,6 +91,10 @@ def main() -> None:
         ("Shortcut icon", ASSETS / "client" / "shortcut_icon.png"),
         ("App icon", ASSETS / "client" / "app_icon.jpg"),
         ("Trailer poster", ASSETS / "trailer" / "poster.jpg"),
+        ("Description: Lantern Shot", ASSETS / "rich-description" / "01-lantern-shot.png"),
+        ("Description: Cleaver Hook", ASSETS / "rich-description" / "02-cleaver-hook.png"),
+        ("Description: Character", ASSETS / "rich-description" / "03-character-loadout.png"),
+        ("Description: Map", ASSETS / "rich-description" / "04-route-map.png"),
     ]
     screenshot_entries = [
         (path.stem.replace("-", " ").title(), path)
@@ -109,6 +113,23 @@ def main() -> None:
         QA / "screenshots-contact-sheet.jpg",
         columns=2,
         preview_size=(960, 540),
+    )
+    comparison_entries = [
+        ("Previous — Lantern Shot", ROOT / "steam" / "source_art" / "rich-description" / "01-lantern-shot-reference.png"),
+        ("Current — Lantern Shot", ASSETS / "rich-description" / "01-lantern-shot.png"),
+        ("Previous — Cleaver Hook", ROOT / "steam" / "source_art" / "rich-description" / "02-cleaver-hook-reference.png"),
+        ("Current — Cleaver Hook", ASSETS / "rich-description" / "02-cleaver-hook.png"),
+        ("Previous — Character", ROOT / "steam" / "source_art" / "rich-description" / "03-character-loadout-reference.png"),
+        ("Current — Character", ASSETS / "rich-description" / "03-character-loadout.png"),
+        ("Previous — Map", ROOT / "steam" / "source_art" / "rich-description" / "04-route-map-reference.png"),
+        ("Current — Map", ASSETS / "rich-description" / "04-route-map.png"),
+    ]
+    _sheet(
+        "Steam rich-description images — previous / current",
+        comparison_entries,
+        QA / "rich-description-comparison.jpg",
+        columns=2,
+        preview_size=(780, 439),
     )
 
 

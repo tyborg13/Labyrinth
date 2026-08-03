@@ -74,4 +74,6 @@ for index in "${!CLIPS[@]}"; do
     "${output_path}"
 done
 
+python3 "${REPO_ROOT}/steam/scripts/generate_rich_description_assets.py"
+
 printf 'Captured %d current-build Steam screenshots in %s\n' "${#CLIPS[@]}" "${OUTPUT_DIR}"

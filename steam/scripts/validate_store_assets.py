@@ -27,6 +27,12 @@ REQUIRED_IMAGES = {
     "client/shortcut_icon.png": (512, 512),
     "client/app_icon.jpg": (184, 184),
 }
+RICH_DESCRIPTION_IMAGES = {
+    "rich-description/01-lantern-shot.png": (1560, 878),
+    "rich-description/02-cleaver-hook.png": (1560, 878),
+    "rich-description/03-character-loadout.png": (1560, 878),
+    "rich-description/04-route-map.png": (1560, 878),
+}
 
 
 def _validate_image(path: Path, expected_size: tuple[int, int]) -> list[str]:
@@ -85,6 +91,8 @@ def main() -> int:
     errors = []
     for relative, expected_size in REQUIRED_IMAGES.items():
         errors.extend(_validate_image(ASSET_ROOT / relative, expected_size))
+    for relative, expected_size in RICH_DESCRIPTION_IMAGES.items():
+        errors.extend(_validate_image(ASSET_ROOT / relative, expected_size))
 
     screenshots = sorted((ASSET_ROOT / "screenshots").glob("*.png"))
     if len(screenshots) != 8:
@@ -99,7 +107,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    print("Validated 11 images, 8 screenshots, trailer poster, and Steam-ready trailer codecs")
+    print("Validated 11 standard images, 4 rich-description images, 8 screenshots, trailer poster, and Steam-ready trailer codecs")
     return 0
 
 

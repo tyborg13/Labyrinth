@@ -9,6 +9,7 @@ From the repository root:
 ```bash
 python3 steam/scripts/generate_store_assets.py
 bash steam/scripts/capture_store_screenshots.sh
+# The capture script also derives the four rich-description replacements.
 python3 steam/scripts/build_contact_sheets.py
 python3 steam/scripts/validate_store_assets.py
 ```

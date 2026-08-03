@@ -32,6 +32,6 @@ Output #0, null, to 'pipe:':
     Side data:
       ICC Profile: (456 bytes)
 [Parsed_blackdetect_0 @ 0x83ac49f80] black_start:0 black_end:0.1 black_duration:0.1
-frame=  845 fps=0.0 q=-0.0 size=N/A time=00:00:28.16 bitrate=N/A speed=55.2x elapsed=0:00:00.51    
+frame=  845 fps=0.0 q=-0.0 size=N/A time=00:00:28.16 bitrate=N/A speed=55.2x elapsed=0:00:00.51
 [out#0/null @ 0x83ac48300] video:714KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
-frame= 1724 fps=1715 q=-0.0 Lsize=N/A time=00:00:57.46 bitrate=N/A speed=57.2x elapsed=0:00:01.00    
+frame= 1724 fps=1715 q=-0.0 Lsize=N/A time=00:00:57.46 bitrate=N/A speed=57.2x elapsed=0:00:01.00
