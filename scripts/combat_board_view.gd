@@ -1373,7 +1373,12 @@ func reset_navigation() -> void:
 		_navigation_transform_changed(true)
 
 func _default_navigation_zoom_for_viewport() -> float:
-	var viewport_height: float = get_viewport_rect().size.y
+	# Layout helpers are also exercised on detached board instances by tests and
+	# tooling. Avoid asking CanvasItem for a viewport rect until the node is in a
+	# tree; preserve the historical neutral zoom when no authored size exists.
+	if not is_inside_tree() and size.y <= 0.0:
+		return BOARD_DEFAULT_NAVIGATION_ZOOM
+	var viewport_height: float = get_viewport_rect().size.y if is_inside_tree() else size.y
 	var expansion: float = clampf(
 		(viewport_height - BOARD_COMPACT_VIEWPORT_HEIGHT) / (BOARD_EXPANDED_VIEWPORT_HEIGHT - BOARD_COMPACT_VIEWPORT_HEIGHT),
 		0.0,

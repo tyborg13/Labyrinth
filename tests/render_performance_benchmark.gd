@@ -125,7 +125,10 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		objects_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)))
 		primitives_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)))
 	var snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary if board.has_method("render_instrumentation_snapshot") else {}
-	if not snapshot.is_empty():
+	# Older revisions exposed coarse draw counters through the same method name.
+	# Only enforce retained-renderer semantics when the retained-layer contract is
+	# actually present, so the identical workload can benchmark a pre-pass base.
+	if snapshot.has("retained_layer_count"):
 		var layer_counts: Dictionary = snapshot.get("layer_draw_counts", {}) as Dictionary
 		var scene_tile_counts: Dictionary = snapshot.get("scene_tile_draw_counts", {}) as Dictionary
 		_expect(int(snapshot.get("retained_layer_count", 0)) >= 4, "render benchmark requires retained board layers")
@@ -322,6 +325,9 @@ func _enemy(enemy_id: int, enemy_type: String, pos: Vector2i) -> Dictionary:
 
 func _verify_in_place_state_redraw(board: Control, presentation: Dictionary) -> bool:
 	if not board.has_method("render_instrumentation_snapshot") or not board.has_method("reset_render_instrumentation"):
+		return false
+	var initial_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+	if not initial_snapshot.has("retained_layer_count"):
 		return false
 	var retained_state: Dictionary = _stress_state()
 	board.call("set_combat_state", retained_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
