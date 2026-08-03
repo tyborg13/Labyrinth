@@ -123,4 +123,3 @@ In the handoff, lead with:
 - memory and node deltas;
 - semantic, test, and visual proof;
 - remaining risks and which hardware was actually measured.
-

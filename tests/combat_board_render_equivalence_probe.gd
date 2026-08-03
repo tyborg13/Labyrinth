@@ -60,6 +60,11 @@ func _initialize() -> void:
 		{
 			"focus_tiles": [Vector2i(5, 3), Vector2i(6, 3)],
 			"focus_color": Color(0.95, 0.48, 0.28, 0.20),
+			"damage_preview_time_seconds": 42.0,
+			"damage_preview": {
+				"enemy_1": {"hp": 9, "hp_loss": 6, "block": 0, "block_loss": 2, "stoneskin": 0, "stoneskin_loss": 0, "lethal": false},
+				"terrain_crate": {"hp": 3, "hp_loss": 5, "lethal": false}
+			},
 			"status_label": "Choose a target",
 			"status_detail": "Static preview fixture"
 		},

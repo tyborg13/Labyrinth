@@ -31,23 +31,27 @@ func _initialize() -> void:
 	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, idle_presentation)
 	for _frame: int in range(WARMUP_FRAMES):
 		await process_frame
-	board.call("reset_render_instrumentation")
+	_reset_render_instrumentation(board)
 
 	var results: Dictionary = {
 		"schema_version": 1,
+		"workload_id": "combat_board_max_content_v1",
+		"warmup_frames": WARMUP_FRAMES,
+		"phase_frames": PHASE_FRAMES,
 		"viewport": "%dx%d" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),
 		"ambient_particle_count": int(board.call("_ambient_particle_count", "ice", 81, 6)),
-		"idle": await _measure_phase(board, state, idle_presentation, false),
-		"action_heavy": await _measure_phase(board, state, _action_presentation(), true)
+		"idle": await _measure_phase(board, state, idle_presentation, "idle"),
+		"interaction": await _measure_phase(board, state, idle_presentation, "interaction"),
+		"movement": await _measure_phase(board, state, _movement_presentation(), "movement"),
+		"action_heavy": await _measure_phase(board, state, _action_presentation(), "action_heavy")
 	}
 	results["final_objects"] = int(Performance.get_monitor(Performance.OBJECT_COUNT))
 	results["final_nodes"] = int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
 	results["final_orphan_nodes"] = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	results["static_memory_bytes"] = int(Performance.get_monitor(Performance.MEMORY_STATIC))
 	_expect(int(results.get("final_orphan_nodes", -1)) == 0, "render benchmark must not leave orphan nodes")
-	results["semantic_errors"] = _errors
 
 	await process_frame
 	await process_frame
@@ -63,6 +67,8 @@ func _initialize() -> void:
 			screenshot.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	_expect(screenshot.get_size() == VIEWPORT_SIZE, "render benchmark screenshot must normalize to 1920x1080")
 	_expect(screenshot.save_png(screenshot_path) == OK, "render benchmark screenshot could not be saved")
+	results["in_place_state_redraw_verified"] = await _verify_in_place_state_redraw(board, idle_presentation)
+	results["semantic_errors"] = _errors
 
 	if _errors.is_empty():
 		print("RENDER PERF RESULT: %s" % JSON.stringify(results))
@@ -71,16 +77,16 @@ func _initialize() -> void:
 		push_error("RENDER PERF RESULT: FAIL %s" % JSON.stringify(results))
 	quit(0 if _errors.is_empty() else 1)
 
-func _measure_phase(board: Control, state: Dictionary, source_presentation: Dictionary, animate_submission: bool) -> Dictionary:
+func _measure_phase(board: Control, state: Dictionary, source_presentation: Dictionary, phase_name: String) -> Dictionary:
 	var frame_intervals_ms: Array[float]
 	var process_ms: Array[float]
 	var draw_calls: Array[float]
 	var objects_in_frame: Array[float]
 	var primitives_in_frame: Array[float]
-	board.call("reset_render_instrumentation")
+	_reset_render_instrumentation(board)
 	var previous_tick: int = Time.get_ticks_usec()
 	for frame_index: int in range(PHASE_FRAMES):
-		if animate_submission:
+		if phase_name == "action_heavy":
 			# CombatBoardView retains caller-owned snapshots. Give each animation
 			# frame a distinct snapshot so the benchmark measures real submissions
 			# instead of mutating the board's current dictionary in place.
@@ -92,6 +98,24 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 			effect["progress"] = phase
 			presentation["effect"] = effect
 			board.call("set_combat_state", state, [], _attack_tiles(), Vector2i(4, 3), "Choose a target", "Performance stress", {}, {}, presentation)
+		elif phase_name == "interaction":
+			var hover_tiles: Array[Vector2i] = _interaction_tiles()
+			var motion := InputEventMouseMotion.new()
+			motion.position = board.call("_tile_center", hover_tiles[frame_index % hover_tiles.size()]) as Vector2
+			board.call("_gui_input", motion)
+		elif phase_name == "movement":
+			var presentation: Dictionary = source_presentation.duplicate(true)
+			# Match the authored MOVE_STEP_FRAMES cadence while repeating it long
+			# enough for stable frame-pacing statistics.
+			var phase: float = float(frame_index % 8) / 7.0
+			var from_point: Vector2 = board.call("world_position_for_tile", Vector2i(4, 4)) as Vector2
+			var to_point: Vector2 = board.call("world_position_for_tile", Vector2i(4, 2)) as Vector2
+			presentation["unit_world_positions"] = {"player": from_point.lerp(to_point, phase)}
+			presentation["unit_draw_tiles"] = {"player": Vector2i(4, 2)}
+			var effect: Dictionary = (presentation.get("effect", {}) as Dictionary).duplicate(true)
+			effect["progress"] = phase
+			presentation["effect"] = effect
+			board.call("set_combat_state", state, [], [], Vector2i(4, 2), "Movement stress", "Animated actor position", {}, {}, presentation)
 		await process_frame
 		var now_tick: int = Time.get_ticks_usec()
 		frame_intervals_ms.append(float(now_tick - previous_tick) / 1000.0)
@@ -100,19 +124,28 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		draw_calls.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
 		objects_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)))
 		primitives_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)))
-	var snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
-	var draw_count: int = maxi(1, int(snapshot.get("dynamic_draw_count", 0)))
-	var total_draw_usec: int = int(snapshot.get("dynamic_draw_total_usec", 0))
-	var layer_counts: Dictionary = snapshot.get("layer_draw_counts", {}) as Dictionary
-	_expect(int(snapshot.get("retained_layer_count", 0)) >= 4, "render benchmark requires retained board layers")
-	_expect(int(snapshot.get("static_draw_count", -1)) == 0, "steady-state phases must not redraw the static floor")
-	if animate_submission:
-		_expect(int(layer_counts.get("hud", 999)) <= 2, "animation-only submissions must retain unchanged unit HUDs")
-	else:
-		_expect(int(layer_counts.get("hud", -1)) == 0, "idle ambient/sprite animation must retain unit HUDs")
-		_expect(int(layer_counts.get("effects", -1)) == 0, "idle animation must retain the effects layer")
-		_expect(int(layer_counts.get("world", -1)) == 0, "idle occupied-tile animation must retain ground overlays")
-	return {
+	var snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary if board.has_method("render_instrumentation_snapshot") else {}
+	if not snapshot.is_empty():
+		var layer_counts: Dictionary = snapshot.get("layer_draw_counts", {}) as Dictionary
+		var scene_tile_counts: Dictionary = snapshot.get("scene_tile_draw_counts", {}) as Dictionary
+		_expect(int(snapshot.get("retained_layer_count", 0)) >= 4, "render benchmark requires retained board layers")
+		_expect(int(snapshot.get("static_draw_count", -1)) == 0, "steady-state phases must not redraw the static floor")
+		if phase_name == "action_heavy":
+			_expect(int(layer_counts.get("hud", 999)) <= 2, "damage-preview pulses must update in the effects layer without rebuilding unchanged HUD commands")
+			_expect(int(layer_counts.get("foreground", 0)) > 2, "large-enemy attack pulses must continuously redraw their foreground highlights")
+		elif phase_name == "interaction":
+			_expect(int(layer_counts.get("world", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive tile overlays")
+			_expect(int(layer_counts.get("hud", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive enemy HUDs")
+			_expect(int(layer_counts.get("effects", -1)) == 0, "pointer interaction must retain unchanged effects")
+		elif phase_name == "movement":
+			_expect(int(layer_counts.get("hud", 0)) > 0, "moving actors must continuously update their anchored HUD geometry")
+			_expect(int(layer_counts.get("scene_tile", 0)) > 0, "moving actors must continuously update scene geometry")
+		else:
+			_expect(int(layer_counts.get("hud", -1)) == 0, "idle ambient/sprite animation must retain unit HUDs")
+			_expect(int(layer_counts.get("effects", -1)) == 0, "idle animation must retain the effects layer")
+			_expect(int(layer_counts.get("world", -1)) == 0, "idle occupied-tile animation must retain ground overlays")
+			_expect(int(scene_tile_counts.get("4,1", 0)) > 0, "pillar torch sprite sheets must redraw their grid-owned scene tile")
+	var result: Dictionary = {
 		"frame_interval_ms": _stats(frame_intervals_ms),
 		"process_ms": _stats(process_ms),
 		"draw_calls": _stats(draw_calls),
@@ -120,11 +153,15 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		"primitives_in_frame": _stats(primitives_in_frame),
 		"frames_over_16_67_ms": _count_over(frame_intervals_ms, 16.67),
 		"frames_over_20_ms": _count_over(frame_intervals_ms, 20.0),
-		"frames_over_33_33_ms": _count_over(frame_intervals_ms, 33.33),
-		"dynamic_draw_cpu_us_per_draw": float(total_draw_usec) / float(draw_count),
-		"dynamic_draw_cpu_us_per_phase_frame": float(total_draw_usec) / float(PHASE_FRAMES),
-		"render_instrumentation": snapshot
+		"frames_over_33_33_ms": _count_over(frame_intervals_ms, 33.33)
 	}
+	if not snapshot.is_empty():
+		var draw_count: int = maxi(1, int(snapshot.get("dynamic_draw_count", 0)))
+		var total_draw_usec: int = int(snapshot.get("dynamic_draw_total_usec", 0))
+		result["dynamic_draw_cpu_us_per_draw"] = float(total_draw_usec) / float(draw_count)
+		result["dynamic_draw_cpu_us_per_phase_frame"] = float(total_draw_usec) / float(PHASE_FRAMES)
+		result["render_instrumentation"] = snapshot
+	return result
 
 func _stats(source: Array[float]) -> Dictionary:
 	var values: Array[float] = source.duplicate()
@@ -165,13 +202,23 @@ func _idle_presentation() -> Dictionary:
 func _action_presentation() -> Dictionary:
 	var damage_preview: Dictionary = {}
 	for enemy_id: int in range(1, 7):
-		damage_preview["enemy_%d" % enemy_id] = {"hp_loss": 18, "block_loss": 4, "stoneskin_loss": 0}
+		damage_preview["enemy_%d" % enemy_id] = {
+			"hp": 162,
+			"hp_loss": 18,
+			"block": 6,
+			"block_loss": 4,
+			"stoneskin": 4,
+			"stoneskin_loss": 0,
+			"lethal": false
+		}
+	damage_preview["terrain_perf_crate_a"] = {"hp": 2, "hp_loss": 6, "lethal": false}
 	return {
 		"scene_props": [],
 		"active_door_tiles": {},
 		"locked_door_tiles": {},
 		"ambient_time_seconds": 42.0,
 		"visible_enemy_ids": [1, 2, 3, 4, 5, 6],
+		"pulse_attack_tiles": true,
 		"damage_preview": damage_preview,
 		"impact_actor_keys": ["enemy_1", "enemy_2", "enemy_3", "enemy_4", "enemy_5", "enemy_6"],
 		"impact_decals": [
@@ -190,9 +237,27 @@ func _action_presentation() -> Dictionary:
 		}
 	}
 
+func _movement_presentation() -> Dictionary:
+	return {
+		"scene_props": [],
+		"active_door_tiles": {},
+		"locked_door_tiles": {},
+		"ambient_time_seconds": 42.0,
+		"visible_enemy_ids": [1, 2, 3, 4, 5, 6],
+		"focus_actor_keys": ["player"],
+		"focus_tiles": [Vector2i(4, 2)],
+		"effect": {"kind": "melee", "from": Vector2i(4, 4), "to": Vector2i(4, 2), "progress": 0.0}
+	}
+
 func _attack_tiles() -> Array[Vector2i]:
 	var tiles: Array[Vector2i]
 	for tile: Vector2i in [Vector2i(2, 2), Vector2i(3, 2), Vector2i(4, 2), Vector2i(5, 2), Vector2i(6, 2)]:
+		tiles.append(tile)
+	return tiles
+
+func _interaction_tiles() -> Array[Vector2i]:
+	var tiles: Array[Vector2i]
+	for tile: Vector2i in [Vector2i(2, 2), Vector2i(4, 2), Vector2i(6, 2), Vector2i(4, 4)]:
 		tiles.append(tile)
 	return tiles
 
@@ -229,6 +294,7 @@ func _stress_grid() -> Array:
 		for x: int in range(9):
 			row.append("wall" if x == 0 or y == 0 or x == 8 or y == 8 else "stone")
 		grid.append(row)
+	(grid[1] as Array)[4] = "pillar"
 	return grid
 
 func _stress_enemies() -> Array:
@@ -250,8 +316,32 @@ func _enemy(enemy_id: int, enemy_type: String, pos: Vector2i) -> Dictionary:
 		"max_hp": 180,
 		"block": 10,
 		"stoneskin": 4,
+		"footprint": Vector2i(2, 2) if enemy_id == 1 else Vector2i.ONE,
 		"intent": {"name": "Pressure", "actions": [{"type": "move_toward", "range": 2}, {"type": "melee", "damage": 30, "range": 1}]}
 	}
+
+func _verify_in_place_state_redraw(board: Control, presentation: Dictionary) -> bool:
+	if not board.has_method("render_instrumentation_snapshot") or not board.has_method("reset_render_instrumentation"):
+		return false
+	var retained_state: Dictionary = _stress_state()
+	board.call("set_combat_state", retained_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
+	await process_frame
+	await process_frame
+	board.call("reset_render_instrumentation")
+	var enemies: Array = retained_state.get("enemies", []) as Array
+	var first_enemy: Dictionary = enemies[0] as Dictionary
+	first_enemy["hp"] = int(first_enemy.get("hp", 0)) - 1
+	board.call("set_combat_state", retained_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
+	await process_frame
+	await process_frame
+	var snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+	var redrew: bool = int(snapshot.get("dynamic_draw_count", 0)) > 0
+	_expect(redrew, "in-place state mutations detected by the deep cache snapshot must still invalidate retained layers")
+	return redrew
+
+func _reset_render_instrumentation(board: Control) -> void:
+	if board.has_method("reset_render_instrumentation"):
+		board.call("reset_render_instrumentation")
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

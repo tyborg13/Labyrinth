@@ -211,6 +211,7 @@ const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
 const RENDER_LAYER_FOREGROUND: String = "foreground"
 const RENDER_LAYER_HUD: String = "hud"
 const RENDER_LAYER_EFFECTS: String = "effects"
+const HUD_LAYOUT_CACHE_LIMIT: int = 32
 const UMBRA_RETURN_STAGGER_SECONDS: float = 0.52
 const UMBRA_RETURN_FADE_SECONDS: float = 0.46
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
@@ -390,9 +391,17 @@ var _ability_tiles_cache: Array[Vector2i] = []
 var _ambient_element_id_cache: String = ElementData.NONE
 var _equipment_pickup_beacon_cache: bool = false
 var _preview_unit_pulse_cache: bool = false
+var _hud_health_rects_cache: Dictionary = {}
+var _hud_health_rects_source_snapshot: Dictionary = {}
+var _hud_layout_entries_cache: Array = []
+var _hud_layout_cache_by_signature: Dictionary = {}
+var _hud_layout_cache_order: Array = []
+var _foreground_obstruction_candidates_cache: Array = []
+var _foreground_obstruction_candidates_source_snapshot: Dictionary = {}
 var _texture_used_rect_cache: Dictionary = {}
 var _submission_cache_source_snapshot: Dictionary = {}
 var _submission_cache_initialized: bool = false
+var _submission_cache_combat_changed: bool = false
 var _is_dynamic_render_layer: bool = false
 var _render_layer_kind: String = ""
 var _render_layer_tile: Vector2i = Vector2i(-1, -1)
@@ -436,6 +445,7 @@ func _on_board_resized() -> void:
 		return
 	_invalidate_board_layout_cache(false)
 	_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units())
+	_rebuild_hud_health_rects_cache()
 	_sync_dynamic_render_state(false)
 	for layer: Control in _retained_render_layers():
 		layer.call("_invalidate_board_layout_cache", false)
@@ -544,7 +554,8 @@ func _sync_dynamic_render_state(layout_changed: bool = false) -> void:
 			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
 			"_ability_tiles_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
-			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache"
+			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_hud_health_rects_cache",
+			"_hud_layout_entries_cache"
 		]:
 			layer.set(field, get(field))
 
@@ -572,6 +583,7 @@ func render_instrumentation_snapshot() -> Dictionary:
 	var section_max_usec: Dictionary = _render_section_max_usec.duplicate()
 	var layer_draw_counts: Dictionary = {}
 	var layer_draw_total_usec: Dictionary = {}
+	var scene_tile_draw_counts: Dictionary = {}
 	if not _retained_render_layers().is_empty():
 		dynamic_count = 0
 		dynamic_total_usec = 0
@@ -585,6 +597,9 @@ func render_instrumentation_snapshot() -> Dictionary:
 			dynamic_max_usec = maxi(dynamic_max_usec, int(layer.get("_dynamic_draw_max_usec")))
 			layer_draw_counts[layer_kind] = int(layer_draw_counts.get(layer_kind, 0)) + layer_count
 			layer_draw_total_usec[layer_kind] = int(layer_draw_total_usec.get(layer_kind, 0)) + layer_total
+			if layer_kind == RENDER_LAYER_SCENE_TILE:
+				var layer_tile: Vector2i = layer.get("_render_layer_tile") as Vector2i
+				scene_tile_draw_counts["%d,%d" % [layer_tile.x, layer_tile.y]] = layer_count
 			_merge_render_section_metrics(section_total_usec, layer.get("_render_section_total_usec") as Dictionary, false)
 			_merge_render_section_metrics(section_max_usec, layer.get("_render_section_max_usec") as Dictionary, true)
 	return {
@@ -598,8 +613,10 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"render_section_max_usec": section_max_usec,
 		"layer_draw_counts": layer_draw_counts,
 		"layer_draw_total_usec": layer_draw_total_usec,
+		"scene_tile_draw_counts": scene_tile_draw_counts,
 		"split_layers_active": _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer),
 		"retained_layer_count": _retained_render_layers().size(),
+		"hud_layout_cache_entries": _hud_layout_cache_by_signature.size(),
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
 		"layout_content_rebuild_count": _board_layout_content_rebuild_count
 	}
@@ -657,10 +674,27 @@ func _queue_continuous_render_redraws() -> void:
 		or _impact_animation_active()
 	):
 		_queue_render_layer_redraw(_dynamic_render_layer)
-	if _campfire_atmosphere_active() or _pillar_torch_ember_motes_active() or str(presentation.get("umbra_stage", "clear")) != "clear":
+	if (
+		_campfire_atmosphere_active()
+		or _pillar_torch_ember_motes_active()
+		or str(presentation.get("umbra_stage", "clear")) != "clear"
+		or (bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
+	):
 		_queue_render_layer_redraw(_foreground_render_layer)
 	_queue_continuously_animated_scene_redraws()
-	if not _damage_preview_map().is_empty() or _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
+	var damage_preview: Dictionary = _damage_preview_map()
+	if not damage_preview.is_empty():
+		# Damage-preview fill and lethal markers use the existing continuous
+		# presentation cadence. Retaining unrelated layers must not freeze those
+		# pulses, including destructible-terrain health bars drawn per tile.
+		for terrain_var: Variant in combat_state.get("terrain", []):
+			if typeof(terrain_var) != TYPE_DICTIONARY:
+				continue
+			var terrain: Dictionary = terrain_var as Dictionary
+			if not _terrain_damage_preview(terrain).is_empty():
+				_queue_scene_render_layer_for_tile(terrain.get("pos", Vector2i(-1, -1)))
+		_queue_render_layer_redraw(_effects_render_layer)
+	elif _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
 		_queue_render_layer_redraw(_effects_render_layer)
 
 func _queue_continuously_animated_scene_redraws() -> void:
@@ -700,9 +734,10 @@ func _queue_active_idle_scene_redraws() -> void:
 		if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
 			_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
 	if _pillar_torch_idle_animation_active():
-		for prop_var: Variant in presentation.get("scene_props", []):
-			if typeof(prop_var) == TYPE_DICTIONARY and str((prop_var as Dictionary).get("kind", "")) == "pillar_torch":
-				_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+		var grid: Array = combat_state.get("grid", [])
+		for tile: Vector2i in _rendered_tiles_in_draw_order():
+			if _tile_renders_as_pillar(grid, tile):
+				_queue_scene_render_layer_for_tile(tile)
 
 func _queue_scene_render_layer_for_tile(tile: Vector2i) -> void:
 	var layer: Control = _scene_render_layers_by_tile.get(tile, null) as Control
@@ -804,9 +839,16 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	)
 	var presentation_changes: Dictionary = {}
 	var previous_damage_preview: Dictionary = {}
+	var moving_actor_keys: Dictionary = {}
+	var previous_unit_render_tiles: Dictionary = {}
+	var previous_unit_obstruction_entries: Dictionary = {}
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
 		presentation_changes = _changed_presentation_keys(presentation, next_presentation)
 		previous_damage_preview = _damage_preview_map().duplicate(true)
+		moving_actor_keys = _changed_unit_presentation_actor_keys(presentation, next_presentation)
+		if not moving_actor_keys.is_empty():
+			previous_unit_render_tiles = _unit_render_tiles_by_key(_visible_units())
+			previous_unit_obstruction_entries = _unit_obstruction_entries_by_key(_visible_units())
 	var next_room_grid_signature: String = _room_grid_signature(next_state)
 	var next_navigation_content_signature: String = "%s|%s" % [
 		next_room_grid_signature,
@@ -846,6 +888,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_moss_signature = next_moss_signature
 		_moss_tiles_by_surface = _build_moss_tile_lookup(combat_state.get("moss", {}))
 	_rebuild_submission_caches()
+	_rebuild_hud_health_rects_cache()
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer) and (layout_changed or _scene_render_layers.is_empty()):
 		_sync_scene_render_layers()
 		_sync_dynamic_render_assets()
@@ -853,10 +896,16 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	_update_cursor_shape()
 	if layout_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
-	if state_changed or interaction_changed or layout_changed or floor_changed or moss_changed:
+	if state_changed or _submission_cache_combat_changed or interaction_changed or layout_changed or floor_changed or moss_changed:
 		_queue_dynamic_redraw()
 	else:
-		_queue_presentation_change_redraws(presentation_changes, previous_damage_preview != _damage_preview_cache)
+		_queue_presentation_change_redraws(
+			presentation_changes,
+			previous_damage_preview != _damage_preview_cache,
+			moving_actor_keys,
+			previous_unit_render_tiles,
+			previous_unit_obstruction_entries
+		)
 
 func _changed_presentation_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
 	var changed: Dictionary = {}
@@ -868,13 +917,50 @@ func _changed_presentation_keys(previous: Dictionary, next: Dictionary) -> Dicti
 			changed[str(key_var)] = true
 	return changed
 
-func _queue_presentation_change_redraws(changed_keys: Dictionary, damage_preview_changed: bool = false) -> void:
+func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
+	var changed: Dictionary = {}
+	for field: String in ["unit_world_positions", "unit_draw_tiles"]:
+		var previous_values: Dictionary = previous.get(field, {}) as Dictionary
+		var next_values: Dictionary = next.get(field, {}) as Dictionary
+		for key_var: Variant in previous_values:
+			if not next_values.has(key_var) or previous_values.get(key_var) != next_values.get(key_var):
+				changed[str(key_var)] = true
+		for key_var: Variant in next_values:
+			if not previous_values.has(key_var) or previous_values.get(key_var) != next_values.get(key_var):
+				changed[str(key_var)] = true
+	return changed
+
+func _unit_render_tiles_by_key(units_to_draw: Array[Dictionary]) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if not actor_key.is_empty():
+			result[actor_key] = _effective_unit_tile(unit)
+	return result
+
+func _unit_obstruction_entries_by_key(units_to_draw: Array[Dictionary]) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_key.is_empty():
+			continue
+		result[actor_key] = {"tile": _effective_unit_tile(unit), "rect": _unit_draw_rect(unit)}
+	return result
+
+func _queue_presentation_change_redraws(
+	changed_keys: Dictionary,
+	damage_preview_changed: bool = false,
+	moving_actor_keys: Dictionary = {},
+	previous_unit_render_tiles: Dictionary = {},
+	previous_unit_obstruction_entries: Dictionary = {}
+) -> void:
 	if changed_keys.is_empty() and not damage_preview_changed:
 		return
 	var ambient_changed: bool = false
 	var world_changed: bool = false
 	var impact_changed: bool = false
-	var all_scene_tiles_changed: bool = false
+	var unit_movement_changed: bool = false
+	var foreground_changed: bool = false
 	var hud_changed: bool = false
 	var effects_changed: bool = false
 	for key_var: Variant in changed_keys:
@@ -890,8 +976,9 @@ func _queue_presentation_change_redraws(changed_keys: Dictionary, damage_preview
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
 				world_changed = true
 				impact_changed = true
-			"unit_world_positions":
-				all_scene_tiles_changed = true
+			"unit_world_positions", "unit_draw_tiles":
+				unit_movement_changed = true
+				foreground_changed = true
 				hud_changed = true
 			_:
 				# Unclassified presentation state remains conservative. The retained
@@ -905,9 +992,10 @@ func _queue_presentation_change_redraws(changed_keys: Dictionary, damage_preview
 		_queue_render_layer_redraw(_dynamic_render_layer)
 	if impact_changed:
 		_queue_impact_scene_redraws()
-	if all_scene_tiles_changed:
-		for layer_var: Variant in _scene_render_layers:
-			_queue_render_layer_redraw(layer_var as Control)
+	if unit_movement_changed:
+		_queue_moving_actor_redraws(moving_actor_keys, previous_unit_render_tiles, previous_unit_obstruction_entries)
+	if foreground_changed:
+		_queue_render_layer_redraw(_foreground_render_layer)
 	if damage_preview_changed:
 		hud_changed = true
 		for terrain_var: Variant in combat_state.get("terrain", []):
@@ -917,6 +1005,99 @@ func _queue_presentation_change_redraws(changed_keys: Dictionary, damage_preview
 		_queue_render_layer_redraw(_hud_render_layer)
 	if effects_changed:
 		_queue_render_layer_redraw(_effects_render_layer)
+
+func _queue_moving_actor_redraws(
+	moving_actor_keys: Dictionary,
+	previous_unit_render_tiles: Dictionary,
+	previous_unit_obstruction_entries: Dictionary
+) -> void:
+	var current_render_tiles: Dictionary = _unit_render_tiles_by_key(_visible_units())
+	var current_obstruction_entries: Dictionary = _unit_obstruction_entries_by_key(_visible_units())
+	var previous_moving_entries: Array = []
+	var current_moving_entries: Array = []
+	for actor_key_var: Variant in moving_actor_keys:
+		var actor_key: String = str(actor_key_var)
+		if previous_unit_render_tiles.has(actor_key):
+			_queue_scene_render_layer_for_tile(previous_unit_render_tiles.get(actor_key, Vector2i(-1, -1)))
+		if current_render_tiles.has(actor_key):
+			_queue_scene_render_layer_for_tile(current_render_tiles.get(actor_key, Vector2i(-1, -1)))
+		if previous_unit_obstruction_entries.has(actor_key):
+			previous_moving_entries.append(previous_unit_obstruction_entries.get(actor_key))
+		if current_obstruction_entries.has(actor_key):
+			current_moving_entries.append(current_obstruction_entries.get(actor_key))
+	for candidate_var: Variant in _foreground_obstruction_candidates():
+		var candidate: Dictionary = candidate_var as Dictionary
+		if (
+			_moving_entries_obstruct_candidate(previous_moving_entries, candidate)
+			!= _moving_entries_obstruct_candidate(current_moving_entries, candidate)
+		):
+			_queue_scene_render_layer_for_tile(candidate.get("tile", Vector2i(-1, -1)))
+
+func _foreground_obstruction_candidates() -> Array:
+	var source: Dictionary = {
+		"size": size,
+		"navigation_zoom": _navigation_zoom,
+		"navigation_pan": _navigation_pan,
+		"grid": combat_state.get("grid", []),
+		"scene_props": presentation.get("scene_props", []),
+		"terrain": combat_state.get("terrain", [])
+	}
+	if source == _foreground_obstruction_candidates_source_snapshot:
+		return _foreground_obstruction_candidates_cache
+	var candidates: Array = []
+	var grid: Array = combat_state.get("grid", [])
+	for tile: Vector2i in _rendered_tiles_in_draw_order():
+		for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
+			if typeof(prop_var) != TYPE_DICTIONARY:
+				continue
+			var prop: Dictionary = prop_var as Dictionary
+			var prop_texture: Texture2D = _texture_for_scene_prop(prop)
+			if prop_texture != null:
+				candidates.append({"tile": tile, "rect": _scene_prop_rect(prop_texture, prop)})
+		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+		if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
+			tile_id = "pillar"
+		match tile_id:
+			"pillar":
+				var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
+				if pillar_texture != null:
+					candidates.append({"tile": tile, "rect": _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))})
+			"wall":
+				for segment: Dictionary in _boundary_prop_segments(tile_id, grid, tile):
+					candidates.append({"tile": tile, "rect": segment.get("draw_rect", Rect2())})
+			"door":
+				var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
+				if door_texture != null:
+					candidates.append({"tile": tile, "rect": _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))})
+		for terrain_var: Variant in _entries_for_tile(_terrain_by_tile, combat_state.get("terrain", []), "pos", tile):
+			if typeof(terrain_var) != TYPE_DICTIONARY:
+				continue
+			var terrain: Dictionary = terrain_var as Dictionary
+			if int(terrain.get("hp", 0)) <= 0:
+				continue
+			var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
+			if terrain_texture != null:
+				candidates.append({
+					"tile": tile,
+					"rect": _terrain_rect_for_tile(tile, terrain_texture, str(terrain.get("kind", "")))
+				})
+	_foreground_obstruction_candidates_source_snapshot = source.duplicate(true)
+	_foreground_obstruction_candidates_cache = candidates
+	return _foreground_obstruction_candidates_cache
+
+func _moving_entries_obstruct_candidate(moving_entries: Array, candidate: Dictionary) -> bool:
+	var candidate_tile: Vector2i = candidate.get("tile", Vector2i(-1, -1))
+	var candidate_rect: Rect2 = candidate.get("rect", Rect2())
+	for entry_var: Variant in moving_entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var entry_tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+		if not _tile_draws_before(entry_tile, candidate_tile):
+			continue
+		if _foreground_overlap_coverage(candidate_rect, entry.get("rect", Rect2())) >= FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD:
+			return true
+	return false
 
 func _update_umbra_return_transition(previous_state: Dictionary, previous_presentation: Dictionary, next_state: Dictionary, next_presentation: Dictionary, layout_changed: bool) -> void:
 	if layout_changed or str(next_presentation.get("umbra_stage", "clear")) == "clear":
@@ -971,13 +1152,13 @@ func _update_umbra_return_transition(previous_state: Dictionary, previous_presen
 		var delay: float = (1.0 - normalized_distance) * UMBRA_RETURN_STAGGER_SECONDS
 		_umbra_return_start_by_tile[tile] = now_seconds + delay
 
-func _rebuild_submission_caches() -> void:
+func _rebuild_submission_caches() -> bool:
 	var effect: Dictionary = presentation.get("effect", {})
 	# Compare only inputs used to derive the caches. The deep snapshot catches
 	# in-place animation-state mutation, while unchanged presentation frames take
 	# the engine's native Variant comparison fast path instead of rebuilding
 	# dozens of display dictionaries in GDScript.
-	var cache_source: Dictionary = {
+	var combat_source: Dictionary = {
 		"player": combat_state.get("player", {}),
 		"player_turn_restrictions": combat_state.get("player_turn_restrictions", {}),
 		"illusions": combat_state.get("illusions", []),
@@ -988,13 +1169,16 @@ func _rebuild_submission_caches() -> void:
 		"traps": combat_state.get("traps", []),
 		"elemental_intensity": combat_state.get("elemental_intensity", {}),
 		"grid": combat_state.get("grid", []),
-		"room_element": combat_state.get("room_element", ElementData.NONE),
+		"room_element": combat_state.get("room_element", ElementData.NONE)
+	}
+	var presentation_source: Dictionary = {
 		"scene_props": presentation.get("scene_props", []),
 		"ability_tiles": presentation.get("ability_tiles", []),
 		"preview_units": presentation.get("preview_units", []),
 		"death_animation_units": presentation.get("death_animation_units", []),
 		"terrain_destruction_units": presentation.get("terrain_destruction_units", []),
 		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
+		"unit_world_positions": presentation.get("unit_world_positions", {}),
 		"damage_preview": presentation.get("damage_preview", {}),
 		"effect_damage_preview": effect.get("damage_preview", {}),
 		"visible_enemy_ids": presentation.get("visible_enemy_ids", []),
@@ -1002,9 +1186,15 @@ func _rebuild_submission_caches() -> void:
 		"umbra_light_sources": presentation.get("umbra_light_sources", []),
 		"umbra_stage": presentation.get("umbra_stage", "clear")
 	}
+	var cache_source: Dictionary = {"combat": combat_source, "presentation": presentation_source}
+	_submission_cache_combat_changed = (
+		not _submission_cache_initialized
+		or combat_source != (_submission_cache_source_snapshot.get("combat", {}) as Dictionary)
+	)
 	if _submission_cache_initialized and cache_source == _submission_cache_source_snapshot:
 		_submission_cache_valid = true
-		return
+		_submission_cache_combat_changed = false
+		return false
 	_submission_cache_source_snapshot = cache_source.duplicate(true)
 	_submission_cache_initialized = true
 	_damage_preview_cache = _build_damage_preview_map(presentation)
@@ -1046,6 +1236,7 @@ func _rebuild_submission_caches() -> void:
 			_preview_unit_pulse_cache = true
 			break
 	_submission_cache_valid = true
+	return true
 
 func _index_dictionary_entries_by_tile(entries: Array, tile_key: String) -> Dictionary:
 	var index: Dictionary = {}
@@ -1236,7 +1427,7 @@ func _update_hover_at(pointer_position: Vector2) -> Vector2i:
 	_hover_tile = next_hover
 	tile_hovered.emit(_hover_tile)
 	_update_cursor_shape()
-	_queue_dynamic_redraw()
+	_queue_hover_redraws()
 	return next_hover
 
 func _clear_hover_for_navigation() -> void:
@@ -1244,11 +1435,28 @@ func _clear_hover_for_navigation() -> void:
 		return
 	_hover_tile = Vector2i(-1, -1)
 	tile_hovered.emit(_hover_tile)
-	_queue_dynamic_redraw()
+	_queue_hover_redraws()
+
+func _queue_hover_redraws() -> void:
+	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
+		queue_redraw()
+		return
+	# Hover only changes tile overlays and enemy intent/HUD layout. Ambient,
+	# occupied-tile art, foreground atmosphere, and effects retain their draw
+	# commands while pointer motion remains fully event-driven.
+	_rebuild_hud_health_rects_cache()
+	if _hud_render_layer != null and is_instance_valid(_hud_render_layer):
+		_hud_render_layer.set("_hud_layout_entries_cache", _hud_layout_entries_cache)
+		_hud_render_layer.set("_hud_health_rects_cache", _hud_health_rects_cache)
+	if _effects_render_layer != null and is_instance_valid(_effects_render_layer):
+		_effects_render_layer.set("_hud_health_rects_cache", _hud_health_rects_cache)
+	_queue_render_layer_redraw(_dynamic_render_layer)
+	_queue_render_layer_redraw(_hud_render_layer)
 
 func _navigation_transform_changed(update_hover: bool) -> void:
 	_invalidate_board_layout_cache(false)
 	_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units())
+	_rebuild_hud_health_rects_cache()
 	_sync_dynamic_render_state(false)
 	for layer: Control in _retained_render_layers():
 		layer.call("_invalidate_board_layout_cache", false)
@@ -1428,6 +1636,7 @@ func _draw_effects_render_layer() -> void:
 		return
 	var section_started_usec: int = Time.get_ticks_usec()
 	var units_to_draw: Array[Dictionary] = _visible_units()
+	_draw_unit_damage_preview_overlays(units_to_draw)
 	_draw_effect_overlay()
 	_draw_lethal_preview_icons(units_to_draw)
 	_draw_movement_risk_chips()
@@ -3947,6 +4156,9 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			draw_texture_rect(texture, shifted_rect, false, flash)
 
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
+	if not _hud_layout_entries_cache.is_empty():
+		_draw_unit_huds_from_layout_cache(units_to_draw)
+		return
 	var font: Font = get_theme_default_font()
 	var reserved_rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
 	for unit: Dictionary in units_to_draw:
@@ -3979,6 +4191,115 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 			continue
 		_draw_health_bar(unit, health_rect)
 		_draw_unit_statuses(unit, health_rect)
+
+func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void:
+	var font: Font = get_theme_default_font()
+	var units_by_key: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		units_by_key[str(unit.get("key", ""))] = unit
+	for entry_var: Variant in _hud_layout_entries_cache:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var unit: Dictionary = units_by_key.get(str(entry.get("actor_key", "")), {}) as Dictionary
+		if unit.is_empty():
+			continue
+		var center: Vector2 = entry.get("center", _unit_center(unit))
+		match str(entry.get("kind", "")):
+			"npc":
+				_draw_npc_nameplate(unit, center)
+			"boss":
+				_draw_enemy_intent_layout(entry.get("layout", {}) as Dictionary, font)
+			"enemy":
+				var layout: Dictionary = entry.get("layout", {}) as Dictionary
+				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
+				_draw_enemy_hud_tether(unit, center, layout)
+				_draw_health_bar(unit, health_rect)
+				_draw_unit_statuses(unit, health_rect)
+				_draw_enemy_intent_layout(layout, font)
+			_:
+				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
+				_draw_health_bar(unit, health_rect)
+				_draw_unit_statuses(unit, health_rect)
+
+func _rebuild_hud_health_rects_cache() -> bool:
+	if not is_inside_tree() or combat_state.is_empty():
+		_hud_health_rects_cache.clear()
+		_hud_health_rects_source_snapshot.clear()
+		_hud_layout_entries_cache.clear()
+		return false
+	var source: Dictionary = {
+		"visible_units": _visible_units(),
+		"hover_tile": _hover_tile,
+		"size": size,
+		"navigation_zoom": _navigation_zoom,
+		"navigation_pan": _navigation_pan,
+		"expanded_enemy_actor_keys": presentation.get("expanded_enemy_actor_keys", []),
+		"expand_enemy_intents": presentation.get("expand_enemy_intents", false),
+		"show_all_enemy_intents": presentation.get("show_all_enemy_intents", false),
+		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
+		"unit_world_positions": presentation.get("unit_world_positions", {})
+	}
+	if source == _hud_health_rects_source_snapshot:
+		return false
+	_hud_health_rects_source_snapshot = source.duplicate(true)
+	var signature: int = hash(source)
+	var cached: Dictionary = _hud_layout_cache_by_signature.get(signature, {}) as Dictionary
+	if not cached.is_empty() and cached.get("source", {}) == source:
+		_hud_layout_entries_cache = cached.get("entries", []) as Array
+		_hud_health_rects_cache = cached.get("health_rects", {}) as Dictionary
+		return true
+	var built: Dictionary = _build_hud_layout_data(_visible_units())
+	_hud_layout_entries_cache = built.get("entries", []) as Array
+	_hud_health_rects_cache = built.get("health_rects", {}) as Dictionary
+	_hud_layout_cache_by_signature[signature] = {
+		"source": source.duplicate(true),
+		"entries": _hud_layout_entries_cache,
+		"health_rects": _hud_health_rects_cache
+	}
+	_hud_layout_cache_order.erase(signature)
+	_hud_layout_cache_order.append(signature)
+	while _hud_layout_cache_order.size() > HUD_LAYOUT_CACHE_LIMIT:
+		var stale_signature: Variant = _hud_layout_cache_order.pop_front()
+		_hud_layout_cache_by_signature.erase(stale_signature)
+	return true
+
+func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
+	var health_rects: Dictionary = {}
+	var entries: Array = []
+	var font: Font = get_theme_default_font()
+	var reserved_rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
+	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("death_animation", false)):
+			continue
+		var role: String = str(unit.get("role", ""))
+		if role == "illusion_preview":
+			continue
+		var center: Vector2 = _unit_center(unit)
+		var actor_key: String = str(unit.get("key", ""))
+		if role == "npc":
+			entries.append({"actor_key": actor_key, "kind": "npc", "center": center})
+			continue
+		if bool(unit.get("boss_bar", false)):
+			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
+			entries.append({"actor_key": actor_key, "kind": "boss", "center": center, "layout": boss_layout})
+			for rect_var: Variant in boss_layout.get("occupied_rects", []):
+				if typeof(rect_var) == TYPE_RECT2:
+					reserved_rects.append(rect_var)
+			continue
+		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+		if role == "enemy":
+			var enemy_layout: Dictionary = _enemy_hud_layout(unit, center, reserved_rects, font)
+			health_rect = enemy_layout.get("health_rect", health_rect)
+			entries.append({"actor_key": actor_key, "kind": "enemy", "center": center, "health_rect": health_rect, "layout": enemy_layout})
+			for rect_var: Variant in enemy_layout.get("occupied_rects", []):
+				if typeof(rect_var) == TYPE_RECT2:
+					reserved_rects.append(rect_var)
+		else:
+			entries.append({"actor_key": actor_key, "kind": "unit", "center": center, "health_rect": health_rect})
+		if not actor_key.is_empty():
+			health_rects[actor_key] = health_rect
+	return {"entries": entries, "health_rects": health_rects}
 
 func _draw_npc_nameplate(unit: Dictionary, center: Vector2) -> void:
 	var font: Font = get_theme_default_font()
@@ -4024,36 +4345,11 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		1.0,
 		1.0
 	)
-	if _damage_preview_shows_lost_hp(preview):
+	var defer_preview_overlay: bool = _render_layer_kind == RENDER_LAYER_HUD and _damage_preview_shows_lost_hp(preview)
+	if _damage_preview_shows_lost_hp(preview) and not defer_preview_overlay:
 		_draw_health_damage_preview(unit, rect, preview)
-	if font != null:
-		var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 1.0)
-		var hp_text: String = "%d/%d" % [display_hp, int(unit.get("max_hp", 1))]
-		var text_color: Color = Color("fff4dc") if preview.is_empty() else Color("ffe1ae")
-		for offset: Vector2 in [
-			Vector2(-1.0, 0.0),
-			Vector2(1.0, 0.0),
-			Vector2(0.0, -1.0),
-			Vector2(0.0, 1.0)
-		]:
-			draw_string(
-				font,
-				text_baseline + offset,
-				hp_text,
-				HORIZONTAL_ALIGNMENT_CENTER,
-				rect.size.x,
-				9,
-				Color("140f0b")
-			)
-		draw_string(
-			font,
-			text_baseline,
-			hp_text,
-			HORIZONTAL_ALIGNMENT_CENTER,
-			rect.size.x,
-			9,
-			text_color
-		)
+	if font != null and not defer_preview_overlay:
+		_draw_health_bar_text(unit, rect, preview, font)
 	var block_amount: int = int(unit.get("block", 0))
 	var defense_badge_x: float = rect.position.x + rect.size.x + 4.0
 	if block_amount > 0:
@@ -4064,6 +4360,51 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	if stoneskin_amount > 0:
 		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
 		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
+
+func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> void:
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	for unit: Dictionary in units_to_draw:
+		var preview: Dictionary = _unit_damage_preview(unit)
+		if not _damage_preview_shows_lost_hp(preview):
+			continue
+		var actor_key: String = str(unit.get("key", ""))
+		var health_rect: Rect2 = _hud_health_rects_cache.get(actor_key, Rect2()) as Rect2
+		if health_rect.size.x <= 0.0 or health_rect.size.y <= 0.0:
+			continue
+		_draw_health_damage_preview(unit, health_rect, preview)
+		_draw_health_bar_text(unit, health_rect, preview, font)
+
+func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, font: Font) -> void:
+	var display_hp: int = _health_bar_fill_hp(unit, preview)
+	var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 1.0)
+	var hp_text: String = "%d/%d" % [display_hp, int(unit.get("max_hp", 1))]
+	var text_color: Color = Color("fff4dc") if preview.is_empty() else Color("ffe1ae")
+	for offset: Vector2 in [
+		Vector2(-1.0, 0.0),
+		Vector2(1.0, 0.0),
+		Vector2(0.0, -1.0),
+		Vector2(0.0, 1.0)
+	]:
+		draw_string(
+			font,
+			text_baseline + offset,
+			hp_text,
+			HORIZONTAL_ALIGNMENT_CENTER,
+			rect.size.x,
+			9,
+			Color("140f0b")
+		)
+	draw_string(
+		font,
+		text_baseline,
+		hp_text,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		rect.size.x,
+		9,
+		text_color
+	)
 
 func _health_bar_segment_count(max_hp_value: int) -> int:
 	return SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp_value)))
@@ -4081,7 +4422,8 @@ func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Diction
 	var current_ratio: float = clampf(current_hp / max_hp, 0.0, 1.0)
 	var next_ratio: float = clampf(next_hp / max_hp, 0.0, 1.0)
 	if current_ratio > next_ratio:
-		var pulse: float = 0.55 + 0.45 * sin(Time.get_ticks_msec() * 0.010)
+		var time_seconds: float = float(presentation.get("damage_preview_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
+		var pulse: float = 0.55 + 0.45 * sin(time_seconds * 10.0)
 		var damage_rect := Rect2(
 			Vector2(rect.position.x + rect.size.x * next_ratio, rect.position.y),
 			Vector2(rect.size.x * (current_ratio - next_ratio), rect.size.y)

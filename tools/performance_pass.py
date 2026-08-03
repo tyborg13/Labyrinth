@@ -34,6 +34,16 @@ COMPARISON_METRICS = {
     "render.idle.frames_over_16_67_ms": "lower",
     "render.idle.draw_calls.median": "lower",
     "render.idle.dynamic_draw_cpu_us_per_phase_frame": "lower",
+    "render.interaction.frame_interval_ms.median": "lower",
+    "render.interaction.frame_interval_ms.p95": "lower",
+    "render.interaction.frames_over_16_67_ms": "lower",
+    "render.interaction.draw_calls.median": "lower",
+    "render.interaction.dynamic_draw_cpu_us_per_phase_frame": "lower",
+    "render.movement.frame_interval_ms.median": "lower",
+    "render.movement.frame_interval_ms.p95": "lower",
+    "render.movement.frames_over_16_67_ms": "lower",
+    "render.movement.draw_calls.median": "lower",
+    "render.movement.dynamic_draw_cpu_us_per_phase_frame": "lower",
     "render.action_heavy.frame_interval_ms.median": "lower",
     "render.action_heavy.frame_interval_ms.p95": "lower",
     "render.action_heavy.frames_over_16_67_ms": "lower",
@@ -44,6 +54,21 @@ COMPARISON_METRICS = {
     "simulation.board_submission_us_per_call": "lower",
     "simulation.presentation_cached_us_per_call": "lower",
     "runtime_integration.full_ui_cached_us_per_refresh": "lower",
+}
+
+COMPATIBILITY_FIELDS = {
+    "report schema": ("schema_version",),
+    "platform": ("environment", "platform"),
+    "machine": ("environment", "machine"),
+    "Godot version": ("environment", "godot"),
+    "render schema": ("benchmarks", "render", "result", "schema_version"),
+    "render workload": ("benchmarks", "render", "result", "workload_id"),
+    "viewport": ("benchmarks", "render", "result", "viewport"),
+    "renderer": ("benchmarks", "render", "result", "renderer"),
+    "rendering method": ("benchmarks", "render", "result", "rendering_method"),
+    "warmup frames": ("benchmarks", "render", "result", "warmup_frames"),
+    "phase frames": ("benchmarks", "render", "result", "phase_frames"),
+    "ambient particle count": ("benchmarks", "render", "result", "ambient_particle_count"),
 }
 
 
@@ -152,14 +177,37 @@ def _godot_version() -> str:
         return "unknown"
 
 
+def _git_metadata() -> dict[str, Any]:
+    def read(*arguments: str) -> str:
+        result = subprocess.run(
+            ["git", *arguments],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            timeout=10,
+            check=False,
+        )
+        return result.stdout.strip() if result.returncode == 0 else "unknown"
+
+    return {
+        "revision": read("rev-parse", "HEAD"),
+        "branch": read("branch", "--show-current"),
+        "dirty": bool(read("status", "--porcelain")),
+    }
+
+
 def command_run(args: argparse.Namespace) -> int:
     report: dict[str, Any] = {
         "schema_version": 1,
         "captured_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "environment": {
             "platform": platform.platform(),
+            "machine": platform.machine(),
+            "processor": platform.processor(),
             "python": platform.python_version(),
             "godot": _godot_version(),
+            "git": _git_metadata(),
         },
         "benchmarks": {},
     }
@@ -194,9 +242,41 @@ def _metric_value(report: dict[str, Any], metric_path: str) -> float | None:
     return None
 
 
+def _nested_value(report: dict[str, Any], path: tuple[str, ...]) -> Any:
+    value: Any = report
+    for part in path:
+        if not isinstance(value, dict) or part not in value:
+            return None
+        value = value[part]
+    return value
+
+
+def _compatibility_problems(
+    baseline: dict[str, Any], candidate: dict[str, Any]
+) -> list[str]:
+    problems: list[str] = []
+    for label, path in COMPATIBILITY_FIELDS.items():
+        before = _nested_value(baseline, path)
+        after = _nested_value(candidate, path)
+        if before is None or after is None:
+            problems.append(f"{label} metadata missing (baseline={before!r}, candidate={after!r})")
+        elif before != after:
+            problems.append(f"{label} differs (baseline={before!r}, candidate={after!r})")
+    return problems
+
+
 def command_compare(args: argparse.Namespace) -> int:
     baseline = json.loads(Path(args.baseline).read_text(encoding="utf-8"))
     candidate = json.loads(Path(args.candidate).read_text(encoding="utf-8"))
+    compatibility_problems = _compatibility_problems(baseline, candidate)
+    if compatibility_problems:
+        details = "\n".join(f"- {problem}" for problem in compatibility_problems)
+        if not args.allow_incompatible:
+            raise RuntimeError(
+                "reports are not safely comparable; rerun matching captures or pass "
+                f"--allow-incompatible to print a clearly qualified table:\n{details}"
+            )
+        print(f"WARNING: comparing incompatible reports:\n{details}", file=sys.stderr)
     rows: list[tuple[str, float, float, float]] = []
     for metric in COMPARISON_METRICS:
         before = _metric_value(baseline, metric)
@@ -227,6 +307,11 @@ def build_parser() -> argparse.ArgumentParser:
     compare_parser = subparsers.add_parser("compare", help="print a baseline-vs-candidate metric table")
     compare_parser.add_argument("baseline")
     compare_parser.add_argument("candidate")
+    compare_parser.add_argument(
+        "--allow-incompatible",
+        action="store_true",
+        help="print a qualified table even when environment or workload metadata differs",
+    )
     compare_parser.set_defaults(func=command_compare)
     return parser
 
