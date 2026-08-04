@@ -21,6 +21,7 @@ static func run(expect: Callable) -> void:
 	_test_equipment_pickup_reuses_equipment_card_preview(expect)
 	_test_icon_tooltip_panel(expect)
 	_test_card_tooltip_entries(expect)
+	_test_real_cards_preserve_repeated_icon_semantics(expect)
 
 
 static func _test_shared_tooltip_controls(expect: Callable) -> void:
@@ -124,8 +125,14 @@ static func _test_icon_tooltip_panel(expect: Callable) -> void:
 
 static func _test_card_tooltip_entries(expect: Callable) -> void:
 	var rows: Array = [[
+		ActionIcons.token_for("time", 2, "neutral", "Player turns this light remains."),
 		ActionIcons.token_for("ranged", 5),
 		ActionIcons.token_for("ranged", 3),
+		ActionIcons.token_for("ranged", 6, "bonus", "", [{
+			"source": "Equipment",
+			"label": "+1",
+			"detail": "Stormstring Bow",
+		}], 5),
 		{"kind": "aoe_pattern", "icon": "aoe_pattern"},
 		ActionIcons.text_token("conditional copy"),
 	], [
@@ -136,4 +143,34 @@ static func _test_card_tooltip_entries(expect: Callable) -> void:
 	for entry: Dictionary in entries:
 		keys.append(str(entry.get("icon", "")))
 		expect.call(entry.get("texture", null) is Texture2D, "Every card tooltip entry should carry its matching icon texture")
-	expect.call(keys == ["time", "ranged", "aoe", "range"], "Card tooltip entries should preserve reading order, deduplicate concepts, map area patterns, and ignore text-only tokens")
+	expect.call(keys == ["time", "time", "ranged", "ranged", "aoe", "range"], "Card tooltip entries should preserve reading order, keep distinct same-icon meanings, deduplicate identical semantics, map area patterns, and ignore text-only tokens")
+	expect.call(str(entries[1].get("description", "")).contains("Player turns this light remains"), "A repeated Time icon should retain its duration-specific explanation")
+	expect.call(str(entries[3].get("description", "")).contains("Modified by") and str(entries[3].get("description", "")).contains("Stormstring Bow"), "Modified tokens should retain their modifier explanation")
+
+
+static func _test_real_cards_preserve_repeated_icon_semantics(expect: Callable) -> void:
+	var lantern: Dictionary = GameData.card_def("lantern_shot")
+	var lantern_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(
+		ActionIcons.rows_for_card(lantern),
+		["time"]
+	)
+	var lantern_time_descriptions: Array[String] = []
+	for entry: Dictionary in lantern_entries:
+		if str(entry.get("icon", "")) == "time":
+			lantern_time_descriptions.append(str(entry.get("description", "")))
+	expect.call(lantern_time_descriptions.size() == 2, "Lantern Shot should keep card-cost Time and light-duration Time as separate tooltips")
+	expect.call(lantern_time_descriptions.any(func(text: String) -> bool: return text.contains("initiative delay")), "Lantern Shot should retain the initiative-delay Time explanation")
+	expect.call(lantern_time_descriptions.any(func(text: String) -> bool: return text.contains("Player turns this light remains")), "Lantern Shot should retain the light-duration Time explanation")
+
+	var stormstring: Dictionary = GameData.card_def("stormstring_shot")
+	var storm_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(
+		ActionIcons.rows_for_card(stormstring),
+		["time"]
+	)
+	var lightning_descriptions: Array[String] = []
+	for entry: Dictionary in storm_entries:
+		if str(entry.get("icon", "")) == "element_lightning":
+			lightning_descriptions.append(str(entry.get("description", "")))
+	expect.call(lightning_descriptions.size() == 2, "Stormstring Shot should keep Lightning gain and Lightning threshold as separate tooltips")
+	expect.call(lightning_descriptions.any(func(text: String) -> bool: return text.contains("Raise Lightning intensity")), "Stormstring Shot should retain the Lightning-gain explanation")
+	expect.call(lightning_descriptions.any(func(text: String) -> bool: return text.contains("at least 3")), "Stormstring Shot should retain the Lightning-threshold explanation")

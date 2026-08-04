@@ -41,8 +41,12 @@ func show_for(target: Control, entries: Array) -> void:
 			str(entry.get("title", "")),
 			body_lines
 		)
-		panel.name = "CardFocusTooltip_%s" % str(entry.get("icon", "icon")).to_pascal_case()
+		panel.name = "CardFocusTooltip_%02d_%s" % [
+			_entries.size(),
+			str(entry.get("icon", "icon")).to_pascal_case(),
+		]
 		panel.set_meta("icon_key", str(entry.get("icon", "")))
+		panel.set_meta("semantic_key", str(entry.get("semantic_key", "")))
 		add_child(panel)
 		_entries.append(entry)
 	if _entries.is_empty():

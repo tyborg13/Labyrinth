@@ -464,7 +464,8 @@ static func tooltip_entries_for_rows(
 	var entries: Array[Dictionary] = []
 	var seen: Dictionary = {}
 	for icon_key_var: Variant in leading_icon_keys:
-		_append_tooltip_entry(entries, seen, str(icon_key_var))
+		var leading_icon_key: String = str(icon_key_var)
+		_append_tooltip_entry(entries, seen, leading_icon_key, tooltip(leading_icon_key))
 	for row_var: Variant in rows:
 		if typeof(row_var) != TYPE_ARRAY:
 			continue
@@ -477,26 +478,56 @@ static func tooltip_entries_for_rows(
 			var icon_key: String = str(token.get("icon", ""))
 			if str(token.get("kind", "")) == "aoe_pattern":
 				icon_key = "aoe"
-			_append_tooltip_entry(entries, seen, icon_key)
+			_append_tooltip_entry(entries, seen, icon_key, token_tooltip(token))
 	return entries
 
 static func _append_tooltip_entry(
 	entries: Array[Dictionary],
 	seen: Dictionary,
-	icon_key: String
+	icon_key: String,
+	tooltip_text: String
 ) -> void:
-	if icon_key.is_empty() or seen.has(icon_key):
+	var normalized_tooltip: String = tooltip_text.strip_edges()
+	if normalized_tooltip.is_empty():
+		normalized_tooltip = tooltip(icon_key)
+	var semantic_key: String = "%s\u001f%s" % [icon_key, normalized_tooltip]
+	if icon_key.is_empty() or seen.has(semantic_key):
 		return
 	var texture: Texture2D = icon_texture(icon_key)
 	if texture == null:
 		return
-	seen[icon_key] = true
+	seen[semantic_key] = true
+	var copy: Dictionary = _tooltip_entry_copy(icon_key, normalized_tooltip)
 	entries.append({
 		"icon": icon_key,
 		"texture": texture,
-		"title": label(icon_key),
-		"description": description(icon_key),
+		"title": str(copy.get("title", label(icon_key))),
+		"description": str(copy.get("description", "")),
+		"tooltip": normalized_tooltip,
+		"semantic_key": semantic_key,
 	})
+
+static func _tooltip_entry_copy(icon_key: String, tooltip_text: String) -> Dictionary:
+	var default_title: String = label(icon_key)
+	var lines: PackedStringArray = tooltip_text.split("\n", false)
+	var body_start: int = 0
+	var title_text: String = default_title
+	if not lines.is_empty():
+		var first_line: String = lines[0].strip_edges()
+		var first_lower: String = first_line.to_lower()
+		var default_lower: String = default_title.to_lower()
+		if first_lower == default_lower or first_lower.begins_with("%s " % default_lower):
+			title_text = first_line
+			body_start = 1
+	var body_lines := PackedStringArray()
+	for index: int in range(body_start, lines.size()):
+		var body_line: String = lines[index].strip_edges()
+		if not body_line.is_empty():
+			body_lines.append(body_line)
+	return {
+		"title": title_text,
+		"description": "\n".join(body_lines),
+	}
 
 static func token_tooltip(token: Dictionary) -> String:
 	var text: String = str(token.get("tooltip", tooltip(str(token.get("icon", "")))))

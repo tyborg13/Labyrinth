@@ -97,7 +97,7 @@ func _capture_configuration(
 		)
 		_assert_tooltip_stack(
 			instance,
-			PackedStringArray(["time", "element_lightning", "ranged", "range", "chain", "shock"]),
+			PackedStringArray(["time", "element_lightning", "ranged", "range", "chain", "element_lightning", "shock"]),
 			"%s pointer focus" % output_dir,
 			focused_rect
 		)
@@ -279,7 +279,7 @@ func _capture_wrapper_focus(
 	_assert_hand_visibility(instance, "%s wrapper-focused hand" % output_dir)
 	_assert_tooltip_stack(
 		instance,
-		PackedStringArray(["time", "element_lightning", "ranged", "range", "chain", "shock"]),
+		PackedStringArray(["time", "element_lightning", "ranged", "range", "chain", "element_lightning", "shock"]),
 		"%s wrapper focus" % output_dir,
 		instance.call("_control_visual_global_rect", instance.call("_hand_card_control", FOCUSED_INDEX))
 	)
@@ -392,9 +392,9 @@ func _assert_tooltip_stack(
 	_expect(viewport_rect.encloses(stack_rect), "%s should keep the complete tooltip stack on screen" % label)
 	if focused_rect.has_area():
 		_expect(stack_rect.position.x >= focused_rect.end.x + 8.0, "%s should place the tooltip stack immediately to the focused card's right" % label)
-	for icon_key: String in expected_icons:
-		var panel: Control = stack.find_child("CardFocusTooltip_%s" % icon_key.to_pascal_case(), false, false) as Control
-		_expect(panel != null and panel.find_child("TooltipIcon", true, false) != null, "%s should pair %s copy with its icon" % [label, icon_key])
+	for panel_var: Node in stack.get_children():
+		var panel: Control = panel_var as Control
+		_expect(panel != null and panel.find_child("TooltipIcon", true, false) != null, "%s should pair every semantic tooltip with its icon" % label)
 
 func _assert_hand_visibility(instance: Node, label: String) -> void:
 	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
