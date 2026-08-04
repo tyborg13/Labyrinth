@@ -457,6 +457,47 @@ static func tooltip(icon_key: String) -> String:
 		return text
 	return "%s\n%s" % [text, detail]
 
+static func tooltip_entries_for_rows(
+	rows: Array,
+	leading_icon_keys: Array = []
+) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	var seen: Dictionary = {}
+	for icon_key_var: Variant in leading_icon_keys:
+		_append_tooltip_entry(entries, seen, str(icon_key_var))
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		for token_var: Variant in row_var as Array:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				continue
+			var token: Dictionary = token_var as Dictionary
+			if str(token.get("kind", "")) == "text":
+				continue
+			var icon_key: String = str(token.get("icon", ""))
+			if str(token.get("kind", "")) == "aoe_pattern":
+				icon_key = "aoe"
+			_append_tooltip_entry(entries, seen, icon_key)
+	return entries
+
+static func _append_tooltip_entry(
+	entries: Array[Dictionary],
+	seen: Dictionary,
+	icon_key: String
+) -> void:
+	if icon_key.is_empty() or seen.has(icon_key):
+		return
+	var texture: Texture2D = icon_texture(icon_key)
+	if texture == null:
+		return
+	seen[icon_key] = true
+	entries.append({
+		"icon": icon_key,
+		"texture": texture,
+		"title": label(icon_key),
+		"description": description(icon_key),
+	})
+
 static func token_tooltip(token: Dictionary) -> String:
 	var text: String = str(token.get("tooltip", tooltip(str(token.get("icon", "")))))
 	var modifier_lines: PackedStringArray = _modifier_tooltip_lines(token)

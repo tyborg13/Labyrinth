@@ -784,6 +784,8 @@ func _test_room_generation_blocks_door_tiles() -> void:
 
 func _test_hand_fan_layout_lifts_center_cards() -> void:
 	var card_size := Vector2(210.0, 300.0)
+	var authored_overlap: float = HandFanContainer.overlap_gap_for_card_width(card_size.x)
+	_assert(is_equal_approx(-authored_overlap / card_size.x, 0.20), "The authored combat fan should overlap adjacent cards by 20% of card width")
 	var left_rect: Rect2 = HandFanContainer.card_rect_for_layout(0, 5, card_size, -28.0, true)
 	var center_rect: Rect2 = HandFanContainer.card_rect_for_layout(2, 5, card_size, -28.0, true)
 	var right_rect: Rect2 = HandFanContainer.card_rect_for_layout(4, 5, card_size, -28.0, true)
@@ -805,9 +807,9 @@ func _test_hand_fan_layout_lifts_center_cards() -> void:
 		focused_center.position - focused_center.size * (focused_scale - 1.0) * 0.5,
 		focused_center.size * focused_scale
 	)
-	_assert(focused_scale >= 1.20, "Focused hand cards should become significantly larger than their idle card")
-	_assert(focused_visual_rect.position.y < center_rect.position.y - 50.0, "Focused hand cards should rise enough for their rules to read clearly")
-	_assert(is_equal_approx(focused_visual_rect.end.y, center_rect.end.y), "Focused hand cards should grow upward while keeping their bottom edge anchored")
+	_assert(focused_scale >= 1.27, "Focused hand cards should become substantially larger than their idle card")
+	_assert(focused_visual_rect.position.y < center_rect.position.y - 85.0, "Focused hand cards should rise enough for their rules to read clearly")
+	_assert(is_equal_approx(focused_visual_rect.end.y, center_rect.end.y - HandFanContainer.DEFAULT_EMPHASIS_EXTRA_LIFT), "Focused hand cards should grow upward and add a slight full-card lift")
 	_assert(focused_left.position.x < HandFanContainer.card_rect_for_layout(1, 5, card_size, -28.0, true).position.x, "Cards left of focus should move away from the focused card")
 	_assert(focused_right.position.x > HandFanContainer.card_rect_for_layout(3, 5, card_size, -28.0, true).position.x, "Cards right of focus should move away from the focused card")
 	_assert(focused_left.end.x - focused_visual_rect.position.x <= HandFanContainer.DEFAULT_EMPHASIS_REMAINING_OVERLAP + 0.01, "Focused cards should leave only a narrow overlap over their left neighbor")

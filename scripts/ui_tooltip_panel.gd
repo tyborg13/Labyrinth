@@ -11,6 +11,9 @@ const PANEL_COLOR: Color = Color(0.12, 0.08, 0.055, 0.98)
 const BORDER_COLOR: Color = Color("c79652")
 const MIN_PANEL_WIDTH: float = 250.0
 const MAX_BODY_WIDTH: float = 340.0
+const ICON_TOOLTIP_WIDTH: float = 306.0
+const ICON_SIZE: float = 42.0
+const ICON_BODY_WIDTH: float = 226.0
 
 static func make_text(text: String) -> PanelContainer:
 	var lines: PackedStringArray = text.split("\n", false)
@@ -25,22 +28,59 @@ static func make_text(text: String) -> PanelContainer:
 	return make_lines(title, body_lines)
 
 static func make_lines(title: String, body_lines: PackedStringArray) -> PanelContainer:
+	var panel: PanelContainer = _make_panel(MIN_PANEL_WIDTH, 16.0)
+	panel.add_child(_make_text_box(title, body_lines, MAX_BODY_WIDTH, 8))
+	_finish_panel(panel)
+	return panel
+
+static func make_icon_lines(
+	icon_texture: Texture2D,
+	title: String,
+	body_lines: PackedStringArray
+) -> PanelContainer:
+	var panel: PanelContainer = _make_panel(ICON_TOOLTIP_WIDTH, 12.0)
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation", 10)
+	panel.add_child(row)
+
+	var icon := TextureRect.new()
+	icon.name = "TooltipIcon"
+	icon.texture = icon_texture
+	icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+	row.add_child(_make_text_box(title, body_lines, ICON_BODY_WIDTH, 4))
+	_finish_panel(panel)
+	return panel
+
+static func _make_panel(minimum_width: float, content_margin: float) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.custom_minimum_size = Vector2(MIN_PANEL_WIDTH, 0.0)
-	panel.add_theme_stylebox_override("panel", _panel_style())
+	panel.custom_minimum_size = Vector2(minimum_width, 0.0)
+	panel.add_theme_stylebox_override("panel", _panel_style(content_margin))
+	return panel
 
+static func _make_text_box(
+	title: String,
+	body_lines: PackedStringArray,
+	body_width: float,
+	separation: int
+) -> VBoxContainer:
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_theme_constant_override("separation", 8)
-	panel.add_child(vbox)
+	vbox.add_theme_constant_override("separation", separation)
 	var title_text: String = title.strip_edges()
 	if not title_text.is_empty():
 		var title_label := Label.new()
 		title_label.text = title_text.to_upper()
 		title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		title_label.custom_minimum_size = Vector2(MAX_BODY_WIDTH, 0.0)
+		title_label.custom_minimum_size = Vector2(body_width, 0.0)
 		UiTypography.set_label_size(title_label, UiTypography.SIZE_BODY_LARGE)
 		title_label.add_theme_color_override("font_color", TITLE_COLOR)
 		title_label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
@@ -51,19 +91,21 @@ static func make_lines(title: String, body_lines: PackedStringArray) -> PanelCon
 		body_label.text = "\n".join(body_lines)
 		body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		body_label.custom_minimum_size = Vector2(MAX_BODY_WIDTH, 0.0)
+		body_label.custom_minimum_size = Vector2(body_width, 0.0)
 		UiTypography.set_label_size(body_label, UiTypography.SIZE_BODY)
 		body_label.add_theme_color_override("font_color", BODY_COLOR)
 		body_label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
 		body_label.add_theme_constant_override("outline_size", 1)
 		vbox.add_child(body_label)
+	return vbox
+
+static func _finish_panel(panel: PanelContainer) -> void:
 	panel.set_meta("tooltip_surface", true)
 	panel.set_meta("panel_surface_accent", BORDER_COLOR)
 	var skin := UiSkin.new()
 	skin.apply_inset_surface(panel, UiSkin.SURFACE_HUD)
-	return panel
 
-static func _panel_style() -> StyleBoxFlat:
+static func _panel_style(content_margin: float = 16.0) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_COLOR
 	style.border_color = BORDER_COLOR
@@ -75,10 +117,10 @@ static func _panel_style() -> StyleBoxFlat:
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 16.0
-	style.content_margin_top = 14.0
-	style.content_margin_right = 16.0
-	style.content_margin_bottom = 14.0
+	style.content_margin_left = content_margin
+	style.content_margin_top = content_margin
+	style.content_margin_right = content_margin
+	style.content_margin_bottom = content_margin
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.0)
 	style.shadow_size = 0
 	style.shadow_offset = Vector2.ZERO

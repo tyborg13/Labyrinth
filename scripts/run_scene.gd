@@ -23,6 +23,7 @@ const SettingsPanelScript = preload("res://scripts/settings_panel.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
+const CardFocusTooltipStack = preload("res://scripts/card_focus_tooltip_stack.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
@@ -980,7 +981,6 @@ const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, 1),
 	Vector2i(-1, 0)
 ]
-const HAND_CARD_OVERLAP: float = -22.0
 const HAND_CARD_GAP: float = 14.0
 const HAND_CARD_DENSE_COUNT: int = 8
 const HAND_CARD_DENSE_MAX_WIDTH: float = 180.0
@@ -1441,6 +1441,7 @@ var _pinned_tooltip_close_button: Button
 var _pinned_tooltip_source_row: Control
 var _pinned_tooltip_source_text: String = ""
 var _pinned_pre_battle_tooltip_sources: Dictionary = {}
+var _card_focus_tooltip_stack: CardFocusTooltipStack
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -2065,6 +2066,7 @@ func _draw_image_point(image: Image, point: Vector2i, color: Color, width: int =
 
 func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
+	_build_card_focus_tooltip_stack()
 	_build_equipment_fx_layer()
 	_build_fatigue_edge_overlay()
 	_build_choice_button_overlay()
@@ -2080,6 +2082,10 @@ func _build_overlay_ui() -> void:
 	_build_skill_status_popover()
 	_build_combat_skill_card_selection_prompt()
 	_build_skill_choice_dialog()
+
+func _build_card_focus_tooltip_stack() -> void:
+	_card_focus_tooltip_stack = CardFocusTooltipStack.new()
+	ui_root.add_child(_card_focus_tooltip_stack)
 
 func _build_skill_status_popover() -> void:
 	_skill_status_scrim = ColorRect.new()
@@ -12495,6 +12501,7 @@ func _refresh_hand_panel() -> void:
 			# HandFanContainer owns the full-card emphasis pose so the focused card
 			# and its neighbors move as one readable composition.
 			widget.set_hover_pose(0.0, 1.0)
+			widget.set_native_tooltips_enabled(false)
 			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 			var ready_wave_delay: float = _ready_wave_delay_for_hand_index(index, options)
 			if ready_wave_delay >= 0.0:
@@ -12532,7 +12539,7 @@ func _refresh_hand_panel() -> void:
 			and _animating_hand_card_index < 0
 			else -1
 		)
-		hand_box.set_emphasized_index(emphasized_hand_index, false)
+		_set_hand_emphasized_index(emphasized_hand_index, false)
 		if selecting_skill_card:
 			_configure_skill_hand_selection_focus(skill_selection_buttons)
 			if not skill_selection_buttons.is_empty():
@@ -12542,10 +12549,10 @@ func _refresh_hand_panel() -> void:
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		hand_box.configure_layout(HAND_CARD_GAP, false)
-		hand_box.set_emphasized_index(-1, false)
+		_set_hand_emphasized_index(-1, false)
 	else:
 		hand_box.configure_layout(HAND_CARD_GAP, false)
-		hand_box.set_emphasized_index(-1, false)
+		_set_hand_emphasized_index(-1, false)
 
 func _fit_current_hand_layout_to_visible_width(expected_revision: int, retry_count: int = 0) -> void:
 	await get_tree().process_frame
@@ -12645,6 +12652,30 @@ func _set_hand_emphasized_index(index: int, animated: bool = true) -> void:
 	if hand_box == null:
 		return
 	hand_box.set_emphasized_index(index, animated and not _reduced_motion_enabled())
+	if index < 0:
+		if _card_focus_tooltip_stack != null:
+			_card_focus_tooltip_stack.hide_stack()
+		return
+	_show_card_focus_tooltips(index)
+
+func _show_card_focus_tooltips(index: int) -> void:
+	if _card_focus_tooltip_stack == null:
+		return
+	var card_control: Control = _hand_card_control(index)
+	var card_id: String = _card_id_for_hand_index(index)
+	if card_control == null or card_id.is_empty():
+		_card_focus_tooltip_stack.hide_stack()
+		return
+	var card: Dictionary = _card_def(card_id, _combat_state)
+	var display: Dictionary = _card_widget_display_for_index(index)
+	var leading_icons: Array = []
+	if int(card.get("time", 0)) > 0:
+		leading_icons.append("time")
+	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(
+		display.get("summary_rows", []) as Array,
+		leading_icons
+	)
+	_card_focus_tooltip_stack.show_for(card_control, entries)
 
 func _skill_card_selection_frame_style(accent: Color, emphasized: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -21187,9 +21218,16 @@ func _new_seed() -> int:
 
 func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 	var available_width: float = maxf(620.0, _hand_available_width())
-	var card_gap: float = HAND_CARD_GAP if reward_mode else HAND_CARD_OVERLAP
-	var gaps: float = float(maxi(0, card_count - 1)) * card_gap
-	var target_width: float = (available_width - gaps) / float(maxi(1, card_count))
+	var target_width: float = available_width / float(maxi(1, card_count))
+	if reward_mode:
+		var gaps: float = float(maxi(0, card_count - 1)) * HAND_CARD_GAP
+		target_width = (available_width - gaps) / float(maxi(1, card_count))
+	else:
+		var layout_width_units: float = (
+			float(maxi(1, card_count))
+			- HandFanContainer.DEFAULT_CARD_OVERLAP_RATIO * float(maxi(0, card_count - 1))
+		)
+		target_width = available_width / maxf(1.0, layout_width_units)
 	var max_width: float = 224.0 if reward_mode else 208.0
 	var min_width: float = 188.0 if reward_mode else 172.0 if card_count >= HAND_CARD_DENSE_COUNT else 190.0
 	if not reward_mode and card_count >= HAND_CARD_DENSE_COUNT:
@@ -21199,10 +21237,11 @@ func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 
 func _hand_layout_gap(card_count: int, card_size: Vector2) -> float:
 	var available_width: float = _hand_available_width()
+	var preferred_gap: float = HandFanContainer.overlap_gap_for_card_width(card_size.x)
 	return HandFanContainer.card_gap_for_available_width(
 		card_count,
 		card_size,
-		HAND_CARD_OVERLAP,
+		preferred_gap,
 		available_width
 	)
 

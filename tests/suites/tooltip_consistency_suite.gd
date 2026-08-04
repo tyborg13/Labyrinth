@@ -2,6 +2,7 @@ extends RefCounted
 
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
@@ -9,6 +10,7 @@ const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const UiTooltipLabel = preload("res://scripts/ui_tooltip_label.gd")
 const UiTooltipPanelContainer = preload("res://scripts/ui_tooltip_panel_container.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const RunScene = preload("res://scenes/run_scene.tscn")
 
 
@@ -17,6 +19,8 @@ static func run(expect: Callable) -> void:
 	_test_static_run_scene_tooltip_controls(expect)
 	_test_dynamic_turn_order_tooltip_control(expect)
 	_test_equipment_pickup_reuses_equipment_card_preview(expect)
+	_test_icon_tooltip_panel(expect)
+	_test_card_tooltip_entries(expect)
 
 
 static func _test_shared_tooltip_controls(expect: Callable) -> void:
@@ -104,3 +108,32 @@ static func _test_equipment_pickup_reuses_equipment_card_preview(expect: Callabl
 		(tooltip as PanelContainer).free()
 	board.free()
 	host.free()
+
+
+static func _test_icon_tooltip_panel(expect: Callable) -> void:
+	var panel: PanelContainer = UiTooltipPanel.make_icon_lines(
+		ActionIcons.icon_texture("burn"),
+		"Burn",
+		PackedStringArray([ActionIcons.description("burn")])
+	)
+	var icon: TextureRect = panel.find_child("TooltipIcon", true, false) as TextureRect
+	expect.call(icon != null and icon.texture != null, "Icon-led tooltips should render the matching concept icon")
+	expect.call(panel.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null, "Icon-led tooltips should retain the shared framed surface")
+	panel.free()
+
+
+static func _test_card_tooltip_entries(expect: Callable) -> void:
+	var rows: Array = [[
+		ActionIcons.token_for("ranged", 5),
+		ActionIcons.token_for("ranged", 3),
+		{"kind": "aoe_pattern", "icon": "aoe_pattern"},
+		ActionIcons.text_token("conditional copy"),
+	], [
+		ActionIcons.token_for("range", 4),
+	]]
+	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(rows, ["time"])
+	var keys: Array[String] = []
+	for entry: Dictionary in entries:
+		keys.append(str(entry.get("icon", "")))
+		expect.call(entry.get("texture", null) is Texture2D, "Every card tooltip entry should carry its matching icon texture")
+	expect.call(keys == ["time", "ranged", "aoe", "range"], "Card tooltip entries should preserve reading order, deduplicate concepts, map area patterns, and ignore text-only tokens")

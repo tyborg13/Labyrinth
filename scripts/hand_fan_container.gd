@@ -5,9 +5,11 @@ const DEFAULT_ARCH_HEIGHT: float = 14.0
 const DEFAULT_MAX_ROTATION_DEGREES: float = 3.0
 const DEFAULT_BOTTOM_OVERFLOW_ALLOWANCE: float = 2.0
 const DEFAULT_HORIZONTAL_OVERFLOW_ALLOWANCE: float = 92.0
-const DEFAULT_EMPHASIS_SCALE: float = 1.22
+const DEFAULT_CARD_OVERLAP_RATIO: float = 0.20
+const DEFAULT_EMPHASIS_SCALE: float = 1.28
+const DEFAULT_EMPHASIS_EXTRA_LIFT: float = 12.0
 const DEFAULT_EMPHASIS_REMAINING_OVERLAP: float = 12.0
-const DEFAULT_EMPHASIS_MAX_SIDE_SHIFT: float = 40.0
+const DEFAULT_EMPHASIS_MAX_SIDE_SHIFT: float = 60.0
 const DEFAULT_MIN_EXPOSED_CARD_WIDTH: float = 36.0
 const EMPHASIS_Z_INDEX_BONUS: int = 100
 const EMPHASIS_TRANSITION_SECONDS: float = 0.13
@@ -203,8 +205,17 @@ static func emphasized_card_rect_for_layout(
 		rect.position.x += side_shift
 	else:
 		var focused_scale: float = lerpf(1.0, emphasis_scale, strength)
-		rect.position.y -= card_size.y * (focused_scale - 1.0) * 0.5
+		rect.position.y -= (
+			card_size.y * (focused_scale - 1.0) * 0.5
+			+ DEFAULT_EMPHASIS_EXTRA_LIFT * strength
+		)
 	return rect
+
+static func overlap_gap_for_card_width(
+	card_width: float,
+	overlap_ratio: float = DEFAULT_CARD_OVERLAP_RATIO
+) -> float:
+	return -maxf(0.0, card_width) * clampf(overlap_ratio, 0.0, 0.90)
 
 static func emphasis_side_shift_for_layout(
 	card_size: Vector2,

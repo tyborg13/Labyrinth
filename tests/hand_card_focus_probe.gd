@@ -5,9 +5,11 @@ const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutori
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 
-const OUTPUT_DIR: String = "user://hand_card_focus_v2_proof"
-const PROOF_VERSION: String = "v2"
+const OUTPUT_DIR: String = "user://hand_card_focus_v3_proof"
+const PROOF_VERSION: String = "v3"
 const FOCUSED_INDEX: int = 2
 const HAND: Array = [
 	"quick_stab",
@@ -72,6 +74,7 @@ func _capture_configuration(
 		instance.call("_hand_card_control", FOCUSED_INDEX)
 	)
 	_assert_hand_visibility(instance, "%s idle hand" % output_dir)
+	_assert_tooltip_stack(instance, PackedStringArray(), "%s idle hand" % output_dir)
 	_hide_fixture_notices(instance)
 	await _save_root_screenshot("%s/idle_%s.png" % [output_dir, PROOF_VERSION], resolution)
 
@@ -88,12 +91,24 @@ func _capture_configuration(
 			"%s pointer focus" % output_dir
 		)
 		_assert_hand_visibility(instance, "%s pointer-focused hand" % output_dir)
+		var focused_rect: Rect2 = instance.call(
+			"_control_visual_global_rect",
+			instance.call("_hand_card_control", FOCUSED_INDEX)
+		)
+		_assert_tooltip_stack(
+			instance,
+			PackedStringArray(["time", "element_lightning", "ranged", "range", "chain", "shock"]),
+			"%s pointer focus" % output_dir,
+			focused_rect
+		)
 		_hide_fixture_notices(instance)
-		await _save_root_screenshot("%s/pointer_focused_%s.png" % [output_dir, PROOF_VERSION], resolution)
+		await _save_root_screenshot("%s/pointer_multi_tooltips_%s.png" % [output_dir, PROOF_VERSION], resolution)
 		focused_widget.mouse_exited.emit()
 		await _settle()
 		_assert_restored_hand(hand_box, baseline_positions, "%s pointer clear" % output_dir)
+		_assert_tooltip_stack(instance, PackedStringArray(), "%s pointer clear" % output_dir)
 
+	await _capture_simple_tooltips(instance, hand_box, output_dir, resolution)
 	await _capture_wrapper_focus(instance, hand_box, output_dir, resolution)
 	await _assert_existing_card_actions(instance, hand_box, output_dir)
 	_assert_reduced_motion_focus(instance, hand_box, output_dir)
@@ -204,10 +219,10 @@ func _assert_focused_hand(
 	_expect(int(instance.get("_hovered_card_index")) == FOCUSED_INDEX, "%s should preserve the exact hovered hand index" % label)
 	_expect(hand_box.emphasized_index() == FOCUSED_INDEX, "%s should emphasize the hovered hand index" % label)
 	_expect(hand_box.emphasis_strength() >= 0.99, "%s should settle the full emphasis pose" % label)
-	_expect(focused_slot.scale.x >= 1.20 and focused_slot.scale.y >= 1.20, "%s should enlarge the full card by at least 20%%" % label)
-	_expect(focused_rect.size.x >= baseline_focus_rect.size.x * 1.18, "%s should materially enlarge the rendered card" % label)
-	_expect(focused_rect.position.y <= baseline_focus_rect.position.y - 42.0, "%s should raise the rendered card enough to improve reading" % label)
-	_expect(absf(focused_rect.end.y - baseline_focus_rect.end.y) <= 5.0, "%s should keep the enlarged card bottom-anchored" % label)
+	_expect(focused_slot.scale.x >= 1.27 and focused_slot.scale.y >= 1.27, "%s should enlarge the full card by at least 27%%" % label)
+	_expect(focused_rect.size.x >= baseline_focus_rect.size.x * 1.25, "%s should materially enlarge the rendered card" % label)
+	_expect(focused_rect.position.y <= baseline_focus_rect.position.y - 64.0, "%s should raise the rendered card enough to improve reading" % label)
+	_expect(absf(focused_rect.end.y - (baseline_focus_rect.end.y - HandFanContainer.DEFAULT_EMPHASIS_EXTRA_LIFT)) <= 5.0, "%s should add a slight lift beyond bottom-anchored growth" % label)
 	_expect(absf(focused_slot.rotation) <= 0.001, "%s should straighten the focused card" % label)
 	_expect(focused_slot.z_index > left_slot.z_index and focused_slot.z_index > right_slot.z_index, "%s should render the focused card above both neighbors" % label)
 	_expect(left_slot.position.x < baseline_positions[FOCUSED_INDEX - 1].x - 20.0, "%s should move the left side away from focus" % label)
@@ -259,13 +274,45 @@ func _capture_wrapper_focus(
 	await _settle()
 	_expect(focused_wrapper.has_focus(), "%s wrapper should keep keyboard/controller focus" % output_dir)
 	_expect(hand_box.emphasized_index() == FOCUSED_INDEX, "%s wrapper focus should drive the same hand emphasis" % output_dir)
-	_expect(focused_wrapper.scale.x >= 1.20, "%s wrapper focus should enlarge the complete card" % output_dir)
+	_expect(focused_wrapper.scale.x >= 1.27, "%s wrapper focus should enlarge the complete card" % output_dir)
 	_expect(focused_wrapper.z_index >= HandFanContainer.EMPHASIS_Z_INDEX_BONUS, "%s wrapper focus should move above the hand" % output_dir)
 	_assert_hand_visibility(instance, "%s wrapper-focused hand" % output_dir)
+	_assert_tooltip_stack(
+		instance,
+		PackedStringArray(["time", "element_lightning", "ranged", "range", "chain", "shock"]),
+		"%s wrapper focus" % output_dir,
+		instance.call("_control_visual_global_rect", instance.call("_hand_card_control", FOCUSED_INDEX))
+	)
 	_hide_fixture_notices(instance)
 	await _save_root_screenshot("%s/wrapper_focused_%s.png" % [output_dir, PROOF_VERSION], resolution)
 	instance.call("_cancel_combat_skill_card_selection")
 	await _settle()
+	_assert_tooltip_stack(instance, PackedStringArray(), "%s wrapper clear" % output_dir)
+
+func _capture_simple_tooltips(
+	instance: Node,
+	hand_box: HandFanContainer,
+	output_dir: String,
+	resolution: Vector2i
+) -> void:
+	var simple_widget: CardWidget = _card_widget_at(hand_box, 0)
+	_expect(simple_widget != null, "%s should expose a simple focused card" % output_dir)
+	if simple_widget == null:
+		return
+	simple_widget.mouse_entered.emit()
+	await _settle()
+	var simple_rect: Rect2 = instance.call("_control_visual_global_rect", instance.call("_hand_card_control", 0))
+	_assert_tooltip_stack(
+		instance,
+		PackedStringArray(["time", "melee"]),
+		"%s simple pointer focus" % output_dir,
+		simple_rect
+	)
+	_hide_fixture_notices(instance)
+	await _save_root_screenshot("%s/pointer_simple_tooltips_%s.png" % [output_dir, PROOF_VERSION], resolution)
+	simple_widget.mouse_exited.emit()
+	await _settle()
+	_assert_tooltip_stack(instance, PackedStringArray(), "%s simple pointer clear" % output_dir)
 
 func _assert_existing_card_actions(
 	instance: Node,
@@ -318,6 +365,36 @@ func _card_widget_at(hand_box: HandFanContainer, index: int) -> CardWidget:
 	if index < 0 or index >= hand_box.get_child_count():
 		return null
 	return hand_box.get_child(index).find_child("CardWidget", true, false) as CardWidget
+
+func _assert_tooltip_stack(
+	instance: Node,
+	expected_icons: PackedStringArray,
+	label: String,
+	focused_rect: Rect2 = Rect2()
+) -> void:
+	var stack: Control = instance.get("_card_focus_tooltip_stack") as Control
+	_expect(stack != null, "%s should expose the card focus tooltip stack" % label)
+	if stack == null:
+		return
+	_expect(stack.visible == not expected_icons.is_empty(), "%s should match tooltip stack visibility to card focus" % label)
+	if expected_icons.is_empty():
+		return
+	var actual_icons: Array[String] = []
+	for icon_var: Variant in stack.call("entry_icon_keys"):
+		actual_icons.append(str(icon_var))
+	var expected_array: Array[String] = []
+	for icon_key: String in expected_icons:
+		expected_array.append(icon_key)
+	_expect(actual_icons == expected_array, "%s should show every relevant icon once in card reading order" % label)
+	_expect(stack.get_child_count() == expected_icons.size(), "%s should stack one framed tooltip per relevant icon" % label)
+	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
+	var stack_rect: Rect2 = stack.get_global_rect()
+	_expect(viewport_rect.encloses(stack_rect), "%s should keep the complete tooltip stack on screen" % label)
+	if focused_rect.has_area():
+		_expect(stack_rect.position.x >= focused_rect.end.x + 8.0, "%s should place the tooltip stack immediately to the focused card's right" % label)
+	for icon_key: String in expected_icons:
+		var panel: Control = stack.find_child("CardFocusTooltip_%s" % icon_key.to_pascal_case(), false, false) as Control
+		_expect(panel != null and panel.find_child("TooltipIcon", true, false) != null, "%s should pair %s copy with its icon" % [label, icon_key])
 
 func _assert_hand_visibility(instance: Node, label: String) -> void:
 	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)

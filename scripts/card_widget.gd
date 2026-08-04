@@ -457,6 +457,7 @@ var _drag_emitted: bool = false
 var _press_position: Vector2 = Vector2.ZERO
 var _local_hovered: bool = false
 var _external_highlighted: bool = false
+var _native_tooltips_enabled: bool = true
 var _hover_lift: float = HOVER_LIFT
 var _hover_scale: float = HOVER_SCALE
 var _pose_tween: Tween
@@ -544,6 +545,8 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 
 func _get_tooltip(_at_position: Vector2) -> String:
+	if not _native_tooltips_enabled:
+		return ""
 	if _time_badge != null and _time_badge.visible and _time_badge.get_global_rect().has_point(get_global_mouse_position()):
 		return _time_badge.tooltip_text
 	var icon_tooltip: String = _tooltip_for_icon_at(get_global_mouse_position())
@@ -574,6 +577,12 @@ func _tooltip_for_control_at(node: Node, global_point: Vector2) -> String:
 		if not child_tooltip.is_empty():
 			return child_tooltip
 	return str(control.tooltip_text)
+
+func set_native_tooltips_enabled(enabled: bool) -> void:
+	_native_tooltips_enabled = enabled
+
+func native_tooltips_enabled() -> bool:
+	return _native_tooltips_enabled
 
 func configure(
 	next_card_id: String,
