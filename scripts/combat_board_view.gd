@@ -75,6 +75,8 @@ const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
 const ENEMY_HUD_ACTOR_CLEARANCE: float = 8.0
 const ENEMY_HUD_SIDE_GAP: float = 10.0
+const ENEMY_HUD_SIDE_SWITCH_SCORE_MARGIN: float = 120000.0
+const ENEMY_HUD_SIDE_STICKY_OVERLAP_AREA: float = 1.0
 const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
@@ -374,6 +376,7 @@ var _board_layout_cache_tiles: Array[Vector2i] = []
 var _board_layout_cache_extents: Dictionary = {}
 var _board_layout_cache_tile_width: float = 90.0
 var _board_layout_cache_origin: Vector2 = Vector2.ZERO
+var _board_layout_cache_visual_top_offset: float = 0.0
 var _board_layout_cache_tile_centers: Dictionary = {}
 var _board_layout_cache_tile_polygons: Dictionary = {}
 var _board_layout_signature: String = ""
@@ -398,6 +401,7 @@ var _hud_health_rects_source_snapshot: Dictionary = {}
 var _hud_layout_entries_cache: Array = []
 var _hud_layout_cache_by_signature: Dictionary = {}
 var _hud_layout_cache_order: Array = []
+var _enemy_hud_side_by_actor: Dictionary = {}
 var _foreground_obstruction_candidates_cache: Array = []
 var _foreground_obstruction_candidates_source_snapshot: Dictionary = {}
 var _texture_used_rect_cache: Dictionary = {}
@@ -878,6 +882,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	presentation = next_presentation
 	if not _navigation_content_signature.is_empty() and next_navigation_content_signature != _navigation_content_signature:
 		_navigation_pan = Vector2.ZERO
+		_enemy_hud_side_by_actor.clear()
+		_clear_hud_layout_signature_cache()
 	_navigation_content_signature = next_navigation_content_signature
 	_ensure_unit_assets_for_submission(combat_state, presentation)
 	if layout_changed:
@@ -4251,6 +4257,10 @@ func _rebuild_hud_health_rects_cache() -> bool:
 		_hud_layout_cache_by_signature.erase(stale_signature)
 	return true
 
+func _clear_hud_layout_signature_cache() -> void:
+	_hud_layout_cache_by_signature.clear()
+	_hud_layout_cache_order.clear()
+
 func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
 	var health_rects: Dictionary = {}
 	var entries: Array = []
@@ -4834,7 +4844,8 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 	var actor_clear_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
 	var placement_obstacles: Array = occupied_rects.duplicate()
 	placement_obstacles.append(actor_clear_rect)
-	var offset: Vector2 = _placed_enemy_hud_offset(base_rects, placement_obstacles, actor_clear_rect)
+	var actor_key: String = _enemy_hud_actor_key(unit)
+	var offset: Vector2 = _placed_enemy_hud_offset(base_rects, placement_obstacles, actor_clear_rect, actor_key)
 	health_rect.position += offset
 	intent_rect.position += offset
 	var tether: Dictionary = {}
@@ -4849,6 +4860,7 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 		"offset": offset,
 		"health_offset": offset,
 		"intent_offset": offset,
+		"side": str(_enemy_hud_side_by_actor.get(actor_key, "")),
 		"tether": tether,
 		"occupied_rects": _enemy_hud_collision_rects(unit, health_rect, intent_rect)
 	}
@@ -4882,7 +4894,8 @@ func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Arra
 	var actor_clear_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
 	var placement_obstacles: Array = occupied_rects.duplicate()
 	placement_obstacles.append(actor_clear_rect)
-	var offset: Vector2 = _placed_enemy_hud_offset(rects, placement_obstacles, actor_clear_rect)
+	var actor_key: String = _enemy_hud_actor_key(unit)
+	var offset: Vector2 = _placed_enemy_hud_offset(rects, placement_obstacles, actor_clear_rect, actor_key)
 	intent_rect.position += offset
 	expanded_rect.position += offset
 	var occupied: Array[Rect2] = []
@@ -4895,8 +4908,15 @@ func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Arra
 		"intent_name": intent_name,
 		"border": border,
 		"offset": offset,
+		"side": str(_enemy_hud_side_by_actor.get(actor_key, "")),
 		"occupied_rects": occupied
 	}
+
+func _enemy_hud_actor_key(unit: Dictionary) -> String:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty() and str(unit.get("role", "enemy")) == "enemy":
+		actor_key = "enemy_%d" % int(unit.get("id", -1))
+	return actor_key
 
 func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Array:
 	if _enemy_intent_expanded(unit):
@@ -5014,16 +5034,16 @@ func _enemy_hud_viewport_bounds() -> Rect2:
 func _enemy_hud_actor_clear_rect(unit: Dictionary, center: Vector2) -> Rect2:
 	return _unit_draw_rect_for_center(unit, center).grow(ENEMY_HUD_ACTOR_CLEARANCE)
 
-func _placed_enemy_hud_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2) -> Vector2:
+func _placed_enemy_hud_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2, actor_key: String = "") -> Vector2:
 	if base_rects.is_empty():
 		return Vector2.ZERO
 	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
 	var hud_bounds: Rect2 = _rects_bounds(base_rects)
 	if hud_bounds.position.y < viewport_bounds.position.y:
-		return _best_enemy_hud_side_offset(base_rects, occupied_rects, actor_clear_rect, viewport_bounds)
+		return _best_enemy_hud_side_offset(base_rects, occupied_rects, actor_clear_rect, viewport_bounds, actor_key)
 	return _best_enemy_hud_offset(base_rects, occupied_rects)
 
-func _best_enemy_hud_side_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2, viewport_bounds: Rect2) -> Vector2:
+func _best_enemy_hud_side_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2, viewport_bounds: Rect2, actor_key: String = "") -> Vector2:
 	var hud_bounds: Rect2 = _rects_bounds(base_rects)
 	var max_y: float = maxf(viewport_bounds.position.y, viewport_bounds.end.y - hud_bounds.size.y)
 	var clamped_y: float = clampf(hud_bounds.position.y, viewport_bounds.position.y, max_y)
@@ -5032,21 +5052,60 @@ func _best_enemy_hud_side_offset(base_rects: Array, occupied_rects: Array, actor
 		clampf(actor_clear_rect.position.y, viewport_bounds.position.y, max_y) - hud_bounds.position.y,
 		clampf(actor_clear_rect.get_center().y - hud_bounds.size.y * 0.5, viewport_bounds.position.y, max_y) - hud_bounds.position.y
 	]
-	var x_offsets: Array[float] = [
-		actor_clear_rect.position.x - ENEMY_HUD_SIDE_GAP - hud_bounds.end.x,
-		actor_clear_rect.end.x + ENEMY_HUD_SIDE_GAP - hud_bounds.position.x
-	]
-	var best_offset := Vector2.ZERO
-	var best_score: float = INF
+	var side_offsets: Dictionary = {
+		"left": actor_clear_rect.position.x - ENEMY_HUD_SIDE_GAP - hud_bounds.end.x,
+		"right": actor_clear_rect.end.x + ENEMY_HUD_SIDE_GAP - hud_bounds.position.x
+	}
+	var best_by_side: Dictionary = {}
 	for y_offset: float in y_offsets:
-		for x_offset: float in x_offsets:
+		for side_var: Variant in side_offsets:
+			var side: String = str(side_var)
+			var x_offset: float = float(side_offsets.get(side, 0.0))
 			var offset := Vector2(x_offset, y_offset)
 			var candidate_rects: Array[Rect2] = _offset_rects(base_rects, offset)
 			var score: float = _enemy_hud_layout_score(candidate_rects, occupied_rects, viewport_bounds, offset)
-			if score < best_score:
-				best_score = score
-				best_offset = offset
-	return best_offset
+			var collision_areas: Dictionary = _enemy_hud_collision_areas(candidate_rects, occupied_rects, viewport_bounds)
+			var previous: Dictionary = best_by_side.get(side, {}) as Dictionary
+			if previous.is_empty() or score < float(previous.get("score", INF)):
+				best_by_side[side] = {
+					"offset": offset,
+					"score": score,
+					"side": side,
+					"overlap_area": float(collision_areas.get("overlap_area", 0.0)),
+					"overflow_area": float(collision_areas.get("overflow_area", 0.0))
+				}
+	var chosen: Dictionary = {}
+	for side_var: Variant in best_by_side:
+		var candidate: Dictionary = best_by_side.get(side_var, {}) as Dictionary
+		if chosen.is_empty() or float(candidate.get("score", INF)) < float(chosen.get("score", INF)):
+			chosen = candidate
+	var preferred_side: String = str(_enemy_hud_side_by_actor.get(actor_key, ""))
+	var preferred: Dictionary = best_by_side.get(preferred_side, {}) as Dictionary
+	if not preferred.is_empty() and not chosen.is_empty():
+		var preferred_score: float = float(preferred.get("score", INF))
+		var chosen_score: float = float(chosen.get("score", INF))
+		# A remembered side is sticky through small score changes caused by board
+		# motion. It only changes when the other side is materially safer, avoiding
+		# left/right chatter around a nearly tied collision boundary.
+		if (
+			float(preferred.get("overflow_area", INF)) <= 0.01
+			and float(preferred.get("overlap_area", INF)) <= ENEMY_HUD_SIDE_STICKY_OVERLAP_AREA
+			and preferred_score <= chosen_score + ENEMY_HUD_SIDE_SWITCH_SCORE_MARGIN
+		):
+			chosen = preferred
+	if chosen.is_empty():
+		return Vector2.ZERO
+	_remember_enemy_hud_side(actor_key, str(chosen.get("side", "")))
+	return chosen.get("offset", Vector2.ZERO) as Vector2
+
+func _remember_enemy_hud_side(actor_key: String, side: String) -> void:
+	if actor_key.is_empty() or side.is_empty() or str(_enemy_hud_side_by_actor.get(actor_key, "")) == side:
+		return
+	_enemy_hud_side_by_actor[actor_key] = side
+	# Cached pan signatures can otherwise restore an older opposite-side layout
+	# after the preference changes. Keep the current rendered entry, but discard
+	# reusable signatures so future geometry always honors the new side.
+	_clear_hud_layout_signature_cache()
 
 func _offset_rects(rects: Array[Rect2], offset: Vector2) -> Array[Rect2]:
 	var shifted: Array[Rect2] = []
@@ -5055,6 +5114,12 @@ func _offset_rects(rects: Array[Rect2], offset: Vector2) -> Array[Rect2]:
 	return shifted
 
 func _enemy_hud_layout_score(candidate_rects: Array, occupied_rects: Array, viewport_bounds: Rect2, offset: Vector2) -> float:
+	var collision_areas: Dictionary = _enemy_hud_collision_areas(candidate_rects, occupied_rects, viewport_bounds)
+	var overlap_area: float = float(collision_areas.get("overlap_area", 0.0))
+	var overflow_area: float = float(collision_areas.get("overflow_area", 0.0))
+	return overlap_area * 100000.0 + overflow_area * 5000.0 + absf(offset.x) * 2.4 + absf(offset.y) * 1.6
+
+func _enemy_hud_collision_areas(candidate_rects: Array, occupied_rects: Array, viewport_bounds: Rect2) -> Dictionary:
 	var overlap_area: float = 0.0
 	for candidate_var: Variant in candidate_rects:
 		if typeof(candidate_var) != TYPE_RECT2:
@@ -5069,7 +5134,7 @@ func _enemy_hud_layout_score(candidate_rects: Array, occupied_rects: Array, view
 		if typeof(candidate_var) != TYPE_RECT2:
 			continue
 		overflow_area += _rect_outside_area(candidate_var, viewport_bounds)
-	return overlap_area * 100000.0 + overflow_area * 5000.0 + absf(offset.x) * 2.4 + absf(offset.y) * 1.6
+	return {"overlap_area": overlap_area, "overflow_area": overflow_area}
 
 func _rect_overlap_area(a: Rect2, b: Rect2) -> float:
 	var left: float = maxf(a.position.x, b.position.x)
@@ -7615,15 +7680,24 @@ func _default_vertical_framing_offset(extents: Dictionary, tile_width: float, co
 		visual_top = minf(visual_top, tile_center_y - half_height)
 	if not is_finite(visual_top):
 		visual_top = origin_y - half_height
+	return maxf(0.0, _board_local_safe_top() - visual_top)
+
+func _board_local_safe_top() -> float:
 	# The board is nested below the stage chrome, so the screenshot-safe top edge
 	# lives in global canvas space rather than at local y=BOARD_VERTICAL_MARGIN.
-	var local_safe_top: float
 	if str(presentation.get("board_framing_mode", "room")) != "combat" and (presentation.get("board_safe_global_rect", Rect2()) as Rect2).size.y > 0.0:
-		local_safe_top = _board_layout_available_rect().position.y
-	else:
-		var global_safe_top: float = BOARD_VERTICAL_MARGIN
-		local_safe_top = global_safe_top - get_global_transform().origin.y
-	return maxf(0.0, local_safe_top - visual_top)
+		return _board_layout_available_rect().position.y
+	return BOARD_VERTICAL_MARGIN - get_global_transform().origin.y
+
+func _default_visual_top_framing_offset() -> float:
+	var visual_bounds: Rect2 = rendered_visual_bounds()
+	if visual_bounds.size.x <= 0.0 or visual_bounds.size.y <= 0.0:
+		return 0.0
+	# rendered_visual_bounds includes the current player pan. Remove it before
+	# deriving the default composition so this safety correction does not cancel
+	# an intentional upward pan.
+	var default_visual_top: float = visual_bounds.position.y - _navigation_pan.y
+	return maxf(0.0, _board_local_safe_top() - default_visual_top)
 
 func _navigation_zoom_anchor() -> Vector2:
 	var available_rect: Rect2 = _board_layout_available_rect()
@@ -7634,7 +7708,7 @@ func _navigation_zoom_anchor() -> Vector2:
 	var framing_offset: float = _default_vertical_framing_offset(extents, tile_width, content_top, _board_layout_cache_tiles)
 	return Vector2(
 		available_rect.get_center().x,
-		available_rect.position.y + available_rect.size.y * _board_vertical_bias() + framing_offset
+		available_rect.position.y + available_rect.size.y * _board_vertical_bias() + framing_offset + _board_layout_cache_visual_top_offset
 	)
 
 func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
@@ -7648,6 +7722,8 @@ func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vecto
 		available_rect.position.y + (available_rect.size.y - content_size.y) * _board_vertical_bias()
 	)
 	content_position.y += _default_vertical_framing_offset(extents, tile_width, content_position.y, _board_layout_cache_tiles)
+	if _board_layout_cache_valid and is_equal_approx(tile_width, _board_layout_cache_tile_width) and extents == _board_layout_cache_extents:
+		content_position.y += _board_layout_cache_visual_top_offset
 	return Rect2(content_position + pan, content_size)
 
 func _board_vertical_bias() -> float:
@@ -8013,6 +8089,7 @@ func _board_layout_extents_for_tiles(tiles: Array[Vector2i]) -> Dictionary:
 
 func _invalidate_board_layout_cache(content_changed: bool = true) -> void:
 	_board_layout_cache_valid = false
+	_board_layout_cache_visual_top_offset = 0.0
 	_board_layout_cache_tile_centers.clear()
 	_board_layout_cache_tile_polygons.clear()
 	_unit_shadow_draw_geometry_cache.clear()
@@ -8041,6 +8118,7 @@ func _ensure_board_layout_cache() -> void:
 	_board_layout_cache_size = size
 	_board_layout_cache_tile_width = tile_width
 	_board_layout_cache_origin = _board_origin_for_extents(extents, tile_width, tiles)
+	_board_layout_cache_visual_top_offset = 0.0
 	_board_layout_cache_tile_centers = {}
 	_board_layout_cache_tile_polygons = {}
 	var tile_height: float = tile_width * 0.5
@@ -8060,6 +8138,17 @@ func _ensure_board_layout_cache() -> void:
 			center + Vector2(0.0, -tile_height * 0.5)
 		])
 	_board_layout_cache_valid = true
+	var visual_top_offset: float = _default_visual_top_framing_offset()
+	if visual_top_offset > 0.01:
+		_board_layout_cache_visual_top_offset = visual_top_offset
+		_board_layout_cache_origin.y += visual_top_offset
+		for tile: Vector2i in tiles:
+			_board_layout_cache_tile_centers[tile] = (_board_layout_cache_tile_centers.get(tile, Vector2.ZERO) as Vector2) + Vector2(0.0, visual_top_offset)
+			var shifted_polygon := PackedVector2Array()
+			var polygon: PackedVector2Array = _board_layout_cache_tile_polygons.get(tile, PackedVector2Array()) as PackedVector2Array
+			for point: Vector2 in polygon:
+				shifted_polygon.append(point + Vector2(0.0, visual_top_offset))
+			_board_layout_cache_tile_polygons[tile] = shifted_polygon
 
 func _tile_height() -> float:
 	return _tile_width() * 0.5

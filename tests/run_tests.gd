@@ -209,6 +209,8 @@ func _initialize() -> void:
 	_test_enemy_hud_layout_stays_centered_when_clear()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge()
+	_test_enemy_hud_side_selection_is_stable_during_small_layout_changes()
+	_test_combat_board_default_framing_contains_tallest_top_corner_occupant()
 	_test_boss_intent_layout_needs_no_global_board_banner()
 	_test_boss_health_overlay_caps_divider_density()
 	_test_turn_order_portraits_cover_enemy_roster()
@@ -5765,6 +5767,74 @@ func _test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge() -> void:
 	var expected_tether: Dictionary = board.call("_enemy_intent_tether_geometry", enemy, center, intent_rect)
 	_assert((tether.get("from", Vector2.ZERO) as Vector2).is_equal_approx(expected_tether.get("from", Vector2.ONE)), "The enemy HUD tether should begin on the sprite boundary")
 	_assert((tether.get("to", Vector2.ZERO) as Vector2).is_equal_approx(expected_tether.get("to", Vector2.ONE)), "The enemy HUD tether should terminate on the displaced intent panel boundary")
+
+func _test_enemy_hud_side_selection_is_stable_during_small_layout_changes() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
+	var center := Vector2(480.0, 215.0)
+	var enemy := {
+		"id": 17,
+		"key": "enemy_17",
+		"type": "harrier",
+		"role": "enemy",
+		"intent": {
+			"name": "Raking Pelt",
+			"actions": [{"type": "ranged", "damage": 4, "range": 4}]
+		}
+	}
+	var initial_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
+	var initial_side: String = str(initial_layout.get("side", ""))
+	var initial_intent_rect: Rect2 = initial_layout.get("intent_rect", Rect2())
+	_assert(initial_side in ["left", "right"], "Top-edge HUD placement should remember a concrete side for each enemy")
+	var tiny_sliver := Rect2(initial_intent_rect.position, Vector2(0.5, 2.0))
+	var near_tie_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center + Vector2(0.35, 0.0), [tiny_sliver], font)
+	_assert(str(near_tie_layout.get("side", "")) == initial_side, "Subpixel board motion and a one-pixel collision score change should not flip the enemy HUD side")
+	var blocking_rect := Rect2(Vector2(initial_intent_rect.position.x, 0.0), Vector2(initial_intent_rect.size.x, board.size.y))
+	var forced_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [blocking_rect], font)
+	var forced_side: String = str(forced_layout.get("side", ""))
+	_assert(forced_side != initial_side, "A materially blocked remembered side should still yield to the clear side")
+	var settled_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center + Vector2(-0.35, 0.0), [], font)
+	_assert(str(settled_layout.get("side", "")) == forced_side, "Once the HUD changes sides for a real obstruction, nearby clear layouts should remain on that side")
+
+func _test_combat_board_default_framing_contains_tallest_top_corner_occupant() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(1900.0, 790.0)
+	var zekarion_def: Dictionary = GameData.enemy_def("zekarion")
+	var footprint_data: Array = zekarion_def.get("footprint", [2, 2]) as Array
+	var footprint := Vector2i(int(footprint_data[0]), int(footprint_data[1]))
+	var state: Dictionary = {
+		"room_coord": Vector2i(4, 3),
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(6, 6), "hp": 24, "max_hp": 24},
+		"enemies": [{
+			"id": 91,
+			"type": "zekarion",
+			"pos": Vector2i(1, 1),
+			"footprint": footprint,
+			"hp": int(zekarion_def.get("max_hp", 60)),
+			"max_hp": int(zekarion_def.get("max_hp", 60)),
+			"intent": {}
+		}],
+		"illusions": [],
+		"npcs": [],
+		"terrain": [],
+		"loot": [],
+		"traps": []
+	}
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"board_framing_mode": "combat"})
+	var boss_unit: Dictionary = {}
+	for unit_var: Variant in board.call("_visible_units") as Array:
+		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("key", "")) == "enemy_91":
+			boss_unit = unit_var as Dictionary
+			break
+	var boss_rect: Rect2 = board.call("_unit_draw_rect", boss_unit)
+	var safe_top: float = float(board.call("_board_local_safe_top"))
+	var door_frame: Rect2 = board.call("_door_rect_for_tile", Vector2i(1, 1), state.get("grid", []))
+	_assert(not boss_unit.is_empty(), "Tallest-occupant framing proof should build the top-corner Zekarion unit")
+	_assert(boss_rect.size.y > door_frame.size.y, "Zekarion should remain the taller framing case than the tallest structural prop frame")
+	_assert(float(board.get("_board_layout_cache_visual_top_offset")) > 0.0, "Tall top-corner art should activate content-aware default framing")
+	_assert(boss_rect.position.y >= safe_top - 0.01, "The tallest shipped top-corner character should remain fully inside the screen-safe top edge")
 
 func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
 	var board := CombatBoardView.new()

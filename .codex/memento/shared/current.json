@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-04T20:24:36Z",
+  "updated_at": "2026-08-04T21:03:02Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6950,6 +6950,50 @@
       "source": {
         "branch": "codex/fix-top-edge-enemy-intent-placement",
         "commit": "e83e7a0"
+      }
+    },
+    {
+      "id": "mnt_20260804T210223Z_b87c5aa0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Default board framing protects actual rendered occupant bounds",
+      "details": "After building provisional tile geometry, CombatBoardView measures rendered_visual_bounds and applies only the additional top offset needed at zero pan. Remove navigation_pan from that measurement so the safety correction does not cancel intentional player panning; keep navigation anchor/content geometry synchronized with the cached visual offset.",
+      "status": "active",
+      "created_at": "2026-08-04T21:02:23Z",
+      "updated_at": "2026-08-04T21:02:23Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-top-edge-enemy-intent-placement",
+        "commit": "da485ae"
+      }
+    },
+    {
+      "id": "mnt_20260804T210302Z_c4c38a0e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Top-edge enemy HUDs retain per-actor side affinity",
+      "details": "When the coupled health/intent HUD must move beside an actor, remember left/right by actor key and keep that side through nearly tied pan layouts. Switch only when the remembered side materially conflicts or overflows, and clear signature caches when affinity changes so revisiting an old pan cannot restore the opposite side.",
+      "status": "active",
+      "created_at": "2026-08-04T21:03:02Z",
+      "updated_at": "2026-08-04T21:03:02Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-top-edge-enemy-intent-placement",
+        "commit": "da485ae"
       }
     }
   ]

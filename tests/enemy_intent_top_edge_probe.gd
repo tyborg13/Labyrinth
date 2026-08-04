@@ -2,11 +2,12 @@ extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR_ROOT: String = "user://probes/enemy_intent_top_edge_v1"
+const OUTPUT_DIR_ROOT: String = "user://probes/enemy_intent_top_edge_v2"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
@@ -34,7 +35,7 @@ func _initialize() -> void:
 	var requested_state: String = OS.get_environment("LABYRINTH_INTENT_PROBE_STATE").strip_edges().to_lower()
 	if requested_state.is_empty():
 		requested_state = "compact"
-	_expect(requested_state in ["compact", "expanded"], "Top-edge intent proof state should be compact or expanded")
+	_expect(requested_state in ["compact", "expanded", "tallest"], "Top-edge intent proof state should be compact, expanded, or tallest")
 	_requested_state = requested_state
 	_output_dir = "%s_%s" % [OUTPUT_DIR_ROOT, requested_state]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir))
@@ -55,26 +56,32 @@ func _capture_fresh_state(packed: PackedScene, expanded: bool, label: String) ->
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
-	await _load_combat_fixture(instance, expanded)
+	await _load_combat_fixture(instance, expanded, label == "tallest")
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	_expect(board != null, "%s top-edge intent proof should find the real combat board" % label)
 	if board == null:
 		return
 	var enemy_unit: Dictionary = _enemy_unit(board)
 	var enemy_center: Vector2 = board.call("_unit_center", enemy_unit)
-	await _capture_state(board, enemy_unit, enemy_center, label)
+	if label == "tallest":
+		await _capture_tallest_state(board, enemy_unit, label)
+	else:
+		await _capture_state(board, enemy_unit, enemy_center, label)
 	instance.queue_free()
 	await process_frame
 	await process_frame
 
-func _load_combat_fixture(instance: Node, expanded: bool) -> void:
+func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false) -> void:
+	var enemy_type: String = "zekarion" if tallest else "harrier"
+	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+	var max_hp: int = int(enemy_def.get("max_hp", 18))
 	var layout: Dictionary = {
 		"name": "Top-edge Intent Probe",
 		"coord": Vector2i(4, 3),
 		"type": "combat",
 		"grid": _simple_grid(),
 		"player_start": Vector2i(2, 6),
-		"enemies": [{"id": 1, "type": "harrier", "pos": Vector2i(1, 1), "hp": 18, "max_hp": 18}],
+		"enemies": [{"id": 1, "type": enemy_type, "pos": Vector2i(1, 1), "hp": max_hp, "max_hp": max_hp}],
 		"traps": [],
 		"terrain": [],
 		"loot": []
@@ -89,16 +96,22 @@ func _load_combat_fixture(instance: Node, expanded: bool) -> void:
 		"heal_bonus": 0
 	})
 	var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[0]
-	enemy["type"] = "harrier"
-	enemy["hp"] = 18
-	enemy["max_hp"] = 18
-	enemy["intent"] = {
-		"name": "Raking Pelt",
-		"actions": [
-			{"type": "move_toward", "range": 2},
-			{"type": "ranged", "damage": 4, "range": 4, "bleed": 1}
-		]
-	}
+	enemy["type"] = enemy_type
+	enemy["hp"] = max_hp
+	enemy["max_hp"] = max_hp
+	if tallest:
+		var footprint_data: Array = enemy_def.get("footprint", [2, 2]) as Array
+		enemy["footprint"] = Vector2i(int(footprint_data[0]), int(footprint_data[1]))
+		var intents: Array = enemy_def.get("intents", []) as Array
+		enemy["intent"] = (intents[0] as Dictionary).duplicate(true) if not intents.is_empty() else {}
+	else:
+		enemy["intent"] = {
+			"name": "Raking Pelt",
+			"actions": [
+				{"type": "move_toward", "range": 2},
+				{"type": "ranged", "damage": 4, "range": 4, "bleed": 1}
+			]
+		}
 	(combat_state.get("enemies", []) as Array)[0] = enemy
 	combat_state["current_actor"] = {"kind": "player", "key": "player"}
 	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
@@ -122,7 +135,47 @@ func _capture_state(board: Control, enemy_unit: Dictionary, enemy_center: Vector
 	await _settle_ui()
 	var layout: Dictionary = _rendered_enemy_layout(board)
 	_assert_layout(board, enemy_unit, enemy_center, layout, label)
+	await _assert_pan_stability(board, enemy_unit, label)
 	await _save_root_screenshot("%s/%s.png" % [_output_dir, label])
+
+func _capture_tallest_state(board: Control, enemy_unit: Dictionary, label: String) -> void:
+	await _settle_ui()
+	var art_rect: Rect2 = board.call("_unit_draw_rect", enemy_unit)
+	var transform: Transform2D = board.get_global_transform()
+	var global_top_left: Vector2 = transform * art_rect.position
+	var global_bottom_right: Vector2 = transform * art_rect.end
+	var global_art_rect := Rect2(global_top_left, global_bottom_right - global_top_left)
+	var viewport_rect := Rect2(Vector2.ZERO, Vector2(PROBE_VIEWPORT))
+	_expect(str(enemy_unit.get("type", "")) == "zekarion", "Tallest framing proof should use the audited tallest shipped character")
+	_expect(float(board.get("_board_layout_cache_visual_top_offset")) > 0.0, "Tallest top-corner character should activate adaptive visual framing")
+	_expect(viewport_rect.encloses(global_art_rect), "Tallest top-corner character art should remain fully onscreen: %s" % global_art_rect)
+	await _save_root_screenshot("%s/%s.png" % [_output_dir, label])
+
+func _assert_pan_stability(board: Control, enemy_unit: Dictionary, label: String) -> void:
+	var initial_layout: Dictionary = _rendered_enemy_layout(board)
+	var remembered_side: String = str(initial_layout.get("side", ""))
+	_expect(remembered_side in ["left", "right"], "%s motion proof should begin with a remembered HUD side" % label)
+	var saw_motion: bool = false
+	var requested_pans: Array[Vector2] = [
+		Vector2(-36.0, 0.0),
+		Vector2(-12.0, 0.0),
+		Vector2(18.0, 0.0),
+		Vector2(42.0, 0.0),
+		Vector2.ZERO
+	]
+	for requested_pan: Vector2 in requested_pans:
+		board.call("set_navigation_pan", requested_pan, false)
+		await process_frame
+		var actual_pan: Vector2 = (board.call("navigation_snapshot") as Dictionary).get("pan", Vector2.ZERO)
+		saw_motion = saw_motion or not actual_pan.is_zero_approx()
+		var moved_enemy: Dictionary = _enemy_unit(board)
+		var moved_center: Vector2 = board.call("_unit_center", moved_enemy)
+		var moved_layout: Dictionary = _rendered_enemy_layout(board)
+		_expect(str(moved_layout.get("side", "")) == remembered_side, "%s intent HUD should keep one side throughout a clear board-pan sweep" % label)
+		_assert_layout(board, moved_enemy, moved_center, moved_layout, "%s motion" % label)
+	_expect(saw_motion, "%s motion proof should exercise a non-zero board pan" % label)
+	board.call("set_navigation_pan", Vector2.ZERO, false)
+	await _settle_ui()
 
 func _rendered_enemy_layout(board: Control) -> Dictionary:
 	var units: Array = board.call("_visible_units") as Array
