@@ -820,8 +820,9 @@ func _assert_dense_turn_order_rail(instance: Node) -> void:
 		_assert(slot.size.x >= 74.0 and slot.size.y >= 55.0, "Dense initiative entries must remain readable portrait controls")
 		var slot_panel: PanelContainer = slot.get_child(0) as PanelContainer if slot.get_child_count() > 0 else null
 		var slot_style: StyleBoxFlat = slot_panel.get_theme_stylebox("panel") as StyleBoxFlat if slot_panel != null else null
-		var backing: TextureRect = slot.find_child("TurnOrderFrayedBacking", true, false) as TextureRect
-		_assert(backing != null and str(slot.get_meta("turn_order_art_hook", "")) == "frayed_backing", "Dense initiative rail should give every portrait an irregular frayed backing")
+		var backing: TextureRect = slot.find_child("TurnOrderBrushBacking", true, false) as TextureRect
+		_assert(backing != null and str(slot.get_meta("turn_order_art_hook", "")) == "brush_backing_v2", "Dense initiative rail should give every portrait the abstract brush backing")
+		_assert(backing == null or (not slot.clip_contents and slot_panel != null and not slot_panel.clip_contents and not backing.clip_contents), "Dense initiative brush backings should not be cut off by a clipping ancestor")
 		_assert(slot.find_child("TurnOrderActiveFrameArtHost", true, false) == null and slot.find_child("TurnOrderQueuedFrameArtHost", true, false) == null, "Dense initiative rail should not reintroduce rectangular frame art")
 		var team: String = str(slot.get_meta("turn_order_team", "enemy"))
 		_assert(backing == null or (team == "player" and backing.modulate.b > backing.modulate.r) or (team != "player" and backing.modulate.r > backing.modulate.b), "Dense initiative backings should distinguish player blue from enemy red without bright saturation")

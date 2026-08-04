@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-04T02:06:51Z",
+  "updated_at": "2026-08-04T14:02:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6905,25 +6905,27 @@
       }
     },
     {
-      "id": "mnt_20260804T020651Z_c652aea4",
+      "id": "mnt_20260804T140258Z_aad9f052",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
+        "level": "folder",
+        "path": "assets/art/ui",
         "symbol": null
       },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Turn-order backings stay abstract, frayed, and nonrectangular",
-      "details": "The portrait rail should use a lightweight low-detail torn silhouette rather than realistic cloth, leather, parchment, a framed panel, or a rectangle with distressed trim. Keep player backings subdued slate blue and enemy backings subdued dusty red so portrait identity and clock values remain primary.",
+      "scope_key": "folder:assets/art/ui",
+      "summary": "Turn-order backings use broad abstract brushwork with transparent bleed",
+      "details": "Use the user-approved broad horizontal brush-stroke silhouette behind turn-order portraits, tinted subdued slate blue for players and dusty red for enemies. Backing assets must retain clear alpha on every side so fibers never terminate against a rectangular texture bound, and the slot-to-texture control chain must remain non-clipping. Avoid material realism, thick frames, and blocky box silhouettes.",
       "status": "active",
-      "created_at": "2026-08-04T02:06:51Z",
-      "updated_at": "2026-08-04T02:06:51Z",
+      "created_at": "2026-08-04T14:02:58Z",
+      "updated_at": "2026-08-04T14:02:58Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260804T020651Z_c652aea4"
+      ],
       "source": {
         "branch": "codex/polish-turn-order-portrait-backings",
-        "commit": "4e5dba3"
+        "commit": "3f559ad"
       }
     }
   ]

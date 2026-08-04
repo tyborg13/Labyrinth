@@ -3,7 +3,7 @@
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
-      "pattern": "*turn_order_frayed_v1_00_before.png",
+      "pattern": "*turn_order_brush_v2_00_before.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "pattern": "*turn_order_frayed_v1_04_final.png",
+      "pattern": "*turn_order_brush_v2_04_final.png",
       "width": 1920,
       "height": 1080,
       "regions": [
