@@ -4,10 +4,15 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 
 func _initialize() -> void:
 	print("turn order probe: start")
 	ParallelRuntime.apply_from_environment()
+	DisplayServer.window_set_size(VIEWPORT_SIZE)
+	root.content_scale_size = VIEWPORT_SIZE
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.size = VIEWPORT_SIZE
 	DirAccess.make_dir_recursive_absolute("user://probes")
 	ProgressionStore.set_storage_path("user://labyrinth_progression_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_probe.save")
@@ -48,7 +53,7 @@ func _initialize() -> void:
 	_assert_turn_order_panel_right_rail(instance)
 	_assert_vertical_turn_order_geometry(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, combat_state)
-	await _save_root_screenshot("user://probes/turn_order_anim_00_before.png")
+	await _save_root_screenshot("user://probes/turn_order_frayed_v1_00_before.png")
 	var combat_engine = instance.get("_combat_engine")
 	var scheduled_state: Dictionary = combat_engine.finish_player_activation(combat_state.duplicate(true))
 	print("turn order probe: animating")
@@ -56,21 +61,21 @@ func _initialize() -> void:
 	await create_timer(0.10).timeout
 	await process_frame
 	_assert_single_turn_order_exit(instance)
-	await _save_root_screenshot("user://probes/turn_order_anim_01_remove.png")
+	await _save_root_screenshot("user://probes/turn_order_frayed_v1_01_remove.png")
 	await create_timer(0.20).timeout
 	await process_frame
 	_assert_turn_order_width_locked(instance)
-	await _save_root_screenshot("user://probes/turn_order_anim_02_reflow.png")
+	await _save_root_screenshot("user://probes/turn_order_frayed_v1_02_reflow.png")
 	await create_timer(0.20).timeout
 	await process_frame
-	await _save_root_screenshot("user://probes/turn_order_anim_03_insert.png")
+	await _save_root_screenshot("user://probes/turn_order_frayed_v1_03_insert.png")
 	await create_timer(0.35).timeout
 	await process_frame
 	_assert_turn_order_slot_count(instance, 10)
 	_assert_turn_order_panel_right_rail(instance)
 	_assert_vertical_turn_order_geometry(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, scheduled_state)
-	await _save_root_screenshot("user://probes/turn_order_anim_04_final.png")
+	await _save_root_screenshot("user://probes/turn_order_frayed_v1_04_final.png")
 	print("turn order probe: done")
 	print(ProjectSettings.globalize_path("user://probes"))
 	instance.queue_free()
@@ -81,6 +86,10 @@ func _save_root_screenshot(output_path: String) -> void:
 	if DisplayServer.get_name() == "headless":
 		return
 	var image: Image = root.get_viewport().get_texture().get_image()
+	# macOS may expose a Retina-sized backing texture even when the authored
+	# logical canvas is 1920x1080. Normalize proof to the rubric's exact canvas.
+	if image.get_size() != VIEWPORT_SIZE:
+		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
 
 func _assert_single_turn_order_exit(instance: Node) -> void:
@@ -211,10 +220,20 @@ func _assert_vertical_turn_order_geometry(instance: Node) -> void:
 			quit(1)
 			return
 		var portrait_crop: Control = slot.find_child("TurnOrderPortraitCrop", true, false) as Control
+		var backing: TextureRect = slot.find_child("TurnOrderFrayedBacking", true, false) as TextureRect
 		var slot_panel: PanelContainer = slot.get_child(0) as PanelContainer if slot.get_child_count() > 0 else null
 		var slot_style: StyleBoxFlat = slot_panel.get_theme_stylebox("panel") as StyleBoxFlat if slot_panel != null else null
-		if portrait_crop == null or slot.find_child("TurnOrderActiveFrameArtHost", true, false) != null or slot.find_child("TurnOrderQueuedFrameArtHost", true, false) != null:
-			push_error("Turn entry should be portrait-only with no frame-art host.")
+		if portrait_crop == null or backing == null or str(slot.get_meta("turn_order_art_hook", "")) != "frayed_backing" or slot.find_child("TurnOrderActiveFrameArtHost", true, false) != null or slot.find_child("TurnOrderQueuedFrameArtHost", true, false) != null:
+			push_error("Turn entry should pair its portrait with the frayed backing and no rectangular frame-art host.")
+			quit(1)
+			return
+		var team: String = str(slot.get_meta("turn_order_team", "enemy"))
+		if (team == "player" and backing.modulate.b <= backing.modulate.r) or (team != "player" and backing.modulate.r <= backing.modulate.b):
+			push_error("Turn-entry frayed backing should use the subdued blue player or red enemy treatment.")
+			quit(1)
+			return
+		if backing.modulate.a > 0.67:
+			push_error("Turn-entry frayed backing should remain a subdued secondary cue.")
 			quit(1)
 			return
 		if slot_style == null or slot_style.bg_color.a > 0.001 or slot_style.border_color.a > 0.001 or slot_style.shadow_size > 0:

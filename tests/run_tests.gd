@@ -6151,7 +6151,12 @@ func _test_cinder_enemies_have_turn_order_portraits() -> void:
 		var slot: Control = instance.call("_build_turn_order_slot", entry, 0) as Control
 		_assert(slot != null, "%s turn-order slot should build" % enemy_type)
 		if slot != null:
-			var texture_rects: Array[TextureRect] = _texture_rects_under(slot)
+			# The slot now has a separate frayed TextureRect behind the portrait.
+			# Scope this canvas assertion to the portrait crop instead of relying on
+			# descendant insertion order.
+			var portrait_crop: Control = slot.find_child("TurnOrderPortraitCrop", true, false) as Control
+			var texture_root: Node = portrait_crop if portrait_crop != null else slot
+			var texture_rects: Array[TextureRect] = _texture_rects_under(texture_root)
 			_assert(not texture_rects.is_empty() and texture_rects[0].texture != null, "%s turn-order slot should render its portrait texture" % enemy_type)
 			if not texture_rects.is_empty() and texture_rects[0].texture != null:
 				_assert(texture_rects[0].texture.get_size() == Vector2(128, 128), "%s turn-order portrait should use the clock portrait canvas" % enemy_type)

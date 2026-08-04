@@ -997,6 +997,7 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
+const TURN_ORDER_FRAYED_BACKING_TEXTURE_PATH: String = "res://assets/art/ui/turn_order_frayed_backing_v1.svg"
 const CARD_PLAY_METER_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_play_meter_frame_v2.png"
 const PASS_FORECAST_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_v2.png"
 const PASS_FORECAST_HOVER_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_hover_v2.png"
@@ -8537,7 +8538,8 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
 	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	frame.set_meta("turn_order_rail_index", index)
-	frame.set_meta("turn_order_art_hook", "none")
+	frame.set_meta("turn_order_art_hook", "frayed_backing")
+	frame.set_meta("turn_order_team", str(entry.get("team", "enemy")))
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.anchor_right = 1.0
@@ -8545,12 +8547,23 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _turn_order_slot_style(entry, active))
 	frame.add_child(panel)
+	var backing := TextureRect.new()
+	backing.name = "TurnOrderFrayedBacking"
+	backing.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backing.anchor_right = 1.0
+	backing.anchor_bottom = 1.0
+	backing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backing.stretch_mode = TextureRect.STRETCH_SCALE
+	backing.texture = AssetLoader.load_texture(TURN_ORDER_FRAYED_BACKING_TEXTURE_PATH)
+	backing.modulate = _turn_order_backing_modulate(entry, active)
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(backing)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	# Portrait-only rail: retain a tiny crop safety inset, but no decorative frame,
-	# opaque backing, or black-box silhouette around the actor.
+	# Retain only a tiny crop-safety inset. The abstract torn silhouette supplies
+	# atmosphere behind the actor without becoming a frame or opaque box.
 	var side_inset: int = 1
 	var top_inset: int = 1
 	var bottom_inset: int = 1
@@ -8615,6 +8628,17 @@ func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
 	# Active actor reads first through scale plus a barely brighter subject, not a
 	# surrounding frame or panel.
 	return Color(0.92, 0.92, 0.92, 0.94)
+
+func _turn_order_backing_modulate(entry: Dictionary, active: bool) -> Color:
+	# The torn silhouette is a secondary team cue, never a bright faction banner.
+	# Portrait identity and clock value still carry the primary turn-order reading.
+	var team: String = str(entry.get("team", "enemy"))
+	var tint: Color = Color("7897b2") if team == "player" else Color("b97870")
+	var alpha: float = 0.66 if active else 0.54
+	if bool(entry.get("projected", false)) and not active:
+		alpha *= 0.82
+	tint.a = alpha
+	return tint
 
 func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Control:
 	var badge := PanelContainer.new()

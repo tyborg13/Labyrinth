@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-03T20:10:33Z",
+  "updated_at": "2026-08-04T02:06:51Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6902,6 +6902,28 @@
       "source": {
         "branch": "codex/broad-transparent-runtime-performance-optimization-pass",
         "commit": "b89bc55"
+      }
+    },
+    {
+      "id": "mnt_20260804T020651Z_c652aea4",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Turn-order backings stay abstract, frayed, and nonrectangular",
+      "details": "The portrait rail should use a lightweight low-detail torn silhouette rather than realistic cloth, leather, parchment, a framed panel, or a rectangle with distressed trim. Keep player backings subdued slate blue and enemy backings subdued dusty red so portrait identity and clock values remain primary.",
+      "status": "active",
+      "created_at": "2026-08-04T02:06:51Z",
+      "updated_at": "2026-08-04T02:06:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-turn-order-portrait-backings",
+        "commit": "4e5dba3"
       }
     }
   ]
