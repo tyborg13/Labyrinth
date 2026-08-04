@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-04T16:12:43Z",
+  "updated_at": "2026-08-04T20:24:36Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6928,6 +6928,28 @@
       "source": {
         "branch": "codex/polish-room-board-hand-and-portraits",
         "commit": "6744cad"
+      }
+    },
+    {
+      "id": "mnt_20260804T202436Z_ca0ad8ac",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/enemy_intent_top_edge_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/enemy_intent_top_edge_probe.gd",
+      "summary": "Retained enemy-HUD captures require state-specific framebuffer synchronization",
+      "details": "The compact top-edge intent frame captures completely on native Metal after force_draw, while the expanded retained HUD can read back only its dirty region. Run compact and expanded as separate LABYRINTH_INTENT_PROBE_STATE invocations; use gl_compatibility/opengl3_angle plus frame_post_draw for expanded proof. Inspect exact screenshots because generic luma validation can still pass a partial dirty-region frame.",
+      "status": "active",
+      "created_at": "2026-08-04T20:24:36Z",
+      "updated_at": "2026-08-04T20:24:36Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-top-edge-enemy-intent-placement",
+        "commit": "e83e7a0"
       }
     }
   ]

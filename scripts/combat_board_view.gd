@@ -73,6 +73,8 @@ const INTENT_POPUP_ICON_SIZE: float = 16.0
 const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
+const ENEMY_HUD_ACTOR_CLEARANCE: float = 8.0
+const ENEMY_HUD_SIDE_GAP: float = 10.0
 const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
@@ -4145,7 +4147,7 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 		_draw_unit_huds_from_layout_cache(units_to_draw)
 		return
 	var font: Font = get_theme_default_font()
-	var reserved_rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
+	var reserved_rects: Array[Rect2] = _enemy_hud_reserved_rects(units_to_draw, font)
 	for unit: Dictionary in units_to_draw:
 		if bool(unit.get("death_animation", false)):
 			continue
@@ -4253,7 +4255,7 @@ func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
 	var health_rects: Dictionary = {}
 	var entries: Array = []
 	var font: Font = get_theme_default_font()
-	var reserved_rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
+	var reserved_rects: Array[Rect2] = _enemy_hud_reserved_rects(units_to_draw, font)
 	for unit: Dictionary in units_to_draw:
 		if bool(unit.get("death_animation", false)):
 			continue
@@ -4562,7 +4564,8 @@ func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -
 	if applied_offset != Vector2.ZERO:
 		intent_rect.position += applied_offset
 		layout["intent_rect"] = intent_rect
-		layout["offset"] = applied_offset
+		layout["offset"] = (layout.get("offset", Vector2.ZERO) as Vector2) + applied_offset
+		layout["tether"] = _enemy_intent_tether_geometry(unit, center, intent_rect)
 	_draw_enemy_intent_layout(layout, font)
 
 func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
@@ -4802,6 +4805,16 @@ func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) ->
 				rects.append_array(_health_bar_collision_rects(unit, _unit_health_bar_rect(unit, center)))
 	return rects
 
+func _enemy_hud_reserved_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
+	var rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
+	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("death_animation", false)) or str(unit.get("role", "")) == "illusion_preview":
+			continue
+		var art_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, _unit_center(unit))
+		if art_rect.size.x > 0.0 and art_rect.size.y > 0.0:
+			rects.append(art_rect)
+	return rects
+
 func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
 	var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
 	var intent: Dictionary = unit.get("intent", {})
@@ -4818,9 +4831,15 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 			intent_rect = _enemy_intent_rect_for_line_count(center, health_rect, line_count, popup_width)
 			border = _intent_color(intent)
 	var base_rects: Array[Rect2] = _enemy_hud_collision_rects(unit, health_rect, intent_rect)
-	var offset: Vector2 = _best_enemy_hud_offset(base_rects, occupied_rects)
+	var actor_clear_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
+	var placement_obstacles: Array = occupied_rects.duplicate()
+	placement_obstacles.append(actor_clear_rect)
+	var offset: Vector2 = _placed_enemy_hud_offset(base_rects, placement_obstacles, actor_clear_rect)
 	health_rect.position += offset
 	intent_rect.position += offset
+	var tether: Dictionary = {}
+	if offset.length_squared() >= 4.0:
+		tether = _enemy_intent_tether_geometry(unit, center, intent_rect)
 	return {
 		"health_rect": health_rect,
 		"intent_rect": intent_rect,
@@ -4828,6 +4847,9 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 		"intent_name": intent_name,
 		"border": border,
 		"offset": offset,
+		"health_offset": offset,
+		"intent_offset": offset,
+		"tether": tether,
 		"occupied_rects": _enemy_hud_collision_rects(unit, health_rect, intent_rect)
 	}
 
@@ -4857,7 +4879,10 @@ func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Arra
 	var rects: Array[Rect2] = []
 	if expanded_rect.size.x > 0.0 and expanded_rect.size.y > 0.0:
 		rects.append(expanded_rect)
-	var offset: Vector2 = _best_enemy_hud_offset(rects, occupied_rects)
+	var actor_clear_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
+	var placement_obstacles: Array = occupied_rects.duplicate()
+	placement_obstacles.append(actor_clear_rect)
+	var offset: Vector2 = _placed_enemy_hud_offset(rects, placement_obstacles, actor_clear_rect)
 	intent_rect.position += offset
 	expanded_rect.position += offset
 	var occupied: Array[Rect2] = []
@@ -4946,13 +4971,7 @@ func _health_bar_defense_badge_rects(unit: Dictionary, health_rect: Rect2) -> Ar
 func _best_enemy_hud_offset(base_rects: Array, occupied_rects: Array) -> Vector2:
 	if base_rects.is_empty():
 		return Vector2.ZERO
-	var viewport_bounds := Rect2(
-		Vector2(ENEMY_HUD_VIEWPORT_MARGIN, ENEMY_HUD_VIEWPORT_MARGIN),
-		Vector2(
-			maxf(1.0, size.x - ENEMY_HUD_VIEWPORT_MARGIN * 2.0),
-			maxf(1.0, size.y - ENEMY_HUD_VIEWPORT_MARGIN * 2.0)
-		)
-	)
+	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
 	var hud_bounds: Rect2 = _rects_bounds(base_rects)
 	var candidate_x_steps: Array = ENEMY_HUD_OFFSET_X_STEPS.duplicate()
 	var wide_step: float = ceilf(hud_bounds.size.x + 8.0)
@@ -4976,6 +4995,52 @@ func _best_enemy_hud_offset(base_rects: Array, occupied_rects: Array) -> Vector2
 	for y_step_var: Variant in candidate_y_steps:
 		for x_step_var: Variant in candidate_x_steps:
 			var offset := Vector2(float(x_step_var), float(y_step_var))
+			var candidate_rects: Array[Rect2] = _offset_rects(base_rects, offset)
+			var score: float = _enemy_hud_layout_score(candidate_rects, occupied_rects, viewport_bounds, offset)
+			if score < best_score:
+				best_score = score
+				best_offset = offset
+	return best_offset
+
+func _enemy_hud_viewport_bounds() -> Rect2:
+	return Rect2(
+		Vector2(ENEMY_HUD_VIEWPORT_MARGIN, ENEMY_HUD_VIEWPORT_MARGIN),
+		Vector2(
+			maxf(1.0, size.x - ENEMY_HUD_VIEWPORT_MARGIN * 2.0),
+			maxf(1.0, size.y - ENEMY_HUD_VIEWPORT_MARGIN * 2.0)
+		)
+	)
+
+func _enemy_hud_actor_clear_rect(unit: Dictionary, center: Vector2) -> Rect2:
+	return _unit_draw_rect_for_center(unit, center).grow(ENEMY_HUD_ACTOR_CLEARANCE)
+
+func _placed_enemy_hud_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2) -> Vector2:
+	if base_rects.is_empty():
+		return Vector2.ZERO
+	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
+	var hud_bounds: Rect2 = _rects_bounds(base_rects)
+	if hud_bounds.position.y < viewport_bounds.position.y:
+		return _best_enemy_hud_side_offset(base_rects, occupied_rects, actor_clear_rect, viewport_bounds)
+	return _best_enemy_hud_offset(base_rects, occupied_rects)
+
+func _best_enemy_hud_side_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2, viewport_bounds: Rect2) -> Vector2:
+	var hud_bounds: Rect2 = _rects_bounds(base_rects)
+	var max_y: float = maxf(viewport_bounds.position.y, viewport_bounds.end.y - hud_bounds.size.y)
+	var clamped_y: float = clampf(hud_bounds.position.y, viewport_bounds.position.y, max_y)
+	var y_offsets: Array[float] = [
+		clamped_y - hud_bounds.position.y,
+		clampf(actor_clear_rect.position.y, viewport_bounds.position.y, max_y) - hud_bounds.position.y,
+		clampf(actor_clear_rect.get_center().y - hud_bounds.size.y * 0.5, viewport_bounds.position.y, max_y) - hud_bounds.position.y
+	]
+	var x_offsets: Array[float] = [
+		actor_clear_rect.position.x - ENEMY_HUD_SIDE_GAP - hud_bounds.end.x,
+		actor_clear_rect.end.x + ENEMY_HUD_SIDE_GAP - hud_bounds.position.x
+	]
+	var best_offset := Vector2.ZERO
+	var best_score: float = INF
+	for y_offset: float in y_offsets:
+		for x_offset: float in x_offsets:
+			var offset := Vector2(x_offset, y_offset)
 			var candidate_rects: Array[Rect2] = _offset_rects(base_rects, offset)
 			var score: float = _enemy_hud_layout_score(candidate_rects, occupied_rects, viewport_bounds, offset)
 			if score < best_score:
@@ -5041,18 +5106,36 @@ func _rects_bounds(rects: Array) -> Rect2:
 		bounds = bounds.merge(rect)
 	return bounds
 
-func _draw_enemy_hud_tether(unit: Dictionary, center: Vector2, layout: Dictionary) -> void:
-	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
-	if offset.length_squared() < 4.0:
-		return
-	var health_rect: Rect2 = layout.get("health_rect", Rect2())
-	if health_rect.size.x <= 0.0 or health_rect.size.y <= 0.0:
+func _draw_enemy_hud_tether(_unit: Dictionary, _center: Vector2, layout: Dictionary) -> void:
+	var tether: Dictionary = layout.get("tether", {})
+	if tether.is_empty():
 		return
 	var border: Color = layout.get("border", Color("d8b96f"))
-	var anchor: Vector2 = Vector2(center.x, _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE * 0.4)
-	var target: Vector2 = Vector2(health_rect.position.x + health_rect.size.x * 0.5, health_rect.position.y + health_rect.size.y)
+	var anchor: Vector2 = tether.get("from", Vector2.ZERO)
+	var target: Vector2 = tether.get("to", Vector2.ZERO)
 	draw_line(anchor, target, Color(0.0, 0.0, 0.0, 0.24), 3.0, true)
 	draw_line(anchor, target, Color(border.r, border.g, border.b, 0.58), 1.0, true)
+
+func _enemy_intent_tether_geometry(unit: Dictionary, center: Vector2, intent_rect: Rect2) -> Dictionary:
+	if intent_rect.size.x <= 0.0 or intent_rect.size.y <= 0.0:
+		return {}
+	var art_rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	if art_rect.size.x <= 0.0 or art_rect.size.y <= 0.0:
+		return {}
+	return {
+		"from": _rect_edge_point_toward(art_rect, intent_rect.get_center()),
+		"to": _rect_edge_point_toward(intent_rect, art_rect.get_center())
+	}
+
+func _rect_edge_point_toward(rect: Rect2, target: Vector2) -> Vector2:
+	var center: Vector2 = rect.get_center()
+	var direction: Vector2 = target - center
+	if direction.length_squared() <= 0.0001:
+		return center
+	var half_size: Vector2 = rect.size * 0.5
+	var x_scale: float = half_size.x / absf(direction.x) if absf(direction.x) > 0.0001 else INF
+	var y_scale: float = half_size.y / absf(direction.y) if absf(direction.y) > 0.0001 else INF
+	return center + direction * minf(x_scale, y_scale)
 
 func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE) -> void:
 	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)

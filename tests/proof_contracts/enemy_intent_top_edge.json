@@ -1,0 +1,14 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [260, 120, 1400, 620], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    }
+  ]
+}
