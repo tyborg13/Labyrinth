@@ -380,6 +380,7 @@ var _board_layout_cache_visual_top_offset: float = 0.0
 var _board_layout_cache_tile_centers: Dictionary = {}
 var _board_layout_cache_tile_polygons: Dictionary = {}
 var _board_layout_signature: String = ""
+var _board_visual_framing_signature: String = ""
 var _floor_variant_signature: String = ""
 var _moss_signature: String = ""
 var _continuous_presentation_elapsed: float = 0.0
@@ -544,17 +545,19 @@ func _sync_dynamic_render_assets() -> void:
 		]:
 			layer.set(field, get(field))
 
-func _sync_dynamic_render_state(layout_changed: bool = false) -> void:
+func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_changed: bool = false) -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
 	for layer: Control in _retained_render_layers():
 		if layout_changed:
 			layer.call("_invalidate_board_layout_cache")
+		elif visual_framing_changed:
+			layer.call("_invalidate_board_layout_cache", false, true)
 		for field: String in [
 			"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
 			"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile",
 			"_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_navigation_content_signature",
-			"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
+			"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature", "_board_visual_framing_signature",
 			"_floor_variant_signature", "_moss_signature", "_damage_preview_cache",
 			"_visible_units_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
 			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
@@ -861,9 +864,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		str(next_state.get("room_coord", Vector2i(-1, -1)))
 	]
 	var next_layout_signature: String = _layout_signature_for_state(next_state, next_exit_tiles, next_presentation, next_room_grid_signature)
+	var next_visual_framing_signature: String = _visual_framing_signature_for_state(next_state, next_presentation)
 	var next_floor_signature: String = next_room_grid_signature
 	var next_moss_signature: String = _moss_signature_for_state(next_state)
 	var layout_changed: bool = next_layout_signature != _board_layout_signature
+	var visual_framing_changed: bool = next_visual_framing_signature != _board_visual_framing_signature
 	var floor_changed: bool = next_floor_signature != _floor_variant_signature
 	var moss_changed: bool = next_moss_signature != _moss_signature
 	_update_umbra_return_transition(combat_state, presentation, next_state, next_presentation, layout_changed)
@@ -889,6 +894,12 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed:
 		_board_layout_signature = next_layout_signature
 		_invalidate_board_layout_cache()
+	elif visual_framing_changed:
+		# Geometry-bearing combat content can change without changing the room
+		# grid. Preserve any top clearance already earned in this room so deaths,
+		# spawns, and adjacent moves cannot make the whole board chatter vertically.
+		_invalidate_board_layout_cache(false, true)
+	_board_visual_framing_signature = next_visual_framing_signature
 	if floor_changed:
 		_floor_variant_signature = next_floor_signature
 		_floor_variant_by_tile = _build_floor_variant_lookup(combat_state.get("grid", []))
@@ -900,11 +911,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer) and (layout_changed or _scene_render_layers.is_empty()):
 		_sync_scene_render_layers()
 		_sync_dynamic_render_assets()
-	_sync_dynamic_render_state(layout_changed)
+	_sync_dynamic_render_state(layout_changed, visual_framing_changed)
 	_update_cursor_shape()
-	if layout_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
+	if layout_changed or visual_framing_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
-	if state_changed or _submission_cache_combat_changed or interaction_changed or layout_changed or floor_changed or moss_changed:
+	if state_changed or _submission_cache_combat_changed or interaction_changed or layout_changed or visual_framing_changed or floor_changed or moss_changed:
 		_queue_dynamic_redraw()
 	else:
 		_queue_presentation_change_redraws(
@@ -6765,6 +6776,85 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("safe:%s" % str(next_presentation.get("board_safe_global_rect", Rect2())))
 	return "|".join(parts)
 
+func _visual_framing_signature_for_state(next_state: Dictionary, next_presentation: Dictionary) -> String:
+	if next_state.is_empty():
+		return ""
+	var parts: Array[String] = []
+	var player: Dictionary = next_state.get("player", {})
+	parts.append("player:%s" % (str(player.get("pos", Vector2i.ZERO)) if not player.is_empty() and int(player.get("hp", 0)) > 0 else "hidden"))
+	parts.append("illusions:%s" % _visual_framing_unit_entries_signature(next_state.get("illusions", []), true))
+	parts.append("enemies:%s" % _visual_framing_unit_entries_signature(next_state.get("enemies", []), true))
+	parts.append("npcs:%s" % _visual_framing_unit_entries_signature(next_state.get("npcs", []), false, "id"))
+	parts.append("previews:%s" % _visual_framing_unit_entries_signature(next_presentation.get("preview_units", []), false, "type", "illusion_preview"))
+	parts.append("deaths:%s" % _visual_framing_unit_entries_signature(next_presentation.get("death_animation_units", []), false))
+	var visible_enemy_ids: Array[String] = []
+	if next_presentation.has("visible_enemy_ids"):
+		for enemy_id_var: Variant in next_presentation.get("visible_enemy_ids", []):
+			visible_enemy_ids.append(str(enemy_id_var))
+		visible_enemy_ids.sort()
+		parts.append("visible:%s" % ",".join(visible_enemy_ids))
+	else:
+		parts.append("visible:all")
+	var scene_prop_entries: Array[String] = []
+	for prop_var: Variant in next_presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var as Dictionary
+		scene_prop_entries.append("%s@%s:x%s:w%s:b%s" % [
+			str(prop.get("kind", "")),
+			str(prop.get("tile", Vector2i(-1, -1))),
+			str(prop.get("x_offset_scale", 0.0)),
+			str(prop.get("width_scale", "default")),
+			str(prop.get("baseline_scale", "default"))
+		])
+	scene_prop_entries.sort()
+	parts.append("props:%s" % ";".join(scene_prop_entries))
+	parts.append("terrain:%s" % _visual_framing_board_entries_signature(next_state.get("terrain", []), "pos", ["kind"], true, "hp"))
+	parts.append("loot:%s" % _visual_framing_board_entries_signature(next_state.get("loot", []), "pos", ["kind", "equipment_id"], true, "claimed"))
+	parts.append("traps:%s" % _visual_framing_board_entries_signature(next_state.get("traps", []), "pos", []))
+	# unit_world_positions contains per-frame interpolation coordinates. Stable
+	# state positions drive framing so an animation cannot move the entire board
+	# every frame; its committed destination triggers one cache refresh instead.
+	return "|".join(parts)
+
+func _visual_framing_unit_entries_signature(entries: Array, living_only: bool, type_key: String = "type", required_role: String = "") -> String:
+	var signatures: Array[String] = []
+	for entry_var: Variant in entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if living_only and int(entry.get("hp", 0)) <= 0:
+			continue
+		if not required_role.is_empty() and str(entry.get("role", "")) != required_role:
+			continue
+		var footprint: Variant = entry.get("footprint", Vector2i.ONE)
+		signatures.append("%s:%s@%s:%s" % [
+			str(entry.get("id", entry.get("key", ""))),
+			str(entry.get(type_key, "player")),
+			str(entry.get("pos", Vector2i(-1, -1))),
+			str(footprint)
+		])
+	signatures.sort()
+	return ";".join(signatures)
+
+func _visual_framing_board_entries_signature(entries: Array, position_key: String, fields: Array, exclude_flag: bool = false, flag_key: String = "") -> String:
+	var signatures: Array[String] = []
+	for entry_var: Variant in entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if exclude_flag:
+			if flag_key == "hp" and int(entry.get(flag_key, 0)) <= 0:
+				continue
+			if flag_key != "hp" and bool(entry.get(flag_key, false)):
+				continue
+		var field_values: Array[String] = []
+		for field_var: Variant in fields:
+			field_values.append(str(entry.get(str(field_var), "")))
+		signatures.append("%s@%s" % [":".join(field_values), str(entry.get(position_key, Vector2i(-1, -1)))])
+	signatures.sort()
+	return ";".join(signatures)
+
 func _moss_signature_for_state(next_state: Dictionary) -> String:
 	if next_state.is_empty():
 		return ""
@@ -8087,9 +8177,10 @@ func _board_layout_extents_for_tiles(tiles: Array[Vector2i]) -> Dictionary:
 		"max_sum": max_sum
 	}
 
-func _invalidate_board_layout_cache(content_changed: bool = true) -> void:
+func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visual_top_offset: bool = false) -> void:
+	var retained_visual_top_offset: float = _board_layout_cache_visual_top_offset if preserve_visual_top_offset else 0.0
 	_board_layout_cache_valid = false
-	_board_layout_cache_visual_top_offset = 0.0
+	_board_layout_cache_visual_top_offset = retained_visual_top_offset
 	_board_layout_cache_tile_centers.clear()
 	_board_layout_cache_tile_polygons.clear()
 	_unit_shadow_draw_geometry_cache.clear()
@@ -8115,6 +8206,7 @@ func _ensure_board_layout_cache() -> void:
 		_board_layout_content_cache_valid = true
 	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
 	_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
+	var retained_visual_top_offset: float = _board_layout_cache_visual_top_offset
 	_board_layout_cache_size = size
 	_board_layout_cache_tile_width = tile_width
 	_board_layout_cache_origin = _board_origin_for_extents(extents, tile_width, tiles)
@@ -8138,7 +8230,7 @@ func _ensure_board_layout_cache() -> void:
 			center + Vector2(0.0, -tile_height * 0.5)
 		])
 	_board_layout_cache_valid = true
-	var visual_top_offset: float = _default_visual_top_framing_offset()
+	var visual_top_offset: float = maxf(retained_visual_top_offset, _default_visual_top_framing_offset())
 	if visual_top_offset > 0.01:
 		_board_layout_cache_visual_top_offset = visual_top_offset
 		_board_layout_cache_origin.y += visual_top_offset

@@ -211,6 +211,8 @@ func _initialize() -> void:
 	_test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge()
 	_test_enemy_hud_side_selection_is_stable_during_small_layout_changes()
 	_test_combat_board_default_framing_contains_tallest_top_corner_occupant()
+	_test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cached_room()
+	_test_combat_board_refreshes_top_framing_when_scene_prop_appears_in_cached_room()
 	_test_boss_intent_layout_needs_no_global_board_banner()
 	_test_boss_health_overlay_caps_divider_density()
 	_test_turn_order_portraits_cover_enemy_roster()
@@ -5835,6 +5837,79 @@ func _test_combat_board_default_framing_contains_tallest_top_corner_occupant() -
 	_assert(boss_rect.size.y > door_frame.size.y, "Zekarion should remain the taller framing case than the tallest structural prop frame")
 	_assert(float(board.get("_board_layout_cache_visual_top_offset")) > 0.0, "Tall top-corner art should activate content-aware default framing")
 	_assert(boss_rect.position.y >= safe_top - 0.01, "The tallest shipped top-corner character should remain fully inside the screen-safe top edge")
+
+func _test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cached_room() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(1900.0, 790.0)
+	var initial_state: Dictionary = {
+		"room_coord": Vector2i(4, 3),
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(6, 6), "hp": 24, "max_hp": 24},
+		"enemies": [{"id": 92, "type": "harrier", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "intent": {}}],
+		"illusions": [],
+		"npcs": [],
+		"terrain": [],
+		"loot": [],
+		"traps": []
+	}
+	var combat_presentation := {"board_framing_mode": "combat"}
+	board.set_combat_state(initial_state, [], [], Vector2i(-1, -1), "", "", {}, {}, combat_presentation)
+	board.call("_board_origin")
+	var initial_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
+	var zekarion_def: Dictionary = GameData.enemy_def("zekarion")
+	var footprint_data: Array = zekarion_def.get("footprint", [2, 2]) as Array
+	var next_state: Dictionary = initial_state.duplicate(true)
+	next_state["enemies"] = [{
+		"id": 92,
+		"type": "zekarion",
+		"pos": Vector2i(1, 1),
+		"footprint": Vector2i(int(footprint_data[0]), int(footprint_data[1])),
+		"hp": int(zekarion_def.get("max_hp", 60)),
+		"max_hp": int(zekarion_def.get("max_hp", 60)),
+		"intent": {}
+	}]
+	board.set_combat_state(next_state, [], [], Vector2i(-1, -1), "", "", {}, {}, combat_presentation)
+	var boss_unit: Dictionary = {}
+	for unit_var: Variant in board.call("_visible_units") as Array:
+		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("key", "")) == "enemy_92":
+			boss_unit = unit_var as Dictionary
+			break
+	var boss_rect: Rect2 = board.call("_unit_draw_rect", boss_unit)
+	var refreshed_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
+	_assert(refreshed_offset > initial_offset, "A tallest occupant introduced after the room cache exists should refresh adaptive top framing")
+	_assert(boss_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "A same-room tall-occupant transition should keep the new full sprite onscreen")
+	var settled_state: Dictionary = next_state.duplicate(true)
+	settled_state["enemies"] = [{"id": 92, "type": "harrier", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "intent": {}}]
+	board.set_combat_state(settled_state, [], [], Vector2i(-1, -1), "", "", {}, {}, combat_presentation)
+	board.call("_board_origin")
+	_assert(is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), refreshed_offset), "Same-room visual transitions should retain earned top clearance instead of making the board chatter vertically")
+
+func _test_combat_board_refreshes_top_framing_when_scene_prop_appears_in_cached_room() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(1900.0, 790.0)
+	board.call("_load_assets", false)
+	var state: Dictionary = {
+		"room_coord": Vector2i(4, 3),
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(6, 6), "hp": 24, "max_hp": 24},
+		"enemies": [],
+		"illusions": [],
+		"npcs": [],
+		"terrain": [],
+		"loot": [],
+		"traps": []
+	}
+	var initial_presentation := {"board_framing_mode": "combat", "scene_props": []}
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, initial_presentation)
+	board.call("_board_origin")
+	var initial_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
+	var prop := {"kind": "campfire_bonfire", "tile": Vector2i(1, 1), "width_scale": 2.4}
+	var next_presentation := {"board_framing_mode": "combat", "scene_props": [prop]}
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, next_presentation)
+	var prop_texture: Texture2D = board.call("_texture_for_scene_prop", prop)
+	var prop_rect: Rect2 = board.call("_scene_prop_rect", prop_texture, prop)
+	_assert(float(board.get("_board_layout_cache_visual_top_offset")) > initial_offset, "A tall scene prop introduced after the room cache exists should refresh adaptive top framing")
+	_assert(prop_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "A same-room scene-prop transition should keep the new full prop onscreen")
 
 func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
 	var board := CombatBoardView.new()

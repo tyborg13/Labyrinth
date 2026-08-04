@@ -61,6 +61,8 @@ func _capture_fresh_state(packed: PackedScene, expanded: bool, label: String) ->
 	_expect(board != null, "%s top-edge intent proof should find the real combat board" % label)
 	if board == null:
 		return
+	if label == "tallest":
+		await _exercise_cached_tallest_transition(board)
 	var enemy_unit: Dictionary = _enemy_unit(board)
 	var enemy_center: Vector2 = board.call("_unit_center", enemy_unit)
 	if label == "tallest":
@@ -130,6 +132,29 @@ func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false)
 	instance.set("_progression", progression)
 	instance.call("_refresh_contextual_combat_tutorial")
 	await _settle_ui()
+
+func _exercise_cached_tallest_transition(board: Control) -> void:
+	var tallest_state: Dictionary = (board.get("combat_state") as Dictionary).duplicate(true)
+	var ordinary_state: Dictionary = tallest_state.duplicate(true)
+	ordinary_state["enemies"] = [{
+		"id": 1,
+		"type": "harrier",
+		"pos": Vector2i(4, 4),
+		"hp": 18,
+		"max_hp": 18,
+		"intent": {}
+	}]
+	var current_presentation: Dictionary = board.get("presentation") as Dictionary
+	var reset_state: Dictionary = ordinary_state.duplicate(true)
+	reset_state["room_coord"] = Vector2i(99, 99)
+	board.call("set_combat_state", reset_state, [], [], Vector2i(-1, -1), "", "", {}, {}, current_presentation)
+	board.call("_board_origin")
+	board.call("set_combat_state", ordinary_state, [], [], Vector2i(-1, -1), "", "", {}, {}, current_presentation)
+	board.call("_board_origin")
+	var ordinary_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
+	board.call("set_combat_state", tallest_state, [], [], Vector2i(-1, -1), "", "", {}, {}, current_presentation)
+	await _settle_ui()
+	_expect(float(board.get("_board_layout_cache_visual_top_offset")) > ordinary_offset, "Tallest visual proof should exercise a same-room cached occupant transition")
 
 func _capture_state(board: Control, enemy_unit: Dictionary, enemy_center: Vector2, label: String) -> void:
 	await _settle_ui()

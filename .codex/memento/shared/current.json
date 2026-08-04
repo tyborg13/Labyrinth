@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-04T21:03:02Z",
+  "updated_at": "2026-08-04T21:22:44Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6994,6 +6994,28 @@
       "source": {
         "branch": "codex/fix-top-edge-enemy-intent-placement",
         "commit": "da485ae"
+      }
+    },
+    {
+      "id": "mnt_20260804T212244Z_3c68e497",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "set_combat_state"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#set_combat_state",
+      "summary": "Adaptive visual framing must invalidate on geometry-bearing same-room content transitions",
+      "details": "The structural board layout signature intentionally ignores enemies, NPCs, terrain, loot, traps, and scene props, so adaptive top framing needs a separate selective visual signature. Refresh the geometry cache for stable position/type/footprint/visibility changes, preserve already-earned same-room top clearance to prevent vertical chatter, and exclude transient unit_world_positions interpolation from the signature.",
+      "status": "active",
+      "created_at": "2026-08-04T21:22:44Z",
+      "updated_at": "2026-08-04T21:22:44Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-top-edge-enemy-intent-placement",
+        "commit": "a5285fb"
       }
     }
   ]
