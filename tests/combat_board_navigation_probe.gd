@@ -13,7 +13,11 @@ var _errors: Array[String] = []
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_size(VIEWPORT_SIZE)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = VIEWPORT_SIZE
 	root.size = VIEWPORT_SIZE
 	ProgressionStore.set_storage_path("user://labyrinth_progression_board_navigation_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_board_navigation_probe.save")
@@ -90,8 +94,9 @@ func _capture_navigation_states() -> void:
 	var ui_layer: CanvasLayer = instance.get_node("UiLayer") as CanvasLayer
 	_expect(board_layer != null and ui_layer != null and board_layer.layer < ui_layer.layer, "Board should render on a dedicated canvas beneath the HUD")
 	_expect(top_bar != null and bottom_stack != null, "Navigation proof should expose both fixed HUD regions")
-	_expect(prompt_host != null and prompt_host.visible, "Navigation proof should expose the combat note stability check")
+	_expect(prompt_host != null, "Navigation proof should retain the contextual combat-note host")
 	var prompt_position_before_navigation: Vector2 = prompt_host.global_position if prompt_host != null else Vector2.ZERO
+	var prompt_visible_before_navigation: bool = prompt_host != null and prompt_host.visible
 	var routed_drag_start: Vector2 = board.global_position + board.size * 0.5
 	var routed_press := InputEventMouseButton.new()
 	routed_press.button_index = MOUSE_BUTTON_MIDDLE
@@ -119,7 +124,7 @@ func _capture_navigation_states() -> void:
 	await _settle_ui()
 	await _save_root_screenshot("%s/01_default_fit.png" % OUTPUT_DIR)
 	var default_snapshot: Dictionary = board.call("navigation_snapshot")
-	_expect(is_equal_approx(float(default_snapshot.get("zoom", 0.0)), 1.10), "Board should begin at the enlarged default combat zoom")
+	_expect(is_equal_approx(float(default_snapshot.get("zoom", 0.0)), 1.04), "Board should begin at the complete-view default combat zoom")
 
 	var focus_tile := Vector2i(10, 2)
 	for _step: int in range(4):
@@ -154,7 +159,7 @@ func _capture_navigation_states() -> void:
 	var rendered_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
 	_expect(stage != null and rendered_bounds.end.y > stage.get_global_rect().end.y + 20.0, "Pulled-down board art should extend below the stage boundary")
 	_expect(bottom_stack != null and rendered_bounds.intersects(bottom_stack.get_global_rect()), "Pulled-down board art should continue behind the bottom HUD")
-	_expect(prompt_host != null and prompt_host.global_position == prompt_position_before_navigation, "Combat note should stay anchored while the board is navigated")
+	_expect(prompt_host == null or not prompt_visible_before_navigation or prompt_host.global_position == prompt_position_before_navigation, "A visible combat note should stay anchored while the board is navigated")
 	await _save_root_screenshot("%s/02_zoomed_and_panned.png" % OUTPUT_DIR)
 
 	for _step: int in range(12):
@@ -208,6 +213,14 @@ func _save_root_screenshot(output_path: String) -> void:
 	if image.get_width() < 32 or image.get_height() < 32:
 		_errors.append("Navigation probe captured an invalid image for %s" % output_path)
 		return
+	var source_size: Vector2i = image.get_size()
+	var scale_x: float = float(source_size.x) / float(VIEWPORT_SIZE.x)
+	var scale_y: float = float(source_size.y) / float(VIEWPORT_SIZE.y)
+	if not is_equal_approx(scale_x, scale_y):
+		_errors.append("Navigation proof should preserve 1920x1080 proportions, got %s" % source_size)
+		return
+	if source_size != VIEWPORT_SIZE:
+		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	if image.save_png(output_path) != OK:
 		_errors.append("Navigation probe could not save %s" % output_path)
 

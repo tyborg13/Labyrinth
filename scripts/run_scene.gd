@@ -982,6 +982,8 @@ const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
 ]
 const HAND_CARD_OVERLAP: float = -22.0
 const HAND_CARD_GAP: float = 14.0
+const HAND_CARD_DENSE_COUNT: int = 8
+const HAND_CARD_DENSE_MAX_WIDTH: float = 180.0
 const HAND_READY_WAVE_STAGGER_SECONDS: float = 0.055
 const PILE_CARD_SIZE: Vector2 = Vector2(220.0, 220.0 * CARD_ASPECT_RATIO)
 const PILE_DIALOG_CARD_SIZE: Vector2 = Vector2(196.0, 196.0 * CARD_ASPECT_RATIO)
@@ -1040,6 +1042,8 @@ const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
 const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
 const INTENSITY_ICON_INSET: float = 8.0
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
+const NON_COMBAT_BOARD_OPTION_CLEARANCE: float = 72.0
+const NON_COMBAT_BOARD_SCREEN_BOTTOM_CLEARANCE: float = 120.0
 const CAMPFIRE_LINGER_HEAL_AMOUNT: int = RunEngineScript.CAMPFIRE_LINGER_HEAL
 const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger.png"
 const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace.png"
@@ -1194,9 +1198,9 @@ const TURN_ORDER_PORTRAITS := {
 	"vaeloryx": "res://assets/art/portraits/vaeloryx.png",
 	"iskaldra": "res://assets/art/portraits/iskaldra.png",
 	"noctyrax": "res://assets/art/portraits/noctyrax.png",
-	"veilbound_acolyte": "res://assets/art/portraits/dust_acolyte.png",
+	"veilbound_acolyte": "res://assets/art/portraits/veilbound_acolyte.png",
 	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png",
-	"frostglass_lancer": "res://assets/art/enemies/frostglass_lancer.png",
+	"frostglass_lancer": "res://assets/art/portraits/frostglass_lancer.png",
 	"cinder_ooze": "res://assets/art/portraits/cinder_ooze.png",
 	"cinder_droplet": "res://assets/art/portraits/cinder_droplet.png"
 }
@@ -3912,12 +3916,12 @@ func _pre_battle_enemy_portrait(enemy_type: String, enemy_def: Dictionary) -> Te
 	return portrait
 
 func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Texture2D:
+	var portrait_path: String = _combat_portrait_path(enemy_type)
+	if not portrait_path.is_empty():
+		return AssetLoader.load_texture(portrait_path)
 	var art_path: String = str(enemy_def.get("art_path", ""))
 	if not art_path.is_empty():
 		return AssetLoader.load_texture(art_path)
-	var portrait_path: String = str(TURN_ORDER_PORTRAITS.get(enemy_type, ""))
-	if not portrait_path.is_empty():
-		return AssetLoader.load_texture(portrait_path)
 	return null
 
 func _animate_pre_battle_entry() -> void:
@@ -8844,13 +8848,17 @@ func _turn_order_portrait_path(entry: Dictionary) -> String:
 	if bool(entry.get("hidden_by_umbra", false)):
 		return "res://assets/art/icons/umbra_presence.png"
 	var key: String = "player" if str(entry.get("kind", "")) == "player" else str(entry.get("type", ""))
-	if TURN_ORDER_PORTRAITS.has(key):
-		return str(TURN_ORDER_PORTRAITS.get(key, ""))
+	var portrait_path: String = _combat_portrait_path(key)
+	if not portrait_path.is_empty():
+		return portrait_path
 	if str(entry.get("kind", "")) == "enemy":
 		var enemy_art_path: String = str(GameData.enemy_def(key).get("art_path", ""))
 		if not enemy_art_path.is_empty():
 			return enemy_art_path
 	return str(TURN_ORDER_PORTRAITS.get("player", ""))
+
+func _combat_portrait_path(identity: String) -> String:
+	return str(TURN_ORDER_PORTRAITS.get(identity, ""))
 
 func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String) -> void:
 	if tile.x < 0:
@@ -12801,6 +12809,8 @@ func _refresh_stage_view() -> void:
 	# instead of inheriting the combat hand-clearance composition.
 	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
+	presentation["status_typography_role"] = _board_status_typography_role()
+	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	if str(_run_state.get("mode", "room")) == "combat" and not display_state.is_empty():
 		presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(visibility_state)
@@ -16158,6 +16168,8 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
+	rendered_presentation["status_typography_role"] = _board_status_typography_role()
+	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
@@ -16830,7 +16842,30 @@ func _board_status_safe_global_rect() -> Rect2:
 	# laid out in a different canvas coordinate space.
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var band_width: float = minf(360.0, maxf(220.0, viewport_size.x - 640.0))
-	return Rect2(Vector2(viewport_size.x * 0.5 - band_width * 0.5, 0.0), Vector2(band_width, 64.0))
+	return Rect2(Vector2(viewport_size.x * 0.5 - band_width * 0.5, 18.0), Vector2(band_width, 82.0))
+
+func _board_status_typography_role() -> String:
+	return UiTypography.ROLE_HERO if str(_run_state.get("mode", "room")) == "room" else UiTypography.ROLE_TITLE
+
+func _board_framing_safe_global_rect() -> Rect2:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var safe_top: float = 92.0
+	var safe_bottom: float = viewport_size.y - NON_COMBAT_BOARD_SCREEN_BOTTOM_CLEARANCE
+	if _context_choice_overlay != null and _context_choice_overlay.visible:
+		var context_rect: Rect2 = _context_choice_overlay.get_global_rect()
+		if context_rect.size.y > 0.0:
+			safe_bottom = minf(safe_bottom, context_rect.position.y - NON_COMBAT_BOARD_OPTION_CLEARANCE)
+	if _relic_choice_host != null and _relic_choice_host.visible:
+		var relic_rect: Rect2 = _relic_choice_host.get_global_rect()
+		if relic_rect.size.y > 0.0:
+			safe_bottom = minf(safe_bottom, relic_rect.position.y - NON_COMBAT_BOARD_OPTION_CLEARANCE)
+	return Rect2(
+		Vector2(UiTypography.SAFE_MARGIN, safe_top),
+		Vector2(
+			maxf(1.0, viewport_size.x - UiTypography.SAFE_MARGIN * 2.0),
+			maxf(1.0, safe_bottom - safe_top)
+		)
+	)
 
 func _board_status_label(preview: Dictionary) -> String:
 	var mode: String = str(_run_state.get("mode", "room"))
@@ -16839,7 +16874,7 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "combat":
 		return ""
 	if mode == "room":
-		return "Choose door"
+		return "Choose Door"
 	if mode == "reward":
 		return "Choose reward"
 	if mode == "campfire":
@@ -21156,7 +21191,9 @@ func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 	var gaps: float = float(maxi(0, card_count - 1)) * card_gap
 	var target_width: float = (available_width - gaps) / float(maxi(1, card_count))
 	var max_width: float = 224.0 if reward_mode else 208.0
-	var min_width: float = 188.0 if reward_mode else 190.0
+	var min_width: float = 188.0 if reward_mode else 172.0 if card_count >= HAND_CARD_DENSE_COUNT else 190.0
+	if not reward_mode and card_count >= HAND_CARD_DENSE_COUNT:
+		max_width = HAND_CARD_DENSE_MAX_WIDTH
 	var width: float = clampf(target_width, min_width, max_width)
 	return _card_size_from_width(width)
 

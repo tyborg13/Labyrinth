@@ -1,54 +1,104 @@
 extends SceneTree
 
 const PORTRAIT_SIZE := 128
-const PORTRAIT_FIT := 120
+const PORTRAIT_FIT := 124
 const ICON_SIZE := 64
 
 const PORTRAITS := [
 	{
-		"source": "res://assets/placeholders/units/player_reaver_anime.png",
+		"source": "res://assets/placeholders/units/player_reaver.png",
 		"out": "res://assets/art/portraits/player_reaver.png",
-		"crop": Rect2i(42, 0, 160, 178)
+		"crop": Rect2i(72, 8, 108, 112)
 	},
 	{
 		"source": "res://assets/placeholders/units/crawler_anime_trial.png",
 		"out": "res://assets/art/portraits/tunnel_crawler.png",
-		"crop": Rect2i(22, 38, 214, 158)
+		"crop": Rect2i(35, 52, 125, 115)
 	},
 	{
 		"source": "res://assets/placeholders/units/acolyte_anime_trial.png",
 		"out": "res://assets/art/portraits/dust_acolyte.png",
-		"crop": Rect2i(50, 0, 154, 186)
+		"crop": Rect2i(48, 24, 150, 128)
+	},
+	{
+		"source": "res://assets/placeholders/units/acolyte_anime_trial.png",
+		"out": "res://assets/art/portraits/veilbound_acolyte.png",
+		"crop": Rect2i(76, 26, 96, 105)
 	},
 	{
 		"source": "res://assets/placeholders/units/harrier_anime_trial.png",
 		"out": "res://assets/art/portraits/bone_harrier.png",
-		"crop": Rect2i(42, 0, 170, 188)
+		"crop": Rect2i(61, 25, 110, 115)
 	},
 	{
 		"source": "res://assets/placeholders/units/warden_anime_trial.png",
 		"out": "res://assets/art/portraits/stone_warden.png",
-		"crop": Rect2i(48, 0, 174, 204)
+		"crop": Rect2i(70, 17, 110, 115)
 	},
 	{
 		"source": "res://assets/placeholders/units/zekarion.png",
 		"out": "res://assets/art/portraits/zekarion.png",
-		"crop": Rect2i(0, 70, 182, 165)
+		"crop": Rect2i(22, 25, 125, 125)
 	},
 	{
 		"source": "res://assets/placeholders/units/lightning_wisp.png",
 		"out": "res://assets/art/portraits/lightning_wisp.png",
-		"crop": Rect2i(28, 12, 200, 230)
+		"crop": Rect2i(73, 65, 112, 130)
+	},
+	{
+		"source": "res://assets/art/enemies/bile_bloomer.png",
+		"out": "res://assets/art/portraits/bile_bloomer.png",
+		"crop": Rect2i(55, 8, 145, 135)
+	},
+	{
+		"source": "res://assets/art/enemies/chainbound_gaoler.png",
+		"out": "res://assets/art/portraits/chainbound_gaoler.png",
+		"crop": Rect2i(72, 10, 105, 115)
+	},
+	{
+		"source": "res://assets/art/enemies/grave_surgeon.png",
+		"out": "res://assets/art/portraits/grave_surgeon.png",
+		"crop": Rect2i(60, 20, 115, 120)
+	},
+	{
+		"source": "res://assets/art/enemies/frostglass_lancer.png",
+		"out": "res://assets/art/portraits/frostglass_lancer.png",
+		"crop": Rect2i(65, 18, 105, 120)
 	},
 	{
 		"source": "res://assets/art/enemies/cinder_ooze.png",
 		"out": "res://assets/art/portraits/cinder_ooze.png",
-		"crop": Rect2i(8, 12, 238, 222)
+		"crop": Rect2i(25, 55, 165, 135)
 	},
 	{
 		"source": "res://assets/art/enemies/cinder_droplet.png",
 		"out": "res://assets/art/portraits/cinder_droplet.png",
-		"crop": Rect2i(30, 62, 195, 176)
+		"crop": Rect2i(54, 70, 150, 130)
+	},
+	{
+		"source": "res://assets/art/enemies/iskaldra.png",
+		"out": "res://assets/art/portraits/iskaldra.png",
+		"crop": Rect2i(42, 65, 125, 125)
+	},
+	{
+		"source": "res://assets/art/enemies/noctyrax.png",
+		"out": "res://assets/art/portraits/noctyrax.png",
+		"crop": Rect2i(55, 55, 130, 125)
+	},
+	{
+		"source": "res://assets/art/enemies/tharokh.png",
+		"out": "res://assets/art/portraits/tharokh.png",
+		"crop": Rect2i(35, 55, 130, 125)
+	},
+	{
+		"source": "res://assets/art/enemies/vaeloryx.png",
+		"out": "res://assets/art/portraits/vaeloryx.png",
+		"crop": Rect2i(45, 42, 130, 125)
+	},
+	{
+		"source": "res://assets/art/enemies/vyraketh.png",
+		"out": "res://assets/art/portraits/vyraketh.png",
+		"crop": Rect2i(40, 55, 130, 125)
 	}
 ]
 

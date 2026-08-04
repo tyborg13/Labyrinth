@@ -5,11 +5,18 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
 const OUTPUT_DIR: String = "user://campfire_choice_probe"
+const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
 var _failed: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(PROBE_VIEWPORT)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = PROBE_VIEWPORT
+	root.size = PROBE_VIEWPORT
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path("user://labyrinth_progression_campfire_choice_probe.json")
@@ -72,7 +79,28 @@ func _capture_choice_state(instance: Node, probe_run_engine: RunEngine, held_emb
 	campfire_state["progression"] = progression
 	instance.call("_load_run_state", campfire_state)
 	await _settle_campfire_visuals()
+	_assert_non_combat_board_framing(instance, "campfire")
 	await _save_root_screenshot(output_path)
+
+func _assert_non_combat_board_framing(instance: Node, label: String) -> void:
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var overlay: Control = instance.get("_relic_choice_host") as Control
+	if board == null or overlay == null or not overlay.visible:
+		_fail("%s framing proof needs the visible board and option overlay" % label)
+		return
+	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
+	var overlay_bounds: Rect2 = overlay.get_global_rect()
+	var safe_rect: Rect2 = (board.get("presentation") as Dictionary).get("board_safe_global_rect", Rect2()) as Rect2
+	if board_bounds.size.y <= 0.0 or safe_rect.size.y <= 0.0:
+		_fail("%s framing proof needs non-empty rendered and safe bounds" % label)
+		return
+	if board_bounds.end.y > overlay_bounds.position.y - 8.0:
+		_fail("%s board should stay visibly clear of its option overlay (board=%s overlay=%s)" % [label, board_bounds, overlay_bounds])
+	if absf(board_bounds.get_center().y - safe_rect.get_center().y) > safe_rect.size.y * 0.16:
+		_fail("%s board should be centered in the overlay-aware usable region (board=%s safe=%s)" % [label, board_bounds, safe_rect])
+	if board_bounds.size.x < PROBE_VIEWPORT.x * 0.45 or board_bounds.size.y < safe_rect.size.y * 0.55:
+		_fail("%s board should remain visually primary after safe-region fitting (board=%s safe=%s)" % [label, board_bounds, safe_rect])
+	print("NON-COMBAT GEOMETRY %s board=%s safe=%s overlay=%s" % [label, board_bounds, safe_rect, overlay_bounds])
 
 func _capture_affordable_hover_state(instance: Node, output_path: String) -> void:
 	var before_rects: Array = _choice_panel_rects(instance)
@@ -169,7 +197,21 @@ func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
 func _save_root_screenshot(output_path: String) -> void:
+	await process_frame
+	await process_frame
+	RenderingServer.force_draw(true)
 	var image: Image = root.get_viewport().get_texture().get_image()
+	if image == null:
+		_fail("Campfire proof should capture a renderer image")
+		return
+	var source_size: Vector2i = image.get_size()
+	var scale_x: float = float(source_size.x) / float(PROBE_VIEWPORT.x)
+	var scale_y: float = float(source_size.y) / float(PROBE_VIEWPORT.y)
+	if not is_equal_approx(scale_x, scale_y):
+		_fail("Campfire proof should preserve 1920x1080 proportions, got %s" % source_size)
+		return
+	if source_size != PROBE_VIEWPORT:
+		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
 
 func _clear_probe_output(output_dir: String) -> void:

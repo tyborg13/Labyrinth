@@ -7,11 +7,18 @@ const GameData = preload("res://scripts/game_data.gd")
 
 const OUTPUT_DIR: String = "user://pre_battle_threat_inspection_probe_v1"
 const INVALID_COORD: Vector2i = Vector2i(999, 999)
+const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
 var _failed: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(PROBE_VIEWPORT)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = PROBE_VIEWPORT
+	root.size = PROBE_VIEWPORT
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path("user://labyrinth_progression_pre_battle_preview_probe.json")
@@ -130,8 +137,8 @@ func _capture_loadout_refresh_and_inspections() -> void:
 			var move_icons: PackedStringArray = []
 			for icon_var: Variant in pinned_enemy.find_children("PreBattleKnownMoveIcon", "TextureRect", true, false):
 				move_icons.append(str((icon_var as TextureRect).get_meta("icon_key", "")))
-			if move_icons != PackedStringArray(["melee", "block", "melee"]):
-				_fail("Compound Warden moves should use melee/block semantics instead of their incidental movement icons: %s" % str(move_icons))
+			if move_icons != PackedStringArray(["melee", "block", "aoe"]):
+				_fail("Compound Warden moves should use melee/block/aoe semantics instead of their incidental movement icons: %s" % str(move_icons))
 			if close_button == null or not close_button.visible or close_button.text != "X":
 				_fail("Focused enemy inspection should expose a visible dedicated X close button")
 			var pinned_host: Control = instance.get("_pinned_tooltip_host") as Control
@@ -238,6 +245,7 @@ func _capture_loadout_refresh_and_inspections() -> void:
 	if not (instance.get("_exit_destinations_by_tile") as Dictionary).is_empty():
 		_fail("Loadout inspection should not reveal exits")
 	await _capture_all_enemy_portraits(instance)
+	await _capture_native_portrait_contact_sheet(instance)
 	instance.queue_free()
 	await process_frame
 
@@ -362,6 +370,71 @@ func _capture_all_enemy_portraits(instance: Node) -> void:
 	await process_frame
 	await process_frame
 	await _save_root_screenshot("%s/all_enemy_portraits_centered_v2.png" % OUTPUT_DIR)
+	proof_scrim.queue_free()
+	await process_frame
+
+func _capture_native_portrait_contact_sheet(instance: Node) -> void:
+	var ui_root: Control = instance.get("ui_root") as Control
+	if ui_root == null:
+		_fail("Native portrait contact sheet needs the run UI root")
+		return
+	var proof_scrim := ColorRect.new()
+	proof_scrim.name = "NativePortraitContactSheet"
+	proof_scrim.color = Color(0.012, 0.009, 0.008, 1.0)
+	proof_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	proof_scrim.z_index = 1500
+	proof_scrim.z_as_relative = false
+	proof_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ui_root.add_child(proof_scrim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	proof_scrim.add_child(center)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 12)
+	center.add_child(content)
+	var title := Label.new()
+	title.text = "NATIVE 128PX COMBAT PORTRAITS"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_color_override("font_color", Color("fff0ce"))
+	content.add_child(title)
+	var grid := GridContainer.new()
+	grid.columns = 5
+	grid.add_theme_constant_override("h_separation", 16)
+	grid.add_theme_constant_override("v_separation", 12)
+	content.add_child(grid)
+	var identities: Array = GameData.enemies().keys()
+	identities.sort()
+	identities.push_front("player")
+	for identity_var: Variant in identities:
+		var identity: String = str(identity_var)
+		var portrait_path: String = str(instance.call("_combat_portrait_path", identity))
+		var portrait_image: Image = Image.load_from_file(ProjectSettings.globalize_path(portrait_path))
+		var portrait_texture: Texture2D = null
+		if portrait_image != null and not portrait_image.is_empty():
+			portrait_texture = ImageTexture.create_from_image(portrait_image)
+		if portrait_texture == null or portrait_texture.get_size() != Vector2(128.0, 128.0):
+			_fail("%s native contact portrait should resolve at exactly 128x128" % identity)
+		var cell := VBoxContainer.new()
+		cell.custom_minimum_size = Vector2(152.0, 154.0)
+		cell.add_theme_constant_override("separation", 4)
+		grid.add_child(cell)
+		var portrait := TextureRect.new()
+		portrait.custom_minimum_size = Vector2(128.0, 128.0)
+		portrait.texture = portrait_texture
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		cell.add_child(portrait)
+		var label := Label.new()
+		label.text = identity.replace("_", " ").capitalize()
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", 14)
+		label.add_theme_color_override("font_color", Color("e6d9c0"))
+		cell.add_child(label)
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("%s/portrait_native_128_contact_sheet_v1.png" % OUTPUT_DIR)
 	proof_scrim.queue_free()
 	await process_frame
 
@@ -518,6 +591,17 @@ func _save_root_screenshot(output_path: String) -> void:
 	await process_frame
 	RenderingServer.force_draw(true)
 	var image: Image = root.get_viewport().get_texture().get_image()
+	if image == null:
+		_fail("Pre-battle proof should capture a renderer image")
+		return
+	var source_size: Vector2i = image.get_size()
+	var scale_x: float = float(source_size.x) / float(PROBE_VIEWPORT.x)
+	var scale_y: float = float(source_size.y) / float(PROBE_VIEWPORT.y)
+	if not is_equal_approx(scale_x, scale_y):
+		_fail("Pre-battle proof should preserve 1920x1080 proportions, got %s" % source_size)
+		return
+	if source_size != PROBE_VIEWPORT:
+		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
 
 func _clear_probe_output(output_dir: String) -> void:

@@ -123,8 +123,8 @@ const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
 const BOARD_MAX_NAVIGATION_ZOOM: float = 1.40
 const BOARD_ZOOM_STEP: float = 1.10
 const BOARD_DEFAULT_NAVIGATION_ZOOM: float = 1.26
-const BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.10
-const BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.30
+const BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.04
+const BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.24
 const BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.22
 const BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.36
 const BOARD_COMPACT_VIEWPORT_HEIGHT: float = 1080.0
@@ -1597,7 +1597,6 @@ func _draw_scene_tile_render_layer() -> void:
 	var obstruction_entries: Array = _foreground_obstruction_entries_cache
 	_draw_scene_props_for_tile(_render_layer_tile, obstruction_entries)
 	_draw_tile_props(grid, _render_layer_tile, obstruction_entries)
-	_draw_exit_marker_for_tile(_render_layer_tile)
 	_draw_unit_bodies_for_tile(_render_layer_tile, units_to_draw)
 	_record_render_section_time("scene_tiles", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
@@ -2983,7 +2982,6 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 	for tile: Vector2i in tiles:
 		_draw_scene_props_for_tile(tile, obstruction_entries)
 		_draw_tile_props(grid, tile, obstruction_entries)
-		_draw_exit_marker_for_tile(tile)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
 
 func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
@@ -3932,24 +3930,6 @@ func _terrain_tooltip_text(terrain: Dictionary) -> String:
 		int(terrain.get("hp", 0)),
 		int(terrain.get("max_hp", 1))
 	]
-
-func _draw_exit_marker_for_tile(tile: Vector2i) -> void:
-	if not exit_tiles.has(tile):
-		return
-	var font: Font = get_theme_default_font()
-	if font == null:
-		return
-	var label: String = str(exit_tiles.get(tile, ""))
-	var icon_id: String = str(exit_icon_ids.get(tile, ""))
-	var accent: Color = ElementData.door_tint(icon_id) if ElementData.is_elemental(icon_id) else Color("d3b78e")
-	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.58)
-	var marker_rect := Rect2(center - Vector2(26.0, 16.0), Vector2(52.0, 32.0))
-	draw_rect(marker_rect, Color(0.11, 0.08, 0.06, 0.92), true)
-	draw_rect(marker_rect, accent, false, 2.0)
-	draw_string(font, marker_rect.position + Vector2(0.0, 13.0), label, HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 11, Color("fff0d1"))
-	var icon_texture: Texture2D = _door_icon_texture(icon_id)
-	if icon_texture != null:
-		draw_texture_rect(icon_texture, Rect2(marker_rect.position + Vector2(4.0, 4.0), Vector2(14.0, 14.0)), false)
 
 func _visible_units() -> Array[Dictionary]:
 	if _submission_cache_valid:
@@ -5105,18 +5085,26 @@ func _token_value_color(token: Dictionary, default_color: Color) -> Color:
 func _draw_status_text() -> void:
 	if status_label.is_empty():
 		return
-	var font: Font = get_theme_default_font()
+	var role: String = str(presentation.get("status_typography_role", UiTypography.ROLE_SECTION))
+	var font: Font = UiTypography.font_for_role(role)
+	if font == null:
+		font = get_theme_default_font()
 	if font == null:
 		return
-	var layout: Dictionary = _status_text_layout(font)
+	var label_font_size: int = UiTypography.scaled_size(self, UiTypography.role_size(role))
+	var layout: Dictionary = _status_text_layout(font, label_font_size)
 	var label_rect: Rect2 = layout.get("label", Rect2()) as Rect2
-	draw_string(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, 20, Color("f4ebd7"))
+	draw_string(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, Color("f4ebd7"))
 	if not status_detail.is_empty():
+		var detail_font: Font = UiTypography.text_font()
+		if detail_font == null:
+			detail_font = font
+		var detail_font_size: int = UiTypography.scaled_size(self, UiTypography.SIZE_BODY)
 		var detail_rect: Rect2 = layout.get("detail", Rect2()) as Rect2
-		draw_string(font, detail_rect.position + Vector2(0.0, detail_rect.size.y), status_detail, HORIZONTAL_ALIGNMENT_CENTER, detail_rect.size.x, 14, Color("d8ccb6"))
+		draw_string(detail_font, detail_rect.position + Vector2(0.0, detail_rect.size.y), status_detail, HORIZONTAL_ALIGNMENT_CENTER, detail_rect.size.x, detail_font_size, Color("d8ccb6"))
 
-func _status_text_layout(font: Font) -> Dictionary:
-	var safe_rect: Rect2 = Rect2(Vector2(280.0, 0.0), Vector2(maxf(1.0, size.x - 560.0), 64.0))
+func _status_text_layout(font: Font, label_font_size: int) -> Dictionary:
+	var safe_rect: Rect2 = Rect2(Vector2(280.0, 18.0), Vector2(maxf(1.0, size.x - 560.0), 82.0))
 	var safe_global_rect: Rect2 = presentation.get("status_safe_global_rect", Rect2()) as Rect2
 	if safe_global_rect.size.x > 0.0 and safe_global_rect.size.y > 0.0:
 		# The board camera's transform can settle after RunScene builds its
@@ -5128,17 +5116,21 @@ func _status_text_layout(font: Font) -> Dictionary:
 		var local_bottom_right: Vector2 = inverse_transform * safe_global_rect.end
 		safe_rect = Rect2(local_top_left, local_bottom_right - local_top_left)
 	if safe_rect.size.x <= 0.0 or safe_rect.size.y <= 0.0:
-		safe_rect = Rect2(Vector2.ZERO, Vector2(maxf(1.0, size.x), 64.0))
-	var label_size: Vector2 = font.get_string_size(status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20)
+		safe_rect = Rect2(Vector2(0.0, 18.0), Vector2(maxf(1.0, size.x), 82.0))
+	var label_size: Vector2 = font.get_string_size(status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, label_font_size)
 	var label_rect := Rect2(
-		Vector2(safe_rect.get_center().x - label_size.x * 0.5, safe_rect.position.y + 10.0),
+		Vector2(safe_rect.get_center().x - label_size.x * 0.5, safe_rect.position.y + 6.0),
 		label_size
 	)
 	var detail_rect := Rect2()
 	if not status_detail.is_empty():
-		var detail_size: Vector2 = font.get_string_size(status_detail, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14)
+		var detail_font: Font = UiTypography.text_font()
+		if detail_font == null:
+			detail_font = font
+		var detail_font_size: int = UiTypography.scaled_size(self, UiTypography.SIZE_BODY)
+		var detail_size: Vector2 = detail_font.get_string_size(status_detail, HORIZONTAL_ALIGNMENT_LEFT, -1.0, detail_font_size)
 		detail_rect = Rect2(
-			Vector2(safe_rect.get_center().x - detail_size.x * 0.5, safe_rect.position.y + 34.0),
+			Vector2(safe_rect.get_center().x - detail_size.x * 0.5, label_rect.end.y + 5.0),
 			detail_size
 		)
 	return {"label": label_rect, "detail": detail_rect}
@@ -5147,10 +5139,13 @@ func status_text_local_bounds() -> Rect2:
 	# Keep UI probes coupled to the exact board-owned status paint region.
 	if status_label.is_empty():
 		return Rect2()
-	var font: Font = get_theme_default_font()
+	var role: String = str(presentation.get("status_typography_role", UiTypography.ROLE_SECTION))
+	var font: Font = UiTypography.font_for_role(role)
+	if font == null:
+		font = get_theme_default_font()
 	if font == null:
 		return Rect2()
-	var layout: Dictionary = _status_text_layout(font)
+	var layout: Dictionary = _status_text_layout(font, UiTypography.scaled_size(self, UiTypography.role_size(role)))
 	var label_bounds: Rect2 = layout.get("label", Rect2()) as Rect2
 	if status_detail.is_empty():
 		return label_bounds
@@ -6619,6 +6614,7 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("locked:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("locked_door_tiles", {}) as Dictionary))
 	parts.append("backdrop:%s" % bool(next_presentation.get("board_backdrop_visible", false)))
 	parts.append("framing:%s" % str(next_presentation.get("board_framing_mode", "room")))
+	parts.append("safe:%s" % str(next_presentation.get("board_safe_global_rect", Rect2())))
 	return "|".join(parts)
 
 func _moss_signature_for_state(next_state: Dictionary) -> String:
@@ -7513,10 +7509,9 @@ func _board_origin_for_extents(extents: Dictionary, tile_width: float, tiles: Ar
 	var min_sum: float = float(extents.get("min_sum", 0.0))
 	var content_width: float = _board_layout_width_units(extents) * tile_width
 	var content_height: float = _board_layout_height_units(extents) * tile_width
-	var available_width: float = maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0)
-	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
-	var content_left: float = BOARD_SIDE_MARGIN + (available_width - content_width) * 0.5
-	var content_top: float = BOARD_VERTICAL_MARGIN + (available_height - content_height) * _board_vertical_bias()
+	var available_rect: Rect2 = _board_layout_available_rect()
+	var content_left: float = available_rect.position.x + (available_rect.size.x - content_width) * 0.5
+	var content_top: float = available_rect.position.y + (available_rect.size.y - content_height) * _board_vertical_bias()
 	var target_center_x: float = content_left + content_width * 0.5
 	var origin_x: float = target_center_x - ((min_diag + max_diag) * 0.5 * half_width)
 	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
@@ -7539,20 +7534,24 @@ func _default_vertical_framing_offset(extents: Dictionary, tile_width: float, co
 		visual_top = origin_y - half_height
 	# The board is nested below the stage chrome, so the screenshot-safe top edge
 	# lives in global canvas space rather than at local y=BOARD_VERTICAL_MARGIN.
-	var global_safe_top: float = BOARD_VERTICAL_MARGIN
-	var local_safe_top: float = global_safe_top - get_global_transform().origin.y
+	var local_safe_top: float
+	if str(presentation.get("board_framing_mode", "room")) != "combat" and (presentation.get("board_safe_global_rect", Rect2()) as Rect2).size.y > 0.0:
+		local_safe_top = _board_layout_available_rect().position.y
+	else:
+		var global_safe_top: float = BOARD_VERTICAL_MARGIN
+		local_safe_top = global_safe_top - get_global_transform().origin.y
 	return maxf(0.0, local_safe_top - visual_top)
 
 func _navigation_zoom_anchor() -> Vector2:
-	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+	var available_rect: Rect2 = _board_layout_available_rect()
 	var extents: Dictionary = _board_layout_cache_extents
 	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
 	var content_height: float = _board_layout_height_units(extents) * tile_width
-	var content_top: float = BOARD_VERTICAL_MARGIN + (available_height - content_height) * _board_vertical_bias()
+	var content_top: float = available_rect.position.y + (available_rect.size.y - content_height) * _board_vertical_bias()
 	var framing_offset: float = _default_vertical_framing_offset(extents, tile_width, content_top, _board_layout_cache_tiles)
 	return Vector2(
-		size.x * 0.5,
-		BOARD_VERTICAL_MARGIN + available_height * _board_vertical_bias() + framing_offset
+		available_rect.get_center().x,
+		available_rect.position.y + available_rect.size.y * _board_vertical_bias() + framing_offset
 	)
 
 func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
@@ -7560,13 +7559,10 @@ func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vecto
 		_board_layout_width_units(extents) * tile_width,
 		_board_layout_height_units(extents) * tile_width
 	)
-	var available_size := Vector2(
-		maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0),
-		maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
-	)
+	var available_rect: Rect2 = _board_layout_available_rect()
 	var content_position := Vector2(
-		BOARD_SIDE_MARGIN + (available_size.x - content_size.x) * 0.5,
-		BOARD_VERTICAL_MARGIN + (available_size.y - content_size.y) * _board_vertical_bias()
+		available_rect.position.x + (available_rect.size.x - content_size.x) * 0.5,
+		available_rect.position.y + (available_rect.size.y - content_size.y) * _board_vertical_bias()
 	)
 	content_position.y += _default_vertical_framing_offset(extents, tile_width, content_position.y, _board_layout_cache_tiles)
 	return Rect2(content_position + pan, content_size)
@@ -7576,13 +7572,7 @@ func _board_vertical_bias() -> float:
 
 func _navigation_pan_limits(extents: Dictionary, tile_width: float) -> Rect2:
 	var content_rect: Rect2 = _navigation_content_rect(extents, tile_width)
-	var available_rect := Rect2(
-		Vector2(BOARD_SIDE_MARGIN, BOARD_VERTICAL_MARGIN),
-		Vector2(
-			maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0),
-			maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
-		)
-	)
+	var available_rect: Rect2 = _board_layout_available_rect()
 	var overscroll := Vector2(
 		minf(BOARD_PAN_OVERSCROLL_MAX, available_rect.size.x * BOARD_PAN_OVERSCROLL_FRACTION),
 		minf(BOARD_PAN_OVERSCROLL_MAX, available_rect.size.y * BOARD_PAN_OVERSCROLL_FRACTION)
@@ -7871,11 +7861,34 @@ func _tile_width() -> float:
 func _tile_width_for_extents(extents: Dictionary) -> float:
 	var width_units: float = _board_layout_width_units(extents)
 	var height_units: float = _board_layout_height_units(extents)
-	var available_width: float = maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0)
-	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+	var available_rect: Rect2 = _board_layout_available_rect()
+	var available_width: float = available_rect.size.x
+	var available_height: float = available_rect.size.y
 	var width_based: float = available_width / maxf(1.0, width_units)
 	var height_based: float = available_height / maxf(1.0, height_units)
 	return clampf(minf(width_based, height_based), 90.0, BOARD_MAX_TILE_WIDTH)
+
+func _board_layout_available_rect() -> Rect2:
+	var base_rect := Rect2(
+		Vector2(BOARD_SIDE_MARGIN, BOARD_VERTICAL_MARGIN),
+		Vector2(
+			maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0),
+			maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+		)
+	)
+	if str(presentation.get("board_framing_mode", "room")) == "combat":
+		return base_rect
+	var safe_global_rect: Rect2 = presentation.get("board_safe_global_rect", Rect2()) as Rect2
+	if safe_global_rect.size.x <= 0.0 or safe_global_rect.size.y <= 0.0:
+		return base_rect
+	var inverse_transform: Transform2D = get_global_transform().affine_inverse()
+	var local_top_left: Vector2 = inverse_transform * safe_global_rect.position
+	var local_bottom_right: Vector2 = inverse_transform * safe_global_rect.end
+	var safe_local_rect := Rect2(local_top_left, local_bottom_right - local_top_left)
+	var clipped: Rect2 = base_rect.intersection(safe_local_rect)
+	if clipped.size.x <= 1.0 or clipped.size.y <= 1.0:
+		return base_rect
+	return clipped
 
 func _board_layout_width_units(extents: Dictionary) -> float:
 	var diag_span: float = maxf(0.0, float(extents.get("max_diag", 4.0)) - float(extents.get("min_diag", -4.0)))

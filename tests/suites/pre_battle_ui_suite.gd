@@ -110,8 +110,10 @@ static func _test_portrait_fitting_for_full_roster(host: Node, expect: Callable)
 		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
 		var portrait: TextureRect = host.call("_pre_battle_enemy_portrait", enemy_type, enemy_def) as TextureRect
 		expect.call(portrait != null and portrait.texture != null, "%s should resolve a pre-battle portrait texture" % enemy_type)
-		expect.call(portrait != null and portrait.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "%s portrait should remain complete and centered instead of being cropped" % enemy_type)
-		expect.call(portrait != null and portrait.texture != null and portrait.texture.get_size().x >= 255.0 and portrait.texture.get_size().y >= 255.0, "%s pre-battle portrait should use the complete static combat art instead of a tight turn-clock crop" % enemy_type)
+		expect.call(portrait != null and portrait.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "%s portrait should preserve the complete face-focused crop inside its frame" % enemy_type)
+		expect.call(portrait != null and portrait.texture != null and portrait.texture.get_size() == Vector2(128.0, 128.0), "%s pre-battle portrait should use the shared native 128px combat portrait" % enemy_type)
+		var portrait_path: String = str(host.call("_combat_portrait_path", enemy_type))
+		expect.call(portrait_path.begins_with("res://assets/art/portraits/"), "%s pre-battle portrait should resolve through the shared portrait registry" % enemy_type)
 		if portrait != null:
 			portrait.free()
 	var warden_def: Dictionary = GameData.enemy_def("warden")

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-04T14:02:58Z",
+  "updated_at": "2026-08-04T16:12:43Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5212,28 +5212,6 @@
       }
     },
     {
-      "id": "mnt_20260716T020904Z_035d6b6a",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "symbol",
-        "path": "scripts/run_scene.gd",
-        "symbol": "_pre_battle_enemy_texture"
-      },
-      "scope_key": "symbol:scripts/run_scene.gd#_pre_battle_enemy_texture",
-      "summary": "Pre-battle enemy frames use complete static combat art",
-      "details": "Turn-order portraits are intentionally tighter crops and can omit parts of enemies (notably Zekarion). Pre-battle summary/detail frames should prefer each enemy art_path with keep-aspect-centered fitting; turn-order UI keeps its separate portrait mapping.",
-      "status": "active",
-      "created_at": "2026-07-16T02:09:04Z",
-      "updated_at": "2026-07-16T02:09:04Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
-        "commit": "75fb76d"
-      }
-    },
-    {
       "id": "mnt_20260716T023622Z_161bd9d8",
       "layer": "shared",
       "kind": "decision",
@@ -6926,6 +6904,30 @@
       "source": {
         "branch": "codex/polish-turn-order-portrait-backings",
         "commit": "3f559ad"
+      }
+    },
+    {
+      "id": "mnt_20260804T161243Z_e425586f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Combat identity portraits use one shared face-focused 128px registry across pre-battle preview and turn order",
+      "details": "RunScene resolves every player/enemy combat identity through TURN_ORDER_PORTRAITS via _combat_portrait_path before any unknown-identity fallback. Portraits are deterministic intelligent crops from final sprites, stored under assets/art/portraits, unique by path and bytes, and rendered without a second covered crop. ImageGen was evaluated but not needed because every source produced a readable native portrait.",
+      "status": "active",
+      "created_at": "2026-08-04T16:12:43Z",
+      "updated_at": "2026-08-04T16:12:43Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260716T020904Z_035d6b6a"
+      ],
+      "source": {
+        "branch": "codex/polish-room-board-hand-and-portraits",
+        "commit": "6744cad"
       }
     }
   ]

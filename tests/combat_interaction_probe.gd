@@ -380,7 +380,7 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 		if tutorial != null and tutorial.visible:
 			_assert(not dock_rect.intersects(tutorial.get_global_rect()), "%s action dock should stay clear of the contextual tutorial" % state_kind)
 	var hand: Array = ((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array
-	_assert(hand.size() >= 5, "%s fixture should keep a full five-card hand" % state_kind)
+	_assert(hand.size() >= 3, "%s fixture should keep a representative playable hand" % state_kind)
 	for index: int in range(hand.size()):
 		var card: Control = instance.call("_hand_card_control", index) as Control
 		if card == null or not card.visible:
@@ -392,13 +392,16 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 		var leftmost_card: Control = instance.call("_hand_card_control", 0) as Control
 		if leftmost_card != null and leftmost_card.visible:
 			var leftmost_rect: Rect2 = instance.call("_control_visual_global_rect", leftmost_card)
-			_assert(pass_rect.end.x <= leftmost_rect.position.x - 20.0, "%s Pass dock should keep a visible gap before the leftmost full-hand card" % state_kind)
+			var minimum_gap: float = 4.0 if hand.size() >= 8 else 20.0
+			_assert(pass_rect.end.x <= leftmost_rect.position.x - minimum_gap, "%s Pass dock should keep a visible gap before the leftmost full-hand card" % state_kind)
 
 func _capture_hand_dock_resilience(instance: Node) -> void:
 	var hand_sets: Array = [
 		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"],
 		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up", "bone_dart"],
-		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up", "bone_dart", "updraft"]
+		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up", "bone_dart", "updraft"],
+		["quick_stab", "sidestep_slash", "thunderline"],
+		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up", "bone_dart", "updraft", "guarded_step"]
 	]
 	var stable_seven_meter := Rect2()
 	var stable_seven_pass := Rect2()
@@ -406,6 +409,12 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 		var cards: Array = cards_var as Array
 		instance.set("_hovered_card_index", -1)
 		await _load_combat_fixture(instance, cards, Vector2i(2, 4), [Vector2i(5, 4), Vector2i(5, 2)], 9910 + cards.size())
+		var first_card: Control = instance.call("_hand_card_control", 0) as Control
+		if first_card != null:
+			var rendered_card_width: float = first_card.size.x * first_card.get_global_transform().get_scale().x
+			print("HAND GEOMETRY %d-CARD width=%.2f bounds=%s" % [cards.size(), rendered_card_width, instance.call("_combat_hand_resting_visual_bounds")])
+			if cards.size() >= 8:
+				_assert(rendered_card_width >= 171.5 and rendered_card_width <= 180.5, "Dense eight-card hands should use the readable compact width that preserves focus and dock clearance")
 		var meter: Control = instance.get("_play_meter") as Control
 		var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 		_assert(meter != null and pass_chip != null, "%d-card dock proof needs meter and Pass controls" % cards.size())
@@ -575,7 +584,8 @@ func _assert_room_exit_affordance(instance: Node, viewport_size: Vector2i, door_
 	var exit_tiles: Dictionary = board.get("exit_tiles") as Dictionary
 	var exit_icons: Dictionary = board.get("exit_icon_ids") as Dictionary
 	var destination_lookup: Dictionary = instance.get("_exit_destinations_by_tile") as Dictionary
-	_assert(exit_tiles.has(door_tile) and exit_icons.has(door_tile), "%s board must render the real exit marker and icon for %s" % [viewport_size, door_tile])
+	_assert(exit_tiles.has(door_tile) and exit_icons.has(door_tile), "%s board must preserve exit direction data and the established floating room icon for %s" % [viewport_size, door_tile])
+	_assert(not board.has_method("_draw_exit_marker_for_tile"), "%s room exits should omit the redundant directional badge paint path" % viewport_size)
 	_assert(destination_lookup.get(door_tile, Vector2i(-1, -1)) == destination, "%s exit tile must map to the legal destination" % viewport_size)
 	var door_center: Vector2 = board.call("_tile_center", door_tile) as Vector2
 	_assert(board.call("_tile_at_point", door_center) == door_tile, "%s exit tile must retain board hit-testing for pointer click" % viewport_size)
@@ -587,12 +597,14 @@ func _assert_room_exit_affordance(instance: Node, viewport_size: Vector2i, door_
 		var painted_rect: Rect2 = header_bounds.get("rect", Rect2()) as Rect2
 		_assert(not status_global_bounds.intersects(painted_rect), "%s drawn board status must clear %s (status=%s header=%s)" % [viewport_size, str(header_bounds.get("name", "header")), status_global_bounds, painted_rect])
 	var presentation: Dictionary = board.get("presentation") as Dictionary
+	_assert(str(presentation.get("status_typography_role", "")) == "hero", "%s Choose door guidance should use the shared hero typography role" % viewport_size)
+	_assert(status_global_bounds.position.y >= 18.0 and status_global_bounds.size.y >= 38.0, "%s Choose door guidance should be prominent and lowered from the screen edge (bounds=%s)" % [viewport_size, status_global_bounds])
 	if hovered:
 		_assert((presentation.get("focus_tiles", []) as Array).has(door_tile), "%s hovered exit must enter the board focus treatment" % viewport_size)
 		_assert(str(board.get("status_detail")) == "Air Combat 4", "%s hovered exit must name its destination in the centered status detail" % viewport_size)
 	else:
 		_assert(bool(presentation.get("pulse_exit_tiles", false)), "%s idle room must pulse the actual exit tile before it is hovered" % viewport_size)
-		_assert(str(board.get("status_label")) == "Choose door" and str(board.get("status_detail")).is_empty(), "%s idle room status must provide concise door guidance without stale hover detail" % viewport_size)
+		_assert(str(board.get("status_label")) == "Choose Door" and str(board.get("status_detail")).is_empty(), "%s idle room status must provide concise door guidance without stale hover detail" % viewport_size)
 
 func _room_status_header_painted_bounds(instance: Node) -> Array[Dictionary]:
 	var bounds: Array[Dictionary] = []
@@ -777,8 +789,8 @@ func _assert_full_hd_normal_hud(instance: Node) -> void:
 	_assert(viewport == Vector2(PROBE_VIEWPORT), "Combat HUD proof must use an exact 1920x1080 logical viewport")
 	var tutorial: Control = instance.get("_contextual_combat_prompt_host") as Control
 	_assert(tutorial == null or not tutorial.visible, "Normal combat proof must not show the transient COMBAT NOTE tutorial")
-	_assert(board_bounds.size.x >= viewport.x * 0.62 and board_bounds.size.y >= viewport.y * 0.55, "Normal combat board should remain the dominant 62%% x 55%% playfield while safely framing tall props (got %.1f%% x %.1f%%)" % [board_bounds.size.x / viewport.x * 100.0, board_bounds.size.y / viewport.y * 100.0])
-	_assert(board_bounds.position.y <= viewport.y * 0.11, "Normal combat board should begin in the top 11%% of the viewport (got %.1f%% / %.0fpx)" % [board_bounds.position.y / viewport.y * 100.0, board_bounds.position.y])
+	_assert(board_bounds.size.x >= viewport.x * 0.59 and board_bounds.size.y >= viewport.y * 0.52, "Normal combat board should remain the dominant 59%% x 52%% playfield while safely framing tall props (got %.1f%% x %.1f%%)" % [board_bounds.size.x / viewport.x * 100.0, board_bounds.size.y / viewport.y * 100.0])
+	_assert(board_bounds.position.y <= viewport.y * 0.15, "Normal combat board should begin within the top 15%% of the viewport after the complete-view correction (got %.1f%% / %.0fpx)" % [board_bounds.position.y / viewport.y * 100.0, board_bounds.position.y])
 	var hand_box: Control = instance.get_node(HAND_PATH) as Control
 	var hand_bounds := Rect2()
 	var has_hand_bounds: bool = false
@@ -875,8 +887,8 @@ func _capture_production_aspect_geometry(instance: Node) -> void:
 	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
 	var hand_top: float = float(instance.call("_hand_visual_top"))
 	await _save_root_screenshot("%s/production_live_1920x1227.png" % OUTPUT_DIR, PRODUCTION_VIEWPORT)
-	_assert(board_bounds.position.y >= 80.0 and board_bounds.position.y <= 112.0, "Production board should begin in the intended upper framing band instead of leaving dead space (board=%s)" % board_bounds)
-	_assert(board_bounds.size.x >= 1400.0 and board_bounds.size.x <= 1470.0 and board_bounds.size.y >= 690.0 and board_bounds.size.y <= 745.0, "Production board should remain dominant while backing off from the former prop-clipping zoom (board=%s)" % board_bounds)
+	_assert(board_bounds.position.y >= 120.0 and board_bounds.position.y <= 190.0, "Production board should begin in the complete-view upper framing band (board=%s)" % board_bounds)
+	_assert(board_bounds.size.x >= 1320.0 and board_bounds.size.x <= 1420.0 and board_bounds.size.y >= 660.0 and board_bounds.size.y <= 710.0, "Production board should remain dominant while backing off from the former prop-clipping zoom (board=%s)" % board_bounds)
 	var production_gap: float = hand_top - board_bounds.end.y
 	_assert(production_gap >= 24.0 and production_gap <= 80.0, "Production board should end just above the hand with a clear but compact gap (board=%s hand_top=%.1f gap=%.1f)" % [board_bounds, hand_top, production_gap])
 	print("HUD GEOMETRY 1920x1227 board=%s hand_top=%.1f gap=%.1f" % [board_bounds, hand_top, hand_top - board_bounds.end.y])

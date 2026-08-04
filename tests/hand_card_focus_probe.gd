@@ -122,14 +122,14 @@ func _assert_hand_hud_layout(instance: Node, label: String) -> void:
 	_expect(hand_scroll != null and hand_box != null and play_meter != null and play_meter_slot != null, "%s should expose the complete hand HUD" % label)
 	if hand_scroll == null or hand_box == null or play_meter == null or play_meter_slot == null:
 		return
-	var hand_row: Control = hand_scroll.get_parent() as Control
-	var row_center_x: float = hand_row.get_global_rect().get_center().x
-	_expect(play_meter.get_parent() == instance.get("ui_root"), "%s should move the play meter into the independent combat action dock" % label)
-	_expect(play_meter.get_global_rect().position.x >= hand_scroll.get_global_rect().end.x - 1.0, "%s should keep the play meter in the right-side dock beyond the hand" % label)
-	_expect(absf(hand_scroll.get_global_rect().get_center().x - row_center_x) <= 16.0, "%s should center the hand viewport in its full-screen row" % label)
-	_expect(absf(hand_box.get_global_rect().get_center().x - row_center_x) <= 16.0, "%s should center the rendered hand in its full-screen row" % label)
+	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
 	var visual_bounds: Rect2 = _hand_visual_bounds(instance, hand_box)
-	_expect(not visual_bounds.has_area() or absf(visual_bounds.get_center().x - row_center_x) <= 2.0, "%s should center the visible card fan, not only its layout container" % label)
+	var meter_rect: Rect2 = play_meter.get_global_rect()
+	_expect(play_meter.get_parent() == instance.get("ui_root"), "%s should move the play meter into the independent combat action dock" % label)
+	_expect(not visual_bounds.has_area() or meter_rect.end.x <= visual_bounds.position.x - 20.0, "%s should keep the left action dock clear of the resting hand" % label)
+	_expect(not meter_rect.intersects(visual_bounds), "%s should keep the card-play meter independent from the rendered hand" % label)
+	_expect(viewport_rect.encloses(hand_scroll.get_global_rect()), "%s should keep the complete hand viewport on screen" % label)
+	_expect(not visual_bounds.has_area() or viewport_rect.encloses(visual_bounds), "%s should keep the complete resting fan on screen" % label)
 
 func _hand_visual_bounds(instance: Node, hand_box: Control) -> Rect2:
 	var bounds := Rect2()

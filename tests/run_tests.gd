@@ -789,9 +789,11 @@ func _test_hand_fan_layout_lifts_center_cards() -> void:
 	var right_rect: Rect2 = HandFanContainer.card_rect_for_layout(4, 5, card_size, -28.0, true)
 	var content_size: Vector2 = HandFanContainer.content_size_for_layout(5, card_size, -28.0, true)
 	_assert(center_rect.position.y < left_rect.position.y, "Hand fan should lift center cards above the edges")
+	_assert(left_rect.position.y - center_rect.position.y <= HandFanContainer.DEFAULT_ARCH_HEIGHT + 0.01, "Hand fan should keep its idle vertical stagger within the subtle shared arch")
 	_assert(is_equal_approx(left_rect.position.y, right_rect.position.y), "Hand fan should mirror edge lift on both sides")
 	_assert(HandFanContainer.card_rotation_for_layout(0, 5, true) < 0.0, "Hand fan should tilt left-side cards outward")
 	_assert(HandFanContainer.card_rotation_for_layout(4, 5, true) > 0.0, "Hand fan should tilt right-side cards outward")
+	_assert(absf(rad_to_deg(HandFanContainer.card_rotation_for_layout(0, 5, true))) <= 3.01 and absf(rad_to_deg(HandFanContainer.card_rotation_for_layout(4, 5, true))) <= 3.01, "Hand fan idle rotation should remain barely noticeable")
 	_assert(content_size.y < right_rect.end.y, "Hand fan should reserve a little less than the full arch height so the outer cards can sink slightly offscreen")
 	_assert(right_rect.end.y - content_size.y <= 8.0, "Hand fan should not let outer cards sink far enough to clip their bottom frames")
 	_assert(HandFanContainer.card_z_index_for_layout(0, 5) < HandFanContainer.card_z_index_for_layout(4, 5), "Hand fan should stack cards left-to-right so the rightmost card stays uncovered")
@@ -5824,6 +5826,8 @@ func _test_turn_order_portraits_cover_enemy_roster() -> void:
 	var instance: Node = run_scene_script.new()
 	var player_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "player", "type": "player"}))
 	_assert(FileAccess.file_exists(player_path), "Turn order should resolve a player portrait")
+	var used_paths: Dictionary = {player_path: "player"}
+	var used_hashes: Dictionary = {hash(FileAccess.get_file_as_bytes(player_path)): "player"}
 	for enemy_type: String in GameData.enemies().keys():
 		var portrait_path: String = str(instance.call("_turn_order_portrait_path", {
 			"kind": "enemy",
@@ -5831,6 +5835,16 @@ func _test_turn_order_portraits_cover_enemy_roster() -> void:
 		}))
 		_assert(portrait_path != player_path, "%s turn-order portrait should not fall back to the player portrait" % enemy_type)
 		_assert(FileAccess.file_exists(portrait_path), "%s turn-order portrait should exist" % enemy_type)
+		_assert(portrait_path.begins_with("res://assets/art/portraits/"), "%s turn-order portrait should use the shared portrait registry instead of full-body enemy art" % enemy_type)
+		_assert(not used_paths.has(portrait_path), "%s should have a distinct portrait path from %s" % [enemy_type, str(used_paths.get(portrait_path, "another identity"))])
+		used_paths[portrait_path] = enemy_type
+		var portrait_hash: int = hash(FileAccess.get_file_as_bytes(portrait_path))
+		_assert(not used_hashes.has(portrait_hash), "%s should have visually distinct portrait bytes from %s" % [enemy_type, str(used_hashes.get(portrait_hash, "another identity"))])
+		used_hashes[portrait_hash] = enemy_type
+		var portrait_image: Image = Image.load_from_file(ProjectSettings.globalize_path(portrait_path))
+		_assert(portrait_image != null and portrait_image.get_size() == Vector2i(128, 128), "%s portrait should be a native 128x128 raster" % enemy_type)
+		var pre_battle_texture: Texture2D = instance.call("_pre_battle_enemy_texture", enemy_type, GameData.enemy_def(enemy_type)) as Texture2D
+		_assert(pre_battle_texture != null and pre_battle_texture.get_size() == Vector2(128.0, 128.0), "%s pre-battle preview should use the same 128px portrait mapping as turn order" % enemy_type)
 	instance.free()
 
 func _test_chainbound_gaoler_board_art_is_taller_and_centered() -> void:
@@ -10158,8 +10172,11 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_card_play_meter")
-	await process_frame
-	await process_frame
+	for settle_frame: int in range(8):
+		if int(instance.get("_hand_layout_pending_revision")) != int(instance.get("_hand_layout_revision")):
+			break
+		await process_frame
+	_assert(int(instance.get("_hand_layout_pending_revision")) != int(instance.get("_hand_layout_revision")), "Card-play dock coverage should wait for the bounded asynchronous hand-layout fit")
 	var banked_label: Label = instance.get("_play_meter_banked_label") as Label
 	_assert(count_label != null and count_label.text == "2 card plays", "The large card-play count should reserve its number for ordinary plays")
 	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
@@ -10681,7 +10698,7 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(6, 4)), "RunScene should surface the Frostglass Lancer's four-tile straight-line threat on board hover")
 	_assert(not attack_tiles.has(Vector2i(6, 3)) and not attack_tiles.has(Vector2i(6, 5)), "RunScene Frostglass Lancer hover should avoid the removed spearhead burst")
 	var portrait_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "frostglass_lancer"}))
-	_assert(portrait_path == "res://assets/art/enemies/frostglass_lancer.png", "Frostglass Lancer should use its enemy art in the turn-order widget")
+	_assert(portrait_path == "res://assets/art/portraits/frostglass_lancer.png", "Frostglass Lancer should use its face-focused portrait in the turn-order widget")
 	var order_entries: Array = combat.current_turn_order(combat_state, 8)
 	var lancer_turn_visible: bool = false
 	for entry_var: Variant in order_entries:
