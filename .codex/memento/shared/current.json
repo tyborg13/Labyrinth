@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-05T21:03:30Z",
+  "updated_at": "2026-08-05T21:58:38Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7041,27 +7041,27 @@
       }
     },
     {
-      "id": "mnt_20260805T210330Z_e0d869ab",
+      "id": "mnt_20260805T215838Z_207f2a54",
       "layer": "shared",
       "kind": "decision",
       "scope": {
-        "level": "project",
-        "path": ".",
+        "level": "file",
+        "path": "scripts/labyrinth_map_view.gd",
         "symbol": null
       },
-      "scope_key": "project:.",
-      "summary": "Keep the run map as one persistent world under a camera.",
-      "details": "Room world positions and route topology must remain invariant across pan and zoom. Cull rooms, rings, and connections only from geometric viewport intersection; never infer visibility from camera depth. Transform the authored dungeon-floor background through the same camera and align its labyrinth center to world origin. The compact HUD minimap is a separate presentation that fits the current room's two-hop revealed graph neighborhood and omits unavailable routes.",
+      "scope_key": "file:scripts/labyrinth_map_view.gd",
+      "summary": "Map world camera reserves opaque overlay panels",
+      "details": "The full map keeps one persistent radial world topology and camera-transforms rooms, routes, rings, and authored background together. Cull rooms from their actual medallion geometry; at ordinary map edges retain them while any meaningful silhouette remains visible, but treat the fixed legend as an opaque viewport obstruction so nodes and hover targets never sit underneath it. Compact minimaps render a fitted two-hop neighborhood. Large-map input supports mouse drag/wheel plus native two-finger pan and pinch zoom.",
       "status": "active",
-      "created_at": "2026-08-05T21:03:30Z",
-      "updated_at": "2026-08-05T21:03:30Z",
+      "created_at": "2026-08-05T21:58:38Z",
+      "updated_at": "2026-08-05T21:58:38Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260805T170808Z_4d99fce0"
+        "mnt_20260805T210330Z_e0d869ab"
       ],
       "source": {
         "branch": "codex/redesign-map-as-an-atmospheric-radial-labyrinth",
-        "commit": "e44503b"
+        "commit": "2be5ff8"
       }
     }
   ]

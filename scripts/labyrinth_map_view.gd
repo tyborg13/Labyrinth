@@ -421,11 +421,9 @@ func _ensure_layout_cache() -> void:
 		var coord: Vector2i = room.get("coord", INVALID_COORD)
 		if coord.x <= -900:
 			continue
-		if not _room_is_displayed(coord):
+		if not _room_is_onscreen_cached(room):
 			continue
 		var center: Vector2 = _cached_coord_position(coord)
-		if not _map_rect_cache.grow(node_half_size * 1.25).has_point(center):
-			continue
 		_visible_hit_rects_cache.append({"coord": coord, "rect": Rect2(center - Vector2.ONE * hit_radius, Vector2.ONE * hit_radius * 2.0)})
 		_visible_node_rects_cache.append({"coord": coord, "rect": Rect2(center - Vector2.ONE * node_half_size, Vector2.ONE * node_half_size * 2.0).grow(6.0)})
 	_invalidate_travel_visual_cache()
@@ -969,12 +967,39 @@ func _node_size_for_state(route_state: String) -> float:
 	return node_size
 
 func _room_is_onscreen(room: Dictionary) -> bool:
+	_ensure_layout_cache()
+	return _room_is_onscreen_cached(room)
+
+func _room_is_onscreen_cached(room: Dictionary) -> bool:
 	var coord: Vector2i = room.get("coord", INVALID_COORD)
 	if coord.x <= -900:
 		return false
 	if not _room_is_displayed(coord):
 		return false
-	return _map_rect_cache.grow(_base_node_size_cache * 0.75).has_point(_coord_position(coord))
+	var visual_rect: Rect2 = _room_visual_rect_cached(room)
+	if not visual_rect.intersects(_map_rect_cache, false):
+		return false
+	# The legend is an opaque, fixed screen-space panel. Treat it as a true
+	# viewport obstruction so medallions never read as if they are sliding
+	# underneath the frame; panning reveals them once their full silhouette is
+	# clear of the panel.
+	if show_legend and visual_rect.intersects(_legend_rect_cache, false):
+		return false
+	return true
+
+func _room_visual_rect(room: Dictionary) -> Rect2:
+	_ensure_layout_cache()
+	return _room_visual_rect_cached(room)
+
+func _room_visual_rect_cached(room: Dictionary) -> Rect2:
+	var coord: Vector2i = room.get("coord", INVALID_COORD)
+	if coord.x <= -900:
+		return Rect2()
+	var route_state: String = _route_state_for_room(room) if interactive else ROUTE_VISITED
+	var node_size: float = _node_size_for_state(route_state)
+	var half_extent: float = node_size * (0.72 if interactive else 0.56)
+	var center: Vector2 = _cached_coord_position(coord)
+	return Rect2(center - Vector2.ONE * half_extent, Vector2.ONE * half_extent * 2.0)
 
 func _draw_room_frame(center: Vector2, side: float, route_state: String, modulate: Color) -> void:
 	var texture: Texture2D = _room_frame_texture(route_state)

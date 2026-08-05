@@ -131,8 +131,8 @@ func _assert_overlay_chrome(scrim: Control, dialog: Control, map_view: Control) 
 		_fail("Full map should expose its direct player-facing title")
 	if dialog.find_child("MapSubtitle", true, false) != null or dialog.find_child("DepthStrip", true, false) != null:
 		_fail("Full map should not add a fantasy tagline or redundant depth strip")
-	if navigation_hint == null or not navigation_hint.text.contains("PAN") or not navigation_hint.text.contains("ZOOM"):
-		_fail("Full map should explain its drag and wheel navigation")
+	if navigation_hint == null or not navigation_hint.text.contains("TWO-FINGER") or not navigation_hint.text.contains("PINCH"):
+		_fail("Full map should explain its mouse and trackpad navigation")
 	if close_button == null:
 		_fail("Full map should expose a close control")
 	elif title != null and close_button.get_global_rect().intersects(title.get_global_rect()):
@@ -154,8 +154,13 @@ func _assert_map_geometry(map_view: Control) -> void:
 	var safe_map_rect: Rect2 = map_rect.grow(-node_size * 0.54)
 	var on_screen_room_count: int = 0
 	for first_index: int in range(visible_rooms.size()):
+		var first_room: Dictionary = visible_rooms[first_index]
 		var first_coord: Vector2i = visible_rooms[first_index].get("coord", INVALID_COORD)
 		var first_position: Vector2 = map_view.call("_coord_position", first_coord)
+		if bool(map_view.call("_room_is_onscreen", first_room)):
+			var first_visual_rect: Rect2 = map_view.call("_room_visual_rect", first_room)
+			if first_visual_rect.intersects(legend_rect, false):
+				_fail("An on-screen room medallion should never render beneath the legend: %s" % first_coord)
 		if not safe_map_rect.has_point(first_position):
 			continue
 		on_screen_room_count += 1

@@ -7277,6 +7277,10 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	var legend_rect: Rect2 = map_view.call("_legend_rect")
 	var legend_content_rect: Rect2 = map_view.call("_legend_content_rect")
 	_assert(map_rect.end.x + 1.0 <= legend_rect.position.x, "Full map legend should reserve space instead of covering map rooms")
+	for room_var: Variant in map_view.call("_visible_rooms"):
+		var room: Dictionary = room_var
+		if bool(map_view.call("_room_is_onscreen", room)):
+			_assert(not (map_view.call("_room_visual_rect", room) as Rect2).intersects(legend_rect, false), "Full map medallions should never render underneath the fixed legend")
 	_assert(legend_rect.size.y < map_view.size.y * 0.90, "Full map legend should remain a contained authored subpanel")
 	_assert(absf(legend_content_rect.position.x - legend_rect.position.x - (legend_rect.end.x - legend_content_rect.end.x)) <= 0.01, "Legend content should preserve equal left and right insets")
 	_assert(legend_content_rect.position.x - legend_rect.position.x >= 28.0, "Legend icons should keep a safe inset from the authored border")
@@ -7399,10 +7403,16 @@ func _test_large_map_decision_layer() -> void:
 	var camera_map_rect: Rect2 = map_view.call("_map_rect")
 	var camera_node_size: float = float(map_view.call("_base_node_size"))
 	var current_center: Vector2 = map_view.call("_coord_position", current)
-	map_view.call("pan_camera", Vector2(camera_map_rect.end.x + camera_node_size * 0.70 - current_center.x, 0.0))
+	map_view.call("pan_camera", Vector2(camera_map_rect.position.x - camera_node_size * 0.70 - current_center.x, 0.0))
 	_assert(bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A room should remain rendered while any meaningful part of its medallion remains in view")
-	map_view.call("pan_camera", Vector2(camera_node_size * 0.12, 0.0))
+	map_view.call("pan_camera", Vector2(-camera_node_size * 0.12, 0.0))
 	_assert(not bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A room should cull only after its medallion has geometrically left the map field")
+	map_view.call("center_on_current", true)
+	current_center = map_view.call("_coord_position", current)
+	var camera_legend_rect: Rect2 = map_view.call("_legend_rect")
+	map_view.call("pan_camera", Vector2(camera_legend_rect.position.x - camera_node_size * 0.30 - current_center.x, 0.0))
+	_assert(not bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A medallion should cull coherently instead of appearing underneath the opaque legend")
+	_assert(map_view.call("_hover_coord_at_point", map_view.call("_coord_position", current)) == Vector2i(-999, -999), "A room hidden by the legend should not retain an invisible hover target")
 	map_view.call("center_on_current", true)
 	var curved_route: PackedVector2Array = map_view.call("_route_curve_points", current, reachable)
 	var straight_midpoint: Vector2 = map_view.call("_coord_position", current).lerp(map_view.call("_coord_position", reachable), 0.5)
@@ -8377,7 +8387,7 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 		)
 		var navigation_hint: Label = large_map_dialog.find_child("MapNavigationHint", true, false) as Label
 		_assert(large_map_dialog.find_child("DepthStrip", true, false) == null, "Large map should not cover the map with a redundant current-depth strip")
-		_assert(navigation_hint != null and navigation_hint.text.contains("PAN") and navigation_hint.text.contains("ZOOM"), "Large map should make its drag and wheel navigation discoverable")
+		_assert(navigation_hint != null and navigation_hint.text.contains("TWO-FINGER") and navigation_hint.text.contains("PINCH"), "Large map should make its mouse and trackpad navigation discoverable")
 		var title: Label = large_map_dialog.find_child("MapTitle", true, false) as Label
 		_assert(title != null and title.text == "MAP", "Large map should use the direct player-facing title")
 		_assert(large_map_dialog.find_child("MapSubtitle", true, false) == null, "Large map should not add an ornamental fantasy tagline")

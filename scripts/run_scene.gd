@@ -3065,7 +3065,7 @@ func _build_large_map_overlay() -> void:
 
 	var navigation_hint := Label.new()
 	navigation_hint.name = "MapNavigationHint"
-	navigation_hint.text = "DRAG TO PAN  •  SCROLL TO ZOOM"
+	navigation_hint.text = "DRAG / TWO-FINGER PAN  •  SCROLL / PINCH TO ZOOM"
 	navigation_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	navigation_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	navigation_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
