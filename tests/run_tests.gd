@@ -209,6 +209,7 @@ func _initialize() -> void:
 	_test_enemy_hud_layout_stays_centered_when_clear()
 	_test_enemy_hud_small_top_correction_stays_centered()
 	_test_enemy_hud_ignores_subpixel_obstacle_slivers()
+	_test_enemy_hud_does_not_duplicate_owning_actor_obstacle()
 	_test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge()
@@ -5733,6 +5734,18 @@ func _test_enemy_hud_ignores_subpixel_obstacle_slivers() -> void:
 	var sliver := Rect2(Vector2(420.0, 180.0), Vector2(0.5, 2.0))
 	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, [actor_clear_rect, sliver], actor_clear_rect, "enemy_42")
 	_assert(offset == Vector2.ZERO, "A one-square-pixel collision sliver should not push an otherwise clear mid-board enemy HUD away from its actor")
+
+func _test_enemy_hud_does_not_duplicate_owning_actor_obstacle() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var base_rects: Array[Rect2] = []
+	base_rects.append(Rect2(Vector2(420.0, 180.0), Vector2(120.0, 40.0)))
+	var actor_clear_rect := Rect2(Vector2(539.98125, 160.0), Vector2(60.0, 100.0))
+	var reserved_rects: Array[Rect2] = [actor_clear_rect]
+	var placement_obstacles: Array = board.call("_enemy_hud_placement_obstacles", reserved_rects, actor_clear_rect)
+	_assert(placement_obstacles.size() == 1, "The production reserved list should contain the owning actor obstacle exactly once")
+	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, placement_obstacles, actor_clear_rect, "enemy_44")
+	_assert(offset == Vector2.ZERO, "A sub-threshold owning-actor overlap should not become material through duplicate obstacle accounting")
 
 func _test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces() -> void:
 	var board := CombatBoardView.new()

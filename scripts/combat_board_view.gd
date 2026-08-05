@@ -4854,8 +4854,7 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 			border = _intent_color(intent)
 	var base_rects: Array[Rect2] = _enemy_hud_collision_rects(unit, health_rect, intent_rect)
 	var actor_clear_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
-	var placement_obstacles: Array = occupied_rects.duplicate()
-	placement_obstacles.append(actor_clear_rect)
+	var placement_obstacles: Array = _enemy_hud_placement_obstacles(occupied_rects, actor_clear_rect)
 	var actor_key: String = _enemy_hud_actor_key(unit)
 	var offset: Vector2 = _placed_enemy_hud_offset(base_rects, placement_obstacles, actor_clear_rect, actor_key)
 	health_rect.position += offset
@@ -4876,6 +4875,17 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 		"tether": tether,
 		"occupied_rects": _enemy_hud_collision_rects(unit, health_rect, intent_rect)
 	}
+
+func _enemy_hud_placement_obstacles(occupied_rects: Array, actor_clear_rect: Rect2) -> Array:
+	var placement_obstacles: Array = occupied_rects.duplicate()
+	for occupied_var: Variant in placement_obstacles:
+		if typeof(occupied_var) != TYPE_RECT2:
+			continue
+		var occupied_rect: Rect2 = occupied_var as Rect2
+		if occupied_rect.position.is_equal_approx(actor_clear_rect.position) and occupied_rect.size.is_equal_approx(actor_clear_rect.size):
+			return placement_obstacles
+	placement_obstacles.append(actor_clear_rect)
+	return placement_obstacles
 
 func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
 	var intent: Dictionary = unit.get("intent", {})
