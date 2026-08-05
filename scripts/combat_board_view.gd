@@ -73,8 +73,9 @@ const INTENT_POPUP_ICON_SIZE: float = 16.0
 const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
-const ENEMY_HUD_ACTOR_CLEARANCE: float = 8.0
-const ENEMY_HUD_SIDE_GAP: float = 10.0
+const ENEMY_HUD_ACTOR_CLEARANCE: float = 4.0
+const ENEMY_HUD_SIDE_GAP: float = 4.0
+const ENEMY_HUD_REPOSITION_OVERLAP_AREA: float = 1.0
 const ENEMY_HUD_SIDE_SWITCH_SCORE_MARGIN: float = 120000.0
 const ENEMY_HUD_SIDE_STICKY_OVERLAP_AREA: float = 1.0
 const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
@@ -4860,7 +4861,7 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 	health_rect.position += offset
 	intent_rect.position += offset
 	var tether: Dictionary = {}
-	if offset.length_squared() >= 4.0:
+	if absf(offset.x) >= 2.0:
 		tether = _enemy_intent_tether_geometry(unit, center, intent_rect)
 	return {
 		"health_rect": health_rect,
@@ -5043,15 +5044,31 @@ func _enemy_hud_viewport_bounds() -> Rect2:
 	)
 
 func _enemy_hud_actor_clear_rect(unit: Dictionary, center: Vector2) -> Rect2:
-	return _unit_draw_rect_for_center(unit, center).grow(ENEMY_HUD_ACTOR_CLEARANCE)
+	var draw_rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture != null:
+		var visible_rect: Rect2 = _texture_used_draw_rect(texture, draw_rect)
+		if visible_rect.size.x > 0.0 and visible_rect.size.y > 0.0:
+			draw_rect = visible_rect
+	return draw_rect.grow(ENEMY_HUD_ACTOR_CLEARANCE)
 
 func _placed_enemy_hud_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2, actor_key: String = "") -> Vector2:
 	if base_rects.is_empty():
 		return Vector2.ZERO
 	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
 	var hud_bounds: Rect2 = _rects_bounds(base_rects)
+	var base_areas: Dictionary = _enemy_hud_collision_areas(base_rects, occupied_rects, viewport_bounds)
+	if _enemy_hud_collision_areas_are_clear(base_areas):
+		return Vector2.ZERO
 	if hud_bounds.position.y < viewport_bounds.position.y:
-		return _best_enemy_hud_side_offset(base_rects, occupied_rects, actor_clear_rect, viewport_bounds, actor_key)
+		var centered_offset := Vector2(0.0, ceilf(viewport_bounds.position.y - hud_bounds.position.y))
+		var centered_rects: Array[Rect2] = _offset_rects(base_rects, centered_offset)
+		var centered_areas: Dictionary = _enemy_hud_collision_areas(centered_rects, occupied_rects, viewport_bounds)
+		if _enemy_hud_collision_areas_are_clear(centered_areas):
+			return centered_offset
+		var actor_areas: Dictionary = _enemy_hud_collision_areas(centered_rects, [actor_clear_rect], viewport_bounds)
+		if float(actor_areas.get("overlap_area", 0.0)) > ENEMY_HUD_REPOSITION_OVERLAP_AREA:
+			return _best_enemy_hud_side_offset(base_rects, occupied_rects, actor_clear_rect, viewport_bounds, actor_key)
 	return _best_enemy_hud_offset(base_rects, occupied_rects)
 
 func _best_enemy_hud_side_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2, viewport_bounds: Rect2, actor_key: String = "") -> Vector2:
@@ -5063,15 +5080,10 @@ func _best_enemy_hud_side_offset(base_rects: Array, occupied_rects: Array, actor
 		clampf(actor_clear_rect.position.y, viewport_bounds.position.y, max_y) - hud_bounds.position.y,
 		clampf(actor_clear_rect.get_center().y - hud_bounds.size.y * 0.5, viewport_bounds.position.y, max_y) - hud_bounds.position.y
 	]
-	var side_offsets: Dictionary = {
-		"left": actor_clear_rect.position.x - ENEMY_HUD_SIDE_GAP - hud_bounds.end.x,
-		"right": actor_clear_rect.end.x + ENEMY_HUD_SIDE_GAP - hud_bounds.position.x
-	}
 	var best_by_side: Dictionary = {}
 	for y_offset: float in y_offsets:
-		for side_var: Variant in side_offsets:
-			var side: String = str(side_var)
-			var x_offset: float = float(side_offsets.get(side, 0.0))
+		for side: String in ["left", "right"]:
+			var x_offset: float = _enemy_hud_minimum_side_x_offset(base_rects, y_offset, actor_clear_rect, side)
 			var offset := Vector2(x_offset, y_offset)
 			var candidate_rects: Array[Rect2] = _offset_rects(base_rects, offset)
 			var score: float = _enemy_hud_layout_score(candidate_rects, occupied_rects, viewport_bounds, offset)
@@ -5109,6 +5121,22 @@ func _best_enemy_hud_side_offset(base_rects: Array, occupied_rects: Array, actor
 	_remember_enemy_hud_side(actor_key, str(chosen.get("side", "")))
 	return chosen.get("offset", Vector2.ZERO) as Vector2
 
+func _enemy_hud_minimum_side_x_offset(base_rects: Array, y_offset: float, actor_clear_rect: Rect2, side: String) -> float:
+	var x_offset: float = 0.0
+	for rect_var: Variant in base_rects:
+		if typeof(rect_var) != TYPE_RECT2:
+			continue
+		var rect: Rect2 = rect_var as Rect2
+		var shifted_top: float = rect.position.y + y_offset
+		var shifted_bottom: float = rect.end.y + y_offset
+		if shifted_bottom <= actor_clear_rect.position.y or shifted_top >= actor_clear_rect.end.y:
+			continue
+		if side == "left":
+			x_offset = minf(x_offset, actor_clear_rect.position.x - ENEMY_HUD_SIDE_GAP - rect.end.x)
+		else:
+			x_offset = maxf(x_offset, actor_clear_rect.end.x + ENEMY_HUD_SIDE_GAP - rect.position.x)
+	return x_offset
+
 func _remember_enemy_hud_side(actor_key: String, side: String) -> void:
 	if actor_key.is_empty() or side.is_empty() or str(_enemy_hud_side_by_actor.get(actor_key, "")) == side:
 		return
@@ -5128,7 +5156,14 @@ func _enemy_hud_layout_score(candidate_rects: Array, occupied_rects: Array, view
 	var collision_areas: Dictionary = _enemy_hud_collision_areas(candidate_rects, occupied_rects, viewport_bounds)
 	var overlap_area: float = float(collision_areas.get("overlap_area", 0.0))
 	var overflow_area: float = float(collision_areas.get("overflow_area", 0.0))
-	return overlap_area * 100000.0 + overflow_area * 5000.0 + absf(offset.x) * 2.4 + absf(offset.y) * 1.6
+	var meaningful_overlap: float = maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA)
+	return meaningful_overlap * 100000.0 + overflow_area * 5000.0 + absf(offset.x) * 2.4 + absf(offset.y) * 1.6
+
+func _enemy_hud_collision_areas_are_clear(collision_areas: Dictionary) -> bool:
+	return (
+		float(collision_areas.get("overflow_area", INF)) <= 0.01
+		and float(collision_areas.get("overlap_area", INF)) <= ENEMY_HUD_REPOSITION_OVERLAP_AREA
+	)
 
 func _enemy_hud_collision_areas(candidate_rects: Array, occupied_rects: Array, viewport_bounds: Rect2) -> Dictionary:
 	var overlap_area: float = 0.0

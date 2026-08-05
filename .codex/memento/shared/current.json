@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-04T21:22:44Z",
+  "updated_at": "2026-08-05T01:17:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7016,6 +7016,28 @@
       "source": {
         "branch": "codex/fix-top-edge-enemy-intent-placement",
         "commit": "a5285fb"
+      }
+    },
+    {
+      "id": "mnt_20260805T011712Z_ac195c8b",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Keep coupled enemy HUDs centered by default; make side placement a close, exception-only fallback.",
+      "details": "Only choose a side when the minimum viewport correction would materially overlap visible character art. Clear only the vertically overlapping HUD pieces so health and intent stay close enough for ownership to remain obvious.",
+      "status": "active",
+      "created_at": "2026-08-05T01:17:12Z",
+      "updated_at": "2026-08-05T01:17:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-top-edge-enemy-intent-placement",
+        "commit": "cebaf2b"
       }
     }
   ]

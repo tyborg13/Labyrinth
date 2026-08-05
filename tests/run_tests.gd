@@ -207,6 +207,9 @@ func _initialize() -> void:
 	_test_enemy_intent_name_reserves_header_line()
 	_test_enemy_intent_panels_expand_on_hover_or_toggle()
 	_test_enemy_hud_layout_stays_centered_when_clear()
+	_test_enemy_hud_small_top_correction_stays_centered()
+	_test_enemy_hud_ignores_subpixel_obstacle_slivers()
+	_test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge()
 	_test_enemy_hud_side_selection_is_stable_during_small_layout_changes()
@@ -5707,6 +5710,46 @@ func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
 	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var offset: Vector2 = layout.get("offset", Vector2.ONE)
 	_assert(offset == Vector2.ZERO, "Enemy HUDs should keep their default stack when nothing important is in the way")
+	_assert(str(layout.get("side", "")).is_empty(), "Centered enemy HUDs should not report a side placement")
+	_assert((layout.get("tether", {}) as Dictionary).is_empty(), "Centered enemy HUDs should not need an ownership tether")
+
+func _test_enemy_hud_small_top_correction_stays_centered() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var base_rects: Array[Rect2] = []
+	base_rects.append(Rect2(Vector2(420.0, 4.0), Vector2(120.0, 40.0)))
+	var actor_clear_rect := Rect2(Vector2(450.0, 55.0), Vector2(60.0, 100.0))
+	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, [actor_clear_rect], actor_clear_rect, "enemy_41")
+	_assert(is_equal_approx(offset.x, 0.0), "A small top-edge correction should remain centered when it can move down without covering the actor")
+	_assert(is_equal_approx(offset.y, 2.0), "A small top-edge correction should move only the exact amount needed to enter the viewport")
+	_assert(str((board.get("_enemy_hud_side_by_actor") as Dictionary).get("enemy_41", "")).is_empty(), "A centered top correction should not create side affinity")
+
+func _test_enemy_hud_ignores_subpixel_obstacle_slivers() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var base_rects: Array[Rect2] = []
+	base_rects.append(Rect2(Vector2(420.0, 180.0), Vector2(120.0, 40.0)))
+	var actor_clear_rect := Rect2(Vector2(450.0, 240.0), Vector2(60.0, 100.0))
+	var sliver := Rect2(Vector2(420.0, 180.0), Vector2(0.5, 2.0))
+	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, [actor_clear_rect, sliver], actor_clear_rect, "enemy_42")
+	_assert(offset == Vector2.ZERO, "A one-square-pixel collision sliver should not push an otherwise clear mid-board enemy HUD away from its actor")
+
+func _test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var intent_rect := Rect2(Vector2(420.0, -30.0), Vector2(120.0, 30.0))
+	var health_rect := Rect2(Vector2(438.0, 0.0), Vector2(84.0, 14.0))
+	var base_rects: Array[Rect2] = []
+	base_rects.append(intent_rect)
+	base_rects.append(health_rect)
+	var actor_clear_rect := Rect2(Vector2(450.0, 42.0), Vector2(60.0, 100.0))
+	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, [actor_clear_rect], actor_clear_rect, "enemy_43")
+	var shifted_intent := Rect2(intent_rect.position + offset, intent_rect.size)
+	var shifted_health := Rect2(health_rect.position + offset, health_rect.size)
+	var legacy_full_bounds_shift: float = actor_clear_rect.position.x - 4.0 - intent_rect.end.x
+	_assert(absf(offset.x) > 1.0, "A top correction that would cover the actor should still use a side placement")
+	_assert(absf(offset.x) < absf(legacy_full_bounds_shift), "Side placement should stay closer by clearing only HUD pieces that vertically overlap the actor")
+	_assert(not shifted_intent.intersects(actor_clear_rect, false) and not shifted_health.intersects(actor_clear_rect, false), "The closer side placement should still clear the actor")
 
 func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 	var board := CombatBoardView.new()
