@@ -178,7 +178,7 @@ func _check_action_visibility(panel: Control, viewport_size: Vector2i, variant: 
 
 func _check_enemy_visibility(panel: Control, variant: String, viewport_size: Vector2i) -> void:
 	var enemy_scroll: ScrollContainer = panel.find_child("PreBattleEnemyScroll", true, false) as ScrollContainer
-	var enemy_flow: HFlowContainer = panel.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer
+	var enemy_flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control
 	if enemy_scroll == null or enemy_flow == null or enemy_flow.get_child_count() == 0:
 		_fail("%s %s should keep enemy cards visible" % [variant, str(viewport_size)])
 		return

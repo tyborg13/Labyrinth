@@ -8550,15 +8550,29 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 			"hp": max_hp,
 			"max_hp": max_hp
 		})
-	for enemy_count: int in [1, 3, 5]:
+	for enemy_count: int in [1, 3, 4, 5]:
 		var layout_enemies: Array = enemies.slice(0, enemy_count)
 		var enemy_section: Control = instance.call("_build_pre_battle_enemy_section", {"enemies": layout_enemies}, Color("d8b06d")) as Control
 		root.add_child(enemy_section)
 		await process_frame
-		var enemy_flow: HFlowContainer = enemy_section.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer
+		var enemy_flow: Control = enemy_section.find_child("PreBattleEnemyFlow", true, false) as Control
 		_assert(enemy_flow != null and enemy_flow.get_child_count() == enemy_count, "%d-enemy pre-battle sections should render every enemy card" % enemy_count)
 		if enemy_flow != null:
-			_assert(enemy_flow.alignment == FlowContainer.ALIGNMENT_CENTER, "%d-enemy pre-battle layouts should keep incomplete rows composed and centered" % enemy_count)
+			var top_row_count: int = 1 if enemy_count == 1 else (2 if enemy_count <= 4 else 3)
+			var top_row_y: float = (enemy_flow.get_child(0) as Control).position.y
+			for top_index: int in range(top_row_count):
+				var top_card: Control = enemy_flow.get_child(top_index) as Control
+				_assert(top_card != null and absf(top_card.position.y - top_row_y) <= 1.0, "%d-enemy pre-battle layouts should align the top row" % enemy_count)
+			if enemy_count >= 3:
+				var bottom_start: int = 2 if enemy_count <= 4 else 3
+				var bottom_card: Control = enemy_flow.get_child(bottom_start) as Control
+				_assert(bottom_card != null and bottom_card.position.y > top_row_y, "%d-enemy pre-battle layouts should place the lower row below the top row" % enemy_count)
+				if enemy_count == 4:
+					var first_top: Control = enemy_flow.get_child(0) as Control
+					_assert(first_top != null and absf(bottom_card.position.x - first_top.position.x) >= 1.0, "Four-enemy pre-battle layouts should preserve the slight lower-row offset")
+				if enemy_count == 5:
+					var bottom_second: Control = enemy_flow.get_child(4) as Control
+					_assert(bottom_second != null and absf(bottom_second.position.y - bottom_card.position.y) <= 1.0, "Five-enemy pre-battle layouts should center two foes below three")
 			for index: int in range(enemy_flow.get_child_count()):
 				var card: Control = enemy_flow.get_child(index) as Control
 				var threat: Label = card.find_child("PreBattleThreatSummary", true, false) as Label if card != null else null

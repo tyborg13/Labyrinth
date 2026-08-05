@@ -85,8 +85,11 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		var depth_row: Control = panel.find_child("PreBattleDepthOrnamentRow", true, false) as Control
 		if room_title == null or depth_row == null or absf(room_title.get_global_rect().get_center().x - depth_row.get_global_rect().get_center().x) > 8.0:
 			_fail("Pre-battle room title and depth ornament should share a centered axis")
-		if panel.find_child("ThemedPanelOrnament", true, false) == null:
-			_fail("Pre-battle preview should keep its authored outer frame after rebuild")
+		var frame: Control = scrim.find_child("PreBattleFrame", true, false) as Control
+		if frame == null:
+			_fail("Pre-battle preview should render its authored outer frame")
+		elif frame.z_index <= scrim.z_index:
+			_fail("Pre-battle authored outer frame should render above the panel")
 		var enemy_section: Control = panel.find_child("PreBattleEnemySection", true, false) as Control
 		var deck_section: Control = panel.find_child("PreBattleDeckSection", true, false) as Control
 		var body_width: float = enemy_section.size.x + deck_section.size.x + 16.0 if enemy_section != null and deck_section != null else 0.0
@@ -110,11 +113,6 @@ func _capture_loadout_refresh_and_inspections() -> void:
 			_fail("Pre-battle preview should not render enemy intent icons")
 		if panel.find_child("PreBattleCloseButton", true, false) != null:
 			_fail("Pre-battle preview should not offer a back-out button")
-		var top_crest: Control = scrim.find_child("PreBattleTopCrest", true, false) as Control
-		if top_crest == null:
-			_fail("Pre-battle preview should render the ornate top crest")
-		elif top_crest.get_parent() == null or (top_crest.get_parent() as CanvasItem).z_index <= scrim.z_index:
-			_fail("Pre-battle ornate crest should render above the panel frame")
 		var start_button: Control = panel.find_child("PreBattleStartButton", true, false) as Control
 		if start_button == null or not bool(start_button.get_meta("pre_battle_gold_glow", false)):
 			_fail("Pre-battle Start should carry the gold glow treatment")
@@ -126,7 +124,7 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		_fail("Pre-battle preview should already be in the selected room")
 	if not (paused_state.get("combat_state", {}) as Dictionary).is_empty():
 		_fail("Pre-battle preview should not create the real combat state before Start")
-	var natural_enemy_flow: HFlowContainer = panel.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer if panel != null else null
+	var natural_enemy_flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control if panel != null else null
 	if natural_enemy_flow == null or natural_enemy_flow.get_child_count() != 3:
 		_fail("Deterministic loadout proof should supply the composed three-enemy layout")
 	await _save_root_screenshot("%s/enemy_layout_3_loadout_before_swaps_v1.png" % OUTPUT_DIR)
@@ -292,7 +290,7 @@ func _capture_enemy_count_layouts() -> void:
 		_fail("Probe should find a generated room with at least five enemies")
 		return
 	run_state = _pre_battle_state_for_room(probe_run_engine, run_state, combat_coord)
-	for enemy_count: int in [1, 3, 5]:
+	for enemy_count: int in [1, 3, 4, 5]:
 		var instance: Node = packed.instantiate()
 		root.add_child(instance)
 		await process_frame
@@ -325,12 +323,29 @@ func _capture_enemy_count_layouts() -> void:
 			instance.call("_rebuild_pre_battle_overlay")
 			await create_timer(0.40).timeout
 			await process_frame
-		var flow: HFlowContainer = panel.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer
+		var flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control
 		if flow == null or flow.get_child_count() != enemy_count:
 			_fail("%d-enemy pre-battle proof should render exactly %d cards" % [enemy_count, enemy_count])
-		elif flow.alignment != FlowContainer.ALIGNMENT_CENTER:
-			_fail("%d-enemy pre-battle proof should center incomplete rows" % enemy_count)
 		else:
+			var top_row_y: float = (flow.get_child(0) as Control).position.y
+			var top_row_count: int = 1 if enemy_count == 1 else (2 if enemy_count <= 4 else 3)
+			for top_index: int in range(top_row_count):
+				var top_card: Control = flow.get_child(top_index) as Control
+				if top_card == null or absf(top_card.position.y - top_row_y) > 1.0:
+					_fail("%d-enemy pre-battle proof should keep its top row aligned" % enemy_count)
+			if enemy_count >= 3:
+				var bottom_start: int = 2 if enemy_count <= 4 else 3
+				var bottom_card: Control = flow.get_child(bottom_start) as Control
+				if bottom_card == null or bottom_card.position.y <= top_row_y:
+					_fail("%d-enemy pre-battle proof should place its incomplete row below the top row" % enemy_count)
+				if enemy_count == 4:
+					var first_top: Control = flow.get_child(0) as Control
+					if first_top == null or absf(bottom_card.position.x - first_top.position.x) < 1.0:
+						_fail("Four-enemy pre-battle proof should use a slight lower-row offset")
+				if enemy_count == 5:
+					var bottom_second: Control = flow.get_child(4) as Control
+					if bottom_second == null or absf(bottom_second.position.y - bottom_card.position.y) > 1.0:
+						_fail("Five-enemy pre-battle proof should compose two centered foes below three")
 			for index: int in range(flow.get_child_count()):
 				var card: Control = flow.get_child(index) as Control
 				if card == null or card.find_child("PreBattleThreatSummary", true, false) == null:

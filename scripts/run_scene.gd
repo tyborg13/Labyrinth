@@ -164,6 +164,136 @@ class PreBattleDivider:
 				Vector2(x, y - 4.0),
 			]), Color(0.96, 0.82, 0.54, 0.68), 0.7, true)
 
+class PreBattleEnemyFlow:
+	extends Container
+
+	var _card_size: Vector2 = Vector2.ZERO
+	var _card_gap: float = 12.0
+
+	func configure(card_size: Vector2, card_gap: float) -> void:
+		_card_size = card_size
+		_card_gap = card_gap
+		custom_minimum_size = Vector2(0.0, _content_height(get_child_count()))
+		queue_sort()
+
+	func _notification(what: int) -> void:
+		if what != NOTIFICATION_SORT_CHILDREN:
+			return
+		_layout_children()
+
+	func _get_minimum_size() -> Vector2:
+		return Vector2(0.0, _content_height(get_child_count()))
+
+	func _layout_children() -> void:
+		if _card_size.x <= 0.0 or _card_size.y <= 0.0:
+			return
+		var rects: Array[Rect2] = _card_rects(get_child_count())
+		for index: int in range(mini(rects.size(), get_child_count())):
+			var child := get_child(index) as Control
+			if child != null:
+				fit_child_in_rect(child, rects[index])
+		custom_minimum_size = Vector2(0.0, _content_height(get_child_count()))
+
+	func _card_rects(total: int) -> Array[Rect2]:
+		var rects: Array[Rect2] = []
+		if total <= 0:
+			return rects
+		var center_x: float = size.x * 0.5
+		var stride: float = _card_size.x + _card_gap
+		var row_height: float = _card_size.y + _card_gap
+		match total:
+			1:
+				rects.append(Rect2(Vector2(maxf(0.0, center_x - _card_size.x * 0.5), 0.0), _card_size))
+			2:
+				var two_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
+				rects.append(Rect2(Vector2(two_start, 0.0), _card_size))
+				rects.append(Rect2(Vector2(two_start + stride, 0.0), _card_size))
+			3:
+				var three_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
+				rects.append(Rect2(Vector2(three_start, 0.0), _card_size))
+				rects.append(Rect2(Vector2(three_start + stride, 0.0), _card_size))
+				rects.append(Rect2(Vector2(center_x - _card_size.x * 0.5, row_height), _card_size))
+			4:
+				var four_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
+				var four_offset: float = minf(16.0, _card_gap + 4.0)
+				rects.append(Rect2(Vector2(four_start, 0.0), _card_size))
+				rects.append(Rect2(Vector2(four_start + stride, 0.0), _card_size))
+				rects.append(Rect2(Vector2(four_start + four_offset, row_height), _card_size))
+				rects.append(Rect2(Vector2(four_start + stride + four_offset, row_height), _card_size))
+			5:
+				var five_start: float = center_x - (_card_size.x * 3.0 + _card_gap * 2.0) * 0.5
+				for column: int in range(3):
+					rects.append(Rect2(Vector2(five_start + stride * column, 0.0), _card_size))
+				var bottom_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
+				for column: int in range(2):
+					rects.append(Rect2(Vector2(bottom_start + stride * column, row_height + 4.0), _card_size))
+			_:
+				var columns: int = mini(3, total)
+				var rows: int = int(ceil(float(total) / float(columns)))
+				for row: int in range(rows):
+					var row_count: int = mini(columns, total - row * columns)
+					var row_start: float = center_x - (float(row_count) * _card_size.x + float(row_count - 1) * _card_gap) * 0.5
+					for column: int in range(row_count):
+						rects.append(Rect2(Vector2(row_start + stride * column, row_height * row), _card_size))
+		return rects
+
+	func _content_height(total: int) -> float:
+		if total <= 0 or _card_size.y <= 0.0:
+			return 0.0
+		var rows: int = 1 if total <= 2 else 2
+		if total > 5:
+			rows = int(ceil(float(total) / 3.0))
+		return _card_size.y * float(rows) + _card_gap * float(maxi(0, rows - 1)) + (4.0 if total == 5 else 0.0)
+
+class PreBattleFrame:
+	extends Control
+
+	var texture: Texture2D
+
+	func _ready() -> void:
+		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		queue_redraw()
+
+	func _draw() -> void:
+		var frame_rect := Rect2(Vector2(8.0, 8.0), size - Vector2(16.0, 16.0))
+		if frame_rect.size.x <= 0.0 or frame_rect.size.y <= 0.0:
+			return
+		var gold := Color("b7873f")
+		var highlight := Color(0.91, 0.72, 0.39, 0.84)
+		var shadow := Color(0.25, 0.14, 0.07, 0.96)
+		var top_y: float = frame_rect.position.y + 3.0
+		var bottom_y: float = frame_rect.end.y - 3.0
+		var left_x: float = frame_rect.position.x + 3.0
+		var right_x: float = frame_rect.end.x - 3.0
+		var ornament_width: float = 76.0
+		var ornament_center: float = frame_rect.get_center().x
+		draw_line(Vector2(left_x + 74.0, top_y), Vector2(ornament_center - ornament_width, top_y), shadow, 3.0, true)
+		draw_line(Vector2(left_x + 74.0, top_y - 1.0), Vector2(ornament_center - ornament_width, top_y - 1.0), gold, 1.0, true)
+		draw_line(Vector2(ornament_center + ornament_width, top_y), Vector2(right_x - 74.0, top_y), shadow, 3.0, true)
+		draw_line(Vector2(ornament_center + ornament_width, top_y - 1.0), Vector2(right_x - 74.0, top_y - 1.0), gold, 1.0, true)
+		draw_line(Vector2(left_x + 74.0, bottom_y), Vector2(ornament_center - ornament_width, bottom_y), shadow, 3.0, true)
+		draw_line(Vector2(left_x + 74.0, bottom_y + 1.0), Vector2(ornament_center - ornament_width, bottom_y + 1.0), gold, 1.0, true)
+		draw_line(Vector2(ornament_center + ornament_width, bottom_y), Vector2(right_x - 74.0, bottom_y), shadow, 3.0, true)
+		draw_line(Vector2(ornament_center + ornament_width, bottom_y + 1.0), Vector2(right_x - 74.0, bottom_y + 1.0), gold, 1.0, true)
+		draw_line(Vector2(left_x, top_y + 70.0), Vector2(left_x, bottom_y - 70.0), shadow, 3.0, true)
+		draw_line(Vector2(left_x - 1.0, top_y + 70.0), Vector2(left_x - 1.0, bottom_y - 70.0), gold, 1.0, true)
+		draw_line(Vector2(right_x, top_y + 70.0), Vector2(right_x, bottom_y - 70.0), shadow, 3.0, true)
+		draw_line(Vector2(right_x + 1.0, top_y + 70.0), Vector2(right_x + 1.0, bottom_y - 70.0), gold, 1.0, true)
+		if texture == null:
+			return
+		_draw_frame_region(Rect2(Vector2(left_x - 8.0, top_y - 10.0), Vector2(92.0, 86.0)), Rect2(0.0, 70.0, 190.0, 170.0))
+		_draw_frame_region(Rect2(Vector2(right_x - 84.0, top_y - 10.0), Vector2(92.0, 86.0)), Rect2(1396.0, 70.0, 190.0, 170.0))
+		_draw_frame_region(Rect2(Vector2(left_x - 8.0, bottom_y - 76.0), Vector2(92.0, 86.0)), Rect2(0.0, 745.0, 190.0, 170.0))
+		_draw_frame_region(Rect2(Vector2(right_x - 84.0, bottom_y - 76.0), Vector2(92.0, 86.0)), Rect2(1396.0, 745.0, 190.0, 170.0))
+		_draw_frame_region(Rect2(Vector2(ornament_center - ornament_width, top_y - 58.0), Vector2(ornament_width * 2.0, 134.0)), Rect2(692.0, 52.0, 202.0, 178.0))
+		_draw_frame_region(Rect2(Vector2(ornament_center - ornament_width, bottom_y - 76.0), Vector2(ornament_width * 2.0, 134.0)), Rect2(692.0, 790.0, 202.0, 178.0))
+
+	func _draw_frame_region(target: Rect2, source: Rect2) -> void:
+		var fit_scale: float = minf(target.size.x / source.size.x, target.size.y / source.size.y)
+		var fitted_size: Vector2 = source.size * fit_scale
+		var fitted_position: Vector2 = target.position + (target.size - fitted_size) * 0.5
+		draw_texture_rect_region(texture, Rect2(fitted_position, fitted_size), source, Color(1.0, 0.86, 0.56, 0.94))
+
 class PreBattleEquipmentChip:
 	extends EquipmentTooltipPanelContainer
 
@@ -1200,7 +1330,7 @@ const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stonesk
 const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
 const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance.png"
-const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1820.0, 950.0)
+const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(252.0, 188.0)
@@ -1211,8 +1341,8 @@ const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
-const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v5.png"
-const PRE_BATTLE_SKULL_CREST_PATH: String = "res://assets/art/ui/pre_battle_skull_crest_v1.png"
+const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v6.png"
+const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v2.png"
 const PRE_BATTLE_DEPTH_ORNAMENT_PATH: String = "res://assets/art/ui/pre_battle_depth_ornament_v2.png"
 const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
 const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
@@ -1579,8 +1709,7 @@ var _merchant_shop_room_coord: Vector2i = INVALID_ROOM_COORD
 var _pre_battle_scrim: ColorRect
 var _pre_battle_panel: PanelContainer
 var _pre_battle_chrome: Control
-var _pre_battle_top_crest: TextureRect
-var _pre_battle_bottom_crest: TextureRect
+var _pre_battle_frame: PreBattleFrame
 var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_preview_run_state: Dictionary = {}
@@ -2951,6 +3080,7 @@ func _build_large_map_overlay() -> void:
 	title.text = "Map"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
+	title.add_theme_font_size_override("font_size", 38)
 	UiTypography.apply_stone_text(title, 0.11, 3.5)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
@@ -3017,34 +3147,25 @@ func _build_pre_battle_overlay() -> void:
 	_pre_battle_chrome.z_as_relative = false
 	_pre_battle_chrome.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_pre_battle_scrim.add_child(_pre_battle_chrome)
-	_pre_battle_top_crest = _pre_battle_crest("PreBattleTopCrest")
-	_pre_battle_top_crest.texture = AssetLoader.load_texture(PRE_BATTLE_SKULL_CREST_PATH)
-	_pre_battle_chrome.add_child(_pre_battle_top_crest)
-	_pre_battle_bottom_crest = _pre_battle_crest("PreBattleBottomCrest")
-	_pre_battle_bottom_crest.texture = AssetLoader.load_texture(PRE_BATTLE_SKULL_CREST_PATH)
-	_pre_battle_bottom_crest.flip_h = true
-	_pre_battle_bottom_crest.flip_v = true
-	_pre_battle_chrome.add_child(_pre_battle_bottom_crest)
+	_pre_battle_frame = PreBattleFrame.new()
+	_pre_battle_frame.name = "PreBattleFrame"
+	_pre_battle_frame.texture = AssetLoader.load_texture(PRE_BATTLE_FRAME_PATH)
+	_pre_battle_frame.z_index = 1140
+	_pre_battle_frame.z_as_relative = false
+	_pre_battle_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(_pre_battle_frame)
 	_layout_pre_battle_dialog()
-
-func _pre_battle_crest(node_name: String) -> TextureRect:
-	var crest := TextureRect.new()
-	crest.name = node_name
-	crest.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	crest.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	crest.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	crest.modulate = Color(1.24, 1.04, 0.70, 1.0)
-	crest.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return crest
 
 func _apply_pre_battle_outer_frame() -> void:
 	if _pre_battle_panel == null:
 		return
-	_ui_skin.apply_outer_panel_frame(_pre_battle_panel, UiSkin.SURFACE_DIALOG)
-	_pre_battle_panel.set_meta("panel_frame_scale", 0.16)
-	var frame: Node = _pre_battle_panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME)
-	if frame != null:
-		frame.queue_redraw()
+	var current_style: StyleBox = _pre_battle_panel.get_theme_stylebox("panel")
+	if current_style is StyleBoxFlat:
+		var frameless_style: StyleBoxFlat = (current_style as StyleBoxFlat).duplicate() as StyleBoxFlat
+		frameless_style.set_border_width_all(0)
+		frameless_style.border_color = Color.TRANSPARENT
+		_pre_battle_panel.add_theme_stylebox_override("panel", frameless_style)
+	_pre_battle_panel.set_meta("panel_outer_frame_only", false)
 
 func _layout_pre_battle_dialog() -> void:
 	if _pre_battle_panel == null:
@@ -3055,19 +3176,13 @@ func _layout_pre_battle_dialog() -> void:
 	call_deferred("_layout_pre_battle_chrome")
 
 func _layout_pre_battle_chrome() -> void:
-	if _pre_battle_panel == null or _pre_battle_top_crest == null or _pre_battle_bottom_crest == null:
+	if _pre_battle_panel == null or _pre_battle_frame == null:
 		return
-	var panel_rect: Rect2 = _pre_battle_panel.get_global_rect()
-	var top_width: float = clampf(panel_rect.size.x * 0.16, 210.0, 300.0)
-	var top_size := Vector2(top_width, top_width * 0.443)
-	var top_x: float = panel_rect.position.x + (panel_rect.size.x - top_size.x) * 0.5
-	_pre_battle_top_crest.position = Vector2(top_x, panel_rect.position.y - top_size.y * 0.38)
-	_pre_battle_top_crest.size = top_size
-	var bottom_width: float = clampf(panel_rect.size.x * 0.10, 120.0, 190.0)
-	var bottom_size := Vector2(bottom_width, bottom_width * 0.443)
-	var bottom_x: float = panel_rect.position.x + (panel_rect.size.x - bottom_size.x) * 0.5
-	_pre_battle_bottom_crest.position = Vector2(bottom_x, panel_rect.end.y - bottom_size.y * 0.48)
-	_pre_battle_bottom_crest.size = bottom_size
+	_pre_battle_frame.custom_minimum_size = _pre_battle_panel.size + Vector2(16.0, 16.0)
+	_pre_battle_frame.size = _pre_battle_panel.size + Vector2(16.0, 16.0)
+	_pre_battle_frame.queue_redraw()
+	if _pre_battle_frame.get_parent() is Container:
+		(_pre_battle_frame.get_parent() as Container).queue_sort()
 
 func _pre_battle_style(fill: Color, border: Color, content_margin: float = 10.0, radius: int = 8) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -3293,6 +3408,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	depth_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	depth_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	UiTypography.apply_label_role(depth_label, UiTypography.ROLE_BODY_LARGE)
+	depth_label.add_theme_font_size_override("font_size", 18)
 	depth_label.add_theme_color_override("font_color", Color("b7d8bd"))
 	depth_label.add_theme_color_override("font_outline_color", Color("17100d"))
 	depth_label.add_theme_constant_override("outline_size", 2)
@@ -3342,10 +3458,10 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	vbox.add_child(scroll)
-	var flow := HFlowContainer.new()
+	var flow := PreBattleEnemyFlow.new()
 	flow.name = "PreBattleEnemyFlow"
 	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	flow.alignment = FlowContainer.ALIGNMENT_CENTER
+	flow.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	scroll.add_child(flow)
 
 	var enemies: Array = []
@@ -3357,18 +3473,15 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 			continue
 		enemies.append(enemy)
 	var card_size: Vector2 = _pre_battle_enemy_card_size(enemies.size())
-	var card_gap: int = 8 if enemies.size() >= 5 else 12
-	flow.add_theme_constant_override("h_separation", card_gap)
-	flow.add_theme_constant_override("v_separation", card_gap)
+	var card_gap: float = 10.0 if enemies.size() >= 4 else 12.0
 	for enemy_var: Variant in enemies:
 		flow.add_child(_build_pre_battle_enemy_card(enemy_var as Dictionary, accent, card_size))
+	flow.configure(card_size, card_gap)
 	return panel
 
 func _pre_battle_enemy_card_size(enemy_count: int) -> Vector2:
 	if enemy_count == 1:
 		return PRE_BATTLE_ENEMY_CARD_SOLO_SIZE
-	if get_viewport_rect().size.x >= 1600.0 and enemy_count < 5:
-		return Vector2(430.0, 270.0)
 	if enemy_count >= 5:
 		return PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE
 	return PRE_BATTLE_ENEMY_CARD_SIZE
@@ -3646,13 +3759,13 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_si
 	card.host = self
 	card.custom_minimum_size = card_size
 	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	card.clip_contents = true
+	card.clip_contents = false
 	card.tooltip_text = "enemy:%s" % enemy_type
 	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	card.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 
 	var stack := Control.new()
-	stack.clip_contents = true
+	stack.clip_contents = false
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
 	card.add_child(stack)
@@ -3661,7 +3774,7 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_si
 	brush.name = "PreBattleEnemyBrush"
 	brush.texture = AssetLoader.load_texture(PRE_BATTLE_BRUSH_PATH)
 	brush.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	brush.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	brush.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	brush.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	brush.modulate = Color(0.78, 0.80, 0.81, 0.90)
 	brush.mouse_filter = Control.MOUSE_FILTER_IGNORE
