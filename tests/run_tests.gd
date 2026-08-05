@@ -8578,7 +8578,7 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 				var threat: Label = card.find_child("PreBattleThreatSummary", true, false) as Label if card != null else null
 				_assert(threat != null and not threat.text.is_empty(), "%d-enemy pre-battle cards should retain readable threat summaries" % enemy_count)
 				if enemy_count == 5:
-					_assert(card != null and card.custom_minimum_size.x <= 200.0 and card.custom_minimum_size.y <= 154.0, "Five-enemy pre-battle cards should switch to the compact fixed size")
+					_assert(card != null and card.custom_minimum_size.x <= 200.0 and card.custom_minimum_size.y <= 190.0, "Five-enemy pre-battle cards should switch to the compact fixed size")
 		enemy_section.queue_free()
 		await process_frame
 	var inspection: Control = instance.call("_build_pre_battle_enemy_inspection_panel", enemies[0]) as Control

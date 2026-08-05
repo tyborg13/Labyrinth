@@ -201,32 +201,33 @@ class PreBattleEnemyFlow:
 		var center_x: float = size.x * 0.5
 		var stride: float = _card_size.x + _card_gap
 		var row_height: float = _card_size.y + _card_gap
+		var vertical_offset: float = maxf(0.0, (size.y - _content_height(total)) * 0.5) if total == 5 else 0.0
 		match total:
 			1:
-				rects.append(Rect2(Vector2(maxf(0.0, center_x - _card_size.x * 0.5), 0.0), _card_size))
+				rects.append(Rect2(Vector2(maxf(0.0, center_x - _card_size.x * 0.5), vertical_offset), _card_size))
 			2:
 				var two_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
-				rects.append(Rect2(Vector2(two_start, 0.0), _card_size))
-				rects.append(Rect2(Vector2(two_start + stride, 0.0), _card_size))
+				rects.append(Rect2(Vector2(two_start, vertical_offset), _card_size))
+				rects.append(Rect2(Vector2(two_start + stride, vertical_offset), _card_size))
 			3:
 				var three_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
-				rects.append(Rect2(Vector2(three_start, 0.0), _card_size))
-				rects.append(Rect2(Vector2(three_start + stride, 0.0), _card_size))
-				rects.append(Rect2(Vector2(center_x - _card_size.x * 0.5, row_height), _card_size))
+				rects.append(Rect2(Vector2(three_start, vertical_offset), _card_size))
+				rects.append(Rect2(Vector2(three_start + stride, vertical_offset), _card_size))
+				rects.append(Rect2(Vector2(center_x - _card_size.x * 0.5, vertical_offset + row_height), _card_size))
 			4:
 				var four_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
-				var four_offset: float = minf(16.0, _card_gap + 4.0)
-				rects.append(Rect2(Vector2(four_start, 0.0), _card_size))
-				rects.append(Rect2(Vector2(four_start + stride, 0.0), _card_size))
-				rects.append(Rect2(Vector2(four_start + four_offset, row_height), _card_size))
-				rects.append(Rect2(Vector2(four_start + stride + four_offset, row_height), _card_size))
+				var four_offset: float = minf(24.0, _card_gap + 10.0)
+				rects.append(Rect2(Vector2(four_start, vertical_offset), _card_size))
+				rects.append(Rect2(Vector2(four_start + stride, vertical_offset), _card_size))
+				rects.append(Rect2(Vector2(four_start + four_offset, vertical_offset + row_height), _card_size))
+				rects.append(Rect2(Vector2(four_start + stride + four_offset, vertical_offset + row_height), _card_size))
 			5:
 				var five_start: float = center_x - (_card_size.x * 3.0 + _card_gap * 2.0) * 0.5
 				for column: int in range(3):
-					rects.append(Rect2(Vector2(five_start + stride * column, 0.0), _card_size))
+					rects.append(Rect2(Vector2(five_start + stride * column, vertical_offset), _card_size))
 				var bottom_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
 				for column: int in range(2):
-					rects.append(Rect2(Vector2(bottom_start + stride * column, row_height + 4.0), _card_size))
+					rects.append(Rect2(Vector2(bottom_start + stride * column, vertical_offset + row_height + 8.0), _card_size))
 			_:
 				var columns: int = mini(3, total)
 				var rows: int = int(ceil(float(total) / float(columns)))
@@ -234,7 +235,7 @@ class PreBattleEnemyFlow:
 					var row_count: int = mini(columns, total - row * columns)
 					var row_start: float = center_x - (float(row_count) * _card_size.x + float(row_count - 1) * _card_gap) * 0.5
 					for column: int in range(row_count):
-						rects.append(Rect2(Vector2(row_start + stride * column, row_height * row), _card_size))
+						rects.append(Rect2(Vector2(row_start + stride * column, vertical_offset + row_height * row), _card_size))
 		return rects
 
 	func _content_height(total: int) -> float:
@@ -1304,15 +1305,15 @@ const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 210.0)
-const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 152.0)
+const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 188.0)
 const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(46.0, 46.0)
 const PRE_BATTLE_CARD_BADGE_COMPACT_SIZE: Vector2 = Vector2(120.0, 33.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
-const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v12.png"
-const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v4.png"
+const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v13.png"
+const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v5.png"
 const PRE_BATTLE_DEPTH_ORNAMENT_PATH: String = "res://assets/art/ui/pre_battle_depth_ornament_v2.png"
 const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
 const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
@@ -3353,7 +3354,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	UiTypography.apply_stone_text(title, 0.11, 3.5)
-	title.add_theme_font_size_override("font_size", 42)
+	title.add_theme_font_size_override("font_size", 46)
 	title.add_theme_color_override("font_color", Color("80c8b6"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
@@ -3467,7 +3468,7 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	if enemies.size() > 5:
 		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	var card_size: Vector2 = _pre_battle_enemy_card_size(enemies.size())
-	var card_gap: float = 10.0 if enemies.size() >= 4 else 12.0
+	var card_gap: float = 14.0 if enemies.size() == 4 else 10.0 if enemies.size() >= 5 else 12.0
 	for enemy_var: Variant in enemies:
 		flow.add_child(_build_pre_battle_enemy_card(enemy_var as Dictionary, accent, card_size))
 	flow.configure(card_size, card_gap)

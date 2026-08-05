@@ -352,18 +352,21 @@ func _capture_enemy_count_layouts() -> void:
 					_fail("%d-enemy pre-battle proof should place its incomplete row below the top row" % enemy_count)
 				if enemy_count == 4:
 					var first_top: Control = flow.get_child(0) as Control
-					if first_top == null or absf(bottom_card.position.x - first_top.position.x) < 1.0:
+					if first_top == null or absf(bottom_card.position.x - first_top.position.x) < 20.0:
 						_fail("Four-enemy pre-battle proof should use a slight lower-row offset")
 				if enemy_count == 5:
 					var bottom_second: Control = flow.get_child(4) as Control
 					if bottom_second == null or absf(bottom_second.position.y - bottom_card.position.y) > 1.0:
 						_fail("Five-enemy pre-battle proof should compose two centered foes below three")
+					var lower_gap: float = flow.size.y - (bottom_card.position.y + bottom_card.size.y)
+					if absf(lower_gap - top_row_y) > 14.0:
+						_fail("Five-enemy pre-battle proof should vertically center its two-row composition")
 			for index: int in range(flow.get_child_count()):
 				var card: Control = flow.get_child(index) as Control
 				if card == null or card.find_child("PreBattleThreatSummary", true, false) == null:
 					_fail("%d-enemy pre-battle proof should retain threat summaries" % enemy_count)
 					break
-				if enemy_count == 5 and (card.custom_minimum_size.x > 200.0 or card.custom_minimum_size.y > 154.0):
+				if enemy_count == 5 and (card.custom_minimum_size.x > 200.0 or card.custom_minimum_size.y > 190.0):
 					_fail("Five-enemy pre-battle preview should use compact enemy cards")
 					break
 		if enemy_count == 5:
