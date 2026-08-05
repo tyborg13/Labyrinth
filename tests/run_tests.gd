@@ -7414,6 +7414,18 @@ func _test_large_map_decision_layer() -> void:
 	_assert(not bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A medallion should cull coherently instead of appearing underneath the opaque legend")
 	_assert(map_view.call("_hover_coord_at_point", map_view.call("_coord_position", current)) == Vector2i(-999, -999), "A room hidden by the legend should not retain an invisible hover target")
 	map_view.call("center_on_current", true)
+	var unavailable_room: Dictionary = rooms["1,2"]
+	var unavailable_visual_rect: Rect2 = map_view.call("_room_visual_rect", unavailable_room)
+	var unavailable_center: Vector2 = map_view.call("_coord_position", unavailable)
+	var seam_target_x: float = camera_legend_rect.position.x - unavailable_visual_rect.size.x * 0.5 - 1.0
+	map_view.call("pan_camera", Vector2(seam_target_x - unavailable_center.x, 0.0))
+	_assert(bool(map_view.call("_room_is_onscreen", unavailable_room)), "A blocked medallion should remain rendered when its silhouette is clear of the legend")
+	var seam_room_center: Vector2 = map_view.call("_coord_position", unavailable)
+	var legend_seam_point := Vector2(camera_legend_rect.position.x + 1.0, seam_room_center.y)
+	_assert(map_view.call("_hover_coord_at_point", legend_seam_point) == Vector2i(-999, -999), "The blocked-room hover radius must not leak into the opaque legend")
+	var visible_seam_point := Vector2(camera_map_rect.end.x - 1.0, seam_room_center.y)
+	_assert(map_view.call("_hover_coord_at_point", visible_seam_point) == unavailable, "The same blocked room should remain inspectable from the unobstructed map field")
+	map_view.call("center_on_current", true)
 	var curved_route: PackedVector2Array = map_view.call("_route_curve_points", current, reachable)
 	var straight_midpoint: Vector2 = map_view.call("_coord_position", current).lerp(map_view.call("_coord_position", reachable), 0.5)
 	_assert(curved_route.size() >= 12, "Large-map routes should use sampled curves instead of rigid two-point grid lines")
@@ -7425,11 +7437,16 @@ func _test_large_map_decision_layer() -> void:
 	_assert(map_view.call("_coord_at_point", unavailable_position) == Vector2i(-999, -999), "Large-map selection should still reject unavailable destinations")
 	_assert(map_view.call("_hover_coord_at_point", unavailable_position) == unavailable, "Hover context may inspect a revealed unavailable room without making it selectable")
 	var framed_position: Vector2 = map_view.call("_coord_position", current)
+	var hover_before_pinch := InputEventMouseMotion.new()
+	hover_before_pinch.position = framed_position
+	map_view.call("_gui_input", hover_before_pinch)
+	_assert(map_view.get("_hover_coord") == current, "The current room should be hoverable before trackpad zoom")
 	var pinch := InputEventMagnifyGesture.new()
 	pinch.position = framed_position
 	pinch.factor = 1.40
 	map_view.call("_gui_input", pinch)
-	_assert(is_equal_approx(float(map_view.call("_camera_zoom_value")), 1.40), "Large-map wheel zoom should update the camera zoom")
+	_assert(is_equal_approx(float(map_view.call("_camera_zoom_value")), 1.40), "Large-map pinch zoom should update the camera zoom")
+	_assert(map_view.get("_hover_coord") == Vector2i(-999, -999), "Trackpad pinch should clear a hover card whose room geometry is about to move")
 	_assert(map_view.call("_coord_position", current).distance_to(framed_position) <= 0.05, "Trackpad pinch zoom should keep the room beneath the gesture anchored")
 	var focus_before_pan: Vector2 = map_view.call("_camera_focus")
 	map_view.call("pan_camera", Vector2(72.0, -38.0))

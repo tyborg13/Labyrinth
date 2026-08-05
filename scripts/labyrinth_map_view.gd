@@ -557,6 +557,7 @@ func _invalidate_travel_visual_cache() -> void:
 func center_on_current(reset_zoom: bool = true) -> void:
 	if reset_zoom:
 		_camera_zoom = 1.0
+	_hover_coord = INVALID_COORD
 	_camera_auto_initialized = false
 	_invalidate_layout_cache()
 	_ensure_layout_cache()
@@ -576,6 +577,7 @@ func set_camera_zoom(next_zoom: float, anchor: Vector2 = Vector2.INF) -> void:
 	_camera_zoom = clamped_zoom
 	_camera_focus_world = world_under_anchor - (zoom_anchor - _map_rect_cache.get_center()) / _camera_zoom
 	_clamp_camera_focus()
+	_hover_coord = INVALID_COORD
 	_invalidate_layout_cache()
 	queue_redraw()
 
@@ -585,6 +587,7 @@ func pan_camera(screen_delta: Vector2) -> void:
 	_ensure_layout_cache()
 	_camera_focus_world -= screen_delta / maxf(0.01, _camera_zoom)
 	_clamp_camera_focus()
+	_hover_coord = INVALID_COORD
 	_invalidate_layout_cache()
 	queue_redraw()
 
@@ -597,16 +600,12 @@ func _gui_input(event: InputEvent) -> void:
 		return
 	if event is InputEventPanGesture:
 		pan_camera(-event.delta * TRACKPAD_PAN_SCALE)
-		if _hover_coord != INVALID_COORD:
-			_hover_coord = INVALID_COORD
 		accept_event()
 		return
 	if event is InputEventMouseMotion:
 		if _pan_pointer_down:
 			pan_camera(event.position - _pan_last_position)
 			_pan_last_position = event.position
-			if _hover_coord != INVALID_COORD:
-				_hover_coord = INVALID_COORD
 			accept_event()
 			return
 		var next_hover: Vector2i = _hover_coord_at_point(event.position)
@@ -1211,7 +1210,7 @@ func _draw_hover_card() -> void:
 	if _hover_coord.x <= -900:
 		return
 	var room: Dictionary = _room_ref_at(_hover_coord)
-	if room.is_empty() or not _room_visible_on_this_map(room):
+	if room.is_empty() or not _room_visible_on_this_map(room) or not _room_is_onscreen(room):
 		return
 	var font: Font = get_theme_default_font()
 	if font == null:
@@ -1371,6 +1370,8 @@ func _coord_position(coord: Vector2i) -> Vector2:
 
 func _coord_at_point(point: Vector2) -> Vector2i:
 	_ensure_layout_cache()
+	if not _point_is_in_unobstructed_map_field(point):
+		return INVALID_COORD
 	var hit_radius: float = maxf(20.0 if interactive else 8.0, _base_node_size_cache * 0.72)
 	var best_coord: Vector2i = INVALID_COORD
 	var best_distance: float = INF
@@ -1386,6 +1387,8 @@ func _hover_coord_at_point(point: Vector2) -> Vector2i:
 	if not interactive:
 		return INVALID_COORD
 	_ensure_layout_cache()
+	if not _point_is_in_unobstructed_map_field(point):
+		return INVALID_COORD
 	var hit_radius: float = maxf(20.0, _base_node_size_cache * 0.72)
 	var best_coord: Vector2i = INVALID_COORD
 	var best_distance: float = INF
@@ -1396,6 +1399,11 @@ func _hover_coord_at_point(point: Vector2) -> Vector2i:
 			best_coord = coord
 			best_distance = distance
 	return best_coord
+
+func _point_is_in_unobstructed_map_field(point: Vector2) -> bool:
+	if not _map_rect_cache.has_point(point):
+		return false
+	return not show_legend or not _legend_rect_cache.has_point(point)
 
 func _draw_connector(a: Vector2i, b: Vector2i, revealed: bool = true) -> void:
 	if not interactive and (not _compact_focus_coord_set.has(a) or not _compact_focus_coord_set.has(b)):

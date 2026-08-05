@@ -108,6 +108,11 @@ func _capture_zoomed(file_name: String, state: Dictionary) -> void:
 	var anchored_position: Vector2 = _map_view.call("_coord_position", current)
 	if anchored_position.distance_to(anchor) > 0.1:
 		_fail("Pointer-anchored zoom should keep the current room stable")
+	var hover_before_pinch := InputEventMouseMotion.new()
+	hover_before_pinch.position = anchored_position
+	_map_view.call("_gui_input", hover_before_pinch)
+	if _map_view.get("_hover_coord") != current:
+		_fail("The room under the pointer should be hoverable before a trackpad pinch")
 	var magnify := InputEventMagnifyGesture.new()
 	magnify.position = anchor
 	magnify.factor = 1.08
@@ -115,6 +120,8 @@ func _capture_zoomed(file_name: String, state: Dictionary) -> void:
 	_map_view.call("_gui_input", magnify)
 	if float(_map_view.call("_camera_zoom_value")) <= gesture_zoom_before:
 		_fail("Trackpad pinch input should zoom the interactive map")
+	if _map_view.get("_hover_coord") != INVALID_COORD:
+		_fail("Trackpad pinch should clear stale hover state before the map redraws")
 	if (_map_view.call("_coord_position", current) as Vector2).distance_to(anchor) > 0.1:
 		_fail("Trackpad pinch zoom should remain anchored under the gesture")
 	_assert_large_map_geometry(file_name)
