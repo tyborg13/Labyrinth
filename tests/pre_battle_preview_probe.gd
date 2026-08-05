@@ -130,6 +130,17 @@ func _capture_loadout_refresh_and_inspections() -> void:
 			var focus_style: StyleBox = start_button.get_theme_stylebox("focus")
 			if hover_style == null or focus_style == null or hover_style.shadow_size > 14 or focus_style.shadow_size > 13:
 				_fail("Pre-battle Start hover/focus glow should remain a restrained focus cue")
+			start_button.release_focus()
+			await _move_mouse_to(start_button.get_global_rect().get_center())
+			await _save_root_screenshot("%s/start_hover_v1.png" % OUTPUT_DIR)
+			await _move_mouse_to(Vector2(80.0, 80.0))
+			start_button.grab_focus()
+			await process_frame
+			if not start_button.has_focus():
+				_fail("Pre-battle Start should accept keyboard focus for the focus-glow proof")
+			await _save_root_screenshot("%s/start_focus_v1.png" % OUTPUT_DIR)
+			start_button.release_focus()
+			await _move_mouse_to(Vector2(80.0, 80.0))
 
 	var paused_state: Dictionary = instance.get("_run_state")
 	if str(paused_state.get("mode", "")) != RunEngine.MODE_PRE_BATTLE:
@@ -578,6 +589,15 @@ func _click_control(control: Control) -> void:
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
 	control.call("_gui_input", click)
+
+func _move_mouse_to(position: Vector2) -> void:
+	Input.warp_mouse(position)
+	await process_frame
+	var motion := InputEventMouseMotion.new()
+	motion.position = position
+	motion.global_position = position
+	Input.parse_input_event(motion)
+	await process_frame
 
 func _click_control_via_viewport(control: Control) -> void:
 	if control == null:
