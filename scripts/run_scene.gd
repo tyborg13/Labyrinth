@@ -1303,6 +1303,7 @@ const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance
 const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 750.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
+const PRE_BATTLE_BODY_SIDE_INSET: float = 12.0
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 210.0)
 const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 188.0)
@@ -3219,12 +3220,20 @@ func _rebuild_pre_battle_overlay() -> void:
 	margin.add_child(vbox)
 	vbox.add_child(_build_pre_battle_header(room, combat_state, accent))
 
+	var body_margin := MarginContainer.new()
+	body_margin.name = "PreBattleBodyMargin"
+	body_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body_margin.add_theme_constant_override("margin_left", int(PRE_BATTLE_BODY_SIDE_INSET))
+	body_margin.add_theme_constant_override("margin_right", int(PRE_BATTLE_BODY_SIDE_INSET))
+	vbox.add_child(body_margin)
+
 	var body := HBoxContainer.new()
 	body.name = "PreBattleBody"
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
-	vbox.add_child(body)
+	body_margin.add_child(body)
 	body.add_child(_build_pre_battle_enemy_section(combat_state, accent))
 	body.add_child(_build_pre_battle_deck_section(accent))
 
@@ -3498,7 +3507,7 @@ func _pre_battle_enemy_card_size(enemy_count: int) -> Vector2:
 
 func _pre_battle_body_width() -> float:
 	var dialog_width: float = _pre_battle_panel.size.x if _pre_battle_panel != null else get_viewport_rect().size.x - UiTypography.SPACE_LARGE * 2.0
-	return maxf(0.0, dialog_width - UiTypography.PANEL_PADDING_LARGE * 2.0)
+	return maxf(0.0, dialog_width - UiTypography.PANEL_PADDING_LARGE * 2.0 - PRE_BATTLE_BODY_SIDE_INSET * 2.0)
 
 func _pre_battle_deck_column_width() -> float:
 	return clampf(_pre_battle_body_width() * 0.40, 360.0, 700.0)

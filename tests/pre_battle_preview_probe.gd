@@ -456,7 +456,7 @@ func _assert_pre_battle_body_inside_panel(panel: Control, context: String) -> vo
 		_fail("%s pre-battle panel should exist for body bounds proof" % context)
 		return
 	var panel_rect: Rect2 = panel.get_global_rect()
-	var safe_rect: Rect2 = panel_rect.grow(-1.0)
+	var safe_rect: Rect2 = panel_rect.grow(-8.0)
 	for section_name: String in ["PreBattleEnemySection", "PreBattleDeckSection"]:
 		var section: Control = panel.find_child(section_name, true, false) as Control
 		if section == null:
