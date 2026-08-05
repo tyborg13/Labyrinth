@@ -1333,7 +1333,7 @@ const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance
 const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
-const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(252.0, 188.0)
+const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 224.0)
 const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 152.0)
 const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(46.0, 46.0)
 const PRE_BATTLE_CARD_BADGE_COMPACT_SIZE: Vector2 = Vector2(120.0, 33.0)
@@ -1341,12 +1341,13 @@ const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
-const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v6.png"
+const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v8.png"
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v2.png"
 const PRE_BATTLE_DEPTH_ORNAMENT_PATH: String = "res://assets/art/ui/pre_battle_depth_ornament_v2.png"
 const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
 const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
 const PRE_BATTLE_INITIATIVE_COLOR: Color = Color("8ec5ff")
+const PRE_BATTLE_HP_BADGE_BORDER: Color = Color("765332")
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
@@ -3375,6 +3376,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	UiTypography.apply_stone_text(title, 0.11, 3.5)
+	title.add_theme_font_size_override("font_size", 42)
 	title.add_theme_color_override("font_color", Color("80c8b6"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
@@ -3408,7 +3410,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	depth_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	depth_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	UiTypography.apply_label_role(depth_label, UiTypography.ROLE_BODY_LARGE)
-	depth_label.add_theme_font_size_override("font_size", 18)
+	depth_label.add_theme_font_size_override("font_size", 17)
 	depth_label.add_theme_color_override("font_color", Color("b7d8bd"))
 	depth_label.add_theme_color_override("font_outline_color", Color("17100d"))
 	depth_label.add_theme_constant_override("outline_size", 2)
@@ -3845,7 +3847,7 @@ func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Contr
 	chip.name = "PreBattleEnemyHealth"
 	chip.custom_minimum_size = Vector2(88.0, 32.0)
 	chip.size = chip.custom_minimum_size
-	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.88), accent.lightened(0.14), 5.0, 7))
+	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.92), PRE_BATTLE_HP_BADGE_BORDER, 5.0, 7))
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 5)
