@@ -1301,6 +1301,7 @@ const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png
 const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance.png"
 const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 750.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
+const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 210.0)
 const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 152.0)
@@ -3148,8 +3149,15 @@ func _layout_pre_battle_dialog() -> void:
 func _layout_pre_battle_chrome() -> void:
 	if _pre_battle_panel == null or _pre_battle_frame == null:
 		return
-	_pre_battle_frame.custom_minimum_size = _pre_battle_panel.size + Vector2(16.0, 16.0)
-	_pre_battle_frame.size = _pre_battle_panel.size + Vector2(16.0, 16.0)
+	var frame_size := _pre_battle_panel.size + PRE_BATTLE_FRAME_OUTSET
+	if _pre_battle_frame.texture != null:
+		var source_size := Vector2(_pre_battle_frame.texture.get_width(), _pre_battle_frame.texture.get_height())
+		if source_size.x > 0.0 and source_size.y > 0.0:
+			var source_ratio: float = source_size.x / source_size.y
+			frame_size.y = maxf(frame_size.y, frame_size.x / source_ratio)
+			frame_size.x = frame_size.y * source_ratio
+	_pre_battle_frame.custom_minimum_size = frame_size
+	_pre_battle_frame.size = frame_size
 	_pre_battle_frame.queue_redraw()
 	if _pre_battle_frame.get_parent() is Container:
 		(_pre_battle_frame.get_parent() as Container).queue_sort()

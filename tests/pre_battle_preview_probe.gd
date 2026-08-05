@@ -94,6 +94,8 @@ func _capture_loadout_refresh_and_inspections() -> void:
 			_fail("Pre-battle preview should render its authored outer frame")
 		elif frame.z_index <= scrim.z_index:
 			_fail("Pre-battle authored outer frame should render above the panel")
+		elif frame.size.x <= panel.size.x or frame.size.y <= panel.size.y:
+			_fail("Pre-battle authored outer frame should surround the panel instead of letterboxing inside it")
 		var enemy_section: Control = panel.find_child("PreBattleEnemySection", true, false) as Control
 		var deck_section: Control = panel.find_child("PreBattleDeckSection", true, false) as Control
 		var body_width: float = enemy_section.size.x + deck_section.size.x + 16.0 if enemy_section != null and deck_section != null else 0.0
