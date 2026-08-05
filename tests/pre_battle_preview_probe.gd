@@ -89,6 +89,9 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		var depth_row: Control = panel.find_child("PreBattleDepthOrnamentRow", true, false) as Control
 		if room_title == null or depth_row == null or absf(room_title.get_global_rect().get_center().x - depth_row.get_global_rect().get_center().x) > 8.0:
 			_fail("Pre-battle room title and depth ornament should share a centered axis")
+		var umbra_header_label: Label = panel.find_child("PreBattleUmbraLabel", true, false) as Label
+		if umbra_header_label != null and depth_row != null and (absf(umbra_header_label.get_global_rect().get_center().x - depth_row.get_global_rect().get_center().x) > 8.0 or umbra_header_label.get_global_rect().position.y < depth_row.get_global_rect().end.y - 1.0):
+			_fail("Pre-battle Umbra text should be centered directly below depth without sharing its side ornament")
 		var frame: Control = scrim.find_child("PreBattleFrame", true, false) as Control
 		if frame == null:
 			_fail("Pre-battle preview should render its authored outer frame")
@@ -122,6 +125,11 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		var start_button: Control = panel.find_child("PreBattleStartButton", true, false) as Control
 		if start_button == null or not bool(start_button.get_meta("pre_battle_gold_glow", false)):
 			_fail("Pre-battle Start should carry the gold glow treatment")
+		else:
+			var hover_style: StyleBox = start_button.get_theme_stylebox("hover")
+			var focus_style: StyleBox = start_button.get_theme_stylebox("focus")
+			if hover_style == null or focus_style == null or hover_style.shadow_size > 14 or focus_style.shadow_size > 13:
+				_fail("Pre-battle Start hover/focus glow should remain a restrained focus cue")
 
 	var paused_state: Dictionary = instance.get("_run_state")
 	if str(paused_state.get("mode", "")) != RunEngine.MODE_PRE_BATTLE:

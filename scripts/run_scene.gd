@@ -3206,7 +3206,7 @@ func _rebuild_pre_battle_overlay() -> void:
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
-	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING + 40))
+	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
 	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
 	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
 	_pre_battle_panel.add_child(margin)
@@ -3234,13 +3234,14 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	var row := HBoxContainer.new()
 	row.name = "PreBattleHeader"
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.custom_minimum_size.y = 92.0
+	var header_height: float = 118.0 if _pre_battle_has_active_umbra(combat_state) else 92.0
+	row.custom_minimum_size.y = header_height
 	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 
 	var room_chip := _build_pre_battle_room_chip(room, combat_state, accent)
-	room_chip.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), 92.0)
+	room_chip.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), header_height)
 	room_chip.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	room_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	room_chip.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	row.add_child(room_chip)
 
 	var spacer := Control.new()
@@ -3260,6 +3261,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 		UiTypography.apply_button_role(position_button, UiTypography.ROLE_BODY)
 		_ui_skin.apply_button_native_size(position_button, UiSkin.BUTTON_HEIGHT_STANDARD)
 		position_button.custom_minimum_size.x = 148.0
+		position_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		position_button.pressed.connect(_on_true_bearing_pressed)
 		row.add_child(position_button)
 
@@ -3274,6 +3276,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	UiTypography.apply_button_role(gear_button, UiTypography.ROLE_BODY)
 	_ui_skin.apply_button_native_size(gear_button, UiSkin.BUTTON_HEIGHT_STANDARD)
 	gear_button.custom_minimum_size.x = 132.0
+	gear_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	gear_button.pressed.connect(_on_pre_battle_equip_pressed)
 	row.add_child(gear_button)
 
@@ -3289,6 +3292,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	_ui_skin.apply_button_native_size(start_button, UiSkin.BUTTON_HEIGHT_ACTION, 0.0, true, UiSkin.VARIANT_SELECTED)
 	_apply_pre_battle_start_button_glow(start_button)
 	start_button.custom_minimum_size.x = 158.0
+	start_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	start_button.pressed.connect(_on_pre_battle_start_pressed)
 	row.add_child(start_button)
 	return row
@@ -3297,11 +3301,11 @@ func _apply_pre_battle_start_button_glow(button: BaseButton) -> void:
 	if button == null:
 		return
 	var states: Dictionary = {
-		"normal": {"color": Color(1.0, 0.52, 0.15, 0.46), "size": 14, "border": Color("e5ae58")},
-		"hover": {"color": Color(1.0, 0.66, 0.22, 0.72), "size": 21, "border": Color("ffd78c")},
-		"pressed": {"color": Color(0.86, 0.38, 0.08, 0.38), "size": 7, "border": Color("c98c3f")},
-		"hover_pressed": {"color": Color(0.96, 0.46, 0.10, 0.52), "size": 10, "border": Color("e7aa52")},
-		"focus": {"color": Color(1.0, 0.64, 0.20, 0.78), "size": 17, "border": Color("ffe3a0")},
+		"normal": {"color": Color(1.0, 0.52, 0.15, 0.40), "size": 10, "border": Color("e5ae58")},
+		"hover": {"color": Color(1.0, 0.66, 0.22, 0.56), "size": 14, "border": Color("ffd78c")},
+		"pressed": {"color": Color(0.86, 0.38, 0.08, 0.34), "size": 6, "border": Color("c98c3f")},
+		"hover_pressed": {"color": Color(0.96, 0.46, 0.10, 0.44), "size": 8, "border": Color("e7aa52")},
+		"focus": {"color": Color(1.0, 0.64, 0.20, 0.58), "size": 13, "border": Color("ffe3a0")},
 		"disabled": {"color": Color.TRANSPARENT, "size": 0, "border": Color("715c43")},
 	}
 	for state: String in states:
@@ -3322,6 +3326,9 @@ func _apply_pre_battle_start_button_glow(button: BaseButton) -> void:
 		button.add_theme_stylebox_override(override_name, style)
 	button.set_meta("pre_battle_gold_glow", true)
 
+func _pre_battle_has_active_umbra(combat_state: Dictionary) -> bool:
+	return combat_state.has("umbra") and _combat_engine.effective_umbra_stage(combat_state) != "clear"
+
 func _on_true_bearing_pressed() -> void:
 	var start_tiles: Array[Vector2i] = _run_engine.pre_battle_start_tiles(_run_state)
 	if start_tiles.is_empty():
@@ -3341,7 +3348,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	chip.name = "PreBattleRoomChip"
 	chip.custom_minimum_size = Vector2(510.0, 62.0)
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	chip.alignment = BoxContainer.ALIGNMENT_CENTER
+	chip.alignment = BoxContainer.ALIGNMENT_BEGIN
 	chip.add_theme_constant_override("separation", 0)
 	var title := Label.new()
 	var header_room: Dictionary = room.duplicate(true)
@@ -3361,7 +3368,8 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	chip.add_child(title)
 	var meta_row := Control.new()
 	meta_row.name = "PreBattleRoomMeta"
-	meta_row.custom_minimum_size = Vector2(510.0, 36.0)
+	var has_active_umbra: bool = _pre_battle_has_active_umbra(combat_state)
+	meta_row.custom_minimum_size = Vector2(510.0, 60.0 if has_active_umbra else 36.0)
 	meta_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	meta_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.add_child(meta_row)
@@ -3369,13 +3377,13 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	depth_group.name = "PreBattleDepthOrnamentRow"
 	depth_group.custom_minimum_size = Vector2(430.0, 34.0)
 	depth_group.anchor_left = 0.5
-	depth_group.anchor_top = 0.5
+	depth_group.anchor_top = 0.0
 	depth_group.anchor_right = 0.5
-	depth_group.anchor_bottom = 0.5
+	depth_group.anchor_bottom = 0.0
 	depth_group.offset_left = -215.0
-	depth_group.offset_top = -17.0
+	depth_group.offset_top = 0.0
 	depth_group.offset_right = 215.0
-	depth_group.offset_bottom = 17.0
+	depth_group.offset_bottom = 34.0
 	depth_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var depth_ornament := TextureRect.new()
 	depth_ornament.name = "PreBattleDepthOrnament"
@@ -3400,26 +3408,29 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	depth_label.add_theme_constant_override("outline_size", 2)
 	depth_group.add_child(depth_label)
 	meta_row.add_child(depth_group)
-	if combat_state.has("umbra"):
+	if has_active_umbra:
 		var umbra_stage: String = _combat_engine.effective_umbra_stage(combat_state)
 		if umbra_stage != "clear":
 			var umbra_label := Label.new()
 			umbra_label.name = "PreBattleUmbraLabel"
 			umbra_label.text = "%s Umbra" % CombatEngineScript.umbra_stage_display_name(umbra_stage)
-			umbra_label.anchor_left = 1.0
-			umbra_label.anchor_top = 0.5
-			umbra_label.anchor_right = 1.0
-			umbra_label.anchor_bottom = 0.5
-			umbra_label.offset_left = -120.0
-			umbra_label.offset_top = -17.0
-			umbra_label.offset_right = 0.0
-			umbra_label.offset_bottom = 17.0
-			umbra_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			umbra_label.anchor_left = 0.5
+			umbra_label.anchor_top = 0.0
+			umbra_label.anchor_right = 0.5
+			umbra_label.anchor_bottom = 0.0
+			umbra_label.offset_left = -150.0
+			umbra_label.offset_top = 36.0
+			umbra_label.offset_right = 150.0
+			umbra_label.offset_bottom = 58.0
+			umbra_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			umbra_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			umbra_label.clip_text = true
 			umbra_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			UiTypography.apply_label_role(umbra_label, UiTypography.ROLE_BODY_LARGE)
-			umbra_label.add_theme_font_size_override("font_size", 16)
+			umbra_label.add_theme_font_size_override("font_size", 18)
 			umbra_label.add_theme_color_override("font_color", PRE_BATTLE_UMBRA_COLOR)
+			umbra_label.add_theme_color_override("font_outline_color", Color("17100d"))
+			umbra_label.add_theme_constant_override("outline_size", 2)
 			meta_row.add_child(umbra_label)
 	return chip
 
