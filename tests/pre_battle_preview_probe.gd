@@ -126,6 +126,9 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		if start_button == null or not bool(start_button.get_meta("pre_battle_gold_glow", false)):
 			_fail("Pre-battle Start should carry the gold glow treatment")
 		else:
+			var panel_right: float = panel.get_global_rect().end.x
+			if start_button.get_global_rect().end.x > panel_right - 8.0:
+				_fail("Pre-battle Start should retain a visible right buffer inside the main panel")
 			var hover_style: StyleBox = start_button.get_theme_stylebox("hover")
 			var focus_style: StyleBox = start_button.get_theme_stylebox("focus")
 			if hover_style == null or focus_style == null or hover_style.shadow_size > 14 or focus_style.shadow_size > 13:

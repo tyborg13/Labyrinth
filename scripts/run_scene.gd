@@ -3295,6 +3295,10 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	start_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	start_button.pressed.connect(_on_pre_battle_start_pressed)
 	row.add_child(start_button)
+	var end_buffer := Control.new()
+	end_buffer.name = "PreBattleHeaderEndBuffer"
+	end_buffer.custom_minimum_size = Vector2(UiTypography.PANEL_PADDING, 0.0)
+	row.add_child(end_buffer)
 	return row
 
 func _apply_pre_battle_start_button_glow(button: BaseButton) -> void:
