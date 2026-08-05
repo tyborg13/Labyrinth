@@ -8550,7 +8550,7 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 			"hp": max_hp,
 			"max_hp": max_hp
 		})
-	for enemy_count: int in [1, 3, 4, 5]:
+	for enemy_count: int in [1, 2, 3, 4, 5]:
 		var layout_enemies: Array = enemies.slice(0, enemy_count)
 		var enemy_section: Control = instance.call("_build_pre_battle_enemy_section", {"enemies": layout_enemies}, Color("d8b06d")) as Control
 		root.add_child(enemy_section)

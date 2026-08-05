@@ -3381,17 +3381,23 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
 	chip.add_child(title)
-	var meta_row := HBoxContainer.new()
+	var meta_row := Control.new()
 	meta_row.name = "PreBattleRoomMeta"
 	meta_row.custom_minimum_size = Vector2(510.0, 36.0)
 	meta_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	meta_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	meta_row.add_theme_constant_override("separation", 6)
+	meta_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.add_child(meta_row)
 	var depth_group := Control.new()
 	depth_group.name = "PreBattleDepthOrnamentRow"
 	depth_group.custom_minimum_size = Vector2(430.0, 34.0)
-	depth_group.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	depth_group.anchor_left = 0.5
+	depth_group.anchor_top = 0.5
+	depth_group.anchor_right = 0.5
+	depth_group.anchor_bottom = 0.5
+	depth_group.offset_left = -215.0
+	depth_group.offset_top = -17.0
+	depth_group.offset_right = 215.0
+	depth_group.offset_bottom = 17.0
 	depth_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var depth_ornament := TextureRect.new()
 	depth_ornament.name = "PreBattleDepthOrnament"
@@ -3419,15 +3425,22 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	if combat_state.has("umbra"):
 		var umbra_stage: String = _combat_engine.effective_umbra_stage(combat_state)
 		if umbra_stage != "clear":
-			var separator := Label.new()
-			separator.text = "  ·  "
-			UiTypography.apply_label_role(separator, UiTypography.ROLE_BODY_LARGE)
-			separator.add_theme_color_override("font_color", accent.lightened(0.28))
-			meta_row.add_child(separator)
 			var umbra_label := Label.new()
 			umbra_label.name = "PreBattleUmbraLabel"
 			umbra_label.text = "%s Umbra" % CombatEngineScript.umbra_stage_display_name(umbra_stage)
+			umbra_label.anchor_left = 1.0
+			umbra_label.anchor_top = 0.5
+			umbra_label.anchor_right = 1.0
+			umbra_label.anchor_bottom = 0.5
+			umbra_label.offset_left = -120.0
+			umbra_label.offset_top = -17.0
+			umbra_label.offset_right = 0.0
+			umbra_label.offset_bottom = 17.0
+			umbra_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			umbra_label.clip_text = true
+			umbra_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			UiTypography.apply_label_role(umbra_label, UiTypography.ROLE_BODY_LARGE)
+			umbra_label.add_theme_font_size_override("font_size", 16)
 			umbra_label.add_theme_color_override("font_color", PRE_BATTLE_UMBRA_COLOR)
 			meta_row.add_child(umbra_label)
 	return chip

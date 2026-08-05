@@ -290,7 +290,7 @@ func _capture_enemy_count_layouts() -> void:
 		_fail("Probe should find a generated room with at least five enemies")
 		return
 	run_state = _pre_battle_state_for_room(probe_run_engine, run_state, combat_coord)
-	for enemy_count: int in [1, 3, 4, 5]:
+	for enemy_count: int in [1, 2, 3, 4, 5]:
 		var instance: Node = packed.instantiate()
 		root.add_child(instance)
 		await process_frame
