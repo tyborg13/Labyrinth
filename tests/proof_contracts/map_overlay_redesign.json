@@ -20,7 +20,27 @@
         {"rect": [1010, 570, 340, 190], "min_luma_range": 35, "min_luma_stdev": 6}
       ]
     },
-    {"pattern": "*overlay_long_zoomed.png", "width": 1920, "height": 1080},
-    {"pattern": "*overlay_long_panned.png", "width": 1920, "height": 1080}
+    {
+      "pattern": "*overlay_long_zoomed.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [55, 45, 600, 120], "min_luma_range": 35, "min_luma_stdev": 6},
+        {"rect": [55, 170, 1400, 820], "min_luma_range": 55, "min_luma_stdev": 9},
+        {"rect": [1510, 220, 300, 430], "min_luma_range": 35, "min_luma_stdev": 6},
+        {"rect": [1840, 15, 70, 1050], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*overlay_long_panned.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [55, 45, 600, 120], "min_luma_range": 35, "min_luma_stdev": 6},
+        {"rect": [55, 170, 1400, 820], "min_luma_range": 55, "min_luma_stdev": 9},
+        {"rect": [1510, 220, 300, 430], "min_luma_range": 35, "min_luma_stdev": 6},
+        {"rect": [1840, 15, 70, 1050], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    }
   ]
 }

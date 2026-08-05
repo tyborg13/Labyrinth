@@ -44,7 +44,7 @@ func _capture_overlay() -> void:
 	var dialog: Control = instance.get("_large_map_dialog") as Control
 	var map_view: Control = instance.get("_large_map_view") as Control
 	_assert_overlay_chrome(scrim, dialog, map_view)
-	await _save_root_screenshot("%s/overlay_early.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/overlay_early.png" % OUTPUT_DIR, scrim)
 
 	if map_view != null:
 		map_view.call("set_run_state", _long_state())
@@ -67,16 +67,16 @@ func _capture_overlay() -> void:
 			_fail("Full overlay hover card should remain inside the map field")
 		if bool(map_view.call("_hover_card_intersects_other_node", hover_rect, Vector2i(14, 9))):
 			_fail("Full overlay hover card should not cover another room medallion")
-		await _save_root_screenshot("%s/overlay_long_hover.png" % OUTPUT_DIR)
+		await _save_root_screenshot("%s/overlay_long_hover.png" % OUTPUT_DIR, scrim)
 		map_view.call("set_camera_zoom", 1.38, map_view.call("_coord_position", Vector2i(13, 9)))
 		map_view.set("_hover_coord", INVALID_COORD)
 		map_view.queue_redraw()
 		await _refresh_overlay_canvas(scrim)
-		await _save_root_screenshot("%s/overlay_long_zoomed.png" % OUTPUT_DIR)
+		await _save_root_screenshot("%s/overlay_long_zoomed.png" % OUTPUT_DIR, scrim)
 		map_view.call("pan_camera", Vector2(-250.0, 86.0))
 		map_view.queue_redraw()
 		await _refresh_overlay_canvas(scrim)
-		await _save_root_screenshot("%s/overlay_long_panned.png" % OUTPUT_DIR)
+		await _save_root_screenshot("%s/overlay_long_panned.png" % OUTPUT_DIR, scrim)
 
 	instance.queue_free()
 	await process_frame
@@ -222,17 +222,18 @@ func _connect_rooms(rooms: Dictionary, a: Vector2i, b: Vector2i) -> void:
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
-func _save_root_screenshot(output_path: String) -> void:
-	await process_frame
-	await process_frame
+func _save_root_screenshot(output_path: String, scrim: Control) -> void:
+	# Touch a full-viewport CanvasItem, then wait for the renderer's post-draw
+	# signal twice. This makes the proof deterministic on retained/backbuffered
+	# mobile renderers instead of trusting whichever dirty region was last drawn.
+	if scrim != null:
+		scrim.modulate = Color(0.998, 0.998, 0.998, 1.0)
 	RenderingServer.force_draw(true)
-	await process_frame
-	# Prime both mobile-renderer backbuffers; otherwise alternating captures can
-	# contain only the dirty canvas region after a retained UI redraw.
-	root.get_viewport().get_texture().get_image()
-	await process_frame
+	await RenderingServer.frame_post_draw
+	if scrim != null:
+		scrim.modulate = Color.WHITE
 	RenderingServer.force_draw(true)
-	await process_frame
+	await RenderingServer.frame_post_draw
 	var image: Image = root.get_viewport().get_texture().get_image()
 	if image == null:
 		_fail("Map overlay proof should capture a renderer image")
