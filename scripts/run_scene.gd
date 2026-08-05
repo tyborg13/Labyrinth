@@ -133,6 +133,37 @@ class PreBattleEnemyCard:
 			host.call("_open_pinned_pre_battle_inspection", "enemy", str(enemy.get("type", "")), self, enemy)
 			accept_event()
 
+class PreBattleDivider:
+	extends Control
+
+	var accent: Color = Color("a98c5f")
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		queue_redraw()
+
+	func _draw() -> void:
+		if size.x < 24.0 or size.y < 4.0:
+			return
+		var y: float = size.y * 0.5
+		var line_color := Color(accent.r, accent.g, accent.b, 0.68)
+		draw_line(Vector2(8.0, y), Vector2(size.x - 8.0, y), line_color, 1.0, true)
+		for x: float in [8.0, size.x - 8.0]:
+			var diamond := PackedVector2Array([
+				Vector2(x, y - 4.0),
+				Vector2(x + 4.0, y),
+				Vector2(x, y + 4.0),
+				Vector2(x - 4.0, y),
+			])
+			draw_colored_polygon(diamond, line_color)
+			draw_polyline(PackedVector2Array([
+				Vector2(x, y - 4.0),
+				Vector2(x + 4.0, y),
+				Vector2(x, y + 4.0),
+				Vector2(x - 4.0, y),
+				Vector2(x, y - 4.0),
+			]), Color(0.96, 0.82, 0.54, 0.68), 0.7, true)
+
 class PreBattleEquipmentChip:
 	extends EquipmentTooltipPanelContainer
 
@@ -1169,7 +1200,7 @@ const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stonesk
 const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
 const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance.png"
-const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
+const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1820.0, 950.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(252.0, 188.0)
@@ -1180,6 +1211,9 @@ const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
+const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v5.png"
+const PRE_BATTLE_SKULL_CREST_PATH: String = "res://assets/art/ui/pre_battle_skull_crest_v1.png"
+const PRE_BATTLE_DEPTH_ORNAMENT_PATH: String = "res://assets/art/ui/pre_battle_depth_ornament_v2.png"
 const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
 const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
 const PRE_BATTLE_INITIATIVE_COLOR: Color = Color("8ec5ff")
@@ -1544,6 +1578,9 @@ var _merchant_shop_open: bool = true
 var _merchant_shop_room_coord: Vector2i = INVALID_ROOM_COORD
 var _pre_battle_scrim: ColorRect
 var _pre_battle_panel: PanelContainer
+var _pre_battle_chrome: Control
+var _pre_battle_top_crest: TextureRect
+var _pre_battle_bottom_crest: TextureRect
 var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_preview_run_state: Dictionary = {}
@@ -2949,7 +2986,7 @@ func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim = ColorRect.new()
 	_pre_battle_scrim.name = "PreBattleScrim"
 	_pre_battle_scrim.visible = false
-	_pre_battle_scrim.color = Color(0.018, 0.012, 0.010, 0.72)
+	_pre_battle_scrim.color = Color(0.010, 0.007, 0.006, 0.84)
 	_pre_battle_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_pre_battle_scrim.z_index = 1130
 	_pre_battle_scrim.z_as_relative = false
@@ -2966,12 +3003,48 @@ func _build_pre_battle_overlay() -> void:
 	_pre_battle_panel.name = "PreBattlePanel"
 	_pre_battle_panel.custom_minimum_size = PRE_BATTLE_DIALOG_SIZE
 	_pre_battle_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	var style := _pre_battle_style(Color(0.074, 0.050, 0.039, 0.98), Color(0.94, 0.76, 0.49, 0.74), 18.0, 10)
-	style.shadow_size = 22
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	var style := _pre_battle_style(Color(0.012, 0.010, 0.011, 0.985), Color(0.0, 0.0, 0.0, 0.0), 18.0, 2)
+	style.shadow_size = 30
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
 	_pre_battle_panel.add_theme_stylebox_override("panel", style)
 	center.add_child(_pre_battle_panel)
+	_apply_pre_battle_outer_frame()
+
+	_pre_battle_chrome = Control.new()
+	_pre_battle_chrome.name = "PreBattleChrome"
+	_pre_battle_chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pre_battle_chrome.z_index = 1140
+	_pre_battle_chrome.z_as_relative = false
+	_pre_battle_chrome.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_pre_battle_scrim.add_child(_pre_battle_chrome)
+	_pre_battle_top_crest = _pre_battle_crest("PreBattleTopCrest")
+	_pre_battle_top_crest.texture = AssetLoader.load_texture(PRE_BATTLE_SKULL_CREST_PATH)
+	_pre_battle_chrome.add_child(_pre_battle_top_crest)
+	_pre_battle_bottom_crest = _pre_battle_crest("PreBattleBottomCrest")
+	_pre_battle_bottom_crest.texture = AssetLoader.load_texture(PRE_BATTLE_SKULL_CREST_PATH)
+	_pre_battle_bottom_crest.flip_h = true
+	_pre_battle_bottom_crest.flip_v = true
+	_pre_battle_chrome.add_child(_pre_battle_bottom_crest)
 	_layout_pre_battle_dialog()
+
+func _pre_battle_crest(node_name: String) -> TextureRect:
+	var crest := TextureRect.new()
+	crest.name = node_name
+	crest.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	crest.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	crest.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	crest.modulate = Color(1.24, 1.04, 0.70, 1.0)
+	crest.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return crest
+
+func _apply_pre_battle_outer_frame() -> void:
+	if _pre_battle_panel == null:
+		return
+	_ui_skin.apply_outer_panel_frame(_pre_battle_panel, UiSkin.SURFACE_DIALOG)
+	_pre_battle_panel.set_meta("panel_frame_scale", 0.16)
+	var frame: Node = _pre_battle_panel.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME)
+	if frame != null:
+		frame.queue_redraw()
 
 func _layout_pre_battle_dialog() -> void:
 	if _pre_battle_panel == null:
@@ -2979,6 +3052,22 @@ func _layout_pre_battle_dialog() -> void:
 	var dialog_size: Vector2 = UiTypography.modal_size(_pre_battle_panel, PRE_BATTLE_DIALOG_SIZE, PRE_BATTLE_DIALOG_MIN_SIZE, UiTypography.SPACE_LARGE)
 	_pre_battle_panel.custom_minimum_size = dialog_size
 	_pre_battle_panel.size = dialog_size
+	call_deferred("_layout_pre_battle_chrome")
+
+func _layout_pre_battle_chrome() -> void:
+	if _pre_battle_panel == null or _pre_battle_top_crest == null or _pre_battle_bottom_crest == null:
+		return
+	var panel_rect: Rect2 = _pre_battle_panel.get_global_rect()
+	var top_width: float = clampf(panel_rect.size.x * 0.16, 210.0, 300.0)
+	var top_size := Vector2(top_width, top_width * 0.443)
+	var top_x: float = panel_rect.position.x + (panel_rect.size.x - top_size.x) * 0.5
+	_pre_battle_top_crest.position = Vector2(top_x, panel_rect.position.y - top_size.y * 0.38)
+	_pre_battle_top_crest.size = top_size
+	var bottom_width: float = clampf(panel_rect.size.x * 0.10, 120.0, 190.0)
+	var bottom_size := Vector2(bottom_width, bottom_width * 0.443)
+	var bottom_x: float = panel_rect.position.x + (panel_rect.size.x - bottom_size.x) * 0.5
+	_pre_battle_bottom_crest.position = Vector2(bottom_x, panel_rect.end.y - bottom_size.y * 0.48)
+	_pre_battle_bottom_crest.size = bottom_size
 
 func _pre_battle_style(fill: Color, border: Color, content_margin: float = 10.0, radius: int = 8) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -3012,6 +3101,7 @@ func _rebuild_pre_battle_overlay() -> void:
 	if _pre_battle_panel == null:
 		return
 	_clear_children_now(_pre_battle_panel)
+	_apply_pre_battle_outer_frame()
 	var preview_state: Dictionary = _pre_battle_preview_run_state.duplicate(true)
 	var combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if combat_state.is_empty():
@@ -3050,9 +3140,14 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	var row := HBoxContainer.new()
 	row.name = "PreBattleHeader"
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.custom_minimum_size.y = 92.0
 	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 
-	row.add_child(_build_pre_battle_room_chip(room, combat_state, accent))
+	var room_chip := _build_pre_battle_room_chip(room, combat_state, accent)
+	room_chip.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), 92.0)
+	room_chip.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	room_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(room_chip)
 
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -3098,10 +3193,40 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	_ui_skin.apply_button_text_overrides(start_button)
 	UiTypography.apply_button_role(start_button, UiTypography.ROLE_SECTION)
 	_ui_skin.apply_button_native_size(start_button, UiSkin.BUTTON_HEIGHT_ACTION, 0.0, true, UiSkin.VARIANT_SELECTED)
+	_apply_pre_battle_start_button_glow(start_button)
 	start_button.custom_minimum_size.x = 158.0
 	start_button.pressed.connect(_on_pre_battle_start_pressed)
 	row.add_child(start_button)
 	return row
+
+func _apply_pre_battle_start_button_glow(button: BaseButton) -> void:
+	if button == null:
+		return
+	var states: Dictionary = {
+		"normal": {"color": Color(1.0, 0.52, 0.15, 0.46), "size": 14, "border": Color("e5ae58")},
+		"hover": {"color": Color(1.0, 0.66, 0.22, 0.72), "size": 21, "border": Color("ffd78c")},
+		"pressed": {"color": Color(0.86, 0.38, 0.08, 0.38), "size": 7, "border": Color("c98c3f")},
+		"hover_pressed": {"color": Color(0.96, 0.46, 0.10, 0.52), "size": 10, "border": Color("e7aa52")},
+		"focus": {"color": Color(1.0, 0.64, 0.20, 0.78), "size": 17, "border": Color("ffe3a0")},
+		"disabled": {"color": Color.TRANSPARENT, "size": 0, "border": Color("715c43")},
+	}
+	for state: String in states:
+		var style_state: String = state
+		if state == "hover_pressed":
+			style_state = UiSkin.STATE_HOVER
+		var style := _ui_skin.make_button_style(UiSkin.VARIANT_SELECTED, style_state)
+		var visual: Dictionary = states[state] as Dictionary
+		style.border_color = visual["border"] as Color
+		style.shadow_color = visual["color"] as Color
+		style.shadow_size = int(visual["size"])
+		style.shadow_offset = Vector2(0.0, 2.0)
+		if state == "normal" or state == "hover" or state == "pressed" or state == "hover_pressed":
+			style.bg_color = Color(0.25, 0.14, 0.045, 0.96) if state != "hover" else Color(0.38, 0.22, 0.075, 0.98)
+		var override_name: String = state
+		if state == "hover_pressed":
+			override_name = "hover_pressed"
+		button.add_theme_stylebox_override(override_name, style)
+	button.set_meta("pre_battle_gold_glow", true)
 
 func _on_true_bearing_pressed() -> void:
 	var start_tiles: Array[Vector2i] = _run_engine.pre_battle_start_tiles(_run_state)
@@ -3122,6 +3247,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	chip.name = "PreBattleRoomChip"
 	chip.custom_minimum_size = Vector2(510.0, 62.0)
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.alignment = BoxContainer.ALIGNMENT_CENTER
 	chip.add_theme_constant_override("separation", 0)
 	var title := Label.new()
 	var header_room: Dictionary = room.duplicate(true)
@@ -3129,24 +3255,49 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	header_room["type"] = str(combat_state.get("room_type", room.get("type", "combat")))
 	header_room["element"] = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
 	title.text = _room_title_text(header_room)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.clip_text = true
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	UiTypography.apply_stone_text(title, 0.11, 3.5)
-	title.add_theme_color_override("font_color", accent if ElementData.is_elemental(str(header_room.get("element", ElementData.NONE))) else Color("f0e6d2"))
+	title.add_theme_color_override("font_color", Color("80c8b6"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
 	chip.add_child(title)
 	var meta_row := HBoxContainer.new()
 	meta_row.name = "PreBattleRoomMeta"
-	meta_row.add_theme_constant_override("separation", 0)
+	meta_row.custom_minimum_size = Vector2(510.0, 36.0)
+	meta_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	meta_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	meta_row.add_theme_constant_override("separation", 6)
 	chip.add_child(meta_row)
+	var depth_group := Control.new()
+	depth_group.name = "PreBattleDepthOrnamentRow"
+	depth_group.custom_minimum_size = Vector2(430.0, 34.0)
+	depth_group.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	depth_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var depth_ornament := TextureRect.new()
+	depth_ornament.name = "PreBattleDepthOrnament"
+	depth_ornament.texture = AssetLoader.load_texture(PRE_BATTLE_DEPTH_ORNAMENT_PATH)
+	depth_ornament.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	depth_ornament.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	depth_ornament.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	depth_ornament.modulate = Color(0.92, 0.72, 0.40, 0.94)
+	depth_ornament.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	depth_ornament.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	depth_group.add_child(depth_ornament)
 	var depth_label := Label.new()
 	depth_label.name = "PreBattleDepthLabel"
-	depth_label.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
+	depth_label.text = "DEPTH %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
+	depth_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	depth_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	depth_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	UiTypography.apply_label_role(depth_label, UiTypography.ROLE_BODY_LARGE)
-	depth_label.add_theme_color_override("font_color", accent.lightened(0.28))
-	meta_row.add_child(depth_label)
+	depth_label.add_theme_color_override("font_color", Color("b7d8bd"))
+	depth_label.add_theme_color_override("font_outline_color", Color("17100d"))
+	depth_label.add_theme_constant_override("outline_size", 2)
+	depth_group.add_child(depth_label)
+	meta_row.add_child(depth_group)
 	if combat_state.has("umbra"):
 		var umbra_stage: String = _combat_engine.effective_umbra_stage(combat_state)
 		if umbra_stage != "clear":
@@ -3166,10 +3317,10 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) -> Control:
 	var panel := PanelContainer.new()
 	panel.name = "PreBattleEnemySection"
-	panel.custom_minimum_size = Vector2(676.0, 0.0)
+	panel.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), 0.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.045, 0.034, 0.029, 0.90), Color(0.72, 0.58, 0.42, 0.48), 12.0, 8))
+	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 12.0, 8))
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -3216,17 +3367,29 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 func _pre_battle_enemy_card_size(enemy_count: int) -> Vector2:
 	if enemy_count == 1:
 		return PRE_BATTLE_ENEMY_CARD_SOLO_SIZE
+	if get_viewport_rect().size.x >= 1600.0 and enemy_count < 5:
+		return Vector2(430.0, 270.0)
 	if enemy_count >= 5:
 		return PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE
 	return PRE_BATTLE_ENEMY_CARD_SIZE
 
+func _pre_battle_body_width() -> float:
+	var dialog_width: float = _pre_battle_panel.size.x if _pre_battle_panel != null else get_viewport_rect().size.x - UiTypography.SPACE_LARGE * 2.0
+	return maxf(0.0, dialog_width - UiTypography.PANEL_PADDING_LARGE * 2.0)
+
+func _pre_battle_deck_column_width() -> float:
+	return clampf(_pre_battle_body_width() * 0.40, 360.0, 700.0)
+
+func _pre_battle_enemy_column_width() -> float:
+	return maxf(0.0, _pre_battle_body_width() - _pre_battle_deck_column_width() - UiTypography.PANEL_GAP)
+
 func _build_pre_battle_deck_section(accent: Color) -> Control:
 	var panel := PanelContainer.new()
 	panel.name = "PreBattleDeckSection"
-	panel.custom_minimum_size = Vector2(438.0, 0.0)
+	panel.custom_minimum_size = Vector2(_pre_battle_deck_column_width(), 0.0)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.045, 0.034, 0.029, 0.90), Color(0.72, 0.58, 0.42, 0.48), 12.0, 8))
+	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 12.0, 8))
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -3379,7 +3542,7 @@ func _build_pre_battle_hp_chip(accent: Color) -> Control:
 	chip.name = "PreBattleHealthChip"
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.custom_minimum_size = Vector2(0.0, 40.0)
-	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.86), accent.darkened(0.05), 6.0, 7))
+	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.020, 0.019, 0.58), Color("72c5b3"), 6.0, 7))
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 8)
@@ -3431,7 +3594,24 @@ func _build_pre_battle_hp_chip(accent: Color) -> Control:
 func _pre_battle_section_label(text: String, icon_texture: Texture2D, accent: Color) -> Control:
 	var row := HBoxContainer.new()
 	row.name = "PreBattle%sLabel" % text
+	row.custom_minimum_size.y = 28.0
 	row.add_theme_constant_override("separation", 8)
+	if text == "Foes":
+		var foes_label := Label.new()
+		foes_label.text = text.to_upper()
+		foes_label.custom_minimum_size.x = 70.0
+		UiTypography.apply_label_role(foes_label, UiTypography.ROLE_SECTION)
+		foes_label.add_theme_color_override("font_color", Color("f0e6d2"))
+		foes_label.add_theme_color_override("font_outline_color", Color("120b08"))
+		foes_label.add_theme_constant_override("outline_size", 1)
+		row.add_child(foes_label)
+		var divider := PreBattleDivider.new()
+		divider.name = "PreBattleFoesDivider"
+		divider.accent = Color("b69660")
+		divider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		divider.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		row.add_child(divider)
+		return row
 	var icon := TextureRect.new()
 	icon.texture = icon_texture
 	icon.custom_minimum_size = Vector2(28.0, 28.0)
@@ -3469,13 +3649,24 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_si
 	card.clip_contents = true
 	card.tooltip_text = "enemy:%s" % enemy_type
 	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	card.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.038, 0.029, 0.025, 0.96), accent.lightened(0.08), 0.0, 8))
+	card.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 
 	var stack := Control.new()
 	stack.clip_contents = true
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
 	card.add_child(stack)
+
+	var brush := TextureRect.new()
+	brush.name = "PreBattleEnemyBrush"
+	brush.texture = AssetLoader.load_texture(PRE_BATTLE_BRUSH_PATH)
+	brush.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	brush.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	brush.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	brush.modulate = Color(0.78, 0.80, 0.81, 0.90)
+	brush.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	brush.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	stack.add_child(brush)
 
 	var art := _pre_battle_enemy_portrait(enemy_type, enemy_def)
 	art.name = "PreBattleEnemyArt"
@@ -3489,7 +3680,7 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_si
 
 	var tint := ColorRect.new()
 	tint.name = "PreBattleEnemyTint"
-	tint.color = Color(accent.r, accent.g, accent.b, 0.10)
+	tint.color = Color(1.0, 1.0, 1.0, 0.0)
 	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tint.set_anchors_preset(Control.PRESET_FULL_RECT)
 	stack.add_child(tint)

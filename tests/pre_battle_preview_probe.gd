@@ -74,6 +74,28 @@ func _capture_loadout_refresh_and_inspections() -> void:
 	else:
 		if panel.find_child("PreBattleEnemyCard", true, false) == null:
 			_fail("Pre-battle preview should render enemy cards")
+		if panel.find_child("PreBattleEnemyBrush", true, false) == null:
+			_fail("Pre-battle enemy cards should use the authored brush backing")
+		if panel.find_child("PreBattleFoesDivider", true, false) == null:
+			_fail("Pre-battle Foes heading should render its stylized divider")
+		if panel.find_child("PreBattleDepthOrnament", true, false) == null:
+			_fail("Pre-battle room header should render the centered depth ornament")
+		var room_chip: Control = panel.find_child("PreBattleRoomChip", true, false) as Control
+		var room_title: Label = room_chip.get_child(0) as Label if room_chip != null and room_chip.get_child_count() > 0 else null
+		var depth_row: Control = panel.find_child("PreBattleDepthOrnamentRow", true, false) as Control
+		if room_title == null or depth_row == null or absf(room_title.get_global_rect().get_center().x - depth_row.get_global_rect().get_center().x) > 8.0:
+			_fail("Pre-battle room title and depth ornament should share a centered axis")
+		if panel.find_child("ThemedPanelOrnament", true, false) == null:
+			_fail("Pre-battle preview should keep its authored outer frame after rebuild")
+		var enemy_section: Control = panel.find_child("PreBattleEnemySection", true, false) as Control
+		var deck_section: Control = panel.find_child("PreBattleDeckSection", true, false) as Control
+		var body_width: float = enemy_section.size.x + deck_section.size.x + 16.0 if enemy_section != null and deck_section != null else 0.0
+		var deck_ratio: float = deck_section.size.x / body_width if body_width > 0.0 else 0.0
+		if deck_section == null or enemy_section == null or deck_ratio < 0.34 or deck_ratio > 0.45:
+			_fail("Pre-battle enemy/loadout columns should preserve the concept-art width balance")
+		var first_enemy_card: Control = panel.find_child("PreBattleEnemyCard", true, false) as Control
+		if first_enemy_card != null and not (first_enemy_card.get_theme_stylebox("panel") is StyleBoxEmpty):
+			_fail("Pre-battle enemy cards should not render shaded rectangular panels")
 		if panel.find_child("PreBattleDeckBadge", true, false) == null:
 			_fail("Pre-battle preview should render deck badges")
 		if panel.find_child("PreBattleEquipmentRow", true, false) == null:
@@ -88,6 +110,14 @@ func _capture_loadout_refresh_and_inspections() -> void:
 			_fail("Pre-battle preview should not render enemy intent icons")
 		if panel.find_child("PreBattleCloseButton", true, false) != null:
 			_fail("Pre-battle preview should not offer a back-out button")
+		var top_crest: Control = scrim.find_child("PreBattleTopCrest", true, false) as Control
+		if top_crest == null:
+			_fail("Pre-battle preview should render the ornate top crest")
+		elif top_crest.get_parent() == null or (top_crest.get_parent() as CanvasItem).z_index <= scrim.z_index:
+			_fail("Pre-battle ornate crest should render above the panel frame")
+		var start_button: Control = panel.find_child("PreBattleStartButton", true, false) as Control
+		if start_button == null or not bool(start_button.get_meta("pre_battle_gold_glow", false)):
+			_fail("Pre-battle Start should carry the gold glow treatment")
 
 	var paused_state: Dictionary = instance.get("_run_state")
 	if str(paused_state.get("mode", "")) != RunEngine.MODE_PRE_BATTLE:

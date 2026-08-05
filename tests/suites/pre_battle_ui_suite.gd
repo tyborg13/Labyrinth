@@ -31,7 +31,7 @@ static func _test_room_umbra_summary(host: Node, expect: Callable) -> void:
 	}, Color("e39a42")) as Control
 	var depth_label: Label = room_chip.find_child("PreBattleDepthLabel", true, false) as Label
 	var umbra_label: Label = room_chip.find_child("PreBattleUmbraLabel", true, false) as Label
-	expect.call(depth_label != null and depth_label.text == "Depth 3", "Pre-battle room summary should retain its depth text without a vision value")
+	expect.call(depth_label != null and depth_label.text == "DEPTH 3", "Pre-battle room summary should retain its uppercase depth text without a vision value")
 	expect.call(umbra_label != null and umbra_label.text == "Fringe Umbra", "Pre-battle room summary should retain only the named Umbra stage")
 	expect.call(umbra_label != null and umbra_label.get_theme_color("font_color").is_equal_approx(UMBRA_COLOR), "Pre-battle Umbra text should use the dedicated purple instead of the room element accent")
 	expect.call(not _labels_text(room_chip).contains("Vision"), "Pre-battle room summary should remove Vision X text")
