@@ -5741,7 +5741,8 @@ func _test_enemy_hud_does_not_duplicate_owning_actor_obstacle() -> void:
 	var base_rects: Array[Rect2] = []
 	base_rects.append(Rect2(Vector2(420.0, 180.0), Vector2(120.0, 40.0)))
 	var actor_clear_rect := Rect2(Vector2(539.98125, 160.0), Vector2(60.0, 100.0))
-	var reserved_rects: Array[Rect2] = [actor_clear_rect]
+	var reserved_rects: Array[Rect2] = []
+	reserved_rects.append(actor_clear_rect)
 	var placement_obstacles: Array = board.call("_enemy_hud_placement_obstacles", reserved_rects, actor_clear_rect)
 	_assert(placement_obstacles.size() == 1, "The production reserved list should contain the owning actor obstacle exactly once")
 	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, placement_obstacles, actor_clear_rect, "enemy_44")
