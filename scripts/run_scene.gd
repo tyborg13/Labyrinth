@@ -1316,6 +1316,7 @@ const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
 const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v15.png"
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
 const PRE_BATTLE_DEPTH_ORNAMENT_PATH: String = "res://assets/art/ui/pre_battle_depth_ornament_v2.png"
+const LARGE_MAP_DEPTH_ORNAMENT_PATH: String = PRE_BATTLE_DEPTH_ORNAMENT_PATH
 const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
 const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
 const PRE_BATTLE_INITIATIVE_COLOR: Color = Color("8ec5ff")
@@ -1571,6 +1572,7 @@ var _run_end_recap: RunEndRecapOverlay
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
+var _large_map_depth_label: Label
 var _pinned_tooltip_scrim: ColorRect
 var _pinned_tooltip_host: Control
 var _pinned_tooltip_panel: Control
@@ -3023,13 +3025,15 @@ func _build_large_map_overlay() -> void:
 	_large_map_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
 	_large_map_dialog.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_large_map_dialog.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var dialog_style := _ui_skin.make_plain_card_style(Color(0.09, 0.065, 0.048, 0.96), Color(0.92, 0.80, 0.60, 0.86), 16.0)
-	dialog_style.corner_radius_top_left = 10
-	dialog_style.corner_radius_top_right = 10
-	dialog_style.corner_radius_bottom_right = 10
-	dialog_style.corner_radius_bottom_left = 10
-	dialog_style.shadow_size = 18
+	var dialog_style := _ui_skin.make_plain_card_style(Color(0.014, 0.010, 0.009, 0.985), Color(0.92, 0.80, 0.60, 0.86), 18.0)
+	dialog_style.corner_radius_top_left = 6
+	dialog_style.corner_radius_top_right = 6
+	dialog_style.corner_radius_bottom_right = 6
+	dialog_style.corner_radius_bottom_left = 6
+	dialog_style.shadow_size = 24
+	dialog_style.shadow_color = Color(0.0, 0.0, 0.0, 0.74)
 	_large_map_dialog.add_theme_stylebox_override("panel", dialog_style)
+	_large_map_dialog.set_meta("panel_surface_accent", Color("c18a46"))
 	frame_margin.add_child(_large_map_dialog)
 
 	var content_margin := MarginContainer.new()
@@ -3049,16 +3053,28 @@ func _build_large_map_overlay() -> void:
 	top_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	vbox.add_child(top_row)
 
+	var title_stack := VBoxContainer.new()
+	title_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_stack.add_theme_constant_override("separation", 0)
+	top_row.add_child(title_stack)
+
 	var title := Label.new()
-	title.text = "Map"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.name = "MapTitle"
+	title.text = "LABYRINTH"
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	title.add_theme_font_size_override("font_size", 38)
 	UiTypography.apply_stone_text(title, 0.11, 3.5)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
-	top_row.add_child(title)
+	title_stack.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.name = "MapSubtitle"
+	subtitle.text = "THE UMBRAL DESCENT"
+	UiTypography.apply_label_role(subtitle, UiTypography.ROLE_CAPTION)
+	subtitle.add_theme_color_override("font_color", Color(0.73, 0.59, 0.40, 0.82))
+	title_stack.add_child(subtitle)
 
 	var close_button := UiTooltipButton.new()
 	close_button.name = "CloseButton"
@@ -3073,17 +3089,72 @@ func _build_large_map_overlay() -> void:
 	close_button.pressed.connect(_close_large_map)
 	top_row.add_child(close_button)
 
+	var depth_strip := Control.new()
+	depth_strip.name = "DepthStrip"
+	depth_strip.custom_minimum_size = Vector2(0.0, 34.0)
+	depth_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(depth_strip)
+	var depth_ornament := TextureRect.new()
+	depth_ornament.name = "DepthOrnament"
+	depth_ornament.texture = AssetLoader.load_texture(LARGE_MAP_DEPTH_ORNAMENT_PATH)
+	depth_ornament.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	depth_ornament.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	depth_ornament.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	depth_ornament.modulate = Color(0.76, 0.58, 0.32, 0.84)
+	depth_ornament.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	depth_ornament.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	depth_strip.add_child(depth_ornament)
+	var depth_center := CenterContainer.new()
+	depth_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	depth_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	depth_strip.add_child(depth_center)
+	_large_map_depth_label = Label.new()
+	_large_map_depth_label.name = "DepthLabel"
+	UiTypography.apply_label_role(_large_map_depth_label, UiTypography.ROLE_CAPTION)
+	_large_map_depth_label.add_theme_color_override("font_color", Color("d8bc88"))
+	_large_map_depth_label.add_theme_color_override("font_outline_color", Color(0.02, 0.012, 0.008, 0.96))
+	_large_map_depth_label.add_theme_constant_override("outline_size", 3)
+	depth_center.add_child(_large_map_depth_label)
+	var navigation_hint := Label.new()
+	navigation_hint.name = "MapNavigationHint"
+	navigation_hint.text = "DRAG TO PAN  •  SCROLL TO ZOOM"
+	navigation_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	navigation_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	navigation_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	navigation_hint.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+	navigation_hint.offset_left = -280.0
+	navigation_hint.offset_right = -8.0
+	UiTypography.apply_label_role(navigation_hint, UiTypography.ROLE_CAPTION)
+	navigation_hint.add_theme_font_size_override("font_size", 11)
+	navigation_hint.add_theme_color_override("font_color", Color(0.66, 0.57, 0.46, 0.74))
+	navigation_hint.add_theme_color_override("font_outline_color", Color(0.01, 0.008, 0.006, 0.94))
+	navigation_hint.add_theme_constant_override("outline_size", 2)
+	depth_strip.add_child(navigation_hint)
+
 	_large_map_view = LabyrinthMapViewScript.new()
 	_large_map_view.name = "LargeMap"
 	_large_map_view.set("interactive", true)
 	_large_map_view.set("show_legend", true)
-	_large_map_view.set("draw_background", false)
+	_large_map_view.set("draw_background", true)
 	_large_map_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_large_map_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_large_map_view.custom_minimum_size = Vector2(640.0, 400.0)
 	_large_map_view.connect("room_selected", _on_large_map_room_selected)
 	vbox.add_child(_large_map_view)
-	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_PARCHMENT)
+	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_DIALOG)
+	_large_map_dialog.set_meta("panel_frame_scale", 0.19)
+	_refresh_large_map_header()
+
+func _refresh_large_map_header() -> void:
+	if _large_map_depth_label == null:
+		return
+	var current_coord: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = _run_engine.room_metadata(_run_state, current_coord)
+	var depth: int = maxi(0, int(room.get("depth", maxi(absi(current_coord.x), absi(current_coord.y)))))
+	if depth <= 0:
+		_large_map_depth_label.text = "DEPTH 00  •  CENTRAL WAYPOINT"
+		return
+	_large_map_depth_label.text = "DEPTH %02d  •  RING %02d" % [depth, depth]
 
 func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim = ColorRect.new()
@@ -7646,6 +7717,7 @@ func _refresh_ui() -> void:
 	mini_map.set_run_state(_run_state)
 	if _large_map_view != null:
 		_large_map_view.call("set_run_state", _run_state)
+	_refresh_large_map_header()
 	_refresh_pile_counts()
 	_refresh_card_play_meter()
 	_refresh_action_step_tracker()
@@ -15010,6 +15082,8 @@ func _open_large_map() -> void:
 	_close_card_upgrade_overlay()
 	if _large_map_view != null:
 		_large_map_view.call("set_run_state", _run_state)
+		_large_map_view.call("center_on_current", true)
+	_refresh_large_map_header()
 	_close_grimoire_overlay()
 	_large_map_scrim.visible = true
 	_large_map_scrim.move_to_front()

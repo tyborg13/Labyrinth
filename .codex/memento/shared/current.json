@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-05T01:17:12Z",
+  "updated_at": "2026-08-05T17:08:08Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7038,6 +7038,28 @@
       "source": {
         "branch": "codex/fix-top-edge-enemy-intent-placement",
         "commit": "cebaf2b"
+      }
+    },
+    {
+      "id": "mnt_20260805T170808Z_4d99fce0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/labyrinth_map_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/labyrinth_map_view.gd",
+      "summary": "Render one gameplay depth per map ring in a local pan/zoom window.",
+      "details": "The large run map should center on the current room, show only nearby depth rings (currently current camera depth \u00b12), and preserve direct routes with only restrained deterministic irregularity. Do not compress all 24 depths into grouped rings or a spiral; panning and zooming are the intended way to inspect the full map.",
+      "status": "active",
+      "created_at": "2026-08-05T17:08:08Z",
+      "updated_at": "2026-08-05T17:08:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-map-as-an-atmospheric-radial-labyrinth",
+        "commit": "eae0c4a"
       }
     }
   ]

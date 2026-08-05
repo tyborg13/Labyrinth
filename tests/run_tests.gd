@@ -7233,6 +7233,7 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	})
 	map_view.size = Vector2(220.0, 188.0)
 	_assert(float(map_view.call("_base_node_size")) >= 14.0, "Compact minimap icons should keep a legible minimum node size")
+	map_view.set("show_legend", false)
 	map_view.set_run_state({
 		"mode": "room",
 		"current_room": Vector2i.ZERO,
@@ -7258,23 +7259,28 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	var left_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
 	var right_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
 	var compact_spacing: float = float(map_view.call("_grid_spacing"))
-	_assert(left_position.x - node_size * 0.5 >= 6.0, "Compact minimap rooms should keep visible horizontal padding inside the frame")
-	_assert(right_position.x + node_size * 0.5 <= map_view.size.x - 6.0, "Compact minimap rooms should keep visible horizontal padding inside the frame")
-	_assert(is_equal_approx(absf(right_position.x - left_position.x), compact_spacing), "Compact minimap adjacent rooms should use the same spacing that connectors draw across")
+	var compact_rect: Rect2 = map_view.call("_map_rect")
+	_assert(compact_rect.grow(-node_size * 0.55).has_point(left_position), "Compact minimap start medallion should keep visible padding inside the frame")
+	_assert(compact_rect.grow(-node_size * 0.55).has_point(right_position), "Compact minimap destination medallion should keep visible padding inside the frame")
+	_assert(right_position.distance_to(left_position) >= node_size * 1.05, "Compact minimap adjacent rooms should remain visually distinct")
 	map_view.set("interactive", true)
 	map_view.set("show_legend", true)
 	map_view.size = Vector2(920.0, 580.0)
 	var full_left_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
 	var full_right_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
 	var full_spacing: float = float(map_view.call("_grid_spacing"))
-	_assert(full_spacing > 132.0 and full_spacing >= compact_spacing * 3.0, "Full map should fit a sparse revealed graph more confidently than the compact minimap grid")
-	_assert(float(map_view.call("_base_node_size")) >= 56.0, "Full map nodes should read as deliberate large-map controls instead of compact minimap icons")
-	_assert(is_equal_approx(absf(full_right_position.x - full_left_position.x), full_spacing), "Full map adjacent rooms should stay evenly spaced on the same grid")
-	_assert(absf(full_right_position.x - full_left_position.x) >= map_view.size.x * 0.18, "Full map should use meaningful viewport space even for the first revealed route")
+	_assert(full_spacing >= compact_spacing * 2.5, "Full map should open the radial depth bands more confidently than the compact minimap")
+	_assert(float(map_view.call("_base_node_size")) >= 48.0, "Full map nodes should read as deliberate large-map controls instead of compact minimap icons")
+	_assert(full_right_position.distance_to(full_left_position) >= float(map_view.call("_base_node_size")) * 1.05, "Full map adjacent rooms should remain distinct on the radial route")
+	_assert(absf(full_right_position.y - full_left_position.y) > 0.5, "Full map should add a restrained authored offset instead of retaining a mechanically perfect axis")
+	_assert(absf(full_right_position.y - full_left_position.y) < full_spacing * 0.10, "Full map irregularity should remain subtle enough that adjacent depths still connect directly")
 	var map_rect: Rect2 = map_view.call("_map_rect")
 	var legend_rect: Rect2 = map_view.call("_legend_rect")
 	_assert(map_rect.end.x + 1.0 <= legend_rect.position.x, "Full map legend should reserve space instead of covering map rooms")
-	_assert(legend_rect.size.y < map_view.size.y * 0.70, "Full map legend should only be as tall as its entries need")
+	_assert(legend_rect.size.y < map_view.size.y * 0.90, "Full map legend should remain a contained authored subpanel")
+	for route_state: String in ["current", "reachable", "visited", "unavailable"]:
+		_assert(map_view.call("_room_frame_texture", route_state) != null, "Map state %s should use an authored medallion frame" % route_state)
+	_assert(map_view.call("_map_legend_frame") != null and map_view.call("_map_detail_frame") != null, "Map legend and room detail should use authored raster frames")
 	var labels: Dictionary = {}
 	for entry_var: Variant in map_view.call("_legend_entries"):
 		var entry: Dictionary = entry_var
@@ -7313,54 +7319,99 @@ func _test_large_map_decision_layer() -> void:
 	map_view.size = Vector2(920.0, 580.0)
 
 	for fixture_var: Variant in [
-		{"label": "early", "min": Vector2i(-1, -1), "max": Vector2i(1, 1), "minimum_minor_use": 0.50},
-		{"label": "mid", "min": Vector2i(-3, -2), "max": Vector2i(3, 2), "minimum_minor_use": 0.70},
-		{"label": "long", "min": Vector2i(-7, -5), "max": Vector2i(7, 5), "minimum_minor_use": 0.70}
+		{"label": "early", "min": Vector2i(-1, -1), "max": Vector2i(1, 1)},
+		{"label": "mid", "min": Vector2i(-3, -2), "max": Vector2i(3, 2)},
+		{"label": "long", "min": Vector2i(-7, -5), "max": Vector2i(7, 5)}
 	]:
 		var fixture: Dictionary = fixture_var
-		map_view.set_run_state(_map_bounds_fixture(fixture.get("min", Vector2i.ZERO), fixture.get("max", Vector2i.ZERO)))
-		var usage: Vector2 = _map_graph_usage_ratio(map_view)
-		_assert(maxf(usage.x, usage.y) >= 0.82, "%s revealed graph should fill its primary large-map axis" % str(fixture.get("label", "map")))
-		_assert(minf(usage.x, usage.y) >= float(fixture.get("minimum_minor_use", 0.5)), "%s revealed graph should avoid collapsing into a small large-map cluster" % str(fixture.get("label", "map")))
+		var minimum_coord: Vector2i = fixture.get("min", Vector2i.ZERO)
+		var maximum_coord: Vector2i = fixture.get("max", Vector2i.ZERO)
+		var fixture_state: Dictionary = _map_bounds_fixture(minimum_coord, maximum_coord)
+		fixture_state["current_room"] = maximum_coord
+		var fixture_rooms: Dictionary = fixture_state.get("rooms", {})
+		var current_key: String = "%d,%d" % [maximum_coord.x, maximum_coord.y]
+		if fixture_rooms.has(current_key):
+			var fixture_current_room: Dictionary = fixture_rooms[current_key]
+			fixture_current_room["visited"] = true
+			fixture_rooms[current_key] = fixture_current_room
+		map_view.set_run_state(fixture_state)
+		var map_rect: Rect2 = map_view.call("_map_rect")
+		var ring_step_world: float = float(map_view.call("_depth_ring_step")) / float(map_view.call("_camera_zoom_value"))
+		var maximum_depth: int = maxi(
+			maxi(absi(minimum_coord.x), absi(minimum_coord.y)),
+			maxi(absi(maximum_coord.x), absi(maximum_coord.y))
+		)
+		_assert(map_view.call("_coord_position", maximum_coord).distance_to(map_rect.get_center()) <= 0.01, "%s map should frame the current room instead of compressing the entire run" % str(fixture.get("label", "map")))
+		_assert(int(map_view.call("_depth_ring_count")) == maxi(1, maximum_depth), "%s map should preserve one ring for every gameplay depth" % str(fixture.get("label", "map")))
+		for room_var: Variant in map_view.call("_visible_rooms"):
+			var room: Dictionary = room_var
+			var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+			var position: Vector2 = map_view.call("_coord_position", coord)
+			var depth: int = int(room.get("depth", maxi(absi(coord.x), absi(coord.y))))
+			var world_position: Vector2 = map_view.call("_world_position", coord)
+			if depth <= 0:
+				_assert(world_position.length() <= 0.01, "%s map should anchor depth zero at the labyrinth center" % str(fixture.get("label", "map")))
+			else:
+				_assert(absf(world_position.length() - float(depth) * ring_step_world) <= ring_step_world * 0.08, "%s room %s should remain on its exact depth ring" % [str(fixture.get("label", "map")), coord])
+			if map_rect.grow(-float(map_view.call("_base_node_size")) * 0.52).has_point(position):
+				_assert(map_rect.has_point(position), "%s on-screen medallions should remain inside the map field" % str(fixture.get("label", "map")))
+		_assert_map_room_medallions_do_not_overlap(map_view, "%s radial map" % str(fixture.get("label", "map")))
 
-	var current := Vector2i.ZERO
-	var reachable := Vector2i(1, 0)
-	var visited := Vector2i(-1, 0)
-	var earlier_visited := Vector2i(-2, 0)
-	var unavailable := Vector2i(0, -1)
+	var earlier_visited := Vector2i.ZERO
+	var visited := Vector2i(1, 0)
+	var current := Vector2i(1, 1)
+	var reachable := Vector2i(2, 1)
+	var unavailable := Vector2i(1, 2)
 	var rooms: Dictionary = {
-		"0,0": {"coord": current, "depth": 2, "type": "combat", "element": "fire", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": reachable}, {"coord": visited}, {"coord": unavailable}]},
-		"1,0": {"coord": reachable, "depth": 3, "type": "combat", "element": "ice", "name": "Known Vault", "revealed": true, "visited": false, "cleared": false, "sealed": false, "connections": [{"coord": current}], "reward": "hidden_relic", "enemy_types": ["hidden_enemy"], "risk": 99},
-		"-1,0": {"coord": visited, "depth": 1, "type": "campfire", "element": "none", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": current}, {"coord": earlier_visited}]},
-		"-2,0": {"coord": earlier_visited, "depth": 0, "type": "start", "element": "none", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": visited}]},
-		"0,-1": {"coord": unavailable, "depth": 3, "type": "treasure", "element": "none", "revealed": true, "visited": false, "cleared": false, "sealed": true, "connections": [{"coord": current}]}
+		"0,0": {"coord": earlier_visited, "depth": 0, "type": "start", "element": "none", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": visited}]},
+		"1,0": {"coord": visited, "depth": 1, "type": "campfire", "element": "none", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": earlier_visited}, {"coord": current}]},
+		"1,1": {"coord": current, "depth": 2, "type": "combat", "element": "fire", "revealed": true, "visited": true, "cleared": true, "connections": [{"coord": visited}, {"coord": reachable}, {"coord": unavailable}]},
+		"2,1": {"coord": reachable, "depth": 3, "type": "combat", "element": "ice", "name": "Known Vault", "revealed": true, "visited": false, "cleared": false, "sealed": false, "connections": [{"coord": current}], "reward": "hidden_relic", "enemy_types": ["hidden_enemy"], "risk": 99},
+		"1,2": {"coord": unavailable, "depth": 3, "type": "treasure", "element": "none", "revealed": true, "visited": false, "cleared": false, "sealed": true, "connections": [{"coord": current}]}
 	}
 	map_view.set_run_state({"mode": "room", "current_room": current, "rooms": rooms})
-	_assert(str(map_view.call("_node_route_state", rooms["0,0"])) == "current", "Large map should classify the current room explicitly")
-	_assert(str(map_view.call("_node_route_state", rooms["1,0"])) == "reachable", "Large map should classify a legal destination explicitly")
-	_assert(str(map_view.call("_node_route_state", rooms["-1,0"])) == "visited", "Large map should classify traveled rooms explicitly")
-	_assert(str(map_view.call("_node_route_state", rooms["0,-1"])) == "unavailable", "Large map should classify revealed but unavailable rooms explicitly")
+	_assert(str(map_view.call("_node_route_state", rooms["1,1"])) == "current", "Large map should classify the current room explicitly")
+	_assert(str(map_view.call("_node_route_state", rooms["2,1"])) == "reachable", "Large map should classify a legal destination explicitly")
+	_assert(str(map_view.call("_node_route_state", rooms["1,0"])) == "visited", "Large map should classify traveled rooms explicitly")
+	_assert(str(map_view.call("_node_route_state", rooms["1,2"])) == "unavailable", "Large map should classify revealed but unavailable rooms explicitly")
 	_assert(str(map_view.call("_connector_route_state", current, reachable)) == "reachable", "Current-to-destination connectors should read as reachable routes")
 	_assert(str(map_view.call("_connector_route_state", current, visited)) == "current", "The connector into the current room should retain current-route hierarchy")
 	_assert(str(map_view.call("_connector_route_state", visited, earlier_visited)) == "visited", "Previously traveled connectors should retain visited-route hierarchy")
 	_assert(str(map_view.call("_connector_route_state", current, unavailable)) == "unavailable", "Sealed or otherwise illegal connectors should retain unavailable-route hierarchy")
+	var curved_route: PackedVector2Array = map_view.call("_route_curve_points", current, reachable)
+	var straight_midpoint: Vector2 = map_view.call("_coord_position", current).lerp(map_view.call("_coord_position", reachable), 0.5)
+	_assert(curved_route.size() >= 12, "Large-map routes should use sampled curves instead of rigid two-point grid lines")
+	_assert(curved_route[curved_route.size() / 2].distance_to(straight_midpoint) <= 18.1, "Large-map routes should stay relatively direct instead of curling into a spiral")
 
 	var reachable_position: Vector2 = map_view.call("_coord_position", reachable)
 	var unavailable_position: Vector2 = map_view.call("_coord_position", unavailable)
 	_assert(map_view.call("_coord_at_point", reachable_position) == reachable, "Large-map selection should still accept reachable destinations")
 	_assert(map_view.call("_coord_at_point", unavailable_position) == Vector2i(-999, -999), "Large-map selection should still reject unavailable destinations")
 	_assert(map_view.call("_hover_coord_at_point", unavailable_position) == unavailable, "Hover context may inspect a revealed unavailable room without making it selectable")
+	var framed_position: Vector2 = map_view.call("_coord_position", current)
+	map_view.call("set_camera_zoom", 1.40, framed_position)
+	_assert(is_equal_approx(float(map_view.call("_camera_zoom_value")), 1.40), "Large-map wheel zoom should update the camera zoom")
+	_assert(map_view.call("_coord_position", current).distance_to(framed_position) <= 0.05, "Zooming on a room should keep that room anchored under the pointer")
+	var focus_before_pan: Vector2 = map_view.call("_camera_focus")
+	map_view.call("pan_camera", Vector2(72.0, -38.0))
+	_assert(map_view.call("_camera_focus") != focus_before_pan, "Large-map drag input should pan the camera")
+	map_view.call("center_on_current", true)
+	_assert(is_equal_approx(float(map_view.call("_camera_zoom_value")), 1.0), "Reframing the current room should restore the default readable zoom")
+	_assert(map_view.call("_coord_position", current).distance_to((map_view.call("_map_rect") as Rect2).get_center()) <= 0.05, "Reframing should return the current room to the local map center")
 
-	var card_data: Dictionary = map_view.call("_hover_card_data", rooms["1,0"])
+	var card_data: Dictionary = map_view.call("_hover_card_data", rooms["2,1"])
 	var card_keys: Array = card_data.keys()
 	card_keys.sort()
 	_assert(card_keys == ["depth", "element", "name", "type"], "Map hover cards should expose only known name, type, element, and depth fields")
 	_assert(str(card_data.get("name", "")) == "Known Vault", "Map hover card should preserve an already-known room name")
 	_assert(str(card_data.get("type", "")) == "Combat" and str(card_data.get("element", "")) == "Ice" and int(card_data.get("depth", -1)) == 3, "Map hover card should report only known destination metadata")
 
-	map_view.set_run_state(_map_bounds_fixture(Vector2i(-7, -5), Vector2i(7, 5)))
-	var card_bounds: Rect2 = map_view.call("_hover_card_bounds")
 	for edge_coord: Vector2i in [Vector2i(-7, -5), Vector2i(7, 5)]:
+		var edge_state: Dictionary = _map_bounds_fixture(Vector2i(-7, -5), Vector2i(7, 5))
+		edge_state["current_room"] = edge_coord
+		map_view.set_run_state(edge_state)
+		map_view.call("center_on_current", true)
+		var card_bounds: Rect2 = map_view.call("_hover_card_bounds")
 		var hover_rect: Rect2 = map_view.call("_hover_card_rect", edge_coord)
 		var node_center: Vector2 = map_view.call("_coord_position", edge_coord)
 		var node_half_size: float = float(map_view.call("_base_node_size")) * 0.66
@@ -7373,6 +7424,22 @@ func _test_large_map_decision_layer() -> void:
 	map_view.set("show_legend", false)
 	_assert(map_view.call("_hover_coord_at_point", Vector2.ZERO) == Vector2i(-999, -999), "Compact minimap should remain label- and hover-card-free")
 	map_view.free()
+
+func _assert_map_room_medallions_do_not_overlap(map_view: LabyrinthMapView, context: String) -> void:
+	var visible_rooms: Array[Dictionary] = map_view.call("_visible_rooms")
+	var minimum_clearance: float = float(map_view.call("_base_node_size")) * 0.92
+	var map_rect: Rect2 = map_view.call("_map_rect")
+	for first_index: int in range(visible_rooms.size()):
+		var first_coord: Vector2i = visible_rooms[first_index].get("coord", Vector2i.ZERO)
+		var first_position: Vector2 = map_view.call("_coord_position", first_coord)
+		if not map_rect.grow(float(map_view.call("_base_node_size"))).has_point(first_position):
+			continue
+		for second_index: int in range(first_index + 1, visible_rooms.size()):
+			var second_coord: Vector2i = visible_rooms[second_index].get("coord", Vector2i.ZERO)
+			var second_position: Vector2 = map_view.call("_coord_position", second_coord)
+			if not map_rect.grow(float(map_view.call("_base_node_size"))).has_point(second_position):
+				continue
+			_assert(first_position.distance_to(second_position) >= minimum_clearance, "%s room medallions should not overlap (%s and %s)" % [context, first_coord, second_coord])
 
 func _map_bounds_fixture(min_coord: Vector2i, max_coord: Vector2i) -> Dictionary:
 	var rooms: Dictionary = {
@@ -7389,23 +7456,6 @@ func _map_bounds_fixture(min_coord: Vector2i, max_coord: Vector2i) -> Dictionary
 			continue
 		rooms[key] = {"coord": coord, "depth": maxi(absi(coord.x), absi(coord.y)), "type": "combat", "element": "fire", "revealed": true, "visited": false, "cleared": false, "sealed": true, "connections": []}
 	return {"mode": "room", "current_room": Vector2i.ZERO, "rooms": rooms}
-
-func _map_graph_usage_ratio(map_view: LabyrinthMapView) -> Vector2:
-	var map_rect: Rect2 = map_view.call("_map_rect")
-	var min_position := Vector2(INF, INF)
-	var max_position := Vector2(-INF, -INF)
-	var node_half_size: float = float(map_view.call("_base_node_size")) * 0.5
-	for room_var: Variant in map_view.call("_visible_rooms"):
-		var room: Dictionary = room_var
-		var position: Vector2 = map_view.call("_coord_position", room.get("coord", Vector2i.ZERO))
-		min_position.x = minf(min_position.x, position.x - node_half_size)
-		min_position.y = minf(min_position.y, position.y - node_half_size)
-		max_position.x = maxf(max_position.x, position.x + node_half_size)
-		max_position.y = maxf(max_position.y, position.y + node_half_size)
-	return Vector2(
-		(max_position.x - min_position.x) / maxf(1.0, map_rect.size.x),
-		(max_position.y - min_position.y) / maxf(1.0, map_rect.size.y)
-	)
 
 func _test_minimap_travel_animation_state() -> void:
 	var map_view := LabyrinthMapView.new()
@@ -8275,7 +8325,7 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	if large_map_scrim != null:
 		_assert(large_map_scrim.color.a >= 0.99, "Large map backdrop should hide underlying room header text")
 	var large_map_view: Control = instance.get("_large_map_view") as Control
-	_assert(large_map_view != null and not bool(large_map_view.get("draw_background")), "Large map view should let the translucent panel show through behind map rooms")
+	_assert(large_map_view != null and bool(large_map_view.get("draw_background")), "Large map view should render its subdued authored labyrinth backdrop")
 	var large_map_dialog: PanelContainer = instance.get("_large_map_dialog") as PanelContainer
 	var close_button: Button = null
 	if large_map_dialog != null:
@@ -8292,6 +8342,18 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 			and large_map_style.border_width_bottom == 0,
 			"Large map should not retain a legacy outline outside its raster frame"
 		)
+		var depth_strip: Control = large_map_dialog.find_child("DepthStrip", true, false) as Control
+		var depth_ornament: TextureRect = large_map_dialog.find_child("DepthOrnament", true, false) as TextureRect
+		var depth_label: Label = large_map_dialog.find_child("DepthLabel", true, false) as Label
+		var navigation_hint: Label = large_map_dialog.find_child("MapNavigationHint", true, false) as Label
+		_assert(depth_strip != null and depth_strip.custom_minimum_size.y >= 34.0, "Large map should reserve a framed depth-status strip below its title")
+		_assert(depth_ornament != null and depth_ornament.texture != null, "Large map should reuse the pre-battle brass separator ornament")
+		_assert(depth_label != null and not depth_label.text.is_empty(), "Large map should identify the current depth and radial ring")
+		_assert(navigation_hint != null and navigation_hint.text.contains("PAN") and navigation_hint.text.contains("ZOOM"), "Large map should make its drag and wheel navigation discoverable")
+		var title: Label = large_map_dialog.find_child("MapTitle", true, false) as Label
+		var subtitle: Label = large_map_dialog.find_child("MapSubtitle", true, false) as Label
+		_assert(title != null and title.text == "LABYRINTH", "Large map should use a deliberate authored title")
+		_assert(subtitle != null and subtitle.text == "THE UMBRAL DESCENT", "Large map should use a compact atmospheric subtitle")
 		close_button = large_map_dialog.find_child("CloseButton", true, false) as Button
 	_assert(close_button != null, "Large map should expose a close button")
 	if close_button != null:
