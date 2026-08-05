@@ -18,15 +18,20 @@
       "regions": [{"rect": [40, 40, 1450, 1000], "min_luma_range": 50, "min_luma_stdev": 8}]
     },
     {
-      "pattern": "*large_long.png",
+      "pattern": "*dense_depth5_centered.png",
       "width": 1920,
       "height": 1080,
       "regions": [{"rect": [40, 40, 1450, 1000], "min_luma_range": 55, "min_luma_stdev": 9}]
     },
-    {"pattern": "*edge_hover.png", "width": 1920, "height": 1080},
-    {"pattern": "*deep_zoomed.png", "width": 1920, "height": 1080},
-    {"pattern": "*deep_panned.png", "width": 1920, "height": 1080},
+    {"pattern": "*dense_depth5_hover.png", "width": 1920, "height": 1080},
+    {"pattern": "*dense_depth5_zoomed.png", "width": 1920, "height": 1080},
+    {"pattern": "*dense_depth5_panned.png", "width": 1920, "height": 1080},
     {"pattern": "*travel_in_transit.png", "width": 1920, "height": 1080},
-    {"pattern": "*mini_compact.png", "width": 1920, "height": 1080}
+    {
+      "pattern": "*dense_depth5_mini.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [790, 415, 640, 400], "min_luma_range": 30, "min_luma_stdev": 5}]
+    }
   ]
 }

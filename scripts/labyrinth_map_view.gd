@@ -22,20 +22,21 @@ const CLEARED_TINT: Color = Color("5f6462")
 const CLEARED_ICON_MODULATE: Color = Color(0.70, 0.73, 0.69, 0.78)
 const CLEARED_BADGE_COLOR: Color = Color("d8c79d")
 const UNCLEARED_SHADE: float = 0.02
-const COMPACT_EDGE_BUFFER: float = 26.0
+const COMPACT_EDGE_BUFFER: float = 12.0
 const EXPANDED_EDGE_BUFFER: float = 44.0
-const COMPACT_NODE_MAX_SIZE: float = 27.0
-const COMPACT_NODE_MIN_SIZE: float = 14.0
+const COMPACT_NODE_MAX_SIZE: float = 32.0
+const COMPACT_NODE_MIN_SIZE: float = 20.0
 const EXPANDED_NODE_SIZE: float = 84.0
 const EXPANDED_RING_SPACING: float = 142.0
 const CAMERA_MIN_ZOOM: float = 0.58
 const CAMERA_MAX_ZOOM: float = 1.70
 const CAMERA_ZOOM_FACTOR: float = 1.12
-const LOCAL_DEPTH_RADIUS: int = 2
+const TRACKPAD_PAN_SCALE: float = 18.0
+const COMPACT_GRAPH_RADIUS: int = 2
 const DEPTH_RING_LABEL_SIZE: Vector2 = Vector2(104.0, 20.0)
 const LEGEND_GAP: float = 18.0
 const LEGEND_WIDTH: float = 296.0
-const LEGEND_PADDING: float = 18.0
+const LEGEND_PADDING: float = 30.0
 const LEGEND_ROW_HEIGHT: float = 30.0
 const LEGEND_SECTION_GAP: float = 10.0
 const LEGEND_SECTION_HEIGHT: float = 25.0
@@ -63,8 +64,9 @@ const MAP_ROOM_FRAME_PATHS := {
 	ROUTE_VISITED: "res://assets/art/ui/map_room_frame_visited_v2.png",
 	ROUTE_UNAVAILABLE: "res://assets/art/ui/map_room_frame_blocked_v2.png"
 }
-const MAP_BACKGROUND_MODULATE: Color = Color(0.74, 0.67, 0.60, 0.78)
-const MAP_BACKGROUND_COMPACT_MODULATE: Color = Color(0.60, 0.55, 0.52, 0.62)
+const MAP_BACKGROUND_MODULATE: Color = Color(0.84, 0.77, 0.69, 0.88)
+const MAP_BACKGROUND_COMPACT_MODULATE: Color = Color(0.70, 0.64, 0.59, 0.72)
+const MAP_BACKGROUND_LABYRINTH_CENTER: Vector2 = Vector2(0.397, 0.472)
 const MAP_BRASS: Color = Color("b88b4a")
 const MAP_PARCHMENT: Color = Color("dbc9a6")
 const MAP_PANEL_FILL: Color = Color(0.030, 0.022, 0.020, 0.94)
@@ -75,6 +77,7 @@ var run_state: Dictionary = {}
 		if interactive == value:
 			return
 		interactive = value
+		_camera_auto_initialized = false
 		_sync_interactivity()
 		_rebuild_state_caches()
 		queue_redraw()
@@ -105,6 +108,7 @@ var _rooms_by_coord: Dictionary = {}
 var _drawable_rooms_cache: Array[Dictionary] = []
 var _visible_rooms_cache: Array[Dictionary] = []
 var _visible_connections_cache: Array[Dictionary] = []
+var _compact_focus_coord_set: Dictionary = {}
 var _available_move_coords_cache: Array[Vector2i] = []
 var _available_move_coord_set: Dictionary = {}
 var _coord_bounds_cache: Rect2i = Rect2i(0, 0, 1, 1)
@@ -127,6 +131,7 @@ var _world_ring_spacing_cache: float = EXPANDED_RING_SPACING
 var _max_visible_depth_cache: int = 0
 var _world_positions_cache: Dictionary = {}
 var _coord_positions_cache: Dictionary = {}
+var _background_world_rect_cache: Rect2 = Rect2()
 var _available_hit_rects_cache: Array[Dictionary] = []
 var _visible_hit_rects_cache: Array[Dictionary] = []
 var _visible_node_rects_cache: Array[Dictionary] = []
@@ -151,6 +156,7 @@ var _travel_progress: float = 0.0:
 		queue_redraw()
 
 func _ready() -> void:
+	clip_contents = true
 	_sync_interactivity()
 
 func _sync_interactivity() -> void:
@@ -219,6 +225,7 @@ func _rebuild_state_caches() -> void:
 	_drawable_rooms_cache.clear()
 	_visible_rooms_cache.clear()
 	_visible_connections_cache.clear()
+	_compact_focus_coord_set.clear()
 	_available_move_coords_cache.clear()
 	_available_move_coord_set.clear()
 	var rooms: Dictionary = run_state.get("rooms", {})
@@ -235,6 +242,7 @@ func _rebuild_state_caches() -> void:
 	_rebuild_coord_bounds_cache()
 	_rebuild_available_move_cache()
 	_rebuild_visible_connection_cache(rooms)
+	_rebuild_compact_focus_cache()
 	_invalidate_layout_cache()
 
 func _ensure_state_caches() -> void:
@@ -300,6 +308,36 @@ func _rebuild_visible_connection_cache(rooms: Dictionary) -> void:
 				"revealed": bool(room.get("revealed", false)) and bool(neighbor_room.get("revealed", false))
 			})
 
+func _rebuild_compact_focus_cache() -> void:
+	_compact_focus_coord_set.clear()
+	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	if _room_ref_at(current).is_empty():
+		return
+	var frontier: Array[Dictionary] = [{"coord": current, "distance": 0}]
+	_compact_focus_coord_set[current] = true
+	var cursor: int = 0
+	while cursor < frontier.size():
+		var entry: Dictionary = frontier[cursor]
+		cursor += 1
+		var coord: Vector2i = entry.get("coord", current)
+		var distance: int = int(entry.get("distance", 0))
+		if distance >= COMPACT_GRAPH_RADIUS:
+			continue
+		var room: Dictionary = _room_ref_at(coord)
+		for connection_var: Variant in room.get("connections", []):
+			if typeof(connection_var) != TYPE_DICTIONARY:
+				continue
+			var neighbor: Vector2i = (connection_var as Dictionary).get("coord", INVALID_COORD)
+			if neighbor.x <= -900 or _compact_focus_coord_set.has(neighbor):
+				continue
+			var neighbor_room: Dictionary = _room_ref_at(neighbor)
+			if neighbor_room.is_empty() or not _room_visible_on_this_map(neighbor_room):
+				continue
+			_compact_focus_coord_set[neighbor] = true
+			frontier.append({"coord": neighbor, "distance": distance + 1})
+	for available_coord: Vector2i in _available_move_coords_cache:
+		_compact_focus_coord_set[available_coord] = true
+
 func _invalidate_layout_cache() -> void:
 	_layout_cache_valid = false
 	_invalidate_travel_visual_cache()
@@ -338,16 +376,7 @@ func _ensure_layout_cache() -> void:
 	for room: Dictionary in _visible_rooms_cache:
 		_max_visible_depth_cache = maxi(_max_visible_depth_cache, int(room.get("depth", _coord_depth(room.get("coord", Vector2i.ZERO)))))
 	_depth_ring_count_cache = maxi(1, _max_visible_depth_cache)
-	var fitted_radius: float = maxf(24.0, minf(_map_rect_cache.size.x * 0.47, _map_rect_cache.size.y * 0.47))
-	_world_ring_spacing_cache = EXPANDED_RING_SPACING if interactive else fitted_radius / (float(_depth_ring_count_cache) + 0.28)
-	if not interactive:
-		_camera_focus_world = Vector2.ZERO
-		_camera_zoom = 1.0
-		_camera_auto_initialized = true
-	_depth_ring_step_cache = _world_ring_spacing_cache * _camera_zoom
-	_grid_spacing_cache = _depth_ring_step_cache
-	_base_node_size_cache = EXPANDED_NODE_SIZE * _camera_zoom if interactive else clampf(_depth_ring_step_cache * 0.70, COMPACT_NODE_MIN_SIZE, COMPACT_NODE_MAX_SIZE)
-	_radial_max_radius_cache = float(_depth_ring_count_cache) * _depth_ring_step_cache
+	_world_ring_spacing_cache = EXPANDED_RING_SPACING
 	_world_positions_cache.clear()
 	_coord_positions_cache.clear()
 	var layout_rooms: Array = _visible_rooms_cache.duplicate()
@@ -362,14 +391,18 @@ func _ensure_layout_cache() -> void:
 	var current_coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	if not _world_positions_cache.has(current_coord):
 		_world_positions_cache[current_coord] = _world_position_for_room(_room_ref_at(current_coord))
+	_background_world_rect_cache = _calculate_background_world_rect()
 	if interactive and not _camera_auto_initialized:
 		_camera_zoom = 1.0
 		_camera_focus_world = _world_positions_cache.get(current_coord, Vector2.ZERO)
 		_camera_auto_initialized = true
+	elif not interactive:
+		_fit_compact_camera()
+		_camera_auto_initialized = true
 	_clamp_camera_focus()
 	_depth_ring_step_cache = _world_ring_spacing_cache * _camera_zoom
 	_grid_spacing_cache = _depth_ring_step_cache
-	_base_node_size_cache = EXPANDED_NODE_SIZE * _camera_zoom if interactive else clampf(_depth_ring_step_cache * 0.70, COMPACT_NODE_MIN_SIZE, COMPACT_NODE_MAX_SIZE)
+	_base_node_size_cache = EXPANDED_NODE_SIZE * _camera_zoom if interactive else clampf(EXPANDED_NODE_SIZE * _camera_zoom, COMPACT_NODE_MIN_SIZE, COMPACT_NODE_MAX_SIZE)
 	_radial_max_radius_cache = float(_depth_ring_count_cache) * _depth_ring_step_cache
 	_radial_center_cache = _world_to_screen(Vector2.ZERO)
 	for coord_var: Variant in _world_positions_cache.keys():
@@ -381,15 +414,14 @@ func _ensure_layout_cache() -> void:
 	var hit_radius: float = maxf(20.0 if interactive else 8.0, _base_node_size_cache * 0.72)
 	for coord: Vector2i in _available_move_coords_cache:
 		var center: Vector2 = _cached_coord_position(coord)
-		var available_room: Dictionary = _room_ref_at(coord)
-		if _room_is_in_local_depth_window(available_room) and _map_rect_cache.grow(-hit_radius * 0.82).has_point(center):
+		if _room_is_displayed(coord) and _map_rect_cache.grow(-hit_radius * 0.82).has_point(center):
 			_available_hit_rects_cache.append({"coord": coord, "rect": Rect2(center - Vector2.ONE * hit_radius, Vector2.ONE * hit_radius * 2.0)})
 	var node_half_size: float = _base_node_size_cache * 0.66
 	for room: Dictionary in _visible_rooms_cache:
 		var coord: Vector2i = room.get("coord", INVALID_COORD)
 		if coord.x <= -900:
 			continue
-		if not _room_is_in_local_depth_window(room):
+		if not _room_is_displayed(coord):
 			continue
 		var center: Vector2 = _cached_coord_position(coord)
 		if not _map_rect_cache.grow(node_half_size * 1.25).has_point(center):
@@ -397,6 +429,40 @@ func _ensure_layout_cache() -> void:
 		_visible_hit_rects_cache.append({"coord": coord, "rect": Rect2(center - Vector2.ONE * hit_radius, Vector2.ONE * hit_radius * 2.0)})
 		_visible_node_rects_cache.append({"coord": coord, "rect": Rect2(center - Vector2.ONE * node_half_size, Vector2.ONE * node_half_size * 2.0).grow(6.0)})
 	_invalidate_travel_visual_cache()
+
+func _calculate_background_world_rect() -> Rect2:
+	var map_radius: float = (float(_depth_ring_count_cache) + 2.20) * _world_ring_spacing_cache
+	var minimum_half_height: float = _map_rect_cache.size.y * 0.62 / CAMERA_MIN_ZOOM
+	var half_height: float = maxf(map_radius, minimum_half_height)
+	var half_width: float = maxf(half_height * 1.7777778, _map_rect_cache.size.x * 0.62 / CAMERA_MIN_ZOOM)
+	var world_size := Vector2(half_width * 2.0, half_height * 2.0)
+	return Rect2(-world_size * MAP_BACKGROUND_LABYRINTH_CENTER, world_size)
+
+func _fit_compact_camera() -> void:
+	var focus_bounds := Rect2()
+	var has_focus_room: bool = false
+	for coord_var: Variant in _compact_focus_coord_set.keys():
+		var coord: Vector2i = coord_var
+		if not _world_positions_cache.has(coord):
+			continue
+		var world_position: Vector2 = _world_positions_cache.get(coord, Vector2.ZERO)
+		if not has_focus_room:
+			focus_bounds = Rect2(world_position, Vector2.ZERO)
+			has_focus_room = true
+		else:
+			focus_bounds = focus_bounds.expand(world_position)
+	if not has_focus_room:
+		_camera_focus_world = _world_positions_cache.get(run_state.get("current_room", Vector2i.ZERO), Vector2.ZERO)
+		_camera_zoom = 1.0
+		return
+	focus_bounds = focus_bounds.grow(EXPANDED_NODE_SIZE * 0.70)
+	_camera_focus_world = focus_bounds.get_center()
+	var fit_x: float = _map_rect_cache.size.x / maxf(1.0, focus_bounds.size.x)
+	var fit_y: float = _map_rect_cache.size.y / maxf(1.0, focus_bounds.size.y)
+	_camera_zoom = clampf(minf(fit_x, fit_y) * 0.92, 0.18, 0.62)
+
+func _room_is_displayed(coord: Vector2i) -> bool:
+	return interactive or _compact_focus_coord_set.has(coord)
 
 func _cached_coord_position(coord: Vector2i) -> Vector2:
 	if _coord_positions_cache.has(coord):
@@ -438,7 +504,7 @@ func _resolved_world_position(room: Dictionary, placed_positions: Array) -> Vect
 		return desired
 	var desired_radius: float = desired.length()
 	var desired_direction: Vector2 = desired.normalized()
-	var minimum_clearance: float = (_base_node_size_cache / maxf(0.01, _camera_zoom)) * (1.06 if interactive else 1.01)
+	var minimum_clearance: float = EXPANDED_NODE_SIZE * 1.06
 	var angular_step: float = clampf(minimum_clearance / maxf(1.0, desired_radius) * 1.08, 0.12, 0.82)
 	var radial_offsets: Array = [0.0, -0.035, 0.035, -0.065, 0.065]
 	for radial_factor_var: Variant in radial_offsets:
@@ -460,12 +526,18 @@ func _screen_to_world(screen_position: Vector2) -> Vector2:
 
 func _clamp_camera_focus() -> void:
 	if not interactive:
-		_camera_focus_world = Vector2.ZERO
 		return
-	var viewport_half_world: float = maxf(_map_rect_cache.size.x, _map_rect_cache.size.y) * 0.55 / maxf(0.01, _camera_zoom)
-	var maximum_focus_radius: float = float(_max_visible_depth_cache) * _world_ring_spacing_cache + viewport_half_world
-	if _camera_focus_world.length() > maximum_focus_radius:
-		_camera_focus_world = _camera_focus_world.normalized() * maximum_focus_radius
+	var half_viewport_world: Vector2 = _map_rect_cache.size * 0.5 / maxf(0.01, _camera_zoom)
+	var minimum_focus: Vector2 = _background_world_rect_cache.position + half_viewport_world
+	var maximum_focus: Vector2 = _background_world_rect_cache.end - half_viewport_world
+	if minimum_focus.x > maximum_focus.x:
+		_camera_focus_world.x = _background_world_rect_cache.get_center().x
+	else:
+		_camera_focus_world.x = clampf(_camera_focus_world.x, minimum_focus.x, maximum_focus.x)
+	if minimum_focus.y > maximum_focus.y:
+		_camera_focus_world.y = _background_world_rect_cache.get_center().y
+	else:
+		_camera_focus_world.y = clampf(_camera_focus_world.y, minimum_focus.y, maximum_focus.y)
 
 func _radial_position_is_clear(candidate: Vector2, placed_positions: Array, minimum_clearance: float) -> bool:
 	for placed_var: Variant in placed_positions:
@@ -521,6 +593,16 @@ func pan_camera(screen_delta: Vector2) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if not interactive or run_state.is_empty():
 		return
+	if event is InputEventMagnifyGesture:
+		set_camera_zoom(_camera_zoom * event.factor, event.position)
+		accept_event()
+		return
+	if event is InputEventPanGesture:
+		pan_camera(-event.delta * TRACKPAD_PAN_SCALE)
+		if _hover_coord != INVALID_COORD:
+			_hover_coord = INVALID_COORD
+		accept_event()
+		return
 	if event is InputEventMouseMotion:
 		if _pan_pointer_down:
 			pan_camera(event.position - _pan_last_position)
@@ -568,11 +650,12 @@ func cursor_feedback_context_at(local_position: Vector2) -> String:
 	return "move" if _map_rect_cache.has_point(local_position) else "inert"
 
 func _draw() -> void:
-	if draw_background:
-		_draw_background_layer()
+	draw_rect(Rect2(Vector2.ZERO, size), Color("090706"), true)
 	if run_state.is_empty():
 		return
 	_ensure_layout_cache()
+	if draw_background:
+		_draw_background_layer()
 	_draw_depth_rings()
 	for connection: Dictionary in _visible_connections_cache:
 		_draw_connector(connection.get("from", Vector2i.ZERO), connection.get("to", Vector2i.ZERO), bool(connection.get("revealed", false)))
@@ -588,27 +671,29 @@ func _draw() -> void:
 		_draw_hover_card()
 
 func _draw_background_layer() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color("090706"), true)
 	var texture: Texture2D = _map_background()
 	if texture != null and size.x > 0.0 and size.y > 0.0:
 		var source_size := Vector2(texture.get_width(), texture.get_height())
 		var source_rect := Rect2(Vector2.ZERO, source_size)
-		var target_ratio: float = size.x / maxf(1.0, size.y)
-		var source_ratio: float = source_size.x / maxf(1.0, source_size.y)
-		if source_ratio > target_ratio:
-			var crop_width: float = source_size.y * target_ratio
-			source_rect.position.x = (source_size.x - crop_width) * 0.5
-			source_rect.size.x = crop_width
-		elif source_ratio < target_ratio:
-			var crop_height: float = source_size.x / target_ratio
-			source_rect.position.y = (source_size.y - crop_height) * 0.5
-			source_rect.size.y = crop_height
 		var modulate: Color = MAP_BACKGROUND_MODULATE if interactive else MAP_BACKGROUND_COMPACT_MODULATE
-		draw_texture_rect_region(texture, Rect2(Vector2.ZERO, size), source_rect, modulate)
-	var veil_alpha: float = 0.28 if interactive else 0.42
+		draw_texture_rect_region(texture, _background_screen_rect(), source_rect, modulate)
+	var veil_alpha: float = 0.20 if interactive else 0.34
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.012, 0.009, 0.008, veil_alpha), true)
 	if interactive:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0.11, 0.055, 0.018, 0.035), true)
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0.11, 0.055, 0.018, 0.026), true)
+
+func _background_screen_rect() -> Rect2:
+	var screen_position: Vector2 = _world_to_screen(_background_world_rect_cache.position)
+	var screen_end: Vector2 = _world_to_screen(_background_world_rect_cache.end)
+	return Rect2(screen_position, screen_end - screen_position)
+
+func _background_labyrinth_center_screen() -> Vector2:
+	var screen_rect: Rect2 = _background_screen_rect()
+	return screen_rect.position + screen_rect.size * MAP_BACKGROUND_LABYRINTH_CENTER
+
+func _background_world_rect() -> Rect2:
+	_ensure_layout_cache()
+	return _background_world_rect_cache
 
 func _map_background() -> Texture2D:
 	if _map_background_texture == null:
@@ -618,12 +703,7 @@ func _map_background() -> Texture2D:
 func _draw_depth_rings() -> void:
 	if _depth_ring_count_cache <= 0:
 		return
-	var camera_depth: int = _camera_depth()
-	var first_depth: int = maxi(1, camera_depth - LOCAL_DEPTH_RADIUS)
-	var last_depth: int = mini(_depth_ring_count_cache, camera_depth + LOCAL_DEPTH_RADIUS)
-	if camera_depth <= LOCAL_DEPTH_RADIUS:
-		last_depth = mini(_depth_ring_count_cache, LOCAL_DEPTH_RADIUS)
-	for depth: int in range(first_depth, last_depth + 1):
+	for depth: int in range(1, _depth_ring_count_cache + 1):
 		var radius: float = float(depth) * _depth_ring_step_cache
 		if not _ring_intersects_map(radius):
 			continue
@@ -832,9 +912,9 @@ func _draw_room_shell(room: Dictionary) -> void:
 	var node_size: float = _node_size_for_state(route_state)
 	_draw_room_frame(center + Vector2(0.0, node_size * 0.075), node_size * 1.13, route_state, Color(0.0, 0.0, 0.0, 0.62 if interactive else 0.44))
 	if route_state == ROUTE_REACHABLE:
-		draw_circle(center, node_size * 0.68, Color(0.98, 0.58, 0.12, 0.055))
+		_draw_room_frame(center, node_size * 1.18, route_state, Color(1.0, 0.76, 0.39, 0.22))
 	elif route_state == ROUTE_CURRENT:
-		draw_circle(center, node_size * 0.72, Color(1.0, 0.62, 0.16, 0.070))
+		_draw_room_frame(center, node_size * 1.24, route_state, Color(1.0, 0.73, 0.30, 0.30))
 
 func _draw_room_node(room: Dictionary) -> void:
 	if not _room_is_onscreen(room):
@@ -888,21 +968,11 @@ func _node_size_for_state(route_state: String) -> float:
 		node_size *= 0.94
 	return node_size
 
-func _camera_depth() -> int:
-	return maxi(0, int(round(_camera_focus_world.length() / maxf(1.0, _world_ring_spacing_cache))))
-
-func _room_is_in_local_depth_window(room: Dictionary) -> bool:
-	if not interactive:
-		return true
-	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
-	var depth: int = maxi(0, int(room.get("depth", _coord_depth(coord))))
-	return absi(depth - _camera_depth()) <= LOCAL_DEPTH_RADIUS
-
 func _room_is_onscreen(room: Dictionary) -> bool:
 	var coord: Vector2i = room.get("coord", INVALID_COORD)
 	if coord.x <= -900:
 		return false
-	if not _room_is_in_local_depth_window(room):
+	if not _room_is_displayed(coord):
 		return false
 	return _map_rect_cache.grow(_base_node_size_cache * 0.75).has_point(_coord_position(coord))
 
@@ -1303,22 +1373,21 @@ func _hover_coord_at_point(point: Vector2) -> Vector2i:
 	return best_coord
 
 func _draw_connector(a: Vector2i, b: Vector2i, revealed: bool = true) -> void:
-	var a_room: Dictionary = _room_ref_at(a)
-	var b_room: Dictionary = _room_ref_at(b)
-	if interactive and (not _room_is_in_local_depth_window(a_room) or not _room_is_in_local_depth_window(b_room)):
+	if not interactive and (not _compact_focus_coord_set.has(a) or not _compact_focus_coord_set.has(b)):
 		return
 	var points: PackedVector2Array = _route_curve_points(a, b)
 	if points.size() < 2:
 		return
-	var endpoint_bounds: Rect2 = _map_rect_cache.grow(_base_node_size_cache * 1.10)
-	if not endpoint_bounds.has_point(points[0]) and not endpoint_bounds.has_point(points[points.size() - 1]):
-		return
 	if not _map_rect_cache.grow(16.0).intersects(_curve_bounds(points)):
 		return
 	if not interactive:
+		var compact_route_state: String = _connector_route_state(a, b)
+		if compact_route_state == ROUTE_UNAVAILABLE:
+			return
 		var compact_thickness: float = maxf(1.0, _base_node_size() * 0.13)
 		draw_polyline(points, Color(0.025, 0.020, 0.016, 0.66), compact_thickness + 1.4, true)
-		draw_polyline(points, Color("9a8062") if revealed else Color(0.27, 0.23, 0.20, 0.50), compact_thickness, true)
+		var compact_route_color: Color = Color("d4a052") if compact_route_state == ROUTE_REACHABLE else Color("bd8140") if compact_route_state == ROUTE_CURRENT else Color("8b7860")
+		draw_polyline(points, compact_route_color if revealed else Color(0.27, 0.23, 0.20, 0.50), compact_thickness, true)
 		return
 	var route_state: String = _connector_route_state(a, b)
 	match route_state:
@@ -1475,6 +1544,14 @@ func _visible_rooms() -> Array[Dictionary]:
 		results.append(room)
 	return results
 
+func _compact_focus_coords() -> Array[Vector2i]:
+	_ensure_state_caches()
+	var coords: Array[Vector2i] = []
+	for coord_var: Variant in _compact_focus_coord_set.keys():
+		var coord: Vector2i = coord_var
+		coords.append(coord)
+	return coords
+
 func _room_visible_on_this_map(room: Dictionary) -> bool:
 	if room.is_empty():
 		return false
@@ -1491,3 +1568,7 @@ func _map_rect() -> Rect2:
 func _legend_rect() -> Rect2:
 	_ensure_layout_cache()
 	return _legend_rect_cache
+
+func _legend_content_rect() -> Rect2:
+	_ensure_layout_cache()
+	return _legend_rect_cache.grow(-LEGEND_PADDING)

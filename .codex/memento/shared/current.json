@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-05T17:08:08Z",
+  "updated_at": "2026-08-05T21:03:30Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7041,25 +7041,27 @@
       }
     },
     {
-      "id": "mnt_20260805T170808Z_4d99fce0",
+      "id": "mnt_20260805T210330Z_e0d869ab",
       "layer": "shared",
       "kind": "decision",
       "scope": {
-        "level": "file",
-        "path": "scripts/labyrinth_map_view.gd",
+        "level": "project",
+        "path": ".",
         "symbol": null
       },
-      "scope_key": "file:scripts/labyrinth_map_view.gd",
-      "summary": "Render one gameplay depth per map ring in a local pan/zoom window.",
-      "details": "The large run map should center on the current room, show only nearby depth rings (currently current camera depth \u00b12), and preserve direct routes with only restrained deterministic irregularity. Do not compress all 24 depths into grouped rings or a spiral; panning and zooming are the intended way to inspect the full map.",
+      "scope_key": "project:.",
+      "summary": "Keep the run map as one persistent world under a camera.",
+      "details": "Room world positions and route topology must remain invariant across pan and zoom. Cull rooms, rings, and connections only from geometric viewport intersection; never infer visibility from camera depth. Transform the authored dungeon-floor background through the same camera and align its labyrinth center to world origin. The compact HUD minimap is a separate presentation that fits the current room's two-hop revealed graph neighborhood and omits unavailable routes.",
       "status": "active",
-      "created_at": "2026-08-05T17:08:08Z",
-      "updated_at": "2026-08-05T17:08:08Z",
+      "created_at": "2026-08-05T21:03:30Z",
+      "updated_at": "2026-08-05T21:03:30Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260805T170808Z_4d99fce0"
+      ],
       "source": {
         "branch": "codex/redesign-map-as-an-atmospheric-radial-labyrinth",
-        "commit": "eae0c4a"
+        "commit": "e44503b"
       }
     }
   ]

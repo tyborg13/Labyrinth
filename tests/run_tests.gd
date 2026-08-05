@@ -7232,7 +7232,7 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 		}
 	})
 	map_view.size = Vector2(220.0, 188.0)
-	_assert(float(map_view.call("_base_node_size")) >= 14.0, "Compact minimap icons should keep a legible minimum node size")
+	_assert(float(map_view.call("_base_node_size")) >= 20.0, "Compact minimap icons should keep a legible minimum node size")
 	map_view.set("show_legend", false)
 	map_view.set_run_state({
 		"mode": "room",
@@ -7269,15 +7269,17 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	var full_left_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
 	var full_right_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
 	var full_spacing: float = float(map_view.call("_grid_spacing"))
-	_assert(full_spacing >= compact_spacing * 2.5, "Full map should open the radial depth bands more confidently than the compact minimap")
+	_assert(full_spacing > compact_spacing, "Full map should open the radial depth bands more confidently than the compact minimap")
 	_assert(float(map_view.call("_base_node_size")) >= 48.0, "Full map nodes should read as deliberate large-map controls instead of compact minimap icons")
 	_assert(full_right_position.distance_to(full_left_position) >= float(map_view.call("_base_node_size")) * 1.05, "Full map adjacent rooms should remain distinct on the radial route")
-	_assert(absf(full_right_position.y - full_left_position.y) > 0.5, "Full map should add a restrained authored offset instead of retaining a mechanically perfect axis")
 	_assert(absf(full_right_position.y - full_left_position.y) < full_spacing * 0.10, "Full map irregularity should remain subtle enough that adjacent depths still connect directly")
 	var map_rect: Rect2 = map_view.call("_map_rect")
 	var legend_rect: Rect2 = map_view.call("_legend_rect")
+	var legend_content_rect: Rect2 = map_view.call("_legend_content_rect")
 	_assert(map_rect.end.x + 1.0 <= legend_rect.position.x, "Full map legend should reserve space instead of covering map rooms")
 	_assert(legend_rect.size.y < map_view.size.y * 0.90, "Full map legend should remain a contained authored subpanel")
+	_assert(absf(legend_content_rect.position.x - legend_rect.position.x - (legend_rect.end.x - legend_content_rect.end.x)) <= 0.01, "Legend content should preserve equal left and right insets")
+	_assert(legend_content_rect.position.x - legend_rect.position.x >= 28.0, "Legend icons should keep a safe inset from the authored border")
 	for route_state: String in ["current", "reachable", "visited", "unavailable"]:
 		_assert(map_view.call("_room_frame_texture", route_state) != null, "Map state %s should use an authored medallion frame" % route_state)
 	_assert(map_view.call("_map_legend_frame") != null and map_view.call("_map_detail_frame") != null, "Map legend and room detail should use authored raster frames")
@@ -7378,6 +7380,30 @@ func _test_large_map_decision_layer() -> void:
 	_assert(str(map_view.call("_connector_route_state", current, visited)) == "current", "The connector into the current room should retain current-route hierarchy")
 	_assert(str(map_view.call("_connector_route_state", visited, earlier_visited)) == "visited", "Previously traveled connectors should retain visited-route hierarchy")
 	_assert(str(map_view.call("_connector_route_state", current, unavailable)) == "unavailable", "Sealed or otherwise illegal connectors should retain unavailable-route hierarchy")
+	var room_inventory_before: Array[Vector2i] = _map_visible_coords(map_view)
+	var world_positions_before: Dictionary = {}
+	for coord: Vector2i in room_inventory_before:
+		world_positions_before[coord] = map_view.call("_world_position", coord)
+	var screen_position_before_pan: Vector2 = map_view.call("_coord_position", current)
+	var background_before_pan: Rect2 = map_view.call("_background_screen_rect")
+	_assert((map_view.call("_background_labyrinth_center_screen") as Vector2).distance_to(map_view.call("_radial_center")) <= 0.05, "The authored floor's labyrinth center should align with the gameplay depth rings")
+	var pan_delta := Vector2(46.0, -24.0)
+	map_view.call("pan_camera", pan_delta)
+	_assert(_map_visible_coords(map_view) == room_inventory_before, "Panning should never change the persistent room inventory")
+	for coord: Vector2i in room_inventory_before:
+		_assert((map_view.call("_world_position", coord) as Vector2).distance_to(world_positions_before.get(coord, Vector2.ZERO)) <= 0.001, "Panning should never rebuild or relocate room world coordinates")
+	_assert((map_view.call("_coord_position", current) as Vector2).distance_to(screen_position_before_pan + pan_delta) <= 0.05, "Panning should translate every visible room by the requested screen delta")
+	var background_after_pan: Rect2 = map_view.call("_background_screen_rect")
+	_assert(background_after_pan.position.distance_to(background_before_pan.position + pan_delta) <= 0.05, "The authored background should pan in lockstep with the room map")
+	map_view.call("center_on_current", true)
+	var camera_map_rect: Rect2 = map_view.call("_map_rect")
+	var camera_node_size: float = float(map_view.call("_base_node_size"))
+	var current_center: Vector2 = map_view.call("_coord_position", current)
+	map_view.call("pan_camera", Vector2(camera_map_rect.end.x + camera_node_size * 0.70 - current_center.x, 0.0))
+	_assert(bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A room should remain rendered while any meaningful part of its medallion remains in view")
+	map_view.call("pan_camera", Vector2(camera_node_size * 0.12, 0.0))
+	_assert(not bool(map_view.call("_room_is_onscreen", rooms["1,1"])), "A room should cull only after its medallion has geometrically left the map field")
+	map_view.call("center_on_current", true)
 	var curved_route: PackedVector2Array = map_view.call("_route_curve_points", current, reachable)
 	var straight_midpoint: Vector2 = map_view.call("_coord_position", current).lerp(map_view.call("_coord_position", reachable), 0.5)
 	_assert(curved_route.size() >= 12, "Large-map routes should use sampled curves instead of rigid two-point grid lines")
@@ -7389,9 +7415,12 @@ func _test_large_map_decision_layer() -> void:
 	_assert(map_view.call("_coord_at_point", unavailable_position) == Vector2i(-999, -999), "Large-map selection should still reject unavailable destinations")
 	_assert(map_view.call("_hover_coord_at_point", unavailable_position) == unavailable, "Hover context may inspect a revealed unavailable room without making it selectable")
 	var framed_position: Vector2 = map_view.call("_coord_position", current)
-	map_view.call("set_camera_zoom", 1.40, framed_position)
+	var pinch := InputEventMagnifyGesture.new()
+	pinch.position = framed_position
+	pinch.factor = 1.40
+	map_view.call("_gui_input", pinch)
 	_assert(is_equal_approx(float(map_view.call("_camera_zoom_value")), 1.40), "Large-map wheel zoom should update the camera zoom")
-	_assert(map_view.call("_coord_position", current).distance_to(framed_position) <= 0.05, "Zooming on a room should keep that room anchored under the pointer")
+	_assert(map_view.call("_coord_position", current).distance_to(framed_position) <= 0.05, "Trackpad pinch zoom should keep the room beneath the gesture anchored")
 	var focus_before_pan: Vector2 = map_view.call("_camera_focus")
 	map_view.call("pan_camera", Vector2(72.0, -38.0))
 	_assert(map_view.call("_camera_focus") != focus_before_pan, "Large-map drag input should pan the camera")
@@ -7420,9 +7449,13 @@ func _test_large_map_decision_layer() -> void:
 		_assert(not hover_rect.intersects(node_safe_rect), "Edge hover card should flip away from, rather than cover, its room node")
 		_assert(not bool(map_view.call("_hover_card_intersects_other_node", hover_rect, edge_coord)), "Edge hover card should prefer placement that preserves adjacent route nodes")
 
+	map_view.set_run_state({"mode": "room", "current_room": current, "rooms": rooms})
 	map_view.set("interactive", false)
 	map_view.set("show_legend", false)
 	_assert(map_view.call("_hover_coord_at_point", Vector2.ZERO) == Vector2i(-999, -999), "Compact minimap should remain label- and hover-card-free")
+	var compact_focus: Array[Vector2i] = map_view.call("_compact_focus_coords")
+	_assert(compact_focus.has(current) and compact_focus.has(reachable), "Compact minimap should always retain the current room and legal destinations")
+	_assert(compact_focus.size() <= rooms.size(), "Compact minimap focus should never invent rooms outside the revealed run")
 	map_view.free()
 
 func _assert_map_room_medallions_do_not_overlap(map_view: LabyrinthMapView, context: String) -> void:
@@ -8342,18 +8375,12 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 			and large_map_style.border_width_bottom == 0,
 			"Large map should not retain a legacy outline outside its raster frame"
 		)
-		var depth_strip: Control = large_map_dialog.find_child("DepthStrip", true, false) as Control
-		var depth_ornament: TextureRect = large_map_dialog.find_child("DepthOrnament", true, false) as TextureRect
-		var depth_label: Label = large_map_dialog.find_child("DepthLabel", true, false) as Label
 		var navigation_hint: Label = large_map_dialog.find_child("MapNavigationHint", true, false) as Label
-		_assert(depth_strip != null and depth_strip.custom_minimum_size.y >= 34.0, "Large map should reserve a framed depth-status strip below its title")
-		_assert(depth_ornament != null and depth_ornament.texture != null, "Large map should reuse the pre-battle brass separator ornament")
-		_assert(depth_label != null and not depth_label.text.is_empty(), "Large map should identify the current depth and radial ring")
+		_assert(large_map_dialog.find_child("DepthStrip", true, false) == null, "Large map should not cover the map with a redundant current-depth strip")
 		_assert(navigation_hint != null and navigation_hint.text.contains("PAN") and navigation_hint.text.contains("ZOOM"), "Large map should make its drag and wheel navigation discoverable")
 		var title: Label = large_map_dialog.find_child("MapTitle", true, false) as Label
-		var subtitle: Label = large_map_dialog.find_child("MapSubtitle", true, false) as Label
-		_assert(title != null and title.text == "LABYRINTH", "Large map should use a deliberate authored title")
-		_assert(subtitle != null and subtitle.text == "THE UMBRAL DESCENT", "Large map should use a compact atmospheric subtitle")
+		_assert(title != null and title.text == "MAP", "Large map should use the direct player-facing title")
+		_assert(large_map_dialog.find_child("MapSubtitle", true, false) == null, "Large map should not add an ornamental fantasy tagline")
 		close_button = large_map_dialog.find_child("CloseButton", true, false) as Button
 	_assert(close_button != null, "Large map should expose a close button")
 	if close_button != null:

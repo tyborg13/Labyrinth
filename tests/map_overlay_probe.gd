@@ -3,7 +3,7 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
-const OUTPUT_DIR: String = "user://map_overlay_redesign_probe_v2"
+const OUTPUT_DIR: String = "user://map_overlay_redesign_probe_v3"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const INVALID_COORD: Vector2i = Vector2i(-999, -999)
 
@@ -36,6 +36,15 @@ func _capture_overlay() -> void:
 	await process_frame
 	await process_frame
 	instance.call("_close_dialogue")
+	var mini_map: Control = instance.get("mini_map") as Control
+	var mini_overlay: Control = instance.get("mini_map_overlay") as Control
+	if mini_map != null:
+		mini_map.call("set_run_state", _long_state())
+		mini_map.queue_redraw()
+	await process_frame
+	await process_frame
+	_assert_production_minimap(mini_overlay, mini_map)
+	await _save_root_screenshot("%s/production_minimap.png" % OUTPUT_DIR, null)
 	instance.call("_open_large_map")
 	await process_frame
 	await process_frame
@@ -51,9 +60,6 @@ func _capture_overlay() -> void:
 		map_view.call("center_on_current", true)
 		map_view.set("_hover_coord", Vector2i(14, 9))
 		map_view.queue_redraw()
-		var depth_label: Label = dialog.find_child("DepthLabel", true, false) as Label if dialog != null else null
-		if depth_label != null:
-			depth_label.text = "DEPTH 14  •  RING 14"
 		# Re-present the modal so the macOS mobile renderer rebuilds every retained
 		# canvas item before the second full-frame screenshot.
 		scrim.visible = false
@@ -81,6 +87,18 @@ func _capture_overlay() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _assert_production_minimap(overlay: Control, map_view: Control) -> void:
+	if overlay == null or map_view == null:
+		_fail("Production run scene should expose its compact minimap")
+		return
+	if overlay.size.x < 236.0 or overlay.size.y < 210.0:
+		_fail("Production minimap should have enough room for legible medallions")
+	var focus_coords: Array[Vector2i] = map_view.call("_compact_focus_coords")
+	if focus_coords.size() < 2 or focus_coords.size() >= (map_view.call("_visible_rooms") as Array).size():
+		_fail("Production minimap should show a focused local route neighborhood")
+	if float(map_view.call("_base_node_size")) < 20.0:
+		_fail("Production minimap room medallions should remain legible")
+
 func _refresh_overlay_canvas(scrim: Control) -> void:
 	if scrim == null:
 		return
@@ -107,16 +125,12 @@ func _assert_overlay_chrome(scrim: Control, dialog: Control, map_view: Control) 
 	if dialog_rect.size.x < PROBE_VIEWPORT.x * 0.94 or dialog_rect.size.y < PROBE_VIEWPORT.y * 0.92:
 		_fail("Full map frame should use the production viewport confidently")
 	var title: Label = dialog.find_child("MapTitle", true, false) as Label
-	var subtitle: Label = dialog.find_child("MapSubtitle", true, false) as Label
-	var depth_strip: Control = dialog.find_child("DepthStrip", true, false) as Control
-	var depth_ornament: TextureRect = dialog.find_child("DepthOrnament", true, false) as TextureRect
-	var depth_label: Label = dialog.find_child("DepthLabel", true, false) as Label
 	var navigation_hint: Label = dialog.find_child("MapNavigationHint", true, false) as Label
 	var close_button: Button = dialog.find_child("CloseButton", true, false) as Button
-	if title == null or title.text != "LABYRINTH" or subtitle == null or subtitle.text != "THE UMBRAL DESCENT":
-		_fail("Full map should expose its authored title hierarchy")
-	if depth_strip == null or depth_strip.size.y < 32.0 or depth_ornament == null or depth_ornament.texture == null or depth_label == null or depth_label.text.is_empty():
-		_fail("Full map should expose its brass depth-status separator")
+	if title == null or title.text != "MAP":
+		_fail("Full map should expose its direct player-facing title")
+	if dialog.find_child("MapSubtitle", true, false) != null or dialog.find_child("DepthStrip", true, false) != null:
+		_fail("Full map should not add a fantasy tagline or redundant depth strip")
 	if navigation_hint == null or not navigation_hint.text.contains("PAN") or not navigation_hint.text.contains("ZOOM"):
 		_fail("Full map should explain its drag and wheel navigation")
 	if close_button == null:

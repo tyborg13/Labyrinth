@@ -3,7 +3,7 @@ extends SceneTree
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
-const OUTPUT_DIR: String = "user://map_decision_layer_probe_v3"
+const OUTPUT_DIR: String = "user://map_decision_layer_probe_v4"
 const INVALID_COORD: Vector2i = Vector2i(-999, -999)
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
@@ -28,12 +28,12 @@ func _initialize() -> void:
 
 	await _capture_large("large_early.png", _early_state(), INVALID_COORD)
 	await _capture_large("large_mid.png", _mid_state(), INVALID_COORD)
-	await _capture_large("large_long.png", _long_state(), INVALID_COORD)
-	await _capture_large("edge_hover.png", _long_state(), Vector2i(14, 9))
-	await _capture_zoomed("deep_zoomed.png", _long_state())
-	await _capture_panned("deep_panned.png", _long_state())
+	await _capture_large("dense_depth5_centered.png", _dense_depth_five_state(), INVALID_COORD)
+	await _capture_large("dense_depth5_hover.png", _dense_depth_five_state(), Vector2i(-5, 1))
+	await _capture_zoomed("dense_depth5_zoomed.png", _dense_depth_five_state())
+	await _capture_panned("dense_depth5_panned.png", _dense_depth_five_state())
 	await _capture_travel("travel_in_transit.png", _mid_state())
-	await _capture_mini("mini_compact.png", _long_state())
+	await _capture_mini("dense_depth5_mini.png", _dense_depth_five_state())
 
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(1 if _failed else 0)
@@ -67,6 +67,8 @@ func _capture_large(file_name: String, state: Dictionary, hover_coord: Vector2i)
 	_map_view.set_run_state(state)
 	_map_view.call("center_on_current", true)
 	_map_view.set("_hover_coord", hover_coord)
+	if file_name.begins_with("dense_depth5") and (_map_view.call("_visible_rooms") as Array).size() != 28:
+		_fail("Dense depth-five proof should mirror the 28 revealed rooms in the current production save")
 	_assert_large_map_geometry(file_name)
 	if hover_coord.x > -900:
 		var hover_rect: Rect2 = _map_view.call("_hover_card_rect", hover_coord)
@@ -106,6 +108,15 @@ func _capture_zoomed(file_name: String, state: Dictionary) -> void:
 	var anchored_position: Vector2 = _map_view.call("_coord_position", current)
 	if anchored_position.distance_to(anchor) > 0.1:
 		_fail("Pointer-anchored zoom should keep the current room stable")
+	var magnify := InputEventMagnifyGesture.new()
+	magnify.position = anchor
+	magnify.factor = 1.08
+	var gesture_zoom_before: float = float(_map_view.call("_camera_zoom_value"))
+	_map_view.call("_gui_input", magnify)
+	if float(_map_view.call("_camera_zoom_value")) <= gesture_zoom_before:
+		_fail("Trackpad pinch input should zoom the interactive map")
+	if (_map_view.call("_coord_position", current) as Vector2).distance_to(anchor) > 0.1:
+		_fail("Trackpad pinch zoom should remain anchored under the gesture")
 	_assert_large_map_geometry(file_name)
 	_map_view.queue_redraw()
 	await process_frame
@@ -122,6 +133,12 @@ func _capture_panned(file_name: String, state: Dictionary) -> void:
 	var map_rect: Rect2 = _map_view.call("_map_rect")
 	var start := map_rect.position + Vector2(18.0, map_rect.size.y - 24.0)
 	var focus_before: Vector2 = _map_view.call("_camera_focus")
+	var rooms_before: Array[Dictionary] = _map_view.call("_visible_rooms")
+	var world_before: Dictionary = {}
+	for room: Dictionary in rooms_before:
+		var coord: Vector2i = room.get("coord", INVALID_COORD)
+		world_before[coord] = _map_view.call("_world_position", coord)
+	var background_before: Rect2 = _map_view.call("_background_screen_rect")
 	var press := InputEventMouseButton.new()
 	press.position = start
 	press.button_index = MOUSE_BUTTON_LEFT
@@ -139,6 +156,23 @@ func _capture_panned(file_name: String, state: Dictionary) -> void:
 	var focus_after: Vector2 = _map_view.call("_camera_focus")
 	if focus_after.distance_to(focus_before) < 1.0:
 		_fail("Empty-space drag input should pan the interactive map")
+	if (_map_view.call("_visible_rooms") as Array).size() != rooms_before.size():
+		_fail("Panning should not change the persistent room inventory")
+	for room: Dictionary in rooms_before:
+		var coord: Vector2i = room.get("coord", INVALID_COORD)
+		if (_map_view.call("_world_position", coord) as Vector2).distance_to(world_before.get(coord, Vector2.ZERO)) > 0.001:
+			_fail("Panning should not relocate room %s in world space" % coord)
+	var expected_screen_delta := Vector2(-260.0, 92.0)
+	var background_after: Rect2 = _map_view.call("_background_screen_rect")
+	if background_after.position.distance_to(background_before.position + expected_screen_delta) > 0.1:
+		_fail("World background should pan by the exact same screen delta as the rooms")
+	var trackpad_pan := InputEventPanGesture.new()
+	trackpad_pan.position = map_rect.get_center()
+	trackpad_pan.delta = Vector2(2.0, -1.0)
+	var focus_before_trackpad: Vector2 = _map_view.call("_camera_focus")
+	_map_view.call("_gui_input", trackpad_pan)
+	if (_map_view.call("_camera_focus") as Vector2).distance_to(focus_before_trackpad) < 1.0:
+		_fail("Trackpad two-finger pan should move the map camera")
 	_assert_large_map_geometry(file_name)
 	_map_view.queue_redraw()
 	await process_frame
@@ -260,6 +294,21 @@ func _assert_compact_map_geometry() -> void:
 		_fail("Compact minimap should remain inside its embedded bounds")
 	if bool(_map_view.get("show_legend")) or bool(_map_view.get("interactive")):
 		_fail("Compact minimap should remain non-interactive and legend-free")
+	var focus_coords: Array[Vector2i] = _map_view.call("_compact_focus_coords")
+	if focus_coords.size() < 2 or focus_coords.size() >= (_map_view.call("_visible_rooms") as Array).size():
+		_fail("Compact minimap should show a legible local graph neighborhood, not the entire revealed run")
+	var node_size: float = float(_map_view.call("_base_node_size"))
+	if node_size < 20.0:
+		_fail("Compact minimap medallions should remain legible")
+	var safe_rect: Rect2 = map_rect.grow(-node_size * 0.48)
+	for first_index: int in range(focus_coords.size()):
+		var first_position: Vector2 = _map_view.call("_coord_position", focus_coords[first_index])
+		if not safe_rect.has_point(first_position):
+			_fail("Compact focus room %s should fit inside the minimap frame" % focus_coords[first_index])
+		for second_index: int in range(first_index + 1, focus_coords.size()):
+			var second_position: Vector2 = _map_view.call("_coord_position", focus_coords[second_index])
+			if first_position.distance_to(second_position) < node_size * 0.90:
+				_fail("Compact minimap medallions should not overlap: %s and %s" % [focus_coords[first_index], focus_coords[second_index]])
 
 func _fail(message: String) -> void:
 	_failed = true
@@ -311,6 +360,55 @@ func _long_state() -> Dictionary:
 		{"from": Vector2i(11, 8), "coord": Vector2i(11, 7)}
 	]
 	return _state_from_path(path, destinations, unavailable)
+
+func _dense_depth_five_state() -> Dictionary:
+	var rooms: Dictionary = {}
+	_add_dense_room(rooms, Vector2i(0, 0), 0, "start", true, [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)])
+	_add_dense_room(rooms, Vector2i(-1, -1), 1, "combat", false, [Vector2i(-1, 0), Vector2i(0, -1)])
+	_add_dense_room(rooms, Vector2i(-1, 0), 1, "combat", false, [Vector2i(-1, 1), Vector2i(-1, -1), Vector2i(0, 0)])
+	_add_dense_room(rooms, Vector2i(-1, 1), 1, "combat", true, [Vector2i(0, 1), Vector2i(-1, 0), Vector2i(-2, 1)])
+	_add_dense_room(rooms, Vector2i(0, -1), 1, "combat", true, [Vector2i(-1, -1), Vector2i(1, -1), Vector2i(0, 0)])
+	_add_dense_room(rooms, Vector2i(0, 1), 1, "combat", true, [Vector2i(1, 1), Vector2i(-1, 1), Vector2i(0, 0), Vector2i(0, 2)])
+	_add_dense_room(rooms, Vector2i(1, -1), 1, "combat", true, [Vector2i(0, -1), Vector2i(1, 0), Vector2i(2, -1)])
+	_add_dense_room(rooms, Vector2i(1, 0), 1, "combat", true, [Vector2i(1, -1), Vector2i(1, 1), Vector2i(0, 0), Vector2i(2, 0)])
+	_add_dense_room(rooms, Vector2i(1, 1), 1, "treasure", true, [Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 2)])
+	_add_dense_room(rooms, Vector2i(-2, -2), 2, "combat", false, [Vector2i(-2, -1), Vector2i(-1, -2), Vector2i(-2, -3)])
+	_add_dense_room(rooms, Vector2i(-2, -1), 2, "arcanist", true, [Vector2i(-2, 0), Vector2i(-2, -2), Vector2i(-3, -1)])
+	_add_dense_room(rooms, Vector2i(-2, 0), 2, "campfire", true, [Vector2i(-2, 1), Vector2i(-2, -1)])
+	_add_dense_room(rooms, Vector2i(-2, 1), 2, "combat", true, [Vector2i(-2, 2), Vector2i(-2, 0), Vector2i(-1, 1)])
+	_add_dense_room(rooms, Vector2i(-2, 2), 2, "arcanist", false, [Vector2i(-1, 2), Vector2i(-2, 1), Vector2i(-3, 2)])
+	_add_dense_room(rooms, Vector2i(0, 2), 2, "campfire", false, [Vector2i(1, 2), Vector2i(-1, 2)])
+	_add_dense_room(rooms, Vector2i(1, 2), 2, "combat", false, [Vector2i(2, 2), Vector2i(0, 2)])
+	_add_dense_room(rooms, Vector2i(2, -1), 2, "combat", false, [Vector2i(2, -2), Vector2i(2, 0), Vector2i(1, -1)])
+	_add_dense_room(rooms, Vector2i(2, 0), 2, "campfire", false, [Vector2i(2, -1), Vector2i(2, 1)])
+	_add_dense_room(rooms, Vector2i(-3, -2), 3, "combat", false, [Vector2i(-3, -1), Vector2i(-3, -3)])
+	_add_dense_room(rooms, Vector2i(-3, -1), 3, "treasure", true, [Vector2i(-3, 0), Vector2i(-3, -2), Vector2i(-4, -1)])
+	_add_dense_room(rooms, Vector2i(-3, 0), 3, "combat", false, [Vector2i(-3, 1), Vector2i(-3, -1)])
+	_add_dense_room(rooms, Vector2i(-4, -2), 4, "boss", false, [Vector2i(-4, -1), Vector2i(-4, -3), Vector2i(-5, -2)])
+	_add_dense_room(rooms, Vector2i(-4, -1), 4, "boss", true, [Vector2i(-4, 0), Vector2i(-4, -2), Vector2i(-3, -1), Vector2i(-5, -1)])
+	_add_dense_room(rooms, Vector2i(-4, 0), 4, "boss", false, [Vector2i(-4, 1), Vector2i(-4, -1), Vector2i(-5, 0)])
+	_add_dense_room(rooms, Vector2i(-5, -2), 5, "blacksmith", false, [Vector2i(-5, -1), Vector2i(-5, -3), Vector2i(-4, -2)])
+	_add_dense_room(rooms, Vector2i(-5, -1), 5, "combat", true, [Vector2i(-5, 0), Vector2i(-5, -2), Vector2i(-4, -1)])
+	_add_dense_room(rooms, Vector2i(-5, 0), 5, "treasure", true, [Vector2i(-5, 1), Vector2i(-5, -1), Vector2i(-4, 0)])
+	_add_dense_room(rooms, Vector2i(-5, 1), 5, "combat", false, [Vector2i(-5, 2), Vector2i(-5, 0), Vector2i(-4, 1), Vector2i(-6, 1)])
+	return {"mode": "room", "current_room": Vector2i(-5, 0), "rooms": rooms}
+
+func _add_dense_room(rooms: Dictionary, coord: Vector2i, depth: int, room_type: String, cleared: bool, connections: Array) -> void:
+	var elements: Array[String] = ["fire", "ice", "lightning", "air", "earth"]
+	var connection_entries: Array[Dictionary] = []
+	for neighbor_var: Variant in connections:
+		connection_entries.append({"coord": neighbor_var})
+	rooms[_room_key(coord)] = {
+		"coord": coord,
+		"depth": depth,
+		"type": room_type,
+		"element": elements[posmod(coord.x * 3 + coord.y * 5, elements.size())] if room_type == "combat" else "none",
+		"revealed": true,
+		"visited": cleared,
+		"cleared": cleared,
+		"sealed": false,
+		"connections": connection_entries
+	}
 
 func _state_from_path(path: Array, destinations: Array, unavailable: Array) -> Dictionary:
 	var rooms: Dictionary = {}

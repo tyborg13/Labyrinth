@@ -1,7 +1,13 @@
 {
-  "min_images": 4,
+  "min_images": 5,
   "expected_sizes": ["1920x1080"],
   "required_images": [
+    {
+      "pattern": "*production_minimap.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [1610, 100, 280, 240], "min_luma_range": 45, "min_luma_stdev": 7}]
+    },
     {
       "pattern": "*overlay_early.png",
       "width": 1920,
