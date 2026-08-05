@@ -201,7 +201,7 @@ class PreBattleEnemyFlow:
 		var center_x: float = size.x * 0.5
 		var stride: float = _card_size.x + _card_gap
 		var row_height: float = _card_size.y + _card_gap
-		var vertical_offset: float = maxf(0.0, (size.y - _content_height(total)) * 0.5) if total == 5 else 0.0
+		var vertical_offset: float = maxf(0.0, (size.y - _content_height(total)) * 0.5)
 		match total:
 			1:
 				rects.append(Rect2(Vector2(maxf(0.0, center_x - _card_size.x * 0.5), vertical_offset), _card_size))
@@ -244,7 +244,7 @@ class PreBattleEnemyFlow:
 		var rows: int = 1 if total <= 2 else 2
 		if total > 5:
 			rows = int(ceil(float(total) / 3.0))
-		return _card_size.y * float(rows) + _card_gap * float(maxi(0, rows - 1)) + (4.0 if total == 5 else 0.0)
+		return _card_size.y * float(rows) + _card_gap * float(maxi(0, rows - 1)) + (8.0 if total == 5 else 0.0)
 
 class PreBattleFrame:
 	extends Control
@@ -1312,8 +1312,8 @@ const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
-const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v13.png"
-const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v5.png"
+const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v15.png"
+const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
 const PRE_BATTLE_DEPTH_ORNAMENT_PATH: String = "res://assets/art/ui/pre_battle_depth_ornament_v2.png"
 const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
 const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
@@ -3454,7 +3454,7 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	var flow := PreBattleEnemyFlow.new()
 	flow.name = "PreBattleEnemyFlow"
 	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	flow.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	flow.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.add_child(flow)
 
 	var enemies: Array = []
