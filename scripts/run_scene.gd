@@ -3444,7 +3444,7 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	panel.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), 0.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 12.0, 8))
+	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8))
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -3512,7 +3512,7 @@ func _build_pre_battle_deck_section(accent: Color) -> Control:
 	panel.custom_minimum_size = Vector2(_pre_battle_deck_column_width(), 0.0)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 12.0, 8))
+	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8))
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)

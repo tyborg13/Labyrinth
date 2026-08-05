@@ -26,6 +26,7 @@ func _initialize() -> void:
 	ProgressionStore.clear_saved_run()
 	await _capture_loadout_refresh_and_inspections()
 	await _capture_enemy_count_layouts()
+	await _capture_boss_pathological_layout()
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(1 if _failed else 0)
 
@@ -105,6 +106,7 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		var deck_ratio: float = deck_section.size.x / body_width if body_width > 0.0 else 0.0
 		if deck_section == null or enemy_section == null or deck_ratio < 0.34 or deck_ratio > 0.45:
 			_fail("Pre-battle enemy/loadout columns should preserve the concept-art width balance")
+		_assert_pre_battle_body_inside_panel(panel, "normal")
 		var first_enemy_card: Control = panel.find_child("PreBattleEnemyCard", true, false) as Control
 		if first_enemy_card != null and not (first_enemy_card.get_theme_stylebox("panel") is StyleBoxEmpty):
 			_fail("Pre-battle enemy cards should not render shaded rectangular panels")
@@ -408,6 +410,61 @@ func _capture_enemy_count_layouts() -> void:
 		instance.queue_free()
 		await process_frame
 		await process_frame
+
+func _capture_boss_pathological_layout() -> void:
+	var packed: PackedScene = load("res://scenes/run_scene.tscn")
+	if packed == null:
+		_fail("Run scene should load for boss pre-battle proof")
+		return
+	var probe_run_engine := RunEngine.new()
+	var boss_state: Dictionary = probe_run_engine.create_debug_boss_run(ProgressionStore.default_data())
+	var boss_coord: Vector2i = boss_state.get("current_room", INVALID_COORD)
+	var boss_room: Dictionary = probe_run_engine.room_metadata(boss_state, boss_coord)
+	if boss_coord == INVALID_COORD or str(boss_room.get("type", "")) != "boss":
+		_fail("Debug boss fixture should provide a boss room for pathological pre-battle proof")
+		return
+	boss_state["mode"] = RunEngine.MODE_PRE_BATTLE
+	boss_state["combat_state"] = {}
+	boss_state["pre_battle_pending"] = true
+	boss_state["pre_battle_travel_dir"] = _travel_dir_for_coord(boss_coord)
+	var instance: Node = packed.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await process_frame
+	instance.call("_load_run_state", boss_state)
+	await process_frame
+	await process_frame
+	var shown: bool = bool(instance.call("_show_pre_battle_preview"))
+	await process_frame
+	await process_frame
+	var scrim: Control = instance.get("_pre_battle_scrim") as Control
+	var panel: Control = instance.get("_pre_battle_panel") as Control
+	if not shown or scrim == null or not scrim.visible or panel == null:
+		_fail("Boss pre-battle fixture should render a visible preview")
+	else:
+		_assert_pre_battle_body_inside_panel(panel, "boss")
+		var flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control
+		if flow == null or flow.get_child_count() < 3:
+			_fail("Boss pre-battle fixture should retain the boss and its pathological supporting enemies")
+		await _save_root_screenshot("%s/boss_pathological_v1.png" % OUTPUT_DIR)
+	instance.queue_free()
+	await process_frame
+	await process_frame
+
+func _assert_pre_battle_body_inside_panel(panel: Control, context: String) -> void:
+	if panel == null:
+		_fail("%s pre-battle panel should exist for body bounds proof" % context)
+		return
+	var panel_rect: Rect2 = panel.get_global_rect()
+	var safe_rect: Rect2 = panel_rect.grow(-1.0)
+	for section_name: String in ["PreBattleEnemySection", "PreBattleDeckSection"]:
+		var section: Control = panel.find_child(section_name, true, false) as Control
+		if section == null:
+			_fail("%s pre-battle proof should render %s" % [context, section_name])
+			continue
+		var section_rect: Rect2 = section.get_global_rect()
+		if not safe_rect.encloses(section_rect):
+			_fail("%s %s should remain fully inside the main pre-battle panel" % [context, section_name])
 
 func _capture_all_enemy_portraits(instance: Node) -> void:
 	var ui_root: Control = instance.get("ui_root") as Control
