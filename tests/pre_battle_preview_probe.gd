@@ -135,6 +135,8 @@ func _capture_loadout_refresh_and_inspections() -> void:
 				_fail("Pre-battle Start hover/focus glow should remain a restrained focus cue")
 			start_button.release_focus()
 			await _move_mouse_to(start_button.get_global_rect().get_center())
+			if start_button.get_viewport().gui_get_hovered_control() != start_button:
+				_fail("Pre-battle Start hover proof should route pointer motion through the native viewport")
 			await _save_root_screenshot("%s/start_hover_v1.png" % OUTPUT_DIR)
 			await _move_mouse_to(Vector2(80.0, 80.0))
 			start_button.grab_focus()
@@ -599,7 +601,7 @@ func _move_mouse_to(position: Vector2) -> void:
 	var motion := InputEventMouseMotion.new()
 	motion.position = position
 	motion.global_position = position
-	Input.parse_input_event(motion)
+	root.get_viewport().push_input(motion, true)
 	await process_frame
 
 func _click_control_via_viewport(control: Control) -> void:
