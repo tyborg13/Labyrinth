@@ -76,6 +76,10 @@ func _capture_loadout_refresh_and_inspections() -> void:
 			_fail("Pre-battle preview should render enemy cards")
 		if panel.find_child("PreBattleEnemyBrush", true, false) == null:
 			_fail("Pre-battle enemy cards should use the authored brush backing")
+		else:
+			var brush: TextureRect = panel.find_child("PreBattleEnemyBrush", true, false) as TextureRect
+			if brush == null or brush.stretch_mode != TextureRect.STRETCH_KEEP_ASPECT_CENTERED or brush.clip_contents:
+				_fail("Pre-battle brush backing should preserve its aspect and remain visibly unclipped")
 		if panel.find_child("PreBattleFoesDivider", true, false) == null:
 			_fail("Pre-battle Foes heading should render its stylized divider")
 		if panel.find_child("PreBattleDepthOrnament", true, false) == null:
@@ -127,6 +131,9 @@ func _capture_loadout_refresh_and_inspections() -> void:
 	var natural_enemy_flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control if panel != null else null
 	if natural_enemy_flow == null or natural_enemy_flow.get_child_count() != 3:
 		_fail("Deterministic loadout proof should supply the composed three-enemy layout")
+	var natural_enemy_scroll: ScrollContainer = panel.find_child("PreBattleEnemyScroll", true, false) as ScrollContainer if panel != null else null
+	if natural_enemy_scroll == null or natural_enemy_scroll.vertical_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED:
+		_fail("Pre-battle foes should fit the reference composition without a visible scrollbar")
 	await _save_root_screenshot("%s/enemy_layout_3_loadout_before_swaps_v1.png" % OUTPUT_DIR)
 
 	var enemy_card: Control = panel.find_child("PreBattleEnemyCard", true, false) as Control if panel != null else null
@@ -324,6 +331,9 @@ func _capture_enemy_count_layouts() -> void:
 			await create_timer(0.40).timeout
 			await process_frame
 		var flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control
+		var enemy_scroll: ScrollContainer = panel.find_child("PreBattleEnemyScroll", true, false) as ScrollContainer
+		if enemy_scroll == null or enemy_scroll.vertical_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED:
+			_fail("%d-enemy pre-battle preview should fit without a visible foes scrollbar" % enemy_count)
 		if flow == null or flow.get_child_count() != enemy_count:
 			_fail("%d-enemy pre-battle proof should render exactly %d cards" % [enemy_count, enemy_count])
 		else:

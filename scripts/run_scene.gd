@@ -251,48 +251,17 @@ class PreBattleFrame:
 	var texture: Texture2D
 
 	func _ready() -> void:
-		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		queue_redraw()
 
 	func _draw() -> void:
-		var frame_rect := Rect2(Vector2(8.0, 8.0), size - Vector2(16.0, 16.0))
-		if frame_rect.size.x <= 0.0 or frame_rect.size.y <= 0.0:
+		if texture == null or size.x <= 0.0 or size.y <= 0.0:
 			return
-		var gold := Color("b7873f")
-		var highlight := Color(0.91, 0.72, 0.39, 0.84)
-		var shadow := Color(0.25, 0.14, 0.07, 0.96)
-		var top_y: float = frame_rect.position.y + 3.0
-		var bottom_y: float = frame_rect.end.y - 3.0
-		var left_x: float = frame_rect.position.x + 3.0
-		var right_x: float = frame_rect.end.x - 3.0
-		var ornament_width: float = 76.0
-		var ornament_center: float = frame_rect.get_center().x
-		draw_line(Vector2(left_x + 74.0, top_y), Vector2(ornament_center - ornament_width, top_y), shadow, 3.0, true)
-		draw_line(Vector2(left_x + 74.0, top_y - 1.0), Vector2(ornament_center - ornament_width, top_y - 1.0), gold, 1.0, true)
-		draw_line(Vector2(ornament_center + ornament_width, top_y), Vector2(right_x - 74.0, top_y), shadow, 3.0, true)
-		draw_line(Vector2(ornament_center + ornament_width, top_y - 1.0), Vector2(right_x - 74.0, top_y - 1.0), gold, 1.0, true)
-		draw_line(Vector2(left_x + 74.0, bottom_y), Vector2(ornament_center - ornament_width, bottom_y), shadow, 3.0, true)
-		draw_line(Vector2(left_x + 74.0, bottom_y + 1.0), Vector2(ornament_center - ornament_width, bottom_y + 1.0), gold, 1.0, true)
-		draw_line(Vector2(ornament_center + ornament_width, bottom_y), Vector2(right_x - 74.0, bottom_y), shadow, 3.0, true)
-		draw_line(Vector2(ornament_center + ornament_width, bottom_y + 1.0), Vector2(right_x - 74.0, bottom_y + 1.0), gold, 1.0, true)
-		draw_line(Vector2(left_x, top_y + 70.0), Vector2(left_x, bottom_y - 70.0), shadow, 3.0, true)
-		draw_line(Vector2(left_x - 1.0, top_y + 70.0), Vector2(left_x - 1.0, bottom_y - 70.0), gold, 1.0, true)
-		draw_line(Vector2(right_x, top_y + 70.0), Vector2(right_x, bottom_y - 70.0), shadow, 3.0, true)
-		draw_line(Vector2(right_x + 1.0, top_y + 70.0), Vector2(right_x + 1.0, bottom_y - 70.0), gold, 1.0, true)
-		if texture == null:
-			return
-		_draw_frame_region(Rect2(Vector2(left_x - 8.0, top_y - 10.0), Vector2(92.0, 86.0)), Rect2(0.0, 70.0, 190.0, 170.0))
-		_draw_frame_region(Rect2(Vector2(right_x - 84.0, top_y - 10.0), Vector2(92.0, 86.0)), Rect2(1396.0, 70.0, 190.0, 170.0))
-		_draw_frame_region(Rect2(Vector2(left_x - 8.0, bottom_y - 76.0), Vector2(92.0, 86.0)), Rect2(0.0, 745.0, 190.0, 170.0))
-		_draw_frame_region(Rect2(Vector2(right_x - 84.0, bottom_y - 76.0), Vector2(92.0, 86.0)), Rect2(1396.0, 745.0, 190.0, 170.0))
-		_draw_frame_region(Rect2(Vector2(ornament_center - ornament_width, top_y - 58.0), Vector2(ornament_width * 2.0, 134.0)), Rect2(692.0, 52.0, 202.0, 178.0))
-		_draw_frame_region(Rect2(Vector2(ornament_center - ornament_width, bottom_y - 76.0), Vector2(ornament_width * 2.0, 134.0)), Rect2(692.0, 790.0, 202.0, 178.0))
-
-	func _draw_frame_region(target: Rect2, source: Rect2) -> void:
-		var fit_scale: float = minf(target.size.x / source.size.x, target.size.y / source.size.y)
-		var fitted_size: Vector2 = source.size * fit_scale
-		var fitted_position: Vector2 = target.position + (target.size - fitted_size) * 0.5
-		draw_texture_rect_region(texture, Rect2(fitted_position, fitted_size), source, Color(1.0, 0.86, 0.56, 0.94))
+		var source_size := Vector2(texture.get_width(), texture.get_height())
+		var fit_scale: float = minf(size.x / source_size.x, size.y / source_size.y)
+		var fitted_size := source_size * fit_scale
+		var fitted_position := (size - fitted_size) * 0.5
+		draw_texture_rect(texture, Rect2(fitted_position, fitted_size), false, Color(0.82, 0.67, 0.43, 0.90))
 
 class PreBattleEquipmentChip:
 	extends EquipmentTooltipPanelContainer
@@ -1330,10 +1299,10 @@ const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stonesk
 const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
 const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance.png"
-const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
+const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 750.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
-const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 224.0)
+const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 210.0)
 const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 152.0)
 const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(46.0, 46.0)
 const PRE_BATTLE_CARD_BADGE_COMPACT_SIZE: Vector2 = Vector2(120.0, 33.0)
@@ -1341,8 +1310,8 @@ const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
-const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v8.png"
-const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v2.png"
+const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v11.png"
+const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v3.png"
 const PRE_BATTLE_DEPTH_ORNAMENT_PATH: String = "res://assets/art/ui/pre_battle_depth_ornament_v2.png"
 const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
 const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
@@ -3228,7 +3197,7 @@ func _rebuild_pre_battle_overlay() -> void:
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
-	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
+	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING + 40))
 	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
 	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
 	_pre_battle_panel.add_child(margin)
@@ -3470,7 +3439,7 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	vbox.add_child(scroll)
 	var flow := PreBattleEnemyFlow.new()
@@ -3487,6 +3456,8 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
 		enemies.append(enemy)
+	if enemies.size() > 5:
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	var card_size: Vector2 = _pre_battle_enemy_card_size(enemies.size())
 	var card_gap: float = 10.0 if enemies.size() >= 4 else 12.0
 	for enemy_var: Variant in enemies:
@@ -3790,8 +3761,9 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_si
 	brush.texture = AssetLoader.load_texture(PRE_BATTLE_BRUSH_PATH)
 	brush.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	brush.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	brush.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	brush.modulate = Color(0.78, 0.80, 0.81, 0.90)
+	brush.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	brush.modulate = Color(0.96, 0.96, 0.96, 0.94)
+	brush.clip_contents = false
 	brush.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	brush.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	stack.add_child(brush)
