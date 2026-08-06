@@ -1,0 +1,73 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*grimoire_search_v1_browse.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [390, 205, 1140, 670], "min_luma_range": 40, "min_luma_stdev": 8},
+        {"rect": [430, 300, 300, 530], "min_luma_range": 18, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*grimoire_search_v1_focused.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [430, 300, 300, 90], "min_luma_range": 12, "min_luma_stdev": 3}
+      ]
+    },
+    {
+      "pattern": "*grimoire_search_v1_rules.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [430, 300, 300, 530], "min_luma_range": 18, "min_luma_stdev": 4},
+        {"rect": [780, 300, 700, 530], "min_luma_range": 20, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*grimoire_search_v1_result_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [430, 390, 300, 110], "min_luma_range": 14, "min_luma_stdev": 3}
+      ]
+    },
+    {
+      "pattern": "*grimoire_search_v1_alias.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [430, 300, 300, 530], "min_luma_range": 18, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*grimoire_search_v1_typo.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [430, 300, 300, 530], "min_luma_range": 18, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*grimoire_search_v1_no_results.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [430, 300, 300, 530], "min_luma_range": 12, "min_luma_stdev": 3},
+        {"rect": [780, 300, 700, 530], "min_luma_range": 16, "min_luma_stdev": 3}
+      ]
+    },
+    {
+      "pattern": "*grimoire_search_v1_restored.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [390, 205, 1140, 670], "min_luma_range": 40, "min_luma_stdev": 8}
+      ]
+    }
+  ]
+}
