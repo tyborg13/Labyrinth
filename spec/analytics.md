@@ -33,6 +33,7 @@ available:
 - `umbra_stage`
 - `umbra_radius`
 - `visible_enemy_count`
+- `objective_type`
 - `defiance_capacity`
 - `defiance_remaining`
 - `combat_unit_scale`, currently `1` for natural whole-number combat units
@@ -165,7 +166,14 @@ append-only schema.
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
 `equipment_drops`, plus the opening Umbra stage, effective vision radius, and
-visible enemy count. `combat_ended` includes `recovered_embers`, the total embers
+visible enemy count. Objective analysis uses the additive `objective_type`,
+`objective_target_clock`, `objective_leader_type`, `objective_exit_count`, and
+`objective_initial_enemy_count` start fields. `combat_ended` records the final
+initiative clock, reinforcement waves, leader-cleared follower count, leader
+completion flag, and reached-exit completion tile alongside the objective type.
+This keeps encounter pacing and reward comparisons objective-aware without
+renaming the established combat event contract. `combat_ended` also includes
+`recovered_embers`, the total embers
 reclaimed from dropped piles during that combat, and `collected_equipment`, the
 equipment ids picked up during that combat. Its additive `missed_equipment` list
 contains equipment ids that were still unclaimed at victory and were resolved

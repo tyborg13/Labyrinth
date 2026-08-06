@@ -35,6 +35,8 @@ const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutori
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const CombatObjectiveHudScript = preload("res://scripts/combat_objective_hud.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
 const MOLTSHARD_GAIN_EVENT_TYPE: String = "progression_moltshard_gained"
 const COMBAT_SKILL_EVENT_STAGED_REVISION_KEY: String = "combat_skill_event_revision_staged"
@@ -1536,6 +1538,7 @@ var _turn_order_anchor: Control
 var _turn_order_bar: Control
 var _turn_order_header_host: Control
 var _turn_order_label: Label
+var _combat_objective_hud: PanelContainer
 var _boss_health_overlay: Control
 var _boss_health_name: Label
 var _boss_health_host: Control
@@ -1963,6 +1966,7 @@ func _apply_style() -> void:
 	header_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_spacer.size_flags_stretch_ratio = 1.0
 	_setup_turn_order_bar()
+	_setup_combat_objective_hud()
 	relic_bar.visible = false
 	relic_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	relic_bar.add_theme_constant_override("h_separation", int(RELIC_BAR_HORIZONTAL_GAP))
@@ -3262,7 +3266,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	var row := HBoxContainer.new()
 	row.name = "PreBattleHeader"
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var header_height: float = 118.0 if _pre_battle_has_active_umbra(combat_state) else 92.0
+	var header_height: float = 174.0 if _pre_battle_has_active_umbra(combat_state) else 148.0
 	row.custom_minimum_size.y = header_height
 	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 
@@ -3464,7 +3468,66 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 			umbra_label.add_theme_color_override("font_outline_color", Color("17100d"))
 			umbra_label.add_theme_constant_override("outline_size", 2)
 			meta_row.add_child(umbra_label)
+	chip.add_child(_build_pre_battle_objective_chip(combat_state, accent))
 	return chip
+
+func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color) -> Control:
+	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
+	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
+	var panel := PanelContainer.new()
+	panel.name = "PreBattleObjectiveChip"
+	panel.custom_minimum_size = Vector2(510.0, 54.0)
+	panel.tooltip_text = CombatObjectiveRules.description(objective_type)
+	panel.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.045, 0.031, 0.05, 0.96)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.76)
+	style.border_width_left = 3
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 9.0
+	style.content_margin_top = 6.0
+	style.content_margin_right = 12.0
+	style.content_margin_bottom = 6.0
+	panel.add_theme_stylebox_override("panel", style)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	panel.add_child(row)
+	var icon := TextureRect.new()
+	icon.name = "PreBattleObjectiveIcon"
+	icon.custom_minimum_size = Vector2(42.0, 42.0)
+	icon.texture = AssetLoader.load_texture(CombatObjectiveRules.icon_path(objective_type))
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+	var stack := VBoxContainer.new()
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.alignment = BoxContainer.ALIGNMENT_CENTER
+	stack.add_theme_constant_override("separation", 0)
+	row.add_child(stack)
+	var title := Label.new()
+	title.text = "OBJECTIVE · %s" % CombatObjectiveRules.display_name(objective_type).to_upper()
+	title.clip_text = true
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	UiTypography.apply_label_role(title, UiTypography.ROLE_SECTION)
+	title.add_theme_font_size_override("font_size", 17)
+	title.add_theme_color_override("font_color", Color("f0cf92"))
+	title.add_theme_color_override("font_outline_color", Color("160e0c"))
+	title.add_theme_constant_override("outline_size", 1)
+	stack.add_child(title)
+	var description_label := Label.new()
+	description_label.text = CombatObjectiveRules.description(objective_type)
+	description_label.clip_text = true
+	description_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	UiTypography.apply_label_role(description_label, UiTypography.ROLE_BODY)
+	description_label.add_theme_font_size_override("font_size", 13)
+	description_label.add_theme_color_override("font_color", Color("c7c1ae"))
+	stack.add_child(description_label)
+	return panel
 
 func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) -> Control:
 	var panel := PanelContainer.new()
@@ -6543,6 +6606,7 @@ func _contextual_combat_prompt_protected_rects() -> Array:
 	for control_var: Variant in [
 		top_bar,
 		_intensity_bar,
+		_combat_objective_hud,
 		draw_pile,
 		discard_pile,
 		_turn_order_panel,
@@ -7163,6 +7227,7 @@ func _layout_elemental_intensity_bar() -> void:
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
 		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
 	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
+	_layout_combat_objective_hud()
 
 func _layout_turn_order_anchor() -> void:
 	if _turn_order_anchor == null:
@@ -7658,6 +7723,7 @@ func _refresh_ui() -> void:
 	_set_stats_label_text(_displayed_ember_count())
 	_refresh_relic_bar()
 	_refresh_turn_order_bar()
+	_refresh_combat_objective_hud()
 	_layout_header_hud()
 	_refresh_elemental_intensity_bar()
 	call_deferred("_layout_header_hud")
@@ -7689,6 +7755,7 @@ func _refresh_animation_lock_ui() -> void:
 	# unrelated maps, relics, piles, progression, and room chrome at the exact moment
 	# the player expects an action to begin.
 	_refresh_turn_order_bar()
+	_refresh_combat_objective_hud()
 	_refresh_card_play_meter()
 	_refresh_choice_bar()
 	_refresh_stage_view()
@@ -8569,6 +8636,45 @@ func _setup_turn_order_bar() -> void:
 	rail.add_child(_turn_order_bar)
 	_turn_order_anchor.add_child(_turn_order_panel)
 	_setup_boss_health_overlay()
+
+func _setup_combat_objective_hud() -> void:
+	if _combat_objective_hud != null:
+		return
+	_combat_objective_hud = CombatObjectiveHudScript.new()
+	_combat_objective_hud.visible = false
+	_combat_objective_hud.z_index = 34
+	ui_root.add_child(_combat_objective_hud)
+	_layout_combat_objective_hud()
+
+func _refresh_combat_objective_hud() -> void:
+	if _combat_objective_hud == null:
+		return
+	var mode: String = str(_run_state.get("mode", "room"))
+	if mode != "combat" or _combat_state.is_empty():
+		_combat_objective_hud.visible = false
+		return
+	_combat_objective_hud.set_combat_state(_board_display_state())
+	_layout_combat_objective_hud()
+
+func _layout_combat_objective_hud() -> void:
+	if _combat_objective_hud == null:
+		return
+	var hud_width: float = 350.0
+	var hud_height: float = 68.0
+	var left: float = UiTypography.SAFE_MARGIN
+	var top: float = 104.0
+	if ui_root != null and _intensity_bar != null and _intensity_bar.visible and _intensity_bar.is_inside_tree():
+		var ui_origin: Vector2 = ui_root.get_global_rect().position
+		var intensity_rect: Rect2 = _intensity_bar.get_global_rect()
+		left = intensity_rect.position.x - ui_origin.x
+		top = intensity_rect.end.y - ui_origin.y + 12.0
+	elif top_bar != null and top_bar.is_inside_tree() and ui_root != null:
+		top = maxf(top, top_bar.get_global_rect().end.y - ui_root.get_global_rect().position.y + 10.0)
+	_combat_objective_hud.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_combat_objective_hud.offset_left = left
+	_combat_objective_hud.offset_top = top
+	_combat_objective_hud.offset_right = left + hud_width
+	_combat_objective_hud.offset_bottom = top + hud_height
 
 func _setup_boss_health_overlay() -> void:
 	_boss_health_overlay = Control.new()
@@ -13164,6 +13270,14 @@ func _refresh_stage_view() -> void:
 		presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
 		presentation["umbra_truesight"] = int(presentation["umbra_truesight_activations"]) != 0
 		presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
+		var objective: Dictionary = display_state.get("objective", {}) as Dictionary
+		if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
+			presentation["objective_exit_target_tiles"] = CombatObjectiveRules.exit_target_tiles(objective)
+			presentation["pulse_exit_tiles"] = true
+		elif str(objective.get("type", "")) == CombatObjectiveRules.KILL_LEADER:
+			var leader_tile: Vector2i = _objective_leader_tile(display_state, objective)
+			if leader_tile.x >= 0:
+				presentation["objective_leader_tile"] = leader_tile
 	var preview: Dictionary = {}
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
@@ -13275,8 +13389,8 @@ func _refresh_stage_view() -> void:
 		(display_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)),
 		_board_status_label(preview),
 		_board_status_detail(preview),
-		_exit_labels_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
-		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
+		_exit_labels_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_labels_for_board(display_state),
+		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_icon_ids_for_board(display_state),
 		presentation
 	)
 	_refresh_boss_health_overlay(display_state, presentation)
@@ -16222,6 +16336,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
 		match str(step.get("kind", "")):
+			"reinforcement_spawn":
+				await _animate_reinforcement_spawn(animated_state, step)
 			"turn_order":
 				await _animate_turn_order_transition(_turn_order_array(step.get("before_order", [])), _turn_order_array(step.get("after_order", [])))
 			"intent":
@@ -16295,6 +16411,46 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					"floating_texts": _floating_texts_for_step(step)
 				})))
 				await _animate_defeats_and_terrain_destruction(before_attack_step_state, animated_state)
+
+func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) -> void:
+	var final_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
+	var spawned: Array = step.get("spawned_enemies", [])
+	if final_state.is_empty() or spawned.is_empty():
+		return
+	_set_action_banner("SURVIVE: REINFORCEMENTS")
+	var frame_count: int = ENEMY_DEATH_MIN_FRAMES
+	var frame_seconds: float = ENEMY_DEATH_FALLBACK_FRAME_SECONDS
+	for enemy_var: Variant in spawned:
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		frame_count = maxi(frame_count, _enemy_death_frame_count_for_unit(enemy))
+		frame_seconds = minf(frame_seconds, _enemy_death_frame_seconds_for_unit(enemy))
+	frame_count = maxi(1, frame_count)
+	for frame: int in range(frame_count):
+		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
+		var animated_units: Array[Dictionary] = []
+		for enemy_var: Variant in spawned:
+			if typeof(enemy_var) != TYPE_DICTIONARY:
+				continue
+			var enemy: Dictionary = (enemy_var as Dictionary).duplicate(true)
+			var enemy_frame_count: int = _enemy_death_frame_count_for_unit(enemy)
+			enemy["key"] = _enemy_key(enemy)
+			enemy["death_frame"] = clampi(int(round((1.0 - progress) * float(maxi(1, enemy_frame_count) - 1))), 0, maxi(0, enemy_frame_count - 1))
+			enemy["death_progress"] = 1.0 - progress
+			animated_units.append(enemy)
+		_render_board_state(animated_state, {
+			"death_animation_units": animated_units,
+			"focus_tiles": [((spawned[0] as Dictionary).get("pos", Vector2i.ZERO))],
+			"focus_color": Color(0.50, 0.26, 0.62, 0.22)
+		})
+		await get_tree().create_timer(frame_seconds).timeout
+	animated_state.clear()
+	animated_state.merge(final_state, true)
+	if _combat_objective_hud != null:
+		_combat_objective_hud.set_combat_state(animated_state)
+	_render_board_state(animated_state, {})
+	await get_tree().create_timer(0.08).timeout
 
 func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var kind: String = str(step.get("kind", ""))
@@ -16518,6 +16674,14 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
 	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	rendered_presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
+	var objective: Dictionary = display_state.get("objective", {}) as Dictionary
+	if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
+		rendered_presentation["objective_exit_target_tiles"] = CombatObjectiveRules.exit_target_tiles(objective)
+		rendered_presentation["pulse_exit_tiles"] = true
+	elif str(objective.get("type", "")) == CombatObjectiveRules.KILL_LEADER:
+		var leader_tile: Vector2i = _objective_leader_tile(display_state, objective)
+		if leader_tile.x >= 0:
+			rendered_presentation["objective_leader_tile"] = leader_tile
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	board_view.set_combat_state(
 		display_state,
@@ -16526,11 +16690,21 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		(display_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)),
 		"",
 		"",
-		{},
-		{},
+		_objective_exit_labels_for_board(display_state),
+		_objective_exit_icon_ids_for_board(display_state),
 		rendered_presentation
 	)
 	_refresh_boss_health_overlay(display_state, rendered_presentation)
+
+func _objective_leader_tile(display_state: Dictionary, objective: Dictionary) -> Vector2i:
+	var leader_id: int = int(objective.get("leader_id", -1))
+	for enemy_var: Variant in display_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if int(enemy.get("id", -2)) == leader_id and int(enemy.get("hp", 0)) > 0:
+			return enemy.get("pos", Vector2i(-1, -1))
+	return Vector2i(-1, -1)
 
 func _board_backdrop_visible_for_board() -> bool:
 	return (
@@ -16560,6 +16734,11 @@ func _equipped_equipment_for_board() -> Dictionary:
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
 	match str(step.get("kind", "")):
+		"reinforcement_spawn":
+			var snapshot: Dictionary = step.get("state", {}) as Dictionary
+			if not snapshot.is_empty():
+				animated_state.clear()
+				animated_state.merge(snapshot.duplicate(true), true)
 		"move":
 			_set_enemy_pos_by_key(animated_state, str(step.get("actor_key", "")), step.get("to", Vector2i.ZERO))
 			_apply_actor_losses(animated_state, step.get("target_losses", []))
@@ -17061,6 +17240,8 @@ func _damaged_enemy_keys(before_state: Dictionary, after_state: Dictionary) -> A
 	var keys: Array[String] = []
 	for enemy_var: Variant in after_state.get("enemies", []):
 		var enemy: Dictionary = enemy_var
+		if bool(enemy.get("objective_cleared", false)):
+			continue
 		var enemy_id: int = int(enemy.get("id", -1))
 		if not before_by_id.has(enemy_id):
 			continue
@@ -17384,6 +17565,8 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 	var floats: Array[Dictionary] = []
 	for enemy_var: Variant in after_state.get("enemies", []):
 		var enemy: Dictionary = enemy_var
+		if bool(enemy.get("objective_cleared", false)):
+			continue
 		var enemy_id: int = int(enemy.get("id", -1))
 		if not before_by_id.has(enemy_id):
 			continue
@@ -21712,10 +21895,12 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"card_instance_id": card_instance_id
 	}
 	if not combat_state.is_empty():
+		var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
 		context["elemental_intensity"] = _combat_engine.elemental_intensities(combat_state)
 		context["umbra_stage"] = _combat_engine.effective_umbra_stage(combat_state)
 		context["umbra_radius"] = _combat_engine.effective_umbra_radius(combat_state)
 		context["visible_enemy_count"] = _combat_engine.visible_enemy_ids(combat_state).size()
+		context["objective_type"] = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
 	return context
 
 func _moltshard_gain_idempotency_key(award_id: String) -> String:
@@ -22169,6 +22354,7 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 		_reset_analytics_combat_tracker()
 
 func _analytics_log_combat_started(reason: String) -> void:
+	var objective: Dictionary = _combat_state.get("objective", {}) as Dictionary
 	_analytics_store.write_event("combat_started", _analytics_context_from_states(_run_state, _combat_state), {
 		"reason": reason,
 		"room_name": str(_combat_state.get("room_name", "")),
@@ -22180,6 +22366,11 @@ func _analytics_log_combat_started(reason: String) -> void:
 		"umbra_stage": _combat_engine.effective_umbra_stage(_combat_state),
 		"umbra_radius": _combat_engine.effective_umbra_radius(_combat_state),
 		"visible_enemy_count": _combat_engine.visible_enemy_ids(_combat_state).size(),
+		"objective_type": str(objective.get("type", CombatObjectiveRules.KILL_ALL)),
+		"objective_target_clock": int(objective.get("target_clock", 0)),
+		"objective_leader_type": str(objective.get("leader_type", "")),
+		"objective_exit_count": (objective.get("exits", []) as Array).size(),
+		"objective_initial_enemy_count": int(objective.get("initial_enemy_count", (_combat_state.get("enemies", []) as Array).size())),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
 		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
 			"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
@@ -22195,10 +22386,18 @@ func _analytics_log_combat_started(reason: String) -> void:
 	_analytics_log_playable_cards()
 
 func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> void:
+	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
 	_analytics_store.write_event("combat_ended", _analytics_context_from_states(_run_state, combat_state), {
 		"reason": reason,
 		"outcome": _combat_engine.combat_outcome(combat_state),
 		"turn": int(combat_state.get("turn", 0)),
+		"initiative_clock": int(combat_state.get("initiative_clock", 0)),
+		"objective_type": str(objective.get("type", CombatObjectiveRules.KILL_ALL)),
+		"objective_target_clock": int(objective.get("target_clock", 0)),
+		"objective_reinforcement_waves": int(objective.get("reinforcement_waves_spawned", 0)),
+		"objective_followers_cleared": int(objective.get("followers_cleared", 0)),
+		"objective_completed_by_leader": bool(objective.get("completed_by_leader", false)),
+		"objective_completion_tile": (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)) if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT else Vector2i(-1, -1),
 		"room_embers": int(combat_state.get("room_embers", 0)),
 		"recovered_embers": int(combat_state.get("recovered_embers_total", 0)),
 		"collected_equipment": (combat_state.get("collected_equipment", []) as Array).duplicate(true),
@@ -22848,6 +23047,34 @@ func _exit_icon_ids_for_board() -> Dictionary:
 		icon_ids[option.get("door_tile", Vector2i(-1, -1))] = RoomIcons.icon_id_for_room(room)
 	return icon_ids
 
+func _objective_exit_labels_for_board(display_state: Dictionary) -> Dictionary:
+	var labels: Dictionary = {}
+	var objective: Dictionary = display_state.get("objective", {}) as Dictionary
+	if str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT:
+		return labels
+	for exit_var: Variant in objective.get("exits", []):
+		if typeof(exit_var) != TYPE_DICTIONARY:
+			continue
+		var exit_spec: Dictionary = exit_var
+		var dir: Vector2i = exit_spec.get("direction", Vector2i.ZERO)
+		var marker: String = "N" if dir == Vector2i(0, -1) else "E" if dir == Vector2i(1, 0) else "S" if dir == Vector2i(0, 1) else "W"
+		labels[exit_spec.get("door_tile", Vector2i(-1, -1))] = marker
+	return labels
+
+func _objective_exit_icon_ids_for_board(display_state: Dictionary) -> Dictionary:
+	var icon_ids: Dictionary = {}
+	var objective: Dictionary = display_state.get("objective", {}) as Dictionary
+	if str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT:
+		return icon_ids
+	for exit_var: Variant in objective.get("exits", []):
+		if typeof(exit_var) != TYPE_DICTIONARY:
+			continue
+		var exit_spec: Dictionary = exit_var
+		var destination: Vector2i = exit_spec.get("coord", Vector2i.ZERO)
+		var room: Dictionary = _run_engine.room_metadata(_run_state, destination)
+		icon_ids[exit_spec.get("door_tile", Vector2i(-1, -1))] = RoomIcons.icon_id_for_room(room)
+	return icon_ids
+
 func _active_door_tiles_for_board() -> Dictionary:
 	var active: Dictionary = {}
 	for option: Dictionary in _run_engine.exit_options(_run_state):
@@ -22855,6 +23082,10 @@ func _active_door_tiles_for_board() -> Dictionary:
 		if door_tile.x < 0:
 			continue
 		active[door_tile] = true
+	var objective: Dictionary = _combat_state.get("objective", {}) as Dictionary
+	if str(_run_state.get("mode", "room")) == "combat" and str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
+		for door_tile: Vector2i in CombatObjectiveRules.exit_door_tiles(objective):
+			active[door_tile] = true
 	return active
 
 func _locked_door_tiles_for_board() -> Dictionary:
@@ -22871,6 +23102,8 @@ func _locked_door_tiles_for_board() -> Dictionary:
 			continue
 		var door_tile: Vector2i = RoomGeneratorScript.door_tile_for_direction(connection.get("door_dir", Vector2i.ZERO))
 		if door_tile.x < 0:
+			continue
+		if _active_door_tiles_for_board().has(door_tile):
 			continue
 		locked[door_tile] = true
 	return locked

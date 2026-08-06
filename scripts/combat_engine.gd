@@ -7,6 +7,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
@@ -624,6 +625,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"room_depth": int(room_layout.get("depth", 1)),
 		"room_type": str(room_layout.get("type", "combat")),
 		"boss_id": str(room_layout.get("boss_id", "")),
+		"objective": (room_layout.get("objective", {}) as Dictionary).duplicate(true),
 		"room_element": str(room_layout.get("element", ElementData.NONE)),
 		"elemental_intensity": _initial_elemental_intensity(str(room_layout.get("element", ElementData.NONE))),
 		"elemental_intensity_gained_total": _empty_elemental_intensity(),
@@ -1422,6 +1424,12 @@ func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
 		var before_pop_state: Dictionary = next_state.duplicate(true)
 		var popped: Dictionary = _pop_next_actor(next_state)
 		next_state = (popped.get("state", next_state) as Dictionary).duplicate(true)
+		for reinforcement_step_var: Variant in popped.get("reinforcement_steps", []):
+			if typeof(reinforcement_step_var) == TYPE_DICTIONARY:
+				steps.append(reinforcement_step_var)
+		if combat_outcome(next_state) != "":
+			_append_commit_step(steps, before_pop_state, next_state, "objective_complete")
+			break
 		var entry: Dictionary = popped.get("entry", {})
 		if entry.is_empty():
 			next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
@@ -1491,6 +1499,13 @@ func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Diction
 		var before_pop_state: Dictionary = next_state.duplicate(true)
 		var popped: Dictionary = _pop_next_actor(next_state)
 		next_state = (popped.get("state", next_state) as Dictionary).duplicate(true)
+		if not (popped.get("reinforcement_steps", []) as Array).is_empty():
+			unrevealed_before_player = true
+			next_state = before_pop_state.duplicate(true)
+			break
+		if combat_outcome(next_state) != "":
+			player_turn_before_state = next_state.duplicate(true)
+			break
 		var entry: Dictionary = popped.get("entry", {})
 		if entry.is_empty():
 			next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
@@ -2030,6 +2045,29 @@ func combat_outcome(state: Dictionary) -> String:
 			if bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
 				return ""
 		return "victory"
+	var objective: Dictionary = state.get("objective", {}) as Dictionary
+	match str(objective.get("type", CombatObjectiveRules.KILL_ALL)):
+		CombatObjectiveRules.KILL_LEADER:
+			var leader_id: int = int(objective.get("leader_id", -1))
+			var leader_index: int = _enemy_index_for_id(state, leader_id)
+			if leader_index < 0:
+				for index: int in range((state.get("enemies", []) as Array).size()):
+					if bool(((state.get("enemies", []) as Array)[index] as Dictionary).get("is_leader", false)):
+						leader_index = index
+						break
+			if leader_index < 0:
+				return "victory" if _live_enemies(state).is_empty() else ""
+			var leader: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[leader_index] as Dictionary)
+			return "victory" if int(leader.get("hp", 0)) <= 0 else ""
+		CombatObjectiveRules.SURVIVE:
+			if int(state.get("initiative_clock", 0)) >= int(objective.get("target_clock", 0)):
+				return "victory"
+			return ""
+		CombatObjectiveRules.REACH_EXIT:
+			var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+			if CombatObjectiveRules.exit_target_tiles(objective).has(player_tile):
+				return "victory"
+			return ""
 	if _live_enemies(state).is_empty():
 		return "victory"
 	return ""
@@ -3297,8 +3335,34 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
 		_record_death_reward(next_state, enemy, reward_embers, bonus_card_plays)
 		next_state = _trigger_enemy_death_relics(next_state, enemy)
-		next_state = _trigger_enemy_death_spawn(next_state, enemy)
+		if bool(enemy.get("is_leader", false)) and str((next_state.get("objective", {}) as Dictionary).get("type", "")) == CombatObjectiveRules.KILL_LEADER:
+			next_state = _clear_remaining_enemies_for_leader_objective(next_state, int(enemy.get("id", -1)))
+		else:
+			next_state = _trigger_enemy_death_spawn(next_state, enemy)
 		_log(next_state, "%s falls." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+	return next_state
+
+func _clear_remaining_enemies_for_leader_objective(state: Dictionary, leader_id: int) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	var cleared_count: int = 0
+	for index: int in range(enemies.size()):
+		if typeof(enemies[index]) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
+		if int(enemy.get("id", -1)) == leader_id or int(enemy.get("hp", 0)) <= 0:
+			continue
+		enemy["hp"] = 0
+		enemy["objective_cleared"] = true
+		enemies[index] = enemy
+		cleared_count += 1
+	next_state["enemies"] = enemies
+	var objective: Dictionary = (next_state.get("objective", {}) as Dictionary).duplicate(true)
+	objective["completed_by_leader"] = true
+	objective["followers_cleared"] = cleared_count
+	next_state["objective"] = objective
+	if cleared_count > 0:
+		_log(next_state, "The leader falls. %d bound foe(s) collapse without reward." % cleared_count)
 	return next_state
 
 func _sunder_enemy_defense(state: Dictionary, enemy_index: int, amount: int) -> Dictionary:
@@ -3864,9 +3928,80 @@ func _pop_next_actor(state: Dictionary) -> Dictionary:
 		next_state["turn_queue"] = queue
 		next_state["current_actor"] = resolved
 		next_state["initiative_clock"] = int(resolved.get("time", next_state.get("initiative_clock", 0)))
-		return {"state": next_state, "entry": resolved}
+		var reinforcement_steps: Array[Dictionary] = _spawn_due_survival_reinforcements(next_state)
+		return {"state": next_state, "entry": resolved, "reinforcement_steps": reinforcement_steps}
 	next_state["turn_queue"] = queue
-	return {"state": next_state, "entry": {}}
+	return {"state": next_state, "entry": {}, "reinforcement_steps": []}
+
+func _spawn_due_survival_reinforcements(state: Dictionary) -> Array[Dictionary]:
+	var steps: Array[Dictionary] = []
+	var objective: Dictionary = (state.get("objective", {}) as Dictionary).duplicate(true)
+	if str(objective.get("type", "")) != CombatObjectiveRules.SURVIVE:
+		return steps
+	var current_clock: int = int(state.get("initiative_clock", 0))
+	var target_clock: int = int(objective.get("target_clock", 0))
+	var interval: int = maxi(1, int(objective.get("reinforcement_interval", CombatObjectiveRules.SURVIVAL_REINFORCEMENT_INTERVAL)))
+	var next_clock: int = int(objective.get("next_reinforcement_clock", interval))
+	if current_clock >= target_clock:
+		return steps
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.state = int(state.get("rng_state", 1))
+	while next_clock <= current_clock and next_clock < target_clock:
+		var spawn_tile: Vector2i = _survival_reinforcement_spawn_tile(state, rng)
+		if spawn_tile.x < 0:
+			break
+		var pool: Array = objective.get("reinforcement_pool", [])
+		if pool.is_empty():
+			break
+		var enemy_type: String = str(pool[rng.randi_range(0, pool.size() - 1)])
+		var spawned_enemy: Dictionary = _spawned_enemy_entry(state, enemy_type, _next_enemy_id(state), spawn_tile, false)
+		spawned_enemy["objective_reinforcement"] = true
+		var enemies: Array = state.get("enemies", []).duplicate(true)
+		enemies.append(spawned_enemy)
+		state["enemies"] = enemies
+		var spawned_index: int = enemies.size() - 1
+		_assign_enemy_intent(state, spawned_index, rng)
+		spawned_enemy = _normalized_enemy((state.get("enemies", []) as Array)[spawned_index] as Dictionary)
+		_schedule_enemy_after_spawn(state, spawned_enemy, int(objective.get("reinforcement_waves_spawned", 0)))
+		objective["reinforcement_waves_spawned"] = int(objective.get("reinforcement_waves_spawned", 0)) + 1
+		next_clock += interval
+		objective["next_reinforcement_clock"] = next_clock
+		state["objective"] = objective.duplicate(true)
+		state["rng_state"] = rng.state
+		_log(state, "%s emerges from the Umbra." % _enemy_display_name(spawned_enemy))
+		steps.append({
+			"kind": "reinforcement_spawn",
+			"spawned_enemies": [spawned_enemy.duplicate(true)],
+			"state": state.duplicate(true)
+		})
+	return steps
+
+func _survival_reinforcement_spawn_tile(state: Dictionary, rng: RandomNumberGenerator) -> Vector2i:
+	var blocked: Dictionary = _enemy_blocking_tiles(state)
+	for trap_var: Variant in state.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY:
+			blocked[(trap_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for loot_var: Variant in state.get("loot", []):
+		if typeof(loot_var) == TYPE_DICTIONARY and not bool((loot_var as Dictionary).get("claimed", false)):
+			blocked[(loot_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var candidates: Array[Dictionary] = []
+	for tile: Vector2i in _all_passable_tiles(state):
+		if blocked.has(tile):
+			continue
+		var edge_distance: int = mini(mini(tile.x, tile.y), mini(8 - tile.x, 8 - tile.y))
+		candidates.append({
+			"tile": tile,
+			"score": PathUtils.manhattan(tile, player_tile) * 8 - edge_distance * 3 + rng.randi_range(0, 5)
+		})
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_score: int = int(a.get("score", 0))
+		var b_score: int = int(b.get("score", 0))
+		if a_score == b_score:
+			return _tile_precedes(a.get("tile", INVALID_TILE), b.get("tile", INVALID_TILE))
+		return a_score > b_score
+	)
+	return candidates[0].get("tile", Vector2i(-1, -1)) if not candidates.is_empty() else Vector2i(-1, -1)
 
 func _schedule_actor(state: Dictionary, entry: Dictionary) -> void:
 	if entry.is_empty():
@@ -6647,17 +6782,24 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		return
 	var total_weight: int = 0
 	for intent: Dictionary in intents:
-		total_weight += maxi(1, int(intent.get("weight", 1)))
+		total_weight += _objective_adjusted_intent_weight(state, intent)
 	var roll: int = rng.randi_range(1, total_weight)
 	var cursor: int = 0
 	for intent: Dictionary in intents:
-		cursor += maxi(1, int(intent.get("weight", 1)))
+		cursor += _objective_adjusted_intent_weight(state, intent)
 		if roll <= cursor:
 			enemy["intent"] = intent.duplicate(true)
 			enemies[enemy_index] = enemy
 			return
 	enemy["intent"] = (intents[0] as Dictionary).duplicate(true)
 	enemies[enemy_index] = enemy
+
+func _objective_adjusted_intent_weight(state: Dictionary, intent: Dictionary) -> int:
+	var weight: int = maxi(1, int(intent.get("weight", 1)))
+	var objective: Dictionary = state.get("objective", {}) as Dictionary
+	if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT and CombatObjectiveRules.is_control_intent(intent):
+		weight *= 3
+	return weight
 
 func _intent_by_id(intents: Array, intent_id: String) -> Dictionary:
 	for intent_var: Variant in intents:
@@ -7021,6 +7163,7 @@ func _best_enemy_direct_attack_candidate(state: Dictionary, enemy: Dictionary, a
 				"steps": int(record.get("steps", 0)),
 				"target_distance": _enemy_distance_to_tile(enemy, target.get("pos", Vector2i.ZERO)),
 				"separation": _enemy_distance_to_tile(candidate_enemy, target.get("pos", Vector2i.ZERO)),
+				"exit_block_score": _objective_exit_block_score(state, destination),
 				"cost": int(record.get("trap_cost", 0)) + int(record.get("steps", 0))
 			}
 			if best.is_empty() or _enemy_direct_attack_candidate_precedes(candidate, best, movement_type):
@@ -7064,6 +7207,10 @@ func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: D
 		var target_order: int = _compare_actor_targets(candidate.get("target", {}), incumbent.get("target", {}))
 		if target_order != 0:
 			return target_order < 0
+	var candidate_exit_block_score: int = int(candidate.get("exit_block_score", 9999))
+	var incumbent_exit_block_score: int = int(incumbent.get("exit_block_score", 9999))
+	if candidate_exit_block_score != incumbent_exit_block_score:
+		return candidate_exit_block_score < incumbent_exit_block_score
 	var candidate_destination: Vector2i = candidate.get("destination", INVALID_TILE)
 	var incumbent_destination: Vector2i = incumbent.get("destination", INVALID_TILE)
 	if candidate_destination != incumbent_destination:
@@ -7079,6 +7226,9 @@ func _best_enemy_future_route_candidate(state: Dictionary, enemy: Dictionary, at
 		var candidate: Dictionary = route_record.duplicate(true)
 		candidate["target"] = target
 		candidate["target_distance"] = _enemy_distance_to_tile(enemy, target.get("pos", Vector2i.ZERO))
+		var route: Array[Vector2i] = _vector2i_values(candidate.get("route", []))
+		var destination_index: int = mini(maxi(0, move_range), maxi(0, route.size() - 1))
+		candidate["exit_block_score"] = _objective_exit_block_score(state, route[destination_index] if not route.is_empty() else enemy.get("pos", Vector2i.ZERO))
 		if best.is_empty() or _enemy_future_route_candidate_precedes(candidate, best):
 			best = candidate
 	return best
@@ -7103,7 +7253,25 @@ func _enemy_future_route_candidate_precedes(candidate: Dictionary, incumbent: Di
 	var target_order: int = _compare_actor_targets(candidate.get("target", {}), incumbent.get("target", {}))
 	if target_order != 0:
 		return target_order < 0
+	var candidate_exit_block_score: int = int(candidate.get("exit_block_score", 9999))
+	var incumbent_exit_block_score: int = int(incumbent.get("exit_block_score", 9999))
+	if candidate_exit_block_score != incumbent_exit_block_score:
+		return candidate_exit_block_score < incumbent_exit_block_score
 	return _enemy_path_precedes(_vector2i_values(candidate.get("route", [])), _vector2i_values(incumbent.get("route", [])))
+
+func _objective_exit_block_score(state: Dictionary, destination: Vector2i) -> int:
+	var objective: Dictionary = state.get("objective", {}) as Dictionary
+	if str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT:
+		return 9999
+	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var best_score: int = 9999
+	for exit_tile: Vector2i in CombatObjectiveRules.exit_target_tiles(objective):
+		var score: int = PathUtils.manhattan(destination, exit_tile)
+		var player_route: Array[Vector2i] = PathUtils.find_path(state.get("grid", []), player_tile, exit_tile, {})
+		if player_route.has(destination):
+			score -= 20
+		best_score = mini(best_score, score)
+	return best_score
 
 func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, target: Dictionary, move_range: int) -> Dictionary:
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)

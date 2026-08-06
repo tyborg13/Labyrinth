@@ -95,6 +95,7 @@ func write_event(event_type: String, context: Dictionary = {}, payload: Dictiona
 		"umbra_stage": str(context.get("umbra_stage", "")),
 		"umbra_radius": int(context.get("umbra_radius", -1)),
 		"visible_enemy_count": int(context.get("visible_enemy_count", -1)),
+		"objective_type": str(context.get("objective_type", "")),
 		"card_id": str(context.get("card_id", "")),
 		"card_instance_id": str(context.get("card_instance_id", "")),
 		"payload": _sanitize_variant(payload)

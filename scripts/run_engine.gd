@@ -2025,7 +2025,8 @@ func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 		"enemies": [],
 		"traps": combat_state.get("traps", []).duplicate(true),
 		"loot": combat_state.get("loot", []).duplicate(true),
-		"terrain": combat_state.get("terrain", []).duplicate(true)
+		"terrain": combat_state.get("terrain", []).duplicate(true),
+		"objective": (combat_state.get("objective", {}) as Dictionary).duplicate(true)
 	}
 
 func _room_type_for_coord(seed: int, coord: Vector2i) -> String:

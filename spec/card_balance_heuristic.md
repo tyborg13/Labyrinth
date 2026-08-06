@@ -116,6 +116,17 @@ grouped by active relic ids.
 
 Encounter calibration is also important:
 
+- The first combat remains a `Kill All` onboarding encounter. Later standard
+  rooms deterministically use a `40/20/20/20` mix of `Kill All`, `Kill the
+  Leader`, `Survive`, and `Reach the Exit`. Survival targets initiative clock
+  `42/46/50` at local depths `1/2/3` and schedules one reinforcement every `16`
+  time. Reach-exit rooms add `1/2/2` enemies plus `3` destructible terrain
+  pieces, favor control intents, and bias enemy routes toward the player's exit
+  lane. Leader kills immediately clear surviving followers without follower
+  ember or death-play rewards. Keep the scalar card score objective-neutral;
+  compare realized movement/control, AOE, and execute value by
+  `objective_type` analytics cohorts and call out objective-specific strengths
+  during review.
 - A complete run has six four-depth sequences. The first three depths of each
   sequence average about `3`, `4`, and `5` enemies, and the fourth depth is a
   boss gate. The first five gates draw Zekarion and the earth, fire, air, and

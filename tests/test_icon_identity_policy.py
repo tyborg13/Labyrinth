@@ -9,6 +9,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ACTION_ICON_LIBRARY = REPO_ROOT / "scripts" / "action_icon_library.gd"
+COMBAT_OBJECTIVE_RULES = REPO_ROOT / "scripts" / "combat_objective_rules.gd"
 ROOTS = {
     "ICON_ROOT": "assets/art/icons",
     "SKILL_ICON_ROOT": "assets/art/skills",
@@ -44,6 +45,13 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
 ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
+}
+
+EXPECTED_OBJECTIVE_ICONS = {
+    "kill_all": "res://assets/art/icons/objectives/kill_all_enemies.png",
+    "kill_leader": "res://assets/art/icons/objectives/kill_the_leader.png",
+    "survive": "res://assets/art/icons/objectives/survive.png",
+    "reach_exit": "res://assets/art/icons/objectives/reach_the_exit.png",
 }
 
 
@@ -135,6 +143,16 @@ class IconIdentityPolicyTests(unittest.TestCase):
                 path = definition.get(field, "")
                 self.assertTrue(path, f"{family}:{item_id} must declare {field}")
                 concepts[f"{family}:{item_id}"] = path
+
+        objective_rules = COMBAT_OBJECTIVE_RULES.read_text(encoding="utf-8")
+        for objective_id, path in EXPECTED_OBJECTIVE_ICONS.items():
+            filename = path.rsplit("/", 1)[-1]
+            self.assertIn(
+                f'"icon_path": ICON_ROOT + "{filename}"',
+                objective_rules,
+                f"objective:{objective_id} must resolve through the central objective registry",
+            )
+            concepts[f"objective:{objective_id}"] = path
 
         paths: dict[str, str] = {}
         hashes: dict[str, str] = {}

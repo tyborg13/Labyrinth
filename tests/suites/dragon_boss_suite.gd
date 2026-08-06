@@ -11,6 +11,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 
 const TEST_SEED: int = 74123
 const NEW_BOSS_IDS: Array[String] = ["tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax"]
@@ -532,4 +533,14 @@ static func _defeated_all_enemy_combat(combat_state: Dictionary) -> Dictionary:
 		enemy["hp"] = 0
 		enemies[index] = enemy
 	result["enemies"] = enemies
+	var objective: Dictionary = result.get("objective", {}) as Dictionary
+	match str(objective.get("type", CombatObjectiveRules.KILL_ALL)):
+		CombatObjectiveRules.SURVIVE:
+			result["initiative_clock"] = int(objective.get("target_clock", result.get("initiative_clock", 0)))
+		CombatObjectiveRules.REACH_EXIT:
+			var target_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
+			if not target_tiles.is_empty():
+				var player: Dictionary = (result.get("player", {}) as Dictionary).duplicate(true)
+				player["pos"] = target_tiles[0]
+				result["player"] = player
 	return result

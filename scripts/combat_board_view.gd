@@ -11,6 +11,7 @@ const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 
 signal tile_clicked(tile: Vector2i)
 signal tile_hovered(tile: Vector2i)
@@ -1210,7 +1211,9 @@ func _rebuild_submission_caches() -> bool:
 		"visible_enemy_ids": presentation.get("visible_enemy_ids", []),
 		"umbra_visible_tiles": presentation.get("umbra_visible_tiles", []),
 		"umbra_light_sources": presentation.get("umbra_light_sources", []),
-		"umbra_stage": presentation.get("umbra_stage", "clear")
+		"umbra_stage": presentation.get("umbra_stage", "clear"),
+		"objective_exit_target_tiles": presentation.get("objective_exit_target_tiles", []),
+		"objective_leader_tile": presentation.get("objective_leader_tile", Vector2i(-1, -1))
 	}
 	var cache_source: Dictionary = {"combat": combat_source, "presentation": presentation_source}
 	_submission_cache_combat_changed = (
@@ -2916,6 +2919,11 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
+	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
+		_draw_objective_leader_beacon(tile)
+	var objective_exit_targets: Array[Vector2i] = _vector2i_array(presentation.get("objective_exit_target_tiles", []))
+	if objective_exit_targets.has(tile):
+		_draw_objective_exit_target(tile)
 	if exit_tiles.has(tile):
 		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
 		if bool(presentation.get("pulse_exit_tiles", false)):
@@ -2988,6 +2996,33 @@ func _draw_exit_tile_pulse(tile: Vector2i) -> void:
 	var width: float = lerpf(1.4, 3.0, pulse)
 	var scale: float = lerpf(0.84, 0.98, pulse)
 	_draw_tile_ring(tile, Color(1.0, 0.83, 0.38, alpha), width, scale)
+
+func _draw_objective_exit_target(tile: Vector2i) -> void:
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	draw_colored_polygon(polygon, Color(0.15, 0.70, 0.72, 0.30))
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.05)
+	_draw_tile_ring(tile, Color(0.52, 0.95, 0.91, lerpf(0.66, 0.96, pulse)), lerpf(2.5, 4.0, pulse), 0.90)
+	var texture: Texture2D = AssetLoader.load_texture(CombatObjectiveRules.icon_path(CombatObjectiveRules.REACH_EXIT))
+	if texture == null:
+		return
+	var icon_size: float = clampf(_tile_width() * 0.30, 34.0, 50.0)
+	var center: Vector2 = _tile_center(tile) - Vector2(0.0, _tile_height() * 0.03)
+	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
+	draw_texture_rect(texture, icon_rect, false, Color(0.88, 1.0, 0.96, 0.92))
+	_register_tooltip(icon_rect, "Objective threshold · Reach this tile to clear the encounter.")
+
+func _draw_objective_leader_beacon(tile: Vector2i) -> void:
+	draw_colored_polygon(_tile_polygon(tile), Color(0.62, 0.30, 0.08, 0.22))
+	_draw_tile_ring(tile, Color(0.98, 0.73, 0.28, 0.92), 3.2, 0.93)
+	var texture: Texture2D = AssetLoader.load_texture(CombatObjectiveRules.icon_path(CombatObjectiveRules.KILL_LEADER))
+	if texture == null:
+		return
+	var icon_size: float = clampf(_tile_width() * 0.21, 28.0, 40.0)
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.18)
+	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
+	draw_texture_rect(texture, icon_rect, false, Color(1.0, 0.90, 0.70, 0.88))
+	_register_tooltip(icon_rect, "Marked leader · Defeat this enemy to clear the encounter.")
 
 func _draw_tile_ring(tile: Vector2i, color: Color, width: float, scale: float = 0.92) -> void:
 	var center: Vector2 = _tile_center(tile)
@@ -4049,6 +4084,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"type": str(enemy.get("type", "")),
 			"name": str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
 			"boss_bar": bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)),
+			"is_leader": bool(enemy.get("is_leader", false)),
 			"footprint": enemy.get("footprint", Vector2i.ONE),
 			"intent": enemy.get("intent", {}),
 			"pos": enemy.get("pos", Vector2i.ZERO),
@@ -4195,6 +4231,7 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 			_draw_enemy_hud_tether(unit, center, enemy_layout)
 			_draw_health_bar(unit, health_rect)
 			_draw_unit_statuses(unit, health_rect)
+			_draw_leader_marker(unit, health_rect, enemy_layout.get("intent_rect", Rect2()) as Rect2)
 			_draw_enemy_intent_layout(enemy_layout, font)
 			for rect_var: Variant in enemy_layout.get("occupied_rects", []):
 				if typeof(rect_var) == TYPE_RECT2:
@@ -4227,6 +4264,7 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 				_draw_enemy_hud_tether(unit, center, layout)
 				_draw_health_bar(unit, health_rect)
 				_draw_unit_statuses(unit, health_rect)
+				_draw_leader_marker(unit, health_rect, layout.get("intent_rect", Rect2()) as Rect2)
 				_draw_enemy_intent_layout(layout, font)
 			_:
 				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
@@ -4375,6 +4413,21 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	if stoneskin_amount > 0:
 		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
 		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
+
+func _draw_leader_marker(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2 = Rect2()) -> void:
+	if not bool(unit.get("is_leader", false)):
+		return
+	var marker_rect: Rect2 = _leader_marker_rect(unit, health_rect, intent_rect)
+	draw_rect(marker_rect, Color(0.12, 0.055, 0.045, 0.96), true)
+	draw_rect(marker_rect, Color("e4b65f"), false, 2.0)
+	var texture: Texture2D = AssetLoader.load_texture(CombatObjectiveRules.icon_path(CombatObjectiveRules.KILL_LEADER))
+	if texture != null:
+		var icon_rect := Rect2(marker_rect.position + Vector2(3.0, 2.0), Vector2(20.0, 20.0))
+		draw_texture_rect(texture, icon_rect, false)
+	var font: Font = get_theme_default_font()
+	if font != null:
+		draw_string(font, marker_rect.position + Vector2(24.0, 17.0), "LEADER", HORIZONTAL_ALIGNMENT_CENTER, 61.0, 11, Color("ffe2a3"))
+	_register_tooltip(marker_rect, "Leader · Defeating this marked enemy clears the encounter immediately.")
 
 func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> void:
 	var font: Font = get_theme_default_font()
@@ -4969,7 +5022,20 @@ func _enemy_hud_collision_rects(unit: Dictionary, health_rect: Rect2, intent_rec
 	var rects: Array[Rect2] = _health_bar_collision_rects(unit, health_rect)
 	if intent_rect.size.x > 0.0 and intent_rect.size.y > 0.0:
 		rects.append(intent_rect)
+	var leader_rect: Rect2 = _leader_marker_rect(unit, health_rect, intent_rect)
+	if leader_rect.size.x > 0.0 and leader_rect.size.y > 0.0:
+		rects.append(leader_rect)
 	return rects
+
+func _leader_marker_rect(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2 = Rect2()) -> Rect2:
+	if not bool(unit.get("is_leader", false)) or health_rect.size.x <= 0.0:
+		return Rect2()
+	var marker_size := Vector2(88.0, 24.0)
+	var top: float = minf(health_rect.position.y, intent_rect.position.y) if intent_rect.size.y > 0.0 else health_rect.position.y
+	return Rect2(
+		Vector2(health_rect.get_center().x - marker_size.x * 0.5, top - marker_size.y - 5.0),
+		marker_size
+	)
 
 func _health_bar_collision_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
 	var rects: Array[Rect2] = []

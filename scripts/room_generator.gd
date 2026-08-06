@@ -5,6 +5,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 
 const ROOM_WIDTH: int = 9
 const ROOM_HEIGHT: int = 9
@@ -115,8 +116,14 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 
 	var player_start: Vector2i = entrance_tile
 	var boss_id: String = str(room.get("boss_id", ""))
+	var objective: Dictionary = CombatObjectiveRules.build_for_room(run_seed, room, travel_dir)
 	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
-	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng)
+	enemy_types = _objective_adjusted_enemy_types(enemy_types, objective, encounter_depth, rng)
+	if str(objective.get("type", "")) == CombatObjectiveRules.SURVIVE:
+		objective["reinforcement_pool"] = _unique_enemy_types(enemy_types)
+	objective["initial_enemy_count"] = enemy_types.size()
+	var objective_exit_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
+	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng, objective_exit_tiles)
 	var enemies: Array[Dictionary] = []
 	for index: int in range(enemy_types.size()):
 		var enemy_type: String = str(enemy_types[index])
@@ -135,6 +142,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		if footprint.size() >= 2:
 			enemy["footprint"] = Vector2i(int(footprint[0]), int(footprint[1]))
 		enemies.append(enemy)
+	_apply_leader_objective(enemies, objective)
 
 	var occupied: Dictionary = {player_start: true}
 	for enemy: Dictionary in enemies:
@@ -149,7 +157,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var loot: Array[Dictionary] = _generate_loot(grid, room, rng, occupied)
 	for loot_entry: Dictionary in loot:
 		occupied[loot_entry.get("pos", Vector2i(-1, -1))] = true
-	var terrain: Array[Dictionary] = _generate_terrain(grid, room_type, player_start, rng, occupied)
+	var terrain: Array[Dictionary] = _generate_terrain(grid, room_type, player_start, rng, occupied, objective)
 
 	return {
 		"name": _room_name(coord, room_type, rng, boss_id),
@@ -166,6 +174,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"traps": traps,
 		"loot": loot,
 		"terrain": terrain,
+		"objective": objective,
 		"theme": TILE_STONE
 	}
 
@@ -472,6 +481,52 @@ func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGene
 	_add_element_locked_enemy_type_pools(pool, depth, room_element)
 	return pool[rng.randi_range(0, pool.size() - 1)].duplicate()
 
+func _objective_adjusted_enemy_types(enemy_types: Array, objective: Dictionary, encounter_depth: int, rng: RandomNumberGenerator) -> Array:
+	var adjusted: Array = enemy_types.duplicate()
+	if str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT or adjusted.is_empty():
+		return adjusted
+	var extra_count: int = int(objective.get("extra_enemy_count", 0))
+	if extra_count <= 0:
+		return adjusted
+	if not adjusted.has("chainbound_gaoler"):
+		adjusted.append("chainbound_gaoler")
+		extra_count -= 1
+	var blocker_pool: Array[String] = ["warden", "harrier", "crawler", "acolyte"]
+	while extra_count > 0:
+		var pool_index: int = posmod(rng.randi() + encounter_depth + extra_count, blocker_pool.size())
+		adjusted.append(blocker_pool[pool_index])
+		extra_count -= 1
+	return adjusted
+
+func _unique_enemy_types(enemy_types: Array) -> Array[String]:
+	var unique: Array[String] = []
+	for enemy_type_var: Variant in enemy_types:
+		var enemy_type: String = str(enemy_type_var)
+		if not enemy_type.is_empty() and not unique.has(enemy_type):
+			unique.append(enemy_type)
+	return unique
+
+func _apply_leader_objective(enemies: Array[Dictionary], objective: Dictionary) -> void:
+	if str(objective.get("type", "")) != CombatObjectiveRules.KILL_LEADER or enemies.is_empty():
+		return
+	var leader_index: int = 0
+	var highest_hp: int = -1
+	for index: int in range(enemies.size()):
+		var max_hp: int = int(enemies[index].get("max_hp", 0))
+		if max_hp > highest_hp:
+			highest_hp = max_hp
+			leader_index = index
+	var leader: Dictionary = enemies[leader_index]
+	var multiplier: float = float(objective.get("leader_health_multiplier", 1.5))
+	var leader_max_hp: int = maxi(1, ceili(float(leader.get("max_hp", 1)) * multiplier))
+	leader["max_hp"] = leader_max_hp
+	leader["hp"] = leader_max_hp
+	leader["stoneskin"] = int(leader.get("stoneskin", 0)) + int(objective.get("leader_stoneskin", 0))
+	leader["is_leader"] = true
+	enemies[leader_index] = leader
+	objective["leader_id"] = int(leader.get("id", -1))
+	objective["leader_type"] = str(leader.get("type", ""))
+
 func _base_encounter_enemy_type_pool(depth: int) -> Array:
 	var pool: Array = []
 	match depth:
@@ -551,7 +606,7 @@ func _pick_boss_enemy_positions(enemy_types: Array) -> Array[Vector2i]:
 			minion_index += 1
 	return positions
 
-func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng: RandomNumberGenerator) -> Array[Vector2i]:
+func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng: RandomNumberGenerator, objective_exit_tiles: Array[Vector2i]) -> Array[Vector2i]:
 	var floor_tiles: Array[Vector2i] = _floor_tiles(grid)
 	var candidates: Array[Vector2i] = []
 	for tile: Vector2i in floor_tiles:
@@ -572,7 +627,7 @@ func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng:
 			var tile: Vector2i = candidates[index]
 			scored.append({
 				"index": index,
-				"score": _enemy_spawn_score(tile, player_start, chosen, rng)
+				"score": _enemy_spawn_score(tile, player_start, chosen, rng, objective_exit_tiles)
 			})
 		scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 			return float(a.get("score", 0.0)) > float(b.get("score", 0.0))
@@ -610,11 +665,16 @@ func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng:
 				break
 	return chosen
 
-func _enemy_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vector2i], rng: RandomNumberGenerator) -> float:
+func _enemy_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vector2i], rng: RandomNumberGenerator, objective_exit_tiles: Array[Vector2i]) -> float:
 	var score: float = rng.randf() * 1.4
 	var player_distance: int = PathUtils.manhattan(tile, player_start)
 	score -= absf(float(player_distance - 4)) * 0.08
 	score -= float(_room_edge_count(tile)) * 0.12
+	if not objective_exit_tiles.is_empty():
+		var nearest_exit_distance: int = 99
+		for exit_tile: Vector2i in objective_exit_tiles:
+			nearest_exit_distance = mini(nearest_exit_distance, PathUtils.manhattan(tile, exit_tile))
+		score += maxf(0.0, 4.0 - float(nearest_exit_distance)) * 0.22
 	if chosen.is_empty():
 		return score
 	var nearest_distance: int = 99
@@ -777,14 +837,16 @@ func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: R
 			best_tile = tile
 	return best_tile
 
-func _generate_terrain(grid: Array, room_type: String, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
+func _generate_terrain(grid: Array, room_type: String, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary, objective: Dictionary) -> Array[Dictionary]:
 	var terrain: Array[Dictionary] = []
 	if room_type not in ["combat", "boss"]:
 		return terrain
 	var target_count: int = rng.randi_range(TERRAIN_TARGET_COUNT_MIN, TERRAIN_TARGET_COUNT_MAX)
 	if room_type == "boss":
 		target_count = maxi(3, target_count - 2)
-	var candidates: Array[Vector2i] = _terrain_candidates(grid, player_start, occupied)
+	target_count += int(objective.get("terrain_bonus", 0))
+	var objective_exit_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
+	var candidates: Array[Vector2i] = _terrain_candidates(grid, player_start, occupied, objective_exit_tiles)
 	var terrain_blocked: Dictionary = {}
 	while terrain.size() < target_count and not candidates.is_empty():
 		var best_index: int = -1
@@ -798,6 +860,11 @@ func _generate_terrain(grid: Array, room_type: String, player_start: Vector2i, r
 			if not _terrain_layout_stays_connected(grid, player_start, proposed_blocked):
 				continue
 			var score: float = _terrain_spawn_score(tile, player_start, terrain_blocked, rng)
+			if not objective_exit_tiles.is_empty():
+				var nearest_exit_distance: int = 99
+				for exit_tile: Vector2i in objective_exit_tiles:
+					nearest_exit_distance = mini(nearest_exit_distance, PathUtils.manhattan(tile, exit_tile))
+				score += maxf(0.0, 4.0 - float(nearest_exit_distance)) * 0.14
 			if score > best_score:
 				best_score = score
 				best_index = index
@@ -816,10 +883,12 @@ func _generate_terrain(grid: Array, room_type: String, player_start: Vector2i, r
 		})
 	return terrain
 
-func _terrain_candidates(grid: Array, player_start: Vector2i, occupied: Dictionary) -> Array[Vector2i]:
+func _terrain_candidates(grid: Array, player_start: Vector2i, occupied: Dictionary, objective_exit_tiles: Array[Vector2i]) -> Array[Vector2i]:
 	var protected_tiles: Dictionary = {}
 	for tile: Vector2i in PathUtils.diamond_tiles(player_start, 1, grid):
 		protected_tiles[tile] = true
+	for exit_tile: Vector2i in objective_exit_tiles:
+		protected_tiles[exit_tile] = true
 	var candidates: Array[Vector2i] = []
 	for tile: Vector2i in _floor_tiles(grid):
 		if occupied.has(tile) or protected_tiles.has(tile):

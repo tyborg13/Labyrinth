@@ -10,6 +10,7 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 - Relics and equipment each require their own purpose-built icon asset. Placeholder and category icons are not shippable identity art.
 - Distinct keyword keys require distinct assets unless the keys are aliases for the exact same player-facing concept and the alias is explicitly documented in data and in the test exception list.
 - Action types and grimoire topics must resolve through the central `ActionIconLibrary` registry. A direct-path fallback, a procedural substitute, or consumer-local remapping can otherwise bypass the identity audit and is prohibited.
+- Combat objectives must resolve through the central `CombatObjectiveRules` registry so their preview, live HUD, board markers, and tooltips share one audited purpose-built identity.
 - Icons must remain distinguishable by silhouette at their smallest shipped display size; hue alone is not identity.
 - New icon-bearing collections must join `tests/test_icon_identity_policy.py` in the same change that introduces the collection.
 
