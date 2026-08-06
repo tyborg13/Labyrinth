@@ -89,6 +89,7 @@ static func _score_entry(entry: Dictionary, query: String, query_tokens: PackedS
 	var match_kind: String = _match_kind(matched_kinds, relied_on_fuzzy)
 	return {
 		"entry": entry,
+		"rank_tier": _rank_tier(title_text == query, matched_kinds, relied_on_fuzzy),
 		"score": score,
 		"match_kind": match_kind,
 		"breadcrumb": _breadcrumb(entry, section_titles)
@@ -197,6 +198,25 @@ static func _match_kind(kinds: Array[String], relied_on_fuzzy: bool) -> String:
 		return "topic"
 	return "rules"
 
+static func _rank_tier(exact_title: bool, kinds: Array[String], relied_on_fuzzy: bool) -> int:
+	if relied_on_fuzzy:
+		return 0
+	if exact_title:
+		return 60
+	if kinds.size() == 1 and kinds.has("title"):
+		return 50
+	if kinds.has("title"):
+		return 45
+	if kinds.size() == 1 and kinds.has("alias"):
+		return 40
+	if kinds.has("alias"):
+		return 35
+	if kinds.size() == 1 and kinds.has("topic"):
+		return 30
+	if kinds.has("topic"):
+		return 25
+	return 20
+
 static func _phrase_list_contains(normalized_values: String, query: String) -> bool:
 	if normalized_values == query:
 		return true
@@ -216,6 +236,10 @@ static func _string_values(value: Variant) -> Array[String]:
 	return result
 
 static func _result_before(left: Dictionary, right: Dictionary) -> bool:
+	var left_tier: int = int(left.get("rank_tier", 0))
+	var right_tier: int = int(right.get("rank_tier", 0))
+	if left_tier != right_tier:
+		return left_tier > right_tier
 	var left_score: int = int(left.get("score", 0))
 	var right_score: int = int(right.get("score", 0))
 	if left_score != right_score:
