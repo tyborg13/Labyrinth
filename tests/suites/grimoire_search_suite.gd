@@ -32,6 +32,19 @@ static func run(expect: Callable) -> void:
 			"section": "keywords",
 			"title": "Turning",
 			"body": ["A turn clock curiosity."]
+		},
+		{
+			"id": "keyword:crystal_armor",
+			"section": "keywords",
+			"title": "Crystal Armor",
+			"body": ["A title-word ranking check."]
+		},
+		{
+			"id": "combat:health_defense",
+			"section": "combat",
+			"title": "Health and Defenses",
+			"aliases": ["armor"],
+			"body": ["A common armor term."]
 		}
 	]
 
@@ -45,6 +58,9 @@ static func run(expect: Callable) -> void:
 	var alias_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "initiative")
 	expect.call(not alias_results.is_empty() and str((alias_results[0].get("entry", {}) as Dictionary).get("id", "")) == "combat:turn_clock", "Grimoire search should honor familiar aliases")
 	expect.call(str(alias_results[0].get("match_kind", "")) == "alias", "Alias matches should explain their result source")
+
+	var title_word_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "armor")
+	expect.call(not title_word_results.is_empty() and str((title_word_results[0].get("entry", {}) as Dictionary).get("id", "")) == "keyword:crystal_armor", "An exact title word should outrank the same word used as an alias")
 
 	var rules_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "reshuffle")
 	expect.call(not rules_results.is_empty() and str((rules_results[0].get("entry", {}) as Dictionary).get("id", "")) == "combat:fatigue", "Grimoire search should find mechanics inside rules text")

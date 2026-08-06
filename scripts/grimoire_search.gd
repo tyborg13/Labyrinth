@@ -3,7 +3,7 @@ class_name GrimoireSearch
 
 const _TITLE_EXACT_BOOST: int = 1200
 const _TITLE_PREFIX_BOOST: int = 760
-const _TITLE_PHRASE_BOOST: int = 620
+const _TITLE_PHRASE_BOOST: int = 760
 const _ALIAS_EXACT_BOOST: int = 700
 const _ALIAS_PHRASE_BOOST: int = 430
 const _TOPIC_PHRASE_BOOST: int = 260

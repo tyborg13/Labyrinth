@@ -101,6 +101,9 @@ func _run_probe() -> void:
 	var search_buttons: Array[Button] = instance.get("_grimoire_search_result_buttons") as Array[Button]
 	_expect(not search_buttons.is_empty() and _capture_viewport.gui_get_focus_owner() == search_buttons[0], "Down from search should visibly focus the first result")
 	await _capture("grimoire_search_v1_result_focus.png")
+	await _activate_focused_control()
+	var activated_search_result: Control = _capture_viewport.gui_get_focus_owner()
+	_expect(activated_search_result != null and str(activated_search_result.get_meta("grimoire_nav_id", "")) == "combat:fatigue", "Accepting a search result should keep focus on its rebuilt row")
 	input.grab_focus()
 	await _settle()
 
@@ -124,6 +127,13 @@ func _run_probe() -> void:
 	await _set_query(instance, input, "")
 	_expect(str(instance.get("_grimoire_selected_entry")) == "combat:fatigue", "Clearing search should restore the pre-search browse selection")
 	_expect(absi(browse_scroll.scroll_vertical - browse_scroll_before_search) <= 1, "Clearing search should restore the pre-search browse scroll position")
+	var browse_fatigue_button: Button = _find_nav_button(instance, "entry", "combat:fatigue")
+	_expect(browse_fatigue_button != null, "Restored browsing should expose the previously selected entry row")
+	if browse_fatigue_button != null:
+		browse_fatigue_button.grab_focus()
+		await _activate_focused_control()
+		var activated_browse_result: Control = _capture_viewport.gui_get_focus_owner()
+		_expect(activated_browse_result != null and str(activated_browse_result.get_meta("grimoire_nav_id", "")) == "combat:fatigue", "Accepting a browse entry should keep focus on its rebuilt row")
 	await _capture("grimoire_search_v1_restored.png")
 
 	instance.call("_close_grimoire_overlay")
@@ -141,6 +151,25 @@ func _set_query(instance: Node, input: LineEdit, query: String) -> void:
 	input.set_block_signals(false)
 	instance.call("_on_grimoire_search_text_changed", query)
 	await _settle()
+
+func _activate_focused_control() -> void:
+	var pressed := InputEventAction.new()
+	pressed.action = "ui_accept"
+	pressed.pressed = true
+	_capture_viewport.push_input(pressed, true)
+	await process_frame
+	var released := InputEventAction.new()
+	released.action = "ui_accept"
+	released.pressed = false
+	_capture_viewport.push_input(released, true)
+	await _settle()
+
+func _find_nav_button(instance: Node, kind: String, item_id: String) -> Button:
+	var buttons: Array[Button] = instance.get("_grimoire_nav_buttons") as Array[Button]
+	for button: Button in buttons:
+		if str(button.get_meta("grimoire_nav_kind", "")) == kind and str(button.get_meta("grimoire_nav_id", "")) == item_id:
+			return button
+	return null
 
 func _capture(file_name: String) -> void:
 	await process_frame

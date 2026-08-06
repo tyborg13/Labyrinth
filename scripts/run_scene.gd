@@ -4996,6 +4996,8 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 			str(section.get("summary", "")),
 			"section"
 		)
+		section_button.set_meta("grimoire_nav_kind", "section")
+		section_button.set_meta("grimoire_nav_id", section_id)
 		section_button.pressed.connect(_on_grimoire_section_pressed.bind(section_id))
 		_add_grimoire_nav_button(section_button, 0)
 		if section_selected and _grimoire_selected_entry.is_empty():
@@ -5020,6 +5022,8 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 				"",
 				"group"
 			)
+			group_button.set_meta("grimoire_nav_kind", "group")
+			group_button.set_meta("grimoire_nav_id", "%s:%s" % [section_id, group_id])
 			group_button.pressed.connect(_on_grimoire_group_pressed.bind(section_id, group_id))
 			_add_grimoire_nav_button(group_button, 1)
 			if not group_selected:
@@ -5089,6 +5093,8 @@ func _add_grimoire_search_result(result: Dictionary, unread: Array[String]) -> v
 	)
 	button.custom_minimum_size.y = 60.0
 	button.focus_mode = Control.FOCUS_ALL
+	button.set_meta("grimoire_nav_kind", "entry")
+	button.set_meta("grimoire_nav_id", entry_id)
 	button.pressed.connect(_on_grimoire_entry_pressed.bind(entry_id))
 	var content := VBoxContainer.new()
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -5332,6 +5338,8 @@ func _add_grimoire_entry_tab(entry: Dictionary, unread: Array[String], depth: in
 		str(entry.get("title", entry_id)),
 		"entry"
 	)
+	button.set_meta("grimoire_nav_kind", "entry")
+	button.set_meta("grimoire_nav_id", entry_id)
 	button.pressed.connect(_on_grimoire_entry_pressed.bind(entry_id))
 	_add_grimoire_nav_button(button, depth)
 	return _grimoire_section_list.get_child_count() - 1
@@ -5617,24 +5625,46 @@ func _first_unlocked_grimoire_section(unlocked: Array[String]) -> String:
 	return ""
 
 func _on_grimoire_section_pressed(section_id: String) -> void:
+	var restore_nav_focus: bool = _grimoire_nav_has_focus()
 	_grimoire_selected_section = section_id
 	_grimoire_selected_group = ""
 	_grimoire_selected_entry = ""
 	_rebuild_grimoire_overlay()
+	if restore_nav_focus:
+		call_deferred("_focus_grimoire_nav_item", "section", section_id)
 
 func _on_grimoire_group_pressed(section_id: String, group_id: String) -> void:
+	var restore_nav_focus: bool = _grimoire_nav_has_focus()
 	_grimoire_selected_section = section_id
 	_grimoire_selected_group = group_id
 	_grimoire_selected_entry = ""
 	_rebuild_grimoire_overlay()
+	if restore_nav_focus:
+		call_deferred("_focus_grimoire_nav_item", "group", "%s:%s" % [section_id, group_id])
 
 func _on_grimoire_entry_pressed(entry_id: String) -> void:
+	var restore_nav_focus: bool = _grimoire_nav_has_focus()
 	var entry: Dictionary = GrimoireLibrary.entry_def(entry_id)
 	if not entry.is_empty():
 		_grimoire_selected_section = str(entry.get("section", _grimoire_selected_section))
 	_grimoire_selected_entry = entry_id
 	_grimoire_selected_group = _grimoire_entry_group_id(entry)
 	_rebuild_grimoire_overlay()
+	if restore_nav_focus:
+		call_deferred("_focus_grimoire_nav_item", "entry", entry_id)
+
+func _grimoire_nav_has_focus() -> bool:
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if not focus_owner is Button:
+		return false
+	return _grimoire_nav_buttons.has(focus_owner as Button)
+
+func _focus_grimoire_nav_item(kind: String, item_id: String) -> void:
+	for button: Button in _grimoire_nav_buttons:
+		if str(button.get_meta("grimoire_nav_kind", "")) == kind \
+				and str(button.get_meta("grimoire_nav_id", "")) == item_id:
+			button.grab_focus()
+			return
 
 func _on_grimoire_scrim_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
