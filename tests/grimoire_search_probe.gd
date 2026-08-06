@@ -89,6 +89,10 @@ func _run_probe() -> void:
 	await _settle()
 	await _capture("grimoire_search_v1_focused.png")
 
+	await _set_query(instance, input, "heath c")
+	_expect(str(instance.get("_grimoire_selected_entry")) == "keyword:health_cost", "A one-character second token should keep Health Cost visible while typing through a small first-token typo")
+	await _capture("grimoire_search_v2_incremental_token.png")
+
 	await _set_query(instance, input, "reshuffle")
 	_expect(str(instance.get("_grimoire_selected_entry")) == "combat:fatigue", "Rules-text search should select Fatigue for reshuffle")
 	_expect(str((instance.get("_grimoire_detail_title") as Label).text) == "Fatigue", "Rules-text result should populate its detail page")

@@ -45,6 +45,18 @@ static func run(expect: Callable) -> void:
 			"title": "Health and Defenses",
 			"aliases": ["armor"],
 			"body": ["Armor is also mentioned in these rules, so field priority must not depend on additive score luck."]
+		},
+		{
+			"id": "keyword:vital_toll",
+			"section": "keywords",
+			"title": "Health Cost",
+			"body": ["Health paid to commit a card."]
+		},
+		{
+			"id": "combat:arena",
+			"section": "combat",
+			"title": "Combat Board",
+			"body": ["The tactical play space."]
 		}
 	]
 
@@ -61,6 +73,13 @@ static func run(expect: Callable) -> void:
 
 	var title_word_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "armor")
 	expect.call(not title_word_results.is_empty() and str((title_word_results[0].get("entry", {}) as Dictionary).get("id", "")) == "keyword:crystal_guard", "An exact title word should outrank the same word used as an alias even when the alias also appears in rules text")
+
+	var partial_second_word_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "combat b")
+	expect.call(not partial_second_word_results.is_empty() and str((partial_second_word_results[0].get("entry", {}) as Dictionary).get("id", "")) == "combat:arena", "A one-character trailing token should keep a multi-word title visible while the player types")
+	var typo_partial_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "heath c")
+	expect.call(not typo_partial_results.is_empty() and str((typo_partial_results[0].get("entry", {}) as Dictionary).get("id", "")) == "keyword:vital_toll", "A one-character trailing token should compose with conservative typo recovery")
+	var lone_character_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "c")
+	expect.call(lone_character_results.is_empty(), "A lone one-character query should not enable broad prefix matching")
 
 	var rules_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "reshuffle")
 	expect.call(not rules_results.is_empty() and str((rules_results[0].get("entry", {}) as Dictionary).get("id", "")) == "combat:fatigue", "Grimoire search should find mechanics inside rules text")

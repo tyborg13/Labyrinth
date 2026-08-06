@@ -14,12 +14,13 @@ static func search(entries: Array, sections: Array, query: String) -> Array[Dict
 	if normalized_query.is_empty():
 		return []
 	var query_tokens: PackedStringArray = normalized_query.split(" ", false)
+	var allow_single_character_prefix: bool = query_tokens.size() > 1
 	var section_titles: Dictionary = _section_title_lookup(sections)
 	var results: Array[Dictionary] = []
 	for entry_var: Variant in entries:
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
-		var scored: Dictionary = _score_entry(entry_var as Dictionary, normalized_query, query_tokens, section_titles)
+		var scored: Dictionary = _score_entry(entry_var as Dictionary, normalized_query, query_tokens, section_titles, allow_single_character_prefix)
 		if not scored.is_empty():
 			results.append(scored)
 	results.sort_custom(_result_before)
@@ -40,7 +41,7 @@ static func normalize(value: String) -> String:
 			normalized += " "
 	return " ".join(normalized.split(" ", false))
 
-static func _score_entry(entry: Dictionary, query: String, query_tokens: PackedStringArray, section_titles: Dictionary) -> Dictionary:
+static func _score_entry(entry: Dictionary, query: String, query_tokens: PackedStringArray, section_titles: Dictionary, allow_single_character_prefix: bool) -> Dictionary:
 	var title: String = str(entry.get("title", entry.get("id", "")))
 	var title_text: String = normalize(title)
 	var aliases_text: String = normalize(" ".join(_string_values(entry.get("aliases", []))))
@@ -63,7 +64,7 @@ static func _score_entry(entry: Dictionary, query: String, query_tokens: PackedS
 	var matched_kinds: Array[String] = []
 	var relied_on_fuzzy: bool = false
 	for query_token: String in query_tokens:
-		var token_match: Dictionary = _best_token_match(query_token, title_words, alias_words, topic_words, rules_words)
+		var token_match: Dictionary = _best_token_match(query_token, title_words, alias_words, topic_words, rules_words, allow_single_character_prefix)
 		if token_match.is_empty():
 			return {}
 		score += int(token_match.get("score", 0))
@@ -95,12 +96,12 @@ static func _score_entry(entry: Dictionary, query: String, query_tokens: PackedS
 		"breadcrumb": _breadcrumb(entry, section_titles)
 	}
 
-static func _best_token_match(query_token: String, title_words: PackedStringArray, alias_words: PackedStringArray, topic_words: PackedStringArray, rules_words: PackedStringArray) -> Dictionary:
+static func _best_token_match(query_token: String, title_words: PackedStringArray, alias_words: PackedStringArray, topic_words: PackedStringArray, rules_words: PackedStringArray, allow_single_character_prefix: bool) -> Dictionary:
 	var candidates: Array[Dictionary] = []
-	_append_field_match(candidates, query_token, title_words, "title", 180, 150, 118)
-	_append_field_match(candidates, query_token, alias_words, "alias", 145, 122, 96)
-	_append_field_match(candidates, query_token, topic_words, "topic", 112, 94, 76)
-	_append_field_match(candidates, query_token, rules_words, "rules", 82, 68, 54)
+	_append_field_match(candidates, query_token, title_words, "title", 180, 150, 118, allow_single_character_prefix)
+	_append_field_match(candidates, query_token, alias_words, "alias", 145, 122, 96, allow_single_character_prefix)
+	_append_field_match(candidates, query_token, topic_words, "topic", 112, 94, 76, allow_single_character_prefix)
+	_append_field_match(candidates, query_token, rules_words, "rules", 82, 68, 54, allow_single_character_prefix)
 	if candidates.is_empty() and query_token.length() >= 4:
 		_append_fuzzy_match(candidates, query_token, title_words, "title", 92)
 		_append_fuzzy_match(candidates, query_token, alias_words, "alias", 76)
@@ -110,12 +111,12 @@ static func _best_token_match(query_token: String, title_words: PackedStringArra
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a.get("score", 0)) > int(b.get("score", 0)))
 	return candidates[0]
 
-static func _append_field_match(candidates: Array[Dictionary], query_token: String, words: PackedStringArray, kind: String, exact_score: int, prefix_score: int, contains_score: int) -> void:
+static func _append_field_match(candidates: Array[Dictionary], query_token: String, words: PackedStringArray, kind: String, exact_score: int, prefix_score: int, contains_score: int, allow_single_character_prefix: bool) -> void:
 	var best: int = 0
 	for word: String in words:
 		if word == query_token:
 			best = maxi(best, exact_score)
-		elif query_token.length() >= 2 and word.begins_with(query_token):
+		elif (query_token.length() >= 2 or allow_single_character_prefix) and word.begins_with(query_token):
 			best = maxi(best, prefix_score)
 		elif query_token.length() >= 3 and word.contains(query_token):
 			best = maxi(best, contains_score)
