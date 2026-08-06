@@ -8577,14 +8577,6 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_boss_health_overlay.z_index = 38
 	ui_root.add_child(_boss_health_overlay)
-	var linework := PanelContainer.new()
-	linework.name = "BossHealthLinework"
-	linework.set_anchors_preset(Control.PRESET_FULL_RECT)
-	linework.anchor_right = 1.0
-	linework.anchor_bottom = 1.0
-	linework.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	linework.add_theme_stylebox_override("panel", _boss_health_overlay_style(Color("d36a55")))
-	_boss_health_overlay.add_child(linework)
 	_boss_health_name = Label.new()
 	_boss_health_name.name = "BossEncounterName"
 	_boss_health_name.position = Vector2(18.0, 0.0)
@@ -8831,10 +8823,6 @@ func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation
 		_boss_health_damage_preview.offset_left = 0.0
 		_boss_health_damage_preview.offset_right = 0.0
 		_boss_health_damage_preview.visible = preview_hp < hp
-	var accent: Color = Color(str(boss_def.get("accent", "#d36a55")))
-	var linework: PanelContainer = _boss_health_overlay.get_node_or_null("BossHealthLinework") as PanelContainer
-	if linework != null:
-		linework.add_theme_stylebox_override("panel", _boss_health_overlay_style(accent))
 	_layout_boss_health_overlay()
 
 func _boss_unit_for_health_overlay(display_state: Dictionary) -> Dictionary:
@@ -9082,26 +9070,6 @@ func _turn_order_panel_style() -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
 	style.shadow_size = 18
 	style.shadow_offset = Vector2(0.0, 7.0)
-	return style
-
-func _boss_health_overlay_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	# A shallow encounter plaque: restrained stone field and brass rules, not a
-	# dashboard panel competing with the board or turn portraits.
-	style.bg_color = Color(0.038, 0.020, 0.016, 0.38)
-	style.border_color = accent.lightened(0.28)
-	style.border_color.a = 0.72
-	style.border_width_left = 1
-	style.border_width_top = 2
-	style.border_width_right = 1
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 3
-	style.corner_radius_top_right = 3
-	style.corner_radius_bottom_right = 3
-	style.corner_radius_bottom_left = 3
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
-	style.shadow_size = 8
-	style.shadow_offset = Vector2(0.0, 3.0)
 	return style
 
 func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:

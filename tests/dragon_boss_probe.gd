@@ -59,6 +59,7 @@ func _capture_bosses() -> void:
 		await create_timer(0.12).timeout
 		_assert_loaded_boss(instance, boss_id, false)
 		await _capture("%02d_%s_ready.png" % [depth, boss_id])
+		await _capture_boss_idle_progression(instance, boss_id, depth)
 		if phase_filter == "ready":
 			continue
 
@@ -275,6 +276,8 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 		_fail("%s should show the dedicated top-center boss health overlay" % boss_id)
 	elif boss_overlay.size.x < 700.0 or boss_overlay.size.x > 820.0 or boss_overlay.size.y > 90.0:
 		_fail("%s boss health overlay should stay wide and shallow (found %s)" % [boss_id, boss_overlay.size])
+	if boss_overlay != null and boss_overlay.get_node_or_null("BossHealthLinework") != null:
+		_fail("%s top-center name and HP should not retain an enclosing background box" % boss_id)
 	var visible_slots: Array[Control] = []
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():
@@ -324,6 +327,41 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 		"noctyrax":
 			if after_gimmick and int((combat_state.get("umbra", {}) as Dictionary).get("boss_eclipse_activations", 0)) <= 0:
 				_fail("Noctyrax gimmick proof should enter Eclipse")
+
+func _capture_boss_idle_progression(instance: Node, boss_id: String, depth: int) -> void:
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	if board == null:
+		_fail("%s idle progression proof should find the combat board" % boss_id)
+		return
+	var boss_unit: Dictionary = {}
+	for unit_var: Variant in board.call("_visible_units") as Array:
+		if typeof(unit_var) != TYPE_DICTIONARY:
+			continue
+		var unit: Dictionary = unit_var as Dictionary
+		if str(unit.get("type", "")) == boss_id and bool(unit.get("boss_bar", false)):
+			boss_unit = unit
+			break
+	if boss_unit.is_empty():
+		_fail("%s idle progression proof should find the rendered boss unit" % boss_id)
+		return
+	var render_tile: Vector2i = board.call("_scene_render_tile_for_unit", boss_unit)
+	var scene_layers: Dictionary = board.get("_scene_render_layers_by_tile") as Dictionary
+	var render_layer: Control = scene_layers.get(render_tile, null) as Control
+	if render_layer == null:
+		_fail("%s idle progression proof should resolve its retained footprint render layer" % boss_id)
+		return
+	render_layer.call("reset_render_instrumentation")
+	var before_frame: int = int(board.call("_idle_frame_index", boss_unit))
+	var frame_seconds: float = float(board.call("_unit_idle_frame_seconds", boss_unit))
+	await create_timer(frame_seconds * 1.6).timeout
+	await process_frame
+	var after_frame: int = int(board.call("_idle_frame_index", boss_unit))
+	var render_snapshot: Dictionary = render_layer.call("render_instrumentation_snapshot") as Dictionary
+	if before_frame == after_frame:
+		_fail("%s idle frame should advance without pointer input" % boss_id)
+	if int(render_snapshot.get("dynamic_draw_count", 0)) <= 0:
+		_fail("%s idle frame should redraw the retained layer that owns its 2x2 footprint" % boss_id)
+	await _capture("%02d_%s_idle_later.png" % [depth, boss_id])
 
 func _boss_index(state: Dictionary) -> int:
 	var enemies: Array = state.get("enemies", []) as Array

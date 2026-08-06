@@ -1,0 +1,26 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*_ready.png",
+      "min_count": 6,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [560, 10, 800, 90], "min_luma_range": 8, "min_luma_stdev": 2},
+        {"rect": [300, 120, 1300, 700], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    },
+    {
+      "pattern": "*_idle_later.png",
+      "min_count": 6,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [560, 10, 800, 90], "min_luma_range": 8, "min_luma_stdev": 2},
+        {"rect": [300, 120, 1300, 700], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    }
+  ]
+}

@@ -233,6 +233,7 @@ func _initialize() -> void:
 	_test_bile_bloomer_art_loads_for_board()
 	_test_bile_bloomer_turn_order_portrait_loads()
 	_test_zekarion_uses_matching_idle_sheet()
+	_test_dragon_idle_redraw_targets_footprint_draw_layer()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
 	_test_cinder_enemies_use_final_raster_art()
 	_test_cinder_enemies_have_turn_order_portraits()
@@ -6311,6 +6312,32 @@ func _test_zekarion_uses_matching_idle_sheet() -> void:
 	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", boss_unit)), 0.1), "Zekarion idle loop should use the boss frame cadence")
 	_assert(texture != null, "Zekarion idle art should load for board rendering")
 
+func _test_dragon_idle_redraw_targets_footprint_draw_layer() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	for boss_type: String in ["tharokh", "vyraketh", "vaeloryx", "iskaldra", "zekarion", "noctyrax"]:
+		var definition: Dictionary = GameData.enemy_def(boss_type)
+		var footprint_data: Array = definition.get("footprint", [1, 1]) as Array
+		var footprint := Vector2i(int(footprint_data[0]), int(footprint_data[1]))
+		var origin := Vector2i(3, 4)
+		var unit := {
+			"key": "enemy_%s" % boss_type,
+			"role": "enemy",
+			"type": boss_type,
+			"pos": origin,
+			"footprint": footprint,
+			"hp": int(definition.get("max_hp", 1))
+		}
+		var expected_draw_tile: Vector2i = board.call("draw_tile_for_unit_origin", unit, origin)
+		var redraw_tile: Vector2i = board.call("_scene_render_tile_for_unit", unit)
+		_assert(not (board.call("_unit_idle_frames", unit) as Array).is_empty(), "%s should retain idle frames for the dragon redraw regression" % boss_type)
+		_assert(footprint == Vector2i(2, 2), "%s should retain its authored 2x2 dragon footprint" % boss_type)
+		_assert(redraw_tile == expected_draw_tile, "%s idle redraw should invalidate the retained layer that actually draws its full footprint" % boss_type)
+		_assert(redraw_tile != origin, "%s regression coverage must distinguish the rendered footprint tile from its origin" % boss_type)
+	board.free()
+
 func _test_lightning_wisp_uses_normal_loop_idle_sheet() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
@@ -8743,6 +8770,7 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	_assert(boss_overlay != null and boss_overlay.visible, "Boss combat should show a dedicated top-center health overlay")
 	if boss_overlay != null:
 		_assert(boss_overlay.size.x >= 700.0 and boss_overlay.size.x <= 820.0 and boss_overlay.size.y <= 90.0, "The boss overlay should stay wide and shallow at the authored combat size")
+		_assert(boss_overlay.get_node_or_null("BossHealthLinework") == null, "The boss name and HP bar should render without an enclosing background box")
 	var boss_slots: Array[Control] = []
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():

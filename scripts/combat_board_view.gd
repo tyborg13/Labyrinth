@@ -728,18 +728,18 @@ func _queue_continuously_animated_scene_redraws() -> void:
 	if _preview_unit_pulse_active():
 		for unit: Dictionary in _visible_units():
 			if str(unit.get("role", "")) == "illusion_preview":
-				_queue_scene_render_layer_for_tile(unit.get("draw_tile", unit.get("pos", Vector2i(-1, -1))))
+				_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 
 func _queue_impact_scene_redraws() -> void:
 	var impact_keys: Array = presentation.get("impact_actor_keys", [])
 	for unit: Dictionary in _visible_units():
 		if impact_keys.has(str(unit.get("key", ""))):
-			_queue_scene_render_layer_for_tile(unit.get("draw_tile", unit.get("pos", Vector2i(-1, -1))))
+			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 
 func _queue_active_idle_scene_redraws() -> void:
 	for unit: Dictionary in _visible_units():
 		if _unit_idle_animation_active(unit):
-			_queue_scene_render_layer_for_tile(unit.get("draw_tile", unit.get("pos", Vector2i(-1, -1))))
+			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
 			_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
@@ -752,6 +752,12 @@ func _queue_active_idle_scene_redraws() -> void:
 func _queue_scene_render_layer_for_tile(tile: Vector2i) -> void:
 	var layer: Control = _scene_render_layers_by_tile.get(tile, null) as Control
 	_queue_render_layer_redraw(layer)
+
+func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
+	# Retained scene layers draw large actors on the far tile of their footprint.
+	# Falling back to the origin only works for 1x1 actors and freezes dragon
+	# animation until an unrelated event happens to invalidate the scene layer.
+	return _effective_unit_tile(unit)
 
 func _presentation_needs_continuous_redraw() -> bool:
 	if not visible:
