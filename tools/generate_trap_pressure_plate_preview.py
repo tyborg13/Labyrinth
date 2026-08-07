@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 TRAP_DIR = ROOT / "assets/art/traps"
 FLOOR_DIR = ROOT / "assets/placeholders/tiles"
-OUTPUT = ROOT / "output/visual_proofs/elemental_pressure_plates_on_actual_tiles.png"
+OUTPUT = ROOT / "output/visual_proofs/elemental_pressure_plates_perspective_fit_on_actual_tiles.png"
 
 ELEMENTS = (
     ("FIRE", "fire", 1),
@@ -84,7 +84,7 @@ def build_sheet() -> Image.Image:
     draw.text((MARGIN, 22), "ELEMENTAL PRESSURE PLATES", font=_font(), fill=TEXT)
     draw.text(
         (MARGIN, 46),
-        "122 x 80 transparent drop-in assets, shown at 3x nearest-neighbor scale",
+        "122 x 80 transparent assets with a 90 x 45 isometric footprint, shown at 3x",
         font=_font(),
         fill=MUTED_TEXT,
     )

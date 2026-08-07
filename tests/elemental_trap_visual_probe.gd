@@ -177,8 +177,18 @@ func _validate_live_traps(board: Control) -> void:
 	for element: String in ELEMENTS:
 		var texture: Texture2D = textures.get(element, null)
 		_expect(texture != null, "%s should resolve through the live trap texture registry" % element)
+		var used_rect := Rect2i()
 		if texture != null:
 			_expect(texture.get_size() == Vector2(122, 80), "%s should load the canonical 122x80 asset" % element)
+			used_rect = texture.get_image().get_used_rect()
+			_expect(
+				used_rect.size == Vector2i(90, 45),
+				"%s should keep its visible plate inside the approved 90x45 stone-margin envelope" % element
+			)
+			_expect(
+				used_rect.size.x == used_rect.size.y * 2,
+				"%s should use the same 2:1 isometric perspective as the board tile" % element
+			)
 		var trap: Dictionary = _trap_for_element(traps, element)
 		_expect(not trap.is_empty(), "%s should be present in the deterministic combat fixture" % element)
 		if trap.is_empty():
@@ -189,6 +199,17 @@ func _validate_live_traps(board: Control) -> void:
 			is_equal_approx(rect.size.x / rect.size.y, 122.0 / 80.0),
 			"%s should preserve the canonical trap texture aspect ratio" % element
 		)
+		if used_rect.size.x > 0 and used_rect.size.y > 0:
+			var visible_size := Vector2(
+				rect.size.x * float(used_rect.size.x) / 122.0,
+				rect.size.y * float(used_rect.size.y) / 80.0
+			)
+			var tile_width: float = float(board.call("_tile_width"))
+			var tile_height: float = float(board.call("_tile_height"))
+			_expect(
+				visible_size.x <= tile_width * 0.75 and visible_size.y <= tile_height * 0.75,
+				"%s should leave a visible stone margin on every tile edge" % element
+			)
 		if last_center.x > -INF:
 			_expect(rect.get_center().x > last_center.x, "%s should appear to the right of the previous element" % element)
 			_expect(is_equal_approx(rect.get_center().y, last_center.y), "%s should share the readable inspection row" % element)
