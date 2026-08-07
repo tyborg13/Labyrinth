@@ -73,9 +73,16 @@ static func _test_depth_labels_keep_cardinal_anchors(expect: Callable) -> void:
 	expected_directions.assign([Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT])
 	for index: int in range(mini(rects_before.size(), expected_directions.size())):
 		var relative_anchor: Vector2 = rects_before[index].get_center() - center_before
+		var direction: Vector2 = expected_directions[index]
+		var tangent := Vector2(-direction.y, direction.x)
+		var radial_distance: float = relative_anchor.dot(direction)
 		expect.call(
-			relative_anchor.distance_to(expected_directions[index] * radius) <= 0.01,
-			"Depth label %d should remain fixed to its cardinal point on the ring" % index
+			radial_distance < radius and radius - radial_distance < radius * 0.5,
+			"Depth label %d should remain fixed to its cardinal ring axis" % index
+		)
+		expect.call(
+			absf(relative_anchor.dot(tangent)) <= 0.01,
+			"Depth label %d should remain centered on its cardinal ring axis" % index
 		)
 	map_view.call("pan_camera", Vector2(-180.0, 74.0))
 	var center_after: Vector2 = map_view.call("_radial_center")

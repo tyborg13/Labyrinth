@@ -35,6 +35,7 @@ const CAMERA_ZOOM_FACTOR: float = 1.12
 const TRACKPAD_PAN_SCALE: float = 18.0
 const COMPACT_GRAPH_RADIUS: int = 2
 const DEPTH_RING_LABEL_SIZE: Vector2 = Vector2(104.0, 20.0)
+const DEPTH_RING_LABEL_GAP: float = 18.0
 const LEGEND_GAP: float = 18.0
 const LEGEND_WIDTH: float = 296.0
 const LEGEND_PADDING: float = 30.0
@@ -648,6 +649,7 @@ func _draw() -> void:
 	_draw_travel_trace()
 	for room: Dictionary in _drawable_rooms_cache:
 		_draw_room_node(room)
+	_draw_depth_ring_labels()
 	_draw_travel_token()
 	if show_legend:
 		_draw_map_legend()
@@ -694,7 +696,13 @@ func _draw_depth_rings() -> void:
 		var point_count: int = clampi(int(radius * 0.22), 80, 240)
 		draw_arc(_radial_center_cache, radius, 0.0, TAU, point_count, Color(0.0, 0.0, 0.0, 0.46), 3.2 if interactive else 1.6, true)
 		draw_arc(_radial_center_cache, radius, 0.0, TAU, point_count, Color(MAP_BRASS.r, MAP_BRASS.g, MAP_BRASS.b, 0.17 if interactive else 0.12), 1.1 if interactive else 0.7, true)
-		if interactive:
+
+func _draw_depth_ring_labels() -> void:
+	if not interactive or _depth_ring_count_cache <= 0:
+		return
+	for depth: int in range(1, _depth_ring_count_cache + 1):
+		var radius: float = float(depth) * _depth_ring_step_cache
+		if _ring_intersects_map(radius):
 			_draw_depth_ring_label(depth, radius)
 
 func _ring_intersects_map(radius: float) -> bool:
@@ -720,20 +728,46 @@ func _draw_depth_ring_label(depth: int, radius: float) -> void:
 	if font == null:
 		return
 	var label: String = "DEPTH %d" % depth
-	for label_rect: Rect2 in _depth_ring_label_rects(radius):
+	var label_rects: Array[Rect2] = _depth_ring_label_rects(radius)
+	for index: int in range(label_rects.size()):
+		var label_rect: Rect2 = label_rects[index]
 		if not _map_rect_cache.grow(-12.0).encloses(label_rect):
 			continue
-		var baseline: Vector2 = label_rect.position + Vector2(0.0, 14.5)
-		draw_string(font, baseline + Vector2(1.0, 2.0), label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, UiTypography.scaled_size(self, UiTypography.SIZE_CAPTION), Color(0.0, 0.0, 0.0, 0.88))
-		draw_string(font, baseline, label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, UiTypography.scaled_size(self, UiTypography.SIZE_CAPTION), Color(MAP_PARCHMENT.r, MAP_PARCHMENT.g, MAP_PARCHMENT.b, 0.62))
+		draw_rect(label_rect, Color(0.025, 0.018, 0.014, 0.68), true)
+		var rotation: float = 0.0
+		if index == 1:
+			rotation = PI * 0.5
+		elif index == 3:
+			rotation = -PI * 0.5
+		var horizontal_size: Vector2 = _depth_ring_label_size()
+		var horizontal_rect := Rect2(-horizontal_size * 0.5, horizontal_size)
+		if is_zero_approx(rotation):
+			horizontal_rect = label_rect
+		else:
+			draw_set_transform(label_rect.get_center(), rotation)
+		var baseline: Vector2 = horizontal_rect.position + Vector2(0.0, horizontal_rect.size.y * 0.5 + 4.5)
+		var font_size: int = maxi(10, roundi(float(UiTypography.scaled_size(self, UiTypography.SIZE_CAPTION)) * _depth_ring_label_scale()))
+		draw_string(font, baseline + Vector2(1.0, 2.0), label, HORIZONTAL_ALIGNMENT_CENTER, horizontal_rect.size.x, font_size, Color(0.0, 0.0, 0.0, 0.88))
+		draw_string(font, baseline, label, HORIZONTAL_ALIGNMENT_CENTER, horizontal_rect.size.x, font_size, Color(MAP_PARCHMENT.r, MAP_PARCHMENT.g, MAP_PARCHMENT.b, 0.76))
+		if not is_zero_approx(rotation):
+			draw_set_transform(Vector2.ZERO, 0.0)
 
 func _depth_ring_label_rects(radius: float) -> Array[Rect2]:
 	var rects: Array[Rect2]
+	var horizontal_size: Vector2 = _depth_ring_label_size()
+	var radial_inset: float = _base_node_size_cache * 0.5 + DEPTH_RING_LABEL_GAP * _depth_ring_label_scale() + horizontal_size.y * 0.5
 	for direction_var: Variant in [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT]:
 		var direction: Vector2 = direction_var
-		var anchor: Vector2 = _radial_center_cache + direction * radius
-		rects.append(Rect2(anchor - DEPTH_RING_LABEL_SIZE * 0.5, DEPTH_RING_LABEL_SIZE))
+		var anchor: Vector2 = _radial_center_cache + direction * maxf(0.0, radius - radial_inset)
+		var rect_size: Vector2 = horizontal_size if not is_zero_approx(direction.y) else Vector2(horizontal_size.y, horizontal_size.x)
+		rects.append(Rect2(anchor - rect_size * 0.5, rect_size))
 	return rects
+
+func _depth_ring_label_size() -> Vector2:
+	return DEPTH_RING_LABEL_SIZE * _depth_ring_label_scale()
+
+func _depth_ring_label_scale() -> float:
+	return clampf(_camera_zoom, 0.68, 1.0)
 
 func begin_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:
 	clear_travel_animation()

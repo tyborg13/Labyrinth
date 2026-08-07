@@ -3,7 +3,7 @@ extends SceneTree
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
-const OUTPUT_DIR: String = "user://map_decision_layer_probe_v5"
+const OUTPUT_DIR: String = "user://map_decision_layer_probe_v6"
 const INVALID_COORD: Vector2i = Vector2i(-999, -999)
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const BRANCH_CURRENT: Vector2i = Vector2i(2, 2)
@@ -244,7 +244,33 @@ func _save_viewport(output_path: String) -> void:
 		return
 	if source_size != PROBE_VIEWPORT:
 		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
+	_assert_rendered_depth_labels(output_path, image)
 	image.save_png(ProjectSettings.globalize_path(output_path))
+
+func _assert_rendered_depth_labels(output_path: String, image: Image) -> void:
+	if not output_path.ends_with("large_early.png") and not output_path.ends_with("dense_depth5_panned.png"):
+		return
+	var safe_map_rect: Rect2 = (_map_view.call("_map_rect") as Rect2).grow(-12.0)
+	var ring_step: float = float(_map_view.call("_depth_ring_step"))
+	var rendered_label_count: int = 0
+	for depth: int in range(1, int(_map_view.call("_depth_ring_count")) + 1):
+		var label_rects: Array[Rect2] = _map_view.call("_depth_ring_label_rects", float(depth) * ring_step)
+		for label_rect: Rect2 in label_rects:
+			if not safe_map_rect.encloses(label_rect):
+				continue
+			rendered_label_count += 1
+			var global_rect := Rect2(_map_view.global_position + label_rect.position, label_rect.size)
+			var bright_pixel_count: int = 0
+			for x: int in range(maxi(0, int(floor(global_rect.position.x))), mini(image.get_width(), int(ceil(global_rect.end.x)))):
+				for y: int in range(maxi(0, int(floor(global_rect.position.y))), mini(image.get_height(), int(ceil(global_rect.end.y)))):
+					if image.get_pixel(x, y).get_luminance() >= 0.30:
+						bright_pixel_count += 1
+			if bright_pixel_count < 6:
+				_fail("%s should visibly render depth text in label rect %s" % [output_path.get_file(), label_rect])
+	if output_path.ends_with("large_early.png") and rendered_label_count != 4:
+		_fail("large_early.png should visibly expose all four fixed depth-one labels")
+	elif output_path.ends_with("dense_depth5_panned.png") and rendered_label_count < 1:
+		_fail("dense_depth5_panned.png should retain at least one visible fixed depth label after panning")
 
 func _assert_large_map_geometry(context: String) -> void:
 	if root.get_viewport().get_visible_rect().size != Vector2(PROBE_VIEWPORT):
@@ -332,6 +358,10 @@ func _assert_compact_map_geometry() -> void:
 func _assert_depth_ring_label_geometry(context: String) -> void:
 	var radial_center: Vector2 = _map_view.call("_radial_center")
 	var ring_step: float = float(_map_view.call("_depth_ring_step"))
+	var safe_map_rect: Rect2 = (_map_view.call("_map_rect") as Rect2).grow(-12.0)
+	var node_size: float = float(_map_view.call("_base_node_size"))
+	var visible_rooms: Array[Dictionary] = _map_view.call("_visible_rooms")
+	var visible_label_count: int = 0
 	var expected_directions: Array[Vector2]
 	expected_directions.assign([Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT])
 	for depth: int in range(1, int(_map_view.call("_depth_ring_count")) + 1):
@@ -342,8 +372,27 @@ func _assert_depth_ring_label_geometry(context: String) -> void:
 			continue
 		for index: int in range(expected_directions.size()):
 			var relative_anchor: Vector2 = label_rects[index].get_center() - radial_center
-			if relative_anchor.distance_to(expected_directions[index] * radius) > 0.01:
-				_fail("%s depth %d label %d moved away from its cardinal ring anchor" % [context, depth, index])
+			var direction: Vector2 = expected_directions[index]
+			var tangent := Vector2(-direction.y, direction.x)
+			var radial_distance: float = relative_anchor.dot(direction)
+			if radial_distance >= radius or radius - radial_distance >= radius * 0.5:
+				_fail("%s depth %d label %d moved away from its fixed cardinal ring axis" % [context, depth, index])
+			if absf(relative_anchor.dot(tangent)) > 0.01:
+				_fail("%s depth %d label %d moved off its fixed cardinal ring axis" % [context, depth, index])
+			var label_rect: Rect2 = label_rects[index]
+			if not safe_map_rect.encloses(label_rect):
+				continue
+			visible_label_count += 1
+			if context == "large_early.png":
+				for room: Dictionary in visible_rooms:
+					var node_center: Vector2 = _map_view.call("_coord_position", room.get("coord", INVALID_COORD))
+					var node_rect := Rect2(node_center - Vector2.ONE * node_size * 0.5, Vector2.ONE * node_size)
+					if label_rect.intersects(node_rect):
+						_fail("%s depth %d label %d is obscured by room %s" % [context, depth, index, room.get("coord", INVALID_COORD)])
+	if context == "large_early.png" and visible_label_count != 4:
+		_fail("large_early.png should keep all four fixed depth-one labels inside the map")
+	elif context == "dense_depth5_panned.png" and visible_label_count < 1:
+		_fail("dense_depth5_panned.png should keep at least one fixed depth label visible after panning")
 
 func _fail(message: String) -> void:
 	_failed = true
