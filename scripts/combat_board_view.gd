@@ -262,7 +262,9 @@ const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
 const DEFENSE_HEAL_CASTS_ROWS: int = 3
 const DEFENSE_HEAL_CASTS_FRAMES_PER_KIND: int = 4
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
-const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
+# Trap sources are 122x80 while the isometric tile rectangle is 2:1. Preserve
+# the source aspect instead of vertically compressing the pressure plates.
+const TRAP_DRAW_HEIGHT_SCALE: float = 160.0 / 122.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
 const TRAP_BLAST_DRAW_WIDTH_SCALE: float = 0.76
 const TRAP_BLAST_DRAW_HEIGHT_SCALE: float = 1.18

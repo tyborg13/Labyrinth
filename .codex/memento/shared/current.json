@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-07T18:31:55Z",
+  "updated_at": "2026-08-07T18:57:34Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7242,6 +7242,28 @@
       "source": {
         "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
         "commit": "402d90f"
+      }
+    },
+    {
+      "id": "mnt_20260807T185734Z_ee3f9347",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_trap_draw_rect"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_trap_draw_rect",
+      "summary": "Trap sprites must preserve their 122:80 source aspect ratio.",
+      "details": "The board tile rectangle is 2:1, so drawing a 122x80 trap at tile_width x tile_height compresses it vertically by about 24%. Keep TRAP_DRAW_HEIGHT_SCALE at 160/122 (or equivalent source-aspect math); transparent source margins let the opaque plate remain within the tile surface.",
+      "status": "active",
+      "created_at": "2026-08-07T18:57:34Z",
+      "updated_at": "2026-08-07T18:57:34Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
+        "commit": "2abe724"
       }
     }
   ]

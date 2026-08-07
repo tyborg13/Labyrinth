@@ -185,6 +185,10 @@ func _validate_live_traps(board: Control) -> void:
 			continue
 		var rect: Rect2 = board.call("_trap_draw_rect", trap.get("pos", Vector2i(-1, -1))) as Rect2
 		_expect(rect.size.x > 0.0 and rect.size.y > 0.0, "%s should have a visible live draw rectangle" % element)
+		_expect(
+			is_equal_approx(rect.size.x / rect.size.y, 122.0 / 80.0),
+			"%s should preserve the canonical trap texture aspect ratio" % element
+		)
 		if last_center.x > -INF:
 			_expect(rect.get_center().x > last_center.x, "%s should appear to the right of the previous element" % element)
 			_expect(is_equal_approx(rect.get_center().y, last_center.y), "%s should share the readable inspection row" % element)
