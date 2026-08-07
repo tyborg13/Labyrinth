@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-07T21:47:25Z",
+  "updated_at": "2026-08-07T22:19:23Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7330,6 +7330,28 @@
       "source": {
         "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
         "commit": "903129a"
+      }
+    },
+    {
+      "id": "mnt_20260807T221923Z_700771ef",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_queue_active_idle_redraws"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_queue_active_idle_redraws",
+      "summary": "Trap idles must invalidate the retained world layer, not their scene-tile layers.",
+      "details": "Pressure plates are drawn by _draw_ground_items_below_path in RENDER_LAYER_WORLD. Queuing only the trap's scene-tile layer advances the idle clock without repainting the plate, so frames appear to change only when pointer input refreshes the world layer. No-input probes should verify frame key, world draw count, and trap pixels all advance.",
+      "status": "active",
+      "created_at": "2026-08-07T22:19:23Z",
+      "updated_at": "2026-08-07T22:19:23Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
+        "commit": "8468bac"
       }
     }
   ]

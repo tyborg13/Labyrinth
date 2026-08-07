@@ -88,15 +88,29 @@ func _capture_animation_states(board: Control) -> void:
 	idle_presentation["reduced_motion"] = false
 	board.set("presentation", idle_presentation)
 	board.set("_idle_elapsed", 0.0)
+	board.set("_idle_frame_key", "")
 	board.call("_sync_dynamic_render_state", false)
-	board.call("_queue_active_idle_scene_redraws")
+	board.call("reset_render_instrumentation")
+	board.call("_queue_active_idle_redraws")
 	await _settle_ui(3)
-	await _save_screenshot(SCREENSHOT_PATH)
-	board.set("_idle_elapsed", 0.72)
-	board.call("_sync_dynamic_render_state", false)
-	board.call("_queue_active_idle_scene_redraws")
-	await _settle_ui(3)
-	await _save_screenshot(IDLE_LATER_PATH)
+	var first_idle_image: Image = await _save_screenshot(SCREENSHOT_PATH)
+	var first_idle_key: String = str(board.call("_active_idle_frame_key"))
+	var first_draw_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+	var first_world_draw_count: int = int((first_draw_snapshot.get("layer_draw_counts", {}) as Dictionary).get("world", 0))
+	# Do not synthesize input or manually advance the frame. This wait reproduces
+	# the live thinking state where the traps must continue animating on their own.
+	await create_timer(0.42).timeout
+	await _settle_ui(2)
+	var later_idle_image: Image = await _save_screenshot(IDLE_LATER_PATH)
+	var later_idle_key: String = str(board.call("_active_idle_frame_key"))
+	var later_draw_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+	var later_world_draw_count: int = int((later_draw_snapshot.get("layer_draw_counts", {}) as Dictionary).get("world", 0))
+	_expect(first_idle_key != later_idle_key, "Trap idle frames should advance without mouse or keyboard input")
+	_expect(later_world_draw_count > first_world_draw_count, "The retained world layer should redraw as trap idle frames advance")
+	_expect(
+		_trap_pixels_changed_without_input(board, original_traps, first_idle_image, later_idle_image),
+		"At least one live trap should visibly change frames without pointer movement"
+	)
 
 	var activated_state: Dictionary = original_state.duplicate(true)
 	activated_state["traps"] = []
@@ -285,7 +299,30 @@ func _trap_for_element(traps: Array, element: String) -> Dictionary:
 	return {}
 
 
-func _save_screenshot(path: String) -> void:
+func _trap_pixels_changed_without_input(board: Control, traps: Array, first_image: Image, later_image: Image) -> bool:
+	if first_image.is_empty() or later_image.is_empty() or first_image.get_size() != later_image.get_size():
+		return false
+	var board_transform: Transform2D = board.get_global_transform()
+	var image_bounds := Rect2i(Vector2i.ZERO, first_image.get_size())
+	for trap_var: Variant in traps:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var local_rect: Rect2 = board.call("_trap_visual_draw_rect", trap_var as Dictionary) as Rect2
+		var global_bounds := Rect2(board_transform * local_rect.position, Vector2.ZERO)
+		global_bounds = global_bounds.expand(board_transform * Vector2(local_rect.end.x, local_rect.position.y))
+		global_bounds = global_bounds.expand(board_transform * local_rect.end)
+		global_bounds = global_bounds.expand(board_transform * Vector2(local_rect.position.x, local_rect.end.y))
+		var sample_start := Vector2i(floori(global_bounds.position.x), floori(global_bounds.position.y))
+		var sample_end := Vector2i(ceili(global_bounds.end.x), ceili(global_bounds.end.y))
+		var sample_rect := Rect2i(sample_start, sample_end - sample_start).intersection(image_bounds)
+		for y: int in range(sample_rect.position.y, sample_rect.end.y):
+			for x: int in range(sample_rect.position.x, sample_rect.end.x):
+				if not first_image.get_pixel(x, y).is_equal_approx(later_image.get_pixel(x, y)):
+					return true
+	return false
+
+
+func _save_screenshot(path: String) -> Image:
 	await process_frame
 	RenderingServer.force_draw(true)
 	await process_frame
@@ -296,6 +333,7 @@ func _save_screenshot(path: String) -> void:
 		# downsample it to the exact review resolution.
 		image.resize(SCREENSHOT_SIZE.x, SCREENSHOT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	_expect(image.save_png(path) == OK, "The trap proof screenshot should save successfully")
+	return image
 
 
 func _settle_ui(frames: int = 5) -> void:

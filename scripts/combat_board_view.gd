@@ -674,14 +674,14 @@ func _process(delta: float) -> void:
 		_idle_animating = animating
 		_idle_elapsed = 0.0
 		_idle_frame_key = ""
-		_queue_active_idle_scene_redraws()
+		_queue_active_idle_redraws()
 	if not animating:
 		return
 	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, 3600.0)
 	var next_frame_key: String = _active_idle_frame_key()
 	if next_frame_key != _idle_frame_key:
 		_idle_frame_key = next_frame_key
-		_queue_active_idle_scene_redraws()
+		_queue_active_idle_redraws()
 
 func _queue_continuous_render_redraws() -> void:
 	if _ambient_particles_active() or _campfire_atmosphere_active():
@@ -745,16 +745,23 @@ func _queue_impact_scene_redraws() -> void:
 		if impact_keys.has(str(unit.get("key", ""))):
 			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 
-func _queue_active_idle_scene_redraws() -> void:
+func _queue_active_idle_redraws() -> void:
 	for unit: Dictionary in _visible_units():
 		if _unit_idle_animation_active(unit):
 			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
 			_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+	var trap_idle_active: bool = false
 	for trap_var: Variant in combat_state.get("traps", []):
 		if typeof(trap_var) == TYPE_DICTIONARY and _trap_idle_animation_active(trap_var as Dictionary):
-			_queue_scene_render_layer_for_tile((trap_var as Dictionary).get("pos", Vector2i(-1, -1)))
+			trap_idle_active = true
+			break
+	# Traps are ground items painted in the retained world layer, below the path.
+	# Invalidating their scene-tile layers only made a new frame visible when an
+	# unrelated pointer event happened to refresh the world layer.
+	if trap_idle_active:
+		_queue_render_layer_redraw(_dynamic_render_layer)
 	if _pillar_torch_idle_animation_active():
 		var grid: Array = combat_state.get("grid", [])
 		for tile: Vector2i in _rendered_tiles_in_draw_order():
