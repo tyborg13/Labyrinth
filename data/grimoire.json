@@ -112,6 +112,7 @@
 			"id": "combat:turn_clock",
 			"section": "combat",
 			"title": "Turn Clock",
+			"aliases": ["initiative", "turn order", "timeline"],
 			"default": true,
 			"icon": "turn_clock",
 			"body": [
@@ -123,6 +124,7 @@
 			"id": "combat:card_plays",
 			"section": "combat",
 			"title": "Card Plays",
+			"aliases": ["actions", "action points", "plays"],
 			"default": true,
 			"icon": "card_play",
 			"body": [
@@ -134,6 +136,7 @@
 			"id": "combat:health_defense",
 			"section": "combat",
 			"title": "Health and Defenses",
+			"aliases": ["hp", "armor", "shield", "damage reduction"],
 			"default": true,
 			"icon": "health_defense",
 			"body": [
@@ -223,6 +226,7 @@
 			"id": "combat:umbra",
 			"section": "combat",
 			"title": "The Umbra",
+			"aliases": ["darkness", "fog of war", "shadow"],
 			"icon": "umbra",
 			"body": [
 				"The Umbra hides board tiles beyond your current vision. Enemies concealed within it cannot be directly targeted, and their identities, intents, and threat previews remain hidden.",

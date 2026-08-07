@@ -283,7 +283,18 @@ func _base_run_state(fixture: Dictionary) -> Dictionary:
 	var room: Dictionary = fixture.get("room", {}) as Dictionary
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 	var state: Dictionary = run_engine.create_new_run(seed, progression)
-	state["rooms"] = {_room_key(coord): room.duplicate(true)}
+	var prior_coord := Vector2i(1, 0)
+	var prior_room: Dictionary = run_engine.room_metadata(state, prior_coord).duplicate(true)
+	prior_room["type"] = "combat"
+	prior_room["npcs"] = []
+	prior_room["revealed"] = true
+	prior_room["visited"] = true
+	prior_room["cleared"] = true
+	prior_room["sealed"] = true
+	state["rooms"] = {
+		_room_key(prior_coord): prior_room,
+		_room_key(coord): room.duplicate(true),
+	}
 	state["current_room"] = coord
 	state["current_room_layout"] = (fixture.get("layout", {}) as Dictionary).duplicate(true)
 	state["notice"] = ""

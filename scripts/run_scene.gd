@@ -13,6 +13,7 @@ const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
+const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
@@ -1433,6 +1434,9 @@ var _menu_dialog: PanelContainer
 var _settings_panel: PanelContainer
 var _grimoire_scrim: ColorRect
 var _grimoire_dialog: PanelContainer
+var _grimoire_search_input: LineEdit
+var _grimoire_search_clear_button: Button
+var _grimoire_search_status: Label
 var _grimoire_section_list: VBoxContainer
 var _grimoire_entry_scroll: ScrollContainer
 var _grimoire_entry_list: VBoxContainer
@@ -1450,6 +1454,13 @@ var _grimoire_selected_section: String = ""
 var _grimoire_selected_group: String = ""
 var _grimoire_selected_entry: String = ""
 var _grimoire_nav_scroll_revision: int = 0
+var _grimoire_search_query: String = ""
+var _grimoire_search_results: Array[Dictionary] = []
+var _grimoire_search_result_buttons: Array[Button] = []
+var _grimoire_nav_buttons: Array[Button] = []
+var _grimoire_search_restore_selection: Dictionary = {}
+var _grimoire_search_restore_scroll: int = 0
+var _grimoire_restore_focus: Control
 var _header_icon_textures: Dictionary = {}
 var _pile_scrim: ColorRect
 var _pile_dialog: PanelContainer
@@ -4823,6 +4834,56 @@ func _build_grimoire_overlay() -> void:
 	left_stack.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	left_margin.add_child(left_stack)
 
+	var search_row := HBoxContainer.new()
+	search_row.name = "GrimoireSearchRow"
+	search_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	search_row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	left_stack.add_child(search_row)
+
+	_grimoire_search_input = LineEdit.new()
+	_grimoire_search_input.name = "GrimoireSearchInput"
+	_grimoire_search_input.placeholder_text = "Search discovered entries"
+	_grimoire_search_input.tooltip_text = "Search every discovered Grimoire entry by name, rule, category, or familiar term. Close spellings are accepted."
+	_grimoire_search_input.max_length = 64
+	_grimoire_search_input.clear_button_enabled = false
+	_grimoire_search_input.custom_minimum_size = Vector2(0.0, 42.0)
+	_grimoire_search_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_grimoire_search_input.focus_mode = Control.FOCUS_ALL
+	_grimoire_search_input.add_theme_font_override("font", UiTypography.text_font())
+	_grimoire_search_input.add_theme_font_size_override("font_size", UiTypography.scaled_size(_grimoire_search_input, UiTypography.SIZE_BODY))
+	_grimoire_search_input.add_theme_color_override("font_color", Color("3b2818"))
+	_grimoire_search_input.add_theme_color_override("font_placeholder_color", Color(0.30, 0.21, 0.13, 0.72))
+	_grimoire_search_input.add_theme_color_override("caret_color", Color("70431f"))
+	_grimoire_search_input.add_theme_color_override("selection_color", Color(0.54, 0.32, 0.14, 0.34))
+	_grimoire_search_input.add_theme_stylebox_override("normal", _grimoire_search_field_style(false))
+	_grimoire_search_input.add_theme_stylebox_override("focus", _grimoire_search_field_style(true))
+	_grimoire_search_input.text_changed.connect(_on_grimoire_search_text_changed)
+	_grimoire_search_input.text_submitted.connect(_on_grimoire_search_submitted)
+	_grimoire_search_input.gui_input.connect(_on_grimoire_search_gui_input)
+	search_row.add_child(_grimoire_search_input)
+
+	_grimoire_search_clear_button = UiTooltipButton.new()
+	_grimoire_search_clear_button.name = "GrimoireSearchClear"
+	_grimoire_search_clear_button.text = "Clear"
+	_grimoire_search_clear_button.tooltip_text = "Clear search and return to section browsing"
+	_grimoire_search_clear_button.visible = false
+	_grimoire_search_clear_button.focus_mode = Control.FOCUS_ALL
+	_ui_skin.apply_button_stylebox_overrides(_grimoire_search_clear_button, UiSkin.VARIANT_COMPACT)
+	_ui_skin.apply_button_text_overrides(_grimoire_search_clear_button, Color("f7dfad"))
+	UiTypography.apply_button_role(_grimoire_search_clear_button, UiTypography.ROLE_CAPTION)
+	_grimoire_search_clear_button.custom_minimum_size = Vector2(66.0, 42.0)
+	_grimoire_search_clear_button.pressed.connect(_clear_grimoire_search)
+	search_row.add_child(_grimoire_search_clear_button)
+
+	_grimoire_search_status = Label.new()
+	_grimoire_search_status.name = "GrimoireSearchStatus"
+	_grimoire_search_status.text = "Discovered entries"
+	_grimoire_search_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_grimoire_search_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_label_role(_grimoire_search_status, UiTypography.ROLE_CAPTION)
+	_grimoire_search_status.add_theme_color_override("font_color", Color(0.28, 0.18, 0.10, 0.82))
+	left_stack.add_child(_grimoire_search_status)
+
 	_grimoire_entry_scroll = ScrollContainer.new()
 	_grimoire_entry_scroll.name = "GrimoireNavScroll"
 	_grimoire_entry_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4964,6 +5025,26 @@ func _grimoire_icon_frame_style() -> StyleBoxFlat:
 	style.shadow_size = 4
 	return style
 
+func _grimoire_search_field_style(focused: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("ead7aa") if focused else Color("e2ca98")
+	style.border_color = Color("9a632f") if focused else Color(0.42, 0.26, 0.12, 0.62)
+	style.border_width_left = 2 if focused else 1
+	style.border_width_top = 2 if focused else 1
+	style.border_width_right = 2 if focused else 1
+	style.border_width_bottom = 2 if focused else 1
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	style.content_margin_left = UiTypography.SPACE_MEDIUM
+	style.content_margin_top = UiTypography.SPACE_SMALL
+	style.content_margin_right = UiTypography.SPACE_MEDIUM
+	style.content_margin_bottom = UiTypography.SPACE_SMALL
+	style.shadow_color = Color(0.24, 0.13, 0.06, 0.22) if focused else Color.TRANSPARENT
+	style.shadow_size = 4 if focused else 0
+	return style
+
 func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 	if _grimoire_section_list == null:
 		return
@@ -4978,6 +5059,13 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
 	var sections: Array = GrimoireLibrary.sections()
 	var entries_by_section: Dictionary = _grimoire_entries_by_section(unlocked)
+	_grimoire_search_result_buttons.clear()
+	_grimoire_nav_buttons.clear()
+	if _grimoire_search_active():
+		_rebuild_grimoire_search_results(unlocked, unread, sections, preserved_scroll_vertical, scroll_revision)
+		return
+	_grimoire_search_results.clear()
+	_update_grimoire_search_chrome(unlocked.size())
 	if _grimoire_selected_section.is_empty() or _grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section).is_empty():
 		_grimoire_selected_section = _first_unlocked_grimoire_section_from(sections, entries_by_section)
 	_grimoire_sync_selected_entry(_grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section))
@@ -5000,6 +5088,8 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 			str(section.get("summary", "")),
 			"section"
 		)
+		section_button.set_meta("grimoire_nav_kind", "section")
+		section_button.set_meta("grimoire_nav_id", section_id)
 		section_button.pressed.connect(_on_grimoire_section_pressed.bind(section_id))
 		_add_grimoire_nav_button(section_button, 0)
 		if section_selected and _grimoire_selected_entry.is_empty():
@@ -5024,6 +5114,8 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 				"",
 				"group"
 			)
+			group_button.set_meta("grimoire_nav_kind", "group")
+			group_button.set_meta("grimoire_nav_id", "%s:%s" % [section_id, group_id])
 			group_button.pressed.connect(_on_grimoire_group_pressed.bind(section_id, group_id))
 			_add_grimoire_nav_button(group_button, 1)
 			if not group_selected:
@@ -5038,6 +5130,201 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 		call_deferred("_restore_grimoire_entry_list_scroll", preserved_scroll_vertical, 0, scroll_revision)
 	_refresh_grimoire_detail()
 	_refresh_grimoire_badge()
+
+func _rebuild_grimoire_search_results(unlocked: Array[String], unread: Array[String], sections: Array, preserved_scroll_vertical: int, scroll_revision: int) -> void:
+	var unlocked_entries: Array = []
+	var unlocked_lookup: Dictionary = {}
+	for entry_id: String in unlocked:
+		unlocked_lookup[entry_id] = true
+	for entry_var: Variant in GrimoireLibrary.entries():
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if bool(unlocked_lookup.get(str(entry.get("id", "")), false)):
+			unlocked_entries.append(entry)
+	_grimoire_search_results = GrimoireSearch.search(unlocked_entries, sections, _grimoire_search_query)
+	_clear_children_now(_grimoire_section_list)
+	var selected_still_matches: bool = false
+	for result: Dictionary in _grimoire_search_results:
+		var result_entry: Dictionary = result.get("entry", {}) as Dictionary
+		if str(result_entry.get("id", "")) == _grimoire_selected_entry:
+			selected_still_matches = true
+			break
+	if not selected_still_matches:
+		_grimoire_selected_entry = "" if _grimoire_search_results.is_empty() else str((_grimoire_search_results[0].get("entry", {}) as Dictionary).get("id", ""))
+	for result: Dictionary in _grimoire_search_results:
+		_add_grimoire_search_result(result, unread)
+	_update_grimoire_search_chrome(unlocked.size())
+	if _grimoire_search_results.is_empty():
+		call_deferred("_restore_grimoire_entry_list_scroll", 0, 0, scroll_revision)
+	else:
+		var selected_index: int = 0
+		for index: int in range(_grimoire_search_results.size()):
+			var result_entry: Dictionary = _grimoire_search_results[index].get("entry", {}) as Dictionary
+			if str(result_entry.get("id", "")) == _grimoire_selected_entry:
+				selected_index = index
+				break
+		if preserved_scroll_vertical > 0:
+			call_deferred("_restore_grimoire_entry_list_scroll", preserved_scroll_vertical, 0, scroll_revision)
+		else:
+			call_deferred("_scroll_grimoire_entry_list_to_index", selected_index, 0, scroll_revision)
+	_refresh_grimoire_detail()
+	_refresh_grimoire_badge()
+
+func _add_grimoire_search_result(result: Dictionary, unread: Array[String]) -> void:
+	var entry: Dictionary = result.get("entry", {}) as Dictionary
+	var entry_id: String = str(entry.get("id", ""))
+	var selected: bool = entry_id == _grimoire_selected_entry
+	var button := _grimoire_nav_button(
+		"",
+		1,
+		selected,
+		false,
+		_grimoire_search_result_tooltip(result),
+		"search"
+	)
+	button.custom_minimum_size.y = 60.0
+	button.focus_mode = Control.FOCUS_ALL
+	button.set_meta("grimoire_nav_kind", "entry")
+	button.set_meta("grimoire_nav_id", entry_id)
+	button.pressed.connect(_on_grimoire_entry_pressed.bind(entry_id))
+	var content := VBoxContainer.new()
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content.offset_left = UiTypography.SPACE_MEDIUM
+	content.offset_top = UiTypography.SPACE_TIGHT
+	content.offset_right = -UiTypography.SPACE_SMALL
+	content.offset_bottom = -UiTypography.SPACE_TIGHT
+	content.add_theme_constant_override("separation", 0)
+	button.add_child(content)
+	var title := Label.new()
+	title.text = "%s%s" % ["* " if unread.has(entry_id) else "", str(entry.get("title", entry_id))]
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title.clip_text = true
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.apply_label_role(title, UiTypography.ROLE_BODY)
+	title.add_theme_color_override("font_color", Color("2f1d10") if selected else Color("3d2818"))
+	content.add_child(title)
+	var breadcrumb := Label.new()
+	breadcrumb.text = _grimoire_search_result_context(result)
+	breadcrumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	breadcrumb.clip_text = true
+	breadcrumb.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	breadcrumb.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	UiTypography.apply_label_role(breadcrumb, UiTypography.ROLE_CAPTION)
+	breadcrumb.add_theme_color_override("font_color", Color(0.28, 0.18, 0.10, 0.76))
+	content.add_child(breadcrumb)
+	_add_grimoire_nav_button(button, 0)
+	_grimoire_search_result_buttons.append(button)
+
+func _grimoire_search_result_context(result: Dictionary) -> String:
+	var breadcrumb: String = str(result.get("breadcrumb", ""))
+	var match_label: String = {
+		"alias": "common term",
+		"topic": "category",
+		"rules": "rules text",
+		"close": "close spelling"
+	}.get(str(result.get("match_kind", "title")), "")
+	if breadcrumb.is_empty():
+		return match_label
+	return breadcrumb if match_label.is_empty() else "%s · %s" % [breadcrumb, match_label]
+
+func _grimoire_search_result_tooltip(result: Dictionary) -> String:
+	var entry: Dictionary = result.get("entry", {}) as Dictionary
+	var context: String = _grimoire_search_result_context(result)
+	return str(entry.get("title", "")) if context.is_empty() else "%s\n%s" % [str(entry.get("title", "")), context.capitalize()]
+
+func _update_grimoire_search_chrome(unlocked_count: int) -> void:
+	var active: bool = _grimoire_search_active()
+	if _grimoire_search_clear_button != null:
+		_grimoire_search_clear_button.visible = active
+	if _grimoire_search_status == null:
+		return
+	if not active:
+		_grimoire_search_status.text = "%d discovered %s" % [unlocked_count, "entry" if unlocked_count == 1 else "entries"]
+	elif _grimoire_search_results.is_empty():
+		_grimoire_search_status.text = "No matches in discovered entries"
+	else:
+		var close_count: int = 0
+		for result: Dictionary in _grimoire_search_results:
+			if str(result.get("match_kind", "")) == "close":
+				close_count += 1
+		if close_count == _grimoire_search_results.size():
+			_grimoire_search_status.text = "%d close %s" % [close_count, "match" if close_count == 1 else "matches"]
+		else:
+			_grimoire_search_status.text = "%d %s across all sections" % [_grimoire_search_results.size(), "match" if _grimoire_search_results.size() == 1 else "matches"]
+
+func _grimoire_search_active() -> bool:
+	return not GrimoireSearch.normalize(_grimoire_search_query).is_empty()
+
+func _on_grimoire_search_text_changed(next_query: String) -> void:
+	var was_active: bool = _grimoire_search_active()
+	var will_be_active: bool = not GrimoireSearch.normalize(next_query).is_empty()
+	var browse_scroll_to_restore: int = -1
+	if not was_active and will_be_active:
+		_grimoire_search_restore_selection = {
+			"section": _grimoire_selected_section,
+			"group": _grimoire_selected_group,
+			"entry": _grimoire_selected_entry
+		}
+		_grimoire_search_restore_scroll = _grimoire_entry_scroll.scroll_vertical if _grimoire_entry_scroll != null else 0
+	elif was_active and not will_be_active:
+		browse_scroll_to_restore = _grimoire_search_restore_scroll
+		_restore_grimoire_browse_selection()
+	_grimoire_search_query = next_query
+	_rebuild_grimoire_overlay(false)
+	if browse_scroll_to_restore >= 0:
+		call_deferred("_restore_grimoire_entry_list_scroll", browse_scroll_to_restore, 0, _grimoire_nav_scroll_revision)
+		_grimoire_search_restore_scroll = 0
+
+func _on_grimoire_search_submitted(_query: String) -> void:
+	if _grimoire_search_results.is_empty():
+		return
+	var first_entry: Dictionary = _grimoire_search_results[0].get("entry", {}) as Dictionary
+	_on_grimoire_entry_pressed(str(first_entry.get("id", "")))
+	call_deferred("_focus_selected_grimoire_search_result")
+
+func _on_grimoire_search_gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_down") and not _grimoire_nav_buttons.is_empty():
+		_grimoire_nav_buttons[0].grab_focus()
+		_grimoire_search_input.accept_event()
+
+func _focus_selected_grimoire_search_result() -> void:
+	for index: int in range(_grimoire_search_results.size()):
+		var entry: Dictionary = _grimoire_search_results[index].get("entry", {}) as Dictionary
+		if str(entry.get("id", "")) == _grimoire_selected_entry and index < _grimoire_search_result_buttons.size():
+			_grimoire_search_result_buttons[index].grab_focus()
+			return
+
+func _clear_grimoire_search() -> void:
+	if _grimoire_search_input == null:
+		return
+	_grimoire_search_input.text = ""
+	_grimoire_search_input.grab_focus()
+
+func _restore_grimoire_browse_selection() -> void:
+	if _grimoire_search_restore_selection.is_empty():
+		return
+	_grimoire_selected_section = str(_grimoire_search_restore_selection.get("section", _grimoire_selected_section))
+	_grimoire_selected_group = str(_grimoire_search_restore_selection.get("group", _grimoire_selected_group))
+	_grimoire_selected_entry = str(_grimoire_search_restore_selection.get("entry", _grimoire_selected_entry))
+	_grimoire_search_restore_selection.clear()
+
+func _reset_grimoire_search() -> void:
+	if _grimoire_search_active():
+		_restore_grimoire_browse_selection()
+	_grimoire_search_query = ""
+	_grimoire_search_results.clear()
+	_grimoire_search_result_buttons.clear()
+	_grimoire_search_restore_selection.clear()
+	_grimoire_search_restore_scroll = 0
+	if _grimoire_search_input != null:
+		_grimoire_search_input.set_block_signals(true)
+		_grimoire_search_input.text = ""
+		_grimoire_search_input.set_block_signals(false)
+	if _grimoire_search_clear_button != null:
+		_grimoire_search_clear_button.visible = false
 
 func _grimoire_entries_by_section(unlocked: Array[String]) -> Dictionary:
 	var unlocked_lookup: Dictionary = {}
@@ -5143,6 +5430,8 @@ func _add_grimoire_entry_tab(entry: Dictionary, unread: Array[String], depth: in
 		str(entry.get("title", entry_id)),
 		"entry"
 	)
+	button.set_meta("grimoire_nav_kind", "entry")
+	button.set_meta("grimoire_nav_id", entry_id)
 	button.pressed.connect(_on_grimoire_entry_pressed.bind(entry_id))
 	_add_grimoire_nav_button(button, depth)
 	return _grimoire_section_list.get_child_count() - 1
@@ -5154,6 +5443,7 @@ func _add_grimoire_nav_button(button: Button, depth: int) -> void:
 	wrapper.add_theme_constant_override("margin_right", 0)
 	wrapper.add_child(button)
 	_grimoire_section_list.add_child(wrapper)
+	_grimoire_nav_buttons.append(button)
 
 func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: bool, tooltip: String, kind: String) -> Button:
 	var button := UiTooltipButton.new()
@@ -5166,7 +5456,7 @@ func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: boo
 	button.tooltip_text = tooltip if not tooltip.is_empty() else label
 	button.custom_minimum_size = Vector2(0.0, 44.0 if depth == 0 else 38.0 if kind == "group" else GRIMOIRE_ENTRY_BUTTON_HEIGHT)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.focus_mode = Control.FOCUS_NONE
+	button.focus_mode = Control.FOCUS_ALL
 	button.add_theme_stylebox_override("normal", _grimoire_tab_style(depth, selected, false, false, kind))
 	button.add_theme_stylebox_override("hover", _grimoire_tab_style(depth, selected, true, false, kind))
 	button.add_theme_stylebox_override("pressed", _grimoire_tab_style(depth, true, false, true, kind))
@@ -5197,14 +5487,19 @@ func _grimoire_tab_style(depth: int, selected: bool, hover: bool, pressed: bool,
 	else:
 		style.bg_color = Color("d7b16d") if selected else Color(0.98, 0.88, 0.66, 0.18)
 		style.border_color = Color("8a5628") if selected or hover else Color(0.53, 0.34, 0.16, 0.34)
-	if hover and not selected:
-		style.bg_color = style.bg_color.lightened(0.16)
-	if pressed:
-		style.bg_color = style.bg_color.darkened(0.10)
 	style.border_width_left = 3 if selected and depth > 0 else 1
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
+	if hover and not selected:
+		style.bg_color = style.bg_color.lightened(0.16)
+	elif hover and selected:
+		style.border_color = style.border_color.lightened(0.24)
+		style.border_width_top = 2
+		style.border_width_right = 2
+		style.border_width_bottom = 2
+	if pressed:
+		style.bg_color = style.bg_color.darkened(0.10)
 	style.corner_radius_top_left = 4
 	style.corner_radius_top_right = 4
 	style.corner_radius_bottom_right = 4
@@ -5220,7 +5515,11 @@ func _restore_grimoire_entry_list_scroll(scroll_position: int, attempt: int = 0,
 		return
 	if _grimoire_entry_scroll == null:
 		return
-	if (_grimoire_entry_scroll.size.y <= 0.0 or (_grimoire_entry_list != null and _grimoire_entry_list.size.y <= 0.0)) and attempt < 4:
+	var scroll_bar: VScrollBar = _grimoire_entry_scroll.get_v_scroll_bar()
+	var layout_not_ready: bool = _grimoire_entry_scroll.size.y <= 0.0 \
+			or (_grimoire_entry_list != null and _grimoire_entry_list.size.y <= 0.0) \
+			or (scroll_position > 0 and scroll_bar != null and scroll_bar.max_value <= scroll_bar.page)
+	if layout_not_ready and attempt < 4:
 		call_deferred("_restore_grimoire_entry_list_scroll", scroll_position, attempt + 1, revision)
 		return
 	_grimoire_entry_scroll.scroll_vertical = maxi(0, scroll_position)
@@ -5291,9 +5590,9 @@ func _refresh_grimoire_detail() -> void:
 		_clear_children_now(_grimoire_detail_content)
 	var entry: Dictionary = GrimoireLibrary.entry_def(_grimoire_selected_entry)
 	if entry.is_empty():
-		_grimoire_detail_kicker.text = ""
-		_grimoire_detail_title.text = "No entries"
-		_grimoire_detail_body.text = ""
+		_grimoire_detail_kicker.text = "SEARCH" if _grimoire_search_active() else ""
+		_grimoire_detail_title.text = "No known match" if _grimoire_search_active() else "No entries"
+		_grimoire_detail_body.text = "Try a name, common term, rule, character, or creature." if _grimoire_search_active() else ""
 		_grimoire_detail_body.visible = true
 		_grimoire_detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		_grimoire_detail_icon.texture = _header_icon_texture("book")
@@ -5418,24 +5717,46 @@ func _first_unlocked_grimoire_section(unlocked: Array[String]) -> String:
 	return ""
 
 func _on_grimoire_section_pressed(section_id: String) -> void:
+	var restore_nav_focus: bool = _grimoire_nav_has_focus()
 	_grimoire_selected_section = section_id
 	_grimoire_selected_group = ""
 	_grimoire_selected_entry = ""
 	_rebuild_grimoire_overlay()
+	if restore_nav_focus:
+		call_deferred("_focus_grimoire_nav_item", "section", section_id)
 
 func _on_grimoire_group_pressed(section_id: String, group_id: String) -> void:
+	var restore_nav_focus: bool = _grimoire_nav_has_focus()
 	_grimoire_selected_section = section_id
 	_grimoire_selected_group = group_id
 	_grimoire_selected_entry = ""
 	_rebuild_grimoire_overlay()
+	if restore_nav_focus:
+		call_deferred("_focus_grimoire_nav_item", "group", "%s:%s" % [section_id, group_id])
 
 func _on_grimoire_entry_pressed(entry_id: String) -> void:
+	var restore_nav_focus: bool = _grimoire_nav_has_focus()
 	var entry: Dictionary = GrimoireLibrary.entry_def(entry_id)
 	if not entry.is_empty():
 		_grimoire_selected_section = str(entry.get("section", _grimoire_selected_section))
 	_grimoire_selected_entry = entry_id
 	_grimoire_selected_group = _grimoire_entry_group_id(entry)
 	_rebuild_grimoire_overlay()
+	if restore_nav_focus:
+		call_deferred("_focus_grimoire_nav_item", "entry", entry_id)
+
+func _grimoire_nav_has_focus() -> bool:
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if not focus_owner is Button:
+		return false
+	return _grimoire_nav_buttons.has(focus_owner as Button)
+
+func _focus_grimoire_nav_item(kind: String, item_id: String) -> void:
+	for button: Button in _grimoire_nav_buttons:
+		if str(button.get_meta("grimoire_nav_kind", "")) == kind \
+				and str(button.get_meta("grimoire_nav_id", "")) == item_id:
+			button.grab_focus()
+			return
 
 func _on_grimoire_scrim_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -18501,10 +18822,13 @@ func _open_grimoire_overlay() -> void:
 	_close_card_upgrade_overlay()
 	_close_large_map()
 	_close_menu_overlay()
+	_grimoire_restore_focus = get_viewport().gui_get_focus_owner()
+	_reset_grimoire_search()
 	_select_first_unread_grimoire_entry()
 	_rebuild_grimoire_overlay(true)
 	_grimoire_scrim.visible = true
 	_grimoire_scrim.move_to_front()
+	call_deferred("_focus_grimoire_after_open")
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
@@ -18513,6 +18837,7 @@ func _close_grimoire_overlay() -> void:
 	var was_visible: bool = _grimoire_scrim != null and _grimoire_scrim.visible
 	if _grimoire_scrim != null:
 		_grimoire_scrim.visible = false
+	_reset_grimoire_search()
 	if not was_visible:
 		return
 	_run_state = GrimoireLibrary.clear_unread(_run_state)
@@ -18520,6 +18845,15 @@ func _close_grimoire_overlay() -> void:
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
+	if _grimoire_restore_focus != null and is_instance_valid(_grimoire_restore_focus) and _grimoire_restore_focus.is_inside_tree() and _grimoire_restore_focus.is_visible_in_tree():
+		_grimoire_restore_focus.grab_focus()
+	_grimoire_restore_focus = null
+
+func _focus_grimoire_after_open() -> void:
+	if _grimoire_scrim == null or not _grimoire_scrim.visible:
+		return
+	if _grimoire_search_input != null:
+		_grimoire_search_input.grab_focus()
 
 func _committed_run_state() -> Dictionary:
 	if not _committed_run_state_override.is_empty():
