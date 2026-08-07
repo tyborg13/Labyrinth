@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-07T15:31:18Z",
+  "updated_at": "2026-08-07T18:31:55Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7220,6 +7220,28 @@
       "source": {
         "branch": "codex/fix-radial-minimap-layout-stable-map-depth-labels-and-m-shortcut",
         "commit": "f262d4a"
+      }
+    },
+    {
+      "id": "mnt_20260807T183155Z_6177c47c",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/traps",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/traps",
+      "summary": "Elemental traps should read as physical pressure plates, not rune markers.",
+      "details": "Use transparent 122x80 drop-in overlays with no floor pixels. Preview them over the live base_floor_tile variants at exact native alignment. Prioritize immediate elemental silhouettes and a shared low-profile metal chassis; avoid miniature self-contained tiles or hyper-realistic grimdark rendering.",
+      "status": "active",
+      "created_at": "2026-08-07T18:31:55Z",
+      "updated_at": "2026-08-07T18:31:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
+        "commit": "402d90f"
       }
     }
   ]
