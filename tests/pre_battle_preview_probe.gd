@@ -5,7 +5,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
-const OUTPUT_DIR: String = "user://pre_battle_threat_inspection_probe_v2"
+const OUTPUT_DIR: String = "user://pre_battle_threat_inspection_probe_v3"
 const INVALID_COORD: Vector2i = Vector2i(999, 999)
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
@@ -230,7 +230,7 @@ func _capture_loadout_refresh_and_inspections() -> void:
 				var active_panel: Control = instance.get("_pinned_tooltip_panel") as Control
 				if active_panel != pinned_enemy or str(active_panel.get_meta("inspection_kind", "")) != "enemy":
 					_fail("Focused enemy inspection should swallow underlying %s clicks" % blocked_source.name)
-		await _save_root_screenshot("%s/expanded_enemy_known_moves_v2.png" % OUTPUT_DIR)
+		await _save_root_screenshot("%s/expanded_enemy_known_moves_v3.png" % OUTPUT_DIR)
 		var dismissal_button: Button = pinned_enemy.find_child("PreBattleInspectionCloseButton", true, false) as Button if pinned_enemy != null else null
 		if dismissal_button != null:
 			var native_close_press := InputEventMouseButton.new()
@@ -411,10 +411,12 @@ func _capture_enemy_count_layouts() -> void:
 				_fail("Elemental pre-battle header should keep Umbra purple")
 			if _labels_text(panel).contains("Vision"):
 				_fail("Elemental pre-battle header should omit Vision X text")
-		var screenshot_path: String = "%s/enemy_layout_%d_v1.png" % [OUTPUT_DIR, enemy_count]
+		var screenshot_path: String = "%s/enemy_layout_%d_v2.png" % [OUTPUT_DIR, enemy_count]
 		if enemy_count == 3:
 			screenshot_path = "%s/_synthetic_three_buffer_warmup.png" % OUTPUT_DIR
 		await _save_root_screenshot(screenshot_path)
+		if enemy_count == 5:
+			await _save_root_screenshot("%s/crawler_live_layout_v1.png" % OUTPUT_DIR)
 		if enemy_count == 3:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(screenshot_path))
 		instance.queue_free()
@@ -459,7 +461,7 @@ func _capture_boss_pathological_layout() -> void:
 		var flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control
 		if flow == null or flow.get_child_count() < 3:
 			_fail("Boss pre-battle fixture should retain the boss and its pathological supporting enemies")
-		await _save_root_screenshot("%s/boss_pathological_v1.png" % OUTPUT_DIR)
+		await _save_root_screenshot("%s/boss_pathological_v2.png" % OUTPUT_DIR)
 	instance.queue_free()
 	await process_frame
 	await process_frame
@@ -532,7 +534,7 @@ func _capture_all_enemy_portraits(instance: Node) -> void:
 		grid.add_child(card)
 	await process_frame
 	await process_frame
-	await _save_root_screenshot("%s/all_enemy_portraits_worn_edges_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/all_enemy_portraits_worn_edges_v4.png" % OUTPUT_DIR)
 	proof_scrim.queue_free()
 	await process_frame
 
@@ -578,7 +580,7 @@ func _capture_worn_edge_closeups(instance: Node) -> void:
 		row.add_child(card)
 	await process_frame
 	await process_frame
-	await _save_root_screenshot("%s/worn_edge_closeups_crawler_warden_iskaldra_v1.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/worn_edge_closeups_crawler_warden_iskaldra_v2.png" % OUTPUT_DIR)
 	proof_scrim.queue_free()
 	await process_frame
 

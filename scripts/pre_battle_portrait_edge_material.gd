@@ -33,7 +33,6 @@ float portrait_wear_noise(vec2 uv) {
 }
 
 void fragment() {
-	vec4 source = texture(TEXTURE, UV);
 	float left_pressure = (1.0 - smoothstep(0.0, max(edge_widths.x, 0.001), UV.x)) * edge_strengths.x;
 	float top_pressure = (1.0 - smoothstep(0.0, max(edge_widths.y, 0.001), UV.y)) * edge_strengths.y;
 	float right_pressure = (1.0 - smoothstep(0.0, max(edge_widths.z, 0.001), 1.0 - UV.x)) * edge_strengths.z;
@@ -50,7 +49,9 @@ void fragment() {
 	float dry_fleck = step(0.91, portrait_hash(floor(UV * vec2(83.0, 79.0)) + wear_seed));
 	dry_fleck *= smoothstep(0.16, 0.54, protected_pressure) * 0.10;
 	float edge_mask = 1.0 - clamp(worn_alpha + dry_fleck, 0.0, 1.0);
-	COLOR = vec4(source.rgb, source.a * edge_mask) * COLOR;
+	// Mutate alpha only. The renderer's incoming portrait RGB stays on its
+	// existing color path, so wear cannot tint, darken, or resaturate it.
+	COLOR.a *= edge_mask;
 }
 """
 
@@ -70,8 +71,8 @@ const PROFILE_OVERRIDES: Dictionary = {
 		"focus_center": Vector2(0.31, 0.38),
 		"focus_radius": Vector2(0.31, 0.29),
 		"focus_protection": 1.0,
-		"edge_widths": Vector4(0.07, 0.08, 0.18, 0.20),
-		"edge_strengths": Vector4(0.52, 0.60, 1.18, 1.22),
+		"edge_widths": Vector4(0.07, 0.28, 0.38, 0.20),
+		"edge_strengths": Vector4(0.52, 1.15, 1.34, 1.22),
 	},
 	"cinder_ooze": {
 		"focus_center": Vector2(0.50, 0.48),
