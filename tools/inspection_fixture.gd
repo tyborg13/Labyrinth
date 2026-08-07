@@ -37,6 +37,9 @@ func _initialize() -> void:
 	if not VALID_SCENARIOS.has(scenario):
 		_fail("Unknown scenario %s. Expected one of: %s" % [scenario, ", ".join(VALID_SCENARIOS)])
 		return
+	if int(_options.get("route_depth", 0)) != 0 and scenario != "start":
+		_fail("--route-depth is only available with --scenario start.")
+		return
 	var progression: Dictionary = _build_progression()
 	var run_state: Dictionary = _build_run_state(scenario, progression)
 	if _failed:
@@ -99,6 +102,7 @@ func _parse_args() -> Dictionary:
 		"equipped_items": "",
 		"equip": "",
 		"room_coord": "",
+		"route_depth": 0,
 		"min_enemies": 0,
 		"enemy_types": "",
 		"enemy_positions": "",
@@ -194,6 +198,9 @@ func _parse_args() -> Dictionary:
 			"--room-coord":
 				index += 1
 				parsed["room_coord"] = _required_arg(args, index, arg)
+			"--route-depth":
+				index += 1
+				parsed["route_depth"] = int(_required_arg(args, index, arg))
 			"--min-enemies":
 				index += 1
 				parsed["min_enemies"] = int(_required_arg(args, index, arg))
@@ -260,6 +267,7 @@ func _print_help() -> void:
 	print("  --umbra-stage clear|fringe|advancing|pressing|deep|heart|eclipse")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
+	print("  --route-depth N (start scenario only; traverses and resolves a real route to depth N)")
 	print("Pre-battle options:")
 	print("  --min-enemies N")
 	print("Safety:")
@@ -327,11 +335,88 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 func _build_start_run(progression: Dictionary) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
 	var requested_coord: Vector2i = _parse_coord(str(_options.get("room_coord", "")))
+	var requested_depth: int = int(_options.get("route_depth", 0))
+	if requested_depth > 0 and requested_coord != INVALID_COORD:
+		_fail("--route-depth cannot be combined with --room-coord.")
+		return state
+	if requested_depth < 0 or requested_depth > RunEngine.MAX_DEPTH:
+		_fail("--route-depth must be between 1 and %d when provided." % RunEngine.MAX_DEPTH)
+		return state
+	if requested_depth > 0:
+		state = _run_state_at_depth(state, requested_depth)
+		if _failed:
+			return state
+		if str(_options.get("notice", "")).is_empty():
+			state["notice"] = "Inspection fixture: traversed route at depth %d." % requested_depth
 	if requested_coord != INVALID_COORD:
 		state = _run_state_for_room(state, requested_coord, "room", Vector2i(1, 0))
 		if str(_options.get("notice", "")).is_empty():
 			state["notice"] = "Inspection fixture: room."
 	return _apply_room_overrides(state)
+
+func _run_state_at_depth(initial_state: Dictionary, target_depth: int) -> Dictionary:
+	var initial: Dictionary = _run_engine.repair_loaded_run_state(initial_state)
+	var queue: Array = []
+	queue.append(initial)
+	var visited: Dictionary = {_room_key(Vector2i.ZERO): true}
+	var safety: int = 0
+	while not queue.is_empty() and safety < 768:
+		safety += 1
+		var state: Dictionary = queue.pop_front() as Dictionary
+		var current_room: Vector2i = state.get("current_room", Vector2i.ZERO)
+		var current_depth: int = int(_run_engine.room_metadata(state, current_room).get("depth", 0))
+		var moves: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(state))
+		if current_depth == target_depth and moves.size() >= 2:
+			return state
+		for destination: Vector2i in moves:
+			var room: Dictionary = _run_engine.room_metadata(state, destination)
+			if int(room.get("depth", 0)) > target_depth:
+				continue
+			var key: String = _room_key(destination)
+			if visited.has(key):
+				continue
+			var traversed: Dictionary = _run_engine.move_to_room(state, destination)
+			traversed = _resolve_route_room(traversed)
+			if str(traversed.get("mode", "")) != "room":
+				continue
+			visited[key] = true
+			queue.append(traversed)
+	_fail("Could not traverse a resolved route to depth %d with at least two available moves." % target_depth)
+	return initial
+
+func _resolve_route_room(run_state: Dictionary) -> Dictionary:
+	var state: Dictionary = run_state.duplicate(true)
+	var safety: int = 0
+	while safety < 8:
+		safety += 1
+		var mode: String = str(state.get("mode", "room"))
+		match mode:
+			RunEngine.MODE_PRE_BATTLE:
+				state = _run_engine.begin_pre_battle_combat(state)
+			"combat":
+				state = _run_engine.finish_combat(state, _victory_combat_state(state.get("combat_state", {}) as Dictionary))
+			"reward":
+				state = _run_engine.skip_reward_for_heal(state)
+			RunEngine.MODE_ESCAPE:
+				state = _run_engine.continue_pending_escape(state)
+			"treasure":
+				var relics: Array = state.get("pending_relics", []) as Array
+				state = _run_engine.claim_relic(state, str(relics[0])) if not relics.is_empty() else state
+			"campfire":
+				state = _run_engine.leave_campfire(state)
+			_:
+				return state
+	return state
+
+func _victory_combat_state(combat_state: Dictionary) -> Dictionary:
+	var victory: Dictionary = combat_state.duplicate(true)
+	var enemies: Array = (victory.get("enemies", []) as Array).duplicate(true)
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		enemy["hp"] = 0
+		enemies[index] = enemy
+	victory["enemies"] = enemies
+	return victory
 
 func _build_combat_run(progression: Dictionary) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
@@ -933,6 +1018,7 @@ func _fixture_metadata(scenario: String, user_namespace: String, run_state: Dict
 		"namespace": user_namespace,
 		"seed": int(run_state.get("seed", requested_seed)),
 		"requested_seed": requested_seed,
+		"requested_route_depth": int(_options.get("route_depth", 0)),
 		"state_contract": {},
 		"created_at_unix": Time.get_unix_time_from_system()
 	}
@@ -970,12 +1056,16 @@ func _variant_sha256(value: Variant) -> String:
 func _print_result(scenario: String, user_namespace: String, run_state: Dictionary) -> void:
 	var mode: String = str(run_state.get("mode", ""))
 	var current_room: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var current_depth: int = int(_run_engine.room_metadata(run_state, current_room).get("depth", 0))
+	var available_moves: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(run_state))
 	var payload: Dictionary = {
 		"ok": true,
 		"scenario": scenario,
 		"mode": mode,
 		"namespace": user_namespace,
 		"current_room": "%d,%d" % [current_room.x, current_room.y],
+		"current_depth": current_depth,
+		"available_moves": _coord_strings(available_moves),
 		"save_path": ProjectSettings.globalize_path("user://current_run.save"),
 		"progression_path": ProjectSettings.globalize_path("user://progression.json"),
 		"summary": str(_options.get("summary", ""))
@@ -983,12 +1073,20 @@ func _print_result(scenario: String, user_namespace: String, run_state: Dictiona
 	print("Inspection fixture saved.")
 	print("  scenario: %s" % scenario)
 	print("  mode: %s" % mode)
+	print("  current depth: %d" % current_depth)
+	print("  available moves: %d" % available_moves.size())
 	print("  namespace: %s" % (user_namespace if not user_namespace.is_empty() else "<live user dir>"))
 	print("  save: %s" % payload["save_path"])
 	print("INSPECTION_FIXTURE_RESULT %s" % JSON.stringify(payload))
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
+
+func _coord_strings(coords: Array[Vector2i]) -> Array[String]:
+	var result: Array[String] = []
+	for coord: Vector2i in coords:
+		result.append("%d,%d" % [coord.x, coord.y])
+	return result
 
 func _fail(message: String) -> void:
 	if _failed:

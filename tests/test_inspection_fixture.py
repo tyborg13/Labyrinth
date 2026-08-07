@@ -136,6 +136,34 @@ class InspectionFixtureTests(unittest.TestCase):
         self.assertIn(expected_options, result.stdout)
         self.assertIn("--launch " + expected_options, result.stdout)
 
+    def test_route_depth_survives_the_self_healing_command(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--project",
+                str(ROOT),
+                "--task-id",
+                "deep-map-fixture-test",
+                "--run-id",
+                "deep-map-fixture-test-run",
+                "--dry-run",
+                "--scenario",
+                "start",
+                "--route-depth",
+                "9",
+                "--summary",
+                "Inspect the radial map at depth nine.",
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--scenario start --route-depth 9", result.stdout)
+        self.assertIn("--launch --scenario start --route-depth 9", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

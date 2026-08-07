@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-07T14:11:54Z",
+  "updated_at": "2026-08-07T15:31:18Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7198,6 +7198,28 @@
       "source": {
         "branch": "codex/fix-radial-minimap-layout-stable-map-depth-labels-and-m-shortcut",
         "commit": "254b866"
+      }
+    },
+    {
+      "id": "mnt_20260807T153118Z_e21f301b",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tools/inspection_fixture.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tools/inspection_fixture.gd",
+      "summary": "Deep map fixtures must traverse rooms instead of teleporting coordinates",
+      "details": "Minimap correctness depends on the accumulated revealed, visited, and sealed room history. A fixture that only sets current_room can show an unrealistic empty or inconsistent map; use --scenario start --route-depth N so RunEngine performs legal moves and resolves intervening encounters.",
+      "status": "active",
+      "created_at": "2026-08-07T15:31:18Z",
+      "updated_at": "2026-08-07T15:31:18Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-radial-minimap-layout-stable-map-depth-labels-and-m-shortcut",
+        "commit": "f262d4a"
       }
     }
   ]
