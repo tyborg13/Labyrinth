@@ -168,7 +168,7 @@ class InspectionFixtureTests(unittest.TestCase):
 
     def test_route_depth_rejects_invalid_values_semantically(self) -> None:
         task_id = f"invalid-route-depth-test-{os.getpid()}"
-        for value in ["0", "bananas", "24"]:
+        for value in ["-1", "0", "bananas", "24"]:
             with self.subTest(value=value):
                 result = subprocess.run(
                     [
@@ -194,6 +194,35 @@ class InspectionFixtureTests(unittest.TestCase):
                 )
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("--route-depth", result.stdout + result.stderr)
+
+    def test_route_depth_rejects_non_start_scenarios_semantically(self) -> None:
+        task_id = f"non-start-route-depth-test-{os.getpid()}"
+        for value in ["-1", "9"]:
+            with self.subTest(value=value):
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(SCRIPT),
+                        "--project",
+                        str(ROOT),
+                        "--task-id",
+                        task_id,
+                        "--run-id",
+                        f"{task_id}-{value}",
+                        "--no-verify",
+                        "--scenario",
+                        "combat",
+                        "--route-depth",
+                        value,
+                    ],
+                    cwd=ROOT,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=60,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("only available with --scenario start", result.stdout + result.stderr)
 
     def test_deepest_route_depth_generates_a_verified_room_with_live_moves(self) -> None:
         task_id = f"deepest-route-depth-test-{os.getpid()}"

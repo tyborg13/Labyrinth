@@ -41,7 +41,7 @@ func _initialize() -> void:
 	if not VALID_SCENARIOS.has(scenario):
 		_fail("Unknown scenario %s. Expected one of: %s" % [scenario, ", ".join(VALID_SCENARIOS)])
 		return
-	if int(_options.get("route_depth", -1)) != -1 and scenario != "start":
+	if bool(_options.get("route_depth_provided", false)) and scenario != "start":
 		_fail("--route-depth is only available with --scenario start.")
 		return
 	var progression: Dictionary = _build_progression()
@@ -106,7 +106,8 @@ func _parse_args() -> Dictionary:
 		"equipped_items": "",
 		"equip": "",
 		"room_coord": "",
-		"route_depth": -1,
+		"route_depth": 0,
+		"route_depth_provided": false,
 		"min_enemies": 0,
 		"enemy_types": "",
 		"enemy_positions": "",
@@ -211,6 +212,7 @@ func _parse_args() -> Dictionary:
 					_fail("--route-depth requires an integer, received %s." % route_depth_raw)
 					return parsed
 				parsed["route_depth"] = int(route_depth_raw)
+				parsed["route_depth_provided"] = true
 			"--min-enemies":
 				index += 1
 				parsed["min_enemies"] = int(_required_arg(args, index, arg))
@@ -345,14 +347,15 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 func _build_start_run(progression: Dictionary) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
 	var requested_coord: Vector2i = _parse_coord(str(_options.get("room_coord", "")))
-	var requested_depth: int = int(_options.get("route_depth", -1))
-	if requested_depth != -1 and requested_coord != INVALID_COORD:
+	var requested_depth: int = int(_options.get("route_depth", 0))
+	var route_depth_provided: bool = bool(_options.get("route_depth_provided", false))
+	if route_depth_provided and requested_coord != INVALID_COORD:
 		_fail("--route-depth cannot be combined with --room-coord.")
 		return state
-	if requested_depth != -1 and (requested_depth < 1 or requested_depth > MAX_ROUTE_DEPTH):
+	if route_depth_provided and (requested_depth < 1 or requested_depth > MAX_ROUTE_DEPTH):
 		_fail("--route-depth must be between 1 and %d." % MAX_ROUTE_DEPTH)
 		return state
-	if requested_depth != -1:
+	if route_depth_provided:
 		state = _run_state_at_depth(state, requested_depth)
 		if _failed:
 			return state
@@ -1046,7 +1049,7 @@ func _fixture_metadata(scenario: String, user_namespace: String, run_state: Dict
 		"namespace": user_namespace,
 		"seed": int(run_state.get("seed", requested_seed)),
 		"requested_seed": requested_seed,
-		"requested_route_depth": maxi(0, int(_options.get("route_depth", -1))),
+		"requested_route_depth": int(_options.get("route_depth", 0)) if bool(_options.get("route_depth_provided", false)) else 0,
 		"state_contract": {},
 		"created_at_unix": Time.get_unix_time_from_system()
 	}
