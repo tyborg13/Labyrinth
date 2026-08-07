@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -163,6 +165,73 @@ class InspectionFixtureTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--scenario start --route-depth 9", result.stdout)
         self.assertIn("--launch --scenario start --route-depth 9", result.stdout)
+
+    def test_route_depth_rejects_invalid_values_semantically(self) -> None:
+        task_id = f"invalid-route-depth-test-{os.getpid()}"
+        for value in ["0", "bananas", "24"]:
+            with self.subTest(value=value):
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(SCRIPT),
+                        "--project",
+                        str(ROOT),
+                        "--task-id",
+                        task_id,
+                        "--run-id",
+                        f"{task_id}-{value}",
+                        "--no-verify",
+                        "--scenario",
+                        "start",
+                        "--route-depth",
+                        value,
+                    ],
+                    cwd=ROOT,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=60,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("--route-depth", result.stdout + result.stderr)
+
+    def test_deepest_route_depth_generates_a_verified_room_with_live_moves(self) -> None:
+        task_id = f"deepest-route-depth-test-{os.getpid()}"
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--project",
+                str(ROOT),
+                "--task-id",
+                task_id,
+                "--run-id",
+                task_id,
+                "--verify",
+                "--scenario",
+                "start",
+                "--route-depth",
+                "23",
+                "--summary",
+                "Verify the deepest non-terminal traversed route fixture.",
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=180,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        payload_line = next(
+            line
+            for line in result.stdout.splitlines()
+            if line.startswith("INSPECTION_FIXTURE_RESULT ")
+        )
+        payload = json.loads(payload_line.removeprefix("INSPECTION_FIXTURE_RESULT "))
+        self.assertEqual(payload["mode"], "room")
+        self.assertEqual(payload["current_depth"], 23)
+        self.assertGreaterEqual(len(payload["available_moves"]), 2)
+        self.assertIn("Inspection fixture verified.", result.stdout)
 
 
 if __name__ == "__main__":

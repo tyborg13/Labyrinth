@@ -1,6 +1,7 @@
 extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
@@ -14,6 +15,9 @@ const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "bone_dart", "sidestep_slash"
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
+const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
+const MAX_ROUTE_STEPS: int = 4 * RunEngine.MAX_DEPTH * (RunEngine.MAX_DEPTH + 1) + 1
+const MAX_ROOM_RESOLUTION_STEPS: int = 64
 
 var _run_engine = RunEngine.new()
 var _combat_engine = CombatEngine.new()
@@ -37,7 +41,7 @@ func _initialize() -> void:
 	if not VALID_SCENARIOS.has(scenario):
 		_fail("Unknown scenario %s. Expected one of: %s" % [scenario, ", ".join(VALID_SCENARIOS)])
 		return
-	if int(_options.get("route_depth", 0)) != 0 and scenario != "start":
+	if int(_options.get("route_depth", -1)) != -1 and scenario != "start":
 		_fail("--route-depth is only available with --scenario start.")
 		return
 	var progression: Dictionary = _build_progression()
@@ -102,7 +106,7 @@ func _parse_args() -> Dictionary:
 		"equipped_items": "",
 		"equip": "",
 		"room_coord": "",
-		"route_depth": 0,
+		"route_depth": -1,
 		"min_enemies": 0,
 		"enemy_types": "",
 		"enemy_positions": "",
@@ -200,7 +204,13 @@ func _parse_args() -> Dictionary:
 				parsed["room_coord"] = _required_arg(args, index, arg)
 			"--route-depth":
 				index += 1
-				parsed["route_depth"] = int(_required_arg(args, index, arg))
+				var route_depth_raw: String = _required_arg(args, index, arg)
+				if _failed:
+					return parsed
+				if not route_depth_raw.is_valid_int():
+					_fail("--route-depth requires an integer, received %s." % route_depth_raw)
+					return parsed
+				parsed["route_depth"] = int(route_depth_raw)
 			"--min-enemies":
 				index += 1
 				parsed["min_enemies"] = int(_required_arg(args, index, arg))
@@ -267,7 +277,7 @@ func _print_help() -> void:
 	print("  --umbra-stage clear|fringe|advancing|pressing|deep|heart|eclipse")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
-	print("  --route-depth N (start scenario only; traverses and resolves a real route to depth N)")
+	print("  --route-depth N (start scenario only; traverses a real route, 1-%d)" % MAX_ROUTE_DEPTH)
 	print("Pre-battle options:")
 	print("  --min-enemies N")
 	print("Safety:")
@@ -335,14 +345,14 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 func _build_start_run(progression: Dictionary) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
 	var requested_coord: Vector2i = _parse_coord(str(_options.get("room_coord", "")))
-	var requested_depth: int = int(_options.get("route_depth", 0))
-	if requested_depth > 0 and requested_coord != INVALID_COORD:
+	var requested_depth: int = int(_options.get("route_depth", -1))
+	if requested_depth != -1 and requested_coord != INVALID_COORD:
 		_fail("--route-depth cannot be combined with --room-coord.")
 		return state
-	if requested_depth < 0 or requested_depth > RunEngine.MAX_DEPTH:
-		_fail("--route-depth must be between 1 and %d when provided." % RunEngine.MAX_DEPTH)
+	if requested_depth != -1 and (requested_depth < 1 or requested_depth > MAX_ROUTE_DEPTH):
+		_fail("--route-depth must be between 1 and %d." % MAX_ROUTE_DEPTH)
 		return state
-	if requested_depth > 0:
+	if requested_depth != -1:
 		state = _run_state_at_depth(state, requested_depth)
 		if _failed:
 			return state
@@ -355,39 +365,47 @@ func _build_start_run(progression: Dictionary) -> Dictionary:
 	return _apply_room_overrides(state)
 
 func _run_state_at_depth(initial_state: Dictionary, target_depth: int) -> Dictionary:
-	var initial: Dictionary = _run_engine.repair_loaded_run_state(initial_state)
-	var queue: Array = []
-	queue.append(initial)
-	var visited: Dictionary = {_room_key(Vector2i.ZERO): true}
+	var state: Dictionary = _run_engine.repair_loaded_run_state(initial_state)
 	var safety: int = 0
-	while not queue.is_empty() and safety < 768:
+	while safety < MAX_ROUTE_STEPS:
 		safety += 1
-		var state: Dictionary = queue.pop_front() as Dictionary
 		var current_room: Vector2i = state.get("current_room", Vector2i.ZERO)
-		var current_depth: int = int(_run_engine.room_metadata(state, current_room).get("depth", 0))
+		var current_metadata: Dictionary = _run_engine.room_metadata(state, current_room)
+		var current_depth: int = int(current_metadata.get("depth", 0))
 		var moves: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(state))
-		if current_depth == target_depth and moves.size() >= 2:
+		var required_move_count: int = 1 if str(current_metadata.get("type", "")) == "boss" else 2
+		if current_depth == target_depth and moves.size() >= required_move_count:
 			return state
-		for destination: Vector2i in moves:
-			var room: Dictionary = _run_engine.room_metadata(state, destination)
-			if int(room.get("depth", 0)) > target_depth:
-				continue
-			var key: String = _room_key(destination)
-			if visited.has(key):
-				continue
-			var traversed: Dictionary = _run_engine.move_to_room(state, destination)
-			traversed = _resolve_route_room(traversed)
-			if str(traversed.get("mode", "")) != "room":
-				continue
-			visited[key] = true
-			queue.append(traversed)
-	_fail("Could not traverse a resolved route to depth %d with at least two available moves." % target_depth)
-	return initial
+		var destination: Vector2i = INVALID_COORD
+		for outward_candidate: Vector2i in moves:
+			var destination_depth: int = int(_run_engine.room_metadata(state, outward_candidate).get("depth", 0))
+			if current_depth < target_depth and destination_depth > current_depth:
+				destination = outward_candidate
+				break
+		if destination == INVALID_COORD:
+			for lateral_destination: Vector2i in moves:
+				if int(_run_engine.room_metadata(state, lateral_destination).get("depth", 0)) == current_depth:
+					destination = lateral_destination
+					break
+		if destination == INVALID_COORD:
+			break
+		state = _resolve_route_room(_run_engine.move_to_room(state, destination))
+		if str(state.get("mode", "")) != "room":
+			break
+	var stopped_room: Vector2i = state.get("current_room", Vector2i.ZERO)
+	_fail("Could not traverse a resolved route to depth %d with live moves; stopped at %s depth %d in mode %s after %d steps." % [
+		target_depth,
+		str(stopped_room),
+		int(_run_engine.room_metadata(state, stopped_room).get("depth", 0)),
+		str(state.get("mode", "")),
+		safety
+	])
+	return state
 
 func _resolve_route_room(run_state: Dictionary) -> Dictionary:
 	var state: Dictionary = run_state.duplicate(true)
 	var safety: int = 0
-	while safety < 8:
+	while safety < MAX_ROOM_RESOLUTION_STEPS:
 		safety += 1
 		var mode: String = str(state.get("mode", "room"))
 		match mode:
@@ -416,6 +434,16 @@ func _victory_combat_state(combat_state: Dictionary) -> Dictionary:
 		enemy["hp"] = 0
 		enemies[index] = enemy
 	victory["enemies"] = enemies
+	var objective: Dictionary = victory.get("objective", {}) as Dictionary
+	match str(objective.get("type", CombatObjectiveRules.KILL_ALL)):
+		CombatObjectiveRules.SURVIVE:
+			victory["initiative_clock"] = int(objective.get("target_clock", victory.get("initiative_clock", 0)))
+		CombatObjectiveRules.REACH_EXIT:
+			var target_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
+			if not target_tiles.is_empty():
+				var player: Dictionary = (victory.get("player", {}) as Dictionary).duplicate(true)
+				player["pos"] = target_tiles[0]
+				victory["player"] = player
 	return victory
 
 func _build_combat_run(progression: Dictionary) -> Dictionary:
@@ -1018,7 +1046,7 @@ func _fixture_metadata(scenario: String, user_namespace: String, run_state: Dict
 		"namespace": user_namespace,
 		"seed": int(run_state.get("seed", requested_seed)),
 		"requested_seed": requested_seed,
-		"requested_route_depth": int(_options.get("route_depth", 0)),
+		"requested_route_depth": maxi(0, int(_options.get("route_depth", -1))),
 		"state_contract": {},
 		"created_at_unix": Time.get_unix_time_from_system()
 	}
