@@ -1,0 +1,15 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*elemental_traps_1920x1080_ui100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 120, 1440, 660], "min_luma_range": 12, "min_luma_stdev": 3},
+        {"rect": [240, 760, 1440, 280], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    }
+  ]
+}

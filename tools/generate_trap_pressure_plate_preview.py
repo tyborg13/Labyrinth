@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TRAP_DIR = ROOT / "assets/art/traps/pressure_plate_concepts"
+TRAP_DIR = ROOT / "assets/art/traps"
 FLOOR_DIR = ROOT / "assets/placeholders/tiles"
 OUTPUT = ROOT / "output/visual_proofs/elemental_pressure_plates_on_actual_tiles.png"
 
@@ -101,7 +101,7 @@ def build_sheet() -> Image.Image:
 
     for index, (label, element, floor_variant) in enumerate(ELEMENTS):
         x = MARGIN + index * (PREVIEW_SIZE[0] + GAP)
-        trap_path = TRAP_DIR / f"trap_{element}_pressure_plate.png"
+        trap_path = TRAP_DIR / f"trap_{element}.png"
         floor_path = FLOOR_DIR / f"base_floor_tile_{floor_variant:02d}.png"
         trap = Image.open(trap_path).convert("RGBA")
         floor = Image.open(floor_path).convert("RGBA")
