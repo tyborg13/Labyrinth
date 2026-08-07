@@ -1104,7 +1104,10 @@ const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
 const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const INVALID_ROOM_COORD: Vector2i = Vector2i(999, 999)
-const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
+const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "aoe", "push", "pull"]
+# AOE patterns can hit beyond their aim-center range, so only direct attacks use
+# the cheap distance prefilter before the exhaustive shortcut legality pass.
+const SHORTCUT_DIRECT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
 const FALLBACK_ATTACK_BASE_DAMAGE: int = 3
 const FALLBACK_MOVE_RANGE: int = 2
 const CARD_WIDGET_BASE_SIZE: Vector2 = Vector2(250.0, 352.0)
@@ -14709,10 +14712,11 @@ func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_pre
 	var preview_state: Dictionary = preview.get("state", {}) as Dictionary
 	if preview_state.is_empty():
 		return {}
-	# Under Umbra, simulating movement and then exposing the discovered follow-up
-	# target would reveal an enemy before the player commits to moving.
-	if _combat_engine.effective_umbra_radius(preview_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
-		return {}
+	var umbra_limited: bool = _combat_engine.effective_umbra_radius(preview_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
+	# Umbra shortcuts stay limited to enemies the player already knows about and
+	# routes made entirely of visible tiles. That preserves hidden collisions and
+	# newly revealed targets while keeping ordinary visible move-attacks concise.
+	var allowed_target_tiles: Variant = _visible_shortcut_enemy_tiles(preview_state) if umbra_limited else null
 	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var plans: Dictionary = {}
 	var move_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
@@ -14721,9 +14725,9 @@ func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_pre
 		movement_plan = _combat_engine.movement_plan_for_player_action(preview_state, action, move_targets)
 	var immediate_attack_tiles: Array[Vector2i] = _vector2i_array([])
 	var can_prefilter_immediate_attack: bool = false
-	if not skip_spatial_prefilter and action_index + 1 < actions.size() and typeof(actions[action_index + 1]) == TYPE_DICTIONARY:
+	if not umbra_limited and not skip_spatial_prefilter and action_index + 1 < actions.size() and typeof(actions[action_index + 1]) == TYPE_DICTIONARY:
 		var immediate_action: Dictionary = actions[action_index + 1]
-		if str(immediate_action.get("type", "")) in SHORTCUT_ATTACK_TYPES and _combat_engine.player_action_can_resolve(preview_state, immediate_action):
+		if str(immediate_action.get("type", "")) in SHORTCUT_DIRECT_ATTACK_TYPES and _combat_engine.player_action_can_resolve(preview_state, immediate_action):
 			can_prefilter_immediate_attack = true
 			immediate_attack_tiles = _shortcut_attackable_tiles_for_action(preview_state, immediate_action)
 	for move_target: Vector2i in move_targets:
@@ -14737,11 +14741,15 @@ func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_pre
 		else:
 			path_tiles = _combat_engine.path_from_player_movement_plan(movement_plan, move_target)
 			after_move_state = _combat_engine.apply_prevalidated_player_move(preview_state, action, move_target, path_tiles)
+		if umbra_limited and not _shortcut_path_is_currently_visible(preview_state, path_tiles):
+			continue
 		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
 		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
-		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles, movement_risk_chips)
+		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles, movement_risk_chips, allowed_target_tiles)
 	if bool(preview.get("skip_allowed", false)):
-		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [])
+		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [], [], allowed_target_tiles)
+	if umbra_limited and plans.is_empty():
+		return {}
 	var tiles: Array[Vector2i] = []
 	for tile_var: Variant in plans.keys():
 		if typeof(tile_var) == TYPE_VECTOR2I:
@@ -14755,6 +14763,24 @@ func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_pre
 		_preview_shortcuts_cache_key = cache_key
 		_preview_shortcuts_cache = result
 	return result
+
+func _visible_shortcut_enemy_tiles(state: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if not _combat_engine.is_enemy_visible_to_player(state, enemy):
+			continue
+		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			result[tile] = true
+	return result
+
+func _shortcut_path_is_currently_visible(state: Dictionary, path_tiles: Array[Vector2i]) -> bool:
+	for tile: Vector2i in path_tiles:
+		if not _combat_engine.is_tile_visible_to_player(state, tile):
+			return false
+	return true
 
 func _shortcut_attackable_tiles_for_action(state: Dictionary, action: Dictionary) -> Array[Vector2i]:
 	var result: Array[Vector2i] = _vector2i_array([])
@@ -14794,7 +14820,7 @@ func _shortcut_tile_in_attack_range(source_tile: Vector2i, attackable_tiles: Arr
 			return true
 	return false
 
-func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions: Array, action_index: int, base_state: Dictionary, move_target: Vector2i, move_tile: Vector2i, move_distance: int, path_tiles: Array[Vector2i], movement_risk_chips: Array = []) -> void:
+func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions: Array, action_index: int, base_state: Dictionary, move_target: Vector2i, move_tile: Vector2i, move_distance: int, path_tiles: Array[Vector2i], movement_risk_chips: Array = [], allowed_target_tiles: Variant = null) -> void:
 	var followup: Dictionary = _next_shortcut_attack_step(base_state, actions, action_index + 1)
 	if followup.is_empty():
 		return
@@ -14802,10 +14828,13 @@ func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions:
 	var followup_action: Dictionary = followup.get("action", {})
 	var followup_index: int = int(followup.get("action_index", -1))
 	for enemy_tile: Vector2i in _combat_engine.valid_targets_for_player_action(followup_state, followup_action):
+		if typeof(allowed_target_tiles) == TYPE_DICTIONARY and not (allowed_target_tiles as Dictionary).has(enemy_tile):
+			continue
+		var planned_attack_action: Dictionary = _shortcut_action_with_default_force_direction(followup_state, followup_action, enemy_tile)
 		# A valid final attack already completes the card. Avoid cloning and resolving
 		# the full combat state solely to rediscover that the action list has ended.
 		if followup_index + 1 < actions.size():
-			var after_attack_state: Dictionary = _combat_engine.apply_player_action(followup_state, followup_action, enemy_tile)
+			var after_attack_state: Dictionary = _combat_engine.apply_player_action(followup_state, planned_attack_action, enemy_tile)
 			var continuation: Dictionary = _card_preview_from_state(card_id, after_attack_state, actions, followup_index + 1, true)
 			if not bool(continuation.get("playable", false)):
 				continue
@@ -14825,7 +14854,7 @@ func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions:
 			"path_tiles": path_tiles,
 			"movement_risk_chips": movement_risk_chips.duplicate(true),
 			"action_index": followup_index,
-			"action": followup_action
+			"action": planned_attack_action
 		}
 
 func _shortcut_movement_risk_chips(shortcut_plan: Dictionary) -> Array:
@@ -15100,13 +15129,16 @@ func _cardinal_direction(direction: Variant) -> Vector2i:
 	return Vector2i(0, 1 if raw.y >= 0 else -1)
 
 func _force_direction_for_action(action: Dictionary, target_tile: Vector2i, hover_tile: Vector2i) -> Vector2i:
-	var allowed: Array[Vector2i] = _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile)
+	return _force_direction_for_action_in_state(_preview_combat_state, action, target_tile, hover_tile)
+
+func _force_direction_for_action_in_state(state: Dictionary, action: Dictionary, target_tile: Vector2i, hover_tile: Vector2i) -> Vector2i:
+	var allowed: Array[Vector2i] = _combat_engine.force_directions_for_player_action(state, action, target_tile)
 	if allowed.is_empty():
 		return Vector2i.ZERO
 	var candidate: Vector2i = Vector2i.ZERO
 	if hover_tile.x >= 0 and hover_tile != target_tile:
 		candidate = _direction_from_tiles(target_tile, hover_tile)
-	var player_tile: Vector2i = (_preview_combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	if candidate == Vector2i.ZERO and player_tile != target_tile:
 		var fallback_delta: Vector2i = target_tile - player_tile
 		var action_type: String = str(action.get("type", ""))
@@ -15116,6 +15148,12 @@ func _force_direction_for_action(action: Dictionary, target_tile: Vector2i, hove
 	if allowed.has(candidate):
 		return candidate
 	return allowed[0]
+
+func _shortcut_action_with_default_force_direction(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
+	if not _target_needs_force_orientation_in_state(state, action, target_tile):
+		return action
+	var direction: Vector2i = _force_direction_for_action_in_state(state, action, target_tile, target_tile)
+	return _action_with_pending_orientation(action, direction) if direction != Vector2i.ZERO else action
 
 func _force_direction_for_confirmation(action: Dictionary, target_tile: Vector2i, click_tile: Vector2i) -> Vector2i:
 	var allowed: Array[Vector2i] = _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile)
@@ -15142,6 +15180,8 @@ func _target_needs_force_orientation(action: Dictionary, target_tile: Vector2i) 
 
 func _target_needs_force_orientation_in_state(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> bool:
 	if str(action.get("type", "")) == "aoe":
+		return false
+	if action.has("force_direction"):
 		return false
 	if not _combat_engine.player_action_needs_orientation(action):
 		return false
@@ -15533,6 +15573,11 @@ func _on_pending_shortcut_clicked(target_tile: Vector2i, shortcut_plan: Dictiona
 		var planned_path: Array[Vector2i] = _vector2i_array(shortcut_plan.get("path_tiles", []))
 		_preview_combat_state = _combat_engine.apply_prevalidated_player_move(_preview_combat_state, move_action, move_target, planned_path)
 		_mark_preview_selection_changed()
+	if _umbra_defers_movement_followup_preview(_preview_combat_state, _pending_actions[previous_action_index], _pending_actions, previous_action_index):
+		_pending_umbra_commit_locked = true
+	var planned_attack_index: int = int(shortcut_plan.get("action_index", -1))
+	if planned_attack_index >= 0 and planned_attack_index < _pending_actions.size():
+		_pending_actions[planned_attack_index] = (shortcut_plan.get("action", _pending_actions[planned_attack_index]) as Dictionary).duplicate(true)
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
 	var attack_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
 	_append_skipped_target_placeholders(previous_action_index + 1, int(attack_preview.get("action_index", 0)))
