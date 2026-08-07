@@ -1,0 +1,24 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*slipstream_cut_default_push_one_click_v2.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 80, 1920, 700], "min_luma_range": 8, "min_luma_stdev": 2},
+        {"rect": [0, 760, 1920, 320], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    },
+    {
+      "pattern": "*sidestep_slash_umbra_one_click_v2.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 80, 1920, 700], "min_luma_range": 8, "min_luma_stdev": 2},
+        {"rect": [0, 760, 1920, 320], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    }
+  ]
+}
