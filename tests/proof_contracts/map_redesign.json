@@ -1,5 +1,5 @@
 {
-  "min_images": 8,
+  "min_images": 10,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -32,6 +32,18 @@
       "width": 1920,
       "height": 1080,
       "regions": [{"rect": [790, 415, 640, 400], "min_luma_range": 30, "min_luma_stdev": 5}]
+    },
+    {
+      "pattern": "*branch_choice_mini.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [790, 415, 340, 250], "min_luma_range": 30, "min_luma_stdev": 5}]
+    },
+    {
+      "pattern": "*branch_choice_after_reveal_mini.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [790, 415, 340, 250], "min_luma_range": 30, "min_luma_stdev": 5}]
     }
   ]
 }

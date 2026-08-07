@@ -3,7 +3,7 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
-const OUTPUT_DIR: String = "user://map_overlay_redesign_probe_v3"
+const OUTPUT_DIR: String = "user://map_overlay_redesign_probe_v4"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const INVALID_COORD: Vector2i = Vector2i(-999, -999)
 
@@ -93,6 +93,8 @@ func _assert_production_minimap(overlay: Control, map_view: Control) -> void:
 		return
 	if overlay.size.x < 236.0 or overlay.size.y < 210.0:
 		_fail("Production minimap should have enough room for legible medallions")
+	if not overlay.tooltip_text.contains("[M]"):
+		_fail("Production minimap should disclose the M shortcut")
 	var focus_coords: Array[Vector2i] = map_view.call("_compact_focus_coords")
 	if focus_coords.size() < 2 or focus_coords.size() >= (map_view.call("_visible_rooms") as Array).size():
 		_fail("Production minimap should show a focused local route neighborhood")
@@ -131,8 +133,8 @@ func _assert_overlay_chrome(scrim: Control, dialog: Control, map_view: Control) 
 		_fail("Full map should expose its direct player-facing title")
 	if dialog.find_child("MapSubtitle", true, false) != null or dialog.find_child("DepthStrip", true, false) != null:
 		_fail("Full map should not add a fantasy tagline or redundant depth strip")
-	if navigation_hint == null or not navigation_hint.text.contains("TWO-FINGER") or not navigation_hint.text.contains("PINCH"):
-		_fail("Full map should explain its mouse and trackpad navigation")
+	if navigation_hint == null or not navigation_hint.text.contains("TWO-FINGER") or not navigation_hint.text.contains("PINCH") or not navigation_hint.text.contains("M TO CLOSE"):
+		_fail("Full map should explain its mouse, trackpad, and M-key navigation")
 	if close_button == null:
 		_fail("Full map should expose a close control")
 	elif title != null and close_button.get_global_rect().intersects(title.get_global_rect()):

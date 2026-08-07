@@ -28,6 +28,7 @@ const COMPACT_NODE_MAX_SIZE: float = 32.0
 const COMPACT_NODE_MIN_SIZE: float = 20.0
 const EXPANDED_NODE_SIZE: float = 84.0
 const EXPANDED_RING_SPACING: float = 142.0
+const RING_ANGLE_JITTER_FRACTION: float = 0.06
 const CAMERA_MIN_ZOOM: float = 0.58
 const CAMERA_MAX_ZOOM: float = 1.70
 const CAMERA_ZOOM_FACTOR: float = 1.12
@@ -381,13 +382,11 @@ func _ensure_layout_cache() -> void:
 	_coord_positions_cache.clear()
 	var layout_rooms: Array = _visible_rooms_cache.duplicate()
 	layout_rooms.sort_custom(Callable(self, "_radial_room_layout_before"))
-	var placed_positions: Array = []
 	for room_var: Variant in layout_rooms:
 		var room: Dictionary = room_var
 		var coord: Vector2i = room.get("coord", Vector2i.ZERO)
-		var world_position: Vector2 = _resolved_world_position(room, placed_positions)
+		var world_position: Vector2 = _world_position_for_room(room)
 		_world_positions_cache[coord] = world_position
-		placed_positions.append(world_position)
 	var current_coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	if not _world_positions_cache.has(current_coord):
 		_world_positions_cache[current_coord] = _world_position_for_room(_room_ref_at(current_coord))
@@ -481,9 +480,24 @@ func _world_position_for_room(room: Dictionary) -> Vector2:
 		return Vector2.ZERO
 	var radius_jitter: float = _layout_jitter(coord, 17) * _world_ring_spacing_cache * 0.030
 	var radius: float = float(depth) * _world_ring_spacing_cache + radius_jitter
-	var angle: float = atan2(float(coord.y), float(coord.x))
-	angle += _layout_jitter(coord, 41) * 0.090
+	var topology_depth: int = maxi(1, _coord_depth(coord))
+	var ring_slot_count: int = topology_depth * 8
+	var ring_slot: int = _ring_perimeter_index(coord, topology_depth)
+	var ring_angle_step: float = TAU / float(ring_slot_count)
+	var angle: float = -PI * 0.25 + float(ring_slot) * ring_angle_step
+	angle += _layout_jitter(coord, 41) * ring_angle_step * RING_ANGLE_JITTER_FRACTION
 	return Vector2(cos(angle), sin(angle)) * radius
+
+func _ring_perimeter_index(coord: Vector2i, depth: int) -> int:
+	if depth <= 0:
+		return 0
+	if coord.x == depth:
+		return coord.y + depth
+	if coord.y == depth:
+		return depth * 3 - coord.x
+	if coord.x == -depth:
+		return depth * 5 - coord.y
+	return depth * 7 + coord.x
 
 func _radial_room_layout_before(a: Dictionary, b: Dictionary) -> bool:
 	var a_coord: Vector2i = a.get("coord", Vector2i.ZERO)
@@ -495,26 +509,6 @@ func _radial_room_layout_before(a: Dictionary, b: Dictionary) -> bool:
 	if a_coord.x != b_coord.x:
 		return a_coord.x < b_coord.x
 	return a_coord.y < b_coord.y
-
-func _resolved_world_position(room: Dictionary, placed_positions: Array) -> Vector2:
-	var desired: Vector2 = _world_position_for_room(room)
-	if desired.length() < 1.0 or placed_positions.is_empty():
-		return desired
-	var desired_radius: float = desired.length()
-	var desired_direction: Vector2 = desired.normalized()
-	var minimum_clearance: float = EXPANDED_NODE_SIZE * 1.06
-	var angular_step: float = clampf(minimum_clearance / maxf(1.0, desired_radius) * 1.08, 0.12, 0.82)
-	var radial_offsets: Array = [0.0, -0.035, 0.035, -0.065, 0.065]
-	for radial_factor_var: Variant in radial_offsets:
-		var candidate_radius: float = maxf(_world_ring_spacing_cache * 0.50, desired_radius + float(radial_factor_var) * _world_ring_spacing_cache)
-		for offset_index: int in range(13):
-			var signed_index: int = 0
-			if offset_index > 0:
-				signed_index = int(ceil(float(offset_index) * 0.5)) * (1 if offset_index % 2 == 1 else -1)
-			var candidate: Vector2 = desired_direction.rotated(float(signed_index) * angular_step) * candidate_radius
-			if _radial_position_is_clear(candidate, placed_positions, minimum_clearance):
-				return candidate
-	return desired
 
 func _world_to_screen(world_position: Vector2) -> Vector2:
 	return _map_rect_cache.get_center() + (world_position - _camera_focus_world) * _camera_zoom
@@ -536,13 +530,6 @@ func _clamp_camera_focus() -> void:
 		_camera_focus_world.y = _background_world_rect_cache.get_center().y
 	else:
 		_camera_focus_world.y = clampf(_camera_focus_world.y, minimum_focus.y, maximum_focus.y)
-
-func _radial_position_is_clear(candidate: Vector2, placed_positions: Array, minimum_clearance: float) -> bool:
-	for placed_var: Variant in placed_positions:
-		var placed: Vector2 = placed_var
-		if candidate.distance_to(placed) < minimum_clearance:
-			return false
-	return true
 
 func _layout_jitter(coord: Vector2i, salt: int) -> float:
 	var value: int = posmod(coord.x * 92821 + coord.y * 68917 + salt * 31337, 2001)
@@ -732,33 +719,21 @@ func _draw_depth_ring_label(depth: int, radius: float) -> void:
 		font = get_theme_default_font()
 	if font == null:
 		return
-	var label_rect := Rect2()
-	var best_score: float = INF
-	var angle_seed: float = float(depth) * 0.71
-	for sample_index: int in range(96):
-		var angle: float = angle_seed + TAU * float(sample_index) / 96.0
-		var anchor: Vector2 = _radial_center_cache + Vector2(cos(angle), sin(angle)) * radius
-		var candidate := Rect2(anchor - DEPTH_RING_LABEL_SIZE * 0.5, DEPTH_RING_LABEL_SIZE)
-		if not _map_rect_cache.grow(-12.0).encloses(candidate):
-			continue
-		if not _rect_intersects_visible_node(candidate.grow(5.0)):
-			var score: float = candidate.position.y + absf(candidate.get_center().x - _map_rect_cache.get_center().x) * 0.06
-			if score >= best_score:
-				continue
-			label_rect = candidate
-			best_score = score
-	if label_rect.size == Vector2.ZERO:
-		return
 	var label: String = "DEPTH %d" % depth
-	var baseline: Vector2 = label_rect.position + Vector2(0.0, 14.5)
-	draw_string(font, baseline + Vector2(1.0, 2.0), label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, UiTypography.scaled_size(self, UiTypography.SIZE_CAPTION), Color(0.0, 0.0, 0.0, 0.88))
-	draw_string(font, baseline, label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, UiTypography.scaled_size(self, UiTypography.SIZE_CAPTION), Color(MAP_PARCHMENT.r, MAP_PARCHMENT.g, MAP_PARCHMENT.b, 0.62))
+	for label_rect: Rect2 in _depth_ring_label_rects(radius):
+		if not _map_rect_cache.grow(-12.0).encloses(label_rect):
+			continue
+		var baseline: Vector2 = label_rect.position + Vector2(0.0, 14.5)
+		draw_string(font, baseline + Vector2(1.0, 2.0), label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, UiTypography.scaled_size(self, UiTypography.SIZE_CAPTION), Color(0.0, 0.0, 0.0, 0.88))
+		draw_string(font, baseline, label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, UiTypography.scaled_size(self, UiTypography.SIZE_CAPTION), Color(MAP_PARCHMENT.r, MAP_PARCHMENT.g, MAP_PARCHMENT.b, 0.62))
 
-func _rect_intersects_visible_node(rect: Rect2) -> bool:
-	for node_entry: Dictionary in _visible_node_rects_cache:
-		if rect.intersects(node_entry.get("rect", Rect2())):
-			return true
-	return false
+func _depth_ring_label_rects(radius: float) -> Array[Rect2]:
+	var rects: Array[Rect2]
+	for direction_var: Variant in [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT]:
+		var direction: Vector2 = direction_var
+		var anchor: Vector2 = _radial_center_cache + direction * radius
+		rects.append(Rect2(anchor - DEPTH_RING_LABEL_SIZE * 0.5, DEPTH_RING_LABEL_SIZE))
+	return rects
 
 func begin_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:
 	clear_travel_animation()

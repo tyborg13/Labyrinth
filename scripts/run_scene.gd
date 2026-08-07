@@ -1868,6 +1868,15 @@ func _input(event: InputEvent) -> void:
 			_rotate_aoe_aim(1)
 			get_viewport().set_input_as_handled()
 			return
+	if _is_map_shortcut_event(event):
+		if _large_map_scrim != null and _large_map_scrim.visible:
+			_close_large_map()
+		elif _map_shortcut_can_open():
+			_open_large_map()
+		else:
+			return
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_cancel"):
 		await _on_cancel_requested()
 
@@ -1936,7 +1945,7 @@ func _apply_style() -> void:
 	mini_map_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	mini_map_overlay.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	mini_map_overlay.set_meta("cursor_feedback_context_provider", _mini_map_cursor_feedback_context)
-	mini_map_overlay.tooltip_text = "Map"
+	mini_map_overlay.tooltip_text = "Map [M]"
 	if not mini_map_overlay.gui_input.is_connected(_on_mini_map_overlay_gui_input):
 		mini_map_overlay.gui_input.connect(_on_mini_map_overlay_gui_input)
 	var log_style := StyleBoxFlat.new()
@@ -3087,7 +3096,7 @@ func _build_large_map_overlay() -> void:
 
 	var navigation_hint := Label.new()
 	navigation_hint.name = "MapNavigationHint"
-	navigation_hint.text = "DRAG / TWO-FINGER PAN  •  SCROLL / PINCH TO ZOOM"
+	navigation_hint.text = "DRAG / TWO-FINGER PAN  •  SCROLL / PINCH TO ZOOM  •  M TO CLOSE"
 	navigation_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	navigation_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	navigation_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -3103,7 +3112,7 @@ func _build_large_map_overlay() -> void:
 	var close_button := UiTooltipButton.new()
 	close_button.name = "CloseButton"
 	close_button.text = "X"
-	close_button.tooltip_text = "Close"
+	close_button.tooltip_text = "Close [M / Esc]"
 	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_ICON)
 	_ui_skin.apply_button_text_overrides(close_button)
 	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
@@ -15518,6 +15527,32 @@ func _on_mini_map_overlay_gui_input(event: InputEvent) -> void:
 
 func _mini_map_cursor_feedback_context(_local_position: Vector2) -> String:
 	return "action" if not _dialogue_active and not _animation_lock and _large_map_scrim != null else "inert"
+
+func _is_map_shortcut_event(event: InputEvent) -> bool:
+	if not (event is InputEventKey):
+		return false
+	var key_event: InputEventKey = event
+	if not key_event.pressed or key_event.echo:
+		return false
+	if key_event.alt_pressed or key_event.ctrl_pressed or key_event.meta_pressed or key_event.shift_pressed:
+		return false
+	return key_event.keycode == KEY_M or key_event.physical_keycode == KEY_M
+
+func _map_shortcut_can_open() -> bool:
+	if _large_map_scrim == null or _dialogue_active or _animation_lock or _drag_card_index >= 0:
+		return false
+	for blocking_control: Control in [
+		_menu_scrim,
+		_grimoire_scrim,
+		_pile_scrim,
+		_upgrade_scrim,
+		_pre_battle_scrim,
+		_pinned_tooltip_scrim,
+		_run_end_recap
+	]:
+		if _visible_control(blocking_control):
+			return false
+	return true
 
 func _open_large_map() -> void:
 	if _large_map_scrim == null:

@@ -3,9 +3,12 @@ extends SceneTree
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
-const OUTPUT_DIR: String = "user://map_decision_layer_probe_v4"
+const OUTPUT_DIR: String = "user://map_decision_layer_probe_v5"
 const INVALID_COORD: Vector2i = Vector2i(-999, -999)
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
+const BRANCH_CURRENT: Vector2i = Vector2i(2, 2)
+const BRANCH_UPPER: Vector2i = Vector2i(2, 1)
+const BRANCH_LOWER: Vector2i = Vector2i(2, 3)
 
 var _background: ColorRect
 var _map_view: LabyrinthMapView
@@ -34,6 +37,8 @@ func _initialize() -> void:
 	await _capture_panned("dense_depth5_panned.png", _dense_depth_five_state())
 	await _capture_travel("travel_in_transit.png", _mid_state())
 	await _capture_mini("dense_depth5_mini.png", _dense_depth_five_state())
+	await _capture_mini("branch_choice_mini.png", _branch_choice_state(false))
+	await _capture_mini("branch_choice_after_reveal_mini.png", _branch_choice_state(true))
 
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(1 if _failed else 0)
@@ -275,6 +280,7 @@ func _assert_large_map_geometry(context: String) -> void:
 				_fail("%s room medallions overlap: %s and %s" % [context, first_coord, second_coord])
 	if on_screen_room_count < 1:
 		_fail("%s should keep at least the current local room in frame" % context)
+	_assert_depth_ring_label_geometry(context)
 	var connections: Array = _map_view.get("_visible_connections_cache") as Array
 	var found_curved_route: bool = false
 	for connection_var: Variant in connections:
@@ -316,6 +322,28 @@ func _assert_compact_map_geometry() -> void:
 			var second_position: Vector2 = _map_view.call("_coord_position", focus_coords[second_index])
 			if first_position.distance_to(second_position) < node_size * 0.90:
 				_fail("Compact minimap medallions should not overlap: %s and %s" % [focus_coords[first_index], focus_coords[second_index]])
+	if focus_coords.has(BRANCH_CURRENT) and focus_coords.has(BRANCH_UPPER) and focus_coords.has(BRANCH_LOWER):
+		var current_position: Vector2 = _map_view.call("_coord_position", BRANCH_CURRENT)
+		var upper_direction: Vector2 = (_map_view.call("_coord_position", BRANCH_UPPER) as Vector2) - current_position
+		var lower_direction: Vector2 = (_map_view.call("_coord_position", BRANCH_LOWER) as Vector2) - current_position
+		if upper_direction.dot(lower_direction) >= 0.0:
+			_fail("Opposite route choices should appear on opposite sides of the current minimap room")
+
+func _assert_depth_ring_label_geometry(context: String) -> void:
+	var radial_center: Vector2 = _map_view.call("_radial_center")
+	var ring_step: float = float(_map_view.call("_depth_ring_step"))
+	var expected_directions: Array[Vector2]
+	expected_directions.assign([Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT])
+	for depth: int in range(1, int(_map_view.call("_depth_ring_count")) + 1):
+		var radius: float = float(depth) * ring_step
+		var label_rects: Array[Rect2] = _map_view.call("_depth_ring_label_rects", radius)
+		if label_rects.size() != 4:
+			_fail("%s depth %d should expose four fixed cardinal labels" % [context, depth])
+			continue
+		for index: int in range(expected_directions.size()):
+			var relative_anchor: Vector2 = label_rects[index].get_center() - radial_center
+			if relative_anchor.distance_to(expected_directions[index] * radius) > 0.01:
+				_fail("%s depth %d label %d moved away from its cardinal ring anchor" % [context, depth, index])
 
 func _fail(message: String) -> void:
 	_failed = true
@@ -367,6 +395,40 @@ func _long_state() -> Dictionary:
 		{"from": Vector2i(11, 8), "coord": Vector2i(11, 7)}
 	]
 	return _state_from_path(path, destinations, unavailable)
+
+func _branch_choice_state(include_additional_reveal: bool) -> Dictionary:
+	var visible_coords: Array[Vector2i]
+	visible_coords.assign([
+		Vector2i(0, 0), Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0),
+		Vector2i(1, 1), Vector2i(-1, 1), Vector2i(-2, 1), Vector2i(-2, 2), Vector2i(-2, 0),
+		Vector2i(-1, 2), Vector2i(-2, 3), Vector2i(0, 2), Vector2i(1, 2),
+		BRANCH_CURRENT, BRANCH_UPPER, BRANCH_LOWER
+	])
+	if include_additional_reveal:
+		visible_coords.append(Vector2i(-2, -1))
+	var rooms: Dictionary = {}
+	for coord: Vector2i in visible_coords:
+		rooms[_room_key(coord)] = _branch_room(coord, [])
+	rooms[_room_key(BRANCH_CURRENT)] = _branch_room(BRANCH_CURRENT, [BRANCH_UPPER, BRANCH_LOWER])
+	rooms[_room_key(BRANCH_UPPER)] = _branch_room(BRANCH_UPPER, [BRANCH_CURRENT])
+	rooms[_room_key(BRANCH_LOWER)] = _branch_room(BRANCH_LOWER, [BRANCH_CURRENT])
+	return {"mode": "room", "current_room": BRANCH_CURRENT, "rooms": rooms}
+
+func _branch_room(coord: Vector2i, neighbors: Array) -> Dictionary:
+	var connections: Array = []
+	for neighbor_var: Variant in neighbors:
+		connections.append({"coord": neighbor_var as Vector2i})
+	return {
+		"coord": coord,
+		"depth": maxi(absi(coord.x), absi(coord.y)),
+		"type": "start" if coord == Vector2i.ZERO else "combat",
+		"element": "fire",
+		"revealed": true,
+		"visited": coord not in [BRANCH_UPPER, BRANCH_LOWER],
+		"cleared": coord not in [BRANCH_UPPER, BRANCH_LOWER],
+		"sealed": false,
+		"connections": connections
+	}
 
 func _dense_depth_five_state() -> Dictionary:
 	var rooms: Dictionary = {}

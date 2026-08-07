@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-07T04:20:23Z",
+  "updated_at": "2026-08-07T14:11:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7176,6 +7176,28 @@
       "source": {
         "branch": "codex/add-varied-combat-encounter-objectives",
         "commit": "bdf0449"
+      }
+    },
+    {
+      "id": "mnt_20260807T141154Z_15ff7045",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/labyrinth_map_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/labyrinth_map_view.gd",
+      "summary": "Radial map angles must preserve square-ring order",
+      "details": "Project each Chebyshev ring's perimeter indices uniformly onto its circular depth ring and bound angular jitter to a small fraction of one slot. Independent absolute jitter or visibility-dependent collision placement can reverse neighboring route bearings as rings grow, producing minimap crossings and moving rooms when more of the map is revealed. Compact and full maps must derive identical world positions solely from room coordinates and depth.",
+      "status": "active",
+      "created_at": "2026-08-07T14:11:54Z",
+      "updated_at": "2026-08-07T14:11:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-radial-minimap-layout-stable-map-depth-labels-and-m-shortcut",
+        "commit": "254b866"
       }
     }
   ]
