@@ -32,6 +32,7 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
+const PreBattlePortraitEdgeMaterial = preload("res://scripts/pre_battle_portrait_edge_material.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
@@ -4365,6 +4366,10 @@ func _pre_battle_enemy_portrait(enemy_type: String, enemy_def: Dictionary) -> Te
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var edge_profile: Dictionary = PreBattlePortraitEdgeMaterial.profile_for(enemy_type)
+	portrait.material = PreBattlePortraitEdgeMaterial.material_for(enemy_type)
+	portrait.set_meta("pre_battle_worn_edges", true)
+	portrait.set_meta("pre_battle_portrait_edge_profile", edge_profile)
 	return portrait
 
 func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Texture2D:
