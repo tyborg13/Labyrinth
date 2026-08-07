@@ -110,8 +110,11 @@ static func _test_portrait_fitting_for_full_roster(host: Node, expect: Callable)
 		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
 		var portrait: TextureRect = host.call("_pre_battle_enemy_portrait", enemy_type, enemy_def) as TextureRect
 		expect.call(portrait != null and portrait.texture != null, "%s should resolve a pre-battle portrait texture" % enemy_type)
-		expect.call(portrait != null and portrait.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "%s portrait should preserve the complete face-focused crop inside its frame" % enemy_type)
+		expect.call(portrait != null and portrait.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "%s portrait should preserve the complete face-focused composition" % enemy_type)
 		expect.call(portrait != null and portrait.texture != null and portrait.texture.get_size() == Vector2(128.0, 128.0), "%s pre-battle portrait should use the shared native 128px combat portrait" % enemy_type)
+		expect.call(portrait != null and portrait.material is ShaderMaterial and bool(portrait.get_meta("pre_battle_worn_edges", false)), "%s pre-battle portrait should use the worn edge material" % enemy_type)
+		var profile: Dictionary = (portrait.get_meta("pre_battle_portrait_edge_profile", {}) as Dictionary) if portrait != null else {}
+		expect.call(profile.has("focus_center") and profile.has("focus_radius") and profile.has("edge_widths") and profile.has("edge_strengths"), "%s worn edge profile should include focal protection and per-side wear controls" % enemy_type)
 		var portrait_path: String = str(host.call("_combat_portrait_path", enemy_type))
 		expect.call(portrait_path.begins_with("res://assets/art/portraits/"), "%s pre-battle portrait should resolve through the shared portrait registry" % enemy_type)
 		if portrait != null:
@@ -123,8 +126,22 @@ static func _test_portrait_fitting_for_full_roster(host: Node, expect: Callable)
 		"max_hp": int(warden_def.get("max_hp", 1))
 	}, Color("d8b06d"), Vector2(198.0, 152.0)) as Control
 	var summary_art: TextureRect = summary_card.find_child("PreBattleEnemyArt", true, false) as TextureRect
-	expect.call(summary_art != null and summary_art.offset_left >= 12.0 and summary_art.offset_top >= 12.0 and summary_art.offset_right <= -12.0, "Summary portraits should keep a safe inset from every visible frame edge")
+	expect.call(summary_art != null and summary_art.offset_left >= 12.0 and summary_art.offset_top >= 12.0 and summary_art.offset_right <= -12.0, "Summary portraits should keep a safe inset inside the frameless brush composition")
 	summary_card.free()
+	var crawler_portrait: TextureRect = host.call("_pre_battle_enemy_portrait", "crawler", GameData.enemy_def("crawler")) as TextureRect
+	var crawler_profile: Dictionary = crawler_portrait.get_meta("pre_battle_portrait_edge_profile", {}) as Dictionary
+	var crawler_center: Vector2 = crawler_profile.get("focus_center", Vector2.ONE)
+	var crawler_widths: Vector4 = crawler_profile.get("edge_widths", Vector4.ZERO)
+	var crawler_strengths: Vector4 = crawler_profile.get("edge_strengths", Vector4.ZERO)
+	expect.call(crawler_center.x < 0.40, "Tunnel Crawler focal protection should follow its left-side head")
+	expect.call(crawler_widths.y >= 0.25, "Tunnel Crawler should wear its non-focal upper back before it escapes above the brush silhouette")
+	expect.call(crawler_widths.z >= 0.35, "Tunnel Crawler should clean up its upper-right back before it escapes the brush silhouette")
+	expect.call(crawler_strengths.z > crawler_strengths.x and crawler_strengths.w > crawler_strengths.y, "Tunnel Crawler should wear its right/bottom body edges more strongly than the head-side edges")
+	var crawler_material: ShaderMaterial = crawler_portrait.material as ShaderMaterial
+	var crawler_shader_code: String = crawler_material.shader.code if crawler_material != null and crawler_material.shader != null else ""
+	expect.call(crawler_shader_code.contains("COLOR.a *= edge_mask;"), "Worn portrait edges should alter only alpha and leave the portrait RGB on its existing color path")
+	expect.call(not crawler_shader_code.contains("texture(TEXTURE, UV)"), "Worn portrait edges should not square portrait color with a duplicate default-texture sample")
+	crawler_portrait.free()
 
 static func _labels_text(node: Node) -> String:
 	var text_parts: PackedStringArray = []

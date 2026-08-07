@@ -5,7 +5,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
-const OUTPUT_DIR: String = "user://pre_battle_threat_inspection_probe_v1"
+const OUTPUT_DIR: String = "user://pre_battle_threat_inspection_probe_v3"
 const INVALID_COORD: Vector2i = Vector2i(999, 999)
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
@@ -230,7 +230,7 @@ func _capture_loadout_refresh_and_inspections() -> void:
 				var active_panel: Control = instance.get("_pinned_tooltip_panel") as Control
 				if active_panel != pinned_enemy or str(active_panel.get_meta("inspection_kind", "")) != "enemy":
 					_fail("Focused enemy inspection should swallow underlying %s clicks" % blocked_source.name)
-		await _save_root_screenshot("%s/expanded_enemy_known_moves_v2.png" % OUTPUT_DIR)
+		await _save_root_screenshot("%s/expanded_enemy_known_moves_v3.png" % OUTPUT_DIR)
 		var dismissal_button: Button = pinned_enemy.find_child("PreBattleInspectionCloseButton", true, false) as Button if pinned_enemy != null else null
 		if dismissal_button != null:
 			var native_close_press := InputEventMouseButton.new()
@@ -318,6 +318,7 @@ func _capture_loadout_refresh_and_inspections() -> void:
 	if not (instance.get("_exit_destinations_by_tile") as Dictionary).is_empty():
 		_fail("Loadout inspection should not reveal exits")
 	await _capture_all_enemy_portraits(instance)
+	await _capture_worn_edge_closeups(instance)
 	await _capture_native_portrait_contact_sheet(instance)
 	instance.queue_free()
 	await process_frame
@@ -410,10 +411,12 @@ func _capture_enemy_count_layouts() -> void:
 				_fail("Elemental pre-battle header should keep Umbra purple")
 			if _labels_text(panel).contains("Vision"):
 				_fail("Elemental pre-battle header should omit Vision X text")
-		var screenshot_path: String = "%s/enemy_layout_%d_v1.png" % [OUTPUT_DIR, enemy_count]
+		var screenshot_path: String = "%s/enemy_layout_%d_v2.png" % [OUTPUT_DIR, enemy_count]
 		if enemy_count == 3:
 			screenshot_path = "%s/_synthetic_three_buffer_warmup.png" % OUTPUT_DIR
 		await _save_root_screenshot(screenshot_path)
+		if enemy_count == 5:
+			await _save_root_screenshot("%s/crawler_live_layout_v1.png" % OUTPUT_DIR)
 		if enemy_count == 3:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(screenshot_path))
 		instance.queue_free()
@@ -458,7 +461,7 @@ func _capture_boss_pathological_layout() -> void:
 		var flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control
 		if flow == null or flow.get_child_count() < 3:
 			_fail("Boss pre-battle fixture should retain the boss and its pathological supporting enemies")
-		await _save_root_screenshot("%s/boss_pathological_v1.png" % OUTPUT_DIR)
+		await _save_root_screenshot("%s/boss_pathological_v2.png" % OUTPUT_DIR)
 	instance.queue_free()
 	await process_frame
 	await process_frame
@@ -531,7 +534,53 @@ func _capture_all_enemy_portraits(instance: Node) -> void:
 		grid.add_child(card)
 	await process_frame
 	await process_frame
-	await _save_root_screenshot("%s/all_enemy_portraits_centered_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/all_enemy_portraits_worn_edges_v4.png" % OUTPUT_DIR)
+	proof_scrim.queue_free()
+	await process_frame
+
+func _capture_worn_edge_closeups(instance: Node) -> void:
+	var ui_root: Control = instance.get("ui_root") as Control
+	if ui_root == null:
+		_fail("Worn portrait edge closeups need the run UI root")
+		return
+	var proof_scrim := ColorRect.new()
+	proof_scrim.name = "WornPortraitEdgeCloseups"
+	proof_scrim.color = Color(0.012, 0.009, 0.008, 0.98)
+	proof_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	proof_scrim.z_index = 1500
+	proof_scrim.z_as_relative = false
+	proof_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ui_root.add_child(proof_scrim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	proof_scrim.add_child(center)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 20)
+	center.add_child(content)
+	var title := Label.new()
+	title.text = "WORN PORTRAIT EDGES — FOCAL SAFETY"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_color_override("font_color", Color("fff0ce"))
+	content.add_child(title)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 28)
+	content.add_child(row)
+	for enemy_type: String in ["crawler", "warden", "iskaldra"]:
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		var max_hp: int = int(enemy_def.get("max_hp", 1))
+		var card: Control = instance.call("_build_pre_battle_enemy_card", {
+			"type": enemy_type,
+			"hp": max_hp,
+			"max_hp": max_hp,
+		}, Color(str(enemy_def.get("accent", "#d8b06d"))), Vector2(320.0, 230.0)) as Control
+		var portrait: TextureRect = card.find_child("PreBattleEnemyArt", true, false) as TextureRect
+		if portrait == null or not bool(portrait.get_meta("pre_battle_worn_edges", false)):
+			_fail("%s closeup should use the worn portrait material" % enemy_type)
+		row.add_child(card)
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("%s/worn_edge_closeups_crawler_warden_iskaldra_v2.png" % OUTPUT_DIR)
 	proof_scrim.queue_free()
 	await process_frame
 
