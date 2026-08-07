@@ -96,6 +96,8 @@ func _parse_args() -> Dictionary:
 		"discard": "",
 		"burned": "",
 		"elemental_intensity": "",
+		"trap_elements": "",
+		"trap_positions": "",
 		"reward_cards": "",
 		"relic_choices": "",
 		"relics": "",
@@ -173,6 +175,12 @@ func _parse_args() -> Dictionary:
 			"--elemental-intensity":
 				index += 1
 				parsed["elemental_intensity"] = _required_arg(args, index, arg)
+			"--trap-elements":
+				index += 1
+				parsed["trap_elements"] = _required_arg(args, index, arg)
+			"--trap-positions":
+				index += 1
+				parsed["trap_positions"] = _required_arg(args, index, arg)
 			"--reward-cards":
 				index += 1
 				parsed["reward_cards"] = _required_arg(args, index, arg)
@@ -274,6 +282,7 @@ func _print_help() -> void:
 	print("Combat options:")
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("  --elemental-intensity fire=2,ice=2,lightning=2,air=2,earth=2")
+	print("  --trap-elements fire,ice [--trap-positions 3:4,5:2]")
 	print("  --enemy-types enemy_a,enemy_b --enemy-positions 6:1,5:4 --enemy-intents intent_a,intent_b")
 	print("  --enemy-hp N --equipment-drop equipment_id [--equipment-drop-position 6:5]")
 	print("  --umbra-stage clear|fringe|advancing|pressing|deep|heart|eclipse")
@@ -696,6 +705,10 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 		combat_state = _apply_enemy_position_overrides(combat_state)
 		if _failed:
 			return state
+	if not str(_options.get("trap_elements", "")).strip_edges().is_empty():
+		combat_state = _apply_trap_overrides(combat_state)
+		if _failed:
+			return state
 	var umbra_stage: String = str(_options.get("umbra_stage", "")).strip_edges().to_lower()
 	if not umbra_stage.is_empty():
 		if not VALID_UMBRA_STAGES.has(umbra_stage):
@@ -740,6 +753,7 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 	state["combat_state"] = combat_state
 	var current_layout: Dictionary = (state.get("current_room_layout", {}) as Dictionary).duplicate(true)
 	current_layout["loot"] = (combat_state.get("loot", []) as Array).duplicate(true)
+	current_layout["traps"] = (combat_state.get("traps", []) as Array).duplicate(true)
 	state["current_room_layout"] = current_layout
 	state["player_hp"] = int(player.get("hp", state.get("player_hp", 1)))
 	state["mode"] = "combat"
@@ -775,6 +789,127 @@ func _elemental_intensity_override(combat_state: Dictionary) -> Dictionary:
 			return {}
 		intensity[element_id] = maxi(0, int(pair[1]))
 	return intensity
+
+func _apply_trap_overrides(combat_state: Dictionary) -> Dictionary:
+	var elements: Array[String] = _string_list(str(_options.get("trap_elements", "")))
+	var position_entries: Array[String] = _string_list(str(_options.get("trap_positions", "")))
+	if not position_entries.is_empty() and position_entries.size() != elements.size():
+		_fail("--trap-elements and --trap-positions must contain the same number of entries")
+		return combat_state
+	var grid: Array = combat_state.get("grid", [])
+	var actor_tiles: Dictionary = {}
+	actor_tiles[(combat_state.get("player", {}) as Dictionary).get("pos", INVALID_COORD)] = true
+	for collection_key: String in ["enemies", "illusions"]:
+		for actor_var: Variant in combat_state.get(collection_key, []):
+			if typeof(actor_var) == TYPE_DICTIONARY:
+				actor_tiles[(actor_var as Dictionary).get("pos", INVALID_COORD)] = true
+	var positions: Array[Vector2i] = []
+	if position_entries.is_empty():
+		positions = _automatic_inspection_trap_positions(grid, elements.size(), actor_tiles)
+		if positions.size() != elements.size():
+			_fail("Could not find a clear isometric floor row for %d inspection traps" % elements.size())
+			return combat_state
+	else:
+		for position_entry: String in position_entries:
+			var position: Vector2i = _parse_colon_coord(position_entry, "--trap-positions")
+			if _failed:
+				return combat_state
+			positions.append(position)
+	var requested_tiles: Dictionary = {}
+	for index: int in range(elements.size()):
+		var element_id: String = elements[index]
+		if not ElementData.is_elemental(element_id):
+			_fail("Unknown trap element %s" % element_id)
+			return combat_state
+		var position: Vector2i = positions[index]
+		if requested_tiles.has(position):
+			_fail("Trap positions must be unique; %s was supplied more than once" % position)
+			return combat_state
+		if actor_tiles.has(position):
+			_fail("Trap position %s overlaps a fixture actor" % position)
+			return combat_state
+		if not _inspection_trap_tile_is_valid(grid, position):
+			_fail("Trap position %s must be an in-bounds stone or ember floor tile" % position)
+			return combat_state
+		requested_tiles[position] = true
+
+	var state: Dictionary = _clear_fixture_occupant_tiles(combat_state, positions)
+	var loot: Array = []
+	for loot_var: Variant in state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY or not requested_tiles.has((loot_var as Dictionary).get("pos", INVALID_COORD)):
+			loot.append((loot_var as Dictionary).duplicate(true) if typeof(loot_var) == TYPE_DICTIONARY else loot_var)
+	state["loot"] = loot
+	var traps: Array = []
+	for index: int in range(elements.size()):
+		var element_id: String = elements[index]
+		var trap: Dictionary = {
+			"id": "inspection_trap_%s_%d" % [element_id, index],
+			"pos": positions[index],
+			"element": element_id,
+			"damage": 4,
+			"base_damage": 4,
+			"armed": true
+		}
+		match element_id:
+			ElementData.FIRE:
+				trap["burn"] = 1
+			ElementData.ICE:
+				trap["freeze"] = 1
+			ElementData.LIGHTNING:
+				trap["shock"] = 1
+			ElementData.EARTH:
+				trap["poison"] = 1
+		traps.append(trap)
+	state["traps"] = traps
+	return state
+
+func _automatic_inspection_trap_positions(
+	grid: Array,
+	count: int,
+	actor_tiles: Dictionary
+) -> Array[Vector2i]:
+	var tiles_by_sum: Dictionary = {}
+	var widest_row: int = 0
+	for y: int in range(grid.size()):
+		var row: Array = grid[y]
+		widest_row = maxi(widest_row, row.size())
+		for x: int in range(row.size()):
+			var tile := Vector2i(x, y)
+			if actor_tiles.has(tile) or not _inspection_trap_tile_is_valid(grid, tile):
+				continue
+			var tile_sum: int = x + y
+			var sum_tiles: Array = tiles_by_sum.get(tile_sum, [])
+			sum_tiles.append(tile)
+			tiles_by_sum[tile_sum] = sum_tiles
+	var target_sum: float = float(maxi(0, widest_row - 1) + maxi(0, grid.size() - 1)) * 0.5
+	var best_sum: int = -1
+	var best_distance: float = INF
+	for sum_var: Variant in tiles_by_sum.keys():
+		var tile_sum: int = int(sum_var)
+		var sum_tiles: Array = tiles_by_sum.get(tile_sum, [])
+		if sum_tiles.size() < count:
+			continue
+		var distance: float = absf(float(tile_sum) - target_sum)
+		if distance < best_distance or (is_equal_approx(distance, best_distance) and tile_sum < best_sum):
+			best_sum = tile_sum
+			best_distance = distance
+	var result: Array[Vector2i] = []
+	if best_sum < 0:
+		return result
+	var best_tiles: Array = tiles_by_sum.get(best_sum, [])
+	best_tiles.reverse()
+	var start_index: int = maxi(0, floori(float(best_tiles.size() - count) * 0.5))
+	for index: int in range(start_index, start_index + count):
+		result.append(best_tiles[index] as Vector2i)
+	return result
+
+func _inspection_trap_tile_is_valid(grid: Array, tile: Vector2i) -> bool:
+	if tile.y < 0 or tile.y >= grid.size():
+		return false
+	var row: Array = grid[tile.y]
+	if tile.x < 0 or tile.x >= row.size():
+		return false
+	return str(row[tile.x]) in ["stone", "ember"]
 
 func _apply_enemy_overrides(combat_state: Dictionary) -> Dictionary:
 	var enemy_types: Array[String] = _string_list(str(_options.get("enemy_types", "")))
@@ -1063,6 +1198,15 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 	for enemy_var: Variant in combat_state.get("enemies", []):
 		if typeof(enemy_var) == TYPE_DICTIONARY:
 			enemy_types.append(str((enemy_var as Dictionary).get("type", "")))
+	var trap_elements: Array[String] = []
+	var trap_positions: Array[String] = []
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		var trap_position: Vector2i = trap.get("pos", INVALID_COORD)
+		trap_elements.append(str(trap.get("element", "")))
+		trap_positions.append("%d,%d" % [trap_position.x, trap_position.y])
 	var reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
 	var current_room: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	return {
@@ -1072,6 +1216,8 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 		"current_room": "%d,%d" % [current_room.x, current_room.y],
 		"hand": _string_array(deck.get("hand", []) as Array),
 		"enemy_types": enemy_types,
+		"trap_elements": trap_elements,
+		"trap_positions": trap_positions,
 		"reward_cards": _string_array(reward.get("cards", []) as Array),
 		"relic_choices": _string_array(run_state.get("pending_relics", []) as Array),
 		"progression_level": int(progression.get("level", 1)),

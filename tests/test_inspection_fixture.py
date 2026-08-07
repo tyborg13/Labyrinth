@@ -166,6 +166,40 @@ class InspectionFixtureTests(unittest.TestCase):
         self.assertIn("--scenario start --route-depth 9", result.stdout)
         self.assertIn("--launch --scenario start --route-depth 9", result.stdout)
 
+    def test_trap_gallery_options_survive_the_self_healing_command(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--project",
+                str(ROOT),
+                "--task-id",
+                "trap-fixture-test",
+                "--run-id",
+                "trap-fixture-test-run",
+                "--dry-run",
+                "--scenario",
+                "combat",
+                "--trap-elements",
+                "fire,ice,lightning,air,earth",
+                "--trap-positions",
+                "2:5,3:4,4:3,5:2,6:1",
+                "--summary",
+                "Inspect elemental pressure plates.",
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        expected_options = (
+            "--scenario combat --trap-elements fire,ice,lightning,air,earth "
+            "--trap-positions 2:5,3:4,4:3,5:2,6:1"
+        )
+        self.assertIn(expected_options, result.stdout)
+        self.assertIn("--launch " + expected_options, result.stdout)
+
     def test_route_depth_rejects_invalid_values_semantically(self) -> None:
         task_id = f"invalid-route-depth-test-{os.getpid()}"
         for value in ["-1", "0", "bananas", "24"]:

@@ -52,6 +52,15 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 	for enemy_var: Variant in combat_state.get("enemies", []):
 		if typeof(enemy_var) == TYPE_DICTIONARY:
 			enemy_types.append(str((enemy_var as Dictionary).get("type", "")))
+	var trap_elements: Array[String] = []
+	var trap_positions: Array[String] = []
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		var trap_position: Vector2i = trap.get("pos", Vector2i.ZERO)
+		trap_elements.append(str(trap.get("element", "")))
+		trap_positions.append("%d,%d" % [trap_position.x, trap_position.y])
 	var reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
 	var current_room: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	return {
@@ -61,6 +70,8 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 		"current_room": "%d,%d" % [current_room.x, current_room.y],
 		"hand": _string_array(deck.get("hand", [])),
 		"enemy_types": enemy_types,
+		"trap_elements": trap_elements,
+		"trap_positions": trap_positions,
 		"reward_cards": _string_array(reward.get("cards", [])),
 		"relic_choices": _string_array(run_state.get("pending_relics", [])),
 		"progression_level": int(progression.get("level", 1)),
