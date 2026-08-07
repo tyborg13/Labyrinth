@@ -8,6 +8,10 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const OUTPUT_DIR: String = "user://elemental_trap_visual_probe"
 const SCREENSHOT_PATH: String = OUTPUT_DIR + "/elemental_traps_1920x1080_ui100.png"
+const IDLE_LATER_PATH: String = OUTPUT_DIR + "/elemental_traps_idle_later_1920x1080_ui100.png"
+const ACTIVATION_PATH: String = OUTPUT_DIR + "/elemental_traps_activation_1920x1080_ui100.png"
+const POST_REMOVAL_PATH: String = OUTPUT_DIR + "/elemental_traps_post_removal_1920x1080_ui100.png"
+const REDUCED_MOTION_PATH: String = OUTPUT_DIR + "/elemental_traps_reduced_motion_1920x1080_ui100.png"
 const SCREENSHOT_SIZE: Vector2i = Vector2i(1920, 1080)
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const ELEMENTS: PackedStringArray = ["fire", "ice", "lightning", "air", "earth"]
@@ -33,7 +37,7 @@ func _initialize() -> void:
 	root.size = SCREENSHOT_SIZE
 	var settings: Dictionary = SettingsStore.default_settings()
 	settings["ui_scale"] = 1.0
-	settings["reduced_motion"] = true
+	settings["reduced_motion"] = false
 	SettingsStore.save_settings(settings)
 	SettingsStore.apply_settings(settings, root, false)
 	await _settle_ui()
@@ -42,6 +46,10 @@ func _initialize() -> void:
 	if _errors.is_empty():
 		print("ELEMENTAL TRAP VISUAL PROBE: PASS")
 		print("ELEMENTAL_TRAP_PROOF=%s" % ProjectSettings.globalize_path(SCREENSHOT_PATH))
+		print("ELEMENTAL_TRAP_IDLE_LATER_PROOF=%s" % ProjectSettings.globalize_path(IDLE_LATER_PATH))
+		print("ELEMENTAL_TRAP_ACTIVATION_PROOF=%s" % ProjectSettings.globalize_path(ACTIVATION_PATH))
+		print("ELEMENTAL_TRAP_POST_REMOVAL_PROOF=%s" % ProjectSettings.globalize_path(POST_REMOVAL_PATH))
+		print("ELEMENTAL_TRAP_REDUCED_MOTION_PROOF=%s" % ProjectSettings.globalize_path(REDUCED_MOTION_PATH))
 		quit(0)
 	else:
 		for error: String in _errors:
@@ -68,9 +76,61 @@ func _capture_trap_board() -> void:
 	_expect(board != null, "The elemental trap probe should find the live CombatBoardView")
 	if board != null:
 		_validate_live_traps(board)
-	await _save_screenshot(SCREENSHOT_PATH)
+		await _capture_animation_states(board)
 	instance.queue_free()
 	await _settle_ui()
+
+
+func _capture_animation_states(board: Control) -> void:
+	var original_state: Dictionary = (board.get("combat_state") as Dictionary).duplicate(true)
+	var original_traps: Array = (original_state.get("traps", []) as Array).duplicate(true)
+	var idle_presentation: Dictionary = (board.get("presentation") as Dictionary).duplicate(true)
+	idle_presentation["reduced_motion"] = false
+	board.set("presentation", idle_presentation)
+	board.set("_idle_elapsed", 0.0)
+	board.call("_sync_dynamic_render_state", false)
+	board.call("_queue_active_idle_scene_redraws")
+	await _settle_ui(3)
+	await _save_screenshot(SCREENSHOT_PATH)
+	board.set("_idle_elapsed", 0.72)
+	board.call("_sync_dynamic_render_state", false)
+	board.call("_queue_active_idle_scene_redraws")
+	await _settle_ui(3)
+	await _save_screenshot(IDLE_LATER_PATH)
+
+	var activated_state: Dictionary = original_state.duplicate(true)
+	activated_state["traps"] = []
+	var activation_presentation: Dictionary = idle_presentation.duplicate(true)
+	activation_presentation["trap_effects"] = original_traps
+	activation_presentation["effect_progress"] = 0.52
+	board.call(
+		"set_combat_state",
+		activated_state,
+		[],
+		[],
+		Vector2i(-1, -1),
+		"",
+		"",
+		{},
+		{},
+		activation_presentation
+	)
+	await _settle_ui(3)
+	await _save_screenshot(ACTIVATION_PATH)
+
+	var removed_presentation: Dictionary = idle_presentation.duplicate(true)
+	removed_presentation.erase("trap_effects")
+	removed_presentation.erase("effect_progress")
+	board.call("set_combat_state", activated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, removed_presentation)
+	await _settle_ui(3)
+	await _save_screenshot(POST_REMOVAL_PATH)
+
+	var reduced_presentation: Dictionary = idle_presentation.duplicate(true)
+	reduced_presentation["reduced_motion"] = true
+	board.call("set_combat_state", original_state, [], [], Vector2i(-1, -1), "", "", {}, {}, reduced_presentation)
+	board.set("_idle_elapsed", 0.72)
+	await _settle_ui(3)
+	await _save_screenshot(REDUCED_MOTION_PATH)
 
 
 func _load_combat_fixture(instance: Node) -> void:

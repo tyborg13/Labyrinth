@@ -248,6 +248,7 @@ func _initialize() -> void:
 	_test_final_art_units_use_16_frame_idle_sheets()
 	_test_enemy_death_sheets_load_for_full_roster()
 	_test_terrain_destruction_sheets_load_for_full_prop_roster()
+	_test_elemental_trap_animation_sheets_load_and_respect_reduced_motion()
 	_test_final_art_idle_shadows_keep_silhouettes_for_every_frame()
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_merchant_assets_load_for_board()
@@ -6561,6 +6562,71 @@ func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
 			_assert(last_frame.region.position == expected_last_origin, "%s destruction animation should include the final 4x4 source frame" % terrain_kind)
 			_assert(board.call("_terrain_destruction_texture", terrain) == destruction_frames[5], "%s destruction presentation should select the requested frame" % terrain_kind)
 		_assert(is_equal_approx(float(board.call("_terrain_destruction_frame_seconds", terrain)), 0.065), "%s destruction animation should use the configured frame cadence" % terrain_kind)
+	board.free()
+
+func _test_elemental_trap_animation_sheets_load_and_respect_reduced_motion() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.visible = true
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(2, 2), "hp": 10, "max_hp": 10},
+		"traps": [
+			{"id": "fire_test", "element": "fire", "pos": Vector2i(3, 3), "damage": 4, "armed": true}
+		]
+	}
+	board.presentation = {}
+	board.call("_load_assets")
+	var static_textures: Dictionary = board.get("_trap_textures") as Dictionary
+	var idle_registry: Dictionary = board.get("_trap_idle_frames") as Dictionary
+	var activation_registry: Dictionary = board.get("_trap_activation_frames") as Dictionary
+	var stable_plate_samples: Array[Vector2i] = [Vector2i(20, 38), Vector2i(102, 38), Vector2i(61, 59)]
+	for element_id: String in ElementData.all_elements():
+		var idle_frames: Array = idle_registry.get(element_id, []) as Array
+		var activation_frames: Array = activation_registry.get(element_id, []) as Array
+		_assert(idle_frames.size() == 16, "%s trap idle should load all 16 Retro Diffusion frames" % element_id)
+		_assert(activation_frames.size() == 16, "%s trap activation should load all 16 Retro Diffusion frames" % element_id)
+		if idle_frames.size() == 16:
+			_assert((idle_frames[0] as Texture2D).get_size() == Vector2(122.0, 80.0), "%s trap idle should preserve the native 122x80 canvas" % element_id)
+		if activation_frames.size() == 16:
+			_assert((activation_frames[0] as Texture2D).get_size() == Vector2(122.0, 80.0), "%s trap activation should preserve the native 122x80 canvas" % element_id)
+		var base_image: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s.png" % element_id))
+		var idle_sheet: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s_idle.png" % element_id))
+		var activation_sheet: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s_activation.png" % element_id))
+		_assert(not base_image.is_empty(), "%s trap static plate should be readable for animation validation" % element_id)
+		_assert(not idle_sheet.is_empty(), "%s trap idle sheet should be readable for animation validation" % element_id)
+		_assert(not activation_sheet.is_empty(), "%s trap activation sheet should be readable for animation validation" % element_id)
+		if not base_image.is_empty() and not idle_sheet.is_empty():
+			for frame_index: int in range(16):
+				var frame_origin := Vector2i((frame_index % 4) * 122, (frame_index / 4) * 80)
+				for sample: Vector2i in stable_plate_samples:
+					_assert(
+						idle_sheet.get_pixelv(frame_origin + sample) == base_image.get_pixelv(sample),
+						"%s trap idle frame %d should not wobble or recolor the approved plate" % [element_id, frame_index]
+					)
+		if not activation_sheet.is_empty():
+			_assert(activation_sheet.get_region(Rect2i(Vector2i.ZERO, Vector2i(122, 80))).get_used_rect().size != Vector2i.ZERO, "%s trap activation should begin with a visible plate" % element_id)
+			for final_frame_index: int in [13, 14, 15]:
+				var final_origin := Vector2i((final_frame_index % 4) * 122, (final_frame_index / 4) * 80)
+				var final_frame: Image = activation_sheet.get_region(Rect2i(final_origin, Vector2i(122, 80)))
+				_assert(final_frame.get_used_rect().size == Vector2i.ZERO, "%s trap activation frame %d should be fully transparent after the trap is consumed" % [element_id, final_frame_index])
+	var fire_trap: Dictionary = (board.combat_state.get("traps", []) as Array)[0] as Dictionary
+	_assert(bool(board.call("_trap_idle_animation_active", fire_trap)), "Trap idle animation should run for an armed on-board plate")
+	board.set("_idle_elapsed", 0.0)
+	var first_idle: Texture2D = board.call("_trap_idle_texture", fire_trap)
+	var first_key: String = str(board.call("_active_idle_frame_key"))
+	board.set("_idle_elapsed", 0.13)
+	var second_idle: Texture2D = board.call("_trap_idle_texture", fire_trap)
+	var second_key: String = str(board.call("_active_idle_frame_key"))
+	_assert(first_idle != null and second_idle != null and first_idle != second_idle, "Trap idle texture should advance through its animation frames")
+	_assert(first_key != second_key, "Retained scene redraw gating should notice elemental trap idle frame changes")
+	_assert(int(board.call("_trap_activation_frame_index", 0.0, 16)) == 0, "Trap activation should begin at the first generated frame")
+	_assert(int(board.call("_trap_activation_frame_index", 0.5, 16)) == 8, "Trap activation should advance proportionally through the one-shot sheet")
+	_assert(int(board.call("_trap_activation_frame_index", 1.0, 16)) == 15, "Trap activation should end on the final disappearance frame")
+	board.presentation = {"reduced_motion": true}
+	_assert(not bool(board.call("_trap_idle_animation_active", fire_trap)), "Reduced motion should stop looping trap idle animation")
+	_assert(board.call("_trap_idle_texture", fire_trap) == static_textures.get("fire", null), "Reduced motion should retain the approved static pressure plate")
+	_assert(int(board.call("_trap_activation_frame_index", 1.0, 16)) == 7, "Reduced motion should hold one representative activation frame instead of playing the burst")
 	board.free()
 
 func _test_final_art_idle_shadows_keep_silhouettes_for_every_frame() -> void:

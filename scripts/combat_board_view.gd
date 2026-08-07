@@ -266,6 +266,9 @@ const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 # the source aspect instead of vertically compressing the pressure plates.
 const TRAP_DRAW_HEIGHT_SCALE: float = 160.0 / 122.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
+const TRAP_ANIMATION_SHEET_COLUMNS: int = 4
+const TRAP_ANIMATION_SHEET_ROWS: int = 4
+const TRAP_IDLE_FRAME_SECONDS: float = 0.12
 const TRAP_BLAST_DRAW_WIDTH_SCALE: float = 0.76
 const TRAP_BLAST_DRAW_HEIGHT_SCALE: float = 1.18
 const TRAP_BLAST_BASELINE_SCALE: float = 0.32
@@ -359,6 +362,8 @@ var _unit_textures: Dictionary = {}
 var _unit_assets_loaded: Dictionary = {}
 var _element_textures: Dictionary = {}
 var _trap_textures: Dictionary = {}
+var _trap_idle_frames: Dictionary = {}
+var _trap_activation_frames: Dictionary = {}
 var _trap_blast_textures: Dictionary = {}
 var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
@@ -543,7 +548,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
 			"_unit_textures", "_unit_assets_loaded",
-			"_element_textures", "_trap_textures", "_trap_blast_textures",
+			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames", "_trap_blast_textures",
 			"_door_icon_textures", "_keyword_icon_textures", "_unit_shadow_polygon_cache",
 			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_door_opening_frames", "_door_opening_flipped_frames",
 			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
@@ -747,6 +752,9 @@ func _queue_active_idle_scene_redraws() -> void:
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
 			_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY and _trap_idle_animation_active(trap_var as Dictionary):
+			_queue_scene_render_layer_for_tile((trap_var as Dictionary).get("pos", Vector2i(-1, -1)))
 	if _pillar_torch_idle_animation_active():
 		var grid: Array = combat_state.get("grid", [])
 		for tile: Vector2i in _rendered_tiles_in_draw_order():
@@ -841,6 +849,10 @@ func _any_idle_animation_active() -> bool:
 	if not _scene_prop_idle_frames.is_empty():
 		for prop_var: Variant in presentation.get("scene_props", []):
 			if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
+				return true
+	if not _trap_idle_frames.is_empty():
+		for trap_var: Variant in combat_state.get("traps", []):
+			if typeof(trap_var) == TYPE_DICTIONARY and _trap_idle_animation_active(trap_var as Dictionary):
 				return true
 	if _pillar_torch_idle_animation_active():
 		return true
@@ -7234,8 +7246,20 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	for element_id: String in ElementData.all_elements():
 		_element_textures[element_id] = AssetLoader.load_texture(ElementData.icon_path(element_id))
 	_trap_textures.clear()
+	_trap_idle_frames.clear()
+	_trap_activation_frames.clear()
 	for element_id: String in ElementData.all_elements():
 		_trap_textures[element_id] = AssetLoader.load_texture("res://assets/art/traps/trap_%s.png" % element_id)
+		_trap_idle_frames[element_id] = _load_sprite_sheet_frames(
+			"res://assets/art/traps/trap_%s_idle.png" % element_id,
+			TRAP_ANIMATION_SHEET_COLUMNS,
+			TRAP_ANIMATION_SHEET_ROWS
+		)
+		_trap_activation_frames[element_id] = _load_sprite_sheet_frames(
+			"res://assets/art/traps/trap_%s_activation.png" % element_id,
+			TRAP_ANIMATION_SHEET_COLUMNS,
+			TRAP_ANIMATION_SHEET_ROWS
+		)
 	_trap_blast_textures.clear()
 	for element_id: String in ElementData.all_elements():
 		_trap_blast_textures[element_id] = AssetLoader.load_texture("res://assets/art/effects/trap_blast_%s.png" % element_id)
@@ -7556,6 +7580,47 @@ func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
 func _scene_prop_idle_frame_seconds(prop: Dictionary) -> float:
 	return maxf(0.01, float(prop.get("idle_frame_seconds", CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS)))
 
+func _trap_animation_frames_for_element(registry: Dictionary, element_id: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	for frame_var: Variant in registry.get(element_id, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
+	return frames
+
+func _trap_idle_frames_for_element(element_id: String) -> Array[Texture2D]:
+	return _trap_animation_frames_for_element(_trap_idle_frames, element_id)
+
+func _trap_activation_frames_for_element(element_id: String) -> Array[Texture2D]:
+	return _trap_animation_frames_for_element(_trap_activation_frames, element_id)
+
+func _trap_idle_frame_index(trap: Dictionary) -> int:
+	var frames: Array[Texture2D] = _trap_idle_frames_for_element(str(trap.get("element", ElementData.NONE)))
+	if frames.is_empty():
+		return 0
+	return int(floor(_idle_elapsed / TRAP_IDLE_FRAME_SECONDS)) % frames.size()
+
+func _trap_idle_texture(trap: Dictionary) -> Texture2D:
+	var element_id: String = str(trap.get("element", ElementData.NONE))
+	if bool(presentation.get("reduced_motion", false)):
+		return _trap_textures.get(element_id, null)
+	var frames: Array[Texture2D] = _trap_idle_frames_for_element(element_id)
+	if frames.is_empty():
+		return _trap_textures.get(element_id, null)
+	return frames[_trap_idle_frame_index(trap)]
+
+func _trap_activation_frame_index(progress: float, frame_count: int) -> int:
+	if frame_count <= 0:
+		return 0
+	if bool(presentation.get("reduced_motion", false)):
+		return mini(7, frame_count - 1)
+	return clampi(int(floor(clampf(progress, 0.0, 1.0) * float(frame_count))), 0, frame_count - 1)
+
+func _trap_activation_texture(trap: Dictionary, progress: float) -> Texture2D:
+	var frames: Array[Texture2D] = _trap_activation_frames_for_element(str(trap.get("element", ElementData.NONE)))
+	if frames.is_empty():
+		return null
+	return frames[_trap_activation_frame_index(progress, frames.size())]
+
 func _active_idle_frame_key() -> String:
 	var parts: Array[String] = []
 	for unit: Dictionary in _visible_units():
@@ -7572,6 +7637,13 @@ func _active_idle_frame_key() -> String:
 		if not _scene_prop_idle_animation_active(prop):
 			continue
 		parts.append("p:%s:%s:%d" % [str(prop.get("kind", "")), str(prop.get("tile", Vector2i.ZERO)), _scene_prop_idle_frame_index(prop)])
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		if not _trap_idle_animation_active(trap):
+			continue
+		parts.append("t:%s:%s:%d" % [str(trap.get("element", "")), str(trap.get("pos", Vector2i.ZERO)), _trap_idle_frame_index(trap)])
 	if _pillar_torch_idle_animation_active():
 		parts.append("tl:%d" % _pillar_torch_idle_frame_index("left"))
 		parts.append("tr:%d" % _pillar_torch_idle_frame_index("right"))
@@ -7602,6 +7674,11 @@ func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
 	if not visible or combat_state.is_empty():
 		return false
 	return not _scene_prop_idle_frames_for_kind(str(prop.get("kind", ""))).is_empty()
+
+func _trap_idle_animation_active(trap: Dictionary) -> bool:
+	if not visible or combat_state.is_empty() or bool(presentation.get("reduced_motion", false)):
+		return false
+	return not _trap_idle_frames_for_element(str(trap.get("element", ElementData.NONE))).is_empty()
 
 func _pillar_torch_idle_animation_active() -> bool:
 	if not visible or combat_state.is_empty():
@@ -8727,10 +8804,14 @@ func _draw_trap_blast_effects(trap_effects: Array, progress: float) -> void:
 		var trap: Dictionary = trap_var
 		var element_id: String = str(trap.get("element", ElementData.NONE))
 		var texture: Texture2D = _trap_blast_textures.get(element_id, null)
-		if texture == null:
-			continue
-		for tile: Vector2i in _trap_blast_tiles(trap):
-			_draw_trap_blast_tile(tile, texture, progress)
+		if texture != null:
+			for tile: Vector2i in _trap_blast_tiles(trap):
+				_draw_trap_blast_tile(tile, texture, progress)
+		var activation_texture: Texture2D = _trap_activation_texture(trap, progress)
+		if activation_texture != null:
+			var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+			if trap_pos.x >= 0:
+				draw_texture_rect(activation_texture, _trap_draw_rect(trap_pos), false, Color.WHITE)
 
 func _trap_blast_tiles(trap: Dictionary) -> Array[Vector2i]:
 	var offsets: Array[Vector2i] = [
@@ -8778,7 +8859,7 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 	if tile.x < 0:
 		return
 	var element_id: String = str(trap.get("element", ElementData.NONE))
-	var trap_texture: Texture2D = _trap_textures.get(element_id, null)
+	var trap_texture: Texture2D = _trap_idle_texture(trap)
 	if trap_texture != null:
 		var trap_rect: Rect2 = _trap_draw_rect(tile)
 		var intensity: int = _ambient_intensity(element_id)

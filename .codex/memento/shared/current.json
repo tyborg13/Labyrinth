@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-07T19:48:46Z",
+  "updated_at": "2026-08-07T21:28:04Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7286,6 +7286,28 @@
       "source": {
         "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
         "commit": "01ce761"
+      }
+    },
+    {
+      "id": "mnt_20260807T212804Z_be0d8b2e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/traps",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/traps",
+      "summary": "Elemental pressure plates use native 122x80 4x4 Retro Diffusion sheets for idle and consumptive activation.",
+      "details": "Keep the approved static plate pixels stable through all 16 idle frames; animate only subtle element effects rising from the center. Activation sheets build into an element burst, fade the plate, and leave frames 13-15 fully transparent. Reduced motion keeps the static plate and uses one representative activation frame.",
+      "status": "active",
+      "created_at": "2026-08-07T21:28:04Z",
+      "updated_at": "2026-08-07T21:28:04Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
+        "commit": "fdbf059"
       }
     }
   ]
