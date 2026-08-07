@@ -253,7 +253,7 @@ func _validate_live_traps(board: Control) -> void:
 		_expect(not trap.is_empty(), "%s should be present in the deterministic combat fixture" % element)
 		if trap.is_empty():
 			continue
-		var rect: Rect2 = board.call("_trap_draw_rect", trap.get("pos", Vector2i(-1, -1))) as Rect2
+		var rect: Rect2 = board.call("_trap_visual_draw_rect", trap) as Rect2
 		_expect(rect.size.x > 0.0 and rect.size.y > 0.0, "%s should have a visible live draw rectangle" % element)
 		_expect(
 			is_equal_approx(rect.size.x / rect.size.y, 122.0 / 80.0),

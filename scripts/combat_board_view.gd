@@ -8811,7 +8811,7 @@ func _draw_trap_blast_effects(trap_effects: Array, progress: float) -> void:
 		if activation_texture != null:
 			var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
 			if trap_pos.x >= 0:
-				draw_texture_rect(activation_texture, _trap_draw_rect(trap_pos), false, Color.WHITE)
+				draw_texture_rect(activation_texture, _trap_visual_draw_rect(trap), false, _trap_visual_modulate(trap))
 
 func _trap_blast_tiles(trap: Dictionary) -> Array[Vector2i]:
 	var offsets: Array[Vector2i] = [
@@ -8858,16 +8858,24 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
 	if tile.x < 0:
 		return
-	var element_id: String = str(trap.get("element", ElementData.NONE))
 	var trap_texture: Texture2D = _trap_idle_texture(trap)
 	if trap_texture != null:
-		var trap_rect: Rect2 = _trap_draw_rect(tile)
-		var intensity: int = _ambient_intensity(element_id)
-		var scale_bonus: float = clampf(float(intensity - 1) * 0.035, -0.04, 0.18)
-		trap_rect = trap_rect.grow(trap_rect.size.x * scale_bonus * 0.5)
-		var danger_lift: float = clampf(float(maxi(0, intensity - 2)) * 0.045, 0.0, 0.18)
-		draw_texture_rect(trap_texture, trap_rect, false, Color.WHITE.lightened(danger_lift))
+		var trap_rect: Rect2 = _trap_visual_draw_rect(trap)
+		draw_texture_rect(trap_texture, trap_rect, false, _trap_visual_modulate(trap))
 		_register_tooltip(trap_rect.grow(4.0), _trap_tooltip_text(trap))
+
+func _trap_visual_draw_rect(trap: Dictionary) -> Rect2:
+	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+	if tile.x < 0:
+		return Rect2()
+	var trap_rect: Rect2 = _trap_draw_rect(tile)
+	var intensity: int = _ambient_intensity(str(trap.get("element", ElementData.NONE)))
+	var scale_bonus: float = clampf(float(intensity - 1) * 0.035, -0.04, 0.18)
+	var scaled_size: Vector2 = trap_rect.size * (1.0 + scale_bonus)
+	return Rect2(trap_rect.get_center() - scaled_size * 0.5, scaled_size)
+
+func _trap_visual_modulate(_trap: Dictionary) -> Color:
+	return Color.WHITE
 
 func _trap_draw_rect(tile: Vector2i) -> Rect2:
 	var tile_width: float = _tile_width()

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-07T21:28:04Z",
+  "updated_at": "2026-08-07T21:47:25Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7308,6 +7308,28 @@
       "source": {
         "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
         "commit": "fdbf059"
+      }
+    },
+    {
+      "id": "mnt_20260807T214725Z_d4e03cb3",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_trap_visual_draw_rect"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_trap_visual_draw_rect",
+      "summary": "Elemental intensity must use one proportional draw rect for both idle and activation trap frames.",
+      "details": "Do not draw activation from raw _trap_draw_rect while idle uses intensity scaling; that causes a trigger-time size snap. Scale the native 122:80 rect proportionally around its center, and route idle plus activation through the same helper so perspective and aspect remain stable at every intensity.",
+      "status": "active",
+      "created_at": "2026-08-07T21:47:25Z",
+      "updated_at": "2026-08-07T21:47:25Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
+        "commit": "903129a"
       }
     }
   ]

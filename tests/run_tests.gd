@@ -6623,6 +6623,19 @@ func _test_elemental_trap_animation_sheets_load_and_respect_reduced_motion() -> 
 	_assert(int(board.call("_trap_activation_frame_index", 0.0, 16)) == 0, "Trap activation should begin at the first generated frame")
 	_assert(int(board.call("_trap_activation_frame_index", 0.5, 16)) == 8, "Trap activation should advance proportionally through the one-shot sheet")
 	_assert(int(board.call("_trap_activation_frame_index", 1.0, 16)) == 15, "Trap activation should end on the final disappearance frame")
+	var base_rect: Rect2 = board.call("_trap_draw_rect", fire_trap.get("pos", Vector2i.ZERO)) as Rect2
+	board.combat_state["elemental_intensity"] = {"fire": 0}
+	var low_intensity_rect: Rect2 = board.call("_trap_visual_draw_rect", fire_trap) as Rect2
+	var low_intensity_modulate: Color = board.call("_trap_visual_modulate", fire_trap)
+	board.combat_state["elemental_intensity"] = {"fire": 8}
+	var high_intensity_rect: Rect2 = board.call("_trap_visual_draw_rect", fire_trap) as Rect2
+	var high_intensity_modulate: Color = board.call("_trap_visual_modulate", fire_trap)
+	_assert(low_intensity_rect.size.is_equal_approx(base_rect.size * 0.965), "Low-intensity idle and activation plates should share the established subtle scale reduction")
+	_assert(high_intensity_rect.size.is_equal_approx(base_rect.size * 1.18), "High-intensity idle and activation plates should share the capped scale increase")
+	_assert(low_intensity_rect.get_center().is_equal_approx(high_intensity_rect.get_center()), "Trap intensity should not shift the shared idle/activation center")
+	_assert(is_equal_approx(low_intensity_rect.size.x / low_intensity_rect.size.y, 122.0 / 80.0), "Low-intensity trap geometry should preserve the source aspect ratio")
+	_assert(is_equal_approx(high_intensity_rect.size.x / high_intensity_rect.size.y, 122.0 / 80.0), "High-intensity trap geometry should preserve the source aspect ratio")
+	_assert(low_intensity_modulate.is_equal_approx(Color.WHITE) and high_intensity_modulate.is_equal_approx(Color.WHITE), "Idle and activation plates should share neutral modulation so the approved muted palette does not snap")
 	board.presentation = {"reduced_motion": true}
 	_assert(not bool(board.call("_trap_idle_animation_active", fire_trap)), "Reduced motion should stop looping trap idle animation")
 	_assert(board.call("_trap_idle_texture", fire_trap) == static_textures.get("fire", null), "Reduced motion should retain the approved static pressure plate")
