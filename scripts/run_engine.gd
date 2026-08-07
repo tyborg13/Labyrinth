@@ -2,6 +2,7 @@ extends RefCounted
 class_name RunEngine
 
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -32,6 +33,7 @@ const EQUIPMENT_ROOM_DROP_PERCENT: int = 38
 const EQUIPMENT_DROP_PITY_MISSES: int = 2
 const MAX_VISITED_ROOMS_BEFORE_OUTWARD_OFFER: int = 3
 const MISSED_EQUIPMENT_NOTICE: String = "Unclaimed gear crumbles into dust."
+const ESCAPE_MISSED_EQUIPMENT_NOTICE: String = "Unclaimed gear will be left behind."
 const SKILL_STATE_KEY: String = "skill_state"
 const RUN_SKILL_EVENT_LIMIT: int = 48
 const MERCHANT_BLACKSMITH: String = "blacksmith"
@@ -65,6 +67,7 @@ const MERCHANT_SOLD_KEY: String = "merchant_sold_items"
 const MERCHANT_PURCHASED_KEY: String = "merchant_purchased_items"
 const MERCHANT_REFILL_COUNT_KEY: String = "merchant_refill_count"
 const MODE_PRE_BATTLE: String = "pre_battle"
+const MODE_ESCAPE: String = "escape"
 const UNREAD_LOADOUT_EQUIPMENT_KEY: String = "unread_loadout_equipment"
 const UNREAD_LOADOUT_MAGIC_KEY: String = "unread_loadout_magic"
 const NEW_LOADOUT_EQUIPMENT_KEY: String = "new_loadout_equipment"
@@ -141,6 +144,7 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"unbanked_embers": starting_embers,
 		"combat_state": {},
 		"pending_reward": {},
+		"pending_escape": {},
 		"pending_relics": [],
 		"game_over": false,
 		"victory": false,
@@ -243,6 +247,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"unbanked_embers": 44,
 		"combat_state": combat_state,
 		"pending_reward": {},
+		"pending_escape": {},
 		"pending_relics": [],
 		"game_over": false,
 		"victory": false,
@@ -288,6 +293,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
 	next_state = _repair_equipment_state(next_state)
 	next_state = _repair_skill_dependent_state(next_state)
+	next_state = _repair_pending_escape(next_state)
 	if not next_state.has("equipment_drop_misses"):
 		next_state["equipment_drop_misses"] = EQUIPMENT_DROP_PITY_MISSES
 	_stage_recovery_marker(next_state)
@@ -297,6 +303,40 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 		_reveal_neighbors(next_state, current_coord)
 		_ensure_loop_escape_connection(next_state, current_coord)
 		_sync_current_layout_doors(next_state, current_coord)
+	return next_state
+
+func _repair_pending_escape(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var mode: String = str(next_state.get("mode", "room"))
+	if mode not in ["reward", MODE_ESCAPE]:
+		next_state["pending_escape"] = {}
+		return next_state
+	var escape: Dictionary = pending_escape(next_state)
+	var board_state: Dictionary = escape.get("board_state", {}) as Dictionary
+	var objective: Dictionary = board_state.get("objective", {}) as Dictionary
+	var target_tile_var: Variant = escape.get("target_tile", null)
+	if (
+		escape.is_empty()
+		or board_state.is_empty()
+		or str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT
+		or typeof(target_tile_var) != TYPE_VECTOR2I
+	):
+		next_state["pending_escape"] = {}
+		if mode == MODE_ESCAPE:
+			next_state["mode"] = "room"
+		return next_state
+	var exit_spec: Dictionary = CombatObjectiveRules.exit_spec_for_target(objective, target_tile_var as Vector2i)
+	if exit_spec.is_empty() or typeof(exit_spec.get("coord", null)) != TYPE_VECTOR2I:
+		next_state["pending_escape"] = {}
+		if mode == MODE_ESCAPE:
+			next_state["mode"] = "room"
+		return next_state
+	escape["destination"] = exit_spec.get("coord", Vector2i.ZERO)
+	escape["door_tile"] = exit_spec.get("door_tile", Vector2i(-1, -1))
+	escape["direction"] = exit_spec.get("direction", Vector2i.ZERO)
+	escape["target_tile"] = target_tile_var
+	escape["board_state"] = board_state
+	next_state["pending_escape"] = escape
 	return next_state
 
 static func run_content_migration_required(run_state: Dictionary) -> bool:
@@ -359,6 +399,13 @@ static func _migrated_legacy_fixed_point_run(run_state: Dictionary) -> Dictionar
 		next_state["combat_state"] = _migrated_legacy_combat_state_units(
 			next_state.get("combat_state", {}) as Dictionary
 		)
+	if typeof(next_state.get("pending_escape", null)) == TYPE_DICTIONARY:
+		var pending_escape: Dictionary = (next_state.get("pending_escape", {}) as Dictionary).duplicate(true)
+		if typeof(pending_escape.get("board_state", null)) == TYPE_DICTIONARY:
+			pending_escape["board_state"] = _migrated_legacy_combat_state_units(
+				pending_escape.get("board_state", {}) as Dictionary
+			)
+		next_state["pending_escape"] = pending_escape
 	if typeof(next_state.get(COMBAT_CONTINUATION_KEY, null)) == TYPE_ARRAY:
 		var checkpoints: Array = []
 		for checkpoint_var: Variant in next_state.get(COMBAT_CONTINUATION_KEY, []) as Array:
@@ -709,6 +756,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	if connection.is_empty():
 		return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
+	next_state["pending_escape"] = {}
 	var move_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	move_skill_state["previous_room"] = current
 	next_state[SKILL_STATE_KEY] = move_skill_state
@@ -805,6 +853,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	if connection.is_empty():
 		return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
+	next_state["pending_escape"] = {}
 	var move_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	move_skill_state["previous_room"] = current
 	next_state[SKILL_STATE_KEY] = move_skill_state
@@ -942,6 +991,7 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	var outcome: String = _combat_engine.combat_outcome(combat_state)
+	var pending_escape: Dictionary = _pending_escape_for_combat_victory(combat_state, outcome)
 	var resolved_combat_state: Dictionary = combat_state.duplicate(true)
 	if outcome == "victory":
 		resolved_combat_state = _combat_engine.resolve_missed_equipment_after_victory(resolved_combat_state)
@@ -959,6 +1009,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 			resolved_combat_state = _mark_salvaged_loot_resolution(resolved_combat_state, salvaged_equipment_id)
 	var missed_equipment: Array = resolved_combat_state.get("missed_equipment", []) as Array
 	var next_state: Dictionary = set_combat_state(run_state, resolved_combat_state)
+	next_state["pending_escape"] = pending_escape
 	if not salvaged_equipment_id.is_empty():
 		var salvaged_name: String = str(GameData.equipment_def(salvaged_equipment_id).get("name", salvaged_equipment_id))
 		_mark_run_skill_used(next_state, "salvager", "Salvager recovers %s before it is lost." % salvaged_name)
@@ -1039,8 +1090,26 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	}
 	next_state["mode"] = "reward"
 	if not missed_equipment.is_empty():
-		next_state["notice"] = MISSED_EQUIPMENT_NOTICE
+		next_state["notice"] = ESCAPE_MISSED_EQUIPMENT_NOTICE if not pending_escape.is_empty() else MISSED_EQUIPMENT_NOTICE
 	return next_state
+
+func _pending_escape_for_combat_victory(combat_state: Dictionary, outcome: String) -> Dictionary:
+	if outcome != "victory":
+		return {}
+	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
+	if str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT:
+		return {}
+	var player_tile: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	var exit_spec: Dictionary = CombatObjectiveRules.exit_spec_for_target(objective, player_tile)
+	if exit_spec.is_empty() or typeof(exit_spec.get("coord", null)) != TYPE_VECTOR2I:
+		return {}
+	return {
+		"destination": exit_spec.get("coord", Vector2i.ZERO),
+		"door_tile": exit_spec.get("door_tile", Vector2i(-1, -1)),
+		"target_tile": player_tile,
+		"direction": exit_spec.get("direction", Vector2i.ZERO),
+		"board_state": combat_state.duplicate(true)
+	}
 
 func _mark_salvaged_loot_resolution(combat_state: Dictionary, equipment_id: String) -> Dictionary:
 	var next_state: Dictionary = combat_state.duplicate(true)
@@ -1130,8 +1199,31 @@ func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
 		next_state = _rebuild_deck_cards(next_state)
 		next_state["notice"] = "Added %s to reserve magic." % str(GameData.card_def(card_id).get("name", card_id))
 	next_state["pending_reward"] = {}
-	next_state["mode"] = "room"
+	next_state["mode"] = MODE_ESCAPE if not pending_escape(next_state).is_empty() else "room"
 	return next_state
+
+func pending_escape(run_state: Dictionary) -> Dictionary:
+	if typeof(run_state.get("pending_escape", null)) != TYPE_DICTIONARY:
+		return {}
+	return (run_state.get("pending_escape", {}) as Dictionary).duplicate(true)
+
+func continue_pending_escape(run_state: Dictionary) -> Dictionary:
+	var escape: Dictionary = pending_escape(run_state)
+	if escape.is_empty():
+		return run_state.duplicate(true)
+	var destination_var: Variant = escape.get("destination", null)
+	if typeof(destination_var) != TYPE_VECTOR2I:
+		var invalid_state: Dictionary = run_state.duplicate(true)
+		invalid_state["pending_escape"] = {}
+		invalid_state["mode"] = "room"
+		return invalid_state
+	var destination: Vector2i = destination_var as Vector2i
+	var previous_coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var continued_state: Dictionary = move_to_pre_battle(run_state, destination)
+	continued_state["pending_escape"] = {}
+	if continued_state.get("current_room", previous_coord) != destination:
+		continued_state["mode"] = "room"
+	return continued_state
 
 func can_change_equipment(run_state: Dictionary) -> bool:
 	return str(run_state.get("mode", "room")) in ["room", "campfire", MODE_PRE_BATTLE]
@@ -1495,7 +1587,7 @@ func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") 
 	var heal_amount: int = int(pending_reward.get("heal_amount", 0))
 	next_state["player_hp"] = mini(int(next_state.get("player_max_hp", 1)), int(next_state.get("player_hp", 0)) + heal_amount)
 	next_state["pending_reward"] = {}
-	next_state["mode"] = "room"
+	next_state["mode"] = MODE_ESCAPE if not pending_escape(next_state).is_empty() else "room"
 	return next_state
 
 func claim_relic(run_state: Dictionary, relic_id: String, deferred_relic_id: String = "") -> Dictionary:

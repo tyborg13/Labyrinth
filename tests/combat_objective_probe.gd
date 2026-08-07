@@ -49,6 +49,7 @@ func _capture_objectives() -> void:
 	await _capture_leader(instance, leader_fixture)
 	await _capture_survive(instance, survive_fixture)
 	await _capture_exit(instance, exit_fixture)
+	await _capture_exit_reward_and_departure(instance, exit_fixture)
 	_finish(instance)
 
 func _capture_pre_battle(instance: Node, fixture: Dictionary) -> void:
@@ -160,6 +161,73 @@ func _capture_exit(instance: Node, fixture: Dictionary) -> void:
 		_fail("Reach Exit proof should show its denser enemy and destructible-terrain challenge")
 	_assert_hud_safe(instance)
 	await _capture("04_reach_exit_combat.png")
+
+func _capture_exit_reward_and_departure(instance: Node, fixture: Dictionary) -> void:
+	var state: Dictionary = _combat_run_state(fixture)
+	var combat_state: Dictionary = (state.get("combat_state", {}) as Dictionary).duplicate(true)
+	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
+	var target_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
+	if target_tiles.is_empty():
+		_fail("Reach Exit reward proof requires at least one threshold")
+		return
+	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+	player["pos"] = target_tiles[0]
+	combat_state["player"] = player
+	state["combat_state"] = combat_state
+	var run_engine := RunEngine.new()
+	var reward_state: Dictionary = run_engine.finish_combat(state, combat_state)
+	var pending_escape: Dictionary = run_engine.pending_escape(reward_state)
+	var selected_door: Vector2i = pending_escape.get("door_tile", Vector2i(-1, -1))
+	instance.call("_load_run_state", reward_state)
+	instance.call("_close_dialogue")
+	await process_frame
+	await process_frame
+	await create_timer(0.16).timeout
+	var reward_board: Dictionary = instance.call("_board_display_state") as Dictionary
+	var reward_overlay: Control = instance.get("_relic_choice_overlay") as Control
+	if str((instance.get("_run_state") as Dictionary).get("mode", "")) != "reward":
+		_fail("Reach Exit should keep the normal reward decision before automatic travel")
+	if reward_overlay == null or not reward_overlay.visible:
+		_fail("Reach Exit reward proof should display the established reward overlay")
+	if (reward_board.get("enemies", []) as Array).size() != (combat_state.get("enemies", []) as Array).size():
+		_fail("Every surviving pursuer should remain visible behind the reward")
+	if (reward_board.get("terrain", []) as Array).size() != (combat_state.get("terrain", []) as Array).size():
+		_fail("Destructible terrain should remain visible behind the reward")
+	var active_reward_doors: Dictionary = instance.call("_active_door_tiles_for_board") as Dictionary
+	if active_reward_doors.size() != 1 or not active_reward_doors.has(selected_door):
+		_fail("Only the threshold door reached by the player should remain active after combat")
+	await _capture("05_reach_exit_reward_with_pursuers.png")
+
+	var reward_cards: Array = (reward_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array
+	if reward_cards.is_empty():
+		_fail("Reach Exit departure proof requires a card reward")
+		return
+	var escape_state: Dictionary = run_engine.claim_card_reward(reward_state, str(reward_cards[0]))
+	instance.set("_run_state", escape_state)
+	instance.call("_sync_combat_state_from_run")
+	instance.call("_refresh_ui")
+	instance.set("_board_presentation", {
+		"door_opening": {
+			"tile": selected_door,
+			"frame": 7,
+			"progress": 1.0
+		}
+	})
+	instance.call("_refresh_stage_view")
+	await process_frame
+	await process_frame
+	var departure_board: Dictionary = instance.call("_board_display_state") as Dictionary
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	var presentation: Dictionary = board.get("presentation") as Dictionary if board != null else {}
+	if str((instance.get("_run_state") as Dictionary).get("mode", "")) != RunEngine.MODE_ESCAPE:
+		_fail("Reward completion should enter the non-interactive automatic escape transition")
+	if reward_overlay != null and reward_overlay.visible:
+		_fail("The reward overlay should clear before the committed door opens")
+	if (departure_board.get("enemies", []) as Array).size() != (combat_state.get("enemies", []) as Array).size():
+		_fail("Pursuers should remain on the board while the committed door opens")
+	if (presentation.get("door_opening", {}) as Dictionary).get("tile", Vector2i(-1, -1)) != selected_door:
+		_fail("The door-opening presentation should target the exact threshold door reached")
+	await _capture("06_reach_exit_committed_door_opening.png")
 
 func _find_fixture(objective_type: String, depth: int) -> Dictionary:
 	var room: Dictionary = _room_metadata(depth)

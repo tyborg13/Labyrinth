@@ -294,6 +294,10 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 				state = engine.claim_relic(state, "")
 			"reward":
 				state = engine.claim_card_reward(state, "")
+			"escape":
+				state = engine.continue_pending_escape(state)
+			"pre_battle":
+				state = engine.begin_pre_battle_combat(state)
 			"combat":
 				var room: Dictionary = engine.room_metadata(state, state.get("current_room", Vector2i.ZERO))
 				var combat_state: Dictionary = state.get("combat_state", {}) as Dictionary

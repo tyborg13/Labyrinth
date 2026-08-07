@@ -1423,6 +1423,7 @@ var _victory_carry_amount: int = 0
 var _defeat_lost_amount: int = 0
 var _exit_destinations_by_tile: Dictionary = {}
 var _animation_lock: bool = false
+var _escape_transition_in_progress: bool = false
 var _board_presentation: Dictionary = {}
 var _menu_scrim: ColorRect
 var _menu_dialog: PanelContainer
@@ -7638,6 +7639,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_last_auto_dialogue_key = ""
 	_merchant_shop_room_coord = INVALID_ROOM_COORD
 	_merchant_shop_open = true
+	_escape_transition_in_progress = false
 	_committed_run_state_override.clear()
 	var content_migration_required: bool = _run_engine.run_content_migration_required(next_run_state)
 	var combat_units_migration_required: bool = _run_engine.combat_units_migration_required(next_run_state)
@@ -7678,6 +7680,8 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_refresh_ui()
 	if _has_pending_combat_checkpoints():
 		call_deferred("_resume_pending_combat_checkpoints")
+	elif str(_run_state.get("mode", "room")) == RunEngineScript.MODE_ESCAPE:
+		call_deferred("_continue_pending_escape_after_reward")
 
 func _start_run() -> void:
 	_progression = ProgressionStore.prepare_for_new_run(ProgressionStore.load_data())
@@ -13248,6 +13252,7 @@ func _refresh_stage_view() -> void:
 	_exit_destinations_by_tile = _exit_tile_lookup()
 	var display_state: Dictionary = _board_display_state()
 	var visibility_state: Dictionary = _board_visibility_state(display_state)
+	var escape_board_visible: bool = _escape_board_state_is_visible()
 	var move_tiles: Array[Vector2i] = []
 	var attack_tiles: Array[Vector2i] = []
 	var ability_tiles: Array[Vector2i] = []
@@ -13255,12 +13260,12 @@ func _refresh_stage_view() -> void:
 	# The same room grid is shown both while cards are available and after combat.
 	# Make that framing intent explicit: no-hand rooms center their complete board
 	# instead of inheriting the combat hand-clearance composition.
-	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" else "room"
+	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or escape_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
-	if str(_run_state.get("mode", "room")) == "combat" and not display_state.is_empty():
+	if (str(_run_state.get("mode", "room")) == "combat" or escape_board_visible) and not display_state.is_empty():
 		presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(visibility_state)
 		presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(visibility_state)
 		presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(visibility_state)
@@ -13418,6 +13423,9 @@ func _board_display_state() -> Dictionary:
 			return _visibility_safe_preview_display_state(_combat_preview_display_state(_preview_combat_state))
 		if not _combat_state.is_empty():
 			return _combat_state
+	var escape_board_state: Dictionary = _pending_escape_board_state()
+	if not escape_board_state.is_empty():
+		return escape_board_state
 	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
 	return {
 		"room_name": layout.get("name", "Room"),
@@ -13439,6 +13447,17 @@ func _board_display_state() -> Dictionary:
 		"terrain": layout.get("terrain", []),
 		"log": []
 	}
+
+func _pending_escape_board_state() -> Dictionary:
+	if str(_run_state.get("mode", "room")) not in ["reward", RunEngineScript.MODE_ESCAPE]:
+		return {}
+	var escape: Dictionary = _run_state.get("pending_escape", {}) as Dictionary
+	if typeof(escape.get("board_state", null)) != TYPE_DICTIONARY:
+		return {}
+	return escape.get("board_state", {}) as Dictionary
+
+func _escape_board_state_is_visible() -> bool:
+	return not _pending_escape_board_state().is_empty()
 
 func _combat_preview_display_state(preview_state: Dictionary) -> Dictionary:
 	if preview_state.is_empty() or _combat_state.is_empty():
@@ -15281,7 +15300,10 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	if outcome == "victory":
-		transition_combat_state = await _animate_missed_equipment_resolution(committed_combat_state, _salvaged_equipment_ids(committed_run_state))
+		if _reach_exit_victory_preserves_board(committed_combat_state):
+			transition_combat_state = _combat_engine.resolve_missed_equipment_after_victory(committed_combat_state)
+		else:
+			transition_combat_state = await _animate_missed_equipment_resolution(committed_combat_state, _salvaged_equipment_ids(committed_run_state))
 	_board_presentation.clear()
 	_set_action_banner("")
 	_run_state = committed_run_state
@@ -15821,6 +15843,10 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.04).timeout
 
+func _reach_exit_victory_preserves_board(combat_state: Dictionary) -> bool:
+	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
+	return str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT
+
 func _animate_missed_equipment_resolution(victory_state: Dictionary, salvaged_equipment_ids: Array = []) -> Dictionary:
 	var resolved_state: Dictionary = _combat_engine.resolve_missed_equipment_after_victory(victory_state)
 	var missed_equipment: Array = (resolved_state.get("missed_equipment", []) as Array).duplicate()
@@ -16284,7 +16310,10 @@ func _resolve_enemy_round() -> void:
 	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
 	if outcome == "victory":
-		transition_combat_state = await _animate_missed_equipment_resolution(final_combat_state, _salvaged_equipment_ids(final_run_state))
+		if _reach_exit_victory_preserves_board(final_combat_state):
+			transition_combat_state = _combat_engine.resolve_missed_equipment_after_victory(final_combat_state)
+		else:
+			transition_combat_state = await _animate_missed_equipment_resolution(final_combat_state, _salvaged_equipment_ids(final_run_state))
 	_board_presentation.clear()
 	_set_action_banner("")
 	if _committed_run_state_override.is_empty() or _committed_run_state_override != final_run_state:
@@ -16665,7 +16694,7 @@ func _stop_music_tween() -> void:
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
-	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" else "room"
+	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or _escape_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
@@ -17825,6 +17854,46 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 		await get_tree().create_timer(DOOR_OPENING_FRAME_SECONDS).timeout
 	await get_tree().create_timer(DOOR_OPENING_SETTLE_SECONDS).timeout
 
+func _continue_pending_escape_after_reward() -> bool:
+	if _escape_transition_in_progress or str(_run_state.get("mode", "room")) != RunEngineScript.MODE_ESCAPE:
+		return false
+	var pending_escape: Dictionary = _run_engine.pending_escape(_run_state)
+	if pending_escape.is_empty() or typeof(pending_escape.get("destination", null)) != TYPE_VECTOR2I:
+		return false
+	var destination: Vector2i = pending_escape.get("destination", Vector2i.ZERO)
+	var selected_door: Vector2i = pending_escape.get("door_tile", INVALID_TARGET_TILE)
+	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var previous_coord: Vector2i = previous_run_state.get("current_room", Vector2i.ZERO)
+	var committed_run_state: Dictionary = _run_engine.continue_pending_escape(_run_state)
+	if committed_run_state.get("current_room", previous_coord) != destination:
+		return false
+	_escape_transition_in_progress = true
+	_animation_lock = true
+	committed_run_state = _hold_committed_run_state(committed_run_state, "reach_exit_room_move")
+	var map_travel_started: bool = _begin_map_travel_animation(previous_coord, destination)
+	_reset_card_resolution()
+	_hovered_board_tile = selected_door
+	_refresh_ui()
+	if selected_door.x >= 0:
+		await _play_door_opening_animation(selected_door)
+	elif map_travel_started:
+		await get_tree().create_timer(_map_travel_animation_seconds()).timeout
+	_run_state = committed_run_state
+	_sync_progression_from_run()
+	_sync_combat_state_from_run()
+	_release_committed_run_state()
+	_analytics_log_combat_transition(previous_run_state, "reach_exit_room_move", _combat_state)
+	_persist_committed_boundary("reach_exit_room_move_analytics")
+	_board_presentation.clear()
+	_reset_card_resolution()
+	_hovered_board_tile = INVALID_TARGET_TILE
+	_escape_transition_in_progress = false
+	_animation_lock = false
+	if str(_run_state.get("mode", "room")) == "combat":
+		_queue_hand_ready_wave("combat_start")
+	_refresh_ui()
+	return true
+
 func _on_reward_card_pressed(card_id: String, source_control: Control = null) -> void:
 	if _animation_lock or _loadout_acquisition_in_progress:
 		return
@@ -17845,6 +17914,7 @@ func _on_reward_card_pressed(card_id: String, source_control: Control = null) ->
 	_persist_committed_boundary("reward_card_claimed")
 	_refresh_ui()
 	await _animate_loadout_acquisition_ray(source_rect.get_center(), accent)
+	await _continue_pending_escape_after_reward()
 	_animation_lock = false
 	_loadout_acquisition_in_progress = false
 	_refresh_ui()
@@ -17886,6 +17956,7 @@ func _commit_reward_heal(deferred_card_id: String) -> void:
 	_analytics_log_reward_choice("heal_skip", reward_state, "", player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
 	_persist_committed_boundary("reward_heal_claimed")
 	_refresh_ui()
+	await _continue_pending_escape_after_reward()
 
 func _on_reward_reroll_pressed() -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "reward":
@@ -22387,6 +22458,12 @@ func _analytics_log_combat_started(reason: String) -> void:
 
 func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> void:
 	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
+	var objective_completion_tile: Vector2i = (
+		(combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+		if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT
+		else INVALID_TARGET_TILE
+	)
+	var objective_completion_exit: Dictionary = CombatObjectiveRules.exit_spec_for_target(objective, objective_completion_tile)
 	_analytics_store.write_event("combat_ended", _analytics_context_from_states(_run_state, combat_state), {
 		"reason": reason,
 		"outcome": _combat_engine.combat_outcome(combat_state),
@@ -22397,7 +22474,9 @@ func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> vo
 		"objective_reinforcement_waves": int(objective.get("reinforcement_waves_spawned", 0)),
 		"objective_followers_cleared": int(objective.get("followers_cleared", 0)),
 		"objective_completed_by_leader": bool(objective.get("completed_by_leader", false)),
-		"objective_completion_tile": (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)) if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT else Vector2i(-1, -1),
+		"objective_completion_tile": objective_completion_tile,
+		"objective_completion_door": objective_completion_exit.get("door_tile", INVALID_TARGET_TILE),
+		"objective_completion_destination": objective_completion_exit.get("coord", INVALID_ROOM_COORD),
 		"room_embers": int(combat_state.get("room_embers", 0)),
 		"recovered_embers": int(combat_state.get("recovered_embers_total", 0)),
 		"collected_equipment": (combat_state.get("collected_equipment", []) as Array).duplicate(true),
@@ -23077,6 +23156,12 @@ func _objective_exit_icon_ids_for_board(display_state: Dictionary) -> Dictionary
 
 func _active_door_tiles_for_board() -> Dictionary:
 	var active: Dictionary = {}
+	var pending_escape: Dictionary = _run_state.get("pending_escape", {}) as Dictionary
+	if str(_run_state.get("mode", "room")) in ["reward", RunEngineScript.MODE_ESCAPE] and not pending_escape.is_empty():
+		var selected_door_var: Variant = pending_escape.get("door_tile", null)
+		if typeof(selected_door_var) == TYPE_VECTOR2I:
+			active[selected_door_var as Vector2i] = true
+		return active
 	for option: Dictionary in _run_engine.exit_options(_run_state):
 		var door_tile: Vector2i = option.get("door_tile", INVALID_TARGET_TILE)
 		if door_tile.x < 0:
@@ -23090,6 +23175,15 @@ func _active_door_tiles_for_board() -> Dictionary:
 
 func _locked_door_tiles_for_board() -> Dictionary:
 	var locked: Dictionary = {}
+	var pending_escape: Dictionary = _run_state.get("pending_escape", {}) as Dictionary
+	if str(_run_state.get("mode", "room")) in ["reward", RunEngineScript.MODE_ESCAPE] and not pending_escape.is_empty():
+		var board_state: Dictionary = pending_escape.get("board_state", {}) as Dictionary
+		var objective: Dictionary = board_state.get("objective", {}) as Dictionary
+		var selected_door: Vector2i = pending_escape.get("door_tile", INVALID_TARGET_TILE)
+		for door_tile: Vector2i in CombatObjectiveRules.exit_door_tiles(objective):
+			if door_tile != selected_door:
+				locked[door_tile] = true
+		return locked
 	var current_coord: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, current_coord)
 	for connection_var: Variant in current_room.get("connections", []):

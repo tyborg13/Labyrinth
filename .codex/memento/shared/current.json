@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-06T20:21:21Z",
+  "updated_at": "2026-08-07T02:35:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7106,6 +7106,28 @@
       "source": {
         "branch": "codex/add-varied-combat-encounter-objectives",
         "commit": "14a958a"
+      }
+    },
+    {
+      "id": "mnt_20260807T023554Z_0a39893a",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Reach Exit commits one door and preserves pursuit through rewards",
+      "details": "Crossing a Reach the Exit threshold chooses that exact destination. Keep surviving enemies, obstacles, traps, loot, Umbra, and the player on the old board through reward selection and door opening; do not expose a second door choice. After the reward, automatically open the committed door and advance to its normal destination encounter.",
+      "status": "active",
+      "created_at": "2026-08-07T02:35:54Z",
+      "updated_at": "2026-08-07T02:35:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-varied-combat-encounter-objectives",
+        "commit": "1df6f21"
       }
     }
   ]

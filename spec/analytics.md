@@ -170,7 +170,9 @@ visible enemy count. Objective analysis uses the additive `objective_type`,
 `objective_target_clock`, `objective_leader_type`, `objective_exit_count`, and
 `objective_initial_enemy_count` start fields. `combat_ended` records the final
 initiative clock, reinforcement waves, leader-cleared follower count, leader
-completion flag, and reached-exit completion tile alongside the objective type.
+completion flag, and reached-exit completion tile, door tile, and destination
+coordinate alongside the objective type. The route fields identify the exact
+door committed by crossing its threshold before the reward-and-escape transition.
 This keeps encounter pacing and reward comparisons objective-aware without
 renaming the established combat event contract. `combat_ended` also includes
 `recovered_embers`, the total embers

@@ -6,6 +6,7 @@ const CombatObjectiveHud = preload("res://scripts/combat_objective_hud.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
@@ -15,6 +16,7 @@ static func run(expect: Callable) -> void:
 	_test_leader_clear_rewards_only_the_leader(expect)
 	_test_survival_reinforcements_join_initiative_and_clock_wins(expect)
 	_test_reach_exit_generation_and_completion(expect)
+	_test_reach_exit_reward_commits_route_and_preserves_board(expect)
 	_test_exit_objective_biases_control_and_blocking_routes(expect)
 	_test_objective_persistence_and_ui_surfaces(expect)
 
@@ -129,6 +131,67 @@ static func _test_reach_exit_generation_and_completion(expect: Callable) -> void
 	state["player"] = player
 	expect.call(combat.combat_outcome(state) == "victory", "Reaching any marked interior threshold should clear the encounter while enemies remain")
 
+static func _test_reach_exit_reward_commits_route_and_preserves_board(expect: Callable) -> void:
+	var run_engine := RunEngine.new()
+	var combat_engine := CombatEngine.new()
+	var current_coord := Vector2i(2, -2)
+	var destination := Vector2i(2, -3)
+	var target_tile := Vector2i(4, 1)
+	var door_tile := Vector2i(4, 0)
+	var objective: Dictionary = {
+		"type": CombatObjectiveRules.REACH_EXIT,
+		"exits": [{
+			"target_tile": target_tile,
+			"door_tile": door_tile,
+			"direction": Vector2i.UP,
+			"coord": destination,
+			"kind": "outward"
+		}]
+	}
+	var layout: Dictionary = _combat_layout(objective, [
+		{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 8, "max_hp": 8},
+		{"id": 2, "type": "warden", "pos": Vector2i(3, 4), "hp": 18, "max_hp": 18},
+	])
+	layout["coord"] = current_coord
+	layout["terrain"] = [{"id": 1, "type": "crate", "pos": Vector2i(4, 4), "hp": 6, "max_hp": 6}]
+	layout["traps"] = [{"id": 1, "type": "spike", "pos": Vector2i(3, 3), "damage": 2}]
+	layout["loot"] = [{"id": 1, "kind": "embers", "pos": Vector2i(6, 4), "amount": 3, "claimed": false}]
+	var combat_state: Dictionary = combat_engine.create_combat(707, layout, _player_snapshot())
+	var escaped_player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+	escaped_player["pos"] = target_tile
+	combat_state["player"] = escaped_player
+	var run_state: Dictionary = run_engine.create_new_run(707, ProgressionStore.default_data())
+	var current_room: Dictionary = _room_metadata(2)
+	current_room["coord"] = current_coord
+	current_room["revealed"] = true
+	current_room["visited"] = true
+	current_room["cleared"] = false
+	current_room["sealed"] = false
+	run_state["current_room"] = current_coord
+	run_state["current_room_layout"] = layout.duplicate(true)
+	run_state["rooms"] = {_room_key(current_coord): current_room}
+	run_state["combat_state"] = combat_state
+	run_state["mode"] = "combat"
+	var reward_state: Dictionary = run_engine.finish_combat(run_state, combat_state)
+	var pending_escape: Dictionary = run_engine.pending_escape(reward_state)
+	var board_state: Dictionary = pending_escape.get("board_state", {}) as Dictionary
+	expect.call(str(reward_state.get("mode", "")) == "reward", "Reaching an exit should still present the normal combat reward before travel")
+	expect.call(pending_escape.get("destination", Vector2i.ZERO) == destination and pending_escape.get("door_tile", Vector2i(-1, -1)) == door_tile, "The crossed threshold should commit its exact destination and door")
+	expect.call((board_state.get("enemies", []) as Array).size() == 2 and (board_state.get("enemies", []) as Array).all(func(enemy: Dictionary) -> bool: return int(enemy.get("hp", 0)) > 0), "Every surviving pursuer should remain in the escaped-board snapshot")
+	expect.call((board_state.get("terrain", []) as Array).size() == 1 and (board_state.get("traps", []) as Array).size() == 1 and (board_state.get("loot", []) as Array).size() == 1, "Terrain, traps, and loot should remain on the board throughout the reward")
+	var reward_cards: Array = (reward_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array
+	expect.call(not reward_cards.is_empty(), "The route-lock fixture should offer a card reward")
+	if reward_cards.is_empty():
+		return
+	var escape_state: Dictionary = run_engine.claim_card_reward(reward_state, str(reward_cards[0]))
+	expect.call(str(escape_state.get("mode", "")) == RunEngine.MODE_ESCAPE and not run_engine.pending_escape(escape_state).is_empty(), "Claiming the reward should enter automatic escape transition mode without reopening route selection")
+	var repaired_escape: Dictionary = run_engine.repair_loaded_run_state(escape_state)
+	expect.call(str(repaired_escape.get("mode", "")) == RunEngine.MODE_ESCAPE and not run_engine.pending_escape(repaired_escape).is_empty(), "A saved automatic escape should preserve the locked route and populated board")
+	var continued_state: Dictionary = run_engine.continue_pending_escape(repaired_escape)
+	expect.call(continued_state.get("current_room", Vector2i.ZERO) == destination, "Automatic escape should advance through the committed door")
+	expect.call(run_engine.pending_escape(continued_state).is_empty(), "The committed escape route should clear only after the destination loads")
+	expect.call(str(continued_state.get("mode", "")) not in ["reward", RunEngine.MODE_ESCAPE], "Automatic escape should load the destination's normal encounter without reopening route selection")
+
 static func _test_exit_objective_biases_control_and_blocking_routes(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var objective: Dictionary = {
@@ -230,3 +293,6 @@ static func _labels_text(node: Node) -> String:
 	for label_var: Variant in node.find_children("*", "Label", true, false):
 		parts.append((label_var as Label).text)
 	return "\n".join(parts)
+
+static func _room_key(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]

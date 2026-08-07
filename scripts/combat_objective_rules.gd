@@ -29,7 +29,7 @@ const DEFINITIONS := {
 	REACH_EXIT: {
 		"name": "Reach the Exit",
 		"short_name": "Reach Exit",
-		"description": "Reach any marked threshold. Enemies and terrain are positioned to bar your path.",
+		"description": "Reach a marked threshold to escape through that door. Enemies and terrain are positioned to bar your path.",
 		"icon_path": ICON_ROOT + "reach_the_exit.png"
 	}
 }
@@ -99,6 +99,15 @@ static func exit_door_tiles(objective: Dictionary) -> Array[Vector2i]:
 		if typeof(door) == TYPE_VECTOR2I and not tiles.has(door):
 			tiles.append(door)
 	return tiles
+
+static func exit_spec_for_target(objective: Dictionary, target_tile: Vector2i) -> Dictionary:
+	for exit_var: Variant in objective.get("exits", []):
+		if typeof(exit_var) != TYPE_DICTIONARY:
+			continue
+		var exit_spec: Dictionary = exit_var as Dictionary
+		if exit_spec.get("target_tile", Vector2i(-1, -1)) == target_tile:
+			return exit_spec.duplicate(true)
+	return {}
 
 static func exit_target_tile_for_direction(direction: Vector2i) -> Vector2i:
 	match direction:
