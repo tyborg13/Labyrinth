@@ -2082,6 +2082,8 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		layout_room["type"] = "combat"
 		if not ElementData.is_elemental(str(layout_room.get("element", ElementData.NONE))):
 			layout_room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), layout_room.get("coord", Vector2i.ZERO), "combat")
+	if str(layout_room.get("type", "combat")) == "combat":
+		layout_room[CombatObjectiveRules.ONBOARDING_ROOM_KEY] = not _run_has_completed_combat(run_state)
 	var equipment_drop: String = _equipment_drop_for_room(run_state, layout_room)
 	if not equipment_drop.is_empty():
 		layout_room["equipment_drop"] = equipment_drop
@@ -2092,6 +2094,15 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		if _layout_accepts_pre_battle_start(layout, chosen_start):
 			layout["player_start"] = chosen_start
 	return layout
+
+func _run_has_completed_combat(run_state: Dictionary) -> bool:
+	for room_var: Variant in (run_state.get("rooms", {}) as Dictionary).values():
+		if typeof(room_var) != TYPE_DICTIONARY:
+			continue
+		var room: Dictionary = room_var
+		if str(room.get("type", "combat")) in ["combat", "boss"] and bool(room.get("cleared", false)):
+			return true
+	return false
 
 func _layout_accepts_pre_battle_start(layout: Dictionary, tile: Vector2i) -> bool:
 	var authored_start: Vector2i = layout.get("player_start", Vector2i(-1, -1))

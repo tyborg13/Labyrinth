@@ -52,6 +52,7 @@ static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> 
 		expect.call(absi(int(counts[objective_type]) - 500) <= 30, "Later standard rooms should weight %s at 25%% across a broad deterministic sample" % objective_type)
 	var first_room: Dictionary = _room_metadata(1)
 	first_room["coord"] = Vector2i(1, 0)
+	first_room[CombatObjectiveRules.ONBOARDING_ROOM_KEY] = true
 	expect.call(str(CombatObjectiveRules.build_for_room(99, first_room, Vector2i.UP).get("type", "")) == CombatObjectiveRules.KILL_ALL, "The cardinal first combat should retain Kill All onboarding")
 	var later_depth_one_room: Dictionary = _room_metadata(1)
 	later_depth_one_room["coord"] = Vector2i(1, 1)
@@ -60,6 +61,21 @@ static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> 
 		var later_type: String = str(CombatObjectiveRules.build_for_room(seed, later_depth_one_room, Vector2i.UP).get("type", ""))
 		later_depth_one_seen[later_type] = true
 	expect.call(later_depth_one_seen.size() == 4, "A subsequent traversable depth-one combat should use the equal-weight objective mix")
+	var path_engine := RunEngine.new()
+	var path_state: Dictionary = path_engine.create_new_run(99, ProgressionStore.default_data())
+	path_state = path_engine.move_to_pre_battle(path_state, Vector2i(1, 0))
+	var first_preview: Dictionary = path_engine.pre_battle_preview_state(path_state)
+	var first_preview_objective: Dictionary = (first_preview.get("combat_state", {}) as Dictionary).get("objective", {}) as Dictionary
+	expect.call(str(first_preview_objective.get("type", "")) == CombatObjectiveRules.KILL_ALL, "The actual first RunEngine combat should receive onboarding Kill All")
+	path_state = _clear_current_room_for_objective_path(path_engine, path_state)
+	expect.call(path_engine.available_moves(path_state).has(Vector2i(1, 1)), "The objective path fixture should expose the next depth-one corner")
+	path_state = path_engine.move_to_pre_battle(path_state, Vector2i(1, 1))
+	path_state = _clear_current_room_for_objective_path(path_engine, path_state)
+	expect.call(path_engine.available_moves(path_state).has(Vector2i(0, 1)), "The objective path fixture should expose a later cardinal depth-one room")
+	path_state = path_engine.move_to_pre_battle(path_state, Vector2i(0, 1))
+	var later_preview: Dictionary = path_engine.pre_battle_preview_state(path_state)
+	var later_preview_objective: Dictionary = (later_preview.get("combat_state", {}) as Dictionary).get("objective", {}) as Dictionary
+	expect.call(str(later_preview_objective.get("type", "")) == CombatObjectiveRules.SURVIVE, "A later reachable cardinal room should use its seeded objective instead of onboarding Kill All")
 	var boss_room: Dictionary = _room_metadata(4)
 	boss_room["type"] = "boss"
 	boss_room["boss_id"] = "zekarion"
@@ -321,3 +337,20 @@ static func _labels_text(node: Node) -> String:
 
 static func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
+
+static func _clear_current_room_for_objective_path(engine, state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = engine.room_metadata(next_state, coord)
+	room["cleared"] = true
+	room["sealed"] = false
+	var rooms: Dictionary = (next_state.get("rooms", {}) as Dictionary).duplicate(true)
+	rooms[_room_key(coord)] = room
+	next_state["rooms"] = rooms
+	next_state["mode"] = "room"
+	next_state["combat_state"] = {}
+	next_state.erase("pre_battle_pending")
+	next_state.erase("pre_battle_travel_dir")
+	next_state.erase("pre_battle_start")
+	engine.call("_reveal_neighbors", next_state, coord)
+	return next_state

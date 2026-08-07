@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-07T03:51:18Z",
+  "updated_at": "2026-08-07T04:20:23Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7130,6 +7130,28 @@
       "source": {
         "branch": "codex/add-varied-combat-encounter-objectives",
         "commit": "6bc6835"
+      }
+    },
+    {
+      "id": "mnt_20260807T042023Z_526ac6e5",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_engine.gd",
+        "symbol": "_combat_layout_for_room"
+      },
+      "scope_key": "symbol:scripts/run_engine.gd#_combat_layout_for_room",
+      "summary": "Derive onboarding objectives from completed-combat history",
+      "details": "Depth-one cardinal rooms are potential start rooms but remain reachable later around the ring. At the shared combat-layout boundary, inject CombatObjectiveRules.ONBOARDING_ROOM_KEY only when the run has no cleared combat or boss room; never infer onboarding from depth or coordinate shape. This keeps pre-battle preview, actual combat creation, and resumed pre-battle state consistent while later depth-one rooms use the normal equal objective mix.",
+      "status": "active",
+      "created_at": "2026-08-07T04:20:23Z",
+      "updated_at": "2026-08-07T04:20:23Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-varied-combat-encounter-objectives",
+        "commit": "bdf0449"
       }
     }
   ]

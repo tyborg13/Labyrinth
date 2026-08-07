@@ -1172,27 +1172,31 @@ func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 
 func _test_room_generation_scales_enemy_density() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
-	var depth_one_room: Dictionary = generator.generate_room(27, {
+	# Keep this depth-scaling fixture objective-neutral: seed 417 resolves each
+	# standard coordinate below to Kill All, so leader/exit modifiers cannot
+	# distort the density and HP comparisons exercised here.
+	var density_seed: int = 417
+	var depth_one_room: Dictionary = generator.generate_room(density_seed, {
 		"coord": Vector2i(1, 0),
 		"depth": 1,
 		"type": "combat"
 	}, Vector2i(1, 0))
-	var depth_three_room: Dictionary = generator.generate_room(27, {
+	var depth_three_room: Dictionary = generator.generate_room(density_seed, {
 		"coord": Vector2i(2, 1),
 		"depth": 3,
 		"type": "combat"
 	}, Vector2i(1, 0))
-	var second_sequence_opening: Dictionary = generator.generate_room(27, {
+	var second_sequence_opening: Dictionary = generator.generate_room(density_seed, {
 		"coord": Vector2i(5, 0),
 		"depth": 5,
 		"type": "combat"
 	}, Vector2i(1, 0))
-	var second_sequence_deep: Dictionary = generator.generate_room(27, {
+	var second_sequence_deep: Dictionary = generator.generate_room(density_seed, {
 		"coord": Vector2i(6, 1),
 		"depth": 7,
 		"type": "combat"
 	}, Vector2i(1, 0))
-	var boss_room: Dictionary = generator.generate_room(27, {
+	var boss_room: Dictionary = generator.generate_room(density_seed, {
 		"coord": Vector2i(4, 0),
 		"depth": 4,
 		"type": "boss"
