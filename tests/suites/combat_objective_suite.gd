@@ -33,14 +33,31 @@ static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> 
 		expect.call(AssetLoader.load_texture(str(definition.get("icon_path", ""))) != null, "%s should own a loadable purpose-built objective icon" % objective_type)
 	var room: Dictionary = _room_metadata(2)
 	var seen: Dictionary = {}
+	var counts: Dictionary = {
+		CombatObjectiveRules.KILL_ALL: 0,
+		CombatObjectiveRules.KILL_LEADER: 0,
+		CombatObjectiveRules.SURVIVE: 0,
+		CombatObjectiveRules.REACH_EXIT: 0,
+	}
 	for seed: int in range(1, 160):
 		var first: Dictionary = CombatObjectiveRules.build_for_room(seed, room, Vector2i.UP)
 		var second: Dictionary = CombatObjectiveRules.build_for_room(seed, room, Vector2i.UP)
 		expect.call(first == second, "Objective selection should be deterministic for a room seed")
 		seen[str(first.get("type", ""))] = true
 	expect.call(seen.size() == 4, "Later combat rooms should deterministically expose all four objective families across seeds")
+	for seed: int in range(1, 2001):
+		var objective_type: String = str(CombatObjectiveRules.build_for_room(seed, room, Vector2i.UP).get("type", ""))
+		counts[objective_type] = int(counts.get(objective_type, 0)) + 1
+	for objective_type: String in counts:
+		expect.call(absi(int(counts[objective_type]) - 500) <= 30, "Later standard rooms should weight %s at 25%% across a broad deterministic sample" % objective_type)
 	var first_room: Dictionary = _room_metadata(1)
 	expect.call(str(CombatObjectiveRules.build_for_room(99, first_room, Vector2i.UP).get("type", "")) == CombatObjectiveRules.KILL_ALL, "The first combat should retain Kill All onboarding")
+	var boss_room: Dictionary = _room_metadata(4)
+	boss_room["type"] = "boss"
+	boss_room["boss_id"] = "zekarion"
+	var boss_objective: Dictionary = CombatObjectiveRules.build_for_room(99, boss_room, Vector2i.UP)
+	expect.call(str(boss_objective.get("type", "")) == CombatObjectiveRules.KILL_LEADER, "Boss rooms should always use Kill the Leader")
+	expect.call(is_equal_approx(float(boss_objective.get("leader_health_multiplier", -1.0)), 1.0) and int(boss_objective.get("leader_stoneskin", -1)) == 0, "Boss leaders should retain authored boss stats instead of receiving generic leader scaling")
 
 static func _test_leader_clear_rewards_only_the_leader(expect: Callable) -> void:
 	var combat := CombatEngine.new()

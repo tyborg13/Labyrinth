@@ -1305,7 +1305,10 @@ const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance
 const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 750.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
+const PRE_BATTLE_PANEL_CONTENT_INSET: float = 18.0
+const PRE_BATTLE_CONTENT_SIDE_INSET: float = 52.0
 const PRE_BATTLE_BODY_SIDE_INSET: float = 12.0
+const PRE_BATTLE_ROOM_CHIP_MIN_WIDTH: float = 320.0
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 210.0)
 const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 188.0)
@@ -3230,9 +3233,9 @@ func _rebuild_pre_battle_overlay() -> void:
 	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_left", int(PRE_BATTLE_CONTENT_SIDE_INSET))
 	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
-	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_right", int(PRE_BATTLE_CONTENT_SIDE_INSET))
 	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
 	_pre_battle_panel.add_child(margin)
 
@@ -3271,8 +3274,10 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	row.custom_minimum_size.y = header_height
 	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 
-	var room_chip := _build_pre_battle_room_chip(room, combat_state, accent)
-	room_chip.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), header_height)
+	var start_tiles: Array[Vector2i] = _run_engine.pre_battle_start_tiles(_run_state)
+	var room_chip_width: float = _pre_battle_header_room_chip_width(not start_tiles.is_empty())
+	var room_chip := _build_pre_battle_room_chip(room, combat_state, accent, room_chip_width)
+	room_chip.custom_minimum_size = Vector2(room_chip_width, header_height)
 	room_chip.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	room_chip.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	row.add_child(room_chip)
@@ -3281,7 +3286,6 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
 
-	var start_tiles: Array[Vector2i] = _run_engine.pre_battle_start_tiles(_run_state)
 	if not start_tiles.is_empty():
 		var position_button := UiTooltipButton.new()
 		position_button.name = "TrueBearingButton"
@@ -3334,6 +3338,21 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	row.add_child(end_buffer)
 	return row
 
+func _pre_battle_header_room_chip_width(has_position_button: bool) -> float:
+	var dialog_width: float = _pre_battle_panel.size.x if _pre_battle_panel != null else PRE_BATTLE_DIALOG_SIZE.x
+	var header_width: float = maxf(
+		1.0,
+		dialog_width - PRE_BATTLE_PANEL_CONTENT_INSET * 2.0 - PRE_BATTLE_CONTENT_SIDE_INSET * 2.0
+	)
+	var fixed_action_width: float = 132.0 + 158.0 + UiTypography.PANEL_PADDING
+	var child_count: int = 5
+	if has_position_button:
+		fixed_action_width += 148.0
+		child_count += 1
+	var total_gap: float = UiTypography.SPACE_MEDIUM * float(maxi(0, child_count - 1))
+	var available_room_width: float = maxf(PRE_BATTLE_ROOM_CHIP_MIN_WIDTH, header_width - fixed_action_width - total_gap)
+	return minf(_pre_battle_enemy_column_width(), available_room_width)
+
 func _apply_pre_battle_start_button_glow(button: BaseButton) -> void:
 	if button == null:
 		return
@@ -3380,10 +3399,11 @@ func _on_true_bearing_pressed() -> void:
 	_persist_committed_boundary("pre_battle_position_chosen")
 	_refresh_pre_battle_preview_if_visible()
 
-func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
+func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, accent: Color, requested_width: float = 510.0) -> Control:
+	var chip_width: float = maxf(PRE_BATTLE_ROOM_CHIP_MIN_WIDTH, requested_width)
 	var chip := VBoxContainer.new()
 	chip.name = "PreBattleRoomChip"
-	chip.custom_minimum_size = Vector2(510.0, 62.0)
+	chip.custom_minimum_size = Vector2(chip_width, 62.0)
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.alignment = BoxContainer.ALIGNMENT_BEGIN
 	chip.add_theme_constant_override("separation", 0)
@@ -3406,20 +3426,21 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	var meta_row := Control.new()
 	meta_row.name = "PreBattleRoomMeta"
 	var has_active_umbra: bool = _pre_battle_has_active_umbra(combat_state)
-	meta_row.custom_minimum_size = Vector2(510.0, 60.0 if has_active_umbra else 36.0)
+	meta_row.custom_minimum_size = Vector2(chip_width, 60.0 if has_active_umbra else 36.0)
 	meta_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	meta_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.add_child(meta_row)
 	var depth_group := Control.new()
 	depth_group.name = "PreBattleDepthOrnamentRow"
-	depth_group.custom_minimum_size = Vector2(430.0, 34.0)
+	var depth_group_width: float = clampf(chip_width - 80.0, 250.0, 430.0)
+	depth_group.custom_minimum_size = Vector2(depth_group_width, 34.0)
 	depth_group.anchor_left = 0.5
 	depth_group.anchor_top = 0.0
 	depth_group.anchor_right = 0.5
 	depth_group.anchor_bottom = 0.0
-	depth_group.offset_left = -215.0
+	depth_group.offset_left = -depth_group_width * 0.5
 	depth_group.offset_top = 0.0
-	depth_group.offset_right = 215.0
+	depth_group.offset_right = depth_group_width * 0.5
 	depth_group.offset_bottom = 34.0
 	depth_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var depth_ornament := TextureRect.new()
@@ -3451,13 +3472,14 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 			var umbra_label := Label.new()
 			umbra_label.name = "PreBattleUmbraLabel"
 			umbra_label.text = "%s Umbra" % CombatEngineScript.umbra_stage_display_name(umbra_stage)
+			var umbra_label_width: float = clampf(chip_width - 40.0, 180.0, 300.0)
 			umbra_label.anchor_left = 0.5
 			umbra_label.anchor_top = 0.0
 			umbra_label.anchor_right = 0.5
 			umbra_label.anchor_bottom = 0.0
-			umbra_label.offset_left = -150.0
+			umbra_label.offset_left = -umbra_label_width * 0.5
 			umbra_label.offset_top = 36.0
-			umbra_label.offset_right = 150.0
+			umbra_label.offset_right = umbra_label_width * 0.5
 			umbra_label.offset_bottom = 58.0
 			umbra_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			umbra_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -3469,15 +3491,15 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 			umbra_label.add_theme_color_override("font_outline_color", Color("17100d"))
 			umbra_label.add_theme_constant_override("outline_size", 2)
 			meta_row.add_child(umbra_label)
-	chip.add_child(_build_pre_battle_objective_chip(combat_state, accent))
+	chip.add_child(_build_pre_battle_objective_chip(combat_state, accent, chip_width))
 	return chip
 
-func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color) -> Control:
+func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, requested_width: float = 510.0) -> Control:
 	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
 	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
 	var panel := PanelContainer.new()
 	panel.name = "PreBattleObjectiveChip"
-	panel.custom_minimum_size = Vector2(510.0, 54.0)
+	panel.custom_minimum_size = Vector2(maxf(PRE_BATTLE_ROOM_CHIP_MIN_WIDTH, requested_width), 54.0)
 	panel.tooltip_text = CombatObjectiveRules.description(objective_type)
 	panel.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 	var style := StyleBoxFlat.new()
@@ -3590,7 +3612,13 @@ func _pre_battle_enemy_card_size(enemy_count: int) -> Vector2:
 
 func _pre_battle_body_width() -> float:
 	var dialog_width: float = _pre_battle_panel.size.x if _pre_battle_panel != null else get_viewport_rect().size.x - UiTypography.SPACE_LARGE * 2.0
-	return maxf(0.0, dialog_width - UiTypography.PANEL_PADDING_LARGE * 2.0 - PRE_BATTLE_BODY_SIDE_INSET * 2.0)
+	return maxf(
+		0.0,
+		dialog_width
+		- PRE_BATTLE_PANEL_CONTENT_INSET * 2.0
+		- PRE_BATTLE_CONTENT_SIDE_INSET * 2.0
+		- PRE_BATTLE_BODY_SIDE_INSET * 2.0
+	)
 
 func _pre_battle_deck_column_width() -> float:
 	return clampf(_pre_battle_body_width() * 0.40, 360.0, 700.0)
@@ -7342,6 +7370,7 @@ func _layout_combat_action_dock() -> void:
 		clampf(meter_left, 8.0, maxf(8.0, viewport_size.x - meter_size.x - 8.0)),
 		dock_top
 	)
+	_layout_combat_objective_hud()
 
 func _combat_hand_visual_bounds() -> Rect2:
 	var bounds := Rect2()
@@ -8666,14 +8695,21 @@ func _layout_combat_objective_hud() -> void:
 	var hud_width: float = 350.0
 	var hud_height: float = 68.0
 	var left: float = UiTypography.SAFE_MARGIN
-	var top: float = 104.0
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var top: float = viewport_size.y * 0.60
+	var minimum_top: float = 104.0
 	if ui_root != null and _intensity_bar != null and _intensity_bar.visible and _intensity_bar.is_inside_tree():
 		var ui_origin: Vector2 = ui_root.get_global_rect().position
 		var intensity_rect: Rect2 = _intensity_bar.get_global_rect()
 		left = intensity_rect.position.x - ui_origin.x
-		top = intensity_rect.end.y - ui_origin.y + 12.0
+		minimum_top = intensity_rect.end.y - ui_origin.y + 12.0
 	elif top_bar != null and top_bar.is_inside_tree() and ui_root != null:
-		top = maxf(top, top_bar.get_global_rect().end.y - ui_root.get_global_rect().position.y + 10.0)
+		minimum_top = maxf(minimum_top, top_bar.get_global_rect().end.y - ui_root.get_global_rect().position.y + 10.0)
+	if _play_meter != null and _play_meter.is_inside_tree() and ui_root != null:
+		var play_meter_rect: Rect2 = _play_meter.get_global_rect()
+		if play_meter_rect.size.y > 0.0:
+			top = play_meter_rect.position.y - ui_root.get_global_rect().position.y - hud_height - 12.0
+	top = clampf(top, minimum_top, maxf(minimum_top, viewport_size.y - hud_height - UiTypography.SAFE_MARGIN))
 	_combat_objective_hud.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_combat_objective_hud.offset_left = left
 	_combat_objective_hud.offset_top = top

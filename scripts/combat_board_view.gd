@@ -131,6 +131,7 @@ const BOARD_ZOOM_STEP: float = 1.10
 const BOARD_DEFAULT_NAVIGATION_ZOOM: float = 1.26
 const BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.04
 const BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.24
+const BOARD_REACH_EXIT_DEFAULT_NAVIGATION_ZOOM_SCALE: float = 0.97
 const BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.22
 const BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.36
 const BOARD_COMPACT_VIEWPORT_HEIGHT: float = 1080.0
@@ -1413,9 +1414,17 @@ func _default_navigation_zoom_for_viewport() -> float:
 		0.0,
 		1.0
 	)
+	var default_zoom: float
 	if str(presentation.get("board_framing_mode", "room")) == "combat":
-		return lerpf(BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
-	return lerpf(BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
+		default_zoom = lerpf(BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
+	else:
+		default_zoom = lerpf(BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
+	return clampf(default_zoom * _navigation_zoom_scale_for_presentation(presentation), BOARD_MIN_NAVIGATION_ZOOM, BOARD_MAX_NAVIGATION_ZOOM)
+
+func _navigation_zoom_scale_for_presentation(source: Dictionary) -> float:
+	if not (source.get("objective_exit_target_tiles", []) as Array).is_empty():
+		return BOARD_REACH_EXIT_DEFAULT_NAVIGATION_ZOOM_SCALE
+	return 1.0
 
 func navigation_snapshot() -> Dictionary:
 	_ensure_board_layout_cache()
@@ -3615,18 +3624,28 @@ func _texture_used_rect(texture: Texture2D) -> Rect2i:
 func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Texture2D, door_draw_rect: Rect2, tint: Color = Color.WHITE) -> void:
 	if icon_texture == null:
 		return
-	var door_used_rect: Rect2 = _texture_used_draw_rect(door_texture, door_draw_rect)
-	var icon_size: float = clampf(_tile_width() * DOOR_ICON_SIZE_SCALE, DOOR_ICON_MIN_SIZE, DOOR_ICON_MAX_SIZE)
+	var visual_rect: Rect2 = _door_icon_visual_rect(door_texture, door_draw_rect)
+	var center: Vector2 = visual_rect.get_center()
+	var radius: float = visual_rect.size.x * 0.5
+	var icon_size: float = _door_icon_size()
 	var accent: Color = ElementData.door_tint(icon_id) if ElementData.is_elemental(icon_id) else Color("d3b78e")
+	draw_circle(center, radius, Color(0.07, 0.05, 0.04, 0.86 * tint.a))
+	draw_arc(center, radius, 0.0, TAU, 28, Color(accent.r, accent.g, accent.b, 0.88 * tint.a), 2.0, true)
+	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
+	draw_texture_rect(icon_texture, icon_rect, false, tint)
+
+func _door_icon_size() -> float:
+	return clampf(_tile_width() * DOOR_ICON_SIZE_SCALE, DOOR_ICON_MIN_SIZE, DOOR_ICON_MAX_SIZE)
+
+func _door_icon_visual_rect(door_texture: Texture2D, door_draw_rect: Rect2) -> Rect2:
+	var door_used_rect: Rect2 = _texture_used_draw_rect(door_texture, door_draw_rect)
+	var icon_size: float = _door_icon_size()
 	var center := Vector2(
 		door_used_rect.get_center().x,
 		door_used_rect.position.y - icon_size * 0.5 - _tile_height() * DOOR_ICON_FLOAT_GAP_SCALE
 	)
 	var radius: float = icon_size * 0.56
-	draw_circle(center, radius, Color(0.07, 0.05, 0.04, 0.86 * tint.a))
-	draw_arc(center, radius, 0.0, TAU, 28, Color(accent.r, accent.g, accent.b, 0.88 * tint.a), 2.0, true)
-	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
-	draw_texture_rect(icon_texture, icon_rect, false, tint)
+	return Rect2(center - Vector2(radius, radius), Vector2(radius, radius) * 2.0)
 
 func _is_outer_boundary_tile(grid: Array, tile: Vector2i) -> bool:
 	if grid.is_empty():
@@ -6890,6 +6909,7 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("locked:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("locked_door_tiles", {}) as Dictionary))
 	parts.append("backdrop:%s" % bool(next_presentation.get("board_backdrop_visible", false)))
 	parts.append("framing:%s" % str(next_presentation.get("board_framing_mode", "room")))
+	parts.append("zoom:%s" % _navigation_zoom_scale_for_presentation(next_presentation))
 	parts.append("safe:%s" % str(next_presentation.get("board_safe_global_rect", Rect2())))
 	return "|".join(parts)
 
@@ -7751,6 +7771,8 @@ func rendered_visual_bounds() -> Rect2:
 				var door_rect: Rect2 = _prop_draw_rect(door, _door_rect_for_tile(tile, grid))
 				var opening: Texture2D = _door_opening_texture_for_tile(grid, tile)
 				rects.append(_door_opening_draw_rect(opening, door, door_rect, _door_uses_flipped_orientation(grid, tile)) if opening != null else door_rect)
+				if opening == null and not str(exit_icon_ids.get(tile, "")).is_empty():
+					rects.append(_door_icon_visual_rect(door, door_rect))
 	for unit: Dictionary in _visible_units():
 		rects.append(_unit_draw_rect(unit))
 	for prop_var: Variant in presentation.get("scene_props", []):

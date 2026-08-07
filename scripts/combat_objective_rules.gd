@@ -50,8 +50,12 @@ static func build_for_room(run_seed: int, room: Dictionary, travel_dir: Vector2i
 	}
 	match objective_type:
 		KILL_LEADER:
-			result["leader_health_multiplier"] = 1.5
-			result["leader_stoneskin"] = 2 + encounter_depth
+			var boss_room: bool = str(room.get("type", "combat")) == "boss"
+			# Bosses already own authored health and defenses. They use the leader
+			# objective so killing the boss ends the encounter, without receiving a
+			# second layer of generic leader scaling.
+			result["leader_health_multiplier"] = 1.0 if boss_room else 1.5
+			result["leader_stoneskin"] = 0 if boss_room else 2 + encounter_depth
 		SURVIVE:
 			result["target_clock"] = SURVIVAL_TARGET_BY_ENCOUNTER_DEPTH[encounter_depth - 1]
 			result["reinforcement_interval"] = SURVIVAL_REINFORCEMENT_INTERVAL
@@ -144,18 +148,21 @@ static func is_control_intent(intent: Dictionary) -> bool:
 	return false
 
 static func _type_for_room(run_seed: int, room: Dictionary) -> String:
-	if str(room.get("type", "combat")) != "combat":
+	var room_type: String = str(room.get("type", "combat"))
+	if room_type == "boss":
+		return KILL_LEADER
+	if room_type != "combat":
 		return KILL_ALL
 	var global_depth: int = int(room.get("depth", 1))
 	if global_depth <= 1:
 		return KILL_ALL
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 	var roll: int = posmod(_mixed_seed(run_seed, coord, 1709), 100)
-	if roll < 40:
+	if roll < 25:
 		return KILL_ALL
-	if roll < 60:
+	if roll < 50:
 		return KILL_LEADER
-	if roll < 80:
+	if roll < 75:
 		return SURVIVE
 	return REACH_EXIT
 

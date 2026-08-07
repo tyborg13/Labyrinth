@@ -353,11 +353,10 @@ func _capture_enemy_count_layouts() -> void:
 		layout_combat_state["enemies"] = layout_enemies
 		var layout_preview_state: Dictionary = preview_state.duplicate(true)
 		layout_preview_state["combat_state"] = layout_combat_state
-		if enemy_count < 5:
-			instance.set("_pre_battle_preview_run_state", layout_preview_state)
-			instance.call("_rebuild_pre_battle_overlay")
-			await create_timer(0.40).timeout
-			await process_frame
+		instance.set("_pre_battle_preview_run_state", layout_preview_state)
+		instance.call("_rebuild_pre_battle_overlay")
+		await create_timer(0.40).timeout
+		await process_frame
 		var flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control
 		var enemy_scroll: ScrollContainer = panel.find_child("PreBattleEnemyScroll", true, false) as ScrollContainer
 		if enemy_scroll == null or enemy_scroll.vertical_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED:
@@ -443,6 +442,9 @@ func _capture_boss_pathological_layout() -> void:
 		_fail("Boss pre-battle fixture should render a visible preview")
 	else:
 		_assert_pre_battle_body_inside_panel(panel, "boss")
+		var objective_chip: Control = panel.find_child("PreBattleObjectiveChip", true, false) as Control
+		if objective_chip == null or not _labels_text(objective_chip).contains("KILL THE LEADER"):
+			_fail("Boss pre-battle preview should always identify the boss as the leader objective")
 		var flow: Control = panel.find_child("PreBattleEnemyFlow", true, false) as Control
 		if flow == null or flow.get_child_count() < 3:
 			_fail("Boss pre-battle fixture should retain the boss and its pathological supporting enemies")
@@ -456,15 +458,24 @@ func _assert_pre_battle_body_inside_panel(panel: Control, context: String) -> vo
 		_fail("%s pre-battle panel should exist for body bounds proof" % context)
 		return
 	var panel_rect: Rect2 = panel.get_global_rect()
-	var safe_rect: Rect2 = panel_rect.grow(-8.0)
-	for section_name: String in ["PreBattleEnemySection", "PreBattleDeckSection"]:
+	var safe_rect := Rect2(panel_rect.position + Vector2(52.0, 8.0), panel_rect.size - Vector2(104.0, 16.0))
+	for section_name: String in [
+		"PreBattleRoomChip",
+		"PreBattleObjectiveChip",
+		"PreBattleEnemySection",
+		"PreBattleDeckSection",
+		"PreBattleEquipButton",
+		"PreBattleStartButton",
+		"TrueBearingButton",
+	]:
 		var section: Control = panel.find_child(section_name, true, false) as Control
 		if section == null:
-			_fail("%s pre-battle proof should render %s" % [context, section_name])
+			if section_name != "TrueBearingButton":
+				_fail("%s pre-battle proof should render %s" % [context, section_name])
 			continue
 		var section_rect: Rect2 = section.get_global_rect()
 		if not safe_rect.encloses(section_rect):
-			_fail("%s %s should remain fully inside the main pre-battle panel" % [context, section_name])
+			_fail("%s %s should remain fully inside the ornamental pre-battle frame inset" % [context, section_name])
 
 func _capture_all_enemy_portraits(instance: Node) -> void:
 	var ui_root: Control = instance.get("ui_root") as Control

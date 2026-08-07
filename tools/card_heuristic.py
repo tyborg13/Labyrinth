@@ -17,7 +17,8 @@ available. The local combat band is wider: depth 1 enemies have 85% HP, depth 2
 uses base stats, and depth 3 enemies have 112% HP. Standard depths share the same normal-room roster
 eligibility; depth controls density and scaling instead of gating enemy types.
 The first combat remains a kill-all tutorial. Later standard rooms use a seeded
-40/20/20/20 mix of kill-all, kill-leader, survive, and reach-exit objectives.
+25/25/25/25 mix of kill-all, kill-leader, survive, and reach-exit objectives;
+boss rooms always use kill-leader without generic leader stat scaling.
 Survival targets initiative 42/46/50 by local depth with one reinforcement every
 16 time; reach-exit rooms add 1/2/2 enemies and three crates while favoring
 control intents and blocking routes. These objective-dependent pressures are
@@ -110,10 +111,10 @@ BASE_CARDS_PER_TURN = 2
 BASE_DRAW_PER_TURN = 2
 MAX_HAND_SIZE = 7
 COMBAT_OBJECTIVE_WEIGHTS_PERCENT = {
-    "kill_all": 40,
-    "kill_leader": 20,
-    "survive": 20,
-    "reach_exit": 20,
+    "kill_all": 25,
+    "kill_leader": 25,
+    "survive": 25,
+    "reach_exit": 25,
 }
 SURVIVAL_TARGET_CLOCK_BY_LOCAL_DEPTH = [42, 46, 50]
 SURVIVAL_REINFORCEMENT_INTERVAL = 16
@@ -166,6 +167,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "combat_objectives": {
             "first_combat": "kill_all",
             "later_combat_weights_percent": COMBAT_OBJECTIVE_WEIGHTS_PERCENT,
+            "boss_objective": "kill_leader_with_authored_boss_stats",
             "survival_target_clock_by_local_depth": SURVIVAL_TARGET_CLOCK_BY_LOCAL_DEPTH,
             "survival_reinforcement_interval": SURVIVAL_REINFORCEMENT_INTERVAL,
             "reach_exit_extra_enemies_by_local_depth": REACH_EXIT_EXTRA_ENEMIES_BY_LOCAL_DEPTH,

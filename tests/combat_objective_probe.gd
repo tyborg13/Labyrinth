@@ -157,6 +157,23 @@ func _capture_exit(instance: Node, fixture: Dictionary) -> void:
 		_fail("Reach Exit proof should keep direction labels above its objective doors")
 	if not _dictionary_has_all(instance.call("_objective_exit_icon_ids_for_board", combat_state) as Dictionary, door_tiles):
 		_fail("Reach Exit proof should keep destination room icons above its objective doors")
+	var top_door: Vector2i = Vector2i(-1, -1)
+	for door_tile: Vector2i in door_tiles:
+		if door_tile.y == 0:
+			top_door = door_tile
+			break
+	if board != null and top_door.x >= 0:
+		var grid: Array = combat_state.get("grid", []) as Array
+		var door_texture: Texture2D = board.call("_door_texture_for_tile", grid, top_door) as Texture2D
+		var door_frame: Rect2 = board.call("_door_rect_for_tile", top_door, grid) as Rect2
+		var door_draw_rect: Rect2 = board.call("_prop_draw_rect", door_texture, door_frame) as Rect2
+		var icon_rect: Rect2 = board.call("_door_icon_visual_rect", door_texture, door_draw_rect) as Rect2
+		var board_transform: Transform2D = board.get_global_transform()
+		var global_icon_rect := Rect2(board_transform * icon_rect.position, board_transform * icon_rect.end - board_transform * icon_rect.position)
+		if global_icon_rect.position.y < 2.0 or global_icon_rect.end.y > float(PROBE_VIEWPORT.y) - 2.0:
+			_fail("Reach Exit framing should keep the complete top-door destination icon on-screen")
+		if float(board.call("_navigation_zoom_scale_for_presentation", presentation)) >= 1.0:
+			_fail("Reach Exit framing should back the default board zoom off slightly for floating door icons")
 	if (combat_state.get("enemies", []) as Array).size() < 7 or (combat_state.get("terrain", []) as Array).size() < 8:
 		_fail("Reach Exit proof should show its denser enemy and destructible-terrain challenge")
 	_assert_hud_safe(instance)
@@ -342,6 +359,11 @@ func _assert_hud_safe(instance: Node) -> void:
 	var intensity: Control = instance.get("_intensity_bar") as Control
 	if intensity == null or not intensity.visible or hud.get_global_rect().position.y < intensity.get_global_rect().end.y + 8.0:
 		_fail("Combat objective HUD should sit beneath the elemental intensity indicators")
+	var play_meter: Control = instance.get("_play_meter") as Control
+	if play_meter != null and play_meter.visible:
+		var dock_gap: float = play_meter.get_global_rect().position.y - hud.get_global_rect().end.y
+		if dock_gap < 8.0 or dock_gap > 20.0:
+			_fail("Combat objective HUD should sit immediately above the Pass/card-play dock")
 	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
 	if board_bounds.size.x > 0.0 and board_bounds.size.y > 0.0 and hud.get_global_rect().intersects(board_bounds):
 		_fail("Combat objective HUD should remain in the side utility lane instead of covering the board")
