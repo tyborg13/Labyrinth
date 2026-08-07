@@ -51,7 +51,15 @@ static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> 
 	for objective_type: String in counts:
 		expect.call(absi(int(counts[objective_type]) - 500) <= 30, "Later standard rooms should weight %s at 25%% across a broad deterministic sample" % objective_type)
 	var first_room: Dictionary = _room_metadata(1)
-	expect.call(str(CombatObjectiveRules.build_for_room(99, first_room, Vector2i.UP).get("type", "")) == CombatObjectiveRules.KILL_ALL, "The first combat should retain Kill All onboarding")
+	first_room["coord"] = Vector2i(1, 0)
+	expect.call(str(CombatObjectiveRules.build_for_room(99, first_room, Vector2i.UP).get("type", "")) == CombatObjectiveRules.KILL_ALL, "The cardinal first combat should retain Kill All onboarding")
+	var later_depth_one_room: Dictionary = _room_metadata(1)
+	later_depth_one_room["coord"] = Vector2i(1, 1)
+	var later_depth_one_seen: Dictionary = {}
+	for seed: int in range(1, 160):
+		var later_type: String = str(CombatObjectiveRules.build_for_room(seed, later_depth_one_room, Vector2i.UP).get("type", ""))
+		later_depth_one_seen[later_type] = true
+	expect.call(later_depth_one_seen.size() == 4, "A subsequent traversable depth-one combat should use the equal-weight objective mix")
 	var boss_room: Dictionary = _room_metadata(4)
 	boss_room["type"] = "boss"
 	boss_room["boss_id"] = "zekarion"

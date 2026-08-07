@@ -153,8 +153,7 @@ static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 		return KILL_LEADER
 	if room_type != "combat":
 		return KILL_ALL
-	var global_depth: int = int(room.get("depth", 1))
-	if global_depth <= 1:
+	if _is_onboarding_combat_room(room):
 		return KILL_ALL
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 	var roll: int = posmod(_mixed_seed(run_seed, coord, 1709), 100)
@@ -165,6 +164,16 @@ static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	if roll < 75:
 		return SURVIVE
 	return REACH_EXIT
+
+static func _is_onboarding_combat_room(room: Dictionary) -> bool:
+	var coord_value: Variant = room.get("coord", null)
+	if typeof(coord_value) != TYPE_VECTOR2I:
+		return false
+	var coord: Vector2i = coord_value
+	# A new run can enter exactly one of the four cardinal neighbors of the
+	# center. The remaining depth-one rooms are later encounters and belong in
+	# the normal equal-weight objective mix.
+	return absi(coord.x) + absi(coord.y) == 1
 
 static func _eligible_exit_specs(room: Dictionary, travel_dir: Vector2i) -> Array[Dictionary]:
 	var exits: Array[Dictionary] = []

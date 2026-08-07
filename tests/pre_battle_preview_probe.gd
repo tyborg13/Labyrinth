@@ -42,6 +42,10 @@ func _capture_loadout_refresh_and_inspections() -> void:
 
 	var probe_run_engine := RunEngine.new()
 	var run_state: Dictionary = _run_with_available_combat(probe_run_engine)
+	var skill_progression: Dictionary = (run_state.get("progression", {}) as Dictionary).duplicate(true)
+	skill_progression["level"] = 5
+	skill_progression["skill_ids"] = ["ghost_stride", "sure_footed", "discerning_eye", "true_bearing"]
+	run_state["progression"] = skill_progression
 	var equipment_inventory: Array = (run_state.get("equipment_inventory", []) as Array).duplicate()
 	if not equipment_inventory.has("iron_cleaver"):
 		equipment_inventory.append("iron_cleaver")
@@ -57,6 +61,7 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		await process_frame
 		return
 
+	instance.set("_progression", skill_progression)
 	instance.call("_load_run_state", run_state)
 	await process_frame
 	await process_frame
@@ -107,6 +112,11 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		if deck_section == null or enemy_section == null or deck_ratio < 0.34 or deck_ratio > 0.45:
 			_fail("Pre-battle enemy/loadout columns should preserve the concept-art width balance")
 		_assert_pre_battle_body_inside_panel(panel, "normal")
+		var position_button: Control = panel.find_child("TrueBearingButton", true, false) as Control
+		if position_button == null:
+			_fail("Pre-battle containment proof should include the optional Position button")
+		else:
+			await _save_root_screenshot("%s/true_bearing_header_v1.png" % OUTPUT_DIR)
 		var first_enemy_card: Control = panel.find_child("PreBattleEnemyCard", true, false) as Control
 		if first_enemy_card != null and not (first_enemy_card.get_theme_stylebox("panel") is StyleBoxEmpty):
 			_fail("Pre-battle enemy cards should not render shaded rectangular panels")
