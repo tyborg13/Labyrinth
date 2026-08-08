@@ -62,7 +62,7 @@ static func _test_retained_layers_share_adaptive_framing_offset(expect: Callable
 		is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), tall_offset),
 		"Blink/illusion presentation should retain the room's earned top clearance"
 	)
-	var actor_tiles: Array[Vector2i] = []
+	var actor_tiles: Array[Vector2i]
 	actor_tiles.append(Vector2i(5, 2))
 	actor_tiles.append(Vector2i(5, 3))
 	actor_tiles.append(Vector2i(4, 2))

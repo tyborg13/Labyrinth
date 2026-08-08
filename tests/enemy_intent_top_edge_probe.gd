@@ -219,7 +219,7 @@ func _exercise_retained_blink_transition(instance: Node, board: Control) -> void
 func _assert_retained_layout_alignment(board: Control, expected_offset: float) -> void:
 	var parent_origin: Vector2 = board.call("_board_origin") as Vector2
 	_expect(is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), expected_offset), "Blink/illusion state should retain the room's authoritative adaptive clearance")
-	var actor_tiles: Array[Vector2i] = []
+	var actor_tiles: Array[Vector2i]
 	actor_tiles.append(Vector2i(5, 2))
 	actor_tiles.append(Vector2i(5, 3))
 	actor_tiles.append(Vector2i(4, 2))
