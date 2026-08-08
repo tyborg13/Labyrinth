@@ -35,7 +35,7 @@ func _initialize() -> void:
 	var requested_state: String = OS.get_environment("LABYRINTH_INTENT_PROBE_STATE").strip_edges().to_lower()
 	if requested_state.is_empty():
 		requested_state = "compact"
-	_expect(requested_state in ["compact", "expanded", "midboard", "tallest"], "Enemy intent proof state should be compact, expanded, midboard, or tallest")
+	_expect(requested_state in ["compact", "expanded", "midboard", "tallest", "retained"], "Enemy intent proof state should be compact, expanded, midboard, tallest, or retained")
 	_requested_state = requested_state
 	_output_dir = "%s_%s" % [OUTPUT_DIR_ROOT, requested_state]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir))
@@ -56,19 +56,23 @@ func _capture_fresh_state(packed: PackedScene, expanded: bool, label: String) ->
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
-	await _load_combat_fixture(instance, expanded, label == "tallest", label == "midboard")
+	await _load_combat_fixture(instance, expanded, label in ["tallest", "retained"], label == "midboard")
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	_expect(board != null, "%s top-edge intent proof should find the real combat board" % label)
 	if board == null:
 		return
 	if label == "tallest":
 		await _exercise_cached_tallest_transition(board)
+	elif label == "retained":
+		await _exercise_retained_blink_transition(instance, board)
 	var enemy_unit: Dictionary = _enemy_unit(board)
 	var enemy_center: Vector2 = board.call("_unit_center", enemy_unit)
 	if label == "tallest":
 		await _capture_tallest_state(board, enemy_unit, label)
 	elif label == "midboard":
 		await _capture_midboard_state(board, enemy_unit, enemy_center, label)
+	elif label == "retained":
+		await _capture_retained_state(board, label)
 	else:
 		await _capture_state(board, enemy_unit, enemy_center, label)
 	instance.queue_free()
@@ -157,6 +161,88 @@ func _exercise_cached_tallest_transition(board: Control) -> void:
 	board.call("set_combat_state", tallest_state, [], [], Vector2i(-1, -1), "", "", {}, {}, current_presentation)
 	await _settle_ui()
 	_expect(float(board.get("_board_layout_cache_visual_top_offset")) > ordinary_offset, "Tallest visual proof should exercise a same-room cached occupant transition")
+
+func _exercise_retained_blink_transition(instance: Node, board: Control) -> void:
+	var tallest_state: Dictionary = (board.get("combat_state") as Dictionary).duplicate(true)
+	var ordinary_state: Dictionary = tallest_state.duplicate(true)
+	ordinary_state["enemies"] = [{
+		"id": 1,
+		"type": "harrier",
+		"pos": Vector2i(4, 4),
+		"hp": 18,
+		"max_hp": 18,
+		"intent": {
+			"name": "Raking Pelt",
+			"actions": [
+				{"type": "move_toward", "range": 2},
+				{"type": "ranged", "damage": 4, "range": 4, "bleed": 1}
+			]
+		}
+	}]
+	var current_presentation: Dictionary = board.get("presentation") as Dictionary
+	var reset_state: Dictionary = ordinary_state.duplicate(true)
+	reset_state["room_coord"] = Vector2i(99, 99)
+	board.call("set_combat_state", reset_state, [], [], Vector2i(-1, -1), "", "", {}, {}, current_presentation)
+	board.call("_board_origin")
+	board.call("set_combat_state", ordinary_state, [], [], Vector2i(-1, -1), "", "", {}, {}, current_presentation)
+	board.call("_board_origin")
+	var ordinary_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
+
+	board.call("set_combat_state", tallest_state, [], [], Vector2i(-1, -1), "", "", {}, {}, current_presentation)
+	# Match a card-resolution frame where the floor materializes adaptive
+	# clearance but retained actor layers do not draw before Blink creates its
+	# illusions and submits the next visual snapshot.
+	board.call("_board_origin")
+	var tallest_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
+	_expect(tallest_offset > ordinary_offset, "Retained-layer proof should earn adaptive top clearance in an intermediate snapshot")
+
+	var blink_state: Dictionary = ordinary_state.duplicate(true)
+	(blink_state.get("player", {}) as Dictionary)["pos"] = Vector2i(5, 2)
+	blink_state["illusions"] = [
+		{"id": 1, "pos": Vector2i(5, 3), "hp": 3, "max_hp": 3},
+		{"id": 2, "pos": Vector2i(4, 2), "hp": 2, "max_hp": 2}
+	]
+	board.call("set_combat_state", blink_state, [], [], Vector2i(-1, -1), "", "", {}, {}, current_presentation)
+	_assert_retained_layout_alignment(board, tallest_offset)
+
+	instance.set("_combat_state", blink_state)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["combat_state"] = blink_state
+	var room_layout: Dictionary = (run_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	room_layout["enemies"] = (ordinary_state.get("enemies", []) as Array).duplicate(true)
+	run_state["current_room_layout"] = room_layout
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_ui")
+	await _settle_ui()
+	_assert_retained_layout_alignment(board, tallest_offset)
+
+func _assert_retained_layout_alignment(board: Control, expected_offset: float) -> void:
+	var parent_origin: Vector2 = board.call("_board_origin") as Vector2
+	_expect(is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), expected_offset), "Blink/illusion state should retain the room's authoritative adaptive clearance")
+	var actor_tiles: Array[Vector2i]
+	actor_tiles.append(Vector2i(5, 2))
+	actor_tiles.append(Vector2i(5, 3))
+	actor_tiles.append(Vector2i(4, 2))
+	actor_tiles.append(Vector2i(4, 4))
+	for layer_var: Variant in board.call("_retained_render_layers") as Array:
+		var layer: Control = layer_var as Control
+		var layer_label: String = "%s:%s" % [str(layer.get("_render_layer_kind")), str(layer.get("_render_layer_tile"))]
+		_expect((layer.call("_board_origin") as Vector2).is_equal_approx(parent_origin), "Retained %s origin should remain aligned with the floor after Blink/illusion creation" % layer_label)
+		_expect(is_equal_approx(float(layer.get("_board_layout_cache_visual_top_offset")), expected_offset), "Retained %s should inherit the floor's adaptive clearance" % layer_label)
+		for tile: Vector2i in actor_tiles:
+			var parent_center: Vector2 = board.call("_tile_center", tile) as Vector2
+			var layer_center: Vector2 = layer.call("_tile_center", tile) as Vector2
+			_expect(layer_center.is_equal_approx(parent_center), "Retained %s should center actor tile %s on the floor" % [layer_label, tile])
+
+func _capture_retained_state(board: Control, label: String) -> void:
+	await _settle_ui()
+	var visible_units: Array = board.call("_visible_units") as Array
+	var illusion_count: int = 0
+	for unit_var: Variant in visible_units:
+		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "illusion":
+			illusion_count += 1
+	_expect(illusion_count == 2, "Retained framing screenshot should show both Blink-created illusions")
+	await _save_root_screenshot("%s/%s.png" % [_output_dir, label])
 
 func _capture_state(board: Control, enemy_unit: Dictionary, enemy_center: Vector2, label: String) -> void:
 	await _settle_ui()
