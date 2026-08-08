@@ -353,6 +353,7 @@ func _initialize() -> void:
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
 	await _test_run_scene_move_previews_avoid_traps_when_possible()
 	await _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets()
+	await _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_animation_lock_preserves_board_animation_presentation()
 	await _test_run_scene_discard_pile_uses_distinct_icon_controls()
@@ -12691,6 +12692,15 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	_assert((instance.call("_movement_risk_chips_for_preview", preview, move_path) as Array).is_empty(), "Umbra movement hover should not leak a blocker through risk-chip deltas")
 	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
 	_assert(bool(instance.get("_pending_umbra_commit_locked")), "Moving into new Umbra information should make the pending card choice irreversible")
+	instance.call("_refresh_stage_view")
+	var locked_board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var locked_board_state: Dictionary = locked_board.get("combat_state") as Dictionary
+	var locked_board_presentation: Dictionary = locked_board.get("presentation") as Dictionary
+	var hidden_enemy_after_move: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
+	_assert((locked_board_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "A selected Umbra move should keep the rendered player at the committed tile until card resolution starts")
+	_assert(not (locked_board_presentation.get("visible_enemy_ids", []) as Array).has(int(hidden_enemy_after_move.get("id", -1))), "A selected Umbra move should not reveal newly visible enemies while its card preview is still pending")
+	_assert(int(locked_board_presentation.get("umbra_radius", -1)) == combat.effective_umbra_radius(state), "A selected Umbra move should preserve the committed vision radius")
+	_assert(not (instance.get("_pending_target_tiles") as Array).has(hidden_enemy_after_move.get("pos", Vector2i.ZERO)), "A selected Umbra move should not expose a newly revealed enemy as a follow-up target")
 	instance.call("_cancel_card_selection")
 	_assert(int(instance.get("_selected_card_index")) == 0, "An Umbra movement reveal should not be cancellable back to the untouched combat state")
 	instance.call("_reset_card_resolution")
@@ -12765,6 +12775,83 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	var lantern_display_rows: Array = lantern_display.get("summary_rows", [])
 	_assert(lantern_display_rows.size() == 2, "Lantern Shot's live card display should show its shared-target effects on one line and draw on the next")
 	_assert((lantern_display_rows[0] as Array).size() == 4, "Lantern Shot's live shared-target line should omit the duplicate range token")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Umbra preview-effect privacy coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["umbra_stage"] = "heart"
+	layout["player_start"] = Vector2i(2, 4)
+	var layout_enemies: Array = layout.get("enemies", []) as Array
+	if layout_enemies.is_empty():
+		_failures.append("Umbra preview-effect privacy fixture should include a hidden enemy")
+		instance.queue_free()
+		await process_frame
+		return
+	(layout_enemies[0] as Dictionary)["pos"] = Vector2i(6, 4)
+	var state: Dictionary = combat.create_combat(44008, layout, {"hp": 20, "max_hp": 20, "deck_cards": ["guiding_flare"], "hand_size": 1})
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
+	var enemy_pos: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var objective: Dictionary = {
+		"type": "kill_leader",
+		"leader_id": int(enemy.get("id", -1))
+	}
+	state["objective"] = objective
+	var before_visible_ids: Array[int] = combat.visible_enemy_ids(state)
+	_assert(not before_visible_ids.has(int(enemy.get("id", -1))), "Umbra preview-effect fixture should start with a concealed enemy")
+	var baseline_radius: int = combat.effective_umbra_radius(state)
+	var run_state: Dictionary = instance.get("_run_state") as Dictionary
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = state
+	run_state["current_room_layout"] = layout
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", state)
+	instance.call("_refresh_ui")
+
+	var cases: Array = [
+		{"label": "Illuminate", "action": {"type": "illuminate", "range": 8, "radius": 2, "duration": 2}, "target": enemy_pos},
+		{"label": "Vision", "action": {"type": "vision", "amount": 4, "duration": 1}, "target": Vector2i(-1, -1)},
+		{"label": "Truesight", "action": {"type": "truesight", "duration": 1}, "target": Vector2i(-1, -1)},
+		{"label": "Dispel Umbra", "action": {"type": "dispel_umbra", "amount": 2}, "target": Vector2i(-1, -1)},
+		{"label": "Vision AOE", "action": {"type": "vision", "amount": 4, "duration": 1}, "target": Vector2i(-1, -1), "followup": {"type": "aoe", "damage": 4, "range": 4, "pattern": [[0, 0]], "rotate": false}}
+	]
+	for case_var: Variant in cases:
+		var case: Dictionary = case_var as Dictionary
+		var first_action: Dictionary = case.get("action", {}) as Dictionary
+		var preview_state: Dictionary = combat.apply_player_action(state, first_action, case.get("target", Vector2i(-1, -1)))
+		var followup_action: Dictionary = case.get("followup", {"type": "ranged", "damage": 4, "range": 9}) as Dictionary
+		var raw_followup_targets: Array[Vector2i] = combat.valid_targets_for_player_action(preview_state, followup_action)
+		_assert(raw_followup_targets.has(enemy_pos), "%s preview fixture should simulate a hidden follow-up target so privacy gating is exercised" % str(case.get("label", "")))
+		instance.set("_selected_card_index", 0)
+		instance.set("_pending_actions", [first_action, followup_action])
+		instance.set("_pending_action_index", 1)
+		instance.set("_pending_selected_targets", instance.call("_vector2i_array", [case.get("target", Vector2i(-1, -1))]))
+		instance.set("_pending_target_tiles", raw_followup_targets)
+		instance.set("_preview_combat_state", preview_state)
+		instance.set("_pending_umbra_commit_locked", false)
+		instance.set("_hovered_board_tile", enemy_pos)
+		instance.call("_mark_preview_selection_changed")
+		instance.call("_refresh_stage_view")
+		var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+		var presentation: Dictionary = board.get("presentation") as Dictionary
+		var active_preview: Dictionary = instance.call("_active_card_preview")
+		_assert(int(presentation.get("umbra_radius", -1)) == baseline_radius, "%s preview should preserve the committed Umbra radius" % str(case.get("label", "")))
+		_assert((presentation.get("umbra_light_sources", []) as Array).is_empty(), "%s preview should not render a simulated light source" % str(case.get("label", "")))
+		_assert((presentation.get("visible_enemy_ids", []) as Array).is_empty(), "%s preview should not reveal a newly visible enemy" % str(case.get("label", "")))
+		_assert(not (board.get("attack_tiles") as Array).has(enemy_pos), "%s preview should not expose a newly visible enemy as an attack tile" % str(case.get("label", "")))
+		_assert(not (active_preview.get("target_tiles", []) as Array).has(enemy_pos), "%s preview should not expose a newly visible enemy as a target" % str(case.get("label", "")))
+		_assert(presentation.get("objective_leader_tile", Vector2i(-1, -1)) != enemy_pos, "%s preview should not beacon a concealed objective leader" % str(case.get("label", "")))
+		_assert((presentation.get("effect", {}) as Dictionary).is_empty(), "%s preview should not draw an effect on a concealed follow-up target" % str(case.get("label", "")))
+
+	instance.call("_reset_card_resolution")
 	instance.queue_free()
 	await process_frame
 
