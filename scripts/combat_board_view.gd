@@ -558,6 +558,12 @@ func _sync_dynamic_render_assets() -> void:
 func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_changed: bool = false) -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
+	# Adaptive top clearance is retained across visual snapshots to prevent
+	# whole-board chatter. Materialize that history on the parent before layers
+	# are invalidated so a same-frame Blink/spawn transition cannot make each
+	# retained layer recompute from a different intermediate snapshot.
+	if (layout_changed or visual_framing_changed) and not combat_state.is_empty():
+		_ensure_board_layout_cache()
 	for layer: Control in _retained_render_layers():
 		if layout_changed:
 			layer.call("_invalidate_board_layout_cache")
@@ -568,6 +574,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile",
 			"_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_navigation_content_signature",
 			"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature", "_board_visual_framing_signature",
+			"_board_layout_cache_visual_top_offset",
 			"_floor_variant_signature", "_moss_signature", "_damage_preview_cache",
 			"_visible_units_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
 			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
