@@ -69,6 +69,13 @@ func _capture_privacy_states() -> void:
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
 	var enemy_id: int = int(enemy.get("id", -1))
 	var enemy_tile: Vector2i = enemy.get("pos", HIDDEN_ENEMY_TILE)
+	state["objective"] = {"type": "kill_leader", "leader_id": enemy_id}
+	instance.set("_combat_state", state)
+	instance.call("_refresh_ui")
+	await _settle_ui()
+	var objective_hud: Control = instance.get("_combat_objective_hud") as Control
+	var objective_detail: Label = objective_hud.find_child("ObjectiveLiveDetail", true, false) as Label
+	_expect(objective_detail != null and objective_detail.text == "Leader concealed", "Privacy probe objective HUD should conceal the hidden leader")
 	_expect(not combat.visible_enemy_ids(state).has(enemy_id), "Privacy probe enemy should begin concealed")
 
 	instance.call("_on_card_pressed", 0)

@@ -9024,8 +9024,18 @@ func _refresh_combat_objective_hud() -> void:
 	if mode != "combat" or _combat_state.is_empty():
 		_combat_objective_hud.visible = false
 		return
-	_combat_objective_hud.set_combat_state(_board_display_state())
+	_combat_objective_hud.set_combat_state(_combat_objective_hud_state())
 	_layout_combat_objective_hud()
+
+func _combat_objective_hud_state() -> Dictionary:
+	var display_state: Dictionary = _board_display_state()
+	if display_state.is_empty() or not display_state.has("umbra"):
+		return display_state
+	var hud_state: Dictionary = display_state.duplicate(false)
+	var visibility_state: Dictionary = _board_visibility_state(display_state)
+	if _combat_engine.effective_umbra_radius(visibility_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+		hud_state["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(visibility_state)
+	return hud_state
 
 func _layout_combat_objective_hud() -> void:
 	if _combat_objective_hud == null:
@@ -14015,7 +14025,10 @@ func _preview_aoe_target_is_known(state: Dictionary, information_state: Dictiona
 	return true
 
 func _sanitize_preview_for_umbra_information(source_preview: Dictionary) -> Dictionary:
-	if source_preview.is_empty() or bool(source_preview.get("complete", false)):
+	if source_preview.is_empty():
+		return source_preview
+	var raw_target_tiles: Array = source_preview.get("target_tiles", []) as Array
+	if bool(source_preview.get("complete", false)) and raw_target_tiles.is_empty():
 		return source_preview
 	var preview: Dictionary = source_preview.duplicate(false)
 	var action: Dictionary = source_preview.get("action", {}) as Dictionary
@@ -14108,10 +14121,10 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 	var cache_key: String = _card_preview_cache_key(index, "options")
 	if _card_play_options_cache.has(cache_key):
 		return _card_play_options_cache.get(cache_key, {}) as Dictionary
-	var printed: Dictionary = _card_preview_for_index(index)
-	var attack: Dictionary = _fallback_preview_for_index(index, "attack")
-	var move: Dictionary = _fallback_preview_for_index(index, "move")
-	var blink: Dictionary = _fallback_preview_for_index(index, "blink")
+	var printed: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index))
+	var attack: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "attack"))
+	var move: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "move"))
+	var blink: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "blink"))
 	var printed_playable: bool = bool(printed.get("playable", false))
 	var attack_playable: bool = bool(attack.get("playable", false))
 	var move_playable: bool = bool(move.get("playable", false))
@@ -14345,7 +14358,7 @@ func _has_playable_combat_card() -> bool:
 		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
-		if bool(_card_preview_for_index(index).get("playable", false)):
+		if bool(_card_play_options_for_index(index).get("printed_playable", false)):
 			return true
 	return false
 

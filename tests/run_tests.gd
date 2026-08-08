@@ -12815,6 +12815,24 @@ func _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", state)
 	instance.call("_refresh_ui")
+	var option_deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	option_deck["hand"] = ["pale_spark"]
+	state["deck"] = option_deck
+	instance.set("_combat_state", state)
+	instance.call("_mark_combat_preview_state_changed")
+	var synthetic_actions: Array = [
+		{"type": "vision", "amount": 4, "duration": 1},
+		{"type": "ranged", "damage": 4, "range": 9, "required": true}
+	]
+	var synthetic_preview: Dictionary = instance.call("_card_preview_from_state", "pale_spark", state, synthetic_actions, 0)
+	var preview_cache: Dictionary = instance.get("_card_preview_cache") as Dictionary
+	preview_cache[instance.call("_card_preview_cache_key", 0, "play")] = synthetic_preview
+	var raw_card_preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	var privacy_safe_options: Dictionary = instance.call("_card_play_options_for_index", 0)
+	_assert((raw_card_preview.get("target_tiles", []) as Array).has(enemy_pos), "Card-option privacy fixture should simulate a hidden ranged target")
+	_assert(not bool(privacy_safe_options.get("printed_playable", false)), "A card with only a hidden printed target should not appear as printed-playable")
+	_assert(not bool(privacy_safe_options.get("attack_playable", false)), "A fallback attack with only a hidden target should not appear playable")
+	_assert(str(instance.call("_action_context_valid_target_count_text", privacy_safe_options.get("play", {}))) == "UNAVAILABLE", "Card drag target counts should not expose hidden targets")
 
 	var cases: Array = [
 		{"label": "Illuminate", "action": {"type": "illuminate", "range": 8, "radius": 2, "duration": 2}, "target": enemy_pos},
@@ -12843,12 +12861,16 @@ func _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state() -> void:
 		var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 		var presentation: Dictionary = board.get("presentation") as Dictionary
 		var active_preview: Dictionary = instance.call("_active_card_preview")
+		instance.call("_refresh_combat_objective_hud")
+		var objective_hud: Control = instance.get("_combat_objective_hud") as Control
+		var objective_detail: Label = objective_hud.find_child("ObjectiveLiveDetail", true, false) as Label
 		_assert(int(presentation.get("umbra_radius", -1)) == baseline_radius, "%s preview should preserve the committed Umbra radius" % str(case.get("label", "")))
 		_assert((presentation.get("umbra_light_sources", []) as Array).is_empty(), "%s preview should not render a simulated light source" % str(case.get("label", "")))
 		_assert((presentation.get("visible_enemy_ids", []) as Array).is_empty(), "%s preview should not reveal a newly visible enemy" % str(case.get("label", "")))
 		_assert(not (board.get("attack_tiles") as Array).has(enemy_pos), "%s preview should not expose a newly visible enemy as an attack tile" % str(case.get("label", "")))
 		_assert(not (active_preview.get("target_tiles", []) as Array).has(enemy_pos), "%s preview should not expose a newly visible enemy as a target" % str(case.get("label", "")))
 		_assert(presentation.get("objective_leader_tile", Vector2i(-1, -1)) != enemy_pos, "%s preview should not beacon a concealed objective leader" % str(case.get("label", "")))
+		_assert(objective_detail != null and objective_detail.text == "Leader concealed", "%s preview should not expose concealed leader identity or HP in the objective HUD" % str(case.get("label", "")))
 		_assert((presentation.get("effect", {}) as Dictionary).is_empty(), "%s preview should not draw an effect on a concealed follow-up target" % str(case.get("label", "")))
 
 	instance.call("_reset_card_resolution")
