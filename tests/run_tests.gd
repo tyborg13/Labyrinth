@@ -11479,7 +11479,11 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 			_assert(badge != null and badge.get_theme_stylebox("panel") is StyleBoxEmpty, "%s intensity charm should not sit in a generic panel box" % element_id)
 			_assert(not charm_path.is_empty() and not charm_paths.has(charm_path), "%s intensity charm should use a distinct authored silhouette" % element_id)
 			charm_paths[charm_path] = true
-			_assert(badge.find_child("AuthoredNumberPlacard", true, false) is TextureRect, "%s intensity charm should carry the authored number placard" % element_id)
+			var placard: TextureRect = badge.find_child("AuthoredNumberPlacard", true, false) as TextureRect
+			var value_label: Label = (instance.get("_intensity_labels") as Dictionary).get(element_id, null)
+			_assert(placard != null and placard.size.x <= placard.size.y, "%s intensity charm should carry a compact single-digit placard" % element_id)
+			_assert(value_label != null and value_label.clip_text and Rect2(placard.position, placard.size).encloses(Rect2(value_label.position, value_label.size)), "%s intensity value should remain contained by its placard" % element_id)
+			_assert(absf(ElementalIntensityHudArt.charm_attachment_x(element_id) - ElementalIntensityHudArt.chain_endpoint_x(element_id)) <= 0.5, "%s intensity charm should align with its authored chain" % element_id)
 		var top_y: float = first_badge.position.y
 		var second_row_y: float = (intensity_badges.get(ElementData.AIR, null) as Control).position.y
 		for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING]:

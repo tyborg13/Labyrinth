@@ -7506,16 +7506,17 @@ func _setup_elemental_intensity_bar() -> void:
 
 		var count := Label.new()
 		count.name = "IntensityValue"
-		count.position = ElementalIntensityHudArt.PLACARD_RECT.position
-		count.size = ElementalIntensityHudArt.PLACARD_RECT.size
+		count.position = ElementalIntensityHudArt.NUMBER_LABEL_RECT.position
+		count.size = ElementalIntensityHudArt.NUMBER_LABEL_RECT.size
 		count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		count.clip_text = true
 		count.text = "0"
 		UiTypography.set_label_size(count, UiTypography.SIZE_BODY_LARGE)
 		count.add_theme_color_override("font_color", Color("fff7df"))
 		count.add_theme_color_override("font_outline_color", Color("24160f"))
-		count.add_theme_constant_override("outline_size", 3)
+		count.add_theme_constant_override("outline_size", 2)
 		content.add_child(count)
 		_intensity_labels[element_id] = count
 	_layout_intensity_badges()
@@ -10990,6 +10991,7 @@ func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 			glow.visible = value > 0
 			glow.set_meta("intensity_value", value)
 			glow.set_meta("glow_strength", ElementalIntensityHudArt.glow_strength(value))
+			glow.set_meta("glow_spread", ElementalIntensityHudArt.glow_spread(value))
 			ElementalIntensityHudArt.update_glow_material(glow.material as ShaderMaterial, element_id, value)
 
 func _refresh_umbra_subtitle() -> void:

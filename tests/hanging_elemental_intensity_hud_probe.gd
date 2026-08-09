@@ -47,7 +47,7 @@ func _initialize() -> void:
 		ElementData.EARTH: 0,
 	}, false)
 	await _assert_hud_contract(instance, false)
-	await _save_root_screenshot("%s/concept_ice_one_1920x1080.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/concept_ice_one_v2_1920x1080.png" % OUTPUT_DIR)
 
 	await _load_fixture(instance, {
 		ElementData.FIRE: 1,
@@ -57,7 +57,7 @@ func _initialize() -> void:
 		ElementData.EARTH: 6,
 	}, true)
 	await _assert_hud_contract(instance, true)
-	await _save_root_screenshot("%s/crowded_header_glow_ramp_1920x1080.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/crowded_header_glow_ramp_v2_1920x1080.png" % OUTPUT_DIR)
 
 	print("HANGING ELEMENTAL INTENSITY HUD PROBE: PASS")
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -117,6 +117,7 @@ func _assert_hud_contract(instance: Node, crowded: bool) -> void:
 	var labels: Dictionary = instance.get("_intensity_labels") as Dictionary
 	var glows: Dictionary = instance.get("_intensity_glows") as Dictionary
 	var charm_paths: Dictionary = {}
+	var placard_rects: Array[Rect2] = []
 	for element_id: String in ElementData.all_elements():
 		var badge: PanelContainer = intensity_badges.get(element_id, null)
 		var label: Label = labels.get(element_id, null)
@@ -128,11 +129,26 @@ func _assert_hud_contract(instance: Node, crowded: bool) -> void:
 		_assert(not charm_paths.has(path), "%s should have a silhouette-specific charm asset" % element_id)
 		charm_paths[path] = true
 		_assert(badge.find_child("AuthoredCharmArt", true, false) is TextureRect, "%s should render its authored charm art" % element_id)
-		_assert(badge.find_child("AuthoredNumberPlacard", true, false) is TextureRect, "%s should render the separate authored number placard" % element_id)
+		var placard: TextureRect = badge.find_child("AuthoredNumberPlacard", true, false) as TextureRect
+		_assert(placard != null, "%s should render the separate authored number placard" % element_id)
+		_assert(placard.size == ElementalIntensityHudArt.PLACARD_RECT.size and placard.size.x <= placard.size.y, "%s should use the compact single-digit placard geometry" % element_id)
+		_assert(label != null and label.clip_text, "%s digit should be clipped to its compact placard slot" % element_id)
+		var label_rect := Rect2(label.position, label.size)
+		var placard_rect := Rect2(placard.position, placard.size)
+		_assert(label_rect.position.x >= placard_rect.position.x and label_rect.end.x <= placard_rect.end.x and label_rect.position.y >= placard_rect.position.y and label_rect.end.y <= placard_rect.end.y, "%s digit bounds should remain completely inside the authored placard" % element_id)
+		placard_rects.append(placard.get_global_rect())
 		_assert(label != null and label.text == str(value), "%s placard should show the live intensity value" % element_id)
 		_assert(badge.tooltip_text == "The intensity of %s in the room.\n%s effects are stronger when this is higher." % [ElementData.name(element_id), ElementData.name(element_id)], "%s should preserve its concise hover explanation" % element_id)
 		_assert(glow != null and glow.visible == (value > 0), "%s glow visibility should begin exactly at intensity one" % element_id)
 		_assert(glow != null and is_equal_approx(float(glow.get_meta("glow_strength", -1.0)), ElementalIntensityHudArt.glow_strength(value)), "%s glow should track the authored intensity ramp" % element_id)
+		_assert(glow != null and is_equal_approx(float(glow.get_meta("glow_spread", -1.0)), ElementalIntensityHudArt.glow_spread(value)), "%s glow should widen along the authored intensity ramp" % element_id)
+		var glow_material: ShaderMaterial = glow.material as ShaderMaterial if glow != null else null
+		var shader_code: String = glow_material.shader.code if glow_material != null and glow_material.shader != null else ""
+		_assert(shader_code.contains("diffuse +=") and not shader_code.contains("max(halo"), "%s should use a weighted soft bloom rather than a fixed outline band" % element_id)
+		_assert(absf(ElementalIntensityHudArt.charm_attachment_x(element_id) - ElementalIntensityHudArt.chain_endpoint_x(element_id)) <= 0.5, "%s ring should sit directly under its authored chain endpoint" % element_id)
+	for first_index: int in range(placard_rects.size()):
+		for second_index: int in range(first_index + 1, placard_rects.size()):
+			_assert(not placard_rects[first_index].intersects(placard_rects[second_index]), "Compact number placards should never enter a neighboring charm slot")
 	var rig: TextureRect = bar.find_child("AuthoredRailAndChains", false, false) as TextureRect
 	_assert(rig != null and rig.size.x == bar.size.x and rig.get_parent() == bar, "The cluster should render one unclipped full-width authored rail-and-chains layer")
 	var fire_badge: Control = intensity_badges.get(ElementData.FIRE, null)

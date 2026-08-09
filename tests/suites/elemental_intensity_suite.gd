@@ -28,6 +28,11 @@ static func _test_hanging_hud_asset_and_glow_contract(expect: Callable) -> void:
 		charm_paths[path] = true
 	expect.call(FileAccess.file_exists(ElementalIntensityHudArt.RIG_TEXTURE_PATH), "Hanging intensity HUD should have an authored rail-and-chains raster")
 	expect.call(FileAccess.file_exists(ElementalIntensityHudArt.PLACARD_TEXTURE_PATH), "Hanging intensity HUD should have an authored number placard raster")
+	expect.call(ElementalIntensityHudArt.PLACARD_RECT.size.x <= ElementalIntensityHudArt.PLACARD_RECT.size.y, "The single-digit placard should be compact rather than a wide banner")
+	expect.call(ElementalIntensityHudArt.NUMBER_LABEL_RECT.position.x >= ElementalIntensityHudArt.PLACARD_RECT.position.x and ElementalIntensityHudArt.NUMBER_LABEL_RECT.end.x <= ElementalIntensityHudArt.PLACARD_RECT.end.x, "The live digit should remain horizontally inside its authored placard")
+	expect.call(ElementalIntensityHudArt.NUMBER_LABEL_RECT.position.y >= ElementalIntensityHudArt.PLACARD_RECT.position.y and ElementalIntensityHudArt.NUMBER_LABEL_RECT.end.y <= ElementalIntensityHudArt.PLACARD_RECT.end.y, "The live digit should remain vertically inside its authored placard")
+	for element_id: String in ElementData.all_elements():
+		expect.call(absf(ElementalIntensityHudArt.charm_attachment_x(element_id) - ElementalIntensityHudArt.chain_endpoint_x(element_id)) <= 0.5, "%s charm ring should align to its authored chain endpoint" % element_id)
 	expect.call(ElementalIntensityHudArt.glow_strength(0) == 0.0, "An uncharged charm should have no glow")
 	expect.call(ElementalIntensityHudArt.glow_strength(1) > 0.0 and ElementalIntensityHudArt.glow_strength(1) <= 0.16, "Intensity one should begin with a mild glow")
 	for value: int in range(2, 7):

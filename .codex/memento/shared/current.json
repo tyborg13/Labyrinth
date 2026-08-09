@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T17:23:29Z",
+  "updated_at": "2026-08-09T18:08:30Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7420,6 +7420,28 @@
       "source": {
         "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
         "commit": "81b2ed1"
+      }
+    },
+    {
+      "id": "mnt_20260809T180830Z_c992ebf9",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/elemental_intensity_hud_art.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/elemental_intensity_hud_art.gd",
+      "summary": "Hanging intensity charms use authored attachment pixels and diffuse bloom.",
+      "details": "Keep Fire/Ice/Lightning/Air/Earth charm rings aligned to the rig's measured post-crop chain x endpoints (41/129/219/85/175) instead of evenly spacing badge centers. Number backplates should remain compact near-square single-digit medallions with the label fully contained. The intensity glow must use a weighted multi-radius alpha bloom; a max-sampled outline produces the thick band the user rejected.",
+      "status": "active",
+      "created_at": "2026-08-09T18:08:30Z",
+      "updated_at": "2026-08-09T18:08:30Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
+        "commit": "df0fba2"
       }
     }
   ]
