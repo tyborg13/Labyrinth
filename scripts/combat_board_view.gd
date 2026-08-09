@@ -394,6 +394,8 @@ var _board_visual_framing_signature: String = ""
 var _floor_variant_signature: String = ""
 var _moss_signature: String = ""
 var _continuous_presentation_elapsed: float = 0.0
+var _explicit_effects_redraw_pending: bool = false
+var _explicit_impact_redraw_pending: bool = false
 var _submission_cache_valid: bool = false
 var _damage_preview_cache: Dictionary = {}
 var _visible_units_cache: Array[Dictionary] = []
@@ -641,6 +643,7 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"layer_draw_total_usec": layer_draw_total_usec,
 		"scene_tile_draw_counts": scene_tile_draw_counts,
 		"split_layers_active": _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer),
+		"presentation_redraw_dedup_active": true,
 		"retained_layer_count": _retained_render_layers().size(),
 		"hud_layout_cache_entries": _hud_layout_cache_by_signature.size(),
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
@@ -669,11 +672,15 @@ func reset_render_instrumentation() -> void:
 		layer.call("reset_render_instrumentation")
 
 func _process(delta: float) -> void:
+	var explicit_effects_redraw_pending: bool = _explicit_effects_redraw_pending
+	var explicit_impact_redraw_pending: bool = _explicit_impact_redraw_pending
+	_explicit_effects_redraw_pending = false
+	_explicit_impact_redraw_pending = false
 	if _presentation_needs_continuous_redraw():
 		_continuous_presentation_elapsed += delta
 		if _continuous_presentation_elapsed >= CONTINUOUS_PRESENTATION_REDRAW_SECONDS:
 			_continuous_presentation_elapsed = 0.0
-			_queue_continuous_render_redraws()
+			_queue_continuous_render_redraws(explicit_effects_redraw_pending, explicit_impact_redraw_pending)
 	else:
 		_continuous_presentation_elapsed = 0.0
 	var animating: bool = _any_idle_animation_active()
@@ -690,13 +697,13 @@ func _process(delta: float) -> void:
 		_idle_frame_key = next_frame_key
 		_queue_active_idle_redraws()
 
-func _queue_continuous_render_redraws() -> void:
+func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
 	if _ambient_particles_active() or _campfire_atmosphere_active():
 		_queue_render_layer_redraw(_ambient_render_layer)
-	if (
-		str(presentation.get("umbra_stage", "clear")) != "clear"
-		or (bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
+	if not skip_impact and (
+		(bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
 		or (bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty())
+		or str(presentation.get("umbra_stage", "clear")) != "clear"
 		or _impact_animation_active()
 	):
 		_queue_render_layer_redraw(_dynamic_render_layer)
@@ -707,7 +714,7 @@ func _queue_continuous_render_redraws() -> void:
 		or (bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
 	):
 		_queue_render_layer_redraw(_foreground_render_layer)
-	_queue_continuously_animated_scene_redraws()
+	_queue_continuously_animated_scene_redraws(skip_impact)
 	var damage_preview: Dictionary = _damage_preview_map()
 	if not damage_preview.is_empty():
 		# Damage-preview fill and lethal markers use the existing continuous
@@ -719,11 +726,12 @@ func _queue_continuous_render_redraws() -> void:
 			var terrain: Dictionary = terrain_var as Dictionary
 			if not _terrain_damage_preview(terrain).is_empty():
 				_queue_scene_render_layer_for_tile(terrain.get("pos", Vector2i(-1, -1)))
-		_queue_render_layer_redraw(_effects_render_layer)
-	elif _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
+		if not skip_effects:
+			_queue_render_layer_redraw(_effects_render_layer)
+	elif not skip_effects and _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
 		_queue_render_layer_redraw(_effects_render_layer)
 
-func _queue_continuously_animated_scene_redraws() -> void:
+func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> void:
 	if _campfire_atmosphere_active():
 		for prop_var: Variant in _campfire_scene_props_cache:
 			if typeof(prop_var) == TYPE_DICTIONARY:
@@ -739,7 +747,7 @@ func _queue_continuously_animated_scene_redraws() -> void:
 			var loot: Dictionary = loot_var
 			if not bool(loot.get("claimed", false)) and str(loot.get("kind", "")) == "equipment":
 				_queue_scene_render_layer_for_tile(loot.get("pos", Vector2i(-1, -1)))
-	if _impact_animation_active():
+	if _impact_animation_active() and not skip_impact:
 		_queue_impact_scene_redraws()
 	if _preview_unit_pulse_active():
 		for unit: Dictionary in _visible_units():
@@ -759,16 +767,12 @@ func _queue_active_idle_redraws() -> void:
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
 			_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
-	var trap_idle_active: bool = false
 	for trap_var: Variant in combat_state.get("traps", []):
 		if typeof(trap_var) == TYPE_DICTIONARY and _trap_idle_animation_active(trap_var as Dictionary):
-			trap_idle_active = true
+			# Traps share the below-path world pass so idle frames preserve the
+			# authored ground/path ordering while retaining unrelated layers.
+			_queue_render_layer_redraw(_dynamic_render_layer)
 			break
-	# Traps are ground items painted in the retained world layer, below the path.
-	# Invalidating their scene-tile layers only made a new frame visible when an
-	# unrelated pointer event happened to refresh the world layer.
-	if trap_idle_active:
-		_queue_render_layer_redraw(_dynamic_render_layer)
 	if _pillar_torch_idle_animation_active():
 		var grid: Array = combat_state.get("grid", [])
 		for tile: Vector2i in _rendered_tiles_in_draw_order():
@@ -953,6 +957,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
 	if state_changed or _submission_cache_combat_changed or interaction_changed or layout_changed or visual_framing_changed or floor_changed or moss_changed:
+		_explicit_effects_redraw_pending = true
+		_explicit_impact_redraw_pending = true
 		_queue_dynamic_redraw()
 	else:
 		_queue_presentation_change_redraws(
@@ -1045,6 +1051,7 @@ func _queue_presentation_change_redraws(
 	if ambient_changed:
 		_queue_render_layer_redraw(_ambient_render_layer)
 	if world_changed:
+		_explicit_impact_redraw_pending = true
 		_queue_render_layer_redraw(_dynamic_render_layer)
 	if impact_changed:
 		_queue_impact_scene_redraws()
@@ -1060,6 +1067,7 @@ func _queue_presentation_change_redraws(
 	if hud_changed:
 		_queue_render_layer_redraw(_hud_render_layer)
 	if effects_changed:
+		_explicit_effects_redraw_pending = true
 		_queue_render_layer_redraw(_effects_render_layer)
 
 func _queue_moving_actor_redraws(
@@ -7594,18 +7602,19 @@ func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
 func _scene_prop_idle_frame_seconds(prop: Dictionary) -> float:
 	return maxf(0.01, float(prop.get("idle_frame_seconds", CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS)))
 
-func _trap_animation_frames_for_element(registry: Dictionary, element_id: String) -> Array[Texture2D]:
-	var frames: Array[Texture2D] = []
-	for frame_var: Variant in registry.get(element_id, []):
-		if frame_var is Texture2D:
-			frames.append(frame_var)
+func _trap_idle_frames_for_element(element_id: String) -> Array[Texture2D]:
+	if not _trap_idle_frames.has(element_id):
+		var empty_frames: Array[Texture2D] = []
+		return empty_frames
+	var frames: Array[Texture2D] = _trap_idle_frames[element_id] as Array[Texture2D]
 	return frames
 
-func _trap_idle_frames_for_element(element_id: String) -> Array[Texture2D]:
-	return _trap_animation_frames_for_element(_trap_idle_frames, element_id)
-
 func _trap_activation_frames_for_element(element_id: String) -> Array[Texture2D]:
-	return _trap_animation_frames_for_element(_trap_activation_frames, element_id)
+	if not _trap_activation_frames.has(element_id):
+		var empty_frames: Array[Texture2D] = []
+		return empty_frames
+	var frames: Array[Texture2D] = _trap_activation_frames[element_id] as Array[Texture2D]
+	return frames
 
 func _trap_idle_frame_index(trap: Dictionary) -> int:
 	var frames: Array[Texture2D] = _trap_idle_frames_for_element(str(trap.get("element", ElementData.NONE)))

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-08T12:07:22Z",
+  "updated_at": "2026-08-09T12:57:36Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7396,6 +7396,72 @@
       "source": {
         "branch": "codex/fix-retained-combat-actor-tile-framing-desync",
         "commit": "617e6d7"
+      }
+    },
+    {
+      "id": "mnt_20260809T125718Z_26fe649c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Coalesce explicit presentation submissions with same-tick continuous redraws",
+      "details": "When set_combat_state queues current impact/effect frames, mark those retained layers pending and let _process suppress only the redundant continuous world/effects/impact-scene invalidation for that tick. Continue ambient, foreground, terrain-preview, and other independent continuous redraws. This preserves wall-clock animation cadence while avoiding duplicate action-heavy draws.",
+      "status": "active",
+      "created_at": "2026-08-09T12:57:18Z",
+      "updated_at": "2026-08-09T12:57:18Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T125727Z_327322f3",
+      "layer": "shared",
+      "kind": "rejected_approach",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Do not split path and Umbra into another retained layer for trap-idle optimization",
+      "details": "A dedicated path/Umbra layer isolated trap world redraws but repeatedly added about 32 draw calls per phase and roughly 0.3% static memory. The large action-heavy gain came from explicit-versus-continuous redraw coalescing instead, so keep the existing visual batching and layer topology unless a future trace proves a different tradeoff.",
+      "status": "active",
+      "created_at": "2026-08-09T12:57:27Z",
+      "updated_at": "2026-08-09T12:57:27Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T125735Z_fb694e20",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Trap frame registry reads must not rebuild typed arrays",
+      "details": "The trap idle and activation registries already store Array[Texture2D] values. Return those stored typed arrays through an explicit typed local; filtering each registry value into a new array on every frame-key and draw lookup cost about 1.84 us per call versus 0.22 us for the direct typed read on the M5 Pro benchmark.",
+      "status": "active",
+      "created_at": "2026-08-09T12:57:35Z",
+      "updated_at": "2026-08-09T12:57:35Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
+        "commit": "a5729c1"
       }
     }
   ]

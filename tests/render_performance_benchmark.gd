@@ -136,6 +136,12 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		if phase_name == "action_heavy":
 			_expect(int(layer_counts.get("hud", 999)) <= 2, "damage-preview pulses must update in the effects layer without rebuilding unchanged HUD commands")
 			_expect(int(layer_counts.get("foreground", 0)) > 2, "large-enemy attack pulses must continuously redraw their foreground highlights")
+			if bool(snapshot.get("presentation_redraw_dedup_active", false)):
+				# The world still advances trap and tactical pulse animation, but
+				# an explicit impact submission must replace the second full
+				# continuous redraw that previously approached 2x phase length.
+				_expect(int(layer_counts.get("world", 999)) <= PHASE_FRAMES + int(ceil(float(PHASE_FRAMES) * 0.5)) + 2, "explicit impact submissions must replace duplicate continuous world redraws")
+				_expect(int(layer_counts.get("effects", 999)) <= PHASE_FRAMES + 2, "explicit effect submissions must replace duplicate continuous effects redraws")
 		elif phase_name == "interaction":
 			_expect(int(layer_counts.get("world", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive tile overlays")
 			_expect(int(layer_counts.get("hud", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive enemy HUDs")
@@ -146,7 +152,7 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		else:
 			_expect(int(layer_counts.get("hud", -1)) == 0, "idle ambient/sprite animation must retain unit HUDs")
 			_expect(int(layer_counts.get("effects", -1)) == 0, "idle animation must retain the effects layer")
-			_expect(int(layer_counts.get("world", -1)) == 0, "idle occupied-tile animation must retain ground overlays")
+			_expect(int(layer_counts.get("world", 0)) > 0, "idle trap animation must redraw the world layer")
 			_expect(int(scene_tile_counts.get("4,1", 0)) > 0, "pillar torch sprite sheets must redraw their grid-owned scene tile")
 	var result: Dictionary = {
 		"frame_interval_ms": _stats(frame_intervals_ms),

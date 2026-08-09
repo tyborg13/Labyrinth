@@ -96,7 +96,8 @@ func _capture_animation_states(board: Control) -> void:
 	var first_idle_image: Image = await _save_screenshot(SCREENSHOT_PATH)
 	var first_idle_key: String = str(board.call("_active_idle_frame_key"))
 	var first_draw_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
-	var first_world_draw_count: int = int((first_draw_snapshot.get("layer_draw_counts", {}) as Dictionary).get("world", 0))
+	var first_layer_counts: Dictionary = first_draw_snapshot.get("layer_draw_counts", {}) as Dictionary
+	var first_world_draw_count: int = int(first_layer_counts.get("world", 0))
 	# Do not synthesize input or manually advance the frame. This wait reproduces
 	# the live thinking state where the traps must continue animating on their own.
 	await create_timer(0.42).timeout
@@ -104,7 +105,8 @@ func _capture_animation_states(board: Control) -> void:
 	var later_idle_image: Image = await _save_screenshot(IDLE_LATER_PATH)
 	var later_idle_key: String = str(board.call("_active_idle_frame_key"))
 	var later_draw_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
-	var later_world_draw_count: int = int((later_draw_snapshot.get("layer_draw_counts", {}) as Dictionary).get("world", 0))
+	var later_layer_counts: Dictionary = later_draw_snapshot.get("layer_draw_counts", {}) as Dictionary
+	var later_world_draw_count: int = int(later_layer_counts.get("world", 0))
 	_expect(first_idle_key != later_idle_key, "Trap idle frames should advance without mouse or keyboard input")
 	_expect(later_world_draw_count > first_world_draw_count, "The retained world layer should redraw as trap idle frames advance")
 	_expect(
