@@ -25,6 +25,10 @@ HEADLESS_BENCHMARKS = {
         "RUNTIME INTEGRATION PERF RESULT:",
         "tests/runtime_integration_performance_benchmark.gd",
     ),
+    "trap_idle": (
+        "TRAP IDLE PERF RESULT:",
+        "tests/trap_idle_performance_benchmark.gd",
+    ),
 }
 NATIVE_BENCHMARK = ("RENDER PERF RESULT:", "tests/render_performance_benchmark.gd")
 
@@ -54,6 +58,8 @@ COMPARISON_METRICS = {
     "simulation.board_submission_us_per_call": "lower",
     "simulation.presentation_cached_us_per_call": "lower",
     "runtime_integration.full_ui_cached_us_per_refresh": "lower",
+    "trap_idle.lookup_us_per_call.median": "lower",
+    "trap_idle.lookup_us_per_call.p95": "lower",
 }
 
 COMPATIBILITY_FIELDS = {

@@ -994,9 +994,9 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					targets.append(trap_pos)
 		"aoe":
 			var aoe_range: int = int(action.get("range", 0))
-			var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state, aoe_range <= 0)
-			var pattern_specs: Array[Dictionary] = _aoe_pattern_specs_for_legality(action, aoe_range > 0)
 			if aoe_range <= 0:
+				var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state, true)
+				var pattern_specs: Array[Dictionary] = _aoe_pattern_specs_for_legality(action, false)
 				if _aoe_pattern_specs_hit_attackable(player_pos, pattern_specs, attackable_tiles):
 					targets.append(player_pos)
 			else:
@@ -1008,8 +1008,6 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
 						continue
 					if not is_tile_visible_to_player(state, tile):
-						continue
-					if not _aoe_pattern_specs_hit_attackable(tile, pattern_specs, attackable_tiles):
 						continue
 					targets.append(tile)
 		"push", "pull":

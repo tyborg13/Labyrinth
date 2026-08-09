@@ -308,8 +308,8 @@ func _choose_clicked_action(instance: Node, hand_index: int, play_kind: String) 
 	instance.call("_on_card_pressed", hand_index)
 	await _settle_ui()
 	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Click should expose play-mode options for exact hand index %d" % hand_index)
-	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Click should default to the card's printed mode")
-	if play_kind != "play":
+	var initial_mode: String = str(instance.get("_card_action_choice_mode"))
+	if initial_mode != play_kind:
 		await instance.call("_on_card_action_choice_pressed", play_kind)
 		await _settle_ui()
 	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested %s mode should remain active" % play_kind)
@@ -353,8 +353,11 @@ func _assert_choice_state(instance: Node, hand_index: int, label: String) -> voi
 		var button: Button = context.find_child(button_name, true, false) as Button
 		_assert(button != null and button.visible, "%s should expose mode option %s" % [label, button_name])
 		if button != null:
-			_assert(button.get_global_rect().size.x >= 88.0 and button.get_global_rect().size.y >= 36.0 and button.get_global_rect().size.y <= 44.0, "%s should render %s as a compact mode option" % [label, button_name])
+			_assert(button.get_global_rect().size.x >= 300.0 and button.get_global_rect().size.y >= 94.0 and button.get_global_rect().size.y <= 102.0, "%s should render %s as a large overlapping painted placard" % [label, button_name])
 			_assert(button.toggle_mode and button.button_group != null, "%s should make %s part of an exclusive selector" % [label, button_name])
+			_assert(bool(button.get_meta("authored_placard_choice", false)) and button.find_child("ModePlacardTexture", true, false) != null, "%s should give %s an authored frameless placard silhouette" % [label, button_name])
+			_assert(bool(button.get_meta("embedded_identity_icon", false)) and button.find_child("ModeIcon", true, false) == null, "%s should bake %s's identity icon into its art" % [label, button_name])
+			_assert(button.find_child("ModeIndicator", true, false) == null and button.find_child("SelectedDot", true, false) == null, "%s should remove radio dots and stamp-like selection marks" % label)
 			if shared_group == null:
 				shared_group = button.button_group
 			else:
@@ -364,8 +367,28 @@ func _assert_choice_state(instance: Node, hand_index: int, label: String) -> voi
 	var printed_tab: Button = context.find_child("CardActionChoicePlay", true, false) as Button
 	_assert(pressed_count == 1, "%s should show exactly one selected mode" % label)
 	_assert(printed_tab != null and printed_tab.button_pressed and bool(printed_tab.get_meta("active", false)), "%s should visibly mark As Written as the selected mode" % label)
+	_assert(printed_tab != null and str(printed_tab.get_meta("mode_icon_key", "")) == "card_play", "%s PRINTED placard should contain the generated card emblem" % label)
+	var selected_glow: TextureRect = printed_tab.find_child("SelectedGlow", true, false) as TextureRect if printed_tab != null else null
+	_assert(printed_tab != null and bool(printed_tab.get_meta("selected_glow_visible", false)) and selected_glow != null and bool(selected_glow.get_meta("matches_pre_battle_start_glow", false)) and bool(selected_glow.get_meta("follows_placard_alpha", false)), "%s selected PRINTED placard should use a soft alpha-following gold glow cue" % label)
+	_assert(context.get_theme_stylebox("panel") is StyleBoxEmpty, "%s should remove the old contextual panel background" % label)
+	var placard_spine: TextureRect = context.find_child("ModePlacardSpine", true, false) as TextureRect
+	_assert(placard_spine != null and bool(placard_spine.get_meta("connects_placards_only", false)), "%s should connect the large placards with an authored spine that stops before the action tags" % label)
 	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
 	_assert(not context.get_global_rect().intersects(board_bounds), "%s play-mode rail %s should leave tactical board %s visible" % [label, context.get_global_rect(), board_bounds])
+	_assert(str(context.get_meta("layout_kind", "")) == "fixed_safe_edge" and bool(context.get_meta("safe_layout_found", false)), "%s should use a collision-free fixed safe-edge placement" % label)
+	var steps: Control = context.find_child("ActionStepChips", true, false) as Control
+	var medallions: int = 0
+	var connectors: int = 0
+	if steps != null:
+		for child: Node in steps.get_children():
+			if child is PanelContainer and bool(child.get_meta("action_medallion", false)):
+				medallions += 1
+				if str(child.get_meta("step_status", "")) == "current":
+					var current_glow: TextureRect = child.find_child("CurrentStepGlow", true, false) as TextureRect
+					_assert(current_glow != null and bool(current_glow.get_meta("matches_selected_placard_glow", false)) and bool(current_glow.get_meta("follows_action_tag_alpha", false)), "%s active action tag should use the selected placard's silhouette-following gold glow" % label)
+			elif child is Control and bool(child.get_meta("ink_path_connector", false)):
+				connectors += 1
+	_assert(medallions == 2 and connectors == 1, "%s should keep the two dynamic printed actions as separate medallions joined by one ink arrow" % label)
 
 func _assert_tutorial_geometry_stable(instance: Node, label: String) -> void:
 	var host: Control = instance.get("_contextual_combat_prompt_host") as Control
