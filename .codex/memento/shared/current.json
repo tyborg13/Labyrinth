@@ -4504,30 +4504,6 @@
       }
     },
     {
-      "id": "mnt_20260710T174202Z_cc990e17",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Combat card alternatives use an exclusive mode selector",
-      "details": "A clicked card immediately enters its printed action. PRINTED, ATTACK 20, and MOVE 2 must be presented as one mutually exclusive radio-style mode selector, not navigation tabs: exactly one selected option uses a filled indicator and strong fill; available unselected options stay bright; unavailable options are substantially dimmed and desaturated. Keep the live fallback values visible and do not squeeze neighboring labels to fit.",
-      "status": "active",
-      "created_at": "2026-07-10T17:42:02Z",
-      "updated_at": "2026-07-10T17:42:02Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260710T145150Z_4d277a6a"
-      ],
-      "source": {
-        "branch": "codex/ui-ux-feedback-v2-integration",
-        "commit": "505077e"
-      }
-    },
-    {
       "id": "mnt_20260710T204022Z_2914dfb4",
       "layer": "shared",
       "kind": "decision",
@@ -5030,30 +5006,6 @@
       }
     },
     {
-      "id": "mnt_20260713T231855Z_386d663b",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Card action context stays compact, card-anchored, and motion-stable",
-      "details": "For normal card targeting and the Printed/Attack/Move choice, omit action-type and target-validity/turn-end-risk rows. Position the contextual widget directly above the active hand card. When play commits, lock the widget's exact screen position through card-flight and action-resolution animations so hand rebuilding or reflow cannot shift it; retain drag-only release guidance.",
-      "status": "active",
-      "created_at": "2026-07-13T23:18:55Z",
-      "updated_at": "2026-07-13T23:18:55Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260713T230017Z_4c15cd57"
-      ],
-      "source": {
-        "branch": "codex/simplify-move-contextual-card-widget",
-        "commit": "39afef2"
-      }
-    },
-    {
       "id": "mnt_20260715T030234Z_90fe7a66",
       "layer": "shared",
       "kind": "pitfall",
@@ -5323,28 +5275,6 @@
       "source": {
         "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
         "commit": "ea5df87"
-      }
-    },
-    {
-      "id": "mnt_20260716T164006Z_1e2589d0",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Targetless card clicks require card-anchored confirmation",
-      "details": "Clicking a playable card may arm and preview its Printed mode, but a card whose preview completes without a board target must not resolve until the highlighted Play Card action in the compact card-anchored rail is pressed. Keep Printed/Attack/Move switchable before commitment; Cancel or selecting another card must not spend, resolve, or emit card-play analytics. Drag-to-board remains confirmed by its explicit drop.",
-      "status": "active",
-      "created_at": "2026-07-16T16:40:06Z",
-      "updated_at": "2026-07-16T16:40:06Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/require-confirmation-for-every-card-play",
-        "commit": "869edc7"
       }
     },
     {
@@ -7396,6 +7326,165 @@
       "source": {
         "branch": "codex/fix-retained-combat-actor-tile-framing-desync",
         "commit": "617e6d7"
+      }
+    },
+    {
+      "id": "mnt_20260808T175347Z_50c4cadd",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Keep move previews privacy-bound to committed Umbra state",
+      "details": "Preview combat state may simulate movement, light sources, Vision, True Sight, or Dispel Umbra before commit. During limited Umbra, presentation-only board state, action targets, shortcuts, risk chips, pass intent, and follow-up previews must derive privacy decisions from committed combat state; only the committed move resolution may expand visibility.",
+      "status": "active",
+      "created_at": "2026-08-08T17:53:47Z",
+      "updated_at": "2026-08-08T17:53:47Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/audit-move-previews-for-hidden-umbra-state-leaks",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T123224Z_e2b056a8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Ranged AOE targeting depends only on the visible center",
+      "details": "For range > 0, valid_targets_for_player_action validates only center range, passability, line of sight, and tile visibility. It must not require the pattern to intersect a known occupant: resolution can damage concealed enemies and terrain and trigger concealed traps. RunScene preview privacy applies the same center-only rule while keeping hidden units undisclosed.",
+      "status": "active",
+      "created_at": "2026-08-09T12:32:24Z",
+      "updated_at": "2026-08-09T12:32:24Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/audit-move-previews-for-hidden-umbra-state-leaks",
+        "commit": "5bbebbf"
+      }
+    },
+    {
+      "id": "mnt_20260809T125727Z_327322f3",
+      "layer": "shared",
+      "kind": "rejected_approach",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Do not split path and Umbra into another retained layer for trap-idle optimization",
+      "details": "A dedicated path/Umbra layer isolated trap world redraws but repeatedly added about 32 draw calls per phase and roughly 0.3% static memory. The large action-heavy gain came from explicit-versus-continuous redraw coalescing instead, so keep the existing visual batching and layer topology unless a future trace proves a different tradeoff.",
+      "status": "active",
+      "created_at": "2026-08-09T12:57:27Z",
+      "updated_at": "2026-08-09T12:57:27Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T125735Z_fb694e20",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Trap frame registry reads must not rebuild typed arrays",
+      "details": "The trap idle and activation registries already store Array[Texture2D] values. Return those stored typed arrays through an explicit typed local; filtering each registry value into a new array on every frame-key and draw lookup cost about 1.84 us per call versus 0.22 us for the direct typed read on the M5 Pro benchmark.",
+      "status": "active",
+      "created_at": "2026-08-09T12:57:35Z",
+      "updated_at": "2026-08-09T12:57:35Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T133419Z_73dabee4",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/runtime_integration_performance_benchmark.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/runtime_integration_performance_benchmark.gd",
+      "summary": "Ranged AOE performance oracle must use center-only public information",
+      "details": "For ranged AOEs (range > 0), the reference valid-target set must use center range, passability, line of sight, and center visibility only. Do not gate target centers on affected-pattern occupants or orientation because those may be concealed Umbra state. Keep exhaustive attackable-pattern validation for close/self AOEs.",
+      "status": "active",
+      "created_at": "2026-08-09T13:34:19Z",
+      "updated_at": "2026-08-09T13:34:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
+        "commit": "fb06880"
+      }
+    },
+    {
+      "id": "mnt_20260809T135838Z_6762393b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Coalesce explicit redraws only before the board processes a render frame",
+      "details": "Use Engine.get_process_frames together with the board's last-processed render-frame marker. Explicit submissions arriving before CombatBoardView._process may replace that frame's redundant 30 Hz effects/impact redraw; timer or deferred submissions arriving after _process must never suppress the following frame. The render benchmark enforces per-authored-frame lower bounds and a process-priority late-submission proof that effects, world, and impacted actor layers redraw on consecutive frames.",
+      "status": "active",
+      "created_at": "2026-08-09T13:58:38Z",
+      "updated_at": "2026-08-09T13:58:38Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260809T125718Z_26fe649c"
+      ],
+      "source": {
+        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
+        "commit": "14f347f"
+      }
+    },
+    {
+      "id": "mnt_20260809T161344Z_1f89645a",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Contextual card selector auto-enters sole legal mode and treats the hand as soft space",
+      "details": "Concept 5 remains the source of truth: large opaque overlapping authored PRINTED/ATTACK/MOVE placards with baked identity icons on a short spine, separate authored action tags, and dynamic alpha-following gold halos for selected mode and current action; no stamps, dots, backing panels, ovals, or hard outlines. A card with exactly one legal mode must pre-select and enter that preview from the first card click, while multiple legal modes preserve Printed/default or require an explicit choice. Keep the tactical board a hard no-overlap zone, but the selected-card hand is a soft obstacle so the selector may layer above a full hand. Combat hands preserve full-size cards and progressively increase overlap beyond five cards, capped with readable clickable strips.",
+      "status": "active",
+      "created_at": "2026-08-09T16:13:44Z",
+      "updated_at": "2026-08-09T16:13:44Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260809T152957Z_0c7d1592",
+        "mnt_20260710T174202Z_cc990e17"
+      ],
+      "source": {
+        "branch": "codex/implement-ink-path-contextual-card-play-widget",
+        "commit": "0f661d1"
       }
     },
     {

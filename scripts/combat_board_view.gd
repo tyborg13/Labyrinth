@@ -394,6 +394,9 @@ var _board_visual_framing_signature: String = ""
 var _floor_variant_signature: String = ""
 var _moss_signature: String = ""
 var _continuous_presentation_elapsed: float = 0.0
+var _last_processed_render_frame: int = -1
+var _explicit_effects_redraw_process_frame: int = -1
+var _explicit_impact_redraw_process_frame: int = -1
 var _submission_cache_valid: bool = false
 var _damage_preview_cache: Dictionary = {}
 var _visible_units_cache: Array[Dictionary] = []
@@ -641,6 +644,8 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"layer_draw_total_usec": layer_draw_total_usec,
 		"scene_tile_draw_counts": scene_tile_draw_counts,
 		"split_layers_active": _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer),
+		"presentation_redraw_dedup_active": true,
+		"presentation_redraw_dedup_mode": "pre_process_render_frame",
 		"retained_layer_count": _retained_render_layers().size(),
 		"hud_layout_cache_entries": _hud_layout_cache_by_signature.size(),
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
@@ -669,11 +674,15 @@ func reset_render_instrumentation() -> void:
 		layer.call("reset_render_instrumentation")
 
 func _process(delta: float) -> void:
+	var process_frame: int = Engine.get_process_frames()
+	_last_processed_render_frame = process_frame
+	var explicit_effects_redraw_this_frame: bool = _explicit_effects_redraw_process_frame == process_frame
+	var explicit_impact_redraw_this_frame: bool = _explicit_impact_redraw_process_frame == process_frame
 	if _presentation_needs_continuous_redraw():
 		_continuous_presentation_elapsed += delta
 		if _continuous_presentation_elapsed >= CONTINUOUS_PRESENTATION_REDRAW_SECONDS:
 			_continuous_presentation_elapsed = 0.0
-			_queue_continuous_render_redraws()
+			_queue_continuous_render_redraws(explicit_effects_redraw_this_frame, explicit_impact_redraw_this_frame)
 	else:
 		_continuous_presentation_elapsed = 0.0
 	var animating: bool = _any_idle_animation_active()
@@ -690,13 +699,13 @@ func _process(delta: float) -> void:
 		_idle_frame_key = next_frame_key
 		_queue_active_idle_redraws()
 
-func _queue_continuous_render_redraws() -> void:
+func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
 	if _ambient_particles_active() or _campfire_atmosphere_active():
 		_queue_render_layer_redraw(_ambient_render_layer)
-	if (
-		str(presentation.get("umbra_stage", "clear")) != "clear"
-		or (bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
+	if not skip_impact and (
+		(bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
 		or (bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty())
+		or str(presentation.get("umbra_stage", "clear")) != "clear"
 		or _impact_animation_active()
 	):
 		_queue_render_layer_redraw(_dynamic_render_layer)
@@ -707,7 +716,7 @@ func _queue_continuous_render_redraws() -> void:
 		or (bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
 	):
 		_queue_render_layer_redraw(_foreground_render_layer)
-	_queue_continuously_animated_scene_redraws()
+	_queue_continuously_animated_scene_redraws(skip_impact)
 	var damage_preview: Dictionary = _damage_preview_map()
 	if not damage_preview.is_empty():
 		# Damage-preview fill and lethal markers use the existing continuous
@@ -719,11 +728,12 @@ func _queue_continuous_render_redraws() -> void:
 			var terrain: Dictionary = terrain_var as Dictionary
 			if not _terrain_damage_preview(terrain).is_empty():
 				_queue_scene_render_layer_for_tile(terrain.get("pos", Vector2i(-1, -1)))
-		_queue_render_layer_redraw(_effects_render_layer)
-	elif _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
+		if not skip_effects:
+			_queue_render_layer_redraw(_effects_render_layer)
+	elif not skip_effects and _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
 		_queue_render_layer_redraw(_effects_render_layer)
 
-func _queue_continuously_animated_scene_redraws() -> void:
+func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> void:
 	if _campfire_atmosphere_active():
 		for prop_var: Variant in _campfire_scene_props_cache:
 			if typeof(prop_var) == TYPE_DICTIONARY:
@@ -739,7 +749,7 @@ func _queue_continuously_animated_scene_redraws() -> void:
 			var loot: Dictionary = loot_var
 			if not bool(loot.get("claimed", false)) and str(loot.get("kind", "")) == "equipment":
 				_queue_scene_render_layer_for_tile(loot.get("pos", Vector2i(-1, -1)))
-	if _impact_animation_active():
+	if _impact_animation_active() and not skip_impact:
 		_queue_impact_scene_redraws()
 	if _preview_unit_pulse_active():
 		for unit: Dictionary in _visible_units():
@@ -759,16 +769,12 @@ func _queue_active_idle_redraws() -> void:
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
 			_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
-	var trap_idle_active: bool = false
 	for trap_var: Variant in combat_state.get("traps", []):
 		if typeof(trap_var) == TYPE_DICTIONARY and _trap_idle_animation_active(trap_var as Dictionary):
-			trap_idle_active = true
+			# Traps share the below-path world pass so idle frames preserve the
+			# authored ground/path ordering while retaining unrelated layers.
+			_queue_render_layer_redraw(_dynamic_render_layer)
 			break
-	# Traps are ground items painted in the retained world layer, below the path.
-	# Invalidating their scene-tile layers only made a new frame visible when an
-	# unrelated pointer event happened to refresh the world layer.
-	if trap_idle_active:
-		_queue_render_layer_redraw(_dynamic_render_layer)
 	if _pillar_torch_idle_animation_active():
 		var grid: Array = combat_state.get("grid", [])
 		for tile: Vector2i in _rendered_tiles_in_draw_order():
@@ -953,6 +959,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
 	if state_changed or _submission_cache_combat_changed or interaction_changed or layout_changed or visual_framing_changed or floor_changed or moss_changed:
+		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
+		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_dynamic_redraw()
 	else:
 		_queue_presentation_change_redraws(
@@ -972,6 +980,13 @@ func _changed_presentation_keys(previous: Dictionary, next: Dictionary) -> Dicti
 		if not previous.has(key_var) or previous.get(key_var) != next.get(key_var):
 			changed[str(key_var)] = true
 	return changed
+
+func _coalescible_explicit_redraw_frame() -> int:
+	var render_frame: int = Engine.get_process_frames()
+	# Engine advances this counter after rendering. If this board already processed
+	# the current value, a timer/deferred submission will render later in this frame
+	# and must not suppress the following frame's continuous redraw.
+	return render_frame if _last_processed_render_frame != render_frame else -1
 
 func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
 	var changed: Dictionary = {}
@@ -1045,6 +1060,7 @@ func _queue_presentation_change_redraws(
 	if ambient_changed:
 		_queue_render_layer_redraw(_ambient_render_layer)
 	if world_changed:
+		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_dynamic_render_layer)
 	if impact_changed:
 		_queue_impact_scene_redraws()
@@ -1060,6 +1076,7 @@ func _queue_presentation_change_redraws(
 	if hud_changed:
 		_queue_render_layer_redraw(_hud_render_layer)
 	if effects_changed:
+		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_effects_render_layer)
 
 func _queue_moving_actor_redraws(
@@ -1096,7 +1113,8 @@ func _foreground_obstruction_candidates() -> Array:
 		"navigation_pan": _navigation_pan,
 		"grid": combat_state.get("grid", []),
 		"scene_props": presentation.get("scene_props", []),
-		"terrain": combat_state.get("terrain", [])
+		"terrain": combat_state.get("terrain", []),
+		"umbra_visible_tiles": presentation.get("umbra_visible_tiles", [])
 	}
 	if source == _foreground_obstruction_candidates_source_snapshot:
 		return _foreground_obstruction_candidates_cache
@@ -1129,6 +1147,8 @@ func _foreground_obstruction_candidates() -> Array:
 			if typeof(terrain_var) != TYPE_DICTIONARY:
 				continue
 			var terrain: Dictionary = terrain_var as Dictionary
+			if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+				continue
 			if int(terrain.get("hp", 0)) <= 0:
 				continue
 			var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
@@ -3082,11 +3102,19 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 		_draw_tile_props(grid, tile, obstruction_entries)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
 
+func _board_tile_is_visible_to_player(tile: Vector2i) -> bool:
+	var visible_tiles: Variant = presentation.get("umbra_visible_tiles", null)
+	if typeof(visible_tiles) != TYPE_ARRAY:
+		return true
+	return (visible_tiles as Array).has(tile)
+
 func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 	# Traps and ordinary loot lie on the floor, so the raised route ribbon crosses
 	# over them. Floating equipment remains in _draw_tile_props with units and is
 	# intentionally painted after the route.
 	for tile: Vector2i in tiles:
+		if not _board_tile_is_visible_to_player(tile):
+			continue
 		for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
 			if typeof(loot_var) != TYPE_DICTIONARY:
 				continue
@@ -3196,6 +3224,8 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = terrain_var
+		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+			continue
 		if int(terrain.get("hp", 0)) <= 0:
 			continue
 		var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
@@ -3212,6 +3242,8 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
 		var loot: Dictionary = loot_var
+		if not _board_tile_is_visible_to_player(loot.get("pos", Vector2i(-1, -1))):
+			continue
 		if bool(loot.get("claimed", false)):
 			continue
 		var loot_texture: Texture2D = _loot_texture(loot)
@@ -3229,6 +3261,8 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 			continue
 		var trap: Dictionary = trap_var
 		var trap_tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if not _board_tile_is_visible_to_player(trap_tile):
+			continue
 		if trap_tile.x < 0:
 			continue
 		entries.append({
@@ -3318,6 +3352,8 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = terrain_var
+		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+			continue
 		if int(terrain.get("hp", 0)) <= 0:
 			continue
 		_draw_terrain_object(terrain, obstruction_entries)
@@ -3327,11 +3363,15 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		var destroyed_terrain: Dictionary = destruction_var
 		if destroyed_terrain.get("pos", Vector2i(-1, -1)) != tile:
 			continue
+		if not _board_tile_is_visible_to_player(tile):
+			continue
 		_draw_terrain_destruction(destroyed_terrain, obstruction_entries)
 	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
 		var loot: Dictionary = loot_var
+		if not _board_tile_is_visible_to_player(loot.get("pos", Vector2i(-1, -1))):
+			continue
 		if bool(loot.get("claimed", false)):
 			continue
 		var loot_texture: Texture2D = _loot_texture(loot)
@@ -3938,7 +3978,7 @@ func _loot_texture(loot: Dictionary) -> Texture2D:
 
 func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) -> void:
 	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
-	if tile.x < 0:
+	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 		return
 	var terrain_kind: String = str(terrain.get("kind", ""))
 	var texture: Texture2D = _terrain_textures.get(terrain_kind, null)
@@ -3956,7 +3996,7 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	if texture == null:
 		return
 	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
-	if tile.x < 0:
+	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 		return
 	var terrain_kind: String = str(terrain.get("kind", ""))
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
@@ -4019,6 +4059,8 @@ func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
 	return attack_tiles.has(terrain.get("pos", Vector2i(-1, -1)))
 
 func _terrain_damage_preview(terrain: Dictionary) -> Dictionary:
+	if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+		return {}
 	var terrain_key: String = _terrain_key(terrain)
 	if terrain_key.is_empty():
 		return {}
@@ -6974,9 +7016,10 @@ func _visual_framing_signature_for_state(next_state: Dictionary, next_presentati
 		])
 	scene_prop_entries.sort()
 	parts.append("props:%s" % ";".join(scene_prop_entries))
-	parts.append("terrain:%s" % _visual_framing_board_entries_signature(next_state.get("terrain", []), "pos", ["kind"], true, "hp"))
-	parts.append("loot:%s" % _visual_framing_board_entries_signature(next_state.get("loot", []), "pos", ["kind", "equipment_id"], true, "claimed"))
-	parts.append("traps:%s" % _visual_framing_board_entries_signature(next_state.get("traps", []), "pos", []))
+	var visible_tiles: Variant = next_presentation.get("umbra_visible_tiles", null)
+	parts.append("terrain:%s" % _visual_framing_board_entries_signature(next_state.get("terrain", []), "pos", ["kind"], true, "hp", visible_tiles))
+	parts.append("loot:%s" % _visual_framing_board_entries_signature(next_state.get("loot", []), "pos", ["kind", "equipment_id"], true, "claimed", visible_tiles))
+	parts.append("traps:%s" % _visual_framing_board_entries_signature(next_state.get("traps", []), "pos", [], false, "", visible_tiles))
 	# unit_world_positions contains per-frame interpolation coordinates. Stable
 	# state positions drive framing so an animation cannot move the entire board
 	# every frame; its committed destination triggers one cache refresh instead.
@@ -7002,12 +7045,14 @@ func _visual_framing_unit_entries_signature(entries: Array, living_only: bool, t
 	signatures.sort()
 	return ";".join(signatures)
 
-func _visual_framing_board_entries_signature(entries: Array, position_key: String, fields: Array, exclude_flag: bool = false, flag_key: String = "") -> String:
+func _visual_framing_board_entries_signature(entries: Array, position_key: String, fields: Array, exclude_flag: bool = false, flag_key: String = "", visible_tiles: Variant = null) -> String:
 	var signatures: Array[String] = []
 	for entry_var: Variant in entries:
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
 		var entry: Dictionary = entry_var as Dictionary
+		if typeof(visible_tiles) == TYPE_ARRAY and not (visible_tiles as Array).has(entry.get(position_key, Vector2i(-1, -1))):
+			continue
 		if exclude_flag:
 			if flag_key == "hp" and int(entry.get(flag_key, 0)) <= 0:
 				continue
@@ -7594,18 +7639,19 @@ func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
 func _scene_prop_idle_frame_seconds(prop: Dictionary) -> float:
 	return maxf(0.01, float(prop.get("idle_frame_seconds", CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS)))
 
-func _trap_animation_frames_for_element(registry: Dictionary, element_id: String) -> Array[Texture2D]:
-	var frames: Array[Texture2D] = []
-	for frame_var: Variant in registry.get(element_id, []):
-		if frame_var is Texture2D:
-			frames.append(frame_var)
+func _trap_idle_frames_for_element(element_id: String) -> Array[Texture2D]:
+	if not _trap_idle_frames.has(element_id):
+		var empty_frames: Array[Texture2D] = []
+		return empty_frames
+	var frames: Array[Texture2D] = _trap_idle_frames[element_id] as Array[Texture2D]
 	return frames
 
-func _trap_idle_frames_for_element(element_id: String) -> Array[Texture2D]:
-	return _trap_animation_frames_for_element(_trap_idle_frames, element_id)
-
 func _trap_activation_frames_for_element(element_id: String) -> Array[Texture2D]:
-	return _trap_animation_frames_for_element(_trap_activation_frames, element_id)
+	if not _trap_activation_frames.has(element_id):
+		var empty_frames: Array[Texture2D] = []
+		return empty_frames
+	var frames: Array[Texture2D] = _trap_activation_frames[element_id] as Array[Texture2D]
+	return frames
 
 func _trap_idle_frame_index(trap: Dictionary) -> int:
 	var frames: Array[Texture2D] = _trap_idle_frames_for_element(str(trap.get("element", ElementData.NONE)))
@@ -7879,6 +7925,8 @@ func rendered_visual_bounds() -> Rect2:
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = terrain_var
+		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+			continue
 		if int(terrain.get("hp", 0)) <= 0:
 			continue
 		var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
@@ -7888,14 +7936,19 @@ func rendered_visual_bounds() -> Rect2:
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
 		var loot: Dictionary = loot_var
+		if not _board_tile_is_visible_to_player(loot.get("pos", Vector2i(-1, -1))):
+			continue
 		if bool(loot.get("claimed", false)):
 			continue
 		var loot_texture: Texture2D = _loot_texture(loot)
 		if loot_texture != null:
 			rects.append(_loot_rect_for_tile(loot.get("pos", Vector2i(-1, -1)), loot_texture, loot))
 	for trap_var: Variant in combat_state.get("traps", []):
-		if typeof(trap_var) == TYPE_DICTIONARY:
-			rects.append(_trap_draw_rect((trap_var as Dictionary).get("pos", Vector2i(-1, -1))))
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		if _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))):
+			rects.append(_trap_draw_rect(trap.get("pos", Vector2i(-1, -1))))
 	var bounds := Rect2()
 	var has_bounds: bool = false
 	for rect: Rect2 in rects:
@@ -8816,14 +8869,18 @@ func _draw_trap_blast_effects(trap_effects: Array, progress: float) -> void:
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
 		var trap: Dictionary = trap_var
+		var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if not _board_tile_is_visible_to_player(trap_pos):
+			continue
 		var element_id: String = str(trap.get("element", ElementData.NONE))
 		var texture: Texture2D = _trap_blast_textures.get(element_id, null)
 		if texture != null:
 			for tile: Vector2i in _trap_blast_tiles(trap):
+				if not _board_tile_is_visible_to_player(tile):
+					continue
 				_draw_trap_blast_tile(tile, texture, progress)
 		var activation_texture: Texture2D = _trap_activation_texture(trap, progress)
 		if activation_texture != null:
-			var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
 			if trap_pos.x >= 0:
 				draw_texture_rect(activation_texture, _trap_visual_draw_rect(trap), false, _trap_visual_modulate(trap))
 
@@ -8870,7 +8927,7 @@ func _draw_trap_blast_tile(tile: Vector2i, texture: Texture2D, progress: float) 
 
 func _draw_trap_marker(trap: Dictionary) -> void:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
-	if tile.x < 0:
+	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 		return
 	var trap_texture: Texture2D = _trap_idle_texture(trap)
 	if trap_texture != null:
