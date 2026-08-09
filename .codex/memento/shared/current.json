@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T15:46:52Z",
+  "updated_at": "2026-08-09T16:23:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7462,6 +7462,28 @@
       "source": {
         "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
         "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T162312Z_2cdd6309",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Reused targets must preserve existing orientation choices",
+      "details": "When a follow-up action uses reuse_previous_target, auto-resolution is safe only for actions without orientation. Rotatable AOE and directional force actions must lock the prior tile, pause in the existing orientation UI, store the oriented action, and record the duplicated shared target plus orientation in analytics; otherwise the engine silently chooses a best pattern or radial force and removes player agency.",
+      "status": "active",
+      "created_at": "2026-08-09T16:23:12Z",
+      "updated_at": "2026-08-09T16:23:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "46955f7"
       }
     }
   ]
