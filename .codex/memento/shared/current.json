@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T19:26:28Z",
+  "updated_at": "2026-08-09T20:25:01Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7553,7 +7553,7 @@
       }
     },
     {
-      "id": "mnt_20260809T192628Z_f3b72d00",
+      "id": "mnt_20260809T202501Z_adeb66c7",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -7562,16 +7562,18 @@
         "symbol": null
       },
       "scope_key": "project:.",
-      "summary": "Card action overflow must remain visibly one action",
-      "details": "When a logical card action exceeds one token row, keep its core action/targeting tokens first and place remaining riders in a tight continuation row inside one shared visual group. Use a persistent structural cue such as a brace/backing plus \u21b3; never let overflow resemble another action or targeting step. Attached numeric suffixes should remain close to the icon and use enough outline/halo contrast to stay legible over the icon silhouette.",
+      "summary": "Ordinary card-action overflow uses an arrow without a panel",
+      "details": "When one logical card action wraps, keep the core tokens first and prefix the tight continuation row with \u21b3. Do not add a translucent background, border, brace, or panel to ordinary overflow; those treatments imply a special state and visually compete with elemental intensity gates. Keep suffix values attached and high-contrast.",
       "status": "active",
-      "created_at": "2026-08-09T19:26:28Z",
-      "updated_at": "2026-08-09T19:26:28Z",
+      "created_at": "2026-08-09T20:25:01Z",
+      "updated_at": "2026-08-09T20:25:01Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260809T192628Z_f3b72d00"
+      ],
       "source": {
         "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
-        "commit": "9bc9e52"
+        "commit": "5bb4870"
       }
     }
   ]

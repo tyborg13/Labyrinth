@@ -1065,21 +1065,15 @@ func _add_summary_action_group(parent: Node, segments: Array, icon_size: float, 
 	if segments.size() == 1 and typeof(segments[0]) == TYPE_ARRAY:
 		_add_summary_segment(parent, segments[0] as Array, icon_size, label_size, row_gap)
 		return
-	var block := PanelContainer.new()
-	block.name = "SummaryActionGroup"
-	block.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	block.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	block.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	block.add_theme_stylebox_override("panel", _continued_summary_style())
-	block.set_meta("summary_action_group", true)
-	parent.add_child(block)
 	var inner := VBoxContainer.new()
+	inner.name = "SummaryActionGroup"
 	inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	inner.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	inner.alignment = BoxContainer.ALIGNMENT_CENTER
 	inner.add_theme_constant_override("separation", maxi(0, row_gap - 4))
-	block.add_child(inner)
+	inner.set_meta("summary_action_group", true)
+	parent.add_child(inner)
 	for segment_index: int in range(segments.size()):
 		var segment_var: Variant = segments[segment_index]
 		if typeof(segment_var) == TYPE_ARRAY:
@@ -1111,19 +1105,6 @@ func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_
 		_add_token_to_summary_row(row, token_var as Dictionary, icon_size, label_size, conditional)
 	if row.get_child_count() > 0:
 		parent.add_child(row)
-
-func _continued_summary_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.30, 0.20, 0.12, 0.07)
-	style.border_color = Color(0.48, 0.31, 0.17, 0.55)
-	style.border_width_left = maxi(1, _scaled_card_int(2, 1))
-	style.corner_radius_top_left = 3
-	style.corner_radius_bottom_left = 3
-	style.content_margin_left = _scaled_card_value(4.0, 2.0)
-	style.content_margin_top = _scaled_card_value(1.0, 0.0)
-	style.content_margin_right = _scaled_card_value(4.0, 2.0)
-	style.content_margin_bottom = _scaled_card_value(1.0, 0.0)
-	return style
 
 func _segment_should_compact_conditional(segment: Array) -> bool:
 	var valued_tokens: int = 0
@@ -1355,7 +1336,7 @@ func _summary_action_group_width_estimate(segments: Array, icon_size: float, lab
 func _summary_action_group_chrome_size(conditional: bool) -> Vector2:
 	if conditional:
 		return Vector2(2.0, 2.0)
-	return _continued_summary_style().get_minimum_size()
+	return Vector2.ZERO
 
 func _summary_segment_width_estimate(segment: Array, icon_size: float, label_size: int, row_gap: int) -> float:
 	var child_width: float = 0.0

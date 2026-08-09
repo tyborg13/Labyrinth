@@ -436,7 +436,7 @@ func _capture_squall_orientation(instance: Node, combat: CombatEngine) -> void:
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	var focus_tiles: Array = presentation.get("focus_tiles", []) as Array
 	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Squall visual fixture should show its north-rotated odd pattern")
-	await _save_root_screenshot("%s/card_squall_simplified_orientation_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/card_squall_simplified_orientation_v4.png" % OUTPUT_DIR)
 	instance.call("_reset_card_resolution")
 
 func _radiance_visual_state(combat: CombatEngine, relic_ids: Array, skill_ids: Array) -> Dictionary:
@@ -500,7 +500,7 @@ func _capture_card_gallery(instance: Node) -> void:
 		widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 	await _settle_ui()
-	await _save_root_screenshot("%s/radiance_changed_cards_grouped_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/radiance_changed_cards_grouped_v4.png" % OUTPUT_DIR)
 	gallery_layer.queue_free()
 	await process_frame
 
@@ -528,7 +528,7 @@ func _capture_action_group_gallery(instance: Node) -> void:
 		_add_gallery_card(gallery, instance, gallery_state, group_cards[index], Vector2(350.0 + float(index) * 485.0, 76.0), Vector2(250.0, 352.0))
 		_add_gallery_card(gallery, instance, gallery_state, group_cards[index], Vector2(450.0 + float(index) * 415.0, 542.0), Vector2(190.0, 268.0))
 	await _settle_ui()
-	await _save_root_screenshot("%s/card_action_continuation_groups_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/card_action_continuation_groups_v4.png" % OUTPUT_DIR)
 	gallery_layer.queue_free()
 	await process_frame
 
@@ -563,7 +563,7 @@ func _capture_token_suffix_stress_gallery(instance: Node) -> void:
 		_add_gallery_card(gallery, instance, stress_state, stress_cards[index], Vector2(115.0 + float(index) * 350.0, 76.0), Vector2(250.0, 352.0))
 		_add_gallery_card(gallery, instance, stress_state, stress_cards[index], Vector2(350.0 + float(index) * 245.0, 542.0), Vector2(190.0, 268.0))
 	await _settle_ui()
-	await _save_root_screenshot("%s/card_value_suffix_contrast_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/card_value_suffix_contrast_v4.png" % OUTPUT_DIR)
 	gallery_layer.queue_free()
 	await process_frame
 

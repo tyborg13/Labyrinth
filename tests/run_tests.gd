@@ -12940,19 +12940,21 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	_assert(squall_attack_row.size() == 4 and squall_segments.size() == 1, "Simplified Squall should keep its four fitting AOE tokens on one line")
 	var action_group_parent := VBoxContainer.new()
 	card_widget.call("_add_summary_action_group", action_group_parent, root_segments, 28.0, 16, 6)
-	_assert(action_group_parent.get_child_count() == 1 and bool(action_group_parent.get_child(0).get_meta("summary_action_group", false)), "A wrapped action should render inside one visible action-group container")
-	var action_group_inner: Control = action_group_parent.get_child(0).get_child(0) as Control
+	_assert(action_group_parent.get_child_count() == 1 and bool(action_group_parent.get_child(0).get_meta("summary_action_group", false)), "A wrapped action should render inside one action-group container")
+	var action_group_inner: Control = action_group_parent.get_child(0) as Control
+	_assert(not (action_group_inner is PanelContainer), "Ordinary wrapped actions should use only the continuation arrow, without a special-state panel background")
 	_assert(action_group_inner.get_child_count() == 2 and not bool(action_group_inner.get_child(0).get_meta("summary_action_continuation", true)) and bool(action_group_inner.get_child(1).get_meta("summary_action_continuation", false)), "Only the overflow row should be marked as an action continuation")
 	var continuation_row: Control = action_group_inner.get_child(1) as Control
 	_assert(continuation_row.get_child_count() > 0 and bool(continuation_row.get_child(0).get_meta("summary_continuation_glyph", false)), "An overflow row should begin with a persistent continuation glyph")
-	var raw_root_width: float = maxf(
-		float(card_widget.call("_summary_segment_width_estimate", root_segments[0] as Array, 28.0, 16, 6)),
-		float(card_widget.call("_summary_segment_width_estimate", root_segments[1] as Array, 28.0, 16, 6))
+	var boundary_segments: Array = [root_segments[1], root_segments[0]]
+	var raw_boundary_width: float = maxf(
+		float(card_widget.call("_summary_segment_width_estimate", boundary_segments[0] as Array, 28.0, 16, 5)),
+		float(card_widget.call("_summary_segment_width_estimate", boundary_segments[1] as Array, 28.0, 16, 5))
 	)
-	var grouped_root_width: float = float(card_widget.call("_summary_width_estimate", root_segments, 28.0, 16, 6, [{"segments": root_segments, "condition": {}}]))
-	_assert(grouped_root_width > raw_root_width + 1.0, "Card layout measurement should include continuation glyph, gap, border, and panel margins beyond raw token width")
-	var boundary_width: float = raw_root_width + 1.0
-	_assert(raw_root_width <= boundary_width and grouped_root_width > boundary_width, "A near-boundary action group should be rejected when its rendered continuation chrome would overflow")
+	var grouped_boundary_width: float = float(card_widget.call("_summary_width_estimate", boundary_segments, 28.0, 16, 6, [{"segments": boundary_segments, "condition": {}}]))
+	_assert(grouped_boundary_width > raw_boundary_width + 1.0, "Card layout measurement should include the continuation glyph and gap when the continuation row controls the group width")
+	var boundary_width: float = raw_boundary_width + 1.0
+	_assert(raw_boundary_width <= boundary_width and grouped_boundary_width > boundary_width, "A near-boundary action group should be rejected when its rendered continuation cue would overflow")
 	action_group_parent.free()
 	var valued_token: Dictionary = ActionIcons.token_for("ranged", 12)
 	var valued_layout: Dictionary = card_widget.call("_summary_token_layout", valued_token, 28.0, 16)
