@@ -12945,6 +12945,14 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	_assert(action_group_inner.get_child_count() == 2 and not bool(action_group_inner.get_child(0).get_meta("summary_action_continuation", true)) and bool(action_group_inner.get_child(1).get_meta("summary_action_continuation", false)), "Only the overflow row should be marked as an action continuation")
 	var continuation_row: Control = action_group_inner.get_child(1) as Control
 	_assert(continuation_row.get_child_count() > 0 and bool(continuation_row.get_child(0).get_meta("summary_continuation_glyph", false)), "An overflow row should begin with a persistent continuation glyph")
+	var raw_root_width: float = maxf(
+		float(card_widget.call("_summary_segment_width_estimate", root_segments[0] as Array, 28.0, 16, 6)),
+		float(card_widget.call("_summary_segment_width_estimate", root_segments[1] as Array, 28.0, 16, 6))
+	)
+	var grouped_root_width: float = float(card_widget.call("_summary_width_estimate", root_segments, 28.0, 16, 6, [{"segments": root_segments, "condition": {}}]))
+	_assert(grouped_root_width > raw_root_width + 1.0, "Card layout measurement should include continuation glyph, gap, border, and panel margins beyond raw token width")
+	var boundary_width: float = raw_root_width + 1.0
+	_assert(raw_root_width <= boundary_width and grouped_root_width > boundary_width, "A near-boundary action group should be rejected when its rendered continuation chrome would overflow")
 	action_group_parent.free()
 	var valued_token: Dictionary = ActionIcons.token_for("ranged", 12)
 	var valued_layout: Dictionary = card_widget.call("_summary_token_layout", valued_token, 28.0, 16)

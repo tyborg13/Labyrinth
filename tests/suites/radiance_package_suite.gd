@@ -133,7 +133,7 @@ static func _test_movement_light_rider_uses_resolved_destination(expect: Callabl
 	var move_action: Dictionary = actions[0] as Dictionary
 	expect.call(bool(card.get("radiance", false)), "Threaded Path should carry the Radiance school tag")
 	expect.call(actions.size() == 2 and str(move_action.get("type", "")) == "move" and int(move_action.get("illuminate_radius", 0)) == 1 and int(move_action.get("illuminate_duration", 0)) == 2, "Threaded Path should author destination Light on its movement action without a separate target action")
-	var move_icons: Array[String] = []
+	var move_icons: Array[String]
 	for token_var: Variant in ActionIcons.tokens_for_action(move_action):
 		move_icons.append(str((token_var as Dictionary).get("icon", "")))
 	expect.call(move_icons == ["move", "illuminate", "time"], "Threaded Path should present Move and its destination Light as one action row")
@@ -151,6 +151,21 @@ static func _test_movement_light_rider_uses_resolved_destination(expect: Callabl
 	expect.call(resolved_destination == Vector2i(3, 4), "Threaded Path should stop before a hidden collision")
 	expect.call(not sources.is_empty() and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == resolved_destination and int((sources[0] as Dictionary).get("remaining_activations", 0)) == 2, "Threaded Path should create two-turn Light where movement actually ends")
 	expect.call((sources[0] as Dictionary).get("pos", Vector2i.ZERO) != selected_destination, "Threaded Path should never leak Light onto an unreachable selected endpoint")
+
+	var trap_room: Dictionary = _room()
+	(trap_room.get("enemies", []) as Array)[0]["pos"] = Vector2i(6, 2)
+	var trap_grid: Array = trap_room.get("grid", []) as Array
+	for wall_y: int in [3, 5]:
+		for wall_x: int in range(1, 7):
+			(trap_grid[wall_y] as Array)[wall_x] = "wall"
+	trap_room["grid"] = trap_grid
+	trap_room["traps"] = [{"id": "lethal_path_trap", "pos": Vector2i(3, 4), "element": "fire", "damage": 99, "base_damage": 99, "blast_radius": 0}]
+	var trap_state: Dictionary = combat.create_combat(8297, trap_room, {"hp": 4, "max_hp": 4, "deck_cards": ["threaded_path"], "relics": [], "hand_size": 1})
+	var trap_result: Dictionary = combat.apply_player_action(trap_state, move_action, Vector2i(5, 4))
+	var trap_endpoint: Vector2i = (trap_result.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var trap_sources: Array = (trap_result.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(int((trap_result.get("player", {}) as Dictionary).get("hp", 1)) <= 0 and trap_endpoint == Vector2i(3, 4), "A lethal intermediate trap should stop Threaded Path on the trap tile")
+	expect.call(not trap_sources.is_empty() and (trap_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == trap_endpoint, "Threaded Path should place destination Light at the lethal trap endpoint rather than beyond the player")
 
 static func _room() -> Dictionary:
 	var grid: Array = []

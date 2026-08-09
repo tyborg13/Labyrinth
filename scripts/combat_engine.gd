@@ -1247,12 +1247,24 @@ func _apply_player_move_along_path(next_state: Dictionary, resolved_action: Dict
 		return next_state
 	var resolved_path: Array[Vector2i] = _player_path_until_hidden_collision(next_state, movement_path)
 	next_state = _move_player_along_path(next_state, resolved_path)
+	var resolved_endpoint: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", resolved_path[0])
+	resolved_path = _movement_path_through_endpoint(resolved_path, resolved_endpoint)
 	_mark_first_move_used(next_state)
 	next_state = _trigger_long_move_relics(next_state, resolved_path.size() - 1)
 	next_state = _trigger_player_movement_radiance(next_state, resolved_action, resolved_path, false)
 	next_state = _maybe_refund_loot_play(next_state, loot_before)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 	return next_state
+
+func _movement_path_through_endpoint(path: Array[Vector2i], endpoint: Vector2i) -> Array[Vector2i]:
+	var traversed: Array[Vector2i] = _vector2i_values([])
+	for tile: Vector2i in path:
+		traversed.append(tile)
+		if tile == endpoint:
+			return traversed
+	if path.is_empty():
+		return _vector2i_values([endpoint])
+	return _vector2i_values([path[0], endpoint]) if path[0] != endpoint else _vector2i_values([path[0]])
 
 func _trigger_player_movement_radiance(state: Dictionary, action: Dictionary, path: Array[Vector2i], blinked: bool) -> Dictionary:
 	var next_state: Dictionary = state

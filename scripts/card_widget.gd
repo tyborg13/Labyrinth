@@ -1010,7 +1010,7 @@ func _render_summary_icon_rows(rows: Array) -> void:
 			})
 	if rendered_rows.is_empty():
 		return
-	var metrics: Dictionary = _summary_layout_metrics(rendered_rows)
+	var metrics: Dictionary = _summary_layout_metrics(rendered_rows, row_groups)
 	var icon_size: float = float(metrics.get("icon_size", _summary_icon_size()))
 	var label_size: int = int(metrics.get("label_size", 15))
 	var row_gap: int = int(metrics.get("row_gap", 6))
@@ -1255,7 +1255,7 @@ func _aoe_pattern_scale(icon_size: float) -> float:
 		return clampf(icon_size / 40.0, 0.42, 0.78)
 	return clampf(icon_size / 30.0, 0.52, 1.0)
 
-func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
+func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Dictionary:
 	var width: float = _card_visual_width()
 	var compact: bool = width <= COMPACT_CARD_WIDTH
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
@@ -1271,7 +1271,7 @@ func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
 		var icon_size: float = float(candidate_var)
 		var label_size: int = maxi(minimum_label_size, int(round(icon_size * 0.58)))
 		var row_gap: int = _summary_row_gap(icon_size, row_count)
-		if _summary_height_estimate(rendered_rows, icon_size, label_size, row_gap) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap) <= available_width:
+		if _summary_height_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_width:
 			return {
 				"icon_size": icon_size,
 				"label_size": label_size,
@@ -1296,7 +1296,7 @@ func _summary_row_gap(icon_size: float, row_count: int) -> int:
 func _summary_min_label_size() -> int:
 	return _scaled_card_font_size(13, 8)
 
-func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int) -> float:
+func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int, row_groups: Array = []) -> float:
 	var label_height: float = _summary_text_height(label_size)
 	var total_height: float = 0.0
 	for segment_var: Variant in rendered_rows:
@@ -1310,15 +1310,52 @@ func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size
 					continue
 				row_height = maxf(row_height, (_summary_token_layout(token, icon_size, label_size).get("size", Vector2.ZERO) as Vector2).y)
 		total_height += row_height
-	return total_height + float(maxi(0, rendered_rows.size() - 1) * row_gap)
+	var group_chrome_height: float = 0.0
+	for group_var: Variant in row_groups:
+		if typeof(group_var) != TYPE_DICTIONARY:
+			continue
+		var segments: Array = (group_var as Dictionary).get("segments", []) as Array
+		if segments.size() <= 1:
+			continue
+		var condition: Dictionary = (group_var as Dictionary).get("condition", {}) as Dictionary
+		group_chrome_height += _summary_action_group_chrome_size(not str(condition.get("element", "")).is_empty()).y
+	return total_height + float(maxi(0, rendered_rows.size() - 1) * row_gap) + group_chrome_height
 
-func _summary_width_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int) -> float:
+func _summary_width_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int, row_groups: Array = []) -> float:
 	var widest: float = 0.0
 	for segment_var: Variant in rendered_rows:
 		if typeof(segment_var) != TYPE_ARRAY:
 			continue
 		widest = maxf(widest, _summary_segment_width_estimate(segment_var as Array, icon_size, label_size, row_gap))
+	for group_var: Variant in row_groups:
+		if typeof(group_var) != TYPE_DICTIONARY:
+			continue
+		var group: Dictionary = group_var as Dictionary
+		var segments: Array = group.get("segments", []) as Array
+		if segments.size() <= 1:
+			continue
+		var condition: Dictionary = group.get("condition", {}) as Dictionary
+		widest = maxf(widest, _summary_action_group_width_estimate(segments, icon_size, label_size, row_gap, not str(condition.get("element", "")).is_empty()))
 	return widest
+
+func _summary_action_group_width_estimate(segments: Array, icon_size: float, label_size: int, row_gap: int, conditional: bool = false) -> float:
+	var widest_content: float = 0.0
+	var continuation_label_size: int = maxi(_scaled_card_font_size(11, 8), label_size - 2)
+	var continuation_gap: int = maxi(1, row_gap - 1)
+	for segment_index: int in range(segments.size()):
+		var segment_var: Variant = segments[segment_index]
+		if typeof(segment_var) != TYPE_ARRAY:
+			continue
+		var segment_width: float = _summary_segment_width_estimate(segment_var as Array, icon_size, label_size, continuation_gap)
+		if segment_index > 0:
+			segment_width += _summary_text_width("↳", continuation_label_size) + float(continuation_gap)
+		widest_content = maxf(widest_content, segment_width)
+	return widest_content + _summary_action_group_chrome_size(conditional).x
+
+func _summary_action_group_chrome_size(conditional: bool) -> Vector2:
+	if conditional:
+		return Vector2(2.0, 2.0)
+	return _continued_summary_style().get_minimum_size()
 
 func _summary_segment_width_estimate(segment: Array, icon_size: float, label_size: int, row_gap: int) -> float:
 	var child_width: float = 0.0
