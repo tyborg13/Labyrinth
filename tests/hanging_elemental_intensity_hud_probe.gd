@@ -8,7 +8,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 
 const OUTPUT_DIR: String = "user://probes/hanging_elemental_intensity_hud"
 const PRODUCTION_VIEWPORT: Vector2i = Vector2i(1920, 1080)
-const RELIC_IDS: Array[String] = [
+const RELIC_IDS: Array = [
 	"iron_lung",
 	"ember_lens",
 	"pilgrim_boots",
@@ -18,7 +18,7 @@ const RELIC_IDS: Array[String] = [
 	"iron_buckler",
 	"flint_edge",
 ]
-const SKILL_IDS: Array[String] = ["quick_wits", "borrowed_time", "measured_breath", "carry_the_guard"]
+const SKILL_IDS: Array = ["quick_wits", "borrowed_time", "measured_breath", "carry_the_guard"]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -70,9 +70,9 @@ func _load_fixture(instance: Node, intensities: Dictionary, crowded: bool) -> vo
 	instance.call("_reset_card_resolution")
 	var combat := CombatEngine.new()
 	var layout: Dictionary = _room_layout()
-	var relics: Array[String] = []
+	var relics: Array[String] = _string_array()
 	if crowded:
-		relics.append_array(RELIC_IDS)
+		relics = _string_array(RELIC_IDS)
 	var combat_state: Dictionary = combat.create_combat(92845 if crowded else 15126, layout, {
 		"hp": 24,
 		"max_hp": 24,
@@ -84,7 +84,10 @@ func _load_fixture(instance: Node, intensities: Dictionary, crowded: bool) -> vo
 	combat_state["name"] = "Hanging Ward Gallery"
 	combat_state["elemental_intensity"] = intensities.duplicate(true)
 	combat_state["relics"] = relics.duplicate()
-	combat_state["skill_ids"] = SKILL_IDS.duplicate() if crowded else []
+	var skill_ids: Array[String] = _string_array()
+	if crowded:
+		skill_ids = _string_array(SKILL_IDS)
+	combat_state["skill_ids"] = skill_ids
 	combat_state["defiance_capacity"] = 3 if crowded else 0
 	combat_state["defiance_remaining"] = 2 if crowded else 0
 	var umbra: Dictionary = (combat_state.get("umbra", {}) as Dictionary).duplicate(true)
@@ -117,7 +120,7 @@ func _assert_hud_contract(instance: Node, crowded: bool) -> void:
 	var labels: Dictionary = instance.get("_intensity_labels") as Dictionary
 	var glows: Dictionary = instance.get("_intensity_glows") as Dictionary
 	var charm_paths: Dictionary = {}
-	var placard_rects: Array[Rect2] = []
+	var placard_rects: Array[Rect2] = _rect2_array()
 	for element_id: String in ElementData.all_elements():
 		var badge: PanelContainer = intensity_badges.get(element_id, null)
 		var label: Label = labels.get(element_id, null)
@@ -176,13 +179,14 @@ func _assert_hover_ownership(intensity_badges: Dictionary) -> void:
 	for element_id: String in ElementData.all_elements():
 		var badge: Control = intensity_badges.get(element_id, null)
 		var pointer_position: Vector2 = badge.get_global_transform_with_canvas() * ElementalIntensityHudArt.POINTER_HIT_CENTER
-		var logical_owners: Array[String] = []
+		var logical_owners: Array[String] = _string_array()
 		for candidate_id: String in ElementData.all_elements():
 			var candidate: Control = intensity_badges.get(candidate_id, null)
 			var candidate_local_position: Vector2 = candidate.get_global_transform_with_canvas().affine_inverse() * pointer_position if candidate != null else Vector2.ZERO
 			if candidate != null and ElementalIntensityHudArt.pointer_hit_test(candidate_local_position):
 				logical_owners.append(candidate_id)
-		_assert(logical_owners == [element_id], "%s hover center should belong to exactly that charm, got %s" % [element_id, logical_owners])
+		var expected_owners: Array[String] = _string_array([element_id])
+		_assert(logical_owners == expected_owners, "%s hover center should belong to exactly that charm, got %s" % [element_id, logical_owners])
 		var motion := InputEventMouseMotion.new()
 		motion.position = pointer_position
 		motion.global_position = pointer_position
@@ -252,6 +256,19 @@ func _clear_probe_output(path: String) -> void:
 		return
 	for file_name: String in dir.get_files():
 		dir.remove(file_name)
+
+func _string_array(values: Array = []) -> Array[String]:
+	var typed_values: Array[String]
+	for value: Variant in values:
+		typed_values.append(str(value))
+	return typed_values
+
+func _rect2_array(values: Array = []) -> Array[Rect2]:
+	var typed_values: Array[Rect2]
+	for value: Variant in values:
+		if value is Rect2:
+			typed_values.append(value)
+	return typed_values
 
 func _assert(condition: bool, message: String) -> void:
 	if condition:
