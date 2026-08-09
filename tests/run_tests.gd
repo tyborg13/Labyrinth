@@ -353,6 +353,8 @@ func _initialize() -> void:
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
 	await _test_run_scene_move_previews_avoid_traps_when_possible()
 	await _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets()
+	await _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state()
+	await _test_run_scene_umbra_aoe_centers_allow_hidden_pattern_occupants()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_animation_lock_preserves_board_animation_presentation()
 	await _test_run_scene_discard_pile_uses_distinct_icon_controls()
@@ -12711,6 +12713,15 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	_assert((instance.call("_movement_risk_chips_for_preview", preview, move_path) as Array).is_empty(), "Umbra movement hover should not leak a blocker through risk-chip deltas")
 	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
 	_assert(bool(instance.get("_pending_umbra_commit_locked")), "Moving into new Umbra information should make the pending card choice irreversible")
+	instance.call("_refresh_stage_view")
+	var locked_board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var locked_board_state: Dictionary = locked_board.get("combat_state") as Dictionary
+	var locked_board_presentation: Dictionary = locked_board.get("presentation") as Dictionary
+	var hidden_enemy_after_move: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
+	_assert((locked_board_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "A selected Umbra move should keep the rendered player at the committed tile until card resolution starts")
+	_assert(not (locked_board_presentation.get("visible_enemy_ids", []) as Array).has(int(hidden_enemy_after_move.get("id", -1))), "A selected Umbra move should not reveal newly visible enemies while its card preview is still pending")
+	_assert(int(locked_board_presentation.get("umbra_radius", -1)) == combat.effective_umbra_radius(state), "A selected Umbra move should preserve the committed vision radius")
+	_assert(not (instance.get("_pending_target_tiles") as Array).has(hidden_enemy_after_move.get("pos", Vector2i.ZERO)), "A selected Umbra move should not expose a newly revealed enemy as a follow-up target")
 	instance.call("_cancel_card_selection")
 	_assert(int(instance.get("_selected_card_index")) == 0, "An Umbra movement reveal should not be cancellable back to the untouched combat state")
 	instance.call("_reset_card_resolution")
@@ -12785,6 +12796,219 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	var lantern_display_rows: Array = lantern_display.get("summary_rows", [])
 	_assert(lantern_display_rows.size() == 2, "Lantern Shot's live card display should show its shared-target effects on one line and draw on the next")
 	_assert((lantern_display_rows[0] as Array).size() == 4, "Lantern Shot's live shared-target line should omit the duplicate range token")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Umbra preview-effect privacy coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["umbra_stage"] = "heart"
+	layout["player_start"] = Vector2i(2, 4)
+	var layout_enemies: Array = layout.get("enemies", []) as Array
+	if layout_enemies.is_empty():
+		_failures.append("Umbra preview-effect privacy fixture should include a hidden enemy")
+		instance.queue_free()
+		await process_frame
+		return
+	(layout_enemies[0] as Dictionary)["pos"] = Vector2i(6, 4)
+	var state: Dictionary = combat.create_combat(44008, layout, {"hp": 20, "max_hp": 20, "deck_cards": ["guiding_flare"], "hand_size": 1})
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
+	var enemy_pos: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var objective: Dictionary = {
+		"type": "kill_leader",
+		"leader_id": int(enemy.get("id", -1))
+	}
+	state["objective"] = objective
+	var before_visible_ids: Array[int] = combat.visible_enemy_ids(state)
+	_assert(not before_visible_ids.has(int(enemy.get("id", -1))), "Umbra preview-effect fixture should start with a concealed enemy")
+	var baseline_radius: int = combat.effective_umbra_radius(state)
+	var run_state: Dictionary = instance.get("_run_state") as Dictionary
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = state
+	run_state["current_room_layout"] = layout
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", state)
+	instance.call("_refresh_ui")
+	var option_deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	option_deck["hand"] = ["pale_spark"]
+	state["deck"] = option_deck
+	instance.set("_combat_state", state)
+	instance.call("_mark_combat_preview_state_changed")
+	var synthetic_actions: Array = [
+		{"type": "vision", "amount": 4, "duration": 1},
+		{"type": "ranged", "damage": 4, "range": 9, "required": true}
+	]
+	var synthetic_preview: Dictionary = instance.call("_card_preview_from_state", "pale_spark", state, synthetic_actions, 0)
+	var preview_cache: Dictionary = instance.get("_card_preview_cache") as Dictionary
+	preview_cache[instance.call("_card_preview_cache_key", 0, "play")] = synthetic_preview
+	var raw_card_preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	var privacy_safe_options: Dictionary = instance.call("_card_play_options_for_index", 0)
+	_assert((raw_card_preview.get("target_tiles", []) as Array).has(enemy_pos), "Card-option privacy fixture should simulate a hidden ranged target")
+	_assert(not bool(privacy_safe_options.get("printed_playable", false)), "A card with only a hidden printed target should not appear as printed-playable")
+	_assert(not bool(privacy_safe_options.get("attack_playable", false)), "A fallback attack with only a hidden target should not appear playable")
+	_assert(str(instance.call("_action_context_valid_target_count_text", privacy_safe_options.get("play", {}))) == "UNAVAILABLE", "Card drag target counts should not expose hidden targets")
+
+	var cases: Array = [
+		{"label": "Illuminate", "action": {"type": "illuminate", "range": 8, "radius": 2, "duration": 2}, "target": enemy_pos},
+		{"label": "Vision", "action": {"type": "vision", "amount": 4, "duration": 1}, "target": Vector2i(-1, -1)},
+		{"label": "Truesight", "action": {"type": "truesight", "duration": 1}, "target": Vector2i(-1, -1)},
+		{"label": "Dispel Umbra", "action": {"type": "dispel_umbra", "amount": 2}, "target": Vector2i(-1, -1)},
+		{"label": "Vision AOE", "action": {"type": "vision", "amount": 4, "duration": 1}, "target": Vector2i(-1, -1), "followup": {"type": "aoe", "damage": 4, "range": 4, "pattern": [[0, 0]], "rotate": false}}
+	]
+	for case_var: Variant in cases:
+		var case: Dictionary = case_var as Dictionary
+		var first_action: Dictionary = case.get("action", {}) as Dictionary
+		var preview_state: Dictionary = combat.apply_player_action(state, first_action, case.get("target", Vector2i(-1, -1)))
+		var followup_action: Dictionary = case.get("followup", {"type": "ranged", "damage": 4, "range": 9}) as Dictionary
+		var raw_followup_targets: Array[Vector2i] = combat.valid_targets_for_player_action(preview_state, followup_action)
+		_assert(raw_followup_targets.has(enemy_pos), "%s preview fixture should simulate a hidden follow-up target so privacy gating is exercised" % str(case.get("label", "")))
+		instance.set("_selected_card_index", 0)
+		instance.set("_pending_actions", [first_action, followup_action])
+		instance.set("_pending_action_index", 1)
+		instance.set("_pending_selected_targets", instance.call("_vector2i_array", [case.get("target", Vector2i(-1, -1))]))
+		instance.set("_pending_target_tiles", raw_followup_targets)
+		instance.set("_preview_combat_state", preview_state)
+		instance.set("_pending_umbra_commit_locked", false)
+		instance.set("_hovered_board_tile", enemy_pos)
+		instance.call("_mark_preview_selection_changed")
+		instance.call("_refresh_stage_view")
+		var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+		var presentation: Dictionary = board.get("presentation") as Dictionary
+		var active_preview: Dictionary = instance.call("_active_card_preview")
+		instance.call("_refresh_combat_objective_hud")
+		var objective_hud: Control = instance.get("_combat_objective_hud") as Control
+		var objective_detail: Label = objective_hud.find_child("ObjectiveLiveDetail", true, false) as Label
+		_assert(int(presentation.get("umbra_radius", -1)) == baseline_radius, "%s preview should preserve the committed Umbra radius" % str(case.get("label", "")))
+		_assert((presentation.get("umbra_light_sources", []) as Array).is_empty(), "%s preview should not render a simulated light source" % str(case.get("label", "")))
+		_assert((presentation.get("visible_enemy_ids", []) as Array).is_empty(), "%s preview should not reveal a newly visible enemy" % str(case.get("label", "")))
+		_assert(not (board.get("attack_tiles") as Array).has(enemy_pos), "%s preview should not expose a newly visible enemy as an attack tile" % str(case.get("label", "")))
+		_assert(not (active_preview.get("target_tiles", []) as Array).has(enemy_pos), "%s preview should not expose a newly visible enemy as a target" % str(case.get("label", "")))
+		_assert(presentation.get("objective_leader_tile", Vector2i(-1, -1)) != enemy_pos, "%s preview should not beacon a concealed objective leader" % str(case.get("label", "")))
+		_assert(objective_detail != null and objective_detail.text == "Leader concealed", "%s preview should not expose concealed leader identity or HP in the objective HUD" % str(case.get("label", "")))
+		_assert((presentation.get("effect", {}) as Dictionary).is_empty(), "%s preview should not draw an effect on a concealed follow-up target" % str(case.get("label", "")))
+
+	instance.call("_reset_card_resolution")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_umbra_aoe_centers_allow_hidden_pattern_occupants() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for hidden AOE occupant coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["umbra_stage"] = "heart"
+	layout["player_start"] = Vector2i(2, 4)
+	(layout.get("enemies", []) as Array)[0]["pos"] = Vector2i(5, 4)
+	layout["terrain"] = [{
+		"id": "hidden_aoe_box",
+		"kind": "wooden_box",
+		"pos": Vector2i(4, 3),
+		"hp": 5,
+		"max_hp": 5
+	}]
+	layout["traps"] = [{
+		"id": "hidden_aoe_trap",
+		"pos": Vector2i(4, 5),
+		"element": "fire",
+		"damage": 1
+	}]
+	var state: Dictionary = combat.create_combat(44010, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["cinderburst"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var hidden_enemy: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
+	var hidden_enemy_tile: Vector2i = hidden_enemy.get("pos", Vector2i.ZERO)
+	var center_tile := Vector2i(4, 4)
+	var action: Dictionary = {
+		"type": "aoe",
+		"damage": 4,
+		"range": 4,
+		"pattern": [[0, 0], [1, 0], [0, -1], [0, 1]],
+		"rotate": false
+	}
+	_assert(not combat.is_enemy_visible_to_player(state, hidden_enemy), "Hidden AOE occupant fixture should conceal the enemy")
+	_assert(not combat.is_tile_visible_to_player(state, Vector2i(4, 3)), "Hidden AOE occupant fixture should conceal the terrain tile")
+	_assert(not combat.is_tile_visible_to_player(state, Vector2i(4, 5)), "Hidden AOE occupant fixture should conceal the trap tile")
+	var raw_target_tiles: Array[Vector2i] = combat.valid_targets_for_player_action(state, action)
+	_assert(raw_target_tiles.has(center_tile), "AOE should allow a visible center even when its pattern contains hidden occupants")
+	var preview_target_tiles: Array[Vector2i] = instance.call("_preview_target_tiles_for_action", state, action, raw_target_tiles)
+	_assert(preview_target_tiles.has(center_tile), "AOE preview should retain a visible center with hidden pattern occupants")
+	_assert(bool(instance.call("_preview_aoe_target_is_known", state, state, action, center_tile)), "AOE privacy gating should depend only on center visibility")
+
+	var resolved_state: Dictionary = combat.apply_player_action(state, action, center_tile)
+	var resolved_enemy: Dictionary = (resolved_state.get("enemies", []) as Array)[0] as Dictionary
+	var resolved_terrain: Dictionary = (resolved_state.get("terrain", []) as Array)[0] as Dictionary
+	_assert(int(resolved_enemy.get("hp", 0)) < int(resolved_enemy.get("max_hp", 0)), "AOE should damage a concealed enemy inside the pattern")
+	_assert(int(resolved_terrain.get("hp", 0)) < int(resolved_terrain.get("max_hp", 0)), "AOE should damage concealed destructible terrain inside the pattern")
+	_assert((resolved_state.get("traps", []) as Array).is_empty(), "AOE should trigger and consume a concealed trap inside the pattern")
+
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["cinderburst"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	state["deck"] = deck
+	state["current_actor"] = {"kind": "player", "key": "player"}
+	var run_state: Dictionary = instance.get("_run_state") as Dictionary
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = state
+	run_state["current_room_layout"] = layout
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", state)
+	instance.call("_refresh_ui")
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", [action])
+	instance.set("_pending_action_index", 0)
+	instance.set("_pending_selected_targets", instance.call("_vector2i_array", []))
+	instance.set("_pending_target_tiles", raw_target_tiles)
+	instance.set("_preview_combat_state", state)
+	instance.set("_pending_umbra_commit_locked", false)
+	instance.set("_hovered_board_tile", center_tile)
+	instance.call("_mark_preview_selection_changed")
+	instance.call("_refresh_stage_view")
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	var active_preview: Dictionary = instance.call("_active_card_preview")
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	var hidden_terrain: Dictionary = (state.get("terrain", []) as Array)[0] as Dictionary
+	var hidden_terrain_preview: Dictionary = board.call("_terrain_damage_preview", hidden_terrain) as Dictionary
+	var obstruction_entries: Array = board.call("_foreground_obstruction_entries", board.call("_visible_units")) as Array
+	var effect_damage_preview: Dictionary = effect.get("damage_preview", {}) as Dictionary
+	_assert((board.get("attack_tiles") as Array).has(center_tile), "AOE board preview should highlight a visible center with hidden pattern occupants")
+	_assert((active_preview.get("target_tiles", []) as Array).has(center_tile), "AOE active preview should keep the visible center target")
+	_assert(not (presentation.get("visible_enemy_ids", []) as Array).has(int(hidden_enemy.get("id", -1))), "AOE preview should not reveal the concealed enemy it may hit")
+	_assert((effect.get("tiles", []) as Array).has(hidden_enemy_tile), "AOE preview should show the authored pattern without exposing hidden occupancy")
+	_assert(not effect_damage_preview.has(instance.call("_enemy_key", hidden_enemy)), "AOE preview should not expose concealed enemy damage information")
+	_assert(not effect_damage_preview.has(instance.call("_terrain_key", hidden_terrain)), "AOE preview should not expose concealed terrain damage information")
+	_assert(hidden_terrain_preview.is_empty(), "AOE preview should not show concealed terrain damage or health information")
+	instance.set("_preview_combat_state", resolved_state)
+	instance.call("_refresh_stage_view")
+	var refreshed_presentation: Dictionary = board.get("presentation") as Dictionary
+	var cumulative_damage_preview: Dictionary = refreshed_presentation.get("damage_preview", {}) as Dictionary
+	_assert(not cumulative_damage_preview.has(instance.call("_enemy_key", hidden_enemy)), "Cumulative AOE preview should not expose concealed enemy damage information")
+	_assert(not cumulative_damage_preview.has(instance.call("_terrain_key", hidden_terrain)), "Cumulative AOE preview should not expose concealed terrain damage information")
+	for entry_var: Variant in obstruction_entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var
+		_assert(entry.get("tile", Vector2i(-1, -1)) != hidden_terrain.get("pos", Vector2i(-1, -1)), "AOE preview should not retain concealed terrain in render obstruction entries")
+		_assert(entry.get("tile", Vector2i(-1, -1)) != Vector2i(4, 5), "AOE preview should not retain concealed traps in render obstruction entries")
 	instance.queue_free()
 	await process_frame
 

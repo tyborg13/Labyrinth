@@ -389,10 +389,10 @@ func _verify_aoe_target_semantics(instance: Node, combat: CombatEngine, state: D
 		variants.append(oriented)
 	for action: Dictionary in variants:
 		var optimized: Array[Vector2i] = _sorted_tiles(combat.valid_targets_for_player_action(state, action))
-		var exhaustive: Array[Vector2i] = _exhaustive_aoe_targets(combat, state, action)
-		_expect(optimized == exhaustive, "optimized AOE legality differs from exhaustive orientation scoring for %s" % str(action.get("orientation", "automatic")))
+		var reference: Array[Vector2i] = _reference_aoe_targets(combat, state, action)
+		_expect(optimized == reference, "optimized AOE legality differs from privacy-safe reference targeting for %s" % str(action.get("orientation", "automatic")))
 
-func _exhaustive_aoe_targets(combat: CombatEngine, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
+func _reference_aoe_targets(combat: CombatEngine, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
 	var targets: Array[Vector2i] = []
 	if not combat.player_action_can_resolve(state, action):
 		return targets
@@ -409,9 +409,11 @@ func _exhaustive_aoe_targets(combat: CombatEngine, state: Dictionary, action: Di
 			continue
 		if not PathUtils.has_line_of_sight(grid, player_pos, tile):
 			continue
-		var affected_tiles: Array[Vector2i] = combat.call("_best_aoe_tiles_for_target", state, action, tile, false) as Array[Vector2i]
-		if bool(combat.call("_has_attackable_in_tiles", state, affected_tiles)):
-			targets.append(tile)
+		# Ranged AOE legality is center-only public information. Pattern occupants may
+		# be concealed, so orientation and hidden occupancy cannot alter target centers.
+		if not combat.is_tile_visible_to_player(state, tile):
+			continue
+		targets.append(tile)
 	return _sorted_tiles(targets)
 
 func _preview_digest(preview_value: Variant) -> Dictionary:
