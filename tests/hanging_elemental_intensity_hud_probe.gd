@@ -193,6 +193,13 @@ func _assert_crowded_card_widget_contract(instance: Node) -> void:
 	var selector: Control = instance.get("_card_action_mode_selector") as Control
 	_assert(tracker != null and tracker.visible, "Crowded first-move selection should keep the contextual card widget visible")
 	_assert(selector != null and selector.visible and selector.get_child_count() == 4, "Ghost Stride should expose Printed, Attack, Move, and Blink placards (count=%d)" % (selector.get_child_count() if selector != null else -1))
+	if selector != null:
+		for option_var: Variant in selector.get_children():
+			var option: Control = option_var as Control
+			_assert(option != null and option.custom_minimum_size.y >= 94.0 and option.custom_minimum_size.y <= 102.0, "Four-mode choices should retain the full authored placard height (option=%s, minimum=%s)" % [option.name if option != null else "missing", option.custom_minimum_size if option != null else Vector2.ZERO])
+	var hand_bounds: Rect2 = instance.call("_combat_hand_visual_bounds") as Rect2
+	var viewport_center_x: float = instance.get_viewport_rect().size.x * 0.5
+	_assert(hand_bounds.size.x > 0.0 and absf(hand_bounds.get_center().x - viewport_center_x) <= 1.0, "Five-card combat hand should remain centered on the viewport (hand=%s, viewport_center=%.1f)" % [hand_bounds, viewport_center_x])
 	var preview: Dictionary = instance.call("_active_card_preview") as Dictionary
 	var targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	_assert(not targets.is_empty(), "Crowded Sidestep Slash fixture should expose move targets")

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T20:27:28Z",
+  "updated_at": "2026-08-09T21:00:06Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7553,6 +7553,28 @@
       "source": {
         "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
         "commit": "e0dab63"
+      }
+    },
+    {
+      "id": "mnt_20260809T210006Z_0863c203",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Card-mode placards stay full-size beside a viewport-centered hand",
+      "details": "Use the authored 98px placard height and -22px overlap rhythm for both three- and four-mode contextual selectors; do not compress the four-mode Ghost Stride stack. Keep the tactical board a hard exclusion using the convex hull of its isometric tile footprint rather than its rectangular AABB, which falsely blocks empty corner space. Center the resting hand on the viewport by mirroring the live left pile/action column with an inert right gutter; the combat objective overlay is not part of the hand-row offset.",
+      "status": "active",
+      "created_at": "2026-08-09T21:00:06Z",
+      "updated_at": "2026-08-09T21:00:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
+        "commit": "f2ca26a"
       }
     }
   ]

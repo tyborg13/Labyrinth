@@ -10297,8 +10297,10 @@ func _assert_action_step_tracker_layout(instance: Node, expected_piles_y: float,
 	if tracker == null or choice == null or piles == null:
 		return
 	_assert(absf(piles.global_position.y - expected_piles_y) <= 1.0, "%s: pile row moved from %.1f to %.1f" % [message, expected_piles_y, piles.global_position.y])
-	var anchor_y: float = choice.global_position.y if choice.visible and choice.size.y > 0.0 else piles.global_position.y
-	_assert(tracker.global_position.y + tracker.size.y <= anchor_y + 1.0, "%s: tracker should sit above controls" % message)
+	var tracker_rect: Rect2 = tracker.get_global_rect()
+	for control: Control in [choice, piles]:
+		if control.visible and control.size.x > 0.0 and control.size.y > 0.0:
+			_assert(not tracker_rect.intersects(control.get_global_rect()), "%s: tracker should not overlap %s" % [message, control.name])
 
 func _control_global_rect(instance: Node, path: String) -> Rect2:
 	var control: Control = instance.get_node_or_null(path) as Control

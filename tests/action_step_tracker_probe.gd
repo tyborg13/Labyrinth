@@ -253,6 +253,10 @@ func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: flo
 	if not viewport_rect.encloses(tracker_rect):
 		_fail("%s tracker should remain wholly onscreen: %s outside %s" % [label, tracker_rect, viewport_rect])
 		return
+	var resting_hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
+	if resting_hand_bounds.size.x > 0.0 and absf(resting_hand_bounds.get_center().x - viewport_rect.get_center().x) > 1.0:
+		_fail("%s should keep the resting hand centered on the viewport: %s inside %s" % [label, resting_hand_bounds, viewport_rect])
+		return
 	if not bool(tracker.get_meta("position_locked", false)):
 		if str(tracker.get_meta("layout_kind", "")) != "fixed_safe_edge" or not bool(tracker.get_meta("safe_layout_found", false)):
 			_fail("%s tracker should resolve to a collision-free fixed safe-edge position" % label)
@@ -261,7 +265,7 @@ func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: flo
 		if tracker_rect.intersects(board_bounds):
 			_fail("%s tracker should never cover the rendered tactical board: %s intersects %s" % [label, tracker_rect, board_bounds])
 			return
-		var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
+		var hand_bounds: Rect2 = resting_hand_bounds
 		if not allow_hand_overlap and hand_bounds.size.x > 0.0 and tracker_rect.intersects(hand_bounds):
 			_fail("%s tracker should stay clear of the resting hand: %s intersects %s" % [label, tracker_rect, hand_bounds])
 			return

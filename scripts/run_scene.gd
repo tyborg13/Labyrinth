@@ -1162,8 +1162,6 @@ const ACTION_CONTEXT_EDGE_MARGIN: float = 16.0
 const ACTION_CONTEXT_COMMAND_SIZE: Vector2 = Vector2(144.0, 50.0)
 const CARD_ACTION_MODE_OPTION_HEIGHT: float = 98.0
 const CARD_ACTION_MODE_OPTION_OVERLAP: int = -22
-const CARD_ACTION_MODE_CROWDED_OPTION_HEIGHT: float = 80.0
-const CARD_ACTION_MODE_CROWDED_OPTION_OVERLAP: int = -28
 const CARD_ACTION_MODE_STACK_WIDTH: float = 344.0
 const ACTION_CONTEXT_BUTTON_MIN_WIDTH: float = 94.0
 const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
@@ -1399,6 +1397,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var burn_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
 @onready var hand_scroll: ScrollContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
 @onready var hand_box: HandFanContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
+@onready var hand_right_balance: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandRightBalance
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
@@ -7039,11 +7038,10 @@ func _contextual_combat_rendered_board_bounds() -> Rect2:
 				bounds = bounds.expand(global_point)
 	return bounds
 
-func _contextual_combat_board_tile_bounds() -> Rect2:
+func _contextual_combat_board_tile_polygon() -> PackedVector2Array:
 	if board_view == null or not board_view.is_inside_tree():
-		return Rect2()
-	var bounds := Rect2()
-	var has_bounds: bool = false
+		return PackedVector2Array()
+	var points := PackedVector2Array()
 	var board_transform: Transform2D = board_view.get_global_transform()
 	for tile_var: Variant in board_view.call("_rendered_tiles_in_draw_order") as Array:
 		if typeof(tile_var) != TYPE_VECTOR2I:
@@ -7051,13 +7049,81 @@ func _contextual_combat_board_tile_bounds() -> Rect2:
 		var tile: Vector2i = tile_var
 		var polygon: PackedVector2Array = board_view.call("_tile_polygon", tile)
 		for point: Vector2 in polygon:
-			var global_point: Vector2 = board_transform * point
-			if not has_bounds:
-				bounds = Rect2(global_point, Vector2.ZERO)
-				has_bounds = true
-			else:
-				bounds = bounds.expand(global_point)
+			points.append(board_transform * point)
+	if points.size() < 3:
+		return points
+	return Geometry2D.convex_hull(points)
+
+func _contextual_combat_board_tile_bounds() -> Rect2:
+	var polygon: PackedVector2Array = _contextual_combat_board_tile_polygon()
+	return _bounds_for_polygon(polygon)
+
+func _bounds_for_polygon(polygon: PackedVector2Array) -> Rect2:
+	if polygon.is_empty():
+		return Rect2()
+	var bounds := Rect2(polygon[0], Vector2.ZERO)
+	for point: Vector2 in polygon:
+		bounds = bounds.expand(point)
 	return bounds
+
+func _action_step_tracker_board_intersects(rect: Rect2, board_polygon: PackedVector2Array, board_bounds: Rect2, gap: float = 0.0) -> bool:
+	if not rect.has_area() or board_polygon.size() < 3:
+		return false
+	var tested_rect: Rect2 = rect.grow(maxf(0.0, gap))
+	if not tested_rect.intersects(board_bounds):
+		return false
+	var rect_corners := PackedVector2Array([
+		tested_rect.position,
+		Vector2(tested_rect.end.x, tested_rect.position.y),
+		tested_rect.end,
+		Vector2(tested_rect.position.x, tested_rect.end.y),
+	])
+	# The rendered tile hull is convex. A separating-axis test avoids allocating
+	# clipped polygons for hundreds of candidate placements on every pointer hover.
+	for index: int in range(board_polygon.size()):
+		var edge: Vector2 = board_polygon[(index + 1) % board_polygon.size()] - board_polygon[index]
+		if edge.length_squared() <= 0.0001:
+			continue
+		var axis := Vector2(-edge.y, edge.x)
+		var board_min: float = board_polygon[0].dot(axis)
+		var board_max: float = board_min
+		for point: Vector2 in board_polygon:
+			var projection: float = point.dot(axis)
+			board_min = minf(board_min, projection)
+			board_max = maxf(board_max, projection)
+		var rect_min: float = rect_corners[0].dot(axis)
+		var rect_max: float = rect_min
+		for point: Vector2 in rect_corners:
+			var projection: float = point.dot(axis)
+			rect_min = minf(rect_min, projection)
+			rect_max = maxf(rect_max, projection)
+		if rect_max < board_min or board_max < rect_min:
+			return false
+	return true
+
+func _action_step_tracker_board_overlap_area(rect: Rect2, board_polygon: PackedVector2Array, gap: float = 0.0) -> float:
+	if not rect.has_area() or board_polygon.size() < 3:
+		return 0.0
+	var tested_rect: Rect2 = rect.grow(maxf(0.0, gap))
+	var rect_polygon := PackedVector2Array([
+		tested_rect.position,
+		Vector2(tested_rect.end.x, tested_rect.position.y),
+		tested_rect.end,
+		Vector2(tested_rect.position.x, tested_rect.end.y),
+	])
+	var intersections: Array = Geometry2D.intersect_polygons(rect_polygon, board_polygon)
+	var overlap_area: float = 0.0
+	for intersection_var: Variant in intersections:
+		var intersection: PackedVector2Array = intersection_var as PackedVector2Array
+		if intersection.size() < 3:
+			continue
+		var signed_double_area: float = 0.0
+		for index: int in range(intersection.size()):
+			var point: Vector2 = intersection[index]
+			var next_point: Vector2 = intersection[(index + 1) % intersection.size()]
+			signed_double_area += point.cross(next_point)
+		overlap_area += absf(signed_double_area) * 0.5
+	return overlap_area
 
 func _rect_intersects_any(rect: Rect2, others: Array) -> bool:
 	for other: Rect2 in others:
@@ -7441,6 +7507,12 @@ func _sync_hand_side_widths() -> void:
 	if choice_bar.visible:
 		left_width = maxf(left_width, _visible_hbox_minimum_width(choice_bar))
 	left_action_stack.custom_minimum_size.x = left_width
+	# HandScroll used to fill only the space remaining after the one-sided pile
+	# column, so its CenterContainer placed every resting fan to the right of the
+	# viewport center. Mirror the live left footprint with an inert gutter: piles
+	# retain their authored dock while the hand is centered on the full screen.
+	if hand_right_balance != null:
+		hand_right_balance.custom_minimum_size.x = left_width
 	if _play_meter_slot != null:
 		_play_meter_slot.custom_minimum_size.x = 0.0
 
@@ -10213,11 +10285,12 @@ func _layout_action_step_tracker() -> void:
 		)
 	)
 	var protected_rects: Array = _action_step_tracker_protected_rects()
-	# Tall props, focused actors, and preview effects can expand the complete
-	# rendered-art bounds after a hover. They are useful placement costs, but they
-	# must not make the current decision disappear. Only the stable interactive
-	# tile footprint is a hard collision constraint for this widget.
-	var board_bounds: Rect2 = _contextual_combat_board_tile_bounds()
+	# The complete rendered-art AABB includes the empty triangular corners around
+	# an isometric board and expands further around tall actors and preview effects.
+	# Use the stable tile hull as the hard collision boundary so those genuinely
+	# empty corners remain available without allowing the widget over a board tile.
+	var board_polygon: PackedVector2Array = _contextual_combat_board_tile_polygon()
+	var board_bounds: Rect2 = _bounds_for_polygon(board_polygon)
 	var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
 	var soft_rects: Array = []
 	if hand_bounds.size.x > 0.0 and hand_bounds.size.y > 0.0:
@@ -10254,9 +10327,9 @@ func _layout_action_step_tracker() -> void:
 			var candidate := Rect2(Vector2(x, y), tracker_size)
 			if not safe_area.encloses(candidate):
 				continue
-			var board_overlap: float = _action_step_tracker_overlap_area(candidate, [board_bounds.grow(ACTION_STEP_TRACKER_GAP)] if board_bounds.size.x > 0.0 else [])
-			if board_overlap > 0.5:
+			if _action_step_tracker_board_intersects(candidate, board_polygon, board_bounds, ACTION_STEP_TRACKER_GAP):
 				continue
+			var board_overlap: float = 0.0
 			var overlap: float = _action_step_tracker_overlap_area(candidate, protected_rects)
 			var soft_overlap: float = _action_step_tracker_overlap_area(candidate, soft_rects)
 			var score: float = overlap * 1000000.0 + soft_overlap * 1000.0 + absf(candidate.end.x - right_limit) * 0.4 + absf(candidate.position.y - preferred_y)
@@ -10276,7 +10349,7 @@ func _layout_action_step_tracker() -> void:
 				var candidate := Rect2(Vector2(x, y), tracker_size)
 				if not safe_area.encloses(candidate):
 					continue
-				var board_overlap: float = _action_step_tracker_overlap_area(candidate, [board_bounds.grow(ACTION_STEP_TRACKER_GAP)] if board_bounds.size.x > 0.0 else [])
+				var board_overlap: float = _action_step_tracker_board_overlap_area(candidate, board_polygon, ACTION_STEP_TRACKER_GAP)
 				var overlap: float = _action_step_tracker_overlap_area(candidate, protected_rects)
 				var soft_overlap: float = _action_step_tracker_overlap_area(candidate, soft_rects)
 				var score: float = board_overlap * 1000000000.0 + overlap * 1000000.0 + soft_overlap * 1000.0 + absf(candidate.end.x - right_limit) * 0.4 + absf(candidate.position.y - preferred_y)
@@ -10296,7 +10369,7 @@ func _layout_action_step_tracker() -> void:
 		)
 		chosen_overlap = _action_step_tracker_overlap_area(chosen_rect, protected_rects)
 		chosen_soft_overlap = _action_step_tracker_overlap_area(chosen_rect, soft_rects)
-		chosen_board_overlap = _action_step_tracker_overlap_area(chosen_rect, [board_bounds.grow(ACTION_STEP_TRACKER_GAP)] if board_bounds.size.x > 0.0 else [])
+		chosen_board_overlap = _action_step_tracker_board_overlap_area(chosen_rect, board_polygon, ACTION_STEP_TRACKER_GAP)
 	var safe_layout_found: bool = board_safe_layout_found and chosen_overlap <= 0.5
 	_action_step_tracker.set_meta("safe_layout_found", safe_layout_found)
 	_action_step_tracker.set_meta("board_safe_layout_found", board_safe_layout_found)
@@ -10314,9 +10387,6 @@ func _layout_action_step_tracker() -> void:
 
 func _action_step_tracker_protected_rects() -> Array:
 	var result: Array = []
-	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
-	if board_bounds.size.x > 0.0 and board_bounds.size.y > 0.0:
-		result.append(board_bounds.grow(ACTION_STEP_TRACKER_GAP))
 	for control_var: Variant in [
 		top_bar,
 		_intensity_bar,
@@ -10501,15 +10571,12 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 				mode_group
 			))
 	var option_count: int = _card_action_mode_selector.get_child_count()
-	var crowded_stack: bool = option_count >= 4
-	var option_height: float = CARD_ACTION_MODE_CROWDED_OPTION_HEIGHT if crowded_stack else CARD_ACTION_MODE_OPTION_HEIGHT
-	var option_overlap: int = CARD_ACTION_MODE_CROWDED_OPTION_OVERLAP if crowded_stack else CARD_ACTION_MODE_OPTION_OVERLAP
-	_card_action_mode_selector.add_theme_constant_override("separation", option_overlap)
+	_card_action_mode_selector.add_theme_constant_override("separation", CARD_ACTION_MODE_OPTION_OVERLAP)
 	for option_var: Variant in _card_action_mode_selector.get_children():
 		var option: Control = option_var as Control
 		if option != null:
-			option.custom_minimum_size.y = option_height
-	var stack_height: float = option_height * float(option_count) + float(option_overlap * maxi(0, option_count - 1))
+			option.custom_minimum_size.y = CARD_ACTION_MODE_OPTION_HEIGHT
+	var stack_height: float = CARD_ACTION_MODE_OPTION_HEIGHT * float(option_count) + float(CARD_ACTION_MODE_OPTION_OVERLAP * maxi(0, option_count - 1))
 	if _card_action_mode_host != null:
 		_card_action_mode_host.custom_minimum_size = Vector2(CARD_ACTION_MODE_STACK_WIDTH, stack_height)
 	_action_step_tracker.custom_minimum_size = Vector2(

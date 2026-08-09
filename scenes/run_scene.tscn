@@ -355,6 +355,10 @@ size_flags_vertical = 3
 layout_mode = 2
 script = ExtResource("4_hand")
 
+[node name="HandRightBalance" type="Control" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow"]
+layout_mode = 2
+mouse_filter = 2
+
 [connection signal="pressed" from="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/GrimoireButton" to="." method="_on_grimoire_button_pressed"]
 [connection signal="pressed" from="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton" to="." method="_on_loadout_button_pressed"]
 [connection signal="pressed" from="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton" to="." method="_on_menu_button_pressed"]
