@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T18:08:30Z",
+  "updated_at": "2026-08-09T20:27:28Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7531,6 +7531,28 @@
       "source": {
         "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
         "commit": "df0fba2"
+      }
+    },
+    {
+      "id": "mnt_20260809T202728Z_95006185",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_preview_shortcuts_for_current_action"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_preview_shortcuts_for_current_action",
+      "summary": "Cache information-safe empty movement shortcut results",
+      "details": "Heart Umbra can legitimately filter every move-to-attack shortcut. That empty result is stable for the combat/selection revision and must populate _preview_shortcuts_cache_key too; returning before caching makes each hover consumer rebuild the full movement plan several times and causes severe first-move frame drops.",
+      "status": "active",
+      "created_at": "2026-08-09T20:27:28Z",
+      "updated_at": "2026-08-09T20:27:28Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
+        "commit": "e0dab63"
       }
     }
   ]

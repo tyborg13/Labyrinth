@@ -18,7 +18,7 @@ const RELIC_IDS: Array = [
 	"iron_buckler",
 	"flint_edge",
 ]
-const SKILL_IDS: Array = ["quick_wits", "borrowed_time", "measured_breath", "carry_the_guard"]
+const SKILL_IDS: Array = ["quick_wits", "measured_breath", "ghost_stride", "discerning_eye"]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -58,6 +58,8 @@ func _initialize() -> void:
 	}, true)
 	await _assert_hud_contract(instance, true)
 	await _save_root_screenshot("%s/crowded_header_glow_ramp_v2_1920x1080.png" % OUTPUT_DIR)
+	await _assert_crowded_card_widget_contract(instance)
+	await _save_root_screenshot("%s/crowded_first_move_widget_v1_1920x1080.png" % OUTPUT_DIR)
 
 	print("HANGING ELEMENTAL INTENSITY HUD PROBE: PASS")
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -82,6 +84,12 @@ func _load_fixture(instance: Node, intensities: Dictionary, crowded: bool) -> vo
 		"heal_bonus": 0,
 	})
 	combat_state["name"] = "Hanging Ward Gallery"
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
 	combat_state["elemental_intensity"] = intensities.duplicate(true)
 	combat_state["relics"] = relics.duplicate()
 	var skill_ids: Array[String] = _string_array()
@@ -93,6 +101,7 @@ func _load_fixture(instance: Node, intensities: Dictionary, crowded: bool) -> vo
 	var umbra: Dictionary = (combat_state.get("umbra", {}) as Dictionary).duplicate(true)
 	umbra["stage"] = "heart" if crowded else "clear"
 	umbra["stage_reduction"] = 0
+	umbra["vision_bonus"] = 2 if crowded else 0
 	combat_state["umbra"] = umbra
 	combat_state["current_actor"] = {"kind": "player", "key": "player"}
 	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
@@ -174,6 +183,31 @@ func _assert_hud_contract(instance: Node, crowded: bool) -> void:
 		_assert(relic_bar != null and relic_bar.visible and relic_bar.get_child_count() >= RELIC_IDS.size(), "Crowded proof should include Defiance, Abilities, and all eight relics")
 		_assert(bar.global_position.y >= float(instance.call("_relic_bar_visible_bottom_y")), "Hanging cluster should remain below every populated header line")
 
+func _assert_crowded_card_widget_contract(instance: Node) -> void:
+	var combat: CombatEngine = instance.get("_combat_engine") as CombatEngine
+	var state: Dictionary = instance.get("_combat_state") as Dictionary
+	_assert(combat.skill_is_ready(state, "ghost_stride"), "Crowded widget fixture should make Ghost Stride ready (radius=%d, targets=%s)" % [combat.effective_umbra_radius(state), combat.valid_targets_for_player_action(state, {"type": "blink", "range": 2})])
+	instance.call("_on_card_pressed", 1)
+	await _settle_ui()
+	var tracker: Control = instance.get("_action_step_tracker") as Control
+	var selector: Control = instance.get("_card_action_mode_selector") as Control
+	_assert(tracker != null and tracker.visible, "Crowded first-move selection should keep the contextual card widget visible")
+	_assert(selector != null and selector.visible and selector.get_child_count() == 4, "Ghost Stride should expose Printed, Attack, Move, and Blink placards (count=%d)" % (selector.get_child_count() if selector != null else -1))
+	var preview: Dictionary = instance.call("_active_card_preview") as Dictionary
+	var targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
+	_assert(not targets.is_empty(), "Crowded Sidestep Slash fixture should expose move targets")
+	for target: Vector2i in targets:
+		instance.call("_on_board_tile_hovered", target)
+		await process_frame
+		_assert(tracker.visible, "Move hover should never hide the contextual card widget")
+		_assert(float(tracker.get_meta("board_overlap", -1.0)) <= 0.5, "Contextual card widget should not overlap the interactive board footprint (target=%s, overlap=%.2f, tracker=%s, board=%s, kind=%s)" % [target, float(tracker.get_meta("board_overlap", -1.0)), tracker.get_global_rect(), instance.call("_contextual_combat_board_tile_bounds"), tracker.get_meta("layout_kind", "")])
+	instance.call("_on_cancel_requested")
+	await _settle_ui()
+	instance.call("_on_card_pressed", 1)
+	await _settle_ui()
+	_assert(tracker.visible, "Cancel and reselection should keep the contextual card widget visible")
+	_assert(float(tracker.get_meta("board_overlap", -1.0)) <= 0.5, "Reselected contextual card widget should remain clear of the interactive board footprint")
+
 func _assert_hover_ownership(intensity_badges: Dictionary) -> void:
 	var viewport: Viewport = root.get_viewport()
 	for element_id: String in ElementData.all_elements():
@@ -218,7 +252,7 @@ func _room_layout() -> Dictionary:
 		"type": "combat",
 		"grid": _grid(),
 		"player_start": Vector2i(2, 4),
-		"enemies": [{"type": "crawler", "pos": Vector2i(5, 3)}],
+		"enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(5, 3), "hp": 100, "max_hp": 100, "block": 0}],
 		"traps": [],
 		"terrain": [],
 		"loot": [],
@@ -267,6 +301,13 @@ func _rect2_array(values: Array = []) -> Array[Rect2]:
 	var typed_values: Array[Rect2]
 	for value: Variant in values:
 		if value is Rect2:
+			typed_values.append(value)
+	return typed_values
+
+func _vector2i_array(values: Array = []) -> Array[Vector2i]:
+	var typed_values: Array[Vector2i]
+	for value: Variant in values:
+		if value is Vector2i:
 			typed_values.append(value)
 	return typed_values
 

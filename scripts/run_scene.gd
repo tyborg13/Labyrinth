@@ -1162,6 +1162,8 @@ const ACTION_CONTEXT_EDGE_MARGIN: float = 16.0
 const ACTION_CONTEXT_COMMAND_SIZE: Vector2 = Vector2(144.0, 50.0)
 const CARD_ACTION_MODE_OPTION_HEIGHT: float = 98.0
 const CARD_ACTION_MODE_OPTION_OVERLAP: int = -22
+const CARD_ACTION_MODE_CROWDED_OPTION_HEIGHT: float = 80.0
+const CARD_ACTION_MODE_CROWDED_OPTION_OVERLAP: int = -28
 const CARD_ACTION_MODE_STACK_WIDTH: float = 344.0
 const ACTION_CONTEXT_BUTTON_MIN_WIDTH: float = 94.0
 const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
@@ -7037,6 +7039,26 @@ func _contextual_combat_rendered_board_bounds() -> Rect2:
 				bounds = bounds.expand(global_point)
 	return bounds
 
+func _contextual_combat_board_tile_bounds() -> Rect2:
+	if board_view == null or not board_view.is_inside_tree():
+		return Rect2()
+	var bounds := Rect2()
+	var has_bounds: bool = false
+	var board_transform: Transform2D = board_view.get_global_transform()
+	for tile_var: Variant in board_view.call("_rendered_tiles_in_draw_order") as Array:
+		if typeof(tile_var) != TYPE_VECTOR2I:
+			continue
+		var tile: Vector2i = tile_var
+		var polygon: PackedVector2Array = board_view.call("_tile_polygon", tile)
+		for point: Vector2 in polygon:
+			var global_point: Vector2 = board_transform * point
+			if not has_bounds:
+				bounds = Rect2(global_point, Vector2.ZERO)
+				has_bounds = true
+			else:
+				bounds = bounds.expand(global_point)
+	return bounds
+
 func _rect_intersects_any(rect: Rect2, others: Array) -> bool:
 	for other: Rect2 in others:
 		if rect.intersects(other):
@@ -10191,7 +10213,11 @@ func _layout_action_step_tracker() -> void:
 		)
 	)
 	var protected_rects: Array = _action_step_tracker_protected_rects()
-	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
+	# Tall props, focused actors, and preview effects can expand the complete
+	# rendered-art bounds after a hover. They are useful placement costs, but they
+	# must not make the current decision disappear. Only the stable interactive
+	# tile footprint is a hard collision constraint for this widget.
+	var board_bounds: Rect2 = _contextual_combat_board_tile_bounds()
 	var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
 	var soft_rects: Array = []
 	if hand_bounds.size.x > 0.0 and hand_bounds.size.y > 0.0:
@@ -10221,13 +10247,15 @@ func _layout_action_step_tracker() -> void:
 	var chosen_rect := Rect2()
 	var chosen_overlap: float = INF
 	var chosen_soft_overlap: float = INF
+	var chosen_board_overlap: float = INF
 	var chosen_score: float = INF
 	for x: float in x_candidates:
 		for y: float in y_candidates:
 			var candidate := Rect2(Vector2(x, y), tracker_size)
 			if not safe_area.encloses(candidate):
 				continue
-			if board_bounds.size.x > 0.0 and candidate.intersects(board_bounds.grow(ACTION_STEP_TRACKER_GAP)):
+			var board_overlap: float = _action_step_tracker_overlap_area(candidate, [board_bounds.grow(ACTION_STEP_TRACKER_GAP)] if board_bounds.size.x > 0.0 else [])
+			if board_overlap > 0.5:
 				continue
 			var overlap: float = _action_step_tracker_overlap_area(candidate, protected_rects)
 			var soft_overlap: float = _action_step_tracker_overlap_area(candidate, soft_rects)
@@ -10236,17 +10264,47 @@ func _layout_action_step_tracker() -> void:
 				chosen_rect = candidate
 				chosen_overlap = overlap
 				chosen_soft_overlap = soft_overlap
+				chosen_board_overlap = board_overlap
 				chosen_score = score
-	var safe_layout_found: bool = chosen_score < INF and chosen_overlap <= 0.5
+	var board_safe_layout_found: bool = chosen_score < INF
+	if not board_safe_layout_found:
+		# Visibility is the debugging-safe failure mode. Pick the enclosed candidate
+		# with the least tile overlap, then prefer less UI and hand overlap. This is
+		# intentionally marked in metadata so a crowded state remains inspectable.
+		for x: float in x_candidates:
+			for y: float in y_candidates:
+				var candidate := Rect2(Vector2(x, y), tracker_size)
+				if not safe_area.encloses(candidate):
+					continue
+				var board_overlap: float = _action_step_tracker_overlap_area(candidate, [board_bounds.grow(ACTION_STEP_TRACKER_GAP)] if board_bounds.size.x > 0.0 else [])
+				var overlap: float = _action_step_tracker_overlap_area(candidate, protected_rects)
+				var soft_overlap: float = _action_step_tracker_overlap_area(candidate, soft_rects)
+				var score: float = board_overlap * 1000000000.0 + overlap * 1000000.0 + soft_overlap * 1000.0 + absf(candidate.end.x - right_limit) * 0.4 + absf(candidate.position.y - preferred_y)
+				if score < chosen_score:
+					chosen_rect = candidate
+					chosen_overlap = overlap
+					chosen_soft_overlap = soft_overlap
+					chosen_board_overlap = board_overlap
+					chosen_score = score
+	if chosen_score == INF:
+		chosen_rect = Rect2(
+			Vector2(
+				clampf(right_limit - tracker_size.x, safe_area.position.x, maxf(safe_area.position.x, safe_area.end.x - tracker_size.x)),
+				maxf(safe_area.position.y, safe_area.end.y - tracker_size.y)
+			),
+			tracker_size
+		)
+		chosen_overlap = _action_step_tracker_overlap_area(chosen_rect, protected_rects)
+		chosen_soft_overlap = _action_step_tracker_overlap_area(chosen_rect, soft_rects)
+		chosen_board_overlap = _action_step_tracker_overlap_area(chosen_rect, [board_bounds.grow(ACTION_STEP_TRACKER_GAP)] if board_bounds.size.x > 0.0 else [])
+	var safe_layout_found: bool = board_safe_layout_found and chosen_overlap <= 0.5
 	_action_step_tracker.set_meta("safe_layout_found", safe_layout_found)
+	_action_step_tracker.set_meta("board_safe_layout_found", board_safe_layout_found)
+	_action_step_tracker.set_meta("board_overlap", 0.0 if chosen_board_overlap == INF else chosen_board_overlap)
 	_action_step_tracker.set_meta("safe_layout_overlap", 0.0 if chosen_overlap == INF else chosen_overlap)
 	_action_step_tracker.set_meta("soft_hand_overlap", 0.0 if chosen_soft_overlap == INF else chosen_soft_overlap)
 	_action_step_tracker.set_meta("safe_layout_rect", chosen_rect)
-	_action_step_tracker.set_meta("layout_kind", "fixed_safe_edge")
-	if chosen_score == INF:
-		_action_step_tracker.visible = false
-		_layout_contextual_combat_prompt_overlay()
-		return
+	_action_step_tracker.set_meta("layout_kind", "fixed_safe_edge" if board_safe_layout_found else "visible_overlap_fallback")
 	_action_step_tracker.global_position = chosen_rect.position
 	if _action_context_connector != null:
 		_action_context_connector.visible = false
@@ -10443,7 +10501,15 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 				mode_group
 			))
 	var option_count: int = _card_action_mode_selector.get_child_count()
-	var stack_height: float = CARD_ACTION_MODE_OPTION_HEIGHT * float(option_count) + float(CARD_ACTION_MODE_OPTION_OVERLAP * maxi(0, option_count - 1))
+	var crowded_stack: bool = option_count >= 4
+	var option_height: float = CARD_ACTION_MODE_CROWDED_OPTION_HEIGHT if crowded_stack else CARD_ACTION_MODE_OPTION_HEIGHT
+	var option_overlap: int = CARD_ACTION_MODE_CROWDED_OPTION_OVERLAP if crowded_stack else CARD_ACTION_MODE_OPTION_OVERLAP
+	_card_action_mode_selector.add_theme_constant_override("separation", option_overlap)
+	for option_var: Variant in _card_action_mode_selector.get_children():
+		var option: Control = option_var as Control
+		if option != null:
+			option.custom_minimum_size.y = option_height
+	var stack_height: float = option_height * float(option_count) + float(option_overlap * maxi(0, option_count - 1))
 	if _card_action_mode_host != null:
 		_card_action_mode_host.custom_minimum_size = Vector2(CARD_ACTION_MODE_STACK_WIDTH, stack_height)
 	_action_step_tracker.custom_minimum_size = Vector2(
@@ -10627,7 +10693,8 @@ func _action_context_target_state() -> Dictionary:
 	if preview.is_empty():
 		return {"text": "RESOLVE", "tone": "neutral"}
 	var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
-	var shortcut_plans: Dictionary = (_preview_shortcuts_for_current_action(preview).get("plans", {}) as Dictionary)
+	_prepare_preview_shortcuts_for_current_action(preview)
+	var shortcut_plans: Dictionary = _preview_shortcuts_cache.get("plans", {}) as Dictionary
 	if _hovered_board_tile.x >= 0:
 		var hovered_valid: bool = target_tiles.has(_hovered_board_tile) or shortcut_plans.has(_hovered_board_tile)
 		return {
@@ -13751,8 +13818,8 @@ func _refresh_stage_view() -> void:
 			var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 			if action_type in ["move", "blink"]:
 				move_tiles = target_tiles
-				var shortcuts: Dictionary = _preview_shortcuts_for_current_action(preview)
-				attack_tiles = _vector2i_array(shortcuts.get("tiles", []))
+				_prepare_preview_shortcuts_for_current_action(preview)
+				attack_tiles = _vector2i_array(_preview_shortcuts_cache.get("tiles", []))
 				if not attack_tiles.is_empty():
 					presentation["pulse_attack_tiles"] = true
 			elif action_type in ["melee", "ranged", "aoe", "push", "pull"]:
@@ -14456,16 +14523,18 @@ func _card_preview_cache_key(index: int, play_kind: String = "play") -> String:
 	return "%d|%d|%d|%s" % [_combat_preview_revision, hash(_combat_state), index, play_kind]
 
 func _preview_shortcuts_key(preview: Dictionary) -> String:
-	return "%d|%d|%d|%d|%s|%d|%d|%d|%d" % [
+	# Combat and selection revisions are the ownership boundary for preview
+	# snapshots. Hashing the full state and target arrays here made every nominal
+	# cache hit O(state size), and _preview_presentation asks for this result
+	# several times per pointer hover.
+	return "%d|%d|%d|%d|%s|%d|%s" % [
 		_combat_preview_revision,
 		_preview_selection_revision,
 		_selected_card_index,
 		_hovered_card_index,
 		str(preview.get("card_id", "")),
 		int(preview.get("action_index", -1)),
-		hash(preview.get("action", {})),
-		hash(preview.get("target_tiles", [])),
-		hash(preview.get("state", {}))
+		_card_action_choice_mode
 	]
 
 func _pass_preview_key() -> String:
@@ -14754,7 +14823,8 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		return []
 	if action_type == "move":
 		var preview_state: Dictionary = preview.get("state", {})
-		var movement_plan: Dictionary = _preview_shortcuts_for_current_action(preview).get("movement_plan", {}) as Dictionary
+		_prepare_preview_shortcuts_for_current_action(preview)
+		var movement_plan: Dictionary = _preview_shortcuts_cache.get("movement_plan", {}) as Dictionary
 		if not movement_plan.is_empty():
 			return _combat_engine.path_from_player_movement_plan(movement_plan, _hovered_board_tile)
 		return _combat_engine.path_for_player_action(preview_state, action, _hovered_board_tile)
@@ -14908,9 +14978,21 @@ func _damage_preview_between_states(before_state: Dictionary, after_state: Dicti
 func _hovered_shortcut_plan_for_preview(preview: Dictionary) -> Dictionary:
 	if _hovered_board_tile.x < 0:
 		return {}
-	var shortcuts: Dictionary = _preview_shortcuts_for_current_action(preview)
-	var plans: Dictionary = shortcuts.get("plans", {})
+	_prepare_preview_shortcuts_for_current_action(preview)
+	var plans: Dictionary = _preview_shortcuts_cache.get("plans", {}) as Dictionary
 	return plans.get(_hovered_board_tile, {}) as Dictionary
+
+func _prepare_preview_shortcuts_for_current_action(preview: Dictionary) -> bool:
+	var action: Dictionary = preview.get("action", {})
+	if str(action.get("type", "")) not in ["move", "blink"]:
+		return false
+	var cache_key: String = _preview_shortcuts_key(preview)
+	if cache_key == _preview_shortcuts_cache_key:
+		return true
+	_preview_shortcuts_cache_key = ""
+	_preview_shortcuts_cache.clear()
+	_preview_shortcuts_for_current_action(preview)
+	return cache_key == _preview_shortcuts_cache_key
 
 func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_prefilter: bool = false) -> Dictionary:
 	var action: Dictionary = preview.get("action", {})
@@ -14966,6 +15048,12 @@ func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_pre
 	if bool(preview.get("skip_allowed", false)):
 		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [], [], allowed_target_tiles)
 	if umbra_limited and plans.is_empty():
+		# "No visible shortcut" is a stable, information-safe result for this
+		# preview revision. Cache the empty result too; otherwise every presentation
+		# consumer rebuilds the full movement plan several times per hover.
+		if not skip_spatial_prefilter:
+			_preview_shortcuts_cache_key = cache_key
+			_preview_shortcuts_cache = {}
 		return {}
 	var tiles: Array[Vector2i] = []
 	for tile_var: Variant in plans.keys():
@@ -15662,7 +15750,8 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	var preview: Dictionary = _active_card_preview()
 	var shortcut_plan: Dictionary = {}
 	if not preview.is_empty():
-		shortcut_plan = (_preview_shortcuts_for_current_action(preview).get("plans", {}) as Dictionary).get(tile, {}) as Dictionary
+		_prepare_preview_shortcuts_for_current_action(preview)
+		shortcut_plan = (_preview_shortcuts_cache.get("plans", {}) as Dictionary).get(tile, {}) as Dictionary
 	if not _pending_target_tiles.has(tile) and shortcut_plan.is_empty():
 		return
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.SELECT_TARGET)
