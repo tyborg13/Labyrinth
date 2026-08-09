@@ -9285,12 +9285,21 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	_assert(full_choice != null and full_choice.disabled and full_choice.toggle_mode and full_choice.button_pressed and bool(full_choice.get_meta("active", false)), "Unavailable As Written should remain visibly selected and disabled")
 	_assert(attack_choice != null and attack_choice.disabled and attack_choice.toggle_mode and not attack_choice.button_pressed and not bool(attack_choice.get_meta("active", false)), "Attack should be a disabled inactive mode without an adjacent target")
 	_assert(move_choice != null and not move_choice.disabled and move_choice.toggle_mode and not move_choice.button_pressed and not bool(move_choice.get_meta("active", false)), "Move should be an enabled inactive mode")
-	_assert(full_choice != null and attack_choice != null and full_choice.modulate.a <= 0.65 and attack_choice.modulate.a <= 0.65, "Unavailable modes should be substantially dimmed")
-	_assert(move_choice != null and move_choice.modulate.a >= 0.95, "Available unselected modes should remain bright")
+	_assert(full_choice != null and attack_choice != null and full_choice.modulate.a >= 0.99 and attack_choice.modulate.a >= 0.99, "Unavailable placards should dim without becoming translucent over the spine")
+	_assert(move_choice != null and move_choice.modulate.a >= 0.99, "Available unselected modes should remain fully opaque")
 	_assert(full_choice != null and attack_choice != null and move_choice != null and full_choice.button_group == attack_choice.button_group and attack_choice.button_group == move_choice.button_group, "All three play modes should share one exclusive ButtonGroup")
 	for choice_button: Button in [full_choice, attack_choice, move_choice]:
 		if choice_button != null:
-			_assert(choice_button.custom_minimum_size.x >= 88.0 and choice_button.custom_minimum_size.y >= 36.0 and choice_button.custom_minimum_size.y <= 44.0, "Clicked-card play modes should use compact radio-style options")
+			_assert(choice_button.custom_minimum_size.x >= 300.0 and choice_button.custom_minimum_size.y >= 94.0 and choice_button.custom_minimum_size.y <= 102.0, "Clicked-card play modes should use large overlapping painted placards")
+			_assert(bool(choice_button.get_meta("authored_placard_choice", false)) and choice_button.find_child("ModePlacardTexture", true, false) != null, "Clicked-card play modes should use authored raster placards")
+			_assert(bool(choice_button.get_meta("embedded_identity_icon", false)) and choice_button.find_child("ModeIcon", true, false) == null, "Each placard should contain its identity icon in the authored art")
+			_assert(choice_button.find_child("ModeIndicator", true, false) == null and choice_button.find_child("SelectedDot", true, false) == null, "Brushstroke choices should remove the old radio dot and avoid a stamp selection mark")
+	_assert(full_choice != null and str(full_choice.get_meta("mode_icon_key", "")) == "card_play", "PRINTED mode should identify its built-in emblem as a card")
+	var selected_glow: TextureRect = full_choice.find_child("SelectedGlow", true, false) as TextureRect if full_choice != null else null
+	_assert(full_choice != null and bool(full_choice.get_meta("selected_glow_visible", false)) and selected_glow != null and bool(selected_glow.get_meta("matches_pre_battle_start_glow", false)) and bool(selected_glow.get_meta("follows_placard_alpha", false)), "Selected PRINTED mode should use a soft alpha-following gold glow as its primary cue")
+	_assert(context.get_theme_stylebox("panel") is StyleBoxEmpty, "Contextual card play choices should remove the old panel background")
+	var placard_spine: TextureRect = context.find_child("ModePlacardSpine", true, false) as TextureRect
+	_assert(placard_spine != null and bool(placard_spine.get_meta("connects_placards_only", false)), "The placard stack should have an authored connective spine that does not extend into the dynamic action row")
 	instance.call("_on_cancel_requested")
 	await process_frame
 	_assert(int(instance.get("_card_action_choice_index")) == -1 and int(instance.get("_selected_card_index")) == -1, "Cancel from play-mode choices should return cleanly to idle")

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-08T12:07:22Z",
+  "updated_at": "2026-08-09T14:45:27Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5030,30 +5030,6 @@
       }
     },
     {
-      "id": "mnt_20260713T231855Z_386d663b",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Card action context stays compact, card-anchored, and motion-stable",
-      "details": "For normal card targeting and the Printed/Attack/Move choice, omit action-type and target-validity/turn-end-risk rows. Position the contextual widget directly above the active hand card. When play commits, lock the widget's exact screen position through card-flight and action-resolution animations so hand rebuilding or reflow cannot shift it; retain drag-only release guidance.",
-      "status": "active",
-      "created_at": "2026-07-13T23:18:55Z",
-      "updated_at": "2026-07-13T23:18:55Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260713T230017Z_4c15cd57"
-      ],
-      "source": {
-        "branch": "codex/simplify-move-contextual-card-widget",
-        "commit": "39afef2"
-      }
-    },
-    {
       "id": "mnt_20260715T030234Z_90fe7a66",
       "layer": "shared",
       "kind": "pitfall",
@@ -5323,28 +5299,6 @@
       "source": {
         "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
         "commit": "ea5df87"
-      }
-    },
-    {
-      "id": "mnt_20260716T164006Z_1e2589d0",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Targetless card clicks require card-anchored confirmation",
-      "details": "Clicking a playable card may arm and preview its Printed mode, but a card whose preview completes without a board target must not resolve until the highlighted Play Card action in the compact card-anchored rail is pressed. Keep Printed/Attack/Move switchable before commitment; Cancel or selecting another card must not spend, resolve, or emit card-play analytics. Drag-to-board remains confirmed by its explicit drop.",
-      "status": "active",
-      "created_at": "2026-07-16T16:40:06Z",
-      "updated_at": "2026-07-16T16:40:06Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/require-confirmation-for-every-card-play",
-        "commit": "869edc7"
       }
     },
     {
@@ -7396,6 +7350,31 @@
       "source": {
         "branch": "codex/fix-retained-combat-actor-tile-framing-desync",
         "commit": "617e6d7"
+      }
+    },
+    {
+      "id": "mnt_20260809T144527Z_44e39f5a",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Card play choices use an authored safe-edge placard stack",
+      "details": "The concept-5 art direction is the source of truth: render large opaque overlapping PRINTED/ATTACK/MOVE authored raster placards with baked identity icons on a short vertical spine, place the stack in collision-free screen-edge space outside the tactical board and hand, and keep dynamic action tags as a separate horizontal authored row below the spine. The selected placard gets only a dynamic soft gold alpha-following halo\u2014no wax stamp, radio dot, backing panel, oval, or hard outline. Preserve explicit targetless Printed confirmation, mode switching, Cancel, and motion-stable resolution behavior.",
+      "status": "active",
+      "created_at": "2026-08-09T14:45:27Z",
+      "updated_at": "2026-08-09T14:45:27Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260713T231855Z_386d663b",
+        "mnt_20260716T164006Z_1e2589d0"
+      ],
+      "source": {
+        "branch": "codex/implement-ink-path-contextual-card-play-widget",
+        "commit": "a5729c1"
       }
     }
   ]

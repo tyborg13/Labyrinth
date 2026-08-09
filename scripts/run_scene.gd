@@ -32,6 +32,7 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
+const CardActionContextArt = preload("res://scripts/card_action_context_art.gd")
 const PreBattlePortraitEdgeMaterial = preload("res://scripts/pre_battle_portrait_edge_material.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
@@ -1145,13 +1146,16 @@ const PASS_FORECAST_PRESSED_TEXTURE_PATH: String = "res://assets/art/ui/pass_for
 const DRAW_PILE_ICON_TEXTURE_PATH: String = "res://assets/art/ui/draw_pile_icon_v2.png"
 const DISCARD_PILE_ICON_TEXTURE_PATH: String = "res://assets/art/ui/discard_pile_icon_v1.png"
 const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(328.0, 116.0)
-const ACTION_STEP_CHIP_SIZE: Vector2 = Vector2(46.0, 46.0)
-const ACTION_STEP_ICON_INSET: float = 9.0
+const ACTION_STEP_TRACKER_CHOICE_MIN_SIZE: Vector2 = Vector2(360.0, 334.0)
+const ACTION_STEP_CHIP_SIZE: Vector2 = Vector2(44.0, 64.0)
+const ACTION_STEP_ICON_INSET: float = 10.0
 const ACTION_STEP_TRACKER_GAP: float = 12.0
 const ACTION_CONTEXT_MAX_WIDTH: float = 960.0
 const ACTION_CONTEXT_EDGE_MARGIN: float = 16.0
 const ACTION_CONTEXT_COMMAND_SIZE: Vector2 = Vector2(144.0, 50.0)
-const CARD_ACTION_MODE_OPTION_HEIGHT: float = 40.0
+const CARD_ACTION_MODE_OPTION_HEIGHT: float = 98.0
+const CARD_ACTION_MODE_OPTION_OVERLAP: int = -22
+const CARD_ACTION_MODE_STACK_WIDTH: float = 344.0
 const ACTION_CONTEXT_BUTTON_MIN_WIDTH: float = 94.0
 const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
 const CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP: float = 8.0
@@ -1533,12 +1537,14 @@ var _action_step_tracker_title: Label
 var _action_context_step_label: Label
 var _action_context_detail_row: HBoxContainer
 var _action_context_status_row: HBoxContainer
+var _action_context_header: VBoxContainer
 var _action_context_verb_label: Label
 var _action_context_target_label: Label
 var _action_context_risk_panel: PanelContainer
 var _action_context_risk_label: Label
 var _action_step_tracker_steps: HBoxContainer
-var _card_action_mode_selector: HBoxContainer
+var _card_action_mode_host: Control
+var _card_action_mode_selector: VBoxContainer
 var _contextual_combat_prompt_host: CenterContainer
 var _contextual_combat_prompt: Control
 var _active_contextual_combat_prompt_id: String = ""
@@ -7143,39 +7149,39 @@ func _setup_action_step_tracker() -> void:
 	_action_step_tracker.z_index = 124
 	_action_step_tracker.z_as_relative = false
 	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_PASS
-	_action_step_tracker.add_theme_stylebox_override("panel", _action_step_tracker_style())
+	_action_step_tracker.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	ui_root.add_child(_action_step_tracker)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 9)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 9)
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 5)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 5)
 	_action_step_tracker.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 7)
+	vbox.add_theme_constant_override("separation", 4)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
-	var header := VBoxContainer.new()
-	header.name = "ActionContextHeader"
-	header.custom_minimum_size = Vector2(0.0, 26.0)
-	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_theme_constant_override("separation", 0)
-	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(header)
+	_action_context_header = VBoxContainer.new()
+	_action_context_header.name = "ActionContextHeader"
+	_action_context_header.custom_minimum_size = Vector2(0.0, 26.0)
+	_action_context_header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_action_context_header.add_theme_constant_override("separation", 0)
+	_action_context_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(_action_context_header)
 
 	var title_row := HBoxContainer.new()
 	title_row.custom_minimum_size = Vector2(0.0, 26.0)
 	title_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_theme_constant_override("separation", 4)
 	title_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(title_row)
+	_action_context_header.add_child(title_row)
 
 	_action_context_detail_row = HBoxContainer.new()
 	_action_context_detail_row.name = "ActionContextDetailRow"
@@ -7183,7 +7189,7 @@ func _setup_action_step_tracker() -> void:
 	_action_context_detail_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_action_context_detail_row.add_theme_constant_override("separation", 4)
 	_action_context_detail_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(_action_context_detail_row)
+	_action_context_header.add_child(_action_context_detail_row)
 
 	_action_context_status_row = HBoxContainer.new()
 	_action_context_status_row.name = "ActionContextStatusRow"
@@ -7191,7 +7197,7 @@ func _setup_action_step_tracker() -> void:
 	_action_context_status_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_action_context_status_row.add_theme_constant_override("separation", 4)
 	_action_context_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(_action_context_status_row)
+	_action_context_header.add_child(_action_context_status_row)
 
 	_action_step_tracker_title = Label.new()
 	_action_step_tracker_title.name = "ActionStepTitle"
@@ -7262,14 +7268,23 @@ func _setup_action_step_tracker() -> void:
 	_action_context_risk_label.add_theme_color_override("font_color", Color("aee49f"))
 	_action_context_risk_panel.add_child(_action_context_risk_label)
 
-	_card_action_mode_selector = HBoxContainer.new()
+	_card_action_mode_host = Control.new()
+	_card_action_mode_host.name = "CardActionModeHost"
+	_card_action_mode_host.visible = false
+	_card_action_mode_host.custom_minimum_size = Vector2(CARD_ACTION_MODE_STACK_WIDTH, CARD_ACTION_MODE_OPTION_HEIGHT * 3.0 + float(CARD_ACTION_MODE_OPTION_OVERLAP * 2))
+	_card_action_mode_host.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_card_action_mode_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(_card_action_mode_host)
+	CardActionContextArt.attach_mode_spine(_card_action_mode_host)
+
+	_card_action_mode_selector = VBoxContainer.new()
 	_card_action_mode_selector.name = "CardActionModeSelector"
-	_card_action_mode_selector.visible = false
-	_card_action_mode_selector.custom_minimum_size = Vector2(0.0, CARD_ACTION_MODE_OPTION_HEIGHT)
-	_card_action_mode_selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_card_action_mode_selector.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_card_action_mode_selector.anchor_right = 1.0
+	_card_action_mode_selector.anchor_bottom = 1.0
 	_card_action_mode_selector.alignment = BoxContainer.ALIGNMENT_CENTER
-	_card_action_mode_selector.add_theme_constant_override("separation", 4)
-	vbox.add_child(_card_action_mode_selector)
+	_card_action_mode_selector.add_theme_constant_override("separation", CARD_ACTION_MODE_OPTION_OVERLAP)
+	_card_action_mode_host.add_child(_card_action_mode_selector)
 
 	var action_row := HBoxContainer.new()
 	action_row.name = "ActionContextActions"
@@ -7282,7 +7297,7 @@ func _setup_action_step_tracker() -> void:
 	_action_step_tracker_steps = HBoxContainer.new()
 	_action_step_tracker_steps.name = "ActionStepChips"
 	_action_step_tracker_steps.alignment = BoxContainer.ALIGNMENT_BEGIN
-	_action_step_tracker_steps.add_theme_constant_override("separation", 6)
+	_action_step_tracker_steps.add_theme_constant_override("separation", 0)
 	_action_step_tracker_steps.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	action_row.add_child(_action_step_tracker_steps)
 
@@ -9945,6 +9960,8 @@ func _refresh_action_step_tracker() -> void:
 	if _card_action_mode_selector != null:
 		_clear_children_now(_card_action_mode_selector)
 		_card_action_mode_selector.visible = false
+	if _card_action_mode_host != null:
+		_card_action_mode_host.visible = false
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
 	_drag_zone_detail_labels.clear()
@@ -9964,7 +9981,10 @@ func _refresh_action_step_tracker() -> void:
 	var actions: Array = tracker_state.get("actions", [])
 	var current_index: int = int(tracker_state.get("action_index", 0))
 	var context_mode: String = str(tracker_state.get("mode", "selection"))
+	_action_step_tracker.custom_minimum_size = ACTION_STEP_TRACKER_CHOICE_MIN_SIZE if context_mode == "choice" else ACTION_STEP_TRACKER_MIN_SIZE
 	var compact_header_mode: bool = context_mode == "drag"
+	if _action_context_header != null:
+		_action_context_header.visible = context_mode != "choice"
 	if _action_context_detail_row != null:
 		_action_context_detail_row.visible = compact_header_mode
 	if _action_context_status_row != null:
@@ -9987,6 +10007,8 @@ func _refresh_action_step_tracker() -> void:
 		var status: String = _action_step_status_for_index(index, current_index, skipped_indices)
 		statuses.append(status)
 		action_types.append(str(action.get("type", "")))
+		if index > 0:
+			_action_step_tracker_steps.add_child(CardActionContextArt.make_action_connector(status, index))
 		_action_step_tracker_steps.add_child(_build_action_step_chip(index, action, status))
 	_action_step_tracker.set_meta("step_statuses", statuses)
 	_action_step_tracker.set_meta("step_action_types", action_types)
@@ -10089,10 +10111,12 @@ func _layout_action_step_tracker() -> void:
 		_layout_contextual_combat_prompt_overlay()
 		return
 	var tracker_size: Vector2 = _action_step_tracker.get_combined_minimum_size()
+	var minimum_tracker_size: Vector2 = _action_step_tracker.custom_minimum_size
 	if tracker_size.x <= 0.0 or tracker_size.y <= 0.0:
-		tracker_size = ACTION_STEP_TRACKER_MIN_SIZE
+		tracker_size = minimum_tracker_size
 	var viewport_size: Vector2 = get_viewport_rect().size
-	tracker_size.x = minf(maxf(ACTION_STEP_TRACKER_MIN_SIZE.x, tracker_size.x), viewport_size.x - ACTION_CONTEXT_EDGE_MARGIN * 2.0)
+	tracker_size.x = minf(maxf(minimum_tracker_size.x, tracker_size.x), viewport_size.x - ACTION_CONTEXT_EDGE_MARGIN * 2.0)
+	tracker_size.y = minf(maxf(minimum_tracker_size.y, tracker_size.y), viewport_size.y - ACTION_CONTEXT_EDGE_MARGIN * 2.0)
 	_action_step_tracker.size = tracker_size
 	if _action_step_tracker_position_locked:
 		_action_step_tracker.global_position = Vector2(
@@ -10102,22 +10126,110 @@ func _layout_action_step_tracker() -> void:
 		_layout_contextual_combat_prompt_overlay()
 		call_deferred("_layout_contextual_combat_prompt_overlay")
 		return
-	var anchor_rect: Rect2 = _action_step_tracker_anchor_rect()
-	if anchor_rect.size.x <= 0.0 and anchor_rect.size.y <= 0.0:
-		return
-	var target_x: float = anchor_rect.get_center().x - tracker_size.x * 0.5
-	target_x = clampf(target_x, ACTION_CONTEXT_EDGE_MARGIN, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.x - tracker_size.x - ACTION_CONTEXT_EDGE_MARGIN))
 	var minimum_y: float = maxf(ACTION_CONTEXT_EDGE_MARGIN, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
 	if _intensity_bar != null and _intensity_bar.visible:
 		minimum_y = maxf(minimum_y, _intensity_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
-	var target_y: float = anchor_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP
-	var maximum_y: float = maxf(minimum_y, viewport_size.y - tracker_size.y - ACTION_CONTEXT_EDGE_MARGIN)
-	target_y = clampf(target_y, minimum_y, maximum_y)
-	_action_step_tracker.global_position = Vector2(target_x, target_y)
+	var safe_area := Rect2(
+		Vector2(ACTION_CONTEXT_EDGE_MARGIN, minimum_y),
+		Vector2(
+			maxf(0.0, viewport_size.x - ACTION_CONTEXT_EDGE_MARGIN * 2.0),
+			maxf(0.0, viewport_size.y - ACTION_CONTEXT_EDGE_MARGIN - minimum_y)
+		)
+	)
+	var protected_rects: Array = _action_step_tracker_protected_rects()
+	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
+	var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
+	var right_limit: float = safe_area.end.x
+	if _turn_order_panel != null and _turn_order_panel.visible:
+		right_limit = minf(right_limit, _turn_order_panel.get_global_rect().position.x - ACTION_STEP_TRACKER_GAP)
+	var preferred_y: float = board_bounds.end.y + ACTION_STEP_TRACKER_GAP if board_bounds.size.y > 0.0 else safe_area.end.y - tracker_size.y
+	preferred_y = clampf(preferred_y, safe_area.position.y, maxf(safe_area.position.y, safe_area.end.y - tracker_size.y))
+	var x_candidates: Array[float] = [
+		right_limit - tracker_size.x,
+		safe_area.end.x - tracker_size.x,
+		hand_bounds.end.x + ACTION_STEP_TRACKER_GAP if hand_bounds.size.x > 0.0 else safe_area.end.x - tracker_size.x,
+		safe_area.position.x,
+		board_bounds.position.x - tracker_size.x - ACTION_STEP_TRACKER_GAP if board_bounds.size.x > 0.0 else safe_area.position.x,
+	]
+	var y_candidates: Array[float] = [
+		preferred_y,
+		safe_area.end.y - tracker_size.y,
+		hand_bounds.position.y if hand_bounds.size.y > 0.0 else preferred_y,
+	]
+	for protected_rect: Rect2 in protected_rects:
+		x_candidates.append(protected_rect.end.x + ACTION_STEP_TRACKER_GAP)
+		x_candidates.append(protected_rect.position.x - tracker_size.x - ACTION_STEP_TRACKER_GAP)
+		y_candidates.append(protected_rect.end.y + ACTION_STEP_TRACKER_GAP)
+		y_candidates.append(protected_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP)
+	var chosen_rect := Rect2()
+	var chosen_overlap: float = INF
+	var chosen_score: float = INF
+	for x: float in x_candidates:
+		for y: float in y_candidates:
+			var candidate := Rect2(Vector2(x, y), tracker_size)
+			if not safe_area.encloses(candidate):
+				continue
+			if board_bounds.size.x > 0.0 and candidate.intersects(board_bounds.grow(ACTION_STEP_TRACKER_GAP)):
+				continue
+			var overlap: float = _action_step_tracker_overlap_area(candidate, protected_rects)
+			var score: float = overlap * 1000.0 + absf(candidate.end.x - right_limit) * 0.4 + absf(candidate.position.y - preferred_y)
+			if score < chosen_score:
+				chosen_rect = candidate
+				chosen_overlap = overlap
+				chosen_score = score
+	var safe_layout_found: bool = chosen_score < INF and chosen_overlap <= 0.5
+	_action_step_tracker.set_meta("safe_layout_found", safe_layout_found)
+	_action_step_tracker.set_meta("safe_layout_overlap", 0.0 if chosen_overlap == INF else chosen_overlap)
+	_action_step_tracker.set_meta("safe_layout_rect", chosen_rect)
+	_action_step_tracker.set_meta("layout_kind", "fixed_safe_edge")
+	if chosen_score == INF:
+		_action_step_tracker.visible = false
+		_layout_contextual_combat_prompt_overlay()
+		return
+	_action_step_tracker.global_position = chosen_rect.position
 	if _action_context_connector != null:
 		_action_context_connector.visible = false
 	_layout_contextual_combat_prompt_overlay()
 	call_deferred("_layout_contextual_combat_prompt_overlay")
+
+
+func _action_step_tracker_protected_rects() -> Array:
+	var result: Array = []
+	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
+	if board_bounds.size.x > 0.0 and board_bounds.size.y > 0.0:
+		result.append(board_bounds.grow(ACTION_STEP_TRACKER_GAP))
+	for control_var: Variant in [
+		top_bar,
+		_intensity_bar,
+		_combat_objective_hud,
+		draw_pile,
+		discard_pile,
+		_turn_order_panel,
+		_play_meter,
+		mini_map_overlay,
+		_choice_button_overlay,
+		_pass_preview_overlay,
+		_contextual_combat_prompt_host
+	]:
+		var control: Control = control_var as Control
+		if control == null or not control.visible or not control.is_inside_tree():
+			continue
+		var rect: Rect2 = control.get_global_rect()
+		if rect.size.x > 0.0 and rect.size.y > 0.0:
+			result.append(rect.grow(ACTION_STEP_TRACKER_GAP))
+	var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
+	if hand_bounds.size.x > 0.0 and hand_bounds.size.y > 0.0:
+		result.append(hand_bounds.grow(ACTION_STEP_TRACKER_GAP))
+	return result
+
+
+func _action_step_tracker_overlap_area(rect: Rect2, protected_rects: Array) -> float:
+	var area: float = 0.0
+	for protected_rect: Rect2 in protected_rects:
+		var intersection: Rect2 = rect.intersection(protected_rect)
+		if intersection.size.x > 0.0 and intersection.size.y > 0.0:
+			area += intersection.size.x * intersection.size.y
+	return area
 
 func _action_step_tracker_anchor_rect() -> Rect2:
 	if _drag_card_index >= 0 and _drag_card_source_rect.size.x > 0.0 and _drag_card_source_rect.size.y > 0.0:
@@ -10234,6 +10346,8 @@ func _add_card_play_confirmation_button() -> void:
 func _refresh_card_action_mode_selector(context_mode: String) -> void:
 	if _card_action_mode_selector == null or context_mode != "choice":
 		return
+	if _card_action_mode_host != null:
+		_card_action_mode_host.visible = true
 	_card_action_mode_selector.visible = true
 	var mode_group := ButtonGroup.new()
 	mode_group.allow_unpress = false
@@ -10242,7 +10356,6 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 			"PRINTED",
 			bool(_card_action_choice_options.get("printed_playable", false)),
 			Color("d8aa5f"),
-			Color("342719"),
 			"Use this card's printed actions",
 			mode_group
 		))
@@ -10251,7 +10364,6 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 			"ATTACK %d" % _fallback_attack_damage(),
 			bool(_card_action_choice_options.get("attack_playable", false)),
 			Color("d97558"),
-			Color("321c18"),
 			"Spend this card for a basic Attack",
 			mode_group
 		))
@@ -10260,7 +10372,6 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 			"MOVE %d" % FALLBACK_MOVE_RANGE,
 			bool(_card_action_choice_options.get("move_playable", false)),
 			Color("65a7bf"),
-			Color("182833"),
 			"Spend this card for a basic Move",
 			mode_group
 		))
@@ -10270,130 +10381,73 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 				"BLINK %d" % FALLBACK_MOVE_RANGE,
 				bool(_card_action_choice_options.get("blink_playable", false)),
 				Color("ae8ee0"),
-				Color("251b35"),
 				"Use Ghost Stride to spend this card for a Blink",
 				mode_group
 			))
+	var option_count: int = _card_action_mode_selector.get_child_count()
+	var stack_height: float = CARD_ACTION_MODE_OPTION_HEIGHT * float(option_count) + float(CARD_ACTION_MODE_OPTION_OVERLAP * maxi(0, option_count - 1))
+	if _card_action_mode_host != null:
+		_card_action_mode_host.custom_minimum_size = Vector2(CARD_ACTION_MODE_STACK_WIDTH, stack_height)
+	_action_step_tracker.custom_minimum_size = Vector2(
+		ACTION_STEP_TRACKER_CHOICE_MIN_SIZE.x,
+		maxf(ACTION_STEP_TRACKER_CHOICE_MIN_SIZE.y, stack_height + ACTION_STEP_CHIP_SIZE.y + 20.0)
+	)
 
-func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, fill: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
+func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
 	var button := UiTooltipButton.new()
 	var active: bool = play_kind == _card_action_choice_mode
 	button.name = "CardActionChoice%s" % play_kind.capitalize()
 	button.text = ""
 	button.tooltip_text = tooltip if available else "%s · unavailable with current targets" % tooltip
-	var option_width: float = 112.0 if play_kind == "attack" else (100.0 if play_kind == "blink" else 96.0)
+	var option_width: float = 326.0 if play_kind == "play" else (314.0 if play_kind in ["attack", "blink"] else 320.0)
 	button.custom_minimum_size = Vector2(option_width, CARD_ACTION_MODE_OPTION_HEIGHT)
+	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	button.flat = true
+	button.clip_contents = false
+	button.z_index = 4 if active else (3 if play_kind == "play" else (2 if play_kind == "attack" else 1))
 	button.focus_mode = Control.FOCUS_NONE
 	button.toggle_mode = true
 	button.button_group = mode_group
 	button.set_pressed_no_signal(active)
 	button.disabled = not available
-	button.modulate = Color.WHITE if available else Color(0.62, 0.62, 0.62, 0.58)
+	button.modulate = Color.WHITE if active and available else (Color(0.78, 0.78, 0.78, 1.0) if available else Color(0.52, 0.50, 0.48, 1.0))
 	button.set_meta("play_kind", play_kind)
 	button.set_meta("available", available)
 	button.set_meta("active", active)
-	button.add_theme_stylebox_override("normal", _card_action_mode_option_style(fill, accent, "normal", active))
-	button.add_theme_stylebox_override("hover", _card_action_mode_option_style(fill, accent, "hover", active))
-	button.add_theme_stylebox_override("pressed", _card_action_mode_option_style(fill, accent, "pressed", true))
-	button.add_theme_stylebox_override("hover_pressed", _card_action_mode_option_style(fill, accent, "hover", true))
-	button.add_theme_stylebox_override("disabled", _card_action_mode_option_style(fill, accent, "disabled", active))
-	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	_add_card_action_mode_option_content(button, text, accent, active, available)
+	button.set_meta("mode_icon_key", "card_play" if play_kind == "play" else ("melee" if play_kind == "attack" else play_kind))
+	button.set_meta("selection_cue", "pre_battle_gold_glow")
+	var empty_style := StyleBoxEmpty.new()
+	for style_name: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
+		button.add_theme_stylebox_override(style_name, empty_style)
+	CardActionContextArt.attach_mode_placard(button, play_kind, accent, active, available)
+	_add_card_action_mode_option_content(button, text, play_kind, available)
 	button.pressed.connect(_on_card_action_choice_pressed.bind(play_kind))
 	return button
 
-func _add_card_action_mode_option_content(button: Button, text: String, accent: Color, active: bool, available: bool) -> void:
+func _add_card_action_mode_option_content(button: Button, text: String, play_kind: String, available: bool) -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 6)
-	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_left", 84)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 16)
 	button.add_child(margin)
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 5)
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(row)
-	var indicator := PanelContainer.new()
-	indicator.name = "ModeIndicator"
-	indicator.custom_minimum_size = Vector2(13.0, 13.0)
-	indicator.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	indicator.add_theme_stylebox_override("panel", _card_action_mode_indicator_style(accent, active, available, false))
-	row.add_child(indicator)
-	var indicator_center := CenterContainer.new()
-	indicator_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	indicator.add_child(indicator_center)
-	var dot := PanelContainer.new()
-	dot.name = "SelectedDot"
-	dot.visible = active
-	dot.custom_minimum_size = Vector2(5.0, 5.0)
-	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	dot.add_theme_stylebox_override("panel", _card_action_mode_indicator_style(accent, active, available, true))
-	indicator_center.add_child(dot)
 	var label := Label.new()
 	label.name = "ModeLabel"
 	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-	label.add_theme_color_override("font_color", Color("fff4df") if active and available else (Color("d8cbb8") if available else Color("817a73")))
-	label.add_theme_color_override("font_outline_color", Color("20140d"))
-	label.add_theme_constant_override("outline_size", 1)
-	row.add_child(label)
-
-func _card_action_mode_indicator_style(accent: Color, active: bool, available: bool, dot: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var resolved_accent: Color = accent if available else Color("59544f")
-	style.bg_color = resolved_accent.lightened(0.18) if dot else (Color("1c1713") if available else Color("171513"))
-	if not dot:
-		style.border_color = resolved_accent.lightened(0.2) if active else resolved_accent.darkened(0.2)
-		style.border_width_left = 2 if active else 1
-		style.border_width_top = 2 if active else 1
-		style.border_width_right = 2 if active else 1
-		style.border_width_bottom = 2 if active else 1
-	var radius: int = 3 if dot else 7
-	style.corner_radius_top_left = radius
-	style.corner_radius_top_right = radius
-	style.corner_radius_bottom_right = radius
-	style.corner_radius_bottom_left = radius
-	return style
-
-func _card_action_mode_option_style(fill: Color, accent: Color, state: String, active: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	match state:
-		"hover":
-			style.bg_color = fill.lightened(0.2 if active else 0.08)
-			style.border_color = accent.lightened(0.28)
-			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.26)
-			style.shadow_size = 6
-		"pressed":
-			style.bg_color = fill.lightened(0.12)
-			style.border_color = accent.lightened(0.24)
-			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.16)
-			style.shadow_size = 4
-		"disabled":
-			style.bg_color = Color("171411") if active else Color("0d0c0b")
-			style.border_color = Color("625a52") if active else Color("3f3b37")
-			style.shadow_color = Color.TRANSPARENT
-		_:
-			style.bg_color = fill.lightened(0.08) if active else Color("17130f")
-			style.border_color = accent.lightened(0.18) if active else accent.darkened(0.12)
-			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.2) if active else Color(0.0, 0.0, 0.0, 0.2)
-			style.shadow_size = 5 if active else 2
-	var border_width: int = 2 if state != "disabled" else 1
-	style.border_width_left = border_width
-	style.border_width_top = border_width
-	style.border_width_right = border_width
-	style.border_width_bottom = border_width
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	return style
+	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
+	var text_color: Color = Color("362419") if play_kind == "play" else Color("e7d6b9")
+	label.add_theme_color_override("font_color", text_color if available else text_color.darkened(0.48))
+	label.add_theme_color_override("font_outline_color", Color(0.06, 0.035, 0.025, 0.86))
+	label.add_theme_constant_override("outline_size", 1 if play_kind == "play" else 2)
+	margin.add_child(label)
 
 func _add_action_context_button(text: String, callback: Callable, tooltip: String = "", extra_compact: bool = false) -> void:
 	if _action_context_command_bar == null:
@@ -10680,7 +10734,8 @@ func _build_action_step_chip(index: int, action: Dictionary, status: String) -> 
 	chip.set_meta("step_status", status)
 	chip.set_meta("action_type", str(action.get("type", "")))
 	chip.tooltip_text = _action_step_tooltip(index, action, status)
-	chip.add_theme_stylebox_override("panel", _action_step_chip_style(status))
+	chip.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	CardActionContextArt.attach_action_tag(chip, status)
 
 	var content := Control.new()
 	content.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -10695,9 +10750,9 @@ func _build_action_step_chip(index: int, action: Dictionary, status: String) -> 
 	icon.anchor_right = 1.0
 	icon.anchor_bottom = 1.0
 	icon.offset_left = ACTION_STEP_ICON_INSET
-	icon.offset_top = ACTION_STEP_ICON_INSET
+	icon.offset_top = 12.0
 	icon.offset_right = -ACTION_STEP_ICON_INSET
-	icon.offset_bottom = -ACTION_STEP_ICON_INSET
+	icon.offset_bottom = -19.0
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture = AssetLoader.load_texture(ActionIcons.icon_path(icon_key))
@@ -10708,16 +10763,46 @@ func _build_action_step_chip(index: int, action: Dictionary, status: String) -> 
 	var number := Label.new()
 	number.name = "StepNumber"
 	number.text = str(index + 1)
-	number.position = Vector2(3.0, 2.0)
-	number.custom_minimum_size = Vector2(16.0, 15.0)
+	number.position = Vector2(2.0, 4.0)
+	number.custom_minimum_size = Vector2(14.0, 14.0)
 	number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	number.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	number.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(number, 9)
+	UiTypography.set_label_size(number, 8)
 	number.add_theme_color_override("font_color", _action_step_number_color(status))
 	number.add_theme_color_override("font_outline_color", Color("100b08"))
 	number.add_theme_constant_override("outline_size", 1)
 	content.add_child(number)
+
+	var value := Label.new()
+	value.name = "ActionValue"
+	value.text = _action_step_value_text(action, icon_key)
+	value.position = Vector2(9.0, 46.0)
+	value.size = Vector2(26.0, 15.0)
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(value, 10)
+	value.add_theme_color_override("font_color", _action_step_number_color(status))
+	value.add_theme_color_override("font_outline_color", Color("100b08"))
+	value.add_theme_constant_override("outline_size", 1)
+	content.add_child(value)
+	chip.set_meta("action_value_text", value.text)
+
+	if status == "done":
+		var done := Label.new()
+		done.name = "DoneGlyph"
+		done.text = "✓"
+		done.position = Vector2(30.0, 3.0)
+		done.size = Vector2(14.0, 14.0)
+		done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		done.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		done.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.set_label_size(done, 10)
+		done.add_theme_color_override("font_color", Color("d9ffd6"))
+		done.add_theme_color_override("font_outline_color", Color("100b08"))
+		done.add_theme_constant_override("outline_size", 1)
+		content.add_child(done)
 
 	if status == "skipped":
 		var skipped := Label.new()
@@ -10735,6 +10820,19 @@ func _build_action_step_chip(index: int, action: Dictionary, status: String) -> 
 		skipped.add_theme_constant_override("outline_size", 2)
 		content.add_child(skipped)
 	return chip
+
+
+func _action_step_value_text(action: Dictionary, icon_key: String) -> String:
+	for token_var: Variant in ActionIcons.tokens_for_action(action):
+		if typeof(token_var) != TYPE_DICTIONARY:
+			continue
+		var token: Dictionary = token_var as Dictionary
+		if str(token.get("icon", "")) != icon_key:
+			continue
+		var value_text: String = ActionIcons.token_value_text(token)
+		if not value_text.is_empty():
+			return value_text
+	return "•"
 
 func _action_step_tooltip(index: int, action: Dictionary, status: String) -> String:
 	var state_text: String = status.capitalize()
@@ -10801,69 +10899,6 @@ func _action_step_icon_key(action: Dictionary) -> String:
 			continue
 		return str(token.get("icon", ""))
 	return ""
-
-func _action_step_tracker_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.044, 0.038, 0.90)
-	style.border_color = Color(0.76, 0.62, 0.42, 0.72)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
-	style.shadow_size = 10
-	style.shadow_offset = Vector2(0.0, 4.0)
-	return style
-
-func _action_step_chip_style(status: String) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	match status:
-		"current":
-			style.bg_color = Color(0.075, 0.115, 0.115, 0.98)
-			style.border_color = Color("f4c968")
-			style.border_width_left = 3
-			style.border_width_top = 3
-			style.border_width_right = 3
-			style.border_width_bottom = 3
-			style.shadow_color = Color(0.12, 0.33, 0.34, 0.46)
-			style.shadow_size = 10
-		"done":
-			style.bg_color = Color(0.060, 0.105, 0.070, 0.90)
-			style.border_color = Color("87c879")
-			style.border_width_left = 2
-			style.border_width_top = 2
-			style.border_width_right = 2
-			style.border_width_bottom = 2
-			style.shadow_color = Color(0.0, 0.0, 0.0, 0.24)
-			style.shadow_size = 5
-		"skipped":
-			style.bg_color = Color(0.150, 0.060, 0.045, 0.94)
-			style.border_color = Color("df8065")
-			style.border_width_left = 2
-			style.border_width_top = 2
-			style.border_width_right = 2
-			style.border_width_bottom = 2
-			style.shadow_color = Color(0.18, 0.02, 0.01, 0.34)
-			style.shadow_size = 7
-		_:
-			style.bg_color = Color(0.075, 0.066, 0.058, 0.72)
-			style.border_color = Color(0.62, 0.55, 0.47, 0.42)
-			style.border_width_left = 1
-			style.border_width_top = 1
-			style.border_width_right = 1
-			style.border_width_bottom = 1
-			style.shadow_color = Color(0.0, 0.0, 0.0, 0.16)
-			style.shadow_size = 3
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	style.shadow_offset = Vector2(0.0, 2.0)
-	return style
 
 func _action_step_icon_tint(status: String) -> Color:
 	match status:
