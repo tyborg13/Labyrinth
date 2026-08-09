@@ -1208,6 +1208,8 @@ static func _relic_card_action_types(card: Dictionary) -> Array[String]:
 		var action_type: String = str((action_var as Dictionary).get("type", ""))
 		if not action_type.is_empty() and not result.has(action_type):
 			result.append(action_type)
+		if int((action_var as Dictionary).get("illuminate_radius", 0)) > 0 and not result.has("illuminate"):
+			result.append("illuminate")
 	return result
 
 static func _relic_effect_matches_action(action: Dictionary, effect: Dictionary) -> bool:

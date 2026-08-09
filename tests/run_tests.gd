@@ -19,6 +19,7 @@ const SkillTreeSuite = preload("res://tests/suites/skill_tree_suite.gd")
 const SkillCombatSuite = preload("res://tests/suites/skill_combat_suite.gd")
 const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const RelicSuite = preload("res://tests/suites/relic_suite.gd")
+const RadiancePackageSuite = preload("res://tests/suites/radiance_package_suite.gd")
 const ElementalIntensitySuite = preload("res://tests/suites/elemental_intensity_suite.gd")
 const BalancePacingSuite = preload("res://tests/suites/balance_pacing_suite.gd")
 const LethalPreviewSuite = preload("res://tests/suites/lethal_preview_suite.gd")
@@ -77,6 +78,7 @@ func _initialize() -> void:
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
+	RadiancePackageSuite.run(Callable(self, "_assert"))
 	ElementalIntensitySuite.run(Callable(self, "_assert"))
 	BalancePacingSuite.run(Callable(self, "_assert"))
 	LethalPreviewSuite.run(Callable(self, "_assert"))
@@ -339,6 +341,7 @@ func _initialize() -> void:
 	await _test_run_scene_action_step_tracker_states()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_aoe_aim_rotates_before_click()
+	await _test_run_scene_squall_preserves_orientation()
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
@@ -488,7 +491,9 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var spark_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("spark_dart")
 	_assert(spark_card_entries.has("magick:spark_dart"), "Elemental reward cards should unlock their Magick entry")
 	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
-	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
+	_assert(spark_card_entries.has("keyword:radiance") and spark_card_entries.has("keyword:illuminate"), "Radiance riders should unlock their school and Light action entries")
+	var static_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("static_lash")
+	_assert(static_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
 	var lantern_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("lantern_shot")
 	_assert(lantern_entries.has("equipment_card:lantern_shot"), "Starter Lantern Shot should unlock its equipment-provenance card entry")
 	_assert(not lantern_entries.has("magick:lantern_shot"), "Equipment-provided Lantern Shot should not be misclassified as a Magick")
@@ -537,7 +542,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	reward_offer_state["pending_reward"] = {"cards": ["spark_dart"]}
 	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
 	_assert(reward_offer_entries.has("magick:spark_dart"), "Visible reward-offer cards should unlock their Magick entry before selection")
-	_assert(reward_offer_entries.has("keyword:shock"), "Visible reward-offer cards should unlock nested keyword entries before selection")
+	_assert(reward_offer_entries.has("keyword:illuminate"), "Visible reward-offer cards should unlock their Radiance rider before selection")
 	var merchant_offer_state: Dictionary = run_state.duplicate(true)
 	merchant_offer_state["current_room"] = Vector2i(2, 1)
 	merchant_offer_state["rooms"] = {
@@ -553,7 +558,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(merchant_offer_entries.has("item:crimson_draught"), "Visible scavenger-offer cards should unlock item entries before purchase")
 	_assert(merchant_offer_entries.has("equipment:iron_cleaver"), "Visible blacksmith-offer equipment should unlock equipment entries before purchase")
 	_assert(merchant_offer_entries.has("character:blacksmith"), "Current-room NPCs should unlock character entries")
-	_assert(merchant_offer_entries.has("keyword:shock"), "Visible merchant-offer cards should unlock nested keyword entries before purchase")
+	_assert(merchant_offer_entries.has("keyword:illuminate"), "Visible merchant-offer cards should unlock their Radiance rider before purchase")
 	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["magick:spark_dart", "keyword:shock"])
 	var added: Array = unlock_result.get("added", [])
 	var next_state: Dictionary = unlock_result.get("state", {}) as Dictionary
@@ -2803,34 +2808,6 @@ func _test_hand_draw_caps_at_seven() -> void:
 	state["draw_per_turn"] = 3
 	state = combat.prepare_next_player_turn(state)
 	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 7, "Drawing for a new turn should stop once the hand reaches seven cards")
-
-func _test_first_attack_bonus_damage_math() -> void:
-	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = combat.create_combat(16, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["ember_lens"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	state["enemies"] = [
-		{
-			"id": 1,
-			"type": "crawler",
-			"pos": Vector2i(3, 4),
-			"hp": 14,
-			"max_hp": 14,
-			"block": 4
-		}
-	]
-	var action: Dictionary = {"type": "melee", "damage": 6, "range": 1}
-	_assert(combat.final_damage_for_player_action(state, action) == 9, "Displayed attack damage should include the first-attack bonus before the card resolves")
-	state = combat.apply_player_action(state, action, Vector2i(3, 4))
-	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
-	_assert(int(enemy.get("block", 0)) == 0, "Damage should remove enemy block before health")
-	_assert(int(enemy.get("hp", 0)) == 9, "A 6-damage strike with Ember Lens into 4 block should deal 5 health damage")
-	_assert(combat.attack_bonus_for_current_turn(state) == 0, "The first-attack bonus should be consumed after the hit resolves")
 
 func _test_relic_effect_hooks() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -10428,6 +10405,85 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_squall_preserves_orientation() -> void:
+	AnalyticsStore.clear_storage()
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Squall orientation coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(923, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["squall_shot"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var target_tile := Vector2i(4, 4)
+	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": target_tile, "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(6, 4), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 4, "type": "crawler", "pos": Vector2i(4, 6), "hp": 20, "max_hp": 20, "block": 0}
+	]
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["squall_shot"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	combat_state["analytics"] = {"combat_id": "test_squall_c001"}
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["deck_cards"] = ["squall_shot"]
+	run_state["combat_state"] = combat_state
+	run_state["analytics"] = {"run_id": "test_squall", "combat_counter": 1}
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	_assert(int(instance.get("_pending_action_index")) == 1 and (instance.get("_pending_target_tiles") as Array).has(target_tile), "Squall Shot should expose its attackable center through one AOE target step")
+	_assert((instance.get("_pending_selected_targets") as Array).is_empty(), "Squall should not record a target before its AOE attack commits")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
+	instance.call("_on_board_tile_hovered", target_tile)
+	instance.call("_rotate_aoe_aim", -1)
+	instance.call("_on_board_tile_hovered", target_tile)
+	var presentation: Dictionary = board_view.get("presentation")
+	var focus_tiles: Array = presentation.get("focus_tiles", [])
+	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Rotating north should preview Squall's odd pattern around its single AOE target")
+	await instance.call("_on_board_tile_clicked", target_tile)
+	await create_timer(1.5).timeout
+	var final_state: Dictionary = instance.get("_combat_state")
+	var enemies: Array = final_state.get("enemies", [])
+	_assert((enemies[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 3), "North-oriented Squall should push its center target north")
+	_assert((enemies[1] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 1), "North-oriented Squall should hit and push the northern arm")
+	_assert((enemies[2] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(6, 3), "North-oriented Squall should hit and push the eastern arm")
+	_assert(int((enemies[3] as Dictionary).get("hp", 0)) == 20 and (enemies[3] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 6), "North-oriented Squall should leave the old southern arm untouched")
+	var played_events: Array[Dictionary] = _analytics_events_by_type(AnalyticsStore.load_all_events(), "card_played")
+	_assert(((final_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).is_empty(), "Squall should not create Light after its Radiance rider is removed")
+	_assert(not played_events.is_empty(), "Squall should emit card-play analytics")
+	if not played_events.is_empty():
+		var payload: Dictionary = (played_events[played_events.size() - 1] as Dictionary).get("payload", {}) as Dictionary
+		var actions: Array = payload.get("actions", []) as Array
+		var aoe_action: Dictionary = actions[1] as Dictionary if actions.size() > 1 else {}
+		var orientation: Dictionary = aoe_action.get("orientation", {}) as Dictionary
+		_assert(int(orientation.get("x", 99)) == 0 and int(orientation.get("y", 99)) == -1, "Squall analytics should preserve the chosen AOE orientation")
+		var selected_targets: Array = payload.get("selected_targets", []) as Array
+		var aoe_target: Dictionary = selected_targets[0] as Dictionary if selected_targets.size() > 0 else {}
+		_assert(
+			selected_targets.size() == 1
+			and int(aoe_target.get("x", -1)) == 4 and int(aoe_target.get("y", -1)) == 4,
+			"Squall analytics should record one target for its AOE attack"
+		)
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_push_direction_tiles_filter_closer_tiles() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -10704,29 +10760,34 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	var combat_state: Dictionary = combat.create_combat(97, _simple_room_layout(), {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["ricochet_knife"],
-		"relics": ["ember_lens"],
+		"deck_cards": ["sidestep_slash"],
+		"relics": ["duelist_whetstone"],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["ricochet_knife"]
+	deck["hand"] = ["sidestep_slash"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
 	instance.set("_combat_state", combat_state)
-	var display: Dictionary = instance.call("_card_widget_display", "ricochet_knife", combat_state)
+	var display: Dictionary = instance.call("_card_widget_display", "sidestep_slash", combat_state)
 	var summary_rows: Array = display.get("summary_rows", [])
 	var modifier_lines: Array = display.get("modifier_lines", [])
 	_assert(not summary_rows.is_empty(), "Damage cards should render icon summary rows")
-	var damage_token: Dictionary = ((summary_rows[0] as Array)[0] as Dictionary)
-	_assert(str(damage_token.get("icon", "")) == "ranged", "Damage cards should render the action keyword as an icon")
-	_assert(int(damage_token.get("value", 0)) == 11, "Damage cards should show final damage, not base damage, when a conditional modifier applies")
+	var damage_token: Dictionary = {}
+	for row_var: Variant in summary_rows:
+		for token_var: Variant in row_var as Array:
+			var token: Dictionary = token_var as Dictionary
+			if str(token.get("icon", "")) == "melee":
+				damage_token = token
+	_assert(not damage_token.is_empty(), "Damage cards should render the attack keyword as an icon")
+	_assert(int(damage_token.get("value", 0)) == 8, "Damage cards should show final damage, not base damage, when a conditional modifier applies")
 	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
 	_assert(modifier_lines.is_empty(), "Damage modifiers should live on the modified token instead of a duplicate card-level tooltip")
 	_assert(ActionIcons.token_is_modified(damage_token), "Damage cards should mark dynamically modified tokens")
-	_assert(ActionIcons.token_tooltip(damage_token).contains("Ember Lens"), "The damage token tooltip should name the modifier source")
+	_assert(ActionIcons.token_tooltip(damage_token).contains("Duelist Whetstone"), "The damage token tooltip should name the modifier source")
 	instance.queue_free()
 	await process_frame
 
@@ -12236,6 +12297,9 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(str(play_event.get("objective_type", "")) == "kill_all", "Combat analytics context should retain the encounter objective cohort")
 	_assert(play_payload.has("radiance_card") and play_payload.has("umbra_stage_before") and play_payload.has("umbra_stage_after"), "Card play analytics should classify Radiance and stage changes")
 	_assert(play_payload.has("umbra_tiles_illuminated") and play_payload.has("umbra_enemies_revealed") and play_payload.has("umbra_light_sources_created"), "Card play analytics should include observed Radiance results")
+	_assert(play_payload.has("umbra_effective_light_sources_before") and play_payload.has("umbra_effective_light_sources_after"), "Card play analytics should expose effective Light source counts")
+	_assert(play_payload.has("umbra_tethered_light_sources_before") and play_payload.has("umbra_tethered_light_sources_after"), "Card play analytics should distinguish actor-tethered Light")
+	_assert(play_payload.has("umbra_suppression_stages_before") and play_payload.has("umbra_suppression_stages_after"), "Card play analytics should expose Light-driven Umbra suppression")
 	_assert(play_payload.has("flurry") and play_payload.has("flurry_plays_spent"), "Card play analytics should expose Flurry use and its repeat count")
 	_assert(bool((play_payload.get("enemy_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include enemy immobilize application")
 	_assert(bool((play_payload.get("player_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include player immobilize application")
@@ -12773,45 +12837,32 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	var radiance_state: Dictionary = combat.create_combat(44006, layout, {"hp": 20, "max_hp": 20, "deck_cards": ["guiding_flare"], "hand_size": 1})
 	var radiance_actions: Array = (GameData.card_def("guiding_flare").get("actions", []) as Array).duplicate(true)
 	var enemy_tile: Vector2i = ((radiance_state.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO)
-	var lit_state: Dictionary = combat.apply_player_action(radiance_state, radiance_actions[0] as Dictionary, enemy_tile)
-	instance.set("_combat_state", radiance_state)
-	instance.set("_selected_card_index", 0)
-	instance.set("_pending_actions", radiance_actions)
-	instance.set("_pending_selected_targets", instance.call("_vector2i_array", [enemy_tile]))
-	instance.set("_pending_action_index", 0)
-	instance.set("_preview_combat_state", radiance_state)
-	instance.set("_pending_target_tiles", combat.valid_targets_for_player_action(radiance_state, radiance_actions[0] as Dictionary))
-	instance.set("_hovered_board_tile", enemy_tile)
-	_assert((instance.call("_pass_preview_confirmed_hover_state") as Dictionary).is_empty(), "Illuminate hover should not reveal enemy-dependent pass forecasts before the card commits")
-	var attack_preview: Dictionary = instance.call("_card_preview_from_state", "guiding_flare", lit_state, radiance_actions, 1, true)
-	_assert(combat.valid_targets_for_player_action(lit_state, radiance_actions[1] as Dictionary).has(enemy_tile), "Guiding Flare's illuminated tile should be a valid follow-up target")
-	_assert(not bool(attack_preview.get("complete", false)), "Guiding Flare should reach its reused-target follow-up before automatic resolution")
-	var resolved_preview: Dictionary = instance.call("_resolve_reused_target_preview_actions", attack_preview)
-	_assert(bool(resolved_preview.get("complete", false)), "Illuminate-and-attack cards should commit their follow-up without opening a cancellable revealed-state preview")
-	_assert((instance.call("_last_resolved_pending_target") as Vector2i) == enemy_tile, "Guiding Flare should keep the illuminated tile as its automatic follow-up target")
-	var direct_attack_state: Dictionary = combat.apply_player_action(lit_state, radiance_actions[1] as Dictionary, enemy_tile)
-	var initial_enemy_hp: int = int(((lit_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
+	var guiding_attack: Dictionary = radiance_actions[0] as Dictionary
+	var guiding_targets: Array[Vector2i] = combat.valid_targets_for_player_action(radiance_state, guiding_attack)
+	_assert(radiance_actions.size() == 1 and not guiding_targets.has(enemy_tile), "Guiding Flare should inherit ordinary attack visibility and reject a hidden enemy")
+	_assert(not guiding_targets.has(Vector2i(3, 4)), "Guiding Flare should not use standalone Light's empty-floor targeting")
+	var visible_radiance_state: Dictionary = combat.apply_player_action(radiance_state, {"type": "truesight", "duration": 2})
+	_assert(combat.valid_targets_for_player_action(visible_radiance_state, guiding_attack).has(enemy_tile), "Guiding Flare should expose one combined attack-and-Light target step once the enemy is attackable")
+	var initial_enemy_hp: int = int(((visible_radiance_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
+	var direct_attack_state: Dictionary = combat.apply_player_action(visible_radiance_state, guiding_attack, enemy_tile)
 	var direct_enemy_hp: int = int(((direct_attack_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
-	_assert(direct_enemy_hp < initial_enemy_hp, "Guiding Flare's reused ranged action should damage the illuminated enemy")
+	var guiding_sources: Array = (direct_attack_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	_assert(direct_enemy_hp < initial_enemy_hp and not guiding_sources.is_empty() and (guiding_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == enemy_tile, "Guiding Flare should attack first and leave Light at that impact in one action")
 	var lantern_state: Dictionary = combat.create_combat(44007, layout, {"hp": 20, "max_hp": 20, "deck_cards": ["lantern_shot"], "hand_size": 1})
 	var lantern_actions: Array = (GameData.card_def("lantern_shot").get("actions", []) as Array).duplicate(true)
 	var lantern_enemy_tile: Vector2i = ((lantern_state.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO)
-	var lantern_lit_state: Dictionary = combat.apply_player_action(lantern_state, lantern_actions[0] as Dictionary, lantern_enemy_tile)
-	instance.set("_combat_state", lantern_state)
-	instance.set("_selected_card_index", 0)
-	instance.set("_pending_actions", lantern_actions)
-	instance.set("_pending_selected_targets", instance.call("_vector2i_array", [lantern_enemy_tile]))
-	var lantern_attack_preview: Dictionary = instance.call("_card_preview_from_state", "lantern_shot", lantern_lit_state, lantern_actions, 1, true)
-	var resolved_lantern_preview: Dictionary = instance.call("_resolve_reused_target_preview_actions", lantern_attack_preview)
+	lantern_state = combat.apply_player_action(lantern_state, {"type": "truesight", "duration": 2})
+	var lantern_initial_enemy_hp: int = int(((lantern_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
+	var lantern_hit_state: Dictionary = combat.apply_player_action(lantern_state, lantern_actions[0] as Dictionary, lantern_enemy_tile)
+	var resolved_lantern_preview: Dictionary = instance.call("_card_preview_from_state", "lantern_shot", lantern_hit_state, lantern_actions, 1, true)
 	var resolved_lantern_state: Dictionary = resolved_lantern_preview.get("state", {})
-	var lantern_initial_enemy_hp: int = int(((lantern_lit_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
 	var lantern_resolved_enemy_hp: int = int(((resolved_lantern_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
-	_assert(bool(resolved_lantern_preview.get("complete", false)), "Lantern Shot should resolve its ranged hit and draw after one tile selection")
-	_assert(lantern_resolved_enemy_hp < lantern_initial_enemy_hp, "Lantern Shot should damage an enemy on the illuminated tile without asking for a second target")
+	_assert(bool(resolved_lantern_preview.get("complete", false)), "Lantern Shot should resolve its draw after one combined attack-and-Light tile selection")
+	_assert(lantern_resolved_enemy_hp < lantern_initial_enemy_hp, "Lantern Shot should damage and illuminate its target without asking for a second target")
 	var lantern_display: Dictionary = instance.call("_card_widget_display", "lantern_shot", lantern_state)
 	var lantern_display_rows: Array = lantern_display.get("summary_rows", [])
-	_assert(lantern_display_rows.size() == 2, "Lantern Shot's live card display should show its shared-target effects on one line and draw on the next")
-	_assert((lantern_display_rows[0] as Array).size() == 4, "Lantern Shot's live shared-target line should omit the duplicate range token")
+	_assert(lantern_display_rows.size() == 2, "Lantern Shot's live card display should show its combined attack rider on one line and draw on the next")
+	_assert((lantern_display_rows[0] as Array).size() == 4, "Lantern Shot's live attack line should contain damage, range, Light radius, and Light duration")
 	instance.queue_free()
 	await process_frame
 
@@ -13084,7 +13135,23 @@ func _test_hidden_enemy_movement_collision_does_not_leak_position() -> void:
 	_assert(not blink_targets.has(target), "Blink should not target shrouded destinations")
 
 func _test_radiance_cards_and_icons_are_integrated() -> void:
-	for card_id: String in ["lantern_shot", "guiding_flare", "dawnstep", "prism_sight", "storm_beacon", "glowstone_ward", "daybreak"]:
+	for card_id: String in [
+		"lantern_shot",
+		"guiding_flare",
+		"dawnstep",
+		"prism_sight",
+		"storm_beacon",
+		"glowstone_ward",
+		"daybreak",
+		"ember_rain",
+		"trapdoor",
+		"firebrand_volley",
+		"icebound_chains",
+		"spark_dart",
+		"spark_focus",
+		"threaded_path",
+		"root_snare"
+	]:
 		var card: Dictionary = GameData.card_def(card_id)
 		_assert(not card.is_empty(), "%s should load" % card_id)
 		_assert(bool(card.get("radiance", false)), "%s should carry the Radiance school tag" % card_id)
@@ -13100,7 +13167,7 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 		radiance_icon_paths[icon_path] = true
 	_assert(radiance_icon_paths.size() == 4, "Radiance mechanics should remain visually distinguishable at card size")
 	var lantern_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("lantern_shot").get("actions", []))
-	_assert(lantern_rows.size() == 2, "Lantern Shot should render one shared-target line plus its draw line")
+	_assert(lantern_rows.size() == 2, "Lantern Shot should render one combined attack-rider line plus its draw line")
 	var lantern_target_row: Array = lantern_rows[0] as Array
 	var lantern_target_icons: PackedStringArray = []
 	var lantern_range_tokens: int = 0
@@ -13110,16 +13177,61 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 		lantern_target_icons.append(token_icon)
 		if token_icon == "range":
 			lantern_range_tokens += 1
-		_assert(bool(token.get("keep_row_together", false)), "Shared-target action tokens should preserve their logical line in CardWidget")
-	_assert(lantern_target_icons == PackedStringArray(["illuminate", "range", "time", "ranged"]), "Lantern Shot's shared-target line should read as light placement followed by its ranged hit")
-	_assert(lantern_range_tokens == 1, "Shared-target actions with matching ranges should show that range only once")
+	_assert(lantern_target_icons == PackedStringArray(["ranged", "range", "illuminate", "time"]), "Lantern Shot's single attack action should lead with damage and range, then attach Light radius and duration")
+	_assert(lantern_range_tokens == 1, "A combined attack-and-Light action should show its inherited attack range only once")
+	_assert(ActionIcons.token_tooltip(lantern_target_row[2] as Dictionary).begins_with("After this attack resolves"), "The Light rider tooltip should disclose its post-hit timing")
 	var guiding_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("guiding_flare").get("actions", []))
-	_assert(guiding_rows.size() == 1 and (guiding_rows[0] as Array).size() == 5, "Guiding Flare should keep illuminate, ranged damage, and burn on one target line")
+	_assert(guiding_rows.size() == 1 and (guiding_rows[0] as Array).size() == 5, "Guiding Flare should keep damage, range, Burn, and its Light rider in one action row")
+	_assert(str(((guiding_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "ranged" and str(((guiding_rows[0] as Array)[3] as Dictionary).get("icon", "")) == "illuminate", "Guiding Flare should present its core attack before the post-hit Light rider")
 	var storm_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("storm_beacon").get("actions", []))
-	_assert(storm_rows.size() == 2 and (storm_rows[1] as Array).size() == 5, "Storm Beacon should keep its intensity line separate and its shared-target effects together")
+	_assert(storm_rows.size() == 2 and (storm_rows[1] as Array).size() == 5, "Storm Beacon should keep its intensity line separate and its combined attack-rider effects together")
+	_assert(str(((storm_rows[1] as Array)[0] as Dictionary).get("icon", "")) == "ranged" and str(((storm_rows[1] as Array)[3] as Dictionary).get("icon", "")) == "illuminate", "Storm Beacon should present damage, range, and Chain before its post-hit Light rider")
 	var card_widget := CardWidget.new()
 	var lantern_segments: Array = card_widget.call("_summary_token_segments", lantern_target_row)
-	_assert(lantern_segments.size() == 1, "CardWidget should not wrap a shared-target action group into multiple apparent target lines")
+	_assert(lantern_segments.size() == 1, "CardWidget should keep a four-token attack rider on one compact line")
+	card_widget.size = Vector2(250.0, 352.0)
+	var root_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("root_snare").get("actions", []))
+	var root_attack_row: Array = root_rows[1] as Array
+	var root_segments: Array = card_widget.call("_summary_token_segments", root_attack_row)
+	_assert(root_attack_row.size() == 5 and root_segments.size() == 2 and (root_segments[0] as Array).size() == 3 and (root_segments[1] as Array).size() == 2, "Five-token attack riders should wrap after their three core attack tokens")
+	var squall_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("squall_shot").get("actions", []))
+	var squall_attack_row: Array = squall_rows[1] as Array
+	var squall_segments: Array = card_widget.call("_summary_token_segments", squall_attack_row)
+	_assert(squall_attack_row.size() == 4 and squall_segments.size() == 1, "Simplified Squall should keep its four fitting AOE tokens on one line")
+	var action_group_parent := VBoxContainer.new()
+	card_widget.call("_add_summary_action_group", action_group_parent, root_segments, 28.0, 16, 6)
+	_assert(action_group_parent.get_child_count() == 1 and bool(action_group_parent.get_child(0).get_meta("summary_action_group", false)), "A wrapped action should render inside one action-group container")
+	var action_group_inner: Control = action_group_parent.get_child(0) as Control
+	_assert(not (action_group_inner is PanelContainer), "Ordinary wrapped actions should use only the continuation arrow, without a special-state panel background")
+	_assert(action_group_inner.get_child_count() == 2 and not bool(action_group_inner.get_child(0).get_meta("summary_action_continuation", true)) and bool(action_group_inner.get_child(1).get_meta("summary_action_continuation", false)), "Only the overflow row should be marked as an action continuation")
+	var continuation_row: Control = action_group_inner.get_child(1) as Control
+	_assert(continuation_row.get_child_count() > 0 and bool(continuation_row.get_child(0).get_meta("summary_continuation_glyph", false)), "An overflow row should begin with a persistent continuation glyph")
+	var boundary_segments: Array = [root_segments[1], root_segments[0]]
+	var raw_boundary_width: float = maxf(
+		float(card_widget.call("_summary_segment_width_estimate", boundary_segments[0] as Array, 28.0, 16, 5)),
+		float(card_widget.call("_summary_segment_width_estimate", boundary_segments[1] as Array, 28.0, 16, 5))
+	)
+	var grouped_boundary_width: float = float(card_widget.call("_summary_width_estimate", boundary_segments, 28.0, 16, 6, [{"segments": boundary_segments, "condition": {}}]))
+	_assert(grouped_boundary_width > raw_boundary_width + 1.0, "Card layout measurement should include the continuation glyph and gap when the continuation row controls the group width")
+	var boundary_width: float = raw_boundary_width + 1.0
+	_assert(raw_boundary_width <= boundary_width and grouped_boundary_width > boundary_width, "A near-boundary action group should be rejected when its rendered continuation cue would overflow")
+	action_group_parent.free()
+	var valued_token: Dictionary = ActionIcons.token_for("ranged", 12)
+	var valued_layout: Dictionary = card_widget.call("_summary_token_layout", valued_token, 28.0, 16)
+	var icon_box: Vector2 = valued_layout.get("icon_size", Vector2.ZERO)
+	var suffix_position: Vector2 = valued_layout.get("value_position", Vector2.ZERO)
+	var suffix_size: Vector2 = valued_layout.get("value_size", Vector2.ZERO)
+	_assert(suffix_position.x > icon_box.x * 0.5 and suffix_position.y > 0.0, "Valued action tokens should attach their number at the icon's lower-right corner")
+	_assert((valued_layout.get("size", Vector2.ZERO) as Vector2).x < icon_box.x + suffix_size.x, "Attached value suffixes should use less width than separate icon and number children")
+	var contrast_label: Label = card_widget.call("_summary_value_label", "2", "", 16, ActionIcons.token_for("time", 2))
+	_assert(contrast_label.get_theme_constant("shadow_outline_size") >= 2 and contrast_label.get_theme_color("font_shadow_color").get_luminance() < 0.2, "Attached values should retain a dark zero-offset halo when they overlap pale or dark icons")
+	contrast_label.free()
+	var modified_token: Dictionary = ActionIcons.token_for("ranged", 12, "bonus", "", [{"source": "Test Relic", "amount": 2}], 10)
+	var modified_layout: Dictionary = card_widget.call("_summary_token_layout", modified_token, 28.0, 16)
+	_assert((modified_layout.get("marker_position", Vector2.ZERO) as Vector2).y < (modified_layout.get("value_position", Vector2.ZERO) as Vector2).y, "The modifier marker should occupy the upper-right corner without colliding with the lower value suffix")
+	for stress_value: Variant in [-2, "∞"]:
+		var stress_layout: Dictionary = card_widget.call("_summary_token_layout", ActionIcons.token_for("time", stress_value), 24.0, 14)
+		_assert((stress_layout.get("size", Vector2.ZERO) as Vector2).x >= (stress_layout.get("icon_size", Vector2.ZERO) as Vector2).x, "Compact suffix layout should contain %s without clipping" % str(stress_value))
 	card_widget.free()
 	var visual_board := CombatBoardView.new()
 	var previous_umbra_alpha: float = 0.0

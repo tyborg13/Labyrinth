@@ -58,7 +58,7 @@ func _test_skill_tree_view() -> void:
 	warm_view.queue_free()
 	await process_frame
 
-	_expect(view.node_count() == 24, "The tree should render all 24 skills")
+	_expect(view.node_count() == 30, "The tree should render all 30 skills")
 	var expected_links: int = 0
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		expected_links += SkillTreeLibrary.prerequisites(skill_id).size()
@@ -66,7 +66,7 @@ func _test_skill_tree_view() -> void:
 	_expect(view.connection_arrowhead_count() == expected_links, "Every connector should retain its target arrowhead")
 	_expect(view.link_geometry_rebuild_count() == 1, "Static connector geometry should be built exactly once")
 	_expect(view.navigation_rebuild_count() >= 1, "Initial configuration should build directional navigation")
-	_expect(view.graph_canvas_size() == Vector2(1000.0, 540.0), "The graph should retain its topology-first canvas")
+	_expect(view.graph_canvas_size() == Vector2(1250.0, 540.0), "The graph should retain its wider topology-first canvas without scrolling")
 	_expect(view.find_child("SkillTreeScroll", true, false) == null, "The primary graph must never expose a scrollbar")
 	_expect(view.find_child("SkillTreeGraphViewport", true, false) is Control, "The graph should use a clipped zoom-to-fit viewport")
 	_expect(view.graph_fit_scale() > 0.0 and view.graph_fit_scale() <= 1.0, "The complete authored graph should fit its viewport without panning")
@@ -181,7 +181,7 @@ func _test_skill_tree_view() -> void:
 	_expect(view.graph_scroll_offset() == Vector2i.ZERO and scroll_before == Vector2i.ZERO, "The zoom-to-fit graph should have no scroll offset")
 	_expect(view.link_geometry_rebuild_count() == geometry_before, "Hover should never reroute connectors or recompute bridges")
 	_expect(view.navigation_rebuild_count() == navigation_before, "Hover should never rebuild directional navigation")
-	_expect(hover_elapsed_usec < 1000000, "A full 24-node hover sweep should complete comfortably under one second")
+	_expect(hover_elapsed_usec < 1000000, "A full 30-node hover sweep should complete comfortably under one second")
 
 	view.focus_skill("prismatic_instinct", false)
 	var prismatic_links: Array[String] = view.highlighted_connection_pairs()

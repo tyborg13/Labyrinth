@@ -7463,6 +7463,72 @@
       }
     },
     {
+      "id": "mnt_20260809T154651Z_2df3ee71",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Derived tethered Light must flow through mechanics, presentation, and analytics",
+      "details": "Illusion-tethered Light is not a fixed umbra.light_sources record. Visibility, Noctyrax protection, in-Light relic/skill checks, effective source counts, Umbra suppression, board presentation, tooltips, and analytics must all consume the effective Light-source helpers. Conditional Truesight such as Open Sky also needs an explicit presentation flag/status cue.",
+      "status": "active",
+      "created_at": "2026-08-09T15:46:51Z",
+      "updated_at": "2026-08-09T15:46:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T154651Z_b0a3ed7e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "A fifth skill branch preserves authored prerequisites with completion-aware capstone reachability",
+      "details": "The Radiance branch extends the fixed skill-tree canvas to 1250x540 while preserving all original node positions. Skill eligibility must never waive prerequisites at the point cap; it instead rejects choices that cannot still reach a legal 19-point build with exactly one authored keystone. Migration repairs legacy max builds to a legal capstone.",
+      "status": "active",
+      "created_at": "2026-08-09T15:46:51Z",
+      "updated_at": "2026-08-09T15:46:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T154651Z_d0ca8af9",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Prefer spatial aftermath on existing actions for package-transforming designs",
+      "details": "Movement trails, Blink origin/destination Light, and Light tethered to living illusions are strong design lodestars: they qualitatively change board use by enriching actions players already understand, without adding a new selection, targeting, or interaction flow. Pure stat riders are weaker; bespoke traps, arbitrary mirroring, and trigger-time selectors remain out of bounds.",
+      "status": "active",
+      "created_at": "2026-08-09T15:46:51Z",
+      "updated_at": "2026-08-09T15:46:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "a5729c1"
+      }
+    },
+    {
       "id": "mnt_20260809T161344Z_1f89645a",
       "layer": "shared",
       "kind": "user_preference",
@@ -7485,6 +7551,28 @@
       "source": {
         "branch": "codex/implement-ink-path-contextual-card-play-widget",
         "commit": "0f661d1"
+      }
+    },
+    {
+      "id": "mnt_20260809T162312Z_2cdd6309",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Reused targets must preserve existing orientation choices",
+      "details": "When a follow-up action uses reuse_previous_target, auto-resolution is safe only for actions without orientation. Rotatable AOE and directional force actions must lock the prior tile, pause in the existing orientation UI, store the oriented action, and record the duplicated shared target plus orientation in analytics; otherwise the engine silently chooses a best pattern or radial force and removes player agency.",
+      "status": "active",
+      "created_at": "2026-08-09T16:23:12Z",
+      "updated_at": "2026-08-09T16:23:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "46955f7"
       }
     },
     {
@@ -7531,6 +7619,96 @@
       "source": {
         "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
         "commit": "df0fba2"
+      }
+    },
+    {
+      "id": "mnt_20260809T183154Z_5123e95e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Attack-carried Light is a post-impact rider on one attack action.",
+      "details": "Use illuminate_radius and illuminate_duration on melee, ranged, AOE, push, or pull. The unified action targets only attackable enemies, traps, or terrain; standalone Illuminate remains the free-tile Light action. Resolve the Light after the attack so it does not prime Light-dependent bonuses on its own hit.",
+      "status": "active",
+      "created_at": "2026-08-09T18:31:54Z",
+      "updated_at": "2026-08-09T18:31:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "81367ff"
+      }
+    },
+    {
+      "id": "mnt_20260809T183154Z_c6fae1bd",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Display numeric card-action values as lower-right suffixes attached to their icons.",
+      "details": "Use an upper-right marker for modifier attribution. This keeps four-plus effect rows within the card frame and makes value ownership immediately legible.",
+      "status": "active",
+      "created_at": "2026-08-09T18:31:54Z",
+      "updated_at": "2026-08-09T18:31:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "81367ff"
+      }
+    },
+    {
+      "id": "mnt_20260809T183154Z_f1a2c07e",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Overlapping package effects from skills and relics should stack additively instead of making either choice obsolete.",
+      "details": "When a skill and relic alter the same existing action or actor, expose their individual additive contributions contextually where practical; Witchlight and Witchglass Lantern establish this pattern by adding radii to one tethered Light source.",
+      "status": "active",
+      "created_at": "2026-08-09T18:31:54Z",
+      "updated_at": "2026-08-09T18:31:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "81367ff"
+      }
+    },
+    {
+      "id": "mnt_20260809T202501Z_adeb66c7",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Ordinary card-action overflow uses an arrow without a panel",
+      "details": "When one logical card action wraps, keep the core tokens first and prefix the tight continuation row with \u21b3. Do not add a translucent background, border, brace, or panel to ordinary overflow; those treatments imply a special state and visually compete with elemental intensity gates. Keep suffix values attached and high-contrast.",
+      "status": "active",
+      "created_at": "2026-08-09T20:25:01Z",
+      "updated_at": "2026-08-09T20:25:01Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260809T192628Z_f3b72d00"
+      ],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "5bb4870"
       }
     },
     {

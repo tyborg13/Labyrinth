@@ -207,14 +207,13 @@
     "health_cost": 0,
     "time": 3,
     "starter": true,
-    "description": "Illuminate a tile at range 6, deal 5 to an enemy on that tile, then draw 1.",
+    "description": "Deal 5 at range 6, then create radius-2 Light at the impact for 2 turns. Draw 1.",
     "accent": "#d49b42",
     "art_path": "res://assets/art/cards/lantern_shot.png",
     "reward_pool": false,
     "radiance": true,
     "actions": [
-      { "type": "illuminate", "range": 6, "radius": 2, "duration": 2 },
-      { "type": "ranged", "damage": 5, "range": 6, "reuse_previous_target": true },
+      { "type": "ranged", "damage": 5, "range": 6, "illuminate_radius": 2, "illuminate_duration": 2 },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -225,13 +224,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Illuminate at range 5, then scorch that tile for 5 and burn 2.",
+    "description": "Deal 5 and burn 2 at range 5, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/guiding_flare.png",
     "radiance": true,
     "actions": [
-      { "type": "illuminate", "range": 5, "radius": 2, "duration": 2 },
-      { "type": "ranged", "damage": 5, "range": 5, "burn": 2, "reuse_previous_target": true }
+      { "type": "ranged", "damage": 5, "range": 5, "burn": 2, "illuminate_radius": 2, "illuminate_duration": 2 }
     ]
   },
   "dawnstep": {
@@ -241,13 +239,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 2,
-    "description": "Move 3, then gain 2 vision until your next turn.",
+    "description": "Move 3, then gain 2 vision for 2 turns.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/dawnstep.png",
     "radiance": true,
     "actions": [
       { "type": "move", "range": 3 },
-      { "type": "vision", "amount": 2, "duration": 1 }
+      { "type": "vision", "amount": 2, "duration": 2 }
     ]
   },
   "prism_sight": {
@@ -257,12 +255,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Gain truesight until your next turn, gain 4 block, and draw 1.",
+    "description": "Gain truesight for 2 turns, gain 4 block, and draw 1.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/prism_sight.png",
     "radiance": true,
     "actions": [
-      { "type": "truesight", "duration": 1 },
+      { "type": "truesight", "duration": 2 },
       { "type": "block", "amount": 4 },
       { "type": "draw", "amount": 1 }
     ]
@@ -274,14 +272,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity. Illuminate a tile at range 6, then deal 5 with chain 2 to an enemy on that tile.",
+    "description": "Raise Lightning intensity. Deal 5 with chain 2 at range 6, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_beacon.png",
     "radiance": true,
     "actions": [
       { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "illuminate", "range": 6, "radius": 2, "duration": 2 },
-      { "type": "ranged", "damage": 5, "range": 6, "chain": 2, "reuse_previous_target": true }
+      { "type": "ranged", "damage": 5, "range": 6, "chain": 2, "illuminate_radius": 2, "illuminate_duration": 2 }
     ]
   },
   "glowstone_ward": {
@@ -380,11 +377,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 1,
-    "description": "Move 5, then draw 1.",
+    "description": "Move 5. Create radius-1 Light where you arrive for 2 turns, then draw 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/threaded_path.png",
+    "radiance": true,
     "actions": [
-      { "type": "move", "range": 5 },
+      { "type": "move", "range": 5, "illuminate_radius": 1, "illuminate_duration": 2, "illuminate_position_mode": "destination" },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -465,12 +463,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Blink 6, then gain 5 block.",
+    "description": "Blink 6, gain 5 block, then gain 2 vision for 2 turns.",
     "accent": "#505c77",
     "art_path": "res://assets/art/cards/trapdoor.png",
+    "radiance": true,
     "actions": [
       { "type": "blink", "range": 6 },
-      { "type": "block", "amount": 5 }
+      { "type": "block", "amount": 5 },
+      { "type": "vision", "amount": 2, "duration": 2 }
     ]
   },
   "bodkin_arrow": {
@@ -524,11 +524,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 9 at range 6.",
+    "description": "Deal 9 at range 6, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#db7a3e",
     "art_path": "res://assets/art/cards/ember_rain.png",
+    "radiance": true,
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 6 }
+      { "type": "ranged", "damage": 9, "range": 6, "illuminate_radius": 2, "illuminate_duration": 2 }
     ]
   },
   "shadow_gate": {
@@ -611,12 +612,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Fire intensity by 1. Deal 5 at range 5. Fire 2+: +3 damage and burn 2.",
+    "description": "Raise Fire intensity by 1. Deal 5 at range 5, then create radius-1 Light at the impact for 2 turns. Fire 2+: +3 damage.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/firebrand_volley.png",
+    "radiance": true,
     "actions": [
       { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "ranged", "damage": 5, "range": 5, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3, "burn": 2 } }
+      { "type": "ranged", "damage": 5, "range": 5, "illuminate_radius": 1, "illuminate_duration": 2, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3 } }
     ]
   },
   "cinder_bloom": {
@@ -732,12 +734,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 6 at range 6 and immobilize, then draw 1.",
+    "description": "Deal 6 at range 6 and immobilize, then gain truesight for 2 turns.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/icebound_chains.png",
+    "radiance": true,
     "actions": [
       { "type": "ranged", "damage": 6, "range": 6, "immobilize": true },
-      { "type": "draw", "amount": 1 }
+      { "type": "truesight", "duration": 2 }
     ]
   },
   "rime_shard": {
@@ -852,12 +855,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity by 1. Deal 4 at range 6. Lightning 2+: +3 damage and shock.",
+    "description": "Raise Lightning intensity by 1. Deal 4 at range 6, then create radius-1 Light at the impact for 2 turns. Lightning 2+: +3 damage.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/spark_dart.png",
+    "radiance": true,
     "actions": [
       { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "ranged", "damage": 4, "range": 6, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 3, "shock": 1 } }
+      { "type": "ranged", "damage": 4, "range": 6, "illuminate_radius": 1, "illuminate_duration": 2, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 3 } }
     ]
   },
   "chain_bolt": {
@@ -882,13 +886,15 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Lightning intensity by 2. Deal 4 at range 5, then draw 1.",
+    "description": "Raise Lightning intensity by 2. Deal 4 at range 5, draw 1, then gain 1 vision for 2 turns.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/spark_focus.png",
+    "radiance": true,
     "actions": [
       { "type": "intensity", "element": "lightning", "amount": 2 },
       { "type": "ranged", "damage": 4, "range": 5 },
-      { "type": "draw", "amount": 1 }
+      { "type": "draw", "amount": 1 },
+      { "type": "vision", "amount": 1, "duration": 2 }
     ]
   },
   "static_lash": {
@@ -1025,7 +1031,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Air intensity by 1. Deal 5 to an odd pattern at range 5 and push 1. Air 2+: gain 1 card play.",
+    "description": "Raise Air intensity by 1. Deal 5 in an odd pattern at range 5 and push 1. Air 2+: gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/squall_shot.png",
     "actions": [
@@ -1119,12 +1125,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Earth intensity by 1. Deal 5 at range 5 and immobilize.",
+    "description": "Raise Earth intensity by 1. Deal 5 and immobilize at range 5, then create radius-1 Light at the impact for 2 turns.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/root_snare.png",
+    "radiance": true,
     "actions": [
       { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "ranged", "damage": 5, "range": 5, "immobilize": true }
+      { "type": "ranged", "damage": 5, "range": 5, "immobilize": true, "illuminate_radius": 1, "illuminate_duration": 2 }
     ]
   },
   "basalt_guard": {

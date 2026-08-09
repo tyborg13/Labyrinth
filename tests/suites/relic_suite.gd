@@ -5,19 +5,23 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 
 const NEW_RELIC_IDS := [
-	"duelist_whetstone",
-	"hollow_die",
-	"chorus_mask",
-	"hourglass_splinter",
-	"widow_thread",
-	"funeral_bell",
-	"bloodmoon_chalice",
-	"moonless_compass",
-	"fivefold_knot",
-	"borrowed_hourglass"
+	"dawnbrand_filament",
+	"glowstone_matrix",
+	"briar_winch",
+	"hourglass_awl",
+	"beaconrunner_spurs",
+	"true_north",
+	"dawnstitch_cord",
+	"starless_astrolabe",
+	"witchglass_carapace",
+	"witchglass_lantern",
+	"sunlit_edge",
+	"glassway_compass",
+	"unclouded_sun"
 ]
 const RARITY_TIERS := {
 	"common": 1,
@@ -29,7 +33,9 @@ const SUPPORTED_EFFECT_TYPES := [
 	"bloodied_glass_attack_bonus",
 	"blink_draw_once_per_turn",
 	"blink_intensity_gain_once_per_turn",
+	"blink_origin_illusion",
 	"card_action_mod",
+	"card_append_action",
 	"card_play_reward",
 	"damage_vs_status",
 	"defiance_capacity",
@@ -37,16 +43,23 @@ const SUPPORTED_EFFECT_TYPES := [
 	"end_turn_block_to_stoneskin",
 	"enemy_death_reward",
 	"first_card_attack_bonus",
+	"illusion_damage_cap",
+	"illusion_light_aura",
 	"intensity_threshold_reward",
+	"light_source_umbra_suppression",
 	"long_move_card_play",
+	"movement_end_reward",
 	"opening_draw_bonus",
 	"overheal_to_stoneskin",
 	"player_state_action_mod",
+	"resolved_action_light",
 	"start_combat_stoneskin_per_deck_element",
 	"status_count_reward",
 	"status_intensity_gain",
 	"stoneskin_intensity_gain_once_per_turn",
-	"stoneskin_thorns"
+	"stoneskin_thorns",
+	"target_state_action_mod",
+	"umbra_transition_reward"
 ]
 
 static func run(expect: Callable) -> void:
@@ -54,6 +67,9 @@ static func run(expect: Callable) -> void:
 	_test_conditional_card_mutations(expect)
 	_test_new_common_and_rare_relics(expect)
 	_test_new_epic_and_legendary_relics(expect)
+	_test_spatial_radiance_relics(expect)
+	_test_package_transforming_relics(expect)
+	_test_radiance_offer_distribution(expect)
 	_test_status_and_enemy_death_engines(expect)
 	_test_intensity_engines(expect)
 	_test_defense_risk_and_mobility_engines(expect)
@@ -64,9 +80,11 @@ static func run(expect: Callable) -> void:
 
 static func _test_complete_set_contract(expect: Callable) -> void:
 	var relics: Dictionary = GameData.relics()
-	expect.call(relics.size() == 47, "The complete relic rework should contain 37 redesigned relics plus exactly 10 new relics")
+	expect.call(relics.size() == 60, "The Radiance package redesign should contain exactly 60 relics")
 	for relic_id: String in NEW_RELIC_IDS:
 		expect.call(relics.has(relic_id), "New relic %s should be present" % relic_id)
+	var radiance_count: int = 0
+	var radiance_by_rarity: Dictionary = {"common": 0, "rare": 0, "epic": 0, "legendary": 0}
 	var effect_types: Array[String]
 	var forbidden_primary_effects: Array[String] = _string_array([
 		"max_hp",
@@ -81,6 +99,9 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 		var raw_relic: Dictionary = relics.get(relic_id, {}) as Dictionary
 		var relic: Dictionary = GameData.relic_def(relic_id)
 		var rarity: String = str(raw_relic.get("rarity", ""))
+		if (raw_relic.get("build_tags", []) as Array).has("radiance"):
+			radiance_count += 1
+			radiance_by_rarity[rarity] = int(radiance_by_rarity.get(rarity, 0)) + 1
 		var tier: int = int(RARITY_TIERS.get(rarity, 0))
 		expect.call(int(raw_relic.get("design_version", 0)) == 2, "%s should be migrated to the complete-set relic design version" % relic_id)
 		expect.call(int(raw_relic.get("condition_tier", 0)) == tier, "%s conditionality should match its rarity tier" % relic_id)
@@ -105,25 +126,28 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 	var expected_effect_types: Array = SUPPORTED_EFFECT_TYPES.duplicate()
 	expected_effect_types.sort()
 	expect.call(effect_types == expected_effect_types, "Every live relic effect category should be intentionally covered by the focused suite")
+	expect.call(radiance_count == 20, "Exactly one third of the 60-relic pool should meaningfully support Radiance")
+	expect.call(radiance_by_rarity == {"common": 6, "rare": 8, "epic": 4, "legendary": 2}, "Radiance relics should preserve the approved 6/8/4/2 rarity mix")
 
 static func _test_conditional_card_mutations(expect: Callable) -> void:
-	_expect_action_delta(expect, "ricochet_knife", "ember_lens", "ranged", "damage", 3)
 	_expect_action_delta(expect, "threaded_path", "pilgrim_boots", "move", "range", 1)
-	_expect_action_delta(expect, "riposte_lunge", "reinforced_shield", "block", "amount", 3)
 	_expect_action_delta(expect, "hearth_rush", "flint_edge", "melee", "burn", 2)
 	_expect_action_delta(expect, "chain_bolt", "storm_capacitor", "ranged", "chain", 1)
 	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "damage", 1)
 	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "amount", 1)
-	_expect_action_delta(expect, "rime_shard", "widow_thread", "ranged", "expose", 3)
+	var awl_card: Dictionary = GameData.card_def_for_progression("bloody_lunge", {"relics": ["hourglass_awl"]})
+	expect.call(bool(_first_action_of_type(awl_card, "melee").get("pierce", false)), "Hourglass Awl should add Pierce to attacks on 7+ Time cards")
+	var glowstone_card: Dictionary = GameData.card_def_for_progression("spike_mantle", {"relics": ["glowstone_matrix"]})
+	expect.call(int(_first_action_of_type(glowstone_card, "vision").get("duration", 0)) == 2, "Glowstone Matrix should append two-turn Vision to cards containing Stoneskin")
 	var iron_wheel_with_boots: Dictionary = GameData.card_def_for_progression("iron_wheel", {"relics": ["pilgrim_boots"]})
 	expect.call(
 		int(_first_action_of_type(iron_wheel_with_boots, "move").get("range", 0)) == int(_first_action_of_type(GameData.card_def("iron_wheel"), "move").get("range", 0)),
 		"Pilgrim Boots should leave move-and-attack cards to Duelist Whetstone"
 	)
-	var plain_stab: Dictionary = GameData.card_def_for_progression("quick_stab", {"relics": ["ember_lens", "reinforced_shield", "widow_thread"]})
+	var plain_stab: Dictionary = GameData.card_def_for_progression("quick_stab", {"relics": ["hourglass_awl", "glowstone_matrix"]})
 	var plain_action: Dictionary = _first_action_of_type(plain_stab, "melee")
 	var base_plain_action: Dictionary = _first_action_of_type(GameData.card_def("quick_stab"), "melee")
-	expect.call(int(plain_action.get("damage", 0)) == int(base_plain_action.get("damage", 0)), "Conditional card relics should leave cards without their required build traits unchanged")
+	expect.call(int(plain_action.get("damage", 0)) == int(base_plain_action.get("damage", 0)) and not bool(plain_action.get("pierce", false)), "Conditional card relics should leave cards without their required build traits unchanged")
 
 static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -134,18 +158,15 @@ static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 	duelist_state = _trigger_card(combat, duelist_state, duelist_card, "iron_wheel")
 	expect.call(combat.final_damage_for_player_action(duelist_state, duelist_attack) == 10, "Duelist Whetstone should apply only once per turn")
 
-	var hollow_state: Dictionary = _state(combat, ["hollow_die"])
-	hollow_state["deck"] = _deck([], ["brace"], [])
-	hollow_state = _trigger_card(combat, hollow_state, _card("", 1, [{"type": "block", "amount": 3}]), "hollow")
-	expect.call((hollow_state.get("deck", {}) as Dictionary).get("hand", []) == ["brace"], "Hollow Die should draw from a one-action card")
-	var hollow_fatigue_state: Dictionary = _state(combat, ["hollow_die"], 10, 24)
-	hollow_fatigue_state["deck"] = _deck([], [], ["brace"])
-	hollow_fatigue_state = _trigger_card(combat, hollow_fatigue_state, _card("", 1, [{"type": "block", "amount": 3}]), "hollow")
+	var pin_state: Dictionary = _state(combat, ["hollow_die"])
+	var pin_card: Dictionary = GameData.card_def("prism_sight")
+	pin_state = _trigger_card(combat, pin_state, pin_card, "prism_sight")
+	var pin_sources: Array = (pin_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
 	expect.call(
-		int((hollow_fatigue_state.get("player", {}) as Dictionary).get("hp", 0)) == 10
-		and int((hollow_fatigue_state.get("deck", {}) as Dictionary).get("cycles", 0)) == 0
-		and ((hollow_fatigue_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(),
-		"Relic reward draws should stop instead of reshuffling the discard pile and inflicting Fatigue"
+		pin_sources.size() == 1
+		and (pin_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == (pin_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+		and int((pin_sources[0] as Dictionary).get("remaining_activations", 0)) == 2,
+		"Open-Eyed Pin should turn a Vision card into Light at the player for the same final duration"
 	)
 
 	var chorus_state: Dictionary = _state(combat, ["chorus_mask"])
@@ -162,8 +183,14 @@ static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 	hourglass_state = _trigger_card(combat, hourglass_state, _card("", 7, [{"type": "melee", "damage": 1}]), "hourglass")
 	expect.call(int(hourglass_state.get("card_play_bonus_this_turn", 0)) == 1 and int((hourglass_state.get("player", {}) as Dictionary).get("block", 0)) == 4, "Hourglass Splinter should refund a high-Time card and add defense")
 
-	var widow_card: Dictionary = GameData.card_def_for_progression("rime_shard", {"relics": ["widow_thread"]})
-	expect.call(int(_first_action_of_type(widow_card, "ranged").get("expose", 0)) == 3, "Widow Thread should give illusion-attacks an Expose payoff")
+	var widow_state: Dictionary = _state(combat, ["widow_thread"])
+	widow_state["illusions"] = [{"id": 99, "pos": Vector2i(3, 4), "hp": 2, "max_hp": 2}]
+	var widow_attack: Dictionary = combat.call("_action_with_player_state_relic_modifiers", widow_state, {"type": "ranged", "damage": 3, "range": 4, "_card_action_types": ["ranged"]})
+	expect.call(int(widow_attack.get("expose", 0)) == 1, "Widow Thread should make attacks expose while an illusion exists")
+	var shield_state: Dictionary = _state(combat, ["reinforced_shield"])
+	(shield_state.get("player", {}) as Dictionary)["stoneskin"] = 1
+	var shield_action: Dictionary = combat.call("_action_with_player_state_relic_modifiers", shield_state, {"type": "block", "amount": 4, "_card_action_types": ["block"]})
+	expect.call(int(shield_action.get("amount", 0)) == 7, "Reinforced Shield should improve Block actions while Stoneskin is active")
 
 static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -217,6 +244,146 @@ static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 	borrowed_state = _trigger_card(combat, borrowed_state, _card("", 8, [{"type": "aoe", "damage": 4}]), "borrowed", true)
 	expect.call(((borrowed_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 4 and int(borrowed_state.get("card_play_bonus_this_turn", 0)) == 3, "Borrowed Hourglass should turn a banked high-Time play into a mythic combo turn")
 
+static func _test_spatial_radiance_relics(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var boots_state: Dictionary = _state(combat, ["pilgrim_boots"])
+	boots_state = combat.apply_player_action(boots_state, {"type": "move", "range": 4, "_card_action_types": ["move"]}, Vector2i(5, 4))
+	var boot_sources: Array = (boots_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(boot_sources.size() == 3, "Pilgrim Boots should leave Light on every tile entered by a non-attack Move")
+	var blink_boots_state: Dictionary = _state(combat, ["pilgrim_boots"])
+	blink_boots_state = combat.apply_player_action(blink_boots_state, {"type": "blink", "range": 4, "_card_action_types": ["blink"]}, Vector2i(5, 4))
+	expect.call(((blink_boots_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 2, "Pilgrim Boots should light a Blink's origin and destination without inventing intermediate Blink tiles")
+	var attack_move_state: Dictionary = _state(combat, ["pilgrim_boots"])
+	attack_move_state = combat.apply_player_action(attack_move_state, {"type": "move", "range": 4, "_card_action_types": ["move", "melee"]}, Vector2i(4, 4))
+	expect.call(((attack_move_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).is_empty(), "Pilgrim Boots should not transform Move-and-attack cards")
+
+	var filament_state: Dictionary = _state(combat, ["dawnbrand_filament"])
+	filament_state["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(4, 2), 10)
+	filament_state = combat.apply_player_action(filament_state, {"type": "ranged", "damage": 1, "range": 5, "_card_action_types": ["ranged"]}, Vector2i(4, 4))
+	filament_state = combat.apply_player_action(filament_state, {"type": "ranged", "damage": 1, "range": 5, "_card_action_types": ["ranged"]}, Vector2i(4, 2))
+	var filament_sources: Array = (filament_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(filament_sources.size() == 1 and (filament_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 4), "Dawnbrand Filament should light only the first direct attack target each turn")
+
+	var brightglass_state: Dictionary = _state(combat, ["ember_lens"])
+	brightglass_state["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(5, 4), 10)
+	brightglass_state = combat.apply_player_action(brightglass_state, {"type": "illuminate", "range": 5, "radius": 1, "duration": 2}, Vector2i(4, 4))
+	brightglass_state = combat.apply_player_action(brightglass_state, {"type": "ranged", "damage": 2, "range": 5, "_card_action_types": ["ranged"]}, Vector2i(4, 4))
+	expect.call(int(((brightglass_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 8 and int(((brightglass_state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 8, "Brightglass Lens should turn a ranged hit on an enemy in Light into Chain 1")
+
+	var stormglass_state: Dictionary = _state(combat, ["voltaic_tuning_fork"])
+	stormglass_state["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(5, 4), 10)
+	stormglass_state = combat.apply_player_action(stormglass_state, {"type": "ranged", "damage": 1, "range": 5, "chain": 2, "_card_action_types": ["ranged"]}, Vector2i(4, 4))
+	expect.call(((stormglass_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 2, "Stormglass Beacon should create Light beneath every enemy hit by the first Chain attack")
+
+	var noon_state: Dictionary = _state(combat, ["tectonic_abacus"])
+	(noon_state.get("umbra", {}) as Dictionary)["stage"] = CombatEngine.UMBRA_STAGE_PRESSING
+	for pos: Vector2i in [Vector2i(2, 2), Vector2i(3, 2), Vector2i(4, 2)]:
+		noon_state = combat.call("_create_umbra_light_source", noon_state, pos, {"radius": 1, "duration": 2, "silent": true})
+	expect.call(combat.effective_umbra_stage(noon_state) == CombatEngine.UMBRA_STAGE_ADVANCING, "Captured Noon should suppress one Umbra stage at three active sources")
+	for pos: Vector2i in [Vector2i(2, 3), Vector2i(3, 3), Vector2i(4, 3)]:
+		noon_state = combat.call("_create_umbra_light_source", noon_state, pos, {"radius": 1, "duration": 2, "silent": true})
+	expect.call(combat.effective_umbra_stage(noon_state) == CombatEngine.UMBRA_STAGE_FRINGE, "Captured Noon should suppress two Umbra stages at six active sources")
+	(noon_state.get("umbra", {}) as Dictionary)["light_sources"] = []
+	expect.call(combat.effective_umbra_stage(noon_state) == CombatEngine.UMBRA_STAGE_PRESSING, "Captured Noon suppression should reverse immediately when its sources expire")
+
+	var tether_state: Dictionary = _state(combat, ["witchglass_lantern", "tectonic_abacus"])
+	(tether_state.get("umbra", {}) as Dictionary)["stage"] = CombatEngine.UMBRA_STAGE_PRESSING
+	tether_state["illusions"] = [
+		{"id": 41, "pos": Vector2i(2, 2), "hp": 2, "max_hp": 2},
+		{"id": 42, "pos": Vector2i(4, 2), "hp": 2, "max_hp": 2},
+		{"id": 43, "pos": Vector2i(6, 2), "hp": 2, "max_hp": 2}
+	]
+	expect.call(combat.effective_umbra_stage(tether_state) == CombatEngine.UMBRA_STAGE_ADVANCING, "Captured Noon should count tethered illusion Light as real active sources")
+	expect.call(bool(combat.call("_light_source_covers_tile", tether_state, Vector2i(4, 4))), "Witchglass Lantern should provide real radius-two Light from a living illusion")
+	var tethered_sources: Array[Dictionary] = combat.effective_light_sources(tether_state)
+	var tooltip_board := CombatBoardView.new()
+	var tethered_tooltip: String = tooltip_board.call("_tethered_light_tooltip", tethered_sources[0])
+	expect.call(tethered_tooltip.contains("Witchglass Lantern: +2"), "A tethered Light tooltip should name the relic's additive contribution")
+	tooltip_board.free()
+	tether_state = combat._damage_illusion(tether_state, 42, 2)
+	expect.call(not bool(combat.call("_light_source_covers_tile", tether_state, Vector2i(4, 4))), "Tethered Light should end immediately when its illusion is removed")
+
+static func _test_package_transforming_relics(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var soles_state: Dictionary = _state(combat, ["static_soles"])
+	soles_state = _trigger_card(combat, soles_state, GameData.card_def("static_pivot"), "static_pivot")
+	expect.call(combat.elemental_intensity(soles_state, ElementData.LIGHTNING) == 1 and int((soles_state.get("umbra", {}) as Dictionary).get("vision_bonus_activations", 0)) == 2, "Static Soles should bridge Lightning mobility into intensity and two-turn Vision")
+	var mirror_state: Dictionary = _state(combat, ["mirror_shard"])
+	mirror_state = _trigger_card(combat, mirror_state, GameData.card_def("mirror_feint"), "mirror_feint")
+	expect.call(int(mirror_state.get("card_play_bonus_this_turn", 0)) == 1 and int((mirror_state.get("umbra", {}) as Dictionary).get("vision_bonus_activations", 0)) == 2, "Mirror Shard should bridge illusion cards into tempo and two-turn Vision")
+
+	var thaw_state: Dictionary = _state(combat, ["thawing_charm"])
+	thaw_state = combat.apply_player_action(thaw_state, {"type": "heal", "amount": 3})
+	expect.call(int((thaw_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 3 and ((thaw_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 1, "Thawing Charm should turn actual overheal conversion into Stoneskin and Light")
+
+	var beacon_state: Dictionary = _state(combat, ["beaconrunner_spurs"])
+	beacon_state = combat.apply_player_action(beacon_state, {"type": "illuminate", "range": 5, "radius": 1, "duration": 2}, Vector2i(4, 4))
+	beacon_state = combat.apply_player_action(beacon_state, {"type": "move", "range": 3, "_card_action_types": ["move"]}, Vector2i(4, 4))
+	expect.call(int(beacon_state.get("card_play_bonus_this_turn", 0)) == 1 and int((beacon_state.get("player", {}) as Dictionary).get("block", 0)) == 3, "Beaconrunner Spurs should reward movement that ends in existing Light")
+
+	var north_state: Dictionary = _state(combat, ["true_north"])
+	north_state = combat.apply_player_action(north_state, {"type": "truesight", "duration": 2})
+	var north_action: Dictionary = combat.call("_action_with_intensity_bonus", north_state, {"type": "ranged", "damage": 1, "range": 3, "_card_action_types": ["ranged"]})
+	expect.call(int(north_action.get("range", 0)) == 5, "True North should transform ranged targeting while Truesight is active")
+
+	var dawnstitch_state: Dictionary = _state(combat, ["dawnstitch_cord"])
+	dawnstitch_state = _trigger_card(combat, dawnstitch_state, GameData.card_def("prism_sight"), "prism_sight")
+	expect.call(int((dawnstitch_state.get("player", {}) as Dictionary).get("block", 0)) == 4, "Dawnstitch Cord should turn the first Radiance-action card into Block")
+
+	var astrolabe_state: Dictionary = _state(combat, ["starless_astrolabe"])
+	astrolabe_state["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(5, 4), 10)
+	astrolabe_state = combat.apply_player_action(astrolabe_state, {"type": "truesight", "duration": 2})
+	astrolabe_state = combat.call("_trigger_resolved_action_light", astrolabe_state, {"type": "aoe", "damage": 1, "shock": 1, "_card_action_types": ["aoe"]}, Vector2i(4, 4), _int_values([0, 1]))
+	expect.call(((astrolabe_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 2, "Starless Astrolabe should light every affected enemy of a Truesight Freeze or Shock attack")
+
+	var carapace_state: Dictionary = _state(combat, ["witchglass_carapace"])
+	carapace_state["illusions"] = [{"id": 61, "pos": Vector2i(3, 4), "hp": 3, "max_hp": 3}]
+	carapace_state = combat.call("_damage_actor_target", carapace_state, {"kind": "illusion", "id": 61, "pos": Vector2i(3, 4)}, 5, false, {"type": "ranged"})
+	expect.call(int(((carapace_state.get("illusions", []) as Array)[0] as Dictionary).get("hp", 0)) == 2, "Witchglass Carapace should cap ranged enemy damage to illusions at one")
+	carapace_state = combat.call("_damage_actor_target", carapace_state, {"kind": "illusion", "id": 61, "pos": Vector2i(3, 4)}, 5, false, {"type": "melee"})
+	expect.call(int(((carapace_state.get("illusions", []) as Array)[0] as Dictionary).get("hp", 0)) == 0, "Witchglass Carapace should leave melee enemy damage unchanged")
+
+	var edge_state: Dictionary = _state(combat, ["sunlit_edge"])
+	var edge_pos: Vector2i = (edge_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	edge_state = combat.apply_player_action(edge_state, {"type": "illuminate", "range": 5, "radius": 1, "duration": 2}, edge_pos)
+	var edge_action: Dictionary = combat.call("_action_with_intensity_bonus", edge_state, {"type": "melee", "damage": 2, "range": 1, "_card_action_types": ["melee"]})
+	expect.call(bool(edge_action.get("pierce", false)), "Sunlit Edge should transform attacks into Pierce while the player stands in Light")
+
+	var glassway_state: Dictionary = _state(combat, ["glassway_compass"])
+	glassway_state = combat.apply_player_action(glassway_state, {"type": "blink", "range": 4, "_card_action_types": ["blink"]}, Vector2i(4, 4))
+	glassway_state = combat.apply_player_action(glassway_state, {"type": "blink", "range": 4, "_card_action_types": ["blink"]}, Vector2i(5, 4))
+	var glassway_illusions: Array = glassway_state.get("illusions", []) as Array
+	expect.call(glassway_illusions.size() == 1 and int((glassway_illusions[0] as Dictionary).get("hp", 0)) == 2 and (glassway_illusions[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Glassway Compass should create one two-health illusion at the first Blink origin each turn")
+
+	var sun_state: Dictionary = _state(combat, ["unclouded_sun"])
+	(sun_state.get("umbra", {}) as Dictionary)["stage"] = CombatEngine.UMBRA_STAGE_FRINGE
+	sun_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
+	sun_state = combat.apply_player_action(sun_state, {"type": "dispel_umbra", "amount": 1})
+	expect.call(int((sun_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 12 and ((sun_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3 and int(sun_state.get("card_play_bonus_this_turn", 0)) == 3, "Unclouded Sun should pay once when authored Umbra first reaches Clear")
+
+	var phoenix_state: Dictionary = _state(combat, ["phoenix_ember"], 2, 24)
+	(phoenix_state.get("umbra", {}) as Dictionary)["stage"] = CombatEngine.UMBRA_STAGE_DEEP
+	phoenix_state["defiance_capacity"] = 1
+	phoenix_state["defiance_remaining"] = 1
+	phoenix_state = combat.call("_damage_player", phoenix_state, 9, true)
+	expect.call(int((phoenix_state.get("umbra", {}) as Dictionary).get("stage_reduction", 0)) == 2, "Phoenix Ember should add Dispel Umbra 2 to its existing Defiance comeback")
+
+static func _test_radiance_offer_distribution(expect: Callable) -> void:
+	var engine := RunEngine.new()
+	var offers_with_radiance: int = 0
+	var sample_count: int = 2000
+	for sample: int in range(sample_count):
+		var choices: Array = engine.call("_generate_relic_choices", {"seed": 7719, "relics": []}, Vector2i(sample % 100, sample / 100))
+		var contains_radiance: bool = false
+		for relic_id_var: Variant in choices:
+			if (GameData.relic_def(str(relic_id_var)).get("build_tags", []) as Array).has("radiance"):
+				contains_radiance = true
+				break
+		if contains_radiance:
+			offers_with_radiance += 1
+	var offer_rate: float = float(offers_with_radiance) / float(sample_count)
+	expect.call(offer_rate >= 0.67 and offer_rate <= 0.75, "The weighted 60-relic pool should put Radiance in roughly 70%% of ordinary three-choice offers; observed %.2f%%" % (offer_rate * 100.0))
+
 static func _test_status_and_enemy_death_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var cold_state: Dictionary = _state(combat, ["cold_mirror"])
@@ -265,13 +432,14 @@ static func _test_status_and_enemy_death_engines(expect: Callable) -> void:
 static func _test_intensity_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var cinder_state: Dictionary = _state(combat, ["cinderbrand_tongs"])
-	cinder_state["elemental_intensity"] = _intensities({ElementData.FIRE: 3})
-	cinder_state = combat.call("_trigger_status_relics", cinder_state, "burn")
+	cinder_state["elemental_intensity"] = _intensities({ElementData.FIRE: 0})
+	var cinder_attack: Dictionary = {"type": "ranged", "damage": 3, "range": 5, "burn": 2}
+	cinder_state = combat.call("_trigger_status_relics", cinder_state, "burn", cinder_attack)
+	cinder_state = combat.call("_trigger_resolved_action_light", cinder_state, cinder_attack, Vector2i(5, 2), _int_values([0]))
 	expect.call(
-		combat.elemental_intensity(cinder_state, ElementData.FIRE) == 2
-		and int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 98
-		and int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 1,
-		"Cinderbrand Tongs should cash out its Fire loop as damage and Burn"
+		combat.elemental_intensity(cinder_state, ElementData.FIRE) == 1
+		and ((cinder_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 1,
+		"Cinderbrand Tongs should turn the first attack-applied Burn into Fire intensity and target Light"
 	)
 
 	var ion_state: Dictionary = _state(combat, ["ion_spool"])
@@ -314,24 +482,6 @@ static func _test_intensity_engines(expect: Callable) -> void:
 		and int(off_turn_overflow_state.get("pending_relic_card_plays", -1)) == 0,
 		"Held intensity-threshold plays should arrive on the next player turn"
 	)
-
-	for relic_order: Array in [
-		["ion_spool", "voltaic_tuning_fork"],
-		["voltaic_tuning_fork", "ion_spool"]
-	]:
-		var stacked_state: Dictionary = _state(combat, relic_order)
-		stacked_state["elemental_intensity"] = _intensities({ElementData.LIGHTNING: 3})
-		stacked_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
-		stacked_state = combat.apply_player_action(stacked_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
-		expect.call(
-			((stacked_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2
-			and int(((stacked_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 96,
-			"Every relic sharing a crossed intensity threshold should resolve regardless of acquisition order"
-		)
-		expect.call(
-			combat.elemental_intensity(stacked_state, ElementData.LIGHTNING) == 0,
-			"Stacked intensity relics should aggregate and clamp their snapshotted consumption before rewards resolve"
-		)
 
 	var black_state: Dictionary = _state(combat, ["black_sun_dial"])
 	var final_element: String = ElementData.EARTH
@@ -831,19 +981,19 @@ static func _test_damage_feedback_contract(expect: Callable) -> void:
 	var status_step: Dictionary = status_steps[0] if not status_steps.is_empty() else {}
 	var status_floats: Array = scene.call("_floating_texts_for_step", status_step) as Array
 	expect.call(
-		(status_step.get("enemy_losses", []) as Array).size() == 2
-		and (status_step.get("impact_actor_keys", []) as Array).size() == 2,
-		"A lethal status tick should carry its primary loss and every nested relic-discharge loss"
+		(status_step.get("enemy_losses", []) as Array).size() == 1
+		and (status_step.get("impact_actor_keys", []) as Array).size() == 1,
+		"A lethal status tick should carry its primary loss without treating damage-over-time Burn as an attack-applied relic trigger"
 	)
 	expect.call(
-		_floating_text_count(status_floats, "-1") == 2
-		and _floating_text_count(status_floats, "-1 S") == 1,
-		"Nested status-trigger damage should show exact primary HP and secondary defense losses"
+		_floating_text_count(status_floats, "-1") == 1
+		and _floating_text_count(status_floats, "-1 S") == 0,
+		"Damage-over-time Burn should show only its own exact health loss"
 	)
 	var status_presentation: Dictionary = scene.call("_enemy_phase_status_presentation", status_step) as Dictionary
 	expect.call(
-		(status_presentation.get("impact_decals", []) as Array).size() == 2,
-		"Nested status-trigger damage should reuse the standard impact decals"
+		(status_presentation.get("impact_decals", []) as Array).size() == 1,
+		"Damage-over-time Burn should reuse one standard impact decal"
 	)
 	var animated_status_state: Dictionary = status_chain_before.duplicate(true)
 	scene.call("_apply_animation_step", animated_status_state, status_step)
@@ -851,7 +1001,7 @@ static func _test_damage_feedback_contract(expect: Callable) -> void:
 		(animated_status_state.get("enemies", []) as Array) == (status_chain_after.get("enemies", []) as Array)
 		and (animated_status_state.get("player", {}) as Dictionary) == (status_chain_after.get("player", {}) as Dictionary)
 		and combat.elemental_intensity(animated_status_state, ElementData.FIRE) == combat.elemental_intensity(status_chain_after, ElementData.FIRE),
-		"Status playback should commit nested damage, Ember Siphon healing, and contested Fire intensity in sequence"
+		"Status playback should commit Burn damage and Ember Siphon healing without firing attack-only Cinderbrand effects"
 	)
 
 	var board := CombatBoardView.new()
@@ -982,6 +1132,12 @@ static func _card(element_id: String, time_cost: int, actions: Array, health_cos
 		"actions": actions.duplicate(true)
 	}
 
+static func _two_enemies(first_pos: Vector2i, second_pos: Vector2i, hp: int) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	result.append({"id": 1, "type": "crawler", "pos": first_pos, "hp": hp, "max_hp": hp, "block": 0, "stoneskin": 0})
+	result.append({"id": 2, "type": "crawler", "pos": second_pos, "hp": hp, "max_hp": hp, "block": 0, "stoneskin": 0})
+	return result
+
 static func _state(combat: CombatEngine, relics: Array, hp: int = 24, max_hp: int = 24) -> Dictionary:
 	return combat.create_combat(990, _room(), {
 		"hp": hp,
@@ -1033,4 +1189,10 @@ static func _string_array(values: Array) -> Array[String]:
 	var result: Array[String]
 	for value_var: Variant in values:
 		result.append(str(value_var))
+	return result
+
+static func _int_values(values: Array) -> Array[int]:
+	var result: Array[int]
+	for value_var: Variant in values:
+		result.append(int(value_var))
 	return result

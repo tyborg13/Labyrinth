@@ -10,6 +10,15 @@ const OUTPUT_DIR: String = "user://relic_rework_visual_probe"
 const PROGRESSION_PATH: String = "user://relic_rework_visual_progression.json"
 const RUN_PATH: String = "user://relic_rework_visual_run.save"
 const SETTINGS_PATH: String = "user://relic_rework_visual_settings.json"
+const REDESIGNED_RELIC_IDS = [
+	"pilgrim_boots", "reinforced_shield", "static_soles", "cinderbrand_tongs",
+	"mirror_shard", "thawing_charm", "widow_thread", "phoenix_ember",
+	"ember_lens", "hollow_die", "voltaic_tuning_fork", "tectonic_abacus",
+	"dawnbrand_filament", "glowstone_matrix", "briar_winch", "hourglass_awl",
+	"beaconrunner_spurs", "true_north", "dawnstitch_cord", "starless_astrolabe",
+	"witchglass_carapace", "witchglass_lantern", "sunlit_edge", "glassway_compass",
+	"unclouded_sun"
+]
 
 var _failures: Array[String]
 
@@ -24,18 +33,13 @@ func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 
-	await _capture(
-		Vector2i(1920, 1080),
-		1.0,
-		_string_array(["cinderbrand_tongs", "anchor_chain", "black_sun_dial"]),
-		88001
-	)
-	await _capture(
-		Vector2i(1280, 720),
-		1.25,
-		_string_array(["moonless_compass", "cold_mirror", "worldroot_idol"]),
-		88002
-	)
+	for batch_index: int in range(ceili(float(REDESIGNED_RELIC_IDS.size()) / 3.0)):
+		var batch_ids: Array[String]
+		var start_index: int = batch_index * 3
+		var end_index: int = mini(start_index + 3, REDESIGNED_RELIC_IDS.size())
+		for relic_index: int in range(start_index, end_index):
+			batch_ids.append(str(REDESIGNED_RELIC_IDS[relic_index]))
+		await _capture(Vector2i(1920, 1080), 1.0, batch_ids, 88001 + batch_index, batch_index + 1)
 
 	if _failures.is_empty():
 		print("RELIC REWORK VISUAL PROBE: PASS")
@@ -52,7 +56,8 @@ func _capture(
 	screenshot_size: Vector2i,
 	ui_scale: float,
 	relic_ids: Array[String],
-	seed: int
+	seed: int,
+	batch_number: int
 ) -> void:
 	var logical_size := Vector2i(
 		maxi(1, roundi(float(screenshot_size.x) / ui_scale)),
@@ -104,10 +109,11 @@ func _capture(
 	)
 	_validate_relic_choices(instance, relic_ids, logical_size, screenshot_size, ui_scale)
 
-	var label: String = "%dx%d_ui%d" % [
+	var label: String = "%dx%d_ui%d_batch%02d" % [
 		screenshot_size.x,
 		screenshot_size.y,
-		roundi(ui_scale * 100.0)
+		roundi(ui_scale * 100.0),
+		batch_number
 	]
 	await _save_screenshot(viewport, "%s/%s_choices.png" % [OUTPUT_DIR, label], screenshot_size)
 	instance.queue_free()

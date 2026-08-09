@@ -361,6 +361,12 @@ const SKILL_ICONS: Dictionary = {
 	"skill_measured_breath": {"label": "Measured Breath", "path": "%s/measured_breath.png" % SKILL_ICON_ROOT},
 	"skill_ghost_stride": {"label": "Ghost Stride", "path": "%s/ghost_stride.png" % SKILL_ICON_ROOT},
 	"skill_discerning_eye": {"label": "Discerning Eye", "path": "%s/discerning_eye.png" % SKILL_ICON_ROOT},
+	"skill_long_dawn": {"label": "Long Dawn", "path": "%s/long_dawn.png" % SKILL_ICON_ROOT},
+	"skill_sunpath": {"label": "Sunpath", "path": "%s/sunpath.png" % SKILL_ICON_ROOT},
+	"skill_witchlight": {"label": "Witchlight", "path": "%s/witchlight.png" % SKILL_ICON_ROOT},
+	"skill_dawnbrand": {"label": "Dawnbrand", "path": "%s/dawnbrand.png" % SKILL_ICON_ROOT},
+	"skill_afterglow": {"label": "Afterglow", "path": "%s/afterglow.png" % SKILL_ICON_ROOT},
+	"skill_open_sky": {"label": "Open Sky", "path": "%s/open_sky.png" % SKILL_ICON_ROOT},
 	"skill_rehearsed_escape": {"label": "Rehearsed Escape", "path": "%s/rehearsed_escape.png" % SKILL_ICON_ROOT},
 	"skill_makeshift_tool": {"label": "Makeshift Tool", "path": "%s/makeshift_tool.png" % SKILL_ICON_ROOT},
 	"skill_carry_the_guard": {"label": "Carry the Guard", "path": "%s/carry_the_guard.png" % SKILL_ICON_ROOT},
@@ -741,37 +747,45 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(token_for("health_cost", "-%d" % health_cost))
 		"move", "move_toward":
 			tokens.append(_token_for_action_field(action, "move", "range", int(action.get("range", 0))))
+			_append_illuminate_rider_tokens(tokens, action)
 		"move_away":
 			tokens.append(_token_for_action_field(action, "retreat", "range", int(action.get("range", 0))))
+			_append_illuminate_rider_tokens(tokens, action)
 		"blink":
 			tokens.append(_token_for_action_field(action, "blink", "range", int(action.get("range", 0))))
+			_append_illuminate_rider_tokens(tokens, action)
 		"melee":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "melee"), action, options)
 			if int(action.get("range", 0)) > 1:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
+			_append_illuminate_rider_tokens(tokens, action)
 		"ranged":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged"), action, options)
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
+			_append_illuminate_rider_tokens(tokens, action)
 		"aoe":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 else "melee"), action, options)
 			if int(action.get("range", 0)) > 0:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
+			_append_illuminate_rider_tokens(tokens, action)
 		"push":
 			_append_optional_hit_token(tokens, action, options)
 			if int(action.get("range", 0)) > 1:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0))))
+			_append_illuminate_rider_tokens(tokens, action)
 		"pull":
 			_append_optional_hit_token(tokens, action, options)
 			if int(action.get("range", 0)) > 1:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 			tokens.append(_token_for_action_field(action, "pull", "amount", int(action.get("amount", 0))))
+			_append_illuminate_rider_tokens(tokens, action)
 		"block", "guard_ally":
 			tokens.append(_token_for_action_field(action, "block", "amount", int(action.get("amount", 0))))
 		"stoneskin":
@@ -1078,6 +1092,34 @@ static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 		tokens.append(_token_for_action_field(action, "push", "push", int(action.get("push", 0))))
 	if int(action.get("pull", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "pull", "pull", int(action.get("pull", 0))))
+
+static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -> void:
+	var radius: int = int(action.get("illuminate_radius", 0))
+	if radius <= 0:
+		return
+	var action_type: String = str(action.get("type", ""))
+	var radius_tooltip: String = "After this attack resolves, create Light at its impact within this radius."
+	var duration_tooltip: String = "Player turns this light remains at the impact."
+	if action_type in ["move", "move_toward", "move_away", "blink"]:
+		radius_tooltip = "After this movement resolves, create Light where you arrive within this radius."
+		duration_tooltip = "Player turns this light remains at your destination."
+	tokens.append(_token_for_action_field(
+		action,
+		"illuminate",
+		"illuminate_radius",
+		radius,
+		"neutral",
+		radius_tooltip
+	))
+	var duration: int = int(action.get("illuminate_duration", 1))
+	tokens.append(_token_for_action_field(
+		action,
+		"time",
+		"illuminate_duration",
+		"∞" if duration < 0 else duration,
+		"neutral",
+		duration_tooltip
+	))
 
 static func _action_element(action: Dictionary) -> String:
 	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))

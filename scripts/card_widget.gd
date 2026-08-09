@@ -1010,7 +1010,7 @@ func _render_summary_icon_rows(rows: Array) -> void:
 			})
 	if rendered_rows.is_empty():
 		return
-	var metrics: Dictionary = _summary_layout_metrics(rendered_rows)
+	var metrics: Dictionary = _summary_layout_metrics(rendered_rows, row_groups)
 	var icon_size: float = float(metrics.get("icon_size", _summary_icon_size()))
 	var label_size: int = int(metrics.get("label_size", 15))
 	var row_gap: int = int(metrics.get("row_gap", 6))
@@ -1023,9 +1023,7 @@ func _render_summary_icon_rows(rows: Array) -> void:
 		var condition_active: bool = bool(condition.get("active", false))
 		var segments: Array = group.get("segments", [])
 		if condition_element.is_empty():
-			for segment_var: Variant in segments:
-				if typeof(segment_var) == TYPE_ARRAY:
-					_add_summary_segment(_summary_icon_box, segment_var as Array, icon_size, label_size, row_gap)
+			_add_summary_action_group(_summary_icon_box, segments, icon_size, label_size, row_gap)
 			continue
 		var block := PanelContainer.new()
 		block.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1048,7 +1046,8 @@ func _render_summary_icon_rows(rows: Array) -> void:
 		inner.alignment = BoxContainer.ALIGNMENT_CENTER
 		inner.add_theme_constant_override("separation", maxi(0, row_gap - 4))
 		margin.add_child(inner)
-		for segment_var: Variant in segments:
+		for segment_index: int in range(segments.size()):
+			var segment_var: Variant = segments[segment_index]
 			if typeof(segment_var) == TYPE_ARRAY:
 				var segment: Array = segment_var as Array
 				var conditional_icon_size: float = icon_size
@@ -1058,15 +1057,48 @@ func _render_summary_icon_rows(rows: Array) -> void:
 					conditional_icon_size = maxf(15.0, icon_size - 3.0)
 					conditional_label_size = maxi(10, label_size - 2)
 					conditional_row_gap = maxi(0, row_gap - 3)
-				_add_summary_segment(inner, segment, conditional_icon_size, conditional_label_size, conditional_row_gap, true)
+				_add_summary_segment(inner, segment, conditional_icon_size, conditional_label_size, conditional_row_gap, true, segment_index > 0)
 
-func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_size: int, row_gap: int, conditional: bool = false) -> void:
+func _add_summary_action_group(parent: Node, segments: Array, icon_size: float, label_size: int, row_gap: int) -> void:
+	if segments.is_empty():
+		return
+	if segments.size() == 1 and typeof(segments[0]) == TYPE_ARRAY:
+		_add_summary_segment(parent, segments[0] as Array, icon_size, label_size, row_gap)
+		return
+	var inner := VBoxContainer.new()
+	inner.name = "SummaryActionGroup"
+	inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	inner.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	inner.alignment = BoxContainer.ALIGNMENT_CENTER
+	inner.add_theme_constant_override("separation", maxi(0, row_gap - 4))
+	inner.set_meta("summary_action_group", true)
+	parent.add_child(inner)
+	for segment_index: int in range(segments.size()):
+		var segment_var: Variant = segments[segment_index]
+		if typeof(segment_var) == TYPE_ARRAY:
+			_add_summary_segment(inner, segment_var as Array, icon_size, label_size, maxi(1, row_gap - 1), false, segment_index > 0)
+
+func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_size: int, row_gap: int, conditional: bool = false, continuation: bool = false) -> void:
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	row.size_flags_horizontal = Control.SIZE_SHRINK_END if continuation else Control.SIZE_SHRINK_CENTER
 	row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", row_gap)
+	row.set_meta("summary_action_continuation", continuation)
+	if continuation:
+		var continuation_label := Label.new()
+		continuation_label.text = "↳"
+		continuation_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		continuation_label.tooltip_text = "Continues the action above."
+		continuation_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		UiTypography.set_label_size(continuation_label, maxi(_scaled_card_font_size(11, 8), label_size - 2))
+		continuation_label.add_theme_color_override("font_color", Color("8b5d35"))
+		continuation_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
+		continuation_label.add_theme_constant_override("outline_size", 1)
+		continuation_label.set_meta("summary_continuation_glyph", true)
+		row.add_child(continuation_label)
 	for token_var: Variant in segment:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
@@ -1128,19 +1160,41 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 		pattern_view.setup(token.get("pattern", []), bool(token.get("show_origin", false)), tooltip, _aoe_pattern_scale(icon_size))
 		row.add_child(pattern_view)
 		return
+	if str(token.get("kind", "")) == "text":
+		var text_label := _summary_value_label(ActionIcons.token_value_text(token), tooltip, label_size, token, conditional)
+		row.add_child(text_label)
+		return
+	var layout: Dictionary = _summary_token_layout(token, icon_size, label_size)
+	var token_group := Control.new()
+	token_group.name = "SummaryToken_%s" % str(token.get("icon", "value"))
+	token_group.custom_minimum_size = layout.get("size", Vector2(icon_size, icon_size))
+	token_group.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	token_group.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	token_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	token_group.tooltip_text = tooltip
+	token_group.set_meta("summary_token", true)
+	row.add_child(token_group)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = _summary_icon_box_size(token, icon_size)
+	icon.custom_minimum_size = layout.get("icon_size", _summary_icon_box_size(token, icon_size))
+	icon.size = icon.custom_minimum_size
 	icon.texture = ActionIcons.icon_texture(str(token.get("icon", "")))
 	icon.expand_mode = 1
 	icon.stretch_mode = 5
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.tooltip_text = tooltip
-	row.add_child(icon)
+	token_group.add_child(icon)
 	var value_text: String = ActionIcons.token_value_text(token)
-	if value_text.is_empty():
-		if ActionIcons.token_is_modified(token):
-			_add_token_modifier_marker(row, tooltip, label_size, conditional)
-		return
+	if not value_text.is_empty():
+		var label := _summary_value_label(value_text, tooltip, label_size, token, conditional)
+		label.position = layout.get("value_position", Vector2.ZERO)
+		label.custom_minimum_size = layout.get("value_size", Vector2.ZERO)
+		label.size = label.custom_minimum_size
+		label.set_meta("summary_value_suffix", true)
+		token_group.add_child(label)
+	if ActionIcons.token_is_modified(token):
+		_add_token_modifier_marker(token_group, tooltip, label_size, conditional, layout)
+
+func _summary_value_label(value_text: String, tooltip: String, label_size: int, token: Dictionary, conditional: bool = false) -> Label:
 	var label := Label.new()
 	label.text = value_text
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1149,12 +1203,14 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 	UiTypography.set_label_size(label, label_size)
 	label.add_theme_color_override("font_color", _token_value_color(token, conditional))
 	label.add_theme_color_override("font_outline_color", _token_outline_color(conditional))
-	label.add_theme_constant_override("outline_size", 2 if conditional else 1)
-	row.add_child(label)
-	if ActionIcons.token_is_modified(token):
-		_add_token_modifier_marker(row, tooltip, label_size, conditional)
+	label.add_theme_color_override("font_shadow_color", Color("24160f"))
+	label.add_theme_constant_override("outline_size", 2)
+	label.add_theme_constant_override("shadow_outline_size", 2)
+	label.add_theme_constant_override("shadow_offset_x", 0)
+	label.add_theme_constant_override("shadow_offset_y", 0)
+	return label
 
-func _add_token_modifier_marker(row: HBoxContainer, tooltip: String, label_size: int, conditional: bool = false) -> void:
+func _add_token_modifier_marker(token_group: Control, tooltip: String, label_size: int, conditional: bool, layout: Dictionary) -> void:
 	var marker := Label.new()
 	marker.text = "+"
 	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1163,8 +1219,12 @@ func _add_token_modifier_marker(row: HBoxContainer, tooltip: String, label_size:
 	UiTypography.set_label_size(marker, maxi(_scaled_card_font_size(10, 7), label_size - 1))
 	marker.add_theme_color_override("font_color", Color(DAMAGE_BONUS_COLOR))
 	marker.add_theme_color_override("font_outline_color", _token_outline_color(conditional))
-	marker.add_theme_constant_override("outline_size", 2 if conditional else 1)
-	row.add_child(marker)
+	marker.add_theme_constant_override("outline_size", 2)
+	marker.position = layout.get("marker_position", Vector2.ZERO)
+	marker.custom_minimum_size = layout.get("marker_size", Vector2.ZERO)
+	marker.size = marker.custom_minimum_size
+	marker.set_meta("summary_modifier_marker", true)
+	token_group.add_child(marker)
 
 func _summary_icon_size() -> float:
 	var width: float = _card_visual_width()
@@ -1176,7 +1236,7 @@ func _aoe_pattern_scale(icon_size: float) -> float:
 		return clampf(icon_size / 40.0, 0.42, 0.78)
 	return clampf(icon_size / 30.0, 0.52, 1.0)
 
-func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
+func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Dictionary:
 	var width: float = _card_visual_width()
 	var compact: bool = width <= COMPACT_CARD_WIDTH
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
@@ -1192,7 +1252,7 @@ func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
 		var icon_size: float = float(candidate_var)
 		var label_size: int = maxi(minimum_label_size, int(round(icon_size * 0.58)))
 		var row_gap: int = _summary_row_gap(icon_size, row_count)
-		if _summary_height_estimate(rendered_rows, icon_size, label_size, row_gap) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap) <= available_width:
+		if _summary_height_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_width:
 			return {
 				"icon_size": icon_size,
 				"label_size": label_size,
@@ -1217,12 +1277,8 @@ func _summary_row_gap(icon_size: float, row_count: int) -> int:
 func _summary_min_label_size() -> int:
 	return _scaled_card_font_size(13, 8)
 
-func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int) -> float:
-	var font: Font = UiTypography.default_font(self)
-	var scaled_label_size: int = UiTypography.scaled_size(self, label_size)
-	var label_height: float = float(scaled_label_size)
-	if font != null:
-		label_height = font.get_height(scaled_label_size)
+func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int, row_groups: Array = []) -> float:
+	var label_height: float = _summary_text_height(label_size)
 	var total_height: float = 0.0
 	for segment_var: Variant in rendered_rows:
 		var row_height: float = maxf(icon_size, label_height)
@@ -1233,17 +1289,54 @@ func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size
 				var token: Dictionary = token_var
 				if str(token.get("kind", "")) == "aoe_pattern":
 					continue
-				row_height = maxf(row_height, _summary_icon_box_size(token, icon_size).y)
+				row_height = maxf(row_height, (_summary_token_layout(token, icon_size, label_size).get("size", Vector2.ZERO) as Vector2).y)
 		total_height += row_height
-	return total_height + float(maxi(0, rendered_rows.size() - 1) * row_gap)
+	var group_chrome_height: float = 0.0
+	for group_var: Variant in row_groups:
+		if typeof(group_var) != TYPE_DICTIONARY:
+			continue
+		var segments: Array = (group_var as Dictionary).get("segments", []) as Array
+		if segments.size() <= 1:
+			continue
+		var condition: Dictionary = (group_var as Dictionary).get("condition", {}) as Dictionary
+		group_chrome_height += _summary_action_group_chrome_size(not str(condition.get("element", "")).is_empty()).y
+	return total_height + float(maxi(0, rendered_rows.size() - 1) * row_gap) + group_chrome_height
 
-func _summary_width_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int) -> float:
+func _summary_width_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int, row_groups: Array = []) -> float:
 	var widest: float = 0.0
 	for segment_var: Variant in rendered_rows:
 		if typeof(segment_var) != TYPE_ARRAY:
 			continue
 		widest = maxf(widest, _summary_segment_width_estimate(segment_var as Array, icon_size, label_size, row_gap))
+	for group_var: Variant in row_groups:
+		if typeof(group_var) != TYPE_DICTIONARY:
+			continue
+		var group: Dictionary = group_var as Dictionary
+		var segments: Array = group.get("segments", []) as Array
+		if segments.size() <= 1:
+			continue
+		var condition: Dictionary = group.get("condition", {}) as Dictionary
+		widest = maxf(widest, _summary_action_group_width_estimate(segments, icon_size, label_size, row_gap, not str(condition.get("element", "")).is_empty()))
 	return widest
+
+func _summary_action_group_width_estimate(segments: Array, icon_size: float, label_size: int, row_gap: int, conditional: bool = false) -> float:
+	var widest_content: float = 0.0
+	var continuation_label_size: int = maxi(_scaled_card_font_size(11, 8), label_size - 2)
+	var continuation_gap: int = maxi(1, row_gap - 1)
+	for segment_index: int in range(segments.size()):
+		var segment_var: Variant = segments[segment_index]
+		if typeof(segment_var) != TYPE_ARRAY:
+			continue
+		var segment_width: float = _summary_segment_width_estimate(segment_var as Array, icon_size, label_size, continuation_gap)
+		if segment_index > 0:
+			segment_width += _summary_text_width("↳", continuation_label_size) + float(continuation_gap)
+		widest_content = maxf(widest_content, segment_width)
+	return widest_content + _summary_action_group_chrome_size(conditional).x
+
+func _summary_action_group_chrome_size(conditional: bool) -> Vector2:
+	if conditional:
+		return Vector2(2.0, 2.0)
+	return Vector2.ZERO
 
 func _summary_segment_width_estimate(segment: Array, icon_size: float, label_size: int, row_gap: int) -> float:
 	var child_width: float = 0.0
@@ -1256,16 +1349,43 @@ func _summary_segment_width_estimate(segment: Array, icon_size: float, label_siz
 			child_width += maxf(_scaled_card_value(34.0, 18.0), icon_size * 1.5)
 			child_count += 1
 			continue
-		child_width += _summary_icon_box_size(token, icon_size).x
+		if str(token.get("kind", "")) == "text":
+			child_width += _summary_text_width(ActionIcons.token_value_text(token), label_size)
+		else:
+			child_width += (_summary_token_layout(token, icon_size, label_size).get("size", Vector2.ZERO) as Vector2).x
 		child_count += 1
-		var value_text: String = ActionIcons.token_value_text(token)
-		if not value_text.is_empty():
-			child_width += _summary_text_width(value_text, label_size)
-			child_count += 1
-		if ActionIcons.token_is_modified(token):
-			child_width += _summary_text_width("+", maxi(10, label_size - 1))
-			child_count += 1
 	return child_width + float(maxi(0, child_count - 1) * row_gap)
+
+func _summary_token_layout(token: Dictionary, icon_size: float, label_size: int) -> Dictionary:
+	var icon_box: Vector2 = _summary_icon_box_size(token, icon_size)
+	var value_text: String = ActionIcons.token_value_text(token)
+	var value_size := Vector2.ZERO
+	var value_position := Vector2.ZERO
+	if not value_text.is_empty():
+		value_size = Vector2(_summary_text_width(value_text, label_size) + 2.0, _summary_text_height(label_size) + 2.0)
+		var horizontal_overlap: float = maxf(_scaled_card_value(5.0, 2.0), value_size.x * 0.36)
+		value_position = Vector2(
+			maxf(icon_box.x * 0.56, icon_box.x - horizontal_overlap),
+			maxf(0.0, icon_box.y - value_size.y * 0.76)
+		)
+	var marker_size := Vector2.ZERO
+	var marker_position := Vector2.ZERO
+	if ActionIcons.token_is_modified(token):
+		var marker_label_size: int = maxi(_scaled_card_font_size(10, 7), label_size - 1)
+		marker_size = Vector2(_summary_text_width("+", marker_label_size) + 2.0, _summary_text_height(marker_label_size) + 2.0)
+		marker_position = Vector2(maxf(0.0, icon_box.x - marker_size.x * 0.72), 0.0)
+	var composite_size := Vector2(
+		maxf(icon_box.x, maxf(value_position.x + value_size.x, marker_position.x + marker_size.x)),
+		maxf(icon_box.y, maxf(value_position.y + value_size.y, marker_position.y + marker_size.y))
+	)
+	return {
+		"size": composite_size,
+		"icon_size": icon_box,
+		"value_position": value_position,
+		"value_size": value_size,
+		"marker_position": marker_position,
+		"marker_size": marker_size
+	}
 
 func _summary_icon_box_size(token: Dictionary, icon_size: float) -> Vector2:
 	if str(token.get("icon", "")) == "flurry":
@@ -1278,6 +1398,13 @@ func _summary_text_width(text: String, label_size: int) -> float:
 	if font == null:
 		return float(text.length()) * float(scaled_label_size) * 0.62
 	return font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, scaled_label_size).x
+
+func _summary_text_height(label_size: int) -> float:
+	var scaled_label_size: int = UiTypography.scaled_size(self, label_size)
+	var font: Font = UiTypography.default_font(self)
+	if font == null:
+		return float(scaled_label_size)
+	return font.get_height(scaled_label_size)
 
 func _card_visual_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
@@ -1292,29 +1419,27 @@ func _card_visual_width() -> float:
 
 func _summary_token_segments(tokens: Array) -> Array:
 	var clean_tokens: Array = []
-	var contains_pattern: bool = false
-	var keep_row_together: bool = false
-	var valued_tokens: int = 0
 	for token_var: Variant in tokens:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var
 		clean_tokens.append(token)
-		keep_row_together = keep_row_together or bool(token.get("keep_row_together", false))
-		if str(token.get("kind", "")) == "aoe_pattern":
-			contains_pattern = true
-		if token.has("value"):
-			valued_tokens += 1
-	if keep_row_together:
+	if clean_tokens.is_empty():
+		return []
+	var preferred_icon_size: float = _summary_icon_size()
+	var preferred_label_size: int = maxi(_summary_min_label_size(), int(round(preferred_icon_size * 0.58)))
+	var preferred_gap: int = _summary_row_gap(preferred_icon_size, 1)
+	var available_width: float = maxf(
+		_scaled_card_value(52.0, 28.0),
+		_card_visual_width() - _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - _scaled_card_value(12.0, 4.0)
+	)
+	if clean_tokens.size() <= 4 and _summary_segment_width_estimate(clean_tokens, preferred_icon_size, preferred_label_size, preferred_gap) <= available_width:
 		return [clean_tokens]
-	if clean_tokens.size() <= 3 and not contains_pattern:
-		return [clean_tokens]
-	var max_tokens_per_segment: int = 2 if contains_pattern or valued_tokens >= 3 else 3
 	var segments: Array = []
 	var current: Array = []
 	for token_var: Variant in clean_tokens:
 		current.append(token_var)
-		if current.size() >= max_tokens_per_segment:
+		if current.size() >= 3:
 			segments.append(current)
 			current = []
 	if not current.is_empty():

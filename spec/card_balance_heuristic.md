@@ -292,6 +292,13 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Illusion placement range: `0.12` per tile
 - Illuminate: `0.55` per light radius, `0.25` per activation of duration, and
   `0.06` per placement-range tile
+- An attack-carried Illuminate rider uses the same radius and duration values,
+  but adds no placement-range value because it inherits the attack's stricter
+  enemy, trap, or terrain target and creates Light only after the hit resolves.
+- A movement-carried Illuminate rider also uses the same radius and duration
+  values without separate placement-range value. It creates Light at the
+  movement's actual resolved endpoint, including an endpoint shortened by a
+  hidden collision.
 - Vision: `0.50` per added-radius activation
 - Truesight: `1.40` per activation
 - Dispel Umbra: `2.20` per reduced stage

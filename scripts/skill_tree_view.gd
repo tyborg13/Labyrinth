@@ -43,6 +43,7 @@ const BRANCH_COLORS: Dictionary = {
 	"resolve": Color("d17a72"),
 	"traverse": Color("79b9a5"),
 	"foresight": Color("b994d0"),
+	"radiance": Color("e7c85f"),
 	"keystone": Color("e5cf9b"),
 }
 
@@ -807,14 +808,14 @@ func _refresh_responsive_layout() -> void:
 	call_deferred("_layout_graph_canvas")
 
 func _build_branch_headers() -> void:
-	for root_id: String in ["measured_breath", "quick_wits", "discerning_eye", "ghost_stride"]:
+	for root_id: String in ["measured_breath", "quick_wits", "discerning_eye", "ghost_stride", "long_dawn"]:
 		var definition: Dictionary = SkillTreeLibrary.definition(root_id)
 		var branch_id: String = str(definition.get("branch", ""))
 		var label := Label.new()
 		label.name = "SkillBranchHeader_%s" % branch_id.capitalize()
 		label.text = branch_id.to_upper()
-		label.position = Vector2(_node_center(root_id).x - 64.0, 1.0)
-		label.size = Vector2(128.0, 20.0)
+		label.position = Vector2(_node_center(root_id).x - 48.0, 1.0)
+		label.size = Vector2(96.0, 20.0)
 		label.custom_minimum_size = label.size
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

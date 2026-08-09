@@ -203,7 +203,7 @@ func effective_umbra_stage(state: Dictionary) -> String:
 	if int(umbra.get("boss_eclipse_activations", 0)) > 0:
 		base_stage = str(umbra.get("boss_eclipse_stage", UMBRA_STAGE_ECLIPSE))
 	var base_index: int = umbra_stage_index(base_stage)
-	var reduction: int = maxi(0, int(umbra.get("stage_reduction", 0)))
+	var reduction: int = maxi(0, int(umbra.get("stage_reduction", 0))) + _light_source_umbra_suppression(state)
 	return UMBRA_STAGE_ORDER[maxi(0, base_index - reduction)]
 
 func effective_umbra_radius(state: Dictionary) -> int:
@@ -219,18 +219,14 @@ func umbra_visible_tiles(state: Dictionary) -> Array[Vector2i]:
 	var grid: Array = state.get("grid", [])
 	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var personal_radius: int = effective_umbra_radius(state)
-	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
-	var sources: Array = umbra.get("light_sources", []) as Array
+	var sources: Array[Dictionary] = _effective_light_sources(state)
 	for y: int in range(grid.size()):
 		var row: Array = grid[y] as Array
 		for x: int in range(row.size()):
 			var tile := Vector2i(x, y)
 			var visible: bool = personal_radius >= UMBRA_UNLIMITED_RADIUS or PathUtils.manhattan(player_pos, tile) <= personal_radius
 			if not visible:
-				for source_var: Variant in sources:
-					if typeof(source_var) != TYPE_DICTIONARY:
-						continue
-					var source: Dictionary = source_var as Dictionary
+				for source: Dictionary in sources:
 					var source_pos: Vector2i = source.get("pos", Vector2i(-999, -999))
 					if PathUtils.manhattan(source_pos, tile) <= maxi(0, int(source.get("radius", 0))):
 						visible = true
@@ -250,13 +246,103 @@ func is_enemy_visible_to_player(state: Dictionary, enemy: Dictionary) -> bool:
 	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
 	if bool(definition.get("boss_bar", false)):
 		return true
-	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
-	if int(umbra.get("truesight_activations", 0)) != 0:
+	if _player_has_truesight(state):
 		return true
 	for tile: Vector2i in _enemy_footprint_tiles(enemy):
 		if is_tile_visible_to_player(state, tile):
 			return true
 	return false
+
+func _player_has_truesight(state: Dictionary) -> bool:
+	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
+	if int(umbra.get("truesight_activations", 0)) != 0:
+		return true
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("light_grants_truesight")
+	if skill_id.is_empty() or not has_skill(state, skill_id):
+		return false
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", INVALID_TILE)
+	return _light_source_covers_tile(state, player_pos)
+
+func player_has_truesight(state: Dictionary) -> bool:
+	return _player_has_truesight(state)
+
+func _effective_light_sources(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = _dictionary_values([])
+	for source_var: Variant in (state.get("umbra", {}) as Dictionary).get("light_sources", []):
+		if typeof(source_var) == TYPE_DICTIONARY:
+			result.append((source_var as Dictionary).duplicate(true))
+	var contributors: Array[Dictionary] = _illusion_light_contributors(state)
+	var aura_radius: int = _illusion_light_radius_from_contributors(contributors)
+	if aura_radius <= 0:
+		return result
+	for illusion: Dictionary in _live_illusions(state):
+		result.append({
+			"id": "illusion:%d" % int(illusion.get("id", -1)),
+			"pos": illusion.get("pos", INVALID_TILE),
+			"radius": aura_radius,
+			"remaining_activations": -1,
+			"tethered": true,
+			"radius_contributors": contributors.duplicate(true)
+		})
+	return result
+
+func effective_light_source_count(state: Dictionary) -> int:
+	return _effective_light_sources(state).size()
+
+func effective_light_sources(state: Dictionary) -> Array[Dictionary]:
+	return _effective_light_sources(state)
+
+func tethered_light_source_count(state: Dictionary) -> int:
+	var count: int = 0
+	for source: Dictionary in _effective_light_sources(state):
+		if bool(source.get("tethered", false)):
+			count += 1
+	return count
+
+func light_source_umbra_suppression(state: Dictionary) -> int:
+	return _light_source_umbra_suppression(state)
+
+func _illusion_light_radius(state: Dictionary) -> int:
+	return _illusion_light_radius_from_contributors(_illusion_light_contributors(state))
+
+func _illusion_light_contributors(state: Dictionary) -> Array[Dictionary]:
+	var contributors: Array[Dictionary] = _dictionary_values([])
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("illusion_light")
+	if not skill_id.is_empty() and has_skill(state, skill_id):
+		contributors.append({
+			"id": skill_id,
+			"name": SkillTreeLibrary.display_name(skill_id),
+			"radius": int(SkillTreeLibrary.effect(skill_id).get("radius", 1))
+		})
+	for effect: Dictionary in _relic_effects(state):
+		if str(effect.get("type", "")) == "illusion_light_aura":
+			var relic_id: String = str(effect.get("relic_id", ""))
+			var relic: Dictionary = GameData.relic_def(relic_id)
+			contributors.append({
+				"id": relic_id,
+				"name": str(relic.get("name", relic_id.capitalize())),
+				"radius": int(effect.get("radius", 1))
+			})
+	return contributors
+
+func _illusion_light_radius_from_contributors(contributors: Array[Dictionary]) -> int:
+	var radius: int = 0
+	for contributor: Dictionary in contributors:
+		radius += maxi(0, int(contributor.get("radius", 0)))
+	return radius
+
+func _light_source_umbra_suppression(state: Dictionary) -> int:
+	var source_count: int = _effective_light_sources(state).size()
+	var suppression: int = 0
+	for effect: Dictionary in _relic_effects(state):
+		if str(effect.get("type", "")) != "light_source_umbra_suppression":
+			continue
+		var thresholds: Array = effect.get("thresholds", []) as Array
+		var stages: Array = effect.get("stages", []) as Array
+		for index: int in range(mini(thresholds.size(), stages.size())):
+			if source_count >= int(thresholds[index]):
+				suppression = maxi(suppression, int(stages[index]))
+	return suppression
 
 func visible_enemy_ids(state: Dictionary) -> Array[int]:
 	var result: Array[int] = []
@@ -814,16 +900,17 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 	var player: Dictionary = state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
+	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
 	var occupied: Dictionary = _occupied_enemy_tiles(state)
 	var targets: Array[Vector2i] = []
 	match action_type:
 		"move":
 			occupied = _known_actor_tiles_for_player(state)
-			var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+			var move_range: int = int(resolved_action.get("range", 0)) + _move_bonus_for_current_turn(state)
 			targets = PathUtils.reachable_tiles(state.get("grid", []), player_pos, move_range, occupied)
 		"blink":
 			occupied = _player_blocking_tiles(state)
-			var max_range: int = int(action.get("range", 0))
+			var max_range: int = int(resolved_action.get("range", 0))
 			for tile: Vector2i in PathUtils.diamond_tiles(player_pos, max_range, state.get("grid", [])):
 				if tile == player_pos:
 					continue
@@ -875,7 +962,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 				if PathUtils.manhattan(player_pos, trap_pos) <= melee_range and not targets.has(trap_pos):
 					targets.append(trap_pos)
 		"ranged":
-			var ranged_range: int = int(action.get("range", 1))
+			var ranged_range: int = int(resolved_action.get("range", 1))
 			for enemy: Dictionary in _live_enemies(state):
 				if not is_enemy_visible_to_player(state, enemy):
 					continue
@@ -924,10 +1011,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 						continue
 					targets.append(tile)
 		"push", "pull":
-			var forced_range: int = int(action.get("range", 1))
-			var resolved_force_action: Dictionary = _action_with_intensity_bonus(state, action)
-			var force_direction: Vector2i = _action_force_direction(resolved_force_action)
-			var force_amount: int = _forced_movement_amount(resolved_force_action)
+			var forced_range: int = int(resolved_action.get("range", 1))
 			var pushing: bool = action_type == "push"
 			for enemy_index: int in range((state.get("enemies", []) as Array).size()):
 				var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
@@ -935,6 +1019,9 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					continue
 				if not is_enemy_visible_to_player(state, enemy):
 					continue
+				var resolved_force_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved_action, enemy_index)
+				var force_direction: Vector2i = _action_force_direction(resolved_force_action)
+				var force_amount: int = _forced_movement_amount(resolved_force_action)
 				if force_direction != Vector2i.ZERO:
 					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing):
 						continue
@@ -950,7 +1037,28 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					break
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
+	if _action_has_illuminate_rider(resolved_action) and action_type == "aoe":
+		if not _aoe_illuminate_rider_hits_selected_center(resolved_action):
+			return _vector2i_values([])
+		var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state)
+		var centered_targets: Array[Vector2i] = _vector2i_values([])
+		for target: Vector2i in targets:
+			if attackable_tiles.has(target):
+				centered_targets.append(target)
+		return centered_targets
 	return targets
+
+func _action_has_illuminate_rider(action: Dictionary) -> bool:
+	return int(action.get("illuminate_radius", 0)) > 0
+
+func _aoe_illuminate_rider_hits_selected_center(action: Dictionary) -> bool:
+	for offsets_var: Variant in _aoe_pattern_variants(action):
+		if typeof(offsets_var) != TYPE_ARRAY:
+			continue
+		var offsets: Array[Vector2i] = _vector2i_values(offsets_var as Array)
+		if not offsets.has(_aoe_center_offset(offsets)):
+			return false
+	return true
 
 func _append_enemy_footprint_targets(targets: Array[Vector2i], enemy: Dictionary) -> void:
 	for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
@@ -1060,6 +1168,8 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 					var illusion_health: int = GameData.fixed_point_amount(maxi(1, int(afterimage_effect.get("health_visible", 2))))
 					next_state = _create_illusion(next_state, blink_origin, illusion_health)
 					_mark_skill_used(next_state, afterimage_id, "%s leaves an illusion behind." % SkillTreeLibrary.display_name(afterimage_id))
+				var blink_path: Array[Vector2i] = _vector2i_values([blink_origin, target_tile])
+				next_state = _trigger_player_movement_radiance(next_state, resolved_action, blink_path, true)
 				var contextual_skill_id: String = str(action.get("_skill_id", ""))
 				if not contextual_skill_id.is_empty() and has_skill(next_state, contextual_skill_id) and not skill_was_used(next_state, contextual_skill_id):
 					_mark_skill_used(next_state, contextual_skill_id, "%s turns the basic Move into a Blink." % SkillTreeLibrary.display_name(contextual_skill_id))
@@ -1135,10 +1245,119 @@ func _apply_player_move_along_path(next_state: Dictionary, resolved_action: Dict
 		return next_state
 	var resolved_path: Array[Vector2i] = _player_path_until_hidden_collision(next_state, movement_path)
 	next_state = _move_player_along_path(next_state, resolved_path)
+	var resolved_endpoint: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", resolved_path[0])
+	resolved_path = _movement_path_through_endpoint(resolved_path, resolved_endpoint)
 	_mark_first_move_used(next_state)
 	next_state = _trigger_long_move_relics(next_state, resolved_path.size() - 1)
+	next_state = _trigger_player_movement_radiance(next_state, resolved_action, resolved_path, false)
 	next_state = _maybe_refund_loot_play(next_state, loot_before)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
+	return next_state
+
+func _movement_path_through_endpoint(path: Array[Vector2i], endpoint: Vector2i) -> Array[Vector2i]:
+	var traversed: Array[Vector2i] = _vector2i_values([])
+	for tile: Vector2i in path:
+		traversed.append(tile)
+		if tile == endpoint:
+			return traversed
+	if path.is_empty():
+		return _vector2i_values([endpoint])
+	return _vector2i_values([path[0], endpoint]) if path[0] != endpoint else _vector2i_values([path[0]])
+
+func _trigger_player_movement_radiance(state: Dictionary, action: Dictionary, path: Array[Vector2i], blinked: bool) -> Dictionary:
+	var next_state: Dictionary = state
+	if path.size() <= 1:
+		return next_state
+	var distance: int = PathUtils.manhattan(path[0], path[path.size() - 1]) if blinked else path.size() - 1
+	var light_positions: Array[Vector2i] = _vector2i_values([])
+	if _action_has_illuminate_rider(action):
+		var authored_positions: Array[Vector2i] = _vector2i_values([])
+		match str(action.get("illuminate_position_mode", "destination")):
+			"path":
+				authored_positions = _movement_light_positions(path, blinked)
+			_:
+				authored_positions.append(path[path.size() - 1])
+		for position: Vector2i in authored_positions:
+			next_state = _create_umbra_light_source(next_state, position, {
+				"radius": int(action.get("illuminate_radius", 1)),
+				"duration": int(action.get("illuminate_duration", 1)),
+				"silent": true
+			})
+			if not light_positions.has(position):
+				light_positions.append(position)
+	for effect: Dictionary in _relic_effects(next_state):
+		if str(effect.get("type", "")) != "resolved_action_light" or str(effect.get("position_mode", "")) != "path":
+			continue
+		if not _resolved_action_matches_light_effect(next_state, action, effect):
+			continue
+		var relic_positions: Array[Vector2i] = _movement_light_positions(path, blinked)
+		for position: Vector2i in relic_positions:
+			next_state = _create_umbra_light_source(next_state, position, {
+				"radius": int(effect.get("radius", 1)),
+				"duration": int(effect.get("duration", 2)),
+				"silent": true
+			})
+			if not light_positions.has(position):
+				light_positions.append(position)
+	var sunpath_id: String = SkillTreeLibrary.skill_id_for_effect("long_move_light_path")
+	if not sunpath_id.is_empty() and has_skill(next_state, sunpath_id):
+		var sunpath_effect: Dictionary = SkillTreeLibrary.effect(sunpath_id)
+		var sunpath_key: String = "skill_turn:%s" % sunpath_id
+		if distance >= int(sunpath_effect.get("minimum_distance", 3)) and not _turn_flag(next_state, sunpath_key):
+			_set_turn_flag(next_state, sunpath_key, true)
+			for position: Vector2i in _movement_light_positions(path, blinked):
+				next_state = _create_umbra_light_source(next_state, position, {
+					"radius": int(sunpath_effect.get("radius", 1)),
+					"duration": int(sunpath_effect.get("duration", 2)),
+					"silent": true
+				})
+				if not light_positions.has(position):
+					light_positions.append(position)
+			_record_skill_event(next_state, sunpath_id, "%s leaves a path of Light." % SkillTreeLibrary.display_name(sunpath_id))
+	if blinked:
+		next_state = _trigger_blink_origin_illusion(next_state, path[0])
+	if not light_positions.is_empty():
+		_log(next_state, "Movement leaves a path of Light.")
+	return _trigger_movement_end_rewards(next_state, action)
+
+func _movement_light_positions(path: Array[Vector2i], blinked: bool) -> Array[Vector2i]:
+	if blinked:
+		return _vector2i_values([path[0], path[path.size() - 1]])
+	var result: Array[Vector2i] = _vector2i_values([])
+	for index: int in range(1, path.size()):
+		result.append(path[index])
+	return result
+
+func _trigger_blink_origin_illusion(state: Dictionary, origin: Vector2i) -> Dictionary:
+	var next_state: Dictionary = state
+	for effect: Dictionary in _relic_effects(next_state):
+		if str(effect.get("type", "")) != "blink_origin_illusion":
+			continue
+		if not _relic_once_available(next_state, effect, "blink_origin_illusion", ""):
+			continue
+		var illusion_count_before: int = _live_illusions(next_state).size()
+		next_state = _create_illusion(next_state, origin, GameData.fixed_point_amount(maxi(1, int(effect.get("health", 2)))))
+		if _live_illusions(next_state).size() <= illusion_count_before:
+			continue
+		_mark_relic_once(next_state, effect, "blink_origin_illusion", "")
+		_log(next_state, "%s leaves an illusion behind." % _relic_effect_source_name(effect))
+	return next_state
+
+func _trigger_movement_end_rewards(state: Dictionary, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", INVALID_TILE)
+	for effect: Dictionary in _relic_effects(next_state):
+		if str(effect.get("type", "")) != "movement_end_reward":
+			continue
+		var action_types: Array = effect.get("action_types", []) as Array
+		if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
+			continue
+		if bool(effect.get("player_in_light", false)) and not _light_source_covers_tile(next_state, player_pos):
+			continue
+		if not _relic_once_available(next_state, effect, "movement_end_reward", ""):
+			continue
+		_mark_relic_once(next_state, effect, "movement_end_reward", "")
+		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
 	return next_state
 
 func _prevalidated_player_move_path_is_usable(state: Dictionary, action: Dictionary, target_tile: Vector2i, movement_path: Array[Vector2i]) -> bool:
@@ -1900,7 +2119,7 @@ func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -
 	var attack_bonus: int = _attack_bonus_for_current_turn(state)
 	if attack_bonus != 0:
 		modifiers.append({
-			"source": "Ember Lens",
+			"source": "Duelist Whetstone",
 			"kind": "relic",
 			"amount": attack_bonus,
 			"detail": "First attack this turn"
@@ -2992,14 +3211,22 @@ func _has_attackable_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> bool
 		or not _trap_tiles_in_tiles(state, tiles).is_empty()
 	)
 
-func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, bypass_block: bool) -> Dictionary:
+func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, bypass_block: bool, source_action: Dictionary = {}) -> Dictionary:
 	if damage <= 0:
 		return state
 	match str(target.get("kind", "")):
 		"player":
 			return _damage_player(state, damage, bypass_block, true, "enemy_attack")
 		"illusion":
-			return _damage_illusion(state, int(target.get("id", -1)), damage)
+			var resolved_damage: int = damage
+			for effect: Dictionary in _relic_effects(state):
+				if str(effect.get("type", "")) != "illusion_damage_cap":
+					continue
+				var action_types: Array = effect.get("enemy_action_types", []) as Array
+				if not action_types.is_empty() and not action_types.has(str(source_action.get("type", ""))):
+					continue
+				resolved_damage = mini(resolved_damage, GameData.fixed_point_amount(int(effect.get("max_damage", 1))))
+			return _damage_illusion(state, int(target.get("id", -1)), resolved_damage)
 	return state
 
 func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
@@ -3213,6 +3440,7 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 		if int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
 		next_state = _trigger_player_trap_at_index(next_state, trap_index)
+		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
 		_log(next_state, "%s triggers a trap." % attack_kind.capitalize())
 		return next_state
 	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
@@ -3224,6 +3452,7 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 				return next_state
 			_mark_first_attack_used(next_state)
 			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
+			next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
 			_log(next_state, "%s splinters terrain for %d." % [attack_kind.capitalize(), terrain_damage])
 		return next_state
 	return _attack_enemy_on_tile(next_state, action, target_tile, attack_kind)
@@ -3234,7 +3463,9 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
-	if int(resolved_action.get("damage", 0)) > 0 or _action_has_keyword_effect(resolved_action):
+	resolved_action = _action_with_target_state_relic_modifiers(next_state, resolved_action, enemy_index)
+	resolved_action = _action_with_light_target_skill_modifier(next_state, resolved_action, enemy_index)
+	if int(resolved_action.get("damage", 0)) > 0 or _action_has_keyword_effect(resolved_action) or _action_has_illuminate_rider(resolved_action):
 		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
 		if combat_outcome(next_state) == "defeat":
 			return next_state
@@ -3246,7 +3477,10 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 		if damage > 0:
 			next_state = _consume_enemy_expose(next_state, enemy_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
-		next_state = _apply_chain_from_enemy(next_state, enemy_index, resolved_action, damage)
+		var affected_enemy_indices: Array[int] = _int_values([enemy_index])
+		next_state = _apply_chain_from_enemy(next_state, enemy_index, resolved_action, damage, affected_enemy_indices)
+		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, affected_enemy_indices)
+		_mark_light_target_skill_trigger(next_state, resolved_action)
 		_log(next_state, "%s for %d." % [attack_kind.capitalize(), damage])
 	return next_state
 
@@ -3290,6 +3524,7 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 		last_damage = terrain_damage
 		next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
 	next_state = _trigger_traps_on_tiles(next_state, affected_traps)
+	next_state = _trigger_resolved_action_light(next_state, resolved_action, center, affected)
 	if hidden_enemy_affected:
 		_log(next_state, "Area attack strikes through the Umbra.")
 	else:
@@ -3467,6 +3702,7 @@ func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dicti
 	var next_state: Dictionary = state
 	if damage <= 0:
 		return next_state
+	var stage_before: String = effective_umbra_stage(next_state)
 	var illusions: Array = next_state.get("illusions", []).duplicate(true)
 	for index: int in range(illusions.size()):
 		if typeof(illusions[index]) != TYPE_DICTIONARY:
@@ -3480,6 +3716,8 @@ func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dicti
 		next_state["illusions"] = illusions
 		if was_alive and int(illusion.get("hp", 0)) <= 0:
 			_log(next_state, "Illusion fades.")
+			next_state = _trigger_illusion_afterglow(next_state, illusion.get("pos", INVALID_TILE))
+			next_state = _resolve_umbra_transition_relics(next_state, stage_before)
 			var skill_id: String = SkillTreeLibrary.skill_id_for_effect("illusion_recall")
 			var turn_key: String = "turn:%s" % skill_id
 			var flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
@@ -3527,6 +3765,10 @@ func _damage_terrain_indices(state: Dictionary, terrain_indices: Array[int], dam
 
 func _create_illusion(state: Dictionary, pos: Vector2i, health: int) -> Dictionary:
 	var next_state: Dictionary = state
+	for existing_illusion: Dictionary in _live_illusions(next_state):
+		if existing_illusion.get("pos", INVALID_TILE) == pos:
+			return next_state
+	var stage_before: String = effective_umbra_stage(next_state)
 	var illusion_health: int = maxi(1, health)
 	var illusions: Array = next_state.get("illusions", []).duplicate(true)
 	var illusion_id: int = int(next_state.get("next_illusion_id", 1))
@@ -3539,6 +3781,22 @@ func _create_illusion(state: Dictionary, pos: Vector2i, health: int) -> Dictiona
 	next_state["illusions"] = illusions
 	next_state["next_illusion_id"] = illusion_id + 1
 	_log(next_state, "Illusion appears.")
+	return _resolve_umbra_transition_relics(next_state, stage_before)
+
+func _trigger_illusion_afterglow(state: Dictionary, pos: Vector2i) -> Dictionary:
+	var next_state: Dictionary = state
+	if pos == INVALID_TILE:
+		return next_state
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("illusion_afterglow")
+	if skill_id.is_empty() or not has_skill(next_state, skill_id):
+		return next_state
+	var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
+	next_state = _create_umbra_light_source(next_state, pos, {
+		"radius": int(effect.get("radius", 1)),
+		"duration": int(effect.get("duration", 2)),
+		"silent": true
+	})
+	_record_skill_event(next_state, skill_id, "%s leaves Light where an illusion faded." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
 func _visible_enemy_id_lookup(state: Dictionary) -> Dictionary:
@@ -3569,12 +3827,13 @@ func _umbra_visible_tile_lookup(state: Dictionary) -> Dictionary:
 
 func _create_umbra_light_source(state: Dictionary, pos: Vector2i, action: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
+	var stage_before: String = effective_umbra_stage(next_state)
 	var before_visible: Dictionary = _visible_enemy_id_lookup(next_state)
 	var before_tiles: Dictionary = _umbra_visible_tile_lookup(next_state)
 	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
 	var sources: Array = (umbra.get("light_sources", []) as Array).duplicate(true)
 	var radius: int = maxi(1, int(action.get("radius", action.get("amount", 1))))
-	var duration: int = int(action.get("duration", 1))
+	var duration: int = _radiance_duration_for_player(next_state, int(action.get("duration", 1)))
 	var refreshed: bool = false
 	for index: int in range(sources.size()):
 		if typeof(sources[index]) != TYPE_DICTIONARY:
@@ -3602,8 +3861,9 @@ func _create_umbra_light_source(state: Dictionary, pos: Vector2i, action: Dictio
 	umbra["light_sources"] = sources
 	next_state["umbra"] = umbra
 	_record_umbra_reveal_delta(next_state, before_visible, before_tiles)
-	_log(next_state, "Light blooms through the Umbra.")
-	return next_state
+	if not bool(action.get("silent", false)):
+		_log(next_state, "Light blooms through the Umbra.")
+	return _resolve_umbra_transition_relics(next_state, stage_before)
 
 func _apply_umbra_vision(state: Dictionary, action: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -3611,7 +3871,7 @@ func _apply_umbra_vision(state: Dictionary, action: Dictionary) -> Dictionary:
 	var before_tiles: Dictionary = _umbra_visible_tile_lookup(next_state)
 	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
 	umbra["vision_bonus"] = int(umbra.get("vision_bonus", 0)) + maxi(0, int(action.get("amount", 0)))
-	var duration: int = int(action.get("duration", 1))
+	var duration: int = _radiance_duration_for_player(next_state, int(action.get("duration", 1)))
 	if int(umbra.get("vision_bonus_activations", 0)) < 0 or duration < 0:
 		umbra["vision_bonus_activations"] = -1
 	else:
@@ -3626,7 +3886,7 @@ func _apply_umbra_truesight(state: Dictionary, action: Dictionary) -> Dictionary
 	var before_visible: Dictionary = _visible_enemy_id_lookup(next_state)
 	var before_tiles: Dictionary = _umbra_visible_tile_lookup(next_state)
 	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
-	var duration: int = int(action.get("duration", action.get("amount", 1)))
+	var duration: int = _radiance_duration_for_player(next_state, int(action.get("duration", action.get("amount", 1))))
 	if int(umbra.get("truesight_activations", 0)) < 0 or duration < 0:
 		umbra["truesight_activations"] = -1
 	else:
@@ -3638,6 +3898,7 @@ func _apply_umbra_truesight(state: Dictionary, action: Dictionary) -> Dictionary
 
 func _dispel_umbra(state: Dictionary, action: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
+	var stage_before: String = effective_umbra_stage(next_state)
 	var before_visible: Dictionary = _visible_enemy_id_lookup(next_state)
 	var before_tiles: Dictionary = _umbra_visible_tile_lookup(next_state)
 	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
@@ -3649,10 +3910,11 @@ func _dispel_umbra(state: Dictionary, action: Dictionary) -> Dictionary:
 	next_state["umbra"] = umbra
 	_record_umbra_reveal_delta(next_state, before_visible, before_tiles)
 	_log(next_state, "Daybreak drives the Umbra back.")
-	return next_state
+	return _resolve_umbra_transition_relics(next_state, stage_before)
 
 func _tick_umbra_player_activation(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
+	var stage_before: String = effective_umbra_stage(next_state)
 	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
 	var vision_duration: int = int(umbra.get("vision_bonus_activations", 0))
 	if vision_duration > 0:
@@ -3684,6 +3946,34 @@ func _tick_umbra_player_activation(state: Dictionary) -> Dictionary:
 			remaining_sources.append(source)
 	umbra["light_sources"] = remaining_sources
 	next_state["umbra"] = umbra
+	return _resolve_umbra_transition_relics(next_state, stage_before)
+
+func _radiance_duration_for_player(state: Dictionary, duration: int) -> int:
+	if duration < 0:
+		return duration
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("extend_radiance_duration")
+	if skill_id.is_empty() or not has_skill(state, skill_id):
+		return duration
+	return duration + maxi(0, int(SkillTreeLibrary.effect(skill_id).get("amount", 1)))
+
+func _resolve_umbra_transition_relics(state: Dictionary, stage_before: String) -> Dictionary:
+	var next_state: Dictionary = state
+	var stage_after: String = effective_umbra_stage(next_state)
+	if stage_after == stage_before:
+		return next_state
+	var authored_stage: String = str((next_state.get("umbra", {}) as Dictionary).get("stage", UMBRA_STAGE_CLEAR))
+	for effect: Dictionary in _relic_effects(next_state):
+		if str(effect.get("type", "")) != "umbra_transition_reward":
+			continue
+		if umbra_stage_index(authored_stage) < umbra_stage_index(str(effect.get("initial_stage_min", UMBRA_STAGE_FRINGE))):
+			continue
+		var target_stage: String = str(effect.get("target_stage", UMBRA_STAGE_CLEAR))
+		if stage_before == target_stage or stage_after != target_stage:
+			continue
+		if not _relic_once_available(next_state, effect, "umbra_transition_reward", target_stage):
+			continue
+		_mark_relic_once(next_state, effect, "umbra_transition_reward", target_stage)
+		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
 	return next_state
 
 func _normalized_player(player_value: Variant) -> Dictionary:
@@ -4326,11 +4616,14 @@ func _action_with_player_state_relic_modifiers(state: Dictionary, action: Dictio
 		var field: String = str(effect.get("field", ""))
 		if field.is_empty():
 			continue
-		resolved_action[field] = int(resolved_action.get(field, 0)) + GameData.scaled_action_field_delta(
-			str(action.get("type", "")),
-			field,
-			int(effect.get("amount", effect.get("value", 0)))
-		)
+		if typeof(effect.get("value", null)) == TYPE_BOOL:
+			resolved_action[field] = bool(effect.get("value", false))
+		else:
+			resolved_action[field] = int(resolved_action.get(field, 0)) + GameData.scaled_action_field_delta(
+				str(action.get("type", "")),
+				field,
+				int(effect.get("amount", effect.get("value", 0)))
+			)
 	return resolved_action
 
 func _relic_player_state_condition_met(state: Dictionary, effect: Dictionary) -> bool:
@@ -4343,7 +4636,168 @@ func _relic_player_state_condition_met(state: Dictionary, effect: Dictionary) ->
 		return false
 	if effect.has("player_max_stoneskin") and int(player.get("stoneskin", 0)) > GameData.fixed_point_amount(int(effect.get("player_max_stoneskin", 0))):
 		return false
+	if effect.has("player_min_illusions") and _live_illusions(state).size() < int(effect.get("player_min_illusions", 0)):
+		return false
+	if bool(effect.get("player_has_truesight", false)) and not _player_has_truesight(state):
+		return false
+	if bool(effect.get("player_in_light", false)) and not _light_source_covers_tile(state, player.get("pos", INVALID_TILE)):
+		return false
 	return true
+
+func _action_with_target_state_relic_modifiers(state: Dictionary, action: Dictionary, enemy_index: int) -> Dictionary:
+	var resolved_action: Dictionary = action.duplicate(true)
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return resolved_action
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	for effect: Dictionary in _relic_effects(state):
+		if str(effect.get("type", "")) != "target_state_action_mod":
+			continue
+		var action_types: Array = effect.get("action_types", []) as Array
+		if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
+			continue
+		if bool(effect.get("target_in_light", false)):
+			var target_lit: bool = false
+			for tile: Vector2i in _enemy_footprint_tiles(enemy):
+				if _light_source_covers_tile(state, tile):
+					target_lit = true
+					break
+			if not target_lit:
+				continue
+		var target_status: String = str(effect.get("target_status", ""))
+		if not target_status.is_empty() and _unit_status_amount(enemy, target_status) <= 0:
+			continue
+		var field: String = str(effect.get("field", ""))
+		if field.is_empty():
+			continue
+		if typeof(effect.get("value", null)) == TYPE_BOOL:
+			resolved_action[field] = bool(effect.get("value", false))
+		else:
+			resolved_action[field] = int(resolved_action.get(field, 0)) + GameData.scaled_action_field_delta(
+				str(action.get("type", "")),
+				field,
+				int(effect.get("amount", effect.get("value", 0)))
+			)
+	return resolved_action
+
+func _action_with_light_target_skill_modifier(state: Dictionary, action: Dictionary, enemy_index: int) -> Dictionary:
+	var resolved_action: Dictionary = action.duplicate(true)
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("light_target_expose")
+	if skill_id.is_empty() or not has_skill(state, skill_id):
+		return resolved_action
+	var flag_key: String = "skill_turn:%s" % skill_id
+	if _turn_flag(state, flag_key):
+		return resolved_action
+	var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
+	var action_types: Array = effect.get("action_types", ["melee", "ranged", "push", "pull"]) as Array
+	if not action_types.has(str(action.get("type", ""))):
+		return resolved_action
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return resolved_action
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var target_lit: bool = false
+	for tile: Vector2i in _enemy_footprint_tiles(enemy):
+		if _light_source_covers_tile(state, tile):
+			target_lit = true
+			break
+	if not target_lit:
+		return resolved_action
+	resolved_action["expose"] = int(resolved_action.get("expose", 0)) + maxi(1, int(effect.get("amount", 1)))
+	resolved_action["_light_target_skill_id"] = skill_id
+	return resolved_action
+
+func _mark_light_target_skill_trigger(state: Dictionary, action: Dictionary) -> void:
+	var skill_id: String = str(action.get("_light_target_skill_id", ""))
+	if skill_id.is_empty():
+		return
+	var flag_key: String = "skill_turn:%s" % skill_id
+	if _turn_flag(state, flag_key):
+		return
+	_set_turn_flag(state, flag_key, true)
+	_record_skill_event(state, skill_id, "%s exposes a foe in Light." % SkillTreeLibrary.display_name(skill_id))
+
+func _trigger_resolved_action_light(
+	state: Dictionary,
+	action: Dictionary,
+	target_tile: Vector2i,
+	affected_enemy_indices: Array
+) -> Dictionary:
+	var next_state: Dictionary = _apply_authored_attack_light_rider(state, action, target_tile)
+	for effect: Dictionary in _relic_effects(next_state):
+		if str(effect.get("type", "")) != "resolved_action_light":
+			continue
+		if str(effect.get("position_mode", "target")) == "path":
+			continue
+		if not _resolved_action_matches_light_effect(next_state, action, effect):
+			continue
+		if not _relic_once_available(next_state, effect, "resolved_action_light", ""):
+			continue
+		var positions: Array[Vector2i] = _vector2i_values([])
+		match str(effect.get("position_mode", "target")):
+			"affected_enemies":
+				var enemies: Array = next_state.get("enemies", [])
+				for enemy_index_var: Variant in affected_enemy_indices:
+					var enemy_index: int = int(enemy_index_var)
+					if enemy_index < 0 or enemy_index >= enemies.size():
+						continue
+					var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+					var enemy_pos: Vector2i = enemy.get("pos", INVALID_TILE)
+					if enemy_pos != INVALID_TILE and not positions.has(enemy_pos):
+						positions.append(enemy_pos)
+			_:
+				if target_tile != INVALID_TILE and target_tile.x >= 0:
+					positions.append(target_tile)
+		if positions.is_empty():
+			continue
+		_mark_relic_once(next_state, effect, "resolved_action_light", "")
+		for position: Vector2i in positions:
+			next_state = _create_umbra_light_source(next_state, position, {
+				"radius": int(effect.get("radius", 1)),
+				"duration": int(effect.get("duration", 2)),
+				"silent": true
+			})
+		_log(next_state, "%s leaves Light behind." % _relic_effect_source_name(effect))
+	return next_state
+
+func _apply_authored_attack_light_rider(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
+	if not _action_has_illuminate_rider(action) or target_tile == INVALID_TILE or target_tile.x < 0:
+		return state
+	return _create_umbra_light_source(state, target_tile, {
+		"radius": int(action.get("illuminate_radius", 1)),
+		"duration": int(action.get("illuminate_duration", 1)),
+		"silent": true
+	})
+
+func _resolved_action_matches_light_effect(state: Dictionary, action: Dictionary, effect: Dictionary) -> bool:
+	var action_types: Array = effect.get("action_types", []) as Array
+	if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
+		return false
+	var card_action_types: Array[String] = _action_card_types(action)
+	for excluded_type_var: Variant in effect.get("excludes_card_action_types", []):
+		if card_action_types.has(str(excluded_type_var)):
+			return false
+	var required_field: String = str(effect.get("requires_field", ""))
+	if not required_field.is_empty() and not _action_has_positive_field(action, required_field):
+		return false
+	var any_fields: Array = effect.get("requires_any_fields", []) as Array
+	if not any_fields.is_empty():
+		var matches_any_field: bool = false
+		for field_var: Variant in any_fields:
+			if _action_has_positive_field(action, str(field_var)):
+				matches_any_field = true
+				break
+		if not matches_any_field:
+			return false
+	if bool(effect.get("player_has_truesight", false)) and not _player_has_truesight(state):
+		return false
+	return true
+
+func _action_has_positive_field(action: Dictionary, field: String) -> bool:
+	var value: Variant = action.get(field, null)
+	if typeof(value) == TYPE_BOOL:
+		return bool(value)
+	return typeof(value) in [TYPE_INT, TYPE_FLOAT] and int(value) > 0
 
 func _action_card_types(action: Dictionary) -> Array[String]:
 	var result: Array[String]
@@ -4422,7 +4876,7 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 	next_state["enemies"] = enemies
 	if trigger_player_relics:
 		for status_id: String in triggered_statuses:
-			next_state = _trigger_status_relics(next_state, status_id)
+			next_state = _trigger_status_relics(next_state, status_id, action)
 	if int(action.get("push", 0)) > 0:
 		var push_direction: Vector2i = _action_force_direction(action)
 		if push_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, push_direction, source_pos, true):
@@ -4464,7 +4918,7 @@ func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, sou
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("pull", 0)), false)
 	return next_state
 
-func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action: Dictionary, damage: int) -> Dictionary:
+func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action: Dictionary, damage: int, affected_enemy_indices: Array[int]) -> Dictionary:
 	var max_distance: int = int(action.get("chain", 0))
 	if max_distance <= 0:
 		return state
@@ -4478,6 +4932,8 @@ func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action
 		if next_index < 0:
 			break
 		visited[next_index] = true
+		if not affected_enemy_indices.has(next_index):
+			affected_enemy_indices.append(next_index)
 		next_state = _sunder_enemy_defense(next_state, next_index, int(action.get("sunder", 0)))
 		next_state = _damage_enemy(next_state, next_index, damage, true, _action_pierces_defense(action))
 		if damage > 0:
@@ -4564,7 +5020,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		enemies = next_state.get("enemies", [])
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if damage > 0:
-			next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action))
+			next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	_log(next_state, "%s %s for %d." % [
 		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
@@ -4583,7 +5039,7 @@ func _damage_enemy_aoe_occupants(state: Dictionary, enemy_index: int, action: Di
 	var damage: int = int(action.get("damage", 0))
 	for affected_target: Dictionary in _actor_targets_in_tiles(next_state, affected_tiles):
 		if damage > 0:
-			next_state = _damage_actor_target(next_state, affected_target, damage, _action_pierces_defense(action))
+			next_state = _damage_actor_target(next_state, affected_target, damage, _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
 	return _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, affected_tiles), damage)
 
@@ -4629,7 +5085,7 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 	enemies = next_state.get("enemies", [])
 	enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if damage > 0:
-		next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action))
+		next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action), action)
 	if str(target.get("kind", "")) == "player":
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("amount", 0)), pushing)
 	next_state = _apply_action_keywords_to_target(next_state, target, action, source_pos)
@@ -4707,7 +5163,7 @@ func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dicti
 	enemies = next_state.get("enemies", [])
 	enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	for target: Dictionary in targets:
-		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	next_state = _damage_terrain_indices(next_state, affected_terrain, int(action.get("damage", 0)))
 	_log(next_state, "%s calls down the storm." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
@@ -4852,7 +5308,7 @@ func _enemy_terrain_burst(state: Dictionary, enemy_index: int, action: Dictionar
 	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 		return next_state
 	for target: Dictionary in _actor_targets_in_tiles(next_state, affected_tiles):
-		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	for terrain_index: int in _terrain_indices_in_tiles(next_state, spire_tiles):
 		var terrain: Dictionary = _normalized_terrain((next_state.get("terrain", []) as Array)[terrain_index])
@@ -4972,7 +5428,7 @@ func _enemy_gale_force(state: Dictionary, enemy_index: int, action: Dictionary, 
 	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 		return next_state
 	for target: Dictionary in _actor_targets(next_state):
-		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
 	next_state = _move_player_from_source(next_state, _closest_enemy_tile_to(enemy, player_pos), int(action.get("amount", 3)), true)
@@ -4995,10 +5451,7 @@ func _enemy_gain_frost_armor(state: Dictionary, enemy_index: int, action: Dictio
 	return next_state
 
 func _light_source_covers_tile(state: Dictionary, tile: Vector2i) -> bool:
-	for source_var: Variant in (state.get("umbra", {}) as Dictionary).get("light_sources", []):
-		if typeof(source_var) != TYPE_DICTIONARY:
-			continue
-		var source: Dictionary = source_var as Dictionary
+	for source: Dictionary in _effective_light_sources(state):
 		if PathUtils.manhattan(source.get("pos", INVALID_TILE), tile) <= maxi(0, int(source.get("radius", 0))):
 			return true
 	return false
@@ -5010,7 +5463,7 @@ func _actor_has_radiance_protection(state: Dictionary, target: Dictionary) -> bo
 	if str(target.get("kind", "")) != "player":
 		return false
 	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
-	return int(umbra.get("vision_bonus", 0)) > 0 or int(umbra.get("truesight_activations", 0)) > 0 or int(umbra.get("stage_reduction", 0)) > 0
+	return int(umbra.get("vision_bonus", 0)) > 0 or _player_has_truesight(state) or int(umbra.get("stage_reduction", 0)) > 0
 
 func _umbra_eclipse_threat_tiles(state: Dictionary) -> Array[Vector2i]:
 	var lookup: Dictionary = {}
@@ -5040,7 +5493,7 @@ func _enemy_umbra_eclipse(state: Dictionary, enemy_index: int, action: Dictionar
 	umbra["boss_eclipse_activations"] = maxi(1, int(action.get("duration", 2)))
 	next_state["umbra"] = umbra
 	for target: Dictionary in exposed_targets:
-		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action), action)
 	_mark_dragon_mechanic_opened(next_state, enemy_index)
 	_log(next_state, "%s swallows the arena in the Last Eclipse." % _enemy_display_name(enemy))
 	return next_state
@@ -5072,6 +5525,7 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 		if int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
 		next_state = _trigger_player_trap_at_index(next_state, trap_index)
+		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
 		_log(next_state, "%s triggers a trap." % ("Push" if pushing else "Pull"))
 		return next_state
 	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
@@ -5084,11 +5538,14 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 			if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 				_mark_first_attack_used(next_state)
 			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
+			next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
 			_log(next_state, "%s splinters terrain for %d." % ["Push" if pushing else "Pull", terrain_damage])
 		return next_state
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
+	resolved_action = _action_with_target_state_relic_modifiers(next_state, resolved_action, enemy_index)
+	resolved_action = _action_with_light_target_skill_modifier(next_state, resolved_action, enemy_index)
 	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
 	if combat_outcome(next_state) == "defeat":
 		return next_state
@@ -5100,6 +5557,8 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
 		next_state = _consume_enemy_expose(next_state, enemy_index)
 	if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
+		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([enemy_index]))
+		_mark_light_target_skill_trigger(next_state, resolved_action)
 		return next_state
 	next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
 	var force_direction: Vector2i = _action_force_direction(resolved_action)
@@ -5109,6 +5568,8 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 			next_state = _move_enemy_in_direction(next_state, enemy_index, force_direction, int(resolved_action.get("amount", 0)), true)
 	else:
 		next_state = _move_enemy_from_source(next_state, enemy_index, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), int(resolved_action.get("amount", 0)), pushing, true)
+	next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([enemy_index]))
+	_mark_light_target_skill_trigger(next_state, resolved_action)
 	_log(next_state, "%s %d." % ["Push" if pushing else "Pull", int(resolved_action.get("amount", 0))])
 	return next_state
 
@@ -6733,6 +7194,20 @@ func _vector2i_values(values: Array) -> Array[Vector2i]:
 			result.append(value)
 	return result
 
+func _int_values(values: Array) -> Array[int]:
+	var result: Array[int]
+	for value: Variant in values:
+		if typeof(value) == TYPE_INT:
+			result.append(value)
+	return result
+
+func _dictionary_values(values: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	for value: Variant in values:
+		if typeof(value) == TYPE_DICTIONARY:
+			result.append(value)
+	return result
+
 func _rotated_offset(offset: Vector2i, rotation: int) -> Vector2i:
 	match posmod(rotation, 4):
 		1:
@@ -7861,7 +8336,8 @@ func _apply_card_play_relic_rewards(state: Dictionary, effect: Dictionary, card_
 		if held_played_card:
 			deck["discard"] = discard
 			next_state["deck"] = deck
-	next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
+	var reward_card: Dictionary = card_def(card_id, next_state)
+	next_state = _apply_relic_rewards(next_state, _relic_rewards_resolved_from_card(effect.get("rewards", []), reward_card), effect)
 	if held_played_card:
 		var restored_deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
 		var restored_discard: Array = (restored_deck.get("discard", []) as Array).duplicate()
@@ -7869,6 +8345,26 @@ func _apply_card_play_relic_rewards(state: Dictionary, effect: Dictionary, card_
 		restored_deck["discard"] = restored_discard
 		next_state["deck"] = restored_deck
 	return next_state
+
+func _relic_rewards_resolved_from_card(raw_rewards: Variant, card: Dictionary) -> Array:
+	var rewards: Array = (raw_rewards as Array).duplicate(true) if typeof(raw_rewards) == TYPE_ARRAY else []
+	for index: int in range(rewards.size()):
+		if typeof(rewards[index]) != TYPE_DICTIONARY:
+			continue
+		var reward: Dictionary = (rewards[index] as Dictionary).duplicate(true)
+		var duration_types: Array = reward.get("duration_from_action_types", []) as Array
+		if duration_types.is_empty():
+			continue
+		var duration: int = 0
+		for action_var: Variant in card.get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = action_var as Dictionary
+			if duration_types.has(str(action.get("type", ""))):
+				duration = maxi(duration, int(action.get("duration", action.get("amount", 1))))
+		reward["duration"] = duration
+		rewards[index] = reward
+	return rewards
 
 func _relic_rewards_include_type(effect: Dictionary, reward_type: String) -> bool:
 	var raw_rewards: Variant = effect.get("rewards", [])
@@ -8095,11 +8591,14 @@ func _trigger_stoneskin_relics(state: Dictionary, gained: int) -> Dictionary:
 				)
 	return next_state
 
-func _trigger_status_relics(state: Dictionary, status_id: String) -> Dictionary:
+func _trigger_status_relics(state: Dictionary, status_id: String, source_action: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var matching_effects: Array[Dictionary]
 	for effect: Dictionary in _relic_effects(next_state):
 		if str(effect.get("status", "")) != status_id:
+			continue
+		var action_types: Array = effect.get("action_types", []) as Array
+		if not action_types.is_empty() and not action_types.has(str(source_action.get("type", ""))):
 			continue
 		matching_effects.append(effect)
 
@@ -8383,6 +8882,23 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 			"intensity":
 				var reward_element: String = str(reward.get("element", effect.get("element", ElementData.NONE)))
 				next_state = _gain_elemental_intensity(next_state, reward_element, amount, _relic_effect_source_name(effect))
+			"vision":
+				next_state = _apply_umbra_vision(next_state, {
+					"amount": int(reward.get("amount", 0)),
+					"duration": int(reward.get("duration", 2))
+				})
+			"truesight":
+				next_state = _apply_umbra_truesight(next_state, {"duration": int(reward.get("duration", amount if amount != 0 else 2))})
+			"dispel_umbra":
+				next_state = _dispel_umbra(next_state, {"amount": int(reward.get("amount", 1))})
+			"illuminate_player":
+				var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", INVALID_TILE)
+				if player_pos != INVALID_TILE:
+					next_state = _create_umbra_light_source(next_state, player_pos, {
+						"radius": int(reward.get("radius", 1)),
+						"duration": int(reward.get("duration", 2)),
+						"silent": true
+					})
 			"intensity_per_deck_element":
 				var deck_element: String = str(reward.get("deck_element", reward.get("element", ElementData.NONE)))
 				var cards_per_point: int = maxi(1, int(reward.get("cards_per_point", 1)))
@@ -8534,6 +9050,12 @@ func _heal_player(state: Dictionary, amount: int) -> Dictionary:
 		next_state["player"] = converted_player
 		_set_turn_flag(next_state, key, converted_before + converted)
 		next_state = _trigger_stoneskin_relics(next_state, converted)
+		var first_conversion_rewards: Variant = effect.get("first_conversion_rewards", [])
+		if typeof(first_conversion_rewards) == TYPE_ARRAY and not (first_conversion_rewards as Array).is_empty():
+			var first_key: String = _turn_relic_flag_key(effect, "overheal_first_conversion")
+			if not _turn_flag(next_state, first_key):
+				_set_turn_flag(next_state, first_key, true)
+				next_state = _apply_relic_rewards(next_state, first_conversion_rewards, effect)
 		_log(next_state, "%s hardens %d excess healing into stoneskin." % [_relic_effect_source_name(effect), converted])
 	return next_state
 

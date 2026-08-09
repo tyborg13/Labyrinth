@@ -39,19 +39,38 @@ const RADIANCE_CARDS: Array[String] = [
 	"glowstone_ward",
 	"daybreak"
 ]
+const CHANGED_RADIANCE_CARDS = [
+	"ember_rain",
+	"trapdoor",
+	"firebrand_volley",
+	"icebound_chains",
+	"spark_dart",
+	"spark_focus",
+	"threaded_path",
+	"root_snare",
+	"dawnstep",
+	"prism_sight"
+]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
-	DisplayServer.window_set_size(Vector2i(1440, 900))
-	root.size = Vector2i(1440, 900)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.size = Vector2i(1920, 1080)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path("user://umbra_visual_progression.json")
 	ProgressionStore.set_run_storage_path("user://umbra_visual_run.save")
 	ProgressionStore.clear_saved_run()
 	await _capture_umbra_stages_and_cards()
+	for _frame: int in range(3):
+		await process_frame
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
-	quit()
+	print("UMBRA VISUAL PROBE: PASS")
+	quit(0)
 
 func _capture_umbra_stages_and_cards() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
@@ -82,7 +101,10 @@ func _capture_umbra_stages_and_cards() -> void:
 			await _save_root_screenshot("%s/stage_deep_billow.png" % OUTPUT_DIR)
 	await _capture_grimoire_entries(instance)
 	await _capture_active_effect_feedback(instance)
+	await _capture_redesign_spatial_effects(instance)
 	await _capture_card_gallery(instance)
+	await _capture_action_group_gallery(instance)
+	await _capture_token_suffix_stress_gallery(instance)
 	instance.queue_free()
 	await process_frame
 
@@ -220,9 +242,8 @@ func _capture_active_effect_feedback(instance: Node) -> void:
 		bob_max = maxf(bob_max, center_sample.y)
 	_assert(breath_max - breath_min >= 0.10, "Light orb should visibly breathe through a gentle animated scale range")
 	_assert(bob_max - bob_min >= 2.0, "Light orb should gently bob instead of remaining static on its tile")
-	var tooltip_regions: Array = board.get("_tooltip_regions") as Array
-	_assert(_has_tooltip_containing(tooltip_regions, "Light Source"), "The glowing light-source marker should have a hover tooltip")
-	_assert(_has_tooltip_containing(tooltip_regions, "True Sight"), "The player True Sight badge should have a hover tooltip")
+	_assert(_has_board_tooltip_containing(board, "Light Source"), "The glowing light-source marker should have a hover tooltip")
+	_assert(_has_board_tooltip_containing(board, "True Sight"), "The player True Sight badge should have a hover tooltip")
 	await _save_root_screenshot("%s/active_effect_feedback.png" % OUTPUT_DIR)
 	await create_timer(0.54).timeout
 	RenderingServer.force_draw()
@@ -264,29 +285,213 @@ func _has_tooltip_containing(regions: Array, text: String) -> bool:
 			return true
 	return false
 
+func _has_board_tooltip_containing(board: Control, text: String) -> bool:
+	if _has_tooltip_containing(board.get("_tooltip_regions") as Array, text):
+		return true
+	for layer_var: Variant in board.call("_retained_render_layers"):
+		var layer: Node = layer_var as Node
+		if layer != null and _has_tooltip_containing(layer.get("_tooltip_regions") as Array, text):
+			return true
+	return false
+
+func _hover_board_tooltip(board: Control, text: String) -> void:
+	var tooltip_sources: Array = board.call("_retained_render_layers")
+	tooltip_sources.append(board)
+	for source_var: Variant in tooltip_sources:
+		var source: Control = source_var as Control
+		if source == null:
+			continue
+		for region_var: Variant in source.get("_tooltip_regions") as Array:
+			if typeof(region_var) != TYPE_DICTIONARY:
+				continue
+			var region: Dictionary = region_var
+			if not str(region.get("tooltip", "")).contains(text):
+				continue
+			var rect: Rect2 = region.get("rect", Rect2()) as Rect2
+			var hover_position: Vector2 = board.get_global_transform_with_canvas() * rect.get_center()
+			var motion := InputEventMouseMotion.new()
+			motion.position = hover_position
+			motion.global_position = hover_position
+			root.push_input(motion, true)
+			await create_timer(0.75).timeout
+			RenderingServer.force_draw()
+			await process_frame
+			return
+	_assert(false, "Could not find board tooltip containing %s" % text)
+
+func _capture_redesign_spatial_effects(instance: Node) -> void:
+	var combat := CombatEngine.new()
+	var long_dawn_state: Dictionary = _radiance_visual_state(combat, [], ["long_dawn"])
+	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(3, 4))
+	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "truesight", "duration": 2})
+	_assert(int((long_dawn_state.get("umbra", {}) as Dictionary).get("truesight_activations", 0)) == 3, "Long Dawn visual fixture should expose its extended duration")
+	_set_combat_state(instance, long_dawn_state)
+	await _settle_ui()
+	await _save_root_screenshot("%s/ability_long_dawn.png" % OUTPUT_DIR)
+
+	var sunpath_state: Dictionary = _radiance_visual_state(combat, [], ["long_dawn", "sunpath"])
+	sunpath_state = combat.apply_player_action(sunpath_state, {"type": "move", "range": 4}, Vector2i(5, 4))
+	_assert(((sunpath_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 3, "Sunpath visual fixture should leave Light on every entered tile")
+	_set_combat_state(instance, sunpath_state)
+	await _settle_ui()
+	await _save_root_screenshot("%s/ability_sunpath_trail.png" % OUTPUT_DIR)
+
+	var pilgrim_state: Dictionary = _radiance_visual_state(combat, ["pilgrim_boots"], [])
+	pilgrim_state = combat.apply_player_action(pilgrim_state, {"type": "move", "range": 4, "_card_action_types": ["move"]}, Vector2i(5, 4))
+	_set_combat_state(instance, pilgrim_state)
+	await _settle_ui()
+	await _save_root_screenshot("%s/relic_pilgrim_boots_trail.png" % OUTPUT_DIR)
+
+	var witchlight_state: Dictionary = _radiance_visual_state(combat, [], ["witchlight"])
+	witchlight_state["illusions"] = [{"id": 51, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
+	_set_combat_state(instance, witchlight_state)
+	await _settle_ui()
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var witchlight_sources: Array = (board.get("presentation") as Dictionary).get("umbra_light_sources", []) as Array
+	_assert(witchlight_sources.size() == 1 and bool((witchlight_sources[0] as Dictionary).get("tethered", false)), "Witchlight should reach the live board as tethered Light")
+	_assert(_has_board_tooltip_containing(board, "Tethered Light"), "Tethered illusion Light should explain its actor-bound lifetime on hover")
+	await _save_root_screenshot("%s/ability_witchlight_tether.png" % OUTPUT_DIR)
+
+	var lantern_state: Dictionary = _radiance_visual_state(combat, ["witchglass_lantern"], [])
+	lantern_state["illusions"] = [{"id": 61, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
+	_set_combat_state(instance, lantern_state)
+	await _settle_ui()
+	await _save_root_screenshot("%s/relic_witchglass_lantern_tether.png" % OUTPUT_DIR)
+
+	var stacked_light_state: Dictionary = _radiance_visual_state(combat, ["witchglass_lantern"], ["witchlight"])
+	stacked_light_state["illusions"] = [{"id": 62, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
+	_set_combat_state(instance, stacked_light_state)
+	await _settle_ui()
+	var stacked_sources: Array = (board.get("presentation") as Dictionary).get("umbra_light_sources", []) as Array
+	_assert(stacked_sources.size() == 1 and int((stacked_sources[0] as Dictionary).get("radius", 0)) == 3, "Witchlight and Witchglass Lantern should render as radius-three tethered Light together")
+	_assert(_has_board_tooltip_containing(board, "Witchlight: +1") and _has_board_tooltip_containing(board, "Witchglass Lantern: +2"), "Stacked tethered Light should explain both additive sources contextually")
+	await _hover_board_tooltip(board, "Witchlight: +1")
+	await _save_root_screenshot("%s/illusion_light_additive_stack.png" % OUTPUT_DIR)
+
+	var dawnbrand_state: Dictionary = _radiance_visual_state(combat, [], ["dawnbrand"])
+	dawnbrand_state = combat.apply_player_action(dawnbrand_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(7, 4))
+	dawnbrand_state = combat.apply_player_action(dawnbrand_state, {"type": "ranged", "damage": 1, "range": 6}, Vector2i(7, 4))
+	_assert(int(((dawnbrand_state.get("enemies", []) as Array)[0] as Dictionary).get("expose", 0)) == 1, "Dawnbrand visual fixture should expose the enemy standing in Light")
+	_set_combat_state(instance, dawnbrand_state)
+	await _settle_ui()
+	await _save_root_screenshot("%s/ability_dawnbrand.png" % OUTPUT_DIR)
+
+	var afterglow_state: Dictionary = _radiance_visual_state(combat, [], ["afterglow"])
+	afterglow_state["illusions"] = [{"id": 52, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
+	afterglow_state = combat._damage_illusion(afterglow_state, 52, 2)
+	_set_combat_state(instance, afterglow_state)
+	await _settle_ui()
+	await _save_root_screenshot("%s/ability_afterglow.png" % OUTPUT_DIR)
+
+	var open_sky_state: Dictionary = _radiance_visual_state(combat, [], ["open_sky"])
+	open_sky_state = combat.apply_player_action(open_sky_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(2, 4))
+	_assert(combat.player_has_truesight(open_sky_state), "Open Sky visual fixture should gain Truesight in Light")
+	_set_combat_state(instance, open_sky_state)
+	await _settle_ui()
+	_assert(bool((board.get("presentation") as Dictionary).get("umbra_truesight_conditional", false)), "Open Sky should expose its conditional Truesight to the live HUD")
+	await _save_root_screenshot("%s/ability_open_sky.png" % OUTPUT_DIR)
+
+	var chain_state: Dictionary = _radiance_visual_state(combat, ["voltaic_tuning_fork"], [])
+	chain_state["enemies"] = [_visual_enemy(1, Vector2i(6, 4)), _visual_enemy(2, Vector2i(7, 4))]
+	chain_state = combat.apply_player_action(chain_state, {"type": "ranged", "damage": 1, "range": 6, "chain": 2, "_card_action_types": ["ranged"]}, Vector2i(6, 4))
+	_set_combat_state(instance, chain_state)
+	await _settle_ui()
+	await _save_root_screenshot("%s/relic_stormglass_chain_light.png" % OUTPUT_DIR)
+
+	var noon_state: Dictionary = _radiance_visual_state(combat, ["tectonic_abacus"], [])
+	for source_pos: Vector2i in [Vector2i(2, 2), Vector2i(4, 2), Vector2i(6, 2), Vector2i(3, 5), Vector2i(5, 5), Vector2i(7, 5)]:
+		noon_state = combat.call("_create_umbra_light_source", noon_state, source_pos, {"radius": 1, "duration": 2, "silent": true})
+	_assert(combat.effective_umbra_stage(noon_state) == CombatEngine.UMBRA_STAGE_FRINGE, "Captured Noon visual fixture should reversibly suppress two Umbra stages")
+	_set_combat_state(instance, noon_state)
+	await _settle_ui()
+	await _save_root_screenshot("%s/relic_captured_noon_suppression.png" % OUTPUT_DIR)
+
+	await _capture_squall_orientation(instance, combat)
+
+func _capture_squall_orientation(instance: Node, combat: CombatEngine) -> void:
+	instance.call("_reset_card_resolution")
+	var squall_state: Dictionary = _radiance_visual_state(combat, [], [])
+	squall_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	squall_state["enemies"] = [
+		_visual_enemy(1, Vector2i(4, 4)),
+		_visual_enemy(2, Vector2i(4, 2)),
+		_visual_enemy(3, Vector2i(6, 4)),
+		_visual_enemy(4, Vector2i(4, 6))
+	]
+	var deck: Dictionary = (squall_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["squall_shot"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	squall_state["deck"] = deck
+	_set_combat_state(instance, squall_state)
+	await _settle_ui()
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	instance.call("_on_board_tile_hovered", Vector2i(4, 4))
+	instance.call("_rotate_aoe_aim", -1)
+	instance.call("_on_board_tile_hovered", Vector2i(4, 4))
+	await _settle_ui()
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	var focus_tiles: Array = presentation.get("focus_tiles", []) as Array
+	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Squall visual fixture should show its north-rotated odd pattern")
+	await _save_root_screenshot("%s/card_squall_simplified_orientation_v4.png" % OUTPUT_DIR)
+	instance.call("_reset_card_resolution")
+
+func _radiance_visual_state(combat: CombatEngine, relic_ids: Array, skill_ids: Array) -> Dictionary:
+	var state: Dictionary = combat.create_combat(97841, _room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": relic_ids,
+		"skill_ids": skill_ids,
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["enemies"] = [_visual_enemy(1, Vector2i(7, 4))]
+	state["traps"] = []
+	state["terrain"] = []
+	state["current_actor"] = {"kind": "player", "key": "player"}
+	var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
+	umbra["stage"] = CombatEngine.UMBRA_STAGE_PRESSING
+	umbra["stage_reduction"] = 0
+	state["umbra"] = umbra
+	return state
+
+func _visual_enemy(enemy_id: int, pos: Vector2i) -> Dictionary:
+	return {"id": enemy_id, "type": "crawler", "pos": pos, "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+
 func _capture_card_gallery(instance: Node) -> void:
-	(instance as CanvasItem).visible = false
+	var gallery_layer := CanvasLayer.new()
+	gallery_layer.layer = 1000
+	root.add_child(gallery_layer)
+	var gallery := Control.new()
+	gallery.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gallery.anchor_right = 1.0
+	gallery.anchor_bottom = 1.0
+	gallery_layer.add_child(gallery)
 	var background := ColorRect.new()
 	background.color = Color("16111d")
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	background.anchor_right = 1.0
 	background.anchor_bottom = 1.0
-	root.add_child(background)
+	gallery.add_child(background)
 	var title := Label.new()
 	title.text = "RADIANCE · LIGHT AGAINST THE UMBRA"
 	title.position = Vector2(42.0, 18.0)
-	title.size = Vector2(1356.0, 38.0)
+	title.size = Vector2(1836.0, 38.0)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 24)
 	title.add_theme_color_override("font_color", Color("f4dfb8"))
-	root.add_child(title)
-	for index: int in range(RADIANCE_CARDS.size()):
-		var card_id: String = RADIANCE_CARDS[index]
+	gallery.add_child(title)
+	for index: int in range(CHANGED_RADIANCE_CARDS.size()):
+		var card_id: String = CHANGED_RADIANCE_CARDS[index]
 		var slot := Control.new()
-		slot.position = Vector2(44.0 + float(index % 4) * 342.0, 70.0 + float(index / 4) * 400.0)
+		slot.position = Vector2(90.0 + float(index % 5) * 360.0, 78.0 + float(index / 5) * 450.0)
 		slot.custom_minimum_size = Vector2(250.0, 352.0)
 		slot.size = Vector2(250.0, 352.0)
-		root.add_child(slot)
+		gallery.add_child(slot)
 		var widget: CardWidget = CardWidgetScene.instantiate()
 		widget.custom_minimum_size = slot.size
 		widget.size = slot.size
@@ -295,9 +500,96 @@ func _capture_card_gallery(instance: Node) -> void:
 		widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 	await _settle_ui()
-	await _save_root_screenshot("%s/radiance_cards.png" % OUTPUT_DIR)
-	background.queue_free()
-	title.queue_free()
+	await _save_root_screenshot("%s/radiance_changed_cards_grouped_v4.png" % OUTPUT_DIR)
+	gallery_layer.queue_free()
+	await process_frame
+
+func _capture_action_group_gallery(instance: Node) -> void:
+	var combat := CombatEngine.new()
+	var gallery_state: Dictionary = _radiance_visual_state(combat, [], [])
+	var gallery_layer := CanvasLayer.new()
+	gallery_layer.layer = 1000
+	root.add_child(gallery_layer)
+	var gallery := Control.new()
+	gallery.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gallery.anchor_right = 1.0
+	gallery.anchor_bottom = 1.0
+	gallery_layer.add_child(gallery)
+	var background := ColorRect.new()
+	background.color = Color("16111d")
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.anchor_right = 1.0
+	background.anchor_bottom = 1.0
+	gallery.add_child(background)
+	_add_gallery_title(gallery, "ONE ACTION · GROUPED CONTINUATION · NATIVE 250 × 352", 18.0)
+	_add_gallery_title(gallery, "COMPACT 190 × 268 · SAME ACTION STRUCTURE", 494.0)
+	var group_cards: Array = ["root_snare", "threaded_path", "squall_shot"]
+	for index: int in range(group_cards.size()):
+		_add_gallery_card(gallery, instance, gallery_state, group_cards[index], Vector2(350.0 + float(index) * 485.0, 76.0), Vector2(250.0, 352.0))
+		_add_gallery_card(gallery, instance, gallery_state, group_cards[index], Vector2(450.0 + float(index) * 415.0, 542.0), Vector2(190.0, 268.0))
+	await _settle_ui()
+	await _save_root_screenshot("%s/card_action_continuation_groups_v4.png" % OUTPUT_DIR)
+	gallery_layer.queue_free()
+	await process_frame
+
+func _capture_token_suffix_stress_gallery(instance: Node) -> void:
+	var combat := CombatEngine.new()
+	var stress_state: Dictionary = _radiance_visual_state(combat, ["duelist_whetstone"], [])
+	stress_state["elemental_intensity"] = {
+		"fire": 3,
+		"ice": 0,
+		"lightning": 0,
+		"air": 0,
+		"earth": 0
+	}
+	var gallery_layer := CanvasLayer.new()
+	gallery_layer.layer = 1000
+	root.add_child(gallery_layer)
+	var gallery := Control.new()
+	gallery.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gallery.anchor_right = 1.0
+	gallery.anchor_bottom = 1.0
+	gallery_layer.add_child(gallery)
+	var background := ColorRect.new()
+	background.color = Color("16111d")
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.anchor_right = 1.0
+	background.anchor_bottom = 1.0
+	gallery.add_child(background)
+	_add_gallery_title(gallery, "ATTACHED VALUE SUFFIXES · NATIVE 250 × 352", 18.0)
+	_add_gallery_title(gallery, "COMPACT 190 × 268 · SAME RULES, SAME FONT FLOORS", 494.0)
+	var stress_cards: Array[String] = ["blood_price", "glowstone_ward", "sidestep_slash", "firebrand_volley", "storm_beacon"]
+	for index: int in range(stress_cards.size()):
+		_add_gallery_card(gallery, instance, stress_state, stress_cards[index], Vector2(115.0 + float(index) * 350.0, 76.0), Vector2(250.0, 352.0))
+		_add_gallery_card(gallery, instance, stress_state, stress_cards[index], Vector2(350.0 + float(index) * 245.0, 542.0), Vector2(190.0, 268.0))
+	await _settle_ui()
+	await _save_root_screenshot("%s/card_value_suffix_contrast_v4.png" % OUTPUT_DIR)
+	gallery_layer.queue_free()
+	await process_frame
+
+func _add_gallery_title(gallery: Control, text: String, y: float) -> void:
+	var title := Label.new()
+	title.text = text
+	title.position = Vector2(42.0, y)
+	title.size = Vector2(1836.0, 38.0)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color("f4dfb8"))
+	gallery.add_child(title)
+
+func _add_gallery_card(gallery: Control, instance: Node, combat_state: Dictionary, card_id: String, position: Vector2, card_size: Vector2) -> void:
+	var slot := Control.new()
+	slot.position = position
+	slot.custom_minimum_size = card_size
+	slot.size = card_size
+	gallery.add_child(slot)
+	var widget: CardWidget = CardWidgetScene.instantiate()
+	widget.custom_minimum_size = card_size
+	widget.size = card_size
+	slot.add_child(widget)
+	var display: Dictionary = instance.call("_card_widget_display", card_id, combat_state)
+	widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 
 func _room_layout() -> Dictionary:
 	var positions: Array[Vector2i] = _vector2i_array([
@@ -358,7 +650,12 @@ func _settle_ui() -> void:
 	await process_frame
 
 func _save_root_screenshot(output_path: String) -> void:
+	await RenderingServer.frame_post_draw
 	var image: Image = root.get_viewport().get_texture().get_image()
+	if image.get_size() != Vector2i(1920, 1080):
+		# Native Metal exposes the Retina backing texture on macOS. Downsample the
+		# real render to the single review resolution required by the UI rubric.
+		image.resize(1920, 1080, Image.INTERPOLATE_LANCZOS)
 	_assert(image.save_png(output_path) == OK, "Could not save %s" % output_path)
 
 func _clear_probe_output(path: String) -> void:

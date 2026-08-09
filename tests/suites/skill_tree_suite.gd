@@ -18,11 +18,12 @@ static func run(expect: Callable) -> void:
 	_test_legacy_profile_migration(expect)
 
 static func _test_skill_data_and_topology(expect: Callable) -> void:
-	expect.call(SkillTreeLibrary.definitions().size() == 24, "The skill tree should define exactly 24 skills")
-	expect.call(SkillTreeLibrary.validation_errors().is_empty(), "The skill graph should have valid data, positions, prerequisites, and a complete level-20 route")
+	expect.call(SkillTreeLibrary.definitions().size() == 30, "The skill tree should define exactly 30 skills")
+	var validation_errors: Array[String] = SkillTreeLibrary.validation_errors()
+	expect.call(validation_errors.is_empty(), "The skill graph should have valid data, positions, prerequisites, and a complete level-20 route: %s" % str(validation_errors))
 	var caller_order: Array[String] = SkillTreeLibrary.ordered_ids()
 	caller_order.clear()
-	expect.call(SkillTreeLibrary.ordered_ids().size() == 24, "The cached authored order should return an isolated copy to callers")
+	expect.call(SkillTreeLibrary.ordered_ids().size() == 30, "The cached authored order should return an isolated copy to callers")
 	var roots: Array[String]
 	var keystones: Array[String]
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
@@ -33,9 +34,15 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 			roots.append(skill_id)
 		if SkillTreeLibrary.is_keystone(skill_id):
 			keystones.append(skill_id)
-	expect.call(roots.size() == 4, "The tree should begin with four distinct roots")
-	expect.call(keystones.size() == 4, "The tree should end with four exclusive keystones")
-	expect.call(SkillTreeLibrary.available_ids([]).size() == 4, "A new character should be able to learn any root")
+	expect.call(roots.size() == 5, "The tree should begin with five distinct roots")
+	expect.call(keystones.size() == 5, "The tree should end with five exclusive keystones")
+	expect.call(SkillTreeLibrary.available_ids([]).size() == 5, "A new character should be able to learn any root")
+	expect.call(SkillTreeLibrary.description("long_dawn") == "Temporary Light, Vision, and Truesight you create last 1 additional turn. Permanent and tethered effects are unchanged.", "Long Dawn should state the exact temporary-effect boundary")
+	expect.call(SkillTreeLibrary.description("sunpath") == "The first Move or Blink of 3+ tiles each turn leaves radius-1 Light for 2 turns on every tile entered. Blink lights its origin and destination.", "Sunpath should explain its path and Blink endpoint behavior without introducing a new interaction")
+	expect.call(SkillTreeLibrary.description("witchlight") == "Living illusions add 1 radius to their tethered Light.", "Witchlight should describe its additive tethered board effect concisely")
+	expect.call(SkillTreeLibrary.description("dawnbrand") == "The first direct attack each turn against an enemy standing in Light inflicts 1 Expose.", "Dawnbrand should disclose its once-per-turn Light condition")
+	expect.call(SkillTreeLibrary.description("afterglow") == "When an illusion is removed during combat, it leaves radius-1 Light for 2 turns at its final tile.", "Afterglow should disclose removal timing and duration")
+	expect.call(SkillTreeLibrary.description("open_sky") == "While you stand in Light, you have Truesight.", "Open Sky should state its conditional Truesight rule")
 	var afterimage_health: int = GameData.fixed_point_amount(int(SkillTreeLibrary.effect("afterimage").get("health_visible", 0)))
 	var reserve_health: int = GameData.fixed_point_amount(int(SkillTreeLibrary.effect("last_reserve").get("minimum_health_visible", 0)))
 	var last_door_health: int = GameData.fixed_point_amount(int(SkillTreeLibrary.effect("last_door").get("minimum_health_visible", 0)))
@@ -111,9 +118,14 @@ static func _test_leveling_banks_points_and_learning_is_immediate(expect: Callab
 	expect.call(int(profile.get("level", 1)) == 20, "Independent level purchases should reach level 20")
 	expect.call(ProgressionStore.unspent_skill_points(profile) == 18, "Unspent points should accumulate without a cap")
 	var chosen_keystone: String = ""
-	while ProgressionStore.unspent_skill_points(profile) > 0:
+	var learn_attempts: int = 0
+	while ProgressionStore.unspent_skill_points(profile) > 0 and learn_attempts < SkillTreeLibrary.COMPLETE_BUILD_SIZE:
+		learn_attempts += 1
 		var available: Array[String] = ProgressionStore.available_skill_ids(profile)
 		var choice: String = available[0] if not available.is_empty() else ""
+		if choice.is_empty():
+			expect.call(false, "A completion-aware build should never strand banked points: selected=%s" % [ProgressionStore.selected_skill_ids(profile)])
+			break
 		if ProgressionStore.selected_skill_ids(profile).size() >= 8 and chosen_keystone.is_empty():
 			for candidate_id: String in available:
 				if SkillTreeLibrary.is_keystone(candidate_id):
@@ -152,47 +164,103 @@ static func _test_max_build_requires_keystone(expect: Callable) -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		if not SkillTreeLibrary.is_keystone(skill_id):
 			non_keystone_ids.append(skill_id)
-	var legacy_max_builds: Array = []
-	for omitted_index: int in range(non_keystone_ids.size()):
-		var legacy_selection: Array[String] = non_keystone_ids.duplicate()
-		legacy_selection.remove_at(omitted_index)
-		if not _selection_is_topologically_valid_without_capstone(legacy_selection):
-			continue
-		legacy_max_builds.append(legacy_selection)
-		expect.call(not SkillTreeLibrary.selection_is_valid(legacy_selection, SkillTreeLibrary.COMPLETE_BUILD_SIZE), "A maximum build without a keystone should be rejected")
-		var repaired: Array[String] = SkillTreeLibrary.repaired_selection(legacy_selection, SkillTreeLibrary.COMPLETE_BUILD_SIZE, legacy_selection)
-		expect.call(SkillTreeLibrary.selection_is_valid(repaired, SkillTreeLibrary.COMPLETE_BUILD_SIZE), "A legacy maximum build should repair to a complete legal selection")
-		expect.call(_keystone_count(repaired) == 1, "Repairing a legacy maximum build should insert exactly one eligible keystone")
-	expect.call(legacy_max_builds.size() == 11, "The capstone migration proof should cover every formerly legal no-keystone maximum build")
+	var legacy_selection: Array[String] = _topological_non_keystone_selection(SkillTreeLibrary.COMPLETE_BUILD_SIZE)
+	expect.call(legacy_selection.size() == SkillTreeLibrary.COMPLETE_BUILD_SIZE, "The expanded tree should still admit a topologically complete no-keystone legacy fixture")
+	expect.call(not SkillTreeLibrary.selection_is_valid(legacy_selection, SkillTreeLibrary.COMPLETE_BUILD_SIZE), "A maximum build without a keystone should be rejected")
+	var repaired: Array[String] = SkillTreeLibrary.repaired_selection(legacy_selection, SkillTreeLibrary.COMPLETE_BUILD_SIZE, legacy_selection)
+	expect.call(SkillTreeLibrary.selection_is_valid(repaired, SkillTreeLibrary.COMPLETE_BUILD_SIZE), "A legacy maximum build should repair to a complete legal selection")
+	expect.call(_keystone_count(repaired) == 1, "Repairing a legacy maximum build should insert exactly one eligible keystone")
+	var preserved_legacy_count: int = 0
+	for repaired_id: String in repaired:
+		if legacy_selection.has(repaired_id):
+			preserved_legacy_count += 1
+	expect.call(preserved_legacy_count == SkillTreeLibrary.COMPLETE_BUILD_SIZE - 1, "Legacy repair should preserve the maximum deterministic subset before inserting one legal keystone")
 
-	var legal_eighteen_count: int = 0
-	for first_omitted: int in range(non_keystone_ids.size()):
-		for second_omitted: int in range(first_omitted + 1, non_keystone_ids.size()):
-			var partial: Array[String] = non_keystone_ids.duplicate()
-			partial.erase(non_keystone_ids[second_omitted])
-			partial.erase(non_keystone_ids[first_omitted])
-			if not SkillTreeLibrary.selection_is_valid(partial, SkillTreeLibrary.COMPLETE_BUILD_SIZE - 1):
-				continue
-			legal_eighteen_count += 1
-			var available: Array[String] = SkillTreeLibrary.available_ids(partial)
-			var available_keystones: int = 0
-			for available_id: String in available:
-				if SkillTreeLibrary.is_keystone(available_id):
-					available_keystones += 1
-			expect.call(available_keystones == available.size() and available_keystones >= 2, "Every 18-point no-keystone build should have multiple keystone continuations and no invalid final non-keystone")
-			expect.call(SkillTreeLibrary.locked_reason(non_keystone_ids[first_omitted], partial) == "Your final skill must be a keystone", "A blocked final non-keystone should explain the capstone requirement")
-	expect.call(legal_eighteen_count == 58, "The capstone proof should exhaust every legal 18-point no-keystone build")
+	var partial: Array[String] = _topological_non_keystone_selection(SkillTreeLibrary.COMPLETE_BUILD_SIZE - 1)
+	var available: Array[String] = SkillTreeLibrary.available_ids(partial)
+	expect.call(not available.is_empty(), "An 18-point no-keystone build should retain at least one keystone continuation")
+	for available_id: String in available:
+		expect.call(SkillTreeLibrary.is_keystone(available_id), "The final point of a complete build should offer only keystones")
+	for non_keystone_id: String in non_keystone_ids:
+		var final_non_keystone: Array[String] = partial.duplicate()
+		final_non_keystone.append(non_keystone_id)
+		if not partial.has(non_keystone_id) and _selection_is_topologically_valid_without_capstone(final_non_keystone):
+			expect.call(SkillTreeLibrary.locked_reason(non_keystone_id, partial) == "Your final skill must be a keystone", "A blocked final non-keystone should explain the capstone requirement")
+
+	var safe_seventeen: Array[String]
+	safe_seventeen.append_array([
+		"quick_wits", "measured_breath", "ghost_stride", "discerning_eye", "long_dawn",
+		"rehearsed_escape", "makeshift_tool", "carry_the_guard", "pain_remembers",
+		"sure_footed", "afterimage", "deferred_choice", "salvager", "sunpath", "witchlight",
+		"last_reserve", "plunderers_step"
+	])
+	expect.call(SkillTreeLibrary.selection_is_valid(safe_seventeen, 17), "The capstone reachability fixture should be a legal 17-point selection")
+	expect.call(not SkillTreeLibrary.is_available("curators_patience", safe_seventeen), "A legal-looking 18th non-keystone that strands every capstone should be blocked before purchase")
+	expect.call(SkillTreeLibrary.locked_reason("curators_patience", safe_seventeen) == "This choice would leave no path to a keystone", "A dead-ending earlier choice should explain why it is blocked")
+	var safe_eighteen: Array[String] = safe_seventeen.duplicate()
+	safe_eighteen.append("borrowed_time")
+	expect.call(SkillTreeLibrary.is_available("encore", safe_eighteen), "An authored-prerequisite-valid keystone should remain available as the final point")
+	for unavailable_keystone_id: String in ["open_arsenal", "confluence", "last_door", "open_sky"]:
+		expect.call(not SkillTreeLibrary.is_available(unavailable_keystone_id, safe_eighteen), "%s should remain locked at point 19 when its authored parents are missing" % unavailable_keystone_id)
+		expect.call(SkillTreeLibrary.locked_reason(unavailable_keystone_id, safe_eighteen).begins_with("Requires "), "%s should name its missing authored prerequisite at point 19" % unavailable_keystone_id)
+
+	for keystone_id: String in SkillTreeLibrary.ordered_ids():
+		if not SkillTreeLibrary.is_keystone(keystone_id):
+			continue
+		var preference: Array[String] = _recursive_prerequisites(keystone_id)
+		for non_keystone_id: String in non_keystone_ids:
+			if not preference.has(non_keystone_id):
+				preference.append(non_keystone_id)
+		var keystone_partial: Array[String] = SkillTreeLibrary.repaired_selection([], SkillTreeLibrary.COMPLETE_BUILD_SIZE - 1, preference)
+		expect.call(SkillTreeLibrary.available_ids(keystone_partial).has(keystone_id), "%s should remain a legal final-point keystone when its branch is deliberately assembled" % keystone_id)
+		for partial_count: int in range(SkillTreeLibrary.COMPLETE_BUILD_SIZE):
+			var reachable_partial: Array[String] = SkillTreeLibrary.repaired_selection([], partial_count, preference)
+			expect.call(reachable_partial.size() == partial_count, "%s preference should admit a reachable %d-point partial build" % [keystone_id, partial_count])
+			if _keystone_count(reachable_partial) == 0:
+				var reachable_completion: Array[String] = SkillTreeLibrary.repaired_selection(reachable_partial, SkillTreeLibrary.COMPLETE_BUILD_SIZE, preference)
+				expect.call(SkillTreeLibrary.selection_is_valid(reachable_completion, SkillTreeLibrary.COMPLETE_BUILD_SIZE), "Every reachable no-keystone %s partial at %d points should retain a legal complete path" % [keystone_id, partial_count])
 
 	var legacy_profile: Dictionary = ProgressionStore.default_data()
 	legacy_profile["progression_schema"] = 3
 	legacy_profile["level"] = 20
-	legacy_profile["skill_ids"] = (legacy_max_builds[0] as Array).duplicate()
+	legacy_profile["skill_ids"] = legacy_selection.duplicate()
 	legacy_profile["progression_revision"] = 7
 	var migrated_profile: Dictionary = ProgressionStore.normalized_data(legacy_profile)
 	expect.call(int(migrated_profile.get("progression_schema", 0)) == ProgressionStore.PROGRESSION_SCHEMA, "No-keystone maximum profiles should migrate to the current progression schema")
 	expect.call(int(migrated_profile.get("progression_revision", 0)) == 8, "Changing a legacy maximum build during migration should advance its progression revision")
 	expect.call(SkillTreeLibrary.selection_is_valid(ProgressionStore.selected_skill_ids(migrated_profile), SkillTreeLibrary.COMPLETE_BUILD_SIZE), "The migrated maximum profile should remain complete and legal")
 	expect.call(_keystone_count(ProgressionStore.selected_skill_ids(migrated_profile)) == 1, "The migrated maximum profile should contain exactly one keystone")
+
+static func _topological_non_keystone_selection(limit: int) -> Array[String]:
+	var result: Array[String]
+	while result.size() < limit:
+		var added: bool = false
+		for skill_id: String in SkillTreeLibrary.ordered_ids():
+			if result.has(skill_id) or SkillTreeLibrary.is_keystone(skill_id):
+				continue
+			var prerequisites_met: bool = true
+			for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
+				if not result.has(prerequisite_id):
+					prerequisites_met = false
+					break
+			if prerequisites_met and result.size() >= SkillTreeLibrary.minimum_owned(skill_id):
+				result.append(skill_id)
+				added = true
+				if result.size() >= limit:
+					break
+		if not added:
+			break
+	return result
+
+static func _recursive_prerequisites(skill_id: String) -> Array[String]:
+	var result: Array[String]
+	for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
+		for ancestor_id: String in _recursive_prerequisites(prerequisite_id):
+			if not result.has(ancestor_id):
+				result.append(ancestor_id)
+		if not result.has(prerequisite_id):
+			result.append(prerequisite_id)
+	return result
 
 static func _selection_is_topologically_valid_without_capstone(skill_ids: Array[String]) -> bool:
 	for skill_id: String in skill_ids:
@@ -267,11 +335,14 @@ static func _test_legacy_profile_migration(expect: Callable) -> void:
 static func _validation_errors_with_definitions(altered_definitions: Dictionary) -> Array[String]:
 	var original_cache: Dictionary = SkillTreeLibrary._cache
 	var original_order: Array[String] = SkillTreeLibrary.ordered_ids()
+	var original_completion_cache: Dictionary = SkillTreeLibrary._completion_cache.duplicate(true)
 	SkillTreeLibrary._cache = altered_definitions
 	SkillTreeLibrary._ordered_ids_cache.clear()
+	SkillTreeLibrary._completion_cache.clear()
 	var errors: Array[String] = SkillTreeLibrary.validation_errors()
 	SkillTreeLibrary._cache = original_cache
 	SkillTreeLibrary._ordered_ids_cache = original_order
+	SkillTreeLibrary._completion_cache = original_completion_cache
 	return errors
 
 static func _contains_error_fragment(errors: Array[String], fragment: String) -> bool:

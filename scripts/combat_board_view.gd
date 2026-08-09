@@ -1930,7 +1930,7 @@ func _umbra_light_source_distance(source_tile: Vector2i, tile: Vector2i) -> int:
 func _draw_umbra_light_source_reach(source: Dictionary, time_seconds: float) -> void:
 	var source_tile: Vector2i = source.get("pos", Vector2i(-1, -1))
 	var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
-	var source_seed: float = float(int(source.get("id", 0)))
+	var source_seed: float = _umbra_light_source_seed(source)
 	var pulse: float = 0.96 + 0.04 * sin(time_seconds * 1.42 + source_seed * 0.73)
 	var footprint_tiles: Array[Vector2i] = _umbra_light_source_tiles(source)
 	for tile: Vector2i in footprint_tiles:
@@ -1978,7 +1978,11 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 			continue
 		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
 		var remaining: int = int(source.get("remaining_activations", 0))
-		var source_seed: float = float(int(source.get("id", 0)))
+		var source_seed: float = _umbra_light_source_seed(source)
+		if bool(source.get("tethered", false)):
+			var tethered_rect: Rect2 = _draw_umbra_tethered_light_marker(tile, source_seed, time_seconds)
+			_register_tooltip(tethered_rect, _tethered_light_tooltip(source))
+			continue
 		var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
 		var glow_brightness: float = 0.94 + 0.10 * (0.5 + 0.5 * sin(time_seconds * 2.15 + source_seed * 0.37))
 		var orb_center: Vector2 = _umbra_light_orb_center(tile, source_seed, time_seconds)
@@ -1990,6 +1994,46 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
 		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
 		_register_tooltip(marker_rect, tooltip)
+
+func _tethered_light_tooltip(source: Dictionary) -> String:
+	var radius: int = maxi(1, int(source.get("radius", 1)))
+	var lines := PackedStringArray(["Tethered Light — Radius %d" % radius])
+	for contributor_var: Variant in source.get("radius_contributors", []):
+		if typeof(contributor_var) != TYPE_DICTIONARY:
+			continue
+		var contributor: Dictionary = contributor_var
+		lines.append("%s: +%d" % [str(contributor.get("name", "Source")), int(contributor.get("radius", 0))])
+	lines.append("Moves with this illusion and ends when it is removed.")
+	return "\n".join(lines)
+
+func _umbra_light_source_seed(source: Dictionary) -> float:
+	return float(absi(str(source.get("id", "0")).hash()) % 10007)
+
+func _draw_umbra_tethered_light_marker(tile: Vector2i, source_seed: float, time_seconds: float) -> Rect2:
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.22)
+	var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
+	var halo_radius: float = clampf(_tile_width() * 0.27, 20.0, 38.0) * breath
+	_draw_campfire_soft_ellipse(
+		center,
+		halo_radius * 1.85,
+		Vector2(1.18, 0.48),
+		-0.05,
+		Color(1.0, 0.68, 0.18, 0.34),
+		24
+	)
+	_draw_campfire_soft_ellipse(
+		center + Vector2(0.0, -halo_radius * 0.08),
+		halo_radius,
+		Vector2(1.10, 0.38),
+		0.04,
+		Color(1.0, 0.90, 0.48, 0.42),
+		18
+	)
+	for mote_index: int in range(3):
+		var phase: float = time_seconds * (0.72 + float(mote_index) * 0.11) + source_seed * 0.013 + float(mote_index) * TAU / 3.0
+		var mote_center: Vector2 = center + Vector2(cos(phase) * halo_radius * 0.84, sin(phase) * halo_radius * 0.28)
+		draw_circle(mote_center, 1.8 + float(mote_index) * 0.35, Color(1.0, 0.90, 0.52, 0.78))
+	return Rect2(center - Vector2(halo_radius * 1.9, halo_radius), Vector2(halo_radius * 3.8, halo_radius * 2.0))
 
 func _umbra_light_orb_breath(source_seed: float, time_seconds: float) -> float:
 	return 1.0 + 0.055 * sin(time_seconds * 2.15 + source_seed * 0.37)
@@ -8740,11 +8784,12 @@ func _short_enemy_name(enemy: Dictionary) -> String:
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = []
 	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))
-	if str(unit.get("role", "")) == "player" and truesight_activations != 0:
-		var duration_text: String = "Lasts for this combat." if truesight_activations < 0 else "%d player turn%s remaining." % [truesight_activations, "" if truesight_activations == 1 else "s"]
+	var conditional_truesight: bool = bool(presentation.get("umbra_truesight_conditional", false))
+	if str(unit.get("role", "")) == "player" and (truesight_activations != 0 or conditional_truesight):
+		var duration_text: String = "Active while standing in Light." if conditional_truesight else "Lasts for this combat." if truesight_activations < 0 else "%d player turn%s remaining." % [truesight_activations, "" if truesight_activations == 1 else "s"]
 		badges.append({
 			"icon": "truesight",
-			"count_text": "∞" if truesight_activations < 0 else str(truesight_activations),
+			"count_text": "" if conditional_truesight else "∞" if truesight_activations < 0 else str(truesight_activations),
 			"fill": Color("3c285f"),
 			"border": Color("8eefff"),
 			"icon_tint": Color.WHITE,
