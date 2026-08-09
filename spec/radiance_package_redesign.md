@@ -52,7 +52,7 @@ Conditional numeric bonuses remain useful connective tissue, but they must not d
 | Dawnstitch Cord | Rare / Radiance | The first card each turn containing a Radiance action grants 4 Block. |
 | Starless Astrolabe | Rare / Radiance | While the player has Truesight, attacks that Freeze or Shock create radius-1 Light for 2 activations beneath affected enemies. |
 | Witchglass Carapace | Epic | Ranged enemy attacks deal at most 1 damage to illusions. |
-| Witchglass Lantern | Epic / Radiance | Living illusions carry tethered radius-2 Light. It ends immediately when the illusion is removed. |
+| Witchglass Lantern | Epic / Radiance | Living illusions add 2 radius to their tethered Light. It ends immediately when the illusion is removed. |
 | Sunlit Edge | Epic / Radiance | While the player stands in Light, attacks gain Pierce. |
 | Glassway Compass | Legendary | The first Blink each turn creates a 2-health illusion on the tile the player left. |
 | Unclouded Sun | Legendary / Radiance | Once per combat, when a room that began with Umbra first becomes Clear, gain 12 Stoneskin, draw 3, and gain 3 card plays. |
@@ -61,20 +61,23 @@ Unchanged relics are: Iron Lung, Coffin Nails, Iron Buckler, Flint Edge, Mossbou
 
 ## Approved card changes
 
-All new Illuminate actions reuse the card's one selected tile. All eight newly Radiant cards set `radiance: true`.
+Light carried by an attack is authored on that attack action with `illuminate_radius` and `illuminate_duration`; it is not a preceding standalone Illuminate action. The player makes one attack selection, and only attackable enemies, traps, or terrain are legal targets. Light is created at the snapshotted impact tile after damage, statuses, forced movement, terrain damage, and trap effects resolve, so the rider does not enable Light-conditioned bonuses for its own hit. A standalone `illuminate` action remains available for abilities and cards whose primary purpose is Light and retains free-tile targeting.
+
+All eight newly Radiant cards set `radiance: true`. Lantern Shot, Guiding Flare, and Storm Beacon keep their existing Radiance identity but migrate to the same unified attack-rider representation.
 
 | Card | Change |
 | --- | --- |
-| Ember Rain | Illuminate the selected tile at radius 2 for 2 activations, then resolve its existing ranged attack there. |
+| Ember Rain | Its ranged attack creates radius-2 Light at the impact for 2 activations after resolving. |
 | Trapdoor | Add Vision 2 for 2 activations. |
-| Firebrand Volley | Illuminate its target at radius 1 for 2 activations; remove conditional Burn 2 and retain conditional bonus damage. |
+| Firebrand Volley | Its ranged attack creates radius-1 Light at the impact for 2 activations; remove conditional Burn 2 and retain conditional bonus damage. |
 | Icebound Chains | Replace Draw 1 with Truesight for 2 activations. |
-| Spark Dart | Illuminate its target at radius 1 for 2 activations; remove conditional Shock and retain conditional bonus damage. |
+| Spark Dart | Its ranged attack creates radius-1 Light at the impact for 2 activations; remove conditional Shock and retain conditional bonus damage. |
 | Spark Focus | Add Vision 1 for 2 activations. |
-| Squall Shot | Illuminate its selected center at radius 2 for 2 activations before resolving the existing area attack there. |
-| Root Snare | Illuminate its selected tile at radius 1 for 2 activations before resolving the existing attack there. |
+| Squall Shot | Its area attack creates radius-2 Light at the selected attackable center for 2 activations after resolving. |
+| Root Snare | Its ranged attack creates radius-1 Light at the impact for 2 activations after resolving. |
 | Dawnstep | Increase Vision duration from 1 to 2 activations. |
 | Prism Sight | Increase Truesight duration from 1 to 2 activations. |
+| Lantern Shot, Guiding Flare, Storm Beacon | Merge each separate Illuminate-plus-attack pair into one attack action with the same radius and duration. |
 
 ## Approved Radiance ability branch
 
@@ -82,12 +85,12 @@ All new Illuminate actions reuse the card's one selected tile. All eight newly R
 | --- | --- | --- |
 | Long Dawn | Root | Temporary Light, Vision, and Truesight created by the player last 1 additional activation. Permanent and tethered effects are unaffected. |
 | Sunpath | Branch | The first Move or Blink of 3 or more tiles each turn leaves radius-1 Light for 2 activations on every tile entered; Blink lights origin and destination. |
-| Witchlight | Branch | Living illusions carry tethered radius-1 Light. |
+| Witchlight | Branch | Living illusions add 1 radius to their tethered Light. |
 | Dawnbrand | Junction | The first direct attack each turn against an enemy standing in Light inflicts Expose 1. |
 | Afterglow | Junction | When an illusion is removed during combat, it leaves radius-1 Light for 2 activations at its final tile. |
 | Open Sky | Keystone | While standing in Light, the player has Truesight. |
 
-Witchglass Lantern upgrades Witchlight's tethered radius from 1 to 2 rather than stacking two auras.
+Witchlight and Witchglass Lantern stack additively on one tethered source: the ability contributes +1 radius, the relic contributes +2, and owning both produces radius-3 Light. The board tooltip lists each contribution so neither choice becomes obsolete or ambiguous.
 
 The original four branches keep their authored positions. Radiance is appended as a fifth branch on a widened 1250×540 fixed canvas, still presented without scrollbars. A complete build remains 19 skills with exactly one keystone. Keystone prerequisites are never waived: completion-aware eligibility blocks an earlier choice if it would leave no authored path to any keystone, while every branch's keystone remains reachable through its visible parents. Legacy 19-point no-keystone saves preserve the maximum deterministic legal subset and insert one prerequisite-valid keystone.
 
