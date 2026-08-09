@@ -100,9 +100,13 @@ func _build() -> void:
 	text_stack.add_child(_detail)
 
 func _live_detail(state: Dictionary, objective: Dictionary) -> String:
+	var filters_hidden_enemies: bool = state.has("visible_enemy_ids")
+	var visible_enemy_ids: Array = state.get("visible_enemy_ids", []) as Array
 	match str(objective.get("type", CombatObjectiveRules.KILL_ALL)):
 		CombatObjectiveRules.KILL_LEADER:
 			var leader_id: int = int(objective.get("leader_id", -1))
+			if filters_hidden_enemies and not visible_enemy_ids.has(leader_id):
+				return "Leader concealed"
 			for enemy_var: Variant in state.get("enemies", []):
 				if typeof(enemy_var) != TYPE_DICTIONARY:
 					continue
@@ -127,6 +131,13 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 		_:
 			var live_count: int = 0
 			for enemy_var: Variant in state.get("enemies", []):
-				if typeof(enemy_var) == TYPE_DICTIONARY and int((enemy_var as Dictionary).get("hp", 0)) > 0:
+				if typeof(enemy_var) != TYPE_DICTIONARY:
+					continue
+				var enemy: Dictionary = enemy_var as Dictionary
+				if filters_hidden_enemies and not visible_enemy_ids.has(int(enemy.get("id", -1))):
+					continue
+				if int(enemy.get("hp", 0)) > 0:
 					live_count += 1
+			if filters_hidden_enemies:
+				return "%d known foe%s remaining" % [live_count, "s" if live_count != 1 else ""]
 			return "%d enem%s remaining" % [live_count, "ies" if live_count != 1 else "y"]

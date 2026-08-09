@@ -7399,6 +7399,50 @@
       }
     },
     {
+      "id": "mnt_20260808T175347Z_50c4cadd",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Keep move previews privacy-bound to committed Umbra state",
+      "details": "Preview combat state may simulate movement, light sources, Vision, True Sight, or Dispel Umbra before commit. During limited Umbra, presentation-only board state, action targets, shortcuts, risk chips, pass intent, and follow-up previews must derive privacy decisions from committed combat state; only the committed move resolution may expand visibility.",
+      "status": "active",
+      "created_at": "2026-08-08T17:53:47Z",
+      "updated_at": "2026-08-08T17:53:47Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/audit-move-previews-for-hidden-umbra-state-leaks",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T123224Z_e2b056a8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Ranged AOE targeting depends only on the visible center",
+      "details": "For range > 0, valid_targets_for_player_action validates only center range, passability, line of sight, and tile visibility. It must not require the pattern to intersect a known occupant: resolution can damage concealed enemies and terrain and trigger concealed traps. RunScene preview privacy applies the same center-only rule while keeping hidden units undisclosed.",
+      "status": "active",
+      "created_at": "2026-08-09T12:32:24Z",
+      "updated_at": "2026-08-09T12:32:24Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/audit-move-previews-for-hidden-umbra-state-leaks",
+        "commit": "5bbebbf"
+      }
+    },
+    {
       "id": "mnt_20260809T125718Z_26fe649c",
       "layer": "shared",
       "kind": "decision",

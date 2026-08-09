@@ -9024,8 +9024,18 @@ func _refresh_combat_objective_hud() -> void:
 	if mode != "combat" or _combat_state.is_empty():
 		_combat_objective_hud.visible = false
 		return
-	_combat_objective_hud.set_combat_state(_board_display_state())
+	_combat_objective_hud.set_combat_state(_combat_objective_hud_state())
 	_layout_combat_objective_hud()
+
+func _combat_objective_hud_state() -> Dictionary:
+	var display_state: Dictionary = _board_display_state()
+	if display_state.is_empty() or not display_state.has("umbra"):
+		return display_state
+	var hud_state: Dictionary = display_state.duplicate(false)
+	var visibility_state: Dictionary = _board_visibility_state(display_state)
+	if _combat_engine.effective_umbra_radius(visibility_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+		hud_state["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(visibility_state)
+	return hud_state
 
 func _layout_combat_objective_hud() -> void:
 	if _combat_objective_hud == null:
@@ -11647,8 +11657,8 @@ func _pass_preview_source_state() -> Dictionary:
 	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
 		var hovered_state: Dictionary = _pass_preview_confirmed_hover_state()
 		if not hovered_state.is_empty():
-			return hovered_state
-		return _preview_combat_state
+			return _visibility_safe_preview_display_state(hovered_state)
+		return _visibility_safe_preview_display_state(_preview_combat_state)
 	if not _combat_state.is_empty():
 		return _combat_state
 	return {}
@@ -11682,7 +11692,7 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	return _pass_preview_state_after_pending_preview(next_preview)
 
 func _umbra_hover_preview_would_reveal_information(state: Dictionary, action: Dictionary) -> bool:
-	if _combat_engine.effective_umbra_radius(state) >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+	if not _preview_umbra_is_limited(state):
 		return false
 	return str(action.get("type", "")) in ["move", "blink", "illuminate"]
 
@@ -13649,19 +13659,23 @@ func _refresh_stage_view() -> void:
 		presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
 		presentation["umbra_truesight"] = int(presentation["umbra_truesight_activations"]) != 0
 		presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
+		presentation.erase("objective_leader_tile")
 		var objective: Dictionary = display_state.get("objective", {}) as Dictionary
 		if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
 			presentation["objective_exit_target_tiles"] = CombatObjectiveRules.exit_target_tiles(objective)
 			presentation["pulse_exit_tiles"] = true
 		elif str(objective.get("type", "")) == CombatObjectiveRules.KILL_LEADER:
-			var leader_tile: Vector2i = _objective_leader_tile(display_state, objective)
+			var leader_tile: Vector2i = _objective_leader_tile(visibility_state, objective)
 			if leader_tile.x >= 0:
 				presentation["objective_leader_tile"] = leader_tile
 	var preview: Dictionary = {}
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
 		if not _preview_combat_state.is_empty():
-			var cumulative_damage_preview: Dictionary = _damage_preview_between_states(_combat_state, _preview_combat_state)
+			var cumulative_damage_preview: Dictionary = _sanitize_damage_preview_for_umbra_information(
+				_combat_state,
+				_damage_preview_between_states(_combat_state, _preview_combat_state)
+			)
 			if not cumulative_damage_preview.is_empty():
 				presentation["damage_preview"] = cumulative_damage_preview
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
@@ -13912,18 +13926,105 @@ func _visibility_safe_preview_display_state(preview_state: Dictionary) -> Dictio
 func _unconfirmed_preview_must_preserve_umbra_information() -> bool:
 	return (
 		_selected_card_index >= 0
-		and not _pending_umbra_commit_locked
 		and not _combat_state.is_empty()
 		and not _preview_combat_state.is_empty()
 		and _combat_engine.effective_umbra_radius(_combat_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
 	)
+
+func _preview_umbra_is_limited(state: Dictionary = {}) -> bool:
+	# Preview state may already contain a simulated move, light source, Vision,
+	# True Sight, or Dispel Umbra result. Information gating must always use the
+	# committed state until the card resolution actually starts.
+	if not _combat_state.is_empty():
+		return _combat_engine.effective_umbra_radius(_combat_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
+	return not state.is_empty() and _combat_engine.effective_umbra_radius(state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
+
+func _preview_information_state(state: Dictionary) -> Dictionary:
+	if _preview_umbra_is_limited(state) and not _combat_state.is_empty():
+		return _combat_state
+	return state
+
+func _preview_target_tiles_for_action(state: Dictionary, action: Dictionary, raw_target_tiles: Variant) -> Array[Vector2i]:
+	var raw_targets: Array = []
+	if typeof(raw_target_tiles) == TYPE_ARRAY:
+		raw_targets = raw_target_tiles as Array
+	var target_tiles: Array[Vector2i] = _vector2i_array(raw_targets)
+	if not _preview_umbra_is_limited(state):
+		return target_tiles
+	var information_state: Dictionary = _preview_information_state(state)
+	match str(action.get("type", "")):
+		"move", "illuminate", "vision", "truesight", "dispel_umbra":
+			# Movement may intentionally scout into the Umbra. Illuminate may also
+			# target an unknown coordinate; neither preview exposes what is there.
+			return target_tiles
+		"blink", "illusion":
+			var visible_tiles: Array[Vector2i] = _vector2i_array([])
+			for tile: Vector2i in target_tiles:
+				if _combat_engine.is_tile_visible_to_player(information_state, tile):
+					visible_tiles.append(tile)
+			return visible_tiles
+		"melee", "ranged", "push", "pull":
+			var known_targets: Array[Vector2i] = _vector2i_array([])
+			for tile: Vector2i in target_tiles:
+				if _preview_target_tile_is_known(state, information_state, tile):
+					known_targets.append(tile)
+			return known_targets
+		"aoe":
+			var known_centers: Array[Vector2i] = _vector2i_array([])
+			for tile: Vector2i in target_tiles:
+				if _preview_aoe_target_is_known(state, information_state, action, tile):
+					known_centers.append(tile)
+			return known_centers
+		_:
+			var visible_targets: Array[Vector2i] = _vector2i_array([])
+			for tile: Vector2i in target_tiles:
+				if _combat_engine.is_tile_visible_to_player(information_state, tile):
+					visible_targets.append(tile)
+			return visible_targets
+
+func _preview_target_tile_is_known(state: Dictionary, information_state: Dictionary, target_tile: Vector2i) -> bool:
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if not _enemy_footprint_tiles(enemy).has(target_tile):
+			continue
+		return _combat_engine.is_enemy_visible_to_player(information_state, enemy)
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) == TYPE_DICTIONARY and (terrain_var as Dictionary).get("pos", INVALID_TARGET_TILE) == target_tile:
+			return _combat_engine.is_tile_visible_to_player(information_state, target_tile)
+	for trap_var: Variant in state.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY and (trap_var as Dictionary).get("pos", INVALID_TARGET_TILE) == target_tile:
+			return _combat_engine.is_tile_visible_to_player(information_state, target_tile)
+	return _combat_engine.is_tile_visible_to_player(information_state, target_tile)
+
+func _preview_aoe_target_is_known(state: Dictionary, information_state: Dictionary, action: Dictionary, center_tile: Vector2i) -> bool:
+	# An AOE's center is the only information the player needs to choose. The
+	# pattern deliberately remains opaque: resolution may hit concealed enemies,
+	# traps, and destructible terrain without making their occupancy targetable.
+	return _combat_engine.is_tile_visible_to_player(information_state, center_tile)
+
+func _sanitize_preview_for_umbra_information(source_preview: Dictionary) -> Dictionary:
+	if source_preview.is_empty():
+		return source_preview
+	var raw_target_tiles: Array = source_preview.get("target_tiles", []) as Array
+	if bool(source_preview.get("complete", false)) and raw_target_tiles.is_empty():
+		return source_preview
+	var preview: Dictionary = source_preview.duplicate(false)
+	var action: Dictionary = source_preview.get("action", {}) as Dictionary
+	var state: Dictionary = source_preview.get("state", {}) as Dictionary
+	var target_tiles: Array[Vector2i] = _preview_target_tiles_for_action(state, action, source_preview.get("target_tiles", []))
+	preview["target_tiles"] = target_tiles
+	if target_tiles.is_empty() and not bool(source_preview.get("skip_allowed", false)):
+		preview["playable"] = false
+	return preview
 
 func _active_card_preview() -> Dictionary:
 	if _combat_skill_card_selection_zone == "hand":
 		return {}
 	if _drag_card_index >= 0:
 		if bool(_drag_card_options.get("printed_playable", false)):
-			return _drag_card_options.get("play", {}) as Dictionary
+			return _sanitize_preview_for_umbra_information(_drag_card_options.get("play", {}) as Dictionary)
 		return {}
 	if _selected_card_index >= 0:
 		if _pending_action_index < _pending_actions.size():
@@ -13936,7 +14037,7 @@ func _active_card_preview() -> Dictionary:
 			elif str(action.get("type", "")) == "aoe":
 				action = _action_with_aoe_aim_orientation(action)
 				target_tiles = _combat_engine.valid_targets_for_player_action(_preview_combat_state, action)
-			return {
+			return _sanitize_preview_for_umbra_information({
 				"card_id": _card_id_for_hand_index(_selected_card_index),
 				"state": _preview_combat_state,
 				"actions": _pending_actions,
@@ -13948,10 +14049,10 @@ func _active_card_preview() -> Dictionary:
 				"skip_allowed": _pending_action_can_skip and not orientation_pending,
 				"orientation_pending": orientation_pending,
 				"orientation_target": _pending_orientation_target_tile
-			}
+			})
 		return {}
 	if _hovered_card_index >= 0:
-		return _card_preview_for_index(_hovered_card_index)
+		return _sanitize_preview_for_umbra_information(_card_preview_for_index(_hovered_card_index))
 	return {}
 
 func _card_preview_for_index(index: int) -> Dictionary:
@@ -14000,10 +14101,10 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 	var cache_key: String = _card_preview_cache_key(index, "options")
 	if _card_play_options_cache.has(cache_key):
 		return _card_play_options_cache.get(cache_key, {}) as Dictionary
-	var printed: Dictionary = _card_preview_for_index(index)
-	var attack: Dictionary = _fallback_preview_for_index(index, "attack")
-	var move: Dictionary = _fallback_preview_for_index(index, "move")
-	var blink: Dictionary = _fallback_preview_for_index(index, "blink")
+	var printed: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index))
+	var attack: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "attack"))
+	var move: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "move"))
+	var blink: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "blink"))
 	var printed_playable: bool = bool(printed.get("playable", false))
 	var attack_playable: bool = bool(attack.get("playable", false))
 	var move_playable: bool = bool(move.get("playable", false))
@@ -14237,7 +14338,7 @@ func _has_playable_combat_card() -> bool:
 		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
-		if bool(_card_preview_for_index(index).get("playable", false)):
+		if bool(_card_play_options_for_index(index).get("printed_playable", false)):
 			return true
 	return false
 
@@ -14434,7 +14535,7 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 func _umbra_defers_movement_followup_preview(state: Dictionary, action: Dictionary, actions: Array, action_index: int) -> bool:
 	if str(action.get("type", "")) not in ["move", "blink"]:
 		return false
-	if _combat_engine.effective_umbra_radius(state) >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+	if not _preview_umbra_is_limited(state):
 		return false
 	for index: int in range(action_index + 1, actions.size()):
 		if typeof(actions[index]) == TYPE_DICTIONARY and _combat_engine.player_action_needs_target(actions[index] as Dictionary):
@@ -14643,7 +14744,27 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 	if action_type != "aoe" and target_tile.x < 0:
 		return {}
 	var after_state: Dictionary = _combat_engine.apply_player_action(state, action, target_tile)
-	return _damage_preview_between_states(state, after_state)
+	return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after_state))
+
+func _sanitize_damage_preview_for_umbra_information(state: Dictionary, source_preview: Dictionary) -> Dictionary:
+	if source_preview.is_empty() or not _preview_umbra_is_limited(state):
+		return source_preview
+	var information_state: Dictionary = _preview_information_state(state)
+	var preview: Dictionary = source_preview.duplicate(true)
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if not _combat_engine.is_enemy_visible_to_player(information_state, enemy):
+			preview.erase(_enemy_key(enemy))
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		var terrain_tile: Vector2i = terrain.get("pos", INVALID_TARGET_TILE)
+		if terrain_tile.x >= 0 and not _combat_engine.is_tile_visible_to_player(information_state, terrain_tile):
+			preview.erase(_terrain_key(terrain))
+	return preview
 
 func _damage_preview_between_states(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
 	var after_by_id: Dictionary = {}
@@ -14726,11 +14847,12 @@ func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_pre
 	var preview_state: Dictionary = preview.get("state", {}) as Dictionary
 	if preview_state.is_empty():
 		return {}
-	var umbra_limited: bool = _combat_engine.effective_umbra_radius(preview_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
+	var umbra_limited: bool = _preview_umbra_is_limited(preview_state)
+	var information_state: Dictionary = _preview_information_state(preview_state)
 	# Umbra shortcuts stay limited to enemies the player already knows about and
 	# routes made entirely of visible tiles. That preserves hidden collisions and
 	# newly revealed targets while keeping ordinary visible move-attacks concise.
-	var allowed_target_tiles: Variant = _visible_shortcut_enemy_tiles(preview_state) if umbra_limited else null
+	var allowed_target_tiles: Variant = _visible_shortcut_enemy_tiles(information_state) if umbra_limited else null
 	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var plans: Dictionary = {}
 	var move_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
@@ -14755,7 +14877,7 @@ func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_pre
 		else:
 			path_tiles = _combat_engine.path_from_player_movement_plan(movement_plan, move_target)
 			after_move_state = _combat_engine.apply_prevalidated_player_move(preview_state, action, move_target, path_tiles)
-		if umbra_limited and not _shortcut_path_is_currently_visible(preview_state, path_tiles):
+		if umbra_limited and not _shortcut_path_is_currently_visible(information_state, path_tiles):
 			continue
 		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
 		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
@@ -14894,7 +15016,7 @@ func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vec
 	var before_state: Dictionary = preview.get("state", {}) as Dictionary
 	if before_state.is_empty():
 		return []
-	if _combat_engine.effective_umbra_radius(before_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+	if _preview_umbra_is_limited(before_state):
 		return []
 	var after_state: Dictionary = _combat_engine.apply_player_action(before_state, action, _hovered_board_tile)
 	return _movement_risk_chips_for_states(before_state, after_state, path_tiles)
@@ -15092,7 +15214,8 @@ func _refresh_pending_aoe_target_tiles() -> void:
 	if not _current_action_is_aimed_aoe():
 		return
 	var action: Dictionary = _action_with_aoe_aim_orientation(_pending_actions[_pending_action_index])
-	_pending_target_tiles = _combat_engine.valid_targets_for_player_action(_preview_combat_state, action)
+	var raw_target_tiles: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(_preview_combat_state, action)
+	_pending_target_tiles = _preview_target_tiles_for_action(_preview_combat_state, action, raw_target_tiles)
 
 func _set_aoe_aim_orientation(direction: Vector2i) -> void:
 	var snapped: Vector2i = _cardinal_direction(direction)
@@ -15337,7 +15460,10 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_pending_actions = (preview.get("actions", []) as Array).duplicate(true)
 	_pending_action_index = int(preview.get("action_index", 0))
 	_pending_action_can_skip = bool(preview.get("skip_allowed", false))
-	_pending_target_tiles = _vector2i_array(preview.get("target_tiles", []))
+	var pending_action: Dictionary = {}
+	if _pending_action_index < _pending_actions.size() and typeof(_pending_actions[_pending_action_index]) == TYPE_DICTIONARY:
+		pending_action = _pending_actions[_pending_action_index] as Dictionary
+	_pending_target_tiles = _preview_target_tiles_for_action(_preview_combat_state, pending_action, preview.get("target_tiles", []))
 	_pending_selected_targets.clear()
 	_pending_umbra_commit_locked = false
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
@@ -15646,7 +15772,10 @@ func _load_pending_preview_state(preview: Dictionary) -> void:
 	_preview_combat_state = (preview.get("state", {}) as Dictionary).duplicate(true)
 	_pending_action_index = int(preview.get("action_index", 0))
 	_pending_action_can_skip = bool(preview.get("skip_allowed", false))
-	_pending_target_tiles = _vector2i_array(preview.get("target_tiles", []))
+	var pending_action: Dictionary = {}
+	if _pending_action_index < _pending_actions.size() and typeof(_pending_actions[_pending_action_index]) == TYPE_DICTIONARY:
+		pending_action = _pending_actions[_pending_action_index] as Dictionary
+	_pending_target_tiles = _preview_target_tiles_for_action(_preview_combat_state, pending_action, preview.get("target_tiles", []))
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
 	if _pending_action_index < _pending_actions.size():
 		_reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index])
@@ -17174,6 +17303,8 @@ func _objective_leader_tile(display_state: Dictionary, objective: Dictionary) ->
 			continue
 		var enemy: Dictionary = enemy_var
 		if int(enemy.get("id", -2)) == leader_id and int(enemy.get("hp", 0)) > 0:
+			if display_state.has("umbra") and not _combat_engine.is_enemy_visible_to_player(display_state, enemy):
+				return Vector2i(-1, -1)
 			return enemy.get("pos", Vector2i(-1, -1))
 	return Vector2i(-1, -1)
 
@@ -17197,6 +17328,26 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 	target_presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
 	target_presentation["umbra_truesight"] = int(target_presentation["umbra_truesight_activations"]) != 0
 	target_presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
+	if target_presentation.has("terrain_destruction_units"):
+		var visible_terrain_destruction: Array = []
+		for terrain_var: Variant in target_presentation.get("terrain_destruction_units", []):
+			if typeof(terrain_var) != TYPE_DICTIONARY:
+				continue
+			var terrain: Dictionary = terrain_var
+			var terrain_tile: Vector2i = terrain.get("pos", INVALID_TARGET_TILE)
+			if terrain_tile.x >= 0 and _combat_engine.is_tile_visible_to_player(display_state, terrain_tile):
+				visible_terrain_destruction.append(terrain)
+		target_presentation["terrain_destruction_units"] = visible_terrain_destruction
+	if target_presentation.has("trap_effects"):
+		var visible_trap_effects: Array = []
+		for trap_var: Variant in target_presentation.get("trap_effects", []):
+			if typeof(trap_var) != TYPE_DICTIONARY:
+				continue
+			var trap: Dictionary = trap_var
+			var trap_tile: Vector2i = trap.get("pos", INVALID_TARGET_TILE)
+			if trap_tile.x >= 0 and _combat_engine.is_tile_visible_to_player(display_state, trap_tile):
+				visible_trap_effects.append(trap)
+		target_presentation["trap_effects"] = visible_trap_effects
 	if target_presentation.has("floating_texts"):
 		target_presentation["floating_texts"] = _visible_umbra_floating_texts(display_state, target_presentation.get("floating_texts", []) as Array)
 
