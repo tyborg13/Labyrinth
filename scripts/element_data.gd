@@ -34,7 +34,8 @@ const ELEMENTS := {
 		"room_tint": "#ba5d41",
 		"door_tint": "#f2a36f",
 		"icon_path": "res://assets/art/icons/element_fire.png",
-		"intensity_icon_path": "res://assets/art/icons/intensity_fire.png"
+		"intensity_icon_path": "res://assets/art/icons/intensity_fire.png",
+		"intensity_charm_path": "res://assets/art/ui/elemental_intensity/fire_charm.png"
 	},
 	ICE: {
 		"name": "Ice",
@@ -47,7 +48,8 @@ const ELEMENTS := {
 		"room_tint": "#6aa7cf",
 		"door_tint": "#b2e1ff",
 		"icon_path": "res://assets/art/icons/element_ice.png",
-		"intensity_icon_path": "res://assets/art/icons/intensity_ice.png"
+		"intensity_icon_path": "res://assets/art/icons/intensity_ice.png",
+		"intensity_charm_path": "res://assets/art/ui/elemental_intensity/ice_charm.png"
 	},
 	LIGHTNING: {
 		"name": "Lightning",
@@ -60,7 +62,8 @@ const ELEMENTS := {
 		"room_tint": "#c7a944",
 		"door_tint": "#f5d96c",
 		"icon_path": "res://assets/art/icons/element_lightning.png",
-		"intensity_icon_path": "res://assets/art/icons/intensity_lightning.png"
+		"intensity_icon_path": "res://assets/art/icons/intensity_lightning.png",
+		"intensity_charm_path": "res://assets/art/ui/elemental_intensity/lightning_charm.png"
 	},
 	AIR: {
 		"name": "Air",
@@ -73,7 +76,8 @@ const ELEMENTS := {
 		"room_tint": "#72b9a3",
 		"door_tint": "#bfe9da",
 		"icon_path": "res://assets/art/icons/element_air.png",
-		"intensity_icon_path": "res://assets/art/icons/intensity_air.png"
+		"intensity_icon_path": "res://assets/art/icons/intensity_air.png",
+		"intensity_charm_path": "res://assets/art/ui/elemental_intensity/air_charm.png"
 	},
 	EARTH: {
 		"name": "Earth",
@@ -86,7 +90,8 @@ const ELEMENTS := {
 		"room_tint": "#8ea55e",
 		"door_tint": "#c6dfa0",
 		"icon_path": "res://assets/art/icons/element_earth.png",
-		"intensity_icon_path": "res://assets/art/icons/intensity_earth.png"
+		"intensity_icon_path": "res://assets/art/icons/intensity_earth.png",
+		"intensity_charm_path": "res://assets/art/ui/elemental_intensity/earth_charm.png"
 	}
 }
 
@@ -130,3 +135,6 @@ static func icon_path(element_id: String) -> String:
 
 static func intensity_icon_path(element_id: String) -> String:
 	return str(def(element_id).get("intensity_icon_path", icon_path(element_id)))
+
+static func intensity_charm_path(element_id: String) -> String:
+	return str(def(element_id).get("intensity_charm_path", intensity_icon_path(element_id)))

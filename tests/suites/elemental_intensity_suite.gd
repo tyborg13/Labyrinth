@@ -5,17 +5,34 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_art.gd")
 const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 
 static func run(expect: Callable) -> void:
+	_test_hanging_hud_asset_and_glow_contract(expect)
 	_test_trap_curve_and_legacy_payloads(expect)
 	_test_player_spenders_are_atomic(expect)
 	_test_spend_visual_language(expect)
 	_test_ambient_scaling_and_trap_readability(expect)
 	_test_elemental_enemy_data_contract(expect)
 	_test_enemy_build_and_spend_resolution(expect)
+
+static func _test_hanging_hud_asset_and_glow_contract(expect: Callable) -> void:
+	var charm_paths: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		var path: String = ElementData.intensity_charm_path(element_id)
+		expect.call(not path.is_empty() and FileAccess.file_exists(path), "%s should have an authored hanging charm raster" % element_id)
+		expect.call(not charm_paths.has(path), "%s should have a distinct hanging charm silhouette asset" % element_id)
+		charm_paths[path] = true
+	expect.call(FileAccess.file_exists(ElementalIntensityHudArt.RIG_TEXTURE_PATH), "Hanging intensity HUD should have an authored rail-and-chains raster")
+	expect.call(FileAccess.file_exists(ElementalIntensityHudArt.PLACARD_TEXTURE_PATH), "Hanging intensity HUD should have an authored number placard raster")
+	expect.call(ElementalIntensityHudArt.glow_strength(0) == 0.0, "An uncharged charm should have no glow")
+	expect.call(ElementalIntensityHudArt.glow_strength(1) > 0.0 and ElementalIntensityHudArt.glow_strength(1) <= 0.16, "Intensity one should begin with a mild glow")
+	for value: int in range(2, 7):
+		expect.call(ElementalIntensityHudArt.glow_strength(value) > ElementalIntensityHudArt.glow_strength(value - 1), "Charm glow should strengthen at intensity %d" % value)
+		expect.call(ElementalIntensityHudArt.glow_spread(value) > ElementalIntensityHudArt.glow_spread(value - 1), "Charm glow should widen at intensity %d" % value)
 
 static func _test_trap_curve_and_legacy_payloads(expect: Callable) -> void:
 	expect.call(ElementalIntensityRules.trap_scale_percent(0) == 72, "Quiet traps should begin at 72% of their authored base damage")

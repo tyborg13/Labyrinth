@@ -73,7 +73,7 @@ func _capture_umbra_stages_and_cards() -> void:
 		if stage != "clear":
 			_assert(umbra_subtitle.tooltip_text.contains("Hidden enemies cannot be targeted"), "%s should explain its targeting and intent rules on hover" % stage)
 		_assert(not (instance.get("_intensity_labels") as Dictionary).has("umbra"), "Umbra should not be represented as an elemental intensity")
-		_assert((instance.get("_intensity_bar") as Control).get_child_count() == 5, "Intensity bar should contain only the five elements")
+		_assert((instance.get("_intensity_badges") as Dictionary).size() == 5, "Intensity HUD should contain only the five elements")
 		await _save_root_screenshot("%s/stage_%s.png" % [OUTPUT_DIR, stage])
 		if stage == "deep":
 			await create_timer(0.65).timeout

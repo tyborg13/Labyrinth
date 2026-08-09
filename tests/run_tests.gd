@@ -11466,21 +11466,31 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 			_assert(child_control != null and absf(child_control.global_position.y - first_row_y) <= 1.0, "The first eight relic HUD icons should stay on one horizontal row")
 	var intensity_bar: Control = instance.get("_intensity_bar") as Control
 	_assert(intensity_bar != null and intensity_bar.visible, "Combat should show the elemental intensity HUD")
-	if intensity_bar != null and intensity_bar.get_child_count() > 0:
-		var first_badge: Control = intensity_bar.get_child(0) as Control
-		_assert(first_badge.custom_minimum_size.x >= 86.0 and first_badge.custom_minimum_size.y >= 86.0, "Elemental intensity badges should be visibly larger than relic badges")
-		_assert(intensity_bar.get_child_count() == 5, "Combat intensity HUD should show only the five elements")
+	var intensity_badges: Dictionary = instance.get("_intensity_badges") as Dictionary
+	if intensity_bar != null and not intensity_badges.is_empty():
+		var first_badge: Control = intensity_badges.get(ElementData.FIRE, null)
+		_assert(first_badge.custom_minimum_size.x <= 76.0 and first_badge.custom_minimum_size.y <= 110.0, "Hanging elemental charms should stay compact in the top-left utility lane")
+		_assert(intensity_badges.size() == 5, "Combat intensity HUD should show only the five elements")
+		_assert(intensity_bar.find_child("AuthoredRailAndChains", false, false) is TextureRect, "Elemental intensity HUD should use the authored rail-and-chains raster")
+		var charm_paths: Dictionary = {}
+		for element_id: String in ElementData.all_elements():
+			var badge: PanelContainer = intensity_badges.get(element_id, null)
+			var charm_path: String = str(badge.get_meta("charm_art_path", "")) if badge != null else ""
+			_assert(badge != null and badge.get_theme_stylebox("panel") is StyleBoxEmpty, "%s intensity charm should not sit in a generic panel box" % element_id)
+			_assert(not charm_path.is_empty() and not charm_paths.has(charm_path), "%s intensity charm should use a distinct authored silhouette" % element_id)
+			charm_paths[charm_path] = true
+			_assert(badge.find_child("AuthoredNumberPlacard", true, false) is TextureRect, "%s intensity charm should carry the authored number placard" % element_id)
 		var top_y: float = first_badge.position.y
-		var second_row_y: float = (intensity_bar.get_child(3) as Control).position.y
-		for index: int in range(3):
-			var badge: Control = intensity_bar.get_child(index) as Control
+		var second_row_y: float = (intensity_badges.get(ElementData.AIR, null) as Control).position.y
+		for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING]:
+			var badge: Control = intensity_badges.get(element_id, null)
 			_assert(absf(badge.position.y - top_y) <= 1.0, "Elemental intensity HUD should keep the first three icons on the top row")
-		for index: int in range(3, 5):
-			var badge: Control = intensity_bar.get_child(index) as Control
+		for element_id: String in [ElementData.AIR, ElementData.EARTH]:
+			var badge: Control = intensity_badges.get(element_id, null)
 			_assert(absf(badge.position.y - second_row_y) <= 1.0, "Elemental intensity HUD should keep the final two icons on the second row")
-		var top_middle: Control = intensity_bar.get_child(1) as Control
-		var bottom_left: Control = intensity_bar.get_child(3) as Control
-		var bottom_right: Control = intensity_bar.get_child(4) as Control
+		var top_middle: Control = intensity_badges.get(ElementData.ICE, null)
+		var bottom_left: Control = intensity_badges.get(ElementData.AIR, null)
+		var bottom_right: Control = intensity_badges.get(ElementData.EARTH, null)
 		var top_middle_center: float = top_middle.position.x + top_middle.size.x * 0.5
 		var bottom_pair_center: float = (bottom_left.position.x + bottom_right.position.x + bottom_right.size.x) * 0.5
 		_assert(absf(top_middle_center - bottom_pair_center) <= 1.0, "Room-pressure HUD second row should be centered under the top row")

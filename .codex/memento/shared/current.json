@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-08T12:07:22Z",
+  "updated_at": "2026-08-09T17:23:29Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7396,6 +7396,30 @@
       "source": {
         "branch": "codex/fix-retained-combat-actor-tile-framing-desync",
         "commit": "617e6d7"
+      }
+    },
+    {
+      "id": "mnt_20260809T172329Z_8429e2c0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_setup_elemental_intensity_bar"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_setup_elemental_intensity_bar",
+      "summary": "Keep the authored intensity rail as an unclipped full-width sibling.",
+      "details": "The rail-and-chains TextureRect must be a direct child of ElementalIntensityBar so the 260px authored rig is not clipped by a 74px charm hit host. Element consumers should use _intensity_badges rather than counting direct bar children; per-charm animations still target CharmContent.",
+      "status": "active",
+      "created_at": "2026-08-09T17:23:29Z",
+      "updated_at": "2026-08-09T17:23:29Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260809T170419Z_342d904a"
+      ],
+      "source": {
+        "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
+        "commit": "81b2ed1"
       }
     }
   ]

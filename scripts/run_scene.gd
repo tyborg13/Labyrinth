@@ -7,6 +7,7 @@ const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
+const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_art.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -53,6 +54,12 @@ class TooltipPanelContainer:
 		if for_text.strip_edges().is_empty():
 			return null
 		return UiTooltipPanelScript.make_text(for_text)
+
+class IntensityCharmTooltipPanel:
+	extends TooltipPanelContainer
+
+	func _has_point(point: Vector2) -> bool:
+		return ElementalIntensityHudArt.pointer_hit_test(point)
 
 class EquipmentTooltipPanelContainer:
 	extends TooltipPanelContainer
@@ -1177,8 +1184,6 @@ const SKILL_CHOICE_DIALOG_SIZE: Vector2 = Vector2(610.0, 520.0)
 const SKILL_CHOICE_DIALOG_MIN_SIZE: Vector2 = Vector2(360.0, 320.0)
 const HEADER_RELIC_WRAP_MARGIN: float = 24.0
 const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
-const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
-const INTENSITY_ICON_INSET: float = 8.0
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const NON_COMBAT_BOARD_OPTION_CLEARANCE: float = 72.0
 const NON_COMBAT_BOARD_SCREEN_BOTTOM_CLEARANCE: float = 120.0
@@ -1571,6 +1576,9 @@ var _turn_order_source_signature: String = "<unset>"
 var _turn_order_render_signature: String = "<unset>"
 var _intensity_badges: Dictionary = {}
 var _intensity_labels: Dictionary = {}
+var _intensity_charms: Dictionary = {}
+var _intensity_glows: Dictionary = {}
+var _intensity_content_hosts: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
 var _card_play_resolution_spend: int = 0
@@ -7424,50 +7432,90 @@ func _setup_elemental_intensity_bar() -> void:
 	_intensity_bar.size = _intensity_bar_size()
 	_intensity_bar.z_index = 30
 	ui_root.add_child(_intensity_bar)
+	var rig := TextureRect.new()
+	rig.name = "AuthoredRailAndChains"
+	rig.position = ElementalIntensityHudArt.RIG_RECT.position
+	rig.size = ElementalIntensityHudArt.RIG_RECT.size
+	rig.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rig.stretch_mode = TextureRect.STRETCH_SCALE
+	rig.texture = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementalIntensityHudArt.RIG_TEXTURE_PATH), 0.025)
+	rig.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rig.z_index = -20
+	rig.set_meta("authored_raster_role", "rail_and_chains")
+	_intensity_bar.add_child(rig)
 	for element_id: String in ElementData.all_elements():
-		var badge := TooltipPanelContainer.new()
-		badge.custom_minimum_size = INTENSITY_BADGE_SIZE
-		badge.size = INTENSITY_BADGE_SIZE
+		var badge := IntensityCharmTooltipPanel.new()
+		badge.name = "%sCharm" % ElementData.name(element_id)
+		badge.custom_minimum_size = ElementalIntensityHudArt.ITEM_SIZE
+		badge.size = ElementalIntensityHudArt.ITEM_SIZE
 		badge.mouse_filter = Control.MOUSE_FILTER_STOP
 		badge.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 		badge.tooltip_text = _intensity_tooltip(element_id)
-		badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, 0))
+		badge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+		badge.set_meta("element_id", element_id)
+		badge.set_meta("charm_art_path", ElementData.intensity_charm_path(element_id))
 		_intensity_bar.add_child(badge)
 		_intensity_badges[element_id] = badge
 
 		var content := Control.new()
+		content.name = "CharmContent"
 		content.set_anchors_preset(Control.PRESET_FULL_RECT)
 		content.anchor_right = 1.0
 		content.anchor_bottom = 1.0
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		badge.add_child(content)
+		_intensity_content_hosts[element_id] = content
 
-		var icon := TextureRect.new()
-		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-		icon.anchor_right = 1.0
-		icon.anchor_bottom = 1.0
-		icon.offset_left = INTENSITY_ICON_INSET
-		icon.offset_top = INTENSITY_ICON_INSET
-		icon.offset_right = -INTENSITY_ICON_INSET
-		icon.offset_bottom = -INTENSITY_ICON_INSET
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.texture = AssetLoader.load_texture(ElementData.intensity_icon_path(element_id))
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		content.add_child(icon)
+		var charm_texture: Texture2D = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementData.intensity_charm_path(element_id)))
+		var glow := TextureRect.new()
+		glow.name = "IntensityGlow"
+		glow.position = ElementalIntensityHudArt.CHARM_RECT.position
+		glow.size = ElementalIntensityHudArt.CHARM_RECT.size
+		glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		glow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		glow.texture = charm_texture
+		glow.material = ElementalIntensityHudArt.make_glow_material(element_id, 0)
+		glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		glow.visible = false
+		glow.set_meta("element_id", element_id)
+		content.add_child(glow)
+		_intensity_glows[element_id] = glow
+
+		var charm := TextureRect.new()
+		charm.name = "AuthoredCharmArt"
+		charm.position = ElementalIntensityHudArt.CHARM_RECT.position
+		charm.size = ElementalIntensityHudArt.CHARM_RECT.size
+		charm.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		charm.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		charm.texture = charm_texture
+		charm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		charm.set_meta("authored_raster_role", "element_charm")
+		content.add_child(charm)
+		_intensity_charms[element_id] = charm
+
+		var placard := TextureRect.new()
+		placard.name = "AuthoredNumberPlacard"
+		placard.position = ElementalIntensityHudArt.PLACARD_RECT.position
+		placard.size = ElementalIntensityHudArt.PLACARD_RECT.size
+		placard.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		placard.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		placard.texture = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementalIntensityHudArt.PLACARD_TEXTURE_PATH), 0.035)
+		placard.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		placard.set_meta("authored_raster_role", "number_placard")
+		content.add_child(placard)
 
 		var count := Label.new()
-		count.set_anchors_preset(Control.PRESET_FULL_RECT)
-		count.anchor_right = 1.0
-		count.anchor_bottom = 1.0
+		count.name = "IntensityValue"
+		count.position = ElementalIntensityHudArt.PLACARD_RECT.position
+		count.size = ElementalIntensityHudArt.PLACARD_RECT.size
 		count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		count.text = "0"
-		UiTypography.set_label_size(count, UiTypography.SIZE_SECTION)
+		UiTypography.set_label_size(count, UiTypography.SIZE_BODY_LARGE)
 		count.add_theme_color_override("font_color", Color("fff7df"))
 		count.add_theme_color_override("font_outline_color", Color("24160f"))
-		count.add_theme_constant_override("outline_size", 4)
+		count.add_theme_constant_override("outline_size", 3)
 		content.add_child(count)
 		_intensity_labels[element_id] = count
 	_layout_intensity_badges()
@@ -7487,28 +7535,23 @@ func _queue_elemental_intensity_layout() -> void:
 	call_deferred("_layout_turn_order_anchor")
 
 func _intensity_bar_size() -> Vector2:
-	return Vector2(INTENSITY_BADGE_SIZE.x * 3.0 + 9.0 * 2.0, INTENSITY_BADGE_SIZE.y * 2.0 + 7.0)
+	return ElementalIntensityHudArt.CLUSTER_SIZE
 
 func _intensity_badge_position(index: int) -> Vector2:
-	var row: int = 0 if index < 3 else 1
-	var column: int = index if row == 0 else index - 3
-	var row_count: int = 3 if row == 0 else 2
-	var row_width: float = INTENSITY_BADGE_SIZE.x * float(row_count) + 9.0 * float(maxi(0, row_count - 1))
-	var x_offset: float = (_intensity_bar_size().x - row_width) * 0.5
-	return Vector2(
-		x_offset + float(column) * (INTENSITY_BADGE_SIZE.x + 9.0),
-		float(row) * (INTENSITY_BADGE_SIZE.y + 7.0)
-	)
+	if index < 0 or index >= ElementData.all_elements().size():
+		return Vector2.ZERO
+	return ElementalIntensityHudArt.item_position(ElementData.all_elements()[index])
 
 func _layout_intensity_badges() -> void:
 	if _intensity_bar == null:
 		return
-	for index: int in range(_intensity_bar.get_child_count()):
-		var child: Control = _intensity_bar.get_child(index) as Control
-		if child == null:
+	for index: int in range(ElementData.all_elements().size()):
+		var element_id: String = ElementData.all_elements()[index]
+		var badge: Control = _intensity_badges.get(element_id, null)
+		if badge == null:
 			continue
-		child.position = _intensity_badge_position(index)
-		child.size = INTENSITY_BADGE_SIZE
+		badge.position = _intensity_badge_position(index)
+		badge.size = ElementalIntensityHudArt.ITEM_SIZE
 
 func _layout_header_hud() -> void:
 	if title_box == null:
@@ -10937,9 +10980,17 @@ func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 			label.text = str(value)
 		var badge: PanelContainer = _intensity_badges.get(element_id, null)
 		if badge != null:
-			badge.modulate = Color.WHITE if value > 0 else Color(1.0, 1.0, 1.0, 0.44)
 			badge.tooltip_text = _intensity_tooltip(element_id)
-			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value))
+			badge.set_meta("intensity_value", value)
+		var charm: TextureRect = _intensity_charms.get(element_id, null)
+		if charm != null:
+			charm.modulate = Color.WHITE if value > 0 else Color(0.72, 0.72, 0.72, 0.54)
+		var glow: TextureRect = _intensity_glows.get(element_id, null)
+		if glow != null:
+			glow.visible = value > 0
+			glow.set_meta("intensity_value", value)
+			glow.set_meta("glow_strength", ElementalIntensityHudArt.glow_strength(value))
+			ElementalIntensityHudArt.update_glow_material(glow.material as ShaderMaterial, element_id, value)
 
 func _refresh_umbra_subtitle() -> void:
 	if umbra_subtitle == null:
@@ -10969,31 +11020,6 @@ func _refresh_umbra_subtitle() -> void:
 func _intensity_tooltip(element_id: String) -> String:
 	var element_name: String = ElementData.name(element_id)
 	return "The intensity of %s in the room.\n%s effects are stronger when this is higher." % [element_name, element_name]
-
-func _intensity_badge_style(element_id: String, value: int) -> StyleBoxFlat:
-	var accent: Color = ElementData.accent(element_id)
-	var active: bool = value > 0
-	var danger: float = clampf(float(maxi(0, value - 1)) / 4.0, 0.0, 1.0)
-	var style := StyleBoxFlat.new()
-	var charged_background: Color = Color(0.08, 0.055, 0.045, 0.86 if active else 0.58).lerp(accent.darkened(0.56), danger * 0.72)
-	style.bg_color = charged_background
-	style.border_color = accent.lightened(lerpf(0.18, 0.42, danger)) if active else Color(accent.r, accent.g, accent.b, 0.42)
-	var border_width: int = 2 + int(roundf(danger * 2.0))
-	style.border_width_left = border_width
-	style.border_width_top = border_width
-	style.border_width_right = border_width
-	style.border_width_bottom = border_width
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(accent.r, accent.g, accent.b, danger * 0.42) if danger > 0.0 else Color(0.0, 0.0, 0.0, 0.32 if active else 0.12)
-	style.shadow_size = 8 + int(roundf(danger * 6.0)) if active else 3
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	return style
 
 func _displayed_ember_count() -> int:
 	if _ember_count_override >= 0:
@@ -16003,24 +16029,24 @@ func _animate_card_play_reward(displayed_card_plays: int) -> void:
 func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
 	if not ElementData.is_elemental(element_id):
 		return
-	var badge: PanelContainer = _intensity_badges.get(element_id, null)
+	var content: Control = _intensity_content_hosts.get(element_id, null)
 	var label: Label = _intensity_labels.get(element_id, null)
-	if badge == null or label == null:
+	if content == null or label == null:
 		return
 	_refresh_elemental_intensity_bar(_combat_state)
 	label.text = str(displayed_value)
-	badge.pivot_offset = badge.size * 0.5
+	content.pivot_offset = content.size * 0.5
 	label.add_theme_color_override("font_color", Color("fff4dc"))
 	var accent: Color = ElementData.accent(element_id).lightened(0.18)
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(badge, "scale", Vector2(1.18, 1.18), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(badge, "modulate", Color(accent.r, accent.g, accent.b, 1.0), 0.11)
+	tween.tween_property(content, "scale", Vector2(1.18, 1.18), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(content, "modulate", Color(accent.r, accent.g, accent.b, 1.0), 0.11)
 	await tween.finished
 	var settle := create_tween()
 	settle.set_parallel(true)
-	settle.tween_property(badge, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	settle.tween_property(badge, "modulate", Color.WHITE, 0.20)
+	settle.tween_property(content, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	settle.tween_property(content, "modulate", Color.WHITE, 0.20)
 	await settle.finished
 	label.add_theme_color_override("font_color", Color("fff7df"))
 
