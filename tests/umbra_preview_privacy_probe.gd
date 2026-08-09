@@ -134,6 +134,40 @@ func _capture_privacy_states() -> void:
 		_expect((presentation.get("effect", {}) as Dictionary).is_empty(), "%s preview should not draw an effect on the hidden follow-up target" % str(case.get("name", "")))
 		await _save_root_screenshot("%s/03_%s_followup_committed_vision.png" % [OUTPUT_DIR, str(case.get("name", ""))])
 
+	instance.call("_reset_card_resolution")
+	var aoe_action: Dictionary = {
+		"type": "aoe",
+		"damage": 4,
+		"range": 3,
+		"pattern": [[-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0]],
+		"rotate": false
+	}
+	var aoe_center := Vector2i(4, 4)
+	var aoe_raw_targets: Array[Vector2i] = combat.valid_targets_for_player_action(state, aoe_action)
+	_expect(aoe_raw_targets.has(aoe_center), "AOE privacy probe should have a visible center target")
+	var aoe_preview_targets: Array[Vector2i] = instance.call("_preview_target_tiles_for_action", state, aoe_action, aoe_raw_targets)
+	_expect(aoe_preview_targets.has(aoe_center), "AOE privacy probe should retain a visible center over a hidden pattern occupant")
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", [aoe_action])
+	instance.set("_pending_action_index", 0)
+	instance.set("_pending_selected_targets", instance.call("_vector2i_array", []))
+	instance.set("_pending_target_tiles", aoe_raw_targets)
+	instance.set("_preview_combat_state", state)
+	instance.set("_pending_umbra_commit_locked", false)
+	instance.set("_hovered_board_tile", aoe_center)
+	instance.call("_mark_preview_selection_changed")
+	instance.call("_refresh_stage_view")
+	await _settle_ui()
+	board = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var aoe_presentation: Dictionary = board.get("presentation") as Dictionary
+	var aoe_active_preview: Dictionary = instance.call("_active_card_preview")
+	var aoe_effect: Dictionary = aoe_presentation.get("effect", {}) as Dictionary
+	_expect((board.get("attack_tiles") as Array).has(aoe_center), "AOE privacy probe should highlight its visible center")
+	_expect((aoe_active_preview.get("target_tiles", []) as Array).has(aoe_center), "AOE privacy probe should keep the visible center in the active target list")
+	_expect(not (aoe_presentation.get("visible_enemy_ids", []) as Array).has(enemy_id), "AOE privacy probe should not reveal the enemy inside the hidden pattern")
+	_expect((aoe_effect.get("tiles", []) as Array).has(enemy_tile), "AOE privacy probe should show the authored pattern without showing hidden occupancy")
+	await _save_root_screenshot("%s/04_aoe_visible_center_hidden_pattern.png" % OUTPUT_DIR)
+
 	instance.queue_free()
 	await process_frame
 
@@ -155,8 +189,19 @@ func _combat_layout() -> Dictionary:
 			"max_hp": 100,
 			"block": 0
 		}],
-		"traps": [],
-		"terrain": [],
+		"traps": [{
+			"id": "concealed_probe_trap",
+			"pos": Vector2i(5, 5),
+			"element": "fire",
+			"damage": 1
+		}],
+		"terrain": [{
+			"id": "concealed_probe_box",
+			"kind": "wooden_box",
+			"pos": Vector2i(5, 3),
+			"hp": 5,
+			"max_hp": 5
+		}],
 		"loot": []
 	}
 

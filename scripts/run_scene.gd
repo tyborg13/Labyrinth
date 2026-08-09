@@ -13672,7 +13672,10 @@ func _refresh_stage_view() -> void:
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
 		if not _preview_combat_state.is_empty():
-			var cumulative_damage_preview: Dictionary = _damage_preview_between_states(_combat_state, _preview_combat_state)
+			var cumulative_damage_preview: Dictionary = _sanitize_damage_preview_for_umbra_information(
+				_combat_state,
+				_damage_preview_between_states(_combat_state, _preview_combat_state)
+			)
 			if not cumulative_damage_preview.is_empty():
 				presentation["damage_preview"] = cumulative_damage_preview
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
@@ -13996,33 +13999,10 @@ func _preview_target_tile_is_known(state: Dictionary, information_state: Diction
 	return _combat_engine.is_tile_visible_to_player(information_state, target_tile)
 
 func _preview_aoe_target_is_known(state: Dictionary, information_state: Dictionary, action: Dictionary, center_tile: Vector2i) -> bool:
-	if not _combat_engine.is_tile_visible_to_player(information_state, center_tile):
-		return false
-	var affected_tiles: Array[Vector2i] = _aoe_tiles_for_action(state, action, center_tile)
-	for enemy_var: Variant in state.get("enemies", []):
-		if typeof(enemy_var) != TYPE_DICTIONARY:
-			continue
-		var enemy: Dictionary = enemy_var
-		var affects_enemy: bool = false
-		for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
-			if affected_tiles.has(enemy_tile):
-				affects_enemy = true
-				break
-		if affects_enemy and not _combat_engine.is_enemy_visible_to_player(information_state, enemy):
-			return false
-	for terrain_var: Variant in state.get("terrain", []):
-		if typeof(terrain_var) != TYPE_DICTIONARY:
-			continue
-		var terrain: Dictionary = terrain_var
-		if affected_tiles.has(terrain.get("pos", INVALID_TARGET_TILE)) and not _combat_engine.is_tile_visible_to_player(information_state, terrain.get("pos", INVALID_TARGET_TILE)):
-			return false
-	for trap_var: Variant in state.get("traps", []):
-		if typeof(trap_var) != TYPE_DICTIONARY:
-			continue
-		var trap: Dictionary = trap_var
-		if affected_tiles.has(trap.get("pos", INVALID_TARGET_TILE)) and not _combat_engine.is_tile_visible_to_player(information_state, trap.get("pos", INVALID_TARGET_TILE)):
-			return false
-	return true
+	# An AOE's center is the only information the player needs to choose. The
+	# pattern deliberately remains opaque: resolution may hit concealed enemies,
+	# traps, and destructible terrain without making their occupancy targetable.
+	return _combat_engine.is_tile_visible_to_player(information_state, center_tile)
 
 func _sanitize_preview_for_umbra_information(source_preview: Dictionary) -> Dictionary:
 	if source_preview.is_empty():
@@ -14764,7 +14744,27 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 	if action_type != "aoe" and target_tile.x < 0:
 		return {}
 	var after_state: Dictionary = _combat_engine.apply_player_action(state, action, target_tile)
-	return _damage_preview_between_states(state, after_state)
+	return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after_state))
+
+func _sanitize_damage_preview_for_umbra_information(state: Dictionary, source_preview: Dictionary) -> Dictionary:
+	if source_preview.is_empty() or not _preview_umbra_is_limited(state):
+		return source_preview
+	var information_state: Dictionary = _preview_information_state(state)
+	var preview: Dictionary = source_preview.duplicate(true)
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if not _combat_engine.is_enemy_visible_to_player(information_state, enemy):
+			preview.erase(_enemy_key(enemy))
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		var terrain_tile: Vector2i = terrain.get("pos", INVALID_TARGET_TILE)
+		if terrain_tile.x >= 0 and not _combat_engine.is_tile_visible_to_player(information_state, terrain_tile):
+			preview.erase(_terrain_key(terrain))
+	return preview
 
 func _damage_preview_between_states(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
 	var after_by_id: Dictionary = {}
@@ -17328,6 +17328,26 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 	target_presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
 	target_presentation["umbra_truesight"] = int(target_presentation["umbra_truesight_activations"]) != 0
 	target_presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
+	if target_presentation.has("terrain_destruction_units"):
+		var visible_terrain_destruction: Array = []
+		for terrain_var: Variant in target_presentation.get("terrain_destruction_units", []):
+			if typeof(terrain_var) != TYPE_DICTIONARY:
+				continue
+			var terrain: Dictionary = terrain_var
+			var terrain_tile: Vector2i = terrain.get("pos", INVALID_TARGET_TILE)
+			if terrain_tile.x >= 0 and _combat_engine.is_tile_visible_to_player(display_state, terrain_tile):
+				visible_terrain_destruction.append(terrain)
+		target_presentation["terrain_destruction_units"] = visible_terrain_destruction
+	if target_presentation.has("trap_effects"):
+		var visible_trap_effects: Array = []
+		for trap_var: Variant in target_presentation.get("trap_effects", []):
+			if typeof(trap_var) != TYPE_DICTIONARY:
+				continue
+			var trap: Dictionary = trap_var
+			var trap_tile: Vector2i = trap.get("pos", INVALID_TARGET_TILE)
+			if trap_tile.x >= 0 and _combat_engine.is_tile_visible_to_player(display_state, trap_tile):
+				visible_trap_effects.append(trap)
+		target_presentation["trap_effects"] = visible_trap_effects
 	if target_presentation.has("floating_texts"):
 		target_presentation["floating_texts"] = _visible_umbra_floating_texts(display_state, target_presentation.get("floating_texts", []) as Array)
 
