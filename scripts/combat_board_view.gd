@@ -394,8 +394,9 @@ var _board_visual_framing_signature: String = ""
 var _floor_variant_signature: String = ""
 var _moss_signature: String = ""
 var _continuous_presentation_elapsed: float = 0.0
-var _explicit_effects_redraw_pending: bool = false
-var _explicit_impact_redraw_pending: bool = false
+var _last_processed_render_frame: int = -1
+var _explicit_effects_redraw_process_frame: int = -1
+var _explicit_impact_redraw_process_frame: int = -1
 var _submission_cache_valid: bool = false
 var _damage_preview_cache: Dictionary = {}
 var _visible_units_cache: Array[Dictionary] = []
@@ -644,6 +645,7 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"scene_tile_draw_counts": scene_tile_draw_counts,
 		"split_layers_active": _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer),
 		"presentation_redraw_dedup_active": true,
+		"presentation_redraw_dedup_mode": "pre_process_render_frame",
 		"retained_layer_count": _retained_render_layers().size(),
 		"hud_layout_cache_entries": _hud_layout_cache_by_signature.size(),
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
@@ -672,15 +674,15 @@ func reset_render_instrumentation() -> void:
 		layer.call("reset_render_instrumentation")
 
 func _process(delta: float) -> void:
-	var explicit_effects_redraw_pending: bool = _explicit_effects_redraw_pending
-	var explicit_impact_redraw_pending: bool = _explicit_impact_redraw_pending
-	_explicit_effects_redraw_pending = false
-	_explicit_impact_redraw_pending = false
+	var process_frame: int = Engine.get_process_frames()
+	_last_processed_render_frame = process_frame
+	var explicit_effects_redraw_this_frame: bool = _explicit_effects_redraw_process_frame == process_frame
+	var explicit_impact_redraw_this_frame: bool = _explicit_impact_redraw_process_frame == process_frame
 	if _presentation_needs_continuous_redraw():
 		_continuous_presentation_elapsed += delta
 		if _continuous_presentation_elapsed >= CONTINUOUS_PRESENTATION_REDRAW_SECONDS:
 			_continuous_presentation_elapsed = 0.0
-			_queue_continuous_render_redraws(explicit_effects_redraw_pending, explicit_impact_redraw_pending)
+			_queue_continuous_render_redraws(explicit_effects_redraw_this_frame, explicit_impact_redraw_this_frame)
 	else:
 		_continuous_presentation_elapsed = 0.0
 	var animating: bool = _any_idle_animation_active()
@@ -957,8 +959,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
 	if state_changed or _submission_cache_combat_changed or interaction_changed or layout_changed or visual_framing_changed or floor_changed or moss_changed:
-		_explicit_effects_redraw_pending = true
-		_explicit_impact_redraw_pending = true
+		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
+		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_dynamic_redraw()
 	else:
 		_queue_presentation_change_redraws(
@@ -978,6 +980,13 @@ func _changed_presentation_keys(previous: Dictionary, next: Dictionary) -> Dicti
 		if not previous.has(key_var) or previous.get(key_var) != next.get(key_var):
 			changed[str(key_var)] = true
 	return changed
+
+func _coalescible_explicit_redraw_frame() -> int:
+	var render_frame: int = Engine.get_process_frames()
+	# Engine advances this counter after rendering. If this board already processed
+	# the current value, a timer/deferred submission will render later in this frame
+	# and must not suppress the following frame's continuous redraw.
+	return render_frame if _last_processed_render_frame != render_frame else -1
 
 func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
 	var changed: Dictionary = {}
@@ -1051,7 +1060,7 @@ func _queue_presentation_change_redraws(
 	if ambient_changed:
 		_queue_render_layer_redraw(_ambient_render_layer)
 	if world_changed:
-		_explicit_impact_redraw_pending = true
+		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_dynamic_render_layer)
 	if impact_changed:
 		_queue_impact_scene_redraws()
@@ -1067,7 +1076,7 @@ func _queue_presentation_change_redraws(
 	if hud_changed:
 		_queue_render_layer_redraw(_hud_render_layer)
 	if effects_changed:
-		_explicit_effects_redraw_pending = true
+		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_effects_render_layer)
 
 func _queue_moving_actor_redraws(

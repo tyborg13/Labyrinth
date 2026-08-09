@@ -6,7 +6,34 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const PHASE_FRAMES: int = 150
+const CONTINUOUS_REDRAW_SECONDS: float = 1.0 / 30.0
 const OUTPUT_DIR: String = "user://performance/render_benchmark"
+
+class LatePresentationSubmitter:
+	extends Node
+
+	var board: Control
+	var state: Dictionary
+	var attack_tiles: Array
+	var presentation: Dictionary
+	var submitted_process_frame: int = -1
+
+	func _ready() -> void:
+		process_priority = 100
+		set_process(false)
+
+	func arm(next_board: Control, next_state: Dictionary, next_attack_tiles: Array, next_presentation: Dictionary) -> void:
+		board = next_board
+		state = next_state
+		attack_tiles = next_attack_tiles
+		presentation = next_presentation
+		set_process(true)
+
+	func _process(_delta: float) -> void:
+		submitted_process_frame = Engine.get_process_frames()
+		board.call("set_combat_state", state, [], attack_tiles, Vector2i(4, 3), "Choose a target", "Late-submission cadence", {}, {}, presentation)
+		board.set("_continuous_presentation_elapsed", 1.0)
+		set_process(false)
 
 var _errors: Array[String]
 
@@ -68,6 +95,9 @@ func _initialize() -> void:
 	_expect(screenshot.get_size() == VIEWPORT_SIZE, "render benchmark screenshot must normalize to 1920x1080")
 	_expect(screenshot.save_png(screenshot_path) == OK, "render benchmark screenshot could not be saved")
 	results["in_place_state_redraw_verified"] = await _verify_in_place_state_redraw(board, idle_presentation)
+	var dedup_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary if board.has_method("render_instrumentation_snapshot") else {}
+	if bool(dedup_snapshot.get("presentation_redraw_dedup_active", false)):
+		results["post_process_redraw_cadence"] = await _verify_post_process_redraw_cadence(board, state)
 	results["semantic_errors"] = _errors
 
 	if _errors.is_empty():
@@ -140,7 +170,17 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 				# The world still advances trap and tactical pulse animation, but
 				# an explicit impact submission must replace the second full
 				# continuous redraw that previously approached 2x phase length.
-				_expect(int(layer_counts.get("world", 999)) <= PHASE_FRAMES + int(ceil(float(PHASE_FRAMES) * 0.5)) + 2, "explicit impact submissions must replace duplicate continuous world redraws")
+				var phase_elapsed_ms: float = 0.0
+				for interval_ms: float in frame_intervals_ms:
+					phase_elapsed_ms += interval_ms
+				var continuous_redraw_budget: int = mini(
+					PHASE_FRAMES - 1,
+					int(ceil(phase_elapsed_ms / (CONTINUOUS_REDRAW_SECONDS * 1000.0))) + 2
+				)
+				_expect(int(layer_counts.get("world", 0)) >= PHASE_FRAMES - 2, "action impact submissions must redraw the world layer on every authored frame")
+				_expect(int(layer_counts.get("effects", 0)) >= PHASE_FRAMES - 2, "action effect submissions must redraw the effects layer on every authored frame")
+				_expect(int(scene_tile_counts.get("3,3", 0)) >= PHASE_FRAMES - 2, "action impacts must redraw the large-enemy scene layer on every authored frame")
+				_expect(int(layer_counts.get("world", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit impact submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
 				_expect(int(layer_counts.get("effects", 999)) <= PHASE_FRAMES + 2, "explicit effect submissions must replace duplicate continuous effects redraws")
 		elif phase_name == "interaction":
 			_expect(int(layer_counts.get("world", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive tile overlays")
@@ -350,6 +390,64 @@ func _verify_in_place_state_redraw(board: Control, presentation: Dictionary) -> 
 	var redrew: bool = int(snapshot.get("dynamic_draw_count", 0)) > 0
 	_expect(redrew, "in-place state mutations detected by the deep cache snapshot must still invalidate retained layers")
 	return redrew
+
+func _verify_post_process_redraw_cadence(board: Control, source_state: Dictionary) -> Dictionary:
+	# Model timer-driven RunScene submissions with a higher process priority than
+	# the board. Its explicit frame must render now, and a due continuous redraw
+	# must still render on the following process frame.
+	var state: Dictionary = source_state.duplicate(true)
+	state["traps"] = []
+	var presentation: Dictionary = _action_presentation()
+	board.call("set_combat_state", state, [], _attack_tiles(), Vector2i(4, 3), "Choose a target", "Late-submission cadence", {}, {}, presentation)
+	await process_frame
+	await process_frame
+	_reset_render_instrumentation(board)
+	board.set("_continuous_presentation_elapsed", 0.0)
+
+	var late_presentation: Dictionary = presentation.duplicate(true)
+	late_presentation["impact_progress"] = 0.67
+	late_presentation["impact_strength"] = 0.73
+	var late_effect: Dictionary = (late_presentation.get("effect", {}) as Dictionary).duplicate(true)
+	late_effect["progress"] = 0.67
+	late_presentation["effect"] = late_effect
+	var submitter := LatePresentationSubmitter.new()
+	board.get_parent().add_child(submitter)
+	submitter.arm(board, state, _attack_tiles(), late_presentation)
+	await RenderingServer.frame_post_draw
+	var explicit_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+	var explicit_counts: Dictionary = explicit_snapshot.get("layer_draw_counts", {}) as Dictionary
+	var explicit_scene_counts: Dictionary = explicit_snapshot.get("scene_tile_draw_counts", {}) as Dictionary
+	var explicit_effects: int = int(explicit_counts.get("effects", 0))
+	var explicit_world: int = int(explicit_counts.get("world", 0))
+	var explicit_impact_scene: int = int(explicit_scene_counts.get("3,3", 0))
+	_expect(explicit_effects >= 1, "a post-process explicit effect submission must render in its submitted frame")
+	_expect(explicit_world >= 1, "a post-process explicit impact submission must render the world layer in its submitted frame")
+	_expect(explicit_impact_scene >= 1, "a post-process explicit impact submission must render its actor scene layer in its submitted frame")
+
+	var elapsed_before_following_process: float = float(board.get("_continuous_presentation_elapsed"))
+	var explicit_effects_frame: int = int(board.get("_explicit_effects_redraw_process_frame"))
+	var explicit_impact_frame: int = int(board.get("_explicit_impact_redraw_process_frame"))
+	await RenderingServer.frame_post_draw
+	var continuous_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+	var continuous_counts: Dictionary = continuous_snapshot.get("layer_draw_counts", {}) as Dictionary
+	var continuous_scene_counts: Dictionary = continuous_snapshot.get("scene_tile_draw_counts", {}) as Dictionary
+	var continuous_effects: int = int(continuous_counts.get("effects", 0))
+	var continuous_world: int = int(continuous_counts.get("world", 0))
+	var continuous_impact_scene: int = int(continuous_scene_counts.get("3,3", 0))
+	_expect(continuous_effects > explicit_effects, "a post-process effect submission must not suppress the following due continuous redraw")
+	_expect(continuous_world > explicit_world, "a post-process impact submission must not suppress the following due continuous world redraw")
+	_expect(continuous_impact_scene > explicit_impact_scene, "a post-process impact submission must not suppress the following due actor redraw")
+	var submitted_process_frame: int = submitter.submitted_process_frame
+	submitter.queue_free()
+	return {
+		"verified": continuous_effects > explicit_effects and continuous_world > explicit_world and continuous_impact_scene > explicit_impact_scene,
+		"submitted_process_frame": submitted_process_frame,
+		"elapsed_before_following_process": elapsed_before_following_process,
+		"explicit_effects_frame": explicit_effects_frame,
+		"explicit_impact_frame": explicit_impact_frame,
+		"explicit_draw_counts": {"effects": explicit_effects, "world": explicit_world, "impact_scene": explicit_impact_scene},
+		"following_draw_counts": {"effects": continuous_effects, "world": continuous_world, "impact_scene": continuous_impact_scene}
+	}
 
 func _reset_render_instrumentation(board: Control) -> void:
 	if board.has_method("reset_render_instrumentation"):

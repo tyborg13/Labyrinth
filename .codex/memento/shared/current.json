@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T13:34:20Z",
+  "updated_at": "2026-08-09T13:58:38Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7443,28 +7443,6 @@
       }
     },
     {
-      "id": "mnt_20260809T125718Z_26fe649c",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Coalesce explicit presentation submissions with same-tick continuous redraws",
-      "details": "When set_combat_state queues current impact/effect frames, mark those retained layers pending and let _process suppress only the redundant continuous world/effects/impact-scene invalidation for that tick. Continue ambient, foreground, terrain-preview, and other independent continuous redraws. This preserves wall-clock animation cadence while avoiding duplicate action-heavy draws.",
-      "status": "active",
-      "created_at": "2026-08-09T12:57:18Z",
-      "updated_at": "2026-08-09T12:57:18Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
-        "commit": "a5729c1"
-      }
-    },
-    {
       "id": "mnt_20260809T125727Z_327322f3",
       "layer": "shared",
       "kind": "rejected_approach",
@@ -7528,6 +7506,30 @@
       "source": {
         "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
         "commit": "fb06880"
+      }
+    },
+    {
+      "id": "mnt_20260809T135838Z_6762393b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Coalesce explicit redraws only before the board processes a render frame",
+      "details": "Use Engine.get_process_frames together with the board's last-processed render-frame marker. Explicit submissions arriving before CombatBoardView._process may replace that frame's redundant 30 Hz effects/impact redraw; timer or deferred submissions arriving after _process must never suppress the following frame. The render benchmark enforces per-authored-frame lower bounds and a process-priority late-submission proof that effects, world, and impacted actor layers redraw on consecutive frames.",
+      "status": "active",
+      "created_at": "2026-08-09T13:58:38Z",
+      "updated_at": "2026-08-09T13:58:38Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260809T125718Z_26fe649c"
+      ],
+      "source": {
+        "branch": "codex/profile-and-optimize-trap-idle-animation-frame-pacing",
+        "commit": "14f347f"
       }
     }
   ]
