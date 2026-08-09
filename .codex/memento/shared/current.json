@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T18:31:54Z",
+  "updated_at": "2026-08-09T19:26:28Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7550,6 +7550,28 @@
       "source": {
         "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
         "commit": "81367ff"
+      }
+    },
+    {
+      "id": "mnt_20260809T192628Z_f3b72d00",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Card action overflow must remain visibly one action",
+      "details": "When a logical card action exceeds one token row, keep its core action/targeting tokens first and place remaining riders in a tight continuation row inside one shared visual group. Use a persistent structural cue such as a brace/backing plus \u21b3; never let overflow resemble another action or targeting step. Attached numeric suffixes should remain close to the icon and use enough outline/halo contrast to stay legible over the icon silhouette.",
+      "status": "active",
+      "created_at": "2026-08-09T19:26:28Z",
+      "updated_at": "2026-08-09T19:26:28Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "9bc9e52"
       }
     }
   ]

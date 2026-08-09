@@ -449,6 +449,15 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         if action_scale < 1.0:
             has_intensity_gate = True
 
+        illuminate_radius = max(0, int(action.get("illuminate_radius", 0)))
+        if illuminate_radius > 0:
+            illuminate_duration = int(action.get("illuminate_duration", 1))
+            illuminate_duration_value = 3 if illuminate_duration < 0 else max(1, illuminate_duration)
+            breakdown.radiance += (
+                illuminate_radius * weights.illuminate_radius_per_tile
+                + illuminate_duration_value * weights.illuminate_duration_per_activation
+            ) * weights.umbra_relevance * action_scale
+
         if action_type == "move":
             if has_illusion:
                 illusion_before_move = True
@@ -533,15 +542,6 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                     pull_value += weights.move_pull_bonus_per_tile
                 breakdown.control += pull * pull_value * playability * targets * action_scale
                 has_push_pull = True
-
-            illuminate_radius = max(0, int(action.get("illuminate_radius", 0)))
-            if illuminate_radius > 0:
-                illuminate_duration = int(action.get("illuminate_duration", 1))
-                illuminate_duration_value = 3 if illuminate_duration < 0 else max(1, illuminate_duration)
-                breakdown.radiance += (
-                    illuminate_radius * weights.illuminate_radius_per_tile
-                    + illuminate_duration_value * weights.illuminate_duration_per_activation
-                ) * weights.umbra_relevance * action_scale
 
             intensity_bonus = action_intensity_bonus(action, card_element)
             if intensity_bonus:

@@ -1260,6 +1260,21 @@ func _trigger_player_movement_radiance(state: Dictionary, action: Dictionary, pa
 		return next_state
 	var distance: int = PathUtils.manhattan(path[0], path[path.size() - 1]) if blinked else path.size() - 1
 	var light_positions: Array[Vector2i] = _vector2i_values([])
+	if _action_has_illuminate_rider(action):
+		var authored_positions: Array[Vector2i] = _vector2i_values([])
+		match str(action.get("illuminate_position_mode", "destination")):
+			"path":
+				authored_positions = _movement_light_positions(path, blinked)
+			_:
+				authored_positions.append(path[path.size() - 1])
+		for position: Vector2i in authored_positions:
+			next_state = _create_umbra_light_source(next_state, position, {
+				"radius": int(action.get("illuminate_radius", 1)),
+				"duration": int(action.get("illuminate_duration", 1)),
+				"silent": true
+			})
+			if not light_positions.has(position):
+				light_positions.append(position)
 	for effect: Dictionary in _relic_effects(next_state):
 		if str(effect.get("type", "")) != "resolved_action_light" or str(effect.get("position_mode", "")) != "path":
 			continue

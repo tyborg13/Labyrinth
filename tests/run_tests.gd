@@ -341,7 +341,7 @@ func _initialize() -> void:
 	await _test_run_scene_action_step_tracker_states()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_aoe_aim_rotates_before_click()
-	await _test_run_scene_light_rider_squall_preserves_orientation()
+	await _test_run_scene_squall_preserves_orientation()
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
@@ -10381,11 +10381,11 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_light_rider_squall_preserves_orientation() -> void:
+func _test_run_scene_squall_preserves_orientation() -> void:
 	AnalyticsStore.clear_storage()
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
-		_failures.append("Run scene should load for Light-rider Squall orientation coverage")
+		_failures.append("Run scene should load for Squall orientation coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -10425,14 +10425,14 @@ func _test_run_scene_light_rider_squall_preserves_orientation() -> void:
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
 	_assert(int(instance.get("_pending_action_index")) == 1 and (instance.get("_pending_target_tiles") as Array).has(target_tile), "Squall Shot should expose its attackable center through one AOE target step")
-	_assert((instance.get("_pending_selected_targets") as Array).is_empty(), "Squall should not record a separate Light target before its attack commits")
+	_assert((instance.get("_pending_selected_targets") as Array).is_empty(), "Squall should not record a target before its AOE attack commits")
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	instance.call("_on_board_tile_hovered", target_tile)
 	instance.call("_rotate_aoe_aim", -1)
 	instance.call("_on_board_tile_hovered", target_tile)
 	var presentation: Dictionary = board_view.get("presentation")
 	var focus_tiles: Array = presentation.get("focus_tiles", [])
-	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Rotating north should preview Squall's odd pattern around its single attack-and-Light target")
+	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Rotating north should preview Squall's odd pattern around its single AOE target")
 	await instance.call("_on_board_tile_clicked", target_tile)
 	await create_timer(1.5).timeout
 	var final_state: Dictionary = instance.get("_combat_state")
@@ -10442,21 +10442,20 @@ func _test_run_scene_light_rider_squall_preserves_orientation() -> void:
 	_assert((enemies[2] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(6, 3), "North-oriented Squall should hit and push the eastern arm")
 	_assert(int((enemies[3] as Dictionary).get("hp", 0)) == 20 and (enemies[3] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 6), "North-oriented Squall should leave the old southern arm untouched")
 	var played_events: Array[Dictionary] = _analytics_events_by_type(AnalyticsStore.load_all_events(), "card_played")
-	var light_sources: Array = (final_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
-	_assert(not light_sources.is_empty() and (light_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == target_tile, "Squall should leave its post-attack Light at the original impact center after pushing enemies")
-	_assert(not played_events.is_empty(), "Light-rider Squall should emit card-play analytics")
+	_assert(((final_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).is_empty(), "Squall should not create Light after its Radiance rider is removed")
+	_assert(not played_events.is_empty(), "Squall should emit card-play analytics")
 	if not played_events.is_empty():
 		var payload: Dictionary = (played_events[played_events.size() - 1] as Dictionary).get("payload", {}) as Dictionary
 		var actions: Array = payload.get("actions", []) as Array
 		var aoe_action: Dictionary = actions[1] as Dictionary if actions.size() > 1 else {}
 		var orientation: Dictionary = aoe_action.get("orientation", {}) as Dictionary
-		_assert(int(orientation.get("x", 99)) == 0 and int(orientation.get("y", 99)) == -1, "Squall analytics should preserve the chosen Light-rider AOE orientation")
+		_assert(int(orientation.get("x", 99)) == 0 and int(orientation.get("y", 99)) == -1, "Squall analytics should preserve the chosen AOE orientation")
 		var selected_targets: Array = payload.get("selected_targets", []) as Array
 		var aoe_target: Dictionary = selected_targets[0] as Dictionary if selected_targets.size() > 0 else {}
 		_assert(
 			selected_targets.size() == 1
 			and int(aoe_target.get("x", -1)) == 4 and int(aoe_target.get("y", -1)) == 4,
-			"Squall analytics should record one target for its combined attack and Light rider"
+			"Squall analytics should record one target for its AOE attack"
 		)
 	instance.queue_free()
 	await process_frame
@@ -12890,7 +12889,7 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 		"icebound_chains",
 		"spark_dart",
 		"spark_focus",
-		"squall_shot",
+		"threaded_path",
 		"root_snare"
 	]:
 		var card: Dictionary = GameData.card_def(card_id)
@@ -12930,6 +12929,23 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	var card_widget := CardWidget.new()
 	var lantern_segments: Array = card_widget.call("_summary_token_segments", lantern_target_row)
 	_assert(lantern_segments.size() == 1, "CardWidget should keep a four-token attack rider on one compact line")
+	card_widget.size = Vector2(250.0, 352.0)
+	var root_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("root_snare").get("actions", []))
+	var root_attack_row: Array = root_rows[1] as Array
+	var root_segments: Array = card_widget.call("_summary_token_segments", root_attack_row)
+	_assert(root_attack_row.size() == 5 and root_segments.size() == 2 and (root_segments[0] as Array).size() == 3 and (root_segments[1] as Array).size() == 2, "Five-token attack riders should wrap after their three core attack tokens")
+	var squall_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("squall_shot").get("actions", []))
+	var squall_attack_row: Array = squall_rows[1] as Array
+	var squall_segments: Array = card_widget.call("_summary_token_segments", squall_attack_row)
+	_assert(squall_attack_row.size() == 4 and squall_segments.size() == 1, "Simplified Squall should keep its four fitting AOE tokens on one line")
+	var action_group_parent := VBoxContainer.new()
+	card_widget.call("_add_summary_action_group", action_group_parent, root_segments, 28.0, 16, 6)
+	_assert(action_group_parent.get_child_count() == 1 and bool(action_group_parent.get_child(0).get_meta("summary_action_group", false)), "A wrapped action should render inside one visible action-group container")
+	var action_group_inner: Control = action_group_parent.get_child(0).get_child(0) as Control
+	_assert(action_group_inner.get_child_count() == 2 and not bool(action_group_inner.get_child(0).get_meta("summary_action_continuation", true)) and bool(action_group_inner.get_child(1).get_meta("summary_action_continuation", false)), "Only the overflow row should be marked as an action continuation")
+	var continuation_row: Control = action_group_inner.get_child(1) as Control
+	_assert(continuation_row.get_child_count() > 0 and bool(continuation_row.get_child(0).get_meta("summary_continuation_glyph", false)), "An overflow row should begin with a persistent continuation glyph")
+	action_group_parent.free()
 	var valued_token: Dictionary = ActionIcons.token_for("ranged", 12)
 	var valued_layout: Dictionary = card_widget.call("_summary_token_layout", valued_token, 28.0, 16)
 	var icon_box: Vector2 = valued_layout.get("icon_size", Vector2.ZERO)
@@ -12937,6 +12953,9 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	var suffix_size: Vector2 = valued_layout.get("value_size", Vector2.ZERO)
 	_assert(suffix_position.x > icon_box.x * 0.5 and suffix_position.y > 0.0, "Valued action tokens should attach their number at the icon's lower-right corner")
 	_assert((valued_layout.get("size", Vector2.ZERO) as Vector2).x < icon_box.x + suffix_size.x, "Attached value suffixes should use less width than separate icon and number children")
+	var contrast_label: Label = card_widget.call("_summary_value_label", "2", "", 16, ActionIcons.token_for("time", 2))
+	_assert(contrast_label.get_theme_constant("shadow_outline_size") >= 2 and contrast_label.get_theme_color("font_shadow_color").get_luminance() < 0.2, "Attached values should retain a dark zero-offset halo when they overlap pale or dark icons")
+	contrast_label.free()
 	var modified_token: Dictionary = ActionIcons.token_for("ranged", 12, "bonus", "", [{"source": "Test Relic", "amount": 2}], 10)
 	var modified_layout: Dictionary = card_widget.call("_summary_token_layout", modified_token, 28.0, 16)
 	_assert((modified_layout.get("marker_position", Vector2.ZERO) as Vector2).y < (modified_layout.get("value_position", Vector2.ZERO) as Vector2).y, "The modifier marker should occupy the upper-right corner without colliding with the lower value suffix")

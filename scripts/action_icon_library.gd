@@ -747,10 +747,13 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(token_for("health_cost", "-%d" % health_cost))
 		"move", "move_toward":
 			tokens.append(_token_for_action_field(action, "move", "range", int(action.get("range", 0))))
+			_append_illuminate_rider_tokens(tokens, action)
 		"move_away":
 			tokens.append(_token_for_action_field(action, "retreat", "range", int(action.get("range", 0))))
+			_append_illuminate_rider_tokens(tokens, action)
 		"blink":
 			tokens.append(_token_for_action_field(action, "blink", "range", int(action.get("range", 0))))
+			_append_illuminate_rider_tokens(tokens, action)
 		"melee":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "melee"), action, options)
 			if int(action.get("range", 0)) > 1:
@@ -1094,13 +1097,19 @@ static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -
 	var radius: int = int(action.get("illuminate_radius", 0))
 	if radius <= 0:
 		return
+	var action_type: String = str(action.get("type", ""))
+	var radius_tooltip: String = "After this attack resolves, create Light at its impact within this radius."
+	var duration_tooltip: String = "Player turns this light remains at the impact."
+	if action_type in ["move", "move_toward", "move_away", "blink"]:
+		radius_tooltip = "After this movement resolves, create Light where you arrive within this radius."
+		duration_tooltip = "Player turns this light remains at your destination."
 	tokens.append(_token_for_action_field(
 		action,
 		"illuminate",
 		"illuminate_radius",
 		radius,
 		"neutral",
-		"After this attack resolves, create Light at its impact within this radius."
+		radius_tooltip
 	))
 	var duration: int = int(action.get("illuminate_duration", 1))
 	tokens.append(_token_for_action_field(
@@ -1109,7 +1118,7 @@ static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -
 		"illuminate_duration",
 		"∞" if duration < 0 else duration,
 		"neutral",
-		"Player turns this light remains at the impact."
+		duration_tooltip
 	))
 
 static func _action_element(action: Dictionary) -> String:

@@ -1023,9 +1023,7 @@ func _render_summary_icon_rows(rows: Array) -> void:
 		var condition_active: bool = bool(condition.get("active", false))
 		var segments: Array = group.get("segments", [])
 		if condition_element.is_empty():
-			for segment_var: Variant in segments:
-				if typeof(segment_var) == TYPE_ARRAY:
-					_add_summary_segment(_summary_icon_box, segment_var as Array, icon_size, label_size, row_gap)
+			_add_summary_action_group(_summary_icon_box, segments, icon_size, label_size, row_gap)
 			continue
 		var block := PanelContainer.new()
 		block.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1048,7 +1046,8 @@ func _render_summary_icon_rows(rows: Array) -> void:
 		inner.alignment = BoxContainer.ALIGNMENT_CENTER
 		inner.add_theme_constant_override("separation", maxi(0, row_gap - 4))
 		margin.add_child(inner)
-		for segment_var: Variant in segments:
+		for segment_index: int in range(segments.size()):
+			var segment_var: Variant = segments[segment_index]
 			if typeof(segment_var) == TYPE_ARRAY:
 				var segment: Array = segment_var as Array
 				var conditional_icon_size: float = icon_size
@@ -1058,21 +1057,73 @@ func _render_summary_icon_rows(rows: Array) -> void:
 					conditional_icon_size = maxf(15.0, icon_size - 3.0)
 					conditional_label_size = maxi(10, label_size - 2)
 					conditional_row_gap = maxi(0, row_gap - 3)
-				_add_summary_segment(inner, segment, conditional_icon_size, conditional_label_size, conditional_row_gap, true)
+				_add_summary_segment(inner, segment, conditional_icon_size, conditional_label_size, conditional_row_gap, true, segment_index > 0)
 
-func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_size: int, row_gap: int, conditional: bool = false) -> void:
+func _add_summary_action_group(parent: Node, segments: Array, icon_size: float, label_size: int, row_gap: int) -> void:
+	if segments.is_empty():
+		return
+	if segments.size() == 1 and typeof(segments[0]) == TYPE_ARRAY:
+		_add_summary_segment(parent, segments[0] as Array, icon_size, label_size, row_gap)
+		return
+	var block := PanelContainer.new()
+	block.name = "SummaryActionGroup"
+	block.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	block.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	block.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	block.add_theme_stylebox_override("panel", _continued_summary_style())
+	block.set_meta("summary_action_group", true)
+	parent.add_child(block)
+	var inner := VBoxContainer.new()
+	inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	inner.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	inner.alignment = BoxContainer.ALIGNMENT_CENTER
+	inner.add_theme_constant_override("separation", maxi(0, row_gap - 4))
+	block.add_child(inner)
+	for segment_index: int in range(segments.size()):
+		var segment_var: Variant = segments[segment_index]
+		if typeof(segment_var) == TYPE_ARRAY:
+			_add_summary_segment(inner, segment_var as Array, icon_size, label_size, maxi(1, row_gap - 1), false, segment_index > 0)
+
+func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_size: int, row_gap: int, conditional: bool = false, continuation: bool = false) -> void:
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	row.size_flags_horizontal = Control.SIZE_SHRINK_END if continuation else Control.SIZE_SHRINK_CENTER
 	row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", row_gap)
+	row.set_meta("summary_action_continuation", continuation)
+	if continuation:
+		var continuation_label := Label.new()
+		continuation_label.text = "↳"
+		continuation_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		continuation_label.tooltip_text = "Continues the action above."
+		continuation_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		UiTypography.set_label_size(continuation_label, maxi(_scaled_card_font_size(11, 8), label_size - 2))
+		continuation_label.add_theme_color_override("font_color", Color("8b5d35"))
+		continuation_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
+		continuation_label.add_theme_constant_override("outline_size", 1)
+		continuation_label.set_meta("summary_continuation_glyph", true)
+		row.add_child(continuation_label)
 	for token_var: Variant in segment:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		_add_token_to_summary_row(row, token_var as Dictionary, icon_size, label_size, conditional)
 	if row.get_child_count() > 0:
 		parent.add_child(row)
+
+func _continued_summary_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.30, 0.20, 0.12, 0.07)
+	style.border_color = Color(0.48, 0.31, 0.17, 0.55)
+	style.border_width_left = maxi(1, _scaled_card_int(2, 1))
+	style.corner_radius_top_left = 3
+	style.corner_radius_bottom_left = 3
+	style.content_margin_left = _scaled_card_value(4.0, 2.0)
+	style.content_margin_top = _scaled_card_value(1.0, 0.0)
+	style.content_margin_right = _scaled_card_value(4.0, 2.0)
+	style.content_margin_bottom = _scaled_card_value(1.0, 0.0)
+	return style
 
 func _segment_should_compact_conditional(segment: Array) -> bool:
 	var valued_tokens: int = 0
@@ -1171,7 +1222,11 @@ func _summary_value_label(value_text: String, tooltip: String, label_size: int, 
 	UiTypography.set_label_size(label, label_size)
 	label.add_theme_color_override("font_color", _token_value_color(token, conditional))
 	label.add_theme_color_override("font_outline_color", _token_outline_color(conditional))
+	label.add_theme_color_override("font_shadow_color", Color("24160f"))
 	label.add_theme_constant_override("outline_size", 2)
+	label.add_theme_constant_override("shadow_outline_size", 2)
+	label.add_theme_constant_override("shadow_offset_x", 0)
+	label.add_theme_constant_override("shadow_offset_y", 0)
 	return label
 
 func _add_token_modifier_marker(token_group: Control, tooltip: String, label_size: int, conditional: bool, layout: Dictionary) -> void:
@@ -1346,29 +1401,27 @@ func _card_visual_width() -> float:
 
 func _summary_token_segments(tokens: Array) -> Array:
 	var clean_tokens: Array = []
-	var contains_pattern: bool = false
-	var keep_row_together: bool = false
-	var valued_tokens: int = 0
 	for token_var: Variant in tokens:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var
 		clean_tokens.append(token)
-		keep_row_together = keep_row_together or bool(token.get("keep_row_together", false))
-		if str(token.get("kind", "")) == "aoe_pattern":
-			contains_pattern = true
-		if token.has("value"):
-			valued_tokens += 1
-	if keep_row_together:
+	if clean_tokens.is_empty():
+		return []
+	var preferred_icon_size: float = _summary_icon_size()
+	var preferred_label_size: int = maxi(_summary_min_label_size(), int(round(preferred_icon_size * 0.58)))
+	var preferred_gap: int = _summary_row_gap(preferred_icon_size, 1)
+	var available_width: float = maxf(
+		_scaled_card_value(52.0, 28.0),
+		_card_visual_width() - _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - _scaled_card_value(12.0, 4.0)
+	)
+	if clean_tokens.size() <= 4 and _summary_segment_width_estimate(clean_tokens, preferred_icon_size, preferred_label_size, preferred_gap) <= available_width:
 		return [clean_tokens]
-	if clean_tokens.size() <= 5 and not contains_pattern:
-		return [clean_tokens]
-	var max_tokens_per_segment: int = 3 if contains_pattern or valued_tokens >= 4 else 4
 	var segments: Array = []
 	var current: Array = []
 	for token_var: Variant in clean_tokens:
 		current.append(token_var)
-		if current.size() >= max_tokens_per_segment:
+		if current.size() >= 3:
 			segments.append(current)
 			current = []
 	if not current.is_empty():

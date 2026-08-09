@@ -377,11 +377,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 1,
-    "description": "Move 5, then draw 1.",
+    "description": "Move 5. Create radius-1 Light where you arrive for 2 turns, then draw 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/threaded_path.png",
+    "radiance": true,
     "actions": [
-      { "type": "move", "range": 5 },
+      { "type": "move", "range": 5, "illuminate_radius": 1, "illuminate_duration": 2, "illuminate_position_mode": "destination" },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -1030,13 +1031,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Air intensity by 1. Deal 5 in an odd pattern at range 5 and push 1, then create radius-2 Light at its center for 2 turns. Air 2+: gain 1 card play.",
+    "description": "Raise Air intensity by 1. Deal 5 in an odd pattern at range 5 and push 1. Air 2+: gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/squall_shot.png",
-    "radiance": true,
     "actions": [
       { "type": "intensity", "element": "air", "amount": 1 },
-      { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [2, 0], [0, 2]], "rotate": true, "push": 1, "illuminate_radius": 2, "illuminate_duration": 2 },
+      { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [2, 0], [0, 2]], "rotate": true, "push": 1 },
       { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
     ]
   },

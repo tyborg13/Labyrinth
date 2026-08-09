@@ -147,6 +147,12 @@ post-hit rider, while the single chosen target remains the enemy, trap, or
 terrain impact tile. Standalone `illuminate` actions remain distinct and retain
 their free-tile target entry.
 
+Movement-carried Light likewise remains part of one resolved Move or Blink
+action. `illuminate_position_mode: "destination"` means the source is created
+at the actual resolved endpoint, which may differ from the chosen target after
+a hidden-enemy movement interruption; the existing movement-interruption and
+fixed-light-source deltas preserve both facts without adding a target event.
+
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and
 large-area attacks. Runtime-selected AOE aim orientation is additive on the

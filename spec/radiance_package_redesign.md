@@ -63,6 +63,8 @@ Unchanged relics are: Iron Lung, Coffin Nails, Iron Buckler, Flint Edge, Mossbou
 
 Light carried by an attack is authored on that attack action with `illuminate_radius` and `illuminate_duration`; it is not a preceding standalone Illuminate action. The player makes one attack selection, and only attackable enemies, traps, or terrain are legal targets. Light is created at the snapshotted impact tile after damage, statuses, forced movement, terrain damage, and trap effects resolve, so the rider does not enable Light-conditioned bonuses for its own hit. A standalone `illuminate` action remains available for abilities and cards whose primary purpose is Light and retains free-tile targeting.
 
+Light carried by movement uses the same unified action-rider vocabulary with `illuminate_position_mode: "destination"`. It resolves from the player's actual endpoint rather than the selected tile, so a hidden collision can stop movement early without leaking information or placing Light on an unreachable tile. The movement still uses its normal single target selection.
+
 All eight newly Radiant cards set `radiance: true`. Lantern Shot, Guiding Flare, and Storm Beacon keep their existing Radiance identity but migrate to the same unified attack-rider representation.
 
 | Card | Change |
@@ -73,7 +75,8 @@ All eight newly Radiant cards set `radiance: true`. Lantern Shot, Guiding Flare,
 | Icebound Chains | Replace Draw 1 with Truesight for 2 activations. |
 | Spark Dart | Its ranged attack creates radius-1 Light at the impact for 2 activations; remove conditional Shock and retain conditional bonus damage. |
 | Spark Focus | Add Vision 1 for 2 activations. |
-| Squall Shot | Its area attack creates radius-2 Light at the selected attackable center for 2 activations after resolving. |
+| Threaded Path | Its Move creates radius-1 Light at the actual destination for 2 activations; Draw 1 remains a separate automatic action. |
+| Squall Shot | Remove its added Light rider. Its existing area damage, pattern, range, and Push already form a complete tactical package. |
 | Root Snare | Its ranged attack creates radius-1 Light at the impact for 2 activations after resolving. |
 | Dawnstep | Increase Vision duration from 1 to 2 activations. |
 | Prism Sight | Increase Truesight duration from 1 to 2 activations. |
@@ -100,6 +103,7 @@ The original four branches keep their authored positions. Radiance is appended a
 2. Player questions: what does this choice change, which familiar package enables it, and what board state will it create?
 3. Primary actions: choose a relic, play an already-familiar card, or learn an ability. No new targeting or confirmation step is introduced.
 4. Hierarchy: name and unique icon first, concise rules text second, detailed action tokens and source attribution on inspection.
+   Attached values sit at the lower-right of their icon with a light outline and dark zero-offset halo. When one logical action cannot fit, its first three core tokens lead and remaining riders sit in a right-aligned continuation row inside one subtle shared action-group backing with a `↳` cue; the overflow must never read as another action or targeting step.
 5. Input: existing pointer, keyboard, controller, and Steam Deck paths remain authoritative because no new interaction mode is added. The fifth skill branch must fit the complete no-scroll tree.
 6. Proof: real CardWidget renders for every changed card; real offer/detail renders for every changed/new relic; complete skill-tree states; combat captures for path Light, Chain Light, tethered Light, Afterglow, reversible Umbra suppression, and Light-conditioned rules. Routine proof is 1920x1080 at 100% UI scale.
 

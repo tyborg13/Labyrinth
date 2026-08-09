@@ -7,16 +7,17 @@ const GameData = preload("res://scripts/game_data.gd")
 const RADIANCE_CARD_IDS: Array[String] = [
 	"lantern_shot", "guiding_flare", "dawnstep", "prism_sight", "storm_beacon",
 	"glowstone_ward", "daybreak", "trapdoor", "ember_rain", "firebrand_volley",
-	"icebound_chains", "spark_dart", "spark_focus", "squall_shot", "root_snare"
+	"icebound_chains", "spark_dart", "spark_focus", "threaded_path", "root_snare"
 ]
 const ATTACK_LIGHT_RIDER_CARD_IDS: Array[String] = [
 	"lantern_shot", "guiding_flare", "storm_beacon", "ember_rain",
-	"firebrand_volley", "spark_dart", "squall_shot", "root_snare"
+	"firebrand_volley", "spark_dart", "root_snare"
 ]
 
 static func run(expect: Callable) -> void:
 	_test_radiance_pool_and_duration_contract(expect)
 	_test_attack_light_riders(expect)
+	_test_movement_light_rider_uses_resolved_destination(expect)
 
 static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 	var tagged_ids: Array[String]
@@ -118,9 +119,38 @@ static func _test_attack_light_riders(expect: Callable) -> void:
 	expect.call(int(((brightglass_result.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 20, "Post-hit Light should not self-prime Brightglass Lens on the same attack")
 
 	var squall_action: Dictionary = (GameData.card_def("squall_shot").get("actions", []) as Array)[1]
+	expect.call(not bool(GameData.card_def("squall_shot").get("radiance", false)) and not squall_action.has("illuminate_radius"), "Squall Shot should retain its AOE-and-push identity without an added Light rider")
+	var synthetic_aoe_rider: Dictionary = squall_action.duplicate(true)
+	synthetic_aoe_rider["illuminate_radius"] = 1
+	synthetic_aoe_rider["illuminate_duration"] = 2
 	var squall_state: Dictionary = combat.create_combat(8295, _room(), {"hp": 24, "max_hp": 24, "deck_cards": ["squall_shot"], "relics": [], "hand_size": 1})
-	var squall_targets: Array[Vector2i] = combat.valid_targets_for_player_action(squall_state, squall_action)
+	var squall_targets: Array[Vector2i] = combat.valid_targets_for_player_action(squall_state, synthetic_aoe_rider)
 	expect.call(squall_targets.has(Vector2i(4, 4)) and not squall_targets.has(Vector2i(4, 3)), "A Light-rider AOE should require an attackable selected center rather than an empty center that only overlaps a target")
+
+static func _test_movement_light_rider_uses_resolved_destination(expect: Callable) -> void:
+	var card: Dictionary = GameData.card_def("threaded_path")
+	var actions: Array = card.get("actions", []) as Array
+	var move_action: Dictionary = actions[0] as Dictionary
+	expect.call(bool(card.get("radiance", false)), "Threaded Path should carry the Radiance school tag")
+	expect.call(actions.size() == 2 and str(move_action.get("type", "")) == "move" and int(move_action.get("illuminate_radius", 0)) == 1 and int(move_action.get("illuminate_duration", 0)) == 2, "Threaded Path should author destination Light on its movement action without a separate target action")
+	var move_icons: Array[String] = []
+	for token_var: Variant in ActionIcons.tokens_for_action(move_action):
+		move_icons.append(str((token_var as Dictionary).get("icon", "")))
+	expect.call(move_icons == ["move", "illuminate", "time"], "Threaded Path should present Move and its destination Light as one action row")
+
+	var combat := CombatEngine.new()
+	var hidden_room: Dictionary = _room()
+	hidden_room["umbra_stage"] = "eclipse"
+	(hidden_room.get("enemies", []) as Array)[0]["pos"] = Vector2i(4, 4)
+	var state: Dictionary = combat.create_combat(8296, hidden_room, {"hp": 24, "max_hp": 24, "deck_cards": ["threaded_path"], "relics": [], "hand_size": 1})
+	var selected_destination := Vector2i(5, 4)
+	expect.call(combat.valid_targets_for_player_action(state, move_action).has(selected_destination), "Threaded Path should optimistically allow movement through hidden occupancy")
+	var moved: Dictionary = combat.apply_player_action(state, move_action, selected_destination)
+	var resolved_destination: Vector2i = (moved.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var sources: Array = (moved.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(resolved_destination == Vector2i(3, 4), "Threaded Path should stop before a hidden collision")
+	expect.call(not sources.is_empty() and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == resolved_destination and int((sources[0] as Dictionary).get("remaining_activations", 0)) == 2, "Threaded Path should create two-turn Light where movement actually ends")
+	expect.call((sources[0] as Dictionary).get("pos", Vector2i.ZERO) != selected_destination, "Threaded Path should never leak Light onto an unreachable selected endpoint")
 
 static func _room() -> Dictionary:
 	var grid: Array = []

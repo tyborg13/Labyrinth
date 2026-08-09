@@ -46,7 +46,7 @@ const CHANGED_RADIANCE_CARDS = [
 	"icebound_chains",
 	"spark_dart",
 	"spark_focus",
-	"squall_shot",
+	"threaded_path",
 	"root_snare",
 	"dawnstep",
 	"prism_sight"
@@ -103,6 +103,7 @@ func _capture_umbra_stages_and_cards() -> void:
 	await _capture_active_effect_feedback(instance)
 	await _capture_redesign_spatial_effects(instance)
 	await _capture_card_gallery(instance)
+	await _capture_action_group_gallery(instance)
 	await _capture_token_suffix_stress_gallery(instance)
 	instance.queue_free()
 	await process_frame
@@ -405,9 +406,9 @@ func _capture_redesign_spatial_effects(instance: Node) -> void:
 	await _settle_ui()
 	await _save_root_screenshot("%s/relic_captured_noon_suppression.png" % OUTPUT_DIR)
 
-	await _capture_squall_light_rider_orientation(instance, combat)
+	await _capture_squall_orientation(instance, combat)
 
-func _capture_squall_light_rider_orientation(instance: Node, combat: CombatEngine) -> void:
+func _capture_squall_orientation(instance: Node, combat: CombatEngine) -> void:
 	instance.call("_reset_card_resolution")
 	var squall_state: Dictionary = _radiance_visual_state(combat, [], [])
 	squall_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
@@ -435,7 +436,7 @@ func _capture_squall_light_rider_orientation(instance: Node, combat: CombatEngin
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	var focus_tiles: Array = presentation.get("focus_tiles", []) as Array
 	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Squall visual fixture should show its north-rotated odd pattern")
-	await _save_root_screenshot("%s/card_squall_light_rider_orientation.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/card_squall_simplified_orientation_v2.png" % OUTPUT_DIR)
 	instance.call("_reset_card_resolution")
 
 func _radiance_visual_state(combat: CombatEngine, relic_ids: Array, skill_ids: Array) -> Dictionary:
@@ -499,7 +500,35 @@ func _capture_card_gallery(instance: Node) -> void:
 		widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 	await _settle_ui()
-	await _save_root_screenshot("%s/radiance_changed_cards_compact_suffixes.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/radiance_changed_cards_grouped_v2.png" % OUTPUT_DIR)
+	gallery_layer.queue_free()
+	await process_frame
+
+func _capture_action_group_gallery(instance: Node) -> void:
+	var combat := CombatEngine.new()
+	var gallery_state: Dictionary = _radiance_visual_state(combat, [], [])
+	var gallery_layer := CanvasLayer.new()
+	gallery_layer.layer = 1000
+	root.add_child(gallery_layer)
+	var gallery := Control.new()
+	gallery.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gallery.anchor_right = 1.0
+	gallery.anchor_bottom = 1.0
+	gallery_layer.add_child(gallery)
+	var background := ColorRect.new()
+	background.color = Color("16111d")
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.anchor_right = 1.0
+	background.anchor_bottom = 1.0
+	gallery.add_child(background)
+	_add_gallery_title(gallery, "ONE ACTION · GROUPED CONTINUATION · NATIVE 250 × 352", 18.0)
+	_add_gallery_title(gallery, "COMPACT 190 × 268 · SAME ACTION STRUCTURE", 494.0)
+	var group_cards: Array[String] = ["root_snare", "threaded_path", "squall_shot"]
+	for index: int in range(group_cards.size()):
+		_add_gallery_card(gallery, instance, gallery_state, group_cards[index], Vector2(350.0 + float(index) * 485.0, 76.0), Vector2(250.0, 352.0))
+		_add_gallery_card(gallery, instance, gallery_state, group_cards[index], Vector2(450.0 + float(index) * 415.0, 542.0), Vector2(190.0, 268.0))
+	await _settle_ui()
+	await _save_root_screenshot("%s/card_action_continuation_groups_v2.png" % OUTPUT_DIR)
 	gallery_layer.queue_free()
 	await process_frame
 
@@ -534,7 +563,7 @@ func _capture_token_suffix_stress_gallery(instance: Node) -> void:
 		_add_gallery_card(gallery, instance, stress_state, stress_cards[index], Vector2(115.0 + float(index) * 350.0, 76.0), Vector2(250.0, 352.0))
 		_add_gallery_card(gallery, instance, stress_state, stress_cards[index], Vector2(350.0 + float(index) * 245.0, 542.0), Vector2(190.0, 268.0))
 	await _settle_ui()
-	await _save_root_screenshot("%s/card_value_suffix_stress.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/card_value_suffix_contrast_v2.png" % OUTPUT_DIR)
 	gallery_layer.queue_free()
 	await process_frame
 
