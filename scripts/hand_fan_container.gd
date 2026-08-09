@@ -6,6 +6,9 @@ const DEFAULT_MAX_ROTATION_DEGREES: float = 3.0
 const DEFAULT_BOTTOM_OVERFLOW_ALLOWANCE: float = 2.0
 const DEFAULT_HORIZONTAL_OVERFLOW_ALLOWANCE: float = 92.0
 const DEFAULT_CARD_OVERLAP_RATIO: float = 0.20
+const DENSE_OVERLAP_START_COUNT: int = 5
+const DENSE_OVERLAP_RATIO_STEP: float = 0.07
+const MAX_CARD_OVERLAP_RATIO: float = 0.40
 const DEFAULT_EMPHASIS_SCALE: float = 1.28
 const DEFAULT_EMPHASIS_EXTRA_LIFT: float = 12.0
 const DEFAULT_EMPHASIS_REMAINING_OVERLAP: float = 12.0
@@ -216,6 +219,13 @@ static func overlap_gap_for_card_width(
 	overlap_ratio: float = DEFAULT_CARD_OVERLAP_RATIO
 ) -> float:
 	return -maxf(0.0, card_width) * clampf(overlap_ratio, 0.0, 0.90)
+
+static func overlap_ratio_for_hand_size(total: int) -> float:
+	var extra_cards: int = maxi(0, total - DENSE_OVERLAP_START_COUNT)
+	return minf(
+		MAX_CARD_OVERLAP_RATIO,
+		DEFAULT_CARD_OVERLAP_RATIO + float(extra_cards) * DENSE_OVERLAP_RATIO_STEP
+	)
 
 static func emphasis_side_shift_for_layout(
 	card_size: Vector2,

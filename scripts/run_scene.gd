@@ -10139,6 +10139,9 @@ func _layout_action_step_tracker() -> void:
 	var protected_rects: Array = _action_step_tracker_protected_rects()
 	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
 	var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
+	var soft_rects: Array = []
+	if hand_bounds.size.x > 0.0 and hand_bounds.size.y > 0.0:
+		soft_rects.append(hand_bounds.grow(ACTION_STEP_TRACKER_GAP))
 	var right_limit: float = safe_area.end.x
 	if _turn_order_panel != null and _turn_order_panel.visible:
 		right_limit = minf(right_limit, _turn_order_panel.get_global_rect().position.x - ACTION_STEP_TRACKER_GAP)
@@ -10163,6 +10166,7 @@ func _layout_action_step_tracker() -> void:
 		y_candidates.append(protected_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP)
 	var chosen_rect := Rect2()
 	var chosen_overlap: float = INF
+	var chosen_soft_overlap: float = INF
 	var chosen_score: float = INF
 	for x: float in x_candidates:
 		for y: float in y_candidates:
@@ -10172,14 +10176,17 @@ func _layout_action_step_tracker() -> void:
 			if board_bounds.size.x > 0.0 and candidate.intersects(board_bounds.grow(ACTION_STEP_TRACKER_GAP)):
 				continue
 			var overlap: float = _action_step_tracker_overlap_area(candidate, protected_rects)
-			var score: float = overlap * 1000.0 + absf(candidate.end.x - right_limit) * 0.4 + absf(candidate.position.y - preferred_y)
+			var soft_overlap: float = _action_step_tracker_overlap_area(candidate, soft_rects)
+			var score: float = overlap * 1000000.0 + soft_overlap * 1000.0 + absf(candidate.end.x - right_limit) * 0.4 + absf(candidate.position.y - preferred_y)
 			if score < chosen_score:
 				chosen_rect = candidate
 				chosen_overlap = overlap
+				chosen_soft_overlap = soft_overlap
 				chosen_score = score
 	var safe_layout_found: bool = chosen_score < INF and chosen_overlap <= 0.5
 	_action_step_tracker.set_meta("safe_layout_found", safe_layout_found)
 	_action_step_tracker.set_meta("safe_layout_overlap", 0.0 if chosen_overlap == INF else chosen_overlap)
+	_action_step_tracker.set_meta("soft_hand_overlap", 0.0 if chosen_soft_overlap == INF else chosen_soft_overlap)
 	_action_step_tracker.set_meta("safe_layout_rect", chosen_rect)
 	_action_step_tracker.set_meta("layout_kind", "fixed_safe_edge")
 	if chosen_score == INF:
@@ -10217,9 +10224,6 @@ func _action_step_tracker_protected_rects() -> Array:
 		var rect: Rect2 = control.get_global_rect()
 		if rect.size.x > 0.0 and rect.size.y > 0.0:
 			result.append(rect.grow(ACTION_STEP_TRACKER_GAP))
-	var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
-	if hand_bounds.size.x > 0.0 and hand_bounds.size.y > 0.0:
-		result.append(hand_bounds.grow(ACTION_STEP_TRACKER_GAP))
 	return result
 
 
@@ -14064,9 +14068,23 @@ func _show_card_action_choices(index: int, options: Dictionary) -> void:
 		return
 	_card_action_choice_index = index
 	_card_action_choice_options = options.duplicate(true)
-	_card_action_choice_mode = "play"
+	_card_action_choice_mode = _initial_card_action_choice_mode(options)
 	_hovered_card_index = index
 	_selected_card_label_override = ""
+
+
+func _initial_card_action_choice_mode(options: Dictionary) -> String:
+	var playable_modes: Array[String] = []
+	if bool(options.get("printed_playable", false)):
+		playable_modes.append("play")
+	if bool(options.get("attack_playable", false)):
+		playable_modes.append("attack")
+	if bool(options.get("move_playable", false)):
+		playable_modes.append("move")
+	if bool(options.get("blink_playable", false)):
+		playable_modes.append("blink")
+	return playable_modes[0] if playable_modes.size() == 1 else "play"
+
 
 func _clear_card_action_choice_state() -> void:
 	_card_action_choice_index = -1
@@ -15302,8 +15320,10 @@ func _on_card_pressed(index: int) -> void:
 		_reset_card_resolution()
 	var options: Dictionary = _card_play_options_for_index(index)
 	_show_card_action_choices(index, options)
-	if bool(options.get("printed_playable", false)):
-		await _on_card_action_choice_pressed("play")
+	var initial_mode: String = _card_action_choice_mode
+	var initial_playable_key: String = "printed_playable" if initial_mode == "play" else "%s_playable" % initial_mode
+	if bool(options.get(initial_playable_key, false)):
+		await _on_card_action_choice_pressed(initial_mode)
 	else:
 		_refresh_ui()
 
@@ -22293,7 +22313,10 @@ func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 
 func _hand_layout_gap(card_count: int, card_size: Vector2) -> float:
 	var available_width: float = _hand_available_width()
-	var preferred_gap: float = HandFanContainer.overlap_gap_for_card_width(card_size.x)
+	var preferred_gap: float = HandFanContainer.overlap_gap_for_card_width(
+		card_size.x,
+		HandFanContainer.overlap_ratio_for_hand_size(card_count)
+	)
 	return HandFanContainer.card_gap_for_available_width(
 		card_count,
 		card_size,

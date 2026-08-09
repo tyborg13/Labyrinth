@@ -67,6 +67,24 @@ func _capture_action_step_tracker_frames() -> void:
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["current", "remaining"], "restored printed selection")
 
+	var full_hand: Array = ["sidestep_slash", "guarded_step", "quick_stab", "patch_up", "bone_dart", "brace", "lantern_shot"]
+	await _load_combat_fixture(instance, full_hand, Vector2i(2, 4), [Vector2i(6, 4)], 9716)
+	piles_y_before = _control_rect(instance, PILES_PATH).position.y
+	instance.call("_on_card_pressed", 2)
+	await _settle_ui()
+	if str(instance.get("_card_action_choice_mode")) != "move" or int(instance.get("_selected_card_index")) != 2:
+		_fail("A full-hand Move-only card should pre-select Move and enter targeting without another click")
+	_assert_active_mode(instance, "move", "full-hand Move-only selection")
+	_assert_tracker_statuses(instance, ["current"], "full-hand Move-only selection")
+	_assert_tracker_layout(instance, "full-hand Move-only selection", piles_y_before, true)
+	var full_hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
+	if full_hand_bounds.size.x < 650.0:
+		_fail("Full-hand positioning proof should occupy substantial horizontal space, got %s" % full_hand_bounds)
+	await _save_root_screenshot("%s/full_hand_move_only_selected.png" % OUTPUT_DIR)
+
+	await _load_combat_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(5, 4)], 9711)
+	instance.call("_on_card_pressed", 0)
+	await _settle_ui()
 	instance.call("_on_board_tile_clicked", Vector2i(4, 4))
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["done", "current"], "move-attack after move target")
@@ -125,21 +143,22 @@ func _capture_action_step_tracker_frames() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _load_combat_fixture(instance: Node, card_id: String, player_pos: Vector2i, enemy_positions: Array, seed: int, immobilized: bool = false) -> void:
+func _load_combat_fixture(instance: Node, card_or_hand: Variant, player_pos: Vector2i, enemy_positions: Array, seed: int, immobilized: bool = false) -> void:
 	instance.call("_cancel_drag_play")
 	instance.call("_reset_card_resolution")
 	var layout: Dictionary = _tracker_room_layout(player_pos, enemy_positions)
+	var hand: Array = card_or_hand.duplicate() if card_or_hand is Array else [str(card_or_hand)]
 	var combat := CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(seed, layout, {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": [card_id],
+		"deck_cards": hand.duplicate(),
 		"relics": [],
-		"hand_size": 1,
+		"hand_size": hand.size(),
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = [card_id]
+	deck["hand"] = hand.duplicate()
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -219,7 +238,7 @@ func _assert_tracker_statuses(instance: Node, expected: Array, label: String) ->
 			_fail("%s expected statuses %s, got %s" % [label, str(expected), str(statuses)])
 			return
 
-func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: float) -> void:
+func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: float, allow_hand_overlap: bool = false) -> void:
 	var tracker: Control = instance.get_node_or_null(TRACKER_PATH) as Control
 	var choice: Control = instance.get_node_or_null(CHOICE_PATH) as Control
 	var piles: Control = instance.get_node_or_null(PILES_PATH) as Control
@@ -243,8 +262,11 @@ func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: flo
 			_fail("%s tracker should never cover the rendered tactical board: %s intersects %s" % [label, tracker_rect, board_bounds])
 			return
 		var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
-		if hand_bounds.size.x > 0.0 and tracker_rect.intersects(hand_bounds):
+		if not allow_hand_overlap and hand_bounds.size.x > 0.0 and tracker_rect.intersects(hand_bounds):
 			_fail("%s tracker should stay clear of the resting hand: %s intersects %s" % [label, tracker_rect, hand_bounds])
+			return
+		if allow_hand_overlap and tracker_rect.intersects(hand_bounds) and float(tracker.get_meta("soft_hand_overlap", 0.0)) <= 0.0:
+			_fail("%s should report an intentional soft overlap when layered above the full hand" % label)
 			return
 
 func _assert_tracker_position(instance: Node, expected: Vector2, label: String) -> void:

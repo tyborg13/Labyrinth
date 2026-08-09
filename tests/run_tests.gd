@@ -808,6 +808,17 @@ func _test_hand_fan_layout_lifts_center_cards() -> void:
 	var card_size := Vector2(210.0, 300.0)
 	var authored_overlap: float = HandFanContainer.overlap_gap_for_card_width(card_size.x)
 	_assert(is_equal_approx(-authored_overlap / card_size.x, 0.20), "The authored combat fan should overlap adjacent cards by 20% of card width")
+	var five_card_overlap_ratio: float = HandFanContainer.overlap_ratio_for_hand_size(5)
+	var six_card_overlap_ratio: float = HandFanContainer.overlap_ratio_for_hand_size(6)
+	var seven_card_overlap_ratio: float = HandFanContainer.overlap_ratio_for_hand_size(7)
+	_assert(is_equal_approx(five_card_overlap_ratio, HandFanContainer.DEFAULT_CARD_OVERLAP_RATIO), "A normal five-card hand should preserve the authored overlap")
+	_assert(six_card_overlap_ratio > five_card_overlap_ratio and seven_card_overlap_ratio > six_card_overlap_ratio, "Hand-card overlap should increase progressively as hands grow")
+	_assert(seven_card_overlap_ratio <= HandFanContainer.MAX_CARD_OVERLAP_RATIO, "Dense hands should retain a capped readable overlap")
+	var seven_card_dense_gap: float = HandFanContainer.overlap_gap_for_card_width(card_size.x, seven_card_overlap_ratio)
+	var seven_card_default_width: float = HandFanContainer.content_size_for_layout(7, card_size, authored_overlap, true).x
+	var seven_card_dense_width: float = HandFanContainer.content_size_for_layout(7, card_size, seven_card_dense_gap, true).x
+	_assert(seven_card_dense_width < seven_card_default_width - 100.0, "A seven-card hand should compress materially through overlap instead of shrinking card readability")
+	_assert(card_size.x + seven_card_dense_gap >= HandFanContainer.DEFAULT_MIN_EXPOSED_CARD_WIDTH, "Dense hands should preserve a clickable exposed strip on every covered card")
 	var left_rect: Rect2 = HandFanContainer.card_rect_for_layout(0, 5, card_size, -28.0, true)
 	var center_rect: Rect2 = HandFanContainer.card_rect_for_layout(2, 5, card_size, -28.0, true)
 	var right_rect: Rect2 = HandFanContainer.card_rect_for_layout(4, 5, card_size, -28.0, true)
@@ -9280,11 +9291,11 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	var attack_choice: Button = context.find_child("CardActionChoiceAttack", true, false) as Button
 	var move_choice: Button = context.find_child("CardActionChoiceMove", true, false) as Button
 	_assert(context.visible and str(context.get_meta("context_mode", "")) == "choice", "Clicking a card should open its persistent exclusive play-mode selector")
-	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == 0, "An unavailable printed mode should remain selected without inventing a target")
-	_assert(str(instance.get("_card_action_choice_mode")) == "play", "As Written should remain the default tab even when no printed target is legal")
-	_assert(full_choice != null and full_choice.disabled and full_choice.toggle_mode and full_choice.button_pressed and bool(full_choice.get_meta("active", false)), "Unavailable As Written should remain visibly selected and disabled")
+	_assert(int(instance.get("_selected_card_index")) == 0 and int(instance.get("_card_action_choice_index")) == 0, "A Move-only card should enter fallback targeting without another click")
+	_assert(str(instance.get("_card_action_choice_mode")) == "move", "A sole legal fallback Move should be pre-selected")
+	_assert(full_choice != null and full_choice.disabled and full_choice.toggle_mode and not full_choice.button_pressed and not bool(full_choice.get_meta("active", false)), "Unavailable As Written should remain visibly disabled without stealing selection")
 	_assert(attack_choice != null and attack_choice.disabled and attack_choice.toggle_mode and not attack_choice.button_pressed and not bool(attack_choice.get_meta("active", false)), "Attack should be a disabled inactive mode without an adjacent target")
-	_assert(move_choice != null and not move_choice.disabled and move_choice.toggle_mode and not move_choice.button_pressed and not bool(move_choice.get_meta("active", false)), "Move should be an enabled inactive mode")
+	_assert(move_choice != null and not move_choice.disabled and move_choice.toggle_mode and move_choice.button_pressed and bool(move_choice.get_meta("active", false)), "Move should be the enabled active mode")
 	_assert(full_choice != null and attack_choice != null and full_choice.modulate.a >= 0.99 and attack_choice.modulate.a >= 0.99, "Unavailable placards should dim without becoming translucent over the spine")
 	_assert(move_choice != null and move_choice.modulate.a >= 0.99, "Available unselected modes should remain fully opaque")
 	_assert(full_choice != null and attack_choice != null and move_choice != null and full_choice.button_group == attack_choice.button_group and attack_choice.button_group == move_choice.button_group, "All three play modes should share one exclusive ButtonGroup")
@@ -9295,8 +9306,8 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 			_assert(bool(choice_button.get_meta("embedded_identity_icon", false)) and choice_button.find_child("ModeIcon", true, false) == null, "Each placard should contain its identity icon in the authored art")
 			_assert(choice_button.find_child("ModeIndicator", true, false) == null and choice_button.find_child("SelectedDot", true, false) == null, "Brushstroke choices should remove the old radio dot and avoid a stamp selection mark")
 	_assert(full_choice != null and str(full_choice.get_meta("mode_icon_key", "")) == "card_play", "PRINTED mode should identify its built-in emblem as a card")
-	var selected_glow: TextureRect = full_choice.find_child("SelectedGlow", true, false) as TextureRect if full_choice != null else null
-	_assert(full_choice != null and bool(full_choice.get_meta("selected_glow_visible", false)) and selected_glow != null and bool(selected_glow.get_meta("matches_pre_battle_start_glow", false)) and bool(selected_glow.get_meta("follows_placard_alpha", false)), "Selected PRINTED mode should use a soft alpha-following gold glow as its primary cue")
+	var selected_glow: TextureRect = move_choice.find_child("SelectedGlow", true, false) as TextureRect if move_choice != null else null
+	_assert(move_choice != null and bool(move_choice.get_meta("selected_glow_visible", false)) and selected_glow != null and bool(selected_glow.get_meta("matches_pre_battle_start_glow", false)) and bool(selected_glow.get_meta("follows_placard_alpha", false)), "Auto-selected Move mode should use the soft alpha-following gold glow")
 	_assert(context.get_theme_stylebox("panel") is StyleBoxEmpty, "Contextual card play choices should remove the old panel background")
 	var placard_spine: TextureRect = context.find_child("ModePlacardSpine", true, false) as TextureRect
 	_assert(placard_spine != null and bool(placard_spine.get_meta("connects_placards_only", false)), "The placard stack should have an authored connective spine that does not extend into the dynamic action row")
@@ -13204,8 +13215,8 @@ func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: Str
 	await process_frame
 	await process_frame
 	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode options for that exact card")
-	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Clicking a card should begin in As Written mode")
-	if play_kind != "play":
+	var initial_mode: String = str(instance.get("_card_action_choice_mode"))
+	if initial_mode != play_kind:
 		await instance.call("_on_card_action_choice_pressed", play_kind)
 		await process_frame
 		await process_frame

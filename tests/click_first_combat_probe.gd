@@ -308,8 +308,8 @@ func _choose_clicked_action(instance: Node, hand_index: int, play_kind: String) 
 	instance.call("_on_card_pressed", hand_index)
 	await _settle_ui()
 	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Click should expose play-mode options for exact hand index %d" % hand_index)
-	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Click should default to the card's printed mode")
-	if play_kind != "play":
+	var initial_mode: String = str(instance.get("_card_action_choice_mode"))
+	if initial_mode != play_kind:
 		await instance.call("_on_card_action_choice_pressed", play_kind)
 		await _settle_ui()
 	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested %s mode should remain active" % play_kind)
