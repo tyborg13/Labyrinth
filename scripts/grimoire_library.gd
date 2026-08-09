@@ -734,6 +734,8 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 		var type_entry: String = str(ACTION_TYPE_ENTRY_IDS.get(action_type, ""))
 		if not type_entry.is_empty():
 			wanted[type_entry] = true
+		if int(action.get("illuminate_radius", 0)) > 0:
+			wanted["keyword:illuminate"] = true
 		if action_type == "summon_minions":
 			var minion_type: String = str(action.get("minion_type", ""))
 			var minion_entry: String = "enemy:%s" % minion_type

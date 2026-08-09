@@ -445,6 +445,13 @@ static func _test_radiance_branch(expect: Callable) -> void:
 	witchlight_state["illusions"] = [{"id": 51, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
 	expect.call(bool(combat.call("_light_source_covers_tile", witchlight_state, Vector2i(5, 4))), "Witchlight should make a living illusion a real radius-one Light source")
 	expect.call(not bool(combat.call("_light_source_covers_tile", witchlight_state, Vector2i(6, 4))), "Witchlight should not exceed its authored radius")
+	var stacked_light_state: Dictionary = _state(combat, ["witchlight"], ["quick_stab"])
+	stacked_light_state["relics"] = ["witchglass_lantern"]
+	stacked_light_state["illusions"] = [{"id": 53, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
+	expect.call(bool(combat.call("_light_source_covers_tile", stacked_light_state, Vector2i(7, 4))), "Witchlight and Witchglass Lantern should add their radii into radius-three tethered Light")
+	expect.call(not bool(combat.call("_light_source_covers_tile", stacked_light_state, Vector2i(8, 4))), "Additive illusion Light should stop at the combined authored radius")
+	var stacked_sources: Array[Dictionary] = combat.effective_light_sources(stacked_light_state)
+	expect.call(stacked_sources.size() == 1 and int(stacked_sources[0].get("radius", 0)) == 3 and (stacked_sources[0].get("radius_contributors", []) as Array).size() == 2, "Tethered Light presentation should expose both additive contributors")
 
 	var dawnbrand_state: Dictionary = _state(combat, ["dawnbrand"], ["quick_stab"])
 	dawnbrand_state = combat.apply_player_action(dawnbrand_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(5, 2))

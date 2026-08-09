@@ -39,7 +39,7 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.available_ids([]).size() == 5, "A new character should be able to learn any root")
 	expect.call(SkillTreeLibrary.description("long_dawn") == "Temporary Light, Vision, and Truesight you create last 1 additional turn. Permanent and tethered effects are unchanged.", "Long Dawn should state the exact temporary-effect boundary")
 	expect.call(SkillTreeLibrary.description("sunpath") == "The first Move or Blink of 3+ tiles each turn leaves radius-1 Light for 2 turns on every tile entered. Blink lights its origin and destination.", "Sunpath should explain its path and Blink endpoint behavior without introducing a new interaction")
-	expect.call(SkillTreeLibrary.description("witchlight") == "Living illusions carry tethered radius-1 Light.", "Witchlight should describe its tethered board effect concisely")
+	expect.call(SkillTreeLibrary.description("witchlight") == "Living illusions add 1 radius to their tethered Light.", "Witchlight should describe its additive tethered board effect concisely")
 	expect.call(SkillTreeLibrary.description("dawnbrand") == "The first direct attack each turn against an enemy standing in Light inflicts 1 Expose.", "Dawnbrand should disclose its once-per-turn Light condition")
 	expect.call(SkillTreeLibrary.description("afterglow") == "When an illusion is removed during combat, it leaves radius-1 Light for 2 turns at its final tile.", "Afterglow should disclose removal timing and duration")
 	expect.call(SkillTreeLibrary.description("open_sky") == "While you stand in Light, you have Truesight.", "Open Sky should state its conditional Truesight rule")

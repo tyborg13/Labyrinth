@@ -141,6 +141,12 @@ movement, and elemental-intensity payoffs during the resolved transition.
   remains a separate delta so analysts can distinguish trails and placed Light
   from actor-bound auras.
 
+Attack-carried Light remains one resolved attack action in this payload. Its
+additive `illuminate_radius` and `illuminate_duration` fields identify the
+post-hit rider, while the single chosen target remains the enemy, trap, or
+terrain impact tile. Standalone `illuminate` actions remain distinct and retain
+their free-tile target entry.
+
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and
 large-area attacks. Runtime-selected AOE aim orientation is additive on the

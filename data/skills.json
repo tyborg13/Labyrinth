@@ -322,7 +322,7 @@
   "witchlight": {
     "name": "Witchlight",
     "icon": "skill_witchlight",
-    "description": "Living illusions carry tethered radius-1 Light.",
+    "description": "Living illusions add 1 radius to their tethered Light.",
     "branch": "radiance",
     "tier": "branch",
     "position": [4, 2],

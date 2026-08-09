@@ -271,7 +271,8 @@ func _effective_light_sources(state: Dictionary) -> Array[Dictionary]:
 	for source_var: Variant in (state.get("umbra", {}) as Dictionary).get("light_sources", []):
 		if typeof(source_var) == TYPE_DICTIONARY:
 			result.append((source_var as Dictionary).duplicate(true))
-	var aura_radius: int = _illusion_light_radius(state)
+	var contributors: Array[Dictionary] = _illusion_light_contributors(state)
+	var aura_radius: int = _illusion_light_radius_from_contributors(contributors)
 	if aura_radius <= 0:
 		return result
 	for illusion: Dictionary in _live_illusions(state):
@@ -280,7 +281,8 @@ func _effective_light_sources(state: Dictionary) -> Array[Dictionary]:
 			"pos": illusion.get("pos", INVALID_TILE),
 			"radius": aura_radius,
 			"remaining_activations": -1,
-			"tethered": true
+			"tethered": true,
+			"radius_contributors": contributors.duplicate(true)
 		})
 	return result
 
@@ -301,13 +303,32 @@ func light_source_umbra_suppression(state: Dictionary) -> int:
 	return _light_source_umbra_suppression(state)
 
 func _illusion_light_radius(state: Dictionary) -> int:
-	var radius: int = 0
+	return _illusion_light_radius_from_contributors(_illusion_light_contributors(state))
+
+func _illusion_light_contributors(state: Dictionary) -> Array[Dictionary]:
+	var contributors: Array[Dictionary] = _dictionary_values([])
 	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("illusion_light")
 	if not skill_id.is_empty() and has_skill(state, skill_id):
-		radius = maxi(radius, int(SkillTreeLibrary.effect(skill_id).get("radius", 1)))
+		contributors.append({
+			"id": skill_id,
+			"name": SkillTreeLibrary.display_name(skill_id),
+			"radius": int(SkillTreeLibrary.effect(skill_id).get("radius", 1))
+		})
 	for effect: Dictionary in _relic_effects(state):
 		if str(effect.get("type", "")) == "illusion_light_aura":
-			radius = maxi(radius, int(effect.get("radius", 1)))
+			var relic_id: String = str(effect.get("relic_id", ""))
+			var relic: Dictionary = GameData.relic_def(relic_id)
+			contributors.append({
+				"id": relic_id,
+				"name": str(relic.get("name", relic_id.capitalize())),
+				"radius": int(effect.get("radius", 1))
+			})
+	return contributors
+
+func _illusion_light_radius_from_contributors(contributors: Array[Dictionary]) -> int:
+	var radius: int = 0
+	for contributor: Dictionary in contributors:
+		radius += maxi(0, int(contributor.get("radius", 0)))
 	return radius
 
 func _light_source_umbra_suppression(state: Dictionary) -> int:
@@ -1018,7 +1039,28 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					break
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
+	if _action_has_illuminate_rider(resolved_action) and action_type == "aoe":
+		if not _aoe_illuminate_rider_hits_selected_center(resolved_action):
+			return _vector2i_values([])
+		var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state)
+		var centered_targets: Array[Vector2i] = _vector2i_values([])
+		for target: Vector2i in targets:
+			if attackable_tiles.has(target):
+				centered_targets.append(target)
+		return centered_targets
 	return targets
+
+func _action_has_illuminate_rider(action: Dictionary) -> bool:
+	return int(action.get("illuminate_radius", 0)) > 0
+
+func _aoe_illuminate_rider_hits_selected_center(action: Dictionary) -> bool:
+	for offsets_var: Variant in _aoe_pattern_variants(action):
+		if typeof(offsets_var) != TYPE_ARRAY:
+			continue
+		var offsets: Array[Vector2i] = _vector2i_values(offsets_var as Array)
+		if not offsets.has(_aoe_center_offset(offsets)):
+			return false
+	return true
 
 func _append_enemy_footprint_targets(targets: Array[Vector2i], enemy: Dictionary) -> void:
 	for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
@@ -3398,7 +3440,7 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 		return next_state
 	resolved_action = _action_with_target_state_relic_modifiers(next_state, resolved_action, enemy_index)
 	resolved_action = _action_with_light_target_skill_modifier(next_state, resolved_action, enemy_index)
-	if int(resolved_action.get("damage", 0)) > 0 or _action_has_keyword_effect(resolved_action):
+	if int(resolved_action.get("damage", 0)) > 0 or _action_has_keyword_effect(resolved_action) or _action_has_illuminate_rider(resolved_action):
 		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
 		if combat_outcome(next_state) == "defeat":
 			return next_state
@@ -3450,7 +3492,6 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 		if damage > 0:
 			next_state = _consume_enemy_expose(next_state, enemy_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
-	next_state = _trigger_resolved_action_light(next_state, resolved_action, center, affected)
 	for terrain_index: int in affected_terrain:
 		var terrain_damage: int = final_damage_for_player_action(next_state, action)
 		if terrain_damage <= 0:
@@ -3458,6 +3499,7 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 		last_damage = terrain_damage
 		next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
 	next_state = _trigger_traps_on_tiles(next_state, affected_traps)
+	next_state = _trigger_resolved_action_light(next_state, resolved_action, center, affected)
 	if hidden_enemy_affected:
 		_log(next_state, "Area attack strikes through the Umbra.")
 	else:
@@ -4656,7 +4698,7 @@ func _trigger_resolved_action_light(
 	target_tile: Vector2i,
 	affected_enemy_indices: Array
 ) -> Dictionary:
-	var next_state: Dictionary = state
+	var next_state: Dictionary = _apply_authored_attack_light_rider(state, action, target_tile)
 	for effect: Dictionary in _relic_effects(next_state):
 		if str(effect.get("type", "")) != "resolved_action_light":
 			continue
@@ -4692,6 +4734,15 @@ func _trigger_resolved_action_light(
 			})
 		_log(next_state, "%s leaves Light behind." % _relic_effect_source_name(effect))
 	return next_state
+
+func _apply_authored_attack_light_rider(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
+	if not _action_has_illuminate_rider(action) or target_tile == INVALID_TILE or target_tile.x < 0:
+		return state
+	return _create_umbra_light_source(state, target_tile, {
+		"radius": int(action.get("illuminate_radius", 1)),
+		"duration": int(action.get("illuminate_duration", 1)),
+		"silent": true
+	})
 
 func _resolved_action_matches_light_effect(state: Dictionary, action: Dictionary, effect: Dictionary) -> bool:
 	var action_types: Array = effect.get("action_types", []) as Array
@@ -5449,6 +5500,7 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 		if int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
 		next_state = _trigger_player_trap_at_index(next_state, trap_index)
+		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
 		_log(next_state, "%s triggers a trap." % ("Push" if pushing else "Pull"))
 		return next_state
 	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
@@ -5461,6 +5513,7 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 			if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 				_mark_first_attack_used(next_state)
 			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
+			next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
 			_log(next_state, "%s splinters terrain for %d." % ["Push" if pushing else "Pull", terrain_damage])
 		return next_state
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)

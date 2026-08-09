@@ -103,6 +103,7 @@ func _capture_umbra_stages_and_cards() -> void:
 	await _capture_active_effect_feedback(instance)
 	await _capture_redesign_spatial_effects(instance)
 	await _capture_card_gallery(instance)
+	await _capture_token_suffix_stress_gallery(instance)
 	instance.queue_free()
 	await process_frame
 
@@ -292,6 +293,31 @@ func _has_board_tooltip_containing(board: Control, text: String) -> bool:
 			return true
 	return false
 
+func _hover_board_tooltip(board: Control, text: String) -> void:
+	var tooltip_sources: Array = board.call("_retained_render_layers")
+	tooltip_sources.append(board)
+	for source_var: Variant in tooltip_sources:
+		var source: Control = source_var as Control
+		if source == null:
+			continue
+		for region_var: Variant in source.get("_tooltip_regions") as Array:
+			if typeof(region_var) != TYPE_DICTIONARY:
+				continue
+			var region: Dictionary = region_var
+			if not str(region.get("tooltip", "")).contains(text):
+				continue
+			var rect: Rect2 = region.get("rect", Rect2()) as Rect2
+			var hover_position: Vector2 = board.get_global_transform_with_canvas() * rect.get_center()
+			var motion := InputEventMouseMotion.new()
+			motion.position = hover_position
+			motion.global_position = hover_position
+			root.push_input(motion, true)
+			await create_timer(0.75).timeout
+			RenderingServer.force_draw()
+			await process_frame
+			return
+	_assert(false, "Could not find board tooltip containing %s" % text)
+
 func _capture_redesign_spatial_effects(instance: Node) -> void:
 	var combat := CombatEngine.new()
 	var long_dawn_state: Dictionary = _radiance_visual_state(combat, [], ["long_dawn"])
@@ -331,6 +357,16 @@ func _capture_redesign_spatial_effects(instance: Node) -> void:
 	await _settle_ui()
 	await _save_root_screenshot("%s/relic_witchglass_lantern_tether.png" % OUTPUT_DIR)
 
+	var stacked_light_state: Dictionary = _radiance_visual_state(combat, ["witchglass_lantern"], ["witchlight"])
+	stacked_light_state["illusions"] = [{"id": 62, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
+	_set_combat_state(instance, stacked_light_state)
+	await _settle_ui()
+	var stacked_sources: Array = (board.get("presentation") as Dictionary).get("umbra_light_sources", []) as Array
+	_assert(stacked_sources.size() == 1 and int((stacked_sources[0] as Dictionary).get("radius", 0)) == 3, "Witchlight and Witchglass Lantern should render as radius-three tethered Light together")
+	_assert(_has_board_tooltip_containing(board, "Witchlight: +1") and _has_board_tooltip_containing(board, "Witchglass Lantern: +2"), "Stacked tethered Light should explain both additive sources contextually")
+	await _hover_board_tooltip(board, "Witchlight: +1")
+	await _save_root_screenshot("%s/illusion_light_additive_stack.png" % OUTPUT_DIR)
+
 	var dawnbrand_state: Dictionary = _radiance_visual_state(combat, [], ["dawnbrand"])
 	dawnbrand_state = combat.apply_player_action(dawnbrand_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(7, 4))
 	dawnbrand_state = combat.apply_player_action(dawnbrand_state, {"type": "ranged", "damage": 1, "range": 6}, Vector2i(7, 4))
@@ -369,9 +405,9 @@ func _capture_redesign_spatial_effects(instance: Node) -> void:
 	await _settle_ui()
 	await _save_root_screenshot("%s/relic_captured_noon_suppression.png" % OUTPUT_DIR)
 
-	await _capture_squall_shared_target_orientation(instance, combat)
+	await _capture_squall_light_rider_orientation(instance, combat)
 
-func _capture_squall_shared_target_orientation(instance: Node, combat: CombatEngine) -> void:
+func _capture_squall_light_rider_orientation(instance: Node, combat: CombatEngine) -> void:
 	instance.call("_reset_card_resolution")
 	var squall_state: Dictionary = _radiance_visual_state(combat, [], [])
 	squall_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
@@ -391,15 +427,15 @@ func _capture_squall_shared_target_orientation(instance: Node, combat: CombatEng
 	await _settle_ui()
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
-	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
-	instance.call("_on_board_tile_hovered", Vector2i(4, 3))
+	instance.call("_on_board_tile_hovered", Vector2i(4, 4))
+	instance.call("_rotate_aoe_aim", -1)
+	instance.call("_on_board_tile_hovered", Vector2i(4, 4))
 	await _settle_ui()
-	_assert(instance.get("_pending_orientation_target_tile") == Vector2i(4, 4), "Squall visual fixture should keep its Light tile locked while choosing orientation")
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	var focus_tiles: Array = presentation.get("focus_tiles", []) as Array
 	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Squall visual fixture should show its north-rotated odd pattern")
-	await _save_root_screenshot("%s/card_squall_shared_target_orientation.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/card_squall_light_rider_orientation.png" % OUTPUT_DIR)
 	instance.call("_reset_card_resolution")
 
 func _radiance_visual_state(combat: CombatEngine, relic_ids: Array, skill_ids: Array) -> Dictionary:
@@ -463,9 +499,68 @@ func _capture_card_gallery(instance: Node) -> void:
 		widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 	await _settle_ui()
-	await _save_root_screenshot("%s/radiance_changed_cards.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/radiance_changed_cards_compact_suffixes.png" % OUTPUT_DIR)
 	gallery_layer.queue_free()
 	await process_frame
+
+func _capture_token_suffix_stress_gallery(instance: Node) -> void:
+	var combat := CombatEngine.new()
+	var stress_state: Dictionary = _radiance_visual_state(combat, ["duelist_whetstone"], [])
+	stress_state["elemental_intensity"] = {
+		"fire": 3,
+		"ice": 0,
+		"lightning": 0,
+		"air": 0,
+		"earth": 0
+	}
+	var gallery_layer := CanvasLayer.new()
+	gallery_layer.layer = 1000
+	root.add_child(gallery_layer)
+	var gallery := Control.new()
+	gallery.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gallery.anchor_right = 1.0
+	gallery.anchor_bottom = 1.0
+	gallery_layer.add_child(gallery)
+	var background := ColorRect.new()
+	background.color = Color("16111d")
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.anchor_right = 1.0
+	background.anchor_bottom = 1.0
+	gallery.add_child(background)
+	_add_gallery_title(gallery, "ATTACHED VALUE SUFFIXES · NATIVE 250 × 352", 18.0)
+	_add_gallery_title(gallery, "COMPACT 190 × 268 · SAME RULES, SAME FONT FLOORS", 494.0)
+	var stress_cards: Array[String] = ["blood_price", "glowstone_ward", "sidestep_slash", "firebrand_volley", "storm_beacon"]
+	for index: int in range(stress_cards.size()):
+		_add_gallery_card(gallery, instance, stress_state, stress_cards[index], Vector2(115.0 + float(index) * 350.0, 76.0), Vector2(250.0, 352.0))
+		_add_gallery_card(gallery, instance, stress_state, stress_cards[index], Vector2(350.0 + float(index) * 245.0, 542.0), Vector2(190.0, 268.0))
+	await _settle_ui()
+	await _save_root_screenshot("%s/card_value_suffix_stress.png" % OUTPUT_DIR)
+	gallery_layer.queue_free()
+	await process_frame
+
+func _add_gallery_title(gallery: Control, text: String, y: float) -> void:
+	var title := Label.new()
+	title.text = text
+	title.position = Vector2(42.0, y)
+	title.size = Vector2(1836.0, 38.0)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color("f4dfb8"))
+	gallery.add_child(title)
+
+func _add_gallery_card(gallery: Control, instance: Node, combat_state: Dictionary, card_id: String, position: Vector2, card_size: Vector2) -> void:
+	var slot := Control.new()
+	slot.position = position
+	slot.custom_minimum_size = card_size
+	slot.size = card_size
+	gallery.add_child(slot)
+	var widget: CardWidget = CardWidgetScene.instantiate()
+	widget.custom_minimum_size = card_size
+	widget.size = card_size
+	slot.add_child(widget)
+	var display: Dictionary = instance.call("_card_widget_display", card_id, combat_state)
+	widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 
 func _room_layout() -> Dictionary:
 	var positions: Array[Vector2i] = _vector2i_array([

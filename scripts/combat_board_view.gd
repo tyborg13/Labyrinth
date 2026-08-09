@@ -1961,10 +1961,7 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var source_seed: float = _umbra_light_source_seed(source)
 		if bool(source.get("tethered", false)):
 			var tethered_rect: Rect2 = _draw_umbra_tethered_light_marker(tile, source_seed, time_seconds)
-			_register_tooltip(
-				tethered_rect,
-				"Tethered Light\nMoves with this illusion and ends when it is removed.\nReveals Umbra within %d tile%s." % [radius_tiles, "" if radius_tiles == 1 else "s"]
-			)
+			_register_tooltip(tethered_rect, _tethered_light_tooltip(source))
 			continue
 		var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
 		var glow_brightness: float = 0.94 + 0.10 * (0.5 + 0.5 * sin(time_seconds * 2.15 + source_seed * 0.37))
@@ -1977,6 +1974,17 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
 		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
 		_register_tooltip(marker_rect, tooltip)
+
+func _tethered_light_tooltip(source: Dictionary) -> String:
+	var radius: int = maxi(1, int(source.get("radius", 1)))
+	var lines := PackedStringArray(["Tethered Light — Radius %d" % radius])
+	for contributor_var: Variant in source.get("radius_contributors", []):
+		if typeof(contributor_var) != TYPE_DICTIONARY:
+			continue
+		var contributor: Dictionary = contributor_var
+		lines.append("%s: +%d" % [str(contributor.get("name", "Source")), int(contributor.get("radius", 0))])
+	lines.append("Moves with this illusion and ends when it is removed.")
+	return "\n".join(lines)
 
 func _umbra_light_source_seed(source: Dictionary) -> float:
 	return float(absi(str(source.get("id", "0")).hash()) % 10007)

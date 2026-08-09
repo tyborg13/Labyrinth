@@ -9,13 +9,14 @@ const RADIANCE_CARD_IDS: Array[String] = [
 	"glowstone_ward", "daybreak", "trapdoor", "ember_rain", "firebrand_volley",
 	"icebound_chains", "spark_dart", "spark_focus", "squall_shot", "root_snare"
 ]
-const SHARED_TARGET_CARD_IDS: Array[String] = [
-	"ember_rain", "firebrand_volley", "spark_dart", "squall_shot", "root_snare"
+const ATTACK_LIGHT_RIDER_CARD_IDS: Array[String] = [
+	"lantern_shot", "guiding_flare", "storm_beacon", "ember_rain",
+	"firebrand_volley", "spark_dart", "squall_shot", "root_snare"
 ]
 
 static func run(expect: Callable) -> void:
 	_test_radiance_pool_and_duration_contract(expect)
-	_test_shared_target_riders(expect)
+	_test_attack_light_riders(expect)
 
 static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 	var tagged_ids: Array[String]
@@ -42,31 +43,29 @@ static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 				found_duration = int(action.get("duration", 0)) == 2
 		expect.call(found_duration, "%s should use the approved two-turn Vision or Truesight duration" % card_id)
 
-static func _test_shared_target_riders(expect: Callable) -> void:
+static func _test_attack_light_riders(expect: Callable) -> void:
 	var combat := CombatEngine.new()
-	for card_id: String in SHARED_TARGET_CARD_IDS:
+	for card_id: String in ATTACK_LIGHT_RIDER_CARD_IDS:
 		var card: Dictionary = GameData.card_def(card_id)
 		var actions: Array = card.get("actions", []) as Array
-		var illuminate_index: int = -1
-		var followup_index: int = -1
-		for index: int in range(actions.size()):
-			var action: Dictionary = actions[index] as Dictionary
-			if str(action.get("type", "")) == "illuminate":
-				illuminate_index = index
-			elif bool(action.get("reuse_previous_target", false)):
-				followup_index = index
-		expect.call(illuminate_index >= 0 and followup_index == illuminate_index + 1, "%s should place Light and immediately reuse that one selected tile for its attack" % card_id)
+		var rider_actions: Array[Dictionary] = []
+		for action_var: Variant in actions:
+			var action: Dictionary = action_var as Dictionary
+			expect.call(str(action.get("type", "")) != "illuminate" and not bool(action.get("reuse_previous_target", false)), "%s should not retain a separate Light target action" % card_id)
+			if int(action.get("illuminate_radius", 0)) > 0:
+				rider_actions.append(action)
+		expect.call(rider_actions.size() == 1 and str(rider_actions[0].get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"], "%s should author Light as one attack rider" % card_id)
 		var rows: Array = ActionIcons.rows_for_actions(actions)
-		var shared_row_found: bool = false
+		var rider_row_found: bool = false
 		for row_var: Variant in rows:
 			var row_icons: Array[String]
 			for token_var: Variant in row_var as Array:
 				row_icons.append(str((token_var as Dictionary).get("icon", "")))
 			if row_icons.has("illuminate") and (row_icons.has("ranged") or row_icons.has("aoe")):
-				shared_row_found = true
-		expect.call(shared_row_found, "%s should present its Light rider and attack as one shared-target rules line" % card_id)
+				rider_row_found = row_icons.find("illuminate") > row_icons.find("ranged")
+		expect.call(rider_row_found, "%s should present attack information before its Light rider on one rules line" % card_id)
 
-		var state: Dictionary = combat.create_combat(8200 + illuminate_index, _room(), {
+		var state: Dictionary = combat.create_combat(8200 + actions.size(), _room(), {
 			"hp": 24, "max_hp": 24, "deck_cards": [card_id], "relics": [], "hand_size": 1
 		})
 		var target: Vector2i = Vector2i(4, 4)
@@ -74,13 +73,54 @@ static func _test_shared_target_riders(expect: Callable) -> void:
 		for action_var: Variant in actions:
 			var action: Dictionary = action_var as Dictionary
 			var action_type: String = str(action.get("type", ""))
-			if action_type in ["illuminate", "ranged", "aoe"]:
+			if action_type in ["ranged", "aoe"]:
 				state = combat.apply_player_action(state, action, target)
 			else:
 				state = combat.apply_player_action(state, action)
 		var sources: Array = (state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
-		expect.call(not sources.is_empty() and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == target and int((sources[0] as Dictionary).get("remaining_activations", 0)) == 2, "%s should create two-turn Light on the selected attack tile" % card_id)
-		expect.call(int(((state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) < hp_before, "%s should still resolve its attack on the illuminated tile" % card_id)
+		expect.call(not sources.is_empty() and (sources[0] as Dictionary).get("pos", Vector2i.ZERO) == target and int((sources[0] as Dictionary).get("remaining_activations", 0)) == 2, "%s should create two-turn Light after resolving on its selected attack tile" % card_id)
+		expect.call(int(((state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) < hp_before, "%s should still resolve its attack before creating impact Light" % card_id)
+
+	var rider: Dictionary = (GameData.card_def("lantern_shot").get("actions", []) as Array)[0]
+	var target_state: Dictionary = combat.create_combat(8291, _room(), {"hp": 24, "max_hp": 24, "deck_cards": ["lantern_shot"], "relics": [], "hand_size": 1})
+	target_state["traps"] = [{"id": "test_trap", "pos": Vector2i(3, 3), "element": "fire", "damage": 1}]
+	target_state["terrain"] = [{"id": "test_crate", "kind": "wooden_crate", "pos": Vector2i(5, 4), "hp": 20, "max_hp": 20}]
+	var valid_targets: Array[Vector2i] = combat.valid_targets_for_player_action(target_state, rider)
+	expect.call(valid_targets.has(Vector2i(4, 4)) and valid_targets.has(Vector2i(3, 3)) and valid_targets.has(Vector2i(5, 4)), "Attack Light riders should retain enemy, trap, and terrain targets")
+	expect.call(not valid_targets.has(Vector2i(3, 4)), "Attack Light riders should reject empty floor tiles")
+	for target: Vector2i in [Vector2i(3, 3), Vector2i(5, 4)]:
+		var resolved_target_state: Dictionary = combat.apply_player_action(target_state, rider, target)
+		var target_sources: Array = (resolved_target_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+		expect.call(not target_sources.is_empty() and (target_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == target, "A rider attack should leave Light at its trap or terrain impact")
+
+	var kill_state: Dictionary = combat.create_combat(8292, _room(), {"hp": 24, "max_hp": 24, "deck_cards": ["lantern_shot"], "relics": [], "hand_size": 1})
+	var kill_enemies: Array = kill_state.get("enemies", []) as Array
+	var kill_enemy: Dictionary = (kill_enemies[0] as Dictionary).duplicate(true)
+	kill_enemy["hp"] = 1
+	kill_enemies[0] = kill_enemy
+	kill_state["enemies"] = kill_enemies
+	var kill_result: Dictionary = combat.apply_player_action(kill_state, rider, Vector2i(4, 4))
+	var kill_sources: Array = (kill_result.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(int(((kill_result.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) <= 0 and not kill_sources.is_empty() and (kill_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 4), "A killing attack should leave its Light at the snapshotted impact tile")
+
+	var push_state: Dictionary = combat.create_combat(8293, _room(), {"hp": 24, "max_hp": 24, "deck_cards": ["lantern_shot"], "relics": [], "hand_size": 1})
+	var push_rider := {"type": "push", "damage": 1, "range": 5, "amount": 1, "illuminate_radius": 1, "illuminate_duration": 2}
+	var push_result: Dictionary = combat.apply_player_action(push_state, push_rider, Vector2i(4, 4))
+	var push_sources: Array = (push_result.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(((push_result.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) != Vector2i(4, 4) and not push_sources.is_empty() and (push_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 4), "A force attack should light its original impact after moving the target")
+
+	var brightglass_state: Dictionary = combat.create_combat(8294, _room(), {"hp": 24, "max_hp": 24, "deck_cards": ["lantern_shot"], "relics": ["ember_lens"], "hand_size": 1})
+	brightglass_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 2, "type": "crawler", "pos": Vector2i(5, 4), "hp": 20, "max_hp": 20, "block": 0}
+	]
+	var brightglass_result: Dictionary = combat.apply_player_action(brightglass_state, rider, Vector2i(4, 4))
+	expect.call(int(((brightglass_result.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 20, "Post-hit Light should not self-prime Brightglass Lens on the same attack")
+
+	var squall_action: Dictionary = (GameData.card_def("squall_shot").get("actions", []) as Array)[1]
+	var squall_state: Dictionary = combat.create_combat(8295, _room(), {"hp": 24, "max_hp": 24, "deck_cards": ["squall_shot"], "relics": [], "hand_size": 1})
+	var squall_targets: Array[Vector2i] = combat.valid_targets_for_player_action(squall_state, squall_action)
+	expect.call(squall_targets.has(Vector2i(4, 4)) and not squall_targets.has(Vector2i(4, 3)), "A Light-rider AOE should require an attackable selected center rather than an empty center that only overlaps a target")
 
 static func _room() -> Dictionary:
 	var grid: Array = []

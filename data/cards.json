@@ -207,14 +207,13 @@
     "health_cost": 0,
     "time": 3,
     "starter": true,
-    "description": "Illuminate a tile at range 6, deal 5 to an enemy on that tile, then draw 1.",
+    "description": "Deal 5 at range 6, then create radius-2 Light at the impact for 2 turns. Draw 1.",
     "accent": "#d49b42",
     "art_path": "res://assets/art/cards/lantern_shot.png",
     "reward_pool": false,
     "radiance": true,
     "actions": [
-      { "type": "illuminate", "range": 6, "radius": 2, "duration": 2 },
-      { "type": "ranged", "damage": 5, "range": 6, "reuse_previous_target": true },
+      { "type": "ranged", "damage": 5, "range": 6, "illuminate_radius": 2, "illuminate_duration": 2 },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -225,13 +224,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Illuminate at range 5, then scorch that tile for 5 and burn 2.",
+    "description": "Deal 5 and burn 2 at range 5, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/guiding_flare.png",
     "radiance": true,
     "actions": [
-      { "type": "illuminate", "range": 5, "radius": 2, "duration": 2 },
-      { "type": "ranged", "damage": 5, "range": 5, "burn": 2, "reuse_previous_target": true }
+      { "type": "ranged", "damage": 5, "range": 5, "burn": 2, "illuminate_radius": 2, "illuminate_duration": 2 }
     ]
   },
   "dawnstep": {
@@ -274,14 +272,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity. Illuminate a tile at range 6, then deal 5 with chain 2 to an enemy on that tile.",
+    "description": "Raise Lightning intensity. Deal 5 with chain 2 at range 6, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_beacon.png",
     "radiance": true,
     "actions": [
       { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "illuminate", "range": 6, "radius": 2, "duration": 2 },
-      { "type": "ranged", "damage": 5, "range": 6, "chain": 2, "reuse_previous_target": true }
+      { "type": "ranged", "damage": 5, "range": 6, "chain": 2, "illuminate_radius": 2, "illuminate_duration": 2 }
     ]
   },
   "glowstone_ward": {
@@ -526,13 +523,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Illuminate a tile at range 6, then deal 9 to an enemy on that tile.",
+    "description": "Deal 9 at range 6, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#db7a3e",
     "art_path": "res://assets/art/cards/ember_rain.png",
     "radiance": true,
     "actions": [
-      { "type": "illuminate", "range": 6, "radius": 2, "duration": 2 },
-      { "type": "ranged", "damage": 9, "range": 6, "reuse_previous_target": true }
+      { "type": "ranged", "damage": 9, "range": 6, "illuminate_radius": 2, "illuminate_duration": 2 }
     ]
   },
   "shadow_gate": {
@@ -615,14 +611,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Fire intensity by 1. Illuminate at range 5, then deal 5 on that tile. Fire 2+: +3 damage.",
+    "description": "Raise Fire intensity by 1. Deal 5 at range 5, then create radius-1 Light at the impact for 2 turns. Fire 2+: +3 damage.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/firebrand_volley.png",
     "radiance": true,
     "actions": [
       { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "illuminate", "range": 5, "radius": 1, "duration": 2 },
-      { "type": "ranged", "damage": 5, "range": 5, "reuse_previous_target": true, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3 } }
+      { "type": "ranged", "damage": 5, "range": 5, "illuminate_radius": 1, "illuminate_duration": 2, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3 } }
     ]
   },
   "cinder_bloom": {
@@ -859,14 +854,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity by 1. Illuminate at range 6, then deal 4 on that tile. Lightning 2+: +3 damage.",
+    "description": "Raise Lightning intensity by 1. Deal 4 at range 6, then create radius-1 Light at the impact for 2 turns. Lightning 2+: +3 damage.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/spark_dart.png",
     "radiance": true,
     "actions": [
       { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "illuminate", "range": 6, "radius": 1, "duration": 2 },
-      { "type": "ranged", "damage": 4, "range": 6, "reuse_previous_target": true, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 3 } }
+      { "type": "ranged", "damage": 4, "range": 6, "illuminate_radius": 1, "illuminate_duration": 2, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 3 } }
     ]
   },
   "chain_bolt": {
@@ -1036,14 +1030,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Air intensity by 1. Illuminate at range 5, then deal 5 in an odd pattern there and push 1. Air 2+: gain 1 card play.",
+    "description": "Raise Air intensity by 1. Deal 5 in an odd pattern at range 5 and push 1, then create radius-2 Light at its center for 2 turns. Air 2+: gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/squall_shot.png",
     "radiance": true,
     "actions": [
       { "type": "intensity", "element": "air", "amount": 1 },
-      { "type": "illuminate", "range": 5, "radius": 2, "duration": 2 },
-      { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [2, 0], [0, 2]], "rotate": true, "push": 1, "reuse_previous_target": true },
+      { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [2, 0], [0, 2]], "rotate": true, "push": 1, "illuminate_radius": 2, "illuminate_duration": 2 },
       { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
     ]
   },
@@ -1132,14 +1125,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Earth intensity by 1. Illuminate at range 5, then deal 5 and immobilize on that tile.",
+    "description": "Raise Earth intensity by 1. Deal 5 and immobilize at range 5, then create radius-1 Light at the impact for 2 turns.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/root_snare.png",
     "radiance": true,
     "actions": [
       { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "illuminate", "range": 5, "radius": 1, "duration": 2 },
-      { "type": "ranged", "damage": 5, "range": 5, "immobilize": true, "reuse_previous_target": true }
+      { "type": "ranged", "damage": 5, "range": 5, "immobilize": true, "illuminate_radius": 1, "illuminate_duration": 2 }
     ]
   },
   "basalt_guard": {

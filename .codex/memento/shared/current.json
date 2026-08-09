@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T16:23:12Z",
+  "updated_at": "2026-08-09T18:31:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7484,6 +7484,72 @@
       "source": {
         "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
         "commit": "46955f7"
+      }
+    },
+    {
+      "id": "mnt_20260809T183154Z_c6fae1bd",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Display numeric card-action values as lower-right suffixes attached to their icons.",
+      "details": "Use an upper-right marker for modifier attribution. This keeps four-plus effect rows within the card frame and makes value ownership immediately legible.",
+      "status": "active",
+      "created_at": "2026-08-09T18:31:54Z",
+      "updated_at": "2026-08-09T18:31:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "81367ff"
+      }
+    },
+    {
+      "id": "mnt_20260809T183154Z_5123e95e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Attack-carried Light is a post-impact rider on one attack action.",
+      "details": "Use illuminate_radius and illuminate_duration on melee, ranged, AOE, push, or pull. The unified action targets only attackable enemies, traps, or terrain; standalone Illuminate remains the free-tile Light action. Resolve the Light after the attack so it does not prime Light-dependent bonuses on its own hit.",
+      "status": "active",
+      "created_at": "2026-08-09T18:31:54Z",
+      "updated_at": "2026-08-09T18:31:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "81367ff"
+      }
+    },
+    {
+      "id": "mnt_20260809T183154Z_f1a2c07e",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Overlapping package effects from skills and relics should stack additively instead of making either choice obsolete.",
+      "details": "When a skill and relic alter the same existing action or actor, expose their individual additive contributions contextually where practical; Witchlight and Witchglass Lantern establish this pattern by adding radii to one tethered Light source.",
+      "status": "active",
+      "created_at": "2026-08-09T18:31:54Z",
+      "updated_at": "2026-08-09T18:31:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "81367ff"
       }
     }
   ]

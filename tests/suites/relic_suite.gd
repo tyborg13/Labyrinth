@@ -295,6 +295,11 @@ static func _test_spatial_radiance_relics(expect: Callable) -> void:
 	]
 	expect.call(combat.effective_umbra_stage(tether_state) == CombatEngine.UMBRA_STAGE_ADVANCING, "Captured Noon should count tethered illusion Light as real active sources")
 	expect.call(bool(combat.call("_light_source_covers_tile", tether_state, Vector2i(4, 4))), "Witchglass Lantern should provide real radius-two Light from a living illusion")
+	var tethered_sources: Array[Dictionary] = combat.effective_light_sources(tether_state)
+	var tooltip_board := CombatBoardView.new()
+	var tethered_tooltip: String = tooltip_board.call("_tethered_light_tooltip", tethered_sources[0])
+	expect.call(tethered_tooltip.contains("Witchglass Lantern: +2"), "A tethered Light tooltip should name the relic's additive contribution")
+	tooltip_board.free()
 	tether_state = combat._damage_illusion(tether_state, 42, 2)
 	expect.call(not bool(combat.call("_light_source_covers_tile", tether_state, Vector2i(4, 4))), "Tethered Light should end immediately when its illusion is removed")
 
