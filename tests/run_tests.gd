@@ -341,6 +341,7 @@ func _initialize() -> void:
 	await _test_run_scene_action_step_tracker_states()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_aoe_aim_rotates_before_click()
+	await _test_run_scene_reused_squall_target_preserves_orientation()
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
@@ -10377,6 +10378,89 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	var enemies: Array = final_state.get("enemies", [])
 	_assert(int((enemies[1] as Dictionary).get("hp", 0)) < 20, "Rotated Thunderline should hit the selected vertical line")
 	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 20, "Rotated Thunderline should not hit the old horizontal line")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_reused_squall_target_preserves_orientation() -> void:
+	AnalyticsStore.clear_storage()
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for shared-target Squall orientation coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(923, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["squall_shot"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var target_tile := Vector2i(4, 4)
+	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": target_tile, "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(6, 4), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 4, "type": "crawler", "pos": Vector2i(4, 6), "hp": 20, "max_hp": 20, "block": 0}
+	]
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["squall_shot"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	combat_state["analytics"] = {"combat_id": "test_squall_c001"}
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["deck_cards"] = ["squall_shot"]
+	run_state["combat_state"] = combat_state
+	run_state["analytics"] = {"run_id": "test_squall", "combat_counter": 1}
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	await instance.call("_on_board_tile_clicked", target_tile)
+	_assert(instance.get("_pending_orientation_target_tile") == target_tile, "Squall Shot should lock its reused AOE to the tile selected for Illuminate")
+	_assert(int(instance.get("_pending_action_index")) == 2, "Squall Shot should pause on its reused AOE before resolving the attack")
+	_assert((instance.get("_pending_selected_targets") as Array).size() == 1, "Pausing for Squall orientation should record only the original Illuminate target")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
+	var presentation: Dictionary = board_view.get("presentation")
+	var ability_tiles: Array = presentation.get("ability_tiles", [])
+	_assert(ability_tiles.has(Vector2i(4, 3)), "Shared-target Squall should offer the existing directional AOE controls around its locked tile")
+	instance.call("_on_board_tile_hovered", Vector2i(4, 3))
+	presentation = board_view.get("presentation")
+	var focus_tiles: Array = presentation.get("focus_tiles", [])
+	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Hovering north should preview Squall's rotated odd pattern around the locked Light tile")
+	await instance.call("_on_board_tile_clicked", Vector2i(4, 3))
+	await create_timer(1.5).timeout
+	var final_state: Dictionary = instance.get("_combat_state")
+	var enemies: Array = final_state.get("enemies", [])
+	_assert((enemies[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 3), "North-oriented Squall should push its center target north")
+	_assert((enemies[1] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 1), "North-oriented Squall should hit and push the northern arm")
+	_assert((enemies[2] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(6, 3), "North-oriented Squall should hit and push the eastern arm")
+	_assert(int((enemies[3] as Dictionary).get("hp", 0)) == 20 and (enemies[3] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 6), "North-oriented Squall should leave the old southern arm untouched")
+	var played_events: Array[Dictionary] = _analytics_events_by_type(AnalyticsStore.load_all_events(), "card_played")
+	_assert(not played_events.is_empty(), "Shared-target Squall should emit card-play analytics")
+	if not played_events.is_empty():
+		var payload: Dictionary = (played_events[played_events.size() - 1] as Dictionary).get("payload", {}) as Dictionary
+		var actions: Array = payload.get("actions", []) as Array
+		var aoe_action: Dictionary = actions[2] as Dictionary if actions.size() > 2 else {}
+		var orientation: Dictionary = aoe_action.get("orientation", {}) as Dictionary
+		_assert(int(orientation.get("x", 99)) == 0 and int(orientation.get("y", 99)) == -1, "Squall analytics should preserve the chosen reused-target AOE orientation")
+		var selected_targets: Array = payload.get("selected_targets", []) as Array
+		var illuminate_target: Dictionary = selected_targets[0] as Dictionary if selected_targets.size() > 0 else {}
+		var aoe_target: Dictionary = selected_targets[1] as Dictionary if selected_targets.size() > 1 else {}
+		_assert(
+			selected_targets.size() == 2
+			and int(illuminate_target.get("x", -1)) == 4 and int(illuminate_target.get("y", -1)) == 4
+			and int(aoe_target.get("x", -1)) == 4 and int(aoe_target.get("y", -1)) == 4,
+			"Squall analytics should record one shared tile for Illuminate and its rotated AOE"
+		)
 	instance.queue_free()
 	await process_frame
 

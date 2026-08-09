@@ -11690,7 +11690,7 @@ func _pass_preview_confirmed_orientation_state(click_tile: Vector2i) -> Dictiona
 	if _pending_orientation_target_tile.x < 0:
 		return {}
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	var direction: Vector2i = _force_direction_for_confirmation(action, _pending_orientation_target_tile, click_tile)
+	var direction: Vector2i = _orientation_direction_for_confirmation(action, _pending_orientation_target_tile, click_tile)
 	if direction == Vector2i.ZERO:
 		return {}
 	var oriented_action: Dictionary = _action_with_pending_orientation(action, direction)
@@ -15092,6 +15092,9 @@ func _reset_aoe_aim_orientation_for_action(action: Dictionary) -> void:
 func _refresh_pending_aoe_target_tiles() -> void:
 	if not _current_action_is_aimed_aoe():
 		return
+	if _orientation_pending():
+		_pending_target_tiles = _vector2i_array([_pending_orientation_target_tile])
+		return
 	var action: Dictionary = _action_with_aoe_aim_orientation(_pending_actions[_pending_action_index])
 	_pending_target_tiles = _combat_engine.valid_targets_for_player_action(_preview_combat_state, action)
 
@@ -15179,10 +15182,20 @@ func _force_direction_for_confirmation(action: Dictionary, target_tile: Vector2i
 	var candidate: Vector2i = _direction_from_tiles(target_tile, click_tile)
 	return candidate if allowed.has(candidate) else Vector2i.ZERO
 
+func _orientation_direction_for_confirmation(action: Dictionary, target_tile: Vector2i, click_tile: Vector2i) -> Vector2i:
+	if str(action.get("type", "")) == "aoe" and _combat_engine.player_action_needs_orientation(action):
+		if click_tile == target_tile:
+			return _aoe_aim_orientation
+		var candidate: Vector2i = _direction_from_tiles(target_tile, click_tile)
+		return candidate if ORIENTATION_DIRECTIONS.has(candidate) else Vector2i.ZERO
+	return _force_direction_for_confirmation(action, target_tile, click_tile)
+
 func _action_with_pending_orientation(action: Dictionary, direction: Vector2i) -> Dictionary:
 	var oriented: Dictionary = action.duplicate(true)
 	var action_type: String = str(oriented.get("type", ""))
-	if _combat_engine.player_action_needs_orientation(action) and (
+	if action_type == "aoe" and _combat_engine.player_action_needs_orientation(action):
+		oriented["orientation"] = direction
+	elif _combat_engine.player_action_needs_orientation(action) and (
 		action_type in ["push", "pull"]
 		or int(oriented.get("push", 0)) > 0
 		or int(oriented.get("pull", 0)) > 0
@@ -15206,13 +15219,19 @@ func _pending_oriented_action() -> Dictionary:
 	if not _orientation_pending():
 		return {}
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	return _action_with_pending_orientation(action, _force_direction_for_action(action, _pending_orientation_target_tile, _hovered_board_tile))
+	var direction: Vector2i = _orientation_direction_for_confirmation(action, _pending_orientation_target_tile, _hovered_board_tile)
+	return _action_with_pending_orientation(action, direction)
 
 func _direction_choice_tiles(target_tile: Vector2i) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	var grid: Array = _preview_combat_state.get("grid", [])
 	var action: Dictionary = _pending_actions[_pending_action_index] if _pending_action_index >= 0 and _pending_action_index < _pending_actions.size() else {}
-	for direction: Vector2i in _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile):
+	var directions: Array[Vector2i] = []
+	if str(action.get("type", "")) == "aoe" and _combat_engine.player_action_needs_orientation(action):
+		directions = _vector2i_array(ORIENTATION_DIRECTIONS)
+	else:
+		directions = _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile)
+	for direction: Vector2i in directions:
 		var tile: Vector2i = target_tile + direction
 		if grid.is_empty() or PathUtils.is_in_bounds(grid, tile):
 			result.append(tile)
@@ -15220,7 +15239,7 @@ func _direction_choice_tiles(target_tile: Vector2i) -> Array[Vector2i]:
 
 func _confirm_pending_orientation(click_tile: Vector2i) -> void:
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	var direction: Vector2i = _force_direction_for_confirmation(action, _pending_orientation_target_tile, click_tile)
+	var direction: Vector2i = _orientation_direction_for_confirmation(action, _pending_orientation_target_tile, click_tile)
 	if direction == Vector2i.ZERO:
 		_refresh_stage_view()
 		return
@@ -15664,7 +15683,13 @@ func _apply_pending_preview_result(next_preview: Dictionary) -> void:
 			_vector2i_array(_pending_selected_targets)
 		)
 		return
+	var reused_orientation_target: Vector2i = resolved_preview.get("reuse_orientation_target", INVALID_TARGET_TILE)
 	_load_pending_preview_state(resolved_preview)
+	if reused_orientation_target.x >= 0:
+		_pending_orientation_target_tile = reused_orientation_target
+		_hovered_board_tile = reused_orientation_target
+		_pending_target_tiles = _vector2i_array([reused_orientation_target])
+		_mark_preview_selection_changed()
 	_refresh_ui()
 
 func _resolve_reused_target_preview_actions(source_preview: Dictionary) -> Dictionary:
@@ -15679,6 +15704,9 @@ func _resolve_reused_target_preview_actions(source_preview: Dictionary) -> Dicti
 		var target_tile: Vector2i = _last_resolved_pending_target()
 		var state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
 		if target_tile.x >= 0 and _combat_engine.valid_targets_for_player_action(state, action).has(target_tile):
+			if _combat_engine.player_action_needs_orientation(action):
+				preview["reuse_orientation_target"] = target_tile
+				break
 			_pending_selected_targets.append(target_tile)
 			state = _combat_engine.apply_player_action(state, action, target_tile)
 		else:

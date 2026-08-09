@@ -369,6 +369,39 @@ func _capture_redesign_spatial_effects(instance: Node) -> void:
 	await _settle_ui()
 	await _save_root_screenshot("%s/relic_captured_noon_suppression.png" % OUTPUT_DIR)
 
+	await _capture_squall_shared_target_orientation(instance, combat)
+
+func _capture_squall_shared_target_orientation(instance: Node, combat: CombatEngine) -> void:
+	instance.call("_reset_card_resolution")
+	var squall_state: Dictionary = _radiance_visual_state(combat, [], [])
+	squall_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	squall_state["enemies"] = [
+		_visual_enemy(1, Vector2i(4, 4)),
+		_visual_enemy(2, Vector2i(4, 2)),
+		_visual_enemy(3, Vector2i(6, 4)),
+		_visual_enemy(4, Vector2i(4, 6))
+	]
+	var deck: Dictionary = (squall_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["squall_shot"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	squall_state["deck"] = deck
+	_set_combat_state(instance, squall_state)
+	await _settle_ui()
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
+	instance.call("_on_board_tile_hovered", Vector2i(4, 3))
+	await _settle_ui()
+	_assert(instance.get("_pending_orientation_target_tile") == Vector2i(4, 4), "Squall visual fixture should keep its Light tile locked while choosing orientation")
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	var focus_tiles: Array = presentation.get("focus_tiles", []) as Array
+	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Squall visual fixture should show its north-rotated odd pattern")
+	await _save_root_screenshot("%s/card_squall_shared_target_orientation.png" % OUTPUT_DIR)
+	instance.call("_reset_card_resolution")
+
 func _radiance_visual_state(combat: CombatEngine, relic_ids: Array, skill_ids: Array) -> Dictionary:
 	var state: Dictionary = combat.create_combat(97841, _room_layout(), {
 		"hp": 24,
