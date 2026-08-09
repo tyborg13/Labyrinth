@@ -335,6 +335,14 @@ func _assert_action_medallions(tracker: Control, label: String) -> void:
 			if child.find_child("ActionTagTexture", true, false) == null or not bool(child.get_meta("authored_action_tag", false)) or str(child.get_meta("action_value_text", "")).is_empty():
 				_fail("%s action tags should include authored painterly art and dynamic values" % label)
 				return
+			var current_glow: Node = child.find_child("CurrentStepGlow", true, false)
+			if str(child.get_meta("step_status", "")) == "current":
+				if not (current_glow is TextureRect) or not bool(current_glow.get_meta("matches_selected_placard_glow", false)) or not bool(current_glow.get_meta("follows_action_tag_alpha", false)):
+					_fail("%s active action should use the same silhouette-following gold glow as the selected placard" % label)
+					return
+			elif current_glow != null:
+				_fail("%s should reserve the action-tag glow for the current action" % label)
+				return
 		elif child is Control and bool(child.get_meta("ink_path_connector", false)):
 			connector_count += 1
 			if child.find_child("ActionArrowTexture", true, false) == null or not bool(child.get_meta("authored_arrow", false)):

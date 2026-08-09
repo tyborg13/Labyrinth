@@ -42,7 +42,13 @@ static func attach_mode_placard(button: BaseButton, play_kind: String, accent: C
 	var art_path: String = str(MODE_ART_PATHS.get(play_kind, MODE_ART_PATHS["play"]))
 	var texture: Texture2D = AssetLoader.load_texture(art_path)
 	if active and available:
-		var glow := _placard_soft_glow(texture)
+		var glow := _soft_texture_glow(
+			"SelectedGlow",
+			texture,
+			Vector2(12.0, 10.0),
+			Vector2(15.0, 23.0),
+			Vector2(0.035, 0.085)
+		)
 		glow.set_meta("matches_pre_battle_start_glow", true)
 		glow.set_meta("follows_placard_alpha", true)
 		button.add_child(glow)
@@ -58,11 +64,15 @@ static func attach_mode_placard(button: BaseButton, play_kind: String, accent: C
 static func attach_action_tag(panel: PanelContainer, status: String) -> TextureRect:
 	var texture: Texture2D = AssetLoader.load_texture(ACTION_TAG_PATH)
 	if status == "current":
-		var glow := _gold_glow_panel("CurrentStepGlow", 5, 0.22)
-		glow.offset_left = 6.0
-		glow.offset_top = 9.0
-		glow.offset_right = -6.0
-		glow.offset_bottom = -9.0
+		var glow := _soft_texture_glow(
+			"CurrentStepGlow",
+			texture,
+			Vector2(6.0, 6.0),
+			Vector2(15.0, 23.0),
+			Vector2(0.107, 0.079)
+		)
+		glow.set_meta("matches_selected_placard_glow", true)
+		glow.set_meta("follows_action_tag_alpha", true)
 		panel.add_child(glow)
 	var tag := _texture_layer("ActionTagTexture", texture, -1)
 	tag.modulate = _status_tint(status)
@@ -93,17 +103,17 @@ static func make_action_connector(status: String, connector_index: int) -> Contr
 	return connector
 
 
-static func _placard_soft_glow(texture: Texture2D) -> TextureRect:
-	var glow := _texture_layer("SelectedGlow", texture, -2)
-	glow.offset_left = -12.0
-	glow.offset_top = -10.0
-	glow.offset_right = 12.0
-	glow.offset_bottom = 10.0
+static func _soft_texture_glow(layer_name: String, texture: Texture2D, outset: Vector2, source_radius: Vector2, uv_margin: Vector2) -> TextureRect:
+	var glow := _texture_layer(layer_name, texture, -2)
+	glow.offset_left = -outset.x
+	glow.offset_top = -outset.y
+	glow.offset_right = outset.x
+	glow.offset_bottom = outset.y
 	var material := ShaderMaterial.new()
 	material.shader = PlacardSoftGlowShader
 	material.set_shader_parameter("glow_color", Color(1.0, 0.52, 0.15, 0.86))
-	material.set_shader_parameter("source_radius_px", Vector2(15.0, 23.0))
-	material.set_shader_parameter("uv_margin", Vector2(0.035, 0.085))
+	material.set_shader_parameter("source_radius_px", source_radius)
+	material.set_shader_parameter("uv_margin", uv_margin)
 	glow.material = material
 	return glow
 
@@ -122,33 +132,6 @@ static func _texture_layer(layer_name: String, texture: Texture2D, layer_z: int)
 	layer.show_behind_parent = true
 	layer.z_index = layer_z
 	return layer
-
-
-static func _gold_glow_panel(panel_name: String, shadow_size: int, shadow_alpha: float) -> Panel:
-	var glow := Panel.new()
-	glow.name = panel_name
-	glow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	glow.anchor_right = 1.0
-	glow.anchor_bottom = 1.0
-	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	glow.show_behind_parent = true
-	glow.z_index = -2
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.25, 0.14, 0.045, 0.20)
-	style.border_color = Color("e5ae58")
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 28
-	style.corner_radius_top_right = 28
-	style.corner_radius_bottom_right = 28
-	style.corner_radius_bottom_left = 28
-	style.shadow_color = Color(1.0, 0.52, 0.15, shadow_alpha)
-	style.shadow_size = shadow_size
-	style.shadow_offset = Vector2(0.0, 2.0)
-	glow.add_theme_stylebox_override("panel", style)
-	return glow
 
 
 static func _status_tint(status: String) -> Color:

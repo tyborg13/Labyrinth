@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T14:45:27Z",
+  "updated_at": "2026-08-09T15:29:57Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7353,7 +7353,7 @@
       }
     },
     {
-      "id": "mnt_20260809T144527Z_44e39f5a",
+      "id": "mnt_20260809T152957Z_0c7d1592",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -7362,19 +7362,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Card play choices use an authored safe-edge placard stack",
-      "details": "The concept-5 art direction is the source of truth: render large opaque overlapping PRINTED/ATTACK/MOVE authored raster placards with baked identity icons on a short vertical spine, place the stack in collision-free screen-edge space outside the tactical board and hand, and keep dynamic action tags as a separate horizontal authored row below the spine. The selected placard gets only a dynamic soft gold alpha-following halo\u2014no wax stamp, radio dot, backing panel, oval, or hard outline. Preserve explicit targetless Printed confirmation, mode switching, Cancel, and motion-stable resolution behavior.",
+      "summary": "Card play context uses authored silhouettes and alpha-following glows",
+      "details": "Concept 5 remains the source of truth: render large opaque overlapping PRINTED/ATTACK/MOVE authored raster placards with baked identity icons on a short vertical spine in collision-free screen-edge space, and keep dynamic actions as separate authored hanging tags joined by arrows below the spine. Both the selected placard and the current action tag use the same dynamic soft gold alpha-following halo; never use wax stamps, radio dots, backing panels, ovals, or hard outlines. Preserve explicit targetless Printed confirmation, mode switching, Cancel, and motion-stable resolution behavior.",
       "status": "active",
-      "created_at": "2026-08-09T14:45:27Z",
-      "updated_at": "2026-08-09T14:45:27Z",
+      "created_at": "2026-08-09T15:29:57Z",
+      "updated_at": "2026-08-09T15:29:57Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260713T231855Z_386d663b",
-        "mnt_20260716T164006Z_1e2589d0"
+        "mnt_20260809T144527Z_44e39f5a"
       ],
       "source": {
         "branch": "codex/implement-ink-path-contextual-card-play-widget",
-        "commit": "a5729c1"
+        "commit": "98a31e7"
       }
     }
   ]

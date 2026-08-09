@@ -383,6 +383,9 @@ func _assert_choice_state(instance: Node, hand_index: int, label: String) -> voi
 		for child: Node in steps.get_children():
 			if child is PanelContainer and bool(child.get_meta("action_medallion", false)):
 				medallions += 1
+				if str(child.get_meta("step_status", "")) == "current":
+					var current_glow: TextureRect = child.find_child("CurrentStepGlow", true, false) as TextureRect
+					_assert(current_glow != null and bool(current_glow.get_meta("matches_selected_placard_glow", false)) and bool(current_glow.get_meta("follows_action_tag_alpha", false)), "%s active action tag should use the selected placard's silhouette-following gold glow" % label)
 			elif child is Control and bool(child.get_meta("ink_path_connector", false)):
 				connectors += 1
 	_assert(medallions == 2 and connectors == 1, "%s should keep the two dynamic printed actions as separate medallions joined by one ink arrow" % label)
