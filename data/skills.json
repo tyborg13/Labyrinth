@@ -294,5 +294,79 @@
     "exclusive_group": "keystone",
     "activation": "automatic",
     "effect": {"type": "retreat_on_defeat", "minimum_health_visible": 1, "uses_per_sequence": 1}
+  },
+  "long_dawn": {
+    "name": "Long Dawn",
+    "icon": "skill_long_dawn",
+    "description": "Temporary Light, Vision, and Truesight you create last 1 additional turn. Permanent and tethered effects are unchanged.",
+    "branch": "radiance",
+    "tier": "root",
+    "position": [4, 0],
+    "layout_position": [1100, 60],
+    "prerequisites": [],
+    "activation": "passive",
+    "effect": {"type": "extend_radiance_duration", "amount": 1}
+  },
+  "sunpath": {
+    "name": "Sunpath",
+    "icon": "skill_sunpath",
+    "description": "The first Move or Blink of 3+ tiles each turn leaves radius-1 Light for 2 turns on every tile entered. Blink lights its origin and destination.",
+    "branch": "radiance",
+    "tier": "branch",
+    "position": [4, 1],
+    "layout_position": [1055, 180],
+    "prerequisites": ["long_dawn"],
+    "activation": "automatic",
+    "effect": {"type": "long_move_light_path", "minimum_distance": 3, "radius": 1, "duration": 2, "uses_per_turn": 1}
+  },
+  "witchlight": {
+    "name": "Witchlight",
+    "icon": "skill_witchlight",
+    "description": "Living illusions carry tethered radius-1 Light.",
+    "branch": "radiance",
+    "tier": "branch",
+    "position": [4, 2],
+    "layout_position": [1145, 180],
+    "prerequisites": ["long_dawn"],
+    "activation": "passive",
+    "effect": {"type": "illusion_light", "radius": 1}
+  },
+  "dawnbrand": {
+    "name": "Dawnbrand",
+    "icon": "skill_dawnbrand",
+    "description": "The first direct attack each turn against an enemy standing in Light inflicts 1 Expose.",
+    "branch": "radiance",
+    "tier": "junction",
+    "position": [4, 3],
+    "layout_position": [1055, 340],
+    "prerequisites": ["sunpath"],
+    "activation": "automatic",
+    "effect": {"type": "light_target_expose", "amount": 1, "action_types": ["melee", "ranged", "push", "pull"], "uses_per_turn": 1}
+  },
+  "afterglow": {
+    "name": "Afterglow",
+    "icon": "skill_afterglow",
+    "description": "When an illusion is removed during combat, it leaves radius-1 Light for 2 turns at its final tile.",
+    "branch": "radiance",
+    "tier": "junction",
+    "position": [4, 4],
+    "layout_position": [1145, 340],
+    "prerequisites": ["witchlight"],
+    "activation": "automatic",
+    "effect": {"type": "illusion_afterglow", "radius": 1, "duration": 2}
+  },
+  "open_sky": {
+    "name": "Open Sky",
+    "icon": "skill_open_sky",
+    "description": "While you stand in Light, you have Truesight.",
+    "branch": "radiance",
+    "tier": "keystone",
+    "position": [4, 5],
+    "layout_position": [1100, 500],
+    "prerequisites": ["dawnbrand", "afterglow"],
+    "minimum_owned": 8,
+    "exclusive_group": "keystone",
+    "activation": "passive",
+    "effect": {"type": "light_grants_truesight"}
   }
 }

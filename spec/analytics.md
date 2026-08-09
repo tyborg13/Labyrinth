@@ -133,8 +133,13 @@ movement, and elemental-intensity payoffs during the resolved transition.
 - actual resolved action list and chosen targets
 - consumable item flags via `item_card` and `consume_on_play`
 - Radiance and visibility context: `radiance_card`, Umbra stage and radius
-  before/after, tiles illuminated, enemies newly revealed, light sources
-  created, and hidden-enemy movement interruptions caused during resolution
+  before/after, tiles illuminated, enemies newly revealed, fixed light sources
+  created, effective light sources before/after, tethered light sources
+  before/after, Light-source Umbra suppression stages before/after, and
+  hidden-enemy movement interruptions caused during resolution. Effective
+  counts include Light tethered to living illusions; fixed-source creation
+  remains a separate delta so analysts can distinguish trails and placed Light
+  from actor-bound auras.
 
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and

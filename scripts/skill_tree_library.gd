@@ -4,8 +4,8 @@ class_name SkillTreeLibrary
 const SKILLS_PATH: String = "res://data/skills.json"
 const KEYSTONE_GROUP: String = "keystone"
 const COMPLETE_BUILD_SIZE: int = 19
-const BRANCH_ORDER = ["tactics", "resolve", "traverse", "foresight", "keystone"]
-const LAYOUT_CANVAS_SIZE: Vector2i = Vector2i(1000, 540)
+const BRANCH_ORDER = ["tactics", "resolve", "traverse", "foresight", "radiance", "keystone"]
+const LAYOUT_CANVAS_SIZE: Vector2i = Vector2i(1250, 540)
 const LAYOUT_NODE_SIZES: Dictionary = {
 	"root": Vector2i(80, 80),
 	"branch": Vector2i(76, 76),
@@ -15,6 +15,7 @@ const LAYOUT_NODE_SIZES: Dictionary = {
 
 static var _cache: Dictionary = {}
 static var _ordered_ids_cache: Array[String]
+static var _completion_cache: Dictionary = {}
 
 static func definitions() -> Dictionary:
 	if not _cache.is_empty():
@@ -36,6 +37,7 @@ static func definitions() -> Dictionary:
 static func clear_cache() -> void:
 	_cache.clear()
 	_ordered_ids_cache.clear()
+	_completion_cache.clear()
 
 static func ordered_ids() -> Array[String]:
 	if not _ordered_ids_cache.is_empty():
@@ -127,6 +129,8 @@ static func selection_is_valid(value: Variant, exact_count: int = -1) -> bool:
 	var selected: Array[String] = normalized_ids(raw)
 	if selected.size() != raw.size():
 		return false
+	if selected.size() > COMPLETE_BUILD_SIZE:
+		return false
 	if exact_count >= 0 and selected.size() != exact_count:
 		return false
 	var selected_lookup: Dictionary = _lookup(selected)
@@ -151,7 +155,49 @@ static func is_available(skill_id: String, selected_value: Variant) -> bool:
 	if not has_definition(skill_id):
 		return false
 	var selected: Array[String] = normalized_ids(selected_value)
+	if selected.size() >= COMPLETE_BUILD_SIZE or not _is_authored_available(skill_id, selected):
+		return false
+	var proposed: Array[String] = selected.duplicate()
+	proposed.append(skill_id)
+	return _selection_can_reach_complete_build(proposed)
+
+static func available_ids(selected_value: Variant) -> Array[String]:
+	var result: Array[String]
+	for skill_id: String in ordered_ids():
+		if is_available(skill_id, selected_value):
+			result.append(skill_id)
+	return result
+
+static func locked_reason(skill_id: String, selected_value: Variant) -> String:
+	if not has_definition(skill_id):
+		return "Unknown skill."
+	var selected: Array[String] = normalized_ids(selected_value)
 	if selected.has(skill_id):
+		return "Learned"
+	var group_id: String = exclusive_group(skill_id)
+	if not group_id.is_empty():
+		for selected_id: String in selected:
+			if exclusive_group(selected_id) == group_id:
+				return "Another keystone is selected"
+	var missing_names: Array[String]
+	for prerequisite_id: String in prerequisites(skill_id):
+		if not selected.has(prerequisite_id):
+			missing_names.append(display_name(prerequisite_id))
+	if not missing_names.is_empty():
+		return "Requires %s" % ", ".join(missing_names)
+	var required_owned: int = minimum_owned(skill_id)
+	if selected.size() < required_owned:
+		return "Requires %d learned skills" % required_owned
+	if selected.size() == COMPLETE_BUILD_SIZE - 1 and not _selection_has_keystone(selected) and not is_keystone(skill_id):
+		return "Your final skill must be a keystone"
+	var proposed: Array[String] = selected.duplicate()
+	proposed.append(skill_id)
+	if not _selection_can_reach_complete_build(proposed):
+		return "This choice would leave no path to a keystone"
+	return "Available"
+
+static func _is_authored_available(skill_id: String, selected: Array[String]) -> bool:
+	if not has_definition(skill_id) or selected.has(skill_id):
 		return false
 	var selected_lookup: Dictionary = _lookup(selected)
 	for prerequisite_id: String in prerequisites(skill_id):
@@ -168,36 +214,82 @@ static func is_available(skill_id: String, selected_value: Variant) -> bool:
 	proposed.append(skill_id)
 	return selection_is_valid(proposed)
 
-static func available_ids(selected_value: Variant) -> Array[String]:
+static func _selection_can_reach_complete_build(selected_value: Variant) -> bool:
+	var selected: Array[String] = normalized_ids(selected_value)
+	if selected.size() > COMPLETE_BUILD_SIZE or not selection_is_valid(selected):
+		return false
+	var cache_key: String = _selection_cache_key(selected)
+	if _completion_cache.has(cache_key):
+		return bool(_completion_cache[cache_key])
+	if selected.size() == COMPLETE_BUILD_SIZE:
+		_completion_cache[cache_key] = true
+		return true
+	_completion_cache[cache_key] = false
+	for keystone_id: String in _completion_keystone_candidates(selected):
+		if _selection_can_complete_with_keystone(selected, keystone_id):
+			_completion_cache[cache_key] = true
+			return true
+	return false
+
+static func _selection_can_complete_with_keystone(selected: Array[String], keystone_id: String) -> bool:
+	var cache_key: String = "keystone:%s:%s" % [keystone_id, _selection_cache_key(selected)]
+	if _completion_cache.has(cache_key):
+		return bool(_completion_cache[cache_key])
+	var working: Array[String] = selected.duplicate()
+	var prerequisite_lookup: Dictionary = _recursive_prerequisite_lookup(keystone_id)
+	while working.size() < COMPLETE_BUILD_SIZE:
+		var priority_candidates: Array[String]
+		var filler_candidates: Array[String]
+		for candidate_id: String in ordered_ids():
+			if is_keystone(candidate_id) and candidate_id != keystone_id:
+				continue
+			if not _is_authored_available(candidate_id, working):
+				continue
+			if candidate_id == keystone_id or (prerequisite_lookup.has(candidate_id) and not working.has(candidate_id)):
+				priority_candidates.append(candidate_id)
+			else:
+				filler_candidates.append(candidate_id)
+		var candidates: Array[String] = priority_candidates if not priority_candidates.is_empty() else filler_candidates
+		if candidates.is_empty():
+			_completion_cache[cache_key] = false
+			return false
+		working.append(candidates[0])
+	var complete: bool = working.has(keystone_id) and selection_is_valid(working, COMPLETE_BUILD_SIZE)
+	_completion_cache[cache_key] = complete
+	return complete
+
+static func _completion_keystone_candidates(selected: Array[String]) -> Array[String]:
+	var selected_keystone: String = ""
+	for skill_id: String in selected:
+		if is_keystone(skill_id):
+			selected_keystone = skill_id
+			break
+	if not selected_keystone.is_empty():
+		var selected_result: Array[String]
+		selected_result.append(selected_keystone)
+		return selected_result
 	var result: Array[String]
 	for skill_id: String in ordered_ids():
-		if is_available(skill_id, selected_value):
+		if is_keystone(skill_id):
 			result.append(skill_id)
 	return result
 
-static func locked_reason(skill_id: String, selected_value: Variant) -> String:
-	if not has_definition(skill_id):
-		return "Unknown skill."
-	var selected: Array[String] = normalized_ids(selected_value)
-	if selected.has(skill_id):
-		return "Learned"
-	if selected.size() == COMPLETE_BUILD_SIZE - 1 and not _selection_has_keystone(selected) and not is_keystone(skill_id):
-		return "Your final skill must be a keystone"
-	var group_id: String = exclusive_group(skill_id)
-	if not group_id.is_empty():
-		for selected_id: String in selected:
-			if exclusive_group(selected_id) == group_id:
-				return "Another keystone is selected"
-	var missing_names: Array[String]
-	for prerequisite_id: String in prerequisites(skill_id):
-		if not selected.has(prerequisite_id):
-			missing_names.append(display_name(prerequisite_id))
-	if not missing_names.is_empty():
-		return "Requires %s" % ", ".join(missing_names)
-	var required_owned: int = minimum_owned(skill_id)
-	if selected.size() < required_owned:
-		return "Requires %d learned skills" % required_owned
-	return "Available"
+static func _recursive_prerequisite_lookup(skill_id: String) -> Dictionary:
+	var result: Dictionary = {}
+	var pending: Array[String] = prerequisites(skill_id)
+	while not pending.is_empty():
+		var prerequisite_id: String = pending.pop_back()
+		if result.has(prerequisite_id):
+			continue
+		result[prerequisite_id] = true
+		for ancestor_id: String in prerequisites(prerequisite_id):
+			pending.append(ancestor_id)
+	return result
+
+static func _selection_cache_key(selected: Array[String]) -> String:
+	var sorted_ids: Array[String] = selected.duplicate()
+	sorted_ids.sort()
+	return "|".join(sorted_ids)
 
 static func _selection_has_keystone(selected: Array[String]) -> bool:
 	for skill_id: String in selected:
@@ -328,11 +420,8 @@ static func validation_errors() -> Array[String]:
 				errors.append("%s should render between its prerequisites." % skill_id)
 	var cycle_errors: Array[String] = _prerequisite_cycle_errors()
 	errors.append_array(cycle_errors)
-	if cycle_errors.is_empty():
-		var dead_end_result: Dictionary = _first_unextendable_selection(COMPLETE_BUILD_SIZE)
-		if bool(dead_end_result.get("found", false)):
-			var dead_end: Array = dead_end_result.get("selection", []) as Array
-			errors.append("A legal progression state with %d skills cannot be extended: %s." % [dead_end.size(), ", ".join(dead_end)])
+	if cycle_errors.is_empty() and not _selection_can_reach_complete_build([]):
+		errors.append("A legal progression state cannot be extended safely to %d skills." % COMPLETE_BUILD_SIZE)
 	if repaired_selection([], COMPLETE_BUILD_SIZE).size() != COMPLETE_BUILD_SIZE:
 		errors.append("The graph cannot produce a legal %d-skill build." % COMPLETE_BUILD_SIZE)
 	return errors

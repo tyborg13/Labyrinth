@@ -14,45 +14,46 @@
     ]
   },
   "ember_lens": {
-    "name": "Ember Lens",
+    "name": "Brightglass Lens",
     "rarity": "rare",
-    "description": "Attacks on cards that also draw deal +{amount} damage.",
-    "icon_path": "res://assets/art/relics/ember_lens.png",
+    "description": "Ranged attacks against enemies in Light gain Chain {amount}.",
+    "icon_path": "res://assets/art/relics/brightglass_lens.png",
     "accent": "#4b84d8",
     "design_version": 2,
     "condition_tier": 2,
     "upside_tier": 2,
-    "build_tags": ["draw", "attack"],
+    "build_tags": ["radiance", "ranged", "chain"],
     "effects": [
-      {"type": "card_action_mod", "requires_action_types": ["draw"], "action_types": ["melee", "ranged", "aoe", "push", "pull"], "field": "damage", "amount": 3}
+      {"type": "target_state_action_mod", "target_in_light": true, "action_types": ["ranged"], "field": "chain", "amount": 1}
     ]
   },
   "pilgrim_boots": {
     "name": "Pilgrim Boots",
     "rarity": "common",
-    "description": "Move and Blink actions on cards without attacks travel {amount} tile farther.",
+    "description": "Non-attack Move and Blink actions gain {0.amount} range. Moves leave radius-{1.radius} Light for {1.duration} turns on every tile entered; Blinks light their origin and destination.",
     "icon_path": "res://assets/art/relics/pilgrim_boots.png",
     "accent": "#8f9499",
     "design_version": 2,
     "condition_tier": 1,
     "upside_tier": 1,
-    "build_tags": ["move", "positioning"],
+    "build_tags": ["radiance", "move", "blink", "positioning"],
     "effects": [
-      {"type": "card_action_mod", "requires_any_action_types": ["move", "blink"], "excludes_action_types": ["melee", "ranged", "aoe", "push", "pull"], "action_types": ["move", "blink"], "field": "range", "amount": 1}
+      {"type": "card_action_mod", "requires_any_action_types": ["move", "blink"], "excludes_action_types": ["melee", "ranged", "aoe", "push", "pull"], "action_types": ["move", "blink"], "field": "range", "amount": 1},
+      {"type": "resolved_action_light", "action_types": ["move", "blink"], "excludes_card_action_types": ["melee", "ranged", "aoe", "push", "pull"], "position_mode": "path", "radius": 1, "duration": 2}
     ]
   },
   "mirror_shard": {
     "name": "Mirror Shard",
     "rarity": "rare",
-    "description": "The first card that creates an illusion each turn draws {0.reward0.amount} and grants {0.reward1.amount} card play.",
+    "description": "The first card that creates an illusion each turn grants {0.reward0.amount} card play and {0.reward1.amount} Vision for {0.reward1.duration} turns.",
     "icon_path": "res://assets/art/relics/mirror_shard.png",
     "accent": "#4b84d8",
     "design_version": 2,
     "condition_tier": 2,
     "upside_tier": 2,
-    "build_tags": ["illusion", "card_play"],
+    "build_tags": ["radiance", "illusion", "card_play", "vision"],
     "effects": [
-      {"type": "card_play_reward", "requires_action_types": ["illusion"], "once": "turn", "rewards": [{"type": "draw", "amount": 1}, {"type": "card_play", "amount": 1}]}
+      {"type": "card_play_reward", "requires_action_types": ["illusion"], "once": "turn", "rewards": [{"type": "card_play", "amount": 1}, {"type": "vision", "amount": 1, "duration": 2}]}
     ]
   },
   "coffin_nails": {
@@ -72,15 +73,15 @@
   "reinforced_shield": {
     "name": "Reinforced Shield",
     "rarity": "common",
-    "description": "Block actions on cards that also attack grant +{amount} block.",
+    "description": "While you have stoneskin, Block actions grant +{amount} block.",
     "icon_path": "res://assets/art/relics/reinforced_shield.png",
     "accent": "#8f9499",
     "design_version": 2,
     "condition_tier": 1,
     "upside_tier": 1,
-    "build_tags": ["block", "attack"],
+    "build_tags": ["stoneskin", "block"],
     "effects": [
-      {"type": "card_action_mod", "requires_any_action_types": ["melee", "ranged", "aoe", "push", "pull"], "action_types": ["block"], "field": "amount", "amount": 3}
+      {"type": "player_state_action_mod", "player_min_stoneskin": 1, "action_types": ["block"], "field": "amount", "amount": 3}
     ]
   },
   "iron_buckler": {
@@ -114,15 +115,15 @@
   "static_soles": {
     "name": "Static Soles",
     "rarity": "common",
-    "description": "The first Lightning card that moves or blinks each turn raises Lightning intensity by {0.reward0.amount} and grants {0.reward1.amount} block.",
+    "description": "The first Lightning card that moves or blinks each turn raises Lightning intensity by {0.reward0.amount} and grants {0.reward1.amount} Vision for {0.reward1.duration} turns.",
     "icon_path": "res://assets/art/relics/static_soles.png",
     "accent": "#8f9499",
     "design_version": 2,
     "condition_tier": 1,
     "upside_tier": 1,
-    "build_tags": ["lightning", "mobility"],
+    "build_tags": ["radiance", "lightning", "mobility", "vision"],
     "effects": [
-      {"type": "card_play_reward", "element": "lightning", "requires_any_action_types": ["move", "blink"], "once": "turn", "rewards": [{"type": "intensity", "element": "lightning", "amount": 1}, {"type": "block", "amount": 2}]}
+      {"type": "card_play_reward", "element": "lightning", "requires_any_action_types": ["move", "blink"], "once": "turn", "rewards": [{"type": "intensity", "element": "lightning", "amount": 1}, {"type": "vision", "amount": 1, "duration": 2}]}
     ]
   },
   "mossbound_wraps": {
@@ -230,15 +231,15 @@
   "thawing_charm": {
     "name": "Thawing Charm",
     "rarity": "rare",
-    "description": "Excess healing becomes stoneskin, up to {cap} each turn.",
+    "description": "Excess healing becomes stoneskin, up to {cap} each turn. The first conversion each turn creates radius-1 Light at you for 2 turns.",
     "icon_path": "res://assets/art/relics/thawing_charm.png",
     "accent": "#4b84d8",
     "design_version": 2,
     "condition_tier": 2,
     "upside_tier": 2,
-    "build_tags": ["heal", "stoneskin"],
+    "build_tags": ["radiance", "heal", "stoneskin", "light"],
     "effects": [
-      {"type": "overheal_to_stoneskin", "cap": 8}
+      {"type": "overheal_to_stoneskin", "cap": 8, "first_conversion_scope": "turn", "first_conversion_rewards": [{"type": "illuminate_player", "radius": 1, "duration": 2}]}
     ]
   },
   "ember_siphon": {
@@ -357,16 +358,16 @@
   "phoenix_ember": {
     "name": "Phoenix Ember",
     "rarity": "legendary",
-    "description": "Gain {0.value} Defiance this run. When Defiance triggers, burn all enemies for {1.reward0.amount}, draw {1.reward1.amount}, and gain {1.reward2.amount} card plays.",
+    "description": "Gain {0.value} Defiance this run. When Defiance triggers, dispel {1.reward0.amount} Umbra, burn all enemies for {1.reward1.amount}, draw {1.reward2.amount}, and gain {1.reward3.amount} card plays.",
     "icon_path": "res://assets/art/relics/phoenix_ember.png",
     "accent": "#d9862f",
     "design_version": 2,
     "condition_tier": 4,
     "upside_tier": 4,
-    "build_tags": ["defiance", "comeback"],
+    "build_tags": ["radiance", "defiance", "comeback", "dispel_umbra"],
     "effects": [
       {"type": "defiance_capacity", "value": 1},
-      {"type": "defiance_trigger_reward", "rewards": [{"type": "all_enemies_status", "status": "burn", "amount": 6}, {"type": "draw", "amount": 3}, {"type": "card_play", "amount": 3}]}
+      {"type": "defiance_trigger_reward", "rewards": [{"type": "dispel_umbra", "amount": 2}, {"type": "all_enemies_status", "status": "burn", "amount": 6}, {"type": "draw", "amount": 3}, {"type": "card_play", "amount": 3}]}
     ]
   },
   "worldroot_idol": {
@@ -387,16 +388,16 @@
   "cinderbrand_tongs": {
     "name": "Cinderbrand Tongs",
     "rarity": "common",
-    "description": "The first Burn you apply each turn raises Fire intensity by {0.amount}. Once each turn, when Fire intensity reaches {1.threshold}+, consume {1.consume} Fire, deal {1.reward0.amount} damage to all enemies, and Burn them for {1.reward1.amount}.",
+    "description": "The first attack each turn that applies Burn raises Fire intensity by {0.amount} and creates radius-{1.radius} Light at its target for {1.duration} turns.",
     "icon_path": "res://assets/art/relics/cinderbrand_tongs.png",
     "accent": "#8f9499",
     "design_version": 2,
     "condition_tier": 1,
     "upside_tier": 1,
-    "build_tags": ["burn", "fire_intensity"],
+    "build_tags": ["radiance", "burn", "fire_intensity", "light"],
     "effects": [
-      {"type": "status_intensity_gain", "status": "burn", "element": "fire", "amount": 1, "once": "turn"},
-      {"type": "intensity_threshold_reward", "element": "fire", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "all_enemies_damage", "amount": 2}, {"type": "all_enemies_status", "status": "burn", "amount": 1}]}
+      {"type": "status_intensity_gain", "status": "burn", "element": "fire", "amount": 1, "once": "turn", "action_types": ["melee", "ranged", "aoe", "push", "pull"]},
+      {"type": "resolved_action_light", "action_types": ["melee", "ranged", "aoe", "push", "pull"], "requires_field": "burn", "position_mode": "target", "radius": 1, "duration": 2, "once": "turn"}
     ]
   },
   "rimecatcher_vial": {
@@ -473,31 +474,31 @@
     ]
   },
   "voltaic_tuning_fork": {
-    "name": "Voltaic Tuning Fork",
+    "name": "Stormglass Beacon",
     "rarity": "rare",
-    "description": "Once each turn, when Lightning intensity reaches {threshold}+, consume {consume} Lightning and draw {0.reward0.amount}.",
-    "icon_path": "res://assets/art/relics/voltaic_tuning_fork.png",
+    "description": "The first Chain attack each turn creates radius-{radius} Light for {duration} turns beneath every enemy it hits.",
+    "icon_path": "res://assets/art/relics/stormglass_beacon.png",
     "accent": "#4b84d8",
     "design_version": 2,
     "condition_tier": 2,
     "upside_tier": 2,
-    "build_tags": ["lightning_intensity", "draw"],
+    "build_tags": ["radiance", "chain", "light"],
     "effects": [
-      {"type": "intensity_threshold_reward", "element": "lightning", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "draw", "amount": 2}]}
+      {"type": "resolved_action_light", "action_types": ["melee", "ranged", "aoe", "push", "pull"], "requires_field": "chain", "position_mode": "affected_enemies", "radius": 1, "duration": 2, "once": "turn"}
     ]
   },
   "tectonic_abacus": {
-    "name": "Tectonic Abacus",
+    "name": "Captured Noon",
     "rarity": "epic",
-    "description": "Once each turn, when Earth intensity reaches {threshold}+, consume {consume} Earth, gain {0.reward0.amount} stoneskin and {0.reward1.amount} card plays.",
-    "icon_path": "res://assets/art/relics/tectonic_abacus.png",
+    "description": "At 3 active Light sources, suppress Umbra by one stage; at 6, suppress it by two. Suppression is reversible and never goes below Clear.",
+    "icon_path": "res://assets/art/relics/captured_noon.png",
     "accent": "#9b62d6",
     "design_version": 2,
     "condition_tier": 3,
     "upside_tier": 3,
-    "build_tags": ["earth_intensity", "stoneskin"],
+    "build_tags": ["radiance", "light", "umbra_suppression"],
     "effects": [
-      {"type": "intensity_threshold_reward", "element": "earth", "threshold": 5, "consume": 4, "once": "turn", "rewards": [{"type": "stoneskin", "amount": 12}, {"type": "card_play", "amount": 2}]}
+      {"type": "light_source_umbra_suppression", "thresholds": [3, 6], "stages": [1, 2], "minimum_stage": "clear"}
     ]
   },
   "overflow_censer": {
@@ -543,17 +544,17 @@
     ]
   },
   "hollow_die": {
-    "name": "Hollow Die",
+    "name": "Open-Eyed Pin",
     "rarity": "common",
-    "description": "The first card with exactly one printed action each turn draws {0.reward0.amount}.",
-    "icon_path": "res://assets/art/relics/hollow_die.png",
+    "description": "When a card grants Vision or Truesight, create radius-{0.reward0.radius} Light at you for that effect's final duration.",
+    "icon_path": "res://assets/art/relics/open_eyed_pin.png",
     "accent": "#8f9499",
     "design_version": 2,
     "condition_tier": 1,
     "upside_tier": 1,
-    "build_tags": ["single_action", "draw"],
+    "build_tags": ["radiance", "vision", "truesight", "light"],
     "effects": [
-      {"type": "card_play_reward", "min_action_count": 1, "max_action_count": 1, "once": "turn", "rewards": [{"type": "draw", "amount": 1}]}
+      {"type": "card_play_reward", "requires_any_action_types": ["vision", "truesight"], "rewards": [{"type": "illuminate_player", "radius": 1, "duration_from_action_types": ["vision", "truesight"], "duration_mode": "maximum"}]}
     ]
   },
   "chorus_mask": {
@@ -587,15 +588,15 @@
   "widow_thread": {
     "name": "Widow Thread",
     "rarity": "rare",
-    "description": "Attacks on cards that also create an illusion inflict {amount} expose.",
+    "description": "While an illusion exists, your attacks inflict +{amount} expose.",
     "icon_path": "res://assets/art/relics/widow_thread.png",
     "accent": "#4b84d8",
     "design_version": 2,
     "condition_tier": 2,
     "upside_tier": 2,
-    "build_tags": ["illusion", "expose"],
+    "build_tags": ["illusion", "expose", "attack"],
     "effects": [
-      {"type": "card_action_mod", "requires_action_types": ["illusion"], "action_types": ["melee", "ranged", "aoe", "push", "pull"], "field": "expose", "amount": 3}
+      {"type": "player_state_action_mod", "player_min_illusions": 1, "action_types": ["melee", "ranged", "aoe", "push", "pull"], "field": "expose", "amount": 1}
     ]
   },
   "funeral_bell": {
@@ -666,6 +667,188 @@
     "build_tags": ["banked_play", "high_time"],
     "effects": [
       {"type": "card_play_reward", "used_banked_play": true, "min_time": 7, "once": "combat", "rewards": [{"type": "draw", "amount": 4}, {"type": "card_play", "amount": 3}]}
+    ]
+  },
+  "dawnbrand_filament": {
+    "name": "Dawnbrand Filament",
+    "rarity": "common",
+    "description": "The first direct attack each turn creates radius-{radius} Light at its target for {duration} turns.",
+    "icon_path": "res://assets/art/relics/dawnbrand_filament.png",
+    "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["radiance", "attack", "light"],
+    "effects": [
+      {"type": "resolved_action_light", "action_types": ["melee", "ranged", "push", "pull"], "position_mode": "target", "radius": 1, "duration": 2, "once": "turn"}
+    ]
+  },
+  "glowstone_matrix": {
+    "name": "Glowstone Matrix",
+    "rarity": "common",
+    "description": "Cards containing a stoneskin action also grant {action.amount} Vision for {action.duration} turns.",
+    "icon_path": "res://assets/art/relics/glowstone_matrix.png",
+    "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["radiance", "stoneskin", "vision"],
+    "effects": [
+      {"type": "card_append_action", "requires_action_type": "stoneskin", "action": {"type": "vision", "amount": 1, "duration": 2}}
+    ]
+  },
+  "briar_winch": {
+    "name": "Briar Winch",
+    "rarity": "common",
+    "description": "Push and Pull actions move poisoned enemies {amount} additional tile.",
+    "icon_path": "res://assets/art/relics/briar_winch.png",
+    "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["poison", "forced_movement"],
+    "effects": [
+      {"type": "target_state_action_mod", "target_status": "poison", "action_types": ["push", "pull"], "field": "amount", "amount": 1}
+    ]
+  },
+  "hourglass_awl": {
+    "name": "Hourglass Awl",
+    "rarity": "common",
+    "description": "Attacks on cards with {min_time}+ Time gain Pierce.",
+    "icon_path": "res://assets/art/relics/hourglass_awl.png",
+    "accent": "#8f9499",
+    "design_version": 2,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": ["high_time", "pierce"],
+    "effects": [
+      {"type": "card_action_mod", "min_time": 7, "action_types": ["melee", "ranged", "aoe", "push", "pull"], "field": "pierce", "value": true}
+    ]
+  },
+  "beaconrunner_spurs": {
+    "name": "Beaconrunner Spurs",
+    "rarity": "rare",
+    "description": "The first Move or Blink each turn that ends in Light grants {0.reward0.amount} card play and {0.reward1.amount} block.",
+    "icon_path": "res://assets/art/relics/beaconrunner_spurs.png",
+    "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["radiance", "move", "blink", "card_play"],
+    "effects": [
+      {"type": "movement_end_reward", "action_types": ["move", "blink"], "player_in_light": true, "once": "turn", "rewards": [{"type": "card_play", "amount": 1}, {"type": "block", "amount": 3}]}
+    ]
+  },
+  "true_north": {
+    "name": "True North",
+    "rarity": "rare",
+    "description": "While you have Truesight, ranged actions gain +{amount} range.",
+    "icon_path": "res://assets/art/relics/true_north.png",
+    "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["radiance", "truesight", "ranged"],
+    "effects": [
+      {"type": "player_state_action_mod", "player_has_truesight": true, "action_types": ["ranged"], "field": "range", "amount": 2}
+    ]
+  },
+  "dawnstitch_cord": {
+    "name": "Dawnstitch Cord",
+    "rarity": "rare",
+    "description": "The first card each turn that creates Light, grants Vision or Truesight, or dispels Umbra grants {0.reward0.amount} block.",
+    "icon_path": "res://assets/art/relics/dawnstitch_cord.png",
+    "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["radiance", "block"],
+    "effects": [
+      {"type": "card_play_reward", "requires_any_action_types": ["illuminate", "vision", "truesight", "dispel_umbra"], "once": "turn", "rewards": [{"type": "block", "amount": 4}]}
+    ]
+  },
+  "starless_astrolabe": {
+    "name": "Starless Astrolabe",
+    "rarity": "rare",
+    "description": "While you have Truesight, attacks that Freeze or Shock create radius-{radius} Light for {duration} turns beneath affected enemies.",
+    "icon_path": "res://assets/art/relics/starless_astrolabe.png",
+    "accent": "#4b84d8",
+    "design_version": 2,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": ["radiance", "truesight", "freeze", "shock"],
+    "effects": [
+      {"type": "resolved_action_light", "action_types": ["melee", "ranged", "aoe", "push", "pull"], "requires_any_fields": ["freeze", "shock"], "player_has_truesight": true, "position_mode": "affected_enemies", "radius": 1, "duration": 2}
+    ]
+  },
+  "witchglass_carapace": {
+    "name": "Witchglass Carapace",
+    "rarity": "epic",
+    "description": "Ranged enemy attacks deal at most {max_damage} damage to illusions. Melee attacks are unchanged.",
+    "icon_path": "res://assets/art/relics/witchglass_carapace.png",
+    "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["illusion", "enemy_intent", "defense"],
+    "effects": [
+      {"type": "illusion_damage_cap", "enemy_action_types": ["ranged"], "max_damage": 1}
+    ]
+  },
+  "witchglass_lantern": {
+    "name": "Witchglass Lantern",
+    "rarity": "epic",
+    "description": "Living illusions carry tethered radius-{radius} Light. It ends immediately when the illusion is removed.",
+    "icon_path": "res://assets/art/relics/witchglass_lantern.png",
+    "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["radiance", "illusion", "light"],
+    "effects": [
+      {"type": "illusion_light_aura", "radius": 2, "tethered": true}
+    ]
+  },
+  "sunlit_edge": {
+    "name": "Sunlit Edge",
+    "rarity": "epic",
+    "description": "While you stand in Light, your attacks gain Pierce.",
+    "icon_path": "res://assets/art/relics/sunlit_edge.png",
+    "accent": "#9b62d6",
+    "design_version": 2,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": ["radiance", "light", "pierce", "attack"],
+    "effects": [
+      {"type": "player_state_action_mod", "player_in_light": true, "action_types": ["melee", "ranged", "aoe", "push", "pull"], "field": "pierce", "value": true}
+    ]
+  },
+  "glassway_compass": {
+    "name": "Glassway Compass",
+    "rarity": "legendary",
+    "description": "The first Blink each turn creates a 2-health illusion on the tile you left.",
+    "icon_path": "res://assets/art/relics/glassway_compass.png",
+    "accent": "#d9862f",
+    "design_version": 2,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": ["blink", "illusion"],
+    "effects": [
+      {"type": "blink_origin_illusion", "health": 2, "once": "turn"}
+    ]
+  },
+  "unclouded_sun": {
+    "name": "Unclouded Sun",
+    "rarity": "legendary",
+    "description": "Once per combat, when a room that began with Umbra first becomes Clear, gain {0.reward0.amount} stoneskin, draw {0.reward1.amount}, and gain {0.reward2.amount} card plays.",
+    "icon_path": "res://assets/art/relics/unclouded_sun.png",
+    "accent": "#d9862f",
+    "design_version": 2,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": ["radiance", "dispel_umbra", "combo_turn"],
+    "effects": [
+      {"type": "umbra_transition_reward", "initial_stage_min": "fringe", "target_stage": "clear", "once": "combat", "rewards": [{"type": "stoneskin", "amount": 12}, {"type": "draw", "amount": 3}, {"type": "card_play", "amount": 3}]}
     ]
   }
 }

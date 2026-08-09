@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-08T12:07:22Z",
+  "updated_at": "2026-08-09T15:46:52Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7396,6 +7396,72 @@
       "source": {
         "branch": "codex/fix-retained-combat-actor-tile-framing-desync",
         "commit": "617e6d7"
+      }
+    },
+    {
+      "id": "mnt_20260809T154651Z_d0ca8af9",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Prefer spatial aftermath on existing actions for package-transforming designs",
+      "details": "Movement trails, Blink origin/destination Light, and Light tethered to living illusions are strong design lodestars: they qualitatively change board use by enriching actions players already understand, without adding a new selection, targeting, or interaction flow. Pure stat riders are weaker; bespoke traps, arbitrary mirroring, and trigger-time selectors remain out of bounds.",
+      "status": "active",
+      "created_at": "2026-08-09T15:46:51Z",
+      "updated_at": "2026-08-09T15:46:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T154651Z_b0a3ed7e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "A fifth skill branch preserves authored prerequisites with completion-aware capstone reachability",
+      "details": "The Radiance branch extends the fixed skill-tree canvas to 1250x540 while preserving all original node positions. Skill eligibility must never waive prerequisites at the point cap; it instead rejects choices that cannot still reach a legal 19-point build with exactly one authored keystone. Migration repairs legacy max builds to a legal capstone.",
+      "status": "active",
+      "created_at": "2026-08-09T15:46:51Z",
+      "updated_at": "2026-08-09T15:46:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "a5729c1"
+      }
+    },
+    {
+      "id": "mnt_20260809T154651Z_2df3ee71",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Derived tethered Light must flow through mechanics, presentation, and analytics",
+      "details": "Illusion-tethered Light is not a fixed umbra.light_sources record. Visibility, Noctyrax protection, in-Light relic/skill checks, effective source counts, Umbra suppression, board presentation, tooltips, and analytics must all consume the effective Light-source helpers. Conditional Truesight such as Open Sky also needs an explicit presentation flag/status cue.",
+      "status": "active",
+      "created_at": "2026-08-09T15:46:51Z",
+      "updated_at": "2026-08-09T15:46:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/redesign-relic-pool-with-radiance-cards-and-ability-branch",
+        "commit": "a5729c1"
       }
     }
   ]

@@ -98,14 +98,17 @@ func _test_character_skill_tree(instance: Node) -> void:
 		_expect(instance.get_viewport().gui_get_focus_owner() == skills_tab, "Live controller navigation should reach the Character tabs from the tree")
 		await _press_ui_action(&"ui_down")
 		_expect(instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill("ghost_stride"), "Skills-tab Down should return to the tree's remembered node")
-		_expect(tree.node_for_skill("ghost_stride").find_valid_focus_neighbor(SIDE_RIGHT) == reset_skills, "The tree should expose a controller path to Reset Skills")
+		tree.focus_skill("long_dawn")
+		tree.grab_tree_focus()
+		await process_frame
+		_expect(tree.node_for_skill("long_dawn").find_valid_focus_neighbor(SIDE_RIGHT) == reset_skills, "The rightmost Radiance root should expose a controller path to Reset Skills")
 		await _press_ui_action(&"ui_right")
 		_expect(instance.get_viewport().gui_get_focus_owner() == reset_skills, "Live controller navigation should leave the graph for Reset Skills")
 		_expect(reset_skills.find_valid_focus_neighbor(SIDE_TOP) == skills_tab, "Reset Skills should expose a direct controller path back to the Character tabs")
 		await _press_ui_action(&"ui_up")
 		_expect(instance.get_viewport().gui_get_focus_owner() == skills_tab, "Reset Skills Up should reach the active Skills tab")
 		await _press_ui_action(&"ui_down")
-		_expect(instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill("ghost_stride"), "Returning from the Skills tab should preserve the last focused tree node")
+		_expect(instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill("long_dawn"), "Returning from the Skills tab should preserve the last focused tree node")
 		tree.focus_skill("discerning_eye")
 	_expect(tree != null and tree.detail_title_text() == "Discerning Eye", "Compact medallions should reveal full skill names in the persistent detail pane")
 	var level_resource := scrim.find_child("ProgressionLevelLabel", true, false) as Label
@@ -428,20 +431,27 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(_label_with_text(popover, "Discerning Eye") != null, "Skill popover should list the learned reward ability")
 	_expect(_label_with_text(popover, "READY") != null, "Skill popover should communicate readiness")
 	var status_scrim := instance.get("_skill_status_scrim") as ColorRect
-	var pass_control: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Pass")
-	if pass_control == null:
-		pass_control = _visible_button_with_text(instance.get("choice_bar") as Control, "Pass")
 	_expect(status_scrim != null and status_scrim.visible and status_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Skill status should use a full-screen mouse-blocking scrim")
-	_expect(status_scrim != null and pass_control != null and status_scrim.get_global_rect().has_point(pass_control.get_global_rect().get_center()), "The skill-status scrim should cover combat controls behind the panel")
+	_expect(
+		status_scrim != null and sigil != null and status_scrim.get_global_rect().has_point(sigil.get_global_rect().get_center()),
+		"The skill-status scrim should cover combat controls behind the panel (scrim=%s, Abilities=%s)" % [
+			status_scrim.get_global_rect() if status_scrim != null else Rect2(),
+			sigil.get_global_rect() if sigil != null else Rect2()
+		]
+	)
 	var combat_before_scrim_click: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
-	if status_scrim != null and pass_control != null:
+	if status_scrim != null and sigil != null:
 		var blocked_click := InputEventMouseButton.new()
 		blocked_click.button_index = MOUSE_BUTTON_LEFT
 		blocked_click.pressed = true
-		blocked_click.position = pass_control.get_global_rect().get_center()
-		status_scrim.gui_input.emit(blocked_click)
+		blocked_click.position = sigil.get_global_rect().get_center()
+		_expect(
+			status_scrim.gui_input.is_connected(Callable(instance, "_on_skill_status_scrim_gui_input")),
+			"The skill-status scrim should route pointer input to its modal close handler"
+		)
+		instance.call("_on_skill_status_scrim_gui_input", blocked_click)
 		await process_frame
-	_expect((instance.get("_combat_state") as Dictionary) == combat_before_scrim_click, "Clicking the modal skill-status scrim over Pass must not advance combat")
+	_expect((instance.get("_combat_state") as Dictionary) == combat_before_scrim_click, "Clicking the modal skill-status scrim over combat controls must not advance combat")
 	_expect(status_scrim != null and not status_scrim.visible, "Clicking outside the skill-status panel should close it")
 	instance.call("_toggle_skill_status_popover")
 	await process_frame
@@ -460,7 +470,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		"Skill popover should use one fixed viewport-bounded geometry"
 	)
 	_expect(popover.find_child("SkillStatusScroll", true, false) == null, "Abilities should not retain the old scrolling paragraph list")
-	_expect(status_tiles.size() == 10, "The fixed icon palette should show ten learned identities per page")
+	_expect(status_tiles.size() == 10, "The fixed icon palette should show ten learned identities per page (found %d)" % status_tiles.size())
 	for tile_var: Variant in status_tiles:
 		_expect(tile_var is Button and (tile_var as Button).focus_mode == Control.FOCUS_ALL, "Every ability icon should be keyboard/controller inspectable")
 		_expect(tile_var is Button and not str((tile_var as Button).get_meta("icon_key", "")).is_empty(), "Every ability tile should carry a semantic icon")
@@ -487,7 +497,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 			instance.call("_on_skill_status_page_pressed", 1)
 			await process_frame
 		status_tiles = status_grid.get_children()
-		_expect(status_tiles.size() == (4 if page_index == 2 else 10), "Ability page %d should retain a stable ten-slot palette" % [page_index + 1])
+		_expect(status_tiles.size() == 10, "Ability page %d should retain a stable ten-slot palette" % [page_index + 1])
 		for tile_var: Variant in status_tiles:
 			var page_tile := tile_var as Button
 			var page_skill_id: String = str(page_tile.get_meta("skill_id", ""))

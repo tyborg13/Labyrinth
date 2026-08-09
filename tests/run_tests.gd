@@ -19,6 +19,7 @@ const SkillTreeSuite = preload("res://tests/suites/skill_tree_suite.gd")
 const SkillCombatSuite = preload("res://tests/suites/skill_combat_suite.gd")
 const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const RelicSuite = preload("res://tests/suites/relic_suite.gd")
+const RadiancePackageSuite = preload("res://tests/suites/radiance_package_suite.gd")
 const ElementalIntensitySuite = preload("res://tests/suites/elemental_intensity_suite.gd")
 const BalancePacingSuite = preload("res://tests/suites/balance_pacing_suite.gd")
 const LethalPreviewSuite = preload("res://tests/suites/lethal_preview_suite.gd")
@@ -77,6 +78,7 @@ func _initialize() -> void:
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
+	RadiancePackageSuite.run(Callable(self, "_assert"))
 	ElementalIntensitySuite.run(Callable(self, "_assert"))
 	BalancePacingSuite.run(Callable(self, "_assert"))
 	LethalPreviewSuite.run(Callable(self, "_assert"))
@@ -486,7 +488,9 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var spark_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("spark_dart")
 	_assert(spark_card_entries.has("magick:spark_dart"), "Elemental reward cards should unlock their Magick entry")
 	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
-	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
+	_assert(spark_card_entries.has("keyword:radiance") and spark_card_entries.has("keyword:illuminate"), "Radiance riders should unlock their school and Light action entries")
+	var static_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("static_lash")
+	_assert(static_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
 	var lantern_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("lantern_shot")
 	_assert(lantern_entries.has("equipment_card:lantern_shot"), "Starter Lantern Shot should unlock its equipment-provenance card entry")
 	_assert(not lantern_entries.has("magick:lantern_shot"), "Equipment-provided Lantern Shot should not be misclassified as a Magick")
@@ -535,7 +539,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	reward_offer_state["pending_reward"] = {"cards": ["spark_dart"]}
 	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
 	_assert(reward_offer_entries.has("magick:spark_dart"), "Visible reward-offer cards should unlock their Magick entry before selection")
-	_assert(reward_offer_entries.has("keyword:shock"), "Visible reward-offer cards should unlock nested keyword entries before selection")
+	_assert(reward_offer_entries.has("keyword:illuminate"), "Visible reward-offer cards should unlock their Radiance rider before selection")
 	var merchant_offer_state: Dictionary = run_state.duplicate(true)
 	merchant_offer_state["current_room"] = Vector2i(2, 1)
 	merchant_offer_state["rooms"] = {
@@ -551,7 +555,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(merchant_offer_entries.has("item:crimson_draught"), "Visible scavenger-offer cards should unlock item entries before purchase")
 	_assert(merchant_offer_entries.has("equipment:iron_cleaver"), "Visible blacksmith-offer equipment should unlock equipment entries before purchase")
 	_assert(merchant_offer_entries.has("character:blacksmith"), "Current-room NPCs should unlock character entries")
-	_assert(merchant_offer_entries.has("keyword:shock"), "Visible merchant-offer cards should unlock nested keyword entries before purchase")
+	_assert(merchant_offer_entries.has("keyword:illuminate"), "Visible merchant-offer cards should unlock their Radiance rider before purchase")
 	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["magick:spark_dart", "keyword:shock"])
 	var added: Array = unlock_result.get("added", [])
 	var next_state: Dictionary = unlock_result.get("state", {}) as Dictionary
@@ -2790,34 +2794,6 @@ func _test_hand_draw_caps_at_seven() -> void:
 	state["draw_per_turn"] = 3
 	state = combat.prepare_next_player_turn(state)
 	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 7, "Drawing for a new turn should stop once the hand reaches seven cards")
-
-func _test_first_attack_bonus_damage_math() -> void:
-	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = combat.create_combat(16, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["ember_lens"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	state["enemies"] = [
-		{
-			"id": 1,
-			"type": "crawler",
-			"pos": Vector2i(3, 4),
-			"hp": 14,
-			"max_hp": 14,
-			"block": 4
-		}
-	]
-	var action: Dictionary = {"type": "melee", "damage": 6, "range": 1}
-	_assert(combat.final_damage_for_player_action(state, action) == 9, "Displayed attack damage should include the first-attack bonus before the card resolves")
-	state = combat.apply_player_action(state, action, Vector2i(3, 4))
-	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
-	_assert(int(enemy.get("block", 0)) == 0, "Damage should remove enemy block before health")
-	_assert(int(enemy.get("hp", 0)) == 9, "A 6-damage strike with Ember Lens into 4 block should deal 5 health damage")
-	_assert(combat.attack_bonus_for_current_turn(state) == 0, "The first-attack bonus should be consumed after the hit resolves")
 
 func _test_relic_effect_hooks() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -10680,29 +10656,34 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	var combat_state: Dictionary = combat.create_combat(97, _simple_room_layout(), {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["ricochet_knife"],
-		"relics": ["ember_lens"],
+		"deck_cards": ["sidestep_slash"],
+		"relics": ["duelist_whetstone"],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["ricochet_knife"]
+	deck["hand"] = ["sidestep_slash"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
 	instance.set("_combat_state", combat_state)
-	var display: Dictionary = instance.call("_card_widget_display", "ricochet_knife", combat_state)
+	var display: Dictionary = instance.call("_card_widget_display", "sidestep_slash", combat_state)
 	var summary_rows: Array = display.get("summary_rows", [])
 	var modifier_lines: Array = display.get("modifier_lines", [])
 	_assert(not summary_rows.is_empty(), "Damage cards should render icon summary rows")
-	var damage_token: Dictionary = ((summary_rows[0] as Array)[0] as Dictionary)
-	_assert(str(damage_token.get("icon", "")) == "ranged", "Damage cards should render the action keyword as an icon")
-	_assert(int(damage_token.get("value", 0)) == 11, "Damage cards should show final damage, not base damage, when a conditional modifier applies")
+	var damage_token: Dictionary = {}
+	for row_var: Variant in summary_rows:
+		for token_var: Variant in row_var as Array:
+			var token: Dictionary = token_var as Dictionary
+			if str(token.get("icon", "")) == "melee":
+				damage_token = token
+	_assert(not damage_token.is_empty(), "Damage cards should render the attack keyword as an icon")
+	_assert(int(damage_token.get("value", 0)) == 8, "Damage cards should show final damage, not base damage, when a conditional modifier applies")
 	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
 	_assert(modifier_lines.is_empty(), "Damage modifiers should live on the modified token instead of a duplicate card-level tooltip")
 	_assert(ActionIcons.token_is_modified(damage_token), "Damage cards should mark dynamically modified tokens")
-	_assert(ActionIcons.token_tooltip(damage_token).contains("Ember Lens"), "The damage token tooltip should name the modifier source")
+	_assert(ActionIcons.token_tooltip(damage_token).contains("Duelist Whetstone"), "The damage token tooltip should name the modifier source")
 	instance.queue_free()
 	await process_frame
 
@@ -12198,6 +12179,9 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(str(play_event.get("objective_type", "")) == "kill_all", "Combat analytics context should retain the encounter objective cohort")
 	_assert(play_payload.has("radiance_card") and play_payload.has("umbra_stage_before") and play_payload.has("umbra_stage_after"), "Card play analytics should classify Radiance and stage changes")
 	_assert(play_payload.has("umbra_tiles_illuminated") and play_payload.has("umbra_enemies_revealed") and play_payload.has("umbra_light_sources_created"), "Card play analytics should include observed Radiance results")
+	_assert(play_payload.has("umbra_effective_light_sources_before") and play_payload.has("umbra_effective_light_sources_after"), "Card play analytics should expose effective Light source counts")
+	_assert(play_payload.has("umbra_tethered_light_sources_before") and play_payload.has("umbra_tethered_light_sources_after"), "Card play analytics should distinguish actor-tethered Light")
+	_assert(play_payload.has("umbra_suppression_stages_before") and play_payload.has("umbra_suppression_stages_after"), "Card play analytics should expose Light-driven Umbra suppression")
 	_assert(play_payload.has("flurry") and play_payload.has("flurry_plays_spent"), "Card play analytics should expose Flurry use and its repeat count")
 	_assert(bool((play_payload.get("enemy_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include enemy immobilize application")
 	_assert(bool((play_payload.get("player_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include player immobilize application")
@@ -12824,7 +12808,23 @@ func _test_hidden_enemy_movement_collision_does_not_leak_position() -> void:
 	_assert(not blink_targets.has(target), "Blink should not target shrouded destinations")
 
 func _test_radiance_cards_and_icons_are_integrated() -> void:
-	for card_id: String in ["lantern_shot", "guiding_flare", "dawnstep", "prism_sight", "storm_beacon", "glowstone_ward", "daybreak"]:
+	for card_id: String in [
+		"lantern_shot",
+		"guiding_flare",
+		"dawnstep",
+		"prism_sight",
+		"storm_beacon",
+		"glowstone_ward",
+		"daybreak",
+		"ember_rain",
+		"trapdoor",
+		"firebrand_volley",
+		"icebound_chains",
+		"spark_dart",
+		"spark_focus",
+		"squall_shot",
+		"root_snare"
+	]:
 		var card: Dictionary = GameData.card_def(card_id)
 		_assert(not card.is_empty(), "%s should load" % card_id)
 		_assert(bool(card.get("radiance", false)), "%s should carry the Radiance school tag" % card_id)

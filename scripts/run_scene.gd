@@ -13644,10 +13644,11 @@ func _refresh_stage_view() -> void:
 		presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(visibility_state)
 		presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(visibility_state)
 		presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(visibility_state)
-		presentation["umbra_light_sources"] = ((visibility_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).duplicate(true)
+		presentation["umbra_light_sources"] = _combat_engine.effective_light_sources(visibility_state)
 		var umbra_state: Dictionary = visibility_state.get("umbra", {}) as Dictionary
 		presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
-		presentation["umbra_truesight"] = int(presentation["umbra_truesight_activations"]) != 0
+		presentation["umbra_truesight"] = _combat_engine.player_has_truesight(visibility_state)
+		presentation["umbra_truesight_conditional"] = bool(presentation["umbra_truesight"]) and int(presentation["umbra_truesight_activations"]) == 0
 		presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
 		var objective: Dictionary = display_state.get("objective", {}) as Dictionary
 		if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
@@ -17192,10 +17193,11 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 	target_presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(display_state)
 	target_presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
 	target_presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
-	target_presentation["umbra_light_sources"] = ((display_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).duplicate(true)
+	target_presentation["umbra_light_sources"] = _combat_engine.effective_light_sources(display_state)
 	var umbra_state: Dictionary = display_state.get("umbra", {}) as Dictionary
 	target_presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
-	target_presentation["umbra_truesight"] = int(target_presentation["umbra_truesight_activations"]) != 0
+	target_presentation["umbra_truesight"] = _combat_engine.player_has_truesight(display_state)
+	target_presentation["umbra_truesight_conditional"] = bool(target_presentation["umbra_truesight"]) and int(target_presentation["umbra_truesight_activations"]) == 0
 	target_presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
 	if target_presentation.has("floating_texts"):
 		target_presentation["floating_texts"] = _visible_umbra_floating_texts(display_state, target_presentation.get("floating_texts", []) as Array)
@@ -23281,6 +23283,12 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"umbra_tiles_illuminated": maxi(0, int(after_umbra.get("tiles_illuminated_total", 0)) - int(before_umbra.get("tiles_illuminated_total", 0))),
 		"umbra_enemies_revealed": maxi(0, int(after_umbra.get("enemies_revealed_total", 0)) - int(before_umbra.get("enemies_revealed_total", 0))),
 		"umbra_light_sources_created": maxi(0, (after_umbra.get("light_sources", []) as Array).size() - (before_umbra.get("light_sources", []) as Array).size()),
+		"umbra_effective_light_sources_before": _combat_engine.effective_light_source_count(before_state),
+		"umbra_effective_light_sources_after": _combat_engine.effective_light_source_count(resolved_state),
+		"umbra_tethered_light_sources_before": _combat_engine.tethered_light_source_count(before_state),
+		"umbra_tethered_light_sources_after": _combat_engine.tethered_light_source_count(resolved_state),
+		"umbra_suppression_stages_before": _combat_engine.light_source_umbra_suppression(before_state),
+		"umbra_suppression_stages_after": _combat_engine.light_source_umbra_suppression(resolved_state),
 		"umbra_movement_interruptions": maxi(0, int(after_umbra.get("movement_interrupted_total", 0)) - int(before_umbra.get("movement_interrupted_total", 0))),
 		"enemy_status_applied": {
 			"burn": enemy_burn_applied,

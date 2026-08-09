@@ -14,6 +14,7 @@ static func run(expect: Callable) -> void:
 	_test_last_reserve(expect)
 	_test_living_shadow(expect)
 	_test_prismatic_instinct_and_confluence(expect)
+	_test_radiance_branch(expect)
 	_test_encore(expect)
 
 static func _test_quick_wits(expect: Callable) -> void:
@@ -411,6 +412,58 @@ static func _test_encore(expect: Callable) -> void:
 	expect.call((deck.get("hand", []) as Array).has("quick_stab") and (deck.get("discard", []) as Array).is_empty(), "Encore should return the selected non-item discard to hand")
 	expect.call(int(state.get("cards_played_this_turn", 0)) == 0 and int(state.get("player_turn_time_spent", 0)) == 0, "Encore should cost neither a play nor Time")
 	expect.call(combat.skill_was_used(state, "encore"), "Encore should spend after use")
+
+static func _test_radiance_branch(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var long_dawn_state: Dictionary = _state(combat, ["long_dawn"], ["quick_stab"])
+	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(3, 4))
+	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "vision", "amount": 1, "duration": 2})
+	long_dawn_state = combat.apply_player_action(long_dawn_state, {"type": "truesight", "duration": 2})
+	var long_dawn_umbra: Dictionary = long_dawn_state.get("umbra", {}) as Dictionary
+	expect.call(int(((long_dawn_umbra.get("light_sources", []) as Array)[0] as Dictionary).get("remaining_activations", 0)) == 3, "Long Dawn should extend temporary Light from two turns to three")
+	expect.call(int(long_dawn_umbra.get("vision_bonus_activations", 0)) == 3 and int(long_dawn_umbra.get("truesight_activations", 0)) == 3, "Long Dawn should extend temporary Vision and Truesight through the same central duration rule")
+	var permanent_state: Dictionary = _state(combat, ["long_dawn"], ["quick_stab"])
+	permanent_state = combat.apply_player_action(permanent_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": -1}, Vector2i(3, 4))
+	expect.call(int((((permanent_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array)[0] as Dictionary).get("remaining_activations", 0)) == -1, "Long Dawn should leave permanent Light permanent")
+
+	var sunpath_state: Dictionary = _state(combat, ["sunpath", "long_dawn"], ["quick_stab"])
+	sunpath_state = combat.apply_player_action(sunpath_state, {"type": "move", "range": 4}, Vector2i(5, 4))
+	var sunpath_sources: Array = (sunpath_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(sunpath_sources.size() == 3, "Sunpath should leave one Light source on every entered tile of a three-tile Move")
+	for source_var: Variant in sunpath_sources:
+		expect.call(int((source_var as Dictionary).get("remaining_activations", 0)) == 3, "Sunpath Light should participate in Long Dawn's duration extension")
+	var source_count_before_second_move: int = sunpath_sources.size()
+	sunpath_state = combat.apply_player_action(sunpath_state, {"type": "move", "range": 4}, Vector2i(2, 4))
+	expect.call(((sunpath_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == source_count_before_second_move, "Sunpath should trigger only on the first qualifying movement each turn")
+
+	var blink_state: Dictionary = _state(combat, ["sunpath"], ["quick_stab"])
+	blink_state = combat.apply_player_action(blink_state, {"type": "blink", "range": 4}, Vector2i(5, 4))
+	var blink_sources: Array = (blink_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(blink_sources.size() == 2, "Sunpath should light only a Blink's origin and destination")
+
+	var witchlight_state: Dictionary = _state(combat, ["witchlight"], ["quick_stab"])
+	witchlight_state["illusions"] = [{"id": 51, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
+	expect.call(bool(combat.call("_light_source_covers_tile", witchlight_state, Vector2i(5, 4))), "Witchlight should make a living illusion a real radius-one Light source")
+	expect.call(not bool(combat.call("_light_source_covers_tile", witchlight_state, Vector2i(6, 4))), "Witchlight should not exceed its authored radius")
+
+	var dawnbrand_state: Dictionary = _state(combat, ["dawnbrand"], ["quick_stab"])
+	dawnbrand_state = combat.apply_player_action(dawnbrand_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, Vector2i(5, 2))
+	dawnbrand_state = combat.apply_player_action(dawnbrand_state, {"type": "ranged", "damage": 1, "range": 6}, Vector2i(5, 2))
+	expect.call(int(((dawnbrand_state.get("enemies", []) as Array)[0] as Dictionary).get("expose", 0)) == 1, "Dawnbrand should Expose the first directly attacked enemy standing in Light")
+	dawnbrand_state = combat.apply_player_action(dawnbrand_state, {"type": "ranged", "damage": 1, "range": 6}, Vector2i(5, 2))
+	expect.call(int(((dawnbrand_state.get("enemies", []) as Array)[0] as Dictionary).get("expose", 0)) == 0 and _skill_event_count(combat, dawnbrand_state, "dawnbrand") == 1, "Dawnbrand should trigger at most once per turn; the second attack may consume the first Expose but must not reapply it")
+
+	var afterglow_state: Dictionary = _state(combat, ["afterglow"], ["quick_stab"])
+	afterglow_state["illusions"] = [{"id": 52, "pos": Vector2i(4, 4), "hp": 2, "max_hp": 2}]
+	afterglow_state = combat._damage_illusion(afterglow_state, 52, 2)
+	var afterglow_sources: Array = (afterglow_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(afterglow_sources.size() == 1 and (afterglow_sources[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 4), "Afterglow should leave Light at an illusion's final tile when it is removed")
+
+	var open_sky_state: Dictionary = _state(combat, ["open_sky"], ["quick_stab"])
+	expect.call(not bool(combat.call("_player_has_truesight", open_sky_state)), "Open Sky should not grant Truesight outside Light")
+	var player_pos: Vector2i = (open_sky_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	open_sky_state = combat.apply_player_action(open_sky_state, {"type": "illuminate", "range": 6, "radius": 1, "duration": 2}, player_pos)
+	expect.call(bool(combat.call("_player_has_truesight", open_sky_state)), "Open Sky should grant Truesight while the player stands in Light")
 
 static func _state(combat: CombatEngine, skills: Array, cards: Array) -> Dictionary:
 	return combat.create_combat(501, _room(), {

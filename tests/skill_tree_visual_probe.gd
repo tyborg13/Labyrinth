@@ -23,6 +23,7 @@ const PROGRESSION_SKILLS = [
 	"prismatic_instinct",
 	"encore",
 ]
+const RADIANCE_SKILLS = ["long_dawn", "sunpath", "witchlight", "dawnbrand", "afterglow", "open_sky"]
 
 var _failures: Array[String]
 var _active_screenshot_size: Vector2i
@@ -95,7 +96,7 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	var dialog := instance.get("_upgrade_dialog") as Control
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
 	_expect(dialog != null and dialog.visible, "%s Skills dialog should be visible" % viewport_size)
-	_expect(tree != null and tree.node_count() == 24, "%s Skills dialog should render all 24 nodes" % viewport_size)
+	_expect(tree != null and tree.node_count() == 30, "%s Skills dialog should render all 30 nodes" % viewport_size)
 	_expect(tree != null and tree.owned_skill_ids().size() == 10, "%s Skills dialog should render ten learned skills" % viewport_size)
 	_expect(tree != null and tree.points_remaining() == 2, "%s Skills dialog should show two banked skill points" % viewport_size)
 	if tree != null:
@@ -139,6 +140,11 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Skills dialog" % viewport_size, "Character")
 	await _save_screenshot(viewport, "%s/01_skills_tree.png" % output_dir)
 	if tree != null:
+		for radiance_skill_id: String in RADIANCE_SKILLS:
+			tree.focus_skill(radiance_skill_id)
+			await _settle()
+			_expect(tree.detail_title_text() == SkillTreeLibrary.display_name(radiance_skill_id), "%s should expose %s's exact detail title" % [viewport_size, radiance_skill_id])
+			await _save_screenshot(viewport, "%s/01r_%s.png" % [output_dir, radiance_skill_id])
 		tree.focus_skill("living_shadow")
 		await _settle()
 		var living_links: Array[String] = tree.highlighted_connection_pairs()
@@ -365,9 +371,9 @@ func _capture_combat_surfaces(
 	if ready_group == null:
 		ready_group = _button_beginning_with(choice_bar, "Ready Skills (")
 	_expect(ready_group == null, "%s Activated abilities should not create a contextual control beside Pass" % viewport_size)
-	var pass_button: Button = _visible_button_with_text(choice_overlay, "Pass")
-	if pass_button == null:
-		pass_button = _visible_button_with_text(choice_bar, "Pass")
+	var pass_button := instance.find_child("PassPreviewChip", true, false) as Button
+	if pass_button != null and not pass_button.is_visible_in_tree():
+		pass_button = null
 	_expect(pass_button != null, "%s The normal Pass control should remain uncluttered" % viewport_size)
 	for skill_name: String in maximum_manual_skill_names:
 		var button: Button = _visible_button_with_text(choice_overlay, skill_name)
