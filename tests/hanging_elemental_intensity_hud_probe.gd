@@ -23,6 +23,28 @@ const RELIC_IDS: Array = [
 	"hourglass_awl",
 ]
 const SINGLE_ROW_RELIC_IDS: Array = ["iron_lung", "ember_lens", "pilgrim_boots", "mirror_shard", "coffin_nails"]
+const STRESS_RELIC_IDS: Array = [
+	"anchor_chain",
+	"basalt_calendar",
+	"beaconrunner_spurs",
+	"black_sun_dial",
+	"bloodglass_knife",
+	"bloodmoon_chalice",
+	"borrowed_hourglass",
+	"briar_winch",
+	"chorus_mask",
+	"cinderbrand_tongs",
+	"coalheart_crucible",
+	"coffin_nails",
+	"cold_mirror",
+	"dawnbrand_filament",
+	"dawnstitch_cord",
+	"duelist_whetstone",
+	"ember_lens",
+	"ember_siphon",
+	"fivefold_knot",
+	"flint_edge",
+]
 const SKILL_IDS: Array = ["quick_wits", "measured_breath", "ghost_stride", "discerning_eye"]
 
 func _initialize() -> void:
@@ -62,7 +84,7 @@ func _initialize() -> void:
 		ElementData.EARTH: 0,
 	}, false, SINGLE_ROW_RELIC_IDS)
 	await _assert_relic_wrap_contract(instance, SINGLE_ROW_RELIC_IDS.size(), 1)
-	await _save_root_screenshot("%s/relic_header_single_row_v1_1920x1080.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/relic_header_single_row_v3_1920x1080.png" % OUTPUT_DIR)
 
 	await _load_fixture(instance, {
 		ElementData.FIRE: 1,
@@ -72,10 +94,19 @@ func _initialize() -> void:
 		ElementData.EARTH: 6,
 	}, true)
 	await _assert_hud_contract(instance, true)
-	await _assert_relic_wrap_contract(instance, RELIC_IDS.size(), 2)
-	await _save_root_screenshot("%s/relic_header_wrapped_v1_1920x1080.png" % OUTPUT_DIR)
+	await _assert_relic_wrap_contract(instance, RELIC_IDS.size(), 3)
+	await _save_root_screenshot("%s/relic_header_wrapped_v3_1920x1080.png" % OUTPUT_DIR)
 	await _assert_crowded_card_widget_contract(instance)
 	await _save_root_screenshot("%s/crowded_first_move_widget_v2_1920x1080.png" % OUTPUT_DIR)
+
+	await _load_fixture(instance, {
+		ElementData.FIRE: 1,
+		ElementData.ICE: 2,
+		ElementData.LIGHTNING: 3,
+		ElementData.AIR: 4,
+		ElementData.EARTH: 6,
+	}, true, STRESS_RELIC_IDS)
+	await _assert_relic_wrap_contract(instance, STRESS_RELIC_IDS.size(), 4)
 
 	print("HANGING ELEMENTAL INTENSITY HUD PROBE: PASS")
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -89,10 +120,10 @@ func _load_fixture(instance: Node, intensities: Dictionary, crowded: bool, fixtu
 	var combat := CombatEngine.new()
 	var layout: Dictionary = _room_layout()
 	var relics: Array[String] = _string_array()
-	if crowded:
-		relics = _string_array(RELIC_IDS)
-	elif not fixture_relic_ids.is_empty():
+	if not fixture_relic_ids.is_empty():
 		relics = _string_array(fixture_relic_ids)
+	elif crowded:
+		relics = _string_array(RELIC_IDS)
 	var combat_state: Dictionary = combat.create_combat(92845 if crowded else 15126, layout, {
 		"hp": 24,
 		"max_hp": 24,
@@ -200,7 +231,7 @@ func _assert_hud_contract(instance: Node, crowded: bool) -> void:
 		_assert(umbra_subtitle != null and umbra_subtitle.visible and umbra_subtitle.text == "Heart Umbra", "Crowded proof should include the live Umbra header line")
 		_assert(instance.get("_skill_sigil") is Button and (instance.get("_skill_sigil") as Button).visible, "Crowded proof should include the Abilities header entry")
 		_assert(relic_bar != null and relic_bar.visible and relic_grid != null and relic_grid.get_child_count() == RELIC_IDS.size(), "Crowded proof should include Defiance, Abilities, and all twelve relics")
-		_assert(bar.global_position.y >= float(instance.call("_relic_bar_first_row_bottom_y")), "Hanging cluster should begin below the first populated header line")
+		_assert(bar.global_position.y >= float(instance.call("_relic_bar_visible_bottom_y")), "Hanging cluster should begin below the complete relic block")
 
 func _assert_relic_wrap_contract(instance: Node, expected_relics: int, expected_rows: int) -> void:
 	var relic_grid: GridContainer = instance.get("_relic_icon_grid") as GridContainer
@@ -208,27 +239,32 @@ func _assert_relic_wrap_contract(instance: Node, expected_relics: int, expected_
 	var room_title: Label = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle") as Label
 	_assert(room_title != null and room_title.text == "Hanging Ward Gallery", "Relic fixtures should retain the full room title text")
 	_assert(room_title != null and room_title.size.x + 1.0 >= room_title.get_combined_minimum_size().x, "Relic layout should not clip the room title (size=%s, minimum=%s)" % [room_title.size if room_title != null else Vector2.ZERO, room_title.get_combined_minimum_size() if room_title != null else Vector2.ZERO])
-	_assert(relic_grid != null and relic_grid.columns == 8, "Relic HUD should cap each line at eight icons")
+	_assert(relic_grid != null and relic_grid.columns == 5, "Relic HUD should cap each line at five icons")
 	_assert(relic_grid != null and relic_grid.get_child_count() == expected_relics, "Relic grid should render every fixture relic")
 	if relic_grid == null or relic_grid.get_child_count() == 0:
 		return
 	var row_y_values: Array[float] = []
 	var first_x: float = (relic_grid.get_child(0) as Control).global_position.x
+	var relic_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar") as Control
+	_assert(relic_bar != null and absf(first_x - relic_bar.global_position.x) <= 1.0, "The relic block should stay flush with the HUD's screen-left edge even when Defiance precedes Abilities")
+	_assert(absf(first_x - intensity_bar.global_position.x) <= 1.0, "Relics and elemental intensity should share the same screen-left edge")
+	if expected_relics >= 5:
+		var first_row_end: float = (relic_grid.get_child(4) as Control).get_global_rect().end.x
+		_assert(absf((first_row_end - first_x) - ElementalIntensityHudArt.CLUSTER_SIZE.x) <= 12.0, "Five relics should occupy approximately the elemental intensity widget width")
 	var board_polygon: PackedVector2Array = instance.call("_contextual_combat_board_tile_polygon") as PackedVector2Array
 	for index: int in range(relic_grid.get_child_count()):
 		var relic: Control = relic_grid.get_child(index) as Control
-		var row_index: int = int(index / 8)
+		var row_index: int = int(index / 5)
 		if row_index >= row_y_values.size():
 			row_y_values.append(relic.global_position.y)
-		if index % 8 == 0:
+		if index % 5 == 0:
 			_assert(absf(relic.global_position.x - first_x) <= 1.0, "Every wrapped relic line should share the first line's left edge")
 		_assert(not relic.tooltip_text.is_empty() and relic.mouse_default_cursor_shape == Control.CURSOR_HELP, "Relic %d should preserve its hover inspection" % index)
 		_assert(float(instance.call("_action_step_tracker_board_overlap_area", relic.get_global_rect(), board_polygon)) <= 0.5, "Relic %d should remain clear of the combat board" % index)
-		if row_index > 0:
-			_assert(not relic.get_global_rect().intersects(intensity_bar.get_global_rect()), "Wrapped relic %d should remain to the right of the intensity widget" % index)
+		_assert(not relic.get_global_rect().intersects(intensity_bar.get_global_rect()), "Relic %d should remain above the intensity widget" % index)
 	_assert(row_y_values.size() == expected_rows, "Relic fixture should render %d row(s), got %d" % [expected_rows, row_y_values.size()])
 	if row_y_values.size() > 1:
-		_assert(row_y_values[1] > row_y_values[0], "Relics beyond eight should continue on a lower line")
+		_assert(row_y_values[1] > row_y_values[0], "Relics beyond five should continue on a lower line")
 
 func _assert_crowded_card_widget_contract(instance: Node) -> void:
 	var combat: CombatEngine = instance.get("_combat_engine") as CombatEngine

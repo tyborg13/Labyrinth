@@ -1171,7 +1171,9 @@ const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
-const RELICS_PER_ROW: int = 8
+const RELIC_GRID_HORIZONTAL_GAP: float = 2.0
+const RELIC_GRID_VERTICAL_GAP: float = 6.0
+const RELICS_PER_ROW: int = 5
 const SKILL_SIGIL_SIZE: Vector2 = Vector2(200.0, 56.0)
 const SKILL_SIGIL_COMPACT_SIZE: Vector2 = Vector2(132.0, 56.0)
 const SKILL_SIGIL_PREVIEW_ICON_SIZE: Vector2 = Vector2(28.0, 28.0)
@@ -1370,7 +1372,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var room_title: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
 @onready var umbra_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle
-@onready var relic_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
+@onready var relic_bar: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
 @onready var header_spacer: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/Spacer
 @onready var stats_label: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel
 @onready var loadout_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton
@@ -7646,8 +7648,8 @@ func _setup_relic_bar_layout() -> void:
 	_relic_icon_grid.columns = RELICS_PER_ROW
 	_relic_icon_grid.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_relic_icon_grid.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	_relic_icon_grid.add_theme_constant_override("h_separation", int(RELIC_BAR_HORIZONTAL_GAP))
-	_relic_icon_grid.add_theme_constant_override("v_separation", 8)
+	_relic_icon_grid.add_theme_constant_override("h_separation", int(RELIC_GRID_HORIZONTAL_GAP))
+	_relic_icon_grid.add_theme_constant_override("v_separation", int(RELIC_GRID_VERTICAL_GAP))
 	relic_bar.add_child(_relic_icon_grid)
 
 func _connect_header_layout_signals() -> void:
@@ -7690,10 +7692,7 @@ func _layout_header_hud() -> void:
 		min_width = maxf(min_width, umbra_subtitle.get_combined_minimum_size().x)
 	var intensity_active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
 	if _relic_utility_bar != null:
-		# Reserve the hanging-intensity lane even when Defiance and Abilities are
-		# absent. Every relic row then begins to its right at one stable x position.
-		_relic_utility_bar.visible = intensity_active or _relic_utility_bar.get_child_count() > 0
-		_relic_utility_bar.custom_minimum_size.x = _intensity_bar_size().x if intensity_active else 0.0
+		_relic_utility_bar.visible = _relic_utility_bar.get_child_count() > 0
 	if intensity_active:
 		min_width = maxf(min_width, _intensity_bar_size().x)
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
@@ -7710,9 +7709,6 @@ func _desired_relic_bar_width() -> float:
 	if relic_bar == null or _relic_utility_bar == null or _relic_icon_grid == null:
 		return 0.0
 	var utility_width: float = _visible_hbox_minimum_width(_relic_utility_bar)
-	var intensity_active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
-	if intensity_active:
-		utility_width = maxf(utility_width, _intensity_bar_size().x)
 	var relic_width: float = 0.0
 	var relic_count: int = 0
 	for child: Node in _relic_icon_grid.get_children():
@@ -7722,11 +7718,9 @@ func _desired_relic_bar_width() -> float:
 		if relic_count >= RELICS_PER_ROW:
 			break
 		if relic_count > 0:
-			relic_width += RELIC_BAR_HORIZONTAL_GAP
+			relic_width += RELIC_GRID_HORIZONTAL_GAP
 		relic_width += child_control.get_combined_minimum_size().x
 		relic_count += 1
-	if utility_width > 0.0 and relic_width > 0.0:
-		return utility_width + RELIC_BAR_HORIZONTAL_GAP + relic_width
 	return maxf(utility_width, relic_width)
 
 func _header_title_available_width() -> float:
@@ -7763,10 +7757,10 @@ func _layout_elemental_intensity_bar() -> void:
 		subtitle_bottom = umbra_subtitle.get_global_rect().end.y
 	var y: float = subtitle_bottom + ELEMENTAL_INTENSITY_HEADER_GAP
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
-		# Relic continuation rows occupy the column to the right of this lane. Keep
-		# the charms under the first header row instead of pushing them below every
-		# wrapped relic row.
-		y = _relic_bar_first_row_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
+		# The compact relic block owns the rows directly beneath the utility row. Keep the
+		# hanging charms after the complete block so the two readable clusters never
+		# share hit regions or cover one another.
+		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
 	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
 	_layout_combat_objective_hud()
 
@@ -8395,8 +8389,6 @@ func _refresh_relic_bar() -> void:
 	if not skill_ids.is_empty():
 		_skill_sigil = _build_skill_sigil(skill_ids)
 		_relic_utility_bar.add_child(_skill_sigil)
-		if not relic_ids.is_empty():
-			_relic_utility_bar.add_child(_build_header_utility_divider("SkillRelicDivider"))
 	for relic_id_var: Variant in relic_ids:
 		var relic_id: String = str(relic_id_var)
 		var relic: Dictionary = GameData.relic_def(relic_id)

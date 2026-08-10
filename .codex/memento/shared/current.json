@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-10T03:48:28Z",
+  "updated_at": "2026-08-10T04:31:46Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7756,25 +7756,27 @@
       }
     },
     {
-      "id": "mnt_20260810T034828Z_305ab58b",
+      "id": "mnt_20260810T043146Z_b6dead5d",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "user_preference",
       "scope": {
         "level": "file",
         "path": "scripts/run_scene.gd",
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Keep combat relic continuation rows beside the intensity lane",
-      "details": "Combat header relics use an eight-column GridContainer to the right of a dedicated utility/intensity lane. All relic rows begin at the same x-position; elemental intensity stays under the first header row in the left lane so wrapped relics neither overlap the charms nor extend into the board.",
+      "summary": "Keep combat relic rows flush to the HUD's screen-left edge",
+      "details": "Relics sit below the Defiance/Abilities utility row but do not inherit the Abilities x-offset. Use five compact columns (approximately the 260px elemental-intensity width), align every continuation row to the title/intensity left edge, and place elemental intensity after the complete relic block.",
       "status": "active",
-      "created_at": "2026-08-10T03:48:28Z",
-      "updated_at": "2026-08-10T03:48:28Z",
+      "created_at": "2026-08-10T04:31:46Z",
+      "updated_at": "2026-08-10T04:31:46Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260810T034828Z_305ab58b"
+      ],
       "source": {
         "branch": "codex/wrap-combat-relic-hud-into-left-aligned-rows",
-        "commit": "c326918"
+        "commit": "d930452"
       }
     }
   ]

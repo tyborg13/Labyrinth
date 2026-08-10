@@ -112,7 +112,7 @@ layout_mode = 2
 text = "Deep Umbra"
 script = ExtResource("6_tooltip_label")
 
-[node name="RelicBar" type="HBoxContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox"]
+[node name="RelicBar" type="VBoxContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
