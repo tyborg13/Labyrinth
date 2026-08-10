@@ -96,10 +96,16 @@ func _capture_fireball_states() -> void:
 		await _save_screenshot(sequence_path)
 		if frame == 1:
 			await _save_screenshot("%s/fireball_10_launch.png" % OUTPUT_DIR)
-		elif frame == 6:
+		elif frame == 4:
+			await _save_screenshot("%s/fireball_15_early_travel.png" % OUTPUT_DIR)
+		elif frame == 7:
 			await _save_screenshot("%s/fireball_20_midflight.png" % OUTPUT_DIR)
-		elif frame == 12:
+		elif frame == 10:
+			await _save_screenshot("%s/fireball_25_late_travel.png" % OUTPUT_DIR)
+		elif frame == 11:
 			await _save_screenshot("%s/fireball_30_impact.png" % OUTPUT_DIR)
+		elif frame == 13:
+			await _save_screenshot("%s/fireball_35_bloom.png" % OUTPUT_DIR)
 		elif frame == 16:
 			await _save_screenshot("%s/fireball_40_falloff.png" % OUTPUT_DIR)
 		await create_timer(AttackFxLibrary.FIREBALL_FRAME_SECONDS).timeout

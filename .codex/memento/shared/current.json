@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-10T02:06:54Z",
+  "updated_at": "2026-08-10T02:33:22Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7775,6 +7775,28 @@
       "source": {
         "branch": "codex/production-fireball-attack-animation",
         "commit": "c326918"
+      }
+    },
+    {
+      "id": "mnt_20260810T023322Z_53df74af",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Elemental projectiles need independently moving VFX layers, not only an animated translated sprite",
+      "details": "The first fireball pass still read as a lightly animated sticker despite authored core frames and faint afterimages. The accepted production direction layers a separately animated turbulent raster wake, world-space raster motes that peel away and linger, irregular soft firelight, subtle core scale/angle variation, and a materially larger raster-led impact bloom. Apply this standard when extending the pilot to other elements.",
+      "status": "active",
+      "created_at": "2026-08-10T02:33:22Z",
+      "updated_at": "2026-08-10T02:33:22Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-fireball-attack-animation",
+        "commit": "3fdb715"
       }
     }
   ]

@@ -50,16 +50,18 @@ static func _test_fireball_sheets_load_as_authored_frames(expect: Callable) -> v
 	var board: CombatBoardView = CombatBoardView.new()
 	board.call("_load_assets", false)
 	var travel_frames: Array = (board.get("_effect_frames") as Dictionary).get("fireball_travel", []) as Array
+	var wake_frames: Array = (board.get("_effect_frames") as Dictionary).get("fireball_wake", []) as Array
 	var impact_frames: Array = (board.get("_effect_frames") as Dictionary).get("fireball_impact", []) as Array
 	expect.call(
-		travel_frames.size() == 8 and impact_frames.size() == 8,
-		"Combat board should load eight distinct raster frames for both fireball travel and impact"
+		travel_frames.size() == 8 and wake_frames.size() == 8 and impact_frames.size() == 8,
+		"Combat board should load eight distinct raster frames for fireball core, turbulent wake, and impact"
 	)
-	if travel_frames.size() == 8 and impact_frames.size() == 8:
+	if travel_frames.size() == 8 and wake_frames.size() == 8 and impact_frames.size() == 8:
 		expect.call(
 			(travel_frames[0] as Texture2D).get_size() == Vector2(256.0, 256.0)
+			and (wake_frames[0] as Texture2D).get_size() == Vector2(512.0, 512.0)
 			and (impact_frames[0] as Texture2D).get_size() == Vector2(512.0, 512.0),
-			"Fireball sheets should retain their validated square frame contracts"
+			"Fireball core, wake, and impact sheets should retain their validated square frame contracts"
 		)
 	board.free()
 

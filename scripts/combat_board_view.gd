@@ -249,19 +249,26 @@ const ELEMENTAL_PROJECTILE_ATLAS_ROWS: int = 6
 const FIREBALL_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/fireball_travel_sheet.png"
 const FIREBALL_TRAVEL_SHEET_COLUMNS: int = 8
 const FIREBALL_TRAVEL_SHEET_ROWS: int = 1
+const FIREBALL_WAKE_SHEET_PATH: String = "res://assets/art/effects/fireball_wake_sheet.png"
+const FIREBALL_WAKE_SHEET_COLUMNS: int = 4
+const FIREBALL_WAKE_SHEET_ROWS: int = 2
 const FIREBALL_IMPACT_SHEET_PATH: String = "res://assets/art/effects/fireball_impact_sheet.png"
 const FIREBALL_IMPACT_SHEET_COLUMNS: int = 4
 const FIREBALL_IMPACT_SHEET_ROWS: int = 2
 const FIREBALL_TRAVEL_CYCLES: float = 1.35
-const FIREBALL_AFTERIMAGE_COUNT: int = 4
+const FIREBALL_WAKE_CYCLES: float = 1.72
+const FIREBALL_AFTERIMAGE_COUNT: int = 3
 const FIREBALL_AFTERIMAGE_SPACING: float = 0.048
+const FIREBALL_TRAVEL_EMBER_COUNT: int = 13
+const FIREBALL_IMPACT_EMBER_COUNT: int = 15
 const FIREBALL_TRAVEL_DRAW_TILE_SCALE: float = 1.08
-const FIREBALL_IMPACT_DRAW_TILE_SCALE: float = 1.34
+const FIREBALL_IMPACT_DRAW_TILE_SCALE: float = 1.74
 const FIREBALL_TRAVEL_MIN_SIZE: float = 82.0
 const FIREBALL_TRAVEL_MAX_SIZE: float = 118.0
-const FIREBALL_IMPACT_MIN_SIZE: float = 96.0
-const FIREBALL_IMPACT_MAX_SIZE: float = 146.0
+const FIREBALL_IMPACT_MIN_SIZE: float = 124.0
+const FIREBALL_IMPACT_MAX_SIZE: float = 198.0
 const FIREBALL_FRAME_CORE_ANCHOR: Vector2 = Vector2(0.81, 0.50)
+const FIREBALL_WAKE_CORE_ANCHOR: Vector2 = Vector2(0.86, 0.50)
 const PROJECTILE_DRAW_TILE_SCALE: float = 0.34
 const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
 const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
@@ -5957,29 +5964,102 @@ func _draw_fireball_travel_composite(start: Vector2, end: Vector2, travel_progre
 	var direction: Vector2 = (end - start).normalized()
 	if direction.length_squared() <= 0.01:
 		direction = Vector2.RIGHT
+	var normal := Vector2(-direction.y, direction.x)
 	var draw_size: float = clampf(_tile_width() * FIREBALL_TRAVEL_DRAW_TILE_SCALE, FIREBALL_TRAVEL_MIN_SIZE, FIREBALL_TRAVEL_MAX_SIZE)
 	var frame_index: int = AttackFxLibrary.looping_frame_index(travel_progress, frames.size(), FIREBALL_TRAVEL_CYCLES)
 	var glow_texture: Texture2D = _ambient_fire_soft_texture(frame_index)
+	var point: Vector2 = _fireball_travel_point(start, end, travel_progress)
+	var turbulence_phase: float = travel_progress * TAU * 2.35
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			point - direction * draw_size * 0.24,
+			Vector2(draw_size * 1.92, draw_size * 0.92),
+			direction.angle(),
+			alpha * (0.18 if preview else 0.34),
+			Color(1.0, 0.42, 0.10, 1.0)
+		)
+	_draw_fireball_wake(point, direction, normal, draw_size, travel_progress, alpha, preview)
 	for afterimage_index: int in range(FIREBALL_AFTERIMAGE_COUNT, 0, -1):
 		var afterimage_progress: float = maxf(0.0, travel_progress - FIREBALL_AFTERIMAGE_SPACING * float(afterimage_index))
 		if is_equal_approx(afterimage_progress, travel_progress):
 			continue
 		var afterimage_point: Vector2 = _fireball_travel_point(start, end, afterimage_progress)
 		var afterimage_frame_index: int = posmod(frame_index - afterimage_index, frames.size())
-		var afterimage_alpha: float = alpha * (0.035 + float(FIREBALL_AFTERIMAGE_COUNT - afterimage_index) * 0.035)
-		var afterimage_scale: float = 0.72 + float(FIREBALL_AFTERIMAGE_COUNT - afterimage_index) * 0.055
+		var afterimage_alpha: float = alpha * (0.025 + float(FIREBALL_AFTERIMAGE_COUNT - afterimage_index) * 0.030)
+		var afterimage_scale: float = 0.68 + float(FIREBALL_AFTERIMAGE_COUNT - afterimage_index) * 0.06
 		_draw_fireball_travel_sprite(frames[afterimage_frame_index], afterimage_point, direction, draw_size * afterimage_scale, afterimage_alpha)
-	var point: Vector2 = _fireball_travel_point(start, end, travel_progress)
-	if glow_texture != null:
-		_draw_ambient_particle_sprite(
-			glow_texture,
-			point - direction * draw_size * 0.10,
-			Vector2(draw_size * 1.30, draw_size * 0.68),
-			direction.angle(),
-			alpha * (0.20 if preview else 0.32),
-			Color(1.0, 0.54, 0.16, 1.0)
-		)
-	_draw_fireball_travel_sprite(frames[frame_index], point, direction, draw_size, alpha)
+	_draw_fireball_travel_embers(start, end, travel_progress, direction, normal, draw_size, alpha * (0.62 if preview else 1.0))
+	var core_scale: float = 0.96 + 0.055 * sin(turbulence_phase + float(frame_index) * 0.71)
+	var core_direction: Vector2 = direction.rotated(sin(turbulence_phase * 0.77) * 0.026)
+	_draw_fireball_travel_sprite(frames[frame_index], point, core_direction, draw_size * core_scale, alpha)
+
+func _draw_fireball_wake(point: Vector2, direction: Vector2, normal: Vector2, draw_size: float, travel_progress: float, alpha: float, preview: bool) -> void:
+	var wake_frames: Array[Texture2D] = _fireball_frames("fireball_wake")
+	if wake_frames.is_empty():
+		return
+	var frame_index: int = AttackFxLibrary.looping_frame_index(travel_progress, wake_frames.size(), FIREBALL_WAKE_CYCLES)
+	var secondary_frame_index: int = posmod(frame_index + 3, wake_frames.size())
+	var phase: float = travel_progress * TAU * 2.10
+	var pulse: float = 0.96 + sin(phase + float(frame_index) * 0.61) * 0.065
+	var wake_size := Vector2(draw_size * 1.78 * pulse, draw_size * (0.88 + cos(phase * 1.17) * 0.055))
+	var turbulence_offset: Vector2 = normal * sin(phase * 1.31) * draw_size * 0.036
+	_draw_fireball_wake_sprite(
+		wake_frames[secondary_frame_index],
+		point - direction * draw_size * 0.16 - turbulence_offset * 0.72,
+		direction.rotated(-sin(phase) * 0.045),
+		wake_size * Vector2(1.10, 1.14),
+		alpha * (0.11 if preview else 0.22),
+		Color(0.74, 0.28, 0.14, 1.0)
+	)
+	_draw_fireball_wake_sprite(
+		wake_frames[frame_index],
+		point - direction * draw_size * 0.06 + turbulence_offset,
+		direction.rotated(sin(phase * 0.83) * 0.030),
+		wake_size,
+		alpha * (0.47 if preview else 0.76),
+		Color(1.0, 0.86, 0.72, 1.0)
+	)
+
+func _draw_fireball_wake_sprite(texture: Texture2D, core_point: Vector2, direction: Vector2, draw_size: Vector2, alpha: float, modulate: Color) -> void:
+	if texture == null or draw_size.x <= 0.0 or draw_size.y <= 0.0 or alpha <= 0.0:
+		return
+	var rect := Rect2(
+		Vector2(-draw_size.x * FIREBALL_WAKE_CORE_ANCHOR.x, -draw_size.y * FIREBALL_WAKE_CORE_ANCHOR.y),
+		draw_size
+	)
+	draw_set_transform(core_point, direction.angle(), Vector2.ONE)
+	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_fireball_travel_embers(start: Vector2, end: Vector2, travel_progress: float, direction: Vector2, normal: Vector2, draw_size: float, alpha: float) -> void:
+	for ember_index: int in range(FIREBALL_TRAVEL_EMBER_COUNT):
+		var spawn_progress: float = 0.025 + float(ember_index) / float(FIREBALL_TRAVEL_EMBER_COUNT - 1) * 0.88
+		if travel_progress < spawn_progress:
+			continue
+		var age: float = (travel_progress - spawn_progress) / 0.30
+		if age >= 1.0:
+			continue
+		var seed: int = 1901 + ember_index * 811
+		var variant_index: int = posmod(ember_index * 3 + 1, AMBIENT_PARTICLE_ATLAS_COLUMNS)
+		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
+		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
+		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
+		if texture == null and soft_texture == null:
+			continue
+		var base_point: Vector2 = _fireball_travel_point(start, end, spawn_progress)
+		var side_sign: float = -1.0 if ember_index % 2 == 0 else 1.0
+		var side_drift: float = side_sign * draw_size * (0.055 + 0.12 * age) * (0.55 + _ambient_hash01(seed + 3) * 0.45)
+		var flutter: float = sin(age * TAU * (0.72 + _ambient_hash01(seed + 5) * 0.42) + _ambient_hash01(seed + 7) * TAU) * draw_size * 0.055
+		var point: Vector2 = base_point + normal * (side_drift + flutter) - direction * draw_size * 0.24 * age + Vector2(0.0, -draw_size * 0.14 * age)
+		var fade: float = pow(1.0 - age, 1.35) * alpha
+		var mote_size: float = draw_size * lerpf(0.105, 0.055, age) * lerpf(0.78, 1.22, _ambient_hash01(seed + 11))
+		if glow_texture != null:
+			_draw_ambient_particle_sprite(glow_texture, point - direction * mote_size * 0.35, Vector2(mote_size * 2.35, mote_size * 1.20), direction.angle(), fade * 0.22, Color(1.0, 0.44, 0.10, 1.0))
+		if soft_texture != null:
+			_draw_ambient_particle_sprite(soft_texture, point, Vector2.ONE * mote_size * 1.28, direction.angle() + side_sign * 0.18, fade * 0.72, Color(1.0, 0.76, 0.32, 1.0))
+		if texture != null:
+			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, direction.angle(), fade * 0.78)
 
 func _fireball_travel_point(start: Vector2, end: Vector2, travel_progress: float) -> Vector2:
 	return start.lerp(end, clampf(travel_progress, 0.0, 1.0))
@@ -6004,7 +6084,7 @@ func _draw_fireball_impact_frame(center: Vector2, impact_progress: float, alpha:
 	var fade: float = 1.0 if reduced_motion else clampf((1.0 - impact_progress) / 0.20, 0.0, 1.0)
 	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
 	var draw_size: float = clampf(
-		_tile_width() * FIREBALL_IMPACT_DRAW_TILE_SCALE * (0.90 + bloom * 0.14),
+		_tile_width() * FIREBALL_IMPACT_DRAW_TILE_SCALE * (0.86 + bloom * 0.26),
 		FIREBALL_IMPACT_MIN_SIZE,
 		FIREBALL_IMPACT_MAX_SIZE
 	)
@@ -6013,13 +6093,47 @@ func _draw_fireball_impact_frame(center: Vector2, impact_progress: float, alpha:
 		_draw_ambient_particle_sprite(
 			glow_texture,
 			center,
-			Vector2.ONE * draw_size * (1.16 + bloom * 0.18),
+			Vector2(draw_size * (1.38 + bloom * 0.20), draw_size * (1.05 + bloom * 0.16)),
 			0.0,
-			alpha * fade * (0.28 + bloom * 0.24),
+			alpha * fade * (0.30 + bloom * 0.26),
 			Color(1.0, 0.48, 0.10, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			center + Vector2(0.0, draw_size * 0.08),
+			Vector2(draw_size * (1.02 + bloom * 0.16), draw_size * (1.28 + bloom * 0.20)),
+			PI * 0.5,
+			alpha * fade * (0.18 + bloom * 0.20),
+			Color(1.0, 0.72, 0.24, 1.0)
 		)
 	var rect := Rect2(center - Vector2.ONE * draw_size * 0.5, Vector2.ONE * draw_size)
 	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, alpha * fade))
+	if not reduced_motion:
+		_draw_fireball_impact_embers(center, impact_progress, draw_size, alpha * fade)
+
+func _draw_fireball_impact_embers(center: Vector2, impact_progress: float, draw_size: float, alpha: float) -> void:
+	if impact_progress < 0.10 or alpha <= 0.0:
+		return
+	var age: float = clampf((impact_progress - 0.10) / 0.90, 0.0, 1.0)
+	for ember_index: int in range(FIREBALL_IMPACT_EMBER_COUNT):
+		var seed: int = 4201 + ember_index * 977
+		var angle: float = float(ember_index) * 2.399963 + lerpf(-0.18, 0.18, _ambient_hash01(seed + 3))
+		var radial_speed: float = lerpf(0.34, 0.68, _ambient_hash01(seed + 5))
+		var radial_distance: float = draw_size * radial_speed * pow(age, 0.68)
+		var point: Vector2 = center + Vector2(cos(angle), sin(angle)) * radial_distance + Vector2(0.0, draw_size * 0.20 * age * age)
+		var variant_index: int = posmod(ember_index * 5 + 2, AMBIENT_PARTICLE_ATLAS_COLUMNS)
+		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
+		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
+		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
+		var stagger: float = lerpf(0.72, 1.0, _ambient_hash01(seed + 7))
+		var fade: float = pow(1.0 - age, 0.82) * alpha * stagger
+		var mote_size: float = draw_size * lerpf(0.075, 0.035, age) * lerpf(0.78, 1.18, _ambient_hash01(seed + 11))
+		if glow_texture != null:
+			_draw_ambient_particle_sprite(glow_texture, point, Vector2(mote_size * 2.20, mote_size * 1.12), angle, fade * 0.20, Color(1.0, 0.43, 0.08, 1.0))
+		if soft_texture != null:
+			_draw_ambient_particle_sprite(soft_texture, point, Vector2.ONE * mote_size * 1.18, angle, fade * 0.65, Color(1.0, 0.72, 0.26, 1.0))
+		if texture != null:
+			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, angle, fade * 0.75)
 
 func _fireball_frames(frame_key: String) -> Array[Texture2D]:
 	var frames: Array[Texture2D] = []
@@ -7427,6 +7541,11 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 			FIREBALL_TRAVEL_SHEET_PATH,
 			FIREBALL_TRAVEL_SHEET_COLUMNS,
 			FIREBALL_TRAVEL_SHEET_ROWS
+		),
+		"fireball_wake": _load_sprite_sheet_frames(
+			FIREBALL_WAKE_SHEET_PATH,
+			FIREBALL_WAKE_SHEET_COLUMNS,
+			FIREBALL_WAKE_SHEET_ROWS
 		),
 		"fireball_impact": _load_sprite_sheet_frames(
 			FIREBALL_IMPACT_SHEET_PATH,

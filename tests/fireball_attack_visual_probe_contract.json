@@ -1,9 +1,17 @@
 {
-  "min_images": 24,
+  "min_images": 28,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
       "pattern": "*fireball_10_launch.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}
+      ]
+    },
+    {
+      "pattern": "*fireball_15_early_travel.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -19,7 +27,23 @@
       ]
     },
     {
+      "pattern": "*fireball_25_late_travel.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}
+      ]
+    },
+    {
       "pattern": "*fireball_30_impact.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}
+      ]
+    },
+    {
+      "pattern": "*fireball_35_bloom.png",
       "width": 1920,
       "height": 1080,
       "regions": [
