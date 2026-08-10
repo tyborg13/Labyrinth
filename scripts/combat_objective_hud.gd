@@ -9,23 +9,35 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 var _icon: TextureRect
 var _title: Label
 var _detail: Label
+var _presentation_signature: String = ""
 
 func _ready() -> void:
 	_build()
 
-func set_combat_state(state: Dictionary) -> void:
+func set_combat_state(state: Dictionary) -> bool:
 	if _icon == null:
 		_build()
 	var objective: Dictionary = state.get("objective", {}) as Dictionary
 	if objective.is_empty():
+		var changed: bool = visible or not _presentation_signature.is_empty()
 		visible = false
-		return
+		_presentation_signature = ""
+		return changed
 	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
+	var icon_path: String = CombatObjectiveRules.icon_path(objective_type)
+	var title_text: String = CombatObjectiveRules.display_name(objective_type).to_upper()
+	var detail_text: String = _live_detail(state, objective)
+	var next_tooltip: String = "%s\n%s" % [CombatObjectiveRules.display_name(objective_type), CombatObjectiveRules.description(objective_type)]
+	var next_signature: String = "%s|%s|%s|%s" % [icon_path, title_text, detail_text, next_tooltip]
+	if visible and next_signature == _presentation_signature:
+		return false
+	_presentation_signature = next_signature
 	visible = true
-	_icon.texture = AssetLoader.load_texture(CombatObjectiveRules.icon_path(objective_type))
-	_title.text = CombatObjectiveRules.display_name(objective_type).to_upper()
-	_detail.text = _live_detail(state, objective)
-	tooltip_text = "%s\n%s" % [CombatObjectiveRules.display_name(objective_type), CombatObjectiveRules.description(objective_type)]
+	_icon.texture = AssetLoader.load_texture(icon_path)
+	_title.text = title_text
+	_detail.text = detail_text
+	tooltip_text = next_tooltip
+	return true
 
 func _build() -> void:
 	if _icon != null:

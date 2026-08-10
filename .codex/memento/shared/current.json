@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T21:00:06Z",
+  "updated_at": "2026-08-10T04:49:31Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7753,6 +7753,50 @@
       "source": {
         "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
         "commit": "f2ca26a"
+      }
+    },
+    {
+      "id": "mnt_20260810T044930Z_5b1d12ef",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_gui_input"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_gui_input",
+      "summary": "Combat pointer performance must be benchmarked through the board's public input route",
+      "details": "Directly invoking hover or preview helpers misses tile hit testing, hover ownership, cursor feedback, HUD layout, and retained-layer invalidation. Runtime performance probes should construct InputEventMouseMotion and call the combat board's _gui_input path for target sweeps.",
+      "status": "active",
+      "created_at": "2026-08-10T04:49:30Z",
+      "updated_at": "2026-08-10T04:49:30Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/thorough-nonstandard-combat-performance-pass",
+        "commit": "c326918"
+      }
+    },
+    {
+      "id": "mnt_20260810T044931Z_ef2bc5fa",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_hud_hover_actor_key"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_hud_hover_actor_key",
+      "summary": "Key combat HUD hover layout by actor identity, not by raw empty tile",
+      "details": "Enemy intent expansion changes HUD layout only when the hovered actor changes. Empty Blink and move destination sweeps should share an empty actor key; keying by every empty tile causes a full HUD collision-layout rebuild on each pointer move.",
+      "status": "active",
+      "created_at": "2026-08-10T04:49:31Z",
+      "updated_at": "2026-08-10T04:49:31Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/thorough-nonstandard-combat-performance-pass",
+        "commit": "c326918"
       }
     }
   ]

@@ -16,6 +16,7 @@ static func run(expect: Callable) -> void:
 	_test_safe_route_beats_equal_length_trap_route(expect)
 	_test_forced_choke_crosses_and_triggers_trap(expect)
 	_test_blocking_terrain_is_cleared(expect)
+	_test_attack_only_enemy_clears_reachable_blocking_terrain(expect)
 	_test_enemy_congestion_is_a_hard_current_blocker(expect)
 	_test_open_detour_beats_avoidable_allied_stall(expect)
 	_test_large_footprint_stops_when_attack_is_available(expect)
@@ -225,6 +226,20 @@ static func _test_blocking_terrain_is_cleared(expect: Callable) -> void:
 	expect.call(_tiles(plan.get("path", [])).size() == 1, "Enemies should stop before blocking terrain instead of moving through it")
 	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
 	expect.call(int(((resolved.get("terrain", []) as Array)[0] as Dictionary).get("hp", 0)) == 0, "An attack intent should clear reachable terrain blocking the future route")
+
+static func _test_attack_only_enemy_clears_reachable_blocking_terrain(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Stationary Break",
+		"actions": [{"type": "melee", "damage": 3, "range": 1}]
+	}
+	var terrain: Array = [{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(3, 4), "hp": 3, "max_hp": 3}]
+	var state: Dictionary = _state(combat, 271, Vector2i(5, 4), [_enemy(Vector2i(2, 4), intent)], terrain, [], [], _corridor_grid())
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	expect.call(int(plan.get("blocking_terrain_index", -1)) == 0, "Attack-only enemies should still plan a reachable blocking-terrain strike without searching future movement routes")
+	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
+	expect.call(int(((resolved.get("terrain", []) as Array)[0] as Dictionary).get("hp", 0)) == 0, "Attack-only enemies should execute their planned blocking-terrain strike")
+	expect.call(int((resolved.get("player", {}) as Dictionary).get("hp", 0)) == 24, "A stationary terrain strike should not also damage an out-of-range player")
 
 static func _test_enemy_congestion_is_a_hard_current_blocker(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()

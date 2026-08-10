@@ -8929,7 +8929,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_ui")
 	for frame_index: int in range(5):
 		await process_frame
@@ -9010,7 +9010,7 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_choice_bar")
 	instance.call("_layout_combat_action_dock")
 	instance.call("_layout_choice_button_overlay")
@@ -9401,6 +9401,12 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _set_run_scene_combat_state_for_test(instance: Node, combat_state: Dictionary) -> void:
+	# Tests bypass RunScene's normal committed-state mutation path. Mirror its
+	# cache-ownership contract so each injected scenario receives fresh previews.
+	instance.set("_combat_state", combat_state)
+	instance.call("_mark_combat_preview_state_changed")
+
 func _install_combat_interaction_fixture(instance: Node, card_id: String, player_pos: Vector2i, enemy_positions: Array, seed: int) -> void:
 	instance.call("_cancel_drag_play")
 	instance.call("_reset_card_resolution")
@@ -9438,7 +9444,8 @@ func _install_combat_interaction_fixture(instance: Node, card_id: String, player
 	run_state["current_room_layout"] = layout
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
+	instance.set("_dialogue_active", false)
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
 
@@ -9508,7 +9515,7 @@ func _test_run_scene_ready_wave_marks_only_playable_hand_cards() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.set("_animation_lock", false)
 	instance.call("_queue_hand_ready_wave", "test_ready_wave")
 	instance.call("_refresh_hand_panel")
@@ -10079,7 +10086,7 @@ func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	_assert(bool(preview.get("playable", false)), "Move-attack cards should stay playable even when the follow-up attack has no valid target")
 	_assert(not (preview.get("target_tiles", []) as Array).is_empty(), "Optional move-attack cards should still offer movement targets")
@@ -10123,7 +10130,7 @@ func _test_run_scene_flurry_utility_resolves_without_attack_target() -> void:
 	combat_state["enemies"] = [
 		{"id": 1, "type": "crawler", "pos": Vector2i(7, 1), "hp": 100, "max_hp": 100, "block": 0, "stoneskin": 0}
 	]
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	_assert(bool(preview.get("complete", false)) and bool(preview.get("playable", false)), "Blade Dance should remain playable for its repeated block when no melee target is in range")
 	var preview_player: Dictionary = (preview.get("state", {}) as Dictionary).get("player", {})
@@ -10251,7 +10258,8 @@ func _load_action_step_tracker_fixture(instance: Node, card_id: String, player_p
 	run_state["current_room_layout"] = layout
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
+	instance.set("_dialogue_active", false)
 	instance.call("_refresh_ui")
 
 func _assert_action_step_tracker_statuses(instance: Node, expected: Array, message: String) -> void:
@@ -10322,7 +10330,8 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
+	instance.set("_dialogue_active", false)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
 	var enemy_tile := Vector2i(5, 5)
@@ -10381,7 +10390,8 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
+	instance.set("_dialogue_active", false)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
 	var action_context: Control = instance.get("_action_step_tracker") as Control
@@ -10444,7 +10454,7 @@ func _test_run_scene_squall_preserves_orientation() -> void:
 	run_state["combat_state"] = combat_state
 	run_state["analytics"] = {"run_id": "test_squall", "combat_counter": 1}
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_ui")
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
@@ -10515,7 +10525,8 @@ func _test_run_scene_push_direction_tiles_filter_closer_tiles() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
+	instance.set("_dialogue_active", false)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
 	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
@@ -10558,7 +10569,7 @@ func _test_run_scene_block_card_skips_dead_move() -> void:
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	_assert(bool(preview.get("playable", false)), "Cards with a self effect should remain playable when their move step has no target")
 	_assert(bool(preview.get("complete", false)), "Dead move steps should auto-skip into the card's self effect")
@@ -10595,7 +10606,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_ui")
 	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
@@ -10697,7 +10708,7 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_ui")
 	instance.call("_layout_combat_action_dock")
 	instance.call("_layout_choice_button_overlay")
@@ -10721,7 +10732,7 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	combat_state["cards_played_this_turn"] = 0
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_card_play_meter")
 	for settle_frame: int in range(8):
 		if int(instance.get("_hand_layout_pending_revision")) != int(instance.get("_hand_layout_revision")):
@@ -10736,11 +10747,11 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	_assert(play_meter != null and play_meter.visible, "Wide banked-play copy should retain the visible card-play dock")
 	_assert_current_combat_dock_geometry(instance, "Wide banked-play copy")
 	combat_state["cards_played_this_turn"] = 2
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_card_play_meter")
 	_assert(count_label != null and count_label.text == "0 card plays" and banked_label != null and banked_label.text == "NEXT • NO TIME", "The banked badge should identify when the no-Time play is next")
 	combat_state["cards_played_this_turn"] = 0
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_begin_card_play_meter_spend_preview")
 	await instance.call("_animate_card_play_reward", 3)
 	var rewarded_budget: Dictionary = instance.call("_displayed_card_play_budget") as Dictionary
@@ -10771,7 +10782,7 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var display: Dictionary = instance.call("_card_widget_display", "sidestep_slash", combat_state)
 	var summary_rows: Array = display.get("summary_rows", [])
 	var modifier_lines: Array = display.get("modifier_lines", [])
@@ -10953,7 +10964,7 @@ func _test_run_scene_ranged_cards_show_range() -> void:
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var display: Dictionary = instance.call("_card_widget_display", "bone_dart", combat_state)
 	var summary_rows: Array = display.get("summary_rows", [])
 	_assert(not summary_rows.is_empty(), "Ranged cards should render icon summary rows")
@@ -10993,7 +11004,7 @@ func _test_run_scene_preview_normalizes_untyped_target_tiles() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var target_tile := Vector2i(3, 4)
 	instance.set("_hovered_board_tile", target_tile)
 	await instance.call("_begin_card_preview", 0, {
@@ -11044,7 +11055,8 @@ func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
+	instance.set("_dialogue_active", false)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
 	var target_tile := Vector2i(3, 4)
@@ -11109,7 +11121,7 @@ func _test_run_scene_move_previews_avoid_traps_when_possible() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.set("_hovered_board_tile", Vector2i(5, 4))
 	var preview: Dictionary = {
 		"card_id": "test_move_attack",
@@ -11193,7 +11205,7 @@ func _test_run_scene_hovered_enemy_shows_threat_overlay() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.set("_hovered_board_tile", Vector2i(5, 2))
 	instance.call("_refresh_stage_view")
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
@@ -11244,7 +11256,7 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.set("_hovered_board_tile", Vector2i(2, 2))
 	instance.call("_refresh_stage_view")
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
@@ -11298,7 +11310,7 @@ func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> 
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.set("_animation_lock", true)
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var animated_state: Dictionary = combat_state.duplicate(true)
@@ -11446,7 +11458,7 @@ func _test_run_scene_discard_pile_uses_distinct_icon_controls() -> void:
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_pile_visuals")
 	instance.call("_open_pile_view", "discard")
 	await process_frame
@@ -11474,7 +11486,7 @@ func _test_run_scene_discard_pile_uses_distinct_icon_controls() -> void:
 	_assert(discard_badge != null and discard_badge.visible and discard_badge.text == "0", "The discard pile should retain its established numeric badge even when empty")
 	deck["discard"] = ["quick_stab"]
 	combat_state["deck"] = deck
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_pile_visuals")
 	instance.call("_open_pile_view", "discard")
 	await process_frame
@@ -11538,7 +11550,7 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 	run_state["relics"] = relic_ids
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
@@ -12213,7 +12225,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	run_state["combat_state"] = combat_state
 	run_state["analytics"] = {"run_id": "test_run", "combat_counter": 1}
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_ui")
 	instance.call("_analytics_log_playable_cards")
 	await _choose_clicked_card_action(instance, 0, "play")
@@ -12256,7 +12268,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	merchant_run_state["rooms"] = merchant_rooms
 	merchant_run_state["combat_state"] = {}
 	instance.set("_run_state", merchant_run_state)
-	instance.set("_combat_state", {})
+	_set_run_scene_combat_state_for_test(instance, {})
 	instance.call("_on_merchant_sell_pressed", "blacksmith", "ward_kite")
 	await process_frame
 	var item_event_state: Dictionary = instance.get("_run_state")
@@ -12764,7 +12776,7 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	run_state["run_index"] = int(discovery_progression.get("run_counter", 0))
 	run_state["progression"] = discovery_progression.duplicate(true)
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", state)
+	_set_run_scene_combat_state_for_test(instance, state)
 	instance.set("_progression", discovery_progression)
 	instance.call("_sync_umbra_warning_progression")
 	var queued_warning_progression: Dictionary = instance.get("_progression") as Dictionary
@@ -12776,7 +12788,11 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	var targets: Array[Vector2i] = instance.call("_vector2i_array", preview.get("target_tiles", []))
 	_assert(targets.has(Vector2i(3, 4)) and targets.has(Vector2i(2, 3)), "Umbra movement preview should keep symmetric destinations legal without inspecting hidden follow-up targets")
 	var shortcuts: Dictionary = instance.call("_preview_shortcuts_for_current_action", preview)
-	_assert(shortcuts.is_empty(), "Umbra movement shortcuts should wait until movement resolves instead of exposing newly discovered enemies")
+	_assert(
+		(shortcuts.get("plans", {}) as Dictionary).is_empty()
+		and (shortcuts.get("tiles", []) as Array).is_empty(),
+		"Umbra movement shortcuts should wait until movement resolves instead of exposing newly discovered enemies"
+	)
 	instance.set("_selected_card_index", 0)
 	instance.set("_pending_action_index", 0)
 	instance.set("_pending_actions", actions)
@@ -12812,7 +12828,7 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	dawnstep_preview_state = combat.apply_player_action(dawnstep_preview_state, dawnstep_actions[1] as Dictionary)
 	var preview_enemy: Dictionary = (dawnstep_preview_state.get("enemies", []) as Array)[0]
 	_assert(combat.is_enemy_visible_to_player(dawnstep_preview_state, preview_enemy), "The simulated Dawnstep outcome should reveal the enemy, proving the fixture can catch an information leak")
-	instance.set("_combat_state", state)
+	_set_run_scene_combat_state_for_test(instance, state)
 	instance.set("_selected_card_index", 0)
 	instance.set("_pending_actions", dawnstep_actions)
 	instance.set("_pending_action_index", dawnstep_actions.size())
@@ -12901,12 +12917,12 @@ func _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state() -> void:
 	run_state["combat_state"] = state
 	run_state["current_room_layout"] = layout
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", state)
+	_set_run_scene_combat_state_for_test(instance, state)
 	instance.call("_refresh_ui")
 	var option_deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
 	option_deck["hand"] = ["pale_spark"]
 	state["deck"] = option_deck
-	instance.set("_combat_state", state)
+	_set_run_scene_combat_state_for_test(instance, state)
 	instance.call("_mark_combat_preview_state_changed")
 	var synthetic_actions: Array = [
 		{"type": "vision", "amount": 4, "duration": 1},
@@ -12940,7 +12956,10 @@ func _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state() -> void:
 		instance.set("_pending_actions", [first_action, followup_action])
 		instance.set("_pending_action_index", 1)
 		instance.set("_pending_selected_targets", instance.call("_vector2i_array", [case.get("target", Vector2i(-1, -1))]))
-		instance.set("_pending_target_tiles", raw_followup_targets)
+		instance.set(
+			"_pending_target_tiles",
+			instance.call("_preview_target_tiles_for_action", preview_state, followup_action, raw_followup_targets)
+		)
 		instance.set("_preview_combat_state", preview_state)
 		instance.set("_pending_umbra_commit_locked", false)
 		instance.set("_hovered_board_tile", enemy_pos)
@@ -13037,7 +13056,7 @@ func _test_run_scene_umbra_aoe_centers_allow_hidden_pattern_occupants() -> void:
 	run_state["combat_state"] = state
 	run_state["current_room_layout"] = layout
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", state)
+	_set_run_scene_combat_state_for_test(instance, state)
 	instance.call("_refresh_ui")
 	instance.set("_selected_card_index", 0)
 	instance.set("_pending_actions", [action])
@@ -13725,7 +13744,7 @@ func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) 
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state.duplicate(true)
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state.duplicate(true))
+	_set_run_scene_combat_state_for_test(instance, combat_state.duplicate(true))
 	instance.set("_animation_lock", false)
 	instance.set("_drag_card_index", -1)
 	instance.set("_card_play_count_override", -1)

@@ -68,6 +68,7 @@ static func run(expect: Callable) -> void:
 	_test_new_common_and_rare_relics(expect)
 	_test_new_epic_and_legendary_relics(expect)
 	_test_spatial_radiance_relics(expect)
+	_test_light_reveal_delta_equivalence(expect)
 	_test_package_transforming_relics(expect)
 	_test_radiance_offer_distribution(expect)
 	_test_status_and_enemy_death_engines(expect)
@@ -302,6 +303,92 @@ static func _test_spatial_radiance_relics(expect: Callable) -> void:
 	tooltip_board.free()
 	tether_state = combat._damage_illusion(tether_state, 42, 2)
 	expect.call(not bool(combat.call("_light_source_covers_tile", tether_state, Vector2i(4, 4))), "Tethered Light should end immediately when its illusion is removed")
+
+static func _test_light_reveal_delta_equivalence(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var limited_state: Dictionary = _state(combat, [])
+	var limited_umbra: Dictionary = (limited_state.get("umbra", {}) as Dictionary).duplicate(true)
+	limited_umbra["stage"] = CombatEngine.UMBRA_STAGE_DEEP
+	limited_state["umbra"] = limited_umbra
+	limited_state["enemies"] = [
+		{"id": 11, "type": "crawler", "pos": Vector2i(6, 4), "hp": 10, "max_hp": 10, "footprint": Vector2i.ONE},
+		{"id": 12, "type": "crawler", "pos": Vector2i(5, 6), "hp": 10, "max_hp": 10, "footprint": Vector2i(2, 2)},
+	]
+	limited_state = _expect_light_reveal_matches_generic(expect, combat, limited_state, Vector2i(6, 4), 1, "limited new source")
+	limited_state = _expect_light_reveal_matches_generic(expect, combat, limited_state, Vector2i(6, 4), 3, "larger refreshed source")
+	limited_state = _expect_light_reveal_matches_generic(expect, combat, limited_state, Vector2i(5, 5), 2, "overlapping source")
+
+	var truesight_state: Dictionary = _state(combat, [])
+	var truesight_umbra: Dictionary = (truesight_state.get("umbra", {}) as Dictionary).duplicate(true)
+	truesight_umbra["stage"] = CombatEngine.UMBRA_STAGE_ECLIPSE
+	truesight_umbra["truesight_activations"] = 2
+	truesight_state["umbra"] = truesight_umbra
+	truesight_state["enemies"] = limited_state.get("enemies", []).duplicate(true)
+	_expect_light_reveal_matches_generic(expect, combat, truesight_state, Vector2i(6, 4), 2, "Truesight enemy visibility")
+
+	var open_sky_state: Dictionary = _state(combat, [])
+	open_sky_state["skill_ids"] = ["open_sky"]
+	var open_sky_umbra: Dictionary = (open_sky_state.get("umbra", {}) as Dictionary).duplicate(true)
+	open_sky_umbra["stage"] = CombatEngine.UMBRA_STAGE_DEEP
+	open_sky_state["umbra"] = open_sky_umbra
+	open_sky_state["enemies"] = limited_state.get("enemies", []).duplicate(true)
+	var player_pos: Vector2i = (open_sky_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	_expect_light_reveal_matches_generic(expect, combat, open_sky_state, player_pos, 1, "Open Sky global Truesight transition")
+
+	var suppression_state: Dictionary = _state(combat, ["tectonic_abacus"])
+	var suppression_umbra: Dictionary = (suppression_state.get("umbra", {}) as Dictionary).duplicate(true)
+	suppression_umbra["stage"] = CombatEngine.UMBRA_STAGE_DEEP
+	suppression_umbra["light_sources"] = [
+		{"id": 1, "pos": Vector2i(1, 1), "radius": 1, "remaining_activations": 2},
+		{"id": 2, "pos": Vector2i(1, 6), "radius": 1, "remaining_activations": 2},
+	]
+	suppression_umbra["next_light_source_id"] = 3
+	suppression_state["umbra"] = suppression_umbra
+	suppression_state["enemies"] = limited_state.get("enemies", []).duplicate(true)
+	_expect_light_reveal_matches_generic(expect, combat, suppression_state, Vector2i(6, 4), 1, "suppression-threshold source")
+
+	var clear_state: Dictionary = _state(combat, [])
+	var clear_umbra: Dictionary = (clear_state.get("umbra", {}) as Dictionary).duplicate(true)
+	clear_umbra["stage"] = CombatEngine.UMBRA_STAGE_CLEAR
+	clear_state["umbra"] = clear_umbra
+	clear_state["enemies"] = limited_state.get("enemies", []).duplicate(true)
+	_expect_light_reveal_matches_generic(expect, combat, clear_state, Vector2i(6, 4), 3, "unlimited-radius source")
+
+static func _expect_light_reveal_matches_generic(
+	expect: Callable,
+	combat: CombatEngine,
+	state: Dictionary,
+	pos: Vector2i,
+	radius: int,
+	label: String
+) -> Dictionary:
+	var before_umbra: Dictionary = state.get("umbra", {}) as Dictionary
+	var before_tile_lookup: Dictionary = {}
+	for tile: Vector2i in combat.umbra_visible_tiles(state):
+		before_tile_lookup[tile] = true
+	var before_enemy_lookup: Dictionary = {}
+	for enemy_id: int in combat.visible_enemy_ids(state, before_tile_lookup):
+		before_enemy_lookup[enemy_id] = true
+	var next_state: Dictionary = combat.call("_create_umbra_light_source", state, pos, {
+		"radius": radius,
+		"duration": 2,
+		"silent": true,
+	}) as Dictionary
+	var after_tile_lookup: Dictionary = {}
+	for tile: Vector2i in combat.umbra_visible_tiles(next_state):
+		after_tile_lookup[tile] = true
+	var expected_tiles: int = int(before_umbra.get("tiles_illuminated_total", 0))
+	for tile_var: Variant in after_tile_lookup:
+		if not before_tile_lookup.has(tile_var):
+			expected_tiles += 1
+	var expected_enemies: int = int(before_umbra.get("enemies_revealed_total", 0))
+	for enemy_id: int in combat.visible_enemy_ids(next_state, after_tile_lookup):
+		if not before_enemy_lookup.has(enemy_id):
+			expected_enemies += 1
+	var after_umbra: Dictionary = next_state.get("umbra", {}) as Dictionary
+	expect.call(int(after_umbra.get("tiles_illuminated_total", 0)) == expected_tiles, "%s should match the generic visible-tile delta" % label)
+	expect.call(int(after_umbra.get("enemies_revealed_total", 0)) == expected_enemies, "%s should match the generic visible-enemy delta" % label)
+	return next_state
 
 static func _test_package_transforming_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()

@@ -47,6 +47,10 @@ const BRANCH_COLORS: Dictionary = {
 	"keystone": Color("e5cf9b"),
 }
 
+static var _shared_empty_node_style: StyleBoxEmpty = null
+static var _shared_static_links: Array[Dictionary] = []
+static var _shared_bridge_records: Array[Dictionary] = []
+
 class SkillLinkLayer:
 	extends Control
 
@@ -856,6 +860,8 @@ func _legend_symbol_kind(state: String) -> String:
 			return "lock"
 
 func _build_skill_nodes() -> void:
+	if _shared_empty_node_style == null:
+		_shared_empty_node_style = StyleBoxEmpty.new()
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var node_size: Vector2 = _node_size(skill_id)
 		var node_center: Vector2 = _node_center(skill_id)
@@ -873,7 +879,7 @@ func _build_skill_nodes() -> void:
 		button.pressed.connect(_on_node_pressed.bind(skill_id))
 		button.focus_entered.connect(_on_node_focus_entered.bind(skill_id))
 		for style_name: String in ["normal", "hover", "pressed", "focus", "disabled"]:
-			button.add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
+			button.add_theme_stylebox_override(style_name, _shared_empty_node_style)
 		_graph_canvas.add_child(button)
 		_node_buttons[skill_id] = button
 		_node_icons[skill_id] = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
@@ -1029,6 +1035,12 @@ func _refresh_nodes() -> void:
 
 func _rebuild_link_geometry() -> void:
 	var started_usec: int = Time.get_ticks_usec()
+	if not _shared_static_links.is_empty():
+		_static_links.assign(_shared_static_links)
+		_bridge_records.assign(_shared_bridge_records)
+		_link_geometry_rebuild_count += 1
+		_last_link_geometry_usec = Time.get_ticks_usec() - started_usec
+		return
 	var links: Array[Dictionary]
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
@@ -1042,6 +1054,8 @@ func _rebuild_link_geometry() -> void:
 			})
 	_bridge_records = _annotate_connection_bridges(links)
 	_static_links = links
+	_shared_static_links.assign(_static_links)
+	_shared_bridge_records.assign(_bridge_records)
 	_link_geometry_rebuild_count += 1
 	_last_link_geometry_usec = Time.get_ticks_usec() - started_usec
 
