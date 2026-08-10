@@ -11499,9 +11499,10 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	run_state["relics"] = ["ember_lens", "pilgrim_boots", "mirror_shard"]
 	instance.set("_run_state", run_state)
 	instance.call("_refresh_ui")
-	var relic_bar: HFlowContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_grid: GridContainer = instance.get("_relic_icon_grid") as GridContainer
 	_assert(relic_bar.visible, "The run HUD should show relic icons when the player owns relics")
-	_assert(relic_bar.get_child_count() == 3, "The run HUD should render one icon per owned relic")
+	_assert(relic_grid != null and relic_grid.get_child_count() == 3, "The run HUD should render one icon per owned relic")
 	instance.queue_free()
 	await process_frame
 
@@ -11521,7 +11522,11 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 		"coffin_nails",
 		"reinforced_shield",
 		"iron_buckler",
-		"flint_edge"
+		"flint_edge",
+		"phoenix_ember",
+		"thornmail_brooch",
+		"ion_spool",
+		"hourglass_awl"
 	]
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(15126, _simple_room_layout(), {
@@ -11542,13 +11547,20 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var relic_bar: HFlowContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
-	_assert(relic_bar.visible and relic_bar.get_child_count() == relic_ids.size(), "Relic HUD should render all owned relic icons")
-	if relic_bar.get_child_count() > 0:
-		var first_row_y: float = (relic_bar.get_child(0) as Control).global_position.y
-		for child: Node in relic_bar.get_children():
-			var child_control: Control = child as Control
-			_assert(child_control != null and absf(child_control.global_position.y - first_row_y) <= 1.0, "The first eight relic HUD icons should stay on one horizontal row")
+	var relic_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_grid: GridContainer = instance.get("_relic_icon_grid") as GridContainer
+	_assert(relic_bar.visible and relic_grid != null and relic_grid.get_child_count() == relic_ids.size(), "Relic HUD should render all owned relic icons")
+	if relic_grid != null and relic_grid.get_child_count() == relic_ids.size():
+		var first_row_y: float = (relic_grid.get_child(0) as Control).global_position.y
+		var first_row_x: float = (relic_grid.get_child(0) as Control).global_position.x
+		for index: int in range(relic_grid.get_child_count()):
+			var child_control: Control = relic_grid.get_child(index) as Control
+			if index < 8:
+				_assert(child_control != null and absf(child_control.global_position.y - first_row_y) <= 1.0, "The first eight relic HUD icons should stay on one horizontal row")
+			else:
+				_assert(child_control != null and child_control.global_position.y > first_row_y, "Relics beyond eight should wrap onto the next line")
+			if index % 8 == 0:
+				_assert(child_control != null and absf(child_control.global_position.x - first_row_x) <= 1.0, "Every wrapped relic line should share the first line's left edge")
 	var intensity_bar: Control = instance.get("_intensity_bar") as Control
 	_assert(intensity_bar != null and intensity_bar.visible, "Combat should show the elemental intensity HUD")
 	var intensity_badges: Dictionary = instance.get("_intensity_badges") as Dictionary
@@ -11583,9 +11595,13 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 		var top_middle_center: float = top_middle.position.x + top_middle.size.x * 0.5
 		var bottom_pair_center: float = (bottom_left.position.x + bottom_right.position.x + bottom_right.size.x) * 0.5
 		_assert(absf(top_middle_center - bottom_pair_center) <= 1.0, "Room-pressure HUD second row should be centered under the top row")
-		var relic_bottom: float = float(instance.call("_relic_bar_visible_bottom_y"))
-		var gap: float = intensity_bar.global_position.y - relic_bottom
-		_assert(gap >= 0.0 and gap <= 5.0, "Elemental intensity HUD should sit directly under the relic row without a stale layout gap")
+		var first_row_bottom: float = float(instance.call("_relic_bar_first_row_bottom_y"))
+		var gap: float = intensity_bar.global_position.y - first_row_bottom
+		_assert(gap >= 0.0 and gap <= 5.0, "Elemental intensity HUD should sit directly under the first relic row without a stale layout gap")
+		if relic_grid != null:
+			for index: int in range(8, relic_grid.get_child_count()):
+				var wrapped_relic: Control = relic_grid.get_child(index) as Control
+				_assert(not wrapped_relic.get_global_rect().intersects(intensity_bar.get_global_rect()), "Wrapped relics should remain to the right of the elemental intensity widget")
 	instance.queue_free()
 	await process_frame
 

@@ -1,0 +1,23 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*relic_header_single_row_v1_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 0, 900, 360], "min_luma_range": 16, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*relic_header_wrapped_v1_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 0, 900, 360], "min_luma_range": 16, "min_luma_stdev": 4},
+        {"rect": [280, 84, 520, 140], "min_luma_range": 12, "min_luma_stdev": 3}
+      ]
+    }
+  ]
+}
