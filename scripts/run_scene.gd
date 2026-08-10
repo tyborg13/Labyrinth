@@ -1374,7 +1374,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var room_title: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
 @onready var umbra_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle
-@onready var relic_bar: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
+@onready var relic_bar: VBoxContainer = $UiLayer/UiRoot/RelicBar
 @onready var header_spacer: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/Spacer
 @onready var stats_label: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel
 @onready var loadout_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton
@@ -1517,6 +1517,9 @@ var _pile_dialog_content_source: Dictionary = {}
 var _relic_bar_signature: String = "<unset>"
 var _relic_utility_bar: HBoxContainer
 var _relic_icon_grid: GridContainer
+var _legacy_relic_bar_footprint: HBoxContainer
+var _legacy_relic_utility_footprint: Control
+var _legacy_relic_icon_grid_footprint: GridContainer
 var _skill_sigil: Button
 var _defiance_badge: Control
 var _skill_status_scrim: ColorRect
@@ -7771,6 +7774,26 @@ func _setup_elemental_intensity_bar() -> void:
 	_refresh_elemental_intensity_bar()
 
 func _setup_relic_bar_layout() -> void:
+	# Keep a transparent legacy footprint in the title stack. The relic art now
+	# lives in a screen-space overlay, but the pre-change TopBar/board geometry
+	# still needs to reserve the old one-row/eight-column relic height.
+	_legacy_relic_bar_footprint = HBoxContainer.new()
+	_legacy_relic_bar_footprint.name = "LegacyRelicBarFootprint"
+	_legacy_relic_bar_footprint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_legacy_relic_bar_footprint.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_legacy_relic_utility_footprint = Control.new()
+	_legacy_relic_utility_footprint.name = "LegacyRelicUtilityFootprint"
+	_legacy_relic_utility_footprint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_legacy_relic_icon_grid_footprint = GridContainer.new()
+	_legacy_relic_icon_grid_footprint.name = "LegacyRelicIconGridFootprint"
+	_legacy_relic_icon_grid_footprint.columns = 8
+	_legacy_relic_icon_grid_footprint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_legacy_relic_icon_grid_footprint.add_theme_constant_override("h_separation", int(RELIC_BAR_HORIZONTAL_GAP))
+	_legacy_relic_icon_grid_footprint.add_theme_constant_override("v_separation", 8)
+	_legacy_relic_bar_footprint.add_child(_legacy_relic_utility_footprint)
+	_legacy_relic_bar_footprint.add_child(_legacy_relic_icon_grid_footprint)
+	title_box.add_child(_legacy_relic_bar_footprint)
+
 	_relic_utility_bar = HBoxContainer.new()
 	_relic_utility_bar.name = "RelicUtilityLane"
 	_relic_utility_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
@@ -7823,6 +7846,7 @@ func _layout_intensity_badges() -> void:
 func _layout_header_hud() -> void:
 	if title_box == null:
 		return
+	_sync_legacy_relic_bar_footprint()
 	var min_width: float = maxf(room_title.get_combined_minimum_size().x, room_subtitle.get_combined_minimum_size().x)
 	if umbra_subtitle != null and umbra_subtitle.visible:
 		min_width = maxf(min_width, umbra_subtitle.get_combined_minimum_size().x)
@@ -7840,6 +7864,40 @@ func _layout_header_hud() -> void:
 	if relic_bar != null:
 		relic_bar.custom_minimum_size = Vector2(min_width, relic_bar.custom_minimum_size.y)
 		relic_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
+		if relic_bar.visible:
+			# Relics are a screen-space continuation of the left header, not a
+			# contributor to TopBar's minimum height. Keeping this block outside the
+			# MainVBox preserves the authored 56px button row and StageRoot/board
+			# geometry while still placing relics directly below the title stack.
+			var relic_height: float = relic_bar.get_combined_minimum_size().y
+			relic_bar.custom_minimum_size = Vector2(min_width, relic_height)
+			relic_bar.size = Vector2(min_width, relic_height)
+			var header_bottom: float = room_subtitle.get_global_rect().end.y
+			if umbra_subtitle != null and umbra_subtitle.visible:
+				header_bottom = umbra_subtitle.get_global_rect().end.y
+			relic_bar.global_position = Vector2(title_box.get_global_rect().position.x, header_bottom + float(title_box.get_theme_constant("separation")))
+		else:
+			relic_bar.custom_minimum_size = Vector2.ZERO
+			relic_bar.size = Vector2.ZERO
+
+func _sync_legacy_relic_bar_footprint() -> void:
+	if _legacy_relic_bar_footprint == null or _legacy_relic_utility_footprint == null or _legacy_relic_icon_grid_footprint == null:
+		return
+	var intensity_active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
+	var utility_height: float = 0.0
+	if _relic_utility_bar != null and _relic_utility_bar.get_child_count() > 0:
+		utility_height = _relic_utility_bar.get_combined_minimum_size().y
+	_legacy_relic_utility_footprint.visible = intensity_active or utility_height > 0.0
+	_legacy_relic_utility_footprint.custom_minimum_size = Vector2(_intensity_bar_size().x if intensity_active else 0.0, utility_height)
+	_clear_children_now(_legacy_relic_icon_grid_footprint)
+	var relic_count: int = 0
+	if _relic_icon_grid != null:
+		for child: Node in _relic_icon_grid.get_children():
+			if _node_is_alive(child) and (child as Control) != null and (child as Control).visible:
+				relic_count += 1
+	var legacy_rows: int = int(ceil(float(relic_count) / 8.0)) if relic_count > 0 else 0
+	var legacy_grid_height: float = RELIC_BADGE_SIZE.y * float(legacy_rows) + 8.0 * float(maxi(0, legacy_rows - 1))
+	_legacy_relic_icon_grid_footprint.custom_minimum_size = Vector2(0.0, legacy_grid_height)
 
 func _desired_relic_bar_width() -> float:
 	if relic_bar == null or _relic_utility_bar == null or _relic_icon_grid == null:
