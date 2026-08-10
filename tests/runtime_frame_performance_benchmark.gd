@@ -8,7 +8,7 @@ const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v5"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v6"
 const HAND: Array[String] = [
 	"threaded_path",
 	"sidestep_slash",
