@@ -8,7 +8,7 @@ const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v6"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v7"
 const HAND: Array[String] = [
 	"threaded_path",
 	"sidestep_slash",
@@ -260,10 +260,25 @@ func _initialize() -> void:
 	var board_instrumentation: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
 	var final_orphans: int = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	var finally_focused: bool = DisplayServer.window_is_focused()
+	var card_click_frame_completion: Dictionary = _duration_phase_result(
+		preview_matrix.get("card_click_frame_completion_samples", []) as Array[float],
+		"interaction_frame_completion"
+	)
+	var cold_preview_hover_frame_completion: Dictionary = _duration_phase_result(
+		preview_matrix.get("cold_hover_frame_completion_samples", []) as Array[float],
+		"cold_interaction_frame_completion"
+	)
+	var preview_hover_frame_completion: Dictionary = _duration_phase_result(
+		preview_matrix.get("hover_frame_completion_samples", []) as Array[float],
+		"interaction_frame_completion"
+	)
 	var throttle_samples: Array[Dictionary] = []
 	_collect_throttle_samples(idle, "idle", throttle_samples)
 	_collect_throttle_samples(cold_interaction, "cold_interaction", throttle_samples)
 	_collect_throttle_samples(preview_matrix, "preview_matrix", throttle_samples)
+	_collect_throttle_samples(card_click_frame_completion, "card_click_frame_completion", throttle_samples)
+	_collect_throttle_samples(cold_preview_hover_frame_completion, "cold_preview_hover_frame_completion", throttle_samples)
+	_collect_throttle_samples(preview_hover_frame_completion, "preview_hover_frame_completion", throttle_samples)
 	_collect_throttle_samples(blink_preview_workload, "blink_preview_workload", throttle_samples)
 	_collect_throttle_samples(live_save_blink_workload, "live_save_blink_workload", throttle_samples)
 	_collect_throttle_samples(action_matrix, "action_matrix", throttle_samples)
@@ -303,12 +318,12 @@ func _initialize() -> void:
 		"prewarm_remaining_after_startup_idle": prewarm_remaining_after_startup_idle,
 		"prewarm_settle_frames": prewarm_settle_frames,
 		"card_click_handler": _duration_phase_result(preview_matrix.get("card_click_handler_samples", []) as Array[float], "input_handler"),
-		"card_click_frame_completion": _duration_phase_result(preview_matrix.get("card_click_frame_completion_samples", []) as Array[float], "interaction_frame_completion"),
+		"card_click_frame_completion": card_click_frame_completion,
 		"cold_preview_hover_handler": _duration_phase_result(preview_matrix.get("cold_hover_handler_samples", []) as Array[float], "input_handler"),
-		"cold_preview_hover_frame_completion": _duration_phase_result(preview_matrix.get("cold_hover_frame_completion_samples", []) as Array[float], "cold_interaction_frame_completion"),
+		"cold_preview_hover_frame_completion": cold_preview_hover_frame_completion,
 		"cold_preview_canvas_pipeline_compilations": int(preview_matrix.get("cold_canvas_pipeline_compilations", 0)),
 		"preview_hover_handler": _duration_phase_result(preview_matrix.get("hover_handler_samples", []) as Array[float], "input_handler"),
-		"preview_hover_frame_completion": _duration_phase_result(preview_matrix.get("hover_frame_completion_samples", []) as Array[float], "interaction_frame_completion"),
+		"preview_hover_frame_completion": preview_hover_frame_completion,
 		"warm_preview_canvas_pipeline_compilations": int(preview_matrix.get("warm_canvas_pipeline_compilations", 0)),
 		"target_step_completion": _combined_target_step_completion_phase(action_matrix),
 		"action_completion": _combined_action_completion_phase(action_matrix),
