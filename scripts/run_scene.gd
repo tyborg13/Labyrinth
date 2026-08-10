@@ -1171,7 +1171,9 @@ const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
-const RELIC_BAR_MIN_VISIBLE_RELICS: int = 8
+const RELIC_GRID_HORIZONTAL_GAP: float = 2.0
+const RELIC_GRID_VERTICAL_GAP: float = 6.0
+const RELICS_PER_ROW: int = 5
 const SKILL_SIGIL_SIZE: Vector2 = Vector2(200.0, 56.0)
 const SKILL_SIGIL_COMPACT_SIZE: Vector2 = Vector2(132.0, 56.0)
 const SKILL_SIGIL_PREVIEW_ICON_SIZE: Vector2 = Vector2(28.0, 28.0)
@@ -1370,7 +1372,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var room_title: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
 @onready var umbra_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle
-@onready var relic_bar: HFlowContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
+@onready var relic_bar: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
 @onready var header_spacer: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/Spacer
 @onready var stats_label: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel
 @onready var loadout_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton
@@ -1511,6 +1513,8 @@ var _active_pile_kind: String = ""
 var _pile_visual_signature: String = "<unset>"
 var _pile_dialog_content_source: Dictionary = {}
 var _relic_bar_signature: String = "<unset>"
+var _relic_utility_bar: HBoxContainer
+var _relic_icon_grid: GridContainer
 var _skill_sigil: Button
 var _defiance_badge: Control
 var _skill_status_scrim: ColorRect
@@ -2044,10 +2048,9 @@ func _apply_style() -> void:
 	header_spacer.size_flags_stretch_ratio = 1.0
 	_setup_turn_order_bar()
 	_setup_combat_objective_hud()
+	_setup_relic_bar_layout()
 	relic_bar.visible = false
 	relic_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	relic_bar.add_theme_constant_override("h_separation", int(RELIC_BAR_HORIZONTAL_GAP))
-	relic_bar.add_theme_constant_override("v_separation", 8)
 	action_banner.add_theme_color_override("font_color", Color("fbf0d7"))
 	action_banner.add_theme_color_override("font_outline_color", Color("2d1f18"))
 	action_banner.add_theme_constant_override("outline_size", 2)
@@ -7765,6 +7768,24 @@ func _setup_elemental_intensity_bar() -> void:
 	_layout_intensity_badges()
 	_refresh_elemental_intensity_bar()
 
+func _setup_relic_bar_layout() -> void:
+	_relic_utility_bar = HBoxContainer.new()
+	_relic_utility_bar.name = "RelicUtilityLane"
+	_relic_utility_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
+	_relic_utility_bar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_relic_utility_bar.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_relic_utility_bar.add_theme_constant_override("separation", int(RELIC_BAR_HORIZONTAL_GAP))
+	relic_bar.add_child(_relic_utility_bar)
+
+	_relic_icon_grid = GridContainer.new()
+	_relic_icon_grid.name = "RelicIconGrid"
+	_relic_icon_grid.columns = RELICS_PER_ROW
+	_relic_icon_grid.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_relic_icon_grid.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_relic_icon_grid.add_theme_constant_override("h_separation", int(RELIC_GRID_HORIZONTAL_GAP))
+	_relic_icon_grid.add_theme_constant_override("v_separation", int(RELIC_GRID_VERTICAL_GAP))
+	relic_bar.add_child(_relic_icon_grid)
+
 func _connect_header_layout_signals() -> void:
 	for control_var: Variant in [title_box, room_title, room_subtitle, umbra_subtitle, relic_bar]:
 		var control: Control = control_var as Control
@@ -7804,6 +7825,8 @@ func _layout_header_hud() -> void:
 	if umbra_subtitle != null and umbra_subtitle.visible:
 		min_width = maxf(min_width, umbra_subtitle.get_combined_minimum_size().x)
 	var intensity_active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
+	if _relic_utility_bar != null:
+		_relic_utility_bar.visible = _relic_utility_bar.get_child_count() > 0
 	if intensity_active:
 		min_width = maxf(min_width, _intensity_bar_size().x)
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
@@ -7814,36 +7837,25 @@ func _layout_header_hud() -> void:
 	title_box.custom_minimum_size = Vector2(min_width, title_box.custom_minimum_size.y)
 	if relic_bar != null:
 		relic_bar.custom_minimum_size = Vector2(min_width, relic_bar.custom_minimum_size.y)
-		# The wider combat hand can make the main HUD overhang a compact viewport.
-		# Keep this interactive group centered inside its title column in that case,
-		# so the skill entry point never becomes the offscreen edge item.
-		var safe_left: float = ui_root.get_global_rect().position.x + 8.0 if ui_root != null else 8.0
-		relic_bar.alignment = (
-			FlowContainer.ALIGNMENT_CENTER
-			if title_box.get_global_rect().position.x < safe_left
-			else FlowContainer.ALIGNMENT_BEGIN
-		)
+		relic_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
 
 func _desired_relic_bar_width() -> float:
-	if relic_bar == null or relic_bar.get_child_count() <= 0:
+	if relic_bar == null or _relic_utility_bar == null or _relic_icon_grid == null:
 		return 0.0
-	var width: float = 0.0
-	var visible_count: int = 0
+	var utility_width: float = _visible_hbox_minimum_width(_relic_utility_bar)
+	var relic_width: float = 0.0
 	var relic_count: int = 0
-	for child: Node in relic_bar.get_children():
-		if not (child is Control) or not (child as Control).visible:
-			continue
+	for child: Node in _relic_icon_grid.get_children():
 		var child_control: Control = child as Control
-		var is_utility: bool = bool(child_control.get_meta("header_utility", false))
-		if not is_utility:
-			if relic_count >= RELIC_BAR_MIN_VISIBLE_RELICS:
-				break
-			relic_count += 1
-		if visible_count > 0:
-			width += RELIC_BAR_HORIZONTAL_GAP
-		width += child_control.get_combined_minimum_size().x
-		visible_count += 1
-	return width
+		if child_control == null or not child_control.visible:
+			continue
+		if relic_count >= RELICS_PER_ROW:
+			break
+		if relic_count > 0:
+			relic_width += RELIC_GRID_HORIZONTAL_GAP
+		relic_width += child_control.get_combined_minimum_size().x
+		relic_count += 1
+	return maxf(utility_width, relic_width)
 
 func _header_title_available_width() -> float:
 	if top_bar == null or title_box == null:
@@ -7879,9 +7891,29 @@ func _layout_elemental_intensity_bar() -> void:
 		subtitle_bottom = umbra_subtitle.get_global_rect().end.y
 	var y: float = subtitle_bottom + ELEMENTAL_INTENSITY_HEADER_GAP
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
+		# The compact relic block owns the rows directly beneath the utility row. Keep the
+		# hanging charms after the complete block so the two readable clusters never
+		# share hit regions or cover one another.
 		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
 	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
 	_layout_combat_objective_hud()
+
+func _relic_bar_first_row_bottom_y() -> float:
+	if relic_bar == null:
+		return 0.0
+	var bottom: float = relic_bar.get_global_rect().position.y
+	if _relic_utility_bar != null:
+		for child: Node in _relic_utility_bar.get_children():
+			var child_control: Control = child as Control
+			if child_control != null and child_control.visible:
+				bottom = maxf(bottom, child_control.get_global_rect().end.y)
+	if _relic_icon_grid != null:
+		var first_row_count: int = mini(RELICS_PER_ROW, _relic_icon_grid.get_child_count())
+		for index: int in range(first_row_count):
+			var child_control: Control = _relic_icon_grid.get_child(index) as Control
+			if child_control != null and child_control.visible:
+				bottom = maxf(bottom, child_control.get_global_rect().end.y)
+	return bottom
 
 func _layout_turn_order_anchor() -> void:
 	if _turn_order_anchor == null:
@@ -8032,13 +8064,13 @@ func _relic_bar_visible_bottom_y() -> float:
 	if relic_bar == null:
 		return 0.0
 	var bottom: float = relic_bar.get_global_rect().end.y
-	for child: Node in relic_bar.get_children():
-		if not (child is Control):
+	for container: Container in [_relic_utility_bar, _relic_icon_grid]:
+		if container == null:
 			continue
-		var child_control: Control = child as Control
-		if not child_control.visible:
-			continue
-		bottom = maxf(bottom, child_control.get_global_rect().end.y)
+		for child: Node in container.get_children():
+			var child_control: Control = child as Control
+			if child_control != null and child_control.visible:
+				bottom = maxf(bottom, child_control.get_global_rect().end.y)
 	return bottom
 
 func _build_pile_widget(spec: Dictionary) -> void:
@@ -8468,7 +8500,7 @@ func _refresh_pile_counts() -> void:
 	_schedule_pile_dialog_pool_warm(pool_cards)
 
 func _refresh_relic_bar() -> void:
-	if relic_bar == null:
+	if relic_bar == null or _relic_utility_bar == null or _relic_icon_grid == null:
 		return
 	var relic_ids: Array = (_run_state.get("relics", []) as Array).duplicate()
 	var skill_ids: Array[String] = _selected_skill_ids_for_hud()
@@ -8512,20 +8544,19 @@ func _refresh_relic_bar() -> void:
 			_refresh_skill_status_popover(skill_ids)
 		return
 	_relic_bar_signature = signature
-	_clear_children(relic_bar)
+	_clear_children(_relic_utility_bar)
+	_clear_children(_relic_icon_grid)
 	_skill_sigil = null
 	_defiance_badge = null
 	relic_bar.visible = defiance_capacity > 0 or not relic_ids.is_empty() or not skill_ids.is_empty()
 	if defiance_capacity > 0:
 		_defiance_badge = _build_defiance_badge(defiance_remaining, defiance_capacity)
-		relic_bar.add_child(_defiance_badge)
+		_relic_utility_bar.add_child(_defiance_badge)
 		if not skill_ids.is_empty() or not relic_ids.is_empty():
-			relic_bar.add_child(_build_header_utility_divider("DefianceUtilityDivider"))
+			_relic_utility_bar.add_child(_build_header_utility_divider("DefianceUtilityDivider"))
 	if not skill_ids.is_empty():
 		_skill_sigil = _build_skill_sigil(skill_ids)
-		relic_bar.add_child(_skill_sigil)
-		if not relic_ids.is_empty():
-			relic_bar.add_child(_build_header_utility_divider("SkillRelicDivider"))
+		_relic_utility_bar.add_child(_skill_sigil)
 	for relic_id_var: Variant in relic_ids:
 		var relic_id: String = str(relic_id_var)
 		var relic: Dictionary = GameData.relic_def(relic_id)
@@ -8575,7 +8606,7 @@ func _refresh_relic_bar() -> void:
 			fallback.add_theme_color_override("font_outline_color", Color("2c1f16"))
 			fallback.add_theme_constant_override("outline_size", 1)
 			margin.add_child(fallback)
-		relic_bar.add_child(frame)
+		_relic_icon_grid.add_child(frame)
 	_refresh_skill_status_popover(skill_ids, true)
 	_layout_header_hud()
 	call_deferred("_layout_header_hud")
@@ -20455,9 +20486,9 @@ func _animate_relic_acquired(relic_id: String) -> void:
 	await settle.finished
 
 func _relic_frame_for_id(relic_id: String) -> Control:
-	if relic_bar == null:
+	if _relic_icon_grid == null:
 		return null
-	for child: Node in relic_bar.get_children():
+	for child: Node in _relic_icon_grid.get_children():
 		if child is Control and str(child.get_meta("relic_id", "")) == relic_id:
 			return child as Control
 	return null
