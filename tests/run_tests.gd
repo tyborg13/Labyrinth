@@ -9955,6 +9955,7 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	var linger_panel: PanelContainer = relic_bar.get_child(0) as PanelContainer if relic_bar != null and relic_bar.get_child_count() > 0 else null
 	_assert(linger_panel != null and linger_panel.find_child("CampfireChoiceInnerGlow", true, false) is PanelContainer, "Campfire choices should include a subtle inner firelight glow")
 	if linger_panel != null:
+		_assert(linger_panel.custom_minimum_size == Vector2(264.0, 220.0), "Larger relic-offer cards should not resize the shared campfire choices")
 		instance.call("_show_campfire_choice_feedback_pulse", linger_panel, Color("efb35f"))
 		await process_frame
 		_assert(linger_panel.find_child("CampfireChoicePressPulse", true, false) is PanelContainer, "Campfire choices should show a press feedback pulse")

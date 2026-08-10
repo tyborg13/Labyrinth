@@ -1210,8 +1210,9 @@ const MERCHANT_ICON_SIZE: Vector2 = Vector2(44.0, 44.0)
 const MERCHANT_TITLE_BLACKSMITH: String = "BLACKSMITH"
 const MERCHANT_TITLE_ARCANIST: String = "ARCANIST"
 const MERCHANT_TITLE_SCAVENGER: String = "SCAVENGER"
-const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1120.0, 312.0)
-const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
+const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
+const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
+const RELIC_OFFER_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
 const REWARD_CHOICE_CARD_GAP: float = 30.0
 const REWARD_CHOICE_STACK_GAP: float = 18.0
@@ -12413,7 +12414,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 		return
 	var panel := TooltipPanelContainer.new()
 	panel.name = "RelicChoice_%s" % relic_id
-	panel.custom_minimum_size = RELIC_CHOICE_CARD_SIZE
+	panel.custom_minimum_size = RELIC_OFFER_CARD_SIZE
 	panel.clip_contents = false
 	panel.z_index = 30
 	panel.focus_mode = Control.FOCUS_ALL
@@ -12462,7 +12463,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 40.0, 34.0)
+	label.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 34.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE)
 	label.add_theme_color_override("font_color", Color("fff1d5"))
@@ -12478,7 +12479,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 40.0, 122.0)
+	description.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 122.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_rich_text_size(description, UiTypography.SIZE_BODY_LARGE)
 	description.add_theme_color_override("default_color", Color("dec9a7"))

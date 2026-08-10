@@ -143,6 +143,7 @@ func _validate_relic_choices(
 		_expect(panel != null, "%s should create a card for %s" % [label, relic_id])
 		if panel == null:
 			continue
+		_expect(panel.custom_minimum_size == Vector2(304.0, 284.0), "%s %s should use the enlarged relic-offer card geometry" % [label, relic_id])
 		_expect(viewport_rect.encloses(panel.get_global_rect()), "%s %s card should remain inside the viewport" % [label, relic_id])
 		var description: RichTextLabel = panel.find_child("RelicChoiceDescription_%s" % relic_id, true, false) as RichTextLabel
 		_expect(description != null, "%s %s should display its exact rules text" % [label, relic_id])
