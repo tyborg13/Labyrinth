@@ -7,9 +7,13 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 
 static func run(expect: Callable) -> void:
 	_test_fireball_selection_is_exact(expect)
+	_test_every_element_owns_a_distinct_ranged_style(expect)
 	_test_fireball_owns_a_complete_motion_schedule(expect)
+	_test_elemental_styles_own_distinct_motion_schedules(expect)
 	_test_fireball_sheets_load_as_authored_frames(expect)
+	_test_elemental_sheets_load_as_authored_frames(expect)
 	_test_fireball_path_is_straight(expect)
+	_test_all_authored_elemental_paths_are_straight(expect)
 	_test_enemy_steps_inherit_the_attacker_element(expect)
 
 
@@ -17,6 +21,35 @@ static func _test_fireball_selection_is_exact(expect: Callable) -> void:
 	expect.call(
 		AttackFxLibrary.uses_fireball({"kind": "ranged", "action_type": "ranged", "element": "fire"}),
 		"Ranged fire attacks should resolve through the authored fireball style"
+	)
+
+
+static func _test_every_element_owns_a_distinct_ranged_style(expect: Callable) -> void:
+	var expected_styles: Dictionary = {
+		"fire": AttackFxLibrary.STYLE_FIREBALL,
+		"earth": AttackFxLibrary.STYLE_EARTH_SPIKES,
+		"air": AttackFxLibrary.STYLE_AIR_GUST,
+		"lightning": AttackFxLibrary.STYLE_LIGHTNING_BOLT,
+		"ice": AttackFxLibrary.STYLE_ICE_SHARDS,
+	}
+	var resolved_styles: Dictionary = {}
+	for element_id: String in expected_styles:
+		var effect: Dictionary = {"kind": "ranged", "action_type": "ranged", "element": element_id}
+		resolved_styles[element_id] = AttackFxLibrary.style_for_effect(effect)
+		expect.call(
+			resolved_styles[element_id] == expected_styles[element_id]
+			and AttackFxLibrary.uses_authored_elemental_ranged(effect),
+			"%s ranged attacks should resolve through their purpose-built authored style" % element_id.capitalize()
+		)
+	var unique_styles: Dictionary = {}
+	for style_var: Variant in resolved_styles.values():
+		unique_styles[str(style_var)] = true
+	expect.call(unique_styles.size() == 5, "Every elemental ranged attack should have a visually independent presentation identity")
+	expect.call(
+		AttackFxLibrary.style_for_effect({"kind": "melee", "action_type": "melee", "element": "earth"}) == AttackFxLibrary.STYLE_DEFAULT
+		and AttackFxLibrary.style_for_effect({"kind": "ranged", "action_type": "push", "element": "air"}) == AttackFxLibrary.STYLE_DEFAULT
+		and AttackFxLibrary.style_for_effect({"kind": "ranged", "action_type": "ranged", "element": "none"}) == AttackFxLibrary.STYLE_DEFAULT,
+		"Authored elemental ranged presentation should not leak onto melee, forced-movement, or non-element attacks"
 	)
 	expect.call(
 		not AttackFxLibrary.uses_fireball({"kind": "melee", "action_type": "melee", "element": "fire"})
@@ -46,6 +79,33 @@ static func _test_fireball_owns_a_complete_motion_schedule(expect: Callable) -> 
 	)
 
 
+static func _test_elemental_styles_own_distinct_motion_schedules(expect: Callable) -> void:
+	var schedules: Dictionary = {
+		"earth": [AttackFxLibrary.EARTH_ANIMATION_FRAMES, AttackFxLibrary.EARTH_FRAME_SECONDS, AttackFxLibrary.EARTH_TRAVEL_END_PROGRESS],
+		"air": [AttackFxLibrary.AIR_ANIMATION_FRAMES, AttackFxLibrary.AIR_FRAME_SECONDS, AttackFxLibrary.AIR_TRAVEL_END_PROGRESS],
+		"lightning": [AttackFxLibrary.LIGHTNING_ANIMATION_FRAMES, AttackFxLibrary.LIGHTNING_FRAME_SECONDS, AttackFxLibrary.LIGHTNING_TRAVEL_END_PROGRESS],
+		"ice": [AttackFxLibrary.ICE_ANIMATION_FRAMES, AttackFxLibrary.ICE_FRAME_SECONDS, AttackFxLibrary.ICE_TRAVEL_END_PROGRESS],
+	}
+	for element_id: String in schedules:
+		var schedule: Array = schedules[element_id] as Array
+		var effect: Dictionary = {"kind": "ranged", "action_type": "ranged", "element": element_id}
+		var style: String = AttackFxLibrary.style_for_effect(effect)
+		expect.call(
+			AttackFxLibrary.animation_frame_count(effect, 6, false) == int(schedule[0])
+			and is_equal_approx(AttackFxLibrary.animation_frame_seconds(effect, 0.04, false), float(schedule[1]))
+			and is_equal_approx(AttackFxLibrary.travel_end_progress(style), float(schedule[2])),
+			"%s should receive its authored travel-and-impact cadence" % element_id.capitalize()
+		)
+		expect.call(
+			AttackFxLibrary.animation_frame_count(effect, 6, true) == 1
+			and is_zero_approx(AttackFxLibrary.animation_frame_seconds(effect, 0.04, true))
+			and is_equal_approx(AttackFxLibrary.travel_progress_for_style(style, float(schedule[2])), 1.0)
+			and is_equal_approx(AttackFxLibrary.impact_progress_for_style(style, float(schedule[2])), 0.0)
+			and is_equal_approx(AttackFxLibrary.impact_progress_for_style(style, 1.0), 1.0),
+			"%s should collapse safely for reduced motion and hand off from travel to impact exactly once" % element_id.capitalize()
+		)
+
+
 static func _test_fireball_sheets_load_as_authored_frames(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.call("_load_assets", false)
@@ -66,6 +126,31 @@ static func _test_fireball_sheets_load_as_authored_frames(expect: Callable) -> v
 	board.free()
 
 
+static func _test_elemental_sheets_load_as_authored_frames(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	board.call("_load_assets", false)
+	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
+	var frame_keys: PackedStringArray = [
+		"earth_spike_travel",
+		"earth_spike_impact",
+		"air_gust_travel",
+		"air_gust_impact",
+		"lightning_bolt_travel",
+		"lightning_bolt_impact",
+		"ice_shard_travel",
+		"ice_icicle_impact",
+	]
+	for frame_key: String in frame_keys:
+		var frames: Array = effect_frames.get(frame_key, []) as Array
+		expect.call(frames.size() == 8, "%s should load all eight authored raster frames" % frame_key)
+		if frames.size() == 8:
+			expect.call(
+				(frames[0] as Texture2D).get_size() == Vector2(512.0, 512.0),
+				"%s should retain its validated 512x512 frame contract" % frame_key
+			)
+	board.free()
+
+
 static func _test_fireball_path_is_straight(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	var start := Vector2(18.0, 42.0)
@@ -76,6 +161,16 @@ static func _test_fireball_path_is_straight(expect: Callable) -> void:
 		"Fireball travel should stay on the direct attacker-to-target line instead of using the generic projectile arc"
 	)
 	board.free()
+
+
+static func _test_all_authored_elemental_paths_are_straight(expect: Callable) -> void:
+	var start := Vector2(18.0, 42.0)
+	var finish := Vector2(218.0, 112.0)
+	for progress: float in [0.0, 0.19, 0.5, 0.83, 1.0]:
+		expect.call(
+			start.lerp(finish, progress).is_equal_approx(start + (finish - start) * progress),
+			"Authored elemental attacks should preserve direct attacker-to-target causality at %.2f progress" % progress
+		)
 
 
 static func _test_enemy_steps_inherit_the_attacker_element(expect: Callable) -> void:

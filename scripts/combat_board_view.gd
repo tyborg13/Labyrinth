@@ -269,6 +269,28 @@ const FIREBALL_IMPACT_MIN_SIZE: float = 124.0
 const FIREBALL_IMPACT_MAX_SIZE: float = 198.0
 const FIREBALL_FRAME_CORE_ANCHOR: Vector2 = Vector2(0.81, 0.50)
 const FIREBALL_WAKE_CORE_ANCHOR: Vector2 = Vector2(0.86, 0.50)
+const EARTH_SPIKE_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/earth_spike_travel_sheet.png"
+const EARTH_SPIKE_IMPACT_SHEET_PATH: String = "res://assets/art/effects/earth_spike_impact_sheet.png"
+const AIR_GUST_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/air_gust_travel_sheet.png"
+const AIR_GUST_IMPACT_SHEET_PATH: String = "res://assets/art/effects/air_gust_impact_sheet.png"
+const LIGHTNING_BOLT_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/lightning_bolt_travel_sheet.png"
+const LIGHTNING_BOLT_IMPACT_SHEET_PATH: String = "res://assets/art/effects/lightning_bolt_impact_sheet.png"
+const ICE_SHARD_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/ice_shard_travel_sheet.png"
+const ICE_ICICLE_IMPACT_SHEET_PATH: String = "res://assets/art/effects/ice_icicle_impact_sheet.png"
+const ELEMENTAL_ATTACK_SHEET_COLUMNS: int = 4
+const ELEMENTAL_ATTACK_SHEET_ROWS: int = 2
+const EARTH_PATH_SPIKE_COUNT: int = 8
+const EARTH_PATH_SPIKE_SIZE_SCALE: float = 0.68
+const EARTH_IMPACT_SIZE_SCALE: float = 1.86
+const AIR_GUST_TRAVEL_SIZE_SCALE: float = 1.18
+const AIR_GUST_IMPACT_SIZE_SCALE: float = 1.72
+const LIGHTNING_TRAVEL_SIZE_SCALE: float = 1.22
+const LIGHTNING_IMPACT_SIZE_SCALE: float = 1.62
+const ICE_TRAVEL_SIZE_SCALE: float = 1.16
+const ICE_IMPACT_SIZE_SCALE: float = 1.82
+const ELEMENTAL_TRAVEL_AFTERIMAGE_COUNT: int = 3
+const ELEMENTAL_TRAVEL_MOTE_COUNT: int = 12
+const ELEMENTAL_IMPACT_MOTE_COUNT: int = 18
 const PROJECTILE_DRAW_TILE_SCALE: float = 0.34
 const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
 const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
@@ -5912,9 +5934,22 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 	return frames[frame_index] as Texture2D
 
 func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
-	if AttackFxLibrary.uses_fireball(effect):
-		_draw_fireball_attack_effect(effect, progress, from_point, to_point)
-		return
+	match AttackFxLibrary.style_for_effect(effect):
+		AttackFxLibrary.STYLE_FIREBALL:
+			_draw_fireball_attack_effect(effect, progress, from_point, to_point)
+			return
+		AttackFxLibrary.STYLE_EARTH_SPIKES:
+			_draw_earth_spike_attack_effect(effect, progress, from_point, to_point)
+			return
+		AttackFxLibrary.STYLE_AIR_GUST:
+			_draw_air_gust_attack_effect(effect, progress, from_point, to_point)
+			return
+		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
+			_draw_lightning_attack_effect(effect, progress, from_point, to_point)
+			return
+		AttackFxLibrary.STYLE_ICE_SHARDS:
+			_draw_ice_shard_attack_effect(effect, progress, from_point, to_point)
+			return
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)
@@ -5937,6 +5972,337 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
 		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
 		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress, 0.84 * loop_fade if preview else 1.0)
+
+func _draw_earth_spike_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_EARTH_SPIKES
+	var start: Vector2 = from_point + Vector2(0.0, _tile_height() * 0.02)
+	var end: Vector2 = to_point + Vector2(0.0, _tile_height() * 0.02)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_earth_impact(end, 0.46, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		_draw_earth_spike_path(start, end, phase, 0.62)
+		return
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	var travel_progress: float = AttackFxLibrary.travel_progress_for_style(style, progress)
+	if progress <= travel_end:
+		_draw_earth_spike_path(start, end, travel_progress, 1.0)
+	if progress >= travel_end:
+		_draw_earth_impact(end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
+
+func _draw_earth_spike_path(start: Vector2, end: Vector2, travel_progress: float, alpha: float) -> void:
+	var frames: Array[Texture2D] = _authored_elemental_frames("earth_spike_travel")
+	if frames.is_empty():
+		return
+	var direction: Vector2 = (end - start).normalized()
+	if direction.length_squared() <= 0.01:
+		direction = Vector2.RIGHT
+	var normal := Vector2(-direction.y, direction.x)
+	var draw_size: float = clampf(_tile_width() * EARTH_PATH_SPIKE_SIZE_SCALE, 54.0, 78.0)
+	for spike_index: int in range(EARTH_PATH_SPIKE_COUNT):
+		var path_progress: float = lerpf(0.08, 0.96, float(spike_index) / float(EARTH_PATH_SPIKE_COUNT - 1))
+		var local_age: float = (travel_progress - path_progress) / 0.28
+		if local_age < 0.0 or local_age >= 1.0:
+			continue
+		var frame_index: int = AttackFxLibrary.one_shot_frame_index(local_age, frames.size())
+		var side_offset: float = sin(float(spike_index) * 2.17) * draw_size * 0.08
+		var point: Vector2 = start.lerp(end, path_progress) + normal * side_offset
+		var scale_jitter: float = 0.86 + 0.14 * _ambient_hash01(3101 + spike_index * 337)
+		_draw_authored_bottom_frame(frames[frame_index], point, draw_size * scale_jitter, alpha)
+		_draw_earth_spike_debris(point, local_age, draw_size, spike_index, alpha)
+
+func _draw_earth_spike_debris(point: Vector2, local_age: float, draw_size: float, spike_index: int, alpha: float) -> void:
+	if local_age < 0.18:
+		return
+	var debris_age: float = clampf((local_age - 0.18) / 0.82, 0.0, 1.0)
+	for debris_index: int in range(3):
+		var seed: int = 5501 + spike_index * 479 + debris_index * 149
+		var texture: Texture2D = _ambient_particle_texture("earth", debris_index)
+		if texture == null:
+			continue
+		var side: float = -1.0 if debris_index % 2 == 0 else 1.0
+		var offset := Vector2(
+			side * draw_size * (0.12 + 0.18 * debris_age),
+			-draw_size * (0.14 + 0.22 * sin(debris_age * PI)) + draw_size * 0.18 * debris_age
+		)
+		offset.x *= lerpf(0.72, 1.20, _ambient_hash01(seed))
+		var mote_size: float = draw_size * lerpf(0.105, 0.055, debris_age) * lerpf(0.72, 1.16, _ambient_hash01(seed + 3))
+		_draw_ambient_particle_sprite(texture, point + offset, Vector2.ONE * mote_size, debris_age * 2.3 * side, alpha * pow(1.0 - debris_age, 0.72))
+
+func _draw_earth_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	var frames: Array[Texture2D] = _authored_elemental_frames("earth_spike_impact")
+	if frames.is_empty():
+		return
+	var frame_index: int = 4 if reduced_motion else AttackFxLibrary.one_shot_frame_index(impact_progress, frames.size())
+	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
+	var draw_size: float = clampf(_tile_width() * EARTH_IMPACT_SIZE_SCALE * (0.92 + bloom * 0.10), 152.0, 224.0)
+	var fade: float = 1.0 if reduced_motion else clampf((1.0 - impact_progress) / 0.16, 0.0, 1.0)
+	_draw_authored_bottom_frame(frames[frame_index], point, draw_size, alpha * fade)
+	if not reduced_motion:
+		_draw_elemental_impact_motes("earth", point - Vector2(0.0, draw_size * 0.20), impact_progress, draw_size, alpha * fade, false)
+
+func _draw_air_gust_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_AIR_GUST
+	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.62)
+	var end: Vector2 = to_point + Vector2(0.0, -_tile_height() * 0.62)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_air_gust_impact(end, 0.48, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		var preview_alpha: float = clampf(minf(phase / 0.14, (1.0 - phase) / 0.14), 0.0, 1.0) * 0.64
+		_draw_air_gust_travel(start, end, lerpf(0.05, 0.95, phase), preview_alpha)
+		return
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	if progress <= travel_end:
+		_draw_air_gust_travel(start, end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
+	if progress >= travel_end:
+		_draw_air_gust_impact(end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
+
+func _draw_air_gust_travel(start: Vector2, end: Vector2, travel_progress: float, alpha: float) -> void:
+	var frames: Array[Texture2D] = _authored_elemental_frames("air_gust_travel")
+	if frames.is_empty() or alpha <= 0.0:
+		return
+	var direction: Vector2 = (end - start).normalized()
+	if direction.length_squared() <= 0.01:
+		direction = Vector2.RIGHT
+	var point: Vector2 = start.lerp(end, travel_progress)
+	var frame_index: int = AttackFxLibrary.looping_frame_index(travel_progress, frames.size(), 1.65)
+	var draw_size: float = clampf(_tile_width() * AIR_GUST_TRAVEL_SIZE_SCALE, 92.0, 132.0)
+	var soft_texture: Texture2D = _ambient_air_wisp_soft_texture(frame_index)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(soft_texture, point - direction * draw_size * 0.22, Vector2(draw_size * 1.82, draw_size * 0.82), direction.angle(), alpha * 0.34, Color(0.70, 0.90, 1.0, 1.0))
+	for afterimage_index: int in range(ELEMENTAL_TRAVEL_AFTERIMAGE_COUNT, 0, -1):
+		var behind_progress: float = maxf(0.0, travel_progress - 0.045 * float(afterimage_index))
+		var behind_point: Vector2 = start.lerp(end, behind_progress)
+		var behind_frame: int = posmod(frame_index - afterimage_index * 2, frames.size())
+		_draw_authored_oriented_frame(frames[behind_frame], behind_point, direction, Vector2.ONE * draw_size * (0.72 + 0.06 * afterimage_index), alpha * (0.035 + 0.022 * afterimage_index), Color(0.78, 0.91, 1.0, 1.0), Vector2(0.82, 0.50))
+	_draw_air_wake_motes(start, end, travel_progress, direction, draw_size, alpha)
+	var flutter_direction: Vector2 = direction.rotated(sin(travel_progress * TAU * 2.2) * 0.035)
+	_draw_authored_oriented_frame(frames[frame_index], point, flutter_direction, Vector2.ONE * draw_size, alpha, Color.WHITE, Vector2(0.82, 0.50))
+
+func _draw_air_wake_motes(start: Vector2, end: Vector2, travel_progress: float, direction: Vector2, draw_size: float, alpha: float) -> void:
+	var normal := Vector2(-direction.y, direction.x)
+	for mote_index: int in range(ELEMENTAL_TRAVEL_MOTE_COUNT):
+		var spawn_progress: float = lerpf(0.02, 0.90, float(mote_index) / float(ELEMENTAL_TRAVEL_MOTE_COUNT - 1))
+		if travel_progress < spawn_progress:
+			continue
+		var age: float = (travel_progress - spawn_progress) / 0.34
+		if age >= 1.0:
+			continue
+		var seed: int = 7103 + mote_index * 631
+		var variant: int = posmod(mote_index * 3, AMBIENT_AIR_WISP_VARIANTS)
+		var texture: Texture2D = _ambient_air_wisp_texture(variant, clampi(int(age * 18.0), 0, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+		if texture == null:
+			texture = _ambient_air_wisp_soft_texture(variant)
+		if texture == null:
+			continue
+		var side: float = -1.0 if mote_index % 2 == 0 else 1.0
+		var base_point: Vector2 = start.lerp(end, spawn_progress)
+		var point: Vector2 = base_point - direction * draw_size * age * 0.34 + normal * side * draw_size * (0.10 + age * 0.22) * lerpf(0.72, 1.28, _ambient_hash01(seed))
+		var size := Vector2(draw_size * lerpf(0.26, 0.48, age), draw_size * lerpf(0.12, 0.22, age))
+		_draw_ambient_particle_sprite(texture, point, size, direction.angle() + side * age * 0.32, alpha * pow(1.0 - age, 1.15) * 0.58, Color(0.78, 0.92, 1.0, 1.0))
+
+func _draw_air_gust_impact(center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	var frames: Array[Texture2D] = _authored_elemental_frames("air_gust_impact")
+	if frames.is_empty():
+		return
+	var frame_index: int = 4 if reduced_motion else AttackFxLibrary.one_shot_frame_index(impact_progress, frames.size())
+	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
+	var draw_size: float = clampf(_tile_width() * AIR_GUST_IMPACT_SIZE_SCALE * (0.88 + bloom * 0.22), 142.0, 214.0)
+	var fade: float = 1.0 if reduced_motion else clampf((1.0 - impact_progress) / 0.18, 0.0, 1.0)
+	var soft_texture: Texture2D = _ambient_air_wisp_soft_texture(frame_index)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(soft_texture, center, Vector2.ONE * draw_size * (1.18 + bloom * 0.18), impact_progress * 1.4, alpha * fade * (0.34 + bloom * 0.20), Color(0.72, 0.91, 1.0, 1.0))
+	_draw_authored_oriented_frame(frames[frame_index], center, Vector2.RIGHT, Vector2.ONE * draw_size, alpha * fade, Color.WHITE)
+	if not reduced_motion:
+		_draw_elemental_impact_motes("air", center, impact_progress, draw_size, alpha * fade, true)
+
+func _draw_lightning_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_LIGHTNING_BOLT
+	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.66)
+	var end: Vector2 = to_point + Vector2(0.0, -_tile_height() * 0.66)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_lightning_impact(end, 0.46, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / 1.35, 0.0, 1.0)
+		var preview_alpha: float = clampf(minf(phase / 0.10, (1.0 - phase) / 0.10), 0.0, 1.0) * 0.66
+		_draw_lightning_travel(start, end, lerpf(0.06, 0.96, phase), preview_alpha)
+		return
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	if progress <= travel_end:
+		_draw_lightning_travel(start, end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
+	if progress >= travel_end:
+		_draw_lightning_impact(end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
+
+func _draw_lightning_travel(start: Vector2, end: Vector2, travel_progress: float, alpha: float) -> void:
+	var frames: Array[Texture2D] = _authored_elemental_frames("lightning_bolt_travel")
+	if frames.is_empty() or alpha <= 0.0:
+		return
+	var direction: Vector2 = (end - start).normalized()
+	if direction.length_squared() <= 0.01:
+		direction = Vector2.RIGHT
+	var point: Vector2 = start.lerp(end, travel_progress)
+	var frame_index: int = AttackFxLibrary.looping_frame_index(travel_progress, frames.size(), 2.85)
+	var draw_size: float = clampf(_tile_width() * LIGHTNING_TRAVEL_SIZE_SCALE, 94.0, 138.0)
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("lightning", frame_index)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(glow_texture, point - direction * draw_size * 0.20, Vector2(draw_size * 1.84, draw_size * 0.62), direction.angle(), alpha * 0.42, Color(0.86, 0.88, 1.0, 1.0))
+	for afterimage_index: int in range(ELEMENTAL_TRAVEL_AFTERIMAGE_COUNT, 0, -1):
+		var behind_progress: float = maxf(0.0, travel_progress - 0.055 * float(afterimage_index))
+		var behind_point: Vector2 = start.lerp(end, behind_progress)
+		var behind_frame: int = posmod(frame_index - afterimage_index, frames.size())
+		_draw_authored_oriented_frame(frames[behind_frame], behind_point, direction, Vector2.ONE * draw_size * (0.70 + afterimage_index * 0.05), alpha * (0.045 + afterimage_index * 0.018), Color(0.62, 0.75, 1.0, 1.0), Vector2(0.88, 0.50))
+	_draw_elemental_travel_motes("lightning", start, end, travel_progress, direction, draw_size, alpha)
+	var jitter_direction: Vector2 = direction.rotated(sin(travel_progress * TAU * 5.2) * 0.025)
+	_draw_authored_oriented_frame(frames[frame_index], point, jitter_direction, Vector2.ONE * draw_size, alpha, Color.WHITE, Vector2(0.88, 0.50))
+
+func _draw_lightning_impact(center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	var frames: Array[Texture2D] = _authored_elemental_frames("lightning_bolt_impact")
+	if frames.is_empty():
+		return
+	var frame_index: int = 4 if reduced_motion else AttackFxLibrary.one_shot_frame_index(impact_progress, frames.size())
+	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
+	var draw_size: float = clampf(_tile_width() * LIGHTNING_IMPACT_SIZE_SCALE * (0.84 + bloom * 0.26), 132.0, 204.0)
+	var fade: float = 1.0 if reduced_motion else clampf((1.0 - impact_progress) / 0.14, 0.0, 1.0)
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("lightning", frame_index)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(glow_texture, center, Vector2.ONE * draw_size * (1.22 + bloom * 0.20), impact_progress * 0.4, alpha * fade * (0.44 + bloom * 0.28), Color(0.72, 0.74, 1.0, 1.0))
+	_draw_authored_oriented_frame(frames[frame_index], center, Vector2.RIGHT, Vector2.ONE * draw_size, alpha * fade, Color.WHITE)
+	if not reduced_motion:
+		_draw_elemental_impact_motes("lightning", center, impact_progress, draw_size, alpha * fade, false)
+
+func _draw_ice_shard_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_ICE_SHARDS
+	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.62)
+	var end: Vector2 = to_point + Vector2(0.0, -_tile_height() * 0.18)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_ice_icicle_impact(end, 0.48, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		var preview_alpha: float = clampf(minf(phase / 0.14, (1.0 - phase) / 0.14), 0.0, 1.0) * 0.66
+		_draw_ice_shard_travel(start, end, lerpf(0.05, 0.95, phase), preview_alpha)
+		return
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	if progress <= travel_end:
+		_draw_ice_shard_travel(start, end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
+	if progress >= travel_end:
+		_draw_ice_icicle_impact(end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
+
+func _draw_ice_shard_travel(start: Vector2, end: Vector2, travel_progress: float, alpha: float) -> void:
+	var frames: Array[Texture2D] = _authored_elemental_frames("ice_shard_travel")
+	if frames.is_empty() or alpha <= 0.0:
+		return
+	var direction: Vector2 = (end - start).normalized()
+	if direction.length_squared() <= 0.01:
+		direction = Vector2.RIGHT
+	var point: Vector2 = start.lerp(end, travel_progress)
+	var frame_index: int = AttackFxLibrary.looping_frame_index(travel_progress, frames.size(), 1.55)
+	var draw_size: float = clampf(_tile_width() * ICE_TRAVEL_SIZE_SCALE, 90.0, 132.0)
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("ice", frame_index)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(glow_texture, point - direction * draw_size * 0.20, Vector2(draw_size * 1.56, draw_size * 0.64), direction.angle(), alpha * 0.30, Color(0.58, 0.86, 1.0, 1.0))
+	for afterimage_index: int in range(2, 0, -1):
+		var behind_progress: float = maxf(0.0, travel_progress - 0.05 * float(afterimage_index))
+		var behind_point: Vector2 = start.lerp(end, behind_progress)
+		var behind_frame: int = posmod(frame_index - afterimage_index * 2, frames.size())
+		_draw_authored_oriented_frame(frames[behind_frame], behind_point, direction, Vector2.ONE * draw_size * (0.72 + afterimage_index * 0.06), alpha * (0.045 + afterimage_index * 0.025), Color(0.66, 0.86, 1.0, 1.0), Vector2(0.86, 0.50))
+	_draw_elemental_travel_motes("ice", start, end, travel_progress, direction, draw_size, alpha)
+	var tumble_direction: Vector2 = direction.rotated(sin(travel_progress * TAU * 2.6) * 0.030)
+	_draw_authored_oriented_frame(frames[frame_index], point, tumble_direction, Vector2.ONE * draw_size, alpha, Color.WHITE, Vector2(0.86, 0.50))
+
+func _draw_ice_icicle_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	var frames: Array[Texture2D] = _authored_elemental_frames("ice_icicle_impact")
+	if frames.is_empty():
+		return
+	var frame_index: int = 4 if reduced_motion else AttackFxLibrary.one_shot_frame_index(impact_progress, frames.size())
+	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
+	var draw_size: float = clampf(_tile_width() * ICE_IMPACT_SIZE_SCALE * (0.92 + bloom * 0.12), 150.0, 222.0)
+	var fade: float = 1.0 if reduced_motion else clampf((1.0 - impact_progress) / 0.16, 0.0, 1.0)
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("ice", frame_index)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(glow_texture, point - Vector2(0.0, draw_size * 0.22), Vector2(draw_size * 1.16, draw_size * 1.42), 0.0, alpha * fade * (0.28 + bloom * 0.18), Color(0.52, 0.82, 1.0, 1.0))
+	_draw_authored_bottom_frame(frames[frame_index], point, draw_size, alpha * fade)
+	if not reduced_motion:
+		_draw_elemental_impact_motes("ice", point - Vector2(0.0, draw_size * 0.18), impact_progress, draw_size, alpha * fade, false)
+
+func _draw_elemental_travel_motes(element_id: String, start: Vector2, end: Vector2, travel_progress: float, direction: Vector2, draw_size: float, alpha: float) -> void:
+	var normal := Vector2(-direction.y, direction.x)
+	for mote_index: int in range(ELEMENTAL_TRAVEL_MOTE_COUNT):
+		var spawn_progress: float = lerpf(0.02, 0.90, float(mote_index) / float(ELEMENTAL_TRAVEL_MOTE_COUNT - 1))
+		if travel_progress < spawn_progress:
+			continue
+		var age: float = (travel_progress - spawn_progress) / 0.32
+		if age >= 1.0:
+			continue
+		var seed: int = 9109 + mote_index * 733 + (17 if element_id == "ice" else 0)
+		var variant: int = posmod(mote_index * 3 + 1, AMBIENT_PARTICLE_ATLAS_COLUMNS)
+		var texture: Texture2D = _ambient_particle_texture(element_id, variant)
+		var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant)
+		if texture == null and glow_texture == null:
+			continue
+		var side: float = -1.0 if mote_index % 2 == 0 else 1.0
+		var base_point: Vector2 = start.lerp(end, spawn_progress)
+		var side_drift: float = side * draw_size * (0.08 + 0.18 * age) * lerpf(0.70, 1.24, _ambient_hash01(seed))
+		var point: Vector2 = base_point - direction * draw_size * age * 0.24 + normal * side_drift + Vector2(0.0, draw_size * (0.10 if element_id == "ice" else -0.06) * age)
+		var fade: float = pow(1.0 - age, 1.08) * alpha
+		var mote_size: float = draw_size * lerpf(0.095, 0.045, age) * lerpf(0.72, 1.20, _ambient_hash01(seed + 3))
+		if glow_texture != null:
+			_draw_ambient_particle_sprite(glow_texture, point - direction * mote_size * 0.4, Vector2(mote_size * 2.4, mote_size * 1.12), direction.angle(), fade * 0.28)
+		if texture != null:
+			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, direction.angle() + side * age * 0.72, fade * 0.86)
+
+func _draw_elemental_impact_motes(element_id: String, center: Vector2, impact_progress: float, draw_size: float, alpha: float, use_air_wisps: bool) -> void:
+	if impact_progress < 0.08 or alpha <= 0.0:
+		return
+	var age: float = clampf((impact_progress - 0.08) / 0.92, 0.0, 1.0)
+	for mote_index: int in range(ELEMENTAL_IMPACT_MOTE_COUNT):
+		var seed: int = 11299 + mote_index * 887
+		var angle: float = float(mote_index) * 2.399963 + lerpf(-0.20, 0.20, _ambient_hash01(seed))
+		var direction := Vector2(cos(angle), sin(angle))
+		var radial_distance: float = draw_size * lerpf(0.28, 0.68, _ambient_hash01(seed + 3)) * pow(age, 0.66)
+		var point: Vector2 = center + direction * radial_distance
+		var fade: float = pow(1.0 - age, 0.88) * alpha * lerpf(0.72, 1.0, _ambient_hash01(seed + 7))
+		if use_air_wisps:
+			var air_texture: Texture2D = _ambient_air_wisp_texture(posmod(mote_index, AMBIENT_AIR_WISP_VARIANTS), clampi(int(age * 18.0), 0, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+			if air_texture != null:
+				_draw_ambient_particle_sprite(air_texture, point, Vector2(draw_size * lerpf(0.22, 0.42, age), draw_size * 0.14), angle, fade * 0.52, Color(0.78, 0.92, 1.0, 1.0))
+			continue
+		var variant: int = posmod(mote_index * 5 + 2, AMBIENT_PARTICLE_ATLAS_COLUMNS)
+		var texture: Texture2D = _ambient_particle_texture(element_id, variant)
+		var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant)
+		var mote_size: float = draw_size * lerpf(0.070, 0.030, age) * lerpf(0.74, 1.18, _ambient_hash01(seed + 11))
+		if glow_texture != null:
+			_draw_ambient_particle_sprite(glow_texture, point, Vector2(mote_size * 2.2, mote_size * 1.12), angle, fade * 0.24)
+		if texture != null:
+			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, angle + age * 1.6, fade * 0.82)
+
+func _draw_authored_oriented_frame(texture: Texture2D, center: Vector2, direction: Vector2, draw_size: Vector2, alpha: float, modulate: Color = Color.WHITE, anchor: Vector2 = Vector2(0.5, 0.5)) -> void:
+	if texture == null or alpha <= 0.0 or draw_size.x <= 0.0 or draw_size.y <= 0.0:
+		return
+	var facing: Vector2 = direction.normalized()
+	if facing.length_squared() <= 0.01:
+		facing = Vector2.RIGHT
+	var rect := Rect2(Vector2(-draw_size.x * anchor.x, -draw_size.y * anchor.y), draw_size)
+	draw_set_transform(center, facing.angle(), Vector2.ONE)
+	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_authored_bottom_frame(texture: Texture2D, ground_point: Vector2, draw_size: float, alpha: float) -> void:
+	if texture == null or alpha <= 0.0 or draw_size <= 0.0:
+		return
+	var rect := Rect2(ground_point + Vector2(-draw_size * 0.5, -draw_size * 0.957), Vector2.ONE * draw_size)
+	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, clampf(alpha, 0.0, 1.0)))
+
+func _authored_elemental_frames(frame_key: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	for frame_var: Variant in _effect_frames.get(frame_key, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
+	return frames
 
 func _draw_fireball_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.72)
@@ -7551,6 +7917,46 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 			FIREBALL_IMPACT_SHEET_PATH,
 			FIREBALL_IMPACT_SHEET_COLUMNS,
 			FIREBALL_IMPACT_SHEET_ROWS
+		),
+		"earth_spike_travel": _load_sprite_sheet_frames(
+			EARTH_SPIKE_TRAVEL_SHEET_PATH,
+			ELEMENTAL_ATTACK_SHEET_COLUMNS,
+			ELEMENTAL_ATTACK_SHEET_ROWS
+		),
+		"earth_spike_impact": _load_sprite_sheet_frames(
+			EARTH_SPIKE_IMPACT_SHEET_PATH,
+			ELEMENTAL_ATTACK_SHEET_COLUMNS,
+			ELEMENTAL_ATTACK_SHEET_ROWS
+		),
+		"air_gust_travel": _load_sprite_sheet_frames(
+			AIR_GUST_TRAVEL_SHEET_PATH,
+			ELEMENTAL_ATTACK_SHEET_COLUMNS,
+			ELEMENTAL_ATTACK_SHEET_ROWS
+		),
+		"air_gust_impact": _load_sprite_sheet_frames(
+			AIR_GUST_IMPACT_SHEET_PATH,
+			ELEMENTAL_ATTACK_SHEET_COLUMNS,
+			ELEMENTAL_ATTACK_SHEET_ROWS
+		),
+		"lightning_bolt_travel": _load_sprite_sheet_frames(
+			LIGHTNING_BOLT_TRAVEL_SHEET_PATH,
+			ELEMENTAL_ATTACK_SHEET_COLUMNS,
+			ELEMENTAL_ATTACK_SHEET_ROWS
+		),
+		"lightning_bolt_impact": _load_sprite_sheet_frames(
+			LIGHTNING_BOLT_IMPACT_SHEET_PATH,
+			ELEMENTAL_ATTACK_SHEET_COLUMNS,
+			ELEMENTAL_ATTACK_SHEET_ROWS
+		),
+		"ice_shard_travel": _load_sprite_sheet_frames(
+			ICE_SHARD_TRAVEL_SHEET_PATH,
+			ELEMENTAL_ATTACK_SHEET_COLUMNS,
+			ELEMENTAL_ATTACK_SHEET_ROWS
+		),
+		"ice_icicle_impact": _load_sprite_sheet_frames(
+			ICE_ICICLE_IMPACT_SHEET_PATH,
+			ELEMENTAL_ATTACK_SHEET_COLUMNS,
+			ELEMENTAL_ATTACK_SHEET_ROWS
 		),
 		"defense_heal_casts": _load_sprite_sheet_frames(
 			DEFENSE_HEAL_CASTS_PATH,
