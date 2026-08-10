@@ -8,7 +8,7 @@ const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v7"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v8"
 const HAND: Array[String] = [
 	"threaded_path",
 	"sidestep_slash",
@@ -918,12 +918,14 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 	# for every owned relic instead of assuming a populated bar is enough proof.
 	samples.clear()
 	var relic_tooltip_details: Dictionary = {}
-	var relic_bar_var: Variant = instance.get("relic_bar")
-	if typeof(relic_bar_var) == TYPE_OBJECT and is_instance_valid(relic_bar_var):
-		for child: Node in (relic_bar_var as Node).get_children():
+	var sampled_relic_ids: Array[String]
+	var relic_icon_grid_var: Variant = instance.get("_relic_icon_grid")
+	if typeof(relic_icon_grid_var) == TYPE_OBJECT and is_instance_valid(relic_icon_grid_var):
+		for child: Node in (relic_icon_grid_var as Node).get_children():
 			if not child.has_meta("relic_id") or not child.has_method("_make_custom_tooltip"):
 				continue
 			var relic_id: String = str(child.get_meta("relic_id", ""))
+			sampled_relic_ids.append(relic_id)
 			var tooltip_text: String = str((child as Control).tooltip_text) if child is Control else ""
 			var tooltip_started: int = Time.get_ticks_usec()
 			var tooltip_var: Variant = child.call("_make_custom_tooltip", tooltip_text)
@@ -932,6 +934,13 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 			relic_tooltip_details[relic_id] = tooltip_ms
 			if typeof(tooltip_var) == TYPE_OBJECT and is_instance_valid(tooltip_var):
 				(tooltip_var as Object).free()
+	var expected_relic_ids: Array[String]
+	for relic_id: String in RELICS:
+		expected_relic_ids.append(relic_id)
+	sampled_relic_ids.sort()
+	expected_relic_ids.sort()
+	_expect(samples.size() == RELICS.size(), "relic tooltip workload must sample every authored relic")
+	_expect(sampled_relic_ids == expected_relic_ids, "relic tooltip workload must sample the authored relic ids")
 	results["relic_tooltip_build"] = _duration_phase_result(samples, "synchronous_ui_operation")
 	details["relic_tooltips"] = relic_tooltip_details
 	results["details"] = details
