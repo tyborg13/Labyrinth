@@ -3,6 +3,7 @@ class_name SkillTreeView
 
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
@@ -403,7 +404,7 @@ var _detail_content: VBoxContainer
 var _detail_divider: HSeparator
 var _detail_status: Label
 var _detail_title: Label
-var _detail_description: Label
+var _detail_description: RichTextLabel
 var _detail_activation: Label
 var _detail_requirements: Label
 var _detail_unlocks: Label
@@ -803,7 +804,7 @@ func _refresh_responsive_layout() -> void:
 	if _detail_title != null:
 		UiTypography.apply_label_role(_detail_title, UiTypography.ROLE_BODY_LARGE if compact else UiTypography.ROLE_SECTION)
 	if _detail_description != null:
-		UiTypography.apply_label_role(_detail_description, UiTypography.ROLE_CAPTION if compact else UiTypography.ROLE_BODY)
+		UiTypography.apply_rich_text_role(_detail_description, UiTypography.ROLE_CAPTION if compact else UiTypography.ROLE_BODY)
 	_refresh_detail_visibility()
 	call_deferred("_layout_graph_canvas")
 
@@ -925,11 +926,15 @@ func _build_detail_panel() -> Control:
 	_detail_title.add_theme_color_override("font_color", Color("f5ead4"))
 	_detail_content.add_child(_detail_title)
 
-	_detail_description = Label.new()
+	_detail_description = RichTextLabel.new()
 	_detail_description.name = "SkillDetailDescription"
 	_detail_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.apply_label_role(_detail_description, UiTypography.ROLE_BODY)
-	_detail_description.add_theme_color_override("font_color", Color("ddcfb7"))
+	_detail_description.bbcode_enabled = false
+	_detail_description.fit_content = true
+	_detail_description.scroll_active = false
+	_detail_description.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_rich_text_role(_detail_description, UiTypography.ROLE_BODY)
+	_detail_description.add_theme_color_override("default_color", Color("ddcfb7"))
 	_detail_content.add_child(_detail_description)
 
 	_detail_divider = HSeparator.new()
@@ -1093,7 +1098,7 @@ func _refresh_detail() -> void:
 	_detail_status.text = _detail_status_text(_focused_id, state)
 	_detail_status.add_theme_color_override("font_color", _state_color(state).lightened(0.12))
 	_detail_title.text = SkillTreeLibrary.display_name(_focused_id)
-	_detail_description.text = SkillTreeLibrary.description(_focused_id)
+	InlineIconText.apply_to(_detail_description, SkillTreeLibrary.description(_focused_id))
 	_detail_activation.text = "TIMING  ·  %s" % SkillTreeLibrary.activation_kind(_focused_id).to_upper()
 	_detail_requirements.text = _requirements_text(_focused_id)
 	_detail_unlocks.text = _unlocks_text(_focused_id)

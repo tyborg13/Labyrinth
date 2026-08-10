@@ -3,6 +3,7 @@ extends Control
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -8915,7 +8916,7 @@ func _refresh_skill_status_detail() -> void:
 		_skill_status_detail_status.text = status
 		_skill_status_detail_status.add_theme_color_override("font_color", accent)
 	if _skill_status_detail_description != null:
-		_skill_status_detail_description.text = SkillTreeLibrary.description(_skill_status_selected_id)
+		InlineIconText.apply_to(_skill_status_detail_description, SkillTreeLibrary.description(_skill_status_selected_id))
 	for skill_id: String in _skill_status_skill_ids:
 		var tile: Button = _skill_status_tiles.get(skill_id, null) as Button
 		if tile == null:
@@ -12469,17 +12470,21 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	label.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(label)
 
-	var description := Label.new()
-	description.text = str(relic.get("description", ""))
+	var description := RichTextLabel.new()
+	description.name = "RelicChoiceDescription_%s" % relic_id
+	description.bbcode_enabled = false
+	description.fit_content = false
+	description.scroll_active = false
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 76.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(description, UiTypography.SIZE_SMALL)
-	description.add_theme_color_override("font_color", Color("dec9a7"))
+	UiTypography.set_rich_text_size(description, UiTypography.SIZE_SMALL)
+	description.add_theme_color_override("default_color", Color("dec9a7"))
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
+	InlineIconText.apply_to(description, str(relic.get("description", "")))
 	vbox.add_child(description)
 
 func _configure_relic_choice_focus() -> void:
@@ -12854,7 +12859,7 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	_make_equipment_tile_content_passive(price_chip)
 	hbox.add_child(price_chip)
 	if not selling and _run_engine.run_skill_is_ready(_run_state, "layaway"):
-		var hold_button := Button.new()
+		var hold_button := UiTooltipButton.new()
 		hold_button.name = "Layaway_%s" % item_id
 		hold_button.text = "Hold"
 		hold_button.tooltip_text = SkillTreeLibrary.description("layaway")

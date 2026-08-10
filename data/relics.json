@@ -2,7 +2,7 @@
   "iron_lung": {
     "name": "Iron Lung",
     "rarity": "common",
-    "description": "The first health-cost card you play each turn grants {0.reward0.amount} stoneskin.",
+    "description": "The first @icon(health_cost) card you play each turn grants @icon(stoneskin) {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/iron_lung.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -16,7 +16,7 @@
   "ember_lens": {
     "name": "Brightglass Lens",
     "rarity": "rare",
-    "description": "Ranged attacks against enemies in Light gain Chain {amount}.",
+    "description": "@icon(ranged) attacks against enemies in @icon(illuminate) gain @icon(chain) +{amount}.",
     "icon_path": "res://assets/art/relics/brightglass_lens.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -30,7 +30,7 @@
   "pilgrim_boots": {
     "name": "Pilgrim Boots",
     "rarity": "common",
-    "description": "Non-attack Move and Blink actions gain {0.amount} range. Moves leave radius-{1.radius} Light for {1.duration} turns on every tile entered; Blinks light their origin and destination.",
+    "description": "Non-attack @icon(move) and @icon(blink) gain @icon(range) +{0.amount}. @icon(move) leaves @icon(illuminate) {1.radius} @icon(time) {1.duration} on entered tiles; @icon(blink) covers both endpoints.",
     "icon_path": "res://assets/art/relics/pilgrim_boots.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -45,7 +45,7 @@
   "mirror_shard": {
     "name": "Mirror Shard",
     "rarity": "rare",
-    "description": "The first card that creates an illusion each turn grants {0.reward0.amount} card play and {0.reward1.amount} Vision for {0.reward1.duration} turns.",
+    "description": "The first card that creates @icon(illusion) each turn grants @icon(card_play) {0.reward0.amount} and @icon(vision) {0.reward1.amount} @icon(time) {0.reward1.duration}.",
     "icon_path": "res://assets/art/relics/mirror_shard.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -59,7 +59,7 @@
   "coffin_nails": {
     "name": "Coffin Nails",
     "rarity": "common",
-    "description": "While you have block, attacks on your cards inflict +{amount} bleed.",
+    "description": "While you have @icon(block), attacks on your cards inflict @icon(bleed) +{amount}.",
     "icon_path": "res://assets/art/relics/coffin_nails.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -73,7 +73,7 @@
   "reinforced_shield": {
     "name": "Reinforced Shield",
     "rarity": "common",
-    "description": "While you have stoneskin, Block actions grant +{amount} block.",
+    "description": "While you have @icon(stoneskin), @icon(block) actions grant +{amount}.",
     "icon_path": "res://assets/art/relics/reinforced_shield.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -87,7 +87,7 @@
   "iron_buckler": {
     "name": "Iron Buckler",
     "rarity": "common",
-    "description": "The first card each turn that defends without attacking draws {0.reward0.amount}.",
+    "description": "The first card each turn that defends without attacking grants @icon(draw) {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/iron_buckler.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -101,7 +101,7 @@
   "flint_edge": {
     "name": "Flint Edge",
     "rarity": "common",
-    "description": "Melee attacks on Fire cards that also move inflict +{amount} burn.",
+    "description": "@icon(melee) attacks on Fire cards that also @icon(move) inflict @icon(burn) +{amount}.",
     "icon_path": "res://assets/art/relics/flint_edge.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -115,7 +115,7 @@
   "static_soles": {
     "name": "Static Soles",
     "rarity": "common",
-    "description": "The first Lightning card that moves or blinks each turn raises Lightning intensity by {0.reward0.amount} and grants {0.reward1.amount} Vision for {0.reward1.duration} turns.",
+    "description": "The first Lightning card that uses @icon(move) or @icon(blink) each turn grants @icon(element_lightning) +{0.reward0.amount} and @icon(vision) {0.reward1.amount} @icon(time) {0.reward1.duration}.",
     "icon_path": "res://assets/art/relics/static_soles.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -129,7 +129,7 @@
   "mossbound_wraps": {
     "name": "Mossbound Wraps",
     "rarity": "common",
-    "description": "The first Earth card you play while you have block each turn grants {0.reward0.amount} stoneskin.",
+    "description": "The first Earth card you play while you have @icon(block) each turn grants @icon(stoneskin) {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/mossbound_wraps.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -143,7 +143,7 @@
   "tailwind_fletching": {
     "name": "Tailwind Fletching",
     "rarity": "common",
-    "description": "Air push and pull actions deal +{0.amount} damage and move enemies {1.amount} farther.",
+    "description": "Air @icon(push) and @icon(pull) actions deal +{0.amount} damage and force enemies {1.amount} farther.",
     "icon_path": "res://assets/art/relics/tailwind_fletching.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -158,7 +158,7 @@
   "frost_prism": {
     "name": "Frost Prism",
     "rarity": "rare",
-    "description": "Attacks deal +{0.value} damage to frozen enemies. The first frozen enemy killed each turn draws {1.reward0.amount}.",
+    "description": "Attacks deal +{0.value} damage to @icon(freeze) enemies. The first such enemy killed each turn grants @icon(draw) {1.reward0.amount}.",
     "icon_path": "res://assets/art/relics/frost_prism.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -173,7 +173,7 @@
   "storm_capacitor": {
     "name": "Storm Capacitor",
     "rarity": "rare",
-    "description": "Lightning ranged attacks that already chain gain +{amount} Chain range.",
+    "description": "Lightning @icon(ranged) attacks that already @icon(chain) gain @icon(chain) +{amount}.",
     "icon_path": "res://assets/art/relics/storm_capacitor.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -187,7 +187,7 @@
   "gale_tabi": {
     "name": "Gale Tabi",
     "rarity": "rare",
-    "description": "The first time you blink {threshold}+ tiles each turn, draw {value} and gain {card_play} card play.",
+    "description": "The first @icon(blink) {threshold}+ each turn grants @icon(draw) {value} and @icon(card_play) {card_play}.",
     "icon_path": "res://assets/art/relics/gale_tabi.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -201,7 +201,7 @@
   "anchor_chain": {
     "name": "Anchor Chain",
     "rarity": "rare",
-    "description": "While you have block, Push and Pull actions deal +{0.amount} damage and move enemies {1.amount} tile farther.",
+    "description": "While you have @icon(block), @icon(push) and @icon(pull) actions deal +{0.amount} damage and force enemies {1.amount} tile farther.",
     "icon_path": "res://assets/art/relics/anchor_chain.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -216,7 +216,7 @@
   "venom_signet": {
     "name": "Venom Signet",
     "rarity": "rare",
-    "description": "Attacks deal +{0.value} damage to poisoned enemies. Attacks that already poison apply +{1.amount} poison.",
+    "description": "Attacks deal +{0.value} damage to @icon(poison) enemies. Attacks that already inflict @icon(poison) apply +{1.amount}.",
     "icon_path": "res://assets/art/relics/venom_signet.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -231,7 +231,7 @@
   "thawing_charm": {
     "name": "Thawing Charm",
     "rarity": "rare",
-    "description": "Excess healing becomes stoneskin, up to {cap} each turn. The first conversion each turn creates radius-1 Light at you for 2 turns.",
+    "description": "Excess @icon(heal) becomes @icon(stoneskin), up to {cap} each turn. The first conversion each turn creates @icon(illuminate) 1 @icon(time) 2 at you.",
     "icon_path": "res://assets/art/relics/thawing_charm.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -245,7 +245,7 @@
   "ember_siphon": {
     "name": "Ember Siphon",
     "rarity": "rare",
-    "description": "Once per combat, when you kill a Burning enemy, heal {0.reward0.amount} and gain {0.reward1.amount} Fire intensity.",
+    "description": "Once per combat, when you kill an enemy with @icon(burn), gain @icon(heal) {0.reward0.amount} and @icon(element_fire) +{0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/ember_siphon.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -259,7 +259,7 @@
   "bloodglass_knife": {
     "name": "Bloodglass Knife",
     "rarity": "epic",
-    "description": "While at half health or less with no block or stoneskin, your attacks deal +{value} damage.",
+    "description": "While at @icon(health) 50% or less with no @icon(block) or @icon(stoneskin), your attacks deal +{value} damage.",
     "icon_path": "res://assets/art/relics/bloodglass_knife.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -273,7 +273,7 @@
   "cold_mirror": {
     "name": "Cold Mirror",
     "rarity": "epic",
-    "description": "The first time you Freeze an enemy while you have block each turn, turn up to {0.reward0.amount} block into stoneskin.",
+    "description": "The first time you inflict @icon(freeze) while you have @icon(block) each turn, convert up to @icon(block) {0.reward0.amount} into @icon(stoneskin).",
     "icon_path": "res://assets/art/relics/cold_mirror.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -287,7 +287,7 @@
   "thunder_relay": {
     "name": "Thunder Relay",
     "rarity": "epic",
-    "description": "The first time you Shock an enemy while at {min_intensity}+ Lightning intensity each turn, deal {0.reward0.amount} damage to all enemies.",
+    "description": "The first time you inflict @icon(shock) while at @icon(element_lightning) {min_intensity}+ each turn, deal {0.reward0.amount} damage to all enemies.",
     "icon_path": "res://assets/art/relics/thunder_relay.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -301,7 +301,7 @@
   "thornmail_brooch": {
     "name": "Thornmail Brooch",
     "rarity": "epic",
-    "description": "Whenever you gain stoneskin, deal half that much damage to adjacent enemies, up to {max_value}.",
+    "description": "Whenever you gain @icon(stoneskin), deal half that much damage to adjacent enemies, up to {max_value}.",
     "icon_path": "res://assets/art/relics/thornmail_brooch.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -315,7 +315,7 @@
   "vaulting_sigil": {
     "name": "Vaulting Sigil",
     "rarity": "epic",
-    "description": "The first time you move or blink {threshold}+ tiles each turn, gain {0.reward0.amount} card play and {0.reward1.amount} block.",
+    "description": "The first @icon(move) or @icon(blink) {threshold}+ each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/vaulting_sigil.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -329,7 +329,7 @@
   "obsidian_heart": {
     "name": "Obsidian Heart",
     "rarity": "epic",
-    "description": "Draw {0.abs_value} fewer opening card. At turn end, convert all remaining block into stoneskin.",
+    "description": "Opening @icon(draw) {0.value}. At turn end, convert all remaining @icon(block) into @icon(stoneskin).",
     "icon_path": "res://assets/art/relics/obsidian_heart.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -344,7 +344,7 @@
   "storm_crown": {
     "name": "Storm Crown",
     "rarity": "legendary",
-    "description": "After you play a third Lightning card in one turn, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
+    "description": "After you play a third Lightning card in one turn, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/storm_crown.png",
     "accent": "#d9862f",
     "design_version": 2,
@@ -358,7 +358,7 @@
   "phoenix_ember": {
     "name": "Phoenix Ember",
     "rarity": "legendary",
-    "description": "Gain {0.value} Defiance this run. When Defiance triggers, dispel {1.reward0.amount} Umbra, burn all enemies for {1.reward1.amount}, draw {1.reward2.amount}, and gain {1.reward3.amount} card plays.",
+    "description": "Gain @icon(defiance) {0.value} this run. When it triggers, @icon(dispel_umbra) {1.reward0.amount}, inflict @icon(burn) {1.reward1.amount} on all enemies, gain @icon(draw) {1.reward2.amount}, and @icon(card_play) {1.reward3.amount}.",
     "icon_path": "res://assets/art/relics/phoenix_ember.png",
     "accent": "#d9862f",
     "design_version": 2,
@@ -373,7 +373,7 @@
   "worldroot_idol": {
     "name": "Worldroot Idol",
     "rarity": "legendary",
-    "description": "Start combat with {0.value} stoneskin per Earth card, up to {0.max_value}. The first time you gain stoneskin each turn, gain {1.amount} Earth intensity.",
+    "description": "Start combat with @icon(stoneskin) {0.value} per Earth card, up to {0.max_value}. The first gain each turn also grants @icon(element_earth) +{1.amount}.",
     "icon_path": "res://assets/art/relics/worldroot_idol.png",
     "accent": "#d9862f",
     "design_version": 2,
@@ -388,7 +388,7 @@
   "cinderbrand_tongs": {
     "name": "Cinderbrand Tongs",
     "rarity": "common",
-    "description": "The first attack each turn that applies Burn raises Fire intensity by {0.amount} and creates radius-{1.radius} Light at its target for {1.duration} turns.",
+    "description": "The first attack each turn that applies @icon(burn) grants @icon(element_fire) +{0.amount} and creates @icon(illuminate) {1.radius} @icon(time) {1.duration} at its target.",
     "icon_path": "res://assets/art/relics/cinderbrand_tongs.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -403,7 +403,7 @@
   "rimecatcher_vial": {
     "name": "Rimecatcher Vial",
     "rarity": "common",
-    "description": "The first Freeze you apply each turn raises Ice intensity by {0.amount}. Once each turn, when Ice intensity reaches {1.threshold}+, consume {1.consume} Ice and gain {1.reward0.amount} block.",
+    "description": "The first @icon(freeze) you apply each turn grants @icon(element_ice) +{0.amount}. Once each turn at @icon(element_ice) {1.threshold}+, spend {1.consume} and gain @icon(block) {1.reward0.amount}.",
     "icon_path": "res://assets/art/relics/rimecatcher_vial.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -418,7 +418,7 @@
   "ion_spool": {
     "name": "Ion Spool",
     "rarity": "common",
-    "description": "The first Shock you apply each turn raises Lightning intensity by {0.amount}. Once each turn, when Lightning intensity reaches {1.threshold}+, consume {1.consume} Lightning and deal {1.reward0.amount} damage to all enemies.",
+    "description": "The first @icon(shock) you apply each turn grants @icon(element_lightning) +{0.amount}. Once each turn at @icon(element_lightning) {1.threshold}+, spend {1.consume} and deal {1.reward0.amount} damage to all enemies.",
     "icon_path": "res://assets/art/relics/ion_spool.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -433,7 +433,7 @@
   "updraft_bottle": {
     "name": "Updraft Bottle",
     "rarity": "rare",
-    "description": "Your first Blink each turn raises Air intensity by {0.amount}. Once each turn, when Air intensity reaches {1.threshold}+, consume {1.consume} Air, draw {1.reward0.amount}, and gain {1.reward1.amount} card play.",
+    "description": "Your first @icon(blink) each turn grants @icon(element_air) +{0.amount}. Once each turn at @icon(element_air) {1.threshold}+, spend {1.consume}, gain @icon(draw) {1.reward0.amount}, and @icon(card_play) {1.reward1.amount}.",
     "icon_path": "res://assets/art/relics/updraft_bottle.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -448,7 +448,7 @@
   "basalt_calendar": {
     "name": "Basalt Calendar",
     "rarity": "rare",
-    "description": "Once per combat, after you play your first Earth card, gain 1 stoneskin per Earth card in your deck, up to {0.reward0.max_value}; then gain 1 Earth intensity per {0.reward1.cards_per_point} Earth cards, up to {0.reward1.max_value}.",
+    "description": "Once per combat after your first Earth card, gain @icon(stoneskin) 1 per Earth card in your deck, up to {0.reward0.max_value}; then gain @icon(element_earth) +1 per {0.reward1.cards_per_point} Earth cards, up to {0.reward1.max_value}.",
     "icon_path": "res://assets/art/relics/basalt_calendar.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -462,7 +462,7 @@
   "coalheart_crucible": {
     "name": "Coalheart Crucible",
     "rarity": "rare",
-    "description": "Once each turn, when Fire intensity reaches {threshold}+, consume {consume} Fire, gain {0.reward0.amount} card plays, and burn all enemies for {0.reward1.amount}.",
+    "description": "Once each turn at @icon(element_fire) {threshold}+, spend {consume}, gain @icon(card_play) {0.reward0.amount}, and inflict @icon(burn) {0.reward1.amount} on all enemies.",
     "icon_path": "res://assets/art/relics/coalheart_crucible.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -476,7 +476,7 @@
   "voltaic_tuning_fork": {
     "name": "Stormglass Beacon",
     "rarity": "rare",
-    "description": "The first Chain attack each turn creates radius-{radius} Light for {duration} turns beneath every enemy it hits.",
+    "description": "The first @icon(chain) attack each turn creates @icon(illuminate) {radius} @icon(time) {duration} beneath every enemy it hits.",
     "icon_path": "res://assets/art/relics/stormglass_beacon.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -490,7 +490,7 @@
   "tectonic_abacus": {
     "name": "Captured Noon",
     "rarity": "epic",
-    "description": "At 3 active Light sources, suppress Umbra by one stage; at 6, suppress it by two. Suppression is reversible and never goes below Clear.",
+    "description": "At 3 active @icon(illuminate) sources, suppress @icon(umbra) 1 stage; at 6, suppress 2. Reverses as sources fade; never below Clear.",
     "icon_path": "res://assets/art/relics/captured_noon.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -504,7 +504,7 @@
   "overflow_censer": {
     "name": "Overflow Censer",
     "rarity": "epic",
-    "description": "The first time {required_elements} elements reach {threshold}+ intensity in one combat, gain {0.reward0.amount} stoneskin, draw {0.reward1.amount}, and gain {0.reward2.amount} card plays.",
+    "description": "The first time {required_elements} elements reach @icon(elemental_intensity) {threshold}+ in one combat, gain @icon(stoneskin) {0.reward0.amount}, @icon(draw) {0.reward1.amount}, and @icon(card_play) {0.reward2.amount}.",
     "icon_path": "res://assets/art/relics/overflow_censer.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -518,7 +518,7 @@
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "Once per combat, when all {required_elements} elements reach {threshold}+ intensity, consume {consume} from each, deal {0.reward0.amount} to all enemies, gain {0.reward1.amount} stoneskin, draw {0.reward2.amount}, and gain {0.reward3.amount} card plays.",
+    "description": "Once per combat, when all {required_elements} elements reach @icon(elemental_intensity) {threshold}+, spend {consume} from each, deal {0.reward0.amount} to all enemies, gain @icon(stoneskin) {0.reward1.amount}, @icon(draw) {0.reward2.amount}, and @icon(card_play) {0.reward3.amount}.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "design_version": 2,
@@ -532,7 +532,7 @@
   "duelist_whetstone": {
     "name": "Duelist Whetstone",
     "rarity": "common",
-    "description": "Attacks on the first card each turn that also moves or blinks deal +{value} damage.",
+    "description": "Attacks on the first card each turn that also uses @icon(move) or @icon(blink) deal +{value} damage.",
     "icon_path": "res://assets/art/relics/duelist_whetstone.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -546,7 +546,7 @@
   "hollow_die": {
     "name": "Open-Eyed Pin",
     "rarity": "common",
-    "description": "When a card grants Vision or Truesight, create radius-{0.reward0.radius} Light at you for that effect's final duration.",
+    "description": "When a card grants @icon(vision) or @icon(truesight), create @icon(illuminate) {0.reward0.radius} at you matching that effect's @icon(time).",
     "icon_path": "res://assets/art/relics/open_eyed_pin.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -560,7 +560,7 @@
   "chorus_mask": {
     "name": "Chorus Mask",
     "rarity": "rare",
-    "description": "The first time you play an elemental card after a card of a different element each turn, gain {0.reward0.amount} card play and {0.reward1.amount} block.",
+    "description": "The first elemental card played after a different element each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/chorus_mask.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -574,7 +574,7 @@
   "hourglass_splinter": {
     "name": "Hourglass Splinter",
     "rarity": "rare",
-    "description": "The first card with {min_time}+ Time each turn grants {0.reward0.amount} card play and {0.reward1.amount} block.",
+    "description": "The first card with @icon(time) {min_time}+ each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/hourglass_splinter.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -588,7 +588,7 @@
   "widow_thread": {
     "name": "Widow Thread",
     "rarity": "rare",
-    "description": "While an illusion exists, your attacks inflict +{amount} expose.",
+    "description": "While @icon(illusion) exists, your attacks inflict @icon(expose) +{amount}.",
     "icon_path": "res://assets/art/relics/widow_thread.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -602,7 +602,7 @@
   "funeral_bell": {
     "name": "Funeral Bell",
     "rarity": "epic",
-    "description": "After a third statused enemy dies each combat, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
+    "description": "After a third statused enemy dies each combat, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/funeral_bell.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -616,7 +616,7 @@
   "bloodmoon_chalice": {
     "name": "Bloodmoon Chalice",
     "rarity": "epic",
-    "description": "The first health-cost card you finish at half health or less each combat heals {0.reward0.amount}, draws {0.reward1.amount}, and grants {0.reward2.amount} card play.",
+    "description": "The first @icon(health_cost) card you finish at @icon(health) 50% or less each combat grants @icon(heal) {0.reward0.amount}, @icon(draw) {0.reward1.amount}, and @icon(card_play) {0.reward2.amount}.",
     "icon_path": "res://assets/art/relics/bloodmoon_chalice.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -630,7 +630,7 @@
   "moonless_compass": {
     "name": "Moonless Compass",
     "rarity": "epic",
-    "description": "Once per combat, after one card moves or blinks you and another creates Light, grants Vision or Truesight, or dispels Umbra in the same turn, gain {0.reward0.amount} stoneskin and {0.reward1.amount} card plays.",
+    "description": "Once per combat, after one card uses @icon(move) or @icon(blink) and another creates @icon(illuminate), grants @icon(vision) or @icon(truesight), or uses @icon(dispel_umbra) in the same turn, gain @icon(stoneskin) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/moonless_compass.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -644,7 +644,7 @@
   "fivefold_knot": {
     "name": "Fivefold Knot",
     "rarity": "legendary",
-    "description": "Once per combat, after you play all {unique_elements_threshold} elements in one turn, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
+    "description": "Once per combat, after you play all {unique_elements_threshold} elements in one turn, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/fivefold_knot.png",
     "accent": "#d9862f",
     "design_version": 2,
@@ -658,7 +658,7 @@
   "borrowed_hourglass": {
     "name": "Borrowed Hourglass",
     "rarity": "legendary",
-    "description": "The first time a banked play pays for a {min_time}+ Time card each combat, draw {0.reward0.amount} and gain {0.reward1.amount} card plays.",
+    "description": "The first banked @icon(card_play) spent on a @icon(time) {min_time}+ card each combat grants @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/borrowed_hourglass.png",
     "accent": "#d9862f",
     "design_version": 2,
@@ -672,7 +672,7 @@
   "dawnbrand_filament": {
     "name": "Dawnbrand Filament",
     "rarity": "common",
-    "description": "The first direct attack each turn creates radius-{radius} Light at its target for {duration} turns.",
+    "description": "The first direct attack each turn creates @icon(illuminate) {radius} @icon(time) {duration} at its target.",
     "icon_path": "res://assets/art/relics/dawnbrand_filament.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -686,7 +686,7 @@
   "glowstone_matrix": {
     "name": "Glowstone Matrix",
     "rarity": "common",
-    "description": "Cards containing a stoneskin action also grant {action.amount} Vision for {action.duration} turns.",
+    "description": "Cards containing a @icon(stoneskin) action also grant @icon(vision) {action.amount} @icon(time) {action.duration}.",
     "icon_path": "res://assets/art/relics/glowstone_matrix.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -700,7 +700,7 @@
   "briar_winch": {
     "name": "Briar Winch",
     "rarity": "common",
-    "description": "Push and Pull actions move poisoned enemies {amount} additional tile.",
+    "description": "@icon(push) and @icon(pull) actions force @icon(poison) enemies {amount} additional tile.",
     "icon_path": "res://assets/art/relics/briar_winch.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -714,7 +714,7 @@
   "hourglass_awl": {
     "name": "Hourglass Awl",
     "rarity": "common",
-    "description": "Attacks on cards with {min_time}+ Time gain Pierce.",
+    "description": "Attacks on cards with @icon(time) {min_time}+ gain @icon(pierce).",
     "icon_path": "res://assets/art/relics/hourglass_awl.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -728,7 +728,7 @@
   "beaconrunner_spurs": {
     "name": "Beaconrunner Spurs",
     "rarity": "rare",
-    "description": "The first Move or Blink each turn that ends in Light grants {0.reward0.amount} card play and {0.reward1.amount} block.",
+    "description": "The first @icon(move) or @icon(blink) each turn that ends in @icon(illuminate) grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/beaconrunner_spurs.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -742,7 +742,7 @@
   "true_north": {
     "name": "True North",
     "rarity": "rare",
-    "description": "While you have Truesight, ranged actions gain +{amount} range.",
+    "description": "While you have @icon(truesight), @icon(ranged) actions gain @icon(range) +{amount}.",
     "icon_path": "res://assets/art/relics/true_north.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -756,7 +756,7 @@
   "dawnstitch_cord": {
     "name": "Dawnstitch Cord",
     "rarity": "rare",
-    "description": "The first card each turn that creates Light, grants Vision or Truesight, or dispels Umbra grants {0.reward0.amount} block.",
+    "description": "The first card each turn that creates @icon(illuminate), grants @icon(vision) or @icon(truesight), or uses @icon(dispel_umbra) grants @icon(block) {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/dawnstitch_cord.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -770,7 +770,7 @@
   "starless_astrolabe": {
     "name": "Starless Astrolabe",
     "rarity": "rare",
-    "description": "While you have Truesight, attacks that Freeze or Shock create radius-{radius} Light for {duration} turns beneath affected enemies.",
+    "description": "While you have @icon(truesight), attacks that inflict @icon(freeze) or @icon(shock) create @icon(illuminate) {radius} @icon(time) {duration} beneath affected enemies.",
     "icon_path": "res://assets/art/relics/starless_astrolabe.png",
     "accent": "#4b84d8",
     "design_version": 2,
@@ -784,7 +784,7 @@
   "witchglass_carapace": {
     "name": "Witchglass Carapace",
     "rarity": "epic",
-    "description": "Ranged enemy attacks deal at most {max_damage} damage to illusions. Melee attacks are unchanged.",
+    "description": "@icon(ranged) enemy attacks deal at most {max_damage} damage to @icon(illusion). @icon(melee) attacks are unchanged.",
     "icon_path": "res://assets/art/relics/witchglass_carapace.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -798,7 +798,7 @@
   "witchglass_lantern": {
     "name": "Witchglass Lantern",
     "rarity": "epic",
-    "description": "Living illusions add {radius} radius to their tethered Light. It ends immediately when the illusion is removed.",
+    "description": "Each living @icon(illusion) adds +{radius} to its tethered @icon(illuminate), which ends immediately when the copy is removed.",
     "icon_path": "res://assets/art/relics/witchglass_lantern.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -812,7 +812,7 @@
   "sunlit_edge": {
     "name": "Sunlit Edge",
     "rarity": "epic",
-    "description": "While you stand in Light, your attacks gain Pierce.",
+    "description": "While you stand in @icon(illuminate), your attacks gain @icon(pierce).",
     "icon_path": "res://assets/art/relics/sunlit_edge.png",
     "accent": "#9b62d6",
     "design_version": 2,
@@ -826,7 +826,7 @@
   "glassway_compass": {
     "name": "Glassway Compass",
     "rarity": "legendary",
-    "description": "The first Blink each turn creates a 2-health illusion on the tile you left.",
+    "description": "The first @icon(blink) each turn creates @icon(illusion) 2 on the tile you left.",
     "icon_path": "res://assets/art/relics/glassway_compass.png",
     "accent": "#d9862f",
     "design_version": 2,
@@ -840,7 +840,7 @@
   "unclouded_sun": {
     "name": "Unclouded Sun",
     "rarity": "legendary",
-    "description": "Once per combat, when a room that began with Umbra first becomes Clear, gain {0.reward0.amount} stoneskin, draw {0.reward1.amount}, and gain {0.reward2.amount} card plays.",
+    "description": "Once per combat, when a room that began with @icon(umbra) first becomes Clear, gain @icon(stoneskin) {0.reward0.amount}, @icon(draw) {0.reward1.amount}, and @icon(card_play) {0.reward2.amount}.",
     "icon_path": "res://assets/art/relics/unclouded_sun.png",
     "accent": "#d9862f",
     "design_version": 2,

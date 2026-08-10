@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T21:00:06Z",
+  "updated_at": "2026-08-10T03:58:10Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7753,6 +7753,28 @@
       "source": {
         "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
         "commit": "f2ca26a"
+      }
+    },
+    {
+      "id": "mnt_20260810T035810Z_812d4b1b",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/inline_icon_text.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/inline_icon_text.gd",
+      "summary": "Build inline RichTextLabel icons from AssetLoader textures",
+      "details": "Direct RichTextLabel/BBCode image paths can fail in clean parallel-task HOME environments because imported-resource caches are absent. Load through ActionIconLibrary.icon_texture (which uses AssetLoader) and insert with RichTextLabel.add_image so source PNG fallback, tooltips, and alt text remain available.",
+      "status": "active",
+      "created_at": "2026-08-10T03:58:10Z",
+      "updated_at": "2026-08-10T03:58:10Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/inline-icons-in-relic-and-ability-descriptions",
+        "commit": "c326918"
       }
     }
   ]

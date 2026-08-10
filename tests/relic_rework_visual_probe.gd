@@ -143,27 +143,18 @@ func _validate_relic_choices(
 		if panel == null:
 			continue
 		_expect(viewport_rect.encloses(panel.get_global_rect()), "%s %s card should remain inside the viewport" % [label, relic_id])
-		var description: Label = _description_label(panel, str(GameData.relic_def(relic_id).get("description", "")))
+		var description: RichTextLabel = panel.find_child("RelicChoiceDescription_%s" % relic_id, true, false) as RichTextLabel
 		_expect(description != null, "%s %s should display its exact rules text" % [label, relic_id])
 		if description == null:
 			continue
 		_expect(
-			description.get_visible_line_count() >= description.get_line_count(),
+		description.get_content_height() <= description.size.y + 1.0,
 			"%s %s rules text should not clip vertically" % [label, relic_id]
 		)
 		_expect(
 			panel.get_global_rect().encloses(description.get_global_rect()),
 			"%s %s rules text should remain inside its card" % [label, relic_id]
 		)
-
-
-func _description_label(panel: Control, expected_text: String) -> Label:
-	for node: Node in panel.find_children("*", "Label", true, false):
-		var label := node as Label
-		if label != null and label.text == expected_text:
-			return label
-	return null
-
 
 func _run_state_for_room(run_engine: RunEngine, source_state: Dictionary, coord: Vector2i) -> Dictionary:
 	var state: Dictionary = source_state.duplicate(true)
