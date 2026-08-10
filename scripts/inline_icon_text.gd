@@ -5,7 +5,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 
 const TOKEN_PREFIX: String = "@icon("
 const TOKEN_SUFFIX: String = ")"
-const DEFAULT_ICON_SCALE: float = 1.0
+const DEFAULT_ICON_SCALE: float = 1.15
 
 
 static func has_icons(markup: String) -> bool:
@@ -44,6 +44,9 @@ static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = D
 	label.clear()
 	var font_size: int = label.get_theme_font_size("normal_font_size")
 	var icon_size: float = maxf(12.0, float(font_size) * icon_scale)
+	label.set_meta("inline_icon_keys", icon_keys(markup))
+	label.set_meta("inline_icon_font_size", font_size)
+	label.set_meta("inline_icon_size", icon_size)
 	var cursor: int = 0
 	while cursor < markup.length():
 		var token_start: int = markup.find(TOKEN_PREFIX, cursor)

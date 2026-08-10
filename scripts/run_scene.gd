@@ -1179,9 +1179,9 @@ const SKILL_SIGIL_PREVIEW_ICON_SIZE: Vector2 = Vector2(28.0, 28.0)
 const SKILL_SIGIL_PREVIEW_COUNT: int = 2
 const SKILL_SIGIL_COMPACT_PREVIEW_COUNT: int = 1
 const SKILL_SIGIL_COMPACT_VIEWPORT_WIDTH: float = 1100.0
-const SKILL_STATUS_POPOVER_SIZE: Vector2 = Vector2(800.0, 492.0)
+const SKILL_STATUS_POPOVER_SIZE: Vector2 = Vector2(880.0, 540.0)
 const SKILL_STATUS_TILE_SIZE: Vector2 = Vector2(132.0, 92.0)
-const SKILL_STATUS_DETAIL_HEIGHT: float = 136.0
+const SKILL_STATUS_DETAIL_HEIGHT: float = 170.0
 const SKILL_STATUS_PAGE_SIZE: int = 10
 const SKILL_STATUS_GRID_COLUMNS: int = 5
 const SKILL_CARD_SELECTION_PROMPT_SIZE: Vector2 = Vector2(620.0, 56.0)
@@ -1210,8 +1210,8 @@ const MERCHANT_ICON_SIZE: Vector2 = Vector2(44.0, 44.0)
 const MERCHANT_TITLE_BLACKSMITH: String = "BLACKSMITH"
 const MERCHANT_TITLE_ARCANIST: String = "ARCANIST"
 const MERCHANT_TITLE_SCAVENGER: String = "SCAVENGER"
-const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
-const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
+const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1120.0, 312.0)
+const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
 const REWARD_CHOICE_CARD_GAP: float = 30.0
 const REWARD_CHOICE_STACK_GAP: float = 18.0
@@ -2434,7 +2434,7 @@ func _build_skill_status_popover() -> void:
 	_skill_status_detail_description.scroll_active = false
 	_skill_status_detail_description.bbcode_enabled = false
 	_skill_status_detail_description.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	UiTypography.apply_rich_text_role(_skill_status_detail_description, UiTypography.ROLE_CAPTION)
+	UiTypography.apply_rich_text_role(_skill_status_detail_description, UiTypography.ROLE_BODY_LARGE)
 	_skill_status_detail_description.add_theme_color_override("default_color", Color("cbbbd5"))
 	detail_copy.add_child(_skill_status_detail_description)
 	_skill_status_action_button = Button.new()
@@ -12462,9 +12462,9 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
+	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 40.0, 34.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE)
 	label.add_theme_color_override("font_color", Color("fff1d5"))
 	label.add_theme_color_override("font_outline_color", Color("26180f"))
 	label.add_theme_constant_override("outline_size", 2)
@@ -12478,9 +12478,9 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 76.0)
+	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 40.0, 122.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_rich_text_size(description, UiTypography.SIZE_SMALL)
+	UiTypography.set_rich_text_size(description, UiTypography.SIZE_BODY_LARGE)
 	description.add_theme_color_override("default_color", Color("dec9a7"))
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)

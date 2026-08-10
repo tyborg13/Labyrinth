@@ -5,6 +5,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const OUTPUT_DIR: String = "user://relic_rework_visual_probe"
 const PROGRESSION_PATH: String = "user://relic_rework_visual_progression.json"
@@ -147,8 +148,11 @@ func _validate_relic_choices(
 		_expect(description != null, "%s %s should display its exact rules text" % [label, relic_id])
 		if description == null:
 			continue
+		var font_size: int = description.get_theme_font_size("normal_font_size")
+		_expect(font_size >= UiTypography.SIZE_BODY_LARGE, "%s %s rules text should use the enlarged readable type tier" % [label, relic_id])
+		_expect(float(description.get_meta("inline_icon_size", 0.0)) > float(font_size), "%s %s mechanic icons should be larger than the surrounding rules text" % [label, relic_id])
 		_expect(
-		description.get_content_height() <= description.size.y + 1.0,
+			description.get_content_height() <= description.size.y + 1.0,
 			"%s %s rules text should not clip vertically" % [label, relic_id]
 		)
 		_expect(

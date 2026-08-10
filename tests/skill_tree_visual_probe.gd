@@ -6,6 +6,7 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const OUTPUT_DIR: String = "user://probes/skill_tree_ui_rubric_v2"
 const STORAGE_PATH: String = "user://skill_tree_visual_progression.json"
@@ -463,6 +464,8 @@ func _capture_combat_surfaces(
 	var description := popover.find_child("SkillStatusSelectedDescription", true, false) as RichTextLabel
 	_expect(popover.get_global_rect() == fixed_popover_rect, "%s The longest description must not resize the Abilities panel" % viewport_size)
 	_expect(description != null and description.get_content_height() <= description.size.y + 1.0, "%s The longest description should fit without clipping" % viewport_size)
+	_expect(description != null and description.get_theme_font_size("normal_font_size") >= UiTypography.SIZE_BODY_LARGE, "%s Ability rules should use the enlarged readable type tier" % viewport_size)
+	_expect(description != null and float(description.get_meta("inline_icon_size", 0.0)) > float(description.get_theme_font_size("normal_font_size")), "%s Ability mechanic icons should be larger than their rules text" % viewport_size)
 	await _save_screenshot(viewport, "%s/05b_long_description_fixed_panel.png" % output_dir)
 	instance.call("_show_skill_status_page_for_skill", "measured_breath")
 	await _settle()
@@ -666,6 +669,11 @@ func _assert_skill_modal_contained(
 		"SkillDetailReason",
 	]:
 		_expect(tree.find_child(control_name, true, false) != null, "%s should retain %s" % [label, control_name])
+	var detail_description := tree.find_child("SkillDetailDescription", true, false) as RichTextLabel
+	if detail_description != null:
+		var detail_font_size: int = detail_description.get_theme_font_size("normal_font_size")
+		_expect(detail_font_size >= UiTypography.SIZE_BODY_LARGE, "%s focused rules should use the enlarged readable type tier" % label)
+		_expect(float(detail_description.get_meta("inline_icon_size", 0.0)) > float(detail_font_size), "%s focused mechanic icons should be larger than the rules text" % label)
 
 func _assert_tree_fit_contract(tree: SkillTreeView, viewport_size: Vector2i, label: String) -> void:
 	if tree == null:

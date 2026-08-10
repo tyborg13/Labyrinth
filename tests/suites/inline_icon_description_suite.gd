@@ -3,6 +3,7 @@ extends RefCounted
 const GameData = preload("res://scripts/game_data.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const ICONLESS_SKILLS: Array[String] = [
 	"curators_patience",
@@ -73,6 +74,12 @@ static func run(expect: Callable) -> void:
 
 	var example: String = "Create @icon(illuminate) 2 for @icon(time) 2."
 	expect.call(InlineIconText.plain_text(example) == "Create Illuminate 2 for Time 2.", "Inline icon rules should retain an accessible plain-text expansion")
+	var rendered := RichTextLabel.new()
+	rendered.add_theme_font_size_override("normal_font_size", UiTypography.SIZE_BODY_LARGE)
+	InlineIconText.apply_to(rendered, example)
+	expect.call(int(rendered.get_meta("inline_icon_font_size", 0)) == UiTypography.SIZE_BODY_LARGE, "Inline icon rules should retain the enlarged rules-text size")
+	expect.call(float(rendered.get_meta("inline_icon_size", 0.0)) > float(UiTypography.SIZE_BODY_LARGE), "Inline mechanic icons should render larger than their surrounding rules text")
+	rendered.free()
 
 
 static func _audit_description(expect: Callable, source: String, description: String) -> void:

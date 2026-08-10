@@ -12,6 +12,7 @@ const PANEL_COLOR: Color = Color(0.12, 0.08, 0.055, 0.98)
 const BORDER_COLOR: Color = Color("c79652")
 const MIN_PANEL_WIDTH: float = 250.0
 const MAX_BODY_WIDTH: float = 340.0
+const INLINE_TEXT_WIDTH: float = 380.0
 const ICON_TOOLTIP_WIDTH: float = 306.0
 const ICON_SIZE: float = 42.0
 const ICON_BODY_WIDTH: float = 226.0
@@ -93,7 +94,7 @@ static func _make_text_box(
 	if not body_lines.is_empty():
 		var body_text: String = "\n".join(body_lines)
 		if InlineIconText.has_icons(body_text):
-			vbox.add_child(_make_rich_label(body_text, body_width, UiTypography.ROLE_BODY, BODY_COLOR, 1))
+			vbox.add_child(_make_rich_label(body_text, body_width, UiTypography.ROLE_BODY_LARGE, BODY_COLOR, 1))
 		else:
 			var body_label := Label.new()
 			body_label.text = body_text
@@ -115,7 +116,7 @@ static func _make_rich_label(markup: String, body_width: float, role: String, co
 	label.scroll_active = false
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(body_width, 0.0)
+	label.custom_minimum_size = Vector2(maxf(body_width, INLINE_TEXT_WIDTH), 0.0)
 	UiTypography.apply_rich_text_role(label, role)
 	label.add_theme_color_override("default_color", color)
 	label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)

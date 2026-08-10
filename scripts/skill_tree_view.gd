@@ -19,8 +19,8 @@ const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
 const GRAPH_SIZE: Vector2 = Vector2(SkillTreeLibrary.LAYOUT_CANVAS_SIZE)
-const DETAIL_WIDTH: float = 280.0
-const COMPACT_DETAIL_WIDTH: float = 350.0
+const DETAIL_WIDTH: float = 320.0
+const COMPACT_DETAIL_WIDTH: float = 370.0
 const COMPACT_LAYOUT_WIDTH: float = 1300.0
 const LINK_NODE_CLEARANCE: float = 8.0
 const LINK_ENDPOINT_EXPOSURE: float = 10.0
@@ -804,7 +804,7 @@ func _refresh_responsive_layout() -> void:
 	if _detail_title != null:
 		UiTypography.apply_label_role(_detail_title, UiTypography.ROLE_BODY_LARGE if compact else UiTypography.ROLE_SECTION)
 	if _detail_description != null:
-		UiTypography.apply_rich_text_role(_detail_description, UiTypography.ROLE_CAPTION if compact else UiTypography.ROLE_BODY)
+		UiTypography.apply_rich_text_role(_detail_description, UiTypography.ROLE_BODY if compact else UiTypography.ROLE_BODY_LARGE)
 	_refresh_detail_visibility()
 	call_deferred("_layout_graph_canvas")
 
@@ -933,7 +933,7 @@ func _build_detail_panel() -> Control:
 	_detail_description.fit_content = true
 	_detail_description.scroll_active = false
 	_detail_description.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.apply_rich_text_role(_detail_description, UiTypography.ROLE_BODY)
+	UiTypography.apply_rich_text_role(_detail_description, UiTypography.ROLE_BODY_LARGE)
 	_detail_description.add_theme_color_override("default_color", Color("ddcfb7"))
 	_detail_content.add_child(_detail_description)
 
