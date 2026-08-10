@@ -9156,7 +9156,7 @@ func _refresh_skill_status_detail(previous_selected_id: String = "") -> void:
 	performance_phase_started = _record_runtime_performance_phase("ability_detail_heading", performance_phase_started)
 	if _skill_status_detail_description != null:
 		InlineIconText.apply_to(_skill_status_detail_description, SkillTreeLibrary.description(_skill_status_selected_id))
-		performance_phase_started = _record_runtime_performance_phase("ability_detail_description", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("ability_detail_description", performance_phase_started)
 	var style_skill_ids: Array[String]
 	if not previous_selected_id.is_empty():
 		style_skill_ids.append(previous_selected_id)

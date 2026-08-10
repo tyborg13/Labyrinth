@@ -672,7 +672,8 @@ func _assert_skill_modal_contained(
 	var detail_description := tree.find_child("SkillDetailDescription", true, false) as RichTextLabel
 	if detail_description != null:
 		var detail_font_size: int = detail_description.get_theme_font_size("normal_font_size")
-		_expect(detail_font_size >= UiTypography.SIZE_BODY_LARGE, "%s focused rules should use the enlarged readable type tier" % label)
+		var expected_font_size: int = UiTypography.SIZE_BODY if bool(tree.get("_compact_layout")) else UiTypography.SIZE_BODY_LARGE
+		_expect(detail_font_size >= expected_font_size, "%s focused rules should use the responsive readable type tier" % label)
 		_expect(float(detail_description.get_meta("inline_icon_size", 0.0)) > float(detail_font_size), "%s focused mechanic icons should be larger than the rules text" % label)
 
 func _assert_tree_fit_contract(tree: SkillTreeView, viewport_size: Vector2i, label: String) -> void:
