@@ -1,0 +1,54 @@
+{
+  "min_images": 24,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*fireball_10_launch.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}
+      ]
+    },
+    {
+      "pattern": "*fireball_20_midflight.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}
+      ]
+    },
+    {
+      "pattern": "*fireball_30_impact.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}
+      ]
+    },
+    {
+      "pattern": "*fireball_40_falloff.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}
+      ]
+    },
+    {
+      "pattern": "*fireball_50_cleared.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 50, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*fireball_60_reduced_motion_impact.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}
+      ]
+    }
+  ]
+}

@@ -3,6 +3,7 @@ extends Control
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -14935,6 +14936,7 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 			var force_tiles: Array[Vector2i] = _combat_engine.forced_movement_tiles_for_player_action(state, action, target_tile)
 			return {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
+				"action_type": action_type,
 				"from": from_tile,
 				"to": target_tile,
 				"preview": true,
@@ -16967,6 +16969,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				focus_tiles = _aoe_tiles_for_action(before_state, action, effect_target_tile)
 			var effect := {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
+				"action_type": action_type,
 				"from": player_before_tile,
 				"to": effect_target_tile,
 				"center": effect_target_tile,
@@ -16978,8 +16981,10 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			_play_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
 			var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
 			var to_point: Vector2 = board_view.world_position_for_tile(effect_target_tile)
-			for frame: int in range(1, ATTACK_FRAMES + 1):
-				var t: float = float(frame) / float(ATTACK_FRAMES)
+			var attack_frame_count: int = AttackFxLibrary.animation_frame_count(effect, ATTACK_FRAMES, _reduced_motion_enabled())
+			var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+			for frame: int in range(1, attack_frame_count + 1):
+				var t: float = float(frame) / float(attack_frame_count)
 				var presentation := {
 					"focus_actor_keys": ["player"],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -16994,7 +16999,10 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					}
 					presentation["unit_draw_tiles"] = {"player": effect_target_tile}
 				_render_board_state(before_state, presentation)
-				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
+				if attack_frame_seconds > 0.0:
+					await get_tree().create_timer(attack_frame_seconds).timeout
+				else:
+					await get_tree().process_frame
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, _attack_impact_presentation({
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -17243,8 +17251,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 				_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
-				for frame: int in range(1, ATTACK_FRAMES + 1):
-					var t: float = float(frame) / float(ATTACK_FRAMES)
+				var attack_frame_count: int = AttackFxLibrary.animation_frame_count(step, ATTACK_FRAMES, _reduced_motion_enabled())
+				var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(step, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+				for frame: int in range(1, attack_frame_count + 1):
+					var t: float = float(frame) / float(attack_frame_count)
 					var presentation := {
 						"focus_actor_keys": [step_actor_key],
 						"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -17261,7 +17271,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 							step_actor_key: step.get("to", Vector2i.ZERO)
 						}
 					_render_board_state(animated_state, presentation)
-					await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
+					if attack_frame_seconds > 0.0:
+						await get_tree().create_timer(attack_frame_seconds).timeout
+					else:
+						await get_tree().process_frame
 				var before_attack_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				var impact_actor_keys: Array = step.get("impact_actor_keys", [])

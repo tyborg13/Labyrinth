@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-09T21:00:06Z",
+  "updated_at": "2026-08-10T02:06:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7753,6 +7753,28 @@
       "source": {
         "branch": "codex/implement-authored-hanging-elemental-intensity-charms",
         "commit": "f2ca26a"
+      }
+    },
+    {
+      "id": "mnt_20260810T020653Z_73b0a67b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Ranged fire attacks use an authored travel-and-impact fireball presentation",
+      "details": "AttackFxLibrary selects exact ranged+fire actions, runs an 18-frame 0.033s cadence with straight-line travel ending at 10/18, and CombatBoardView renders validated 8-frame raster travel and 8-frame raster impact sheets. Forced movement, melee, and non-fire projectiles retain their existing presentations; reduced motion uses one immediate authored impact frame.",
+      "status": "active",
+      "created_at": "2026-08-10T02:06:53Z",
+      "updated_at": "2026-08-10T02:06:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-fireball-attack-animation",
+        "commit": "c326918"
       }
     }
   ]

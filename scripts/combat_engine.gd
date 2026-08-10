@@ -2431,7 +2431,9 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	var before_player: Dictionary = before_state.get("player", {})
 	var after_player: Dictionary = after_state.get("player", {})
 	var action_type: String = str(action.get("type", ""))
-	var actor_name: String = str(GameData.enemy_def(str(after_enemy.get("type", ""))).get("name", "Enemy"))
+	var enemy_definition: Dictionary = GameData.enemy_def(str(after_enemy.get("type", "")))
+	var actor_name: String = str(enemy_definition.get("name", "Enemy"))
+	var attack_element: String = str(action.get("element", enemy_definition.get("element", ElementData.NONE)))
 	match action_type:
 		"move_toward", "move_away":
 			var from_tile: Vector2i = before_enemy.get("pos", Vector2i.ZERO)
@@ -2665,6 +2667,8 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				aoe_tiles = _lightning_strike_tiles(before_state, before_enemy, action)
 			return {
 				"kind": action_type,
+				"action_type": action_type,
+				"element": attack_element,
 				"actor_key": _enemy_key(after_enemy),
 				"actor_name": actor_name,
 				"from": after_enemy.get("pos", Vector2i.ZERO),

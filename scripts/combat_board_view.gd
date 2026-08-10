@@ -3,6 +3,7 @@ class_name CombatBoardView
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -245,6 +246,22 @@ const MELEE_SLASH_SHEET_COLUMNS: int = 6
 const MELEE_SLASH_SHEET_ROWS: int = 1
 const ELEMENTAL_PROJECTILE_ATLAS_PATH: String = "res://assets/art/effects/elemental_projectiles.png"
 const ELEMENTAL_PROJECTILE_ATLAS_ROWS: int = 6
+const FIREBALL_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/fireball_travel_sheet.png"
+const FIREBALL_TRAVEL_SHEET_COLUMNS: int = 8
+const FIREBALL_TRAVEL_SHEET_ROWS: int = 1
+const FIREBALL_IMPACT_SHEET_PATH: String = "res://assets/art/effects/fireball_impact_sheet.png"
+const FIREBALL_IMPACT_SHEET_COLUMNS: int = 4
+const FIREBALL_IMPACT_SHEET_ROWS: int = 2
+const FIREBALL_TRAVEL_CYCLES: float = 1.35
+const FIREBALL_AFTERIMAGE_COUNT: int = 4
+const FIREBALL_AFTERIMAGE_SPACING: float = 0.048
+const FIREBALL_TRAVEL_DRAW_TILE_SCALE: float = 1.08
+const FIREBALL_IMPACT_DRAW_TILE_SCALE: float = 1.34
+const FIREBALL_TRAVEL_MIN_SIZE: float = 82.0
+const FIREBALL_TRAVEL_MAX_SIZE: float = 118.0
+const FIREBALL_IMPACT_MIN_SIZE: float = 96.0
+const FIREBALL_IMPACT_MAX_SIZE: float = 146.0
+const FIREBALL_FRAME_CORE_ANCHOR: Vector2 = Vector2(0.81, 0.50)
 const PROJECTILE_DRAW_TILE_SCALE: float = 0.34
 const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
 const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
@@ -5888,6 +5905,9 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 	return frames[frame_index] as Texture2D
 
 func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	if AttackFxLibrary.uses_fireball(effect):
+		_draw_fireball_attack_effect(effect, progress, from_point, to_point)
+		return
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)
@@ -5910,6 +5930,103 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
 		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
 		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress, 0.84 * loop_fade if preview else 1.0)
+
+func _draw_fireball_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.72)
+	var end: Vector2 = to_point + Vector2(0.0, -_tile_height() * 0.72)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_fireball_impact_frame(end, 0.28, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var preview_phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		var preview_travel: float = lerpf(0.06, 0.94, preview_phase)
+		var preview_alpha: float = clampf(minf(preview_phase / 0.14, (1.0 - preview_phase) / 0.14), 0.0, 1.0) * 0.66
+		_draw_fireball_travel_composite(start, end, preview_travel, preview_alpha, true)
+		return
+	var travel_progress: float = AttackFxLibrary.fireball_travel_progress(progress)
+	if progress <= AttackFxLibrary.FIREBALL_TRAVEL_END_PROGRESS:
+		_draw_fireball_travel_composite(start, end, travel_progress, 1.0, false)
+	var impact_progress: float = AttackFxLibrary.fireball_impact_progress(progress)
+	if progress >= AttackFxLibrary.FIREBALL_TRAVEL_END_PROGRESS:
+		_draw_fireball_impact_frame(end, impact_progress, 1.0, false)
+
+func _draw_fireball_travel_composite(start: Vector2, end: Vector2, travel_progress: float, alpha: float, preview: bool) -> void:
+	var frames: Array[Texture2D] = _fireball_frames("fireball_travel")
+	if frames.is_empty() or alpha <= 0.0:
+		return
+	var direction: Vector2 = (end - start).normalized()
+	if direction.length_squared() <= 0.01:
+		direction = Vector2.RIGHT
+	var draw_size: float = clampf(_tile_width() * FIREBALL_TRAVEL_DRAW_TILE_SCALE, FIREBALL_TRAVEL_MIN_SIZE, FIREBALL_TRAVEL_MAX_SIZE)
+	var frame_index: int = AttackFxLibrary.looping_frame_index(travel_progress, frames.size(), FIREBALL_TRAVEL_CYCLES)
+	var glow_texture: Texture2D = _ambient_fire_soft_texture(frame_index)
+	for afterimage_index: int in range(FIREBALL_AFTERIMAGE_COUNT, 0, -1):
+		var afterimage_progress: float = maxf(0.0, travel_progress - FIREBALL_AFTERIMAGE_SPACING * float(afterimage_index))
+		if is_equal_approx(afterimage_progress, travel_progress):
+			continue
+		var afterimage_point: Vector2 = _fireball_travel_point(start, end, afterimage_progress)
+		var afterimage_frame_index: int = posmod(frame_index - afterimage_index, frames.size())
+		var afterimage_alpha: float = alpha * (0.035 + float(FIREBALL_AFTERIMAGE_COUNT - afterimage_index) * 0.035)
+		var afterimage_scale: float = 0.72 + float(FIREBALL_AFTERIMAGE_COUNT - afterimage_index) * 0.055
+		_draw_fireball_travel_sprite(frames[afterimage_frame_index], afterimage_point, direction, draw_size * afterimage_scale, afterimage_alpha)
+	var point: Vector2 = _fireball_travel_point(start, end, travel_progress)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			point - direction * draw_size * 0.10,
+			Vector2(draw_size * 1.30, draw_size * 0.68),
+			direction.angle(),
+			alpha * (0.20 if preview else 0.32),
+			Color(1.0, 0.54, 0.16, 1.0)
+		)
+	_draw_fireball_travel_sprite(frames[frame_index], point, direction, draw_size, alpha)
+
+func _fireball_travel_point(start: Vector2, end: Vector2, travel_progress: float) -> Vector2:
+	return start.lerp(end, clampf(travel_progress, 0.0, 1.0))
+
+func _draw_fireball_travel_sprite(texture: Texture2D, core_point: Vector2, direction: Vector2, draw_size: float, alpha: float) -> void:
+	if texture == null or draw_size <= 0.0 or alpha <= 0.0:
+		return
+	var rect := Rect2(
+		Vector2(-draw_size * FIREBALL_FRAME_CORE_ANCHOR.x, -draw_size * FIREBALL_FRAME_CORE_ANCHOR.y),
+		Vector2.ONE * draw_size
+	)
+	draw_set_transform(core_point, direction.angle(), Vector2.ONE)
+	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, clampf(alpha, 0.0, 1.0)))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_fireball_impact_frame(center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	var frames: Array[Texture2D] = _fireball_frames("fireball_impact")
+	if frames.is_empty() or alpha <= 0.0:
+		return
+	var frame_index: int = 2 if reduced_motion else AttackFxLibrary.one_shot_frame_index(impact_progress, frames.size())
+	var texture: Texture2D = frames[frame_index]
+	var fade: float = 1.0 if reduced_motion else clampf((1.0 - impact_progress) / 0.20, 0.0, 1.0)
+	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
+	var draw_size: float = clampf(
+		_tile_width() * FIREBALL_IMPACT_DRAW_TILE_SCALE * (0.90 + bloom * 0.14),
+		FIREBALL_IMPACT_MIN_SIZE,
+		FIREBALL_IMPACT_MAX_SIZE
+	)
+	var glow_texture: Texture2D = _ambient_fire_soft_texture(frame_index)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			center,
+			Vector2.ONE * draw_size * (1.16 + bloom * 0.18),
+			0.0,
+			alpha * fade * (0.28 + bloom * 0.24),
+			Color(1.0, 0.48, 0.10, 1.0)
+		)
+	var rect := Rect2(center - Vector2.ONE * draw_size * 0.5, Vector2.ONE * draw_size)
+	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, alpha * fade))
+
+func _fireball_frames(frame_key: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	for frame_var: Variant in _effect_frames.get(frame_key, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
+	return frames
 
 func _draw_elemental_projectile_trail(
 	start: Vector2,
@@ -7305,6 +7422,16 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 			MELEE_SLASH_SHEET_PATH,
 			MELEE_SLASH_SHEET_COLUMNS,
 			MELEE_SLASH_SHEET_ROWS
+		),
+		"fireball_travel": _load_sprite_sheet_frames(
+			FIREBALL_TRAVEL_SHEET_PATH,
+			FIREBALL_TRAVEL_SHEET_COLUMNS,
+			FIREBALL_TRAVEL_SHEET_ROWS
+		),
+		"fireball_impact": _load_sprite_sheet_frames(
+			FIREBALL_IMPACT_SHEET_PATH,
+			FIREBALL_IMPACT_SHEET_COLUMNS,
+			FIREBALL_IMPACT_SHEET_ROWS
 		),
 		"defense_heal_casts": _load_sprite_sheet_frames(
 			DEFENSE_HEAL_CASTS_PATH,
