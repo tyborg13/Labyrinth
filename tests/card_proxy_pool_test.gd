@@ -11,6 +11,13 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var run_scene: Node = RunScene.new()
+	# The live scene builds both visible FX and the hidden proxy pool beneath its
+	# UI root. Mirror that ownership boundary in this focused fixture so pooling
+	# is tested against the same parent/reparent lifecycle as gameplay.
+	var ui_root := Control.new()
+	ui_root.name = "CardProxyPoolTestUiRoot"
+	root.add_child(ui_root)
+	run_scene.set("ui_root", ui_root)
 	run_scene.call("_build_card_fx_layer")
 	var source_rect := Rect2(Vector2(24.0, 38.0), Vector2(180.0, 254.0))
 	var first_proxy: Control = run_scene.call("_spawn_card_proxy", "quick_stab", source_rect) as Control
@@ -31,6 +38,12 @@ func _run() -> void:
 	first_widget.set("_local_hovered", true)
 	first_widget.set("_ready_wave_progress", 0.7)
 	first_widget.set("_ready_wave_active", true)
+	first_widget.set_meta("ready_wave_active", true)
+	first_widget.call("_ensure_ready_wave_glow")
+	var first_ready_wave_glow: Control = first_widget.get("_ready_wave_glow") as Control
+	first_ready_wave_glow.visible = true
+	first_ready_wave_glow.modulate = Color(1.0, 1.0, 1.0, 0.82)
+	first_ready_wave_glow.scale = Vector2(1.028, 1.028)
 	var first_glow: Node = first_widget.get("_intensity_active_glow") as Node
 	first_glow.set("_pulse_phase", 0.73)
 	run_scene.call("_release_card_proxy", first_proxy)
@@ -54,8 +67,18 @@ func _run() -> void:
 	_assert(not bool(reused_widget.get("_interactive")), "FX proxies should remain noninteractive after reuse")
 	_assert(not bool(reused_widget.get("_left_pressed")) and not bool(reused_widget.get("_drag_emitted")) and not bool(reused_widget.get("_local_hovered")), "Reused widgets should clear every transient input state")
 	_assert(is_zero_approx(float(reused_widget.get("_ready_wave_progress"))) and not bool(reused_widget.get("_ready_wave_active")), "Reused widgets should clear every transient pose state")
+	var reused_ready_wave_glow: Control = reused_widget.get("_ready_wave_glow") as Control
+	_assert(not reused_widget.has_meta("ready_wave_active"), "Reused widgets should clear the ready-wave activity marker")
+	_assert(not reused_ready_wave_glow.visible and is_zero_approx(reused_ready_wave_glow.modulate.a), "Reused widgets should hide and clear the transient ready-wave glow")
 	var reused_glow: Node = reused_widget.get("_intensity_active_glow") as Node
 	_assert(is_zero_approx(float(reused_glow.get("_pulse_phase"))), "Reused widgets should restart decorative glow animation at the fresh-instance phase")
+	reused_widget.visible = false
+	reused_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	reused_widget.set("_interactive", true)
+	reused_widget.call("prepare_for_pool")
+	reused_widget.call("set_interaction_state", false, false, true, false, true, true)
+	_assert(reused_widget.visible, "Pool preparation should restore a card hidden during its prior hand animation")
+	_assert(reused_widget.mouse_filter == Control.MOUSE_FILTER_STOP, "Lightweight pooled-card reconfiguration should restore live mouse input after a selection wrapper made the subtree inert")
 	await process_frame
 	run_scene.call("_release_card_proxy", reused_proxy)
 
@@ -100,6 +123,7 @@ func _run() -> void:
 	_assert(overflow.is_queued_for_deletion(), "Overflow proxies should be queued for deletion instead of retained")
 
 	run_scene.free()
+	ui_root.queue_free()
 	await process_frame
 	if _failures.is_empty():
 		print("TEST RESULT: PASS — bounded card proxy reuse and reset semantics")

@@ -61,8 +61,8 @@ func _initialize() -> void:
 	_reset_render_instrumentation(board)
 
 	var results: Dictionary = {
-		"schema_version": 1,
-		"workload_id": "combat_board_max_content_v1",
+		"schema_version": 2,
+		"workload_id": "combat_board_max_content_v2",
 		"warmup_frames": WARMUP_FRAMES,
 		"phase_frames": PHASE_FRAMES,
 		"viewport": "%dx%d" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
@@ -113,6 +113,10 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 	var draw_calls: Array[float]
 	var objects_in_frame: Array[float]
 	var primitives_in_frame: Array[float]
+	# A process-frame await resumes before that frame is rendered. Bracket every
+	# phase on post-draw so the prior phase's final retained-layer work cannot be
+	# misattributed after the instrumentation reset.
+	await RenderingServer.frame_post_draw
 	_reset_render_instrumentation(board)
 	var previous_tick: int = Time.get_ticks_usec()
 	for frame_index: int in range(PHASE_FRAMES):
@@ -146,7 +150,10 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 			effect["progress"] = phase
 			presentation["effect"] = effect
 			board.call("set_combat_state", state, [], [], Vector2i(4, 2), "Movement stress", "Animated actor position", {}, {}, presentation)
-		await process_frame
+		# Measure completed rendered frames, not process callbacks that resume before
+		# queued CanvasItem redraws execute. The latter can coalesce two authored
+		# interaction states and report CPU-only intervals as frame pacing.
+		await RenderingServer.frame_post_draw
 		var now_tick: int = Time.get_ticks_usec()
 		frame_intervals_ms.append(float(now_tick - previous_tick) / 1000.0)
 		previous_tick = now_tick
@@ -154,6 +161,7 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		draw_calls.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
 		objects_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)))
 		primitives_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)))
+	await RenderingServer.frame_post_draw
 	var snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary if board.has_method("render_instrumentation_snapshot") else {}
 	# Older revisions exposed coarse draw counters through the same method name.
 	# Only enforce retained-renderer semantics when the retained-layer contract is
@@ -181,9 +189,9 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 				_expect(int(layer_counts.get("effects", 0)) >= PHASE_FRAMES - 2, "action effect submissions must redraw the effects layer on every authored frame")
 				_expect(int(scene_tile_counts.get("3,3", 0)) >= PHASE_FRAMES - 2, "action impacts must redraw the large-enemy scene layer on every authored frame")
 				_expect(int(layer_counts.get("world", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit impact submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
-				_expect(int(layer_counts.get("effects", 999)) <= PHASE_FRAMES + 2, "explicit effect submissions must replace duplicate continuous effects redraws")
+				_expect(int(layer_counts.get("effects", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit effect submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
 		elif phase_name == "interaction":
-			_expect(int(layer_counts.get("world", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive tile overlays")
+			_expect(int(layer_counts.get("overlays", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive tile overlays")
 			_expect(int(layer_counts.get("hud", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive enemy HUDs")
 			_expect(int(layer_counts.get("effects", -1)) == 0, "pointer interaction must retain unchanged effects")
 		elif phase_name == "movement":
@@ -192,7 +200,7 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		else:
 			_expect(int(layer_counts.get("hud", -1)) == 0, "idle ambient/sprite animation must retain unit HUDs")
 			_expect(int(layer_counts.get("effects", -1)) == 0, "idle animation must retain the effects layer")
-			_expect(int(layer_counts.get("world", 0)) > 0, "idle trap animation must redraw the world layer")
+			_expect(int(layer_counts.get("ground", 0)) > 0, "idle trap animation must redraw the ground layer")
 			_expect(int(scene_tile_counts.get("4,1", 0)) > 0, "pillar torch sprite sheets must redraw their grid-owned scene tile")
 	var result: Dictionary = {
 		"frame_interval_ms": _stats(frame_intervals_ms),

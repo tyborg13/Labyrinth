@@ -30,7 +30,13 @@ HEADLESS_BENCHMARKS = {
         "tests/trap_idle_performance_benchmark.gd",
     ),
 }
-NATIVE_BENCHMARK = ("RENDER PERF RESULT:", "tests/render_performance_benchmark.gd")
+NATIVE_BENCHMARKS = {
+    "render": ("RENDER PERF RESULT:", "tests/render_performance_benchmark.gd"),
+    "runtime_frame": (
+        "RUNTIME FRAME PERF RESULT:",
+        "tests/runtime_frame_performance_benchmark.gd",
+    ),
+}
 
 COMPARISON_METRICS = {
     "render.idle.frame_interval_ms.median": "lower",
@@ -55,6 +61,33 @@ COMPARISON_METRICS = {
     "render.action_heavy.draw_calls.median": "lower",
     "render.action_heavy.dynamic_draw_cpu_us_per_phase_frame": "lower",
     "render.static_memory_bytes": "lower",
+    "runtime_frame.idle.frame_interval_ms.median": "lower",
+    "runtime_frame.idle.frame_interval_ms.p95": "lower",
+    "runtime_frame.idle.frames_over_16_67_ms": "lower",
+    "runtime_frame.cold_interaction.card_click_handler.duration_ms.median": "lower",
+    "runtime_frame.cold_interaction.card_click_handler.duration_ms.p95": "lower",
+    "runtime_frame.cold_interaction.preview_hover_handler.duration_ms.median": "lower",
+    "runtime_frame.cold_interaction.preview_hover_handler.duration_ms.p95": "lower",
+    "runtime_frame.cold_interaction.rendered_frames.frame_interval_ms.p95": "lower",
+    "runtime_frame.cold_interaction.rendered_frames.frames_over_16_67_ms": "lower",
+    "runtime_frame.card_click_handler.duration_ms.median": "lower",
+    "runtime_frame.card_click_handler.duration_ms.p95": "lower",
+    "runtime_frame.card_click_frame_completion.duration_ms.p95": "lower",
+    "runtime_frame.cold_preview_hover_handler.duration_ms.median": "lower",
+    "runtime_frame.cold_preview_hover_handler.duration_ms.p95": "lower",
+    "runtime_frame.cold_preview_hover_frame_completion.duration_ms.p95": "lower",
+    "runtime_frame.cold_preview_canvas_pipeline_compilations": "lower",
+    "runtime_frame.preview_hover_handler.duration_ms.median": "lower",
+    "runtime_frame.preview_hover_handler.duration_ms.p95": "lower",
+    "runtime_frame.preview_hover_frame_completion.duration_ms.p95": "lower",
+    "runtime_frame.warm_preview_canvas_pipeline_compilations": "lower",
+    "runtime_frame.target_step_completion.duration_ms.p95": "lower",
+    "runtime_frame.action_completion.duration_ms.p95": "lower",
+    "runtime_frame.action_play.frame_interval_ms.median": "lower",
+    "runtime_frame.action_play.frame_interval_ms.p95": "lower",
+    "runtime_frame.action_play.frames_over_16_67_ms": "lower",
+    "runtime_frame.action_play.frames_over_33_33_ms": "lower",
+    "runtime_frame.static_memory_bytes": "lower",
     "simulation.board_submission_us_per_call": "lower",
     "simulation.presentation_cached_us_per_call": "lower",
     "runtime_integration.full_ui_cached_us_per_refresh": "lower",
@@ -75,6 +108,18 @@ COMPATIBILITY_FIELDS = {
     "warmup frames": ("benchmarks", "render", "result", "warmup_frames"),
     "phase frames": ("benchmarks", "render", "result", "phase_frames"),
     "ambient particle count": ("benchmarks", "render", "result", "ambient_particle_count"),
+    "runtime frame schema": ("benchmarks", "runtime_frame", "result", "schema_version"),
+    "runtime frame workload": ("benchmarks", "runtime_frame", "result", "workload_id"),
+    "runtime frame viewport": ("benchmarks", "runtime_frame", "result", "viewport"),
+    "runtime frame renderer": ("benchmarks", "runtime_frame", "result", "renderer"),
+    "runtime frame rendering method": ("benchmarks", "runtime_frame", "result", "rendering_method"),
+    "runtime frame warmup": ("benchmarks", "runtime_frame", "result", "warmup_frames"),
+    "runtime frame low processor mode": ("benchmarks", "runtime_frame", "result", "probe_low_processor_usage_mode"),
+    "runtime frame low processor sleep": ("benchmarks", "runtime_frame", "result", "probe_low_processor_usage_mode_sleep_usec"),
+    "runtime frame foreground window": ("benchmarks", "runtime_frame", "result", "probe_foreground_window"),
+    "runtime frame window mode": ("benchmarks", "runtime_frame", "result", "probe_window_mode"),
+    "runtime frame render pulse": ("benchmarks", "runtime_frame", "result", "probe_render_pulse"),
+    "runtime frame throttle threshold": ("benchmarks", "runtime_frame", "result", "probe_throttle_threshold_ms"),
 }
 
 
@@ -222,10 +267,10 @@ def command_run(args: argparse.Namespace) -> int:
             name, marker, script, args.task_id, False, args.timeout
         )
     if args.native:
-        marker, script = NATIVE_BENCHMARK
-        report["benchmarks"]["render"] = _run_benchmark(
-            "render", marker, script, args.task_id, True, args.timeout
-        )
+        for name, (marker, script) in NATIVE_BENCHMARKS.items():
+            report["benchmarks"][name] = _run_benchmark(
+                name, marker, script, args.task_id, True, args.timeout
+            )
     output_path = Path(args.output).expanduser().resolve() if args.output else Path(
         f"/tmp/labyrinth-performance-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
     )

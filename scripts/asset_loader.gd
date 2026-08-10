@@ -18,7 +18,9 @@ static var _castle_control_texture_cache: Dictionary = {}
 static var _flipped_texture_cache: Dictionary = {}
 static var _outline_clean_texture_cache: Dictionary = {}
 static var _scaled_texture_cache: Dictionary = {}
+static var _texture_used_rect_cache: Dictionary = {}
 static var _audio_cache: Dictionary = {}
+static var _font_cache: Dictionary = {}
 static var _texture_cache: Dictionary = {}
 
 static func load_texture(path: String) -> Texture2D:
@@ -327,6 +329,28 @@ static func build_sprite_sheet_frames(texture: Texture2D, frame_size: Vector2i, 
 		frames.append(atlas)
 	return frames
 
+static func texture_used_rect(texture: Texture2D) -> Rect2i:
+	if texture == null:
+		return Rect2i()
+	# Retained combat-board layers share immutable textures but are separate
+	# CanvasItems. Cache alpha bounds by stable texture/atlas identity here so
+	# every layer does not read back and scan the same image independently.
+	var cache_key: String = _texture_processing_cache_key(texture)
+	if _texture_used_rect_cache.has(cache_key):
+		var cached_rect: Rect2i = _texture_used_rect_cache.get(cache_key, Rect2i())
+		return cached_rect
+	var image: Image = _texture_to_image(texture)
+	var used_rect := Rect2i()
+	if image != null and not image.is_empty():
+		used_rect = image.get_used_rect()
+	_texture_used_rect_cache[cache_key] = used_rect
+	return used_rect
+
+static func cache_texture_used_rect(texture: Texture2D, used_rect: Rect2i) -> void:
+	if texture == null:
+		return
+	_texture_used_rect_cache[_texture_processing_cache_key(texture)] = used_rect
+
 static func build_alpha_polygons(
 	texture: Texture2D,
 	alpha_threshold: float = DEFAULT_ALPHA_POLYGON_THRESHOLD,
@@ -343,6 +367,19 @@ static func build_alpha_polygons(
 	if image == null or image.is_empty():
 		_alpha_polygon_cache[cache_key] = polygons
 		return polygons
+	polygons = build_alpha_polygons_from_image(image, alpha_threshold, simplify_epsilon, minimum_area)
+	_alpha_polygon_cache[cache_key] = polygons
+	return polygons
+
+static func build_alpha_polygons_from_image(
+	image: Image,
+	alpha_threshold: float = DEFAULT_ALPHA_POLYGON_THRESHOLD,
+	simplify_epsilon: float = DEFAULT_ALPHA_POLYGON_SIMPLIFY_EPSILON,
+	minimum_area: float = DEFAULT_ALPHA_POLYGON_MIN_AREA
+) -> Array[PackedVector2Array]:
+	var polygons: Array[PackedVector2Array] = []
+	if image == null or image.is_empty():
+		return polygons
 	var bitmap := BitMap.new()
 	bitmap.create_from_image_alpha(image, alpha_threshold)
 	var opaque_polygons: Array[PackedVector2Array] = bitmap.opaque_to_polygons(
@@ -355,7 +392,6 @@ static func build_alpha_polygons(
 		if absf(_polygon_signed_area(polygon)) < minimum_area:
 			continue
 		polygons.append(polygon)
-	_alpha_polygon_cache[cache_key] = polygons
 	return polygons
 
 static func _alpha_polygon_cache_key(texture: Texture2D, alpha_threshold: float, simplify_epsilon: float, minimum_area: float) -> String:
@@ -402,16 +438,24 @@ static func load_combat_marker_texture() -> Texture2D:
 	return load_texture_by_stem("res://assets/art/icons/melee", PNG_FIRST_TEXTURE_EXTENSIONS)
 
 static func load_font(path: String) -> FontFile:
+	if path.is_empty():
+		return null
+	if _font_cache.has(path):
+		return _font_cache.get(path, null)
 	if ResourceLoader.exists(path):
 		var loaded: Resource = load(path)
 		if loaded is FontFile:
+			_font_cache[path] = loaded
 			return loaded
 	if not FileAccess.file_exists(path):
+		_font_cache[path] = null
 		return null
 	var font := FontFile.new()
 	var err: Error = font.load_dynamic_font(path)
 	if err != OK:
+		_font_cache[path] = null
 		return null
+	_font_cache[path] = font
 	return font
 
 static func _castle_control_texture_cache_key(
