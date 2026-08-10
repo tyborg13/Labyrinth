@@ -61,7 +61,7 @@ Bracket rendered-frame samples on `RenderingServer.frame_post_draw`. An `await p
 
 Keep viewport readback, image resizing, PNG encoding, log serialization, and other proof I/O strictly outside timed samples and settle afterward. Native GPU readback can contaminate later Metal frames, so excluding only the frame that calls `get_image()` is insufficient if the next interaction starts immediately.
 
-Native synthetic-input probes can enter the desktop idle governor because they do not receive real OS pointer wakeups, and macOS can throttle Metal drawable delivery for an occluded/background or inactive-fullscreen-Space window. Run native probes in an explicitly windowed foreground presentation, disable low-processor mode, cap its fallback sleep, and record those timing controls in the report. Otherwise one-second runner sleeps can masquerade as frame or action-completion stalls even when the measured handler and redraw work are fast.
+Native synthetic-input probes can enter the desktop idle governor because they do not receive real OS pointer wakeups, and macOS can throttle Metal drawable delivery for an occluded/background or inactive-fullscreen-Space window. Run native probes in an explicitly windowed foreground presentation, disable low-processor mode, cap its fallback sleep, and record those timing controls in the report. Verify focus from `DisplayServer` at startup, during rendered samples, and at completion; requesting foreground status is not proof that it succeeded. Treat repeated roughly one-second intervals or any other authored delivery-throttle signature as an invalid run rather than filtering it from percentiles. Otherwise runner sleeps can masquerade as frame or action-completion stalls even when the measured handler and redraw work are fast.
 
 Record `RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS` around cold 2D interactions and repeat the same sweep warm. Canvas pipelines are created on first draw, so cold pipeline work, one-time renderer delivery, and steady gameplay cost must remain distinct instead of being blended into one percentile.
 
@@ -76,6 +76,8 @@ For broad combat passes, cover cold and warm forms of each applicable interactio
 - idle, animation, enemy round, room transition, save/resume, and other implicated flows.
 
 Fixtures must satisfy authored readiness constraints such as hand caps, resources, discard contents, target legality, and animation locks. Assert every intended interaction actually executes and changes the expected committed or presentation state.
+
+Manual-ability coverage must route through the visible sigil, palette paging/tile, Activate button, and any hand or pile selection wrapper. After hand-selection abilities, route another ordinary card click through the viewport so pooled-card visibility and `mouse_filter` restoration are exercised end to end. Direct activation or selection callbacks are semantic microchecks only; they cannot validate the live pooled-control lifecycle.
 
 Use section timers and redraw/rebuild counters to narrow expensive work. Instrumentation must be cheap when active, resettable between phases, and report machine-readable JSON.
 
@@ -127,7 +129,7 @@ Keep these measurements distinct in reports and conclusions:
 - rendered frame interval: player-visible frame pacing after input and during animation;
 - action completion: total awaited gameplay/animation duration, which is not itself a hitch.
 
-Screenshot capture is proof tooling, not game work. Synchronous viewport readback and PNG encoding must be excluded from gameplay frame samples while the screenshots remain in the run. Use section timers and threshold-frame diagnostics to separate CPU work from vsync quantization, compositor noise, and probe overhead.
+Screenshot capture is proof tooling, not game work. Synchronous viewport readback and PNG encoding must be excluded from gameplay frame samples while the screenshots remain in the run. For animated action proof, finish all samplers and completion timers, replay the same public-input action, and capture that untimed replay; excluding the capture frame is insufficient because GPU readback can stall later frames. Use section timers and threshold-frame diagnostics to separate CPU work from vsync quantization, compositor noise, and probe overhead.
 
 ## Prove Equivalence and Stability
 

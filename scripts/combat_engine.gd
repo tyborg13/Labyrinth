@@ -7757,15 +7757,12 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		route_cost = int(direct_candidate.get("cost", 0))
 		attack_available = not pure_retreat
 	else:
-		# An attack-only intent cannot change position this activation. Searching
-		# every future route to a hypothetical later attack was both misleading in
-		# the current-intent preview and extremely expensive for stationary AOE
-		# enemies such as Cinder Ooze.
-		var future_candidate: Dictionary = (
-			{}
-			if pure_retreat or movement_index < 0 or movement_disabled
-			else _best_enemy_future_route_candidate(state, enemy, planning_attack, move_range)
-		)
+		# The future route also selects among the player and illusions and evaluates
+		# every legal footprint anchor. Even when this activation has no movement,
+		# resolution uses its first reachable terrain blocker; replacing it with a
+		# player-only tile path changes which obstacle redirected and large enemies
+		# strike. Preserve that plan and optimize its implementation, not its rules.
+		var future_candidate: Dictionary = {} if pure_retreat else _best_enemy_future_route_candidate(state, enemy, planning_attack, move_range)
 		if not future_candidate.is_empty():
 			target = (future_candidate.get("target", {}) as Dictionary).duplicate(true)
 			future_route = _vector2i_values(future_candidate.get("route", []))
@@ -7786,11 +7783,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		if trap_index >= 0:
 			trap_tile = ((preview_state.get("traps", []) as Array)[trap_index] as Dictionary).get("pos", INVALID_TILE)
 		if trap_index < 0 and not target_reachable:
-			terrain_index = (
-				_blocking_terrain_index_for_enemy_action(preview_state, enemy_index, planning_attack)
-				if movement_index < 0 or movement_disabled
-				else _planned_blocking_terrain_index(preview_state, preview_enemy, planning_attack, future_route)
-			)
+			terrain_index = _planned_blocking_terrain_index(preview_state, preview_enemy, planning_attack, future_route)
 	var projected_attack_tiles: Array[Vector2i] = _vector2i_values([])
 	if attack_index >= 0 and not attack_disabled and attack_resolvable:
 		projected_attack_tiles = _enemy_projected_attack_tiles(

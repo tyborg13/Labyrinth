@@ -85,31 +85,17 @@ class FrameSampler:
 	var draw_calls: Array[float] = []
 	var objects_in_frame: Array[float] = []
 	var primitives_in_frame: Array[float] = []
-	var capture_viewport: Viewport
-	var capture_dir: String = ""
-	var capture_frames: Dictionary = {}
-	var captured_paths: Array[String] = []
-	var frame_index: int = 0
-	var exclude_next_interval: bool = false
-	var excluded_capture_intervals: int = 0
 
 	func _ready() -> void:
 		process_priority = 1000
 		set_process(true)
 
-	func begin(viewport: Viewport = null, output_dir: String = "", captures: Dictionary = {}) -> void:
+	func begin() -> void:
 		frame_intervals_ms.clear()
 		process_ms.clear()
 		draw_calls.clear()
 		objects_in_frame.clear()
 		primitives_in_frame.clear()
-		capture_viewport = viewport
-		capture_dir = output_dir
-		capture_frames = captures.duplicate(true)
-		captured_paths.clear()
-		frame_index = 0
-		exclude_next_interval = false
-		excluded_capture_intervals = 0
 		previous_tick_usec = Time.get_ticks_usec()
 		active = true
 
@@ -121,40 +107,18 @@ class FrameSampler:
 			"draw_calls": draw_calls.duplicate(),
 			"objects_in_frame": objects_in_frame.duplicate(),
 			"primitives_in_frame": primitives_in_frame.duplicate(),
-			"captured_paths": captured_paths.duplicate(),
-			"excluded_capture_intervals": excluded_capture_intervals,
 		}
 
 	func _process(_delta: float) -> void:
 		if not active:
 			return
 		var now_tick: int = Time.get_ticks_usec()
-		var exclude_sample: bool = exclude_next_interval
-		exclude_next_interval = false
-		if exclude_sample:
-			excluded_capture_intervals += 1
-		else:
-			frame_intervals_ms.append(float(now_tick - previous_tick_usec) / 1000.0)
-			process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
-			draw_calls.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
-			objects_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)))
-			primitives_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)))
+		frame_intervals_ms.append(float(now_tick - previous_tick_usec) / 1000.0)
+		process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
+		draw_calls.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
+		objects_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)))
+		primitives_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)))
 		previous_tick_usec = now_tick
-		frame_index += 1
-		if capture_viewport == null or not capture_frames.has(frame_index):
-			return
-		var file_name: String = str(capture_frames.get(frame_index, ""))
-		if file_name.is_empty():
-			return
-		# Viewport readback and PNG encoding are synchronous probe work. Exclude the
-		# following interval so visual proof cannot manufacture a gameplay hitch.
-		exclude_next_interval = true
-		var image: Image = capture_viewport.get_texture().get_image()
-		var path: String = "%s/%s" % [capture_dir, file_name]
-		if image.get_size() != VIEWPORT_SIZE:
-			image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
-		if image.get_size() == VIEWPORT_SIZE and image.save_png(path) == OK:
-			captured_paths.append(path)
 
 class RenderPulse:
 	extends Control
@@ -176,6 +140,8 @@ var _combat := CombatEngine.new()
 var _validated_prevalidated_action_types: Dictionary = {}
 var _profiled_initial_refresh: bool = false
 var _render_pulse: RenderPulse = null
+var _focus_observation_count: int = 0
+var _unfocused_observation_count: int = 0
 
 func _initialize() -> void:
 	_phase_log("initialize")
@@ -220,6 +186,14 @@ func _initialize() -> void:
 	_phase_log("scene ready")
 	var sampler := FrameSampler.new()
 	root.add_child(sampler)
+	var initially_focused: bool = await _acquire_probe_window_focus()
+	if not initially_focused:
+		push_error("RUNTIME FRAME PERF RESULT: FAIL native probe window could not become focused")
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(1)
+		return
 	await _settle_frames(8)
 	_phase_log("initial settle complete")
 	_install_stress_combat(instance, "specialists")
@@ -232,7 +206,6 @@ func _initialize() -> void:
 		await _await_render_frame()
 	_phase_log("warmup complete")
 
-	await _save_root_screenshot("dense_idle.png")
 	var prewarm_remaining_before_startup_idle: int = (instance.get("_action_tracker_prewarm_queue") as Array).size()
 	var startup_prewarm_idle: Dictionary = await _measure_idle(sampler)
 	var prewarm_remaining_after_startup_idle: int = (instance.get("_action_tracker_prewarm_queue") as Array).size()
@@ -240,6 +213,8 @@ func _initialize() -> void:
 	var initial_nodes: int = _subtree_node_count(instance)
 	var initial_orphans: int = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	var idle: Dictionary = await _measure_idle(sampler)
+	await _save_root_screenshot("dense_idle.png")
+	await _settle_render_frames(4)
 	_phase_log("startup and settled idle complete")
 	var preview_matrix: Dictionary = await _measure_preview_matrix(instance)
 	_phase_log("preview matrix complete")
@@ -271,6 +246,9 @@ func _initialize() -> void:
 		ability_action_matrix = await _measure_ability_action_matrix(instance, sampler)
 	if not focused_run:
 		enemy_round_matrix = await _measure_enemy_round_matrix(instance, sampler)
+	var action_visual_proof: Dictionary = {}
+	if not focused_run or focused_actions:
+		action_visual_proof = await _capture_wildfire_action_visuals(instance)
 	_phase_log("action matrix complete")
 	_install_stress_combat(instance, "specialists")
 	await _settle_frames(8)
@@ -281,9 +259,21 @@ func _initialize() -> void:
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	var board_instrumentation: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
 	var final_orphans: int = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
+	var finally_focused: bool = DisplayServer.window_is_focused()
+	var throttle_samples: Array[Dictionary] = []
+	_collect_throttle_samples(idle, "idle", throttle_samples)
+	_collect_throttle_samples(cold_interaction, "cold_interaction", throttle_samples)
+	_collect_throttle_samples(preview_matrix, "preview_matrix", throttle_samples)
+	_collect_throttle_samples(blink_preview_workload, "blink_preview_workload", throttle_samples)
+	_collect_throttle_samples(live_save_blink_workload, "live_save_blink_workload", throttle_samples)
+	_collect_throttle_samples(action_matrix, "action_matrix", throttle_samples)
+	_collect_throttle_samples(ability_action_matrix, "ability_action_matrix", throttle_samples)
+	_collect_throttle_samples(enemy_round_matrix, "enemy_round_matrix", throttle_samples)
 	_expect(repeated_install_nodes <= final_nodes, "repeating the same live fixture install must not grow the settled node tree")
 	_expect(final_orphans <= initial_orphans, "live runtime workload must not increase orphan nodes")
 	_expect(bool(board_instrumentation.get("split_layers_active", false)), "live RunScene must use retained combat-board layers")
+	_expect(finally_focused and _unfocused_observation_count == 0, "native frame proof must remain focused for every observed rendered frame")
+	_expect(throttle_samples.is_empty(), "native frame proof must not contain a >=500 ms delivery-throttle signature")
 
 	var results: Dictionary = {
 		"schema_version": 3,
@@ -293,7 +283,11 @@ func _initialize() -> void:
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),
 		"probe_low_processor_usage_mode": OS.low_processor_usage_mode,
 		"probe_low_processor_usage_mode_sleep_usec": OS.low_processor_usage_mode_sleep_usec,
-		"probe_foreground_window": true,
+		"probe_foreground_window": initially_focused and finally_focused and _unfocused_observation_count == 0,
+		"probe_focus_observations": _focus_observation_count,
+		"probe_unfocused_observations": _unfocused_observation_count,
+		"probe_throttle_threshold_ms": 500.0,
+		"probe_throttle_samples": throttle_samples,
 		"probe_window_mode": "windowed",
 		"probe_render_pulse": true,
 		"warmup_frames": WARMUP_FRAMES,
@@ -328,6 +322,7 @@ func _initialize() -> void:
 		"flurry_scaling": flurry_scaling,
 		"action_play": _combined_action_phase(action_matrix),
 		"action_matrix": action_matrix,
+		"action_visual_proof": action_visual_proof,
 		"ability_action_matrix": ability_action_matrix,
 		"enemy_round_matrix": enemy_round_matrix,
 		"initial_nodes": initial_nodes,
@@ -483,6 +478,7 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 				_board_pointer_hover(instance, _preferred_target(instance, capture_targets))
 				await _await_render_frame()
 				await _save_root_screenshot("%s_preview.png" % card_id)
+				await _settle_render_frames(4)
 		instance.call("_cancel_card_selection")
 		await _await_render_frame()
 	return {
@@ -679,7 +675,6 @@ func _measure_active_blink_preview(instance: Node, sampler: FrameSampler, contex
 	var steady_target: Vector2i = _preferred_target(instance, targets)
 	_board_pointer_hover(instance, steady_target)
 	await _await_render_frame()
-	await _save_root_screenshot("blink_preview_%s.png" % str(context.get("source", "workload")))
 	sampler.begin()
 	for _frame: int in range(BLINK_PREVIEW_STEADY_FRAMES):
 		await _await_render_frame()
@@ -693,6 +688,8 @@ func _measure_active_blink_preview(instance: Node, sampler: FrameSampler, contex
 		sweep_handler_samples.append(float(Time.get_ticks_usec() - handler_started) / 1000.0)
 		await _await_render_frame()
 	var sweep_sample: Dictionary = _sampler_phase_result(sampler.finish())
+	await _save_root_screenshot("blink_preview_%s.png" % str(context.get("source", "workload")))
+	await _settle_render_frames(4)
 	var result: Dictionary = context.duplicate(true)
 	result.merge({
 		"target_count": targets.size(),
@@ -1111,15 +1108,8 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 			continue
 		await _select_card(instance, hand_index)
 		await _await_render_frame()
-		var captures: Dictionary = {}
-		if card_id == "wildfire_halo":
-			captures = {
-				18: "action_effect_18.png",
-				28: "action_effect_28.png",
-				38: "action_effect_38.png",
-			}
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
-		sampler.begin(root.get_viewport(), ProjectSettings.globalize_path(OUTPUT_DIR), captures)
+		sampler.begin()
 		var action_started: int = Time.get_ticks_usec()
 		var interaction: Dictionary = {}
 		if bool(instance.call("_pending_card_requires_confirmation")):
@@ -1141,7 +1131,6 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		var action_completion_ms: float = float(Time.get_ticks_usec() - action_started) / 1000.0
 		var sampled: Dictionary = sampler.finish()
 		var phase: Dictionary = _sampler_phase_result(sampled)
-		phase["captured_paths"] = sampled.get("captured_paths", [])
 		phase["action_completion_ms"] = action_completion_ms
 		phase["target_step_completion"] = _duration_phase_result(interaction.get("step_completion_samples", []) as Array[float], "interaction_step_completion")
 		phase["animation_settle_frame_samples"] = interaction.get("animation_settle_frame_samples", [])
@@ -1152,6 +1141,58 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		results[card_id] = phase
 	return results
 
+func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
+	# Replay visual proof only after every timed action sampler has stopped. GPU
+	# readback, resize, and PNG encoding are synchronous and must never share a
+	# timing window with the action whose visuals they document.
+	_install_stress_combat(instance, "specialists")
+	await _settle_frames(4)
+	var hand_index: int = _hand_index(instance, "wildfire_halo")
+	_expect(hand_index >= 0, "Wildfire visual replay requires Wildfire Halo in hand")
+	if hand_index < 0:
+		return {}
+	await _select_card(instance, hand_index)
+	await _await_render_frame()
+	var interaction_steps: int = 0
+	while not bool(instance.call("_pending_card_requires_confirmation")) and interaction_steps < MAX_PREVIEW_STEPS:
+		var preview: Dictionary = instance.call("_active_card_preview") as Dictionary
+		var targets: Array[Vector2i] = _preview_interaction_tiles(instance, preview)
+		if targets.is_empty():
+			break
+		var target: Vector2i = _preferred_target(instance, targets)
+		_board_pointer_hover(instance, target)
+		_board_pointer_click(instance, target)
+		await process_frame
+		interaction_steps += 1
+	var confirm_button: Button = instance.find_child("ActionContextPlayCard", true, false) as Button
+	_expect(bool(instance.call("_pending_card_requires_confirmation")) and confirm_button != null and not confirm_button.disabled, "Wildfire visual replay must route through the live Play Card button")
+	if confirm_button != null and not confirm_button.disabled:
+		_routed_left_click(confirm_button, confirm_button.size * 0.5)
+	var captured: Array[String] = []
+	var capture_frames: Dictionary = {
+		18: "action_effect_18.png",
+		28: "action_effect_28.png",
+		38: "action_effect_38.png",
+	}
+	for frame_index: int in range(1, 39):
+		await _await_render_frame()
+		if capture_frames.has(frame_index):
+			var file_name: String = str(capture_frames[frame_index])
+			await _save_root_screenshot(file_name)
+			captured.append(ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name]))
+	var wait_frames: int = 0
+	while bool(instance.get("_animation_lock")) and wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
+		await _await_render_frame()
+		wait_frames += 1
+	_expect(wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "Wildfire visual replay must settle before the deadlock guard")
+	await _settle_frames(3)
+	return {
+		"captured_paths": captured,
+		"interaction_steps": interaction_steps,
+		"post_capture_settle_frames": wait_frames,
+		"timed": false,
+	}
+
 func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary:
 	var results: Dictionary = {}
 	for skill_id: String in MANUAL_SKILLS:
@@ -1161,39 +1202,113 @@ func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Di
 		await _settle_frames(3)
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		_expect(_combat.skill_is_ready(before_state, skill_id), "%s must be ready in its authored ability workload" % skill_id)
-		instance.call("_close_skill_status_popover", false)
-		instance.call("_toggle_skill_status_popover")
-		var status_tiles: Dictionary = instance.get("_skill_status_tiles") as Dictionary
-		var status_tile: Button = status_tiles.get(skill_id, null) as Button
-		_expect(status_tile != null and str(status_tile.get_meta("skill_status", "")) == "READY", "%s ability palette state must refresh from the authored live workload" % skill_id)
-		instance.call("_close_skill_status_popover", false)
 		sampler.begin()
 		var started: int = Time.get_ticks_usec()
-		instance.call("_on_combat_skill_pressed", skill_id)
+		var routed_controls: Dictionary = await _activate_skill_through_viewport(instance, skill_id)
 		var selection_zone: String = str(instance.get("_combat_skill_card_selection_zone"))
 		if selection_zone == "hand":
 			var hand_indices: Array = instance.get("_combat_skill_card_selection_indices") as Array
 			if not hand_indices.is_empty():
-				instance.call("_on_combat_skill_hand_card_selected", int(hand_indices[0]))
+				var selection_button: Button = instance.find_child("SkillHandSelectionCard_%d" % int(hand_indices[0]), true, false) as Button
+				_expect(selection_button != null and selection_button.visible and not selection_button.disabled, "%s hand choice must expose a live selection button" % skill_id)
+				if selection_button != null and selection_button.visible and not selection_button.disabled:
+					_routed_left_click(selection_button, selection_button.size * 0.5)
+					routed_controls["selection"] = selection_button.name
 		elif selection_zone == "discard":
 			var discard_indices: Array = instance.get("_combat_skill_card_selection_indices") as Array
 			if not discard_indices.is_empty():
-				instance.call("_on_combat_skill_discard_card_selected", int(discard_indices[0]))
+				var selection_button: Button = _visible_pile_selection_button(instance, int(discard_indices[0]))
+				_expect(selection_button != null and not selection_button.disabled, "%s discard choice must expose a live pile selection button" % skill_id)
+				if selection_button != null and not selection_button.disabled:
+					_routed_left_click(selection_button, selection_button.size * 0.5)
+					routed_controls["selection"] = selection_button.name
 		var wait_frames: int = 0
 		while bool(instance.get("_animation_lock")) and wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
 			await _await_render_frame()
 			wait_frames += 1
 		await _await_render_frame()
+		var post_skill_card_click: Dictionary = await _verify_post_skill_hand_pointer_input(instance, skill_id)
 		var total_ms: float = float(Time.get_ticks_usec() - started) / 1000.0
 		var sampled: Dictionary = sampler.finish()
 		var phase: Dictionary = _sampler_phase_result(sampled)
 		phase["total_ms"] = total_ms
 		phase["wait_frames"] = wait_frames
+		phase["routed_controls"] = routed_controls
+		phase["post_skill_card_click"] = post_skill_card_click
 		phase["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
 		_expect(bool(phase["state_changed"]), "%s activation must change committed combat state" % skill_id)
 		_expect(wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "%s activation animation must settle before the deadlock guard" % skill_id)
 		results[skill_id] = phase
 	return results
+
+func _activate_skill_through_viewport(instance: Node, skill_id: String) -> Dictionary:
+	var routed: Dictionary = {}
+	var sigil: Button = instance.find_child("SkillSigil", true, false) as Button
+	_expect(sigil != null and sigil.visible and not sigil.disabled, "%s must open from the live ability sigil" % skill_id)
+	if sigil == null or not sigil.visible or sigil.disabled:
+		return routed
+	_routed_left_click(sigil, sigil.size * 0.5)
+	routed["sigil"] = sigil.name
+	await process_frame
+	var status_tiles: Dictionary = instance.get("_skill_status_tiles") as Dictionary
+	var status_tile: Button = status_tiles.get(skill_id, null) as Button
+	var page_guard: int = 0
+	while status_tile != null and not status_tile.visible and page_guard < 20:
+		var skill_ids: Array[String] = instance.get("_skill_status_skill_ids") as Array[String]
+		var target_index: int = skill_ids.find(skill_id)
+		var visible_ids: Array[String] = instance.call("_skill_status_visible_ids") as Array[String]
+		var visible_last_index: int = skill_ids.find(visible_ids[visible_ids.size() - 1]) if not visible_ids.is_empty() else -1
+		var page_button: Button = (
+			instance.find_child("NextSkillStatusPage", true, false) as Button
+			if target_index > visible_last_index
+			else instance.find_child("PreviousSkillStatusPage", true, false) as Button
+		)
+		_expect(page_button != null and page_button.visible and not page_button.disabled, "%s palette page must be reachable through live page controls" % skill_id)
+		if page_button == null or not page_button.visible or page_button.disabled:
+			break
+		_routed_left_click(page_button, page_button.size * 0.5)
+		await process_frame
+		status_tiles = instance.get("_skill_status_tiles") as Dictionary
+		status_tile = status_tiles.get(skill_id, null) as Button
+		page_guard += 1
+	_expect(status_tile != null and status_tile.visible and str(status_tile.get_meta("skill_status", "")) == "READY", "%s ability palette tile must refresh to READY in the authored live workload" % skill_id)
+	if status_tile == null or not status_tile.visible:
+		return routed
+	_routed_left_click(status_tile, status_tile.size * 0.5)
+	routed["tile"] = status_tile.name
+	await process_frame
+	var action_button: Button = instance.find_child("ActivateSelectedSkill", true, false) as Button
+	_expect(action_button != null and action_button.visible and not action_button.disabled, "%s must activate through the live palette action button" % skill_id)
+	if action_button != null and action_button.visible and not action_button.disabled:
+		_routed_left_click(action_button, action_button.size * 0.5)
+		routed["activate"] = action_button.name
+		await process_frame
+	return routed
+
+func _visible_pile_selection_button(instance: Node, source_index: int) -> Button:
+	var cards: Container = instance.get("_pile_dialog_cards") as Container
+	if cards == null:
+		return null
+	for child: Node in cards.get_children():
+		var button: Button = child as Button
+		if button != null and button.visible and int(button.get_meta("source_card_index", -1)) == source_index:
+			return button
+	return null
+
+func _verify_post_skill_hand_pointer_input(instance: Node, skill_id: String) -> Dictionary:
+	var hand: Array = (((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array)
+	for hand_index: int in range(hand.size()):
+		var widget: Control = instance.call("_hand_card_control", hand_index) as Control
+		if widget == null or not widget.visible or widget.mouse_filter != Control.MOUSE_FILTER_STOP:
+			continue
+		var handler_ms: float = await _select_card(instance, hand_index)
+		var selected: bool = int(instance.get("_selected_card_index")) == hand_index
+		_expect(selected, "%s pooled hand must accept a real card click after skill selection" % skill_id)
+		instance.call("_cancel_card_selection")
+		await _await_render_frame()
+		return {"hand_index": hand_index, "handler_ms": handler_ms, "selected": selected}
+	_expect(false, "%s must leave at least one pointer-interactive pooled hand card" % skill_id)
+	return {"selected": false}
 
 func _prepare_manual_skill_state(instance: Node, skill_id: String) -> void:
 	var state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -1435,6 +1550,7 @@ func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 			_expect(widget.size.is_equal_approx(Vector2(250.0, 352.0)), "post-trap pooled card %d must retain its native CardWidget dimensions" % index)
 			_expect(visual_rect.size.x <= expected_size.x * 1.10 and visual_rect.size.y <= expected_size.y * 1.10, "post-trap pooled card %d must not stretch beyond its rotated hand envelope" % index)
 	await _save_root_screenshot("ranged_trap_hand.png")
+	await _settle_render_frames(4)
 	return {
 		"wait_frames": wait_frames,
 		"hand_count_before": hand_before.size(),
@@ -1773,7 +1889,6 @@ func _sampler_phase_result(sampled: Dictionary) -> Dictionary:
 	result["raw_draw_calls"] = sampled.get("draw_calls", [])
 	result["raw_objects_in_frame"] = sampled.get("objects_in_frame", [])
 	result["raw_primitives_in_frame"] = sampled.get("primitives_in_frame", [])
-	result["excluded_capture_intervals"] = int(sampled.get("excluded_capture_intervals", 0))
 	return result
 
 func _phase_result(
@@ -1859,10 +1974,50 @@ func _await_render_frame() -> void:
 	if _render_pulse != null and is_instance_valid(_render_pulse):
 		_render_pulse.pulse()
 	await RenderingServer.frame_post_draw
+	_focus_observation_count += 1
+	if not DisplayServer.window_is_focused():
+		_unfocused_observation_count += 1
+
+func _acquire_probe_window_focus() -> bool:
+	# The host runner activates the launched PID after Godot creates its startup
+	# log. Give that external request a bounded wall-clock window; uncapped process
+	# frames can exhaust a frame-count loop before the watchdog observes startup.
+	for _attempt: int in range(60):
+		DisplayServer.window_move_to_foreground()
+		await create_timer(0.05).timeout
+		if DisplayServer.window_is_focused():
+			return true
+	return false
+
+func _collect_throttle_samples(value: Variant, path: String, result: Array[Dictionary]) -> void:
+	if typeof(value) == TYPE_DICTIONARY:
+		var dictionary: Dictionary = value as Dictionary
+		if dictionary.has("raw_frame_intervals_ms"):
+			for sample_var: Variant in dictionary.get("raw_frame_intervals_ms", []):
+				if typeof(sample_var) in [TYPE_FLOAT, TYPE_INT] and float(sample_var) >= 500.0:
+					result.append({"path": path, "measurement_class": "frame_interval", "duration_ms": float(sample_var)})
+		var measurement_class: String = str(dictionary.get("measurement_class", ""))
+		if measurement_class in ["interaction_frame_completion", "cold_interaction_frame_completion"]:
+			for sample_var: Variant in dictionary.get("raw_duration_ms", []):
+				if typeof(sample_var) in [TYPE_FLOAT, TYPE_INT] and float(sample_var) >= 500.0:
+					result.append({"path": path, "measurement_class": measurement_class, "duration_ms": float(sample_var)})
+		for key_var: Variant in dictionary.keys():
+			var key: String = str(key_var)
+			if key in ["raw_frame_intervals_ms", "raw_intervals_ms", "raw_duration_ms", "raw_process_ms", "raw_draw_calls", "raw_objects_in_frame", "raw_primitives_in_frame"]:
+				continue
+			_collect_throttle_samples(dictionary[key_var], "%s.%s" % [path, key], result)
+	elif typeof(value) == TYPE_ARRAY:
+		var values: Array = value as Array
+		for index: int in range(values.size()):
+			_collect_throttle_samples(values[index], "%s[%d]" % [path, index], result)
 
 func _settle_frames(count: int) -> void:
 	for _frame: int in range(count):
 		await process_frame
+
+func _settle_render_frames(count: int) -> void:
+	for _frame: int in range(count):
+		await _await_render_frame()
 
 func _subtree_node_count(node: Node) -> int:
 	var total: int = 1

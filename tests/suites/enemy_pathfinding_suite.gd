@@ -17,6 +17,8 @@ static func run(expect: Callable) -> void:
 	_test_forced_choke_crosses_and_triggers_trap(expect)
 	_test_blocking_terrain_is_cleared(expect)
 	_test_attack_only_enemy_clears_reachable_blocking_terrain(expect)
+	_test_attack_only_enemy_uses_illusion_route_blocker(expect)
+	_test_large_attack_only_enemy_uses_footprint_route_blocker(expect)
 	_test_enemy_congestion_is_a_hard_current_blocker(expect)
 	_test_open_detour_beats_avoidable_allied_stall(expect)
 	_test_large_footprint_stops_when_attack_is_available(expect)
@@ -236,10 +238,50 @@ static func _test_attack_only_enemy_clears_reachable_blocking_terrain(expect: Ca
 	var terrain: Array = [{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(3, 4), "hp": 3, "max_hp": 3}]
 	var state: Dictionary = _state(combat, 271, Vector2i(5, 4), [_enemy(Vector2i(2, 4), intent)], terrain, [], [], _corridor_grid())
 	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
-	expect.call(int(plan.get("blocking_terrain_index", -1)) == 0, "Attack-only enemies should still plan a reachable blocking-terrain strike without searching future movement routes")
+	expect.call(int(plan.get("blocking_terrain_index", -1)) == 0, "Attack-only enemies should still plan a reachable blocking-terrain strike")
 	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
 	expect.call(int(((resolved.get("terrain", []) as Array)[0] as Dictionary).get("hp", 0)) == 0, "Attack-only enemies should execute their planned blocking-terrain strike")
 	expect.call(int((resolved.get("player", {}) as Dictionary).get("hp", 0)) == 24, "A stationary terrain strike should not also damage an out-of-range player")
+
+static func _test_attack_only_enemy_uses_illusion_route_blocker(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Redirected Break",
+		"actions": [{"type": "melee", "damage": 3, "range": 1}]
+	}
+	var terrain: Array = [
+		{"id": "player_crate", "kind": "wooden_crate", "pos": Vector2i(3, 4), "hp": 3, "max_hp": 3},
+		{"id": "illusion_crate", "kind": "wooden_crate", "pos": Vector2i(2, 5), "hp": 3, "max_hp": 3},
+	]
+	var illusions: Array = [{"id": 7, "pos": Vector2i(2, 7), "hp": 4, "max_hp": 4}]
+	var state: Dictionary = _state(combat, 272, Vector2i(6, 4), [_enemy(Vector2i(2, 4), intent)], terrain, [], illusions)
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	expect.call(str(plan.get("target_key", "")) == "illusion_7", "Attack-only future planning should preserve illusion redirection")
+	expect.call(int(plan.get("blocking_terrain_index", -1)) == 1, "A redirected attack-only enemy should strike the blocker on its illusion route")
+	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
+	var resolved_terrain: Array = resolved.get("terrain", []) as Array
+	expect.call(int((resolved_terrain[0] as Dictionary).get("hp", 0)) == 3 and int((resolved_terrain[1] as Dictionary).get("hp", 0)) == 0, "Resolved terrain damage should match the illusion-selected route")
+
+static func _test_large_attack_only_enemy_uses_footprint_route_blocker(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Broad Break",
+		"actions": [{"type": "melee", "damage": 3, "range": 1}]
+	}
+	var large_enemy: Dictionary = _enemy(Vector2i(2, 3), intent)
+	large_enemy["footprint"] = Vector2i(2, 2)
+	var terrain: Array = [
+		{"id": "upper_crate", "kind": "wooden_crate", "pos": Vector2i(4, 3), "hp": 3, "max_hp": 3},
+		{"id": "lower_crate", "kind": "wooden_crate", "pos": Vector2i(4, 4), "hp": 3, "max_hp": 3},
+	]
+	var state: Dictionary = _state(combat, 273, Vector2i(6, 4), [large_enemy], terrain)
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	var player_only_index: int = int(combat.call("_blocking_terrain_index_for_enemy_action", state, 0, intent["actions"][0]))
+	expect.call(player_only_index == 1, "The player-only single-tile shortcut fixture should expose the blocker it would incorrectly select")
+	expect.call(int(plan.get("blocking_terrain_index", -1)) == -1, "Large attack-only enemies should preserve the open detour selected by footprint-anchor planning")
+	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
+	var resolved_terrain: Array = resolved.get("terrain", []) as Array
+	expect.call(int((resolved_terrain[0] as Dictionary).get("hp", 0)) == 3 and int((resolved_terrain[1] as Dictionary).get("hp", 0)) == 3, "Large-enemy terrain resolution should not attack a blocker excluded by its footprint route")
 
 static func _test_enemy_congestion_is_a_hard_current_blocker(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
