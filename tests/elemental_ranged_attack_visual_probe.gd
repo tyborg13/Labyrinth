@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/elemental_ranged_attack_v3"
+const OUTPUT_DIR: String = "user://probes/elemental_ranged_attack_v4"
 const PROGRESSION_PATH: String = "user://elemental_ranged_attack_probe_progression.json"
 const RUN_PATH: String = "user://elemental_ranged_attack_probe_run.save"
 const SETTINGS_PATH: String = "user://elemental_ranged_attack_probe_settings.json"

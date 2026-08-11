@@ -15,7 +15,9 @@ static func run(expect: Callable) -> void:
 	_test_elemental_sheets_load_as_authored_frames(expect)
 	_test_fireball_path_is_straight(expect)
 	_test_all_authored_elemental_paths_are_straight(expect)
-	_test_isometric_ground_anchor_tracks_the_actor_footplane(expect)
+	_test_isometric_ground_anchor_is_exact_target_floor(expect)
+	_test_elemental_integration_profiles_own_depth_and_authored_anchors(expect)
+	_test_elemental_effects_render_below_the_hud(expect)
 	_test_enemy_steps_inherit_the_attacker_element(expect)
 
 
@@ -175,6 +177,11 @@ static func _test_elemental_sheets_load_as_authored_frames(expect: Callable) -> 
 		"elemental_air_performance",
 		"elemental_lightning_performance",
 		"elemental_ice_performance",
+		"elemental_fire_performance_bloom",
+		"elemental_earth_performance_bloom",
+		"elemental_air_performance_bloom",
+		"elemental_lightning_performance_bloom",
+		"elemental_ice_performance_bloom",
 		"earth_spike_travel",
 		"earth_spike_impact",
 		"earth_ground_layer",
@@ -221,7 +228,7 @@ static func _test_all_authored_elemental_paths_are_straight(expect: Callable) ->
 		)
 
 
-static func _test_isometric_ground_anchor_tracks_the_actor_footplane(expect: Callable) -> void:
+static func _test_isometric_ground_anchor_is_exact_target_floor(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.size = Vector2(1920.0, 1080.0)
 	var tile_center := Vector2(640.0, 420.0)
@@ -229,15 +236,75 @@ static func _test_isometric_ground_anchor_tracks_the_actor_footplane(expect: Cal
 	var ground_point: Vector2 = board.call("_elemental_ground_point", tile_center)
 	var air_point: Vector2 = board.call("_elemental_air_point", tile_center, 0.60)
 	expect.call(
-		is_equal_approx(ground_point.y - tile_center.y, tile_height * 0.40)
-		and ground_point.y > tile_center.y,
-		"Ground eruptions should land on the lower isometric footplane instead of the visual center of the target tile"
+		ground_point.is_equal_approx(tile_center),
+		"Every ground light, blast base, shard, and eruption should share the exact center of the targeted isometric floor diamond"
 	)
 	expect.call(
 		is_equal_approx(tile_center.y - air_point.y, tile_height * 0.60)
 		and air_point.y < tile_center.y
 		and ground_point.y > air_point.y,
 		"Airborne elemental cores and their ground traces should occupy visibly separate depth planes"
+	)
+	board.free()
+
+
+static func _test_elemental_integration_profiles_own_depth_and_authored_anchors(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	var expected_anchors: Dictionary = {
+		AttackFxLibrary.STYLE_FIREBALL: 0.78,
+		AttackFxLibrary.STYLE_EARTH_SPIKES: 0.80,
+		AttackFxLibrary.STYLE_AIR_GUST: 0.80,
+		AttackFxLibrary.STYLE_LIGHTNING_BOLT: 0.78,
+		AttackFxLibrary.STYLE_ICE_SHARDS: 0.82,
+	}
+	var profile_signatures: Dictionary = {}
+	for style_var: Variant in expected_anchors:
+		var style: String = str(style_var)
+		var profile: Dictionary = board.call("_elemental_integration_profile", style)
+		var anchor: Vector2 = profile.get("ground_anchor", Vector2.ZERO)
+		var signature: String = "%.2f|%.2f|%.2f|%s" % [
+			float(profile.get("bloom_alpha", 0.0)),
+			float(profile.get("floor_alpha", 0.0)),
+			float(profile.get("volume_alpha", 0.0)),
+			str(profile.get("volume_color", Color.TRANSPARENT)),
+		]
+		profile_signatures[signature] = true
+		expect.call(
+			is_equal_approx(anchor.x, 0.50)
+			and is_equal_approx(anchor.y, float(expected_anchors.get(style, 0.0)))
+			and float(profile.get("bloom_alpha", 0.0)) >= 0.40
+			and float(profile.get("floor_alpha", 0.0)) >= 0.50
+			and float(profile.get("volume_alpha", 0.0)) >= 0.45,
+			"%s should map its authored raster origin to the tile floor and own bloom, floor light, and back-volume layers" % style
+		)
+	expect.call(profile_signatures.size() == 5, "Each element should own a distinct scene-integration profile instead of sharing one flat overlay treatment")
+	var earth_contact_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_EARTH_SPIKES, 0)
+	var earth_peak_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_EARTH_SPIKES, 4)
+	var ice_contact_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_ICE_SHARDS, 0)
+	var ice_peak_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_ICE_SHARDS, 4)
+	expect.call(
+		is_equal_approx(earth_contact_anchor.y, 0.68)
+		and is_equal_approx(earth_peak_anchor.y, 0.80)
+		and is_equal_approx(ice_contact_anchor.y, 0.78)
+		and is_equal_approx(ice_peak_anchor.y, 0.82),
+		"Earth and Ice should use frame-calibrated contact and peak origins so planar growth never floats above the target floor"
+	)
+	board.free()
+
+
+static func _test_elemental_effects_render_below_the_hud(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	board.call("_create_dynamic_render_layer")
+	var world_layer: Control = board.get("_dynamic_render_layer") as Control
+	var effects_layer: Control = board.get("_effects_render_layer") as Control
+	var hud_layer: Control = board.get("_hud_render_layer") as Control
+	expect.call(
+		world_layer != null
+		and effects_layer != null
+		and hud_layer != null
+		and world_layer.get_index() < effects_layer.get_index()
+		and effects_layer.get_index() < hud_layer.get_index(),
+		"Floor illumination should render under actors, the authored blast above them, and HP/HUD feedback last so it stays crisp"
 	)
 	board.free()
 
