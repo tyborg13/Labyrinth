@@ -6226,6 +6226,10 @@ func _elemental_performance_size(style: String, impact_progress: float) -> float
 	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
 	return clampf(_tile_width() * scale * (0.90 + bloom * 0.16), ELEMENTAL_PERFORMANCE_MIN_SIZE, ELEMENTAL_PERFORMANCE_MAX_SIZE)
 
+func _elemental_reduced_motion_frame_index(style: String, frame_count: int) -> int:
+	var preferred_frame: int = 3 if style == AttackFxLibrary.STYLE_FIREBALL else 4
+	return clampi(preferred_frame, 0, maxi(0, frame_count - 1))
+
 func _draw_elemental_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> float:
 	var frames: Array[Texture2D] = _elemental_performance_frames(style)
 	if frames.is_empty() or alpha <= 0.0:
@@ -6233,7 +6237,7 @@ func _draw_elemental_performance(style: String, ground_point: Vector2, impact_pr
 	var bloom_frames: Array[Texture2D] = _elemental_performance_bloom_frames(style)
 	var profile: Dictionary = _elemental_integration_profile(style)
 	var element_id: String = _elemental_style_id(style)
-	var frame_index: int = 4 if reduced_motion else AttackFxLibrary.one_shot_frame_index(impact_progress, frames.size())
+	var frame_index: int = _elemental_reduced_motion_frame_index(style, frames.size()) if reduced_motion else AttackFxLibrary.one_shot_frame_index(impact_progress, frames.size())
 	var draw_size: float = _elemental_performance_size(style, 0.52 if reduced_motion else impact_progress)
 	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.88, 1.0, impact_progress)
 	var modulate: Color = _elemental_performance_modulate(style)

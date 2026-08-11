@@ -13,6 +13,7 @@ static func run(expect: Callable) -> void:
 	_test_elemental_spell_timing_is_staged(expect)
 	_test_fireball_sheets_load_as_authored_frames(expect)
 	_test_elemental_sheets_load_as_authored_frames(expect)
+	_test_reduced_motion_fire_frame_owns_transparent_bloom_padding(expect)
 	_test_fireball_path_is_straight(expect)
 	_test_all_authored_elemental_paths_are_straight(expect)
 	_test_isometric_ground_anchor_is_exact_target_floor(expect)
@@ -204,6 +205,36 @@ static func _test_elemental_sheets_load_as_authored_frames(expect: Callable) -> 
 				"%s should retain its validated 512x512 frame contract" % frame_key
 			)
 	board.free()
+
+
+static func _test_reduced_motion_fire_frame_owns_transparent_bloom_padding(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	board.call("_load_assets", false)
+	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
+	var sharp_frames: Array = effect_frames.get("elemental_fire_performance", []) as Array
+	var bloom_frames: Array = effect_frames.get("elemental_fire_performance_bloom", []) as Array
+	var reduced_frame: int = int(board.call("_elemental_reduced_motion_frame_index", AttackFxLibrary.STYLE_FIREBALL, sharp_frames.size()))
+	var safe_padding: bool = sharp_frames.size() > reduced_frame and bloom_frames.size() > reduced_frame
+	if safe_padding:
+		safe_padding = (
+			_max_top_edge_alpha(sharp_frames[reduced_frame] as Texture2D) <= 0.01
+			and _max_top_edge_alpha(bloom_frames[reduced_frame] as Texture2D) <= 0.01
+		)
+	expect.call(
+		reduced_frame == 3 and safe_padding,
+		"Reduced-motion Fire should use a fully padded impact cell so repeated bloom cannot reveal a clipped rectangular top edge"
+	)
+	board.free()
+
+
+static func _max_top_edge_alpha(texture: Texture2D) -> float:
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		return 1.0
+	var max_alpha: float = 0.0
+	for x: int in range(image.get_width()):
+		max_alpha = maxf(max_alpha, image.get_pixel(x, 0).a)
+	return max_alpha
 
 
 static func _test_fireball_path_is_straight(expect: Callable) -> void:
