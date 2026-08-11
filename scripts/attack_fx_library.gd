@@ -8,10 +8,10 @@ const STYLE_AIR_GUST: String = "air_gust"
 const STYLE_LIGHTNING_BOLT: String = "lightning_bolt"
 const STYLE_ICE_SHARDS: String = "ice_shards"
 
-const FIREBALL_ANIMATION_FRAMES: int = 36
+const FIREBALL_ANIMATION_FRAMES: int = 48
 const FIREBALL_FRAME_SECONDS: float = 0.015
-const FIREBALL_ANTICIPATION_END_PROGRESS: float = 4.0 / 36.0
-const FIREBALL_TRAVEL_END_PROGRESS: float = 12.0 / 36.0
+const FIREBALL_ANTICIPATION_END_PROGRESS: float = 4.0 / 48.0
+const FIREBALL_TRAVEL_END_PROGRESS: float = 12.0 / 48.0
 const EARTH_ANIMATION_FRAMES: int = 44
 const EARTH_FRAME_SECONDS: float = 0.016
 const EARTH_ANTICIPATION_END_PROGRESS: float = 4.0 / 44.0

@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/elemental_ranged_attack_v5"
+const OUTPUT_DIR: String = "user://probes/elemental_ranged_attack_v6"
 const PROGRESSION_PATH: String = "user://elemental_ranged_attack_probe_progression.json"
 const RUN_PATH: String = "user://elemental_ranged_attack_probe_run.save"
 const SETTINGS_PATH: String = "user://elemental_ranged_attack_probe_settings.json"
@@ -79,6 +79,14 @@ func _capture_elemental_states() -> void:
 	for element_id: String in _requested_elements():
 		settings["reduced_motion"] = false
 		instance.set("_settings", settings.duplicate(true))
+		var preview_effect: Dictionary = _effect_for_element(element_id)
+		preview_effect["preview"] = true
+		await _render_and_capture(
+			instance,
+			combat_state,
+			_elemental_presentation(preview_effect, 1.0, element_id),
+			"%s_05_preview_curve.png" % element_id
+		)
 		await _capture_element_sequence(instance, combat_state, element_id)
 		await _render_and_capture(instance, combat_state, {}, "%s_70_cleared.png" % element_id)
 		settings["reduced_motion"] = true

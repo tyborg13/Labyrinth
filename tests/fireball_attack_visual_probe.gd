@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/fireball_attack_v5"
+const OUTPUT_DIR: String = "user://probes/fireball_attack_v6"
 const PROGRESSION_PATH: String = "user://fireball_attack_probe_progression.json"
 const RUN_PATH: String = "user://fireball_attack_probe_run.save"
 const SETTINGS_PATH: String = "user://fireball_attack_probe_settings.json"
@@ -88,6 +88,9 @@ func _capture_fireball_states() -> void:
 	)
 
 	await _render_and_capture(instance, combat_state, {}, "fireball_00_before.png")
+	var preview_effect: Dictionary = effect.duplicate(true)
+	preview_effect["preview"] = true
+	await _render_and_capture(instance, combat_state, _fireball_presentation(preview_effect, 1.0), "fireball_05_preview_curve.png")
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	var frame_count: int = AttackFxLibrary.FIREBALL_ANIMATION_FRAMES
 	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
@@ -97,7 +100,7 @@ func _capture_fireball_states() -> void:
 	var contact_frame: int = clampi(int(round(travel_end * float(frame_count))), causality_frame + 1, frame_count - 2)
 	var impact_span: int = frame_count - contact_frame
 	var peak_frame: int = clampi(contact_frame + int(round(float(impact_span) * 0.52)), contact_frame + 1, frame_count - 1)
-	var aftermath_frame: int = clampi(contact_frame + int(round(float(impact_span) * 0.78)), peak_frame + 1, frame_count)
+	var aftermath_frame: int = clampi(contact_frame + int(round(float(impact_span) * 0.84)), peak_frame + 1, frame_count)
 	var key_frames: Dictionary = {
 		release_frame: "10_release",
 		causality_frame: "20_causality",

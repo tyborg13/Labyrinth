@@ -1,7 +1,11 @@
 {
-  "min_images": 183,
+  "min_images": 187,
   "expected_sizes": ["1920x1080"],
   "required_images": [
+    {"pattern": "*earth_05_preview_curve.png", "width": 1920, "height": 1080},
+    {"pattern": "*air_05_preview_curve.png", "width": 1920, "height": 1080},
+    {"pattern": "*lightning_05_preview_curve.png", "width": 1920, "height": 1080},
+    {"pattern": "*ice_05_preview_curve.png", "width": 1920, "height": 1080},
     {"pattern": "*earth_10_release.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]},
     {"pattern": "*earth_20_causality.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]},
     {"pattern": "*earth_30_contact.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]},

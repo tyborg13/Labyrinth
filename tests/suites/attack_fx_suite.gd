@@ -17,9 +17,12 @@ static func run(expect: Callable) -> void:
 	_test_sampled_fire_frames_own_transparent_bloom_padding(expect)
 	_test_fireball_path_is_straight(expect)
 	_test_all_authored_elemental_paths_are_straight(expect)
+	_test_ranged_previews_use_static_curves(expect)
 	_test_isometric_ground_anchor_is_exact_target_floor(expect)
 	_test_elemental_effects_resolve_into_scene_depth_tiles(expect)
 	_test_elemental_integration_profiles_own_depth_and_authored_anchors(expect)
+	_test_ground_eruptions_own_compact_stable_bases(expect)
+	_test_fire_resolves_through_particle_tail(expect)
 	_test_elemental_effects_render_below_the_hud(expect)
 	_test_enemy_steps_inherit_the_attacker_element(expect)
 
@@ -107,7 +110,7 @@ static func _test_elemental_styles_own_distinct_motion_schedules(expect: Callabl
 
 static func _test_elemental_spell_timing_is_staged(expect: Callable) -> void:
 	var schedules: Dictionary = {
-		"fire": [AttackFxLibrary.STYLE_FIREBALL, 36, 0.015, 4.0 / 36.0, 12.0 / 36.0],
+		"fire": [AttackFxLibrary.STYLE_FIREBALL, 48, 0.015, 4.0 / 48.0, 12.0 / 48.0],
 		"earth": [AttackFxLibrary.STYLE_EARTH_SPIKES, 44, 0.016, 4.0 / 44.0, 16.0 / 44.0],
 		"air": [AttackFxLibrary.STYLE_AIR_GUST, 38, 0.015, 4.0 / 38.0, 12.0 / 38.0],
 		"lightning": [AttackFxLibrary.STYLE_LIGHTNING_BOLT, 30, 0.0115, 4.0 / 30.0, 8.0 / 30.0],
@@ -304,6 +307,33 @@ static func _test_all_authored_elemental_paths_are_straight(expect: Callable) ->
 		)
 
 
+static func _test_ranged_previews_use_static_curves(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	board.size = Vector2(1920.0, 1080.0)
+	var preview_effect: Dictionary = {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"from": Vector2i(2, 4),
+		"to": Vector2i(5, 4),
+		"element": "fire",
+		"preview": true,
+	}
+	var start := Vector2(420.0, 520.0)
+	var finish := Vector2(920.0, 560.0)
+	var points: Array = board.call("_ranged_target_preview_curve_points", start, finish) as Array
+	var midpoint: Vector2 = points[points.size() / 2] if not points.is_empty() else Vector2.ZERO
+	var lifted_start: Vector2 = points.front() if not points.is_empty() else Vector2.ZERO
+	var lifted_finish: Vector2 = points.back() if not points.is_empty() else Vector2.ZERO
+	expect.call(
+		points.size() == 17
+		and midpoint.y < lerpf(lifted_start.y, lifted_finish.y, 0.5)
+		and not bool(board.call("_effect_uses_elemental_scene_depth", preview_effect))
+		and not bool(board.call("_preview_effect_needs_continuous_redraw", preview_effect)),
+		"Ranged targeting should use one static curved overlay with no scene-depth projectile animation"
+	)
+	board.free()
+
+
 static func _test_isometric_ground_anchor_is_exact_target_floor(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.size = Vector2(1920.0, 1080.0)
@@ -395,13 +425,22 @@ static func _test_elemental_integration_profiles_own_depth_and_authored_anchors(
 			and float(profile.get("volume_alpha", 0.0)) >= 0.45,
 			"%s should map its authored raster origin to the tile floor and own bloom, floor light, and back-volume layers" % style
 		)
-		expect.call(
-			float(profile.get("rear_core_alpha", 1.0)) < float(profile.get("front_core_alpha", 0.0))
-			and float(profile.get("front_core_alpha", 1.0)) <= 0.40
-			and float(profile.get("front_bloom_alpha", 0.0)) >= 0.75
-			and float(profile.get("front_veil_alpha", 0.0)) >= 0.50,
-			"%s should cross the victim with a bloom-led translucent front volume while keeping the crisp raster body subordinate" % style
-		)
+		if style == AttackFxLibrary.STYLE_LIGHTNING_BOLT:
+			expect.call(
+				float(profile.get("rear_core_alpha", 0.0)) >= 0.44
+				and float(profile.get("front_core_alpha", 0.0)) >= 0.60
+				and float(profile.get("front_core_alpha", 0.0)) > float(profile.get("rear_core_alpha", 0.0))
+				and float(profile.get("front_bloom_alpha", 0.0)) >= 0.85,
+				"Lightning should keep a materially readable white core instead of relying mainly on transparent bloom"
+			)
+		else:
+			expect.call(
+				float(profile.get("rear_core_alpha", 1.0)) < float(profile.get("front_core_alpha", 0.0))
+				and float(profile.get("front_core_alpha", 1.0)) <= 0.40
+				and float(profile.get("front_bloom_alpha", 0.0)) >= 0.75
+				and float(profile.get("front_veil_alpha", 0.0)) >= 0.50,
+				"%s should cross the victim with a bloom-led translucent front volume while keeping the crisp raster body subordinate" % style
+			)
 	expect.call(profile_signatures.size() == 5, "Each element should own a distinct scene-integration profile instead of sharing one flat overlay treatment")
 	var earth_contact_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_EARTH_SPIKES, 0)
 	var earth_peak_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_EARTH_SPIKES, 4)
@@ -413,6 +452,51 @@ static func _test_elemental_integration_profiles_own_depth_and_authored_anchors(
 		and is_equal_approx(ice_contact_anchor.y, 0.78)
 		and is_equal_approx(ice_peak_anchor.y, 0.82),
 		"Earth and Ice should use frame-calibrated contact and peak origins so planar growth never floats above the target floor"
+	)
+	board.free()
+
+
+static func _test_ground_eruptions_own_compact_stable_bases(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	board.size = Vector2(1920.0, 1080.0)
+	board.call("_load_assets", false)
+	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
+	var earth_cores: Array = board.call("_elemental_impact_core_frames", AttackFxLibrary.STYLE_EARTH_SPIKES) as Array
+	var ice_cores: Array = board.call("_elemental_impact_core_frames", AttackFxLibrary.STYLE_ICE_SHARDS) as Array
+	var earth_registry: Array = effect_frames.get("earth_spike_impact", []) as Array
+	var ice_registry: Array = effect_frames.get("ice_icicle_impact", []) as Array
+	var earth_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_EARTH_SPIKES))
+	var ice_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_ICE_SHARDS))
+	var air_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_AIR_GUST))
+	expect.call(
+		not earth_cores.is_empty()
+		and not ice_cores.is_empty()
+		and earth_cores[0] == earth_registry[0]
+		and ice_cores[0] == ice_registry[0],
+		"Earth and Ice should use their narrow bottom-anchored eruption cores instead of baking a changing floor plate into the sharp body"
+	)
+	expect.call(
+		earth_scale < air_scale
+		and ice_scale < air_scale
+		and is_equal_approx(float(board.call("_elemental_ground_contact_expansion", "earth")), 0.18)
+		and is_equal_approx(float(board.call("_elemental_ground_contact_expansion", "ice")), 0.10),
+		"Earth and Ice should stay smaller than airborne impacts and keep their floor footprint expansion restrained"
+	)
+	board.free()
+
+
+static func _test_fire_resolves_through_particle_tail(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	var core_late: float = float(board.call("_elemental_impact_core_fade", AttackFxLibrary.STYLE_FIREBALL, 0.90))
+	var volume_late: float = float(board.call("_elemental_impact_volume_fade", AttackFxLibrary.STYLE_FIREBALL, 0.90))
+	var volume_final: float = float(board.call("_elemental_impact_volume_fade", AttackFxLibrary.STYLE_FIREBALL, 1.0))
+	expect.call(
+		AttackFxLibrary.FIREBALL_ANIMATION_FRAMES == 48
+		and is_zero_approx(core_late)
+		and volume_late > 0.0
+		and is_zero_approx(volume_final)
+		and CombatBoardView.FIREBALL_IMPACT_EMBER_COUNT >= 27,
+		"Fire should retire its opaque explosion before a longer staggered ember-and-smoke tail resolves to zero"
 	)
 	board.free()
 

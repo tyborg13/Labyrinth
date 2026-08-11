@@ -261,7 +261,7 @@ const FIREBALL_WAKE_CYCLES: float = 1.72
 const FIREBALL_AFTERIMAGE_COUNT: int = 3
 const FIREBALL_AFTERIMAGE_SPACING: float = 0.048
 const FIREBALL_TRAVEL_EMBER_COUNT: int = 13
-const FIREBALL_IMPACT_EMBER_COUNT: int = 15
+const FIREBALL_IMPACT_EMBER_COUNT: int = 27
 const FIREBALL_TRAVEL_DRAW_TILE_SCALE: float = 1.08
 const FIREBALL_IMPACT_DRAW_TILE_SCALE: float = 1.74
 const FIREBALL_TRAVEL_MIN_SIZE: float = 82.0
@@ -299,13 +299,13 @@ const ELEMENTAL_PERFORMANCE_MAX_SIZE: float = 342.0
 const ELEMENTAL_BACKGROUND_VOLUME_COUNT: int = 14
 const EARTH_PATH_SPIKE_COUNT: int = 6
 const EARTH_PATH_SPIKE_SIZE_SCALE: float = 0.68
-const EARTH_IMPACT_SIZE_SCALE: float = 2.68
+const EARTH_IMPACT_SIZE_SCALE: float = 2.08
 const AIR_GUST_TRAVEL_SIZE_SCALE: float = 1.18
 const AIR_GUST_IMPACT_SIZE_SCALE: float = 2.62
 const LIGHTNING_TRAVEL_SIZE_SCALE: float = 1.22
 const LIGHTNING_IMPACT_SIZE_SCALE: float = 2.76
 const ICE_TRAVEL_SIZE_SCALE: float = 1.16
-const ICE_IMPACT_SIZE_SCALE: float = 2.62
+const ICE_IMPACT_SIZE_SCALE: float = 2.04
 const ELEMENTAL_TRAVEL_AFTERIMAGE_COUNT: int = 3
 const ELEMENTAL_TRAVEL_MOTE_COUNT: int = 12
 const ELEMENTAL_IMPACT_MOTE_COUNT: int = 18
@@ -910,7 +910,7 @@ func _preview_effect_needs_continuous_redraw(effect: Dictionary) -> bool:
 		return false
 	# Only these preview renderers derive motion from wall-clock time. Other
 	# previews are static or advance through explicit presentation submissions.
-	return str(effect.get("kind", "")) in ["ranged", "aoe", "blink"]
+	return str(effect.get("kind", "")) in ["aoe", "blink"]
 
 func _equipment_pickup_beacon_active() -> bool:
 	if _submission_cache_valid:
@@ -5854,6 +5854,7 @@ func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
 	return (
 		str(effect.get("kind", "")) == "ranged"
 		and AttackFxLibrary.uses_authored_elemental_ranged(effect)
+		and not bool(effect.get("preview", false))
 	)
 
 func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictionary) -> Array[Vector2i]:
@@ -5934,22 +5935,23 @@ func _draw_elemental_foreground_depth_effect(effect: Dictionary, style: String, 
 	if not reduced_motion and progress < travel_end:
 		return
 	var impact_progress: float = 0.52 if reduced_motion else AttackFxLibrary.impact_progress_for_style(style, progress)
-	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.86, 1.0, impact_progress)
-	if fade <= 0.0:
+	var core_fade: float = 1.0 if reduced_motion else _elemental_impact_core_fade(style, impact_progress)
+	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
+	if core_fade <= 0.0 and volume_fade <= 0.0:
 		return
 	var element_id: String = _elemental_style_id(style)
 	var ground_point: Vector2 = _elemental_ground_point(target_point)
 	var draw_size: float = _elemental_performance_size(style, impact_progress)
-	_draw_elemental_foreground_performance(style, ground_point, impact_progress, fade, reduced_motion)
-	_draw_elemental_foreground_volume(element_id, ground_point, impact_progress, draw_size, fade, reduced_motion)
+	_draw_elemental_foreground_performance(style, ground_point, impact_progress, core_fade, reduced_motion)
+	_draw_elemental_foreground_volume(element_id, ground_point, impact_progress, draw_size, volume_fade, reduced_motion)
 
 func _draw_elemental_foreground_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	var frames: Array[Texture2D] = _elemental_performance_frames(style)
-	if frames.is_empty() or alpha <= 0.0:
+	var core_frames: Array[Texture2D] = _elemental_impact_core_frames(style)
+	if core_frames.is_empty() or alpha <= 0.0:
 		return
 	var profile: Dictionary = _elemental_integration_profile(style)
 	var sample_progress: float = 0.52 if reduced_motion else impact_progress
-	var frame_blend: Vector3 = _elemental_performance_frame_blend(style, sample_progress, frames.size(), reduced_motion)
+	var frame_blend: Vector3 = _elemental_performance_frame_blend(style, sample_progress, core_frames.size(), reduced_motion)
 	var draw_size: float = _elemental_performance_size(style, sample_progress)
 	var energy: float = 0.76 if reduced_motion else 0.54 + sin(clampf(impact_progress, 0.0, 1.0) * PI) * 0.46
 	var modulate: Color = _elemental_performance_modulate(style)
@@ -5975,8 +5977,8 @@ func _draw_elemental_foreground_performance(style: String, ground_point: Vector2
 			profile.get("bloom_color", Color.WHITE),
 			style
 		)
-	_draw_elemental_blended_performance_frames(
-		frames,
+	_draw_elemental_blended_impact_core_frames(
+		core_frames,
 		frame_blend,
 		ground_point,
 		draw_size * (0.985 + energy * 0.018),
@@ -6185,6 +6187,9 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 	return frames[frame_index] as Texture2D
 
 func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	if bool(effect.get("preview", false)):
+		_draw_ranged_target_preview_curve(effect, from_point, to_point)
+		return
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	match style:
 		AttackFxLibrary.STYLE_FIREBALL:
@@ -6205,25 +6210,36 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)
-	var preview: bool = bool(effect.get("preview", false))
-	var preview_phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
-	var preview_pulse: float = 0.5 + 0.5 * sin(preview_phase * TAU)
 	var start: Vector2 = from_point + Vector2(0.0, -24.0)
 	var end: Vector2 = to_point + Vector2(0.0, -24.0)
 	var control: Vector2 = _arc_control_point(start, end)
-	var warmup_progress: float = 1.0 if preview else clampf(progress / 0.34, 0.0, 1.0)
-	var arc_alpha: float = 0.11 + 0.08 * warmup_progress + (0.05 * preview_pulse if preview else 0.0)
+	var warmup_progress: float = clampf(progress / 0.34, 0.0, 1.0)
+	var arc_alpha: float = 0.11 + 0.08 * warmup_progress
 	_draw_bezier_glow(start, control, end, Color(accent.r, accent.g, accent.b, arc_alpha), 1.5)
-	var travel_progress: float = lerpf(0.05, 0.96, preview_phase) if preview else clampf((progress - 0.18) / 0.48, 0.0, 1.0)
-	var loop_fade: float = 1.0
-	if preview:
-		loop_fade = clampf(minf(preview_phase / 0.16, (1.0 - preview_phase) / 0.16), 0.0, 1.0)
+	var travel_progress: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
 	if travel_progress > 0.0:
-		_draw_elemental_projectile_trail(start, control, end, travel_progress, element_id, accent, secondary, 0.72 * loop_fade if preview else 1.0)
+		_draw_elemental_projectile_trail(start, control, end, travel_progress, element_id, accent, secondary)
 		var projectile_point: Vector2 = _quadratic_bezier(start, control, end, travel_progress)
 		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
 		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
-		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress, 0.84 * loop_fade if preview else 1.0)
+		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress)
+
+func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2) -> Array[Vector2]:
+	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.64)
+	var end: Vector2 = to_point + Vector2(0.0, -_tile_height() * 0.64)
+	return _sample_quadratic_points(start, _arc_control_point(start, end), end, 16)
+
+func _draw_ranged_target_preview_curve(effect: Dictionary, from_point: Vector2, to_point: Vector2) -> void:
+	var element_id: String = _projectile_element_id(_effect_element(effect))
+	var accent: Color = _projectile_accent(element_id)
+	var secondary: Color = _projectile_secondary(element_id)
+	var points: Array[Vector2] = _ranged_target_preview_curve_points(from_point, to_point)
+	if points.size() < 2:
+		return
+	var packed_points := PackedVector2Array(points)
+	draw_polyline(packed_points, Color(0.0, 0.0, 0.0, 0.28), 7.0, true)
+	draw_polyline(packed_points, Color(secondary.r, secondary.g, secondary.b, 0.26), 4.2, true)
+	draw_polyline(packed_points, Color(accent.r, accent.g, accent.b, 0.82), 1.8, true)
 
 func _elemental_ground_point(tile_center: Vector2) -> Vector2:
 	# _tile_center is the center of the rendered 2:1 diamond: the exact floor
@@ -6345,6 +6361,15 @@ func _draw_elemental_release_intake(element_id: String, center: Vector2, release
 func _elemental_performance_frames(style: String) -> Array[Texture2D]:
 	return _authored_elemental_frames("elemental_%s_performance" % _elemental_style_id(style))
 
+func _elemental_impact_core_frames(style: String) -> Array[Texture2D]:
+	match style:
+		AttackFxLibrary.STYLE_EARTH_SPIKES:
+			return _authored_elemental_frames("earth_spike_impact")
+		AttackFxLibrary.STYLE_ICE_SHARDS:
+			return _authored_elemental_frames("ice_icicle_impact")
+		_:
+			return _elemental_performance_frames(style)
+
 func _elemental_performance_bloom_frames(style: String) -> Array[Texture2D]:
 	return _authored_elemental_frames("elemental_%s_performance_bloom" % _elemental_style_id(style))
 
@@ -6382,10 +6407,10 @@ func _elemental_integration_profile(style: String) -> Dictionary:
 				"bloom_alpha": 0.94,
 				"floor_alpha": 0.92,
 				"volume_alpha": 0.48,
-				"rear_core_alpha": 0.26,
-				"front_core_alpha": 0.38,
-				"front_bloom_alpha": 1.00,
-				"front_veil_alpha": 0.68,
+				"rear_core_alpha": 0.46,
+				"front_core_alpha": 0.62,
+				"front_bloom_alpha": 0.90,
+				"front_veil_alpha": 0.54,
 				"bloom_color": Color(0.76, 0.80, 1.0, 1.0),
 				"volume_color": Color(0.66, 0.72, 1.0, 1.0),
 			}
@@ -6440,23 +6465,38 @@ func _elemental_performance_modulate(style: String) -> Color:
 		AttackFxLibrary.STYLE_AIR_GUST:
 			return Color(0.54, 0.92, 1.0, 1.0)
 		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-			return Color(0.82, 0.90, 1.0, 1.0)
+			return Color(0.96, 0.98, 1.0, 1.0)
 		_:
 			return Color.WHITE
 
-func _elemental_performance_size(style: String, impact_progress: float) -> float:
-	var scale: float = 2.55
+func _elemental_performance_size_scale(style: String) -> float:
 	match style:
 		AttackFxLibrary.STYLE_EARTH_SPIKES:
-			scale = EARTH_IMPACT_SIZE_SCALE
+			return EARTH_IMPACT_SIZE_SCALE
 		AttackFxLibrary.STYLE_AIR_GUST:
-			scale = AIR_GUST_IMPACT_SIZE_SCALE
+			return AIR_GUST_IMPACT_SIZE_SCALE
 		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-			scale = LIGHTNING_IMPACT_SIZE_SCALE
+			return LIGHTNING_IMPACT_SIZE_SCALE
 		AttackFxLibrary.STYLE_ICE_SHARDS:
-			scale = ICE_IMPACT_SIZE_SCALE
+			return ICE_IMPACT_SIZE_SCALE
+		_:
+			return 2.55
+
+func _elemental_performance_size(style: String, impact_progress: float) -> float:
+	var scale: float = _elemental_performance_size_scale(style)
 	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
-	return clampf(_tile_width() * scale * (0.90 + bloom * 0.16), ELEMENTAL_PERFORMANCE_MIN_SIZE, ELEMENTAL_PERFORMANCE_MAX_SIZE)
+	var bloom_scale: float = 0.08 if style in [AttackFxLibrary.STYLE_EARTH_SPIKES, AttackFxLibrary.STYLE_ICE_SHARDS] else 0.16
+	return clampf(_tile_width() * scale * (0.90 + bloom * bloom_scale), ELEMENTAL_PERFORMANCE_MIN_SIZE, ELEMENTAL_PERFORMANCE_MAX_SIZE)
+
+func _elemental_impact_core_fade(style: String, impact_progress: float) -> float:
+	if style == AttackFxLibrary.STYLE_FIREBALL:
+		return 1.0 - smoothstep(0.64, 0.88, impact_progress)
+	return 1.0 - smoothstep(0.86, 1.0, impact_progress)
+
+func _elemental_impact_volume_fade(style: String, impact_progress: float) -> float:
+	if style == AttackFxLibrary.STYLE_FIREBALL:
+		return 1.0 - smoothstep(0.76, 1.0, impact_progress)
+	return _elemental_impact_core_fade(style, impact_progress)
 
 func _elemental_reduced_motion_frame_index(style: String, frame_count: int) -> int:
 	var preferred_frame: int = 3 if style == AttackFxLibrary.STYLE_FIREBALL else 4
@@ -6483,27 +6523,29 @@ func _elemental_performance_frame_blend(style: String, impact_progress: float, f
 	return Vector3(float(current_frame), float(next_frame), blend)
 
 func _draw_elemental_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> float:
-	var frames: Array[Texture2D] = _elemental_performance_frames(style)
-	if frames.is_empty() or alpha <= 0.0:
+	var core_frames: Array[Texture2D] = _elemental_impact_core_frames(style)
+	if core_frames.is_empty() or alpha <= 0.0:
 		return 0.0
 	var bloom_frames: Array[Texture2D] = _elemental_performance_bloom_frames(style)
 	var profile: Dictionary = _elemental_integration_profile(style)
 	var element_id: String = _elemental_style_id(style)
 	var sample_progress: float = 0.52 if reduced_motion else impact_progress
-	var frame_blend: Vector3 = _elemental_performance_frame_blend(style, sample_progress, frames.size(), reduced_motion)
+	var frame_blend: Vector3 = _elemental_performance_frame_blend(style, sample_progress, core_frames.size(), reduced_motion)
 	var draw_size: float = _elemental_performance_size(style, sample_progress)
-	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.88, 1.0, impact_progress)
+	var core_fade: float = 1.0 if reduced_motion else _elemental_impact_core_fade(style, impact_progress)
+	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
 	var modulate: Color = _elemental_performance_modulate(style)
 	var energy: float = 0.72 if reduced_motion else 0.48 + sin(clampf(impact_progress, 0.0, 1.0) * PI) * 0.52
-	var composite_alpha: float = alpha * fade
+	var core_alpha: float = alpha * core_fade
+	var volume_alpha: float = alpha * volume_fade
 	_draw_elemental_ground_contact(
 		element_id,
 		ground_point,
 		impact_progress,
 		draw_size,
-		composite_alpha * float(profile.get("floor_alpha", 0.70))
+		volume_alpha * float(profile.get("floor_alpha", 0.70))
 	)
-	_draw_elemental_background_volume(style, ground_point, impact_progress, draw_size, composite_alpha, reduced_motion)
+	_draw_elemental_background_volume(style, ground_point, impact_progress, draw_size, volume_alpha, reduced_motion)
 	if not bloom_frames.is_empty():
 		var bloom_blend: Vector3 = _remap_frame_blend(frame_blend, bloom_frames.size())
 		var bloom_color: Color = profile.get("bloom_color", Color.WHITE)
@@ -6517,7 +6559,7 @@ func _draw_elemental_performance(style: String, ground_point: Vector2, impact_pr
 				bloom_blend,
 				ground_point,
 				draw_size * layer_scale,
-				composite_alpha * layer_alpha,
+				core_alpha * layer_alpha,
 				bloom_color,
 				style
 			)
@@ -6527,21 +6569,21 @@ func _draw_elemental_performance(style: String, ground_point: Vector2, impact_pr
 			bloom_frames[echo_frame_index],
 			ground_point + Vector2(0.0, draw_size * 0.025),
 			draw_size * 1.16,
-			composite_alpha * 0.24,
+			core_alpha * 0.24,
 			profile.get("bloom_color", Color.WHITE),
 			style,
 			echo_frame_index
 		)
-	_draw_elemental_blended_performance_frames(
-		frames,
+	_draw_elemental_blended_impact_core_frames(
+		core_frames,
 		frame_blend,
 		ground_point,
 		draw_size * (0.99 + energy * 0.012),
-		composite_alpha * float(profile.get("rear_core_alpha", 0.20)),
+		core_alpha * float(profile.get("rear_core_alpha", 0.20)),
 		modulate,
 		style
 	)
-	return draw_size * fade
+	return draw_size * maxf(core_fade, volume_fade)
 
 func _remap_frame_blend(frame_blend: Vector3, frame_count: int) -> Vector3:
 	if frame_count <= 0:
@@ -6571,6 +6613,19 @@ func _draw_elemental_blended_performance_frames(frames: Array[Texture2D], frame_
 	_draw_elemental_performance_frame(frames[current_index], ground_point, draw_size, alpha * current_weight, modulate, style, current_index)
 	if next_weight > 0.0:
 		_draw_elemental_performance_frame(frames[next_index], ground_point, draw_size, alpha * next_weight, modulate, style, next_index)
+
+func _draw_elemental_blended_impact_core_frames(frames: Array[Texture2D], frame_blend: Vector3, ground_point: Vector2, draw_size: float, alpha: float, modulate: Color, style: String) -> void:
+	if style not in [AttackFxLibrary.STYLE_EARTH_SPIKES, AttackFxLibrary.STYLE_ICE_SHARDS]:
+		_draw_elemental_blended_performance_frames(frames, frame_blend, ground_point, draw_size, alpha, modulate, style)
+		return
+	if frames.is_empty() or alpha <= 0.0:
+		return
+	var current_index: int = clampi(int(frame_blend.x), 0, frames.size() - 1)
+	var next_index: int = clampi(int(frame_blend.y), 0, frames.size() - 1)
+	var next_weight: float = clampf(frame_blend.z, 0.0, 1.0) if current_index != next_index else 0.0
+	_draw_authored_bottom_frame(frames[current_index], ground_point, draw_size, alpha * (1.0 - next_weight), modulate)
+	if next_weight > 0.0:
+		_draw_authored_bottom_frame(frames[next_index], ground_point, draw_size, alpha * next_weight, modulate)
 
 func _draw_elemental_background_volume(style: String, ground_point: Vector2, impact_progress: float, draw_size: float, alpha: float, reduced_motion: bool) -> void:
 	var profile: Dictionary = _elemental_integration_profile(style)
@@ -6886,7 +6941,7 @@ func _draw_lightning_travel(start: Vector2, end: Vector2, ground_start: Vector2,
 			lane_center,
 			jitter_direction,
 			Vector2(lane_length + draw_size * 0.72, draw_size * (0.82 + strike_alpha * 0.34)),
-			strike_alpha * 0.82,
+			strike_alpha * 0.96,
 			Color.WHITE,
 			Vector2(0.50, 0.50)
 		)
@@ -6909,7 +6964,7 @@ func _draw_lightning_impact(center: Vector2, ground_center: Vector2, impact_prog
 			ground_center,
 			Vector2.RIGHT,
 			Vector2.ONE * draw_size * (0.60 + burst_energy * 0.24),
-			alpha * fade * (0.42 + burst_energy * 0.22),
+			alpha * fade * (0.68 + burst_energy * 0.26),
 			Color(0.78, 0.86, 1.0, 1.0),
 			Vector2(0.50, 0.50)
 		)
@@ -6969,18 +7024,17 @@ func _draw_ice_shard_travel(start: Vector2, end: Vector2, ground_start: Vector2,
 		_draw_authored_oriented_frame_blend(frames, frame_blend, point, wave_direction, wave_size, wave_alpha * 0.76, Color.WHITE, Vector2(0.84, 0.50))
 	_draw_elemental_travel_motes("ice", start, end, travel_progress, direction, draw_size, alpha)
 	if travel_progress > 0.48:
-		var performance_frames: Array[Texture2D] = _elemental_performance_frames(AttackFxLibrary.STYLE_ICE_SHARDS)
-		if not performance_frames.is_empty():
+		var ground_frames: Array[Texture2D] = _authored_elemental_frames("ice_ground_layer")
+		if not ground_frames.is_empty():
 			var frost_age: float = clampf((travel_progress - 0.48) / 0.52, 0.0, 1.0)
-			var frost_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(frost_age * 0.18, performance_frames.size())
-			_draw_elemental_blended_performance_frames(
-				performance_frames,
+			var frost_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(frost_age * 0.18, ground_frames.size())
+			_draw_authored_ground_frame_blend(
+				ground_frames,
 				frost_blend,
 				ground_end,
-				clampf(_tile_width() * 1.42, 128.0, 174.0),
+				Vector2(clampf(_tile_width() * 1.34, 122.0, 164.0), clampf(_tile_height() * 0.62, 34.0, 56.0)),
 				alpha * frost_age * 0.40,
-				Color.WHITE,
-				AttackFxLibrary.STYLE_ICE_SHARDS
+				Color.WHITE
 			)
 
 func _draw_ice_icicle_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
@@ -7075,7 +7129,7 @@ func _draw_elemental_ground_contact(element_id: String, center: Vector2, impact_
 	var frame_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(impact_progress, 8)
 	for layer_index: int in range(3):
 		var layer_scale: float = 1.0 + float(layer_index) * 0.18
-		var footprint_width: float = draw_size * (0.86 + bloom * 0.46) * layer_scale
+		var footprint_width: float = draw_size * (0.86 + bloom * _elemental_ground_contact_expansion(element_id)) * layer_scale
 		var footprint := Vector2(footprint_width, maxf(18.0, footprint_width * 0.36))
 		var next_weight: float = clampf(frame_blend.z, 0.0, 1.0) if int(frame_blend.x) != int(frame_blend.y) else 0.0
 		var current_weight: float = 1.0 - next_weight
@@ -7097,6 +7151,15 @@ func _draw_elemental_ground_contact(element_id: String, center: Vector2, impact_
 				frame_index
 			)
 
+func _elemental_ground_contact_expansion(element_id: String) -> float:
+	match element_id:
+		"ice":
+			return 0.10
+		"earth":
+			return 0.18
+		_:
+			return 0.46
+
 func _elemental_ground_texture(element_id: String, frame_index: int) -> Texture2D:
 	match element_id:
 		"fire":
@@ -7109,6 +7172,15 @@ func _elemental_ground_texture(element_id: String, frame_index: int) -> Texture2
 	return _ambient_particle_texture(element_id, frame_index)
 
 func _elemental_floor_light_texture(element_id: String, frame_index: int) -> Texture2D:
+	var ground_layer_key: String = ""
+	if element_id == "earth":
+		ground_layer_key = "earth_ground_layer"
+	elif element_id == "ice":
+		ground_layer_key = "ice_ground_layer"
+	if not ground_layer_key.is_empty():
+		var ground_frames: Array[Texture2D] = _authored_elemental_frames(ground_layer_key)
+		if not ground_frames.is_empty():
+			return ground_frames[posmod(frame_index, ground_frames.size())]
 	var bloom_frames: Array[Texture2D] = _authored_elemental_frames("elemental_%s_performance_bloom" % element_id)
 	if not bloom_frames.is_empty():
 		return bloom_frames[posmod(frame_index, bloom_frames.size())]
@@ -7131,7 +7203,7 @@ func _draw_elemental_floor_light_sprite(element_id: String, texture: Texture2D, 
 	if texture == null or draw_size.x <= 0.0 or draw_size.y <= 0.0 or alpha <= 0.0:
 		return
 	var style: String = _elemental_style_for_id(element_id)
-	var source_anchor: Vector2 = _elemental_performance_ground_anchor(style, frame_index)
+	var source_anchor: Vector2 = Vector2(0.50, 0.50) if element_id in ["earth", "ice"] else _elemental_performance_ground_anchor(style, frame_index)
 	var rect := Rect2(
 		floor_point - Vector2(draw_size.x * source_anchor.x, draw_size.y * source_anchor.y),
 		draw_size
@@ -7188,11 +7260,11 @@ func _draw_authored_ground_frame_blend(frames: Array[Texture2D], frame_blend: Ve
 	if next_weight > 0.0:
 		_draw_authored_ground_frame(frames[next_index], center, draw_size, alpha * next_weight, modulate)
 
-func _draw_authored_bottom_frame(texture: Texture2D, ground_point: Vector2, draw_size: float, alpha: float) -> void:
+func _draw_authored_bottom_frame(texture: Texture2D, ground_point: Vector2, draw_size: float, alpha: float, modulate: Color = Color.WHITE) -> void:
 	if texture == null or alpha <= 0.0 or draw_size <= 0.0:
 		return
 	var rect := Rect2(ground_point + Vector2(-draw_size * 0.5, -draw_size * 0.957), Vector2.ONE * draw_size)
-	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, clampf(alpha, 0.0, 1.0)))
+	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
 
 func _authored_elemental_frames(frame_key: String) -> Array[Texture2D]:
 	var frames: Array[Texture2D] = []
@@ -7381,7 +7453,6 @@ func _draw_fireball_impact_frame(center: Vector2, ground_center: Vector2, impact
 	var draw_size: float = _draw_elemental_performance(AttackFxLibrary.STYLE_FIREBALL, ground_center, impact_progress, alpha, reduced_motion)
 	if draw_size <= 0.0:
 		return
-	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.86, 1.0, impact_progress)
 	if not frames.is_empty() and not reduced_motion:
 		var contact_alpha: float = 1.0 - smoothstep(0.0, 0.34, impact_progress)
 		var contact_size: float = clampf(_tile_width() * 1.92, 158.0, 232.0)
@@ -7396,32 +7467,42 @@ func _draw_fireball_impact_frame(center: Vector2, ground_center: Vector2, impact
 			AttackFxLibrary.STYLE_FIREBALL
 		)
 	if not reduced_motion:
-		_draw_fireball_impact_embers(ground_center, impact_progress, draw_size, alpha * fade)
+		_draw_fireball_impact_embers(ground_center, impact_progress, draw_size, alpha)
 
 func _draw_fireball_impact_embers(center: Vector2, impact_progress: float, draw_size: float, alpha: float) -> void:
-	if impact_progress < 0.10 or alpha <= 0.0:
+	if impact_progress < 0.06 or alpha <= 0.0:
 		return
-	var age: float = clampf((impact_progress - 0.10) / 0.90, 0.0, 1.0)
 	for ember_index: int in range(FIREBALL_IMPACT_EMBER_COUNT):
 		var seed: int = 4201 + ember_index * 977
+		var wave_index: int = ember_index / 9
+		var spawn_progress: float = 0.06 + float(wave_index) * 0.24 + float(ember_index % 9) * 0.012
+		if impact_progress <= spawn_progress:
+			continue
+		var age: float = clampf((impact_progress - spawn_progress) / maxf(0.12, 1.0 - spawn_progress), 0.0, 1.0)
+		if age >= 1.0:
+			continue
 		var angle: float = float(ember_index) * 2.399963 + lerpf(-0.18, 0.18, _ambient_hash01(seed + 3))
-		var radial_speed: float = lerpf(0.34, 0.68, _ambient_hash01(seed + 5))
+		var radial_speed: float = lerpf(0.38, 0.78, _ambient_hash01(seed + 5))
 		var radial_distance: float = draw_size * radial_speed * pow(age, 0.68)
 		var depth_scale: float = lerpf(0.74, 1.22, (sin(angle) + 1.0) * 0.5)
 		var floor_direction := Vector2(cos(angle), sin(angle) * 0.42)
-		var ballistic_lift: float = draw_size * lerpf(0.26, 0.52, _ambient_hash01(seed + 13)) * sin(age * PI)
+		var ballistic_lift: float = draw_size * lerpf(0.30, 0.60, _ambient_hash01(seed + 13)) * sin(age * PI)
 		var point: Vector2 = center + floor_direction * radial_distance + Vector2(0.0, -ballistic_lift + draw_size * 0.12 * age * age)
 		var variant_index: int = posmod(ember_index * 5 + 2, AMBIENT_PARTICLE_ATLAS_COLUMNS)
 		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
 		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
 		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
 		var stagger: float = lerpf(0.72, 1.0, _ambient_hash01(seed + 7))
-		var fade: float = pow(1.0 - age, 0.82) * alpha * stagger
+		var fade: float = pow(1.0 - age, 0.68) * alpha * stagger
 		var mote_size: float = draw_size * lerpf(0.075, 0.035, age) * lerpf(0.78, 1.18, _ambient_hash01(seed + 11)) * depth_scale
 		if glow_texture != null:
+			var ember_velocity := Vector2(floor_direction.x * draw_size * radial_speed * 0.42, -draw_size * lerpf(0.24, 0.44, _ambient_hash01(seed + 17)))
+			_draw_ambient_particle_trail(glow_texture, point, ember_velocity, Vector2(mote_size * 1.42, mote_size), fade * 0.58, "fire")
 			_draw_ambient_particle_sprite(glow_texture, point, Vector2(mote_size * 2.20, mote_size * 1.12), angle, fade * 0.20, Color(1.0, 0.43, 0.08, 1.0))
 		if soft_texture != null:
 			_draw_ambient_particle_sprite(soft_texture, point, Vector2.ONE * mote_size * 1.18, angle, fade * 0.65, Color(1.0, 0.72, 0.26, 1.0))
+			var smoke_point: Vector2 = point + Vector2(0.0, -draw_size * 0.06 * age)
+			_draw_ambient_particle_sprite(soft_texture, smoke_point, Vector2(mote_size * lerpf(1.8, 3.2, age), mote_size * lerpf(1.2, 2.4, age)), -angle * 0.18, fade * 0.16, Color(0.42, 0.30, 0.25, 1.0))
 		if texture != null:
 			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, angle, fade * 0.75)
 
