@@ -8,26 +8,26 @@ const STYLE_AIR_GUST: String = "air_gust"
 const STYLE_LIGHTNING_BOLT: String = "lightning_bolt"
 const STYLE_ICE_SHARDS: String = "ice_shards"
 
-const FIREBALL_ANIMATION_FRAMES: int = 18
-const FIREBALL_FRAME_SECONDS: float = 0.030
-const FIREBALL_ANTICIPATION_END_PROGRESS: float = 2.0 / 18.0
-const FIREBALL_TRAVEL_END_PROGRESS: float = 6.0 / 18.0
-const EARTH_ANIMATION_FRAMES: int = 22
-const EARTH_FRAME_SECONDS: float = 0.032
-const EARTH_ANTICIPATION_END_PROGRESS: float = 2.0 / 22.0
-const EARTH_TRAVEL_END_PROGRESS: float = 8.0 / 22.0
-const AIR_ANIMATION_FRAMES: int = 19
-const AIR_FRAME_SECONDS: float = 0.030
-const AIR_ANTICIPATION_END_PROGRESS: float = 2.0 / 19.0
-const AIR_TRAVEL_END_PROGRESS: float = 6.0 / 19.0
-const LIGHTNING_ANIMATION_FRAMES: int = 15
-const LIGHTNING_FRAME_SECONDS: float = 0.023
-const LIGHTNING_ANTICIPATION_END_PROGRESS: float = 2.0 / 15.0
-const LIGHTNING_TRAVEL_END_PROGRESS: float = 4.0 / 15.0
-const ICE_ANIMATION_FRAMES: int = 21
-const ICE_FRAME_SECONDS: float = 0.032
-const ICE_ANTICIPATION_END_PROGRESS: float = 2.0 / 21.0
-const ICE_TRAVEL_END_PROGRESS: float = 7.0 / 21.0
+const FIREBALL_ANIMATION_FRAMES: int = 36
+const FIREBALL_FRAME_SECONDS: float = 0.015
+const FIREBALL_ANTICIPATION_END_PROGRESS: float = 4.0 / 36.0
+const FIREBALL_TRAVEL_END_PROGRESS: float = 12.0 / 36.0
+const EARTH_ANIMATION_FRAMES: int = 44
+const EARTH_FRAME_SECONDS: float = 0.016
+const EARTH_ANTICIPATION_END_PROGRESS: float = 4.0 / 44.0
+const EARTH_TRAVEL_END_PROGRESS: float = 16.0 / 44.0
+const AIR_ANIMATION_FRAMES: int = 38
+const AIR_FRAME_SECONDS: float = 0.015
+const AIR_ANTICIPATION_END_PROGRESS: float = 4.0 / 38.0
+const AIR_TRAVEL_END_PROGRESS: float = 12.0 / 38.0
+const LIGHTNING_ANIMATION_FRAMES: int = 30
+const LIGHTNING_FRAME_SECONDS: float = 0.0115
+const LIGHTNING_ANTICIPATION_END_PROGRESS: float = 4.0 / 30.0
+const LIGHTNING_TRAVEL_END_PROGRESS: float = 8.0 / 30.0
+const ICE_ANIMATION_FRAMES: int = 42
+const ICE_FRAME_SECONDS: float = 0.016
+const ICE_ANTICIPATION_END_PROGRESS: float = 4.0 / 42.0
+const ICE_TRAVEL_END_PROGRESS: float = 14.0 / 42.0
 
 static func style_for_effect(effect: Dictionary) -> String:
 	var action_type: String = str(effect.get("action_type", effect.get("kind", "")))
@@ -160,7 +160,25 @@ static func looping_frame_index(progress: float, frame_count: int, cycles: float
 	var cycle_progress: float = wrapf(clampf(progress, 0.0, 1.0) * maxf(0.0, cycles), 0.0, 1.0)
 	return clampi(int(floor(cycle_progress * float(frame_count))), 0, frame_count - 1)
 
+static func looping_frame_blend(progress: float, frame_count: int, cycles: float = 1.0) -> Vector3:
+	if frame_count <= 0:
+		return Vector3.ZERO
+	var cycle_progress: float = wrapf(clampf(progress, 0.0, 1.0) * maxf(0.0, cycles), 0.0, 1.0)
+	var scaled_progress: float = cycle_progress * float(frame_count)
+	var current_index: int = posmod(int(floor(scaled_progress)), frame_count)
+	var next_index: int = posmod(current_index + 1, frame_count)
+	return Vector3(float(current_index), float(next_index), smoothstep(0.0, 1.0, scaled_progress - floor(scaled_progress)))
+
 static func one_shot_frame_index(progress: float, frame_count: int) -> int:
 	if frame_count <= 0:
 		return 0
 	return clampi(int(floor(clampf(progress, 0.0, 1.0) * float(frame_count))), 0, frame_count - 1)
+
+static func one_shot_frame_blend(progress: float, frame_count: int) -> Vector3:
+	if frame_count <= 0:
+		return Vector3.ZERO
+	var scaled_progress: float = clampf(progress, 0.0, 1.0) * float(frame_count)
+	var current_index: int = clampi(int(floor(scaled_progress)), 0, frame_count - 1)
+	var next_index: int = mini(current_index + 1, frame_count - 1)
+	var blend: float = 0.0 if current_index == next_index else smoothstep(0.0, 1.0, scaled_progress - floor(scaled_progress))
+	return Vector3(float(current_index), float(next_index), blend)

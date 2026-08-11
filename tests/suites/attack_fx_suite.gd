@@ -11,9 +11,10 @@ static func run(expect: Callable) -> void:
 	_test_fireball_owns_a_complete_motion_schedule(expect)
 	_test_elemental_styles_own_distinct_motion_schedules(expect)
 	_test_elemental_spell_timing_is_staged(expect)
+	_test_authored_raster_sampling_is_continuous(expect)
 	_test_fireball_sheets_load_as_authored_frames(expect)
 	_test_elemental_sheets_load_as_authored_frames(expect)
-	_test_reduced_motion_fire_frame_owns_transparent_bloom_padding(expect)
+	_test_sampled_fire_frames_own_transparent_bloom_padding(expect)
 	_test_fireball_path_is_straight(expect)
 	_test_all_authored_elemental_paths_are_straight(expect)
 	_test_isometric_ground_anchor_is_exact_target_floor(expect)
@@ -106,11 +107,11 @@ static func _test_elemental_styles_own_distinct_motion_schedules(expect: Callabl
 
 static func _test_elemental_spell_timing_is_staged(expect: Callable) -> void:
 	var schedules: Dictionary = {
-		"fire": [AttackFxLibrary.STYLE_FIREBALL, 18, 0.030, 2.0 / 18.0, 6.0 / 18.0],
-		"earth": [AttackFxLibrary.STYLE_EARTH_SPIKES, 22, 0.032, 2.0 / 22.0, 8.0 / 22.0],
-		"air": [AttackFxLibrary.STYLE_AIR_GUST, 19, 0.030, 2.0 / 19.0, 6.0 / 19.0],
-		"lightning": [AttackFxLibrary.STYLE_LIGHTNING_BOLT, 15, 0.023, 2.0 / 15.0, 4.0 / 15.0],
-		"ice": [AttackFxLibrary.STYLE_ICE_SHARDS, 21, 0.032, 2.0 / 21.0, 7.0 / 21.0],
+		"fire": [AttackFxLibrary.STYLE_FIREBALL, 36, 0.015, 4.0 / 36.0, 12.0 / 36.0],
+		"earth": [AttackFxLibrary.STYLE_EARTH_SPIKES, 44, 0.016, 4.0 / 44.0, 16.0 / 44.0],
+		"air": [AttackFxLibrary.STYLE_AIR_GUST, 38, 0.015, 4.0 / 38.0, 12.0 / 38.0],
+		"lightning": [AttackFxLibrary.STYLE_LIGHTNING_BOLT, 30, 0.0115, 4.0 / 30.0, 8.0 / 30.0],
+		"ice": [AttackFxLibrary.STYLE_ICE_SHARDS, 42, 0.016, 4.0 / 42.0, 14.0 / 42.0],
 	}
 	for element_id: String in schedules:
 		var schedule: Array = schedules[element_id] as Array
@@ -147,6 +148,27 @@ static func _test_elemental_spell_timing_is_staged(expect: Callable) -> void:
 			and is_equal_approx(AttackFxLibrary.impact_progress_for_style(style, 1.0), 1.0),
 			"%s should collapse safely for reduced motion and hand off from travel to impact exactly once" % element_id.capitalize()
 		)
+
+
+static func _test_authored_raster_sampling_is_continuous(expect: Callable) -> void:
+	var one_shot_mid: Vector3 = AttackFxLibrary.one_shot_frame_blend(0.0625, 8)
+	var one_shot_end: Vector3 = AttackFxLibrary.one_shot_frame_blend(1.0, 8)
+	var loop_mid: Vector3 = AttackFxLibrary.looping_frame_blend(0.0625, 8, 1.0)
+	expect.call(
+		int(one_shot_mid.x) == 0
+		and int(one_shot_mid.y) == 1
+		and is_equal_approx(one_shot_mid.z, 0.5)
+		and int(one_shot_end.x) == 7
+		and int(one_shot_end.y) == 7
+		and is_zero_approx(one_shot_end.z),
+		"One-shot raster performances should continuously crossfade adjacent authored poses without wrapping the final pose"
+	)
+	expect.call(
+		int(loop_mid.x) == 0
+		and int(loop_mid.y) == 1
+		and is_equal_approx(loop_mid.z, 0.5),
+		"Looping raster travel should expose a continuous adjacent-frame blend instead of hard frame cuts"
+	)
 
 
 static func _test_fireball_sheets_load_as_authored_frames(expect: Callable) -> void:
@@ -208,22 +230,44 @@ static func _test_elemental_sheets_load_as_authored_frames(expect: Callable) -> 
 	board.free()
 
 
-static func _test_reduced_motion_fire_frame_owns_transparent_bloom_padding(expect: Callable) -> void:
+static func _test_sampled_fire_frames_own_transparent_bloom_padding(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.call("_load_assets", false)
 	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
 	var sharp_frames: Array = effect_frames.get("elemental_fire_performance", []) as Array
 	var bloom_frames: Array = effect_frames.get("elemental_fire_performance_bloom", []) as Array
-	var reduced_frame: int = int(board.call("_elemental_reduced_motion_frame_index", AttackFxLibrary.STYLE_FIREBALL, sharp_frames.size()))
-	var safe_padding: bool = sharp_frames.size() > reduced_frame and bloom_frames.size() > reduced_frame
-	if safe_padding:
-		safe_padding = (
-			_max_top_edge_alpha(sharp_frames[reduced_frame] as Texture2D) <= 0.01
-			and _max_top_edge_alpha(bloom_frames[reduced_frame] as Texture2D) <= 0.01
+	var sampled_frames: Dictionary = {}
+	for sample_index: int in range(65):
+		var frame_blend: Vector3 = board.call(
+			"_elemental_performance_frame_blend",
+			AttackFxLibrary.STYLE_FIREBALL,
+			float(sample_index) / 64.0,
+			sharp_frames.size(),
+			false
+		)
+		sampled_frames[int(frame_blend.x)] = true
+		sampled_frames[int(frame_blend.y)] = true
+	var reduced_blend: Vector3 = board.call("_elemental_performance_frame_blend", AttackFxLibrary.STYLE_FIREBALL, 0.52, sharp_frames.size(), true)
+	sampled_frames[int(reduced_blend.x)] = true
+	var safe_padding: bool = not sampled_frames.is_empty()
+	for frame_var: Variant in sampled_frames:
+		var frame_index: int = int(frame_var)
+		if sharp_frames.size() <= frame_index or bloom_frames.size() <= frame_index:
+			safe_padding = false
+			break
+		safe_padding = safe_padding and (
+			_max_top_edge_alpha(sharp_frames[frame_index] as Texture2D) <= 0.01
+			and _max_top_edge_alpha(bloom_frames[frame_index] as Texture2D) <= 0.01
 		)
 	expect.call(
-		reduced_frame == 3 and safe_padding,
-		"Reduced-motion Fire should use a fully padded impact cell so repeated bloom cannot reveal a clipped rectangular top edge"
+		sampled_frames.size() == 5
+		and sampled_frames.has(0)
+		and sampled_frames.has(1)
+		and sampled_frames.has(2)
+		and sampled_frames.has(3)
+		and sampled_frames.has(7)
+		and safe_padding,
+		"Every Fire impact cell selected in normal or reduced motion should own transparent top padding so bloom cannot reveal a rectangular atlas boundary"
 	)
 	board.free()
 
@@ -350,6 +394,13 @@ static func _test_elemental_integration_profiles_own_depth_and_authored_anchors(
 			and float(profile.get("floor_alpha", 0.0)) >= 0.50
 			and float(profile.get("volume_alpha", 0.0)) >= 0.45,
 			"%s should map its authored raster origin to the tile floor and own bloom, floor light, and back-volume layers" % style
+		)
+		expect.call(
+			float(profile.get("rear_core_alpha", 1.0)) < float(profile.get("front_core_alpha", 0.0))
+			and float(profile.get("front_core_alpha", 1.0)) <= 0.40
+			and float(profile.get("front_bloom_alpha", 0.0)) >= 0.75
+			and float(profile.get("front_veil_alpha", 0.0)) >= 0.50,
+			"%s should cross the victim with a bloom-led translucent front volume while keeping the crisp raster body subordinate" % style
 		)
 	expect.call(profile_signatures.size() == 5, "Each element should own a distinct scene-integration profile instead of sharing one flat overlay treatment")
 	var earth_contact_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_EARTH_SPIKES, 0)

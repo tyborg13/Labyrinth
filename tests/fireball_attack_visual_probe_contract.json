@@ -1,5 +1,5 @@
 {
-  "min_images": 26,
+  "min_images": 44,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {

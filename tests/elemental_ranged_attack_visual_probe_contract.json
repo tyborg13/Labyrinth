@@ -1,5 +1,5 @@
 {
-  "min_images": 106,
+  "min_images": 183,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {"pattern": "*earth_10_release.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]},
