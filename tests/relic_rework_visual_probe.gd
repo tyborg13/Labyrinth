@@ -5,6 +5,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const OUTPUT_DIR: String = "user://relic_rework_visual_probe"
 const PROGRESSION_PATH: String = "user://relic_rework_visual_progression.json"
@@ -142,28 +143,23 @@ func _validate_relic_choices(
 		_expect(panel != null, "%s should create a card for %s" % [label, relic_id])
 		if panel == null:
 			continue
+		_expect(panel.custom_minimum_size == Vector2(304.0, 284.0), "%s %s should use the enlarged relic-offer card geometry" % [label, relic_id])
 		_expect(viewport_rect.encloses(panel.get_global_rect()), "%s %s card should remain inside the viewport" % [label, relic_id])
-		var description: Label = _description_label(panel, str(GameData.relic_def(relic_id).get("description", "")))
+		var description: RichTextLabel = panel.find_child("RelicChoiceDescription_%s" % relic_id, true, false) as RichTextLabel
 		_expect(description != null, "%s %s should display its exact rules text" % [label, relic_id])
 		if description == null:
 			continue
+		var font_size: int = description.get_theme_font_size("normal_font_size")
+		_expect(font_size >= UiTypography.SIZE_BODY_LARGE, "%s %s rules text should use the enlarged readable type tier" % [label, relic_id])
+		_expect(float(description.get_meta("inline_icon_size", 0.0)) > float(font_size), "%s %s mechanic icons should be larger than the surrounding rules text" % [label, relic_id])
 		_expect(
-			description.get_visible_line_count() >= description.get_line_count(),
+			description.get_content_height() <= description.size.y + 1.0,
 			"%s %s rules text should not clip vertically" % [label, relic_id]
 		)
 		_expect(
 			panel.get_global_rect().encloses(description.get_global_rect()),
 			"%s %s rules text should remain inside its card" % [label, relic_id]
 		)
-
-
-func _description_label(panel: Control, expected_text: String) -> Label:
-	for node: Node in panel.find_children("*", "Label", true, false):
-		var label := node as Label
-		if label != null and label.text == expected_text:
-			return label
-	return null
-
 
 func _run_state_for_room(run_engine: RunEngine, source_state: Dictionary, coord: Vector2i) -> Dictionary:
 	var state: Dictionary = source_state.duplicate(true)

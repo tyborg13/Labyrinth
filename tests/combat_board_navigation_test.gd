@@ -24,6 +24,7 @@ func _initialize() -> void:
 	board.set_combat_state(state)
 	await process_frame
 	_test_navigation_reuses_content_cache(board)
+	_test_hud_hover_layout_key_tracks_actor_not_empty_tile(board)
 	_test_tile_depth_preserves_top_face_hit_testing(board)
 	_test_backdrop_visibility_invalidates_static_layout(board, state)
 	_test_bounded_zoom_and_hit_testing(board)
@@ -54,6 +55,26 @@ func _test_navigation_reuses_content_cache(board: Control) -> void:
 	var after_count: int = int((board.call("render_instrumentation_snapshot") as Dictionary).get("layout_content_rebuild_count", -1))
 	_expect(after_count == before_count, "Pan and zoom should reuse cached tile order/extents instead of rebuilding room content each frame")
 	board.call("reset_navigation")
+
+func _test_hud_hover_layout_key_tracks_actor_not_empty_tile(board: Control) -> void:
+	var hud_units: Array[Dictionary] = []
+	for unit_var: Variant in board.call("_hud_layout_units") as Array:
+		if typeof(unit_var) == TYPE_DICTIONARY:
+			hud_units.append(unit_var as Dictionary)
+	board.set("_hover_tile", Vector2i(2, 2))
+	var first_empty_key: String = str(board.call("_hud_hover_actor_key", hud_units))
+	board.call("_rebuild_hud_health_rects_cache")
+	board.set("_hover_tile", Vector2i(4, 4))
+	var second_empty_key: String = str(board.call("_hud_hover_actor_key", hud_units))
+	var empty_layout_rebuilt: bool = bool(board.call("_rebuild_hud_health_rects_cache"))
+	_expect(first_empty_key.is_empty() and second_empty_key.is_empty(), "Distinct empty hover tiles should share the same HUD layout key")
+	_expect(not empty_layout_rebuilt, "Moving between empty Blink destinations should reuse the existing enemy HUD layout")
+
+	board.set("_hover_tile", Vector2i(5, 3))
+	var enemy_key: String = str(board.call("_hud_hover_actor_key", hud_units))
+	var enemy_layout_rebuilt: bool = bool(board.call("_rebuild_hud_health_rects_cache"))
+	_expect(not enemy_key.is_empty(), "Hovering an enemy footprint should identify the enemy whose intent expands")
+	_expect(enemy_layout_rebuilt, "Entering an enemy footprint should still rebuild the expanded enemy-intent layout")
 
 func _test_tile_depth_preserves_top_face_hit_testing(board: Control) -> void:
 	var tile := Vector2i(4, 3)

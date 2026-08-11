@@ -3,6 +3,7 @@ class_name UiTooltipPanel
 
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 
 const TITLE_COLOR: Color = Color("fff0d1")
 const BODY_COLOR: Color = Color("dcc7a6")
@@ -11,6 +12,7 @@ const PANEL_COLOR: Color = Color(0.12, 0.08, 0.055, 0.98)
 const BORDER_COLOR: Color = Color("c79652")
 const MIN_PANEL_WIDTH: float = 250.0
 const MAX_BODY_WIDTH: float = 340.0
+const INLINE_TEXT_WIDTH: float = 380.0
 const ICON_TOOLTIP_WIDTH: float = 306.0
 const ICON_SIZE: float = 42.0
 const ICON_BODY_WIDTH: float = 226.0
@@ -76,28 +78,51 @@ static func _make_text_box(
 	vbox.add_theme_constant_override("separation", separation)
 	var title_text: String = title.strip_edges()
 	if not title_text.is_empty():
-		var title_label := Label.new()
-		title_label.text = title_text.to_upper()
-		title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		title_label.custom_minimum_size = Vector2(body_width, 0.0)
-		UiTypography.set_label_size(title_label, UiTypography.SIZE_BODY_LARGE)
-		title_label.add_theme_color_override("font_color", TITLE_COLOR)
-		title_label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
-		title_label.add_theme_constant_override("outline_size", 2)
-		vbox.add_child(title_label)
+		if InlineIconText.has_icons(title_text):
+			vbox.add_child(_make_rich_label(title_text, body_width, UiTypography.ROLE_BODY_LARGE, TITLE_COLOR, 2))
+		else:
+			var title_label := Label.new()
+			title_label.text = title_text.to_upper()
+			title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			title_label.custom_minimum_size = Vector2(body_width, 0.0)
+			UiTypography.set_label_size(title_label, UiTypography.SIZE_BODY_LARGE)
+			title_label.add_theme_color_override("font_color", TITLE_COLOR)
+			title_label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
+			title_label.add_theme_constant_override("outline_size", 2)
+			vbox.add_child(title_label)
 	if not body_lines.is_empty():
-		var body_label := Label.new()
-		body_label.text = "\n".join(body_lines)
-		body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		body_label.custom_minimum_size = Vector2(body_width, 0.0)
-		UiTypography.set_label_size(body_label, UiTypography.SIZE_BODY)
-		body_label.add_theme_color_override("font_color", BODY_COLOR)
-		body_label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
-		body_label.add_theme_constant_override("outline_size", 1)
-		vbox.add_child(body_label)
+		var body_text: String = "\n".join(body_lines)
+		if InlineIconText.has_icons(body_text):
+			vbox.add_child(_make_rich_label(body_text, body_width, UiTypography.ROLE_BODY_LARGE, BODY_COLOR, 1))
+		else:
+			var body_label := Label.new()
+			body_label.text = body_text
+			body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			body_label.custom_minimum_size = Vector2(body_width, 0.0)
+			UiTypography.set_label_size(body_label, UiTypography.SIZE_BODY)
+			body_label.add_theme_color_override("font_color", BODY_COLOR)
+			body_label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
+			body_label.add_theme_constant_override("outline_size", 1)
+			vbox.add_child(body_label)
 	return vbox
+
+
+static func _make_rich_label(markup: String, body_width: float, role: String, color: Color, outline_size: int) -> RichTextLabel:
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = false
+	label.fit_content = true
+	label.scroll_active = false
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(maxf(body_width, INLINE_TEXT_WIDTH), 0.0)
+	UiTypography.apply_rich_text_role(label, role)
+	label.add_theme_color_override("default_color", color)
+	label.add_theme_color_override("font_outline_color", OUTLINE_COLOR)
+	label.add_theme_constant_override("outline_size", outline_size)
+	InlineIconText.apply_to(label, markup)
+	return label
 
 static func _finish_panel(panel: PanelContainer) -> void:
 	panel.set_meta("tooltip_surface", true)

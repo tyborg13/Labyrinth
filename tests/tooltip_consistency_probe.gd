@@ -64,6 +64,16 @@ func _initialize() -> void:
 		generic_tooltip.position = Vector2(640.0, 700.0)
 		generic_tooltip.z_index = 10
 		surface.add_child(generic_tooltip)
+	var inline_tooltip: Control = generic_source.call(
+		"_make_custom_tooltip",
+		"QUICK WITS\nOnce per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time)."
+	) as Control
+	_require(inline_tooltip != null, "Inline mechanic tooltips should build a framed panel")
+	if inline_tooltip != null:
+		inline_tooltip.name = "InlineMechanicTooltip"
+		inline_tooltip.position = Vector2(1120.0, 790.0)
+		inline_tooltip.z_index = 10
+		surface.add_child(inline_tooltip)
 	generic_source.free()
 
 	await process_frame
@@ -94,6 +104,15 @@ func _initialize() -> void:
 			generic_tooltip.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null,
 			"Standard tooltip should render the shared asymmetric frame"
 		)
+	if inline_tooltip != null:
+		var rich_labels: Array[Node] = inline_tooltip.find_children("*", "RichTextLabel", true, false)
+		_require(not rich_labels.is_empty(), "Inline mechanic tooltip should render a rich rules label")
+		if not rich_labels.is_empty():
+			var rich_label := rich_labels[0] as RichTextLabel
+			var font_size: int = rich_label.get_theme_font_size("normal_font_size")
+			_require(font_size >= 18, "Inline mechanic tooltip should use enlarged rules text")
+			_require(float(rich_label.get_meta("inline_icon_size", 0.0)) > float(font_size), "Inline mechanic tooltip icons should be larger than the rules text")
+		_require(Rect2(Vector2.ZERO, Vector2(VIEWPORT_SIZE)).encloses(inline_tooltip.get_global_rect()), "Inline mechanic tooltip should remain inside the proof viewport")
 
 	if _failures.is_empty():
 		print("TOOLTIP_CONSISTENCY_PROOF_DIR=%s" % ProjectSettings.globalize_path(OUTPUT_DIR))

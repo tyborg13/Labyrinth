@@ -464,8 +464,8 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var status_root_height: float = (instance.get("ui_root") as Control).get_global_rect().size.y
 	_expect(
 		popover != null
-		and is_equal_approx(popover.size.x, minf(800.0, (instance.get("ui_root") as Control).get_global_rect().size.x - 16.0))
-		and is_equal_approx(popover.size.y, minf(492.0, status_root_height - 16.0))
+		and is_equal_approx(popover.size.x, minf(880.0, (instance.get("ui_root") as Control).get_global_rect().size.x - 16.0))
+		and is_equal_approx(popover.size.y, minf(540.0, status_root_height - 16.0))
 		and popover.size.y <= status_root_height - 16.0 + 1.0,
 		"Skill popover should use one fixed viewport-bounded geometry"
 	)
@@ -514,6 +514,8 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var long_description := popover.find_child("SkillStatusSelectedDescription", true, false) as RichTextLabel
 	_expect(popover.size == stable_popover_size, "Selecting the longest ability description must not resize the Abilities panel")
 	_expect(long_description != null and long_description.get_content_height() <= long_description.size.y + 1.0, "The longest ability description should fit fully inside the fixed detail well")
+	_expect(long_description != null and long_description.get_theme_font_size("normal_font_size") >= UiTypography.SIZE_BODY_LARGE, "Ability rules should use the enlarged readable type tier")
+	_expect(long_description != null and float(long_description.get_meta("inline_icon_size", 0.0)) > float(long_description.get_theme_font_size("normal_font_size")), "Ability mechanic icons should be larger than their rules text")
 	instance.call("_show_skill_status_page_for_skill", "measured_breath")
 	await process_frame
 	var status_action := popover.find_child("ActivateSelectedSkill", true, false) as Button

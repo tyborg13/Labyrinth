@@ -59,6 +59,8 @@ const FIRE_FRAME_TINT_BLEND: float = 0.88
 const FIRE_FRAME_VALUE_LIFT: float = 1.035
 
 static var _elemental_frame_cache: Dictionary = {}
+static var _card_frame_style_cache: Dictionary = {}
+static var _empty_panel_style: StyleBoxEmpty = null
 
 class AoePatternView:
 	extends Control
@@ -448,6 +450,7 @@ var _usable: bool = true
 var _previewed: bool = false
 var _interactive: bool = true
 var _printed_playable: bool = true
+var _interaction_state_dirty: bool = true
 var _card_override: Dictionary = {}
 var _summary_bbcode: String = ""
 var _summary_rows: Array = []
@@ -605,15 +608,52 @@ func configure(
 	if is_node_ready():
 		_apply_configuration()
 
+func set_interaction_state(
+	selected: bool,
+	dimmed: bool,
+	usable: bool,
+	previewed: bool,
+	interactive: bool,
+	printed_playable: bool
+) -> void:
+	if (
+		not _interaction_state_dirty
+		and _selected == selected
+		and _dimmed == dimmed
+		and _usable == usable
+		and _previewed == previewed
+		and _interactive == interactive
+		and _printed_playable == printed_playable
+	):
+		return
+	_selected = selected
+	_dimmed = dimmed
+	_usable = usable
+	_previewed = previewed
+	_interactive = interactive
+	_printed_playable = printed_playable
+	if is_node_ready():
+		_apply_interaction_configuration()
+
 func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = [], summary_rows: Array = []) -> void:
-	_summary_bbcode = summary_bbcode
-	_summary_rows = summary_rows.duplicate(true)
-	_modifier_tooltip_lines = PackedStringArray()
+	var next_rows: Array = summary_rows.duplicate(true)
+	var next_modifier_lines := PackedStringArray()
 	for line_var: Variant in modifier_lines:
-		_modifier_tooltip_lines.append(str(line_var))
+		next_modifier_lines.append(str(line_var))
+	if _summary_bbcode == summary_bbcode and _summary_rows == next_rows and _modifier_tooltip_lines == next_modifier_lines:
+		return
+	_summary_bbcode = summary_bbcode
+	_summary_rows = next_rows
+	_modifier_tooltip_lines = next_modifier_lines
 	tooltip_text = "modifiers" if not _modifier_tooltip_lines.is_empty() else ""
 	if is_node_ready():
-		_apply_configuration()
+		# State-derived damage, condition, and modifier rows change far more often
+		# than the printed card, art, frame, or time badge. Refresh only the two
+		# retained surfaces that consume these overrides instead of rebuilding the
+		# complete card presentation after every combat-state transition.
+		var card: Dictionary = _display_card_def()
+		_refresh_summary_display(card)
+		_refresh_intensity_active_glow()
 
 func set_hover_pose(next_lift: float, next_scale: float) -> void:
 	_hover_lift = clampf(next_lift, -40.0, 0.0)
@@ -628,6 +668,44 @@ func set_external_highlighted(highlighted: bool) -> void:
 	if _time_badge != null:
 		_time_badge.set_hovered(_local_hovered or _external_highlighted)
 	_update_pose()
+
+func prepare_for_pool() -> void:
+	if _pose_tween != null and _pose_tween.is_valid():
+		_pose_tween.kill()
+	_pose_tween = null
+	reset_ready_wave_state()
+	_left_pressed = false
+	_drag_emitted = false
+	_local_hovered = false
+	_external_highlighted = false
+	_interaction_state_dirty = true
+	visible = true
+	position = Vector2.ZERO
+	scale = Vector2.ONE
+	rotation = 0.0
+	modulate = Color.WHITE
+	if _time_badge != null:
+		_time_badge.set_hovered(false)
+
+func reset_ready_wave_state() -> void:
+	if _ready_wave_tween != null and _ready_wave_tween.is_valid():
+		_ready_wave_tween.kill()
+	_ready_wave_tween = null
+	_ready_wave_active = false
+	_ready_wave_progress = 0.0
+	for meta_key: String in [
+		"ready_wave_active",
+		"ready_wave_token",
+		"ready_wave_reason",
+		"ready_wave_order",
+		"ready_wave_delay",
+		"ready_wave_playable",
+	]:
+		remove_meta(meta_key)
+	if _ready_wave_glow != null:
+		_ready_wave_glow.visible = false
+		_ready_wave_glow.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		_ready_wave_glow.scale = Vector2.ONE
 
 func _apply_configuration() -> void:
 	if not is_node_ready():
@@ -644,16 +722,32 @@ func _apply_configuration() -> void:
 	footer_label.text = ""
 	footer_label.visible = false
 	art_rect.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
-	var accent: Color = ElementData.accent(element_id) if ElementData.is_elemental(element_id) else Color(str(card.get("accent", "#8a6b4a")))
-	var background: Color = ElementData.card_background(element_id, _selected)
-	if not ElementData.is_elemental(element_id):
-		background = Color("ddd0bb") if _selected else Color("efe4cf")
-	if _previewed and not _selected:
-		background = background.lightened(0.03)
-	if _dimmed:
-		background = background.darkened(0.12)
-	_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id), str(card.get("rarity", "common")), element_id)
+	_apply_interaction_configuration(card, true)
+
+func _apply_interaction_configuration(card: Dictionary = {}, refresh_frame_style: bool = false) -> void:
+	if not is_node_ready():
+		return
+	_interaction_state_dirty = false
+	# Frame art depends on card rarity, element, and layout scale, all of which are
+	# stable while a hand card is selected/dimmed/hovered. Rebuilding five new
+	# StyleBoxTextures for every interaction-state change allocated dozens of
+	# resources per click even though _apply_base_style intentionally ignores the
+	# transient colors and playability flags.
+	if refresh_frame_style:
+		if card.is_empty():
+			card = _display_card_def()
+		var element_id: String = GameData.card_element_from_def(card)
+		var accent: Color = ElementData.accent(element_id) if ElementData.is_elemental(element_id) else Color(str(card.get("accent", "#8a6b4a")))
+		var background: Color = ElementData.card_background(element_id, _selected)
+		if not ElementData.is_elemental(element_id):
+			background = Color("ddd0bb") if _selected else Color("efe4cf")
+		if _previewed and not _selected:
+			background = background.lightened(0.03)
+		if _dimmed:
+			background = background.darkened(0.12)
+		_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id), str(card.get("rarity", "common")), element_id)
 	disabled = false
+	mouse_filter = Control.MOUSE_FILTER_STOP if _interactive else Control.MOUSE_FILTER_IGNORE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if _interactive else Control.CURSOR_ARROW
 	set_meta("cursor_feedback_context", "action_drag" if _interactive else "inert")
 	set_meta("cursor_feedback_drag_source", _interactive)
@@ -755,13 +849,19 @@ func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previ
 	add_theme_stylebox_override("pressed", pressed)
 	add_theme_stylebox_override("focus", hover)
 	add_theme_stylebox_override("disabled", disabled_style)
-	art_frame.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	details_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	if _empty_panel_style == null:
+		_empty_panel_style = StyleBoxEmpty.new()
+	art_frame.add_theme_stylebox_override("panel", _empty_panel_style)
+	details_panel.add_theme_stylebox_override("panel", _empty_panel_style)
 
 func _card_frame_style(expand: float = 0.0, rarity: String = "", element_id: String = ElementData.NONE) -> StyleBoxTexture:
-	var style := StyleBoxTexture.new()
-	style.texture = _card_frame_texture(rarity, element_id)
+	var texture: Texture2D = _card_frame_texture(rarity, element_id)
 	var frame_margin: float = _scaled_card_value(CARD_FRAME_MARGIN, 12.0)
+	var cache_key: String = "%d|%.3f|%.3f" % [texture.get_instance_id() if texture != null else 0, frame_margin, expand]
+	if _card_frame_style_cache.has(cache_key):
+		return _card_frame_style_cache.get(cache_key, null) as StyleBoxTexture
+	var style := StyleBoxTexture.new()
+	style.texture = texture
 	style.texture_margin_left = frame_margin
 	style.texture_margin_top = frame_margin
 	style.texture_margin_right = frame_margin
@@ -772,6 +872,7 @@ func _card_frame_style(expand: float = 0.0, rarity: String = "", element_id: Str
 	style.expand_margin_top = expand
 	style.expand_margin_right = expand
 	style.expand_margin_bottom = expand
+	_card_frame_style_cache[cache_key] = style
 	return style
 
 func _card_frame_texture(rarity: String, element_id: String) -> Texture2D:

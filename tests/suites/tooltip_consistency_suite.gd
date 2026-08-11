@@ -11,6 +11,7 @@ const UiTooltipLabel = preload("res://scripts/ui_tooltip_label.gd")
 const UiTooltipPanelContainer = preload("res://scripts/ui_tooltip_panel_container.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunScene = preload("res://scenes/run_scene.tscn")
 
 
@@ -20,6 +21,7 @@ static func run(expect: Callable) -> void:
 	_test_dynamic_turn_order_tooltip_control(expect)
 	_test_equipment_pickup_reuses_equipment_card_preview(expect)
 	_test_icon_tooltip_panel(expect)
+	_test_inline_description_tooltip(expect)
 	_test_card_tooltip_entries(expect)
 	_test_real_cards_preserve_repeated_icon_semantics(expect)
 
@@ -120,6 +122,20 @@ static func _test_icon_tooltip_panel(expect: Callable) -> void:
 	var icon: TextureRect = panel.find_child("TooltipIcon", true, false) as TextureRect
 	expect.call(icon != null and icon.texture != null, "Icon-led tooltips should render the matching concept icon")
 	expect.call(panel.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null, "Icon-led tooltips should retain the shared framed surface")
+	panel.free()
+
+
+static func _test_inline_description_tooltip(expect: Callable) -> void:
+	var panel: PanelContainer = UiTooltipPanel.make_text(
+		"QUICK WITS\nOnce per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time)."
+	)
+	var rich_labels: Array[Node] = panel.find_children("*", "RichTextLabel", true, false)
+	var description: RichTextLabel = rich_labels[0] as RichTextLabel if not rich_labels.is_empty() else null
+	expect.call(description != null, "Inline mechanic tooltips should render through a rich rules label")
+	if description != null:
+		var font_size: int = description.get_theme_font_size("normal_font_size")
+		expect.call(font_size >= UiTypography.SIZE_BODY_LARGE, "Inline mechanic tooltips should use the enlarged readable type tier")
+		expect.call(float(description.get_meta("inline_icon_size", 0.0)) > float(font_size), "Inline tooltip icons should be larger than their surrounding rules text")
 	panel.free()
 
 

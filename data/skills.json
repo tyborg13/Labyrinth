@@ -2,7 +2,7 @@
   "quick_wits": {
     "name": "Quick Wits",
     "icon": "skill_quick_wits",
-    "description": "Once per combat, discard a card to draw a card. Costs no play or Time.",
+    "description": "Once per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time).",
     "branch": "tactics",
     "tier": "root",
     "position": [0, 0],
@@ -14,7 +14,7 @@
   "measured_breath": {
     "name": "Measured Breath",
     "icon": "skill_measured_breath",
-    "description": "End your turn with an unused play to bank it for your next turn. One banked play maximum.",
+    "description": "End your turn with an unused @icon(card_play) to bank it for your next turn. One banked @icon(card_play) maximum.",
     "branch": "resolve",
     "tier": "root",
     "position": [1, 0],
@@ -26,7 +26,7 @@
   "ghost_stride": {
     "name": "Ghost Stride",
     "icon": "skill_ghost_stride",
-    "description": "Once per combat, you may use a card's basic Move as Blink 2.",
+    "description": "Once per combat, you may use a card's basic @icon(move) as @icon(blink) 2.",
     "branch": "traverse",
     "tier": "root",
     "position": [2, 0],
@@ -50,7 +50,7 @@
   "rehearsed_escape": {
     "name": "Rehearsed Escape",
     "icon": "skill_rehearsed_escape",
-    "description": "Once per combat, arm to discard your next non-item Burn card instead of burning it.",
+    "description": "Once per combat, arm so your next non-item @icon(exhaust) card goes to discard.",
     "branch": "tactics",
     "tier": "branch",
     "position": [0, 1],
@@ -62,7 +62,7 @@
   "makeshift_tool": {
     "name": "Makeshift Tool",
     "icon": "skill_makeshift_tool",
-    "description": "Once per combat, arm to discard your next item used as a basic Attack or Move instead of consuming it.",
+    "description": "Once per combat, arm so your next item used as basic Attack or @icon(move) goes to discard instead of @icon(consume).",
     "branch": "tactics",
     "tier": "branch",
     "position": [0, 2],
@@ -74,7 +74,7 @@
   "carry_the_guard": {
     "name": "Carry the Guard",
     "icon": "skill_carry_the_guard",
-    "description": "Once per combat, while you have block, arm during your turn to convert all block remaining at turn end into stoneskin.",
+    "description": "Once per combat, while you have @icon(block), arm during your turn to convert all remaining @icon(block) at turn end into @icon(stoneskin).",
     "branch": "resolve",
     "tier": "branch",
     "position": [1, 1],
@@ -86,7 +86,7 @@
   "pain_remembers": {
     "name": "Pain Remembers",
     "icon": "skill_pain_remembers",
-    "description": "After you first lose health each combat, the next non-item card discarded while your hand has room returns to it.",
+    "description": "After you first lose @icon(health) each combat, the next non-item card discarded while your hand has room returns to it.",
     "branch": "resolve",
     "tier": "branch",
     "position": [1, 2],
@@ -98,7 +98,7 @@
   "sure_footed": {
     "name": "Sure-Footed",
     "icon": "skill_sure_footed",
-    "description": "Once per combat, the first trap blast that would affect you leaves you untouched and resolves normally against everything else.",
+    "description": "Once per combat, the first @icon(traps) blast that would affect you leaves you untouched and resolves normally against everything else.",
     "branch": "traverse",
     "tier": "branch",
     "position": [2, 1],
@@ -110,7 +110,7 @@
   "afterimage": {
     "name": "Afterimage",
     "icon": "skill_afterimage",
-    "description": "Your first Blink each combat leaves a 2-health illusion behind. You may move through your illusions; ending on one dispels it.",
+    "description": "Your first @icon(blink) each combat leaves @icon(illusion) 2 behind. You may @icon(move) through your copies; ending on one dispels it.",
     "branch": "traverse",
     "tier": "branch",
     "position": [2, 2],
@@ -146,7 +146,7 @@
   "borrowed_time": {
     "name": "Borrowed Time",
     "icon": "skill_borrowed_time",
-    "description": "The first card paid for with a banked play each combat adds no Time.",
+    "description": "The first card paid for with a banked @icon(card_play) each combat adds no @icon(time).",
     "branch": "tactics",
     "tier": "junction",
     "position": [0, 3],
@@ -158,7 +158,7 @@
   "last_reserve": {
     "name": "Last Reserve",
     "icon": "skill_last_reserve",
-    "description": "Once per combat, lethal Fatigue leaves you at 1 health.",
+    "description": "Once per combat, lethal @icon(fatigue) leaves you at @icon(health) 1.",
     "branch": "resolve",
     "tier": "junction",
     "position": [1, 3],
@@ -170,7 +170,7 @@
   "plunderers_step": {
     "name": "Plunderer's Step",
     "icon": "skill_plunderers_step",
-    "description": "The first Move or Blink to collect loot each combat refunds its play.",
+    "description": "The first @icon(move) or @icon(blink) to collect loot each combat refunds its @icon(card_play).",
     "branch": "traverse",
     "tier": "junction",
     "position": [2, 3],
@@ -182,7 +182,7 @@
   "prismatic_instinct": {
     "name": "Prismatic Instinct",
     "icon": "skill_prismatic_instinct",
-    "description": "Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions. Basic Attack, Move, and Blink uses do not consume the effect.",
+    "description": "Once per combat, name a card with an @icon(elemental_intensity) condition in hand. The next printed play of any copy satisfies all such conditions. Basic Attack, @icon(move), and @icon(blink) do not consume the effect.",
     "branch": "foresight",
     "tier": "junction",
     "position": [3, 3],
@@ -206,7 +206,7 @@
   "living_shadow": {
     "name": "Living Shadow",
     "icon": "skill_living_shadow",
-    "description": "Once between your turns, when an illusion is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
+    "description": "Once between your turns, when @icon(illusion) is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
     "branch": "resolve",
     "tier": "junction",
     "position": [1, 4],
@@ -218,7 +218,7 @@
   "true_bearing": {
     "name": "True Bearing",
     "icon": "skill_true_bearing",
-    "description": "Before combat, choose an open starting tile within 2 tiles of the entrance.",
+    "description": "Before combat, choose an open starting tile within @icon(range) 2 of the entrance.",
     "branch": "traverse",
     "tier": "junction",
     "position": [2, 4],
@@ -242,7 +242,7 @@
   "encore": {
     "name": "Encore",
     "icon": "skill_encore",
-    "description": "Once per combat, return a non-item card from discard to your hand. Costs no play or Time.",
+    "description": "Once per combat, return a non-item card from discard to your hand. Costs no @icon(card_play) or @icon(time).",
     "branch": "keystone",
     "tier": "keystone",
     "position": [0, 5],
@@ -270,7 +270,7 @@
   "confluence": {
     "name": "Confluence",
     "icon": "skill_confluence",
-    "description": "Intensity conditions use your highest intensity, regardless of element. A draw enabled solely by Confluence stops before it would trigger Fatigue.",
+    "description": "@icon(elemental_intensity) conditions use your highest value, regardless of element. @icon(draw) enabled solely by Confluence stops before it would trigger @icon(fatigue).",
     "branch": "keystone",
     "tier": "keystone",
     "position": [2, 5],
@@ -284,7 +284,7 @@
   "last_door": {
     "name": "Last Door",
     "icon": "skill_last_door",
-    "description": "Once between bosses, a non-boss defeat returns you to the previous room at 1 health. Spent items stay spent.",
+    "description": "Once between bosses, a non-boss defeat returns you to the previous room at @icon(health) 1. Spent items stay spent.",
     "branch": "keystone",
     "tier": "keystone",
     "position": [3, 5],
@@ -298,7 +298,7 @@
   "long_dawn": {
     "name": "Long Dawn",
     "icon": "skill_long_dawn",
-    "description": "Temporary Light, Vision, and Truesight you create last 1 additional turn. Permanent and tethered effects are unchanged.",
+    "description": "Temporary @icon(illuminate), @icon(vision), and @icon(truesight) you create last @icon(time) +1. Permanent and tethered effects are unchanged.",
     "branch": "radiance",
     "tier": "root",
     "position": [4, 0],
@@ -310,7 +310,7 @@
   "sunpath": {
     "name": "Sunpath",
     "icon": "skill_sunpath",
-    "description": "The first Move or Blink of 3+ tiles each turn leaves radius-1 Light for 2 turns on every tile entered. Blink lights its origin and destination.",
+    "description": "The first @icon(move) or @icon(blink) 3+ each turn leaves @icon(illuminate) 1 @icon(time) 2 on every tile entered. @icon(blink) also covers its origin and destination.",
     "branch": "radiance",
     "tier": "branch",
     "position": [4, 1],
@@ -322,7 +322,7 @@
   "witchlight": {
     "name": "Witchlight",
     "icon": "skill_witchlight",
-    "description": "Living illusions add 1 radius to their tethered Light.",
+    "description": "Each living @icon(illusion) adds +1 to its tethered @icon(illuminate).",
     "branch": "radiance",
     "tier": "branch",
     "position": [4, 2],
@@ -334,7 +334,7 @@
   "dawnbrand": {
     "name": "Dawnbrand",
     "icon": "skill_dawnbrand",
-    "description": "The first direct attack each turn against an enemy standing in Light inflicts 1 Expose.",
+    "description": "The first direct attack each turn against an enemy in @icon(illuminate) inflicts @icon(expose) 1.",
     "branch": "radiance",
     "tier": "junction",
     "position": [4, 3],
@@ -346,7 +346,7 @@
   "afterglow": {
     "name": "Afterglow",
     "icon": "skill_afterglow",
-    "description": "When an illusion is removed during combat, it leaves radius-1 Light for 2 turns at its final tile.",
+    "description": "When @icon(illusion) is removed during combat, it leaves @icon(illuminate) 1 @icon(time) 2 at its final tile.",
     "branch": "radiance",
     "tier": "junction",
     "position": [4, 4],
@@ -358,7 +358,7 @@
   "open_sky": {
     "name": "Open Sky",
     "icon": "skill_open_sky",
-    "description": "While you stand in Light, you have Truesight.",
+    "description": "While you stand in @icon(illuminate), you have @icon(truesight).",
     "branch": "radiance",
     "tier": "keystone",
     "position": [4, 5],

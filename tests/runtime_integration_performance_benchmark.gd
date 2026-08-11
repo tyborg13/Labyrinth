@@ -38,6 +38,7 @@ func _initialize() -> void:
 	var combat := CombatEngine.new()
 	var installed_state: Dictionary = _install_stress_combat(instance, combat)
 	await _settle_ui()
+	await _settle_action_tracker_prewarm(instance)
 	_verify_aoe_target_semantics(instance, combat, installed_state)
 	var source_snapshot: Dictionary = installed_state.duplicate(true)
 	var results: Dictionary = {
@@ -47,8 +48,12 @@ func _initialize() -> void:
 	}
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	var render_counts_before: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
-	for _iteration: int in range(5):
-		instance.call("_refresh_stage_view")
+	# Exercise a real presentation change. Repeating _refresh_stage_view with an
+	# unchanged retained snapshot may correctly produce no redraw at all.
+	for tile: Vector2i in [Vector2i(4, 4), Vector2i(3, 4)]:
+		var motion := InputEventMouseMotion.new()
+		motion.position = board.call("_tile_center", tile) as Vector2
+		board.call("_gui_input", motion)
 	await _settle_ui()
 	var render_counts_after: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
 	_expect(bool(render_counts_after.get("split_layers_active", false)), "combat board did not activate its retained static render layer")
@@ -544,3 +549,14 @@ func _settle_ui() -> void:
 	await process_frame
 	RenderingServer.force_draw()
 	await process_frame
+
+func _settle_action_tracker_prewarm(instance: Node) -> void:
+	var waited_frames: int = 0
+	while (
+		bool(instance.get("_action_tracker_prewarm_scheduled"))
+		or not (instance.get("_action_tracker_prewarm_queue") as Array).is_empty()
+	) and waited_frames < 2000:
+		await process_frame
+		waited_frames += 1
+	_expect(waited_frames < 2000, "action-tracker prewarm must finish within a bounded frame budget")
+	await _settle_ui()

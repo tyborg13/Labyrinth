@@ -3,6 +3,7 @@ class_name SkillTreeView
 
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
@@ -18,8 +19,8 @@ const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
 const GRAPH_SIZE: Vector2 = Vector2(SkillTreeLibrary.LAYOUT_CANVAS_SIZE)
-const DETAIL_WIDTH: float = 280.0
-const COMPACT_DETAIL_WIDTH: float = 350.0
+const DETAIL_WIDTH: float = 320.0
+const COMPACT_DETAIL_WIDTH: float = 370.0
 const COMPACT_LAYOUT_WIDTH: float = 1300.0
 const LINK_NODE_CLEARANCE: float = 8.0
 const LINK_ENDPOINT_EXPOSURE: float = 10.0
@@ -46,6 +47,10 @@ const BRANCH_COLORS: Dictionary = {
 	"radiance": Color("e7c85f"),
 	"keystone": Color("e5cf9b"),
 }
+
+static var _shared_empty_node_style: StyleBoxEmpty = null
+static var _shared_static_links: Array[Dictionary] = []
+static var _shared_bridge_records: Array[Dictionary] = []
 
 class SkillLinkLayer:
 	extends Control
@@ -403,7 +408,7 @@ var _detail_content: VBoxContainer
 var _detail_divider: HSeparator
 var _detail_status: Label
 var _detail_title: Label
-var _detail_description: Label
+var _detail_description: RichTextLabel
 var _detail_activation: Label
 var _detail_requirements: Label
 var _detail_unlocks: Label
@@ -803,7 +808,7 @@ func _refresh_responsive_layout() -> void:
 	if _detail_title != null:
 		UiTypography.apply_label_role(_detail_title, UiTypography.ROLE_BODY_LARGE if compact else UiTypography.ROLE_SECTION)
 	if _detail_description != null:
-		UiTypography.apply_label_role(_detail_description, UiTypography.ROLE_CAPTION if compact else UiTypography.ROLE_BODY)
+		UiTypography.apply_rich_text_role(_detail_description, UiTypography.ROLE_BODY if compact else UiTypography.ROLE_BODY_LARGE)
 	_refresh_detail_visibility()
 	call_deferred("_layout_graph_canvas")
 
@@ -856,6 +861,8 @@ func _legend_symbol_kind(state: String) -> String:
 			return "lock"
 
 func _build_skill_nodes() -> void:
+	if _shared_empty_node_style == null:
+		_shared_empty_node_style = StyleBoxEmpty.new()
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var node_size: Vector2 = _node_size(skill_id)
 		var node_center: Vector2 = _node_center(skill_id)
@@ -873,7 +880,7 @@ func _build_skill_nodes() -> void:
 		button.pressed.connect(_on_node_pressed.bind(skill_id))
 		button.focus_entered.connect(_on_node_focus_entered.bind(skill_id))
 		for style_name: String in ["normal", "hover", "pressed", "focus", "disabled"]:
-			button.add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
+			button.add_theme_stylebox_override(style_name, _shared_empty_node_style)
 		_graph_canvas.add_child(button)
 		_node_buttons[skill_id] = button
 		_node_icons[skill_id] = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
@@ -925,11 +932,15 @@ func _build_detail_panel() -> Control:
 	_detail_title.add_theme_color_override("font_color", Color("f5ead4"))
 	_detail_content.add_child(_detail_title)
 
-	_detail_description = Label.new()
+	_detail_description = RichTextLabel.new()
 	_detail_description.name = "SkillDetailDescription"
 	_detail_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.apply_label_role(_detail_description, UiTypography.ROLE_BODY)
-	_detail_description.add_theme_color_override("font_color", Color("ddcfb7"))
+	_detail_description.bbcode_enabled = false
+	_detail_description.fit_content = true
+	_detail_description.scroll_active = false
+	_detail_description.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_rich_text_role(_detail_description, UiTypography.ROLE_BODY_LARGE)
+	_detail_description.add_theme_color_override("default_color", Color("ddcfb7"))
 	_detail_content.add_child(_detail_description)
 
 	_detail_divider = HSeparator.new()
@@ -1029,6 +1040,12 @@ func _refresh_nodes() -> void:
 
 func _rebuild_link_geometry() -> void:
 	var started_usec: int = Time.get_ticks_usec()
+	if not _shared_static_links.is_empty():
+		_static_links.assign(_shared_static_links)
+		_bridge_records.assign(_shared_bridge_records)
+		_link_geometry_rebuild_count += 1
+		_last_link_geometry_usec = Time.get_ticks_usec() - started_usec
+		return
 	var links: Array[Dictionary]
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
@@ -1042,6 +1059,8 @@ func _rebuild_link_geometry() -> void:
 			})
 	_bridge_records = _annotate_connection_bridges(links)
 	_static_links = links
+	_shared_static_links.assign(_static_links)
+	_shared_bridge_records.assign(_bridge_records)
 	_link_geometry_rebuild_count += 1
 	_last_link_geometry_usec = Time.get_ticks_usec() - started_usec
 
@@ -1093,7 +1112,7 @@ func _refresh_detail() -> void:
 	_detail_status.text = _detail_status_text(_focused_id, state)
 	_detail_status.add_theme_color_override("font_color", _state_color(state).lightened(0.12))
 	_detail_title.text = SkillTreeLibrary.display_name(_focused_id)
-	_detail_description.text = SkillTreeLibrary.description(_focused_id)
+	InlineIconText.apply_to(_detail_description, SkillTreeLibrary.description(_focused_id))
 	_detail_activation.text = "TIMING  ·  %s" % SkillTreeLibrary.activation_kind(_focused_id).to_upper()
 	_detail_requirements.text = _requirements_text(_focused_id)
 	_detail_unlocks.text = _unlocks_text(_focused_id)
