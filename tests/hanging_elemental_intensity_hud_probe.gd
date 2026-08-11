@@ -46,6 +46,12 @@ const STRESS_RELIC_IDS: Array = [
 	"flint_edge",
 ]
 const SKILL_IDS: Array = ["quick_wits", "measured_breath", "ghost_stride", "discerning_eye"]
+const COMPACT_TOP_BAR_HEIGHT: float = 66.0
+const COMPACT_BOARD_TOP: float = 24.0
+const COMPACT_MENU_TOP: float = 15.0
+const COMPACT_UMBRA_TOP_BAR_HEIGHT: float = 91.0
+const COMPACT_UMBRA_BOARD_TOP: float = 49.0
+const COMPACT_UMBRA_MENU_TOP: float = 27.0
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -225,7 +231,7 @@ func _assert_hud_contract(instance: Node, crowded: bool) -> void:
 	_assert(overlap_ratio <= 0.012, "Hanging cluster should cover almost none of the default board (ratio %.4f, bar=%s, board=%s)" % [overlap_ratio, bar.get_global_rect(), board_bounds])
 	await _assert_hover_ownership(intensity_badges)
 	if crowded:
-		var relic_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar") as Control
+		var relic_bar: Control = instance.get_node("UiLayer/UiRoot/RelicBar") as Control
 		var relic_grid: GridContainer = instance.get("_relic_icon_grid") as GridContainer
 		var umbra_subtitle: Label = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle") as Label
 		_assert(umbra_subtitle != null and umbra_subtitle.visible and umbra_subtitle.text == "Heart Umbra", "Crowded proof should include the live Umbra header line")
@@ -245,13 +251,23 @@ func _assert_relic_wrap_contract(instance: Node, expected_relics: int, expected_
 		return
 	var row_y_values: Array[float] = []
 	var first_x: float = (relic_grid.get_child(0) as Control).global_position.x
-	var relic_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar") as Control
+	var relic_bar: Control = instance.get_node("UiLayer/UiRoot/RelicBar") as Control
 	_assert(relic_bar != null and absf(first_x - relic_bar.global_position.x) <= 1.0, "The relic block should stay flush with the HUD's screen-left edge even when Defiance precedes Abilities")
 	_assert(absf(first_x - intensity_bar.global_position.x) <= 1.0, "Relics and elemental intensity should share the same screen-left edge")
 	if expected_relics >= 5:
 		var first_row_end: float = (relic_grid.get_child(4) as Control).get_global_rect().end.x
 		_assert(absf((first_row_end - first_x) - ElementalIntensityHudArt.CLUSTER_SIZE.x) <= 12.0, "Five relics should occupy approximately the elemental intensity widget width")
 	var board_polygon: PackedVector2Array = instance.call("_contextual_combat_board_tile_polygon") as PackedVector2Array
+	var top_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar") as Control
+	var menu_button: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton") as Control
+	var board_view: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var umbra_visible: bool = (instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle") as Control).visible
+	var expected_top_bar_height: float = COMPACT_UMBRA_TOP_BAR_HEIGHT if umbra_visible else COMPACT_TOP_BAR_HEIGHT
+	var expected_board_top: float = COMPACT_UMBRA_BOARD_TOP if umbra_visible else COMPACT_BOARD_TOP
+	var expected_menu_top: float = COMPACT_UMBRA_MENU_TOP if umbra_visible else COMPACT_MENU_TOP
+	_assert(absf(top_bar.size.y - expected_top_bar_height) <= 1.0, "Relic relocation should preserve the compact TopBar height regardless of relic count (actual=%.1f)" % top_bar.size.y)
+	_assert(absf(menu_button.global_position.y - expected_menu_top) <= 1.0, "Relic relocation should preserve the compact menu position regardless of relic count (actual=%.1f)" % menu_button.global_position.y)
+	_assert(absf(board_view.global_position.y - expected_board_top) <= 1.0, "Relic relocation should preserve the compact board position regardless of relic count (actual=%.1f)" % board_view.global_position.y)
 	for index: int in range(relic_grid.get_child_count()):
 		var relic: Control = relic_grid.get_child(index) as Control
 		var row_index: int = int(index / 5)

@@ -1375,7 +1375,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var room_title: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
 @onready var umbra_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle
-@onready var relic_bar: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
+@onready var relic_bar: VBoxContainer = $UiLayer/UiRoot/RelicBar
 @onready var header_spacer: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/Spacer
 @onready var stats_label: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel
 @onready var loadout_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton
@@ -7841,6 +7841,21 @@ func _layout_header_hud() -> void:
 	if relic_bar != null:
 		relic_bar.custom_minimum_size = Vector2(min_width, relic_bar.custom_minimum_size.y)
 		relic_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
+		if relic_bar.visible:
+			# Relics are a screen-space continuation of the left header, not a
+			# contributor to TopBar's minimum height. Keeping this block outside the
+			# MainVBox preserves the compact top-right button row and board geometry
+			# while still placing relics directly below the title stack.
+			var relic_height: float = relic_bar.get_combined_minimum_size().y
+			relic_bar.custom_minimum_size = Vector2(min_width, relic_height)
+			relic_bar.size = Vector2(min_width, relic_height)
+			var header_bottom: float = room_subtitle.get_global_rect().end.y
+			if umbra_subtitle != null and umbra_subtitle.visible:
+				header_bottom = umbra_subtitle.get_global_rect().end.y
+			relic_bar.global_position = Vector2(title_box.get_global_rect().position.x, header_bottom + float(title_box.get_theme_constant("separation")))
+		else:
+			relic_bar.custom_minimum_size = Vector2.ZERO
+			relic_bar.size = Vector2.ZERO
 
 func _desired_relic_bar_width() -> float:
 	if relic_bar == null or _relic_utility_bar == null or _relic_icon_grid == null:

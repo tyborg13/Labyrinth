@@ -7868,6 +7868,30 @@
       }
     },
     {
+      "id": "mnt_20260811T015757Z_b10987a9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Keep the post-change five-column relic HUD as a screen-space overlay with no layout footprint so relic rows never move the TopBar, menu controls, or board.",
+      "details": "The title stack still determines its own compact height (including the optional Umbra subtitle), while the visual relic rows remain left-aligned below abilities and the elemental intensity cluster follows the complete relic block.",
+      "status": "active",
+      "created_at": "2026-08-11T01:57:57Z",
+      "updated_at": "2026-08-11T01:57:57Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260810T141819Z_3ec23b65"
+      ],
+      "source": {
+        "branch": "codex/restore-combat-layout-anchors-after-relic-move",
+        "commit": "ca954b9"
+      }
+    },
+    {
       "id": "mnt_20260811T132809Z_259037ce",
       "layer": "shared",
       "kind": "user_preference",
