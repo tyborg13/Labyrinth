@@ -219,6 +219,7 @@ const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
 const RENDER_LAYER_FOREGROUND: String = "foreground"
 const RENDER_LAYER_HUD: String = "hud"
 const RENDER_LAYER_EFFECTS: String = "effects"
+const ELEMENTAL_FOREGROUND_PARTICLE_COUNT: int = 7
 const HUD_LAYOUT_CACHE_LIMIT: int = 32
 const UMBRA_RETURN_STAGGER_SECONDS: float = 0.52
 const UMBRA_RETURN_FADE_SECONDS: float = 0.46
@@ -795,6 +796,10 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 			_queue_render_layer_redraw(_effects_render_layer)
 	elif not skip_effects and _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
 		_queue_render_layer_redraw(_effects_render_layer)
+		_queue_elemental_scene_depth_redraws(
+			_elemental_scene_depth_tiles_for_presentation(presentation),
+			_elemental_scene_depth_tiles_for_presentation(presentation)
+		)
 
 func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> void:
 	if _campfire_atmosphere_active():
@@ -957,6 +962,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var moving_actor_keys: Dictionary = {}
 	var previous_unit_render_tiles: Dictionary = {}
 	var previous_unit_obstruction_entries: Dictionary = {}
+	var previous_elemental_scene_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
 		presentation_changes = _changed_presentation_keys(presentation, next_presentation)
 		previous_damage_preview = _damage_preview_map().duplicate(true)
@@ -991,6 +997,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	var next_elemental_scene_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if not _navigation_content_signature.is_empty() and next_navigation_content_signature != _navigation_content_signature:
 		_navigation_pan = Vector2.ZERO
 		_enemy_hud_side_by_actor.clear()
@@ -1031,7 +1038,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_damage_preview != _damage_preview_cache,
 			moving_actor_keys,
 			previous_unit_render_tiles,
-			previous_unit_obstruction_entries
+			previous_unit_obstruction_entries,
+			previous_elemental_scene_tiles,
+			next_elemental_scene_tiles
 		)
 
 func _changed_presentation_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
@@ -1086,7 +1095,9 @@ func _queue_presentation_change_redraws(
 	damage_preview_changed: bool = false,
 	moving_actor_keys: Dictionary = {},
 	previous_unit_render_tiles: Dictionary = {},
-	previous_unit_obstruction_entries: Dictionary = {}
+	previous_unit_obstruction_entries: Dictionary = {},
+	previous_elemental_scene_tiles: Array = [],
+	next_elemental_scene_tiles: Array = []
 ) -> void:
 	if changed_keys.is_empty() and not damage_preview_changed:
 		return
@@ -1144,6 +1155,15 @@ func _queue_presentation_change_redraws(
 	if effects_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_effects_render_layer)
+		_queue_elemental_scene_depth_redraws(previous_elemental_scene_tiles, next_elemental_scene_tiles)
+
+func _queue_elemental_scene_depth_redraws(previous_tiles: Array, next_tiles: Array) -> void:
+	var queued_tiles: Dictionary = {}
+	for tile_var: Variant in previous_tiles + next_tiles:
+		if typeof(tile_var) != TYPE_VECTOR2I or queued_tiles.has(tile_var):
+			continue
+		queued_tiles[tile_var] = true
+		_queue_scene_render_layer_for_tile(tile_var as Vector2i)
 
 func _queue_moving_actor_redraws(
 	moving_actor_keys: Dictionary,
@@ -1748,9 +1768,11 @@ func _draw_scene_tile_render_layer() -> void:
 	var grid: Array = combat_state.get("grid", [])
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	var obstruction_entries: Array = _foreground_obstruction_entries_cache
+	_draw_elemental_scene_depth_pass(_render_layer_tile, false)
 	_draw_scene_props_for_tile(_render_layer_tile, obstruction_entries)
 	_draw_tile_props(grid, _render_layer_tile, obstruction_entries)
 	_draw_unit_bodies_for_tile(_render_layer_tile, units_to_draw)
+	_draw_elemental_scene_depth_pass(_render_layer_tile, true)
 	_record_render_section_time("scene_tiles", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -5828,6 +5850,135 @@ func _impact_element_seed(element_id: String) -> int:
 		_:
 			return 7
 
+func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
+	return (
+		str(effect.get("kind", "")) == "ranged"
+		and AttackFxLibrary.uses_authored_elemental_ranged(effect)
+	)
+
+func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictionary) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = _vector2i_array([])
+	var effect: Dictionary = source_presentation.get("effect", {}) as Dictionary
+	if not _effect_uses_elemental_scene_depth(effect):
+		return tiles
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	if from_tile.x < 0 or to_tile.x < 0:
+		return tiles
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if style == AttackFxLibrary.STYLE_EARTH_SPIKES:
+		_elemental_append_unique_depth_tile(tiles, from_tile)
+		for spike_index: int in range(EARTH_PATH_SPIKE_COUNT):
+			var path_progress: float = lerpf(0.10, 0.96, float(spike_index) / float(EARTH_PATH_SPIKE_COUNT - 1))
+			_elemental_append_unique_depth_tile(tiles, _elemental_lerp_depth_tile(from_tile, to_tile, path_progress))
+		_elemental_append_unique_depth_tile(tiles, to_tile)
+		return tiles
+	if bool(effect.get("preview", false)):
+		for sample_index: int in range(13):
+			var sample_progress: float = float(sample_index) / 12.0
+			_elemental_append_unique_depth_tile(tiles, _elemental_lerp_depth_tile(from_tile, to_tile, sample_progress))
+		return tiles
+	var progress: float = clampf(float(source_presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	_elemental_append_unique_depth_tile(tiles, _elemental_scene_depth_tile_for_effect(effect, progress))
+	return tiles
+
+func _elemental_append_unique_depth_tile(tiles: Array[Vector2i], tile: Vector2i) -> void:
+	if tile.x >= 0 and not tiles.has(tile):
+		tiles.append(tile)
+
+func _elemental_scene_depth_tile_for_effect(effect: Dictionary, progress: float) -> Vector2i:
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	if from_tile.x < 0 or to_tile.x < 0:
+		return Vector2i(-1, -1)
+	var travel_progress: float = 0.0
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		travel_progress = lerpf(0.05, 0.95, phase)
+	else:
+		var style: String = AttackFxLibrary.style_for_effect(effect)
+		travel_progress = AttackFxLibrary.travel_progress_for_style(style, progress)
+	return _elemental_lerp_depth_tile(from_tile, to_tile, travel_progress)
+
+func _elemental_lerp_depth_tile(from_tile: Vector2i, to_tile: Vector2i, progress: float) -> Vector2i:
+	var point: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), clampf(progress, 0.0, 1.0))
+	return Vector2i(roundi(point.x), roundi(point.y))
+
+func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> void:
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	if not _effect_uses_elemental_scene_depth(effect):
+		return
+	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var depth_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
+	if not depth_tiles.has(tile):
+		return
+	var current_depth_tile: Vector2i = _elemental_scene_depth_tile_for_effect(effect, progress)
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	var from_point: Vector2 = _tile_center(from_tile)
+	var to_point: Vector2 = _tile_center(to_tile)
+	if foreground_pass:
+		if tile == current_depth_tile:
+			_draw_elemental_foreground_depth_effect(effect, style, progress, to_point)
+		return
+	if style != AttackFxLibrary.STYLE_EARTH_SPIKES and tile != current_depth_tile:
+		return
+	_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+
+func _draw_elemental_foreground_depth_effect(effect: Dictionary, style: String, progress: float, target_point: Vector2) -> void:
+	if bool(effect.get("preview", false)):
+		return
+	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	if not reduced_motion and progress < travel_end:
+		return
+	var impact_progress: float = 0.52 if reduced_motion else AttackFxLibrary.impact_progress_for_style(style, progress)
+	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.86, 1.0, impact_progress)
+	if fade <= 0.0:
+		return
+	var element_id: String = _elemental_style_id(style)
+	var ground_point: Vector2 = _elemental_ground_point(target_point)
+	var draw_size: float = _elemental_performance_size(style, impact_progress)
+	_draw_elemental_foreground_volume(element_id, ground_point, impact_progress, draw_size, fade, reduced_motion)
+
+func _draw_elemental_foreground_volume(element_id: String, ground_point: Vector2, impact_progress: float, draw_size: float, alpha: float, reduced_motion: bool) -> void:
+	var soft_texture: Texture2D = _ambient_fire_soft_texture(2) if element_id in ["fire", "earth"] else _ambient_air_wisp_soft_texture(2)
+	if soft_texture != null:
+		var veil_energy: float = 0.72 if reduced_motion else sin(clampf(impact_progress, 0.0, 1.0) * PI)
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			ground_point + Vector2(0.0, _tile_height() * 0.12),
+			Vector2(draw_size * 0.82, draw_size * 0.24),
+			0.0,
+			alpha * veil_energy * (0.16 if element_id in ["earth", "ice"] else 0.22),
+			_elemental_scene_color(element_id)
+		)
+	for particle_index: int in range(ELEMENTAL_FOREGROUND_PARTICLE_COUNT):
+		var delay: float = float(particle_index) * 0.025
+		var age: float = 0.46 if reduced_motion else clampf((impact_progress - 0.06 - delay) / 0.82, 0.0, 1.0)
+		if age <= 0.0 or age >= 1.0:
+			continue
+		var seed: int = 36017 + particle_index * 977 + _impact_element_seed(element_id) * 43
+		var angle: float = lerpf(0.10 * PI, 0.90 * PI, float(particle_index) / float(ELEMENTAL_FOREGROUND_PARTICLE_COUNT - 1))
+		angle += lerpf(-0.08, 0.08, _ambient_hash01(seed))
+		var radial: float = draw_size * lerpf(0.10, 0.48, age) * lerpf(0.72, 1.18, _ambient_hash01(seed + 3))
+		var lift: float = draw_size * lerpf(0.06, 0.28, _ambient_hash01(seed + 5)) * sin(age * PI)
+		var point: Vector2 = ground_point + Vector2(cos(angle) * radial, sin(angle) * radial * 0.32 - lift + draw_size * 0.08 * age * age)
+		var texture: Texture2D = null
+		if element_id == "air":
+			texture = _ambient_air_wisp_texture(posmod(particle_index, AMBIENT_AIR_WISP_VARIANTS), clampi(int(age * 18.0), 0, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+		else:
+			texture = _ambient_particle_texture(element_id, posmod(particle_index * 3 + 2, AMBIENT_PARTICLE_ATLAS_COLUMNS))
+		if texture == null:
+			continue
+		var size_scale: float = lerpf(0.085, 0.040, age) * lerpf(0.78, 1.20, _ambient_hash01(seed + 7))
+		var particle_size := Vector2.ONE * draw_size * size_scale
+		if element_id == "air":
+			particle_size = Vector2(draw_size * size_scale * 2.2, draw_size * size_scale * 0.78)
+		var particle_alpha: float = alpha * pow(1.0 - age, 0.82) * lerpf(0.58, 0.88, _ambient_hash01(seed + 11))
+		_draw_ambient_particle_sprite(texture, point, particle_size, angle - PI * 0.5, particle_alpha, _elemental_scene_color(element_id))
+
 func _draw_elemental_spell_floor_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
 	if effect.is_empty() or bool(effect.get("preview", false)):
@@ -5871,7 +6022,8 @@ func _draw_effect_overlay() -> void:
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
-			_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+			if not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
+				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
 			for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
 				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
 		"melee":
@@ -6332,26 +6484,29 @@ func _draw_elemental_performance_frame(texture: Texture2D, ground_point: Vector2
 
 func _draw_earth_spike_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_EARTH_SPIKES
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
 	var start: Vector2 = _elemental_ground_point(from_point)
 	var end: Vector2 = _elemental_ground_point(to_point)
 	if bool(presentation.get("reduced_motion", false)):
-		_draw_earth_impact(end, 0.52, 1.0, true)
+		if _render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == to_tile:
+			_draw_earth_impact(end, 0.52, 1.0, true)
 		return
 	if bool(effect.get("preview", false)):
 		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
-		_draw_earth_spike_path(start, end, phase, 0.62)
+		_draw_earth_spike_path(start, end, phase, 0.62, from_tile, to_tile)
 		return
 	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
 	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
 	var travel_progress: float = AttackFxLibrary.travel_progress_for_style(style, progress)
-	if progress <= anticipation_end:
+	if progress <= anticipation_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == from_tile):
 		_draw_elemental_release(style, start, start, end, AttackFxLibrary.release_progress_for_style(style, progress))
 	if progress >= anticipation_end and progress <= travel_end:
-		_draw_earth_spike_path(start, end, travel_progress, 1.0)
-	if progress >= travel_end:
+		_draw_earth_spike_path(start, end, travel_progress, 1.0, from_tile, to_tile)
+	if progress >= travel_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == to_tile):
 		_draw_earth_impact(end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
 
-func _draw_earth_spike_path(start: Vector2, end: Vector2, travel_progress: float, alpha: float) -> void:
+func _draw_earth_spike_path(start: Vector2, end: Vector2, travel_progress: float, alpha: float, from_tile: Vector2i = Vector2i(-1, -1), to_tile: Vector2i = Vector2i(-1, -1)) -> void:
 	var frames: Array[Texture2D] = _elemental_performance_frames(AttackFxLibrary.STYLE_EARTH_SPIKES)
 	var ground_frames: Array[Texture2D] = _authored_elemental_frames("earth_ground_layer")
 	if frames.is_empty():
@@ -6363,6 +6518,12 @@ func _draw_earth_spike_path(start: Vector2, end: Vector2, travel_progress: float
 	var draw_size: float = clampf(_tile_width() * 1.02, 82.0, 118.0)
 	for spike_index: int in range(EARTH_PATH_SPIKE_COUNT):
 		var path_progress: float = lerpf(0.10, 0.96, float(spike_index) / float(EARTH_PATH_SPIKE_COUNT - 1))
+		if (
+			_render_layer_kind == RENDER_LAYER_SCENE_TILE
+			and from_tile.x >= 0
+			and _render_layer_tile != _elemental_lerp_depth_tile(from_tile, to_tile, path_progress)
+		):
+			continue
 		var local_age: float = (travel_progress - path_progress) / 0.72
 		if local_age < 0.0 or local_age >= 1.0:
 			continue

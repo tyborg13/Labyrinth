@@ -17,6 +17,7 @@ static func run(expect: Callable) -> void:
 	_test_fireball_path_is_straight(expect)
 	_test_all_authored_elemental_paths_are_straight(expect)
 	_test_isometric_ground_anchor_is_exact_target_floor(expect)
+	_test_elemental_effects_resolve_into_scene_depth_tiles(expect)
 	_test_elemental_integration_profiles_own_depth_and_authored_anchors(expect)
 	_test_elemental_effects_render_below_the_hud(expect)
 	_test_enemy_steps_inherit_the_attacker_element(expect)
@@ -279,6 +280,48 @@ static func _test_isometric_ground_anchor_is_exact_target_floor(expect: Callable
 	board.free()
 
 
+static func _test_elemental_effects_resolve_into_scene_depth_tiles(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	var fire_effect: Dictionary = {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"from": Vector2i(2, 4),
+		"to": Vector2i(5, 4),
+		"element": "fire",
+	}
+	var generic_effect: Dictionary = fire_effect.duplicate(true)
+	generic_effect["element"] = "none"
+	var fire_style: String = AttackFxLibrary.style_for_effect(fire_effect)
+	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(fire_style)
+	var travel_end: float = AttackFxLibrary.travel_end_progress(fire_style)
+	var source_depth_tile: Vector2i = board.call("_elemental_scene_depth_tile_for_effect", fire_effect, anticipation_end)
+	var moving_depth_tile: Vector2i = board.call("_elemental_scene_depth_tile_for_effect", fire_effect, lerpf(anticipation_end, travel_end, 0.50))
+	var target_depth_tile: Vector2i = board.call("_elemental_scene_depth_tile_for_effect", fire_effect, travel_end)
+	expect.call(
+		bool(board.call("_effect_uses_elemental_scene_depth", fire_effect))
+		and not bool(board.call("_effect_uses_elemental_scene_depth", generic_effect))
+		and source_depth_tile == Vector2i(2, 4)
+		and moving_depth_tile.x > source_depth_tile.x
+		and moving_depth_tile.x < target_depth_tile.x
+		and target_depth_tile == Vector2i(5, 4),
+		"Authored elemental motion should advance through scene-tile depth while generic projectiles retain the feedback overlay path"
+	)
+	var earth_effect: Dictionary = fire_effect.duplicate(true)
+	earth_effect["element"] = "earth"
+	var earth_depth_tiles: Array = board.call("_elemental_scene_depth_tiles_for_presentation", {
+		"effect": earth_effect,
+		"effect_progress": 0.50,
+	}) as Array
+	expect.call(
+		earth_depth_tiles.has(Vector2i(2, 4))
+		and earth_depth_tiles.has(Vector2i(3, 4))
+		and earth_depth_tiles.has(Vector2i(4, 4))
+		and earth_depth_tiles.has(Vector2i(5, 4)),
+		"Earth's persistent spike line should distribute its authored eruptions across every occupied scene-depth tile"
+	)
+	board.free()
+
+
 static func _test_elemental_integration_profiles_own_depth_and_authored_anchors(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	var expected_anchors: Dictionary = {
@@ -325,17 +368,41 @@ static func _test_elemental_integration_profiles_own_depth_and_authored_anchors(
 
 static func _test_elemental_effects_render_below_the_hud(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
+	board.size = Vector2(1920.0, 1080.0)
 	board.call("_create_dynamic_render_layer")
+	var grid: Array = []
+	for y: int in range(9):
+		var row: Array = []
+		for x: int in range(9):
+			row.append("floor")
+		grid.append(row)
+	board.set("combat_state", {
+		"grid": grid,
+		"player": {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24},
+		"enemies": [],
+		"terrain": [],
+		"loot": [],
+		"traps": [],
+		"illusions": [],
+	})
+	board.call("_invalidate_board_layout_cache")
+	board.call("_sync_scene_render_layers")
 	var world_layer: Control = board.get("_dynamic_render_layer") as Control
+	var target_scene_layer: Control = (board.get("_scene_render_layers_by_tile") as Dictionary).get(Vector2i(5, 4), null) as Control
+	var foreground_layer: Control = board.get("_foreground_render_layer") as Control
 	var effects_layer: Control = board.get("_effects_render_layer") as Control
 	var hud_layer: Control = board.get("_hud_render_layer") as Control
 	expect.call(
 		world_layer != null
+		and target_scene_layer != null
+		and foreground_layer != null
 		and effects_layer != null
 		and hud_layer != null
-		and world_layer.get_index() < effects_layer.get_index()
+		and world_layer.get_index() < target_scene_layer.get_index()
+		and target_scene_layer.get_index() < foreground_layer.get_index()
+		and foreground_layer.get_index() < effects_layer.get_index()
 		and effects_layer.get_index() < hud_layer.get_index(),
-		"Floor illumination should render under actors, the authored blast above them, and HP/HUD feedback last so it stays crisp"
+		"Floor illumination should render first, authored blasts should share scene-tile depth, and global feedback/HUD should remain last and crisp"
 	)
 	board.free()
 

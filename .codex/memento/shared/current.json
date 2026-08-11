@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-11T13:28:09Z",
+  "updated_at": "2026-08-11T14:28:14Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7799,6 +7799,28 @@
       "source": {
         "branch": "codex/production-fireball-attack-animation",
         "commit": "8f3248c"
+      }
+    },
+    {
+      "id": "mnt_20260811T142814Z_f67eb44c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_draw_elemental_scene_depth_pass"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_draw_elemental_scene_depth_pass",
+      "summary": "Render authored ranged elemental VFX through retained scene-tile depth instead of the global Effects overlay.",
+      "details": "Bin travel/impact imagery into the current isometric tile layer. Draw the main raster volume before same-tile props, terrain, and units; draw only a restrained lower/front raster-particle lobe afterward. Later tile layers must occlude both passes. Keep floor light on the world layer and reserve the global Effects layer for screen-space feedback and generic fallback projectiles.",
+      "status": "active",
+      "created_at": "2026-08-11T14:28:14Z",
+      "updated_at": "2026-08-11T14:28:14Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-fireball-attack-animation",
+        "commit": "9f6e61b"
       }
     }
   ]

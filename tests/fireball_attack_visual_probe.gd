@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/fireball_attack_v4"
+const OUTPUT_DIR: String = "user://probes/fireball_attack_v5"
 const PROGRESSION_PATH: String = "user://fireball_attack_probe_progression.json"
 const RUN_PATH: String = "user://fireball_attack_probe_run.save"
 const SETTINGS_PATH: String = "user://fireball_attack_probe_settings.json"
@@ -73,6 +73,7 @@ func _capture_fireball_states() -> void:
 	var combat_state: Dictionary = _fireball_combat_state(instance.get("_combat_state") as Dictionary)
 	_install_combat_state(instance, combat_state)
 	await _settle()
+	_expect_scene_depth_fixture(instance)
 	var effect: Dictionary = {
 		"kind": "ranged",
 		"action_type": "ranged",
@@ -145,6 +146,17 @@ func _fireball_presentation(effect: Dictionary, progress: float) -> Dictionary:
 
 func _fireball_combat_state(source: Dictionary) -> Dictionary:
 	var combat_state: Dictionary = source.duplicate(true)
+	var grid: Array = (combat_state.get("grid", []) as Array).duplicate(true)
+	if grid.size() < 9:
+		grid.clear()
+		for y: int in range(9):
+			var row: Array = []
+			for x: int in range(9):
+				row.append("floor")
+			grid.append(row)
+	(grid[3] as Array)[4] = "pillar"
+	(grid[5] as Array)[6] = "pillar"
+	combat_state["grid"] = grid
 	combat_state["player"] = {
 		"pos": Vector2i(2, 4),
 		"hp": 24,
@@ -166,7 +178,13 @@ func _fireball_combat_state(source: Dictionary) -> Dictionary:
 		"block": 0,
 		"stoneskin": 0,
 	}]
-	combat_state["terrain"] = []
+	combat_state["terrain"] = [{
+		"id": "fireball_depth_crate",
+		"kind": "wooden_crate",
+		"pos": Vector2i(6, 4),
+		"hp": 50,
+		"max_hp": 50,
+	}]
 	combat_state["traps"] = []
 	combat_state["illusions"] = []
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
@@ -188,6 +206,29 @@ func _install_combat_state(instance: Node, combat_state: Dictionary) -> void:
 	instance.set("_animation_lock", false)
 	instance.set("_card_play_count_override", -1)
 	instance.call("_refresh_ui")
+
+
+func _expect_scene_depth_fixture(instance: Node) -> void:
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	_expect(board != null, "Fireball depth proof should find the production combat board")
+	if board == null:
+		return
+	var scene_layers: Dictionary = board.get("_scene_render_layers_by_tile") as Dictionary
+	var background_layer: Control = scene_layers.get(Vector2i(4, 3), null) as Control
+	var target_layer: Control = scene_layers.get(Vector2i(5, 4), null) as Control
+	var crate_layer: Control = scene_layers.get(Vector2i(6, 4), null) as Control
+	var foreground_layer: Control = scene_layers.get(Vector2i(6, 5), null) as Control
+	_expect(scene_layers.size() == 81, "Fireball depth proof should retain all 81 tiles as independently sorted scene layers")
+	_expect(
+		background_layer != null
+		and target_layer != null
+		and crate_layer != null
+		and foreground_layer != null
+		and background_layer.get_index() < target_layer.get_index()
+		and target_layer.get_index() < crate_layer.get_index()
+		and crate_layer.get_index() < foreground_layer.get_index(),
+		"Fireball depth proof should sort its rear pillar, target, front crate, and front pillar in world-depth order"
+	)
 
 
 func _first_combat_coord(run_engine: RunEngine, run_state: Dictionary) -> Vector2i:
