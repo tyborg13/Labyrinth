@@ -468,6 +468,13 @@ static func _test_ground_eruptions_own_compact_stable_bases(expect: Callable) ->
 	var earth_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_EARTH_SPIKES))
 	var ice_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_ICE_SHARDS))
 	var air_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_AIR_GUST))
+	var detonation_scales: Dictionary = {
+		AttackFxLibrary.STYLE_FIREBALL: float(board.call("_elemental_detonation_scale", AttackFxLibrary.STYLE_FIREBALL)),
+		AttackFxLibrary.STYLE_EARTH_SPIKES: float(board.call("_elemental_detonation_scale", AttackFxLibrary.STYLE_EARTH_SPIKES)),
+		AttackFxLibrary.STYLE_AIR_GUST: float(board.call("_elemental_detonation_scale", AttackFxLibrary.STYLE_AIR_GUST)),
+		AttackFxLibrary.STYLE_LIGHTNING_BOLT: float(board.call("_elemental_detonation_scale", AttackFxLibrary.STYLE_LIGHTNING_BOLT)),
+		AttackFxLibrary.STYLE_ICE_SHARDS: float(board.call("_elemental_detonation_scale", AttackFxLibrary.STYLE_ICE_SHARDS)),
+	}
 	expect.call(
 		not earth_cores.is_empty()
 		and not ice_cores.is_empty()
@@ -481,6 +488,33 @@ static func _test_ground_eruptions_own_compact_stable_bases(expect: Callable) ->
 		and is_equal_approx(float(board.call("_elemental_ground_contact_expansion", "earth")), 0.18)
 		and is_equal_approx(float(board.call("_elemental_ground_contact_expansion", "ice")), 0.10),
 		"Earth and Ice should stay smaller than airborne impacts and keep their floor footprint expansion restrained"
+	)
+	expect.call(
+		is_equal_approx(float(detonation_scales.get(AttackFxLibrary.STYLE_FIREBALL, 0.0)), 0.50)
+		and is_equal_approx(float(detonation_scales.get(AttackFxLibrary.STYLE_EARTH_SPIKES, 0.0)), 0.50)
+		and is_equal_approx(float(detonation_scales.get(AttackFxLibrary.STYLE_AIR_GUST, 0.0)), 0.50)
+		and is_equal_approx(float(detonation_scales.get(AttackFxLibrary.STYLE_ICE_SHARDS, 0.0)), 0.50)
+		and is_equal_approx(float(detonation_scales.get(AttackFxLibrary.STYLE_LIGHTNING_BOLT, 0.0)), 1.0),
+		"Every elemental detonation except Lightning should use the shared half-size presentation scale"
+	)
+	var trap_depth_tiles: Array[Vector2i] = board.call("_elemental_scene_depth_tiles_for_presentation", {
+		"trap_effects": [
+			{"pos": Vector2i(3, 3), "element": "fire"},
+			{"pos": Vector2i(5, 4), "element": "ice"},
+		],
+	}) as Array[Vector2i]
+	expect.call(
+		is_equal_approx(CombatBoardView.TRAP_ELEMENTAL_DETONATION_SCALE, 1.15)
+		and is_equal_approx(float(board.call("_trap_elemental_scale_ratio", AttackFxLibrary.STYLE_FIREBALL)), 2.30)
+		and is_equal_approx(float(board.call("_trap_elemental_scale_ratio", AttackFxLibrary.STYLE_LIGHTNING_BOLT)), 1.15)
+		and board.call("_elemental_style_for_element", "earth") == AttackFxLibrary.STYLE_EARTH_SPIKES
+		and board.call("_elemental_style_for_element", "air") == AttackFxLibrary.STYLE_AIR_GUST
+		and board.call("_elemental_style_for_element", "lightning") == AttackFxLibrary.STYLE_LIGHTNING_BOLT
+		and board.call("_elemental_style_for_element", "ice") == AttackFxLibrary.STYLE_ICE_SHARDS
+		and board.call("_elemental_style_for_element", "fire") == AttackFxLibrary.STYLE_FIREBALL
+		and trap_depth_tiles.has(Vector2i(3, 3))
+		and trap_depth_tiles.has(Vector2i(5, 4)),
+		"Trap blasts should select their authored element, exceed direct-attack scale, and enter scene-depth routing"
 	)
 	board.free()
 

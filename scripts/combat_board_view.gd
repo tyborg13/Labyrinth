@@ -296,6 +296,8 @@ const ELEMENTAL_ATTACK_SHEET_COLUMNS: int = 4
 const ELEMENTAL_ATTACK_SHEET_ROWS: int = 2
 const ELEMENTAL_PERFORMANCE_MIN_SIZE: float = 218.0
 const ELEMENTAL_PERFORMANCE_MAX_SIZE: float = 342.0
+const ELEMENTAL_COMPACT_DETONATION_SCALE: float = 0.50
+const TRAP_ELEMENTAL_DETONATION_SCALE: float = 1.15
 const ELEMENTAL_BACKGROUND_VOLUME_COUNT: int = 14
 const EARTH_PATH_SPIKE_COUNT: int = 6
 const EARTH_PATH_SPIKE_SIZE_SCALE: float = 0.68
@@ -333,9 +335,6 @@ const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
 const TRAP_ANIMATION_SHEET_COLUMNS: int = 4
 const TRAP_ANIMATION_SHEET_ROWS: int = 4
 const TRAP_IDLE_FRAME_SECONDS: float = 0.12
-const TRAP_BLAST_DRAW_WIDTH_SCALE: float = 0.76
-const TRAP_BLAST_DRAW_HEIGHT_SCALE: float = 1.18
-const TRAP_BLAST_BASELINE_SCALE: float = 0.32
 const IMPACT_DECAL_FADE_PROGRESS: float = 0.72
 const IMPACT_DECAL_MAX_ALPHA: float = 0.72
 const DROPPED_EMBERS_PATH: String = "res://assets/art/tiles/dropped_embers.png"
@@ -428,7 +427,6 @@ var _element_textures: Dictionary = {}
 var _trap_textures: Dictionary = {}
 var _trap_idle_frames: Dictionary = {}
 var _trap_activation_frames: Dictionary = {}
-var _trap_blast_textures: Dictionary = {}
 var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
 var _unit_shadow_polygon_cache: Dictionary = {}
@@ -615,7 +613,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
 			"_unit_textures", "_unit_assets_loaded",
-			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames", "_trap_blast_textures",
+			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_unit_shadow_polygon_cache",
 			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_door_opening_frames", "_door_opening_flipped_frames",
 			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
@@ -1115,8 +1113,11 @@ func _queue_presentation_change_redraws(
 			"effect", "effect_progress":
 				effects_changed = true
 				world_changed = true
-			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "trap_effects":
+			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect":
 				effects_changed = true
+			"trap_effects":
+				effects_changed = true
+				world_changed = true
 			"damage_preview":
 				effects_changed = true
 			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
@@ -1754,6 +1755,7 @@ func _draw_world_render_layer() -> void:
 	_draw_impact_decals()
 	_draw_umbra_overlay(tiles)
 	_draw_elemental_spell_floor_overlay()
+	_draw_elemental_trap_floor_overlay()
 	_record_render_section_time("ground_path_decals_umbra", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -5859,6 +5861,10 @@ func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
 
 func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictionary) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = _vector2i_array([])
+	for trap_var: Variant in source_presentation.get("trap_effects", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		_elemental_append_unique_depth_tile(tiles, (trap_var as Dictionary).get("pos", Vector2i(-1, -1)))
 	var effect: Dictionary = source_presentation.get("effect", {}) as Dictionary
 	if not _effect_uses_elemental_scene_depth(effect):
 		return tiles
@@ -5906,10 +5912,16 @@ func _elemental_lerp_depth_tile(from_tile: Vector2i, to_tile: Vector2i, progress
 	return Vector2i(roundi(point.x), roundi(point.y))
 
 func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> void:
+	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	for trap_var: Variant in presentation.get("trap_effects", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		if trap.get("pos", Vector2i(-1, -1)) == tile:
+			_draw_trap_elemental_depth_effect(trap, progress, foreground_pass)
 	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
 	if not _effect_uses_elemental_scene_depth(effect):
 		return
-	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	var depth_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if not depth_tiles.has(tile):
@@ -5926,6 +5938,39 @@ func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> 
 	if style != AttackFxLibrary.STYLE_EARTH_SPIKES and tile != current_depth_tile:
 		return
 	_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+
+func _draw_trap_elemental_depth_effect(trap: Dictionary, progress: float, foreground_pass: bool) -> void:
+	var element_id: String = str(trap.get("element", ElementData.NONE))
+	var style: String = _elemental_style_for_element(element_id)
+	if style == AttackFxLibrary.STYLE_DEFAULT:
+		return
+	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
+	var impact_progress: float = 0.52 if reduced_motion else clampf(progress, 0.0, 1.0)
+	var core_fade: float = 1.0 if reduced_motion else _elemental_impact_core_fade(style, impact_progress)
+	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
+	if core_fade <= 0.0 and volume_fade <= 0.0:
+		return
+	var tile_center: Vector2 = _tile_center(trap.get("pos", Vector2i(-1, -1)))
+	var ground_point: Vector2 = _elemental_ground_point(tile_center)
+	var scale_ratio: float = _trap_elemental_scale_ratio(style)
+	_draw_scaled_elemental_begin(ground_point, scale_ratio)
+	if foreground_pass:
+		var draw_size: float = _elemental_performance_size(style, impact_progress)
+		_draw_elemental_foreground_performance(style, ground_point, impact_progress, core_fade, reduced_motion)
+		_draw_elemental_foreground_volume(element_id, ground_point, impact_progress, draw_size, volume_fade, reduced_motion)
+	else:
+		match style:
+			AttackFxLibrary.STYLE_EARTH_SPIKES:
+				_draw_earth_impact(ground_point, impact_progress, 1.0, reduced_motion)
+			AttackFxLibrary.STYLE_AIR_GUST:
+				_draw_air_gust_impact(_elemental_air_point(tile_center, 0.56), ground_point, impact_progress, 1.0, reduced_motion)
+			AttackFxLibrary.STYLE_LIGHTNING_BOLT:
+				_draw_lightning_impact(_elemental_air_point(tile_center, 0.58), ground_point, impact_progress, 1.0, reduced_motion)
+			AttackFxLibrary.STYLE_ICE_SHARDS:
+				_draw_ice_icicle_impact(ground_point, impact_progress, 1.0, reduced_motion)
+			_:
+				_draw_fireball_impact_frame(ground_point, ground_point, impact_progress, 1.0, reduced_motion)
+	_draw_scaled_elemental_end()
 
 func _draw_elemental_foreground_depth_effect(effect: Dictionary, style: String, progress: float, target_point: Vector2) -> void:
 	if bool(effect.get("preview", false)):
@@ -6059,12 +6104,63 @@ func _draw_elemental_spell_floor_overlay() -> void:
 		bool(presentation.get("reduced_motion", false))
 	)
 
+func _draw_elemental_trap_floor_overlay() -> void:
+	var trap_effects: Array = presentation.get("trap_effects", [])
+	if trap_effects.is_empty():
+		return
+	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
+	for trap_var: Variant in trap_effects:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if not _board_tile_is_visible_to_player(trap_pos):
+			continue
+		var element_id: String = str(trap.get("element", ElementData.NONE))
+		var style: String = _elemental_style_for_element(element_id)
+		if style == AttackFxLibrary.STYLE_DEFAULT:
+			continue
+		var ground_point: Vector2 = _elemental_ground_point(_tile_center(trap_pos))
+		var style_progress: float = lerpf(AttackFxLibrary.travel_end_progress(style), 1.0, progress)
+		var scale_ratio: float = _trap_elemental_scale_ratio(style)
+		_draw_scaled_elemental_begin(ground_point, scale_ratio)
+		_draw_elemental_spell_scene(style, style_progress, ground_point, reduced_motion)
+		_draw_scaled_elemental_end()
+		_draw_trap_elemental_footprint(trap, element_id, progress, reduced_motion)
+		var activation_texture: Texture2D = _trap_activation_texture(trap, progress)
+		if activation_texture != null:
+			draw_texture_rect(activation_texture, _trap_visual_draw_rect(trap), false, _trap_visual_modulate(trap))
+
+func _draw_trap_elemental_footprint(trap: Dictionary, element_id: String, progress: float, reduced_motion: bool) -> void:
+	var frame_progress: float = 0.52 if reduced_motion else clampf(progress, 0.0, 1.0)
+	var envelope: float = 0.44 if reduced_motion else sin(frame_progress * PI)
+	if envelope <= 0.0:
+		return
+	var frame_index: int = AttackFxLibrary.one_shot_frame_index(frame_progress, 8)
+	var texture: Texture2D = _elemental_floor_light_texture(element_id, frame_index)
+	if texture == null:
+		return
+	var tint: Color = _elemental_scene_color(element_id)
+	for tile: Vector2i in _trap_blast_tiles(trap):
+		if not _board_tile_is_visible_to_player(tile):
+			continue
+		var tile_ground: Vector2 = _elemental_ground_point(_tile_center(tile))
+		var is_center: bool = tile == trap.get("pos", Vector2i(-1, -1))
+		var width: float = _tile_width() * (1.42 if is_center else 1.08)
+		_draw_elemental_floor_light_sprite(
+			element_id,
+			texture,
+			tile_ground,
+			Vector2(width, width * 0.38),
+			envelope * (0.22 if is_center else 0.13),
+			tint,
+			frame_index
+		)
+
 func _draw_effect_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
-	var trap_effects: Array = presentation.get("trap_effects", [])
-	if not trap_effects.is_empty():
-		_draw_trap_blast_effects(trap_effects, progress)
 	if effect.is_empty():
 		return
 	var kind: String = str(effect.get("kind", ""))
@@ -6264,6 +6360,23 @@ func _elemental_style_id(style: String) -> String:
 		_:
 			return "fire"
 
+func _elemental_style_for_element(element_id: String) -> String:
+	return AttackFxLibrary.style_for_effect({
+		"kind": "ranged",
+		"action_type": "ranged",
+		"element": element_id,
+	})
+
+func _trap_elemental_scale_ratio(style: String) -> float:
+	return TRAP_ELEMENTAL_DETONATION_SCALE / maxf(0.001, _elemental_detonation_scale(style))
+
+func _draw_scaled_elemental_begin(ground_point: Vector2, scale_ratio: float) -> void:
+	var clamped_ratio: float = maxf(0.001, scale_ratio)
+	draw_set_transform(ground_point * (1.0 - clamped_ratio), 0.0, Vector2.ONE * clamped_ratio)
+
+func _draw_scaled_elemental_end() -> void:
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
 func _elemental_scene_color(element_id: String) -> Color:
 	match element_id:
 		"earth":
@@ -6287,10 +6400,11 @@ func _draw_elemental_spell_scene(style: String, progress: float, target_ground: 
 		envelope = 0.42
 	var impact_progress: float = AttackFxLibrary.impact_progress_for_style(style, progress)
 	var impact_energy: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
+	var detonation_scale: float = _elemental_detonation_scale(style)
 	var light_frame_index: int = AttackFxLibrary.one_shot_frame_index(impact_progress, 8)
 	var light_texture: Texture2D = _elemental_floor_light_texture(element_id, light_frame_index)
 	if light_texture != null:
-		var light_size: float = clampf(_tile_width() * (2.15 + impact_energy * 1.20), 208.0, 390.0)
+		var light_size: float = clampf(_tile_width() * (2.15 + impact_energy * 1.20), 208.0, 390.0) * detonation_scale
 		_draw_elemental_floor_light_sprite(
 			element_id,
 			light_texture,
@@ -6304,7 +6418,7 @@ func _draw_elemental_spell_scene(style: String, progress: float, target_ground: 
 	if flash <= 0.0:
 		return
 	if light_texture != null:
-		var flash_size: float = clampf(_tile_width() * (2.35 + flash * 1.35), 228.0, 420.0)
+		var flash_size: float = clampf(_tile_width() * (2.35 + flash * 1.35), 228.0, 420.0) * detonation_scale
 		_draw_elemental_floor_light_sprite(
 			element_id,
 			light_texture,
@@ -6482,11 +6596,19 @@ func _elemental_performance_size_scale(style: String) -> float:
 		_:
 			return 2.55
 
+func _elemental_detonation_scale(style: String) -> float:
+	return 1.0 if style == AttackFxLibrary.STYLE_LIGHTNING_BOLT else ELEMENTAL_COMPACT_DETONATION_SCALE
+
 func _elemental_performance_size(style: String, impact_progress: float) -> float:
-	var scale: float = _elemental_performance_size_scale(style)
+	var detonation_scale: float = _elemental_detonation_scale(style)
+	var scale: float = _elemental_performance_size_scale(style) * detonation_scale
 	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
 	var bloom_scale: float = 0.08 if style in [AttackFxLibrary.STYLE_EARTH_SPIKES, AttackFxLibrary.STYLE_ICE_SHARDS] else 0.16
-	return clampf(_tile_width() * scale * (0.90 + bloom * bloom_scale), ELEMENTAL_PERFORMANCE_MIN_SIZE, ELEMENTAL_PERFORMANCE_MAX_SIZE)
+	return clampf(
+		_tile_width() * scale * (0.90 + bloom * bloom_scale),
+		ELEMENTAL_PERFORMANCE_MIN_SIZE * detonation_scale,
+		ELEMENTAL_PERFORMANCE_MAX_SIZE * detonation_scale
+	)
 
 func _elemental_impact_core_fade(style: String, impact_progress: float) -> float:
 	if style == AttackFxLibrary.STYLE_FIREBALL:
@@ -7455,7 +7577,7 @@ func _draw_fireball_impact_frame(center: Vector2, ground_center: Vector2, impact
 		return
 	if not frames.is_empty() and not reduced_motion:
 		var contact_alpha: float = 1.0 - smoothstep(0.0, 0.34, impact_progress)
-		var contact_size: float = clampf(_tile_width() * 1.92, 158.0, 232.0)
+		var contact_size: float = clampf(_tile_width() * 1.92, 158.0, 232.0) * _elemental_detonation_scale(AttackFxLibrary.STYLE_FIREBALL)
 		var contact_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(impact_progress, frames.size())
 		_draw_elemental_blended_performance_frames(
 			frames,
@@ -9090,9 +9212,6 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 			TRAP_ANIMATION_SHEET_COLUMNS,
 			TRAP_ANIMATION_SHEET_ROWS
 		)
-	_trap_blast_textures.clear()
-	for element_id: String in ElementData.all_elements():
-		_trap_blast_textures[element_id] = AssetLoader.load_texture("res://assets/art/effects/trap_blast_%s.png" % element_id)
 	_door_icon_textures.clear()
 	for icon_id: String in RoomIcons.all_icon_ids():
 		_door_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
@@ -10636,26 +10755,6 @@ func _update_cursor_shape() -> void:
 	else:
 		mouse_default_cursor_shape = Control.CURSOR_MOVE
 
-func _draw_trap_blast_effects(trap_effects: Array, progress: float) -> void:
-	for trap_var: Variant in trap_effects:
-		if typeof(trap_var) != TYPE_DICTIONARY:
-			continue
-		var trap: Dictionary = trap_var
-		var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
-		if not _board_tile_is_visible_to_player(trap_pos):
-			continue
-		var element_id: String = str(trap.get("element", ElementData.NONE))
-		var texture: Texture2D = _trap_blast_textures.get(element_id, null)
-		if texture != null:
-			for tile: Vector2i in _trap_blast_tiles(trap):
-				if not _board_tile_is_visible_to_player(tile):
-					continue
-				_draw_trap_blast_tile(tile, texture, progress)
-		var activation_texture: Texture2D = _trap_activation_texture(trap, progress)
-		if activation_texture != null:
-			if trap_pos.x >= 0:
-				draw_texture_rect(activation_texture, _trap_visual_draw_rect(trap), false, _trap_visual_modulate(trap))
-
 func _trap_blast_tiles(trap: Dictionary) -> Array[Vector2i]:
 	var offsets: Array[Vector2i] = [
 		Vector2i.ZERO,
@@ -10679,23 +10778,6 @@ func _trap_blast_tiles(trap: Dictionary) -> Array[Vector2i]:
 			continue
 		tiles.append(tile)
 	return tiles
-
-func _draw_trap_blast_tile(tile: Vector2i, texture: Texture2D, progress: float) -> void:
-	var t: float = clampf(progress, 0.0, 1.0)
-	var pulse: float = sin(t * PI)
-	var texture_size: Vector2 = texture.get_size()
-	if texture_size.x <= 0.0:
-		return
-	var draw_width: float = _tile_width() * TRAP_BLAST_DRAW_WIDTH_SCALE * (0.88 + 0.12 * pulse)
-	var draw_height: float = _tile_height() * TRAP_BLAST_DRAW_HEIGHT_SCALE * (0.88 + 0.12 * pulse)
-	var center: Vector2 = _tile_center(tile)
-	var bottom_y: float = center.y + _tile_height() * TRAP_BLAST_BASELINE_SCALE
-	var rect := Rect2(
-		Vector2(center.x - draw_width * 0.5, bottom_y - draw_height),
-		Vector2(draw_width, draw_height)
-	)
-	var alpha: float = 0.18 + 0.82 * pulse
-	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, alpha))
 
 func _draw_trap_marker(trap: Dictionary) -> void:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))

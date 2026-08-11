@@ -291,7 +291,7 @@ func _assert_arc_continuity() -> void:
 			absf(
 				FloatingCombatText.rendered_font_size(previous)
 				- FloatingCombatText.rendered_font_size(current)
-			) < 2.5,
+			) < 2.5 * FloatingCombatText.DAMAGE_PRESENTATION_SCALE + 0.01,
 			"Display-frame popup samples should scale continuously without integer size jumps"
 		)
 		previous = current

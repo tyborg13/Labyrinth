@@ -1,6 +1,7 @@
 extends SceneTree
 
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
@@ -126,7 +127,7 @@ func _capture_fireball_states() -> void:
 	await _render_and_capture(
 		instance,
 		combat_state,
-		_fireball_presentation(effect, 1.0),
+		_fireball_presentation(effect, 1.0, true),
 		"fireball_60_reduced_motion_impact.png"
 	)
 	instance.queue_free()
@@ -136,8 +137,8 @@ func _capture_fireball_states() -> void:
 	await process_frame
 
 
-func _fireball_presentation(effect: Dictionary, progress: float) -> Dictionary:
-	return {
+func _fireball_presentation(effect: Dictionary, progress: float, reduced_motion: bool = false) -> Dictionary:
+	var presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
 		"focus_actor_color": Color("ffb466"),
 		"focus_tiles": [effect.get("to", Vector2i(-1, -1))],
@@ -145,6 +146,16 @@ func _fireball_presentation(effect: Dictionary, progress: float) -> Dictionary:
 		"effect": effect,
 		"effect_progress": progress,
 	}
+	if not bool(effect.get("preview", false)):
+		var style: String = AttackFxLibrary.style_for_effect(effect)
+		var contact_progress: float = AttackFxLibrary.travel_end_progress(style)
+		if reduced_motion or progress + 0.0001 >= contact_progress:
+			var elapsed_seconds: float = 0.0 if reduced_motion else maxf(0.0, progress - contact_progress) * float(AttackFxLibrary.FIREBALL_ANIMATION_FRAMES) * AttackFxLibrary.FIREBALL_FRAME_SECONDS
+			presentation["impact_actor_keys"] = ["enemy_1"]
+			presentation["floating_texts"] = FloatingCombatText.animate_entries([
+				FloatingCombatText.damage_entry(effect.get("to", Vector2i(-1, -1)), "-13", Color("f39779")),
+			], elapsed_seconds, reduced_motion)
+	return presentation
 
 
 func _fireball_combat_state(source: Dictionary) -> Dictionary:

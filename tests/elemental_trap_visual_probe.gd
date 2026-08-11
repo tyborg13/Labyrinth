@@ -1,6 +1,7 @@
 extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
@@ -9,7 +10,9 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const OUTPUT_DIR: String = "user://elemental_trap_visual_probe"
 const SCREENSHOT_PATH: String = OUTPUT_DIR + "/elemental_traps_1920x1080_ui100.png"
 const IDLE_LATER_PATH: String = OUTPUT_DIR + "/elemental_traps_idle_later_1920x1080_ui100.png"
+const CONTACT_PATH: String = OUTPUT_DIR + "/elemental_traps_contact_1920x1080_ui100.png"
 const ACTIVATION_PATH: String = OUTPUT_DIR + "/elemental_traps_activation_1920x1080_ui100.png"
+const AFTERMATH_PATH: String = OUTPUT_DIR + "/elemental_traps_aftermath_1920x1080_ui100.png"
 const POST_REMOVAL_PATH: String = OUTPUT_DIR + "/elemental_traps_post_removal_1920x1080_ui100.png"
 const REDUCED_MOTION_PATH: String = OUTPUT_DIR + "/elemental_traps_reduced_motion_1920x1080_ui100.png"
 const SCREENSHOT_SIZE: Vector2i = Vector2i(1920, 1080)
@@ -47,7 +50,9 @@ func _initialize() -> void:
 		print("ELEMENTAL TRAP VISUAL PROBE: PASS")
 		print("ELEMENTAL_TRAP_PROOF=%s" % ProjectSettings.globalize_path(SCREENSHOT_PATH))
 		print("ELEMENTAL_TRAP_IDLE_LATER_PROOF=%s" % ProjectSettings.globalize_path(IDLE_LATER_PATH))
+		print("ELEMENTAL_TRAP_CONTACT_PROOF=%s" % ProjectSettings.globalize_path(CONTACT_PATH))
 		print("ELEMENTAL_TRAP_ACTIVATION_PROOF=%s" % ProjectSettings.globalize_path(ACTIVATION_PATH))
+		print("ELEMENTAL_TRAP_AFTERMATH_PROOF=%s" % ProjectSettings.globalize_path(AFTERMATH_PATH))
 		print("ELEMENTAL_TRAP_POST_REMOVAL_PROOF=%s" % ProjectSettings.globalize_path(POST_REMOVAL_PATH))
 		print("ELEMENTAL_TRAP_REDUCED_MOTION_PROOF=%s" % ProjectSettings.globalize_path(REDUCED_MOTION_PATH))
 		quit(0)
@@ -116,9 +121,30 @@ func _capture_animation_states(board: Control) -> void:
 
 	var activated_state: Dictionary = original_state.duplicate(true)
 	activated_state["traps"] = []
+	var player_tile: Vector2i = ((original_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
+	var trap_damage_entries: Array = [
+		FloatingCombatText.damage_entry(player_tile, "-7", Color("f39779")),
+	]
 	var activation_presentation: Dictionary = idle_presentation.duplicate(true)
 	activation_presentation["trap_effects"] = original_traps
-	activation_presentation["effect_progress"] = 0.52
+	activation_presentation["effect_progress"] = 0.08
+	activation_presentation["impact_actor_keys"] = ["player"]
+	activation_presentation["floating_texts"] = FloatingCombatText.animate_entries(
+		trap_damage_entries,
+		FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.08,
+		false
+	)
+	board.call("set_combat_state", activated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, activation_presentation)
+	await _settle_ui(3)
+	await _save_screenshot(CONTACT_PATH)
+
+	var peak_presentation: Dictionary = activation_presentation.duplicate(true)
+	peak_presentation["effect_progress"] = 0.52
+	peak_presentation["floating_texts"] = FloatingCombatText.animate_entries(
+		trap_damage_entries,
+		FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.52,
+		false
+	)
 	board.call(
 		"set_combat_state",
 		activated_state,
@@ -129,10 +155,20 @@ func _capture_animation_states(board: Control) -> void:
 		"",
 		{},
 		{},
-		activation_presentation
+		peak_presentation
 	)
 	await _settle_ui(3)
 	await _save_screenshot(ACTIVATION_PATH)
+	var aftermath_presentation: Dictionary = activation_presentation.duplicate(true)
+	aftermath_presentation["effect_progress"] = 0.84
+	aftermath_presentation["floating_texts"] = FloatingCombatText.animate_entries(
+		trap_damage_entries,
+		FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.84,
+		false
+	)
+	board.call("set_combat_state", activated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, aftermath_presentation)
+	await _settle_ui(3)
+	await _save_screenshot(AFTERMATH_PATH)
 
 	var removed_presentation: Dictionary = idle_presentation.duplicate(true)
 	removed_presentation.erase("trap_effects")
@@ -143,8 +179,11 @@ func _capture_animation_states(board: Control) -> void:
 
 	var reduced_presentation: Dictionary = idle_presentation.duplicate(true)
 	reduced_presentation["reduced_motion"] = true
-	board.call("set_combat_state", original_state, [], [], Vector2i(-1, -1), "", "", {}, {}, reduced_presentation)
-	board.set("_idle_elapsed", 0.72)
+	reduced_presentation["trap_effects"] = original_traps
+	reduced_presentation["effect_progress"] = 0.52
+	reduced_presentation["impact_actor_keys"] = ["player"]
+	reduced_presentation["floating_texts"] = FloatingCombatText.animate_entries(trap_damage_entries, 0.0, true)
+	board.call("set_combat_state", activated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, reduced_presentation)
 	await _settle_ui(3)
 	await _save_screenshot(REDUCED_MOTION_PATH)
 

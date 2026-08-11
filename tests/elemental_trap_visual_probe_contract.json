@@ -1,5 +1,5 @@
 {
-  "min_images": 5,
+  "min_images": 7,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -17,7 +17,17 @@
       "height": 1080
     },
     {
+      "pattern": "*elemental_traps_contact_1920x1080_ui100.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
       "pattern": "*elemental_traps_activation_1920x1080_ui100.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*elemental_traps_aftermath_1920x1080_ui100.png",
       "width": 1920,
       "height": 1080
     },

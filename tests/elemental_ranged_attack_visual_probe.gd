@@ -1,6 +1,7 @@
 extends SceneTree
 
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
@@ -95,7 +96,7 @@ func _capture_elemental_states() -> void:
 		await _render_and_capture(
 			instance,
 			combat_state,
-			_elemental_presentation(effect, 1.0, element_id),
+			_elemental_presentation(effect, 1.0, element_id, true),
 			"%s_80_reduced_motion.png" % element_id
 		)
 
@@ -150,7 +151,7 @@ func _effect_for_element(element_id: String) -> Dictionary:
 	}
 
 
-func _elemental_presentation(effect: Dictionary, progress: float, element_id: String) -> Dictionary:
+func _elemental_presentation(effect: Dictionary, progress: float, element_id: String, reduced_motion: bool = false) -> Dictionary:
 	var focus_colors: Dictionary = {
 		"earth": Color("b99b69"),
 		"air": Color("bde9f6"),
@@ -158,7 +159,7 @@ func _elemental_presentation(effect: Dictionary, progress: float, element_id: St
 		"ice": Color("93dcff"),
 	}
 	var focus_color: Color = focus_colors.get(element_id, Color.WHITE)
-	return {
+	var presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
 		"focus_actor_color": focus_color,
 		"focus_tiles": [effect.get("to", Vector2i(-1, -1))],
@@ -166,6 +167,18 @@ func _elemental_presentation(effect: Dictionary, progress: float, element_id: St
 		"effect": effect,
 		"effect_progress": progress,
 	}
+	if not bool(effect.get("preview", false)):
+		var style: String = AttackFxLibrary.style_for_effect(effect)
+		var contact_progress: float = AttackFxLibrary.travel_end_progress(style)
+		if reduced_motion or progress + 0.0001 >= contact_progress:
+			var frame_count: int = AttackFxLibrary.animation_frame_count(effect, 6, reduced_motion)
+			var frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, 0.04, reduced_motion)
+			var elapsed_seconds: float = 0.0 if reduced_motion else maxf(0.0, progress - contact_progress) * float(frame_count) * frame_seconds
+			presentation["impact_actor_keys"] = ["enemy_1"]
+			presentation["floating_texts"] = FloatingCombatText.animate_entries([
+				FloatingCombatText.damage_entry(effect.get("to", Vector2i(-1, -1)), "-13", Color("f39779")),
+			], elapsed_seconds, reduced_motion)
+	return presentation
 
 
 func _elemental_combat_state(source: Dictionary) -> Dictionary:

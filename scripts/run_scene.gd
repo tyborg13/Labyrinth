@@ -15626,6 +15626,13 @@ func _vector2i_array(values: Array) -> Array[Vector2i]:
 			result.append(value)
 	return result
 
+func _dictionary_array(values: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for value: Variant in values:
+		if typeof(value) == TYPE_DICTIONARY:
+			result.append(value as Dictionary)
+	return result
+
 func _on_card_pressed(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
 		return
@@ -16442,7 +16449,7 @@ func _set_ember_reward_display_count(value: int) -> void:
 func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
 	return board_view.global_position + board_view.world_position_for_tile(tile)
 
-func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary) -> void:
+func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, initial_elapsed_seconds: float = 0.0) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
@@ -16454,7 +16461,7 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 	var reduced_motion: bool = _reduced_motion_enabled()
 	var started_usec: int = Time.get_ticks_usec()
 	while true:
-		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
+		var elapsed_seconds: float = maxf(0.0, initial_elapsed_seconds) + float(Time.get_ticks_usec() - started_usec) / 1000000.0
 		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		presentation["impact_progress"] = 0.18 if reduced_motion else t
@@ -16465,6 +16472,38 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		if elapsed_seconds >= duration_seconds:
 			break
 		await get_tree().process_frame
+
+func _attack_feedback_start_progress(effect: Dictionary) -> float:
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if style != AttackFxLibrary.STYLE_DEFAULT:
+		return AttackFxLibrary.travel_end_progress(style)
+	match str(effect.get("kind", "")):
+		"melee":
+			return 0.42
+		"ranged":
+			return 0.66
+		"aoe", "lightning_strikes":
+			return 0.38
+		_:
+			return 0.50
+
+func _attack_feedback_elapsed_seconds(
+	effect: Dictionary,
+	effect_progress: float,
+	frame_count: int,
+	frame_seconds: float,
+	reduced_motion: bool
+) -> float:
+	var start_progress: float = _attack_feedback_start_progress(effect)
+	if not reduced_motion and effect_progress + 0.0001 < start_progress:
+		return -1.0
+	if reduced_motion:
+		return 0.0
+	var effect_duration: float = float(maxi(1, frame_count)) * maxf(0.0, frame_seconds)
+	return maxf(0.0, effect_progress - start_progress) * effect_duration
+
+func _attack_feedback_waits_for_trap(effect: Dictionary) -> bool:
+	return not (effect.get("triggered_traps", []) as Array).is_empty()
 
 func _animate_defeats_and_terrain_destruction(before_state: Dictionary, after_state: Dictionary, base_presentation: Dictionary = {}) -> void:
 	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
@@ -16983,8 +17022,24 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var to_point: Vector2 = board_view.world_position_for_tile(effect_target_tile)
 			var attack_frame_count: int = AttackFxLibrary.animation_frame_count(effect, ATTACK_FRAMES, _reduced_motion_enabled())
 			var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+			effect["triggered_traps"] = triggered_traps
+			var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(effect)
+			var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
+			if not trap_detonation_follows:
+				attack_floating_texts = _player_action_floating_texts(before_state, after_state)
+			var attack_impact_actor_keys: Array[String] = _player_action_impact_actor_keys(before_state, after_state)
+			var final_feedback_elapsed_seconds: float = 0.0
 			for frame: int in range(1, attack_frame_count + 1):
 				var t: float = float(frame) / float(attack_frame_count)
+				var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
+					effect,
+					t,
+					attack_frame_count,
+					attack_frame_seconds,
+					_reduced_motion_enabled()
+				)
+				if trap_detonation_follows:
+					feedback_elapsed_seconds = -1.0
 				var presentation := {
 					"focus_actor_keys": ["player"],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -16998,22 +17053,39 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						"player": from_point.lerp(to_point, 0.10 + sin(t * PI) * 0.24)
 					}
 					presentation["unit_draw_tiles"] = {"player": effect_target_tile}
-				_render_board_state(before_state, presentation)
+				var effect_display_state: Dictionary = before_state
+				if feedback_elapsed_seconds >= 0.0:
+					presentation["impact_actor_keys"] = attack_impact_actor_keys
+					presentation["floating_texts"] = FloatingCombatText.animate_entries(
+						attack_floating_texts,
+						feedback_elapsed_seconds,
+						_reduced_motion_enabled()
+					)
+					effect_display_state = primary_display_state
+					final_feedback_elapsed_seconds = feedback_elapsed_seconds
+				_render_board_state(effect_display_state, presentation)
 				if attack_frame_seconds > 0.0:
 					await get_tree().create_timer(attack_frame_seconds).timeout
 				else:
 					await get_tree().process_frame
-			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, _attack_impact_presentation({
+			var impact_presentation: Dictionary = {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_ATTACK_FOCUS,
 				"focus_tiles": focus_tiles,
 				"focus_color": Color(0.95, 0.62, 0.37, 0.22),
-				"effect": effect,
-				"effect_progress": 1.0,
-				"impact_actor_keys": _player_action_impact_actor_keys(before_state, after_state),
-				"trap_effects": triggered_traps,
-				"floating_texts": _player_action_floating_texts(before_state, after_state)
-			})))
+			}
+			if trap_detonation_follows:
+				await _animate_player_trap_result(after_state, before_state, triggered_traps, impact_presentation)
+			else:
+				impact_presentation["effect"] = effect
+				impact_presentation["effect_progress"] = 1.0
+				impact_presentation["impact_actor_keys"] = attack_impact_actor_keys
+				impact_presentation["floating_texts"] = attack_floating_texts
+				await _animate_floating_text_presentation(
+					primary_display_state,
+					_death_hold_presentation(before_state, primary_display_state, _attack_impact_presentation(impact_presentation)),
+					final_feedback_elapsed_seconds
+				)
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -17253,8 +17325,27 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
 				var attack_frame_count: int = AttackFxLibrary.animation_frame_count(step, ATTACK_FRAMES, _reduced_motion_enabled())
 				var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(step, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(step)
+				var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
+				if not trap_detonation_follows:
+					attack_floating_texts = _floating_texts_for_step(step)
+				var impact_actor_keys: Array = (step.get("impact_actor_keys", []) as Array).duplicate()
+				if impact_actor_keys.is_empty() and (int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0):
+					impact_actor_keys.append("player")
+				var attack_feedback_state: Dictionary = animated_state.duplicate(true)
+				_apply_animation_step(attack_feedback_state, step)
+				var final_feedback_elapsed_seconds: float = 0.0
 				for frame: int in range(1, attack_frame_count + 1):
 					var t: float = float(frame) / float(attack_frame_count)
+					var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
+						step,
+						t,
+						attack_frame_count,
+						attack_frame_seconds,
+						_reduced_motion_enabled()
+					)
+					if trap_detonation_follows:
+						feedback_elapsed_seconds = -1.0
 					var presentation := {
 						"focus_actor_keys": [step_actor_key],
 						"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -17270,27 +17361,46 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 						presentation["unit_draw_tiles"] = {
 							step_actor_key: step.get("to", Vector2i.ZERO)
 						}
-					_render_board_state(animated_state, presentation)
+					var effect_display_state: Dictionary = animated_state
+					if feedback_elapsed_seconds >= 0.0:
+						presentation["impact_actor_keys"] = impact_actor_keys
+						presentation["floating_texts"] = FloatingCombatText.animate_entries(
+							attack_floating_texts,
+							feedback_elapsed_seconds,
+							_reduced_motion_enabled()
+						)
+						effect_display_state = attack_feedback_state
+						final_feedback_elapsed_seconds = feedback_elapsed_seconds
+					_render_board_state(effect_display_state, presentation)
 					if attack_frame_seconds > 0.0:
 						await get_tree().create_timer(attack_frame_seconds).timeout
 					else:
 						await get_tree().process_frame
 				var before_attack_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
-				var impact_actor_keys: Array = step.get("impact_actor_keys", [])
-				if impact_actor_keys.is_empty() and (int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0):
-					impact_actor_keys = ["player"]
-				await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_attack_step_state, animated_state, _attack_impact_presentation({
+				var impact_presentation: Dictionary = {
 					"focus_actor_keys": [step_actor_key],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
 					"focus_tiles": focus_tiles,
 					"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-					"effect": step,
-					"effect_progress": 1.0,
-					"trap_effects": step.get("triggered_traps", []),
 					"impact_actor_keys": impact_actor_keys,
-					"floating_texts": _floating_texts_for_step(step)
-				})))
+				}
+				if trap_detonation_follows:
+					impact_presentation["trap_effects"] = step.get("triggered_traps", [])
+					impact_presentation["floating_texts"] = _floating_texts_for_step(step)
+					await _animate_floating_text_presentation(
+						animated_state,
+						_death_hold_presentation(before_attack_step_state, animated_state, impact_presentation)
+					)
+				else:
+					impact_presentation["effect"] = step
+					impact_presentation["effect_progress"] = 1.0
+					impact_presentation["floating_texts"] = attack_floating_texts
+					await _animate_floating_text_presentation(
+						animated_state,
+						_death_hold_presentation(before_attack_step_state, animated_state, _attack_impact_presentation(impact_presentation)),
+						final_feedback_elapsed_seconds
+					)
 				await _animate_defeats_and_terrain_destruction(before_attack_step_state, animated_state)
 
 func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) -> void:

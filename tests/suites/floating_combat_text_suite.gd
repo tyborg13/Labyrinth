@@ -2,6 +2,7 @@ extends RefCounted
 
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
+const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 
 
 static func run(expect: Callable) -> void:
@@ -10,6 +11,7 @@ static func run(expect: Callable) -> void:
 	_test_compound_popups_stagger_per_target(expect)
 	_test_reduced_motion_hold(expect)
 	_test_damage_entries_are_explicit(expect)
+	_test_attack_feedback_begins_at_contact(expect)
 
 
 static func _test_damage_motion_curve(expect: Callable) -> void:
@@ -24,9 +26,14 @@ static func _test_damage_motion_curve(expect: Callable) -> void:
 	var linger: Dictionary = FloatingCombatText.animate_entry(base, 0.76, false)
 	var finished: Dictionary = FloatingCombatText.animate_entry(base, 1.0, false)
 	expect.call(
-		FloatingCombatText.DAMAGE_PEAK_FONT_SIZE >= 60
+		is_equal_approx(FloatingCombatText.DAMAGE_PRESENTATION_SCALE, 1.25)
+		and FloatingCombatText.DAMAGE_BASE_FONT_SIZE == 38
+		and FloatingCombatText.DAMAGE_PEAK_FONT_SIZE == 75
+		and FloatingCombatText.DAMAGE_EXIT_FONT_SIZE == 29
+		and FloatingCombatText.DAMAGE_REDUCED_MOTION_FONT_SIZE == 40
+		and is_equal_approx(FloatingCombatText.DAMAGE_WIDTH, 140.0)
 		and FloatingCombatText.rendered_font_size(impact) >= float(FloatingCombatText.DAMAGE_PEAK_FONT_SIZE),
-		"Damage feedback should arrive at the enlarged hero-sized impact peak"
+		"Every damage popup should use the shared 25%-larger presentation scale"
 	)
 	expect.call(
 		FloatingCombatText.rendered_font_size(impact) > FloatingCombatText.rendered_font_size(rising)
@@ -230,5 +237,65 @@ static func _test_damage_entries_are_explicit(expect: Callable) -> void:
 		and (animated_player_effects[0] as Dictionary).get("tile", Vector2i(-1, -1)) == Vector2i(2, 4)
 		and bool((animated_player_effects[0] as Dictionary).get("automatic_anchor", false)),
 		"Player gains should preserve the receiving player's tile for local popup anchoring"
+	)
+	scene.free()
+
+
+static func _test_attack_feedback_begins_at_contact(expect: Callable) -> void:
+	var scene: Node = RunScene.new()
+	var fire_effect: Dictionary = {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"element": "fire",
+	}
+	var contact_progress: float = AttackFxLibrary.travel_end_progress(AttackFxLibrary.STYLE_FIREBALL)
+	var before_contact: float = float(scene.call(
+		"_attack_feedback_elapsed_seconds",
+		fire_effect,
+		contact_progress - 0.01,
+		48,
+		1.0 / 60.0,
+		false
+	))
+	var at_contact: float = float(scene.call(
+		"_attack_feedback_elapsed_seconds",
+		fire_effect,
+		contact_progress,
+		48,
+		1.0 / 60.0,
+		false
+	))
+	var after_contact: float = float(scene.call(
+		"_attack_feedback_elapsed_seconds",
+		fire_effect,
+		contact_progress + 0.10,
+		48,
+		1.0 / 60.0,
+		false
+	))
+	expect.call(
+		before_contact < 0.0 and is_zero_approx(at_contact) and after_contact > 0.0,
+		"Elemental damage feedback should begin on the detonation contact frame and continue during its resolution"
+	)
+	expect.call(
+		is_equal_approx(float(scene.call("_attack_feedback_start_progress", {"kind": "ranged"})), 0.66)
+		and is_equal_approx(float(scene.call("_attack_feedback_start_progress", {"kind": "melee"})), 0.42)
+		and is_zero_approx(float(scene.call(
+			"_attack_feedback_elapsed_seconds",
+			fire_effect,
+			0.0,
+			1,
+			0.0,
+			true
+		))),
+		"Generic attacks and reduced-motion attacks should share contact-synchronized feedback timing"
+	)
+	expect.call(
+		bool(scene.call("_attack_feedback_waits_for_trap", {
+			"kind": "push",
+			"triggered_traps": [{"element": "fire", "pos": Vector2i(4, 3)}],
+		}))
+		and not bool(scene.call("_attack_feedback_waits_for_trap", {"kind": "push"})),
+		"An attack-triggered trap should own a fresh eruption-time popup instead of inheriting the direct attack's elapsed arc"
 	)
 	scene.free()

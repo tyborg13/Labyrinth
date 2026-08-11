@@ -9,12 +9,13 @@ const ANIMATION_DURATION_SECONDS: float = 0.96
 const STAGGER_SECONDS: float = 0.13
 const TARGET_FRAME_SECONDS: float = 1.0 / 60.0
 
-const DAMAGE_BASE_FONT_SIZE: int = 30
-const DAMAGE_PEAK_FONT_SIZE: int = 60
-const DAMAGE_EXIT_FONT_SIZE: int = 23
-const DAMAGE_REDUCED_MOTION_FONT_SIZE: int = 32
-const DAMAGE_OUTLINE_SIZE: int = 4
-const DAMAGE_WIDTH: float = 112.0
+const DAMAGE_PRESENTATION_SCALE: float = 1.25
+const DAMAGE_BASE_FONT_SIZE: int = 38
+const DAMAGE_PEAK_FONT_SIZE: int = 75
+const DAMAGE_EXIT_FONT_SIZE: int = 29
+const DAMAGE_REDUCED_MOTION_FONT_SIZE: int = 40
+const DAMAGE_OUTLINE_SIZE: int = 5
+const DAMAGE_WIDTH: float = 140.0
 const DAMAGE_SETTLE_PROGRESS: float = 0.32
 const DAMAGE_FADE_START: float = 0.78
 const DAMAGE_REDUCED_FADE_START: float = 0.88
@@ -149,7 +150,7 @@ static func _animate_damage_entry(entry: Dictionary, t: float, reduced_motion: b
 		animated_font_size = lerpf(float(base_font_size), float(exit_font_size), smoothstep(0.0, 1.0, exit_t))
 	entry["font_size"] = peak_font_size
 	entry["font_scale"] = animated_font_size / float(maxi(1, peak_font_size))
-	entry["outline_size"] = 5
+	entry["outline_size"] = 6
 	entry["alpha"] = _alpha_for_progress(t, DAMAGE_FADE_START)
 	_prepare_scaled_icon(entry, float(peak_font_size) / float(maxi(1, base_font_size)))
 	return entry
