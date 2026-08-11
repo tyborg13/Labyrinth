@@ -7,7 +7,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/fireball_attack_v6"
+const OUTPUT_DIR: String = "user://probes/fireball_attack_v7"
 const PROGRESSION_PATH: String = "user://fireball_attack_probe_progression.json"
 const RUN_PATH: String = "user://fireball_attack_probe_run.save"
 const SETTINGS_PATH: String = "user://fireball_attack_probe_settings.json"
@@ -91,6 +91,13 @@ func _capture_fireball_states() -> void:
 	await _render_and_capture(instance, combat_state, {}, "fireball_00_before.png")
 	var preview_effect: Dictionary = effect.duplicate(true)
 	preview_effect["preview"] = true
+	preview_effect["damage_preview"] = {
+		"enemy_1": {
+			"hp": 87,
+			"hp_loss": 13,
+			"lethal": false,
+		}
+	}
 	await _render_and_capture(instance, combat_state, _fireball_presentation(preview_effect, 1.0, false, instance), "fireball_05_preview_curve.png")
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	var frame_count: int = AttackFxLibrary.FIREBALL_ANIMATION_FRAMES

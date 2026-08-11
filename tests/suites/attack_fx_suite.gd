@@ -19,6 +19,7 @@ static func run(expect: Callable) -> void:
 	_test_fireball_path_is_straight(expect)
 	_test_all_authored_elemental_paths_are_straight(expect)
 	_test_ranged_previews_use_static_curves(expect)
+	_test_ranged_preview_hp_composites_on_hud(expect)
 	_test_isometric_ground_anchor_is_exact_target_floor(expect)
 	_test_elemental_effects_resolve_into_scene_depth_tiles(expect)
 	_test_elemental_integration_profiles_own_depth_and_authored_anchors(expect)
@@ -357,6 +358,17 @@ static func _test_ranged_previews_use_static_curves(expect: Callable) -> void:
 		and not bool(board.call("_effect_uses_elemental_scene_depth", preview_effect))
 		and not bool(board.call("_preview_effect_needs_continuous_redraw", preview_effect)),
 		"Ranged targeting should use one static curved overlay with no scene-depth projectile animation"
+	)
+	board.free()
+
+
+static func _test_ranged_preview_hp_composites_on_hud(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	var preview: Dictionary = {"hp": 87, "hp_loss": 13, "lethal": false}
+	expect.call(
+		str(board.call("_health_bar_preview_composite_layer")) == "hud"
+		and bool(board.call("_damage_preview_shows_lost_hp", preview)),
+		"Projected ranged-attack HP text and its lost-health band should composite after the retained health bar on the HUD layer"
 	)
 	board.free()
 

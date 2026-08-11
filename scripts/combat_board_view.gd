@@ -1805,6 +1805,10 @@ func _draw_hud_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_unit_huds(units_to_draw)
+	# Damage-preview text and the lost-HP band must composite after the health
+	# bar itself. Drawing them on the lower effects layer lets the retained HUD
+	# layer paint over the projected HP text during ranged targeting.
+	_draw_unit_damage_preview_overlays(units_to_draw)
 	_record_render_section_time("unit_huds", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -1817,7 +1821,6 @@ func _draw_effects_render_layer() -> void:
 		return
 	var section_started_usec: int = Time.get_ticks_usec()
 	var units_to_draw: Array[Dictionary] = _visible_units()
-	_draw_unit_damage_preview_overlays(units_to_draw)
 	_draw_effect_overlay()
 	_draw_lethal_preview_icons(units_to_draw)
 	_draw_movement_risk_chips()
@@ -4622,7 +4625,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		1.0,
 		1.0
 	)
-	var defer_preview_overlay: bool = _render_layer_kind == RENDER_LAYER_HUD and _damage_preview_shows_lost_hp(preview)
+	var defer_preview_overlay: bool = _render_layer_kind == _health_bar_preview_composite_layer() and _damage_preview_shows_lost_hp(preview)
 	if _damage_preview_shows_lost_hp(preview) and not defer_preview_overlay:
 		_draw_health_damage_preview(unit, rect, preview)
 	if font != null and not defer_preview_overlay:
@@ -4637,6 +4640,9 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	if stoneskin_amount > 0:
 		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
 		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
+
+func _health_bar_preview_composite_layer() -> String:
+	return RENDER_LAYER_HUD
 
 func _draw_leader_marker(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2 = Rect2()) -> void:
 	if not bool(unit.get("is_leader", false)):
