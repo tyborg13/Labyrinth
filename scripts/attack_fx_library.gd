@@ -9,20 +9,25 @@ const STYLE_LIGHTNING_BOLT: String = "lightning_bolt"
 const STYLE_ICE_SHARDS: String = "ice_shards"
 
 const FIREBALL_ANIMATION_FRAMES: int = 18
-const FIREBALL_FRAME_SECONDS: float = 0.033
-const FIREBALL_TRAVEL_END_PROGRESS: float = 10.0 / 18.0
-const EARTH_ANIMATION_FRAMES: int = 24
-const EARTH_FRAME_SECONDS: float = 0.038
-const EARTH_TRAVEL_END_PROGRESS: float = 16.0 / 24.0
-const AIR_ANIMATION_FRAMES: int = 20
-const AIR_FRAME_SECONDS: float = 0.033
-const AIR_TRAVEL_END_PROGRESS: float = 12.0 / 20.0
+const FIREBALL_FRAME_SECONDS: float = 0.030
+const FIREBALL_ANTICIPATION_END_PROGRESS: float = 2.0 / 18.0
+const FIREBALL_TRAVEL_END_PROGRESS: float = 6.0 / 18.0
+const EARTH_ANIMATION_FRAMES: int = 22
+const EARTH_FRAME_SECONDS: float = 0.032
+const EARTH_ANTICIPATION_END_PROGRESS: float = 2.0 / 22.0
+const EARTH_TRAVEL_END_PROGRESS: float = 8.0 / 22.0
+const AIR_ANIMATION_FRAMES: int = 19
+const AIR_FRAME_SECONDS: float = 0.030
+const AIR_ANTICIPATION_END_PROGRESS: float = 2.0 / 19.0
+const AIR_TRAVEL_END_PROGRESS: float = 6.0 / 19.0
 const LIGHTNING_ANIMATION_FRAMES: int = 15
-const LIGHTNING_FRAME_SECONDS: float = 0.026
-const LIGHTNING_TRAVEL_END_PROGRESS: float = 8.0 / 15.0
-const ICE_ANIMATION_FRAMES: int = 22
-const ICE_FRAME_SECONDS: float = 0.035
-const ICE_TRAVEL_END_PROGRESS: float = 11.0 / 22.0
+const LIGHTNING_FRAME_SECONDS: float = 0.023
+const LIGHTNING_ANTICIPATION_END_PROGRESS: float = 2.0 / 15.0
+const LIGHTNING_TRAVEL_END_PROGRESS: float = 4.0 / 15.0
+const ICE_ANIMATION_FRAMES: int = 21
+const ICE_FRAME_SECONDS: float = 0.032
+const ICE_ANTICIPATION_END_PROGRESS: float = 2.0 / 21.0
+const ICE_TRAVEL_END_PROGRESS: float = 7.0 / 21.0
 
 static func style_for_effect(effect: Dictionary) -> String:
 	var action_type: String = str(effect.get("action_type", effect.get("kind", "")))
@@ -96,8 +101,41 @@ static func travel_end_progress(style: String) -> float:
 		_:
 			return FIREBALL_TRAVEL_END_PROGRESS
 
+static func anticipation_end_progress(style: String) -> float:
+	match style:
+		STYLE_EARTH_SPIKES:
+			return EARTH_ANTICIPATION_END_PROGRESS
+		STYLE_AIR_GUST:
+			return AIR_ANTICIPATION_END_PROGRESS
+		STYLE_LIGHTNING_BOLT:
+			return LIGHTNING_ANTICIPATION_END_PROGRESS
+		STYLE_ICE_SHARDS:
+			return ICE_ANTICIPATION_END_PROGRESS
+		_:
+			return FIREBALL_ANTICIPATION_END_PROGRESS
+
+static func release_progress_for_style(style: String, effect_progress: float) -> float:
+	return clampf(effect_progress / anticipation_end_progress(style), 0.0, 1.0)
+
 static func travel_progress_for_style(style: String, effect_progress: float) -> float:
-	return clampf(effect_progress / travel_end_progress(style), 0.0, 1.0)
+	var anticipation_end: float = anticipation_end_progress(style)
+	var travel_end: float = travel_end_progress(style)
+	var linear_progress: float = clampf(
+		(effect_progress - anticipation_end) / maxf(0.001, travel_end - anticipation_end),
+		0.0,
+		1.0
+	)
+	var acceleration_power: float = 2.5
+	match style:
+		STYLE_EARTH_SPIKES:
+			acceleration_power = 1.35
+		STYLE_AIR_GUST:
+			acceleration_power = 2.2
+		STYLE_LIGHTNING_BOLT:
+			acceleration_power = 4.0
+		STYLE_ICE_SHARDS:
+			acceleration_power = 2.8
+	return 1.0 - pow(1.0 - linear_progress, acceleration_power)
 
 static func impact_progress_for_style(style: String, effect_progress: float) -> float:
 	var travel_end: float = travel_end_progress(style)
@@ -108,6 +146,13 @@ static func fireball_travel_progress(effect_progress: float) -> float:
 
 static func fireball_impact_progress(effect_progress: float) -> float:
 	return impact_progress_for_style(STYLE_FIREBALL, effect_progress)
+
+static func contact_flash_strength(style: String, effect_progress: float) -> float:
+	var half_width: float = 0.045
+	if style == STYLE_LIGHTNING_BOLT:
+		half_width = 0.065
+	var distance: float = absf(effect_progress - travel_end_progress(style))
+	return pow(clampf(1.0 - distance / half_width, 0.0, 1.0), 0.62)
 
 static func looping_frame_index(progress: float, frame_count: int, cycles: float = 1.0) -> int:
 	if frame_count <= 0:

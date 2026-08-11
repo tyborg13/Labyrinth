@@ -10,6 +10,7 @@ static func run(expect: Callable) -> void:
 	_test_every_element_owns_a_distinct_ranged_style(expect)
 	_test_fireball_owns_a_complete_motion_schedule(expect)
 	_test_elemental_styles_own_distinct_motion_schedules(expect)
+	_test_elemental_spell_timing_is_staged(expect)
 	_test_fireball_sheets_load_as_authored_frames(expect)
 	_test_elemental_sheets_load_as_authored_frames(expect)
 	_test_fireball_path_is_straight(expect)
@@ -97,11 +98,48 @@ static func _test_elemental_styles_own_distinct_motion_schedules(expect: Callabl
 			and is_equal_approx(AttackFxLibrary.travel_end_progress(style), float(schedule[2])),
 			"%s should receive its authored travel-and-impact cadence" % element_id.capitalize()
 		)
+
+
+static func _test_elemental_spell_timing_is_staged(expect: Callable) -> void:
+	var schedules: Dictionary = {
+		"fire": [AttackFxLibrary.STYLE_FIREBALL, 18, 0.030, 2.0 / 18.0, 6.0 / 18.0],
+		"earth": [AttackFxLibrary.STYLE_EARTH_SPIKES, 22, 0.032, 2.0 / 22.0, 8.0 / 22.0],
+		"air": [AttackFxLibrary.STYLE_AIR_GUST, 19, 0.030, 2.0 / 19.0, 6.0 / 19.0],
+		"lightning": [AttackFxLibrary.STYLE_LIGHTNING_BOLT, 15, 0.023, 2.0 / 15.0, 4.0 / 15.0],
+		"ice": [AttackFxLibrary.STYLE_ICE_SHARDS, 21, 0.032, 2.0 / 21.0, 7.0 / 21.0],
+	}
+	for element_id: String in schedules:
+		var schedule: Array = schedules[element_id] as Array
+		var style: String = str(schedule[0])
+		var effect: Dictionary = {"kind": "ranged", "action_type": "ranged", "element": element_id}
+		var anticipation_end: float = float(schedule[3])
+		var travel_end: float = float(schedule[4])
+		var causal_midpoint: float = lerpf(anticipation_end, travel_end, 0.5)
+		expect.call(
+			AttackFxLibrary.animation_frame_count(effect, 6, false) == int(schedule[1])
+			and is_equal_approx(AttackFxLibrary.animation_frame_seconds(effect, 0.04, false), float(schedule[2]))
+			and is_equal_approx(AttackFxLibrary.anticipation_end_progress(style), anticipation_end)
+			and is_equal_approx(AttackFxLibrary.travel_end_progress(style), travel_end)
+			and anticipation_end < travel_end
+			and travel_end < 0.40,
+			"%s should use its exact brief anticipation, causal beat, and target-dominant cadence" % element_id.capitalize()
+		)
+		expect.call(
+			is_zero_approx(AttackFxLibrary.travel_progress_for_style(style, anticipation_end))
+			and AttackFxLibrary.travel_progress_for_style(style, causal_midpoint) > 0.55
+			and is_equal_approx(AttackFxLibrary.travel_progress_for_style(style, travel_end), 1.0),
+			"%s causality should accelerate through the lane instead of reading as a slow translated sticker" % element_id.capitalize()
+		)
+		expect.call(
+			is_equal_approx(AttackFxLibrary.contact_flash_strength(style, travel_end), 1.0)
+			and is_zero_approx(AttackFxLibrary.contact_flash_strength(style, anticipation_end)),
+			"%s should punctuate the travel-to-impact handoff with a distinct contact flash" % element_id.capitalize()
+		)
 		expect.call(
 			AttackFxLibrary.animation_frame_count(effect, 6, true) == 1
 			and is_zero_approx(AttackFxLibrary.animation_frame_seconds(effect, 0.04, true))
-			and is_equal_approx(AttackFxLibrary.travel_progress_for_style(style, float(schedule[2])), 1.0)
-			and is_equal_approx(AttackFxLibrary.impact_progress_for_style(style, float(schedule[2])), 0.0)
+			and is_equal_approx(AttackFxLibrary.travel_progress_for_style(style, travel_end), 1.0)
+			and is_equal_approx(AttackFxLibrary.impact_progress_for_style(style, travel_end), 0.0)
 			and is_equal_approx(AttackFxLibrary.impact_progress_for_style(style, 1.0), 1.0),
 			"%s should collapse safely for reduced motion and hand off from travel to impact exactly once" % element_id.capitalize()
 		)
@@ -132,6 +170,11 @@ static func _test_elemental_sheets_load_as_authored_frames(expect: Callable) -> 
 	board.call("_load_assets", false)
 	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
 	var frame_keys: PackedStringArray = [
+		"elemental_fire_performance",
+		"elemental_earth_performance",
+		"elemental_air_performance",
+		"elemental_lightning_performance",
+		"elemental_ice_performance",
 		"earth_spike_travel",
 		"earth_spike_impact",
 		"earth_ground_layer",
@@ -186,7 +229,7 @@ static func _test_isometric_ground_anchor_tracks_the_actor_footplane(expect: Cal
 	var ground_point: Vector2 = board.call("_elemental_ground_point", tile_center)
 	var air_point: Vector2 = board.call("_elemental_air_point", tile_center, 0.60)
 	expect.call(
-		is_equal_approx(ground_point.y - tile_center.y, tile_height * CombatBoardView.ELEMENTAL_GROUND_CONTACT_TILE_HEIGHT_RATIO)
+		is_equal_approx(ground_point.y - tile_center.y, tile_height * 0.40)
 		and ground_point.y > tile_center.y,
 		"Ground eruptions should land on the lower isometric footplane instead of the visual center of the target tile"
 	)

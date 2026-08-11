@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/elemental_ranged_attack_v1"
+const OUTPUT_DIR: String = "user://probes/elemental_ranged_attack_v3"
 const PROGRESSION_PATH: String = "user://elemental_ranged_attack_probe_progression.json"
 const RUN_PATH: String = "user://elemental_ranged_attack_probe_run.save"
 const SETTINGS_PATH: String = "user://elemental_ranged_attack_probe_settings.json"
@@ -103,13 +103,22 @@ func _capture_element_sequence(instance: Node, combat_state: Dictionary, element
 	_expect(style != AttackFxLibrary.STYLE_DEFAULT, "%s probe attack should select an authored style" % element_id.capitalize())
 	var frame_count: int = AttackFxLibrary.animation_frame_count(effect, 6, false)
 	var frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, 0.04, false)
-	var contact_frame: int = clampi(int(round(AttackFxLibrary.travel_end_progress(style) * float(frame_count))), 2, frame_count - 4)
+	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	var release_frame: int = clampi(int(round(anticipation_end * 0.65 * float(frame_count))), 1, frame_count - 4)
+	var causality_frame: int = clampi(int(round(lerpf(anticipation_end, travel_end, 0.42) * float(frame_count))), release_frame + 1, frame_count - 3)
+	var contact_frame: int = clampi(int(round(travel_end * float(frame_count))), causality_frame + 1, frame_count - 2)
+	var impact_span: int = frame_count - contact_frame
+	var peak_ratio: float = 0.72 if style == AttackFxLibrary.STYLE_EARTH_SPIKES else 0.52
+	var aftermath_ratio: float = 0.86 if style == AttackFxLibrary.STYLE_EARTH_SPIKES else 0.78
+	var peak_frame: int = clampi(contact_frame + int(round(float(impact_span) * peak_ratio)), contact_frame + 1, frame_count - 1)
+	var aftermath_frame: int = clampi(contact_frame + int(round(float(impact_span) * aftermath_ratio)), peak_frame + 1, frame_count)
 	var key_frames: Dictionary = {
-		1: "10_launch",
-		maxi(2, int(floor(float(contact_frame) * 0.58))): "20_travel",
+		release_frame: "10_release",
+		causality_frame: "20_causality",
 		contact_frame: "30_contact",
-		mini(frame_count - 2, contact_frame + 3): "40_climax",
-		frame_count - 2: "50_breakup",
+		peak_frame: "40_peak",
+		aftermath_frame: "50_aftermath",
 	}
 	for frame: int in range(1, frame_count + 1):
 		var progress: float = float(frame) / float(frame_count)

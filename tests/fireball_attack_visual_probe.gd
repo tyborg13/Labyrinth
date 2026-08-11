@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/fireball_attack_v1"
+const OUTPUT_DIR: String = "user://probes/fireball_attack_v3"
 const PROGRESSION_PATH: String = "user://fireball_attack_probe_progression.json"
 const RUN_PATH: String = "user://fireball_attack_probe_run.save"
 const SETTINGS_PATH: String = "user://fireball_attack_probe_settings.json"
@@ -87,27 +87,33 @@ func _capture_fireball_states() -> void:
 	)
 
 	await _render_and_capture(instance, combat_state, {}, "fireball_00_before.png")
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var frame_count: int = AttackFxLibrary.FIREBALL_ANIMATION_FRAMES
+	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	var release_frame: int = clampi(int(round(anticipation_end * 0.65 * float(frame_count))), 1, frame_count - 4)
+	var causality_frame: int = clampi(int(round(lerpf(anticipation_end, travel_end, 0.42) * float(frame_count))), release_frame + 1, frame_count - 3)
+	var contact_frame: int = clampi(int(round(travel_end * float(frame_count))), causality_frame + 1, frame_count - 2)
+	var impact_span: int = frame_count - contact_frame
+	var peak_frame: int = clampi(contact_frame + int(round(float(impact_span) * 0.52)), contact_frame + 1, frame_count - 1)
+	var aftermath_frame: int = clampi(contact_frame + int(round(float(impact_span) * 0.78)), peak_frame + 1, frame_count)
+	var key_frames: Dictionary = {
+		release_frame: "10_release",
+		causality_frame: "20_causality",
+		contact_frame: "30_contact",
+		peak_frame: "40_peak",
+		aftermath_frame: "50_aftermath",
+	}
 	for frame: int in range(1, AttackFxLibrary.FIREBALL_ANIMATION_FRAMES + 1):
 		var progress: float = float(frame) / float(AttackFxLibrary.FIREBALL_ANIMATION_FRAMES)
 		var presentation: Dictionary = _fireball_presentation(effect, progress)
 		instance.call("_render_board_state", combat_state, presentation)
 		await process_frame
+		await process_frame
 		var sequence_path: String = "%s/fireball_sequence_%02d.png" % [OUTPUT_DIR, frame]
 		await _save_screenshot(sequence_path)
-		if frame == 1:
-			await _save_screenshot("%s/fireball_10_launch.png" % OUTPUT_DIR)
-		elif frame == 4:
-			await _save_screenshot("%s/fireball_15_early_travel.png" % OUTPUT_DIR)
-		elif frame == 7:
-			await _save_screenshot("%s/fireball_20_midflight.png" % OUTPUT_DIR)
-		elif frame == 10:
-			await _save_screenshot("%s/fireball_25_late_travel.png" % OUTPUT_DIR)
-		elif frame == 11:
-			await _save_screenshot("%s/fireball_30_impact.png" % OUTPUT_DIR)
-		elif frame == 13:
-			await _save_screenshot("%s/fireball_35_bloom.png" % OUTPUT_DIR)
-		elif frame == 16:
-			await _save_screenshot("%s/fireball_40_falloff.png" % OUTPUT_DIR)
+		if key_frames.has(frame):
+			await _save_screenshot("%s/fireball_%s.png" % [OUTPUT_DIR, str(key_frames[frame])])
 		await create_timer(AttackFxLibrary.FIREBALL_FRAME_SECONDS).timeout
 
 	await _render_and_capture(instance, combat_state, {}, "fireball_50_cleared.png")
