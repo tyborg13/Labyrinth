@@ -46,12 +46,12 @@ const STRESS_RELIC_IDS: Array = [
 	"flint_edge",
 ]
 const SKILL_IDS: Array = ["quick_wits", "measured_breath", "ghost_stride", "discerning_eye"]
-const PRE_CHANGE_TOP_BAR_HEIGHT_SINGLE_ROW: float = 122.0
-const PRE_CHANGE_TOP_BAR_HEIGHT_WRAPPED: float = 207.0
-const PRE_CHANGE_BOARD_TOP_SINGLE_ROW: float = 80.0
-const PRE_CHANGE_BOARD_TOP_WRAPPED: float = 165.0
-const PRE_CHANGE_MENU_TOP_SINGLE_ROW: float = 43.0
-const PRE_CHANGE_MENU_TOP_WRAPPED: float = 85.0
+const COMPACT_TOP_BAR_HEIGHT: float = 66.0
+const COMPACT_BOARD_TOP: float = 24.0
+const COMPACT_MENU_TOP: float = 15.0
+const COMPACT_UMBRA_TOP_BAR_HEIGHT: float = 91.0
+const COMPACT_UMBRA_BOARD_TOP: float = 49.0
+const COMPACT_UMBRA_MENU_TOP: float = 27.0
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -261,14 +261,13 @@ func _assert_relic_wrap_contract(instance: Node, expected_relics: int, expected_
 	var top_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar") as Control
 	var menu_button: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton") as Control
 	var board_view: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
-	if expected_relics == SINGLE_ROW_RELIC_IDS.size():
-		_assert(absf(top_bar.size.y - PRE_CHANGE_TOP_BAR_HEIGHT_SINGLE_ROW) <= 1.0, "Relic relocation should preserve the pre-change single-row TopBar height (actual=%.1f)" % top_bar.size.y)
-		_assert(absf(menu_button.global_position.y - PRE_CHANGE_MENU_TOP_SINGLE_ROW) <= 1.0, "Relic relocation should preserve the pre-change single-row menu position (actual=%.1f)" % menu_button.global_position.y)
-		_assert(absf(board_view.global_position.y - PRE_CHANGE_BOARD_TOP_SINGLE_ROW) <= 1.0, "Relic relocation should preserve the pre-change single-row board position (actual=%.1f)" % board_view.global_position.y)
-	elif expected_relics == RELIC_IDS.size():
-		_assert(absf(top_bar.size.y - PRE_CHANGE_TOP_BAR_HEIGHT_WRAPPED) <= 1.0, "Relic relocation should preserve the pre-change wrapped TopBar height (actual=%.1f)" % top_bar.size.y)
-		_assert(absf(menu_button.global_position.y - PRE_CHANGE_MENU_TOP_WRAPPED) <= 1.0, "Relic relocation should preserve the pre-change wrapped menu position (actual=%.1f)" % menu_button.global_position.y)
-		_assert(absf(board_view.global_position.y - PRE_CHANGE_BOARD_TOP_WRAPPED) <= 1.0, "Relic relocation should preserve the pre-change wrapped board position (actual=%.1f)" % board_view.global_position.y)
+	var umbra_visible: bool = (instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle") as Control).visible
+	var expected_top_bar_height: float = COMPACT_UMBRA_TOP_BAR_HEIGHT if umbra_visible else COMPACT_TOP_BAR_HEIGHT
+	var expected_board_top: float = COMPACT_UMBRA_BOARD_TOP if umbra_visible else COMPACT_BOARD_TOP
+	var expected_menu_top: float = COMPACT_UMBRA_MENU_TOP if umbra_visible else COMPACT_MENU_TOP
+	_assert(absf(top_bar.size.y - expected_top_bar_height) <= 1.0, "Relic relocation should preserve the compact TopBar height regardless of relic count (actual=%.1f)" % top_bar.size.y)
+	_assert(absf(menu_button.global_position.y - expected_menu_top) <= 1.0, "Relic relocation should preserve the compact menu position regardless of relic count (actual=%.1f)" % menu_button.global_position.y)
+	_assert(absf(board_view.global_position.y - expected_board_top) <= 1.0, "Relic relocation should preserve the compact board position regardless of relic count (actual=%.1f)" % board_view.global_position.y)
 	for index: int in range(relic_grid.get_child_count()):
 		var relic: Control = relic_grid.get_child(index) as Control
 		var row_index: int = int(index / 5)
