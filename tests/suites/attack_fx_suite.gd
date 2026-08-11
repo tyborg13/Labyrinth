@@ -14,6 +14,7 @@ static func run(expect: Callable) -> void:
 	_test_elemental_sheets_load_as_authored_frames(expect)
 	_test_fireball_path_is_straight(expect)
 	_test_all_authored_elemental_paths_are_straight(expect)
+	_test_isometric_ground_anchor_tracks_the_actor_footplane(expect)
 	_test_enemy_steps_inherit_the_attacker_element(expect)
 
 
@@ -133,12 +134,16 @@ static func _test_elemental_sheets_load_as_authored_frames(expect: Callable) -> 
 	var frame_keys: PackedStringArray = [
 		"earth_spike_travel",
 		"earth_spike_impact",
+		"earth_ground_layer",
 		"air_gust_travel",
 		"air_gust_impact",
+		"air_envelope_layer",
 		"lightning_bolt_travel",
 		"lightning_bolt_impact",
+		"lightning_envelope_layer",
 		"ice_shard_travel",
 		"ice_icicle_impact",
+		"ice_ground_layer",
 	]
 	for frame_key: String in frame_keys:
 		var frames: Array = effect_frames.get(frame_key, []) as Array
@@ -171,6 +176,27 @@ static func _test_all_authored_elemental_paths_are_straight(expect: Callable) ->
 			start.lerp(finish, progress).is_equal_approx(start + (finish - start) * progress),
 			"Authored elemental attacks should preserve direct attacker-to-target causality at %.2f progress" % progress
 		)
+
+
+static func _test_isometric_ground_anchor_tracks_the_actor_footplane(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	board.size = Vector2(1920.0, 1080.0)
+	var tile_center := Vector2(640.0, 420.0)
+	var tile_height: float = float(board.call("_tile_height"))
+	var ground_point: Vector2 = board.call("_elemental_ground_point", tile_center)
+	var air_point: Vector2 = board.call("_elemental_air_point", tile_center, 0.60)
+	expect.call(
+		is_equal_approx(ground_point.y - tile_center.y, tile_height * CombatBoardView.ELEMENTAL_GROUND_CONTACT_TILE_HEIGHT_RATIO)
+		and ground_point.y > tile_center.y,
+		"Ground eruptions should land on the lower isometric footplane instead of the visual center of the target tile"
+	)
+	expect.call(
+		is_equal_approx(tile_center.y - air_point.y, tile_height * 0.60)
+		and air_point.y < tile_center.y
+		and ground_point.y > air_point.y,
+		"Airborne elemental cores and their ground traces should occupy visibly separate depth planes"
+	)
+	board.free()
 
 
 static func _test_enemy_steps_inherit_the_attacker_element(expect: Callable) -> void:
