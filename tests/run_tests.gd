@@ -11517,7 +11517,7 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	run_state["relics"] = ["ember_lens", "pilgrim_boots", "mirror_shard"]
 	instance.set("_run_state", run_state)
 	instance.call("_refresh_ui")
-	var relic_bar: VBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_bar: VBoxContainer = instance.get_node("UiLayer/UiRoot/RelicBar")
 	var relic_grid: GridContainer = instance.get("_relic_icon_grid") as GridContainer
 	_assert(relic_bar.visible, "The run HUD should show relic icons when the player owns relics")
 	_assert(relic_grid != null and relic_grid.get_child_count() == 3, "The run HUD should render one icon per owned relic")
@@ -11565,7 +11565,7 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var relic_bar: VBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_bar: VBoxContainer = instance.get_node("UiLayer/UiRoot/RelicBar")
 	var relic_grid: GridContainer = instance.get("_relic_icon_grid") as GridContainer
 	_assert(relic_bar.visible and relic_grid != null and relic_grid.get_child_count() == relic_ids.size(), "Relic HUD should render all owned relic icons")
 	if relic_grid != null and relic_grid.get_child_count() == relic_ids.size():
