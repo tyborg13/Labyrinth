@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-11T19:24:27Z",
+  "updated_at": "2026-08-11T19:35:25Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7804,7 +7804,7 @@
       }
     },
     {
-      "id": "mnt_20260811T192427Z_7ec8c05b",
+      "id": "mnt_20260811T193525Z_c3c17820",
       "layer": "shared",
       "kind": "pitfall",
       "scope": {
@@ -7813,18 +7813,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Retained combat layers keep effects below HUD and composite projected HP inside HUD",
-      "details": "Godot retains CanvasItem draw commands per node; combat rendering is ordered ambient/world/per-tile scene/foreground/effects/HUD with selective invalidation. Because the HUD sibling paints after effects, deferred health-bar damage previews cannot be drawn on the effects layer or the bar erases their projected HP text and lost-health band. Draw the base health bar first and composite its damage preview at the end of the HUD layer. Preserve layer order, tooltip aggregation, cadence, and visual density; verify architecture changes with render performance/equivalence probes.",
+      "summary": "Retained combat layers keep effects below HUD and composite projected HP once inside HUD",
+      "details": "Godot retains CanvasItem draw commands per node; combat rendering is ordered ambient/world/per-tile scene/foreground/effects/HUD with selective invalidation. Because HUD paints after effects, nonlethal unit damage previews must always defer their lost-health band and projected HP text to one final HUD-phase composite in both retained and monolithic fallback rendering. While a unit damage preview is active, continuously invalidate HUD at the shared 30 Hz presentation cadence so its wall-clock pulse does not freeze; effects still own lethal markers, and terrain previews invalidate their scene tiles. Preserve tooltip aggregation, cadence, and density; verify changes with the Fire preview pulse assertion plus render performance/equivalence probes.",
       "status": "active",
-      "created_at": "2026-08-11T19:24:27Z",
-      "updated_at": "2026-08-11T19:24:27Z",
+      "created_at": "2026-08-11T19:35:25Z",
+      "updated_at": "2026-08-11T19:35:25Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260803T201033Z_04cb163c"
+        "mnt_20260811T192427Z_7ec8c05b"
       ],
       "source": {
         "branch": "codex/production-fireball-attack-animation",
-        "commit": "9cc50d9"
+        "commit": "f85db1c"
       }
     }
   ]

@@ -164,7 +164,9 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		_expect(int(snapshot.get("retained_layer_count", 0)) >= 4, "render benchmark requires retained board layers")
 		_expect(int(snapshot.get("static_draw_count", -1)) == 0, "steady-state phases must not redraw the static floor")
 		if phase_name == "action_heavy":
-			_expect(int(layer_counts.get("hud", 999)) <= 2, "damage-preview pulses must update in the effects layer without rebuilding unchanged HUD commands")
+			var action_hud_draws: int = int(layer_counts.get("hud", 0))
+			_expect(action_hud_draws > 2, "unit damage-preview pulses must continuously composite projected HP on the HUD layer")
+			_expect(action_hud_draws < PHASE_FRAMES, "damage-preview HUD pulses should keep the 30 Hz cadence instead of rebuilding on every authored effect frame")
 			_expect(int(layer_counts.get("foreground", 0)) > 2, "large-enemy attack pulses must continuously redraw their foreground highlights")
 			if bool(snapshot.get("presentation_redraw_dedup_active", false)):
 				# The world still advances trap and tactical pulse animation, but

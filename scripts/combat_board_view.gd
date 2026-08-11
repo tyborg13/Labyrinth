@@ -784,6 +784,8 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 		# Damage-preview fill and lethal markers use the existing continuous
 		# presentation cadence. Retaining unrelated layers must not freeze those
 		# pulses, including destructible-terrain health bars drawn per tile.
+		if _unit_damage_preview_active():
+			_queue_render_layer_redraw(_hud_render_layer)
 		for terrain_var: Variant in combat_state.get("terrain", []):
 			if typeof(terrain_var) != TYPE_DICTIONARY:
 				continue
@@ -4625,7 +4627,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		1.0,
 		1.0
 	)
-	var defer_preview_overlay: bool = _render_layer_kind == _health_bar_preview_composite_layer() and _damage_preview_shows_lost_hp(preview)
+	var defer_preview_overlay: bool = _health_bar_defers_damage_preview(preview)
 	if _damage_preview_shows_lost_hp(preview) and not defer_preview_overlay:
 		_draw_health_damage_preview(unit, rect, preview)
 	if font != null and not defer_preview_overlay:
@@ -4641,8 +4643,11 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
 		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
 
-func _health_bar_preview_composite_layer() -> String:
-	return RENDER_LAYER_HUD
+func _health_bar_defers_damage_preview(preview: Dictionary) -> bool:
+	# Unit health bars are only drawn during the HUD phase. Always defer a
+	# nonlethal preview so the one final HUD composite works identically for the
+	# retained HUD child and the monolithic fallback renderer.
+	return _damage_preview_shows_lost_hp(preview)
 
 func _draw_leader_marker(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2 = Rect2()) -> void:
 	if not bool(unit.get("is_leader", false)):
@@ -4741,6 +4746,12 @@ func _damage_preview_map() -> Dictionary:
 	if _submission_cache_valid:
 		return _damage_preview_cache
 	return _build_damage_preview_map(presentation)
+
+func _unit_damage_preview_active() -> bool:
+	for unit: Dictionary in _visible_units():
+		if not _unit_damage_preview(unit).is_empty():
+			return true
+	return false
 
 func _build_damage_preview_map(source_presentation: Dictionary) -> Dictionary:
 	var effect: Dictionary = source_presentation.get("effect", {})

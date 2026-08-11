@@ -98,7 +98,21 @@ func _capture_fireball_states() -> void:
 			"lethal": false,
 		}
 	}
-	await _render_and_capture(instance, combat_state, _fireball_presentation(preview_effect, 1.0, false, instance), "fireball_05_preview_curve.png")
+	var preview_presentation: Dictionary = _fireball_presentation(preview_effect, 1.0, false, instance)
+	await _render_and_capture(instance, combat_state, preview_presentation, "fireball_05_preview_curve.png")
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	_expect(board != null, "Preview pulse proof should find the production combat board")
+	if board != null:
+		board.call("reset_render_instrumentation")
+		await create_timer(0.30).timeout
+		await process_frame
+		var preview_metrics: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+		var layer_draw_counts: Dictionary = preview_metrics.get("layer_draw_counts", {}) as Dictionary
+		var preview_hud_draw_count: int = int(layer_draw_counts.get("hud", 0))
+		_expect(
+			preview_hud_draw_count >= 2,
+			"Active ranged damage preview should continuously redraw the HUD so its projected-loss pulse stays live (observed %d HUD draws)" % preview_hud_draw_count
+		)
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	var frame_count: int = AttackFxLibrary.FIREBALL_ANIMATION_FRAMES
 	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)

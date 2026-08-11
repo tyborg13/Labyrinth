@@ -365,10 +365,13 @@ static func _test_ranged_previews_use_static_curves(expect: Callable) -> void:
 static func _test_ranged_preview_hp_composites_on_hud(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	var preview: Dictionary = {"hp": 87, "hp_loss": 13, "lethal": false}
+	board.set("_render_layer_kind", "hud")
+	var retained_hud_defers: bool = bool(board.call("_health_bar_defers_damage_preview", preview))
+	board.set("_render_layer_kind", "")
+	var fallback_hud_defers: bool = bool(board.call("_health_bar_defers_damage_preview", preview))
 	expect.call(
-		str(board.call("_health_bar_preview_composite_layer")) == "hud"
-		and bool(board.call("_damage_preview_shows_lost_hp", preview)),
-		"Projected ranged-attack HP text and its lost-health band should composite after the retained health bar on the HUD layer"
+		retained_hud_defers and fallback_hud_defers,
+		"Projected ranged-attack HP text and its lost-health band should use one final HUD composite in both retained and monolithic rendering"
 	)
 	board.free()
 
