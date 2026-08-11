@@ -88,6 +88,24 @@ static func animation_frame_seconds(effect: Dictionary, fallback_seconds: float,
 		_:
 			return FIREBALL_FRAME_SECONDS
 
+static func animation_duration_seconds_for_style(style: String) -> float:
+	match style:
+		STYLE_EARTH_SPIKES:
+			return float(EARTH_ANIMATION_FRAMES) * EARTH_FRAME_SECONDS
+		STYLE_AIR_GUST:
+			return float(AIR_ANIMATION_FRAMES) * AIR_FRAME_SECONDS
+		STYLE_LIGHTNING_BOLT:
+			return float(LIGHTNING_ANIMATION_FRAMES) * LIGHTNING_FRAME_SECONDS
+		STYLE_ICE_SHARDS:
+			return float(ICE_ANIMATION_FRAMES) * ICE_FRAME_SECONDS
+		STYLE_FIREBALL:
+			return float(FIREBALL_ANIMATION_FRAMES) * FIREBALL_FRAME_SECONDS
+		_:
+			return 0.0
+
+static func impact_duration_seconds_for_style(style: String) -> float:
+	return animation_duration_seconds_for_style(style) * (1.0 - travel_end_progress(style))
+
 static func travel_end_progress(style: String) -> float:
 	match style:
 		STYLE_EARTH_SPIKES:

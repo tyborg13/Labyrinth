@@ -81,14 +81,15 @@ func _capture_trap_board() -> void:
 	_expect(board != null, "The elemental trap probe should find the live CombatBoardView")
 	if board != null:
 		_validate_live_traps(board)
-		await _capture_animation_states(board)
+		await _capture_animation_states(board, instance)
 	instance.queue_free()
 	await _settle_ui()
 
 
-func _capture_animation_states(board: Control) -> void:
+func _capture_animation_states(board: Control, instance: Node) -> void:
 	var original_state: Dictionary = (board.get("combat_state") as Dictionary).duplicate(true)
 	var original_traps: Array = (original_state.get("traps", []) as Array).duplicate(true)
+	var original_terrain: Array = (original_state.get("terrain", []) as Array).duplicate(true)
 	var idle_presentation: Dictionary = (board.get("presentation") as Dictionary).duplicate(true)
 	idle_presentation["reduced_motion"] = false
 	board.set("presentation", idle_presentation)
@@ -121,28 +122,41 @@ func _capture_animation_states(board: Control) -> void:
 
 	var activated_state: Dictionary = original_state.duplicate(true)
 	activated_state["traps"] = []
+	activated_state["terrain"] = []
 	var player_tile: Vector2i = ((original_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
 	var trap_damage_entries: Array = [
 		FloatingCombatText.damage_entry(player_tile, "-7", Color("f39779")),
 	]
-	var activation_presentation: Dictionary = idle_presentation.duplicate(true)
-	activation_presentation["trap_effects"] = original_traps
-	activation_presentation["effect_progress"] = 0.08
+	var activation_presentation: Dictionary = _trap_eruption_presentation(
+		instance,
+		idle_presentation,
+		original_traps,
+		original_terrain,
+		0.04,
+		false
+	)
 	activation_presentation["impact_actor_keys"] = ["player"]
 	activation_presentation["floating_texts"] = FloatingCombatText.animate_entries(
 		trap_damage_entries,
-		FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.08,
+		0.04,
 		false
 	)
 	board.call("set_combat_state", activated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, activation_presentation)
 	await _settle_ui(3)
 	await _save_screenshot(CONTACT_PATH)
 
-	var peak_presentation: Dictionary = activation_presentation.duplicate(true)
-	peak_presentation["effect_progress"] = 0.52
+	var peak_presentation: Dictionary = _trap_eruption_presentation(
+		instance,
+		idle_presentation,
+		original_traps,
+		original_terrain,
+		0.18,
+		false
+	)
+	peak_presentation["impact_actor_keys"] = ["player"]
 	peak_presentation["floating_texts"] = FloatingCombatText.animate_entries(
 		trap_damage_entries,
-		FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.52,
+		0.18,
 		false
 	)
 	board.call(
@@ -159,11 +173,18 @@ func _capture_animation_states(board: Control) -> void:
 	)
 	await _settle_ui(3)
 	await _save_screenshot(ACTIVATION_PATH)
-	var aftermath_presentation: Dictionary = activation_presentation.duplicate(true)
-	aftermath_presentation["effect_progress"] = 0.84
+	var aftermath_presentation: Dictionary = _trap_eruption_presentation(
+		instance,
+		idle_presentation,
+		original_traps,
+		original_terrain,
+		0.42,
+		false
+	)
+	aftermath_presentation["impact_actor_keys"] = ["player"]
 	aftermath_presentation["floating_texts"] = FloatingCombatText.animate_entries(
 		trap_damage_entries,
-		FloatingCombatText.ANIMATION_DURATION_SECONDS * 0.84,
+		0.42,
 		false
 	)
 	board.call("set_combat_state", activated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, aftermath_presentation)
@@ -179,13 +200,43 @@ func _capture_animation_states(board: Control) -> void:
 
 	var reduced_presentation: Dictionary = idle_presentation.duplicate(true)
 	reduced_presentation["reduced_motion"] = true
-	reduced_presentation["trap_effects"] = original_traps
-	reduced_presentation["effect_progress"] = 0.52
+	var reduced_traps: Array = instance.call("_trap_effects_for_elapsed", original_traps, 0.0, true)
+	reduced_presentation["trap_effects"] = reduced_traps
+	reduced_presentation["terrain_destruction_units"] = instance.call(
+		"_terrain_destruction_units_for_traps",
+		original_terrain,
+		reduced_traps
+	)
 	reduced_presentation["impact_actor_keys"] = ["player"]
 	reduced_presentation["floating_texts"] = FloatingCombatText.animate_entries(trap_damage_entries, 0.0, true)
 	board.call("set_combat_state", activated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, reduced_presentation)
 	await _settle_ui(3)
 	await _save_screenshot(REDUCED_MOTION_PATH)
+
+
+func _trap_eruption_presentation(
+	instance: Node,
+	base_presentation: Dictionary,
+	traps: Array,
+	terrain: Array,
+	elapsed_seconds: float,
+	reduced_motion: bool
+) -> Dictionary:
+	var result: Dictionary = base_presentation.duplicate(true)
+	result["reduced_motion"] = reduced_motion
+	var animated_traps: Array = instance.call(
+		"_trap_effects_for_elapsed",
+		traps,
+		elapsed_seconds,
+		reduced_motion
+	)
+	result["trap_effects"] = animated_traps
+	result["terrain_destruction_units"] = instance.call(
+		"_terrain_destruction_units_for_traps",
+		terrain,
+		animated_traps
+	)
+	return result
 
 
 func _load_combat_fixture(instance: Node) -> void:
@@ -269,7 +320,13 @@ func _trap_layout() -> Dictionary:
 			{"id": "air_plate", "element": "air", "pos": Vector2i(5, 3), "damage": 4, "armed": true},
 			{"id": "earth_plate", "element": "earth", "pos": Vector2i(6, 2), "damage": 4, "armed": true}
 		],
-		"terrain": []
+		"terrain": [
+			{"id": "fire_crate", "kind": "wooden_crate", "pos": Vector2i(1, 6), "hp": 3, "max_hp": 3},
+			{"id": "ice_crate", "kind": "wooden_crate", "pos": Vector2i(3, 6), "hp": 3, "max_hp": 3},
+			{"id": "lightning_crate", "kind": "wooden_crate", "pos": Vector2i(4, 5), "hp": 3, "max_hp": 3},
+			{"id": "air_crate", "kind": "wooden_crate", "pos": Vector2i(5, 4), "hp": 3, "max_hp": 3},
+			{"id": "earth_crate", "kind": "wooden_crate", "pos": Vector2i(6, 3), "hp": 3, "max_hp": 3}
+		]
 	}
 
 

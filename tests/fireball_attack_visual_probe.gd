@@ -91,7 +91,7 @@ func _capture_fireball_states() -> void:
 	await _render_and_capture(instance, combat_state, {}, "fireball_00_before.png")
 	var preview_effect: Dictionary = effect.duplicate(true)
 	preview_effect["preview"] = true
-	await _render_and_capture(instance, combat_state, _fireball_presentation(preview_effect, 1.0), "fireball_05_preview_curve.png")
+	await _render_and_capture(instance, combat_state, _fireball_presentation(preview_effect, 1.0, false, instance), "fireball_05_preview_curve.png")
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	var frame_count: int = AttackFxLibrary.FIREBALL_ANIMATION_FRAMES
 	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
@@ -109,10 +109,13 @@ func _capture_fireball_states() -> void:
 		peak_frame: "40_peak",
 		aftermath_frame: "50_aftermath",
 	}
+	var impact_state: Dictionary = combat_state.duplicate(true)
+	impact_state["terrain"] = []
 	for frame: int in range(1, AttackFxLibrary.FIREBALL_ANIMATION_FRAMES + 1):
 		var progress: float = float(frame) / float(AttackFxLibrary.FIREBALL_ANIMATION_FRAMES)
-		var presentation: Dictionary = _fireball_presentation(effect, progress)
-		instance.call("_render_board_state", combat_state, presentation)
+		var presentation: Dictionary = _fireball_presentation(effect, progress, false, instance)
+		var rendered_state: Dictionary = impact_state if progress + 0.0001 >= travel_end else combat_state
+		instance.call("_render_board_state", rendered_state, presentation)
 		await process_frame
 		await process_frame
 		var sequence_path: String = "%s/fireball_sequence_%02d.png" % [OUTPUT_DIR, frame]
@@ -126,8 +129,8 @@ func _capture_fireball_states() -> void:
 	instance.set("_settings", settings.duplicate(true))
 	await _render_and_capture(
 		instance,
-		combat_state,
-		_fireball_presentation(effect, 1.0, true),
+		impact_state,
+		_fireball_presentation(effect, 1.0, true, instance),
 		"fireball_60_reduced_motion_impact.png"
 	)
 	instance.queue_free()
@@ -137,7 +140,7 @@ func _capture_fireball_states() -> void:
 	await process_frame
 
 
-func _fireball_presentation(effect: Dictionary, progress: float, reduced_motion: bool = false) -> Dictionary:
+func _fireball_presentation(effect: Dictionary, progress: float, reduced_motion: bool = false, instance: Node = null) -> Dictionary:
 	var presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
 		"focus_actor_color": Color("ffb466"),
@@ -155,6 +158,17 @@ func _fireball_presentation(effect: Dictionary, progress: float, reduced_motion:
 			presentation["floating_texts"] = FloatingCombatText.animate_entries([
 				FloatingCombatText.damage_entry(effect.get("to", Vector2i(-1, -1)), "-13", Color("f39779")),
 			], elapsed_seconds, reduced_motion)
+			if instance != null:
+				var destruction_progress: float = 0.52 if reduced_motion else AttackFxLibrary.impact_progress_for_style(style, progress)
+				presentation["terrain_destruction_units"] = instance.call(
+					"_terrain_destruction_units_at_progress",
+					[{
+						"id": "fireball_depth_crate",
+						"kind": "wooden_crate",
+						"pos": Vector2i(6, 4),
+					}],
+					destruction_progress
+				)
 	return presentation
 
 

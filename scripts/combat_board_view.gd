@@ -5918,7 +5918,7 @@ func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> 
 			continue
 		var trap: Dictionary = trap_var as Dictionary
 		if trap.get("pos", Vector2i(-1, -1)) == tile:
-			_draw_trap_elemental_depth_effect(trap, progress, foreground_pass)
+			_draw_trap_elemental_depth_effect(trap, _trap_elemental_effect_progress(trap, progress), foreground_pass)
 	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
 	if not _effect_uses_elemental_scene_depth(effect):
 		return
@@ -6121,16 +6121,20 @@ func _draw_elemental_trap_floor_overlay() -> void:
 		var style: String = _elemental_style_for_element(element_id)
 		if style == AttackFxLibrary.STYLE_DEFAULT:
 			continue
+		var trap_progress: float = _trap_elemental_effect_progress(trap, progress)
 		var ground_point: Vector2 = _elemental_ground_point(_tile_center(trap_pos))
-		var style_progress: float = lerpf(AttackFxLibrary.travel_end_progress(style), 1.0, progress)
+		var style_progress: float = lerpf(AttackFxLibrary.travel_end_progress(style), 1.0, trap_progress)
 		var scale_ratio: float = _trap_elemental_scale_ratio(style)
 		_draw_scaled_elemental_begin(ground_point, scale_ratio)
 		_draw_elemental_spell_scene(style, style_progress, ground_point, reduced_motion)
 		_draw_scaled_elemental_end()
-		_draw_trap_elemental_footprint(trap, element_id, progress, reduced_motion)
-		var activation_texture: Texture2D = _trap_activation_texture(trap, progress)
+		_draw_trap_elemental_footprint(trap, element_id, trap_progress, reduced_motion)
+		var activation_texture: Texture2D = _trap_activation_texture(trap, trap_progress)
 		if activation_texture != null:
 			draw_texture_rect(activation_texture, _trap_visual_draw_rect(trap), false, _trap_visual_modulate(trap))
+
+func _trap_elemental_effect_progress(trap: Dictionary, fallback_progress: float) -> float:
+	return clampf(float(trap.get("effect_progress", fallback_progress)), 0.0, 1.0)
 
 func _draw_trap_elemental_footprint(trap: Dictionary, element_id: String, progress: float, reduced_motion: bool) -> void:
 	var frame_progress: float = 0.52 if reduced_motion else clampf(progress, 0.0, 1.0)

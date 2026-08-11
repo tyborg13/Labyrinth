@@ -12,6 +12,7 @@ static func run(expect: Callable) -> void:
 	_test_reduced_motion_hold(expect)
 	_test_damage_entries_are_explicit(expect)
 	_test_attack_feedback_begins_at_contact(expect)
+	_test_impact_synchronizes_traps_and_terrain_destruction(expect)
 
 
 static func _test_damage_motion_curve(expect: Callable) -> void:
@@ -297,5 +298,52 @@ static func _test_attack_feedback_begins_at_contact(expect: Callable) -> void:
 		}))
 		and not bool(scene.call("_attack_feedback_waits_for_trap", {"kind": "push"})),
 		"An attack-triggered trap should own a fresh eruption-time popup instead of inheriting the direct attack's elapsed arc"
+	)
+	scene.free()
+
+
+static func _test_impact_synchronizes_traps_and_terrain_destruction(expect: Callable) -> void:
+	var scene: Node = RunScene.new()
+	var fire_duration: float = AttackFxLibrary.impact_duration_seconds_for_style(AttackFxLibrary.STYLE_FIREBALL)
+	var animated_traps: Array = scene.call(
+		"_trap_effects_for_elapsed",
+		[{"element": "fire", "pos": Vector2i(4, 3)}],
+		fire_duration * 0.5,
+		false
+	)
+	var reduced_traps: Array = scene.call(
+		"_trap_effects_for_elapsed",
+		[{"element": "fire", "pos": Vector2i(4, 3)}],
+		0.0,
+		true
+	)
+	expect.call(
+		animated_traps.size() == 1
+		and is_equal_approx(float((animated_traps[0] as Dictionary).get("effect_progress", 0.0)), 0.5)
+		and reduced_traps.size() == 1
+		and is_equal_approx(float((reduced_traps[0] as Dictionary).get("effect_progress", 0.0)), 0.52),
+		"Trap eruption frames should advance at the matching direct-impact cadence while reduced motion stays on one stable authored pose"
+	)
+	var fire_effect: Dictionary = {"kind": "ranged", "action_type": "ranged", "element": "fire"}
+	var contact: float = AttackFxLibrary.travel_end_progress(AttackFxLibrary.STYLE_FIREBALL)
+	expect.call(
+		is_zero_approx(float(scene.call("_attack_terrain_destruction_progress", fire_effect, contact)))
+		and is_equal_approx(float(scene.call("_attack_terrain_destruction_progress", fire_effect, 1.0)), 1.0),
+		"Direct terrain breakup should start exactly at elemental contact and complete inside the explosion window"
+	)
+	var terrain_units: Array = scene.call(
+		"_terrain_destruction_units_for_traps",
+		[{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(5, 4)}],
+		[{
+			"element": "fire",
+			"pos": Vector2i(4, 3),
+			"effect_progress": 0.5,
+		}]
+	)
+	expect.call(
+		terrain_units.size() == 1
+		and is_equal_approx(float((terrain_units[0] as Dictionary).get("destruction_progress", 0.0)), 0.5)
+		and int((terrain_units[0] as Dictionary).get("destruction_frame", -1)) == 8,
+		"Trap-hit neighboring terrain should advance through its destruction sheet alongside the eruption instead of replaying later"
 	)
 	scene.free()

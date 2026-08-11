@@ -11,6 +11,7 @@ static func run(expect: Callable) -> void:
 	_test_fireball_owns_a_complete_motion_schedule(expect)
 	_test_elemental_styles_own_distinct_motion_schedules(expect)
 	_test_elemental_spell_timing_is_staged(expect)
+	_test_trap_impacts_reuse_direct_attack_cadence(expect)
 	_test_authored_raster_sampling_is_continuous(expect)
 	_test_fireball_sheets_load_as_authored_frames(expect)
 	_test_elemental_sheets_load_as_authored_frames(expect)
@@ -151,6 +152,32 @@ static func _test_elemental_spell_timing_is_staged(expect: Callable) -> void:
 			and is_equal_approx(AttackFxLibrary.impact_progress_for_style(style, 1.0), 1.0),
 			"%s should collapse safely for reduced motion and hand off from travel to impact exactly once" % element_id.capitalize()
 		)
+
+
+static func _test_trap_impacts_reuse_direct_attack_cadence(expect: Callable) -> void:
+	var schedules: Dictionary = {
+		AttackFxLibrary.STYLE_FIREBALL: [48, 0.015, 12.0 / 48.0],
+		AttackFxLibrary.STYLE_EARTH_SPIKES: [44, 0.016, 16.0 / 44.0],
+		AttackFxLibrary.STYLE_AIR_GUST: [38, 0.015, 12.0 / 38.0],
+		AttackFxLibrary.STYLE_LIGHTNING_BOLT: [30, 0.0115, 8.0 / 30.0],
+		AttackFxLibrary.STYLE_ICE_SHARDS: [42, 0.016, 14.0 / 42.0],
+	}
+	for style: String in schedules:
+		var schedule: Array = schedules[style] as Array
+		var direct_duration: float = float(schedule[0]) * float(schedule[1])
+		var expected_impact_duration: float = direct_duration * (1.0 - float(schedule[2]))
+		expect.call(
+			is_equal_approx(AttackFxLibrary.animation_duration_seconds_for_style(style), direct_duration)
+			and is_equal_approx(AttackFxLibrary.impact_duration_seconds_for_style(style), expected_impact_duration),
+			"Trap %s eruptions should reuse the direct attack's exact authored impact-frame cadence" % style
+		)
+	var board: CombatBoardView = CombatBoardView.new()
+	expect.call(
+		is_equal_approx(float(board.call("_trap_elemental_effect_progress", {"effect_progress": 0.37}, 0.9)), 0.37)
+		and is_equal_approx(float(board.call("_trap_elemental_effect_progress", {}, 0.42)), 0.42),
+		"Per-trap authored cadence should override the longer floating-text timeline without changing its footprint scale"
+	)
+	board.free()
 
 
 static func _test_authored_raster_sampling_is_continuous(expect: Callable) -> void:

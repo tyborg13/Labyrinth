@@ -16453,6 +16453,7 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
+	var terrain_destruction_units: Array = (base_presentation.get("terrain_destruction_units", []) as Array).duplicate(true)
 	var duration_seconds: float = FloatingCombatText.total_duration(base_texts)
 	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
 		_render_board_state(display_state, base_presentation)
@@ -16465,6 +16466,14 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		presentation["impact_progress"] = 0.18 if reduced_motion else t
+		if not trap_effects.is_empty():
+			var animated_traps: Array[Dictionary] = _trap_effects_for_elapsed(trap_effects, elapsed_seconds, reduced_motion)
+			presentation["trap_effects"] = animated_traps
+			if not terrain_destruction_units.is_empty():
+				presentation["terrain_destruction_units"] = _terrain_destruction_units_for_traps(
+					terrain_destruction_units,
+					animated_traps
+				)
 		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
 			presentation["effect_progress"] = 1.0 if reduced_motion else t
 		presentation["floating_texts"] = FloatingCombatText.animate_entries(base_texts, elapsed_seconds, reduced_motion)
@@ -16472,6 +16481,75 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		if elapsed_seconds >= duration_seconds:
 			break
 		await get_tree().process_frame
+
+func _trap_effects_for_elapsed(trap_effects: Array, elapsed_seconds: float, reduced_motion: bool) -> Array[Dictionary]:
+	var animated_traps: Array[Dictionary] = []
+	for trap_var: Variant in trap_effects:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = (trap_var as Dictionary).duplicate(true)
+		var style: String = _elemental_style_for_trap(trap)
+		var impact_duration: float = AttackFxLibrary.impact_duration_seconds_for_style(style)
+		trap["effect_progress"] = 0.52 if reduced_motion else clampf(
+			elapsed_seconds / maxf(0.001, impact_duration),
+			0.0,
+			1.0
+		)
+		animated_traps.append(trap)
+	return animated_traps
+
+func _elemental_style_for_trap(trap: Dictionary) -> String:
+	return AttackFxLibrary.style_for_effect({
+		"kind": "ranged",
+		"action_type": "ranged",
+		"element": str(trap.get("element", ElementData.NONE))
+	})
+
+func _terrain_destruction_units_at_progress(source_units: Array, progress: float) -> Array[Dictionary]:
+	var animated_terrain: Array[Dictionary] = []
+	var safe_progress: float = clampf(progress, 0.0, 1.0)
+	for terrain_var: Variant in source_units:
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = (terrain_var as Dictionary).duplicate(true)
+		var frame_count: int = _terrain_destruction_frame_count_for_unit(terrain)
+		terrain["destruction_frame"] = clampi(
+			int(round(safe_progress * float(maxi(1, frame_count) - 1))),
+			0,
+			maxi(0, frame_count - 1)
+		)
+		terrain["destruction_progress"] = safe_progress
+		animated_terrain.append(terrain)
+	return animated_terrain
+
+func _terrain_destruction_units_for_traps(source_units: Array, animated_traps: Array) -> Array[Dictionary]:
+	var animated_terrain: Array[Dictionary] = []
+	for terrain_var: Variant in source_units:
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var as Dictionary
+		var terrain_tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+		var matched_progress: float = -1.0
+		var fallback_progress: float = 0.0
+		for trap_var: Variant in animated_traps:
+			if typeof(trap_var) != TYPE_DICTIONARY:
+				continue
+			var trap: Dictionary = trap_var as Dictionary
+			var trap_progress: float = clampf(float(trap.get("effect_progress", 0.0)), 0.0, 1.0)
+			fallback_progress = maxf(fallback_progress, trap_progress)
+			var trap_tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+			if absi(terrain_tile.x - trap_tile.x) <= 1 and absi(terrain_tile.y - trap_tile.y) <= 1:
+				matched_progress = maxf(matched_progress, trap_progress)
+		var terrain_progress: float = fallback_progress if matched_progress < 0.0 else matched_progress
+		animated_terrain.append_array(_terrain_destruction_units_at_progress([terrain], terrain_progress))
+	return animated_terrain
+
+func _attack_terrain_destruction_progress(effect: Dictionary, effect_progress: float) -> float:
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if style != AttackFxLibrary.STYLE_DEFAULT:
+		return AttackFxLibrary.impact_progress_for_style(style, effect_progress)
+	var contact_progress: float = _attack_feedback_start_progress(effect)
+	return clampf((effect_progress - contact_progress) / maxf(0.001, 1.0 - contact_progress), 0.0, 1.0)
 
 func _attack_feedback_start_progress(effect: Dictionary) -> float:
 	var style: String = AttackFxLibrary.style_for_effect(effect)
@@ -16505,9 +16583,16 @@ func _attack_feedback_elapsed_seconds(
 func _attack_feedback_waits_for_trap(effect: Dictionary) -> bool:
 	return not (effect.get("triggered_traps", []) as Array).is_empty()
 
-func _animate_defeats_and_terrain_destruction(before_state: Dictionary, after_state: Dictionary, base_presentation: Dictionary = {}) -> void:
+func _animate_defeats_and_terrain_destruction(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	base_presentation: Dictionary = {},
+	skip_terrain_destruction: bool = false
+) -> void:
 	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
 	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
+	if skip_terrain_destruction:
+		destroyed_terrain.clear()
 	if death_units.is_empty() and destroyed_terrain.is_empty():
 		return
 	var frame_count: int = ENEMY_DEATH_MIN_FRAMES
@@ -16549,7 +16634,12 @@ func _animate_defeats_and_terrain_destruction(before_state: Dictionary, after_st
 	_render_board_state(after_state, {})
 	await get_tree().create_timer(0.04).timeout
 
-func _death_hold_presentation(before_state: Dictionary, after_state: Dictionary, base_presentation: Dictionary = {}) -> Dictionary:
+func _death_hold_presentation(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	base_presentation: Dictionary = {},
+	terrain_destruction_progress: float = 0.0
+) -> Dictionary:
 	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
 	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 	if death_units.is_empty() and destroyed_terrain.is_empty():
@@ -16566,8 +16656,14 @@ func _death_hold_presentation(before_state: Dictionary, after_state: Dictionary,
 	var held_terrain: Array[Dictionary] = []
 	for terrain: Dictionary in destroyed_terrain:
 		var held_prop: Dictionary = terrain.duplicate(true)
-		held_prop["destruction_frame"] = 0
-		held_prop["destruction_progress"] = 0.0
+		var frame_count: int = _terrain_destruction_frame_count_for_unit(held_prop)
+		var safe_progress: float = clampf(terrain_destruction_progress, 0.0, 1.0)
+		held_prop["destruction_frame"] = clampi(
+			int(round(safe_progress * float(maxi(1, frame_count) - 1))),
+			0,
+			maxi(0, frame_count - 1)
+		)
+		held_prop["destruction_progress"] = safe_progress
 		held_terrain.append(held_prop)
 	if not held_terrain.is_empty():
 		presentation["terrain_destruction_units"] = held_terrain
@@ -17028,6 +17124,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			if not trap_detonation_follows:
 				attack_floating_texts = _player_action_floating_texts(before_state, after_state)
 			var attack_impact_actor_keys: Array[String] = _player_action_impact_actor_keys(before_state, after_state)
+			var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 			var final_feedback_elapsed_seconds: float = 0.0
 			for frame: int in range(1, attack_frame_count + 1):
 				var t: float = float(frame) / float(attack_frame_count)
@@ -17063,6 +17160,11 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					)
 					effect_display_state = primary_display_state
 					final_feedback_elapsed_seconds = feedback_elapsed_seconds
+					if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
+						presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
+							attack_destroyed_terrain,
+							_attack_terrain_destruction_progress(effect, t)
+						)
 				_render_board_state(effect_display_state, presentation)
 				if attack_frame_seconds > 0.0:
 					await get_tree().create_timer(attack_frame_seconds).timeout
@@ -17083,7 +17185,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				impact_presentation["floating_texts"] = attack_floating_texts
 				await _animate_floating_text_presentation(
 					primary_display_state,
-					_death_hold_presentation(before_state, primary_display_state, _attack_impact_presentation(impact_presentation)),
+					_death_hold_presentation(
+						before_state,
+						primary_display_state,
+						_attack_impact_presentation(impact_presentation),
+						1.0
+					),
 					final_feedback_elapsed_seconds
 				)
 		"block":
@@ -17187,7 +17294,11 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			after_state,
 			_death_hold_presentation(before_state, after_state, secondary_enemy_loss_presentation)
 		)
-	await _animate_defeats_and_terrain_destruction(before_state, after_state)
+	var terrain_destruction_presented_inline: bool = (
+		action_type in ["melee", "ranged", "aoe", "push", "pull"]
+		or not triggered_traps.is_empty()
+	)
+	await _animate_defeats_and_terrain_destruction(before_state, after_state, {}, terrain_destruction_presented_inline)
 	await _animate_death_rewards(before_state, after_state)
 	for loot_var: Variant in _movement_picked_loot_between(before_state, after_state):
 		if typeof(loot_var) != TYPE_DICTIONARY:
@@ -17334,6 +17445,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					impact_actor_keys.append("player")
 				var attack_feedback_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(attack_feedback_state, step)
+				var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(
+					animated_state,
+					attack_feedback_state
+				)
 				var final_feedback_elapsed_seconds: float = 0.0
 				for frame: int in range(1, attack_frame_count + 1):
 					var t: float = float(frame) / float(attack_frame_count)
@@ -17371,6 +17486,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 						)
 						effect_display_state = attack_feedback_state
 						final_feedback_elapsed_seconds = feedback_elapsed_seconds
+						if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
+							presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
+								attack_destroyed_terrain,
+								_attack_terrain_destruction_progress(step, t)
+							)
 					_render_board_state(effect_display_state, presentation)
 					if attack_frame_seconds > 0.0:
 						await get_tree().create_timer(attack_frame_seconds).timeout
@@ -17398,10 +17518,15 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					impact_presentation["floating_texts"] = attack_floating_texts
 					await _animate_floating_text_presentation(
 						animated_state,
-						_death_hold_presentation(before_attack_step_state, animated_state, _attack_impact_presentation(impact_presentation)),
+						_death_hold_presentation(
+							before_attack_step_state,
+							animated_state,
+							_attack_impact_presentation(impact_presentation),
+							1.0
+						),
 						final_feedback_elapsed_seconds
 					)
-				await _animate_defeats_and_terrain_destruction(before_attack_step_state, animated_state)
+				await _animate_defeats_and_terrain_destruction(before_attack_step_state, animated_state, {}, true)
 
 func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) -> void:
 	var final_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
@@ -17522,7 +17647,12 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 			"impact_actor_keys": step.get("impact_actor_keys", []),
 			"floating_texts": _floating_texts_for_step(step)
 		}))
-		await _animate_defeats_and_terrain_destruction(before_move_state, animated_state)
+		await _animate_defeats_and_terrain_destruction(
+			before_move_state,
+			animated_state,
+			{},
+			not (step.get("triggered_traps", []) as Array).is_empty()
+		)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
 
