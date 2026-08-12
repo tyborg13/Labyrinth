@@ -4,6 +4,13 @@ class_name AttackSfxLibrary
 const MELEE_SFX_ID: String = "attack.melee"
 const RANGED_SFX_ID: String = "attack.ranged"
 const BLOCK_SFX_ID: String = "action.block"
+const ELEMENTAL_RANGED_SFX_IDS: Dictionary = {
+	"fire": "attack.elemental.fire",
+	"earth": "attack.elemental.earth",
+	"air": "attack.elemental.air",
+	"lightning": "attack.elemental.lightning",
+	"ice": "attack.elemental.ice"
+}
 
 const SFX: Dictionary = {
 	MELEE_SFX_ID: {
@@ -20,6 +27,31 @@ const SFX: Dictionary = {
 		"path": "res://assets/audio/sfx/action_block.wav",
 		"duration": 0.50,
 		"volume_db": -3.0
+	},
+	"attack.elemental.fire": {
+		"path": "res://assets/audio/sfx/elemental/fire_attack.wav",
+		"duration": 2.0,
+		"volume_db": -3.0
+	},
+	"attack.elemental.earth": {
+		"path": "res://assets/audio/sfx/elemental/earth_attack.wav",
+		"duration": 1.0,
+		"volume_db": -2.0
+	},
+	"attack.elemental.air": {
+		"path": "res://assets/audio/sfx/elemental/air_attack.wav",
+		"duration": 2.0,
+		"volume_db": -2.0
+	},
+	"attack.elemental.lightning": {
+		"path": "res://assets/audio/sfx/elemental/lightning_attack.wav",
+		"duration": 1.0,
+		"volume_db": -2.0
+	},
+	"attack.elemental.ice": {
+		"path": "res://assets/audio/sfx/elemental/ice_attack.wav",
+		"duration": 2.0,
+		"volume_db": -2.0
 	}
 }
 
@@ -35,7 +67,8 @@ static func entry_for_player_action(card: Dictionary, action: Dictionary) -> Dic
 		var category: String = _explicit_sfx_category_for_player_action(card, action)
 		if category.is_empty():
 			category = category_for_action(action)
-		sfx_id = str(CATEGORY_SFX.get(category, RANGED_SFX_ID))
+		var element_id: String = str(action.get("element", action.get("_card_element", card.get("element", "none"))))
+		sfx_id = _default_sfx_id(category, str(action.get("type", "")), element_id)
 	return entry(sfx_id)
 
 static func entry_for_enemy_action(action: Dictionary) -> Dictionary:
@@ -44,7 +77,7 @@ static func entry_for_enemy_action(action: Dictionary) -> Dictionary:
 		var category: String = str(action.get("sfx_category", action.get("attack_sfx_category", "")))
 		if category.is_empty():
 			category = category_for_action(action)
-		sfx_id = str(CATEGORY_SFX.get(category, RANGED_SFX_ID))
+		sfx_id = _default_sfx_id(category, str(action.get("type", "")), str(action.get("element", "none")))
 	return entry(sfx_id)
 
 static func entry_for_enemy_step(step: Dictionary) -> Dictionary:
@@ -53,8 +86,29 @@ static func entry_for_enemy_step(step: Dictionary) -> Dictionary:
 		var category: String = str(step.get("sfx_category", ""))
 		if category.is_empty():
 			category = category_for_kind(str(step.get("kind", "")), int(step.get("range", 0)))
-		sfx_id = str(CATEGORY_SFX.get(category, RANGED_SFX_ID))
+		sfx_id = _default_sfx_id(category, str(step.get("kind", "")), str(step.get("element", "none")))
 	return entry(sfx_id)
+
+static func entry_for_trap(trap: Dictionary) -> Dictionary:
+	var element_id: String = str(trap.get("element", "none"))
+	return entry(str(ELEMENTAL_RANGED_SFX_IDS.get(element_id, "")))
+
+static func entries_for_traps(traps: Array) -> Array[Dictionary]:
+	var results: Array[Dictionary] = []
+	var included_elements: Dictionary = {}
+	for trap_var: Variant in traps:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		var element_id: String = str(trap.get("element", "none"))
+		if included_elements.has(element_id):
+			continue
+		var trap_entry: Dictionary = entry_for_trap(trap)
+		if trap_entry.is_empty():
+			continue
+		included_elements[element_id] = true
+		results.append(trap_entry)
+	return results
 
 static func entry_for_block_action(card: Dictionary, action: Dictionary) -> Dictionary:
 	var sfx_id: String = str(action.get("sfx_id", action.get("block_sfx_id", "")))
@@ -86,6 +140,11 @@ static func category_for_kind(kind: String, attack_range: int = 0) -> String:
 			return "ranged"
 		_:
 			return ""
+
+static func _default_sfx_id(category: String, action_type: String, element_id: String) -> String:
+	if category == "ranged" and action_type == "ranged" and ELEMENTAL_RANGED_SFX_IDS.has(element_id):
+		return str(ELEMENTAL_RANGED_SFX_IDS.get(element_id, RANGED_SFX_ID))
+	return str(CATEGORY_SFX.get(category, RANGED_SFX_ID))
 
 static func _explicit_sfx_id_for_player_action(card: Dictionary, action: Dictionary) -> String:
 	var action_sfx_id: String = str(action.get("sfx_id", action.get("attack_sfx_id", "")))

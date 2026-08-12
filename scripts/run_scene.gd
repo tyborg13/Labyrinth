@@ -18237,6 +18237,7 @@ func _impact_element_seed(element_id: String) -> int:
 func _animate_player_trap_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary) -> void:
 	if trap_effects.is_empty():
 		return
+	_play_trap_sfx(trap_effects)
 	var presentation: Dictionary = base_presentation.duplicate(true)
 	presentation["trap_effects"] = trap_effects
 	presentation["floating_texts"] = _player_action_floating_texts(before_state, after_state)
@@ -18784,6 +18785,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					"impact_actor_keys": impact_actor_keys,
 				}
 				if trap_detonation_follows:
+					_play_trap_sfx(step.get("triggered_traps", []))
 					impact_presentation["trap_effects"] = step.get("triggered_traps", [])
 					impact_presentation["floating_texts"] = _floating_texts_for_step(step)
 					await _animate_floating_text_presentation(
@@ -18916,6 +18918,7 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var before_move_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
 	if not (step.get("triggered_traps", []) as Array).is_empty() or not (step.get("target_losses", []) as Array).is_empty() or not (step.get("enemy_losses", []) as Array).is_empty() or not (step.get("terrain_losses", []) as Array).is_empty():
+		_play_trap_sfx(step.get("triggered_traps", []))
 		await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_move_state, animated_state, {
 			"focus_actor_keys": step.get("impact_actor_keys", [actor_key]),
 			"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -18975,6 +18978,10 @@ func _play_sfx(entry: Dictionary) -> void:
 	var duration: float = float(entry.get("duration", 0.0))
 	if duration > 0.0:
 		get_tree().create_timer(duration).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
+
+func _play_trap_sfx(traps: Array) -> void:
+	for entry: Dictionary in AttackSfxLibrary.entries_for_traps(traps):
+		_play_sfx(entry)
 
 func _acquire_sfx_player() -> AudioStreamPlayer:
 	for player_var: Variant in _sfx_players:
