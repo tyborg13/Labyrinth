@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bwgamauu2fffe"
-path="res://.godot/imported/air_attack.wav-c88ae55624ff0730757e8ab0d4481e6a.sample"
+path="res://.godot/imported/air_attack.wav-8c935ec177bab615fa2c598356cf2a3b.sample"
 
 [deps]
 
-source_file="res://marketing/trailer/public/game-assets/audio/sfx/elemental/air_attack.wav"
-dest_files=["res://.godot/imported/air_attack.wav-c88ae55624ff0730757e8ab0d4481e6a.sample"]
+source_file="res://assets/audio/sfx/elemental/air_attack.wav"
+dest_files=["res://.godot/imported/air_attack.wav-8c935ec177bab615fa2c598356cf2a3b.sample"]
 
 [params]
 

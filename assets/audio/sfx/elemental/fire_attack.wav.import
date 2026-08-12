@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://buwpy6v6k8mj3"
-path="res://.godot/imported/fire_attack.wav-34aee729abcf4fcf99593b5668b109bc.sample"
+path="res://.godot/imported/fire_attack.wav-968ff12b11c36f3e5eab33e90c14a274.sample"
 
 [deps]
 
-source_file="res://marketing/trailer/public/game-assets/audio/sfx/elemental/fire_attack.wav"
-dest_files=["res://.godot/imported/fire_attack.wav-34aee729abcf4fcf99593b5668b109bc.sample"]
+source_file="res://assets/audio/sfx/elemental/fire_attack.wav"
+dest_files=["res://.godot/imported/fire_attack.wav-968ff12b11c36f3e5eab33e90c14a274.sample"]
 
 [params]
 
