@@ -12431,7 +12431,18 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	var sfx_index: int = AudioServer.get_bus_index(SettingsStore.SFX_BUS)
 	_assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(master_index)), 0.65), "Master volume should affect the Master bus")
 	_assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(music_index)), 0.35), "Music volume should affect only the Music bus")
-	_assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(sfx_index)), 0.55), "SFX volume should affect only the SFX bus")
+	var expected_sfx_linear: float = 0.55 * db_to_linear(SettingsStore.SFX_HEADROOM_DB)
+	_assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(sfx_index)), expected_sfx_linear), "SFX volume should apply the global subtlety trim only to the SFX bus")
+	var full_sfx: Dictionary = custom.duplicate(true)
+	full_sfx["sfx_volume"] = 1.0
+	SettingsStore.apply_audio_settings(full_sfx)
+	_assert(is_equal_approx(AudioServer.get_bus_volume_db(sfx_index), SettingsStore.SFX_HEADROOM_DB), "The maximum SFX setting should retain global mix headroom")
+	_assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(music_index)), 0.35), "SFX headroom should not alter music volume")
+	var muted_sfx: Dictionary = custom.duplicate(true)
+	muted_sfx["sfx_volume"] = 0.0
+	SettingsStore.apply_audio_settings(muted_sfx)
+	_assert(AudioServer.is_bus_mute(sfx_index), "The global SFX trim should preserve complete mute at zero")
+	SettingsStore.apply_audio_settings(custom)
 
 	var safe_large: Vector2i = SettingsStore.safe_windowed_size(Vector2i(9000, 9000), Vector2i(1920, 1080))
 	var safe_small: Vector2i = SettingsStore.safe_windowed_size(Vector2i.ZERO, Vector2i(800, 450))

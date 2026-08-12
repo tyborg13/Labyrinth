@@ -13,6 +13,7 @@ const DIALOGUE_INSTANT: String = "instant"
 const MASTER_BUS: String = "Master"
 const MUSIC_BUS: String = "Music"
 const SFX_BUS: String = "SFX"
+const SFX_HEADROOM_DB: float = -3.0
 
 const STANDARD_DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const FAST_DIALOGUE_CHARACTERS_PER_SECOND: float = 92.0
@@ -112,7 +113,7 @@ static func apply_audio_settings(settings: Dictionary) -> void:
 	ensure_audio_buses()
 	_apply_bus_volume(MASTER_BUS, float(normalized["master_volume"]))
 	_apply_bus_volume(MUSIC_BUS, float(normalized["music_volume"]))
-	_apply_bus_volume(SFX_BUS, float(normalized["sfx_volume"]))
+	_apply_bus_volume(SFX_BUS, float(normalized["sfx_volume"]), SFX_HEADROOM_DB)
 
 static func nearest_supported_ui_scale(value: float) -> float:
 	var nearest: float = float(SUPPORTED_UI_SCALES[0])
@@ -180,13 +181,13 @@ static func _apply_display_mode(display_mode: String) -> void:
 	DisplayServer.window_set_size(safe_size)
 	DisplayServer.window_set_position(usable_rect.position + (usable_rect.size - safe_size) / 2)
 
-static func _apply_bus_volume(bus_name: String, volume: float) -> void:
+static func _apply_bus_volume(bus_name: String, volume: float, headroom_db: float = 0.0) -> void:
 	var bus_index: int = AudioServer.get_bus_index(bus_name)
 	if bus_index < 0:
 		return
 	var clamped: float = clampf(volume, 0.0, 1.0)
 	AudioServer.set_bus_mute(bus_index, clamped <= 0.0001)
-	AudioServer.set_bus_volume_db(bus_index, linear_to_db(maxf(clamped, 0.0001)))
+	AudioServer.set_bus_volume_db(bus_index, linear_to_db(maxf(clamped, 0.0001)) + headroom_db)
 
 static func _number_or_default(value: Variant, fallback: float) -> float:
 	if typeof(value) in [TYPE_INT, TYPE_FLOAT]:
