@@ -102,6 +102,31 @@ func _initialize() -> void:
 	await _assert_hud_contract(instance, true)
 	await _assert_relic_wrap_contract(instance, RELIC_IDS.size(), 3)
 	await _save_root_screenshot("%s/relic_header_wrapped_v3_1920x1080.png" % OUTPUT_DIR)
+	var crowded_intensity_y: float = (instance.get("_intensity_bar") as Control).global_position.y
+	await _load_fixture(instance, {
+		ElementData.FIRE: 0,
+		ElementData.ICE: 0,
+		ElementData.LIGHTNING: 0,
+		ElementData.AIR: 0,
+		ElementData.EARTH: 0,
+	}, false)
+	await _assert_zero_relic_transition_contract(instance, crowded_intensity_y)
+	await _save_root_screenshot("%s/relic_to_zero_reset_v1_1920x1080.png" % OUTPUT_DIR)
+	if OS.get_cmdline_user_args().has("--reset-only"):
+		print("RELIC TO ZERO INTENSITY RESET VISUAL PROBE: PASS")
+		print(ProjectSettings.globalize_path(OUTPUT_DIR))
+		instance.queue_free()
+		await process_frame
+		quit(0)
+		return
+
+	await _load_fixture(instance, {
+		ElementData.FIRE: 1,
+		ElementData.ICE: 2,
+		ElementData.LIGHTNING: 3,
+		ElementData.AIR: 4,
+		ElementData.EARTH: 6,
+	}, true)
 	await _assert_crowded_card_widget_contract(instance)
 	await _save_root_screenshot("%s/crowded_first_move_widget_v2_1920x1080.png" % OUTPUT_DIR)
 
@@ -281,6 +306,17 @@ func _assert_relic_wrap_contract(instance: Node, expected_relics: int, expected_
 	_assert(row_y_values.size() == expected_rows, "Relic fixture should render %d row(s), got %d" % [expected_rows, row_y_values.size()])
 	if row_y_values.size() > 1:
 		_assert(row_y_values[1] > row_y_values[0], "Relics beyond five should continue on a lower line")
+
+func _assert_zero_relic_transition_contract(instance: Node, crowded_intensity_y: float) -> void:
+	var relic_bar: Control = instance.get_node("UiLayer/UiRoot/RelicBar") as Control
+	var relic_grid: GridContainer = instance.get("_relic_icon_grid") as GridContainer
+	var intensity_bar: Control = instance.get("_intensity_bar") as Control
+	var room_subtitle: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle") as Control
+	var expected_y: float = room_subtitle.get_global_rect().end.y + 2.0
+	_assert(relic_bar != null and not relic_bar.visible, "A zero-relic run should hide the prior run's relic HUD")
+	_assert(relic_grid != null and relic_grid.get_child_count() == 0, "A zero-relic run should clear every prior run relic icon")
+	_assert(intensity_bar != null and intensity_bar.global_position.y < crowded_intensity_y, "Elemental intensity should jump back above its prior crowded-run position without restarting the client")
+	_assert(intensity_bar != null and absf(intensity_bar.global_position.y - expected_y) <= 1.0, "Elemental intensity should return directly below the compact zero-relic header (actual=%.1f expected=%.1f)" % [intensity_bar.global_position.y if intensity_bar != null else -1.0, expected_y])
 
 func _assert_crowded_card_widget_contract(instance: Node) -> void:
 	var combat: CombatEngine = instance.get("_combat_engine") as CombatEngine

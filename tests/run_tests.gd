@@ -11624,6 +11624,24 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 			for index: int in range(relic_grid.get_child_count()):
 				var relic_icon: Control = relic_grid.get_child(index) as Control
 				_assert(not relic_icon.get_global_rect().intersects(intensity_bar.get_global_rect()), "The relic block should remain completely above the elemental intensity widget")
+	# A new run reuses this RunScene. Clearing a crowded relic inventory must also
+	# clear its layout footprint immediately instead of retaining the prior run's
+	# lower intensity position until the client restarts.
+	var relic_heavy_intensity_y: float = intensity_bar.global_position.y
+	var next_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var next_combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	next_run_state["relics"] = []
+	next_combat_state["relics"] = []
+	next_run_state["combat_state"] = next_combat_state.duplicate(true)
+	instance.set("_run_state", next_run_state)
+	_set_run_scene_combat_state_for_test(instance, next_combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	var expected_zero_relic_y: float = (instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle") as Control).get_global_rect().end.y + 2.0
+	_assert(not relic_bar.visible and relic_grid.get_child_count() == 0, "A new zero-relic run should clear and hide the prior run's relic HUD")
+	_assert(intensity_bar.global_position.y < relic_heavy_intensity_y, "A new zero-relic run should move elemental intensity back above its prior crowded position")
+	_assert(absf(intensity_bar.global_position.y - expected_zero_relic_y) <= 1.0, "A new zero-relic run should restore elemental intensity directly below the compact header (actual=%.1f expected=%.1f)" % [intensity_bar.global_position.y, expected_zero_relic_y])
 	instance.queue_free()
 	await process_frame
 
