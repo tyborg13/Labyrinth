@@ -7964,6 +7964,28 @@
       }
     },
     {
+      "id": "mnt_20260814T040452Z_4f3ac364",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Unit health bars use authored light-versus-Umbra raster frames",
+      "details": "Player health uses the 128x28 lantern frame and enemies use the 124x30 Umbra frame under assets/art/ui/health_bars. Keep the fill, segments, HP text, and damage preview code-driven inside source-art-derived aperture insets, draw the transparent frame above the fill, and sync _health_bar_frame_textures into retained render layers. Illusion, terrain, and boss treatments remain distinct.",
+      "status": "active",
+      "created_at": "2026-08-14T04:04:52Z",
+      "updated_at": "2026-08-14T04:04:52Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-lantern-player-and-umbra-enemy-health-bars",
+        "commit": "ac5bdf6"
+      }
+    },
+    {
       "id": "mnt_20260814T044442Z_7bac2f5a",
       "layer": "shared",
       "kind": "user_preference",

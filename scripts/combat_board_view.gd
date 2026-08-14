@@ -52,9 +52,16 @@ const IMPACT_FLASH_COLOR: Color = Color(1.0, 0.22, 0.15, 0.72)
 const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const FLOATING_TEXT_RIGHT_OFFSET: float = 18.0
-const PLAYER_BAR_FILL: Color = Color("8ec26c")
+const PLAYER_BAR_FILL: Color = Color("4f9f8c")
 const ILLUSION_BAR_FILL: Color = Color("7bd8ee")
-const ENEMY_BAR_FILL: Color = Color("d06752")
+const ENEMY_BAR_FILL: Color = Color("8f3038")
+const HEALTH_BAR_STYLE_PLAIN: StringName = &"plain"
+const HEALTH_BAR_STYLE_LIGHT: StringName = &"light"
+const HEALTH_BAR_STYLE_UMBRA: StringName = &"umbra"
+const PLAYER_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/player_lantern_frame_v1.png"
+const ENEMY_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/enemy_umbra_frame_v1.png"
+const PLAYER_HEALTH_CONTENT_INSETS: Vector4 = Vector4(0.124, 0.326, 0.087, 0.275)
+const ENEMY_HEALTH_CONTENT_INSETS: Vector4 = Vector4(0.161, 0.286, 0.152, 0.301)
 const TERRAIN_BAR_FILL: Color = Color("d9b84f")
 const STATUS_BURN: Color = Color("f28a42")
 const STATUS_BLEED: Color = Color("b84646")
@@ -63,8 +70,8 @@ const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_IMMOBILIZE: Color = Color("b8c48f")
 const STATUS_POISON: Color = Color("86bf63")
-const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
-const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(84.0, 14.0)
+const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(128.0, 28.0)
+const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(124.0, 30.0)
 const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
@@ -164,13 +171,10 @@ const DOOR_OPENING_FRAME_REGIONS := [
 const PILLAR_MOSS_OFFSET_X_SCALE: float = -0.04
 const PILLAR_MOSS_OFFSET_Y_SCALE: float = 0.16
 const STONE_FLOOR_VARIANT_PATHS: PackedStringArray = [
-	"res://assets/placeholders/tiles/base_floor_tile_01.png",
 	"res://assets/placeholders/tiles/base_floor_tile_02.png",
 	"res://assets/placeholders/tiles/base_floor_tile_03.png",
-	"res://assets/placeholders/tiles/base_floor_tile_04.png",
 	"res://assets/placeholders/tiles/base_floor_tile_05.png",
-	"res://assets/placeholders/tiles/base_floor_tile_06.png",
-	"res://assets/placeholders/tiles/base_floor_tile_07.png"
+	"res://assets/placeholders/tiles/base_floor_tile_06.png"
 ]
 const MOSS_FLOOR_OVERLAY_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/moss_overlays/moss_floor_overlay_01.png",
@@ -472,6 +476,7 @@ var _trap_idle_frames: Dictionary = {}
 var _trap_activation_frames: Dictionary = {}
 var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
+var _health_bar_frame_textures: Dictionary = {}
 var _unit_shadow_polygon_cache: Dictionary = {}
 var _unit_shadow_bottom_ratio_cache: Dictionary = {}
 var _unit_shadow_draw_geometry_cache: Dictionary = {}
@@ -685,7 +690,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
 			"_unit_textures", "_unit_assets_loaded",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
-			"_door_icon_textures", "_keyword_icon_textures", "_unit_shadow_polygon_cache",
+			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
 			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache", "_door_opening_frames", "_door_opening_flipped_frames",
 			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache", "_unit_shadow_sync_miss_metrics"
 		]:
@@ -5088,25 +5093,30 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	var display_hp: int = _health_bar_fill_hp(unit, preview)
 	var role: String = str(unit.get("role", ""))
 	var fill_color: Color = ILLUSION_BAR_FILL if role == "illusion" else PLAYER_BAR_FILL if role == "player" else ENEMY_BAR_FILL
+	var visual_style: StringName = _health_bar_visual_style(unit)
+	var content_rect: Rect2 = _health_bar_content_rect(unit, rect)
 	SegmentedHealthBar.draw_bar(
 		self,
-		rect,
+		content_rect,
 		float(display_hp),
 		float(maxi(1, int(unit.get("max_hp", 1)))),
 		_health_bar_segment_count(int(unit.get("max_hp", 1))),
-		Color("2d1f18"),
+		Color("160f17") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("191512"),
 		fill_color,
-		Color("f5efdf"),
-		Color("eed3a6"),
-		Color(0.0, 0.0, 0.0, 0.35),
+		Color("cf6469") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("9de2ce") if visual_style == HEALTH_BAR_STYLE_LIGHT else Color("f5efdf"),
+		Color("5b405f") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("8f7345") if visual_style == HEALTH_BAR_STYLE_LIGHT else Color("eed3a6"),
+		Color(0.0, 0.0, 0.0, 0.45),
 		1.0,
 		1.0
 	)
+	var frame_texture: Texture2D = _health_bar_frame_textures.get(visual_style, null) as Texture2D
+	if frame_texture != null:
+		draw_texture_rect(frame_texture, rect, false)
 	var defer_preview_overlay: bool = _health_bar_defers_damage_preview(preview)
 	if _damage_preview_shows_lost_hp(preview) and not defer_preview_overlay:
-		_draw_health_damage_preview(unit, rect, preview)
+		_draw_health_damage_preview(unit, content_rect, preview)
 	if font != null and not defer_preview_overlay:
-		_draw_health_bar_text(unit, rect, preview, font)
+		_draw_health_bar_text(unit, content_rect, preview, font)
 	var block_amount: int = int(unit.get("block", 0))
 	var defense_badge_x: float = rect.position.x + rect.size.x + 4.0
 	if block_amount > 0:
@@ -5151,8 +5161,9 @@ func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> voi
 		var health_rect: Rect2 = _hud_health_rects_cache.get(actor_key, Rect2()) as Rect2
 		if health_rect.size.x <= 0.0 or health_rect.size.y <= 0.0:
 			continue
-		_draw_health_damage_preview(unit, health_rect, preview)
-		_draw_health_bar_text(unit, health_rect, preview, font)
+		var content_rect: Rect2 = _health_bar_content_rect(unit, health_rect)
+		_draw_health_damage_preview(unit, content_rect, preview)
+		_draw_health_bar_text(unit, content_rect, preview, font)
 
 func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, font: Font) -> void:
 	var display_hp: int = _health_bar_fill_hp(unit, preview)
@@ -5171,7 +5182,7 @@ func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, f
 			hp_text,
 			HORIZONTAL_ALIGNMENT_CENTER,
 			rect.size.x,
-			9,
+			10,
 			Color("140f0b")
 		)
 	draw_string(
@@ -5180,12 +5191,38 @@ func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, f
 		hp_text,
 		HORIZONTAL_ALIGNMENT_CENTER,
 		rect.size.x,
-		9,
+		10,
 		text_color
 	)
 
 func _health_bar_segment_count(max_hp_value: int) -> int:
 	return SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp_value)))
+
+func _health_bar_visual_style(unit: Dictionary) -> StringName:
+	match str(unit.get("role", "")):
+		"player":
+			return HEALTH_BAR_STYLE_LIGHT
+		"enemy":
+			return HEALTH_BAR_STYLE_UMBRA
+		_:
+			return HEALTH_BAR_STYLE_PLAIN
+
+func _health_bar_content_rect(unit: Dictionary, rect: Rect2) -> Rect2:
+	var insets: Vector4
+	match _health_bar_visual_style(unit):
+		HEALTH_BAR_STYLE_LIGHT:
+			insets = PLAYER_HEALTH_CONTENT_INSETS
+		HEALTH_BAR_STYLE_UMBRA:
+			insets = ENEMY_HEALTH_CONTENT_INSETS
+		_:
+			return rect
+	return Rect2(
+		rect.position + Vector2(rect.size.x * insets.x, rect.size.y * insets.y),
+		Vector2(
+			rect.size.x * (1.0 - insets.x - insets.z),
+			rect.size.y * (1.0 - insets.y - insets.w)
+		)
+	)
 
 func _health_bar_fill_hp(unit: Dictionary, preview: Dictionary) -> int:
 	return int(preview.get("hp", unit.get("hp", 0)))
@@ -9539,6 +9576,10 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	UiTypography.display_font()
 	UiTypography.ui_font()
 	UiTypography.text_font()
+	_health_bar_frame_textures = {
+		HEALTH_BAR_STYLE_LIGHT: AssetLoader.load_texture(PLAYER_HEALTH_FRAME_PATH),
+		HEALTH_BAR_STYLE_UMBRA: AssetLoader.load_texture(ENEMY_HEALTH_FRAME_PATH),
+	}
 	var stone_floor_variants: Array[Texture2D] = _load_floor_variants(STONE_FLOOR_VARIANT_PATHS)
 	var moss_floor_variants: Array[Texture2D] = _load_floor_variants(MOSS_FLOOR_OVERLAY_PATHS)
 	var moss_wall_variants: Array[Texture2D] = _load_floor_variants(MOSS_WALL_OVERLAY_PATHS)
