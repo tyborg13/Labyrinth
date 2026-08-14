@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-14T04:44:42Z",
+  "updated_at": "2026-08-14T12:54:20Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8007,6 +8007,28 @@
       "source": {
         "branch": "codex/element-specific-room-tile-overlays",
         "commit": "4b44caf"
+      }
+    },
+    {
+      "id": "mnt_20260814T125420Z_0e42be8b",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/run_tests.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/run_tests.gd",
+      "summary": "Stone floor variant tests must follow the approved registry",
+      "details": "When peeling stone sprites are removed from CombatBoardView.STONE_FLOOR_VARIANT_PATHS, derive the expected loaded count from that registry. With four variants, test broad low-repeat distribution and whole-lookup room-coordinate reshuffling; assertions on two fixed tile pairs or coordinates whose hash deltas collapse modulo four are brittle.",
+      "status": "active",
+      "created_at": "2026-08-14T12:54:20Z",
+      "updated_at": "2026-08-14T12:54:20Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/element-specific-room-tile-overlays",
+        "commit": "d5367d2"
       }
     }
   ]

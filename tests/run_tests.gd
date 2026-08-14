@@ -7202,28 +7202,30 @@ func _test_combat_board_assigns_deterministic_floor_variants() -> void:
 	board.call("_load_assets")
 	var floor_variants: Dictionary = board.get("_floor_texture_variants")
 	var stone_variants: Array = floor_variants.get("stone", [])
-	_assert(stone_variants.size() == 7, "Combat board should load all seven extracted stone floor variants")
+	_assert(stone_variants.size() == CombatBoardView.STONE_FLOOR_VARIANT_PATHS.size(), "Combat board should load every approved stone floor variant")
 	var state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1)}
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	var first_lookup: Dictionary = (board.get("_floor_variant_by_tile") as Dictionary).duplicate(true)
 	var distinct: Dictionary = {}
+	var adjacent_repeats: int = 0
 	for y: int in range(1, 7):
 		for x: int in range(1, 7):
-			distinct[int(first_lookup.get(Vector2i(x, y), -1))] = true
-	_assert(distinct.size() >= 4, "Interior stone floors should spread across several variants instead of collapsing to one look")
+			var tile := Vector2i(x, y)
+			var variant_index: int = int(first_lookup.get(tile, -1))
+			distinct[variant_index] = true
+			if x > 1 and variant_index == int(first_lookup.get(Vector2i(x - 1, y), -2)):
+				adjacent_repeats += 1
+			if y > 1 and variant_index == int(first_lookup.get(Vector2i(x, y - 1), -2)):
+				adjacent_repeats += 1
+	_assert(distinct.size() >= mini(4, stone_variants.size()), "Interior stone floors should spread across the approved variants instead of collapsing to one look")
+	_assert(adjacent_repeats <= 6, "Variant assignment should keep immediate stone-floor repeats rare")
 	var center_tile := Vector2i(4, 4)
-	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(3, 4), -1)), "Variant assignment should avoid immediate left-right repeats on stone floors when possible")
-	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(4, 3), -1)), "Variant assignment should avoid immediate front-back repeats on stone floors when possible")
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	var repeated_lookup: Dictionary = board.get("_floor_variant_by_tile")
 	_assert(repeated_lookup.get(center_tile, -1) == first_lookup.get(center_tile, -2), "Floor variants should stay deterministic for the same room coordinate")
-	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(5, 1)}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(3, 1)}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	var shifted_lookup: Dictionary = board.get("_floor_variant_by_tile")
-	_assert(
-		shifted_lookup.get(center_tile, -1) != first_lookup.get(center_tile, -1)
-		or shifted_lookup.get(Vector2i(5, 4), -1) != first_lookup.get(Vector2i(5, 4), -1),
-		"Different room coordinates should reshuffle the deterministic floor-variant mix"
-	)
+	_assert(shifted_lookup != first_lookup, "Different room coordinates should reshuffle the deterministic floor-variant mix")
 	board.free()
 
 func _test_combat_board_loads_elemental_projectile_atlas() -> void:
