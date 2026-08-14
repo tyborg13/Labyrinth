@@ -13,6 +13,7 @@ const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 
 signal tile_clicked(tile: Vector2i)
 signal tile_hovered(tile: Vector2i)
@@ -55,6 +56,12 @@ const FLOATING_TEXT_RIGHT_OFFSET: float = 18.0
 const PLAYER_BAR_FILL: Color = Color("8ec26c")
 const ILLUSION_BAR_FILL: Color = Color("7bd8ee")
 const ENEMY_BAR_FILL: Color = Color("d06752")
+const INTENT_COMPASS_ISOMETRIC_Y_SCALE: float = 0.50
+const INTENT_COMPASS_RING_TILE_SCALE: float = 0.72
+const INTENT_COMPASS_RING_SOURCE_DIAMETER: float = 178.0
+const INTENT_COMPASS_ARM_PIVOT: Vector2 = Vector2(48.0, 128.0)
+const INTENT_COMPASS_ARM_SCALE: float = 0.78
+const INTENT_COMPASS_VALUE_FONT_SIZE: int = 14
 const TERRAIN_BAR_FILL: Color = Color("d9b84f")
 const STATUS_BURN: Color = Color("f28a42")
 const STATUS_BLEED: Color = Color("b84646")
@@ -1151,7 +1158,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	for cache_key: String in [
 		"scene_props", "preview_units", "death_animation_units", "unit_draw_tiles",
 		"unit_world_positions", "visible_enemy_ids", "umbra_visible_tiles",
-		"umbra_light_sources", "umbra_stage", "damage_preview", "effect", "ability_tiles"
+		"umbra_light_sources", "umbra_stage", "damage_preview", "effect", "ability_tiles",
+		"enemy_intent_compasses"
 	]:
 		if presentation_changes.has(cache_key):
 			submission_sources_changed = true
@@ -1424,6 +1432,10 @@ func _queue_presentation_change_redraws(
 				unit_movement_changed = true
 				foreground_changed = true
 				hud_changed = true
+			"enemy_intent_compasses":
+				for unit: Dictionary in _visible_units():
+					if not bool(unit.get("is_player", false)):
+						_queue_scene_render_layer_for_tile(_effective_unit_tile(unit))
 			_:
 				# Unclassified presentation state remains conservative. The retained
 				# layers optimize known animation-only submissions without risking a
@@ -4794,6 +4806,7 @@ func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]
 		_draw_unit_body(unit)
 
 func _draw_unit_body(unit: Dictionary) -> void:
+	_draw_enemy_intent_compass(unit)
 	_draw_unit_shadow(unit)
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
@@ -4825,6 +4838,73 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
 			draw_texture_rect(texture, shifted_rect, false, flash)
+
+func _draw_enemy_intent_compass(unit: Dictionary) -> void:
+	if str(unit.get("role", "")) != "enemy" or bool(unit.get("death_animation", false)):
+		return
+	var actor_key: String = str(unit.get("key", ""))
+	var descriptors: Dictionary = presentation.get("enemy_intent_compasses", {}) as Dictionary
+	var descriptor: Dictionary = descriptors.get(actor_key, {}) as Dictionary
+	if descriptor.is_empty():
+		return
+	var family: String = str(descriptor.get("family", EnemyIntentCompass.FAMILY_MOVEMENT))
+	var base_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path("base"))
+	var arm_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
+	if base_texture == null or arm_texture == null:
+		return
+	var center: Vector2 = _intent_compass_center(unit)
+	var target_tile: Vector2i = descriptor.get("target_tile", EnemyIntentCompass.INVALID_TILE)
+	var target_world: Vector2 = center + Vector2(1.0, INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	if target_tile != EnemyIntentCompass.INVALID_TILE:
+		target_world = _tile_center(target_tile)
+	var angle: float = EnemyIntentCompass.direction_angle(center, target_world, INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	var scale_factor: float = _tile_width() * INTENT_COMPASS_RING_TILE_SCALE / INTENT_COMPASS_RING_SOURCE_DIAMETER
+	var arm_scale: float = scale_factor * INTENT_COMPASS_ARM_SCALE
+	var basis_x := Vector2(cos(angle) * arm_scale, sin(angle) * arm_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	var basis_y := Vector2(-sin(angle) * arm_scale, cos(angle) * arm_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	var base_basis_x := Vector2(scale_factor, 0.0)
+	var base_basis_y := Vector2(0.0, scale_factor * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	draw_set_transform_matrix(Transform2D(base_basis_x, base_basis_y, center))
+	draw_texture(base_texture, -base_texture.get_size() * 0.5, Color(1.0, 1.0, 1.0, 0.96))
+	draw_set_transform_matrix(Transform2D(basis_x, basis_y, center))
+	draw_texture(arm_texture, -INTENT_COMPASS_ARM_PIVOT, Color(1.0, 1.0, 1.0, 0.96))
+	draw_set_transform_matrix(Transform2D.IDENTITY)
+	_draw_enemy_intent_compass_value(center, target_world, int(descriptor.get("value", 0)))
+	var intent: Dictionary = unit.get("intent", {}) as Dictionary
+	var tooltip: String = _intent_display_name(intent)
+	var lines: PackedStringArray = _intent_lines(intent)
+	if not lines.is_empty():
+		tooltip += ("\n" if not tooltip.is_empty() else "") + "\n".join(lines)
+	if not tooltip.is_empty():
+		var hit_size := Vector2(_tile_width() * 0.82, _tile_height() * 0.92)
+		_register_tooltip(Rect2(center - hit_size * 0.5, hit_size), tooltip)
+
+func _intent_compass_center(unit: Dictionary) -> Vector2:
+	var footprint_tiles: Array[Vector2i] = _unit_footprint_tiles(unit)
+	if footprint_tiles.is_empty():
+		return _unit_center(unit) + Vector2(0.0, _tile_height() * 0.18)
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	if footprint.x > 1 or footprint.y > 1:
+		return _tile_center(_effective_unit_tile(unit)) + Vector2(0.0, _tile_height() * 0.12)
+	var center := Vector2.ZERO
+	for tile: Vector2i in footprint_tiles:
+		center += _tile_center(tile)
+	return center / float(footprint_tiles.size()) + Vector2(0.0, _tile_height() * 0.12)
+
+func _draw_enemy_intent_compass_value(center: Vector2, target_world: Vector2, value: int) -> void:
+	if value <= 0:
+		return
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	var away: Vector2 = (target_world - center).normalized()
+	if away == Vector2.ZERO:
+		away = Vector2(1.0, 0.5).normalized()
+	var text: String = str(value)
+	var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE).x
+	var baseline: Vector2 = center - away * _tile_width() * 0.105 + Vector2(-width * 0.5, 5.0)
+	draw_string(font, baseline + Vector2(1.0, 2.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, Color(0.03, 0.02, 0.01, 0.94))
+	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, Color("fff0c2"))
 
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	if not _hud_layout_entries_cache.is_empty():
@@ -5579,7 +5659,7 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 	var intent_name: String = ""
 	var intent_rect := Rect2()
 	var border: Color = Color("d8b96f")
-	if not intent.is_empty():
+	if not intent.is_empty() and _enemy_intent_expanded(unit):
 		rows = _enemy_intent_rows_for_display(unit, intent)
 		intent_name = _intent_display_name(intent)
 		var line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
@@ -5587,12 +5667,14 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 			var popup_width: float = _enemy_intent_popup_width(intent, rows, font)
 			intent_rect = _enemy_intent_rect_for_line_count(center, health_rect, line_count, popup_width)
 			border = _intent_color(intent)
-	var base_rects: Array[Rect2] = _enemy_hud_collision_rects(unit, health_rect, intent_rect)
+	var intent_rects: Array[Rect2] = []
+	if intent_rect.size.x > 0.0 and intent_rect.size.y > 0.0:
+		intent_rects.append(intent_rect)
 	var actor_clear_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
 	var placement_obstacles: Array = _enemy_hud_placement_obstacles(occupied_rects, actor_clear_rect)
+	placement_obstacles.append_array(_health_bar_collision_rects(unit, health_rect))
 	var actor_key: String = _enemy_hud_actor_key(unit)
-	var offset: Vector2 = _placed_enemy_hud_offset(base_rects, placement_obstacles, actor_clear_rect, actor_key)
-	health_rect.position += offset
+	var offset: Vector2 = _placed_enemy_hud_offset(intent_rects, placement_obstacles, actor_clear_rect, actor_key)
 	intent_rect.position += offset
 	var tether: Dictionary = {}
 	if absf(offset.x) >= 2.0:
@@ -5604,7 +5686,7 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 		"intent_name": intent_name,
 		"border": border,
 		"offset": offset,
-		"health_offset": offset,
+		"health_offset": Vector2.ZERO,
 		"intent_offset": offset,
 		"side": str(_enemy_hud_side_by_actor.get(actor_key, "")),
 		"tether": tether,
@@ -5629,7 +5711,7 @@ func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Arra
 	var intent_rect := Rect2()
 	var expanded_rect := Rect2()
 	var border: Color = Color("d8b96f")
-	if not intent.is_empty():
+	if not intent.is_empty() and _enemy_intent_expanded(unit):
 		rows = _enemy_intent_rows_for_display(unit, intent)
 		intent_name = _intent_display_name(intent)
 		var expanded_rows: Array = _intent_rows_for_unit(unit, intent)

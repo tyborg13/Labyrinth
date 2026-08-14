@@ -33,6 +33,7 @@ const GrimoireSearchSuite = preload("res://tests/suites/grimoire_search_suite.gd
 const MoveAttackShortcutSuite = preload("res://tests/suites/move_attack_shortcut_suite.gd")
 const MapUiSuite = preload("res://tests/suites/map_ui_suite.gd")
 const CombatBoardLayoutSuite = preload("res://tests/suites/combat_board_layout_suite.gd")
+const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -95,6 +96,7 @@ func _initialize() -> void:
 	MoveAttackShortcutSuite.run(Callable(self, "_assert"))
 	MapUiSuite.run(Callable(self, "_assert"))
 	CombatBoardLayoutSuite.run(Callable(self, "_assert"))
+	EnemyIntentCompassSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
@@ -5802,17 +5804,16 @@ func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 	var intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, health_rect, line_count)
 	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [health_rect, intent_rect], font)
 	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
-	_assert(offset != Vector2.ZERO, "Enemy HUDs should nudge away when their default stack would cover reserved HUD space")
-	for rect_var: Variant in layout.get("occupied_rects", []):
-		if typeof(rect_var) != TYPE_RECT2:
-			continue
-		var rect: Rect2 = rect_var
-		_assert(not rect.intersects(health_rect, false), "Shifted enemy HUD pieces should clear the reserved health bar space")
-		_assert(not rect.intersects(intent_rect, false), "Shifted enemy HUD pieces should clear the reserved intent space")
+	_assert(offset != Vector2.ZERO, "Expanded enemy intent should nudge away when its default panel covers reserved HUD space")
+	_assert((layout.get("health_rect", Rect2()) as Rect2) == health_rect, "Enemy health bar should remain anchored above its sprite while intent detail repositions")
+	var placed_intent: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
+	_assert(not placed_intent.intersects(health_rect, false), "Expanded enemy intent should clear the anchored health bar")
+	_assert(not placed_intent.intersects(intent_rect, false), "Expanded enemy intent should clear reserved intent space")
 
 func _test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
+	board.presentation = {"show_all_enemy_intents": true}
 	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var center := Vector2(480.0, 215.0)
 	var enemy := {
@@ -5824,18 +5825,21 @@ func _test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge() -> void:
 		}
 	}
 	var default_health_rect: Rect2 = board.call("_unit_health_bar_rect", enemy, center)
-	var default_intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, default_health_rect, 1)
+	var intent_rows: Array = board.call("_enemy_intent_rows_for_display", enemy, enemy.get("intent", {})) as Array
+	var popup_width: float = float(board.call("_enemy_intent_popup_width", enemy.get("intent", {}), intent_rows, font))
+	var visible_line_count: int = intent_rows.size() + 1
+	var default_intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, default_health_rect, visible_line_count, popup_width)
 	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var health_rect: Rect2 = layout.get("health_rect", Rect2())
 	var intent_rect: Rect2 = layout.get("intent_rect", Rect2())
 	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
 	var actor_clear_rect: Rect2 = board.call("_enemy_hud_actor_clear_rect", enemy, center)
 	_assert(absf(offset.x) > 1.0, "Top-edge enemy HUDs should move beside their actor instead of dropping straight over the sprite")
-	_assert(health_rect.position - default_health_rect.position == offset, "Enemy health and intent geometry should share one coupled fallback offset")
-	_assert(intent_rect.position - default_intent_rect.position == offset, "Enemy intent and health geometry should remain coupled when they move aside")
-	_assert(is_equal_approx(intent_rect.end.y, health_rect.position.y), "The repositioned intent should stay stacked directly above its health bar")
+	_assert(health_rect == default_health_rect, "Enemy health should remain directly above its sprite at the top edge")
+	_assert(intent_rect.position - default_intent_rect.position == offset, "Expanded enemy intent should apply its independent fallback offset")
+	_assert(not intent_rect.intersects(health_rect, false), "The independently repositioned intent should clear the anchored health bar")
 	_assert(intent_rect.position.y >= 6.0 and health_rect.end.y <= board.size.y - 6.0, "Top-edge enemy HUD stacks should remain inside the board viewport")
-	_assert(not intent_rect.intersects(actor_clear_rect, false) and not health_rect.intersects(actor_clear_rect, false), "Side-positioned enemy HUD stacks should clear their owning sprite")
+	_assert(not intent_rect.intersects(actor_clear_rect, false) and not health_rect.intersects(actor_clear_rect, false), "Intent panel and anchored health bar should clear their owning sprite")
 	var tether: Dictionary = layout.get("tether", {})
 	_assert(not tether.is_empty(), "A displaced enemy HUD stack should keep a tether to its owning actor")
 	var expected_tether: Dictionary = board.call("_enemy_intent_tether_geometry", enemy, center, intent_rect)
@@ -5845,6 +5849,7 @@ func _test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge() -> void:
 func _test_enemy_hud_side_selection_is_stable_during_small_layout_changes() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
+	board.presentation = {"show_all_enemy_intents": true}
 	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var center := Vector2(480.0, 215.0)
 	var enemy := {
@@ -6008,11 +6013,12 @@ func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
 	_assert(reserved_rects.is_empty(), "Boss health should no longer reserve a floating rectangle over playable board tiles")
 	var compact_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [], font)
 	var compact_rect: Rect2 = compact_layout.get("intent_rect", Rect2())
+	_assert(compact_rect.size == Vector2.ZERO, "Bosses should use the floor compass without a persistent overhead intent panel")
 	board.presentation = {"show_all_enemy_intents": true}
 	var expanded_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [], font)
 	var expanded_rect: Rect2 = expanded_layout.get("intent_rect", Rect2())
 	_assert(expanded_rect.position.y >= 6.0 and expanded_rect.end.y <= board.size.y - 6.0, "Boss intents should remain contained without a global board banner collision")
-	_assert(is_equal_approx(compact_rect.end.y, expanded_rect.end.y), "Compact boss intent placement should be anchored to the expanded layout")
+	_assert(expanded_rect.size.x > 0.0 and expanded_rect.size.y > 0.0, "Boss inspection should still expand the exact intent panel on demand")
 	board.free()
 
 func _test_boss_health_overlay_caps_divider_density() -> void:

@@ -14,6 +14,7 @@ const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
+const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
@@ -1435,6 +1436,8 @@ var _hover_resolved_preview_key: String = ""
 var _hover_resolved_preview_state: Dictionary = {}
 var _stage_visibility_cache_key: String = ""
 var _stage_visibility_cache: Dictionary = {}
+var _enemy_intent_compass_cache_key: String = ""
+var _enemy_intent_compass_cache: Dictionary = {}
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
@@ -14579,6 +14582,8 @@ func _refresh_stage_view() -> void:
 		and _current_action_is_aimed_aoe()
 	)
 	presentation["reduced_motion"] = _reduced_motion_enabled()
+	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
+	presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	performance_phase_started = _record_runtime_performance_phase("stage_chrome", performance_phase_started)
 	board_view.set_combat_state(
 		display_state,
@@ -14692,6 +14697,37 @@ func _stage_visibility_presentation(visibility_state: Dictionary) -> Dictionary:
 	)
 	_stage_visibility_cache_key = cache_key
 	return _stage_visibility_cache
+
+func _enemy_intent_compass_descriptors(display_state: Dictionary, visible_enemy_ids: Array) -> Dictionary:
+	var cache_key: String = "%d|%d|%d" % [_combat_preview_revision, hash(display_state), hash(visible_enemy_ids)]
+	if cache_key == _enemy_intent_compass_cache_key:
+		return _enemy_intent_compass_cache
+	var plans_by_enemy_id: Dictionary = {}
+	var enemies: Array = display_state.get("enemies", []) as Array
+	for enemy_index: int in range(enemies.size()):
+		var enemy_var: Variant = enemies[enemy_index]
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		var enemy_id: int = int(enemy.get("id", -1))
+		if enemy_id < 0 or int(enemy.get("hp", 0)) <= 0 or not visible_enemy_ids.has(enemy_id):
+			continue
+		var intent: Dictionary = enemy.get("intent", {}) as Dictionary
+		if intent.is_empty():
+			continue
+		var frozen: bool = int(enemy.get("freeze", 0)) > 0
+		var shocked: bool = int(enemy.get("shock", 0)) > 0
+		var immobilized: bool = bool(enemy.get("immobilize", false))
+		plans_by_enemy_id[enemy_id] = _combat_engine.enemy_intent_plan(
+			display_state,
+			enemy_index,
+			intent,
+			frozen or immobilized,
+			frozen or shocked
+		)
+	_enemy_intent_compass_cache = EnemyIntentCompass.descriptors_for_state(display_state, plans_by_enemy_id, visible_enemy_ids)
+	_enemy_intent_compass_cache_key = cache_key
+	return _enemy_intent_compass_cache
 
 func runtime_performance_instrumentation_snapshot() -> Dictionary:
 	var result: Dictionary = {}

@@ -7740,6 +7740,17 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var attack_action: Dictionary = {}
 	if attack_index >= 0:
 		attack_action = (actions[attack_index] as Dictionary).duplicate(true)
+	var support_target_tile: Vector2i = INVALID_TILE
+	for action_var: Variant in actions:
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var support_action: Dictionary = action_var as Dictionary
+		if str(support_action.get("type", "")) not in ENEMY_SUPPORT_ACTION_TYPES:
+			continue
+		var support_target_index: int = _enemy_support_target_index(state, enemy_index, support_action)
+		if support_target_index >= 0 and support_target_index < enemies.size():
+			support_target_tile = (enemies[support_target_index] as Dictionary).get("pos", INVALID_TILE)
+		break
 	var attack_resolvable: bool = attack_action.is_empty() or enemy_action_can_resolve(state, attack_action)
 	var planning_attack: Dictionary = attack_action
 	if planning_attack.is_empty():
@@ -7814,6 +7825,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"target": target,
 		"target_key": str(target.get("key", "")),
 		"target_tile": target.get("pos", INVALID_TILE),
+		"support_target_tile": support_target_tile,
 		"path": actual_path,
 		"route": future_route,
 		"destination": destination,

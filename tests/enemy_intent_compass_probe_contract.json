@@ -1,0 +1,32 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*intent_compass_all_families_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [260, 110, 1400, 780], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*intent_compass_focused_inspection_1920x1080.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*intent_compass_reduced_motion_1920x1080.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*intent_compass_large_hidden_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [540, 240, 840, 620], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    }
+  ]
+}
