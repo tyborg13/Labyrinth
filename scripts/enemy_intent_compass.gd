@@ -5,21 +5,15 @@ const INVALID_TILE := Vector2i(-999, -999)
 
 const FAMILY_MELEE := "melee"
 const FAMILY_RANGED := "ranged"
-const FAMILY_AREA := "area"
 const FAMILY_DEFENSE := "defense"
 const FAMILY_SUPPORT := "support"
-const FAMILY_MOVEMENT := "movement"
-const FAMILY_INTENSITY := "intensity"
 
 const TEXTURE_PATHS := {
 	"base": "res://assets/art/ui/enemy_intent_compass/base.png",
 	FAMILY_MELEE: "res://assets/art/ui/enemy_intent_compass/melee.png",
 	FAMILY_RANGED: "res://assets/art/ui/enemy_intent_compass/ranged.png",
-	FAMILY_AREA: "res://assets/art/ui/enemy_intent_compass/area.png",
 	FAMILY_DEFENSE: "res://assets/art/ui/enemy_intent_compass/defense.png",
 	FAMILY_SUPPORT: "res://assets/art/ui/enemy_intent_compass/support.png",
-	FAMILY_MOVEMENT: "res://assets/art/ui/enemy_intent_compass/movement.png",
-	FAMILY_INTENSITY: "res://assets/art/ui/enemy_intent_compass/intensity.png",
 }
 
 const MELEE_TYPES := ["melee", "pull"]
@@ -68,7 +62,7 @@ static func descriptor_for_enemy(state: Dictionary, enemy: Dictionary, intent: D
 		target_tile = destination
 		direction_reason = "movement"
 	else:
-		if family == FAMILY_INTENSITY:
+		if action_type in INTENSITY_TYPES:
 			target_tile = origin + Vector2i(1, 1)
 			direction_reason = "self"
 		elif family == FAMILY_SUPPORT or action_type == "guard_ally":
@@ -81,7 +75,7 @@ static func descriptor_for_enemy(state: Dictionary, enemy: Dictionary, intent: D
 			target_tile = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
 			if target_tile != INVALID_TILE:
 				direction_reason = "threat"
-		elif family == FAMILY_AREA and not (plan.get("projected_attack", []) as Array).is_empty():
+		elif action_type in AREA_TYPES and not (plan.get("projected_attack", []) as Array).is_empty():
 			target_tile = _projected_target_tile(plan.get("projected_attack", []) as Array, origin)
 			direction_reason = "pattern"
 		else:
@@ -110,14 +104,14 @@ static func family_for_action(action: Dictionary) -> String:
 	if action_type in RANGED_TYPES:
 		return FAMILY_RANGED
 	if action_type in AREA_TYPES:
-		return FAMILY_AREA
+		return FAMILY_RANGED
 	if action_type in DEFENSE_TYPES:
 		return FAMILY_DEFENSE
 	if action_type in SUPPORT_TYPES:
 		return FAMILY_SUPPORT
 	if action_type in INTENSITY_TYPES:
-		return FAMILY_INTENSITY
-	return FAMILY_MOVEMENT
+		return FAMILY_SUPPORT
+	return FAMILY_MELEE
 
 static func is_supported_action_type(action_type: String) -> bool:
 	return action_type in MELEE_TYPES \
@@ -135,7 +129,7 @@ static func value_for_action(action: Dictionary) -> int:
 	return 0
 
 static func texture_path(family: String) -> String:
-	return str(TEXTURE_PATHS.get(family, TEXTURE_PATHS[FAMILY_MOVEMENT]))
+	return str(TEXTURE_PATHS.get(family, TEXTURE_PATHS[FAMILY_MELEE]))
 
 static func direction_angle(origin_world: Vector2, target_world: Vector2, isometric_y_scale: float = 0.5) -> float:
 	var screen_delta: Vector2 = target_world - origin_world

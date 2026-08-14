@@ -28,7 +28,10 @@ static func _test_action_families_are_distinct(expect: Callable) -> void:
 		EnemyIntentCompass.family_for_action({"type": "move_away"}): true,
 		EnemyIntentCompass.family_for_action({"type": "intensity"}): true,
 	}
-	expect.call(families.size() == 7, "Enemy compass should preserve seven distinct action silhouettes")
+	expect.call(families.size() == 4, "Enemy compass should expose only melee, ranged, defense, and support silhouettes")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "aoe"}) == EnemyIntentCompass.FAMILY_RANGED, "Area attacks should collapse into the ranged scan-level family")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "move_away"}) == EnemyIntentCompass.FAMILY_MELEE, "Movement should collapse into the melee scan-level family")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "intensity"}) == EnemyIntentCompass.FAMILY_SUPPORT, "Intensity setup should collapse into the support scan-level family")
 	for family_var: Variant in families:
 		var path: String = EnemyIntentCompass.texture_path(str(family_var))
 		expect.call(ResourceLoader.exists(path), "Enemy compass family %s should have authored raster art" % str(family_var))
@@ -52,8 +55,8 @@ static func _test_live_enemy_actions_have_authored_families(expect: Callable) ->
 				var action_type: String = str((action_var as Dictionary).get("type", ""))
 				seen_types[action_type] = true
 				expect.call(EnemyIntentCompass.is_supported_action_type(action_type), "Live enemy action %s should have an authored compass family" % action_type)
-	expect.call(seen_types.has("intensity"), "Live enemy data should exercise the dedicated intensity compass family")
-	expect.call(EnemyIntentCompass.family_for_action({"type": "intensity"}) == EnemyIntentCompass.FAMILY_INTENSITY, "Intensity should never fall back to the movement silhouette")
+	expect.call(seen_types.has("intensity"), "Live enemy data should exercise intensity-to-support family collapse")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "intensity"}) == EnemyIntentCompass.FAMILY_SUPPORT, "Intensity should use the support scan-level silhouette")
 
 
 static func _test_compound_intent_points_primary_attack_from_destination(expect: Callable) -> void:
@@ -101,7 +104,7 @@ static func _test_pattern_intent_points_along_telegraph(expect: Callable) -> voi
 		_state([enemy]), enemy, enemy.get("intent", {}) as Dictionary,
 		{"destination": enemy.get("pos"), "projected_attack": [Vector2i(4, 3), Vector2i(4, 2), Vector2i(4, 1)]}
 	)
-	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_AREA, "Pattern attacks should use the burst silhouette")
+	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_RANGED, "Pattern attacks should use the ranged scan-level silhouette")
 	expect.call(descriptor.get("target_tile", Vector2i.ZERO) == Vector2i(4, 1), "Pattern compass should point toward the far edge of its telegraph")
 
 
@@ -176,14 +179,20 @@ static func _test_compass_family_tints_preserve_shape_cues(expect: Callable) -> 
 static func _test_compass_emblems_are_contained_and_nondirectional(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	var source: String = board.get_script().source_code
-	var emblem_scale: float = float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_EMBLEM_SCALE", 0.0))
-	expect.call(emblem_scale >= 0.84 and emblem_scale <= 0.92, "Contained emblems should occupy nearly all of the compass interior")
+	var constants: Dictionary = board.get_script().get_script_constant_map()
+	var ring_source_diameter: float = float(constants.get("INTENT_COMPASS_RING_SOURCE_DIAMETER", 0.0))
+	var max_ring_fill: float = float(constants.get("INTENT_COMPASS_EMBLEM_MAX_RING_FILL", 0.0))
+	var underlay_scale: float = float(constants.get("INTENT_COMPASS_UNDERLAY_SCALE", 0.0))
 	expect.call(source.find("EnemyIntentCompass.direction_angle(center") < 0, "Compass rendering should not rotate emblems toward a target")
 	expect.call(source.find("INTENT_COMPASS_ARM_PIVOT") < 0, "Compass rendering should not retain a directional arm pivot")
-	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_AREA, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT, EnemyIntentCompass.FAMILY_MOVEMENT, EnemyIntentCompass.FAMILY_INTENSITY]:
+	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
 		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
 		expect.call(image.get_size() == Vector2i(256, 256), "Compass emblem %s should use the normalized square asset canvas" % family)
 		expect.call(image.detect_alpha(), "Compass emblem %s should preserve transparent margins" % family)
+		var opaque_width: float = float(image.get_used_rect().size.x)
+		var family_scale: float = float(board.call("_intent_compass_emblem_scale", family))
+		var underlay_width: float = opaque_width * family_scale * underlay_scale
+		expect.call(underlay_width <= ring_source_diameter * max_ring_fill, "Compass emblem %s should retain a visible inset inside the ring" % family)
 	board.free()
 
 

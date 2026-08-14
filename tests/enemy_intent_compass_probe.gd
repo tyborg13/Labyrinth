@@ -79,14 +79,21 @@ func _capture(viewport: SubViewport, board: Control, state: Dictionary, presenta
 
 func _verify_layout(board: Control, state: Dictionary) -> void:
 	var tile_width: float = float(board.call("_tile_width"))
-	var ring_diameter: float = tile_width * float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_RING_TILE_SCALE", 0.0))
-	var emblem_scale: float = float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_EMBLEM_SCALE", 0.0))
+	var constants: Dictionary = board.get_script().get_script_constant_map()
+	var ring_diameter: float = tile_width * float(constants.get("INTENT_COMPASS_RING_TILE_SCALE", 0.0))
+	var ring_source_diameter: float = float(constants.get("INTENT_COMPASS_RING_SOURCE_DIAMETER", 0.0))
+	var max_ring_fill: float = float(constants.get("INTENT_COMPASS_EMBLEM_MAX_RING_FILL", 0.0))
+	var underlay_scale: float = float(constants.get("INTENT_COMPASS_UNDERLAY_SCALE", 0.0))
 	_expect(ring_diameter >= tile_width * 0.76 and ring_diameter <= tile_width * 0.82, "Compass ring should be slightly enlarged while spilling only minimally beyond its tile")
-	_expect(emblem_scale >= 0.84 and emblem_scale <= 0.92, "Compass emblem should fill nearly all of the ring without reaching neighboring tiles")
 	_expect(
 		str(board.get_script().source_code).find("draw_texture(base_texture") < str(board.get_script().source_code).find("draw_texture(emblem_texture"),
 		"Compass emblem should render over the circular face"
 	)
+	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
+		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
+		var opaque_width: float = float(image.get_used_rect().size.x)
+		var family_scale: float = float(board.call("_intent_compass_emblem_scale", family))
+		_expect(opaque_width * family_scale * underlay_scale <= ring_source_diameter * max_ring_fill, "%s emblem and underlay should stay visibly inset inside the ring" % family)
 	for enemy_var: Variant in state.get("enemies", []):
 		var enemy: Dictionary = enemy_var as Dictionary
 		var center: Vector2 = board.call("_intent_compass_center", enemy) as Vector2
@@ -133,9 +140,9 @@ func _probe_descriptors() -> Dictionary:
 		"enemy_2": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "ranged", 5, Vector2i(7, 2), Vector2i(5, 4), "Pinning Shot"),
 		"enemy_3": _descriptor(EnemyIntentCompass.FAMILY_DEFENSE, "block", 6, Vector2i(2, 4), Vector2i(1, 4), "Iron Guard"),
 		"enemy_4": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "heal_ally", 4, Vector2i(8, 4), Vector2i(7, 6), "Field Dressing"),
-		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_AREA, "lightning_strikes", 4, Vector2i(3, 6), Vector2i(5, 4), "Forked Storm"),
-		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_MOVEMENT, "move_away", 0, Vector2i(7, 6), Vector2i(8, 5), "Withdraw"),
-		"enemy_7": _descriptor(EnemyIntentCompass.FAMILY_INTENSITY, "intensity", 1, Vector2i(5, 1), Vector2i(6, 2), "Gathering Flame"),
+		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "lightning_strikes", 4, Vector2i(3, 6), Vector2i(5, 4), "Forked Storm"),
+		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_MELEE, "move_away", 0, Vector2i(7, 6), Vector2i(8, 5), "Withdraw"),
+		"enemy_7": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "intensity", 1, Vector2i(5, 1), Vector2i(6, 2), "Gathering Flame"),
 	}
 
 

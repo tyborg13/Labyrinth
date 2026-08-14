@@ -59,7 +59,13 @@ const ENEMY_BAR_FILL: Color = Color("d06752")
 const INTENT_COMPASS_ISOMETRIC_Y_SCALE: float = 0.50
 const INTENT_COMPASS_RING_TILE_SCALE: float = 0.78
 const INTENT_COMPASS_RING_SOURCE_DIAMETER: float = 178.0
-const INTENT_COMPASS_EMBLEM_SCALE: float = 0.88
+const INTENT_COMPASS_EMBLEM_MAX_RING_FILL: float = 0.88
+const INTENT_COMPASS_EMBLEM_SCALES := {
+	EnemyIntentCompass.FAMILY_MELEE: 0.70,
+	EnemyIntentCompass.FAMILY_RANGED: 0.78,
+	EnemyIntentCompass.FAMILY_DEFENSE: 0.86,
+	EnemyIntentCompass.FAMILY_SUPPORT: 0.70,
+}
 const INTENT_COMPASS_UNDERLAY_SCALE: float = 1.075
 const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)
 const INTENT_COMPASS_ATTACK_TINT := Color(1.0, 0.42, 0.38, 0.98)
@@ -4850,14 +4856,14 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	var descriptor: Dictionary = descriptors.get(actor_key, {}) as Dictionary
 	if descriptor.is_empty():
 		return
-	var family: String = str(descriptor.get("family", EnemyIntentCompass.FAMILY_MOVEMENT))
+	var family: String = str(descriptor.get("family", EnemyIntentCompass.FAMILY_MELEE))
 	var base_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path("base"))
 	var emblem_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
 	if base_texture == null or emblem_texture == null:
 		return
 	var center: Vector2 = _intent_compass_center(unit)
 	var scale_factor: float = _tile_width() * INTENT_COMPASS_RING_TILE_SCALE / INTENT_COMPASS_RING_SOURCE_DIAMETER
-	var emblem_scale: float = scale_factor * INTENT_COMPASS_EMBLEM_SCALE
+	var emblem_scale: float = scale_factor * _intent_compass_emblem_scale(family)
 	var emblem_basis_x := Vector2(emblem_scale, 0.0)
 	var emblem_basis_y := Vector2(0.0, emblem_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
 	var base_basis_x := Vector2(scale_factor, 0.0)
@@ -4881,12 +4887,16 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		var hit_size := Vector2(_tile_width() * 0.82, _tile_height() * 0.92)
 		_register_tooltip(Rect2(center - hit_size * 0.5, hit_size), tooltip)
 
+
+func _intent_compass_emblem_scale(family: String) -> float:
+	return float(INTENT_COMPASS_EMBLEM_SCALES.get(family, INTENT_COMPASS_EMBLEM_SCALES[EnemyIntentCompass.FAMILY_MELEE]))
+
 func _intent_compass_center(unit: Dictionary) -> Vector2:
 	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
 	return _tile_center(tile)
 
 func _intent_compass_emblem_tint(family: String) -> Color:
-	if family in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_AREA]:
+	if family in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED]:
 		return INTENT_COMPASS_ATTACK_TINT
 	if family == EnemyIntentCompass.FAMILY_DEFENSE:
 		return INTENT_COMPASS_DEFENSE_TINT
