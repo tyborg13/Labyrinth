@@ -27,9 +27,11 @@ static func _test_action_families_are_distinct(expect: Callable) -> void:
 		EnemyIntentCompass.family_for_action({"type": "move_away"}): true,
 		EnemyIntentCompass.family_for_action({"type": "intensity"}): true,
 	}
-	expect.call(families.size() == 4, "Enemy compass should expose only melee, ranged, defense, and support silhouettes")
-	expect.call(EnemyIntentCompass.family_for_action({"type": "aoe"}) == EnemyIntentCompass.FAMILY_RANGED, "Area attacks should collapse into the ranged scan-level family")
-	expect.call(EnemyIntentCompass.family_for_action({"type": "move_away"}) == EnemyIntentCompass.FAMILY_MELEE, "Movement should collapse into the melee scan-level family")
+	expect.call(families.size() == 3, "Enemy compass should expose only attack, defense, and support silhouettes")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "melee"}) == EnemyIntentCompass.FAMILY_ATTACK, "Melee attacks should use the shared attack family")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "ranged"}) == EnemyIntentCompass.FAMILY_ATTACK, "Ranged attacks should use the shared attack family")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "aoe"}) == EnemyIntentCompass.FAMILY_ATTACK, "Area attacks should use the shared attack family")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "move_away"}) == EnemyIntentCompass.FAMILY_ATTACK, "Movement should collapse into the attack scan-level family")
 	expect.call(EnemyIntentCompass.family_for_action({"type": "intensity"}) == EnemyIntentCompass.FAMILY_SUPPORT, "Intensity setup should collapse into the support scan-level family")
 	for family_var: Variant in families:
 		var path: String = EnemyIntentCompass.texture_path(str(family_var))
@@ -67,7 +69,7 @@ static func _test_compound_intent_uses_primary_attack_summary(expect: Callable) 
 		],
 	})
 	var descriptor: Dictionary = EnemyIntentCompass.descriptor_for_enemy(enemy.get("intent", {}) as Dictionary)
-	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_MELEE, "Compound movement attacks should keep the attack silhouette")
+	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_ATTACK, "Compound movement attacks should keep the attack silhouette")
 	expect.call(int(descriptor.get("value", 0)) == 7, "Attack compasses should retain the primary damage value")
 	expect.call(not descriptor.has("target_tile") and not descriptor.has("direction_reason"), "Scan-level descriptors should not retain obsolete target-direction data")
 
@@ -89,7 +91,7 @@ static func _test_pattern_intent_uses_ranged_summary(expect: Callable) -> void:
 		"actions": [{"type": "lightning_strikes", "damage": 4}],
 	})
 	var descriptor: Dictionary = EnemyIntentCompass.descriptor_for_enemy(enemy.get("intent", {}) as Dictionary)
-	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_RANGED, "Pattern attacks should use the ranged scan-level silhouette")
+	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_ATTACK, "Pattern attacks should use the shared attack silhouette")
 	expect.call(str(descriptor.get("action_type", "")) == "lightning_strikes", "Pattern summary should retain its exact action type for inspection")
 
 
@@ -140,11 +142,10 @@ static func _test_compass_stays_on_logical_tile_center(expect: Callable) -> void
 
 static func _test_compass_family_tints_preserve_shape_cues(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
-	var melee_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_MELEE) as Color
-	var ranged_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_RANGED) as Color
+	var attack_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_ATTACK) as Color
 	var defense_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_DEFENSE) as Color
 	var support_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_SUPPORT) as Color
-	expect.call(melee_tint.r > melee_tint.b and ranged_tint.r > ranged_tint.b, "Attack compass families should use a red filter")
+	expect.call(attack_tint.r > attack_tint.b, "Attack compass family should use a red filter")
 	expect.call(defense_tint.b > defense_tint.r, "Defense compass should use a blue filter")
 	expect.call(is_equal_approx(support_tint.r, support_tint.b), "Support should preserve its authored neutral palette")
 	var underlay_scale: float = float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_UNDERLAY_SCALE", 0.0))
@@ -165,9 +166,10 @@ static func _test_compass_emblems_are_contained_and_nondirectional(expect: Calla
 	expect.call(source.find("INTENT_COMPASS_ARM_PIVOT") < 0, "Compass rendering should not retain a directional arm pivot")
 	expect.call(compass_source.find("direction_angle") < 0 and compass_source.find("direction_reason") < 0 and compass_source.find("target_tile") < 0, "Compass summaries should not retain obsolete direction data")
 	expect.call(run_scene_source.find("enemy_intent_plan(") < 0 and run_scene_source.find("plans_by_enemy_id") < 0, "Compass refresh should not run obsolete enemy path planning")
-	expect.call(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_DEFENSE)) <= 0.55, "Defense emblem should remain substantially smaller than attack emblems")
-	expect.call(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_SUPPORT)) <= 0.55, "Support emblem should remain substantially smaller than attack emblems")
-	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
+	expect.call(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_ATTACK)), 0.70), "Sword emblem should retain its authored attack scale")
+	expect.call(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_DEFENSE)), 0.52), "Defense emblem should retain its smaller authored scale")
+	expect.call(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_SUPPORT)), 0.52), "Support emblem should retain its smaller authored scale")
+	for family: String in [EnemyIntentCompass.FAMILY_ATTACK, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
 		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
 		expect.call(image.get_size() == Vector2i(256, 256), "Compass emblem %s should use the normalized square asset canvas" % family)
 		expect.call(image.detect_alpha(), "Compass emblem %s should preserve transparent margins" % family)

@@ -1,15 +1,13 @@
 extends RefCounted
 class_name EnemyIntentCompass
 
-const FAMILY_MELEE := "melee"
-const FAMILY_RANGED := "ranged"
+const FAMILY_ATTACK := "attack"
 const FAMILY_DEFENSE := "defense"
 const FAMILY_SUPPORT := "support"
 
 const TEXTURE_PATHS := {
 	"base": "res://assets/art/ui/enemy_intent_compass/base.png",
-	FAMILY_MELEE: "res://assets/art/ui/enemy_intent_compass/melee.png",
-	FAMILY_RANGED: "res://assets/art/ui/enemy_intent_compass/ranged.png",
+	FAMILY_ATTACK: "res://assets/art/ui/enemy_intent_compass/melee.png",
 	FAMILY_DEFENSE: "res://assets/art/ui/enemy_intent_compass/defense.png",
 	FAMILY_SUPPORT: "res://assets/art/ui/enemy_intent_compass/support.png",
 }
@@ -59,19 +57,15 @@ static func descriptor_for_enemy(intent: Dictionary) -> Dictionary:
 
 static func family_for_action(action: Dictionary) -> String:
 	var action_type: String = str(action.get("type", ""))
-	if action_type in MELEE_TYPES:
-		return FAMILY_MELEE
-	if action_type in RANGED_TYPES:
-		return FAMILY_RANGED
-	if action_type in AREA_TYPES:
-		return FAMILY_RANGED
+	if action_type in MELEE_TYPES or action_type in RANGED_TYPES or action_type in AREA_TYPES:
+		return FAMILY_ATTACK
 	if action_type in DEFENSE_TYPES:
 		return FAMILY_DEFENSE
 	if action_type in SUPPORT_TYPES:
 		return FAMILY_SUPPORT
 	if action_type in INTENSITY_TYPES:
 		return FAMILY_SUPPORT
-	return FAMILY_MELEE
+	return FAMILY_ATTACK
 
 static func is_supported_action_type(action_type: String) -> bool:
 	return action_type in MELEE_TYPES \
@@ -89,7 +83,7 @@ static func value_for_action(action: Dictionary) -> int:
 	return 0
 
 static func texture_path(family: String) -> String:
-	return str(TEXTURE_PATHS.get(family, TEXTURE_PATHS[FAMILY_MELEE]))
+	return str(TEXTURE_PATHS.get(family, TEXTURE_PATHS[FAMILY_ATTACK]))
 
 static func _primary_action(intent: Dictionary) -> Dictionary:
 	var actions: Array = intent.get("actions", []) as Array

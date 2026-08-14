@@ -89,9 +89,10 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 		str(board.get_script().source_code).find("draw_texture(base_texture") < str(board.get_script().source_code).find("draw_texture(emblem_texture"),
 		"Compass emblem should render over the circular face"
 	)
-	_expect(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_DEFENSE)) <= 0.55, "Shield should read as a smaller symbol inside the ring")
-	_expect(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_SUPPORT)) <= 0.55, "Heart-plus should read as a smaller symbol inside the ring")
-	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
+	_expect(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_ATTACK)), 0.70), "Sword should retain its authored attack scale")
+	_expect(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_DEFENSE)), 0.52), "Shield should retain its smaller authored scale")
+	_expect(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_SUPPORT)), 0.52), "Heart-plus should retain its smaller authored scale")
+	for family: String in [EnemyIntentCompass.FAMILY_ATTACK, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
 		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
 		var opaque_extent: float = float(maxi(image.get_used_rect().size.x, image.get_used_rect().size.y))
 		var family_scale: float = float(board.call("_intent_compass_emblem_scale", family))
@@ -138,12 +139,12 @@ func _probe_state() -> Dictionary:
 
 func _probe_descriptors() -> Dictionary:
 	return {
-		"enemy_1": _descriptor(EnemyIntentCompass.FAMILY_MELEE, "melee", 7),
-		"enemy_2": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "ranged", 5),
+		"enemy_1": _descriptor(EnemyIntentCompass.FAMILY_ATTACK, "melee", 7),
+		"enemy_2": _descriptor(EnemyIntentCompass.FAMILY_ATTACK, "ranged", 5),
 		"enemy_3": _descriptor(EnemyIntentCompass.FAMILY_DEFENSE, "block", 6),
 		"enemy_4": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "heal_ally", 4),
-		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "lightning_strikes", 4),
-		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_MELEE, "move_away", 0),
+		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_ATTACK, "lightning_strikes", 4),
+		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_ATTACK, "move_away", 0),
 		"enemy_7": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "intensity", 1),
 	}
 
@@ -168,7 +169,7 @@ func _large_hidden_presentation() -> Dictionary:
 		"visible_enemy_ids": [70],
 		"reduced_motion": false,
 		"enemy_intent_compasses": {
-			"enemy_70": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "ranged", 8),
+			"enemy_70": _descriptor(EnemyIntentCompass.FAMILY_ATTACK, "ranged", 8),
 		},
 	}
 
