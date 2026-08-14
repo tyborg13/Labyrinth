@@ -63,8 +63,8 @@ const INTENT_COMPASS_EMBLEM_MAX_RING_FILL: float = 0.88
 const INTENT_COMPASS_EMBLEM_SCALES := {
 	EnemyIntentCompass.FAMILY_MELEE: 0.70,
 	EnemyIntentCompass.FAMILY_RANGED: 0.70,
-	EnemyIntentCompass.FAMILY_DEFENSE: 0.70,
-	EnemyIntentCompass.FAMILY_SUPPORT: 0.70,
+	EnemyIntentCompass.FAMILY_DEFENSE: 0.52,
+	EnemyIntentCompass.FAMILY_SUPPORT: 0.52,
 }
 const INTENT_COMPASS_UNDERLAY_SCALE: float = 1.075
 const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)

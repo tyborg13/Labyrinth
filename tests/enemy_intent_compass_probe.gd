@@ -89,6 +89,8 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 		str(board.get_script().source_code).find("draw_texture(base_texture") < str(board.get_script().source_code).find("draw_texture(emblem_texture"),
 		"Compass emblem should render over the circular face"
 	)
+	_expect(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_DEFENSE)) <= 0.55, "Shield should read as a smaller symbol inside the ring")
+	_expect(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_SUPPORT)) <= 0.55, "Heart-plus should read as a smaller symbol inside the ring")
 	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
 		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
 		var opaque_extent: float = float(maxi(image.get_used_rect().size.x, image.get_used_rect().size.y))

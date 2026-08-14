@@ -165,6 +165,8 @@ static func _test_compass_emblems_are_contained_and_nondirectional(expect: Calla
 	expect.call(source.find("INTENT_COMPASS_ARM_PIVOT") < 0, "Compass rendering should not retain a directional arm pivot")
 	expect.call(compass_source.find("direction_angle") < 0 and compass_source.find("direction_reason") < 0 and compass_source.find("target_tile") < 0, "Compass summaries should not retain obsolete direction data")
 	expect.call(run_scene_source.find("enemy_intent_plan(") < 0 and run_scene_source.find("plans_by_enemy_id") < 0, "Compass refresh should not run obsolete enemy path planning")
+	expect.call(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_DEFENSE)) <= 0.55, "Defense emblem should remain substantially smaller than attack emblems")
+	expect.call(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_SUPPORT)) <= 0.55, "Support emblem should remain substantially smaller than attack emblems")
 	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
 		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
 		expect.call(image.get_size() == Vector2i(256, 256), "Compass emblem %s should use the normalized square asset canvas" % family)
