@@ -10088,15 +10088,11 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	if _unit_death_animation_active(unit) and not death_frames.is_empty():
 		return death_frames[_death_frame_index(unit)]
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
-	# A movement override changes only the logical center. Keep drawing from the
-	# same idle sheet while the actor travels so the final tween frame and first
-	# settled frame cannot jump between independently framed source assets.
-	var actor_key: String = str(unit.get("key", ""))
-	var moving_with_world_override: bool = (
-		not actor_key.is_empty()
-		and (presentation.get("unit_world_positions", {}) as Dictionary).has(actor_key)
-	)
-	if not idle_frames.is_empty() and (_unit_idle_animation_active(unit) or moving_with_world_override):
+	# Effect focus pauses retained-layer idle invalidation; it must not swap the
+	# living actor to the independently framed static source. Movement and its
+	# immediate follow-up action must share one sprite geometry or the body appears
+	# to snap away from its tile while the separately drawn HUD stays grounded.
+	if not idle_frames.is_empty():
 		return idle_frames[_idle_frame_index(unit)]
 	return _unit_textures.get(unit_type, null)
 

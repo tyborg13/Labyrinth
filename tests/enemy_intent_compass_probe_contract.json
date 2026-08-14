@@ -3,7 +3,7 @@
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
-      "pattern": "*intent_compass_all_families_1920x1080.png",
+      "pattern": "*intent_emblems_all_families_1920x1080.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -11,17 +11,17 @@
       ]
     },
     {
-      "pattern": "*intent_compass_focused_inspection_1920x1080.png",
+      "pattern": "*intent_emblems_focused_inspection_1920x1080.png",
       "width": 1920,
       "height": 1080
     },
     {
-      "pattern": "*intent_compass_reduced_motion_1920x1080.png",
+      "pattern": "*intent_emblems_reduced_motion_1920x1080.png",
       "width": 1920,
       "height": 1080
     },
     {
-      "pattern": "*intent_compass_dense_board_1920x1080.png",
+      "pattern": "*intent_emblems_dense_board_1920x1080.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "pattern": "*intent_compass_large_hidden_1920x1080.png",
+      "pattern": "*intent_emblems_large_hidden_1920x1080.png",
       "width": 1920,
       "height": 1080,
       "regions": [

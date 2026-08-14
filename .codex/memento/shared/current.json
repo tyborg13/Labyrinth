@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-14T15:13:17Z",
+  "updated_at": "2026-08-14T16:28:06Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8056,7 +8056,7 @@
       }
     },
     {
-      "id": "mnt_20260814T151317Z_182a4b5d",
+      "id": "mnt_20260814T162619Z_e280f847",
       "layer": "shared",
       "kind": "pitfall",
       "scope": {
@@ -8065,16 +8065,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Movement and landing must use the same sprite sheet",
-      "details": "Unit movement uses unit_world_positions only as a center override. If _texture_for_unit falls back to the separately framed static texture while that override is present, the actor reaches the right tile and then visibly jumps when landing re-enables its idle sheet. Movement frames must sample the current idle-sheet frame, and large-enemy sprite anchors must resolve authored footprints from GameData when partial snapshots omit or collapse footprint.",
+      "summary": "Living combat actors must retain one sprite source through movement and effects",
+      "details": "Effect focus pauses retained-layer idle invalidation but must not make _texture_for_unit fall back to separately framed static art. If movement uses an idle-sheet frame and a follow-up attack, block, heal, or support effect swaps to static art, the body visibly snaps away from the tile while the HUD stays grounded. Keep idle-sheet geometry for every living actor state; death animation may still replace it.",
       "status": "active",
-      "created_at": "2026-08-14T15:13:17Z",
-      "updated_at": "2026-08-14T15:13:17Z",
+      "created_at": "2026-08-14T16:26:19Z",
+      "updated_at": "2026-08-14T16:26:19Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260814T151317Z_182a4b5d"
+      ],
       "source": {
         "branch": "codex/implement-production-enemy-intent-compass-revision-3",
-        "commit": "7aecf1d"
+        "commit": "d8576fe"
       }
     }
   ]
