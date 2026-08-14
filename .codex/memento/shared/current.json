@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-14T04:23:56Z",
+  "updated_at": "2026-08-14T04:44:42Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7964,7 +7964,7 @@
       }
     },
     {
-      "id": "mnt_20260814T042356Z_899659bb",
+      "id": "mnt_20260814T044442Z_7bac2f5a",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -7973,18 +7973,18 @@
         "symbol": null
       },
       "scope_key": "folder:assets/placeholders/tiles",
-      "summary": "Elemental floor overlays should use readable broken patches at moderate density",
-      "details": "Use medium-size residue clusters that remain legible at gameplay zoom while leaving most of each decorated tile bare, and render them on about half of existing moss candidate tiles. Avoid both tile-filling hazard fields and infinitesimal specks. Pillars/columns remain established moss in every room; decoration stays purely visual with no terrain, pathing, hazard, intensity, save, or combat effects.",
+      "summary": "Elemental floors use moderately high density with distinct air and lightning silhouettes",
+      "details": "Render non-earth floor accents near seven-elevenths of existing moss candidates. Keep the approved medium ember/ash and snow/frost assets. Air should be clearly noticeable as broad curved pale blue-gray wind curls with dust motes; lightning should be clearly noticeable as bright angular cyan-white forks. Preserve moss columns, current wall behavior, and purely decorative semantics.",
       "status": "active",
-      "created_at": "2026-08-14T04:23:56Z",
-      "updated_at": "2026-08-14T04:23:56Z",
+      "created_at": "2026-08-14T04:44:42Z",
+      "updated_at": "2026-08-14T04:44:42Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260814T040604Z_15a8061a"
+        "mnt_20260814T042356Z_899659bb"
       ],
       "source": {
         "branch": "codex/element-specific-room-tile-overlays",
-        "commit": "b478d0f"
+        "commit": "4b44caf"
       }
     }
   ]
