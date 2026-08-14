@@ -641,6 +641,7 @@
     "accent": "#8aa65f",
     "art_path": "res://assets/art/enemies/grave_surgeon.png",
     "art_scale": 0.98,
+    "art_offset_x": -14.0,
     "idle_sheet_columns": 4,
     "idle_sheet_rows": 4,
     "idle_sheet_order": "row_major",

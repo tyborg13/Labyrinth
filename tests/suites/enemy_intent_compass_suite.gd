@@ -2,6 +2,8 @@ extends RefCounted
 
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
+const RunScene = preload("res://scripts/run_scene.gd")
 
 
 static func run(expect: Callable) -> void:
@@ -15,6 +17,9 @@ static func run(expect: Callable) -> void:
 	_test_compass_stays_on_logical_tile_center(expect)
 	_test_compass_family_tints_preserve_shape_cues(expect)
 	_test_compass_emblems_are_contained_and_nondirectional(expect)
+	_test_compasses_persist_and_refresh_during_enemy_animation(expect)
+	_test_grave_surgeon_footing_is_centered(expect)
+	_test_compass_has_no_inline_number(expect)
 
 
 static func _test_action_families_are_distinct(expect: Callable) -> void:
@@ -178,6 +183,64 @@ static func _test_compass_emblems_are_contained_and_nondirectional(expect: Calla
 		var underlay_extent: float = opaque_extent * family_scale * underlay_scale
 		expect.call(underlay_extent <= ring_source_diameter * max_ring_fill, "Compass emblem %s should retain a visible inset inside the ring on both axes" % family)
 	board.free()
+
+
+static func _test_compasses_persist_and_refresh_during_enemy_animation(expect: Callable) -> void:
+	var combat: RefCounted = CombatEngine.new()
+	var resolved_state: Dictionary = combat.call("create_combat", 8103, {
+		"name": "Intent Refresh Test",
+		"coord": Vector2i(0, 0),
+		"grid": _grid(9, 8),
+		"player_start": Vector2i(2, 4),
+		"enemies": [{
+			"id": 81, "type": "crawler", "pos": Vector2i(5, 4), "hp": 14, "max_hp": 14,
+		}],
+		"traps": [], "loot": [], "terrain": [], "moss": {},
+	}, {
+		"hp": 24, "max_hp": 24, "deck_cards": [], "hand_size": 0,
+	}) as Dictionary
+	var acting_enemy: Dictionary = ((resolved_state.get("enemies", []) as Array)[0] as Dictionary).duplicate(true)
+	acting_enemy["intent"] = {
+		"id": "old_attack",
+		"name": "Old Attack",
+		"time": 1,
+		"actions": [{"type": "melee", "damage": 1, "range": 1}],
+	}
+	(resolved_state.get("enemies", []) as Array)[0] = acting_enemy
+	var animated_state: Dictionary = resolved_state.duplicate(true)
+	var turn_result: Dictionary = combat.call("resolve_enemy_turn_with_steps", resolved_state, 0, true) as Dictionary
+	var final_state: Dictionary = turn_result.get("state", {}) as Dictionary
+	var next_intent: Dictionary = (((final_state.get("enemies", []) as Array)[0] as Dictionary).get("intent", {}) as Dictionary)
+	var refresh_step: Dictionary = {}
+	for step_var: Variant in turn_result.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("kind", "")) == "intent_refresh":
+			refresh_step = step_var as Dictionary
+	expect.call(str(refresh_step.get("kind", "")) == "intent_refresh", "A living enemy should emit a post-turn intent refresh step")
+	expect.call((refresh_step.get("intent", {}) as Dictionary) == next_intent, "The refresh step should carry the newly assigned intent from the completed enemy turn")
+	var scene: Node = RunScene.new()
+	scene.call("_apply_animation_step", animated_state, refresh_step)
+	expect.call(
+		((((animated_state.get("enemies", []) as Array)[0] as Dictionary).get("intent", {}) as Dictionary) == next_intent),
+		"Applying the post-turn step should replace that enemy's visible compass intent immediately"
+	)
+	var run_scene_source: String = FileAccess.get_file_as_string("res://scripts/run_scene.gd")
+	expect.call(
+		run_scene_source.find("rendered_presentation[\"enemy_intent_compasses\"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)") >= 0,
+		"Every animation render should repopulate visible enemy compasses instead of dropping them until the player turn"
+	)
+	scene.free()
+
+
+static func _test_grave_surgeon_footing_is_centered(expect: Callable) -> void:
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
+	var surgeon: Dictionary = ((parsed as Dictionary).get("grave_surgeon", {}) as Dictionary) if typeof(parsed) == TYPE_DICTIONARY else {}
+	expect.call(is_equal_approx(float(surgeon.get("art_offset_x", 0.0)), -14.0), "Grave Surgeon art should shift left so its feet sit over the tile-centered compass")
+
+
+static func _test_compass_has_no_inline_number(expect: Callable) -> void:
+	var source: String = FileAccess.get_file_as_string("res://scripts/combat_board_view.gd")
+	expect.call(source.find("_draw_enemy_intent_compass_value") < 0, "Compass rendering should not draw an unreadable inline action number")
+	expect.call(source.find("INTENT_COMPASS_VALUE_FONT_SIZE") < 0, "Compass rendering should not retain number-only typography")
 
 
 static func _state(enemies: Array) -> Dictionary:

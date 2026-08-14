@@ -69,7 +69,6 @@ const INTENT_COMPASS_UNDERLAY_SCALE: float = 1.075
 const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)
 const INTENT_COMPASS_ATTACK_TINT := Color(1.0, 0.42, 0.38, 0.98)
 const INTENT_COMPASS_DEFENSE_TINT := Color(0.50, 0.74, 1.0, 0.98)
-const INTENT_COMPASS_VALUE_FONT_SIZE: int = 14
 const TERRAIN_BAR_FILL: Color = Color("d9b84f")
 const STATUS_BURN: Color = Color("f28a42")
 const STATUS_BLEED: Color = Color("b84646")
@@ -4876,7 +4875,6 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	draw_set_transform_matrix(Transform2D(emblem_basis_x, emblem_basis_y, center))
 	draw_texture(emblem_texture, -emblem_texture.get_size() * 0.5, _intent_compass_emblem_tint(family))
 	draw_set_transform_matrix(Transform2D.IDENTITY)
-	_draw_enemy_intent_compass_value(center, int(descriptor.get("value", 0)), family)
 	var intent: Dictionary = unit.get("intent", {}) as Dictionary
 	var tooltip: String = _intent_display_name(intent)
 	var lines: PackedStringArray = _intent_lines(intent)
@@ -4900,20 +4898,6 @@ func _intent_compass_emblem_tint(family: String) -> Color:
 	if family == EnemyIntentCompass.FAMILY_DEFENSE:
 		return INTENT_COMPASS_DEFENSE_TINT
 	return Color(1.0, 1.0, 1.0, 0.96)
-
-func _draw_enemy_intent_compass_value(center: Vector2, value: int, family: String) -> void:
-	if value <= 0:
-		return
-	var font: Font = get_theme_default_font()
-	if font == null:
-		return
-	var text: String = str(value)
-	var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE).x
-	var baseline: Vector2 = center + Vector2(_tile_width() * 0.18 - width * 0.5, 5.0)
-	var value_color: Color = _intent_compass_emblem_tint(family)
-	value_color.a = 1.0
-	draw_string(font, baseline + Vector2(1.0, 2.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, Color(0.03, 0.02, 0.01, 0.94))
-	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, value_color)
 
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	if not _hud_layout_entries_cache.is_empty():

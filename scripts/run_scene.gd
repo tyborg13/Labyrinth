@@ -18701,6 +18701,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					"focus_color": Color(0.95, 0.62, 0.37, 0.18)
 				})
 				await get_tree().create_timer(0.20).timeout
+			"intent_refresh":
+				_apply_animation_step(animated_state, step)
+				_render_board_state(animated_state, {})
 			"move":
 				await _animate_move_step(animated_state, step)
 			"block", "heal", "stoneskin", "status", "status_damage", "intensity":
@@ -19091,6 +19094,8 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
+	var visible_enemy_ids: Array = rendered_presentation.get("visible_enemy_ids", []) as Array
+	rendered_presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	rendered_presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	var objective: Dictionary = display_state.get("objective", {}) as Dictionary
@@ -19181,6 +19186,12 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 			if not snapshot.is_empty():
 				animated_state.clear()
 				animated_state.merge(snapshot.duplicate(true), true)
+		"intent_refresh":
+			_set_enemy_intent_by_key(
+				animated_state,
+				str(step.get("actor_key", "")),
+				step.get("intent", {}) as Dictionary
+			)
 		"move":
 			_set_enemy_pos_by_key(animated_state, str(step.get("actor_key", "")), step.get("to", Vector2i.ZERO))
 			_apply_actor_losses(animated_state, step.get("target_losses", []))
@@ -19528,6 +19539,15 @@ func _set_enemy_snapshot_by_key(state: Dictionary, actor_key: String, snapshot: 
 		if _enemy_key(enemy) != actor_key:
 			continue
 		(state.get("enemies", []) as Array)[enemy_index] = snapshot.duplicate(true)
+		return
+
+func _set_enemy_intent_by_key(state: Dictionary, actor_key: String, intent: Dictionary) -> void:
+	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+		if _enemy_key(enemy) != actor_key:
+			continue
+		enemy["intent"] = intent.duplicate(true)
+		(state.get("enemies", []) as Array)[enemy_index] = enemy
 		return
 
 func _add_enemy_block_by_key(state: Dictionary, actor_key: String, amount: int) -> void:

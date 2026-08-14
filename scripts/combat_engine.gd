@@ -1981,6 +1981,9 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		next_state["rng_state"] = rng.state
 		if include_commit_steps:
 			_append_commit_step(steps, before_skip_resolution, next_state, "enemy_turn_complete")
+		var skip_refresh_step: Dictionary = _enemy_intent_refresh_step(next_state, int(enemy.get("id", -1)))
+		if not skip_refresh_step.is_empty():
+			steps.append(skip_refresh_step)
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	var shocked: bool = bool(turn_setup.get("shocked", false))
 	var immobilized: bool = bool(turn_setup.get("immobilized", false))
@@ -2030,6 +2033,9 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	next_state["rng_state"] = rng.state
 	if include_commit_steps:
 		_append_commit_step(steps, before_turn_complete, next_state, "enemy_turn_complete")
+	var refresh_step: Dictionary = _enemy_intent_refresh_step(next_state, int(enemy.get("id", -1)))
+	if not refresh_step.is_empty():
+		steps.append(refresh_step)
 	return {
 		"state": next_state,
 		"steps": steps,
@@ -2526,6 +2532,22 @@ func _enemy_intent_step_for_player(state: Dictionary, enemy: Dictionary, intent:
 		"tile": Vector2i(-1, -1) if hidden else enemy.get("pos", Vector2i.ZERO),
 		"intent_name": "Hidden Intent" if hidden else str(intent.get("name", "Action")),
 		"hidden_by_umbra": hidden
+	}
+
+func _enemy_intent_refresh_step(state: Dictionary, enemy_id: int) -> Dictionary:
+	var enemy_index: int = _enemy_index_for_id(state, enemy_id)
+	if enemy_index < 0:
+		return {}
+	var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+	if int(enemy.get("hp", 0)) <= 0:
+		return {}
+	var intent: Dictionary = enemy.get("intent", {}) as Dictionary
+	if intent.is_empty():
+		return {}
+	return {
+		"kind": "intent_refresh",
+		"actor_key": _enemy_key(enemy),
+		"intent": intent.duplicate(true),
 	}
 
 func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dictionary, step: Dictionary, enemy_id: int) -> Dictionary:

@@ -38,6 +38,16 @@ func _initialize() -> void:
 		"enemy_intent_compasses": _probe_descriptors(),
 	}
 	await _capture(viewport, board, state, presentation, "intent_emblems_all_families_1920x1080.png")
+	await _capture(viewport, board, state, presentation, "intent_emblems_enemy_turn_before_refresh_1920x1080.png")
+	var refreshed_state: Dictionary = state.duplicate(true)
+	for enemy_var: Variant in refreshed_state.get("enemies", []):
+		var refreshed_enemy: Dictionary = enemy_var as Dictionary
+		if int(refreshed_enemy.get("id", -1)) != 2:
+			continue
+		refreshed_enemy["intent"] = {"name": "Quick Guard", "actions": [{"type": "block", "amount": 5}]}
+	var refreshed_presentation: Dictionary = presentation.duplicate(true)
+	(refreshed_presentation.get("enemy_intent_compasses", {}) as Dictionary)["enemy_2"] = _descriptor(EnemyIntentCompass.FAMILY_DEFENSE, "block", 5)
+	await _capture(viewport, board, refreshed_state, refreshed_presentation, "intent_emblems_enemy_turn_after_refresh_1920x1080.png")
 	var inspected: Dictionary = presentation.duplicate(true)
 	inspected["expanded_enemy_actor_keys"] = ["enemy_2"]
 	await _capture(viewport, board, state, inspected, "intent_emblems_focused_inspection_1920x1080.png")
@@ -92,6 +102,7 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 	_expect(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_ATTACK)), 0.70), "Sword should retain its authored attack scale")
 	_expect(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_DEFENSE)), 0.52), "Shield should retain its smaller authored scale")
 	_expect(is_equal_approx(float(board.call("_intent_compass_emblem_scale", EnemyIntentCompass.FAMILY_SUPPORT)), 0.52), "Heart-plus should retain its smaller authored scale")
+	_expect(str(board.get_script().source_code).find("_draw_enemy_intent_compass_value") < 0, "Compass should not render the removed inline number")
 	for family: String in [EnemyIntentCompass.FAMILY_ATTACK, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
 		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
 		var opaque_extent: float = float(maxi(image.get_used_rect().size.x, image.get_used_rect().size.y))

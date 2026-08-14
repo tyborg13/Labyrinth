@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-14T04:56:02Z",
+  "updated_at": "2026-08-14T13:02:05Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7985,6 +7985,28 @@
       "source": {
         "branch": "codex/implement-production-enemy-intent-compass-revision-3",
         "commit": "b07f7c9"
+      }
+    },
+    {
+      "id": "mnt_20260814T130205Z_5e1dce26",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Enemy intent compasses persist through resolution without inline values",
+      "details": "Keep every visible living enemy compass on the board throughout enemy-turn animation. After an enemy finishes its activation and receives its next intent, update that enemy compass immediately before continuing the turn-order transition; do not wait for the next player turn. The floor compass shows only the attack, defense, or support silhouette\u2014numeric identity/order/value belongs elsewhere if it returns.",
+      "status": "active",
+      "created_at": "2026-08-14T13:02:05Z",
+      "updated_at": "2026-08-14T13:02:05Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-production-enemy-intent-compass-revision-3",
+        "commit": "e56dfdf"
       }
     }
   ]
