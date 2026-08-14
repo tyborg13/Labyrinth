@@ -33,7 +33,7 @@ func _initialize() -> void:
 	var state: Dictionary = _probe_state()
 	var presentation: Dictionary = {
 		"board_framing_mode": "combat",
-		"visible_enemy_ids": [1, 2, 3, 4, 5, 6],
+		"visible_enemy_ids": [1, 2, 3, 4, 5, 6, 7],
 		"reduced_motion": false,
 		"enemy_intent_compasses": _probe_descriptors(),
 	}
@@ -113,6 +113,7 @@ func _probe_state() -> Dictionary:
 			_enemy(4, "grave_surgeon", Vector2i(8, 4), "Field Dressing", [{"type": "heal_ally", "amount": 4, "range": 4}]),
 			_enemy(5, "lightning_wisp", Vector2i(3, 6), "Forked Storm", [{"type": "lightning_strikes", "damage": 4}]),
 			_enemy(6, "crawler", Vector2i(7, 6), "Withdraw", [{"type": "move_away", "range": 3}]),
+			_enemy(7, "cinder_ooze", Vector2i(5, 1), "Gathering Flame", [{"type": "intensity", "amount": 1}]),
 		],
 		"illusions": [], "npcs": [], "loot": [], "terrain": [], "traps": [],
 		"player_turn_restrictions": {},
@@ -127,6 +128,7 @@ func _probe_descriptors() -> Dictionary:
 		"enemy_4": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "heal_ally", 4, Vector2i(8, 4), Vector2i(7, 6), "Field Dressing"),
 		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_AREA, "lightning_strikes", 4, Vector2i(3, 6), Vector2i(5, 4), "Forked Storm"),
 		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_MOVEMENT, "move_away", 0, Vector2i(7, 6), Vector2i(8, 5), "Withdraw"),
+		"enemy_7": _descriptor(EnemyIntentCompass.FAMILY_INTENSITY, "intensity", 1, Vector2i(5, 1), Vector2i(6, 2), "Gathering Flame"),
 	}
 
 

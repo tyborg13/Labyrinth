@@ -6,6 +6,7 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 
 static func run(expect: Callable) -> void:
 	_test_action_families_are_distinct(expect)
+	_test_live_enemy_actions_have_authored_families(expect)
 	_test_compound_intent_points_primary_attack_from_destination(expect)
 	_test_support_intents_point_to_exact_ally(expect)
 	_test_pattern_intent_points_along_telegraph(expect)
@@ -23,11 +24,34 @@ static func _test_action_families_are_distinct(expect: Callable) -> void:
 		EnemyIntentCompass.family_for_action({"type": "block"}): true,
 		EnemyIntentCompass.family_for_action({"type": "heal_ally"}): true,
 		EnemyIntentCompass.family_for_action({"type": "move_away"}): true,
+		EnemyIntentCompass.family_for_action({"type": "intensity"}): true,
 	}
-	expect.call(families.size() == 6, "Enemy compass should preserve six distinct action silhouettes")
+	expect.call(families.size() == 7, "Enemy compass should preserve seven distinct action silhouettes")
 	for family_var: Variant in families:
 		var path: String = EnemyIntentCompass.texture_path(str(family_var))
 		expect.call(ResourceLoader.exists(path), "Enemy compass family %s should have authored raster art" % str(family_var))
+
+
+static func _test_live_enemy_actions_have_authored_families(expect: Callable) -> void:
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
+	expect.call(typeof(parsed) == TYPE_DICTIONARY, "Enemy data should parse for intent-family coverage")
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return
+	var seen_types: Dictionary = {}
+	for enemy_var: Variant in (parsed as Dictionary).values():
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		for intent_var: Variant in (enemy_var as Dictionary).get("intents", []):
+			if typeof(intent_var) != TYPE_DICTIONARY:
+				continue
+			for action_var: Variant in (intent_var as Dictionary).get("actions", []):
+				if typeof(action_var) != TYPE_DICTIONARY:
+					continue
+				var action_type: String = str((action_var as Dictionary).get("type", ""))
+				seen_types[action_type] = true
+				expect.call(EnemyIntentCompass.is_supported_action_type(action_type), "Live enemy action %s should have an authored compass family" % action_type)
+	expect.call(seen_types.has("intensity"), "Live enemy data should exercise the dedicated intensity compass family")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "intensity"}) == EnemyIntentCompass.FAMILY_INTENSITY, "Intensity should never fall back to the movement silhouette")
 
 
 static func _test_compound_intent_points_primary_attack_from_destination(expect: Callable) -> void:

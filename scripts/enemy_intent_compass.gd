@@ -9,6 +9,7 @@ const FAMILY_AREA := "area"
 const FAMILY_DEFENSE := "defense"
 const FAMILY_SUPPORT := "support"
 const FAMILY_MOVEMENT := "movement"
+const FAMILY_INTENSITY := "intensity"
 
 const TEXTURE_PATHS := {
 	"base": "res://assets/art/ui/enemy_intent_compass/base.png",
@@ -18,6 +19,7 @@ const TEXTURE_PATHS := {
 	FAMILY_DEFENSE: "res://assets/art/ui/enemy_intent_compass/defense.png",
 	FAMILY_SUPPORT: "res://assets/art/ui/enemy_intent_compass/support.png",
 	FAMILY_MOVEMENT: "res://assets/art/ui/enemy_intent_compass/movement.png",
+	FAMILY_INTENSITY: "res://assets/art/ui/enemy_intent_compass/intensity.png",
 }
 
 const MELEE_TYPES := ["melee", "pull"]
@@ -29,6 +31,7 @@ const AREA_TYPES := [
 const DEFENSE_TYPES := ["block", "frost_armor", "guard_ally", "stoneskin"]
 const SUPPORT_TYPES := ["heal_ally", "heal_self", "raise_terrain", "summon_minions"]
 const MOVEMENT_TYPES := ["move_away", "move_toward"]
+const INTENSITY_TYPES := ["intensity"]
 
 static func descriptors_for_state(state: Dictionary, plans_by_enemy_id: Dictionary, visible_enemy_ids: Array = []) -> Dictionary:
 	var result: Dictionary = {}
@@ -65,7 +68,10 @@ static func descriptor_for_enemy(state: Dictionary, enemy: Dictionary, intent: D
 		target_tile = destination
 		direction_reason = "movement"
 	else:
-		if family == FAMILY_SUPPORT or action_type == "guard_ally":
+		if family == FAMILY_INTENSITY:
+			target_tile = origin + Vector2i(1, 1)
+			direction_reason = "self"
+		elif family == FAMILY_SUPPORT or action_type == "guard_ally":
 			target_tile = plan.get("support_target_tile", INVALID_TILE)
 			if target_tile == INVALID_TILE:
 				target_tile = _support_target_tile(state, enemy, primary_action)
@@ -109,7 +115,18 @@ static func family_for_action(action: Dictionary) -> String:
 		return FAMILY_DEFENSE
 	if action_type in SUPPORT_TYPES:
 		return FAMILY_SUPPORT
+	if action_type in INTENSITY_TYPES:
+		return FAMILY_INTENSITY
 	return FAMILY_MOVEMENT
+
+static func is_supported_action_type(action_type: String) -> bool:
+	return action_type in MELEE_TYPES \
+		or action_type in RANGED_TYPES \
+		or action_type in AREA_TYPES \
+		or action_type in DEFENSE_TYPES \
+		or action_type in SUPPORT_TYPES \
+		or action_type in MOVEMENT_TYPES \
+		or action_type in INTENSITY_TYPES
 
 static func value_for_action(action: Dictionary) -> int:
 	for key: String in ["damage", "amount", "count"]:
@@ -129,7 +146,7 @@ static func direction_angle(origin_world: Vector2, target_world: Vector2, isomet
 
 static func _primary_action(intent: Dictionary) -> Dictionary:
 	var actions: Array = intent.get("actions", []) as Array
-	for families: Array in [AREA_TYPES, RANGED_TYPES, MELEE_TYPES, DEFENSE_TYPES, SUPPORT_TYPES, MOVEMENT_TYPES]:
+	for families: Array in [AREA_TYPES, RANGED_TYPES, MELEE_TYPES, INTENSITY_TYPES, DEFENSE_TYPES, SUPPORT_TYPES, MOVEMENT_TYPES]:
 		for action_var: Variant in actions:
 			if typeof(action_var) != TYPE_DICTIONARY:
 				continue

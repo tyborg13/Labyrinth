@@ -1434,7 +1434,7 @@ func _queue_presentation_change_redraws(
 				hud_changed = true
 			"enemy_intent_compasses":
 				for unit: Dictionary in _visible_units():
-					if not bool(unit.get("is_player", false)):
+					if str(unit.get("role", "")) == "enemy":
 						_queue_scene_render_layer_for_tile(_effective_unit_tile(unit))
 			_:
 				# Unclassified presentation state remains conservative. The retained
