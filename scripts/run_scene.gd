@@ -19803,13 +19803,21 @@ func _destroyed_terrain_units_between_states(before_state: Dictionary, after_sta
 	return destroyed
 
 func _enemy_footprint_for_animation(enemy: Dictionary, definition: Dictionary) -> Vector2i:
-	var footprint_value: Variant = enemy.get("footprint", Vector2i.ONE)
-	if typeof(footprint_value) == TYPE_VECTOR2I:
-		return footprint_value
 	var definition_value: Variant = definition.get("footprint", [])
+	var definition_footprint := Vector2i.ONE
 	if typeof(definition_value) == TYPE_ARRAY and (definition_value as Array).size() >= 2:
-		return Vector2i(int((definition_value as Array)[0]), int((definition_value as Array)[1]))
-	return Vector2i.ONE
+		definition_footprint = Vector2i(
+			maxi(1, int((definition_value as Array)[0])),
+			maxi(1, int((definition_value as Array)[1]))
+		)
+	var footprint_value: Variant = enemy.get("footprint", Vector2i.ONE)
+	if typeof(footprint_value) != TYPE_VECTOR2I:
+		return definition_footprint
+	var state_footprint: Vector2i = footprint_value as Vector2i
+	return Vector2i(
+		maxi(maxi(1, state_footprint.x), definition_footprint.x),
+		maxi(maxi(1, state_footprint.y), definition_footprint.y)
+	)
 
 func _clear_enemy_blocks(state: Dictionary) -> void:
 	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
@@ -19825,7 +19833,12 @@ func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
 			continue
 		var enemy: Dictionary = enemy_var as Dictionary
 		if _enemy_key(enemy) == actor_key:
-			return enemy.duplicate(true)
+			var actor_enemy: Dictionary = enemy.duplicate(true)
+			actor_enemy["footprint"] = _enemy_footprint_for_animation(
+				actor_enemy,
+				GameData.enemy_def(str(actor_enemy.get("type", "")))
+			)
+			return actor_enemy
 	for illusion_var: Variant in state.get("illusions", []):
 		if typeof(illusion_var) != TYPE_DICTIONARY:
 			continue

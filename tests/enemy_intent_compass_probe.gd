@@ -79,9 +79,21 @@ func _initialize() -> void:
 		board.call("draw_tile_for_unit_origin", moving_boss, Vector2i(5, 2)),
 		Vector2i(5, 2)
 	) as Dictionary
-	run_scene.free()
 	await _capture(viewport, board, boss_attack_state, boss_midmove_presentation, "intent_boss_attack_mid_move_1920x1080.png")
-	var boss_support_state: Dictionary = boss_attack_state.duplicate(true)
+	var footprintless_move_state: Dictionary = boss_attack_state.duplicate(true)
+	((footprintless_move_state.get("enemies", []) as Array)[0] as Dictionary).erase("footprint")
+	var recovered_moving_boss: Dictionary = run_scene.call("_animation_actor_unit", footprintless_move_state, "enemy_70") as Dictionary
+	var recovered_move_to: Vector2 = board.call("world_position_for_unit_origin", recovered_moving_boss, Vector2i(5, 2)) as Vector2
+	var boss_final_move_presentation: Dictionary = run_scene.call(
+		"_movement_actor_frame_presentation",
+		boss_attack_presentation,
+		"enemy_70",
+		recovered_move_to,
+		board.call("draw_tile_for_unit_origin", recovered_moving_boss, Vector2i(5, 2)),
+		Vector2i(5, 2)
+	) as Dictionary
+	await _capture(viewport, board, footprintless_move_state, boss_final_move_presentation, "intent_boss_final_move_frame_1920x1080.png")
+	var boss_support_state: Dictionary = footprintless_move_state.duplicate(true)
 	var refreshed_boss: Dictionary = ((boss_support_state.get("enemies", []) as Array)[0] as Dictionary)
 	refreshed_boss["pos"] = Vector2i(5, 2)
 	refreshed_boss["intent"] = {
@@ -91,6 +103,7 @@ func _initialize() -> void:
 	var boss_support_presentation: Dictionary = boss_attack_presentation.duplicate(true)
 	(boss_support_presentation.get("enemy_intent_compasses", {}) as Dictionary)["enemy_70"] = _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "summon_minions", 2)
 	await _capture(viewport, board, boss_support_state, boss_support_presentation, "intent_boss_call_wisps_after_refresh_1920x1080.png")
+	run_scene.free()
 
 	_verify_layout(board, state)
 	_verify_reduced_motion_equivalence(board, state, presentation)

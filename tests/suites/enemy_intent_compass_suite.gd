@@ -18,6 +18,7 @@ static func run(expect: Callable) -> void:
 	_test_compass_family_tints_preserve_shape_cues(expect)
 	_test_compass_emblems_are_contained_and_nondirectional(expect)
 	_test_compasses_persist_and_refresh_during_enemy_animation(expect)
+	_test_movement_landing_keeps_the_idle_sprite_source(expect)
 	_test_grave_surgeon_footing_is_centered(expect)
 	_test_compass_has_no_inline_number(expect)
 
@@ -163,6 +164,7 @@ static func _test_compass_stays_on_logical_tile_center(expect: Callable) -> void
 	for refreshed_boss: Dictionary in [refreshed_boss_without_footprint, refreshed_boss_with_default_footprint]:
 		expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", refreshed_boss)), 2.0), "Zekarion refresh snapshots should recover the authored 2x2 footprint")
 		expect.call((board.call("_intent_compass_center", refreshed_boss) as Vector2).is_equal_approx(refreshed_expected), "Zekarion support refresh should remain centered on all four footprint tiles")
+		expect.call((board.call("world_position_for_unit_origin", refreshed_boss, Vector2i(3, 2)) as Vector2).is_equal_approx(refreshed_expected), "The sprite anchor should recover the same authored 2x2 footprint as the compass")
 	var moved_boss: Dictionary = large_enemy.duplicate(true)
 	moved_boss["type"] = "zekarion"
 	moved_boss["pos"] = Vector2i(4, 2)
@@ -170,6 +172,12 @@ static func _test_compass_stays_on_logical_tile_center(expect: Callable) -> void
 	var moved_expected: Vector2 = board.call("world_position_for_unit_origin", moved_boss, Vector2i(4, 2)) as Vector2
 	expect.call((board.call("_intent_compass_center", moved_boss) as Vector2).is_equal_approx(moved_expected), "A moved boss's support compass should follow the full new footprint, not its top-left origin tile")
 	expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", moved_boss)), 2.0), "A moved boss's support compass should retain its four-tile scale")
+	var scene := RunScene.new()
+	var movement_snapshot: Dictionary = moved_boss.duplicate(true)
+	movement_snapshot.erase("footprint")
+	var recovered_actor: Dictionary = scene.call("_animation_actor_unit", {"enemies": [movement_snapshot]}, "enemy_61") as Dictionary
+	expect.call(recovered_actor.get("footprint", Vector2i.ONE) == Vector2i(2, 2), "Movement interpolation should recover a large actor's authored footprint before calculating its path centers")
+	scene.free()
 	board.free()
 
 
@@ -271,6 +279,28 @@ static func _test_compasses_persist_and_refresh_during_enemy_animation(expect: C
 	expect.call((movement_presentation.get("unit_world_positions", {}) as Dictionary).get("enemy_81") == Vector2(480.0, 320.0), "Movement frames should move the actor sprite to the interpolated center")
 	expect.call((movement_presentation.get("unit_footprint_world_positions", {}) as Dictionary).get("enemy_81") == Vector2(480.0, 320.0), "Movement frames should move the floor compass to that same full-footprint center")
 	scene.free()
+
+
+static func _test_movement_landing_keeps_the_idle_sprite_source(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	board.size = Vector2(1920.0, 1080.0)
+	board.combat_state = {"grid": _grid(11, 9)}
+	board.call("_ensure_unit_assets_for_type", "zekarion")
+	var unit: Dictionary = {
+		"key": "enemy_91", "role": "enemy", "id": 91, "type": "zekarion",
+		"pos": Vector2i(3, 2), "footprint": Vector2i(2, 2), "hp": 60, "max_hp": 60,
+	}
+	board.set("_idle_elapsed", 0.0)
+	var idle_frames: Array = board.call("_unit_idle_frames", unit) as Array
+	expect.call(not idle_frames.is_empty(), "Zekarion should expose its authored idle frames for landing continuity")
+	if not idle_frames.is_empty():
+		board.presentation = {"unit_world_positions": {"enemy_91": Vector2(720.0, 420.0)}}
+		var moving_texture: Texture2D = board.call("_texture_for_unit", unit) as Texture2D
+		board.presentation = {}
+		var landed_texture: Texture2D = board.call("_texture_for_unit", unit) as Texture2D
+		expect.call(moving_texture == idle_frames[0], "The final movement frame should use the authored idle sheet rather than the separately framed static texture")
+		expect.call(landed_texture == moving_texture, "The first landed frame should retain the exact same grounded sprite source as the final movement frame")
+	board.free()
 
 
 static func _test_grave_surgeon_footing_is_centered(expect: Callable) -> void:

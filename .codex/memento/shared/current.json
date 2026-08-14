@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-14T14:43:04Z",
+  "updated_at": "2026-08-14T15:13:17Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8053,6 +8053,28 @@
       "source": {
         "branch": "codex/implement-production-enemy-intent-compass-revision-3",
         "commit": "71e93d7"
+      }
+    },
+    {
+      "id": "mnt_20260814T151317Z_182a4b5d",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Movement and landing must use the same sprite sheet",
+      "details": "Unit movement uses unit_world_positions only as a center override. If _texture_for_unit falls back to the separately framed static texture while that override is present, the actor reaches the right tile and then visibly jumps when landing re-enables its idle sheet. Movement frames must sample the current idle-sheet frame, and large-enemy sprite anchors must resolve authored footprints from GameData when partial snapshots omit or collapse footprint.",
+      "status": "active",
+      "created_at": "2026-08-14T15:13:17Z",
+      "updated_at": "2026-08-14T15:13:17Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-production-enemy-intent-compass-revision-3",
+        "commit": "7aecf1d"
       }
     }
   ]

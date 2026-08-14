@@ -4721,7 +4721,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			continue
 		if filter_enemies_for_umbra and not visible_enemy_ids.has(int(enemy.get("id", -1))):
 			continue
-		units_to_draw.append({
+		var enemy_unit: Dictionary = {
 			"key": "enemy_%d" % int(enemy.get("id", -1)),
 			"role": "enemy",
 			"id": int(enemy.get("id", -1)),
@@ -4743,7 +4743,12 @@ func _build_visible_units() -> Array[Dictionary]:
 			"shock": int(enemy.get("shock", 0)),
 			"immobilize": bool(enemy.get("immobilize", false)),
 			"poison": enemy.get("poison", {}).duplicate(true)
-		})
+		}
+		# Older saves and partial animation snapshots can omit an authored large
+		# footprint (or transiently collapse it to 1x1). Resolve it before any
+		# sprite, shadow, HUD, depth, or compass anchoring consumes the unit.
+		enemy_unit["footprint"] = _resolved_unit_footprint(enemy_unit)
+		units_to_draw.append(enemy_unit)
 	units_to_draw.append_array(_death_animation_units_from_presentation())
 	for npc_index: int in range((combat_state.get("npcs", []) as Array).size()):
 		var npc: Dictionary = (combat_state.get("npcs", []) as Array)[npc_index]
@@ -4901,15 +4906,13 @@ func _intent_compass_center(unit: Dictionary) -> Vector2:
 	if typeof(movement_center) == TYPE_VECTOR2:
 		return movement_center as Vector2
 	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
-	var anchored_unit: Dictionary = unit.duplicate(false)
-	anchored_unit["footprint"] = _intent_compass_footprint(unit)
-	return world_position_for_unit_origin(anchored_unit, tile)
+	return world_position_for_unit_origin(unit, tile)
 
 func _intent_compass_footprint_scale(unit: Dictionary) -> float:
-	var footprint: Vector2i = _intent_compass_footprint(unit)
+	var footprint: Vector2i = _resolved_unit_footprint(unit)
 	return float(maxi(maxi(1, footprint.x), maxi(1, footprint.y)))
 
-func _intent_compass_footprint(unit: Dictionary) -> Vector2i:
+func _resolved_unit_footprint(unit: Dictionary) -> Vector2i:
 	var state_footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
 	state_footprint = Vector2i(maxi(1, state_footprint.x), maxi(1, state_footprint.y))
 	var definition: Dictionary = GameData.enemy_def(str(unit.get("type", "")))
@@ -10085,7 +10088,15 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	if _unit_death_animation_active(unit) and not death_frames.is_empty():
 		return death_frames[_death_frame_index(unit)]
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
-	if _unit_idle_animation_active(unit) and not idle_frames.is_empty():
+	# A movement override changes only the logical center. Keep drawing from the
+	# same idle sheet while the actor travels so the final tween frame and first
+	# settled frame cannot jump between independently framed source assets.
+	var actor_key: String = str(unit.get("key", ""))
+	var moving_with_world_override: bool = (
+		not actor_key.is_empty()
+		and (presentation.get("unit_world_positions", {}) as Dictionary).has(actor_key)
+	)
+	if not idle_frames.is_empty() and (_unit_idle_animation_active(unit) or moving_with_world_override):
 		return idle_frames[_idle_frame_index(unit)]
 	return _unit_textures.get(unit_type, null)
 
@@ -10587,7 +10598,7 @@ func world_position_for_tile(tile: Vector2i) -> Vector2:
 	return _tile_center(tile)
 
 func world_position_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vector2:
-	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	var footprint: Vector2i = _resolved_unit_footprint(unit)
 	if footprint != Vector2i.ONE:
 		var total := Vector2.ZERO
 		var count: int = 0
@@ -10600,7 +10611,7 @@ func world_position_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vecto
 	return _tile_center(origin)
 
 func draw_tile_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vector2i:
-	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	var footprint: Vector2i = _resolved_unit_footprint(unit)
 	return origin + Vector2i(maxi(1, footprint.x) - 1, maxi(1, footprint.y) - 1)
 
 func _tile_polygon(tile: Vector2i) -> PackedVector2Array:

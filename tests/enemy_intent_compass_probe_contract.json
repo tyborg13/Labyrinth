@@ -35,6 +35,22 @@
       "regions": [
         {"rect": [540, 240, 840, 620], "min_luma_range": 60, "min_luma_stdev": 9}
       ]
+    },
+    {
+      "pattern": "*intent_boss_final_move_frame_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [540, 240, 840, 620], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
+    },
+    {
+      "pattern": "*intent_boss_call_wisps_after_refresh_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [540, 240, 840, 620], "min_luma_range": 60, "min_luma_stdev": 9}
+      ]
     }
   ]
 }
