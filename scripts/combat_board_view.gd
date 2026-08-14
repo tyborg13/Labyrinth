@@ -1164,7 +1164,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var submission_sources_changed: bool = state_changed or not _submission_cache_initialized
 	for cache_key: String in [
 		"scene_props", "preview_units", "death_animation_units", "unit_draw_tiles",
-		"unit_world_positions", "visible_enemy_ids", "umbra_visible_tiles",
+		"unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles",
 		"umbra_light_sources", "umbra_stage", "damage_preview", "effect", "ability_tiles",
 		"enemy_intent_compasses"
 	]:
@@ -1234,7 +1234,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 				"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
 				"_projected_attack_tiles_lookup_cache"
 			])
-		for unit_key: String in ["preview_units", "death_animation_units", "unit_draw_tiles", "unit_world_positions", "visible_enemy_ids", "umbra_visible_tiles", "umbra_light_sources", "umbra_stage"]:
+		for unit_key: String in ["preview_units", "death_animation_units", "unit_draw_tiles", "unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles", "umbra_light_sources", "umbra_stage"]:
 			if not presentation_changes.has(unit_key):
 				continue
 			retained_sync_fields.append_array([
@@ -1356,7 +1356,7 @@ func _coalescible_explicit_redraw_frame() -> int:
 
 func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
 	var changed: Dictionary = {}
-	for field: String in ["unit_world_positions", "unit_draw_tiles"]:
+	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles"]:
 		var previous_values: Dictionary = previous.get(field, {}) as Dictionary
 		var next_values: Dictionary = next.get(field, {}) as Dictionary
 		for key_var: Variant in previous_values:
@@ -1435,7 +1435,7 @@ func _queue_presentation_change_redraws(
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
 				world_changed = true
 				impact_changed = true
-			"death_animation_units", "preview_units", "unit_world_positions", "unit_draw_tiles", "visible_enemy_ids":
+			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids":
 				unit_movement_changed = true
 				foreground_changed = true
 				hud_changed = true
@@ -1663,6 +1663,7 @@ func _rebuild_submission_caches() -> bool:
 		"death_animation_units": presentation.get("death_animation_units", []),
 		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
 		"unit_world_positions": presentation.get("unit_world_positions", {}),
+		"unit_footprint_world_positions": presentation.get("unit_footprint_world_positions", {}),
 		"visible_enemy_ids": presentation.get("visible_enemy_ids", []),
 		"umbra_visible_tiles": presentation.get("umbra_visible_tiles", []),
 		"umbra_light_sources": presentation.get("umbra_light_sources", []),
@@ -4894,6 +4895,11 @@ func _intent_compass_emblem_scale(family: String) -> float:
 	return float(INTENT_COMPASS_EMBLEM_SCALES.get(family, INTENT_COMPASS_EMBLEM_SCALES[EnemyIntentCompass.FAMILY_ATTACK]))
 
 func _intent_compass_center(unit: Dictionary) -> Vector2:
+	var actor_key: String = str(unit.get("key", ""))
+	var movement_centers: Dictionary = presentation.get("unit_footprint_world_positions", {}) as Dictionary
+	var movement_center: Variant = movement_centers.get(actor_key, null)
+	if typeof(movement_center) == TYPE_VECTOR2:
+		return movement_center as Vector2
 	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
 	var anchored_unit: Dictionary = unit.duplicate(false)
 	anchored_unit["footprint"] = _intent_compass_footprint(unit)

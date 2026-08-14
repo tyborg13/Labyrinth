@@ -142,6 +142,16 @@ static func _test_compass_stays_on_logical_tile_center(expect: Callable) -> void
 	var animated_frame: Vector2 = board.call("_intent_compass_center", large_enemy) as Vector2
 	expect.call(first_frame.is_equal_approx(expected), "Large-enemy compass should use the exact center of its full logical footprint")
 	expect.call(animated_frame.is_equal_approx(expected), "Compass footprint anchor should ignore idle frames and transient sprite presentation offsets")
+	var destination_center: Vector2 = board.call("world_position_for_unit_origin", large_enemy, Vector2i(4, 2)) as Vector2
+	var midmove_center: Vector2 = expected.lerp(destination_center, 0.5)
+	board.presentation = {
+		"unit_world_positions": {"enemy_61": midmove_center},
+		"unit_footprint_world_positions": {"enemy_61": midmove_center},
+	}
+	var movement_frame: Vector2 = board.call("_intent_compass_center", large_enemy) as Vector2
+	expect.call(movement_frame.is_equal_approx(midmove_center), "Compass should follow the interpolated center of the entire footprint during real tile movement")
+	expect.call(not movement_frame.is_equal_approx(board.call("world_position_for_tile", Vector2i(4, 2)) as Vector2), "A moving 2x2 boss compass must not collapse onto the destination origin square")
+	board.presentation = {}
 	expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", large_enemy)), 2.0), "A 2x2 boss compass should scale to its four-tile footprint")
 	expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", _enemy(62, Vector2i(2, 2), {}))), 1.0), "Normal enemies should retain a one-tile compass")
 	var refreshed_boss_without_footprint: Dictionary = large_enemy.duplicate(true)
@@ -246,6 +256,20 @@ static func _test_compasses_persist_and_refresh_during_enemy_animation(expect: C
 		run_scene_source.find("rendered_presentation[\"enemy_intent_compasses\"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)") >= 0,
 		"Every animation render should repopulate visible enemy compasses instead of dropping them until the player turn"
 	)
+	expect.call(
+		run_scene_source.find("_movement_actor_frame_presentation(") >= 0,
+		"Enemy movement animation should publish the interpolated logical footprint center separately from sprite-only offsets"
+	)
+	var movement_presentation: Dictionary = scene.call(
+		"_movement_actor_frame_presentation",
+		{},
+		"enemy_81",
+		Vector2(480.0, 320.0),
+		Vector2i(5, 4),
+		Vector2i(5, 4)
+	) as Dictionary
+	expect.call((movement_presentation.get("unit_world_positions", {}) as Dictionary).get("enemy_81") == Vector2(480.0, 320.0), "Movement frames should move the actor sprite to the interpolated center")
+	expect.call((movement_presentation.get("unit_footprint_world_positions", {}) as Dictionary).get("enemy_81") == Vector2(480.0, 320.0), "Movement frames should move the floor compass to that same full-footprint center")
 	scene.free()
 
 

@@ -3,6 +3,7 @@ extends SceneTree
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const RunScene = preload("res://scripts/run_scene.gd")
 
 const OUTPUT_DIR: String = "user://enemy_intent_compass_probe"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
@@ -65,6 +66,21 @@ func _initialize() -> void:
 	var boss_attack_presentation: Dictionary = _large_hidden_presentation()
 	await _capture(viewport, board, boss_attack_state, boss_attack_presentation, "intent_emblems_large_hidden_1920x1080.png")
 	await _capture(viewport, board, boss_attack_state, boss_attack_presentation, "intent_boss_attack_before_support_refresh_1920x1080.png")
+	var moving_boss: Dictionary = ((boss_attack_state.get("enemies", []) as Array)[0] as Dictionary)
+	var move_from: Vector2 = board.call("world_position_for_unit_origin", moving_boss, Vector2i(4, 2)) as Vector2
+	var move_to: Vector2 = board.call("world_position_for_unit_origin", moving_boss, Vector2i(5, 2)) as Vector2
+	var move_midpoint: Vector2 = move_from.lerp(move_to, 0.5)
+	var run_scene: Node = RunScene.new()
+	var boss_midmove_presentation: Dictionary = run_scene.call(
+		"_movement_actor_frame_presentation",
+		boss_attack_presentation,
+		"enemy_70",
+		move_midpoint,
+		board.call("draw_tile_for_unit_origin", moving_boss, Vector2i(5, 2)),
+		Vector2i(5, 2)
+	) as Dictionary
+	run_scene.free()
+	await _capture(viewport, board, boss_attack_state, boss_midmove_presentation, "intent_boss_attack_mid_move_1920x1080.png")
 	var boss_support_state: Dictionary = boss_attack_state.duplicate(true)
 	var refreshed_boss: Dictionary = ((boss_support_state.get("enemies", []) as Array)[0] as Dictionary)
 	refreshed_boss["pos"] = Vector2i(5, 2)
@@ -127,7 +143,8 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 		var tile: Vector2i = enemy.get("pos", Vector2i.ZERO)
 		var footprint_center: Vector2 = board.call("world_position_for_unit_origin", enemy, tile) as Vector2
 		_expect(center.is_equal_approx(footprint_center), "Compass should center exactly on enemy %d's logical footprint" % int(enemy.get("id", -1)))
-	var boss: Dictionary = (_large_hidden_probe_state().get("enemies", []) as Array)[0] as Dictionary
+	var boss: Dictionary = ((_large_hidden_probe_state().get("enemies", []) as Array)[0] as Dictionary).duplicate(true)
+	boss["key"] = "enemy_70"
 	_expect(is_equal_approx(float(board.call("_intent_compass_footprint_scale", boss)), 2.0), "The 2x2 boss compass should scale across all four occupied tiles")
 	var moved_boss: Dictionary = boss.duplicate(true)
 	moved_boss["pos"] = Vector2i(5, 2)
@@ -136,6 +153,13 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 		(board.call("_intent_compass_center", moved_boss) as Vector2).is_equal_approx(board.call("world_position_for_unit_origin", moved_boss, Vector2i(5, 2)) as Vector2),
 		"The refreshed boss compass should remain centered across the moved four-tile footprint"
 	)
+	var midmove_presentation: Dictionary = _large_hidden_presentation()
+	var start_center: Vector2 = board.call("world_position_for_unit_origin", boss, Vector2i(4, 2)) as Vector2
+	var destination_center: Vector2 = board.call("world_position_for_unit_origin", boss, Vector2i(5, 2)) as Vector2
+	var expected_midpoint: Vector2 = start_center.lerp(destination_center, 0.5)
+	midmove_presentation["unit_footprint_world_positions"] = {"enemy_70": expected_midpoint}
+	board.presentation = midmove_presentation
+	_expect((board.call("_intent_compass_center", boss) as Vector2).is_equal_approx(expected_midpoint), "The boss compass should follow the full-footprint center during an interpolated move frame")
 
 
 func _verify_reduced_motion_equivalence(board: Control, state: Dictionary, presentation: Dictionary) -> void:

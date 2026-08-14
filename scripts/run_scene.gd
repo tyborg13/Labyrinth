@@ -18969,13 +18969,31 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
 		for frame: int in range(1, MOVE_STEP_FRAMES + 1):
 			var t: float = float(frame) / float(MOVE_STEP_FRAMES)
-			var presentation: Dictionary = base_presentation.duplicate(true)
-			if not presentation.has("focus_tiles"):
-				presentation["focus_tiles"] = [segment_to]
-			presentation["unit_world_positions"] = {actor_key: from_point.lerp(to_point, t)}
-			presentation["unit_draw_tiles"] = {actor_key: draw_tile}
+			var moving_footprint_center: Vector2 = from_point.lerp(to_point, t)
+			var presentation: Dictionary = _movement_actor_frame_presentation(
+				base_presentation,
+				actor_key,
+				moving_footprint_center,
+				draw_tile,
+				segment_to
+			)
 			_render_board_state(display_state, presentation)
 			await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+
+func _movement_actor_frame_presentation(
+	base_presentation: Dictionary,
+	actor_key: String,
+	moving_footprint_center: Vector2,
+	draw_tile: Vector2i,
+	focus_tile: Vector2i
+) -> Dictionary:
+	var presentation: Dictionary = base_presentation.duplicate(true)
+	if not presentation.has("focus_tiles"):
+		presentation["focus_tiles"] = [focus_tile]
+	presentation["unit_world_positions"] = {actor_key: moving_footprint_center}
+	presentation["unit_footprint_world_positions"] = {actor_key: moving_footprint_center}
+	presentation["unit_draw_tiles"] = {actor_key: draw_tile}
+	return presentation
 
 func _play_sfx(entry: Dictionary) -> void:
 	var path: String = str(entry.get("path", ""))
