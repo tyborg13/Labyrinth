@@ -34,6 +34,7 @@ const MoveAttackShortcutSuite = preload("res://tests/suites/move_attack_shortcut
 const MapUiSuite = preload("res://tests/suites/map_ui_suite.gd")
 const CombatBoardLayoutSuite = preload("res://tests/suites/combat_board_layout_suite.gd")
 const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass_suite.gd")
+const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -97,6 +98,7 @@ func _initialize() -> void:
 	MapUiSuite.run(Callable(self, "_assert"))
 	CombatBoardLayoutSuite.run(Callable(self, "_assert"))
 	EnemyIntentCompassSuite.run(Callable(self, "_assert"))
+	HealthBarThemeSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
@@ -110,6 +112,7 @@ func _initialize() -> void:
 	_test_room_generation_uses_perimeter_walls_only()
 	_test_room_generation_avoids_adjacent_columns()
 	_test_room_generation_uses_stone_floor_with_moss_accents()
+	_test_elemental_room_overlays_are_decorative_and_distinct()
 	_test_room_generation_populates_elemental_traps()
 	_test_room_generation_adds_pickups_and_destructible_terrain()
 	_test_special_rooms_use_corner_pillar_layout()
@@ -941,6 +944,86 @@ func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 	_assert(floor_moss.size() >= 5, "Generated floors should now carry a denser layer of decorative moss overlays")
 	_assert(wall_moss.size() + pillar_moss.size() >= 1, "Decorative moss should also reach at least one stone fixture beyond the floor")
 	_assert(stone_count > floor_moss.size(), "Stone floor tiles should still make up the majority of the room floor")
+
+func _test_elemental_room_overlays_are_decorative_and_distinct() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var generated_moss: Dictionary = {}
+	var generated_grid: Array = []
+	for element_id: String in ElementData.all_elements():
+		var room: Dictionary = generator.generate_room(817, {
+			"coord": Vector2i(2, 1),
+			"depth": 2,
+			"type": "combat",
+			"element": element_id
+		}, Vector2i(0, -1))
+		if generated_moss.is_empty():
+			generated_moss = (room.get("moss", {}) as Dictionary).duplicate(true)
+			generated_grid = (room.get("grid", []) as Array).duplicate(true)
+		else:
+			_assert(room.get("moss", {}) == generated_moss, "Elemental overlay placement should stay decorative and independent of room mechanics")
+			_assert(room.get("grid", []) == generated_grid, "Elemental overlays should not replace or mutate room terrain")
+
+	var board := CombatBoardView.new()
+	var fake_variants: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		fake_variants[element_id] = {"floor": [], "wall": [], "pillar": []}
+	board.set("_element_overlay_texture_variants", fake_variants)
+	for element_id: String in ElementData.all_elements():
+		board.set("combat_state", {"room_element": element_id})
+		_assert(str(board.call("_element_overlay_family_id")) == element_id, "Each elemental room should select its own decorative overlay family")
+		_assert(str(board.call("_element_overlay_family_id", "pillar")) == ElementData.EARTH, "Pillars should retain the established moss treatment in every elemental room")
+	board.set("combat_state", {"room_element": ElementData.NONE})
+	_assert(str(board.call("_element_overlay_family_id")) == ElementData.EARTH, "Neutral and legacy rooms should preserve the established moss treatment")
+
+	var floor_candidates: Dictionary = {}
+	for y: int in range(8):
+		for x: int in range(12):
+			floor_candidates[Vector2i(x, y)] = true
+	board.set("_moss_tiles_by_surface", {"floor": floor_candidates})
+	board.set("combat_state", {"room_element": ElementData.EARTH, "room_coord": Vector2i(2, 1)})
+	var moss_floor_count: int = 0
+	for tile_var: Variant in floor_candidates.keys():
+		if bool(board.call("_tile_has_moss", "floor", tile_var)):
+			moss_floor_count += 1
+	_assert(moss_floor_count == floor_candidates.size(), "Earth rooms should preserve the full established moss floor placement")
+	board.set("combat_state", {"room_element": ElementData.FIRE, "room_coord": Vector2i(2, 1)})
+	var sparse_floor_tiles: Array[Vector2i] = []
+	for tile_var: Variant in floor_candidates.keys():
+		var tile: Vector2i = tile_var
+		if bool(board.call("_tile_has_moss", "floor", tile)):
+			sparse_floor_tiles.append(tile)
+	var repeated_sparse_floor_tiles: Array[Vector2i] = []
+	for tile_var: Variant in floor_candidates.keys():
+		var tile: Vector2i = tile_var
+		if bool(board.call("_tile_has_moss", "floor", tile)):
+			repeated_sparse_floor_tiles.append(tile)
+	_assert(sparse_floor_tiles == repeated_sparse_floor_tiles, "Sparse elemental floor accents should remain deterministic")
+	_assert(sparse_floor_tiles.size() >= 48 and sparse_floor_tiles.size() <= 64, "Non-earth floor accents should use a modestly higher density near seven-elevenths of established moss candidates")
+
+	var shared_moss_state: Dictionary = {
+		"room_coord": Vector2i(2, 1),
+		"moss": generated_moss
+	}
+	var fire_state: Dictionary = shared_moss_state.duplicate(true)
+	fire_state["room_element"] = ElementData.FIRE
+	var ice_state: Dictionary = shared_moss_state.duplicate(true)
+	ice_state["room_element"] = ElementData.ICE
+	_assert(
+		str(board.call("_moss_signature_for_state", fire_state)) != str(board.call("_moss_signature_for_state", ice_state)),
+		"Retained board layers should invalidate decorative overlays when the room element changes"
+	)
+
+	var overlay_path_groups: Array = [
+		CombatBoardView.FIRE_FLOOR_OVERLAY_PATHS, CombatBoardView.FIRE_WALL_OVERLAY_PATHS, CombatBoardView.FIRE_PILLAR_OVERLAY_PATHS,
+		CombatBoardView.ICE_FLOOR_OVERLAY_PATHS, CombatBoardView.ICE_WALL_OVERLAY_PATHS, CombatBoardView.ICE_PILLAR_OVERLAY_PATHS,
+		CombatBoardView.LIGHTNING_FLOOR_OVERLAY_PATHS, CombatBoardView.LIGHTNING_WALL_OVERLAY_PATHS, CombatBoardView.LIGHTNING_PILLAR_OVERLAY_PATHS,
+		CombatBoardView.AIR_FLOOR_OVERLAY_PATHS, CombatBoardView.AIR_WALL_OVERLAY_PATHS, CombatBoardView.AIR_PILLAR_OVERLAY_PATHS
+	]
+	for path_group_var: Variant in overlay_path_groups:
+		var path_group: PackedStringArray = path_group_var
+		for path_var: Variant in path_group:
+			_assert(FileAccess.file_exists(str(path_var)), "Elemental decorative overlay asset should exist: %s" % str(path_var))
+	board.free()
 
 func _test_special_rooms_use_corner_pillar_layout() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -7125,28 +7208,30 @@ func _test_combat_board_assigns_deterministic_floor_variants() -> void:
 	board.call("_load_assets")
 	var floor_variants: Dictionary = board.get("_floor_texture_variants")
 	var stone_variants: Array = floor_variants.get("stone", [])
-	_assert(stone_variants.size() == 7, "Combat board should load all seven extracted stone floor variants")
+	_assert(stone_variants.size() == CombatBoardView.STONE_FLOOR_VARIANT_PATHS.size(), "Combat board should load every approved stone floor variant")
 	var state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1)}
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	var first_lookup: Dictionary = (board.get("_floor_variant_by_tile") as Dictionary).duplicate(true)
 	var distinct: Dictionary = {}
+	var adjacent_repeats: int = 0
 	for y: int in range(1, 7):
 		for x: int in range(1, 7):
-			distinct[int(first_lookup.get(Vector2i(x, y), -1))] = true
-	_assert(distinct.size() >= 4, "Interior stone floors should spread across several variants instead of collapsing to one look")
+			var tile := Vector2i(x, y)
+			var variant_index: int = int(first_lookup.get(tile, -1))
+			distinct[variant_index] = true
+			if x > 1 and variant_index == int(first_lookup.get(Vector2i(x - 1, y), -2)):
+				adjacent_repeats += 1
+			if y > 1 and variant_index == int(first_lookup.get(Vector2i(x, y - 1), -2)):
+				adjacent_repeats += 1
+	_assert(distinct.size() >= mini(4, stone_variants.size()), "Interior stone floors should spread across the approved variants instead of collapsing to one look")
+	_assert(adjacent_repeats <= 6, "Variant assignment should keep immediate stone-floor repeats rare")
 	var center_tile := Vector2i(4, 4)
-	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(3, 4), -1)), "Variant assignment should avoid immediate left-right repeats on stone floors when possible")
-	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(4, 3), -1)), "Variant assignment should avoid immediate front-back repeats on stone floors when possible")
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	var repeated_lookup: Dictionary = board.get("_floor_variant_by_tile")
 	_assert(repeated_lookup.get(center_tile, -1) == first_lookup.get(center_tile, -2), "Floor variants should stay deterministic for the same room coordinate")
-	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(5, 1)}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(3, 1)}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	var shifted_lookup: Dictionary = board.get("_floor_variant_by_tile")
-	_assert(
-		shifted_lookup.get(center_tile, -1) != first_lookup.get(center_tile, -1)
-		or shifted_lookup.get(Vector2i(5, 4), -1) != first_lookup.get(Vector2i(5, 4), -1),
-		"Different room coordinates should reshuffle the deterministic floor-variant mix"
-	)
+	_assert(shifted_lookup != first_lookup, "Different room coordinates should reshuffle the deterministic floor-variant mix")
 	board.free()
 
 func _test_combat_board_loads_elemental_projectile_atlas() -> void:

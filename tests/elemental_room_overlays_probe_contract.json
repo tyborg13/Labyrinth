@@ -1,0 +1,36 @@
+{
+  "min_images": 5,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*fire_room.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [360, 120, 1200, 840], "min_luma_range": 12, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*ice_room.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [360, 120, 1200, 840], "min_luma_range": 12, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*lightning_room.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [360, 120, 1200, 840], "min_luma_range": 12, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*air_room.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [360, 120, 1200, 840], "min_luma_range": 12, "min_luma_stdev": 3}]
+    },
+    {
+      "pattern": "*earth_room.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [360, 120, 1200, 840], "min_luma_range": 12, "min_luma_stdev": 3}]
+    }
+  ]
+}
