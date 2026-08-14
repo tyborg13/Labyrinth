@@ -81,7 +81,7 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 	var tile_width: float = float(board.call("_tile_width"))
 	var ring_diameter: float = tile_width * float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_RING_TILE_SCALE", 0.0))
 	var arm_scale: float = float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_ARM_SCALE", 0.0))
-	_expect(ring_diameter <= tile_width * 0.76, "Compass ring should spill only slightly beyond the tile's inscribed width")
+	_expect(ring_diameter >= tile_width * 0.76 and ring_diameter <= tile_width * 0.82, "Compass ring should be slightly enlarged while spilling only minimally beyond its tile")
 	_expect(arm_scale >= 0.70 and arm_scale <= 0.82, "Compass arm should remain legible without reaching deeply into neighboring tiles")
 	_expect(
 		str(board.get_script().source_code).find("draw_texture(base_texture") < str(board.get_script().source_code).find("draw_texture(arm_texture"),
@@ -90,12 +90,9 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 	for enemy_var: Variant in state.get("enemies", []):
 		var enemy: Dictionary = enemy_var as Dictionary
 		var center: Vector2 = board.call("_intent_compass_center", enemy) as Vector2
-		var texture: Texture2D = board.call("_texture_for_unit", enemy) as Texture2D
-		var draw_rect: Rect2 = board.call("_unit_draw_rect", enemy) as Rect2
-		var bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", texture) as Rect2
-		var foot_point: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, str(enemy.get("type", ""))) as Vector2
-		_expect(absf(center.x - foot_point.x) <= 0.01, "Compass should center on enemy %d's rendered sprite footprint" % int(enemy.get("id", -1)))
-		_expect(absf(center.y - foot_point.y - float(board.call("_tile_height")) * 0.025) <= 0.01, "Compass should remain grounded directly beneath enemy %d" % int(enemy.get("id", -1)))
+		var tile: Vector2i = enemy.get("pos", Vector2i.ZERO)
+		var tile_center: Vector2 = board.call("_tile_center", tile) as Vector2
+		_expect(center.is_equal_approx(tile_center), "Compass should center exactly on enemy %d's logical tile" % int(enemy.get("id", -1)))
 
 
 func _verify_reduced_motion_equivalence(board: Control, state: Dictionary, presentation: Dictionary) -> void:
@@ -134,7 +131,7 @@ func _probe_descriptors() -> Dictionary:
 	return {
 		"enemy_1": _descriptor(EnemyIntentCompass.FAMILY_MELEE, "melee", 7, Vector2i(3, 2), Vector2i(5, 3), "Closing Cut"),
 		"enemy_2": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "ranged", 5, Vector2i(7, 2), Vector2i(5, 4), "Pinning Shot"),
-		"enemy_3": _descriptor(EnemyIntentCompass.FAMILY_DEFENSE, "block", 6, Vector2i(2, 4), Vector2i(5, 4), "Iron Guard"),
+		"enemy_3": _descriptor(EnemyIntentCompass.FAMILY_DEFENSE, "block", 6, Vector2i(2, 4), Vector2i(1, 4), "Iron Guard"),
 		"enemy_4": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "heal_ally", 4, Vector2i(8, 4), Vector2i(7, 6), "Field Dressing"),
 		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_AREA, "lightning_strikes", 4, Vector2i(3, 6), Vector2i(5, 4), "Forked Storm"),
 		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_MOVEMENT, "move_away", 0, Vector2i(7, 6), Vector2i(8, 5), "Withdraw"),

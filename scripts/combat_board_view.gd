@@ -57,7 +57,7 @@ const PLAYER_BAR_FILL: Color = Color("8ec26c")
 const ILLUSION_BAR_FILL: Color = Color("7bd8ee")
 const ENEMY_BAR_FILL: Color = Color("d06752")
 const INTENT_COMPASS_ISOMETRIC_Y_SCALE: float = 0.50
-const INTENT_COMPASS_RING_TILE_SCALE: float = 0.72
+const INTENT_COMPASS_RING_TILE_SCALE: float = 0.78
 const INTENT_COMPASS_RING_SOURCE_DIAMETER: float = 178.0
 const INTENT_COMPASS_ARM_PIVOT: Vector2 = Vector2(48.0, 128.0)
 const INTENT_COMPASS_ARM_SCALE: float = 0.78
@@ -4866,7 +4866,7 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	var arm_scale: float = scale_factor * INTENT_COMPASS_ARM_SCALE
 	var basis_x := Vector2(cos(angle) * arm_scale, sin(angle) * arm_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
 	var basis_y := Vector2(-sin(angle) * arm_scale, cos(angle) * arm_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
-	if family == EnemyIntentCompass.FAMILY_SUPPORT and cos(angle) < 0.0:
+	if _intent_compass_symbol_should_mirror_upright(family, angle):
 		basis_y = -basis_y
 	var base_basis_x := Vector2(scale_factor, 0.0)
 	var base_basis_y := Vector2(0.0, scale_factor * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
@@ -4890,14 +4890,12 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		_register_tooltip(Rect2(center - hit_size * 0.5, hit_size), tooltip)
 
 func _intent_compass_center(unit: Dictionary) -> Vector2:
-	var texture: Texture2D = _texture_for_unit(unit)
-	if texture != null:
-		var draw_rect: Rect2 = _unit_draw_rect(unit)
-		var bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
-		if bounds.size.x > 0.0 and bounds.size.y > 0.0:
-			var foot_point: Vector2 = _unit_shadow_foot_point(texture, draw_rect, bounds, str(unit.get("type", "")))
-			return foot_point + Vector2(0.0, _tile_height() * 0.025)
-	return _unit_center(unit) + Vector2(0.0, _tile_height() * 0.18)
+	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
+	return _tile_center(tile)
+
+func _intent_compass_symbol_should_mirror_upright(family: String, angle: float) -> bool:
+	var upright_symbol: bool = family == EnemyIntentCompass.FAMILY_SUPPORT or family == EnemyIntentCompass.FAMILY_DEFENSE
+	return upright_symbol and cos(angle) < 0.0
 
 func _intent_compass_arm_tint(family: String) -> Color:
 	if family in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_AREA]:

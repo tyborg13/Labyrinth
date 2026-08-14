@@ -13,9 +13,9 @@ static func run(expect: Callable) -> void:
 	_test_visibility_boundary_hides_unknown_enemies(expect)
 	_test_isometric_direction_supports_arbitrary_angles(expect)
 	_test_overhead_panel_is_progressive_disclosure(expect)
-	_test_compass_centers_on_rendered_sprite_footprint(expect)
+	_test_compass_stays_on_logical_tile_center(expect)
 	_test_compass_family_tints_preserve_shape_cues(expect)
-	_test_support_arm_mirrors_upright_when_pointing_left(expect)
+	_test_shield_and_support_symbols_mirror_upright_when_pointing_left(expect)
 
 
 static func _test_action_families_are_distinct(expect: Callable) -> void:
@@ -140,27 +140,22 @@ static func _test_overhead_panel_is_progressive_disclosure(expect: Callable) -> 
 	board.free()
 
 
-static func _test_compass_centers_on_rendered_sprite_footprint(expect: Callable) -> void:
+static func _test_compass_stays_on_logical_tile_center(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.size = Vector2(1920.0, 1080.0)
-	board.call("_load_assets", false)
 	var large_enemy: Dictionary = _enemy(61, Vector2i(3, 2), {"name": "Breath", "actions": [{"type": "ranged", "damage": 8}]})
 	large_enemy["role"] = "enemy"
 	large_enemy["key"] = "enemy_61"
 	large_enemy["footprint"] = Vector2i(2, 2)
 	board.combat_state = {"grid": _grid(9, 8)}
-	var texture: Texture2D = board.call("_texture_for_unit", large_enemy) as Texture2D
-	var draw_rect: Rect2 = board.call("_unit_draw_rect", large_enemy) as Rect2
-	var expected: Vector2 = board.call("_unit_center", large_enemy) as Vector2
-	expected.y += float(board.call("_tile_height")) * 0.18
-	if texture != null:
-		var bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", texture) as Rect2
-		if bounds.size.x > 0.0 and bounds.size.y > 0.0:
-			expected = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, "crawler") as Vector2
-			expected.y += float(board.call("_tile_height")) * 0.025
-	var actual: Vector2 = board.call("_intent_compass_center", large_enemy) as Vector2
-	expect.call(actual.is_equal_approx(expected), "Compass should center on the rendered sprite's opaque footprint rather than the abstract tile center")
-	expect.call(str(board.get_script().source_code).find("_unit_shadow_foot_point(texture, draw_rect, bounds") >= 0, "Loaded enemy art should use its opaque footprint for compass centering")
+	var expected: Vector2 = board.call("_tile_center", Vector2i(3, 2)) as Vector2
+	board.set("_idle_elapsed", 0.0)
+	var first_frame: Vector2 = board.call("_intent_compass_center", large_enemy) as Vector2
+	board.set("_idle_elapsed", 1.37)
+	board.presentation = {"unit_world_positions": {"enemy_61": expected + Vector2(83.0, -41.0)}}
+	var animated_frame: Vector2 = board.call("_intent_compass_center", large_enemy) as Vector2
+	expect.call(first_frame.is_equal_approx(expected), "Compass should use the exact center of the enemy's logical tile")
+	expect.call(animated_frame.is_equal_approx(expected), "Compass tile anchor should ignore idle frames and transient sprite presentation offsets")
 	board.free()
 
 
@@ -178,10 +173,13 @@ static func _test_compass_family_tints_preserve_shape_cues(expect: Callable) -> 
 	board.free()
 
 
-static func _test_support_arm_mirrors_upright_when_pointing_left(expect: Callable) -> void:
+static func _test_shield_and_support_symbols_mirror_upright_when_pointing_left(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
-	var source: String = board.get_script().source_code
-	expect.call(source.find("family == EnemyIntentCompass.FAMILY_SUPPORT and cos(angle) < 0.0") >= 0, "Left-facing support arms should mirror instead of rotating the hand upside down")
+	expect.call(bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_SUPPORT, PI)), "Left-facing support hands should mirror upright")
+	expect.call(bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_DEFENSE, PI)), "Left-facing shields should mirror upright")
+	expect.call(not bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_SUPPORT, 0.0)), "Right-facing support hands should retain their authored orientation")
+	expect.call(not bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_DEFENSE, 0.0)), "Right-facing shields should retain their authored orientation")
+	expect.call(not bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_MELEE, PI)), "Directional attack silhouettes should continue rotating normally")
 	board.free()
 
 
