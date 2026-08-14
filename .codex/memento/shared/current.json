@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-14T03:38:33Z",
+  "updated_at": "2026-08-14T04:06:04Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7964,25 +7964,27 @@
       }
     },
     {
-      "id": "mnt_20260814T033833Z_fb4052c3",
+      "id": "mnt_20260814T040604Z_15a8061a",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "user_preference",
       "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
+        "level": "folder",
+        "path": "assets/placeholders/tiles",
         "symbol": null
       },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Elemental room accents reuse the legacy moss placement payload as render-only coordinates",
-      "details": "Keep room generation, saves, terrain, pathing, hazards, and combat mechanics unchanged. CombatBoardView chooses earth moss, fire ember/scorch, ice snow/frost, lightning current, or air wisp textures from room_element, and the retained overlay signature includes room_element so room restores cannot reuse a stale family.",
+      "scope_key": "folder:assets/placeholders/tiles",
+      "summary": "Elemental room overlays should read as subtle residue, never environmental hazards",
+      "details": "Keep non-earth floor accents extremely simple and sparse (roughly one-third of established moss candidate placement). Pillars/columns should continue using the established moss overlays in every room until their decoration is revisited. Elemental decoration remains purely visual and must not alter terrain, pathing, hazards, elemental intensity, saves, or combat.",
       "status": "active",
-      "created_at": "2026-08-14T03:38:33Z",
-      "updated_at": "2026-08-14T03:38:33Z",
+      "created_at": "2026-08-14T04:06:04Z",
+      "updated_at": "2026-08-14T04:06:04Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260814T033833Z_fb4052c3"
+      ],
       "source": {
         "branch": "codex/element-specific-room-tile-overlays",
-        "commit": "ac5bdf6"
+        "commit": "3c43447"
       }
     }
   ]

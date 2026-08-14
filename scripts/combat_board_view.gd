@@ -9445,10 +9445,15 @@ func _coord_signature(coord: Vector2i) -> String:
 
 func _tile_has_moss(surface: String, tile: Vector2i) -> bool:
 	var surface_lookup: Dictionary = _moss_tiles_by_surface.get(surface, {})
-	return surface_lookup.has(tile)
+	if not surface_lookup.has(tile):
+		return false
+	if surface != "floor" or _element_overlay_family_id() == ElementData.EARTH:
+		return true
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	return posmod(_hashed_moss_value(tile, room_coord, surface, 419), 11) < 4
 
 func _moss_texture_for_surface(surface: String, tile: Vector2i, flip_override: bool = false) -> Texture2D:
-	var element_id: String = _element_overlay_family_id()
+	var element_id: String = _element_overlay_family_id(surface)
 	var element_variants: Dictionary = _element_overlay_texture_variants.get(element_id, {})
 	var variants: Array = element_variants.get(surface, [])
 	if variants.is_empty():
@@ -9461,7 +9466,9 @@ func _moss_texture_for_surface(surface: String, tile: Vector2i, flip_override: b
 		should_flip = not should_flip
 	return AssetLoader.flip_texture_h(texture) if should_flip else texture
 
-func _element_overlay_family_id() -> String:
+func _element_overlay_family_id(surface: String = "") -> String:
+	if surface == "pillar":
+		return ElementData.EARTH
 	var element_id: String = str(combat_state.get("room_element", ElementData.NONE))
 	return element_id if _element_overlay_texture_variants.has(element_id) else ElementData.EARTH
 

@@ -967,8 +967,34 @@ func _test_elemental_room_overlays_are_decorative_and_distinct() -> void:
 	for element_id: String in ElementData.all_elements():
 		board.set("combat_state", {"room_element": element_id})
 		_assert(str(board.call("_element_overlay_family_id")) == element_id, "Each elemental room should select its own decorative overlay family")
+		_assert(str(board.call("_element_overlay_family_id", "pillar")) == ElementData.EARTH, "Pillars should retain the established moss treatment in every elemental room")
 	board.set("combat_state", {"room_element": ElementData.NONE})
 	_assert(str(board.call("_element_overlay_family_id")) == ElementData.EARTH, "Neutral and legacy rooms should preserve the established moss treatment")
+
+	var floor_candidates: Dictionary = {}
+	for y: int in range(8):
+		for x: int in range(12):
+			floor_candidates[Vector2i(x, y)] = true
+	board.set("_moss_tiles_by_surface", {"floor": floor_candidates})
+	board.set("combat_state", {"room_element": ElementData.EARTH, "room_coord": Vector2i(2, 1)})
+	var moss_floor_count: int = 0
+	for tile_var: Variant in floor_candidates.keys():
+		if bool(board.call("_tile_has_moss", "floor", tile_var)):
+			moss_floor_count += 1
+	_assert(moss_floor_count == floor_candidates.size(), "Earth rooms should preserve the full established moss floor placement")
+	board.set("combat_state", {"room_element": ElementData.FIRE, "room_coord": Vector2i(2, 1)})
+	var sparse_floor_tiles: Array[Vector2i] = []
+	for tile_var: Variant in floor_candidates.keys():
+		var tile: Vector2i = tile_var
+		if bool(board.call("_tile_has_moss", "floor", tile)):
+			sparse_floor_tiles.append(tile)
+	var repeated_sparse_floor_tiles: Array[Vector2i] = []
+	for tile_var: Variant in floor_candidates.keys():
+		var tile: Vector2i = tile_var
+		if bool(board.call("_tile_has_moss", "floor", tile)):
+			repeated_sparse_floor_tiles.append(tile)
+	_assert(sparse_floor_tiles == repeated_sparse_floor_tiles, "Sparse elemental floor accents should remain deterministic")
+	_assert(sparse_floor_tiles.size() >= 20 and sparse_floor_tiles.size() <= 44, "Non-earth floor accents should use roughly one-third of the established moss candidate density")
 
 	var shared_moss_state: Dictionary = {
 		"room_coord": Vector2i(2, 1),
