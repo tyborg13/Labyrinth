@@ -108,6 +108,7 @@ func _initialize() -> void:
 	_test_room_generation_uses_perimeter_walls_only()
 	_test_room_generation_avoids_adjacent_columns()
 	_test_room_generation_uses_stone_floor_with_moss_accents()
+	_test_elemental_room_overlays_are_decorative_and_distinct()
 	_test_room_generation_populates_elemental_traps()
 	_test_room_generation_adds_pickups_and_destructible_terrain()
 	_test_special_rooms_use_corner_pillar_layout()
@@ -939,6 +940,60 @@ func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 	_assert(floor_moss.size() >= 5, "Generated floors should now carry a denser layer of decorative moss overlays")
 	_assert(wall_moss.size() + pillar_moss.size() >= 1, "Decorative moss should also reach at least one stone fixture beyond the floor")
 	_assert(stone_count > floor_moss.size(), "Stone floor tiles should still make up the majority of the room floor")
+
+func _test_elemental_room_overlays_are_decorative_and_distinct() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var generated_moss: Dictionary = {}
+	var generated_grid: Array = []
+	for element_id: String in ElementData.all_elements():
+		var room: Dictionary = generator.generate_room(817, {
+			"coord": Vector2i(2, 1),
+			"depth": 2,
+			"type": "combat",
+			"element": element_id
+		}, Vector2i(0, -1))
+		if generated_moss.is_empty():
+			generated_moss = (room.get("moss", {}) as Dictionary).duplicate(true)
+			generated_grid = (room.get("grid", []) as Array).duplicate(true)
+		else:
+			_assert(room.get("moss", {}) == generated_moss, "Elemental overlay placement should stay decorative and independent of room mechanics")
+			_assert(room.get("grid", []) == generated_grid, "Elemental overlays should not replace or mutate room terrain")
+
+	var board := CombatBoardView.new()
+	var fake_variants: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		fake_variants[element_id] = {"floor": [], "wall": [], "pillar": []}
+	board.set("_element_overlay_texture_variants", fake_variants)
+	for element_id: String in ElementData.all_elements():
+		board.set("combat_state", {"room_element": element_id})
+		_assert(str(board.call("_element_overlay_family_id")) == element_id, "Each elemental room should select its own decorative overlay family")
+	board.set("combat_state", {"room_element": ElementData.NONE})
+	_assert(str(board.call("_element_overlay_family_id")) == ElementData.EARTH, "Neutral and legacy rooms should preserve the established moss treatment")
+
+	var shared_moss_state: Dictionary = {
+		"room_coord": Vector2i(2, 1),
+		"moss": generated_moss
+	}
+	var fire_state: Dictionary = shared_moss_state.duplicate(true)
+	fire_state["room_element"] = ElementData.FIRE
+	var ice_state: Dictionary = shared_moss_state.duplicate(true)
+	ice_state["room_element"] = ElementData.ICE
+	_assert(
+		str(board.call("_moss_signature_for_state", fire_state)) != str(board.call("_moss_signature_for_state", ice_state)),
+		"Retained board layers should invalidate decorative overlays when the room element changes"
+	)
+
+	var overlay_path_groups: Array = [
+		CombatBoardView.FIRE_FLOOR_OVERLAY_PATHS, CombatBoardView.FIRE_WALL_OVERLAY_PATHS, CombatBoardView.FIRE_PILLAR_OVERLAY_PATHS,
+		CombatBoardView.ICE_FLOOR_OVERLAY_PATHS, CombatBoardView.ICE_WALL_OVERLAY_PATHS, CombatBoardView.ICE_PILLAR_OVERLAY_PATHS,
+		CombatBoardView.LIGHTNING_FLOOR_OVERLAY_PATHS, CombatBoardView.LIGHTNING_WALL_OVERLAY_PATHS, CombatBoardView.LIGHTNING_PILLAR_OVERLAY_PATHS,
+		CombatBoardView.AIR_FLOOR_OVERLAY_PATHS, CombatBoardView.AIR_WALL_OVERLAY_PATHS, CombatBoardView.AIR_PILLAR_OVERLAY_PATHS
+	]
+	for path_group_var: Variant in overlay_path_groups:
+		var path_group: PackedStringArray = path_group_var
+		for path_var: Variant in path_group:
+			_assert(FileAccess.file_exists(str(path_var)), "Elemental decorative overlay asset should exist: %s" % str(path_var))
+	board.free()
 
 func _test_special_rooms_use_corner_pillar_layout() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()

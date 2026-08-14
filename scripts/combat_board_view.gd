@@ -182,6 +182,46 @@ const MOSS_WALL_OVERLAY_PATHS: PackedStringArray = [
 const MOSS_PILLAR_OVERLAY_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/moss_overlays/moss_pillar_overlay_01.png"
 ]
+const FIRE_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/fire/fire_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/element_overlays/fire/fire_floor_overlay_02.png"
+]
+const FIRE_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/fire/fire_wall_overlay_01.png"
+]
+const FIRE_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/fire/fire_pillar_overlay_01.png"
+]
+const ICE_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/ice/ice_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/element_overlays/ice/ice_floor_overlay_02.png"
+]
+const ICE_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/ice/ice_wall_overlay_01.png"
+]
+const ICE_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/ice/ice_pillar_overlay_01.png"
+]
+const LIGHTNING_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/lightning/lightning_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/element_overlays/lightning/lightning_floor_overlay_02.png"
+]
+const LIGHTNING_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/lightning/lightning_wall_overlay_01.png"
+]
+const LIGHTNING_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/lightning/lightning_pillar_overlay_01.png"
+]
+const AIR_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/air/air_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/element_overlays/air/air_floor_overlay_02.png"
+]
+const AIR_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/air/air_wall_overlay_01.png"
+]
+const AIR_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/air/air_pillar_overlay_01.png"
+]
 const CAMPFIRE_BONFIRE_PATH: String = "res://assets/art/tiles/campfire_bonfire.png"
 const CAMPFIRE_BONFIRE_IDLE_PATH: String = "res://assets/art/tiles/campfire_bonfire_idle.png"
 const CAMPFIRE_BONFIRE_IDLE_COLUMNS: int = 4
@@ -386,7 +426,7 @@ var _last_pointer_position: Vector2 = Vector2.ZERO
 var _tile_textures: Dictionary = {}
 var _floor_texture_variants: Dictionary = {}
 var _floor_variant_by_tile: Dictionary = {}
-var _moss_texture_variants: Dictionary = {}
+var _element_overlay_texture_variants: Dictionary = {}
 var _moss_tiles_by_surface: Dictionary = {}
 var _prop_textures: Dictionary = {}
 var _scene_prop_textures: Dictionary = {}
@@ -633,7 +673,7 @@ func _sync_dynamic_render_assets() -> void:
 		return
 	for layer: Control in _retained_render_layers():
 		for field: String in [
-			"_tile_textures", "_floor_texture_variants", "_moss_texture_variants",
+			"_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants",
 			"_prop_textures", "_scene_prop_textures", "_scene_prop_idle_frames",
 			"_pillar_torch_idle_frames", "_effect_textures", "_effect_frames",
 			"_projectile_atlas", "_projectile_textures", "_ambient_particle_atlas",
@@ -9353,6 +9393,7 @@ func _moss_signature_for_state(next_state: Dictionary) -> String:
 		return ""
 	var parts: Array[String] = []
 	parts.append(_coord_signature(next_state.get("room_coord", Vector2i.ZERO)))
+	parts.append("element:%s" % str(next_state.get("room_element", ElementData.NONE)))
 	var moss: Dictionary = next_state.get("moss", {})
 	for surface: String in ["floor", "wall", "pillar"]:
 		parts.append("%s:%s" % [surface, _vector2i_array_signature(moss.get(surface, []))])
@@ -9407,7 +9448,9 @@ func _tile_has_moss(surface: String, tile: Vector2i) -> bool:
 	return surface_lookup.has(tile)
 
 func _moss_texture_for_surface(surface: String, tile: Vector2i, flip_override: bool = false) -> Texture2D:
-	var variants: Array = _moss_texture_variants.get(surface, [])
+	var element_id: String = _element_overlay_family_id()
+	var element_variants: Dictionary = _element_overlay_texture_variants.get(element_id, {})
+	var variants: Array = element_variants.get(surface, [])
 	if variants.is_empty():
 		return null
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
@@ -9417,6 +9460,10 @@ func _moss_texture_for_surface(surface: String, tile: Vector2i, flip_override: b
 	if flip_override:
 		should_flip = not should_flip
 	return AssetLoader.flip_texture_h(texture) if should_flip else texture
+
+func _element_overlay_family_id() -> String:
+	var element_id: String = str(combat_state.get("room_element", ElementData.NONE))
+	return element_id if _element_overlay_texture_variants.has(element_id) else ElementData.EARTH
 
 func _hashed_moss_variant_index(tile: Vector2i, room_coord: Vector2i, surface: String, variant_count: int) -> int:
 	if variant_count <= 1:
@@ -9489,6 +9536,18 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	var moss_floor_variants: Array[Texture2D] = _load_floor_variants(MOSS_FLOOR_OVERLAY_PATHS)
 	var moss_wall_variants: Array[Texture2D] = _load_floor_variants(MOSS_WALL_OVERLAY_PATHS)
 	var moss_pillar_variants: Array[Texture2D] = _load_floor_variants(MOSS_PILLAR_OVERLAY_PATHS)
+	var fire_floor_variants: Array[Texture2D] = _load_floor_variants(FIRE_FLOOR_OVERLAY_PATHS)
+	var fire_wall_variants: Array[Texture2D] = _load_floor_variants(FIRE_WALL_OVERLAY_PATHS)
+	var fire_pillar_variants: Array[Texture2D] = _load_floor_variants(FIRE_PILLAR_OVERLAY_PATHS)
+	var ice_floor_variants: Array[Texture2D] = _load_floor_variants(ICE_FLOOR_OVERLAY_PATHS)
+	var ice_wall_variants: Array[Texture2D] = _load_floor_variants(ICE_WALL_OVERLAY_PATHS)
+	var ice_pillar_variants: Array[Texture2D] = _load_floor_variants(ICE_PILLAR_OVERLAY_PATHS)
+	var lightning_floor_variants: Array[Texture2D] = _load_floor_variants(LIGHTNING_FLOOR_OVERLAY_PATHS)
+	var lightning_wall_variants: Array[Texture2D] = _load_floor_variants(LIGHTNING_WALL_OVERLAY_PATHS)
+	var lightning_pillar_variants: Array[Texture2D] = _load_floor_variants(LIGHTNING_PILLAR_OVERLAY_PATHS)
+	var air_floor_variants: Array[Texture2D] = _load_floor_variants(AIR_FLOOR_OVERLAY_PATHS)
+	var air_wall_variants: Array[Texture2D] = _load_floor_variants(AIR_WALL_OVERLAY_PATHS)
+	var air_pillar_variants: Array[Texture2D] = _load_floor_variants(AIR_PILLAR_OVERLAY_PATHS)
 	_tile_textures = {
 		"stone": stone_floor_variants[0] if not stone_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/art/tiles/stone.png"),
 		"ember": AssetLoader.load_texture("res://assets/art/tiles/ember.png")
@@ -9496,10 +9555,12 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	_floor_texture_variants = {
 		"stone": stone_floor_variants
 	}
-	_moss_texture_variants = {
-		"floor": moss_floor_variants,
-		"wall": moss_wall_variants,
-		"pillar": moss_pillar_variants
+	_element_overlay_texture_variants = {
+		ElementData.EARTH: {"floor": moss_floor_variants, "wall": moss_wall_variants, "pillar": moss_pillar_variants},
+		ElementData.FIRE: {"floor": fire_floor_variants, "wall": fire_wall_variants, "pillar": fire_pillar_variants},
+		ElementData.ICE: {"floor": ice_floor_variants, "wall": ice_wall_variants, "pillar": ice_pillar_variants},
+		ElementData.LIGHTNING: {"floor": lightning_floor_variants, "wall": lightning_wall_variants, "pillar": lightning_pillar_variants},
+		ElementData.AIR: {"floor": air_floor_variants, "wall": air_wall_variants, "pillar": air_pillar_variants}
 	}
 	var pillar_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/pillar.png"))
 	var wall_row_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/wall.png"))
