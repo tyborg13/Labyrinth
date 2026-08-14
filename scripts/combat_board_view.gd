@@ -9450,7 +9450,7 @@ func _tile_has_moss(surface: String, tile: Vector2i) -> bool:
 	if surface != "floor" or _element_overlay_family_id() == ElementData.EARTH:
 		return true
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
-	return posmod(_hashed_moss_value(tile, room_coord, surface, 419), 11) < 4
+	return posmod(_hashed_moss_value(tile, room_coord, surface, 419), 11) < 6
 
 func _moss_texture_for_surface(surface: String, tile: Vector2i, flip_override: bool = false) -> Texture2D:
 	var element_id: String = _element_overlay_family_id(surface)

@@ -994,7 +994,7 @@ func _test_elemental_room_overlays_are_decorative_and_distinct() -> void:
 		if bool(board.call("_tile_has_moss", "floor", tile)):
 			repeated_sparse_floor_tiles.append(tile)
 	_assert(sparse_floor_tiles == repeated_sparse_floor_tiles, "Sparse elemental floor accents should remain deterministic")
-	_assert(sparse_floor_tiles.size() >= 20 and sparse_floor_tiles.size() <= 44, "Non-earth floor accents should use roughly one-third of the established moss candidate density")
+	_assert(sparse_floor_tiles.size() >= 38 and sparse_floor_tiles.size() <= 58, "Non-earth floor accents should use roughly half of the established moss candidate density")
 
 	var shared_moss_state: Dictionary = {
 		"room_coord": Vector2i(2, 1),
