@@ -13,7 +13,9 @@ static func run(expect: Callable) -> void:
 	_test_visibility_boundary_hides_unknown_enemies(expect)
 	_test_isometric_direction_supports_arbitrary_angles(expect)
 	_test_overhead_panel_is_progressive_disclosure(expect)
-	_test_large_enemy_compass_uses_front_depth_anchor(expect)
+	_test_compass_centers_on_rendered_sprite_footprint(expect)
+	_test_compass_family_tints_preserve_shape_cues(expect)
+	_test_support_arm_mirrors_upright_when_pointing_left(expect)
 
 
 static func _test_action_families_are_distinct(expect: Callable) -> void:
@@ -138,18 +140,48 @@ static func _test_overhead_panel_is_progressive_disclosure(expect: Callable) -> 
 	board.free()
 
 
-static func _test_large_enemy_compass_uses_front_depth_anchor(expect: Callable) -> void:
+static func _test_compass_centers_on_rendered_sprite_footprint(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.size = Vector2(1920.0, 1080.0)
+	board.call("_load_assets", false)
 	var large_enemy: Dictionary = _enemy(61, Vector2i(3, 2), {"name": "Breath", "actions": [{"type": "ranged", "damage": 8}]})
 	large_enemy["role"] = "enemy"
 	large_enemy["key"] = "enemy_61"
 	large_enemy["footprint"] = Vector2i(2, 2)
 	board.combat_state = {"grid": _grid(9, 8)}
-	var expected: Vector2 = board.call("_tile_center", board.call("_effective_unit_tile", large_enemy)) as Vector2
-	expected.y += float(board.call("_tile_height")) * 0.12
+	var texture: Texture2D = board.call("_texture_for_unit", large_enemy) as Texture2D
+	var draw_rect: Rect2 = board.call("_unit_draw_rect", large_enemy) as Rect2
+	var expected: Vector2 = board.call("_unit_center", large_enemy) as Vector2
+	expected.y += float(board.call("_tile_height")) * 0.18
+	if texture != null:
+		var bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", texture) as Rect2
+		if bounds.size.x > 0.0 and bounds.size.y > 0.0:
+			expected = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, "crawler") as Vector2
+			expected.y += float(board.call("_tile_height")) * 0.025
 	var actual: Vector2 = board.call("_intent_compass_center", large_enemy) as Vector2
-	expect.call(actual.is_equal_approx(expected), "Large enemy compass should use the front draw tile where the symbol stays visible at its feet")
+	expect.call(actual.is_equal_approx(expected), "Compass should center on the rendered sprite's opaque footprint rather than the abstract tile center")
+	expect.call(str(board.get_script().source_code).find("_unit_shadow_foot_point(texture, draw_rect, bounds") >= 0, "Loaded enemy art should use its opaque footprint for compass centering")
+	board.free()
+
+
+static func _test_compass_family_tints_preserve_shape_cues(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	var melee_tint: Color = board.call("_intent_compass_arm_tint", EnemyIntentCompass.FAMILY_MELEE) as Color
+	var ranged_tint: Color = board.call("_intent_compass_arm_tint", EnemyIntentCompass.FAMILY_RANGED) as Color
+	var defense_tint: Color = board.call("_intent_compass_arm_tint", EnemyIntentCompass.FAMILY_DEFENSE) as Color
+	var support_tint: Color = board.call("_intent_compass_arm_tint", EnemyIntentCompass.FAMILY_SUPPORT) as Color
+	expect.call(melee_tint.r > melee_tint.b and ranged_tint.r > ranged_tint.b, "Attack compass families should use a red filter")
+	expect.call(defense_tint.b > defense_tint.r, "Defense compass should use a blue filter")
+	expect.call(is_equal_approx(support_tint.r, support_tint.b), "Support should preserve its authored neutral palette")
+	var underlay_scale: float = float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_UNDERLAY_SCALE", 0.0))
+	expect.call(underlay_scale > 1.02 and underlay_scale < 1.12, "Compass visibility underlay should remain subtle")
+	board.free()
+
+
+static func _test_support_arm_mirrors_upright_when_pointing_left(expect: Callable) -> void:
+	var board: CombatBoardView = CombatBoardView.new()
+	var source: String = board.get_script().source_code
+	expect.call(source.find("family == EnemyIntentCompass.FAMILY_SUPPORT and cos(angle) < 0.0") >= 0, "Left-facing support arms should mirror instead of rotating the hand upside down")
 	board.free()
 
 

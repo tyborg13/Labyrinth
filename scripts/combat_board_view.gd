@@ -61,6 +61,10 @@ const INTENT_COMPASS_RING_TILE_SCALE: float = 0.72
 const INTENT_COMPASS_RING_SOURCE_DIAMETER: float = 178.0
 const INTENT_COMPASS_ARM_PIVOT: Vector2 = Vector2(48.0, 128.0)
 const INTENT_COMPASS_ARM_SCALE: float = 0.78
+const INTENT_COMPASS_UNDERLAY_SCALE: float = 1.075
+const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)
+const INTENT_COMPASS_ATTACK_TINT := Color(1.0, 0.42, 0.38, 0.98)
+const INTENT_COMPASS_DEFENSE_TINT := Color(0.50, 0.74, 1.0, 0.98)
 const INTENT_COMPASS_VALUE_FONT_SIZE: int = 14
 const TERRAIN_BAR_FILL: Color = Color("d9b84f")
 const STATUS_BURN: Color = Color("f28a42")
@@ -4862,14 +4866,20 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	var arm_scale: float = scale_factor * INTENT_COMPASS_ARM_SCALE
 	var basis_x := Vector2(cos(angle) * arm_scale, sin(angle) * arm_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
 	var basis_y := Vector2(-sin(angle) * arm_scale, cos(angle) * arm_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	if family == EnemyIntentCompass.FAMILY_SUPPORT and cos(angle) < 0.0:
+		basis_y = -basis_y
 	var base_basis_x := Vector2(scale_factor, 0.0)
 	var base_basis_y := Vector2(0.0, scale_factor * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	draw_set_transform_matrix(Transform2D(base_basis_x * INTENT_COMPASS_UNDERLAY_SCALE, base_basis_y * INTENT_COMPASS_UNDERLAY_SCALE, center))
+	draw_texture(base_texture, -base_texture.get_size() * 0.5, INTENT_COMPASS_UNDERLAY_COLOR)
 	draw_set_transform_matrix(Transform2D(base_basis_x, base_basis_y, center))
 	draw_texture(base_texture, -base_texture.get_size() * 0.5, Color(1.0, 1.0, 1.0, 0.96))
+	draw_set_transform_matrix(Transform2D(basis_x * INTENT_COMPASS_UNDERLAY_SCALE, basis_y * INTENT_COMPASS_UNDERLAY_SCALE, center))
+	draw_texture(arm_texture, -INTENT_COMPASS_ARM_PIVOT, INTENT_COMPASS_UNDERLAY_COLOR)
 	draw_set_transform_matrix(Transform2D(basis_x, basis_y, center))
-	draw_texture(arm_texture, -INTENT_COMPASS_ARM_PIVOT, Color(1.0, 1.0, 1.0, 0.96))
+	draw_texture(arm_texture, -INTENT_COMPASS_ARM_PIVOT, _intent_compass_arm_tint(family))
 	draw_set_transform_matrix(Transform2D.IDENTITY)
-	_draw_enemy_intent_compass_value(center, target_world, int(descriptor.get("value", 0)))
+	_draw_enemy_intent_compass_value(center, target_world, int(descriptor.get("value", 0)), family)
 	var intent: Dictionary = unit.get("intent", {}) as Dictionary
 	var tooltip: String = _intent_display_name(intent)
 	var lines: PackedStringArray = _intent_lines(intent)
@@ -4880,18 +4890,23 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		_register_tooltip(Rect2(center - hit_size * 0.5, hit_size), tooltip)
 
 func _intent_compass_center(unit: Dictionary) -> Vector2:
-	var footprint_tiles: Array[Vector2i] = _unit_footprint_tiles(unit)
-	if footprint_tiles.is_empty():
-		return _unit_center(unit) + Vector2(0.0, _tile_height() * 0.18)
-	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
-	if footprint.x > 1 or footprint.y > 1:
-		return _tile_center(_effective_unit_tile(unit)) + Vector2(0.0, _tile_height() * 0.12)
-	var center := Vector2.ZERO
-	for tile: Vector2i in footprint_tiles:
-		center += _tile_center(tile)
-	return center / float(footprint_tiles.size()) + Vector2(0.0, _tile_height() * 0.12)
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture != null:
+		var draw_rect: Rect2 = _unit_draw_rect(unit)
+		var bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
+		if bounds.size.x > 0.0 and bounds.size.y > 0.0:
+			var foot_point: Vector2 = _unit_shadow_foot_point(texture, draw_rect, bounds, str(unit.get("type", "")))
+			return foot_point + Vector2(0.0, _tile_height() * 0.025)
+	return _unit_center(unit) + Vector2(0.0, _tile_height() * 0.18)
 
-func _draw_enemy_intent_compass_value(center: Vector2, target_world: Vector2, value: int) -> void:
+func _intent_compass_arm_tint(family: String) -> Color:
+	if family in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_AREA]:
+		return INTENT_COMPASS_ATTACK_TINT
+	if family == EnemyIntentCompass.FAMILY_DEFENSE:
+		return INTENT_COMPASS_DEFENSE_TINT
+	return Color(1.0, 1.0, 1.0, 0.96)
+
+func _draw_enemy_intent_compass_value(center: Vector2, target_world: Vector2, value: int, family: String) -> void:
 	if value <= 0:
 		return
 	var font: Font = get_theme_default_font()
@@ -4903,8 +4918,10 @@ func _draw_enemy_intent_compass_value(center: Vector2, target_world: Vector2, va
 	var text: String = str(value)
 	var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE).x
 	var baseline: Vector2 = center - away * _tile_width() * 0.105 + Vector2(-width * 0.5, 5.0)
+	var value_color: Color = _intent_compass_arm_tint(family)
+	value_color.a = 1.0
 	draw_string(font, baseline + Vector2(1.0, 2.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, Color(0.03, 0.02, 0.01, 0.94))
-	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, Color("fff0c2"))
+	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, value_color)
 
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	if not _hud_layout_entries_cache.is_empty():

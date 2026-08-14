@@ -44,6 +44,13 @@ func _initialize() -> void:
 	var reduced: Dictionary = presentation.duplicate(true)
 	reduced["reduced_motion"] = true
 	await _capture(viewport, board, state, reduced, "intent_compass_reduced_motion_1920x1080.png")
+	var dense: Dictionary = presentation.duplicate(true)
+	dense["scene_props"] = [
+		{"kind": "relic_chest", "tile": Vector2i(4, 3), "width_scale": 0.78, "baseline_scale": 0.44},
+		{"kind": "blacksmith_forge", "tile": Vector2i(6, 3), "width_scale": 0.92, "baseline_scale": 0.48},
+		{"kind": "arcanist_table", "tile": Vector2i(5, 5), "width_scale": 0.88, "baseline_scale": 0.46},
+	]
+	await _capture(viewport, board, state, dense, "intent_compass_dense_board_1920x1080.png")
 	await _capture(viewport, board, _large_hidden_probe_state(), _large_hidden_presentation(), "intent_compass_large_hidden_1920x1080.png")
 
 	_verify_layout(board, state)
@@ -83,9 +90,12 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 	for enemy_var: Variant in state.get("enemies", []):
 		var enemy: Dictionary = enemy_var as Dictionary
 		var center: Vector2 = board.call("_intent_compass_center", enemy) as Vector2
-		var tile_center: Vector2 = board.call("_tile_center", enemy.get("pos", Vector2i.ZERO)) as Vector2
-		_expect(absf(center.x - tile_center.x) <= tile_width * 0.06, "Compass should stay centered under enemy %d" % int(enemy.get("id", -1)))
-		_expect(absf(center.y - tile_center.y) <= tile_width * 0.12, "Compass should remain grounded in the enemy tile plane")
+		var texture: Texture2D = board.call("_texture_for_unit", enemy) as Texture2D
+		var draw_rect: Rect2 = board.call("_unit_draw_rect", enemy) as Rect2
+		var bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", texture) as Rect2
+		var foot_point: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, str(enemy.get("type", ""))) as Vector2
+		_expect(absf(center.x - foot_point.x) <= 0.01, "Compass should center on enemy %d's rendered sprite footprint" % int(enemy.get("id", -1)))
+		_expect(absf(center.y - foot_point.y - float(board.call("_tile_height")) * 0.025) <= 0.01, "Compass should remain grounded directly beneath enemy %d" % int(enemy.get("id", -1)))
 
 
 func _verify_reduced_motion_equivalence(board: Control, state: Dictionary, presentation: Dictionary) -> void:
