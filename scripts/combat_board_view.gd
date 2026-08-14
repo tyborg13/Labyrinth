@@ -171,13 +171,10 @@ const DOOR_OPENING_FRAME_REGIONS := [
 const PILLAR_MOSS_OFFSET_X_SCALE: float = -0.04
 const PILLAR_MOSS_OFFSET_Y_SCALE: float = 0.16
 const STONE_FLOOR_VARIANT_PATHS: PackedStringArray = [
-	"res://assets/placeholders/tiles/base_floor_tile_01.png",
 	"res://assets/placeholders/tiles/base_floor_tile_02.png",
 	"res://assets/placeholders/tiles/base_floor_tile_03.png",
-	"res://assets/placeholders/tiles/base_floor_tile_04.png",
 	"res://assets/placeholders/tiles/base_floor_tile_05.png",
-	"res://assets/placeholders/tiles/base_floor_tile_06.png",
-	"res://assets/placeholders/tiles/base_floor_tile_07.png"
+	"res://assets/placeholders/tiles/base_floor_tile_06.png"
 ]
 const MOSS_FLOOR_OVERLAY_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/moss_overlays/moss_floor_overlay_01.png",
