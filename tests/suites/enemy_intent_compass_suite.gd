@@ -144,6 +144,22 @@ static func _test_compass_stays_on_logical_tile_center(expect: Callable) -> void
 	expect.call(animated_frame.is_equal_approx(expected), "Compass footprint anchor should ignore idle frames and transient sprite presentation offsets")
 	expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", large_enemy)), 2.0), "A 2x2 boss compass should scale to its four-tile footprint")
 	expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", _enemy(62, Vector2i(2, 2), {}))), 1.0), "Normal enemies should retain a one-tile compass")
+	var refreshed_boss_without_footprint: Dictionary = large_enemy.duplicate(true)
+	refreshed_boss_without_footprint["type"] = "zekarion"
+	refreshed_boss_without_footprint.erase("footprint")
+	var refreshed_boss_with_default_footprint: Dictionary = refreshed_boss_without_footprint.duplicate(true)
+	refreshed_boss_with_default_footprint["footprint"] = Vector2i.ONE
+	var refreshed_expected: Vector2 = board.call("world_position_for_unit_origin", large_enemy, Vector2i(3, 2)) as Vector2
+	for refreshed_boss: Dictionary in [refreshed_boss_without_footprint, refreshed_boss_with_default_footprint]:
+		expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", refreshed_boss)), 2.0), "Zekarion refresh snapshots should recover the authored 2x2 footprint")
+		expect.call((board.call("_intent_compass_center", refreshed_boss) as Vector2).is_equal_approx(refreshed_expected), "Zekarion support refresh should remain centered on all four footprint tiles")
+	var moved_boss: Dictionary = large_enemy.duplicate(true)
+	moved_boss["type"] = "zekarion"
+	moved_boss["pos"] = Vector2i(4, 2)
+	moved_boss["intent"] = {"id": "call_wisps", "name": "Call Wisps", "actions": [{"type": "summon_minions", "count": 2}]}
+	var moved_expected: Vector2 = board.call("world_position_for_unit_origin", moved_boss, Vector2i(4, 2)) as Vector2
+	expect.call((board.call("_intent_compass_center", moved_boss) as Vector2).is_equal_approx(moved_expected), "A moved boss's support compass should follow the full new footprint, not its top-left origin tile")
+	expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", moved_boss)), 2.0), "A moved boss's support compass should retain its four-tile scale")
 	board.free()
 
 

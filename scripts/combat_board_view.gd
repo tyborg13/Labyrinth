@@ -4895,11 +4895,29 @@ func _intent_compass_emblem_scale(family: String) -> float:
 
 func _intent_compass_center(unit: Dictionary) -> Vector2:
 	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
-	return world_position_for_unit_origin(unit, tile)
+	var anchored_unit: Dictionary = unit.duplicate(false)
+	anchored_unit["footprint"] = _intent_compass_footprint(unit)
+	return world_position_for_unit_origin(anchored_unit, tile)
 
 func _intent_compass_footprint_scale(unit: Dictionary) -> float:
-	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	var footprint: Vector2i = _intent_compass_footprint(unit)
 	return float(maxi(maxi(1, footprint.x), maxi(1, footprint.y)))
+
+func _intent_compass_footprint(unit: Dictionary) -> Vector2i:
+	var state_footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	state_footprint = Vector2i(maxi(1, state_footprint.x), maxi(1, state_footprint.y))
+	var definition: Dictionary = GameData.enemy_def(str(unit.get("type", "")))
+	var definition_value: Variant = definition.get("footprint", [])
+	if typeof(definition_value) != TYPE_ARRAY or (definition_value as Array).size() < 2:
+		return state_footprint
+	var definition_footprint := Vector2i(
+		maxi(1, int((definition_value as Array)[0])),
+		maxi(1, int((definition_value as Array)[1]))
+	)
+	return Vector2i(
+		maxi(state_footprint.x, definition_footprint.x),
+		maxi(state_footprint.y, definition_footprint.y)
+	)
 
 func _intent_compass_emblem_tint(family: String) -> Color:
 	if family == EnemyIntentCompass.FAMILY_ATTACK:

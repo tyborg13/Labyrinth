@@ -61,7 +61,20 @@ func _initialize() -> void:
 		{"kind": "arcanist_table", "tile": Vector2i(5, 5), "width_scale": 0.88, "baseline_scale": 0.46},
 	]
 	await _capture(viewport, board, state, dense, "intent_emblems_dense_board_1920x1080.png")
-	await _capture(viewport, board, _large_hidden_probe_state(), _large_hidden_presentation(), "intent_emblems_large_hidden_1920x1080.png")
+	var boss_attack_state: Dictionary = _large_hidden_probe_state()
+	var boss_attack_presentation: Dictionary = _large_hidden_presentation()
+	await _capture(viewport, board, boss_attack_state, boss_attack_presentation, "intent_emblems_large_hidden_1920x1080.png")
+	await _capture(viewport, board, boss_attack_state, boss_attack_presentation, "intent_boss_attack_before_support_refresh_1920x1080.png")
+	var boss_support_state: Dictionary = boss_attack_state.duplicate(true)
+	var refreshed_boss: Dictionary = ((boss_support_state.get("enemies", []) as Array)[0] as Dictionary)
+	refreshed_boss["pos"] = Vector2i(5, 2)
+	refreshed_boss["intent"] = {
+		"name": "Call Wisps",
+		"actions": [{"type": "summon_minions", "minion_type": "lightning_wisp", "count": 2}],
+	}
+	var boss_support_presentation: Dictionary = boss_attack_presentation.duplicate(true)
+	(boss_support_presentation.get("enemy_intent_compasses", {}) as Dictionary)["enemy_70"] = _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "summon_minions", 2)
+	await _capture(viewport, board, boss_support_state, boss_support_presentation, "intent_boss_call_wisps_after_refresh_1920x1080.png")
 
 	_verify_layout(board, state)
 	_verify_reduced_motion_equivalence(board, state, presentation)
@@ -116,6 +129,13 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 		_expect(center.is_equal_approx(footprint_center), "Compass should center exactly on enemy %d's logical footprint" % int(enemy.get("id", -1)))
 	var boss: Dictionary = (_large_hidden_probe_state().get("enemies", []) as Array)[0] as Dictionary
 	_expect(is_equal_approx(float(board.call("_intent_compass_footprint_scale", boss)), 2.0), "The 2x2 boss compass should scale across all four occupied tiles")
+	var moved_boss: Dictionary = boss.duplicate(true)
+	moved_boss["pos"] = Vector2i(5, 2)
+	_expect(is_equal_approx(float(board.call("_intent_compass_footprint_scale", moved_boss)), 2.0), "The refreshed boss compass should remain scaled after movement")
+	_expect(
+		(board.call("_intent_compass_center", moved_boss) as Vector2).is_equal_approx(board.call("world_position_for_unit_origin", moved_boss, Vector2i(5, 2)) as Vector2),
+		"The refreshed boss compass should remain centered across the moved four-tile footprint"
+	)
 
 
 func _verify_reduced_motion_equivalence(board: Control, state: Dictionary, presentation: Dictionary) -> void:

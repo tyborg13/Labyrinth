@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-14T13:10:27Z",
+  "updated_at": "2026-08-14T13:34:16Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8029,6 +8029,28 @@
       "source": {
         "branch": "codex/implement-production-enemy-intent-compass-revision-3",
         "commit": "65b434e"
+      }
+    },
+    {
+      "id": "mnt_20260814T133416Z_12c33750",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_intent_compass_footprint"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_intent_compass_footprint",
+      "summary": "Intent compass refresh snapshots must recover authored boss footprints",
+      "details": "Enemy intent refresh and animation presentation can transiently omit or default footprint metadata. Resolve the compass footprint component-wise against GameData.enemy_def so 2x2 bosses remain centered and scaled across movement and attack-to-support transitions.",
+      "status": "active",
+      "created_at": "2026-08-14T13:34:16Z",
+      "updated_at": "2026-08-14T13:34:16Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-production-enemy-intent-compass-revision-3",
+        "commit": "01ad05c"
       }
     }
   ]
