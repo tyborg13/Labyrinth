@@ -15,7 +15,7 @@ static func run(expect: Callable) -> void:
 	_test_overhead_panel_is_progressive_disclosure(expect)
 	_test_compass_stays_on_logical_tile_center(expect)
 	_test_compass_family_tints_preserve_shape_cues(expect)
-	_test_shield_and_support_symbols_mirror_upright_when_pointing_left(expect)
+	_test_compass_emblems_are_contained_and_nondirectional(expect)
 
 
 static func _test_action_families_are_distinct(expect: Callable) -> void:
@@ -161,10 +161,10 @@ static func _test_compass_stays_on_logical_tile_center(expect: Callable) -> void
 
 static func _test_compass_family_tints_preserve_shape_cues(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
-	var melee_tint: Color = board.call("_intent_compass_arm_tint", EnemyIntentCompass.FAMILY_MELEE) as Color
-	var ranged_tint: Color = board.call("_intent_compass_arm_tint", EnemyIntentCompass.FAMILY_RANGED) as Color
-	var defense_tint: Color = board.call("_intent_compass_arm_tint", EnemyIntentCompass.FAMILY_DEFENSE) as Color
-	var support_tint: Color = board.call("_intent_compass_arm_tint", EnemyIntentCompass.FAMILY_SUPPORT) as Color
+	var melee_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_MELEE) as Color
+	var ranged_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_RANGED) as Color
+	var defense_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_DEFENSE) as Color
+	var support_tint: Color = board.call("_intent_compass_emblem_tint", EnemyIntentCompass.FAMILY_SUPPORT) as Color
 	expect.call(melee_tint.r > melee_tint.b and ranged_tint.r > ranged_tint.b, "Attack compass families should use a red filter")
 	expect.call(defense_tint.b > defense_tint.r, "Defense compass should use a blue filter")
 	expect.call(is_equal_approx(support_tint.r, support_tint.b), "Support should preserve its authored neutral palette")
@@ -173,13 +173,17 @@ static func _test_compass_family_tints_preserve_shape_cues(expect: Callable) -> 
 	board.free()
 
 
-static func _test_shield_and_support_symbols_mirror_upright_when_pointing_left(expect: Callable) -> void:
+static func _test_compass_emblems_are_contained_and_nondirectional(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
-	expect.call(bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_SUPPORT, PI)), "Left-facing support hands should mirror upright")
-	expect.call(bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_DEFENSE, PI)), "Left-facing shields should mirror upright")
-	expect.call(not bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_SUPPORT, 0.0)), "Right-facing support hands should retain their authored orientation")
-	expect.call(not bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_DEFENSE, 0.0)), "Right-facing shields should retain their authored orientation")
-	expect.call(not bool(board.call("_intent_compass_symbol_should_mirror_upright", EnemyIntentCompass.FAMILY_MELEE, PI)), "Directional attack silhouettes should continue rotating normally")
+	var source: String = board.get_script().source_code
+	var emblem_scale: float = float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_EMBLEM_SCALE", 0.0))
+	expect.call(emblem_scale >= 0.84 and emblem_scale <= 0.92, "Contained emblems should occupy nearly all of the compass interior")
+	expect.call(source.find("EnemyIntentCompass.direction_angle(center") < 0, "Compass rendering should not rotate emblems toward a target")
+	expect.call(source.find("INTENT_COMPASS_ARM_PIVOT") < 0, "Compass rendering should not retain a directional arm pivot")
+	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_AREA, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT, EnemyIntentCompass.FAMILY_MOVEMENT, EnemyIntentCompass.FAMILY_INTENSITY]:
+		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
+		expect.call(image.get_size() == Vector2i(256, 256), "Compass emblem %s should use the normalized square asset canvas" % family)
+		expect.call(image.detect_alpha(), "Compass emblem %s should preserve transparent margins" % family)
 	board.free()
 
 

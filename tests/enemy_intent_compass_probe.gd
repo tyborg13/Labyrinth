@@ -37,21 +37,21 @@ func _initialize() -> void:
 		"reduced_motion": false,
 		"enemy_intent_compasses": _probe_descriptors(),
 	}
-	await _capture(viewport, board, state, presentation, "intent_compass_all_families_1920x1080.png")
+	await _capture(viewport, board, state, presentation, "intent_emblems_all_families_1920x1080.png")
 	var inspected: Dictionary = presentation.duplicate(true)
 	inspected["expanded_enemy_actor_keys"] = ["enemy_2"]
-	await _capture(viewport, board, state, inspected, "intent_compass_focused_inspection_1920x1080.png")
+	await _capture(viewport, board, state, inspected, "intent_emblems_focused_inspection_1920x1080.png")
 	var reduced: Dictionary = presentation.duplicate(true)
 	reduced["reduced_motion"] = true
-	await _capture(viewport, board, state, reduced, "intent_compass_reduced_motion_1920x1080.png")
+	await _capture(viewport, board, state, reduced, "intent_emblems_reduced_motion_1920x1080.png")
 	var dense: Dictionary = presentation.duplicate(true)
 	dense["scene_props"] = [
 		{"kind": "relic_chest", "tile": Vector2i(4, 3), "width_scale": 0.78, "baseline_scale": 0.44},
 		{"kind": "blacksmith_forge", "tile": Vector2i(6, 3), "width_scale": 0.92, "baseline_scale": 0.48},
 		{"kind": "arcanist_table", "tile": Vector2i(5, 5), "width_scale": 0.88, "baseline_scale": 0.46},
 	]
-	await _capture(viewport, board, state, dense, "intent_compass_dense_board_1920x1080.png")
-	await _capture(viewport, board, _large_hidden_probe_state(), _large_hidden_presentation(), "intent_compass_large_hidden_1920x1080.png")
+	await _capture(viewport, board, state, dense, "intent_emblems_dense_board_1920x1080.png")
+	await _capture(viewport, board, _large_hidden_probe_state(), _large_hidden_presentation(), "intent_emblems_large_hidden_1920x1080.png")
 
 	_verify_layout(board, state)
 	_verify_reduced_motion_equivalence(board, state, presentation)
@@ -80,12 +80,12 @@ func _capture(viewport: SubViewport, board: Control, state: Dictionary, presenta
 func _verify_layout(board: Control, state: Dictionary) -> void:
 	var tile_width: float = float(board.call("_tile_width"))
 	var ring_diameter: float = tile_width * float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_RING_TILE_SCALE", 0.0))
-	var arm_scale: float = float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_ARM_SCALE", 0.0))
+	var emblem_scale: float = float(board.get_script().get_script_constant_map().get("INTENT_COMPASS_EMBLEM_SCALE", 0.0))
 	_expect(ring_diameter >= tile_width * 0.76 and ring_diameter <= tile_width * 0.82, "Compass ring should be slightly enlarged while spilling only minimally beyond its tile")
-	_expect(arm_scale >= 0.70 and arm_scale <= 0.82, "Compass arm should remain legible without reaching deeply into neighboring tiles")
+	_expect(emblem_scale >= 0.84 and emblem_scale <= 0.92, "Compass emblem should fill nearly all of the ring without reaching neighboring tiles")
 	_expect(
-		str(board.get_script().source_code).find("draw_texture(base_texture") < str(board.get_script().source_code).find("draw_texture(arm_texture"),
-		"Compass arm should render over the circular face"
+		str(board.get_script().source_code).find("draw_texture(base_texture") < str(board.get_script().source_code).find("draw_texture(emblem_texture"),
+		"Compass emblem should render over the circular face"
 	)
 	for enemy_var: Variant in state.get("enemies", []):
 		var enemy: Dictionary = enemy_var as Dictionary

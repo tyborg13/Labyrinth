@@ -59,8 +59,7 @@ const ENEMY_BAR_FILL: Color = Color("d06752")
 const INTENT_COMPASS_ISOMETRIC_Y_SCALE: float = 0.50
 const INTENT_COMPASS_RING_TILE_SCALE: float = 0.78
 const INTENT_COMPASS_RING_SOURCE_DIAMETER: float = 178.0
-const INTENT_COMPASS_ARM_PIVOT: Vector2 = Vector2(48.0, 128.0)
-const INTENT_COMPASS_ARM_SCALE: float = 0.78
+const INTENT_COMPASS_EMBLEM_SCALE: float = 0.88
 const INTENT_COMPASS_UNDERLAY_SCALE: float = 1.075
 const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)
 const INTENT_COMPASS_ATTACK_TINT := Color(1.0, 0.42, 0.38, 0.98)
@@ -4853,33 +4852,26 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		return
 	var family: String = str(descriptor.get("family", EnemyIntentCompass.FAMILY_MOVEMENT))
 	var base_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path("base"))
-	var arm_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
-	if base_texture == null or arm_texture == null:
+	var emblem_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
+	if base_texture == null or emblem_texture == null:
 		return
 	var center: Vector2 = _intent_compass_center(unit)
-	var target_tile: Vector2i = descriptor.get("target_tile", EnemyIntentCompass.INVALID_TILE)
-	var target_world: Vector2 = center + Vector2(1.0, INTENT_COMPASS_ISOMETRIC_Y_SCALE)
-	if target_tile != EnemyIntentCompass.INVALID_TILE:
-		target_world = _tile_center(target_tile)
-	var angle: float = EnemyIntentCompass.direction_angle(center, target_world, INTENT_COMPASS_ISOMETRIC_Y_SCALE)
 	var scale_factor: float = _tile_width() * INTENT_COMPASS_RING_TILE_SCALE / INTENT_COMPASS_RING_SOURCE_DIAMETER
-	var arm_scale: float = scale_factor * INTENT_COMPASS_ARM_SCALE
-	var basis_x := Vector2(cos(angle) * arm_scale, sin(angle) * arm_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
-	var basis_y := Vector2(-sin(angle) * arm_scale, cos(angle) * arm_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
-	if _intent_compass_symbol_should_mirror_upright(family, angle):
-		basis_y = -basis_y
+	var emblem_scale: float = scale_factor * INTENT_COMPASS_EMBLEM_SCALE
+	var emblem_basis_x := Vector2(emblem_scale, 0.0)
+	var emblem_basis_y := Vector2(0.0, emblem_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
 	var base_basis_x := Vector2(scale_factor, 0.0)
 	var base_basis_y := Vector2(0.0, scale_factor * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
 	draw_set_transform_matrix(Transform2D(base_basis_x * INTENT_COMPASS_UNDERLAY_SCALE, base_basis_y * INTENT_COMPASS_UNDERLAY_SCALE, center))
 	draw_texture(base_texture, -base_texture.get_size() * 0.5, INTENT_COMPASS_UNDERLAY_COLOR)
 	draw_set_transform_matrix(Transform2D(base_basis_x, base_basis_y, center))
 	draw_texture(base_texture, -base_texture.get_size() * 0.5, Color(1.0, 1.0, 1.0, 0.96))
-	draw_set_transform_matrix(Transform2D(basis_x * INTENT_COMPASS_UNDERLAY_SCALE, basis_y * INTENT_COMPASS_UNDERLAY_SCALE, center))
-	draw_texture(arm_texture, -INTENT_COMPASS_ARM_PIVOT, INTENT_COMPASS_UNDERLAY_COLOR)
-	draw_set_transform_matrix(Transform2D(basis_x, basis_y, center))
-	draw_texture(arm_texture, -INTENT_COMPASS_ARM_PIVOT, _intent_compass_arm_tint(family))
+	draw_set_transform_matrix(Transform2D(emblem_basis_x * INTENT_COMPASS_UNDERLAY_SCALE, emblem_basis_y * INTENT_COMPASS_UNDERLAY_SCALE, center))
+	draw_texture(emblem_texture, -emblem_texture.get_size() * 0.5, INTENT_COMPASS_UNDERLAY_COLOR)
+	draw_set_transform_matrix(Transform2D(emblem_basis_x, emblem_basis_y, center))
+	draw_texture(emblem_texture, -emblem_texture.get_size() * 0.5, _intent_compass_emblem_tint(family))
 	draw_set_transform_matrix(Transform2D.IDENTITY)
-	_draw_enemy_intent_compass_value(center, target_world, int(descriptor.get("value", 0)), family)
+	_draw_enemy_intent_compass_value(center, int(descriptor.get("value", 0)), family)
 	var intent: Dictionary = unit.get("intent", {}) as Dictionary
 	var tooltip: String = _intent_display_name(intent)
 	var lines: PackedStringArray = _intent_lines(intent)
@@ -4893,30 +4885,23 @@ func _intent_compass_center(unit: Dictionary) -> Vector2:
 	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
 	return _tile_center(tile)
 
-func _intent_compass_symbol_should_mirror_upright(family: String, angle: float) -> bool:
-	var upright_symbol: bool = family == EnemyIntentCompass.FAMILY_SUPPORT or family == EnemyIntentCompass.FAMILY_DEFENSE
-	return upright_symbol and cos(angle) < 0.0
-
-func _intent_compass_arm_tint(family: String) -> Color:
+func _intent_compass_emblem_tint(family: String) -> Color:
 	if family in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_AREA]:
 		return INTENT_COMPASS_ATTACK_TINT
 	if family == EnemyIntentCompass.FAMILY_DEFENSE:
 		return INTENT_COMPASS_DEFENSE_TINT
 	return Color(1.0, 1.0, 1.0, 0.96)
 
-func _draw_enemy_intent_compass_value(center: Vector2, target_world: Vector2, value: int, family: String) -> void:
+func _draw_enemy_intent_compass_value(center: Vector2, value: int, family: String) -> void:
 	if value <= 0:
 		return
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
-	var away: Vector2 = (target_world - center).normalized()
-	if away == Vector2.ZERO:
-		away = Vector2(1.0, 0.5).normalized()
 	var text: String = str(value)
 	var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE).x
-	var baseline: Vector2 = center - away * _tile_width() * 0.105 + Vector2(-width * 0.5, 5.0)
-	var value_color: Color = _intent_compass_arm_tint(family)
+	var baseline: Vector2 = center + Vector2(_tile_width() * 0.18 - width * 0.5, 5.0)
+	var value_color: Color = _intent_compass_emblem_tint(family)
 	value_color.a = 1.0
 	draw_string(font, baseline + Vector2(1.0, 2.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, Color(0.03, 0.02, 0.01, 0.94))
 	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_COMPASS_VALUE_FONT_SIZE, value_color)
