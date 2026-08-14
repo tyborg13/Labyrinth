@@ -14702,30 +14702,7 @@ func _enemy_intent_compass_descriptors(display_state: Dictionary, visible_enemy_
 	var cache_key: String = "%d|%d|%d" % [_combat_preview_revision, hash(display_state), hash(visible_enemy_ids)]
 	if cache_key == _enemy_intent_compass_cache_key:
 		return _enemy_intent_compass_cache
-	var plans_by_enemy_id: Dictionary = {}
-	var enemies: Array = display_state.get("enemies", []) as Array
-	for enemy_index: int in range(enemies.size()):
-		var enemy_var: Variant = enemies[enemy_index]
-		if typeof(enemy_var) != TYPE_DICTIONARY:
-			continue
-		var enemy: Dictionary = enemy_var as Dictionary
-		var enemy_id: int = int(enemy.get("id", -1))
-		if enemy_id < 0 or int(enemy.get("hp", 0)) <= 0 or not visible_enemy_ids.has(enemy_id):
-			continue
-		var intent: Dictionary = enemy.get("intent", {}) as Dictionary
-		if intent.is_empty():
-			continue
-		var frozen: bool = int(enemy.get("freeze", 0)) > 0
-		var shocked: bool = int(enemy.get("shock", 0)) > 0
-		var immobilized: bool = bool(enemy.get("immobilize", false))
-		plans_by_enemy_id[enemy_id] = _combat_engine.enemy_intent_plan(
-			display_state,
-			enemy_index,
-			intent,
-			frozen or immobilized,
-			frozen or shocked
-		)
-	_enemy_intent_compass_cache = EnemyIntentCompass.descriptors_for_state(display_state, plans_by_enemy_id, visible_enemy_ids)
+	_enemy_intent_compass_cache = EnemyIntentCompass.descriptors_for_state(display_state, visible_enemy_ids)
 	_enemy_intent_compass_cache_key = cache_key
 	return _enemy_intent_compass_cache
 

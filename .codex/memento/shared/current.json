@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-14T04:16:33Z",
+  "updated_at": "2026-08-14T04:28:13Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7964,7 +7964,7 @@
       }
     },
     {
-      "id": "mnt_20260814T041633Z_93991bfc",
+      "id": "mnt_20260814T042813Z_15d8e7be",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -7973,18 +7973,18 @@
         "symbol": null
       },
       "scope_key": "folder:assets/art/ui/enemy_intent_compass",
-      "summary": "Enemy intent compasses use exactly four contained floor-emblem families",
-      "details": "Keep intent circles fixed to logical tile centers and render only four scan-level symbols inside the isometric ring: red sword for melee (including movement/charge), red bow for ranged and area attacks, blue shield for block/defense, and a conventional red heart with white plus for heal/support/buff/intensity. Exact action details belong in focus/tooltip inspection. Size each family from its opaque art bounds so the colored glyph and subtle underlay remain visibly inset within the ring. Verify compiled import source_md5 before trusting worktree screenshots after PNG changes.",
+      "summary": "Enemy intent compasses use exactly four contained summary families",
+      "details": "Render only four scan-level symbols on stable logical tile centers: red sword for melee/movement, red bow for ranged/area, blue shield for block/defense, and red heart with white plus for heal/support/buff/intensity. Exact action behavior remains in focus/tooltip inspection. Constrain each emblem plus underlay by max(opaque width, opaque height) to at most 88% of the ring source diameter. Compass summaries contain only family, action_type, and value; do not run enemy_intent_plan or retain target/direction metadata. After PNG changes in worktrees, verify the active compiled import source_md5 before trusting screenshots.",
       "status": "active",
-      "created_at": "2026-08-14T04:16:33Z",
-      "updated_at": "2026-08-14T04:16:33Z",
+      "created_at": "2026-08-14T04:28:13Z",
+      "updated_at": "2026-08-14T04:28:13Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260814T040427Z_2e4d8b37"
+        "mnt_20260814T041633Z_93991bfc"
       ],
       "source": {
         "branch": "codex/implement-production-enemy-intent-compass-revision-3",
-        "commit": "62a35af"
+        "commit": "266b75d"
       }
     }
   ]

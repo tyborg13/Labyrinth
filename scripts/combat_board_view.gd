@@ -62,8 +62,8 @@ const INTENT_COMPASS_RING_SOURCE_DIAMETER: float = 178.0
 const INTENT_COMPASS_EMBLEM_MAX_RING_FILL: float = 0.88
 const INTENT_COMPASS_EMBLEM_SCALES := {
 	EnemyIntentCompass.FAMILY_MELEE: 0.70,
-	EnemyIntentCompass.FAMILY_RANGED: 0.78,
-	EnemyIntentCompass.FAMILY_DEFENSE: 0.86,
+	EnemyIntentCompass.FAMILY_RANGED: 0.70,
+	EnemyIntentCompass.FAMILY_DEFENSE: 0.70,
 	EnemyIntentCompass.FAMILY_SUPPORT: 0.70,
 }
 const INTENT_COMPASS_UNDERLAY_SCALE: float = 1.075

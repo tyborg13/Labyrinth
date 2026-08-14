@@ -91,9 +91,9 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 	)
 	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
 		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
-		var opaque_width: float = float(image.get_used_rect().size.x)
+		var opaque_extent: float = float(maxi(image.get_used_rect().size.x, image.get_used_rect().size.y))
 		var family_scale: float = float(board.call("_intent_compass_emblem_scale", family))
-		_expect(opaque_width * family_scale * underlay_scale <= ring_source_diameter * max_ring_fill, "%s emblem and underlay should stay visibly inset inside the ring" % family)
+		_expect(opaque_extent * family_scale * underlay_scale <= ring_source_diameter * max_ring_fill, "%s emblem and underlay should stay visibly inset inside the ring on both axes" % family)
 	for enemy_var: Variant in state.get("enemies", []):
 		var enemy: Dictionary = enemy_var as Dictionary
 		var center: Vector2 = board.call("_intent_compass_center", enemy) as Vector2
@@ -136,13 +136,13 @@ func _probe_state() -> Dictionary:
 
 func _probe_descriptors() -> Dictionary:
 	return {
-		"enemy_1": _descriptor(EnemyIntentCompass.FAMILY_MELEE, "melee", 7, Vector2i(3, 2), Vector2i(5, 3), "Closing Cut"),
-		"enemy_2": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "ranged", 5, Vector2i(7, 2), Vector2i(5, 4), "Pinning Shot"),
-		"enemy_3": _descriptor(EnemyIntentCompass.FAMILY_DEFENSE, "block", 6, Vector2i(2, 4), Vector2i(1, 4), "Iron Guard"),
-		"enemy_4": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "heal_ally", 4, Vector2i(8, 4), Vector2i(7, 6), "Field Dressing"),
-		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "lightning_strikes", 4, Vector2i(3, 6), Vector2i(5, 4), "Forked Storm"),
-		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_MELEE, "move_away", 0, Vector2i(7, 6), Vector2i(8, 5), "Withdraw"),
-		"enemy_7": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "intensity", 1, Vector2i(5, 1), Vector2i(6, 2), "Gathering Flame"),
+		"enemy_1": _descriptor(EnemyIntentCompass.FAMILY_MELEE, "melee", 7),
+		"enemy_2": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "ranged", 5),
+		"enemy_3": _descriptor(EnemyIntentCompass.FAMILY_DEFENSE, "block", 6),
+		"enemy_4": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "heal_ally", 4),
+		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "lightning_strikes", 4),
+		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_MELEE, "move_away", 0),
+		"enemy_7": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "intensity", 1),
 	}
 
 
@@ -166,20 +166,14 @@ func _large_hidden_presentation() -> Dictionary:
 		"visible_enemy_ids": [70],
 		"reduced_motion": false,
 		"enemy_intent_compasses": {
-			"enemy_70": {
-				"family": EnemyIntentCompass.FAMILY_RANGED, "action_type": "ranged", "value": 8,
-				"origin_tile": Vector2i(4, 2), "target_tile": Vector2i(2, 6), "direction_reason": "target",
-				"intent_name": "Tempest Breath", "footprint": Vector2i(2, 2),
-			},
+			"enemy_70": _descriptor(EnemyIntentCompass.FAMILY_RANGED, "ranged", 8),
 		},
 	}
 
 
-func _descriptor(family: String, action_type: String, value: int, origin: Vector2i, target: Vector2i, intent_name: String) -> Dictionary:
+func _descriptor(family: String, action_type: String, value: int) -> Dictionary:
 	return {
 		"family": family, "action_type": action_type, "value": value,
-		"origin_tile": origin, "target_tile": target, "direction_reason": "probe",
-		"intent_name": intent_name, "footprint": Vector2i.ONE,
 	}
 
 

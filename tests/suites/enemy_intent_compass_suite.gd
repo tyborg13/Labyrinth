@@ -7,11 +7,10 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 static func run(expect: Callable) -> void:
 	_test_action_families_are_distinct(expect)
 	_test_live_enemy_actions_have_authored_families(expect)
-	_test_compound_intent_points_primary_attack_from_destination(expect)
-	_test_support_intents_point_to_exact_ally(expect)
-	_test_pattern_intent_points_along_telegraph(expect)
+	_test_compound_intent_uses_primary_attack_summary(expect)
+	_test_support_intent_uses_support_summary(expect)
+	_test_pattern_intent_uses_ranged_summary(expect)
 	_test_visibility_boundary_hides_unknown_enemies(expect)
-	_test_isometric_direction_supports_arbitrary_angles(expect)
 	_test_overhead_panel_is_progressive_disclosure(expect)
 	_test_compass_stays_on_logical_tile_center(expect)
 	_test_compass_family_tints_preserve_shape_cues(expect)
@@ -59,7 +58,7 @@ static func _test_live_enemy_actions_have_authored_families(expect: Callable) ->
 	expect.call(EnemyIntentCompass.family_for_action({"type": "intensity"}) == EnemyIntentCompass.FAMILY_SUPPORT, "Intensity should use the support scan-level silhouette")
 
 
-static func _test_compound_intent_points_primary_attack_from_destination(expect: Callable) -> void:
+static func _test_compound_intent_uses_primary_attack_summary(expect: Callable) -> void:
 	var enemy: Dictionary = _enemy(11, Vector2i(2, 2), {
 		"name": "Closing Cut",
 		"actions": [
@@ -67,45 +66,31 @@ static func _test_compound_intent_points_primary_attack_from_destination(expect:
 			{"type": "melee", "damage": 7, "range": 1},
 		],
 	})
-	var descriptor: Dictionary = EnemyIntentCompass.descriptor_for_enemy(
-		_state([enemy]),
-		enemy,
-		enemy.get("intent", {}) as Dictionary,
-		{"destination": Vector2i(4, 3), "target_tile": Vector2i(5, 3)}
-	)
+	var descriptor: Dictionary = EnemyIntentCompass.descriptor_for_enemy(enemy.get("intent", {}) as Dictionary)
 	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_MELEE, "Compound movement attacks should keep the attack silhouette")
-	expect.call(descriptor.get("target_tile", Vector2i.ZERO) == Vector2i(4, 3), "A moving enemy compass should point along its planned movement first")
 	expect.call(int(descriptor.get("value", 0)) == 7, "Attack compasses should retain the primary damage value")
+	expect.call(not descriptor.has("target_tile") and not descriptor.has("direction_reason"), "Scan-level descriptors should not retain obsolete target-direction data")
 
 
-static func _test_support_intents_point_to_exact_ally(expect: Callable) -> void:
+static func _test_support_intent_uses_support_summary(expect: Callable) -> void:
 	var source: Dictionary = _enemy(21, Vector2i(6, 3), {
 		"name": "Field Dressing",
 		"actions": [{"type": "heal_ally", "amount": 5, "range": 4, "allow_self": false}],
 	})
-	var injured: Dictionary = _enemy(22, Vector2i(4, 4), {})
-	injured["hp"] = 2
-	injured["max_hp"] = 14
-	var descriptor: Dictionary = EnemyIntentCompass.descriptor_for_enemy(
-		_state([source, injured]), source, source.get("intent", {}) as Dictionary,
-		{"destination": source.get("pos"), "support_target_tile": injured.get("pos")}
-	)
+	var descriptor: Dictionary = EnemyIntentCompass.descriptor_for_enemy(source.get("intent", {}) as Dictionary)
 	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_SUPPORT, "Healing should use the support silhouette")
-	expect.call(descriptor.get("target_tile", Vector2i.ZERO) == injured.get("pos"), "Support compass should point to the engine-selected ally")
-	expect.call(str(descriptor.get("direction_reason", "")) == "support", "Support direction should be identified independently from hostile targeting")
+	expect.call(str(descriptor.get("action_type", "")) == "heal_ally", "Support summary should retain its exact action type for inspection")
+	expect.call(int(descriptor.get("value", 0)) == 5, "Support summary should retain its amount")
 
 
-static func _test_pattern_intent_points_along_telegraph(expect: Callable) -> void:
+static func _test_pattern_intent_uses_ranged_summary(expect: Callable) -> void:
 	var enemy: Dictionary = _enemy(31, Vector2i(4, 4), {
 		"name": "Forked Storm",
 		"actions": [{"type": "lightning_strikes", "damage": 4}],
 	})
-	var descriptor: Dictionary = EnemyIntentCompass.descriptor_for_enemy(
-		_state([enemy]), enemy, enemy.get("intent", {}) as Dictionary,
-		{"destination": enemy.get("pos"), "projected_attack": [Vector2i(4, 3), Vector2i(4, 2), Vector2i(4, 1)]}
-	)
+	var descriptor: Dictionary = EnemyIntentCompass.descriptor_for_enemy(enemy.get("intent", {}) as Dictionary)
 	expect.call(str(descriptor.get("family", "")) == EnemyIntentCompass.FAMILY_RANGED, "Pattern attacks should use the ranged scan-level silhouette")
-	expect.call(descriptor.get("target_tile", Vector2i.ZERO) == Vector2i(4, 1), "Pattern compass should point toward the far edge of its telegraph")
+	expect.call(str(descriptor.get("action_type", "")) == "lightning_strikes", "Pattern summary should retain its exact action type for inspection")
 
 
 static func _test_visibility_boundary_hides_unknown_enemies(expect: Callable) -> void:
@@ -113,19 +98,10 @@ static func _test_visibility_boundary_hides_unknown_enemies(expect: Callable) ->
 	var hidden: Dictionary = _enemy(42, Vector2i(7, 2), {"name": "Shot", "actions": [{"type": "ranged", "damage": 5}]})
 	var descriptors: Dictionary = EnemyIntentCompass.descriptors_for_state(
 		_state([visible, hidden]),
-		{41: {"destination": visible.get("pos"), "target_tile": Vector2i(1, 3)}},
 		[41]
 	)
 	expect.call(descriptors.has("enemy_41"), "Visible enemies should receive compass presentation")
 	expect.call(not descriptors.has("enemy_42"), "Hidden enemies must not leak intent through a compass")
-
-
-static func _test_isometric_direction_supports_arbitrary_angles(expect: Callable) -> void:
-	var diagonal: float = EnemyIntentCompass.direction_angle(Vector2.ZERO, Vector2(100.0, 50.0), 0.5)
-	var oblique: float = EnemyIntentCompass.direction_angle(Vector2.ZERO, Vector2(-35.0, 67.0), 0.5)
-	expect.call(is_equal_approx(diagonal, PI * 0.25), "Isometric diagonal should unsquash to a 45-degree compass arm")
-	expect.call(oblique > PI * 0.5 and oblique < PI, "Compass arm should retain arbitrary non-cardinal target angles")
-
 
 static func _test_overhead_panel_is_progressive_disclosure(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
@@ -179,20 +155,24 @@ static func _test_compass_family_tints_preserve_shape_cues(expect: Callable) -> 
 static func _test_compass_emblems_are_contained_and_nondirectional(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	var source: String = board.get_script().source_code
+	var compass_source: String = FileAccess.get_file_as_string("res://scripts/enemy_intent_compass.gd")
+	var run_scene_source: String = FileAccess.get_file_as_string("res://scripts/run_scene.gd")
 	var constants: Dictionary = board.get_script().get_script_constant_map()
 	var ring_source_diameter: float = float(constants.get("INTENT_COMPASS_RING_SOURCE_DIAMETER", 0.0))
 	var max_ring_fill: float = float(constants.get("INTENT_COMPASS_EMBLEM_MAX_RING_FILL", 0.0))
 	var underlay_scale: float = float(constants.get("INTENT_COMPASS_UNDERLAY_SCALE", 0.0))
 	expect.call(source.find("EnemyIntentCompass.direction_angle(center") < 0, "Compass rendering should not rotate emblems toward a target")
 	expect.call(source.find("INTENT_COMPASS_ARM_PIVOT") < 0, "Compass rendering should not retain a directional arm pivot")
+	expect.call(compass_source.find("direction_angle") < 0 and compass_source.find("direction_reason") < 0 and compass_source.find("target_tile") < 0, "Compass summaries should not retain obsolete direction data")
+	expect.call(run_scene_source.find("enemy_intent_plan(") < 0 and run_scene_source.find("plans_by_enemy_id") < 0, "Compass refresh should not run obsolete enemy path planning")
 	for family: String in [EnemyIntentCompass.FAMILY_MELEE, EnemyIntentCompass.FAMILY_RANGED, EnemyIntentCompass.FAMILY_DEFENSE, EnemyIntentCompass.FAMILY_SUPPORT]:
 		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(EnemyIntentCompass.texture_path(family)))
 		expect.call(image.get_size() == Vector2i(256, 256), "Compass emblem %s should use the normalized square asset canvas" % family)
 		expect.call(image.detect_alpha(), "Compass emblem %s should preserve transparent margins" % family)
-		var opaque_width: float = float(image.get_used_rect().size.x)
+		var opaque_extent: float = float(maxi(image.get_used_rect().size.x, image.get_used_rect().size.y))
 		var family_scale: float = float(board.call("_intent_compass_emblem_scale", family))
-		var underlay_width: float = opaque_width * family_scale * underlay_scale
-		expect.call(underlay_width <= ring_source_diameter * max_ring_fill, "Compass emblem %s should retain a visible inset inside the ring" % family)
+		var underlay_extent: float = opaque_extent * family_scale * underlay_scale
+		expect.call(underlay_extent <= ring_source_diameter * max_ring_fill, "Compass emblem %s should retain a visible inset inside the ring on both axes" % family)
 	board.free()
 
 
