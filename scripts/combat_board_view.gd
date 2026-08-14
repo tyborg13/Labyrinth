@@ -4860,7 +4860,12 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	if base_texture == null or emblem_texture == null:
 		return
 	var center: Vector2 = _intent_compass_center(unit)
-	var scale_factor: float = _tile_width() * INTENT_COMPASS_RING_TILE_SCALE / INTENT_COMPASS_RING_SOURCE_DIAMETER
+	var scale_factor: float = (
+		_tile_width()
+		* INTENT_COMPASS_RING_TILE_SCALE
+		* _intent_compass_footprint_scale(unit)
+		/ INTENT_COMPASS_RING_SOURCE_DIAMETER
+	)
 	var emblem_scale: float = scale_factor * _intent_compass_emblem_scale(family)
 	var emblem_basis_x := Vector2(emblem_scale, 0.0)
 	var emblem_basis_y := Vector2(0.0, emblem_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
@@ -4890,7 +4895,11 @@ func _intent_compass_emblem_scale(family: String) -> float:
 
 func _intent_compass_center(unit: Dictionary) -> Vector2:
 	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
-	return _tile_center(tile)
+	return world_position_for_unit_origin(unit, tile)
+
+func _intent_compass_footprint_scale(unit: Dictionary) -> float:
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	return float(maxi(maxi(1, footprint.x), maxi(1, footprint.y)))
 
 func _intent_compass_emblem_tint(family: String) -> Color:
 	if family == EnemyIntentCompass.FAMILY_ATTACK:

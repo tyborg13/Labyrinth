@@ -134,14 +134,16 @@ static func _test_compass_stays_on_logical_tile_center(expect: Callable) -> void
 	large_enemy["key"] = "enemy_61"
 	large_enemy["footprint"] = Vector2i(2, 2)
 	board.combat_state = {"grid": _grid(9, 8)}
-	var expected: Vector2 = board.call("_tile_center", Vector2i(3, 2)) as Vector2
+	var expected: Vector2 = board.call("world_position_for_unit_origin", large_enemy, Vector2i(3, 2)) as Vector2
 	board.set("_idle_elapsed", 0.0)
 	var first_frame: Vector2 = board.call("_intent_compass_center", large_enemy) as Vector2
 	board.set("_idle_elapsed", 1.37)
 	board.presentation = {"unit_world_positions": {"enemy_61": expected + Vector2(83.0, -41.0)}}
 	var animated_frame: Vector2 = board.call("_intent_compass_center", large_enemy) as Vector2
-	expect.call(first_frame.is_equal_approx(expected), "Compass should use the exact center of the enemy's logical tile")
-	expect.call(animated_frame.is_equal_approx(expected), "Compass tile anchor should ignore idle frames and transient sprite presentation offsets")
+	expect.call(first_frame.is_equal_approx(expected), "Large-enemy compass should use the exact center of its full logical footprint")
+	expect.call(animated_frame.is_equal_approx(expected), "Compass footprint anchor should ignore idle frames and transient sprite presentation offsets")
+	expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", large_enemy)), 2.0), "A 2x2 boss compass should scale to its four-tile footprint")
+	expect.call(is_equal_approx(float(board.call("_intent_compass_footprint_scale", _enemy(62, Vector2i(2, 2), {}))), 1.0), "Normal enemies should retain a one-tile compass")
 	board.free()
 
 

@@ -112,8 +112,10 @@ func _verify_layout(board: Control, state: Dictionary) -> void:
 		var enemy: Dictionary = enemy_var as Dictionary
 		var center: Vector2 = board.call("_intent_compass_center", enemy) as Vector2
 		var tile: Vector2i = enemy.get("pos", Vector2i.ZERO)
-		var tile_center: Vector2 = board.call("_tile_center", tile) as Vector2
-		_expect(center.is_equal_approx(tile_center), "Compass should center exactly on enemy %d's logical tile" % int(enemy.get("id", -1)))
+		var footprint_center: Vector2 = board.call("world_position_for_unit_origin", enemy, tile) as Vector2
+		_expect(center.is_equal_approx(footprint_center), "Compass should center exactly on enemy %d's logical footprint" % int(enemy.get("id", -1)))
+	var boss: Dictionary = (_large_hidden_probe_state().get("enemies", []) as Array)[0] as Dictionary
+	_expect(is_equal_approx(float(board.call("_intent_compass_footprint_scale", boss)), 2.0), "The 2x2 boss compass should scale across all four occupied tiles")
 
 
 func _verify_reduced_motion_equivalence(board: Control, state: Dictionary, presentation: Dictionary) -> void:
