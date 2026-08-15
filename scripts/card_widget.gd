@@ -325,7 +325,7 @@ class DebossedRoleEmblem:
 	extends Control
 
 	const AssetLoaderScript = preload("res://scripts/asset_loader.gd")
-	const EMBLEM_ALPHA: float = 0.40
+	const EMBLEM_ALPHA: float = 0.34
 	const CONTENT_ALPHA_THRESHOLD: float = 0.24
 	const CONTENT_PADDING: int = 5
 	static var _masked_texture_cache: Dictionary = {}
