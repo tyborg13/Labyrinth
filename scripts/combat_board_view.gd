@@ -31,6 +31,7 @@ const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
+const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
 const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.333
 const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.405
 const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.138
@@ -90,15 +91,15 @@ const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
 const INTENT_POPUP_PADDING_X: float = 8.0
-const INTENT_POPUP_TITLE_FONT_SIZE: int = 28
-const INTENT_POPUP_ROW_FONT_SIZE: int = 15
-const INTENT_POPUP_ICON_SIZE: float = 21.0
-const INTENT_CONTOUR_TITLE_HEIGHT: float = 34.0
-const INTENT_CONTOUR_ROW_HEIGHT: float = 27.0
-const INTENT_CONTOUR_SHOULDER_INSET: float = 10.0
-const INTENT_CONTOUR_LINE_STAGGER: float = 8.0
-const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.0
-const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(3.0, 4.0)
+const INTENT_POPUP_TITLE_FONT_SIZE: int = 36
+const INTENT_POPUP_ROW_FONT_SIZE: int = 29
+const INTENT_POPUP_ICON_SIZE: float = 46.0
+const INTENT_CONTOUR_TITLE_HEIGHT: float = 46.0
+const INTENT_CONTOUR_ROW_HEIGHT: float = 52.0
+const INTENT_CONTOUR_SHOULDER_INSET: float = 14.0
+const INTENT_CONTOUR_LINE_STAGGER: float = 12.0
+const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.5
+const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(4.0, 5.0)
 const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
@@ -543,6 +544,7 @@ var _attack_tiles_lookup_cache: Dictionary = {}
 var _focus_tiles_lookup_cache: Dictionary = {}
 var _objective_exit_tiles_lookup_cache: Dictionary = {}
 var _projected_attack_tiles_lookup_cache: Dictionary = {}
+var _projected_destination_tiles_lookup_cache: Dictionary = {}
 var _ability_tiles_lookup_cache: Dictionary = {}
 var _ambient_element_id_cache: String = ElementData.NONE
 var _equipment_pickup_beacon_cache: bool = false
@@ -738,7 +740,8 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
 			"_ability_tiles_cache", "_move_tiles_lookup_cache", "_attack_tiles_lookup_cache",
 			"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
-			"_projected_attack_tiles_lookup_cache", "_ability_tiles_lookup_cache",
+			"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
+			"_ability_tiles_lookup_cache",
 			"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
 			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_hud_health_rects_cache",
@@ -1175,7 +1178,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if attack_tiles_changed:
 		_attack_tiles_lookup_cache = _vector2i_lookup(attack_tiles)
 	var overlay_presentation_cache_changed: bool = not _submission_cache_initialized
-	for overlay_key: String in ["focus_tiles", "objective_exit_target_tiles", "projected_attack_tiles"]:
+	for overlay_key: String in ["focus_tiles", "objective_exit_target_tiles", "projected_attack_tiles", "projected_destination", "enemy_threat_previews"]:
 		if presentation_changes.has(overlay_key):
 			overlay_presentation_cache_changed = true
 			break
@@ -1183,6 +1186,19 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_focus_tiles_lookup_cache = _vector2i_lookup(presentation.get("focus_tiles", []))
 		_objective_exit_tiles_lookup_cache = _vector2i_lookup(presentation.get("objective_exit_target_tiles", []))
 		_projected_attack_tiles_lookup_cache = _vector2i_lookup(presentation.get("projected_attack_tiles", []))
+		_projected_destination_tiles_lookup_cache.clear()
+		var projected_destination: Vector2i = presentation.get("projected_destination", Vector2i(-999, -999))
+		if projected_destination.x > -999:
+			_projected_destination_tiles_lookup_cache[projected_destination] = true
+		for threat_var: Variant in presentation.get("enemy_threat_previews", []):
+			if typeof(threat_var) != TYPE_DICTIONARY:
+				continue
+			var threat: Dictionary = threat_var
+			for attack_tile: Vector2i in _vector2i_array(threat.get("projected_attack", [])):
+				_projected_attack_tiles_lookup_cache[attack_tile] = true
+			var destination: Vector2i = threat.get("projected_destination", Vector2i(-999, -999))
+			if destination.x > -999:
+				_projected_destination_tiles_lookup_cache[destination] = true
 	if not _navigation_content_signature.is_empty() and next_navigation_content_signature != _navigation_content_signature:
 		_navigation_pan = Vector2.ZERO
 		_enemy_hud_side_by_actor.clear()
@@ -1283,7 +1299,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if overlay_presentation_cache_changed:
 			retained_sync_fields.append_array([
 				"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
-				"_projected_attack_tiles_lookup_cache"
+				"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
 			])
 		for unit_key: String in ["preview_units", "death_animation_units", "unit_draw_tiles", "unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles", "umbra_light_sources", "umbra_stage"]:
 			if not presentation_changes.has(unit_key):
@@ -1470,6 +1486,9 @@ func _queue_presentation_change_redraws(
 			"ability_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
 				overlay_changed = true
 			"path_color", "path_tiles":
+				path_changed = true
+			"enemy_threat_previews":
+				overlay_changed = true
 				path_changed = true
 			"effect", "effect_progress":
 				effects_changed = true
@@ -3611,7 +3630,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if _projected_attack_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, Color(0.98, 0.30, 0.20, 0.18))
 		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
-	if tile == presentation.get("projected_destination", Vector2i(-999, -999)):
+	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
@@ -4937,14 +4956,6 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	draw_set_transform_matrix(Transform2D(emblem_basis_x, emblem_basis_y, center))
 	draw_texture(emblem_texture, -emblem_texture.get_size() * 0.5, _intent_compass_emblem_tint(family))
 	draw_set_transform_matrix(Transform2D.IDENTITY)
-	var intent: Dictionary = unit.get("intent", {}) as Dictionary
-	var tooltip: String = _intent_display_name(intent)
-	var lines: PackedStringArray = _intent_lines(intent)
-	if not lines.is_empty():
-		tooltip += ("\n" if not tooltip.is_empty() else "") + "\n".join(lines)
-	if not tooltip.is_empty():
-		var hit_size := Vector2(_tile_width() * 0.82, _tile_height() * 0.92)
-		_register_tooltip(Rect2(center - hit_size * 0.5, hit_size), tooltip)
 
 
 func _intent_compass_emblem_scale(family: String) -> float:
@@ -5566,7 +5577,7 @@ func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: F
 	var display_font: Font = UiTypography.display_font()
 	if display_font == null:
 		display_font = font
-	var baseline: Vector2 = rect.position + Vector2(2.0, 27.0)
+	var baseline: Vector2 = rect.position + Vector2(2.0, 36.0)
 	draw_string(display_font, baseline + INTENT_CONTOUR_SHADOW_OFFSET, title, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color(0.015, 0.01, 0.015, 0.82))
 	_draw_outlined_string(display_font, baseline, title, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color("fff0cf"), Color(0.035, 0.022, 0.025, 0.98), INTENT_CONTOUR_OUTLINE_SIZE)
 	var accent_width: float = minf(rect.size.x * 0.58, 74.0)
@@ -9091,10 +9102,23 @@ func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: 
 func _draw_path_preview() -> void:
 	if _blink_preview_effect_active():
 		return
+	var enemy_threat_previews: Array = presentation.get("enemy_threat_previews", []) as Array
+	if not enemy_threat_previews.is_empty():
+		for threat_var: Variant in enemy_threat_previews:
+			if typeof(threat_var) != TYPE_DICTIONARY:
+				continue
+			_draw_path_tiles(
+				_vector2i_array((threat_var as Dictionary).get("projected_path", [])),
+				ENEMY_PATH_PREVIEW_COLOR
+			)
+		return
 	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
+	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
+	_draw_path_tiles(path_tiles, color)
+
+func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color) -> void:
 	if path_tiles.is_empty():
 		return
-	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
 	var tile_width: float = _tile_width()
 	var point_offset := Vector2(0.0, -tile_width * 0.075)
 	if path_tiles.size() == 1:

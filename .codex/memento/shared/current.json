@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-15T16:39:07Z",
+  "updated_at": "2026-08-15T17:10:35Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8148,7 +8148,7 @@
       }
     },
     {
-      "id": "mnt_20260815T163907Z_161709d2",
+      "id": "mnt_20260815T171035Z_b669e7ec",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -8157,16 +8157,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Enemy hover intents use background-free shoulder contours",
-      "details": "On enemy hover or matching focus, keep the intent name as the highest line in the bold Crumble display face, then place every ordered action row independently down an outward-staggered left or right base-sprite contour. Choose the clearer shoulder with stable side memory, anchor geometry to the authored base texture rather than idle frames, keep health bars fixed, and use strong outline/shadow without a panel or tether. No-hover state reserves no intent bounds.",
+      "summary": "Enemy intent contours use large action rows and an optional show-all threat mode",
+      "details": "Keep background-free shoulder contours contextual by default, with 46px-class action icons and roughly 29px values under a larger Crumble intent name. The compact turn-order-rail INTENTS [I] toggle may reveal every visible living enemy's contour plus projected movement paths, destinations, and threat tiles; active card targeting retains preview priority. Do not restore the redundant whole-enemy intent tooltip over the sprite, but keep action-icon definition tooltips.",
       "status": "active",
-      "created_at": "2026-08-15T16:39:07Z",
-      "updated_at": "2026-08-15T16:39:07Z",
+      "created_at": "2026-08-15T17:10:35Z",
+      "updated_at": "2026-08-15T17:10:35Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260815T163907Z_161709d2"
+      ],
       "source": {
         "branch": "codex/redesign-enemy-hover-intents",
-        "commit": "22871ed"
+        "commit": "67c15e7"
       }
     }
   ]

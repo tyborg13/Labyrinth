@@ -1303,6 +1303,8 @@ const BOSS_HEALTH_MAX_SEGMENTS: int = 48
 const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(116.0, 87.0)
 const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(132.0, 99.0)
 const TURN_ORDER_SLOT_GAP: float = 3.0
+const ENEMY_INTENT_TOGGLE_HEIGHT: float = 36.0
+const ENEMY_INTENT_TOGGLE_TOP_GAP: float = 8.0
 const TURN_ORDER_QUEUED_MIN_WIDTH: float = 76.0
 const TURN_ORDER_RAIL_TOP_GAP: float = 14.0
 const TURN_ORDER_RAIL_EDGE_GAP: float = 18.0
@@ -1611,6 +1613,7 @@ var _turn_order_anchor: Control
 var _turn_order_bar: Control
 var _turn_order_header_host: Control
 var _turn_order_label: Label
+var _enemy_intent_toggle_button: Button
 var _combat_objective_hud: PanelContainer
 var _boss_health_overlay: Control
 var _boss_health_name: Label
@@ -1620,6 +1623,7 @@ var _boss_health_damage_preview: ColorRect
 var _boss_health_hp_label: Label
 var _turn_order_animating: bool = false
 var _turn_order_hovered_enemy_key: String = ""
+var _show_all_enemy_intents: bool = false
 var _turn_order_panel_locked_width: float = -1.0
 var _turn_order_source_signature: String = "<unset>"
 var _turn_order_render_signature: String = "<unset>"
@@ -1935,6 +1939,12 @@ func _input(event: InputEvent) -> void:
 			_open_large_map()
 		else:
 			return
+		get_viewport().set_input_as_handled()
+		return
+	if _is_enemy_intent_shortcut_event(event):
+		if not _enemy_intent_shortcut_can_toggle():
+			return
+		_set_show_all_enemy_intents(not _show_all_enemy_intents)
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
@@ -9394,6 +9404,7 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_panel.set_meta("panel_safe_inset", 0.0)
 	_turn_order_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	var margin := MarginContainer.new()
+	margin.name = "TurnOrderMargin"
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
@@ -9436,6 +9447,29 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_turn_order_bar.custom_minimum_size = Vector2(TURN_ORDER_ACTIVE_SIZE.x, 0.0)
 	rail.add_child(_turn_order_bar)
+	var intent_toggle_margin := MarginContainer.new()
+	intent_toggle_margin.name = "EnemyIntentToggleMargin"
+	intent_toggle_margin.add_theme_constant_override("margin_top", int(ENEMY_INTENT_TOGGLE_TOP_GAP))
+	intent_toggle_margin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	rail.add_child(intent_toggle_margin)
+	_enemy_intent_toggle_button = Button.new()
+	_enemy_intent_toggle_button.name = "EnemyIntentToggle"
+	_enemy_intent_toggle_button.toggle_mode = true
+	_enemy_intent_toggle_button.focus_mode = Control.FOCUS_ALL
+	_enemy_intent_toggle_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	UiTypography.set_button_size(_enemy_intent_toggle_button, UiTypography.SIZE_CAPTION)
+	_ui_skin.apply_button_stylebox_overrides(_enemy_intent_toggle_button, UiSkin.VARIANT_COMPACT)
+	_ui_skin.apply_button_text_overrides(_enemy_intent_toggle_button)
+	_ui_skin.apply_button_native_size(
+		_enemy_intent_toggle_button,
+		ENEMY_INTENT_TOGGLE_HEIGHT,
+		TURN_ORDER_ACTIVE_SIZE.x,
+		true,
+		UiSkin.VARIANT_COMPACT
+	)
+	_enemy_intent_toggle_button.toggled.connect(_on_enemy_intent_toggle_toggled)
+	intent_toggle_margin.add_child(_enemy_intent_toggle_button)
+	_refresh_enemy_intent_toggle()
 	_turn_order_anchor.add_child(_turn_order_panel)
 	_setup_boss_health_overlay()
 
@@ -9561,6 +9595,7 @@ func _setup_boss_health_overlay() -> void:
 func _refresh_turn_order_bar() -> void:
 	if _turn_order_bar == null:
 		return
+	_refresh_enemy_intent_toggle()
 	if _turn_order_animating:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
@@ -9635,7 +9670,10 @@ func _set_turn_order_bar_entries(entries: Array[Dictionary], overflow_count: int
 	if _turn_order_panel != null:
 		var panel_width: float = _turn_order_panel_locked_width if _turn_order_panel_locked_width > 0.0 else _turn_order_panel_width_for_count(entries.size())
 		var header_height: float = _turn_order_header_host.get_combined_minimum_size().y if _turn_order_header_host != null else 0.0
-		var panel_height: float = maxf(TURN_ORDER_PANEL_MIN_SIZE.y, header_height + entries_height + disclosure_height + 30.0)
+		var panel_height: float = maxf(
+			TURN_ORDER_PANEL_MIN_SIZE.y,
+			header_height + entries_height + disclosure_height + ENEMY_INTENT_TOGGLE_TOP_GAP + ENEMY_INTENT_TOGGLE_HEIGHT + 30.0
+		)
 		_turn_order_panel.custom_minimum_size = Vector2(panel_width, panel_height)
 		_set_turn_order_visible(not entries.is_empty())
 	for index: int in range(entries.size()):
@@ -14553,6 +14591,11 @@ func _refresh_stage_view() -> void:
 			var preview_presentation: Dictionary = _preview_presentation(preview)
 			for key: Variant in preview_presentation.keys():
 				presentation[key] = preview_presentation[key]
+		elif _show_all_enemy_intents:
+			var threat_previews: Array[Dictionary] = _visible_enemy_threat_previews(display_state)
+			move_tiles = _enemy_threat_tiles_union(threat_previews, "move")
+			attack_tiles = _enemy_threat_tiles_union(threat_previews, "attack")
+			presentation["enemy_threat_previews"] = threat_previews
 		elif _hovered_board_tile.x >= 0:
 			var threat_preview: Dictionary = _hovered_enemy_threat(display_state)
 			move_tiles = _vector2i_array(threat_preview.get("move", []))
@@ -14568,6 +14611,7 @@ func _refresh_stage_view() -> void:
 			presentation["expanded_enemy_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_color"] = Color("f2ddb2")
+		presentation["show_all_enemy_intents"] = _show_all_enemy_intents
 	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation", performance_phase_started)
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
@@ -14746,6 +14790,31 @@ func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 		threat["enemy_key"] = _enemy_key(enemy)
 		return threat
 	return {}
+
+func _visible_enemy_threat_previews(display_state: Dictionary) -> Array[Dictionary]:
+	var previews: Array[Dictionary] = []
+	var enemies: Array = display_state.get("enemies", []) as Array
+	for enemy_index: int in range(enemies.size()):
+		var enemy: Dictionary = enemies[enemy_index]
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if not _combat_engine.is_enemy_visible_to_player(display_state, enemy):
+			continue
+		var threat: Dictionary = _combat_engine.enemy_threat_tiles(display_state, enemy_index)
+		threat["enemy_key"] = _enemy_key(enemy)
+		previews.append(threat)
+	return previews
+
+func _enemy_threat_tiles_union(previews: Array[Dictionary], field: String) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var seen: Dictionary = {}
+	for preview: Dictionary in previews:
+		for tile: Vector2i in _vector2i_array(preview.get(field, [])):
+			if seen.has(tile):
+				continue
+			seen[tile] = true
+			result.append(tile)
+	return result
 
 func _board_display_state() -> Dictionary:
 	if str(_run_state.get("mode", "room")) == "combat":
@@ -17222,6 +17291,57 @@ func _is_map_shortcut_event(event: InputEvent) -> bool:
 	if key_event.alt_pressed or key_event.ctrl_pressed or key_event.meta_pressed or key_event.shift_pressed:
 		return false
 	return key_event.keycode == KEY_M or key_event.physical_keycode == KEY_M
+
+func _is_enemy_intent_shortcut_event(event: InputEvent) -> bool:
+	if not (event is InputEventKey):
+		return false
+	var key_event: InputEventKey = event
+	if not key_event.pressed or key_event.echo:
+		return false
+	if key_event.alt_pressed or key_event.ctrl_pressed or key_event.meta_pressed or key_event.shift_pressed:
+		return false
+	return key_event.keycode == KEY_I or key_event.physical_keycode == KEY_I
+
+func _enemy_intent_shortcut_can_toggle() -> bool:
+	if str(_run_state.get("mode", "room")) != "combat" or _combat_state.is_empty() or _animation_lock or _drag_card_index >= 0:
+		return false
+	for blocking_control: Control in [
+		_menu_scrim,
+		_grimoire_scrim,
+		_pile_scrim,
+		_upgrade_scrim,
+		_pre_battle_scrim,
+		_pinned_tooltip_scrim,
+		_run_end_recap
+	]:
+		if _visible_control(blocking_control):
+			return false
+	return true
+
+func _set_show_all_enemy_intents(enabled: bool) -> void:
+	if _show_all_enemy_intents == enabled:
+		_refresh_enemy_intent_toggle()
+		return
+	_show_all_enemy_intents = enabled
+	_refresh_enemy_intent_toggle()
+	_refresh_stage_view()
+
+func _on_enemy_intent_toggle_toggled(enabled: bool) -> void:
+	_set_show_all_enemy_intents(enabled)
+
+func _refresh_enemy_intent_toggle() -> void:
+	if _enemy_intent_toggle_button == null:
+		return
+	var in_combat: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
+	_enemy_intent_toggle_button.visible = in_combat
+	_enemy_intent_toggle_button.disabled = not in_combat or _animation_lock
+	_enemy_intent_toggle_button.set_pressed_no_signal(_show_all_enemy_intents)
+	_enemy_intent_toggle_button.text = "INTENTS ON [I]" if _show_all_enemy_intents else "INTENTS [I]"
+	_enemy_intent_toggle_button.tooltip_text = (
+		"Hide all enemy intents and threat previews [I]"
+		if _show_all_enemy_intents
+		else "Show all enemy intents and threat previews [I]"
+	)
 
 func _map_shortcut_can_open() -> bool:
 	if _large_map_scrim == null or _dialogue_active or _animation_lock or _drag_card_index >= 0:

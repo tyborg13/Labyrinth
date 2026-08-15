@@ -35,7 +35,7 @@ func _initialize() -> void:
 	var requested_state: String = OS.get_environment("LABYRINTH_INTENT_PROBE_STATE").strip_edges().to_lower()
 	if requested_state.is_empty():
 		requested_state = "compact"
-	_expect(requested_state in ["compact", "expanded", "right_edge", "midboard", "tallest", "retained"], "Enemy intent proof state should be compact, expanded, right_edge, midboard, tallest, or retained")
+	_expect(requested_state in ["compact", "expanded", "right_edge", "midboard", "show_all", "tallest", "retained"], "Enemy intent proof state should be compact, expanded, right_edge, midboard, show_all, tallest, or retained")
 	_requested_state = requested_state
 	_output_dir = "%s_%s" % [OUTPUT_DIR_ROOT, requested_state]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir))
@@ -56,7 +56,7 @@ func _capture_fresh_state(packed: PackedScene, expanded: bool, label: String) ->
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
-	await _load_combat_fixture(instance, expanded, label in ["tallest", "retained"], label == "midboard", label == "right_edge")
+	await _load_combat_fixture(instance, expanded, label in ["tallest", "retained"], label == "midboard", label == "right_edge", label == "show_all")
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	_expect(board != null, "%s top-edge intent proof should find the real combat board" % label)
 	if board == null:
@@ -75,13 +75,15 @@ func _capture_fresh_state(packed: PackedScene, expanded: bool, label: String) ->
 		await _capture_midboard_state(board, enemy_unit, enemy_center, label)
 	elif label == "retained":
 		await _capture_retained_state(board, label)
+	elif label == "show_all":
+		await _capture_show_all_state(instance, board, label)
 	else:
 		await _capture_state(board, enemy_unit, enemy_center, label)
 	instance.queue_free()
 	await process_frame
 	await process_frame
 
-func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false, midboard: bool = false, right_edge: bool = false) -> void:
+func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false, midboard: bool = false, right_edge: bool = false, show_all: bool = false) -> void:
 	var enemy_type: String = "zekarion" if tallest else "harrier"
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
 	var max_hp: int = int(enemy_def.get("max_hp", 18))
@@ -91,7 +93,14 @@ func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false,
 		"type": "combat",
 		"grid": _simple_grid(),
 		"player_start": Vector2i(2, 6),
-		"enemies": [{"id": 1, "type": enemy_type, "pos": Vector2i(4, 4) if midboard else Vector2i(6, 1) if right_edge else Vector2i(1, 1), "hp": max_hp, "max_hp": max_hp}],
+		"enemies": (
+			[
+				{"id": 1, "type": "harrier", "pos": Vector2i(2, 2), "hp": max_hp, "max_hp": max_hp},
+				{"id": 2, "type": "crawler", "pos": Vector2i(5, 3), "hp": max_hp, "max_hp": max_hp}
+			]
+			if show_all
+			else [{"id": 1, "type": enemy_type, "pos": Vector2i(4, 4) if midboard else Vector2i(6, 1) if right_edge else Vector2i(1, 1), "hp": max_hp, "max_hp": max_hp}]
+		),
 		"traps": [],
 		"terrain": [],
 		"loot": []
@@ -123,6 +132,16 @@ func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false,
 			]
 		}
 	(combat_state.get("enemies", []) as Array)[0] = enemy
+	if show_all:
+		var second_enemy: Dictionary = (combat_state.get("enemies", []) as Array)[1]
+		second_enemy["intent"] = {
+			"name": "Skittering Bite",
+			"actions": [
+				{"type": "move_toward", "range": 2},
+				{"type": "melee", "damage": 3, "range": 1}
+			]
+		}
+		(combat_state.get("enemies", []) as Array)[1] = second_enemy
 	combat_state["current_actor"] = {"kind": "player", "key": "player"}
 	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	run_state["mode"] = "combat"
@@ -134,6 +153,8 @@ func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false,
 	instance.set("_animation_lock", false)
 	instance.set("_turn_order_hovered_enemy_key", "enemy_1" if expanded else "")
 	instance.call("_refresh_ui")
+	if show_all:
+		instance.call("_set_show_all_enemy_intents", true)
 	var progression: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
 	for prompt_id: String in ContextualCombatTutorial.prompt_ids():
 		progression = ContextualCombatTutorial.resolve_progression(progression, prompt_id)
@@ -258,6 +279,29 @@ func _capture_compact_state(board: Control, label: String) -> void:
 	var layout: Dictionary = _rendered_enemy_layout(board)
 	_expect((layout.get("line_rects", []) as Array).is_empty(), "%s state should not render expanded intent text without hover or focus" % label)
 	_expect((layout.get("intent_rect", Rect2()) as Rect2).size.is_zero_approx(), "%s state should not reserve an invisible intent panel" % label)
+	var enemy: Dictionary = _enemy_unit(board)
+	var compass_center: Vector2 = board.call("_intent_compass_center", enemy)
+	_expect(not str(board.call("_get_tooltip", compass_center)).contains("Raking Pelt"), "Enemy hover should no longer expose the redundant whole-intent text tooltip")
+	await _save_root_screenshot("%s/%s.png" % [_output_dir, label])
+
+func _capture_show_all_state(instance: Node, board: Control, label: String) -> void:
+	await _settle_ui()
+	var layouts: Dictionary = {}
+	var built: Dictionary = board.call("_build_hud_layout_data", board.call("_visible_units"))
+	for entry_var: Variant in built.get("entries", []):
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var
+		var actor_key: String = str(entry.get("actor_key", ""))
+		if actor_key.begins_with("enemy_"):
+			layouts[actor_key] = entry.get("layout", {})
+	_expect(layouts.size() == 2, "Show-all proof should render independent contour layouts for both visible enemies")
+	for actor_key: String in layouts:
+		_expect(not ((layouts[actor_key] as Dictionary).get("line_rects", []) as Array).is_empty(), "Show-all proof should expand %s without hover" % actor_key)
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	_expect((presentation.get("enemy_threat_previews", []) as Array).size() == 2, "Show-all proof should include both enemy movement/threat previews")
+	var toggle: Button = instance.find_child("EnemyIntentToggle", true, false) as Button
+	_expect(toggle != null and toggle.button_pressed and toggle.text == "INTENTS ON [I]", "Show-all proof should visibly expose the active intent control and shortcut")
 	await _save_root_screenshot("%s/%s.png" % [_output_dir, label])
 
 func _capture_midboard_state(board: Control, enemy_unit: Dictionary, enemy_center: Vector2, label: String) -> void:

@@ -230,6 +230,8 @@ func _initialize() -> void:
 	_test_run_scene_terrain_damage_previews_use_terrain_keys()
 	_test_enemy_intent_name_reserves_header_line()
 	_test_enemy_intent_contour_expands_on_hover_or_toggle()
+	_test_enemy_intent_action_rows_use_readable_scale()
+	_test_enemy_intent_shortcut_and_threat_union()
 	_test_enemy_intent_contour_chooses_a_shoulder_when_clear()
 	_test_enemy_hud_small_top_correction_stays_centered()
 	_test_enemy_hud_ignores_subpixel_obstacle_slivers()
@@ -371,6 +373,7 @@ func _initialize() -> void:
 	await _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state()
 	await _test_run_scene_umbra_aoe_centers_allow_hidden_pattern_occupants()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
+	await _test_run_scene_show_all_enemy_intents_and_threats()
 	await _test_run_scene_animation_lock_preserves_board_animation_presentation()
 	await _test_run_scene_discard_pile_uses_distinct_icon_controls()
 	await _test_run_scene_displays_owned_relic_icons()
@@ -5794,6 +5797,28 @@ func _test_enemy_intent_contour_expands_on_hover_or_toggle() -> void:
 	var toggled_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var toggled_rows: Array = toggled_layout.get("rows", [])
 	_assert(toggled_rows.size() == 1, "The show-all enemy intent flag should reveal intent detail without hover")
+
+func _test_enemy_intent_action_rows_use_readable_scale() -> void:
+	_assert(CombatBoardView.INTENT_POPUP_ICON_SIZE >= 42.0, "Enemy intent action icons should be at least twice the first-pass 21px size")
+	_assert(CombatBoardView.INTENT_POPUP_ROW_FONT_SIZE >= 28, "Enemy intent action values should be at least roughly twice the first-pass 15px size")
+	_assert(CombatBoardView.INTENT_POPUP_TITLE_FONT_SIZE > CombatBoardView.INTENT_POPUP_ROW_FONT_SIZE, "The Crumble intent name should remain the largest typographic element")
+	_assert(CombatBoardView.INTENT_CONTOUR_ROW_HEIGHT >= CombatBoardView.INTENT_POPUP_ICON_SIZE, "Each contour action row should reserve enough height for the enlarged icon")
+
+func _test_enemy_intent_shortcut_and_threat_union() -> void:
+	var run_scene := RunSceneScript.new()
+	var intent_key := InputEventKey.new()
+	intent_key.pressed = true
+	intent_key.keycode = KEY_I
+	_assert(bool(run_scene.call("_is_enemy_intent_shortcut_event", intent_key)), "I should be the discoverable enemy-intent toggle shortcut")
+	intent_key.shift_pressed = true
+	_assert(not bool(run_scene.call("_is_enemy_intent_shortcut_event", intent_key)), "Modified text-entry chords should not trigger the enemy-intent toggle")
+	var previews: Array[Dictionary] = [
+		{"move": [Vector2i(2, 2), Vector2i(3, 2)]},
+		{"move": [Vector2i(3, 2), Vector2i(4, 2)]}
+	]
+	var union: Array[Vector2i] = run_scene.call("_enemy_threat_tiles_union", previews, "move")
+	_assert(union == [Vector2i(2, 2), Vector2i(3, 2), Vector2i(4, 2)], "Show-all threat aggregation should preserve order while deduplicating overlapping tiles")
+	run_scene.free()
 
 func _test_enemy_intent_contour_chooses_a_shoulder_when_clear() -> void:
 	var board := CombatBoardView.new()
@@ -11308,6 +11333,52 @@ func _test_run_scene_hovered_enemy_shows_threat_overlay() -> void:
 	_assert(move_tiles.has(Vector2i(4, 2)), "Hovering an enemy should surface its movement threat tiles on the board")
 	_assert(attack_tiles.has(Vector2i(2, 4)), "Hovering an enemy should surface its attack threat tiles on the board")
 	_assert(not bool(board_view.get("presentation").get("pulse_attack_tiles", false)), "Enemy threat overlays should keep static attack highlights")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_show_all_enemy_intents_and_threats() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for show-all enemy intent coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(103, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	combat_state["enemies"] = [
+		{
+			"id": 1, "type": "harrier", "pos": Vector2i(2, 2), "hp": 10, "max_hp": 10, "block": 0,
+			"intent": {"name": "Pelt", "actions": [{"type": "move_toward", "range": 1}, {"type": "ranged", "damage": 4, "range": 3}]}
+		},
+		{
+			"id": 2, "type": "crawler", "pos": Vector2i(5, 2), "hp": 10, "max_hp": 10, "block": 0,
+			"intent": {"name": "Skitter", "actions": [{"type": "move_toward", "range": 2}, {"type": "melee", "damage": 3, "range": 1}]}
+		}
+	]
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	_set_run_scene_combat_state_for_test(instance, combat_state)
+	instance.call("_refresh_turn_order_bar")
+	instance.call("_set_show_all_enemy_intents", true)
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
+	var presentation: Dictionary = board_view.get("presentation") as Dictionary
+	var threat_previews: Array = presentation.get("enemy_threat_previews", []) as Array
+	_assert(bool(presentation.get("show_all_enemy_intents", false)), "Show-all mode should reveal every enemy contour without hover")
+	_assert(threat_previews.size() == 2, "Show-all mode should submit one projected threat preview for every visible living enemy")
+	_assert(not (board_view.get("move_tiles") as Array).is_empty(), "Show-all mode should surface the enemies' combined movement preview")
+	_assert(not (board_view.get("attack_tiles") as Array).is_empty(), "Show-all mode should surface the enemies' combined attack preview")
+	var toggle: Button = instance.find_child("EnemyIntentToggle", true, false) as Button
+	_assert(toggle != null and toggle.button_pressed and toggle.text == "INTENTS ON [I]", "The turn-order rail should expose a pressed, labeled, focusable intent toggle")
 	instance.queue_free()
 	await process_frame
 
