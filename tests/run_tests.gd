@@ -11379,6 +11379,17 @@ func _test_run_scene_show_all_enemy_intents_and_threats() -> void:
 	_assert(not (board_view.get("attack_tiles") as Array).is_empty(), "Show-all mode should surface the enemies' combined attack preview")
 	var toggle: Button = instance.find_child("EnemyIntentToggle", true, false) as Button
 	_assert(toggle != null and toggle.button_pressed and toggle.text == "INTENTS ON [I]", "The turn-order rail should expose a pressed, labeled, focusable intent toggle")
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", [{"type": "melee", "damage": 2, "range": 1}])
+	instance.set("_pending_action_index", 0)
+	var pending_target_tiles: Array[Vector2i] = []
+	pending_target_tiles.append(Vector2i(2, 2))
+	instance.set("_pending_target_tiles", pending_target_tiles)
+	instance.set("_preview_combat_state", combat_state)
+	instance.call("_refresh_stage_view")
+	presentation = board_view.get("presentation") as Dictionary
+	_assert((presentation.get("enemy_threat_previews", []) as Array).is_empty(), "An active player card target preview should suppress show-all enemy threat paths and tiles")
+	_assert(bool(presentation.get("show_all_enemy_intents", false)), "Active card targeting should preserve the player's persistent show-all intent mode for when targeting ends")
 	instance.queue_free()
 	await process_frame
 
