@@ -232,7 +232,7 @@ func _initialize() -> void:
 	_test_enemy_intent_contour_expands_on_hover_or_toggle()
 	_test_enemy_intent_action_rows_use_readable_scale()
 	_test_enemy_intent_shortcut_and_threat_union()
-	_test_enemy_intent_contour_chooses_a_shoulder_when_clear()
+	_test_enemy_intent_contour_uses_right_shoulder()
 	_test_enemy_hud_small_top_correction_stays_centered()
 	_test_enemy_hud_ignores_subpixel_obstacle_slivers()
 	_test_enemy_hud_does_not_duplicate_owning_actor_obstacle()
@@ -5799,8 +5799,9 @@ func _test_enemy_intent_contour_expands_on_hover_or_toggle() -> void:
 	_assert(toggled_rows.size() == 1, "The show-all enemy intent flag should reveal intent detail without hover")
 
 func _test_enemy_intent_action_rows_use_readable_scale() -> void:
-	_assert(CombatBoardView.INTENT_POPUP_ICON_SIZE >= 42.0, "Enemy intent action icons should be at least twice the first-pass 21px size")
-	_assert(CombatBoardView.INTENT_POPUP_ROW_FONT_SIZE >= 28, "Enemy intent action values should be at least roughly twice the first-pass 15px size")
+	_assert(is_equal_approx(CombatBoardView.INTENT_POPUP_ICON_SIZE, 41.0), "Enemy intent action icons should use the ten-percent-smaller taste-pass scale")
+	_assert(CombatBoardView.INTENT_POPUP_ROW_FONT_SIZE == 26, "Enemy intent action values should use the ten-percent-smaller taste-pass scale")
+	_assert(CombatBoardView.INTENT_POPUP_TITLE_FONT_SIZE == 32, "The Crumble title should scale down modestly with the action rows")
 	_assert(CombatBoardView.INTENT_POPUP_TITLE_FONT_SIZE > CombatBoardView.INTENT_POPUP_ROW_FONT_SIZE, "The Crumble intent name should remain the largest typographic element")
 	_assert(CombatBoardView.INTENT_CONTOUR_ROW_HEIGHT >= CombatBoardView.INTENT_POPUP_ICON_SIZE, "Each contour action row should reserve enough height for the enlarged icon")
 
@@ -5820,7 +5821,7 @@ func _test_enemy_intent_shortcut_and_threat_union() -> void:
 	_assert(union == [Vector2i(2, 2), Vector2i(3, 2), Vector2i(4, 2)], "Show-all threat aggregation should preserve order while deduplicating overlapping tiles")
 	run_scene.free()
 
-func _test_enemy_intent_contour_chooses_a_shoulder_when_clear() -> void:
+func _test_enemy_intent_contour_uses_right_shoulder() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	board.presentation = {"show_all_enemy_intents": true}
@@ -5836,7 +5837,7 @@ func _test_enemy_intent_contour_chooses_a_shoulder_when_clear() -> void:
 	}
 	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var line_rects: Array = layout.get("line_rects", []) as Array
-	_assert(str(layout.get("side", "")) in ["left", "right"], "Expanded intent detail should choose a concrete shoulder even on a clear board")
+	_assert(str(layout.get("side", "")) == "right", "Expanded intent detail should always originate from the enemy's right shoulder")
 	_assert(line_rects.size() == 2, "The intent name and action should remain independently positioned")
 	_assert(((line_rects[1] as Rect2).position.y >= (line_rects[0] as Rect2).end.y), "Action detail should descend from the intent name along the sprite contour")
 	_assert((layout.get("tether", {}) as Dictionary).is_empty(), "Freeform shoulder text should not draw an ownership tether")
@@ -5911,11 +5912,11 @@ func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 	}
 	var health_rect: Rect2 = board.call("_unit_health_bar_rect", enemy, center)
 	var initial_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
-	var initial_side: String = str(initial_layout.get("side", ""))
 	var initial_lines: Array = initial_layout.get("line_rects", []) as Array
 	var blocking_rect: Rect2 = initial_lines[0] as Rect2
 	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [blocking_rect], font)
-	_assert(str(layout.get("side", "")) != initial_side, "Expanded enemy intent should use the clearer shoulder when the preferred contour is occupied")
+	_assert(str(layout.get("side", "")) == "right", "Occupied intent detail should remain on the enemy's right shoulder")
+	_assert((layout.get("offset", Vector2.ZERO) as Vector2).y != (initial_layout.get("offset", Vector2.ZERO) as Vector2).y, "Fixed-right contours should use vertical separation when their natural space is occupied")
 	_assert((layout.get("health_rect", Rect2()) as Rect2) == health_rect, "Enemy health bar should remain anchored above its sprite while intent detail repositions")
 	var placed_intent: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
 	_assert(not placed_intent.intersects(health_rect, false), "Expanded enemy intent should clear the anchored health bar")
@@ -5942,7 +5943,7 @@ func _test_enemy_intent_contour_stays_anchored_at_top_edge() -> void:
 	var actor_clear_rect: Rect2 = board.call("_enemy_hud_actor_clear_rect", enemy, center)
 	var line_rects: Array = layout.get("line_rects", []) as Array
 	var side: String = str(layout.get("side", ""))
-	_assert(side in ["left", "right"], "Top-edge intent detail should choose a stable shoulder")
+	_assert(side == "right", "Top-edge intent detail should remain on the enemy's right shoulder")
 	_assert(health_rect == default_health_rect, "Enemy health should remain directly above its sprite at the top edge")
 	_assert(line_rects.size() == 2 and intent_rect.encloses(line_rects[0] as Rect2) and intent_rect.encloses(line_rects[1] as Rect2), "Contour bounds should enclose every independent intent line")
 	_assert(intent_rect.position.y >= 6.0 and intent_rect.end.x <= board.size.x - 6.0, "Top-edge contour text should remain inside the board viewport")
@@ -5966,18 +5967,18 @@ func _test_enemy_hud_side_selection_is_stable_during_small_layout_changes() -> v
 		}
 	}
 	var initial_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
-	var initial_side: String = str(initial_layout.get("side", ""))
 	var initial_intent_rect: Rect2 = initial_layout.get("intent_rect", Rect2())
-	_assert(initial_side in ["left", "right"], "Top-edge HUD placement should remember a concrete side for each enemy")
+	_assert(str(initial_layout.get("side", "")) == "right", "Top-edge HUD placement should use the fixed right shoulder")
 	var tiny_sliver := Rect2(initial_intent_rect.position, Vector2(0.5, 2.0))
 	var near_tie_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center + Vector2(0.35, 0.0), [tiny_sliver], font)
-	_assert(str(near_tie_layout.get("side", "")) == initial_side, "Subpixel board motion and a one-pixel collision score change should not flip the enemy HUD side")
-	var blocking_rect := Rect2(Vector2(initial_intent_rect.position.x, 0.0), Vector2(initial_intent_rect.size.x, board.size.y))
+	_assert(str(near_tie_layout.get("side", "")) == "right", "Subpixel board motion should not change the fixed enemy HUD side")
+	var blocking_rect: Rect2 = initial_intent_rect
 	var forced_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [blocking_rect], font)
-	var forced_side: String = str(forced_layout.get("side", ""))
-	_assert(forced_side != initial_side, "A materially blocked remembered side should still yield to the clear side")
+	_assert(str(forced_layout.get("side", "")) == "right", "A materially blocked contour should remain on the fixed right shoulder")
+	_assert((forced_layout.get("offset", Vector2.ZERO) as Vector2).y != (initial_layout.get("offset", Vector2.ZERO) as Vector2).y, "A materially blocked fixed-right contour should move vertically instead of switching shoulders")
 	var settled_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center + Vector2(-0.35, 0.0), [], font)
-	_assert(str(settled_layout.get("side", "")) == forced_side, "Once the HUD changes sides for a real obstruction, nearby clear layouts should remain on that side")
+	_assert(str(settled_layout.get("side", "")) == "right", "Nearby clear layouts should always remain on the fixed right shoulder")
+	_assert((board.get("_enemy_hud_side_by_actor") as Dictionary).is_empty(), "Fixed-right contours should not retain per-enemy side affinity")
 
 func _test_combat_board_default_framing_contains_tallest_top_corner_occupant() -> void:
 	var board := CombatBoardView.new()

@@ -91,15 +91,15 @@ const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
 const INTENT_POPUP_PADDING_X: float = 8.0
-const INTENT_POPUP_TITLE_FONT_SIZE: int = 36
-const INTENT_POPUP_ROW_FONT_SIZE: int = 29
-const INTENT_POPUP_ICON_SIZE: float = 46.0
-const INTENT_CONTOUR_TITLE_HEIGHT: float = 46.0
-const INTENT_CONTOUR_ROW_HEIGHT: float = 52.0
-const INTENT_CONTOUR_SHOULDER_INSET: float = 14.0
-const INTENT_CONTOUR_LINE_STAGGER: float = 12.0
-const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.5
-const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(4.0, 5.0)
+const INTENT_POPUP_TITLE_FONT_SIZE: int = 32
+const INTENT_POPUP_ROW_FONT_SIZE: int = 26
+const INTENT_POPUP_ICON_SIZE: float = 41.0
+const INTENT_CONTOUR_TITLE_HEIGHT: float = 42.0
+const INTENT_CONTOUR_ROW_HEIGHT: float = 47.0
+const INTENT_CONTOUR_SHOULDER_INSET: float = 13.0
+const INTENT_CONTOUR_LINE_STAGGER: float = 11.0
+const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.25
+const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(3.5, 4.5)
 const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
@@ -5577,7 +5577,7 @@ func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: F
 	var display_font: Font = UiTypography.display_font()
 	if display_font == null:
 		display_font = font
-	var baseline: Vector2 = rect.position + Vector2(2.0, 36.0)
+	var baseline: Vector2 = rect.position + Vector2(2.0, 32.0)
 	draw_string(display_font, baseline + INTENT_CONTOUR_SHADOW_OFFSET, title, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color(0.015, 0.01, 0.015, 0.82))
 	_draw_outlined_string(display_font, baseline, title, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color("fff0cf"), Color(0.035, 0.022, 0.025, 0.98), INTENT_CONTOUR_OUTLINE_SIZE)
 	var accent_width: float = minf(rect.size.x * 0.58, 74.0)
@@ -5597,8 +5597,6 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 		if str(token.get("kind", "")) == "aoe_pattern":
 			var pattern_size: Vector2 = _aoe_token_size(token, icon_size)
 			var pattern_rect := Rect2(Vector2(cursor_x, origin.y + (icon_size - pattern_size.y) * 0.5), pattern_size)
-			if embossed:
-				draw_rect(Rect2(pattern_rect.position + INTENT_CONTOUR_SHADOW_OFFSET, pattern_rect.size), Color(0.015, 0.01, 0.015, 0.42), true)
 			_draw_aoe_token_pattern(token, pattern_rect, icon_size)
 			_register_tooltip(pattern_rect, ActionIcons.token_tooltip(token))
 			cursor_x += pattern_size.x + 5.0
@@ -5824,30 +5822,37 @@ func _enemy_intent_contour_layout(unit: Dictionary, center: Vector2, rows: Array
 		if obstacle.position.is_equal_approx(actor_rect.position) and obstacle.size.is_equal_approx(actor_rect.size):
 			continue
 		external_obstacles.append(obstacle)
-	var actor_key: String = _enemy_hud_actor_key(unit)
-	var preferred_side: String = str(_enemy_hud_side_by_actor.get(actor_key, ""))
-	if preferred_side.is_empty():
-		preferred_side = "right" if actor_rect.get_center().x <= size.x * 0.5 else "left"
-	var best: Dictionary = {}
+	var line_rects: Array[Rect2] = _enemy_intent_contour_line_rects(actor_rect, rows, intent_name, font, "right")
+	var bounds: Rect2 = _rects_bounds(line_rects)
 	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
-	for side: String in [preferred_side, "left" if preferred_side == "right" else "right"]:
-		var line_rects: Array[Rect2] = _enemy_intent_contour_line_rects(actor_rect, rows, intent_name, font, side)
-		var bounds: Rect2 = _rects_bounds(line_rects)
-		var offset := Vector2(
-			clampf(bounds.position.x, viewport_bounds.position.x, maxf(viewport_bounds.position.x, viewport_bounds.end.x - bounds.size.x)) - bounds.position.x,
-			clampf(bounds.position.y, viewport_bounds.position.y, maxf(viewport_bounds.position.y, viewport_bounds.end.y - bounds.size.y)) - bounds.position.y
-		)
+	var x_offset: float = (
+		clampf(bounds.position.x, viewport_bounds.position.x, maxf(viewport_bounds.position.x, viewport_bounds.end.x - bounds.size.x))
+		- bounds.position.x
+	)
+	var min_y_offset: float = viewport_bounds.position.y - bounds.position.y
+	var max_y_offset: float = viewport_bounds.end.y - bounds.end.y
+	var base_y_offset: float = clampf(0.0, min_y_offset, max_y_offset)
+	var y_offsets: Array[float] = []
+	for y_step_var: Variant in ENEMY_HUD_OFFSET_Y_STEPS:
+		var y_offset: float = clampf(base_y_offset + float(y_step_var), min_y_offset, max_y_offset)
+		if not y_offsets.has(y_offset):
+			y_offsets.append(y_offset)
+	var contour_step: float = bounds.size.y + 8.0
+	for y_offset: float in [
+		clampf(base_y_offset - contour_step, min_y_offset, max_y_offset),
+		clampf(base_y_offset + contour_step, min_y_offset, max_y_offset)
+	]:
+		if not y_offsets.has(y_offset):
+			y_offsets.append(y_offset)
+	var best: Dictionary = {}
+	for y_offset: float in y_offsets:
+		var offset := Vector2(x_offset, y_offset)
 		var shifted_rects: Array[Rect2] = _offset_rects(line_rects, offset)
 		var score: float = _enemy_hud_layout_score_for_offset(shifted_rects, external_obstacles, viewport_bounds, Vector2.ZERO)
-		# Keep the natural board-side choice stable unless the other shoulder is
-		# meaningfully clearer. This avoids chatter during small camera pans.
-		if side != preferred_side:
-			score += ENEMY_HUD_SIDE_SWITCH_SCORE_MARGIN
 		if best.is_empty() or score < float(best.get("score", INF)):
-			best = {"score": score, "side": side, "line_rects": shifted_rects, "bounds": _rects_bounds(shifted_rects), "offset": offset}
+			best = {"score": score, "side": "right", "line_rects": shifted_rects, "bounds": _rects_bounds(shifted_rects), "offset": offset}
 	if best.is_empty():
 		return {"bounds": Rect2(), "line_rects": [], "side": "", "offset": Vector2.ZERO}
-	_remember_enemy_hud_side(actor_key, str(best.get("side", "")))
 	return best
 
 func _enemy_intent_contour_line_rects(actor_rect: Rect2, rows: Array, intent_name: String, font: Font, side: String) -> Array[Rect2]:

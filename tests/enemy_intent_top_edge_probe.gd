@@ -135,10 +135,15 @@ func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false,
 	if show_all:
 		var second_enemy: Dictionary = (combat_state.get("enemies", []) as Array)[1]
 		second_enemy["intent"] = {
-			"name": "Skittering Bite",
+			"name": "Skittering Burst",
 			"actions": [
 				{"type": "move_toward", "range": 2},
-				{"type": "melee", "damage": 3, "range": 1}
+				{
+					"type": "aoe",
+					"damage": 3,
+					"range": 2,
+					"pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
+				}
 			]
 		}
 		(combat_state.get("enemies", []) as Array)[1] = second_enemy
@@ -333,7 +338,7 @@ func _capture_tallest_state(board: Control, enemy_unit: Dictionary, label: Strin
 func _assert_pan_stability(board: Control, enemy_unit: Dictionary, label: String) -> void:
 	var initial_layout: Dictionary = _rendered_enemy_layout(board)
 	var remembered_side: String = str(initial_layout.get("side", ""))
-	_expect(remembered_side in ["left", "right"], "%s motion proof should begin with a remembered HUD side" % label)
+	_expect(remembered_side == "right", "%s motion proof should begin on the fixed right shoulder" % label)
 	var saw_motion: bool = false
 	var requested_pans: Array[Vector2] = [
 		Vector2(-36.0, 0.0),
@@ -350,7 +355,7 @@ func _assert_pan_stability(board: Control, enemy_unit: Dictionary, label: String
 		var moved_enemy: Dictionary = _enemy_unit(board)
 		var moved_center: Vector2 = board.call("_unit_center", moved_enemy)
 		var moved_layout: Dictionary = _rendered_enemy_layout(board)
-		_expect(str(moved_layout.get("side", "")) == remembered_side, "%s intent HUD should keep one side throughout a clear board-pan sweep" % label)
+		_expect(str(moved_layout.get("side", "")) == "right", "%s intent HUD should remain on the right shoulder throughout a board-pan sweep" % label)
 		_assert_layout(board, moved_enemy, moved_center, moved_layout, "%s motion" % label)
 	_expect(saw_motion, "%s motion proof should exercise a non-zero board pan" % label)
 	board.call("set_navigation_pan", Vector2.ZERO, false)
@@ -380,7 +385,7 @@ func _assert_layout(board: Control, enemy_unit: Dictionary, enemy_center: Vector
 	var line_count: int = rows.size() + (1 if not str(layout.get("intent_name", "")).is_empty() else 0)
 	var line_rects: Array = layout.get("line_rects", []) as Array
 	var side: String = str(layout.get("side", ""))
-	_expect(side in ["left", "right"], "%s hover detail should choose an enemy shoulder" % label)
+	_expect(side == "right", "%s hover detail should always use the enemy's right shoulder" % label)
 	_expect(health_rect.position.is_equal_approx(default_health_rect.position), "%s hover detail should not displace the enemy health bar" % label)
 	_expect(line_rects.size() == line_count and line_count >= 2, "%s should preserve the title and every ordered action row" % label)
 	_expect(bounds.encloses(intent_rect), "%s contour text should remain inside the combat viewport" % label)
@@ -391,7 +396,7 @@ func _assert_layout(board: Control, enemy_unit: Dictionary, enemy_center: Vector
 		if line_index > 0:
 			var previous: Rect2 = line_rects[line_index - 1] as Rect2
 			_expect(line_rect.position.y >= previous.end.y - 0.01, "%s action lines should descend in intent order" % label)
-			_expect(line_rect.position.x > previous.position.x if side == "right" else line_rect.end.x < previous.end.x, "%s lines should stagger outward along the %s sprite contour" % [label, side])
+			_expect(line_rect.position.x > previous.position.x, "%s lines should stagger outward along the right sprite contour" % label)
 	var title_rect: Rect2 = line_rects[0] as Rect2
 	_expect(title_rect.position.y <= actor_clear_rect.position.y + 16.0, "%s intent name should begin at the sprite's highest shoulder contour" % label)
 
