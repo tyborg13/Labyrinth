@@ -90,9 +90,15 @@ const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
 const INTENT_POPUP_PADDING_X: float = 8.0
-const INTENT_POPUP_TITLE_FONT_SIZE: int = 9
-const INTENT_POPUP_ROW_FONT_SIZE: int = 11
-const INTENT_POPUP_ICON_SIZE: float = 16.0
+const INTENT_POPUP_TITLE_FONT_SIZE: int = 28
+const INTENT_POPUP_ROW_FONT_SIZE: int = 15
+const INTENT_POPUP_ICON_SIZE: float = 21.0
+const INTENT_CONTOUR_TITLE_HEIGHT: float = 34.0
+const INTENT_CONTOUR_ROW_HEIGHT: float = 27.0
+const INTENT_CONTOUR_SHOULDER_INSET: float = 10.0
+const INTENT_CONTOUR_LINE_STAGGER: float = 8.0
+const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.0
+const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(3.0, 4.0)
 const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
@@ -5507,35 +5513,43 @@ func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -
 	if applied_offset != Vector2.ZERO:
 		intent_rect.position += applied_offset
 		layout["intent_rect"] = intent_rect
+		var shifted_lines: Array[Rect2] = []
+		for line_rect_var: Variant in layout.get("line_rects", []):
+			if typeof(line_rect_var) == TYPE_RECT2:
+				var line_rect: Rect2 = line_rect_var as Rect2
+				shifted_lines.append(Rect2(line_rect.position + applied_offset, line_rect.size))
+		layout["line_rects"] = shifted_lines
 		layout["offset"] = (layout.get("offset", Vector2.ZERO) as Vector2) + applied_offset
-		layout["tether"] = _enemy_intent_tether_geometry(unit, center, intent_rect)
 	_draw_enemy_intent_layout(layout, font)
 
 func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
 	if font == null:
 		return
-	var label_rect: Rect2 = layout.get("intent_rect", Rect2())
-	if label_rect.size.x <= 0.0 or label_rect.size.y <= 0.0:
+	var line_rects: Array = layout.get("line_rects", []) as Array
+	if line_rects.is_empty():
 		return
 	var rows: Array = layout.get("rows", [])
 	var intent_name: String = str(layout.get("intent_name", ""))
 	var border: Color = layout.get("border", Color("d8b96f"))
-	draw_rect(label_rect, Color(0.08, 0.06, 0.05, 0.88), true)
-	draw_rect(label_rect, border, false, 2.0)
-	var rows_origin_y: float = label_rect.position.y + 8.0
+	var line_index: int = 0
 	if not intent_name.is_empty():
-		var title_rect := Rect2(label_rect.position + Vector2(INTENT_POPUP_PADDING_X, 6.0), Vector2(label_rect.size.x - INTENT_POPUP_PADDING_X * 2.0, 16.0))
+		var title_rect: Rect2 = line_rects[line_index] as Rect2
 		_draw_enemy_intent_title(title_rect, intent_name, border, font)
-		rows_origin_y += 20.0
+		line_index += 1
 	for row_index: int in range(rows.size()):
+		if line_index >= line_rects.size():
+			break
+		var row_rect: Rect2 = line_rects[line_index] as Rect2
 		_draw_token_row(
 			rows[row_index] as Array,
-			Vector2(label_rect.position.x + INTENT_POPUP_PADDING_X, rows_origin_y + float(row_index) * 20.0),
+			row_rect.position + Vector2(2.0, 2.0),
 			INTENT_POPUP_ICON_SIZE,
 			INTENT_POPUP_ROW_FONT_SIZE,
 			Color("f7ecd4"),
-			font
+			font,
+			true
 		)
+		line_index += 1
 
 func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line_count: int, popup_width: float = INTENT_POPUP_WIDTH) -> Rect2:
 	if line_count <= 0:
@@ -5549,19 +5563,21 @@ func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line
 func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: Font) -> void:
 	if title.is_empty() or font == null:
 		return
-	var baseline: Vector2 = rect.position + Vector2(0.0, 11.0)
-	draw_string(font, baseline + Vector2(0.0, 1.0), title, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 9, Color("140f0b"))
-	draw_string(font, baseline, title, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 9, Color("fff4dc"))
-	var divider_y: float = rect.position.y + rect.size.y + 1.0
-	draw_line(
-		Vector2(rect.position.x + 2.0, divider_y),
-		Vector2(rect.position.x + rect.size.x - 2.0, divider_y),
-		border.darkened(0.18),
-		1.0,
-		true
-	)
+	var display_font: Font = UiTypography.display_font()
+	if display_font == null:
+		display_font = font
+	var baseline: Vector2 = rect.position + Vector2(2.0, 27.0)
+	draw_string(display_font, baseline + INTENT_CONTOUR_SHADOW_OFFSET, title, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color(0.015, 0.01, 0.015, 0.82))
+	_draw_outlined_string(display_font, baseline, title, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color("fff0cf"), Color(0.035, 0.022, 0.025, 0.98), INTENT_CONTOUR_OUTLINE_SIZE)
+	var accent_width: float = minf(rect.size.x * 0.58, 74.0)
+	draw_line(baseline + Vector2(1.0, 4.0), baseline + Vector2(accent_width, 4.0), Color(border.r, border.g, border.b, 0.82), 2.0, true)
 
-func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size: int, text_color: Color, font: Font) -> void:
+func _draw_outlined_string(font: Font, baseline: Vector2, text: String, width: float, font_size: int, fill: Color, outline: Color, outline_size: float = 1.0) -> void:
+	for direction: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN, Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2.ONE]:
+		draw_string(font, baseline + direction * outline_size, text, HORIZONTAL_ALIGNMENT_LEFT, width, font_size, outline)
+	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, width, font_size, fill)
+
+func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size: int, text_color: Color, font: Font, embossed: bool = false) -> void:
 	var cursor_x: float = origin.x
 	for token_var: Variant in tokens:
 		if typeof(token_var) != TYPE_DICTIONARY:
@@ -5570,6 +5586,8 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 		if str(token.get("kind", "")) == "aoe_pattern":
 			var pattern_size: Vector2 = _aoe_token_size(token, icon_size)
 			var pattern_rect := Rect2(Vector2(cursor_x, origin.y + (icon_size - pattern_size.y) * 0.5), pattern_size)
+			if embossed:
+				draw_rect(Rect2(pattern_rect.position + INTENT_CONTOUR_SHADOW_OFFSET, pattern_rect.size), Color(0.015, 0.01, 0.015, 0.42), true)
 			_draw_aoe_token_pattern(token, pattern_rect, icon_size)
 			_register_tooltip(pattern_rect, ActionIcons.token_tooltip(token))
 			cursor_x += pattern_size.x + 5.0
@@ -5580,15 +5598,12 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 				continue
 			var text_width: float = maxf(font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0)
 			var text_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(text_width, icon_size))
-			draw_string(
-				font,
-				Vector2(cursor_x, origin.y + icon_size - 2.0),
-				text_value,
-				HORIZONTAL_ALIGNMENT_LEFT,
-				text_width,
-				font_size,
-				_token_value_color(token, text_color)
-			)
+			var text_baseline := Vector2(cursor_x, origin.y + icon_size - 2.0)
+			if embossed:
+				draw_string(font, text_baseline + INTENT_CONTOUR_SHADOW_OFFSET, text_value, HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size, Color(0.015, 0.01, 0.015, 0.86))
+				_draw_outlined_string(font, text_baseline, text_value, text_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98))
+			else:
+				draw_string(font, text_baseline, text_value, HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size, _token_value_color(token, text_color))
 			_register_tooltip(text_rect, ActionIcons.token_tooltip(token))
 			cursor_x += text_width + 6.0
 			continue
@@ -5598,7 +5613,7 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 		var condition_tint: Color = Color.WHITE
 		if token.has("condition_active") and not bool(token.get("condition_active", false)):
 			condition_tint = Color(0.42, 0.39, 0.36, 0.64)
-		_draw_keyword_icon(icon_key, icon_rect, tooltip, condition_tint)
+		_draw_keyword_icon(icon_key, icon_rect, tooltip, condition_tint, embossed)
 		if ActionIcons.token_is_modified(token) and font != null:
 			_draw_token_modifier_marker(icon_rect, tooltip, font)
 		cursor_x += icon_size + 3.0
@@ -5606,15 +5621,12 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 		if not value_text.is_empty() and font != null:
 			var value_width: float = maxf(font.get_string_size(value_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0)
 			var value_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(value_width, icon_size))
-			draw_string(
-				font,
-				Vector2(cursor_x, origin.y + icon_size - 2.0),
-				value_text,
-				HORIZONTAL_ALIGNMENT_LEFT,
-				value_width,
-				font_size,
-				_token_value_color(token, text_color)
-			)
+			var value_baseline := Vector2(cursor_x, origin.y + icon_size - 2.0)
+			if embossed:
+				draw_string(font, value_baseline + INTENT_CONTOUR_SHADOW_OFFSET, value_text, HORIZONTAL_ALIGNMENT_LEFT, value_width, font_size, Color(0.015, 0.01, 0.015, 0.86))
+				_draw_outlined_string(font, value_baseline, value_text, value_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98))
+			else:
+				draw_string(font, value_baseline, value_text, HORIZONTAL_ALIGNMENT_LEFT, value_width, font_size, _token_value_color(token, text_color))
 			_register_tooltip(value_rect, tooltip)
 			cursor_x += value_width + 6.0
 		else:
@@ -5763,41 +5775,93 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 	var intent: Dictionary = unit.get("intent", {})
 	var rows: Array = []
 	var intent_name: String = ""
-	var intent_rect := Rect2()
 	var border: Color = Color("d8b96f")
 	if not intent.is_empty() and _enemy_intent_expanded(unit):
 		rows = _enemy_intent_rows_for_display(unit, intent)
 		intent_name = _intent_display_name(intent)
-		var line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
-		if font != null and line_count > 0:
-			var popup_width: float = _enemy_intent_popup_width(intent, rows, font)
-			intent_rect = _enemy_intent_rect_for_line_count(center, health_rect, line_count, popup_width)
-			border = _intent_color(intent)
-	var intent_rects: Array[Rect2] = []
-	if intent_rect.size.x > 0.0 and intent_rect.size.y > 0.0:
-		intent_rects.append(intent_rect)
-	var actor_clear_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
-	var placement_obstacles: Array = _enemy_hud_placement_obstacles(occupied_rects, actor_clear_rect)
-	placement_obstacles.append_array(_health_bar_collision_rects(unit, health_rect))
-	var actor_key: String = _enemy_hud_actor_key(unit)
-	var offset: Vector2 = _placed_enemy_hud_offset(intent_rects, placement_obstacles, actor_clear_rect, actor_key)
-	intent_rect.position += offset
-	var tether: Dictionary = {}
-	if absf(offset.x) >= 2.0:
-		tether = _enemy_intent_tether_geometry(unit, center, intent_rect)
+		border = _intent_color(intent)
+	var contour: Dictionary = _enemy_intent_contour_layout(unit, center, rows, intent_name, occupied_rects, font)
+	var intent_rect: Rect2 = contour.get("bounds", Rect2()) as Rect2
+	var occupied: Array[Rect2] = _health_bar_collision_rects(unit, health_rect)
+	for line_rect_var: Variant in contour.get("line_rects", []):
+		if typeof(line_rect_var) == TYPE_RECT2:
+			occupied.append(line_rect_var as Rect2)
 	return {
 		"health_rect": health_rect,
 		"intent_rect": intent_rect,
+		"line_rects": contour.get("line_rects", []),
 		"rows": rows,
 		"intent_name": intent_name,
 		"border": border,
-		"offset": offset,
+		"offset": contour.get("offset", Vector2.ZERO),
 		"health_offset": Vector2.ZERO,
-		"intent_offset": offset,
-		"side": str(_enemy_hud_side_by_actor.get(actor_key, "")),
-		"tether": tether,
-		"occupied_rects": _enemy_hud_collision_rects(unit, health_rect, intent_rect)
+		"intent_offset": contour.get("offset", Vector2.ZERO),
+		"side": str(contour.get("side", "")),
+		"tether": {},
+		"occupied_rects": occupied
 	}
+
+func _enemy_intent_contour_layout(unit: Dictionary, center: Vector2, rows: Array, intent_name: String, occupied_rects: Array, font: Font) -> Dictionary:
+	if font == null or (rows.is_empty() and intent_name.is_empty()):
+		return {"bounds": Rect2(), "line_rects": [], "side": "", "offset": Vector2.ZERO}
+	var actor_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
+	var external_obstacles: Array[Rect2] = []
+	for obstacle_var: Variant in occupied_rects:
+		if typeof(obstacle_var) != TYPE_RECT2:
+			continue
+		var obstacle: Rect2 = obstacle_var as Rect2
+		if obstacle.position.is_equal_approx(actor_rect.position) and obstacle.size.is_equal_approx(actor_rect.size):
+			continue
+		external_obstacles.append(obstacle)
+	var actor_key: String = _enemy_hud_actor_key(unit)
+	var preferred_side: String = str(_enemy_hud_side_by_actor.get(actor_key, ""))
+	if preferred_side.is_empty():
+		preferred_side = "right" if actor_rect.get_center().x <= size.x * 0.5 else "left"
+	var best: Dictionary = {}
+	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
+	for side: String in [preferred_side, "left" if preferred_side == "right" else "right"]:
+		var line_rects: Array[Rect2] = _enemy_intent_contour_line_rects(actor_rect, rows, intent_name, font, side)
+		var bounds: Rect2 = _rects_bounds(line_rects)
+		var offset := Vector2(
+			clampf(bounds.position.x, viewport_bounds.position.x, maxf(viewport_bounds.position.x, viewport_bounds.end.x - bounds.size.x)) - bounds.position.x,
+			clampf(bounds.position.y, viewport_bounds.position.y, maxf(viewport_bounds.position.y, viewport_bounds.end.y - bounds.size.y)) - bounds.position.y
+		)
+		var shifted_rects: Array[Rect2] = _offset_rects(line_rects, offset)
+		var score: float = _enemy_hud_layout_score_for_offset(shifted_rects, external_obstacles, viewport_bounds, Vector2.ZERO)
+		# Keep the natural board-side choice stable unless the other shoulder is
+		# meaningfully clearer. This avoids chatter during small camera pans.
+		if side != preferred_side:
+			score += ENEMY_HUD_SIDE_SWITCH_SCORE_MARGIN
+		if best.is_empty() or score < float(best.get("score", INF)):
+			best = {"score": score, "side": side, "line_rects": shifted_rects, "bounds": _rects_bounds(shifted_rects), "offset": offset}
+	if best.is_empty():
+		return {"bounds": Rect2(), "line_rects": [], "side": "", "offset": Vector2.ZERO}
+	_remember_enemy_hud_side(actor_key, str(best.get("side", "")))
+	return best
+
+func _enemy_intent_contour_line_rects(actor_rect: Rect2, rows: Array, intent_name: String, font: Font, side: String) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	var line_y: float = actor_rect.position.y + minf(14.0, actor_rect.size.y * 0.10)
+	var line_index: int = 0
+	if not intent_name.is_empty():
+		var display_font: Font = UiTypography.display_font()
+		if display_font == null:
+			display_font = font
+		var title_width: float = ceilf(display_font.get_string_size(intent_name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_POPUP_TITLE_FONT_SIZE).x) + 10.0
+		var title_x: float = actor_rect.end.x - INTENT_CONTOUR_SHOULDER_INSET if side == "right" else actor_rect.position.x - title_width + INTENT_CONTOUR_SHOULDER_INSET
+		rects.append(Rect2(Vector2(title_x, line_y), Vector2(title_width, INTENT_CONTOUR_TITLE_HEIGHT)))
+		line_y += INTENT_CONTOUR_TITLE_HEIGHT
+		line_index += 1
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var row_width: float = ceilf(_token_row_width(row_var as Array, INTENT_POPUP_ICON_SIZE, INTENT_POPUP_ROW_FONT_SIZE, font)) + 8.0
+		var stagger: float = float(line_index) * INTENT_CONTOUR_LINE_STAGGER
+		var row_x: float = actor_rect.end.x - 2.0 + stagger if side == "right" else actor_rect.position.x - row_width + 2.0 - stagger
+		rects.append(Rect2(Vector2(row_x, line_y), Vector2(row_width, INTENT_CONTOUR_ROW_HEIGHT)))
+		line_y += INTENT_CONTOUR_ROW_HEIGHT
+		line_index += 1
+	return rects
 
 func _enemy_hud_placement_obstacles(occupied_rects: Array, actor_clear_rect: Rect2) -> Array:
 	var placement_obstacles: Array = occupied_rects.duplicate()
@@ -5814,46 +5878,26 @@ func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Arra
 	var intent: Dictionary = unit.get("intent", {})
 	var rows: Array = []
 	var intent_name: String = ""
-	var intent_rect := Rect2()
-	var expanded_rect := Rect2()
 	var border: Color = Color("d8b96f")
 	if not intent.is_empty() and _enemy_intent_expanded(unit):
 		rows = _enemy_intent_rows_for_display(unit, intent)
 		intent_name = _intent_display_name(intent)
-		var expanded_rows: Array = _intent_rows_for_unit(unit, intent)
-		var expanded_line_count: int = expanded_rows.size() + (1 if not intent_name.is_empty() else 0)
-		var visible_line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
-		if font != null and expanded_line_count > 0 and visible_line_count > 0:
-			var popup_width: float = _enemy_intent_popup_width(intent, expanded_rows, font)
-			var anchor_rect := Rect2(
-				Vector2(center.x - 1.0, _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE),
-				Vector2(2.0, 1.0)
-			)
-			expanded_rect = _enemy_intent_rect_for_line_count(center, anchor_rect, expanded_line_count, popup_width)
-			intent_rect = _enemy_intent_rect_for_line_count(center, anchor_rect, visible_line_count, popup_width)
-			intent_rect.position = expanded_rect.end - intent_rect.size
-			border = _intent_color(intent)
-	var rects: Array[Rect2] = []
-	if expanded_rect.size.x > 0.0 and expanded_rect.size.y > 0.0:
-		rects.append(expanded_rect)
-	var actor_clear_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
-	var placement_obstacles: Array = occupied_rects.duplicate()
-	placement_obstacles.append(actor_clear_rect)
-	var actor_key: String = _enemy_hud_actor_key(unit)
-	var offset: Vector2 = _placed_enemy_hud_offset(rects, placement_obstacles, actor_clear_rect, actor_key)
-	intent_rect.position += offset
-	expanded_rect.position += offset
+		border = _intent_color(intent)
+	var contour: Dictionary = _enemy_intent_contour_layout(unit, center, rows, intent_name, occupied_rects, font)
+	var intent_rect: Rect2 = contour.get("bounds", Rect2()) as Rect2
 	var occupied: Array[Rect2] = []
-	if expanded_rect.size.x > 0.0 and expanded_rect.size.y > 0.0:
-		occupied.append(expanded_rect)
+	for line_rect_var: Variant in contour.get("line_rects", []):
+		if typeof(line_rect_var) == TYPE_RECT2:
+			occupied.append(line_rect_var as Rect2)
 	return {
 		"health_rect": Rect2(),
 		"intent_rect": intent_rect,
+		"line_rects": contour.get("line_rects", []),
 		"rows": rows,
 		"intent_name": intent_name,
 		"border": border,
-		"offset": offset,
-		"side": str(_enemy_hud_side_by_actor.get(actor_key, "")),
+		"offset": contour.get("offset", Vector2.ZERO),
+		"side": str(contour.get("side", "")),
 		"occupied_rects": occupied
 	}
 
@@ -6250,11 +6294,15 @@ func _rect_edge_point_toward(rect: Rect2, target: Vector2) -> Vector2:
 	var y_scale: float = half_size.y / absf(direction.y) if absf(direction.y) > 0.0001 else INF
 	return center + direction * minf(x_scale, y_scale)
 
-func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE) -> void:
+func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE, embossed: bool = false) -> void:
 	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)
 	if texture != null:
+		if embossed:
+			draw_texture_rect(texture, Rect2(rect.position + INTENT_CONTOUR_SHADOW_OFFSET, rect.size), false, Color(0.015, 0.01, 0.015, 0.72))
 		draw_texture_rect(texture, rect, false, tint)
 	else:
+		if embossed:
+			draw_rect(Rect2(rect.position + INTENT_CONTOUR_SHADOW_OFFSET, rect.size), Color(0.015, 0.01, 0.015, 0.72), true)
 		draw_rect(rect, Color(0.0, 0.0, 0.0, 0.22), true)
 	if not tooltip.is_empty():
 		_register_tooltip(rect, tooltip)

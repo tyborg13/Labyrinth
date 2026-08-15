@@ -35,7 +35,7 @@ func _initialize() -> void:
 	var requested_state: String = OS.get_environment("LABYRINTH_INTENT_PROBE_STATE").strip_edges().to_lower()
 	if requested_state.is_empty():
 		requested_state = "compact"
-	_expect(requested_state in ["compact", "expanded", "midboard", "tallest", "retained"], "Enemy intent proof state should be compact, expanded, midboard, tallest, or retained")
+	_expect(requested_state in ["compact", "expanded", "right_edge", "midboard", "tallest", "retained"], "Enemy intent proof state should be compact, expanded, right_edge, midboard, tallest, or retained")
 	_requested_state = requested_state
 	_output_dir = "%s_%s" % [OUTPUT_DIR_ROOT, requested_state]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir))
@@ -46,7 +46,7 @@ func _initialize() -> void:
 	if packed == null:
 		quit(1)
 		return
-	await _capture_fresh_state(packed, requested_state == "expanded", requested_state)
+	await _capture_fresh_state(packed, requested_state in ["expanded", "right_edge", "midboard"], requested_state)
 
 	print("ENEMY INTENT TOP EDGE PROBE: PASS")
 	print("ENEMY_INTENT_TOP_EDGE_PROOF_DIR=%s" % ProjectSettings.globalize_path(_output_dir))
@@ -56,7 +56,7 @@ func _capture_fresh_state(packed: PackedScene, expanded: bool, label: String) ->
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
-	await _load_combat_fixture(instance, expanded, label in ["tallest", "retained"], label == "midboard")
+	await _load_combat_fixture(instance, expanded, label in ["tallest", "retained"], label == "midboard", label == "right_edge")
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	_expect(board != null, "%s top-edge intent proof should find the real combat board" % label)
 	if board == null:
@@ -67,7 +67,9 @@ func _capture_fresh_state(packed: PackedScene, expanded: bool, label: String) ->
 		await _exercise_retained_blink_transition(instance, board)
 	var enemy_unit: Dictionary = _enemy_unit(board)
 	var enemy_center: Vector2 = board.call("_unit_center", enemy_unit)
-	if label == "tallest":
+	if label == "compact":
+		await _capture_compact_state(board, label)
+	elif label == "tallest":
 		await _capture_tallest_state(board, enemy_unit, label)
 	elif label == "midboard":
 		await _capture_midboard_state(board, enemy_unit, enemy_center, label)
@@ -79,7 +81,7 @@ func _capture_fresh_state(packed: PackedScene, expanded: bool, label: String) ->
 	await process_frame
 	await process_frame
 
-func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false, midboard: bool = false) -> void:
+func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false, midboard: bool = false, right_edge: bool = false) -> void:
 	var enemy_type: String = "zekarion" if tallest else "harrier"
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
 	var max_hp: int = int(enemy_def.get("max_hp", 18))
@@ -89,7 +91,7 @@ func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false,
 		"type": "combat",
 		"grid": _simple_grid(),
 		"player_start": Vector2i(2, 6),
-		"enemies": [{"id": 1, "type": enemy_type, "pos": Vector2i(4, 4) if midboard else Vector2i(1, 1), "hp": max_hp, "max_hp": max_hp}],
+		"enemies": [{"id": 1, "type": enemy_type, "pos": Vector2i(4, 4) if midboard else Vector2i(6, 1) if right_edge else Vector2i(1, 1), "hp": max_hp, "max_hp": max_hp}],
 		"traps": [],
 		"terrain": [],
 		"loot": []
@@ -251,16 +253,23 @@ func _capture_state(board: Control, enemy_unit: Dictionary, enemy_center: Vector
 	await _assert_pan_stability(board, enemy_unit, label)
 	await _save_root_screenshot("%s/%s.png" % [_output_dir, label])
 
+func _capture_compact_state(board: Control, label: String) -> void:
+	await _settle_ui()
+	var layout: Dictionary = _rendered_enemy_layout(board)
+	_expect((layout.get("line_rects", []) as Array).is_empty(), "%s state should not render expanded intent text without hover or focus" % label)
+	_expect((layout.get("intent_rect", Rect2()) as Rect2).size.is_zero_approx(), "%s state should not reserve an invisible intent panel" % label)
+	await _save_root_screenshot("%s/%s.png" % [_output_dir, label])
+
 func _capture_midboard_state(board: Control, enemy_unit: Dictionary, enemy_center: Vector2, label: String) -> void:
 	await _settle_ui()
 	var layout: Dictionary = _rendered_enemy_layout(board)
-	_assert_centered_layout(board, enemy_unit, enemy_center, layout, label)
+	_assert_layout(board, enemy_unit, enemy_center, layout, label)
 	for requested_pan: Vector2 in [Vector2(-36.0, 0.0), Vector2(28.0, 0.0), Vector2.ZERO]:
 		board.call("set_navigation_pan", requested_pan, false)
 		await process_frame
 		var moved_enemy: Dictionary = _enemy_unit(board)
 		var moved_center: Vector2 = board.call("_unit_center", moved_enemy)
-		_assert_centered_layout(board, moved_enemy, moved_center, _rendered_enemy_layout(board), "%s motion" % label)
+		_assert_layout(board, moved_enemy, moved_center, _rendered_enemy_layout(board), "%s motion" % label)
 	await _settle_ui()
 	await _save_root_screenshot("%s/%s.png" % [_output_dir, label])
 
@@ -320,43 +329,27 @@ func _assert_layout(board: Control, enemy_unit: Dictionary, enemy_center: Vector
 		return
 	var health_rect: Rect2 = layout.get("health_rect", Rect2())
 	var intent_rect: Rect2 = layout.get("intent_rect", Rect2())
-	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
 	var default_health_rect: Rect2 = board.call("_unit_health_bar_rect", enemy_unit, enemy_center)
-	var line_count: int = (layout.get("rows", []) as Array).size() + (1 if not str(layout.get("intent_name", "")).is_empty() else 0)
-	var font: Font = board.get_theme_default_font()
-	var popup_width: float = float(board.call("_enemy_intent_popup_width", enemy_unit.get("intent", {}), layout.get("rows", []), font))
-	var default_intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", enemy_center, default_health_rect, line_count, popup_width)
 	var actor_clear_rect: Rect2 = board.call("_enemy_hud_actor_clear_rect", enemy_unit, enemy_center)
 	var bounds: Rect2 = board.call("_enemy_hud_viewport_bounds")
-	var health_delta: Vector2 = health_rect.position - default_health_rect.position
-	var intent_delta: Vector2 = intent_rect.position - default_intent_rect.position
-	_expect(absf(offset.x) > 1.0, "%s top-edge HUD should choose a side slot" % label)
-	_expect(health_delta.is_equal_approx(offset), "%s health bar should use the shared HUD offset: health_delta=%s offset=%s" % [label, health_delta, offset])
-	_expect(intent_delta.is_equal_approx(offset), "%s intent should use the same shared HUD offset: intent_delta=%s offset=%s" % [label, intent_delta, offset])
-	_expect(is_equal_approx(intent_rect.end.y, health_rect.position.y), "%s intent should remain stacked directly above health" % label)
-	_expect(bounds.encloses(health_rect) and bounds.encloses(intent_rect), "%s coupled HUD should remain onscreen" % label)
-	_expect(not actor_clear_rect.intersects(health_rect, false) and not actor_clear_rect.intersects(intent_rect, false), "%s coupled HUD should clear the enemy sprite" % label)
-	var tether: Dictionary = layout.get("tether", {})
-	_expect(not tether.is_empty(), "%s side-positioned HUD should retain an ownership tether" % label)
-	var expected_tether: Dictionary = board.call("_enemy_intent_tether_geometry", enemy_unit, enemy_center, intent_rect)
-	_expect((tether.get("from", Vector2.ZERO) as Vector2).is_equal_approx(expected_tether.get("from", Vector2.ONE)), "%s tether should start on the sprite edge" % label)
-	_expect((tether.get("to", Vector2.ZERO) as Vector2).is_equal_approx(expected_tether.get("to", Vector2.ONE)), "%s tether should stop on the intent panel edge" % label)
-
-func _assert_centered_layout(board: Control, enemy_unit: Dictionary, enemy_center: Vector2, layout: Dictionary, label: String) -> void:
-	_expect(not layout.is_empty(), "%s proof should build an enemy HUD layout" % label)
-	if layout.is_empty():
-		return
-	var health_rect: Rect2 = layout.get("health_rect", Rect2())
-	var intent_rect: Rect2 = layout.get("intent_rect", Rect2())
-	var default_health_rect: Rect2 = board.call("_unit_health_bar_rect", enemy_unit, enemy_center)
 	var rows: Array = layout.get("rows", []) as Array
 	var line_count: int = rows.size() + (1 if not str(layout.get("intent_name", "")).is_empty() else 0)
-	var popup_width: float = float(board.call("_enemy_intent_popup_width", enemy_unit.get("intent", {}), rows, board.get_theme_default_font()))
-	var default_intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", enemy_center, default_health_rect, line_count, popup_width)
-	_expect((layout.get("offset", Vector2.ONE) as Vector2).is_zero_approx(), "%s ordinary enemy HUD should remain centered" % label)
-	_expect(health_rect.position.is_equal_approx(default_health_rect.position), "%s health bar should keep its default centered anchor" % label)
-	_expect(intent_rect.position.is_equal_approx(default_intent_rect.position), "%s intent should keep its default centered anchor" % label)
-	_expect((layout.get("tether", {}) as Dictionary).is_empty(), "%s centered HUD should not draw an ownership tether" % label)
+	var line_rects: Array = layout.get("line_rects", []) as Array
+	var side: String = str(layout.get("side", ""))
+	_expect(side in ["left", "right"], "%s hover detail should choose an enemy shoulder" % label)
+	_expect(health_rect.position.is_equal_approx(default_health_rect.position), "%s hover detail should not displace the enemy health bar" % label)
+	_expect(line_rects.size() == line_count and line_count >= 2, "%s should preserve the title and every ordered action row" % label)
+	_expect(bounds.encloses(intent_rect), "%s contour text should remain inside the combat viewport" % label)
+	_expect((layout.get("tether", {}) as Dictionary).is_empty(), "%s freeform contour treatment should not draw the old panel tether" % label)
+	for line_index: int in range(line_rects.size()):
+		var line_rect: Rect2 = line_rects[line_index] as Rect2
+		_expect(intent_rect.encloses(line_rect), "%s contour bounds should enclose line %d" % [label, line_index])
+		if line_index > 0:
+			var previous: Rect2 = line_rects[line_index - 1] as Rect2
+			_expect(line_rect.position.y >= previous.end.y - 0.01, "%s action lines should descend in intent order" % label)
+			_expect(line_rect.position.x > previous.position.x if side == "right" else line_rect.end.x < previous.end.x, "%s lines should stagger outward along the %s sprite contour" % [label, side])
+	var title_rect: Rect2 = line_rects[0] as Rect2
+	_expect(title_rect.position.y <= actor_clear_rect.position.y + 16.0, "%s intent name should begin at the sprite's highest shoulder contour" % label)
 
 func _enemy_unit(board: Control) -> Dictionary:
 	for unit_var: Variant in board.call("_visible_units"):

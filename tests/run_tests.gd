@@ -229,14 +229,14 @@ func _initialize() -> void:
 	_test_health_bar_segments_use_fixed_point_scale()
 	_test_run_scene_terrain_damage_previews_use_terrain_keys()
 	_test_enemy_intent_name_reserves_header_line()
-	_test_enemy_intent_panels_expand_on_hover_or_toggle()
-	_test_enemy_hud_layout_stays_centered_when_clear()
+	_test_enemy_intent_contour_expands_on_hover_or_toggle()
+	_test_enemy_intent_contour_chooses_a_shoulder_when_clear()
 	_test_enemy_hud_small_top_correction_stays_centered()
 	_test_enemy_hud_ignores_subpixel_obstacle_slivers()
 	_test_enemy_hud_does_not_duplicate_owning_actor_obstacle()
 	_test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
-	_test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge()
+	_test_enemy_intent_contour_stays_anchored_at_top_edge()
 	_test_enemy_hud_side_selection_is_stable_during_small_layout_changes()
 	_test_combat_board_default_framing_contains_tallest_top_corner_occupant()
 	_test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cached_room()
@@ -5731,10 +5731,8 @@ func _test_unit_hud_stacks_above_sprite_art() -> void:
 		}
 	}
 	var health_rect: Rect2 = board.call("_unit_health_bar_rect", unit, center)
-	var intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, health_rect, board.call("_enemy_intent_line_count", unit.get("intent", {})))
 	var art_top_y: float = float(board.call("_unit_art_top_y", unit, center))
 	_assert(health_rect.position.y + health_rect.size.y <= art_top_y - 5.5, "Unit health bars should sit clear of the sprite art")
-	_assert(is_equal_approx(intent_rect.position.y + intent_rect.size.y, health_rect.position.y), "Enemy intent popups should stack directly above health bars")
 
 func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
 	var board := CombatBoardView.new()
@@ -5760,7 +5758,7 @@ func _test_enemy_intent_name_reserves_header_line() -> void:
 	_assert(int(board.call("_enemy_intent_line_count", attack_intent)) == 2, "Named enemy intents should reserve a header line above their action icons")
 	_assert(int(board.call("_enemy_intent_line_count", wait_intent)) == 1, "Name-only enemy intents should still render a title line")
 
-func _test_enemy_intent_panels_expand_on_hover_or_toggle() -> void:
+func _test_enemy_intent_contour_expands_on_hover_or_toggle() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
@@ -5778,26 +5776,29 @@ func _test_enemy_intent_panels_expand_on_hover_or_toggle() -> void:
 	var compact_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var compact_rows: Array = compact_layout.get("rows", [])
 	var compact_rect: Rect2 = compact_layout.get("intent_rect", Rect2())
-	_assert(compact_rows.is_empty(), "Enemy intent panels should only show the action name by default")
+	_assert(compact_rows.is_empty() and compact_rect.size.is_zero_approx(), "Enemy intent detail should remain completely hidden without enemy hover or focus")
 	board.set("_hover_tile", Vector2i(3, 3))
 	var hovered_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var hovered_rows: Array = hovered_layout.get("rows", [])
 	var hovered_rect: Rect2 = hovered_layout.get("intent_rect", Rect2())
-	_assert(hovered_rows.size() == 1, "Hovered enemy intent panels should expand to show action details")
-	_assert(hovered_rect.size.y > compact_rect.size.y, "Hovered enemy intent panels should grow when details become visible")
+	_assert(hovered_rows.size() == 1, "Hovered enemy intent detail should reveal every action row")
+	_assert(hovered_rect.size.x > 0.0 and hovered_rect.size.y > 0.0, "Hovered enemy intent detail should occupy measured contour bounds")
+	_assert((hovered_layout.get("line_rects", []) as Array).size() == 2, "Hovered enemy intent detail should keep the name and action as independent lines")
+	_assert((hovered_layout.get("tether", {}) as Dictionary).is_empty(), "Background-free intent detail should not retain the old panel tether")
 	board.set("_hover_tile", Vector2i(-1, -1))
 	board.presentation = {"expanded_enemy_actor_keys": ["enemy_7"]}
 	var portrait_hover_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var portrait_hover_rows: Array = portrait_hover_layout.get("rows", [])
-	_assert(portrait_hover_rows.size() == 1, "Turn-order portrait hovers should expand the matching enemy intent panel")
+	_assert(portrait_hover_rows.size() == 1, "Turn-order portrait hovers should reveal the matching enemy intent detail")
 	board.presentation = {"show_all_enemy_intents": true}
 	var toggled_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var toggled_rows: Array = toggled_layout.get("rows", [])
-	_assert(toggled_rows.size() == 1, "The show-all enemy intent flag should expand panels without hover")
+	_assert(toggled_rows.size() == 1, "The show-all enemy intent flag should reveal intent detail without hover")
 
-func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
+func _test_enemy_intent_contour_chooses_a_shoulder_when_clear() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
+	board.presentation = {"show_all_enemy_intents": true}
 	var font: Font = load("res://fonts/LabyrinthCrumble-Text.tres")
 	var center := Vector2(320.0, 320.0)
 	var enemy := {
@@ -5809,10 +5810,11 @@ func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
 		}
 	}
 	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
-	var offset: Vector2 = layout.get("offset", Vector2.ONE)
-	_assert(offset == Vector2.ZERO, "Enemy HUDs should keep their default stack when nothing important is in the way")
-	_assert(str(layout.get("side", "")).is_empty(), "Centered enemy HUDs should not report a side placement")
-	_assert((layout.get("tether", {}) as Dictionary).is_empty(), "Centered enemy HUDs should not need an ownership tether")
+	var line_rects: Array = layout.get("line_rects", []) as Array
+	_assert(str(layout.get("side", "")) in ["left", "right"], "Expanded intent detail should choose a concrete shoulder even on a clear board")
+	_assert(line_rects.size() == 2, "The intent name and action should remain independently positioned")
+	_assert(((line_rects[1] as Rect2).position.y >= (line_rects[0] as Rect2).end.y), "Action detail should descend from the intent name along the sprite contour")
+	_assert((layout.get("tether", {}) as Dictionary).is_empty(), "Freeform shoulder text should not draw an ownership tether")
 
 func _test_enemy_hud_small_top_correction_stays_centered() -> void:
 	var board := CombatBoardView.new()
@@ -5883,17 +5885,18 @@ func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 		}
 	}
 	var health_rect: Rect2 = board.call("_unit_health_bar_rect", enemy, center)
-	var line_count: int = int(board.call("_enemy_intent_line_count", enemy.get("intent", {})))
-	var intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, health_rect, line_count)
-	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [health_rect, intent_rect], font)
-	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
-	_assert(offset != Vector2.ZERO, "Expanded enemy intent should nudge away when its default panel covers reserved HUD space")
+	var initial_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
+	var initial_side: String = str(initial_layout.get("side", ""))
+	var initial_lines: Array = initial_layout.get("line_rects", []) as Array
+	var blocking_rect: Rect2 = initial_lines[0] as Rect2
+	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [blocking_rect], font)
+	_assert(str(layout.get("side", "")) != initial_side, "Expanded enemy intent should use the clearer shoulder when the preferred contour is occupied")
 	_assert((layout.get("health_rect", Rect2()) as Rect2) == health_rect, "Enemy health bar should remain anchored above its sprite while intent detail repositions")
 	var placed_intent: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
 	_assert(not placed_intent.intersects(health_rect, false), "Expanded enemy intent should clear the anchored health bar")
-	_assert(not placed_intent.intersects(intent_rect, false), "Expanded enemy intent should clear reserved intent space")
+	_assert(not placed_intent.intersects(blocking_rect, false), "Expanded enemy intent should clear reserved intent space")
 
-func _test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge() -> void:
+func _test_enemy_intent_contour_stays_anchored_at_top_edge() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	board.presentation = {"show_all_enemy_intents": true}
@@ -5908,26 +5911,18 @@ func _test_enemy_hud_layout_offsets_coupled_stack_to_side_at_top_edge() -> void:
 		}
 	}
 	var default_health_rect: Rect2 = board.call("_unit_health_bar_rect", enemy, center)
-	var intent_rows: Array = board.call("_enemy_intent_rows_for_display", enemy, enemy.get("intent", {})) as Array
-	var popup_width: float = float(board.call("_enemy_intent_popup_width", enemy.get("intent", {}), intent_rows, font))
-	var visible_line_count: int = intent_rows.size() + 1
-	var default_intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, default_health_rect, visible_line_count, popup_width)
 	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var health_rect: Rect2 = layout.get("health_rect", Rect2())
 	var intent_rect: Rect2 = layout.get("intent_rect", Rect2())
-	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
 	var actor_clear_rect: Rect2 = board.call("_enemy_hud_actor_clear_rect", enemy, center)
-	_assert(absf(offset.x) > 1.0, "Top-edge enemy HUDs should move beside their actor instead of dropping straight over the sprite")
+	var line_rects: Array = layout.get("line_rects", []) as Array
+	var side: String = str(layout.get("side", ""))
+	_assert(side in ["left", "right"], "Top-edge intent detail should choose a stable shoulder")
 	_assert(health_rect == default_health_rect, "Enemy health should remain directly above its sprite at the top edge")
-	_assert(intent_rect.position - default_intent_rect.position == offset, "Expanded enemy intent should apply its independent fallback offset")
-	_assert(not intent_rect.intersects(health_rect, false), "The independently repositioned intent should clear the anchored health bar")
-	_assert(intent_rect.position.y >= 6.0 and health_rect.end.y <= board.size.y - 6.0, "Top-edge enemy HUD stacks should remain inside the board viewport")
-	_assert(not intent_rect.intersects(actor_clear_rect, false) and not health_rect.intersects(actor_clear_rect, false), "Intent panel and anchored health bar should clear their owning sprite")
-	var tether: Dictionary = layout.get("tether", {})
-	_assert(not tether.is_empty(), "A displaced enemy HUD stack should keep a tether to its owning actor")
-	var expected_tether: Dictionary = board.call("_enemy_intent_tether_geometry", enemy, center, intent_rect)
-	_assert((tether.get("from", Vector2.ZERO) as Vector2).is_equal_approx(expected_tether.get("from", Vector2.ONE)), "The enemy HUD tether should begin on the sprite boundary")
-	_assert((tether.get("to", Vector2.ZERO) as Vector2).is_equal_approx(expected_tether.get("to", Vector2.ONE)), "The enemy HUD tether should terminate on the displaced intent panel boundary")
+	_assert(line_rects.size() == 2 and intent_rect.encloses(line_rects[0] as Rect2) and intent_rect.encloses(line_rects[1] as Rect2), "Contour bounds should enclose every independent intent line")
+	_assert(intent_rect.position.y >= 6.0 and intent_rect.end.x <= board.size.x - 6.0, "Top-edge contour text should remain inside the board viewport")
+	_assert((line_rects[0] as Rect2).position.y <= actor_clear_rect.position.y + 16.0, "The intent name should start at the base sprite's highest shoulder contour")
+	_assert((layout.get("tether", {}) as Dictionary).is_empty(), "Contour text should not retain the old panel ownership tether")
 
 func _test_enemy_hud_side_selection_is_stable_during_small_layout_changes() -> void:
 	var board := CombatBoardView.new()
