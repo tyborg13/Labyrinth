@@ -363,6 +363,7 @@ func _initialize() -> void:
 	await _test_run_scene_intensity_condition_rows_mark_activity()
 	await _test_card_widget_active_intensity_condition_glows()
 	await _test_card_widget_flurry_icon_uses_wide_slot()
+	await _test_card_widget_debossed_role_emblems()
 	await _test_run_scene_ranged_cards_show_range()
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
@@ -11025,6 +11026,35 @@ func _test_card_widget_flurry_icon_uses_wide_slot() -> void:
 		_assert(wide_size.y <= regular_size.y * 1.10, "Flurry's wide slot should not create a doubled-height row gap")
 	widget.queue_free()
 	instance.queue_free()
+	await process_frame
+
+func _test_card_widget_debossed_role_emblems() -> void:
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("quick_stab")) == "attack_melee", "A sparse melee card should use the sword role emblem")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("bone_dart")) == "attack_ranged", "A sparse ranged card should use the bow role emblem")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("brace")) == "block", "A block card should use the shield role emblem")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("stone_plate")) == "block", "Resource and draw riders should not displace a mitigation card's shield role")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("guarded_step")) == "block", "A defense/mobility card should resolve to one primary shield emblem")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("shadow_step")) == "illusion", "An illusion/mobility card without attack or defense should use the illusion emblem")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("dawnstep")) == "mobility", "A movement card with only a visibility rider should use the mobility emblem")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("spark_focus")) == "attack_ranged", "A dense ranged card should ignore elemental, draw, and visibility riders")
+	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
+	if card_scene == null:
+		_failures.append("CardWidget scene should load for debossed role-emblem coverage")
+		return
+	var widget := card_scene.instantiate() as CardWidget
+	widget.custom_minimum_size = Vector2(250.0, 352.0)
+	widget.size = Vector2(250.0, 352.0)
+	root.add_child(widget)
+	await process_frame
+	widget.configure("guarded_step", false, false, true, false, false, true, GameData.card_def("guarded_step"))
+	await process_frame
+	var emblem: Control = widget.get_node_or_null("Margin/VBox/DetailsPanel/DebossedRoleEmblem") as Control
+	var details_margin: Control = widget.get_node_or_null("Margin/VBox/DetailsPanel/DetailsMargin") as Control
+	_assert(emblem != null and emblem.visible, "A configured CardWidget should render its semantic role emblem")
+	_assert(emblem != null and emblem.mouse_filter == Control.MOUSE_FILTER_IGNORE, "The decorative role emblem must never intercept card input")
+	_assert(emblem != null and details_margin != null and emblem.get_index() < details_margin.get_index(), "The role emblem should stay behind the authoritative rules and action rows")
+	_assert(emblem != null and str(emblem.get("emblem_path")).ends_with("/role_block.png"), "The rendered emblem should consume the central one-role asset mapping")
+	widget.queue_free()
 	await process_frame
 
 func _first_intensity_requirement_token(rows: Array) -> Dictionary:
