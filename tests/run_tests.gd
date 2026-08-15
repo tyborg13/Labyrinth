@@ -11060,8 +11060,14 @@ func _test_card_widget_debossed_role_emblems() -> void:
 	_assert(emblem != null and str(emblem.get("emblem_path")).ends_with("/role_block.png"), "The rendered emblem should consume the central one-role asset mapping")
 	var masked_texture: Texture2D = emblem.call("_masked_emblem_texture", str(emblem.get("emblem_path"))) as Texture2D if emblem != null else null
 	_assert(masked_texture != null and (masked_texture.get_width() < 250 or masked_texture.get_height() < 250), "Role emblem textures should trim generated-image margins before fitting the rules panel")
-	var token_halo: Control = widget.find_child("SummaryTokenHalo", true, false) as Control
-	_assert(token_halo != null and token_halo.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Normal action tokens should receive a noninteractive contrast halo above the darker role emblem")
+	_assert(emblem != null and is_equal_approx(float(emblem.call("_emblem_scale_for_path", "res://assets/art/ui/card_role_emblems/role_block.png")), 0.82), "Shield, illusion, and movement emblems should use the intermediate role scale")
+	_assert(emblem != null and is_equal_approx(float(emblem.call("_emblem_scale_for_path", "res://assets/art/ui/card_role_emblems/role_attack_melee.png")), 1.0), "Sword and bow emblems should retain the approved full role scale")
+	var value_suffix: Label = null
+	for label_var: Node in widget.find_children("*", "Label", true, false):
+		if label_var.has_meta("summary_value_suffix"):
+			value_suffix = label_var as Label
+			break
+	_assert(value_suffix != null and value_suffix.get_theme_constant("outline_size") == 3, "Normal action values should use a stronger outline without a separate halo")
 	widget.queue_free()
 	await process_frame
 

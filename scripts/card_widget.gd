@@ -325,7 +325,7 @@ class DebossedRoleEmblem:
 	extends Control
 
 	const AssetLoaderScript = preload("res://scripts/asset_loader.gd")
-	const EMBLEM_ALPHA: float = 0.48
+	const EMBLEM_ALPHA: float = 0.40
 	const CONTENT_ALPHA_THRESHOLD: float = 0.24
 	const CONTENT_PADDING: int = 5
 	static var _masked_texture_cache: Dictionary = {}
@@ -345,9 +345,15 @@ class DebossedRoleEmblem:
 		var texture: Texture2D = _masked_emblem_texture(emblem_path)
 		if texture == null:
 			return
-		var emblem_size: float = clampf(minf(size.y * 0.90, size.x * 0.66), 72.0 * layout_scale, 136.0 * layout_scale)
+		var emblem_scale: float = _emblem_scale_for_path(emblem_path)
+		var emblem_size: float = clampf(minf(size.y * 0.90, size.x * 0.66), 72.0 * layout_scale, 136.0 * layout_scale) * emblem_scale
 		var rect := _texture_rect(texture, size * 0.5, emblem_size)
 		draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, EMBLEM_ALPHA))
+
+	func _emblem_scale_for_path(path: String) -> float:
+		if path.ends_with("/role_block.png") or path.ends_with("/role_illusion.png") or path.ends_with("/role_mobility.png"):
+			return 0.82
+		return 1.0
 
 	func _masked_emblem_texture(path: String) -> Texture2D:
 		if _masked_texture_cache.has(path):
@@ -399,20 +405,6 @@ class DebossedRoleEmblem:
 		var fit_scale: float = minf(max_size / texture_size.x, max_size / texture_size.y)
 		var fitted_size: Vector2 = texture_size * fit_scale
 		return Rect2(center - fitted_size * 0.5, fitted_size)
-
-class SummaryTokenHalo:
-	extends Control
-
-	func _draw() -> void:
-		if size.x <= 0.0 or size.y <= 0.0:
-			return
-		var radius: float = maxf(size.x, size.y) * 0.52
-		draw_set_transform(size * 0.5, 0.0, Vector2(1.14, 0.82))
-		draw_circle(Vector2.ZERO, radius * 1.18, Color(0.98, 0.91, 0.76, 0.05))
-		draw_circle(Vector2.ZERO, radius * 1.10, Color(0.98, 0.91, 0.76, 0.07))
-		draw_circle(Vector2.ZERO, radius * 1.02, Color(0.98, 0.91, 0.76, 0.10))
-		draw_circle(Vector2.ZERO, radius * 0.94, Color(0.98, 0.91, 0.76, 0.15))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 class IntensityActiveGlow:
 	extends Control
@@ -1396,17 +1388,6 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 	token_group.tooltip_text = tooltip
 	token_group.set_meta("summary_token", true)
 	row.add_child(token_group)
-	if not conditional:
-		var halo := SummaryTokenHalo.new()
-		halo.name = "SummaryTokenHalo"
-		halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		halo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		halo.offset_left = -2.0
-		halo.offset_top = -2.0
-		halo.offset_right = 2.0
-		halo.offset_bottom = 2.0
-		halo.set_meta("summary_token_halo", true)
-		token_group.add_child(halo)
 	var icon := TextureRect.new()
 	icon.custom_minimum_size = layout.get("icon_size", _summary_icon_box_size(token, icon_size))
 	icon.size = icon.custom_minimum_size
@@ -1475,7 +1456,7 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
 	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
 	var available_width: float = maxf(_scaled_card_value(52.0, 28.0), width - _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - _scaled_card_value(12.0, 4.0))
-	var base_candidates: Array = [30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
+	var base_candidates: Array = [32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
 	var icon_candidates: Array = []
 	for candidate_var: Variant in base_candidates:
 		icon_candidates.append(_scaled_card_value(float(candidate_var), 10.0))
