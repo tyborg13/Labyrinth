@@ -11058,6 +11058,10 @@ func _test_card_widget_debossed_role_emblems() -> void:
 	_assert(emblem != null and emblem.mouse_filter == Control.MOUSE_FILTER_IGNORE, "The decorative role emblem must never intercept card input")
 	_assert(emblem != null and details_margin != null and emblem.get_index() < details_margin.get_index(), "The role emblem should stay behind the authoritative rules and action rows")
 	_assert(emblem != null and str(emblem.get("emblem_path")).ends_with("/role_block.png"), "The rendered emblem should consume the central one-role asset mapping")
+	var masked_texture: Texture2D = emblem.call("_masked_emblem_texture", str(emblem.get("emblem_path"))) as Texture2D if emblem != null else null
+	_assert(masked_texture != null and (masked_texture.get_width() < 250 or masked_texture.get_height() < 250), "Role emblem textures should trim generated-image margins before fitting the rules panel")
+	var token_halo: Control = widget.find_child("SummaryTokenHalo", true, false) as Control
+	_assert(token_halo != null and token_halo.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Normal action tokens should receive a noninteractive contrast halo above the darker role emblem")
 	widget.queue_free()
 	await process_frame
 
