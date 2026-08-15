@@ -448,6 +448,9 @@ static func action_icon_key(action: Dictionary) -> String:
 	return str(ACTION_ICON_ALIASES.get(action_type, ""))
 
 static func card_role_emblem_key(card: Dictionary) -> String:
+	var authored_role: String = str(card.get("role_emblem", ""))
+	if CARD_ROLE_EMBLEM_PATHS.has(authored_role):
+		return authored_role
 	var has_melee_attack: bool = false
 	var has_ranged_attack: bool = false
 	var has_block: bool = false

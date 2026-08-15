@@ -11037,6 +11037,10 @@ func _test_card_widget_debossed_role_emblems() -> void:
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("shadow_step")) == "illusion", "An illusion/mobility card without attack or defense should use the illusion emblem")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("dawnstep")) == "mobility", "A movement card with only a visibility rider should use the mobility emblem")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("spark_focus")) == "attack_ranged", "A dense ranged card should ignore elemental, draw, and visibility riders")
+	for illusion_card_id: String in ["mirror_feint", "mirror_flash", "witchglass_double", "reflected_threat", "empty_husk"]:
+		_assert(ActionIcons.card_role_emblem_key(GameData.card_def(illusion_card_id)) == "illusion", "%s should preserve its authored illusion-first identity over secondary block or attack actions" % illusion_card_id)
+	for defense_card_id: String in ["undertow_guard", "rimeplate_lock"]:
+		_assert(ActionIcons.card_role_emblem_key(GameData.card_def(defense_card_id)) == "block", "%s should preserve its authored defense-first identity over a secondary ranged action" % defense_card_id)
 	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
 	if card_scene == null:
 		_failures.append("CardWidget scene should load for debossed role-emblem coverage")

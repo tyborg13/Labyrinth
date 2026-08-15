@@ -13,6 +13,8 @@ const SAMPLES: Array = [
 	{"card": "shadow_step", "label": "ILLUSION"},
 	{"card": "dawnstep", "label": "MOBILITY"},
 	{"card": "spark_focus", "label": "DENSE RIDERS"},
+	{"card": "mirror_feint", "label": "ILLUSION + BLOCK"},
+	{"card": "rimeplate_lock", "label": "DEFENSE + RANGED"},
 ]
 
 func _initialize() -> void:
@@ -38,13 +40,16 @@ func _initialize() -> void:
 	root.add_child(heading)
 	var widgets: Array = []
 	var card_width: float = 250.0
-	var gap: float = 42.0
-	var row_width: float = float(SAMPLES.size()) * card_width + float(SAMPLES.size() - 1) * gap
+	var columns: int = 4
+	var gap: float = 56.0
+	var row_width: float = float(columns) * card_width + float(columns - 1) * gap
 	var start_x: float = (1920.0 - row_width) * 0.5
 	for index: int in range(SAMPLES.size()):
 		var sample: Dictionary = SAMPLES[index]
 		var card_id: String = str(sample.get("card", ""))
-		var position := Vector2(start_x + float(index) * (card_width + gap), 178.0)
+		var column: int = index % columns
+		var row: int = index / columns
+		var position := Vector2(start_x + float(column) * (card_width + gap), 132.0 + float(row) * 452.0)
 		var label := Label.new()
 		label.text = str(sample.get("label", ""))
 		label.position = position + Vector2(0.0, -35.0)
@@ -53,11 +58,14 @@ func _initialize() -> void:
 		label.add_theme_font_size_override("font_size", 15)
 		label.add_theme_color_override("font_color", Color("c9ad80"))
 		root.add_child(label)
+		var slot := Control.new()
+		slot.position = position
+		slot.size = Vector2(250.0, 352.0)
+		root.add_child(slot)
 		var widget: CardWidget = CardWidgetScene.instantiate()
-		widget.position = position
 		widget.custom_minimum_size = Vector2(250.0, 352.0)
 		widget.size = Vector2(250.0, 352.0)
-		root.add_child(widget)
+		slot.add_child(widget)
 		widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
 		widgets.append(widget)
 	await process_frame

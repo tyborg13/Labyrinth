@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-15T15:19:02Z",
+  "updated_at": "2026-08-15T15:41:43Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8148,7 +8148,7 @@
       }
     },
     {
-      "id": "mnt_20260815T151902Z_a0f57f97",
+      "id": "mnt_20260815T154143Z_23243730",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -8157,16 +8157,18 @@
         "symbol": "card_role_emblem_key"
       },
       "scope_key": "symbol:scripts/action_icon_library.gd#card_role_emblem_key",
-      "summary": "Card rule-panel emblems use one of five primary roles",
-      "details": "Use exactly one dedicated engraved background emblem: sword for melee attack, bow for ranged attack, shield for block/mitigation, a non-occult illusion mark for illusion-first cards, or a wrapped medieval boot for move-first cards. Ignore secondary riders such as draw, element building, visibility, and healing; do not reuse foreground action icons.",
+      "summary": "Card rule-panel emblems use one of five primary roles with authored mixed-card overrides",
+      "details": "Render exactly one dedicated filled engraved background emblem: sword for melee attack, bow for ranged attack, shield for block/mitigation, a non-occult doubled-profile mark for illusion-first cards, or a strapped medieval boot for move-first cards. Ignore secondary riders such as draw, element building, and visibility. Genuinely ambiguous mixed cards may declare role_emblem in data/cards.json using only those five keys so their authored core identity wins over fallback family precedence; do not reuse foreground action icons.",
       "status": "active",
-      "created_at": "2026-08-15T15:19:02Z",
-      "updated_at": "2026-08-15T15:19:02Z",
+      "created_at": "2026-08-15T15:41:43Z",
+      "updated_at": "2026-08-15T15:41:43Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260815T151902Z_a0f57f97"
+      ],
       "source": {
         "branch": "codex/add-debossed-action-emblems-to-card-rules-panels",
-        "commit": "22871ed"
+        "commit": "ddf1c96"
       }
     }
   ]

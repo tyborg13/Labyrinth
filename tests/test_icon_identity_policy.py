@@ -276,6 +276,27 @@ class IconIdentityPolicyTests(unittest.TestCase):
         self.assertIn("ActionIcons.card_role_emblem_path(card)", source)
         self.assertNotIn("ActionIcons.icon_texture(emblem", source)
 
+        cards = json.loads((REPO_ROOT / "data/cards.json").read_text(encoding="utf-8"))
+        authored_roles = {
+            card_id: definition["role_emblem"]
+            for card_id, definition in cards.items()
+            if "role_emblem" in definition
+        }
+        self.assertEqual(
+            authored_roles,
+            {
+                "mirror_feint": "illusion",
+                "mirror_flash": "illusion",
+                "witchglass_double": "illusion",
+                "reflected_threat": "illusion",
+                "undertow_guard": "block",
+                "rimeplate_lock": "block",
+                "empty_husk": "illusion",
+            },
+            "Only genuinely ambiguous mixed cards should need an explicit primary-role override",
+        )
+        self.assertFalse(set(authored_roles.values()) - EXPECTED_CARD_ROLE_EMBLEMS.keys())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1273,6 +1273,7 @@
   },
   "mirror_feint": {
     "name": "Mirror Feint",
+    "role_emblem": "illusion",
     "rarity": "epic",
     "burn": false,
     "health_cost": 0,
@@ -1466,6 +1467,7 @@
   },
   "mirror_flash": {
     "name": "Mirror Flash",
+    "role_emblem": "illusion",
     "rarity": "epic",
     "burn": false,
     "health_cost": 0,
@@ -1741,6 +1743,7 @@
   },
   "witchglass_double": {
     "name": "Witchglass Double",
+    "role_emblem": "illusion",
     "rarity": "epic",
     "burn": false,
     "health_cost": 0,
@@ -1757,6 +1760,7 @@
   },
   "reflected_threat": {
     "name": "Reflected Threat",
+    "role_emblem": "illusion",
     "rarity": "epic",
     "burn": false,
     "health_cost": 0,
@@ -1787,6 +1791,7 @@
   },
   "undertow_guard": {
     "name": "Undertow Guard",
+    "role_emblem": "block",
     "rarity": "legendary",
     "burn": false,
     "health_cost": 0,
@@ -1866,6 +1871,7 @@
   },
   "rimeplate_lock": {
     "name": "Rimeplate Lock",
+    "role_emblem": "block",
     "element": "ice",
     "rarity": "epic",
     "burn": false,
@@ -1916,6 +1922,7 @@
   },
   "empty_husk": {
     "name": "Empty Husk",
+    "role_emblem": "illusion",
     "rarity": "legendary",
     "burn": false,
     "health_cost": 0,
