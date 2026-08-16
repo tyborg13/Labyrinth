@@ -55,7 +55,7 @@ const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const FLOATING_TEXT_RIGHT_OFFSET: float = 18.0
 const PLAYER_BAR_FILL: Color = Color("4f9f8c")
-const ILLUSION_BAR_FILL: Color = Color("7bd8ee")
+const ILLUSION_BAR_FILL: Color = Color("65b96f")
 const ENEMY_BAR_FILL: Color = Color("8f3038")
 const HEALTH_BAR_STYLE_PLAIN: StringName = &"plain"
 const HEALTH_BAR_STYLE_LIGHT: StringName = &"light"
@@ -5336,7 +5336,7 @@ func _health_bar_segment_count(max_hp_value: int) -> int:
 
 func _health_bar_visual_style(unit: Dictionary) -> StringName:
 	match str(unit.get("role", "")):
-		"player":
+		"player", "illusion":
 			return HEALTH_BAR_STYLE_LIGHT
 		"enemy":
 			return HEALTH_BAR_STYLE_UMBRA
