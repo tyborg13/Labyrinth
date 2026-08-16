@@ -3959,7 +3959,7 @@ func _test_support_intent_rows_name_target() -> void:
 	_assert(ActionIcons.plain_text_for_tokens(self_rows[0] as Array).find("-> Self") >= 0, "heal_ally intent row should say when the Surgeon targets itself")
 	var bulwark_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "guard_ally", "amount": 6, "target_mode": "all_other_enemies"}]})
 	_assert(bulwark_rows.size() == 1, "Bulwark should surface one compact intent row")
-	_assert(ActionIcons.plain_text_for_tokens(bulwark_rows[0] as Array).find("-> All Others") >= 0, "Bulwark intent rows should explicitly name the group target")
+	_assert(ActionIcons.plain_text_for_tokens(bulwark_rows[0] as Array).find("-> All Allies") >= 0, "Bulwark intent rows should explicitly name the allied group target")
 	board.free()
 
 func _test_support_intent_target_marker_is_text_only() -> void:

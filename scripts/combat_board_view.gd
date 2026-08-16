@@ -11505,7 +11505,7 @@ func _support_target_token_for_action(unit: Dictionary, action: Dictionary) -> D
 	if action_type not in ["heal_ally", "guard_ally"]:
 		return {}
 	if action_type == "guard_ally" and str(action.get("target_mode", "")) == "all_other_enemies":
-		return ActionIcons.text_token("-> All Others", "neutral", "Grants Block to every other living enemy.")
+		return ActionIcons.text_token("-> All Allies", "neutral", "Grants Block to every other living enemy.")
 	var source_enemy: Dictionary = _support_source_enemy(unit)
 	if source_enemy.is_empty():
 		return {}
