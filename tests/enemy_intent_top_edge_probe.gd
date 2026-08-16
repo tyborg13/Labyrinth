@@ -96,7 +96,7 @@ func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false,
 		"enemies": (
 			[
 				{"id": 1, "type": "harrier", "pos": Vector2i(2, 2), "hp": max_hp, "max_hp": max_hp},
-				{"id": 2, "type": "crawler", "pos": Vector2i(5, 3), "hp": max_hp, "max_hp": max_hp}
+				{"id": 2, "type": "crawler", "pos": Vector2i(4, 1), "hp": max_hp, "max_hp": max_hp}
 			]
 			if show_all
 			else [{"id": 1, "type": enemy_type, "pos": Vector2i(4, 4) if midboard else Vector2i(6, 1) if right_edge else Vector2i(1, 1), "hp": max_hp, "max_hp": max_hp}]
@@ -125,7 +125,7 @@ func _load_combat_fixture(instance: Node, expanded: bool, tallest: bool = false,
 		enemy["intent"] = (intents[0] as Dictionary).duplicate(true) if not intents.is_empty() else {}
 	else:
 		enemy["intent"] = {
-			"name": "Raking Pelt",
+			"name": "Lunge" if expanded else "Raking Pelt",
 			"actions": [
 				{"type": "move_toward", "range": 2},
 				{"type": "ranged", "damage": 4, "range": 4, "bleed": 1}
@@ -292,6 +292,7 @@ func _capture_compact_state(board: Control, label: String) -> void:
 func _capture_show_all_state(instance: Node, board: Control, label: String) -> void:
 	await _settle_ui()
 	var layouts: Dictionary = {}
+	var health_rects: Dictionary = {}
 	var built: Dictionary = board.call("_build_hud_layout_data", board.call("_visible_units"))
 	for entry_var: Variant in built.get("entries", []):
 		if typeof(entry_var) != TYPE_DICTIONARY:
@@ -300,9 +301,20 @@ func _capture_show_all_state(instance: Node, board: Control, label: String) -> v
 		var actor_key: String = str(entry.get("actor_key", ""))
 		if actor_key.begins_with("enemy_"):
 			layouts[actor_key] = entry.get("layout", {})
+			health_rects[actor_key] = entry.get("health_rect", Rect2())
 	_expect(layouts.size() == 2, "Show-all proof should render independent contour layouts for both visible enemies")
 	for actor_key: String in layouts:
 		_expect(not ((layouts[actor_key] as Dictionary).get("line_rects", []) as Array).is_empty(), "Show-all proof should expand %s without hover" % actor_key)
+	var proves_health_overlap: bool = false
+	for intent_actor_key: String in layouts:
+		for health_actor_key: String in health_rects:
+			if intent_actor_key == health_actor_key:
+				continue
+			var other_health_rect: Rect2 = health_rects[health_actor_key] as Rect2
+			for line_rect_var: Variant in (layouts[intent_actor_key] as Dictionary).get("line_rects", []):
+				if typeof(line_rect_var) == TYPE_RECT2 and (line_rect_var as Rect2).intersects(other_health_rect, false):
+					proves_health_overlap = true
+	_expect(proves_health_overlap, "Show-all proof should exercise an enemy health bar beneath another enemy's contextual intent layer")
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	_expect((presentation.get("enemy_threat_previews", []) as Array).size() == 2, "Show-all proof should include both enemy movement/threat previews")
 	var toggle: Button = instance.find_child("EnemyIntentToggle", true, false) as Button

@@ -5804,6 +5804,8 @@ func _test_enemy_intent_action_rows_use_readable_scale() -> void:
 	_assert(CombatBoardView.INTENT_POPUP_TITLE_FONT_SIZE == 32, "The Crumble title should scale down modestly with the action rows")
 	_assert(CombatBoardView.INTENT_POPUP_TITLE_FONT_SIZE > CombatBoardView.INTENT_POPUP_ROW_FONT_SIZE, "The Crumble intent name should remain the largest typographic element")
 	_assert(CombatBoardView.INTENT_CONTOUR_ROW_HEIGHT >= CombatBoardView.INTENT_POPUP_ICON_SIZE, "Each contour action row should reserve enough height for the enlarged icon")
+	_assert(CombatBoardView.INTENT_CONTOUR_ACTION_OUTLINE_SIZE >= 2.0, "Enemy intent action values should retain a strong silhouette over busy board art")
+	_assert(CombatBoardView.INTENT_CONTOUR_ICON_HALO_SIZE >= 2.0, "Enemy intent icons should retain a silhouette-shaped contrast halo without a panel backing")
 
 func _test_enemy_intent_shortcut_and_threat_union() -> void:
 	var run_scene := RunSceneScript.new()

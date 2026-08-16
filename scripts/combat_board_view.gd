@@ -99,6 +99,8 @@ const INTENT_CONTOUR_ROW_HEIGHT: float = 47.0
 const INTENT_CONTOUR_SHOULDER_INSET: float = 13.0
 const INTENT_CONTOUR_LINE_STAGGER: float = 11.0
 const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.25
+const INTENT_CONTOUR_ACTION_OUTLINE_SIZE: float = 2.0
+const INTENT_CONTOUR_ICON_HALO_SIZE: float = 2.5
 const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(3.5, 4.5)
 const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
@@ -5003,6 +5005,7 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 		return
 	var font: Font = get_theme_default_font()
 	var reserved_rects: Array[Rect2] = _enemy_hud_reserved_rects(units_to_draw, font)
+	var deferred_intent_layouts: Array[Dictionary] = []
 	for unit: Dictionary in units_to_draw:
 		if bool(unit.get("death_animation", false)):
 			continue
@@ -5014,7 +5017,7 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 			continue
 		if bool(unit.get("boss_bar", false)):
 			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
-			_draw_enemy_intent_layout(boss_layout, font)
+			deferred_intent_layouts.append(boss_layout)
 			for rect_var: Variant in boss_layout.get("occupied_rects", []):
 				if typeof(rect_var) == TYPE_RECT2:
 					reserved_rects.append(rect_var)
@@ -5027,17 +5030,22 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 			_draw_health_bar(unit, health_rect)
 			_draw_unit_statuses(unit, health_rect)
 			_draw_leader_marker(unit, health_rect, enemy_layout.get("intent_rect", Rect2()) as Rect2)
-			_draw_enemy_intent_layout(enemy_layout, font)
+			deferred_intent_layouts.append(enemy_layout)
 			for rect_var: Variant in enemy_layout.get("occupied_rects", []):
 				if typeof(rect_var) == TYPE_RECT2:
 					reserved_rects.append(rect_var)
 			continue
 		_draw_health_bar(unit, health_rect)
 		_draw_unit_statuses(unit, health_rect)
+	# Expanded intents are the contextual decision layer. Draw every persistent
+	# actor HUD first so no later enemy health bar can obscure intent details.
+	for intent_layout: Dictionary in deferred_intent_layouts:
+		_draw_enemy_intent_layout(intent_layout, font)
 
 func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void:
 	var font: Font = get_theme_default_font()
 	var units_by_key: Dictionary = {}
+	var deferred_intent_layouts: Array[Dictionary] = []
 	for unit: Dictionary in units_to_draw:
 		units_by_key[str(unit.get("key", ""))] = unit
 	for entry_var: Variant in _hud_layout_entries_cache:
@@ -5052,7 +5060,7 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 			"npc":
 				_draw_npc_nameplate(unit, center)
 			"boss":
-				_draw_enemy_intent_layout(entry.get("layout", {}) as Dictionary, font)
+				deferred_intent_layouts.append(entry.get("layout", {}) as Dictionary)
 			"enemy":
 				var layout: Dictionary = entry.get("layout", {}) as Dictionary
 				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
@@ -5060,11 +5068,13 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 				_draw_health_bar(unit, health_rect)
 				_draw_unit_statuses(unit, health_rect)
 				_draw_leader_marker(unit, health_rect, layout.get("intent_rect", Rect2()) as Rect2)
-				_draw_enemy_intent_layout(layout, font)
+				deferred_intent_layouts.append(layout)
 			_:
 				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
 				_draw_health_bar(unit, health_rect)
 				_draw_unit_statuses(unit, health_rect)
+	for intent_layout: Dictionary in deferred_intent_layouts:
+		_draw_enemy_intent_layout(intent_layout, font)
 
 func _rebuild_hud_health_rects_cache() -> bool:
 	var performance_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
@@ -5578,10 +5588,12 @@ func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: F
 	if display_font == null:
 		display_font = font
 	var baseline: Vector2 = rect.position + Vector2(2.0, 32.0)
+	var accent_width: float = minf(rect.size.x * 0.58, 74.0)
+	# The accent belongs behind the wordmark so descenders such as the G in
+	# "Lunge" remain intact instead of being crossed by the line.
+	draw_line(baseline + Vector2(1.0, 4.0), baseline + Vector2(accent_width, 4.0), Color(border.r, border.g, border.b, 0.82), 2.0, true)
 	draw_string(display_font, baseline + INTENT_CONTOUR_SHADOW_OFFSET, title, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color(0.015, 0.01, 0.015, 0.82))
 	_draw_outlined_string(display_font, baseline, title, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color("fff0cf"), Color(0.035, 0.022, 0.025, 0.98), INTENT_CONTOUR_OUTLINE_SIZE)
-	var accent_width: float = minf(rect.size.x * 0.58, 74.0)
-	draw_line(baseline + Vector2(1.0, 4.0), baseline + Vector2(accent_width, 4.0), Color(border.r, border.g, border.b, 0.82), 2.0, true)
 
 func _draw_outlined_string(font: Font, baseline: Vector2, text: String, width: float, font_size: int, fill: Color, outline: Color, outline_size: float = 1.0) -> void:
 	for direction: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN, Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2.ONE]:
@@ -5610,7 +5622,7 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 			var text_baseline := Vector2(cursor_x, origin.y + icon_size - 2.0)
 			if embossed:
 				draw_string(font, text_baseline + INTENT_CONTOUR_SHADOW_OFFSET, text_value, HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size, Color(0.015, 0.01, 0.015, 0.86))
-				_draw_outlined_string(font, text_baseline, text_value, text_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98))
+				_draw_outlined_string(font, text_baseline, text_value, text_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98), INTENT_CONTOUR_ACTION_OUTLINE_SIZE)
 			else:
 				draw_string(font, text_baseline, text_value, HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size, _token_value_color(token, text_color))
 			_register_tooltip(text_rect, ActionIcons.token_tooltip(token))
@@ -5633,7 +5645,7 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 			var value_baseline := Vector2(cursor_x, origin.y + icon_size - 2.0)
 			if embossed:
 				draw_string(font, value_baseline + INTENT_CONTOUR_SHADOW_OFFSET, value_text, HORIZONTAL_ALIGNMENT_LEFT, value_width, font_size, Color(0.015, 0.01, 0.015, 0.86))
-				_draw_outlined_string(font, value_baseline, value_text, value_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98))
+				_draw_outlined_string(font, value_baseline, value_text, value_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98), INTENT_CONTOUR_ACTION_OUTLINE_SIZE)
 			else:
 				draw_string(font, value_baseline, value_text, HORIZONTAL_ALIGNMENT_LEFT, value_width, font_size, _token_value_color(token, text_color))
 			_register_tooltip(value_rect, tooltip)
@@ -5751,8 +5763,15 @@ func _draw_aoe_token_tile(center: Vector2, icon_size: float, fill: Color, border
 		center + Vector2(-tile_width * 0.5, 0.0),
 		center + Vector2(0.0, -tile_height * 0.5)
 	])
+	var shadow_points := PackedVector2Array()
+	for point: Vector2 in points:
+		shadow_points.append(point + INTENT_CONTOUR_SHADOW_OFFSET)
+	# Keep contrast attached to each diamond silhouette. A rectangular backing
+	# makes sparse AoE patterns read as a UI panel instead of a spatial preview.
+	draw_colored_polygon(shadow_points, Color(0.015, 0.01, 0.015, 0.72))
 	draw_colored_polygon(points, fill)
-	draw_polyline(points, border, 1.0, true)
+	draw_polyline(points, Color(0.02, 0.012, 0.018, 0.96), 3.0, true)
+	draw_polyline(points, border, 1.25, true)
 
 func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
@@ -6314,6 +6333,8 @@ func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tin
 	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)
 	if texture != null:
 		if embossed:
+			for direction: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN, Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2.ONE]:
+				draw_texture_rect(texture, Rect2(rect.position + direction * INTENT_CONTOUR_ICON_HALO_SIZE, rect.size), false, Color(0.015, 0.01, 0.015, 0.88))
 			draw_texture_rect(texture, Rect2(rect.position + INTENT_CONTOUR_SHADOW_OFFSET, rect.size), false, Color(0.015, 0.01, 0.015, 0.72))
 		draw_texture_rect(texture, rect, false, tint)
 	else:
