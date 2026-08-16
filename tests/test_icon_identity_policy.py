@@ -54,6 +54,14 @@ EXPECTED_OBJECTIVE_ICONS = {
     "reach_exit": "res://assets/art/icons/objectives/reach_the_exit.png",
 }
 
+EXPECTED_CARD_ROLE_EMBLEMS = {
+    "attack_melee": "res://assets/art/ui/card_role_emblems/role_attack_melee.png",
+    "attack_ranged": "res://assets/art/ui/card_role_emblems/role_attack_ranged.png",
+    "block": "res://assets/art/ui/card_role_emblems/role_block.png",
+    "illusion": "res://assets/art/ui/card_role_emblems/role_illusion.png",
+    "mobility": "res://assets/art/ui/card_role_emblems/role_mobility.png",
+}
+
 
 def _action_icon_paths() -> dict[str, str]:
     result: dict[str, str] = {}
@@ -81,6 +89,18 @@ def _action_icon_aliases() -> dict[str, str]:
     )
     if block is None:
         raise AssertionError("ActionIconLibrary must declare ACTION_ICON_ALIASES")
+    return dict(re.findall(r'^\s*"([^"]+)":\s*"([^"]+)"', block.group("body"), re.MULTILINE))
+
+
+def _card_role_emblem_paths() -> dict[str, str]:
+    source = ACTION_ICON_LIBRARY.read_text(encoding="utf-8")
+    block = re.search(
+        r"const CARD_ROLE_EMBLEM_PATHS:\s*Dictionary\s*=\s*\{(?P<body>.*?)^\}",
+        source,
+        re.MULTILINE | re.DOTALL,
+    )
+    if block is None:
+        raise AssertionError("ActionIconLibrary must declare CARD_ROLE_EMBLEM_PATHS")
     return dict(re.findall(r'^\s*"([^"]+)":\s*"([^"]+)"', block.group("body"), re.MULTILINE))
 
 
@@ -143,6 +163,15 @@ class IconIdentityPolicyTests(unittest.TestCase):
                 path = definition.get(field, "")
                 self.assertTrue(path, f"{family}:{item_id} must declare {field}")
                 concepts[f"{family}:{item_id}"] = path
+
+        card_role_emblems = _card_role_emblem_paths()
+        self.assertEqual(
+            card_role_emblems,
+            EXPECTED_CARD_ROLE_EMBLEMS,
+            "Card role emblems must remain a small, reviewed semantic inventory",
+        )
+        for role, path in card_role_emblems.items():
+            concepts[f"card_role:{role}"] = path
 
         objective_rules = COMBAT_OBJECTIVE_RULES.read_text(encoding="utf-8")
         for objective_id, path in EXPECTED_OBJECTIVE_ICONS.items():
@@ -241,6 +270,32 @@ class IconIdentityPolicyTests(unittest.TestCase):
         rubric = (REPO_ROOT / "spec/game_ui_rubric.md").read_text(encoding="utf-8")
         for source in (agents, skill, rubric):
             self.assertIn("spec/icon_identity_policy.md", source)
+
+    def test_card_widget_consumes_the_central_role_emblem_inventory(self) -> None:
+        source = (REPO_ROOT / "scripts/card_widget.gd").read_text(encoding="utf-8")
+        self.assertIn("ActionIcons.card_role_emblem_path(card)", source)
+        self.assertNotIn("ActionIcons.icon_texture(emblem", source)
+
+        cards = json.loads((REPO_ROOT / "data/cards.json").read_text(encoding="utf-8"))
+        authored_roles = {
+            card_id: definition["role_emblem"]
+            for card_id, definition in cards.items()
+            if "role_emblem" in definition
+        }
+        self.assertEqual(
+            authored_roles,
+            {
+                "mirror_feint": "illusion",
+                "mirror_flash": "illusion",
+                "witchglass_double": "illusion",
+                "reflected_threat": "illusion",
+                "undertow_guard": "block",
+                "rimeplate_lock": "block",
+                "empty_husk": "illusion",
+            },
+            "Only genuinely ambiguous mixed cards should need an explicit primary-role override",
+        )
+        self.assertFalse(set(authored_roles.values()) - EXPECTED_CARD_ROLE_EMBLEMS.keys())
 
 
 if __name__ == "__main__":

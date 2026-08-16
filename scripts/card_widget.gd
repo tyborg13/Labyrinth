@@ -321,6 +321,91 @@ class TimeCostBadge:
 	func _polar_point(center: Vector2, angle: float, length: float) -> Vector2:
 		return center + Vector2(cos(angle), sin(angle)) * length
 
+class DebossedRoleEmblem:
+	extends Control
+
+	const AssetLoaderScript = preload("res://scripts/asset_loader.gd")
+	const EMBLEM_ALPHA: float = 0.20
+	const CONTENT_ALPHA_THRESHOLD: float = 0.24
+	const CONTENT_PADDING: int = 5
+	static var _masked_texture_cache: Dictionary = {}
+
+	var emblem_path: String = ""
+	var layout_scale: float = 1.0
+
+	func setup(next_emblem_path: String, next_layout_scale: float) -> void:
+		emblem_path = next_emblem_path
+		layout_scale = clampf(next_layout_scale, 0.44, 1.20)
+		visible = not emblem_path.is_empty()
+		queue_redraw()
+
+	func _draw() -> void:
+		if emblem_path.is_empty():
+			return
+		var texture: Texture2D = _masked_emblem_texture(emblem_path)
+		if texture == null:
+			return
+		var emblem_scale: float = _emblem_scale_for_path(emblem_path)
+		var emblem_size: float = clampf(minf(size.y * 0.90, size.x * 0.66), 72.0 * layout_scale, 136.0 * layout_scale) * emblem_scale
+		var rect := _texture_rect(texture, size * 0.5, emblem_size)
+		draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, EMBLEM_ALPHA))
+
+	func _emblem_scale_for_path(path: String) -> float:
+		if path.ends_with("/role_block.png") or path.ends_with("/role_illusion.png") or path.ends_with("/role_mobility.png"):
+			return 0.82
+		return 1.0
+
+	func _masked_emblem_texture(path: String) -> Texture2D:
+		if _masked_texture_cache.has(path):
+			return _masked_texture_cache.get(path, null) as Texture2D
+		var source_texture: Texture2D = AssetLoaderScript.load_texture(path)
+		if source_texture == null:
+			return null
+		var image: Image = source_texture.get_image()
+		if image == null or image.is_empty():
+			return null
+		image = image.duplicate()
+		image.convert(Image.FORMAT_RGBA8)
+		var content_min := Vector2i(image.get_width(), image.get_height())
+		var content_max := Vector2i(-1, -1)
+		for y: int in range(image.get_height()):
+			for x: int in range(image.get_width()):
+				var source: Color = image.get_pixel(x, y)
+				var luminance: float = source.get_luminance()
+				var cut_alpha: float = clampf((0.89 - luminance) / 0.47, 0.0, 1.0)
+				if cut_alpha <= 0.025:
+					image.set_pixel(x, y, Color.TRANSPARENT)
+					continue
+				var rim_mix: float = smoothstep(0.34, 0.82, luminance)
+				var tint: Color = Color("2b1a10").lerp(Color("b8945f"), rim_mix)
+				image.set_pixel(x, y, Color(tint.r, tint.g, tint.b, pow(cut_alpha, 0.86)))
+				if cut_alpha >= CONTENT_ALPHA_THRESHOLD:
+					content_min.x = mini(content_min.x, x)
+					content_min.y = mini(content_min.y, y)
+					content_max.x = maxi(content_max.x, x)
+					content_max.y = maxi(content_max.y, y)
+		if content_max.x >= content_min.x and content_max.y >= content_min.y:
+			var crop_position := Vector2i(
+				maxi(0, content_min.x - CONTENT_PADDING),
+				maxi(0, content_min.y - CONTENT_PADDING)
+			)
+			var crop_end := Vector2i(
+				mini(image.get_width(), content_max.x + CONTENT_PADDING + 1),
+				mini(image.get_height(), content_max.y + CONTENT_PADDING + 1)
+			)
+			image = image.get_region(Rect2i(crop_position, crop_end - crop_position))
+		var masked_texture: Texture2D = ImageTexture.create_from_image(image)
+		_masked_texture_cache[path] = masked_texture
+		return masked_texture
+
+	func _texture_rect(texture: Texture2D, center: Vector2, max_size: float) -> Rect2:
+		var texture_size: Vector2 = texture.get_size()
+		if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+			return Rect2(center - Vector2(max_size, max_size) * 0.5, Vector2(max_size, max_size))
+		var fit_scale: float = minf(max_size / texture_size.x, max_size / texture_size.y)
+		var fitted_size: Vector2 = texture_size * fit_scale
+		return Rect2(center - fitted_size * 0.5, fitted_size)
+
 class IntensityActiveGlow:
 	extends Control
 
@@ -470,6 +555,7 @@ var _ready_wave_active: bool = false
 var _ready_wave_glow: PanelContainer
 var _intensity_active_glow: IntensityActiveGlow
 var _summary_icon_box: VBoxContainer
+var _role_emblem: DebossedRoleEmblem
 var _time_badge: TimeCostBadge
 
 func _ready() -> void:
@@ -508,6 +594,7 @@ func _ready() -> void:
 	footer_label.add_theme_color_override("font_outline_color", Color("f5ecdb"))
 	footer_label.add_theme_constant_override("outline_size", 1)
 	_ensure_summary_icon_box()
+	_ensure_role_emblem()
 	_ensure_intensity_active_glow()
 	_ensure_time_badge()
 	mouse_entered.connect(_on_local_mouse_entered)
@@ -522,6 +609,7 @@ func _notification(what: int) -> void:
 		pivot_offset = size * 0.5
 		_position_time_badge()
 		_sync_intensity_active_glow_geometry()
+		_sync_role_emblem_geometry()
 		if not card_id.is_empty():
 			_apply_configuration()
 
@@ -717,6 +805,7 @@ func _apply_configuration() -> void:
 	_fit_title_label(_base_title_size())
 	_queue_title_refit()
 	_refresh_summary_display(card)
+	_refresh_role_emblem(card)
 	_refresh_intensity_active_glow()
 	_refresh_time_badge(card)
 	footer_label.text = ""
@@ -792,6 +881,7 @@ func _update_layout_metrics() -> void:
 	footer_label.custom_minimum_size = Vector2.ZERO
 	if _summary_icon_box != null:
 		_summary_icon_box.custom_minimum_size = Vector2(0.0, details_height)
+	_sync_role_emblem_geometry()
 	_position_time_badge()
 	pivot_offset = size * 0.5
 
@@ -984,6 +1074,29 @@ func _ensure_summary_icon_box() -> void:
 	_summary_icon_box.add_theme_constant_override("separation", 5)
 	details_vbox.add_child(_summary_icon_box)
 	details_vbox.move_child(_summary_icon_box, desc_label.get_index() + 1)
+
+func _ensure_role_emblem() -> void:
+	if _role_emblem != null:
+		return
+	_role_emblem = DebossedRoleEmblem.new()
+	_role_emblem.name = "DebossedRoleEmblem"
+	_role_emblem.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	details_panel.add_child(_role_emblem)
+	details_panel.move_child(_role_emblem, 0)
+	_sync_role_emblem_geometry()
+
+func _sync_role_emblem_geometry() -> void:
+	if _role_emblem == null:
+		return
+	_role_emblem.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_role_emblem.layout_scale = _card_layout_scale()
+	_role_emblem.queue_redraw()
+
+func _refresh_role_emblem(card: Dictionary) -> void:
+	_ensure_role_emblem()
+	var emblem_path: String = ActionIcons.card_role_emblem_path(card)
+	_role_emblem.setup(emblem_path, _card_layout_scale())
+	_role_emblem.visible = _summary_icon_box != null and _summary_icon_box.visible and not emblem_path.is_empty()
 
 func _ensure_time_badge() -> void:
 	if _time_badge != null:
@@ -1305,7 +1418,7 @@ func _summary_value_label(value_text: String, tooltip: String, label_size: int, 
 	label.add_theme_color_override("font_color", _token_value_color(token, conditional))
 	label.add_theme_color_override("font_outline_color", _token_outline_color(conditional))
 	label.add_theme_color_override("font_shadow_color", Color("24160f"))
-	label.add_theme_constant_override("outline_size", 2)
+	label.add_theme_constant_override("outline_size", 2 if conditional else 3)
 	label.add_theme_constant_override("shadow_outline_size", 2)
 	label.add_theme_constant_override("shadow_offset_x", 0)
 	label.add_theme_constant_override("shadow_offset_y", 0)
@@ -1343,7 +1456,7 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
 	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
 	var available_width: float = maxf(_scaled_card_value(52.0, 28.0), width - _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - _scaled_card_value(12.0, 4.0))
-	var base_candidates: Array = [30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
+	var base_candidates: Array = [32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
 	var icon_candidates: Array = []
 	for candidate_var: Variant in base_candidates:
 		icon_candidates.append(_scaled_card_value(float(candidate_var), 10.0))

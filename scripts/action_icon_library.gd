@@ -428,6 +428,14 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"vision": "vision",
 }
 
+const CARD_ROLE_EMBLEM_PATHS: Dictionary = {
+	"attack_melee": "res://assets/art/ui/card_role_emblems/role_attack_melee.png",
+	"attack_ranged": "res://assets/art/ui/card_role_emblems/role_attack_ranged.png",
+	"block": "res://assets/art/ui/card_role_emblems/role_block.png",
+	"illusion": "res://assets/art/ui/card_role_emblems/role_illusion.png",
+	"mobility": "res://assets/art/ui/card_role_emblems/role_mobility.png",
+}
+
 static func all_icon_keys() -> Array:
 	var result: Array = KEYWORDS.keys()
 	result.append_array(SKILL_ICONS.keys())
@@ -438,6 +446,51 @@ static func action_icon_key(action: Dictionary) -> String:
 	if action_type in ["intensity", "intensity_spend"]:
 		return element_icon_key(str(action.get("element", action.get("_card_element", ElementData.NONE))))
 	return str(ACTION_ICON_ALIASES.get(action_type, ""))
+
+static func card_role_emblem_key(card: Dictionary) -> String:
+	var authored_role: String = str(card.get("role_emblem", ""))
+	if CARD_ROLE_EMBLEM_PATHS.has(authored_role):
+		return authored_role
+	var has_melee_attack: bool = false
+	var has_ranged_attack: bool = false
+	var has_block: bool = false
+	var has_illusion: bool = false
+	var has_mobility: bool = false
+	for action_var: Variant in card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		var action_type: String = str(action.get("type", ""))
+		match action_type:
+			"ranged":
+				has_ranged_attack = true
+			"melee", "terrain_burst":
+				has_melee_attack = true
+			"aoe", "push", "pull", "lightning_strikes", "cinder_marks", "gale_force", "umbra_eclipse":
+				if int(action.get("range", 0)) > 1:
+					has_ranged_attack = true
+				else:
+					has_melee_attack = true
+			"block", "guard_ally", "stoneskin", "frost_armor", "raise_terrain":
+				has_block = true
+			"illusion":
+				has_illusion = true
+			"move", "move_toward", "move_away", "blink":
+				has_mobility = true
+	if has_ranged_attack:
+		return "attack_ranged"
+	if has_melee_attack:
+		return "attack_melee"
+	if has_block:
+		return "block"
+	if has_illusion:
+		return "illusion"
+	if has_mobility:
+		return "mobility"
+	return ""
+
+static func card_role_emblem_path(card: Dictionary) -> String:
+	return str(CARD_ROLE_EMBLEM_PATHS.get(card_role_emblem_key(card), ""))
 
 static func icon_path(icon_key: String) -> String:
 	return str(_icon_definition(icon_key).get("path", ""))

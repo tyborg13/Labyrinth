@@ -8148,6 +8148,52 @@
       }
     },
     {
+      "id": "mnt_20260815T155820Z_b8c2bee8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/action_icon_library.gd",
+        "symbol": "card_role_emblem_key"
+      },
+      "scope_key": "symbol:scripts/action_icon_library.gd#card_role_emblem_key",
+      "summary": "Card role mapping remains a five-category single-emblem inventory",
+      "details": "Use exactly one role per card: attack_melee, attack_ranged, block, illusion, or mobility. Secondary riders do not add emblems. Ambiguous mixed cards may declare a reviewed role_emblem override in data/cards.json. Role assets are dedicated background art and never reuse foreground action icons.",
+      "status": "active",
+      "created_at": "2026-08-15T15:58:20Z",
+      "updated_at": "2026-08-15T15:58:20Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-debossed-action-emblems-to-card-rules-panels",
+        "commit": "8b1092d"
+      }
+    },
+    {
+      "id": "mnt_20260815T162504Z_8965ca07",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/card_widget.gd",
+        "symbol": "DebossedRoleEmblem"
+      },
+      "scope_key": "symbol:scripts/card_widget.gd#DebossedRoleEmblem",
+      "summary": "Card role emblems use a very faint watermark treatment",
+      "details": "Use 0.20 background alpha for the centered role emblems during the current visual iteration. Keep melee sword and ranged bow at full cropped fit, block shield/illusion profiles/mobility boot at 0.82 scale, and preserve halo-free action rows with fit-safe icon sizing and 3px normal value outlines.",
+      "status": "active",
+      "created_at": "2026-08-15T16:25:04Z",
+      "updated_at": "2026-08-15T16:25:04Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260815T162139Z_1218c7bb"
+      ],
+      "source": {
+        "branch": "codex/add-debossed-action-emblems-to-card-rules-panels",
+        "commit": "e2bad66"
+      }
+    },
+    {
       "id": "mnt_20260816T195835Z_bce92d9a",
       "layer": "shared",
       "kind": "user_preference",

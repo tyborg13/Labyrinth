@@ -1,0 +1,62 @@
+{
+  "min_images": 9,
+  "expected_sizes": ["1920x1080", "250x352"],
+  "required_images": [
+    {
+      "pattern": "*card_role_emblems_overview_*.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [80, 90, 1760, 900], "min_luma_range": 16, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*card_role_emblem_quick_stab_*.png",
+      "width": 250,
+      "height": 352,
+      "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*card_role_emblem_bone_dart_*.png",
+      "width": 250,
+      "height": 352,
+      "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*card_role_emblem_brace_*.png",
+      "width": 250,
+      "height": 352,
+      "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*card_role_emblem_shadow_step_*.png",
+      "width": 250,
+      "height": 352,
+      "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*card_role_emblem_dawnstep_*.png",
+      "width": 250,
+      "height": 352,
+      "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*card_role_emblem_spark_focus_*.png",
+      "width": 250,
+      "height": 352,
+      "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*card_role_emblem_mirror_feint_*.png",
+      "width": 250,
+      "height": 352,
+      "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
+    },
+    {
+      "pattern": "*card_role_emblem_rimeplate_lock_*.png",
+      "width": 250,
+      "height": 352,
+      "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
+    }
+  ]
+}
