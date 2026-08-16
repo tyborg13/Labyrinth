@@ -172,6 +172,10 @@ Encounter calibration is also important:
   card-play bonus.
 - Grave surgeons enter normal local depth `1-3` pools as support enemies that
   lower direct pressure while extending allied bodies.
+- Warden Bulwark grants its scaled Block amount to every other living enemy,
+  never the Warden itself. In multi-enemy rooms this makes the Warden a durable
+  protection anchor and increases the encounter-specific value of focus fire,
+  Pierce, Sunder, and broad damage without changing their generic coefficients.
 - Chainbound Gaolers enter normal local depth `1-3` pools at low frequency as
   pull/immobilize control anchors without stacking with wardens or boss adds in
   their seeded compositions.

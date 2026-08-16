@@ -19337,7 +19337,15 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 			_apply_terrain_losses(animated_state, step.get("terrain_losses", []))
 			_remove_triggered_traps(animated_state, step.get("triggered_traps", []))
 		"block":
-			_add_enemy_block_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+			var block_targets: Array = step.get("targets", []) as Array
+			if block_targets.is_empty():
+				_add_enemy_block_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+			else:
+				for target_var: Variant in block_targets:
+					if typeof(target_var) != TYPE_DICTIONARY:
+						continue
+					var block_target: Dictionary = target_var as Dictionary
+					_add_enemy_block_by_key(animated_state, str(block_target.get("actor_key", "")), int(block_target.get("amount", 0)))
 		"stoneskin":
 			_add_enemy_stoneskin_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"heal":
@@ -19389,6 +19397,19 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 			movement_floats.append_array(_floating_texts_for_terrain_losses(step.get("terrain_losses", [])))
 			return movement_floats
 		"block":
+			var block_floats: Array[Dictionary] = []
+			for target_var: Variant in step.get("targets", []):
+				if typeof(target_var) != TYPE_DICTIONARY:
+					continue
+				var block_target: Dictionary = target_var as Dictionary
+				block_floats.append({
+					"tile": block_target.get("tile", Vector2i.ZERO),
+					"text": "+%d" % int(block_target.get("amount", 0)),
+					"color": Color("90d9ff"),
+					"offset": -6.0
+				})
+			if not block_floats.is_empty():
+				return block_floats
 			return [{
 				"tile": step.get("tile", Vector2i.ZERO),
 				"text": "+%d" % int(step.get("amount", 0)),
@@ -19475,7 +19496,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 
 func _enemy_phase_status_presentation(step: Dictionary) -> Dictionary:
 	var presentation: Dictionary = {
-		"focus_actor_keys": [str(step.get("actor_key", ""))],
+		"focus_actor_keys": step.get("focus_actor_keys", [str(step.get("actor_key", ""))]),
 		"focus_actor_color": PLAYER_ATTACK_FOCUS,
 		"focus_tiles": _vector2i_array(step.get("focus_tiles", [step.get("tile", Vector2i(-1, -1))])),
 		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
@@ -25810,6 +25831,7 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 			"enemy_losses": (step.get("enemy_losses", []) as Array).duplicate(true),
 			"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
 			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true),
+			"support_targets": (step.get("targets", []) as Array).duplicate(true),
 			"elemental_intensity_gained": (step.get("elemental_intensity_gained", {}) as Dictionary).duplicate(true),
 			"elemental_intensity_spent": (step.get("elemental_intensity_spent", {}) as Dictionary).duplicate(true)
 		})

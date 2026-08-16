@@ -168,6 +168,10 @@ value-model work, but it is not yet card-source attributed.
 
 `enemy_action_resolved` records each resolved enemy movement, attack, defense,
 heal, summon, elemental-intensity build, or authored dragon-boss mechanic step.
+Group support actions include additive `support_targets` entries with each
+recipient's actor key, display name, tile, and realized amount; this lets Warden
+Bulwark record every protected ally without splitting one intent into misleading
+separate actions.
 Its additive `elemental_intensity_gained` and `elemental_intensity_spent` maps
 capture specialist builders and attached enemy payoff costs. Boss mechanics retain the
 specific `action_type`, use `presentation_kind` for their animation family, and

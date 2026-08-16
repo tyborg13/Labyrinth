@@ -2745,6 +2745,47 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"label": "Heal Self" if heal_target_index == enemy_index else "Heal Ally"
 			}
 		"guard_ally":
+			if str(action.get("target_mode", "")) == "all_other_enemies":
+				var guard_targets: Array[Dictionary] = []
+				var guarded_actor_keys: Array[String] = []
+				var guarded_tiles: Array[Vector2i] = []
+				for target_index: int in range(mini(before_enemies.size(), after_enemies.size())):
+					if target_index == enemy_index:
+						continue
+					var before_group_target: Dictionary = before_enemies[target_index]
+					var after_group_target: Dictionary = after_enemies[target_index]
+					if int(before_group_target.get("hp", 0)) <= 0:
+						continue
+					var group_guard_amount: int = int(after_group_target.get("block", 0)) - int(before_group_target.get("block", 0))
+					if group_guard_amount <= 0:
+						continue
+					var guarded_key: String = _enemy_key(after_group_target)
+					var guarded_tile: Vector2i = after_group_target.get("pos", Vector2i.ZERO)
+					guard_targets.append({
+						"actor_key": guarded_key,
+						"actor_name": _enemy_display_name(after_group_target),
+						"tile": guarded_tile,
+						"amount": group_guard_amount
+					})
+					guarded_actor_keys.append(guarded_key)
+					guarded_tiles.append(guarded_tile)
+				if guard_targets.is_empty():
+					return {}
+				return {
+					"kind": "block",
+					"action_type": "guard_ally",
+					"actor_key": _enemy_key(after_enemy),
+					"actor_name": actor_name,
+					"tile": after_enemy.get("pos", Vector2i.ZERO),
+					"targets": guard_targets,
+					"focus_actor_keys": guarded_actor_keys,
+					"focus_tiles": guarded_tiles,
+					"impact_actor_keys": guarded_actor_keys,
+					"amount": int(action.get("amount", 0)),
+					"sfx_id": str(action.get("sfx_id", action.get("block_sfx_id", ""))),
+					"sfx_category": str(action.get("sfx_category", action.get("block_sfx_category", ""))),
+					"label": "Guard Allies"
+				}
 			var guard_target_index: int = _enemy_support_target_index(before_state, enemy_index, action)
 			if guard_target_index < 0 or guard_target_index >= before_enemies.size() or guard_target_index >= after_enemies.size():
 				return {}
@@ -3525,17 +3566,35 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 					healed_amount
 				])
 		"guard_ally":
-			var guard_target_index: int = _enemy_support_target_index(next_state, enemy_index, action)
-			if guard_target_index < 0:
-				return next_state
-			var guard_target: Dictionary = _normalized_enemy(enemies[guard_target_index] as Dictionary)
-			guard_target["block"] = int(guard_target.get("block", 0)) + int(action.get("amount", 0))
-			enemies[guard_target_index] = guard_target
-			_log(next_state, "%s guards %s for %d block." % [
-				_enemy_display_name(enemy),
-				"itself" if guard_target_index == enemy_index else _enemy_display_name(guard_target),
-				int(action.get("amount", 0))
-			])
+			if str(action.get("target_mode", "")) == "all_other_enemies":
+				var guarded_count: int = 0
+				for target_index: int in range(enemies.size()):
+					if target_index == enemy_index:
+						continue
+					var group_guard_target: Dictionary = _normalized_enemy(enemies[target_index] as Dictionary)
+					if int(group_guard_target.get("hp", 0)) <= 0:
+						continue
+					group_guard_target["block"] = int(group_guard_target.get("block", 0)) + int(action.get("amount", 0))
+					enemies[target_index] = group_guard_target
+					guarded_count += 1
+				if guarded_count <= 0:
+					return next_state
+				_log(next_state, "%s guards all other enemies for %d block." % [
+					_enemy_display_name(enemy),
+					int(action.get("amount", 0))
+				])
+			else:
+				var guard_target_index: int = _enemy_support_target_index(next_state, enemy_index, action)
+				if guard_target_index < 0:
+					return next_state
+				var guard_target: Dictionary = _normalized_enemy(enemies[guard_target_index] as Dictionary)
+				guard_target["block"] = int(guard_target.get("block", 0)) + int(action.get("amount", 0))
+				enemies[guard_target_index] = guard_target
+				_log(next_state, "%s guards %s for %d block." % [
+					_enemy_display_name(enemy),
+					"itself" if guard_target_index == enemy_index else _enemy_display_name(guard_target),
+					int(action.get("amount", 0))
+				])
 		"intensity":
 			var intensity_element: String = _action_intensity_element(action)
 			var intensity_amount: int = maxi(0, int(action.get("amount", 0)))

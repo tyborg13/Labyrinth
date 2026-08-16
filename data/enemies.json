@@ -242,8 +242,9 @@
         "weight": 2,
         "actions": [
           {
-            "type": "block",
-            "amount": 6
+            "type": "guard_ally",
+            "amount": 6,
+            "target_mode": "all_other_enemies"
           }
         ]
       },

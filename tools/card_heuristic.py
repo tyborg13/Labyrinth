@@ -32,7 +32,10 @@ to set up a lane. Chainbound Gaolers join air rooms as mid-slow
 pull/immobilize control anchors without stacking with wardens in their seeded
 compositions. Grave surgeons join frontline pools as low-damage support enemies
 that heal or guard the most injured/threatened nearby enemy on the same support
-scaling curve as enemy block/healing. Bile bloomers join earth rooms near the
+scaling curve as enemy block/healing. Warden Bulwark grants its scaled Block to
+every other living enemy but not the Warden, making focus fire, Pierce, Sunder,
+and broad damage especially valuable in Warden compositions without changing
+their intrinsic coefficients. Bile bloomers join earth rooms near the
 slow attrition end at about 19 initiative and use a radius-2 poison diamond for
 their main area-denial intent. Generic enemies keep their printed intent actions
 instead of being rewritten to match the room element. Tunnel Crawler claw
@@ -158,6 +161,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
+        "warden_bulwark": "grants scaled Block to every other living enemy and never to the acting Warden",
         "player_flow": {
             "base_initiative": PLAYER_BASE_INITIATIVE,
             "cards_per_turn": BASE_CARDS_PER_TURN,

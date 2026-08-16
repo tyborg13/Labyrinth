@@ -6986,10 +6986,12 @@ func _draw_effect_overlay() -> void:
 				draw_arc(tile_point, _tile_width() * (0.18 + progress * 0.08), 0.0, TAU, 18, Color(1.0, 0.86, 0.28, 0.48 + progress * 0.24), 3.0)
 				draw_circle(tile_point, _tile_width() * 0.10, Color(1.0, 0.95, 0.50, 0.16 + progress * 0.18))
 		"block":
-			var block_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
-			if block_tile.x < 0:
-				return
-			_draw_block_cast_effect(block_tile, progress)
+			var block_tiles: Array[Vector2i] = _vector2i_array(effect.get("focus_tiles", []))
+			if block_tiles.is_empty():
+				block_tiles = _vector2i_array([effect.get("tile", Vector2i(-1, -1))])
+			for block_tile: Vector2i in block_tiles:
+				if block_tile.x >= 0:
+					_draw_block_cast_effect(block_tile, progress)
 		"heal":
 			var heal_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
 			if heal_tile.x < 0:
@@ -11502,6 +11504,8 @@ func _support_target_token_for_action(unit: Dictionary, action: Dictionary) -> D
 	var action_type: String = str(action.get("type", ""))
 	if action_type not in ["heal_ally", "guard_ally"]:
 		return {}
+	if action_type == "guard_ally" and str(action.get("target_mode", "")) == "all_other_enemies":
+		return ActionIcons.text_token("-> All Others", "neutral", "Grants Block to every other living enemy.")
 	var source_enemy: Dictionary = _support_source_enemy(unit)
 	if source_enemy.is_empty():
 		return {}

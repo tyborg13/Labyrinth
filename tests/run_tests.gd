@@ -176,6 +176,7 @@ func _initialize() -> void:
 	_test_heal_ally_falls_back_to_self()
 	_test_heal_ally_no_target_noops()
 	_test_guard_ally_targets_threatened_ally()
+	_test_warden_bulwark_guards_all_other_enemies()
 	_test_support_intent_rows_name_target()
 	_test_support_intent_target_marker_is_text_only()
 	_test_turn_order_uses_explicit_portraits_for_new_enemy_types()
@@ -3894,6 +3895,40 @@ func _test_guard_ally_targets_threatened_ally() -> void:
 	_assert(str(step.get("actor_key", "")) == "enemy_2", "guard_ally step should focus the guarded ally")
 	_assert(str(step.get("source_actor_key", "")) == "enemy_1", "guard_ally step should preserve the Surgeon as source")
 
+func _test_warden_bulwark_guards_all_other_enemies() -> void:
+	var combat := CombatEngine.new()
+	var bulwark: Dictionary = _enemy_intent_by_id("warden", "bulwark")
+	var action: Dictionary = ((bulwark.get("actions", []) as Array)[0] as Dictionary).duplicate(true)
+	_assert(str(action.get("type", "")) == "guard_ally", "Warden Bulwark should use the reusable ally-guard action")
+	_assert(str(action.get("target_mode", "")) == "all_other_enemies", "Warden Bulwark should explicitly target every other enemy")
+	var state: Dictionary = _support_action_test_state()
+	var enemies: Array = state.get("enemies", [])
+	var warden: Dictionary = enemies[0]
+	warden["type"] = "warden"
+	warden["hp"] = 18
+	warden["max_hp"] = 18
+	warden["block"] = 2
+	enemies[0] = warden
+	enemies.append({"id": 4, "type": "crawler", "pos": Vector2i(6, 2), "hp": 0, "max_hp": 10, "block": 0, "stoneskin": 0})
+	state["enemies"] = enemies
+	var before: Dictionary = state.duplicate(true)
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var resolved_enemies: Array = resolved.get("enemies", [])
+	_assert(int((resolved_enemies[0] as Dictionary).get("block", 0)) == 2, "Bulwark should never add block to the acting Warden")
+	_assert(int((resolved_enemies[1] as Dictionary).get("block", 0)) == 6, "Bulwark should add its full block to the first living ally")
+	_assert(int((resolved_enemies[2] as Dictionary).get("block", 0)) == 6, "Bulwark should add its full block to every living ally")
+	_assert(int((resolved_enemies[3] as Dictionary).get("block", 0)) == 0, "Bulwark should ignore defeated enemies")
+	_assert(_combat_log_contains(resolved, "Stone Warden guards all other enemies"), "Bulwark logs should explain the group protection")
+	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
+	_assert(str(step.get("kind", "")) == "block" and str(step.get("label", "")) == "Guard Allies", "Bulwark should produce one group block presentation step")
+	_assert((step.get("targets", []) as Array).size() == 2, "Bulwark presentation should identify every protected ally")
+	_assert((step.get("focus_actor_keys", []) as Array).has("enemy_2") and (step.get("focus_actor_keys", []) as Array).has("enemy_3"), "Bulwark presentation should focus every protected ally")
+	var isolated: Dictionary = before.duplicate(true)
+	isolated["enemies"] = [(before.get("enemies", []) as Array)[0]]
+	var isolated_resolved: Dictionary = combat.call("_resolve_enemy_action", isolated, 0, action)
+	_assert(int(((isolated_resolved.get("enemies", []) as Array)[0] as Dictionary).get("block", 0)) == 2, "Bulwark should no-op without other living enemies")
+	_assert((combat.call("_enemy_action_step", isolated, isolated_resolved, 0, action) as Dictionary).is_empty(), "Bulwark should not animate when it has no living allies")
+
 func _test_support_intent_rows_name_target() -> void:
 	var board := CombatBoardView.new()
 	board.combat_state = _support_action_test_state()
@@ -3922,6 +3957,9 @@ func _test_support_intent_rows_name_target() -> void:
 	board.combat_state = state
 	var self_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 2, "range": 4}]})
 	_assert(ActionIcons.plain_text_for_tokens(self_rows[0] as Array).find("-> Self") >= 0, "heal_ally intent row should say when the Surgeon targets itself")
+	var bulwark_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "guard_ally", "amount": 6, "target_mode": "all_other_enemies"}]})
+	_assert(bulwark_rows.size() == 1, "Bulwark should surface one compact intent row")
+	_assert(ActionIcons.plain_text_for_tokens(bulwark_rows[0] as Array).find("-> All Others") >= 0, "Bulwark intent rows should explicitly name the group target")
 	board.free()
 
 func _test_support_intent_target_marker_is_text_only() -> void:
