@@ -3943,7 +3943,7 @@ func _test_support_intent_rows_name_target() -> void:
 	}
 	var heal_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 2, "range": 4}]})
 	_assert(heal_rows.size() == 1, "heal_ally should surface an intent row")
-	_assert(ActionIcons.plain_text_for_tokens(heal_rows[0] as Array).find("-> Crawler") >= 0, "heal_ally intent row should name the ally target")
+	_assert(ActionIcons.plain_text_for_tokens(heal_rows[0] as Array).find("→ Crawler") >= 0, "heal_ally intent row should name the ally target with the shared arrow glyph")
 	var state: Dictionary = _support_action_test_state()
 	var enemies: Array = state.get("enemies", [])
 	var surgeon: Dictionary = enemies[0]
@@ -3956,10 +3956,10 @@ func _test_support_intent_rows_name_target() -> void:
 	state["enemies"] = enemies
 	board.combat_state = state
 	var self_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 2, "range": 4}]})
-	_assert(ActionIcons.plain_text_for_tokens(self_rows[0] as Array).find("-> Self") >= 0, "heal_ally intent row should say when the Surgeon targets itself")
+	_assert(ActionIcons.plain_text_for_tokens(self_rows[0] as Array).find("→ Self") >= 0, "heal_ally intent row should say when the Surgeon targets itself with the shared arrow glyph")
 	var bulwark_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "guard_ally", "amount": 6, "target_mode": "all_other_enemies"}]})
 	_assert(bulwark_rows.size() == 1, "Bulwark should surface one compact intent row")
-	_assert(ActionIcons.plain_text_for_tokens(bulwark_rows[0] as Array).find("-> All Allies") >= 0, "Bulwark intent rows should explicitly name the allied group target")
+	_assert(ActionIcons.plain_text_for_tokens(bulwark_rows[0] as Array).find("→ All Allies") >= 0, "Bulwark intent rows should explicitly name the allied group target with the shared arrow glyph")
 	board.free()
 
 func _test_support_intent_target_marker_is_text_only() -> void:
@@ -3981,7 +3981,7 @@ func _test_support_intent_target_marker_is_text_only() -> void:
 	_assert(str((tokens[0] as Dictionary).get("icon", "")) == "heal", "heal_ally should keep the heal icon as the only action icon")
 	_assert(str((tokens[1] as Dictionary).get("kind", "")) == "text", "Support targets should render as text-only markers")
 	_assert(not (tokens[1] as Dictionary).has("icon"), "Support target markers should not add a health icon")
-	_assert(ActionIcons.plain_text_for_tokens(tokens) == "Heal 2  -> Crawler", "Support target plain text should not include a Health label")
+	_assert(ActionIcons.plain_text_for_tokens(tokens) == "Heal 2  → Crawler", "Support target plain text should use the shared arrow glyph without adding a Health label")
 	board.free()
 
 func _test_turn_order_uses_explicit_portraits_for_new_enemy_types() -> void:
