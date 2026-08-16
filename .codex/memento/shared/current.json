@@ -8218,6 +8218,50 @@
       }
     },
     {
+      "id": "mnt_20260816T203942Z_cf09f874",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Illusion health uses the player lantern frame with a green fill",
+      "details": "Illusions should match the player's health-bar silhouette, size, and inset geometry, while a distinct green fill communicates that the meter belongs to a decoy rather than the player.",
+      "status": "active",
+      "created_at": "2026-08-16T20:39:42Z",
+      "updated_at": "2026-08-16T20:39:42Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/restore-illusion-health-bars-and-add-turn-order-portrait-health-meters",
+        "commit": "d32a601"
+      }
+    },
+    {
+      "id": "mnt_20260816T203942Z_f6dc4824",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Turn-order portraits carry compact bottom-edge health meters",
+      "details": "Show current/max health as a small segmented meter inside the bottom edge of every visible player/enemy turn-order portrait, keep timing and projection badges clear of it, and omit health for Umbra-concealed presences so the rail does not leak hidden information.",
+      "status": "active",
+      "created_at": "2026-08-16T20:39:42Z",
+      "updated_at": "2026-08-16T20:39:42Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/restore-illusion-health-bars-and-add-turn-order-portrait-health-meters",
+        "commit": "d32a601"
+      }
+    },
+    {
       "id": "mnt_20260816T205510Z_8287528a",
       "layer": "shared",
       "kind": "user_preference",

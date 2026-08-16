@@ -5,6 +5,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
+const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 
 const OUTPUT_DIR: String = "user://probes/health_bar_theme_v1"
 const PROGRESSION_PATH: String = "user://health_bar_theme_probe_progression.json"
@@ -42,7 +43,7 @@ func _initialize() -> void:
 		_install_combat_fixture(instance, false)
 		await _settle()
 		_hide_log(instance)
-		_assert_themed_units(instance, 2)
+		_assert_themed_units(instance, 2, true)
 		await _save_screenshot(viewport, "%s/health_bars_normal_1920x1080.png" % OUTPUT_DIR)
 		var committed_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		await instance.call("_on_card_pressed", 0)
@@ -54,7 +55,7 @@ func _initialize() -> void:
 		_install_combat_fixture(instance, true)
 		await _settle()
 		_hide_log(instance)
-		_assert_themed_units(instance, 5)
+		_assert_themed_units(instance, 5, false)
 		_assert_health_rects_do_not_overlap(instance)
 		await _save_screenshot(viewport, "%s/health_bars_dense_1920x1080.png" % OUTPUT_DIR)
 		instance.queue_free()
@@ -106,6 +107,12 @@ func _install_combat_fixture(instance: Node, dense: bool) -> void:
 		enemy["max_hp"] = 14
 		enemies[enemy_index] = enemy
 	combat_state["enemies"] = enemies
+	combat_state["illusions"] = [] if dense else [{
+		"id": 71,
+		"pos": Vector2i(2, 4),
+		"hp": 5,
+		"max_hp": 8,
+	}]
 	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	run_state["mode"] = "combat"
 	run_state["current_room"] = layout.get("coord", Vector2i.ZERO)
@@ -163,7 +170,7 @@ func _enemy(id: int, pos: Vector2i) -> Dictionary:
 		"base_initiative": 9,
 	}
 
-func _assert_themed_units(instance: Node, expected_enemy_count: int) -> void:
+func _assert_themed_units(instance: Node, expected_enemy_count: int, expected_illusion: bool) -> void:
 	var board: Control = instance.get("board_view") as Control
 	_expect(board != null, "Health-bar proof should expose the combat board")
 	if board == null:
@@ -178,6 +185,7 @@ func _assert_themed_units(instance: Node, expected_enemy_count: int) -> void:
 		"Live board should load the authored Umbra-frame texture"
 	)
 	var player_seen: bool = false
+	var illusion_seen: bool = false
 	var enemy_count: int = 0
 	for unit_var: Variant in board.call("_build_visible_units"):
 		if typeof(unit_var) != TYPE_DICTIONARY:
@@ -196,8 +204,34 @@ func _assert_themed_units(instance: Node, expected_enemy_count: int) -> void:
 				board.call("_health_bar_visual_style", unit) == CombatBoardView.HEALTH_BAR_STYLE_UMBRA,
 				"Live enemy health should use the Umbra silhouette"
 			)
+		elif role == "illusion":
+			illusion_seen = true
+			_expect(
+				board.call("_health_bar_visual_style", unit) == CombatBoardView.HEALTH_BAR_STYLE_LIGHT,
+				"Live illusion health should reuse the player's lantern silhouette"
+			)
 	_expect(player_seen, "The normal proof should include the player health bar")
+	_expect(illusion_seen == expected_illusion, "The proof should include the expected damaged illusion health bar state")
 	_expect(enemy_count == expected_enemy_count, "The proof should include %d enemy health bars" % expected_enemy_count)
+	_assert_turn_order_health_bars(instance)
+
+func _assert_turn_order_health_bars(instance: Node) -> void:
+	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
+	_expect(turn_order_bar != null, "Health-bar proof should expose the turn-order rail")
+	if turn_order_bar == null:
+		return
+	var portrait_bar_count: int = 0
+	var depleted_bar_count: int = 0
+	for child: Node in turn_order_bar.get_children():
+		var portrait_health: SegmentedHealthBar = child.find_child("TurnOrderHealthBar", true, false) as SegmentedHealthBar
+		if portrait_health == null:
+			continue
+		portrait_bar_count += 1
+		_expect(portrait_health.max_value > 0.0, "Turn-order portrait health bars should have a positive maximum")
+		if portrait_health.value < portrait_health.max_value:
+			depleted_bar_count += 1
+	_expect(portrait_bar_count >= 3, "The turn order should show health bars for the player and visible enemies")
+	_expect(depleted_bar_count >= 2, "The proof fixture should show visibly depleted player and enemy portrait health")
 
 func _assert_health_rects_do_not_overlap(instance: Node) -> void:
 	var board: Control = instance.get("board_view") as Control

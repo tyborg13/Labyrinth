@@ -1302,6 +1302,9 @@ const BOSS_HEALTH_OVERLAY_HEALTH_HEIGHT: float = 26.0
 const BOSS_HEALTH_MAX_SEGMENTS: int = 48
 const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(116.0, 87.0)
 const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(132.0, 99.0)
+const TURN_ORDER_HEALTH_BAR_HEIGHT: float = 9.0
+const TURN_ORDER_HEALTH_BAR_SIDE_INSET: float = 5.0
+const TURN_ORDER_HEALTH_BAR_BOTTOM_INSET: float = 3.0
 const TURN_ORDER_SLOT_GAP: float = 3.0
 const ENEMY_INTENT_TOGGLE_HEIGHT: float = 36.0
 const ENEMY_INTENT_TOGGLE_TOP_GAP: float = 8.0
@@ -9924,6 +9927,9 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.modulate = _turn_order_portrait_modulate(entry, active)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
+	var health_bar: SegmentedHealthBar = _turn_order_health_bar(entry, slot_size)
+	if health_bar != null:
+		frame.add_child(health_bar)
 	if _turn_order_is_card_preview_projection(entry):
 		frame.add_child(_turn_order_projection_badge(entry, slot_size))
 	var badge_text: String = _turn_order_clock_badge_text(entry)
@@ -9945,6 +9951,36 @@ func _turn_order_is_card_preview_projection(entry: Dictionary) -> bool:
 		and str(entry.get("kind", "")) == "player"
 		and int(entry.get("projected_time_cost", 0)) > 0
 	)
+
+func _turn_order_health_bar(entry: Dictionary, slot_size: Vector2) -> SegmentedHealthBar:
+	if not entry.has("hp") or not entry.has("max_hp") or bool(entry.get("hidden_by_umbra", false)):
+		return null
+	var max_hp: int = maxi(1, int(entry.get("max_hp", 1)))
+	var health_bar := SegmentedHealthBar.new()
+	health_bar.name = "TurnOrderHealthBar"
+	health_bar.position = Vector2(
+		TURN_ORDER_HEALTH_BAR_SIDE_INSET,
+		slot_size.y - TURN_ORDER_HEALTH_BAR_HEIGHT - TURN_ORDER_HEALTH_BAR_BOTTOM_INSET
+	)
+	health_bar.custom_minimum_size = Vector2(
+		maxf(1.0, slot_size.x - TURN_ORDER_HEALTH_BAR_SIDE_INSET * 2.0),
+		TURN_ORDER_HEALTH_BAR_HEIGHT
+	)
+	health_bar.size = health_bar.custom_minimum_size
+	health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	health_bar.z_index = 7
+	health_bar.set_health(float(int(entry.get("hp", 0))), float(max_hp))
+	health_bar.set_segment_count(SegmentedHealthBar.segment_count_for_max_hp(float(max_hp)))
+	var player_team: bool = str(entry.get("team", "enemy")) == "player"
+	if player_team:
+		health_bar.set_fill(Color("4f9f8c"), Color("9de2ce"))
+		health_bar.set_appearance(Color("191512"), Color("d8bd7b"), Color(0.0, 0.0, 0.0, 0.48))
+	else:
+		health_bar.set_fill(Color("8f3038"), Color("cf6469"))
+		health_bar.set_appearance(Color("160f17"), Color("b87976"), Color(0.0, 0.0, 0.0, 0.48))
+	health_bar.separator_width = 1.0
+	health_bar.border_width = 1.0
+	return health_bar
 
 func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
 	if active:
@@ -9973,7 +10009,7 @@ func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Cont
 	badge.name = "ProjectionPreviewBadge"
 	badge.custom_minimum_size = Vector2(maxf(28.0, slot_size.x - 8.0), 20.0)
 	badge.size = badge.custom_minimum_size
-	badge.position = Vector2(4.0, slot_size.y - 24.0)
+	badge.position = Vector2(4.0, slot_size.y - 24.0 - TURN_ORDER_HEALTH_BAR_HEIGHT - TURN_ORDER_HEALTH_BAR_BOTTOM_INSET)
 	badge.tooltip_text = _turn_order_tooltip(entry, 0)
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge.z_index = 8
@@ -10117,6 +10153,8 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		lines.append("Clock %d" % clock)
 	if bool(entry.get("projected", false)):
 		lines.append("Projected next turn")
+	if entry.has("hp") and entry.has("max_hp") and not bool(entry.get("hidden_by_umbra", false)):
+		lines.append("Health %d/%d" % [int(entry.get("hp", 0)), int(entry.get("max_hp", 1))])
 	var base: int = int(entry.get("base_initiative", 0))
 	if str(entry.get("kind", "")) == "enemy":
 		var intent_time: int = int(entry.get("intent_time_cost", 0))
@@ -10206,14 +10244,16 @@ func _turn_order_entry_key(entry: Dictionary) -> String:
 func _turn_order_signature(entries: Array[Dictionary]) -> String:
 	var parts: Array[String] = []
 	for entry: Dictionary in entries:
-		parts.append("%s:%s:%d:%d:%s:%s:%s" % [
+		parts.append("%s:%s:%d:%d:%s:%s:%s:%d:%d" % [
 			_turn_order_entry_key(entry),
 			str(bool(entry.get("active", false))),
 			int(entry.get("eta", -1)),
 			int(entry.get("projected_time_cost", 0)),
 			str(entry.get("projected_card_name", "")),
 			str(entry.get("type", "")),
-			str(entry.get("pos", Vector2i.ZERO))
+			str(entry.get("pos", Vector2i.ZERO)),
+			int(entry.get("hp", -1)),
+			int(entry.get("max_hp", -1))
 		])
 	return "|".join(parts)
 

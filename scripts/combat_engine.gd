@@ -1760,6 +1760,8 @@ func _umbra_presented_turn_order_entry(state: Dictionary, entry: Dictionary) -> 
 	presented["name"] = "Unknown Presence"
 	presented["type"] = "umbra_presence"
 	presented["pos"] = Vector2i(-1, -1)
+	presented.erase("hp")
+	presented.erase("max_hp")
 	presented.erase("intent_time_cost")
 	presented.erase("base_initiative")
 	return presented
@@ -4433,6 +4435,9 @@ func _resolved_actor_entry(state: Dictionary, entry: Dictionary) -> Dictionary:
 		player_entry["eta"] = maxi(0, int(player_entry.get("time", 0)) - int(state.get("initiative_clock", 0)))
 		player_entry["base_initiative"] = player_base_initiative(state)
 		player_entry["turn_time_spent"] = int(state.get("player_turn_time_spent", 0))
+		var player: Dictionary = _normalized_player(state.get("player", {}))
+		player_entry["hp"] = int(player.get("hp", 0))
+		player_entry["max_hp"] = int(player.get("max_hp", 1))
 		if bool(entry.get("projected", false)):
 			player_entry["projected"] = true
 		if entry.has("projected_time_cost"):
@@ -4450,6 +4455,8 @@ func _resolved_actor_entry(state: Dictionary, entry: Dictionary) -> Dictionary:
 		var enemy_entry: Dictionary = _enemy_actor_entry(state, enemy, int(entry.get("time", state.get("initiative_clock", 0))), int(entry.get("seq", 0)))
 		enemy_entry["eta"] = maxi(0, int(enemy_entry.get("time", 0)) - int(state.get("initiative_clock", 0)))
 		enemy_entry["base_initiative"] = _enemy_base_initiative(state, enemy)
+		enemy_entry["hp"] = int(enemy.get("hp", 0))
+		enemy_entry["max_hp"] = int(enemy.get("max_hp", 1))
 		if bool(entry.get("projected", false)):
 			enemy_entry["projected"] = true
 		if entry.has("intent_time_cost"):
