@@ -30,30 +30,58 @@ func _initialize() -> void:
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)]),
-		"01_straight_path.png",
+		"crumble_v1_01_southeast_straight.png",
 		1
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3), Vector2i(4, 2)]),
-		"02_turning_path.png",
+		"crumble_v1_02_turning_path.png",
 		2
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4)]),
-		"03_one_step_path.png",
+		"crumble_v1_03_one_step_path.png",
 		3
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)]),
-		"04_ground_item_layering.png",
+		"crumble_v1_04_ground_item_layering.png",
 		4,
 		true
+	)
+	await _capture(
+		viewport,
+		board,
+		_vector2i_array([Vector2i(6, 2), Vector2i(5, 2), Vector2i(4, 2), Vector2i(3, 2), Vector2i(2, 2)]),
+		"crumble_v1_05_northwest_straight.png",
+		5
+	)
+	await _capture(
+		viewport,
+		board,
+		_vector2i_array([Vector2i(4, 2), Vector2i(4, 3), Vector2i(4, 4), Vector2i(4, 5)]),
+		"crumble_v1_06_southwest_straight.png",
+		6
+	)
+	await _capture(
+		viewport,
+		board,
+		_vector2i_array([Vector2i(6, 5), Vector2i(6, 4), Vector2i(6, 3), Vector2i(6, 2), Vector2i(6, 1)]),
+		"crumble_v1_07_northeast_straight.png",
+		7
+	)
+	await _capture(
+		viewport,
+		board,
+		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3), Vector2i(3, 3), Vector2i(3, 2), Vector2i(4, 2)]),
+		"crumble_v1_08_double_bend.png",
+		8
 	)
 
 	if _errors.is_empty():
@@ -81,6 +109,10 @@ func _verify_style_contract(board: Control, viewport: SubViewport) -> void:
 	var gradient_base_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_BASE_ALPHA", 1.0))
 	var gradient_layer_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_LAYER_ALPHA", 1.0))
 	var gradient_segments: int = int(constants.get("MOVE_PATH_GRADIENT_DISC_SEGMENTS", 0))
+	var notch_depth_ratio: float = float(constants.get("MOVE_PATH_CRUMBLE_NOTCH_DEPTH_RATIO", 0.0))
+	var notch_span_ratio: float = float(constants.get("MOVE_PATH_CRUMBLE_NOTCH_SPAN_RATIO", 0.0))
+	var fragment_size_ratio: float = float(constants.get("MOVE_PATH_CRUMBLE_FRAGMENT_SIZE_RATIO", 0.0))
+	var crack_dark_width_ratio: float = float(constants.get("MOVE_PATH_CRACK_DARK_WIDTH_RATIO", 0.0))
 	var projected_tile_edge_ratio: float = Vector2(0.5, 0.25).length() * 0.5
 	_expect(int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", 0)) >= Viewport.MSAA_4X, "Real display renderers should use at least 4x project-wide 2D MSAA")
 	_expect(viewport.msaa_2d >= Viewport.MSAA_4X, "Focused arrow captures should render their offscreen viewport with at least 4x 2D MSAA")
@@ -98,7 +130,12 @@ func _verify_style_contract(board: Control, viewport: SubViewport) -> void:
 	_expect(gradient_base_alpha >= 0.64 and gradient_base_alpha <= 0.76, "Arrow shaft base should leave board texture visible through its shaded edge")
 	_expect(gradient_layer_alpha >= 0.035 and gradient_layer_alpha <= 0.075, "Arrow shaft highlight layers should build translucency gradually instead of becoming opaque through overdraw")
 	_expect(gradient_segments >= 20, "Single-tile path markers should use enough interpolated gradient segments to avoid visible color bands")
+	_expect(notch_depth_ratio >= 0.18 and notch_depth_ratio <= 0.28, "Crumble notches should read clearly without cutting through most of the route")
+	_expect(notch_span_ratio >= 0.24 and notch_span_ratio <= 0.38, "Crumble notches should stay like small missing chunks rather than long bites")
+	_expect(fragment_size_ratio >= 0.08 and fragment_size_ratio <= 0.14, "Loose crumble fragments should remain subordinate to the arrow silhouette")
+	_expect(crack_dark_width_ratio >= 0.035 and crack_dark_width_ratio <= 0.065, "Cracks should be legible bevels without becoming route-dividing seams")
 	_verify_unified_arrow_geometry(board)
+	_verify_crumble_geometry(board)
 	_verify_layering_contract(board)
 
 func _verify_unified_arrow_geometry(board: Control) -> void:
@@ -140,6 +177,92 @@ func _verify_unified_arrow_geometry(board: Control) -> void:
 	var head_area: float = absf(float(board.call("_path_polygon_signed_area", head_polygon)))
 	var unified_area: float = absf(float(board.call("_path_polygon_signed_area", unified)))
 	_expect(unified_area > head_area * 1.5, "Unified arrow polygon should contain both the head and a substantial shaft")
+
+func _verify_crumble_geometry(board: Control) -> void:
+	var routes: Array = [
+		[Vector2i(2, 4), Vector2i(3, 4)],
+		[Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)],
+		[Vector2i(6, 2), Vector2i(5, 2), Vector2i(4, 2), Vector2i(3, 2), Vector2i(2, 2)],
+		[Vector2i(2, 1), Vector2i(2, 2), Vector2i(2, 3), Vector2i(2, 4), Vector2i(2, 5)],
+		[Vector2i(6, 5), Vector2i(6, 4), Vector2i(6, 3), Vector2i(6, 2), Vector2i(6, 1)],
+		[Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3), Vector2i(4, 2)],
+	]
+	for route_index: int in range(routes.size()):
+		var path_tiles: Array[Vector2i] = _vector2i_array(routes[route_index] as Array)
+		var path_points: PackedVector2Array = _projected_path_points(path_tiles, 100.0)
+		var shaft_width: float = 100.0 * 0.5 * 0.333
+		var arrow_geometry: Dictionary = board.call(
+			"_path_arrow_geometry",
+			path_points[path_points.size() - 2],
+			path_points[path_points.size() - 1],
+			100.0,
+			shaft_width
+		) as Dictionary
+		var direction: Vector2 = arrow_geometry.get("direction", Vector2.ZERO)
+		var shaft_points: PackedVector2Array = path_points.duplicate()
+		shaft_points[shaft_points.size() - 1] = (
+			arrow_geometry.get("tail_center", path_points[path_points.size() - 1])
+			+ direction * shaft_width * 0.18
+		)
+		var unified: PackedVector2Array = board.call(
+			"_unified_path_arrow_polygon",
+			shaft_points,
+			arrow_geometry.get("polygon", PackedVector2Array()),
+			shaft_width
+		) as PackedVector2Array
+		var crumble: Dictionary = board.call(
+			"_path_crumble_geometry",
+			path_tiles,
+			path_points,
+			unified,
+			shaft_width
+		) as Dictionary
+		var repeated: Dictionary = board.call(
+			"_path_crumble_geometry",
+			path_tiles,
+			path_points,
+			unified,
+			shaft_width
+		) as Dictionary
+		var body_polygons: Array[PackedVector2Array] = board.call(
+			"_path_polygon_array",
+			crumble.get("body_polygons", [])
+		) as Array[PackedVector2Array]
+		var notches: Array = crumble.get("notches", []) as Array
+		var loose_polygons: Array = crumble.get("loose_polygons", []) as Array
+		var cracks: Array = crumble.get("cracks", []) as Array
+		var unified_area: float = absf(float(board.call("_path_polygon_signed_area", unified)))
+		var body_area: float = float(board.call("_path_polygon_array_area", body_polygons))
+		var label: String = "route %d" % route_index
+		_expect(not body_polygons.is_empty(), "%s should retain drawable arrow body polygons after distressing" % label)
+		_expect(notches.size() >= path_tiles.size() - 1 and notches.size() <= (path_tiles.size() - 1) * 2, "%s should receive one or two deterministic edge nicks per path segment" % label)
+		_expect(loose_polygons.size() == path_tiles.size() - 1, "%s should pair each primary missing edge chunk with one restrained loose fragment" % label)
+		_expect(cracks.size() == path_tiles.size(), "%s should receive one projected crack per segment plus one in the head" % label)
+		_expect(body_area >= unified_area * 0.84 and body_area < unified_area * 0.999, "%s should lose visible material without compromising route readability (ratio %.4f)" % [label, body_area / unified_area])
+		_expect(str(crumble) == str(repeated), "%s crumble geometry should be stable across redraws" % label)
+		for crack_var: Variant in cracks:
+			var crack: Dictionary = crack_var as Dictionary
+			var crack_points: PackedVector2Array = crack.get("points", PackedVector2Array())
+			var board_cross: Vector2 = crack.get("board_cross_direction", Vector2.ZERO)
+			var branch_points: PackedVector2Array = crack.get("branch", PackedVector2Array())
+			_expect(crack_points.size() == 4, "%s cracks should use compact four-point fracture marks" % label)
+			_expect(branch_points.size() == 2, "%s cracks should include one short fork" % label)
+			if crack_points.size() == 4 and board_cross.length_squared() > 0.0:
+				var opening_direction: Vector2 = (crack_points[1] - crack_points[0]).normalized()
+				_expect(absf(opening_direction.cross(board_cross.normalized())) <= 0.001, "%s crack openings should follow the projected board cross-axis" % label)
+				for crack_point: Vector2 in crack_points:
+					_expect(Geometry2D.is_point_in_polygon(crack_point, unified), "%s cracks should stay clipped conceptually inside the 3D arrow face" % label)
+				for branch_point: Vector2 in branch_points:
+					_expect(Geometry2D.is_point_in_polygon(branch_point, unified), "%s crack forks should stay inside the 3D arrow face" % label)
+
+func _projected_path_points(path_tiles: Array[Vector2i], tile_width: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for tile: Vector2i in path_tiles:
+		points.append(Vector2(
+			float(tile.x - tile.y) * tile_width * 0.5,
+			float(tile.x + tile.y) * tile_width * 0.25
+		))
+	return points
 
 func _verify_board_perspective_geometry(
 	from_point: Vector2,
@@ -190,7 +313,7 @@ func _capture(
 	move_tiles.pop_front()
 	board.call(
 		"set_combat_state",
-		_probe_state(Vector2i(7 + capture_index, -3), include_layering_fixture),
+		_probe_state(Vector2i(7 + capture_index, -3), path_tiles[0], include_layering_fixture),
 		move_tiles,
 		_vector2i_array([]),
 		path_tiles[path_tiles.size() - 1],
@@ -214,7 +337,7 @@ func _capture(
 	if image != null:
 		_expect(image.save_png(output_path) == OK, "%s should save successfully" % file_name)
 
-func _probe_state(room_coord: Vector2i, include_layering_fixture: bool = false) -> Dictionary:
+func _probe_state(room_coord: Vector2i, player_pos: Vector2i, include_layering_fixture: bool = false) -> Dictionary:
 	var state: Dictionary = {
 		"name": "Movement Arrow Proof Hall",
 		"room_coord": room_coord,
@@ -222,7 +345,7 @@ func _probe_state(room_coord: Vector2i, include_layering_fixture: bool = false) 
 		"grid": _probe_grid(),
 		"moss": {},
 		"player": {
-			"pos": Vector2i(2, 4),
+			"pos": player_pos,
 			"hp": 30,
 			"max_hp": 30,
 			"block": 0,

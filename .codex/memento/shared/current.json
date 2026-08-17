@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-16T23:17:33Z",
+  "updated_at": "2026-08-17T17:01:55Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5118,30 +5118,6 @@
       }
     },
     {
-      "id": "mnt_20260715T184729Z_642e0632",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Movement paths use slim dimensional unified arrows with shared cyan/purple geometry",
-      "details": "Keep the seamless isometric silhouette, translucent gradient, outline, and shadow. Current approved direction uses shaft ratio 0.333, head width 0.405, tip reach 0.138, and tail reach 0.285; player paths are cyan, enemy intent/move paths are purple, ground items stay below the path, and units/floating equipment stay above it.",
-      "status": "active",
-      "created_at": "2026-07-15T18:47:29Z",
-      "updated_at": "2026-07-15T18:47:29Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260715T141832Z_2a01d6c7"
-      ],
-      "source": {
-        "branch": "codex/beautify-movement-path-arrows",
-        "commit": "c3a4e2a"
-      }
-    },
-    {
       "id": "mnt_20260715T184737Z_799bc860",
       "layer": "shared",
       "kind": "decision",
@@ -8303,6 +8279,30 @@
       "source": {
         "branch": "codex/make-warden-bulwark-protect-other-enemies",
         "commit": "85b99ba"
+      }
+    },
+    {
+      "id": "mnt_20260817T170155Z_4b189b3e",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Movement arrows pair slim isometric ribbons with deterministic board-space crumble",
+      "details": "Preserve the approved cyan/purple unified head-and-shaft proportions, translucent face gradient, outline, and cast shadow. Generate edge nicks, loose fragments, and forked cracks deterministically from path tiles plus each segment's projected movement/cross-grid axes, then render the distressed polygons through the same lighting and shadow layers. The route and destination tip must stay readable across short, long, straight, bent, and every board orientation.",
+      "status": "active",
+      "created_at": "2026-08-17T17:01:55Z",
+      "updated_at": "2026-08-17T17:01:55Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260715T184729Z_642e0632"
+      ],
+      "source": {
+        "branch": "codex/distress-movement-arrows-with-perspective-aware-crumble",
+        "commit": "021eb64"
       }
     }
   ]
