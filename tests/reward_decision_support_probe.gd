@@ -13,7 +13,7 @@ const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_voll
 const OFFERED_RELICS: Array[String] = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const OWNED_CARD_ID: String = "spark_dart"
 const NEW_CARD_ID: String = "frostbolt"
-const PROOF_VERSION: String = "v2"
+const PROOF_VERSION: String = "v3"
 
 var _failed: bool = false
 
@@ -357,6 +357,7 @@ func _assert_reveal_faces(slots: Array[Control], expected_faces: int, stage_labe
 		var back: TextureRect = slot.find_child(PostCombatRewardSequence.CARD_BACK_NAME, true, false) as TextureRect
 		if widget != null and widget.visible:
 			visible_faces += 1
+			_assert_reward_card_title_size(widget, stage_label)
 		if widget == null or back == null or widget.visible == back.visible:
 			_fail("%s should show exactly one face for every reward card" % stage_label)
 	if visible_faces != expected_faces:
@@ -508,6 +509,7 @@ func _assert_reward_layout(
 			_fail("%s card %s should fit the visible viewport" % [label, card_id])
 		if card_widget.get_global_rect().size.x < 280.0:
 			_fail("%s card %s should be about one-third larger than the previous 224px offer" % [label, card_id])
+		_assert_reward_card_title_size(card_widget, label)
 		if card_id == OWNED_CARD_ID:
 			result["owned_card"] = card_widget
 			_assert_badge_text(badge, "OWNED", label)
@@ -518,6 +520,15 @@ func _assert_reward_layout(
 		_fail("%s should visibly render all three reward cards" % label)
 	result["recover_button"] = recover_button
 	return result
+
+func _assert_reward_card_title_size(card_widget: Control, stage_label: String) -> void:
+	var card_title: Label = card_widget.find_child("Title", true, false) as Label
+	if card_title == null:
+		_fail("%s reward card should retain its title label" % stage_label)
+		return
+	var rendered_size: float = float(card_title.get_theme_font_size("font_size")) * absf(card_title.get_global_transform().get_scale().x)
+	if rendered_size < 17.0:
+		_fail("%s reward card title should render at least 17px, got %.2fpx for %s" % [stage_label, rendered_size, card_title.text])
 
 func _assert_relic_layout(instance: Node, resolution: Vector2i, ui_scale: float) -> Dictionary:
 	var result: Dictionary = {}
