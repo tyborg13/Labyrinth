@@ -3,7 +3,7 @@
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
-      "pattern": "*crumble_v1_01_southeast_straight.png",
+      "pattern": "*crumble_v2_01_southeast_straight.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -12,7 +12,7 @@
       ]
     },
     {
-      "pattern": "*crumble_v1_02_turning_path.png",
+      "pattern": "*crumble_v2_02_turning_path.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -21,7 +21,7 @@
       ]
     },
     {
-      "pattern": "*crumble_v1_03_one_step_path.png",
+      "pattern": "*crumble_v2_03_one_step_path.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -30,7 +30,7 @@
       ]
     },
     {
-      "pattern": "*crumble_v1_04_ground_item_layering.png",
+      "pattern": "*crumble_v2_04_ground_item_layering.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -39,7 +39,7 @@
       ]
     },
     {
-      "pattern": "*crumble_v1_05_northwest_straight.png",
+      "pattern": "*crumble_v2_05_northwest_straight.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -48,7 +48,7 @@
       ]
     },
     {
-      "pattern": "*crumble_v1_06_southwest_straight.png",
+      "pattern": "*crumble_v2_06_southwest_straight.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -57,7 +57,7 @@
       ]
     },
     {
-      "pattern": "*crumble_v1_07_northeast_straight.png",
+      "pattern": "*crumble_v2_07_northeast_straight.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "pattern": "*crumble_v1_08_double_bend.png",
+      "pattern": "*crumble_v2_08_double_bend.png",
       "width": 1920,
       "height": 1080,
       "regions": [

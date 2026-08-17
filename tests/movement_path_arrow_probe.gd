@@ -30,28 +30,28 @@ func _initialize() -> void:
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)]),
-		"crumble_v1_01_southeast_straight.png",
+		"crumble_v2_01_southeast_straight.png",
 		1
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3), Vector2i(4, 2)]),
-		"crumble_v1_02_turning_path.png",
+		"crumble_v2_02_turning_path.png",
 		2
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4)]),
-		"crumble_v1_03_one_step_path.png",
+		"crumble_v2_03_one_step_path.png",
 		3
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)]),
-		"crumble_v1_04_ground_item_layering.png",
+		"crumble_v2_04_ground_item_layering.png",
 		4,
 		true
 	)
@@ -59,28 +59,28 @@ func _initialize() -> void:
 		viewport,
 		board,
 		_vector2i_array([Vector2i(6, 2), Vector2i(5, 2), Vector2i(4, 2), Vector2i(3, 2), Vector2i(2, 2)]),
-		"crumble_v1_05_northwest_straight.png",
+		"crumble_v2_05_northwest_straight.png",
 		5
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(4, 2), Vector2i(4, 3), Vector2i(4, 4), Vector2i(4, 5)]),
-		"crumble_v1_06_southwest_straight.png",
+		"crumble_v2_06_southwest_straight.png",
 		6
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(6, 5), Vector2i(6, 4), Vector2i(6, 3), Vector2i(6, 2), Vector2i(6, 1)]),
-		"crumble_v1_07_northeast_straight.png",
+		"crumble_v2_07_northeast_straight.png",
 		7
 	)
 	await _capture(
 		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3), Vector2i(3, 3), Vector2i(3, 2), Vector2i(4, 2)]),
-		"crumble_v1_08_double_bend.png",
+		"crumble_v2_08_double_bend.png",
 		8
 	)
 
@@ -109,6 +109,8 @@ func _verify_style_contract(board: Control, viewport: SubViewport) -> void:
 	var gradient_base_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_BASE_ALPHA", 1.0))
 	var gradient_layer_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_LAYER_ALPHA", 1.0))
 	var gradient_segments: int = int(constants.get("MOVE_PATH_GRADIENT_DISC_SEGMENTS", 0))
+	var edge_spacing_ratio: float = float(constants.get("MOVE_PATH_CRUMBLE_EDGE_SPACING_RATIO", 0.0))
+	var edge_depth_ratio: float = float(constants.get("MOVE_PATH_CRUMBLE_EDGE_DEPTH_RATIO", 0.0))
 	var notch_depth_ratio: float = float(constants.get("MOVE_PATH_CRUMBLE_NOTCH_DEPTH_RATIO", 0.0))
 	var notch_span_ratio: float = float(constants.get("MOVE_PATH_CRUMBLE_NOTCH_SPAN_RATIO", 0.0))
 	var fragment_size_ratio: float = float(constants.get("MOVE_PATH_CRUMBLE_FRAGMENT_SIZE_RATIO", 0.0))
@@ -130,10 +132,12 @@ func _verify_style_contract(board: Control, viewport: SubViewport) -> void:
 	_expect(gradient_base_alpha >= 0.64 and gradient_base_alpha <= 0.76, "Arrow shaft base should leave board texture visible through its shaded edge")
 	_expect(gradient_layer_alpha >= 0.035 and gradient_layer_alpha <= 0.075, "Arrow shaft highlight layers should build translucency gradually instead of becoming opaque through overdraw")
 	_expect(gradient_segments >= 20, "Single-tile path markers should use enough interpolated gradient segments to avoid visible color bands")
-	_expect(notch_depth_ratio >= 0.18 and notch_depth_ratio <= 0.28, "Crumble notches should read clearly without cutting through most of the route")
-	_expect(notch_span_ratio >= 0.24 and notch_span_ratio <= 0.38, "Crumble notches should stay like small missing chunks rather than long bites")
-	_expect(fragment_size_ratio >= 0.08 and fragment_size_ratio <= 0.14, "Loose crumble fragments should remain subordinate to the arrow silhouette")
-	_expect(crack_dark_width_ratio >= 0.035 and crack_dark_width_ratio <= 0.065, "Cracks should be legible bevels without becoming route-dividing seams")
+	_expect(edge_spacing_ratio >= 0.18 and edge_spacing_ratio <= 0.28, "Continuous edge wear should sample densely enough to distress the entire silhouette")
+	_expect(edge_depth_ratio >= 0.075 and edge_depth_ratio <= 0.13, "Continuous edge wear should remain material texture rather than erase the route")
+	_expect(notch_depth_ratio >= 0.15 and notch_depth_ratio <= 0.23, "Structural crumble notches should read clearly without cutting through most of the route")
+	_expect(notch_span_ratio >= 0.20 and notch_span_ratio <= 0.32, "Structural crumble notches should stay like missing chunks rather than long bites")
+	_expect(fragment_size_ratio >= 0.06 and fragment_size_ratio <= 0.11, "Loose crumble fragments should remain subordinate to the arrow silhouette")
+	_expect(crack_dark_width_ratio >= 0.032 and crack_dark_width_ratio <= 0.055, "Cracks should be legible bevels without becoming route-dividing seams")
 	_verify_unified_arrow_geometry(board)
 	_verify_crumble_geometry(board)
 	_verify_layering_contract(board)
@@ -231,22 +235,30 @@ func _verify_crumble_geometry(board: Control) -> void:
 		var notches: Array = crumble.get("notches", []) as Array
 		var loose_polygons: Array = crumble.get("loose_polygons", []) as Array
 		var cracks: Array = crumble.get("cracks", []) as Array
+		var edge_wear_point_count: int = int(crumble.get("edge_wear_point_count", 0))
 		var unified_area: float = absf(float(board.call("_path_polygon_signed_area", unified)))
 		var body_area: float = float(board.call("_path_polygon_array_area", body_polygons))
 		var label: String = "route %d" % route_index
 		_expect(not body_polygons.is_empty(), "%s should retain drawable arrow body polygons after distressing" % label)
-		_expect(notches.size() >= path_tiles.size() - 1 and notches.size() <= (path_tiles.size() - 1) * 2, "%s should receive one or two deterministic edge nicks per path segment" % label)
-		_expect(loose_polygons.size() == path_tiles.size() - 1, "%s should pair each primary missing edge chunk with one restrained loose fragment" % label)
-		_expect(cracks.size() == path_tiles.size(), "%s should receive one projected crack per segment plus one in the head" % label)
-		_expect(body_area >= unified_area * 0.84 and body_area < unified_area * 0.999, "%s should lose visible material without compromising route readability (ratio %.4f)" % [label, body_area / unified_area])
+		_expect(edge_wear_point_count >= unified.size() + 6, "%s should replace the source vector outline with dense wear across its full perimeter" % label)
+		_expect(notches.size() >= 1 and notches.size() <= path_tiles.size(), "%s should use a restrained set of structural edge breaks, including the head" % label)
+		_expect(loose_polygons.size() <= notches.size(), "%s should shed only occasional loose fragments from structural breaks" % label)
+		_expect(cracks.size() == notches.size(), "%s cracks should grow from accepted structural edge breaks instead of floating on the face" % label)
+		_expect(body_area >= unified_area * 0.82 and body_area < unified_area * 0.985, "%s should lose material throughout without compromising route readability (ratio %.4f)" % [label, body_area / unified_area])
 		_expect(str(crumble) == str(repeated), "%s crumble geometry should be stable across redraws" % label)
-		for crack_var: Variant in cracks:
+		for crack_index: int in range(cracks.size()):
+			var crack_var: Variant = cracks[crack_index]
 			var crack: Dictionary = crack_var as Dictionary
 			var crack_points: PackedVector2Array = crack.get("points", PackedVector2Array())
 			var board_cross: Vector2 = crack.get("board_cross_direction", Vector2.ZERO)
 			var branch_points: PackedVector2Array = crack.get("branch", PackedVector2Array())
+			var source: Vector2 = crack.get("source", Vector2.INF)
 			_expect(crack_points.size() == 4, "%s cracks should use compact four-point fracture marks" % label)
 			_expect(branch_points.size() == 2, "%s cracks should include one short fork" % label)
+			_expect(source == crack_points[0], "%s cracks should expose their edge-break origin" % label)
+			if crack_index < notches.size():
+				var source_notch: PackedVector2Array = notches[crack_index] as PackedVector2Array
+				_expect(source_notch.size() >= 4 and source.distance_to(source_notch[3]) <= 0.001, "%s crack origins should remain attached to their missing edge chunks" % label)
 			if crack_points.size() == 4 and board_cross.length_squared() > 0.0:
 				var opening_direction: Vector2 = (crack_points[1] - crack_points[0]).normalized()
 				_expect(absf(opening_direction.cross(board_cross.normalized())) <= 0.001, "%s crack openings should follow the projected board cross-axis" % label)
