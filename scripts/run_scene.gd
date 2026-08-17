@@ -44,6 +44,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CombatObjectiveHudScript = preload("res://scripts/combat_objective_hud.gd")
+const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
 const MOLTSHARD_GAIN_EVENT_TYPE: String = "progression_moltshard_gained"
 const COMBAT_SKILL_EVENT_STAGED_REVISION_KEY: String = "combat_skill_event_revision_staged"
@@ -1218,7 +1219,7 @@ const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const RELIC_OFFER_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
-const REWARD_CHOICE_CARD_GAP: float = 30.0
+const REWARD_CHOICE_CARD_GAP: float = 34.0
 const REWARD_CHOICE_STACK_GAP: float = 18.0
 const REWARD_ACTION_BUTTON_MIN_WIDTH: float = 360.0
 const REWARD_REROLL_BUTTON_MIN_WIDTH: float = 160.0
@@ -1230,10 +1231,10 @@ const RELIC_CHOICE_TITLE_HEIGHT: float = 118.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 44.0
 const SELECTION_BANNER_TEXTURE_PATH: String = "res://assets/art/ui/reward_selection_banner_v1.png"
-const SELECTION_BANNER_MIN_WIDTH: float = 680.0
-const SELECTION_BANNER_MAX_WIDTH: float = 760.0
-const SELECTION_TITLE_FONT_SIZE: int = 32
-const SELECTION_TITLE_HEIGHT: float = 110.0
+const SELECTION_BANNER_MIN_WIDTH: float = 880.0
+const SELECTION_BANNER_MAX_WIDTH: float = 1040.0
+const SELECTION_TITLE_FONT_SIZE: int = 40
+const SELECTION_TITLE_HEIGHT: float = 138.0
 const SELECTION_TITLE_TO_OFFERS_GAP: float = 14.0
 const SELECTION_GROUP_TOP_BIAS: float = 0.44
 const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choice_rune_halo.png"
@@ -1650,6 +1651,10 @@ var _relic_choice_title_effect: RelicChoiceTitleEffect
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
+var _post_combat_victory_overlay: Control
+var _reward_intro_suppressed: bool = false
+var _reward_reveal_pending: bool = false
+var _reward_intro_in_progress: bool = false
 var _campfire_choice_action_pending: bool = false
 var _relic_claim_in_progress: bool = false
 var _loadout_acquisition_in_progress: bool = false
@@ -4544,6 +4549,7 @@ func _build_context_choice_overlay() -> void:
 	_layout_context_choice_overlay()
 	_build_relic_choice_overlay(stage_root)
 	_build_run_end_recap(stage_root)
+	_post_combat_victory_overlay = PostCombatRewardSequence.build_victory_overlay(stage_root)
 
 func _layout_context_choice_overlay() -> void:
 	if _context_choice_overlay == null:
@@ -8360,6 +8366,9 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_merchant_shop_room_coord = INVALID_ROOM_COORD
 	_merchant_shop_open = true
 	_escape_transition_in_progress = false
+	_reward_intro_suppressed = false
+	_reward_reveal_pending = false
+	_reward_intro_in_progress = false
 	_committed_run_state_override.clear()
 	var content_migration_required: bool = _run_engine.run_content_migration_required(next_run_state)
 	var combat_units_migration_required: bool = _run_engine.combat_units_migration_required(next_run_state)
@@ -8397,9 +8406,12 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_set_fatigue_edge_progress(-1.0)
 	_board_presentation.clear()
 	action_banner.visible = false
+	_reward_intro_suppressed = _reward_intro_pending()
 	_refresh_ui()
 	if _has_pending_combat_checkpoints():
 		call_deferred("_resume_pending_combat_checkpoints")
+	elif _reward_intro_suppressed:
+		call_deferred("_play_loaded_reward_intro")
 	elif str(_run_state.get("mode", "room")) == RunEngineScript.MODE_ESCAPE:
 		call_deferred("_continue_pending_escape_after_reward")
 
@@ -11715,7 +11727,7 @@ func _refresh_choice_bar() -> void:
 				_can_level_at_campfire()
 			)
 		"reward":
-			if _reward_choices_available():
+			if not _reward_intro_suppressed and _reward_choices_available():
 				_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
 				_add_reward_choice_stack()
 		"treasure":
@@ -12642,6 +12654,71 @@ func _reward_choices_available() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
 	return (reward_state.get("cards", []) as Array).size() > 0 or int(reward_state.get("heal_amount", 0)) > 0
 
+func _reward_intro_pending() -> bool:
+	if str(_run_state.get("mode", "room")) != "reward":
+		return false
+	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+	return bool(reward_state.get("intro_pending", false)) and not (reward_state.get("board_state", {}) as Dictionary).is_empty()
+
+func _play_post_combat_victory(board_state: Dictionary) -> void:
+	if board_state.is_empty() or _post_combat_victory_overlay == null:
+		return
+	_render_board_state(board_state, {})
+	await PostCombatRewardSequence.play_victory(_post_combat_victory_overlay, _reduced_motion_enabled())
+
+func _play_loaded_reward_intro() -> void:
+	if _reward_intro_in_progress or not _reward_intro_pending():
+		return
+	_reward_intro_in_progress = true
+	_reward_intro_suppressed = true
+	_animation_lock = true
+	_refresh_animation_lock_ui()
+	await _play_post_combat_victory(_post_combat_board_state())
+	if not _reward_intro_pending():
+		_finish_reward_intro()
+		return
+	await _play_reward_reveal()
+
+func _play_reward_reveal() -> void:
+	if not _reward_intro_pending():
+		_finish_reward_intro()
+		return
+	_reward_intro_in_progress = true
+	_reward_intro_suppressed = false
+	_reward_reveal_pending = true
+	_animation_lock = true
+	_refresh_ui()
+	var card_slots: Array[Control] = []
+	var card_row: HBoxContainer = find_child("RewardCardRow", true, false) as HBoxContainer
+	if card_row != null:
+		for child: Node in card_row.get_children():
+			if child is Control:
+				card_slots.append(child as Control)
+	var secondary_actions: Control = find_child("RewardSecondaryActions", true, false) as Control
+	await PostCombatRewardSequence.play_reward_reveal(
+		stage_root,
+		_relic_choice_banner,
+		_relic_choice_title,
+		card_slots,
+		secondary_actions,
+		_reduced_motion_enabled()
+	)
+	_finish_reward_intro()
+
+func _finish_reward_intro() -> void:
+	_reward_intro_suppressed = false
+	_reward_reveal_pending = false
+	_reward_intro_in_progress = false
+	_animation_lock = false
+	if str(_run_state.get("mode", "room")) != "reward":
+		return
+	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	if not bool(reward_state.get("intro_pending", false)):
+		return
+	reward_state["intro_pending"] = false
+	_run_state["pending_reward"] = reward_state
+	_persist_committed_boundary("reward_intro_complete")
+
 func _add_reward_choice_stack() -> void:
 	if _relic_choice_bar == null:
 		return
@@ -12680,6 +12757,8 @@ func _add_reward_choice_stack() -> void:
 			widget.focus_exited.connect(widget.set_external_highlighted.bind(false))
 			widget.gui_input.connect(_on_reward_card_keyboard_input.bind(card_id, widget))
 			focusable_cards.append(widget)
+			if _reward_reveal_pending:
+				PostCombatRewardSequence.prepare_card_slot(card_slot, CARD_BACK_TEXTURE_PATH)
 
 	var has_reroll: bool = _run_engine.run_skill_is_ready(_run_state, "discerning_eye")
 	if heal_amount <= 0 and not has_reroll:
@@ -12709,6 +12788,8 @@ func _add_reward_choice_stack() -> void:
 		action_row.add_child(recover_button)
 		action_buttons.append(recover_button)
 	_configure_reward_choice_focus(focusable_cards, action_buttons)
+	if _reward_reveal_pending:
+		PostCombatRewardSequence.prepare_secondary_actions(action_row)
 
 func _on_reward_card_keyboard_input(event: InputEvent, card_id: String, widget: Control) -> void:
 	if not event.is_action_pressed("ui_accept") or event.is_echo():
@@ -12740,15 +12821,15 @@ func _configure_reward_choice_focus(cards: Array[Control], actions: Array[Contro
 
 func _reward_choice_card_size(card_count: int, has_secondary_action: bool) -> Vector2:
 	var viewport_size: Vector2 = get_viewport_rect().size
-	var max_row_width: float = minf(960.0, maxf(540.0, viewport_size.x - 64.0))
+	var max_row_width: float = minf(1120.0, maxf(680.0, viewport_size.x - 64.0))
 	var gaps: float = float(maxi(0, card_count - 1)) * REWARD_CHOICE_CARD_GAP
 	var width_from_row: float = (max_row_width - gaps) / float(maxi(1, card_count))
 	var estimated_stage_height: float = maxf(360.0, viewport_size.y - 120.0)
-	var reserved_height: float = 96.0 + SELECTION_TITLE_TO_OFFERS_GAP + 24.0
+	var reserved_height: float = SELECTION_TITLE_HEIGHT + SELECTION_TITLE_TO_OFFERS_GAP + 24.0
 	if has_secondary_action:
 		reserved_height += UiSkin.BUTTON_HEIGHT_STANDARD + REWARD_CHOICE_STACK_GAP
-	var width_from_height: float = maxf(152.0, (estimated_stage_height - reserved_height) / CARD_ASPECT_RATIO)
-	return _card_size_from_width(clampf(minf(width_from_row, width_from_height), 152.0, 224.0))
+	var width_from_height: float = maxf(214.0, (estimated_stage_height - reserved_height) / CARD_ASPECT_RATIO)
+	return _card_size_from_width(clampf(minf(width_from_row, width_from_height), 214.0, 292.0))
 
 func _reward_secondary_button(
 	button_name: String,
@@ -12826,6 +12907,8 @@ func _set_relic_choice_title(text: String) -> void:
 		_relic_choice_title_effect.accent = accent
 		_relic_choice_title_effect.title_text = text
 		_relic_choice_title_effect.visible = should_show and not selection_mode
+	if mode == "reward" and _reward_reveal_pending:
+		PostCombatRewardSequence.prepare_banner(_relic_choice_banner, _relic_choice_title)
 
 func _apply_relic_choice_title_depth(accent: Color, restrained: bool) -> void:
 	if _relic_choice_title == null:
@@ -14568,7 +14651,7 @@ func _refresh_stage_view() -> void:
 	_exit_destinations_by_tile = _exit_tile_lookup()
 	var display_state: Dictionary = _board_display_state()
 	var visibility_state: Dictionary = _board_visibility_state(display_state)
-	var escape_board_visible: bool = _escape_board_state_is_visible()
+	var post_combat_board_visible: bool = _post_combat_board_state_is_visible()
 	var move_tiles: Array[Vector2i] = []
 	var attack_tiles: Array[Vector2i] = []
 	var ability_tiles: Array[Vector2i] = []
@@ -14576,13 +14659,13 @@ func _refresh_stage_view() -> void:
 	# The same room grid is shown both while cards are available and after combat.
 	# Make that framing intent explicit: no-hand rooms center their complete board
 	# instead of inheriting the combat hand-clearance composition.
-	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or escape_board_visible else "room"
+	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or post_combat_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	performance_phase_started = _record_runtime_performance_phase("stage_base", performance_phase_started)
-	if (str(_run_state.get("mode", "room")) == "combat" or escape_board_visible) and not display_state.is_empty():
+	if (str(_run_state.get("mode", "room")) == "combat" or post_combat_board_visible) and not display_state.is_empty():
 		var visibility_presentation: Dictionary = _stage_visibility_presentation(visibility_state)
 		for visibility_key: Variant in visibility_presentation:
 			presentation[visibility_key] = visibility_presentation[visibility_key]
@@ -14871,9 +14954,9 @@ func _board_display_state() -> Dictionary:
 			return _board_preview_display_cache
 		if not _combat_state.is_empty():
 			return _combat_state
-	var escape_board_state: Dictionary = _pending_escape_board_state()
-	if not escape_board_state.is_empty():
-		return escape_board_state
+	var post_combat_board_state: Dictionary = _post_combat_board_state()
+	if not post_combat_board_state.is_empty():
+		return post_combat_board_state
 	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
 	return {
 		"room_name": layout.get("name", "Room"),
@@ -14906,6 +14989,19 @@ func _pending_escape_board_state() -> Dictionary:
 
 func _escape_board_state_is_visible() -> bool:
 	return not _pending_escape_board_state().is_empty()
+
+func _post_combat_board_state() -> Dictionary:
+	var mode: String = str(_run_state.get("mode", "room"))
+	if mode == "reward":
+		var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+		if typeof(reward_state.get("board_state", null)) == TYPE_DICTIONARY:
+			var reward_board: Dictionary = reward_state.get("board_state", {}) as Dictionary
+			if not reward_board.is_empty():
+				return reward_board
+	return _pending_escape_board_state()
+
+func _post_combat_board_state_is_visible() -> bool:
+	return not _post_combat_board_state().is_empty()
 
 func _combat_preview_display_state(preview_state: Dictionary) -> Dictionary:
 	if preview_state.is_empty() or _combat_state.is_empty():
@@ -17599,10 +17695,15 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	if outcome == "victory":
+		var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(committed_combat_state)
+		if post_combat_board_state != committed_combat_state:
+			await _animate_defeats_and_terrain_destruction(committed_combat_state, post_combat_board_state)
 		if _reach_exit_victory_preserves_board(committed_combat_state):
-			transition_combat_state = _combat_engine.resolve_missed_equipment_after_victory(committed_combat_state)
+			transition_combat_state = _combat_engine.resolve_missed_equipment_after_victory(post_combat_board_state)
 		else:
-			transition_combat_state = await _animate_missed_equipment_resolution(committed_combat_state, _salvaged_equipment_ids(committed_run_state))
+			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
+		if str(committed_run_state.get("mode", "room")) == "reward":
+			await _play_post_combat_victory(transition_combat_state)
 	_board_presentation.clear()
 	_set_action_banner("")
 	_run_state = committed_run_state
@@ -17613,14 +17714,17 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, committed_combat_state, actions, selected_targets)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
-	_animation_lock = false
 	_animating_hand_card_index = -1
 	_card_play_count_override = -1
 	_card_play_resolution_spend = 0
 	_card_play_budget_override = {}
 	_reset_card_resolution()
 	_hovered_card_index = -1
-	_refresh_ui()
+	if _reward_intro_pending():
+		await _play_reward_reveal()
+	else:
+		_animation_lock = false
+		_refresh_ui()
 	if str(_run_state.get("mode", "room")) == "combat" and _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
 		await _resolve_enemy_round()
 
@@ -18792,10 +18896,15 @@ func _resolve_enemy_round() -> void:
 	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
 	if outcome == "victory":
+		var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(final_combat_state)
+		if post_combat_board_state != final_combat_state:
+			await _animate_defeats_and_terrain_destruction(final_combat_state, post_combat_board_state)
 		if _reach_exit_victory_preserves_board(final_combat_state):
-			transition_combat_state = _combat_engine.resolve_missed_equipment_after_victory(final_combat_state)
+			transition_combat_state = _combat_engine.resolve_missed_equipment_after_victory(post_combat_board_state)
 		else:
-			transition_combat_state = await _animate_missed_equipment_resolution(final_combat_state, _salvaged_equipment_ids(final_run_state))
+			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(final_run_state))
+		if str(final_run_state.get("mode", "room")) == "reward":
+			await _play_post_combat_victory(transition_combat_state)
 	_board_presentation.clear()
 	_set_action_banner("")
 	if _committed_run_state_override.is_empty() or _committed_run_state_override != final_run_state:
@@ -18818,10 +18927,13 @@ func _resolve_enemy_round() -> void:
 		await _animate_draw_cards_fx(_draw_entries_between_states(before_draw_state, _combat_state))
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
-	_animation_lock = false
-	if outcome == "":
-		_queue_hand_ready_wave("player_turn_start")
-	_refresh_ui()
+	if _reward_intro_pending():
+		await _play_reward_reveal()
+	else:
+		_animation_lock = false
+		if outcome == "":
+			_queue_hand_ready_wave("player_turn_start")
+		_refresh_ui()
 
 func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_run_state: Dictionary, commit_checkpoints: Array) -> void:
 	if steps.is_empty():
@@ -19265,7 +19377,7 @@ func _stop_music_tween() -> void:
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
-	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or _escape_board_state_is_visible() else "room"
+	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
@@ -20074,7 +20186,7 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "room":
 		return "Choose Door"
 	if mode == "reward":
-		return "Choose reward"
+		return ""
 	if mode == "campfire":
 		return "Campfire"
 	if mode == "treasure":
@@ -21300,6 +21412,11 @@ func _resume_pending_combat_checkpoints() -> void:
 	_release_committed_run_state()
 	_board_presentation.clear()
 	_set_action_banner("")
+	if _reward_intro_pending():
+		_reward_intro_suppressed = true
+		_refresh_ui()
+		call_deferred("_play_loaded_reward_intro")
+		return
 	_animation_lock = false
 	_refresh_ui()
 

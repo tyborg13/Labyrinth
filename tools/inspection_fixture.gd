@@ -507,22 +507,28 @@ func _build_pre_battle_run(progression: Dictionary) -> Dictionary:
 	return _apply_room_overrides(state)
 
 func _build_reward_run(progression: Dictionary) -> Dictionary:
-	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
-	state["mode"] = "reward"
-	state["combat_state"] = {}
+	var state: Dictionary = _build_combat_run(progression)
+	if str(state.get("mode", "")) != "combat":
+		_fail("Reward fixture could not create a live combat state.")
+		return state
+	var combat_state: Dictionary = _victory_combat_state(state.get("combat_state", {}) as Dictionary)
+	state = _run_engine.finish_combat(state, combat_state)
+	if str(state.get("mode", "")) != "reward":
+		_fail("Reward fixture combat did not resolve to a card reward.")
+		return state
 	var reward_cards: Array[String] = _string_list(str(_options.get("reward_cards", "")))
 	if reward_cards.is_empty():
 		reward_cards = _string_array(DEFAULT_REWARD_CARDS)
 	if not _validate_card_ids(reward_cards, "--reward-cards"):
 		return state
-	state["pending_reward"] = {
-		"cards": reward_cards,
-		"heal_amount": RunEngine.REWARD_HEAL,
-		"ember_amount": 0
-	}
+	var pending_reward: Dictionary = (state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	pending_reward["cards"] = reward_cards
+	pending_reward["heal_amount"] = RunEngine.REWARD_HEAL
+	pending_reward["intro_pending"] = true
+	state["pending_reward"] = pending_reward
 	if str(_options.get("notice", "")).is_empty():
-		state["notice"] = "Inspection fixture: reward choice."
-	return _apply_room_overrides(state)
+		state["notice"] = "Inspection fixture: post-combat reward reveal."
+	return state
 
 func _build_room_mode_run(progression: Dictionary, mode: String) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))

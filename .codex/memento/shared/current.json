@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-16T23:17:33Z",
+  "updated_at": "2026-08-17T17:27:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8303,6 +8303,28 @@
       "source": {
         "branch": "codex/make-warden-bulwark-protect-other-enemies",
         "commit": "85b99ba"
+      }
+    },
+    {
+      "id": "mnt_20260817T172754Z_fd99ac52",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Post-combat card rewards preserve the final combat board through the reward intro",
+      "details": "RunEngine.pending_reward.board_state is the canonical held composition and RunScene keeps combat framing for it. Non-escape victories collapse remaining enemies before VICTORY; Reach Exit preserves living pursuers. The intro is VICTORY, banner/card-back entry, sequential left-to-right flips, then restored interaction, with a reduced-motion settle path.",
+      "status": "active",
+      "created_at": "2026-08-17T17:27:54Z",
+      "updated_at": "2026-08-17T17:27:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-post-combat-card-reward-presentation",
+        "commit": "021eb64"
       }
     }
   ]

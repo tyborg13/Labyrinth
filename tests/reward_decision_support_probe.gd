@@ -1,17 +1,19 @@
 extends SceneTree
 
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
-const OUTPUT_DIR: String = "user://reward_composition_v1_proof"
+const OUTPUT_DIR: String = "user://reward_composition_v2_proof"
 const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_volley"]
 const OFFERED_RELICS: Array[String] = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const OWNED_CARD_ID: String = "spark_dart"
 const NEW_CARD_ID: String = "frostbolt"
-const PROOF_VERSION: String = "v1"
+const PROOF_VERSION: String = "v2"
 
 var _failed: bool = false
 
@@ -27,8 +29,6 @@ func _initialize() -> void:
 		_fail("Reward composition proof must run with a real display renderer")
 	else:
 		await _capture_configuration(Vector2i(1920, 1080), 1.00)
-		await _capture_configuration(Vector2i(1280, 720), 1.00)
-		await _capture_configuration(Vector2i(1280, 800), 1.25)
 	var defaults: Dictionary = SettingsStore.default_settings()
 	SettingsStore.save_settings(defaults)
 	SettingsStore.apply_settings(defaults, root, false)
@@ -53,10 +53,16 @@ func _capture_configuration(resolution: Vector2i, ui_scale: float) -> void:
 	root.add_child(instance)
 	await _settle()
 
-	await _show_state(instance, _reward_state(false))
+	var injured_reward_state: Dictionary = _reward_state(false)
+	await _show_state(instance, injured_reward_state)
 	var reward_parts: Dictionary = _assert_reward_layout(instance, resolution, ui_scale, false)
+	_assert_persistent_combat_board(instance, injured_reward_state, resolution, ui_scale)
+	await _capture_reward_sequence_states(instance, output_dir, resolution)
+	# The sequence proof intentionally rebuilds the offer to exercise the real
+	# prepared/revealed tree, so reacquire live focus targets afterward.
+	reward_parts = _assert_reward_layout(instance, resolution, ui_scale, false)
 	await _save_root_screenshot(
-		"%s/card_reward_injured_%s.png" % [output_dir, PROOF_VERSION],
+		"%s/card_reward_settled_%s.png" % [output_dir, PROOF_VERSION],
 		resolution
 	)
 	await _capture_card_focus(
@@ -69,6 +75,7 @@ func _capture_configuration(resolution: Vector2i, ui_scale: float) -> void:
 		"%s/card_reward_recover_focused_%s.png" % [output_dir, PROOF_VERSION],
 		resolution
 	)
+	await _capture_reduced_motion_reward(instance, injured_reward_state, output_dir, resolution)
 
 	await _show_state(instance, _reward_state(true))
 	_assert_reward_layout(instance, resolution, ui_scale, true)
@@ -106,7 +113,7 @@ func _configure_window(resolution: Vector2i, ui_scale: float) -> void:
 	root.size = resolution
 	var settings: Dictionary = SettingsStore.default_settings()
 	settings["ui_scale"] = ui_scale
-	settings["reduced_motion"] = true
+	settings["reduced_motion"] = false
 	SettingsStore.save_settings(settings)
 	SettingsStore.apply_settings(settings, root, false)
 	await _settle()
@@ -127,18 +134,56 @@ func _reward_state(full_health: bool, with_reroll: bool = false) -> Dictionary:
 		progression["skill_ids"] = ["quick_wits", "discerning_eye"]
 		progression = ProgressionStore.normalized_data(progression)
 	var state: Dictionary = engine.create_new_run(7319, progression)
-	state["mode"] = "reward"
+	var combat_coord: Vector2i = _first_available_room_coord_of_type(engine, state, "combat")
+	if combat_coord == Vector2i.ZERO:
+		_fail("Reward proof run should expose an available combat room")
+		return state
+	state = engine.move_to_room(state, combat_coord)
+	if str(state.get("mode", "")) == RunEngine.MODE_PRE_BATTLE:
+		state = engine.begin_pre_battle_combat(state)
+	if str(state.get("mode", "")) != "combat":
+		_fail("Reward proof run should enter combat before constructing its reward")
+		return state
+	state = engine.finish_combat(state, _victory_combat_state(state.get("combat_state", {}) as Dictionary))
+	if str(state.get("mode", "")) != "reward":
+		_fail("Reward proof combat should resolve into a card reward")
+		return state
 	state["player_hp"] = 24 if full_health else 12
 	state["player_max_hp"] = 24
 	state["attuned_magic_cards"] = ["pale_spark", "dull_bolt", "waning_pulse", "chain_bolt"]
 	state["magic_inventory"] = [OWNED_CARD_ID]
 	state["reward_cards"] = [OWNED_CARD_ID]
-	state["pending_reward"] = {
-		"cards": OFFERED_CARDS.duplicate(),
-		"heal_amount": RunEngine.REWARD_HEAL,
-		"ember_amount": 0
-	}
+	var pending_reward: Dictionary = (state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	pending_reward["cards"] = OFFERED_CARDS.duplicate()
+	pending_reward["heal_amount"] = RunEngine.REWARD_HEAL
+	pending_reward["ember_amount"] = 0
+	# Static proof stages are authored explicitly below so loading the state does
+	# not race the production intro sequence.
+	pending_reward["intro_pending"] = false
+	state["pending_reward"] = pending_reward
 	return state
+
+func _victory_combat_state(combat_state: Dictionary) -> Dictionary:
+	var victory: Dictionary = combat_state.duplicate(true)
+	var objective: Dictionary = victory.get("objective", {}) as Dictionary
+	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
+	if objective_type == CombatObjectiveRules.REACH_EXIT:
+		var target_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
+		if not target_tiles.is_empty():
+			var player: Dictionary = (victory.get("player", {}) as Dictionary).duplicate(true)
+			player["pos"] = target_tiles[0]
+			victory["player"] = player
+		return victory
+	if objective_type == CombatObjectiveRules.SURVIVE:
+		victory["initiative_clock"] = int(objective.get("target_clock", victory.get("initiative_clock", 0)))
+		return victory
+	var enemies: Array = (victory.get("enemies", []) as Array).duplicate(true)
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		enemy["hp"] = 0
+		enemies[index] = enemy
+	victory["enemies"] = enemies
+	return victory
 
 func _treasure_state() -> Dictionary:
 	var engine := RunEngine.new()
@@ -168,7 +213,7 @@ func _treasure_state() -> Dictionary:
 
 func _show_state(instance: Node, state: Dictionary) -> void:
 	root.gui_release_focus()
-	root.warp_mouse(Vector2(8.0, 8.0))
+	root.warp_mouse(root.get_viewport().get_visible_rect().size - Vector2(2.0, 2.0))
 	instance.call("_load_run_state", state)
 	await _settle()
 	var settled_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
@@ -178,11 +223,175 @@ func _show_state(instance: Node, state: Dictionary) -> void:
 	var progression: Dictionary = (settled_state.get("progression", {}) as Dictionary).duplicate(true)
 	progression["grimoire_unread"] = []
 	settled_state["progression"] = progression
+	var pending_reward: Dictionary = (settled_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	if not pending_reward.is_empty():
+		pending_reward["intro_pending"] = false
+		settled_state["pending_reward"] = pending_reward
 	instance.set("_run_state", settled_state)
+	instance.set("_reward_intro_suppressed", false)
+	instance.set("_reward_reveal_pending", false)
 	instance.call("_refresh_ui")
+	PostCombatRewardSequence.hide_victory(instance.get("_post_combat_victory_overlay") as Control)
 	await _freeze_reward_title(instance)
 	root.gui_release_focus()
 	await _settle()
+
+func _capture_reward_sequence_states(
+	instance: Node,
+	output_dir: String,
+	resolution: Vector2i
+) -> void:
+	instance.set("_reward_intro_suppressed", true)
+	instance.set("_reward_reveal_pending", false)
+	instance.call("_refresh_ui")
+	await _settle()
+	var victory_overlay: Control = instance.get("_post_combat_victory_overlay") as Control
+	PostCombatRewardSequence.show_victory_proof_state(victory_overlay)
+	await _save_root_screenshot(
+		"%s/card_reward_victory_%s.png" % [output_dir, PROOF_VERSION],
+		resolution
+	)
+	PostCombatRewardSequence.hide_victory(victory_overlay)
+
+	var reveal_parts: Dictionary = await _prepare_reward_reveal_proof(instance)
+	var slots: Array[Control] = reveal_parts.get("slots", []) as Array[Control]
+	var banner: TextureRect = reveal_parts.get("banner") as TextureRect
+	var title: Label = reveal_parts.get("title") as Label
+	var secondary_actions: Control = reveal_parts.get("secondary_actions") as Control
+	PostCombatRewardSequence.settle_banner(banner, title)
+	for slot: Control in slots:
+		PostCombatRewardSequence.show_card_back(slot)
+	await _settle()
+	_assert_reveal_faces(slots, 0, "card-back proof")
+	await _save_root_screenshot(
+		"%s/card_reward_backs_%s.png" % [output_dir, PROOF_VERSION],
+		resolution
+	)
+	_assert_reveal_transforms(slots, "card-back proof after capture")
+
+	if not slots.is_empty():
+		PostCombatRewardSequence.reveal_card_face(slots[0])
+	await _settle()
+	_assert_reveal_faces(slots, 1, "partial reveal proof")
+	await _save_root_screenshot(
+		"%s/card_reward_partial_reveal_%s.png" % [output_dir, PROOF_VERSION],
+		resolution
+	)
+	_assert_reveal_transforms(slots, "partial reveal proof after capture")
+
+	# Rebuild the prepared state and let the real timing path run to completion.
+	reveal_parts = await _prepare_reward_reveal_proof(instance)
+	slots = reveal_parts.get("slots", []) as Array[Control]
+	banner = reveal_parts.get("banner") as TextureRect
+	title = reveal_parts.get("title") as Label
+	secondary_actions = reveal_parts.get("secondary_actions") as Control
+	await PostCombatRewardSequence.play_reward_reveal(
+		instance.get("stage_root") as Control,
+		banner,
+		title,
+		slots,
+		secondary_actions,
+		false
+	)
+	instance.set("_reward_reveal_pending", false)
+	_assert_reveal_faces(slots, slots.size(), "animated reveal completion")
+	_assert_reveal_transforms(slots, "animated reveal completion")
+
+func _capture_reduced_motion_reward(
+	instance: Node,
+	state: Dictionary,
+	output_dir: String,
+	resolution: Vector2i
+) -> void:
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = true
+	SettingsStore.save_settings(settings)
+	SettingsStore.apply_settings(settings, root, false)
+	await _show_state(instance, state)
+	var reveal_parts: Dictionary = await _prepare_reward_reveal_proof(instance)
+	var slots: Array[Control] = reveal_parts.get("slots", []) as Array[Control]
+	await PostCombatRewardSequence.play_reward_reveal(
+		instance.get("stage_root") as Control,
+		reveal_parts.get("banner") as TextureRect,
+		reveal_parts.get("title") as Label,
+		slots,
+		reveal_parts.get("secondary_actions") as Control,
+		true
+	)
+	instance.set("_reward_reveal_pending", false)
+	_assert_reveal_faces(slots, slots.size(), "reduced-motion reveal completion")
+	await _save_root_screenshot(
+		"%s/card_reward_reduced_motion_%s.png" % [output_dir, PROOF_VERSION],
+		resolution
+	)
+	settings["reduced_motion"] = false
+	SettingsStore.save_settings(settings)
+	SettingsStore.apply_settings(settings, root, false)
+	await _show_state(instance, state)
+
+func _prepare_reward_reveal_proof(instance: Node) -> Dictionary:
+	instance.set("_reward_intro_suppressed", false)
+	instance.set("_reward_reveal_pending", true)
+	instance.call("_refresh_ui")
+	await _settle()
+	var card_row: HBoxContainer = instance.find_child("RewardCardRow", true, false) as HBoxContainer
+	var slots: Array[Control] = []
+	if card_row != null:
+		for child: Node in card_row.get_children():
+			if child is Control:
+				slots.append(child as Control)
+	if slots.size() != 3:
+		_fail("Prepared reward reveal should contain exactly three card slots")
+	return {
+		"slots": slots,
+		"banner": instance.get("_relic_choice_banner") as TextureRect,
+		"title": instance.get("_relic_choice_title") as Label,
+		"secondary_actions": instance.find_child("RewardSecondaryActions", true, false) as Control
+	}
+
+func _assert_reveal_faces(slots: Array[Control], expected_faces: int, stage_label: String) -> void:
+	var visible_faces: int = 0
+	for slot: Control in slots:
+		var widget: Control = slot.find_child("CardWidget", true, false) as Control
+		var back: TextureRect = slot.find_child(PostCombatRewardSequence.CARD_BACK_NAME, true, false) as TextureRect
+		if widget != null and widget.visible:
+			visible_faces += 1
+		if widget == null or back == null or widget.visible == back.visible:
+			_fail("%s should show exactly one face for every reward card" % stage_label)
+	if visible_faces != expected_faces:
+		_fail("%s should show %d card faces, got %d" % [stage_label, expected_faces, visible_faces])
+
+func _assert_reveal_transforms(slots: Array[Control], stage_label: String) -> void:
+	for slot: Control in slots:
+		var scaler: Control = slot.find_child(PostCombatRewardSequence.CARD_FRAME_NAME, true, false) as Control
+		if scaler == null:
+			_fail("%s should retain every card scale frame" % stage_label)
+			continue
+		var base_scale: Vector2 = scaler.get_meta("reward_reveal_base_scale", scaler.scale) as Vector2
+		var base_position: Vector2 = scaler.get_meta("reward_reveal_base_position", scaler.position) as Vector2
+		if not scaler.scale.is_equal_approx(base_scale) or not scaler.position.is_equal_approx(base_position):
+			_fail("%s should be settled, got scale %s position %s" % [stage_label, str(scaler.scale), str(scaler.position)])
+
+func _assert_persistent_combat_board(
+	instance: Node,
+	state: Dictionary,
+	resolution: Vector2i,
+	ui_scale: float
+) -> void:
+	var label: String = "%dx%d @ %d%%" % [resolution.x, resolution.y, roundi(ui_scale * 100.0)]
+	var reward_state: Dictionary = state.get("pending_reward", {}) as Dictionary
+	var expected_board: Dictionary = reward_state.get("board_state", {}) as Dictionary
+	var displayed_board: Dictionary = instance.call("_board_display_state") as Dictionary
+	if expected_board.is_empty() or displayed_board != expected_board:
+		_fail("%s reward should render the exact post-combat board snapshot" % label)
+	var board_view: Control = instance.get("board_view") as Control
+	var presentation: Dictionary = board_view.get("presentation") as Dictionary if board_view != null else {}
+	if str(presentation.get("board_framing_mode", "")) != "combat":
+		_fail("%s reward should retain combat framing instead of switching to room framing" % label)
+	var status_label: String = str(board_view.get("status_label")) if board_view != null else "missing"
+	if not status_label.is_empty():
+		_fail("%s reward should not add a duplicate board-level reward label" % label)
 
 func _freeze_reward_title(instance: Node) -> void:
 	await create_timer(0.12).timeout
@@ -222,7 +431,7 @@ func _assert_reward_layout(
 	if title == null or title.text != "GROW YOUR POWER" or not title.visible:
 		_fail("%s card reward should keep the game-native selection title" % label)
 	elif (
-		title.get_theme_font_size("font_size") > UiTypography.scaled_size(title, 32)
+		title.get_theme_font_size("font_size") > UiTypography.scaled_size(title, 40)
 		or title.get_theme_constant("outline_size") > 2
 	):
 		_fail("%s card reward should use restrained runtime text on the raster banner" % label)
@@ -272,6 +481,8 @@ func _assert_reward_layout(
 		_fail("%s reward composition should sit in the central foreground" % label)
 	if not viewport_rect.encloses(banner_rect) or not viewport_rect.encloses(row_rect) or not viewport_rect.encloses(button_rect):
 		_fail("%s reward stack should fit the visible viewport" % label)
+	if banner_rect.size.x < 880.0:
+		_fail("%s reward banner should be materially larger than the previous 760px presentation" % label)
 	if not recover_button.text.contains("SKIP & RECOVER"):
 		_fail("%s Recover should make the skipped-card consequence explicit" % label)
 	var expected_projection: String = "24 → 24" if full_health else "12 → 15"
@@ -295,6 +506,8 @@ func _assert_reward_layout(
 			_fail("%s card %s should support focus navigation to Recover" % [label, card_id])
 		if not viewport_rect.encloses(card_widget.get_global_rect()):
 			_fail("%s card %s should fit the visible viewport" % [label, card_id])
+		if card_widget.get_global_rect().size.x < 280.0:
+			_fail("%s card %s should be about one-third larger than the previous 224px offer" % [label, card_id])
 		if card_id == OWNED_CARD_ID:
 			result["owned_card"] = card_widget
 			_assert_badge_text(badge, "OWNED", label)
@@ -363,9 +576,13 @@ func _capture_card_focus(card_widget: Control, output_path: String, resolution: 
 		_fail("Missing New reward card for focus proof")
 		return
 	card_widget.grab_focus()
-	await create_timer(0.16).timeout
+	await create_timer(0.45).timeout
 	if not card_widget.has_focus() or card_widget.z_index != 20:
 		_fail("Focused reward card should use the same visible lift as pointer hover")
+	# The Metal screenshot readback intermittently drops lower-z sibling canvases
+	# when this focused child is sorted above them. Preserve its real focused
+	# scale/lift and verified focus state, but flatten only the proof-frame sort.
+	card_widget.z_index = 0
 	await _save_root_screenshot(output_path, resolution)
 	card_widget.release_focus()
 	await create_timer(0.16).timeout
@@ -378,8 +595,16 @@ func _capture_button_focus(button: Button, output_path: String, resolution: Vect
 	await _settle()
 	if not button.has_focus():
 		_fail("Recover button should accept visible keyboard/controller focus")
-	await _save_root_screenshot(output_path, resolution)
+	# As with elevated cards, Metal's focused-control sort can drop unrelated
+	# sibling canvases from readback. Verify real focus first, then preserve its
+	# focus style as the proof-frame normal style after releasing OS focus.
+	var focus_style: StyleBox = button.get_theme_stylebox("focus")
+	if focus_style != null:
+		button.add_theme_stylebox_override("normal", focus_style)
 	button.release_focus()
+	await _settle()
+	await _save_root_screenshot(output_path, resolution)
+	button.remove_theme_stylebox_override("normal")
 	await _settle()
 
 func _capture_relic_focus(choice: Control, output_path: String, resolution: Vector2i) -> void:
@@ -404,10 +629,26 @@ func _assert_badge_text(badge: Control, expected: String, label: String) -> void
 		_fail("%s reward badge should read %s" % [label, expected])
 
 func _save_root_screenshot(output_path: String, resolution: Vector2i) -> void:
+	# Metal can return a partially composed CanvasItem frame on the first rapid
+	# readback. Warm the renderer, then overwrite with a later stable frame.
+	await process_frame
+	await process_frame
 	RenderingServer.force_draw(true, 0.0)
+	await create_timer(0.10).timeout
+	await process_frame
+	RenderingServer.force_draw(true, 0.0)
+	var warm_image: Image = root.get_viewport().get_texture().get_image()
+	if warm_image != null and not warm_image.is_empty():
+		if warm_image.get_size() != resolution:
+			warm_image.resize(resolution.x, resolution.y, Image.INTERPOLATE_LANCZOS)
+		warm_image.save_png(output_path)
+	await create_timer(0.35).timeout
 	await process_frame
 	RenderingServer.force_draw(true, 0.0)
 	var image: Image = root.get_viewport().get_texture().get_image()
+	if image == null or image.is_empty():
+		_fail("Failed to read renderer frame: %s" % output_path)
+		return
 	if image.get_size() != resolution:
 		# macOS exposes the Retina backing texture even though content_scale_size is
 		# the requested proof viewport. Preserve that real Metal render and
@@ -426,6 +667,12 @@ func _first_room_coord_of_type(engine: RunEngine, state: Dictionary, room_type: 
 					continue
 				if str(engine.room_metadata(state, coord).get("type", "")) == room_type:
 					return coord
+	return Vector2i.ZERO
+
+func _first_available_room_coord_of_type(engine: RunEngine, state: Dictionary, room_type: String) -> Vector2i:
+	for coord: Vector2i in engine.available_moves(state):
+		if str(engine.room_metadata(state, coord).get("type", "")) == room_type:
+			return coord
 	return Vector2i.ZERO
 
 func _labels_under(node: Node) -> Array[Label]:

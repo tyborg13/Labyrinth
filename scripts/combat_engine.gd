@@ -2477,6 +2477,25 @@ func combat_outcome(state: Dictionary) -> String:
 		return "victory"
 	return ""
 
+func post_combat_board_state(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	if combat_outcome(next_state) != "victory":
+		return next_state
+	var objective: Dictionary = next_state.get("objective", {}) as Dictionary
+	if str(objective.get("type", CombatObjectiveRules.KILL_ALL)) == CombatObjectiveRules.REACH_EXIT:
+		return next_state
+	var enemies: Array = next_state.get("enemies", []) as Array
+	for index: int in range(enemies.size()):
+		if typeof(enemies[index]) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		if int(enemy.get("hp", 0)) > 0:
+			enemy["hp"] = 0
+			enemy["objective_cleared"] = true
+		enemies[index] = enemy
+	next_state["enemies"] = enemies
+	return next_state
+
 func resolve_missed_equipment_after_victory(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	if combat_outcome(next_state) != "victory":

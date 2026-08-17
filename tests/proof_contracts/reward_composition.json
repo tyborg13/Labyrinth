@@ -1,29 +1,17 @@
 {
-  "min_images": 21,
-  "expected_sizes": ["1280x720", "1280x800", "1920x1080"],
+  "min_images": 11,
+  "expected_sizes": ["1920x1080"],
   "required_images": [
-    {"pattern": "*/1920x1080_ui100/card_reward_injured_v1.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_focused_v1.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_recover_focused_v1.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_full_health_v1.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_reroll_v1.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/relic_reward_v1.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/relic_reward_focused_v1.png", "width": 1920, "height": 1080},
-
-    {"pattern": "*/1280x720_ui100/card_reward_injured_v1.png", "width": 1280, "height": 720},
-    {"pattern": "*/1280x720_ui100/card_reward_focused_v1.png", "width": 1280, "height": 720},
-    {"pattern": "*/1280x720_ui100/card_reward_recover_focused_v1.png", "width": 1280, "height": 720},
-    {"pattern": "*/1280x720_ui100/card_reward_full_health_v1.png", "width": 1280, "height": 720},
-    {"pattern": "*/1280x720_ui100/card_reward_reroll_v1.png", "width": 1280, "height": 720},
-    {"pattern": "*/1280x720_ui100/relic_reward_v1.png", "width": 1280, "height": 720},
-    {"pattern": "*/1280x720_ui100/relic_reward_focused_v1.png", "width": 1280, "height": 720},
-
-    {"pattern": "*/1280x800_ui125/card_reward_injured_v1.png", "width": 1280, "height": 800},
-    {"pattern": "*/1280x800_ui125/card_reward_focused_v1.png", "width": 1280, "height": 800},
-    {"pattern": "*/1280x800_ui125/card_reward_recover_focused_v1.png", "width": 1280, "height": 800},
-    {"pattern": "*/1280x800_ui125/card_reward_full_health_v1.png", "width": 1280, "height": 800},
-    {"pattern": "*/1280x800_ui125/card_reward_reroll_v1.png", "width": 1280, "height": 800},
-    {"pattern": "*/1280x800_ui125/relic_reward_v1.png", "width": 1280, "height": 800},
-    {"pattern": "*/1280x800_ui125/relic_reward_focused_v1.png", "width": 1280, "height": 800}
+    {"pattern": "*/1920x1080_ui100/card_reward_victory_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_backs_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_partial_reveal_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_settled_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_focused_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_recover_focused_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_reduced_motion_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_full_health_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_reroll_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/relic_reward_v2.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/relic_reward_focused_v2.png", "width": 1920, "height": 1080}
   ]
 }

@@ -141,6 +141,9 @@ static func _test_survival_reinforcements_join_initiative_and_clock_wins(expect:
 	]), _player_snapshot())
 	var survived: Dictionary = combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(victory_state)).get("state", {}) as Dictionary
 	expect.call(int(survived.get("initiative_clock", 0)) >= 9 and combat.combat_outcome(survived) == "victory", "Survival should resolve as soon as initiative reaches its target without another actor action")
+	var survived_board: Dictionary = combat.post_combat_board_state(survived)
+	expect.call((survived_board.get("enemies", []) as Array).all(func(enemy: Dictionary) -> bool: return int(enemy.get("hp", 0)) <= 0), "Completed non-escape objectives should collapse every surviving enemy for the post-combat board")
+	expect.call((survived_board.get("enemies", []) as Array).all(func(enemy: Dictionary) -> bool: return bool(enemy.get("objective_cleared", false))), "Objective-cleared enemies should remain distinct from player kills in the post-combat snapshot")
 
 static func _test_reach_exit_generation_and_completion(expect: Callable) -> void:
 	var generator := RoomGenerator.new()
@@ -171,6 +174,8 @@ static func _test_reach_exit_generation_and_completion(expect: Callable) -> void
 	player["pos"] = target_tiles[0]
 	state["player"] = player
 	expect.call(combat.combat_outcome(state) == "victory", "Reaching any marked interior threshold should clear the encounter while enemies remain")
+	var escaped_board: Dictionary = combat.post_combat_board_state(state)
+	expect.call((escaped_board.get("enemies", []) as Array).any(func(enemy: Dictionary) -> bool: return int(enemy.get("hp", 0)) > 0), "Reach the Exit should be the one objective that preserves living pursuers on the reward board")
 
 static func _test_reach_exit_reward_commits_route_and_preserves_board(expect: Callable) -> void:
 	var run_engine := RunEngine.new()
@@ -216,10 +221,12 @@ static func _test_reach_exit_reward_commits_route_and_preserves_board(expect: Ca
 	var reward_state: Dictionary = run_engine.finish_combat(run_state, combat_state)
 	var pending_escape: Dictionary = run_engine.pending_escape(reward_state)
 	var board_state: Dictionary = pending_escape.get("board_state", {}) as Dictionary
+	var reward_board_state: Dictionary = ((reward_state.get("pending_reward", {}) as Dictionary).get("board_state", {}) as Dictionary)
 	expect.call(str(reward_state.get("mode", "")) == "reward", "Reaching an exit should still present the normal combat reward before travel")
 	expect.call(pending_escape.get("destination", Vector2i.ZERO) == destination and pending_escape.get("door_tile", Vector2i(-1, -1)) == door_tile, "The crossed threshold should commit its exact destination and door")
 	expect.call((board_state.get("enemies", []) as Array).size() == 2 and (board_state.get("enemies", []) as Array).all(func(enemy: Dictionary) -> bool: return int(enemy.get("hp", 0)) > 0), "Every surviving pursuer should remain in the escaped-board snapshot")
 	expect.call((board_state.get("terrain", []) as Array).size() == 1 and (board_state.get("traps", []) as Array).size() == 1 and (board_state.get("loot", []) as Array).size() == 1, "Terrain, traps, and loot should remain on the board throughout the reward")
+	expect.call(reward_board_state == board_state, "The card reward and pending escape should share the exact held combat composition before travel")
 	var reward_cards: Array = (reward_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array
 	expect.call(not reward_cards.is_empty(), "The route-lock fixture should offer a card reward")
 	if reward_cards.is_empty():
