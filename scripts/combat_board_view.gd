@@ -47,12 +47,12 @@ const MOVE_PATH_GRADIENT_BASE_ALPHA: float = 0.70
 const MOVE_PATH_GRADIENT_LAYER_ALPHA: float = 0.055
 const MOVE_PATH_GRADIENT_DISC_SEGMENTS: int = 24
 const MOVE_PATH_LIGHT_DIRECTION: Vector2 = Vector2(-0.42, -0.91)
-const MOVE_PATH_CRUMBLE_EDGE_SPACING_RATIO: float = 0.23
-const MOVE_PATH_CRUMBLE_EDGE_DEPTH_RATIO: float = 0.105
-const MOVE_PATH_CRUMBLE_EDGE_WEAR_PATTERN: Array = [0.030, 0.067, 0.041, 0.096, 0.052, 0.078, 0.036, 0.105, 0.058]
-const MOVE_PATH_CRUMBLE_NOTCH_DEPTH_RATIO: float = 0.19
-const MOVE_PATH_CRUMBLE_NOTCH_SPAN_RATIO: float = 0.26
-const MOVE_PATH_CRUMBLE_FRAGMENT_SIZE_RATIO: float = 0.085
+const MOVE_PATH_CRUMBLE_DAMAGE_SPACING_RATIO: float = 0.82
+const MOVE_PATH_CRUMBLE_MICRO_DEPTH_RATIO: float = 0.055
+const MOVE_PATH_CRUMBLE_CHIP_DEPTH_RATIO: float = 0.13
+const MOVE_PATH_CRUMBLE_CHUNK_DEPTH_RATIO: float = 0.235
+const MOVE_PATH_CRUMBLE_SURFACE_SPACING_RATIO: float = 2.40
+const MOVE_PATH_CRUMBLE_SPALL_SIZE_RATIO: float = 0.18
 const MOVE_PATH_CRACK_DARK_WIDTH_RATIO: float = 0.044
 const MOVE_PATH_CRACK_LIGHT_WIDTH_RATIO: float = 0.018
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
@@ -9193,15 +9193,12 @@ func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color) -> void:
 	)
 	if body_polygons.is_empty():
 		body_polygons.append(unified_arrow)
-	var loose_polygons: Array[PackedVector2Array] = _path_polygon_array(
-		crumble_geometry.get("loose_polygons", [])
-	)
 	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
 	var outline_color: Color = _path_outline_color(color)
 
-	# The distressed body and its loose fragments feed every depth layer. Missing
-	# chunks therefore cut the glow, outline, face, and shadow together instead of
-	# reading as flat screen-space noise pasted over the isometric ribbon.
+	# The distressed silhouette feeds every depth layer, so its missing chunks cut
+	# the glow, outline, face, and cast shadow together. Interior spalls are inset
+	# afterward with the same light axis, keeping all damage in the ribbon's plane.
 	_draw_expanded_path_polygons(
 		body_polygons,
 		shaft_width * 0.15,
@@ -9227,20 +9224,11 @@ func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color) -> void:
 		outline_color
 	)
 	_draw_gradient_path_polygons(body_polygons, shaft_width, color)
-	if not loose_polygons.is_empty():
-		_draw_expanded_path_polygons(
-			loose_polygons,
-			shaft_width * 0.025,
-			shadow_offset * 1.15,
-			Color(0.005, 0.018, 0.025, 0.42)
-		)
-		_draw_expanded_path_polygons(
-			loose_polygons,
-			shaft_width * 0.012,
-			Vector2.ZERO,
-			outline_color
-		)
-		_draw_gradient_path_polygons(loose_polygons, shaft_width * 0.34, color)
+	_draw_path_surface_spalls(
+		crumble_geometry.get("surface_spalls", []) as Array,
+		shaft_width,
+		color
+	)
 	_draw_path_cracks(crumble_geometry.get("cracks", []) as Array, shaft_width, color)
 
 func _blink_preview_effect_active() -> bool:
@@ -9319,114 +9307,111 @@ func _path_crumble_geometry(
 	shaft_width: float
 ) -> Dictionary:
 	var body_polygons: Array[PackedVector2Array] = []
-	var loose_polygons: Array[PackedVector2Array] = []
 	var notches: Array[PackedVector2Array] = []
+	var surface_spalls: Array[Dictionary] = []
 	var cracks: Array[Dictionary] = []
-	var edge_wear_point_count: int = 0
+	var damage_counts: Dictionary = {"micro": 0, "chip": 0, "chunk": 0}
+	var boundary_sample_count: int = 0
 	if unified_arrow.size() < 3 or path_points.size() < 2 or shaft_width <= 0.0:
 		return {
 			"body_polygons": body_polygons,
-			"loose_polygons": loose_polygons,
 			"notches": notches,
+			"surface_spalls": surface_spalls,
 			"cracks": cracks,
-			"edge_wear_point_count": edge_wear_point_count,
+			"damage_counts": damage_counts,
+			"boundary_sample_count": boundary_sample_count,
 		}
 	var path_seed: int = _path_crumble_seed(path_tiles)
-	var distressed_silhouette: PackedVector2Array = _distressed_path_silhouette(
-		unified_arrow,
+	body_polygons.append(unified_arrow)
+	var original_area: float = absf(_path_polygon_signed_area(unified_arrow))
+	var minimum_body_area: float = original_area * 0.78
+	var perimeter: float = _path_polygon_perimeter(unified_arrow)
+	var target_spacing: float = maxf(4.0, shaft_width * MOVE_PATH_CRUMBLE_DAMAGE_SPACING_RATIO)
+	var sample_count: int = maxi(7, int(floor(perimeter / target_spacing)))
+	boundary_sample_count = sample_count
+	var sample_spacing: float = perimeter / float(sample_count)
+	var winding: float = 1.0 if _path_polygon_signed_area(unified_arrow) > 0.0 else -1.0
+	for sample_index: int in range(sample_count):
+		var hash_value: int = _path_boundary_damage_hash(path_seed, sample_index)
+		var sample_distance: float = (
+			(float(sample_index) + 0.5) * sample_spacing
+			+ (float(hash_value % 7) - 3.0) * sample_spacing * 0.055
+		)
+		var boundary_sample: Dictionary = _path_polygon_boundary_sample(
+			unified_arrow,
+			wrapf(sample_distance, 0.0, perimeter),
+			winding
+		)
+		if boundary_sample.is_empty() or _path_boundary_sample_near_sharp_corner(
+			unified_arrow,
+			boundary_sample,
+			shaft_width
+		):
+			continue
+		var cadence: int = (sample_index + path_seed) % 8
+		var damage_tier: String = "micro"
+		if cadence == 0:
+			damage_tier = "chunk"
+		elif cadence == 3 or cadence == 6:
+			damage_tier = "chip"
+		elif (hash_value / 7) % 5 == 0:
+			continue
+		var anchor: Vector2 = boundary_sample.get("point", Vector2.ZERO)
+		var tangent: Vector2 = boundary_sample.get("tangent", Vector2.ZERO)
+		var inward: Vector2 = boundary_sample.get("inward", Vector2.ZERO)
+		var outward: Vector2 = -inward
+		var damage: PackedVector2Array = _path_boundary_damage_polygon(
+			anchor,
+			tangent,
+			inward,
+			outward,
+			shaft_width,
+			hash_value,
+			damage_tier
+		)
+		var clipped_polygons: Array[PackedVector2Array] = _clip_path_polygon_array(
+			body_polygons,
+			damage
+		)
+		if (
+			clipped_polygons.is_empty()
+			or _path_polygon_array_area(clipped_polygons) < minimum_body_area
+		):
+			continue
+		body_polygons = clipped_polygons
+		notches.append(damage)
+		damage_counts[damage_tier] = int(damage_counts.get(damage_tier, 0)) + 1
+		var segment_frame: Dictionary = _path_nearest_segment_frame(path_points, damage[4])
+		if damage_tier != "micro" and not segment_frame.is_empty():
+			var crack_scale: float = 1.0 if damage_tier == "chunk" else 0.72
+			var crack: Dictionary = _path_fitted_crack_geometry(
+				damage[4],
+				segment_frame.get("direction", Vector2.ZERO),
+				float(segment_frame.get("side", 1.0)),
+				shaft_width,
+				hash_value,
+				crack_scale,
+				unified_arrow
+			)
+			if not crack.is_empty():
+				crack["source_kind"] = "edge_notch"
+				crack["source_damage_index"] = notches.size() - 1
+				cracks.append(crack)
+	var surface_geometry: Dictionary = _path_surface_damage_geometry(
+		path_points,
+		body_polygons,
 		shaft_width,
 		path_seed
 	)
-	edge_wear_point_count = distressed_silhouette.size()
-	body_polygons.append(distressed_silhouette)
-	var original_area: float = absf(_path_polygon_signed_area(unified_arrow))
-	var minimum_body_area: float = original_area * 0.82
-	for segment_index: int in range(path_points.size() - 1):
-		var from_point: Vector2 = path_points[segment_index]
-		var to_point: Vector2 = path_points[segment_index + 1]
-		var direction: Vector2 = (to_point - from_point).normalized()
-		if direction.length_squared() <= 0.0:
-			continue
-		var tile: Vector2i = path_tiles[mini(segment_index, path_tiles.size() - 1)] if not path_tiles.is_empty() else Vector2i(segment_index, 0)
-		var next_tile: Vector2i = path_tiles[mini(segment_index + 1, path_tiles.size() - 1)] if not path_tiles.is_empty() else Vector2i(segment_index + 1, 0)
-		var hash_value: int = _path_crumble_hash(tile, next_tile, segment_index)
-		# Broad, low-amplitude erosion already carries the material language. These
-		# deeper breaks are deliberately intermittent so they read as structure,
-		# rather than one stamped blemish on every otherwise-pristine segment.
-		if path_points.size() > 2 and (hash_value / 11 + segment_index) % 3 == 1:
-			continue
-		var side: float = -1.0 if hash_value % 2 == 0 else 1.0
-		var progress: float = 0.30 + 0.10 * float((hash_value / 2) % 4)
-		var anchor: Vector2 = from_point.lerp(to_point, progress)
-		var damage_scale: float = 0.82 + 0.07 * float((hash_value / 7) % 3)
-		var notch: PackedVector2Array = _path_edge_notch(
-			anchor,
-			direction,
-			side,
-			shaft_width,
-			hash_value,
-			damage_scale
-		)
-		var clipped_polygons: Array[PackedVector2Array] = _clip_path_polygon_array(body_polygons, notch)
-		var attached_crack: Dictionary = _path_fitted_crack_geometry(
-			notch[3],
-			direction,
-			side,
-			shaft_width,
-			hash_value,
-			damage_scale,
-			unified_arrow
-		)
-		if (
-			not clipped_polygons.is_empty()
-			and not attached_crack.is_empty()
-			and _path_polygon_array_area(clipped_polygons) >= minimum_body_area
-		):
-			body_polygons = clipped_polygons
-			notches.append(notch)
-			cracks.append(attached_crack)
-			if (hash_value / 13) % 3 == 0:
-				loose_polygons.append(_path_loose_fragment(anchor, direction, side, shaft_width, hash_value))
-	var final_direction: Vector2 = (
-		path_points[path_points.size() - 1] - path_points[path_points.size() - 2]
-	).normalized()
-	if final_direction.length_squared() > 0.0:
-		var head_hash: int = path_seed + 32452843
-		var head_side: float = -1.0 if head_hash % 2 == 0 else 1.0
-		var head_anchor: Vector2 = path_points[path_points.size() - 1] - final_direction * shaft_width * 0.34
-		var head_scale: float = 0.76
-		var head_notch: PackedVector2Array = _path_edge_notch(
-			head_anchor,
-			final_direction,
-			head_side,
-			shaft_width,
-			head_hash,
-			head_scale
-		)
-		var clipped_head: Array[PackedVector2Array] = _clip_path_polygon_array(body_polygons, head_notch)
-		var head_crack: Dictionary = _path_fitted_crack_geometry(
-			head_notch[3],
-			final_direction,
-			head_side,
-			shaft_width,
-			head_hash,
-			head_scale,
-			unified_arrow
-		)
-		if (
-			not clipped_head.is_empty()
-			and not head_crack.is_empty()
-			and _path_polygon_array_area(clipped_head) >= minimum_body_area
-		):
-			body_polygons = clipped_head
-			notches.append(head_notch)
-			cracks.append(head_crack)
+	surface_spalls = _path_spall_array(surface_geometry.get("spalls", []))
+	cracks.append_array(_path_crack_array(surface_geometry.get("cracks", [])))
 	return {
 		"body_polygons": body_polygons,
-		"loose_polygons": loose_polygons,
 		"notches": notches,
+		"surface_spalls": surface_spalls,
 		"cracks": cracks,
-		"edge_wear_point_count": edge_wear_point_count,
+		"damage_counts": damage_counts,
+		"boundary_sample_count": boundary_sample_count,
 	}
 
 func _path_crumble_seed(path_tiles: Array[Vector2i]) -> int:
@@ -9437,130 +9422,270 @@ func _path_crumble_seed(path_tiles: Array[Vector2i]) -> int:
 		seed += tile.y * (19349663 + tile_index * 389)
 	return absi(seed)
 
-func _distressed_path_silhouette(
-	polygon: PackedVector2Array,
-	shaft_width: float,
-	path_seed: int
-) -> PackedVector2Array:
-	if polygon.size() < 3 or shaft_width <= 0.0:
-		return polygon
-	var signed_area: float = _path_polygon_signed_area(polygon)
-	if is_zero_approx(signed_area):
-		return polygon
-	var winding: float = 1.0 if signed_area > 0.0 else -1.0
-	var spacing: float = maxf(1.5, shaft_width * MOVE_PATH_CRUMBLE_EDGE_SPACING_RATIO)
-	var distressed := PackedVector2Array()
-	for vertex_index: int in range(polygon.size()):
-		var previous: Vector2 = polygon[(vertex_index - 1 + polygon.size()) % polygon.size()]
-		var current: Vector2 = polygon[vertex_index]
-		var next: Vector2 = polygon[(vertex_index + 1) % polygon.size()]
-		var incoming: Vector2 = (current - previous).normalized()
-		var outgoing: Vector2 = (next - current).normalized()
-		if incoming.length_squared() <= 0.0 or outgoing.length_squared() <= 0.0:
-			continue
-		var vertex_point: Vector2 = current
-		# Preserve the functional tip, shoulders, and true turn corners. Smooth
-		# generated arc vertices are eroded along with the long edges so bends and
-		# the arrowhead no longer reveal the pristine source polygon underneath.
-		if incoming.dot(outgoing) >= 0.78:
-			var vertex_inward: Vector2 = (
-				_path_polygon_inward_normal(incoming, winding)
-				+ _path_polygon_inward_normal(outgoing, winding)
-			).normalized()
-			var vertex_hash: int = absi(path_seed + vertex_index * 15485863)
-			vertex_point += vertex_inward * _path_boundary_wear_depth(vertex_hash, shaft_width)
-		distressed.append(vertex_point)
-		var edge: Vector2 = next - current
-		var edge_length: float = edge.length()
-		if edge_length <= spacing:
-			continue
-		var direction: Vector2 = edge / edge_length
-		var inward: Vector2 = _path_polygon_inward_normal(direction, winding)
-		var divisions: int = maxi(2, int(ceil(edge_length / spacing)))
-		for subdivision: int in range(1, divisions):
-			var progress: float = float(subdivision) / float(divisions)
-			var sample_hash: int = absi(
-				path_seed
-				+ vertex_index * 32452843
-				+ subdivision * 49979687
-			)
-			var depth: float = _path_boundary_wear_depth(sample_hash, shaft_width)
-			var edge_taper: float = clampf(minf(progress, 1.0 - progress) * 4.0, 0.0, 1.0)
-			depth *= smoothstep(0.0, 1.0, edge_taper)
-			var tangent_jitter: float = (
-				float(sample_hash % 5) - 2.0
-			) * shaft_width * 0.008 * edge_taper
-			distressed.append(current.lerp(next, progress) + inward * depth + direction * tangent_jitter)
-	var distressed_area: float = absf(_path_polygon_signed_area(distressed))
-	var original_area: float = absf(signed_area)
-	if (
-		distressed.size() < 3
-		or not _polygon_can_draw(distressed)
-		or distressed_area < original_area * 0.83
-		or distressed_area > original_area * 1.001
-	):
-		return polygon
-	return distressed
-
 func _path_polygon_inward_normal(direction: Vector2, winding: float) -> Vector2:
 	var left_normal := Vector2(-direction.y, direction.x)
 	return left_normal if winding > 0.0 else -left_normal
 
-func _path_boundary_wear_depth(hash_value: int, shaft_width: float) -> float:
-	return shaft_width * minf(
-		MOVE_PATH_CRUMBLE_EDGE_DEPTH_RATIO,
-		MOVE_PATH_CRUMBLE_EDGE_WEAR_PATTERN[hash_value % MOVE_PATH_CRUMBLE_EDGE_WEAR_PATTERN.size()]
-	)
+func _path_polygon_perimeter(polygon: PackedVector2Array) -> float:
+	var perimeter: float = 0.0
+	for index: int in range(polygon.size()):
+		perimeter += polygon[index].distance_to(polygon[(index + 1) % polygon.size()])
+	return perimeter
 
-func _path_crumble_hash(tile: Vector2i, next_tile: Vector2i, segment_index: int) -> int:
-	var hash_value: int = (
-		tile.x * 73856093
-		+ tile.y * 19349663
-		+ next_tile.x * 83492791
-		+ next_tile.y * 2654435761
-		+ segment_index * 97531
-	)
-	return absi(hash_value)
+func _path_boundary_damage_hash(path_seed: int, sample_index: int) -> int:
+	return absi(path_seed + sample_index * 49979687 + (sample_index + 3) * 15485863)
 
-func _path_edge_notch(
+func _path_polygon_boundary_sample(
+	polygon: PackedVector2Array,
+	distance: float,
+	winding: float
+) -> Dictionary:
+	var remaining: float = distance
+	for edge_index: int in range(polygon.size()):
+		var start: Vector2 = polygon[edge_index]
+		var end: Vector2 = polygon[(edge_index + 1) % polygon.size()]
+		var edge: Vector2 = end - start
+		var edge_length: float = edge.length()
+		if edge_length <= 0.001:
+			continue
+		if remaining <= edge_length or edge_index == polygon.size() - 1:
+			var progress: float = clampf(remaining / edge_length, 0.0, 1.0)
+			var tangent: Vector2 = edge / edge_length
+			return {
+				"point": start.lerp(end, progress),
+				"tangent": tangent,
+				"inward": _path_polygon_inward_normal(tangent, winding),
+				"edge_index": edge_index,
+				"edge_length": edge_length,
+				"progress": progress,
+			}
+		remaining -= edge_length
+	return {}
+
+func _path_boundary_sample_near_sharp_corner(
+	polygon: PackedVector2Array,
+	boundary_sample: Dictionary,
+	shaft_width: float
+) -> bool:
+	var edge_index: int = int(boundary_sample.get("edge_index", 0))
+	var edge_length: float = float(boundary_sample.get("edge_length", 0.0))
+	var progress: float = float(boundary_sample.get("progress", 0.0))
+	var margin: float = shaft_width * 0.16
+	if progress * edge_length < margin and _path_polygon_vertex_is_sharp(polygon, edge_index):
+		return true
+	var end_index: int = (edge_index + 1) % polygon.size()
+	return (1.0 - progress) * edge_length < margin and _path_polygon_vertex_is_sharp(polygon, end_index)
+
+func _path_polygon_vertex_is_sharp(polygon: PackedVector2Array, vertex_index: int) -> bool:
+	var previous: Vector2 = polygon[(vertex_index - 1 + polygon.size()) % polygon.size()]
+	var current: Vector2 = polygon[vertex_index]
+	var next: Vector2 = polygon[(vertex_index + 1) % polygon.size()]
+	var incoming: Vector2 = (current - previous).normalized()
+	var outgoing: Vector2 = (next - current).normalized()
+	return incoming.length_squared() > 0.0 and outgoing.length_squared() > 0.0 and incoming.dot(outgoing) < 0.72
+
+func _path_boundary_damage_polygon(
 	anchor: Vector2,
-	direction: Vector2,
-	side: float,
+	tangent: Vector2,
+	inward: Vector2,
+	outward: Vector2,
 	shaft_width: float,
 	hash_value: int,
-	scale_factor: float = 1.0
+	damage_tier: String
 ) -> PackedVector2Array:
-	var outward: Vector2 = Vector2(-direction.y, direction.x) * side
-	var board_cross: Vector2 = _path_board_cross_direction(direction)
-	var edge_center: Vector2 = anchor + outward * shaft_width * 0.46
-	var span: float = shaft_width * MOVE_PATH_CRUMBLE_NOTCH_SPAN_RATIO * (0.90 + 0.08 * float(hash_value % 3)) * scale_factor
-	var depth: float = shaft_width * MOVE_PATH_CRUMBLE_NOTCH_DEPTH_RATIO * (0.88 + 0.08 * float((hash_value / 3) % 3)) * scale_factor
-	var outside_center: Vector2 = edge_center + outward * shaft_width * 0.44
-	var inside_center: Vector2 = edge_center - outward * depth
+	var half_span_ratio: float = 0.085
+	var depth_ratio: float = MOVE_PATH_CRUMBLE_MICRO_DEPTH_RATIO
+	match damage_tier:
+		"chunk":
+			half_span_ratio = 0.27
+			depth_ratio = MOVE_PATH_CRUMBLE_CHUNK_DEPTH_RATIO
+		"chip":
+			half_span_ratio = 0.17
+			depth_ratio = MOVE_PATH_CRUMBLE_CHIP_DEPTH_RATIO
+	var half_span: float = shaft_width * half_span_ratio * (0.72 + 0.11 * float(hash_value % 5))
+	var depth: float = shaft_width * depth_ratio * (0.72 + 0.11 * float((hash_value / 5) % 5))
+	var outer_center: Vector2 = anchor + outward * shaft_width * 0.30
+	var root_skew: float = (float((hash_value / 11) % 7) - 3.0) * half_span * 0.075
 	return PackedVector2Array([
-		outside_center - direction * span * 0.80,
-		outside_center + direction * span * 0.82,
-		edge_center + direction * span * 0.54 + board_cross * span * 0.12,
-		inside_center + direction * span * 0.08,
-		edge_center - direction * span * 0.48 - board_cross * span * 0.10,
+		outer_center - tangent * half_span * 1.24,
+		outer_center + tangent * half_span * 1.17,
+		anchor + tangent * half_span * 0.88,
+		anchor + tangent * half_span * 0.24 + inward * depth * 0.58,
+		anchor - tangent * half_span * 0.10 + inward * depth + tangent * root_skew,
+		anchor - tangent * half_span * 0.82 + inward * depth * 0.34,
 	])
 
-func _path_loose_fragment(
-	anchor: Vector2,
-	direction: Vector2,
-	side: float,
+func _path_surface_damage_geometry(
+	path_points: PackedVector2Array,
+	body_polygons: Array[PackedVector2Array],
 	shaft_width: float,
-	hash_value: int
+	path_seed: int
+) -> Dictionary:
+	var spalls: Array[Dictionary] = []
+	var cracks: Array[Dictionary] = []
+	var path_length: float = _path_polyline_length(path_points)
+	if path_length <= 0.001 or body_polygons.is_empty():
+		return {"spalls": spalls, "cracks": cracks}
+	var target_spacing: float = maxf(
+		shaft_width * MOVE_PATH_CRUMBLE_SURFACE_SPACING_RATIO,
+		8.0
+	)
+	var sample_count: int = maxi(2, int(floor(path_length / target_spacing)))
+	for sample_index: int in range(sample_count):
+		var hash_value: int = _path_boundary_damage_hash(path_seed + 32452843, sample_index)
+		var progress: float = (float(sample_index) + 0.5) / float(sample_count)
+		var distance_jitter: float = (
+			(float(hash_value % 7) - 3.0)
+			* minf(target_spacing, path_length / float(sample_count))
+			* 0.035
+		)
+		var sample: Dictionary = _path_polyline_sample(
+			path_points,
+			clampf(path_length * progress + distance_jitter, 0.0, path_length)
+		)
+		if sample.is_empty():
+			continue
+		var direction: Vector2 = sample.get("direction", Vector2.ZERO)
+		var board_cross: Vector2 = _path_board_cross_direction(direction)
+		if direction.length_squared() <= 0.0 or board_cross.length_squared() <= 0.0:
+			continue
+		var lateral_step: float = float((hash_value / 7) % 5) - 2.0
+		var center: Vector2 = (
+			sample.get("point", Vector2.ZERO)
+			+ board_cross * shaft_width * lateral_step * 0.032
+		)
+		var tier_scale: float = 1.16 if (sample_index + path_seed) % 4 == 0 else 0.82
+		var spall_polygon := PackedVector2Array()
+		for fit_scale_var: Variant in [1.0, 0.76, 0.56]:
+			var candidate: PackedVector2Array = _path_surface_spall_polygon(
+				center,
+				direction,
+				board_cross,
+				shaft_width,
+				hash_value,
+				tier_scale * float(fit_scale_var)
+			)
+			if _path_polygon_inside_any_path_polygon(candidate, body_polygons):
+				spall_polygon = candidate
+				break
+		if not _polygon_can_draw(spall_polygon):
+			continue
+		var spall: Dictionary = {
+			"polygon": spall_polygon,
+			"center": center,
+			"segment_direction": direction,
+			"board_cross_direction": board_cross,
+		}
+		spalls.append(spall)
+		if sample_index != 0 and (sample_index + path_seed) % 3 == 1:
+			continue
+		var source_vertex: int = 1 if (hash_value / 13) % 2 == 0 else 5
+		var source: Vector2 = spall_polygon[source_vertex]
+		var crack_side: float = -1.0 if source_vertex == 1 else 1.0
+		var crack: Dictionary = _path_fitted_surface_crack_geometry(
+			source,
+			direction,
+			crack_side,
+			shaft_width,
+			hash_value,
+			0.68,
+			body_polygons
+		)
+		if not crack.is_empty():
+			crack["source_kind"] = "surface_spall"
+			crack["source_spall_index"] = spalls.size() - 1
+			cracks.append(crack)
+	return {"spalls": spalls, "cracks": cracks}
+
+func _path_polyline_length(points: PackedVector2Array) -> float:
+	var length: float = 0.0
+	for index: int in range(points.size() - 1):
+		length += points[index].distance_to(points[index + 1])
+	return length
+
+func _path_polyline_sample(points: PackedVector2Array, distance: float) -> Dictionary:
+	var remaining: float = distance
+	for segment_index: int in range(points.size() - 1):
+		var start: Vector2 = points[segment_index]
+		var segment: Vector2 = points[segment_index + 1] - start
+		var segment_length: float = segment.length()
+		if segment_length <= 0.001:
+			continue
+		if remaining <= segment_length or segment_index == points.size() - 2:
+			var progress: float = clampf(remaining / segment_length, 0.0, 1.0)
+			return {
+				"point": start + segment * progress,
+				"direction": segment / segment_length,
+				"segment_index": segment_index,
+			}
+		remaining -= segment_length
+	return {}
+
+func _path_surface_spall_polygon(
+	center: Vector2,
+	direction: Vector2,
+	board_cross: Vector2,
+	shaft_width: float,
+	hash_value: int,
+	scale_factor: float
 ) -> PackedVector2Array:
-	var outward: Vector2 = Vector2(-direction.y, direction.x) * side
-	var board_cross: Vector2 = _path_board_cross_direction(direction)
-	var fragment_size: float = shaft_width * MOVE_PATH_CRUMBLE_FRAGMENT_SIZE_RATIO * (0.90 + 0.10 * float(hash_value % 3))
-	var center: Vector2 = anchor + outward * shaft_width * 0.68 + direction * fragment_size * 0.45
+	var radius: float = (
+		shaft_width
+		* MOVE_PATH_CRUMBLE_SPALL_SIZE_RATIO
+		* scale_factor
+		* (0.82 + 0.06 * float(hash_value % 5))
+	)
+	var longitudinal: float = 0.78 + 0.07 * float((hash_value / 5) % 5)
+	var crosswise: float = 0.64 + 0.08 * float((hash_value / 11) % 5)
 	return PackedVector2Array([
-		center - direction * fragment_size,
-		center + direction * fragment_size * 0.72 + board_cross * fragment_size * 0.45,
-		center - board_cross * fragment_size * 0.82,
+		center + direction * radius * longitudinal - board_cross * radius * 0.16,
+		center + direction * radius * 0.32 + board_cross * radius * crosswise,
+		center - direction * radius * 0.18 + board_cross * radius * (crosswise * 0.78),
+		center - direction * radius * 0.84 + board_cross * radius * 0.22,
+		center - direction * radius * 0.62 - board_cross * radius * (crosswise * 0.66),
+		center + direction * radius * 0.10 - board_cross * radius * (crosswise * 0.92),
+		center + direction * radius * 0.61 - board_cross * radius * 0.52,
 	])
+
+func _path_polygon_inside_any_path_polygon(
+	inner: PackedVector2Array,
+	containers: Array[PackedVector2Array]
+) -> bool:
+	if inner.size() < 3:
+		return false
+	for container: PackedVector2Array in containers:
+		var contains_all: bool = true
+		for point: Vector2 in inner:
+			if not Geometry2D.is_point_in_polygon(point, container):
+				contains_all = false
+				break
+		if contains_all:
+			return true
+	return false
+
+func _path_nearest_segment_frame(path_points: PackedVector2Array, point: Vector2) -> Dictionary:
+	var best_distance_squared: float = INF
+	var best_direction: Vector2 = Vector2.ZERO
+	var best_side: float = 1.0
+	for segment_index: int in range(path_points.size() - 1):
+		var from_point: Vector2 = path_points[segment_index]
+		var segment: Vector2 = path_points[segment_index + 1] - from_point
+		var segment_length_squared: float = segment.length_squared()
+		if segment_length_squared <= 0.001:
+			continue
+		var progress: float = clampf((point - from_point).dot(segment) / segment_length_squared, 0.0, 1.0)
+		var closest: Vector2 = from_point + segment * progress
+		var distance_squared: float = point.distance_squared_to(closest)
+		if distance_squared >= best_distance_squared:
+			continue
+		var direction: Vector2 = segment.normalized()
+		var screen_normal: Vector2 = Vector2(-direction.y, direction.x)
+		best_distance_squared = distance_squared
+		best_direction = direction
+		best_side = -1.0 if (point - closest).dot(screen_normal) < 0.0 else 1.0
+	if best_direction.length_squared() <= 0.0:
+		return {}
+	return {"direction": best_direction, "side": best_side}
 
 func _path_crack_geometry(
 	source: Vector2,
@@ -9613,6 +9738,29 @@ func _path_fitted_crack_geometry(
 			return crack
 	return {}
 
+func _path_fitted_surface_crack_geometry(
+	source: Vector2,
+	direction: Vector2,
+	side: float,
+	shaft_width: float,
+	hash_value: int,
+	damage_scale: float,
+	containing_polygons: Array[PackedVector2Array]
+) -> Dictionary:
+	var fit_scales: Array = [1.0, 0.72, 0.50]
+	for fit_scale_var: Variant in fit_scales:
+		var crack: Dictionary = _path_crack_geometry(
+			source,
+			direction,
+			side,
+			shaft_width,
+			hash_value,
+			damage_scale * float(fit_scale_var)
+		)
+		if _path_crack_fits_polygon_array(crack, containing_polygons):
+			return crack
+	return {}
+
 func _path_crack_fits_polygon(crack: Dictionary, containing_polygon: PackedVector2Array) -> bool:
 	var crack_lines: Array = [
 		crack.get("points", PackedVector2Array()),
@@ -9624,6 +9772,15 @@ func _path_crack_fits_polygon(crack: Dictionary, containing_polygon: PackedVecto
 			if not Geometry2D.is_point_in_polygon(point, containing_polygon):
 				return false
 	return true
+
+func _path_crack_fits_polygon_array(
+	crack: Dictionary,
+	containing_polygons: Array[PackedVector2Array]
+) -> bool:
+	for container: PackedVector2Array in containing_polygons:
+		if _path_crack_fits_polygon(crack, container):
+			return true
+	return false
 
 func _clip_path_polygon_array(
 	polygons: Array[PackedVector2Array],
@@ -9644,6 +9801,24 @@ func _path_polygon_array(value: Variant) -> Array[PackedVector2Array]:
 	for polygon_var: Variant in value as Array:
 		if typeof(polygon_var) == TYPE_PACKED_VECTOR2_ARRAY:
 			result.append(polygon_var as PackedVector2Array)
+	return result
+
+func _path_spall_array(value: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for spall_var: Variant in value as Array:
+		if typeof(spall_var) == TYPE_DICTIONARY:
+			result.append(spall_var as Dictionary)
+	return result
+
+func _path_crack_array(value: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for crack_var: Variant in value as Array:
+		if typeof(crack_var) == TYPE_DICTIONARY:
+			result.append(crack_var as Dictionary)
 	return result
 
 func _path_polygon_array_area(polygons: Array[PackedVector2Array]) -> float:
@@ -9718,6 +9893,29 @@ func _draw_gradient_path_polygons(
 	for polygon: PackedVector2Array in polygons:
 		_draw_gradient_path_polygon(polygon, width, color)
 
+func _draw_path_surface_spalls(spalls: Array, shaft_width: float, color: Color) -> void:
+	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
+	var lip_offset: Vector2 = -light_direction * maxf(0.9, shaft_width * 0.052)
+	var floor_offset: Vector2 = light_direction * maxf(0.35, shaft_width * 0.015)
+	var lip_color: Color = color.lightened(0.50)
+	lip_color.a = 0.48
+	var recess_color: Color = color.darkened(0.90)
+	recess_color.a = 0.88
+	var floor_color: Color = color.darkened(0.66)
+	floor_color.a = 0.72
+	for spall_var: Variant in spalls:
+		if typeof(spall_var) != TYPE_DICTIONARY:
+			continue
+		var spall: Dictionary = spall_var as Dictionary
+		var polygon: PackedVector2Array = spall.get("polygon", PackedVector2Array())
+		if not _polygon_can_draw(polygon):
+			continue
+		var center: Vector2 = spall.get("center", _path_polygon_center(polygon))
+		draw_colored_polygon(_shifted_path_polygon(polygon, lip_offset), lip_color)
+		draw_colored_polygon(polygon, recess_color)
+		var floor_polygon: PackedVector2Array = _scaled_path_polygon(polygon, center, 0.56)
+		draw_colored_polygon(_shifted_path_polygon(floor_polygon, floor_offset), floor_color)
+
 func _draw_path_cracks(cracks: Array, shaft_width: float, color: Color) -> void:
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
 	var lip_offset: Vector2 = -light_direction * maxf(0.75, shaft_width * 0.018)
@@ -9749,6 +9947,24 @@ func _draw_path_cracks(cracks: Array, shaft_width: float, color: Color) -> void:
 				maxf(1.25, shaft_width * MOVE_PATH_CRACK_DARK_WIDTH_RATIO),
 				true
 			)
+
+func _path_polygon_center(polygon: PackedVector2Array) -> Vector2:
+	if polygon.is_empty():
+		return Vector2.ZERO
+	var center := Vector2.ZERO
+	for point: Vector2 in polygon:
+		center += point
+	return center / float(polygon.size())
+
+func _scaled_path_polygon(
+	polygon: PackedVector2Array,
+	center: Vector2,
+	scale_factor: float
+) -> PackedVector2Array:
+	var scaled := PackedVector2Array()
+	for point: Vector2 in polygon:
+		scaled.append(center + (point - center) * scale_factor)
+	return scaled
 
 func _shifted_path_polygon(polygon: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
 	var shifted := PackedVector2Array()

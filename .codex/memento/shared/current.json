@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-17T17:44:50Z",
+  "updated_at": "2026-08-17T18:14:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8282,7 +8282,7 @@
       }
     },
     {
-      "id": "mnt_20260817T174450Z_d51dfa7a",
+      "id": "mnt_20260817T181412Z_b44b3e8b",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -8291,18 +8291,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Movement arrows use cohesive whole-silhouette distress",
-      "details": "Do not render a pristine vector arrow with isolated nicks or cracks stamped on top. Continuously erode the unified shaft, bend radii, shoulders, and head before drawing any gradient, outline, glow, or cast shadow; preserve only functional corners such as the destination tip. Use occasional deeper board-space chips, restrained loose fragments, and beveled cracks that begin at accepted edge breaks. Keep the route readable across short, long, straight, bent, and every isometric orientation.",
+      "summary": "Movement-arrow distress stays in the material, not detached rubble",
+      "details": "Do not scatter loose fragments around movement arrows; the rubble competes with the tactical preview and does not sell the material. Keep straight planar spans between deterministic micro-nicks, asymmetric chips, and occasional larger edge chunks, then carry the distress through the arrow face with irregular recessed spalls/pits and short fractures rooted in those losses. Surface damage and cracks must use the projected route/board axes and shared isometric light treatment, while the unified body keeps its outline, gradient, hover shadow, destination tip, and readability across every length, bend, and orientation.",
       "status": "active",
-      "created_at": "2026-08-17T17:44:50Z",
-      "updated_at": "2026-08-17T17:44:50Z",
+      "created_at": "2026-08-17T18:14:12Z",
+      "updated_at": "2026-08-17T18:14:12Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260817T170155Z_4b189b3e"
+        "mnt_20260817T180219Z_3405fa3c"
       ],
       "source": {
         "branch": "codex/distress-movement-arrows-with-perspective-aware-crumble",
-        "commit": "fa9d825"
+        "commit": "e96db14"
       }
     }
   ]
