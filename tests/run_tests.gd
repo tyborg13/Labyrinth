@@ -8330,7 +8330,11 @@ func _test_combat_finish_generates_reward_state() -> void:
 	run_state = run_engine.finish_combat(run_state, combat_state)
 	_assert(str(run_state.get("mode", "")) == "reward", "Winning a non-boss combat should transition to the reward state")
 	_assert(run_engine.held_embers(run_state) >= 12, "Combat victory should award held embers to the run")
-	_assert((run_state.get("pending_reward", {}) as Dictionary).get("cards", []).size() == 3, "Combat rewards should offer three card choices")
+	var pending_reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
+	_assert((pending_reward.get("cards", []) as Array).size() == 3, "Combat rewards should offer three card choices")
+	_assert(bool(pending_reward.get("intro_pending", false)), "Fresh combat rewards should retain a crash-safe pending intro sequence")
+	var reward_board: Dictionary = pending_reward.get("board_state", {}) as Dictionary
+	_assert(not reward_board.is_empty() and (reward_board.get("enemies", []) as Array).all(func(enemy: Dictionary) -> bool: return int(enemy.get("hp", 0)) <= 0), "Combat rewards should persist the cleared board instead of rebuilding a generic empty room")
 	_assert(not run_engine.available_moves(run_state).is_empty(), "Cleared combat rooms should reveal adjacent exits once the fight ends")
 
 func _test_intermediate_boss_opens_next_sequence() -> void:
@@ -9973,7 +9977,7 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	_assert(prompt_banner != null and prompt_banner.visible and prompt_banner.texture != null and prompt_banner.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Card reward instruction should sit on a non-interactive raster banner")
 	_assert(prompt_effect == null or not prompt_effect.visible, "Card reward prompt should not retain the oversized animated title effect")
 	if prompt_title != null:
-		_assert(prompt_title.get_theme_font_size("font_size") <= 32, "Selection prompt should use normal banner text rather than oversized display type")
+		_assert(prompt_title.get_theme_font_size("font_size") <= 40, "Selection prompt should use enlarged banner text rather than oversized display type")
 		_assert(prompt_title.get_theme_constant("outline_size") <= 2, "Selection prompt text should use only a restrained readability outline")
 	instance.call("_on_reward_card_pressed", "quick_stab")
 	await process_frame

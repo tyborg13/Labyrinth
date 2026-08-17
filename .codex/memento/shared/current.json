@@ -8282,6 +8282,50 @@
       }
     },
     {
+      "id": "mnt_20260817T172754Z_fd99ac52",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Post-combat card rewards preserve the final combat board through the reward intro",
+      "details": "RunEngine.pending_reward.board_state is the canonical held composition and RunScene keeps combat framing for it. Non-escape victories collapse remaining enemies before VICTORY; Reach Exit preserves living pursuers. The intro is VICTORY, banner/card-back entry, sequential left-to-right flips, then restored interaction, with a reduced-motion settle path.",
+      "status": "active",
+      "created_at": "2026-08-17T17:27:54Z",
+      "updated_at": "2026-08-17T17:27:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-post-combat-card-reward-presentation",
+        "commit": "021eb64"
+      }
+    },
+    {
+      "id": "mnt_20260817T174417Z_9091b6e6",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Card title fitting must not trust hidden live-label geometry",
+      "details": "Reward reveal hides CardWidget faces behind card backs. Deferred title fitting can observe a transient sliver width before the container sorts and lock the title to its minimum size. Fit against the authored card-inner/nameplate geometry so hidden, pooled, and visible cards choose the same title size.",
+      "status": "active",
+      "created_at": "2026-08-17T17:44:17Z",
+      "updated_at": "2026-08-17T17:44:17Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-post-combat-card-reward-presentation",
+        "commit": "c01bfbb"
+      }
+    },
+    {
       "id": "mnt_20260817T181412Z_b44b3e8b",
       "layer": "shared",
       "kind": "user_preference",

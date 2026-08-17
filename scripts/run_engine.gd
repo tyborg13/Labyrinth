@@ -390,6 +390,10 @@ static func _migrated_legacy_fixed_point_run(run_state: Dictionary) -> Dictionar
 		var pending_reward: Dictionary = (next_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 		if pending_reward.has("heal_amount"):
 			pending_reward["heal_amount"] = _legacy_survivor_units(int(pending_reward.get("heal_amount", 0)))
+		if typeof(pending_reward.get("board_state", null)) == TYPE_DICTIONARY:
+			pending_reward["board_state"] = _migrated_legacy_combat_state_units(
+				pending_reward.get("board_state", {}) as Dictionary
+			)
 		next_state["pending_reward"] = pending_reward
 	if typeof(next_state.get("current_room_layout", null)) == TYPE_DICTIONARY:
 		next_state["current_room_layout"] = _migrated_legacy_combat_state_units(
@@ -994,6 +998,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var pending_escape: Dictionary = _pending_escape_for_combat_victory(combat_state, outcome)
 	var resolved_combat_state: Dictionary = combat_state.duplicate(true)
 	if outcome == "victory":
+		resolved_combat_state = _combat_engine.post_combat_board_state(resolved_combat_state)
 		resolved_combat_state = _combat_engine.resolve_missed_equipment_after_victory(resolved_combat_state)
 	var salvaged_equipment_id: String = ""
 	if outcome == "victory" and run_skill_is_ready(run_state, "salvager"):
@@ -1007,6 +1012,10 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 				collected_after_salvage.append(salvaged_equipment_id)
 			resolved_combat_state["collected_equipment"] = collected_after_salvage
 			resolved_combat_state = _mark_salvaged_loot_resolution(resolved_combat_state, salvaged_equipment_id)
+	if not pending_escape.is_empty():
+		# Reward and escape continuation must hold the same final board pixels.
+		# Reach Exit keeps living pursuers; only loot-resolution metadata changes.
+		pending_escape["board_state"] = resolved_combat_state.duplicate(true)
 	var missed_equipment: Array = resolved_combat_state.get("missed_equipment", []) as Array
 	var next_state: Dictionary = set_combat_state(run_state, resolved_combat_state)
 	next_state["pending_escape"] = pending_escape
@@ -1086,7 +1095,9 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	next_state["pending_reward"] = {
 		"cards": reward_cards,
 		"heal_amount": REWARD_HEAL + int(next_state.get("heal_bonus", 0)),
-		"ember_amount": total_embers
+		"ember_amount": total_embers,
+		"board_state": resolved_combat_state.duplicate(true),
+		"intro_pending": true
 	}
 	next_state["mode"] = "reward"
 	if not missed_equipment.is_empty():

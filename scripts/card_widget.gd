@@ -1720,11 +1720,11 @@ func _title_max_render_size() -> int:
 func _title_available_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	var card_inner_width: float = maxf(_scaled_card_value(80.0, 42.0), width - _scaled_card_value(32.0, 12.0))
-	if title_label.size.x > 0.0:
-		return minf(title_label.size.x, card_inner_width)
-	var top_row: Control = title_label.get_parent() as Control
-	if top_row != null and top_row.size.x > 0.0:
-		return minf(top_row.size.x, card_inner_width)
+	# TopRow currently gives its sole title child the complete card inner width.
+	# Measuring the live label here is unstable while a card face is hidden behind
+	# a reveal back: Godot can report a transient sliver before its container sorts,
+	# which permanently refits the title to the minimum size. Use the authored
+	# geometry so hidden, pooled, and visible cards all choose the same title size.
 	return card_inner_width
 
 func _title_nameplate_width() -> float:
