@@ -1,5 +1,5 @@
 {
-  "min_images": 8,
+  "min_images": 12,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -46,6 +46,30 @@
     },
     {
       "pattern": "*08_enemy_element_preview.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*09_foreground_pillar_occlusion.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*10_isometric_arrowhead_perspective.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*11_opposite_isometric_axis.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*12_vertical_screen_projection.png",
       "width": 1920,
       "height": 1080,
       "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]

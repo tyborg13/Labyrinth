@@ -98,7 +98,9 @@ static func _test_ranged_preview_uses_slim_distressed_ribbon_geometry(expect: Ca
 	var to_point := Vector2(1070.0, 580.0)
 	var geometry: Dictionary = board.call("_ranged_target_preview_geometry", effect, from_point, to_point)
 	var curve_points: PackedVector2Array = geometry.get("curve_points", PackedVector2Array())
+	var shaft_polygon: PackedVector2Array = geometry.get("shaft_polygon", PackedVector2Array())
 	var body_polygons: Array = geometry.get("body_polygons", []) as Array
+	var head_body_polygons: Array = geometry.get("head_body_polygons", []) as Array
 	var crumble: Dictionary = geometry.get("crumble_geometry", {}) as Dictionary
 	var repeated: Dictionary = board.call("_ranged_target_preview_geometry", effect, from_point, to_point)
 	var constants: Dictionary = (board.get_script() as Script).get_script_constant_map()
@@ -111,13 +113,49 @@ static func _test_ranged_preview_uses_slim_distressed_ribbon_geometry(expect: Ca
 			apex_y = minf(apex_y, point.y)
 		expect.call(apex_y < minf(curve_points[0].y, curve_points[curve_points.size() - 1].y) - 40.0, "Ranged preview ribbons should visibly rise into an aerial arc")
 	expect.call(ranged_width > 4.0 and ranged_width < move_width * 0.60, "Ranged preview ribbons should be substantial but clearly slimmer than movement arrows")
+	expect.call(shaft_polygon.size() == curve_points.size() * 2, "Ranged preview ribbon faces should use one board-projected cross axis across the complete aerial curve")
 	expect.call(not body_polygons.is_empty(), "Ranged preview distressing should retain drawable ribbon body polygons")
-	expect.call((geometry.get("unified_arrow", PackedVector2Array()) as PackedVector2Array).size() >= 5, "Ranged preview shaft and arrowhead should form one unified 3D silhouette")
+	expect.call(head_body_polygons.size() == 1 and (head_body_polygons[0] as PackedVector2Array).size() == 3, "Ranged preview arrowheads should preserve a clear triangular silhouette while carrying distressed surface detail")
+	expect.call((geometry.get("unified_arrow", PackedVector2Array()) as PackedVector2Array).size() >= 4, "Ranged preview shafts should retain a complete board-projected silhouette")
 	var damage_counts: Dictionary = crumble.get("damage_counts", {}) as Dictionary
 	var damage_count: int = int(damage_counts.get("micro", 0)) + int(damage_counts.get("chip", 0)) + int(damage_counts.get("chunk", 0))
 	expect.call(damage_count > 0, "Ranged preview ribbons should carry deterministic edge nicks and missing chunks")
 	expect.call(not (crumble.get("surface_spalls", []) as Array).is_empty(), "Ranged preview ribbons should carry surface spalls instead of reading as flat lines")
 	expect.call(damage_counts == ((repeated.get("crumble_geometry", {}) as Dictionary).get("damage_counts", {}) as Dictionary), "Ranged preview crumble should be stable across redraws")
+
+	var board_direction: Vector2 = geometry.get("board_direction", Vector2.ZERO)
+	var board_cross_direction: Vector2 = geometry.get("board_cross_direction", Vector2.ZERO)
+	var expected_cross: Vector2 = board.call("_ranged_preview_board_cross_direction", effect, board_direction)
+	expect.call(board_cross_direction.is_equal_approx(expected_cross), "Ranged preview heads and ribbon faces should share the target direction's unnormalized isometric board cross-axis")
+	var arrow_geometry: Dictionary = geometry.get("arrow_geometry", {}) as Dictionary
+	var arrow_polygon: PackedVector2Array = arrow_geometry.get("polygon", PackedVector2Array())
+	if arrow_polygon.size() == 3:
+		var head_direction: Vector2 = arrow_geometry.get("direction", Vector2.ZERO)
+		var shoulder_direction: Vector2 = (arrow_polygon[1] - arrow_polygon[2]).normalized()
+		expect.call(head_direction.is_equal_approx(board_direction.normalized()), "Ranged arrowhead tips should follow the projected board direction instead of the falling screen-space arc tangent")
+		expect.call(absf(shoulder_direction.dot(expected_cross.normalized())) > 0.999, "Ranged arrowhead shoulders should turn into board perspective instead of facing the camera")
+
+	var source_anchor: Vector2 = board.call("_ranged_preview_source_anchor", effect)
+	var target_anchor: Vector2 = board.call("_ranged_preview_target_anchor", effect)
+	var source_center: Vector2 = board.call("_tile_center", effect.get("from", Vector2i.ZERO))
+	var target_center: Vector2 = board.call("_tile_center", effect.get("to", Vector2i.ZERO))
+	var anchor_offset: Vector2 = source_anchor - source_center
+	var edge_ratio: float = (
+		absf(anchor_offset.x) / (float(board.call("_tile_width")) * 0.5)
+		+ absf(anchor_offset.y) / (float(board.call("_tile_height")) * 0.5)
+	)
+	var source_inset_ratio: float = float(constants.get("RANGED_PREVIEW_SOURCE_EDGE_INSET_RATIO", 0.0))
+	expect.call(absf(edge_ratio - (1.0 - source_inset_ratio)) < 0.001 and anchor_offset.dot(target_center - source_center) > 0.0, "Ranged previews should begin just inside the attack-facing edge of the attacker's effective tile")
+	var anchored_geometry: Dictionary = board.call("_ranged_target_preview_geometry", effect, source_anchor, target_anchor)
+	var anchored_arrow: Dictionary = anchored_geometry.get("arrow_geometry", {}) as Dictionary
+	var anchored_polygon: PackedVector2Array = anchored_arrow.get("polygon", PackedVector2Array())
+	var target_lift: float = float(constants.get("RANGED_PREVIEW_TARGET_LIFT_TILE_HEIGHT_RATIO", 0.0))
+	var lifted_target_center: Vector2 = target_center + Vector2(0.0, -float(board.call("_tile_height")) * target_lift)
+	expect.call(anchored_polygon.size() == 3 and anchored_polygon[0].distance_to(lifted_target_center) < float(board.call("_tile_width")) * 0.12, "Ranged preview points should contact the target silhouette without stopping at the full tile edge")
+	expect.call(board.call("_ranged_preview_depth_tile", effect) == effect.get("from", Vector2i.ZERO), "Ranged previews should live on the attack-origin scene layer so foreground board objects occlude them")
+	expect.call(board.call("_ranged_preview_head_depth_tile", effect) == effect.get("to", Vector2i.ZERO), "Ranged preview arrowheads should use the target scene layer while remaining behind later foreground objects")
+	var attack_color: Color = board.call("_ranged_preview_attack_color", effect)
+	expect.call(attack_color.r > attack_color.g * 1.35 and attack_color.r > attack_color.b * 1.35, "Ranged preview material should read as a muted dark-red attack warning rather than a tan route")
 	board.free()
 
 static func _test_redirected_ranged_previews_use_resolved_aim_tile(expect: Callable) -> void:

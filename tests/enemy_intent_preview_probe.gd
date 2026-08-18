@@ -199,6 +199,78 @@ func _capture_intent_preview_states() -> void:
 	_expect(str(lightning_effect.get("element", "")) == "lightning", "Elemental ranged proof should inherit the Lightning Wisp's element")
 	await _save_root_screenshot("%s/08_enemy_element_preview.png" % OUTPUT_DIR)
 
+	var occlusion_grid: Array = _open_grid()
+	(occlusion_grid[5] as Array)[4] = "pillar"
+	var occlusion_layout: Dictionary = _layout("Foreground Pillar Occlusion", occlusion_grid)
+	var occlusion_state: Dictionary = _combat_state(
+		combat,
+		occlusion_layout,
+		Vector2i(2, 6),
+		Vector2i(5, 2),
+		_stationary_long_ranged_intent()
+	)
+	await _install_state(instance, occlusion_layout, occlusion_state)
+	instance.call("_on_board_tile_hovered", Vector2i(5, 2))
+	await _settle_ui()
+	var occlusion_threat: Dictionary = _first_threat(instance)
+	var occlusion_board: Control = instance.get_node(BOARD_PATH) as Control
+	var occlusion_effect: Dictionary = occlusion_board.call("_enemy_threat_ranged_effect", occlusion_threat)
+	_expect(occlusion_board.call("_ranged_preview_depth_tile", occlusion_effect) == Vector2i(5, 2), "Occlusion proof should submit the ranged ribbon on the attacker's scene layer; effect=%s threat=%s" % [occlusion_effect, occlusion_threat])
+	_expect(bool(occlusion_board.call("_tile_draws_before", Vector2i(5, 2), Vector2i(4, 5))), "Occlusion proof should place its pillar in front of the attacking enemy")
+	await _save_root_screenshot("%s/09_foreground_pillar_occlusion.png" % OUTPUT_DIR)
+
+	var diagonal_layout: Dictionary = _layout("Isometric Arrowhead Perspective", _open_grid())
+	var diagonal_state: Dictionary = _combat_state(
+		combat,
+		diagonal_layout,
+		Vector2i(5, 2),
+		Vector2i(2, 5),
+		_stationary_long_ranged_intent()
+	)
+	await _install_state(instance, diagonal_layout, diagonal_state)
+	instance.call("_on_board_tile_hovered", Vector2i(2, 5))
+	await _settle_ui()
+	var diagonal_threat: Dictionary = _first_threat(instance)
+	var diagonal_board: Control = instance.get_node(BOARD_PATH) as Control
+	var diagonal_effect: Dictionary = diagonal_board.call("_enemy_threat_ranged_effect", diagonal_threat)
+	var diagonal_source: Vector2 = diagonal_board.call("_ranged_preview_source_anchor", diagonal_effect)
+	var diagonal_target: Vector2 = diagonal_board.call("_ranged_preview_target_anchor", diagonal_effect)
+	var diagonal_geometry: Dictionary = diagonal_board.call(
+		"_ranged_target_preview_geometry",
+		diagonal_effect,
+		diagonal_source,
+		diagonal_target
+	)
+	var diagonal_cross: Vector2 = diagonal_geometry.get("board_cross_direction", Vector2.ZERO)
+	_expect(absf(diagonal_cross.x) < 0.01 and absf(diagonal_cross.y) > 0.99, "Diagonal perspective proof should turn the arrowhead shoulder onto the projected board cross-axis")
+	await _save_root_screenshot("%s/10_isometric_arrowhead_perspective.png" % OUTPUT_DIR)
+
+	var opposite_axis_layout: Dictionary = _layout("Opposite Isometric Axis", _open_grid())
+	var opposite_axis_state: Dictionary = _combat_state(
+		combat,
+		opposite_axis_layout,
+		Vector2i(2, 2),
+		Vector2i(2, 5),
+		_stationary_long_ranged_intent()
+	)
+	await _install_state(instance, opposite_axis_layout, opposite_axis_state)
+	instance.call("_on_board_tile_hovered", Vector2i(2, 5))
+	await _settle_ui()
+	await _save_root_screenshot("%s/11_opposite_isometric_axis.png" % OUTPUT_DIR)
+
+	var vertical_layout: Dictionary = _layout("Vertical Screen Projection", _open_grid())
+	var vertical_state: Dictionary = _combat_state(
+		combat,
+		vertical_layout,
+		Vector2i(5, 5),
+		Vector2i(2, 2),
+		_stationary_long_ranged_intent()
+	)
+	await _install_state(instance, vertical_layout, vertical_state)
+	instance.call("_on_board_tile_hovered", Vector2i(2, 2))
+	await _settle_ui()
+	await _save_root_screenshot("%s/12_vertical_screen_projection.png" % OUTPUT_DIR)
+
 	instance.queue_free()
 	await process_frame
 
@@ -320,6 +392,12 @@ func _stationary_ranged_intent() -> Dictionary:
 			{"type": "move_toward", "range": 3},
 			{"type": "ranged", "damage": 4, "range": 4}
 		]
+	}
+
+func _stationary_long_ranged_intent() -> Dictionary:
+	return {
+		"name": "Long Shot",
+		"actions": [{"type": "ranged", "damage": 4, "range": 8}]
 	}
 
 func _layout(room_name: String, grid: Array) -> Dictionary:

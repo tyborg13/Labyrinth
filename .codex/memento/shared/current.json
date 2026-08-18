@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-18T14:41:44Z",
+  "updated_at": "2026-08-18T16:13:47Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8391,6 +8391,28 @@
       "source": {
         "branch": "codex/upgrade-enemy-move-and-ranged-intent-previews",
         "commit": "02e7a6b"
+      }
+    },
+    {
+      "id": "mnt_20260818T161347Z_8f083bb2",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Render ranged intent ribbons in true board space with split scene depth",
+      "details": "Ranged attack intent ribbons should use projected board-space forward and cross dimensions so their slim 3D shaft and triangular head keep isometric perspective from every attack direction. Begin slightly inside the attack-facing edge of the effective source tile (including a planned move destination), place the shaft on the source scene layer and the head on the target scene layer for foreground occlusion, let the tip contact the target silhouette, and use a muted dark-red attack material.",
+      "status": "active",
+      "created_at": "2026-08-18T16:13:47Z",
+      "updated_at": "2026-08-18T16:13:47Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/upgrade-enemy-move-and-ranged-intent-previews",
+        "commit": "18b89f6"
       }
     }
   ]
