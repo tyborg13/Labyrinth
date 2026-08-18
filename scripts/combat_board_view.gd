@@ -7181,7 +7181,7 @@ func _enemy_threat_ranged_effect(threat: Dictionary) -> Dictionary:
 		"from": from_tile,
 		"to": to_tile,
 		"preview": true,
-		"element": str(action.get("element", ElementData.NONE))
+		"element": str(threat.get("projected_attack_element", action.get("element", ElementData.NONE)))
 	}
 
 func _ranged_target_preview_geometry(effect: Dictionary, from_point: Vector2, to_point: Vector2) -> Dictionary:

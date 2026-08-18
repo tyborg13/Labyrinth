@@ -1,5 +1,5 @@
 {
-  "min_images": 6,
+  "min_images": 8,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -34,6 +34,18 @@
     },
     {
       "pattern": "*06_reduced_motion_static_echo.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*07_redirected_trap_target.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*08_enemy_element_preview.png",
       "width": 1920,
       "height": 1080,
       "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]

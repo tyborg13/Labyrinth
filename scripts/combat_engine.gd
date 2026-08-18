@@ -2056,6 +2056,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	var intent: Dictionary = enemy.get("intent", {})
 	if intent.is_empty():
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
+	var enemy_definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
 	var frozen: bool = int(enemy.get("freeze", 0)) > 0
 	var shocked: bool = int(enemy.get("shock", 0)) > 0
 	var immobilized: bool = bool(enemy.get("immobilize", false))
@@ -2097,8 +2098,9 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		"projected_attack": _vector2i_values(plan.get("projected_attack", [])),
 		"projected_target_key": str(plan.get("target_key", "")),
 		"projected_attack_action": (plan.get("attack_action", {}) as Dictionary).duplicate(true),
+		"projected_attack_element": str((plan.get("attack_action", {}) as Dictionary).get("element", enemy_definition.get("element", ElementData.NONE))),
 		"projected_attack_from": plan.get("destination", enemy.get("pos", Vector2i.ZERO)),
-		"projected_attack_target": plan.get("target_tile", INVALID_TILE)
+		"projected_attack_target": plan.get("projected_attack_target", INVALID_TILE)
 	}
 
 func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
@@ -7910,6 +7912,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		if trap_index < 0 and not target_reachable:
 			terrain_index = _planned_blocking_terrain_index(preview_state, preview_enemy, planning_attack, future_route)
 	var projected_attack_tiles: Array[Vector2i] = _vector2i_values([])
+	var projected_attack_target: Vector2i = INVALID_TILE
 	if attack_index >= 0 and not attack_disabled and attack_resolvable:
 		projected_attack_tiles = _enemy_projected_attack_tiles(
 			preview_state,
@@ -7919,6 +7922,13 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 			terrain_index,
 			trap_index
 		)
+		if trap_index >= 0:
+			projected_attack_target = trap_tile
+		elif terrain_index >= 0:
+			var blocking_terrain: Dictionary = _normalized_terrain((preview_state.get("terrain", []) as Array)[terrain_index])
+			projected_attack_target = blocking_terrain.get("pos", INVALID_TILE)
+		elif target_reachable:
+			projected_attack_target = target.get("pos", INVALID_TILE)
 	elif pattern_attack_index >= 0 and not attack_disabled:
 		var pattern_action: Dictionary = actions[pattern_attack_index]
 		if str(pattern_action.get("type", "")) == "lightning_strikes":
@@ -7948,6 +7958,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"blocking_terrain_index": terrain_index,
 		"trap_attack_index": trap_index,
 		"trap_attack_tile": trap_tile,
+		"projected_attack_target": projected_attack_target,
 		"projected_attack": projected_attack_tiles
 	}
 

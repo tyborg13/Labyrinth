@@ -8,6 +8,8 @@ static func run(expect: Callable) -> void:
 	_test_stationary_ranged_preview_has_no_move_echo(expect)
 	_test_move_then_ranged_preview_uses_destination_origin(expect)
 	_test_ranged_preview_uses_slim_distressed_ribbon_geometry(expect)
+	_test_redirected_ranged_previews_use_resolved_aim_tile(expect)
+	_test_ranged_preview_inherits_enemy_element(expect)
 	_test_intent_state_tracks_hover_later_action_and_cancel(expect)
 
 static func _test_stationary_ranged_preview_has_no_move_echo(expect: Callable) -> void:
@@ -118,6 +120,81 @@ static func _test_ranged_preview_uses_slim_distressed_ribbon_geometry(expect: Ca
 	expect.call(damage_counts == ((repeated.get("crumble_geometry", {}) as Dictionary).get("damage_counts", {}) as Dictionary), "Ranged preview crumble should be stable across redraws")
 	board.free()
 
+static func _test_redirected_ranged_previews_use_resolved_aim_tile(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var trap_state: Dictionary = _state(
+		combat,
+		Vector2i(2, 4),
+		Vector2i(5, 4),
+		_open_grid(),
+		_stationary_ranged_intent()
+	)
+	trap_state["traps"] = [{
+		"id": "preview_trap",
+		"pos": Vector2i(3, 4),
+		"element": "fire",
+		"base_damage": 8,
+		"damage": 8
+	}]
+	var trap_threat: Dictionary = combat.enemy_threat_tiles(trap_state, 0)
+	expect.call(trap_threat.get("projected_attack_target", Vector2i.ZERO) == Vector2i(3, 4), "A ranged preview redirected through a stronger trap should aim at the trap rather than through it at the actor")
+	var board := CombatBoardView.new()
+	var trap_effect: Dictionary = board.call("_enemy_threat_ranged_effect", trap_threat)
+	expect.call(trap_effect.get("to", Vector2i.ZERO) == Vector2i(3, 4), "The rendered ranged ribbon should terminate on its planned trap detonation")
+
+	var terrain_state: Dictionary = _state(
+		combat,
+		Vector2i(5, 4),
+		Vector2i(2, 4),
+		_corridor_grid(),
+		{
+			"name": "Break the Lane",
+			"actions": [{"type": "ranged", "damage": 3, "range": 1}]
+		}
+	)
+	terrain_state["terrain"] = [{
+		"id": "preview_crate",
+		"kind": "wooden_crate",
+		"pos": Vector2i(3, 4),
+		"hp": 3,
+		"max_hp": 3
+	}]
+	var terrain_threat: Dictionary = combat.enemy_threat_tiles(terrain_state, 0)
+	expect.call(terrain_threat.get("projected_attack_target", Vector2i.ZERO) == Vector2i(3, 4), "A ranged preview blocked from its actor target should aim at the terrain it will actually attack")
+	var terrain_effect: Dictionary = board.call("_enemy_threat_ranged_effect", terrain_threat)
+	expect.call(terrain_effect.get("to", Vector2i.ZERO) == Vector2i(3, 4), "The rendered ranged ribbon should terminate on its planned blocking-terrain strike")
+	board.free()
+
+static func _test_ranged_preview_inherits_enemy_element(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _state(
+		combat,
+		Vector2i(2, 4),
+		Vector2i(5, 4),
+		_open_grid(),
+		{
+			"id": "static_lash",
+			"name": "Static Lash",
+			"actions": [
+				{"type": "move_toward", "range": 3},
+				{"type": "ranged", "damage": 3, "range": 3, "shock": 1},
+				{"type": "intensity", "element": "lightning", "amount": 1}
+			]
+		}
+	)
+	var enemies: Array = state.get("enemies", [])
+	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+	enemy["type"] = "lightning_wisp"
+	enemy["name"] = "Lightning Wisp"
+	enemies[0] = enemy
+	state["enemies"] = enemies
+	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
+	expect.call(str(threat.get("projected_attack_element", "")) == "lightning", "Ranged preview payloads should inherit an enemy's element when the action omits one")
+	var board := CombatBoardView.new()
+	var effect: Dictionary = board.call("_enemy_threat_ranged_effect", threat)
+	expect.call(str(effect.get("element", "")) == "lightning", "The rendered ranged ribbon should use the same enemy-element fallback as attack execution")
+	board.free()
+
 static func _test_intent_state_tracks_hover_later_action_and_cancel(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var committed_state: Dictionary = _state(
@@ -218,6 +295,15 @@ static func _open_grid() -> Array:
 		var row: Array[String]
 		for x: int in range(8):
 			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "stone")
+		grid.append(row)
+	return grid
+
+static func _corridor_grid() -> Array:
+	var grid: Array = []
+	for y: int in range(8):
+		var row: Array[String]
+		for x: int in range(8):
+			row.append("stone" if y == 4 and x > 0 and x < 7 else "wall")
 		grid.append(row)
 	return grid
 

@@ -146,6 +146,59 @@ func _capture_intent_preview_states() -> void:
 		_expect(not bool(reduced_board.call("_unit_idle_animation_active", unit_var as Dictionary)), "Reduced motion should stop destination-echo idle-sheet animation")
 	await _save_root_screenshot("%s/06_reduced_motion_static_echo.png" % OUTPUT_DIR)
 
+	var normal_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	normal_settings["reduced_motion"] = false
+	instance.set("_settings", normal_settings)
+	var trap_layout: Dictionary = _layout("Redirected Trap Preview", _open_grid())
+	var trap_state: Dictionary = _combat_state(
+		combat,
+		trap_layout,
+		Vector2i(2, 4),
+		Vector2i(5, 4),
+		_stationary_ranged_intent()
+	)
+	trap_state["traps"] = [{
+		"id": "preview_trap",
+		"pos": Vector2i(3, 4),
+		"element": "fire",
+		"base_damage": 8,
+		"damage": 8
+	}]
+	await _install_state(instance, trap_layout, trap_state)
+	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
+	await _settle_ui()
+	var trap_threat: Dictionary = _first_threat(instance)
+	var trap_board: Control = instance.get_node(BOARD_PATH) as Control
+	var trap_effect: Dictionary = trap_board.call("_enemy_threat_ranged_effect", trap_threat)
+	_expect(trap_effect.get("to", INVALID_TILE) == Vector2i(3, 4), "Redirected ranged proof should terminate its ribbon on the planned trap")
+	await _save_root_screenshot("%s/07_redirected_trap_target.png" % OUTPUT_DIR)
+
+	var lightning_layout: Dictionary = _layout("Elemental Ranged Preview", _open_grid())
+	var lightning_state: Dictionary = _combat_state(
+		combat,
+		lightning_layout,
+		Vector2i(2, 4),
+		Vector2i(5, 4),
+		{
+			"id": "static_lash",
+			"name": "Static Lash",
+			"actions": [
+				{"type": "move_toward", "range": 3},
+				{"type": "ranged", "damage": 3, "range": 3, "shock": 1},
+				{"type": "intensity", "element": "lightning", "amount": 1}
+			]
+		},
+		"lightning_wisp"
+	)
+	await _install_state(instance, lightning_layout, lightning_state)
+	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
+	await _settle_ui()
+	var lightning_threat: Dictionary = _first_threat(instance)
+	var lightning_board: Control = instance.get_node(BOARD_PATH) as Control
+	var lightning_effect: Dictionary = lightning_board.call("_enemy_threat_ranged_effect", lightning_threat)
+	_expect(str(lightning_effect.get("element", "")) == "lightning", "Elemental ranged proof should inherit the Lightning Wisp's element")
+	await _save_root_screenshot("%s/08_enemy_element_preview.png" % OUTPUT_DIR)
+
 	instance.queue_free()
 	await process_frame
 
@@ -223,7 +276,14 @@ func _install_state(instance: Node, layout: Dictionary, combat_state: Dictionary
 	instance.call("_refresh_ui")
 	await _settle_ui()
 
-func _combat_state(combat: CombatEngine, layout: Dictionary, player_pos: Vector2i, enemy_pos: Vector2i, intent: Dictionary) -> Dictionary:
+func _combat_state(
+	combat: CombatEngine,
+	layout: Dictionary,
+	player_pos: Vector2i,
+	enemy_pos: Vector2i,
+	intent: Dictionary,
+	enemy_type: String = "harrier"
+) -> Dictionary:
 	var state: Dictionary = combat.create_combat(41027, layout, {
 		"hp": 24,
 		"max_hp": 24,
@@ -235,8 +295,8 @@ func _combat_state(combat: CombatEngine, layout: Dictionary, player_pos: Vector2
 	state["player"] = {"pos": player_pos, "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
 	state["enemies"] = [{
 		"id": 1,
-		"type": "harrier",
-		"name": "Preview Harrier",
+		"type": enemy_type,
+		"name": "Lightning Wisp" if enemy_type == "lightning_wisp" else "Preview Harrier",
 		"pos": enemy_pos,
 		"hp": 14,
 		"max_hp": 14,
