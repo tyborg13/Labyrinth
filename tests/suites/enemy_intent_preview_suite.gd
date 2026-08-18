@@ -134,9 +134,17 @@ static func _test_ranged_preview_uses_slim_distressed_ribbon_geometry(expect: Ca
 	var arrow_polygon: PackedVector2Array = arrow_geometry.get("polygon", PackedVector2Array())
 	if arrow_polygon.size() == 3:
 		var head_direction: Vector2 = arrow_geometry.get("direction", Vector2.ZERO)
+		var stabilized_cross: Vector2 = arrow_geometry.get("stabilized_cross_direction", Vector2.ZERO)
+		var terminal_curve_direction: Vector2 = (
+			curve_points[curve_points.size() - 1]
+			- curve_points[curve_points.size() - 2]
+		).normalized()
 		var shoulder_direction: Vector2 = (arrow_polygon[1] - arrow_polygon[2]).normalized()
-		expect.call(head_direction.is_equal_approx(board_direction.normalized()), "Ranged arrowhead tips should follow the projected board direction instead of the falling screen-space arc tangent")
-		expect.call(absf(shoulder_direction.dot(expected_cross.normalized())) > 0.999, "Ranged arrowhead shoulders should turn into board perspective instead of facing the camera")
+		expect.call(head_direction.dot(terminal_curve_direction) > 0.999, "Ranged arrowhead tips should continue the descending aerial tangent instead of breaking onto the floor plane")
+		expect.call(head_direction.dot(board_direction.normalized()) < 0.96, "Ranged arrowhead tips should remain visibly pitched out of the board plane at target contact")
+		expect.call(absf(shoulder_direction.dot(stabilized_cross.normalized())) > 0.999, "Ranged arrowhead shoulders should use the stabilized aerial cross-axis")
+		expect.call(stabilized_cross.dot(expected_cross) > 0.0, "Ranged arrowhead shoulder stabilization should preserve the underlying isometric board-facing orientation")
+		expect.call(absf(stabilized_cross.normalized().dot(head_direction)) < 0.28, "Ranged arrowhead shoulders should clamp projection shear before the triangle collapses or warps")
 
 	var source_anchor: Vector2 = board.call("_ranged_preview_source_anchor", effect)
 	var target_anchor: Vector2 = board.call("_ranged_preview_target_anchor", effect)
@@ -152,9 +160,12 @@ static func _test_ranged_preview_uses_slim_distressed_ribbon_geometry(expect: Ca
 	var anchored_geometry: Dictionary = board.call("_ranged_target_preview_geometry", effect, source_anchor, target_anchor)
 	var anchored_arrow: Dictionary = anchored_geometry.get("arrow_geometry", {}) as Dictionary
 	var anchored_polygon: PackedVector2Array = anchored_arrow.get("polygon", PackedVector2Array())
-	var target_lift: float = float(constants.get("RANGED_PREVIEW_TARGET_LIFT_TILE_HEIGHT_RATIO", 0.0))
-	var lifted_target_center: Vector2 = target_center + Vector2(0.0, -float(board.call("_tile_height")) * target_lift)
-	expect.call(anchored_polygon.size() == 3 and anchored_polygon[0].distance_to(lifted_target_center) < float(board.call("_tile_width")) * 0.12, "Ranged preview points should contact the target silhouette without stopping at the full tile edge")
+	var target_actor: Dictionary = board.call("_ranged_preview_target_actor", effect.get("to", Vector2i.ZERO))
+	var actor_contact: Vector2 = board.call("_ranged_preview_actor_contact_point", effect, target_actor)
+	var target_actor_rect: Rect2 = board.call("_unit_draw_rect", target_actor)
+	expect.call(not target_actor.is_empty() and target_anchor.is_equal_approx(actor_contact), "Ranged preview targets should resolve to the source-facing edge of the rendered character rather than the floor in front of it")
+	expect.call(target_anchor.y < target_actor_rect.end.y - target_actor_rect.size.y * 0.18, "Ranged preview target contact should sit visibly within the character body instead of at its feet")
+	expect.call(anchored_polygon.size() == 3 and anchored_polygon[0].distance_to(target_anchor) < 0.01, "Ranged preview arrowhead tips should reach the resolved character contact point")
 	expect.call(board.call("_ranged_preview_depth_tile", effect) == effect.get("to", Vector2i.ZERO), "Complete ranged arrows should share the target scene layer so the target and later foreground board objects occlude one continuous silhouette")
 	var attack_color: Color = board.call("_ranged_preview_attack_color", effect)
 	expect.call(attack_color.r > attack_color.g * 1.35 and attack_color.r > attack_color.b * 1.35, "Ranged preview material should read as a muted dark-red attack warning rather than a tan route")

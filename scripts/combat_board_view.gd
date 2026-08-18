@@ -56,15 +56,18 @@ const MOVE_PATH_CRUMBLE_SPALL_SIZE_RATIO: float = 0.18
 const MOVE_PATH_CRACK_DARK_WIDTH_RATIO: float = 0.044
 const MOVE_PATH_CRACK_LIGHT_WIDTH_RATIO: float = 0.018
 const RANGED_PREVIEW_SHAFT_TILE_HEIGHT_RATIO: float = 0.155
-const RANGED_PREVIEW_HEAD_WORLD_HALF_WIDTH_TILE_RATIO: float = 0.34
-const RANGED_PREVIEW_HEAD_TIP_REACH_WORLD_TILE_RATIO: float = 0.08
-const RANGED_PREVIEW_HEAD_TAIL_REACH_WORLD_TILE_RATIO: float = 0.46
+const RANGED_PREVIEW_HEAD_WORLD_HALF_WIDTH_TILE_RATIO: float = 0.22
+const RANGED_PREVIEW_HEAD_TANGENT_LENGTH_TILE_WIDTH_RATIO: float = 0.24
+const RANGED_PREVIEW_SHAFT_HEAD_OVERLAP_RATIO: float = 0.48
 const RANGED_PREVIEW_SHADOW_OFFSET_TILE_RATIO: float = 0.024
 const RANGED_PREVIEW_ARC_HEIGHT_SCALE: float = 1.35
 const RANGED_PREVIEW_SOURCE_EDGE_INSET_RATIO: float = 0.16
 const RANGED_PREVIEW_TARGET_STANDOFF_WORLD_TILE_RATIO: float = 0.08
 const RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO: float = 0.16
-const RANGED_PREVIEW_TARGET_LIFT_TILE_HEIGHT_RATIO: float = -0.36
+const RANGED_PREVIEW_NON_ACTOR_TARGET_LIFT_TILE_HEIGHT_RATIO: float = 0.18
+const RANGED_PREVIEW_ACTOR_CONTACT_HALF_WIDTH_RATIO: float = 0.24
+const RANGED_PREVIEW_ACTOR_CONTACT_CENTER_Y_RATIO: float = 0.56
+const RANGED_PREVIEW_ACTOR_CONTACT_HALF_HEIGHT_RATIO: float = 0.20
 const RANGED_PREVIEW_ATTACK_COLOR: Color = Color("88443f")
 const RANGED_PREVIEW_ELEMENT_TINT_RATIO: float = 0.10
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
@@ -2281,6 +2284,7 @@ func _draw_scene_tile_render_layer() -> void:
 	_draw_scene_props_for_tile(_render_layer_tile, obstruction_entries)
 	_draw_tile_props(grid, _render_layer_tile, obstruction_entries)
 	_draw_unit_bodies_for_tile(_render_layer_tile, units_to_draw)
+	_draw_enemy_threat_head_overlay_depth_pass(_render_layer_tile)
 	_draw_elemental_scene_depth_pass(_render_layer_tile, true)
 	_record_render_section_time("scene_tiles", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
@@ -3760,6 +3764,7 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 		_draw_scene_props_for_tile(tile, obstruction_entries)
 		_draw_tile_props(grid, tile, obstruction_entries)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
+		_draw_enemy_threat_head_overlay_depth_pass(tile)
 
 func _board_tile_is_visible_to_player(tile: Vector2i) -> bool:
 	var visible_tiles: Variant = presentation.get("umbra_visible_tiles", null)
@@ -7157,7 +7162,7 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 
 func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2) -> Array[Vector2]:
 	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO)
-	var end: Vector2 = to_point + Vector2(0.0, -_tile_height() * RANGED_PREVIEW_TARGET_LIFT_TILE_HEIGHT_RATIO)
+	var end: Vector2 = to_point
 	var midpoint: Vector2 = (start + end) * 0.5
 	var base_control: Vector2 = _arc_control_point(start, end)
 	var base_arc_height: float = maxf(1.0, midpoint.y - base_control.y)
@@ -7188,6 +7193,20 @@ func _draw_enemy_threat_depth_pass(tile: Vector2i) -> void:
 func _ranged_preview_depth_tile(effect: Dictionary) -> Vector2i:
 	return effect.get("to", Vector2i(-1, -1))
 
+func _draw_enemy_threat_head_overlay_depth_pass(tile: Vector2i) -> void:
+	for threat_var: Variant in presentation.get("enemy_threat_previews", []):
+		if typeof(threat_var) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = _enemy_threat_ranged_effect(threat_var as Dictionary)
+		if effect.is_empty() or _ranged_preview_depth_tile(effect) != tile:
+			continue
+		var geometry: Dictionary = _ranged_target_preview_geometry(
+			effect,
+			_ranged_preview_source_anchor(effect),
+			_ranged_preview_target_anchor(effect)
+		)
+		_draw_ranged_target_preview_head_overlay(effect, geometry)
+
 func _ranged_preview_source_anchor(effect: Dictionary) -> Vector2:
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
@@ -7205,14 +7224,55 @@ func _ranged_preview_source_anchor(effect: Dictionary) -> Vector2:
 func _ranged_preview_target_anchor(effect: Dictionary) -> Vector2:
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
 	var world_direction: Vector2 = _ranged_preview_world_direction(effect)
-	if to_tile.x < 0 or world_direction.length_squared() <= 0.0:
+	if to_tile.x < 0:
+		return Vector2.ZERO
+	var actor: Dictionary = _ranged_preview_target_actor(to_tile)
+	if not actor.is_empty():
+		return _ranged_preview_actor_contact_point(effect, actor)
+	if world_direction.length_squared() <= 0.0:
 		return _tile_center(to_tile) if to_tile.x >= 0 else Vector2.ZERO
 	return (
 		_tile_center(to_tile)
 		- _ranged_preview_projected_board_vector(
 			world_direction * RANGED_PREVIEW_TARGET_STANDOFF_WORLD_TILE_RATIO
 		)
+		+ Vector2(0.0, -_tile_height() * RANGED_PREVIEW_NON_ACTOR_TARGET_LIFT_TILE_HEIGHT_RATIO)
 	)
+
+func _ranged_preview_target_actor(target_tile: Vector2i) -> Dictionary:
+	for preferred_role: String in ["illusion_preview", "illusion", "player", "enemy"]:
+		for unit: Dictionary in _visible_units():
+			if (
+				str(unit.get("role", "")) == preferred_role
+				and _unit_footprint_tiles(unit).has(target_tile)
+			):
+				return unit
+	return {}
+
+func _ranged_preview_actor_contact_point(effect: Dictionary, actor: Dictionary) -> Vector2:
+	var actor_rect: Rect2 = _unit_draw_rect(actor)
+	var actor_center := Vector2(
+		actor_rect.get_center().x,
+		lerpf(actor_rect.position.y, actor_rect.end.y, RANGED_PREVIEW_ACTOR_CONTACT_CENTER_Y_RATIO)
+	)
+	var half_extents := Vector2(
+		actor_rect.size.x * RANGED_PREVIEW_ACTOR_CONTACT_HALF_WIDTH_RATIO,
+		actor_rect.size.y * RANGED_PREVIEW_ACTOR_CONTACT_HALF_HEIGHT_RATIO
+	)
+	var visual_source: Vector2 = (
+		_ranged_preview_source_anchor(effect)
+		+ Vector2(0.0, -_tile_height() * RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO)
+	)
+	var toward_source: Vector2 = visual_source - actor_center
+	if toward_source.length_squared() <= 0.0 or half_extents.x <= 0.0 or half_extents.y <= 0.0:
+		return actor_center
+	var x_scale: float = half_extents.x / absf(toward_source.x) if absf(toward_source.x) > 0.001 else INF
+	var y_scale: float = half_extents.y / absf(toward_source.y) if absf(toward_source.y) > 0.001 else INF
+	# Contact the source-facing edge of a torso-sized box within the art rect.
+	# Aiming at the art center buries the entire head behind the target; aiming at
+	# the tile edge lays it on the floor. This preserves a visible airborne head
+	# whose point still visibly meets the character silhouette.
+	return actor_center + toward_source * minf(x_scale, y_scale)
 
 func _ranged_preview_world_direction(effect: Dictionary) -> Vector2:
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
@@ -7286,10 +7346,22 @@ func _ranged_target_preview_geometry(effect: Dictionary, from_point: Vector2, to
 	if head_polygon.size() != 3:
 		return {}
 	var shaft_points: PackedVector2Array = path_points.duplicate()
-	# The sampled curve ends inside the triangle, giving the narrow shaft a real
-	# overlap area. Replacing that point with the head base creates an invalid
-	# last turn for steep approach angles and makes Geometry2D return two bodies.
-	board_cross_direction = arrow_geometry.get("board_cross_direction", board_cross_direction)
+	var head_tip: Vector2 = arrow_geometry.get("tip", path_points[path_points.size() - 1])
+	var head_tail: Vector2 = arrow_geometry.get("tail_center", path_points[path_points.size() - 2])
+	var head_direction: Vector2 = arrow_geometry.get("direction", Vector2.ZERO)
+	# End the rounded shaft inside the head rather than at its point. This keeps
+	# the terminal curve tangent intact, gives the union a broad overlap at the
+	# neck, and leaves the target-facing point sharp instead of round-capped.
+	var desired_overlap_back: float = (
+		head_tip.distance_to(head_tail)
+		* (1.0 - RANGED_PREVIEW_SHAFT_HEAD_OVERLAP_RATIO)
+	)
+	var final_segment_length: float = head_tip.distance_to(path_points[path_points.size() - 2])
+	var overlap_back: float = minf(desired_overlap_back, final_segment_length * 0.72)
+	shaft_points[shaft_points.size() - 1] = (
+		head_tip
+		- head_direction * overlap_back
+	)
 	var shaft_polygon: PackedVector2Array = _ranged_preview_shaft_polygon(
 		shaft_points,
 		shaft_width
@@ -7325,6 +7397,14 @@ func _ranged_target_preview_geometry(effect: Dictionary, from_point: Vector2, to
 	)
 	if body_polygons.is_empty():
 		body_polygons.append(unified_arrow)
+	var head_path := PackedVector2Array([head_tail, head_tip])
+	var head_crumble_geometry: Dictionary = _path_crumble_geometry(
+		seed_tiles,
+		head_path,
+		head_polygon,
+		shaft_width,
+		false
+	)
 	return {
 		"curve_points": path_points,
 		"shaft_width": shaft_width,
@@ -7334,26 +7414,47 @@ func _ranged_target_preview_geometry(effect: Dictionary, from_point: Vector2, to
 		"arrow_geometry": arrow_geometry,
 		"unified_arrow": unified_arrow,
 		"body_polygons": body_polygons,
-		"crumble_geometry": crumble_geometry
+		"crumble_geometry": crumble_geometry,
+		"head_crumble_geometry": head_crumble_geometry
 	}
 
 func _ranged_preview_arrow_geometry(
 	from_point: Vector2,
 	to_point: Vector2,
 	tile_width: float,
-	board_direction: Vector2 = Vector2.ZERO,
+	_board_direction: Vector2 = Vector2.ZERO,
 	board_cross_direction: Vector2 = Vector2.ZERO
 ) -> Dictionary:
 	var curve_direction: Vector2 = (to_point - from_point).normalized()
 	if curve_direction.length_squared() <= 0.0:
 		return {}
-	var projected_direction: Vector2 = board_direction if board_direction.length_squared() > 0.0 else curve_direction * tile_width * 0.5
-	var projected_cross: Vector2 = board_cross_direction if board_cross_direction.length_squared() > 0.0 else _path_board_cross_direction(projected_direction) * tile_width * 0.5
-	# Keep both axes of the head in the isometric board basis. Mixing the steep
-	# falling curve tangent with a board-projected shoulder can collapse the head
-	# into a near-line for common attack directions.
-	var tip: Vector2 = to_point + projected_direction * RANGED_PREVIEW_HEAD_TIP_REACH_WORLD_TILE_RATIO
-	var tail_center: Vector2 = to_point - projected_direction * RANGED_PREVIEW_HEAD_TAIL_REACH_WORLD_TILE_RATIO
+	var raw_projected_cross: Vector2 = board_cross_direction if board_cross_direction.length_squared() > 0.0 else _path_board_cross_direction(curve_direction) * tile_width * 0.5
+	var curve_normal := Vector2(-curve_direction.y, curve_direction.x)
+	if curve_normal.dot(raw_projected_cross) < 0.0:
+		curve_normal = -curve_normal
+	var perpendicular_extent: float = clampf(
+		absf(raw_projected_cross.dot(curve_normal)),
+		tile_width * 0.32,
+		tile_width * 0.60
+	)
+	var parallel_extent: float = clampf(
+		raw_projected_cross.dot(curve_direction) * 0.16,
+		-tile_width * 0.08,
+		tile_width * 0.08
+	)
+	var projected_cross: Vector2 = (
+		curve_normal * perpendicular_extent
+		+ curve_direction * parallel_extent
+	)
+	# The head lives in the aerial ribbon's terminal plane: its length follows the
+	# descending curve tangent while its shoulders retain the projected board
+	# cross-axis. Using board-forward for both axes lays the head flat on the floor
+	# and visibly breaks it away from the shaft at ordinary isometric angles.
+	var tip: Vector2 = to_point
+	var tail_center: Vector2 = (
+		tip
+		- curve_direction * tile_width * RANGED_PREVIEW_HEAD_TANGENT_LENGTH_TILE_WIDTH_RATIO
+	)
 	var shoulder_offset: Vector2 = projected_cross * RANGED_PREVIEW_HEAD_WORLD_HALF_WIDTH_TILE_RATIO
 	return {
 		"polygon": PackedVector2Array([
@@ -7361,10 +7462,12 @@ func _ranged_preview_arrow_geometry(
 			tail_center + shoulder_offset,
 			tail_center - shoulder_offset
 		]),
+		"tip": tip,
 		"tail_center": tail_center,
-		"direction": projected_direction.normalized(),
+		"direction": curve_direction,
 		"normal": projected_cross.normalized(),
-		"board_cross_direction": projected_cross
+		"board_cross_direction": raw_projected_cross,
+		"stabilized_cross_direction": projected_cross
 	}
 
 func _ranged_preview_shaft_polygon(
@@ -7389,6 +7492,18 @@ func _draw_ranged_target_preview_curve(effect: Dictionary, from_point: Vector2, 
 	var body_polygons: Array[PackedVector2Array] = _path_polygon_array(geometry.get("body_polygons", []))
 	var crumble_geometry: Dictionary = geometry.get("crumble_geometry", {}) as Dictionary
 	_draw_ranged_preview_material(effect, body_polygons, crumble_geometry, shaft_width)
+
+func _draw_ranged_target_preview_head_overlay(effect: Dictionary, geometry: Dictionary) -> void:
+	if geometry.is_empty():
+		return
+	var arrow_geometry: Dictionary = geometry.get("arrow_geometry", {}) as Dictionary
+	var head_polygon: PackedVector2Array = arrow_geometry.get("polygon", PackedVector2Array())
+	var shaft_width: float = float(geometry.get("shaft_width", 0.0))
+	if head_polygon.size() != 3 or shaft_width <= 0.0:
+		return
+	var head_polygons: Array[PackedVector2Array] = _path_polygon_array([head_polygon])
+	var head_crumble_geometry: Dictionary = geometry.get("head_crumble_geometry", {}) as Dictionary
+	_draw_ranged_preview_material(effect, head_polygons, head_crumble_geometry, shaft_width)
 
 func _draw_ranged_preview_material(
 	effect: Dictionary,

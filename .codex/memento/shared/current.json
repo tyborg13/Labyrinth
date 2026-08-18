@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-18T16:49:45Z",
+  "updated_at": "2026-08-18T17:14:18Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8394,7 +8394,7 @@
       }
     },
     {
-      "id": "mnt_20260818T164945Z_93df54fb",
+      "id": "mnt_20260818T171418Z_f7095942",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -8403,18 +8403,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Keep ranged intent previews as one validated filled arrow body",
-      "details": "Build the aerial shaft with a rounded polyline offset, overlap and union it with one board-projected triangular head, and reject geometry unless the union is exactly one body. Draw the complete arrow on the target scene layer so foreground actors and props occlude it naturally; begin slightly inside the attack-facing edge of the effective source tile (including a planned move destination), end at the target silhouette's foreground lip, preserve a muted dark-red 3D material, and use surface spalls and cracks without boundary subtraction that can sever the thin ribbon.",
+      "summary": "Ranged intent heads follow aerial tangent and composite over target actors",
+      "details": "Keep the unified ribbon body on the target scene depth so later foreground board objects still occlude it. Aim actor targets at the source-facing boundary of a torso-sized box inside the rendered character, orient head length to the terminal descending curve tangent, stabilize the projected board-cross shoulders with bounded shear, and redraw that exact filled head after the target sprite so it remains attached and visible over the character. Do not use a hollow/detached overlay or aim actor attacks at the floor; non-actor trap and terrain targets retain a lifted board-contact fallback.",
       "status": "active",
-      "created_at": "2026-08-18T16:49:45Z",
-      "updated_at": "2026-08-18T16:49:45Z",
+      "created_at": "2026-08-18T17:14:18Z",
+      "updated_at": "2026-08-18T17:14:18Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260818T161347Z_8f083bb2"
+        "mnt_20260818T164945Z_93df54fb"
       ],
       "source": {
         "branch": "codex/upgrade-enemy-move-and-ranged-intent-previews",
-        "commit": "da7662c"
+        "commit": "9ef16be"
       }
     }
   ]
