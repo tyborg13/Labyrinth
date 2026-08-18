@@ -318,6 +318,8 @@ const UMBRA_RETURN_FADE_SECONDS: float = 0.46
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
 const AMBIENT_PARTICLE_OPACITY: float = 0.68
 const AMBIENT_PARTICLE_SPEED_SCALE: float = 1.0
+const AMBIENT_INTENSITY_TRANSITION_SECONDS: float = 1.5
+const AMBIENT_INTENSITY_EPSILON: float = 0.001
 const COLUMN_TORCH_WIDTH_SCALE: float = 0.30
 const COLUMN_TORCH_FACE_OFFSET_X_SCALE: float = 0.26
 const COLUMN_TORCH_TOP_Y_SCALE: float = 0.27
@@ -509,7 +511,10 @@ var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
 var _ambient_combined_atlas: Texture2D = null
 var _ambient_combined_atlas_regions: Dictionary = {}
 var _ambient_combined_atlas_element_id: String = ""
+var _ambient_combined_atlases_by_element: Dictionary = {}
+var _ambient_combined_atlas_regions_by_element: Dictionary = {}
 var _ambient_batch_mesh: ArrayMesh = null
+var _ambient_batch_meshes: Array[ArrayMesh] = []
 var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
@@ -571,6 +576,12 @@ var _projected_attack_tiles_lookup_cache: Dictionary = {}
 var _projected_destination_tiles_lookup_cache: Dictionary = {}
 var _ability_tiles_lookup_cache: Dictionary = {}
 var _ambient_element_id_cache: String = ElementData.NONE
+var _ambient_display_intensities: Dictionary = {}
+var _ambient_transition_starts: Dictionary = {}
+var _ambient_target_intensities: Dictionary = {}
+var _ambient_intensity_transition_elapsed: float = 0.0
+var _ambient_intensity_transition_active: bool = false
+var _ambient_intensity_room_coord: Vector2i = Vector2i(-999999, -999999)
 var _equipment_pickup_beacon_cache: bool = false
 var _preview_unit_pulse_cache: bool = false
 var _hud_health_rects_cache: Dictionary = {}
@@ -766,7 +777,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
 			"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
 			"_ability_tiles_lookup_cache",
-			"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
+			"_ambient_element_id_cache", "_ambient_display_intensities", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
 			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_hud_health_rects_cache",
 			"_hud_layout_entries_cache"
@@ -794,6 +805,8 @@ func _queue_render_layer_redraw(layer: Control) -> void:
 		return
 	layer.set("_idle_elapsed", _idle_elapsed)
 	layer.set("_hover_tile", _hover_tile)
+	if layer == _ambient_render_layer:
+		layer.set("_ambient_display_intensities", _ambient_display_intensities)
 	layer.queue_redraw()
 
 func render_instrumentation_snapshot() -> Dictionary:
@@ -869,6 +882,7 @@ func reset_render_instrumentation() -> void:
 
 func _process(delta: float) -> void:
 	_process_next_unit_shadow_prewarm()
+	_advance_ambient_intensity_transition(delta)
 	var process_frame: int = Engine.get_process_frames()
 	_last_processed_render_frame = process_frame
 	var explicit_effects_redraw_this_frame: bool = _explicit_effects_redraw_process_frame == process_frame
@@ -1187,6 +1201,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var floor_changed: bool = next_floor_signature != _floor_variant_signature
 	var moss_changed: bool = next_moss_signature != _moss_signature
 	submission_phase_started = _record_submission_performance_phase("signatures", submission_phase_started)
+	if state_changed or not _submission_cache_initialized:
+		_update_ambient_intensity_targets(next_state)
 	_update_umbra_return_transition(combat_state, presentation, next_state, next_presentation, layout_changed)
 	_submission_cache_valid = false
 	# Combat and presentation dictionaries are copy-on-write snapshots owned by
@@ -1301,7 +1317,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if state_changed:
 			retained_sync_fields.append_array([
 				"combat_state", "_terrain_by_tile", "_loot_by_tile", "_traps_by_tile",
-				"_grid_tile_ids_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
+				"_grid_tile_ids_cache", "_ambient_element_id_cache", "_ambient_display_intensities", "_equipment_pickup_beacon_cache",
 				"_visible_units_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
 				"_hud_health_rects_cache", "_hud_layout_entries_cache", "_submission_cache_valid",
 				"_umbra_return_start_by_tile"
@@ -2943,7 +2959,7 @@ func _campfire_atmosphere_seed(source_tile: Vector2i) -> int:
 func _ambient_particles_active() -> bool:
 	if combat_state.is_empty():
 		return false
-	return ElementData.is_elemental(_ambient_element_id())
+	return not _ambient_active_element_ids().is_empty()
 
 func _ambient_element_id() -> String:
 	if _submission_cache_valid:
@@ -2955,25 +2971,91 @@ func _ambient_intensity(element_id: String = "") -> int:
 	var intensities: Dictionary = combat_state.get("elemental_intensity", {}) as Dictionary
 	return maxi(0, int(intensities.get(resolved_element, 0)))
 
-func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
-	var element_id: String = _ambient_element_id()
-	if tiles.is_empty() or not ElementData.is_elemental(element_id):
-		return
-	var particle_count: int = _ambient_particle_count(element_id, tiles.size())
-	if particle_count <= 0:
-		return
-	_prepare_ambient_hash_cache(element_id)
-	_begin_ambient_particle_batch(element_id)
-	var time_seconds: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
-	var room_seed: int = _ambient_room_seed(element_id)
-	for index: int in range(particle_count):
-		var particle_seed: int = room_seed + index * 7919
-		var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
-		var base_point: Vector2 = _tile_center(tiles[tile_index])
-		_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds)
-	_flush_ambient_particle_batch()
+func _ambient_display_intensity(element_id: String) -> float:
+	return maxf(0.0, float(_ambient_display_intensities.get(element_id, 0.0)))
 
-func _ambient_particle_count(element_id: String, tile_count: int, intensity_override: int = -1) -> int:
+func _ambient_active_element_ids() -> PackedStringArray:
+	var active := PackedStringArray()
+	for element_id: String in ElementData.all_elements():
+		var visible_intensity: float = maxf(
+			_ambient_display_intensity(element_id),
+			maxf(0.0, float(_ambient_target_intensities.get(element_id, 0.0)))
+		)
+		if visible_intensity > AMBIENT_INTENSITY_EPSILON:
+			active.append(element_id)
+	return active
+
+func _ambient_intensities_for_state(state: Dictionary) -> Dictionary:
+	var source: Dictionary = state.get("elemental_intensity", {}) as Dictionary
+	var result: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		result[element_id] = maxf(0.0, float(source.get(element_id, 0)))
+	# Lightweight room fixtures and legacy callers may omit the combat resource.
+	# Preserve the gameplay baseline: an elemental room begins at intensity one.
+	if not state.has("elemental_intensity"):
+		var room_element: String = str(state.get("room_element", ElementData.NONE))
+		if ElementData.is_elemental(room_element):
+			result[room_element] = 1.0
+	return result
+
+func _update_ambient_intensity_targets(next_state: Dictionary) -> void:
+	var next_targets: Dictionary = _ambient_intensities_for_state(next_state)
+	var next_room_coord: Vector2i = next_state.get("room_coord", Vector2i(-999999, -999999))
+	var entering_room: bool = _ambient_display_intensities.is_empty() or next_room_coord != _ambient_intensity_room_coord
+	_ambient_intensity_room_coord = next_room_coord
+	if entering_room:
+		_ambient_display_intensities = next_targets.duplicate()
+		_ambient_transition_starts = next_targets.duplicate()
+		_ambient_target_intensities = next_targets
+		_ambient_intensity_transition_elapsed = AMBIENT_INTENSITY_TRANSITION_SECONDS
+		_ambient_intensity_transition_active = false
+		return
+	if next_targets == _ambient_target_intensities:
+		return
+	_ambient_transition_starts = _ambient_display_intensities.duplicate()
+	_ambient_target_intensities = next_targets
+	_ambient_intensity_transition_elapsed = 0.0
+	_ambient_intensity_transition_active = true
+
+func _advance_ambient_intensity_transition(delta: float) -> void:
+	if not _ambient_intensity_transition_active:
+		return
+	_ambient_intensity_transition_elapsed = minf(
+		AMBIENT_INTENSITY_TRANSITION_SECONDS,
+		_ambient_intensity_transition_elapsed + maxf(0.0, delta)
+	)
+	var linear_progress: float = _ambient_intensity_transition_elapsed / AMBIENT_INTENSITY_TRANSITION_SECONDS
+	var eased_progress: float = linear_progress * linear_progress * (3.0 - 2.0 * linear_progress)
+	for element_id: String in ElementData.all_elements():
+		var start_value: float = float(_ambient_transition_starts.get(element_id, 0.0))
+		var target_value: float = float(_ambient_target_intensities.get(element_id, 0.0))
+		_ambient_display_intensities[element_id] = lerpf(start_value, target_value, eased_progress)
+	if linear_progress >= 1.0:
+		_ambient_display_intensities = _ambient_target_intensities.duplicate()
+		_ambient_intensity_transition_active = false
+
+func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
+	if tiles.is_empty():
+		return
+	# Canvas draw commands retain mesh resources until the next redraw. Keep one
+	# mesh alive per elemental pass instead of replacing the sole batch reference.
+	_ambient_batch_meshes.clear()
+	var time_seconds: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
+	for element_id: String in _ambient_active_element_ids():
+		var particle_count: int = _ambient_particle_count(element_id, tiles.size())
+		if particle_count <= 0:
+			continue
+		_prepare_ambient_hash_cache(element_id)
+		_begin_ambient_particle_batch(element_id)
+		var room_seed: int = _ambient_room_seed(element_id)
+		for index: int in range(particle_count):
+			var particle_seed: int = room_seed + index * 7919
+			var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
+			var base_point: Vector2 = _tile_center(tiles[tile_index])
+			_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds)
+		_flush_ambient_particle_batch()
+
+func _ambient_particle_count(element_id: String, tile_count: int, intensity_override: float = -1.0) -> int:
 	var base_count: int = 0
 	match element_id:
 		"fire":
@@ -2987,8 +3069,11 @@ func _ambient_particle_count(element_id: String, tile_count: int, intensity_over
 		"earth":
 			base_count = 88
 	var board_scale: float = clampf(float(tile_count) / 72.0, 0.72, 1.14)
-	var intensity: int = _ambient_intensity(element_id) if intensity_override < 0 else maxi(0, intensity_override)
-	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY * ElementalIntensityRules.ambient_density_scale(intensity))))
+	var intensity: float = _ambient_display_intensity(element_id) if intensity_override < 0.0 else maxf(0.0, intensity_override)
+	# Inactive families are never submitted by _draw_ambient_particles, but the
+	# zero-level count remains useful for density-family comparisons and tooling.
+	var activation: float = 1.0 if intensity <= AMBIENT_INTENSITY_EPSILON else clampf(intensity, 0.0, 1.0)
+	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY * activation * ElementalIntensityRules.ambient_density_scale_continuous(intensity))))
 
 func _ambient_room_seed(element_id: String) -> int:
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
@@ -3047,7 +3132,7 @@ func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, 
 		return
 	var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant_index)
 	var air_soft_texture: Texture2D = null
-	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed) * ElementalIntensityRules.ambient_speed_scale(_ambient_intensity(element_id)))
+	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed) * ElementalIntensityRules.ambient_speed_scale_continuous(_ambient_display_intensity(element_id)))
 	if element_id == "air":
 		var wisp_variant_index: int = _ambient_air_wisp_variant_index(seed)
 		var wisp_texture: Texture2D = _ambient_air_wisp_texture(wisp_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
@@ -3210,7 +3295,9 @@ func _ambient_particle_speed(element_id: String, seed: int) -> float:
 			return 0.10
 
 func _ambient_alpha_for_element(element_id: String, cycle: float) -> float:
-	var intensity_opacity: float = ElementalIntensityRules.ambient_opacity_scale(_ambient_intensity(element_id))
+	var display_intensity: float = _ambient_display_intensity(element_id)
+	var activation: float = clampf(display_intensity, 0.0, 1.0)
+	var intensity_opacity: float = ElementalIntensityRules.ambient_opacity_scale_continuous(display_intensity) * activation
 	if element_id == "lightning":
 		var pulse: float = 1.0 - clampf(absf(cycle - 0.16) / 0.24, 0.0, 1.0)
 		return clampf(pulse * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
@@ -3522,12 +3609,19 @@ func _flush_ambient_particle_batch() -> void:
 	arrays[Mesh.ARRAY_TEX_UV] = _ambient_batch_uvs
 	arrays[Mesh.ARRAY_COLOR] = _ambient_batch_colors
 	arrays[Mesh.ARRAY_INDEX] = _ambient_batch_indices
-	_ambient_batch_mesh = ArrayMesh.new()
-	_ambient_batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	draw_mesh(_ambient_batch_mesh, _ambient_combined_atlas)
+	var batch_mesh := ArrayMesh.new()
+	batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_ambient_batch_mesh = batch_mesh
+	_ambient_batch_meshes.append(batch_mesh)
+	draw_mesh(batch_mesh, _ambient_combined_atlas)
 
 func _ensure_ambient_combined_atlas(element_id: String) -> void:
 	if _ambient_combined_atlas != null and element_id == _ambient_combined_atlas_element_id:
+		return
+	if _ambient_combined_atlases_by_element.has(element_id):
+		_ambient_combined_atlas = _ambient_combined_atlases_by_element.get(element_id, null) as Texture2D
+		_ambient_combined_atlas_regions = (_ambient_combined_atlas_regions_by_element.get(element_id, {}) as Dictionary).duplicate()
+		_ambient_combined_atlas_element_id = element_id
 		return
 	_ambient_combined_atlas = null
 	_ambient_combined_atlas_regions.clear()
@@ -3565,6 +3659,8 @@ func _ensure_ambient_combined_atlas(element_id: String) -> void:
 		_ambient_combined_atlas_regions[source.get_instance_id()] = Rect2i(cursor_x, ATLAS_GAP, source.get_width(), source.get_height())
 		cursor_x += source.get_width() + ATLAS_GAP
 	_ambient_combined_atlas = ImageTexture.create_from_image(image)
+	_ambient_combined_atlases_by_element[element_id] = _ambient_combined_atlas
+	_ambient_combined_atlas_regions_by_element[element_id] = _ambient_combined_atlas_regions.duplicate()
 
 func _append_unique_ambient_atlas_source(sources: Array[Texture2D], source: Texture2D) -> void:
 	if source != null and not sources.has(source):

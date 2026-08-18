@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-18T18:23:40Z",
+  "updated_at": "2026-08-18T22:11:04Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8415,6 +8415,28 @@
       "source": {
         "branch": "codex/upgrade-enemy-move-and-ranged-intent-previews",
         "commit": "9bcbca6"
+      }
+    },
+    {
+      "id": "mnt_20260818T221104Z_ee828938",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Multi-element ambient batches must retain every pass resource",
+      "details": "When one ambient redraw submits multiple elemental particle passes, cache the combined texture atlas per element and keep every pass ArrayMesh referenced through the draw-command lifetime. Reusing one atlas slot rebuilds images every frame; replacing one mesh reference invalidates earlier CanvasItem draw commands so only the final element remains visible.",
+      "status": "active",
+      "created_at": "2026-08-18T22:11:04Z",
+      "updated_at": "2026-08-18T22:11:04Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/smooth-and-combine-room-elemental-particle-effects",
+        "commit": "5cb5d89"
       }
     }
   ]

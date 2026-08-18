@@ -1,0 +1,10 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*ice_room_before_fire_gain.png", "width": 1920, "height": 1080},
+    {"pattern": "*ice_room_fire_5_halfway.png", "width": 1920, "height": 1080},
+    {"pattern": "*ice_room_fire_5_complete.png", "width": 1920, "height": 1080},
+    {"pattern": "*ice_room_all_elements_3.png", "width": 1920, "height": 1080}
+  ]
+}

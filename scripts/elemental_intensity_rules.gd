@@ -39,16 +39,25 @@ static func trap_multiplier(intensity: int) -> float:
 	return float(trap_scale_percent(intensity)) / 100.0
 
 static func ambient_density_scale(intensity: int) -> float:
-	var level: int = clampi(intensity, 0, AMBIENT_SCALE_CAP)
-	return 0.55 + 0.25 * float(level)
+	return ambient_density_scale_continuous(float(intensity))
+
+static func ambient_density_scale_continuous(intensity: float) -> float:
+	var level: float = clampf(intensity, 0.0, float(AMBIENT_SCALE_CAP))
+	return 0.55 + 0.25 * level
 
 static func ambient_opacity_scale(intensity: int) -> float:
-	var level: int = clampi(intensity, 0, AMBIENT_SCALE_CAP)
-	return 0.72 + 0.08 * float(level)
+	return ambient_opacity_scale_continuous(float(intensity))
+
+static func ambient_opacity_scale_continuous(intensity: float) -> float:
+	var level: float = clampf(intensity, 0.0, float(AMBIENT_SCALE_CAP))
+	return 0.72 + 0.08 * level
 
 static func ambient_speed_scale(intensity: int) -> float:
-	var level: int = clampi(intensity, 0, AMBIENT_SCALE_CAP)
-	return 0.84 + 0.055 * float(level)
+	return ambient_speed_scale_continuous(float(intensity))
+
+static func ambient_speed_scale_continuous(intensity: float) -> float:
+	var level: float = clampf(intensity, 0.0, float(AMBIENT_SCALE_CAP))
+	return 0.84 + 0.055 * level
 
 static func threat_band_id(intensity: int) -> String:
 	if intensity <= 0:
