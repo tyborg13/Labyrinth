@@ -219,7 +219,7 @@ func _capture_intent_preview_states() -> void:
 	_expect(bool(occlusion_board.call("_tile_draws_before", Vector2i(5, 2), Vector2i(4, 5))), "Occlusion proof should place its pillar in front of the attacking enemy")
 	await _save_root_screenshot("%s/09_foreground_pillar_occlusion.png" % OUTPUT_DIR)
 
-	var diagonal_layout: Dictionary = _layout("Isometric Arrowhead Perspective", _open_grid())
+	var diagonal_layout: Dictionary = _layout("Thin Arc Isometric Direction", _open_grid())
 	var diagonal_state: Dictionary = _combat_state(
 		combat,
 		diagonal_layout,
@@ -235,15 +235,8 @@ func _capture_intent_preview_states() -> void:
 	var diagonal_effect: Dictionary = diagonal_board.call("_enemy_threat_ranged_effect", diagonal_threat)
 	var diagonal_source: Vector2 = diagonal_board.call("_ranged_preview_source_anchor", diagonal_effect)
 	var diagonal_target: Vector2 = diagonal_board.call("_ranged_preview_target_anchor", diagonal_effect)
-	var diagonal_geometry: Dictionary = diagonal_board.call(
-		"_ranged_target_preview_geometry",
-		diagonal_effect,
-		diagonal_source,
-		diagonal_target
-	)
-	var diagonal_cross: Vector2 = diagonal_geometry.get("board_cross_direction", Vector2.ZERO)
-	_expect(absf(diagonal_cross.x) < 0.01 and absf(diagonal_cross.y) > 0.99, "Diagonal perspective proof should turn the arrowhead shoulder onto the projected board cross-axis")
-	await _save_root_screenshot("%s/10_isometric_arrowhead_perspective.png" % OUTPUT_DIR)
+	_expect(diagonal_source.distance_to(diagonal_target) > 200.0, "Diagonal thin-arc proof should retain a visible source-to-target span")
+	await _save_root_screenshot("%s/10_thin_arc_isometric_direction.png" % OUTPUT_DIR)
 
 	var opposite_axis_layout: Dictionary = _layout("Opposite Isometric Axis", _open_grid())
 	var opposite_axis_state: Dictionary = _combat_state(

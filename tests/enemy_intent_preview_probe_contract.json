@@ -57,7 +57,7 @@
       "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
     },
     {
-      "pattern": "*10_isometric_arrowhead_perspective.png",
+      "pattern": "*10_thin_arc_isometric_direction.png",
       "width": 1920,
       "height": 1080,
       "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
