@@ -2095,7 +2095,10 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		"projected_route": _vector2i_values(plan.get("route", [])),
 		"projected_destination": plan.get("destination", enemy.get("pos", Vector2i.ZERO)),
 		"projected_attack": _vector2i_values(plan.get("projected_attack", [])),
-		"projected_target_key": str(plan.get("target_key", ""))
+		"projected_target_key": str(plan.get("target_key", "")),
+		"projected_attack_action": (plan.get("attack_action", {}) as Dictionary).duplicate(true),
+		"projected_attack_from": plan.get("destination", enemy.get("pos", Vector2i.ZERO)),
+		"projected_attack_target": plan.get("target_tile", INVALID_TILE)
 	}
 
 func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
@@ -7929,6 +7932,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"enemy_key": _enemy_key(enemy),
 		"movement_action_index": movement_index,
 		"attack_action_index": attack_index,
+		"attack_action": attack_action,
 		"target": target,
 		"target_key": str(target.get("key", "")),
 		"target_tile": target.get("pos", INVALID_TILE),

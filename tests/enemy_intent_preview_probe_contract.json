@@ -1,0 +1,42 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*01_stationary_ranged_no_move_stub.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*02_move_echo_then_ranged.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*03_hovered_move_retargets_intent.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*04_later_action_keeps_retarget.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*05_cancel_restores_committed_target.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    },
+    {
+      "pattern": "*06_reduced_motion_static_echo.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [300, 120, 1320, 760], "min_luma_range": 70, "min_luma_stdev": 12}]
+    }
+  ]
+}

@@ -55,6 +55,12 @@ const MOVE_PATH_CRUMBLE_SURFACE_SPACING_RATIO: float = 2.40
 const MOVE_PATH_CRUMBLE_SPALL_SIZE_RATIO: float = 0.18
 const MOVE_PATH_CRACK_DARK_WIDTH_RATIO: float = 0.044
 const MOVE_PATH_CRACK_LIGHT_WIDTH_RATIO: float = 0.018
+const RANGED_PREVIEW_SHAFT_TILE_HEIGHT_RATIO: float = 0.155
+const RANGED_PREVIEW_HEAD_WIDTH_TILE_RATIO: float = 0.205
+const RANGED_PREVIEW_HEAD_TIP_REACH_TILE_RATIO: float = 0.052
+const RANGED_PREVIEW_HEAD_TAIL_REACH_TILE_RATIO: float = 0.125
+const RANGED_PREVIEW_SHADOW_OFFSET_TILE_RATIO: float = 0.024
+const RANGED_PREVIEW_ARC_HEIGHT_SCALE: float = 1.35
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
 const MOVE_RISK_CHIP_HEIGHT: float = 18.0
 const MOVE_RISK_CHIP_GAP: float = 3.0
@@ -943,7 +949,7 @@ func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> vo
 		_queue_impact_scene_redraws()
 	if _preview_unit_pulse_active():
 		for unit: Dictionary in _visible_units():
-			if str(unit.get("role", "")) == "illusion_preview":
+			if _unit_is_preview_echo(unit):
 				_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 
 func _queue_impact_scene_redraws() -> void:
@@ -1020,12 +1026,17 @@ func _impact_animation_active() -> bool:
 	return float(presentation.get("impact_progress", 0.0)) < 1.0
 
 func _preview_unit_pulse_active() -> bool:
+	if bool(presentation.get("reduced_motion", false)):
+		return false
 	if _submission_cache_valid:
 		return _preview_unit_pulse_cache
 	for unit_var: Variant in presentation.get("preview_units", []):
-		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "illusion_preview":
+		if typeof(unit_var) == TYPE_DICTIONARY and _unit_is_preview_echo(unit_var as Dictionary):
 			return true
 	return false
+
+func _unit_is_preview_echo(unit: Dictionary) -> bool:
+	return str(unit.get("role", "")) in ["illusion_preview", "enemy_move_preview"]
 
 func _preview_effect_needs_continuous_redraw(effect: Dictionary) -> bool:
 	if not bool(effect.get("preview", false)):
@@ -1207,7 +1218,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			for attack_tile: Vector2i in _vector2i_array(threat.get("projected_attack", [])):
 				_projected_attack_tiles_lookup_cache[attack_tile] = true
 			var destination: Vector2i = threat.get("projected_destination", Vector2i(-999, -999))
-			if destination.x > -999:
+			if destination.x > -999 and _threat_has_projected_movement(threat):
 				_projected_destination_tiles_lookup_cache[destination] = true
 	if not _navigation_content_signature.is_empty() and next_navigation_content_signature != _navigation_content_signature:
 		_navigation_pan = Vector2.ZERO
@@ -1500,6 +1511,7 @@ func _queue_presentation_change_redraws(
 			"enemy_threat_previews":
 				overlay_changed = true
 				path_changed = true
+				effects_changed = true
 			"effect", "effect_progress":
 				effects_changed = true
 				world_changed = true
@@ -1831,7 +1843,7 @@ func _rebuild_submission_caches() -> bool:
 		_visible_units_cache = _build_visible_units()
 		_preview_unit_pulse_cache = false
 		for unit: Dictionary in _visible_units_cache:
-			if str(unit.get("role", "")) == "illusion_preview":
+			if _unit_is_preview_echo(unit):
 				_preview_unit_pulse_cache = true
 				break
 	# Scene props participate in foreground obstruction even though they do not
@@ -2319,6 +2331,7 @@ func _draw_effects_render_layer() -> void:
 	var section_started_usec: int = total_section_started_usec
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_effect_overlay()
+	_draw_enemy_threat_effect_overlays()
 	_record_render_section_time("effect_overlay", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
 	_draw_lethal_preview_icons(units_to_draw)
@@ -4770,18 +4783,21 @@ func _build_visible_units() -> Array[Dictionary]:
 		if typeof(preview_var) != TYPE_DICTIONARY:
 			continue
 		var preview_unit: Dictionary = preview_var
-		if str(preview_unit.get("role", "")) != "illusion_preview":
+		if not _unit_is_preview_echo(preview_unit):
 			continue
 		var preview_tile: Vector2i = preview_unit.get("pos", Vector2i(-1, -1))
 		if preview_tile.x < 0:
 			continue
+		var preview_role: String = str(preview_unit.get("role", "illusion_preview"))
 		var preview_hp: int = maxi(1, int(preview_unit.get("hp", preview_unit.get("max_hp", 1))))
 		units_to_draw.append({
 			"key": str(preview_unit.get("key", "illusion_preview")),
-			"role": "illusion_preview",
-			"type": "player",
+			"role": preview_role,
+			"id": int(preview_unit.get("id", -1)),
+			"type": str(preview_unit.get("type", "player")),
 			"name": str(preview_unit.get("name", "Illusion preview")),
 			"pos": preview_tile,
+			"footprint": preview_unit.get("footprint", Vector2i.ONE),
 			"hp": preview_hp,
 			"max_hp": maxi(1, int(preview_unit.get("max_hp", preview_hp))),
 			"block": 0,
@@ -4792,6 +4808,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"shock": 0,
 			"immobilize": false,
 			"poison": {},
+			"intent": {},
 			"preview": true
 		})
 	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
@@ -4916,10 +4933,16 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		var body_tint: Color = Color.WHITE
 		var role: String = str(unit.get("role", ""))
 		if role == "illusion_preview":
-			var pulse: float = 0.5 + sin(Time.get_ticks_msec() * 0.008) * 0.5
+			var pulse: float = 0.5 if bool(presentation.get("reduced_motion", false)) else 0.5 + sin(Time.get_ticks_msec() * 0.008) * 0.5
 			var preview_echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -7.0), shifted_rect.size)
 			draw_texture_rect(texture, preview_echo_rect, false, Color(0.38, 0.90, 1.0, 0.08 + 0.04 * pulse))
 			body_tint = Color(0.76, 0.98, 1.0, 0.30 + 0.06 * pulse)
+		elif role == "enemy_move_preview":
+			var enemy_preview_pulse: float = 0.5 if bool(presentation.get("reduced_motion", false)) else 0.5 + sin(Time.get_ticks_msec() * 0.007 + float(int(unit.get("id", 0)))) * 0.5
+			var enemy_preview_echo_rect := Rect2(shifted_rect.position + Vector2(-3.0, -6.0), shifted_rect.size)
+			draw_texture_rect(texture, enemy_preview_echo_rect, false, Color(0.24, 0.10, 0.38, 0.11 + 0.04 * enemy_preview_pulse))
+			draw_texture_rect(texture, Rect2(shifted_rect.position + Vector2(3.0, 1.0), shifted_rect.size), false, Color(0.64, 0.44, 0.92, 0.07 + 0.03 * enemy_preview_pulse))
+			body_tint = Color(0.82, 0.72, 1.0, 0.31 + 0.07 * enemy_preview_pulse)
 		elif role == "illusion":
 			var echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -5.0), shifted_rect.size)
 			draw_texture_rect(texture, echo_rect, false, Color(0.38, 0.90, 1.0, 0.18))
@@ -5021,7 +5044,7 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 		if str(unit.get("role", "")) == "npc":
 			_draw_npc_nameplate(unit, center)
 			continue
-		if str(unit.get("role", "")) == "illusion_preview":
+		if _unit_is_preview_echo(unit):
 			continue
 		if bool(unit.get("boss_bar", false)):
 			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
@@ -5159,7 +5182,7 @@ func _hud_layout_units() -> Array[Dictionary]:
 	# from rerunning the dense enemy collision/layout solver on every hover.
 	var result: Array[Dictionary] = []
 	for unit: Dictionary in _visible_units():
-		if str(unit.get("role", "")) != "illusion_preview":
+		if not _unit_is_preview_echo(unit):
 			result.append(unit)
 	return result
 
@@ -5178,7 +5201,7 @@ func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
 		if bool(unit.get("death_animation", false)):
 			continue
 		var role: String = str(unit.get("role", ""))
-		if role == "illusion_preview":
+		if _unit_is_preview_echo(unit):
 			continue
 		var center: Vector2 = _unit_center(unit)
 		var actor_key: String = str(unit.get("key", ""))
@@ -5784,6 +5807,8 @@ func _draw_aoe_token_tile(center: Vector2, icon_size: float, fill: Color, border
 func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	for unit: Dictionary in units_to_draw:
+		if _unit_is_preview_echo(unit):
+			continue
 		var center: Vector2 = _unit_center(unit)
 		match str(unit.get("role", "")):
 			"enemy":
@@ -5799,7 +5824,7 @@ func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) ->
 func _enemy_hud_reserved_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
 	var rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
 	for unit: Dictionary in units_to_draw:
-		if bool(unit.get("death_animation", false)) or str(unit.get("role", "")) == "illusion_preview":
+		if bool(unit.get("death_animation", false)) or _unit_is_preview_echo(unit):
 			continue
 		var art_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, _unit_center(unit))
 		if art_rect.size.x > 0.0 and art_rect.size.y > 0.0:
@@ -7118,19 +7143,169 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2) -> Array[Vector2]:
 	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.64)
 	var end: Vector2 = to_point + Vector2(0.0, -_tile_height() * 0.64)
-	return _sample_quadratic_points(start, _arc_control_point(start, end), end, 16)
+	var midpoint: Vector2 = (start + end) * 0.5
+	var base_control: Vector2 = _arc_control_point(start, end)
+	var preview_control: Vector2 = midpoint + (base_control - midpoint) * RANGED_PREVIEW_ARC_HEIGHT_SCALE
+	return _sample_quadratic_points(start, preview_control, end, 16)
+
+func _draw_enemy_threat_effect_overlays() -> void:
+	for threat_var: Variant in presentation.get("enemy_threat_previews", []):
+		if typeof(threat_var) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = _enemy_threat_ranged_effect(threat_var as Dictionary)
+		if effect.is_empty():
+			continue
+		var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+		var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+		if from_tile.x < 0 or to_tile.x < 0 or from_tile == to_tile:
+			continue
+		_draw_ranged_target_preview_curve(effect, _tile_center(from_tile), _tile_center(to_tile))
+
+func _enemy_threat_ranged_effect(threat: Dictionary) -> Dictionary:
+	var projected_attack: Array[Vector2i] = _vector2i_array(threat.get("projected_attack", []))
+	var action: Dictionary = threat.get("projected_attack_action", {}) as Dictionary
+	if projected_attack.is_empty() or str(action.get("type", "")) != "ranged":
+		return {}
+	var from_tile: Vector2i = threat.get(
+		"projected_attack_from",
+		threat.get("projected_destination", Vector2i(-1, -1))
+	)
+	var to_tile: Vector2i = threat.get("projected_attack_target", Vector2i(-1, -1))
+	if to_tile.x < 0:
+		to_tile = projected_attack[0]
+	if from_tile.x < 0 or to_tile.x < 0:
+		return {}
+	return {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"from": from_tile,
+		"to": to_tile,
+		"preview": true,
+		"element": str(action.get("element", ElementData.NONE))
+	}
+
+func _ranged_target_preview_geometry(effect: Dictionary, from_point: Vector2, to_point: Vector2) -> Dictionary:
+	var points: Array[Vector2] = _ranged_target_preview_curve_points(from_point, to_point)
+	if points.size() < 2:
+		return {}
+	var path_points := PackedVector2Array(points)
+	var tile_width: float = _tile_width()
+	var shaft_width: float = _tile_height() * RANGED_PREVIEW_SHAFT_TILE_HEIGHT_RATIO
+	var arrow_geometry: Dictionary = _ranged_preview_arrow_geometry(
+		path_points[path_points.size() - 2],
+		path_points[path_points.size() - 1],
+		tile_width
+	)
+	if arrow_geometry.is_empty():
+		return {}
+	var shaft_points: PackedVector2Array = path_points.duplicate()
+	var final_direction: Vector2 = arrow_geometry.get("direction", Vector2.ZERO)
+	shaft_points[shaft_points.size() - 1] = (
+		arrow_geometry.get("tail_center", path_points[path_points.size() - 1])
+		+ final_direction * shaft_width * 0.14
+	)
+	var unified_arrow: PackedVector2Array = _unified_path_arrow_polygon(
+		shaft_points,
+		arrow_geometry.get("polygon", PackedVector2Array()),
+		shaft_width
+	)
+	if unified_arrow.is_empty():
+		return {}
+	var seed_tiles: Array[Vector2i] = _vector2i_array([])
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	if from_tile.x >= 0:
+		seed_tiles.append(from_tile)
+	if to_tile.x >= 0:
+		seed_tiles.append(to_tile)
+	if seed_tiles.size() < 2:
+		seed_tiles = _vector2i_array([
+			Vector2i(roundi(from_point.x), roundi(from_point.y)),
+			Vector2i(roundi(to_point.x), roundi(to_point.y))
+		])
+	var crumble_geometry: Dictionary = _path_crumble_geometry(
+		seed_tiles,
+		path_points,
+		unified_arrow,
+		shaft_width
+	)
+	var body_polygons: Array[PackedVector2Array] = _path_polygon_array(
+		crumble_geometry.get("body_polygons", [])
+	)
+	if body_polygons.is_empty():
+		body_polygons.append(unified_arrow)
+	return {
+		"curve_points": path_points,
+		"shaft_width": shaft_width,
+		"arrow_geometry": arrow_geometry,
+		"unified_arrow": unified_arrow,
+		"body_polygons": body_polygons,
+		"crumble_geometry": crumble_geometry
+	}
+
+func _ranged_preview_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: float) -> Dictionary:
+	var direction: Vector2 = (to_point - from_point).normalized()
+	if direction.length_squared() <= 0.0:
+		return {}
+	var normal := Vector2(-direction.y, direction.x)
+	var half_width: float = tile_width * RANGED_PREVIEW_HEAD_WIDTH_TILE_RATIO * 0.5
+	var tip: Vector2 = to_point + direction * tile_width * RANGED_PREVIEW_HEAD_TIP_REACH_TILE_RATIO
+	var tail_center: Vector2 = to_point - direction * tile_width * RANGED_PREVIEW_HEAD_TAIL_REACH_TILE_RATIO
+	return {
+		"polygon": PackedVector2Array([
+			tip,
+			tail_center + normal * half_width,
+			tail_center - normal * half_width
+		]),
+		"tail_center": tail_center,
+		"direction": direction,
+		"normal": normal
+	}
 
 func _draw_ranged_target_preview_curve(effect: Dictionary, from_point: Vector2, to_point: Vector2) -> void:
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)
-	var points: Array[Vector2] = _ranged_target_preview_curve_points(from_point, to_point)
-	if points.size() < 2:
+	var geometry: Dictionary = _ranged_target_preview_geometry(effect, from_point, to_point)
+	if geometry.is_empty():
 		return
-	var packed_points := PackedVector2Array(points)
-	draw_polyline(packed_points, Color(0.0, 0.0, 0.0, 0.28), 7.0, true)
-	draw_polyline(packed_points, Color(secondary.r, secondary.g, secondary.b, 0.26), 4.2, true)
-	draw_polyline(packed_points, Color(accent.r, accent.g, accent.b, 0.82), 1.8, true)
+	var shaft_width: float = float(geometry.get("shaft_width", 0.0))
+	var body_polygons: Array[PackedVector2Array] = _path_polygon_array(geometry.get("body_polygons", []))
+	var crumble_geometry: Dictionary = geometry.get("crumble_geometry", {}) as Dictionary
+	var ribbon_color: Color = accent.lerp(secondary, 0.18)
+	ribbon_color.a = 0.88
+	var shadow_offset := Vector2(0.0, _tile_width() * RANGED_PREVIEW_SHADOW_OFFSET_TILE_RATIO)
+	_draw_expanded_path_polygons(
+		body_polygons,
+		shaft_width * 0.15,
+		shadow_offset * 1.55,
+		Color(0.0, 0.0, 0.0, 0.15)
+	)
+	_draw_expanded_path_polygons(
+		body_polygons,
+		shaft_width * 0.08,
+		shadow_offset,
+		Color(0.012, 0.010, 0.018, 0.54)
+	)
+	_draw_expanded_path_polygons(
+		body_polygons,
+		shaft_width * (MOVE_PATH_GLOW_WIDTH_RATIO - 1.0) * 0.5,
+		Vector2.ZERO,
+		Color(accent.r, accent.g, accent.b, 0.12)
+	)
+	_draw_expanded_path_polygons(
+		body_polygons,
+		shaft_width * (MOVE_PATH_OUTLINE_WIDTH_RATIO - 1.0) * 0.5,
+		Vector2.ZERO,
+		_path_outline_color(ribbon_color)
+	)
+	_draw_gradient_path_polygons(body_polygons, shaft_width, ribbon_color)
+	_draw_path_surface_spalls(
+		crumble_geometry.get("surface_spalls", []) as Array,
+		shaft_width,
+		ribbon_color
+	)
+	_draw_path_cracks(crumble_geometry.get("cracks", []) as Array, shaft_width, ribbon_color)
 
 func _elemental_ground_point(tile_center: Vector2) -> Vector2:
 	# _tile_center is the center of the rendered 2:1 diamond: the exact floor
@@ -9138,19 +9313,32 @@ func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: 
 func _draw_path_preview() -> void:
 	if _blink_preview_effect_active():
 		return
-	var enemy_threat_previews: Array = presentation.get("enemy_threat_previews", []) as Array
-	if not enemy_threat_previews.is_empty():
-		for threat_var: Variant in enemy_threat_previews:
-			if typeof(threat_var) != TYPE_DICTIONARY:
-				continue
-			_draw_path_tiles(
-				_vector2i_array((threat_var as Dictionary).get("projected_path", [])),
-				ENEMY_PATH_PREVIEW_COLOR
-			)
-		return
 	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
 	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
-	_draw_path_tiles(path_tiles, color)
+	var enemy_threat_previews: Array = presentation.get("enemy_threat_previews", []) as Array
+	var base_path_is_focused_enemy: bool = false
+	if enemy_threat_previews.size() == 1 and typeof(enemy_threat_previews[0]) == TYPE_DICTIONARY:
+		var focused_threat: Dictionary = enemy_threat_previews[0] as Dictionary
+		base_path_is_focused_enemy = (
+			color.is_equal_approx(ENEMY_PATH_PREVIEW_COLOR)
+			and path_tiles == _vector2i_array(focused_threat.get("projected_path", []))
+		)
+	if not base_path_is_focused_enemy:
+		_draw_path_tiles(path_tiles, color)
+	for threat_var: Variant in enemy_threat_previews:
+		if typeof(threat_var) != TYPE_DICTIONARY:
+			continue
+		var threat: Dictionary = threat_var as Dictionary
+		if not _threat_has_projected_movement(threat):
+			continue
+		_draw_path_tiles(
+			_vector2i_array(threat.get("projected_path", [])),
+			ENEMY_PATH_PREVIEW_COLOR
+		)
+
+func _threat_has_projected_movement(threat: Dictionary) -> bool:
+	var path: Array[Vector2i] = _vector2i_array(threat.get("projected_path", []))
+	return path.size() >= 2 and path[0] != path[path.size() - 1]
 
 func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color) -> void:
 	if path_tiles.is_empty():
@@ -9914,7 +10102,11 @@ func _draw_path_surface_spalls(spalls: Array, shaft_width: float, color: Color) 
 		draw_colored_polygon(_shifted_path_polygon(polygon, lip_offset), lip_color)
 		draw_colored_polygon(polygon, recess_color)
 		var floor_polygon: PackedVector2Array = _scaled_path_polygon(polygon, center, 0.56)
-		draw_colored_polygon(_shifted_path_polygon(floor_polygon, floor_offset), floor_color)
+		# Very slim ranged ribbons can collapse the innermost spall floor below
+		# Metal's triangulation precision even though the full recess remains valid.
+		# Keep the visible lip/recess and omit only that degenerate inner facet.
+		if _polygon_can_draw(floor_polygon):
+			draw_colored_polygon(_shifted_path_polygon(floor_polygon, floor_offset), floor_color)
 
 func _draw_path_cracks(cracks: Array, shaft_width: float, color: Color) -> void:
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
@@ -11167,6 +11359,8 @@ func _unit_idle_animation_active(unit: Dictionary) -> bool:
 		return false
 	if bool(unit.get("death_animation", false)):
 		return false
+	if bool(presentation.get("reduced_motion", false)) and _unit_is_preview_echo(unit):
+		return false
 	var actor_key: String = str(unit.get("key", ""))
 	if actor_key.is_empty():
 		return false
@@ -11593,7 +11787,7 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 	return Vector2i(-1, -1)
 
 func _draw_unit_shadow(unit: Dictionary) -> void:
-	if str(unit.get("role", "")) in ["illusion", "illusion_preview"]:
+	if str(unit.get("role", "")) == "illusion" or _unit_is_preview_echo(unit):
 		return
 	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
 	if shadow_alpha_scale <= 0.02:

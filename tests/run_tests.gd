@@ -11,6 +11,7 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
+const EnemyIntentPreviewSuite = preload("res://tests/suites/enemy_intent_preview_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
 const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
@@ -76,6 +77,7 @@ func _initialize() -> void:
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
+	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
@@ -11285,7 +11287,12 @@ func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
 		_assert(int(preview_unit.get("hp", 0)) > 0, "Illusion preview units should expose the pending illusion health")
 	instance.call("_on_board_tile_hovered", Vector2i(5, 2))
 	presentation = board_view.get("presentation")
-	_assert((presentation.get("preview_units", []) as Array).is_empty(), "Hovering an invalid illusion target should hide the placement preview unit")
+	var invalid_hover_has_illusion_preview: bool = false
+	for preview_unit_var: Variant in presentation.get("preview_units", []):
+		if typeof(preview_unit_var) == TYPE_DICTIONARY and str((preview_unit_var as Dictionary).get("role", "")) == "illusion_preview":
+			invalid_hover_has_illusion_preview = true
+			break
+	_assert(not invalid_hover_has_illusion_preview, "Hovering an invalid illusion target should hide the placement preview unit while allowing independent enemy-intent echoes")
 	instance.queue_free()
 	await process_frame
 
@@ -11477,7 +11484,8 @@ func _test_run_scene_show_all_enemy_intents_and_threats() -> void:
 	instance.set("_preview_combat_state", combat_state)
 	instance.call("_refresh_stage_view")
 	presentation = board_view.get("presentation") as Dictionary
-	_assert((presentation.get("enemy_threat_previews", []) as Array).is_empty(), "An active player card target preview should suppress show-all enemy threat paths and tiles")
+	_assert((presentation.get("enemy_threat_previews", []) as Array).size() == 2, "An active player card target preview should keep show-all enemy forecasts live against the latest preview state")
+	_assert((board_view.get("attack_tiles") as Array).has(Vector2i(2, 2)), "Live enemy forecasts should not replace the active player's target highlights")
 	_assert(bool(presentation.get("show_all_enemy_intents", false)), "Active card targeting should preserve the player's persistent show-all intent mode for when targeting ends")
 	instance.queue_free()
 	await process_frame

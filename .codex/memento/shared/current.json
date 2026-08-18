@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-17T18:14:12Z",
+  "updated_at": "2026-08-18T14:22:50Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8347,6 +8347,28 @@
       "source": {
         "branch": "codex/distress-movement-arrows-with-perspective-aware-crumble",
         "commit": "e96db14"
+      }
+    },
+    {
+      "id": "mnt_20260818T142249Z_33a36bea",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Enemy intent previews follow the current hover-resolved player preview state",
+      "details": "RunScene enemy forecasts reuse _pass_preview_source_state so show-all intents and hovered-enemy forecasts retarget to hovered moves and later resolved card actions, then fall back to committed combat state on cancel. Keep forecasts visible during card targeting, but preserve the player's active move/attack target tiles instead of replacing them with conservative enemy unions. Threat payloads carry projected attack action/origin/target; only paths with distinct start/end tiles create movement arrows and enemy destination echoes.",
+      "status": "active",
+      "created_at": "2026-08-18T14:22:49Z",
+      "updated_at": "2026-08-18T14:22:49Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/upgrade-enemy-move-and-ranged-intent-previews",
+        "commit": "5fb9b57"
       }
     }
   ]

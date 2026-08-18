@@ -14680,6 +14680,7 @@ func _refresh_stage_view() -> void:
 				presentation["objective_leader_tile"] = leader_tile
 	performance_phase_started = _record_runtime_performance_phase("stage_visibility", performance_phase_started)
 	var preview: Dictionary = {}
+	var card_preview_active: bool = false
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
 		if not _preview_combat_state.is_empty():
@@ -14691,6 +14692,7 @@ func _refresh_stage_view() -> void:
 				presentation["damage_preview"] = cumulative_damage_preview
 		performance_phase_started = _record_runtime_performance_phase("stage_preview_state", performance_phase_started)
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
+			card_preview_active = true
 			var action: Dictionary = preview.get("action", {})
 			var action_type: String = str(action.get("type", ""))
 			var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
@@ -14714,22 +14716,41 @@ func _refresh_stage_view() -> void:
 			var preview_presentation: Dictionary = _preview_presentation(preview)
 			for key: Variant in preview_presentation.keys():
 				presentation[key] = preview_presentation[key]
-		elif _show_all_enemy_intents:
-			var threat_previews: Array[Dictionary] = _visible_enemy_threat_previews(display_state)
-			move_tiles = _enemy_threat_tiles_union(threat_previews, "move")
-			attack_tiles = _enemy_threat_tiles_union(threat_previews, "attack")
-			presentation["enemy_threat_previews"] = threat_previews
-		elif _hovered_board_tile.x >= 0:
-			var threat_preview: Dictionary = _hovered_enemy_threat(display_state)
-			move_tiles = _vector2i_array(threat_preview.get("move", []))
-			attack_tiles = _vector2i_array(threat_preview.get("attack", []))
-			presentation["path_tiles"] = _vector2i_array(threat_preview.get("projected_path", []))
-			presentation["path_color"] = ENEMY_PATH_PREVIEW_COLOR
-			presentation["projected_destination"] = threat_preview.get("projected_destination", INVALID_TARGET_TILE)
-			presentation["projected_attack_tiles"] = _vector2i_array(threat_preview.get("projected_attack", []))
-			if threat_preview.has("enemy_key"):
-				presentation["focus_actor_keys"] = [str(threat_preview.get("enemy_key", ""))]
-				presentation["focus_actor_color"] = Color("f2ddb2")
+		var enemy_hover_active: bool = _state_has_visible_enemy_at_tile(display_state, _hovered_board_tile)
+		if _show_all_enemy_intents or enemy_hover_active:
+			var intent_preview_state: Dictionary = _enemy_intent_preview_state(display_state)
+			var threat_previews: Array[Dictionary] = _dictionary_array([])
+			if _show_all_enemy_intents:
+				threat_previews = _visible_enemy_threat_previews(intent_preview_state)
+			else:
+				var threat_preview: Dictionary = _hovered_enemy_threat(intent_preview_state)
+				if not threat_preview.is_empty():
+					threat_previews.append(threat_preview)
+			if not threat_previews.is_empty():
+				presentation["enemy_threat_previews"] = threat_previews
+				var destination_previews: Array[Dictionary] = _enemy_destination_preview_units(
+					intent_preview_state,
+					threat_previews
+				)
+				if not destination_previews.is_empty():
+					var combined_preview_units: Array = (presentation.get("preview_units", []) as Array).duplicate(true)
+					combined_preview_units.append_array(destination_previews)
+					presentation["preview_units"] = combined_preview_units
+				if not card_preview_active:
+					move_tiles = _enemy_threat_tiles_union(threat_previews, "move")
+					attack_tiles = _enemy_threat_tiles_union(threat_previews, "attack")
+				if not _show_all_enemy_intents and threat_previews.size() == 1:
+					var focused_threat: Dictionary = threat_previews[0]
+					presentation["path_tiles"] = _vector2i_array(focused_threat.get("projected_path", []))
+					presentation["path_color"] = ENEMY_PATH_PREVIEW_COLOR
+					if _threat_has_projected_movement(focused_threat):
+						presentation["projected_destination"] = focused_threat.get("projected_destination", INVALID_TARGET_TILE)
+					else:
+						presentation.erase("projected_destination")
+					presentation["projected_attack_tiles"] = _vector2i_array(focused_threat.get("projected_attack", []))
+					if focused_threat.has("enemy_key"):
+						presentation["focus_actor_keys"] = [str(focused_threat.get("enemy_key", ""))]
+						presentation["focus_actor_color"] = Color("f2ddb2")
 		if not _turn_order_hovered_enemy_key.is_empty():
 			presentation["expanded_enemy_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_keys"] = [_turn_order_hovered_enemy_key]
@@ -14900,6 +14921,26 @@ func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	_runtime_performance_counts[phase] = int(_runtime_performance_counts.get(phase, 0)) + 1
 	return now_usec
 
+func _enemy_intent_preview_state(display_state: Dictionary) -> Dictionary:
+	if _selected_card_index < 0 or _preview_combat_state.is_empty():
+		return display_state
+	var current_preview_state: Dictionary = _pass_preview_source_state()
+	return current_preview_state if not current_preview_state.is_empty() else display_state
+
+func _state_has_visible_enemy_at_tile(state: Dictionary, tile: Vector2i) -> bool:
+	if tile.x < 0:
+		return false
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if not _enemy_footprint_tiles(enemy).has(tile):
+			continue
+		return _combat_engine.is_enemy_visible_to_player(state, enemy)
+	return false
+
 func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 	for enemy_index: int in range((display_state.get("enemies", []) as Array).size()):
 		var enemy: Dictionary = (display_state.get("enemies", []) as Array)[enemy_index]
@@ -14927,6 +14968,48 @@ func _visible_enemy_threat_previews(display_state: Dictionary) -> Array[Dictiona
 		threat["enemy_key"] = _enemy_key(enemy)
 		previews.append(threat)
 	return previews
+
+func _threat_has_projected_movement(threat: Dictionary) -> bool:
+	var path: Array[Vector2i] = _vector2i_array(threat.get("projected_path", []))
+	if path.size() < 2:
+		return false
+	return path[0] != path[path.size() - 1]
+
+func _enemy_destination_preview_units(
+	display_state: Dictionary,
+	threat_previews: Array[Dictionary]
+) -> Array[Dictionary]:
+	var enemies_by_key: Dictionary = {}
+	for enemy_var: Variant in display_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		enemies_by_key[_enemy_key(enemy)] = enemy
+	var preview_units: Array[Dictionary] = _dictionary_array([])
+	for threat: Dictionary in threat_previews:
+		if not _threat_has_projected_movement(threat):
+			continue
+		var enemy_key: String = str(threat.get("enemy_key", ""))
+		var enemy: Dictionary = enemies_by_key.get(enemy_key, {}) as Dictionary
+		if enemy.is_empty():
+			continue
+		var destination: Vector2i = threat.get("projected_destination", INVALID_TARGET_TILE)
+		if destination.x < 0 or destination == enemy.get("pos", INVALID_TARGET_TILE):
+			continue
+		var hp: int = maxi(1, int(enemy.get("hp", 1)))
+		preview_units.append({
+			"key": "%s_destination_preview" % enemy_key,
+			"role": "enemy_move_preview",
+			"id": int(enemy.get("id", -1)),
+			"type": str(enemy.get("type", "")),
+			"name": str(enemy.get("name", GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy"))),
+			"pos": destination,
+			"footprint": enemy.get("footprint", Vector2i.ONE),
+			"hp": hp,
+			"max_hp": maxi(hp, int(enemy.get("max_hp", hp))),
+			"preview": true
+		})
+	return preview_units
 
 func _enemy_threat_tiles_union(previews: Array[Dictionary], field: String) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
