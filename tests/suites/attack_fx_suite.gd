@@ -356,9 +356,9 @@ static func _test_ranged_previews_use_static_curves(expect: Callable) -> void:
 		points.size() == 17
 		and midpoint.y < lerpf(lifted_start.y, lifted_finish.y, 0.5)
 		and not bool(board.call("_effect_uses_elemental_scene_depth", preview_effect))
-		and board.call("_ranged_preview_depth_tile", preview_effect) == Vector2i(2, 4)
+		and board.call("_ranged_preview_depth_tile", preview_effect) == Vector2i(5, 4)
 		and not bool(board.call("_preview_effect_needs_continuous_redraw", preview_effect)),
-		"Ranged targeting should use one static curve on its attack-origin scene layer with no projectile animation"
+		"Ranged targeting should use one static merged arrow on its target scene layer with no projectile animation"
 	)
 	board.free()
 

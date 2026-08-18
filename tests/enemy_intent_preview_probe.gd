@@ -215,7 +215,7 @@ func _capture_intent_preview_states() -> void:
 	var occlusion_threat: Dictionary = _first_threat(instance)
 	var occlusion_board: Control = instance.get_node(BOARD_PATH) as Control
 	var occlusion_effect: Dictionary = occlusion_board.call("_enemy_threat_ranged_effect", occlusion_threat)
-	_expect(occlusion_board.call("_ranged_preview_depth_tile", occlusion_effect) == Vector2i(5, 2), "Occlusion proof should submit the ranged ribbon on the attacker's scene layer; effect=%s threat=%s" % [occlusion_effect, occlusion_threat])
+	_expect(occlusion_board.call("_ranged_preview_depth_tile", occlusion_effect) == Vector2i(2, 6), "Occlusion proof should submit the complete ranged arrow on its target scene layer; effect=%s threat=%s" % [occlusion_effect, occlusion_threat])
 	_expect(bool(occlusion_board.call("_tile_draws_before", Vector2i(5, 2), Vector2i(4, 5))), "Occlusion proof should place its pillar in front of the attacking enemy")
 	await _save_root_screenshot("%s/09_foreground_pillar_occlusion.png" % OUTPUT_DIR)
 
