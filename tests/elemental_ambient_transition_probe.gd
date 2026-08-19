@@ -77,6 +77,8 @@ func _initialize() -> void:
 	board.call("set_combat_state", faded_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
 	board.call("_advance_ambient_intensity_transition", 1.5)
 	_expect(not (board.call("_ambient_active_element_ids") as PackedStringArray).has(ElementData.FIRE), "An off-room element should leave the ambient render set after fading to zero")
+	_verify_particle_phase_continuity(board)
+	_verify_element_hash_caches(board)
 
 	print("ELEMENTAL AMBIENT TRANSITION RESULT: %s" % JSON.stringify({
 		"semantic_errors": _errors,
@@ -109,6 +111,34 @@ func _mean_rgb_delta(reference: Image, candidate: Image) -> float:
 			total += (absf(before.r - after.r) + absf(before.g - after.g) + absf(before.b - after.b)) / 3.0
 			samples += 1
 	return total / float(maxi(1, samples))
+
+func _verify_particle_phase_continuity(board: Control) -> void:
+	const SOURCE_TIME: float = 7200.0
+	const FRAME_DELTA: float = 1.0 / 30.0
+	const SEED: int = 9271
+	board.set("_ambient_display_intensities", {ElementData.LIGHTNING: 1.0})
+	var initial_motion_time: float = float(board.call("_ambient_motion_time", ElementData.LIGHTNING, SOURCE_TIME))
+	var initial_cycle: float = float(board.call("_ambient_cycle", SEED, initial_motion_time, 1.0))
+	board.set("_ambient_display_intensities", {ElementData.LIGHTNING: 5.0})
+	var changed_motion_time: float = float(board.call("_ambient_motion_time", ElementData.LIGHTNING, SOURCE_TIME))
+	var changed_cycle: float = float(board.call("_ambient_cycle", SEED, changed_motion_time, 1.0))
+	_expect(is_equal_approx(initial_cycle, changed_cycle), "Changing displayed intensity at one instant must not jump particle phase")
+	var next_motion_time: float = float(board.call("_ambient_motion_time", ElementData.LIGHTNING, SOURCE_TIME + FRAME_DELTA))
+	var next_cycle: float = float(board.call("_ambient_cycle", SEED, next_motion_time, 1.0))
+	var wrapped_delta: float = absf(wrapf(next_cycle - changed_cycle + 0.5, 0.0, 1.0) - 0.5)
+	_expect(wrapped_delta < 0.05, "A high-intensity particle phase must advance by a bounded amount per frame")
+
+func _verify_element_hash_caches(board: Control) -> void:
+	board.call("_prepare_ambient_hash_cache", ElementData.FIRE)
+	board.call("_ambient_hash01", 111)
+	board.call("_prepare_ambient_hash_cache", ElementData.ICE)
+	board.call("_ambient_hash01", 222)
+	board.call("_prepare_ambient_hash_cache", ElementData.FIRE)
+	var caches: Dictionary = board.get("_ambient_hash01_caches_by_element") as Dictionary
+	var fire_cache: Dictionary = caches.get(ElementData.FIRE, {}) as Dictionary
+	var ice_cache: Dictionary = caches.get(ElementData.ICE, {}) as Dictionary
+	_expect(fire_cache.has(111), "Switching elemental passes must retain the Fire particle hash cache")
+	_expect(ice_cache.has(222), "Switching elemental passes must retain the Ice particle hash cache")
 
 func _state(fire_intensity: int, ice_intensity: int) -> Dictionary:
 	return {

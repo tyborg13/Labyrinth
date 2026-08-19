@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-18T22:11:04Z",
+  "updated_at": "2026-08-19T01:59:57Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8418,7 +8418,7 @@
       }
     },
     {
-      "id": "mnt_20260818T221104Z_ee828938",
+      "id": "mnt_20260819T015957Z_21986989",
       "layer": "shared",
       "kind": "pitfall",
       "scope": {
@@ -8427,16 +8427,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Multi-element ambient batches must retain every pass resource",
-      "details": "When one ambient redraw submits multiple elemental particle passes, cache the combined texture atlas per element and keep every pass ArrayMesh referenced through the draw-command lifetime. Reusing one atlas slot rebuilds images every frame; replacing one mesh reference invalidates earlier CanvasItem draw commands so only the final element remains visible.",
+      "summary": "Intensity-scaled ambient motion needs an integrated phase clock and element-local caches",
+      "details": "Applying a changing intensity speed multiplier to absolute ambient time causes phase jumps that look like particles shooting across the screen. Integrate each element's speed scale over source-time deltas instead. Multi-element passes must also retain separate per-element hash/hash01 dictionaries; alternating one shared cache rebuilds every particle's deterministic values each redraw. A single all-element shelf-packed atlas and one retained ArrayMesh preserve draw order while avoiding per-element mesh submissions.",
       "status": "active",
-      "created_at": "2026-08-18T22:11:04Z",
-      "updated_at": "2026-08-18T22:11:04Z",
+      "created_at": "2026-08-19T01:59:57Z",
+      "updated_at": "2026-08-19T01:59:57Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260818T221104Z_ee828938"
+      ],
       "source": {
-        "branch": "codex/smooth-and-combine-room-elemental-particle-effects",
-        "commit": "5cb5d89"
+        "branch": "codex/fix-elemental-particle-preview-speed-and-lag",
+        "commit": "efb0d43"
       }
     }
   ]

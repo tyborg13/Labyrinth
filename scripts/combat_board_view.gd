@@ -501,7 +501,11 @@ var _ambient_air_wisp_soft_textures: Dictionary = {}
 var _ambient_air_wisp_glow_textures: Dictionary = {}
 var _ambient_hash_cache: Dictionary = {}
 var _ambient_hash01_cache: Dictionary = {}
-var _ambient_hash_cache_room_key: String = ""
+var _ambient_hash_caches_by_element: Dictionary = {}
+var _ambient_hash01_caches_by_element: Dictionary = {}
+var _ambient_hash_cache_room_coord: Vector2i = Vector2i(-999999, -999999)
+var _ambient_motion_time_by_element: Dictionary = {}
+var _ambient_motion_source_time_by_element: Dictionary = {}
 var _ambient_particle_batch_enabled: bool = true
 var _ambient_batch_active: bool = false
 var _ambient_batch_vertices: PackedVector3Array = PackedVector3Array()
@@ -510,11 +514,7 @@ var _ambient_batch_colors: PackedColorArray = PackedColorArray()
 var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
 var _ambient_combined_atlas: Texture2D = null
 var _ambient_combined_atlas_regions: Dictionary = {}
-var _ambient_combined_atlas_element_id: String = ""
-var _ambient_combined_atlases_by_element: Dictionary = {}
-var _ambient_combined_atlas_regions_by_element: Dictionary = {}
 var _ambient_batch_mesh: ArrayMesh = null
-var _ambient_batch_meshes: Array[ArrayMesh] = []
 var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
@@ -3037,23 +3037,23 @@ func _advance_ambient_intensity_transition(delta: float) -> void:
 func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 	if tiles.is_empty():
 		return
-	# Canvas draw commands retain mesh resources until the next redraw. Keep one
-	# mesh alive per elemental pass instead of replacing the sole batch reference.
-	_ambient_batch_meshes.clear()
+	# Canvas draw commands retain the mesh resource until the next redraw.
 	var time_seconds: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
-	for element_id: String in _ambient_active_element_ids():
+	var active_element_ids: PackedStringArray = _ambient_active_element_ids()
+	_begin_ambient_particle_batch()
+	for element_id: String in active_element_ids:
 		var particle_count: int = _ambient_particle_count(element_id, tiles.size())
 		if particle_count <= 0:
 			continue
 		_prepare_ambient_hash_cache(element_id)
-		_begin_ambient_particle_batch(element_id)
 		var room_seed: int = _ambient_room_seed(element_id)
+		var motion_time_seconds: float = _ambient_motion_time(element_id, time_seconds)
 		for index: int in range(particle_count):
 			var particle_seed: int = room_seed + index * 7919
 			var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
 			var base_point: Vector2 = _tile_center(tiles[tile_index])
-			_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds)
-		_flush_ambient_particle_batch()
+			_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds, motion_time_seconds)
+	_flush_ambient_particle_batch()
 
 func _ambient_particle_count(element_id: String, tile_count: int, intensity_override: float = -1.0) -> int:
 	var base_count: int = 0
@@ -3112,12 +3112,38 @@ func _ambient_hash01(seed: int) -> float:
 
 func _prepare_ambient_hash_cache(element_id: String) -> void:
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
-	var room_key: String = "%d,%d|%s" % [room_coord.x, room_coord.y, element_id]
-	if room_key == _ambient_hash_cache_room_key:
-		return
-	_ambient_hash_cache_room_key = room_key
-	_ambient_hash_cache.clear()
-	_ambient_hash01_cache.clear()
+	if room_coord != _ambient_hash_cache_room_coord:
+		_ambient_hash_cache_room_coord = room_coord
+		_ambient_hash_caches_by_element.clear()
+		_ambient_hash01_caches_by_element.clear()
+	if not _ambient_hash_caches_by_element.has(element_id):
+		_ambient_hash_caches_by_element[element_id] = {}
+	if not _ambient_hash01_caches_by_element.has(element_id):
+		_ambient_hash01_caches_by_element[element_id] = {}
+	_ambient_hash_cache = _ambient_hash_caches_by_element.get(element_id, {}) as Dictionary
+	_ambient_hash01_cache = _ambient_hash01_caches_by_element.get(element_id, {}) as Dictionary
+
+func _ambient_motion_time(element_id: String, source_time_seconds: float) -> float:
+	var intensity_speed_scale: float = ElementalIntensityRules.ambient_speed_scale_continuous(
+		_ambient_display_intensity(element_id)
+	)
+	if not _ambient_motion_time_by_element.has(element_id):
+		_ambient_motion_time_by_element[element_id] = source_time_seconds * intensity_speed_scale
+		_ambient_motion_source_time_by_element[element_id] = source_time_seconds
+		return float(_ambient_motion_time_by_element[element_id])
+	var previous_source_time: float = float(_ambient_motion_source_time_by_element.get(element_id, source_time_seconds))
+	var source_delta: float = source_time_seconds - previous_source_time
+	# Runtime ambient time is monotonic. A backwards jump means a deterministic
+	# probe or caller deliberately reset its clock, so reset the phase reference.
+	if source_delta < 0.0:
+		_ambient_motion_time_by_element[element_id] = source_time_seconds * intensity_speed_scale
+	else:
+		_ambient_motion_time_by_element[element_id] = (
+			float(_ambient_motion_time_by_element.get(element_id, 0.0))
+			+ source_delta * intensity_speed_scale
+		)
+	_ambient_motion_source_time_by_element[element_id] = source_time_seconds
+	return float(_ambient_motion_time_by_element[element_id])
 
 func _ambient_cycle(seed: int, time_seconds: float, speed: float) -> float:
 	return wrapf(_ambient_hash01(seed) + time_seconds * speed * AMBIENT_PARTICLE_SPEED_SCALE, 0.0, 1.0)
@@ -3125,14 +3151,14 @@ func _ambient_cycle(seed: int, time_seconds: float, speed: float) -> float:
 func _ambient_particle_alpha(cycle: float) -> float:
 	return clampf(sin(cycle * PI), 0.0, 1.0)
 
-func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, time_seconds: float) -> void:
+func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, time_seconds: float, motion_time_seconds: float) -> void:
 	var variant_index: int = int(_ambient_hash01(seed + 41) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS))
 	var texture: Texture2D = _ambient_particle_texture(element_id, variant_index)
 	if texture == null:
 		return
 	var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant_index)
 	var air_soft_texture: Texture2D = null
-	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed) * ElementalIntensityRules.ambient_speed_scale_continuous(_ambient_display_intensity(element_id)))
+	var cycle: float = _ambient_cycle(seed + 101, motion_time_seconds, _ambient_particle_speed(element_id, seed))
 	if element_id == "air":
 		var wisp_variant_index: int = _ambient_air_wisp_variant_index(seed)
 		var wisp_texture: Texture2D = _ambient_air_wisp_texture(wisp_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
@@ -3562,11 +3588,11 @@ func _draw_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size
 	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, Color(modulate.r, modulate.g, modulate.b, modulate.a * alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
-func _begin_ambient_particle_batch(element_id: String) -> void:
+func _begin_ambient_particle_batch() -> void:
 	if not _ambient_particle_batch_enabled:
 		_ambient_batch_active = false
 		return
-	_ensure_ambient_combined_atlas(element_id)
+	_ensure_ambient_combined_atlas()
 	_ambient_batch_active = _ambient_combined_atlas != null
 	_ambient_batch_vertices = PackedVector3Array()
 	_ambient_batch_uvs = PackedVector2Array()
@@ -3612,42 +3638,46 @@ func _flush_ambient_particle_batch() -> void:
 	var batch_mesh := ArrayMesh.new()
 	batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	_ambient_batch_mesh = batch_mesh
-	_ambient_batch_meshes.append(batch_mesh)
 	draw_mesh(batch_mesh, _ambient_combined_atlas)
 
-func _ensure_ambient_combined_atlas(element_id: String) -> void:
-	if _ambient_combined_atlas != null and element_id == _ambient_combined_atlas_element_id:
-		return
-	if _ambient_combined_atlases_by_element.has(element_id):
-		_ambient_combined_atlas = _ambient_combined_atlases_by_element.get(element_id, null) as Texture2D
-		_ambient_combined_atlas_regions = (_ambient_combined_atlas_regions_by_element.get(element_id, {}) as Dictionary).duplicate()
-		_ambient_combined_atlas_element_id = element_id
+func _ensure_ambient_combined_atlas() -> void:
+	if _ambient_combined_atlas != null:
 		return
 	_ambient_combined_atlas = null
 	_ambient_combined_atlas_regions.clear()
-	_ambient_combined_atlas_element_id = element_id
 	var sources: Array[Texture2D]
-	for variant_index: int in range(AMBIENT_PARTICLE_ATLAS_COLUMNS):
-		_append_unique_ambient_atlas_source(sources, _ambient_particle_texture(element_id, variant_index))
-		_append_unique_ambient_atlas_source(sources, _ambient_particle_glow_texture(element_id, variant_index))
-		if element_id == "fire":
-			_append_unique_ambient_atlas_source(sources, _ambient_fire_soft_texture(variant_index))
-	if element_id == "air":
-		for variant_index: int in range(AMBIENT_AIR_WISP_VARIANTS):
-			_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_texture(variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
-			_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_soft_texture(variant_index))
-			_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_glow_texture(variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+	for element_id: String in ElementData.all_elements():
+		for variant_index: int in range(AMBIENT_PARTICLE_ATLAS_COLUMNS):
+			_append_unique_ambient_atlas_source(sources, _ambient_particle_texture(element_id, variant_index))
+			_append_unique_ambient_atlas_source(sources, _ambient_particle_glow_texture(element_id, variant_index))
+			if element_id == "fire":
+				_append_unique_ambient_atlas_source(sources, _ambient_fire_soft_texture(variant_index))
+		if element_id == "air":
+			for variant_index: int in range(AMBIENT_AIR_WISP_VARIANTS):
+				_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_texture(variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+				_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_soft_texture(variant_index))
+				_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_glow_texture(variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
 	if sources.is_empty():
 		return
 	const ATLAS_GAP: int = 2
-	var atlas_width: int = ATLAS_GAP
-	var atlas_height: int = 1
+	const ATLAS_MAX_ROW_WIDTH: int = 4096
+	var atlas_width: int = 1
+	var atlas_height: int = ATLAS_GAP
+	var cursor := Vector2i(ATLAS_GAP, ATLAS_GAP)
+	var row_height: int = 0
+	var source_positions: Dictionary = {}
 	for source: Texture2D in sources:
-		atlas_width += source.get_width() + ATLAS_GAP
-		atlas_height = maxi(atlas_height, source.get_height() + ATLAS_GAP * 2)
+		if cursor.x + source.get_width() + ATLAS_GAP > ATLAS_MAX_ROW_WIDTH and cursor.x > ATLAS_GAP:
+			cursor.x = ATLAS_GAP
+			cursor.y += row_height + ATLAS_GAP
+			row_height = 0
+		source_positions[source.get_instance_id()] = cursor
+		cursor.x += source.get_width() + ATLAS_GAP
+		row_height = maxi(row_height, source.get_height())
+		atlas_width = maxi(atlas_width, cursor.x)
+		atlas_height = maxi(atlas_height, cursor.y + row_height + ATLAS_GAP)
 	var image := Image.create(atlas_width, atlas_height, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
-	var cursor_x: int = ATLAS_GAP
 	for source: Texture2D in sources:
 		var source_image: Image = source.get_image()
 		if source_image == null or source_image.is_empty():
@@ -3655,12 +3685,10 @@ func _ensure_ambient_combined_atlas(element_id: String) -> void:
 			return
 		if source_image.get_format() != Image.FORMAT_RGBA8:
 			source_image.convert(Image.FORMAT_RGBA8)
-		image.blit_rect(source_image, Rect2i(Vector2i.ZERO, source_image.get_size()), Vector2i(cursor_x, ATLAS_GAP))
-		_ambient_combined_atlas_regions[source.get_instance_id()] = Rect2i(cursor_x, ATLAS_GAP, source.get_width(), source.get_height())
-		cursor_x += source.get_width() + ATLAS_GAP
+		var source_position: Vector2i = source_positions.get(source.get_instance_id(), Vector2i.ZERO) as Vector2i
+		image.blit_rect(source_image, Rect2i(Vector2i.ZERO, source_image.get_size()), source_position)
+		_ambient_combined_atlas_regions[source.get_instance_id()] = Rect2i(source_position, source.get_size())
 	_ambient_combined_atlas = ImageTexture.create_from_image(image)
-	_ambient_combined_atlases_by_element[element_id] = _ambient_combined_atlas
-	_ambient_combined_atlas_regions_by_element[element_id] = _ambient_combined_atlas_regions.duplicate()
 
 func _append_unique_ambient_atlas_source(sources: Array[Texture2D], source: Texture2D) -> void:
 	if source != null and not sources.has(source):
