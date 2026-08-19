@@ -272,6 +272,7 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 	var boss_name_label: Label = instance.get("_boss_health_name") as Label
 	var boss_frame: TextureRect = instance.get("_boss_health_frame") as TextureRect
 	var boss_health_host: Control = instance.get("_boss_health_host") as Control
+	var boss_health_bar: SegmentedHealthBar = instance.get("_boss_health_bar") as SegmentedHealthBar
 	var boss_hp_label: Label = instance.get("_boss_health_hp_label") as Label
 	if instance.find_child("BossDossier", true, false) != null:
 		_fail("%s should not retain the obsolete turn-clock boss widget" % boss_id)
@@ -295,6 +296,8 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 			_fail("%s dragon endcaps should retain a readable fixed-proportion silhouette" % boss_id)
 		if boss_health_host == null or not boss_frame.get_global_rect().encloses(boss_health_host.get_global_rect()):
 			_fail("%s health fill should remain inside the dragon frame opening" % boss_id)
+	if boss_health_bar == null or not is_zero_approx(boss_health_bar.border_width) or boss_health_bar.border_color.a > 0.0:
+		_fail("%s dragon art should remain the health bar's only visible frame" % boss_id)
 	var visible_slots: Array[Control] = []
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():

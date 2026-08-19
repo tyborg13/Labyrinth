@@ -9018,6 +9018,7 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	var boss_name: Label = instance.get("_boss_health_name") as Label
 	var boss_frame: TextureRect = instance.get("_boss_health_frame") as TextureRect
 	var boss_health_host: Control = instance.get("_boss_health_host") as Control
+	var boss_health_bar: SegmentedHealthBar = instance.get("_boss_health_bar") as SegmentedHealthBar
 	var boss_hp: Label = instance.get("_boss_health_hp_label") as Label
 	_assert(instance.find_child("BossDossier", true, false) == null, "Boss combat should remove the obsolete turn-clock dossier widget")
 	_assert(boss_overlay != null and boss_overlay.visible, "Boss combat should show a dedicated top-center health overlay")
@@ -9032,6 +9033,7 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 		var displayed_endcap_width: float = float(boss_frame.get_meta("fixed_endcap_native_width", 0.0)) * boss_frame.size.x / boss_frame.texture.get_size().x
 		_assert(displayed_endcap_width >= 60.0 and boss_frame.size.y >= 80.0, "The boss dragon endcaps should retain a readable fixed-proportion silhouette")
 		_assert(boss_health_host != null and boss_frame.get_global_rect().encloses(boss_health_host.get_global_rect()), "The boss health fill should remain inset inside the dragon frame opening")
+	_assert(boss_health_bar != null and is_zero_approx(boss_health_bar.border_width) and boss_health_bar.border_color.a <= 0.0, "The dragon art should be the boss bar's only frame")
 	var boss_slots: Array[Control] = []
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():

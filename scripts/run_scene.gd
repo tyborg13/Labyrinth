@@ -1302,7 +1302,7 @@ const BOSS_HEALTH_OVERLAY_HEIGHT: float = 100.0
 const BOSS_HEALTH_OVERLAY_TOP: float = 18.0
 const BOSS_HEALTH_FRAME_TOP: float = 10.0
 const BOSS_HEALTH_FRAME_NATIVE_SIZE: Vector2 = Vector2(780.0, 90.0)
-const BOSS_HEALTH_FRAME_CONTENT_INSETS: Vector4 = Vector4(62.0, 38.0, 62.0, 17.0)
+const BOSS_HEALTH_FRAME_CONTENT_INSETS: Vector4 = Vector4(48.0, 38.0, 48.0, 17.0)
 const BOSS_HEALTH_FRAME_FIXED_ENDCAP_WIDTH: float = 72.0
 const BOSS_HEALTH_MAX_SEGMENTS: int = 48
 const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(116.0, 87.0)
@@ -9610,16 +9610,16 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_bar.anchor_bottom = 1.0
 	_boss_health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_boss_health_bar.set_fill(Color("9d2428"), Color("ffe5bf"))
-	_boss_health_bar.set_appearance(Color("170b0a"), Color("caa45b"), Color(0.0, 0.0, 0.0, 0.58))
+	_boss_health_bar.set_appearance(Color("170b0a"), Color.TRANSPARENT, Color(0.0, 0.0, 0.0, 0.58))
 	_boss_health_bar.separator_width = 1.0
-	_boss_health_bar.border_width = 2.0
+	_boss_health_bar.border_width = 0.0
 	_boss_health_host.add_child(_boss_health_bar)
 	_boss_health_damage_preview = ColorRect.new()
 	_boss_health_damage_preview.name = "BossHealthDamagePreview"
 	_boss_health_damage_preview.anchor_top = 0.0
 	_boss_health_damage_preview.anchor_bottom = 1.0
-	_boss_health_damage_preview.offset_top = 2.0
-	_boss_health_damage_preview.offset_bottom = -2.0
+	_boss_health_damage_preview.offset_top = 0.0
+	_boss_health_damage_preview.offset_bottom = 0.0
 	_boss_health_damage_preview.color = Color(1.0, 0.72, 0.34, 0.76)
 	_boss_health_damage_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_boss_health_damage_preview.visible = false
