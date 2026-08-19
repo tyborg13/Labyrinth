@@ -1298,11 +1298,12 @@ const TURN_ORDER_NORMAL_RAIL_TOP_CLEARANCE: float = 44.0
 const BOSS_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/boss_umbral_dragon_frame_v1.png"
 const BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH: float = 780.0
 const BOSS_HEALTH_OVERLAY_MIN_WIDTH: float = 700.0
-const BOSS_HEALTH_OVERLAY_HEIGHT: float = 90.0
+const BOSS_HEALTH_OVERLAY_HEIGHT: float = 100.0
 const BOSS_HEALTH_OVERLAY_TOP: float = 18.0
-const BOSS_HEALTH_FRAME_TOP: float = 25.0
-const BOSS_HEALTH_FRAME_NATIVE_SIZE: Vector2 = Vector2(780.0, 65.0)
-const BOSS_HEALTH_FRAME_CONTENT_INSETS: Vector4 = Vector4(56.0, 24.0, 56.0, 15.0)
+const BOSS_HEALTH_FRAME_TOP: float = 10.0
+const BOSS_HEALTH_FRAME_NATIVE_SIZE: Vector2 = Vector2(780.0, 90.0)
+const BOSS_HEALTH_FRAME_CONTENT_INSETS: Vector4 = Vector4(62.0, 38.0, 62.0, 17.0)
+const BOSS_HEALTH_FRAME_FIXED_ENDCAP_WIDTH: float = 72.0
 const BOSS_HEALTH_MAX_SEGMENTS: int = 48
 const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(116.0, 87.0)
 const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(132.0, 99.0)
@@ -9590,6 +9591,7 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_frame.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	_boss_health_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_boss_health_frame.z_index = 2
+	_boss_health_frame.set_meta("fixed_endcap_native_width", BOSS_HEALTH_FRAME_FIXED_ENDCAP_WIDTH)
 	_boss_health_overlay.add_child(_boss_health_frame)
 	_boss_health_host = Control.new()
 	_boss_health_host.name = "BossHealthBarHost"

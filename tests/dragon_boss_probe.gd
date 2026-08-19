@@ -277,19 +277,22 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 		_fail("%s should not retain the obsolete turn-clock boss widget" % boss_id)
 	if boss_overlay == null or not boss_overlay.visible:
 		_fail("%s should show the dedicated top-center boss health overlay" % boss_id)
-	elif boss_overlay.size.x < 700.0 or boss_overlay.size.x > 820.0 or boss_overlay.size.y > 90.0:
+	elif boss_overlay.size.x < 700.0 or boss_overlay.size.x > 820.0 or boss_overlay.size.y > 110.0:
 		_fail("%s boss health overlay should stay wide and shallow (found %s)" % [boss_id, boss_overlay.size])
 	if boss_overlay != null and boss_overlay.get_node_or_null("BossHealthLinework") != null:
 		_fail("%s top-center name and HP should not retain an enclosing background box" % boss_id)
 	if boss_frame == null or boss_frame.texture == null:
 		_fail("%s should render the cohesive Umbral dragon health frame" % boss_id)
 	else:
-		if boss_frame.texture.get_size() != Vector2(780.0, 65.0):
-			_fail("%s dragon frame should retain the authored 780x65 dimensions" % boss_id)
+		if boss_frame.texture.get_size() != Vector2(780.0, 90.0):
+			_fail("%s dragon frame should retain the authored 780x90 dimensions" % boss_id)
 		if boss_frame.stretch_mode != TextureRect.STRETCH_KEEP_ASPECT_CENTERED:
 			_fail("%s dragon frame should preserve its head proportions instead of stretching" % boss_id)
 		if not is_equal_approx(boss_frame.size.x / boss_frame.size.y, boss_frame.texture.get_size().x / boss_frame.texture.get_size().y):
 			_fail("%s displayed dragon frame should retain the source aspect ratio" % boss_id)
+		var displayed_endcap_width: float = float(boss_frame.get_meta("fixed_endcap_native_width", 0.0)) * boss_frame.size.x / boss_frame.texture.get_size().x
+		if displayed_endcap_width < 60.0 or boss_frame.size.y < 80.0:
+			_fail("%s dragon endcaps should retain a readable fixed-proportion silhouette" % boss_id)
 		if boss_health_host == null or not boss_frame.get_global_rect().encloses(boss_health_host.get_global_rect()):
 			_fail("%s health fill should remain inside the dragon frame opening" % boss_id)
 	var visible_slots: Array[Control] = []
