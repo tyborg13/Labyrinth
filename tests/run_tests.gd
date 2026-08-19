@@ -9016,12 +9016,20 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	var boss_overlay: Control = instance.get("_boss_health_overlay") as Control
 	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
 	var boss_name: Label = instance.get("_boss_health_name") as Label
+	var boss_frame: TextureRect = instance.get("_boss_health_frame") as TextureRect
+	var boss_health_host: Control = instance.get("_boss_health_host") as Control
 	var boss_hp: Label = instance.get("_boss_health_hp_label") as Label
 	_assert(instance.find_child("BossDossier", true, false) == null, "Boss combat should remove the obsolete turn-clock dossier widget")
 	_assert(boss_overlay != null and boss_overlay.visible, "Boss combat should show a dedicated top-center health overlay")
 	if boss_overlay != null:
 		_assert(boss_overlay.size.x >= 700.0 and boss_overlay.size.x <= 820.0 and boss_overlay.size.y <= 90.0, "The boss overlay should stay wide and shallow at the authored combat size")
 		_assert(boss_overlay.get_node_or_null("BossHealthLinework") == null, "The boss name and HP bar should render without an enclosing background box")
+	_assert(boss_frame != null and boss_frame.texture != null, "Boss health should render the cohesive Umbral dragon frame asset")
+	if boss_frame != null and boss_frame.texture != null:
+		_assert(boss_frame.texture.get_size() == Vector2(780.0, 65.0), "The boss dragon frame should retain its authored production dimensions")
+		_assert(boss_frame.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "The boss dragon frame should preserve the dragon-head proportions instead of stretching")
+		_assert(is_equal_approx(boss_frame.size.x / boss_frame.size.y, boss_frame.texture.get_size().x / boss_frame.texture.get_size().y), "The displayed boss frame should retain the source aspect ratio")
+		_assert(boss_health_host != null and boss_frame.get_global_rect().encloses(boss_health_host.get_global_rect()), "The boss health fill should remain inset inside the dragon frame opening")
 	var boss_slots: Array[Control] = []
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():

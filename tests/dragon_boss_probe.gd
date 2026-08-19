@@ -59,6 +59,7 @@ func _capture_bosses() -> void:
 		await create_timer(0.12).timeout
 		_assert_loaded_boss(instance, boss_id, false)
 		await _capture("%02d_%s_ready.png" % [depth, boss_id])
+		await _capture_boss_damage_preview(instance, boss_id, depth)
 		await _capture_boss_idle_progression(instance, boss_id, depth)
 		if phase_filter == "ready":
 			continue
@@ -269,6 +270,8 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 	var boss_overlay: Control = instance.get("_boss_health_overlay") as Control
 	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
 	var boss_name_label: Label = instance.get("_boss_health_name") as Label
+	var boss_frame: TextureRect = instance.get("_boss_health_frame") as TextureRect
+	var boss_health_host: Control = instance.get("_boss_health_host") as Control
 	var boss_hp_label: Label = instance.get("_boss_health_hp_label") as Label
 	if instance.find_child("BossDossier", true, false) != null:
 		_fail("%s should not retain the obsolete turn-clock boss widget" % boss_id)
@@ -278,6 +281,17 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 		_fail("%s boss health overlay should stay wide and shallow (found %s)" % [boss_id, boss_overlay.size])
 	if boss_overlay != null and boss_overlay.get_node_or_null("BossHealthLinework") != null:
 		_fail("%s top-center name and HP should not retain an enclosing background box" % boss_id)
+	if boss_frame == null or boss_frame.texture == null:
+		_fail("%s should render the cohesive Umbral dragon health frame" % boss_id)
+	else:
+		if boss_frame.texture.get_size() != Vector2(780.0, 65.0):
+			_fail("%s dragon frame should retain the authored 780x65 dimensions" % boss_id)
+		if boss_frame.stretch_mode != TextureRect.STRETCH_KEEP_ASPECT_CENTERED:
+			_fail("%s dragon frame should preserve its head proportions instead of stretching" % boss_id)
+		if not is_equal_approx(boss_frame.size.x / boss_frame.size.y, boss_frame.texture.get_size().x / boss_frame.texture.get_size().y):
+			_fail("%s displayed dragon frame should retain the source aspect ratio" % boss_id)
+		if boss_health_host == null or not boss_frame.get_global_rect().encloses(boss_health_host.get_global_rect()):
+			_fail("%s health fill should remain inside the dragon frame opening" % boss_id)
 	var visible_slots: Array[Control] = []
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():
@@ -327,6 +341,29 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 		"noctyrax":
 			if after_gimmick and int((combat_state.get("umbra", {}) as Dictionary).get("boss_eclipse_activations", 0)) <= 0:
 				_fail("Noctyrax gimmick proof should enter Eclipse")
+
+func _capture_boss_damage_preview(instance: Node, boss_id: String, depth: int) -> void:
+	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
+	var boss_index: int = _boss_index(combat_state)
+	if boss_index < 0:
+		_fail("%s damage-preview proof should find the boss" % boss_id)
+		return
+	var boss: Dictionary = (combat_state.get("enemies", []) as Array)[boss_index] as Dictionary
+	var hp: int = int(boss.get("hp", 0))
+	var preview_hp: int = maxi(0, hp - maxi(1, int(boss.get("max_hp", 1)) / 6))
+	instance.call("_refresh_boss_health_overlay", combat_state, {
+		"damage_preview": {
+			"enemy_%d" % int(boss.get("id", -1)): {"hp": preview_hp, "hp_loss": hp - preview_hp}
+		}
+	})
+	await process_frame
+	await process_frame
+	var preview_band: ColorRect = instance.get("_boss_health_damage_preview") as ColorRect
+	if preview_band == null or not preview_band.visible or preview_band.anchor_left >= preview_band.anchor_right:
+		_fail("%s boss frame should preserve a readable damage-preview band" % boss_id)
+	await _capture("%02d_%s_damage_preview.png" % [depth, boss_id])
+	instance.call("_refresh_boss_health_overlay", combat_state, {})
+	await process_frame
 
 func _capture_boss_idle_progression(instance: Node, boss_id: String, depth: int) -> void:
 	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
