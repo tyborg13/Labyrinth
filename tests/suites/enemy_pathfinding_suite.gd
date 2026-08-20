@@ -24,7 +24,7 @@ static func run(expect: Callable) -> void:
 	_test_large_footprint_stops_when_attack_is_available(expect)
 	_test_threat_exposes_exact_plan_beside_conservative_union(expect)
 	_test_lightning_projection_matches_deterministic_strikes(expect)
-	_test_exact_projection_respects_action_denying_statuses(expect)
+	_test_exact_projection_respects_action_denying_board_effects(expect)
 	_test_enemy_action_analytics_retains_path(expect)
 
 static func _test_deterministic_illusion_tie(expect: Callable) -> void:
@@ -382,7 +382,7 @@ static func _test_lightning_projection_matches_deterministic_strikes(expect: Cal
 	var conservative: Array[Vector2i] = _tiles(threat.get("attack", []))
 	expect.call(exact.size() == conservative.size() and conservative.all(func(tile: Vector2i) -> bool: return exact.has(tile)), "Exact lightning projection should match the deterministic strike set used by conservative threat")
 
-static func _test_exact_projection_respects_action_denying_statuses(expect: Callable) -> void:
+static func _test_exact_projection_respects_action_denying_board_effects(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var intent: Dictionary = {
 		"name": "Status Claw",
@@ -391,21 +391,17 @@ static func _test_exact_projection_respects_action_denying_statuses(expect: Call
 			{"type": "melee", "damage": 3, "range": 1}
 		]
 	}
-	var frozen_enemy: Dictionary = _enemy(Vector2i(5, 4), intent)
-	frozen_enemy["freeze"] = 1
-	var frozen_state: Dictionary = _state(combat, 302, Vector2i(2, 4), [frozen_enemy])
-	var frozen_threat: Dictionary = combat.enemy_threat_tiles(frozen_state, 0)
-	expect.call(_tiles(frozen_threat.get("projected_path", [])).size() == 1 and _tiles(frozen_threat.get("projected_attack", [])).is_empty(), "Frozen enemies should show no exact movement or attack for the skipped activation")
-	var frozen_resolved: Dictionary = combat.resolve_enemy_turn_with_steps(frozen_state, 0).get("state", {})
-	expect.call(((frozen_resolved.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4) and int((frozen_resolved.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Frozen exact projection should match skipped resolution")
-
-	var shocked_enemy: Dictionary = _enemy(Vector2i(5, 4), intent)
-	shocked_enemy["shock"] = 1
-	var shocked_state: Dictionary = _state(combat, 303, Vector2i(2, 4), [shocked_enemy])
-	var shocked_threat: Dictionary = combat.enemy_threat_tiles(shocked_state, 0)
-	expect.call(_tiles(shocked_threat.get("projected_path", [])).size() > 1 and _tiles(shocked_threat.get("projected_attack", [])).is_empty(), "Shocked enemies should retain exact movement but suppress the skipped attack projection")
-	var shocked_resolved: Dictionary = combat.resolve_enemy_turn_with_steps(shocked_state, 0).get("state", {})
-	expect.call(((shocked_resolved.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == shocked_threat.get("projected_destination", Vector2i.ZERO) and int((shocked_resolved.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Shocked exact projection should match movement-only resolution")
+	var electrified_enemy: Dictionary = _enemy(Vector2i(5, 4), intent)
+	var electrified_state: Dictionary = _state(combat, 303, Vector2i(2, 4), [electrified_enemy])
+	electrified_state["tile_effects"] = {
+		"fields": [],
+		"surfaces": [{"pos": Vector2i(5, 4), "kind": "electrified", "expires_at": 99}],
+	}
+	var electrified_threat: Dictionary = combat.enemy_threat_tiles(electrified_state, 0)
+	expect.call(_tiles(electrified_threat.get("projected_path", [])).size() > 1 and _tiles(electrified_threat.get("projected_attack", [])).is_empty(), "Electrified enemies should retain exact movement but suppress the attack projection")
+	var electrified_resolved: Dictionary = combat.resolve_enemy_turn_with_steps(electrified_state, 0).get("state", {})
+	expect.call(((electrified_resolved.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == electrified_threat.get("projected_destination", Vector2i.ZERO) and int((electrified_resolved.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Electrified exact projection should match movement-only resolution")
+	expect.call(((electrified_resolved.get("tile_effects", {}) as Dictionary).get("surfaces", []) as Array).is_empty(), "Electrified should be consumed when it suppresses an enemy activation")
 
 	var immobilized_enemy: Dictionary = _enemy(Vector2i(5, 4), intent)
 	immobilized_enemy["immobilize"] = true

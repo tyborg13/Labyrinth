@@ -4,7 +4,6 @@ const GameData = preload("res://scripts/game_data.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
-const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_art.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
@@ -5445,7 +5444,7 @@ func _test_player_restriction_badges_show_turn_lock() -> void:
 
 func _test_air_trap_tooltip_is_damage_only() -> void:
 	var board := CombatBoardView.new()
-	board.combat_state = {"elemental_intensity": {ElementData.AIR: 1}}
+	board.combat_state = {"room_element": ElementData.AIR}
 	var tooltip: String = str(board.call("_trap_tooltip_text", {
 		"element": "air",
 		"damage": 3
@@ -7255,10 +7254,9 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((cost_row[1] as Dictionary).get("icon", "")) == "health_cost", "Health costs should use the health-cost token")
 	var consume_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("crimson_draught"))
 	_assert(consume_cost_rows.size() == 1 and str(((consume_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "consume", "Consumable item cards should show a one-use cost icon")
-	_assert(not ActionIcons.tooltip("burn").contains("card"), "Burn status tooltip should not describe card exhaust costs")
 	_assert(ActionIcons.tooltip("exhaust").contains("Removes this card"), "Exhaust cost tooltip should describe card removal")
 	_assert(ActionIcons.tooltip("consume").contains("once"), "Consume cost tooltip should describe one-time item use")
-	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
+	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("surface_poison"))
 	_assert(
 		tooltip_panel.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null
 		and not tooltip_panel.find_children("*", "VBoxContainer", true, false).is_empty(),
@@ -10821,94 +10819,6 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_intensity_condition_rows_mark_activity() -> void:
-	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
-	if run_scene == null:
-		_failures.append("Run scene should load for intensity display coverage")
-		return
-	var instance: Node = run_scene.instantiate()
-	root.add_child(instance)
-	await process_frame
-	var combat: CombatEngine = CombatEngine.new()
-	var earth_layout: Dictionary = _simple_room_layout()
-	earth_layout["element"] = ElementData.EARTH
-	var active_state: Dictionary = combat.create_combat(15124, earth_layout, {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var active_display: Dictionary = instance.call("_card_widget_display", "venom_claw", active_state)
-	var active_token: Dictionary = _first_intensity_requirement_token(active_display.get("summary_rows", []))
-	_assert(not active_token.is_empty() and bool(active_token.get("condition_active", false)), "A card that builds enough intensity before its bonus should mark that bonus active")
-	var fire_layout: Dictionary = _simple_room_layout()
-	fire_layout["element"] = ElementData.FIRE
-	var inactive_state: Dictionary = combat.create_combat(15125, fire_layout, {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var inactive_display: Dictionary = instance.call("_card_widget_display", "venom_claw", inactive_state)
-	var inactive_token: Dictionary = _first_intensity_requirement_token(inactive_display.get("summary_rows", []))
-	_assert(not inactive_token.is_empty() and not bool(inactive_token.get("condition_active", false)), "An unmet intensity bonus should not render as active")
-	instance.queue_free()
-	await process_frame
-
-func _test_card_widget_active_intensity_condition_glows() -> void:
-	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
-	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
-	if run_scene == null or card_scene == null:
-		_failures.append("Run scene and CardWidget scene should load for intensity glow coverage")
-		return
-	var instance: Node = run_scene.instantiate()
-	root.add_child(instance)
-	await process_frame
-	var combat: CombatEngine = CombatEngine.new()
-	var earth_layout: Dictionary = _simple_room_layout()
-	earth_layout["element"] = ElementData.EARTH
-	var active_state: Dictionary = combat.create_combat(15126, earth_layout, {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var active_display: Dictionary = instance.call("_card_widget_display", "venom_claw", active_state)
-	var widget := card_scene.instantiate() as CardWidget
-	widget.custom_minimum_size = Vector2(250.0, 352.0)
-	widget.size = Vector2(250.0, 352.0)
-	root.add_child(widget)
-	await process_frame
-	widget.configure("venom_claw", false, false, true, false, false, true, GameData.card_def("venom_claw"))
-	widget.set_display_overrides(str(active_display.get("summary_bbcode", "")), active_display.get("modifier_lines", []), active_display.get("summary_rows", []))
-	await process_frame
-	var glow: Control = widget.get_node_or_null("IntensityActiveGlow") as Control
-	_assert(glow != null and glow.visible, "A card with an active elemental intensity condition should show the full-card glow")
-	_assert(glow != null and str(glow.get("element_id")) == ElementData.EARTH, "The active intensity glow should use the triggered element")
-	var fire_layout: Dictionary = _simple_room_layout()
-	fire_layout["element"] = ElementData.FIRE
-	var inactive_state: Dictionary = combat.create_combat(15127, fire_layout, {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var inactive_display: Dictionary = instance.call("_card_widget_display", "venom_claw", inactive_state)
-	widget.set_display_overrides(str(inactive_display.get("summary_bbcode", "")), inactive_display.get("modifier_lines", []), inactive_display.get("summary_rows", []))
-	await process_frame
-	_assert(glow != null and not glow.visible, "A card below its elemental intensity threshold should hide the full-card glow")
-	widget.queue_free()
-	instance.queue_free()
-	await process_frame
-
 func _test_card_widget_flurry_icon_uses_wide_slot() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
@@ -10989,19 +10899,6 @@ func _test_card_widget_debossed_role_emblems() -> void:
 	_assert(value_suffix != null and value_suffix.get_theme_constant("outline_size") == 3, "Normal action values should use a stronger outline without a separate halo")
 	widget.queue_free()
 	await process_frame
-
-func _first_intensity_requirement_token(rows: Array) -> Dictionary:
-	for row_var: Variant in rows:
-		if typeof(row_var) != TYPE_ARRAY:
-			continue
-		var row: Array = row_var as Array
-		for token_var: Variant in row:
-			if typeof(token_var) != TYPE_DICTIONARY:
-				continue
-			var token: Dictionary = token_var
-			if str(token.get("kind", "")) == "intensity_requirement":
-				return token
-	return {}
 
 func _test_run_scene_ranged_cards_show_range() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
@@ -11643,10 +11540,10 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
+func _test_run_scene_relic_header_wraps_without_intensity_hud() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
-		_failures.append("Run scene should load for relic/intensity HUD layout coverage")
+		_failures.append("Run scene should load for relic HUD layout coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -11700,53 +11597,10 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 			if index % 5 == 0:
 				_assert(child_control != null and absf(child_control.global_position.x - first_row_x) <= 1.0, "Every wrapped relic line should share the first line's left edge")
 		var first_row_end: float = (relic_grid.get_child(4) as Control).get_global_rect().end.x
-		_assert(absf((first_row_end - first_row_x) - ElementalIntensityHudArt.CLUSTER_SIZE.x) <= 12.0, "Five relics should occupy approximately the elemental intensity widget width")
-	var intensity_bar: Control = instance.get("_intensity_bar") as Control
-	_assert(intensity_bar != null and intensity_bar.visible, "Combat should show the elemental intensity HUD")
-	var intensity_badges: Dictionary = instance.get("_intensity_badges") as Dictionary
-	if intensity_bar != null and not intensity_badges.is_empty():
-		var first_badge: Control = intensity_badges.get(ElementData.FIRE, null)
-		_assert(first_badge.custom_minimum_size.x <= 76.0 and first_badge.custom_minimum_size.y <= 110.0, "Hanging elemental charms should stay compact in the top-left utility lane")
-		_assert(intensity_badges.size() == 5, "Combat intensity HUD should show only the five elements")
-		_assert(intensity_bar.find_child("AuthoredRailAndChains", false, false) is TextureRect, "Elemental intensity HUD should use the authored rail-and-chains raster")
-		var charm_paths: Dictionary = {}
-		for element_id: String in ElementData.all_elements():
-			var badge: PanelContainer = intensity_badges.get(element_id, null)
-			var charm_path: String = str(badge.get_meta("charm_art_path", "")) if badge != null else ""
-			_assert(badge != null and badge.get_theme_stylebox("panel") is StyleBoxEmpty, "%s intensity charm should not sit in a generic panel box" % element_id)
-			_assert(not charm_path.is_empty() and not charm_paths.has(charm_path), "%s intensity charm should use a distinct authored silhouette" % element_id)
-			charm_paths[charm_path] = true
-			var placard: TextureRect = badge.find_child("AuthoredNumberPlacard", true, false) as TextureRect
-			var value_label: Label = (instance.get("_intensity_labels") as Dictionary).get(element_id, null)
-			_assert(placard != null and placard.size.x <= placard.size.y, "%s intensity charm should carry a compact single-digit placard" % element_id)
-			_assert(value_label != null and value_label.clip_text and Rect2(placard.position, placard.size).encloses(Rect2(value_label.position, value_label.size)), "%s intensity value should remain contained by its placard" % element_id)
-			_assert(absf(ElementalIntensityHudArt.charm_attachment_x(element_id) - ElementalIntensityHudArt.chain_endpoint_x(element_id)) <= 0.5, "%s intensity charm should align with its authored chain" % element_id)
-		var top_y: float = first_badge.position.y
-		var second_row_y: float = (intensity_badges.get(ElementData.AIR, null) as Control).position.y
-		for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING]:
-			var badge: Control = intensity_badges.get(element_id, null)
-			_assert(absf(badge.position.y - top_y) <= 1.0, "Elemental intensity HUD should keep the first three icons on the top row")
-		for element_id: String in [ElementData.AIR, ElementData.EARTH]:
-			var badge: Control = intensity_badges.get(element_id, null)
-			_assert(absf(badge.position.y - second_row_y) <= 1.0, "Elemental intensity HUD should keep the final two icons on the second row")
-		var top_middle: Control = intensity_badges.get(ElementData.ICE, null)
-		var bottom_left: Control = intensity_badges.get(ElementData.AIR, null)
-		var bottom_right: Control = intensity_badges.get(ElementData.EARTH, null)
-		var top_middle_center: float = top_middle.position.x + top_middle.size.x * 0.5
-		var bottom_pair_center: float = (bottom_left.position.x + bottom_right.position.x + bottom_right.size.x) * 0.5
-		_assert(absf(top_middle_center - bottom_pair_center) <= 1.0, "Room-pressure HUD second row should be centered under the top row")
-		var relic_block_bottom: float = float(instance.call("_relic_bar_visible_bottom_y"))
-		var gap: float = intensity_bar.global_position.y - relic_block_bottom
-		_assert(gap >= 0.0 and gap <= 5.0, "Elemental intensity HUD should sit directly under the complete relic block without a stale layout gap")
-		_assert(absf(intensity_bar.global_position.x - relic_grid.global_position.x) <= 1.0, "Relics and elemental intensity should share the same screen-left edge")
-		if relic_grid != null:
-			for index: int in range(relic_grid.get_child_count()):
-				var relic_icon: Control = relic_grid.get_child(index) as Control
-				_assert(not relic_icon.get_global_rect().intersects(intensity_bar.get_global_rect()), "The relic block should remain completely above the elemental intensity widget")
+		_assert(first_row_end - first_row_x > 200.0 and first_row_end - first_row_x < 400.0, "Five relics should stay in a compact readable first row")
+	_assert(instance.find_child("ElementalIntensityBar", true, false) == null, "Combat should not instantiate the retired elemental-intensity HUD")
 	# A new run reuses this RunScene. Clearing a crowded relic inventory must also
-	# clear its layout footprint immediately instead of retaining the prior run's
-	# lower intensity position until the client restarts.
-	var relic_heavy_intensity_y: float = intensity_bar.global_position.y
+	# clear its layout footprint immediately.
 	var next_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	var next_combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	next_run_state["relics"] = []
@@ -11757,10 +11611,7 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var expected_zero_relic_y: float = (instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle") as Control).get_global_rect().end.y + 2.0
 	_assert(not relic_bar.visible and relic_grid.get_child_count() == 0, "A new zero-relic run should clear and hide the prior run's relic HUD")
-	_assert(intensity_bar.global_position.y < relic_heavy_intensity_y, "A new zero-relic run should move elemental intensity back above its prior crowded position")
-	_assert(absf(intensity_bar.global_position.y - expected_zero_relic_y) <= 1.0, "A new zero-relic run should restore elemental intensity directly below the compact header (actual=%.1f expected=%.1f)" % [intensity_bar.global_position.y, expected_zero_relic_y])
 	instance.queue_free()
 	await process_frame
 
@@ -12461,7 +12312,9 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
-	_assert(play_payload.has("elemental_intensity_spent"), "Card play analytics should include intensity spent by printed costs or relic payoffs")
+	_assert((play_payload.get("elemental_intensity_spent", {}) as Dictionary).is_empty(), "Card play analytics should retain the deprecated intensity-spent key as an empty compatibility map")
+	_assert(play_payload.has("field_tiles_created") and play_payload.has("surface_tiles_created") and play_payload.has("surface_tiles_consumed"), "Card play analytics should include Field and Surface deltas")
+	_assert(play_payload.has("combust_actions"), "Card play analytics should count resolved Combust actions")
 	_assert(play_payload.has("terrain_hp_damage"), "Card play analytics should include terrain damage")
 	_assert(play_payload.has("terrain_destroyed"), "Card play analytics should include destroyed terrain")
 	_assert(play_payload.has("traps_triggered"), "Card play analytics should include triggered traps")
@@ -12818,10 +12671,8 @@ func _chainbound_gaoler_combat_state(seed: int, player_pos: Vector2i, gaoler_pos
 		"stoneskin": 0,
 		"intent": _enemy_intent_by_id("chainbound_gaoler", intent_id)
 	}]
-	var intensity: Dictionary = combat.elemental_intensities(state)
-	intensity[ElementData.AIR] = 2
-	state["elemental_intensity"] = intensity
 	state["rng_state"] = seed
+	combat.call("_commit_enemy_intent_plan", state, 0)
 	return state
 
 func _support_action_test_state() -> Dictionary:
@@ -12919,7 +12770,6 @@ func _test_hidden_enemy_status_steps_do_not_leak_identity_or_tile() -> void:
 	layout["umbra_stage"] = "heart"
 	var state: Dictionary = combat.create_combat(44004, layout, {"hp": 100, "max_hp": 100, "deck_cards": ["quick_stab"], "hand_size": 1})
 	var enemy: Dictionary = ((state.get("enemies", []) as Array)[0] as Dictionary).duplicate(true)
-	enemy["burn"] = 1
 	enemy["bleed"] = 1
 	enemy["intent"] = {"id": "hidden_test", "name": "Hidden Test", "actions": [{"type": "ranged", "damage": 1, "range": 9}]}
 	(state.get("enemies", []) as Array)[0] = enemy
@@ -12935,7 +12785,7 @@ func _test_hidden_enemy_status_steps_do_not_leak_identity_or_tile() -> void:
 		_assert(bool(step.get("hidden_by_umbra", false)), "Hidden enemy status damage should use the Umbra presentation guard")
 		_assert(str(step.get("actor_name", "")) == "Unknown Presence", "Hidden enemy status damage should not reveal identity")
 		_assert((step.get("tile", Vector2i.ZERO) as Vector2i).x < 0, "Hidden enemy status damage should not reveal its tile")
-	_assert(hidden_status_count >= 2, "The hidden status fixture should cover start-of-turn Burn and action-triggered Bleed")
+	_assert(hidden_status_count >= 1, "The hidden status fixture should cover action-triggered Bleed")
 
 func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")

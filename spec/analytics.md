@@ -37,6 +37,9 @@ available:
 - `defiance_capacity`
 - `defiance_remaining`
 - `combat_unit_scale`, currently `1` for natural whole-number combat units
+- `field_tiles`, as counts by Field kind
+- `surface_tiles`, as counts by Surface kind
+- `elemental_intensity`, retained as an empty deprecated compatibility map
 
 ## Current Event Types
 
@@ -51,7 +54,9 @@ available:
 - `card_drawn`
 - `card_became_playable`
 - `card_played`
+- `free_move_used`
 - `enemy_action_resolved`
+- `enemy_terrain_resolved`
 - `enemy_status_tick`
 - `defiance_triggered`
 - `progression_level_up`
@@ -84,7 +89,9 @@ The current event stream is enough to derive:
   `reward_cards`, `attuned_magic_cards`, `magic_inventory`,
   `equipped_items`, `item_inventory`, `equipment_inventory`, and
   `equipment_drops`
-- elemental intensity at combat start via `combat_started.payload.elemental_intensity`
+- opening Field and Surface occupancy via `combat_started.payload.field_tiles`
+  and `surface_tiles`; the established `elemental_intensity` key remains present
+  as an empty deprecated compatibility map
 - draw count via `card_drawn`
 - playable count via `card_became_playable`
 - play count via `card_played`
@@ -97,7 +104,7 @@ scalar value to a learned skill.
 
 They should likewise group or filter by `relics` when evaluating card results.
 Relic engines can mutate printed actions or add draw, play, defense, status,
-movement, and elemental-intensity payoffs during the resolved transition.
+movement, Field, Surface, and Combust payoffs during the resolved transition.
 
 `card_played.payload` currently logs raw observed ingredients instead of a single heuristic score:
 
@@ -124,12 +131,14 @@ movement, and elemental-intensity payoffs during the resolved transition.
   than multiplying it by `flurry_plays_spent`.
 - initiative timing: printed `card_time`, player turn time spent before/after
   the play, and the current `player_base_initiative`
-- elemental intensity before/after resolution, gross positive per-element
-  intensity gained by the played card, and intensity spent by printed card
-  costs or relic payoffs
+- Field and Surface counts before/after resolution, positive per-kind tile
+  creation, Surface consumption, and resolved Combust action count. Established
+  elemental-intensity before/after/gained/spent keys remain as empty deprecated
+  compatibility maps.
 - illusions created and their total created health
-- immediate status application deltas for burn, bleed, expose, freeze, shock,
-  immobilize, and poison
+- immediate status application deltas for retained actor statuses such as
+  bleed, expose, sunder, and immobilize; retired actor Burn, Poison, Freeze,
+  and Shock remain zero in established compatibility fields
 - actual resolved action list and chosen targets
 - consumable item flags via `item_card` and `consume_on_play`
 - Radiance and visibility context: `radiance_card`, Umbra stage and radius
@@ -153,29 +162,31 @@ at the actual resolved endpoint, which may differ from the chosen target after
 a hidden-enemy movement interruption; the existing movement-interruption and
 fixed-light-source deltas preserve both facts without adding a target event.
 
-AOE card actions are logged in that action list with their explicit `pattern`
-offsets so offline balance analysis can distinguish close, line, cluster, and
-large-area attacks. Runtime-selected AOE aim orientation is additive on the
-resolved action as `orientation`; legal push and pull direction choices are
-additive as `force_direction`, while `play_mode` comparison ignores those runtime
-direction fields so printed cards still classify as printed plays.
+Attack actions are logged with explicit `pattern` offsets so offline balance
+analysis can distinguish line, cluster, cross, and broad attacks. Runtime
+`orientation` is derived automatically from the chosen anchor. Push and pull
+direction comes from that predefined pattern rather than a second player
+choice; `play_mode` comparison still ignores derived runtime direction fields.
 
-`enemy_status_tick` captures delayed enemy status resolution. Burn and poison
-use `trigger: "turn_start"` when the affected enemy's initiative activation
-starts; bleed can use `trigger: "action"` plus `action_type` when a wounded enemy
-resolves a move or attack action during that activation. It is useful for later
-value-model work, but it is not yet card-source attributed.
+`enemy_status_tick` remains an append-only compatibility event for delayed
+retained statuses. Bleed can use `trigger: "action"` plus `action_type` when a
+wounded enemy resolves a move or attack action. Actor Burn, Poison, Freeze, and
+Shock no longer produce live ticks.
+
+`enemy_terrain_resolved` records enemy activation-start interaction with
+Corruption, Radiance, or Electrified, including actor identity, tile, and the
+resolved label/text. Field and Surface counts remain available in event context.
 
 `enemy_action_resolved` records each resolved enemy movement, attack, defense,
-heal, summon, elemental-intensity build, or authored dragon-boss mechanic step.
+heal, summon, board-effect placement, or authored dragon-boss mechanic step.
 Group support actions include additive `support_targets` entries with each
 recipient's actor key, display name, tile, and realized amount; this lets Warden
 Bulwark record every protected ally without splitting one intent into misleading
 separate actions.
-Its additive `elemental_intensity_gained` and `elemental_intensity_spent` maps
-capture specialist builders and attached enemy payoff costs. Boss mechanics retain the
-specific `action_type`, use `presentation_kind` for their animation family, and
-set `boss_mechanic: true`; they do not also emit misleading
+Its established `elemental_intensity_gained` and
+`elemental_intensity_spent` maps remain empty compatibility fields. Boss
+mechanics retain the specific `action_type`, use `presentation_kind` for their
+animation family, and set `boss_mechanic: true`; they do not also emit misleading
 `enemy_status_tick` events. Movement payloads include the exact ordered `path`,
 `path_steps`, selected `target_key`, actor/terrain losses caused by hazards, and
 triggered traps. Attack payloads retain target, terrain, and trap consequences.
@@ -183,6 +194,11 @@ This makes route choice, obstacle-clearing efficiency, voluntary trap exposure,
 Worldspine and cinder-mark pressure, forced Gale movement, crystal armor, Last
 Eclipse pressure, and realized enemy damage observable without changing the
 append-only schema.
+
+`free_move_used` records the chosen destination, actual ordered movement path,
+and distance moved with the normal Field and Surface context around the
+transition. It is separate from `card_played` because free Move 2 spends neither
+a card play nor initiative Time.
 
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as

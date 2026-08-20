@@ -61,6 +61,19 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 		var trap_position: Vector2i = trap.get("pos", Vector2i.ZERO)
 		trap_elements.append(str(trap.get("element", "")))
 		trap_positions.append("%d,%d" % [trap_position.x, trap_position.y])
+	var field_tiles: Array[String] = []
+	var surface_tiles: Array[String] = []
+	var tile_effects: Dictionary = combat_state.get("tile_effects", {}) as Dictionary
+	for entry_var: Variant in tile_effects.get("fields", []):
+		if typeof(entry_var) == TYPE_DICTIONARY:
+			var entry: Dictionary = entry_var as Dictionary
+			var position: Vector2i = entry.get("pos", Vector2i.ZERO)
+			field_tiles.append("%s@%d,%d" % [str(entry.get("kind", "")), position.x, position.y])
+	for entry_var: Variant in tile_effects.get("surfaces", []):
+		if typeof(entry_var) == TYPE_DICTIONARY:
+			var entry: Dictionary = entry_var as Dictionary
+			var position: Vector2i = entry.get("pos", Vector2i.ZERO)
+			surface_tiles.append("%s@%d,%d" % [str(entry.get("kind", "")), position.x, position.y])
 	var reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
 	var current_room: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	return {
@@ -72,6 +85,8 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 		"enemy_types": enemy_types,
 		"trap_elements": trap_elements,
 		"trap_positions": trap_positions,
+		"field_tiles": field_tiles,
+		"surface_tiles": surface_tiles,
 		"reward_cards": _string_array(reward.get("cards", [])),
 		"relic_choices": _string_array(run_state.get("pending_relics", [])),
 		"progression_level": int(progression.get("level", 1)),

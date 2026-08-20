@@ -2,9 +2,11 @@ extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
@@ -98,6 +100,8 @@ func _parse_args() -> Dictionary:
 		"elemental_intensity": "",
 		"trap_elements": "",
 		"trap_positions": "",
+		"fields": "",
+		"surfaces": "",
 		"reward_cards": "",
 		"relic_choices": "",
 		"relics": "",
@@ -181,6 +185,12 @@ func _parse_args() -> Dictionary:
 			"--trap-positions":
 				index += 1
 				parsed["trap_positions"] = _required_arg(args, index, arg)
+			"--fields":
+				index += 1
+				parsed["fields"] = _required_arg(args, index, arg)
+			"--surfaces":
+				index += 1
+				parsed["surfaces"] = _required_arg(args, index, arg)
 			"--reward-cards":
 				index += 1
 				parsed["reward_cards"] = _required_arg(args, index, arg)
@@ -283,6 +293,8 @@ func _print_help() -> void:
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("  --elemental-intensity fire=2,ice=2,lightning=2,air=2,earth=2")
 	print("  --trap-elements fire,ice [--trap-positions 3:4,5:2]")
+	print("  --fields corruption@2:2,radiance@3:2")
+	print("  --surfaces bramble@2:3,poison@3:3,ice@4:3,snowdrift@5:3,electrified@6:3")
 	print("  --enemy-types enemy_a,enemy_b --enemy-positions 6:1,5:4 --enemy-intents intent_a,intent_b")
 	print("  --enemy-hp N --equipment-drop equipment_id [--equipment-drop-position 6:5]")
 	print("  --umbra-stage clear|fringe|advancing|pressing|deep|heart|eclipse")
@@ -715,6 +727,13 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 		combat_state = _apply_trap_overrides(combat_state)
 		if _failed:
 			return state
+	if (
+		not str(_options.get("fields", "")).strip_edges().is_empty()
+		or not str(_options.get("surfaces", "")).strip_edges().is_empty()
+	):
+		combat_state = _apply_tile_effect_overrides(combat_state)
+		if _failed:
+			return state
 	var umbra_stage: String = str(_options.get("umbra_stage", "")).strip_edges().to_lower()
 	if not umbra_stage.is_empty():
 		if not VALID_UMBRA_STAGES.has(umbra_stage):
@@ -867,6 +886,42 @@ func _apply_trap_overrides(combat_state: Dictionary) -> Dictionary:
 				trap["poison"] = 1
 		traps.append(trap)
 	state["traps"] = traps
+	return state
+
+func _apply_tile_effect_overrides(combat_state: Dictionary) -> Dictionary:
+	var state: Dictionary = combat_state.duplicate(true)
+	state["tile_effects"] = {"fields": [], "surfaces": []}
+	var grid: Array = state.get("grid", []) as Array
+	var expires_at: int = int(state.get("initiative_clock", 0)) + maxi(
+		CombatTerrainRules.DEFAULT_FIELD_DURATION,
+		CombatTerrainRules.DEFAULT_SURFACE_DURATION
+	)
+	for layer: String in ["fields", "surfaces"]:
+		var valid_kinds: Array[String] = CombatTerrainRules.VALID_FIELDS if layer == "fields" else CombatTerrainRules.VALID_SURFACES
+		var occupied: Dictionary = {}
+		for entry: String in _string_list(str(_options.get(layer, ""))):
+			var pair: PackedStringArray = entry.split("@", false, 2)
+			if pair.size() != 2:
+				_fail("Invalid --%s entry %s. Use kind@x:y." % [layer, entry])
+				return combat_state
+			var kind: String = pair[0].strip_edges().to_lower()
+			if kind not in valid_kinds:
+				_fail("Unknown %s kind %s. Expected one of: %s" % [layer.trim_suffix("s"), kind, ", ".join(valid_kinds)])
+				return combat_state
+			var tile: Vector2i = _parse_colon_coord(pair[1], "--%s" % layer)
+			if _failed:
+				return combat_state
+			if not PathUtils.is_passable(grid, tile):
+				_fail("--%s tile %s must be an in-bounds passable board tile" % [layer, tile])
+				return combat_state
+			if occupied.has(tile):
+				_fail("--%s may only place one effect on tile %s" % [layer, tile])
+				return combat_state
+			occupied[tile] = true
+			if layer == "fields":
+				CombatTerrainRules.place_field(state, [tile], kind, expires_at)
+			else:
+				CombatTerrainRules.place_surface(state, [tile], kind, expires_at)
 	return state
 
 func _automatic_inspection_trap_positions(
@@ -1213,6 +1268,19 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 		var trap_position: Vector2i = trap.get("pos", INVALID_COORD)
 		trap_elements.append(str(trap.get("element", "")))
 		trap_positions.append("%d,%d" % [trap_position.x, trap_position.y])
+	var field_tiles: Array[String] = []
+	var surface_tiles: Array[String] = []
+	var tile_effects: Dictionary = combat_state.get("tile_effects", {}) as Dictionary
+	for entry_var: Variant in tile_effects.get("fields", []):
+		if typeof(entry_var) == TYPE_DICTIONARY:
+			var entry: Dictionary = entry_var as Dictionary
+			var position: Vector2i = entry.get("pos", INVALID_COORD)
+			field_tiles.append("%s@%d,%d" % [str(entry.get("kind", "")), position.x, position.y])
+	for entry_var: Variant in tile_effects.get("surfaces", []):
+		if typeof(entry_var) == TYPE_DICTIONARY:
+			var entry: Dictionary = entry_var as Dictionary
+			var position: Vector2i = entry.get("pos", INVALID_COORD)
+			surface_tiles.append("%s@%d,%d" % [str(entry.get("kind", "")), position.x, position.y])
 	var reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
 	var current_room: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	return {
@@ -1224,6 +1292,8 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 		"enemy_types": enemy_types,
 		"trap_elements": trap_elements,
 		"trap_positions": trap_positions,
+		"field_tiles": field_tiles,
+		"surface_tiles": surface_tiles,
 		"reward_cards": _string_array(reward.get("cards", []) as Array),
 		"relic_choices": _string_array(run_state.get("pending_relics", []) as Array),
 		"progression_level": int(progression.get("level", 1)),

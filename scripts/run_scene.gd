@@ -9,7 +9,6 @@ const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
-const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_art.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -59,12 +58,6 @@ class TooltipPanelContainer:
 		if for_text.strip_edges().is_empty():
 			return null
 		return UiTooltipPanelScript.make_text(for_text)
-
-class IntensityCharmTooltipPanel:
-	extends TooltipPanelContainer
-
-	func _has_point(point: Vector2) -> bool:
-		return ElementalIntensityHudArt.pointer_hit_test(point)
 
 class EquipmentTooltipPanelContainer:
 	extends TooltipPanelContainer
@@ -1193,7 +1186,6 @@ const SKILL_CARD_SELECTION_PROMPT_SIZE: Vector2 = Vector2(620.0, 56.0)
 const SKILL_CHOICE_DIALOG_SIZE: Vector2 = Vector2(610.0, 520.0)
 const SKILL_CHOICE_DIALOG_MIN_SIZE: Vector2 = Vector2(360.0, 320.0)
 const HEADER_RELIC_WRAP_MARGIN: float = 24.0
-const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const NON_COMBAT_BOARD_OPTION_CLEARANCE: float = 72.0
 const NON_COMBAT_BOARD_SCREEN_BOTTOM_CLEARANCE: float = 120.0
@@ -1612,7 +1604,6 @@ var _action_step_resolution_card_id: String = ""
 var _action_step_resolution_actions: Array = []
 var _action_step_resolution_index: int = 0
 var _action_step_resolution_targets: Array[Vector2i] = []
-var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
 var _turn_order_anchor: Control
 var _turn_order_bar: Control
@@ -1632,11 +1623,6 @@ var _show_all_enemy_intents: bool = false
 var _turn_order_panel_locked_width: float = -1.0
 var _turn_order_source_signature: String = "<unset>"
 var _turn_order_render_signature: String = "<unset>"
-var _intensity_badges: Dictionary = {}
-var _intensity_labels: Dictionary = {}
-var _intensity_charms: Dictionary = {}
-var _intensity_glows: Dictionary = {}
-var _intensity_content_hosts: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
 var _card_play_resolution_spend: int = 0
@@ -1989,7 +1975,6 @@ func _notification(what: int) -> void:
 		_layout_relic_choice_overlay()
 		_layout_choice_button_overlay()
 		_layout_header_hud()
-		_layout_elemental_intensity_bar()
 		_layout_turn_order_anchor()
 		_layout_contextual_combat_prompt_overlay()
 		_layout_grimoire_dialog()
@@ -6762,9 +6747,6 @@ func _reset_card_proxy_widget_transients(widget: Control) -> void:
 	var time_badge: Variant = widget.get("_time_badge")
 	if time_badge is Node and (time_badge as Node).has_method("set_hovered"):
 		(time_badge as Node).call("set_hovered", false)
-	var intensity_glow: Variant = widget.get("_intensity_active_glow")
-	if intensity_glow is Node:
-		(intensity_glow as Node).set("_pulse_phase", 0.0)
 
 func _take_pooled_card_proxy() -> Control:
 	while not _card_proxy_pool.is_empty():
@@ -7035,7 +7017,6 @@ func _contextual_combat_prompt_protected_rects() -> Array:
 		result.append(board_bounds.grow(CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP))
 	for control_var: Variant in [
 		top_bar,
-		_intensity_bar,
 		_combat_objective_hud,
 		draw_pile,
 		discard_pile,
@@ -7672,106 +7653,6 @@ func _visible_hbox_minimum_width(container: HBoxContainer) -> float:
 		width += float(container.get_theme_constant("separation")) * float(visible_children - 1)
 	return width
 
-func _setup_elemental_intensity_bar() -> void:
-	_intensity_bar = Control.new()
-	_intensity_bar.name = "ElementalIntensityBar"
-	_intensity_bar.visible = false
-	_intensity_bar.mouse_filter = Control.MOUSE_FILTER_PASS
-	_intensity_bar.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_intensity_bar.custom_minimum_size = _intensity_bar_size()
-	_intensity_bar.size = _intensity_bar_size()
-	_intensity_bar.z_index = 30
-	ui_root.add_child(_intensity_bar)
-	var rig := TextureRect.new()
-	rig.name = "AuthoredRailAndChains"
-	rig.position = ElementalIntensityHudArt.RIG_RECT.position
-	rig.size = ElementalIntensityHudArt.RIG_RECT.size
-	rig.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	rig.stretch_mode = TextureRect.STRETCH_SCALE
-	rig.texture = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementalIntensityHudArt.RIG_TEXTURE_PATH), 0.025)
-	rig.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rig.z_index = -20
-	rig.set_meta("authored_raster_role", "rail_and_chains")
-	_intensity_bar.add_child(rig)
-	for element_id: String in ElementData.all_elements():
-		var badge := IntensityCharmTooltipPanel.new()
-		badge.name = "%sCharm" % ElementData.name(element_id)
-		badge.custom_minimum_size = ElementalIntensityHudArt.ITEM_SIZE
-		badge.size = ElementalIntensityHudArt.ITEM_SIZE
-		badge.mouse_filter = Control.MOUSE_FILTER_STOP
-		badge.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-		badge.tooltip_text = _intensity_tooltip(element_id)
-		badge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-		badge.set_meta("element_id", element_id)
-		badge.set_meta("charm_art_path", ElementData.intensity_charm_path(element_id))
-		_intensity_bar.add_child(badge)
-		_intensity_badges[element_id] = badge
-
-		var content := Control.new()
-		content.name = "CharmContent"
-		content.set_anchors_preset(Control.PRESET_FULL_RECT)
-		content.anchor_right = 1.0
-		content.anchor_bottom = 1.0
-		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		badge.add_child(content)
-		_intensity_content_hosts[element_id] = content
-
-		var charm_texture: Texture2D = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementData.intensity_charm_path(element_id)))
-		var glow := TextureRect.new()
-		glow.name = "IntensityGlow"
-		glow.position = ElementalIntensityHudArt.CHARM_RECT.position
-		glow.size = ElementalIntensityHudArt.CHARM_RECT.size
-		glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		glow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		glow.texture = charm_texture
-		glow.material = ElementalIntensityHudArt.make_glow_material(element_id, 0)
-		glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		glow.visible = false
-		glow.set_meta("element_id", element_id)
-		content.add_child(glow)
-		_intensity_glows[element_id] = glow
-
-		var charm := TextureRect.new()
-		charm.name = "AuthoredCharmArt"
-		charm.position = ElementalIntensityHudArt.CHARM_RECT.position
-		charm.size = ElementalIntensityHudArt.CHARM_RECT.size
-		charm.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		charm.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		charm.texture = charm_texture
-		charm.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		charm.set_meta("authored_raster_role", "element_charm")
-		content.add_child(charm)
-		_intensity_charms[element_id] = charm
-
-		var placard := TextureRect.new()
-		placard.name = "AuthoredNumberPlacard"
-		placard.position = ElementalIntensityHudArt.PLACARD_RECT.position
-		placard.size = ElementalIntensityHudArt.PLACARD_RECT.size
-		placard.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		placard.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		placard.texture = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementalIntensityHudArt.PLACARD_TEXTURE_PATH), 0.035)
-		placard.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		placard.set_meta("authored_raster_role", "number_placard")
-		content.add_child(placard)
-
-		var count := Label.new()
-		count.name = "IntensityValue"
-		count.position = ElementalIntensityHudArt.NUMBER_LABEL_RECT.position
-		count.size = ElementalIntensityHudArt.NUMBER_LABEL_RECT.size
-		count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		count.clip_text = true
-		count.text = "0"
-		UiTypography.set_label_size(count, UiTypography.SIZE_BODY_LARGE)
-		count.add_theme_color_override("font_color", Color("fff7df"))
-		count.add_theme_color_override("font_outline_color", Color("24160f"))
-		count.add_theme_constant_override("outline_size", 2)
-		content.add_child(count)
-		_intensity_labels[element_id] = count
-	_layout_intensity_badges()
-	_refresh_elemental_intensity_bar()
-
 func _setup_relic_bar_layout() -> void:
 	_relic_utility_bar = HBoxContainer.new()
 	_relic_utility_bar.name = "RelicUtilityLane"
@@ -7795,32 +7676,12 @@ func _connect_header_layout_signals() -> void:
 		var control: Control = control_var as Control
 		if control == null:
 			continue
-		if not control.resized.is_connected(_queue_elemental_intensity_layout):
-			control.resized.connect(_queue_elemental_intensity_layout)
+		if not control.resized.is_connected(_queue_header_layout):
+			control.resized.connect(_queue_header_layout)
 
-func _queue_elemental_intensity_layout() -> void:
+func _queue_header_layout() -> void:
 	call_deferred("_layout_header_hud")
-	call_deferred("_layout_elemental_intensity_bar")
 	call_deferred("_layout_turn_order_anchor")
-
-func _intensity_bar_size() -> Vector2:
-	return ElementalIntensityHudArt.CLUSTER_SIZE
-
-func _intensity_badge_position(index: int) -> Vector2:
-	if index < 0 or index >= ElementData.all_elements().size():
-		return Vector2.ZERO
-	return ElementalIntensityHudArt.item_position(ElementData.all_elements()[index])
-
-func _layout_intensity_badges() -> void:
-	if _intensity_bar == null:
-		return
-	for index: int in range(ElementData.all_elements().size()):
-		var element_id: String = ElementData.all_elements()[index]
-		var badge: Control = _intensity_badges.get(element_id, null)
-		if badge == null:
-			continue
-		badge.position = _intensity_badge_position(index)
-		badge.size = ElementalIntensityHudArt.ITEM_SIZE
 
 func _layout_header_hud() -> void:
 	if title_box == null:
@@ -7894,25 +7755,6 @@ func _header_title_available_width() -> float:
 	var separation: float = float(top_bar.get_theme_constant("separation"))
 	var total_gap: float = separation * float(maxi(0, visible_children - 1))
 	return maxf(0.0, width - fixed_width - total_gap - HEADER_RELIC_WRAP_MARGIN)
-
-func _layout_elemental_intensity_bar() -> void:
-	if _intensity_bar == null or room_title == null or room_subtitle == null:
-		return
-	_layout_header_hud()
-	_intensity_bar.size = _intensity_bar_size()
-	_layout_intensity_badges()
-	var title_rect: Rect2 = room_title.get_global_rect()
-	var subtitle_bottom: float = room_subtitle.get_global_rect().end.y
-	if umbra_subtitle != null and umbra_subtitle.visible:
-		subtitle_bottom = umbra_subtitle.get_global_rect().end.y
-	var y: float = subtitle_bottom + ELEMENTAL_INTENSITY_HEADER_GAP
-	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
-		# The compact relic block owns the rows directly beneath the utility row. Keep the
-		# hanging charms after the complete block so the two readable clusters never
-		# share hit regions or cover one another.
-		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
-	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
-	_layout_combat_objective_hud()
 
 func _relic_bar_first_row_bottom_y() -> float:
 	if relic_bar == null:
@@ -8437,9 +8279,7 @@ func _refresh_ui() -> void:
 	_refresh_turn_order_bar()
 	_refresh_combat_objective_hud()
 	_layout_header_hud()
-	_refresh_elemental_intensity_bar()
 	call_deferred("_layout_header_hud")
-	call_deferred("_layout_elemental_intensity_bar")
 	mini_map.set_run_state(_run_state)
 	if _large_map_view != null:
 		_large_map_view.call("set_run_state", _run_state)
@@ -8632,7 +8472,6 @@ func _refresh_relic_bar() -> void:
 	_refresh_skill_status_popover(skill_ids, true)
 	_layout_header_hud()
 	call_deferred("_layout_header_hud")
-	call_deferred("_layout_elemental_intensity_bar")
 	if should_pulse and _skill_sigil != null:
 		call_deferred("_pulse_skill_sigil")
 	if should_pulse_defiance and _defiance_badge != null:
@@ -9503,12 +9342,7 @@ func _layout_combat_objective_hud() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var top: float = viewport_size.y * 0.60
 	var minimum_top: float = 104.0
-	if ui_root != null and _intensity_bar != null and _intensity_bar.visible and _intensity_bar.is_inside_tree():
-		var ui_origin: Vector2 = ui_root.get_global_rect().position
-		var intensity_rect: Rect2 = _intensity_bar.get_global_rect()
-		left = intensity_rect.position.x - ui_origin.x
-		minimum_top = intensity_rect.end.y - ui_origin.y + 12.0
-	elif top_bar != null and top_bar.is_inside_tree() and ui_root != null:
+	if top_bar != null and top_bar.is_inside_tree() and ui_root != null:
 		minimum_top = maxf(minimum_top, top_bar.get_global_rect().end.y - ui_root.get_global_rect().position.y + 10.0)
 	if _play_meter != null and _play_meter.is_inside_tree() and ui_root != null:
 		var play_meter_rect: Rect2 = _play_meter.get_global_rect()
@@ -10659,8 +10493,6 @@ func _layout_action_step_tracker() -> void:
 		call_deferred("_layout_contextual_combat_prompt_overlay")
 		return
 	var minimum_y: float = maxf(ACTION_CONTEXT_EDGE_MARGIN, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
-	if _intensity_bar != null and _intensity_bar.visible:
-		minimum_y = maxf(minimum_y, _intensity_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
 	var safe_area := Rect2(
 		Vector2(ACTION_CONTEXT_EDGE_MARGIN, minimum_y),
 		Vector2(
@@ -10773,7 +10605,6 @@ func _action_step_tracker_protected_rects() -> Array:
 	var result: Array = []
 	for control_var: Variant in [
 		top_bar,
-		_intensity_bar,
 		_combat_objective_hud,
 		draw_pile,
 		discard_pile,
@@ -11457,8 +11288,6 @@ func _action_step_icon_key(action: Dictionary) -> String:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var as Dictionary
-		if str(token.get("kind", "")) == "intensity_requirement":
-			continue
 		return str(token.get("icon", ""))
 	return ""
 
@@ -11517,36 +11346,6 @@ func _begin_card_play_meter_spend_preview(plays_spent: int = 1) -> void:
 	_card_play_budget_override = budget
 	_set_card_play_count_override(int(budget.get("total_remaining", 0)))
 
-func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
-	if _intensity_bar == null:
-		return
-	var state: Dictionary = display_state if not display_state.is_empty() else _combat_state
-	var active: bool = str(_run_state.get("mode", "room")) == "combat" and not state.is_empty()
-	_intensity_bar.visible = active
-	if not active:
-		return
-	_layout_elemental_intensity_bar()
-	var intensities: Dictionary = _combat_engine.elemental_intensities(state)
-	for element_id: String in ElementData.all_elements():
-		var value: int = int(intensities.get(element_id, 0))
-		var label: Label = _intensity_labels.get(element_id, null)
-		if label != null:
-			label.text = str(value)
-		var badge: PanelContainer = _intensity_badges.get(element_id, null)
-		if badge != null:
-			badge.tooltip_text = _intensity_tooltip(element_id)
-			badge.set_meta("intensity_value", value)
-		var charm: TextureRect = _intensity_charms.get(element_id, null)
-		if charm != null:
-			charm.modulate = Color.WHITE if value > 0 else Color(0.72, 0.72, 0.72, 0.54)
-		var glow: TextureRect = _intensity_glows.get(element_id, null)
-		if glow != null:
-			glow.visible = value > 0
-			glow.set_meta("intensity_value", value)
-			glow.set_meta("glow_strength", ElementalIntensityHudArt.glow_strength(value))
-			glow.set_meta("glow_spread", ElementalIntensityHudArt.glow_spread(value))
-			ElementalIntensityHudArt.update_glow_material(glow.material as ShaderMaterial, element_id, value)
-
 func _refresh_umbra_subtitle() -> void:
 	if umbra_subtitle == null:
 		return
@@ -11571,10 +11370,6 @@ func _refresh_umbra_subtitle() -> void:
 		radius_text
 	]
 	umbra_subtitle.visible = true
-
-func _intensity_tooltip(element_id: String) -> String:
-	var element_name: String = ElementData.name(element_id)
-	return "The intensity of %s in the room.\n%s effects are stronger when this is higher." % [element_name, element_name]
 
 func _displayed_ember_count() -> int:
 	if _ember_count_override >= 0:
@@ -15496,7 +15291,7 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var card: Dictionary = _card_def(card_id, state)
-	var summary_rows: Array = _annotate_intensity_spend_rows(ActionIcons.cost_rows_for_card(card), state)
+	var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
 	var modifier_lines: PackedStringArray = []
 	var preview_state: Dictionary = state.duplicate(true)
 	var previous_action_row_index: int = -1
@@ -15508,7 +15303,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 			"melee", "ranged", "aoe":
 				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
-				var attack_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(attack_damage_modifiers)
+				var attack_visible_modifiers: Array[Dictionary] = attack_damage_modifiers
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": attack_final_damage,
 					"tone_base_damage": _damage_tone_base_excluding_modifiers(attack_final_damage, attack_visible_modifiers, action),
@@ -15518,7 +15313,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 			"push", "pull":
 				var shove_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var shove_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
-				var shove_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(shove_damage_modifiers)
+				var shove_visible_modifiers: Array[Dictionary] = shove_damage_modifiers
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": shove_final_damage,
 					"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers, action),
@@ -15536,45 +15331,6 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		"summary_rows": summary_rows,
 		"modifier_lines": modifier_lines
 	}
-
-func _annotate_intensity_condition_row(row: Array, active: bool) -> Array:
-	var annotated: Array = []
-	for token_var: Variant in row:
-		if typeof(token_var) != TYPE_DICTIONARY:
-			annotated.append(token_var)
-			continue
-		var token: Dictionary = (token_var as Dictionary).duplicate(true)
-		if str(token.get("kind", "")) == "intensity_requirement":
-			token["condition_active"] = active
-		annotated.append(token)
-	return annotated
-
-func _annotate_intensity_spend_rows(rows: Array, state: Dictionary) -> Array:
-	var annotated_rows: Array = []
-	for row_var: Variant in rows:
-		if typeof(row_var) != TYPE_ARRAY:
-			annotated_rows.append(row_var)
-			continue
-		var annotated_row: Array = []
-		for token_var: Variant in row_var as Array:
-			if typeof(token_var) != TYPE_DICTIONARY:
-				annotated_row.append(token_var)
-				continue
-			var token: Dictionary = (token_var as Dictionary).duplicate(true)
-			if str(token.get("kind", "")) == "intensity_spend":
-				var element_id: String = str(token.get("element", ElementData.NONE))
-				token["condition_active"] = _combat_engine.elemental_intensity(state, element_id) >= int(token.get("amount", 0))
-			annotated_row.append(token)
-		annotated_rows.append(annotated_row)
-	return annotated_rows
-
-func _non_intensity_damage_modifiers(modifiers: Array[Dictionary]) -> Array[Dictionary]:
-	var filtered: Array[Dictionary] = []
-	for modifier: Dictionary in modifiers:
-		if str(modifier.get("kind", "")) == "elemental_intensity":
-			continue
-		filtered.append(modifier)
-	return filtered
 
 func _damage_tone_base_excluding_modifiers(
 	final_damage: int,
@@ -15719,18 +15475,6 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor]
 		if not _combat_engine.player_action_can_resolve(working_state, action):
-			if str(action.get("type", "")) == "intensity_spend" and bool(action.get("required", false)):
-				return {
-					"card_id": card_id,
-					"state": working_state,
-					"actions": actions,
-					"action_index": cursor,
-					"target_tiles": _vector2i_array([]),
-					"complete": true,
-					"playable": false,
-					"action": action,
-					"skip_allowed": false
-				}
 			cursor += 1
 			continue
 		if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0:
@@ -15860,8 +15604,6 @@ func _card_preview_continuation_is_playable(
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor]
 		if not _combat_engine.player_action_can_resolve(working_state, action):
-			if str(action.get("type", "")) == "intensity_spend" and bool(action.get("required", false)):
-				return false
 			cursor += 1
 			continue
 		if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0:
@@ -15935,8 +15677,6 @@ func _continuation_can_finish_by_skipping_targets(actions: Array, action_index: 
 		if typeof(actions[index]) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = actions[index] as Dictionary
-		if str(action.get("type", "")) == "intensity_spend" and bool(action.get("required", false)):
-			return false
 		if _combat_engine.player_action_needs_target(action) and not _target_action_can_skip(action, actions):
 			return false
 	return true
@@ -16340,7 +16080,7 @@ func _preview_shortcuts_for_current_action(
 	if action_type == "move":
 		movement_plan = _combat_engine.movement_plan_for_player_action(preview_state, action, move_targets)
 	if not _remaining_actions_include_shortcut_attack(actions, action_index + 1):
-		# Ordinary movement cards with only draw/block/intensity follow-ups cannot
+		# Ordinary movement cards with only non-attack follow-ups cannot
 		# produce a move-and-attack shortcut. Resolving the move, every movement
 		# relic, light source, trap, loot pickup, and follow-up once per reachable
 		# tile was pure discarded work (39 full simulations for Threaded Path).
@@ -16599,8 +16339,6 @@ func _shortcut_path_has_live_trap(state: Dictionary, path_tiles: Array[Vector2i]
 func _shortcut_move_bleed_is_survivable(state: Dictionary) -> bool:
 	var player: Dictionary = state.get("player", {}) as Dictionary
 	var bleed_damage: int = int(player.get("bleed", 0))
-	if int(player.get("freeze", 0)) > 0:
-		bleed_damage *= 2
 	return bleed_damage < (
 		int(player.get("hp", 0))
 		+ int(player.get("block", 0))
@@ -16825,22 +16563,10 @@ func _movement_status_delta_labels(before_state: Dictionary, after_state: Dictio
 	var before_player: Dictionary = before_state.get("player", {})
 	var after_player: Dictionary = after_state.get("player", {})
 	var labels := PackedStringArray()
-	var seen: Dictionary = {}
-	for key: String in ["burn", "freeze", "shock"]:
-		if int(after_player.get(key, 0)) > int(before_player.get(key, 0)):
-			var label: String = key.capitalize()
-			labels.append(label)
-			seen[label] = true
 	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
 		labels.append("Immobilize")
-		seen["Immobilize"] = true
-	var before_poison: Dictionary = before_player.get("poison", {})
-	var after_poison: Dictionary = after_player.get("poison", {})
-	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
-		labels.append("Poison")
-		seen["Poison"] = true
 	var pending_label: String = str(after_state.get("pending_player_trap_restriction", "")).capitalize()
-	if not pending_label.is_empty() and str(after_state.get("pending_player_trap_restriction", "")) != str(before_state.get("pending_player_trap_restriction", "")) and not seen.has(pending_label):
+	if not pending_label.is_empty() and str(after_state.get("pending_player_trap_restriction", "")) != str(before_state.get("pending_player_trap_restriction", "")) and not labels.has(pending_label):
 		labels.append(pending_label)
 	return labels
 
@@ -17794,6 +17520,7 @@ func _commit_free_move(target_tile: Vector2i) -> void:
 	var action: Dictionary = _pending_actions[0] as Dictionary
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
+	var resolved_path: Array[Vector2i] = _combat_engine.path_for_player_action(previous_combat_state, action, target_tile)
 	var committed_combat_state: Dictionary = _combat_engine.apply_player_action(
 		previous_combat_state,
 		action,
@@ -17836,6 +17563,21 @@ func _commit_free_move(target_tile: Vector2i) -> void:
 	_sync_combat_state_from_run()
 	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
+	_analytics_store.write_event("free_move_used", _analytics_context_from_states(_run_state, committed_combat_state), {
+		"from": (previous_combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
+		"to": (committed_combat_state.get("player", {}) as Dictionary).get("pos", target_tile),
+		"path": resolved_path,
+		"distance": PathUtils.manhattan(
+			(previous_combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
+			(committed_combat_state.get("player", {}) as Dictionary).get("pos", target_tile)
+		),
+		"blink": str(action.get("type", "")) == "blink",
+		"player_hp_delta": int((committed_combat_state.get("player", {}) as Dictionary).get("hp", 0)) - int((previous_combat_state.get("player", {}) as Dictionary).get("hp", 0)),
+		"field_tiles_before": _analytics_tile_effect_counts(previous_combat_state, "fields"),
+		"field_tiles_after": _analytics_tile_effect_counts(committed_combat_state, "fields"),
+		"surface_tiles_before": _analytics_tile_effect_counts(previous_combat_state, "surfaces"),
+		"surface_tiles_after": _analytics_tile_effect_counts(committed_combat_state, "surfaces")
+	})
 	_analytics_log_combat_transition(previous_run_state, "free_move", transition_combat_state)
 	_reset_card_resolution()
 	_hovered_card_index = -1
@@ -17844,6 +17586,8 @@ func _commit_free_move(target_tile: Vector2i) -> void:
 	else:
 		_animation_lock = false
 		_refresh_ui()
+	if str(_run_state.get("mode", "room")) == "combat" and _combat_engine.should_auto_finish_player_activation(_combat_state):
+		await _resolve_enemy_round()
 
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var card_id: String = _card_id_for_hand_index(hand_index)
@@ -17915,7 +17659,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	else:
 		_animation_lock = false
 		_refresh_ui()
-	if str(_run_state.get("mode", "room")) == "combat" and _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if str(_run_state.get("mode", "room")) == "combat" and _combat_engine.should_auto_finish_player_activation(_combat_state):
 		await _resolve_enemy_round()
 
 func _card_destination_pile(card_id: String) -> String:
@@ -18150,30 +17894,6 @@ func _animate_card_play_reward(displayed_card_plays: int) -> void:
 	settle.tween_property(_play_meter, "modulate", Color.WHITE, 0.18)
 	await settle.finished
 	_play_meter_count.add_theme_color_override("font_color", Color("fff4dc"))
-
-func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
-	if not ElementData.is_elemental(element_id):
-		return
-	var content: Control = _intensity_content_hosts.get(element_id, null)
-	var label: Label = _intensity_labels.get(element_id, null)
-	if content == null or label == null:
-		return
-	_refresh_elemental_intensity_bar(_combat_state)
-	label.text = str(displayed_value)
-	content.pivot_offset = content.size * 0.5
-	label.add_theme_color_override("font_color", Color("fff4dc"))
-	var accent: Color = ElementData.accent(element_id).lightened(0.18)
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(content, "scale", Vector2(1.18, 1.18), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(content, "modulate", Color(accent.r, accent.g, accent.b, 1.0), 0.11)
-	await tween.finished
-	var settle := create_tween()
-	settle.set_parallel(true)
-	settle.tween_property(content, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	settle.tween_property(content, "modulate", Color.WHITE, 0.20)
-	await settle.finished
-	label.add_theme_color_override("font_color", Color("fff7df"))
 
 func _animate_ember_reward(_source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
 	await EmberRewardFeedback.play(
@@ -19012,29 +18732,6 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			}))
 			await _animate_card_play_reward(_card_play_count_for_resolution_state(after_state))
 			await get_tree().create_timer(0.10).timeout
-		"intensity":
-			var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
-			var before_value: int = _combat_engine.elemental_intensity(before_state, element_id)
-			var after_value: int = _combat_engine.elemental_intensity(after_state, element_id)
-			var gained: int = maxi(0, after_value - before_value)
-			var intensity_text: String = (
-				"+%d %s" % [gained, ElementData.name(element_id)]
-				if after_value >= before_value
-				else "%s %d" % [ElementData.name(element_id), after_value]
-			)
-			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
-				"focus_actor_keys": ["player"],
-				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
-				"floating_texts": [{
-					"tile": player_after_tile,
-					"text": intensity_text,
-					"color": ElementData.accent(element_id),
-					"offset": -6.0
-				}]
-			}))
-			await _animate_intensity_gain(element_id, after_value)
-			await get_tree().create_timer(0.08).timeout
 	if not secondary_enemy_loss_presentation.is_empty():
 		await _animate_floating_text_presentation(
 			after_state,
@@ -19168,7 +18865,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 				_render_board_state(animated_state, {})
 			"move":
 				await _animate_move_step(animated_state, step)
-			"block", "heal", "stoneskin", "status", "status_damage", "intensity":
+			"block", "heal", "stoneskin", "status", "status_damage", "terrain_start":
 				var before_status_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
@@ -19699,8 +19396,6 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 				_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
 			else:
 				_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
-			if step.has("elemental_intensity_after"):
-				animated_state["elemental_intensity"] = (step.get("elemental_intensity_after", {}) as Dictionary).duplicate(true)
 			if step.has("player_after"):
 				animated_state["player"] = (step.get("player_after", {}) as Dictionary).duplicate(true)
 		"status":
@@ -19710,11 +19405,6 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 				animated_state["traps"] = (step.get("traps_after", []) as Array).duplicate(true)
 			if step.has("enemy_after"):
 				_set_enemy_snapshot_by_key(animated_state, str(step.get("actor_key", "")), step.get("enemy_after", {}) as Dictionary)
-		"intensity":
-			var elemental_intensity: Dictionary = (animated_state.get("elemental_intensity", {}) as Dictionary).duplicate(true)
-			elemental_intensity[str(step.get("element", ElementData.NONE))] = int(step.get("value_after", 0))
-			animated_state["elemental_intensity"] = elemental_intensity
-			_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			if target_losses.is_empty():
@@ -19781,19 +19471,13 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 			}]
 		"status_damage":
 			return _status_damage_floating_texts(step)
-		"intensity":
-			var intensity_floats: Array[Dictionary] = []
-			var intensity_before: int = int(step.get("value_before", 0))
-			var intensity_after: int = int(step.get("value_after", intensity_before))
-			if intensity_after != intensity_before:
-				intensity_floats.append({
-					"tile": step.get("tile", Vector2i.ZERO),
-					"text": "%s %d" % [ElementData.name(str(step.get("element", ElementData.NONE))), intensity_after],
-					"color": ElementData.accent(str(step.get("element", ElementData.NONE))),
-					"offset": -6.0
-				})
-			intensity_floats.append_array(_floating_texts_for_target_losses(step.get("enemy_losses", [])))
-			return intensity_floats
+		"terrain_start":
+			return [{
+				"tile": step.get("tile", Vector2i.ZERO),
+				"text": str(step.get("text", step.get("label", "Terrain"))),
+				"color": Color("c6e8ff") if str(step.get("label", "")) == "Electrified" else Color("e3c873"),
+				"offset": -6.0
+			}]
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			var terrain_losses: Array = step.get("terrain_losses", [])
@@ -19857,15 +19541,7 @@ func _enemy_phase_status_presentation(step: Dictionary) -> Dictionary:
 
 func _enemy_phase_damage_feedback_element(step: Dictionary) -> String:
 	var element_id: String = str(step.get("damage_feedback_element", step.get("element", ElementData.NONE)))
-	if ElementData.is_elemental(element_id):
-		return element_id
-	match str(step.get("label", "")):
-		"Burn":
-			return ElementData.FIRE
-		"Poison":
-			return ElementData.EARTH
-		_:
-			return ElementData.NONE
+	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
 
 func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
 	var enemy_losses: Array = step.get("enemy_losses", [])
@@ -25138,7 +24814,9 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 	}
 	if not combat_state.is_empty():
 		var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
-		context["elemental_intensity"] = _combat_engine.elemental_intensities(combat_state)
+		context["elemental_intensity"] = {}
+		context["field_tiles"] = _analytics_tile_effect_counts(combat_state, "fields")
+		context["surface_tiles"] = _analytics_tile_effect_counts(combat_state, "surfaces")
 		context["umbra_stage"] = _combat_engine.effective_umbra_stage(combat_state)
 		context["umbra_radius"] = _combat_engine.effective_umbra_radius(combat_state)
 		context["visible_enemy_count"] = _combat_engine.visible_enemy_ids(combat_state).size()
@@ -25604,7 +25282,9 @@ func _analytics_log_combat_started(reason: String) -> void:
 		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
 		"recovery_marker_present": _combat_recovery_marker_amount(_combat_state) > 0,
 		"recovery_marker_amount": _combat_recovery_marker_amount(_combat_state),
-		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
+		"elemental_intensity": {},
+		"field_tiles": _analytics_tile_effect_counts(_combat_state, "fields"),
+		"surface_tiles": _analytics_tile_effect_counts(_combat_state, "surfaces"),
 		"umbra_stage": _combat_engine.effective_umbra_stage(_combat_state),
 		"umbra_radius": _combat_engine.effective_umbra_radius(_combat_state),
 		"visible_enemy_count": _combat_engine.visible_enemy_ids(_combat_state).size(),
@@ -25856,13 +25536,9 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var enemy_block_removed: int = 0
 	var enemy_stoneskin_removed: int = 0
 	var kills_secured: int = 0
-	var enemy_burn_applied: int = 0
 	var enemy_bleed_applied: int = 0
 	var enemy_expose_applied: int = 0
-	var enemy_freeze_applied: int = 0
-	var enemy_shock_applied: int = 0
 	var enemy_immobilize_applied: int = 0
-	var enemy_poison_applied: int = 0
 	var terrain_hp_damage: int = 0
 	var terrain_destroyed: int = 0
 	var before_enemies: Array = before_state.get("enemies", [])
@@ -25875,14 +25551,10 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		enemy_stoneskin_removed += maxi(0, int(before_enemy.get("stoneskin", 0)) - int(after_enemy.get("stoneskin", 0)))
 		if int(before_enemy.get("hp", 0)) > 0 and int(after_enemy.get("hp", 0)) <= 0:
 			kills_secured += 1
-		enemy_burn_applied += maxi(0, int(after_enemy.get("burn", 0)) - int(before_enemy.get("burn", 0)))
 		enemy_bleed_applied += maxi(0, int(after_enemy.get("bleed", 0)) - int(before_enemy.get("bleed", 0)))
 		enemy_expose_applied += maxi(0, int(after_enemy.get("expose", 0)) - int(before_enemy.get("expose", 0)))
-		enemy_freeze_applied += maxi(0, int(after_enemy.get("freeze", 0)) - int(before_enemy.get("freeze", 0)))
-		enemy_shock_applied += maxi(0, int(after_enemy.get("shock", 0)) - int(before_enemy.get("shock", 0)))
 		if bool(after_enemy.get("immobilize", false)) and not bool(before_enemy.get("immobilize", false)):
 			enemy_immobilize_applied += 1
-		enemy_poison_applied += maxi(0, int((after_enemy.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_enemy.get("poison", {}) as Dictionary).get("damage", 0)))
 	var after_terrain_by_id: Dictionary = {}
 	for after_terrain_var: Variant in resolved_state.get("terrain", []):
 		if typeof(after_terrain_var) != TYPE_DICTIONARY:
@@ -25903,13 +25575,9 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		terrain_hp_damage += terrain_loss
 		if terrain_loss > 0 and int(after_terrain.get("hp", 0)) <= 0:
 			terrain_destroyed += 1
-	var player_burn_applied: int = maxi(0, int(after_player.get("burn", 0)) - int(before_player.get("burn", 0)))
 	var player_bleed_applied: int = maxi(0, int(after_player.get("bleed", 0)) - int(before_player.get("bleed", 0)))
 	var player_expose_applied: int = maxi(0, int(after_player.get("expose", 0)) - int(before_player.get("expose", 0)))
-	var player_freeze_applied: int = maxi(0, int(after_player.get("freeze", 0)) - int(before_player.get("freeze", 0)))
-	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
 	var player_immobilize_applied: int = 1 if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)) else 0
-	var player_poison_applied: int = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
 	var before_illusion_ids: Dictionary = {}
 	for before_illusion_var: Variant in before_state.get("illusions", []):
 		if typeof(before_illusion_var) != TYPE_DICTIONARY:
@@ -25930,12 +25598,16 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		illusion_health_created += maxi(0, int(after_illusion.get("max_hp", after_illusion.get("hp", 0))))
 	var printed_card: Dictionary = _card_def(card_id, before_state)
 	var printed_actions: Array = (printed_card.get("actions", []) as Array).duplicate(true)
-	var intensity_before: Dictionary = _combat_engine.elemental_intensities(before_state)
-	var intensity_after: Dictionary = _combat_engine.elemental_intensities(resolved_state)
-	var intensity_gained: Dictionary = _elemental_intensity_counter_delta(before_state, resolved_state, "elemental_intensity_gained_total")
-	if intensity_gained.is_empty():
-		intensity_gained = _elemental_intensity_delta(intensity_before, intensity_after)
-	var intensity_spent: Dictionary = _elemental_intensity_counter_delta(before_state, resolved_state, "elemental_intensity_spent_total")
+	# Retain the legacy analytics keys below as empty dictionaries so existing
+	# local JSONL readers remain forward-compatible; board metrics are authoritative.
+	var intensity_before: Dictionary = {}
+	var intensity_after: Dictionary = {}
+	var intensity_gained: Dictionary = {}
+	var intensity_spent: Dictionary = {}
+	var fields_before: Dictionary = _analytics_tile_effect_counts(before_state, "fields")
+	var fields_after: Dictionary = _analytics_tile_effect_counts(resolved_state, "fields")
+	var surfaces_before: Dictionary = _analytics_tile_effect_counts(before_state, "surfaces")
+	var surfaces_after: Dictionary = _analytics_tile_effect_counts(resolved_state, "surfaces")
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var play_mode: String = "printed"
 	var comparable_actions: Array = _analytics_actions_without_runtime_orientation(actions)
@@ -25985,6 +25657,14 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"elemental_intensity_after": intensity_after,
 		"elemental_intensity_gained": intensity_gained,
 		"elemental_intensity_spent": intensity_spent,
+		"field_tiles_before": fields_before,
+		"field_tiles_after": fields_after,
+		"field_tiles_created": _analytics_positive_count_delta(fields_before, fields_after),
+		"surface_tiles_before": surfaces_before,
+		"surface_tiles_after": surfaces_after,
+		"surface_tiles_created": _analytics_positive_count_delta(surfaces_before, surfaces_after),
+		"surface_tiles_consumed": _analytics_positive_count_delta(surfaces_after, surfaces_before),
+		"combust_actions": _analytics_attack_keyword_action_count(actions, "combust"),
 		"pierce_actions": _analytics_pierce_action_count(actions),
 		"sunder_actions": _analytics_attack_keyword_action_count(actions, "sunder"),
 		"illusions_created": illusions_created,
@@ -26005,22 +25685,22 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"umbra_suppression_stages_after": _combat_engine.light_source_umbra_suppression(resolved_state),
 		"umbra_movement_interruptions": maxi(0, int(after_umbra.get("movement_interrupted_total", 0)) - int(before_umbra.get("movement_interrupted_total", 0))),
 		"enemy_status_applied": {
-			"burn": enemy_burn_applied,
+			"burn": 0,
 			"bleed": enemy_bleed_applied,
 			"expose": enemy_expose_applied,
-			"freeze": enemy_freeze_applied,
-			"shock": enemy_shock_applied,
+			"freeze": 0,
+			"shock": 0,
 			"immobilize": enemy_immobilize_applied,
-			"poison": enemy_poison_applied
+			"poison": 0
 		},
 		"player_status_applied": {
-			"burn": player_burn_applied,
+			"burn": 0,
 			"bleed": player_bleed_applied,
 			"expose": player_expose_applied,
-			"freeze": player_freeze_applied,
-			"shock": player_shock_applied,
+			"freeze": 0,
+			"shock": 0,
 			"immobilize": player_immobilize_applied,
-			"poison": player_poison_applied
+			"poison": 0
 		},
 		"selected_targets": _vector2i_array(selected_targets),
 		"actions": actions.duplicate(true)
@@ -26040,22 +25720,24 @@ func _analytics_actions_without_runtime_orientation(actions: Array) -> Array:
 		result.append(action)
 	return result
 
-func _elemental_intensity_delta(before_intensity: Dictionary, after_intensity: Dictionary) -> Dictionary:
-	var result: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		var gained: int = int(after_intensity.get(element_id, 0)) - int(before_intensity.get(element_id, 0))
-		if gained > 0:
-			result[element_id] = gained
-	return result
+func _analytics_tile_effect_counts(state: Dictionary, layer: String) -> Dictionary:
+	var counts: Dictionary = {}
+	var tile_effects: Dictionary = state.get("tile_effects", {}) as Dictionary
+	for entry_var: Variant in tile_effects.get(layer, []):
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var kind: String = str((entry_var as Dictionary).get("kind", ""))
+		if not kind.is_empty():
+			counts[kind] = int(counts.get(kind, 0)) + 1
+	return counts
 
-func _elemental_intensity_counter_delta(before_state: Dictionary, after_state: Dictionary, counter_key: String) -> Dictionary:
+func _analytics_positive_count_delta(before_counts: Dictionary, after_counts: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
-	var before_counter: Dictionary = _combat_engine.elemental_intensity_counter(before_state, counter_key)
-	var after_counter: Dictionary = _combat_engine.elemental_intensity_counter(after_state, counter_key)
-	for element_id: String in ElementData.all_elements():
-		var delta: int = int(after_counter.get(element_id, 0)) - int(before_counter.get(element_id, 0))
+	for kind_var: Variant in after_counts.keys():
+		var kind: String = str(kind_var)
+		var delta: int = int(after_counts.get(kind, 0)) - int(before_counts.get(kind, 0))
 		if delta > 0:
-			result[element_id] = delta
+			result[kind] = delta
 	return result
 
 func _card_play_capacity_value(state: Dictionary) -> int:
@@ -26074,9 +25756,9 @@ func _analytics_attack_keyword_action_count(actions: Array, keyword: String) -> 
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = action_var
-		if keyword == "pierce" and not bool(action.get(keyword, false)):
+		if keyword in ["pierce", "combust"] and not bool(action.get(keyword, false)):
 			continue
-		if keyword != "pierce" and int(action.get(keyword, 0)) <= 0:
+		if keyword not in ["pierce", "combust"] and int(action.get(keyword, 0)) <= 0:
 			continue
 		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
 			count += 1
@@ -26138,6 +25820,15 @@ func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
+		if kind == "terrain_start":
+			_analytics_store.write_event("enemy_terrain_resolved", _analytics_context_from_states(_run_state, _combat_state), {
+				"actor_key": str(step.get("actor_key", "")),
+				"actor_name": str(step.get("actor_name", "")),
+				"label": str(step.get("label", "")),
+				"text": str(step.get("text", "")),
+				"tile": step.get("tile", Vector2i(-1, -1))
+			})
+			continue
 		if kind not in ["status_damage", "status"]:
 			continue
 		if bool(step.get("boss_mechanic", false)):
@@ -26160,7 +25851,7 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
-		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "intensity"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
 		_analytics_store.write_event("enemy_action_resolved", _analytics_context_from_states(_run_state, _combat_state), {
@@ -26180,8 +25871,8 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 			"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
 			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true),
 			"support_targets": (step.get("targets", []) as Array).duplicate(true),
-			"elemental_intensity_gained": (step.get("elemental_intensity_gained", {}) as Dictionary).duplicate(true),
-			"elemental_intensity_spent": (step.get("elemental_intensity_spent", {}) as Dictionary).duplicate(true)
+			"elemental_intensity_gained": {},
+			"elemental_intensity_spent": {}
 		})
 
 func _sync_combat_state_from_run() -> void:

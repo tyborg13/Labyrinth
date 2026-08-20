@@ -3,6 +3,7 @@ class_name RunEngine
 
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -73,7 +74,7 @@ const UNREAD_LOADOUT_MAGIC_KEY: String = "unread_loadout_magic"
 const NEW_LOADOUT_EQUIPMENT_KEY: String = "new_loadout_equipment"
 const NEW_LOADOUT_MAGIC_KEY: String = "new_loadout_magic"
 const RUN_CONTENT_SCHEMA_KEY: String = "run_content_schema"
-const RUN_CONTENT_SCHEMA: int = 2
+const RUN_CONTENT_SCHEMA: int = 3
 const COMBAT_UNITS_SCHEMA_KEY: String = "combat_units_schema"
 const COMBAT_UNITS_SCHEMA: int = 1
 const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
@@ -275,6 +276,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	next_state = _sync_defiance_capacity(next_state, false)
 	var repaired_combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if not repaired_combat_state.is_empty():
+		repaired_combat_state = _repair_elemental_board_combat_state(repaired_combat_state)
 		repaired_combat_state["skill_ids"] = ProgressionStore.selected_skill_ids(next_state.get("progression", {}) as Dictionary)
 		repaired_combat_state.erase("stats")
 		repaired_combat_state.erase("card_upgrades")
@@ -287,6 +289,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 		next_state["combat_state"] = repaired_combat_state
 		next_state[DEFIANCE_CAPACITY_KEY] = int(repaired_combat_state.get(DEFIANCE_CAPACITY_KEY, defiance_capacity(next_state)))
 		next_state[DEFIANCE_REMAINING_KEY] = int(repaired_combat_state.get(DEFIANCE_REMAINING_KEY, defiance_remaining(next_state)))
+	next_state = _repair_pending_reward_board_state(next_state)
 	next_state = _repair_pending_combat_checkpoints(next_state)
 	if not next_state.has("held_embers"):
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
@@ -305,6 +308,49 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 		_sync_current_layout_doors(next_state, current_coord)
 	return next_state
 
+func _repair_elemental_board_combat_state(combat_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = combat_state.duplicate(true)
+	for retired_key: String in ["elemental_intensity", "elemental_intensity_gained_total", "elemental_intensity_spent_total"]:
+		next_state.erase(retired_key)
+	for actor_key: String in ["player"]:
+		if typeof(next_state.get(actor_key, null)) != TYPE_DICTIONARY:
+			continue
+		var actor: Dictionary = (next_state.get(actor_key, {}) as Dictionary).duplicate(true)
+		for retired_status: String in ["burn", "poison", "freeze", "shock"]:
+			actor.erase(retired_status)
+		next_state[actor_key] = actor
+	var repaired_enemies: Array = []
+	for enemy_var: Variant in next_state.get("enemies", []) as Array:
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = (enemy_var as Dictionary).duplicate(true)
+		for retired_status: String in ["burn", "poison", "freeze", "shock"]:
+			enemy.erase(retired_status)
+		var intent_id: String = str((enemy.get("intent", {}) as Dictionary).get("id", ""))
+		if not intent_id.is_empty():
+			for current_intent_var: Variant in GameData.enemy_def(str(enemy.get("type", ""))).get("intents", []):
+				if typeof(current_intent_var) == TYPE_DICTIONARY and str((current_intent_var as Dictionary).get("id", "")) == intent_id:
+					enemy["intent"] = (current_intent_var as Dictionary).duplicate(true)
+					break
+		enemy.erase("committed_intent_plan")
+		repaired_enemies.append(enemy)
+	next_state["enemies"] = repaired_enemies
+	var repaired_traps: Array = []
+	for trap_var: Variant in next_state.get("traps", []) as Array:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = (trap_var as Dictionary).duplicate(true)
+		for retired_payload: String in ["burn", "poison", "freeze", "shock", "intensity_bonus", "requires_intensity"]:
+			trap.erase(retired_payload)
+		repaired_traps.append(trap)
+	next_state["traps"] = repaired_traps
+	CombatTerrainRules.ensure_state(next_state)
+	if not next_state.has("free_move_used_this_turn"):
+		next_state["free_move_used_this_turn"] = false
+	for enemy_index: int in range(repaired_enemies.size()):
+		_combat_engine.call("_commit_enemy_intent_plan", next_state, enemy_index)
+	return next_state
+
 func _repair_pending_escape(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	var mode: String = str(next_state.get("mode", "room"))
@@ -313,6 +359,8 @@ func _repair_pending_escape(run_state: Dictionary) -> Dictionary:
 		return next_state
 	var escape: Dictionary = pending_escape(next_state)
 	var board_state: Dictionary = escape.get("board_state", {}) as Dictionary
+	if not board_state.is_empty():
+		board_state = _repair_elemental_board_combat_state(board_state)
 	var objective: Dictionary = board_state.get("objective", {}) as Dictionary
 	var target_tile_var: Variant = escape.get("target_tile", null)
 	if (
@@ -337,6 +385,18 @@ func _repair_pending_escape(run_state: Dictionary) -> Dictionary:
 	escape["target_tile"] = target_tile_var
 	escape["board_state"] = board_state
 	next_state["pending_escape"] = escape
+	return next_state
+
+func _repair_pending_reward_board_state(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if typeof(next_state.get("pending_reward", null)) != TYPE_DICTIONARY:
+		return next_state
+	var pending_reward: Dictionary = (next_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	if typeof(pending_reward.get("board_state", null)) == TYPE_DICTIONARY:
+		pending_reward["board_state"] = _repair_elemental_board_combat_state(
+			pending_reward.get("board_state", {}) as Dictionary
+		)
+	next_state["pending_reward"] = pending_reward
 	return next_state
 
 static func run_content_migration_required(run_state: Dictionary) -> bool:
@@ -440,9 +500,11 @@ static func _migrated_legacy_combat_state_units(combat_state: Dictionary) -> Dic
 			if typeof(trap_var) != TYPE_DICTIONARY:
 				continue
 			var trap: Dictionary = (trap_var as Dictionary).duplicate(true)
-			for field: String in ["damage", "base_damage", "burn", "bleed", "poison"]:
+			for field: String in ["damage", "base_damage", "bleed"]:
 				if trap.has(field):
 					trap[field] = _legacy_survivor_units(int(trap.get(field, 0)))
+			for retired_payload: String in ["burn", "poison", "freeze", "shock"]:
+				trap.erase(retired_payload)
 			traps.append(trap)
 		next_state["traps"] = traps
 	if typeof(next_state.get("loot", null)) == TYPE_ARRAY:
@@ -476,15 +538,11 @@ static func _migrated_legacy_combat_state_units(combat_state: Dictionary) -> Dic
 
 static func _migrated_legacy_unit(unit: Dictionary) -> Dictionary:
 	var next_unit: Dictionary = unit.duplicate(true)
-	for field: String in ["hp", "max_hp", "block", "stoneskin", "burn", "bleed", "expose", "sunder"]:
+	for field: String in ["hp", "max_hp", "block", "stoneskin", "bleed", "expose", "sunder"]:
 		if next_unit.has(field):
 			next_unit[field] = _legacy_survivor_units(int(next_unit.get(field, 0)))
-	if typeof(next_unit.get("poison", null)) == TYPE_DICTIONARY:
-		var poison: Dictionary = (next_unit.get("poison", {}) as Dictionary).duplicate(true)
-		for field: String in ["damage", "trigger"]:
-			if poison.has(field):
-				poison[field] = _legacy_survivor_units(int(poison.get(field, 0)))
-		next_unit["poison"] = poison
+	for retired_status: String in ["burn", "poison", "freeze", "shock"]:
+		next_unit.erase(retired_status)
 	return next_unit
 
 static func _migrated_legacy_action_tree(value: Variant) -> Variant:
@@ -496,15 +554,11 @@ static func _migrated_legacy_action_tree(value: Variant) -> Variant:
 				migrated[key] = _migrated_legacy_action_tree(source.get(key))
 			var action_type: String = str(source.get("type", ""))
 			if not action_type.is_empty():
-				for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
+				for field: String in ["damage", "self_damage", "bleed", "expose", "sunder", "amount", "health"]:
 					if migrated.has(field) and GameData.action_field_uses_fixed_point(action_type, field):
 						migrated[field] = _legacy_survivor_units(int(migrated.get(field, 0)))
-				if typeof(migrated.get("intensity_bonus", null)) == TYPE_DICTIONARY:
-					var bonus: Dictionary = (migrated.get("intensity_bonus", {}) as Dictionary).duplicate(true)
-					for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
-						if bonus.has(field) and GameData.action_field_uses_fixed_point(action_type, field):
-							bonus[field] = _legacy_survivor_units(int(bonus.get(field, 0)))
-					migrated["intensity_bonus"] = bonus
+				for retired_action_key: String in ["burn", "poison", "freeze", "shock", "intensity_bonus", "requires_intensity"]:
+					migrated.erase(retired_action_key)
 			if migrated.has("health_cost"):
 				migrated["health_cost"] = _legacy_survivor_units(int(migrated.get("health_cost", 0)))
 			return migrated
@@ -1746,6 +1800,7 @@ func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
 		if typeof(checkpoint.get("state", null)) != TYPE_DICTIONARY:
 			continue
 		var checkpoint_state: Dictionary = (checkpoint.get("state", {}) as Dictionary).duplicate(true)
+		checkpoint_state = _repair_elemental_board_combat_state(checkpoint_state)
 		checkpoint_state["skill_ids"] = skill_ids
 		checkpoint_state.erase("stats")
 		checkpoint_state.erase("card_upgrades")

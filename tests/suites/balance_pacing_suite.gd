@@ -11,6 +11,7 @@ const RunScene = preload("res://scripts/run_scene.gd")
 static func run(expect: Callable) -> void:
 	_test_natural_unit_migration(expect)
 	_test_natural_and_ambiguous_saves_are_not_rescaled(expect)
+	_test_elemental_board_save_repair(expect)
 	_test_defiance_capacity_and_mid_run_growth(expect)
 	_test_defiance_trigger_and_phoenix_payoff(expect)
 	_test_defiance_feedback_does_not_require_block_loss(expect)
@@ -72,10 +73,11 @@ static func _test_natural_unit_migration(expect: Callable) -> void:
 	var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[0] as Dictionary
 	var intent_action: Dictionary = (((enemy.get("intent", {}) as Dictionary).get("actions", []) as Array)[0] as Dictionary)
 	expect.call(int(player.get("hp", 0)) == 1 and int(player.get("block", 0)) == 5 and int(player.get("stoneskin", 0)) == 2, "Active combat survivors and defenses should round upward")
-	expect.call(int((player.get("poison", {}) as Dictionary).get("damage", 0)) == 2 and int((player.get("poison", {}) as Dictionary).get("trigger", 0)) == 3, "Pending poison damage should preserve nonzero legacy pressure")
+	expect.call(not player.has("poison"), "Retired actor Poison should be removed rather than carried into the board-effect ruleset")
 	expect.call(int(enemy.get("hp", 0)) == 10 and int(enemy.get("max_hp", 0)) == 14, "Enemy health should migrate with survivor rounding")
 	expect.call(int(intent_action.get("damage", 0)) == 8 and int(intent_action.get("range", 0)) == 3, "Nested intent damage should migrate without changing distance fields")
 	var loot: Array = combat_state.get("loot", []) as Array
+	expect.call(not ((combat_state.get("traps", []) as Array)[0] as Dictionary).has("burn"), "Retired trap Burn payloads should be removed during migration")
 	expect.call(int((loot[0] as Dictionary).get("amount", 0)) == 5, "Battlefield healing should migrate to natural units")
 	expect.call(int((loot[1] as Dictionary).get("amount", 0)) == 40, "Non-combat currencies must not be rescaled")
 	expect.call(RunEngine.migrate_combat_units(migrated) == migrated, "Natural-unit migration should be idempotent")
@@ -100,6 +102,62 @@ static func _test_natural_and_ambiguous_saves_are_not_rescaled(expect: Callable)
 	expect.call(int(migrated_conflict.get("player_hp", 0)) == 7, "Conflicting unit evidence should preserve outer values")
 	expect.call(int(((migrated_conflict.get("combat_state", {}) as Dictionary).get("player", {}) as Dictionary).get("max_hp", 0)) == 240, "Conflicting unit evidence should preserve nested values")
 	expect.call(int(migrated_conflict.get("combat_units_schema", 0)) == RunEngine.COMBAT_UNITS_SCHEMA, "Ambiguous saves should still be stamped to avoid repeated destructive guesses")
+
+
+static func _test_elemental_board_save_repair(expect: Callable) -> void:
+	var run_engine := RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(9941, ProgressionStore.default_data())
+	var grid: Array = []
+	for y: int in range(8):
+		var row: Array[String] = []
+		for x: int in range(8):
+			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "stone")
+		grid.append(row)
+	var combat := CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(9942, {
+		"name": "Legacy board repair",
+		"coord": Vector2i(1, 0),
+		"type": "combat",
+		"grid": grid,
+		"player_start": Vector2i(2, 4),
+		"enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 14, "max_hp": 14}],
+		"terrain": [],
+		"traps": [{"id": 1, "pos": Vector2i(3, 4), "damage": 2, "burn": 3}],
+		"loot": [],
+	}, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+	})
+	combat_state["elemental_intensity"] = {"fire": 3}
+	(combat_state.get("player", {}) as Dictionary)["burn"] = 2
+	var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[0] as Dictionary
+	enemy["shock"] = 1
+	enemy["committed_intent_plan"] = {"schema": 0, "intent_signature": -1}
+	(combat_state.get("enemies", []) as Array)[0] = enemy
+	combat_state["tile_effects"] = {
+		"fields": [{"pos": Vector2i(2, 3), "kind": "corruption", "expires_at": 21}],
+		"surfaces": [{"pos": Vector2i(4, 4), "kind": "electrified", "expires_at": 19}],
+	}
+	run_state["run_content_schema"] = 2
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state.duplicate(true)
+	run_state["pending_reward"] = {"board_state": combat_state.duplicate(true)}
+	run_state["pending_combat_checkpoints"] = [{"state": combat_state.duplicate(true)}]
+	var repaired: Dictionary = run_engine.repair_loaded_run_state(run_state)
+	var repaired_combat: Dictionary = repaired.get("combat_state", {}) as Dictionary
+	var repaired_enemy: Dictionary = (repaired_combat.get("enemies", []) as Array)[0] as Dictionary
+	expect.call(not repaired_combat.has("elemental_intensity") and not (repaired_combat.get("player", {}) as Dictionary).has("burn") and not repaired_enemy.has("shock"), "Loaded combat should strip retired intensity and actor statuses")
+	expect.call(int((repaired_enemy.get("committed_intent_plan", {}) as Dictionary).get("schema", 0)) == 1, "Loaded enemies should recommit current intent geometry")
+	expect.call(((repaired_combat.get("tile_effects", {}) as Dictionary).get("fields", []) as Array).size() == 1 and ((repaired_combat.get("tile_effects", {}) as Dictionary).get("surfaces", []) as Array).size() == 1, "Loaded combat should preserve valid Field and Surface entries")
+	var reward_board: Dictionary = ((repaired.get("pending_reward", {}) as Dictionary).get("board_state", {}) as Dictionary)
+	var checkpoints: Array = repaired.get("pending_combat_checkpoints", []) as Array
+	var checkpoint_state: Dictionary = ((checkpoints[0] as Dictionary).get("state", {}) as Dictionary)
+	expect.call(not reward_board.has("elemental_intensity") and not checkpoint_state.has("elemental_intensity"), "Held reward boards and combat checkpoints should receive the same elemental-board repair")
+	var checkpoint_enemy: Dictionary = (checkpoint_state.get("enemies", []) as Array)[0] as Dictionary
+	expect.call(int((checkpoint_enemy.get("committed_intent_plan", {}) as Dictionary).get("schema", 0)) == 1, "Repaired checkpoints should recommit enemy geometry before resume")
 
 
 static func _test_defiance_capacity_and_mid_run_growth(expect: Callable) -> void:

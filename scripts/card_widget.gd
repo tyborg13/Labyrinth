@@ -21,7 +21,6 @@ const READY_WAVE_SCALE_BONUS: float = 0.022
 const READY_WAVE_RISE_SECONDS: float = 0.09
 const READY_WAVE_SETTLE_SECONDS: float = 0.20
 const READY_WAVE_GLOW_INSET: float = 4.0
-const INTENSITY_GLOW_PAD: float = 9.0
 const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
@@ -406,119 +405,6 @@ class DebossedRoleEmblem:
 		var fitted_size: Vector2 = texture_size * fit_scale
 		return Rect2(center - fitted_size * 0.5, fitted_size)
 
-class IntensityActiveGlow:
-	extends Control
-
-	const PULSE_SECONDS: float = 2.8
-	const PULSE_ALPHA_MIN: float = 0.86
-	const PULSE_ALPHA_MAX: float = 1.0
-	const SHARED_TEXTURE_CACHE_LIMIT: int = 24
-
-	static var _shared_texture_cache: Dictionary = {}
-	static var _shared_texture_cache_order: Array[String] = []
-
-	var element_id: String = "none"
-	var glow_color: Color = Color.TRANSPARENT
-	var layout_scale: float = 1.0
-	var _glow_texture: Texture2D
-	var _texture_key: String = ""
-	var _pulse_phase: float = 0.0
-
-	func _ready() -> void:
-		set_process(visible)
-
-	func setup(next_element_id: String, next_glow_color: Color, next_layout_scale: float, active: bool) -> void:
-		element_id = next_element_id
-		glow_color = next_glow_color
-		layout_scale = clampf(next_layout_scale, 0.44, 1.20)
-		visible = active
-		set_process(active)
-		if active:
-			_refresh_texture()
-		queue_redraw()
-
-	func _process(delta: float) -> void:
-		if not visible:
-			return
-		_pulse_phase = fmod(_pulse_phase + delta / PULSE_SECONDS, 1.0)
-		queue_redraw()
-
-	func _draw() -> void:
-		if not visible or _glow_texture == null:
-			return
-		var wave: float = 0.5 + 0.5 * sin(_pulse_phase * TAU)
-		var alpha: float = lerpf(PULSE_ALPHA_MIN, PULSE_ALPHA_MAX, wave)
-		draw_texture_rect(_glow_texture, Rect2(Vector2.ZERO, size), false, Color(1.0, 1.0, 1.0, alpha))
-
-	func _refresh_texture() -> void:
-		var texture_size := Vector2i(maxi(1, int(ceil(size.x))), maxi(1, int(ceil(size.y))))
-		var key: String = "%s|%dx%d|%.6f|%.6f|%.6f|%.6f" % [
-			element_id,
-			texture_size.x,
-			texture_size.y,
-			glow_color.r,
-			glow_color.g,
-			glow_color.b,
-			layout_scale
-		]
-		if key == _texture_key and _glow_texture != null:
-			return
-		_texture_key = key
-		if _shared_texture_cache.has(key):
-			_glow_texture = _shared_texture_cache.get(key, null)
-			_shared_texture_cache_order.erase(key)
-			_shared_texture_cache_order.append(key)
-			return
-		_glow_texture = _build_glow_texture(texture_size)
-		_shared_texture_cache[key] = _glow_texture
-		_shared_texture_cache_order.append(key)
-		while _shared_texture_cache_order.size() > SHARED_TEXTURE_CACHE_LIMIT:
-			var expired_key: String = _shared_texture_cache_order.pop_front()
-			_shared_texture_cache.erase(expired_key)
-
-	func _build_glow_texture(texture_size: Vector2i) -> Texture2D:
-		var image := Image.create_empty(texture_size.x, texture_size.y, false, Image.FORMAT_RGBA8)
-		image.fill(Color.TRANSPARENT)
-		var pad: float = _pad()
-		if texture_size.x <= int(ceil(pad * 2.0)) or texture_size.y <= int(ceil(pad * 2.0)):
-			return ImageTexture.create_from_image(image)
-		var card_rect := Rect2(Vector2(pad, pad), Vector2(texture_size) - Vector2(pad * 2.0, pad * 2.0)).grow(-_edge_inset())
-		var radius: float = clampf(18.0 * layout_scale, 6.0, minf(card_rect.size.x, card_rect.size.y) * 0.16)
-		var outer_spread: float = maxf(4.0, 8.0 * layout_scale)
-		var inner_spread: float = maxf(4.0, 9.4 * layout_scale)
-		var core_width: float = maxf(1.2, 2.4 * layout_scale)
-		for y: int in range(texture_size.y):
-			for x: int in range(texture_size.x):
-				var point := Vector2(float(x) + 0.5, float(y) + 0.5)
-				var signed_distance: float = _rounded_rect_signed_distance(point, card_rect, radius)
-				var edge_distance: float = absf(signed_distance)
-				var spread: float = inner_spread if signed_distance < 0.0 else outer_spread
-				var bloom: float = exp(-pow(edge_distance / spread, 2.0))
-				var core: float = 1.0 - smoothstep(0.0, core_width, edge_distance)
-				var alpha: float = bloom * 0.34 + core * 0.10
-				if signed_distance < 0.0:
-					alpha *= 0.74
-				alpha = clampf(alpha, 0.0, 0.42)
-				if alpha <= 0.006:
-					continue
-				image.set_pixel(x, y, Color(glow_color.r, glow_color.g, glow_color.b, alpha))
-		return ImageTexture.create_from_image(image)
-
-	func _rounded_rect_signed_distance(point: Vector2, rect: Rect2, radius: float) -> float:
-		var center: Vector2 = rect.get_center()
-		var half_size: Vector2 = rect.size * 0.5
-		var relative: Vector2 = point - center
-		var q := Vector2(absf(relative.x), absf(relative.y)) - (half_size - Vector2(radius, radius))
-		var outside := Vector2(maxf(q.x, 0.0), maxf(q.y, 0.0))
-		var inside: float = minf(maxf(q.x, q.y), 0.0)
-		return outside.length() + inside - radius
-
-	func _pad() -> float:
-		return 9.0 * layout_scale
-
-	func _edge_inset() -> float:
-		return 4.0 * layout_scale
-
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
 @onready var art_frame: PanelContainer = $Margin/VBox/ArtBleed/ArtFrame
@@ -553,7 +439,6 @@ var _ready_wave_tween: Tween
 var _ready_wave_progress: float = 0.0
 var _ready_wave_active: bool = false
 var _ready_wave_glow: PanelContainer
-var _intensity_active_glow: IntensityActiveGlow
 var _summary_icon_box: VBoxContainer
 var _role_emblem: DebossedRoleEmblem
 var _time_badge: TimeCostBadge
@@ -595,7 +480,6 @@ func _ready() -> void:
 	footer_label.add_theme_constant_override("outline_size", 1)
 	_ensure_summary_icon_box()
 	_ensure_role_emblem()
-	_ensure_intensity_active_glow()
 	_ensure_time_badge()
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
@@ -608,7 +492,6 @@ func _notification(what: int) -> void:
 		_update_layout_metrics()
 		pivot_offset = size * 0.5
 		_position_time_badge()
-		_sync_intensity_active_glow_geometry()
 		_sync_role_emblem_geometry()
 		if not card_id.is_empty():
 			_apply_configuration()
@@ -741,7 +624,6 @@ func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = 
 		# complete card presentation after every combat-state transition.
 		var card: Dictionary = _display_card_def()
 		_refresh_summary_display(card)
-		_refresh_intensity_active_glow()
 
 func set_hover_pose(next_lift: float, next_scale: float) -> void:
 	_hover_lift = clampf(next_lift, -40.0, 0.0)
@@ -806,7 +688,6 @@ func _apply_configuration() -> void:
 	_queue_title_refit()
 	_refresh_summary_display(card)
 	_refresh_role_emblem(card)
-	_refresh_intensity_active_glow()
 	_refresh_time_badge(card)
 	footer_label.text = ""
 	footer_label.visible = false
@@ -1127,65 +1008,6 @@ func _position_time_badge() -> void:
 	_time_badge.position = Vector2(-edge_overhang, -edge_overhang - vertical_lift)
 	_time_badge.z_index = 12
 
-func _ensure_intensity_active_glow() -> void:
-	if _intensity_active_glow != null:
-		return
-	_intensity_active_glow = IntensityActiveGlow.new()
-	_intensity_active_glow.name = "IntensityActiveGlow"
-	_intensity_active_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_intensity_active_glow.show_behind_parent = true
-	_intensity_active_glow.z_as_relative = true
-	_intensity_active_glow.z_index = 0
-	_intensity_active_glow.visible = false
-	add_child(_intensity_active_glow)
-	move_child(_intensity_active_glow, 0)
-	_sync_intensity_active_glow_geometry()
-
-func _sync_intensity_active_glow_geometry() -> void:
-	if _intensity_active_glow == null:
-		return
-	var pad: float = _intensity_glow_pad()
-	var card_size: Vector2 = size if size.x > 0.0 and size.y > 0.0 else custom_minimum_size
-	if card_size.x <= 0.0 or card_size.y <= 0.0:
-		card_size = BASE_CARD_SIZE
-	_intensity_active_glow.position = Vector2(-pad, -pad)
-	_intensity_active_glow.size = card_size + Vector2(pad * 2.0, pad * 2.0)
-	_intensity_active_glow.pivot_offset = _intensity_active_glow.size * 0.5
-
-func _refresh_intensity_active_glow() -> void:
-	_ensure_intensity_active_glow()
-	var condition: Dictionary = _active_intensity_condition()
-	var element_id: String = str(condition.get("element", ElementData.NONE))
-	var active: bool = ElementData.is_elemental(element_id)
-	_sync_intensity_active_glow_geometry()
-	_intensity_active_glow.setup(element_id, _intensity_glow_color(element_id), _card_layout_scale(), active)
-
-func _active_intensity_condition() -> Dictionary:
-	for row_var: Variant in _summary_rows:
-		if typeof(row_var) != TYPE_ARRAY:
-			continue
-		var row: Array = row_var as Array
-		for token_var: Variant in row:
-			if typeof(token_var) != TYPE_DICTIONARY:
-				continue
-			var token: Dictionary = token_var
-			if str(token.get("kind", "")) not in ["intensity_requirement", "intensity_spend"]:
-				continue
-			if not bool(token.get("condition_active", false)):
-				continue
-			var element_id: String = str(token.get("element", ElementData.NONE))
-			if ElementData.is_elemental(element_id):
-				return {"element": element_id}
-	return {}
-
-func _intensity_glow_color(element_id: String) -> Color:
-	if not ElementData.is_elemental(element_id):
-		return Color.TRANSPARENT
-	return ElementData.accent(element_id).lerp(Color.WHITE, 0.16)
-
-func _intensity_glow_pad() -> float:
-	return _scaled_card_value(INTENSITY_GLOW_PAD, 6.0)
-
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)
 	if rows.is_empty() and _summary_bbcode.is_empty():
@@ -1211,17 +1033,13 @@ func _render_summary_icon_rows(rows: Array) -> void:
 	for row_var: Variant in rows:
 		if typeof(row_var) != TYPE_ARRAY:
 			continue
-		var raw_row: Array = row_var as Array
 		var segments: Array = []
 		for segment: Array in _summary_token_segments(row_var as Array):
 			if not segment.is_empty():
 				segments.append(segment)
 				rendered_rows.append(segment)
 		if not segments.is_empty():
-			row_groups.append({
-				"segments": segments,
-				"condition": _row_condition_data(raw_row)
-			})
+			row_groups.append({"segments": segments})
 	if rendered_rows.is_empty():
 		return
 	var metrics: Dictionary = _summary_layout_metrics(rendered_rows, row_groups)
@@ -1232,46 +1050,8 @@ func _render_summary_icon_rows(rows: Array) -> void:
 		if typeof(group_var) != TYPE_DICTIONARY:
 			continue
 		var group: Dictionary = group_var
-		var condition: Dictionary = group.get("condition", {})
-		var condition_element: String = str(condition.get("element", ""))
-		var condition_active: bool = bool(condition.get("active", false))
 		var segments: Array = group.get("segments", [])
-		if condition_element.is_empty():
-			_add_summary_action_group(_summary_icon_box, segments, icon_size, label_size, row_gap)
-			continue
-		var block := PanelContainer.new()
-		block.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		block.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		block.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		block.add_theme_stylebox_override("panel", _conditional_summary_style(condition_element, condition_active))
-		_summary_icon_box.add_child(block)
-		var margin := MarginContainer.new()
-		margin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		margin.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		margin.add_theme_constant_override("margin_left", 1)
-		margin.add_theme_constant_override("margin_top", 1)
-		margin.add_theme_constant_override("margin_right", 1)
-		margin.add_theme_constant_override("margin_bottom", 1)
-		block.add_child(margin)
-		var inner := VBoxContainer.new()
-		inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		inner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		inner.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		inner.alignment = BoxContainer.ALIGNMENT_CENTER
-		inner.add_theme_constant_override("separation", maxi(0, row_gap - 4))
-		margin.add_child(inner)
-		for segment_index: int in range(segments.size()):
-			var segment_var: Variant = segments[segment_index]
-			if typeof(segment_var) == TYPE_ARRAY:
-				var segment: Array = segment_var as Array
-				var conditional_icon_size: float = icon_size
-				var conditional_label_size: int = label_size
-				var conditional_row_gap: int = maxi(0, row_gap - 2)
-				if _segment_should_compact_conditional(segment):
-					conditional_icon_size = maxf(15.0, icon_size - 3.0)
-					conditional_label_size = maxi(10, label_size - 2)
-					conditional_row_gap = maxi(0, row_gap - 3)
-				_add_summary_segment(inner, segment, conditional_icon_size, conditional_label_size, conditional_row_gap, true, segment_index > 0)
+		_add_summary_action_group(_summary_icon_box, segments, icon_size, label_size, row_gap)
 
 func _add_summary_action_group(parent: Node, segments: Array, icon_size: float, label_size: int, row_gap: int) -> void:
 	if segments.is_empty():
@@ -1319,53 +1099,6 @@ func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_
 		_add_token_to_summary_row(row, token_var as Dictionary, icon_size, label_size, conditional)
 	if row.get_child_count() > 0:
 		parent.add_child(row)
-
-func _segment_should_compact_conditional(segment: Array) -> bool:
-	var valued_tokens: int = 0
-	for token_var: Variant in segment:
-		if typeof(token_var) != TYPE_DICTIONARY:
-			continue
-		var token: Dictionary = token_var
-		if token.has("value") and str(token.get("kind", "")) != "aoe_pattern":
-			valued_tokens += 1
-	return valued_tokens >= 3
-
-func _row_condition_data(row: Array) -> Dictionary:
-	for token_var: Variant in row:
-		if typeof(token_var) != TYPE_DICTIONARY:
-			continue
-		var token: Dictionary = token_var
-		if str(token.get("kind", "")) == "intensity_requirement":
-			return {
-				"element": str(token.get("element", "")),
-				"active": bool(token.get("condition_active", false))
-			}
-	return {}
-
-func _conditional_summary_style(element_id: String, active: bool = false) -> StyleBoxFlat:
-	var accent: Color = ElementData.accent(element_id)
-	var style := StyleBoxFlat.new()
-	var fill: Color = Color(0.09, 0.065, 0.052).lerp(accent.darkened(0.38), 0.58)
-	style.bg_color = Color(fill.r, fill.g, fill.b, 0.92)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.98 if active else 0.78)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	if active:
-		style.bg_color = Color(fill.r, fill.g, fill.b, 0.97).lightened(0.08)
-		style.shadow_color = Color(accent.r, accent.g, accent.b, 0.36)
-		style.shadow_size = 4
-		style.shadow_offset = Vector2.ZERO
-	style.corner_radius_top_left = 4
-	style.corner_radius_top_right = 4
-	style.corner_radius_bottom_right = 4
-	style.corner_radius_bottom_left = 4
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	return style
 
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int, conditional: bool = false) -> void:
 	var tooltip: String = ActionIcons.token_tooltip(token)
@@ -1512,8 +1245,7 @@ func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size
 		var segments: Array = (group_var as Dictionary).get("segments", []) as Array
 		if segments.size() <= 1:
 			continue
-		var condition: Dictionary = (group_var as Dictionary).get("condition", {}) as Dictionary
-		group_chrome_height += _summary_action_group_chrome_size(not str(condition.get("element", "")).is_empty()).y
+		group_chrome_height += _summary_action_group_chrome_size().y
 	return total_height + float(maxi(0, rendered_rows.size() - 1) * row_gap) + group_chrome_height
 
 func _summary_width_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int, row_groups: Array = []) -> float:
@@ -1529,11 +1261,10 @@ func _summary_width_estimate(rendered_rows: Array, icon_size: float, label_size:
 		var segments: Array = group.get("segments", []) as Array
 		if segments.size() <= 1:
 			continue
-		var condition: Dictionary = group.get("condition", {}) as Dictionary
-		widest = maxf(widest, _summary_action_group_width_estimate(segments, icon_size, label_size, row_gap, not str(condition.get("element", "")).is_empty()))
+		widest = maxf(widest, _summary_action_group_width_estimate(segments, icon_size, label_size, row_gap))
 	return widest
 
-func _summary_action_group_width_estimate(segments: Array, icon_size: float, label_size: int, row_gap: int, conditional: bool = false) -> float:
+func _summary_action_group_width_estimate(segments: Array, icon_size: float, label_size: int, row_gap: int) -> float:
 	var widest_content: float = 0.0
 	var continuation_label_size: int = maxi(_scaled_card_font_size(11, 8), label_size - 2)
 	var continuation_gap: int = maxi(1, row_gap - 1)
@@ -1545,11 +1276,9 @@ func _summary_action_group_width_estimate(segments: Array, icon_size: float, lab
 		if segment_index > 0:
 			segment_width += _summary_text_width("↳", continuation_label_size) + float(continuation_gap)
 		widest_content = maxf(widest_content, segment_width)
-	return widest_content + _summary_action_group_chrome_size(conditional).x
+	return widest_content + _summary_action_group_chrome_size().x
 
-func _summary_action_group_chrome_size(conditional: bool) -> Vector2:
-	if conditional:
-		return Vector2(2.0, 2.0)
+func _summary_action_group_chrome_size() -> Vector2:
 	return Vector2.ZERO
 
 func _summary_segment_width_estimate(segment: Array, icon_size: float, label_size: int, row_gap: int) -> float:

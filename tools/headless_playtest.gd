@@ -2,6 +2,8 @@ extends SceneTree
 
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
@@ -10,8 +12,6 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
-const FALLBACK_ATTACK_BASE_DAMAGE: int = 3
-const FALLBACK_MOVE_RANGE: int = 2
 const SHORTCUT_ATTACK_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull"]
 const DEFAULT_OUTPUT_DIR: String = "res://playtest/headless"
 const DEFAULT_SEED_BASE: int = 5052026
@@ -101,9 +101,10 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, skills, skill SKILL_ID [INDEX], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: state, moves, move N, free [N|x,y], cards, card N, click N, drag N play, target N|eN|x,y, skip, pass, magic, attune RESERVE SLOT, battle, skills, skill SKILL_ID [INDEX], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
-	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
+	print("Combat movement: `free` lists the once-per-activation Move 2 destinations; it costs no card play or Time.")
+	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, X Corruption, L Radiance, b Bramble, p Poison, i Ice, s Snowdrift, e Electrified, # wall/pillar, D door")
 
 func _setup_paths() -> void:
 	var output_dir: String = str(_options.get("output_dir", DEFAULT_OUTPUT_DIR))
@@ -194,6 +195,8 @@ func _handle_command(command: String) -> void:
 				_print_moves()
 			else:
 				_command_move(int(parts[1]))
+		"free", "step":
+			_command_free_move(parts)
 		"cards", "hand", "h":
 			_print_cards()
 		"card", "click", "play":
@@ -223,6 +226,12 @@ func _handle_command(command: String) -> void:
 			_command_reward(parts)
 		"heal":
 			_command_reward(PackedStringArray(["reward", "heal"]))
+		"magic", "loadout":
+			_print_magic_state()
+		"attune":
+			_command_attune(parts)
+		"battle", "start":
+			_command_start_battle()
 		"relic":
 			_command_relic(parts)
 		"linger":
@@ -273,6 +282,12 @@ func _start_new_run(seed: int) -> void:
 
 func _print_state() -> void:
 	var mode: String = str(_run_state.get("mode", ""))
+	if mode == RunEngine.MODE_ESCAPE:
+		var previous_coord: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
+		_run_state = _run_engine.continue_pending_escape(_run_state)
+		_sync_combat_state_from_run()
+		mode = str(_run_state.get("mode", ""))
+		print("Continued the committed escape route from %s to %s." % [previous_coord, _run_state.get("current_room", previous_coord)])
 	print("Run %d | seed %d | mode %s | HP %d/%d | embers %d | deck %d" % [
 		_run_number,
 		int(_run_state.get("seed", 0)),
@@ -293,6 +308,8 @@ func _print_state() -> void:
 			_print_relic_state()
 		"campfire":
 			_print_campfire_state()
+		RunEngine.MODE_PRE_BATTLE:
+			_print_pre_battle_state()
 		"victory", "defeat", "rested":
 			print("Run ended: %s. Use `new [seed]` for another run." % mode)
 		_:
@@ -370,33 +387,127 @@ func _command_move(index: int) -> void:
 	_append_note("- Moved to %s: %s.\n" % [_coord_text(moves[index]), _room_label(_run_engine.room_metadata(_run_state, moves[index]))])
 	_print_state()
 
+func _print_pre_battle_state() -> void:
+	var current: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = _run_engine.room_metadata(_run_state, current)
+	print("Pre-battle at %s | depth %d | %s %s" % [
+		_coord_text(current),
+		int(room.get("depth", 0)),
+		str(room.get("element", ElementData.NONE)),
+		str(room.get("type", "combat")),
+	])
+	print("You may use `magic` and `attune RESERVE_INDEX SLOT_INDEX` before `battle` begins the encounter.")
+
+func _command_start_battle() -> void:
+	if str(_run_state.get("mode", "")) != RunEngine.MODE_PRE_BATTLE:
+		print("Battle can only begin from pre-battle mode.")
+		return
+	var previous: Dictionary = _run_state.duplicate(true)
+	_run_state = _run_engine.begin_pre_battle_combat(_run_state)
+	_sync_combat_state_from_run()
+	if str(_run_state.get("mode", "")) == "combat":
+		_attach_new_combat_analytics(previous, "pre_battle_start")
+		_append_note("- Began the committed destination combat.\n")
+	_print_state()
+
+func _command_free_move(parts: PackedStringArray) -> void:
+	if str(_run_state.get("mode", "")) != "combat":
+		print("Free Move is only available in combat.")
+		return
+	if not _pending.is_empty():
+		print("Resolve or cancel the pending card before using Free Move.")
+		return
+	var action: Dictionary = _combat_engine.free_move_action(_combat_state)
+	if action.is_empty():
+		print("Free Move has already been spent or is not available.")
+		return
+	var targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(_combat_state, action)
+	if targets.is_empty():
+		if bool((_combat_state.get("player_turn_restrictions", {}) as Dictionary).get("immobilized", false)):
+			print("Free Move is unavailable: the player is Immobilized this activation.")
+		else:
+			print("Free Move has no legal destination from the player's current tile.")
+		return
+	if parts.size() < 2:
+		print("Free %s 2 targets (no card play, no Time):" % ("Blink" if str(action.get("type", "")) == "blink" else "Move"))
+		for index: int in range(targets.size()):
+			print("  %d: %s %s" % [index, _coord_text(targets[index]), _target_hint(_combat_state, action, targets[index])])
+		print("Command: free N|x,y")
+		return
+	var raw: String = parts[1].strip_edges()
+	var target: Vector2i = INVALID_TARGET_TILE
+	if raw.contains(","):
+		var coords: PackedStringArray = raw.split(",", false)
+		if coords.size() == 2:
+			target = Vector2i(int(coords[0]), int(coords[1]))
+	else:
+		var index: int = int(raw)
+		if index >= 0 and index < targets.size():
+			target = targets[index]
+	if not targets.has(target):
+		print("That Free Move destination is not legal.")
+		_command_free_move(PackedStringArray(["free"]))
+		return
+	var before_run_state: Dictionary = _run_state.duplicate(true)
+	var before_state: Dictionary = _combat_state.duplicate(true)
+	var resolved_path: Array[Vector2i] = _combat_engine.path_for_player_action(before_state, action, target)
+	var resolved_state: Dictionary = _combat_engine.apply_player_action(before_state, action, target)
+	if resolved_state == before_state:
+		print("Free Move produced no movement.")
+		return
+	var outcome: String = _combat_engine.combat_outcome(resolved_state)
+	var transition_state: Dictionary = resolved_state.duplicate(true)
+	if outcome.is_empty():
+		_run_state = _run_engine.set_combat_state(_run_state, resolved_state)
+	else:
+		_run_state = _run_engine.finish_combat(_run_state, resolved_state)
+	_combat_state = resolved_state
+	_analytics_reconcile_combat_tracker(before_state, resolved_state)
+	_analytics_store.write_event("free_move_used", _analytics_context(before_state), {
+		"from": (before_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
+		"to": (resolved_state.get("player", {}) as Dictionary).get("pos", target),
+		"path": resolved_path,
+		"distance": PathUtils.manhattan(
+			(before_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
+			(resolved_state.get("player", {}) as Dictionary).get("pos", target)
+		),
+		"blink": str(action.get("type", "")) == "blink",
+		"player_hp_delta": int((resolved_state.get("player", {}) as Dictionary).get("hp", 0)) - int((before_state.get("player", {}) as Dictionary).get("hp", 0)),
+	})
+	_log_combat_transition(before_run_state, "free_move", transition_state)
+	_sync_combat_state_from_run()
+	_append_note("- Used free %s to %s: %s.\n" % [str(action.get("type", "move")), _coord_text(target), _card_delta_text(before_state, transition_state, [action])])
+	print("Free Move resolved: %s." % _card_delta_text(before_state, transition_state, [action]))
+	if str(_run_state.get("mode", "")) == "combat" and _combat_engine.should_auto_finish_player_activation(_combat_state):
+		_resolve_enemy_round("auto_end_after_free_move")
+	else:
+		_print_state()
+
 func _print_combat_state() -> void:
 	var player: Dictionary = _combat_state.get("player", {})
 	var plays_remaining: int = _combat_engine.cards_remaining_this_turn(_combat_state)
 	var player_status: String = _status_text(player)
-	var restriction_status: String = _restriction_text(_combat_state)
 	var status_suffix: String = ""
 	if not player_status.is_empty():
 		status_suffix += " " + player_status
-	if not restriction_status.is_empty():
-		status_suffix += " " + restriction_status
-	print("Combat %s | turn %d | plays %d%s | player %s block %d stone %d%s" % [
+	var free_move_text: String = "ready" if _combat_engine.free_move_available(_combat_state) else "spent"
+	print("Combat %s | turn %d | plays %d%s | free Move 2 %s | player %s block %d stone %d%s" % [
 		str(_combat_state.get("room_name", "")),
 		int(_combat_state.get("turn", 1)),
 		plays_remaining,
 		_play_pool_suffix(_combat_state),
+		free_move_text,
 		_coord_text(player.get("pos", Vector2i.ZERO)),
 		int(player.get("block", 0)),
 		int(player.get("stoneskin", 0)),
 		status_suffix
 	])
-	print("Intensity: %s" % _elemental_intensity_text(_combat_state))
 	print("Order: %s" % _turn_order_text(_combat_state))
+	print("Objective: %s" % _combat_objective_text(_combat_state))
 	_print_turn_clock()
 	_print_manual_skill_summary()
-	if plays_remaining <= 0 and not restriction_status.is_empty():
-		print("Turn locked by %s." % restriction_status)
 	_print_board()
+	_print_tile_effects()
 	_print_pickups()
 	_print_terrain()
 	_print_traps()
@@ -406,7 +517,7 @@ func _print_combat_state() -> void:
 	if not _pending.is_empty():
 		_print_pending()
 	else:
-		print("Commands: card N, click N, drag N play|attack|move, skills, skill SKILL_ID [INDEX], pass, note TEXT")
+		print("Commands: free [N|x,y], card N, click N, drag N play, skills, skill SKILL_ID [INDEX], pass, note TEXT")
 
 func _print_board() -> void:
 	var grid: Array = _combat_state.get("grid", [])
@@ -437,8 +548,35 @@ func _print_board() -> void:
 		var enemy: Dictionary = enemy_var
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		marks[enemy.get("pos", Vector2i.ZERO)] = str(enemy_number % 10)
+		if _combat_engine.is_enemy_visible_to_player(_combat_state, enemy):
+			marks[enemy.get("pos", Vector2i.ZERO)] = str(enemy_number % 10)
 		enemy_number += 1
+	var tile_effects: Dictionary = _combat_state.get("tile_effects", {}) as Dictionary
+	for field_var: Variant in tile_effects.get("fields", []):
+		if typeof(field_var) != TYPE_DICTIONARY:
+			continue
+		var field: Dictionary = field_var
+		var field_tile: Vector2i = field.get("pos", INVALID_TARGET_TILE)
+		if not marks.has(field_tile):
+			marks[field_tile] = "X" if str(field.get("kind", "")) == CombatTerrainRules.FIELD_CORRUPTION else "L"
+	for surface_var: Variant in tile_effects.get("surfaces", []):
+		if typeof(surface_var) != TYPE_DICTIONARY:
+			continue
+		var surface: Dictionary = surface_var
+		var surface_tile: Vector2i = surface.get("pos", INVALID_TARGET_TILE)
+		if marks.has(surface_tile):
+			continue
+		match str(surface.get("kind", "")):
+			CombatTerrainRules.SURFACE_BRAMBLE:
+				marks[surface_tile] = "b"
+			CombatTerrainRules.SURFACE_POISON:
+				marks[surface_tile] = "p"
+			CombatTerrainRules.SURFACE_ICE:
+				marks[surface_tile] = "i"
+			CombatTerrainRules.SURFACE_SNOWDRIFT:
+				marks[surface_tile] = "s"
+			CombatTerrainRules.SURFACE_ELECTRIFIED:
+				marks[surface_tile] = "e"
 	print("Board:")
 	for y: int in range(grid.size()):
 		var row: Array = grid[y]
@@ -457,6 +595,34 @@ func _print_board() -> void:
 					cells.append(".")
 		print("  %d %s" % [y, " ".join(cells)])
 	print("    0 1 2 3 4 5 6 7 8")
+
+func _print_tile_effects() -> void:
+	var tile_effects: Dictionary = _combat_state.get("tile_effects", {}) as Dictionary
+	var clock: int = int(_combat_state.get("initiative_clock", 0))
+	var field_parts: Array[String] = []
+	for field_var: Variant in tile_effects.get("fields", []):
+		if typeof(field_var) != TYPE_DICTIONARY:
+			continue
+		var field: Dictionary = field_var
+		field_parts.append("%s %s (%d Time)" % [
+			_coord_text(field.get("pos", INVALID_TARGET_TILE)),
+			str(field.get("kind", "")).capitalize(),
+			maxi(0, int(field.get("expires_at", clock)) - clock),
+		])
+	if not field_parts.is_empty():
+		print("Fields: %s" % "; ".join(field_parts))
+	var surface_parts: Array[String] = []
+	for surface_var: Variant in tile_effects.get("surfaces", []):
+		if typeof(surface_var) != TYPE_DICTIONARY:
+			continue
+		var surface: Dictionary = surface_var
+		surface_parts.append("%s %s (%d Time)" % [
+			_coord_text(surface.get("pos", INVALID_TARGET_TILE)),
+			str(surface.get("kind", "")).capitalize(),
+			maxi(0, int(surface.get("expires_at", clock)) - clock),
+		])
+	if not surface_parts.is_empty():
+		print("Surfaces: %s" % "; ".join(surface_parts))
 
 func _print_pickups() -> void:
 	var parts: Array[String] = []
@@ -485,26 +651,66 @@ func _print_terrain() -> void:
 func _print_enemies() -> void:
 	print("Enemies:")
 	var live_index: int = 0
-	for enemy_var: Variant in _combat_state.get("enemies", []):
+	var enemies: Array = _combat_state.get("enemies", []) as Array
+	var objective: Dictionary = _combat_state.get("objective", {}) as Dictionary
+	var leader_id: int = int(objective.get("leader_id", -1)) if str(objective.get("type", "")) == CombatObjectiveRules.KILL_LEADER else -1
+	for enemy_index: int in range(enemies.size()):
+		var enemy_var: Variant = enemies[enemy_index]
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
 		var enemy: Dictionary = enemy_var
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
+		if not _combat_engine.is_enemy_visible_to_player(_combat_state, enemy):
+			print("  e%d: Unknown Presence (concealed by Umbra)" % live_index)
+			live_index += 1
+			continue
 		var enemy_def: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
 		var intent: Dictionary = enemy.get("intent", {})
-		print("  %d: %s at %s HP %d/%d block %d %s intent %s: %s" % [
+		var leader_marker: String = " [LEADER]" if int(enemy.get("id", -1)) == leader_id else ""
+		print("  e%d: %s%s at %s HP %d/%d block %d %s intent %s: %s | committed %s" % [
 			live_index,
 			str(enemy_def.get("name", enemy.get("type", "enemy"))),
+			leader_marker,
 			_coord_text(enemy.get("pos", Vector2i.ZERO)),
 			int(enemy.get("hp", 0)),
 			int(enemy.get("max_hp", 0)),
 			int(enemy.get("block", 0)),
 			_status_text(enemy),
 			str(intent.get("name", "")),
-			_enemy_actions_summary(intent.get("actions", []))
+			_enemy_actions_summary(intent.get("actions", [])),
+			_enemy_plan_text(enemy_index, intent),
 		])
 		live_index += 1
+
+func _enemy_plan_text(enemy_index: int, intent: Dictionary) -> String:
+	var plan: Dictionary = _combat_engine.enemy_intent_plan(_combat_state, enemy_index, intent)
+	if plan.is_empty():
+		return "none"
+	var parts: Array[String] = []
+	var path: Array[Vector2i] = _vector2i_array(plan.get("path", []))
+	if path.size() > 1:
+		parts.append("path %s" % _tile_list_text(path))
+	else:
+		parts.append("hold %s" % _coord_text(plan.get("destination", INVALID_TARGET_TILE)))
+	var attacks: Array[Vector2i] = _vector2i_array(plan.get("projected_attack", []))
+	if not attacks.is_empty():
+		parts.append("hit %s" % _tile_list_text(attacks))
+	elif int(plan.get("attack_action_index", -1)) >= 0:
+		parts.append("attack has no target")
+	var corruption: Array[Vector2i] = _vector2i_array(plan.get("projected_field", []))
+	if not corruption.is_empty():
+		parts.append("Corrupt %s" % _tile_list_text(corruption))
+	var support_tile: Vector2i = plan.get("support_target_tile", INVALID_TARGET_TILE)
+	if support_tile.x >= 0:
+		parts.append("support %s" % _coord_text(support_tile))
+	return ", ".join(parts)
+
+func _tile_list_text(tiles: Array[Vector2i]) -> String:
+	var labels: Array[String] = []
+	for tile: Vector2i in tiles:
+		labels.append(_coord_text(tile))
+	return " -> ".join(labels)
 
 func _print_traps() -> void:
 	var traps: Array = _combat_state.get("traps", [])
@@ -523,7 +729,10 @@ func _print_incoming_preview() -> void:
 	if _combat_state.is_empty() or str(_run_state.get("mode", "")) != "combat":
 		return
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state.duplicate(true))
-	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
+	var phase: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state)
+	if bool(phase.get("unrevealed_before_player", false)) or _phase_has_hidden_umbra_action(phase):
+		print("If you pass now, an Unknown Presence acts before you return; exact outcome is concealed by Umbra.")
+		return
 	var after_state: Dictionary = (phase.get("state", _combat_state) as Dictionary).duplicate(true)
 	var before_setup_state: Dictionary = (phase.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	var after_enemy_state: Dictionary = before_setup_state if not before_setup_state.is_empty() else after_state
@@ -552,6 +761,41 @@ func _print_incoming_preview() -> void:
 			print("Then next turn setup: %s." % ", ".join(setup_bits))
 			for line: String in setup_logs:
 				print("  setup: %s" % line)
+
+func _phase_has_hidden_umbra_action(phase: Dictionary) -> bool:
+	for step_var: Variant in phase.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY and bool((step_var as Dictionary).get("hidden_by_umbra", false)):
+			return true
+	return false
+
+func _combat_objective_text(state: Dictionary) -> String:
+	var objective: Dictionary = state.get("objective", {}) as Dictionary
+	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
+	match objective_type:
+		CombatObjectiveRules.KILL_LEADER:
+			var leader_id: int = int(objective.get("leader_id", -1))
+			var live_index: int = 0
+			for enemy_var: Variant in state.get("enemies", []):
+				if typeof(enemy_var) != TYPE_DICTIONARY:
+					continue
+				var enemy: Dictionary = enemy_var as Dictionary
+				if int(enemy.get("hp", 0)) <= 0:
+					continue
+				if int(enemy.get("id", -1)) == leader_id:
+					if not _combat_engine.is_enemy_visible_to_player(state, enemy):
+						return "Kill the Leader (currently concealed by Umbra)"
+					var enemy_def: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
+					return "Kill the Leader: e%d %s" % [live_index, str(enemy_def.get("name", enemy.get("type", "enemy")))]
+				live_index += 1
+			return "Kill the Leader"
+		CombatObjectiveRules.SURVIVE:
+			return "Survive until Time %d (now %d)" % [int(objective.get("target_clock", 0)), int(state.get("initiative_clock", 0))]
+		CombatObjectiveRules.REACH_EXIT:
+			var labels: PackedStringArray = []
+			for tile: Vector2i in CombatObjectiveRules.exit_target_tiles(objective):
+				labels.append(_coord_text(tile))
+			return "Reach Exit at %s; killing enemies alone does not finish" % (", ".join(labels) if not labels.is_empty() else "a marked threshold")
+	return "Kill All Enemies"
 
 func _turn_order_text(state: Dictionary) -> String:
 	var entries: Array[Dictionary] = _combat_engine.current_turn_order(state, 8)
@@ -647,10 +891,6 @@ func _print_cards() -> void:
 		var modes: Array[String] = []
 		if _can_start_card(index, "printed"):
 			modes.append("click")
-		if _can_start_card(index, "attack"):
-			modes.append("drag attack")
-		if _can_start_card(index, "move"):
-			modes.append("drag move")
 		if _can_start_card(index, "printed"):
 			modes.append("drag play")
 		var card: Dictionary = _card_def(card_id, _combat_state)
@@ -774,7 +1014,7 @@ func _command_skill(parts: PackedStringArray) -> void:
 		_print_skill_choices(skill_id)
 		return
 	var effect_type: String = SkillTreeLibrary.effect_type(skill_id)
-	var requires_index: bool = effect_type in ["discard_draw", "discard_recall", "arm_intensity"]
+	var requires_index: bool = effect_type in ["discard_draw", "discard_recall", "extend_next_tile_effect"]
 	var choice_index: int = -1
 	if requires_index:
 		if parts.size() < 3 or not str(parts[2]).strip_edges().is_valid_int():
@@ -798,11 +1038,11 @@ func _command_skill(parts: PackedStringArray) -> void:
 			next_state = _combat_engine.use_quick_wits(_combat_state, choice_index)
 		"discard_recall":
 			next_state = _combat_engine.use_encore(_combat_state, choice_index)
-		"arm_intensity":
-			next_state = _combat_engine.arm_prismatic_instinct(_combat_state, choice_index)
+		"extend_next_tile_effect":
+			next_state = _combat_engine.arm_tile_extension(_combat_state, choice_index)
 		"preserve_burn":
 			next_state = _combat_engine.arm_rehearsed_escape(_combat_state)
-		"preserve_fallback_item":
+		"preserve_item":
 			next_state = _combat_engine.arm_makeshift_tool(_combat_state)
 		"convert_block":
 			next_state = _combat_engine.arm_carry_the_guard(_combat_state)
@@ -839,11 +1079,11 @@ func _manual_skill_status(skill_id: String) -> String:
 	var flags: Dictionary = _combat_state.get("skill_flags", {}) as Dictionary
 	var armed: bool = false
 	match SkillTreeLibrary.effect_type(skill_id):
-		"arm_intensity":
-			armed = bool(flags.get("prismatic_armed", false))
+		"extend_next_tile_effect":
+			armed = bool(flags.get("tile_extension_armed", false))
 		"preserve_burn":
 			armed = bool(flags.get("burn_preserve_armed", false))
-		"preserve_fallback_item":
+		"preserve_item":
 			armed = bool(flags.get("item_preserve_armed", false))
 		"convert_block":
 			armed = bool(flags.get("guard_carry_armed", false))
@@ -856,15 +1096,15 @@ func _manual_skill_status(skill_id: String) -> String:
 	return "WAITING"
 
 func _manual_skill_command(skill_id: String) -> String:
-	if SkillTreeLibrary.effect_type(skill_id) in ["discard_draw", "discard_recall", "arm_intensity"]:
+	if SkillTreeLibrary.effect_type(skill_id) in ["discard_draw", "discard_recall", "extend_next_tile_effect"]:
 		return "`skill %s INDEX`" % skill_id
 	return "`skill %s`" % skill_id
 
 func _skill_choice_indices(skill_id: String) -> Array[int]:
 	var result: Array[int]
 	var effect_type: String = SkillTreeLibrary.effect_type(skill_id)
-	if effect_type == "arm_intensity":
-		return _combat_engine.prismatic_target_hand_indices(_combat_state)
+	if effect_type == "extend_next_tile_effect":
+		return _combat_engine.tile_extension_target_hand_indices(_combat_state)
 	var deck: Dictionary = _combat_state.get("deck", {}) as Dictionary
 	var cards: Array = deck.get("discard", []) if effect_type == "discard_recall" else deck.get("hand", [])
 	for index: int in range(cards.size()):
@@ -875,7 +1115,7 @@ func _skill_choice_indices(skill_id: String) -> Array[int]:
 
 func _print_skill_choices(skill_id: String) -> void:
 	var effect_type: String = SkillTreeLibrary.effect_type(skill_id)
-	if effect_type not in ["discard_draw", "discard_recall", "arm_intensity"]:
+	if effect_type not in ["discard_draw", "discard_recall", "extend_next_tile_effect"]:
 		return
 	var zone: String = "discard" if effect_type == "discard_recall" else "hand"
 	var cards: Array = ((_combat_state.get("deck", {}) as Dictionary).get(zone, []) as Array)
@@ -899,10 +1139,10 @@ func _command_card(parts: PackedStringArray) -> void:
 	if parts.size() >= 3:
 		var requested: String = parts[2].strip_edges().to_lower()
 		if requested in ["attack", "move", "fallback_attack", "fallback_move"]:
-			print("In the game, fallback attack/move is selected by dragging into a lane. Use `drag %d %s`." % [hand_index, "attack" if requested.contains("attack") else "move"])
+			print("Default Attack and Move card conversions were removed. Use `free` for Move 2 or play the card's printed pattern.")
 			return
 		if requested not in ["printed", "play"]:
-			print("Clicking a card only uses its printed text. Use `drag N play|attack|move` for drag lanes.")
+			print("Cards only use their printed text. Use `card N` or `drag N play`.")
 			return
 	_start_card_from_input(hand_index, "printed", "click")
 
@@ -911,22 +1151,17 @@ func _command_drag(parts: PackedStringArray) -> void:
 		print("Not in combat.")
 		return
 	if parts.size() < 3:
-		print("Drag needs a card and lane: `drag N play|attack|move`.")
+		print("Drag needs a card and lane: `drag N play`.")
 		_print_cards()
 		return
 	var hand_index: int = int(parts[1])
 	var lane: String = parts[2].strip_edges().to_lower()
 	if lane == "printed":
 		lane = "play"
-	if lane == "fallback_attack":
-		lane = "attack"
-	if lane == "fallback_move":
-		lane = "move"
-	var mode: String = "printed" if lane == "play" else lane
-	if lane not in ["play", "attack", "move"]:
-		print("Unknown drag lane: %s. Use play, attack, or move." % lane)
+	if lane != "play":
+		print("Attack and Move drag lanes were removed. Use `drag N play`; use `free` for the activation's Move 2.")
 		return
-	_start_card_from_input(hand_index, mode, "drag %s" % lane)
+	_start_card_from_input(hand_index, "printed", "drag play")
 
 func _start_card_from_input(hand_index: int, mode: String, input_label: String) -> void:
 	if not _can_start_card(hand_index, mode):
@@ -935,6 +1170,7 @@ func _start_card_from_input(hand_index: int, mode: String, input_label: String) 
 		return
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	var card_id: String = str(hand[hand_index])
+	var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, hand_index, "play")
 	_pending = {
 		"hand_index": hand_index,
 		"card_id": card_id,
@@ -942,7 +1178,7 @@ func _start_card_from_input(hand_index: int, mode: String, input_label: String) 
 		"input_label": input_label,
 		"actions": _actions_for_card_mode(card_id, mode),
 		"action_index": 0,
-		"state": _combat_state.duplicate(true),
+		"state": prepared_state,
 		"targets": _vector2i_array([]),
 		"effect_seen": false,
 		"skip_allowed": false,
@@ -951,6 +1187,8 @@ func _start_card_from_input(hand_index: int, mode: String, input_label: String) 
 	_continue_pending()
 
 func _can_start_card(hand_index: int, mode: String) -> bool:
+	if mode != "printed":
+		return false
 	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
 		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -961,19 +1199,9 @@ func _can_start_card(hand_index: int, mode: String) -> bool:
 	return bool(preview.get("playable", false))
 
 func _actions_for_card_mode(card_id: String, mode: String) -> Array:
-	match mode:
-		"attack":
-			return _fallback_attack_actions()
-		"move":
-			return _fallback_move_actions()
-		_:
-			return _combat_engine.card_play_actions(card_id, _combat_state)
-
-func _fallback_attack_actions() -> Array:
-	return [{"type": "melee", "damage": GameData.fixed_point_amount(FALLBACK_ATTACK_BASE_DAMAGE), "range": 1}]
-
-func _fallback_move_actions() -> Array:
-	return [{"type": "move", "range": FALLBACK_MOVE_RANGE}]
+	if mode != "printed":
+		return []
+	return _combat_engine.card_play_actions(card_id, _combat_state)
 
 func _continue_pending() -> void:
 	if _pending.is_empty():
@@ -1158,7 +1386,7 @@ func _enemy_label_at_tile(state: Dictionary, tile: Vector2i) -> String:
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
 		if _enemy_footprint_tiles(enemy).has(tile):
-			return "enemy %d" % live_index
+			return "e%d enemy" % live_index
 		live_index += 1
 	return ""
 
@@ -1286,8 +1514,6 @@ func _shortcut_path_trap_risk(state: Dictionary, path_tiles: Array[Vector2i]) ->
 			continue
 		risk += 1000
 		risk += int(trap.get("damage", 0)) * 10
-		for key: String in ["burn", "freeze", "shock", "poison"]:
-			risk += int(trap.get(key, 0)) * 5
 	return risk
 
 func _next_shortcut_attack_step(state: Dictionary, actions: Array, action_index: int) -> Dictionary:
@@ -1376,8 +1602,11 @@ func _commit_pending() -> void:
 	_append_note("- Played %s as %s: %s.\n" % [card_id, str(_pending.get("mode", "")), _card_delta_text(before_combat_state, transition_state, actions)])
 	_print_card_resolution(card_id, before_combat_state, transition_state, actions, targets)
 	_pending = {}
-	if str(_run_state.get("mode", "")) == "combat" and _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if str(_run_state.get("mode", "")) == "combat" and _combat_engine.should_auto_finish_player_activation(_combat_state):
 		_resolve_enemy_round("auto_end_turn")
+	elif str(_run_state.get("mode", "")) == "combat" and _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+		print("No card plays remain; use the ready Free Move 2 or `pass`.")
+		_print_state()
 	else:
 		_print_state()
 
@@ -1456,8 +1685,65 @@ func _command_reward(parts: PackedStringArray) -> void:
 	_run_state = _run_engine.claim_card_reward(_run_state, card_id)
 	_sync_combat_state_from_run()
 	_log_reward_choice("card", card_id, reward, hp_before, int(_run_state.get("player_hp", hp_before)))
-	_append_note("- Reward: took %s.\n" % str(GameData.card_def(card_id).get("name", card_id)))
+	_append_note("- Reward: took %s into reserve magic.\n" % str(GameData.card_def(card_id).get("name", card_id)))
 	_print_state()
+	print("Use `magic` then `attune RESERVE_INDEX SLOT_INDEX` outside combat to put the reward in the active deck.")
+
+func _print_magic_state() -> void:
+	var attuned: Array = _run_state.get("attuned_magic_cards", []) as Array
+	var reserve: Array = _run_state.get("magic_inventory", []) as Array
+	print("Attuned magic (active deck):")
+	for index: int in range(attuned.size()):
+		var card_id: String = str(attuned[index])
+		print("  a%d: %s [%s]" % [index, str(GameData.card_def(card_id).get("name", card_id)), card_id])
+	print("Reserve magic:")
+	if reserve.is_empty():
+		print("  (empty)")
+	for index: int in range(reserve.size()):
+		var card_id: String = str(reserve[index])
+		print("  r%d: %s [%s]" % [index, str(GameData.card_def(card_id).get("name", card_id)), card_id])
+	print("Command: attune RESERVE_INDEX SLOT_INDEX")
+
+func _command_attune(parts: PackedStringArray) -> void:
+	if not _run_engine.can_change_magic(_run_state):
+		print("Magic can only be attuned in a room, campfire, or pre-battle state.")
+		return
+	if parts.size() < 3:
+		_print_magic_state()
+		return
+	var reserve_index: int = int(parts[1])
+	var attuned_index: int = int(parts[2])
+	var reserve_before: Array = (_run_state.get("magic_inventory", []) as Array).duplicate(true)
+	var attuned_before: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true)
+	if reserve_index < 0 or reserve_index >= reserve_before.size() or attuned_index < 0 or attuned_index >= attuned_before.size():
+		print("Bad reserve or attuned slot index.")
+		_print_magic_state()
+		return
+	var incoming_card_id: String = str(reserve_before[reserve_index])
+	var outgoing_card_id: String = str(attuned_before[attuned_index])
+	var next_state: Dictionary = _run_engine.swap_magic_card(_run_state, reserve_index, attuned_index)
+	var attuned_after: Array = next_state.get("attuned_magic_cards", []) as Array
+	if attuned_index >= attuned_after.size() or str(attuned_after[attuned_index]) != incoming_card_id:
+		print("Attunement did not resolve.")
+		_print_magic_state()
+		return
+	_run_state = next_state
+	_sync_combat_state_from_run()
+	_analytics_store.write_event("magic_attuned", _analytics_context({}, incoming_card_id), {
+		"inventory_index": reserve_index,
+		"attuned_index": attuned_index,
+		"card_id": incoming_card_id,
+		"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
+		"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
+		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
+		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
+	})
+	_append_note("- Attuned %s into slot %d; %s moved to reserve.\n" % [
+		str(GameData.card_def(incoming_card_id).get("name", incoming_card_id)),
+		attuned_index,
+		str(GameData.card_def(outgoing_card_id).get("name", outgoing_card_id)),
+	])
+	_print_magic_state()
 
 func _print_relic_state() -> void:
 	var relics: Array = _run_state.get("pending_relics", [])
@@ -1705,7 +1991,11 @@ func _analytics_context(combat_state: Dictionary = _combat_state, card_id: Strin
 		"card_instance_id": card_instance_id
 	}
 	if not combat_state.is_empty():
-		context["elemental_intensity"] = _combat_engine.elemental_intensities(combat_state)
+		var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
+		context["elemental_intensity"] = {}
+		context["field_tiles"] = _analytics_tile_effect_counts(combat_state, "fields")
+		context["surface_tiles"] = _analytics_tile_effect_counts(combat_state, "surfaces")
+		context["objective_type"] = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
 	return context
 
 func _log_run_started() -> void:
@@ -1755,7 +2045,9 @@ func _log_combat_started(reason: String) -> void:
 		"room_name": str(_combat_state.get("room_name", "")),
 		"room_type": str(_combat_state.get("room_type", "")),
 		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
-		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
+		"elemental_intensity": {},
+		"field_tiles": _analytics_tile_effect_counts(_combat_state, "fields"),
+		"surface_tiles": _analytics_tile_effect_counts(_combat_state, "surfaces"),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
 		"equipped_items": (_run_state.get("equipped_items", []) as Array).duplicate(true),
 		"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
@@ -1805,6 +2097,38 @@ func _log_enemy_status_ticks(phase: Dictionary, combat_state: Dictionary) -> voi
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
+		if kind == "terrain_start":
+			_analytics_store.write_event("enemy_terrain_resolved", _analytics_context(combat_state), {
+				"actor_key": str(step.get("actor_key", "")),
+				"actor_name": str(step.get("actor_name", "")),
+				"label": str(step.get("label", "")),
+				"text": str(step.get("text", "")),
+				"tile": step.get("tile", INVALID_TARGET_TILE),
+			})
+			continue
+		if kind in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon"]:
+			var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
+			_analytics_store.write_event("enemy_action_resolved", _analytics_context(combat_state), {
+				"action_type": str(step.get("action_type", kind)),
+				"presentation_kind": kind,
+				"boss_mechanic": bool(step.get("boss_mechanic", false)),
+				"actor_key": str(step.get("actor_key", "")),
+				"actor_name": str(step.get("actor_name", "")),
+				"label": str(step.get("label", "")),
+				"from": step.get("from", step.get("tile", INVALID_TARGET_TILE)),
+				"to": step.get("to", step.get("tile", INVALID_TARGET_TILE)),
+				"path": path,
+				"path_steps": maxi(0, path.size() - 1),
+				"target_key": str(step.get("target_key", "")),
+				"target_losses": (step.get("target_losses", []) as Array).duplicate(true),
+				"enemy_losses": (step.get("enemy_losses", []) as Array).duplicate(true),
+				"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
+				"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true),
+				"support_targets": (step.get("targets", []) as Array).duplicate(true),
+				"elemental_intensity_gained": {},
+				"elemental_intensity_spent": {},
+			})
+			continue
 		if kind not in ["status_damage", "status"]:
 			continue
 		_analytics_store.write_event("enemy_status_tick", _analytics_context(combat_state), {
@@ -1942,16 +2266,14 @@ func _log_playable_cards() -> void:
 			continue
 		var card_id: String = str(hand[index])
 		var printed_playable: bool = _can_start_card(index, "printed")
-		var attack_playable: bool = _can_start_card(index, "attack")
-		var move_playable: bool = _can_start_card(index, "move")
-		if not printed_playable and not attack_playable and not move_playable:
+		if not printed_playable:
 			continue
 		playable_logged[instance_id] = true
 		_analytics_store.write_event("card_became_playable", _analytics_context(_combat_state, card_id, instance_id), {
 			"hand_index": index,
 			"printed_playable": printed_playable,
-			"attack_playable": attack_playable,
-			"move_playable": move_playable
+			"attack_playable": false,
+			"move_playable": false
 		})
 	_analytics_tracker["playable_logged"] = playable_logged
 
@@ -1963,13 +2285,17 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var printed_card: Dictionary = _card_def(card_id, before_state)
 	var printed_actions: Array = (printed_card.get("actions", []) as Array).duplicate(true)
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
-	var intensity_before: Dictionary = _combat_engine.elemental_intensities(before_state)
-	var intensity_after: Dictionary = _combat_engine.elemental_intensities(resolved_state)
+	var intensity_before: Dictionary = {}
+	var intensity_after: Dictionary = {}
+	var fields_before: Dictionary = _analytics_tile_effect_counts(before_state, "fields")
+	var fields_after: Dictionary = _analytics_tile_effect_counts(resolved_state, "fields")
+	var surfaces_before: Dictionary = _analytics_tile_effect_counts(before_state, "surfaces")
+	var surfaces_after: Dictionary = _analytics_tile_effect_counts(resolved_state, "surfaces")
 	var play_mode: String = "printed"
 	var comparable_actions: Array = _analytics_comparable_actions(actions)
 	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
 	if flurry_plays_spent <= 1 and JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
-		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_attack_actions()) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_move_actions()) else "custom"
+		play_mode = "custom"
 	var flurry_played: bool = bool(printed_card.get("flurry", false)) and play_mode == "printed"
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	return {
@@ -2009,7 +2335,16 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"enemy_defense_bypassed": _enemy_defense_bypassed_between(before_state, resolved_state, actions),
 		"elemental_intensity_before": intensity_before,
 		"elemental_intensity_after": intensity_after,
-		"elemental_intensity_gained": _elemental_intensity_delta(intensity_before, intensity_after),
+		"elemental_intensity_gained": {},
+		"elemental_intensity_spent": {},
+		"field_tiles_before": fields_before,
+		"field_tiles_after": fields_after,
+		"field_tiles_created": _analytics_positive_count_delta(fields_before, fields_after),
+		"surface_tiles_before": surfaces_before,
+		"surface_tiles_after": surfaces_after,
+		"surface_tiles_created": _analytics_positive_count_delta(surfaces_before, surfaces_after),
+		"surface_tiles_consumed": _analytics_positive_count_delta(surfaces_after, surfaces_before),
+		"combust_actions": _analytics_attack_keyword_action_count(actions, "combust"),
 		"illusions_created": _illusions_created_between(before_state, resolved_state),
 		"illusion_health_created": _illusion_health_created_between(before_state, resolved_state),
 		"enemy_status_applied": _enemy_status_added_breakdown(before_state, resolved_state),
@@ -2031,6 +2366,40 @@ func _analytics_comparable_actions(actions: Array) -> Array:
 		action.erase("_flurry_repeat_count")
 		result.append(action)
 	return result
+
+func _analytics_tile_effect_counts(state: Dictionary, layer: String) -> Dictionary:
+	var counts: Dictionary = {}
+	var tile_effects: Dictionary = state.get("tile_effects", {}) as Dictionary
+	for entry_var: Variant in tile_effects.get(layer, []):
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var kind: String = str((entry_var as Dictionary).get("kind", ""))
+		if not kind.is_empty():
+			counts[kind] = int(counts.get(kind, 0)) + 1
+	return counts
+
+func _analytics_positive_count_delta(before_counts: Dictionary, after_counts: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for kind_var: Variant in after_counts.keys():
+		var kind: String = str(kind_var)
+		var delta: int = int(after_counts.get(kind, 0)) - int(before_counts.get(kind, 0))
+		if delta > 0:
+			result[kind] = delta
+	return result
+
+func _analytics_attack_keyword_action_count(actions: Array, keyword: String) -> int:
+	var count: int = 0
+	for action_var: Variant in actions:
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var
+		if keyword in ["pierce", "combust"]:
+			if not bool(action.get(keyword, false)):
+				continue
+		elif int(action.get(keyword, 0)) <= 0:
+			continue
+		count += 1
+	return count
 
 func _print_analytics_summary() -> void:
 	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
@@ -2221,6 +2590,9 @@ func _enemy_phase_step_summary(lines: Array[String], start_index: int) -> String
 func _enemy_step_text(step: Dictionary) -> String:
 	var kind: String = str(step.get("kind", ""))
 	var actor: String = str(step.get("actor_name", "Enemy"))
+	if bool(step.get("hidden_by_umbra", false)) and kind != "intent":
+		var hidden_losses: String = _target_losses_text(step.get("target_losses", []))
+		return "Unknown Presence acts from Umbra%s" % (": %s" % hidden_losses if not hidden_losses.is_empty() else "")
 	match kind:
 		"intent":
 			return "%s prepares %s" % [actor, str(step.get("intent_name", "Action"))]
@@ -2232,6 +2604,8 @@ func _enemy_step_text(step: Dictionary) -> String:
 			return "%s gains %d stoneskin" % [actor, int(step.get("amount", 0))]
 		"heal":
 			return "%s heals %d" % [actor, int(step.get("amount", 0))]
+		"terrain_start":
+			return "%s resolves %s: %s" % [actor, str(step.get("label", "terrain")), str(step.get("text", "terrain effect"))]
 		"status_damage":
 			return "%s takes %d from %s" % [actor, int(step.get("amount", 0)), str(step.get("text", step.get("label", "status")))]
 		"status":
@@ -2430,7 +2804,7 @@ func _enemy_action_text(action: Dictionary) -> String:
 			if action_type in ["push", "pull"]:
 				amount_text = " force %d" % int(action.get("amount", 0))
 			return "%s dmg %d range %d%s%s" % [action_type, int(action.get("damage", 0)), int(action.get("range", 0)), amount_text, suffix]
-		"block", "stoneskin", "heal_self":
+		"block", "stoneskin", "heal_self", "block_ally", "heal_ally", "guard_ally":
 			return "%s %d%s" % [action_type, int(action.get("amount", 0)), suffix]
 		"lightning_strikes":
 			return "lightning %d x%d%s" % [int(action.get("damage", 0)), int(action.get("count", 0)), suffix]
@@ -2450,9 +2824,12 @@ func _action_text(action: Dictionary) -> String:
 			return "%s range %d%s" % [action_type, int(action.get("range", 0)), suffix]
 		"block", "stoneskin", "heal", "draw", "card_play":
 			return "%s %d%s" % [action_type, int(action.get("amount", 0)), suffix]
-		"intensity":
-			var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
-			return "%s intensity +%d%s" % [ElementData.name(element_id), int(action.get("amount", 0)), suffix]
+		"surface", "field":
+			var kind: String = str(action.get("kind", ""))
+			var pattern_size: int = maxi(1, (action.get("pattern", []) as Array).size())
+			return "place %s on %d tile%s at range %d%s" % [kind.capitalize(), pattern_size, "" if pattern_size == 1 else "s", int(action.get("range", 0)), suffix]
+		"vision", "truesight", "dispel_umbra":
+			return "%s %d%s" % [action_type, int(action.get("amount", action.get("radius", 0))), suffix]
 		_:
 			return action_type + suffix
 
@@ -2486,46 +2863,25 @@ func _aoe_tiles_suffix(state: Dictionary, action: Dictionary) -> String:
 
 func _keyword_suffix(action: Dictionary) -> String:
 	var extras: Array[String] = []
-	var requirement: Dictionary = _combat_engine.action_intensity_requirement(action)
-	if not requirement.is_empty():
-		extras.append("requires %s %d+" % [
-			ElementData.name(str(requirement.get("element", ElementData.NONE))),
-			int(requirement.get("amount", 0))
-		])
-	var bonus: Dictionary = _combat_engine.action_intensity_bonus(action)
-	if not bonus.is_empty():
-		var bonus_text: String = _intensity_bonus_text(action, bonus)
-		if not bonus_text.is_empty():
-			extras.append("%s %d+: %s" % [
-				ElementData.name(str(bonus.get("element", ElementData.NONE))),
-				int(bonus.get("threshold", 0)),
-				bonus_text
-			])
 	if bool(action.get("pierce", false)):
 		extras.append("pierce")
 	if bool(action.get("immobilize", false)):
 		extras.append("immobilize")
-	for status_key: String in ["burn", "freeze", "shock", "poison", "chain", "push", "pull"]:
-		if int(action.get(status_key, 0)) > 0:
-			extras.append("%s %d" % [status_key, int(action.get(status_key, 0))])
+	if int(action.get("chain", 0)) > 0:
+		extras.append("chain %d" % int(action.get("chain", 0)))
+	var field_kind: String = str(action.get("field_kind", ""))
+	if not field_kind.is_empty():
+		extras.append("%s %s" % [field_kind.capitalize(), str(action.get("field_mode", "target"))])
+	var surface_kind: String = str(action.get("surface_kind", ""))
+	if not surface_kind.is_empty():
+		extras.append("%s surface" % surface_kind.capitalize())
+	if bool(action.get("combust", false)):
+		extras.append("Combust")
+	if int(action.get("illuminate_radius", 0)) > 0:
+		extras.append("Light r%d" % int(action.get("illuminate_radius", 0)))
 	if int(action.get("self_damage", 0)) > 0:
 		extras.append("self %d" % int(action.get("self_damage", 0)))
 	return "" if extras.is_empty() else " +" + ", ".join(extras)
-
-func _intensity_bonus_text(action: Dictionary, bonus: Dictionary) -> String:
-	var parts: Array[String] = []
-	if int(bonus.get("damage", 0)) > 0:
-		parts.append("+%d dmg" % int(bonus.get("damage", 0)))
-	if int(bonus.get("amount", 0)) > 0 and str(action.get("type", "")) in ["push", "pull"]:
-		parts.append("+%d %s" % [int(bonus.get("amount", 0)), str(action.get("type", ""))])
-	for status_key: String in ["burn", "freeze", "shock", "poison", "chain", "push", "pull"]:
-		if int(bonus.get(status_key, 0)) > 0:
-			parts.append("+%d %s" % [int(bonus.get(status_key, 0)), status_key])
-	if bool(bonus.get("immobilize", false)):
-		parts.append("immobilize")
-	if bool(bonus.get("pierce", false)):
-		parts.append("pierce")
-	return ", ".join(parts)
 
 func _target_hint(state: Dictionary, action: Dictionary, target: Vector2i) -> String:
 	var after_state: Dictionary = _combat_engine.apply_player_action(state, action, target)
@@ -2540,7 +2896,7 @@ func _target_hint(state: Dictionary, action: Dictionary, target: Vector2i) -> St
 	var hp_delta: int = int((after_state.get("player", {}) as Dictionary).get("hp", 0)) - int((state.get("player", {}) as Dictionary).get("hp", 0))
 	var block_delta: int = int((after_state.get("player", {}) as Dictionary).get("block", 0)) - int((state.get("player", {}) as Dictionary).get("block", 0))
 	var move_risk: String = _movement_risk_text(state, action, target, [], false)
-	var intensity_delta: String = _intensity_delta_text(state, after_state)
+	var tile_effect_delta: String = _tile_effect_delta_text(state, after_state)
 	var picked_loot: String = _picked_loot_text_between(state, after_state)
 	var bits: Array[String] = []
 	if damage > 0:
@@ -2567,43 +2923,24 @@ func _target_hint(state: Dictionary, action: Dictionary, target: Vector2i) -> St
 		bits.append("+%d block" % block_delta)
 	if not picked_loot.is_empty():
 		bits.append(picked_loot)
-	if not intensity_delta.is_empty():
-		bits.append(intensity_delta)
+	if not tile_effect_delta.is_empty():
+		bits.append(tile_effect_delta)
 	if not move_risk.is_empty():
 		bits.append(move_risk)
 	if bits.is_empty():
 		bits.append(str(action.get("type", "")))
 	return "(" + ", ".join(bits) + ")"
 
-func _elemental_intensity_text(state: Dictionary) -> String:
-	if state.is_empty():
-		return "none"
+func _tile_effect_delta_text(before_state: Dictionary, after_state: Dictionary) -> String:
+	var before_effects: Dictionary = before_state.get("tile_effects", {}) as Dictionary
+	var after_effects: Dictionary = after_state.get("tile_effects", {}) as Dictionary
 	var parts: Array[String] = []
-	var intensities: Dictionary = _combat_engine.elemental_intensities(state)
-	for element_id: String in ElementData.all_elements():
-		parts.append("%s %d" % [ElementData.name(element_id), int(intensities.get(element_id, 0))])
-	return " | ".join(parts)
-
-func _elemental_intensity_delta(before_intensity: Dictionary, after_intensity: Dictionary) -> Dictionary:
-	var result: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		var gained: int = int(after_intensity.get(element_id, 0)) - int(before_intensity.get(element_id, 0))
-		if gained > 0:
-			result[element_id] = gained
-	return result
-
-func _intensity_delta_text(before_state: Dictionary, after_state: Dictionary) -> String:
-	var delta: Dictionary = _elemental_intensity_delta(
-		_combat_engine.elemental_intensities(before_state),
-		_combat_engine.elemental_intensities(after_state)
-	)
-	if delta.is_empty():
-		return ""
-	var parts: Array[String] = []
-	for element_id: String in ElementData.all_elements():
-		var amount: int = int(delta.get(element_id, 0))
-		if amount > 0:
-			parts.append("+%d %s intensity" % [amount, ElementData.name(element_id)])
+	for layer: String in ["fields", "surfaces"]:
+		var before_entries: Array = before_effects.get(layer, []) as Array
+		var after_entries: Array = after_effects.get(layer, []) as Array
+		var delta: int = after_entries.size() - before_entries.size()
+		if delta != 0:
+			parts.append("%+d %s" % [delta, layer])
 	return ", ".join(parts)
 
 func _card_delta_text(before_state: Dictionary, after_state: Dictionary, actions: Array = []) -> String:
@@ -2622,7 +2959,7 @@ func _card_delta_text(before_state: Dictionary, after_state: Dictionary, actions
 	var drawn: int = _draw_entries_between_states(before_state, after_state).size()
 	var card_plays_delta: int = maxi(0, _card_play_capacity_value(after_state) - _card_play_capacity_value(before_state))
 	var illusions_created: int = _illusions_created_between(before_state, after_state)
-	var intensity_delta: String = _intensity_delta_text(before_state, after_state)
+	var tile_effect_delta: String = _tile_effect_delta_text(before_state, after_state)
 	var defense_bypassed: int = _enemy_defense_bypassed_between(before_state, after_state, actions)
 	var enemy_status: String = _status_breakdown_text(_enemy_status_added_breakdown(before_state, after_state))
 	var player_status: String = _player_status_delta_text(before_state.get("player", {}), after_state.get("player", {}))
@@ -2656,8 +2993,8 @@ func _card_delta_text(before_state: Dictionary, after_state: Dictionary, actions
 		bits.append("+%d play" % card_plays_delta)
 	if illusions_created > 0:
 		bits.append("%d illusion" % illusions_created)
-	if not intensity_delta.is_empty():
-		bits.append(intensity_delta)
+	if not tile_effect_delta.is_empty():
+		bits.append(tile_effect_delta)
 	if not enemy_status.is_empty():
 		bits.append("enemy %s" % enemy_status)
 	if not player_status.is_empty():
@@ -2668,61 +3005,43 @@ func _card_delta_text(before_state: Dictionary, after_state: Dictionary, actions
 
 func _status_text(unit: Dictionary) -> String:
 	var parts: Array[String] = []
-	for key: String in ["burn", "freeze", "shock", "stoneskin"]:
-		if int(unit.get(key, 0)) > 0:
-			parts.append("%s=%d" % [key, int(unit.get(key, 0))])
+	if int(unit.get("stoneskin", 0)) > 0:
+		parts.append("stoneskin=%d" % int(unit.get("stoneskin", 0)))
+	if int(unit.get("bleed", 0)) > 0:
+		parts.append("bleed=%d" % int(unit.get("bleed", 0)))
+	if int(unit.get("expose", 0)) > 0:
+		parts.append("expose=%d" % int(unit.get("expose", 0)))
 	if bool(unit.get("immobilize", false)):
 		parts.append("immobilize")
-	if unit.has("poison") and int((unit.get("poison", {}) as Dictionary).get("damage", 0)) > 0:
-		parts.append("poison=%d" % int((unit.get("poison", {}) as Dictionary).get("damage", 0)))
 	return "[" + ", ".join(parts) + "]" if not parts.is_empty() else ""
 
 func _restriction_text(state: Dictionary) -> String:
 	var restrictions: Dictionary = state.get("player_turn_restrictions", {})
 	var parts: Array[String] = []
-	if bool(restrictions.get("frozen", false)):
-		parts.append("frozen: no move and turn locked")
-	if bool(restrictions.get("shocked", false)):
-		parts.append("shocked: limited actions")
 	if bool(restrictions.get("immobilized", false)):
 		parts.append("immobilized: movement locked")
-	var pending: String = str(state.get("pending_player_trap_restriction", ""))
-	if not pending.is_empty():
-		parts.append("pending trap %s" % pending)
 	return "[" + "; ".join(parts) + "]" if not parts.is_empty() else ""
 
 func _player_status_delta_text(before_player: Dictionary, after_player: Dictionary) -> String:
 	var parts: Array[String] = []
-	for key: String in ["burn", "freeze", "shock"]:
-		var delta: int = int(after_player.get(key, 0)) - int(before_player.get(key, 0))
-		if delta > 0:
-			parts.append(_player_status_gain_text(key, delta))
+	var bleed_delta: int = int(after_player.get("bleed", 0)) - int(before_player.get("bleed", 0))
+	if bleed_delta > 0:
+		parts.append("+%d bleed" % bleed_delta)
+	var expose_delta: int = int(after_player.get("expose", 0)) - int(before_player.get("expose", 0))
+	if expose_delta > 0:
+		parts.append("+%d expose" % expose_delta)
 	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
 		parts.append("+immobilize (movement locked next turn)")
-	var before_poison: int = int((before_player.get("poison", {}) as Dictionary).get("damage", 0))
-	var after_poison: int = int((after_player.get("poison", {}) as Dictionary).get("damage", 0))
-	if after_poison > before_poison:
-		parts.append("+%d poison" % (after_poison - before_poison))
 	return ", ".join(parts)
-
-func _player_status_gain_text(status: String, amount: int) -> String:
-	match status:
-		"freeze":
-			return "+%d freeze (next turn locked; incoming damage doubled while active)" % amount
-		"shock":
-			return "+%d shock (next turn action-limited)" % amount
-		"burn":
-			return "+%d burn (HP tick)" % amount
-		_:
-			return "+%d %s" % [amount, status]
 
 func _status_breakdown_text(breakdown: Dictionary) -> String:
 	var parts: Array[String] = []
-	for key: String in ["burn", "freeze", "shock", "poison", "immobilize"]:
-		var amount: int = int(breakdown.get(key, 0))
-		if amount > 0:
-			var text: String = "+immobilize" if key == "immobilize" else "+%d %s" % [amount, key]
-			parts.append(text)
+	if int(breakdown.get("bleed", 0)) > 0:
+		parts.append("+%d bleed" % int(breakdown.get("bleed", 0)))
+	if int(breakdown.get("expose", 0)) > 0:
+		parts.append("+%d expose" % int(breakdown.get("expose", 0)))
+	if int(breakdown.get("immobilize", 0)) > 0:
+		parts.append("+immobilize")
 	return ", ".join(parts)
 
 func _movement_risk_text(state: Dictionary, action: Dictionary, target: Vector2i, path_override: Array = [], include_hp: bool = true) -> String:
@@ -2815,9 +3134,6 @@ func _trap_text(trap: Dictionary) -> String:
 	var parts: Array[String] = ["%s trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))]
 	if int(trap.get("damage", 0)) > 0:
 		parts.append("%d adjacent blast dmg" % int(trap.get("damage", 0)))
-	for key: String in ["burn", "freeze", "shock", "poison"]:
-		if int(trap.get(key, 0)) > 0:
-			parts.append("%s %d" % [key, int(trap.get(key, 0))])
 	parts.append("attackable")
 	return " ".join(parts)
 
@@ -3005,29 +3321,27 @@ func _illusion_health_created_between(before_state: Dictionary, after_state: Dic
 	return total
 
 func _enemy_status_added_breakdown(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
-	var result: Dictionary = {"burn": 0, "freeze": 0, "shock": 0, "poison": 0, "immobilize": 0}
+	var result: Dictionary = {"bleed": 0, "expose": 0, "immobilize": 0}
 	var after_by_id: Dictionary = _enemies_by_id(after_state)
 	for before_enemy: Dictionary in _live_enemies(before_state):
 		var enemy_id: int = int(before_enemy.get("id", -1))
 		if not after_by_id.has(enemy_id):
 			continue
 		var after_enemy: Dictionary = after_by_id[enemy_id]
-		for status: String in ["burn", "freeze", "shock"]:
-			result[status] = int(result.get(status, 0)) + maxi(0, int(after_enemy.get(status, 0)) - int(before_enemy.get(status, 0)))
+		result["bleed"] = int(result.get("bleed", 0)) + maxi(0, int(after_enemy.get("bleed", 0)) - int(before_enemy.get("bleed", 0)))
+		result["expose"] = int(result.get("expose", 0)) + maxi(0, int(after_enemy.get("expose", 0)) - int(before_enemy.get("expose", 0)))
 		if bool(after_enemy.get("immobilize", false)) and not bool(before_enemy.get("immobilize", false)):
 			result["immobilize"] = int(result.get("immobilize", 0)) + 1
-		result["poison"] = int(result.get("poison", 0)) + maxi(0, int((after_enemy.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_enemy.get("poison", {}) as Dictionary).get("damage", 0)))
 	return result
 
 func _player_status_added_breakdown(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
-	var result: Dictionary = {"burn": 0, "freeze": 0, "shock": 0, "poison": 0, "immobilize": 0}
+	var result: Dictionary = {"bleed": 0, "expose": 0, "immobilize": 0}
 	var before_player: Dictionary = before_state.get("player", {})
 	var after_player: Dictionary = after_state.get("player", {})
-	for status: String in ["burn", "freeze", "shock"]:
-		result[status] = maxi(0, int(after_player.get(status, 0)) - int(before_player.get(status, 0)))
+	result["bleed"] = maxi(0, int(after_player.get("bleed", 0)) - int(before_player.get("bleed", 0)))
+	result["expose"] = maxi(0, int(after_player.get("expose", 0)) - int(before_player.get("expose", 0)))
 	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
 		result["immobilize"] = 1
-	result["poison"] = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
 	return result
 
 func _draw_entries_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:

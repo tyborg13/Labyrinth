@@ -200,7 +200,7 @@ class IconIdentityPolicyTests(unittest.TestCase):
         registry = _action_icon_paths()
         aliases = _action_icon_aliases()
         declared_actions = _declared_action_types("cards.json") | _declared_action_types("enemies.json")
-        dynamic_action_types = {"intensity", "intensity_spend"}
+        dynamic_action_types: set[str] = set()
         self.assertFalse(
             declared_actions - aliases.keys() - dynamic_action_types,
             f"Action types lack a reviewed icon identity: {sorted(declared_actions - aliases.keys() - dynamic_action_types)}",

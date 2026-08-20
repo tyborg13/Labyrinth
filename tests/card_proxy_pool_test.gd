@@ -44,8 +44,6 @@ func _run() -> void:
 	first_ready_wave_glow.visible = true
 	first_ready_wave_glow.modulate = Color(1.0, 1.0, 1.0, 0.82)
 	first_ready_wave_glow.scale = Vector2(1.028, 1.028)
-	var first_glow: Node = first_widget.get("_intensity_active_glow") as Node
-	first_glow.set("_pulse_phase", 0.73)
 	run_scene.call("_release_card_proxy", first_proxy)
 	var pool: Array = run_scene.get("_card_proxy_pool") as Array
 	_assert(pool.size() == 1, "Releasing a completed proxy should retain one bounded reusable instance")
@@ -70,8 +68,6 @@ func _run() -> void:
 	var reused_ready_wave_glow: Control = reused_widget.get("_ready_wave_glow") as Control
 	_assert(not reused_widget.has_meta("ready_wave_active"), "Reused widgets should clear the ready-wave activity marker")
 	_assert(not reused_ready_wave_glow.visible and is_zero_approx(reused_ready_wave_glow.modulate.a), "Reused widgets should hide and clear the transient ready-wave glow")
-	var reused_glow: Node = reused_widget.get("_intensity_active_glow") as Node
-	_assert(is_zero_approx(float(reused_glow.get("_pulse_phase"))), "Reused widgets should restart decorative glow animation at the fresh-instance phase")
 	reused_widget.visible = false
 	reused_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	reused_widget.set("_interactive", true)

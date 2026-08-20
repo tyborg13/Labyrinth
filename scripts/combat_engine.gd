@@ -2,7 +2,6 @@ extends RefCounted
 class_name CombatEngine
 
 const ElementData = preload("res://scripts/element_data.gd")
-const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
@@ -28,7 +27,6 @@ const DEFAULT_ENEMY_INTENT_TIME_COST: int = 4
 const DEFIANCE_RESTORE_FRACTION: float = 0.25
 const DEFIANCE_EVENT_LIMIT: int = 16
 const TURN_ORDER_PREVIEW_LIMIT: int = 8
-const ELEMENTAL_INTENSITY_ROOM_BASE: int = 1
 const DEPTHS_PER_SEQUENCE: int = 4
 const FIRST_SECTION_UMBRA_START_STEP: int = DEPTHS_PER_SEQUENCE - 2
 const UMBRA_STAGE_CLEAR: String = "clear"
@@ -77,7 +75,6 @@ const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, 1),
 	Vector2i(-1, 0)
 ]
-const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "bleed", "expose", "sunder", "chain", "push", "pull"]
 const PLAYER_BLEED_TRIGGER_ACTION_TYPES := ["move", "melee", "ranged", "aoe", "push", "pull"]
 const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ZEKARION_TYPE: String = "zekarion"
@@ -903,14 +900,6 @@ func _apply_start_combat_relic_effects(state: Dictionary, player_snapshot: Dicti
 				if effect.has("max_value"):
 					bonus = mini(bonus, GameData.fixed_point_amount(int(effect.get("max_value", bonus))))
 				player["stoneskin"] = int(player.get("stoneskin", 0)) + bonus
-			"start_combat_intensity":
-				if not _start_combat_intensity_effect_applies(effect, deck_cards):
-					continue
-				var start_element: String = str(effect.get("element", ElementData.NONE))
-				var start_amount: int = int(effect.get("amount", effect.get("value", 0)))
-				next_state["player"] = player
-				next_state = _gain_elemental_intensity(next_state, start_element, start_amount, _relic_effect_source_name(effect))
-				player = _normalized_player(next_state.get("player", {}))
 	next_state["player"] = player
 	return next_state
 
@@ -920,21 +909,10 @@ func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	var card: Dictionary = card_def(card_id, state)
 	var printed_actions: Array = (card.get("actions", []) as Array).duplicate(true)
-	var intensity_cost: Dictionary = ElementalIntensityRules.card_cost(card)
-	var leading_actions: Array = []
-	if not intensity_cost.is_empty():
-		leading_actions.append({
-			"type": "intensity_spend",
-			"element": str(intensity_cost.get("element", ElementData.NONE)),
-			"amount": int(intensity_cost.get("amount", 0)),
-			"required": true,
-			"_card_cost": true
-		})
 	if not bool(card.get("flurry", false)):
-		leading_actions.append_array(printed_actions)
-		return leading_actions
+		return printed_actions
 	var repeat_count: int = flurry_plays_for_card(card_id, state)
-	var repeated_actions: Array = leading_actions
+	var repeated_actions: Array = []
 	for repeat_index: int in range(repeat_count):
 		for action_var: Variant in printed_actions:
 			if typeof(action_var) != TYPE_DICTIONARY:
@@ -972,12 +950,8 @@ func player_action_needs_orientation(_action: Dictionary) -> bool:
 	return false
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
-	if not action_intensity_requirement_met(state, action):
-		return false
 	var action_type: String = str(action.get("type", ""))
 	if bool(action.get("_free_move", false)) and not free_move_available(state):
-		return false
-	if action_type == "intensity_spend" and not action_intensity_spend_requirement_met(state, action):
 		return false
 	var restrictions: Dictionary = state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("immobilized", false)) and action_type in ["move", "blink"]:
@@ -990,7 +964,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 	var player: Dictionary = state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(state, action)
 	var occupied: Dictionary = {}
 	var targets: Array[Vector2i] = []
 	var visible_lookup: Dictionary = {}
@@ -1160,7 +1134,7 @@ func player_action_has_valid_target(state: Dictionary, action: Dictionary) -> bo
 		return false
 	if str(action.get("type", "")) != "move":
 		return not valid_targets_for_player_action(state, action).is_empty()
-	var move_range: int = _player_move_range(state, _action_with_intensity_bonus(state, action))
+	var move_range: int = _player_move_range(state, _action_with_player_state_relic_modifiers(state, action))
 	if move_range <= 0:
 		return false
 	var grid: Array = state.get("grid", []) as Array
@@ -1268,10 +1242,9 @@ func apply_prevalidated_player_move(state: Dictionary, action: Dictionary, targe
 	var performance_phase_started: int = _record_runtime_performance_phase("prevalidated_move_validate", performance_total_started)
 	var next_state: Dictionary = state.duplicate(true)
 	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_duplicate", performance_phase_started)
-	_mark_first_confluence_benefit(next_state, action)
 	_snapshot_pending_card_payment(next_state)
 	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_prelude", performance_phase_started)
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(next_state, action)
 	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_resolve_action", performance_phase_started)
 	next_state = _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
 	_record_runtime_performance_phase("prevalidated_move_apply_path", performance_phase_started)
@@ -1289,10 +1262,9 @@ func apply_planned_player_move(state: Dictionary, action: Dictionary, target_til
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
 	var performance_phase_started: int = _record_runtime_performance_phase("planned_move_duplicate", performance_total_started)
-	_mark_first_confluence_benefit(next_state, action)
 	_snapshot_pending_card_payment(next_state)
 	performance_phase_started = _record_runtime_performance_phase("planned_move_prelude", performance_phase_started)
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(next_state, action)
 	performance_phase_started = _record_runtime_performance_phase("planned_move_resolve_action", performance_phase_started)
 	next_state = _apply_player_move_along_path(
 		next_state,
@@ -1332,12 +1304,11 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	# Confluence's activation event on that same boundary so previews or stale
 	# target requests cannot claim a benefit that never resolved.
 	if target_is_valid:
-		_mark_first_confluence_benefit(next_state, action)
-	_snapshot_pending_card_payment(next_state)
+		_snapshot_pending_card_payment(next_state)
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(next_state, action)
 	performance_phase_started = _record_runtime_performance_phase("player_action_prelude", performance_phase_started)
 	match action_type:
 		"move":
@@ -1442,25 +1413,12 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			_log(next_state, "Recovered %d health." % heal_amount)
 		"draw":
 			var draw_amount: int = int(resolved_action.get("amount", 0))
-			if _action_condition_uses_confluence(next_state, action):
-				var safe_draws: int = ((next_state.get("deck", {}) as Dictionary).get("draw", []) as Array).size()
-				if draw_amount > safe_draws:
-					draw_amount = safe_draws
-					_log(next_state, "%s stops the conditional draw before Fatigue." % SkillTreeLibrary.display_name(SkillTreeLibrary.skill_id_for_effect("highest_intensity")))
 			next_state = _draw_cards_in_place(next_state, draw_amount)
 		"card_play":
 			var bonus_card_plays: int = maxi(0, int(resolved_action.get("amount", 0)))
 			next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + bonus_card_plays
 			if bonus_card_plays > 0:
 				_log(next_state, "Gained %d card play(s)." % bonus_card_plays)
-		"intensity":
-			var element_id: String = _action_intensity_element(action)
-			var amount: int = maxi(0, int(resolved_action.get("amount", 0)))
-			next_state = _gain_elemental_intensity(next_state, element_id, amount)
-		"intensity_spend":
-			var spend_element_id: String = _action_intensity_element(action)
-			var spend_amount: int = maxi(0, int(action.get("amount", 0)))
-			next_state = _consume_elemental_intensity(next_state, spend_element_id, spend_amount)
 		"illuminate":
 			if target_is_valid:
 				next_state = _create_umbra_light_source(next_state, target_tile, resolved_action)
@@ -1905,15 +1863,6 @@ func _card_spend_uses_banked_play(state: Dictionary, plays_spent: int) -> bool:
 		and maxi(1, plays_spent) > int(budget.get("ordinary_remaining", 0))
 	)
 
-func _card_has_intensity_condition(card: Dictionary) -> bool:
-	for action_var: Variant in card.get("actions", []):
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var action: Dictionary = action_var as Dictionary
-		if not _action_intensity_requirement(action).is_empty() or not _action_intensity_bonus(action).is_empty():
-			return true
-	return false
-
 func is_player_turn(state: Dictionary) -> bool:
 	var current_actor: Dictionary = state.get("current_actor", {})
 	return str(current_actor.get("kind", "player")) == "player"
@@ -2205,7 +2154,6 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		if not skip_refresh_step.is_empty():
 			steps.append(skip_refresh_step)
 		return {"state": next_state, "steps": steps, "time_cost": 0}
-	var shocked: bool = bool(turn_setup.get("shocked", false))
 	var immobilized: bool = bool(turn_setup.get("immobilized", false))
 	var attacks_suppressed: bool = bool(turn_setup.get("attacks_suppressed", false))
 	var suppressed_attack_segment: bool = false
@@ -2214,7 +2162,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	if not intent.is_empty():
 		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 		var actions: Array = intent.get("actions", [])
-		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, shocked)
+		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, attacks_suppressed)
 		for action_index: int in range(actions.size()):
 			var action_var: Variant = actions[action_index]
 			if typeof(action_var) != TYPE_DICTIONARY:
@@ -2225,17 +2173,13 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var current_enemies: Array = next_state.get("enemies", [])
 			if enemy_index >= 0 and enemy_index < current_enemies.size():
 				attacks_suppressed = attacks_suppressed or bool((current_enemies[enemy_index] as Dictionary).get("attacks_suppressed_this_activation", false))
-			if shocked and not _enemy_action_is_movement(action):
-				continue
 			if attacks_suppressed and _enemy_action_is_attack(action):
 				suppressed_attack_segment = true
 				continue
 			if immobilized and _enemy_action_is_movement(action):
 				continue
 			var before_state: Dictionary = next_state.duplicate(true)
-			var followup_action: Dictionary = {}
-			if not shocked:
-				followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
+			var followup_action: Dictionary = _next_enemy_followup_attack_action(actions, action_index + 1)
 			var action_context: Dictionary = activation_plan.duplicate(true)
 			action_context["action_index"] = action_index
 			var bleed_steps: Array[Dictionary] = []
@@ -2309,10 +2253,12 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	if intent.is_empty():
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": [], "projected_field": []}
 	var enemy_definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
-	var frozen: bool = int(enemy.get("freeze", 0)) > 0
-	var shocked: bool = int(enemy.get("shock", 0)) > 0
 	var immobilized: bool = bool(enemy.get("immobilize", false))
-	var plan: Dictionary = enemy_intent_plan(state, enemy_index, intent, frozen or immobilized, frozen or shocked)
+	var attacks_suppressed: bool = (
+		bool(enemy.get("attacks_suppression_pending", false))
+		or CombatTerrainRules.surface_kind_at(state, enemy.get("pos", Vector2i.ZERO)) == CombatTerrainRules.SURFACE_ELECTRIFIED
+	)
+	var plan: Dictionary = enemy_intent_plan(state, enemy_index, intent, immobilized, attacks_suppressed)
 	var occupied: Dictionary = _enemy_threat_path_blockers(state, enemy, true, true)
 	var blocked_target: Vector2i = Vector2i(-999, -999)
 	var frontier: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
@@ -2386,14 +2332,14 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				if int(skip_enemy.get("hp", 0)) > 0:
 					_assign_enemy_intent(next_state, enemy_index, rng)
 			continue
-		var shocked: bool = bool(turn_setup.get("shocked", false))
 		var immobilized: bool = bool(turn_setup.get("immobilized", false))
+		var attacks_suppressed: bool = bool(turn_setup.get("attacks_suppressed", false))
 		enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 		var intent: Dictionary = enemy.get("intent", {})
 		if not intent.is_empty():
 			steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 			var actions: Array = intent.get("actions", [])
-			var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, shocked)
+			var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, attacks_suppressed)
 			for action_index: int in range(actions.size()):
 				var action_var: Variant = actions[action_index]
 				if typeof(action_var) != TYPE_DICTIONARY:
@@ -2401,14 +2347,12 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var action: Dictionary = action_var
 				if combat_outcome(next_state) != "":
 					break
-				if shocked and not _enemy_action_is_movement(action):
+				if attacks_suppressed and _enemy_action_is_attack(action):
 					continue
 				if immobilized and _enemy_action_is_movement(action):
 					continue
 				var before_state: Dictionary = next_state.duplicate(true)
-				var followup_action: Dictionary = {}
-				if not shocked:
-					followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
+				var followup_action: Dictionary = _next_enemy_followup_attack_action(actions, action_index + 1)
 				var action_context: Dictionary = activation_plan.duplicate(true)
 				action_context["action_index"] = action_index
 				var bleed_steps: Array[Dictionary] = []
@@ -2496,6 +2440,13 @@ func cards_remaining_this_turn(state: Dictionary) -> int:
 		_card_play_capacity(state) - int(state.get("cards_played_this_turn", 0))
 	)
 
+func should_auto_finish_player_activation(state: Dictionary) -> bool:
+	return (
+		is_player_turn(state)
+		and cards_remaining_this_turn(state) <= 0
+		and not free_move_available(state)
+	)
+
 func card_play_budget(state: Dictionary) -> Dictionary:
 	var total_remaining: int = cards_remaining_this_turn(state)
 	var banked_capacity: int = clampi(int(state.get("banked_play_active", 0)), 0, 1)
@@ -2551,7 +2502,7 @@ func _player_action_with_automatic_orientation(state: Dictionary, action: Dictio
 	return oriented
 
 func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(state, action)
 	var force_direction: Vector2i = _action_force_direction(resolved_action)
 	if force_direction == Vector2i.ZERO:
 		return []
@@ -2566,7 +2517,7 @@ func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictiona
 	return _enemy_direction_path(state, enemy_index, force_direction, amount)
 
 func force_directions_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(state, action)
 	var enemy_index: int = _enemy_index_at_tile(state, target_tile)
 	if enemy_index < 0:
 		return []
@@ -2580,7 +2531,7 @@ func force_directions_for_player_action(state: Dictionary, action: Dictionary, t
 	)
 
 func final_damage_for_player_action(state: Dictionary, action: Dictionary) -> int:
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(state, action)
 	return _final_damage_for_resolved_player_action(state, resolved_action, _relic_effects(state))
 
 func _final_damage_for_resolved_player_action(state: Dictionary, resolved_action: Dictionary, relic_effects: Array[Dictionary]) -> int:
@@ -2608,130 +2559,12 @@ func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -
 			"amount": attack_bonus,
 			"detail": "First attack this turn"
 		})
-	for modifier: Dictionary in _intensity_bonus_damage_modifiers_for_action(state, action):
-		modifiers.append(modifier)
 	for modifier: Dictionary in _conditional_attack_modifiers_for_action(state, action):
 		modifiers.append(modifier)
 	return modifiers
 
-func elemental_intensities(state: Dictionary) -> Dictionary:
-	var result: Dictionary = {}
-	var raw: Variant = state.get("elemental_intensity", {})
-	var source: Dictionary = {}
-	if typeof(raw) == TYPE_DICTIONARY:
-		source = raw as Dictionary
-	for element_id: String in ElementData.all_elements():
-		result[element_id] = maxi(0, int(source.get(element_id, 0)))
-	return result
-
-func elemental_intensity(state: Dictionary, element_id: String) -> int:
-	if not ElementData.is_elemental(element_id):
-		return 0
-	return int(elemental_intensities(state).get(element_id, 0))
-
-func condition_intensity(state: Dictionary, element_id: String) -> int:
-	if not ElementData.is_elemental(element_id):
-		return 0
-	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
-	if bool(flags.get("prismatic_resolving", false)):
-		return 999
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
-	if has_skill(state, skill_id):
-		var highest: int = 0
-		for intensity_var: Variant in elemental_intensities(state).values():
-			highest = maxi(highest, int(intensity_var))
-		return highest
-	return elemental_intensity(state, element_id)
-
-func _action_condition_uses_confluence(state: Dictionary, action: Dictionary) -> bool:
-	var requirement: Dictionary = _action_intensity_requirement(action)
-	if requirement.is_empty():
-		return false
-	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
-	if bool(flags.get("prismatic_resolving", false)):
-		return false
-	var element_id: String = str(requirement.get("element", ElementData.NONE))
-	var threshold: int = int(requirement.get("amount", 0))
-	if elemental_intensity(state, element_id) >= threshold:
-		return false
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
-	return has_skill(state, skill_id) and condition_intensity(state, element_id) >= threshold
-
-func _action_gains_confluence_benefit(state: Dictionary, action: Dictionary) -> bool:
-	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
-	if bool(flags.get("prismatic_resolving", false)):
-		return false
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
-	if not has_skill(state, skill_id):
-		return false
-	var requirements: Array[Dictionary]
-	var action_requirement: Dictionary = _action_intensity_requirement(action)
-	if not action_requirement.is_empty():
-		requirements.append(action_requirement)
-	var bonus_requirement: Dictionary = _action_intensity_bonus_requirement(action)
-	if not bonus_requirement.is_empty():
-		requirements.append(bonus_requirement)
-	for requirement: Dictionary in requirements:
-		var element_id: String = str(requirement.get("element", ElementData.NONE))
-		var threshold: int = int(requirement.get("amount", 0))
-		if elemental_intensity(state, element_id) < threshold and condition_intensity(state, element_id) >= threshold:
-			return true
-	return false
-
-func _mark_first_confluence_benefit(state: Dictionary, action: Dictionary) -> void:
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
-	if skill_was_used(state, skill_id) or not _action_gains_confluence_benefit(state, action):
-		return
-	_mark_skill_used(
-		state,
-		skill_id,
-		"%s lets the highest elemental intensity satisfy this card." % SkillTreeLibrary.display_name(skill_id)
-	)
-
-func elemental_intensity_counter(state: Dictionary, counter_key: String) -> Dictionary:
-	var result: Dictionary = _empty_elemental_intensity()
-	var raw: Variant = state.get(counter_key, {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return result
-	var source: Dictionary = raw as Dictionary
-	for element_id: String in ElementData.all_elements():
-		result[element_id] = maxi(0, int(source.get(element_id, 0)))
-	return result
-
-func action_intensity_requirement(action: Dictionary) -> Dictionary:
-	return _action_intensity_requirement(action)
-
-func action_intensity_requirement_met(state: Dictionary, action: Dictionary) -> bool:
-	var requirement: Dictionary = _action_intensity_requirement(action)
-	if requirement.is_empty():
-		return true
-	return condition_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
-
-func action_intensity_spend(action: Dictionary) -> Dictionary:
-	if str(action.get("type", "")) == "intensity_spend":
-		return ElementalIntensityRules.normalized_cost(action, _action_intensity_element(action))
-	return ElementalIntensityRules.action_spend(action)
-
-func action_intensity_spend_requirement_met(state: Dictionary, action: Dictionary) -> bool:
-	var spend: Dictionary = action_intensity_spend(action)
-	if spend.is_empty():
-		return true
-	return elemental_intensity(state, str(spend.get("element", ElementData.NONE))) >= int(spend.get("amount", 0))
-
-func enemy_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
-	return action_intensity_requirement_met(state, action) and action_intensity_spend_requirement_met(state, action)
-
-func action_intensity_bonus(action: Dictionary) -> Dictionary:
-	return _action_intensity_bonus(action)
-
-func action_intensity_bonus_requirement(action: Dictionary) -> Dictionary:
-	return _action_intensity_bonus_requirement(action)
-
-func action_intensity_bonus_requirement_met(state: Dictionary, action: Dictionary) -> bool:
-	var requirement: Dictionary = _action_intensity_bonus_requirement(action)
-	if requirement.is_empty():
-		return false
-	return condition_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
+func enemy_action_can_resolve(_state: Dictionary, _action: Dictionary) -> bool:
+	return true
 
 func trap_damage(state: Dictionary, trap: Dictionary) -> int:
 	return maxi(0, int(trap.get("base_damage", trap.get("damage", 0))))
@@ -2907,19 +2740,6 @@ func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dict
 	if step.is_empty():
 		return step
 	var presented: Dictionary = step.duplicate(true)
-	var intensity_gained: Dictionary = {}
-	var intensity_spent: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		var before_value: int = elemental_intensity(before_state, element_id)
-		var after_value: int = elemental_intensity(after_state, element_id)
-		if after_value > before_value:
-			intensity_gained[element_id] = after_value - before_value
-		elif after_value < before_value:
-			intensity_spent[element_id] = before_value - after_value
-	if not intensity_gained.is_empty():
-		presented["elemental_intensity_gained"] = intensity_gained
-	if not intensity_spent.is_empty():
-		presented["elemental_intensity_spent"] = intensity_spent
 	var enemy_index: int = _enemy_index_for_id(before_state, enemy_id)
 	if enemy_index < 0:
 		return presented
@@ -3016,27 +2836,6 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"triggered_traps": triggered_traps,
 				"impact_actor_keys": _target_loss_keys(target_losses) + _target_loss_keys(enemy_losses),
 				"label": "Setup" if bool(action.get("setup_move", false)) else "Advance" if action_type == "move_toward" else "Retreat"
-			}
-		"intensity":
-			var element_id: String = _action_intensity_element(action)
-			var before_value: int = elemental_intensity(before_state, element_id)
-			var after_value: int = elemental_intensity(after_state, element_id)
-			var gained: int = maxi(0, after_value - before_value)
-			var enemy_losses: Array[Dictionary] = _enemy_target_losses(before_state, after_state)
-			if gained <= 0 and before_value == after_value and enemy_losses.is_empty():
-				return {}
-			return {
-				"kind": "intensity",
-				"actor_key": _enemy_key(after_enemy),
-				"actor_name": actor_name,
-				"tile": after_enemy.get("pos", Vector2i.ZERO),
-				"element": element_id,
-				"amount": gained,
-				"value_before": before_value,
-				"value_after": after_value,
-				"enemy_losses": enemy_losses,
-				"impact_actor_keys": _target_loss_keys(enemy_losses),
-				"label": "%s Intensity %d" % [ElementData.name(element_id), after_value]
 			}
 		"block":
 			var block_gain: int = int(after_enemy.get("block", 0)) - int(before_enemy.get("block", 0))
@@ -3781,7 +3580,7 @@ func _best_enemy_trap_attack_index(state: Dictionary, enemy_index: int, action: 
 func _enemy_direct_player_damage_estimate(state: Dictionary, enemy: Dictionary, action: Dictionary) -> int:
 	if not enemy_action_can_resolve(state, action):
 		return -1
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(state, action)
 	var player: Dictionary = _normalized_player(state.get("player", {}))
 	var target: Dictionary = {
 		"kind": "player",
@@ -3861,20 +3660,6 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
 		return next_state
-	if not enemy_action_can_resolve(next_state, action):
-		var blocked_requirement: Dictionary = action_intensity_spend(action)
-		if blocked_requirement.is_empty():
-			blocked_requirement = _action_intensity_requirement(action)
-		if not blocked_requirement.is_empty():
-			_log(next_state, "%s's intent is starved of %s intensity." % [
-				_enemy_display_name(enemy),
-				ElementData.name(str(blocked_requirement.get("element", ElementData.NONE)))
-			])
-		return next_state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	var intensity_spend: Dictionary = action_intensity_spend(action)
-	action = resolved_action
-	var state_before_action: Dictionary = next_state.duplicate(true)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context, action)
@@ -3967,10 +3752,6 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 					"itself" if guard_target_index == enemy_index else _enemy_display_name(guard_target),
 					int(action.get("amount", 0))
 				])
-		"intensity":
-			var intensity_element: String = _action_intensity_element(action)
-			var intensity_amount: int = maxi(0, int(action.get("amount", 0)))
-			next_state = _gain_elemental_intensity(next_state, intensity_element, intensity_amount, _enemy_display_name(enemy))
 		"melee":
 			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng, bleed_steps, action_context)
 		"ranged":
@@ -4000,14 +3781,6 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		"umbra_eclipse":
 			next_state = _enemy_umbra_eclipse(next_state, enemy_index, action, bleed_steps)
 	next_state = _apply_enemy_authored_field_rider(next_state, action, action_context)
-	if not intensity_spend.is_empty():
-		var resolved_step: Dictionary = _enemy_action_step(state_before_action, next_state, enemy_index, action, action_context)
-		if not resolved_step.is_empty():
-			next_state = _consume_elemental_intensity(
-				next_state,
-				str(intensity_spend.get("element", ElementData.NONE)),
-				int(intensity_spend.get("amount", 0))
-			)
 	return next_state
 
 func _apply_enemy_authored_field_rider(state: Dictionary, action: Dictionary, action_context: Dictionary) -> Dictionary:
@@ -4172,7 +3945,7 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 	# Keeping this helper in-place avoids cloning the full combat snapshot twice
 	# more for every attack preview and committed attack.
 	var next_state: Dictionary = state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(next_state, action)
 	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
 	if trap_index >= 0:
 		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
@@ -4200,7 +3973,7 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 
 func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String) -> Dictionary:
 	var next_state: Dictionary = state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(next_state, action)
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
@@ -4230,7 +4003,7 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(next_state, action)
 	# Relic definitions cannot change while an action resolves. Reuse this immutable
 	# expansion across every AOE victim instead of rebuilding/deep-copying it twice
 	# per target. Conditions still read the current state for sequential kill/heal
@@ -4289,15 +4062,13 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 	_record_runtime_performance_phase("player_aoe_total", performance_total_started)
 	return next_state
 
-func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freeze_multiplier: bool = true, bypass_defense: bool = false) -> Dictionary:
+func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, _retired_status_multiplier: bool = true, bypass_defense: bool = false) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var hp_before: int = int(enemy.get("hp", 0))
 	var was_alive: bool = hp_before > 0
 	var total_damage: int = damage
-	if apply_freeze_multiplier and int(enemy.get("freeze", 0)) > 0:
-		total_damage *= 2
 	if not bypass_defense and total_damage > 0 and int(enemy.get("frost_armor", 0)) > 0:
 		enemy["frost_armor"] = int(enemy.get("frost_armor", 0)) - 1
 		enemies[enemy_index] = enemy
@@ -4405,7 +4176,7 @@ func _damage_player(
 	state: Dictionary,
 	damage: int,
 	bypass_block: bool,
-	apply_freeze_multiplier: bool = true,
+	_retired_status_multiplier: bool = true,
 	cause: String = "damage",
 	defer_defiance: bool = false
 ) -> Dictionary:
@@ -4413,7 +4184,7 @@ func _damage_player(
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var hp_before: int = int(player.get("hp", 0))
 	var was_alive: bool = hp_before > 0
-	var remaining: int = damage * 2 if apply_freeze_multiplier and int(player.get("freeze", 0)) > 0 else damage
+	var remaining: int = damage
 	if not bypass_block:
 		var block_amount: int = int(player.get("block", 0))
 		var applied_to_block: int = mini(block_amount, remaining)
@@ -4450,11 +4221,11 @@ func _lose_player_health(
 	state: Dictionary,
 	amount: int,
 	bypass_block: bool,
-	apply_freeze_multiplier: bool = true,
+	_retired_status_multiplier: bool = true,
 	cause: String = "health_loss",
 	defer_defiance: bool = false
 ) -> Dictionary:
-	return _damage_player(state, amount, bypass_block, apply_freeze_multiplier, cause, defer_defiance)
+	return _damage_player(state, amount, bypass_block, _retired_status_multiplier, cause, defer_defiance)
 
 func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dictionary:
 	var next_state: Dictionary = state
@@ -4637,6 +4408,13 @@ func _create_umbra_light_source(state: Dictionary, pos: Vector2i, action: Dictio
 	var sources: Array = (umbra.get("light_sources", []) as Array).duplicate(true)
 	var radius: int = maxi(1, int(action.get("radius", action.get("amount", 1))))
 	var duration: int = _radiance_duration_for_player(next_state, int(action.get("duration", 1)))
+	var field_duration: int = maxi(1, int(action.get("field_duration", CombatTerrainRules.DEFAULT_FIELD_DURATION)))
+	CombatTerrainRules.place_field(
+		next_state,
+		_radiance_tiles_for_light_source(next_state, pos, radius),
+		CombatTerrainRules.FIELD_RADIANCE,
+		int(next_state.get("initiative_clock", 0)) + field_duration
+	)
 	var refreshed: bool = false
 	for index: int in range(sources.size()):
 		if typeof(sources[index]) != TYPE_DICTIONARY:
@@ -4677,6 +4455,22 @@ func _create_umbra_light_source(state: Dictionary, pos: Vector2i, action: Dictio
 	if not bool(action.get("silent", false)):
 		_log(next_state, "Light blooms through the Umbra.")
 	return _resolve_umbra_transition_relics(next_state, stage_before)
+
+func _radiance_tiles_for_light_source(state: Dictionary, center: Vector2i, radius: int) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = _vector2i_values([])
+	var grid: Array = state.get("grid", []) as Array
+	if grid.is_empty():
+		if center.x >= 0 and center.y >= 0:
+			tiles.append(center)
+		return tiles
+	var safe_radius: int = maxi(0, radius)
+	for y: int in range(grid.size()):
+		var row: Array = grid[y] as Array
+		for x: int in range(row.size()):
+			var tile := Vector2i(x, y)
+			if PathUtils.manhattan(center, tile) <= safe_radius and PathUtils.is_passable(grid, tile):
+				tiles.append(tile)
+	return tiles
 
 func _apply_umbra_vision(state: Dictionary, action: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -4826,8 +4620,6 @@ func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	enemy["footprint"] = Vector2i(maxi(1, footprint.x), maxi(1, footprint.y))
 	for status_id: String in _enemy_status_immunities(enemy):
 		match status_id:
-			"poison":
-				enemy[status_id] = {"damage": 0, "delay": 0}
 			"immobilize":
 				enemy[status_id] = false
 			_:
@@ -4840,20 +4632,11 @@ func _normalized_unit(unit_value: Variant) -> Dictionary:
 		unit = (unit_value as Dictionary).duplicate(true)
 	unit["block"] = int(unit.get("block", 0))
 	unit["stoneskin"] = int(unit.get("stoneskin", 0))
-	unit["burn"] = int(unit.get("burn", 0))
 	unit["bleed"] = int(unit.get("bleed", 0))
 	unit["expose"] = int(unit.get("expose", 0))
-	unit["freeze"] = int(unit.get("freeze", 0))
-	unit["shock"] = int(unit.get("shock", 0))
 	unit["immobilize"] = bool(unit.get("immobilize", false))
-	var poison_value: Variant = unit.get("poison", {})
-	var poison: Dictionary = {}
-	if typeof(poison_value) == TYPE_DICTIONARY:
-		poison = (poison_value as Dictionary).duplicate(true)
-	unit["poison"] = {
-		"damage": int(poison.get("damage", 0)),
-		"delay": int(poison.get("delay", 0))
-	}
+	for retired_status: String in ["burn", "poison", "freeze", "shock"]:
+		unit.erase(retired_status)
 	return unit
 
 func _initialize_initiative_queue(state: Dictionary) -> Dictionary:
@@ -5200,7 +4983,7 @@ func _enemy_action_time_cost(action: Dictionary) -> int:
 			return 4
 		"summon_minions", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse":
 			return 5
-		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally", "intensity", "raise_terrain", "cinder_marks", "frost_armor":
+		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally", "raise_terrain", "cinder_marks", "frost_armor":
 			return 2
 		_:
 			return DEFAULT_ENEMY_INTENT_TIME_COST
@@ -5212,7 +4995,7 @@ func _estimated_card_time_cost(card: Dictionary) -> int:
 			continue
 		var action: Dictionary = action_var
 		match str(action.get("type", "")):
-			"move", "blink", "block", "stoneskin", "draw", "card_play", "intensity", "intensity_spend", "illuminate", "vision":
+			"move", "blink", "block", "stoneskin", "draw", "card_play", "illuminate", "vision", "field", "surface":
 				total += 1
 			"heal", "illusion", "truesight", "dispel_umbra":
 				total += 2
@@ -5244,14 +5027,10 @@ func _enemy_is_immune_to_status(enemy: Dictionary, status_id: String) -> bool:
 
 func _action_has_keyword_effect(action: Dictionary) -> bool:
 	return (
-		int(action.get("burn", 0)) > 0
-		or int(action.get("bleed", 0)) > 0
+		int(action.get("bleed", 0)) > 0
 		or int(action.get("expose", 0)) > 0
 		or int(action.get("sunder", 0)) > 0
-		or int(action.get("freeze", 0)) > 0
-		or int(action.get("shock", 0)) > 0
 		or _action_applies_immobilize(action)
-		or int(action.get("poison", 0)) > 0
 		or int(action.get("push", 0)) > 0
 		or int(action.get("pull", 0)) > 0
 		or int(action.get("chain", 0)) > 0
@@ -5315,110 +5094,6 @@ func _cardinal_direction(value: Variant) -> Vector2i:
 
 func _action_pierces_defense(action: Dictionary) -> bool:
 	return bool(action.get("pierce", false))
-
-func _initial_elemental_intensity(room_element: String) -> Dictionary:
-	var intensities: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		intensities[element_id] = ELEMENTAL_INTENSITY_ROOM_BASE if element_id == room_element else 0
-	return intensities
-
-func _empty_elemental_intensity() -> Dictionary:
-	var intensities: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		intensities[element_id] = 0
-	return intensities
-
-func _gain_elemental_intensity(state: Dictionary, element_id: String, amount: int, source_name: String = "") -> Dictionary:
-	var next_state: Dictionary = state
-	if not ElementData.is_elemental(element_id) or amount <= 0:
-		return next_state
-	var before_value: int = elemental_intensity(next_state, element_id)
-	var intensities: Dictionary = elemental_intensities(next_state)
-	intensities[element_id] = before_value + amount
-	next_state["elemental_intensity"] = intensities
-	var gained_total: Dictionary = elemental_intensity_counter(next_state, "elemental_intensity_gained_total")
-	gained_total[element_id] = int(gained_total.get(element_id, 0)) + amount
-	next_state["elemental_intensity_gained_total"] = gained_total
-	if source_name.is_empty():
-		_log(next_state, "%s intensity rises by %d." % [ElementData.name(element_id), amount])
-	else:
-		_log(next_state, "%s raises %s intensity by %d." % [source_name, ElementData.name(element_id), amount])
-	return _trigger_intensity_threshold_relics(next_state, element_id, before_value, before_value + amount)
-
-func _consume_elemental_intensity(state: Dictionary, element_id: String, amount: int) -> Dictionary:
-	var next_state: Dictionary = state
-	if not ElementData.is_elemental(element_id) or amount <= 0:
-		return next_state
-	var before_value: int = elemental_intensity(next_state, element_id)
-	var after_value: int = maxi(0, before_value - amount)
-	var spent: int = before_value - after_value
-	if spent <= 0:
-		return next_state
-	var intensities: Dictionary = elemental_intensities(next_state)
-	intensities[element_id] = after_value
-	next_state["elemental_intensity"] = intensities
-	var spent_total: Dictionary = elemental_intensity_counter(next_state, "elemental_intensity_spent_total")
-	spent_total[element_id] = int(spent_total.get(element_id, 0)) + spent
-	next_state["elemental_intensity_spent_total"] = spent_total
-	_log(next_state, "%s intensity is spent by %d." % [ElementData.name(element_id), spent])
-	return next_state
-
-func _action_intensity_element(action: Dictionary) -> String:
-	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
-	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
-
-func _action_intensity_requirement(action: Dictionary) -> Dictionary:
-	var raw: Variant = action.get("requires_intensity", {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return {}
-	var requirement: Dictionary = raw as Dictionary
-	var element_id: String = str(requirement.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
-	var threshold: int = int(requirement.get("amount", requirement.get("threshold", 0)))
-	if not ElementData.is_elemental(element_id) or threshold <= 0:
-		return {}
-	return {
-		"element": element_id,
-		"amount": threshold
-	}
-
-func _action_intensity_bonus(action: Dictionary) -> Dictionary:
-	var raw: Variant = action.get("intensity_bonus", {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return {}
-	var bonus: Dictionary = (raw as Dictionary).duplicate(true)
-	var element_id: String = str(bonus.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
-	var threshold: int = int(bonus.get("threshold", bonus.get("amount", bonus.get("requires", 0))))
-	if not ElementData.is_elemental(element_id) or threshold <= 0:
-		return {}
-	bonus["element"] = element_id
-	bonus["threshold"] = threshold
-	return bonus
-
-func _action_intensity_bonus_requirement(action: Dictionary) -> Dictionary:
-	var bonus: Dictionary = _action_intensity_bonus(action)
-	if bonus.is_empty():
-		return {}
-	return {
-		"element": str(bonus.get("element", ElementData.NONE)),
-		"amount": int(bonus.get("threshold", 0))
-	}
-
-func _action_with_intensity_bonus(state: Dictionary, action: Dictionary) -> Dictionary:
-	var resolved_action: Dictionary = action.duplicate(true)
-	resolved_action.erase("intensity_bonus")
-	var bonus: Dictionary = _action_intensity_bonus(action)
-	if not bonus.is_empty():
-		var element_id: String = str(bonus.get("element", ElementData.NONE))
-		if condition_intensity(state, element_id) >= int(bonus.get("threshold", 0)):
-			for field: String in INTENSITY_BONUS_ADDITIVE_FIELDS:
-				if not bonus.has(field):
-					continue
-				resolved_action[field] = int(resolved_action.get(field, 0)) + int(bonus.get(field, 0))
-			if bool(bonus.get("pierce", false)):
-				resolved_action["pierce"] = true
-			if bool(bonus.get("immobilize", false)):
-				resolved_action["immobilize"] = true
-	return _action_with_player_state_relic_modifiers(state, resolved_action)
 
 func _action_with_player_state_relic_modifiers(state: Dictionary, action: Dictionary) -> Dictionary:
 	if bool(action.get("_player_state_relic_modifiers_applied", false)):
@@ -5646,23 +5321,6 @@ func _action_matches_relic_card_groups(action: Dictionary, effect: Dictionary) -
 			return false
 	return true
 
-func _intensity_bonus_damage_modifiers_for_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
-	var modifiers: Array[Dictionary] = []
-	var bonus: Dictionary = _action_intensity_bonus(action)
-	if bonus.is_empty() or int(bonus.get("damage", 0)) == 0:
-		return modifiers
-	var element_id: String = str(bonus.get("element", ElementData.NONE))
-	var threshold: int = int(bonus.get("threshold", 0))
-	if condition_intensity(state, element_id) < threshold:
-		return modifiers
-	modifiers.append({
-		"source": "%s Intensity" % ElementData.name(element_id),
-		"kind": "elemental_intensity",
-		"amount": int(bonus.get("damage", 0)),
-		"detail": "%s %d+" % [ElementData.name(element_id), threshold]
-	})
-	return modifiers
-
 func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, trigger_player_relics: bool = true) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
@@ -5672,36 +5330,17 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 	if int(enemy.get("hp", 0)) <= 0:
 		return next_state
 	var triggered_statuses: Array[String] = []
-	if int(action.get("burn", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "burn"):
-		enemy["burn"] = int(enemy.get("burn", 0)) + int(action.get("burn", 0))
-		triggered_statuses.append("burn")
 	if int(action.get("bleed", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "bleed"):
 		enemy["bleed"] = int(enemy.get("bleed", 0)) + int(action.get("bleed", 0))
 		triggered_statuses.append("bleed")
 	if int(action.get("expose", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "expose"):
 		enemy["expose"] = maxi(int(enemy.get("expose", 0)), int(action.get("expose", 0)))
 		triggered_statuses.append("expose")
-	if int(action.get("freeze", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "freeze"):
-		var before_freeze: int = int(enemy.get("freeze", 0))
-		enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), int(action.get("freeze", 0)))
-		if int(enemy.get("freeze", 0)) > before_freeze:
-			triggered_statuses.append("freeze")
-	if int(action.get("shock", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "shock"):
-		var before_shock: int = int(enemy.get("shock", 0))
-		enemy["shock"] = maxi(int(enemy.get("shock", 0)), int(action.get("shock", 0)))
-		if int(enemy.get("shock", 0)) > before_shock:
-			triggered_statuses.append("shock")
 	if _action_applies_immobilize(action) and not _enemy_is_immune_to_status(enemy, "immobilize"):
 		var before_immobilize: bool = bool(enemy.get("immobilize", false))
 		enemy["immobilize"] = true
 		if not before_immobilize:
 			triggered_statuses.append("immobilize")
-	if int(action.get("poison", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "poison"):
-		var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
-		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
-		poison["delay"] = 2
-		enemy["poison"] = poison
-		triggered_statuses.append("poison")
 	enemies[enemy_index] = enemy
 	next_state["enemies"] = enemies
 	if trigger_player_relics:
@@ -5724,23 +5363,12 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
 	var next_state: Dictionary = state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	if int(action.get("burn", 0)) > 0:
-		player["burn"] = int(player.get("burn", 0)) + int(action.get("burn", 0))
 	if int(action.get("bleed", 0)) > 0:
 		player["bleed"] = int(player.get("bleed", 0)) + int(action.get("bleed", 0))
 	if int(action.get("expose", 0)) > 0:
 		player["expose"] = maxi(int(player.get("expose", 0)), int(action.get("expose", 0)))
-	if int(action.get("freeze", 0)) > 0:
-		player["freeze"] = maxi(int(player.get("freeze", 0)), int(action.get("freeze", 0)))
-	if int(action.get("shock", 0)) > 0:
-		player["shock"] = maxi(int(player.get("shock", 0)), int(action.get("shock", 0)))
 	if _action_applies_immobilize(action):
 		player["immobilize"] = true
-	if int(action.get("poison", 0)) > 0:
-		var poison: Dictionary = player.get("poison", {}).duplicate(true)
-		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
-		poison["delay"] = 2
-		player["poison"] = poison
 	next_state["player"] = player
 	if int(action.get("push", 0)) > 0:
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("push", 0)), true)
@@ -6227,7 +5855,6 @@ func _enemy_create_cinder_marks(state: Dictionary, enemy_index: int, action: Dic
 			"pos": candidates[index],
 			"element": ElementData.FIRE,
 			"damage": int(action.get("damage", 0)),
-			"burn": int(action.get("burn", 0)),
 			"owner_enemy_id": int(enemy.get("id", -1)),
 			"boss_hazard_kind": CINDER_MARK_KIND,
 			"armed": true
@@ -6374,7 +6001,7 @@ func _boss_action_threat_tiles(state: Dictionary, enemy: Dictionary, action: Dic
 
 func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Vector2i, pushing: bool) -> Dictionary:
 	var next_state: Dictionary = state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(next_state, action)
 	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
 	if trap_index >= 0:
 		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
@@ -6953,15 +6580,7 @@ func _trap_action_blocker_kind(trap: Dictionary) -> String:
 	return ""
 
 func _stronger_restriction(current_kind: String, next_kind: String) -> String:
-	if current_kind.is_empty():
-		return next_kind
-	if current_kind == "freeze":
-		return current_kind
-	if next_kind == "freeze":
-		return next_kind
-	if current_kind == "shock" and next_kind == "immobilize":
-		return current_kind
-	return next_kind
+	return next_kind if current_kind.is_empty() else current_kind
 
 func _apply_pending_player_trap_restriction(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -6970,13 +6589,8 @@ func _apply_pending_player_trap_restriction(state: Dictionary) -> Dictionary:
 		return next_state
 	next_state["pending_player_trap_restriction"] = ""
 	var restrictions: Dictionary = (next_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
-	match restriction_kind:
-		"freeze":
-			restrictions["frozen"] = true
-		"shock":
-			restrictions["shocked"] = true
-		"immobilize":
-			restrictions["immobilized"] = true
+	if restriction_kind == "immobilize":
+		restrictions["immobilized"] = true
 	next_state["player_turn_restrictions"] = restrictions
 	return next_state
 
@@ -7080,13 +6694,7 @@ func _enemy_status_damage_step(
 	step["enemy_losses"] = enemy_losses
 	step["impact_actor_keys"] = _target_loss_keys(enemy_losses)
 	step["enemies_after"] = (after_state.get("enemies", []) as Array).duplicate(true)
-	step["elemental_intensity_after"] = (after_state.get("elemental_intensity", {}) as Dictionary).duplicate(true)
 	step["player_after"] = (after_state.get("player", {}) as Dictionary).duplicate(true)
-	for element_id: String in ElementData.all_elements():
-		if elemental_intensity(before_state, element_id) == elemental_intensity(after_state, element_id):
-			continue
-		step["damage_feedback_element"] = element_id
-		break
 	return step
 
 func _player_action_triggers_bleed(action: Dictionary) -> bool:
@@ -7246,7 +6854,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 	var steps: Array[Dictionary] = []
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
-		return {"steps": steps, "skip_all": false, "shocked": false, "immobilized": false, "attacks_suppressed": false}
+		return {"steps": steps, "skip_all": false, "immobilized": false, "attacks_suppressed": false}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var actor_name: String = str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy"))
 	var attacks_suppressed: bool = bool(enemy.get("attacks_suppression_pending", false))
@@ -7267,107 +6875,24 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 			"text": str(terrain_start.get("text", "Terrain")),
 		})
 	if combat_outcome(next_state) != "" or int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
-		return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "attacks_suppressed": attacks_suppressed, "state": next_state}
+		return {"steps": steps, "skip_all": true, "immobilized": false, "attacks_suppressed": attacks_suppressed, "state": next_state}
 	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
-	if int(enemy.get("burn", 0)) > 0:
-		var burn_amount: int = int(enemy.get("burn", 0))
-		var burn_before_state: Dictionary = next_state.duplicate(true)
-		var before_enemy: Dictionary = enemy.duplicate(true)
-		next_state = _damage_enemy(next_state, enemy_index, burn_amount)
-		enemy = _normalized_enemy(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary))
-		enemy["burn"] = maxi(0, int(enemy.get("burn", 0)) - GameData.status_tick_reduction("burn"))
-		var burn_enemies: Array = next_state.get("enemies", [])
-		burn_enemies[enemy_index] = enemy
-		next_state["enemies"] = burn_enemies
-		steps.append(_enemy_status_damage_step({
-			"kind": "status_damage",
-			"actor_key": _enemy_key(enemy),
-			"actor_name": actor_name,
-			"tile": enemy.get("pos", Vector2i.ZERO),
-			"amount": int(before_enemy.get("hp", 0)) - int(enemy.get("hp", 0)),
-			"label": "Burn",
-			"text": "Burn %d" % burn_amount
-		}, burn_before_state, next_state))
-		if int(enemy.get("hp", 0)) <= 0:
-			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "attacks_suppressed": attacks_suppressed, "state": next_state}
-	if _poison_damage(enemy) > 0:
-		var poison_before: Dictionary = enemy.duplicate(true)
-		enemy = _advance_poison(enemy)
-		var poison_enemies: Array = next_state.get("enemies", [])
-		poison_enemies[enemy_index] = enemy
-		next_state["enemies"] = poison_enemies
-		if int(enemy.get("poison", {}).get("trigger", 0)) > 0:
-			var poison_damage: int = int(enemy.get("poison", {}).get("trigger", 0))
-			var poison_damage_before_state: Dictionary = next_state.duplicate(true)
-			next_state = _damage_enemy(next_state, enemy_index, poison_damage)
-			enemy = _normalized_enemy(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary))
-			var poison_step: Dictionary = {
-				"kind": "status_damage",
-				"actor_key": _enemy_key(enemy),
-				"actor_name": actor_name,
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"amount": int(poison_before.get("hp", 0)) - int(enemy.get("hp", 0)),
-				"label": "Poison",
-				"text": "Poison %d" % poison_damage
-			}
-			var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
-			poison["trigger"] = 0
-			enemy["poison"] = poison
-			poison_enemies = next_state.get("enemies", [])
-			poison_enemies[enemy_index] = enemy
-			next_state["enemies"] = poison_enemies
-			steps.append(_enemy_status_damage_step(poison_step, poison_damage_before_state, next_state))
-			if int(enemy.get("hp", 0)) <= 0:
-				return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "attacks_suppressed": attacks_suppressed, "state": next_state}
-	else:
-		enemy = _advance_poison(enemy)
-		var pending_poison_enemies: Array = next_state.get("enemies", [])
-		pending_poison_enemies[enemy_index] = enemy
-		next_state["enemies"] = pending_poison_enemies
-	var skip_all: bool = false
-	var shocked: bool = false
 	var immobilized: bool = false
-	if int(enemy.get("freeze", 0)) > 0:
-		enemy["freeze"] = maxi(0, int(enemy.get("freeze", 0)) - 1)
-		var frozen_enemies: Array = next_state.get("enemies", [])
-		frozen_enemies[enemy_index] = enemy
-		next_state["enemies"] = frozen_enemies
-		skip_all = true
+	if bool(enemy.get("immobilize", false)):
+		enemy["immobilize"] = false
+		immobilized = true
 		steps.append({
 			"kind": "status",
 			"actor_key": _enemy_key(enemy),
 			"actor_name": actor_name,
 			"tile": enemy.get("pos", Vector2i.ZERO),
-			"label": "Frozen",
-			"text": "Frozen"
+			"label": "Immobilized",
+			"text": "Immobilized"
 		})
-	else:
-		if int(enemy.get("shock", 0)) > 0:
-			enemy["shock"] = maxi(0, int(enemy.get("shock", 0)) - 1)
-			shocked = true
-			steps.append({
-				"kind": "status",
-				"actor_key": _enemy_key(enemy),
-				"actor_name": actor_name,
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"label": "Shocked",
-				"text": "Shocked"
-			})
-		if bool(enemy.get("immobilize", false)):
-			enemy["immobilize"] = false
-			immobilized = true
-			steps.append({
-				"kind": "status",
-				"actor_key": _enemy_key(enemy),
-				"actor_name": actor_name,
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"label": "Immobilized",
-				"text": "Immobilized"
-			})
-		var restricted_enemies: Array = next_state.get("enemies", [])
-		restricted_enemies[enemy_index] = enemy
-		next_state["enemies"] = restricted_enemies
-	return {"steps": steps, "skip_all": skip_all, "shocked": shocked, "immobilized": immobilized, "attacks_suppressed": attacks_suppressed, "state": next_state}
+	var restricted_enemies: Array = next_state.get("enemies", [])
+	restricted_enemies[enemy_index] = enemy
+	next_state["enemies"] = restricted_enemies
+	return {"steps": steps, "skip_all": false, "immobilized": immobilized, "attacks_suppressed": attacks_suppressed, "state": next_state}
 
 func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -7376,78 +6901,17 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	if combat_outcome(next_state) != "":
 		return next_state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	if int(player.get("burn", 0)) > 0:
-		var burn_amount: int = int(player.get("burn", 0))
-		next_state = _damage_player(next_state, burn_amount, false, true, "burn")
-		player = _normalized_player(next_state.get("player", {}))
-		player["burn"] = maxi(0, int(player.get("burn", 0)) - GameData.status_tick_reduction("burn"))
-		next_state["player"] = player
-		_log(next_state, "Burn deals %d." % burn_amount)
-		if combat_outcome(next_state) != "":
-			return next_state
-	if _poison_damage(player) > 0:
-		player = _advance_poison(player)
-		next_state["player"] = player
-		if int(player.get("poison", {}).get("trigger", 0)) > 0:
-			var poison_damage: int = int(player.get("poison", {}).get("trigger", 0))
-			next_state = _damage_player(next_state, poison_damage, false, true, "poison")
-			player = _normalized_player(next_state.get("player", {}))
-			var poison: Dictionary = player.get("poison", {}).duplicate(true)
-			poison["trigger"] = 0
-			player["poison"] = poison
-			next_state["player"] = player
-			_log(next_state, "Poison deals %d." % poison_damage)
-			if combat_outcome(next_state) != "":
-				return next_state
-	else:
-		player = _advance_poison(player)
-		next_state["player"] = player
 	var restrictions: Dictionary = {
-		"frozen": false,
-		"shocked": false,
 		"immobilized": false,
 		"attacks_suppressed": bool((next_state.get("player_turn_restrictions", {}) as Dictionary).get("attacks_suppressed", false)),
 	}
-	if int(player.get("freeze", 0)) > 0:
-		player["freeze"] = maxi(0, int(player.get("freeze", 0)) - 1)
-		restrictions["frozen"] = true
-		_log(next_state, "Frozen this turn.")
-	else:
-		if int(player.get("shock", 0)) > 0:
-			player["shock"] = maxi(0, int(player.get("shock", 0)) - 1)
-			restrictions["shocked"] = true
-			_log(next_state, "Shocked this turn.")
-		if bool(player.get("immobilize", false)):
-			player["immobilize"] = false
-			restrictions["immobilized"] = true
-			_log(next_state, "Immobilized this turn.")
+	if bool(player.get("immobilize", false)):
+		player["immobilize"] = false
+		restrictions["immobilized"] = true
+		_log(next_state, "Immobilized this turn.")
 	next_state["player"] = player
 	next_state["player_turn_restrictions"] = restrictions
 	return next_state
-
-func _poison_damage(unit: Dictionary) -> int:
-	return int((unit.get("poison", {}) as Dictionary).get("damage", 0))
-
-func _advance_poison(unit: Dictionary) -> Dictionary:
-	var next_unit: Dictionary = unit.duplicate(true)
-	var poison: Dictionary = (next_unit.get("poison", {}) as Dictionary).duplicate(true)
-	var damage: int = int(poison.get("damage", 0))
-	var delay: int = int(poison.get("delay", 0))
-	poison["trigger"] = 0
-	if damage <= 0 or delay <= 0:
-		poison["damage"] = damage
-		poison["delay"] = maxi(0, delay)
-		next_unit["poison"] = poison
-		return next_unit
-	delay -= 1
-	if delay <= 0:
-		poison["trigger"] = damage
-		poison["damage"] = 0
-		poison["delay"] = 0
-	else:
-		poison["delay"] = delay
-	next_unit["poison"] = poison
-	return next_unit
 
 func _enemy_action_is_movement(action: Dictionary) -> bool:
 	return str(action.get("type", "")) in ["move_toward", "move_away"]
@@ -7591,18 +7055,8 @@ func _state_with_enemy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vect
 
 func _player_status_step_text(before_player: Dictionary, after_player: Dictionary, action: Dictionary) -> String:
 	var tags: PackedStringArray = []
-	if int(after_player.get("burn", 0)) > int(before_player.get("burn", 0)):
-		tags.append("Burn")
-	if int(after_player.get("freeze", 0)) > int(before_player.get("freeze", 0)):
-		tags.append("Freeze")
-	if int(after_player.get("shock", 0)) > int(before_player.get("shock", 0)):
-		tags.append("Shock")
 	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
 		tags.append("Immobilize")
-	var before_poison: Dictionary = before_player.get("poison", {})
-	var after_poison: Dictionary = after_player.get("poison", {})
-	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
-		tags.append("Poison")
 	if int(action.get("push", 0)) > 0 and before_player.get("pos", Vector2i.ZERO) != after_player.get("pos", Vector2i.ZERO):
 		tags.append("Push")
 	if int(action.get("pull", 0)) > 0 and before_player.get("pos", Vector2i.ZERO) != after_player.get("pos", Vector2i.ZERO):
@@ -8536,7 +7990,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	)
 	if not committed_matches:
 		return _calculate_enemy_intent_plan(state, enemy_index, intent_override, movement_disabled, attack_disabled)
-	var plan: Dictionary = _translated_enemy_intent_plan(committed, enemy.get("pos", Vector2i.ZERO))
+	var plan: Dictionary = _translated_enemy_intent_plan(committed, enemy.get("pos", Vector2i.ZERO), state.get("grid", []))
 	var blocking_tile: Vector2i = plan.get("blocking_terrain_tile", INVALID_TILE)
 	plan["blocking_terrain_index"] = _terrain_index_at_tile(state, blocking_tile) if blocking_tile.x >= 0 else -1
 	if movement_disabled:
@@ -8568,7 +8022,7 @@ func _commit_enemy_intent_plan(state: Dictionary, enemy_index: int) -> void:
 	enemies[enemy_index] = enemy
 	state["enemies"] = enemies
 
-func _translated_enemy_intent_plan(plan: Dictionary, new_origin: Vector2i) -> Dictionary:
+func _translated_enemy_intent_plan(plan: Dictionary, new_origin: Vector2i, grid: Array) -> Dictionary:
 	var translated: Dictionary = plan.duplicate(true)
 	var old_origin: Vector2i = translated.get("committed_origin", translated.get("origin", new_origin))
 	var delta: Vector2i = new_origin - old_origin
@@ -8576,16 +8030,20 @@ func _translated_enemy_intent_plan(plan: Dictionary, new_origin: Vector2i) -> Di
 	for key: String in ["path", "route", "projected_attack", "projected_field"]:
 		var shifted: Array[Vector2i] = _vector2i_values([])
 		for tile: Vector2i in _vector2i_values(translated.get(key, [])):
-			shifted.append(tile + delta)
+			var shifted_tile: Vector2i = tile + delta
+			if PathUtils.is_in_bounds(grid, shifted_tile):
+				shifted.append(shifted_tile)
 		translated[key] = shifted
 	for key: String in ["destination", "target_tile", "trap_attack_tile", "projected_attack_target", "blocking_terrain_tile"]:
 		var tile: Vector2i = translated.get(key, INVALID_TILE)
 		if tile.x >= 0:
-			translated[key] = tile + delta
+			var shifted_tile: Vector2i = tile + delta
+			translated[key] = shifted_tile if PathUtils.is_in_bounds(grid, shifted_tile) else INVALID_TILE
 	var target: Dictionary = (translated.get("target", {}) as Dictionary).duplicate(true)
 	var target_pos: Vector2i = target.get("pos", INVALID_TILE)
 	if target_pos.x >= 0:
-		target["pos"] = target_pos + delta
+		var shifted_target: Vector2i = target_pos + delta
+		target["pos"] = shifted_target if PathUtils.is_in_bounds(grid, shifted_target) else INVALID_TILE
 	translated["target"] = target
 	return translated
 
@@ -9399,7 +8857,7 @@ func _player_attacks_suppressed(state: Dictionary) -> bool:
 	return bool((state.get("player_turn_restrictions", {}) as Dictionary).get("attacks_suppressed", false))
 
 func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index: int) -> int:
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _action_with_player_state_relic_modifiers(state, action)
 	var relic_effects: Array[Dictionary] = _relic_effects(state)
 	return _damage_for_enemy_target_with_context(state, resolved_action, enemy_index, relic_effects)
 
@@ -9779,9 +9237,15 @@ func _card_action_types_for_relic(card: Dictionary) -> Array[String]:
 	for action_var: Variant in card.get("actions", []):
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
-		var action_type: String = str((action_var as Dictionary).get("type", ""))
+		var action: Dictionary = action_var as Dictionary
+		var action_type: String = str(action.get("type", ""))
 		if not action_type.is_empty() and not result.has(action_type):
 			result.append(action_type)
+		# Attack- and movement-carried Light replaced a separate follow-up
+		# illuminate action. Keep relic conditions semantic so those cards still
+		# count as creating Light/Radiance.
+		if int(action.get("illuminate_radius", 0)) > 0 and not result.has("illuminate"):
+			result.append("illuminate")
 	return result
 
 func _card_actions_have_any_flag(card: Dictionary, flags: Array) -> bool:
@@ -9868,12 +9332,6 @@ func _trigger_blink_relics(state: Dictionary, distance: int = 0) -> Dictionary:
 				var bonus_card_plays: int = maxi(0, int(effect.get("card_play", 0)))
 				if bonus_card_plays > 0:
 					next_state = _grant_relic_card_plays(next_state, bonus_card_plays)
-			"blink_intensity_gain_once_per_turn":
-				var intensity_key: String = _turn_relic_flag_key(effect, "blink_intensity")
-				if _turn_flag(next_state, intensity_key):
-					continue
-				_set_turn_flag(next_state, intensity_key, true)
-				next_state = _gain_elemental_intensity(next_state, str(effect.get("element", ElementData.NONE)), int(effect.get("amount", effect.get("value", 1))), _relic_effect_source_name(effect))
 	return _trigger_long_move_relics(next_state, distance)
 
 func _trigger_long_move_relics(state: Dictionary, distance: int) -> Dictionary:
@@ -9906,17 +9364,6 @@ func _trigger_stoneskin_relics(state: Dictionary, gained: int) -> Dictionary:
 					if effect.has("max_value"):
 						damage = mini(damage, GameData.fixed_point_amount(int(effect.get("max_value", 0))))
 				next_state = _damage_adjacent_enemies_from_player(next_state, damage)
-			"stoneskin_intensity_gain_once_per_turn":
-				var intensity_key: String = _turn_relic_flag_key(effect, "stoneskin_intensity")
-				if _turn_flag(next_state, intensity_key):
-					continue
-				_set_turn_flag(next_state, intensity_key, true)
-				next_state = _gain_elemental_intensity(
-					next_state,
-					str(effect.get("element", ElementData.NONE)),
-					int(effect.get("amount", effect.get("value", 1))),
-					_relic_effect_source_name(effect)
-				)
 	return next_state
 
 func _trigger_status_relics(state: Dictionary, status_id: String, source_action: Dictionary = {}) -> Dictionary:
@@ -9929,23 +9376,6 @@ func _trigger_status_relics(state: Dictionary, status_id: String, source_action:
 		if not action_types.is_empty() and not action_types.has(str(source_action.get("type", ""))):
 			continue
 		matching_effects.append(effect)
-
-	# Intensity gains form the first phase of a status event. Every remaining
-	# condition then observes the same post-gain snapshot, independent of relic
-	# acquisition order.
-	for effect: Dictionary in matching_effects:
-		if str(effect.get("type", "")) != "status_intensity_gain":
-			continue
-		var intensity_key: String = _turn_relic_flag_key(effect, "status_intensity")
-		if _turn_flag(next_state, intensity_key):
-			continue
-		_set_turn_flag(next_state, intensity_key, true)
-		next_state = _gain_elemental_intensity(
-			next_state,
-			str(effect.get("element", ElementData.NONE)),
-			int(effect.get("amount", effect.get("value", 1))),
-			_relic_effect_source_name(effect)
-		)
 
 	var condition_state: Dictionary = next_state.duplicate(true)
 	var queued_resolutions: Array[Dictionary]
@@ -9966,12 +9396,6 @@ func _trigger_status_relics(state: Dictionary, status_id: String, source_action:
 			"status_count_reward":
 				if not _relic_player_state_condition_met(condition_state, effect):
 					continue
-				var intensity_element: String = str(effect.get("intensity_element", ""))
-				if (
-					ElementData.is_elemental(intensity_element)
-					and elemental_intensity(condition_state, intensity_element) < int(effect.get("min_intensity", 0))
-				):
-					continue
 				var status_count: int = _increment_relic_counter(next_state, effect, "status_count")
 				if status_count < int(effect.get("threshold", 1)):
 					continue
@@ -9989,61 +9413,6 @@ func _trigger_status_relics(state: Dictionary, status_id: String, source_action:
 				var reward_effect: Dictionary = resolution.get("effect", {}) as Dictionary
 				next_state = _apply_relic_rewards(next_state, reward_effect.get("rewards", []), reward_effect)
 	return next_state
-
-func _trigger_intensity_threshold_relics(state: Dictionary, element_id: String, before_value: int, after_value: int) -> Dictionary:
-	var next_state: Dictionary = state
-	if not ElementData.is_elemental(element_id) or after_value <= before_value:
-		return next_state
-	var triggered_effects: Array[Dictionary]
-	for effect: Dictionary in _relic_effects(state):
-		if str(effect.get("type", "")) != "intensity_threshold_reward":
-			continue
-		if not _relic_effect_matches_intensity_element(effect, element_id):
-			continue
-		var threshold: int = int(effect.get("threshold", effect.get("amount", 0)))
-		if threshold <= 0 or before_value >= threshold or after_value < threshold:
-			continue
-		var qualifying_elements: Array[String] = _elements_at_or_above_intensity(state, threshold)
-		if qualifying_elements.size() < int(effect.get("required_elements", 1)):
-			continue
-		if not _relic_once_available(state, effect, "intensity_threshold", element_id):
-			continue
-		triggered_effects.append({
-			"effect": effect,
-			"qualifying_elements": qualifying_elements
-		})
-
-	# Resolve every trigger from the same post-gain snapshot. Mark them before
-	# applying rewards so a reward that raises intensity cannot re-enter a
-	# trigger that is already waiting to resolve.
-	var intensity_to_consume: Dictionary = {}
-	for trigger: Dictionary in triggered_effects:
-		var effect: Dictionary = trigger.get("effect", {}) as Dictionary
-		_mark_relic_once(next_state, effect, "intensity_threshold", element_id)
-		var consume_amount: int = int(effect.get("consume", 0))
-		if bool(effect.get("consume_all_qualifying", false)):
-			var qualifying_elements: Array[String]
-			qualifying_elements.assign(trigger.get("qualifying_elements", []))
-			for qualifying_element: String in qualifying_elements:
-				intensity_to_consume[qualifying_element] = int(intensity_to_consume.get(qualifying_element, 0)) + consume_amount
-		else:
-			intensity_to_consume[element_id] = int(intensity_to_consume.get(element_id, 0)) + consume_amount
-
-	for consumed_element_var: Variant in intensity_to_consume.keys():
-		var consumed_element: String = str(consumed_element_var)
-		next_state = _consume_elemental_intensity(next_state, consumed_element, int(intensity_to_consume[consumed_element]))
-
-	for trigger: Dictionary in triggered_effects:
-		var effect: Dictionary = trigger.get("effect", {}) as Dictionary
-		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
-	return next_state
-
-func _elements_at_or_above_intensity(state: Dictionary, threshold: int) -> Array[String]:
-	var result: Array[String]
-	for element_id: String in ElementData.all_elements():
-		if elemental_intensity(state, element_id) >= threshold:
-			result.append(element_id)
-	return result
 
 func _trigger_enemy_death_relics(state: Dictionary, enemy: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -10088,7 +9457,7 @@ func _enemy_matches_relic_status_condition(enemy: Dictionary, effect: Dictionary
 	return false
 
 func _enemy_has_any_relic_status(enemy: Dictionary) -> bool:
-	for status_id: String in ["burn", "bleed", "expose", "freeze", "shock", "poison"]:
+	for status_id: String in ["bleed", "expose"]:
 		if _unit_status_amount(enemy, status_id) > 0:
 			return true
 	return bool(enemy.get("immobilize", false))
@@ -10105,9 +9474,6 @@ func _trigger_prevent_lethal_relics(state: Dictionary) -> Dictionary:
 		var player: Dictionary = _normalized_player(next_state.get("player", {}))
 		player["hp"] = GameData.FIXED_POINT_SCALE
 		next_state["player"] = player
-		var burn_amount: int = GameData.fixed_point_amount(int(effect.get("burn_all_enemies", 0)))
-		if burn_amount > 0:
-			next_state = _burn_all_live_enemies(next_state, burn_amount)
 		_log(next_state, "%s prevents death." % _relic_effect_source_name(effect))
 		return next_state
 	return next_state
@@ -10145,10 +9511,6 @@ func _trigger_defiance(state: Dictionary, cause: String, hp_before: int) -> Dict
 	next_state["defiance_event_revision"] = revision
 	for effect: Dictionary in _relic_effects(next_state):
 		match str(effect.get("type", "")):
-			"defiance_trigger_burn":
-				var burn_amount: int = GameData.fixed_point_amount(int(effect.get("value", 0)))
-				if burn_amount > 0:
-					next_state = _burn_all_live_enemies(next_state, burn_amount)
 			"defiance_trigger_reward":
 				next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
 	_log(
@@ -10165,9 +9527,6 @@ func _scaled_relic_reward_amount(reward: Dictionary) -> int:
 	match str(reward.get("type", "")):
 		"block", "stoneskin", "heal", "all_enemies_damage", "block_to_stoneskin":
 			return GameData.fixed_point_amount(amount)
-		"all_enemies_status":
-			var status_id: String = str(reward.get("status", ""))
-			return GameData.fixed_point_amount(amount) if status_id in ["burn", "poison"] else amount
 		_:
 			return amount
 
@@ -10212,9 +9571,6 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 					next_state = _trigger_stoneskin_relics(next_state, converted)
 			"heal":
 				next_state = _heal_player(next_state, amount)
-			"intensity":
-				var reward_element: String = str(reward.get("element", effect.get("element", ElementData.NONE)))
-				next_state = _gain_elemental_intensity(next_state, reward_element, amount, _relic_effect_source_name(effect))
 			"vision":
 				next_state = _apply_umbra_vision(next_state, {
 					"amount": int(reward.get("amount", 0)),
@@ -10232,16 +9588,6 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 						"duration": int(reward.get("duration", 2)),
 						"silent": true
 					})
-			"intensity_per_deck_element":
-				var deck_element: String = str(reward.get("deck_element", reward.get("element", ElementData.NONE)))
-				var cards_per_point: int = maxi(1, int(reward.get("cards_per_point", 1)))
-				var deck_element_count: int = _combat_deck_element_card_count(next_state, deck_element)
-				var scaled_amount: int = deck_element_count / cards_per_point
-				if reward.has("max_value"):
-					scaled_amount = mini(scaled_amount, int(reward.get("max_value", scaled_amount)))
-				if scaled_amount > 0:
-					var scaled_element: String = str(reward.get("element", deck_element))
-					next_state = _gain_elemental_intensity(next_state, scaled_element, scaled_amount, _relic_effect_source_name(effect))
 			"stoneskin_per_deck_element":
 				var stoneskin_deck_element: String = str(reward.get("deck_element", reward.get("element", ElementData.NONE)))
 				var stoneskin_card_count: int = _combat_deck_element_card_count(next_state, stoneskin_deck_element)
@@ -10253,8 +9599,6 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 					scaling_player["stoneskin"] = int(scaling_player.get("stoneskin", 0)) + stoneskin_amount
 					next_state["player"] = scaling_player
 					next_state = _trigger_stoneskin_relics(next_state, stoneskin_amount)
-			"all_enemies_status":
-				next_state = _apply_status_to_all_live_enemies(next_state, str(reward.get("status", "")), amount)
 			"all_enemies_damage":
 				next_state = _damage_all_live_enemies(next_state, amount)
 	if not rewards.is_empty():
@@ -10277,39 +9621,6 @@ func _relic_safe_draws_available(state: Dictionary) -> int:
 
 func _draw_relic_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 	return _draw_cards_in_place(state, mini(maxi(0, count), _relic_safe_draws_available(state)))
-
-func _apply_status_to_all_live_enemies(state: Dictionary, status_id: String, amount: int) -> Dictionary:
-	var next_state: Dictionary = state
-	if amount <= 0 or status_id.is_empty():
-		return next_state
-	var enemies: Array = next_state.get("enemies", []).duplicate(true)
-	for index: int in range(enemies.size()):
-		if typeof(enemies[index]) != TYPE_DICTIONARY:
-			continue
-		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
-		if int(enemy.get("hp", 0)) <= 0:
-			continue
-		match status_id:
-			"burn":
-				if not _enemy_is_immune_to_status(enemy, "burn"):
-					enemy["burn"] = int(enemy.get("burn", 0)) + amount
-			"freeze":
-				if not _enemy_is_immune_to_status(enemy, "freeze"):
-					enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), amount)
-			"shock":
-				if not _enemy_is_immune_to_status(enemy, "shock"):
-					enemy["shock"] = maxi(int(enemy.get("shock", 0)), amount)
-			"poison":
-				if not _enemy_is_immune_to_status(enemy, "poison"):
-					var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
-					poison["damage"] = int(poison.get("damage", 0)) + amount
-					poison["delay"] = 2
-					enemy["poison"] = poison
-			_:
-				continue
-		enemies[index] = enemy
-	next_state["enemies"] = enemies
-	return next_state
 
 func _damage_all_live_enemies(state: Dictionary, amount: int) -> Dictionary:
 	var next_state: Dictionary = state
@@ -10339,20 +9650,6 @@ func _damage_adjacent_enemies_from_player(state: Dictionary, amount: int) -> Dic
 		if _enemy_distance_to_tile(enemy, player_pos) > 1:
 			continue
 		next_state = _damage_enemy(next_state, index, amount)
-	return next_state
-
-func _burn_all_live_enemies(state: Dictionary, amount: int) -> Dictionary:
-	var next_state: Dictionary = state
-	var enemies: Array = next_state.get("enemies", []).duplicate(true)
-	for index: int in range(enemies.size()):
-		if typeof(enemies[index]) != TYPE_DICTIONARY:
-			continue
-		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
-		if int(enemy.get("hp", 0)) <= 0:
-			continue
-		enemy["burn"] = int(enemy.get("burn", 0)) + amount
-		enemies[index] = enemy
-	next_state["enemies"] = enemies
 	return next_state
 
 func _heal_player(state: Dictionary, amount: int) -> Dictionary:
@@ -10392,21 +9689,6 @@ func _heal_player(state: Dictionary, amount: int) -> Dictionary:
 		_log(next_state, "%s hardens %d excess healing into stoneskin." % [_relic_effect_source_name(effect), converted])
 	return next_state
 
-func _start_combat_intensity_effect_applies(effect: Dictionary, deck_cards: Array) -> bool:
-	var deck_element: String = str(effect.get("deck_element", ""))
-	if not ElementData.is_elemental(deck_element):
-		return true
-	return _deck_element_card_count(deck_cards, deck_element) >= int(effect.get("threshold", 1))
-
-func _deck_element_card_count(deck_cards: Array, element_id: String) -> int:
-	if not ElementData.is_elemental(element_id):
-		return 0
-	var count: int = 0
-	for card_id_var: Variant in deck_cards:
-		if GameData.card_element(str(card_id_var)) == element_id:
-			count += 1
-	return count
-
 func _combat_deck_element_card_count(state: Dictionary, element_id: String) -> int:
 	if not ElementData.is_elemental(element_id):
 		return 0
@@ -10417,10 +9699,6 @@ func _combat_deck_element_card_count(state: Dictionary, element_id: String) -> i
 			if GameData.card_element(str(card_id_var)) == element_id:
 				count += 1
 	return count
-
-func _relic_effect_matches_intensity_element(effect: Dictionary, element_id: String) -> bool:
-	var effect_element: String = str(effect.get("element", "any"))
-	return effect_element.is_empty() or effect_element == "any" or effect_element == element_id
 
 func _increment_relic_counter(state: Dictionary, effect: Dictionary, suffix: String) -> int:
 	var key: String = "%s:%s:%s" % [
@@ -10487,8 +9765,6 @@ func _relic_effect_source_name(effect: Dictionary) -> String:
 	return str(GameData.relic_def(relic_id).get("name", relic_id))
 
 func _unit_status_amount(unit: Dictionary, status_id: String) -> int:
-	if status_id == "poison":
-		return int((unit.get("poison", {}) as Dictionary).get("damage", 0))
 	return int(unit.get(status_id, 0))
 
 func _combat_relic_flag_key(effect: Dictionary, suffix: String) -> String:

@@ -113,11 +113,6 @@ const KEYWORDS: Dictionary = {
 		"description": "Forces the arena into absolute Umbra. Radiance and light offer protection.",
 		"path": "%s/eclipse.svg" % ICON_ROOT
 	},
-	"burn": {
-		"label": "Burn",
-		"description": "Fire damage over time. Ticks at the start of turn, then decays.",
-		"path": "%s/burn.png" % ICON_ROOT
-	},
 	"bleed": {
 		"label": "Bleed",
 		"description": "Physical wound damage. Triggers before actual move or attack actions, then clears after the next turn.",
@@ -143,25 +138,10 @@ const KEYWORDS: Dictionary = {
 		"description": "Uses this item card once, then removes it from the run.",
 		"path": "%s/consume.png" % ICON_ROOT
 	},
-	"freeze": {
-		"label": "Freeze",
-		"description": "Stops the affected unit from acting on its next turn.",
-		"path": "%s/freeze.png" % ICON_ROOT
-	},
-	"shock": {
-		"label": "Shock",
-		"description": "Disrupts the affected unit's next action.",
-		"path": "%s/shock.png" % ICON_ROOT
-	},
 	"immobilize": {
 		"label": "Immobilize",
 		"description": "Stops movement for the rest of the turn.",
 		"path": "%s/immobilize.png" % ICON_ROOT
-	},
-	"poison": {
-		"label": "Poison",
-		"description": "Delayed damage that lands after its countdown.",
-		"path": "%s/poison.png" % ICON_ROOT
 	},
 	"chain": {
 		"label": "Chain",
@@ -904,10 +884,10 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "dispel_umbra", "amount", int(action.get("amount", 1))))
 		"lightning_strikes":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
+			tokens.append(_token_for_action_field(action, "lightning_strikes", "count", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
-			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Summons lightning wisps."))
+			tokens.append(_token_for_action_field(action, "summon_minions", "count", int(action.get("count", 0)), "neutral", "Summons lightning wisps."))
 		"raise_terrain":
 			tokens.append(_token_for_action_field(action, "stoneskin", "count", int(action.get("count", 0)), "neutral", "Raises attackable Worldspines around the arena."))
 			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each Worldspine."))
@@ -915,16 +895,16 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, "melee", action, options)
 			tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
 		"cinder_marks":
-			tokens.append(_token_for_action_field(action, "burn", "count", int(action.get("count", 0)), "neutral", "Places attackable cinder marks; surviving marks detonate on the dragon's next turn."))
+			tokens.append(_token_for_action_field(action, "cinder_marks", "count", int(action.get("count", 0)), "neutral", "Places attackable cinder marks; surviving marks detonate on the dragon's next turn."))
 			_append_damage_token(tokens, "ranged", action, options)
 			_append_keyword_tokens(tokens, action)
 		"detonate_cinders":
-			tokens.append(token_for("burn", null, "warning", "Detonates every surviving cinder mark in a blast around it."))
+			tokens.append(token_for("detonate_cinders", null, "warning", "Detonates every surviving cinder mark in a blast around it."))
 		"gale_force":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0)), "neutral", "Pushes the player away from the dragon through arena hazards."))
 		"frost_armor":
-			tokens.append(_token_for_action_field(action, "freeze", "amount", int(action.get("amount", 0)), "neutral", "Forms crystal armor. Each damaging hit breaks one layer instead of dealing damage."))
+			tokens.append(_token_for_action_field(action, "frost_armor", "amount", int(action.get("amount", 0)), "neutral", "Forms crystal armor. Each damaging hit breaks one layer instead of dealing damage."))
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and light protect affected tiles."))

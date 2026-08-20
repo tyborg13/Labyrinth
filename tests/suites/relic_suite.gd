@@ -399,12 +399,12 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 
 	var north_state: Dictionary = _state(combat, ["true_north"])
 	north_state = combat.apply_player_action(north_state, {"type": "truesight", "duration": 2})
-	var north_action: Dictionary = combat.call("_action_with_intensity_bonus", north_state, {"type": "ranged", "damage": 1, "range": 3, "_card_action_types": ["ranged"]})
+	var north_action: Dictionary = combat.call("_action_with_player_state_relic_modifiers", north_state, {"type": "ranged", "damage": 1, "range": 3, "_card_action_types": ["ranged"]})
 	expect.call(int(north_action.get("range", 0)) == 5, "True North should transform ranged targeting while Truesight is active")
 
 	var dawnstitch_state: Dictionary = _state(combat, ["dawnstitch_cord"])
-	dawnstitch_state = _trigger_card(combat, dawnstitch_state, GameData.card_def("prism_sight"), "prism_sight")
-	expect.call(int((dawnstitch_state.get("player", {}) as Dictionary).get("block", 0)) == 4, "Dawnstitch Cord should turn the first Radiance-action card into Block")
+	dawnstitch_state = _trigger_card(combat, dawnstitch_state, GameData.card_def("lantern_shot"), "lantern_shot")
+	expect.call(int((dawnstitch_state.get("player", {}) as Dictionary).get("block", 0)) == 4, "Dawnstitch Cord should recognize attack-carried Light and turn the first Radiance card into Block")
 
 	var astrolabe_state: Dictionary = _state(combat, ["starless_astrolabe"])
 	astrolabe_state["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(5, 4), 10)
@@ -422,7 +422,7 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	var edge_state: Dictionary = _state(combat, ["sunlit_edge"])
 	var edge_pos: Vector2i = (edge_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	edge_state = combat.apply_player_action(edge_state, {"type": "illuminate", "range": 5, "radius": 1, "duration": 2}, edge_pos)
-	var edge_action: Dictionary = combat.call("_action_with_intensity_bonus", edge_state, {"type": "melee", "damage": 2, "range": 1, "_card_action_types": ["melee"]})
+	var edge_action: Dictionary = combat.call("_action_with_player_state_relic_modifiers", edge_state, {"type": "melee", "damage": 2, "range": 1, "_card_action_types": ["melee"]})
 	expect.call(bool(edge_action.get("pierce", false)), "Sunlit Edge should transform attacks into Pierce while the player stands in Light")
 
 	var glassway_state: Dictionary = _state(combat, ["glassway_compass"])
@@ -864,7 +864,7 @@ static func _test_state_sequence_bridges(expect: Callable) -> void:
 	var anchor_player: Dictionary = (anchor_state.get("player", {}) as Dictionary).duplicate(true)
 	anchor_player["block"] = 1
 	anchor_state["player"] = anchor_player
-	var anchored_pull: Dictionary = combat.call("_action_with_intensity_bonus", anchor_state, pull_action)
+	var anchored_pull: Dictionary = combat.call("_action_with_player_state_relic_modifiers", anchor_state, pull_action)
 	expect.call(
 		combat.final_damage_for_player_action(anchor_state, pull_action) == 5
 		and int(anchored_pull.get("amount", 0)) == 3,
@@ -874,11 +874,11 @@ static func _test_state_sequence_bridges(expect: Callable) -> void:
 	var coffin_state: Dictionary = _state(combat, ["coffin_nails"])
 	var quick_stab: Dictionary = GameData.card_def_for_progression("quick_stab", {})
 	var quick_attack: Dictionary = _first_action_of_type(quick_stab, "melee")
-	expect.call(int((combat.call("_action_with_intensity_bonus", coffin_state, quick_attack) as Dictionary).get("bleed", 0)) == 0, "Coffin Nails should require block")
+	expect.call(int((combat.call("_action_with_player_state_relic_modifiers", coffin_state, quick_attack) as Dictionary).get("bleed", 0)) == 0, "Coffin Nails should require block")
 	var coffin_player: Dictionary = (coffin_state.get("player", {}) as Dictionary).duplicate(true)
 	coffin_player["block"] = 1
 	coffin_state["player"] = coffin_player
-	expect.call(int((combat.call("_action_with_intensity_bonus", coffin_state, quick_attack) as Dictionary).get("bleed", 0)) == 1, "Coffin Nails should bridge existing block into Bleed attacks")
+	expect.call(int((combat.call("_action_with_player_state_relic_modifiers", coffin_state, quick_attack) as Dictionary).get("bleed", 0)) == 1, "Coffin Nails should bridge existing block into Bleed attacks")
 
 	var moss_state: Dictionary = _state(combat, ["mossbound_wraps"])
 	moss_state = _trigger_card(combat, moss_state, _card(ElementData.EARTH, 4, [{"type": "melee", "damage": 3}]), "earth_without_block")

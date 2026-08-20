@@ -11,6 +11,7 @@ const ATTACK_TYPES := ["melee", "ranged", "aoe", "push", "pull"]
 static func run(expect: Callable) -> void:
 	_test_element_packages_are_board_native(expect)
 	_test_new_combats_have_no_intensity_currency(expect)
+	_test_light_radiates_and_replaces_corruption(expect)
 	_test_enemy_roster_uses_committed_geometry_and_support_mix(expect)
 	_test_corruption_preview_and_resolution_share_one_footprint(expect)
 
@@ -72,8 +73,26 @@ static func _test_new_combats_have_no_intensity_currency(expect: Callable) -> vo
 	expect.call(bool(state.get("free_move_available", false)) and int(state.get("cards_per_turn", 0)) == 2, "Each player activation should begin with a free Move 2 and two printed card plays")
 	var free_action: Dictionary = combat.free_move_action(state)
 	expect.call(str(free_action.get("type", "")) == "move" and int(free_action.get("range", 0)) == 2 and bool(free_action.get("_free_move", false)), "The default board action should be one unsplittable free Move 2")
+	var cards_spent: Dictionary = state.duplicate(true)
+	cards_spent["cards_played_this_turn"] = 2
+	expect.call(not combat.should_auto_finish_player_activation(cards_spent), "Spending the second card should preserve an unused Free Move instead of auto-ending the activation")
 	var moved: Dictionary = combat.apply_player_action(state, free_action, Vector2i(3, 4))
 	expect.call(int(moved.get("cards_played_this_turn", -1)) == 0 and int(moved.get("player_turn_time_spent", -1)) == 0 and not bool(moved.get("free_move_available", true)), "Free movement should cost neither a card play nor Time and should resolve once")
+	moved["cards_played_this_turn"] = 2
+	expect.call(combat.should_auto_finish_player_activation(moved), "An activation should auto-finish once both card plays and the Free Move are spent")
+
+static func _test_light_radiates_and_replaces_corruption(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = combat.create_combat(8125, _room(), _player_snapshot())
+	state["initiative_clock"] = 7
+	CombatTerrainRules.place_field(state, [Vector2i(5, 4), Vector2i(4, 4)], CombatTerrainRules.FIELD_CORRUPTION, 99)
+	var lantern_action: Dictionary = ((GameData.card_def("lantern_shot").get("actions", []) as Array)[0] as Dictionary).duplicate(true)
+	var result: Dictionary = combat.apply_player_action(state, lantern_action, Vector2i(5, 4))
+	var center_field: Dictionary = CombatTerrainRules.field_at(result, Vector2i(5, 4))
+	expect.call(str(center_field.get("kind", "")) == CombatTerrainRules.FIELD_RADIANCE, "Attack-carried Light should Radiate its impact tile and replace Corruption")
+	expect.call(CombatTerrainRules.field_kind_at(result, Vector2i(4, 4)) == CombatTerrainRules.FIELD_RADIANCE, "Light radius should Radiate every affected passable tile")
+	expect.call(int(center_field.get("expires_at", 0)) == 7 + CombatTerrainRules.DEFAULT_FIELD_DURATION, "Light-created Radiance should use the shared absolute Field duration")
+	expect.call(CombatTerrainRules.field_kind_at(result, Vector2i(2, 4)) != CombatTerrainRules.FIELD_RADIANCE, "Light should not Radiate beyond its authored radius")
 
 static func _test_enemy_roster_uses_committed_geometry_and_support_mix(expect: Callable) -> void:
 	var support_types: Dictionary = {}

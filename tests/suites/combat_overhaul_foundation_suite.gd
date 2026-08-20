@@ -17,6 +17,7 @@ static func run(expect: Callable) -> void:
 	_test_committed_enemy_attacks_do_not_chase(expect)
 	_test_committed_enemy_attacks_can_be_intercepted(expect)
 	_test_committed_enemy_patterns_translate_when_displaced(expect)
+	_test_displaced_committed_patterns_clip_at_board_edge(expect)
 	_test_enemy_setup_move_precedes_next_commitment(expect)
 	_test_authored_card_tile_effects(expect)
 
@@ -304,6 +305,23 @@ static func _test_committed_enemy_patterns_translate_when_displaced(expect: Call
 	expect.call(after_plan.get("projected_attack_target", Vector2i.ZERO) == before_plan.get("projected_attack_target", Vector2i.ZERO) + delta, "Displacing an enemy should translate its committed target instead of reacquiring the player")
 	expect.call(after_plan.get("destination", Vector2i.ZERO) == before_plan.get("destination", Vector2i.ZERO) + delta, "Committed movement and attack geometry should translate as one pattern")
 
+static func _test_displaced_committed_patterns_clip_at_board_edge(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(902341, _room_layout(), _player_snapshot())
+	_set_enemy_position(state, 0, Vector2i(5, 4))
+	_commit_test_intent(combat, state, 0, {
+		"id": "translated_edge_blast",
+		"name": "Translated Edge Blast",
+		"actions": [{"type": "aoe", "range": 0, "damage": 3, "pattern": [[0, 0], [0, 1], [0, 2], [0, 3]]}],
+	})
+	_set_enemy_position(state, 0, Vector2i(5, 6))
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	var grid: Array = state.get("grid", []) as Array
+	for tile: Vector2i in _vector2i_array(plan.get("projected_attack", [])):
+		expect.call(PathUtils.is_in_bounds(grid, tile), "Translated committed attack tiles should be clipped at the board edge")
+	for tile: Vector2i in _vector2i_array(plan.get("projected_field", [])):
+		expect.call(PathUtils.is_in_bounds(grid, tile), "Translated committed field tiles should be clipped at the board edge")
+
 static func _test_enemy_setup_move_precedes_next_commitment(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(90235, _room_layout(), _player_snapshot())
@@ -422,3 +440,12 @@ static func _player_snapshot() -> Dictionary:
 		"hand_size": 1,
 		"heal_bonus": 0,
 	}
+
+static func _vector2i_array(value: Variant) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for entry: Variant in value as Array:
+		if entry is Vector2i:
+			result.append(entry)
+	return result

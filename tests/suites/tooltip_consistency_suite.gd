@@ -115,9 +115,9 @@ static func _test_equipment_pickup_reuses_equipment_card_preview(expect: Callabl
 
 static func _test_icon_tooltip_panel(expect: Callable) -> void:
 	var panel: PanelContainer = UiTooltipPanel.make_icon_lines(
-		ActionIcons.icon_texture("burn"),
-		"Burn",
-		PackedStringArray([ActionIcons.description("burn")])
+		ActionIcons.icon_texture("surface_electrified"),
+		"Electrified",
+		PackedStringArray([ActionIcons.description("surface_electrified")])
 	)
 	var icon: TextureRect = panel.find_child("TooltipIcon", true, false) as TextureRect
 	expect.call(icon != null and icon.texture != null, "Icon-led tooltips should render the matching concept icon")

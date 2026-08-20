@@ -20,9 +20,120 @@ The main assumptions come from:
 - `data/cards.json`
 - `data/enemies.json`
 
-## Current Gameplay Assumptions
+## Elemental-board overhaul calibration (normative)
 
-These assumptions are baked into the current coefficients:
+This section supersedes the archived pre-overhaul calibration below. The live
+scorer in `tools/card_heuristic.py` follows this model.
+
+- The player gets two card plays, draws two cards, and may hold seven cards by
+  default.
+- Each player activation also gets one free, unsplittable Move 2. It costs no
+  card play and no initiative Time. Printed movement is therefore valued for
+  compression, exceptional reach, Blink routing, and multi-step setup rather
+  than for basic board access.
+- Five Time is the neutral card baseline. Faster cards gain tempo value and
+  slower cards lose it.
+- Killing an enemy with a card grants one additional play for the current
+  activation, so immediate and pattern damage receive a modest execute premium.
+- Enemy intents commit to exact board geometry when revealed. Displacement
+  translates the stored geometry but never retargets it. Contact with an actor
+  or blocking terrain can short-circuit the remaining path, attack, and
+  Corruption footprint.
+- After resolving an intent, an enemy may take a harmless orthogonal setup Move
+  1 and then commits its next intent. Enemy healing, Block, and ally guarding
+  extend formation life and raise the situational value of focus fire, Pierce,
+  Sunder, and broad damage.
+- Illusions remain board actors that can redirect committed attacks and
+  intercept paths or projectiles. Blink remains premium route-independent
+  movement.
+
+Each tile can hold one Field and one Surface:
+
+- Corruption damages the player for 1 on traversal or activation start and
+  heals enemies for 1 on activation start.
+- Radiance damages enemies for 1 on traversal or activation start, replaces
+  Corruption, and reveals through Umbra.
+- Bramble stops movement when entered.
+- Poison arms on entry, then deals 1 for each subsequent tile in that route.
+- Ice slides a moving actor in the same direction until collision.
+- Snowdrift makes an actor standing there take +2 attack damage.
+- Electrified suppresses attack segments for the rest of that activation and is
+  consumed. It does not prevent movement, support, card use, or intent
+  commitment.
+- Combust consumes every Surface hit and adds +2 attack damage on those tiles.
+- Board effects expire on the absolute initiative clock; 18 Time is the neutral
+  authored duration.
+
+Element packages are intentionally intersecting rather than gated:
+
+- Earth creates Bramble and Poison.
+- Ice creates Ice and Snowdrift.
+- Air supplies deterministic, pattern-authored push and pull.
+- Lightning rewards grouping with Chain and creates Electrified tiles.
+- Fire supplies broad damage patterns and Combust payoff for every Surface.
+- Light creates Radiance to clear Corruption, damage enemies, and control
+  visibility.
+
+Actor Burn, actor Poison, Freeze, Shock, elemental intensity, intensity costs,
+intensity thresholds, and intensity bonuses are retired. A card's top-level
+`burn` flag still means Exhaust and is valued as card economy.
+
+The live score is:
+
+`EV = offense + control + defense + flow + elemental_board + mobility + radiance + synergy + tempo + flurry_compression - health_cost - exhaust_penalty - flurry_commitment`
+
+Important interpretations:
+
+- Damage includes a small quadratic execute premium. Pattern tiles and Chain
+  increase expected targets, with each extra tile discounted because valid
+  multi-enemy arrangements are conditional.
+- Bramble, Ice, Snowdrift, and Electrified are primarily control; Poison is
+  discounted because it needs continued movement.
+- Push/pull plus a Surface receives setup synergy. Surface creation plus attack
+  receives compression synergy. Surface creation plus Combust receives payoff
+  synergy, while cross-card setup is measured in playtests and analytics rather
+  than fully credited to one card.
+- Pure Move and Blink are discounted against free Move 2. Movement attached to
+  offense or defense retains compression value.
+- Block is temporary; Stoneskin persists and is valued more highly. Bleed,
+  Expose, Sunder, Immobilize, Pierce, Illusions, Umbra, Radiance, Truesight, and
+  Dispel Umbra remain supported.
+- The scalar stays objective-neutral. Compare realized movement/control, AOE,
+  and execute value by `objective_type` analytics cohorts.
+
+Current board coefficients are per affected tile before duration and reach
+adjustments: Radiance `0.52`, Corruption `0.38`, Bramble `0.48`, Poison
+`0.34`, Ice `0.52`, Snowdrift `0.58`, Electrified `0.72`, and Combust `0.42`.
+Duration scales board value by `duration / 18`, clamped to `0.65-1.25`, and
+placement range adds `0.05` per tile. Same-card synergies are `+0.45` for
+Surface plus push/pull, `+0.28` for Surface plus attack, and `+0.55` for
+Surface plus Combust. These deliberately under-credit cross-card conversions;
+measure those through playtests and the Field/Surface analytics payloads.
+
+Update this document and `tools/card_heuristic.py` together whenever free
+movement, card economy, initiative, committed-intent behavior, Field/Surface
+semantics, board duration, patterns, Chain, Combust, forced movement, encounter
+density, or objective assumptions change.
+
+For every touched card:
+
+1. Run `python3 tools/card_heuristic.py --card-id <card_id> --show-breakdown`.
+2. Compare cards with the same rarity, source, Time, and tactical role.
+3. Call out deliberate deviations, especially large patterns, repeatable attack
+   suppression, Surface creation plus Combust, or exceptional movement.
+4. Run the full pool scorer and inspect top and bottom outliers.
+5. Verify interactions in combat tests, a visual probe, local analytics, and
+   representative headless playtests.
+
+## Archived pre-overhaul calibration (non-normative)
+
+The remaining material records the former elemental-intensity/status model for
+historical comparison only. It does not describe live mechanics or coefficients.
+Do not use its formula, coefficients, maintenance list, or examples for current
+card work; the normative section above and `tools/card_heuristic.py` are the
+authoritative sources.
+
+These assumptions were baked into the retired coefficients:
 
 - Player pace: `2` cards per turn, `2` draw per turn, and a `7`-card
   maximum hand.

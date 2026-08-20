@@ -21,7 +21,6 @@ const AREA_TYPES := [
 const DEFENSE_TYPES := ["block", "frost_armor", "guard_ally", "stoneskin"]
 const SUPPORT_TYPES := ["heal_ally", "heal_self", "raise_terrain", "summon_minions"]
 const MOVEMENT_TYPES := ["move_away", "move_toward"]
-const INTENSITY_TYPES := ["intensity"]
 
 static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = []) -> Dictionary:
 	var result: Dictionary = {}
@@ -63,8 +62,6 @@ static func family_for_action(action: Dictionary) -> String:
 		return FAMILY_DEFENSE
 	if action_type in SUPPORT_TYPES:
 		return FAMILY_SUPPORT
-	if action_type in INTENSITY_TYPES:
-		return FAMILY_SUPPORT
 	return FAMILY_ATTACK
 
 static func is_supported_action_type(action_type: String) -> bool:
@@ -73,8 +70,7 @@ static func is_supported_action_type(action_type: String) -> bool:
 		or action_type in AREA_TYPES \
 		or action_type in DEFENSE_TYPES \
 		or action_type in SUPPORT_TYPES \
-		or action_type in MOVEMENT_TYPES \
-		or action_type in INTENSITY_TYPES
+		or action_type in MOVEMENT_TYPES
 
 static func value_for_action(action: Dictionary) -> int:
 	for key: String in ["damage", "amount", "count"]:
@@ -87,7 +83,7 @@ static func texture_path(family: String) -> String:
 
 static func _primary_action(intent: Dictionary) -> Dictionary:
 	var actions: Array = intent.get("actions", []) as Array
-	for families: Array in [AREA_TYPES, RANGED_TYPES, MELEE_TYPES, INTENSITY_TYPES, DEFENSE_TYPES, SUPPORT_TYPES, MOVEMENT_TYPES]:
+	for families: Array in [AREA_TYPES, RANGED_TYPES, MELEE_TYPES, DEFENSE_TYPES, SUPPORT_TYPES, MOVEMENT_TYPES]:
 		for action_var: Variant in actions:
 			if typeof(action_var) != TYPE_DICTIONARY:
 				continue
