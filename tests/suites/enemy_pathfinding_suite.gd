@@ -72,7 +72,7 @@ static func _test_ranged_stays_when_attack_is_available(expect: Callable) -> voi
 	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
 	expect.call(_tiles(plan.get("path", [])).size() == 1, "Ranged enemies should not move after they already have a legal shot")
 	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
-	expect.call(((resolved.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4), "Ranged resolution should preserve an already-valid firing position")
+	expect.call(((resolved.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 4), "A stationary ranged intent should fire from its committed tile before taking its separate setup step")
 	expect.call(int((resolved.get("player", {}) as Dictionary).get("hp", 0)) == 20, "A stationary ranged enemy should still fire")
 
 static func _test_ranged_moves_to_line_of_sight(expect: Callable) -> void:
@@ -144,9 +144,20 @@ static func _test_attackless_retreat_moves_away_without_projection(expect: Calla
 	var destination: Vector2i = plan.get("destination", Vector2i.ZERO)
 	expect.call(destination.distance_to(Vector2i(2, 4)) > Vector2i(4, 4).distance_to(Vector2i(2, 4)), "Attackless move_away intents should deterministically increase separation instead of routing toward fake melee range")
 	expect.call(not bool(plan.get("attack_available", true)) and _tiles(plan.get("projected_attack", [])).is_empty(), "Attackless retreat intents should not expose a fake exact attack")
-	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
+	var turn_result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	var resolved: Dictionary = turn_result.get("state", {})
 	var resolved_enemy: Dictionary = (resolved.get("enemies", []) as Array)[0]
-	expect.call(resolved_enemy.get("pos", Vector2i.ZERO) == destination and int(resolved_enemy.get("block", 0)) == 3, "Attackless retreat resolution should use the pure retreat plan and still resolve support")
+	var saw_retreat_destination: bool = false
+	var saw_setup_from_destination: bool = false
+	for step_var: Variant in turn_result.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var as Dictionary
+		if str(step.get("label", "")) == "Retreat" and step.get("to", Vector2i.ZERO) == destination:
+			saw_retreat_destination = true
+		if str(step.get("label", "")) == "Setup" and step.get("from", Vector2i.ZERO) == destination:
+			saw_setup_from_destination = true
+	expect.call(saw_retreat_destination and saw_setup_from_destination and int(resolved_enemy.get("block", 0)) == 3, "Attackless retreat should resolve its committed destination and support before the separate one-tile setup step")
 
 	var advance_support_intent: Dictionary = {
 		"name": "Coil",

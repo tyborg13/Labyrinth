@@ -2094,6 +2094,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			action_context["action_index"] = action_index
 			var bleed_steps: Array[Dictionary] = []
 			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
+			_merge_enemy_plan_runtime_context(activation_plan, action_context)
 			_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
 			_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))
 			next_state["rng_state"] = rng.state
@@ -2114,7 +2115,27 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 				post_turn_enemies[enemy_index] = post_turn_enemy
 				next_state["enemies"] = post_turn_enemies
 				next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
-				_assign_enemy_intent(next_state, enemy_index, rng)
+				if not immobilized:
+					var before_setup_move: Dictionary = next_state.duplicate(true)
+					var setup_result: Dictionary = _resolve_enemy_setup_move(next_state, enemy_index)
+					next_state = setup_result.get("state", next_state) as Dictionary
+					var setup_action: Dictionary = setup_result.get("action", {}) as Dictionary
+					var setup_context: Dictionary = setup_result.get("context", {}) as Dictionary
+					if not setup_action.is_empty():
+						if include_commit_steps:
+							_append_commit_step(steps, before_setup_move, next_state, "enemy_setup_move")
+						var setup_step: Dictionary = _umbra_marked_enemy_action_step(
+							before_setup_move,
+							next_state,
+							_enemy_action_step(before_setup_move, next_state, enemy_index, setup_action, setup_context),
+							int(post_turn_enemy.get("id", -1))
+						)
+						if not setup_step.is_empty():
+							steps.append(setup_step)
+				if combat_outcome(next_state) == "" and enemy_index < (next_state.get("enemies", []) as Array).size():
+					var setup_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+					if int(setup_enemy.get("hp", 0)) > 0:
+						_assign_enemy_intent(next_state, enemy_index, rng)
 	next_state["rng_state"] = rng.state
 	if include_commit_steps:
 		_append_commit_step(steps, before_turn_complete, next_state, "enemy_turn_complete")
@@ -2242,6 +2263,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				action_context["action_index"] = action_index
 				var bleed_steps: Array[Dictionary] = []
 				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
+				_merge_enemy_plan_runtime_context(activation_plan, action_context)
 				_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
 				_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))
 				for bleed_step: Dictionary in bleed_steps:
@@ -2255,7 +2277,25 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var post_turn_enemy: Dictionary = _normalized_enemy(post_turn_enemies[enemy_index] as Dictionary)
 				if int(post_turn_enemy.get("hp", 0)) > 0:
 					next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
-					_assign_enemy_intent(next_state, enemy_index, rng)
+					if not immobilized:
+						var before_setup_move: Dictionary = next_state.duplicate(true)
+						var setup_result: Dictionary = _resolve_enemy_setup_move(next_state, enemy_index)
+						next_state = setup_result.get("state", next_state) as Dictionary
+						var setup_action: Dictionary = setup_result.get("action", {}) as Dictionary
+						var setup_context: Dictionary = setup_result.get("context", {}) as Dictionary
+						if not setup_action.is_empty():
+							var setup_step: Dictionary = _umbra_marked_enemy_action_step(
+								before_setup_move,
+								next_state,
+								_enemy_action_step(before_setup_move, next_state, enemy_index, setup_action, setup_context),
+								int(post_turn_enemy.get("id", -1))
+							)
+							if not setup_step.is_empty():
+								steps.append(setup_step)
+					if combat_outcome(next_state) == "" and enemy_index < (next_state.get("enemies", []) as Array).size():
+						var setup_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+						if int(setup_enemy.get("hp", 0)) > 0:
+							_assign_enemy_intent(next_state, enemy_index, rng)
 	next_state["rng_state"] = rng.state
 	return {
 		"state": next_state,
@@ -2631,9 +2671,47 @@ func _resolve_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictiona
 		var action_context: Dictionary = activation_plan.duplicate(true)
 		action_context["action_index"] = action_index
 		next_state = _resolve_enemy_action(next_state, enemy_index, action, null, {}, [], action_context)
+		_merge_enemy_plan_runtime_context(activation_plan, action_context)
 		_anonymize_hidden_enemy_action_logs(before_action, next_state, int(enemy.get("id", -1)), action)
 		_record_hidden_umbra_attack_damage(before_action, next_state, int(enemy.get("id", -1)))
 	return next_state
+
+func _resolve_enemy_setup_move(state: Dictionary, enemy_index: int) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return {"state": next_state, "action": {}, "context": {}}
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if int(enemy.get("hp", 0)) <= 0:
+		return {"state": next_state, "action": {}, "context": {}}
+	var target: Dictionary = _closest_enemy_target(next_state, enemy)
+	if target.is_empty():
+		return {"state": next_state, "action": {}, "context": {}}
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var destination: Vector2i = _best_move_toward(next_state, enemy_index, target.get("pos", start), 1)
+	if destination == start or destination == INVALID_TILE:
+		return {"state": next_state, "action": {}, "context": {}}
+	var occupied: Dictionary = _enemy_path_blockers(next_state, enemy, true, false)
+	var path: Array[Vector2i] = PathUtils.find_path(next_state.get("grid", []), start, destination, occupied)
+	if path.is_empty():
+		path = _vector2i_values([start, destination])
+	var action: Dictionary = {
+		"type": "move_toward",
+		"range": 1,
+		"setup_move": true,
+	}
+	var context: Dictionary = {
+		"enemy_key": _enemy_key(enemy),
+		"target_key": str(target.get("key", "")),
+		"target_tile": target.get("pos", INVALID_TILE),
+		"path": path,
+		"movement_action_index": 0,
+		"action_index": 0,
+		"setup_move": true,
+	}
+	next_state = _move_enemy_along_planned_path(next_state, enemy_index, path, context)
+	_log(next_state, "%s shifts into position." % _enemy_display_name(enemy))
+	return {"state": next_state, "action": action, "context": context}
 
 func _enemy_intent_step_for_player(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
 	var hidden: bool = not is_enemy_visible_to_player(state, enemy)
@@ -2774,7 +2852,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"terrain_losses": terrain_losses,
 				"triggered_traps": triggered_traps,
 				"impact_actor_keys": _target_loss_keys(target_losses) + _target_loss_keys(enemy_losses),
-				"label": "Advance" if action_type == "move_toward" else "Retreat"
+				"label": "Setup" if bool(action.get("setup_move", false)) else "Advance" if action_type == "move_toward" else "Retreat"
 			}
 		"intensity":
 			var element_id: String = _action_intensity_element(action)
@@ -2963,6 +3041,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"umbra_eclipse": "Last Eclipse"
 			}
 			var target_losses: Array[Dictionary] = _actor_target_losses(before_state, after_state)
+			target_losses.append_array(_enemy_target_losses(before_state, after_state))
 			var terrain_losses: Array[Dictionary] = _terrain_target_losses(before_state, after_state)
 			var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
 			var tiles: Array[Vector2i] = _boss_action_threat_tiles(before_state, before_enemy, action)
@@ -2998,6 +3077,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 			var block_loss: int = int(before_player.get("block", 0)) - int(after_player.get("block", 0))
 			var stoneskin_loss: int = int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0))
 			var target_losses: Array[Dictionary] = _actor_target_losses(before_state, after_state)
+			target_losses.append_array(_enemy_target_losses(before_state, after_state))
 			var terrain_losses: Array[Dictionary] = _terrain_target_losses(before_state, after_state)
 			var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
 			var moved: bool = before_player.get("pos", Vector2i.ZERO) != after_player.get("pos", Vector2i.ZERO)
@@ -3348,6 +3428,14 @@ func _enemy_support_target_index(state: Dictionary, source_enemy_index: int, act
 			best_enemy = candidate
 	return best_index
 
+func _enemy_support_target_index_for_plan(state: Dictionary, source_enemy_index: int, action: Dictionary, action_context: Dictionary) -> int:
+	if int(action_context.get("action_index", -1)) != int(action_context.get("support_action_index", -2)):
+		return _enemy_support_target_index(state, source_enemy_index, action)
+	var committed_target_id: int = int(action_context.get("support_target_id", -1))
+	if committed_target_id < 0:
+		return -1
+	return _enemy_index_for_id(state, committed_target_id)
+
 func _enemy_support_action_can_affect(candidate: Dictionary, action: Dictionary) -> bool:
 	if int(action.get("amount", 0)) <= 0:
 		return false
@@ -3586,12 +3674,21 @@ func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, by
 					continue
 				resolved_damage = mini(resolved_damage, GameData.fixed_point_amount(int(effect.get("max_damage", 1))))
 			return _damage_illusion(state, int(target.get("id", -1)), resolved_damage)
+		"enemy":
+			var enemy_index: int = _enemy_index_for_id(state, int(target.get("id", -1)))
+			if enemy_index >= 0:
+				return _damage_enemy(state, enemy_index, damage, false, bypass_block)
 	return state
 
 func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
-	if str(target.get("kind", "")) != "player":
-		return state
-	return _apply_action_keywords_to_player(state, action, source_pos)
+	match str(target.get("kind", "")):
+		"player":
+			return _apply_action_keywords_to_player(state, action, source_pos)
+		"enemy":
+			var enemy_index: int = _enemy_index_for_id(state, int(target.get("id", -1)))
+			if enemy_index >= 0:
+				return _apply_action_keywords_to_enemy(state, enemy_index, action, source_pos, false)
+	return state
 
 func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
@@ -3617,7 +3714,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	var state_before_action: Dictionary = next_state.duplicate(true)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
-	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context)
+	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context, action)
 	if target.is_empty() and action_context.is_empty():
 		target = _closest_enemy_target(next_state, enemy, rng)
 	var target_pos: Vector2i = target.get("pos", player_pos)
@@ -3663,7 +3760,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				int(action.get("amount", 0))
 			])
 		"heal_ally":
-			var heal_target_index: int = _enemy_support_target_index(next_state, enemy_index, action)
+			var heal_target_index: int = _enemy_support_target_index_for_plan(next_state, enemy_index, action, action_context)
 			if heal_target_index < 0:
 				return next_state
 			var heal_target: Dictionary = _normalized_enemy(enemies[heal_target_index] as Dictionary)
@@ -3696,7 +3793,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 					int(action.get("amount", 0))
 				])
 			else:
-				var guard_target_index: int = _enemy_support_target_index(next_state, enemy_index, action)
+				var guard_target_index: int = _enemy_support_target_index_for_plan(next_state, enemy_index, action, action_context)
 				if guard_target_index < 0:
 					return next_state
 				var guard_target: Dictionary = _normalized_enemy(enemies[guard_target_index] as Dictionary)
@@ -3793,11 +3890,25 @@ func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
 			break
-		enemy["pos"] = planned_path[path_index]
+		var next_anchor: Vector2i = planned_path[path_index]
+		var blocking_tiles: Dictionary = _enemy_blocking_tiles(next_state, int(enemy.get("id", -1)))
+		var contact_tile: Vector2i = INVALID_TILE
+		var contact_enemy: Dictionary = enemy.duplicate(true)
+		contact_enemy["pos"] = next_anchor
+		for footprint_tile: Vector2i in _enemy_footprint_tiles(contact_enemy):
+			if blocking_tiles.has(footprint_tile):
+				contact_tile = footprint_tile
+				break
+		if contact_tile.x >= 0:
+			action_context["interrupted"] = true
+			action_context["contact_tile"] = contact_tile
+			action_context["blocking_terrain_index"] = _terrain_index_at_tile(next_state, contact_tile)
+			break
+		enemy["pos"] = next_anchor
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
-		resolved_path.append(planned_path[path_index])
-		var terrain_entry: Dictionary = _resolve_enemy_tile_entry(next_state, enemy_index, planned_path[path_index], poison_armed)
+		resolved_path.append(next_anchor)
+		var terrain_entry: Dictionary = _resolve_enemy_tile_entry(next_state, enemy_index, next_anchor, poison_armed)
 		next_state = terrain_entry.get("state", next_state) as Dictionary
 		poison_armed = bool(terrain_entry.get("poison_armed", poison_armed))
 		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
@@ -3811,9 +3922,42 @@ func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned
 	action_context["resolved_path"] = resolved_path
 	return next_state
 
-func _current_actor_target_for_plan(state: Dictionary, action_context: Dictionary) -> Dictionary:
+func _merge_enemy_plan_runtime_context(plan: Dictionary, action_context: Dictionary) -> void:
+	for key: String in ["interrupted", "contact_tile", "blocking_terrain_index", "resolved_path"]:
+		if action_context.has(key):
+			plan[key] = action_context[key]
+
+func _current_actor_target_for_plan(state: Dictionary, action_context: Dictionary, action: Dictionary = {}) -> Dictionary:
+	var target_tile: Vector2i = action_context.get(
+		"contact_tile" if bool(action_context.get("interrupted", false)) else "projected_attack_target",
+		INVALID_TILE
+	)
+	if target_tile.x < 0:
+		target_tile = action_context.get("target_tile", INVALID_TILE)
+	if target_tile.x >= 0:
+		for target: Dictionary in _actor_targets(state):
+			if target.get("pos", INVALID_TILE) == target_tile:
+				return target
+		var source_enemy_key: String = str(action_context.get("enemy_key", ""))
+		for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+			var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+			if int(enemy.get("hp", 0)) <= 0 or _enemy_key(enemy) == source_enemy_key:
+				continue
+			if not _enemy_footprint_tiles(enemy).has(target_tile):
+				continue
+			return {
+				"kind": "enemy",
+				"key": _enemy_key(enemy),
+				"id": int(enemy.get("id", -1)),
+				"pos": target_tile,
+				"hp": int(enemy.get("hp", 0)),
+			}
+		if str(action.get("type", "")) == "aoe":
+			return {"kind": "tile", "key": "tile", "pos": target_tile}
+	# Compatibility for old saves without a committed geometric target. New plans
+	# always resolve occupancy at their tile and never chase this actor key.
 	var target_key: String = str(action_context.get("target_key", ""))
-	if target_key.is_empty():
+	if target_key.is_empty() or action_context.has("schema"):
 		return {}
 	for target: Dictionary in _actor_targets(state):
 		if str(target.get("key", "")) == target_key:
@@ -5445,7 +5589,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var action_type: String = str(action.get("type", ""))
 	var has_plan: bool = int(action_context.get("action_index", -1)) == int(action_context.get("attack_action_index", -2))
-	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context) if has_plan else _closest_enemy_target_for_action(next_state, enemy, action, rng)
+	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context, action) if has_plan else _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if not target.is_empty() and not _enemy_action_reaches_target(next_state, enemy, action, target):
 		target = {}
 	var planned_trap_index: int = _trap_index_at_tile(next_state, action_context.get("trap_attack_tile", INVALID_TILE)) if has_plan else -1
@@ -5483,7 +5627,9 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		var affected_tiles: Array[Vector2i] = _enemy_aoe_tiles_for_target(next_state, enemy, resolved_action, center, true)
 		var affected_targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, affected_tiles)
 		var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, affected_tiles)
-		if affected_targets.is_empty() and affected_terrain.is_empty():
+		var affected_friendly_enemies: Array[int] = _enemy_indices_in_tiles(next_state, affected_tiles)
+		affected_friendly_enemies.erase(enemy_index)
+		if affected_targets.is_empty() and affected_terrain.is_empty() and affected_friendly_enemies.is_empty():
 			return next_state
 		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
@@ -5522,6 +5668,22 @@ func _damage_enemy_aoe_occupants(state: Dictionary, enemy_index: int, action: Di
 		if damage > 0:
 			next_state = _damage_actor_target(next_state, affected_target, damage, _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
+	var friendly_indices: Array[int] = _enemy_indices_in_tiles(next_state, affected_tiles)
+	for friendly_index: int in friendly_indices:
+		if friendly_index == enemy_index:
+			continue
+		var friendly_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[friendly_index] as Dictionary)
+		var impact_tile: Vector2i = friendly_enemy.get("pos", INVALID_TILE)
+		for footprint_tile: Vector2i in _enemy_footprint_tiles(friendly_enemy):
+			if affected_tiles.has(footprint_tile):
+				impact_tile = footprint_tile
+				break
+		var damage: int = int(action.get("damage", 0)) + CombatTerrainRules.attack_bonus_at(next_state, impact_tile)
+		if damage > 0:
+			next_state = _damage_enemy(next_state, friendly_index, damage, false, _action_pierces_defense(action))
+		var live_index: int = _enemy_index_for_id(next_state, int(friendly_enemy.get("id", -1)))
+		if live_index >= 0 and int(((next_state.get("enemies", []) as Array)[live_index] as Dictionary).get("hp", 0)) > 0:
+			next_state = _apply_action_keywords_to_enemy(next_state, live_index, action, enemy.get("pos", Vector2i.ZERO), false)
 	return _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, affected_tiles), int(action.get("damage", 0)))
 
 func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
@@ -5531,7 +5693,7 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var has_plan: bool = int(action_context.get("action_index", -1)) == int(action_context.get("attack_action_index", -2))
-	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context) if has_plan else _closest_enemy_target_for_action(next_state, enemy, action, rng)
+	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context, action) if has_plan else _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if not target.is_empty() and not _enemy_action_reaches_target(next_state, enemy, action, target):
 		target = {}
 	var planned_trap_index: int = _trap_index_at_tile(next_state, action_context.get("trap_attack_tile", INVALID_TILE)) if has_plan else -1
@@ -5569,6 +5731,10 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 		next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action), action)
 	if str(target.get("kind", "")) == "player":
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("amount", 0)), pushing)
+	elif str(target.get("kind", "")) == "enemy":
+		var forced_enemy_index: int = _enemy_index_for_id(next_state, int(target.get("id", -1)))
+		if forced_enemy_index >= 0:
+			next_state = _move_enemy_from_source(next_state, forced_enemy_index, source_pos, int(action.get("amount", 0)), pushing, false)
 	next_state = _apply_action_keywords_to_target(next_state, target, action, source_pos)
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	_log(next_state, "%s %s." % [
@@ -7973,6 +8139,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	if _enemy_should_summon_wisps(state, enemy):
 		enemy["intent"] = _zekarion_summon_intent()
 		enemies[enemy_index] = enemy
+		_commit_enemy_intent_plan(state, enemy_index)
 		return
 	var intents: Array = _scaled_enemy_intents(
 		definition.get("intents", []),
@@ -7986,6 +8153,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	if not forced_intent.is_empty():
 		enemy["intent"] = forced_intent
 		enemies[enemy_index] = enemy
+		_commit_enemy_intent_plan(state, enemy_index)
 		return
 	var available_intents: Array = []
 	for intent_var: Variant in intents:
@@ -7996,6 +8164,9 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 			available_intents.append(intent)
 	intents = available_intents
 	if intents.is_empty():
+		enemy.erase("intent")
+		enemy.erase("committed_intent_plan")
+		enemies[enemy_index] = enemy
 		return
 	var total_weight: int = 0
 	for intent: Dictionary in intents:
@@ -8007,9 +8178,11 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		if roll <= cursor:
 			enemy["intent"] = intent.duplicate(true)
 			enemies[enemy_index] = enemy
+			_commit_enemy_intent_plan(state, enemy_index)
 			return
 	enemy["intent"] = (intents[0] as Dictionary).duplicate(true)
 	enemies[enemy_index] = enemy
+	_commit_enemy_intent_plan(state, enemy_index)
 
 func _objective_adjusted_intent_weight(state: Dictionary, intent: Dictionary) -> int:
 	var weight: int = maxi(1, int(intent.get("weight", 1)))
@@ -8170,6 +8343,74 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return {}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var current_intent: Dictionary = enemy.get("intent", {}) as Dictionary
+	var intent: Dictionary = intent_override if not intent_override.is_empty() else current_intent
+	var committed: Dictionary = enemy.get("committed_intent_plan", {}) as Dictionary
+	var committed_matches: bool = (
+		not committed.is_empty()
+		and (intent_override.is_empty() or hash(intent_override) == hash(current_intent))
+		and int(committed.get("intent_signature", -1)) == hash(intent)
+	)
+	if not committed_matches:
+		return _calculate_enemy_intent_plan(state, enemy_index, intent_override, movement_disabled, attack_disabled)
+	var plan: Dictionary = _translated_enemy_intent_plan(committed, enemy.get("pos", Vector2i.ZERO))
+	var blocking_tile: Vector2i = plan.get("blocking_terrain_tile", INVALID_TILE)
+	plan["blocking_terrain_index"] = _terrain_index_at_tile(state, blocking_tile) if blocking_tile.x >= 0 else -1
+	if movement_disabled:
+		var current_pos: Vector2i = enemy.get("pos", Vector2i.ZERO)
+		plan["path"] = _vector2i_values([current_pos])
+		plan["destination"] = current_pos
+	if attack_disabled:
+		plan["attack_available"] = false
+		plan["projected_attack"] = _vector2i_values([])
+	return plan
+
+func _commit_enemy_intent_plan(state: Dictionary, enemy_index: int) -> void:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var intent: Dictionary = enemy.get("intent", {}) as Dictionary
+	if intent.is_empty() or int(enemy.get("hp", 0)) <= 0:
+		enemy.erase("committed_intent_plan")
+		enemies[enemy_index] = enemy
+		state["enemies"] = enemies
+		return
+	var plan: Dictionary = _calculate_enemy_intent_plan(state, enemy_index, intent)
+	plan["committed_origin"] = enemy.get("pos", Vector2i.ZERO)
+	plan["committed_at_clock"] = int(state.get("initiative_clock", 0))
+	plan["intent_signature"] = hash(intent)
+	plan["schema"] = 1
+	enemy["committed_intent_plan"] = plan
+	enemies[enemy_index] = enemy
+	state["enemies"] = enemies
+
+func _translated_enemy_intent_plan(plan: Dictionary, new_origin: Vector2i) -> Dictionary:
+	var translated: Dictionary = plan.duplicate(true)
+	var old_origin: Vector2i = translated.get("committed_origin", translated.get("origin", new_origin))
+	var delta: Vector2i = new_origin - old_origin
+	translated["origin"] = new_origin
+	for key: String in ["path", "route", "projected_attack"]:
+		var shifted: Array[Vector2i] = _vector2i_values([])
+		for tile: Vector2i in _vector2i_values(translated.get(key, [])):
+			shifted.append(tile + delta)
+		translated[key] = shifted
+	for key: String in ["destination", "target_tile", "trap_attack_tile", "projected_attack_target", "blocking_terrain_tile"]:
+		var tile: Vector2i = translated.get(key, INVALID_TILE)
+		if tile.x >= 0:
+			translated[key] = tile + delta
+	var target: Dictionary = (translated.get("target", {}) as Dictionary).duplicate(true)
+	var target_pos: Vector2i = target.get("pos", INVALID_TILE)
+	if target_pos.x >= 0:
+		target["pos"] = target_pos + delta
+	translated["target"] = target
+	return translated
+
+func _calculate_enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false, attack_disabled: bool = false) -> Dictionary:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return {}
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
 		return {}
 	var intent: Dictionary = intent_override if not intent_override.is_empty() else enemy.get("intent", {})
@@ -8193,17 +8434,24 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var attack_action: Dictionary = {}
 	if attack_index >= 0:
 		attack_action = (actions[attack_index] as Dictionary).duplicate(true)
+	var support_action_index: int = -1
+	var support_target_index: int = -1
 	var support_target_tile: Vector2i = INVALID_TILE
-	for action_var: Variant in actions:
+	for action_index: int in range(actions.size()):
+		var action_var: Variant = actions[action_index]
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var support_action: Dictionary = action_var as Dictionary
 		if str(support_action.get("type", "")) not in ENEMY_SUPPORT_ACTION_TYPES:
 			continue
-		var support_target_index: int = _enemy_support_target_index(state, enemy_index, support_action)
+		support_action_index = action_index
+		support_target_index = _enemy_support_target_index(state, enemy_index, support_action)
 		if support_target_index >= 0 and support_target_index < enemies.size():
 			support_target_tile = (enemies[support_target_index] as Dictionary).get("pos", INVALID_TILE)
 		break
+	var support_target_id: int = -1
+	if support_target_index >= 0 and support_target_index < enemies.size():
+		support_target_id = int((enemies[support_target_index] as Dictionary).get("id", -1))
 	var attack_resolvable: bool = attack_action.is_empty() or enemy_action_can_resolve(state, attack_action)
 	var planning_attack: Dictionary = attack_action
 	if planning_attack.is_empty():
@@ -8254,6 +8502,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 			terrain_index = _planned_blocking_terrain_index(preview_state, preview_enemy, planning_attack, future_route)
 	var projected_attack_tiles: Array[Vector2i] = _vector2i_values([])
 	var projected_attack_target: Vector2i = INVALID_TILE
+	var blocking_terrain_tile: Vector2i = INVALID_TILE
 	if attack_index >= 0 and not attack_disabled and attack_resolvable:
 		projected_attack_tiles = _enemy_projected_attack_tiles(
 			preview_state,
@@ -8268,6 +8517,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		elif terrain_index >= 0:
 			var blocking_terrain: Dictionary = _normalized_terrain((preview_state.get("terrain", []) as Array)[terrain_index])
 			projected_attack_target = blocking_terrain.get("pos", INVALID_TILE)
+			blocking_terrain_tile = projected_attack_target
 		elif target_reachable:
 			projected_attack_target = target.get("pos", INVALID_TILE)
 	elif pattern_attack_index >= 0 and not attack_disabled:
@@ -8279,6 +8529,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		attack_available = not _actor_targets_in_tiles(preview_state, projected_attack_tiles).is_empty()
 		target = {}
 	return {
+		"origin": enemy.get("pos", Vector2i.ZERO),
 		"enemy_index": enemy_index,
 		"enemy_key": _enemy_key(enemy),
 		"movement_action_index": movement_index,
@@ -8287,6 +8538,8 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"target": target,
 		"target_key": str(target.get("key", "")),
 		"target_tile": target.get("pos", INVALID_TILE),
+		"support_action_index": support_action_index,
+		"support_target_id": support_target_id,
 		"support_target_tile": support_target_tile,
 		"path": actual_path,
 		"route": future_route,
@@ -8297,6 +8550,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 			or (attack_index < 0 and pattern_attack_index >= 0 and attack_available)
 		),
 		"blocking_terrain_index": terrain_index,
+		"blocking_terrain_tile": blocking_terrain_tile,
 		"trap_attack_index": trap_index,
 		"trap_attack_tile": trap_tile,
 		"projected_attack_target": projected_attack_target,

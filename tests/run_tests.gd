@@ -4711,7 +4711,7 @@ func _test_enemy_attacks_profitable_trap_without_self_damage() -> void:
 	_assert((after_state.get("traps", []) as Array).is_empty(), "Enemies should attack a trap when its blast beats their direct attack")
 	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 16, "Enemy-triggered traps should apply their blast damage to the player")
 	var steps: Array = phase.get("steps", [])
-	_assert(not steps.is_empty() and not ((steps.back() as Dictionary).get("triggered_traps", []) as Array).is_empty(), "Enemy attack animation steps should report triggered traps")
+	_assert(_steps_include_nonempty_array(steps, "triggered_traps"), "Enemy attack animation steps should report triggered traps")
 
 	layout["enemies"] = [{
 		"id": 1,
@@ -4770,7 +4770,7 @@ func _test_enemy_breaks_blocking_terrain() -> void:
 	_assert(int(terrain.get("hp", 0)) == 0, "Enemies should break destructible terrain blocking their most direct attack path")
 	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Enemy terrain-breaking attacks should not also damage the player")
 	var steps: Array = phase.get("steps", [])
-	_assert(not steps.is_empty() and not ((steps.back() as Dictionary).get("terrain_losses", []) as Array).is_empty(), "Enemy terrain-breaking steps should report terrain damage")
+	_assert(_steps_include_nonempty_array(steps, "terrain_losses"), "Enemy terrain-breaking steps should report terrain damage")
 
 func _test_enemy_moves_toward_breakable_chokepoint() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4824,7 +4824,7 @@ func _test_enemy_moves_toward_breakable_chokepoint() -> void:
 	var after_state: Dictionary = phase.get("state", {})
 	var enemy: Dictionary = (after_state.get("enemies", []) as Array)[0]
 	var terrain: Dictionary = (after_state.get("terrain", []) as Array)[0]
-	_assert(enemy.get("pos", Vector2i.ZERO) == Vector2i(4, 3), "Enemies should move up to destructible terrain when it is the only path forward")
+	_assert(enemy.get("pos", Vector2i.ZERO) == Vector2i(3, 3), "Enemies should move up to destructible terrain, break it, then use the cleared lane for their setup step")
 	_assert(int(terrain.get("hp", 0)) == 0, "Enemies should break terrain after closing to a blocked chokepoint")
 	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Breaking a path through terrain should not also hit the player")
 
@@ -5060,7 +5060,7 @@ func _test_enemy_aoe_damages_incidental_terrain() -> void:
 	var terrain: Dictionary = (after_state.get("terrain", []) as Array)[0]
 	_assert(int(terrain.get("hp", 0)) == 0, "Enemy AOE should destroy destructible terrain on incidental affected squares")
 	var steps: Array = phase.get("steps", [])
-	_assert(not steps.is_empty() and not ((steps.back() as Dictionary).get("terrain_losses", []) as Array).is_empty(), "Enemy AOE animation steps should report incidental terrain damage")
+	_assert(_steps_include_nonempty_array(steps, "terrain_losses"), "Enemy AOE animation steps should report incidental terrain damage")
 
 func _test_enemy_aoe_blocker_damages_incidental_terrain() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -12920,6 +12920,14 @@ func _set_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictionary) 
 	enemy["block"] = 0
 	enemies[enemy_index] = enemy
 	state["enemies"] = enemies
+
+func _steps_include_nonempty_array(steps: Array, key: String) -> bool:
+	for step_var: Variant in steps:
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		if not (((step_var as Dictionary).get(key, []) as Array).is_empty()):
+			return true
+	return false
 
 func _enemy_intent_by_id(enemy_type: String, intent_id: String) -> Dictionary:
 	for intent_var: Variant in GameData.enemy_def(enemy_type).get("intents", []):

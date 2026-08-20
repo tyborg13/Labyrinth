@@ -14,6 +14,10 @@ static func run(expect: Callable) -> void:
 	_test_pattern_short_circuit(expect)
 	_test_live_free_move_and_player_traversal(expect)
 	_test_live_activation_effects_and_clock_expiry(expect)
+	_test_committed_enemy_attacks_do_not_chase(expect)
+	_test_committed_enemy_attacks_can_be_intercepted(expect)
+	_test_committed_enemy_patterns_translate_when_displaced(expect)
+	_test_enemy_setup_move_precedes_next_commitment(expect)
 
 static func _test_tile_layers_replace_refresh_and_expire(expect: Callable) -> void:
 	var state: Dictionary = {}
@@ -200,6 +204,142 @@ static func _test_live_activation_effects_and_clock_expiry(expect: Callable) -> 
 	var popped: Dictionary = combat.call("_pop_next_actor", expiry_state) as Dictionary
 	var advanced_state: Dictionary = popped.get("state", expiry_state) as Dictionary
 	expect.call(combat.surface_kind_at(advanced_state, Vector2i(3, 4)) == CombatTerrainRules.SURFACE_NONE, "Advancing the initiative clock should expire tile effects before the next actor resolves")
+
+static func _test_committed_enemy_attacks_do_not_chase(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(90230, _room_layout(), _player_snapshot())
+	_set_enemy_position(state, 0, Vector2i(5, 4))
+	_commit_test_intent(combat, state, 0, {
+		"id": "fixed_shot",
+		"name": "Fixed Shot",
+		"actions": [{"type": "ranged", "range": 5, "damage": 3}],
+	})
+	var committed_target: Vector2i = combat.enemy_intent_plan(state, 0).get("projected_attack_target", Vector2i.ZERO)
+	var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(true)
+	player["pos"] = Vector2i(2, 3)
+	state["player"] = player
+	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {}) as Dictionary
+	expect.call(committed_target == Vector2i(2, 4), "A revealed ranged intent should store its exact target tile")
+	var result_hp: int = int((result.get("player", {}) as Dictionary).get("hp", 0))
+	expect.call(result_hp == 20, "Leaving a committed attack tile should make the attack miss instead of chasing the player (hp=%d)" % result_hp)
+
+static func _test_committed_enemy_attacks_can_be_intercepted(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var illusion_state: Dictionary = combat.create_combat(90231, _room_layout(), _player_snapshot())
+	_set_enemy_position(illusion_state, 0, Vector2i(5, 4))
+	_commit_test_intent(combat, illusion_state, 0, {
+		"id": "intercepted_shot",
+		"name": "Intercepted Shot",
+		"actions": [{"type": "ranged", "range": 5, "damage": 3}],
+	})
+	var moved_player: Dictionary = (illusion_state.get("player", {}) as Dictionary).duplicate(true)
+	moved_player["pos"] = Vector2i(2, 3)
+	illusion_state["player"] = moved_player
+	illusion_state["illusions"] = [{"id": 71, "pos": Vector2i(2, 4), "hp": 5, "max_hp": 5}]
+	var illusion_result: Dictionary = combat.resolve_enemy_turn_with_steps(illusion_state, 0).get("state", {}) as Dictionary
+	var illusions: Array = illusion_result.get("illusions", []) as Array
+	expect.call(not illusions.is_empty() and int((illusions[0] as Dictionary).get("hp", 0)) == 2, "An Illusion entering a committed target tile should intercept that attack")
+	expect.call(int((illusion_result.get("player", {}) as Dictionary).get("hp", 0)) == 20, "An intercepted fixed attack should leave the displaced player unharmed")
+
+	var friendly_state: Dictionary = combat.create_combat(90232, _room_layout(), _player_snapshot())
+	_set_enemy_position(friendly_state, 0, Vector2i(5, 4))
+	var friendly_enemies: Array = (friendly_state.get("enemies", []) as Array).duplicate(true)
+	friendly_enemies.append({
+		"id": 72,
+		"type": "crawler",
+		"pos": Vector2i(5, 5),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0,
+	})
+	friendly_state["enemies"] = friendly_enemies
+	_commit_test_intent(combat, friendly_state, 0, {
+		"id": "friendly_fire_shot",
+		"name": "Friendly Fire Shot",
+		"actions": [{"type": "ranged", "range": 5, "damage": 3}],
+	})
+	var friendly_player: Dictionary = (friendly_state.get("player", {}) as Dictionary).duplicate(true)
+	friendly_player["pos"] = Vector2i(2, 3)
+	friendly_state["player"] = friendly_player
+	friendly_enemies = (friendly_state.get("enemies", []) as Array).duplicate(true)
+	var intercepted_enemy: Dictionary = (friendly_enemies[1] as Dictionary).duplicate(true)
+	intercepted_enemy["pos"] = Vector2i(2, 4)
+	friendly_enemies[1] = intercepted_enemy
+	friendly_state["enemies"] = friendly_enemies
+	var friendly_result: Dictionary = combat.resolve_enemy_turn_with_steps(friendly_state, 0).get("state", {}) as Dictionary
+	var damaged_ally: Dictionary = (friendly_result.get("enemies", []) as Array)[1] as Dictionary
+	expect.call(int(damaged_ally.get("hp", 0)) == 11, "An enemy entering a committed attack tile should take friendly fire (hp=%d, block=%d)" % [int(damaged_ally.get("hp", 0)), int(damaged_ally.get("block", 0))])
+
+	var charge_state: Dictionary = combat.create_combat(90233, _room_layout(), _player_snapshot())
+	_set_enemy_position(charge_state, 0, Vector2i(5, 4))
+	_commit_test_intent(combat, charge_state, 0, {
+		"id": "short_circuit_charge",
+		"name": "Short Circuit Charge",
+		"actions": [
+			{"type": "move_toward", "range": 3},
+			{"type": "melee", "range": 1, "damage": 3},
+		],
+	})
+	charge_state["illusions"] = [{"id": 73, "pos": Vector2i(4, 4), "hp": 5, "max_hp": 5}]
+	var charge_result: Dictionary = combat.resolve_enemy_turn_with_steps(charge_state, 0).get("state", {}) as Dictionary
+	var charge_illusions: Array = charge_result.get("illusions", []) as Array
+	expect.call(not charge_illusions.is_empty() and int((charge_illusions[0] as Dictionary).get("hp", 0)) == 2, "An actor inserted into a committed movement path should stop the sequence and receive its follow-up attack")
+	expect.call(int((charge_result.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Short-circuit interception should cancel the original downstream hit")
+
+static func _test_committed_enemy_patterns_translate_when_displaced(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(90234, _room_layout(), _player_snapshot())
+	_set_enemy_position(state, 0, Vector2i(5, 4))
+	_commit_test_intent(combat, state, 0, {
+		"id": "translated_shot",
+		"name": "Translated Shot",
+		"actions": [{"type": "ranged", "range": 5, "damage": 3}],
+	})
+	var before_plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	_set_enemy_position(state, 0, Vector2i(5, 3))
+	var after_plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	var delta: Vector2i = Vector2i(0, -1)
+	expect.call(after_plan.get("projected_attack_target", Vector2i.ZERO) == before_plan.get("projected_attack_target", Vector2i.ZERO) + delta, "Displacing an enemy should translate its committed target instead of reacquiring the player")
+	expect.call(after_plan.get("destination", Vector2i.ZERO) == before_plan.get("destination", Vector2i.ZERO) + delta, "Committed movement and attack geometry should translate as one pattern")
+
+static func _test_enemy_setup_move_precedes_next_commitment(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(90235, _room_layout(), _player_snapshot())
+	_set_enemy_position(state, 0, Vector2i(5, 4))
+	_commit_test_intent(combat, state, 0, {
+		"id": "brace_before_setup",
+		"name": "Brace Before Setup",
+		"actions": [{"type": "block", "amount": 1}],
+	})
+	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	var resolved_state: Dictionary = result.get("state", {}) as Dictionary
+	var enemy: Dictionary = (resolved_state.get("enemies", []) as Array)[0] as Dictionary
+	var next_intent: Dictionary = enemy.get("intent", {}) as Dictionary
+	var committed: Dictionary = enemy.get("committed_intent_plan", {}) as Dictionary
+	expect.call(enemy.get("pos", Vector2i.ZERO) == Vector2i(4, 4), "A living enemy should receive one harmless setup step after resolving its current intent")
+	expect.call(committed.get("committed_origin", Vector2i.ZERO) == enemy.get("pos", Vector2i.ZERO) and int(committed.get("intent_signature", -1)) == hash(next_intent), "The next intent should commit only after the setup move reaches its final tile")
+	var saw_setup_step: bool = false
+	for step_var: Variant in result.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("label", "")) == "Setup":
+			saw_setup_step = true
+	expect.call(saw_setup_step, "Enemy setup movement should be exposed as a distinct board animation step")
+
+static func _set_enemy_position(state: Dictionary, enemy_index: int, tile: Vector2i) -> void:
+	var enemies: Array = (state.get("enemies", []) as Array).duplicate(true)
+	var enemy: Dictionary = (enemies[enemy_index] as Dictionary).duplicate(true)
+	enemy["pos"] = tile
+	enemies[enemy_index] = enemy
+	state["enemies"] = enemies
+
+static func _commit_test_intent(combat: CombatEngine, state: Dictionary, enemy_index: int, intent: Dictionary) -> void:
+	var enemies: Array = (state.get("enemies", []) as Array).duplicate(true)
+	var enemy: Dictionary = (enemies[enemy_index] as Dictionary).duplicate(true)
+	enemy["intent"] = intent.duplicate(true)
+	enemy.erase("committed_intent_plan")
+	enemies[enemy_index] = enemy
+	state["enemies"] = enemies
+	combat.call("_commit_enemy_intent_plan", state, enemy_index)
 
 static func _room_layout(enemy_hp: int = 14) -> Dictionary:
 	var grid: Array = []

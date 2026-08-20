@@ -4,7 +4,7 @@
 
 This is the authoritative implementation and migration contract for the 2026 committed-pattern combat overhaul. It supplements the task contract recorded by `tools/parallel_task.py`; it is not a future-design wishlist.
 
-Current phase: **live shared foundation and player-loop integration**.
+Current phase: **live shared foundation, player loop, and enemy commitment integration**.
 
 Implemented checkpoint:
 
@@ -13,9 +13,12 @@ Implemented checkpoint:
 - one free unsplit Move 2 per player activation with no card-play or Time cost;
 - player-facing Move 2 selection, board preview, committed animation/persistence, and direct authored-card play with no fallback selector or drag zones;
 - reusable committed-pattern stencil, translation, rotation, overlay, and short-circuit helpers;
+- stored enemy intent geometry that misses vacated tiles, translates with a displaced origin, and never reacquires the player at resolution;
+- live interception by Illusions, enemies, and solid blockers, including friendly fire and movement-to-attack short-circuit propagation;
+- committed support targets plus a distinct one-tile enemy setup move before the next intent is selected and stored;
 - focused engine integration tests plus a passing full baseline suite.
 
-Not yet migrated at this checkpoint: engine/data/skill fallback retirement, stored enemy plans/setup movement, content data, save schema, analytics/heuristic, final visuals/tutorial, and exhaustive verification.
+Not yet migrated at this checkpoint: engine/data/skill fallback retirement, authored pattern/Corruption footprints across all enemy and boss data, content data, save schema, analytics/heuristic, final visuals/tutorial, and exhaustive verification.
 
 Live inventory at the start of the branch:
 
@@ -193,7 +196,7 @@ Enemy activation order is:
 
 1. Apply start-of-activation Field/Surface effects.
 2. Resolve the currently committed plan.
-3. Reposition up to one legal orthogonal tile with no damage or Corruption.
+3. Reposition up to one legal orthogonal tile with no intrinsic attack or Corruption; existing Fields, Surfaces, collisions, and traps still resolve normally.
 4. Select and commit the next plan from the new position.
 5. Reschedule on the initiative clock using the next intent's authored timing.
 
