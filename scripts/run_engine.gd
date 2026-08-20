@@ -1679,8 +1679,12 @@ func _repair_combat_skill_state(combat_state: Dictionary) -> Dictionary:
 	next_state["skill_ids"] = combat_skills
 	var flags: Dictionary = (next_state.get("skill_flags", {}) as Dictionary).duplicate(true)
 	if not combat_skills.has("prismatic_instinct"):
-		flags.erase("prismatic_armed")
-		flags.erase("prismatic_target_card_id")
+		flags.erase("tile_extension_armed")
+		flags.erase("tile_extension_target_card_id")
+	flags.erase("tile_extension_resolving")
+	# Strip pre-overhaul pending flags while repairing an older combat snapshot.
+	flags.erase("prismatic_armed")
+	flags.erase("prismatic_target_card_id")
 	flags.erase("prismatic_resolving")
 	if not combat_skills.has("rehearsed_escape"):
 		flags.erase("burn_preserve_armed")

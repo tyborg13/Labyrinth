@@ -830,15 +830,9 @@ static func _scale_enemy_fixed_point(enemy: Dictionary) -> Dictionary:
 static func _scale_action_fixed_point(action: Dictionary) -> Dictionary:
 	var next_action: Dictionary = action.duplicate(true)
 	var action_type: String = str(next_action.get("type", ""))
-	for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
+	for field: String in ["damage", "self_damage", "bleed", "expose", "sunder", "amount", "health"]:
 		if next_action.has(field) and action_field_uses_fixed_point(action_type, field):
 			next_action[field] = int(next_action.get(field, 0)) * FIXED_POINT_SCALE
-	if typeof(next_action.get("intensity_bonus", {})) == TYPE_DICTIONARY:
-		var bonus: Dictionary = (next_action.get("intensity_bonus", {}) as Dictionary).duplicate(true)
-		for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
-			if bonus.has(field) and action_field_uses_fixed_point(action_type, field):
-				bonus[field] = int(bonus.get(field, 0)) * FIXED_POINT_SCALE
-		next_action["intensity_bonus"] = bonus
 	return next_action
 
 static func _rarity_sort_index(rarity: String) -> int:

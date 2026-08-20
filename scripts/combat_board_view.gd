@@ -5,7 +5,6 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const ElementData = preload("res://scripts/element_data.gd")
-const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -573,7 +572,10 @@ var _attack_tiles_lookup_cache: Dictionary = {}
 var _focus_tiles_lookup_cache: Dictionary = {}
 var _objective_exit_tiles_lookup_cache: Dictionary = {}
 var _projected_attack_tiles_lookup_cache: Dictionary = {}
+var _projected_field_tiles_lookup_cache: Dictionary = {}
 var _projected_destination_tiles_lookup_cache: Dictionary = {}
+var _field_effects_by_tile_cache: Dictionary = {}
+var _surface_effects_by_tile_cache: Dictionary = {}
 var _ability_tiles_lookup_cache: Dictionary = {}
 var _ambient_element_id_cache: String = ElementData.NONE
 var _ambient_display_intensities: Dictionary = {}
@@ -775,7 +777,8 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
 			"_ability_tiles_cache", "_move_tiles_lookup_cache", "_attack_tiles_lookup_cache",
 			"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
-			"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
+			"_projected_attack_tiles_lookup_cache", "_projected_field_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
+			"_field_effects_by_tile_cache", "_surface_effects_by_tile_cache",
 			"_ability_tiles_lookup_cache",
 			"_ambient_element_id_cache", "_ambient_display_intensities", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
@@ -1223,7 +1226,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if attack_tiles_changed:
 		_attack_tiles_lookup_cache = _vector2i_lookup(attack_tiles)
 	var overlay_presentation_cache_changed: bool = not _submission_cache_initialized
-	for overlay_key: String in ["focus_tiles", "objective_exit_target_tiles", "projected_attack_tiles", "projected_destination", "enemy_threat_previews"]:
+	for overlay_key: String in ["focus_tiles", "objective_exit_target_tiles", "projected_attack_tiles", "projected_field_tiles", "projected_destination", "enemy_threat_previews"]:
 		if presentation_changes.has(overlay_key):
 			overlay_presentation_cache_changed = true
 			break
@@ -1231,6 +1234,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_focus_tiles_lookup_cache = _vector2i_lookup(presentation.get("focus_tiles", []))
 		_objective_exit_tiles_lookup_cache = _vector2i_lookup(presentation.get("objective_exit_target_tiles", []))
 		_projected_attack_tiles_lookup_cache = _vector2i_lookup(presentation.get("projected_attack_tiles", []))
+		_projected_field_tiles_lookup_cache = _vector2i_lookup(presentation.get("projected_field_tiles", []))
 		_projected_destination_tiles_lookup_cache.clear()
 		var projected_destination: Vector2i = presentation.get("projected_destination", Vector2i(-999, -999))
 		if projected_destination.x > -999:
@@ -1241,6 +1245,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			var threat: Dictionary = threat_var
 			for attack_tile: Vector2i in _vector2i_array(threat.get("projected_attack", [])):
 				_projected_attack_tiles_lookup_cache[attack_tile] = true
+			for field_tile: Vector2i in _vector2i_array(threat.get("projected_field", [])):
+				_projected_field_tiles_lookup_cache[field_tile] = true
 			var destination: Vector2i = threat.get("projected_destination", Vector2i(-999, -999))
 			if destination.x > -999 and _threat_has_projected_movement(threat):
 				_projected_destination_tiles_lookup_cache[destination] = true
@@ -1317,6 +1323,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if state_changed:
 			retained_sync_fields.append_array([
 				"combat_state", "_terrain_by_tile", "_loot_by_tile", "_traps_by_tile",
+				"_field_effects_by_tile_cache", "_surface_effects_by_tile_cache",
 				"_grid_tile_ids_cache", "_ambient_element_id_cache", "_ambient_display_intensities", "_equipment_pickup_beacon_cache",
 				"_visible_units_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
 				"_hud_health_rects_cache", "_hud_layout_entries_cache", "_submission_cache_valid",
@@ -1344,7 +1351,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if overlay_presentation_cache_changed:
 			retained_sync_fields.append_array([
 				"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
-				"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
+				"_projected_attack_tiles_lookup_cache", "_projected_field_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
 			])
 		for unit_key: String in ["preview_units", "death_animation_units", "unit_draw_tiles", "unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles", "umbra_light_sources", "umbra_stage"]:
 			if not presentation_changes.has(unit_key):
@@ -1845,6 +1852,9 @@ func _rebuild_submission_caches() -> bool:
 		_terrain_by_tile = _index_dictionary_entries_by_tile(combat_state.get("terrain", []), "pos")
 		_loot_by_tile = _index_dictionary_entries_by_tile(combat_state.get("loot", []), "pos")
 		_traps_by_tile = _index_dictionary_entries_by_tile(combat_state.get("traps", []), "pos")
+		var tile_effects: Dictionary = combat_state.get("tile_effects", {}) as Dictionary
+		_field_effects_by_tile_cache = _index_dictionary_entries_by_tile(tile_effects.get("fields", []), "pos")
+		_surface_effects_by_tile_cache = _index_dictionary_entries_by_tile(tile_effects.get("surfaces", []), "pos")
 		_grid_tile_ids_cache = {}
 		for row_var: Variant in combat_state.get("grid", []):
 			if typeof(row_var) != TYPE_ARRAY:
@@ -3764,6 +3774,7 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
+	_draw_tile_field_and_surface(tile, polygon)
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
 		_draw_objective_leader_beacon(tile)
 	if _objective_exit_tiles_lookup_cache.has(tile):
@@ -3782,6 +3793,9 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		_draw_tile_ring(tile, Color(0.55, 0.92, 0.48, 0.62), 2.0, 0.86)
 	if _attack_tiles_lookup_cache.has(tile):
 		_draw_attack_tile_highlight(tile)
+	if _projected_field_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, Color(0.34, 0.09, 0.43, 0.26))
+		_draw_tile_ring(tile, Color(0.78, 0.32, 0.94, 0.94), 2.8, 0.70)
 	if _projected_attack_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, Color(0.98, 0.30, 0.20, 0.18))
 		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
@@ -3791,6 +3805,84 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
 	if tile == _hover_tile:
 		draw_colored_polygon(polygon, HOVER_HIGHLIGHT)
+
+func _draw_tile_field_and_surface(tile: Vector2i, polygon: PackedVector2Array) -> void:
+	var field_entries: Array = _field_effects_by_tile_cache.get(tile, []) as Array
+	var field: Dictionary = (field_entries[0] as Dictionary) if not field_entries.is_empty() else {}
+	var tooltip_lines: PackedStringArray = []
+	match str(field.get("kind", "")):
+		"corruption":
+			tooltip_lines.append("Corruption · Player takes 1 on entry and activation start; enemies heal 1 at activation start.")
+			draw_colored_polygon(polygon, Color(0.20, 0.055, 0.25, 0.48))
+			var center: Vector2 = _tile_center(tile)
+			var pulse: float = 0.5 + 0.5 * sin(_continuous_presentation_elapsed * 2.8 + float(tile.x + tile.y) * 0.7)
+			for index: int in range(polygon.size()):
+				var corner: Vector2 = polygon[index]
+				var inner: Vector2 = center.lerp(corner, 0.44 + pulse * 0.08)
+				draw_line(center, inner, Color(0.72, 0.18, 0.82, 0.44), 1.4, true)
+		"radiance":
+			tooltip_lines.append("Radiance · Enemies take 1 on entry and activation start; clears Corruption and reveals Umbra.")
+			draw_colored_polygon(polygon, Color(1.0, 0.80, 0.30, 0.25))
+			_draw_tile_ring(tile, Color(1.0, 0.90, 0.54, 0.70), 1.8, 0.66)
+	var surface_entries: Array = _surface_effects_by_tile_cache.get(tile, []) as Array
+	var surface: Dictionary = (surface_entries[0] as Dictionary) if not surface_entries.is_empty() else {}
+	var kind: String = str(surface.get("kind", ""))
+	if kind.is_empty():
+		_register_tile_effect_tooltip(tile, tooltip_lines, field, {})
+		return
+	var center: Vector2 = _tile_center(tile)
+	var width: float = _tile_width()
+	match kind:
+		"bramble":
+			tooltip_lines.append("Bramble · Entering ends movement.")
+			draw_colored_polygon(polygon, Color(0.13, 0.31, 0.16, 0.28))
+			for direction: float in [-1.0, 0.0, 1.0]:
+				var x_offset: float = direction * width * 0.18
+				draw_line(center + Vector2(x_offset - width * 0.11, width * 0.12), center + Vector2(x_offset + width * 0.08, -width * 0.15), Color(0.39, 0.68, 0.29, 0.88), 2.2, true)
+				draw_line(center + Vector2(x_offset, -width * 0.03), center + Vector2(x_offset + width * 0.10, width * 0.01), Color(0.66, 0.82, 0.35, 0.80), 1.6, true)
+		"poison":
+			tooltip_lines.append("Poison · After entry, each further tile moved deals 1.")
+			draw_colored_polygon(polygon, Color(0.31, 0.52, 0.08, 0.26))
+			for offset: Vector2 in [Vector2(-0.17, 0.05), Vector2(0.12, -0.03), Vector2(0.02, 0.12)]:
+				draw_circle(center + offset * width, width * 0.045, Color(0.62, 0.90, 0.18, 0.76))
+		"ice":
+			tooltip_lines.append("Ice · Entering locks direction and slides until collision or open ground.")
+			draw_colored_polygon(polygon, Color(0.28, 0.78, 0.94, 0.25))
+			draw_line(center + Vector2(-width * 0.28, width * 0.08), center + Vector2(width * 0.22, -width * 0.09), Color(0.78, 0.96, 1.0, 0.86), 2.0, true)
+			draw_line(center + Vector2(-width * 0.10, width * 0.14), center + Vector2(width * 0.08, -width * 0.13), Color(0.68, 0.91, 1.0, 0.72), 1.5, true)
+		"snowdrift":
+			tooltip_lines.append("Snowdrift · Attacks against a character here deal +2.")
+			draw_colored_polygon(polygon, Color(0.72, 0.88, 0.97, 0.28))
+			for offset: Vector2 in [Vector2(-0.16, 0.06), Vector2(0.0, 0.0), Vector2(0.16, 0.06)]:
+				draw_circle(center + offset * width, width * 0.09, Color(0.86, 0.96, 1.0, 0.70))
+		"electrified":
+			tooltip_lines.append("Electrified · Suppresses attack segments for the activation, then is consumed.")
+			draw_colored_polygon(polygon, Color(0.24, 0.36, 0.67, 0.24))
+			var bolt: PackedVector2Array = PackedVector2Array([
+				center + Vector2(-width * 0.17, -width * 0.11),
+				center + Vector2(width * 0.02, -width * 0.03),
+				center + Vector2(-width * 0.05, width * 0.03),
+				center + Vector2(width * 0.18, width * 0.12),
+			])
+			draw_polyline(bolt, Color(0.55, 0.88, 1.0, 0.92), 2.4, true)
+	_register_tile_effect_tooltip(tile, tooltip_lines, field, surface)
+
+func _register_tile_effect_tooltip(tile: Vector2i, lines: PackedStringArray, field: Dictionary, surface: Dictionary) -> void:
+	if lines.is_empty():
+		return
+	var clock: int = int(combat_state.get("initiative_clock", 0))
+	var expiries: Array[int] = []
+	if not field.is_empty():
+		expiries.append(maxi(0, int(field.get("expires_at", clock)) - clock))
+	if not surface.is_empty():
+		expiries.append(maxi(0, int(surface.get("expires_at", clock)) - clock))
+	if not expiries.is_empty():
+		var duration_parts: PackedStringArray = []
+		for expiry: int in expiries:
+			duration_parts.append(str(expiry))
+		lines.append("Expires in %s Time." % " / ".join(duration_parts))
+	var size := Vector2(_tile_width() * 0.82, _tile_height() * 0.74)
+	_register_tooltip(Rect2(_tile_center(tile) - size * 0.5, size), "\n".join(lines))
 
 func _draw_attack_target_pulse(tile: Vector2i) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -12419,15 +12511,12 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
 		var action: Dictionary = action_var
-		var row: Array = _annotate_intensity_intent_row(ActionIcons.tokens_for_action(action))
+		var row: Array = ActionIcons.tokens_for_action(action)
 		var support_token: Dictionary = _support_target_token_for_action(unit, action)
 		if not support_token.is_empty():
 			row.append(support_token)
 		if not row.is_empty():
 			rows.append(row)
-		var bonus_row: Array = ActionIcons.tokens_for_intensity_bonus(action)
-		if not bonus_row.is_empty():
-			rows.append(_annotate_intensity_intent_row(bonus_row))
 	return rows
 
 func _annotate_intensity_intent_row(row: Array) -> Array:
@@ -12780,10 +12869,7 @@ func _trap_visual_draw_rect(trap: Dictionary) -> Rect2:
 	if tile.x < 0:
 		return Rect2()
 	var trap_rect: Rect2 = _trap_draw_rect(tile)
-	var intensity: int = _ambient_intensity(str(trap.get("element", ElementData.NONE)))
-	var scale_bonus: float = clampf(float(intensity - 1) * 0.035, -0.04, 0.18)
-	var scaled_size: Vector2 = trap_rect.size * (1.0 + scale_bonus)
-	return Rect2(trap_rect.get_center() - scaled_size * 0.5, scaled_size)
+	return trap_rect
 
 func _trap_visual_modulate(_trap: Dictionary) -> Color:
 	return Color.WHITE
@@ -12796,7 +12882,10 @@ func _trap_draw_rect(tile: Vector2i) -> Rect2:
 
 func _trap_tooltip_text(trap: Dictionary) -> String:
 	var element_id: String = str(trap.get("element", ElementData.NONE))
-	var intensity: int = _ambient_intensity(element_id)
-	var base_damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
-	var resolved_damage: int = ElementalIntensityRules.scaled_trap_damage(base_damage, intensity)
-	return "%s Trap\n%d damage" % [ElementData.name(element_id), resolved_damage]
+	var damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
+	var lines: PackedStringArray = ["%s Trap" % ElementData.name(element_id), "%d damage" % damage]
+	if bool(trap.get("immobilize", false)):
+		lines.append("Immobilizes for this activation")
+	if bool(trap.get("attacks_suppressed", false)):
+		lines.append("Suppresses attack segments for this activation")
+	return "\n".join(lines)

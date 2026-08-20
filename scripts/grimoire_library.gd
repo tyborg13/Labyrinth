@@ -73,7 +73,8 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"dispel_umbra": "keyword:dispel_umbra",
 	"push": "keyword:push",
 	"pull": "keyword:pull",
-	"intensity": "combat:intensity",
+	"field": "combat:fields",
+	"surface": "combat:surfaces",
 	"lightning_strikes": "combat:lightning_strikes",
 	"summon_minions": "combat:summons",
 	"raise_terrain": "combat:worldspines",
@@ -87,10 +88,6 @@ const ACTION_TYPE_ENTRY_IDS := {
 
 const ACTION_FIELD_ENTRY_IDS := {
 	"bleed": "keyword:bleed",
-	"burn": "keyword:burn",
-	"poison": "keyword:poison",
-	"freeze": "keyword:freeze",
-	"shock": "keyword:shock",
 	"immobilize": "keyword:immobilize",
 	"expose": "keyword:expose",
 	"sunder": "keyword:sunder",
@@ -620,8 +617,6 @@ static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary
 		wanted["keyword:flurry"] = true
 	if int(card.get("health_cost", 0)) > 0:
 		wanted["keyword:health_cost"] = true
-	if card.has("requires_intensity") or card.has("intensity_bonus"):
-		wanted["combat:intensity"] = true
 	_collect_entry_ids_for_actions(card.get("actions", []), wanted)
 
 static func entry_ids_for_enemy_types(enemy_types: Variant) -> Array[String]:
@@ -736,6 +731,8 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			wanted[type_entry] = true
 		if int(action.get("illuminate_radius", 0)) > 0:
 			wanted["keyword:illuminate"] = true
+			wanted["combat:fields"] = true
+		_collect_board_effect_entry_ids(action, wanted)
 		if action_type == "summon_minions":
 			var minion_type: String = str(action.get("minion_type", ""))
 			var minion_entry: String = "enemy:%s" % minion_type
@@ -747,9 +744,20 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			var field_entry: String = str(ACTION_FIELD_ENTRY_IDS.get(field_name, ""))
 			if not field_entry.is_empty():
 				wanted[field_entry] = true
-		if action.has("requires_intensity") or action.has("intensity_bonus"):
-			wanted["combat:intensity"] = true
 		_collect_nested_action_entry_ids(action, wanted)
+
+static func _collect_board_effect_entry_ids(action: Dictionary, wanted: Dictionary) -> void:
+	var field_kind: String = str(action.get("kind", "")) if str(action.get("type", "")) == "field" else str(action.get("field_kind", ""))
+	if field_kind in ["corruption", "radiance"]:
+		wanted["combat:fields"] = true
+		wanted["keyword:%s" % field_kind] = true
+	var surface_kind: String = str(action.get("kind", "")) if str(action.get("type", "")) == "surface" else str(action.get("surface_kind", ""))
+	if surface_kind in ["bramble", "poison", "ice", "snowdrift", "electrified"]:
+		wanted["combat:surfaces"] = true
+		wanted["keyword:surface_%s" % surface_kind] = true
+	if bool(action.get("combust", false)):
+		wanted["combat:surfaces"] = true
+		wanted["keyword:combust"] = true
 
 static func _entry_ids_for_nested_action_values(value: Variant) -> Array[String]:
 	var wanted: Dictionary = {}

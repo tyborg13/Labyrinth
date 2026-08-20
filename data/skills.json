@@ -26,14 +26,14 @@
   "ghost_stride": {
     "name": "Ghost Stride",
     "icon": "skill_ghost_stride",
-    "description": "Once per combat, you may use a card's basic @icon(move) as @icon(blink) 2.",
+    "description": "Once per combat, your free @icon(move) 2 becomes @icon(blink) 2.",
     "branch": "traverse",
     "tier": "root",
     "position": [2, 0],
     "layout_position": [885, 60],
     "prerequisites": [],
     "activation": "contextual",
-    "effect": {"type": "fallback_blink", "range": 2, "uses_per_combat": 1}
+    "effect": {"type": "free_move_blink", "range": 2, "uses_per_combat": 1}
   },
   "discerning_eye": {
     "name": "Discerning Eye",
@@ -62,14 +62,14 @@
   "makeshift_tool": {
     "name": "Makeshift Tool",
     "icon": "skill_makeshift_tool",
-    "description": "Once per combat, arm so your next item used as basic Attack or @icon(move) goes to discard instead of @icon(consume).",
+    "description": "Once per combat, arm so the next item you play goes to discard instead of @icon(consume).",
     "branch": "tactics",
     "tier": "branch",
     "position": [0, 2],
     "layout_position": [400, 180],
     "prerequisites": ["quick_wits"],
     "activation": "manual",
-    "effect": {"type": "preserve_fallback_item", "uses_per_combat": 1}
+    "effect": {"type": "preserve_item", "uses_per_combat": 1}
   },
   "carry_the_guard": {
     "name": "Carry the Guard",
@@ -182,14 +182,14 @@
   "prismatic_instinct": {
     "name": "Prismatic Instinct",
     "icon": "skill_prismatic_instinct",
-    "description": "Once per combat, name a card with an @icon(elemental_intensity) condition in hand. The next printed play of any copy satisfies all such conditions. Basic Attack, @icon(move), and @icon(blink) do not consume the effect.",
+    "description": "Once per combat, name a card in hand that creates a Field or Surface. The next printed play of any copy extends those tiles by 6 @icon(time).",
     "branch": "foresight",
     "tier": "junction",
     "position": [3, 3],
     "layout_position": [500, 180],
     "prerequisites": ["quick_wits", "discerning_eye"],
     "activation": "manual",
-    "effect": {"type": "arm_intensity", "uses_per_combat": 1}
+    "effect": {"type": "extend_next_tile_effect", "duration_bonus": 6, "uses_per_combat": 1}
   },
   "curators_patience": {
     "name": "Curator's Patience",
@@ -270,7 +270,7 @@
   "confluence": {
     "name": "Confluence",
     "icon": "skill_confluence",
-    "description": "@icon(elemental_intensity) conditions use your highest value, regardless of element. @icon(draw) enabled solely by Confluence stops before it would trigger @icon(fatigue).",
+    "description": "The first time each turn you place a Surface on a Field, @icon(draw) 1.",
     "branch": "keystone",
     "tier": "keystone",
     "position": [2, 5],
@@ -279,7 +279,7 @@
     "minimum_owned": 8,
     "exclusive_group": "keystone",
     "activation": "passive",
-    "effect": {"type": "highest_intensity"}
+    "effect": {"type": "layered_tile_draw", "amount": 1, "once": "turn"}
   },
   "last_door": {
     "name": "Last Door",

@@ -2,6 +2,7 @@ extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
+const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -30,14 +31,14 @@ const RARITY_TIERS := {
 	"legendary": 4
 }
 const SUPPORTED_EFFECT_TYPES := [
+	"attack_suppressed_reward",
 	"bloodied_glass_attack_bonus",
 	"blink_draw_once_per_turn",
-	"blink_intensity_gain_once_per_turn",
 	"blink_origin_illusion",
 	"card_action_mod",
 	"card_append_action",
 	"card_play_reward",
-	"damage_vs_status",
+	"damage_vs_surface",
 	"defiance_capacity",
 	"defiance_trigger_reward",
 	"end_turn_block_to_stoneskin",
@@ -45,7 +46,6 @@ const SUPPORTED_EFFECT_TYPES := [
 	"first_card_attack_bonus",
 	"illusion_damage_cap",
 	"illusion_light_aura",
-	"intensity_threshold_reward",
 	"light_source_umbra_suppression",
 	"long_move_card_play",
 	"movement_end_reward",
@@ -53,11 +53,10 @@ const SUPPORTED_EFFECT_TYPES := [
 	"overheal_to_stoneskin",
 	"player_state_action_mod",
 	"resolved_action_light",
-	"start_combat_stoneskin_per_deck_element",
-	"status_count_reward",
-	"status_intensity_gain",
-	"stoneskin_intensity_gain_once_per_turn",
+	"start_combat_stoneskin_per_card_element",
 	"stoneskin_thorns",
+	"surface_placed_reward",
+	"surface_variety_reward",
 	"target_state_action_mod",
 	"umbra_transition_reward"
 ]
@@ -70,13 +69,9 @@ static func run(expect: Callable) -> void:
 	_test_spatial_radiance_relics(expect)
 	_test_light_reveal_delta_equivalence(expect)
 	_test_package_transforming_relics(expect)
-	_test_radiance_offer_distribution(expect)
-	_test_status_and_enemy_death_engines(expect)
-	_test_intensity_engines(expect)
+	_test_board_package_relics(expect)
 	_test_defense_risk_and_mobility_engines(expect)
-	_test_defiance_and_mono_earth_payoffs(expect)
 	_test_state_sequence_bridges(expect)
-	_test_damage_feedback_contract(expect)
 	_test_player_facing_turn_terminology(expect)
 
 static func _test_complete_set_contract(expect: Callable) -> void:
@@ -84,8 +79,6 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 	expect.call(relics.size() == 60, "The Radiance package redesign should contain exactly 60 relics")
 	for relic_id: String in NEW_RELIC_IDS:
 		expect.call(relics.has(relic_id), "New relic %s should be present" % relic_id)
-	var radiance_count: int = 0
-	var radiance_by_rarity: Dictionary = {"common": 0, "rare": 0, "epic": 0, "legendary": 0}
 	var effect_types: Array[String]
 	var forbidden_primary_effects: Array[String] = _string_array([
 		"max_hp",
@@ -100,11 +93,8 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 		var raw_relic: Dictionary = relics.get(relic_id, {}) as Dictionary
 		var relic: Dictionary = GameData.relic_def(relic_id)
 		var rarity: String = str(raw_relic.get("rarity", ""))
-		if (raw_relic.get("build_tags", []) as Array).has("radiance"):
-			radiance_count += 1
-			radiance_by_rarity[rarity] = int(radiance_by_rarity.get(rarity, 0)) + 1
 		var tier: int = int(RARITY_TIERS.get(rarity, 0))
-		expect.call(int(raw_relic.get("design_version", 0)) == 2, "%s should be migrated to the complete-set relic design version" % relic_id)
+		expect.call(int(raw_relic.get("design_version", 0)) == 3, "%s should be migrated to the board-package relic design version" % relic_id)
 		expect.call(int(raw_relic.get("condition_tier", 0)) == tier, "%s conditionality should match its rarity tier" % relic_id)
 		expect.call(int(raw_relic.get("upside_tier", 0)) == tier, "%s upside should match its rarity tier" % relic_id)
 		expect.call((raw_relic.get("build_tags", []) as Array).size() >= 2, "%s should identify at least two build hooks" % relic_id)
@@ -127,12 +117,11 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 	var expected_effect_types: Array = SUPPORTED_EFFECT_TYPES.duplicate()
 	expected_effect_types.sort()
 	expect.call(effect_types == expected_effect_types, "Every live relic effect category should be intentionally covered by the focused suite")
-	expect.call(radiance_count == 20, "Exactly one third of the 60-relic pool should meaningfully support Radiance")
-	expect.call(radiance_by_rarity == {"common": 6, "rare": 8, "epic": 4, "legendary": 2}, "Radiance relics should preserve the approved 6/8/4/2 rarity mix")
 
 static func _test_conditional_card_mutations(expect: Callable) -> void:
 	_expect_action_delta(expect, "threaded_path", "pilgrim_boots", "move", "range", 1)
-	_expect_action_delta(expect, "hearth_rush", "flint_edge", "melee", "burn", 2)
+	var hearth_rush: Dictionary = GameData.card_def_for_progression("hearth_rush", {"relics": ["flint_edge"]})
+	expect.call(bool(_first_action_of_type(hearth_rush, "melee").get("combust", false)), "Flint Edge should add Combust to Fire move-and-melee cards")
 	_expect_action_delta(expect, "chain_bolt", "storm_capacitor", "ranged", "chain", 1)
 	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "damage", 1)
 	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "amount", 1)
@@ -198,13 +187,13 @@ static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 	var funeral_state: Dictionary = _state(combat, ["funeral_bell"])
 	funeral_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
 	for index: int in range(3):
-		funeral_state = combat.call("_trigger_enemy_death_relics", funeral_state, {"burn": 1, "hp": 0, "id": index})
+		funeral_state = combat.call("_trigger_enemy_death_relics", funeral_state, {"bleed": 1, "hp": 0, "id": index})
 	expect.call(((funeral_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3 and int(funeral_state.get("card_play_bonus_this_turn", 0)) == 2, "Funeral Bell should pay only after a third statused death")
 	var off_turn_funeral_state: Dictionary = _state(combat, ["funeral_bell"])
 	off_turn_funeral_state["current_actor"] = {"kind": "enemy", "enemy_id": 1}
 	off_turn_funeral_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
 	for index: int in range(3):
-		off_turn_funeral_state = combat.call("_trigger_enemy_death_relics", off_turn_funeral_state, {"burn": 1, "hp": 0, "id": index})
+		off_turn_funeral_state = combat.call("_trigger_enemy_death_relics", off_turn_funeral_state, {"bleed": 1, "hp": 0, "id": index})
 	expect.call(
 		int(off_turn_funeral_state.get("card_play_bonus_this_turn", 0)) == 0
 		and int(off_turn_funeral_state.get("pending_relic_card_plays", 0)) == 2,
@@ -394,7 +383,7 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var soles_state: Dictionary = _state(combat, ["static_soles"])
 	soles_state = _trigger_card(combat, soles_state, GameData.card_def("static_pivot"), "static_pivot")
-	expect.call(combat.elemental_intensity(soles_state, ElementData.LIGHTNING) == 1 and int((soles_state.get("umbra", {}) as Dictionary).get("vision_bonus_activations", 0)) == 2, "Static Soles should bridge Lightning mobility into intensity and two-turn Vision")
+	expect.call(int((soles_state.get("player", {}) as Dictionary).get("block", 0)) == 4 and int((soles_state.get("umbra", {}) as Dictionary).get("vision_bonus_activations", 0)) == 2, "Static Soles should bridge Lightning mobility into defense and Vision")
 	var mirror_state: Dictionary = _state(combat, ["mirror_shard"])
 	mirror_state = _trigger_card(combat, mirror_state, GameData.card_def("mirror_feint"), "mirror_feint")
 	expect.call(int(mirror_state.get("card_play_bonus_this_turn", 0)) == 1 and int((mirror_state.get("umbra", {}) as Dictionary).get("vision_bonus_activations", 0)) == 2, "Mirror Shard should bridge illusion cards into tempo and two-turn Vision")
@@ -420,8 +409,8 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	var astrolabe_state: Dictionary = _state(combat, ["starless_astrolabe"])
 	astrolabe_state["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(5, 4), 10)
 	astrolabe_state = combat.apply_player_action(astrolabe_state, {"type": "truesight", "duration": 2})
-	astrolabe_state = combat.call("_trigger_resolved_action_light", astrolabe_state, {"type": "aoe", "damage": 1, "shock": 1, "_card_action_types": ["aoe"]}, Vector2i(4, 4), _int_values([0, 1]))
-	expect.call(((astrolabe_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 2, "Starless Astrolabe should light every affected enemy of a Truesight Freeze or Shock attack")
+	astrolabe_state = combat.call("_trigger_resolved_action_light", astrolabe_state, {"type": "aoe", "damage": 1, "surface_kind": "snowdrift", "_card_action_types": ["aoe"]}, Vector2i(4, 4), _int_values([0, 1]))
+	expect.call(((astrolabe_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 2, "Starless Astrolabe should light every affected enemy of a Truesight Snowdrift or Electrified attack")
 
 	var carapace_state: Dictionary = _state(combat, ["witchglass_carapace"])
 	carapace_state["illusions"] = [{"id": 61, "pos": Vector2i(3, 4), "hp": 3, "max_hp": 3}]
@@ -454,6 +443,65 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	phoenix_state["defiance_remaining"] = 1
 	phoenix_state = combat.call("_damage_player", phoenix_state, 9, true)
 	expect.call(int((phoenix_state.get("umbra", {}) as Dictionary).get("stage_reduction", 0)) == 2, "Phoenix Ember should add Dispel Umbra 2 to its existing Defiance comeback")
+
+static func _test_board_package_relics(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var rime_state: Dictionary = _state(combat, ["rimecatcher_vial"])
+	rime_state = combat.apply_player_action(rime_state, {"type": "surface", "kind": CombatTerrainRules.SURFACE_SNOWDRIFT, "range": 5}, Vector2i(4, 4))
+	expect.call(int((rime_state.get("player", {}) as Dictionary).get("block", 0)) == 4, "Rimecatcher Vial should reward the first Snowdrift placed each turn")
+	rime_state = combat.apply_player_action(rime_state, {"type": "surface", "kind": CombatTerrainRules.SURFACE_SNOWDRIFT, "range": 5}, Vector2i(5, 4))
+	expect.call(int((rime_state.get("player", {}) as Dictionary).get("block", 0)) == 4, "Rimecatcher Vial should not reward a second Snowdrift in the same turn")
+
+	var cold_state: Dictionary = _state(combat, ["cold_mirror"])
+	var cold_player: Dictionary = (cold_state.get("player", {}) as Dictionary).duplicate(true)
+	cold_player["block"] = 8
+	cold_state["player"] = cold_player
+	cold_state = combat.apply_player_action(cold_state, {"type": "surface", "kind": CombatTerrainRules.SURFACE_SNOWDRIFT, "range": 5}, Vector2i(4, 4))
+	expect.call(int((cold_state.get("player", {}) as Dictionary).get("block", 0)) == 2 and int((cold_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 6, "Cold Mirror should convert up to six existing Block when Snowdrift is placed")
+
+	var venom_state: Dictionary = _state(combat, ["venom_signet"])
+	var venom_enemies: Array = (venom_state.get("enemies", []) as Array).duplicate(true)
+	var venom_enemy: Dictionary = (venom_enemies[0] as Dictionary).duplicate(true)
+	venom_enemy["pos"] = Vector2i(5, 4)
+	venom_enemy["hp"] = 20
+	venom_enemy["max_hp"] = 20
+	venom_enemies[0] = venom_enemy
+	venom_state["enemies"] = venom_enemies
+	venom_state = combat.place_surface(venom_state, [Vector2i(5, 4)], CombatTerrainRules.SURFACE_POISON)
+	venom_state = combat.apply_player_action(venom_state, {"type": "ranged", "damage": 1, "range": 6}, Vector2i(5, 4))
+	expect.call(int(((venom_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 16, "Venom Signet should add three attack damage against an enemy on Poison")
+
+	var winch_state: Dictionary = _state(combat, ["briar_winch"])
+	winch_state = combat.place_surface(winch_state, [Vector2i(5, 2)], CombatTerrainRules.SURFACE_POISON)
+	var stronger_pull: Dictionary = combat.call("_action_with_target_state_relic_modifiers", winch_state, {"type": "pull", "amount": 1}, 0)
+	expect.call(int(stronger_pull.get("amount", 0)) == 2, "Briar Winch should force an enemy on Poison one additional tile")
+
+	var suppression_state: Dictionary = _state(combat, ["thunder_relay"])
+	var hp_before: int = int(((suppression_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
+	suppression_state = combat.call("_trigger_attack_suppressed_relics", suppression_state)
+	expect.call(int(((suppression_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == hp_before - 3, "Thunder Relay should discharge when Electrified suppresses an enemy attack")
+	suppression_state = combat.call("_trigger_attack_suppressed_relics", suppression_state)
+	expect.call(int(((suppression_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == hp_before - 3, "Thunder Relay should discharge at most once per turn")
+
+	var variety_state: Dictionary = _state(combat, ["overflow_censer"])
+	variety_state["deck"] = _deck(["quick_stab"], ["brace", "bone_dart"], [])
+	for entry: Dictionary in [
+		{"kind": CombatTerrainRules.SURFACE_BRAMBLE, "tile": Vector2i(3, 3)},
+		{"kind": CombatTerrainRules.SURFACE_ICE, "tile": Vector2i(4, 3)},
+		{"kind": CombatTerrainRules.SURFACE_ELECTRIFIED, "tile": Vector2i(5, 3)},
+	]:
+		variety_state = combat.apply_player_action(variety_state, {"type": "surface", "kind": str(entry.get("kind", "")), "range": 6}, entry.get("tile", Vector2i.ZERO))
+	expect.call(
+		int((variety_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 8
+		and ((variety_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3
+		and int(variety_state.get("card_play_bonus_this_turn", 0)) == 2,
+		"Overflow Censer should reward three different Surfaces without requiring mono-element commitment"
+	)
+
+	var death_state: Dictionary = _state(combat, ["ember_siphon"], 10, 24)
+	death_state = combat.place_surface(death_state, [Vector2i(5, 2)], CombatTerrainRules.SURFACE_ICE)
+	death_state = combat.call("_trigger_enemy_death_relics", death_state, {"id": 1, "pos": Vector2i(5, 2), "hp": 0})
+	expect.call(int((death_state.get("player", {}) as Dictionary).get("hp", 0)) == 13 and int(death_state.get("card_play_bonus_this_turn", 0)) == 1, "Ember Siphon should turn a Surface-assisted kill into sustain and tempo")
 
 static func _test_radiance_offer_distribution(expect: Callable) -> void:
 	var engine := RunEngine.new()

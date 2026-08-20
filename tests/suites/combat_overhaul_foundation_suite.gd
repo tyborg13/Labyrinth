@@ -18,6 +18,7 @@ static func run(expect: Callable) -> void:
 	_test_committed_enemy_attacks_can_be_intercepted(expect)
 	_test_committed_enemy_patterns_translate_when_displaced(expect)
 	_test_enemy_setup_move_precedes_next_commitment(expect)
+	_test_authored_card_tile_effects(expect)
 
 static func _test_tile_layers_replace_refresh_and_expire(expect: Callable) -> void:
 	var state: Dictionary = {}
@@ -324,6 +325,52 @@ static func _test_enemy_setup_move_precedes_next_commitment(expect: Callable) ->
 		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("label", "")) == "Setup":
 			saw_setup_step = true
 	expect.call(saw_setup_step, "Enemy setup movement should be exposed as a distinct board animation step")
+
+static func _test_authored_card_tile_effects(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var surface_state: Dictionary = combat.create_combat(90240, _room_layout(), _player_snapshot())
+	var surface_action: Dictionary = {
+		"type": "surface",
+		"kind": CombatTerrainRules.SURFACE_BRAMBLE,
+		"range": 4,
+		"pattern": [[0, 0], [1, 0]],
+		"rotate": true,
+		"duration": 12,
+	}
+	var effect_tiles: Array[Vector2i] = combat.tile_effect_tiles_for_player_action(surface_state, surface_action, Vector2i(4, 4))
+	expect.call(effect_tiles == [Vector2i(4, 4), Vector2i(5, 4)], "A selected anchor should automatically orient an authored Surface pattern without another direction choice")
+	var placed_surface: Dictionary = combat.apply_player_action(surface_state, surface_action, Vector2i(4, 4))
+	expect.call(combat.surface_kind_at(placed_surface, Vector2i(4, 4)) == CombatTerrainRules.SURFACE_BRAMBLE and combat.surface_kind_at(placed_surface, Vector2i(5, 4)) == CombatTerrainRules.SURFACE_BRAMBLE, "A Surface action should place its complete previewed pattern")
+
+	var rider_state: Dictionary = combat.create_combat(90241, _room_layout(), _player_snapshot())
+	_set_enemy_position(rider_state, 0, Vector2i(3, 4))
+	var rider_action: Dictionary = {
+		"type": "aoe",
+		"damage": 1,
+		"range": 3,
+		"pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]],
+		"rotate": false,
+		"surface_kind": CombatTerrainRules.SURFACE_SNOWDRIFT,
+		"surface_mode": "affected",
+		"surface_duration": 10,
+	}
+	var placed_rider: Dictionary = combat.apply_player_action(rider_state, rider_action, Vector2i(3, 4))
+	for tile: Vector2i in combat.aoe_tiles_for_player_action(rider_state, rider_action, Vector2i(3, 4)):
+		expect.call(combat.surface_kind_at(placed_rider, tile) == CombatTerrainRules.SURFACE_SNOWDRIFT, "Attack footprint riders should mark every tile shown by the authored pattern")
+
+	var radiance_state: Dictionary = combat.create_combat(90242, _room_layout(), _player_snapshot())
+	var umbra: Dictionary = (radiance_state.get("umbra", {}) as Dictionary).duplicate(true)
+	umbra["stage"] = CombatEngine.UMBRA_STAGE_HEART
+	radiance_state["umbra"] = umbra
+	var radiance_action: Dictionary = {
+		"type": "field",
+		"kind": CombatTerrainRules.FIELD_RADIANCE,
+		"range": 5,
+		"duration": 12,
+	}
+	expect.call(combat.valid_targets_for_player_action(radiance_state, radiance_action).has(Vector2i(5, 4)), "Radiance placement should be able to target a line-of-sight tile beyond the current Umbra radius")
+	var placed_radiance: Dictionary = combat.apply_player_action(radiance_state, radiance_action, Vector2i(5, 4))
+	expect.call(combat.field_kind_at(placed_radiance, Vector2i(5, 4)) == CombatTerrainRules.FIELD_RADIANCE and combat.is_tile_visible_to_player(placed_radiance, Vector2i(5, 4)), "Radiance should replace the Field layer and clear Umbra on its tile")
 
 static func _set_enemy_position(state: Dictionary, enemy_index: int, tile: Vector2i) -> void:
 	var enemies: Array = (state.get("enemies", []) as Array).duplicate(true)

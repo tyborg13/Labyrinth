@@ -23,7 +23,10 @@
             "type": "melee",
             "damage": 4,
             "range": 1,
-            "bleed": 1
+            "bleed": 1,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -51,7 +54,10 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 4
+            "range": 4,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 18
           },
           {
             "type": "melee",
@@ -61,7 +67,8 @@
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "acolyte": {
     "name": "Dust Acolyte",
@@ -89,7 +96,10 @@
           {
             "type": "ranged",
             "damage": 5,
-            "range": 5
+            "range": 5,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -130,7 +140,8 @@
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "harrier": {
     "name": "Bone Harrier",
@@ -152,7 +163,10 @@
             "damage": 4,
             "range": 4,
             "pierce": true,
-            "bleed": 1
+            "bleed": 1,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -180,7 +194,10 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 3
+            "range": 3,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 18
           },
           {
             "type": "melee",
@@ -206,7 +223,8 @@
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "warden": {
     "name": "Stone Warden",
@@ -226,7 +244,10 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 1
+            "range": 1,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 18
           },
           {
             "type": "melee",
@@ -280,11 +301,15 @@
                 0
               ]
             ],
-            "rotate": false
+            "rotate": false,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 18
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "cinder_ooze": {
     "name": "Cinder Ooze",
@@ -322,7 +347,9 @@
             "type": "melee",
             "damage": 5,
             "range": 1,
-            "burn": 1
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -336,8 +363,6 @@
             "type": "aoe",
             "damage": 4,
             "range": 0,
-            "burn": 1,
-            "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3, "burn": 1 },
             "pattern": [
               [
                 0,
@@ -356,7 +381,10 @@
                 0
               ]
             ],
-            "rotate": false
+            "rotate": false,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 18
           }
         ]
       },
@@ -371,13 +399,13 @@
             "amount": 4
           },
           {
-            "type": "intensity",
-            "element": "fire",
-            "amount": 1
+            "type": "heal_self",
+            "amount": 2
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "cinder_droplet": {
     "name": "Cinder Droplet",
@@ -406,7 +434,9 @@
             "type": "melee",
             "damage": 3,
             "range": 1,
-            "burn": 1
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 12
           }
         ]
       },
@@ -426,7 +456,8 @@
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "bile_bloomer": {
     "name": "Bile Bloomer",
@@ -457,7 +488,6 @@
             "type": "aoe",
             "damage": 3,
             "range": 0,
-            "poison": 2,
             "pattern": [
               [
                 0,
@@ -508,7 +538,10 @@
                 2
               ]
             ],
-            "rotate": false
+            "rotate": false,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 18
           }
         ]
       },
@@ -527,7 +560,9 @@
             "damage": 1,
             "range": 4,
             "expose": 2,
-            "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 1, "poison": 2 }
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -542,13 +577,13 @@
             "amount": 3
           },
           {
-            "type": "intensity",
-            "element": "earth",
-            "amount": 1
+            "type": "heal_self",
+            "amount": 2
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "chainbound_gaoler": {
     "name": "Chainbound Gaoler",
@@ -576,7 +611,9 @@
             "damage": 5,
             "range": 4,
             "amount": 3,
-            "spend_intensity": { "element": "air", "amount": 2 }
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -590,7 +627,10 @@
             "type": "ranged",
             "damage": 1,
             "range": 3,
-            "immobilize": true
+            "immobilize": true,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -626,13 +666,14 @@
             "amount": 5
           },
           {
-            "type": "intensity",
-            "element": "air",
-            "amount": 1
+            "type": "guard_ally",
+            "amount": 3,
+            "range": 4
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "grave_surgeon": {
     "name": "Grave Surgeon",
@@ -678,7 +719,10 @@
           {
             "type": "melee",
             "damage": 3,
-            "range": 1
+            "range": 1,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -699,7 +743,8 @@
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "frostglass_lancer": {
     "name": "Frostglass Lancer",
@@ -750,7 +795,10 @@
             ],
             "rotate": true,
             "orient_toward_target": true,
-            "stop_at_blockers": true
+            "stop_at_blockers": true,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 18
           }
         ]
       },
@@ -763,7 +811,10 @@
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4
+            "range": 4,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       },
@@ -782,9 +833,9 @@
             "amount": 4
           },
           {
-            "type": "intensity",
-            "element": "ice",
-            "amount": 1
+            "type": "guard_ally",
+            "amount": 3,
+            "range": 4
           }
         ]
       },
@@ -798,11 +849,15 @@
             "type": "ranged",
             "damage": 3,
             "range": 4,
-            "intensity_bonus": { "element": "ice", "threshold": 2, "damage": 1, "freeze": 1 }
+            "immobilize": true,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 18
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "tharokh": {
     "name": "Tharokh, the Worldspine",
@@ -824,9 +879,11 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.08,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["poison"],
     "intents": [
       {
         "id": "stonewake",
@@ -834,7 +891,11 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          {"type": "raise_terrain", "count": 3, "health": 5}
+          {
+            "type": "raise_terrain",
+            "count": 3,
+            "health": 5
+          }
         ]
       },
       {
@@ -843,8 +904,19 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 15, "range": 1, "sunder": 2}
+          {
+            "type": "move_toward",
+            "range": 2,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 20
+          },
+          {
+            "type": "melee",
+            "damage": 15,
+            "range": 1,
+            "sunder": 2
+          }
         ]
       },
       {
@@ -853,7 +925,14 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "terrain_burst", "damage": 10, "radius": 1}
+          {
+            "type": "terrain_burst",
+            "damage": 10,
+            "radius": 1,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 20
+          }
         ]
       },
       {
@@ -862,11 +941,19 @@
         "time": 5,
         "weight": 2,
         "actions": [
-          {"type": "stoneskin", "amount": 6},
-          {"type": "raise_terrain", "count": 2, "health": 5}
+          {
+            "type": "stoneskin",
+            "amount": 6
+          },
+          {
+            "type": "raise_terrain",
+            "count": 2,
+            "health": 5
+          }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "vyraketh": {
     "name": "Vyraketh, the Cinder Crown",
@@ -888,9 +975,11 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.075,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["burn"],
     "intents": [
       {
         "id": "kindle_ground",
@@ -898,16 +987,76 @@
         "time": 4,
         "weight": 3,
         "actions": [
-          {"type": "cinder_marks", "count": 5, "damage": 6, "burn": 2}
+          {
+            "type": "aoe",
+            "damage": 0,
+            "range": 4,
+            "pattern": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                -1
+              ]
+            ],
+            "rotate": false,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 20
+          }
         ]
       },
       {
         "id": "crownfire",
         "name": "Crownfire",
         "time": 5,
-        "weight": 0,
+        "weight": 2,
         "actions": [
-          {"type": "detonate_cinders"}
+          {
+            "type": "aoe",
+            "damage": 12,
+            "range": 4,
+            "pattern": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                -1
+              ]
+            ],
+            "rotate": false,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 20
+          }
         ]
       },
       {
@@ -916,8 +1065,18 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 15, "range": 1, "burn": 2}
+          {
+            "type": "move_toward",
+            "range": 2,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 20
+          },
+          {
+            "type": "melee",
+            "damage": 15,
+            "range": 1
+          }
         ]
       },
       {
@@ -930,13 +1089,37 @@
             "type": "aoe",
             "damage": 9,
             "range": 4,
-            "burn": 1,
-            "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]],
-            "rotate": false
+            "pattern": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                -1
+              ]
+            ],
+            "rotate": false,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 20
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "vaeloryx": {
     "name": "Vaeloryx, the Hollow Gale",
@@ -958,9 +1141,14 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.075,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["immobilize"],
+    "status_immunities": [
+      "immobilize"
+    ],
     "intents": [
       {
         "id": "hollow_gale",
@@ -968,7 +1156,11 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "gale_force", "damage": 8, "amount": 3}
+          {
+            "type": "gale_force",
+            "damage": 8,
+            "amount": 3
+          }
         ]
       },
       {
@@ -977,7 +1169,15 @@
         "time": 5,
         "weight": 3,
         "actions": [
-          {"type": "pull", "damage": 9, "range": 5, "amount": 3}
+          {
+            "type": "pull",
+            "damage": 9,
+            "range": 5,
+            "amount": 3,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 20
+          }
         ]
       },
       {
@@ -986,8 +1186,19 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 3},
-          {"type": "melee", "damage": 14, "range": 1, "bleed": 2}
+          {
+            "type": "move_toward",
+            "range": 3,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 20
+          },
+          {
+            "type": "melee",
+            "damage": 14,
+            "range": 1,
+            "bleed": 2
+          }
         ]
       },
       {
@@ -996,11 +1207,18 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          {"type": "move_away", "range": 2},
-          {"type": "block", "amount": 6}
+          {
+            "type": "move_away",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 6
+          }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "iskaldra": {
     "name": "Iskaldra, the Rime Tyrant",
@@ -1022,9 +1240,11 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.085,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["freeze"],
     "intents": [
       {
         "id": "crystal_mantle",
@@ -1032,7 +1252,11 @@
         "time": 4,
         "weight": 3,
         "actions": [
-          {"type": "frost_armor", "amount": 2, "maximum": 3}
+          {
+            "type": "frost_armor",
+            "amount": 2,
+            "maximum": 3
+          }
         ]
       },
       {
@@ -1041,8 +1265,18 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 12, "range": 1, "freeze": 1}
+          {
+            "type": "move_toward",
+            "range": 2,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 20
+          },
+          {
+            "type": "melee",
+            "damage": 12,
+            "range": 1
+          }
         ]
       },
       {
@@ -1051,7 +1285,14 @@
         "time": 5,
         "weight": 3,
         "actions": [
-          {"type": "ranged", "damage": 9, "range": 5, "freeze": 1}
+          {
+            "type": "ranged",
+            "damage": 9,
+            "range": 5,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 20
+          }
         ]
       },
       {
@@ -1064,12 +1305,65 @@
             "type": "aoe",
             "damage": 8,
             "range": 0,
-            "pattern": [[0, -2], [-1, -1], [0, -1], [1, -1], [-2, 0], [-1, 0], [1, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [0, 2]],
-            "rotate": false
+            "pattern": [
+              [
+                0,
+                -2
+              ],
+              [
+                -1,
+                -1
+              ],
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                -2,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                -1,
+                1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            "rotate": false,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 20
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "noctyrax": {
     "name": "Noctyrax, the Last Eclipse",
@@ -1091,7 +1385,10 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.09,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
     "intents": [
       {
@@ -1100,7 +1397,11 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "umbra_eclipse", "duration": 2, "damage": 10}
+          {
+            "type": "umbra_eclipse",
+            "duration": 2,
+            "damage": 10
+          }
         ]
       },
       {
@@ -1109,8 +1410,19 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 18, "range": 1, "expose": 2}
+          {
+            "type": "move_toward",
+            "range": 2,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 20
+          },
+          {
+            "type": "melee",
+            "damage": 18,
+            "range": 1,
+            "expose": 2
+          }
         ]
       },
       {
@@ -1119,7 +1431,15 @@
         "time": 6,
         "weight": 3,
         "actions": [
-          {"type": "ranged", "damage": 12, "range": 4, "pierce": true}
+          {
+            "type": "ranged",
+            "damage": 12,
+            "range": 4,
+            "pierce": true,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 20
+          }
         ]
       },
       {
@@ -1133,12 +1453,49 @@
             "damage": 10,
             "range": 0,
             "pull": 1,
-            "pattern": [[0, -1], [1, -1], [2, 0], [1, 1], [0, 1], [-1, 1], [-2, 0], [-1, -1]],
-            "rotate": false
+            "pattern": [
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                -1,
+                1
+              ],
+              [
+                -2,
+                0
+              ],
+              [
+                -1,
+                -1
+              ]
+            ],
+            "rotate": false,
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 20
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
@@ -1159,9 +1516,6 @@
       2
     ],
     "boss_bar": true,
-    "status_immunities": [
-      "shock"
-    ],
     "intents": [
       {
         "id": "storm_claw",
@@ -1171,13 +1525,15 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 2,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 20
           },
           {
             "type": "melee",
             "damage": 15,
-            "range": 1,
-            "shock": 1
+            "range": 1
           }
         ]
       },
@@ -1195,7 +1551,9 @@
             "type": "ranged",
             "damage": 10,
             "range": 3,
-            "shock": 1
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 20
           }
         ]
       },
@@ -1209,7 +1567,9 @@
             "type": "lightning_strikes",
             "damage": 9,
             "count": 6,
-            "shock": 1
+            "field_kind": "corruption",
+            "field_mode": "affected",
+            "field_duration": 20
           }
         ]
       },
@@ -1226,7 +1586,8 @@
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "veilbound_acolyte": {
     "name": "Veilbound Acolyte",
@@ -1251,7 +1612,10 @@
           {
             "type": "ranged",
             "damage": 1,
-            "range": 4
+            "range": 4,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 12
           }
         ]
       },
@@ -1275,7 +1639,10 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 2,
+            "field_kind": "corruption",
+            "field_mode": "route",
+            "field_duration": 12
           },
           {
             "type": "melee",
@@ -1284,7 +1651,8 @@
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   },
   "lightning_wisp": {
     "name": "Lightning Wisp",
@@ -1314,7 +1682,10 @@
           {
             "type": "melee",
             "damage": 3,
-            "range": 1
+            "range": 1,
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 12
           }
         ]
       },
@@ -1332,12 +1703,13 @@
             "type": "ranged",
             "damage": 3,
             "range": 3,
-            "shock": 1
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 12
           },
           {
-            "type": "intensity",
-            "element": "lightning",
-            "amount": 1
+            "type": "block",
+            "amount": 2
           }
         ]
       },
@@ -1355,11 +1727,13 @@
             "type": "ranged",
             "damage": 4,
             "range": 4,
-            "shock": 1,
-            "spend_intensity": { "element": "lightning", "amount": 2 }
+            "field_kind": "corruption",
+            "field_mode": "target",
+            "field_duration": 12
           }
         ]
       }
-    ]
+    ],
+    "design_version": 3
   }
 }

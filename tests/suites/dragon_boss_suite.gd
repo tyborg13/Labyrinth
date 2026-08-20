@@ -21,7 +21,6 @@ static func run(expect: Callable) -> void:
 	_test_elemental_order_is_seeded_and_complete(expect)
 	_test_boss_rooms_spawn_authored_dragons(expect)
 	_test_boss_stats_scale_with_depth(expect)
-	_test_status_immunities_are_atomic(expect)
 	_test_opening_gimmicks_resolve(expect)
 	_test_noctyrax_minions_make_eclipse_visibility_matter(expect)
 	_test_large_dragon_footprints_use_actor_level_target_highlighting(expect)
@@ -132,13 +131,14 @@ static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	expect.call(earth_spires >= 3, "Tharokh should open by raising several attackable Worldspines")
 
 	var fire_after: Dictionary = _resolve_opening("vyraketh")
-	var cinder_marks: int = 0
-	for trap_var: Variant in fire_after.get("traps", []):
-		if typeof(trap_var) == TYPE_DICTIONARY and str((trap_var as Dictionary).get("boss_hazard_kind", "")) == "cinder_mark":
-			cinder_marks += 1
-	expect.call(cinder_marks >= 4, "Vyraketh should open by branding the arena with cinder marks")
-	var fire_boss: Dictionary = _boss_from_state(fire_after)
-	expect.call(str((fire_boss.get("intent", {}) as Dictionary).get("id", "")) == "crownfire", "Surviving cinder marks should force Crownfire as Vyraketh's next activation")
+	var corrupted_tiles: int = 0
+	for field_var: Variant in ((fire_after.get("tile_effects", {}) as Dictionary).get("fields", []) as Array):
+		if typeof(field_var) == TYPE_DICTIONARY and str((field_var as Dictionary).get("kind", "")) == "corruption":
+			corrupted_tiles += 1
+	expect.call(corrupted_tiles >= 4, "Vyraketh should open by branding a visible cross of Corruption into the arena")
+	var fire_boss_index: int = _boss_index(fire_after)
+	var next_fire_preview: Dictionary = CombatEngine.new().enemy_threat_tiles(fire_after, fire_boss_index)
+	expect.call(not (next_fire_preview.get("projected_field", []) as Array).is_empty(), "Vyraketh's next committed intent should clearly preview its Corruption footprint")
 
 	var air_before: Dictionary = _boss_combat_state("vaeloryx")
 	var air_hp_before: int = int((air_before.get("player", {}) as Dictionary).get("hp", 0))

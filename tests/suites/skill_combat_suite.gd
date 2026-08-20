@@ -1,6 +1,7 @@
 extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
 static func run(expect: Callable) -> void:
@@ -147,21 +148,20 @@ static func _test_ghost_stride_afterimage_and_plunder(expect: Callable) -> void:
 	var state: Dictionary = _state(combat, ["ghost_stride", "afterimage", "plunderers_step"], ["quick_stab"])
 	var loot: Array = [{"kind": "healing_vial", "pos": Vector2i(3, 4), "amount": 10, "claimed": false}]
 	state["loot"] = loot
-	var move_action: Dictionary = combat.fallback_move_action(state, 2)
-	expect.call(str(move_action.get("type", "")) == "move", "Ghost Stride should preserve the normal basic Move choice")
-	expect.call(combat.skill_is_ready(state, "ghost_stride"), "Ghost Stride should be ready while a card play and legal visible Blink target remain")
+	var action: Dictionary = combat.free_move_action(state)
+	expect.call(str(action.get("type", "")) == "blink" and bool(action.get("_free_move", false)), "Ghost Stride should transform the activation's free Move 2 into Blink 2")
+	expect.call(combat.skill_is_ready(state, "ghost_stride"), "Ghost Stride should be ready while the free move and a legal visible Blink target remain")
 	var no_hand_state: Dictionary = state.duplicate(true)
 	no_hand_state["deck"] = _deck([], [], [])
-	expect.call(not combat.skill_is_ready(no_hand_state, "ghost_stride"), "Ghost Stride should wait when no card is available for a basic Move")
-	var no_play_state: Dictionary = state.duplicate(true)
-	no_play_state["cards_played_this_turn"] = int(no_play_state.get("cards_per_turn", 0)) + int(no_play_state.get("card_play_bonus_this_turn", 0)) + int(no_play_state.get("banked_play_active", 0))
-	expect.call(not combat.skill_is_ready(no_play_state, "ghost_stride"), "Ghost Stride should wait when no card play remains")
-	for restriction_id: String in ["frozen", "immobilized"]:
-		var restricted_state: Dictionary = state.duplicate(true)
-		var restrictions: Dictionary = (restricted_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
-		restrictions[restriction_id] = true
-		restricted_state["player_turn_restrictions"] = restrictions
-		expect.call(not combat.skill_is_ready(restricted_state, "ghost_stride"), "Ghost Stride should wait while %s prevents Blink" % restriction_id)
+	expect.call(combat.skill_is_ready(no_hand_state, "ghost_stride"), "The free Blink should not depend on holding or spending a card")
+	var no_move_state: Dictionary = state.duplicate(true)
+	no_move_state["free_move_available"] = false
+	expect.call(not combat.skill_is_ready(no_move_state, "ghost_stride"), "Ghost Stride should wait after the activation's free movement has been spent")
+	var restricted_state: Dictionary = state.duplicate(true)
+	var restrictions: Dictionary = (restricted_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
+	restrictions["immobilized"] = true
+	restricted_state["player_turn_restrictions"] = restrictions
+	expect.call(not combat.skill_is_ready(restricted_state, "ghost_stride"), "Immobilize should prevent Ghost Stride's free Blink")
 	var blocked_state: Dictionary = state.duplicate(true)
 	var blocked_grid: Array = (blocked_state.get("grid", []) as Array).duplicate(true)
 	var player_pos: Vector2i = (blocked_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
@@ -173,12 +173,8 @@ static func _test_ghost_stride_afterimage_and_plunder(expect: Callable) -> void:
 		blocked_grid[y] = row
 	blocked_state["grid"] = blocked_grid
 	expect.call(not combat.skill_is_ready(blocked_state, "ghost_stride"), "Ghost Stride should wait when no legal visible Blink target exists")
-	var moved_state: Dictionary = combat.apply_player_action(state, move_action, Vector2i(2, 5))
-	expect.call(not combat.skill_was_used(moved_state, "ghost_stride"), "Choosing a normal Move should not spend Ghost Stride")
-	var action: Dictionary = combat.fallback_blink_action(state, 2)
-	expect.call(str(action.get("type", "")) == "blink", "Ghost Stride should expose a separate optional Blink choice")
 	state = combat.apply_player_action(state, action, Vector2i(3, 4))
-	expect.call(combat.skill_was_used(state, "ghost_stride"), "Ghost Stride should spend only after a legal Blink resolves")
+	expect.call(combat.skill_was_used(state, "ghost_stride") and not combat.free_move_available(state), "Ghost Stride should spend itself and the free move only after a legal Blink resolves")
 	var illusions: Array = state.get("illusions", []) as Array
 	expect.call(illusions.size() == 1 and (illusions[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Afterimage should leave an illusion at the Blink origin")
 	expect.call(combat.skill_was_used(state, "afterimage"), "Afterimage should spend after creating its illusion")
@@ -198,13 +194,13 @@ static func _test_makeshift_tool(expect: Callable) -> void:
 	state["deck"] = _deck(["crimson_draught"], [], [])
 	state = combat.arm_makeshift_tool(state)
 	expect.call(not combat.skill_was_used(state, "makeshift_tool"), "Makeshift Tool should spend its charge only when it preserves an item")
-	state = combat.finish_player_card(state, 0, 1, {"play_mode": "attack"})
+	state = combat.finish_player_card(state, 0, 1, {"play_mode": "play"})
 	var deck: Dictionary = state.get("deck", {}) as Dictionary
-	expect.call((deck.get("discard", []) as Array).has("crimson_draught") and not (deck.get("consumed", []) as Array).has("crimson_draught"), "Makeshift Tool should preserve the first item used as a basic action")
+	expect.call((deck.get("discard", []) as Array).has("crimson_draught") and not (deck.get("consumed", []) as Array).has("crimson_draught"), "Makeshift Tool should preserve the next printed item play")
 	expect.call(combat.skill_was_used(state, "makeshift_tool"), "Makeshift Tool should spend its combat charge when it preserves an item")
 	var declined_state: Dictionary = _state(combat, ["makeshift_tool"], ["crimson_draught"])
 	declined_state["deck"] = _deck(["crimson_draught"], [], [])
-	declined_state = combat.finish_player_card(declined_state, 0, 1, {"play_mode": "attack"})
+	declined_state = combat.finish_player_card(declined_state, 0, 1, {"play_mode": "play"})
 	var declined_deck: Dictionary = declined_state.get("deck", {}) as Dictionary
 	expect.call((declined_deck.get("consumed", []) as Array).has("crimson_draught"), "Declining to arm Makeshift Tool should preserve intentional consumable thinning")
 	expect.call(not combat.skill_was_used(declined_state, "makeshift_tool"), "Declining Makeshift Tool should preserve its charge")
@@ -212,18 +208,14 @@ static func _test_makeshift_tool(expect: Callable) -> void:
 	no_item_state["deck"] = _deck(["quick_stab"], [], [])
 	expect.call(not combat.skill_is_ready(no_item_state, "makeshift_tool"), "Makeshift Tool should wait until an item is in hand")
 
-	var blink_state: Dictionary = _state(combat, ["ghost_stride", "makeshift_tool"], ["smoke_bomb"])
-	blink_state["deck"] = _deck(["smoke_bomb"], [], [])
-	blink_state = combat.arm_makeshift_tool(blink_state)
-	var blink_action: Dictionary = combat.fallback_blink_action(blink_state, 2)
-	blink_state = combat.apply_player_action(blink_state, blink_action, Vector2i(3, 4))
-	blink_state = combat.finish_player_card(blink_state, 0, 1, {
-		"play_mode": "custom",
-		"fallback_kind": str(blink_action.get("_fallback_kind", ""))
-	})
-	var blink_deck: Dictionary = blink_state.get("deck", {}) as Dictionary
-	expect.call((blink_deck.get("discard", []) as Array).has("smoke_bomb") and not (blink_deck.get("consumed", []) as Array).has("smoke_bomb"), "Makeshift Tool should preserve an item used for Ghost Stride's semantic basic Move")
-	expect.call(combat.skill_was_used(blink_state, "ghost_stride") and combat.skill_was_used(blink_state, "makeshift_tool"), "The combined Ghost Stride and Makeshift Tool use should spend both combat charges")
+	var armed_move_state: Dictionary = _state(combat, ["ghost_stride", "makeshift_tool"], ["smoke_bomb"])
+	armed_move_state["deck"] = _deck(["smoke_bomb"], [], [])
+	armed_move_state = combat.arm_makeshift_tool(armed_move_state)
+	armed_move_state = combat.apply_player_action(armed_move_state, combat.free_move_action(armed_move_state), Vector2i(3, 4))
+	expect.call(bool((armed_move_state.get("skill_flags", {}) as Dictionary).get("item_preserve_armed", false)), "Free movement should not consume an armed item preservation")
+	armed_move_state = combat.finish_player_card(armed_move_state, 0, 1, {"play_mode": "play"})
+	var armed_deck: Dictionary = armed_move_state.get("deck", {}) as Dictionary
+	expect.call((armed_deck.get("discard", []) as Array).has("smoke_bomb") and combat.skill_was_used(armed_move_state, "ghost_stride") and combat.skill_was_used(armed_move_state, "makeshift_tool"), "Ghost Stride and a later printed item play should spend their independent charges")
 
 static func _test_preservation_on_winning_blow(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -244,9 +236,9 @@ static func _test_preservation_on_winning_blow(expect: Callable) -> void:
 	_set_single_enemy(tool_state, Vector2i(3, 4), GameData.fixed_point_amount(1))
 	tool_state = combat.apply_player_action(tool_state, {"type": "melee", "damage": GameData.fixed_point_amount(2), "range": 1}, Vector2i(3, 4))
 	expect.call(combat.combat_outcome(tool_state) == "victory", "The item preservation regression should resolve from a winning blow")
-	tool_state = combat.finish_player_card(tool_state, 0, 1, {"play_mode": "attack"})
+	tool_state = combat.finish_player_card(tool_state, 0, 1, {"play_mode": "play"})
 	var tool_deck: Dictionary = tool_state.get("deck", {}) as Dictionary
-	expect.call((tool_deck.get("discard", []) as Array).has("nail_bomb") and not (tool_deck.get("consumed", []) as Array).has("nail_bomb"), "Makeshift Tool should preserve a basic-attack item after its action wins combat")
+	expect.call((tool_deck.get("discard", []) as Array).has("nail_bomb") and not (tool_deck.get("consumed", []) as Array).has("nail_bomb"), "Makeshift Tool should preserve a printed item after its action wins combat")
 	expect.call(combat.skill_was_used(tool_state, "makeshift_tool"), "Makeshift Tool should emit its winning-card activation")
 
 static func _test_sure_footed(expect: Callable) -> void:
@@ -330,78 +322,43 @@ static func _test_living_shadow(expect: Callable) -> void:
 
 static func _test_prismatic_instinct_and_confluence(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var condition: Dictionary = {"type": "ranged", "damage": 10, "range": 5, "requires_intensity": {"element": "fire", "amount": 2}}
-	var prismatic_state: Dictionary = _state(combat, ["prismatic_instinct"], ["rime_shard", "static_lash"])
-	prismatic_state["deck"] = _deck(["rime_shard", "static_lash"], [], [])
-	expect.call(not combat.action_intensity_requirement_met(prismatic_state, condition), "An unmet printed intensity requirement should remain locked before arming")
-	prismatic_state = combat.arm_prismatic_instinct(prismatic_state, 0)
-	expect.call(_skill_event_count(combat, prismatic_state, "prismatic_instinct") == 1, "Arming Prismatic Instinct should emit its sole activation event")
-	expect.call(not combat.action_intensity_requirement_met(prismatic_state, condition), "An armed card should not grant global intensity outside its own printed play")
-	var target_preview: Dictionary = combat.prepare_player_card(prismatic_state, 0, "play")
-	expect.call(combat.action_intensity_requirement_met(target_preview, condition), "Prismatic Instinct should satisfy the selected card's elemental condition")
-	var other_preview: Dictionary = combat.prepare_player_card(prismatic_state, 1, "play")
-	expect.call(not combat.action_intensity_requirement_met(other_preview, condition), "Prismatic Instinct should not satisfy a different card's elemental condition")
-	var fallback_preview: Dictionary = combat.prepare_player_card(prismatic_state, 0, "attack")
-	expect.call(not combat.action_intensity_requirement_met(fallback_preview, condition), "A basic fallback use of the selected card should not receive Prismatic Instinct")
-	var fallback_finished: Dictionary = combat.finish_player_card(fallback_preview, 0, 1, {"play_mode": "attack"})
-	expect.call(bool((fallback_finished.get("skill_flags", {}) as Dictionary).get("prismatic_armed", false)), "A basic fallback use should not consume the Prismatic arm")
-	expect.call(combat.elemental_intensity(prismatic_state, "fire") == 0, "Prismatic Instinct should not create real intensity")
-	prismatic_state = combat.finish_player_card(other_preview, 1, 1, {"play_mode": "play"})
-	expect.call(bool((prismatic_state.get("skill_flags", {}) as Dictionary).get("prismatic_armed", false)), "Playing a different printed card should preserve the Prismatic arm")
-	prismatic_state = combat.prepare_player_card(prismatic_state, 0, "play")
-	prismatic_state = combat.finish_player_card(prismatic_state, 0, 1, {"play_mode": "play"})
-	expect.call(not bool((prismatic_state.get("skill_flags", {}) as Dictionary).get("prismatic_armed", false)), "Playing an elemental condition card should consume the Prismatic arm")
-	expect.call(_skill_event_count(combat, prismatic_state, "prismatic_instinct") == 1, "Fulfilling Prismatic Instinct should not emit a duplicate activation event")
 	var duplicate_state: Dictionary = _state(combat, ["prismatic_instinct"], ["rime_shard", "rime_shard"])
 	duplicate_state["deck"] = _deck(["rime_shard", "rime_shard"], [], [])
-	expect.call(combat.prismatic_target_hand_indices(duplicate_state) == [0], "Duplicate conditional card names should appear as one Prismatic choice")
-	duplicate_state = combat.arm_prismatic_instinct(duplicate_state, 0)
+	expect.call(combat.tile_extension_target_hand_indices(duplicate_state) == [0], "Duplicate tile-making card names should appear as one Prismatic choice")
+	duplicate_state = combat.arm_tile_extension(duplicate_state, 0)
+	expect.call(combat.skill_was_used(duplicate_state, "prismatic_instinct"), "Naming a tile-making card should spend Prismatic Instinct's combat charge")
 	duplicate_state = combat.prepare_player_card(duplicate_state, 1, "play")
-	expect.call(combat.action_intensity_requirement_met(duplicate_state, condition), "Prismatic Instinct should explicitly arm the named card type, including another copy")
-	var confluence_state: Dictionary = _state(combat, ["confluence"], ["quick_stab"])
-	confluence_state["elemental_intensity"] = {"fire": 0, "ice": 3, "lightning": 0, "air": 0, "earth": 0}
-	expect.call(combat.action_intensity_requirement_met(confluence_state, condition), "Confluence should let the highest current intensity satisfy another element's condition")
-	expect.call(combat.elemental_intensity(confluence_state, "fire") == 0, "Confluence should not alter actual element counters")
-	var conditional_draw: Dictionary = {"type": "draw", "amount": 1, "requires_intensity": {"element": "fire", "amount": 2}}
-	var fragile_player: Dictionary = (confluence_state.get("player", {}) as Dictionary).duplicate(true)
-	fragile_player["hp"] = GameData.fixed_point_amount(1)
-	confluence_state["player"] = fragile_player
-	confluence_state["deck"] = _deck([], [], ["brace"])
-	confluence_state = combat.apply_player_action(confluence_state, conditional_draw)
-	expect.call(int((confluence_state.get("player", {}) as Dictionary).get("hp", 0)) == GameData.fixed_point_amount(1), "Confluence should never turn a previously unmet conditional draw into Fatigue")
-	expect.call(((confluence_state.get("deck", {}) as Dictionary).get("discard", []) as Array) == ["brace"], "A Confluence-only draw should leave the discard untouched when no safe draw remains")
-	expect.call(_skill_event_count(combat, confluence_state, "confluence") == 1, "Confluence should emit one activation when another element first satisfies a committed condition")
-	var second_confluence_action: Dictionary = {"type": "card_play", "amount": 1, "requires_intensity": {"element": "fire", "amount": 2}}
-	confluence_state = combat.apply_player_action(confluence_state, second_confluence_action)
-	expect.call(int(confluence_state.get("card_play_bonus_this_turn", 0)) == 1, "Confluence should remain mechanically active after its analytics event fires")
-	expect.call(_skill_event_count(combat, confluence_state, "confluence") == 1, "Confluence should emit at most one first-benefit activation per combat")
-	var confluence_bonus_state: Dictionary = _state(combat, ["confluence"], ["quick_stab"])
-	confluence_bonus_state["elemental_intensity"] = {"fire": 0, "ice": 3, "lightning": 0, "air": 0, "earth": 0}
-	confluence_bonus_state = combat.apply_player_action(confluence_bonus_state, {
-		"type": "block",
-		"amount": 1,
-		"intensity_bonus": {"element": "fire", "threshold": 2, "amount": 2}
-	})
-	expect.call(int((confluence_bonus_state.get("player", {}) as Dictionary).get("block", 0)) == 3, "Confluence should recognize a highest-intensity bonus as a real benefit boundary")
-	expect.call(_skill_event_count(combat, confluence_bonus_state, "confluence") == 1, "A Confluence-enabled intensity bonus should emit its single combat activation")
-	var invalid_target_state: Dictionary = _state(combat, ["confluence"], ["quick_stab"])
-	invalid_target_state["elemental_intensity"] = {"fire": 0, "ice": 3, "lightning": 0, "air": 0, "earth": 0}
-	invalid_target_state = combat.apply_player_action(invalid_target_state, {
-		"type": "melee",
-		"damage": 1,
-		"range": 1,
-		"requires_intensity": {"element": "fire", "amount": 2}
-	}, Vector2i(-1, -1))
-	expect.call(_skill_event_count(combat, invalid_target_state, "confluence") == 0, "Confluence should not emit for a targeted action that never commits")
-	var native_draw_state: Dictionary = _state(combat, ["confluence"], ["quick_stab"])
-	native_draw_state["elemental_intensity"] = {"fire": 2, "ice": 3, "lightning": 0, "air": 0, "earth": 0}
-	fragile_player = (native_draw_state.get("player", {}) as Dictionary).duplicate(true)
-	fragile_player["hp"] = GameData.fixed_point_amount(1)
-	native_draw_state["player"] = fragile_player
-	native_draw_state["deck"] = _deck([], [], ["brace"])
-	native_draw_state = combat.apply_player_action(native_draw_state, conditional_draw)
-	expect.call(combat.combat_outcome(native_draw_state) == "defeat", "Confluence should not suppress Fatigue when the card's own element already satisfies its draw condition")
-	expect.call(_skill_event_count(combat, native_draw_state, "confluence") == 0, "Confluence should not claim an activation when the card's native element already satisfies its condition")
+	var rime_action: Dictionary = ((GameData.card_def("rime_shard").get("actions", []) as Array)[0] as Dictionary).duplicate(true)
+	duplicate_state = combat.apply_player_action(duplicate_state, rime_action, Vector2i(4, 4))
+	var ice_tile: Vector2i = Vector2i(4, 3)
+	var ice_entry: Dictionary = CombatTerrainRules.surface_at(duplicate_state, ice_tile)
+	expect.call(
+		str(ice_entry.get("kind", "")) == CombatTerrainRules.SURFACE_ICE
+		and int(ice_entry.get("expires_at", 0)) == int(duplicate_state.get("initiative_clock", 0)) + CombatTerrainRules.DEFAULT_SURFACE_DURATION + 6,
+		"The next printed play of any named copy should extend every created Surface by six Time"
+	)
+	duplicate_state = combat.finish_player_card(duplicate_state, 1, 1, {"play_mode": "play"})
+	expect.call(not bool((duplicate_state.get("skill_flags", {}) as Dictionary).get("tile_extension_armed", false)), "The named printed play should clear Prismatic Instinct's pending selection")
+
+	var other_card_state: Dictionary = _state(combat, ["prismatic_instinct"], ["rime_shard", "static_lash"])
+	other_card_state["deck"] = _deck(["rime_shard", "static_lash"], [], [])
+	other_card_state = combat.arm_tile_extension(other_card_state, 0)
+	var other_preview: Dictionary = combat.prepare_player_card(other_card_state, 1, "play")
+	expect.call(not bool((other_preview.get("skill_flags", {}) as Dictionary).get("tile_extension_resolving", false)), "A different tile-making card should not borrow the named card's extension")
+
+	var confluence_state: Dictionary = _state(combat, ["confluence"], ["quick_stab", "brace", "bone_dart"])
+	confluence_state["deck"] = _deck(["quick_stab"], ["brace", "bone_dart"], [])
+	confluence_state = combat.apply_player_action(confluence_state, {"type": "field", "kind": CombatTerrainRules.FIELD_RADIANCE, "range": 4}, Vector2i(3, 4))
+	var hand_before: int = (((confluence_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size())
+	confluence_state = combat.apply_player_action(confluence_state, {"type": "surface", "kind": CombatTerrainRules.SURFACE_ICE, "range": 4}, Vector2i(3, 4))
+	expect.call((((confluence_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) == hand_before + 1, "Confluence should draw when a Surface is first placed over a Field")
+	expect.call(_skill_event_count(combat, confluence_state, "confluence") == 1, "Confluence should report its first layered tile benefit")
+	confluence_state = combat.apply_player_action(confluence_state, {"type": "surface", "kind": CombatTerrainRules.SURFACE_POISON, "range": 4}, Vector2i(3, 4))
+	expect.call((((confluence_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) == hand_before + 1, "Confluence should draw at most once per turn")
+	var neutral_state: Dictionary = _state(combat, ["confluence"], ["quick_stab", "brace"])
+	neutral_state["deck"] = _deck(["quick_stab"], ["brace"], [])
+	neutral_state = combat.apply_player_action(neutral_state, {"type": "surface", "kind": CombatTerrainRules.SURFACE_BRAMBLE, "range": 4}, Vector2i(3, 4))
+	expect.call((((neutral_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) == 1 and _skill_event_count(combat, neutral_state, "confluence") == 0, "A Surface on a neutral tile should not trigger Confluence")
 
 static func _test_encore(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()

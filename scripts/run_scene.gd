@@ -1800,7 +1800,6 @@ func _ready() -> void:
 	_setup_contextual_combat_tutorial()
 	_setup_action_step_tracker()
 	_setup_play_meter()
-	_setup_elemental_intensity_bar()
 	_connect_header_layout_signals()
 	_connect_choice_overlay_layout_signals()
 	_connect_board_aim_signals()
@@ -7829,11 +7828,8 @@ func _layout_header_hud() -> void:
 	var min_width: float = maxf(room_title.get_combined_minimum_size().x, room_subtitle.get_combined_minimum_size().x)
 	if umbra_subtitle != null and umbra_subtitle.visible:
 		min_width = maxf(min_width, umbra_subtitle.get_combined_minimum_size().x)
-	var intensity_active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
 	if _relic_utility_bar != null:
 		_relic_utility_bar.visible = _relic_utility_bar.get_child_count() > 0
-	if intensity_active:
-		min_width = maxf(min_width, _intensity_bar_size().x)
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
 		min_width = maxf(min_width, _desired_relic_bar_width())
 	var available_width: float = _header_title_available_width()
@@ -9248,11 +9244,11 @@ func _skill_hud_status(skill_id: String) -> String:
 		return "SPENT"
 	if mode == "combat" and not _combat_state.is_empty():
 		var flags: Dictionary = _combat_state.get("skill_flags", {}) as Dictionary
-		if effect_type == "arm_intensity" and bool(flags.get("prismatic_armed", false)):
+		if effect_type == "extend_next_tile_effect" and bool(flags.get("tile_extension_armed", false)):
 			return "ARMED"
 		if effect_type == "preserve_burn" and bool(flags.get("burn_preserve_armed", false)):
 			return "ARMED"
-		if effect_type == "preserve_fallback_item" and bool(flags.get("item_preserve_armed", false)):
+		if effect_type == "preserve_item" and bool(flags.get("item_preserve_armed", false)):
 			return "ARMED"
 		if effect_type == "convert_block" and bool(flags.get("guard_carry_armed", false)):
 			return "ARMED"
@@ -11772,9 +11768,14 @@ func _add_free_move_choice_button() -> void:
 		available = not _combat_engine.valid_targets_for_player_action(_combat_state, action).is_empty()
 	var button := UiTooltipButton.new()
 	button.name = "FreeMoveButton"
-	button.text = "MOVE 2"
+	var is_ghost_stride: bool = str(action.get("type", "")) == "blink"
+	button.text = "BLINK 2" if is_ghost_stride else "MOVE 2"
 	button.tooltip_text = (
-		"Choose a tile up to 2 orthogonal steps away. Free once each activation; does not play a card or advance Time."
+		(
+			"Ghost Stride: Blink to a tile within 2. Free once this combat activation; does not play a card or advance Time."
+			if is_ghost_stride
+			else "Choose a tile up to 2 orthogonal steps away. Free once each activation; does not play a card or advance Time."
+		)
 		if available
 		else "Free Move has been spent or has no legal destination this activation."
 	)
@@ -11802,11 +11803,11 @@ func _on_combat_skill_pressed(skill_id: String) -> void:
 			_begin_quick_wits_card_selection(skill_id)
 		"discard_recall":
 			_begin_encore_card_selection(skill_id)
-		"arm_intensity":
+		"extend_next_tile_effect":
 			_begin_prismatic_card_selection(skill_id)
 		"preserve_burn":
 			_commit_combat_skill_state(_combat_engine.arm_rehearsed_escape(_combat_state), skill_id)
-		"preserve_fallback_item":
+		"preserve_item":
 			_commit_combat_skill_state(_combat_engine.arm_makeshift_tool(_combat_state), skill_id)
 		"convert_block":
 			_commit_combat_skill_state(_combat_engine.arm_carry_the_guard(_combat_state), skill_id)
@@ -11893,13 +11894,13 @@ func _combat_skill_discard_selection_rect(discard_index: int) -> Rect2:
 func _begin_prismatic_card_selection(skill_id: String) -> void:
 	_begin_hand_skill_card_selection(
 		skill_id,
-		_combat_engine.prismatic_target_hand_indices(_combat_state),
-		"PRISMATIC INSTINCT  ·  CHOOSE A CONDITIONAL CARD"
+		_combat_engine.tile_extension_target_hand_indices(_combat_state),
+		"PRISMATIC INSTINCT  ·  CHOOSE A FIELD OR SURFACE CARD"
 	)
 
 func _commit_prismatic(skill_id: String, hand_index: int) -> void:
 	_clear_combat_skill_card_selection()
-	_commit_combat_skill_state(_combat_engine.arm_prismatic_instinct(_combat_state, hand_index), skill_id)
+	_commit_combat_skill_state(_combat_engine.arm_tile_extension(_combat_state, hand_index), skill_id)
 
 func _begin_hand_skill_card_selection(skill_id: String, valid_indices: Array[int], instruction: String) -> void:
 	if valid_indices.is_empty():
@@ -11928,7 +11929,7 @@ func _on_combat_skill_hand_card_selected(hand_index: int) -> void:
 	match SkillTreeLibrary.effect_type(skill_id):
 		"discard_draw":
 			_commit_quick_wits(skill_id, hand_index)
-		"arm_intensity":
+		"extend_next_tile_effect":
 			_commit_prismatic(skill_id, hand_index)
 
 func _cancel_combat_skill_card_selection() -> void:
@@ -14760,6 +14761,7 @@ func _refresh_stage_view() -> void:
 					else:
 						presentation.erase("projected_destination")
 					presentation["projected_attack_tiles"] = _vector2i_array(focused_threat.get("projected_attack", []))
+					presentation["projected_field_tiles"] = _vector2i_array(focused_threat.get("projected_field", []))
 					if focused_threat.has("enemy_key"):
 						presentation["focus_actor_keys"] = [str(focused_threat.get("enemy_key", ""))]
 						presentation["focus_actor_color"] = Color("f2ddb2")
@@ -15452,8 +15454,7 @@ func _fallback_actions(play_kind: String) -> Array:
 		"move":
 			return [_combat_engine.fallback_move_action(_combat_state, FALLBACK_MOVE_RANGE)]
 		"blink":
-			var blink_action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
-			return [] if blink_action.is_empty() else [blink_action]
+			return []
 		_:
 			return []
 
@@ -15467,8 +15468,7 @@ func _fallback_label(play_kind: String) -> String:
 		"move":
 			return "%d Move" % FALLBACK_MOVE_RANGE
 		"blink":
-			var action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
-			return "%d Blink" % int(action.get("range", FALLBACK_MOVE_RANGE))
+			return "%d Blink" % FALLBACK_MOVE_RANGE
 		_:
 			return ""
 
@@ -15479,8 +15479,7 @@ func _fallback_command_detail(play_kind: String) -> String:
 		"move":
 			return "Range %d" % FALLBACK_MOVE_RANGE
 		"blink":
-			var action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
-			return "Blink Range %d" % int(action.get("range", FALLBACK_MOVE_RANGE))
+			return "Blink Range %d" % FALLBACK_MOVE_RANGE
 		_:
 			return ""
 
@@ -15528,13 +15527,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 				_consume_preview_damage_modifiers(preview_state, action)
 			_:
 				row = ActionIcons.tokens_for_action(action)
-		var annotated_row: Array = _annotate_intensity_condition_row(row, _combat_engine.action_intensity_requirement_met(preview_state, action))
-		previous_action_row_index = ActionIcons.append_action_row(summary_rows, action, annotated_row, previous_action_row_index)
-		if action_type == "intensity" and _combat_engine.player_action_can_resolve(preview_state, action):
-			preview_state = _combat_engine.apply_player_action(preview_state, action)
-		var bonus_row: Array = ActionIcons.tokens_for_intensity_bonus(action)
-		if not bonus_row.is_empty():
-			summary_rows.append(_annotate_intensity_condition_row(bonus_row, _combat_engine.action_intensity_bonus_requirement_met(preview_state, action)))
+		previous_action_row_index = ActionIcons.append_action_row(summary_rows, action, row, previous_action_row_index)
 	var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
 	if summary_text.is_empty():
 		summary_text = str(card.get("description", ""))
@@ -17484,7 +17477,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	var action: Dictionary = _pending_actions[_pending_action_index]
 	var previous_action_index: int = _pending_action_index
 	if str(action.get("type", "")) == "aoe":
-		action = _action_with_aoe_aim_orientation(action)
+		action = _combat_engine.oriented_player_action(_preview_combat_state, action, tile)
 		if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, action).has(tile):
 			return
 		_pending_actions[_pending_action_index] = action

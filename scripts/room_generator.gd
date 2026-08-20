@@ -996,16 +996,10 @@ func _trap_for_tile(tile: Vector2i, room_element: String, encounter_depth: int, 
 		"base_damage": base_damage
 	}
 	match room_element:
-		ElementData.FIRE:
-			trap["burn"] = GameData.fixed_point_amount(1 if encounter_depth <= 2 else 2)
-		ElementData.ICE:
-			trap["freeze"] = 1
 		ElementData.LIGHTNING:
-			trap["shock"] = 1
-		ElementData.AIR:
-			pass
+			trap["attacks_suppressed"] = true
 		ElementData.EARTH:
-			trap["poison"] = GameData.fixed_point_amount(1 if encounter_depth <= 2 else 2)
+			trap["immobilize"] = true
 	return trap
 
 func _trap_damage_scale(encounter_depth: int, sequence_index: int) -> int:

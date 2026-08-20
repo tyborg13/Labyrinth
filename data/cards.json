@@ -11,7 +11,11 @@
     "art_path": "res://assets/art/cards/quick_stab.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 11, "range": 1 }
+      {
+        "type": "melee",
+        "damage": 11,
+        "range": 1
+      }
     ]
   },
   "guarded_step": {
@@ -26,9 +30,18 @@
     "art_path": "res://assets/art/cards/guarded_step.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "block", "amount": 3 },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "block",
+        "amount": 3
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "shadow_step": {
@@ -43,8 +56,15 @@
     "art_path": "res://assets/art/cards/shadow_step.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 2, "range": 3 },
-      { "type": "blink", "range": 4 }
+      {
+        "type": "illusion",
+        "health": 2,
+        "range": 3
+      },
+      {
+        "type": "blink",
+        "range": 4
+      }
     ]
   },
   "bone_dart": {
@@ -58,7 +78,11 @@
     "art_path": "res://assets/art/cards/bone_dart.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 6, "range": 4 }
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 4
+      }
     ]
   },
   "pale_spark": {
@@ -73,7 +97,11 @@
     "art_path": "res://assets/art/cards/pale_spark.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 5 }
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 5
+      }
     ]
   },
   "dull_bolt": {
@@ -88,7 +116,11 @@
     "art_path": "res://assets/art/cards/dull_bolt.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 5, "range": 5 }
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 5
+      }
     ]
   },
   "waning_pulse": {
@@ -103,7 +135,30 @@
     "art_path": "res://assets/art/cards/waning_pulse.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+      {
+        "type": "aoe",
+        "damage": 5,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false
+      }
     ]
   },
   "sidestep_slash": {
@@ -118,8 +173,15 @@
     "art_path": "res://assets/art/cards/sidestep_slash.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 3 },
-      { "type": "melee", "damage": 6, "range": 1 }
+      {
+        "type": "move",
+        "range": 3
+      },
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 1
+      }
     ]
   },
   "whirlwind_slash": {
@@ -134,7 +196,30 @@
     "art_path": "res://assets/art/cards/whirlwind_slash.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 10, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+      {
+        "type": "aoe",
+        "damage": 10,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false
+      }
     ]
   },
   "patch_up": {
@@ -149,8 +234,14 @@
     "art_path": "res://assets/art/cards/patch_up.png",
     "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 2 },
-      { "type": "block", "amount": 2 }
+      {
+        "type": "heal",
+        "amount": 2
+      },
+      {
+        "type": "block",
+        "amount": 2
+      }
     ]
   },
   "bloody_lunge": {
@@ -165,8 +256,15 @@
     "art_path": "res://assets/art/cards/bloody_lunge.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 3 },
-      { "type": "melee", "damage": 15, "range": 1 }
+      {
+        "type": "move",
+        "range": 3
+      },
+      {
+        "type": "melee",
+        "damage": 15,
+        "range": 1
+      }
     ]
   },
   "brace": {
@@ -181,7 +279,10 @@
     "art_path": "res://assets/art/cards/brace.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 8 }
+      {
+        "type": "block",
+        "amount": 8
+      }
     ]
   },
   "ember_jab": {
@@ -196,8 +297,15 @@
     "art_path": "res://assets/art/cards/ember_jab.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 6, "range": 1 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 1
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "lantern_shot": {
@@ -213,8 +321,17 @@
     "reward_pool": false,
     "radiance": true,
     "actions": [
-      { "type": "ranged", "damage": 5, "range": 6, "illuminate_radius": 2, "illuminate_duration": 2 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 6,
+        "illuminate_radius": 2,
+        "illuminate_duration": 2
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "guiding_flare": {
@@ -224,12 +341,19 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 5 and burn 2 at range 5, then create radius-2 Light at the impact for 2 turns.",
+    "description": "Deal 7 at range 5 and Combust, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/guiding_flare.png",
     "radiance": true,
     "actions": [
-      { "type": "ranged", "damage": 5, "range": 5, "burn": 2, "illuminate_radius": 2, "illuminate_duration": 2 }
+      {
+        "type": "ranged",
+        "damage": 7,
+        "range": 5,
+        "combust": true,
+        "illuminate_radius": 2,
+        "illuminate_duration": 2
+      }
     ]
   },
   "dawnstep": {
@@ -244,8 +368,15 @@
     "art_path": "res://assets/art/cards/dawnstep.png",
     "radiance": true,
     "actions": [
-      { "type": "move", "range": 3 },
-      { "type": "vision", "amount": 2, "duration": 2 }
+      {
+        "type": "move",
+        "range": 3
+      },
+      {
+        "type": "vision",
+        "amount": 2,
+        "duration": 2
+      }
     ]
   },
   "prism_sight": {
@@ -260,9 +391,18 @@
     "art_path": "res://assets/art/cards/prism_sight.png",
     "radiance": true,
     "actions": [
-      { "type": "truesight", "duration": 2 },
-      { "type": "block", "amount": 4 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "truesight",
+        "duration": 2
+      },
+      {
+        "type": "block",
+        "amount": 4
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "storm_beacon": {
@@ -272,13 +412,20 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity. Deal 5 with chain 2 at range 6, then create radius-2 Light at the impact for 2 turns.",
+    "description": "Deal 5 with chain 2 at range 6, Electrify the target tile, then create radius-2 Light there for 2 turns.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_beacon.png",
     "radiance": true,
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "ranged", "damage": 5, "range": 6, "chain": 2, "illuminate_radius": 2, "illuminate_duration": 2 }
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 6,
+        "chain": 2,
+        "surface_kind": "electrified",
+        "illuminate_radius": 2,
+        "illuminate_duration": 2
+      }
     ]
   },
   "glowstone_ward": {
@@ -288,13 +435,44 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Gain 4 stoneskin and place a lasting light at range 3.",
+    "description": "Gain 4 stoneskin and Radiate a cross pattern at range 3.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/glowstone_ward.png",
     "radiance": true,
     "actions": [
-      { "type": "stoneskin", "amount": 4 },
-      { "type": "illuminate", "range": 3, "radius": 2, "duration": -1 }
+      {
+        "type": "stoneskin",
+        "amount": 4
+      },
+      {
+        "type": "field",
+        "kind": "radiance",
+        "range": 3,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "duration": 18
+      }
     ]
   },
   "daybreak": {
@@ -308,9 +486,18 @@
     "art_path": "res://assets/art/cards/daybreak.png",
     "radiance": true,
     "actions": [
-      { "type": "dispel_umbra", "amount": 2 },
-      { "type": "draw", "amount": 2 },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "dispel_umbra",
+        "amount": 2
+      },
+      {
+        "type": "draw",
+        "amount": 2
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "iron_wheel": {
@@ -323,8 +510,15 @@
     "accent": "#8c6b4e",
     "art_path": "res://assets/art/cards/iron_wheel.png",
     "actions": [
-      { "type": "move", "range": 4 },
-      { "type": "melee", "damage": 10, "range": 1 }
+      {
+        "type": "move",
+        "range": 4
+      },
+      {
+        "type": "melee",
+        "damage": 10,
+        "range": 1
+      }
     ]
   },
   "ricochet_knife": {
@@ -337,8 +531,15 @@
     "accent": "#9b7e58",
     "art_path": "res://assets/art/cards/ricochet_knife.png",
     "actions": [
-      { "type": "ranged", "damage": 8, "range": 4 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 8,
+        "range": 4
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "needle_flurry": {
@@ -352,7 +553,30 @@
     "art_path": "res://assets/art/cards/needle_flurry.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 8, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+      {
+        "type": "aoe",
+        "damage": 8,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false
+      }
     ]
   },
   "warded_advance": {
@@ -366,8 +590,14 @@
     "art_path": "res://assets/art/cards/warded_advance.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "block", "amount": 7 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "block",
+        "amount": 7
+      }
     ]
   },
   "threaded_path": {
@@ -382,8 +612,17 @@
     "art_path": "res://assets/art/cards/threaded_path.png",
     "radiance": true,
     "actions": [
-      { "type": "move", "range": 5, "illuminate_radius": 1, "illuminate_duration": 2, "illuminate_position_mode": "destination" },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "move",
+        "range": 5,
+        "illuminate_radius": 1,
+        "illuminate_duration": 2,
+        "illuminate_position_mode": "destination"
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "rallying_breath": {
@@ -397,8 +636,14 @@
     "art_path": "res://assets/art/cards/rallying_breath.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 7 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "block",
+        "amount": 7
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "battle_rhythm": {
@@ -412,8 +657,14 @@
     "art_path": "res://assets/art/cards/battle_rhythm.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 5 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "cinderburst": {
@@ -426,7 +677,34 @@
     "accent": "#cb6a39",
     "art_path": "res://assets/art/cards/cinderburst.png",
     "actions": [
-      { "type": "aoe", "damage": 9, "range": 3, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false }
+      {
+        "type": "aoe",
+        "damage": 9,
+        "range": 3,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false
+      }
     ]
   },
   "reprise": {
@@ -439,8 +717,14 @@
     "accent": "#8369a1",
     "art_path": "res://assets/art/cards/reprise.png",
     "actions": [
-      { "type": "draw", "amount": 4 },
-      { "type": "block", "amount": 5 }
+      {
+        "type": "draw",
+        "amount": 4
+      },
+      {
+        "type": "block",
+        "amount": 5
+      }
     ]
   },
   "blood_price": {
@@ -454,7 +738,11 @@
     "art_path": "res://assets/art/cards/blood_price.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 20, "range": 1 }
+      {
+        "type": "melee",
+        "damage": 20,
+        "range": 1
+      }
     ]
   },
   "trapdoor": {
@@ -468,9 +756,19 @@
     "art_path": "res://assets/art/cards/trapdoor.png",
     "radiance": true,
     "actions": [
-      { "type": "blink", "range": 6 },
-      { "type": "block", "amount": 5 },
-      { "type": "vision", "amount": 2, "duration": 2 }
+      {
+        "type": "blink",
+        "range": 6
+      },
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "vision",
+        "amount": 2,
+        "duration": 2
+      }
     ]
   },
   "bodkin_arrow": {
@@ -484,7 +782,12 @@
     "art_path": "res://assets/art/cards/bodkin_arrow.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 9, "range": 1, "pierce": true }
+      {
+        "type": "melee",
+        "damage": 9,
+        "range": 1,
+        "pierce": true
+      }
     ]
   },
   "hamstring_shot": {
@@ -499,8 +802,16 @@
     "art_path": "res://assets/art/cards/hamstring_shot.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 4, "range": 1, "immobilize": true }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "melee",
+        "damage": 4,
+        "range": 1,
+        "immobilize": true
+      }
     ]
   },
   "hamstring_slice": {
@@ -514,8 +825,16 @@
     "art_path": "res://assets/art/cards/hamstring_slice.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 6, "range": 1, "immobilize": true }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 1,
+        "immobilize": true
+      }
     ]
   },
   "ember_rain": {
@@ -529,7 +848,13 @@
     "art_path": "res://assets/art/cards/ember_rain.png",
     "radiance": true,
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 6, "illuminate_radius": 2, "illuminate_duration": 2 }
+      {
+        "type": "ranged",
+        "damage": 9,
+        "range": 6,
+        "illuminate_radius": 2,
+        "illuminate_duration": 2
+      }
     ]
   },
   "shadow_gate": {
@@ -543,8 +868,14 @@
     "art_path": "res://assets/art/cards/shadow_gate.png",
     "reward_pool": false,
     "actions": [
-      { "type": "blink", "range": 5 },
-      { "type": "block", "amount": 5 }
+      {
+        "type": "blink",
+        "range": 5
+      },
+      {
+        "type": "block",
+        "amount": 5
+      }
     ]
   },
   "cyclone_seal": {
@@ -557,7 +888,34 @@
     "accent": "#9d5a39",
     "art_path": "res://assets/art/cards/cyclone_seal.png",
     "actions": [
-      { "type": "aoe", "damage": 10, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false }
+      {
+        "type": "aoe",
+        "damage": 10,
+        "range": 4,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false
+      }
     ]
   },
   "last_light": {
@@ -571,8 +929,14 @@
     "art_path": "res://assets/art/cards/last_light.png",
     "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 3 },
-      { "type": "stoneskin", "amount": 2 }
+      {
+        "type": "heal",
+        "amount": 3
+      },
+      {
+        "type": "stoneskin",
+        "amount": 2
+      }
     ]
   },
   "grave_sprint": {
@@ -586,8 +950,14 @@
     "art_path": "res://assets/art/cards/grave_sprint.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 12 },
-      { "type": "heal", "amount": 2 }
+      {
+        "type": "block",
+        "amount": 12
+      },
+      {
+        "type": "heal",
+        "amount": 2
+      }
     ]
   },
   "gate_gambit": {
@@ -600,9 +970,18 @@
     "accent": "#8f6da8",
     "art_path": "res://assets/art/cards/gate_gambit.png",
     "actions": [
-      { "type": "draw", "amount": 3 },
-      { "type": "card_play", "amount": 2 },
-      { "type": "block", "amount": 3 }
+      {
+        "type": "draw",
+        "amount": 3
+      },
+      {
+        "type": "card_play",
+        "amount": 2
+      },
+      {
+        "type": "block",
+        "amount": 3
+      }
     ]
   },
   "firebrand_volley": {
@@ -612,13 +991,19 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Fire intensity by 1. Deal 5 at range 5, then create radius-1 Light at the impact for 2 turns. Fire 2+: +3 damage.",
+    "description": "Deal 7 at range 5 and Combust, then create radius-1 Light at the impact for 2 turns.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/firebrand_volley.png",
     "radiance": true,
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "ranged", "damage": 5, "range": 5, "illuminate_radius": 1, "illuminate_duration": 2, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3 } }
+      {
+        "type": "ranged",
+        "damage": 7,
+        "range": 5,
+        "combust": true,
+        "illuminate_radius": 1,
+        "illuminate_duration": 2
+      }
     ]
   },
   "cinder_bloom": {
@@ -628,12 +1013,39 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Fire intensity by 1. Deal 4 in a cross pattern at range 4. Fire 2+: +4 damage and burn 2.",
+    "description": "Deal 8 and Combust in a cross pattern at range 4.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_bloom.png",
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "aoe", "damage": 4, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 4, "burn": 2 } }
+      {
+        "type": "aoe",
+        "damage": 8,
+        "range": 4,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "combust": true
+      }
     ]
   },
   "hearth_rush": {
@@ -643,14 +1055,25 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Fire intensity by 1. Create a 2-health illusion, move 2, and strike for 4. Fire 2+: +4 damage and burn 2.",
+    "description": "Create a 2-health illusion, move 2, then strike for 8 and Combust.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/hearth_rush.png",
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "illusion", "health": 2, "range": 3 },
-      { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 4, "range": 1, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 4, "burn": 2 } }
+      {
+        "type": "illusion",
+        "health": 2,
+        "range": 3
+      },
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "melee",
+        "damage": 8,
+        "range": 1,
+        "combust": true
+      }
     ]
   },
   "cinderline_tempo": {
@@ -660,13 +1083,20 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Fire intensity by 1. Deal 4 at range 4 and gain 1 card play. Fire 2+: +3 damage and burn 2.",
+    "description": "Deal 6 at range 4 and Combust, then gain 1 card play.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinderline_tempo.png",
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "ranged", "damage": 4, "range": 4, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3, "burn": 2 } },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 4,
+        "combust": true
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "inferno_ritual": {
@@ -676,12 +1106,39 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "intensity_cost": { "element": "fire", "amount": 2 },
-    "description": "Spend 2 Fire intensity. Deal 11 and burn 3 in a cross pattern at range 4.",
+    "description": "Deal 11 and Combust in a cross pattern at range 4.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/inferno_ritual.png",
     "actions": [
-      { "type": "aoe", "damage": 11, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 3 }
+      {
+        "type": "aoe",
+        "damage": 11,
+        "range": 4,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "combust": true
+      }
     ]
   },
   "molten_reach": {
@@ -691,11 +1148,16 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 9 at range 6. Fire 2+: +5 damage and burn 3.",
+    "description": "Deal 12 and Combust at range 6.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/molten_reach.png",
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 6, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 5, "burn": 3 } }
+      {
+        "type": "ranged",
+        "damage": 12,
+        "range": 6,
+        "combust": true
+      }
     ]
   },
   "wildfire_halo": {
@@ -705,11 +1167,71 @@
     "burn": false,
     "health_cost": 0,
     "time": 10,
-    "description": "Deal 5 in a large pattern at range 5. Fire 3+: +9 damage and burn 3.",
+    "description": "Deal 7 and Combust in a large pattern at range 5.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/wildfire_halo.png",
     "actions": [
-      { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2], [1, 1], [1, -1], [-1, 1], [-1, -1]], "rotate": false, "intensity_bonus": { "element": "fire", "threshold": 3, "damage": 9, "burn": 3 } }
+      {
+        "type": "aoe",
+        "damage": 7,
+        "range": 5,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -2,
+            0
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            -2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            -1,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "combust": true
+      }
     ]
   },
   "frostbolt": {
@@ -719,12 +1241,17 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Ice intensity by 1. Deal 4 at range 6. Ice 2+: +1 damage and freeze.",
+    "description": "Cover the target tile in Snowdrift, then deal 4 at range 6.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/frostbolt.png",
     "actions": [
-      { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "ranged", "damage": 4, "range": 6, "intensity_bonus": { "element": "ice", "threshold": 2, "damage": 1, "freeze": 1 } }
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 6,
+        "surface_kind": "snowdrift",
+        "surface_timing": "before"
+      }
     ]
   },
   "icebound_chains": {
@@ -734,13 +1261,36 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 6 at range 6 and immobilize, then gain truesight for 2 turns.",
+    "description": "Deal 6 and immobilize at range 6, then lay Ice behind the target.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/icebound_chains.png",
     "radiance": true,
     "actions": [
-      { "type": "ranged", "damage": 6, "range": 6, "immobilize": true },
-      { "type": "truesight", "duration": 2 }
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 6,
+        "immobilize": true,
+        "surface_kind": "ice",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      },
+      {
+        "type": "truesight",
+        "duration": 2
+      }
     ]
   },
   "rime_shard": {
@@ -750,13 +1300,35 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Ice intensity by 1 and create a 2-health illusion. Ice 2+: deal 6 at range 5.",
+    "description": "Create a 3-health illusion and surround it with Ice.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/rime_shard.png",
     "actions": [
-      { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "illusion", "health": 2, "range": 4 },
-      { "type": "ranged", "damage": 6, "range": 5, "requires_intensity": { "element": "ice", "amount": 2 } }
+      {
+        "type": "illusion",
+        "health": 3,
+        "range": 4,
+        "surface_kind": "ice",
+        "surface_pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "surface_rotate": false
+      }
     ]
   },
   "cold_grasp": {
@@ -766,12 +1338,17 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Ice intensity by 1 and strike up to range 2 for 6. Ice 2+: +3 damage and freeze.",
+    "description": "Cover the target tile in Snowdrift, then strike up to range 2 for 6.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/cold_grasp.png",
     "actions": [
-      { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "melee", "damage": 6, "range": 2, "intensity_bonus": { "element": "ice", "threshold": 2, "damage": 3, "freeze": 1 } }
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 2,
+        "surface_kind": "snowdrift",
+        "surface_timing": "before"
+      }
     ]
   },
   "icicle_lance": {
@@ -781,12 +1358,27 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Ice intensity by 1 and pierce for 5 at range 5. Ice 3+: +4 damage and freeze.",
+    "description": "Pierce for 7 at range 5, then leave a two-tile Ice line behind the target.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/icicle_lance.png",
     "actions": [
-      { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "ranged", "damage": 5, "range": 5, "pierce": true, "intensity_bonus": { "element": "ice", "threshold": 3, "damage": 4, "freeze": 1 } }
+      {
+        "type": "ranged",
+        "damage": 7,
+        "range": 5,
+        "pierce": true,
+        "surface_kind": "ice",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      }
     ]
   },
   "hush_of_winter": {
@@ -796,13 +1388,34 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "intensity_cost": { "element": "ice", "amount": 2 },
-    "description": "Spend 2 Ice intensity. Deal 9 at range 7, freeze, and draw 1.",
+    "description": "Deal 9 at range 7, lay Ice behind the target, and draw 1.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/hush_of_winter.png",
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 7, "freeze": 1 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 9,
+        "range": 7,
+        "surface_kind": "ice",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "shatterline": {
@@ -812,11 +1425,34 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Pierce a line for 5 at range 5. Ice 3+: +5 damage and freeze.",
+    "description": "Cover a line in Snowdrift, then pierce it for 8 at range 5.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/shatterline.png",
     "actions": [
-      { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true, "pierce": true, "intensity_bonus": { "element": "ice", "threshold": 3, "damage": 5, "freeze": 1 } }
+      {
+        "type": "aoe",
+        "damage": 8,
+        "range": 5,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "rotate": true,
+        "pierce": true,
+        "surface_kind": "snowdrift",
+        "surface_mode": "affected",
+        "surface_timing": "before"
+      }
     ]
   },
   "glacier_pin": {
@@ -826,12 +1462,29 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Raise Ice intensity by 1. Deal 4 in a two-tile pattern at range 5. Ice 3+: +4 damage and freeze.",
+    "description": "Deal 7 across two tiles at range 5, immobilize targets, and cover the pattern in Ice.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/glacier_pin.png",
     "actions": [
-      { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "aoe", "damage": 4, "range": 5, "pattern": [[0, 0], [1, 0]], "rotate": true, "intensity_bonus": { "element": "ice", "threshold": 3, "damage": 4, "freeze": 1 } }
+      {
+        "type": "aoe",
+        "damage": 7,
+        "range": 5,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "rotate": true,
+        "immobilize": true,
+        "surface_kind": "ice",
+        "surface_mode": "affected"
+      }
     ]
   },
   "white_silence": {
@@ -841,11 +1494,17 @@
     "burn": false,
     "health_cost": 0,
     "time": 9,
-    "description": "Deal 9 at range 7. Ice 3+: +8 damage and freeze.",
+    "description": "Cover the target tile in Snowdrift, then deal 12 at range 7.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/white_silence.png",
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 7, "intensity_bonus": { "element": "ice", "threshold": 3, "damage": 8, "freeze": 1 } }
+      {
+        "type": "ranged",
+        "damage": 12,
+        "range": 7,
+        "surface_kind": "snowdrift",
+        "surface_timing": "before"
+      }
     ]
   },
   "spark_dart": {
@@ -855,13 +1514,19 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity by 1. Deal 4 at range 6, then create radius-1 Light at the impact for 2 turns. Lightning 2+: +3 damage.",
+    "description": "Deal 5 at range 6, Electrify the target tile, then create radius-1 Light there for 2 turns.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/spark_dart.png",
     "radiance": true,
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "ranged", "damage": 4, "range": 6, "illuminate_radius": 1, "illuminate_duration": 2, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 3 } }
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 6,
+        "surface_kind": "electrified",
+        "illuminate_radius": 1,
+        "illuminate_duration": 2
+      }
     ]
   },
   "chain_bolt": {
@@ -871,12 +1536,17 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Lightning intensity by 1. Deal 4 at range 5 with chain 1. Lightning 2+: +3 damage and +1 chain.",
+    "description": "Deal 5 at range 5 with chain 2, then Electrify the target tile.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/chain_bolt.png",
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "ranged", "damage": 4, "range": 5, "chain": 1, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 3, "chain": 1 } }
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 5,
+        "chain": 2,
+        "surface_kind": "electrified"
+      }
     ]
   },
   "spark_focus": {
@@ -886,15 +1556,41 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Lightning intensity by 2. Deal 4 at range 5, draw 1, then gain 1 vision for 2 turns.",
+    "description": "Electrify a three-tile line at range 5, draw 1, then gain 1 vision for 2 turns.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/spark_focus.png",
     "radiance": true,
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 2 },
-      { "type": "ranged", "damage": 4, "range": 5 },
-      { "type": "draw", "amount": 1 },
-      { "type": "vision", "amount": 1, "duration": 2 }
+      {
+        "type": "surface",
+        "kind": "electrified",
+        "range": 5,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "rotate": true,
+        "duration": 18
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "vision",
+        "amount": 1,
+        "duration": 2
+      }
     ]
   },
   "static_lash": {
@@ -904,12 +1600,16 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity by 1. Deal 4 at range 6. Lightning 2+: +4 damage and shock.",
+    "description": "Deal 7 at range 6, then Electrify the target tile.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/static_lash.png",
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "ranged", "damage": 4, "range": 6, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 4, "shock": 1 } }
+      {
+        "type": "ranged",
+        "damage": 7,
+        "range": 6,
+        "surface_kind": "electrified"
+      }
     ]
   },
   "storm_relay": {
@@ -919,12 +1619,17 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "intensity_cost": { "element": "lightning", "amount": 2 },
-    "description": "Spend 2 Lightning intensity. Deal 9 at range 6 with chain 2 and shock.",
+    "description": "Deal 9 at range 6 with chain 2, then Electrify the target tile.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_relay.png",
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 6, "chain": 2, "shock": 1 }
+      {
+        "type": "ranged",
+        "damage": 9,
+        "range": 6,
+        "chain": 2,
+        "surface_kind": "electrified"
+      }
     ]
   },
   "volt_surge": {
@@ -934,13 +1639,40 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Raise Lightning intensity by 1 and create a 3-health illusion. Lightning 2+: deal 9 at range 6.",
+    "description": "Create a 3-health illusion surrounded by Electrified tiles, then deal 7 at range 6.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/volt_surge.png",
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "illusion", "health": 3, "range": 5 },
-      { "type": "ranged", "damage": 9, "range": 6, "requires_intensity": { "element": "lightning", "amount": 2 } }
+      {
+        "type": "illusion",
+        "health": 3,
+        "range": 5,
+        "surface_kind": "electrified",
+        "surface_pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "surface_rotate": false
+      },
+      {
+        "type": "ranged",
+        "damage": 7,
+        "range": 6
+      }
     ]
   },
   "thunderline": {
@@ -950,11 +1682,32 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Deal 6 in a line at range 6. Lightning 3+: +9 damage and shock.",
+    "description": "Deal 10 in a line at range 6, then Electrify the entire pattern.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/thunderline.png",
     "actions": [
-      { "type": "aoe", "damage": 6, "range": 6, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true, "intensity_bonus": { "element": "lightning", "threshold": 3, "damage": 9, "shock": 1 } }
+      {
+        "type": "aoe",
+        "damage": 10,
+        "range": 6,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "rotate": true,
+        "surface_kind": "electrified",
+        "surface_mode": "affected"
+      }
     ]
   },
   "gust_step": {
@@ -964,15 +1717,25 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Air intensity by 1. Create a 2-health illusion, move 2, then pull 2 at range 4 and hit 4. Air 2+: gain 1 card play.",
+    "description": "Create a 2-health illusion, pull 2 at range 4 for 4, then gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/gust_step.png",
     "actions": [
-      { "type": "intensity", "element": "air", "amount": 1 },
-      { "type": "illusion", "health": 2, "range": 4 },
-      { "type": "move", "range": 2 },
-      { "type": "pull", "amount": 2, "range": 4, "damage": 4 },
-      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
+      {
+        "type": "illusion",
+        "health": 2,
+        "range": 4
+      },
+      {
+        "type": "pull",
+        "amount": 2,
+        "range": 4,
+        "damage": 4
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "slipstream_cut": {
@@ -982,14 +1745,24 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Air intensity by 1. Move 3, then strike for 6 and push 1. Air 2+: gain 1 card play.",
+    "description": "Move 3, then strike for 6, push 1, and gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/slipstream_cut.png",
     "actions": [
-      { "type": "intensity", "element": "air", "amount": 1 },
-      { "type": "move", "range": 3 },
-      { "type": "melee", "damage": 6, "range": 1, "push": 1 },
-      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
+      {
+        "type": "move",
+        "range": 3
+      },
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 1,
+        "push": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "updraft": {
@@ -999,13 +1772,20 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Air intensity by 1. Push 2 at range 4 and hit 6. Air 2+: gain 1 card play.",
+    "description": "Push 2 at range 4 for 6, then gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/updraft.png",
     "actions": [
-      { "type": "intensity", "element": "air", "amount": 1 },
-      { "type": "push", "amount": 2, "range": 4, "damage": 6 },
-      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
+      {
+        "type": "push",
+        "amount": 2,
+        "range": 4,
+        "damage": 6
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "vacuum_line": {
@@ -1015,13 +1795,20 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "intensity_cost": { "element": "air", "amount": 2 },
-    "description": "Spend 2 Air intensity. Pull 5 at range 5, hit for 11, and draw 1.",
+    "description": "Pull 5 at range 5 for 11, then draw 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/vacuum_line.png",
     "actions": [
-      { "type": "pull", "amount": 5, "range": 5, "damage": 11 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "pull",
+        "amount": 5,
+        "range": 5,
+        "damage": 11
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "squall_shot": {
@@ -1031,13 +1818,35 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Air intensity by 1. Deal 5 in an odd pattern at range 5 and push 1. Air 2+: gain 1 card play.",
+    "description": "Deal 6 in an odd pattern at range 5, push 1, and gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/squall_shot.png",
     "actions": [
-      { "type": "intensity", "element": "air", "amount": 1 },
-      { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [2, 0], [0, 2]], "rotate": true, "push": 1 },
-      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
+      {
+        "type": "aoe",
+        "damage": 6,
+        "range": 5,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ],
+        "rotate": true,
+        "push": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "skybreak_current": {
@@ -1047,12 +1856,20 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Move 4, then deal 8 at range 6 and push 2. Air 2+: +6 damage and +2 push.",
+    "description": "Move 4, then deal 12 at range 6 and push 3.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/skybreak_current.png",
     "actions": [
-      { "type": "move", "range": 4 },
-      { "type": "ranged", "damage": 8, "range": 6, "push": 2, "intensity_bonus": { "element": "air", "threshold": 2, "damage": 6, "push": 2 } }
+      {
+        "type": "move",
+        "range": 4
+      },
+      {
+        "type": "ranged",
+        "damage": 12,
+        "range": 6,
+        "push": 3
+      }
     ]
   },
   "venom_claw": {
@@ -1062,12 +1879,30 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Earth intensity by 1 and strike for 9. Earth 2+: +4 damage and poison 4.",
+    "description": "Strike for 10, then lay a three-tile Poison route behind the target.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/venom_claw.png",
     "actions": [
-      { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "melee", "damage": 9, "range": 1, "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 4, "poison": 4 } }
+      {
+        "type": "melee",
+        "damage": 10,
+        "range": 1,
+        "surface_kind": "poison",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      }
     ]
   },
   "stone_plate": {
@@ -1077,13 +1912,24 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Earth intensity by 1. Gain 5 stoneskin, then draw 1.",
+    "description": "Place Bramble at range 2, gain 5 stoneskin, then draw 1.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/stone_plate.png",
     "actions": [
-      { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "stoneskin", "amount": 5 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "surface",
+        "kind": "bramble",
+        "range": 2,
+        "duration": 18
+      },
+      {
+        "type": "stoneskin",
+        "amount": 5
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "quarry_step": {
@@ -1093,14 +1939,38 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Earth intensity by 1. Move 2, then strike for 6 and poison 1. Earth 2+: gain 3 stoneskin.",
+    "description": "Move 2, strike for 7, lay Poison behind the target, then gain 3 stoneskin.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/quarry_step.png",
     "actions": [
-      { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 6, "range": 1, "poison": 1 },
-      { "type": "stoneskin", "amount": 3, "requires_intensity": { "element": "earth", "amount": 2 } }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "melee",
+        "damage": 7,
+        "range": 1,
+        "surface_kind": "poison",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      },
+      {
+        "type": "stoneskin",
+        "amount": 3
+      }
     ]
   },
   "thorn_skewer": {
@@ -1110,12 +1980,31 @@
     "burn": false,
     "health_cost": 0,
     "time": 2,
-    "description": "Raise Earth intensity by 1 and pierce an adjacent enemy for 8. Earth 2+: +3 damage and poison 4.",
+    "description": "Pierce an adjacent enemy for 9, then lay Poison behind the target.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/thorn_skewer.png",
     "actions": [
-      { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "melee", "damage": 8, "range": 1, "pierce": true, "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 3, "poison": 4 } }
+      {
+        "type": "melee",
+        "damage": 9,
+        "range": 1,
+        "pierce": true,
+        "surface_kind": "poison",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      }
     ]
   },
   "root_snare": {
@@ -1125,13 +2014,26 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Earth intensity by 1. Deal 5 and immobilize at range 5, then create radius-1 Light at the impact for 2 turns.",
+    "description": "Deal 5 and immobilize at range 5, place Bramble behind the target, then create radius-1 Light there for 2 turns.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/root_snare.png",
     "radiance": true,
     "actions": [
-      { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "ranged", "damage": 5, "range": 5, "immobilize": true, "illuminate_radius": 1, "illuminate_duration": 2 }
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 5,
+        "immobilize": true,
+        "surface_kind": "bramble",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ]
+        ],
+        "illuminate_radius": 1,
+        "illuminate_duration": 2
+      }
     ]
   },
   "basalt_guard": {
@@ -1141,14 +2043,43 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Raise Earth intensity by 1. Create a 4-health illusion, then gain 4 block and 3 stoneskin.",
+    "description": "Create a 4-health illusion surrounded by Bramble, then gain 4 block and 3 stoneskin.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/basalt_guard.png",
     "actions": [
-      { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "illusion", "health": 4, "range": 3 },
-      { "type": "block", "amount": 4 },
-      { "type": "stoneskin", "amount": 3 }
+      {
+        "type": "illusion",
+        "health": 4,
+        "range": 3,
+        "surface_kind": "bramble",
+        "surface_pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "surface_rotate": false
+      },
+      {
+        "type": "block",
+        "amount": 4
+      },
+      {
+        "type": "stoneskin",
+        "amount": 3
+      }
     ]
   },
   "grave_mortar": {
@@ -1158,12 +2089,36 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Earth intensity by 1. Strike all adjacent tiles for 5 and poison 1. Earth 2+: +5 damage and poison 4.",
+    "description": "Strike every adjacent tile for 8, then cover the pattern in Poison.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/grave_mortar.png",
     "actions": [
-      { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "poison": 1, "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 5, "poison": 4 } }
+      {
+        "type": "aoe",
+        "damage": 8,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "surface_kind": "poison",
+        "surface_mode": "affected"
+      }
     ]
   },
   "spike_mantle": {
@@ -1173,13 +2128,41 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "intensity_cost": { "element": "earth", "amount": 3 },
-    "description": "Spend 3 Earth intensity. Pierce all adjacent tiles for 15 and poison 5, then gain 5 stoneskin.",
+    "description": "Pierce every adjacent tile for 10, cover the pattern in Bramble, then gain 5 stoneskin.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/spike_mantle.png",
     "actions": [
-      { "type": "aoe", "damage": 15, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "pierce": true, "poison": 5 },
-      { "type": "stoneskin", "amount": 5 }
+      {
+        "type": "aoe",
+        "damage": 10,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "pierce": true,
+        "surface_kind": "bramble",
+        "surface_mode": "affected"
+      },
+      {
+        "type": "stoneskin",
+        "amount": 5
+      }
     ]
   },
   "tectonic_maul": {
@@ -1189,12 +2172,34 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Move 1, then strike for 12 and poison 2. Earth 2+: +6 damage and poison 5.",
+    "description": "Move 1, strike for 14, then lay a three-tile Poison route behind the target.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/tectonic_maul.png",
     "actions": [
-      { "type": "move", "range": 1 },
-      { "type": "melee", "damage": 12, "range": 1, "poison": 2, "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 6, "poison": 5 } }
+      {
+        "type": "move",
+        "range": 1
+      },
+      {
+        "type": "melee",
+        "damage": 14,
+        "range": 1,
+        "surface_kind": "poison",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      }
     ]
   },
   "cleaver_hook": {
@@ -1208,7 +2213,12 @@
     "art_path": "res://assets/art/cards/cleaver_hook.png",
     "reward_pool": false,
     "actions": [
-      { "type": "push", "damage": 8, "range": 1, "amount": 1 }
+      {
+        "type": "push",
+        "damage": 8,
+        "range": 1,
+        "amount": 1
+      }
     ]
   },
   "riposte_lunge": {
@@ -1222,9 +2232,19 @@
     "art_path": "res://assets/art/cards/riposte_lunge.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 6, "range": 1 },
-      { "type": "block", "amount": 4 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 1
+      },
+      {
+        "type": "block",
+        "amount": 4
+      }
     ]
   },
   "grave_cleave": {
@@ -1233,12 +2253,37 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Strike all adjacent tiles for 10 and poison 2.",
+    "description": "Strike every adjacent tile for 10, then cover the pattern in Poison.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/grave_cleave.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 10, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "poison": 2 }
+      {
+        "type": "aoe",
+        "damage": 10,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "surface_kind": "poison",
+        "surface_mode": "affected"
+      }
     ]
   },
   "kite_bash": {
@@ -1252,8 +2297,16 @@
     "art_path": "res://assets/art/cards/kite_bash.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 6 },
-      { "type": "push", "damage": 4, "range": 1, "amount": 1 }
+      {
+        "type": "block",
+        "amount": 6
+      },
+      {
+        "type": "push",
+        "damage": 4,
+        "range": 1,
+        "amount": 1
+      }
     ]
   },
   "chain_catch": {
@@ -1267,8 +2320,16 @@
     "art_path": "res://assets/art/cards/chain_catch.png",
     "reward_pool": false,
     "actions": [
-      { "type": "pull", "damage": 3, "range": 4, "amount": 2 },
-      { "type": "block", "amount": 5 }
+      {
+        "type": "pull",
+        "damage": 3,
+        "range": 4,
+        "amount": 2
+      },
+      {
+        "type": "block",
+        "amount": 5
+      }
     ]
   },
   "mirror_feint": {
@@ -1283,8 +2344,15 @@
     "art_path": "res://assets/art/cards/mirror_feint.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 3, "range": 3 },
-      { "type": "block", "amount": 5 }
+      {
+        "type": "illusion",
+        "health": 3,
+        "range": 3
+      },
+      {
+        "type": "block",
+        "amount": 5
+      }
     ]
   },
   "leather_roll": {
@@ -1298,8 +2366,14 @@
     "art_path": "res://assets/art/cards/leather_roll.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "block", "amount": 6 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "block",
+        "amount": 6
+      }
     ]
   },
   "glassbone_guard": {
@@ -1313,8 +2387,14 @@
     "art_path": "res://assets/art/cards/glassbone_guard.png",
     "reward_pool": false,
     "actions": [
-      { "type": "stoneskin", "amount": 4 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "stoneskin",
+        "amount": 4
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "undertaker_stand": {
@@ -1328,8 +2408,14 @@
     "art_path": "res://assets/art/cards/undertaker_stand.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 10 },
-      { "type": "stoneskin", "amount": 2 }
+      {
+        "type": "block",
+        "amount": 10
+      },
+      {
+        "type": "stoneskin",
+        "amount": 2
+      }
     ]
   },
   "dust_skip": {
@@ -1343,8 +2429,14 @@
     "art_path": "res://assets/art/cards/dust_skip.png",
     "reward_pool": false,
     "actions": [
-      { "type": "blink", "range": 3 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "blink",
+        "range": 3
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "spur_vault": {
@@ -1358,8 +2450,16 @@
     "art_path": "res://assets/art/cards/spur_vault.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 4 },
-      { "type": "push", "damage": 5, "range": 1, "amount": 1 }
+      {
+        "type": "move",
+        "range": 4
+      },
+      {
+        "type": "push",
+        "damage": 5,
+        "range": 1,
+        "amount": 1
+      }
     ]
   },
   "gravewind_step": {
@@ -1373,8 +2473,15 @@
     "art_path": "res://assets/art/cards/gravewind_step.png",
     "reward_pool": false,
     "actions": [
-      { "type": "blink", "range": 4 },
-      { "type": "illusion", "health": 3, "range": 3 }
+      {
+        "type": "blink",
+        "range": 4
+      },
+      {
+        "type": "illusion",
+        "health": 3,
+        "range": 3
+      }
     ]
   },
   "ember_tithe": {
@@ -1383,13 +2490,21 @@
     "burn": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Exhaust. Deal 4 at range 4 and burn 1, then heal 1.",
+    "description": "Exhaust. Deal 5 and Combust at range 4, then heal 1.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/ember_tithe.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 4, "burn": 1 },
-      { "type": "heal", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 4,
+        "combust": true
+      },
+      {
+        "type": "heal",
+        "amount": 1
+      }
     ]
   },
   "clockwork_mark": {
@@ -1403,8 +2518,15 @@
     "art_path": "res://assets/art/cards/clockwork_mark.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 6, "range": 6 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 6
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "unsealed_gale": {
@@ -1418,8 +2540,40 @@
     "art_path": "res://assets/art/cards/unsealed_gale.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "aoe", "damage": 9, "range": 4, "amount": 1, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "push": 1 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "aoe",
+        "damage": 9,
+        "range": 4,
+        "amount": 1,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "push": 1
+      }
     ]
   },
   "butcher_chop": {
@@ -1433,7 +2587,11 @@
     "art_path": "res://assets/art/cards/butcher_chop.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 15, "range": 1 }
+      {
+        "type": "melee",
+        "damage": 15,
+        "range": 1
+      }
     ]
   },
   "tombsplitter": {
@@ -1447,7 +2605,30 @@
     "art_path": "res://assets/art/cards/tombsplitter.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 12, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+      {
+        "type": "aoe",
+        "damage": 12,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false
+      }
     ]
   },
   "chain_lock": {
@@ -1461,8 +2642,16 @@
     "art_path": "res://assets/art/cards/chain_lock.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 3, "immobilize": true },
-      { "type": "block", "amount": 4 }
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 3,
+        "immobilize": true
+      },
+      {
+        "type": "block",
+        "amount": 4
+      }
     ]
   },
   "mirror_flash": {
@@ -1477,8 +2666,15 @@
     "art_path": "res://assets/art/cards/mirror_flash.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 2, "range": 2 },
-      { "type": "block", "amount": 4 }
+      {
+        "type": "illusion",
+        "health": 2,
+        "range": 2
+      },
+      {
+        "type": "block",
+        "amount": 4
+      }
     ]
   },
   "dust_glide": {
@@ -1492,8 +2688,14 @@
     "art_path": "res://assets/art/cards/dust_glide.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 4 },
-      { "type": "block", "amount": 3 }
+      {
+        "type": "move",
+        "range": 4
+      },
+      {
+        "type": "block",
+        "amount": 3
+      }
     ]
   },
   "sawtooth_flurry": {
@@ -1507,7 +2709,12 @@
     "art_path": "res://assets/art/cards/sawtooth_flurry.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 6, "range": 1, "bleed": 1 }
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 1,
+        "bleed": 1
+      }
     ]
   },
   "serrated_slip": {
@@ -1521,8 +2728,16 @@
     "art_path": "res://assets/art/cards/serrated_slip.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 4, "range": 1, "expose": 3 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "melee",
+        "damage": 4,
+        "range": 1,
+        "expose": 3
+      }
     ]
   },
   "backhand_nick": {
@@ -1536,8 +2751,16 @@
     "art_path": "res://assets/art/cards/backhand_nick.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 5, "range": 1, "bleed": 1 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "melee",
+        "damage": 5,
+        "range": 1,
+        "bleed": 1
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "stormstring_shot": {
@@ -1547,13 +2770,18 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity by 1. Deal 5 at range 7 with chain 1. Lightning 3+: shock.",
+    "description": "Deal 6 at range 7 with chain 1, then Electrify the target tile.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/stormstring_shot.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "ranged", "damage": 5, "range": 7, "chain": 1, "intensity_bonus": { "element": "lightning", "threshold": 3, "shock": 1 } }
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 7,
+        "chain": 1,
+        "surface_kind": "electrified"
+      }
     ]
   },
   "forked_nock": {
@@ -1563,12 +2791,18 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 4 at range 6 with chain 2 and expose 2. Lightning 2+: +3 damage.",
+    "description": "Deal 7 at range 6 with chain 2 and expose 2.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/forked_nock.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 6, "chain": 2, "expose": 2, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 3 } }
+      {
+        "type": "ranged",
+        "damage": 7,
+        "range": 6,
+        "chain": 2,
+        "expose": 2
+      }
     ]
   },
   "far_draw": {
@@ -1578,13 +2812,32 @@
     "burn": false,
     "health_cost": 0,
     "time": 2,
-    "description": "Raise Lightning intensity by 1 and draw 1.",
+    "description": "Electrify a two-tile line at range 5, then draw 1.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/far_draw.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "surface",
+        "kind": "electrified",
+        "range": 5,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "rotate": true,
+        "duration": 18
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "hookspine_reap": {
@@ -1598,7 +2851,13 @@
     "art_path": "res://assets/art/cards/hookspine_reap.png",
     "reward_pool": false,
     "actions": [
-      { "type": "pull", "damage": 8, "range": 2, "amount": 1, "bleed": 1 }
+      {
+        "type": "pull",
+        "damage": 8,
+        "range": 2,
+        "amount": 1,
+        "bleed": 1
+      }
     ]
   },
   "sweeping_haft": {
@@ -1612,7 +2871,32 @@
     "art_path": "res://assets/art/cards/sweeping_haft.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 6, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "push": 1, "sunder": 3 }
+      {
+        "type": "aoe",
+        "damage": 6,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "push": 1,
+        "sunder": 3
+      }
     ]
   },
   "hook_and_hold": {
@@ -1626,7 +2910,13 @@
     "art_path": "res://assets/art/cards/hook_and_hold.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 5, "range": 2, "immobilize": true, "expose": 4 }
+      {
+        "type": "melee",
+        "damage": 5,
+        "range": 2,
+        "immobilize": true,
+        "expose": 4
+      }
     ]
   },
   "phoenix_cleave": {
@@ -1636,13 +2926,36 @@
     "burn": true,
     "health_cost": 1,
     "time": 7,
-    "description": "Exhaust. Lose 1 health. Raise Fire intensity by 1. Cleave adjacent tiles for 9 and burn 1. Fire 3+: +4 damage and burn 2.",
+    "description": "Exhaust. Lose 1 health. Cleave every adjacent tile for 11 and Combust.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/phoenix_cleave.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "aoe", "damage": 9, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "burn": 1, "intensity_bonus": { "element": "fire", "threshold": 3, "damage": 4, "burn": 2 } }
+      {
+        "type": "aoe",
+        "damage": 11,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "combust": true
+      }
     ]
   },
   "ember_guard": {
@@ -1652,14 +2965,23 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Fire intensity by 1, gain 7 block, and draw 1.",
+    "description": "Gain 7 block, draw 1, and gain 1 card play.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/ember_guard.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "block", "amount": 7 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "block",
+        "amount": 7
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "rekindle_edge": {
@@ -1669,13 +2991,21 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Strike for 8 and burn 2. Fire 2+: gain 1 card play.",
+    "description": "Strike for 8 and Combust, then gain 1 card play.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/rekindle_edge.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 8, "range": 1, "burn": 2 },
-      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "fire", "amount": 2 } }
+      {
+        "type": "melee",
+        "damage": 8,
+        "range": 1,
+        "combust": true
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "nail_parry": {
@@ -1689,8 +3019,17 @@
     "art_path": "res://assets/art/cards/nail_parry.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 5 },
-      { "type": "melee", "damage": 4, "range": 1, "pierce": true, "sunder": 2 }
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "melee",
+        "damage": 4,
+        "range": 1,
+        "pierce": true,
+        "sunder": 2
+      }
     ]
   },
   "spike_check": {
@@ -1704,8 +3043,17 @@
     "art_path": "res://assets/art/cards/spike_check.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 4 },
-      { "type": "push", "damage": 4, "range": 1, "amount": 1, "bleed": 1 }
+      {
+        "type": "block",
+        "amount": 4
+      },
+      {
+        "type": "push",
+        "damage": 4,
+        "range": 1,
+        "amount": 1,
+        "bleed": 1
+      }
     ]
   },
   "lodestone_reversal": {
@@ -1715,14 +3063,37 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity by 1. Pull 2 at range 5 for 4, then gain 5 block. Lightning 2+: shock.",
+    "description": "Electrify the pull route, pull 2 at range 5 for 4, then gain 5 block.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/lodestone_reversal.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "pull", "damage": 4, "range": 5, "amount": 2, "intensity_bonus": { "element": "lightning", "threshold": 2, "shock": 1 } },
-      { "type": "block", "amount": 5 }
+      {
+        "type": "pull",
+        "damage": 4,
+        "range": 5,
+        "amount": 2,
+        "surface_kind": "electrified",
+        "surface_pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            -2,
+            0
+          ]
+        ],
+        "surface_timing": "before"
+      },
+      {
+        "type": "block",
+        "amount": 5
+      }
     ]
   },
   "polar_guard": {
@@ -1732,13 +3103,19 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Gain 6 block. Lightning 2+: gain 1 card play.",
+    "description": "Gain 6 block and 1 card play.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/polar_guard.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 6 },
-      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "lightning", "amount": 2 } }
+      {
+        "type": "block",
+        "amount": 6
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "witchglass_double": {
@@ -1753,9 +3130,19 @@
     "art_path": "res://assets/art/cards/witchglass_double.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 3, "range": 3 },
-      { "type": "block", "amount": 4 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "illusion",
+        "health": 3,
+        "range": 3
+      },
+      {
+        "type": "block",
+        "amount": 4
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "reflected_threat": {
@@ -1770,8 +3157,17 @@
     "art_path": "res://assets/art/cards/reflected_threat.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 2, "range": 3 },
-      { "type": "ranged", "damage": 3, "range": 5, "expose": 5 }
+      {
+        "type": "illusion",
+        "health": 2,
+        "range": 3
+      },
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 5,
+        "expose": 5
+      }
     ]
   },
   "anchor_slam": {
@@ -1785,8 +3181,18 @@
     "art_path": "res://assets/art/cards/anchor_slam.png",
     "reward_pool": false,
     "actions": [
-      { "type": "stoneskin", "amount": 3 },
-      { "type": "pull", "damage": 6, "range": 4, "amount": 3, "sunder": 4, "immobilize": true }
+      {
+        "type": "stoneskin",
+        "amount": 3
+      },
+      {
+        "type": "pull",
+        "damage": 6,
+        "range": 4,
+        "amount": 3,
+        "sunder": 4,
+        "immobilize": true
+      }
     ]
   },
   "undertow_guard": {
@@ -1801,8 +3207,17 @@
     "art_path": "res://assets/art/cards/undertow_guard.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 9 },
-      { "type": "pull", "damage": 3, "range": 3, "amount": 2, "expose": 4 }
+      {
+        "type": "block",
+        "amount": 9
+      },
+      {
+        "type": "pull",
+        "damage": 3,
+        "range": 3,
+        "amount": 2,
+        "expose": 4
+      }
     ]
   },
   "field_suture": {
@@ -1816,8 +3231,14 @@
     "art_path": "res://assets/art/cards/field_suture.png",
     "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 2 },
-      { "type": "block", "amount": 5 }
+      {
+        "type": "heal",
+        "amount": 2
+      },
+      {
+        "type": "block",
+        "amount": 5
+      }
     ]
   },
   "threadbare_guard": {
@@ -1831,8 +3252,14 @@
     "art_path": "res://assets/art/cards/threadbare_guard.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 6 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "block",
+        "amount": 6
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "cinderweave_guard": {
@@ -1842,14 +3269,40 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Fire intensity by 1, gain 6 block, and scorch adjacent tiles for 4 and burn 1.",
+    "description": "Gain 6 block, then scorch every adjacent tile for 6 and Combust.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinderweave_guard.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "block", "amount": 6 },
-      { "type": "aoe", "damage": 4, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "burn": 1 }
+      {
+        "type": "block",
+        "amount": 6
+      },
+      {
+        "type": "aoe",
+        "damage": 6,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "combust": true
+      }
     ]
   },
   "cinder_patch": {
@@ -1859,14 +3312,48 @@
     "burn": true,
     "health_cost": 0,
     "time": 3,
-    "description": "Exhaust. Heal 2, gain 4 block, and raise Fire intensity by 1.",
+    "description": "Exhaust. Heal 2, gain 4 block, and Radiate your tile and every adjacent tile.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_patch.png",
     "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 2 },
-      { "type": "block", "amount": 4 },
-      { "type": "intensity", "element": "fire", "amount": 1 }
+      {
+        "type": "heal",
+        "amount": 2
+      },
+      {
+        "type": "block",
+        "amount": 4
+      },
+      {
+        "type": "field",
+        "kind": "radiance",
+        "target_mode": "self",
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "duration": 18
+      }
     ]
   },
   "rimeplate_lock": {
@@ -1877,14 +3364,36 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Gain 4 stoneskin and 3 block, then pin at range 4 for 3 and immobilize.",
+    "description": "Gain 4 stoneskin and 3 block, then pin for 3 and immobilize at range 4, leaving Ice behind the target.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/rimeplate_lock.png",
     "reward_pool": false,
     "actions": [
-      { "type": "stoneskin", "amount": 4 },
-      { "type": "block", "amount": 3 },
-      { "type": "ranged", "damage": 3, "range": 4, "immobilize": true }
+      {
+        "type": "stoneskin",
+        "amount": 4
+      },
+      {
+        "type": "block",
+        "amount": 3
+      },
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 4,
+        "immobilize": true,
+        "surface_kind": "ice",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      }
     ]
   },
   "hoarfrost_shell": {
@@ -1894,14 +3403,44 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Ice intensity by 1 and gain 6 block. Ice 2+: gain 3 stoneskin.",
+    "description": "Gain 6 block and 3 stoneskin, then lay Ice on every adjacent tile.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/hoarfrost_shell.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "block", "amount": 6 },
-      { "type": "stoneskin", "amount": 3, "requires_intensity": { "element": "ice", "amount": 2 } }
+      {
+        "type": "block",
+        "amount": 6
+      },
+      {
+        "type": "stoneskin",
+        "amount": 3
+      },
+      {
+        "type": "surface",
+        "kind": "ice",
+        "target_mode": "self",
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "duration": 18
+      }
     ]
   },
   "voidsilk_molt": {
@@ -1915,9 +3454,19 @@
     "art_path": "res://assets/art/cards/voidsilk_molt.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 5, "range": 4 },
-      { "type": "blink", "range": 4 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "illusion",
+        "health": 5,
+        "range": 4
+      },
+      {
+        "type": "blink",
+        "range": 4
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "empty_husk": {
@@ -1932,8 +3481,15 @@
     "art_path": "res://assets/art/cards/empty_husk.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 4, "range": 4 },
-      { "type": "block", "amount": 5 }
+      {
+        "type": "illusion",
+        "health": 4,
+        "range": 4
+      },
+      {
+        "type": "block",
+        "amount": 5
+      }
     ]
   },
   "hobnail_drive": {
@@ -1947,8 +3503,16 @@
     "art_path": "res://assets/art/cards/hobnail_drive.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 3 },
-      { "type": "push", "damage": 4, "range": 1, "amount": 2 }
+      {
+        "type": "move",
+        "range": 3
+      },
+      {
+        "type": "push",
+        "damage": 4,
+        "range": 1,
+        "amount": 2
+      }
     ]
   },
   "heel_hook": {
@@ -1962,8 +3526,17 @@
     "art_path": "res://assets/art/cards/heel_hook.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 5, "range": 1, "immobilize": true, "expose": 2 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "melee",
+        "damage": 5,
+        "range": 1,
+        "immobilize": true,
+        "expose": 2
+      }
     ]
   },
   "static_pivot": {
@@ -1973,14 +3546,21 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity by 1. Move 4, then deal 4 at range 4. Lightning 2+: shock.",
+    "description": "Move 4, deal 5 at range 4, then Electrify the target tile.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/static_pivot.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "move", "range": 4 },
-      { "type": "ranged", "damage": 4, "range": 4, "intensity_bonus": { "element": "lightning", "threshold": 2, "shock": 1 } }
+      {
+        "type": "move",
+        "range": 4
+      },
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 4,
+        "surface_kind": "electrified"
+      }
     ]
   },
   "spur_spark": {
@@ -1990,14 +3570,23 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Move 2, raise Lightning intensity by 1, and gain 1 card play.",
+    "description": "Move 2, draw 1, and gain 1 card play.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/spur_spark.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "cloudstep_loop": {
@@ -2007,15 +3596,23 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Air intensity by 1, blink 3, draw 1, and gain 1 card play.",
+    "description": "Blink 3, draw 1, and gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/cloudstep_loop.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "air", "amount": 1 },
-      { "type": "blink", "range": 3 },
-      { "type": "draw", "amount": 1 },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "blink",
+        "range": 3
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "zephyr_feint": {
@@ -2025,15 +3622,28 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Move 3, create a 2-health illusion, then draw 1. Air 2+: gain 1 card play.",
+    "description": "Move 3, create a 2-health illusion, draw 1, and gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/zephyr_feint.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 3 },
-      { "type": "illusion", "health": 2, "range": 3 },
-      { "type": "draw", "amount": 1 },
-      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
+      {
+        "type": "move",
+        "range": 3
+      },
+      {
+        "type": "illusion",
+        "health": 2,
+        "range": 3
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "worldroot_stride": {
@@ -2043,15 +3653,32 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Earth intensity by 1. Move 2, gain 4 stoneskin, and lash for 4 at range 4. Earth 2+: immobilize and poison 2.",
+    "description": "Move 2, gain 4 stoneskin, then lash for 6 and immobilize at range 4, placing Bramble behind the target.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/worldroot_stride.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "move", "range": 2 },
-      { "type": "stoneskin", "amount": 4 },
-      { "type": "ranged", "damage": 4, "range": 4, "intensity_bonus": { "element": "earth", "threshold": 2, "immobilize": true, "poison": 2 } }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "stoneskin",
+        "amount": 4
+      },
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 4,
+        "immobilize": true,
+        "surface_kind": "bramble",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ]
+        ]
+      }
     ]
   },
   "rooted_kick": {
@@ -2061,13 +3688,38 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 2, then kick for 6, push 1, sunder 3, and poison 1.",
+    "description": "Lay Poison along the route, then move 2 and kick for 6, push 2, and sunder 3.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/rooted_kick.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "push", "damage": 6, "range": 1, "amount": 1, "sunder": 3, "poison": 1 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "push",
+        "damage": 6,
+        "range": 1,
+        "amount": 2,
+        "sunder": 3,
+        "surface_kind": "poison",
+        "surface_pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "surface_timing": "before"
+      }
     ]
   },
   "loaded_toss": {
@@ -2081,9 +3733,19 @@
     "art_path": "res://assets/art/cards/loaded_toss.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 3, "range": 6 },
-      { "type": "draw", "amount": 1 },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 6
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "snake_eyes": {
@@ -2097,8 +3759,16 @@
     "art_path": "res://assets/art/cards/snake_eyes.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 1, "range": 6, "expose": 6 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 1,
+        "range": 6,
+        "expose": 6
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "locket_chill": {
@@ -2108,13 +3778,18 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Ice intensity by 1. Deal 3 at range 6. Ice 3+: freeze.",
+    "description": "Cover the target tile in Snowdrift, then deal 4 at range 6.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/locket_chill.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "ranged", "damage": 3, "range": 6, "intensity_bonus": { "element": "ice", "threshold": 3, "freeze": 1 } }
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 6,
+        "surface_kind": "snowdrift",
+        "surface_timing": "before"
+      }
     ]
   },
   "kept_breath": {
@@ -2124,14 +3799,36 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Ice intensity by 1, gain 5 block, and draw 1.",
+    "description": "Cover a two-tile line in Snowdrift at range 4, gain 5 block, and draw 1.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/kept_breath.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "block", "amount": 5 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "surface",
+        "kind": "snowdrift",
+        "range": 4,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "rotate": true,
+        "duration": 18
+      },
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "borrowed_spark": {
@@ -2141,14 +3838,48 @@
     "burn": true,
     "health_cost": 1,
     "time": 5,
-    "description": "Exhaust. Lose 1 health. Raise Fire intensity by 2, draw 2, and gain 1 card play.",
+    "description": "Exhaust. Lose 1 health. Radiate your tile and every adjacent tile, draw 2, and gain 1 card play.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/borrowed_spark.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 2 },
-      { "type": "draw", "amount": 2 },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "field",
+        "kind": "radiance",
+        "target_mode": "self",
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "duration": 18
+      },
+      {
+        "type": "draw",
+        "amount": 2
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "cinder_second": {
@@ -2158,14 +3889,19 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Raise Fire intensity by 1 and gain 1 card play. Fire 2+: draw 1.",
+    "description": "Gain 1 card play and draw 1.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_second.png",
     "reward_pool": false,
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "card_play", "amount": 1 },
-      { "type": "draw", "amount": 1, "requires_intensity": { "element": "fire", "amount": 2 } }
+      {
+        "type": "card_play",
+        "amount": 1
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "thorn_crown_pact": {
@@ -2174,13 +3910,37 @@
     "burn": false,
     "health_cost": 1,
     "time": 7,
-    "description": "Lose 1 health. Gain 5 stoneskin, then pierce for 8 at range 5, bleed 1, and poison 3.",
+    "description": "Lose 1 health. Gain 5 stoneskin, then pierce for 8 and bleed 1 at range 5, laying Poison behind the target.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/thorn_crown_pact.png",
     "reward_pool": false,
     "actions": [
-      { "type": "stoneskin", "amount": 5 },
-      { "type": "ranged", "damage": 8, "range": 5, "pierce": true, "bleed": 1, "poison": 3 }
+      {
+        "type": "stoneskin",
+        "amount": 5
+      },
+      {
+        "type": "ranged",
+        "damage": 8,
+        "range": 5,
+        "pierce": true,
+        "bleed": 1,
+        "surface_kind": "poison",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      }
     ]
   },
   "royal_bramble": {
@@ -2194,7 +3954,15 @@
     "art_path": "res://assets/art/cards/royal_bramble.png",
     "reward_pool": false,
     "actions": [
-      { "type": "pull", "damage": 5, "range": 5, "amount": 2, "bleed": 1, "expose": 4, "sunder": 4 }
+      {
+        "type": "pull",
+        "damage": 5,
+        "range": 5,
+        "amount": 2,
+        "bleed": 1,
+        "expose": 4,
+        "sunder": 4
+      }
     ]
   },
   "crimson_draught": {
@@ -2210,8 +3978,14 @@
     "art_path": "res://assets/art/cards/crimson_draught.png",
     "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 6 },
-      { "type": "block", "amount": 3 }
+      {
+        "type": "heal",
+        "amount": 6
+      },
+      {
+        "type": "block",
+        "amount": 3
+      }
     ]
   },
   "mossglass_elixir": {
@@ -2227,9 +4001,18 @@
     "art_path": "res://assets/art/cards/mossglass_elixir.png",
     "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 5 },
-      { "type": "stoneskin", "amount": 3 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "heal",
+        "amount": 5
+      },
+      {
+        "type": "stoneskin",
+        "amount": 3
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "nail_bomb": {
@@ -2245,7 +4028,36 @@
     "art_path": "res://assets/art/cards/nail_bomb.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 11, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "bleed": 1, "sunder": 3 }
+      {
+        "type": "aoe",
+        "damage": 11,
+        "range": 4,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "bleed": 1,
+        "sunder": 3
+      }
     ]
   },
   "pitch_firebomb": {
@@ -2257,12 +4069,40 @@
     "item": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Consume. Hurl fire at range 5 for 9 and burn 3 in a wide blast.",
+    "description": "Consume. Hurl fire at range 5 for 9 and Combust in a wide blast.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/pitch_firebomb.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 9, "range": 5, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 3 }
+      {
+        "type": "aoe",
+        "damage": 9,
+        "range": 5,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "combust": true
+      }
     ]
   },
   "frost_snare": {
@@ -2274,12 +4114,32 @@
     "item": true,
     "health_cost": 0,
     "time": 3,
-    "description": "Consume. Snap a target at range 5 for 6, freeze 1, and immobilize.",
+    "description": "Consume. Snap a target at range 5 for 6, immobilize, and lay Ice behind it.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/frost_snare.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 6, "range": 5, "freeze": 1, "immobilize": true }
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 5,
+        "immobilize": true,
+        "surface_kind": "ice",
+        "surface_pattern": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      }
     ]
   },
   "storm_jar": {
@@ -2291,12 +4151,18 @@
     "item": true,
     "health_cost": 0,
     "time": 3,
-    "description": "Consume. Deal 9 at range 6, shock 1, and chain 2.",
+    "description": "Consume. Deal 9 at range 6 with chain 2, then Electrify the target tile.",
     "accent": "#d2b65f",
     "art_path": "res://assets/art/cards/storm_jar.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 6, "shock": 1, "chain": 2 }
+      {
+        "type": "ranged",
+        "damage": 9,
+        "range": 6,
+        "chain": 2,
+        "surface_kind": "electrified"
+      }
     ]
   },
   "smoke_bomb": {
@@ -2312,9 +4178,18 @@
     "art_path": "res://assets/art/cards/smoke_bomb.png",
     "reward_pool": false,
     "actions": [
-      { "type": "blink", "range": 5 },
-      { "type": "block", "amount": 6 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "blink",
+        "range": 5
+      },
+      {
+        "type": "block",
+        "amount": 6
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "jaw_trap": {
@@ -2330,7 +4205,13 @@
     "art_path": "res://assets/art/cards/jaw_trap.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 10, "range": 3, "bleed": 2, "immobilize": true }
+      {
+        "type": "ranged",
+        "damage": 10,
+        "range": 3,
+        "bleed": 2,
+        "immobilize": true
+      }
     ]
   },
   "bone_ward_charm": {
@@ -2346,9 +4227,18 @@
     "art_path": "res://assets/art/cards/bone_ward_charm.png",
     "reward_pool": false,
     "actions": [
-      { "type": "stoneskin", "amount": 7 },
-      { "type": "block", "amount": 8 },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "stoneskin",
+        "amount": 7
+      },
+      {
+        "type": "block",
+        "amount": 8
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "grave_dust_satchel": {
@@ -2359,12 +4249,43 @@
     "item": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Consume. Dust a tile within 4 for 8, poison 5, expose 4, and pierce.",
+    "description": "Consume. Dust a cross within 4 for 8, expose 4, pierce, and cover the pattern in Poison.",
     "accent": "#8d7a63",
     "art_path": "res://assets/art/cards/grave_dust_satchel.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 8, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "poison": 5, "expose": 4, "pierce": true }
+      {
+        "type": "aoe",
+        "damage": 8,
+        "range": 4,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "expose": 4,
+        "pierce": true,
+        "surface_kind": "poison",
+        "surface_mode": "affected"
+      }
     ]
   },
   "windlass_volley": {
@@ -2379,7 +4300,11 @@
     "art_path": "res://assets/art/cards/windlass_volley.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 7 }
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 7
+      }
     ]
   },
   "crank_reload": {
@@ -2393,8 +4318,14 @@
     "art_path": "res://assets/art/cards/crank_reload.png",
     "reward_pool": false,
     "actions": [
-      { "type": "draw", "amount": 1 },
-      { "type": "card_play", "amount": 1 }
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
     ]
   },
   "blade_dance": {
@@ -2409,8 +4340,15 @@
     "art_path": "res://assets/art/cards/blade_dance.png",
     "reward_pool": false,
     "actions": [
-      { "type": "block", "amount": 2 },
-      { "type": "melee", "damage": 5, "range": 1 }
+      {
+        "type": "block",
+        "amount": 2
+      },
+      {
+        "type": "melee",
+        "damage": 5,
+        "range": 1
+      }
     ]
   },
   "gathering_rhythm": {
@@ -2424,9 +4362,18 @@
     "art_path": "res://assets/art/cards/gathering_rhythm.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "draw", "amount": 1 },
-      { "type": "card_play", "amount": 2 }
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 2
+      }
     ]
   },
   "cinder_fusillade": {
@@ -2437,12 +4384,16 @@
     "flurry": true,
     "health_cost": 0,
     "time": 5,
-    "description": "Flurry. Gain 1 fire intensity, then deal 3 at range 6, for each card play spent.",
+    "description": "Flurry. Deal 4 and Combust at range 6 for each card play spent.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_fusillade.png",
     "actions": [
-      { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "ranged", "damage": 3, "range": 6 }
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 6,
+        "combust": true
+      }
     ]
   },
   "storm_salvo": {
@@ -2457,8 +4408,16 @@
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_salvo.png",
     "actions": [
-      { "type": "ranged", "damage": 3, "range": 6, "chain": 1 },
-      { "type": "draw", "amount": 1 }
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 6,
+        "chain": 1
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
     ]
   },
   "razor_gale": {
@@ -2469,12 +4428,20 @@
     "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Move 1, then deal 3 at range 5 and push 1, for each card play spent.",
+    "description": "Flurry. Move 1, then deal 3 at range 5 and push 1 for each card play spent.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/razor_gale.png",
     "actions": [
-      { "type": "move", "range": 1 },
-      { "type": "ranged", "damage": 3, "range": 5, "push": 1 }
+      {
+        "type": "move",
+        "range": 1
+      },
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 5,
+        "push": 1
+      }
     ]
   }
 }

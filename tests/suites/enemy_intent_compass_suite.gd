@@ -31,14 +31,14 @@ static func _test_action_families_are_distinct(expect: Callable) -> void:
 		EnemyIntentCompass.family_for_action({"type": "block"}): true,
 		EnemyIntentCompass.family_for_action({"type": "heal_ally"}): true,
 		EnemyIntentCompass.family_for_action({"type": "move_away"}): true,
-		EnemyIntentCompass.family_for_action({"type": "intensity"}): true,
+		EnemyIntentCompass.family_for_action({"type": "heal_ally"}): true,
 	}
 	expect.call(families.size() == 3, "Enemy compass should expose only attack, defense, and support silhouettes")
 	expect.call(EnemyIntentCompass.family_for_action({"type": "melee"}) == EnemyIntentCompass.FAMILY_ATTACK, "Melee attacks should use the shared attack family")
 	expect.call(EnemyIntentCompass.family_for_action({"type": "ranged"}) == EnemyIntentCompass.FAMILY_ATTACK, "Ranged attacks should use the shared attack family")
 	expect.call(EnemyIntentCompass.family_for_action({"type": "aoe"}) == EnemyIntentCompass.FAMILY_ATTACK, "Area attacks should use the shared attack family")
 	expect.call(EnemyIntentCompass.family_for_action({"type": "move_away"}) == EnemyIntentCompass.FAMILY_ATTACK, "Movement should collapse into the attack scan-level family")
-	expect.call(EnemyIntentCompass.family_for_action({"type": "intensity"}) == EnemyIntentCompass.FAMILY_SUPPORT, "Intensity setup should collapse into the support scan-level family")
+	expect.call(EnemyIntentCompass.family_for_action({"type": "heal_ally"}) == EnemyIntentCompass.FAMILY_SUPPORT, "Healing should use the support scan-level family")
 	for family_var: Variant in families:
 		var path: String = EnemyIntentCompass.texture_path(str(family_var))
 		expect.call(ResourceLoader.exists(path), "Enemy compass family %s should have authored raster art" % str(family_var))
@@ -62,8 +62,14 @@ static func _test_live_enemy_actions_have_authored_families(expect: Callable) ->
 				var action_type: String = str((action_var as Dictionary).get("type", ""))
 				seen_types[action_type] = true
 				expect.call(EnemyIntentCompass.is_supported_action_type(action_type), "Live enemy action %s should have an authored compass family" % action_type)
-	expect.call(seen_types.has("intensity"), "Live enemy data should exercise intensity-to-support family collapse")
-	expect.call(EnemyIntentCompass.family_for_action({"type": "intensity"}) == EnemyIntentCompass.FAMILY_SUPPORT, "Intensity should use the support scan-level silhouette")
+	expect.call(seen_types.has("block") or seen_types.has("guard_ally") or seen_types.has("heal_ally"), "Live enemy data should exercise defensive and support intent families")
+	var corruption_actions: int = 0
+	for enemy_var: Variant in (parsed as Dictionary).values():
+		for intent_var: Variant in (enemy_var as Dictionary).get("intents", []):
+			for action_var: Variant in (intent_var as Dictionary).get("actions", []):
+				if typeof(action_var) == TYPE_DICTIONARY and str((action_var as Dictionary).get("field_kind", "")) == "corruption":
+					corruption_actions += 1
+	expect.call(corruption_actions > 0, "Live enemy attack geometry should author Corruption footprints")
 
 
 static func _test_compound_intent_uses_primary_attack_summary(expect: Callable) -> void:

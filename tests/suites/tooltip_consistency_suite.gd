@@ -183,10 +183,9 @@ static func _test_real_cards_preserve_repeated_icon_semantics(expect: Callable) 
 		ActionIcons.rows_for_card(stormstring),
 		["time"]
 	)
-	var lightning_descriptions: Array[String] = []
+	var lightning_icons: Array[String] = []
 	for entry: Dictionary in storm_entries:
-		if str(entry.get("icon", "")) == "element_lightning":
-			lightning_descriptions.append(str(entry.get("description", "")))
-	expect.call(lightning_descriptions.size() == 2, "Stormstring Shot should keep Lightning gain and Lightning threshold as separate tooltips")
-	expect.call(lightning_descriptions.any(func(text: String) -> bool: return text.contains("Raise Lightning intensity")), "Stormstring Shot should retain the Lightning-gain explanation")
-	expect.call(lightning_descriptions.any(func(text: String) -> bool: return text.contains("at least 3")), "Stormstring Shot should retain the Lightning-threshold explanation")
+		lightning_icons.append(str(entry.get("icon", "")))
+	expect.call(lightning_icons.has("chain") and lightning_icons.has("surface_electrified"), "Stormstring Shot should explain both its Chain payoff and its Electrified board setup")
+	var electrified_entry_index: int = lightning_icons.find("surface_electrified")
+	expect.call(electrified_entry_index >= 0 and str(storm_entries[electrified_entry_index].get("tooltip", "")).contains("placed by this action"), "Stormstring Shot should retain the authored Electrified rider explanation")

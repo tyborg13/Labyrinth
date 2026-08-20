@@ -3,7 +3,6 @@ class_name ActionIconLibrary
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
-const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
@@ -28,6 +27,11 @@ const KEYWORDS: Dictionary = {
 		"label": "Move",
 		"description": "Moves across board tiles.",
 		"path": "%s/move.png" % ICON_ROOT
+	},
+	"free_move": {
+		"label": "Free Move",
+		"description": "Once each activation, move up to 2 tiles without spending a card play or Time.",
+		"path": "%s/free_move.png" % ICON_ROOT
 	},
 	"retreat": {
 		"label": "Retreat",
@@ -245,9 +249,44 @@ const KEYWORDS: Dictionary = {
 		"path": "%s/umbra_eclipse.png" % ICON_ROOT
 	},
 	"radiance": {
-		"label": "Radiance",
-		"description": "Carries protective light into the Umbra.",
+		"label": "Radiance Field",
+		"description": "Damages enemies on entry and activation start, clears Corruption, and reveals Umbra.",
 		"path": "%s/radiance.png" % ICON_ROOT
+	},
+	"corruption": {
+		"label": "Corruption Field",
+		"description": "Damages the player on entry and activation start, and heals enemies at activation start.",
+		"path": "%s/corruption.png" % ICON_ROOT
+	},
+	"surface_bramble": {
+		"label": "Bramble Surface",
+		"description": "Entering this tile ends movement.",
+		"path": "%s/surface_bramble.png" % ICON_ROOT
+	},
+	"surface_poison": {
+		"label": "Poison Surface",
+		"description": "After entering Poison, each further tile moved deals 1 damage.",
+		"path": "%s/surface_poison.png" % ICON_ROOT
+	},
+	"surface_ice": {
+		"label": "Ice Surface",
+		"description": "Entering locks movement direction and slides until collision or open ground.",
+		"path": "%s/surface_ice.png" % ICON_ROOT
+	},
+	"surface_snowdrift": {
+		"label": "Snowdrift Surface",
+		"description": "Attacks against a character on this tile deal +2 damage.",
+		"path": "%s/surface_snowdrift.png" % ICON_ROOT
+	},
+	"surface_electrified": {
+		"label": "Electrified Surface",
+		"description": "Suppresses attack segments for the activation, then is consumed.",
+		"path": "%s/surface_electrified.png" % ICON_ROOT
+	},
+	"combust": {
+		"label": "Combust",
+		"description": "Consumes Surfaces in the attack pattern for bonus damage.",
+		"path": "%s/combust.png" % ICON_ROOT
 	},
 	"ember": {
 		"label": "Embers",
@@ -314,11 +353,6 @@ const KEYWORDS: Dictionary = {
 		"description": "Board hazards triggered by movement or attacks.",
 		"path": "%s/traps.png" % ICON_ROOT
 	},
-	"elemental_intensity": {
-		"label": "Elemental Intensity",
-		"description": "The shared room power of all five elements.",
-		"path": "%s/elemental_intensity.png" % ICON_ROOT
-	},
 	"umbra": {
 		"label": "The Umbra",
 		"description": "Darkness that conceals tiles, enemies, and threats.",
@@ -330,29 +364,29 @@ const KEYWORDS: Dictionary = {
 		"path": "%s/worldspines.png" % ICON_ROOT
 	},
 	"element_fire": {
-		"label": "Fire Intensity",
-		"description": "Room-wide Fire power. Some Fire card effects need this value.",
-		"path": "%s/intensity_fire.png" % ICON_ROOT
+		"label": "Fire",
+		"description": "Broad damage and Combust payoffs for a manipulated board.",
+		"path": "%s/element_fire.png" % ICON_ROOT
 	},
 	"element_ice": {
-		"label": "Ice Intensity",
-		"description": "Room-wide Ice power. Some Ice card effects need this value.",
-		"path": "%s/intensity_ice.png" % ICON_ROOT
+		"label": "Ice",
+		"description": "Creates Ice and Snowdrift Surfaces.",
+		"path": "%s/element_ice.png" % ICON_ROOT
 	},
 	"element_lightning": {
-		"label": "Lightning Intensity",
-		"description": "Room-wide Lightning power. Some Lightning card effects need this value.",
-		"path": "%s/intensity_lightning.png" % ICON_ROOT
+		"label": "Lightning",
+		"description": "Creates Electrified Surfaces and chains through grouped enemies.",
+		"path": "%s/element_lightning.png" % ICON_ROOT
 	},
 	"element_air": {
-		"label": "Air Intensity",
-		"description": "Room-wide Air power. Some Air card effects need this value.",
-		"path": "%s/intensity_air.png" % ICON_ROOT
+		"label": "Air",
+		"description": "Moves actors with deterministic push, pull, Move, and Blink patterns.",
+		"path": "%s/element_air.png" % ICON_ROOT
 	},
 	"element_earth": {
-		"label": "Earth Intensity",
-		"description": "Room-wide Earth power. Some Earth card effects need this value.",
-		"path": "%s/intensity_earth.png" % ICON_ROOT
+		"label": "Earth",
+		"description": "Creates Bramble and Poison Surfaces.",
+		"path": "%s/element_earth.png" % ICON_ROOT
 	}
 }
 
@@ -402,6 +436,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"dispel_umbra": "dispel_umbra",
 	"draw": "draw",
 	"exhaust": "exhaust",
+	"field": "radiance",
 	"frost_armor": "frost_armor",
 	"gale_force": "gale_force",
 	"guard_ally": "guard_ally",
@@ -421,6 +456,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"raise_terrain": "raise_terrain",
 	"ranged": "ranged",
 	"stoneskin": "stoneskin",
+	"surface": "surface_bramble",
 	"summon_minions": "summon_minions",
 	"terrain_burst": "terrain_burst",
 	"truesight": "truesight",
@@ -443,8 +479,10 @@ static func all_icon_keys() -> Array:
 
 static func action_icon_key(action: Dictionary) -> String:
 	var action_type: String = str(action.get("type", ""))
-	if action_type in ["intensity", "intensity_spend"]:
-		return element_icon_key(str(action.get("element", action.get("_card_element", ElementData.NONE))))
+	if action_type == "field":
+		return str(action.get("kind", "corruption"))
+	if action_type == "surface":
+		return "surface_%s" % str(action.get("kind", "bramble"))
 	return str(ACTION_ICON_ALIASES.get(action_type, ""))
 
 static func card_role_emblem_key(card: Dictionary) -> String:
@@ -723,9 +761,6 @@ static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Ar
 			options = options_by_index[index]
 		var row: Array = tokens_for_action(action, options)
 		previous_action_row_index = append_action_row(rows, action, row, previous_action_row_index)
-		var bonus_row: Array = tokens_for_intensity_bonus(action)
-		if not bonus_row.is_empty():
-			rows.append(bonus_row)
 	return rows
 
 static func append_action_row(rows: Array, action: Dictionary, row: Array, previous_action_row_index: int = -1) -> int:
@@ -775,9 +810,6 @@ static func cost_rows_for_card(card: Dictionary) -> Array:
 	var health_cost: int = int(card.get("health_cost", 0))
 	if health_cost > 0:
 		row.append(token_for("health_cost", "-%d" % health_cost))
-	var intensity_cost: Dictionary = ElementalIntensityRules.card_cost(card)
-	if not intensity_cost.is_empty():
-		row.append(intensity_spend_token(intensity_cost))
 	return [row] if not row.is_empty() else []
 
 static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> Array:
@@ -849,26 +881,10 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "draw", "amount", int(action.get("amount", 0))))
 		"card_play":
 			tokens.append(_token_for_action_field(action, "card_play", "amount", int(action.get("amount", 0))))
-		"intensity":
-			var intensity_element: String = _action_element(action)
-			var intensity_amount: int = int(action.get("amount", 0))
-			var intensity_token: Dictionary = token_for(
-				element_icon_key(intensity_element),
-				"+%d" % intensity_amount,
-				"neutral",
-				"%s Intensity\nRaise %s intensity in this room by %d." % [
-					ElementData.name(intensity_element),
-					ElementData.name(intensity_element),
-					intensity_amount
-				]
-			)
-			intensity_token["kind"] = "elemental_intensity"
-			intensity_token["element"] = intensity_element
-			tokens.append(intensity_token)
-		"intensity_spend":
-			var direct_spend: Dictionary = ElementalIntensityRules.normalized_cost(action, _action_element(action))
-			if not direct_spend.is_empty():
-				tokens.append(intensity_spend_token(direct_spend))
+		"field":
+			_append_direct_tile_effect_tokens(tokens, action, "field")
+		"surface":
+			_append_direct_tile_effect_tokens(tokens, action, "surface")
 		"illusion":
 			tokens.append(_token_for_action_field(action, "illusion", "health", int(action.get("health", action.get("amount", 0)))))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
@@ -912,138 +928,30 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and light protect affected tiles."))
-	var attached_spend: Dictionary = ElementalIntensityRules.action_spend(action)
-	if action_type != "intensity_spend" and not attached_spend.is_empty() and not tokens.is_empty():
-		tokens.push_front(intensity_spend_token(attached_spend))
-	var requirement: Dictionary = intensity_requirement_for_action(action)
-	if not requirement.is_empty() and not tokens.is_empty():
-		tokens.push_front(intensity_requirement_token(requirement))
+	if action_type not in ["field", "surface"]:
+		_append_authored_tile_effect_rider_tokens(tokens, action)
 	return tokens
 
-static func intensity_bonus_for_action(action: Dictionary) -> Dictionary:
-	var raw: Variant = action.get("intensity_bonus", {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return {}
-	var bonus: Dictionary = (raw as Dictionary).duplicate(true)
-	var element_id: String = str(bonus.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
-	var threshold: int = int(bonus.get("threshold", bonus.get("amount", bonus.get("requires", 0))))
-	if not ElementData.is_elemental(element_id) or threshold <= 0:
-		return {}
-	bonus["element"] = element_id
-	bonus["threshold"] = threshold
-	return bonus
+static func _append_direct_tile_effect_tokens(tokens: Array, action: Dictionary, layer: String) -> void:
+	var kind: String = str(action.get("kind", ""))
+	if kind.is_empty():
+		return
+	var icon_key: String = kind if layer == "field" else "surface_%s" % kind
+	var duration: int = maxi(1, int(action.get("duration", 18)))
+	tokens.append(token_for(icon_key, duration, "neutral", "%s remains for %d Time." % [label(icon_key), duration]))
+	if int(action.get("range", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "%s placement range." % layer.capitalize()))
 
-static func tokens_for_intensity_bonus(action: Dictionary) -> Array:
-	var bonus: Dictionary = intensity_bonus_for_action(action)
-	if bonus.is_empty():
-		return []
-	var element_id: String = str(bonus.get("element", ElementData.NONE))
-	var tokens: Array = [intensity_requirement_token({
-		"element": element_id,
-		"amount": int(bonus.get("threshold", 0))
-	})]
-	var action_type: String = str(action.get("type", ""))
-	if int(bonus.get("damage", 0)) > 0:
-		tokens.append(_bonus_token(
-			_damage_icon_for_action(action, _damage_bonus_fallback_icon(action)),
-			int(bonus.get("damage", 0)),
-			"Extra damage when %s intensity is high enough." % ElementData.name(element_id)
-		))
-	if int(bonus.get("amount", 0)) > 0 and action_type in ["push", "pull"]:
-		tokens.append(_bonus_token(
-			action_type,
-			int(bonus.get("amount", 0)),
-			"Extra forced movement when %s intensity is high enough." % ElementData.name(element_id)
-		))
-	for status_key: String in ["burn", "bleed", "expose", "sunder", "freeze", "shock", "poison", "chain", "push", "pull"]:
-		if int(bonus.get(status_key, 0)) <= 0:
+static func _append_authored_tile_effect_rider_tokens(tokens: Array, action: Dictionary) -> void:
+	for layer: String in ["field", "surface"]:
+		var kind: String = str(action.get("%s_kind" % layer, ""))
+		if kind.is_empty():
 			continue
-		tokens.append(_bonus_token(
-			status_key,
-			int(bonus.get(status_key, 0)),
-			"Extra %s when %s intensity is high enough." % [label(status_key).to_lower(), ElementData.name(element_id)]
-		))
-	if bool(bonus.get("immobilize", false)):
-		tokens.append(token_for(
-			"immobilize",
-			"+",
-			"neutral",
-			"Immobilizes when %s intensity is high enough." % ElementData.name(element_id)
-		))
-	if bool(bonus.get("pierce", false)):
-		tokens.append(token_for(
-			"pierce",
-			"+",
-			"neutral",
-			"Pierces defense when %s intensity is high enough." % ElementData.name(element_id)
-		))
-	if tokens.size() <= 1:
-		return []
-	return tokens
-
-static func intensity_requirement_for_action(action: Dictionary) -> Dictionary:
-	var raw: Variant = action.get("requires_intensity", {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return {}
-	var requirement: Dictionary = raw as Dictionary
-	var element_id: String = str(requirement.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
-	var threshold: int = int(requirement.get("amount", requirement.get("threshold", 0)))
-	if not ElementData.is_elemental(element_id) or threshold <= 0:
-		return {}
-	return {
-		"element": element_id,
-		"amount": threshold
-	}
-
-static func intensity_requirement_token(requirement: Dictionary) -> Dictionary:
-	var element_id: String = str(requirement.get("element", ElementData.NONE))
-	var threshold: int = int(requirement.get("amount", 0))
-	var token: Dictionary = token_for(
-		element_icon_key(element_id),
-		"%d+:" % threshold,
-		"neutral",
-		"%s Intensity %d+\nThis effect is active when this room's %s intensity is at least %d." % [
-			ElementData.name(element_id),
-			threshold,
-			ElementData.name(element_id),
-			threshold
-		]
-	)
-	token["kind"] = "intensity_requirement"
-	token["element"] = element_id
-	token["threshold"] = threshold
-	return token
-
-static func intensity_spend_token(cost: Dictionary) -> Dictionary:
-	var element_id: String = str(cost.get("element", ElementData.NONE))
-	var amount: int = maxi(0, int(cost.get("amount", 0)))
-	var token: Dictionary = token_for(
-		element_icon_key(element_id),
-		"-%d" % amount,
-		"penalty",
-		"Spend %s Intensity\nThis cost removes %d %s intensity from the room when the effect resolves." % [
-			ElementData.name(element_id),
-			amount,
-			ElementData.name(element_id)
-		]
-	)
-	token["kind"] = "intensity_spend"
-	token["element"] = element_id
-	token["amount"] = amount
-	token["keep_row_together"] = true
-	return token
-
-static func _bonus_token(icon_key: String, amount: int, tooltip_text: String) -> Dictionary:
-	return token_for(icon_key, "+%d" % amount, "neutral", tooltip_text)
-
-static func _damage_bonus_fallback_icon(action: Dictionary) -> String:
-	match str(action.get("type", "")):
-		"ranged":
-			return "ranged"
-		"aoe":
-			return "ranged" if int(action.get("range", 0)) > 0 else "melee"
-		_:
-			return "melee"
+		var icon_key: String = kind if layer == "field" else "surface_%s" % kind
+		var duration: int = maxi(1, int(action.get("%s_duration" % layer, 18)))
+		tokens.append(token_for(icon_key, duration, "neutral", "%s is placed by this action for %d Time." % [label(icon_key), duration]))
+	if bool(action.get("combust", false)):
+		tokens.append(token_for("combust", null, "bonus"))
 
 static func plain_text_for_tokens(tokens: Array) -> String:
 	var parts: PackedStringArray = []
@@ -1053,12 +961,6 @@ static func plain_text_for_tokens(tokens: Array) -> String:
 		var token: Dictionary = token_var
 		if str(token.get("kind", "")) == "aoe_pattern":
 			parts.append("Area")
-			continue
-		if str(token.get("kind", "")) == "intensity_requirement":
-			parts.append("%s %s" % [ElementData.name(str(token.get("element", ElementData.NONE))), token_value_text(token)])
-			continue
-		if str(token.get("kind", "")) == "intensity_spend":
-			parts.append("Spend %s %d" % [ElementData.name(str(token.get("element", ElementData.NONE))), int(token.get("amount", 0))])
 			continue
 		if str(token.get("kind", "")) == "text":
 			parts.append(token_value_text(token))
@@ -1123,24 +1025,16 @@ static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
 	}
 
 static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
-	if int(action.get("burn", 0)) > 0:
-		tokens.append(_token_for_action_field(action, "burn", "burn", int(action.get("burn", 0))))
 	if int(action.get("bleed", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "bleed", "bleed", int(action.get("bleed", 0))))
 	if int(action.get("expose", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "expose", "expose", int(action.get("expose", 0))))
 	if int(action.get("sunder", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "sunder", "sunder", int(action.get("sunder", 0))))
-	if int(action.get("freeze", 0)) > 0:
-		tokens.append(_token_for_action_field(action, "freeze", "freeze", int(action.get("freeze", 0))))
-	if int(action.get("shock", 0)) > 0:
-		tokens.append(_token_for_action_field(action, "shock", "shock", int(action.get("shock", 0))))
 	if bool(action.get("immobilize", false)):
 		tokens.append(_token_for_action_field(action, "immobilize", "immobilize"))
 	if int(action.get("chain", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "chain", "chain", int(action.get("chain", 0))))
-	if int(action.get("poison", 0)) > 0:
-		tokens.append(_token_for_action_field(action, "poison", "poison", int(action.get("poison", 0))))
 	if int(action.get("push", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "push", "push", int(action.get("push", 0))))
 	if int(action.get("pull", 0)) > 0:
@@ -1173,10 +1067,6 @@ static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -
 		"neutral",
 		duration_tooltip
 	))
-
-static func _action_element(action: Dictionary) -> String:
-	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
-	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
 
 static func _damage_tone(final_damage: int, base_damage: int) -> String:
 	return _value_tone(final_damage, base_damage)

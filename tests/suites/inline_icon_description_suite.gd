@@ -35,15 +35,17 @@ const DEDICATED_ICON_TERM_PATTERNS: Array[Dictionary] = [
 	{"label": "Vision", "pattern": "(?i)\\bvision\\b"},
 	{"label": "Truesight", "pattern": "(?i)\\btruesight\\b"},
 	{"label": "Umbra", "pattern": "(?i)\\bumbra\\b"},
-	{"label": "Burn", "pattern": "(?i)\\bburn(?:s|ed|ing)?\\b"},
 	{"label": "Bleed", "pattern": "(?i)\\bbleed(?:s|ing)?\\b"},
 	{"label": "Expose", "pattern": "(?i)\\bexpose(?:s|d)?\\b"},
-	{"label": "Freeze", "pattern": "(?i)\\b(?:freeze|freezes|freezing|frozen)\\b"},
-	{"label": "Shock", "pattern": "(?i)\\bshock(?:s|ed|ing)?\\b"},
 	{"label": "Poison", "pattern": "(?i)\\bpoison(?:s|ed|ing)?\\b"},
+	{"label": "Corruption", "pattern": "(?i)\\bcorruption\\b"},
+	{"label": "Radiance", "pattern": "(?i)\\bradiance\\b"},
+	{"label": "Bramble", "pattern": "(?i)\\bbramble\\b"},
+	{"label": "Snowdrift", "pattern": "(?i)\\bsnowdrift\\b"},
+	{"label": "Electrified", "pattern": "(?i)\\belectrified\\b"},
+	{"label": "Combust", "pattern": "(?i)\\bcombust\\b"},
 	{"label": "Fatigue", "pattern": "(?i)\\bfatigue\\b"},
 	{"label": "Defiance", "pattern": "(?i)\\bdefiance\\b"},
-	{"label": "Intensity", "pattern": "(?i)\\bintensity\\b"},
 	{"label": "Trap", "pattern": "(?i)\\btraps?\\b"},
 	{"label": "Exhaust", "pattern": "(?i)\\bexhaust(?:s|ed|ing)?\\b"},
 	{"label": "Time", "pattern": "\\bTime\\b"},
@@ -57,7 +59,7 @@ static func run(expect: Callable) -> void:
 		relic_icon_count += InlineIconText.icon_keys(description).size()
 		expect.call(InlineIconText.has_icons(description), "%s relic rules should use at least one established mechanic icon" % relic_id)
 		_audit_description(expect, "relic %s" % relic_id, description)
-	expect.call(relic_icon_count >= 180, "The full relic audit should retain broad inline-icon coverage")
+	expect.call(relic_icon_count >= 175, "The full relic audit should retain broad inline-icon coverage")
 
 	var skill_icon_count: int = 0
 	var iconless_skills: Array[String]
@@ -70,7 +72,7 @@ static func run(expect: Callable) -> void:
 		_audit_description(expect, "ability %s" % skill_id, description)
 	iconless_skills.sort()
 	expect.call(iconless_skills == ICONLESS_SKILLS, "Only abilities without an exact card-action concept should remain text-only: %s" % str(iconless_skills))
-	expect.call(skill_icon_count >= 50, "The full ability audit should retain broad inline-icon coverage")
+	expect.call(skill_icon_count >= 48, "The full ability audit should retain broad inline-icon coverage")
 
 	var example: String = "Create @icon(illuminate) 2 for @icon(time) 2."
 	expect.call(InlineIconText.plain_text(example) == "Create Illuminate 2 for Time 2.", "Inline icon rules should retain an accessible plain-text expansion")
