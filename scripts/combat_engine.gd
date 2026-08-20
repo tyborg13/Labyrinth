@@ -8,12 +8,15 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const CombatPatternRules = preload("res://scripts/combat_pattern_rules.gd")
+const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 7
 const MAX_LOG_LINES: int = 12
+const FREE_MOVE_RANGE: int = 2
 const PLAYER_BASE_INITIATIVE: int = 9
 const PLAYER_MIN_INITIATIVE: int = 5
 const ENEMY_MIN_INITIATIVE: int = 4
@@ -627,6 +630,36 @@ func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String =
 func fallback_move_action(state: Dictionary, normal_range: int) -> Dictionary:
 	return {"type": "move", "range": normal_range, "_fallback_kind": "move"}
 
+func free_move_available(state: Dictionary) -> bool:
+	return is_player_turn(state) and bool(state.get("free_move_available", false))
+
+func free_move_action(state: Dictionary) -> Dictionary:
+	if not free_move_available(state):
+		return {}
+	return {
+		"type": "move",
+		"range": FREE_MOVE_RANGE,
+		"_free_move": true,
+	}
+
+func field_kind_at(state: Dictionary, tile: Vector2i) -> String:
+	return CombatTerrainRules.field_kind_at(state, tile)
+
+func surface_kind_at(state: Dictionary, tile: Vector2i) -> String:
+	return CombatTerrainRules.surface_kind_at(state, tile)
+
+func place_field(state: Dictionary, tiles: Array, kind: String, duration: int = CombatTerrainRules.DEFAULT_FIELD_DURATION) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var expires_at: int = int(next_state.get("initiative_clock", 0)) + maxi(1, duration)
+	CombatTerrainRules.place_field(next_state, tiles, kind, expires_at)
+	return next_state
+
+func place_surface(state: Dictionary, tiles: Array, kind: String, duration: int = CombatTerrainRules.DEFAULT_SURFACE_DURATION) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var expires_at: int = int(next_state.get("initiative_clock", 0)) + maxi(1, duration)
+	CombatTerrainRules.place_surface(next_state, tiles, kind, expires_at)
+	return next_state
+
 func fallback_blink_action(state: Dictionary, normal_range: int) -> Dictionary:
 	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("fallback_blink")
 	if skill_is_ready(state, skill_id):
@@ -774,6 +807,10 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"traps": room_layout.get("traps", []).duplicate(true),
 		"loot": room_layout.get("loot", []).duplicate(true),
 		"terrain": room_layout.get("terrain", []).duplicate(true),
+		"tile_effects": {
+			"fields": [],
+			"surfaces": [],
+		},
 		"umbra": _initial_umbra_state(room_layout),
 		"relics": relic_ids,
 		"skill_ids": SkillTreeLibrary.normalized_ids(player_snapshot.get("skill_ids", [])),
@@ -815,10 +852,13 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"current_actor": _player_actor_entry(0, 0),
 		"turn_queue": [],
 		"player_turn_time_spent": 0,
+		"free_move_available": true,
+		"pending_player_attack_suppression": false,
 		"player_turn_restrictions": {
 			"frozen": false,
 			"shocked": false,
-			"immobilized": false
+			"immobilized": false,
+			"attacks_suppressed": false,
 		},
 		"pending_player_trap_restriction": "",
 		"turn_flags": {
@@ -931,6 +971,8 @@ func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	if not action_intensity_requirement_met(state, action):
 		return false
 	var action_type: String = str(action.get("type", ""))
+	if bool(action.get("_free_move", false)) and not free_move_available(state):
+		return false
 	if action_type == "intensity_spend" and not action_intensity_spend_requirement_met(state, action):
 		return false
 	var restrictions: Dictionary = state.get("player_turn_restrictions", {})
@@ -958,7 +1000,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 	match action_type:
 		"move":
 			occupied = _known_actor_tiles_for_player(state)
-			var move_range: int = int(resolved_action.get("range", 0)) + _move_bonus_for_current_turn(state)
+			var move_range: int = _player_move_range(state, resolved_action)
 			targets = PathUtils.reachable_tiles(state.get("grid", []), player_pos, move_range, occupied)
 		"blink":
 			occupied = _player_blocking_tiles(state)
@@ -1108,7 +1150,7 @@ func player_action_has_valid_target(state: Dictionary, action: Dictionary) -> bo
 		return false
 	if str(action.get("type", "")) != "move":
 		return not valid_targets_for_player_action(state, action).is_empty()
-	var move_range: int = int((_action_with_intensity_bonus(state, action)).get("range", 0)) + _move_bonus_for_current_turn(state)
+	var move_range: int = _player_move_range(state, _action_with_intensity_bonus(state, action))
 	if move_range <= 0:
 		return false
 	var grid: Array = state.get("grid", []) as Array
@@ -1142,7 +1184,7 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	match action_type:
 		"move":
-			var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+			var move_range: int = _player_move_range(state, action)
 			return _actual_player_movement_path(state, player_pos, target_tile, move_range)
 		"blink":
 			if target_tile.x >= 0:
@@ -1153,7 +1195,7 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 
 func movement_plan_for_player_action(state: Dictionary, action: Dictionary, prevalidated_targets: Variant = null) -> Dictionary:
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+	var move_range: int = _player_move_range(state, action)
 	var target_tiles: Array[Vector2i] = []
 	if str(action.get("type", "")) != "move" or move_range <= 0 or not player_action_can_resolve(state, action):
 		return {
@@ -1302,6 +1344,8 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				var loot_before: int = _unclaimed_loot_count(next_state)
 				player["pos"] = target_tile
 				next_state["player"] = player
+				var blink_terrain_entry: Dictionary = _resolve_player_tile_entry(next_state, target_tile)
+				next_state = blink_terrain_entry.get("state", next_state) as Dictionary
 				_collect_loot_at_player(next_state)
 				next_state = _trigger_trap_on_player(next_state)
 				next_state = _trigger_blink_relics(next_state, PathUtils.manhattan(blink_origin, target_tile))
@@ -1321,19 +1365,34 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
 			if target_is_valid:
-				next_state = _attack_target_on_tile(next_state, action, target_tile, "melee")
+				if _player_attacks_suppressed(next_state):
+					_log(next_state, "The attack segment is suppressed by Electrified terrain.")
+				else:
+					next_state = _attack_target_on_tile(next_state, action, target_tile, "melee")
 		"ranged":
 			if target_is_valid:
-				next_state = _attack_target_on_tile(next_state, action, target_tile, "ranged")
+				if _player_attacks_suppressed(next_state):
+					_log(next_state, "The attack segment is suppressed by Electrified terrain.")
+				else:
+					next_state = _attack_target_on_tile(next_state, action, target_tile, "ranged")
 		"aoe":
 			if target_is_valid:
-				next_state = _aoe_enemies(next_state, action, target_tile)
+				if _player_attacks_suppressed(next_state):
+					_log(next_state, "The attack segment is suppressed by Electrified terrain.")
+				else:
+					next_state = _aoe_enemies(next_state, action, target_tile)
 		"push":
 			if target_is_valid:
-				next_state = _push_or_pull_target(next_state, action, target_tile, true)
+				if _player_attacks_suppressed(next_state):
+					_log(next_state, "The attack segment is suppressed by Electrified terrain.")
+				else:
+					next_state = _push_or_pull_target(next_state, action, target_tile, true)
 		"pull":
 			if target_is_valid:
-				next_state = _push_or_pull_target(next_state, action, target_tile, false)
+				if _player_attacks_suppressed(next_state):
+					_log(next_state, "The attack segment is suppressed by Electrified terrain.")
+				else:
+					next_state = _push_or_pull_target(next_state, action, target_tile, false)
 		"block":
 			player["block"] = int(player.get("block", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player
@@ -1404,10 +1463,22 @@ func _apply_player_move_along_path(
 	performance_phase_started = _record_runtime_performance_phase("move_path_bleed_outcome", performance_phase_started)
 	var resolved_path: Array[Vector2i] = _player_path_until_hidden_collision(next_state, movement_path, hidden_collision_tiles, use_hidden_collision_lookup)
 	performance_phase_started = _record_runtime_performance_phase("move_path_hidden_collision", performance_phase_started)
+	var ice_route: Dictionary = CombatTerrainRules.route_with_ice(
+		next_state,
+		next_state.get("grid", []) as Array,
+		resolved_path,
+		_player_blocking_tiles(next_state)
+	)
+	resolved_path = _vector2i_values(ice_route.get("path", resolved_path) as Array)
 	next_state = _move_player_along_path(next_state, resolved_path)
+	var collision_tile: Vector2i = ice_route.get("collision_tile", INVALID_TILE)
+	if collision_tile.x >= 0 and int((next_state.get("player", {}) as Dictionary).get("hp", 0)) > 0:
+		next_state = _resolve_player_collision(next_state, collision_tile)
 	performance_phase_started = _record_runtime_performance_phase("move_path_traverse", performance_phase_started)
 	var resolved_endpoint: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", resolved_path[0])
 	resolved_path = _movement_path_through_endpoint(resolved_path, resolved_endpoint)
+	if bool(resolved_action.get("_free_move", false)):
+		next_state["free_move_available"] = false
 	_mark_first_move_used(next_state)
 	performance_phase_started = _record_runtime_performance_phase("move_path_endpoint", performance_phase_started)
 	next_state = _trigger_long_move_relics(next_state, resolved_path.size() - 1)
@@ -1535,7 +1606,7 @@ func _prevalidated_player_move_path_is_usable(state: Dictionary, action: Diction
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	if movement_path[0] != player_pos or movement_path[movement_path.size() - 1] != target_tile:
 		return false
-	var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+	var move_range: int = _player_move_range(state, action)
 	if movement_path.size() - 1 > move_range:
 		return false
 	var grid: Array = state.get("grid", [])
@@ -1977,6 +2048,9 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		var skip_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < skip_enemies.size():
 			var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
+			skip_enemy.erase("attacks_suppressed_this_activation")
+			skip_enemies[enemy_index] = skip_enemy
+			next_state["enemies"] = skip_enemies
 			next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
 			if int(skip_enemy.get("hp", 0)) > 0:
 				_assign_enemy_intent(next_state, enemy_index, rng)
@@ -1989,6 +2063,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	var shocked: bool = bool(turn_setup.get("shocked", false))
 	var immobilized: bool = bool(turn_setup.get("immobilized", false))
+	var attacks_suppressed: bool = bool(turn_setup.get("attacks_suppressed", false))
 	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	intent = enemy.get("intent", {})
 	if not intent.is_empty():
@@ -2002,7 +2077,12 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var action: Dictionary = action_var
 			if combat_outcome(next_state) != "":
 				break
+			var current_enemies: Array = next_state.get("enemies", [])
+			if enemy_index >= 0 and enemy_index < current_enemies.size():
+				attacks_suppressed = attacks_suppressed or bool((current_enemies[enemy_index] as Dictionary).get("attacks_suppressed_this_activation", false))
 			if shocked and not _enemy_action_is_movement(action):
+				continue
+			if attacks_suppressed and _enemy_action_is_attack(action):
 				continue
 			if immobilized and _enemy_action_is_movement(action):
 				continue
@@ -2030,6 +2110,9 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
 			var post_turn_enemy: Dictionary = _normalized_enemy(post_turn_enemies[enemy_index] as Dictionary)
 			if int(post_turn_enemy.get("hp", 0)) > 0:
+				post_turn_enemy.erase("attacks_suppressed_this_activation")
+				post_turn_enemies[enemy_index] = post_turn_enemy
+				next_state["enemies"] = post_turn_enemies
 				next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
 				_assign_enemy_intent(next_state, enemy_index, rng)
 	next_state["rng_state"] = rng.state
@@ -2194,6 +2277,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["player"] = player
 	next_state["turn"] = int(next_state.get("turn", 1)) + 1
 	next_state["player_turn_time_spent"] = 0
+	next_state["free_move_available"] = true
 	next_state["cards_played_this_turn"] = 0
 	next_state["death_bonus_card_plays_this_turn"] = 0
 	next_state["card_play_bonus_this_turn"] = maxi(0, int(next_state.get("pending_relic_card_plays", 0)))
@@ -2201,8 +2285,10 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["player_turn_restrictions"] = {
 		"frozen": false,
 		"shocked": false,
-		"immobilized": false
+		"immobilized": false,
+		"attacks_suppressed": bool(next_state.get("pending_player_attack_suppression", false)),
 	}
+	next_state["pending_player_attack_suppression"] = false
 	next_state["pending_player_trap_restriction"] = ""
 	next_state["turn_flags"] = {
 		"first_attack_bonus_used": false,
@@ -3687,10 +3773,18 @@ func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_in
 func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned_path: Array[Vector2i], action_context: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
 	var resolved_path: Array[Vector2i] = _vector2i_values([])
+	var poison_armed: bool = false
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var ice_route: Dictionary = CombatTerrainRules.route_with_ice(
+		next_state,
+		next_state.get("grid", []) as Array,
+		planned_path,
+		_enemy_blocking_tiles(next_state, int(enemy.get("id", -1)))
+	)
+	planned_path = _vector2i_values(ice_route.get("path", planned_path) as Array)
 	resolved_path.append(enemy.get("pos", Vector2i.ZERO))
 	for path_index: int in range(1, planned_path.size()):
 		enemies = next_state.get("enemies", [])
@@ -3703,9 +3797,17 @@ func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
 		resolved_path.append(planned_path[path_index])
+		var terrain_entry: Dictionary = _resolve_enemy_tile_entry(next_state, enemy_index, planned_path[path_index], poison_armed)
+		next_state = terrain_entry.get("state", next_state) as Dictionary
+		poison_armed = bool(terrain_entry.get("poison_armed", poison_armed))
 		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
 		if combat_outcome(next_state) != "":
 			break
+		if bool(terrain_entry.get("stop_movement", false)):
+			break
+	var collision_tile: Vector2i = ice_route.get("collision_tile", INVALID_TILE)
+	if collision_tile.x >= 0 and enemy_index >= 0 and enemy_index < (next_state.get("enemies", []) as Array).size():
+		next_state = _resolve_enemy_collision(next_state, enemy_index, collision_tile)
 	action_context["resolved_path"] = resolved_path
 	return next_state
 
@@ -3766,6 +3868,8 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 		if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
 		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
+		if bool(resolved_action.get("combust", false)):
+			_consume_enemy_surface(next_state, enemy_index)
 		if damage > 0:
 			next_state = _consume_enemy_expose(next_state, enemy_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
@@ -3814,6 +3918,8 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 		var damage: int = _damage_for_enemy_target_with_context(next_state, resolved_action, enemy_index, relic_effects)
 		last_damage = damage
 		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
+		if bool(resolved_action.get("combust", false)):
+			_consume_enemy_surface(next_state, enemy_index)
 		if damage > 0:
 			next_state = _consume_enemy_expose(next_state, enemy_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
@@ -3845,7 +3951,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	var total_damage: int = damage
 	if apply_freeze_multiplier and int(enemy.get("freeze", 0)) > 0:
 		total_damage *= 2
-	if total_damage > 0 and int(enemy.get("frost_armor", 0)) > 0:
+	if not bypass_defense and total_damage > 0 and int(enemy.get("frost_armor", 0)) > 0:
 		enemy["frost_armor"] = int(enemy.get("frost_armor", 0)) - 1
 		enemies[enemy_index] = enemy
 		_log(next_state, "%s's crystal armor shatters a blow." % _enemy_display_name(enemy))
@@ -4581,6 +4687,10 @@ func _pop_next_actor(state: Dictionary) -> Dictionary:
 		next_state["turn_queue"] = queue
 		next_state["current_actor"] = resolved
 		next_state["initiative_clock"] = int(resolved.get("time", next_state.get("initiative_clock", 0)))
+		next_state["last_expired_tile_effects"] = CombatTerrainRules.expire_at_clock(
+			next_state,
+			int(next_state.get("initiative_clock", 0))
+		)
 		var reinforcement_steps: Array[Dictionary] = _spawn_due_survival_reinforcements(next_state)
 		return {"state": next_state, "entry": resolved, "reinforcement_steps": reinforcement_steps}
 	next_state["turn_queue"] = queue
@@ -5361,7 +5471,10 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 			return next_state
 		var terrain_override: int = int(action_context.get("blocking_terrain_index", -1)) if has_plan else -2
 		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, terrain_override)
-	var damage: int = int(action.get("damage", 0))
+	var damage: int = int(action.get("damage", 0)) + CombatTerrainRules.attack_bonus_at(
+		next_state,
+		target.get("pos", INVALID_TILE)
+	)
 	if action_type == "aoe":
 		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
 		var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, target.get("pos", Vector2i.ZERO))
@@ -5401,12 +5514,15 @@ func _damage_enemy_aoe_occupants(state: Dictionary, enemy_index: int, action: Di
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var damage: int = int(action.get("damage", 0))
 	for affected_target: Dictionary in _actor_targets_in_tiles(next_state, affected_tiles):
+		var damage: int = int(action.get("damage", 0)) + CombatTerrainRules.attack_bonus_at(
+			next_state,
+			affected_target.get("pos", INVALID_TILE)
+		)
 		if damage > 0:
 			next_state = _damage_actor_target(next_state, affected_target, damage, _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
-	return _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, affected_tiles), damage)
+	return _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, affected_tiles), int(action.get("damage", 0)))
 
 func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
@@ -5993,6 +6109,7 @@ func _enemy_direction_path(state: Dictionary, enemy_index: int, direction: Vecto
 func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int, player_triggered_traps: bool = false) -> Dictionary:
 	var next_state: Dictionary = state
 	var step_direction: Vector2i = _cardinal_direction(direction)
+	var poison_armed: bool = false
 	if step_direction == Vector2i.ZERO or amount <= 0:
 		return next_state
 	for _step: int in range(amount):
@@ -6010,14 +6127,20 @@ func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Ve
 		enemy["pos"] = candidate
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
+		var terrain_entry: Dictionary = _resolve_enemy_tile_entry(next_state, enemy_index, candidate, poison_armed)
+		next_state = terrain_entry.get("state", next_state) as Dictionary
+		poison_armed = bool(terrain_entry.get("poison_armed", poison_armed))
 		next_state = _trigger_trap_on_enemy(next_state, enemy_index, player_triggered_traps)
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
+			break
+		if bool(terrain_entry.get("stop_movement", false)):
 			break
 	return next_state
 
 func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Vector2i, amount: int, pushing: bool, player_triggered_traps: bool = false) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
+	var poison_armed: bool = false
 	if enemy_index < 0 or enemy_index >= enemies.size() or amount <= 0:
 		return next_state
 	for _step: int in range(amount):
@@ -6040,13 +6163,126 @@ func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Ve
 		enemy["pos"] = candidate
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
+		var terrain_entry: Dictionary = _resolve_enemy_tile_entry(next_state, enemy_index, candidate, poison_armed)
+		next_state = terrain_entry.get("state", next_state) as Dictionary
+		poison_armed = bool(terrain_entry.get("poison_armed", poison_armed))
 		next_state = _trigger_trap_on_enemy(next_state, enemy_index, player_triggered_traps)
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 			break
+		if bool(terrain_entry.get("stop_movement", false)):
+			break
+	return next_state
+
+func _resolve_player_tile_entry(state: Dictionary, tile: Vector2i, poison_armed: bool = false) -> Dictionary:
+	var next_state: Dictionary = state
+	var effect: Dictionary = CombatTerrainRules.entry_effect(
+		next_state,
+		tile,
+		CombatTerrainRules.TEAM_PLAYER,
+		poison_armed
+	)
+	var damage: int = int(effect.get("damage", 0))
+	if damage > 0:
+		next_state = _damage_player(next_state, damage, true, false, "terrain")
+	if bool(effect.get("attacks_suppressed", false)):
+		if is_player_turn(next_state):
+			var restrictions: Dictionary = (next_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
+			restrictions["attacks_suppressed"] = true
+			next_state["player_turn_restrictions"] = restrictions
+		else:
+			next_state["pending_player_attack_suppression"] = true
+	if bool(effect.get("consume_surface", false)):
+		CombatTerrainRules.clear_surface(next_state, tile)
+	return {
+		"state": next_state,
+		"poison_armed": bool(effect.get("poison_armed", poison_armed)),
+		"stop_movement": bool(effect.get("stop_movement", false)),
+		"slide": bool(effect.get("slide", false)),
+		"effect": effect,
+	}
+
+func _resolve_enemy_tile_entry(state: Dictionary, enemy_index: int, tile: Vector2i, poison_armed: bool = false) -> Dictionary:
+	var next_state: Dictionary = state
+	var effect: Dictionary = CombatTerrainRules.entry_effect(
+		next_state,
+		tile,
+		CombatTerrainRules.TEAM_ENEMY,
+		poison_armed
+	)
+	var damage: int = int(effect.get("damage", 0))
+	if damage > 0:
+		next_state = _damage_enemy(next_state, enemy_index, damage, false, true)
+	var enemies: Array = next_state.get("enemies", [])
+	if bool(effect.get("attacks_suppressed", false)) and enemy_index >= 0 and enemy_index < enemies.size():
+		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		var current_actor: Dictionary = next_state.get("current_actor", {}) as Dictionary
+		if str(current_actor.get("kind", "")) == "enemy" and int(current_actor.get("enemy_id", -1)) == int(enemy.get("id", -2)):
+			enemy["attacks_suppressed_this_activation"] = true
+		else:
+			enemy["attacks_suppression_pending"] = true
+		enemies[enemy_index] = enemy
+		next_state["enemies"] = enemies
+	if bool(effect.get("consume_surface", false)):
+		CombatTerrainRules.clear_surface(next_state, tile)
+	return {
+		"state": next_state,
+		"poison_armed": bool(effect.get("poison_armed", poison_armed)),
+		"stop_movement": bool(effect.get("stop_movement", false)),
+		"slide": bool(effect.get("slide", false)),
+		"effect": effect,
+	}
+
+func _resolve_player_collision(state: Dictionary, collision_tile: Vector2i) -> Dictionary:
+	var next_state: Dictionary = _damage_player(
+		state,
+		CombatTerrainRules.COLLISION_DAMAGE,
+		true,
+		false,
+		"collision"
+	)
+	var enemy_index: int = _enemy_index_at_tile(next_state, collision_tile)
+	if enemy_index >= 0:
+		next_state = _damage_enemy(next_state, enemy_index, CombatTerrainRules.COLLISION_DAMAGE, false, true)
+	else:
+		var terrain_index: int = _terrain_index_at_tile(next_state, collision_tile)
+		if terrain_index >= 0:
+			next_state = _damage_terrain(next_state, terrain_index, CombatTerrainRules.COLLISION_DAMAGE)
+	_log(next_state, "Collision deals %d." % CombatTerrainRules.COLLISION_DAMAGE)
+	return next_state
+
+func _resolve_enemy_collision(state: Dictionary, enemy_index: int, collision_tile: Vector2i) -> Dictionary:
+	var next_state: Dictionary = _damage_enemy(
+		state,
+		enemy_index,
+		CombatTerrainRules.COLLISION_DAMAGE,
+		false,
+		true
+	)
+	var player: Dictionary = _normalized_player(next_state.get("player", {}))
+	if player.get("pos", INVALID_TILE) == collision_tile and int(player.get("hp", 0)) > 0:
+		next_state = _damage_player(next_state, CombatTerrainRules.COLLISION_DAMAGE, true, false, "collision")
+	else:
+		var other_enemy_index: int = _enemy_index_at_tile(next_state, collision_tile)
+		if other_enemy_index >= 0 and other_enemy_index != enemy_index:
+			next_state = _damage_enemy(next_state, other_enemy_index, CombatTerrainRules.COLLISION_DAMAGE, false, true)
+		else:
+			var hit_illusion: bool = false
+			for illusion: Dictionary in _live_illusions(next_state):
+				if illusion.get("pos", INVALID_TILE) != collision_tile:
+					continue
+				next_state = _damage_illusion(next_state, int(illusion.get("id", -1)), CombatTerrainRules.COLLISION_DAMAGE)
+				hit_illusion = true
+				break
+			if not hit_illusion:
+				var terrain_index: int = _terrain_index_at_tile(next_state, collision_tile)
+				if terrain_index >= 0:
+					next_state = _damage_terrain(next_state, terrain_index, CombatTerrainRules.COLLISION_DAMAGE)
+	_log(next_state, "Collision deals %d." % CombatTerrainRules.COLLISION_DAMAGE)
 	return next_state
 
 func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: int, pushing: bool) -> Dictionary:
 	var next_state: Dictionary = state
+	var poison_armed: bool = false
 	if amount <= 0:
 		return next_state
 	for _step: int in range(amount):
@@ -6062,9 +6298,14 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 			break
 		player["pos"] = next_tile
 		next_state["player"] = player
+		var terrain_entry: Dictionary = _resolve_player_tile_entry(next_state, next_tile, poison_armed)
+		next_state = terrain_entry.get("state", next_state) as Dictionary
+		poison_armed = bool(terrain_entry.get("poison_armed", poison_armed))
 		_collect_loot_at_player(next_state)
 		next_state = _trigger_trap_on_player(next_state)
 		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
+			break
+		if bool(terrain_entry.get("stop_movement", false)):
 			break
 	return _dispel_illusion_at_player(next_state)
 
@@ -6074,16 +6315,22 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i]) -> Dictio
 		return next_state
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
+	var poison_armed: bool = false
 	for step_index: int in range(1, path.size()):
 		var player: Dictionary = _normalized_player(next_state.get("player", {}))
 		player["pos"] = path[step_index]
 		next_state["player"] = player
 		performance_phase_started = _record_runtime_performance_phase("traverse_position", performance_phase_started)
+		var terrain_entry: Dictionary = _resolve_player_tile_entry(next_state, path[step_index], poison_armed)
+		next_state = terrain_entry.get("state", next_state) as Dictionary
+		poison_armed = bool(terrain_entry.get("poison_armed", poison_armed))
 		_collect_loot_at_player(next_state)
 		performance_phase_started = _record_runtime_performance_phase("traverse_loot", performance_phase_started)
 		next_state = _trigger_trap_on_player(next_state)
 		performance_phase_started = _record_runtime_performance_phase("traverse_trap", performance_phase_started)
 		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
+			break
+		if bool(terrain_entry.get("stop_movement", false)):
 			break
 	var result_state: Dictionary = _dispel_illusion_at_player(next_state)
 	_record_runtime_performance_phase("traverse_dispel", performance_phase_started)
@@ -6580,14 +6827,99 @@ func _clear_enemy_bleed_after_turn(state: Dictionary, enemy_index: int) -> Dicti
 	next_state["enemies"] = enemies
 	return next_state
 
+func _resolve_player_terrain_start(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var player: Dictionary = _normalized_player(next_state.get("player", {}))
+	var tile: Vector2i = player.get("pos", Vector2i.ZERO)
+	var effect: Dictionary = CombatTerrainRules.activation_start_effect(next_state, tile, CombatTerrainRules.TEAM_PLAYER)
+	var damage: int = int(effect.get("damage", 0))
+	if damage > 0:
+		next_state = _damage_player(next_state, damage, true, false, "terrain")
+		_log(next_state, "Corruption deals %d." % damage)
+	if bool(effect.get("attacks_suppressed", false)):
+		var restrictions: Dictionary = (next_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
+		restrictions["attacks_suppressed"] = true
+		next_state["player_turn_restrictions"] = restrictions
+		_log(next_state, "Electrified terrain suppresses attack segments this activation.")
+	if bool(effect.get("consume_surface", false)):
+		CombatTerrainRules.clear_surface(next_state, tile)
+	return {"state": next_state, "effect": effect}
+
+func _resolve_enemy_terrain_start(state: Dictionary, enemy_index: int) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return {"state": next_state, "changed": false, "attacks_suppressed": false}
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var tile: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var effect: Dictionary = CombatTerrainRules.activation_start_effect(next_state, tile, CombatTerrainRules.TEAM_ENEMY)
+	var damage: int = int(effect.get("damage", 0))
+	var healing: int = int(effect.get("healing", 0))
+	var hp_before: int = int(enemy.get("hp", 0))
+	if damage > 0:
+		next_state = _damage_enemy(next_state, enemy_index, damage, false, true)
+	elif healing > 0:
+		enemies = next_state.get("enemies", [])
+		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		enemy["hp"] = mini(int(enemy.get("max_hp", 1)), int(enemy.get("hp", 0)) + healing)
+		enemies[enemy_index] = enemy
+		next_state["enemies"] = enemies
+	if bool(effect.get("attacks_suppressed", false)):
+		enemies = next_state.get("enemies", [])
+		if enemy_index >= 0 and enemy_index < enemies.size():
+			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
+			enemy["attacks_suppressed_this_activation"] = true
+			enemies[enemy_index] = enemy
+			next_state["enemies"] = enemies
+	if bool(effect.get("consume_surface", false)):
+		CombatTerrainRules.clear_surface(next_state, tile)
+	var hp_after: int = hp_before
+	enemies = next_state.get("enemies", [])
+	if enemy_index >= 0 and enemy_index < enemies.size():
+		hp_after = int((enemies[enemy_index] as Dictionary).get("hp", hp_before))
+	var label: String = "Electrified" if bool(effect.get("attacks_suppressed", false)) else ("Radiance" if damage > 0 else "Corruption")
+	var text: String = label
+	if hp_after < hp_before:
+		text = "%s %d" % [label, hp_before - hp_after]
+	elif hp_after > hp_before:
+		text = "%s +%d" % [label, hp_after - hp_before]
+	return {
+		"state": next_state,
+		"changed": damage > 0 or hp_after != hp_before or bool(effect.get("attacks_suppressed", false)),
+		"attacks_suppressed": bool(effect.get("attacks_suppressed", false)),
+		"label": label,
+		"text": text,
+		"effect": effect,
+	}
+
 func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictionary:
 	var next_state: Dictionary = state
 	var steps: Array[Dictionary] = []
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
-		return {"steps": steps, "skip_all": false, "shocked": false, "immobilized": false}
+		return {"steps": steps, "skip_all": false, "shocked": false, "immobilized": false, "attacks_suppressed": false}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var actor_name: String = str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy"))
+	var attacks_suppressed: bool = bool(enemy.get("attacks_suppression_pending", false))
+	enemy.erase("attacks_suppression_pending")
+	enemy["attacks_suppressed_this_activation"] = attacks_suppressed
+	enemies[enemy_index] = enemy
+	next_state["enemies"] = enemies
+	var terrain_start: Dictionary = _resolve_enemy_terrain_start(next_state, enemy_index)
+	next_state = terrain_start.get("state", next_state) as Dictionary
+	attacks_suppressed = attacks_suppressed or bool(terrain_start.get("attacks_suppressed", false))
+	if bool(terrain_start.get("changed", false)):
+		steps.append({
+			"kind": "terrain_start",
+			"actor_key": _enemy_key(enemy),
+			"actor_name": actor_name,
+			"tile": enemy.get("pos", Vector2i.ZERO),
+			"label": str(terrain_start.get("label", "Terrain")),
+			"text": str(terrain_start.get("text", "Terrain")),
+		})
+	if combat_outcome(next_state) != "" or int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
+		return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "attacks_suppressed": attacks_suppressed, "state": next_state}
+	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	if int(enemy.get("burn", 0)) > 0:
 		var burn_amount: int = int(enemy.get("burn", 0))
 		var burn_before_state: Dictionary = next_state.duplicate(true)
@@ -6608,7 +6940,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 			"text": "Burn %d" % burn_amount
 		}, burn_before_state, next_state))
 		if int(enemy.get("hp", 0)) <= 0:
-			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "state": next_state}
+			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "attacks_suppressed": attacks_suppressed, "state": next_state}
 	if _poison_damage(enemy) > 0:
 		var poison_before: Dictionary = enemy.duplicate(true)
 		enemy = _advance_poison(enemy)
@@ -6637,7 +6969,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 			next_state["enemies"] = poison_enemies
 			steps.append(_enemy_status_damage_step(poison_step, poison_damage_before_state, next_state))
 			if int(enemy.get("hp", 0)) <= 0:
-				return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "state": next_state}
+				return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "attacks_suppressed": attacks_suppressed, "state": next_state}
 	else:
 		enemy = _advance_poison(enemy)
 		var pending_poison_enemies: Array = next_state.get("enemies", [])
@@ -6686,10 +7018,14 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 		var restricted_enemies: Array = next_state.get("enemies", [])
 		restricted_enemies[enemy_index] = enemy
 		next_state["enemies"] = restricted_enemies
-	return {"steps": steps, "skip_all": skip_all, "shocked": shocked, "immobilized": immobilized, "state": next_state}
+	return {"steps": steps, "skip_all": skip_all, "shocked": shocked, "immobilized": immobilized, "attacks_suppressed": attacks_suppressed, "state": next_state}
 
 func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
+	var terrain_start: Dictionary = _resolve_player_terrain_start(next_state)
+	next_state = terrain_start.get("state", next_state) as Dictionary
+	if combat_outcome(next_state) != "":
+		return next_state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	if int(player.get("burn", 0)) > 0:
 		var burn_amount: int = int(player.get("burn", 0))
@@ -6720,7 +7056,8 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	var restrictions: Dictionary = {
 		"frozen": false,
 		"shocked": false,
-		"immobilized": false
+		"immobilized": false,
+		"attacks_suppressed": bool((next_state.get("player_turn_restrictions", {}) as Dictionary).get("attacks_suppressed", false)),
 	}
 	if int(player.get("freeze", 0)) > 0:
 		player["freeze"] = maxi(0, int(player.get("freeze", 0)) - 1)
@@ -6765,6 +7102,10 @@ func _advance_poison(unit: Dictionary) -> Dictionary:
 
 func _enemy_action_is_movement(action: Dictionary) -> bool:
 	return str(action.get("type", "")) in ["move_toward", "move_away"]
+
+func _enemy_action_is_attack(action: Dictionary) -> bool:
+	var action_type: String = str(action.get("type", ""))
+	return action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES
 
 func _next_enemy_followup_attack_action(actions: Array, start_index: int) -> Dictionary:
 	for action_index: int in range(start_index, actions.size()):
@@ -8589,6 +8930,15 @@ func _move_bonus_for_current_turn(state: Dictionary) -> int:
 		return 0
 	return GameData.stat_bonus_from_relics(state.get("relics", []), "first_move_bonus")
 
+func _player_move_range(state: Dictionary, action: Dictionary) -> int:
+	var printed_range: int = maxi(0, int(action.get("range", 0)))
+	if bool(action.get("_free_move", false)):
+		return printed_range
+	return printed_range + _move_bonus_for_current_turn(state)
+
+func _player_attacks_suppressed(state: Dictionary) -> bool:
+	return bool((state.get("player_turn_restrictions", {}) as Dictionary).get("attacks_suppressed", false))
+
 func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index: int) -> int:
 	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
 	var relic_effects: Array[Dictionary] = _relic_effects(state)
@@ -8605,6 +8955,9 @@ func _damage_for_enemy_target_with_context(
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return damage
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	damage += _snowdrift_bonus_for_enemy(state, enemy)
+	if bool(resolved_action.get("combust", false)) and _surface_tile_for_enemy(state, enemy).x >= 0:
+		damage += CombatTerrainRules.COMBUST_ATTACK_BONUS
 	damage += int(enemy.get("expose", 0))
 	for effect: Dictionary in relic_effects:
 		if str(effect.get("type", "")) != "damage_vs_status":
@@ -8614,6 +8967,27 @@ func _damage_for_enemy_target_with_context(
 			continue
 		damage += GameData.fixed_point_amount(int(effect.get("value", 0)))
 	return maxi(0, damage)
+
+func _surface_tile_for_enemy(state: Dictionary, enemy: Dictionary) -> Vector2i:
+	for tile: Vector2i in _enemy_footprint_tiles(enemy):
+		if CombatTerrainRules.surface_kind_at(state, tile) != CombatTerrainRules.SURFACE_NONE:
+			return tile
+	return INVALID_TILE
+
+func _snowdrift_bonus_for_enemy(state: Dictionary, enemy: Dictionary) -> int:
+	for tile: Vector2i in _enemy_footprint_tiles(enemy):
+		if CombatTerrainRules.surface_kind_at(state, tile) == CombatTerrainRules.SURFACE_SNOWDRIFT:
+			return CombatTerrainRules.SNOWDRIFT_ATTACK_BONUS
+	return 0
+
+func _consume_enemy_surface(state: Dictionary, enemy_index: int) -> void:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var surface_tile: Vector2i = _surface_tile_for_enemy(state, enemy)
+	if surface_tile.x >= 0:
+		CombatTerrainRules.clear_surface(state, surface_tile)
 
 func _conditional_attack_bonus_for_action(state: Dictionary, action: Dictionary) -> int:
 	return _conditional_attack_bonus_for_action_from_effects(state, action, _relic_effects(state))

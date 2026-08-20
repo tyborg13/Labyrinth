@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-19T01:59:57Z",
+  "updated_at": "2026-08-20T14:47:21Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8439,6 +8439,28 @@
       "source": {
         "branch": "codex/fix-elemental-particle-preview-speed-and-lag",
         "commit": "efb0d43"
+      }
+    },
+    {
+      "id": "mnt_20260820T144721Z_72d30128",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "spec/combat_overhaul.md",
+        "symbol": null
+      },
+      "scope_key": "file:spec/combat_overhaul.md",
+      "summary": "Combat overhaul standardizes board rules and removes elemental gates",
+      "details": "Use one Field layer (Corruption/Radiance), one Surface layer (Bramble/Poison/Ice/Snowdrift/Electrified), absolute initiative-clock expiry, environmental HP damage that bypasses defenses, a free unsplit Move 2 per player activation, actor-neutral route physics, and shared pattern stencils. Cards and enemy intents should compose these rules rather than add actor statuses or element-specific movement implementations.",
+      "status": "active",
+      "created_at": "2026-08-20T14:47:21Z",
+      "updated_at": "2026-08-20T14:47:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/overhaul-combat-into-committed-patterns-and-elemental-surfaces",
+        "commit": "7609da2"
       }
     }
   ]
