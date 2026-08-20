@@ -1449,6 +1449,7 @@ var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
 var _analytics_store: AnalyticsStore = AnalyticsStore.new()
 var _analytics_combat_tracker: Dictionary = {}
+var _free_move_selection_active: bool = false
 var _selected_card_index: int = -1
 var _card_action_choice_index: int = -1
 var _card_action_choice_options: Dictionary = {}
@@ -6547,16 +6548,9 @@ func _commit_drag_drop(zone: String) -> void:
 	var hand_index: int = _drag_card_index
 	var options: Dictionary = _drag_card_options.duplicate(false)
 	var preview: Dictionary = {}
-	var label_override: String = ""
 	match zone:
 		"play":
 			preview = options.get("play", {})
-		"attack":
-			preview = options.get("attack", {})
-			label_override = _fallback_label("attack")
-		"move":
-			preview = options.get("move", {})
-			label_override = _fallback_label("move")
 		_:
 			await _animate_drag_cancel_to_source()
 			return
@@ -6565,21 +6559,11 @@ func _commit_drag_drop(zone: String) -> void:
 		return
 	if _drag_card_proxy != null:
 		var destination_rect: Rect2 = _stage_card_rect(_drag_card_source_rect.size)
-		if zone in ["attack", "move"]:
-			var command_panel: PanelContainer = _drag_zone_panels.get(zone, null) as PanelContainer
-			if command_panel != null:
-				destination_rect = _rect_from_center(command_panel.get_global_rect().get_center(), _drag_card_source_rect.size)
 		await _animate_card_proxy_to_rect(_drag_card_proxy, destination_rect, 0.10)
 	_cancel_drag_play()
-	await _begin_card_preview(hand_index, preview, label_override, true)
+	await _begin_card_preview(hand_index, preview, "", true)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
-	for zone: String in ["attack", "move"]:
-		var panel: PanelContainer = _drag_zone_panels.get(zone, null)
-		if panel == null or not panel.visible:
-			continue
-		if panel.get_global_rect().has_point(mouse_position):
-			return zone
 	if bool(_drag_card_options.get("printed_playable", false)) and board_view != null and board_view.get_global_rect().has_point(mouse_position):
 		return "play"
 	return ""
@@ -6957,10 +6941,6 @@ func _drag_option_valid(zone: String) -> bool:
 	match zone:
 		"play":
 			return bool(_drag_card_options.get("printed_playable", false))
-		"attack":
-			return bool(_drag_card_options.get("attack_playable", false))
-		"move":
-			return bool(_drag_card_options.get("move_playable", false))
 		_:
 			return false
 
@@ -9249,6 +9229,7 @@ func _combat_skill_activation_surface_available() -> bool:
 		and not _combat_state.is_empty()
 		and not _animation_lock
 		and _combat_engine.is_player_turn(_combat_state)
+		and not _free_move_selection_active
 		and _selected_card_index < 0
 		and _card_action_choice_index < 0
 		and _drag_card_index < 0
@@ -10534,7 +10515,7 @@ func _refresh_action_step_tracker() -> void:
 	performance_phase_started = _record_runtime_performance_phase("tracker_card", performance_phase_started)
 	var current_number: int = clampi(current_index + 1, 1, maxi(1, actions.size()))
 	if _action_step_tracker_title != null:
-		_action_step_tracker_title.text = str(card.get("name", card_id))
+		_action_step_tracker_title.text = "Free Move" if context_mode == "free_move" else str(card.get("name", card_id))
 	if _action_context_step_label != null:
 		_action_context_step_label.visible = not compact_header_mode
 		_action_context_step_label.text = "STEP %d/%d" % [current_number, maxi(1, actions.size())]
@@ -10579,6 +10560,15 @@ func _action_step_tracker_state() -> Dictionary:
 			"action_index": clampi(_action_step_resolution_index, 0, _action_step_resolution_actions.size()),
 			"selected_targets": _action_step_resolution_targets
 		}
+	if _free_move_selection_active and not _pending_actions.is_empty():
+		return {
+			"active": true,
+			"mode": "free_move",
+			"card_id": "",
+			"actions": _pending_actions,
+			"action_index": _pending_action_index,
+			"selected_targets": [],
+		}
 	if _drag_card_index >= 0:
 		var printed_preview: Dictionary = _drag_card_options.get("play", {})
 		var drag_actions: Array = printed_preview.get("actions", [])
@@ -10614,7 +10604,7 @@ func _action_step_tracker_state() -> Dictionary:
 			"action_index": choice_action_index,
 			"selected_targets": choice_targets
 		}
-	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size():
+	if _selected_card_index < 0:
 		return {}
 	return {
 		"active": true,
@@ -10885,20 +10875,6 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 	_action_context_command_bar.alignment = BoxContainer.ALIGNMENT_END
 	_action_context_command_bar.add_theme_constant_override("separation", 8)
 	if context_mode == "drag":
-		_action_context_command_bar.add_child(_build_drag_command_zone(
-			"attack",
-			"Basic Attack",
-			_fallback_command_detail("attack"),
-			Color("cf7657"),
-			Color("2f1d18")
-		))
-		_action_context_command_bar.add_child(_build_drag_command_zone(
-			"move",
-			"Basic Move",
-			_fallback_command_detail("move"),
-			Color("5b8ea2"),
-			Color("18262f")
-		))
 		_update_drag_overlay_hover(_drag_hover_zone)
 		return
 	if context_mode not in ["selection", "choice"]:
@@ -11693,6 +11669,7 @@ func _refresh_choice_bar() -> void:
 		choice_bar.visible = false
 		return
 	if mode == "combat" and not _combat_state.is_empty() and _combat_engine.is_player_turn(_combat_state):
+		_add_free_move_choice_button()
 		_add_pass_preview_chip()
 	match mode:
 		"room":
@@ -11777,6 +11754,40 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION if large_action_button else UiTypography.SIZE_SMALL)
 	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_ACTION if large_action_button else UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, true, variant)
 	button.pressed.connect(callback)
+	if _choice_buttons_use_overlay():
+		_choice_button_overlay.add_child(button)
+	else:
+		choice_bar.add_child(button)
+
+func _add_free_move_choice_button() -> void:
+	var action: Dictionary = _combat_engine.free_move_action(_combat_state)
+	var available: bool = (
+		not action.is_empty()
+		and not _animation_lock
+		and _combat_skill_card_selection_zone.is_empty()
+		and _drag_card_index < 0
+		and not _pending_umbra_commit_locked
+	)
+	if available:
+		available = not _combat_engine.valid_targets_for_player_action(_combat_state, action).is_empty()
+	var button := UiTooltipButton.new()
+	button.name = "FreeMoveButton"
+	button.text = "MOVE 2"
+	button.tooltip_text = (
+		"Choose a tile up to 2 orthogonal steps away. Free once each activation; does not play a card or advance Time."
+		if available
+		else "Free Move has been spent or has no legal destination this activation."
+	)
+	button.disabled = not available
+	button.focus_mode = Control.FOCUS_NONE if button.disabled else Control.FOCUS_ALL
+	var variant: String = UiSkin.VARIANT_SELECTED if _free_move_selection_active else UiSkin.VARIANT_LARGE
+	_ui_skin.apply_button_stylebox_overrides(button, variant)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_ACTION, 0.0, true, variant)
+	button.set_meta("free_move_action", true)
+	button.set_meta("panel_selected", _free_move_selection_active)
+	button.pressed.connect(_on_free_move_pressed)
 	if _choice_buttons_use_overlay():
 		_choice_button_overlay.add_child(button)
 	else:
@@ -12099,6 +12110,7 @@ func _pass_preview_action_available() -> bool:
 		and not _combat_state.is_empty()
 		and _combat_engine.is_player_turn(_combat_state)
 		and not _animation_lock
+		and not _free_move_selection_active
 		and _selected_card_index < 0
 		and _card_action_choice_index < 0
 		and _drag_card_index < 0
@@ -12262,7 +12274,7 @@ func _pass_preview_button_tooltip() -> String:
 
 func _pass_preview_source_state() -> Dictionary:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
+	if (_free_move_selection_active or _selected_card_index >= 0) and not _preview_combat_state.is_empty():
 		var hovered_state: Dictionary = _pass_preview_confirmed_hover_state()
 		performance_phase_started = _record_runtime_performance_phase("pass_preview_source_hover", performance_phase_started)
 		if not hovered_state.is_empty():
@@ -12277,7 +12289,7 @@ func _pass_preview_source_state() -> Dictionary:
 	return {}
 
 func _pass_preview_confirmed_hover_state() -> Dictionary:
-	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+	if (not _free_move_selection_active and _selected_card_index < 0) or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return {}
 	if _hovered_board_tile.x < 0:
 		return {}
@@ -15265,6 +15277,19 @@ func _sanitize_preview_for_umbra_information(source_preview: Dictionary) -> Dict
 func _active_card_preview() -> Dictionary:
 	if _combat_skill_card_selection_zone == "hand":
 		return {}
+	if _free_move_selection_active and _pending_action_index < _pending_actions.size():
+		return {
+			"card_id": "",
+			"state": _preview_combat_state,
+			"actions": _pending_actions,
+			"action_index": _pending_action_index,
+			"target_tiles": _vector2i_array(_pending_target_tiles),
+			"complete": false,
+			"playable": true,
+			"action": _pending_actions[_pending_action_index],
+			"skip_allowed": false,
+			"free_move": true,
+		}
 	if _drag_card_index >= 0:
 		if bool(_drag_card_options.get("printed_playable", false)):
 			return _sanitize_preview_for_umbra_information(_drag_card_options.get("play", {}) as Dictionary)
@@ -15347,25 +15372,15 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 	if _card_play_options_cache.has(cache_key):
 		return _card_play_options_cache.get(cache_key, {}) as Dictionary
 	var printed: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index))
-	var attack: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "attack"))
-	var move: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "move"))
-	var blink: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "blink"))
 	var printed_playable: bool = bool(printed.get("playable", false))
-	var attack_playable: bool = bool(attack.get("playable", false))
-	var move_playable: bool = bool(move.get("playable", false))
-	var blink_available: bool = not _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE).is_empty()
-	var blink_playable: bool = blink_available and bool(blink.get("playable", false))
 	var options: Dictionary = {
 		"play": printed,
-		"attack": attack,
-		"move": move,
-		"blink": blink,
 		"printed_playable": printed_playable,
-		"attack_playable": attack_playable,
-		"move_playable": move_playable,
-		"blink_available": blink_available,
-		"blink_playable": blink_playable,
-		"any_playable": printed_playable or attack_playable or move_playable or blink_playable
+		"attack_playable": false,
+		"move_playable": false,
+		"blink_available": false,
+		"blink_playable": false,
+		"any_playable": printed_playable,
 	}
 	_card_play_options_cache[cache_key] = options
 	return options
@@ -17156,6 +17171,40 @@ func _dictionary_array(values: Array) -> Array[Dictionary]:
 			result.append(value as Dictionary)
 	return result
 
+func _on_free_move_pressed() -> void:
+	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
+		return
+	if _free_move_selection_active:
+		_reset_card_resolution()
+		_refresh_card_preview_ui()
+		return
+	if not _combat_skill_card_selection_zone.is_empty() or _drag_card_index >= 0:
+		return
+	var action: Dictionary = _combat_engine.free_move_action(_combat_state)
+	if action.is_empty():
+		return
+	var preview: Dictionary = _sanitize_preview_for_umbra_information(
+		_card_preview_from_state("", _combat_state, [action], 0)
+	)
+	if not bool(preview.get("playable", false)):
+		return
+	_reset_card_resolution()
+	_free_move_selection_active = true
+	_selected_card_label_override = "Move 2"
+	_preview_combat_state = (preview.get("state", _combat_state) as Dictionary).duplicate(true)
+	_pending_actions = (preview.get("actions", [action]) as Array).duplicate(true)
+	_pending_action_index = int(preview.get("action_index", 0))
+	_pending_action_can_skip = false
+	_pending_target_tiles = _preview_target_tiles_for_action(
+		_preview_combat_state,
+		action,
+		preview.get("target_tiles", [])
+	)
+	_pending_selected_targets.clear()
+	_pending_orientation_target_tile = INVALID_TARGET_TILE
+	_mark_preview_selection_changed()
+	_refresh_card_preview_ui()
+
 func _on_card_pressed(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
 		return
@@ -17166,6 +17215,8 @@ func _on_card_pressed(index: int) -> void:
 		return
 	if _drag_card_index >= 0:
 		return
+	if _free_move_selection_active:
+		_reset_card_resolution()
 	if _pending_umbra_commit_locked and _selected_card_index >= 0:
 		return
 	if _selected_card_index == index:
@@ -17176,14 +17227,11 @@ func _on_card_pressed(index: int) -> void:
 		return
 	if _selected_card_index >= 0 or _card_action_choice_index >= 0:
 		_reset_card_resolution()
-	var options: Dictionary = _card_play_options_for_index(index)
-	_show_card_action_choices(index, options)
-	var initial_mode: String = _card_action_choice_mode
-	var initial_playable_key: String = "printed_playable" if initial_mode == "play" else "%s_playable" % initial_mode
-	if bool(options.get(initial_playable_key, false)):
-		await _on_card_action_choice_pressed(initial_mode)
-	else:
-		_refresh_ui()
+	var preview: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index))
+	if bool(preview.get("playable", false)):
+		_clear_card_action_choice_state()
+		_card_action_choice_mode = "play"
+		await _begin_card_preview(index, preview)
 
 func _on_card_drag_started(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
@@ -17194,6 +17242,8 @@ func _on_card_drag_started(index: int) -> void:
 		return
 	if _pending_umbra_commit_locked:
 		return
+	if _free_move_selection_active:
+		_reset_card_resolution()
 	if _card_action_choice_index >= 0:
 		_clear_card_action_choice_state()
 	if _selected_card_index >= 0:
@@ -17201,7 +17251,6 @@ func _on_card_drag_started(index: int) -> void:
 	var options: Dictionary = _card_play_options_for_index(index)
 	if not bool(options.get("any_playable", false)):
 		return
-	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.FULL_CARD_FALLBACK)
 	var source_rect: Rect2 = _hand_card_global_rect(index)
 	_drag_card_index = index
 	_set_hand_emphasized_index(-1, false)
@@ -17224,7 +17273,6 @@ func _on_card_drag_started(index: int) -> void:
 func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false) -> void:
 	if not bool(preview.get("playable", false)):
 		return
-	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.FULL_CARD_FALLBACK)
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.TIMELINE_READING)
 	_hovered_card_index = -1
 	_selected_card_label_override = label_override
@@ -17291,7 +17339,7 @@ func _on_confirm_card_play_pressed() -> void:
 	)
 
 func _on_card_hover_started(index: int) -> void:
-	if _animation_lock or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
+	if _animation_lock or _free_move_selection_active or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
 		return
 	_hovered_card_index = index
 	_set_hand_emphasized_index(index)
@@ -17302,7 +17350,7 @@ func _on_card_hover_started(index: int) -> void:
 	_refresh_contextual_combat_tutorial()
 
 func _on_card_hover_ended(index: int) -> void:
-	if _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0:
+	if _free_move_selection_active or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0:
 		return
 	if _hovered_card_index == index:
 		_hovered_card_index = -1
@@ -17348,7 +17396,7 @@ func _board_hover_stage_refresh_needed(tile: Vector2i) -> bool:
 	if mode != "combat":
 		_board_hover_threat_active = false
 		return false
-	if _selected_card_index >= 0 or _hovered_card_index >= 0 or _drag_card_index >= 0:
+	if _free_move_selection_active or _selected_card_index >= 0 or _hovered_card_index >= 0 or _drag_card_index >= 0:
 		_board_hover_threat_active = false
 		return true
 	var threat_active: bool = _hovered_tile_has_visible_enemy(tile)
@@ -17375,7 +17423,7 @@ func _hovered_tile_has_visible_enemy(tile: Vector2i) -> bool:
 func _pass_preview_hover_can_change() -> bool:
 	if str(_run_state.get("mode", "room")) != "combat":
 		return false
-	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+	if (not _free_move_selection_active and _selected_card_index < 0) or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return false
 	if _orientation_pending():
 		return _pending_orientation_target_tile.x >= 0
@@ -17413,7 +17461,12 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	if mode == "room" and _exit_destinations_by_tile.has(tile):
 		await _on_map_view_room_selected(_exit_destinations_by_tile[tile], tile)
 		return
-	if mode != "combat" or _selected_card_index < 0:
+	if mode != "combat" or (not _free_move_selection_active and _selected_card_index < 0):
+		return
+	if _free_move_selection_active:
+		if not _pending_target_tiles.has(tile) or _pending_actions.is_empty():
+			return
+		await _commit_free_move(tile)
 		return
 	if _orientation_pending():
 		await _confirm_pending_orientation(tile)
@@ -17479,6 +17532,10 @@ func _on_cancel_requested() -> void:
 			_close_settings_overlay()
 		else:
 			_close_menu_overlay()
+		return
+	if _free_move_selection_active:
+		_reset_card_resolution()
+		_refresh_card_preview_ui()
 		return
 	if _card_action_choice_index >= 0:
 		_cancel_card_action_choice()
@@ -17737,6 +17794,63 @@ func _append_skipped_target_placeholders(start_action_index: int, end_action_ind
 	for index: int in range(safe_start, safe_end):
 		if _combat_engine.player_action_needs_target(_pending_actions[index]):
 			_pending_selected_targets.append(INVALID_TARGET_TILE)
+
+func _commit_free_move(target_tile: Vector2i) -> void:
+	if not _free_move_selection_active or _pending_actions.is_empty():
+		return
+	var action: Dictionary = _pending_actions[0] as Dictionary
+	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
+	var committed_combat_state: Dictionary = _combat_engine.apply_player_action(
+		previous_combat_state,
+		action,
+		target_tile
+	)
+	if committed_combat_state == previous_combat_state:
+		return
+	_animation_lock = true
+	_refresh_animation_lock_ui()
+	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(
+		previous_run_state,
+		committed_combat_state
+	)
+	committed_run_state = _hold_committed_run_state(committed_run_state, "player_free_move")
+	await _animate_player_action_step(
+		previous_combat_state,
+		committed_combat_state,
+		"",
+		action,
+		target_tile
+	)
+	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
+	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
+	if outcome == "victory":
+		var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(committed_combat_state)
+		if post_combat_board_state != committed_combat_state:
+			await _animate_defeats_and_terrain_destruction(committed_combat_state, post_combat_board_state)
+		if _reach_exit_victory_preserves_board(committed_combat_state):
+			transition_combat_state = _combat_engine.resolve_missed_equipment_after_victory(post_combat_board_state)
+		else:
+			transition_combat_state = await _animate_missed_equipment_resolution(
+				post_combat_board_state,
+				_salvaged_equipment_ids(committed_run_state)
+			)
+		if str(committed_run_state.get("mode", "room")) == "reward":
+			await _play_post_combat_victory(transition_combat_state)
+	_board_presentation.clear()
+	_set_action_banner("")
+	_run_state = committed_run_state
+	_sync_combat_state_from_run()
+	_release_committed_run_state()
+	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
+	_analytics_log_combat_transition(previous_run_state, "free_move", transition_combat_state)
+	_reset_card_resolution()
+	_hovered_card_index = -1
+	if _reward_intro_pending():
+		await _play_reward_reveal()
+	else:
+		_animation_lock = false
+		_refresh_ui()
 
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var card_id: String = _card_id_for_hand_index(hand_index)
@@ -24919,6 +25033,7 @@ func _reset_card_resolution() -> void:
 	_clear_card_action_choice_state()
 
 func _clear_active_card_preview_state() -> void:
+	_free_move_selection_active = false
 	_selected_card_index = -1
 	_selected_card_label_override = ""
 	_hovered_card_index = -1

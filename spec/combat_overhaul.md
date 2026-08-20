@@ -11,10 +11,11 @@ Implemented checkpoint:
 - deterministic Field/Surface state, replacement, refresh, coexistence, and initiative-clock expiry;
 - live environmental traversal/start effects, Bramble truncation, Poison movement arming, Electrified discharge/attack suppression, Ice continuation/collision, Snowdrift vulnerability, and Combust;
 - one free unsplit Move 2 per player activation with no card-play or Time cost;
+- player-facing Move 2 selection, board preview, committed animation/persistence, and direct authored-card play with no fallback selector or drag zones;
 - reusable committed-pattern stencil, translation, rotation, overlay, and short-circuit helpers;
 - focused engine integration tests plus a passing full baseline suite.
 
-Not yet migrated at this checkpoint: fallback UI/removal, stored enemy plans/setup movement, content data, save schema, analytics/heuristic, final visuals/tutorial, and exhaustive verification.
+Not yet migrated at this checkpoint: engine/data/skill fallback retirement, stored enemy plans/setup movement, content data, save schema, analytics/heuristic, final visuals/tutorial, and exhaustive verification.
 
 Live inventory at the start of the branch:
 

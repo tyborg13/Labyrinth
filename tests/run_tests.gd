@@ -364,7 +364,7 @@ func _initialize() -> void:
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
-	_test_run_scene_fallback_attack_uses_scaled_damage()
+	_test_run_scene_has_no_card_fallback_actions()
 	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_intensity_condition_rows_mark_activity()
@@ -9426,6 +9426,58 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 
 	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(6, 5)], 9204)
 	await process_frame
+	var overhaul_options: Dictionary = instance.call("_card_play_options_for_index", 0)
+	_assert(not bool(overhaul_options.get("printed_playable", false)), "An out-of-range card should be unavailable as written")
+	_assert(not bool(overhaul_options.get("any_playable", false)), "Cards should no longer become playable through basic Attack or Move fallbacks")
+	instance.call("_on_card_pressed", 0)
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == -1, "An unavailable authored card should remain in hand without opening a fallback selector")
+	_assert(int(instance.get("_card_action_choice_index")) == -1, "Card clicks should never open the retired play-mode selector")
+	var overhaul_move_button: Button = (instance.get("_choice_button_overlay") as Control).find_child("FreeMoveButton", true, false) as Button
+	_assert(overhaul_move_button != null and not overhaul_move_button.disabled and overhaul_move_button.text == "MOVE 2", "Player turns should expose one independent free Move 2 action")
+	instance.call("_on_free_move_pressed")
+	await process_frame
+	_assert(bool(instance.get("_free_move_selection_active")), "Move 2 should enter board targeting without selecting a card")
+	_assert(int(instance.get("_selected_card_index")) == -1, "Free movement should not borrow a hand-card selection")
+	var overhaul_pending_actions: Array = instance.get("_pending_actions")
+	_assert(overhaul_pending_actions.size() == 1 and bool((overhaul_pending_actions[0] as Dictionary).get("_free_move", false)), "Free movement should use the dedicated engine action")
+	var overhaul_context: Control = instance.get("_action_step_tracker") as Control
+	_assert(overhaul_context != null and overhaul_context.visible and str(overhaul_context.get_meta("context_mode", "")) == "free_move", "Free movement should use the normal board-preview rail with a simpler identity")
+	var overhaul_before_move_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	await instance.call("_on_board_tile_clicked", Vector2i(4, 5))
+	var overhaul_after_move_state: Dictionary = instance.get("_combat_state")
+	_assert((overhaul_after_move_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 5), "Move 2 should commit the chosen orthogonal destination")
+	_assert(int(overhaul_after_move_state.get("cards_played_this_turn", -1)) == int(overhaul_before_move_state.get("cards_played_this_turn", -1)), "Free movement should not spend a card play")
+	_assert(((overhaul_after_move_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ((overhaul_before_move_state.get("deck", {}) as Dictionary).get("hand", []) as Array), "Free movement should not consume or reorder the hand")
+	_assert(not bool(overhaul_after_move_state.get("free_move_available", true)), "A committed free move should be unavailable for the rest of the activation")
+
+	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(3, 5)], 9205)
+	await process_frame
+	instance.call("_on_card_pressed", 0)
+	await process_frame
+	overhaul_pending_actions = instance.get("_pending_actions")
+	_assert(int(instance.get("_selected_card_index")) == 0, "A playable card click should immediately enter its authored pattern")
+	_assert(int(instance.get("_card_action_choice_index")) == -1 and str(instance.get("_card_action_choice_mode")) == "play", "Direct card play should bypass every retired fallback mode")
+	_assert(overhaul_pending_actions.size() == 1 and str((overhaul_pending_actions[0] as Dictionary).get("type", "")) == "melee", "Direct card play should preserve the printed action")
+	overhaul_context = instance.get("_action_step_tracker") as Control
+	_assert(overhaul_context != null and str(overhaul_context.get_meta("context_mode", "")) == "selection", "Authored card targeting should use one action-selection context")
+	_assert(overhaul_context.find_child("CardActionChoiceAttack", true, false) == null and overhaul_context.find_child("CardActionChoiceMove", true, false) == null, "The action context should contain no basic Attack or Move placards")
+	instance.call("_on_cancel_requested")
+	await process_frame
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	var overhaul_board_view: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	_assert(str(instance.call("_drag_zone_at", overhaul_board_view.get_global_rect().get_center())) == "play", "Dragging a playable card onto the board should mean only its authored pattern")
+	_assert((instance.get("_drag_zone_panels") as Dictionary).is_empty(), "Card drag should not create fallback command drop zones")
+	await instance.call("_commit_drag_drop", "play")
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == 0 and str(instance.get("_card_action_choice_mode")) == "play", "A board drop should enter the same authored-card path as a click")
+	instance.queue_free()
+	await process_frame
+	return
+
+	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(6, 5)], 9204)
+	await process_frame
 	var options: Dictionary = instance.call("_card_play_options_for_index", 0)
 	_assert(not bool(options.get("printed_playable", false)), "Far melee cards should show printed play as disabled while dragging")
 	_assert(not bool(options.get("attack_playable", false)), "Far melee cards should disable fallback attack when no enemy is adjacent")
@@ -10789,13 +10841,13 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	_assert(play_button != null and not play_button.disabled, "A targetless card should expose a clear Play Card confirmation action")
 	_assert(str(context.get_meta("action_verb", "")) == "READY · PLAY CARD" and str(context.get_meta("target_state", "")) == "NO TARGET REQUIRED", "Targetless confirmation should explain that no board target is needed")
 
-	await instance.call("_on_card_action_choice_pressed", "move")
+	instance.call("_on_free_move_pressed")
 	await process_frame
-	_assert(str(instance.get("_card_action_choice_mode")) == "move" and int(instance.get("_selected_card_index")) == 0, "An armed targetless card should remain switchable to Basic Move before commitment")
-	await instance.call("_on_card_action_choice_pressed", "play")
+	_assert(bool(instance.get("_free_move_selection_active")) and int(instance.get("_selected_card_index")) == -1, "Free Move should replace a card preview without committing or consuming that card")
+	instance.call("_on_card_pressed", 0)
 	await process_frame
 	armed_state = instance.get("_combat_state")
-	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Switching back to Printed should re-arm the card without committing it")
+	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Returning from Free Move to a card should re-arm its authored pattern without committing it")
 
 	instance.call("_on_cancel_requested")
 	await process_frame
@@ -10807,7 +10859,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	await process_frame
 	armed_state = instance.get("_combat_state")
 	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Selecting another card should replace targetless confirmation without committing the first card")
-	_assert(int(instance.get("_card_action_choice_index")) == 1, "Selecting another card should move the play-mode rail to that card")
+	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == -1, "Clicking an unavailable authored card should close the prior preview without opening a fallback mode")
 	instance.call("_on_cancel_requested")
 	await process_frame
 
@@ -10838,16 +10890,13 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_fallback_attack_uses_scaled_damage() -> void:
+func _test_run_scene_has_no_card_fallback_actions() -> void:
 	var run_scene_script: Script = load("res://scripts/run_scene.gd")
-	_assert(run_scene_script != null, "Run scene script should load for fallback action coverage")
+	_assert(run_scene_script != null, "Run scene script should load for authored-card action coverage")
 	if run_scene_script == null:
 		return
 	var instance: Node = run_scene_script.new()
-	var attack_actions: Array = instance.call("_fallback_actions", "attack")
-	var attack_action: Dictionary = attack_actions[0] as Dictionary
-	_assert(int(attack_action.get("damage", 0)) == 3, "Fallback attack should use the raised natural-unit damage")
-	_assert(str(instance.call("_fallback_label", "attack")) == "3 Attack", "Fallback attack drag labels should match natural-unit damage")
+	_assert((instance.call("_fallback_actions", "unknown") as Array).is_empty(), "Unknown card modes should have no synthesized fallback action")
 	instance.free()
 
 func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
@@ -13906,16 +13955,13 @@ func _buttons_under(node: Node) -> Array[Button]:
 	return buttons
 
 func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: String) -> void:
+	_assert(play_kind == "play", "Cards should only be selectable through their authored play pattern")
 	instance.call("_on_card_pressed", hand_index)
 	await process_frame
 	await process_frame
-	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode options for that exact card")
-	var initial_mode: String = str(instance.get("_card_action_choice_mode"))
-	if initial_mode != play_kind:
-		await instance.call("_on_card_action_choice_pressed", play_kind)
-		await process_frame
-		await process_frame
-	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested play mode should be active")
+	_assert(int(instance.get("_selected_card_index")) == hand_index, "Clicking a playable hand card should directly select its authored pattern")
+	_assert(int(instance.get("_card_action_choice_index")) == -1, "Direct card selection should not open the retired play-mode selector")
+	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Authored play should be the only card mode")
 
 func _button_with_text(node: Node, text: String) -> Button:
 	for button: Button in _buttons_under(node):
