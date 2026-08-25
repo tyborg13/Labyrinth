@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T12:23:33Z",
+  "updated_at": "2026-08-25T14:43:30Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8573,6 +8573,94 @@
       "source": {
         "branch": "codex/steam-deck-720p-ui-and-controller-support",
         "commit": "ad99aa9"
+      }
+    },
+    {
+      "id": "mnt_20260825T142912Z_166bcf32",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Controller hand focus must never move or resize the combat board.",
+      "details": "Use one fixed controller combat composition sized for the top-tile actor/prop worst case and the tucked-hand edge. X only moves the focused/unfocused card layer over that stationary board.",
+      "status": "active",
+      "created_at": "2026-08-25T14:29:12Z",
+      "updated_at": "2026-08-25T14:29:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "d78867e"
+      }
+    },
+    {
+      "id": "mnt_20260825T142912Z_1e7ab80c",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Controller enemy focus must participate in enemy HUD intent expansion.",
+      "details": "The controller focus tile must feed both the HUD actor cache key and intent row expansion; mouse hover alone drops intent names, action icons, and values for controller players.",
+      "status": "active",
+      "created_at": "2026-08-25T14:29:12Z",
+      "updated_at": "2026-08-25T14:29:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "d78867e"
+      }
+    },
+    {
+      "id": "mnt_20260825T142912Z_06b947f2",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/performance_telemetry.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/performance_telemetry.gd",
+      "summary": "Performance telemetry is anonymous local JSONL with optional built-in HTTP upload.",
+      "details": "Store bounded aggregate frame/render/runtime samples under user://telemetry, omit Steam identity, and leave upload disabled until an endpoint is configured. Steam User Stats is only suitable for coarse predefined aggregates, not structured session telemetry.",
+      "status": "active",
+      "created_at": "2026-08-25T14:29:12Z",
+      "updated_at": "2026-08-25T14:29:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "d78867e"
+      }
+    },
+    {
+      "id": "mnt_20260825T144330Z_0a4c2316",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Controller board expansion must not leak into pointer play or follow live hand height.",
+      "details": "In _sync_board_view_rect, preserve the original stage-derived rectangle for mouse/keyboard. For controller combat, derive the fixed board height from the combined StageRoot + HandRow layout budget and the focused-hand envelope; StageRoot alone grows when the hand is tucked and will visibly move the board. Regression proof switches controller-to-pointer and compares the exact board rect, and compares focused/tucked controller rects for equality.",
+      "status": "active",
+      "created_at": "2026-08-25T14:43:30Z",
+      "updated_at": "2026-08-25T14:43:30Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "d78867e"
       }
     }
   ]

@@ -176,6 +176,7 @@ const BOARD_VERTICAL_MARGIN: float = 8.0
 const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
 const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.34
 const BOARD_COMBAT_VERTICAL_BIAS: float = 1.20
+const BOARD_CONTROLLER_VERTICAL_BIAS: float = 1.55
 const BOARD_ROOM_VERTICAL_BIAS: float = 0.50
 const BOARD_MAX_TILE_WIDTH: float = 184.0
 const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
@@ -1171,7 +1172,14 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_unit_obstruction_entries = _unit_obstruction_entries_by_key(_visible_units())
 	submission_phase_started = _record_submission_performance_phase("diff", submission_phase_started)
 	var layout_inputs_changed: bool = state_changed or exit_tiles_changed or _board_layout_signature.is_empty()
-	for layout_key: String in ["active_door_tiles", "locked_door_tiles", "board_backdrop_visible", "board_framing_mode", "board_safe_global_rect"]:
+	for layout_key: String in [
+		"active_door_tiles",
+		"locked_door_tiles",
+		"board_backdrop_visible",
+		"board_framing_mode",
+		"board_safe_global_rect",
+		"controller_combat_navigation",
+	]:
 		if presentation_changes.has(layout_key):
 			layout_inputs_changed = true
 			break
@@ -2043,6 +2051,8 @@ func _default_navigation_zoom_for_viewport() -> float:
 	return clampf(default_zoom * _navigation_zoom_scale_for_presentation(presentation), BOARD_MIN_NAVIGATION_ZOOM, BOARD_MAX_NAVIGATION_ZOOM)
 
 func _navigation_zoom_scale_for_presentation(source: Dictionary) -> float:
+	if bool(source.get("controller_combat_navigation", false)):
+		return 1.23
 	if not (source.get("objective_exit_target_tiles", []) as Array).is_empty():
 		return BOARD_REACH_EXIT_DEFAULT_NAVIGATION_ZOOM_SCALE
 	return 1.0
@@ -2103,9 +2113,10 @@ func set_controller_focus_tile(tile: Vector2i) -> void:
 	if _overlay_render_layer != null and is_instance_valid(_overlay_render_layer):
 		_overlay_render_layer.set("_controller_focus_tile", _controller_focus_tile)
 		_overlay_render_layer.set("_hover_tile", _hover_tile)
-		_overlay_render_layer.queue_redraw()
-	else:
-		queue_redraw()
+	if _hud_render_layer != null and is_instance_valid(_hud_render_layer):
+		_hud_render_layer.set("_controller_focus_tile", _controller_focus_tile)
+		_hud_render_layer.set("_hover_tile", _hover_tile)
+	_queue_hover_redraws()
 
 func controller_navigable_tiles(include_visible_doors: bool = false) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -3828,8 +3839,28 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if tile == _hover_tile and _controller_focus_tile.x < 0:
 		draw_colored_polygon(polygon, HOVER_HIGHLIGHT)
 	if tile == _controller_focus_tile:
-		draw_colored_polygon(polygon, Color(0.98, 0.79, 0.37, 0.16))
-		_draw_tile_ring(tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90)
+		if exit_tiles.has(tile):
+			_draw_controller_door_focus(tile)
+		else:
+			draw_colored_polygon(polygon, Color(0.98, 0.79, 0.37, 0.16))
+			_draw_tile_ring(tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90)
+
+func _draw_controller_door_focus(tile: Vector2i) -> void:
+	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.009)
+	draw_colored_polygon(_tile_polygon(tile), Color(0.18, 0.79, 0.78, lerpf(0.22, 0.36, pulse)))
+	_draw_tile_ring(tile, Color(0.40, 0.96, 0.91, 0.98), lerpf(4.0, 5.4, pulse), 0.94)
+	_draw_tile_ring(tile, Color(1.0, 0.84, 0.42, lerpf(0.56, 0.94, pulse)), 2.2, 1.10)
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width()
+	var marker_y: float = center.y - _tile_height() * 0.42
+	var chevron_half: float = clampf(tile_width * 0.075, 7.0, 13.0)
+	var chevron := PackedVector2Array([
+		Vector2(center.x - chevron_half, marker_y - chevron_half * 0.32),
+		Vector2(center.x, marker_y + chevron_half * 0.45),
+		Vector2(center.x + chevron_half, marker_y - chevron_half * 0.32),
+	])
+	draw_polyline(chevron, Color(0.06, 0.11, 0.12, 0.78), 6.0, true)
+	draw_polyline(chevron, Color(0.76, 1.0, 0.94, 0.98), 3.0, true)
 
 func _draw_attack_target_pulse(tile: Vector2i) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -5332,7 +5363,8 @@ func _rebuild_hud_health_rects_cache() -> bool:
 	return true
 
 func _hud_hover_actor_key(hud_units: Array[Dictionary]) -> String:
-	if _hover_tile.x < 0:
+	var focus_tile: Vector2i = _controller_focus_tile if _controller_focus_tile.x >= 0 else _hover_tile
+	if focus_tile.x < 0:
 		return ""
 	for unit: Dictionary in hud_units:
 		if str(unit.get("role", "")) != "enemy":
@@ -5340,10 +5372,10 @@ func _hud_hover_actor_key(hud_units: Array[Dictionary]) -> String:
 		var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
 		var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
 		if (
-			_hover_tile.x >= origin.x
-			and _hover_tile.y >= origin.y
-			and _hover_tile.x < origin.x + maxi(1, footprint.x)
-			and _hover_tile.y < origin.y + maxi(1, footprint.y)
+			focus_tile.x >= origin.x
+			and focus_tile.y >= origin.y
+			and focus_tile.x < origin.x + maxi(1, footprint.x)
+			and focus_tile.y < origin.y + maxi(1, footprint.y)
 		):
 			return _enemy_hud_actor_key(unit)
 	return ""
@@ -6161,7 +6193,10 @@ func _enemy_intent_expanded(unit: Dictionary) -> bool:
 		actor_key = "enemy_%d" % int(unit.get("id", -1))
 	if not actor_key.is_empty() and expanded_keys.has(actor_key):
 		return true
-	return _unit_footprint_tiles(unit).has(_hover_tile)
+	return (
+		_unit_footprint_tiles(unit).has(_hover_tile)
+		or _unit_footprint_tiles(unit).has(_controller_focus_tile)
+	)
 
 func _all_enemy_intents_expanded() -> bool:
 	return bool(presentation.get("show_all_enemy_intents", presentation.get("expand_enemy_intents", false)))
@@ -11932,7 +11967,11 @@ func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vecto
 	return Rect2(content_position + pan, content_size)
 
 func _board_vertical_bias() -> float:
-	return BOARD_COMBAT_VERTICAL_BIAS if str(presentation.get("board_framing_mode", "room")) == "combat" else BOARD_ROOM_VERTICAL_BIAS
+	if str(presentation.get("board_framing_mode", "room")) != "combat":
+		return BOARD_ROOM_VERTICAL_BIAS
+	if bool(presentation.get("controller_combat_navigation", false)):
+		return BOARD_CONTROLLER_VERTICAL_BIAS
+	return BOARD_COMBAT_VERTICAL_BIAS
 
 func _navigation_pan_limits(extents: Dictionary, tile_width: float) -> Rect2:
 	var content_rect: Rect2 = _navigation_content_rect(extents, tile_width)

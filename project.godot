@@ -19,6 +19,13 @@ config/features=PackedStringArray("4.6")
 SteamService="*res://scripts/steam_service.gd"
 InputRouter="*res://scripts/input_router.gd"
 CursorFeedback="*res://scripts/cursor_feedback.gd"
+PerformanceTelemetry="*res://scripts/performance_telemetry.gd"
+
+[telemetry]
+
+performance/local_enabled=true
+performance/flush_interval_seconds=60.0
+performance/upload_url=""
 
 [display]
 

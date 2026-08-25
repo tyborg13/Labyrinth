@@ -119,11 +119,23 @@ func _capture_run_surfaces() -> void:
 	_assert_forged_cursor_hidden_for_controller()
 	_assert_prompt_bar(instance.get("_controller_prompt_bar") as Control, "Combat hand")
 	_assert_key_handheld_text_floor(instance)
+	_require(bool(instance.get("_controller_hand_focused")), "Controller combat should open with the readable focused hand")
+	var controller_board: Control = instance.get("board_view") as Control
+	var focused_board_position: Vector2 = controller_board.position
+	var focused_board_size: Vector2 = controller_board.size
 	await _save_screenshot("combat_hand_focus.png")
 
 	instance.call("_controller_enter_board", true)
 	await _settle()
 	_require(str(instance.get("_controller_region")) == "board", "Up from the hand should enter board navigation")
+	_require(not bool(instance.get("_controller_hand_focused")), "Entering board targeting should automatically tuck the hand")
+	var hand_scroll: ScrollContainer = instance.get("hand_scroll") as ScrollContainer
+	_require(hand_scroll != null and hand_scroll.visible and hand_scroll.clip_contents, "Unfocused hand should keep the real cards visible as a clipped title strip")
+	_require(
+		controller_board.position.is_equal_approx(focused_board_position)
+		and controller_board.size.is_equal_approx(focused_board_size),
+		"Focusing or tucking the controller hand must not move or resize the board viewport"
+	)
 	var board_start_tile: Vector2i = instance.get("_controller_board_tile")
 	instance.set("_controller_stick", Vector2.RIGHT)
 	instance.call("_controller_process_board_cursor", 0.20)
@@ -140,15 +152,14 @@ func _capture_run_surfaces() -> void:
 	_assert_board_cursor_center(instance)
 	await _save_screenshot("combat_board_cursor.png")
 
-	instance.call("_controller_set_hand_hidden", true)
+	instance.call("_controller_set_hand_focused", false)
 	await _settle()
-	_require(bool(instance.get("_controller_hand_hidden")), "The X action should collapse the card hand")
-	var hand_scroll: Control = instance.get("hand_scroll") as Control
-	_require(hand_scroll != null and not hand_scroll.visible, "Hidden-hand mode should reclaim the card area for the board")
+	_require(not bool(instance.get("_controller_hand_focused")), "The X action should unfocus the card hand")
+	_require(hand_scroll != null and hand_scroll.visible, "Unfocused-hand mode should never remove the selected card reminder")
 	_assert_board_cursor_center(instance)
-	await _save_screenshot("combat_hand_hidden.png")
+	await _save_screenshot("combat_hand_unfocused.png")
 
-	instance.call("_controller_set_hand_hidden", false)
+	instance.call("_controller_set_hand_focused", true)
 	await _exercise_controller_combat_events(instance)
 	instance.call("_open_menu_overlay")
 	instance.call("_recover_controller_focus")
@@ -159,6 +170,8 @@ func _capture_run_surfaces() -> void:
 	instance.call("_close_menu_overlay")
 	await _settle()
 
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	instance.call("_refresh_controller_interface")
 	instance.call("_open_large_map")
 	instance.call("_recover_controller_focus")
 	await _settle()
@@ -197,11 +210,14 @@ func _capture_run_surfaces() -> void:
 	_assert_focus_inside(instance.get("_upgrade_scrim") as Control, "Character gear")
 	_assert_prompt_above_modal(instance, instance.get("_upgrade_scrim") as Control, "Character gear")
 	await _save_screenshot("character_gear_controller_focus.png")
-	instance.call("_switch_character_overlay_mode", "magic")
-	instance.call("_recover_controller_focus")
+	await _press_controller_button(JOY_BUTTON_RIGHT_SHOULDER)
 	await _settle()
+	_require(str(instance.get("_progression_overlay_mode")) == "magic", "Right shoulder should switch Character from Gear to Magic")
 	_assert_focus_inside(instance.get("_upgrade_scrim") as Control, "Character magic")
 	await _save_screenshot("character_magic_controller_focus.png")
+	await _press_controller_button(JOY_BUTTON_LEFT_SHOULDER)
+	await _settle()
+	_require(str(instance.get("_progression_overlay_mode")) == "equipment", "Left shoulder should return Character from Magic to Gear")
 	instance.call("_close_card_upgrade_overlay")
 	await _settle()
 
@@ -288,6 +304,7 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	instance.call("_refresh_controller_interface")
 	await _settle()
 	_require(instance.find_child("ControllerGridCursor", true, false) == null, "Mouse and keyboard card choice should remain free of controller-only frames")
+	_assert_pointer_board_rect_restored(instance)
 	await _save_screenshot("combat_card_mode_pointer.png")
 	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
 	instance.call("_refresh_controller_interface")
@@ -299,6 +316,14 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	await _press_controller_button(JOY_BUTTON_A)
 	_require(str(instance.get("_controller_region")) == "board", "A on a card mode should enter snapped board targeting")
 	_require(str(instance.get("_card_action_choice_mode")) == fallback_mode, "The focused fallback mode should become the active card action")
+	_require(not bool(instance.get("_controller_hand_focused")), "Entering card targeting should automatically tuck the hand out of the board's way")
+	_require(int(instance.get("_selected_card_index")) == 0, "The tucked targeting hand should retain the selected card as a memory cue")
+	var targeting_hand_scroll: ScrollContainer = instance.get("hand_scroll") as ScrollContainer
+	_require(
+		targeting_hand_scroll != null and targeting_hand_scroll.visible and targeting_hand_scroll.clip_contents,
+		"Targeting should keep the selected card strip visible while clipping most of the cards off screen"
+	)
+	await _save_screenshot("combat_targeting_tucked_hand.png")
 	await _press_controller_button(JOY_BUTTON_B)
 	_require(str(instance.get("_controller_region")) == "card_mode", "B from card targeting should return to mode selection before cancelling the card")
 	await _press_controller_button(JOY_BUTTON_B)
@@ -356,6 +381,40 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	instance.set("_controller_hand_index", 0)
 	instance.call("_refresh_controller_interface")
 	await _settle()
+	instance.call("_controller_enter_board", true)
+	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
+	var enemies: Array = combat_state.get("enemies", []) as Array
+	_require(not enemies.is_empty(), "Controller enemy-intent proof requires a visible enemy")
+	if not enemies.is_empty():
+		var enemy_tile: Vector2i = (enemies[0] as Dictionary).get("pos", Vector2i(-1, -1))
+		instance.call("_controller_set_board_tile", enemy_tile)
+		await _settle()
+		# Reassert after deferred board/hand layout work. In live play the physics
+		# cursor does this continuously; the probe drives the private seam directly.
+		instance.call("_controller_set_board_tile", enemy_tile)
+		await process_frame
+		var board: Control = instance.get("board_view") as Control
+		var focused_enemy: Dictionary = {}
+		for unit_var: Variant in board.call("_visible_units") as Array:
+			if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "enemy" and (unit_var as Dictionary).get("pos", Vector2i(-2, -2)) == enemy_tile:
+				focused_enemy = unit_var as Dictionary
+				break
+		_require(not focused_enemy.is_empty(), "Focused enemy tile should resolve to the rendered enemy unit")
+		if not focused_enemy.is_empty():
+			var intent: Dictionary = focused_enemy.get("intent", {}) as Dictionary
+			_require(bool(board.call("_enemy_intent_expanded", focused_enemy)), "Controller focus should expand the enemy's full intent HUD")
+			_require(not (board.call("_enemy_intent_rows_for_display", focused_enemy, intent) as Array).is_empty(), "Expanded controller intent should include named action/value rows")
+		await _save_screenshot("combat_enemy_intent_controller.png")
+
+	var menu_control: Control = instance.get("menu_button") as Control
+	var menu_candidate: Dictionary = instance.call("_controller_candidate_for_control", menu_control) as Dictionary
+	_require(not menu_candidate.is_empty(), "The analog board cursor should be able to target the corner menu button")
+	if not menu_candidate.is_empty():
+		instance.call("_controller_set_focus_candidate", menu_candidate, true)
+		await _settle()
+		_require(instance.get("_controller_board_tile") == Vector2i(-1, -1), "Moving the free cursor to a header control should leave board-tile focus")
+		_require(_viewport.gui_get_focus_owner() == menu_control, "The cursor should give actual controller focus to the hovered menu button")
+		await _save_screenshot("combat_header_cursor.png")
 
 func _exercise_controller_merchant(instance: Node, run_engine, restore_state: Dictionary) -> void:
 	var merchant_state: Dictionary = _blacksmith_controller_state(run_engine)
@@ -459,6 +518,9 @@ func _exercise_controller_loadout(instance: Node, base_state: Dictionary) -> voi
 	var gear_tile: Control = gear_tiles.get("iron_cleaver") as Control
 	_require(gear_tile != null and gear_tile.focus_mode == Control.FOCUS_ALL, "Spare gear should be controller-focusable outside combat")
 	gear_tile.grab_focus()
+	await _settle()
+	var gear_tooltip: Control = instance.get("_controller_loadout_tooltip") as Control
+	_require(gear_tooltip != null and gear_tooltip.visible, "Focused gear should reveal its full controller mechanics tooltip")
 	await _save_screenshot("character_room_loadout_focus.png")
 	gear_tile.call("_gui_input", _controller_accept_event())
 	await _settle()
@@ -489,6 +551,9 @@ func _exercise_controller_loadout(instance: Node, base_state: Dictionary) -> voi
 	var attuned_tile: Control = attuned_tiles.get(0) as Control
 	_require(reserve_tile != null and attuned_tile != null, "Magic swap should expose both controller endpoints")
 	reserve_tile.grab_focus()
+	await _settle()
+	var magic_tooltip: Control = instance.get("_controller_loadout_tooltip") as Control
+	_require(magic_tooltip != null and magic_tooltip.visible, "Focused magic should reveal its full card mechanics tooltip")
 	reserve_tile.call("_gui_input", _controller_accept_event())
 	await _settle()
 	_require(str(instance.get("_controller_magic_source_kind")) == "inventory", "First A should hold the reserve spell for a two-step swap")
@@ -642,6 +707,12 @@ func _assert_board_cursor_center(instance: Node) -> void:
 	var include_doors: bool = str(run_state.get("mode", "room")) == "room"
 	var navigable: Array = board.call("controller_navigable_tiles", include_doors) if board != null else []
 	_require(navigable.has(tile), "Board cursor should snap only to rendered, player-visible board geometry")
+	var cursor: Control = instance.get("_controller_analog_cursor") as Control
+	_require(cursor != null and cursor.visible, "Board navigation should keep the true analog circle cursor visible")
+	if cursor != null:
+		var snapshot: Dictionary = cursor.call("cursor_snapshot")
+		var pointer_position: Vector2 = snapshot.get("pointer_position", Vector2.INF)
+		_require(is_finite(pointer_position.x) and is_finite(pointer_position.y), "Analog cursor should expose its continuous screen-space pointer position")
 
 func _assert_forged_cursor_hidden_for_controller() -> void:
 	var cursor_feedback: Node = root.get_node_or_null("CursorFeedback")
@@ -669,6 +740,20 @@ func _assert_control_inside_logical_viewport(control: Control, label: String, ma
 	var bounds := Rect2(Vector2.ONE * margin, Vector2(_logical_size) - Vector2.ONE * margin * 2.0)
 	var rect: Rect2 = control.get_global_rect()
 	_require(bounds.encloses(rect), "%s should fit the 1280x800 display; rect=%s logical_bounds=%s" % [label, rect, bounds])
+
+func _assert_pointer_board_rect_restored(instance: Node) -> void:
+	var board: Control = instance.get("board_view") as Control
+	var stage: Control = instance.get("stage_root") as Control
+	_require(board != null and stage != null, "Pointer board framing proof requires the board and stage controls")
+	if board == null or stage == null:
+		return
+	var expected_position: Vector2 = stage.global_position - Vector2(0.0, 56.0)
+	var expected_size: Vector2 = stage.size + Vector2(0.0, 56.0)
+	_require(
+		board.position.is_equal_approx(expected_position) and board.size.is_equal_approx(expected_size),
+		"Returning to pointer input must restore the original PC board rect; got pos=%s size=%s expected pos=%s size=%s"
+		% [board.position, board.size, expected_position, expected_size]
+	)
 
 func _assert_key_handheld_text_floor(instance: Node) -> void:
 	var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
