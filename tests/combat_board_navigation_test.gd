@@ -24,6 +24,7 @@ func _initialize() -> void:
 	board.set_combat_state(state)
 	await process_frame
 	_test_navigation_reuses_content_cache(board)
+	_test_controller_tiles_match_visible_floor(board)
 	_test_hud_hover_layout_key_tracks_actor_not_empty_tile(board)
 	_test_tile_depth_preserves_top_face_hit_testing(board)
 	_test_backdrop_visibility_invalidates_static_layout(board, state)
@@ -55,6 +56,17 @@ func _test_navigation_reuses_content_cache(board: Control) -> void:
 	var after_count: int = int((board.call("render_instrumentation_snapshot") as Dictionary).get("layout_content_rebuild_count", -1))
 	_expect(after_count == before_count, "Pan and zoom should reuse cached tile order/extents instead of rebuilding room content each frame")
 	board.call("reset_navigation")
+
+func _test_controller_tiles_match_visible_floor(board: Control) -> void:
+	var navigable: Array = board.call("controller_navigable_tiles", false)
+	_expect(not navigable.is_empty(), "Controller navigation should expose the rendered floor")
+	for tile_var: Variant in navigable:
+		var tile: Vector2i = tile_var as Vector2i
+		_expect(tile.x > 0 and tile.x < 8 and tile.y > 0 and tile.y < 6, "Controller navigation must exclude the hidden perimeter-wall ring")
+	_expect(not navigable.has(Vector2i(0, 0)) and not navigable.has(Vector2i(8, 6)), "Invisible corner padding must never become a controller cursor stop")
+	board.call("set_controller_focus_tile", Vector2i(3, 3))
+	_expect(board.get("_controller_focus_tile") == Vector2i(3, 3), "Controller focus should be owned by the board renderer's projected tile overlay")
+	board.call("set_controller_focus_tile", Vector2i(-1, -1))
 
 func _test_hud_hover_layout_key_tracks_actor_not_empty_tile(board: Control) -> void:
 	var hud_units: Array[Dictionary] = []

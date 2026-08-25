@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T05:21:54Z",
+  "updated_at": "2026-08-25T12:23:33Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8551,6 +8551,28 @@
       "source": {
         "branch": "codex/steam-deck-720p-ui-and-controller-support",
         "commit": "0ddd433"
+      }
+    },
+    {
+      "id": "mnt_20260825T122333Z_9538faf8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Controller board and map navigation use a continuous screen-space cursor that snaps to visible rendered candidates.",
+      "details": "Integrate the full left-stick vector per frame, then choose the nearest onscreen tile or room center. Combat candidates come from CombatBoardView.controller_navigable_tiles so hidden padding and non-rendered geometry are excluded, and focus renders in the board's projected overlay. Map selection ignores route adjacency and held triggers zoom smoothly.",
+      "status": "active",
+      "created_at": "2026-08-25T12:23:33Z",
+      "updated_at": "2026-08-25T12:23:33Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "ad99aa9"
       }
     }
   ]

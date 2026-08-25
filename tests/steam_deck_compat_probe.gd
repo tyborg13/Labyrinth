@@ -114,8 +114,9 @@ func _capture_run_surfaces() -> void:
 	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
 	instance.call("_controller_cycle_hand", 1)
 	await _settle()
-	var cursor: Control = instance.get("_controller_cursor") as Control
-	_require(cursor != null and cursor.visible, "Controller hand navigation should show a persistent selected-card cursor")
+	_require(int(instance.get("_hovered_card_index")) == int(instance.get("_controller_hand_index")), "Controller hand navigation should use the card's authored hover/focus treatment")
+	_require(instance.find_child("ControllerGridCursor", true, false) == null, "Controller card focus should not add a debug-style rectangular overlay")
+	_assert_forged_cursor_hidden_for_controller()
 	_assert_prompt_bar(instance.get("_controller_prompt_bar") as Control, "Combat hand")
 	_assert_key_handheld_text_floor(instance)
 	await _save_screenshot("combat_hand_focus.png")
@@ -123,6 +124,15 @@ func _capture_run_surfaces() -> void:
 	instance.call("_controller_enter_board", true)
 	await _settle()
 	_require(str(instance.get("_controller_region")) == "board", "Up from the hand should enter board navigation")
+	var board_start_tile: Vector2i = instance.get("_controller_board_tile")
+	instance.set("_controller_stick", Vector2.RIGHT)
+	instance.call("_controller_process_board_cursor", 0.20)
+	var board_right_tile: Vector2i = instance.get("_controller_board_tile")
+	_require(board_right_tile != board_start_tile, "A horizontal stick sweep should move the free board cursor in screen space")
+	instance.set("_controller_stick", Vector2.DOWN)
+	instance.call("_controller_process_board_cursor", 0.20)
+	_require(instance.get("_controller_board_tile") != board_right_tile, "A vertical stick sweep should independently move the free board cursor across the isometric board")
+	instance.set("_controller_stick", Vector2.ZERO)
 	_assert_board_cursor_center(instance)
 	await _save_screenshot("combat_board_cursor.png")
 
@@ -155,17 +165,24 @@ func _capture_run_surfaces() -> void:
 	var map_hint: Label = instance.get("_large_map_navigation_hint") as Label
 	_require(map_hint != null and not map_hint.visible, "Controller map should hide redundant mouse and touch instructions")
 	var zoom_before: float = float(map_view.call("_camera_zoom_value"))
-	var zoom_event := InputEventJoypadButton.new()
-	zoom_event.button_index = JOY_BUTTON_RIGHT_SHOULDER
-	zoom_event.pressed = true
+	var zoom_event := InputEventJoypadMotion.new()
+	zoom_event.axis = JOY_AXIS_TRIGGER_RIGHT
+	zoom_event.axis_value = 0.78
 	map_view.call("_gui_input", zoom_event)
-	_require(float(map_view.call("_camera_zoom_value")) > zoom_before, "Right bumper should zoom the controller map in")
+	map_view.call("_process_controller_zoom", 0.24)
+	var first_zoom: float = float(map_view.call("_camera_zoom_value"))
+	map_view.call("_process_controller_zoom", 0.24)
+	_require(first_zoom > zoom_before and float(map_view.call("_camera_zoom_value")) > first_zoom, "Holding the right trigger should smoothly continue zooming the controller map")
+	zoom_event.axis_value = 0.0
+	map_view.call("_gui_input", zoom_event)
 	var map_coord_before: Vector2i = map_view.get("_hover_coord")
 	for direction: Vector2 in [Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT, Vector2.UP]:
-		map_view.call("_move_controller_focus", direction)
+		map_view.set("_controller_stick", direction)
+		map_view.call("_process_controller_cursor", 0.24)
 		if map_view.get("_hover_coord") != map_coord_before:
 			break
-	_require(map_view.get("_hover_coord") != map_coord_before, "Map directional navigation should snap to another visible room node")
+	map_view.set("_controller_stick", Vector2.ZERO)
+	_require(map_view.get("_hover_coord") != map_coord_before, "Map analog navigation should move a free screen cursor and snap to another visible room node")
 	await _save_screenshot("map_controller_focus.png")
 	instance.call("_close_large_map")
 	await _settle()
@@ -241,6 +258,15 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	instance.set("_controller_region", "hand")
 	instance.set("_controller_hand_index", 0)
 	instance.call("_refresh_controller_interface")
+	instance.set("_controller_stick", Vector2(0.82, 0.0))
+	instance.call("_physics_process", 0.016)
+	_require(int(instance.get("_controller_hand_index")) == 1, "A fresh stick push should advance exactly one card")
+	instance.set("_controller_stick", Vector2(0.82, 0.58))
+	instance.call("_physics_process", 0.016)
+	_require(int(instance.get("_controller_hand_index")) == 1, "The second axis event from one angled push should not skip another card")
+	instance.set("_controller_stick", Vector2.ZERO)
+	instance.call("_controller_reset_stick_repeat")
+	instance.call("_controller_set_hand_index", 0)
 	await _press_controller_button(JOY_BUTTON_RIGHT_SHOULDER)
 	_require(int(instance.get("_controller_hand_index")) == 1, "A routed shoulder event should advance hand focus")
 	await _press_controller_button(JOY_BUTTON_LEFT_SHOULDER)
@@ -249,6 +275,19 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	_require(str(instance.get("_controller_region")) == "card_mode", "A routed confirm event should enter the card's Printed/Attack/Move selector")
 	_require(int(instance.get("_card_action_choice_index")) == 0, "Controller card selection should preserve the chosen hand index")
 	await _save_screenshot("combat_card_mode_focus.png")
+	var selector: Control = instance.get("_card_action_mode_selector") as Control
+	for option_var: Variant in selector.get_children() if selector != null else []:
+		var option: Button = option_var as Button
+		if option != null:
+			_require(option.get_theme_stylebox("focus") is StyleBoxEmpty, "Card modes should never use the old debug focus rectangle")
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
+	instance.call("_refresh_controller_interface")
+	await _settle()
+	_require(instance.find_child("ControllerGridCursor", true, false) == null, "Mouse and keyboard card choice should remain free of controller-only frames")
+	await _save_screenshot("combat_card_mode_pointer.png")
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	instance.call("_refresh_controller_interface")
+	await _settle()
 	var initial_mode: String = str(instance.get("_controller_card_mode"))
 	await _press_controller_button(JOY_BUTTON_DPAD_DOWN)
 	var fallback_mode: String = str(instance.get("_controller_card_mode"))
@@ -593,10 +632,21 @@ func _assert_prompt_above_modal(instance: Node, modal: Control, label: String) -
 
 func _assert_board_cursor_center(instance: Node) -> void:
 	var tile: Vector2i = instance.get("_controller_board_tile")
-	var cursor: Control = instance.get("_controller_cursor") as Control
-	var expected_center: Vector2 = instance.call("_controller_board_point", tile)
-	_require(cursor != null and cursor.visible, "Board navigation should show a visible tile cursor")
-	_require(cursor.get_global_rect().get_center().distance_to(expected_center) <= 1.5, "Board cursor should snap to the exact visual center of its tile")
+	var board: Control = instance.get("board_view") as Control
+	_require(board != null and board.get("_controller_focus_tile") == tile, "Board navigation should render focus through the board's projected tile overlay")
+	var run_state: Dictionary = instance.get("_run_state") as Dictionary
+	var include_doors: bool = str(run_state.get("mode", "room")) == "room"
+	var navigable: Array = board.call("controller_navigable_tiles", include_doors) if board != null else []
+	_require(navigable.has(tile), "Board cursor should snap only to rendered, player-visible board geometry")
+
+func _assert_forged_cursor_hidden_for_controller() -> void:
+	var cursor_feedback: Node = root.get_node_or_null("CursorFeedback")
+	_require(cursor_feedback != null, "Controller proof requires the global forged cursor controller")
+	if cursor_feedback == null:
+		return
+	cursor_feedback.call("_process", 0.01)
+	var glyph: Control = cursor_feedback.call("glyph_for_test") as Control
+	_require(glyph != null and not glyph.visible, "Controller modality should hide the forged mouse cursor instead of leaving it in a screen corner")
 
 func _assert_focus_inside(scope: Control, label: String) -> void:
 	_require(scope != null and scope.visible, "%s should be visible" % label)

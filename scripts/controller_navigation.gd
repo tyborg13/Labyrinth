@@ -3,6 +3,11 @@ class_name ControllerNavigation
 
 const DIRECTION_THRESHOLD: float = 0.48
 const DIRECTION_DOMINANCE: float = 1.25
+const CURSOR_DEADZONE: float = 0.24
+const REPEAT_ENTER_THRESHOLD: float = 0.54
+const REPEAT_RELEASE_THRESHOLD: float = 0.30
+const REPEAT_INITIAL_DELAY_MSEC: int = 360
+const REPEAT_INTERVAL_MSEC: int = 145
 
 static func direction_from_event(event: InputEvent) -> Vector2:
 	if event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed:
@@ -60,6 +65,47 @@ static func nearest_candidate(point: Vector2, candidates: Array[Dictionary]) -> 
 			best_distance_squared = distance_squared
 			best = candidate
 	return best
+
+static func cursor_velocity(stick: Vector2, deadzone: float = CURSOR_DEADZONE) -> Vector2:
+	var magnitude: float = stick.length()
+	if magnitude <= deadzone:
+		return Vector2.ZERO
+	var scaled_magnitude: float = clampf((magnitude - deadzone) / maxf(0.001, 1.0 - deadzone), 0.0, 1.0)
+	return stick.normalized() * scaled_magnitude
+
+static func dominant_direction(stick: Vector2, threshold: float = REPEAT_ENTER_THRESHOLD) -> Vector2:
+	if stick.length() < threshold:
+		return Vector2.ZERO
+	if absf(stick.x) >= absf(stick.y):
+		return Vector2(signf(stick.x), 0.0)
+	return Vector2(0.0, signf(stick.y))
+
+static func repeat_step(stick: Vector2, previous_direction: Vector2, next_repeat_msec: int, now_msec: int) -> Dictionary:
+	var release_threshold: float = REPEAT_RELEASE_THRESHOLD if previous_direction != Vector2.ZERO else REPEAT_ENTER_THRESHOLD
+	var direction: Vector2 = dominant_direction(stick, release_threshold)
+	if direction == Vector2.ZERO:
+		return {
+			"direction": Vector2.ZERO,
+			"next_repeat_msec": 0,
+			"step": Vector2.ZERO,
+		}
+	if previous_direction == Vector2.ZERO or direction != previous_direction:
+		return {
+			"direction": direction,
+			"next_repeat_msec": now_msec + REPEAT_INITIAL_DELAY_MSEC,
+			"step": direction,
+		}
+	if now_msec >= next_repeat_msec:
+		return {
+			"direction": direction,
+			"next_repeat_msec": now_msec + REPEAT_INTERVAL_MSEC,
+			"step": direction,
+		}
+	return {
+		"direction": direction,
+		"next_repeat_msec": next_repeat_msec,
+		"step": Vector2.ZERO,
+	}
 
 static func wrapped_index(current_index: int, direction: int, count: int) -> int:
 	if count <= 0:

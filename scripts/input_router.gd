@@ -18,6 +18,7 @@ const ACTION_HAND_NEXT: StringName = &"controller_hand_next"
 const ACTION_HAND_BUMPERS: StringName = &"controller_hand_bumpers"
 const ACTION_MENU: StringName = &"controller_menu"
 const ACTION_MAP: StringName = &"controller_map"
+const ACTION_MAP_ZOOM: StringName = &"controller_map_zoom"
 
 const JOYSTICK_ACTIVITY_THRESHOLD: float = 0.42
 const POINTER_ACTIVITY_THRESHOLD: float = 2.0
@@ -161,6 +162,8 @@ static func glyph_label_for_family(action_name: StringName, family: String) -> S
 			return "≡"
 		ACTION_MAP:
 			return "▣"
+		ACTION_MAP_ZOOM:
+			return "L2·R2" if family == FAMILY_STEAM_DECK else "LT·RT"
 		&"controller_move":
 			return "LS"
 		&"controller_dpad":

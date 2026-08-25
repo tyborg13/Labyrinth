@@ -45,7 +45,6 @@ const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CombatObjectiveHudScript = preload("res://scripts/combat_objective_hud.gd")
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
-const ControllerGridCursorScript = preload("res://scripts/controller_grid_cursor.gd")
 const ControllerNavigationScript = preload("res://scripts/controller_navigation.gd")
 const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
@@ -56,7 +55,7 @@ const COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY: String = "combat_defiance_event
 const BOARD_BACKDROP_PATH: String = "res://assets/art/backgrounds/sealed_dungeon_hall.png"
 const CONTROLLER_HAND_ROW_HEIGHT: float = 188.0
 const CONTROLLER_HIDDEN_HAND_ROW_HEIGHT: float = 92.0
-const CONTROLLER_DIRECTION_REPEAT_MSEC: int = 150
+const CONTROLLER_BOARD_CURSOR_SPEED: float = 760.0
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -1811,14 +1810,15 @@ var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_preview_run_state: Dictionary = {}
 var _pre_battle_start_pending: bool = false
 var _controller_prompt_bar: ControllerPromptBar
-var _controller_cursor: ControllerGridCursor
 var _controller_region: String = "hand"
 var _controller_hand_index: int = -1
 var _controller_card_mode: String = "play"
 var _controller_board_tile: Vector2i = INVALID_TARGET_TILE
 var _controller_hand_hidden: bool = false
-var _controller_last_direction_msec: int = -10000
-var _controller_last_motion_axis: int = -1
+var _controller_stick: Vector2 = Vector2.ZERO
+var _controller_repeat_direction: Vector2 = Vector2.ZERO
+var _controller_next_repeat_msec: int = 0
+var _controller_virtual_board_position: Vector2 = Vector2.INF
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -1874,6 +1874,33 @@ func _process(delta: float) -> void:
 	_dialogue_text_label.visible_characters = int(floor(_dialogue_char_progress))
 	if _dialogue_char_progress >= float(text.length()):
 		_complete_current_dialogue_line()
+
+func _physics_process(delta: float) -> void:
+	if not _controller_is_active() or not _controller_custom_navigation_available():
+		_controller_stick = Vector2.ZERO
+		_controller_reset_stick_repeat()
+		return
+	if _controller_region == "board":
+		_controller_process_board_cursor(delta)
+		return
+	var repeat: Dictionary = ControllerNavigationScript.repeat_step(
+		_controller_stick,
+		_controller_repeat_direction,
+		_controller_next_repeat_msec,
+		Time.get_ticks_msec()
+	)
+	_controller_repeat_direction = repeat.get("direction", Vector2.ZERO)
+	_controller_next_repeat_msec = int(repeat.get("next_repeat_msec", 0))
+	var step: Vector2 = repeat.get("step", Vector2.ZERO)
+	if step == Vector2.ZERO:
+		return
+	if _controller_card_mode_active():
+		_controller_move_card_mode(1 if step.x > 0.0 or step.y > 0.0 else -1)
+	elif _controller_region == "hand":
+		if absf(step.x) >= absf(step.y):
+			_controller_cycle_hand(1 if step.x > 0.0 else -1)
+		elif step.y < 0.0:
+			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
 	if InputRouterScript.is_controller_event(event):
@@ -2007,9 +2034,6 @@ func _input(event: InputEvent) -> void:
 func _build_controller_interface() -> void:
 	if _controller_prompt_bar != null:
 		return
-	_controller_cursor = ControllerGridCursorScript.new()
-	_controller_cursor.name = "ControllerGridCursor"
-	ui_root.add_child(_controller_cursor)
 	_controller_prompt_bar = ControllerPromptBarScript.new()
 	_controller_prompt_bar.name = "ControllerPromptBar"
 	_controller_prompt_bar.set_anchors_preset(Control.PRESET_CENTER_TOP)
@@ -2033,31 +2057,33 @@ func _on_input_modality_changed(modality: String) -> void:
 	if modality == InputRouterScript.MODALITY_POINTER:
 		_controller_set_hand_hidden(false)
 		_controller_clear_hand_hover()
-		if _controller_cursor != null:
-			_controller_cursor.hide_cursor()
+		_controller_stick = Vector2.ZERO
+		_controller_reset_stick_repeat()
+		_controller_virtual_board_position = Vector2.INF
+		_controller_clear_board_focus()
+	_refresh_controller_card_mode_visuals()
 	_refresh_large_map_navigation_hint()
 	_refresh_controller_prompts()
 
 func _handle_controller_input(event: InputEvent) -> bool:
 	if event is InputEventJoypadButton and not (event as InputEventJoypadButton).pressed:
 		return false
-	if event is InputEventJoypadMotion:
-		var motion_event := event as InputEventJoypadMotion
-		if absf(motion_event.axis_value) < 0.22:
-			if motion_event.axis == _controller_last_motion_axis:
-				_controller_last_motion_axis = -1
-			return false
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.has_method("mark_controller_device"):
 		router.call("mark_controller_device", event.device)
 	if _controller_uses_gui_focus():
-		if _controller_cursor != null:
-			_controller_cursor.hide_cursor()
+		_controller_clear_board_focus()
 		call_deferred("_recover_controller_focus")
 		_refresh_controller_prompts()
 		return false
 	if not _controller_custom_navigation_available():
 		_refresh_controller_prompts()
+		return false
+	if event is InputEventJoypadMotion:
+		var motion_event := event as InputEventJoypadMotion
+		if motion_event.axis in [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y]:
+			_controller_update_stick_axis(motion_event)
+			return true
 		return false
 	if event.is_action_pressed(InputRouterScript.ACTION_MENU):
 		_open_menu_overlay()
@@ -2086,13 +2112,6 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		var room_direction: Vector2 = ControllerNavigationScript.direction_from_event(event)
 		if room_direction == Vector2.ZERO:
 			return false
-		if event is InputEventJoypadMotion:
-			var room_now: int = Time.get_ticks_msec()
-			var room_motion_axis: int = (event as InputEventJoypadMotion).axis
-			if room_motion_axis == _controller_last_motion_axis and room_now - _controller_last_direction_msec < CONTROLLER_DIRECTION_REPEAT_MSEC:
-				return true
-			_controller_last_motion_axis = room_motion_axis
-			_controller_last_direction_msec = room_now
 		_controller_move_board(room_direction)
 		return true
 	if _controller_card_mode_active():
@@ -2159,15 +2178,22 @@ func _handle_controller_input(event: InputEvent) -> bool:
 	var direction: Vector2 = ControllerNavigationScript.direction_from_event(event)
 	if direction == Vector2.ZERO:
 		return false
-	if event is InputEventJoypadMotion:
-		var now: int = Time.get_ticks_msec()
-		var motion_axis: int = (event as InputEventJoypadMotion).axis
-		if motion_axis == _controller_last_motion_axis and now - _controller_last_direction_msec < CONTROLLER_DIRECTION_REPEAT_MSEC:
-			return true
-		_controller_last_motion_axis = motion_axis
-		_controller_last_direction_msec = now
 	_controller_move(direction)
 	return true
+
+func _controller_is_active() -> bool:
+	var router: Node = get_node_or_null("/root/InputRouter")
+	return router != null and router.has_method("using_controller") and bool(router.call("using_controller"))
+
+func _controller_update_stick_axis(event: InputEventJoypadMotion) -> void:
+	if event.axis == JOY_AXIS_LEFT_X:
+		_controller_stick.x = event.axis_value
+	elif event.axis == JOY_AXIS_LEFT_Y:
+		_controller_stick.y = event.axis_value
+
+func _controller_reset_stick_repeat() -> void:
+	_controller_repeat_direction = Vector2.ZERO
+	_controller_next_repeat_msec = 0
 
 func _controller_custom_combat_available() -> bool:
 	return (
@@ -2244,8 +2270,8 @@ func _controller_enter_card_mode() -> void:
 	var available_modes: Array[String] = _controller_available_card_modes()
 	if not available_modes.has(_controller_card_mode) and not available_modes.is_empty():
 		_controller_card_mode = available_modes[0]
-	if _controller_cursor != null:
-		_controller_cursor.hide_cursor()
+	_controller_clear_board_focus()
+	_controller_reset_stick_repeat()
 	call_deferred("_focus_controller_card_mode")
 	_refresh_controller_prompts()
 
@@ -2261,6 +2287,7 @@ func _controller_move_card_mode(direction: int) -> void:
 func _focus_controller_card_mode() -> void:
 	if _card_action_mode_selector == null or not _controller_card_mode_active():
 		return
+	_refresh_controller_card_mode_visuals()
 	for child: Node in _card_action_mode_selector.get_children():
 		var button: Button = child as Button
 		if (
@@ -2270,6 +2297,24 @@ func _focus_controller_card_mode() -> void:
 		):
 			button.grab_focus()
 			return
+
+func _refresh_controller_card_mode_visuals() -> void:
+	if _card_action_mode_selector == null:
+		return
+	var controller_preview_active: bool = _controller_is_active() and _controller_card_mode_active()
+	var visual_mode: String = _controller_card_mode if controller_preview_active else _card_action_choice_mode
+	for child: Node in _card_action_mode_selector.get_children():
+		var button: Button = child as Button
+		if button == null:
+			continue
+		var play_kind: String = str(button.get_meta("play_kind", ""))
+		var available: bool = bool(button.get_meta("available", false))
+		var active: bool = play_kind == visual_mode
+		button.set_meta("active", active)
+		button.set_pressed_no_signal(active)
+		button.z_index = 4 if active else (3 if play_kind == "play" else (2 if play_kind == "attack" else 1))
+		button.modulate = Color.WHITE if active and available else (Color(0.78, 0.78, 0.78, 1.0) if available else Color(0.52, 0.50, 0.48, 1.0))
+		CardActionContextArt.set_mode_placard_active(button, play_kind, active, available)
 
 func _controller_activate_card_mode() -> void:
 	if not _controller_card_mode_active():
@@ -2312,11 +2357,9 @@ func _controller_set_hand_index(index: int) -> void:
 	if _controller_hand_index != clamped_index:
 		_controller_clear_hand_hover()
 	_controller_hand_index = clamped_index
+	_controller_clear_board_focus()
 	if _selected_card_index < 0:
 		_on_card_hover_started(_controller_hand_index)
-	var card: Control = _hand_card_control(_controller_hand_index)
-	if card != null and _controller_cursor != null:
-		_controller_cursor.show_control_cursor(_control_visual_global_rect(card), "CARD %d/%d" % [_controller_hand_index + 1, hand.size()])
 	_refresh_controller_prompts()
 
 func _controller_clear_hand_hover() -> void:
@@ -2326,6 +2369,7 @@ func _controller_clear_hand_hover() -> void:
 func _controller_enter_board(prefer_target: bool) -> void:
 	_controller_clear_hand_hover()
 	_controller_region = "board"
+	_controller_reset_stick_repeat()
 	var candidate_tile: Vector2i = INVALID_TARGET_TILE
 	if _controller_custom_room_available():
 		var room_tiles: Array[Vector2i] = _controller_board_tiles()
@@ -2363,27 +2407,43 @@ func _controller_move_board(direction: Vector2) -> void:
 		return
 	_controller_set_board_tile(next_candidate.get("tile", INVALID_TARGET_TILE))
 
-func _controller_set_board_tile(tile: Vector2i) -> void:
-	if tile == INVALID_TARGET_TILE:
+func _controller_process_board_cursor(delta: float) -> void:
+	var velocity: Vector2 = ControllerNavigationScript.cursor_velocity(_controller_stick)
+	if velocity == Vector2.ZERO:
+		return
+	var candidates: Array[Dictionary] = _controller_board_candidates()
+	if candidates.is_empty():
+		return
+	if not is_finite(_controller_virtual_board_position.x) or not is_finite(_controller_virtual_board_position.y):
+		_controller_virtual_board_position = _controller_board_point(_controller_board_tile) if _controller_board_tile != INVALID_TARGET_TILE else candidates[0].get("point", Vector2.ZERO)
+	_controller_virtual_board_position += velocity * CONTROLLER_BOARD_CURSOR_SPEED * delta
+	var minimum: Vector2 = candidates[0].get("point", _controller_virtual_board_position)
+	var maximum: Vector2 = minimum
+	for candidate: Dictionary in candidates:
+		var point: Vector2 = candidate.get("point", minimum)
+		minimum.x = minf(minimum.x, point.x)
+		minimum.y = minf(minimum.y, point.y)
+		maximum.x = maxf(maximum.x, point.x)
+		maximum.y = maxf(maximum.y, point.y)
+	_controller_virtual_board_position.x = clampf(_controller_virtual_board_position.x, minimum.x, maximum.x)
+	_controller_virtual_board_position.y = clampf(_controller_virtual_board_position.y, minimum.y, maximum.y)
+	var nearest: Dictionary = ControllerNavigationScript.nearest_candidate(_controller_virtual_board_position, candidates)
+	if not nearest.is_empty():
+		_controller_set_board_tile(nearest.get("tile", INVALID_TARGET_TILE), false)
+
+func _controller_set_board_tile(tile: Vector2i, sync_virtual_cursor: bool = true) -> void:
+	if tile == INVALID_TARGET_TILE or not _controller_board_tiles().has(tile):
 		return
 	_controller_board_tile = tile
+	if sync_virtual_cursor:
+		_controller_virtual_board_position = _controller_board_point(tile)
 	_hovered_board_tile = tile
 	_on_board_tile_hovered(tile)
-	var center: Vector2 = _controller_board_point(tile)
-	var tile_size: Vector2 = _controller_board_cursor_size(tile)
-	if _controller_cursor != null:
-		var caption: String = _room_hover_hint() if _controller_custom_room_available() else ""
-		_controller_cursor.show_board_cursor(center, tile_size, caption)
+	board_view.call("set_controller_focus_tile", tile)
 	_refresh_controller_prompts()
 
 func _controller_board_point(tile: Vector2i) -> Vector2:
 	return board_view.global_position + (board_view.call("world_position_for_tile", tile) as Vector2)
-
-func _controller_board_cursor_size(tile: Vector2i) -> Vector2:
-	var center: Vector2 = board_view.call("world_position_for_tile", tile)
-	var neighbor_x: Vector2 = board_view.call("world_position_for_tile", tile + Vector2i.RIGHT)
-	var delta: Vector2 = neighbor_x - center
-	return Vector2(maxf(54.0, absf(delta.x) * 2.0), maxf(34.0, absf(delta.y) * 2.0))
 
 func _controller_board_candidates() -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = []
@@ -2398,22 +2458,19 @@ func _controller_board_candidates() -> Array[Dictionary]:
 func _controller_board_tiles() -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	if str(_run_state.get("mode", "room")) == "room":
+		var rendered_doors: Array = board_view.call("controller_navigable_tiles", true)
 		for tile_var: Variant in _exit_destinations_by_tile.keys():
-			if tile_var is Vector2i:
+			if tile_var is Vector2i and rendered_doors.has(tile_var):
 				result.append(tile_var as Vector2i)
 		return result
-	var layout: Dictionary = _run_state.get("current_room_layout", {})
-	var grid: Array = layout.get("grid", [])
-	for y: int in range(grid.size()):
-		var row_value: Variant = grid[y]
-		if typeof(row_value) != TYPE_ARRAY:
-			continue
-		var row: Array = row_value
-		for x: int in range(row.size()):
-			if str(row[x]).to_lower() in ["void", "empty", ""]:
-				continue
-			result.append(Vector2i(x, y))
+	for tile_var: Variant in board_view.call("controller_navigable_tiles", false):
+		if tile_var is Vector2i:
+			result.append(tile_var as Vector2i)
 	return result
+
+func _controller_clear_board_focus() -> void:
+	if board_view != null and board_view.has_method("set_controller_focus_tile"):
+		board_view.call("set_controller_focus_tile", INVALID_TARGET_TILE)
 
 func _controller_tile_key(tile: Vector2i) -> String:
 	return "tile:%d:%d" % [tile.x, tile.y]
@@ -2534,13 +2591,11 @@ func _controller_collect_focusable_controls(root_control: Control, result: Array
 
 func _refresh_controller_interface() -> void:
 	_refresh_controller_prompts()
-	if not _controller_custom_navigation_available():
-		if _controller_cursor != null:
-			_controller_cursor.hide_cursor()
+	if not _controller_is_active() or not _controller_custom_navigation_available():
+		_controller_clear_board_focus()
 		return
 	if _controller_card_mode_active():
-		if _controller_cursor != null:
-			_controller_cursor.hide_cursor()
+		_controller_clear_board_focus()
 		call_deferred("_focus_controller_card_mode")
 		return
 	if _controller_custom_room_available():
@@ -2563,7 +2618,7 @@ func _refresh_controller_prompts() -> void:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Travel"},
 			{"action": &"controller_move", "label": "Explore"},
-			{"action": InputRouterScript.ACTION_HAND_BUMPERS, "label": "Zoom"},
+			{"action": InputRouterScript.ACTION_MAP_ZOOM, "label": "Zoom"},
 			{"action": InputRouterScript.ACTION_CANCEL, "label": "Close"},
 		]
 	elif _pre_battle_scrim != null and _pre_battle_scrim.visible:
@@ -11664,7 +11719,8 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 
 func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
 	var button := UiTooltipButton.new()
-	var active: bool = play_kind == _card_action_choice_mode
+	var visual_mode: String = _controller_card_mode if _controller_is_active() and _controller_card_mode_active() else _card_action_choice_mode
+	var active: bool = play_kind == visual_mode
 	button.name = "CardActionChoice%s" % play_kind.capitalize()
 	button.text = ""
 	button.tooltip_text = tooltip if available else "%s · unavailable with current targets" % tooltip
@@ -11689,13 +11745,6 @@ func _build_card_action_mode_option(play_kind: String, text: String, available: 
 	var empty_style := StyleBoxEmpty.new()
 	for style_name: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
 		button.add_theme_stylebox_override(style_name, empty_style)
-	var focus_style := StyleBoxFlat.new()
-	focus_style.bg_color = Color(0.10, 0.18, 0.22, 0.16)
-	focus_style.border_color = Color("a9ddff")
-	focus_style.set_border_width_all(3)
-	focus_style.set_corner_radius_all(8)
-	focus_style.set_expand_margin_all(4.0)
-	button.add_theme_stylebox_override("focus", focus_style)
 	CardActionContextArt.attach_mode_placard(button, play_kind, accent, active, available)
 	_add_card_action_mode_option_content(button, text, play_kind, available)
 	button.pressed.connect(_on_card_action_choice_pressed.bind(play_kind))
@@ -18419,6 +18468,10 @@ func _map_shortcut_can_open() -> bool:
 func _open_large_map() -> void:
 	if _large_map_scrim == null:
 		return
+	_controller_clear_hand_hover()
+	_controller_clear_board_focus()
+	if _card_focus_tooltip_stack != null:
+		_card_focus_tooltip_stack.hide_stack()
 	_close_menu_overlay()
 	_close_pile_view()
 	_close_card_upgrade_overlay()

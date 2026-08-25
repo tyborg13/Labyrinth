@@ -463,6 +463,7 @@ var exit_tiles: Dictionary = {}
 var exit_icon_ids: Dictionary = {}
 var presentation: Dictionary = {}
 var _hover_tile: Vector2i = Vector2i(-1, -1)
+var _controller_focus_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_moved: bool = false
 var _navigation_zoom: float = BOARD_DEFAULT_NAVIGATION_ZOOM
@@ -767,7 +768,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 	if fields.is_empty():
 		fields = [
 			"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
-			"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile",
+			"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile", "_controller_focus_tile",
 			"_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_navigation_content_signature",
 			"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature", "_board_visual_framing_signature",
 			"_board_layout_cache_visual_top_offset",
@@ -799,6 +800,7 @@ func _queue_dynamic_redraw() -> void:
 	for layer: Control in _retained_render_layers():
 		layer.set("_idle_elapsed", _idle_elapsed)
 		layer.set("_hover_tile", _hover_tile)
+		layer.set("_controller_focus_tile", _controller_focus_tile)
 		layer.queue_redraw()
 
 func _queue_render_layer_redraw(layer: Control) -> void:
@@ -806,6 +808,7 @@ func _queue_render_layer_redraw(layer: Control) -> void:
 		return
 	layer.set("_idle_elapsed", _idle_elapsed)
 	layer.set("_hover_tile", _hover_tile)
+	layer.set("_controller_focus_tile", _controller_focus_tile)
 	if layer == _ambient_render_layer:
 		layer.set("_ambient_display_intensities", _ambient_display_intensities)
 	layer.queue_redraw()
@@ -2090,6 +2093,31 @@ func _update_hover_at(pointer_position: Vector2) -> Vector2i:
 	_update_cursor_shape()
 	_queue_hover_redraws()
 	return next_hover
+
+func set_controller_focus_tile(tile: Vector2i) -> void:
+	if tile == _controller_focus_tile:
+		return
+	_controller_focus_tile = tile
+	if _controller_focus_tile.x >= 0:
+		_hover_tile = Vector2i(-1, -1)
+	if _overlay_render_layer != null and is_instance_valid(_overlay_render_layer):
+		_overlay_render_layer.set("_controller_focus_tile", _controller_focus_tile)
+		_overlay_render_layer.set("_hover_tile", _hover_tile)
+		_overlay_render_layer.queue_redraw()
+	else:
+		queue_redraw()
+
+func controller_navigable_tiles(include_visible_doors: bool = false) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var grid: Array = combat_state.get("grid", [])
+	for tile: Vector2i in _rendered_tiles_in_draw_order():
+		if not _tile_in_grid(grid, tile) or not _board_tile_is_visible_to_player(tile):
+			continue
+		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+		var is_floor: bool = tile_id not in ["wall", "pillar", "door", "void", "empty", ""]
+		if is_floor or (include_visible_doors and tile_id == "door" and _door_is_visible(tile)):
+			result.append(tile)
+	return result
 
 func _clear_hover_for_navigation() -> void:
 	if _hover_tile.x < 0:
@@ -3797,8 +3825,11 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
-	if tile == _hover_tile:
+	if tile == _hover_tile and _controller_focus_tile.x < 0:
 		draw_colored_polygon(polygon, HOVER_HIGHLIGHT)
+	if tile == _controller_focus_tile:
+		draw_colored_polygon(polygon, Color(0.98, 0.79, 0.37, 0.16))
+		_draw_tile_ring(tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90)
 
 func _draw_attack_target_pulse(tile: Vector2i) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0

@@ -34,6 +34,10 @@ const RING_ANGLE_JITTER_FRACTION: float = 0.06
 const CAMERA_MIN_ZOOM: float = 0.58
 const CAMERA_MAX_ZOOM: float = 1.70
 const CAMERA_ZOOM_FACTOR: float = 1.12
+const CONTROLLER_CURSOR_SPEED: float = 720.0
+const CONTROLLER_EDGE_PAN_SPEED: float = 520.0
+const CONTROLLER_EDGE_PAN_MARGIN: float = 72.0
+const CONTROLLER_ZOOM_OCTAVES_PER_SECOND: float = 0.82
 const TRACKPAD_PAN_SCALE: float = 18.0
 const COMPACT_GRAPH_RADIUS: int = 2
 const DEPTH_RING_LABEL_SIZE: Vector2 = Vector2(104.0, 20.0)
@@ -142,6 +146,10 @@ var _visible_node_rects_cache: Array[Dictionary] = []
 var _camera_focus_world: Vector2 = Vector2.ZERO
 var _camera_zoom: float = 1.0
 var _camera_auto_initialized: bool = false
+var _controller_cursor_position: Vector2 = Vector2.INF
+var _controller_stick: Vector2 = Vector2.ZERO
+var _controller_zoom_out_strength: float = 0.0
+var _controller_zoom_in_strength: float = 0.0
 var _pan_pointer_down: bool = false
 var _pan_last_position: Vector2 = Vector2.ZERO
 var _travel_from_coord: Vector2i = INVALID_COORD
@@ -167,6 +175,17 @@ func _sync_interactivity() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	focus_mode = Control.FOCUS_ALL if interactive else Control.FOCUS_NONE
 	custom_minimum_size = Vector2(120.0, 120.0) if not interactive else Vector2(640.0, 400.0)
+	set_process(interactive)
+
+func _process(delta: float) -> void:
+	if not interactive or not _using_controller():
+		_controller_stick = Vector2.ZERO
+		_controller_zoom_out_strength = 0.0
+		_controller_zoom_in_strength = 0.0
+		_controller_cursor_position = Vector2.INF
+		return
+	_process_controller_cursor(delta)
+	_process_controller_zoom(delta)
 
 func set_run_state(next_state: Dictionary) -> void:
 	var next_signature: String = _map_state_signature(next_state)
@@ -562,6 +581,7 @@ func focus_controller_on_current() -> void:
 	_hover_coord = current if _world_positions_cache.has(current) else INVALID_COORD
 	if _hover_coord.x <= -900 and not _visible_hit_rects_cache.is_empty():
 		_hover_coord = _visible_hit_rects_cache[0].get("coord", INVALID_COORD)
+	_controller_cursor_position = _cached_coord_position(_hover_coord) if _hover_coord.x > -900 else _map_rect_cache.get_center()
 	grab_focus()
 	queue_redraw()
 
@@ -596,12 +616,29 @@ func pan_camera(screen_delta: Vector2) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if not interactive or run_state.is_empty():
 		return
+	if event is InputEventJoypadMotion:
+		var motion := event as InputEventJoypadMotion
+		match motion.axis:
+			JOY_AXIS_LEFT_X:
+				_controller_stick.x = motion.axis_value
+			JOY_AXIS_LEFT_Y:
+				_controller_stick.y = motion.axis_value
+			JOY_AXIS_TRIGGER_LEFT:
+				_controller_zoom_out_strength = clampf(motion.axis_value, 0.0, 1.0)
+			JOY_AXIS_TRIGGER_RIGHT:
+				_controller_zoom_in_strength = clampf(motion.axis_value, 0.0, 1.0)
+			_:
+				return
+		accept_event()
+		return
 	if event.is_action_pressed(InputRouter.ACTION_HAND_PREVIOUS):
 		set_camera_zoom(_camera_zoom / CAMERA_ZOOM_FACTOR, _controller_anchor_point())
+		_snap_controller_cursor_to_nearest()
 		accept_event()
 		return
 	if event.is_action_pressed(InputRouter.ACTION_HAND_NEXT):
 		set_camera_zoom(_camera_zoom * CAMERA_ZOOM_FACTOR, _controller_anchor_point())
+		_snap_controller_cursor_to_nearest()
 		accept_event()
 		return
 	if event.is_action_pressed("ui_accept"):
@@ -624,6 +661,7 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 		return
 	if event is InputEventMouseMotion:
+		_controller_cursor_position = Vector2.INF
 		if _pan_pointer_down:
 			pan_camera(event.position - _pan_last_position)
 			_pan_last_position = event.position
@@ -670,6 +708,54 @@ func _move_controller_focus(direction: Vector2) -> void:
 	_ensure_layout_cache()
 	if _visible_hit_rects_cache.is_empty():
 		return
+	if not is_finite(_controller_cursor_position.x) or not is_finite(_controller_cursor_position.y):
+		_controller_cursor_position = _controller_anchor_point()
+	_controller_cursor_position += direction.normalized() * maxf(86.0, _base_node_size_cache * 1.18)
+	_clamp_controller_cursor()
+	_snap_controller_cursor_to_nearest()
+
+func _controller_coord_key(coord: Vector2i) -> String:
+	return "%d:%d" % [coord.x, coord.y]
+
+func _using_controller() -> bool:
+	var router: Node = get_node_or_null("/root/InputRouter")
+	return router != null and router.has_method("using_controller") and bool(router.call("using_controller"))
+
+func _process_controller_cursor(delta: float) -> void:
+	var velocity: Vector2 = ControllerNavigation.cursor_velocity(_controller_stick)
+	if velocity == Vector2.ZERO:
+		return
+	_ensure_layout_cache()
+	if not is_finite(_controller_cursor_position.x) or not is_finite(_controller_cursor_position.y):
+		_controller_cursor_position = _controller_anchor_point()
+	_controller_cursor_position += velocity * CONTROLLER_CURSOR_SPEED * delta
+	var inner_rect: Rect2 = _map_rect_cache.grow(-CONTROLLER_EDGE_PAN_MARGIN)
+	if inner_rect.size.x > 0.0 and inner_rect.size.y > 0.0:
+		var edge_pan := Vector2(
+			velocity.x if _controller_cursor_position.x <= inner_rect.position.x or _controller_cursor_position.x >= inner_rect.end.x else 0.0,
+			velocity.y if _controller_cursor_position.y <= inner_rect.position.y or _controller_cursor_position.y >= inner_rect.end.y else 0.0
+		)
+		if edge_pan != Vector2.ZERO:
+			pan_camera(-edge_pan * CONTROLLER_EDGE_PAN_SPEED * delta)
+	_clamp_controller_cursor()
+	_snap_controller_cursor_to_nearest()
+
+func _process_controller_zoom(delta: float) -> void:
+	var zoom_intent: float = _controller_zoom_in_strength - _controller_zoom_out_strength
+	if absf(zoom_intent) <= 0.01:
+		return
+	if not is_finite(_controller_cursor_position.x) or not is_finite(_controller_cursor_position.y):
+		_controller_cursor_position = _controller_anchor_point()
+	set_camera_zoom(_camera_zoom * pow(2.0, zoom_intent * CONTROLLER_ZOOM_OCTAVES_PER_SECOND * delta), _controller_cursor_position)
+	_snap_controller_cursor_to_nearest()
+
+func _clamp_controller_cursor() -> void:
+	_ensure_layout_cache()
+	_controller_cursor_position.x = clampf(_controller_cursor_position.x, _map_rect_cache.position.x, _map_rect_cache.end.x)
+	_controller_cursor_position.y = clampf(_controller_cursor_position.y, _map_rect_cache.position.y, _map_rect_cache.end.y)
+
+func _snap_controller_cursor_to_nearest() -> void:
+	_ensure_layout_cache()
 	var candidates: Array[Dictionary] = []
 	for entry: Dictionary in _visible_hit_rects_cache:
 		var coord: Vector2i = entry.get("coord", INVALID_COORD)
@@ -678,23 +764,13 @@ func _move_controller_focus(direction: Vector2) -> void:
 			"coord": coord,
 			"point": _cached_coord_position(coord),
 		})
-	if _hover_coord.x <= -900 or not _coord_positions_cache.has(_hover_coord):
-		_hover_coord = candidates[0].get("coord", INVALID_COORD)
+	var nearest: Dictionary = ControllerNavigation.nearest_candidate(_controller_cursor_position, candidates)
+	if nearest.is_empty():
+		return
+	var next_coord: Vector2i = nearest.get("coord", INVALID_COORD)
+	if next_coord != _hover_coord:
+		_hover_coord = next_coord
 		queue_redraw()
-		return
-	var next: Dictionary = ControllerNavigation.best_candidate_in_direction(
-		_cached_coord_position(_hover_coord),
-		direction,
-		candidates,
-		_controller_coord_key(_hover_coord)
-	)
-	if next.is_empty():
-		return
-	_hover_coord = next.get("coord", _hover_coord)
-	queue_redraw()
-
-func _controller_coord_key(coord: Vector2i) -> String:
-	return "%d:%d" % [coord.x, coord.y]
 
 func cursor_feedback_context_at(local_position: Vector2) -> String:
 	if not interactive or run_state.is_empty():
