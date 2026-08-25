@@ -605,13 +605,14 @@ func _frame_cohorts_for_context(context: Dictionary) -> Array[String]:
 		else:
 			result.append("frontend" if mode in ["", "frontend"] else "other")
 	var enemy_count: int = maxi(0, int(context.get("living_enemy_count", 0)))
-	if str(context.get("mode", "")) == "combat":
+	if str(context.get("mode", "")) == "combat" and enemy_count > 0:
 		result.append("density_1_2" if enemy_count <= 2 else ("density_3_4" if enemy_count <= 4 else "density_5_plus"))
 	var depth: int = maxi(0, int(context.get("room_depth", 0)))
 	if depth > 0:
 		result.append("depth_1_4" if depth <= 4 else ("depth_5_12" if depth <= 12 else "depth_13_plus"))
-	var relic_count: int = maxi(0, int(context.get("relic_count", 0)))
-	result.append("relics_0_4" if relic_count <= 4 else ("relics_5_9" if relic_count <= 9 else "relics_10_plus"))
+	if context.has("relic_count"):
+		var relic_count: int = maxi(0, int(context.get("relic_count", 0)))
+		result.append("relics_0_4" if relic_count <= 4 else ("relics_5_9" if relic_count <= 9 else "relics_10_plus"))
 	return result
 
 func _consume_runtime_performance_sections() -> Dictionary:

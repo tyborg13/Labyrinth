@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T16:46:58Z",
+  "updated_at": "2026-08-25T16:54:28Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8665,6 +8665,28 @@
       "source": {
         "branch": "codex/steam-deck-720p-ui-and-controller-support",
         "commit": "adb04d0"
+      }
+    },
+    {
+      "id": "mnt_20260825T165428Z_7e9e793f",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/steam_service.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/steam_service.gd",
+      "summary": "StoreStats may confirm only targets actually applied to Steam's volatile cache",
+      "details": "Keep desired pending stat targets separate from applied targets. A SetStatInt reapply can fail for one key after a rejected StoreStats callback; the next StoreStats generation must snapshot only successfully applied keys, and an OK callback must leave the failed key pending. Clearing every desired target on a later successful callback can silently lose diagnostic or once-per-session increments.",
+      "status": "active",
+      "created_at": "2026-08-25T16:54:28Z",
+      "updated_at": "2026-08-25T16:54:28Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "dd31b7f"
       }
     }
   ]

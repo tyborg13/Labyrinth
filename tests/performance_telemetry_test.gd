@@ -21,6 +21,7 @@ func _run() -> void:
 		"mode": "combat",
 		"room_depth": 9,
 		"living_enemy_count": 7,
+		"relic_count": 0,
 		"controller_active": true,
 	})
 	for frame_ms: float in [10.0, 16.0, 18.0, 34.0, 45.0]:
@@ -46,6 +47,12 @@ func _run() -> void:
 	_expect(sampler.sampling_enabled_for_test(false, true, ""), "Steam stats alone should enable sampling")
 	_expect(sampler.sampling_enabled_for_test(false, false, "https://telemetry.example.test"), "HTTP upload alone should enable sampling")
 	_expect(not sampler.sampling_enabled_for_test(false, false, ""), "Disabling all destinations should disable sampling and section timers")
+	var zero_enemy_cohorts: Array[String] = sampler.frame_cohorts_for_test({
+		"mode": "combat",
+		"living_enemy_count": 0,
+		"relic_count": 0,
+	})
+	_expect(not zero_enemy_cohorts.has("density_1_2"), "Zero-enemy combat boundaries should not pollute the 1-2 enemy density cohort")
 	var cohorts: Dictionary = summary.get("frame_cohorts", {}) as Dictionary
 	for expected_cohort: String in ["combat_idle", "density_5_plus", "depth_5_12", "relics_0_4"]:
 		_expect(cohorts.has(expected_cohort), "Telemetry should retain the active %s frame cohort" % expected_cohort)
@@ -89,7 +96,7 @@ func _run() -> void:
 	var frontend_summary: Dictionary = sampler.flush_now("test_frontend")
 	var frontend_cohorts: Dictionary = frontend_summary.get("frame_cohorts", {}) as Dictionary
 	_expect(
-		frontend_cohorts.has("frontend") and not frontend_cohorts.has("combat_idle"),
+		frontend_cohorts.size() == 1 and frontend_cohorts.has("frontend"),
 		"Frames after RunScene exits should be attributed to frontend rather than stale gameplay cohorts: %s" % str(frontend_cohorts.keys())
 	)
 	_expect(str((frontend_summary.get("context", {}) as Dictionary).get("mode", "")) == "frontend", "Ending gameplay telemetry should reset the persistent autoload context")

@@ -27,6 +27,7 @@ var _stats_dirty: bool = false
 var _stats_store_callback_connected: bool = false
 var _stats_store_in_flight: bool = false
 var _pending_stat_targets: Dictionary = {}
+var _applied_stat_targets: Dictionary = {}
 var _submitted_stat_targets: Dictionary = {}
 var _last_stats_status: Dictionary = {}
 
@@ -132,6 +133,7 @@ func accumulate_int_stats(deltas: Dictionary) -> Dictionary:
 		if bool(_steam.call("setStatInt", stat_name, next_value)):
 			accepted.append(stat_name)
 			_pending_stat_targets[stat_name] = next_value
+			_applied_stat_targets[stat_name] = next_value
 		else:
 			failed[stat_name] = "set_rejected"
 	if not accepted.is_empty():
@@ -153,19 +155,31 @@ func store_pending_stats() -> Dictionary:
 	if not is_steam_active() or not _steam.has_method("storeStats"):
 		_last_stats_status = {"attempted": false, "reason": "steam_store_unavailable"}
 		return _last_stats_status.duplicate(true)
+	var reapply_failures: Dictionary = _reapply_pending_stat_targets()
+	if _applied_stat_targets.is_empty():
+		_stats_store_elapsed = 0.0
+		_last_stats_status = {
+			"attempted": false,
+			"reason": "no_applied_stats",
+			"reapply_failures": reapply_failures,
+		}
+		return _last_stats_status.duplicate(true)
 	var succeeded: bool = bool(_steam.call("storeStats"))
 	_stats_store_elapsed = 0.0
 	if succeeded:
-		_submitted_stat_targets = _pending_stat_targets.duplicate(true)
+		# Only keys successfully present in Steam's volatile cache can be confirmed
+		# by this StoreStats callback. Desired targets whose SetStat reapply failed
+		# stay pending but must not enter the submitted generation.
+		_submitted_stat_targets = _applied_stat_targets.duplicate(true)
 		if _stats_store_callback_connected:
 			_stats_store_in_flight = true
 		else:
-			_pending_stat_targets.clear()
-			_submitted_stat_targets.clear()
-			_stats_dirty = false
+			_confirm_submitted_stat_targets()
+			_stats_dirty = not _pending_stat_targets.is_empty()
 	_last_stats_status = {
 		"attempted": true,
 		"ok": succeeded,
+		"reapply_failures": reapply_failures,
 		"reason": (
 			"submitted" if succeeded and _stats_store_callback_connected
 			else ("stored" if succeeded else "store_rejected")
@@ -226,12 +240,8 @@ func _on_user_stats_stored(_game_id: int, result: int) -> void:
 		# Remove only the exact targets covered by this callback. A newer window may
 		# already have raised a key while StoreStats was in flight; keep and reapply
 		# that newer target to Steam's local cache for the next batch.
-		for stat_name_var: Variant in _submitted_stat_targets.keys():
-			var stat_name: String = str(stat_name_var)
-			var submitted_target: int = int(_submitted_stat_targets[stat_name_var])
-			if int(_pending_stat_targets.get(stat_name, 0)) <= submitted_target:
-				_pending_stat_targets.erase(stat_name)
-		_submitted_stat_targets.clear()
+		_confirm_submitted_stat_targets()
+		_applied_stat_targets.clear()
 		var reapply_failures: Dictionary = _reapply_pending_stat_targets()
 		_stats_dirty = not _pending_stat_targets.is_empty()
 		_last_stats_status = {
@@ -242,6 +252,7 @@ func _on_user_stats_stored(_game_id: int, result: int) -> void:
 		}
 		return
 	_submitted_stat_targets.clear()
+	_applied_stat_targets.clear()
 	# Valve may replace rejected local values with the server's corrected values.
 	# Reapply every still-pending desired absolute value before the next retry so
 	# telemetry deltas (including the once-per-session key) survive that refresh.
@@ -268,12 +279,26 @@ func _reapply_pending_stat_targets() -> Dictionary:
 		var current_raw: Variant = _steam.call("getStatInt", stat_name)
 		if typeof(current_raw) != TYPE_INT and typeof(current_raw) != TYPE_FLOAT:
 			failed[stat_name] = "current_value_unavailable"
+			_applied_stat_targets.erase(stat_name)
 			continue
 		var corrected_target: int = maxi(clampi(int(current_raw), 0, MAX_STEAM_INT_STAT), desired_target)
 		_pending_stat_targets[stat_name] = corrected_target
-		if not bool(_steam.call("setStatInt", stat_name, corrected_target)):
+		if bool(_steam.call("setStatInt", stat_name, corrected_target)):
+			_applied_stat_targets[stat_name] = corrected_target
+		else:
 			failed[stat_name] = "set_rejected"
+			_applied_stat_targets.erase(stat_name)
 	return failed
+
+func _confirm_submitted_stat_targets() -> void:
+	for stat_name_var: Variant in _submitted_stat_targets.keys():
+		var stat_name: String = str(stat_name_var)
+		var submitted_target: int = int(_submitted_stat_targets[stat_name_var])
+		if int(_pending_stat_targets.get(stat_name, 0)) <= submitted_target:
+			_pending_stat_targets.erase(stat_name)
+		if int(_applied_stat_targets.get(stat_name, 0)) <= submitted_target:
+			_applied_stat_targets.erase(stat_name)
+	_submitted_stat_targets.clear()
 
 func _refresh_user_info() -> void:
 	if _steam == null or not _initialized:
