@@ -2241,6 +2241,9 @@ func _controller_enter_card_mode() -> void:
 		return
 	_controller_region = "card_mode"
 	_controller_card_mode = _card_action_choice_mode
+	var available_modes: Array[String] = _controller_available_card_modes()
+	if not available_modes.has(_controller_card_mode) and not available_modes.is_empty():
+		_controller_card_mode = available_modes[0]
 	if _controller_cursor != null:
 		_controller_cursor.hide_cursor()
 	call_deferred("_focus_controller_card_mode")

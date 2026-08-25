@@ -263,6 +263,31 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 
 	await _load_combat_fixture(instance)
 	instance.set("_controller_region", "hand")
+	instance.set("_controller_hand_index", 4)
+	var fallback_only_options: Dictionary = (instance.call("_card_play_options_for_index", 4) as Dictionary).duplicate(false)
+	_require(bool(fallback_only_options.get("attack_playable", false)) and bool(fallback_only_options.get("move_playable", false)), "Fallback-only regression setup requires legal Attack and Move options")
+	# Model the reachable selector shape directly: Printed is disabled while more
+	# than one fallback is legal. Core combat legality is already exercised above;
+	# this isolates controller normalization from any one card's evolving rules.
+	fallback_only_options["play"] = {"playable": false}
+	fallback_only_options["printed_playable"] = false
+	instance.call("_show_card_action_choices", 4, fallback_only_options)
+	instance.call("_refresh_ui")
+	instance.call("_controller_enter_card_mode")
+	await _settle()
+	var fallback_only_modes: Array = instance.call("_controller_available_card_modes")
+	var fallback_only_mode: String = str(instance.get("_controller_card_mode"))
+	_require(not fallback_only_modes.has("play") and fallback_only_modes.size() >= 2, "Fallback-only controller setup should expose multiple modes without Printed")
+	_require(fallback_only_modes.has(fallback_only_mode), "Controller card-mode entry should normalize an unavailable Printed default to a playable fallback")
+	var fallback_focus: Control = _viewport.gui_get_focus_owner()
+	_require(fallback_focus != null and str(fallback_focus.get_meta("play_kind", "")) == fallback_only_mode, "Fallback-only mode entry should visibly focus the normalized playable placard")
+	await _press_controller_button(JOY_BUTTON_A)
+	_require(str(instance.get("_controller_region")) == "board", "A should activate the normalized fallback mode instead of exiting to the hand")
+	await _press_controller_button(JOY_BUTTON_B)
+	await _press_controller_button(JOY_BUTTON_B)
+
+	await _load_combat_fixture(instance)
+	instance.set("_controller_region", "hand")
 	instance.set("_controller_hand_index", 0)
 	instance.call("_refresh_controller_interface")
 	for _step: int in range(3):
