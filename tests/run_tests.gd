@@ -10255,18 +10255,8 @@ func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 	combat_state["deck"] = deck
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
-	_assert(bool(preview.get("playable", false)), "Move-attack cards should stay playable even when the follow-up attack has no valid target")
-	_assert(not (preview.get("target_tiles", []) as Array).is_empty(), "Optional move-attack cards should still offer movement targets")
-	var first_target: Vector2i = (preview.get("target_tiles", []) as Array)[0]
-	var next_state: Dictionary = combat.apply_player_action(combat_state, preview.get("action", {}), first_target)
-	var next_preview: Dictionary = instance.call(
-		"_card_preview_from_state",
-		"sidestep_slash",
-		next_state,
-		GameData.card_def("sidestep_slash").get("actions", []),
-		1
-	)
-	_assert(bool(next_preview.get("complete", false)), "The follow-up attack should auto-skip when it has no valid target")
+	_assert(not bool(preview.get("playable", false)), "A move-attack card should not offer an intermediate movement click when no enemy can be attacked")
+	_assert((preview.get("target_tiles", []) as Array).is_empty(), "A required combined attack without an enemy should expose no movement targets")
 	instance.queue_free()
 	await process_frame
 
@@ -10321,16 +10311,17 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "Move-attack selection should show current movement and remaining attack")
 	_assert_action_step_tracker_layout(instance, piles_y_before, "Move-attack tracker should not shift piles or controls")
+	var board: Node = instance.get_node("BoardUnderlay/CombatBoard")
+	_assert((board.get("move_tiles") as Array).is_empty() and (board.get("attack_tiles") as Array).has(Vector2i(5, 4)), "Move-attack selection should expose only the enemy target")
 	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
 	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["done", "current"], "Choosing the move target should advance the tracker to the attack")
+	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "Clicking an intermediate movement tile should not advance a combined card")
 
 	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)])
 	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
-	await instance.call("_on_skip_action_pressed")
-	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["skipped", "current"], "Manual skip should keep a skipped movement placeholder")
+	_assert(not bool(instance.call("_current_action_can_skip")), "Move-attack cards should not offer a separate movement skip click")
+	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "An adjacent enemy should remain the single combined target")
 
 	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)], true)
 	await _choose_clicked_card_action(instance, 0, "play")
@@ -10697,19 +10688,12 @@ func _test_run_scene_push_direction_tiles_filter_closer_tiles() -> void:
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
 	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
-	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
-	var presentation: Dictionary = board_view.get("presentation")
-	var ability_tiles: Array = presentation.get("ability_tiles", [])
-	_assert(not ability_tiles.has(Vector2i(2, 4)), "Push direction selection should not show the protagonist tile as a valid closer direction")
-	_assert(ability_tiles.has(Vector2i(4, 4)), "Push direction selection should still show directions that move the enemy farther away")
-	await instance.call("_on_board_tile_clicked", Vector2i(2, 4))
-	_assert(instance.get("_pending_orientation_target_tile") == Vector2i(3, 4), "Clicking an invalid closer push direction should keep direction selection pending")
-	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
 	await create_timer(1.5).timeout
 	var final_state: Dictionary = instance.get("_combat_state")
 	var enemies: Array = final_state.get("enemies", [])
 	var enemy: Dictionary = enemies[0] if not enemies.is_empty() else {}
-	_assert(enemy.get("pos", Vector2i.ZERO) == Vector2i(5, 4), "Confirming a valid push direction should move the enemy farther from the player")
+	_assert(enemy.get("pos", Vector2i.ZERO) == Vector2i(5, 4), "Clicking a push target should automatically choose the valid away direction")
+	_assert(int(instance.get("_selected_card_index")) < 0, "A push target click should finish without a separate direction choice")
 	instance.queue_free()
 	await process_frame
 
@@ -10780,12 +10764,15 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var armed_state: Dictionary = instance.get("_combat_state")
 	var armed_player: Dictionary = armed_state.get("player", {})
 	var context: Control = instance.get("_action_step_tracker") as Control
-	var play_button: Button = _button_with_text(context, "Play Card")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
+	var player_tile: Vector2i = armed_player.get("pos", Vector2i(-1, -1))
+	var confirmation_tiles: Array = (board_view.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array
 	_assert(int(armed_player.get("hp", 0)) == 12 and int(armed_player.get("block", 0)) == 0, "Selecting a targetless card should preview without applying its effects")
 	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0, "Selecting a targetless card should not spend a card play")
 	_assert(((armed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "quick_stab"], "Selecting a targetless card should leave the exact hand intact")
-	_assert(play_button != null and not play_button.disabled, "A targetless card should expose a clear Play Card confirmation action")
-	_assert(str(context.get_meta("action_verb", "")) == "READY · PLAY CARD" and str(context.get_meta("target_state", "")) == "NO TARGET REQUIRED", "Targetless confirmation should explain that no board target is needed")
+	_assert(_button_with_text(context, "Play Card") == null, "A targetless card should not add a third confirmation control")
+	_assert(confirmation_tiles == [player_tile], "A targetless card should expose only the protagonist tile as its confirmation target")
+	_assert(str(context.get_meta("action_verb", "")) == "READY · CLICK YOUR TILE" and str(context.get_meta("target_state", "")) == "SELF", "Targetless confirmation should direct the player to the pulsing self tile")
 
 	await instance.call("_on_card_action_choice_pressed", "move")
 	await process_frame
@@ -10810,7 +10797,8 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	await process_frame
 
 	await _choose_clicked_card_action(instance, 0, "play")
-	await instance.call("_on_confirm_card_play_pressed")
+	player_tile = ((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	await instance.call("_on_board_tile_clicked", player_tile)
 	await create_timer(1.5).timeout
 	var committed_state: Dictionary = instance.get("_combat_state")
 	var committed_player: Dictionary = committed_state.get("player", {})
@@ -10832,7 +10820,9 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	context = instance.get("_action_step_tracker") as Control
 	_assert(int(instance.get("_pending_action_index")) >= (instance.get("_pending_actions") as Array).size(), "A no-target Spark Focus should preview through its skipped ranged step")
 	_assert((intensity_armed_state.get("elemental_intensity", {}) as Dictionary) == intensity_before, "A no-target intensity card should not raise live intensity before confirmation")
-	_assert(_button_with_text(context, "Play Card") != null, "A card whose target step has no valid target should expose Play Card confirmation")
+	board_view = instance.get_node("BoardUnderlay/CombatBoard")
+	player_tile = (intensity_armed_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	_assert(((board_view.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array) == [player_tile], "A card whose target step has no valid target should confirm on the protagonist tile")
 	instance.queue_free()
 	await process_frame
 

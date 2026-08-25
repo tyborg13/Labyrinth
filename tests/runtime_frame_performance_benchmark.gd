@@ -1138,16 +1138,14 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		var interaction: Dictionary = {}
 		if bool(instance.call("_pending_card_requires_confirmation")):
 			var confirm_started: int = Time.get_ticks_usec()
-			var confirm_button: Button = instance.find_child("ActionContextPlayCard", true, false) as Button
-			_expect(confirm_button != null and not confirm_button.disabled, "targetless card confirmation must route through the live Play Card button")
-			if confirm_button != null and not confirm_button.disabled:
-				_routed_left_click(confirm_button, confirm_button.size * 0.5)
+			var player_tile: Vector2i = (((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
+			_board_pointer_click(instance, player_tile)
 			await process_frame
 			var confirm_wait_frames: int = 0
 			while bool(instance.get("_animation_lock")) and confirm_wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
 				await _await_render_frame()
 				confirm_wait_frames += 1
-			_expect(confirm_wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "%s routed Play Card confirmation must settle before the deadlock guard" % card_id)
+			_expect(confirm_wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "%s routed self-tile confirmation must settle before the deadlock guard" % card_id)
 			interaction = {"step_completion_samples": [float(Time.get_ticks_usec() - confirm_started) / 1000.0]}
 		else:
 			interaction = await _exercise_preview_steps(instance, false, card_id)
@@ -1188,10 +1186,10 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 		_board_pointer_click(instance, target)
 		await process_frame
 		interaction_steps += 1
-	var confirm_button: Button = instance.find_child("ActionContextPlayCard", true, false) as Button
-	_expect(bool(instance.call("_pending_card_requires_confirmation")) and confirm_button != null and not confirm_button.disabled, "Wildfire visual replay must route through the live Play Card button")
-	if confirm_button != null and not confirm_button.disabled:
-		_routed_left_click(confirm_button, confirm_button.size * 0.5)
+	_expect(bool(instance.call("_pending_card_requires_confirmation")), "Wildfire visual replay must reach self-tile confirmation")
+	if bool(instance.call("_pending_card_requires_confirmation")):
+		var player_tile: Vector2i = (((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
+		_board_pointer_click(instance, player_tile)
 	var captured: Array[String] = []
 	var capture_frames: Dictionary = {
 		18: "action_effect_18.png",
@@ -1536,11 +1534,9 @@ func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 	_board_pointer_click(instance, trap_tile)
 	await process_frame
 	if bool(instance.call("_pending_card_requires_confirmation")):
-		var confirm_button: Button = instance.find_child("ActionContextPlayCard", true, false) as Button
-		_expect(confirm_button != null and not confirm_button.disabled, "trap play confirmation must route through the live Play Card button")
-		if confirm_button != null and not confirm_button.disabled:
-			_routed_left_click(confirm_button, confirm_button.size * 0.5)
-			await process_frame
+		var player_tile: Vector2i = (((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
+		_board_pointer_click(instance, player_tile)
+		await process_frame
 	var wait_frames: int = 0
 	while bool(instance.get("_animation_lock")) and wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
 		await _await_render_frame()

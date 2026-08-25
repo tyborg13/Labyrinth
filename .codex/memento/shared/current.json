@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-19T01:59:57Z",
+  "updated_at": "2026-08-25T01:32:21Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8439,6 +8439,28 @@
       "source": {
         "branch": "codex/fix-elemental-particle-preview-speed-and-lag",
         "commit": "efb0d43"
+      }
+    },
+    {
+      "id": "mnt_20260825T013221Z_2b8d1a9f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Player card plays expose exactly one board decision",
+      "details": "Printed cards may have at most one player-selected target. The only authored multi-target action sequence is ordinary move followed by a required adjacent melee or push, resolved from one enemy click through the move-attack shortcut. Ranged and ranged-AOE cards never also move; Flurry repetitions reuse the first target; targetless cards confirm on the player tile; Add Move is only offered to cards without an existing targetable action.",
+      "status": "active",
+      "created_at": "2026-08-25T01:32:21Z",
+      "updated_at": "2026-08-25T01:32:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/simplify-card-targeting-to-two-clicks",
+        "commit": "7609da2"
       }
     }
   ]

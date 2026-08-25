@@ -571,6 +571,7 @@ var _ability_tiles_cache: Array[Vector2i] = []
 var _move_tiles_lookup_cache: Dictionary = {}
 var _attack_tiles_lookup_cache: Dictionary = {}
 var _focus_tiles_lookup_cache: Dictionary = {}
+var _confirmation_target_tiles_lookup_cache: Dictionary = {}
 var _objective_exit_tiles_lookup_cache: Dictionary = {}
 var _projected_attack_tiles_lookup_cache: Dictionary = {}
 var _projected_destination_tiles_lookup_cache: Dictionary = {}
@@ -914,6 +915,7 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 	if (
 		(bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
 		or (bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty())
+		or not _confirmation_target_tiles_lookup_cache.is_empty()
 	):
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if not skip_impact and (
@@ -1025,6 +1027,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 	if bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty():
 		return true
 	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
+		return true
+	if not _confirmation_target_tiles_lookup_cache.is_empty():
 		return true
 	if presentation.is_empty():
 		return false
@@ -1223,12 +1227,13 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if attack_tiles_changed:
 		_attack_tiles_lookup_cache = _vector2i_lookup(attack_tiles)
 	var overlay_presentation_cache_changed: bool = not _submission_cache_initialized
-	for overlay_key: String in ["focus_tiles", "objective_exit_target_tiles", "projected_attack_tiles", "projected_destination", "enemy_threat_previews"]:
+	for overlay_key: String in ["focus_tiles", "confirmation_target_tiles", "objective_exit_target_tiles", "projected_attack_tiles", "projected_destination", "enemy_threat_previews"]:
 		if presentation_changes.has(overlay_key):
 			overlay_presentation_cache_changed = true
 			break
 	if overlay_presentation_cache_changed:
 		_focus_tiles_lookup_cache = _vector2i_lookup(presentation.get("focus_tiles", []))
+		_confirmation_target_tiles_lookup_cache = _vector2i_lookup(presentation.get("confirmation_target_tiles", []))
 		_objective_exit_tiles_lookup_cache = _vector2i_lookup(presentation.get("objective_exit_target_tiles", []))
 		_projected_attack_tiles_lookup_cache = _vector2i_lookup(presentation.get("projected_attack_tiles", []))
 		_projected_destination_tiles_lookup_cache.clear()
@@ -1343,7 +1348,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			retained_sync_fields.append_array(["_ability_tiles_cache", "_ability_tiles_lookup_cache"])
 		if overlay_presentation_cache_changed:
 			retained_sync_fields.append_array([
-				"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
+				"_focus_tiles_lookup_cache", "_confirmation_target_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
 				"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
 			])
 		for unit_key: String in ["preview_units", "death_animation_units", "unit_draw_tiles", "unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles", "umbra_light_sources", "umbra_stage"]:
@@ -1528,7 +1533,7 @@ func _queue_presentation_change_redraws(
 		match str(key_var):
 			"ambient_time_seconds":
 				ambient_changed = true
-			"ability_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
+			"ability_tiles", "confirmation_target_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
 				overlay_changed = true
 			"path_color", "path_tiles":
 				path_changed = true
@@ -3772,6 +3777,9 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
 		if bool(presentation.get("pulse_exit_tiles", false)):
 			_draw_exit_tile_pulse(tile)
+	if _confirmation_target_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
+		_draw_exit_tile_pulse(tile)
 	if _focus_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
 	if _move_tiles_lookup_cache.has(tile):

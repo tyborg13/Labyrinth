@@ -38,13 +38,13 @@
     "health_cost": 0,
     "time": 4,
     "starter": true,
-    "description": "Create a 2-health illusion at range 3, then blink 4.",
+    "description": "Create a 3-health illusion at range 3, then draw 1.",
     "accent": "#53607e",
     "art_path": "res://assets/art/cards/shadow_step.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 2, "range": 3 },
-      { "type": "blink", "range": 4 }
+      { "type": "illusion", "health": 3, "range": 3 },
+      { "type": "draw", "amount": 1 }
     ]
   },
   "bone_dart": {
@@ -119,7 +119,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 3 },
-      { "type": "melee", "damage": 6, "range": 1 }
+      { "type": "melee", "damage": 6, "range": 1, "required": true }
     ]
   },
   "whirlwind_slash": {
@@ -166,7 +166,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 3 },
-      { "type": "melee", "damage": 15, "range": 1 }
+      { "type": "melee", "damage": 15, "range": 1, "required": true }
     ]
   },
   "brace": {
@@ -324,7 +324,7 @@
     "art_path": "res://assets/art/cards/iron_wheel.png",
     "actions": [
       { "type": "move", "range": 4 },
-      { "type": "melee", "damage": 10, "range": 1 }
+      { "type": "melee", "damage": 10, "range": 1, "required": true }
     ]
   },
   "ricochet_knife": {
@@ -500,7 +500,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 4, "range": 1, "immobilize": true }
+      { "type": "melee", "damage": 4, "range": 1, "immobilize": true, "required": true }
     ]
   },
   "hamstring_slice": {
@@ -515,7 +515,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 6, "range": 1, "immobilize": true }
+      { "type": "melee", "damage": 6, "range": 1, "immobilize": true, "required": true }
     ]
   },
   "ember_rain": {
@@ -524,12 +524,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 9 at range 6, then create radius-2 Light at the impact for 2 turns.",
+    "description": "Deal 4 in a cross pattern at range 6, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#db7a3e",
     "art_path": "res://assets/art/cards/ember_rain.png",
     "radiance": true,
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 6, "illuminate_radius": 2, "illuminate_duration": 2 }
+      { "type": "aoe", "damage": 4, "range": 6, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "illuminate_radius": 2, "illuminate_duration": 2 }
     ]
   },
   "shadow_gate": {
@@ -643,14 +643,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Fire intensity by 1. Create a 2-health illusion, move 2, and strike for 4. Fire 2+: +4 damage and burn 2.",
+    "description": "Raise Fire intensity by 1. Move 2, then strike for 4. Fire 2+: +4 damage and burn 2.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/hearth_rush.png",
     "actions": [
       { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "illusion", "health": 2, "range": 3 },
       { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 4, "range": 1, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 4, "burn": 2 } }
+      { "type": "melee", "damage": 4, "range": 1, "required": true, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 4, "burn": 2 } }
     ]
   },
   "cinderline_tempo": {
@@ -691,11 +690,11 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 9 at range 6. Fire 2+: +5 damage and burn 3.",
+    "description": "Deal 5 along a 3-tile line at range 6. Fire 2+: +3 damage and burn 2.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/molten_reach.png",
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 6, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 5, "burn": 3 } }
+      { "type": "aoe", "damage": 5, "range": 6, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3, "burn": 2 } }
     ]
   },
   "wildfire_halo": {
@@ -750,13 +749,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Ice intensity by 1 and create a 2-health illusion. Ice 2+: deal 6 at range 5.",
+    "description": "Raise Ice intensity by 1. Ice 2+: deal 4 along a 2-tile line at range 5.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/rime_shard.png",
     "actions": [
       { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "illusion", "health": 2, "range": 4 },
-      { "type": "ranged", "damage": 6, "range": 5, "requires_intensity": { "element": "ice", "amount": 2 } }
+      { "type": "aoe", "damage": 4, "range": 5, "pattern": [[0, 0], [1, 0]], "rotate": true, "requires_intensity": { "element": "ice", "amount": 2 } }
     ]
   },
   "cold_grasp": {
@@ -934,12 +932,11 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Raise Lightning intensity by 1 and create a 3-health illusion. Lightning 2+: deal 9 at range 6.",
+    "description": "Raise Lightning intensity by 1. Lightning 2+: deal 9 at range 6.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/volt_surge.png",
     "actions": [
       { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "illusion", "health": 3, "range": 5 },
       { "type": "ranged", "damage": 9, "range": 6, "requires_intensity": { "element": "lightning", "amount": 2 } }
     ]
   },
@@ -964,13 +961,11 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Air intensity by 1. Create a 2-health illusion, move 2, then pull 2 at range 4 and hit 4. Air 2+: gain 1 card play.",
+    "description": "Raise Air intensity by 1. Pull 2 at range 4 and hit for 4. Air 2+: gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/gust_step.png",
     "actions": [
       { "type": "intensity", "element": "air", "amount": 1 },
-      { "type": "illusion", "health": 2, "range": 4 },
-      { "type": "move", "range": 2 },
       { "type": "pull", "amount": 2, "range": 4, "damage": 4 },
       { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
     ]
@@ -988,7 +983,7 @@
     "actions": [
       { "type": "intensity", "element": "air", "amount": 1 },
       { "type": "move", "range": 3 },
-      { "type": "melee", "damage": 6, "range": 1, "push": 1 },
+      { "type": "melee", "damage": 6, "range": 1, "push": 1, "required": true },
       { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
     ]
   },
@@ -1047,11 +1042,10 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Move 4, then deal 8 at range 6 and push 2. Air 2+: +6 damage and +2 push.",
+    "description": "Deal 8 at range 6 and push 2. Air 2+: +6 damage and +2 push.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/skybreak_current.png",
     "actions": [
-      { "type": "move", "range": 4 },
       { "type": "ranged", "damage": 8, "range": 6, "push": 2, "intensity_bonus": { "element": "air", "threshold": 2, "damage": 6, "push": 2 } }
     ]
   },
@@ -1099,7 +1093,7 @@
     "actions": [
       { "type": "intensity", "element": "earth", "amount": 1 },
       { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 6, "range": 1, "poison": 1 },
+      { "type": "melee", "damage": 6, "range": 1, "poison": 1, "required": true },
       { "type": "stoneskin", "amount": 3, "requires_intensity": { "element": "earth", "amount": 2 } }
     ]
   },
@@ -1194,7 +1188,7 @@
     "art_path": "res://assets/art/cards/tectonic_maul.png",
     "actions": [
       { "type": "move", "range": 1 },
-      { "type": "melee", "damage": 12, "range": 1, "poison": 2, "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 6, "poison": 5 } }
+      { "type": "melee", "damage": 12, "range": 1, "poison": 2, "required": true, "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 6, "poison": 5 } }
     ]
   },
   "cleaver_hook": {
@@ -1223,7 +1217,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 6, "range": 1 },
+      { "type": "melee", "damage": 6, "range": 1, "required": true },
       { "type": "block", "amount": 4 }
     ]
   },
@@ -1359,7 +1353,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 4 },
-      { "type": "push", "damage": 5, "range": 1, "amount": 1 }
+      { "type": "push", "damage": 5, "range": 1, "amount": 1, "required": true }
     ]
   },
   "gravewind_step": {
@@ -1368,13 +1362,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Blink 4, then create a 3-health illusion at range 3.",
+    "description": "Blink 4, then gain 4 block.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/gravewind_step.png",
     "reward_pool": false,
     "actions": [
       { "type": "blink", "range": 4 },
-      { "type": "illusion", "health": 3, "range": 3 }
+      { "type": "block", "amount": 4 }
     ]
   },
   "ember_tithe": {
@@ -1413,12 +1407,11 @@
     "burn": true,
     "health_cost": 0,
     "time": 7,
-    "description": "Exhaust. Move 2, then deal 9 in a cross pattern at range 4 and push 1.",
+    "description": "Exhaust. Deal 9 in a cross pattern at range 4 and push 1.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/unsealed_gale.png",
     "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
       { "type": "aoe", "damage": 9, "range": 4, "amount": 1, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "push": 1 }
     ]
   },
@@ -1522,7 +1515,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 4, "range": 1, "expose": 3 }
+      { "type": "melee", "damage": 4, "range": 1, "expose": 3, "required": true }
     ]
   },
   "backhand_nick": {
@@ -1765,13 +1758,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Create a 2-health illusion, then mark at range 5 for 3 and expose 5.",
+    "description": "Create a 4-health illusion at range 5, then gain 3 block.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/reflected_threat.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 2, "range": 3 },
-      { "type": "ranged", "damage": 3, "range": 5, "expose": 5 }
+      { "type": "illusion", "health": 4, "range": 5 },
+      { "type": "block", "amount": 3 }
     ]
   },
   "anchor_slam": {
@@ -1910,13 +1903,13 @@
     "burn": true,
     "health_cost": 0,
     "time": 6,
-    "description": "Exhaust. Create a 5-health illusion at range 4, blink 4, then draw 1.",
+    "description": "Exhaust. Blink 4, gain 4 block, then draw 1.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/voidsilk_molt.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 5, "range": 4 },
       { "type": "blink", "range": 4 },
+      { "type": "block", "amount": 4 },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -1948,7 +1941,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 3 },
-      { "type": "push", "damage": 4, "range": 1, "amount": 2 }
+      { "type": "push", "damage": 4, "range": 1, "amount": 2, "required": true }
     ]
   },
   "heel_hook": {
@@ -1963,7 +1956,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 5, "range": 1, "immobilize": true, "expose": 2 }
+      { "type": "melee", "damage": 5, "range": 1, "immobilize": true, "expose": 2, "required": true }
     ]
   },
   "static_pivot": {
@@ -1973,14 +1966,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Raise Lightning intensity by 1. Move 4, then deal 4 at range 4. Lightning 2+: shock.",
+    "description": "Raise Lightning intensity by 1. Move 4, then gain 3 block.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/static_pivot.png",
     "reward_pool": false,
     "actions": [
       { "type": "intensity", "element": "lightning", "amount": 1 },
       { "type": "move", "range": 4 },
-      { "type": "ranged", "damage": 4, "range": 4, "intensity_bonus": { "element": "lightning", "threshold": 2, "shock": 1 } }
+      { "type": "block", "amount": 3 }
     ]
   },
   "spur_spark": {
@@ -2025,13 +2018,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Move 3, create a 2-health illusion, then draw 1. Air 2+: gain 1 card play.",
+    "description": "Move 3, then draw 1. Air 2+: gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/zephyr_feint.png",
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 3 },
-      { "type": "illusion", "health": 2, "range": 3 },
       { "type": "draw", "amount": 1 },
       { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
     ]
@@ -2043,15 +2035,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Raise Earth intensity by 1. Move 2, gain 4 stoneskin, and lash for 4 at range 4. Earth 2+: immobilize and poison 2.",
+    "description": "Raise Earth intensity by 1. Move 3, then gain 4 stoneskin. Earth 2+: +4 stoneskin.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/worldroot_stride.png",
     "reward_pool": false,
     "actions": [
       { "type": "intensity", "element": "earth", "amount": 1 },
-      { "type": "move", "range": 2 },
-      { "type": "stoneskin", "amount": 4 },
-      { "type": "ranged", "damage": 4, "range": 4, "intensity_bonus": { "element": "earth", "threshold": 2, "immobilize": true, "poison": 2 } }
+      { "type": "move", "range": 3 },
+      { "type": "stoneskin", "amount": 4, "intensity_bonus": { "element": "earth", "threshold": 2, "amount": 4 } }
     ]
   },
   "rooted_kick": {
@@ -2067,7 +2058,7 @@
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 2 },
-      { "type": "push", "damage": 6, "range": 1, "amount": 1, "sunder": 3, "poison": 1 }
+      { "type": "push", "damage": 6, "range": 1, "amount": 1, "sunder": 3, "poison": 1, "required": true }
     ]
   },
   "loaded_toss": {
@@ -2374,12 +2365,12 @@
     "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Deal 4 at range 7 for each card play spent.",
+    "description": "Flurry. Deal 2 along a 2-tile line at range 7 for each card play spent.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/windlass_volley.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 7 }
+      { "type": "aoe", "damage": 2, "range": 7, "pattern": [[0, 0], [1, 0]], "rotate": true }
     ]
   },
   "crank_reload": {
@@ -2469,11 +2460,10 @@
     "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Move 1, then deal 3 at range 5 and push 1, for each card play spent.",
+    "description": "Flurry. Deal 3 at range 5 and push 1 for each card play spent.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/razor_gale.png",
     "actions": [
-      { "type": "move", "range": 1 },
       { "type": "ranged", "damage": 3, "range": 5, "push": 1 }
     ]
   }

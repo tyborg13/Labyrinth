@@ -1021,13 +1021,24 @@ static func _pattern_upgrade_options(action: Dictionary, element: Dictionary) ->
 static func _action_upgrade_options(card: Dictionary, _element: Dictionary) -> Array:
 	if (card.get("actions", []) as Array).size() >= 4:
 		return []
-	return [
-		{
+	var options: Array = []
+	var has_targeted_action: bool = false
+	for action_var: Variant in card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		var action_type: String = str(action.get("type", ""))
+		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate"] or (action_type == "aoe" and int(action.get("range", 0)) > 0):
+			has_targeted_action = true
+			break
+	if not has_targeted_action:
+		options.append({
 			"kind": "action_add",
 			"label": "Add Move 1",
 			"action": {"type": "move", "range": 1},
 			"cost_base": 360
-		},
+		})
+	options.append_array([
 		{
 			"kind": "action_add",
 			"label": "Add Block 3",
@@ -1040,7 +1051,8 @@ static func _action_upgrade_options(card: Dictionary, _element: Dictionary) -> A
 			"action": {"type": "draw", "amount": 1},
 			"cost_base": 680
 		}
-	]
+	])
+	return options
 
 static func _stat_mod(action_index: int, field: String, amount: int, label: String, cost_base: int, kind: String = "stat") -> Dictionary:
 	return {

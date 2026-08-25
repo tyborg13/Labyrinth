@@ -900,6 +900,10 @@ func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 			var action: Dictionary = (action_var as Dictionary).duplicate(true)
 			action["_flurry_repeat_index"] = repeat_index
 			action["_flurry_repeat_count"] = repeat_count
+			# Flurry spends several card plays, but it is still one played card and one
+			# targeting decision. Later repetitions reuse the first legal target.
+			if repeat_index > 0 and player_action_needs_target(action):
+				action["reuse_previous_target"] = true
 			repeated_actions.append(action)
 	return repeated_actions
 
@@ -1176,17 +1180,18 @@ func movement_plan_for_player_action(state: Dictionary, action: Dictionary, prev
 	var hidden_enemy_tiles: Dictionary = _occupied_enemy_tiles(state)
 	for visible_tile_var: Variant in visible_enemy_tiles.keys():
 		hidden_enemy_tiles.erase(visible_tile_var)
-	var navigation: Dictionary = _lowest_trap_navigation(
+	var navigation: Dictionary = _preferred_player_navigation(
 		state.get("grid", []),
 		player_pos,
 		move_range,
 		known_actor_tiles,
-		_trap_tiles_lookup(state)
+		_trap_tiles_lookup(state),
+		_preferred_pickup_scores(state)
 	)
-	var came_from: Dictionary = navigation.get("came_from", {})
+	var navigation_paths: Dictionary = navigation.get("paths", {})
 	var paths: Dictionary = {}
 	for target_tile: Vector2i in target_tiles:
-		var path: Array[Vector2i] = _path_from_navigation(came_from, player_pos, target_tile)
+		var path: Array[Vector2i] = _vector2i_values(navigation_paths.get(target_tile, []))
 		if not path.is_empty():
 			paths[target_tile] = path
 	return {
@@ -6120,84 +6125,120 @@ func _player_path_until_hidden_collision(
 func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vector2i, max_distance: int) -> Array[Vector2i]:
 	if max_distance <= 0:
 		return []
-	return _lowest_trap_path(
+	var navigation: Dictionary = _preferred_player_navigation(
 		state.get("grid", []),
 		start,
-		goal,
 		max_distance,
 		_known_actor_tiles_for_player(state),
-		_trap_tiles_lookup(state)
+		_trap_tiles_lookup(state),
+		_preferred_pickup_scores(state)
 	)
+	return _vector2i_values((navigation.get("paths", {}) as Dictionary).get(goal, []))
 
-func _lowest_trap_path(grid: Array, start: Vector2i, goal: Vector2i, max_distance: int, occupied: Dictionary, trap_tiles: Dictionary) -> Array[Vector2i]:
-	var empty: Array[Vector2i] = []
-	if start == goal:
-		return _vector2i_values([start])
-	if max_distance <= 0:
-		return empty
-	var navigation: Dictionary = _lowest_trap_navigation(grid, start, max_distance, occupied, trap_tiles, goal, true)
-	return _path_from_navigation(navigation.get("came_from", {}) as Dictionary, start, goal)
+func _preferred_pickup_scores(state: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	var player: Dictionary = _normalized_player(state.get("player", {}))
+	var missing_health: int = maxi(0, int(player.get("max_hp", 0)) - int(player.get("hp", 0)))
+	for loot_var: Variant in state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if bool(loot.get("claimed", false)):
+			continue
+		var tile: Vector2i = loot.get("pos", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var score: int = 2
+		match str(loot.get("kind", "")):
+			"equipment":
+				score = 8
+			"dropped_embers":
+				score = 5
+			"rusty_shield":
+				score = 4
+			"healing_vial":
+				score = 4 if missing_health > 0 else 0
+		if score > 0:
+			result[tile] = score
+	return result
 
-func _lowest_trap_navigation(grid: Array, start: Vector2i, max_distance: int, occupied: Dictionary, trap_tiles: Dictionary, stop_goal: Vector2i = Vector2i(-1, -1), stop_at_goal: bool = false) -> Dictionary:
-	var came_from: Dictionary = {start: start}
+func _preferred_player_navigation(
+	grid: Array,
+	start: Vector2i,
+	max_distance: int,
+	occupied: Dictionary,
+	trap_tiles: Dictionary,
+	pickup_scores: Dictionary
+) -> Dictionary:
+	var start_path: Array[Vector2i] = _vector2i_values([start])
+	var paths: Dictionary = {start: start_path}
+	var qualities: Dictionary = {start: {"traps": 0, "pickups": 0, "steps": 0}}
 	if max_distance <= 0:
-		return {"came_from": came_from}
-	var grid_height: int = grid.size()
-	var grid_width: int = (grid[0] as Array).size() if grid_height > 0 else 0
-	var trap_weight: int = grid_height * maxi(1, grid_width) + 1
-	var frontier: Array[Vector2i] = _vector2i_values([start])
-	var step_costs: Dictionary = {start: 0}
-	var path_costs: Dictionary = {start: 0}
+		return {"paths": paths, "qualities": qualities}
+	var pickup_indices: Dictionary = {}
+	var pickup_index: int = 0
+	for pickup_tile_var: Variant in pickup_scores.keys():
+		if typeof(pickup_tile_var) != TYPE_VECTOR2I:
+			continue
+		pickup_indices[pickup_tile_var] = pickup_index
+		pickup_index += 1
+	var frontier: Array = [{
+		"tile": start,
+		"path": start_path,
+		"traps": 0,
+		"pickups": 0,
+		"pickup_mask": 0,
+	}]
+	var best_state_traps: Dictionary = {}
 	while not frontier.is_empty():
-		var best_index: int = 0
-		var best_tile: Vector2i = frontier[0]
-		var best_cost: int = int(path_costs.get(best_tile, 0))
-		for index: int in range(1, frontier.size()):
-			var candidate: Vector2i = frontier[index]
-			var candidate_cost: int = int(path_costs.get(candidate, 0))
-			if candidate_cost < best_cost:
-				best_index = index
-				best_tile = candidate
-				best_cost = candidate_cost
-		var current: Vector2i = best_tile
-		frontier.remove_at(best_index)
-		if stop_at_goal and current == stop_goal:
-			break
-		var current_steps: int = int(step_costs.get(current, 0))
+		var current: Dictionary = frontier.pop_front() as Dictionary
+		var current_tile: Vector2i = current.get("tile", start)
+		var current_path: Array[Vector2i] = _vector2i_values(current.get("path", []))
+		var current_steps: int = current_path.size() - 1
 		if current_steps >= max_distance:
 			continue
-		for dir: Vector2i in PathUtils.DIRS_4:
-			var next_tile: Vector2i = current + dir
-			if not PathUtils.is_passable(grid, next_tile):
+		for direction: Vector2i in PathUtils.DIRS_4:
+			var next_tile: Vector2i = current_tile + direction
+			if not PathUtils.is_passable(grid, next_tile) or occupied.has(next_tile) or current_path.has(next_tile):
 				continue
-			if occupied.has(next_tile) and (not stop_at_goal or next_tile != stop_goal):
+			var next_path: Array[Vector2i] = current_path.duplicate()
+			next_path.append(next_tile)
+			var next_traps: int = int(current.get("traps", 0)) + (1 if trap_tiles.has(next_tile) else 0)
+			var next_pickups: int = int(current.get("pickups", 0))
+			var next_mask: int = int(current.get("pickup_mask", 0))
+			if pickup_indices.has(next_tile):
+				var pickup_bit: int = 1 << int(pickup_indices.get(next_tile, 0))
+				if (next_mask & pickup_bit) == 0:
+					next_mask |= pickup_bit
+					next_pickups += int(pickup_scores.get(next_tile, 0))
+			var next_steps: int = next_path.size() - 1
+			var state_key: String = "%d:%d:%d:%d" % [next_tile.x, next_tile.y, next_steps, next_mask]
+			if best_state_traps.has(state_key) and int(best_state_traps.get(state_key, 0)) <= next_traps:
 				continue
-			var next_steps: int = current_steps + 1
-			if next_steps > max_distance:
-				continue
-			var trap_cost: int = trap_weight if trap_tiles.has(next_tile) else 0
-			var next_cost: int = best_cost + trap_cost + 1
-			if path_costs.has(next_tile) and next_cost >= int(path_costs.get(next_tile, 0)):
-				continue
-			path_costs[next_tile] = next_cost
-			step_costs[next_tile] = next_steps
-			came_from[next_tile] = current
-			if not frontier.has(next_tile):
-				frontier.append(next_tile)
-	return {"came_from": came_from}
+			best_state_traps[state_key] = next_traps
+			var next_quality: Dictionary = {"traps": next_traps, "pickups": next_pickups, "steps": next_steps}
+			if not qualities.has(next_tile) or _player_route_quality_is_better(next_quality, qualities.get(next_tile, {}) as Dictionary):
+				qualities[next_tile] = next_quality
+				paths[next_tile] = next_path
+			frontier.append({
+				"tile": next_tile,
+				"path": next_path,
+				"traps": next_traps,
+				"pickups": next_pickups,
+				"pickup_mask": next_mask,
+			})
+	return {"paths": paths, "qualities": qualities}
 
-func _path_from_navigation(came_from: Dictionary, start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
-	var empty: Array[Vector2i] = []
-	if start == goal:
-		return _vector2i_values([start])
-	if not came_from.has(goal):
-		return empty
-	var path: Array[Vector2i] = _vector2i_values([goal])
-	var cursor: Vector2i = goal
-	while cursor != start:
-		cursor = came_from[cursor]
-		path.push_front(cursor)
-	return path
+func _player_route_quality_is_better(candidate: Dictionary, existing: Dictionary) -> bool:
+	var candidate_traps: int = int(candidate.get("traps", 0))
+	var existing_traps: int = int(existing.get("traps", 0))
+	if candidate_traps != existing_traps:
+		return candidate_traps < existing_traps
+	var candidate_pickups: int = int(candidate.get("pickups", 0))
+	var existing_pickups: int = int(existing.get("pickups", 0))
+	if candidate_pickups != existing_pickups:
+		return candidate_pickups > existing_pickups
+	return int(candidate.get("steps", 0)) < int(existing.get("steps", 0))
 
 func _trigger_trap_on_player(state: Dictionary) -> Dictionary:
 	var trap_index: int = _trap_index_at_tile(state, (_normalized_player(state.get("player", {}))).get("pos", Vector2i(-1, -1)))

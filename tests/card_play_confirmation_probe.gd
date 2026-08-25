@@ -4,7 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
-const OUTPUT_DIR: String = "user://probes/card_play_confirmation_v1"
+const OUTPUT_DIR: String = "user://probes/card_play_confirmation_v2"
 const STORAGE_PATH: String = "user://card_play_confirmation_probe_progression.json"
 const RUN_STORAGE_PATH: String = "user://card_play_confirmation_probe_run.save"
 
@@ -19,8 +19,7 @@ func _initialize() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	_assert(packed != null, "Run scene should load for card confirmation proof")
 	if packed != null:
-		for viewport_size: Vector2i in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
-			await _capture_confirmation(packed, viewport_size)
+		await _capture_confirmation(packed, Vector2i(1920, 1080))
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(1 if _failed else 0)
 
@@ -40,28 +39,24 @@ func _capture_confirmation(packed: PackedScene, viewport_size: Vector2i) -> void
 	await _settle_ui()
 
 	var context: Control = instance.get("_action_step_tracker") as Control
-	var play_button: Button = _button_with_text(context, "Play Card")
 	var printed_mode: Button = context.find_child("CardActionChoicePlay", true, false) as Button
 	var move_mode: Button = context.find_child("CardActionChoiceMove", true, false) as Button
+	var board: Node = instance.get_node("BoardUnderlay/CombatBoard")
+	var player_tile: Vector2i = ((state_before.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
+	var confirmation_tiles: Array = (board.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array
 	var viewport_bounds := Rect2(Vector2.ZERO, Vector2(viewport_size)).grow(1.0)
-	var selected_card: Control = instance.call("_hand_card_control", 0) as Control
-	var selected_card_rect: Rect2 = instance.call("_control_visual_global_rect", selected_card) if selected_card != null else Rect2()
-	var play_button_rect: Rect2 = play_button.get_global_rect() if play_button != null else Rect2()
-	var play_button_overlap: Rect2 = play_button_rect.intersection(selected_card_rect)
-	var play_button_overlap_fraction: float = (play_button_overlap.size.x * play_button_overlap.size.y) / maxf(1.0, play_button_rect.size.x * play_button_rect.size.y)
 	_assert(instance.get_viewport().get_visible_rect().size == Vector2(viewport_size), "%s proof should use the requested logical viewport" % viewport_size)
 	_assert((instance.get("_combat_state") as Dictionary) == state_before, "%s card selection should not mutate live combat" % viewport_size)
 	_assert(int(instance.get("_selected_card_index")) == 0 and int(instance.get("_card_action_choice_index")) == 0, "%s should arm the exact selected card and keep its modes open" % viewport_size)
 	_assert(int(instance.get("_pending_action_index")) >= (instance.get("_pending_actions") as Array).size(), "%s targetless preview should finish without committing" % viewport_size)
 	_assert(context != null and context.visible and viewport_bounds.encloses(context.get_global_rect()), "%s confirmation rail should remain fully visible" % viewport_size)
 	_assert(context != null and context.get_global_rect().size.x <= float(viewport_size.x) * 0.5, "%s confirmation rail should stay compact" % viewport_size)
-	_assert(play_button != null and play_button.visible and not play_button.disabled, "%s should expose an enabled Play Card action" % viewport_size)
-	_assert(play_button != null and play_button.get_global_rect().size.x >= 88.0 and play_button.get_global_rect().size.y >= 36.0, "%s Play Card action should keep a deliberate click target" % viewport_size)
+	_assert(_button_with_text(context, "Play Card") == null, "%s should not expose a third confirmation control" % viewport_size)
+	_assert(confirmation_tiles == [player_tile], "%s should expose only the protagonist tile as the targetless confirmation" % viewport_size)
 	_assert(printed_mode != null and printed_mode.button_pressed, "%s should keep Printed visibly selected" % viewport_size)
 	_assert(move_mode != null and not move_mode.disabled, "%s should keep alternate Move available before confirmation" % viewport_size)
-	_assert(str(context.get_meta("action_verb", "")) == "READY · PLAY CARD", "%s should identify the armed card state" % viewport_size)
-	_assert(str(context.get_meta("target_state", "")) == "NO TARGET REQUIRED", "%s should explain the targetless state" % viewport_size)
-	_assert(selected_card_rect.size.x > 0.0 and play_button != null and play_button_overlap_fraction <= 0.10, "%s Play Card target should stay substantially clear of the selected card" % viewport_size)
+	_assert(str(context.get_meta("action_verb", "")) == "READY · CLICK YOUR TILE", "%s should identify the self-confirm state" % viewport_size)
+	_assert(str(context.get_meta("target_state", "")) == "SELF", "%s should identify the protagonist as the click target" % viewport_size)
 
 	var log_overlay: Control = instance.get("log_overlay") as Control
 	if log_overlay != null:
@@ -78,10 +73,11 @@ func _capture_confirmation(packed: PackedScene, viewport_size: Vector2i) -> void
 	if image != null and image.get_size() == viewport_size and frame_coverage >= 0.08 and context_luma_range >= 0.15:
 		image.save_png("%s/targetless_confirmation.png" % output_dir)
 
-	instance.call("_on_cancel_requested")
-	await _settle_ui()
-	_assert((instance.get("_combat_state") as Dictionary) == state_before, "%s cancel should preserve the untouched combat state" % viewport_size)
-	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == -1, "%s cancel should return to idle" % viewport_size)
+	await instance.call("_on_board_tile_clicked", Vector2i(5, 4))
+	_assert((instance.get("_combat_state") as Dictionary) == state_before, "%s a non-player tile should not confirm a targetless card" % viewport_size)
+	await instance.call("_on_board_tile_clicked", player_tile)
+	await create_timer(1.5).timeout
+	_assert(int(instance.get("_selected_card_index")) == -1, "%s clicking the protagonist tile should finish the card" % viewport_size)
 	instance.queue_free()
 	capture_viewport.queue_free()
 	await process_frame

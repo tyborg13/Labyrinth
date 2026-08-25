@@ -6571,7 +6571,9 @@ func _commit_drag_drop(zone: String) -> void:
 				destination_rect = _rect_from_center(command_panel.get_global_rect().get_center(), _drag_card_source_rect.size)
 		await _animate_card_proxy_to_rect(_drag_card_proxy, destination_rect, 0.10)
 	_cancel_drag_play()
-	await _begin_card_preview(hand_index, preview, label_override, true)
+	# Dragging is an alternate way to choose the card, not an extra confirmation
+	# gesture. Targetless cards still finish on the player's tile.
+	await _begin_card_preview(hand_index, preview, label_override, false)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
 	for zone: String in ["attack", "move"]:
@@ -10908,24 +10910,8 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
 	if _current_action_can_skip():
 		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step", alongside_mode_tabs)
-	if _pending_card_requires_confirmation():
-		_add_card_play_confirmation_button()
 	if not _pending_umbra_commit_locked:
 		_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
-
-func _add_card_play_confirmation_button() -> void:
-	if _action_context_command_bar == null:
-		return
-	var button := UiTooltipButton.new()
-	button.name = "ActionContextPlayCard"
-	button.text = "Play Card"
-	button.tooltip_text = "Confirm this card without choosing a board target"
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED)
-	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION)
-	_ui_skin.apply_button_native_size(button, 36.0, 88.0, true, UiSkin.VARIANT_SELECTED)
-	button.pressed.connect(_on_confirm_card_play_pressed)
-	_action_context_command_bar.add_child(button)
 
 func _refresh_card_action_mode_selector(context_mode: String) -> void:
 	if _card_action_mode_selector == null or context_mode != "choice":
@@ -11126,8 +11112,8 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 		if not _selected_card_label_override.is_empty():
 			action_name = _selected_card_label_override.to_upper()
 		if _pending_card_requires_confirmation():
-			verb_text = "READY · PLAY CARD"
-			target_text = "NO TARGET REQUIRED"
+			verb_text = "READY · CLICK YOUR TILE"
+			target_text = "SELF"
 			target_tone = "valid"
 		elif _orientation_pending():
 			verb_text = "SET DIRECTION · CHOOSE ARROW"
@@ -14656,6 +14642,7 @@ func _refresh_stage_view() -> void:
 	var attack_tiles: Array[Vector2i] = []
 	var ability_tiles: Array[Vector2i] = []
 	var presentation: Dictionary = _board_presentation.duplicate(false)
+	presentation.erase("confirmation_target_tiles")
 	# The same room grid is shown both while cards are available and after combat.
 	# Make that framing intent explicit: no-hand rooms center their complete board
 	# instead of inheriting the combat hand-clearance composition.
@@ -14696,11 +14683,14 @@ func _refresh_stage_view() -> void:
 			var action: Dictionary = preview.get("action", {})
 			var action_type: String = str(action.get("type", ""))
 			var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
-			if action_type in ["move", "blink"]:
+			if action_type == "confirm":
+				presentation["confirmation_target_tiles"] = target_tiles
+			elif action_type in ["move", "blink"]:
 				move_tiles = target_tiles
 				_prepare_preview_shortcuts_for_current_action(preview)
 				attack_tiles = _vector2i_array(_preview_shortcuts_cache.get("tiles", []))
 				if not attack_tiles.is_empty():
+					move_tiles.clear()
 					presentation["pulse_attack_tiles"] = true
 			elif action_type in ["melee", "ranged", "aoe", "push", "pull"]:
 				if bool(preview.get("orientation_pending", false)):
@@ -15294,6 +15284,19 @@ func _active_card_preview() -> Dictionary:
 				"skip_allowed": _pending_action_can_skip and not orientation_pending,
 				"orientation_pending": orientation_pending,
 				"orientation_target": _pending_orientation_target_tile
+			}
+		if _pending_card_requires_confirmation():
+			var player_tile: Vector2i = (_preview_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+			return {
+				"card_id": _card_id_for_hand_index(_selected_card_index),
+				"state": _preview_combat_state,
+				"actions": _pending_actions,
+				"action_index": _pending_action_index,
+				"target_tiles": _vector2i_array([player_tile]),
+				"complete": false,
+				"playable": true,
+				"action": {"type": "confirm"},
+				"skip_allowed": false,
 			}
 		return {}
 	if _hovered_card_index >= 0:
@@ -16393,7 +16396,12 @@ func _preview_shortcuts_for_current_action(
 			continue
 		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
 		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
-		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles, movement_risk_chips, allowed_target_tiles)
+		_collect_shortcut_attack_plans(
+			plans, card_id, actions, action_index, after_move_state, move_target, move_target,
+			move_distance, path_tiles, movement_risk_chips, allowed_target_tiles,
+			_shortcut_path_trap_count(preview_state, path_tiles),
+			_shortcut_path_pickup_score(preview_state, path_tiles)
+		)
 	if bool(preview.get("skip_allowed", false)):
 		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [], [], allowed_target_tiles)
 	if umbra_limited and plans.is_empty():
@@ -16467,6 +16475,8 @@ func _preview_immediate_attack_shortcuts(
 			"move_tile": move_target,
 			"move_distance": move_distance,
 			"path_tiles": path_tiles,
+			"route_traps": _shortcut_path_trap_count(preview_state, path_tiles),
+			"route_pickups": _shortcut_path_pickup_score(preview_state, path_tiles),
 			"geometric_targets": candidate_targets,
 			"source_order": source_order,
 			"skip": false,
@@ -16481,11 +16491,21 @@ func _preview_immediate_attack_shortcuts(
 			"move_tile": player_tile,
 			"move_distance": 0,
 			"path_tiles": _vector2i_array([]),
+			"route_traps": 0,
+			"route_pickups": 0,
 			"geometric_targets": skip_targets,
 			"source_order": source_order,
 			"skip": true,
 		})
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var traps_a: int = int(a.get("route_traps", 0))
+		var traps_b: int = int(b.get("route_traps", 0))
+		if traps_a != traps_b:
+			return traps_a < traps_b
+		var pickups_a: int = int(a.get("route_pickups", 0))
+		var pickups_b: int = int(b.get("route_pickups", 0))
+		if pickups_a != pickups_b:
+			return pickups_a > pickups_b
 		var distance_a: int = int(a.get("move_distance", 0))
 		var distance_b: int = int(b.get("move_distance", 0))
 		if distance_a != distance_b:
@@ -16555,7 +16575,9 @@ func _preview_immediate_attack_shortcuts(
 			int(candidate.get("move_distance", 0)),
 			path_tiles,
 			movement_risk_chips,
-			allowed_target_tiles
+			allowed_target_tiles,
+			int(candidate.get("route_traps", 0)),
+			int(candidate.get("route_pickups", 0))
 		)
 		candidate_phase_started = _record_runtime_performance_phase("shortcut_collect_attack", candidate_phase_started)
 		if safely_deferred:
@@ -16718,7 +16740,21 @@ func _shortcut_tile_in_attack_range(source_tile: Vector2i, attackable_tiles: Arr
 			return true
 	return false
 
-func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions: Array, action_index: int, base_state: Dictionary, move_target: Vector2i, move_tile: Vector2i, move_distance: int, path_tiles: Array[Vector2i], movement_risk_chips: Array = [], allowed_target_tiles: Variant = null) -> void:
+func _collect_shortcut_attack_plans(
+	plans: Dictionary,
+	card_id: String,
+	actions: Array,
+	action_index: int,
+	base_state: Dictionary,
+	move_target: Vector2i,
+	move_tile: Vector2i,
+	move_distance: int,
+	path_tiles: Array[Vector2i],
+	movement_risk_chips: Array = [],
+	allowed_target_tiles: Variant = null,
+	route_traps: int = 0,
+	route_pickups: int = 0
+) -> void:
 	var followup: Dictionary = _next_shortcut_attack_step(base_state, actions, action_index + 1)
 	if followup.is_empty():
 		return
@@ -16738,22 +16774,71 @@ func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions:
 				continue
 		var existing: Dictionary = plans.get(enemy_tile, {})
 		if not existing.is_empty():
-			var existing_distance: int = int(existing.get("move_distance", 99999))
-			var existing_path_length: int = _vector2i_array(existing.get("path_tiles", [])).size()
-			if move_distance > existing_distance:
+			var existing_traps: int = int(existing.get("route_traps", 0))
+			if route_traps > existing_traps:
 				continue
-			if move_distance == existing_distance and path_tiles.size() >= existing_path_length:
+			if route_traps < existing_traps:
+				existing = {}
+			var existing_pickups: int = int(existing.get("route_pickups", 0))
+			if not existing.is_empty() and route_pickups < existing_pickups:
+				continue
+			if not existing.is_empty() and route_pickups > existing_pickups:
+				existing = {}
+			var existing_distance: int = int(existing.get("move_distance", 99999))
+			var existing_path_length: int = _vector2i_array(existing.get("path_tiles", [])).size() if not existing.is_empty() else 99999
+			if not existing.is_empty() and move_distance > existing_distance:
+				continue
+			if not existing.is_empty() and move_distance == existing_distance and path_tiles.size() >= existing_path_length:
 				continue
 		plans[enemy_tile] = {
 			"state": followup_state,
 			"move_target": move_target,
 			"move_tile": move_tile,
 			"move_distance": move_distance,
+			"route_traps": route_traps,
+			"route_pickups": route_pickups,
 			"path_tiles": path_tiles,
 			"movement_risk_chips": movement_risk_chips.duplicate(true),
 			"action_index": followup_index,
 			"action": planned_attack_action
 		}
+
+func _shortcut_path_trap_count(state: Dictionary, path_tiles: Array[Vector2i]) -> int:
+	var live_traps: Dictionary = {}
+	for trap_var: Variant in state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		if not bool(trap.get("triggered", false)):
+			live_traps[trap.get("pos", INVALID_TARGET_TILE)] = true
+	var count: int = 0
+	for tile: Vector2i in path_tiles:
+		if live_traps.has(tile):
+			count += 1
+	return count
+
+func _shortcut_path_pickup_score(state: Dictionary, path_tiles: Array[Vector2i]) -> int:
+	var score: int = 0
+	var player: Dictionary = state.get("player", {}) as Dictionary
+	var missing_health: int = maxi(0, int(player.get("max_hp", 0)) - int(player.get("hp", 0)))
+	for loot_var: Variant in state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if bool(loot.get("claimed", false)) or not path_tiles.has(loot.get("pos", INVALID_TARGET_TILE)):
+			continue
+		match str(loot.get("kind", "")):
+			"equipment":
+				score += 8
+			"dropped_embers":
+				score += 5
+			"rusty_shield":
+				score += 4
+			"healing_vial":
+				score += 4 if missing_health > 0 else 0
+			_:
+				score += 2
+	return score
 
 func _shortcut_movement_risk_chips(shortcut_plan: Dictionary) -> Array:
 	var chips: Array = []
@@ -17415,6 +17500,11 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		return
 	if mode != "combat" or _selected_card_index < 0:
 		return
+	if _pending_card_requires_confirmation():
+		var player_tile: Vector2i = (_preview_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+		if tile == player_tile:
+			await _on_confirm_card_play_pressed()
+		return
 	if _orientation_pending():
 		await _confirm_pending_orientation(tile)
 		return
@@ -17422,6 +17512,9 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	var shortcut_plan: Dictionary = {}
 	if not preview.is_empty():
 		shortcut_plan = _shortcut_plan_for_tile(preview, tile)
+		var preview_action_type: String = str((preview.get("action", {}) as Dictionary).get("type", ""))
+		if preview_action_type in ["move", "blink"] and not _vector2i_array(_preview_shortcuts_cache.get("tiles", [])).is_empty() and shortcut_plan.is_empty():
+			return
 	if not _pending_target_tiles.has(tile) and shortcut_plan.is_empty():
 		return
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.SELECT_TARGET)
@@ -17436,11 +17529,8 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 			return
 		_pending_actions[_pending_action_index] = action
 	elif _target_needs_force_orientation(action, tile):
-		_pending_orientation_target_tile = tile
-		_hovered_board_tile = tile
-		_mark_preview_selection_changed()
-		_refresh_stage_view()
-		return
+		action = _shortcut_action_with_default_force_direction(_preview_combat_state, action, tile)
+		_pending_actions[_pending_action_index] = action
 	_pending_selected_targets.append(tile)
 	if _umbra_defers_movement_followup_preview(_preview_combat_state, action, _pending_actions, _pending_action_index):
 		_pending_umbra_commit_locked = true
@@ -17610,7 +17700,12 @@ func _cancel_card_selection() -> void:
 	_refresh_card_preview_ui()
 
 func _current_action_can_skip() -> bool:
-	return _selected_card_index >= 0 and _pending_action_index < _pending_actions.size() and _pending_action_can_skip
+	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size() or not _pending_action_can_skip:
+		return false
+	var action_type: String = str((_pending_actions[_pending_action_index] as Dictionary).get("type", ""))
+	if action_type in ["move", "blink"] and _remaining_actions_include_shortcut_attack(_pending_actions, _pending_action_index + 1):
+		return false
+	return true
 
 func _on_skip_action_pressed() -> void:
 	if _animation_lock or not _current_action_can_skip():
@@ -17654,11 +17749,11 @@ func _on_pending_shortcut_clicked(target_tile: Vector2i, shortcut_plan: Dictiona
 		return
 	var attack_action_index: int = _pending_action_index
 	if _target_needs_force_orientation(_pending_actions[_pending_action_index], target_tile):
-		_pending_orientation_target_tile = target_tile
-		_hovered_board_tile = target_tile
-		_mark_preview_selection_changed()
-		_refresh_stage_view()
-		return
+		_pending_actions[_pending_action_index] = _shortcut_action_with_default_force_direction(
+			_preview_combat_state,
+			_pending_actions[_pending_action_index],
+			target_tile
+		)
 	_pending_selected_targets.append(target_tile)
 	_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, _pending_actions[_pending_action_index], target_tile)
 	_mark_preview_selection_changed()
@@ -17711,9 +17806,11 @@ func _resolve_reused_target_preview_actions(source_preview: Dictionary) -> Dicti
 		var target_tile: Vector2i = _last_resolved_pending_target()
 		var state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
 		if target_tile.x >= 0 and _combat_engine.valid_targets_for_player_action(state, action).has(target_tile):
-			if _combat_engine.player_action_needs_orientation(action):
-				preview["reuse_orientation_target"] = target_tile
-				break
+			if str(action.get("type", "")) == "aoe":
+				action = _action_with_aoe_aim_orientation(action)
+			elif _combat_engine.player_action_needs_orientation(action):
+				action = _shortcut_action_with_default_force_direction(state, action, target_tile)
+			_pending_actions[action_index] = action
 			_pending_selected_targets.append(target_tile)
 			state = _combat_engine.apply_player_action(state, action, target_tile)
 		else:
@@ -25838,8 +25935,15 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	var before_umbra: Dictionary = before_state.get("umbra", {}) as Dictionary
 	var after_umbra: Dictionary = resolved_state.get("umbra", {}) as Dictionary
+	var target_decision_tile: Vector2i = before_pos
+	for target_index: int in range(selected_targets.size() - 1, -1, -1):
+		if selected_targets[target_index].x >= 0:
+			target_decision_tile = selected_targets[target_index]
+			break
 	return {
 		"play_mode": play_mode,
+		"target_decision_count": 1,
+		"target_decision_tile": target_decision_tile,
 		"flurry": flurry_played,
 		"flurry_plays_spent": flurry_plays_spent if flurry_played else 0,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),

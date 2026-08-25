@@ -131,6 +131,11 @@ movement, and elemental-intensity payoffs during the resolved transition.
 - immediate status application deltas for burn, bleed, expose, freeze, shock,
   immobilize, and poison
 - actual resolved action list and chosen targets
+- the player-facing targeting gesture via `target_decision_count` and
+  `target_decision_tile`. Card plays now record one board decision even when a
+  combined move-and-melee card internally resolves both its chosen movement
+  endpoint and enemy target; targetless cards record the protagonist tile used
+  to confirm the play.
 - consumable item flags via `item_card` and `consume_on_play`
 - Radiance and visibility context: `radiance_card`, Umbra stage and radius
   before/after, tiles illuminated, enemies newly revealed, fixed light sources
