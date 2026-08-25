@@ -113,6 +113,17 @@ That means the main menu shows `Profile <Steam persona name>` when Steam initial
 
 For local non-Steam API testing, place a temporary `steam_appid.txt` next to the local exported executable or project binary. Do not include `steam_appid.txt` in uploaded depots; Steam provides the app context when launched through the client.
 
+### Performance stat setup
+
+Steam builds also aggregate anonymous performance counters through Steamworks User Stats. The definitions are shared by the main and Playtest apps and must be created and published in each app's Stats & Achievements configuration before clients can record them.
+
+```bash
+python3 tools/steam_performance_stats.py schema \
+  --output output/steam-performance-stats.csv
+```
+
+The generated CSV contains the exact API names and App Admin settings. See [`../spec/performance_telemetry.md`](../spec/performance_telemetry.md) for the batching behavior, metric interpretation, and the publisher-key report command. Never place a Steamworks publisher Web API key in the project or an exported build.
+
 ## Steam Cloud setup
 
 Steam Cloud is configured in Steamworks App Admin, not in this repo. Use Steam Auto-Cloud for the existing save files; the game code keeps the runtime paths stable and account-scoped.

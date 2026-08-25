@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T15:12:05Z",
+  "updated_at": "2026-08-25T16:25:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8620,28 +8620,6 @@
       }
     },
     {
-      "id": "mnt_20260825T142912Z_06b947f2",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/performance_telemetry.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/performance_telemetry.gd",
-      "summary": "Performance telemetry is anonymous local JSONL with optional built-in HTTP upload.",
-      "details": "Store bounded aggregate frame/render/runtime samples under user://telemetry, omit Steam identity, and leave upload disabled until an endpoint is configured. Steam User Stats is only suitable for coarse predefined aggregates, not structured session telemetry.",
-      "status": "active",
-      "created_at": "2026-08-25T14:29:12Z",
-      "updated_at": "2026-08-25T14:29:12Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/steam-deck-720p-ui-and-controller-support",
-        "commit": "d78867e"
-      }
-    },
-    {
       "id": "mnt_20260825T151205Z_bd512b5d",
       "layer": "shared",
       "kind": "pitfall",
@@ -8663,6 +8641,30 @@
       "source": {
         "branch": "codex/steam-deck-720p-ui-and-controller-support",
         "commit": "4fbd57f"
+      }
+    },
+    {
+      "id": "mnt_20260825T162554Z_2b207b4a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Performance telemetry mirrors sparse additive cohorts and subsystem timing into Steam User Stats",
+      "details": "PerformanceTelemetry keeps rich 60-second JSONL windows, caches active workload/density/depth/relic cohorts per frame, and consumes existing RunScene/CombatEngine phase timers. Steam-active builds update only non-zero metrics under perf_v1_<platform>_<device> prefixes, while SteamService batches StoreStats at five-minute intervals and retains pending state until user_stats_stored confirms success. The canonical 676-key App Admin schema is steam/performance_stats_manifest.json and tools/steam_performance_stats.py expands/reports it. Steam's public docs do not publish a stat-count cap, so keep the schema versioned and sparse at runtime.",
+      "status": "active",
+      "created_at": "2026-08-25T16:25:54Z",
+      "updated_at": "2026-08-25T16:25:54Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260825T142912Z_06b947f2"
+      ],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "ae430f1"
       }
     }
   ]

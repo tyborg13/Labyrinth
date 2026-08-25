@@ -10,9 +10,11 @@ Escape the Umbra records low-overhead performance windows so Steam Deck and play
 - draw calls, canvas objects, primitives, and process-time mean/maximum;
 - static memory, object, node, and orphan-node counts;
 - renderer, viewport, OS/model, Steam Deck detection, and game version;
-- coarse gameplay context: mode, depth/type/element, turn, living enemies, hand/relic counts, Umbra stage, animation activity, targeting state, and controller hand state.
+- gameplay context: mode, depth/type/element, turn, living enemies, hand/relic counts, Umbra stage, animation activity, targeting state, controller hand state, and the active map/menu/grimoire/pile/character surface;
+- frame distributions split into active workload, enemy-density, run-depth, and relic-density cohorts;
+- exact call counts and elapsed microseconds for instrumented stage, hand, card-preview, tracker, pile, character, and combat-engine phases.
 
-The sampler never writes raw per-frame events to disk. It keeps at most 7,200 frame samples in memory and performs percentile sorting only when a summary is flushed. Payloads do not include Steam ID, persona name, save data, card history, or free-form player text.
+The sampler never writes raw per-frame events to disk. It keeps at most 7,200 frame samples plus the active cohort copies in memory and performs percentile sorting only when a summary is flushed. Context changes update a cached cohort list; they do not flush or write files. Payloads do not include Steam ID, persona name, save data, card history, or free-form player text.
 
 ## Local storage
 
@@ -37,18 +39,55 @@ The endpoint may also be set as `telemetry/performance/upload_url` in project se
 
 The recommended inexpensive collector is a small Cloudflare Worker that validates the schema/token and writes the body to R2. It adds no game SDK, can start within the Workers and R2 free tiers, and preserves the raw summaries for later aggregation. PostHog is a reasonable dashboard-first alternative, but it introduces a third-party analytics service and event model.
 
-## Steamworks boundary
+## Steamworks aggregates
 
-Steamworks User Stats is useful for a very small number of published aggregate `INT`, `FLOAT`, or `AVGRATE` values. It is not an arbitrary structured telemetry stream, and `StoreStats` is rate-limited and intended for infrequent updates. Steam Cloud/Remote Storage synchronizes player-owned files between that player's devices; it is not a central developer analytics inbox. Therefore:
+Steam-active builds automatically mirror additive performance aggregates into predeclared Steamworks User Stats. The API names start with one of these versioned platform prefixes:
 
-- keep the JSON performance window as the source of truth;
-- optionally mirror a few stable aggregates (for example session p95 frame time) into predeclared Steam stats after those stat keys are configured and published in Steamworks App Admin;
-- do not attempt to use Steam Cloud as a hidden log-upload mechanism.
+```text
+perf_v1_windows_desktop
+perf_v1_macos_desktop
+perf_v1_linux_desktop
+perf_v1_linux_steamdeck
+```
+
+Every 60-second telemetry window calls `SetStat` only for non-zero global metrics, active frame cohorts, and subsystem groups that actually ran. A typical window therefore touches roughly 30–60 keys even though the complete schema contains 676 definitions. `SetStat` changes Steam's local in-memory stat cache; `SteamService` makes one batched `StoreStats` call at most every five minutes, plus shutdown, and clears pending state only after Steam's asynchronous stored callback succeeds. Rejected/unpublished keys do not prevent the local JSONL record or other keys from succeeding.
+
+The cohort counters provide both a denominator (`samples`) and missed-frame counts at 20, 33.33, and 50 ms. Section groups provide both `calls` and `tenths_ms`. Those pairs make ratios and average cost per call mergeable across users; percentiles and maxima remain in local/HTTP JSON because globally summing them would be mathematically misleading.
+
+Valve's public documentation specifies a 128-byte stat-name buffer and a 100-achievement default cap, but does not publish a maximum count for stats. The committed schema stays in the hundreds, updates only an active subset, and must still be validated in each app's Steamworks App Admin before publication.
+
+### One-time App Admin setup
+
+The canonical definition list is `steam/performance_stats_manifest.json`. Expand it to CSV for the main app and Playtest app:
+
+```bash
+python3 tools/steam_performance_stats.py schema \
+  --output output/steam-performance-stats.csv
+```
+
+Create and publish each key as an aggregated, increment-only, client-set `INT` stat. Until the definitions are published, GodotSteam will reject those names and the client will keep only the JSONL summaries.
+
+### Reading fleet-wide results
+
+Use a publisher Web API key only on a trusted development machine or CI environment, never in a game build:
+
+```bash
+export STEAMWORKS_PUBLISHER_KEY='<publisher key>'
+python3 tools/steam_performance_stats.py report \
+  --appid 4531660 \
+  --days 7 \
+  --output output/steam-performance-playtest.json
+```
+
+The report command queries Steam's `GetGlobalStatsForGame` Web API in batches and covers every key in the manifest. Platform and cohort ratios can then be calculated as `missed_frames / samples`; timed-phase mean milliseconds are `tenths_ms / calls / 10`. Whole-operation `_total` phases remain in local JSON but are excluded from Steam sums so nested phases are not double-counted.
+
+Steam Cloud/Remote Storage still only synchronizes player-owned files between that player's devices; it is not used as a central developer analytics inbox. The richer JSON performance window remains the exact diagnostic source of truth, while Steam User Stats provides automatic fleet-wide aggregates without another runtime dependency.
 
 References:
 
 - [Steamworks ISteamUserStats](https://partner.steamgames.com/doc/api/ISteamUserStats?language=english)
 - [Steamworks Stats and Achievements](https://partner.steamgames.com/doc/features/achievements?l=english)
+- [Steamworks GetGlobalStatsForGame](https://partner.steamgames.com/doc/webapi/ISteamUserStats?l=english&language=english)
 - [Steam Cloud](https://partner.steamgames.com/doc/features/cloud?language=english)
 - [ISteamRemoteStorage](https://partner.steamgames.com/doc/api/ISteamRemoteStorage?language=english)
 - [Cloudflare Workers limits](https://developers.cloudflare.com/workers/platform/limits/)

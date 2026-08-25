@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "description": "Additive, anonymous Escape the Umbra performance aggregates for Steamworks User Stats.",
+  "platform_prefixes": [
+    "perf_v1_windows_desktop",
+    "perf_v1_macos_desktop",
+    "perf_v1_linux_desktop",
+    "perf_v1_linux_steamdeck"
+  ],
+  "global_metrics": [
+    "windows",
+    "frame_samples",
+    "frames_over_16_67_ms",
+    "frames_over_20_ms",
+    "frames_over_33_33_ms",
+    "frames_over_50_ms",
+    "p95_over_20_ms_windows",
+    "p95_over_33_33_ms_windows",
+    "p95_over_50_ms_windows",
+    "render_samples",
+    "mean_draw_calls_window_sum",
+    "mean_process_tenths_ms_window_sum",
+    "static_memory_mb_window_sum",
+    "orphan_node_windows",
+    "sessions"
+  ],
+  "frame_cohorts": [
+    "frontend",
+    "map",
+    "character_equipment",
+    "character_magic",
+    "character_skills",
+    "character_other",
+    "pile_draw",
+    "pile_discard",
+    "pile_exhaust",
+    "pile_other",
+    "menu",
+    "grimoire",
+    "combat_idle",
+    "combat_targeting",
+    "combat_animation",
+    "room",
+    "campfire",
+    "treasure",
+    "reward",
+    "victory",
+    "defeat",
+    "other",
+    "density_1_2",
+    "density_3_4",
+    "density_5_plus",
+    "depth_1_4",
+    "depth_5_12",
+    "depth_13_plus",
+    "relics_0_4",
+    "relics_5_9",
+    "relics_10_plus"
+  ],
+  "frame_cohort_metrics": [
+    "samples",
+    "over_20_ms",
+    "over_33_33_ms",
+    "over_50_ms"
+  ],
+  "section_groups": [
+    "engine_player_action",
+    "engine_movement",
+    "engine_traps",
+    "engine_other",
+    "card_preview",
+    "stage",
+    "tracker",
+    "hand",
+    "pass_preview",
+    "hover",
+    "pile",
+    "character",
+    "ability_detail",
+    "shortcuts",
+    "scene_other"
+  ],
+  "section_metrics": [
+    "calls",
+    "tenths_ms"
+  ],
+  "steamworks_defaults": {
+    "type": "INT",
+    "aggregated": true,
+    "increment_only": true,
+    "set_by": "Client"
+  }
+}

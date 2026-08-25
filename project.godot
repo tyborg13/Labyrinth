@@ -26,6 +26,9 @@ PerformanceTelemetry="*res://scripts/performance_telemetry.gd"
 performance/local_enabled=true
 performance/flush_interval_seconds=60.0
 performance/upload_url=""
+performance/steam_stats_enabled=true
+performance/steam_stats_store_interval_seconds=300.0
+performance/section_instrumentation_enabled=true
 
 [display]
 

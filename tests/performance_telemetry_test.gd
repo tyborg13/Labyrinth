@@ -35,6 +35,30 @@ func _run() -> void:
 	_expect(is_equal_approx(float(frame_stats.get("median", 0.0)), 18.0), "Telemetry median should use the sorted frame interval distribution")
 	_expect(is_equal_approx(float(frame_stats.get("p95", 0.0)), 45.0), "Telemetry p95 should expose the frame-tail stall")
 	_expect(int(summary.get("frames_over_33_33_ms", 0)) == 2, "Telemetry should count frames that miss the 30 FPS budget")
+	_expect(sampler.steam_metric_prefix_for_test("Linux", true) == "perf_v1_linux_steamdeck", "Steam telemetry should distinguish Steam Deck from other Linux devices")
+	_expect(sampler.steam_metric_prefix_for_test("Linux", false) == "perf_v1_linux_desktop", "Steam telemetry should identify Linux desktop independently")
+	_expect(sampler.steam_metric_prefix_for_test("Windows", false) == "perf_v1_windows_desktop", "Steam telemetry should identify Windows independently")
+	_expect(sampler.steam_metric_prefix_for_test("macOS", false) == "perf_v1_macos_desktop", "Steam telemetry should identify macOS independently")
+	_expect(sampler.steam_metric_prefix_for_test("macOS", true) == "perf_v1_macos_desktop", "Steam Deck classification should remain Linux-only")
+	var cohorts: Dictionary = summary.get("frame_cohorts", {}) as Dictionary
+	for expected_cohort: String in ["combat_idle", "density_5_plus", "depth_5_12", "relics_0_4"]:
+		_expect(cohorts.has(expected_cohort), "Telemetry should retain the active %s frame cohort" % expected_cohort)
+	summary["sections"] = {
+		"stage_base": {"count": 4, "total_usec": 1200},
+		"engine_trap_blast": {"count": 2, "total_usec": 500},
+	}
+	var steam_deltas: Dictionary = sampler.steam_metric_deltas_for_test(summary, "Linux", true)
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_sessions", 0)) == 1, "The first Steam telemetry submission should count the platform session")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_frame_samples", 0)) == 5, "Steam telemetry should aggregate the sampled-frame denominator")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_frames_over_33_33_ms", 0)) == 2, "Steam telemetry should aggregate frame-budget misses")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_p95_over_33_33_ms_windows", 0)) == 1, "Steam telemetry should count slow-tail windows instead of globally summing percentiles")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_mean_draw_calls_window_sum", 0)) == 1225, "Steam telemetry should preserve a mergeable draw-call total for platform-wide averages")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_cohort_combat_idle_samples", 0)) == 5, "Steam telemetry should expose state-specific frame denominators")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_cohort_density_5_plus_over_33_33_ms", 0)) == 2, "Steam telemetry should locate 30 FPS misses by encounter density")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_stage_calls", 0)) == 4, "Steam telemetry should retain subsystem call denominators")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_stage_tenths_ms", 0)) == 12, "Steam telemetry should retain subsystem time in mergeable tenths of milliseconds")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_traps_tenths_ms", 0)) == 5, "Steam telemetry should distinguish combat-engine trap costs")
+	_expect(steam_deltas.size() < 64, "A single window should update only its active subset of the larger Steam stat schema")
 	var render: Dictionary = summary.get("render", {}) as Dictionary
 	_expect(int(render.get("sample_count", 0)) == 5, "Explicit render samples should be retained with the frame window")
 	_expect(float(render.get("draw_calls_max", 0.0)) == 1245.0, "Telemetry should retain peak draw-call pressure")

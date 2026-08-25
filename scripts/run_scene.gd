@@ -1833,6 +1833,14 @@ func _ready() -> void:
 	_settings = SettingsStore.load_settings()
 	SettingsStore.apply_settings(_settings, get_window())
 	set_process(false)
+	var performance_telemetry_enabled: bool = (
+		bool(ProjectSettings.get_setting("telemetry/performance/local_enabled", true))
+		or bool(ProjectSettings.get_setting("telemetry/performance/steam_stats_enabled", true))
+	)
+	set_runtime_performance_instrumentation_enabled(
+		performance_telemetry_enabled
+		and bool(ProjectSettings.get_setting("telemetry/performance/section_instrumentation_enabled", true))
+	)
 	board_view.equipment_tooltip_builder = Callable(self, "_build_equipment_tooltip_panel")
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
@@ -9510,6 +9518,13 @@ func _update_performance_telemetry_context() -> void:
 		"card_targeting": _selected_card_index >= 0,
 		"animation_active": _animation_lock,
 		"umbra_stage": str((_combat_state.get("umbra", {}) as Dictionary).get("stage", "")),
+		"map_open": _large_map_scrim != null and _large_map_scrim.visible,
+		"character_open": _upgrade_scrim != null and _upgrade_scrim.visible,
+		"character_tab": _progression_overlay_mode,
+		"pile_open": _pile_scrim != null and _pile_scrim.visible,
+		"pile_kind": _active_pile_kind,
+		"menu_open": _menu_scrim != null and _menu_scrim.visible,
+		"grimoire_open": _grimoire_scrim != null and _grimoire_scrim.visible,
 	})
 
 func _refresh_card_preview_ui() -> void:
@@ -15964,6 +15979,13 @@ func runtime_performance_instrumentation_snapshot() -> Dictionary:
 		result["engine_%s" % str(phase_var)] = engine_result[phase_var]
 	return result
 
+func consume_runtime_performance_instrumentation_snapshot() -> Dictionary:
+	var result: Dictionary = runtime_performance_instrumentation_snapshot()
+	_runtime_performance_totals_usec.clear()
+	_runtime_performance_counts.clear()
+	_combat_engine.clear_runtime_performance_instrumentation_snapshot()
+	return result
+
 func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	if not _runtime_performance_instrumentation_enabled:
 		return 0
@@ -18767,6 +18789,7 @@ func _open_large_map() -> void:
 	_close_grimoire_overlay()
 	_large_map_scrim.visible = true
 	_large_map_scrim.move_to_front()
+	_update_performance_telemetry_context()
 	_refresh_large_map_navigation_hint()
 	call_deferred("_focus_large_map_for_controller")
 	_schedule_controller_modal_refresh()
@@ -18775,6 +18798,7 @@ func _close_large_map() -> void:
 	if _large_map_scrim == null:
 		return
 	_large_map_scrim.visible = false
+	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
 
 func _focus_large_map_for_controller() -> void:
@@ -22511,6 +22535,7 @@ func _open_menu_overlay() -> void:
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
 	_menu_scrim.visible = true
+	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
 
 func _close_menu_overlay() -> void:
@@ -22520,6 +22545,7 @@ func _close_menu_overlay() -> void:
 		_settings_panel.visible = false
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
+	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
 
 func _open_settings_overlay() -> void:
@@ -22562,6 +22588,7 @@ func _open_grimoire_overlay() -> void:
 	_rebuild_grimoire_overlay(true)
 	_grimoire_scrim.visible = true
 	_grimoire_scrim.move_to_front()
+	_update_performance_telemetry_context()
 	call_deferred("_focus_grimoire_after_open")
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
@@ -22583,6 +22610,7 @@ func _close_grimoire_overlay() -> void:
 	if _grimoire_restore_focus != null and is_instance_valid(_grimoire_restore_focus) and _grimoire_restore_focus.is_inside_tree() and _grimoire_restore_focus.is_visible_in_tree():
 		_grimoire_restore_focus.grab_focus()
 	_grimoire_restore_focus = null
+	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
 
 func _focus_grimoire_after_open() -> void:
@@ -23065,6 +23093,7 @@ func _open_pile_view(pile_kind: String) -> void:
 		_pile_dialog_empty.text = "No cards in this pile." if pile_empty else ""
 		_pile_dialog_empty.visible = pile_empty
 		_pile_scrim.visible = true
+		_update_performance_telemetry_context()
 		_record_runtime_performance_phase("pile_cache_hit", performance_phase_started)
 		return
 	_pile_dialog.custom_minimum_size = _pile_dialog_size_for_count(cards.size())
@@ -23114,6 +23143,7 @@ func _open_pile_view(pile_kind: String) -> void:
 	_pile_dialog_empty.visible = pile_empty
 	_pile_dialog_content_source = content_source.duplicate(true)
 	_pile_scrim.visible = true
+	_update_performance_telemetry_context()
 	_configure_discard_selection_focus(selection_buttons)
 	_record_runtime_performance_phase("pile_finish", performance_phase_started)
 	if first_selection_button != null:
@@ -23152,6 +23182,7 @@ func _close_pile_view() -> void:
 	if _pile_scrim != null:
 		_pile_scrim.visible = false
 	_active_pile_kind = ""
+	_update_performance_telemetry_context()
 
 func _on_combat_skill_discard_card_selected(discard_index: int) -> void:
 	if _combat_skill_card_selection_zone != "discard" or not _combat_skill_card_selection_indices.has(discard_index):
@@ -23183,6 +23214,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 		and _upgrade_dialog.get_child_count() > 0
 	):
 		_upgrade_scrim.visible = true
+		_update_performance_telemetry_context()
 		_sync_pre_battle_overlay_layering()
 		if _skill_tree_view != null:
 			_skill_tree_view.call_deferred("grab_tree_focus")
@@ -23190,6 +23222,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 		return
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
+	_update_performance_telemetry_context()
 	_sync_pre_battle_overlay_layering()
 	_schedule_controller_modal_refresh()
 
@@ -23209,6 +23242,7 @@ func _open_level_up_overlay() -> void:
 		_progression_overlay_notice_is_error = true
 		_rebuild_progression_overlay()
 		_upgrade_scrim.visible = true
+		_update_performance_telemetry_context()
 		_sync_pre_battle_overlay_layering()
 		return
 	_progression = candidate
@@ -23230,6 +23264,7 @@ func _open_level_up_overlay() -> void:
 	_progression_overlay_notice_is_error = false
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
+	_update_performance_telemetry_context()
 	_sync_pre_battle_overlay_layering()
 
 func _close_card_upgrade_overlay() -> void:
@@ -23254,6 +23289,7 @@ func _close_card_upgrade_overlay() -> void:
 		_skill_hud_refresh_pending = false
 		_refresh_relic_bar()
 	_sync_pre_battle_overlay_layering()
+	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
 
 func _rebuild_progression_overlay() -> void:
@@ -23549,6 +23585,7 @@ func _switch_character_overlay_mode(mode: String) -> void:
 	_progression_overlay_notice_is_error = false
 	_clear_open_loadout_tab_unread(mode)
 	_rebuild_progression_overlay()
+	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
 
 func _controller_switch_character_tab(direction: int) -> void:
