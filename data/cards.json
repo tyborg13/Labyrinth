@@ -38,12 +38,12 @@
     "health_cost": 0,
     "time": 4,
     "starter": true,
-    "description": "Create a 3-health illusion at range 3, then draw 1.",
+    "description": "Blink 4, then draw 1.",
     "accent": "#53607e",
     "art_path": "res://assets/art/cards/shadow_step.png",
     "reward_pool": false,
     "actions": [
-      { "type": "illusion", "health": 3, "range": 3 },
+      { "type": "blink", "range": 4 },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -749,12 +749,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Raise Ice intensity by 1. Ice 2+: deal 4 along a 2-tile line at range 5.",
+    "description": "Raise Ice intensity by 1. Deal 2 along a 2-tile line at range 5. Ice 2+: +2 damage.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/rime_shard.png",
     "actions": [
       { "type": "intensity", "element": "ice", "amount": 1 },
-      { "type": "aoe", "damage": 4, "range": 5, "pattern": [[0, 0], [1, 0]], "rotate": true, "requires_intensity": { "element": "ice", "amount": 2 } }
+      { "type": "aoe", "damage": 2, "range": 5, "pattern": [[0, 0], [1, 0]], "rotate": true, "intensity_bonus": { "element": "ice", "threshold": 2, "damage": 2 } }
     ]
   },
   "cold_grasp": {
@@ -932,12 +932,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Raise Lightning intensity by 1. Lightning 2+: deal 9 at range 6.",
+    "description": "Raise Lightning intensity by 1. Deal 5 at range 6. Lightning 2+: +4 damage.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/volt_surge.png",
     "actions": [
       { "type": "intensity", "element": "lightning", "amount": 1 },
-      { "type": "ranged", "damage": 9, "range": 6, "requires_intensity": { "element": "lightning", "amount": 2 } }
+      { "type": "ranged", "damage": 5, "range": 6, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 4 } }
     ]
   },
   "thunderline": {

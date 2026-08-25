@@ -12290,7 +12290,11 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	if resolved_state.is_empty():
 		resolved_state = _combat_engine.apply_prevalidated_player_action(_preview_combat_state, action, _hovered_board_tile)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_apply", performance_phase_started)
-	var advanced_state: Dictionary = _pass_preview_state_after_resolved_target(resolved_state, _pending_actions, _pending_action_index + 1)
+	var advanced_state: Dictionary = {}
+	if str(action.get("type", "")) in ["move", "blink"] and _remaining_actions_include_shortcut_attack(_pending_actions, _pending_action_index + 1):
+		advanced_state = _pass_preview_state_after_movement_only(resolved_state, _pending_actions, _pending_action_index + 1)
+	else:
+		advanced_state = _pass_preview_state_after_resolved_target(resolved_state, _pending_actions, _pending_action_index + 1)
 	_record_runtime_performance_phase("pass_preview_source_advance", performance_phase_started)
 	return advanced_state
 
@@ -12329,6 +12333,16 @@ func _pass_preview_confirmed_shortcut_state(preview: Dictionary, shortcut_plan: 
 	if resolved_state.is_empty():
 		resolved_state = _combat_engine.apply_prevalidated_player_action(action_state, action, target_tile)
 	return _pass_preview_state_after_resolved_target(resolved_state, actions, action_index + 1)
+
+func _pass_preview_state_after_movement_only(resolved_state: Dictionary, actions: Array, next_action_index: int) -> Dictionary:
+	var followup: Dictionary = _next_shortcut_attack_step(resolved_state, actions, next_action_index)
+	if followup.is_empty():
+		return _pass_preview_state_after_resolved_target(resolved_state, actions, next_action_index)
+	return _pass_preview_state_after_resolved_target(
+		followup.get("state", resolved_state) as Dictionary,
+		actions,
+		int(followup.get("action_index", next_action_index)) + 1
+	)
 
 func _pass_preview_state_after_resolved_target(resolved_state: Dictionary, actions: Array, next_action_index: int) -> Dictionary:
 	# Turn-end risk needs the state after the hovered target plus automatic
@@ -14690,7 +14704,6 @@ func _refresh_stage_view() -> void:
 				_prepare_preview_shortcuts_for_current_action(preview)
 				attack_tiles = _vector2i_array(_preview_shortcuts_cache.get("tiles", []))
 				if not attack_tiles.is_empty():
-					move_tiles.clear()
 					presentation["pulse_attack_tiles"] = true
 			elif action_type in ["melee", "ranged", "aoe", "push", "pull"]:
 				if bool(preview.get("orientation_pending", false)):
@@ -14729,7 +14742,10 @@ func _refresh_stage_view() -> void:
 				if not card_preview_active:
 					move_tiles = _enemy_threat_tiles_union(threat_previews, "move")
 					attack_tiles = _enemy_threat_tiles_union(threat_previews, "attack")
-				if not _show_all_enemy_intents and threat_previews.size() == 1:
+				# A selected card owns the hover presentation. In particular, hovering
+				# a move-and-attack shortcut must keep the player's planned route arrow
+				# instead of replacing it with the hovered enemy's intent path.
+				if not card_preview_active and not _show_all_enemy_intents and threat_previews.size() == 1:
 					var focused_threat: Dictionary = threat_previews[0]
 					presentation["path_tiles"] = _vector2i_array(focused_threat.get("projected_path", []))
 					presentation["path_color"] = ENEMY_PATH_PREVIEW_COLOR
@@ -15748,6 +15764,23 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 					use_position_only_move_legality
 				)
 			var candidate_targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(working_state, action)
+			# A combined move-attack card has one board decision with two kinds of
+			# legal result: click an enemy to take the shortcut and attack, or click a
+			# destination to spend the movement and deliberately omit the follow-up.
+			# Keep every movement destination in the first-step preview; do not filter
+			# it down to only endpoints from which the attack can resolve.
+			if str(action.get("type", "")) in ["move", "blink"] and _remaining_actions_include_shortcut_attack(actions, cursor + 1):
+				return {
+					"card_id": card_id,
+					"state": working_state,
+					"actions": actions,
+					"action_index": cursor,
+					"target_tiles": _vector2i_array(candidate_targets),
+					"complete": false,
+					"playable": not candidate_targets.is_empty() or skip_playable,
+					"action": action,
+					"skip_allowed": skip_playable
+				}
 			if _umbra_defers_movement_followup_preview(working_state, action, actions, cursor):
 				return {
 					"card_id": card_id,
@@ -17510,16 +17543,18 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		return
 	var preview: Dictionary = _active_card_preview()
 	var shortcut_plan: Dictionary = {}
+	var preview_action_type: String = ""
 	if not preview.is_empty():
 		shortcut_plan = _shortcut_plan_for_tile(preview, tile)
-		var preview_action_type: String = str((preview.get("action", {}) as Dictionary).get("type", ""))
-		if preview_action_type in ["move", "blink"] and not _vector2i_array(_preview_shortcuts_cache.get("tiles", [])).is_empty() and shortcut_plan.is_empty():
-			return
+		preview_action_type = str((preview.get("action", {}) as Dictionary).get("type", ""))
 	if not _pending_target_tiles.has(tile) and shortcut_plan.is_empty():
 		return
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.SELECT_TARGET)
 	if not shortcut_plan.is_empty():
 		await _on_pending_shortcut_clicked(tile, shortcut_plan)
+		return
+	if preview_action_type in ["move", "blink"] and _remaining_actions_include_shortcut_attack(_pending_actions, _pending_action_index + 1):
+		await _on_pending_movement_only_clicked(tile)
 		return
 	var action: Dictionary = _pending_actions[_pending_action_index]
 	var previous_action_index: int = _pending_action_index
@@ -17759,6 +17794,37 @@ func _on_pending_shortcut_clicked(target_tile: Vector2i, shortcut_plan: Dictiona
 	_mark_preview_selection_changed()
 	var next_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
 	_append_skipped_target_placeholders(attack_action_index + 1, int(next_preview.get("action_index", 0)))
+	await _apply_pending_preview_result(next_preview)
+
+func _on_pending_movement_only_clicked(target_tile: Vector2i) -> void:
+	var movement_index: int = _pending_action_index
+	var movement_action: Dictionary = _pending_actions[movement_index]
+	_pending_selected_targets.append(target_tile)
+	var movement_plan: Dictionary = _preview_shortcuts_cache.get("movement_plan", {}) as Dictionary
+	if str(movement_action.get("type", "")) == "move":
+		if movement_plan.is_empty():
+			movement_plan = _combat_engine.movement_plan_for_player_action(_preview_combat_state, movement_action, _pending_target_tiles)
+		_preview_combat_state = _combat_engine.apply_planned_player_move(
+			_preview_combat_state,
+			movement_action,
+			target_tile,
+			movement_plan
+		)
+	else:
+		_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, movement_action, target_tile)
+	_mark_preview_selection_changed()
+	if _umbra_defers_movement_followup_preview(_preview_combat_state, movement_action, _pending_actions, movement_index):
+		_pending_umbra_commit_locked = true
+	var next_action_index: int = movement_index + 1
+	var continuation_state: Dictionary = _preview_combat_state
+	var followup: Dictionary = _next_shortcut_attack_step(continuation_state, _pending_actions, next_action_index)
+	if not followup.is_empty():
+		continuation_state = followup.get("state", continuation_state) as Dictionary
+		next_action_index = int(followup.get("action_index", next_action_index)) + 1
+		_append_skipped_target_placeholders(movement_index + 1, next_action_index)
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var next_preview: Dictionary = _card_preview_from_state(card_id, continuation_state, _pending_actions, next_action_index)
+	_append_skipped_target_placeholders(next_action_index, int(next_preview.get("action_index", next_action_index)))
 	await _apply_pending_preview_result(next_preview)
 
 func _load_pending_preview_state(preview: Dictionary) -> void:

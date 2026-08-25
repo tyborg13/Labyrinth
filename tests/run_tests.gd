@@ -1793,7 +1793,7 @@ func _test_combat_log_is_bounded() -> void:
 func _test_card_play_action_grants_bonus_play() -> void:
 	var starter_has_draw: bool = false
 	var starter_has_card_play: bool = false
-	var starter_has_illusion: bool = false
+	var starter_has_blink: bool = false
 	for card_id: String in GameData.starting_deck():
 		var starter_card: Dictionary = GameData.card_def(card_id)
 		for action_var: Variant in starter_card.get("actions", []):
@@ -1802,10 +1802,10 @@ func _test_card_play_action_grants_bonus_play() -> void:
 			var action: Dictionary = action_var as Dictionary
 			starter_has_draw = starter_has_draw or str(action.get("type", "")) == "draw"
 			starter_has_card_play = starter_has_card_play or str(action.get("type", "")) == "card_play"
-			starter_has_illusion = starter_has_illusion or str(action.get("type", "")) == "illusion"
+			starter_has_blink = starter_has_blink or str(action.get("type", "")) == "blink"
 	_assert(starter_has_draw, "The starting deck should include at least one draw card")
 	_assert(starter_has_card_play, "The starting deck should include at least one card-play card")
-	_assert(starter_has_illusion, "The starting deck should include at least one illusion card")
+	_assert(starter_has_blink, "The starting deck should include at least one Blink card")
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(1511, _simple_room_layout(), {
 		"hp": 24,
@@ -10255,8 +10255,8 @@ func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 	combat_state["deck"] = deck
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
-	_assert(not bool(preview.get("playable", false)), "A move-attack card should not offer an intermediate movement click when no enemy can be attacked")
-	_assert((preview.get("target_tiles", []) as Array).is_empty(), "A required combined attack without an enemy should expose no movement targets")
+	_assert(bool(preview.get("playable", false)), "A move-attack card should remain playable for its movement when no enemy can be attacked")
+	_assert(not (preview.get("target_tiles", []) as Array).is_empty(), "A combined card without an attack target should still expose movement destinations")
 	instance.queue_free()
 	await process_frame
 
@@ -10312,10 +10312,14 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "Move-attack selection should show current movement and remaining attack")
 	_assert_action_step_tracker_layout(instance, piles_y_before, "Move-attack tracker should not shift piles or controls")
 	var board: Node = instance.get_node("BoardUnderlay/CombatBoard")
-	_assert((board.get("move_tiles") as Array).is_empty() and (board.get("attack_tiles") as Array).has(Vector2i(5, 4)), "Move-attack selection should expose only the enemy target")
+	_assert((board.get("move_tiles") as Array).has(Vector2i(4, 4)) and (board.get("attack_tiles") as Array).has(Vector2i(5, 4)), "Move-attack selection should expose both movement destinations and the enemy shortcut")
+	var movement_only_enemy_hp: int = int((((instance.get("_combat_state") as Dictionary).get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
 	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
 	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "Clicking an intermediate movement tile should not advance a combined card")
+	var movement_only_state: Dictionary = instance.get("_combat_state") as Dictionary
+	_assert((movement_only_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)) == Vector2i(4, 4), "Clicking a movement destination should resolve the combined card as movement-only")
+	_assert(int(((movement_only_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == movement_only_enemy_hp, "Movement-only resolution should omit the follow-up attack")
+	_assert(int(instance.get("_selected_card_index")) < 0, "Movement-only resolution should finish without another click")
 
 	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)])
 	await _choose_clicked_card_action(instance, 0, "play")
@@ -11091,7 +11095,7 @@ func _test_card_widget_debossed_role_emblems() -> void:
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("brace")) == "block", "A block card should use the shield role emblem")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("stone_plate")) == "block", "Resource and draw riders should not displace a mitigation card's shield role")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("guarded_step")) == "block", "A defense/mobility card should resolve to one primary shield emblem")
-	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("shadow_step")) == "illusion", "An illusion/mobility card without attack or defense should use the illusion emblem")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("shadow_step")) == "mobility", "Shadow Step should use the mobility emblem for its restored Blink identity")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("dawnstep")) == "mobility", "A movement card with only a visibility rider should use the mobility emblem")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("spark_focus")) == "attack_ranged", "A dense ranged card should ignore elemental, draw, and visibility riders")
 	for illusion_card_id: String in ["mirror_feint", "mirror_flash", "witchglass_double", "reflected_threat", "empty_husk"]:
@@ -11240,13 +11244,13 @@ func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
 	var combat_state: Dictionary = combat.create_combat(106, _simple_room_layout(), {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["shadow_step"],
+		"deck_cards": ["mirror_flash"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["shadow_step"]
+	deck["hand"] = ["mirror_flash"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -13120,18 +13124,17 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	var move_path: Array[Vector2i] = combat.path_for_player_action(state, actions[0] as Dictionary, Vector2i(4, 4))
 	_assert((instance.call("_movement_risk_chips_for_preview", preview, move_path) as Array).is_empty(), "Umbra movement hover should not leak a blocker through risk-chip deltas")
 	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
-	_assert(bool(instance.get("_pending_umbra_commit_locked")), "Moving into new Umbra information should make the pending card choice irreversible")
+	_assert(int(instance.get("_selected_card_index")) < 0, "An Umbra movement-only choice should finish the card without exposing a second target click")
 	instance.call("_refresh_stage_view")
 	var locked_board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	var locked_board_state: Dictionary = locked_board.get("combat_state") as Dictionary
 	var locked_board_presentation: Dictionary = locked_board.get("presentation") as Dictionary
 	var hidden_enemy_after_move: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
-	_assert((locked_board_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "A selected Umbra move should keep the rendered player at the committed tile until card resolution starts")
-	_assert(not (locked_board_presentation.get("visible_enemy_ids", []) as Array).has(int(hidden_enemy_after_move.get("id", -1))), "A selected Umbra move should not reveal newly visible enemies while its card preview is still pending")
-	_assert(int(locked_board_presentation.get("umbra_radius", -1)) == combat.effective_umbra_radius(state), "A selected Umbra move should preserve the committed vision radius")
-	_assert(not (instance.get("_pending_target_tiles") as Array).has(hidden_enemy_after_move.get("pos", Vector2i.ZERO)), "A selected Umbra move should not expose a newly revealed enemy as a follow-up target")
+	_assert((locked_board_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 4), "An Umbra movement-only choice should commit the selected destination")
+	_assert((locked_board_presentation.get("visible_enemy_ids", []) as Array).has(int(hidden_enemy_after_move.get("id", -1))), "The board may reveal newly visible enemies after the one-click card resolution completes")
+	_assert(int((((instance.get("_combat_state") as Dictionary).get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == int(hidden_enemy_after_move.get("hp", 0)), "An Umbra movement-only choice should not attack a newly revealed enemy")
 	instance.call("_cancel_card_selection")
-	_assert(int(instance.get("_selected_card_index")) == 0, "An Umbra movement reveal should not be cancellable back to the untouched combat state")
+	_assert(int(instance.get("_selected_card_index")) < 0, "Cancelling after a resolved Umbra move should not restore the spent card selection")
 	instance.call("_reset_card_resolution")
 
 	var dawnstep_actions: Array = (GameData.card_def("dawnstep").get("actions", []) as Array).duplicate(true)

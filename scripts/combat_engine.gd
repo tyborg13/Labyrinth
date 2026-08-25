@@ -1093,15 +1093,6 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					break
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
-	if _action_has_illuminate_rider(resolved_action) and action_type == "aoe":
-		if not _aoe_illuminate_rider_hits_selected_center(resolved_action):
-			return _vector2i_values([])
-		var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state)
-		var centered_targets: Array[Vector2i] = _vector2i_values([])
-		for target: Vector2i in targets:
-			if attackable_tiles.has(target):
-				centered_targets.append(target)
-		return centered_targets
 	return targets
 
 func player_action_has_valid_target(state: Dictionary, action: Dictionary) -> bool:
@@ -1126,15 +1117,6 @@ func player_action_has_valid_target(state: Dictionary, action: Dictionary) -> bo
 
 func _action_has_illuminate_rider(action: Dictionary) -> bool:
 	return int(action.get("illuminate_radius", 0)) > 0
-
-func _aoe_illuminate_rider_hits_selected_center(action: Dictionary) -> bool:
-	for offsets_var: Variant in _aoe_pattern_variants(action):
-		if typeof(offsets_var) != TYPE_ARRAY:
-			continue
-		var offsets: Array[Vector2i] = _vector2i_values(offsets_var as Array)
-		if not offsets.has(_aoe_center_offset(offsets)):
-			return false
-	return true
 
 func _append_enemy_footprint_targets(targets: Array[Vector2i], enemy: Dictionary) -> void:
 	for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):

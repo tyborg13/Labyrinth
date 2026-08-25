@@ -133,9 +133,11 @@ movement, and elemental-intensity payoffs during the resolved transition.
 - actual resolved action list and chosen targets
 - the player-facing targeting gesture via `target_decision_count` and
   `target_decision_tile`. Card plays now record one board decision even when a
-  combined move-and-melee card internally resolves both its chosen movement
-  endpoint and enemy target; targetless cards record the protagonist tile used
-  to confirm the play.
+  combined move-and-melee card internally resolves both its preferred movement
+  endpoint and enemy target. Choosing an empty destination instead records that
+  destination and resolves the movement-only branch without the follow-up
+  attack. Targetless cards record the protagonist tile used to confirm the
+  play.
 - consumable item flags via `item_card` and `consume_on_play`
 - Radiance and visibility context: `radiance_card`, Umbra stage and radius
   before/after, tiles illuminated, enemies newly revealed, fixed light sources
@@ -148,8 +150,10 @@ movement, and elemental-intensity payoffs during the resolved transition.
 
 Attack-carried Light remains one resolved attack action in this payload. Its
 additive `illuminate_radius` and `illuminate_duration` fields identify the
-post-hit rider, while the single chosen target remains the enemy, trap, or
-terrain impact tile. Standalone `illuminate` actions remain distinct and retain
+post-hit rider, while the single chosen target remains the enemy, trap, terrain
+impact tile, or freely selected AOE center. An AOE center may be empty when its
+other pattern squares hit actors, and any attack-carried Light anchors at that
+selected center. Standalone `illuminate` actions remain distinct and retain
 their free-tile target entry.
 
 Movement-carried Light likewise remains part of one resolved Move or Blink

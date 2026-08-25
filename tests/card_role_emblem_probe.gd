@@ -10,7 +10,7 @@ const SAMPLES: Array = [
 	{"card": "quick_stab", "label": "SPARSE MELEE"},
 	{"card": "bone_dart", "label": "SPARSE RANGED"},
 	{"card": "brace", "label": "BLOCK"},
-	{"card": "shadow_step", "label": "ILLUSION"},
+	{"card": "shadow_step", "label": "MOBILITY"},
 	{"card": "dawnstep", "label": "MOBILITY"},
 	{"card": "spark_focus", "label": "DENSE RIDERS"},
 	{"card": "mirror_feint", "label": "ILLUSION + BLOCK"},

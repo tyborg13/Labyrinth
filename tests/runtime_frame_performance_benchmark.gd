@@ -556,18 +556,15 @@ func _measure_blink_preview_workload(instance: Node, sampler: FrameSampler) -> D
 	await _select_card(instance, hand_index)
 	await _await_render_frame()
 	var initial_preview: Dictionary = instance.call("_active_card_preview") as Dictionary
-	_expect(str((initial_preview.get("action", {}) as Dictionary).get("type", "")) == "illusion", "Shadow Step must begin on its authored illusion target step")
+	_expect(str((initial_preview.get("action", {}) as Dictionary).get("type", "")) == "blink", "Shadow Step must begin on its authored Blink target step")
 	var initial_targets: Array[Vector2i] = _preview_interaction_tiles(instance, initial_preview)
 	if initial_targets.is_empty():
-		_expect(false, "Shadow Step illusion step must expose at least one live target")
+		_expect(false, "Shadow Step Blink must expose at least one live target")
 		return {}
-	var illusion_target: Vector2i = _preferred_target(instance, initial_targets)
-	_board_pointer_click(instance, illusion_target)
-	await _await_render_frame()
 	return await _measure_active_blink_preview(instance, sampler, {
 		"source": "synthetic_dense",
 		"card_id": "shadow_step",
-		"prior_target": illusion_target,
+		"prior_target_steps": 0,
 	})
 
 func _measure_live_save_blink_workload(instance: Node, sampler: FrameSampler) -> Dictionary:

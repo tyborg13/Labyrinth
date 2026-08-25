@@ -5,7 +5,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
-const OUTPUT_DIR := "user://probes/card_targeting_rework_v1"
+const OUTPUT_DIR := "user://probes/card_targeting_rework_v2"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const CARD_IDS: Array[String] = [
 	"shadow_step", "sidestep_slash", "bloody_lunge", "iron_wheel",

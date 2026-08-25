@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T01:32:21Z",
+  "updated_at": "2026-08-25T02:58:07Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8442,7 +8442,7 @@
       }
     },
     {
-      "id": "mnt_20260825T013221Z_2b8d1a9f",
+      "id": "mnt_20260825T025807Z_4a1bb1cf",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -8451,16 +8451,18 @@
         "symbol": null
       },
       "scope_key": "project:.",
-      "summary": "Player card plays expose exactly one board decision",
-      "details": "Printed cards may have at most one player-selected target. The only authored multi-target action sequence is ordinary move followed by a required adjacent melee or push, resolved from one enemy click through the move-attack shortcut. Ranged and ranged-AOE cards never also move; Flurry repetitions reuse the first target; targetless cards confirm on the player tile; Add Move is only offered to cards without an existing targetable action.",
+      "summary": "Player cards use one board decision with dual move-attack outcomes",
+      "details": "A selected player card exposes at most one board decision. Move-then-adjacent-attack cards show both ordinary movement destinations and enemy shortcuts at once: clicking a destination resolves movement only, while clicking an enemy chooses the preferred approach path and resolves the attack. Enemy shortcut hover must preserve the player's route arrow even though the enemy also has an intent preview. Ranged AOE actions accept arbitrary visible/passable center tiles, including empty centers whose other pattern cells hit actors. Attacks with intensity thresholds always retain a baseline attack and use intensity only for a bonus. Targetless cards confirm on the protagonist tile.",
       "status": "active",
-      "created_at": "2026-08-25T01:32:21Z",
-      "updated_at": "2026-08-25T01:32:21Z",
+      "created_at": "2026-08-25T02:58:07Z",
+      "updated_at": "2026-08-25T02:58:07Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260825T013221Z_2b8d1a9f"
+      ],
       "source": {
         "branch": "codex/simplify-card-targeting-to-two-clicks",
-        "commit": "7609da2"
+        "commit": "e549589"
       }
     }
   ]
