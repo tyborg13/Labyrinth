@@ -115,14 +115,14 @@ For local non-Steam API testing, place a temporary `steam_appid.txt` next to the
 
 ### Performance stat setup
 
-Steam builds also aggregate anonymous performance counters through Steamworks User Stats. The definitions are shared by the main and Playtest apps and must be created and published in each app's Stats & Achievements configuration before clients can record them.
+Steam builds also aggregate performance counters through Steamworks User Stats. Steam stores User Stats under the current Steam account; they are not anonymous at the storage layer. The committed reporting tool requests only fleet-wide global aggregates and never requests player identities or per-account values. The definitions are shared by the main and Playtest apps and must be created and published in each app's Stats & Achievements configuration before clients can record them.
 
 ```bash
 python3 tools/steam_performance_stats.py schema \
   --output output/steam-performance-stats.csv
 ```
 
-The generated CSV contains the exact API names and App Admin settings. See [`../spec/performance_telemetry.md`](../spec/performance_telemetry.md) for the batching behavior, metric interpretation, and the publisher-key report command. Never place a Steamworks publisher Web API key in the project or an exported build.
+The generated CSV contains the exact API names and App Admin settings. Performance collection is enabled by default in the current playtest project configuration, so release-facing privacy disclosure and any required opt-out policy must explicitly cover these account-associated aggregate counters before shipping. See [`../spec/performance_telemetry.md`](../spec/performance_telemetry.md) for the batching behavior, metric interpretation, and the publisher-key report command. Never place a Steamworks publisher Web API key in the project or an exported build.
 
 ## Steam Cloud setup
 

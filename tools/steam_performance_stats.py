@@ -117,7 +117,23 @@ def fetch_global_stats(
         with urllib.request.urlopen(request, timeout=30) as response:
             payload = json.load(response)
         response_data = payload.get("response", payload)
-        for name, value in response_data.get("globalstats", {}).items():
+        result = response_data.get("result")
+        try:
+            result_code = int(result)
+        except (TypeError, ValueError) as error:
+            raise ValueError("Steam global-stats response omitted a valid result code") from error
+        if result_code != 1:
+            raise ValueError(f"Steam global-stats request failed with result {result_code}")
+        global_stats = response_data.get("globalstats", {})
+        if not isinstance(global_stats, dict):
+            raise ValueError("Steam global-stats response did not contain an object")
+        missing = sorted(set(batch) - set(global_stats))
+        if missing:
+            raise ValueError(
+                "Steam global-stats response omitted requested keys; "
+                f"verify that the App Admin schema is published: {missing[:3]}"
+            )
+        for name, value in global_stats.items():
             combined[name] = value
     return combined
 

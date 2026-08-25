@@ -30,8 +30,11 @@ def main() -> None:
     requested_urls = []
 
     class FakeResponse:
+        def __init__(self, payload):
+            self._payload = payload
+
         def __enter__(self):
-            return io.BytesIO(b'{"response":{"globalstats":{}}}')
+            return io.BytesIO(json.dumps(self._payload).encode("utf-8"))
 
         def __exit__(self, _exception_type, _exception, _traceback):
             return False
@@ -39,7 +42,17 @@ def main() -> None:
     def fake_urlopen(request, timeout):
         assert timeout == 30
         requested_urls.append(request.full_url)
-        return FakeResponse()
+        query = urllib.parse.parse_qs(urllib.parse.urlparse(request.full_url).query)
+        requested_names = [
+            query[f"name[{index}]"][0]
+            for index in range(int(query["count"][0]))
+        ]
+        return FakeResponse({
+            "response": {
+                "result": 1,
+                "globalstats": {name: {"total": "0"} for name in requested_names},
+            }
+        })
 
     original_urlopen = MODULE.urllib.request.urlopen
     MODULE.urllib.request.urlopen = fake_urlopen
@@ -58,6 +71,36 @@ def main() -> None:
     assert first_query["count"] == ["100"]
     assert first_query["startdate"][0].isdigit()
     assert first_query["enddate"][0].isdigit()
+
+    def expect_fetch_error(payload, expected_fragment):
+        def error_urlopen(_request, timeout):
+            assert timeout == 30
+            return FakeResponse(payload)
+
+        MODULE.urllib.request.urlopen = error_urlopen
+        try:
+            MODULE.fetch_global_stats(
+                4531660,
+                names[:2],
+                "publisher-key",
+                dt.date(2026, 8, 19),
+                dt.date(2026, 8, 25),
+            )
+        except ValueError as error:
+            assert expected_fragment in str(error), str(error)
+        else:
+            raise AssertionError(f"expected report failure containing {expected_fragment!r}")
+        finally:
+            MODULE.urllib.request.urlopen = original_urlopen
+
+    expect_fetch_error(
+        {"response": {"result": 2, "globalstats": {}}},
+        "failed with result 2",
+    )
+    expect_fetch_error(
+        {"response": {"result": 1, "globalstats": {names[0]: {"total": "0"}}}},
+        "omitted requested keys",
+    )
     print(f"STEAM PERFORMANCE STATS SCHEMA TEST RESULT: PASS ({len(names)} stats)")
 
 

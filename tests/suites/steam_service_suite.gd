@@ -56,8 +56,9 @@ static func run(expect: Callable) -> void:
 	var queued: Dictionary = service.call("accumulate_int_stats", {
 		"perf_v1_linux_steamdeck_frame_samples": 120,
 		"perf_v1_linux_steamdeck_frames_over_33_33_ms": 7,
+		"perf_v1_linux_steamdeck_sessions": 1,
 	})
-	expect.call((queued.get("accepted", []) as Array).size() == 2, "SteamService should accept valid additive integer telemetry stats")
+	expect.call((queued.get("accepted", []) as Array).size() == 3, "SteamService should accept valid additive integer telemetry stats")
 	service.call("accumulate_int_stats", {"perf_v1_linux_steamdeck_frame_samples": 30})
 	expect.call(int(fake_steam.stats.get("perf_v1_linux_steamdeck_frame_samples", 0)) == 150, "SteamService should add telemetry deltas to the user's current absolute Steam stat")
 	fake_steam.rejected_stats.append("perf_v1_linux_steamdeck_rejected")
@@ -73,11 +74,26 @@ static func run(expect: Callable) -> void:
 	fake_steam.store_succeeds = true
 	var stored: Dictionary = service.call("store_pending_stats")
 	expect.call(bool(stored.get("ok", false)) and str(stored.get("reason", "")) == "submitted", "SteamService should wait for Steam's asynchronous storage callback")
+	# InvalidParam can refresh Steam's volatile cache with server values before the
+	# callback. The service must restore every desired target, including sessions.
+	fake_steam.stats["perf_v1_linux_steamdeck_frame_samples"] = 0
+	fake_steam.stats["perf_v1_linux_steamdeck_frames_over_33_33_ms"] = 0
+	fake_steam.stats["perf_v1_linux_steamdeck_sessions"] = 0
 	fake_steam.user_stats_stored.emit(4531660, 2)
 	expect.call(str((service.call("last_stats_status") as Dictionary).get("reason", "")) == "store_callback_rejected", "SteamService should retain rejected asynchronous storage for retry")
+	expect.call(int(fake_steam.stats.get("perf_v1_linux_steamdeck_frame_samples", 0)) == 150, "A rejected callback should reapply the desired frame-sample target after Steam overwrites its cache")
+	expect.call(int(fake_steam.stats.get("perf_v1_linux_steamdeck_sessions", 0)) == 1, "A rejected callback should preserve the once-per-session increment")
+	service.call("store_pending_stats")
+	service.call("accumulate_int_stats", {"perf_v1_linux_steamdeck_frame_samples": 25})
+	var overlapping_store: Dictionary = service.call("store_pending_stats")
+	expect.call(str(overlapping_store.get("reason", "")) == "store_in_flight", "SteamService should not overlap asynchronous StoreStats batches")
+	fake_steam.user_stats_stored.emit(4531660, 1)
+	expect.call(str((service.call("last_stats_status") as Dictionary).get("reason", "")) == "stored_with_newer_pending_stats", "A successful callback should retain values queued while its StoreStats batch was in flight")
+	expect.call(int(fake_steam.stats.get("perf_v1_linux_steamdeck_frame_samples", 0)) == 175, "A newer in-flight frame-sample target should remain applied after the older batch succeeds")
 	service.call("store_pending_stats")
 	fake_steam.user_stats_stored.emit(4531660, 1)
-	expect.call(str((service.call("last_stats_status") as Dictionary).get("reason", "")) == "stored" and fake_steam.store_calls == 3, "SteamService should clear queued stats only after Steam confirms storage")
+	expect.call(str((service.call("last_stats_status") as Dictionary).get("reason", "")) == "stored" and fake_steam.store_calls == 4, "SteamService should clear queued stats only after Steam confirms the latest targets")
+	expect.call((service.call("pending_stat_targets_for_test") as Dictionary).is_empty(), "No desired Steam stat targets should remain after the latest batch is confirmed")
 	var failed_service: Node = SteamServiceScript.new()
 	failed_service.call("_initialize_with_steam_for_test", fake_steam, {"status": 1})
 	expect.call(not bool(failed_service.call("is_steam_active")), "Failed Steam initialization should not make SteamService active")

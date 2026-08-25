@@ -1475,6 +1475,7 @@ var _enemy_intent_compass_cache: Dictionary = {}
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
+var _performance_telemetry_finalized: bool = false
 var _analytics_store: AnalyticsStore = AnalyticsStore.new()
 var _analytics_combat_tracker: Dictionary = {}
 var _selected_card_index: int = -1
@@ -1833,9 +1834,16 @@ func _ready() -> void:
 	_settings = SettingsStore.load_settings()
 	SettingsStore.apply_settings(_settings, get_window())
 	set_process(false)
+	var performance_telemetry: Node = get_node_or_null("/root/PerformanceTelemetry")
 	var performance_telemetry_enabled: bool = (
-		bool(ProjectSettings.get_setting("telemetry/performance/local_enabled", true))
-		or bool(ProjectSettings.get_setting("telemetry/performance/steam_stats_enabled", true))
+		bool(performance_telemetry.call("sampling_enabled"))
+		if performance_telemetry != null and performance_telemetry.has_method("sampling_enabled")
+		else (
+			bool(ProjectSettings.get_setting("telemetry/performance/local_enabled", true))
+			or bool(ProjectSettings.get_setting("telemetry/performance/steam_stats_enabled", true))
+			or not str(ProjectSettings.get_setting("telemetry/performance/upload_url", "")).strip_edges().is_empty()
+			or not OS.get_environment("LABYRINTH_TELEMETRY_ENDPOINT").strip_edges().is_empty()
+		)
 	)
 	set_runtime_performance_instrumentation_enabled(
 		performance_telemetry_enabled
@@ -2955,6 +2963,7 @@ func _sync_board_view_rect() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_save_run_progress()
+		_finalize_performance_telemetry_scene("window_close")
 		get_tree().quit()
 	elif what == NOTIFICATION_RESIZED:
 		_sync_board_view_rect()
@@ -2975,6 +2984,17 @@ func _notification(what: int) -> void:
 		if _pre_battle_scrim != null and _pre_battle_scrim.visible:
 			call_deferred("_rebuild_pre_battle_overlay")
 		_layout_progression_dialog()
+
+func _exit_tree() -> void:
+	_finalize_performance_telemetry_scene("scene_exit")
+
+func _finalize_performance_telemetry_scene(reason: String) -> void:
+	if _performance_telemetry_finalized:
+		return
+	_performance_telemetry_finalized = true
+	var telemetry: Node = get_node_or_null("/root/PerformanceTelemetry")
+	if telemetry != null and telemetry.has_method("end_gameplay_context"):
+		telemetry.call("end_gameplay_context", reason)
 
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
@@ -22875,6 +22895,7 @@ func _on_save_and_quit_pressed() -> void:
 func _on_exit_to_desktop_pressed() -> void:
 	_close_menu_overlay()
 	_save_run_progress()
+	_finalize_performance_telemetry_scene("exit_to_desktop")
 	get_tree().quit()
 
 func _on_abandon_run_pressed() -> void:
@@ -22894,6 +22915,7 @@ func _on_abandon_run_pressed() -> void:
 	_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _change_scene_to_file(path: String) -> void:
+	_finalize_performance_telemetry_scene("scene_change")
 	var cursor_feedback: Node = get_node_or_null("/root/CursorFeedback")
 	if cursor_feedback != null and cursor_feedback.has_method("change_scene_to_file"):
 		cursor_feedback.call("change_scene_to_file", path)

@@ -24,7 +24,7 @@ Records are append-only JSONL at:
 user://telemetry/performance-YYYY-MM-DD.jsonl
 ```
 
-The sibling `user://telemetry/meta.json` contains an anonymous random installation ID used to group sessions from one install. `SteamService` may relocate Godot's `user://` root into the Steam-user-specific Escape the Umbra directory, but the telemetry path remains the same relative to `user://`.
+The sibling `user://telemetry/meta.json` contains a random installation ID used to group sessions from one install; it contains no Steam ID or persona. `SteamService` may relocate Godot's `user://` root into the Steam-user-specific Escape the Umbra directory, but the telemetry path remains the same relative to `user://`. Setting `telemetry/performance/local_enabled=false` disables both the JSONL records and the persistent installation ID while still allowing Steam or explicitly configured HTTP aggregation to sample.
 
 ## Upload configuration
 
@@ -50,9 +50,11 @@ perf_v1_linux_desktop
 perf_v1_linux_steamdeck
 ```
 
-Every 60-second telemetry window calls `SetStat` only for non-zero global metrics, active frame cohorts, and subsystem groups that actually ran. A typical window therefore touches roughly 30–60 keys even though the complete schema contains 676 definitions. `SetStat` changes Steam's local in-memory stat cache; `SteamService` makes one batched `StoreStats` call at most every five minutes, plus shutdown, and clears pending state only after Steam's asynchronous stored callback succeeds. Rejected/unpublished keys do not prevent the local JSONL record or other keys from succeeding.
+Every 60-second telemetry window calls `SetStat` only for non-zero global metrics, active frame cohorts, and subsystem groups that actually ran. A typical window therefore touches roughly 30–60 keys even though the complete schema contains 676 definitions. `SetStat` changes Steam's local in-memory stat cache; `SteamService` makes one non-overlapping batched `StoreStats` call at most every five minutes, plus shutdown, and clears each pending absolute target only after Steam's asynchronous stored callback succeeds. If Steam rejects a store and refreshes its volatile cache from the server, the service reapplies those retained targets before retrying so the diagnostic and once-per-session increments survive.
 
 The cohort counters provide both a denominator (`samples`) and missed-frame counts at 20, 33.33, and 50 ms. Section groups provide both `calls` and `tenths_ms`. Those pairs make ratios and average cost per call mergeable across users; percentiles and maxima remain in local/HTTP JSON because globally summing them would be mathematically misleading.
+
+Steam User Stats are associated with the current Steam account even though the committed report tool reads only global fleet aggregates and never requests individual identities. Collection is enabled by default for current playtest builds; the shipping privacy disclosure and any required opt-out policy must describe that behavior accurately.
 
 Valve's public documentation specifies a 128-byte stat-name buffer and a 100-achievement default cap, but does not publish a maximum count for stats. The committed schema stays in the hundreds, updates only an active subset, and must still be validated in each app's Steamworks App Admin before publication.
 

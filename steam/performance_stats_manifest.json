@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Additive, anonymous Escape the Umbra performance aggregates for Steamworks User Stats.",
+  "description": "Additive Escape the Umbra performance aggregates stored as account-associated Steamworks User Stats and read by developers only through fleet-wide global aggregates.",
   "platform_prefixes": [
     "perf_v1_windows_desktop",
     "perf_v1_macos_desktop",

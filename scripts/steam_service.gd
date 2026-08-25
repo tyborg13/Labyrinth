@@ -24,9 +24,10 @@ var _init_result: Dictionary = {}
 var _refresh_elapsed: float = 0.0
 var _stats_store_elapsed: float = 0.0
 var _stats_dirty: bool = false
-var _stats_generation: int = 0
-var _stats_store_generation: int = 0
 var _stats_store_callback_connected: bool = false
+var _stats_store_in_flight: bool = false
+var _pending_stat_targets: Dictionary = {}
+var _submitted_stat_targets: Dictionary = {}
 var _last_stats_status: Dictionary = {}
 
 func _enter_tree() -> void:
@@ -121,14 +122,20 @@ func accumulate_int_stats(deltas: Dictionary) -> Dictionary:
 			failed[stat_name] = "current_value_unavailable"
 			continue
 		var current: int = clampi(int(current_raw), 0, MAX_STEAM_INT_STAT)
-		var next_value: int = mini(MAX_STEAM_INT_STAT, current + mini(delta, MAX_STEAM_INT_STAT - current))
+		# A pending target is already reflected in Steam's volatile local cache. Use
+		# it as the floor so another telemetry window cannot lose an increment if a
+		# StoreStats callback is still pending or has refreshed the cache from the
+		# server in the meantime.
+		var pending_target: int = clampi(int(_pending_stat_targets.get(stat_name, 0)), 0, MAX_STEAM_INT_STAT)
+		var base_value: int = maxi(current, pending_target)
+		var next_value: int = mini(MAX_STEAM_INT_STAT, base_value + mini(delta, MAX_STEAM_INT_STAT - base_value))
 		if bool(_steam.call("setStatInt", stat_name, next_value)):
 			accepted.append(stat_name)
+			_pending_stat_targets[stat_name] = next_value
 		else:
 			failed[stat_name] = "set_rejected"
 	if not accepted.is_empty():
 		_stats_dirty = true
-		_stats_generation += 1
 	_last_stats_status = {
 		"accepted": accepted,
 		"failed": failed,
@@ -137,6 +144,9 @@ func accumulate_int_stats(deltas: Dictionary) -> Dictionary:
 	return _last_stats_status.duplicate(true)
 
 func store_pending_stats() -> Dictionary:
+	if _stats_store_in_flight:
+		_last_stats_status = {"attempted": false, "reason": "store_in_flight"}
+		return _last_stats_status.duplicate(true)
 	if not _stats_dirty:
 		_last_stats_status = {"attempted": false, "reason": "no_pending_stats"}
 		return _last_stats_status.duplicate(true)
@@ -146,8 +156,12 @@ func store_pending_stats() -> Dictionary:
 	var succeeded: bool = bool(_steam.call("storeStats"))
 	_stats_store_elapsed = 0.0
 	if succeeded:
-		_stats_store_generation = _stats_generation
-		if not _stats_store_callback_connected:
+		_submitted_stat_targets = _pending_stat_targets.duplicate(true)
+		if _stats_store_callback_connected:
+			_stats_store_in_flight = true
+		else:
+			_pending_stat_targets.clear()
+			_submitted_stat_targets.clear()
 			_stats_dirty = false
 	_last_stats_status = {
 		"attempted": true,
@@ -161,6 +175,9 @@ func store_pending_stats() -> Dictionary:
 
 func last_stats_status() -> Dictionary:
 	return _last_stats_status.duplicate(true)
+
+func pending_stat_targets_for_test() -> Dictionary:
+	return _pending_stat_targets.duplicate(true)
 
 func _initialize_steam() -> void:
 	if OS.get_environment(DISABLE_STEAM_ENV).strip_edges().to_lower() in ["1", "true", "yes"]:
@@ -196,21 +213,67 @@ func _connect_stats_callbacks() -> void:
 	_stats_store_callback_connected = true
 
 func _on_user_stats_stored(_game_id: int, result: int) -> void:
+	if not _stats_store_in_flight:
+		_last_stats_status = {
+			"attempted": false,
+			"ok": result == STEAM_RESULT_OK,
+			"reason": "unexpected_store_callback",
+			"result": result,
+		}
+		return
+	_stats_store_in_flight = false
 	if result == STEAM_RESULT_OK:
-		_stats_dirty = _stats_generation != _stats_store_generation
+		# Remove only the exact targets covered by this callback. A newer window may
+		# already have raised a key while StoreStats was in flight; keep and reapply
+		# that newer target to Steam's local cache for the next batch.
+		for stat_name_var: Variant in _submitted_stat_targets.keys():
+			var stat_name: String = str(stat_name_var)
+			var submitted_target: int = int(_submitted_stat_targets[stat_name_var])
+			if int(_pending_stat_targets.get(stat_name, 0)) <= submitted_target:
+				_pending_stat_targets.erase(stat_name)
+		_submitted_stat_targets.clear()
+		var reapply_failures: Dictionary = _reapply_pending_stat_targets()
+		_stats_dirty = not _pending_stat_targets.is_empty()
 		_last_stats_status = {
 			"attempted": true,
 			"ok": true,
 			"reason": "stored" if not _stats_dirty else "stored_with_newer_pending_stats",
+			"reapply_failures": reapply_failures,
 		}
 		return
+	_submitted_stat_targets.clear()
+	# Valve may replace rejected local values with the server's corrected values.
+	# Reapply every still-pending desired absolute value before the next retry so
+	# telemetry deltas (including the once-per-session key) survive that refresh.
+	var reapply_failures: Dictionary = _reapply_pending_stat_targets()
 	_stats_dirty = true
 	_last_stats_status = {
 		"attempted": true,
 		"ok": false,
 		"reason": "store_callback_rejected",
 		"result": result,
+		"reapply_failures": reapply_failures,
 	}
+
+func _reapply_pending_stat_targets() -> Dictionary:
+	var failed: Dictionary = {}
+	if _steam == null or not _steam.has_method("getStatInt") or not _steam.has_method("setStatInt"):
+		return {"*": "integer_stats_api_unavailable"} if not _pending_stat_targets.is_empty() else {}
+	var stat_names: Array[String] = []
+	for stat_name_var: Variant in _pending_stat_targets.keys():
+		stat_names.append(str(stat_name_var))
+	stat_names.sort()
+	for stat_name: String in stat_names:
+		var desired_target: int = clampi(int(_pending_stat_targets.get(stat_name, 0)), 0, MAX_STEAM_INT_STAT)
+		var current_raw: Variant = _steam.call("getStatInt", stat_name)
+		if typeof(current_raw) != TYPE_INT and typeof(current_raw) != TYPE_FLOAT:
+			failed[stat_name] = "current_value_unavailable"
+			continue
+		var corrected_target: int = maxi(clampi(int(current_raw), 0, MAX_STEAM_INT_STAT), desired_target)
+		_pending_stat_targets[stat_name] = corrected_target
+		if not bool(_steam.call("setStatInt", stat_name, corrected_target)):
+			failed[stat_name] = "set_rejected"
+	return failed
 
 func _refresh_user_info() -> void:
 	if _steam == null or not _initialized:

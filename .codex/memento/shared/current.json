@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T16:25:54Z",
+  "updated_at": "2026-08-25T16:46:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8644,7 +8644,7 @@
       }
     },
     {
-      "id": "mnt_20260825T162554Z_2b207b4a",
+      "id": "mnt_20260825T164658Z_9629fd7e",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -8653,18 +8653,18 @@
         "symbol": null
       },
       "scope_key": "folder:scripts",
-      "summary": "Performance telemetry mirrors sparse additive cohorts and subsystem timing into Steam User Stats",
-      "details": "PerformanceTelemetry keeps rich 60-second JSONL windows, caches active workload/density/depth/relic cohorts per frame, and consumes existing RunScene/CombatEngine phase timers. Steam-active builds update only non-zero metrics under perf_v1_<platform>_<device> prefixes, while SteamService batches StoreStats at five-minute intervals and retains pending state until user_stats_stored confirms success. The canonical 676-key App Admin schema is steam/performance_stats_manifest.json and tools/steam_performance_stats.py expands/reports it. Steam's public docs do not publish a stat-count cap, so keep the schema versioned and sparse at runtime.",
+      "summary": "Performance telemetry uses sparse Steam aggregates with callback-safe targets and scene boundaries",
+      "details": "PerformanceTelemetry samples whenever local JSON, Steam stats, or HTTP upload is enabled, but writes JSONL only when local storage is enabled. It flushes and consumes RunScene/CombatEngine sections before RunScene exits, then resets cohorts to frontend. SteamService keeps per-key desired absolute targets across StoreStats callbacks, prevents overlapping stores, reapplies targets after server cache correction, and clears only the submitted generation on success. The canonical runtime and App Admin universe is exactly 676 versioned platform keys, while each window updates only its non-zero active subset.",
       "status": "active",
-      "created_at": "2026-08-25T16:25:54Z",
-      "updated_at": "2026-08-25T16:25:54Z",
+      "created_at": "2026-08-25T16:46:58Z",
+      "updated_at": "2026-08-25T16:46:58Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260825T142912Z_06b947f2"
+        "mnt_20260825T162554Z_2b207b4a"
       ],
       "source": {
         "branch": "codex/steam-deck-720p-ui-and-controller-support",
-        "commit": "ae430f1"
+        "commit": "adb04d0"
       }
     }
   ]

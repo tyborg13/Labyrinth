@@ -11,6 +11,81 @@ const ENDPOINT_ENV: String = "LABYRINTH_TELEMETRY_ENDPOINT"
 const TOKEN_ENV: String = "LABYRINTH_TELEMETRY_TOKEN"
 const STEAM_STATS_SCHEMA_VERSION: int = 1
 const STEAM_COHORT_THRESHOLDS_MS: Array[float] = [20.0, 33.33, 50.0]
+const STEAM_PLATFORM_PREFIXES: Array[String] = [
+	"perf_v1_windows_desktop",
+	"perf_v1_macos_desktop",
+	"perf_v1_linux_desktop",
+	"perf_v1_linux_steamdeck",
+]
+const STEAM_GLOBAL_METRICS: Array[String] = [
+	"windows",
+	"frame_samples",
+	"frames_over_16_67_ms",
+	"frames_over_20_ms",
+	"frames_over_33_33_ms",
+	"frames_over_50_ms",
+	"p95_over_20_ms_windows",
+	"p95_over_33_33_ms_windows",
+	"p95_over_50_ms_windows",
+	"render_samples",
+	"mean_draw_calls_window_sum",
+	"mean_process_tenths_ms_window_sum",
+	"static_memory_mb_window_sum",
+	"orphan_node_windows",
+	"sessions",
+]
+const STEAM_FRAME_COHORTS: Array[String] = [
+	"frontend",
+	"map",
+	"character_equipment",
+	"character_magic",
+	"character_skills",
+	"character_other",
+	"pile_draw",
+	"pile_discard",
+	"pile_exhaust",
+	"pile_other",
+	"menu",
+	"grimoire",
+	"combat_idle",
+	"combat_targeting",
+	"combat_animation",
+	"room",
+	"campfire",
+	"treasure",
+	"reward",
+	"victory",
+	"defeat",
+	"other",
+	"density_1_2",
+	"density_3_4",
+	"density_5_plus",
+	"depth_1_4",
+	"depth_5_12",
+	"depth_13_plus",
+	"relics_0_4",
+	"relics_5_9",
+	"relics_10_plus",
+]
+const STEAM_FRAME_COHORT_METRICS: Array[String] = ["samples", "over_20_ms", "over_33_33_ms", "over_50_ms"]
+const STEAM_SECTION_GROUPS: Array[String] = [
+	"engine_player_action",
+	"engine_movement",
+	"engine_traps",
+	"engine_other",
+	"card_preview",
+	"stage",
+	"tracker",
+	"hand",
+	"pass_preview",
+	"hover",
+	"pile",
+	"character",
+	"ability_detail",
+	"shortcuts",
+	"scene_other",
+]
+const STEAM_SECTION_METRICS: Array[String] = ["calls", "tenths_ms"]
 
 var _storage_dir: String = DEFAULT_STORAGE_DIR
 var _frame_samples_ms: Array[float] = []
@@ -41,13 +116,21 @@ var _last_summary: Dictionary = {}
 var _last_upload_status: Dictionary = {}
 var _last_steam_stats_status: Dictionary = {}
 var _sampling_enabled: bool = true
+var _local_storage_enabled: bool = true
+var _steam_stats_enabled: bool = true
 var _steam_session_recorded: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_install_id = _ensure_installation_id()
 	_session_id = _random_id("perf_session")
-	_sampling_enabled = bool(ProjectSettings.get_setting("telemetry/performance/local_enabled", true))
+	_local_storage_enabled = bool(ProjectSettings.get_setting("telemetry/performance/local_enabled", true))
+	_steam_stats_enabled = bool(ProjectSettings.get_setting("telemetry/performance/steam_stats_enabled", true))
+	_sampling_enabled = _sampling_should_run(
+		_local_storage_enabled,
+		_steam_stats_enabled,
+		_configured_upload_endpoint()
+	)
+	_install_id = _ensure_installation_id() if _local_storage_enabled else _random_id("perf_install_ephemeral")
 	_http_request = HTTPRequest.new()
 	_http_request.name = "PerformanceTelemetryUpload"
 	_http_request.request_completed.connect(_on_upload_completed)
@@ -79,12 +162,23 @@ func set_gameplay_context(context: Dictionary) -> void:
 	_gameplay_context_signature = signature
 	_active_frame_cohorts = _frame_cohorts_for_context(sanitized)
 
-func flush_now(reason: String = "manual") -> Dictionary:
-	if _frame_samples_ms.is_empty():
+func end_gameplay_context(reason: String = "scene_exit") -> Dictionary:
+	var summary: Dictionary = {}
+	if _sampling_enabled:
+		# Force the boundary even when the most recent interval contained section
+		# timings but no sampled process frame. RunScene is still current here, so
+		# its section snapshot can be consumed before the scene is freed.
+		summary = flush_now(reason, true)
+	set_gameplay_context({"mode": "frontend"})
+	return summary
+
+func flush_now(reason: String = "manual", force: bool = false) -> Dictionary:
+	if _frame_samples_ms.is_empty() and not force:
 		return {}
 	_sequence += 1
 	var summary: Dictionary = _build_summary(reason)
-	_append_jsonl(summary)
+	if _local_storage_enabled:
+		_append_jsonl(summary)
 	_last_summary = summary.duplicate(true)
 	_submit_steam_aggregates(summary, reason)
 	_try_upload_summary(summary)
@@ -106,6 +200,9 @@ func last_upload_status() -> Dictionary:
 func last_steam_stats_status() -> Dictionary:
 	return _last_steam_stats_status.duplicate(true)
 
+func sampling_enabled() -> bool:
+	return _sampling_enabled
+
 func set_storage_dir_for_test(path: String) -> void:
 	_storage_dir = path if not path.is_empty() else DEFAULT_STORAGE_DIR
 
@@ -120,6 +217,23 @@ func steam_metric_deltas_for_test(summary: Dictionary, os_name: String, steam_de
 
 func frame_cohorts_for_test(context: Dictionary) -> Array[String]:
 	return _frame_cohorts_for_context(context)
+
+func sampling_enabled_for_test(local_enabled: bool, steam_enabled: bool, upload_url: String) -> bool:
+	return _sampling_should_run(local_enabled, steam_enabled, upload_url)
+
+func steam_metric_names_for_test() -> Array[String]:
+	var names: Array[String] = []
+	for prefix: String in STEAM_PLATFORM_PREFIXES:
+		for metric: String in STEAM_GLOBAL_METRICS:
+			names.append("%s_%s" % [prefix, metric])
+		for cohort: String in STEAM_FRAME_COHORTS:
+			for metric: String in STEAM_FRAME_COHORT_METRICS:
+				names.append("%s_cohort_%s_%s" % [prefix, cohort, metric])
+		for section: String in STEAM_SECTION_GROUPS:
+			for metric: String in STEAM_SECTION_METRICS:
+				names.append("%s_section_%s_%s" % [prefix, section, metric])
+	names.sort()
+	return names
 
 func _sample_frame(frame_ms: float, render_metrics: Dictionary = {}) -> void:
 	if frame_ms <= 0.0 or frame_ms > 2000.0:
@@ -267,9 +381,7 @@ func _append_jsonl(summary: Dictionary) -> bool:
 	return succeeded
 
 func _try_upload_summary(summary: Dictionary) -> void:
-	var endpoint: String = OS.get_environment(ENDPOINT_ENV).strip_edges()
-	if endpoint.is_empty():
-		endpoint = str(ProjectSettings.get_setting("telemetry/performance/upload_url", "")).strip_edges()
+	var endpoint: String = _configured_upload_endpoint()
 	if endpoint.is_empty() or _http_request == null:
 		_last_upload_status = {"attempted": false, "reason": "endpoint_not_configured"}
 		return
@@ -284,7 +396,7 @@ func _try_upload_summary(summary: Dictionary) -> void:
 	_last_upload_status = {"attempted": true, "request_error": error}
 
 func _submit_steam_aggregates(summary: Dictionary, reason: String) -> void:
-	if not bool(ProjectSettings.get_setting("telemetry/performance/steam_stats_enabled", true)):
+	if not _steam_stats_enabled:
 		_last_steam_stats_status = {"attempted": false, "reason": "disabled"}
 		return
 	var steam_service: Node = get_node_or_null("/root/SteamService")
@@ -297,6 +409,9 @@ func _submit_steam_aggregates(summary: Dictionary, reason: String) -> void:
 		_last_steam_stats_status = {"attempted": false, "reason": "steam_not_active"}
 		return
 	var prefix: String = _steam_metric_prefix(OS.get_name(), _is_steam_deck())
+	if prefix.is_empty():
+		_last_steam_stats_status = {"attempted": false, "reason": "unsupported_platform"}
+		return
 	var deltas: Dictionary = _steam_metric_deltas(summary, prefix, not _steam_session_recorded)
 	var result: Dictionary = steam_service.call("accumulate_int_stats", deltas) as Dictionary
 	var accepted: Array = result.get("accepted", []) as Array
@@ -341,13 +456,15 @@ func _steam_metric_deltas(summary: Dictionary, prefix: String, include_session: 
 
 func _steam_metric_prefix(os_name: String, steam_deck: bool) -> String:
 	var normalized_os: String = os_name.strip_edges().to_lower()
-	var platform: String = "other"
+	var platform: String = ""
 	if normalized_os in ["windows", "win32", "win64"]:
 		platform = "windows"
 	elif normalized_os in ["macos", "osx", "mac os"]:
 		platform = "macos"
 	elif normalized_os in ["linux", "freebsd"]:
 		platform = "linux"
+	if platform.is_empty():
+		return ""
 	var device: String = "steamdeck" if steam_deck and platform == "linux" else "desktop"
 	return "perf_v%d_%s_%s" % [STEAM_STATS_SCHEMA_VERSION, platform, device]
 
@@ -486,7 +603,7 @@ func _frame_cohorts_for_context(context: Dictionary) -> Array[String]:
 		elif mode in ["room", "campfire", "treasure", "reward", "victory", "defeat"]:
 			result.append(mode)
 		else:
-			result.append("frontend" if mode.is_empty() else "other")
+			result.append("frontend" if mode in ["", "frontend"] else "other")
 	var enemy_count: int = maxi(0, int(context.get("living_enemy_count", 0)))
 	if str(context.get("mode", "")) == "combat":
 		result.append("density_1_2" if enemy_count <= 2 else ("density_3_4" if enemy_count <= 4 else "density_5_plus"))
@@ -534,6 +651,15 @@ func _reset_window() -> void:
 	_process_ms_total = 0.0
 	_process_ms_max = 0.0
 	_cohort_frame_windows.clear()
+
+func _configured_upload_endpoint() -> String:
+	var endpoint: String = OS.get_environment(ENDPOINT_ENV).strip_edges()
+	if endpoint.is_empty():
+		endpoint = str(ProjectSettings.get_setting("telemetry/performance/upload_url", "")).strip_edges()
+	return endpoint
+
+static func _sampling_should_run(local_enabled: bool, steam_enabled: bool, upload_url: String) -> bool:
+	return local_enabled or steam_enabled or not upload_url.strip_edges().is_empty()
 
 func _ensure_installation_id() -> String:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_storage_dir))
