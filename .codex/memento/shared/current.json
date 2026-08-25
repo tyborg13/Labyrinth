@@ -8442,6 +8442,28 @@
       }
     },
     {
+      "id": "mnt_20260819T180419Z_f4435046",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Boss health frames must preserve outward dragon-head proportions",
+      "details": "Use one cohesive Umbral frame with simplified, outward-facing dragon endcaps. If the boss bar needs more width, extend or repeat only straight rail structure and keep the final display aspect-preserving; never nonuniformly stretch the full frame or its heads.",
+      "status": "active",
+      "created_at": "2026-08-19T18:04:19Z",
+      "updated_at": "2026-08-19T18:04:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-umbral-dragon-boss-health-bar-frame",
+        "commit": "7609da2"
+      }
+    },
+    {
       "id": "mnt_20260825T025807Z_4a1bb1cf",
       "layer": "shared",
       "kind": "decision",

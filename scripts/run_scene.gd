@@ -1295,11 +1295,15 @@ const TURN_ORDER_PANEL_MIN_SIZE: Vector2 = Vector2(176.0, 0.0)
 const TURN_ORDER_PANEL_MIN_WIDTH: float = 176.0
 const TURN_ORDER_LABEL_WIDTH: float = 156.0
 const TURN_ORDER_NORMAL_RAIL_TOP_CLEARANCE: float = 44.0
+const BOSS_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/boss_umbral_dragon_frame_v1.png"
 const BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH: float = 780.0
 const BOSS_HEALTH_OVERLAY_MIN_WIDTH: float = 700.0
-const BOSS_HEALTH_OVERLAY_HEIGHT: float = 78.0
+const BOSS_HEALTH_OVERLAY_HEIGHT: float = 100.0
 const BOSS_HEALTH_OVERLAY_TOP: float = 18.0
-const BOSS_HEALTH_OVERLAY_HEALTH_HEIGHT: float = 26.0
+const BOSS_HEALTH_FRAME_TOP: float = 10.0
+const BOSS_HEALTH_FRAME_NATIVE_SIZE: Vector2 = Vector2(780.0, 90.0)
+const BOSS_HEALTH_FRAME_CONTENT_INSETS: Vector4 = Vector4(48.0, 38.0, 48.0, 17.0)
+const BOSS_HEALTH_FRAME_FIXED_ENDCAP_WIDTH: float = 72.0
 const BOSS_HEALTH_MAX_SEGMENTS: int = 48
 const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(116.0, 87.0)
 const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(132.0, 99.0)
@@ -1621,6 +1625,7 @@ var _enemy_intent_toggle_button: Button
 var _combat_objective_hud: PanelContainer
 var _boss_health_overlay: Control
 var _boss_health_name: Label
+var _boss_health_frame: TextureRect
 var _boss_health_host: Control
 var _boss_health_bar: SegmentedHealthBar
 var _boss_health_damage_preview: ColorRect
@@ -8013,10 +8018,20 @@ func _layout_boss_health_overlay() -> void:
 	)
 	if _boss_health_name != null:
 		_boss_health_name.position = Vector2(18.0, 0.0)
-		_boss_health_name.size = Vector2(maxf(1.0, overlay_size.x - 36.0), 40.0)
+		_boss_health_name.size = Vector2(maxf(1.0, overlay_size.x - 36.0), 36.0)
+	var frame_scale: float = minf(1.0, overlay_size.x / BOSS_HEALTH_FRAME_NATIVE_SIZE.x)
+	var frame_size: Vector2 = BOSS_HEALTH_FRAME_NATIVE_SIZE * frame_scale
+	var frame_position := Vector2((overlay_size.x - frame_size.x) * 0.5, BOSS_HEALTH_FRAME_TOP)
+	if _boss_health_frame != null:
+		_boss_health_frame.position = frame_position
+		_boss_health_frame.size = frame_size
 	if _boss_health_host != null:
-		_boss_health_host.position = Vector2(24.0, 43.0)
-		_boss_health_host.size = Vector2(maxf(1.0, overlay_size.x - 48.0), BOSS_HEALTH_OVERLAY_HEALTH_HEIGHT)
+		var content_insets: Vector4 = BOSS_HEALTH_FRAME_CONTENT_INSETS * frame_scale
+		_boss_health_host.position = frame_position + Vector2(content_insets.x, content_insets.y)
+		_boss_health_host.size = Vector2(
+			maxf(1.0, frame_size.x - content_insets.x - content_insets.z),
+			maxf(1.0, frame_size.y - content_insets.y - content_insets.w)
+		)
 
 func _layout_combat_action_dock() -> void:
 	if _play_meter == null:
@@ -9562,16 +9577,33 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_name.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_boss_health_name.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	_boss_health_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_name.z_index = 3
 	UiTypography.apply_label_role(_boss_health_name, UiTypography.ROLE_TITLE)
 	_boss_health_name.add_theme_color_override("font_color", Color("f5e4c3"))
 	_boss_health_name.add_theme_color_override("font_outline_color", Color("140b08"))
 	_boss_health_name.add_theme_constant_override("outline_size", 3)
 	_boss_health_overlay.add_child(_boss_health_name)
+	_boss_health_frame = TextureRect.new()
+	_boss_health_frame.name = "BossHealthDragonFrame"
+	_boss_health_frame.position = Vector2(0.0, BOSS_HEALTH_FRAME_TOP)
+	_boss_health_frame.size = BOSS_HEALTH_FRAME_NATIVE_SIZE
+	_boss_health_frame.texture = AssetLoader.load_texture(BOSS_HEALTH_FRAME_PATH)
+	_boss_health_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_boss_health_frame.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_boss_health_frame.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	_boss_health_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_frame.z_index = 2
+	_boss_health_frame.set_meta("fixed_endcap_native_width", BOSS_HEALTH_FRAME_FIXED_ENDCAP_WIDTH)
+	_boss_health_overlay.add_child(_boss_health_frame)
 	_boss_health_host = Control.new()
 	_boss_health_host.name = "BossHealthBarHost"
-	_boss_health_host.position = Vector2(24.0, 43.0)
-	_boss_health_host.size = Vector2(BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH - 48.0, BOSS_HEALTH_OVERLAY_HEALTH_HEIGHT)
+	_boss_health_host.position = Vector2(BOSS_HEALTH_FRAME_CONTENT_INSETS.x, BOSS_HEALTH_FRAME_TOP + BOSS_HEALTH_FRAME_CONTENT_INSETS.y)
+	_boss_health_host.size = Vector2(
+		BOSS_HEALTH_FRAME_NATIVE_SIZE.x - BOSS_HEALTH_FRAME_CONTENT_INSETS.x - BOSS_HEALTH_FRAME_CONTENT_INSETS.z,
+		BOSS_HEALTH_FRAME_NATIVE_SIZE.y - BOSS_HEALTH_FRAME_CONTENT_INSETS.y - BOSS_HEALTH_FRAME_CONTENT_INSETS.w
+	)
 	_boss_health_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_host.z_index = 1
 	_boss_health_overlay.add_child(_boss_health_host)
 	_boss_health_bar = SegmentedHealthBar.new()
 	_boss_health_bar.name = "BossHealthBar"
@@ -9580,16 +9612,16 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_bar.anchor_bottom = 1.0
 	_boss_health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_boss_health_bar.set_fill(Color("9d2428"), Color("ffe5bf"))
-	_boss_health_bar.set_appearance(Color("170b0a"), Color("caa45b"), Color(0.0, 0.0, 0.0, 0.58))
+	_boss_health_bar.set_appearance(Color("170b0a"), Color.TRANSPARENT, Color(0.0, 0.0, 0.0, 0.58))
 	_boss_health_bar.separator_width = 1.0
-	_boss_health_bar.border_width = 2.0
+	_boss_health_bar.border_width = 0.0
 	_boss_health_host.add_child(_boss_health_bar)
 	_boss_health_damage_preview = ColorRect.new()
 	_boss_health_damage_preview.name = "BossHealthDamagePreview"
 	_boss_health_damage_preview.anchor_top = 0.0
 	_boss_health_damage_preview.anchor_bottom = 1.0
-	_boss_health_damage_preview.offset_top = 2.0
-	_boss_health_damage_preview.offset_bottom = -2.0
+	_boss_health_damage_preview.offset_top = 0.0
+	_boss_health_damage_preview.offset_bottom = 0.0
 	_boss_health_damage_preview.color = Color(1.0, 0.72, 0.34, 0.76)
 	_boss_health_damage_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_boss_health_damage_preview.visible = false

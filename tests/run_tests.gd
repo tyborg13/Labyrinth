@@ -9016,12 +9016,24 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	var boss_overlay: Control = instance.get("_boss_health_overlay") as Control
 	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
 	var boss_name: Label = instance.get("_boss_health_name") as Label
+	var boss_frame: TextureRect = instance.get("_boss_health_frame") as TextureRect
+	var boss_health_host: Control = instance.get("_boss_health_host") as Control
+	var boss_health_bar: SegmentedHealthBar = instance.get("_boss_health_bar") as SegmentedHealthBar
 	var boss_hp: Label = instance.get("_boss_health_hp_label") as Label
 	_assert(instance.find_child("BossDossier", true, false) == null, "Boss combat should remove the obsolete turn-clock dossier widget")
 	_assert(boss_overlay != null and boss_overlay.visible, "Boss combat should show a dedicated top-center health overlay")
 	if boss_overlay != null:
-		_assert(boss_overlay.size.x >= 700.0 and boss_overlay.size.x <= 820.0 and boss_overlay.size.y <= 90.0, "The boss overlay should stay wide and shallow at the authored combat size")
+		_assert(boss_overlay.size.x >= 700.0 and boss_overlay.size.x <= 820.0 and boss_overlay.size.y <= 110.0, "The boss overlay should stay wide and shallow at the authored combat size")
 		_assert(boss_overlay.get_node_or_null("BossHealthLinework") == null, "The boss name and HP bar should render without an enclosing background box")
+	_assert(boss_frame != null and boss_frame.texture != null, "Boss health should render the cohesive Umbral dragon frame asset")
+	if boss_frame != null and boss_frame.texture != null:
+		_assert(boss_frame.texture.get_size() == Vector2(780.0, 90.0), "The boss dragon frame should retain its authored production dimensions")
+		_assert(boss_frame.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "The boss dragon frame should preserve the dragon-head proportions instead of stretching")
+		_assert(is_equal_approx(boss_frame.size.x / boss_frame.size.y, boss_frame.texture.get_size().x / boss_frame.texture.get_size().y), "The displayed boss frame should retain the source aspect ratio")
+		var displayed_endcap_width: float = float(boss_frame.get_meta("fixed_endcap_native_width", 0.0)) * boss_frame.size.x / boss_frame.texture.get_size().x
+		_assert(displayed_endcap_width >= 60.0 and boss_frame.size.y >= 80.0, "The boss dragon endcaps should retain a readable fixed-proportion silhouette")
+		_assert(boss_health_host != null and boss_frame.get_global_rect().encloses(boss_health_host.get_global_rect()), "The boss health fill should remain inset inside the dragon frame opening")
+	_assert(boss_health_bar != null and is_zero_approx(boss_health_bar.border_width) and boss_health_bar.border_color.a <= 0.0, "The dragon art should be the boss bar's only frame")
 	var boss_slots: Array[Control] = []
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():
