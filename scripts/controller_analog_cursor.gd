@@ -20,11 +20,7 @@ func _ready() -> void:
 	z_index = 640
 	z_as_relative = false
 	visible = false
-	set_process(true)
-
-func _process(_delta: float) -> void:
-	if visible:
-		queue_redraw()
+	set_process(false)
 
 func show_cursor(
 	pointer_position: Vector2,
@@ -33,13 +29,24 @@ func show_cursor(
 	candidate_kind: String,
 	detail_text: String = ""
 ) -> void:
+	var normalized_strength: float = clampf(snap_strength, 0.0, 1.0)
+	var normalized_detail: String = detail_text.strip_edges()
+	var changed: bool = (
+		not visible
+		or not _pointer_position.is_equal_approx(pointer_position)
+		or not _snapped_position.is_equal_approx(snapped_position)
+		or not is_equal_approx(_snap_strength, normalized_strength)
+		or _candidate_kind != candidate_kind
+		or _detail_text != normalized_detail
+	)
 	_pointer_position = pointer_position
 	_snapped_position = snapped_position
-	_snap_strength = clampf(snap_strength, 0.0, 1.0)
+	_snap_strength = normalized_strength
 	_candidate_kind = candidate_kind
 	visible = true
-	_set_detail(detail_text)
-	queue_redraw()
+	_set_detail(normalized_detail)
+	if changed:
+		queue_redraw()
 
 func hide_cursor() -> void:
 	visible = false

@@ -958,7 +958,7 @@ func _verify_pile_card_definition_invalidation(instance: Node) -> void:
 	if original_entry.is_empty():
 		instance.call("_close_pile_view")
 		return
-	var original_widget: CardWidget = original_entry.get("widget", null) as CardWidget
+	var original_widget: Control = original_entry.get("widget", null) as Control
 	var original_definition_hash: int = hash(original_widget.get("_card_override"))
 	instance.call("_close_pile_view")
 
@@ -979,7 +979,7 @@ func _verify_pile_card_definition_invalidation(instance: Node) -> void:
 		var button: Button = entry.get("button", null) as Button
 		if str(entry.get("card_id", "")) != "shadow_step" or button == null or not button.visible:
 			continue
-		var widget: CardWidget = entry.get("widget", null) as CardWidget
+		var widget: Control = entry.get("widget", null) as Control
 		refreshed_definition_hash = hash(widget.get("_card_override"))
 		break
 	_expect(refreshed_definition_hash == hash(expected_definition), "pooled pile cards must refresh when their upgraded or modified definition changes")
@@ -1514,7 +1514,7 @@ func _select_card(instance: Node, hand_index: int, play_kind: String = "play") -
 func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 	_install_stress_combat(instance, "specialists")
 	await _settle_frames(4)
-	var hand_box_before: HandFanContainer = instance.get("hand_box") as HandFanContainer
+	var hand_box_before: Control = instance.get("hand_box") as Control
 	var geometry_before: Dictionary = _hand_geometry_diagnostics(instance, hand_box_before)
 	var hand_before: Array = (((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array)
 	var hand_index: int = hand_before.find("bone_dart")
@@ -1540,7 +1540,7 @@ func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 		wait_frames += 1
 	_expect(wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "ranged trap action must settle before the animation deadlock guard")
 	await _settle_frames(6)
-	var hand_box: HandFanContainer = instance.get("hand_box") as HandFanContainer
+	var hand_box: Control = instance.get("hand_box") as Control
 	var hand_after: Array = (((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array)
 	_expect(hand_after.size() == hand_before.size() - 1, "ranged trap play must remove exactly one card from hand")
 	_expect(hand_box != null and hand_box.get_child_count() == hand_after.size(), "post-trap hand must render every remaining card exactly once")
@@ -1578,7 +1578,7 @@ func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 		"slots": slot_diagnostics,
 	}
 
-func _hand_geometry_diagnostics(instance: Node, hand_box: HandFanContainer) -> Dictionary:
+func _hand_geometry_diagnostics(instance: Node, hand_box: Control) -> Dictionary:
 	var result: Dictionary = {}
 	if hand_box == null:
 		return result

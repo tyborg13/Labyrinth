@@ -16,6 +16,8 @@ Escape the Umbra records low-overhead performance windows so Steam Deck and play
 
 The sampler never writes raw per-frame events to disk. It keeps at most 7,200 frame samples plus the active cohort copies in memory and performs percentile sorting only when a summary is flushed. Context changes update a cached cohort list; they do not flush or write files. Payloads do not include Steam ID, persona name, save data, card history, or free-form player text.
 
+Each summary also includes a `steam_stats` transport diagnostic. It records the selected platform prefix, current-stats readiness, queued/pending counts, accepted and rejected keys, and any shutdown `StoreStats` result. This does not contain Steam identity; it exists so a support bundle can distinguish missing sampling from a client-side Steam upload failure.
+
 ## Local storage
 
 Records are append-only JSONL at:
@@ -50,7 +52,7 @@ perf_v1_linux_desktop
 perf_v1_linux_steamdeck
 ```
 
-Every 60-second telemetry window calls `SetStat` only for non-zero global metrics, active frame cohorts, and subsystem groups that actually ran. A typical window therefore touches roughly 30–60 keys even though the complete schema contains 676 definitions. `SetStat` changes Steam's local in-memory stat cache; `SteamService` makes one non-overlapping batched `StoreStats` call at most every five minutes, plus shutdown, and clears each pending absolute target only after Steam's asynchronous stored callback succeeds. If Steam rejects a store and refreshes its volatile cache from the server, the service reapplies those retained targets before retrying so the diagnostic and once-per-session increments survive.
+After Steam initialization, `SteamService` explicitly calls `RequestCurrentStats` and waits for a successful `UserStatsReceived` callback for the active app and Steam user before reading or writing any counter. Performance windows that arrive first are merged into an additive readiness queue, persisted in the account-scoped user directory, and released after that callback; the once-per-session counter is admitted to that queue only once. This small transport spool survives an early shutdown and is removed as soon as Steam accepts every queued delta. Every 60-second telemetry window then calls `SetStat` only for non-zero global metrics, active frame cohorts, and subsystem groups that actually ran. A typical window therefore touches roughly 30–60 keys even though the complete schema contains 676 definitions. `SetStat` changes Steam's local in-memory stat cache; `SteamService` makes one non-overlapping batched `StoreStats` call at most every five minutes, plus shutdown, and clears each pending absolute target only after Steam's asynchronous stored callback for the active app succeeds. If Steam rejects a store and refreshes its volatile cache from the server, the service reapplies those retained targets before retrying so the diagnostic and once-per-session increments survive.
 
 The cohort counters provide both a denominator (`samples`) and missed-frame counts at 20, 33.33, and 50 ms. Section groups provide both `calls` and `tenths_ms`. Those pairs make ratios and average cost per call mergeable across users; percentiles and maxima remain in local/HTTP JSON because globally summing them would be mathematically misleading.
 

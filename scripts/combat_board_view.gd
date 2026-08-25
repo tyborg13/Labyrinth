@@ -176,7 +176,8 @@ const BOARD_VERTICAL_MARGIN: float = 8.0
 const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
 const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.34
 const BOARD_COMBAT_VERTICAL_BIAS: float = 1.20
-const BOARD_CONTROLLER_VERTICAL_BIAS: float = 1.55
+const BOARD_CONTROLLER_COMPACT_VERTICAL_BIAS: float = 1.55
+const BOARD_CONTROLLER_EXPANDED_VERTICAL_BIAS: float = 1.25
 const BOARD_ROOM_VERTICAL_BIAS: float = 0.50
 const BOARD_MAX_TILE_WIDTH: float = 184.0
 const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
@@ -190,6 +191,10 @@ const BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.22
 const BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.36
 const BOARD_COMPACT_VIEWPORT_HEIGHT: float = 1080.0
 const BOARD_EXPANDED_VIEWPORT_HEIGHT: float = 1227.0
+const BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT: float = 800.0
+const BOARD_CONTROLLER_EXPANDED_VIEWPORT_HEIGHT: float = 1080.0
+const BOARD_CONTROLLER_COMPACT_NAVIGATION_ZOOM_SCALE: float = 1.23
+const BOARD_CONTROLLER_EXPANDED_NAVIGATION_ZOOM_SCALE: float = 1.35
 const BOARD_PAN_DRAG_THRESHOLD: float = 8.0
 const BOARD_PAN_OVERSCROLL_FRACTION: float = 0.08
 const BOARD_PAN_OVERSCROLL_MAX: float = 72.0
@@ -2052,7 +2057,11 @@ func _default_navigation_zoom_for_viewport() -> float:
 
 func _navigation_zoom_scale_for_presentation(source: Dictionary) -> float:
 	if bool(source.get("controller_combat_navigation", false)):
-		return 1.23
+		return lerpf(
+			BOARD_CONTROLLER_COMPACT_NAVIGATION_ZOOM_SCALE,
+			BOARD_CONTROLLER_EXPANDED_NAVIGATION_ZOOM_SCALE,
+			_controller_viewport_expansion()
+		)
 	if not (source.get("objective_exit_target_tiles", []) as Array).is_empty():
 		return BOARD_REACH_EXIT_DEFAULT_NAVIGATION_ZOOM_SCALE
 	return 1.0
@@ -11970,8 +11979,28 @@ func _board_vertical_bias() -> float:
 	if str(presentation.get("board_framing_mode", "room")) != "combat":
 		return BOARD_ROOM_VERTICAL_BIAS
 	if bool(presentation.get("controller_combat_navigation", false)):
-		return BOARD_CONTROLLER_VERTICAL_BIAS
+		return lerpf(
+			BOARD_CONTROLLER_COMPACT_VERTICAL_BIAS,
+			BOARD_CONTROLLER_EXPANDED_VERTICAL_BIAS,
+			_controller_viewport_expansion()
+		)
 	return BOARD_COMBAT_VERTICAL_BIAS
+
+func _controller_viewport_expansion() -> float:
+	# Controller framing is authored against two fixed output envelopes: the
+	# Steam Deck's 800p panel and the desktop 1080p proof surface. Interpolating
+	# only from viewport size keeps a stable composition for a given display; it
+	# never reacts to actors, props, tutorials, hand focus, or animation state.
+	# Viewport.size is the physical output envelope. get_viewport_rect() may report
+	# a stretched logical override (the Deck proof is 1280x800 rendered from a
+	# 1503x939 logical canvas), which would incorrectly treat 800p as a midpoint.
+	var viewport_height: float = float(get_viewport().size.y) if is_inside_tree() else size.y
+	return clampf(
+		(viewport_height - BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT)
+		/ (BOARD_CONTROLLER_EXPANDED_VIEWPORT_HEIGHT - BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT),
+		0.0,
+		1.0
+	)
 
 func _navigation_pan_limits(extents: Dictionary, tile_width: float) -> Rect2:
 	var content_rect: Rect2 = _navigation_content_rect(extents, tile_width)

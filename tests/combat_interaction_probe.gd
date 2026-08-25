@@ -9,7 +9,7 @@ const RoomGenerator = preload("res://scripts/room_generator.gd")
 
 const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v4"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
-const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
+const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox"
 const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
 const LOG_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)

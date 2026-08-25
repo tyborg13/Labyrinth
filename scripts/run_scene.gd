@@ -57,9 +57,12 @@ const BOARD_BACKDROP_PATH: String = "res://assets/art/backgrounds/sealed_dungeon
 const DESKTOP_HAND_ROW_HEIGHT: float = 324.0
 const CONTROLLER_FOCUSED_HAND_ROW_HEIGHT: float = 344.0
 const CONTROLLER_UNFOCUSED_HAND_ROW_HEIGHT: float = 96.0
+const CONTROLLER_UNFOCUSED_HAND_TOP_MARGIN: int = 52
 const CONTROLLER_BOARD_BOTTOM_EXTENSION: float = CONTROLLER_FOCUSED_HAND_ROW_HEIGHT - 18.0
 const CONTROLLER_BOARD_CURSOR_SPEED: float = 760.0
-const CONTROLLER_CURSOR_MAGNET_RADIUS: float = 116.0
+const CONTROLLER_TILE_CURSOR_MAGNET_RADIUS: float = 46.0
+const CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS: float = 34.0
+const CONTROLLER_MOVING_CURSOR_SNAP_STRENGTH: float = 0.22
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -1436,7 +1439,8 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var discard_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
 @onready var burn_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
 @onready var hand_scroll: ScrollContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
-@onready var hand_box: HandFanContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
+@onready var hand_tuck_margin: MarginContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin
+@onready var hand_box: HandFanContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox
 @onready var hand_right_balance: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandRightBalance
 
 var _ui_skin: UiSkin = UiSkin.new()
@@ -1814,7 +1818,7 @@ var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_preview_run_state: Dictionary = {}
 var _pre_battle_start_pending: bool = false
-var _controller_prompt_bar: ControllerPromptBar
+var _controller_prompt_bar
 var _controller_region: String = "hand"
 var _controller_hand_index: int = -1
 var _controller_card_mode: String = "play"
@@ -1825,9 +1829,10 @@ var _controller_repeat_direction: Vector2 = Vector2.ZERO
 var _controller_next_repeat_msec: int = 0
 var _controller_virtual_board_position: Vector2 = Vector2.INF
 var _controller_focus_candidate: Dictionary = {}
-var _controller_analog_cursor: ControllerAnalogCursor
+var _controller_analog_cursor
 var _controller_loadout_tooltip: Control
 var _controller_loadout_tooltip_anchor: Control
+var _controller_layout_revision: int = 0
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -2090,6 +2095,12 @@ func _build_controller_interface() -> void:
 func _on_input_modality_changed(modality: String) -> void:
 	if modality == InputRouterScript.MODALITY_POINTER:
 		_controller_set_hand_focused(true)
+		# Invalidate any controller-hand layout callback and rebuild the board only
+		# after the pointer stage rect has settled. The outer Control rect and the
+		# board's projected content framing are separate caches; restoring just the
+		# former leaves the PC board rendered with controller zoom and bias.
+		_controller_layout_revision += 1
+		var pointer_layout_revision: int = _controller_layout_revision
 		_controller_clear_hand_hover()
 		_clear_controller_loadout_tooltip()
 		_controller_stick = Vector2.ZERO
@@ -2099,6 +2110,7 @@ func _on_input_modality_changed(modality: String) -> void:
 		# Clear the controller-owned hover presentation once at handoff. Pointer
 		# hover may then rebuild normally without a per-frame controller reset.
 		_controller_suspend_custom_navigation()
+		call_deferred("_refresh_pointer_after_layout", pointer_layout_revision)
 	else:
 		_apply_controller_hand_layout()
 		_restore_controller_loadout_tooltip_for_focus_owner()
@@ -2157,6 +2169,10 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		):
 			_on_merchant_return_to_shop_pressed()
 			return true
+		if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+			if _merchant_shop_open and not _current_room_merchant_kind().is_empty():
+				_on_merchant_hide_pressed()
+			return true
 		if event.is_action_pressed(InputRouterScript.ACTION_ACCEPT):
 			await _controller_activate_current()
 			return true
@@ -2183,20 +2199,16 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			_controller_move_card_mode(1 if mode_direction.x > 0.0 or mode_direction.y > 0.0 else -1)
 			return true
 		return false
-	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL) and _controller_region == "board":
+	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
 		if _selected_card_index >= 0 and _card_action_choice_index >= 0:
 			_controller_enter_card_mode()
 		elif _selected_card_index >= 0:
 			await _on_cancel_requested()
-			_controller_region = "hand"
-			_controller_set_hand_index(maxi(0, _controller_hand_index))
-		else:
-			_controller_region = "hand"
-			_controller_set_hand_focused(true)
-			_controller_set_hand_index(maxi(0, _controller_hand_index))
+			_controller_region = "board"
+			_controller_set_hand_focused(false)
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_TOGGLE):
-		_controller_set_hand_focused(not _controller_hand_focused)
+		_controller_toggle_hand_focus()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_PASS):
 		if _current_action_can_skip():
@@ -2214,13 +2226,13 @@ func _handle_controller_input(event: InputEvent) -> bool:
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
 		if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
 			_rotate_aoe_aim(-1)
-		else:
+		elif _controller_region == "hand":
 			_controller_cycle_hand(-1)
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_NEXT):
 		if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
 			_rotate_aoe_aim(1)
-		else:
+		elif _controller_region == "hand":
 			_controller_cycle_hand(1)
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_ACCEPT):
@@ -2399,6 +2411,18 @@ func _controller_cancel_card_mode() -> void:
 	_controller_set_hand_focused(true)
 	_controller_set_hand_index(maxi(0, hand_index))
 
+func _controller_toggle_hand_focus() -> void:
+	if _controller_region == "hand" and _controller_hand_focused:
+		_controller_enter_board(false)
+		return
+	if _card_action_choice_index >= 0:
+		_cancel_card_action_choice()
+	elif _selected_card_index >= 0:
+		_cancel_card_selection()
+	_controller_region = "hand"
+	_controller_set_hand_focused(true)
+	_controller_set_hand_index(maxi(0, _controller_hand_index))
+
 func _controller_cycle_hand(direction: int) -> void:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if hand.is_empty():
@@ -2421,13 +2445,18 @@ func _controller_set_hand_index(index: int) -> void:
 	_controller_hand_index = clamped_index
 	_controller_hide_analog_cursor()
 	_controller_clear_board_focus()
-	if _selected_card_index < 0:
+	if _selected_card_index < 0 and _controller_hand_focused and _controller_region == "hand":
 		_on_card_hover_started(_controller_hand_index)
 	_refresh_controller_prompts()
 
 func _controller_clear_hand_hover() -> void:
-	if _controller_hand_index >= 0 and _hovered_card_index == _controller_hand_index:
-		_on_card_hover_ended(_controller_hand_index)
+	var had_hover: bool = _hovered_card_index >= 0
+	_hovered_card_index = -1
+	_set_hand_emphasized_index(-1, false)
+	if had_hover and not _animation_lock:
+		_refresh_stage_view()
+		_refresh_turn_order_bar()
+		_refresh_contextual_combat_tutorial()
 
 func _controller_enter_board(prefer_target: bool) -> void:
 	_controller_clear_hand_hover()
@@ -2473,10 +2502,29 @@ func _controller_move_board(direction: Vector2) -> void:
 	_controller_set_focus_candidate(next_candidate, true)
 
 func _controller_process_board_cursor(delta: float) -> void:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
 	var velocity: Vector2 = ControllerNavigationScript.cursor_velocity(_controller_stick)
+	if (
+		velocity == Vector2.ZERO
+		and is_finite(_controller_virtual_board_position.x)
+		and is_finite(_controller_virtual_board_position.y)
+	):
+		# No target discovery is needed while the stick is at rest. Layout-changing
+		# paths synchronously refresh the focused candidate; skipping a full board and
+		# header scan here removes a permanent physics-tick tax on handheld hardware.
+		if _controller_focus_candidate.is_empty():
+			_controller_show_free_analog_cursor()
+		else:
+			_controller_update_analog_cursor(_controller_focus_candidate, true)
+		_record_runtime_performance_phase("hover_controller_cursor_idle", performance_phase_started)
+		_record_runtime_performance_phase("hover_controller_cursor_total", performance_total_started)
+		return
 	var candidates: Array[Dictionary] = _controller_navigation_candidates()
+	performance_phase_started = _record_runtime_performance_phase("hover_controller_cursor_candidates", performance_phase_started)
 	if candidates.is_empty():
 		_controller_hide_analog_cursor()
+		_record_runtime_performance_phase("hover_controller_cursor_total", performance_total_started)
 		return
 	if not is_finite(_controller_virtual_board_position.x) or not is_finite(_controller_virtual_board_position.y):
 		_controller_virtual_board_position = candidates[0].get("point", get_viewport_rect().size * 0.5)
@@ -2485,10 +2533,19 @@ func _controller_process_board_cursor(delta: float) -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	_controller_virtual_board_position.x = clampf(_controller_virtual_board_position.x, 18.0, maxf(18.0, viewport_size.x - 18.0))
 	_controller_virtual_board_position.y = clampf(_controller_virtual_board_position.y, 18.0, maxf(18.0, viewport_size.y - 18.0))
-	var nearest: Dictionary = ControllerNavigationScript.nearest_candidate(_controller_virtual_board_position, candidates)
+	var nearest: Dictionary = ControllerNavigationScript.nearest_candidate_within_radius(
+		_controller_virtual_board_position,
+		candidates,
+		CONTROLLER_TILE_CURSOR_MAGNET_RADIUS
+	)
 	if not nearest.is_empty():
 		_controller_set_focus_candidate(nearest, false)
 		_controller_update_analog_cursor(nearest, velocity == Vector2.ZERO)
+	else:
+		_controller_clear_focus_candidate()
+		_controller_show_free_analog_cursor()
+	_record_runtime_performance_phase("hover_controller_cursor_focus", performance_phase_started)
+	_record_runtime_performance_phase("hover_controller_cursor_total", performance_total_started)
 
 func _controller_set_board_tile(tile: Vector2i, sync_virtual_cursor: bool = true) -> void:
 	if tile == INVALID_TARGET_TILE or not _controller_board_tiles().has(tile):
@@ -2497,12 +2554,12 @@ func _controller_set_board_tile(tile: Vector2i, sync_virtual_cursor: bool = true
 	if candidate.is_empty():
 		return
 	if tile == _controller_board_tile:
+		_controller_focus_candidate = candidate
 		if sync_virtual_cursor:
 			_controller_virtual_board_position = candidate.get("point", _controller_board_point(tile))
-			_controller_focus_candidate = candidate
 			board_view.call("set_controller_focus_tile", tile)
-			_controller_update_analog_cursor(candidate, true)
 			_refresh_controller_prompts()
+			_controller_update_analog_cursor(candidate, true)
 		return
 	_controller_board_tile = tile
 	_controller_focus_candidate = candidate
@@ -2511,7 +2568,8 @@ func _controller_set_board_tile(tile: Vector2i, sync_virtual_cursor: bool = true
 	_hovered_board_tile = tile
 	_on_board_tile_hovered(tile)
 	board_view.call("set_controller_focus_tile", tile)
-	_controller_update_analog_cursor(candidate, sync_virtual_cursor)
+	if sync_virtual_cursor:
+		_controller_update_analog_cursor(candidate, true)
 	_refresh_controller_prompts()
 
 func _controller_board_point(tile: Vector2i) -> Vector2:
@@ -2547,10 +2605,13 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		"tile": tile,
 		"point": _controller_board_point(tile),
 		"detail": detail,
+		"snap_radius": CONTROLLER_TILE_CURSOR_MAGNET_RADIUS,
 	}
 
 func _controller_candidate_for_control(control: Control) -> Dictionary:
 	if control == null or not control.is_visible_in_tree() or not control.is_inside_tree():
+		return {}
+	if control is BaseButton and (control as BaseButton).disabled:
 		return {}
 	var rect: Rect2 = control.get_global_rect()
 	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
@@ -2562,6 +2623,7 @@ func _controller_candidate_for_control(control: Control) -> Dictionary:
 		"control": control,
 		"point": rect.get_center(),
 		"detail": control.tooltip_text,
+		"snap_radius": CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS,
 	}
 
 func _controller_header_focus_controls() -> Array[Control]:
@@ -2584,6 +2646,7 @@ func _controller_header_focus_controls() -> Array[Control]:
 func _controller_set_focus_candidate(candidate: Dictionary, sync_virtual_cursor: bool) -> void:
 	if candidate.is_empty():
 		return
+	var previous_key: String = str(_controller_focus_candidate.get("key", ""))
 	_controller_focus_candidate = candidate
 	var point: Vector2 = candidate.get("point", _controller_virtual_board_position)
 	if sync_virtual_cursor:
@@ -2596,27 +2659,62 @@ func _controller_set_focus_candidate(candidate: Dictionary, sync_virtual_cursor:
 	var control: Control = candidate.get("control", null) as Control
 	if control == null or not is_instance_valid(control):
 		return
+	if previous_key == str(candidate.get("key", "")) and not sync_virtual_cursor:
+		return
 	_controller_board_tile = INVALID_TARGET_TILE
 	_controller_clear_board_focus()
 	_controller_clear_board_hover_presentation()
 	if control.focus_mode == Control.FOCUS_NONE:
 		control.focus_mode = Control.FOCUS_ALL
 	control.grab_focus()
-	_controller_update_analog_cursor(candidate, sync_virtual_cursor)
 	_refresh_controller_prompts()
+	if sync_virtual_cursor:
+		_controller_update_analog_cursor(candidate, true)
+
+func _controller_refreshed_focus_candidate(candidate: Dictionary) -> Dictionary:
+	if candidate.is_empty():
+		return {}
+	var kind: String = str(candidate.get("kind", "tile"))
+	if kind in ["tile", "door", "enemy"]:
+		return _controller_candidate_for_tile(candidate.get("tile", INVALID_TARGET_TILE))
+	var control: Control = candidate.get("control", null) as Control
+	return _controller_candidate_for_control(control)
 
 func _controller_update_analog_cursor(candidate: Dictionary, fully_snapped: bool) -> void:
 	if _controller_analog_cursor == null or not _controller_is_active() or _controller_region != "board":
 		return
 	var point: Vector2 = candidate.get("point", _controller_virtual_board_position)
 	var distance: float = _controller_virtual_board_position.distance_to(point)
-	var magnetic_strength: float = 1.0 if fully_snapped else clampf(1.0 - distance / CONTROLLER_CURSOR_MAGNET_RADIUS, 0.0, 1.0) * 0.72
+	var radius: float = maxf(1.0, float(candidate.get("snap_radius", CONTROLLER_TILE_CURSOR_MAGNET_RADIUS)))
+	var proximity: float = clampf(1.0 - distance / radius, 0.0, 1.0)
+	var magnetic_strength: float = 1.0 if fully_snapped else proximity * CONTROLLER_MOVING_CURSOR_SNAP_STRENGTH
 	_controller_analog_cursor.show_cursor(
 		_controller_virtual_board_position,
 		point,
 		magnetic_strength,
 		str(candidate.get("kind", "tile")),
 		str(candidate.get("detail", ""))
+	)
+
+func _controller_clear_focus_candidate() -> void:
+	if _controller_focus_candidate.is_empty() and _controller_board_tile == INVALID_TARGET_TILE:
+		return
+	_controller_focus_candidate.clear()
+	_controller_board_tile = INVALID_TARGET_TILE
+	_controller_release_control_focus()
+	_controller_clear_board_focus()
+	_controller_clear_board_hover_presentation()
+	_refresh_controller_prompts()
+
+func _controller_show_free_analog_cursor() -> void:
+	if _controller_analog_cursor == null or not _controller_is_active() or _controller_region != "board":
+		return
+	_controller_analog_cursor.show_cursor(
+		_controller_virtual_board_position,
+		_controller_virtual_board_position,
+		0.0,
+		"free",
+		""
 	)
 
 func _controller_hide_analog_cursor() -> void:
@@ -2705,7 +2803,17 @@ func _controller_activate_current() -> void:
 			_controller_set_board_tile(_controller_board_tile)
 
 func _controller_set_hand_focused(focused: bool) -> void:
-	_controller_hand_focused = focused or not _controller_combat_layout_active()
+	var resolved_focus: bool = focused or not _controller_combat_layout_active()
+	if resolved_focus == _controller_hand_focused:
+		# Modality may have changed even though the logical focus bit did not. Reapply
+		# the appropriate desktop/controller row envelope without rebuilding cards.
+		_apply_controller_hand_layout()
+		if not resolved_focus:
+			_controller_clear_hand_hover()
+		return
+	_controller_hand_focused = resolved_focus
+	_controller_layout_revision += 1
+	var layout_revision: int = _controller_layout_revision
 	_apply_controller_hand_layout()
 	if not _controller_hand_focused:
 		_controller_clear_hand_hover()
@@ -2713,7 +2821,7 @@ func _controller_set_hand_focused(focused: bool) -> void:
 	_refresh_hand_panel()
 	call_deferred("_sync_board_view_rect")
 	call_deferred("_layout_combat_action_dock")
-	call_deferred("_refresh_controller_after_layout")
+	call_deferred("_refresh_controller_after_layout", layout_revision)
 	_refresh_controller_prompts()
 
 func _apply_controller_hand_layout() -> void:
@@ -2724,6 +2832,7 @@ func _apply_controller_hand_layout() -> void:
 	hand_right_balance.visible = hand_scroll.visible
 	if not controller_combat:
 		hand_row.custom_minimum_size.y = DESKTOP_HAND_ROW_HEIGHT
+		hand_tuck_margin.add_theme_constant_override("margin_top", 0)
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		hand_scroll.clip_contents = false
 		return
@@ -2733,18 +2842,37 @@ func _apply_controller_hand_layout() -> void:
 		else CONTROLLER_UNFOCUSED_HAND_ROW_HEIGHT
 	)
 	# SHOW_NEVER keeps the real full-size card fan in the scroll content while the
-	# narrow unfocused viewport reveals only its authored title strip.
+	# narrow unfocused row places the card bodies below the viewport. Do not clip at
+	# the ScrollContainer edge: that produced a visible horizontal guillotine across
+	# the card crowns instead of letting the screen edge tuck them naturally.
 	hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
-	hand_scroll.clip_contents = not _controller_hand_focused
+	hand_scroll.clip_contents = false
+	hand_tuck_margin.add_theme_constant_override(
+		"margin_top",
+		0 if _controller_hand_focused else CONTROLLER_UNFOCUSED_HAND_TOP_MARGIN
+	)
 	if not _controller_hand_focused:
 		hand_scroll.scroll_vertical = 0
 
-func _refresh_controller_after_layout() -> void:
+func _refresh_controller_after_layout(expected_revision: int = -1) -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
+	if expected_revision >= 0 and expected_revision != _controller_layout_revision:
+		return
 	# Controller combat has one fixed board composition. Only the foreground hand
 	# moves between focused and tucked states; actors and hand focus never resize it.
+	_sync_board_view_rect()
+	_refresh_controller_interface()
+
+func _refresh_pointer_after_layout(expected_revision: int) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if expected_revision != _controller_layout_revision or _controller_is_active():
+		return
+	_sync_board_view_rect()
 	_refresh_stage_view()
+	_layout_combat_action_dock()
+	_layout_contextual_combat_prompt_overlay()
 	_refresh_controller_interface()
 
 func _schedule_controller_modal_refresh() -> void:
@@ -2834,7 +2962,12 @@ func _refresh_controller_interface() -> void:
 			_controller_set_board_tile(_controller_board_tile)
 		return
 	if _controller_region == "board" and not _controller_focus_candidate.is_empty():
-		_controller_set_focus_candidate(_controller_focus_candidate, true)
+		var refreshed_candidate: Dictionary = _controller_refreshed_focus_candidate(_controller_focus_candidate)
+		if refreshed_candidate.is_empty():
+			_controller_clear_focus_candidate()
+			_controller_show_free_analog_cursor()
+		else:
+			_controller_set_focus_candidate(refreshed_candidate, true)
 	elif _controller_region == "board" and _controller_board_tile != INVALID_TARGET_TILE:
 		_controller_set_board_tile(_controller_board_tile)
 	elif _controller_region == "hand":
@@ -2909,18 +3042,19 @@ func _refresh_controller_prompts() -> void:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Inspect"})
 		elif _selected_card_index >= 0:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
-		prompts.append({
-			"action": InputRouterScript.ACTION_CANCEL,
-			"label": "Modes" if _selected_card_index >= 0 and _card_action_choice_index >= 0 else ("Cancel" if _selected_card_index >= 0 else "Hand"),
-		})
+		if _selected_card_index >= 0:
+			prompts.append({
+				"action": InputRouterScript.ACTION_CANCEL,
+				"label": "Modes" if _card_action_choice_index >= 0 else "Cancel",
+			})
 		prompts.append({"action": &"controller_move", "label": "Move"})
-		prompts.append({"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Unfocus Hand" if _controller_hand_focused else "Focus Hand"})
+		prompts.append({"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Focus Hand"})
 		prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Skip Step" if _current_action_can_skip() else "Pass"})
 	else:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Play"},
 			{"action": InputRouterScript.ACTION_HAND_BUMPERS, "label": "Cards"},
-			{"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Unfocus Hand" if _controller_hand_focused else "Focus Hand"},
+			{"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Unfocus Hand"},
 			{"action": InputRouterScript.ACTION_PASS, "label": "Pass"},
 		]
 	_controller_prompt_bar.set_prompts(prompts)
@@ -18663,6 +18797,13 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	_append_skipped_target_placeholders(previous_action_index + 1, int(next_preview.get("action_index", 0)))
 	await _apply_pending_preview_result(next_preview)
 
+func _on_board_cancel_requested() -> void:
+	# Right-click/B on the board is contextual cancellation, never a pause-menu
+	# shortcut. Escape and the dedicated menu action remain the explicit ways to
+	# open/close pause UI.
+	if _drag_card_index >= 0 or _card_action_choice_index >= 0 or _selected_card_index >= 0:
+		await _on_cancel_requested()
+
 func _on_cancel_requested() -> void:
 	if _dialogue_active:
 		_advance_dialogue()
@@ -20748,6 +20889,8 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
+	rendered_presentation["controller_combat_navigation"] = _controller_is_active() and str(_run_state.get("mode", "room")) == "combat"
+	rendered_presentation["controller_hand_focused"] = _controller_hand_focused
 	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
 	var visible_enemy_ids: Array = rendered_presentation.get("visible_enemy_ids", []) as Array

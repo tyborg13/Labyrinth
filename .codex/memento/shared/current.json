@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T16:54:28Z",
+  "updated_at": "2026-08-25T21:12:46Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8687,6 +8687,72 @@
       "source": {
         "branch": "codex/steam-deck-720p-ui-and-controller-support",
         "commit": "dd31b7f"
+      }
+    },
+    {
+      "id": "mnt_20260825T211246Z_946efe03",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/steam_service.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/steam_service.gd",
+      "summary": "Steam stat writes require the current-stats readiness handshake",
+      "details": "Call requestCurrentStats after Steam initialization and wait for user_stats_received before GetStat, SetStat, or StoreStats. Queue additive performance-stat deltas while readiness is pending, retry/timeout visibly, and preserve asynchronous store durability diagnostics.",
+      "status": "active",
+      "created_at": "2026-08-25T21:12:46Z",
+      "updated_at": "2026-08-25T21:12:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-steam-deck-cursor-hand-input-stability-and-performance",
+        "commit": "be6590c"
+      }
+    },
+    {
+      "id": "mnt_20260825T211246Z_7f6ff948",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/controller_analog_cursor.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/controller_analog_cursor.gd",
+      "summary": "A stationary controller cursor must not redraw or rescan candidates",
+      "details": "Cache the active cursor target and use a stationary-input fast path. Candidate scans, redraws, and UI submissions at physics frequency become a material handheld hotspot even when the pointer does not move.",
+      "status": "active",
+      "created_at": "2026-08-25T21:12:46Z",
+      "updated_at": "2026-08-25T21:12:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-steam-deck-cursor-hand-input-stability-and-performance",
+        "commit": "be6590c"
+      }
+    },
+    {
+      "id": "mnt_20260825T211246Z_5ede2b15",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Controller board framing uses fixed physical-height envelopes",
+      "details": "Interpolate fixed zoom and vertical-bias endpoints from the physical viewport height at 800p and 1080p. Do not derive framing from actors, notes, hand focus, or animation state; tuck the hand independently so the board remains stable.",
+      "status": "active",
+      "created_at": "2026-08-25T21:12:46Z",
+      "updated_at": "2026-08-25T21:12:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-steam-deck-cursor-hand-input-stability-and-performance",
+        "commit": "be6590c"
       }
     }
   ]

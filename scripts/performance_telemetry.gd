@@ -177,10 +177,14 @@ func flush_now(reason: String = "manual", force: bool = false) -> Dictionary:
 		return {}
 	_sequence += 1
 	var summary: Dictionary = _build_summary(reason)
+	_submit_steam_aggregates(summary, reason)
+	# Persist the transport state beside the local performance window. If a Steam
+	# batch fails to leave the device, the next support bundle explains why rather
+	# than merely showing that the frame data existed locally.
+	summary["steam_stats"] = _last_steam_stats_status.duplicate(true)
 	if _local_storage_enabled:
 		_append_jsonl(summary)
 	_last_summary = summary.duplicate(true)
-	_submit_steam_aggregates(summary, reason)
 	_try_upload_summary(summary)
 	_reset_window()
 	return summary
@@ -414,13 +418,18 @@ func _submit_steam_aggregates(summary: Dictionary, reason: String) -> void:
 		return
 	var deltas: Dictionary = _steam_metric_deltas(summary, prefix, not _steam_session_recorded)
 	var result: Dictionary = steam_service.call("accumulate_int_stats", deltas) as Dictionary
-	var accepted: Array = result.get("accepted", []) as Array
+	var admitted: Array = (result.get("accepted", []) as Array).duplicate()
+	for queued_name: Variant in result.get("queued", []) as Array:
+		if not admitted.has(queued_name):
+			admitted.append(queued_name)
 	var session_name: String = "%s_sessions" % prefix
-	if session_name in accepted:
+	if session_name in admitted:
 		_steam_session_recorded = true
 	_last_steam_stats_status = result.duplicate(true)
 	_last_steam_stats_status["attempted"] = true
 	_last_steam_stats_status["prefix"] = prefix
+	if steam_service.has_method("stats_readiness_status"):
+		_last_steam_stats_status["readiness"] = steam_service.call("stats_readiness_status")
 	if reason == "shutdown" and steam_service.has_method("store_pending_stats"):
 		_last_steam_stats_status["store"] = steam_service.call("store_pending_stats")
 

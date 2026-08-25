@@ -39,7 +39,7 @@ func set_prompts(prompts: Array) -> void:
 		var label_text: String = str(prompt_data.get("label", ""))
 		if action_name.is_empty() or label_text.is_empty():
 			continue
-		var prompt: InputPrompt = InputPromptScript.new()
+		var prompt = InputPromptScript.new()
 		prompt.configure(action_name, label_text)
 		_prompt_row.add_child(prompt)
 	queue_sort()
@@ -49,8 +49,8 @@ func prompts_snapshot() -> Array[Dictionary]:
 	if _prompt_row == null:
 		return snapshot
 	for child: Node in _prompt_row.get_children():
-		if child is InputPrompt:
-			var prompt := child as InputPrompt
+		if child.get_script() == InputPromptScript:
+			var prompt = child
 			snapshot.append({"action": str(prompt.action_name), "label": prompt.label_text})
 	return snapshot
 

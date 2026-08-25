@@ -7,7 +7,7 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 
 var action_name: StringName = InputRouterScript.ACTION_ACCEPT
 var label_text: String = "Select"
-var _glyph: InputGlyph
+var _glyph
 var _label: Label
 
 func _ready() -> void:

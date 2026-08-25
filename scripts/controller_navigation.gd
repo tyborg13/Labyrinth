@@ -66,6 +66,19 @@ static func nearest_candidate(point: Vector2, candidates: Array[Dictionary]) -> 
 			best = candidate
 	return best
 
+static func nearest_candidate_within_radius(point: Vector2, candidates: Array[Dictionary], default_radius: float) -> Dictionary:
+	var best: Dictionary = {}
+	var best_distance_squared: float = INF
+	for candidate: Dictionary in candidates:
+		var candidate_point: Vector2 = candidate.get("point", point)
+		var radius: float = maxf(0.0, float(candidate.get("snap_radius", default_radius)))
+		var distance_squared: float = point.distance_squared_to(candidate_point)
+		if distance_squared > radius * radius or distance_squared >= best_distance_squared:
+			continue
+		best_distance_squared = distance_squared
+		best = candidate
+	return best
+
 static func cursor_velocity(stick: Vector2, deadzone: float = CURSOR_DEADZONE) -> Vector2:
 	var magnitude: float = stick.length()
 	if magnitude <= deadzone:

@@ -69,7 +69,7 @@ func _run_probe() -> void:
 	var turn_order: Control = instance.get("_turn_order_anchor") as Control
 	var choice_overlay: Control = instance.get("_choice_button_overlay") as Control
 	var pass_preview: Control = instance.get("_pass_preview_overlay") as Control
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox") as Control
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox") as Control
 	_require(menu_scrim != null, "Pause scrim should exist")
 	_require(menu_dialog != null, "Pause dialog should exist")
 	_require(settings_panel != null, "In-run settings panel should exist")

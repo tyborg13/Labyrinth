@@ -78,6 +78,8 @@ func _run() -> void:
 	var context: Dictionary = summary.get("context", {}) as Dictionary
 	_expect(str(context.get("mode", "")) == "combat" and int(context.get("room_depth", 0)) == 9, "Telemetry should associate performance with gameplay context that omits Steam identity")
 	_expect(not summary.has("steam_id") and not summary.has("persona_name"), "Performance payloads must not include Steam identity")
+	var steam_transport: Dictionary = summary.get("steam_stats", {}) as Dictionary
+	_expect(steam_transport.has("reason"), "Every local telemetry window should persist the Steam transport outcome for device-side upload diagnosis")
 	var manifest_names: Array[String] = _manifest_metric_names()
 	var runtime_names: Array[String] = sampler.steam_metric_names_for_test()
 	_expect(runtime_names == manifest_names, "The Steamworks manifest must exactly match every stat key the runtime can produce")
@@ -86,6 +88,8 @@ func _run() -> void:
 		var file := FileAccess.open(sampler.current_file_path(), FileAccess.READ)
 		var parsed: Variant = JSON.parse_string(file.get_line()) if file != null else null
 		_expect(typeof(parsed) == TYPE_DICTIONARY, "Persisted telemetry should be valid one-record-per-line JSON")
+		if typeof(parsed) == TYPE_DICTIONARY:
+			_expect((parsed as Dictionary).has("steam_stats"), "Persisted telemetry should retain Steam readiness/queue status beside the performance summary")
 	var upload: Dictionary = sampler.last_upload_status()
 	_expect(not bool(upload.get("attempted", true)) and str(upload.get("reason", "")) == "endpoint_not_configured", "Uploads should remain off until an endpoint is explicitly configured")
 	sampler.set_gameplay_context({"mode": "combat", "room_depth": 14, "living_enemy_count": 4})

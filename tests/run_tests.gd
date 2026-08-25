@@ -8919,7 +8919,7 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	var started_deck: Array = _combat_deck_card_ids(started_state.get("combat_state", {}) as Dictionary)
 	started_deck.sort()
 	_assert(started_deck == expected_deck, "Pre-battle Start should use the exact equipment- and attunement-refreshed deck")
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox")
 	var ready_wave_count: int = 0
 	for widget: CardWidget in _card_widgets_under(hand_box):
 		if str(widget.get_meta("ready_wave_reason", "")) == "combat_start":
@@ -9504,7 +9504,7 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	var detail_labels: Dictionary = instance.get("_drag_zone_detail_labels")
 	var move_detail: Label = detail_labels.get("move", null) as Label
 	_assert(move_detail != null and move_detail.text == "RANGE 2", "Available fallback move zones should keep a concise, non-redundant movement label")
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox")
 	var hidden_source: Control = null
 	if hand_box.get_child_count() > 0:
 		hidden_source = hand_box.get_child(0) as Control
@@ -9514,7 +9514,7 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	await instance.call("_commit_drag_drop", "")
 	await process_frame
 	_assert(int(instance.get("_drag_card_index")) == -1 and not overlay.visible, "Dropping outside every valid target should snap the card back and clear drag state")
-	hand_box = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	hand_box = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox")
 	var restored_source: Control = hand_box.get_child(0) as Control if hand_box.get_child_count() > 0 else null
 	_assert(restored_source != null and restored_source.visible, "Invalid drag drops should restore the source card")
 	instance.call("_on_card_drag_started", 0)
@@ -9700,7 +9700,7 @@ func _test_run_scene_ready_wave_marks_only_playable_hand_cards() -> void:
 	instance.call("_queue_hand_ready_wave", "test_ready_wave")
 	instance.call("_refresh_hand_panel")
 	await process_frame
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox")
 	var widgets: Array[CardWidget] = _card_widgets_under(hand_box)
 	_assert(widgets.size() >= 2, "Ready-wave test should render both hand cards")
 	if widgets.size() >= 2:
@@ -9741,7 +9741,7 @@ func _test_run_scene_reward_heal_choice_sits_below_cards() -> void:
 	await process_frame
 	await process_frame
 	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox")
 	var card_row: HBoxContainer = instance.find_child("RewardCardRow", true, false) as HBoxContainer
 	var recover_button: Button = instance.find_child("RewardRecoverButton", true, false) as Button
 	_assert(not choice_bar.visible and choice_bar.get_child_count() == 0, "Reward healing should not appear in the combat choice bar")

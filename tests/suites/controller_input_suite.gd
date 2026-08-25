@@ -78,6 +78,16 @@ static func _test_directional_navigation(expect: Callable) -> void:
 	]
 	var selected: Dictionary = ControllerNavigationScript.best_candidate_in_direction(Vector2.ZERO, Vector2.RIGHT, candidates)
 	expect.call(str(selected.get("key", "")) == "right", "Grid navigation should snap to the tile centered in the requested screen direction")
+	var magnetic_candidates: Array[Dictionary] = [
+		{"key": "tile", "point": Vector2(40.0, 0.0), "snap_radius": 46.0},
+		{"key": "header", "point": Vector2(100.0, 0.0), "snap_radius": 34.0},
+	]
+	var nearby: Dictionary = ControllerNavigationScript.nearest_candidate_within_radius(Vector2.ZERO, magnetic_candidates, 46.0)
+	expect.call(str(nearby.get("key", "")) == "tile", "The analog cursor should magnetize only to a candidate inside its authored assist radius")
+	var no_mans_land: Dictionary = ControllerNavigationScript.nearest_candidate_within_radius(Vector2(50.0, 80.0), magnetic_candidates, 46.0)
+	expect.call(no_mans_land.is_empty(), "The analog cursor should remain free in no man's land instead of snapping back to a distant target")
+	var distant_header: Dictionary = ControllerNavigationScript.nearest_candidate_within_radius(Vector2(60.0, 0.0), [magnetic_candidates[1]], 46.0)
+	expect.call(distant_header.is_empty(), "Header controls should use a tighter snap radius than board tiles")
 	expect.call(ControllerNavigationScript.wrapped_index(0, -1, 5) == 4, "Previous card should wrap from the first hand card to the last")
 	expect.call(ControllerNavigationScript.wrapped_index(4, 1, 5) == 0, "Next card should wrap from the last hand card to the first")
 	var analog_velocity: Vector2 = ControllerNavigationScript.cursor_velocity(Vector2(0.8, 0.4))

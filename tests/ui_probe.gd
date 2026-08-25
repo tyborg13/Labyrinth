@@ -147,7 +147,7 @@ func _capture_run_states() -> void:
 		await process_frame
 		await process_frame
 		await _save_root_screenshot("user://probes/run_combat_damage_bonus.png")
-		var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+		var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox")
 		if hand_box.get_child_count() > 0:
 			var slot: Node = hand_box.get_child(0)
 			var widget_node: Node = _first_node_with_method(slot, "_make_custom_tooltip")

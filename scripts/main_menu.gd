@@ -142,7 +142,7 @@ var _title_rim_lines: Array[Label]
 var _title_base_lines: Array[Label]
 var _title_face_lines: Array[Label]
 var _title_face_materials: Array[ShaderMaterial]
-var _controller_prompt_bar: ControllerPromptBar
+var _controller_prompt_bar
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
