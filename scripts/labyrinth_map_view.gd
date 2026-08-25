@@ -178,7 +178,7 @@ func _sync_interactivity() -> void:
 	set_process(interactive)
 
 func _process(delta: float) -> void:
-	if not interactive or not _using_controller():
+	if not interactive or not is_visible_in_tree() or not _using_controller():
 		_controller_stick = Vector2.ZERO
 		_controller_zoom_out_strength = 0.0
 		_controller_zoom_in_strength = 0.0

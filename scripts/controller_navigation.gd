@@ -81,8 +81,12 @@ static func dominant_direction(stick: Vector2, threshold: float = REPEAT_ENTER_T
 	return Vector2(0.0, signf(stick.y))
 
 static func repeat_step(stick: Vector2, previous_direction: Vector2, next_repeat_msec: int, now_msec: int) -> Dictionary:
-	var release_threshold: float = REPEAT_RELEASE_THRESHOLD if previous_direction != Vector2.ZERO else REPEAT_ENTER_THRESHOLD
-	var direction: Vector2 = dominant_direction(stick, release_threshold)
+	var direction: Vector2 = Vector2.ZERO
+	if previous_direction != Vector2.ZERO:
+		if stick.length() >= REPEAT_RELEASE_THRESHOLD:
+			direction = previous_direction
+	else:
+		direction = dominant_direction(stick, REPEAT_ENTER_THRESHOLD)
 	if direction == Vector2.ZERO:
 		return {
 			"direction": Vector2.ZERO,

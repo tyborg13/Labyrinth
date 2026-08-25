@@ -125,6 +125,18 @@ static func _test_controller_free_cursor_and_trigger_zoom(expect: Callable) -> v
 	map_view.set("_controller_zoom_out_strength", 0.8)
 	map_view.call("_process_controller_zoom", 0.20)
 	expect.call(float(map_view.call("_camera_zoom_value")) < zoom_after_long_hold, "Holding the left trigger should smoothly zoom the map back out")
+	var zoom_before_hidden_process: float = float(map_view.call("_camera_zoom_value"))
+	map_view.set("_controller_stick", Vector2.RIGHT)
+	map_view.set("_controller_zoom_in_strength", 1.0)
+	map_view.hide()
+	map_view.call("_process", 0.50)
+	expect.call(
+		map_view.get("_controller_stick") == Vector2.ZERO
+		and is_zero_approx(float(map_view.get("_controller_zoom_in_strength")))
+		and is_zero_approx(float(map_view.get("_controller_zoom_out_strength")))
+		and is_equal_approx(float(map_view.call("_camera_zoom_value")), zoom_before_hidden_process),
+		"Closing the map while an axis is held should clear cached controller input without changing the hidden camera"
+	)
 	map_view.free()
 
 static func _test_all_opposite_route_pairs_keep_opposite_bearings(expect: Callable) -> void:

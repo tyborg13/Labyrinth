@@ -2434,6 +2434,12 @@ func _controller_process_board_cursor(delta: float) -> void:
 func _controller_set_board_tile(tile: Vector2i, sync_virtual_cursor: bool = true) -> void:
 	if tile == INVALID_TARGET_TILE or not _controller_board_tiles().has(tile):
 		return
+	if tile == _controller_board_tile:
+		if sync_virtual_cursor:
+			_controller_virtual_board_position = _controller_board_point(tile)
+			board_view.call("set_controller_focus_tile", tile)
+			_refresh_controller_prompts()
+		return
 	_controller_board_tile = tile
 	if sync_virtual_cursor:
 		_controller_virtual_board_position = _controller_board_point(tile)

@@ -87,6 +87,12 @@ static func _test_directional_navigation(expect: Callable) -> void:
 	expect.call(first_repeat.get("step", Vector2.ZERO) == Vector2.RIGHT, "A fresh card-navigation push should advance exactly one card")
 	var held_repeat: Dictionary = ControllerNavigationScript.repeat_step(Vector2(0.82, 0.58), first_repeat.get("direction", Vector2.ZERO), int(first_repeat.get("next_repeat_msec", 0)), 1016)
 	expect.call(held_repeat.get("step", Vector2.ZERO) == Vector2.ZERO, "A second axis event from the same angled stick push must not skip an extra card")
+	var skewed_release: Dictionary = ControllerNavigationScript.repeat_step(Vector2(0.18, 0.58), held_repeat.get("direction", Vector2.ZERO), int(held_repeat.get("next_repeat_msec", 0)), 1032)
+	expect.call(skewed_release.get("step", Vector2.ZERO) == Vector2.ZERO and skewed_release.get("direction", Vector2.ZERO) == Vector2.RIGHT, "Uneven axis decay must stay latched to the original push instead of creating a second card step")
+	var centered: Dictionary = ControllerNavigationScript.repeat_step(Vector2(0.10, 0.12), skewed_release.get("direction", Vector2.ZERO), int(skewed_release.get("next_repeat_msec", 0)), 1048)
+	expect.call(centered.get("direction", Vector2.ONE) == Vector2.ZERO, "Discrete navigation should re-arm only after the whole stick returns inside the release deadzone")
+	var fresh_vertical: Dictionary = ControllerNavigationScript.repeat_step(Vector2(0.12, 0.82), centered.get("direction", Vector2.ZERO), int(centered.get("next_repeat_msec", 0)), 1064)
+	expect.call(fresh_vertical.get("step", Vector2.ZERO) == Vector2.DOWN, "A new push may choose another direction after the stick is re-armed")
 	var delayed_repeat: Dictionary = ControllerNavigationScript.repeat_step(Vector2(0.82, 0.58), held_repeat.get("direction", Vector2.ZERO), int(held_repeat.get("next_repeat_msec", 0)), 1360)
 	expect.call(delayed_repeat.get("step", Vector2.ZERO) == Vector2.RIGHT, "A held stick should repeat only after the deliberate initial delay")
 
