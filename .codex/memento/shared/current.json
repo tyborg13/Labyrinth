@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T02:58:07Z",
+  "updated_at": "2026-08-25T03:37:37Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8463,6 +8463,28 @@
       "source": {
         "branch": "codex/simplify-card-targeting-to-two-clicks",
         "commit": "e549589"
+      }
+    },
+    {
+      "id": "mnt_20260825T033737Z_28a49d72",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/attack_fx_library.gd",
+        "symbol": "style_for_effect"
+      },
+      "scope_key": "symbol:scripts/attack_fx_library.gd#style_for_effect",
+      "summary": "Ranged elemental AOEs reuse authored elemental attack FX while retaining their area overlay",
+      "details": "Effects with kind/action_type aoe and positive range select the same element-specific cast, travel, impact cadence, scene-depth rendering, and reduced-motion collapse as ranged elemental attacks. RunScene must propagate action range into the animation effect. Self/adjacent AOEs, neutral AOEs, and targeting previews remain on their generic presentation paths, and the generic AOE pattern overlay still renders alongside the authored elemental effect.",
+      "status": "active",
+      "created_at": "2026-08-25T03:37:37Z",
+      "updated_at": "2026-08-25T03:37:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/simplify-card-targeting-to-two-clicks",
+        "commit": "06d801d"
       }
     }
   ]

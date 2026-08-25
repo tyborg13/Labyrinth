@@ -18911,6 +18911,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"to": effect_target_tile,
 				"center": effect_target_tile,
 				"tiles": focus_tiles,
+				"range": int(action.get("range", 0)),
 				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
 				"force_tiles": _combat_engine.forced_movement_tiles_for_player_action(before_state, action, target_tile)
 			}

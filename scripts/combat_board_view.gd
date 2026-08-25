@@ -6809,8 +6809,8 @@ func _impact_element_seed(element_id: String) -> int:
 
 func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
 	return (
-		str(effect.get("kind", "")) == "ranged"
-		and AttackFxLibrary.uses_authored_elemental_ranged(effect)
+		str(effect.get("kind", "")) in ["ranged", "aoe"]
+		and AttackFxLibrary.uses_authored_elemental_attack(effect)
 		and not bool(effect.get("preview", false))
 	)
 
