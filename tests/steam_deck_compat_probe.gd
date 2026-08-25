@@ -569,19 +569,21 @@ func _exercise_controller_loadout(instance: Node, base_state: Dictionary) -> voi
 	var attuned_tile: Control = attuned_tiles.get(0) as Control
 	_require(reserve_tile != null and attuned_tile != null, "Magic swap should expose both controller endpoints")
 	reserve_tile.grab_focus()
+	# Establish the pre-handoff inspection deterministically even if a deferred
+	# modal focus recovery from rebuilding this tab lands in the same frame.
+	instance.call("_restore_controller_loadout_tooltip_for_focus_owner")
 	await _settle()
+	_require(reserve_tile.has_focus(), "Magic tooltip handoff proof requires the reserve spell to own focus")
 	var magic_tooltip: Control = instance.get("_controller_loadout_tooltip") as Control
 	_require(magic_tooltip != null and magic_tooltip.visible, "Focused magic should reveal its full card mechanics tooltip")
 	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
 	await _settle()
 	_require(instance.get("_controller_loadout_tooltip") == null, "Switching to pointer modality should clear controller-only loadout tooltips")
 	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
-	reserve_tile.release_focus()
-	await process_frame
-	reserve_tile.grab_focus()
 	await _settle()
 	magic_tooltip = instance.get("_controller_loadout_tooltip") as Control
-	_require(magic_tooltip != null and magic_tooltip.visible, "Returning to controller focus should restore the magic mechanics tooltip")
+	_require(reserve_tile.has_focus(), "Pointer/controller handoff should preserve the already-focused magic tile")
+	_require(magic_tooltip != null and magic_tooltip.visible, "Returning to controller modality should restore the focused magic mechanics tooltip without extra navigation")
 	reserve_tile.call("_gui_input", _controller_accept_event())
 	await _settle()
 	_require(str(instance.get("_controller_magic_source_kind")) == "inventory", "First A should hold the reserve spell for a two-step swap")

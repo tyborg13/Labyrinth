@@ -2085,6 +2085,7 @@ func _on_input_modality_changed(modality: String) -> void:
 		_controller_suspend_custom_navigation()
 	else:
 		_apply_controller_hand_layout()
+		_restore_controller_loadout_tooltip_for_focus_owner()
 		call_deferred("_sync_board_view_rect")
 		call_deferred("_layout_combat_action_dock")
 		call_deferred("_refresh_controller_after_layout")
@@ -2742,6 +2743,7 @@ func _refresh_controller_modal_after_layout() -> void:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.has_method("using_controller") and bool(router.call("using_controller")):
 		_recover_controller_focus()
+		_restore_controller_loadout_tooltip_for_focus_owner()
 
 func _controller_focus_scope() -> Control:
 	for control: Control in [
@@ -25527,6 +25529,25 @@ func _show_controller_loadout_tooltip(tile: Control) -> void:
 	_set_mouse_filter_recursive(_controller_loadout_tooltip, Control.MOUSE_FILTER_IGNORE)
 	_upgrade_scrim.add_child(_controller_loadout_tooltip)
 	call_deferred("_position_controller_loadout_tooltip")
+
+func _restore_controller_loadout_tooltip_for_focus_owner() -> void:
+	if not _controller_is_active() or _upgrade_scrim == null or not _upgrade_scrim.visible:
+		return
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if (
+		focus_owner == null
+		or not is_instance_valid(focus_owner)
+		or not focus_owner.has_focus()
+		or not focus_owner.has_meta("controller_focus_accent")
+	):
+		return
+	if (
+		_controller_loadout_tooltip != null
+		and is_instance_valid(_controller_loadout_tooltip)
+		and _controller_loadout_tooltip_anchor == focus_owner
+	):
+		return
+	_show_controller_loadout_tooltip(focus_owner)
 
 func _position_controller_loadout_tooltip() -> void:
 	if (
