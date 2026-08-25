@@ -123,6 +123,7 @@ func _capture_run_surfaces() -> void:
 	var controller_board: Control = instance.get("board_view") as Control
 	var focused_board_position: Vector2 = controller_board.position
 	var focused_board_size: Vector2 = controller_board.size
+	await _assert_controller_layout_survives_animation_lock(instance, "Focused controller hand")
 	await _save_screenshot("combat_hand_focus.png")
 
 	instance.call("_controller_enter_board", true)
@@ -136,6 +137,7 @@ func _capture_run_surfaces() -> void:
 		and controller_board.size.is_equal_approx(focused_board_size),
 		"Focusing or tucking the controller hand must not move or resize the board viewport"
 	)
+	await _assert_controller_layout_survives_animation_lock(instance, "Tucked controller hand")
 	var board_start_tile: Vector2i = instance.get("_controller_board_tile")
 	instance.set("_controller_stick", Vector2.RIGHT)
 	instance.call("_controller_process_board_cursor", 0.20)
@@ -164,6 +166,8 @@ func _capture_run_surfaces() -> void:
 	instance.call("_open_menu_overlay")
 	instance.call("_recover_controller_focus")
 	await _settle()
+	var modal_cursor: Control = instance.get("_controller_analog_cursor") as Control
+	_require(modal_cursor != null and not modal_cursor.visible, "Opening a controller modal should immediately hide the analog cursor and its stale detail")
 	_assert_focus_inside(instance.get("_menu_scrim") as Control, "Pause menu")
 	_assert_prompt_above_modal(instance, instance.get("_menu_scrim") as Control, "Pause menu")
 	await _save_screenshot("pause_controller_focus.png")
@@ -414,6 +418,20 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 		await _settle()
 		_require(instance.get("_controller_board_tile") == Vector2i(-1, -1), "Moving the free cursor to a header control should leave board-tile focus")
 		_require(_viewport.gui_get_focus_owner() == menu_control, "The cursor should give actual controller focus to the hovered menu button")
+		_require(instance.get("_hovered_board_tile") == Vector2i(-1, -1), "Moving the cursor to header chrome should clear the prior board hover")
+		_require(not bool(instance.get("_board_hover_threat_active")), "Header focus should clear the prior enemy threat-preview state")
+		var header_board: Control = instance.get("board_view") as Control
+		var header_presentation: Dictionary = header_board.get("presentation") as Dictionary
+		_require((header_presentation.get("enemy_threat_previews", []) as Array).is_empty(), "Header focus should not retain the enemy's projected movement or actions")
+		var header_prompt_labels: Array[String] = []
+		for prompt: Dictionary in (instance.get("_controller_prompt_bar") as Control).call("prompts_snapshot") as Array[Dictionary]:
+			header_prompt_labels.append(str(prompt.get("label", "")))
+		_require(header_prompt_labels.has("Open"), "An actionable header target should advertise A / Open")
+		var cursor: Control = instance.get("_controller_analog_cursor") as Control
+		var detail_panel: Control = cursor.get_node_or_null("ControllerCursorDetail") as Control
+		var cursor_detail_text: String = str((cursor.call("cursor_snapshot") as Dictionary).get("detail_text", ""))
+		if not cursor_detail_text.is_empty():
+			_require(detail_panel != null and bool(detail_panel.get_meta("tooltip_surface", false)), "Header cursor detail should reuse the shared game tooltip presentation")
 		await _save_screenshot("combat_header_cursor.png")
 
 func _exercise_controller_merchant(instance: Node, run_engine, restore_state: Dictionary) -> void:
@@ -554,9 +572,26 @@ func _exercise_controller_loadout(instance: Node, base_state: Dictionary) -> voi
 	await _settle()
 	var magic_tooltip: Control = instance.get("_controller_loadout_tooltip") as Control
 	_require(magic_tooltip != null and magic_tooltip.visible, "Focused magic should reveal its full card mechanics tooltip")
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
+	await _settle()
+	_require(instance.get("_controller_loadout_tooltip") == null, "Switching to pointer modality should clear controller-only loadout tooltips")
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	reserve_tile.release_focus()
+	await process_frame
+	reserve_tile.grab_focus()
+	await _settle()
+	magic_tooltip = instance.get("_controller_loadout_tooltip") as Control
+	_require(magic_tooltip != null and magic_tooltip.visible, "Returning to controller focus should restore the magic mechanics tooltip")
 	reserve_tile.call("_gui_input", _controller_accept_event())
 	await _settle()
 	_require(str(instance.get("_controller_magic_source_kind")) == "inventory", "First A should hold the reserve spell for a two-step swap")
+	var swap_prompt_labels: Array[String] = []
+	for prompt: Dictionary in (instance.get("_controller_prompt_bar") as Control).call("prompts_snapshot") as Array[Dictionary]:
+		swap_prompt_labels.append(str(prompt.get("label", "")))
+	_require(
+		swap_prompt_labels == ["Swap", "Cancel Swap", "Choose Slot"],
+		"Selected magic should advertise Swap / Cancel Swap / Choose Slot; got %s" % [swap_prompt_labels]
+	)
 	await _save_screenshot("character_magic_swap_selected.png")
 	attuned_tile.call("_gui_input", _controller_accept_event())
 	await _settle()
@@ -601,6 +636,36 @@ func _wait_for_combat_animation(instance: Node) -> void:
 			return
 		await create_timer(0.05).timeout
 	_require(false, "Controller-triggered combat animation should complete within ten seconds")
+
+func _assert_controller_layout_survives_animation_lock(instance: Node, label: String) -> void:
+	var board: Control = instance.get("board_view") as Control
+	var row: Control = instance.get("hand_row") as Control
+	var scroll: ScrollContainer = instance.get("hand_scroll") as ScrollContainer
+	var hand_count: int = int((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array).size())
+	var expected_board_position: Vector2 = board.position
+	var expected_board_size: Vector2 = board.size
+	var expected_row_minimum: Vector2 = row.custom_minimum_size
+	var expected_clip: bool = scroll.clip_contents
+	var expected_card_size: Vector2 = instance.call("_hand_card_size", hand_count, false)
+
+	instance.set("_animation_lock", true)
+	instance.call("_refresh_animation_lock_ui")
+	instance.call("_apply_controller_hand_layout")
+	instance.call("_sync_board_view_rect")
+	await _settle()
+	_require(board.position.is_equal_approx(expected_board_position) and board.size.is_equal_approx(expected_board_size), "%s board framing should remain fixed while animation input is locked" % label)
+	_require(row.custom_minimum_size.is_equal_approx(expected_row_minimum) and scroll.clip_contents == expected_clip, "%s dock geometry should remain fixed while animation input is locked" % label)
+	var locked_card_size: Vector2 = instance.call("_hand_card_size", hand_count, false)
+	_require(locked_card_size.is_equal_approx(expected_card_size), "%s card sizing should remain fixed while animation input is locked" % label)
+
+	instance.set("_animation_lock", false)
+	instance.call("_refresh_animation_lock_ui")
+	instance.call("_apply_controller_hand_layout")
+	instance.call("_sync_board_view_rect")
+	instance.call("_refresh_controller_interface")
+	await _settle()
+	_require(board.position.is_equal_approx(expected_board_position) and board.size.is_equal_approx(expected_board_size), "%s board framing should remain fixed after animation input unlocks" % label)
+	_require(row.custom_minimum_size.is_equal_approx(expected_row_minimum) and scroll.clip_contents == expected_clip, "%s dock geometry should remain fixed after animation input unlocks" % label)
 
 func _load_combat_fixture(instance: Node) -> void:
 	instance.call("_cancel_drag_play")

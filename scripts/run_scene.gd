@@ -1884,9 +1884,16 @@ func _process(delta: float) -> void:
 		_complete_current_dialogue_line()
 
 func _physics_process(delta: float) -> void:
-	if not _controller_is_active() or not _controller_custom_navigation_available():
+	if not _controller_is_active():
 		_controller_stick = Vector2.ZERO
 		_controller_reset_stick_repeat()
+		_controller_hide_analog_cursor()
+		_controller_clear_board_focus()
+		return
+	if not _controller_custom_navigation_available():
+		_controller_stick = Vector2.ZERO
+		_controller_reset_stick_repeat()
+		_controller_suspend_custom_navigation()
 		return
 	if _controller_region == "board":
 		_controller_process_board_cursor(delta)
@@ -2068,12 +2075,14 @@ func _on_input_modality_changed(modality: String) -> void:
 	if modality == InputRouterScript.MODALITY_POINTER:
 		_controller_set_hand_focused(true)
 		_controller_clear_hand_hover()
+		_clear_controller_loadout_tooltip()
 		_controller_stick = Vector2.ZERO
 		_controller_reset_stick_repeat()
 		_controller_virtual_board_position = Vector2.INF
 		_controller_focus_candidate.clear()
-		_controller_hide_analog_cursor()
-		_controller_clear_board_focus()
+		# Clear the controller-owned hover presentation once at handoff. Pointer
+		# hover may then rebuild normally without a per-frame controller reset.
+		_controller_suspend_custom_navigation()
 	else:
 		_apply_controller_hand_layout()
 		call_deferred("_sync_board_view_rect")
@@ -2228,6 +2237,16 @@ func _controller_custom_combat_available() -> bool:
 		and not _dialogue_active
 		and _combat_skill_card_selection_zone.is_empty()
 		and not _controller_modal_visible()
+	)
+
+func _controller_combat_layout_active() -> bool:
+	# Presentation geometry follows the persistent modality + combat state. It
+	# must not collapse when animation, dialogue, or a modal temporarily blocks
+	# controller input; those transient gates belong only to input routing.
+	return (
+		_controller_is_active()
+		and str(_run_state.get("mode", "room")) == "combat"
+		and not _combat_state.is_empty()
 	)
 
 func _controller_custom_room_available() -> bool:
@@ -2561,12 +2580,13 @@ func _controller_set_focus_candidate(candidate: Dictionary, sync_virtual_cursor:
 	if control == null or not is_instance_valid(control):
 		return
 	_controller_board_tile = INVALID_TARGET_TILE
-	_hovered_board_tile = INVALID_TARGET_TILE
 	_controller_clear_board_focus()
+	_controller_clear_board_hover_presentation()
 	if control.focus_mode == Control.FOCUS_NONE:
 		control.focus_mode = Control.FOCUS_ALL
 	control.grab_focus()
 	_controller_update_analog_cursor(candidate, sync_virtual_cursor)
+	_refresh_controller_prompts()
 
 func _controller_update_analog_cursor(candidate: Dictionary, fully_snapped: bool) -> void:
 	if _controller_analog_cursor == null or not _controller_is_active() or _controller_region != "board":
@@ -2608,6 +2628,28 @@ func _controller_clear_board_focus() -> void:
 	if board_view != null and board_view.has_method("set_controller_focus_tile"):
 		board_view.call("set_controller_focus_tile", INVALID_TARGET_TILE)
 
+func _controller_clear_board_hover_presentation() -> void:
+	if (
+		_hovered_board_tile == INVALID_TARGET_TILE
+		and not _board_hover_threat_active
+		and not _board_hover_room_focus_active
+	):
+		return
+	if _dialogue_active or _drag_card_index >= 0:
+		_hovered_board_tile = INVALID_TARGET_TILE
+		_board_hover_threat_active = false
+		_board_hover_room_focus_active = false
+		return
+	_on_board_tile_hovered(INVALID_TARGET_TILE)
+
+func _controller_suspend_custom_navigation() -> void:
+	_controller_hide_analog_cursor()
+	_controller_clear_board_focus()
+	# Preserve the candidate so closing a modal can return to the same logical
+	# target, but force the renderer/hover state to be rebuilt on resume.
+	_controller_board_tile = INVALID_TARGET_TILE
+	_controller_clear_board_hover_presentation()
+
 func _controller_tile_key(tile: Vector2i) -> String:
 	return "tile:%d:%d" % [tile.x, tile.y]
 
@@ -2646,7 +2688,7 @@ func _controller_activate_current() -> void:
 			_controller_set_board_tile(_controller_board_tile)
 
 func _controller_set_hand_focused(focused: bool) -> void:
-	_controller_hand_focused = focused or not _controller_custom_combat_available()
+	_controller_hand_focused = focused or not _controller_combat_layout_active()
 	_apply_controller_hand_layout()
 	if not _controller_hand_focused:
 		_controller_clear_hand_hover()
@@ -2660,7 +2702,7 @@ func _controller_set_hand_focused(focused: bool) -> void:
 func _apply_controller_hand_layout() -> void:
 	if hand_scroll == null or hand_row == null:
 		return
-	var controller_combat: bool = _controller_is_active() and _controller_custom_combat_available()
+	var controller_combat: bool = _controller_combat_layout_active()
 	hand_scroll.visible = str(_run_state.get("mode", "room")) == "combat"
 	hand_right_balance.visible = hand_scroll.visible
 	if not controller_combat:
@@ -2689,6 +2731,8 @@ func _refresh_controller_after_layout() -> void:
 	_refresh_controller_interface()
 
 func _schedule_controller_modal_refresh() -> void:
+	if _controller_modal_visible():
+		_controller_suspend_custom_navigation()
 	call_deferred("_refresh_controller_modal_after_layout")
 
 func _refresh_controller_modal_after_layout() -> void:
@@ -2753,11 +2797,15 @@ func _controller_collect_focusable_controls(root_control: Control, result: Array
 
 func _refresh_controller_interface() -> void:
 	_refresh_controller_prompts()
-	if not _controller_is_active() or not _controller_custom_navigation_available():
+	if not _controller_is_active():
+		_controller_hide_analog_cursor()
 		_controller_clear_board_focus()
 		return
+	if not _controller_custom_navigation_available():
+		_controller_suspend_custom_navigation()
+		return
 	if _controller_card_mode_active():
-		_controller_clear_board_focus()
+		_controller_suspend_custom_navigation()
 		call_deferred("_focus_controller_card_mode")
 		return
 	if _controller_custom_room_available():
@@ -2796,18 +2844,22 @@ func _refresh_controller_prompts() -> void:
 			{"action": InputRouterScript.ACTION_CANCEL, "label": "Hide Shop"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
+	elif (
+		_upgrade_scrim != null
+		and _upgrade_scrim.visible
+		and not _controller_magic_source_kind.is_empty()
+	):
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Swap"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Cancel Swap"},
+			{"action": &"controller_dpad", "label": "Choose Slot"},
+		]
 	elif _upgrade_scrim != null and _upgrade_scrim.visible:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
 			{"action": InputRouterScript.ACTION_HAND_BUMPERS, "label": "Tabs"},
 			{"action": InputRouterScript.ACTION_CANCEL, "label": "Close"},
 			{"action": &"controller_dpad", "label": "Navigate"},
-		]
-	elif _controller_uses_gui_focus() and not _controller_magic_source_kind.is_empty():
-		prompts = [
-			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Swap"},
-			{"action": InputRouterScript.ACTION_CANCEL, "label": "Cancel Swap"},
-			{"action": &"controller_dpad", "label": "Choose Slot"},
 		]
 	elif _controller_uses_gui_focus():
 		prompts = [
@@ -2831,7 +2883,13 @@ func _refresh_controller_prompts() -> void:
 		if not _current_room_merchant_kind().is_empty() and not _merchant_shop_open:
 			prompts.insert(2, {"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Shop"})
 	elif _controller_region == "board":
-		if _selected_card_index >= 0:
+		var candidate_kind: String = str(_controller_focus_candidate.get("kind", ""))
+		var candidate_control: Control = _controller_focus_candidate.get("control", null) as Control
+		if candidate_kind == "control" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
+			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Open"})
+		elif candidate_kind == "relic" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
+			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Inspect"})
+		elif _selected_card_index >= 0:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
 		prompts.append({
 			"action": InputRouterScript.ACTION_CANCEL,
@@ -2867,9 +2925,7 @@ func _sync_board_view_rect() -> void:
 	# below the HUD, so this gains useful combat space without stealing input from it.
 	var board_size: Vector2 = stage_root.size + Vector2(0.0, 56.0)
 	if (
-		str(_run_state.get("mode", "room")) == "combat"
-		and _controller_is_active()
-		and _controller_custom_combat_available()
+		_controller_combat_layout_active()
 		and hand_row != null
 	):
 		# The board owns the full gameplay field and the hand is a foreground dock.
@@ -26214,9 +26270,8 @@ func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 		target_width = available_width / maxf(1.0, layout_width_units)
 	var controller_focused_hand: bool = (
 		not reward_mode
-		and _controller_is_active()
+		and _controller_combat_layout_active()
 		and _controller_hand_focused
-		and _controller_custom_combat_available()
 	)
 	var max_width: float = 224.0 if reward_mode else (238.0 if controller_focused_hand else 208.0)
 	var min_width: float = 188.0 if reward_mode else 172.0 if card_count >= HAND_CARD_DENSE_COUNT else 190.0

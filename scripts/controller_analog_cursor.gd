@@ -1,9 +1,10 @@
 extends Control
 class_name ControllerAnalogCursor
 
+const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
+
 const CURSOR_DIAMETER: float = 20.0
 const CURSOR_RADIUS: float = CURSOR_DIAMETER * 0.5
-const DETAIL_MAX_WIDTH: float = 330.0
 const DETAIL_GAP: float = 17.0
 
 var _pointer_position: Vector2 = Vector2.ZERO
@@ -11,7 +12,7 @@ var _snapped_position: Vector2 = Vector2.ZERO
 var _snap_strength: float = 0.0
 var _candidate_kind: String = "tile"
 var _detail_panel: PanelContainer
-var _detail_label: Label
+var _detail_text: String = ""
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -19,7 +20,6 @@ func _ready() -> void:
 	z_index = 640
 	z_as_relative = false
 	visible = false
-	_build_detail_panel()
 	set_process(true)
 
 func _process(_delta: float) -> void:
@@ -56,7 +56,7 @@ func cursor_snapshot() -> Dictionary:
 		"display_position": display_position(),
 		"snap_strength": _snap_strength,
 		"candidate_kind": _candidate_kind,
-		"detail_text": _detail_label.text if _detail_label != null else "",
+		"detail_text": _detail_text,
 		"visible": visible,
 	}
 
@@ -82,49 +82,27 @@ func _accent_color() -> Color:
 		_:
 			return Color("ffd26f")
 
-func _build_detail_panel() -> void:
-	_detail_panel = PanelContainer.new()
-	_detail_panel.name = "ControllerCursorDetail"
-	_detail_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_detail_panel.z_index = 1
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("241a22e8")
-	style.border_color = Color("c99bd8")
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(7)
-	style.content_margin_left = 11.0
-	style.content_margin_top = 7.0
-	style.content_margin_right = 11.0
-	style.content_margin_bottom = 7.0
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48)
-	style.shadow_size = 5
-	_detail_panel.add_theme_stylebox_override("panel", style)
-	add_child(_detail_panel)
-	_detail_label = Label.new()
-	_detail_label.name = "ControllerCursorDetailLabel"
-	_detail_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail_label.custom_minimum_size.x = 180.0
-	_detail_label.add_theme_font_size_override("font_size", 17)
-	_detail_label.add_theme_color_override("font_color", Color("fff0d0"))
-	_detail_label.add_theme_color_override("font_outline_color", Color("1c1116"))
-	_detail_label.add_theme_constant_override("outline_size", 2)
-	_detail_panel.add_child(_detail_label)
-	_detail_panel.visible = false
-
 func _set_detail(text: String) -> void:
-	if _detail_panel == null or _detail_label == null:
-		return
 	var normalized: String = text.strip_edges()
-	_detail_label.text = normalized
-	_detail_label.custom_minimum_size.x = minf(
-		DETAIL_MAX_WIDTH,
-		maxf(180.0, _detail_label.get_theme_default_font().get_string_size(normalized).x + 8.0)
-	)
-	_detail_panel.visible = not normalized.is_empty()
-	if _detail_panel.visible:
-		_detail_panel.reset_size()
-		call_deferred("_layout_detail_panel")
+	if normalized != _detail_text:
+		_detail_text = normalized
+		if _detail_panel != null and is_instance_valid(_detail_panel):
+			remove_child(_detail_panel)
+			_detail_panel.queue_free()
+		_detail_panel = null
+		if not normalized.is_empty():
+			# Reuse the game-wide tooltip surface instead of styling a one-off
+			# controller bubble. This keeps typography and ornamentation native.
+			_detail_panel = UiTooltipPanel.make_text(normalized)
+			_detail_panel.name = "ControllerCursorDetail"
+			_detail_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_detail_panel.z_index = 1
+			add_child(_detail_panel)
+	if _detail_panel != null:
+		_detail_panel.visible = visible and not _detail_text.is_empty()
+		if _detail_panel.visible:
+			_detail_panel.reset_size()
+			call_deferred("_layout_detail_panel")
 
 func _layout_detail_panel() -> void:
 	if _detail_panel == null or not _detail_panel.visible:
