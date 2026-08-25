@@ -135,6 +135,7 @@ func _capture_run_surfaces() -> void:
 	await _save_screenshot("combat_hand_hidden.png")
 
 	instance.call("_controller_set_hand_hidden", false)
+	await _exercise_controller_combat_events(instance)
 	instance.call("_open_menu_overlay")
 	instance.call("_recover_controller_focus")
 	await _settle()
@@ -192,6 +193,7 @@ func _capture_run_surfaces() -> void:
 	instance.call("_close_grimoire_overlay")
 	await _settle()
 
+	await _exercise_controller_merchant(instance, run_engine, base_state)
 	await _exercise_controller_loadout(instance, base_state)
 	var room_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	var combat_coord: Vector2i = _first_available_combat_coord(run_engine, room_state)
@@ -213,6 +215,9 @@ func _capture_run_surfaces() -> void:
 	await _settle()
 	_assert_focus_inside(instance.get("_pre_battle_scrim") as Control, "Pre-battle")
 	_assert_control_inside_logical_viewport(instance.get("_pre_battle_panel") as Control, "Pre-battle panel", 16.0)
+	var pre_battle_prompts: Array = (instance.get("_controller_prompt_bar") as Control).call("prompts_snapshot")
+	for prompt_var: Variant in pre_battle_prompts:
+		_require(str((prompt_var as Dictionary).get("action", "")) != str(InputRouterScript.ACTION_CANCEL), "Committed pre-battle should not advertise a cancel action that cannot return to the previous room")
 	await _save_screenshot("pre_battle_controller_focus.png")
 
 	var reward_state: Dictionary = base_state.duplicate(true)
@@ -230,6 +235,133 @@ func _capture_run_surfaces() -> void:
 
 	instance.queue_free()
 	await _settle()
+
+func _exercise_controller_combat_events(instance: Node) -> void:
+	await _load_combat_fixture(instance)
+	instance.set("_controller_region", "hand")
+	instance.set("_controller_hand_index", 0)
+	instance.call("_refresh_controller_interface")
+	await _press_controller_button(JOY_BUTTON_RIGHT_SHOULDER)
+	_require(int(instance.get("_controller_hand_index")) == 1, "A routed shoulder event should advance hand focus")
+	await _press_controller_button(JOY_BUTTON_LEFT_SHOULDER)
+	_require(int(instance.get("_controller_hand_index")) == 0, "The opposite shoulder should return hand focus to the first card")
+	await _press_controller_button(JOY_BUTTON_A)
+	_require(str(instance.get("_controller_region")) == "card_mode", "A routed confirm event should enter the card's Printed/Attack/Move selector")
+	_require(int(instance.get("_card_action_choice_index")) == 0, "Controller card selection should preserve the chosen hand index")
+	await _save_screenshot("combat_card_mode_focus.png")
+	var initial_mode: String = str(instance.get("_controller_card_mode"))
+	await _press_controller_button(JOY_BUTTON_DPAD_DOWN)
+	var fallback_mode: String = str(instance.get("_controller_card_mode"))
+	_require(fallback_mode != initial_mode, "D-pad should move between playable card modes")
+	await _press_controller_button(JOY_BUTTON_A)
+	_require(str(instance.get("_controller_region")) == "board", "A on a card mode should enter snapped board targeting")
+	_require(str(instance.get("_card_action_choice_mode")) == fallback_mode, "The focused fallback mode should become the active card action")
+	await _press_controller_button(JOY_BUTTON_B)
+	_require(str(instance.get("_controller_region")) == "card_mode", "B from card targeting should return to mode selection before cancelling the card")
+	await _press_controller_button(JOY_BUTTON_B)
+	_require(str(instance.get("_controller_region")) == "hand" and int(instance.get("_selected_card_index")) < 0, "B from mode selection should cancel back to the hand")
+
+	await _load_combat_fixture(instance)
+	instance.set("_controller_region", "hand")
+	instance.set("_controller_hand_index", 0)
+	instance.call("_refresh_controller_interface")
+	for _step: int in range(3):
+		await _press_controller_button(JOY_BUTTON_RIGHT_SHOULDER)
+	_require(int(instance.get("_controller_hand_index")) == 3, "Routed shoulder events should reach Guarded Step for optional-step coverage")
+	await _press_controller_button(JOY_BUTTON_A)
+	await _press_controller_button(JOY_BUTTON_A)
+	_require(str(instance.get("_controller_region")) == "board" and bool(instance.call("_current_action_can_skip")), "Guarded Step should expose its optional movement step through controller targeting")
+	var cards_played_before: int = int((instance.get("_combat_state") as Dictionary).get("cards_played_this_turn", 0))
+	var player_before_skip: Dictionary = ((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).duplicate(true)
+	await _press_controller_button(JOY_BUTTON_Y)
+	await _wait_for_combat_animation(instance)
+	var combat_after_skip: Dictionary = instance.get("_combat_state") as Dictionary
+	_require(int(combat_after_skip.get("cards_played_this_turn", 0)) > cards_played_before, "Y should skip the optional action and finish the card instead of passing the turn")
+	var player_after_skip: Dictionary = combat_after_skip.get("player", {}) as Dictionary
+	_require(player_after_skip.get("pos", Vector2i(-1, -1)) == player_before_skip.get("pos", Vector2i(-2, -2)), "Skipping Guarded Step's optional movement should leave the player on the original tile")
+	_require(int(player_after_skip.get("block", 0)) > int(player_before_skip.get("block", 0)), "Skipping movement should still resolve Guarded Step's automatic block effect")
+	_require(str((combat_after_skip.get("current_actor", {}) as Dictionary).get("kind", "")) == "player", "Skipping a card step must not end the player's turn")
+	_require(str(instance.get("_controller_region")) == "hand", "Completing a card through Skip should return controller focus to the remaining hand")
+
+	await _load_combat_fixture(instance)
+	instance.set("_controller_region", "hand")
+	instance.set("_controller_hand_index", 0)
+	instance.call("_refresh_controller_interface")
+	await _settle()
+
+func _exercise_controller_merchant(instance: Node, run_engine, restore_state: Dictionary) -> void:
+	var merchant_state: Dictionary = _blacksmith_controller_state(run_engine)
+	_require(not merchant_state.is_empty(), "Controller proof should find a deterministic blacksmith room")
+	instance.call("_load_run_state", merchant_state)
+	instance.call("_close_dialogue")
+	await _settle()
+	instance.call("_recover_controller_focus")
+	await _settle()
+	_require(not bool(instance.call("_controller_custom_room_available")), "An open merchant should use GUI focus rather than intercepting input for room doors")
+	_assert_focus_inside(instance.get("_relic_choice_overlay") as Control, "Merchant shop")
+	var buy_button: Button = _visible_button_with_text(instance, "Buy")
+	_require(buy_button != null and not buy_button.disabled, "Merchant controller proof should expose an affordable Buy action")
+	buy_button.grab_focus()
+	await _save_screenshot("merchant_controller_focus.png")
+	var embers_before: int = int((instance.get("_run_state") as Dictionary).get("held_embers", 0))
+	await _press_controller_button(JOY_BUTTON_A)
+	await create_timer(0.55).timeout
+	var embers_after: int = int((instance.get("_run_state") as Dictionary).get("held_embers", 0))
+	_require(embers_after < embers_before, "A on a focused merchant Buy button should complete a controller trade")
+	await _press_controller_button(JOY_BUTTON_B)
+	_require(not bool(instance.get("_merchant_shop_open")) and bool(instance.call("_controller_custom_room_available")), "B should hide the merchant and restore controller door navigation")
+	await _press_controller_button(JOY_BUTTON_X)
+	_require(bool(instance.get("_merchant_shop_open")), "X should reopen a hidden merchant shop without requiring a pointer")
+	instance.call("_load_run_state", restore_state)
+	instance.call("_close_dialogue")
+	await _settle()
+
+func _blacksmith_controller_state(run_engine) -> Dictionary:
+	var progression: Dictionary = ProgressionStore.set_embers(ProgressionStore.default_data(), 600)
+	for seed: int in range(1, 90):
+		var state: Dictionary = run_engine.create_new_run(seed, progression)
+		var coord: Vector2i = _first_room_coord_of_type(run_engine, state, "blacksmith")
+		if coord.x >= 900:
+			continue
+		var room: Dictionary = run_engine.room_metadata(state, coord).duplicate(true)
+		room["revealed"] = true
+		room["visited"] = true
+		room["cleared"] = true
+		var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
+		rooms[_coord_key(coord)] = room
+		state["rooms"] = rooms
+		state["current_room"] = coord
+		state["current_room_layout"] = run_engine.call("_display_layout_for_room", int(state.get("seed", 0)), room, Vector2i(1, 0))
+		state["mode"] = "room"
+		state["combat_state"] = {}
+		state["held_embers"] = 600
+		state["unbanked_embers"] = 600
+		state["equipment_inventory"] = ["ward_kite"]
+		var collected: Array = (state.get("collected_equipment", []) as Array).duplicate()
+		if not collected.has("ward_kite"):
+			collected.append("ward_kite")
+		state["collected_equipment"] = collected
+		return state
+	return {}
+
+func _first_room_coord_of_type(run_engine, state: Dictionary, room_type: String) -> Vector2i:
+	for radius: int in range(1, RunEngineScript.MAX_DEPTH + 1):
+		for x: int in range(-radius, radius + 1):
+			for y: int in range(-radius, radius + 1):
+				var coord := Vector2i(x, y)
+				if maxi(absi(x), absi(y)) == radius and str(run_engine.room_metadata(state, coord).get("type", "")) == room_type:
+					return coord
+	return Vector2i(999, 999)
+
+func _coord_key(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]
+
+func _visible_button_with_text(root_node: Node, text: String) -> Button:
+	for child: Node in root_node.find_children("*", "Button", true, false):
+		var button: Button = child as Button
+		if button != null and button.text == text and button.is_visible_in_tree():
+			return button
+	return null
 
 func _exercise_controller_loadout(instance: Node, base_state: Dictionary) -> void:
 	var state: Dictionary = base_state.duplicate(true)
@@ -313,11 +445,37 @@ func _controller_accept_event() -> InputEventJoypadButton:
 	event.device = 0
 	return event
 
+func _press_controller_button(button_index: int) -> void:
+	var press := InputEventJoypadButton.new()
+	press.button_index = button_index
+	press.pressed = true
+	press.device = 0
+	_viewport.push_input(press, true)
+	await _settle()
+	var release := InputEventJoypadButton.new()
+	release.button_index = button_index
+	release.pressed = false
+	release.device = 0
+	_viewport.push_input(release, true)
+	await process_frame
+
+func _wait_for_combat_animation(instance: Node) -> void:
+	# GUI probes render uncapped, so frame counts do not approximate wall time.
+	# Poll on a real timer to let authored tweens and card-resolution timers elapse.
+	for _poll: int in range(200):
+		if not bool(instance.get("_animation_lock")):
+			await _settle()
+			return
+		await create_timer(0.05).timeout
+	_require(false, "Controller-triggered combat animation should complete within ten seconds")
+
 func _load_combat_fixture(instance: Node) -> void:
 	instance.call("_cancel_drag_play")
 	instance.call("_reset_card_resolution")
 	var hand: Array = ["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"]
-	var layout: Dictionary = _room_layout(Vector2i(2, 4), [Vector2i(5, 4), Vector2i(5, 2)])
+	# Keep one enemy adjacent so Quick Stab's printed action and the fallback
+	# attack/move modes are all genuinely playable during event-level navigation.
+	var layout: Dictionary = _room_layout(Vector2i(2, 4), [Vector2i(3, 4), Vector2i(5, 2)])
 	var combat := CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(127801, layout, {
 		"hp": 24,

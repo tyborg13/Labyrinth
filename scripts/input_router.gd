@@ -106,6 +106,13 @@ func family_for_device(device_id: int) -> String:
 func _family_from_steam_input(device_id: int) -> String:
 	if device_id < 0 or not Engine.has_singleton("Steam"):
 		return ""
+	var steam_service: Node = get_node_or_null("/root/SteamService")
+	if (
+		steam_service == null
+		or not steam_service.has_method("is_steam_active")
+		or not bool(steam_service.call("is_steam_active"))
+	):
+		return ""
 	var steam: Object = Engine.get_singleton("Steam")
 	if steam == null or not steam.has_method("getControllerForGamepadIndex") or not steam.has_method("getInputTypeForHandle"):
 		return ""

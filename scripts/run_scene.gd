@@ -1814,6 +1814,7 @@ var _controller_prompt_bar: ControllerPromptBar
 var _controller_cursor: ControllerGridCursor
 var _controller_region: String = "hand"
 var _controller_hand_index: int = -1
+var _controller_card_mode: String = "play"
 var _controller_board_tile: Vector2i = INVALID_TARGET_TILE
 var _controller_hand_hidden: bool = false
 var _controller_last_direction_msec: int = -10000
@@ -2072,6 +2073,13 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		_controller_region = "board"
 		if _controller_board_tile == INVALID_TARGET_TILE or not _exit_destinations_by_tile.has(_controller_board_tile):
 			_controller_enter_board(false)
+		if (
+			not _current_room_merchant_kind().is_empty()
+			and not _merchant_shop_open
+			and event.is_action_pressed(InputRouterScript.ACTION_HAND_TOGGLE)
+		):
+			_on_merchant_return_to_shop_pressed()
+			return true
 		if event.is_action_pressed(InputRouterScript.ACTION_ACCEPT):
 			await _controller_activate_current()
 			return true
@@ -2087,13 +2095,50 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			_controller_last_direction_msec = room_now
 		_controller_move_board(room_direction)
 		return true
+	if _controller_card_mode_active():
+		if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+			_controller_cancel_card_mode()
+			return true
+		if event.is_action_pressed(InputRouterScript.ACTION_ACCEPT):
+			await _controller_activate_card_mode()
+			return true
+		if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
+			_controller_move_card_mode(-1)
+			return true
+		if event.is_action_pressed(InputRouterScript.ACTION_HAND_NEXT):
+			_controller_move_card_mode(1)
+			return true
+		var mode_direction: Vector2 = ControllerNavigationScript.direction_from_event(event)
+		if mode_direction != Vector2.ZERO:
+			_controller_move_card_mode(1 if mode_direction.x > 0.0 or mode_direction.y > 0.0 else -1)
+			return true
+		return false
+	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL) and _controller_region == "board":
+		if _selected_card_index >= 0 and _card_action_choice_index >= 0:
+			_controller_enter_card_mode()
+		elif _selected_card_index >= 0:
+			await _on_cancel_requested()
+			_controller_region = "hand"
+			_controller_set_hand_index(maxi(0, _controller_hand_index))
+		else:
+			_controller_region = "hand"
+			_controller_set_hand_hidden(false)
+			_controller_set_hand_index(maxi(0, _controller_hand_index))
+		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_TOGGLE):
 		_controller_set_hand_hidden(not _controller_hand_hidden)
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_PASS):
-		await _on_pass_turn_pressed()
-		_controller_region = "hand"
-		_controller_set_hand_hidden(false)
+		if _current_action_can_skip():
+			await _on_skip_action_pressed()
+			if _selected_card_index < 0:
+				_controller_region = "hand"
+				_controller_set_hand_hidden(false)
+				_controller_set_hand_index(maxi(0, _controller_hand_index))
+		else:
+			await _on_pass_turn_pressed()
+			_controller_region = "hand"
+			_controller_set_hand_hidden(false)
 		_refresh_controller_interface()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
@@ -2138,6 +2183,7 @@ func _controller_custom_room_available() -> bool:
 	return (
 		str(_run_state.get("mode", "room")) == "room"
 		and not _exit_destinations_by_tile.is_empty()
+		and (_current_room_merchant_kind().is_empty() or not _merchant_shop_open)
 		and not _animation_lock
 		and not _dialogue_active
 		and not _controller_modal_visible()
@@ -2178,6 +2224,70 @@ func _controller_move(direction: Vector2) -> void:
 		return
 	if _controller_region == "board":
 		_controller_move_board(direction)
+
+func _controller_card_mode_active() -> bool:
+	return _controller_region == "card_mode" and _card_action_choice_index >= 0 and _controller_custom_combat_available()
+
+func _controller_available_card_modes() -> Array[String]:
+	var modes: Array[String] = []
+	for mode_name: String in ["play", "attack", "move", "blink"]:
+		var playable_key: String = "printed_playable" if mode_name == "play" else "%s_playable" % mode_name
+		if bool(_card_action_choice_options.get(playable_key, false)):
+			modes.append(mode_name)
+	return modes
+
+func _controller_enter_card_mode() -> void:
+	if _card_action_choice_index < 0:
+		return
+	_controller_region = "card_mode"
+	_controller_card_mode = _card_action_choice_mode
+	if _controller_cursor != null:
+		_controller_cursor.hide_cursor()
+	call_deferred("_focus_controller_card_mode")
+	_refresh_controller_prompts()
+
+func _controller_move_card_mode(direction: int) -> void:
+	var modes: Array[String] = _controller_available_card_modes()
+	if modes.is_empty():
+		return
+	var current_index: int = modes.find(_controller_card_mode)
+	_controller_card_mode = modes[ControllerNavigationScript.wrapped_index(current_index, direction, modes.size())]
+	_focus_controller_card_mode()
+	_refresh_controller_prompts()
+
+func _focus_controller_card_mode() -> void:
+	if _card_action_mode_selector == null or not _controller_card_mode_active():
+		return
+	for child: Node in _card_action_mode_selector.get_children():
+		var button: Button = child as Button
+		if (
+			button != null
+			and not button.disabled
+			and str(button.get_meta("play_kind", "")) == _controller_card_mode
+		):
+			button.grab_focus()
+			return
+
+func _controller_activate_card_mode() -> void:
+	if not _controller_card_mode_active():
+		return
+	await _on_card_action_choice_pressed(_controller_card_mode)
+	if _selected_card_index < 0:
+		_controller_region = "hand"
+		return
+	if _pending_action_index >= _pending_actions.size():
+		await _on_confirm_card_play_pressed()
+		_controller_region = "hand"
+		_controller_set_hand_index(maxi(0, _controller_hand_index))
+		return
+	_controller_enter_board(true)
+
+func _controller_cancel_card_mode() -> void:
+	var hand_index: int = _card_action_choice_index
+	_cancel_card_action_choice()
+	_controller_region = "hand"
+	_controller_set_hand_hidden(false)
+	_controller_set_hand_index(maxi(0, hand_index))
 
 func _controller_cycle_hand(direction: int) -> void:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -2317,7 +2427,9 @@ func _controller_activate_current() -> void:
 		if _controller_hand_index < 0 or _controller_hand_index >= hand.size():
 			_controller_hand_index = 0
 		await _on_card_pressed(_controller_hand_index)
-		if _selected_card_index >= 0:
+		if _card_action_choice_index >= 0:
+			_controller_enter_card_mode()
+		elif _selected_card_index >= 0:
 			_controller_enter_board(true)
 		else:
 			_controller_set_hand_index(_controller_hand_index)
@@ -2423,6 +2535,11 @@ func _refresh_controller_interface() -> void:
 		if _controller_cursor != null:
 			_controller_cursor.hide_cursor()
 		return
+	if _controller_card_mode_active():
+		if _controller_cursor != null:
+			_controller_cursor.hide_cursor()
+		call_deferred("_focus_controller_card_mode")
+		return
 	if _controller_custom_room_available():
 		_controller_region = "board"
 		if _controller_board_tile == INVALID_TARGET_TILE or not _exit_destinations_by_tile.has(_controller_board_tile):
@@ -2446,6 +2563,17 @@ func _refresh_controller_prompts() -> void:
 			{"action": InputRouterScript.ACTION_HAND_BUMPERS, "label": "Zoom"},
 			{"action": InputRouterScript.ACTION_CANCEL, "label": "Close"},
 		]
+	elif _pre_battle_scrim != null and _pre_battle_scrim.visible:
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
+			{"action": &"controller_dpad", "label": "Navigate"},
+		]
+	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _relic_choice_overlay != null and _relic_choice_overlay.visible:
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Trade"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Hide Shop"},
+			{"action": &"controller_dpad", "label": "Navigate"},
+		]
 	elif _controller_uses_gui_focus() and not _controller_magic_source_kind.is_empty():
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Swap"},
@@ -2458,6 +2586,12 @@ func _refresh_controller_prompts() -> void:
 			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
+	elif _controller_card_mode_active():
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Use Mode"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back to Hand"},
+			{"action": &"controller_dpad", "label": "Choose Mode"},
+		]
 	elif _controller_custom_room_available():
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Travel"},
@@ -2465,14 +2599,18 @@ func _refresh_controller_prompts() -> void:
 			{"action": InputRouterScript.ACTION_MAP, "label": "Map"},
 			{"action": InputRouterScript.ACTION_MENU, "label": "Menu"},
 		]
+		if not _current_room_merchant_kind().is_empty() and not _merchant_shop_open:
+			prompts.insert(2, {"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Shop"})
 	elif _controller_region == "board":
-		prompts = [
-			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Target" if _selected_card_index >= 0 else "Inspect"},
-			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back"},
-			{"action": &"controller_move", "label": "Move"},
-			{"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Show Hand" if _controller_hand_hidden else "Hide Hand"},
-			{"action": InputRouterScript.ACTION_PASS, "label": "Pass"},
-		]
+		if _selected_card_index >= 0:
+			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
+		prompts.append({
+			"action": InputRouterScript.ACTION_CANCEL,
+			"label": "Modes" if _selected_card_index >= 0 and _card_action_choice_index >= 0 else ("Cancel" if _selected_card_index >= 0 else "Hand"),
+		})
+		prompts.append({"action": &"controller_move", "label": "Move"})
+		prompts.append({"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Show Hand" if _controller_hand_hidden else "Hide Hand"})
+		prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Skip Step" if _current_action_can_skip() else "Pass"})
 	else:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Play"},
@@ -11534,7 +11672,7 @@ func _build_card_action_mode_option(play_kind: String, text: String, available: 
 	button.flat = true
 	button.clip_contents = false
 	button.z_index = 4 if active else (3 if play_kind == "play" else (2 if play_kind == "attack" else 1))
-	button.focus_mode = Control.FOCUS_NONE
+	button.focus_mode = Control.FOCUS_ALL
 	button.toggle_mode = true
 	button.button_group = mode_group
 	button.set_pressed_no_signal(active)
@@ -11548,6 +11686,13 @@ func _build_card_action_mode_option(play_kind: String, text: String, available: 
 	var empty_style := StyleBoxEmpty.new()
 	for style_name: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
 		button.add_theme_stylebox_override(style_name, empty_style)
+	var focus_style := StyleBoxFlat.new()
+	focus_style.bg_color = Color(0.10, 0.18, 0.22, 0.16)
+	focus_style.border_color = Color("a9ddff")
+	focus_style.set_border_width_all(3)
+	focus_style.set_corner_radius_all(8)
+	focus_style.set_expand_margin_all(4.0)
+	button.add_theme_stylebox_override("focus", focus_style)
 	CardActionContextArt.attach_mode_placard(button, play_kind, accent, active, available)
 	_add_card_action_mode_option_content(button, text, play_kind, available)
 	button.pressed.connect(_on_card_action_choice_pressed.bind(play_kind))
@@ -13697,12 +13842,14 @@ func _on_merchant_hide_pressed() -> void:
 	_close_pinned_tooltip()
 	_merchant_shop_open = false
 	_refresh_ui()
+	_schedule_controller_modal_refresh()
 
 func _on_merchant_return_to_shop_pressed() -> void:
 	if _merchant_shop_open or _current_room_merchant_kind().is_empty():
 		return
 	_merchant_shop_open = true
 	_refresh_ui()
+	_schedule_controller_modal_refresh()
 
 func _add_merchant_return_to_shop_button() -> void:
 	if _relic_choice_bar == null:
