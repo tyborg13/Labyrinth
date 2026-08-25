@@ -2,7 +2,9 @@ extends Control
 class_name LabyrinthMapView
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ControllerNavigation = preload("res://scripts/controller_navigation.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const InputRouter = preload("res://scripts/input_router.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
@@ -163,6 +165,7 @@ func _ready() -> void:
 
 func _sync_interactivity() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
+	focus_mode = Control.FOCUS_ALL if interactive else Control.FOCUS_NONE
 	custom_minimum_size = Vector2(120.0, 120.0) if not interactive else Vector2(640.0, 400.0)
 
 func set_run_state(next_state: Dictionary) -> void:
@@ -551,6 +554,17 @@ func center_on_current(reset_zoom: bool = true) -> void:
 	_ensure_layout_cache()
 	queue_redraw()
 
+func focus_controller_on_current() -> void:
+	if not interactive or run_state.is_empty():
+		return
+	_ensure_layout_cache()
+	var current: Vector2i = run_state.get("current_room", INVALID_COORD)
+	_hover_coord = current if _world_positions_cache.has(current) else INVALID_COORD
+	if _hover_coord.x <= -900 and not _visible_hit_rects_cache.is_empty():
+		_hover_coord = _visible_hit_rects_cache[0].get("coord", INVALID_COORD)
+	grab_focus()
+	queue_redraw()
+
 func set_camera_zoom(next_zoom: float, anchor: Vector2 = Vector2.INF) -> void:
 	if not interactive:
 		return
@@ -581,6 +595,25 @@ func pan_camera(screen_delta: Vector2) -> void:
 
 func _gui_input(event: InputEvent) -> void:
 	if not interactive or run_state.is_empty():
+		return
+	if event.is_action_pressed(InputRouter.ACTION_HAND_PREVIOUS):
+		set_camera_zoom(_camera_zoom / CAMERA_ZOOM_FACTOR, _controller_anchor_point())
+		accept_event()
+		return
+	if event.is_action_pressed(InputRouter.ACTION_HAND_NEXT):
+		set_camera_zoom(_camera_zoom * CAMERA_ZOOM_FACTOR, _controller_anchor_point())
+		accept_event()
+		return
+	if event.is_action_pressed("ui_accept"):
+		_ensure_state_caches()
+		if _available_move_coord_set.has(_hover_coord):
+			room_selected.emit(_hover_coord)
+			accept_event()
+		return
+	var controller_direction: Vector2 = ControllerNavigation.direction_from_event(event)
+	if controller_direction != Vector2.ZERO:
+		_move_controller_focus(controller_direction)
+		accept_event()
 		return
 	if event is InputEventMagnifyGesture:
 		set_camera_zoom(_camera_zoom * event.factor, event.position)
@@ -626,6 +659,42 @@ func _gui_input(event: InputEvent) -> void:
 		elif not event.pressed and event.button_index == MOUSE_BUTTON_LEFT and _pan_pointer_down:
 			_pan_pointer_down = false
 			accept_event()
+
+func _controller_anchor_point() -> Vector2:
+	_ensure_layout_cache()
+	if _hover_coord.x > -900 and _coord_positions_cache.has(_hover_coord):
+		return _cached_coord_position(_hover_coord)
+	return _map_rect_cache.get_center()
+
+func _move_controller_focus(direction: Vector2) -> void:
+	_ensure_layout_cache()
+	if _visible_hit_rects_cache.is_empty():
+		return
+	var candidates: Array[Dictionary] = []
+	for entry: Dictionary in _visible_hit_rects_cache:
+		var coord: Vector2i = entry.get("coord", INVALID_COORD)
+		candidates.append({
+			"key": _controller_coord_key(coord),
+			"coord": coord,
+			"point": _cached_coord_position(coord),
+		})
+	if _hover_coord.x <= -900 or not _coord_positions_cache.has(_hover_coord):
+		_hover_coord = candidates[0].get("coord", INVALID_COORD)
+		queue_redraw()
+		return
+	var next: Dictionary = ControllerNavigation.best_candidate_in_direction(
+		_cached_coord_position(_hover_coord),
+		direction,
+		candidates,
+		_controller_coord_key(_hover_coord)
+	)
+	if next.is_empty():
+		return
+	_hover_coord = next.get("coord", _hover_coord)
+	queue_redraw()
+
+func _controller_coord_key(coord: Vector2i) -> String:
+	return "%d:%d" % [coord.x, coord.y]
 
 func cursor_feedback_context_at(local_position: Vector2) -> String:
 	if not interactive or run_state.is_empty():

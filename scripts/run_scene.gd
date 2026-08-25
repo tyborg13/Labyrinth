@@ -45,11 +45,18 @@ const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CombatObjectiveHudScript = preload("res://scripts/combat_objective_hud.gd")
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
+const ControllerGridCursorScript = preload("res://scripts/controller_grid_cursor.gd")
+const ControllerNavigationScript = preload("res://scripts/controller_navigation.gd")
+const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
 const MOLTSHARD_GAIN_EVENT_TYPE: String = "progression_moltshard_gained"
 const COMBAT_SKILL_EVENT_STAGED_REVISION_KEY: String = "combat_skill_event_revision_staged"
 const COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY: String = "combat_defiance_event_revision_staged"
 const BOARD_BACKDROP_PATH: String = "res://assets/art/backgrounds/sealed_dungeon_hall.png"
+const CONTROLLER_HAND_ROW_HEIGHT: float = 188.0
+const CONTROLLER_HIDDEN_HAND_ROW_HEIGHT: float = 92.0
+const CONTROLLER_DIRECTION_REPEAT_MSEC: int = 150
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -84,6 +91,10 @@ class EquipmentInventoryTile:
 
 	func _gui_input(event: InputEvent) -> void:
 		if host == null or equipment_id.is_empty():
+			return
+		if event.is_action_pressed("ui_accept"):
+			host.call("_equip_equipment_from_overlay", equipment_id)
+			accept_event()
 			return
 		if event is InputEventMouseButton:
 			var mouse_event: InputEventMouseButton = event
@@ -328,7 +339,13 @@ class MagicCardTile:
 	var _left_pressed: bool = false
 
 	func _gui_input(event: InputEvent) -> void:
-		if host == null or card_id.is_empty():
+		if host == null:
+			return
+		if event.is_action_pressed("ui_accept"):
+			host.call("_controller_activate_magic_tile", source_kind, magic_index, card_id)
+			accept_event()
+			return
+		if card_id.is_empty():
 			return
 		if event is InputEventMouseButton:
 			var mouse_event: InputEventMouseButton = event
@@ -367,6 +384,10 @@ class ItemCardTile:
 
 	func _gui_input(event: InputEvent) -> void:
 		if host == null or card_id.is_empty():
+			return
+		if event.is_action_pressed("ui_accept"):
+			host.call("_controller_activate_item_tile", source_kind, item_index)
+			accept_event()
 			return
 		if event is InputEventMouseButton:
 			var mouse_event: InputEventMouseButton = event
@@ -1667,6 +1688,7 @@ var _run_end_recap: RunEndRecapOverlay
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
+var _large_map_navigation_hint: Label
 var _pinned_tooltip_scrim: ColorRect
 var _pinned_tooltip_host: Control
 var _pinned_tooltip_panel: Control
@@ -1752,6 +1774,9 @@ var _magic_drag_release_in_progress: bool = false
 var _magic_drag_last_mouse_position: Vector2 = Vector2(-1.0, -1.0)
 var _magic_attuned_drop_panel: Control
 var _magic_inventory_drop_panel: Control
+var _controller_magic_source_kind: String = ""
+var _controller_magic_source_index: int = -1
+var _controller_magic_card_id: String = ""
 var _item_equipped_tiles: Dictionary = {}
 var _item_inventory_tiles: Dictionary = {}
 var _item_drag_source_kind: String = ""
@@ -1785,6 +1810,14 @@ var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_preview_run_state: Dictionary = {}
 var _pre_battle_start_pending: bool = false
+var _controller_prompt_bar: ControllerPromptBar
+var _controller_cursor: ControllerGridCursor
+var _controller_region: String = "hand"
+var _controller_hand_index: int = -1
+var _controller_board_tile: Vector2i = INVALID_TARGET_TILE
+var _controller_hand_hidden: bool = false
+var _controller_last_direction_msec: int = -10000
+var _controller_last_motion_axis: int = -1
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -1799,6 +1832,7 @@ func _ready() -> void:
 	_apply_style()
 	_layout_mini_map_overlay()
 	_build_overlay_ui()
+	_build_controller_interface()
 	_build_context_choice_overlay()
 	_setup_pile_widgets()
 	_setup_contextual_combat_tutorial()
@@ -1812,6 +1846,7 @@ func _ready() -> void:
 		get_viewport().size_changed.connect(_on_hand_viewport_size_changed)
 	_boot_run()
 	call_deferred("_refresh_hand_panel_after_viewport_change")
+	call_deferred("_refresh_controller_interface")
 
 func _on_hand_viewport_size_changed() -> void:
 	call_deferred("_refresh_hand_panel_after_viewport_change")
@@ -1840,6 +1875,11 @@ func _process(delta: float) -> void:
 		_complete_current_dialogue_line()
 
 func _input(event: InputEvent) -> void:
+	if InputRouterScript.is_controller_event(event):
+		var controller_handled: bool = await _handle_controller_input(event)
+		if controller_handled:
+			get_viewport().set_input_as_handled()
+			return
 	if _dialogue_active:
 		if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel"):
 			_advance_dialogue()
@@ -1962,6 +2002,485 @@ func _input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("ui_cancel"):
 		await _on_cancel_requested()
+
+func _build_controller_interface() -> void:
+	if _controller_prompt_bar != null:
+		return
+	_controller_cursor = ControllerGridCursorScript.new()
+	_controller_cursor.name = "ControllerGridCursor"
+	ui_root.add_child(_controller_cursor)
+	_controller_prompt_bar = ControllerPromptBarScript.new()
+	_controller_prompt_bar.name = "ControllerPromptBar"
+	_controller_prompt_bar.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_controller_prompt_bar.anchor_left = 0.5
+	_controller_prompt_bar.anchor_top = 0.0
+	_controller_prompt_bar.anchor_right = 0.5
+	_controller_prompt_bar.anchor_bottom = 0.0
+	_controller_prompt_bar.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_controller_prompt_bar.grow_vertical = Control.GROW_DIRECTION_END
+	_controller_prompt_bar.offset_left = 0.0
+	_controller_prompt_bar.offset_top = 14.0
+	_controller_prompt_bar.offset_right = 0.0
+	_controller_prompt_bar.offset_bottom = 14.0
+	ui_root.add_child(_controller_prompt_bar)
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null and router.has_signal("modality_changed") and not router.modality_changed.is_connected(_on_input_modality_changed):
+		router.modality_changed.connect(_on_input_modality_changed)
+	_refresh_controller_prompts()
+
+func _on_input_modality_changed(modality: String) -> void:
+	if modality == InputRouterScript.MODALITY_POINTER:
+		_controller_set_hand_hidden(false)
+		_controller_clear_hand_hover()
+		if _controller_cursor != null:
+			_controller_cursor.hide_cursor()
+	_refresh_large_map_navigation_hint()
+	_refresh_controller_prompts()
+
+func _handle_controller_input(event: InputEvent) -> bool:
+	if event is InputEventJoypadButton and not (event as InputEventJoypadButton).pressed:
+		return false
+	if event is InputEventJoypadMotion:
+		var motion_event := event as InputEventJoypadMotion
+		if absf(motion_event.axis_value) < 0.22:
+			if motion_event.axis == _controller_last_motion_axis:
+				_controller_last_motion_axis = -1
+			return false
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null and router.has_method("mark_controller_device"):
+		router.call("mark_controller_device", event.device)
+	if _controller_uses_gui_focus():
+		if _controller_cursor != null:
+			_controller_cursor.hide_cursor()
+		call_deferred("_recover_controller_focus")
+		_refresh_controller_prompts()
+		return false
+	if not _controller_custom_navigation_available():
+		_refresh_controller_prompts()
+		return false
+	if event.is_action_pressed(InputRouterScript.ACTION_MENU):
+		_open_menu_overlay()
+		call_deferred("_recover_controller_focus")
+		_refresh_controller_prompts()
+		return true
+	if event.is_action_pressed(InputRouterScript.ACTION_MAP):
+		_open_large_map()
+		call_deferred("_recover_controller_focus")
+		_refresh_controller_prompts()
+		return true
+	if _controller_custom_room_available():
+		_controller_region = "board"
+		if _controller_board_tile == INVALID_TARGET_TILE or not _exit_destinations_by_tile.has(_controller_board_tile):
+			_controller_enter_board(false)
+		if event.is_action_pressed(InputRouterScript.ACTION_ACCEPT):
+			await _controller_activate_current()
+			return true
+		var room_direction: Vector2 = ControllerNavigationScript.direction_from_event(event)
+		if room_direction == Vector2.ZERO:
+			return false
+		if event is InputEventJoypadMotion:
+			var room_now: int = Time.get_ticks_msec()
+			var room_motion_axis: int = (event as InputEventJoypadMotion).axis
+			if room_motion_axis == _controller_last_motion_axis and room_now - _controller_last_direction_msec < CONTROLLER_DIRECTION_REPEAT_MSEC:
+				return true
+			_controller_last_motion_axis = room_motion_axis
+			_controller_last_direction_msec = room_now
+		_controller_move_board(room_direction)
+		return true
+	if event.is_action_pressed(InputRouterScript.ACTION_HAND_TOGGLE):
+		_controller_set_hand_hidden(not _controller_hand_hidden)
+		return true
+	if event.is_action_pressed(InputRouterScript.ACTION_PASS):
+		await _on_pass_turn_pressed()
+		_controller_region = "hand"
+		_controller_set_hand_hidden(false)
+		_refresh_controller_interface()
+		return true
+	if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
+		if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
+			_rotate_aoe_aim(-1)
+		else:
+			_controller_cycle_hand(-1)
+		return true
+	if event.is_action_pressed(InputRouterScript.ACTION_HAND_NEXT):
+		if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
+			_rotate_aoe_aim(1)
+		else:
+			_controller_cycle_hand(1)
+		return true
+	if event.is_action_pressed(InputRouterScript.ACTION_ACCEPT):
+		await _controller_activate_current()
+		return true
+	var direction: Vector2 = ControllerNavigationScript.direction_from_event(event)
+	if direction == Vector2.ZERO:
+		return false
+	if event is InputEventJoypadMotion:
+		var now: int = Time.get_ticks_msec()
+		var motion_axis: int = (event as InputEventJoypadMotion).axis
+		if motion_axis == _controller_last_motion_axis and now - _controller_last_direction_msec < CONTROLLER_DIRECTION_REPEAT_MSEC:
+			return true
+		_controller_last_motion_axis = motion_axis
+		_controller_last_direction_msec = now
+	_controller_move(direction)
+	return true
+
+func _controller_custom_combat_available() -> bool:
+	return (
+		str(_run_state.get("mode", "room")) == "combat"
+		and not _combat_state.is_empty()
+		and not _animation_lock
+		and not _dialogue_active
+		and _combat_skill_card_selection_zone.is_empty()
+		and not _controller_modal_visible()
+	)
+
+func _controller_custom_room_available() -> bool:
+	return (
+		str(_run_state.get("mode", "room")) == "room"
+		and not _exit_destinations_by_tile.is_empty()
+		and not _animation_lock
+		and not _dialogue_active
+		and not _controller_modal_visible()
+	)
+
+func _controller_custom_navigation_available() -> bool:
+	return _controller_custom_combat_available() or _controller_custom_room_available()
+
+func _controller_uses_gui_focus() -> bool:
+	return (
+		_controller_modal_visible()
+		or not _combat_skill_card_selection_zone.is_empty()
+		or not _controller_custom_navigation_available()
+	)
+
+func _controller_modal_visible() -> bool:
+	for control: Control in [
+		_skill_choice_scrim,
+		_skill_status_scrim,
+		_pinned_tooltip_scrim,
+		_upgrade_scrim,
+		_pre_battle_scrim,
+		_large_map_scrim,
+		_pile_scrim,
+		_grimoire_scrim,
+		_menu_scrim,
+	]:
+		if control != null and control.visible:
+			return true
+	return _dialogue_active
+
+func _controller_move(direction: Vector2) -> void:
+	if _controller_region == "hand":
+		if absf(direction.x) >= absf(direction.y):
+			_controller_cycle_hand(1 if direction.x > 0.0 else -1)
+		elif direction.y < 0.0:
+			_controller_enter_board(true)
+		return
+	if _controller_region == "board":
+		_controller_move_board(direction)
+
+func _controller_cycle_hand(direction: int) -> void:
+	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+	if hand.is_empty():
+		return
+	if _selected_card_index >= 0:
+		_cancel_card_selection()
+	_controller_set_hand_hidden(false)
+	_controller_region = "hand"
+	var next_index: int = ControllerNavigationScript.wrapped_index(_controller_hand_index, direction, hand.size())
+	_controller_set_hand_index(next_index)
+
+func _controller_set_hand_index(index: int) -> void:
+	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+	if hand.is_empty():
+		_controller_hand_index = -1
+		return
+	var clamped_index: int = clampi(index, 0, hand.size() - 1)
+	if _controller_hand_index != clamped_index:
+		_controller_clear_hand_hover()
+	_controller_hand_index = clamped_index
+	if _selected_card_index < 0:
+		_on_card_hover_started(_controller_hand_index)
+	var card: Control = _hand_card_control(_controller_hand_index)
+	if card != null and _controller_cursor != null:
+		_controller_cursor.show_control_cursor(_control_visual_global_rect(card), "CARD %d/%d" % [_controller_hand_index + 1, hand.size()])
+	_refresh_controller_prompts()
+
+func _controller_clear_hand_hover() -> void:
+	if _controller_hand_index >= 0 and _hovered_card_index == _controller_hand_index:
+		_on_card_hover_ended(_controller_hand_index)
+
+func _controller_enter_board(prefer_target: bool) -> void:
+	_controller_clear_hand_hover()
+	_controller_region = "board"
+	var candidate_tile: Vector2i = INVALID_TARGET_TILE
+	if _controller_custom_room_available():
+		var room_tiles: Array[Vector2i] = _controller_board_tiles()
+		if not room_tiles.is_empty():
+			candidate_tile = room_tiles[0]
+	elif prefer_target and not _pending_target_tiles.is_empty():
+		candidate_tile = _pending_target_tiles[0]
+	if candidate_tile == INVALID_TARGET_TILE:
+		candidate_tile = (_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+	if candidate_tile == INVALID_TARGET_TILE:
+		var tiles: Array[Vector2i] = _controller_board_tiles()
+		if not tiles.is_empty():
+			candidate_tile = tiles[0]
+	_controller_set_board_tile(candidate_tile)
+
+func _controller_move_board(direction: Vector2) -> void:
+	var candidates: Array[Dictionary] = _controller_board_candidates()
+	if candidates.is_empty():
+		return
+	if _controller_board_tile == INVALID_TARGET_TILE:
+		_controller_enter_board(true)
+		return
+	var origin: Vector2 = _controller_board_point(_controller_board_tile)
+	var next_candidate: Dictionary = ControllerNavigationScript.best_candidate_in_direction(
+		origin,
+		direction,
+		candidates,
+		_controller_tile_key(_controller_board_tile)
+	)
+	if next_candidate.is_empty():
+		if direction.y > 0.0 and _selected_card_index < 0 and _controller_custom_combat_available():
+			_controller_region = "hand"
+			_controller_set_hand_hidden(false)
+			_controller_set_hand_index(maxi(0, _controller_hand_index))
+		return
+	_controller_set_board_tile(next_candidate.get("tile", INVALID_TARGET_TILE))
+
+func _controller_set_board_tile(tile: Vector2i) -> void:
+	if tile == INVALID_TARGET_TILE:
+		return
+	_controller_board_tile = tile
+	_hovered_board_tile = tile
+	_on_board_tile_hovered(tile)
+	var center: Vector2 = _controller_board_point(tile)
+	var tile_size: Vector2 = _controller_board_cursor_size(tile)
+	if _controller_cursor != null:
+		var caption: String = _room_hover_hint() if _controller_custom_room_available() else ""
+		_controller_cursor.show_board_cursor(center, tile_size, caption)
+	_refresh_controller_prompts()
+
+func _controller_board_point(tile: Vector2i) -> Vector2:
+	return board_view.global_position + (board_view.call("world_position_for_tile", tile) as Vector2)
+
+func _controller_board_cursor_size(tile: Vector2i) -> Vector2:
+	var center: Vector2 = board_view.call("world_position_for_tile", tile)
+	var neighbor_x: Vector2 = board_view.call("world_position_for_tile", tile + Vector2i.RIGHT)
+	var delta: Vector2 = neighbor_x - center
+	return Vector2(maxf(54.0, absf(delta.x) * 2.0), maxf(34.0, absf(delta.y) * 2.0))
+
+func _controller_board_candidates() -> Array[Dictionary]:
+	var candidates: Array[Dictionary] = []
+	for tile: Vector2i in _controller_board_tiles():
+		candidates.append({
+			"key": _controller_tile_key(tile),
+			"tile": tile,
+			"point": _controller_board_point(tile),
+		})
+	return candidates
+
+func _controller_board_tiles() -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	if str(_run_state.get("mode", "room")) == "room":
+		for tile_var: Variant in _exit_destinations_by_tile.keys():
+			if tile_var is Vector2i:
+				result.append(tile_var as Vector2i)
+		return result
+	var layout: Dictionary = _run_state.get("current_room_layout", {})
+	var grid: Array = layout.get("grid", [])
+	for y: int in range(grid.size()):
+		var row_value: Variant = grid[y]
+		if typeof(row_value) != TYPE_ARRAY:
+			continue
+		var row: Array = row_value
+		for x: int in range(row.size()):
+			if str(row[x]).to_lower() in ["void", "empty", ""]:
+				continue
+			result.append(Vector2i(x, y))
+	return result
+
+func _controller_tile_key(tile: Vector2i) -> String:
+	return "tile:%d:%d" % [tile.x, tile.y]
+
+func _controller_activate_current() -> void:
+	if str(_run_state.get("mode", "room")) == "room":
+		if _controller_board_tile != INVALID_TARGET_TILE:
+			await _on_board_tile_clicked(_controller_board_tile)
+		return
+	if _controller_region == "hand":
+		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+		if hand.is_empty():
+			return
+		if _controller_hand_index < 0 or _controller_hand_index >= hand.size():
+			_controller_hand_index = 0
+		await _on_card_pressed(_controller_hand_index)
+		if _selected_card_index >= 0:
+			_controller_enter_board(true)
+		else:
+			_controller_set_hand_index(_controller_hand_index)
+		return
+	if _controller_region == "board" and _controller_board_tile != INVALID_TARGET_TILE:
+		await _on_board_tile_clicked(_controller_board_tile)
+		if _selected_card_index < 0:
+			_controller_region = "hand"
+			_controller_set_hand_hidden(false)
+			_controller_set_hand_index(maxi(0, _controller_hand_index))
+		else:
+			_controller_set_board_tile(_controller_board_tile)
+
+func _controller_set_hand_hidden(hidden: bool) -> void:
+	_controller_hand_hidden = hidden and _controller_custom_combat_available()
+	if hand_scroll != null:
+		hand_scroll.visible = not _controller_hand_hidden
+	if hand_right_balance != null:
+		hand_right_balance.visible = not _controller_hand_hidden
+	if hand_row != null:
+		hand_row.custom_minimum_size.y = CONTROLLER_HIDDEN_HAND_ROW_HEIGHT if _controller_hand_hidden else CONTROLLER_HAND_ROW_HEIGHT
+	if _controller_hand_hidden:
+		_controller_clear_hand_hover()
+		_controller_region = "board"
+		if _controller_board_tile == INVALID_TARGET_TILE:
+			_controller_enter_board(false)
+	call_deferred("_sync_board_view_rect")
+	call_deferred("_layout_combat_action_dock")
+	call_deferred("_refresh_controller_after_layout")
+	_refresh_controller_prompts()
+
+func _refresh_controller_after_layout() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_refresh_controller_interface()
+
+func _schedule_controller_modal_refresh() -> void:
+	call_deferred("_refresh_controller_modal_after_layout")
+
+func _refresh_controller_modal_after_layout() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_refresh_controller_prompts()
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null and router.has_method("using_controller") and bool(router.call("using_controller")):
+		_recover_controller_focus()
+
+func _controller_focus_scope() -> Control:
+	for control: Control in [
+		_skill_choice_scrim,
+		_skill_status_scrim,
+		_pinned_tooltip_scrim,
+		_upgrade_scrim,
+		_pre_battle_scrim,
+		_large_map_scrim,
+		_pile_scrim,
+		_grimoire_scrim,
+		_menu_scrim,
+	]:
+		if control != null and control.visible:
+			return control
+	if _relic_choice_overlay != null and _relic_choice_overlay.visible:
+		return _relic_choice_overlay
+	if _context_choice_overlay != null and _context_choice_overlay.visible:
+		return _context_choice_overlay
+	return ui_root
+
+func _recover_controller_focus() -> void:
+	var scope: Control = _controller_focus_scope()
+	if scope == null:
+		return
+	var current: Control = get_viewport().gui_get_focus_owner()
+	if (
+		current != null
+		and (current == scope or scope.is_ancestor_of(current))
+		and current.is_visible_in_tree()
+		and current.focus_mode == Control.FOCUS_ALL
+	):
+		return
+	var candidates: Array[Control] = []
+	_controller_collect_focusable_controls(scope, candidates)
+	if candidates.is_empty():
+		return
+	candidates.sort_custom(func(a: Control, b: Control) -> bool:
+		var a_position: Vector2 = a.get_global_rect().position
+		var b_position: Vector2 = b.get_global_rect().position
+		return a_position.y < b_position.y if not is_equal_approx(a_position.y, b_position.y) else a_position.x < b_position.x
+	)
+	candidates[0].grab_focus()
+
+func _controller_collect_focusable_controls(root_control: Control, result: Array[Control]) -> void:
+	if root_control != null and root_control.is_visible_in_tree() and root_control.focus_mode == Control.FOCUS_ALL:
+		var enabled: bool = not (root_control is BaseButton) or not (root_control as BaseButton).disabled
+		if enabled:
+			result.append(root_control)
+	for child: Node in root_control.get_children():
+		if child is Control:
+			_controller_collect_focusable_controls(child as Control, result)
+
+func _refresh_controller_interface() -> void:
+	_refresh_controller_prompts()
+	if not _controller_custom_navigation_available():
+		if _controller_cursor != null:
+			_controller_cursor.hide_cursor()
+		return
+	if _controller_custom_room_available():
+		_controller_region = "board"
+		if _controller_board_tile == INVALID_TARGET_TILE or not _exit_destinations_by_tile.has(_controller_board_tile):
+			_controller_enter_board(false)
+		else:
+			_controller_set_board_tile(_controller_board_tile)
+		return
+	if _controller_region == "board" and _controller_board_tile != INVALID_TARGET_TILE:
+		_controller_set_board_tile(_controller_board_tile)
+	elif _controller_region == "hand":
+		_controller_set_hand_index(maxi(0, _controller_hand_index))
+
+func _refresh_controller_prompts() -> void:
+	if _controller_prompt_bar == null:
+		return
+	var prompts: Array = []
+	if _large_map_scrim != null and _large_map_scrim.visible:
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Travel"},
+			{"action": &"controller_move", "label": "Explore"},
+			{"action": InputRouterScript.ACTION_HAND_BUMPERS, "label": "Zoom"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Close"},
+		]
+	elif _controller_uses_gui_focus() and not _controller_magic_source_kind.is_empty():
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Swap"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Cancel Swap"},
+			{"action": &"controller_dpad", "label": "Choose Slot"},
+		]
+	elif _controller_uses_gui_focus():
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back"},
+			{"action": &"controller_dpad", "label": "Navigate"},
+		]
+	elif _controller_custom_room_available():
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Travel"},
+			{"action": &"controller_move", "label": "Choose Door"},
+			{"action": InputRouterScript.ACTION_MAP, "label": "Map"},
+			{"action": InputRouterScript.ACTION_MENU, "label": "Menu"},
+		]
+	elif _controller_region == "board":
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Target" if _selected_card_index >= 0 else "Inspect"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back"},
+			{"action": &"controller_move", "label": "Move"},
+			{"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Show Hand" if _controller_hand_hidden else "Hide Hand"},
+			{"action": InputRouterScript.ACTION_PASS, "label": "Pass"},
+		]
+	else:
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Play"},
+			{"action": InputRouterScript.ACTION_HAND_BUMPERS, "label": "Cards"},
+			{"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Hide Hand"},
+			{"action": InputRouterScript.ACTION_PASS, "label": "Pass"},
+		]
+	_controller_prompt_bar.set_prompts(prompts)
 
 func _connect_board_aim_signals() -> void:
 	if board_view == null:
@@ -3190,6 +3709,7 @@ func _build_large_map_overlay() -> void:
 	navigation_hint.add_theme_color_override("font_outline_color", Color(0.01, 0.008, 0.006, 0.94))
 	navigation_hint.add_theme_constant_override("outline_size", 2)
 	top_row.add_child(navigation_hint)
+	_large_map_navigation_hint = navigation_hint
 
 	var close_button := UiTooltipButton.new()
 	close_button.name = "CloseButton"
@@ -4815,6 +5335,7 @@ func _build_menu_overlay() -> void:
 
 	for entry: Dictionary in [
 		{"text": "Character", "callback": Callable(self, "_on_character_pressed")},
+		{"text": "Grimoire", "callback": Callable(self, "_on_grimoire_button_pressed")},
 		{"text": "Settings", "callback": Callable(self, "_open_settings_overlay")},
 		{"text": "Exit to Desktop", "callback": Callable(self, "_on_exit_to_desktop_pressed")},
 		{"text": "Save and Quit", "callback": Callable(self, "_on_save_and_quit_pressed")},
@@ -13090,6 +13611,7 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.clip_contents = false
 	panel.z_index = 30
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW
 	panel.set_meta("choice_enabled", enabled)
 	panel.set_meta("choice_accent", accent)
@@ -13097,6 +13619,8 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id, panel, accent))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
+	panel.focus_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
+	panel.focus_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
 	_relic_choice_bar.add_child(panel)
 
 	_add_campfire_choice_background(panel, icon_path, enabled)
@@ -13891,8 +14415,12 @@ func _on_relic_choice_gui_input(event: InputEvent, panel: PanelContainer, relic_
 	await _on_relic_pressed(relic_id, source_rect)
 
 func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: PanelContainer, accent: Color) -> void:
-	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
+	var pointer_activation: bool = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
+	var focus_activation: bool = event.is_action_pressed("ui_accept") and not event.is_echo()
+	if not pointer_activation and not focus_activation:
 		return
+	if focus_activation and panel != null:
+		panel.accept_event()
 	if _campfire_choice_action_pending or str(_run_state.get("mode", "room")) != "campfire":
 		return
 	if choice_id == "strength" and not _can_level_at_campfire():
@@ -17618,6 +18146,9 @@ func _on_cancel_requested() -> void:
 		await _animate_drag_cancel_to_source()
 		return
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
+		if not _controller_magic_source_kind.is_empty():
+			_clear_controller_magic_selection()
+			return
 		_close_skill_reset_confirmation() if _skill_reset_confirmation_scrim != null else _close_card_upgrade_overlay()
 		return
 	if _pre_battle_scrim != null and _pre_battle_scrim.visible:
@@ -17747,11 +18278,34 @@ func _open_large_map() -> void:
 	_close_grimoire_overlay()
 	_large_map_scrim.visible = true
 	_large_map_scrim.move_to_front()
+	_refresh_large_map_navigation_hint()
+	call_deferred("_focus_large_map_for_controller")
+	_schedule_controller_modal_refresh()
 
 func _close_large_map() -> void:
 	if _large_map_scrim == null:
 		return
 	_large_map_scrim.visible = false
+	_schedule_controller_modal_refresh()
+
+func _focus_large_map_for_controller() -> void:
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if (
+		_large_map_view != null
+		and router != null
+		and router.has_method("using_controller")
+		and bool(router.call("using_controller"))
+		and _large_map_view.has_method("focus_controller_on_current")
+	):
+		_large_map_view.call("focus_controller_on_current")
+
+func _refresh_large_map_navigation_hint() -> void:
+	if _large_map_navigation_hint == null:
+		return
+	var router: Node = get_node_or_null("/root/InputRouter")
+	var controller_active: bool = router != null and router.has_method("using_controller") and bool(router.call("using_controller"))
+	_large_map_navigation_hint.visible = not controller_active
+	_large_map_navigation_hint.text = "DRAG / TWO-FINGER PAN  •  SCROLL / PINCH TO ZOOM  •  M TO CLOSE"
 
 func _on_large_map_room_selected(coord: Vector2i) -> void:
 	_close_large_map()
@@ -20463,6 +21017,8 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "combat":
 		return ""
 	if mode == "room":
+		if _controller_custom_room_available():
+			return ""
 		return "Choose Door"
 	if mode == "reward":
 		return ""
@@ -20483,6 +21039,8 @@ func _board_status_detail(preview: Dictionary) -> String:
 	if mode == "combat":
 		return ""
 	if mode == "room":
+		if _controller_custom_room_available():
+			return ""
 		return _room_hover_hint()
 	return ""
 
@@ -20755,6 +21313,7 @@ func _show_pre_battle_preview() -> bool:
 	_pre_battle_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
 	_animate_pre_battle_entry()
+	_schedule_controller_modal_refresh()
 	return true
 
 func _refresh_pre_battle_preview_if_visible() -> void:
@@ -20792,6 +21351,7 @@ func _close_pre_battle_preview() -> void:
 	_pre_battle_door_tile = INVALID_TARGET_TILE
 	_pre_battle_preview_run_state.clear()
 	_pre_battle_start_pending = false
+	_schedule_controller_modal_refresh()
 
 func _on_pre_battle_equip_pressed() -> void:
 	if _pinned_tooltip_panel != null:
@@ -21462,6 +22022,7 @@ func _open_menu_overlay() -> void:
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
 	_menu_scrim.visible = true
+	_schedule_controller_modal_refresh()
 
 func _close_menu_overlay() -> void:
 	if _menu_scrim != null:
@@ -21470,6 +22031,7 @@ func _close_menu_overlay() -> void:
 		_settings_panel.visible = false
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
+	_schedule_controller_modal_refresh()
 
 func _open_settings_overlay() -> void:
 	if _menu_scrim == null or _settings_panel == null:
@@ -21480,12 +22042,14 @@ func _open_settings_overlay() -> void:
 	else:
 		_settings_panel.visible = true
 	_settings_panel.move_to_front()
+	_schedule_controller_modal_refresh()
 
 func _close_settings_overlay() -> void:
 	if _settings_panel != null:
 		_settings_panel.visible = false
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
+	_schedule_controller_modal_refresh()
 
 func _on_settings_changed(settings: Dictionary) -> void:
 	_settings = SettingsStore.normalize_settings(settings)
@@ -21513,6 +22077,7 @@ func _open_grimoire_overlay() -> void:
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
+	_schedule_controller_modal_refresh()
 
 func _close_grimoire_overlay() -> void:
 	var was_visible: bool = _grimoire_scrim != null and _grimoire_scrim.visible
@@ -21529,6 +22094,7 @@ func _close_grimoire_overlay() -> void:
 	if _grimoire_restore_focus != null and is_instance_valid(_grimoire_restore_focus) and _grimoire_restore_focus.is_inside_tree() and _grimoire_restore_focus.is_visible_in_tree():
 		_grimoire_restore_focus.grab_focus()
 	_grimoire_restore_focus = null
+	_schedule_controller_modal_refresh()
 
 func _focus_grimoire_after_open() -> void:
 	if _grimoire_scrim == null or not _grimoire_scrim.visible:
@@ -22131,10 +22697,12 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 		_sync_pre_battle_overlay_layering()
 		if _skill_tree_view != null:
 			_skill_tree_view.call_deferred("grab_tree_focus")
+		_schedule_controller_modal_refresh()
 		return
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
+	_schedule_controller_modal_refresh()
 
 func _open_level_up_overlay() -> void:
 	if _upgrade_scrim == null or not _can_level_at_campfire():
@@ -22191,10 +22759,12 @@ func _close_card_upgrade_overlay() -> void:
 	_clear_equipment_drag_state(true)
 	_clear_magic_drag_state(true)
 	_clear_item_drag_state(true)
+	_clear_controller_magic_selection(false)
 	if _skill_hud_refresh_pending:
 		_skill_hud_refresh_pending = false
 		_refresh_relic_bar()
 	_sync_pre_battle_overlay_layering()
+	_schedule_controller_modal_refresh()
 
 func _rebuild_progression_overlay() -> void:
 	if _upgrade_dialog == null:
@@ -22482,6 +23052,7 @@ func _add_loadout_tab_badge(button: Button, mode: String, unread_count: int) -> 
 func _switch_character_overlay_mode(mode: String) -> void:
 	if not (mode in ["equipment", "magic", "skills"]):
 		return
+	_clear_controller_magic_selection(false)
 	_progression_overlay_mode = mode
 	_progression_overlay_notice = ""
 	_progression_overlay_notice_is_error = false
@@ -23373,9 +23944,11 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	tile.host = self
 	tile.custom_minimum_size = EQUIPMENT_TILE_SIZE
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
+	tile.focus_mode = Control.FOCUS_ALL
 	tile.tooltip_text = "equipment:%s" % equipment_id
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _equipment_overlay_can_change() else Control.CURSOR_ARROW
 	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
+	_configure_controller_loadout_focus(tile, accent)
 	if _equipment_drag_id == equipment_id:
 		tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
 	_equipment_inventory_tiles[equipment_id] = tile
@@ -23490,8 +24063,12 @@ func _build_equipped_items_deck_group(item_card_ids: Array) -> Control:
 
 func _build_magic_card_tile(card_id: String, source_kind: String, index: int, tile_size: Vector2 = EQUIPMENT_DECK_BADGE_SIZE) -> Control:
 	if card_id.is_empty():
-		var empty := PanelContainer.new()
+		var empty := MagicCardTile.new()
+		empty.host = self
+		empty.source_kind = source_kind
+		empty.magic_index = index
 		empty.custom_minimum_size = tile_size
+		empty.mouse_filter = Control.MOUSE_FILTER_STOP
 		empty.add_theme_stylebox_override("panel", _equipment_panel_style(Color("4f453b"), false))
 		return empty
 	var card: Dictionary = GameData.card_def(card_id)
@@ -23505,11 +24082,13 @@ func _build_magic_card_tile(card_id: String, source_kind: String, index: int, ti
 	if tile_size.x > EQUIPMENT_DECK_BADGE_SIZE.x:
 		tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
+	tile.focus_mode = Control.FOCUS_ALL
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _magic_overlay_can_change() else Control.CURSOR_ARROW
 	tile.tooltip_text = "card:%s" % card_id
 	tile.clip_contents = true
 	var is_drag_source: bool = _magic_drag_source_kind == source_kind and _magic_drag_index == index
 	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_source))
+	_configure_controller_loadout_focus(tile, accent)
 	if is_drag_source:
 		tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
 	if source_kind == "attuned":
@@ -23545,11 +24124,13 @@ func _build_item_card_tile(card_id: String, source_kind: String, index: int, til
 	tile.custom_minimum_size = tile_size
 	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL if source_kind == "equipped" else Control.SIZE_SHRINK_CENTER
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
+	tile.focus_mode = Control.FOCUS_ALL
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _item_overlay_can_change() else Control.CURSOR_ARROW
 	tile.tooltip_text = "card:%s" % card_id
 	tile.clip_contents = true
 	var can_receive: bool = _item_drag_can_drop_on({"source_kind": source_kind, "index": index})
 	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, can_receive))
+	_configure_controller_loadout_focus(tile, accent)
 	if _item_drag_source_kind == source_kind and _item_drag_index == index:
 		tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
 	elif not _item_drag_card_id.is_empty() and not can_receive:
@@ -24405,6 +24986,79 @@ func _apply_item_drag_highlights() -> void:
 			else:
 				tile.modulate = Color.WHITE
 
+func _configure_controller_loadout_focus(tile: PanelContainer, accent: Color) -> void:
+	tile.set_meta("controller_focus_accent", accent)
+	tile.focus_entered.connect(_on_controller_loadout_focus_changed.bind(tile, true))
+	tile.focus_exited.connect(_on_controller_loadout_focus_changed.bind(tile, false))
+
+func _on_controller_loadout_focus_changed(tile: PanelContainer, focused: bool) -> void:
+	if not is_instance_valid(tile):
+		return
+	var accent: Color = tile.get_meta("controller_focus_accent", Color("8f6f46"))
+	var active: bool = focused or _controller_magic_tile_is_selected(tile)
+	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, active))
+	_refresh_controller_prompts()
+
+func _controller_magic_tile_is_selected(tile: Control) -> bool:
+	if not (tile is MagicCardTile):
+		return false
+	var magic_tile := tile as MagicCardTile
+	return (
+		not _controller_magic_source_kind.is_empty()
+		and magic_tile.source_kind == _controller_magic_source_kind
+		and magic_tile.magic_index == _controller_magic_source_index
+	)
+
+func _refresh_controller_loadout_focus_styles() -> void:
+	for tiles: Dictionary in [_magic_attuned_tiles, _magic_inventory_tiles]:
+		for tile_var: Variant in tiles.values():
+			if typeof(tile_var) != TYPE_OBJECT or not is_instance_valid(tile_var) or not (tile_var is PanelContainer):
+				continue
+			var tile := tile_var as PanelContainer
+			var accent: Color = tile.get_meta("controller_focus_accent", Color("8f6f46"))
+			tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, tile.has_focus() or _controller_magic_tile_is_selected(tile)))
+
+func _controller_activate_magic_tile(source_kind: String, index: int, card_id: String) -> void:
+	if card_id.is_empty() or not _magic_overlay_can_change():
+		return
+	if _controller_magic_source_kind.is_empty():
+		_controller_magic_source_kind = source_kind
+		_controller_magic_source_index = index
+		_controller_magic_card_id = card_id
+		_refresh_controller_loadout_focus_styles()
+		_refresh_controller_prompts()
+		return
+	if _controller_magic_source_kind == source_kind:
+		if _controller_magic_source_index == index:
+			_clear_controller_magic_selection()
+			return
+		_controller_magic_source_index = index
+		_controller_magic_card_id = card_id
+		_refresh_controller_loadout_focus_styles()
+		return
+	var inventory_index: int = index if source_kind == "inventory" else _controller_magic_source_index
+	var attuned_index: int = index if source_kind == "attuned" else _controller_magic_source_index
+	_clear_controller_magic_selection(false)
+	await _swap_magic_from_overlay(inventory_index, attuned_index)
+	_schedule_controller_modal_refresh()
+
+func _clear_controller_magic_selection(refresh: bool = true) -> void:
+	_controller_magic_source_kind = ""
+	_controller_magic_source_index = -1
+	_controller_magic_card_id = ""
+	if refresh:
+		_refresh_controller_loadout_focus_styles()
+		_refresh_controller_prompts()
+
+func _controller_activate_item_tile(source_kind: String, index: int) -> void:
+	if not _item_overlay_can_change():
+		return
+	if source_kind == "inventory":
+		await _equip_item_from_overlay(index)
+	elif source_kind == "equipped":
+		await _unequip_item_from_overlay(index)
+	_schedule_controller_modal_refresh()
+
 func _swap_magic_from_overlay(inventory_index: int, attuned_index: int) -> void:
 	if not _magic_overlay_can_change():
 		_clear_magic_drag_state(true)
@@ -24427,6 +25081,7 @@ func _swap_magic_from_overlay(inventory_index: int, attuned_index: int) -> void:
 	_rebuild_progression_overlay()
 	await get_tree().process_frame
 	_pulse_magic_tile("attuned", attuned_index)
+	_schedule_controller_modal_refresh()
 
 func _equip_item_from_overlay(inventory_index: int, equipped_index: int = -1) -> void:
 	if _item_swap_animation_active or not _item_overlay_can_change():
@@ -24457,6 +25112,7 @@ func _equip_item_from_overlay(inventory_index: int, equipped_index: int = -1) ->
 	await get_tree().process_frame
 	_pulse_item_tile("equipped", actual_equipped_index)
 	_item_swap_animation_active = false
+	_schedule_controller_modal_refresh()
 
 func _unequip_item_from_overlay(equipped_index: int) -> void:
 	if _item_swap_animation_active or not _item_overlay_can_change():
@@ -24487,6 +25143,7 @@ func _unequip_item_from_overlay(equipped_index: int) -> void:
 	await get_tree().process_frame
 	_pulse_item_tile("inventory", inventory_index)
 	_item_swap_animation_active = false
+	_schedule_controller_modal_refresh()
 
 func _equipped_item_index_after_change(card_id: String, before_equipped: Array, after_equipped: Array, preferred_index: int = -1) -> int:
 	if preferred_index >= 0 and preferred_index < after_equipped.size() and str(after_equipped[preferred_index]) == card_id:
@@ -24683,6 +25340,7 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await _animate_equipment_swap_fx(equipment_id, before_id, slot, source_rect, previous_slot_rect)
+	_schedule_controller_modal_refresh()
 
 func _equipment_tooltip(equipment_id: String) -> String:
 	if equipment_id.is_empty():

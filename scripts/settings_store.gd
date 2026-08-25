@@ -1,6 +1,8 @@
 extends RefCounted
 class_name SettingsStore
 
+const InputRouterScript = preload("res://scripts/input_router.gd")
+
 const DEFAULT_STORAGE_PATH: String = "user://settings.json"
 const SETTINGS_SCHEMA: int = 1
 
@@ -37,10 +39,13 @@ static func default_settings() -> Dictionary:
 		"music_volume": 0.70,
 		"sfx_volume": 0.80,
 		"display_mode": DISPLAY_FULLSCREEN,
-		"ui_scale": 1.00,
+		"ui_scale": default_ui_scale(),
 		"dialogue_speed": DIALOGUE_STANDARD,
 		"reduced_motion": false
 	}
+
+static func default_ui_scale(deck_platform: bool = InputRouterScript.platform_is_steam_deck()) -> float:
+	return 1.15 if deck_platform else 1.00
 
 static func normalize_settings(data: Variant) -> Dictionary:
 	var defaults: Dictionary = default_settings()
