@@ -1,0 +1,182 @@
+{
+  "approval": {
+    "approved_by": "",
+    "approved_on": "",
+    "status": "audition",
+    "version": "v02"
+  },
+  "arrangement": {
+    "expected_note_counts": {
+      "Ashen Violin / Inner Voice": 50,
+      "Grave Cello / Troubadour": 293,
+      "Hollow Viola / Lower Harmony": 415,
+      "Undercrypt Bass / G-sharp Pedal": 172,
+      "Veiled Violin / Castle Air": 164
+    },
+    "midi_path": "versions/v02/arrangement.mid",
+    "midi_sha256": "d05e350642a493437d11993c3e795d5676100f26bb0c7b97c5c151e14d708216",
+    "notes_file": "versions/v02/ARRANGEMENT_NOTES.md",
+    "version": "v02"
+  },
+  "composer": "Modest Mussorgsky",
+  "expected_outputs": {},
+  "render": {
+    "bank_manifest": "../../../assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
+    "crossfade_seconds": 0.0,
+    "echo": {
+      "darkening_filter_width": 9,
+      "taps": [
+        {
+          "delay_seconds": 0.096,
+          "gain": 0.1
+        },
+        {
+          "delay_seconds": 0.192,
+          "gain": 0.04
+        },
+        {
+          "delay_seconds": 0.288,
+          "gain": 0.016
+        }
+      ]
+    },
+    "ogg_stream_serial": "0x4f4c4432",
+    "output_basename": "versions/v02/preview",
+    "output_signal_quantization_bits": 15,
+    "percussion": {
+      "midi_track": "",
+      "notes": {}
+    },
+    "percussion_reconstruction_filter_width": 3,
+    "sample_rate": 44100,
+    "saturation_drive": 1.06,
+    "string_reconstruction_filter_width": 5,
+    "target_peak_dbfs": -8.0,
+    "tempo_mode": "fixed_qpm",
+    "tempo_qpm": 72,
+    "tracks": [
+      {
+        "bank_id": "veiled_violin",
+        "midi_track": "Veiled Violin / Castle Air",
+        "pan": 82,
+        "release_seconds": 0.18,
+        "render_gain": 0.3,
+        "stem": "upper",
+        "vibrato_cents": 3.0,
+        "vibrato_hz": 4.8
+      },
+      {
+        "bank_id": "ashen_violin",
+        "midi_track": "Ashen Violin / Inner Voice",
+        "pan": 42,
+        "release_seconds": 0.12,
+        "render_gain": 0.32,
+        "stem": "upper",
+        "vibrato_cents": 1.4,
+        "vibrato_hz": 4.3
+      },
+      {
+        "bank_id": "hollow_viola",
+        "midi_track": "Hollow Viola / Lower Harmony",
+        "pan": 70,
+        "release_seconds": 0.2,
+        "render_gain": 0.38,
+        "stem": "middle",
+        "vibrato_cents": 1.6,
+        "vibrato_hz": 4.0
+      },
+      {
+        "bank_id": "grave_cello",
+        "midi_track": "Grave Cello / Troubadour",
+        "pan": 54,
+        "release_seconds": 0.24,
+        "render_gain": 0.72,
+        "stem": "low",
+        "vibrato_cents": 2.2,
+        "vibrato_hz": 3.9
+      },
+      {
+        "bank_id": "undercrypt_bass",
+        "midi_track": "Undercrypt Bass / G-sharp Pedal",
+        "pan": 64,
+        "release_seconds": 0.28,
+        "render_gain": 0.5,
+        "stem": "low",
+        "vibrato_cents": 0.6,
+        "vibrato_hz": 3.1
+      }
+    ],
+    "vorbis_encoder": "auto"
+  },
+  "reproducibility": {
+    "arrangement_notes": {
+      "path": "versions/v02/ARRANGEMENT_NOTES.md",
+      "sha256": "8758392f8b489b5f8dc67edc9bc2b6f9367e691821f32053abadfd1b154a7350"
+    },
+    "build_script": {
+      "path": "scripts/build_full_arrangement.py",
+      "sha256": "0c5d9061da13d06de33a4fac3ef36d5e7c9b3e652804d649b360d4f37eac041d"
+    },
+    "expected_part_count": 1,
+    "normalized_full_score_midi": {
+      "path": "versions/v02/normalized/full_score.mid",
+      "sha256": "a373439170c09a135d16f19c1c54a7178a678fafb1bb23a6056749b62bb73551"
+    },
+    "normalized_full_score_musicxml": {
+      "path": "versions/v02/normalized/full_score.musicxml",
+      "sha256": "52cb17432f52abb41668c625f386be2d81e05fbf3ab42e939ea64f273c221270"
+    },
+    "normalized_parts": [
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/01_piano_full_movement_scan_transcription.mid",
+          "sha256": "a373439170c09a135d16f19c1c54a7178a678fafb1bb23a6056749b62bb73551"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/01_piano_full_movement_scan_transcription.musicxml",
+          "sha256": "5f2df3e8a73832e7793f3b730ca8c017f6a478ce471c14d05169cd4510059d4b"
+        },
+        "name": "Piano (full movement scan transcription)"
+      }
+    ]
+  },
+  "schema_version": 1,
+  "source": {
+    "composer": "Modest Mussorgsky (1839-1881)",
+    "composition": "Pictures at an Exhibition - The Old Castle",
+    "composition_public_domain": true,
+    "composition_public_domain_evidence": "Modest Mussorgsky died in 1881; the solo-piano suite was first published by V. Bessel & Co. in 1886, and the Sibley Music Library marks its 1918 Breitkopf & Härtel reprint public domain.",
+    "date_retrieved": "2026-08-26",
+    "license_evidence": "The Sibley Music Library marks the checked-in 1918 Breitkopf & Härtel reprint public domain; no third-party machine-readable transcription was used, and this repository contribution dedicates its project-authored reduction and normalized score outputs to the public domain under CC0 1.0 Universal.",
+    "license_file": "LICENSE_SOURCE.md",
+    "path": "source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
+    "rights_basis": "public_domain",
+    "rights_status": "cleared",
+    "sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
+    "source_format": "Scanned PDF of the 1918 Breitkopf & Härtel reprint of the 1886 Bessel edition (solo piano)",
+    "source_url": "https://urresearch.rochester.edu/fileDownloadForInstitutionalItem.action?itemId=13118&itemFileId=30373",
+    "transcription_license": "Public domain via CC0 1.0 Universal dedication"
+  },
+  "title": "Pictures at an Exhibition - The Old Castle (Complete v02)",
+  "track_id": "mussorgsky_pictures_old_castle_v02",
+  "transcription_inputs": [
+    {
+      "path": "transcription/omr_raw/score_page_07.musicxml",
+      "sha256": "c6c8db0e8fb9160670e9b22fc83c2a41267ad95aaf99d0277c68fa8445c6eb49"
+    },
+    {
+      "path": "transcription/omr_raw/score_page_08.musicxml",
+      "sha256": "b5bea01cb8e4b2651bc6c9f4daca7c075733b4b6ed0ac122dd9477de544be61e"
+    },
+    {
+      "path": "transcription/omr_raw/score_page_09.musicxml",
+      "sha256": "86fa0442eed797c90448e0bd0e46191ae51528fb2fed326fa5932358908aa6b3"
+    }
+  ],
+  "verification": {
+    "duration_tolerance_seconds": 0.02,
+    "max_loop_seam_to_p99_9_ratio": 1.0,
+    "max_silence_seconds": 3.0,
+    "peak_tolerance_db": 0.05
+  }
+}

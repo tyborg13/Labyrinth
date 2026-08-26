@@ -1,0 +1,885 @@
+{
+  "arrangement_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/arrangement.mid",
+  "arrangement_midi_sha256": "d05e350642a493437d11993c3e795d5676100f26bb0c7b97c5c151e14d708216",
+  "arrangement_note_counts": {
+    "Ashen Violin / Inner Voice": 50,
+    "Grave Cello / Troubadour": 293,
+    "Hollow Viola / Lower Harmony": 415,
+    "Undercrypt Bass / G-sharp Pedal": 172,
+    "Veiled Violin / Castle Air": 164
+  },
+  "normalized": {
+    "expanded_repeats": false,
+    "full_score_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/full_score.mid",
+    "full_score_midi_sha256": "a373439170c09a135d16f19c1c54a7178a678fafb1bb23a6056749b62bb73551",
+    "full_score_musicxml": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/full_score.musicxml",
+    "full_score_musicxml_sha256": "52cb17432f52abb41668c625f386be2d81e05fbf3ab42e939ea64f273c221270",
+    "part_count": 1,
+    "parts": [
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/01_piano_full_movement_scan_transcription.mid",
+        "midi_sha256": "a373439170c09a135d16f19c1c54a7178a678fafb1bb23a6056749b62bb73551",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/01_piano_full_movement_scan_transcription.musicxml",
+        "musicxml_sha256": "5f2df3e8a73832e7793f3b730ca8c017f6a478ce471c14d05169cd4510059d4b",
+        "name": "Piano (full movement scan transcription)"
+      }
+    ]
+  },
+  "ok": true,
+  "selection": "Complete 106-measure movement in printed order; no cuts, repeats, or constructed cadence",
+  "source_pdf": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
+  "source_pdf_sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
+  "source_score_pages": "PDF pages 8-10 (printed pages 7-9)",
+  "structural_duration_seconds": 265.0,
+  "tempo_qpm": 72,
+  "transcription": {
+    "measure_count": 106,
+    "omr_tool": "homr 0.7.0",
+    "pages": [
+      {
+        "global_measure_span": [
+          1,
+          30
+        ],
+        "measure_count": 30,
+        "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/transcription/omr_raw/score_page_07.musicxml",
+        "sha256": "c6c8db0e8fb9160670e9b22fc83c2a41267ad95aaf99d0277c68fa8445c6eb49"
+      },
+      {
+        "global_measure_span": [
+          31,
+          69
+        ],
+        "measure_count": 39,
+        "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/transcription/omr_raw/score_page_08.musicxml",
+        "sha256": "b5bea01cb8e4b2651bc6c9f4daca7c075733b4b6ed0ac122dd9477de544be61e"
+      },
+      {
+        "global_measure_span": [
+          70,
+          106
+        ],
+        "measure_count": 37,
+        "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/transcription/omr_raw/score_page_09.musicxml",
+        "sha256": "86fa0442eed797c90448e0bd0e46191ae51528fb2fed326fa5932358908aa6b3"
+      }
+    ],
+    "repairs": {
+      "padded OMR underfill to the printed barline": [
+        {
+          "measure": 5,
+          "raw_quarters": 2.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 6,
+          "raw_quarters": 2.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 7,
+          "raw_quarters": 2.0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 9,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 18,
+          "raw_quarters": 2.0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 26,
+          "raw_quarters": 2.25,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 28,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 32,
+          "raw_quarters": 0.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 35,
+          "raw_quarters": 2.0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 37,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 38,
+          "raw_quarters": 0.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 38,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 39,
+          "raw_quarters": 1.125,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 43,
+          "raw_quarters": 2.0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 44,
+          "raw_quarters": 2.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 54,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 55,
+          "raw_quarters": 1.0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 56,
+          "raw_quarters": 1.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 57,
+          "raw_quarters": 2.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 57,
+          "raw_quarters": 2.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 58,
+          "raw_quarters": 1.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 62,
+          "raw_quarters": 1.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 62,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 69,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 74,
+          "raw_quarters": 1.0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 75,
+          "raw_quarters": 1.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 76,
+          "raw_quarters": 1.0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 77,
+          "raw_quarters": 1.0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 80,
+          "raw_quarters": 1.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 81,
+          "raw_quarters": 1.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 84,
+          "raw_quarters": 0.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 85,
+          "raw_quarters": 2.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 85,
+          "raw_quarters": 1.5,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 86,
+          "raw_quarters": 2.0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 86,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 89,
+          "raw_quarters": 2.0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 92,
+          "raw_quarters": 1.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 103,
+          "raw_quarters": 1.0,
+          "voice": "upper_secondary"
+        }
+      ],
+      "trimmed OMR overflow at the printed barline": [
+        {
+          "measure": 17,
+          "raw_quarters": 5.25,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 20,
+          "raw_quarters": 3.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 32,
+          "raw_quarters": 3.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 38,
+          "raw_quarters": 3.75,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 38,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 39,
+          "raw_quarters": 3.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 39,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 39,
+          "raw_quarters": 3.5,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 41,
+          "raw_quarters": 4.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 41,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 43,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 48,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 49,
+          "raw_quarters": 5.25,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 61,
+          "raw_quarters": 3.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 61,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 62,
+          "raw_quarters": 3.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 62,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 68,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 84,
+          "raw_quarters": 3.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 89,
+          "raw_quarters": 3.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 89,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 91,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 93,
+          "raw_quarters": 6.0,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 94,
+          "raw_quarters": 3.5,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 97,
+          "raw_quarters": 3.75,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 103,
+          "raw_quarters": 6.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 103,
+          "raw_quarters": 6.0,
+          "voice": "lower_primary"
+        },
+        {
+          "measure": 105,
+          "raw_quarters": 3.5,
+          "voice": "lower_primary"
+        }
+      ],
+      "whole-measure rest normalized to 6/8": [
+        {
+          "measure": 1,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 1,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 1,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 2,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 2,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 3,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 3,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 4,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 4,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 5,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 5,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 6,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 6,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 7,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 8,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 9,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 10,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 11,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 12,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 13,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 14,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 15,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 16,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 17,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 17,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 18,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 19,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 20,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 21,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 27,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 28,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 31,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 33,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 34,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 37,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 40,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 41,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 42,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 46,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 47,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 48,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 49,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 49,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 50,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 51,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 52,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 53,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 54,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 59,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 60,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 61,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 64,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 65,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 68,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 69,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 70,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 71,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 72,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 73,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 73,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 78,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 79,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 83,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 87,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 87,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 87,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 90,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 90,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 90,
+          "raw_quarters": 4.0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 91,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 92,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 93,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 93,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 93,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 95,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 95,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 96,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 97,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 98,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 99,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 100,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 101,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 101,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 101,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 102,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 102,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 103,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 104,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 104,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 105,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 105,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        },
+        {
+          "measure": 106,
+          "raw_quarters": 4.0,
+          "voice": "upper_primary"
+        },
+        {
+          "measure": 106,
+          "raw_quarters": 0,
+          "voice": "upper_secondary"
+        },
+        {
+          "measure": 106,
+          "raw_quarters": 0,
+          "voice": "lower_pedal"
+        }
+      ]
+    }
+  },
+  "v01_artifact_hashes_unchanged": {
+    "ARRANGEMENT_NOTES.md": "76660ac5badcd9e70044d43d251030fd895a121a79c96c4d5b37174a67753dc4",
+    "BUILD_REPORT.json": "a92c3e51320b3170b8d37d66118799181e4699b25fe44d544b7dbdc455b0250a",
+    "VERIFICATION.json": "a27ae236529565eb9734bd2fbce3a9421d3fd64627f7a65e7d13a01b8cedf313",
+    "arrangement.mid": "fe2021d054e8179ade63c2d808e2624d8cd9a2e4bdcab5f0420dbe46b91b771b",
+    "preview.flac": "cc591f7a64a75b60cdc759d483317d22b820cd1776a872e9b3fbfe03ce028b39",
+    "preview.ogg": "6facdf9570066521a7a53a6859972c5476e5da23742b344351df65212fbb3a00",
+    "preview.render.json": "1b7e1de1112b51d71e00fbf3a56d79ab33c9a1d6d5bf22796501a204cf233168"
+  }
+}
