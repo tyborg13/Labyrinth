@@ -222,3 +222,5 @@ static func _test_global_installation(expect: Callable) -> void:
 	expect.call(shape_ids.size() == 17 and shape_ids.has(Control.CURSOR_HELP) and shape_ids.has(Control.CURSOR_FORBIDDEN), "Transparent fallback should cover every Godot native cursor shape")
 	expect.call(bool(suppression.get("focus_reassertion", false)) and bool(suppression.get("periodic_reassertion", false)), "Native cursor suppression should heal after focus and platform cursor resets")
 	expect.call(float(suppression.get("refresh_seconds", 1.0)) <= 0.25, "Native cursor suppression should reassert quickly during prolonged interaction")
+	expect.call(not CursorFeedbackScript.glyph_should_be_visible(true, true, true), "Controller modality should hide the forged mouse cursor even when the last pointer position remains onscreen")
+	expect.call(CursorFeedbackScript.glyph_should_be_visible(true, true, false), "Returning to pointer modality should restore the forged mouse cursor")

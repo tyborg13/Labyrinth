@@ -7,6 +7,8 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
 const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
@@ -140,6 +142,7 @@ var _title_rim_lines: Array[Label]
 var _title_base_lines: Array[Label]
 var _title_face_lines: Array[Label]
 var _title_face_materials: Array[ShaderMaterial]
+var _controller_prompt_bar
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -151,12 +154,18 @@ func _ready() -> void:
 		settings_panel.connect("back_requested", Callable(self, "_on_settings_back_button_pressed"))
 	resized.connect(_update_layout)
 	_apply_style()
+	_build_controller_prompt_bar()
 	_reload_progression()
 	_update_layout()
 	_play_menu_music()
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	if InputRouterScript.is_controller_event(event):
+		_using_keyboard_navigation = true
+		if not _menu_or_settings_has_focus():
+			_focus_default_keyboard_target()
+		_refresh_controller_prompts()
+	elif event is InputEventMouseMotion:
 		_using_keyboard_navigation = false
 		var mouse_motion := event as InputEventMouseMotion
 		# Clear stale keyboard focus before a later mouse-down can begin. A
@@ -172,6 +181,15 @@ func _input(event: InputEvent) -> void:
 			call_deferred("_clear_menu_keyboard_focus")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+		if _replacement_confirmation_open:
+			_on_replacement_cancel_button_pressed()
+			get_viewport().set_input_as_handled()
+			return
+		if settings_panel.visible:
+			_on_settings_back_button_pressed()
+			get_viewport().set_input_as_handled()
+			return
 	if not _is_keyboard_navigation_event(event):
 		return
 	_using_keyboard_navigation = true
@@ -179,6 +197,36 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	_focus_default_keyboard_target()
 	get_viewport().set_input_as_handled()
+
+func _build_controller_prompt_bar() -> void:
+	if _controller_prompt_bar != null:
+		return
+	_controller_prompt_bar = ControllerPromptBarScript.new()
+	_controller_prompt_bar.name = "ControllerPromptBar"
+	_controller_prompt_bar.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_controller_prompt_bar.anchor_left = 1.0
+	_controller_prompt_bar.anchor_top = 1.0
+	_controller_prompt_bar.anchor_right = 1.0
+	_controller_prompt_bar.anchor_bottom = 1.0
+	_controller_prompt_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_controller_prompt_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_controller_prompt_bar.offset_left = -24.0
+	_controller_prompt_bar.offset_top = -20.0
+	_controller_prompt_bar.offset_right = -24.0
+	_controller_prompt_bar.offset_bottom = -20.0
+	add_child(_controller_prompt_bar)
+	_refresh_controller_prompts()
+
+func _refresh_controller_prompts() -> void:
+	if _controller_prompt_bar == null:
+		return
+	var prompts: Array = [
+		{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
+		{"action": &"controller_dpad", "label": "Navigate"},
+	]
+	if settings_panel.visible or _replacement_confirmation_open:
+		prompts.append({"action": InputRouterScript.ACTION_CANCEL, "label": "Back"})
+	_controller_prompt_bar.set_prompts(prompts)
 
 func _apply_style() -> void:
 	background_art.texture = AssetLoader.load_texture(BACKGROUND_ART_PATH)
@@ -565,6 +613,12 @@ func _update_layout() -> void:
 		panel_x = (viewport_size.x - panel_width) * 0.5
 	settings_panel.position = Vector2(panel_x, panel_y)
 	settings_panel.size = Vector2(panel_width, panel_height)
+	if _controller_prompt_bar != null:
+		var prompt_bottom: float = clampf(viewport_size.y * 0.032, 20.0, 34.0)
+		_controller_prompt_bar.offset_left = -margin_x
+		_controller_prompt_bar.offset_top = -prompt_bottom
+		_controller_prompt_bar.offset_right = -margin_x
+		_controller_prompt_bar.offset_bottom = -prompt_bottom
 
 func _layout_title_lines(title_font_size: int) -> void:
 	_ensure_title_line_labels()
@@ -718,6 +772,10 @@ func _on_music_finished() -> void:
 	_music_player.play()
 
 func _is_keyboard_navigation_event(event: InputEvent) -> bool:
+	if InputRouterScript.is_controller_event(event):
+		if event is InputEventJoypadButton:
+			return (event as InputEventJoypadButton).pressed
+		return absf((event as InputEventJoypadMotion).axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD
 	if not event is InputEventKey:
 		return false
 	var key_event := event as InputEventKey
@@ -731,11 +789,8 @@ func _is_keyboard_navigation_event(event: InputEvent) -> bool:
 	return false
 
 func _menu_or_settings_has_focus() -> bool:
-	for button_var: Variant in _focusable_menu_buttons():
-		var button := button_var as Button
-		if button != null and button.has_focus():
-			return true
-	return false
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	return focus_owner != null and (is_ancestor_of(focus_owner) or settings_panel == focus_owner or settings_panel.is_ancestor_of(focus_owner))
 
 func _clear_menu_keyboard_focus() -> void:
 	for button_var: Variant in _focusable_menu_buttons():
@@ -759,6 +814,9 @@ func _on_start_button_pressed() -> void:
 		_replacement_confirmation_open = true
 		_set_menu_actions_locked(true)
 		_sync_context_panels()
+		_refresh_controller_prompts()
+		if _using_keyboard_navigation:
+			replacement_cancel_button.grab_focus()
 		return
 	_begin_new_game()
 
@@ -766,6 +824,9 @@ func _on_replacement_cancel_button_pressed() -> void:
 	_replacement_confirmation_open = false
 	_set_menu_actions_locked(false)
 	_sync_context_panels()
+	_refresh_controller_prompts()
+	if _using_keyboard_navigation:
+		start_button.grab_focus()
 
 func _on_replacement_confirm_button_pressed() -> void:
 	_begin_new_game()
@@ -795,6 +856,7 @@ func _on_settings_button_pressed() -> void:
 	else:
 		settings_panel.visible = true
 	_sync_context_panels()
+	_refresh_controller_prompts()
 	if _using_keyboard_navigation:
 		settings_back_button.grab_focus()
 	else:
@@ -803,6 +865,7 @@ func _on_settings_button_pressed() -> void:
 func _on_settings_back_button_pressed() -> void:
 	settings_panel.visible = false
 	_sync_context_panels()
+	_refresh_controller_prompts()
 	if _using_keyboard_navigation:
 		settings_button.grab_focus()
 	else:

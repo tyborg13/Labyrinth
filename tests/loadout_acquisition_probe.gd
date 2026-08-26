@@ -138,7 +138,7 @@ func _capture_named_phase(instance: Node, kind: String, phase: String) -> void:
 	await _save_root_screenshot("%s/%s_%s.png" % [OUTPUT_DIR, kind, phase])
 
 func _reward_widget(instance: Node, card_id: String) -> Control:
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox") as Control
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox") as Control
 	for child: Node in hand_box.get_children():
 		if str(child.get_meta("reward_card_id", "")) != card_id:
 			continue

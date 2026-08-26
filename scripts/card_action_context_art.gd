@@ -41,7 +41,22 @@ static func attach_mode_spine(host: Control) -> TextureRect:
 static func attach_mode_placard(button: BaseButton, play_kind: String, accent: Color, active: bool, available: bool) -> TextureRect:
 	var art_path: String = str(MODE_ART_PATHS.get(play_kind, MODE_ART_PATHS["play"]))
 	var texture: Texture2D = AssetLoader.load_texture(art_path)
+	var placard := _texture_layer("ModePlacardTexture", texture, -1)
+	button.add_child(placard)
+	button.set_meta("authored_placard_choice", true)
+	button.set_meta("placard_art_path", art_path)
+	button.set_meta("embedded_identity_icon", true)
+	set_mode_placard_active(button, play_kind, active, available)
+	return placard
+
+
+static func set_mode_placard_active(button: BaseButton, play_kind: String, active: bool, available: bool) -> void:
+	var existing_glow: Node = button.get_node_or_null("SelectedGlow")
+	if existing_glow != null:
+		button.remove_child(existing_glow)
+		existing_glow.queue_free()
 	if active and available:
+		var texture: Texture2D = AssetLoader.load_texture(str(MODE_ART_PATHS.get(play_kind, MODE_ART_PATHS["play"])))
 		var glow := _soft_texture_glow(
 			"SelectedGlow",
 			texture,
@@ -52,13 +67,7 @@ static func attach_mode_placard(button: BaseButton, play_kind: String, accent: C
 		glow.set_meta("matches_pre_battle_start_glow", true)
 		glow.set_meta("follows_placard_alpha", true)
 		button.add_child(glow)
-	var placard := _texture_layer("ModePlacardTexture", texture, -1)
-	button.add_child(placard)
-	button.set_meta("authored_placard_choice", true)
-	button.set_meta("placard_art_path", art_path)
-	button.set_meta("embedded_identity_icon", true)
 	button.set_meta("selected_glow_visible", active and available)
-	return placard
 
 
 static func attach_action_tag(panel: PanelContainer, status: String) -> TextureRect:

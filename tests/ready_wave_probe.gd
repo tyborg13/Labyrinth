@@ -125,7 +125,7 @@ func _save_wave_frame(instance: Node, output_path: String) -> void:
 	image.save_png(output_path)
 
 func _ready_wave_samples(instance: Node) -> Array[Dictionary]:
-	var hand_box: Node = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Node = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox")
 	var widgets: Array[Control] = _card_widgets_under(hand_box)
 	var samples: Array[Dictionary] = []
 	for widget: Control in widgets:

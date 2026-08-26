@@ -138,6 +138,10 @@ func runtime_performance_instrumentation_snapshot() -> Dictionary:
 		}
 	return result
 
+func clear_runtime_performance_instrumentation_snapshot() -> void:
+	_runtime_performance_totals_usec.clear()
+	_runtime_performance_counts.clear()
+
 func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	if not _runtime_performance_instrumentation_enabled:
 		return 0

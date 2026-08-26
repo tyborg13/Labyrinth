@@ -10,6 +10,7 @@ static func run(expect: Callable) -> void:
 	_test_radial_route_bearings_and_stability(expect)
 	_test_all_opposite_route_pairs_keep_opposite_bearings(expect)
 	_test_depth_labels_keep_cardinal_anchors(expect)
+	_test_controller_free_cursor_and_trigger_zoom(expect)
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await _test_map_keyboard_shortcut(tree, expect)
@@ -94,6 +95,48 @@ static func _test_depth_labels_keep_cardinal_anchors(expect: Callable) -> void:
 			relative_after.distance_to(relative_before) <= 0.01,
 			"Panning should move a depth label with its ring instead of choosing a new point around it"
 		)
+	map_view.free()
+
+static func _test_controller_free_cursor_and_trigger_zoom(expect: Callable) -> void:
+	var map_view := LabyrinthMapView.new()
+	map_view.interactive = true
+	map_view.show_legend = false
+	map_view.size = Vector2(1200.0, 760.0)
+	map_view.set_run_state(_branch_choice_state())
+	map_view.call("center_on_current", true)
+	var unconnected_coord := Vector2i(1, 2)
+	var current_room: Dictionary = ((_branch_choice_state().get("rooms", {}) as Dictionary).get(_room_key(CURRENT), {}) as Dictionary)
+	var directly_connected: bool = false
+	for connection_var: Variant in current_room.get("connections", []):
+		if typeof(connection_var) == TYPE_DICTIONARY and (connection_var as Dictionary).get("coord", Vector2i.ZERO) == unconnected_coord:
+			directly_connected = true
+	map_view.set("_controller_cursor_position", map_view.call("_coord_position", unconnected_coord))
+	map_view.call("_snap_controller_cursor_to_nearest")
+	expect.call(not directly_connected and map_view.get("_hover_coord") == unconnected_coord, "Map controller focus should follow the free screen cursor to visible rooms without traversing route adjacency")
+
+	var zoom_before: float = float(map_view.call("_camera_zoom_value"))
+	map_view.set("_controller_zoom_in_strength", 0.72)
+	map_view.call("_process_controller_zoom", 0.10)
+	var zoom_after_short_hold: float = float(map_view.call("_camera_zoom_value"))
+	map_view.call("_process_controller_zoom", 0.40)
+	var zoom_after_long_hold: float = float(map_view.call("_camera_zoom_value"))
+	expect.call(zoom_after_short_hold > zoom_before and zoom_after_long_hold > zoom_after_short_hold, "Holding the right trigger should smoothly accumulate map zoom rather than fire one discrete step")
+	map_view.set("_controller_zoom_in_strength", 0.0)
+	map_view.set("_controller_zoom_out_strength", 0.8)
+	map_view.call("_process_controller_zoom", 0.20)
+	expect.call(float(map_view.call("_camera_zoom_value")) < zoom_after_long_hold, "Holding the left trigger should smoothly zoom the map back out")
+	var zoom_before_hidden_process: float = float(map_view.call("_camera_zoom_value"))
+	map_view.set("_controller_stick", Vector2.RIGHT)
+	map_view.set("_controller_zoom_in_strength", 1.0)
+	map_view.hide()
+	map_view.call("_process", 0.50)
+	expect.call(
+		map_view.get("_controller_stick") == Vector2.ZERO
+		and is_zero_approx(float(map_view.get("_controller_zoom_in_strength")))
+		and is_zero_approx(float(map_view.get("_controller_zoom_out_strength")))
+		and is_equal_approx(float(map_view.call("_camera_zoom_value")), zoom_before_hidden_process),
+		"Closing the map while an axis is held should clear cached controller input without changing the hidden camera"
+	)
 	map_view.free()
 
 static func _test_all_opposite_route_pairs_keep_opposite_bearings(expect: Callable) -> void:

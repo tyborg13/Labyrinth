@@ -351,7 +351,10 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HandBox" type="Container" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter"]
+[node name="HandTuckMargin" type="MarginContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter"]
+layout_mode = 2
+
+[node name="HandBox" type="Container" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin"]
 layout_mode = 2
 script = ExtResource("4_hand")
 
@@ -364,4 +367,4 @@ mouse_filter = 2
 [connection signal="pressed" from="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton" to="." method="_on_menu_button_pressed"]
 [connection signal="tile_clicked" from="BoardUnderlay/CombatBoard" to="." method="_on_board_tile_clicked"]
 [connection signal="tile_hovered" from="BoardUnderlay/CombatBoard" to="." method="_on_board_tile_hovered"]
-[connection signal="cancel_requested" from="BoardUnderlay/CombatBoard" to="." method="_on_cancel_requested"]
+[connection signal="cancel_requested" from="BoardUnderlay/CombatBoard" to="." method="_on_board_cancel_requested"]

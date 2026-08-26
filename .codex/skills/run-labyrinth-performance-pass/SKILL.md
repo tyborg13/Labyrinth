@@ -1,6 +1,6 @@
 ---
 name: run-labyrinth-performance-pass
-description: Profile, optimize, and verify Escape the Umbra runtime performance without changing gameplay, animation cadence, visual quality, input behavior, or player-facing experience. Use for broad optimization passes, frame drops, poor frame pacing, rendering hot spots, runtime allocation or rebuild costs, performance regressions, native Godot benchmarks, or base-versus-candidate performance proof.
+description: Profile, optimize, and verify Escape the Umbra runtime performance without changing gameplay, animation cadence, visual quality, input behavior, or player-facing experience. Use for broad optimization passes, frame drops, poor frame pacing, rendering hot spots, runtime allocation or rebuild costs, performance regressions, Steam or Steam Deck telemetry, native Godot benchmarks, or base-versus-candidate performance proof.
 ---
 
 # Run Labyrinth Performance Pass
@@ -52,6 +52,36 @@ Build a workload map before choosing changes:
 - explicit presentation submissions such as projectiles and impacts;
 - maximum expected units, particles, HUDs, decals, loot, terrain, and effects;
 - map, save, reward, or other non-combat flows when the report implicates them.
+
+## Use Steam Target-Hardware Telemetry
+
+When a performance report comes from a Steam build, read [the telemetry specification](../../../spec/performance_telemetry.md) and use the committed Steam aggregates as target-hardware evidence when all of the following are true:
+
+- the affected device materially differs from the available development machine, especially Steam Deck;
+- the tested build contains the relevant instrumentation and its stat definitions are published for the app that was actually launched;
+- the session was allowed to emit at least one summary through an interval, gameplay-context boundary, or clean shutdown, and the client then had a five-minute store opportunity or completed its clean-shutdown flush.
+
+Query before choosing an optimization when a relevant test has already happened, and query again after the candidate build is tested. Determine whether the user launched the main or Playtest app from the test/build context, then resolve that variant's ID from `steam/steam_build_config.env`; never mix their results. Use a short date range covering the test and save the raw report outside committed source unless the task explicitly calls for a checked-in fixture:
+
+```bash
+python3 tools/steam_performance_stats.py report \
+  --appid <tested-app-id> \
+  --days <test-window-days> \
+  --output /tmp/<task-id>-steam.json
+```
+
+The report command expects `STEAMWORKS_PUBLISHER_KEY` to already be configured in the trusted development environment. The Steam client needs no publisher Web API key to upload: the authenticated SDK session writes client-set User Stats. The publisher key is only for this developer-side global read. Never request that a user paste the key into chat, print it, commit it, place it in an exported build, or persist it beyond the trusted environment they authorized. Creating/revoking a key, publishing stat definitions, or changing App Admin is an external mutation and still requires explicit user authorization.
+
+Validate transport before interpreting performance:
+
+- An omitted-key/API error is not a zero; it usually means the definitions are unpublished, the app/key is wrong, or access failed.
+- Treat an all-zero platform cohort with zero `sessions`, `windows`, and `frame_samples` as absent or insufficient upload evidence, not proof of good performance.
+- A zero missed-frame or section value is meaningful only when its paired denominator (`samples`, `windows`, or `calls`) is positive for the same platform prefix and time range.
+- Use the exact device prefix, such as `perf_v1_linux_steamdeck`; do not blend desktop and Deck cohorts when diagnosing a device report.
+
+Use aggregates to locate the problem, not merely confirm that it exists. Compare missed-frame ratios as `over_* / samples`, section mean cost as `tenths_ms / calls / 10`, and relevant workload cohorts such as `combat_animation` versus `combat_idle`, density, depth, and relic count. Preserve the raw denominators and state the app, prefix, date range, and sample size. Steam aggregates may contain multiple builds or players in the requested window, so do not claim a candidate caused a change unless build exposure makes that inference defensible. Use the richer local JSON/native benchmark to reproduce and attribute any hotspot Steam identifies.
+
+If the current schema cannot answer where the slowdown occurs, add the smallest sparse, additive cohort or paired `calls`/`tenths_ms` section that distinguishes the competing hypotheses. Update the runtime instrumentation, `steam/performance_stats_manifest.json`, `spec/performance_telemetry.md`, and relevant tests together. Every new manifest key also requires publication in the tested app's Steamworks Stats & Achievements admin before a subsequent build can upload it; call that administrative step out explicitly and validate it with a real session before relying on the metric. Missing credentials or unavailable target data should be reported as a limitation, not treated as a blocker to useful matched local profiling.
 
 ## Reproduce Player Reality
 

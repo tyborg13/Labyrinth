@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T03:37:37Z",
+  "updated_at": "2026-08-26T14:18:27Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8507,6 +8507,298 @@
       "source": {
         "branch": "codex/simplify-card-targeting-to-two-clicks",
         "commit": "06d801d"
+      }
+    },
+    {
+      "id": "mnt_20260825T052153Z_8670d9ea",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/settings_store.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/settings_store.gd",
+      "summary": "Fresh Steam Deck installs default to 115% UI scale while desktop remains 100%.",
+      "details": "Use the existing content_scale_factor setting as the systemic handheld legibility mechanism. Avoid a second per-label low-resolution multiplier: it double-scales controller prompts and can break authored typography hierarchy.",
+      "status": "active",
+      "created_at": "2026-08-25T05:21:53Z",
+      "updated_at": "2026-08-25T05:21:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "0ddd433"
+      }
+    },
+    {
+      "id": "mnt_20260825T052153Z_910df927",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/input_router.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/input_router.gd",
+      "summary": "Steam Input can mask the integrated Deck controls as an emulated Xbox gamepad.",
+      "details": "Resolve controller family through GodotSteam getControllerForGamepadIndex/getInputTypeForHandle first, then fall back to Godot device names and the Steam Deck platform signal. This preserves Deck glyphs while an external Xbox pad still gets Xbox glyphs.",
+      "status": "active",
+      "created_at": "2026-08-25T05:21:53Z",
+      "updated_at": "2026-08-25T05:21:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "0ddd433"
+      }
+    },
+    {
+      "id": "mnt_20260825T122333Z_9538faf8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Controller board and map navigation use a continuous screen-space cursor that snaps to visible rendered candidates.",
+      "details": "Integrate the full left-stick vector per frame, then choose the nearest onscreen tile or room center. Combat candidates come from CombatBoardView.controller_navigable_tiles so hidden padding and non-rendered geometry are excluded, and focus renders in the board's projected overlay. Map selection ignores route adjacency and held triggers zoom smoothly.",
+      "status": "active",
+      "created_at": "2026-08-25T12:23:33Z",
+      "updated_at": "2026-08-25T12:23:33Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "ad99aa9"
+      }
+    },
+    {
+      "id": "mnt_20260825T142912Z_166bcf32",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Controller hand focus must never move or resize the combat board.",
+      "details": "Use one fixed controller combat composition sized for the top-tile actor/prop worst case and the tucked-hand edge. X only moves the focused/unfocused card layer over that stationary board.",
+      "status": "active",
+      "created_at": "2026-08-25T14:29:12Z",
+      "updated_at": "2026-08-25T14:29:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "d78867e"
+      }
+    },
+    {
+      "id": "mnt_20260825T142912Z_1e7ab80c",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Controller enemy focus must participate in enemy HUD intent expansion.",
+      "details": "The controller focus tile must feed both the HUD actor cache key and intent row expansion; mouse hover alone drops intent names, action icons, and values for controller players.",
+      "status": "active",
+      "created_at": "2026-08-25T14:29:12Z",
+      "updated_at": "2026-08-25T14:29:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "d78867e"
+      }
+    },
+    {
+      "id": "mnt_20260825T151205Z_bd512b5d",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Controller combat geometry must ignore transient input lockouts",
+      "details": "Use the persistent controller-modality + combat-state predicate for hand row geometry, board viewport sizing, and focused-card sizing. Animation locks, dialogue, and modals may disable custom controller input but must not shrink or move those surfaces. On pointer handoff, clear controller hover/cursor state once; do not clear pointer hover every physics frame.",
+      "status": "active",
+      "created_at": "2026-08-25T15:12:05Z",
+      "updated_at": "2026-08-25T15:12:05Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260825T144330Z_0a4c2316"
+      ],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "4fbd57f"
+      }
+    },
+    {
+      "id": "mnt_20260825T164658Z_9629fd7e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Performance telemetry uses sparse Steam aggregates with callback-safe targets and scene boundaries",
+      "details": "PerformanceTelemetry samples whenever local JSON, Steam stats, or HTTP upload is enabled, but writes JSONL only when local storage is enabled. It flushes and consumes RunScene/CombatEngine sections before RunScene exits, then resets cohorts to frontend. SteamService keeps per-key desired absolute targets across StoreStats callbacks, prevents overlapping stores, reapplies targets after server cache correction, and clears only the submitted generation on success. The canonical runtime and App Admin universe is exactly 676 versioned platform keys, while each window updates only its non-zero active subset.",
+      "status": "active",
+      "created_at": "2026-08-25T16:46:58Z",
+      "updated_at": "2026-08-25T16:46:58Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260825T162554Z_2b207b4a"
+      ],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "adb04d0"
+      }
+    },
+    {
+      "id": "mnt_20260825T165428Z_7e9e793f",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/steam_service.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/steam_service.gd",
+      "summary": "StoreStats may confirm only targets actually applied to Steam's volatile cache",
+      "details": "Keep desired pending stat targets separate from applied targets. A SetStatInt reapply can fail for one key after a rejected StoreStats callback; the next StoreStats generation must snapshot only successfully applied keys, and an OK callback must leave the failed key pending. Clearing every desired target on a later successful callback can silently lose diagnostic or once-per-session increments.",
+      "status": "active",
+      "created_at": "2026-08-25T16:54:28Z",
+      "updated_at": "2026-08-25T16:54:28Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-720p-ui-and-controller-support",
+        "commit": "dd31b7f"
+      }
+    },
+    {
+      "id": "mnt_20260825T211246Z_946efe03",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/steam_service.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/steam_service.gd",
+      "summary": "Steam stat writes require the current-stats readiness handshake",
+      "details": "Call requestCurrentStats after Steam initialization and wait for user_stats_received before GetStat, SetStat, or StoreStats. Queue additive performance-stat deltas while readiness is pending, retry/timeout visibly, and preserve asynchronous store durability diagnostics.",
+      "status": "active",
+      "created_at": "2026-08-25T21:12:46Z",
+      "updated_at": "2026-08-25T21:12:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-steam-deck-cursor-hand-input-stability-and-performance",
+        "commit": "be6590c"
+      }
+    },
+    {
+      "id": "mnt_20260825T211246Z_7f6ff948",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/controller_analog_cursor.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/controller_analog_cursor.gd",
+      "summary": "A stationary controller cursor must not redraw or rescan candidates",
+      "details": "Cache the active cursor target and use a stationary-input fast path. Candidate scans, redraws, and UI submissions at physics frequency become a material handheld hotspot even when the pointer does not move.",
+      "status": "active",
+      "created_at": "2026-08-25T21:12:46Z",
+      "updated_at": "2026-08-25T21:12:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-steam-deck-cursor-hand-input-stability-and-performance",
+        "commit": "be6590c"
+      }
+    },
+    {
+      "id": "mnt_20260825T211246Z_5ede2b15",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Controller board framing uses fixed physical-height envelopes",
+      "details": "Interpolate fixed zoom and vertical-bias endpoints from the physical viewport height at 800p and 1080p. Do not derive framing from actors, notes, hand focus, or animation state; tuck the hand independently so the board remains stable.",
+      "status": "active",
+      "created_at": "2026-08-25T21:12:46Z",
+      "updated_at": "2026-08-25T21:12:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-steam-deck-cursor-hand-input-stability-and-performance",
+        "commit": "be6590c"
+      }
+    },
+    {
+      "id": "mnt_20260826T032508Z_d22f27e4",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Batch dense Umbra translucency through pooled ArrayMeshes",
+      "details": "Dense Pressing Umbra was the dominant completed-frame cost: matched native attribution measured roughly 1,450 world-layer and 240 foreground draw calls from individually submitted soft-lobe/light circles. Preserve authored layer order by flushing before native antialiased boundary lines and text counters, batch the translucent triangles into a per-layer ArrayMesh pool, and precompute the unit-circle samples so steady redraws create no meshes or per-shape trig work. Keep the immediate path available for deterministic A/B proof.",
+      "status": "active",
+      "created_at": "2026-08-26T03:25:08Z",
+      "updated_at": "2026-08-26T03:25:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/optimize-steam-deck-combat-rendering-from-uploaded-telemetry",
+        "commit": "0390fb4"
+      }
+    },
+    {
+      "id": "mnt_20260826T141827Z_c71b0323",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_draw_action_floor_render_layer"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_draw_action_floor_render_layer",
+      "summary": "Preserve impact/Umbra/elemental-floor order while isolating action redraws",
+      "details": "Use impact_floor below world for impact decals, world for Umbra at its normal 30 Hz cadence, and action_floor above world for elemental spell/trap overlays; scene tiles remain above all three. Authored action submissions redraw the two cheap action layers without increasing active Umbra/world cadence.",
+      "status": "active",
+      "created_at": "2026-08-26T14:18:27Z",
+      "updated_at": "2026-08-26T14:18:27Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260826T135732Z_62e38a88"
+      ],
+      "source": {
+        "branch": "codex/optimize-steam-deck-combat-rendering-from-uploaded-telemetry",
+        "commit": "55320c2"
       }
     }
   ]

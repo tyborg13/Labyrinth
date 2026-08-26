@@ -107,8 +107,8 @@ const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_IMMOBILIZE: Color = Color("b8c48f")
 const STATUS_POISON: Color = Color("86bf63")
-const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(128.0, 28.0)
-const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(124.0, 30.0)
+const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(142.0, 32.0)
+const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(138.0, 34.0)
 const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
@@ -176,6 +176,8 @@ const BOARD_VERTICAL_MARGIN: float = 8.0
 const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
 const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.34
 const BOARD_COMBAT_VERTICAL_BIAS: float = 1.20
+const BOARD_CONTROLLER_COMPACT_VERTICAL_BIAS: float = 1.55
+const BOARD_CONTROLLER_EXPANDED_VERTICAL_BIAS: float = 1.25
 const BOARD_ROOM_VERTICAL_BIAS: float = 0.50
 const BOARD_MAX_TILE_WIDTH: float = 184.0
 const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
@@ -189,6 +191,10 @@ const BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.22
 const BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.36
 const BOARD_COMPACT_VIEWPORT_HEIGHT: float = 1080.0
 const BOARD_EXPANDED_VIEWPORT_HEIGHT: float = 1227.0
+const BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT: float = 800.0
+const BOARD_CONTROLLER_EXPANDED_VIEWPORT_HEIGHT: float = 1080.0
+const BOARD_CONTROLLER_COMPACT_NAVIGATION_ZOOM_SCALE: float = 1.23
+const BOARD_CONTROLLER_EXPANDED_NAVIGATION_ZOOM_SCALE: float = 1.35
 const BOARD_PAN_DRAG_THRESHOLD: float = 8.0
 const BOARD_PAN_OVERSCROLL_FRACTION: float = 0.08
 const BOARD_PAN_OVERSCROLL_MAX: float = 72.0
@@ -306,7 +312,9 @@ const RENDER_LAYER_AMBIENT: String = "ambient"
 const RENDER_LAYER_OVERLAYS: String = "overlays"
 const RENDER_LAYER_GROUND: String = "ground"
 const RENDER_LAYER_PATH: String = "path"
+const RENDER_LAYER_IMPACT_FLOOR: String = "impact_floor"
 const RENDER_LAYER_WORLD: String = "world"
+const RENDER_LAYER_ACTION_FLOOR: String = "action_floor"
 const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
 const RENDER_LAYER_FOREGROUND: String = "foreground"
 const RENDER_LAYER_HUD: String = "hud"
@@ -315,6 +323,7 @@ const ELEMENTAL_FOREGROUND_PARTICLE_COUNT: int = 15
 const HUD_LAYOUT_CACHE_LIMIT: int = 32
 const UMBRA_RETURN_STAGGER_SECONDS: float = 0.52
 const UMBRA_RETURN_FADE_SECONDS: float = 0.46
+const UMBRA_SHAPE_BATCH_SEGMENTS: int = 48
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
 const AMBIENT_PARTICLE_OPACITY: float = 0.68
 const AMBIENT_PARTICLE_SPEED_SCALE: float = 1.0
@@ -463,6 +472,7 @@ var exit_tiles: Dictionary = {}
 var exit_icon_ids: Dictionary = {}
 var presentation: Dictionary = {}
 var _hover_tile: Vector2i = Vector2i(-1, -1)
+var _controller_focus_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_moved: bool = false
 var _navigation_zoom: float = BOARD_DEFAULT_NAVIGATION_ZOOM
@@ -515,6 +525,19 @@ var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
 var _ambient_combined_atlas: Texture2D = null
 var _ambient_combined_atlas_regions: Dictionary = {}
 var _ambient_batch_mesh: ArrayMesh = null
+var _ambient_batch_mesh_create_count: int = 0
+var _ambient_batch_mesh_update_count: int = 0
+var _umbra_shape_batch_enabled: bool = true
+var _umbra_shape_batch_active: bool = false
+var _umbra_shape_batch_vertices: PackedVector3Array = PackedVector3Array()
+var _umbra_shape_batch_colors: PackedColorArray = PackedColorArray()
+var _umbra_shape_batch_indices: PackedInt32Array = PackedInt32Array()
+var _umbra_shape_batch_unit_circle: PackedVector2Array = PackedVector2Array()
+var _umbra_shape_batch_meshes: Array[ArrayMesh]
+var _umbra_shape_batch_mesh_cursor: int = 0
+var _umbra_shape_batch_mesh_create_count: int = 0
+var _umbra_shape_batch_mesh_update_count: int = 0
+var _umbra_shape_batch_flush_count: int = 0
 var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
@@ -609,7 +632,9 @@ var _ambient_render_layer: Control = null
 var _overlay_render_layer: Control = null
 var _ground_render_layer: Control = null
 var _path_render_layer: Control = null
+var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
+var _action_floor_render_layer: Control = null
 var _scene_render_layers_by_tile: Dictionary = {}
 var _scene_render_layers: Array = []
 var _foreground_render_layer: Control = null
@@ -638,6 +663,10 @@ func _ready() -> void:
 		set_process(false)
 		return
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	# Godot only starts its tooltip timer for Controls that advertise tooltip
+	# content. The board resolves that content dynamically in _get_tooltip(), so a
+	# non-empty sentinel is required for real pointer hover to reach that virtual.
+	tooltip_text = " "
 	# The board's input rect remains stage-sized, but its art may flow beneath the
 	# surrounding HUD. The scene keeps fixed HUD controls above this canvas.
 	clip_contents = false
@@ -672,7 +701,9 @@ func _create_dynamic_render_layer() -> void:
 	_overlay_render_layer = _create_retained_render_layer("OverlayRenderLayer", RENDER_LAYER_OVERLAYS)
 	_ground_render_layer = _create_retained_render_layer("GroundRenderLayer", RENDER_LAYER_GROUND)
 	_path_render_layer = _create_retained_render_layer("PathRenderLayer", RENDER_LAYER_PATH)
+	_impact_floor_render_layer = _create_retained_render_layer("ImpactFloorRenderLayer", RENDER_LAYER_IMPACT_FLOOR)
 	_dynamic_render_layer = _create_retained_render_layer("DynamicRenderLayer", RENDER_LAYER_WORLD)
+	_action_floor_render_layer = _create_retained_render_layer("ActionFloorRenderLayer", RENDER_LAYER_ACTION_FLOOR)
 	_foreground_render_layer = _create_retained_render_layer("ForegroundRenderLayer", RENDER_LAYER_FOREGROUND)
 	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
@@ -693,7 +724,7 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 
 func _retained_render_layers() -> Array:
 	var layers: Array = []
-	for layer: Control in [_ambient_render_layer, _overlay_render_layer, _ground_render_layer, _path_render_layer, _dynamic_render_layer]:
+	for layer: Control in [_ambient_render_layer, _overlay_render_layer, _ground_render_layer, _path_render_layer, _impact_floor_render_layer, _dynamic_render_layer, _action_floor_render_layer]:
 		if layer != null and is_instance_valid(layer):
 			layers.append(layer)
 	for layer_var: Variant in _scene_render_layers:
@@ -726,7 +757,7 @@ func _sync_scene_render_layers() -> void:
 			layer.set("_render_layer_tile", tile)
 			_scene_render_layers_by_tile[tile] = layer
 		_scene_render_layers.append(layer)
-	var insertion_index: int = _dynamic_render_layer.get_index() + 1
+	var insertion_index: int = _action_floor_render_layer.get_index() + 1
 	for layer_var: Variant in _scene_render_layers:
 		move_child(layer_var as Control, insertion_index)
 		insertion_index += 1
@@ -767,7 +798,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 	if fields.is_empty():
 		fields = [
 			"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
-			"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile",
+			"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile", "_controller_focus_tile",
 			"_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_navigation_content_signature",
 			"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature", "_board_visual_framing_signature",
 			"_board_layout_cache_visual_top_offset",
@@ -799,6 +830,7 @@ func _queue_dynamic_redraw() -> void:
 	for layer: Control in _retained_render_layers():
 		layer.set("_idle_elapsed", _idle_elapsed)
 		layer.set("_hover_tile", _hover_tile)
+		layer.set("_controller_focus_tile", _controller_focus_tile)
 		layer.queue_redraw()
 
 func _queue_render_layer_redraw(layer: Control) -> void:
@@ -806,6 +838,7 @@ func _queue_render_layer_redraw(layer: Control) -> void:
 		return
 	layer.set("_idle_elapsed", _idle_elapsed)
 	layer.set("_hover_tile", _hover_tile)
+	layer.set("_controller_focus_tile", _controller_focus_tile)
 	if layer == _ambient_render_layer:
 		layer.set("_ambient_display_intensities", _ambient_display_intensities)
 	layer.queue_redraw()
@@ -819,6 +852,12 @@ func render_instrumentation_snapshot() -> Dictionary:
 	var layer_draw_counts: Dictionary = {}
 	var layer_draw_total_usec: Dictionary = {}
 	var scene_tile_draw_counts: Dictionary = {}
+	var ambient_batch_mesh_create_count: int = _ambient_batch_mesh_create_count
+	var ambient_batch_mesh_update_count: int = _ambient_batch_mesh_update_count
+	var umbra_shape_batch_mesh_count: int = _umbra_shape_batch_meshes.size()
+	var umbra_shape_batch_mesh_create_count: int = _umbra_shape_batch_mesh_create_count
+	var umbra_shape_batch_mesh_update_count: int = _umbra_shape_batch_mesh_update_count
+	var umbra_shape_batch_flush_count: int = _umbra_shape_batch_flush_count
 	if not _retained_render_layers().is_empty():
 		dynamic_count = 0
 		dynamic_total_usec = 0
@@ -835,6 +874,13 @@ func render_instrumentation_snapshot() -> Dictionary:
 			if layer_kind == RENDER_LAYER_SCENE_TILE:
 				var layer_tile: Vector2i = layer.get("_render_layer_tile") as Vector2i
 				scene_tile_draw_counts["%d,%d" % [layer_tile.x, layer_tile.y]] = layer_count
+			ambient_batch_mesh_create_count += int(layer.get("_ambient_batch_mesh_create_count"))
+			ambient_batch_mesh_update_count += int(layer.get("_ambient_batch_mesh_update_count"))
+			var layer_umbra_meshes: Array = layer.get("_umbra_shape_batch_meshes") as Array
+			umbra_shape_batch_mesh_count += layer_umbra_meshes.size()
+			umbra_shape_batch_mesh_create_count += int(layer.get("_umbra_shape_batch_mesh_create_count"))
+			umbra_shape_batch_mesh_update_count += int(layer.get("_umbra_shape_batch_mesh_update_count"))
+			umbra_shape_batch_flush_count += int(layer.get("_umbra_shape_batch_flush_count"))
 			_merge_render_section_metrics(section_total_usec, layer.get("_render_section_total_usec") as Dictionary, false)
 			_merge_render_section_metrics(section_max_usec, layer.get("_render_section_max_usec") as Dictionary, true)
 	return {
@@ -857,6 +903,13 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
 		"layout_content_rebuild_count": _board_layout_content_rebuild_count,
 		"unit_shadow_sync_misses": _unit_shadow_sync_miss_metrics.duplicate(true),
+		"ambient_batch_mesh_create_count": ambient_batch_mesh_create_count,
+		"ambient_batch_mesh_update_count": ambient_batch_mesh_update_count,
+		"umbra_shape_batch_enabled": _umbra_shape_batch_enabled,
+		"umbra_shape_batch_mesh_count": umbra_shape_batch_mesh_count,
+		"umbra_shape_batch_mesh_create_count": umbra_shape_batch_mesh_create_count,
+		"umbra_shape_batch_mesh_update_count": umbra_shape_batch_mesh_update_count,
+		"umbra_shape_batch_flush_count": umbra_shape_batch_flush_count,
 	}
 
 func _merge_render_section_metrics(target: Dictionary, source: Dictionary, keep_maximum: bool) -> void:
@@ -878,6 +931,11 @@ func reset_render_instrumentation() -> void:
 	_render_section_total_usec.clear()
 	_render_section_max_usec.clear()
 	_unit_shadow_sync_miss_metrics.clear()
+	_ambient_batch_mesh_create_count = 0
+	_ambient_batch_mesh_update_count = 0
+	_umbra_shape_batch_mesh_create_count = 0
+	_umbra_shape_batch_mesh_update_count = 0
+	_umbra_shape_batch_flush_count = 0
 	for layer: Control in _retained_render_layers():
 		layer.call("reset_render_instrumentation")
 
@@ -918,11 +976,11 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 		or not _confirmation_target_tiles_lookup_cache.is_empty()
 	):
 		_queue_render_layer_redraw(_overlay_render_layer)
-	if not skip_impact and (
-		str(presentation.get("umbra_stage", "clear")) != "clear"
-		or _impact_animation_active()
-	):
+	if not skip_impact and str(presentation.get("umbra_stage", "clear")) != "clear":
 		_queue_render_layer_redraw(_dynamic_render_layer)
+	if not skip_impact and _impact_animation_active():
+		_queue_render_layer_redraw(_impact_floor_render_layer)
+		_queue_render_layer_redraw(_action_floor_render_layer)
 	if (
 		_campfire_atmosphere_active()
 		or _pillar_torch_ember_motes_active()
@@ -1168,7 +1226,14 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_unit_obstruction_entries = _unit_obstruction_entries_by_key(_visible_units())
 	submission_phase_started = _record_submission_performance_phase("diff", submission_phase_started)
 	var layout_inputs_changed: bool = state_changed or exit_tiles_changed or _board_layout_signature.is_empty()
-	for layout_key: String in ["active_door_tiles", "locked_door_tiles", "board_backdrop_visible", "board_framing_mode", "board_safe_global_rect"]:
+	for layout_key: String in [
+		"active_door_tiles",
+		"locked_door_tiles",
+		"board_backdrop_visible",
+		"board_framing_mode",
+		"board_safe_global_rect",
+		"controller_combat_navigation",
+	]:
 		if presentation_changes.has(layout_key):
 			layout_inputs_changed = true
 			break
@@ -1523,7 +1588,8 @@ func _queue_presentation_change_redraws(
 	var ambient_changed: bool = false
 	var overlay_changed: bool = false
 	var path_changed: bool = false
-	var world_changed: bool = false
+	var impact_floor_changed: bool = false
+	var action_floor_changed: bool = false
 	var impact_changed: bool = false
 	var unit_movement_changed: bool = false
 	var foreground_changed: bool = false
@@ -1543,18 +1609,18 @@ func _queue_presentation_change_redraws(
 				effects_changed = true
 			"effect", "effect_progress":
 				effects_changed = true
-				world_changed = true
+				action_floor_changed = true
 			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect":
 				effects_changed = true
 			"trap_effects":
 				effects_changed = true
-				world_changed = true
+				action_floor_changed = true
 			"damage_preview":
 				effects_changed = true
 			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
-				world_changed = true
+				impact_floor_changed = true
 				impact_changed = true
 			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids":
 				unit_movement_changed = true
@@ -1576,9 +1642,12 @@ func _queue_presentation_change_redraws(
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if path_changed:
 		_queue_render_layer_redraw(_path_render_layer)
-	if world_changed:
+	if impact_floor_changed or action_floor_changed:
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
-		_queue_render_layer_redraw(_dynamic_render_layer)
+	if impact_floor_changed:
+		_queue_render_layer_redraw(_impact_floor_render_layer)
+	if action_floor_changed:
+		_queue_render_layer_redraw(_action_floor_render_layer)
 	if impact_changed:
 		_queue_impact_scene_redraws()
 	if unit_movement_changed:
@@ -2040,6 +2109,12 @@ func _default_navigation_zoom_for_viewport() -> float:
 	return clampf(default_zoom * _navigation_zoom_scale_for_presentation(presentation), BOARD_MIN_NAVIGATION_ZOOM, BOARD_MAX_NAVIGATION_ZOOM)
 
 func _navigation_zoom_scale_for_presentation(source: Dictionary) -> float:
+	if bool(source.get("controller_combat_navigation", false)):
+		return lerpf(
+			BOARD_CONTROLLER_COMPACT_NAVIGATION_ZOOM_SCALE,
+			BOARD_CONTROLLER_EXPANDED_NAVIGATION_ZOOM_SCALE,
+			_controller_viewport_expansion()
+		)
 	if not (source.get("objective_exit_target_tiles", []) as Array).is_empty():
 		return BOARD_REACH_EXIT_DEFAULT_NAVIGATION_ZOOM_SCALE
 	return 1.0
@@ -2091,6 +2166,32 @@ func _update_hover_at(pointer_position: Vector2) -> Vector2i:
 	_queue_hover_redraws()
 	return next_hover
 
+func set_controller_focus_tile(tile: Vector2i) -> void:
+	if tile == _controller_focus_tile:
+		return
+	_controller_focus_tile = tile
+	if _controller_focus_tile.x >= 0:
+		_hover_tile = Vector2i(-1, -1)
+	if _overlay_render_layer != null and is_instance_valid(_overlay_render_layer):
+		_overlay_render_layer.set("_controller_focus_tile", _controller_focus_tile)
+		_overlay_render_layer.set("_hover_tile", _hover_tile)
+	if _hud_render_layer != null and is_instance_valid(_hud_render_layer):
+		_hud_render_layer.set("_controller_focus_tile", _controller_focus_tile)
+		_hud_render_layer.set("_hover_tile", _hover_tile)
+	_queue_hover_redraws()
+
+func controller_navigable_tiles(include_visible_doors: bool = false) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var grid: Array = combat_state.get("grid", [])
+	for tile: Vector2i in _rendered_tiles_in_draw_order():
+		if not _tile_in_grid(grid, tile) or not _board_tile_is_visible_to_player(tile):
+			continue
+		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+		var is_floor: bool = tile_id not in ["wall", "pillar", "door", "void", "empty", ""]
+		if is_floor or (include_visible_doors and tile_id == "door" and _door_is_visible(tile)):
+			result.append(tile)
+	return result
+
 func _clear_hover_for_navigation() -> void:
 	if _hover_tile.x < 0:
 		return
@@ -2129,6 +2230,12 @@ func _navigation_transform_changed(update_hover: bool) -> void:
 	navigation_changed.emit()
 
 func _get_tooltip(at_position: Vector2) -> String:
+	# Equipment floats and bobs independently of its tile layer. Resolve its live
+	# draw rect directly so pointer inspection is reliable even between retained
+	# scene-layer redraws or near the edge of the sprite's glow.
+	var live_loot_tooltip: String = _loot_tooltip_at_position(at_position)
+	if not live_loot_tooltip.is_empty():
+		return live_loot_tooltip
 	var tooltip_sources: Array = _retained_render_layers()
 	tooltip_sources.reverse()
 	tooltip_sources.append(self)
@@ -2140,6 +2247,32 @@ func _get_tooltip(at_position: Vector2) -> String:
 			var rect: Rect2 = region.get("rect", Rect2())
 			if rect.has_point(at_position):
 				return str(region.get("tooltip", ""))
+	return ""
+
+func _loot_tooltip_at_position(at_position: Vector2) -> String:
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if bool(loot.get("claimed", false)):
+			continue
+		var tile: Vector2i = loot.get("pos", Vector2i(-1, -1))
+		if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+			continue
+		var texture: Texture2D = _loot_texture(loot)
+		if texture == null:
+			continue
+		if _loot_rect_for_tile(tile, texture, loot).grow(18.0).has_point(at_position):
+			return _loot_tooltip_text(loot)
+	return ""
+
+func controller_tooltip_for_tile(tile: Vector2i) -> String:
+	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if not bool(loot.get("claimed", false)) and _board_tile_is_visible_to_player(tile):
+			return _loot_tooltip_text(loot)
 	return ""
 
 func _make_custom_tooltip(for_text: String) -> Object:
@@ -2163,8 +2296,12 @@ func _draw() -> void:
 				_draw_ground_render_layer()
 			RENDER_LAYER_PATH:
 				_draw_path_render_layer()
+			RENDER_LAYER_IMPACT_FLOOR:
+				_draw_impact_floor_render_layer()
 			RENDER_LAYER_WORLD:
 				_draw_world_render_layer()
+			RENDER_LAYER_ACTION_FLOOR:
+				_draw_action_floor_render_layer()
 			RENDER_LAYER_SCENE_TILE:
 				_draw_scene_tile_render_layer()
 			RENDER_LAYER_FOREGROUND:
@@ -2200,14 +2337,16 @@ func _draw_dynamic_board() -> void:
 	_draw_overlay_render_layer()
 	_draw_ground_render_layer()
 	_draw_path_render_layer()
+	_draw_impact_floor_render_layer()
 	_draw_world_render_layer()
+	_draw_action_floor_render_layer()
 	if not combat_state.is_empty():
 		var grid: Array = combat_state.get("grid", [])
 		var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 		var units_to_draw: Array[Dictionary] = _visible_units()
 		_draw_scene_objects(grid, tiles, units_to_draw)
 		_draw_large_enemy_attack_highlights(units_to_draw)
-		_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
+		_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
 		_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 		_draw_campfire_ember_motes()
 	_draw_effects_render_layer()
@@ -2238,12 +2377,30 @@ func _draw_world_render_layer() -> void:
 		return
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	var section_started_usec: int = Time.get_ticks_usec()
-	_draw_impact_decals()
-	_record_render_section_time("impact_decals", section_started_usec)
-	section_started_usec = Time.get_ticks_usec()
 	_draw_umbra_overlay(tiles)
 	_record_render_section_time("umbra", section_started_usec)
-	section_started_usec = Time.get_ticks_usec()
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_impact_floor_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	_draw_impact_decals()
+	_record_render_section_time("impact_decals", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_action_floor_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
 	_draw_elemental_spell_floor_overlay()
 	_draw_elemental_trap_floor_overlay()
 	_record_render_section_time("elemental_floor_overlays", section_started_usec)
@@ -2321,7 +2478,7 @@ func _draw_foreground_render_layer() -> void:
 	_draw_large_enemy_attack_highlights(units_to_draw)
 	_record_render_section_time("foreground_attack_highlights", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
-	_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
+	_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
 	_record_render_section_time("foreground_umbra_markers", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
 	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
@@ -2396,12 +2553,13 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
 	if stage_id == "clear" or tiles.is_empty():
 		return
+	_begin_umbra_shape_batch(true)
 	var visible_lookup: Dictionary = {}
 	for tile_var: Variant in presentation.get("umbra_visible_tiles", []):
 		if typeof(tile_var) == TYPE_VECTOR2I:
 			visible_lookup[tile_var] = true
 	var stage_alpha: float = _umbra_stage_fill_alpha(stage_id)
-	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var time_seconds: float = _umbra_visual_time_seconds()
 	var hidden_tiles: Array[Vector2i] = _vector2i_array([])
 	var hidden_lookup: Dictionary = {}
 	var return_progress_by_tile: Dictionary = {}
@@ -2412,7 +2570,10 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 		hidden_tiles.append(tile)
 		hidden_lookup[tile] = true
 		return_progress_by_tile[tile] = return_progress
-		draw_colored_polygon(_tile_polygon(tile), Color(0.012, 0.008, 0.026, stage_alpha * return_progress))
+		_draw_or_queue_umbra_polygon(
+			_tile_polygon(tile),
+			Color(0.012, 0.008, 0.026, stage_alpha * return_progress)
+		)
 	for tile: Vector2i in hidden_tiles:
 		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
 		if return_progress <= 0.0:
@@ -2420,6 +2581,97 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 		_draw_umbra_tile_billows(tile, time_seconds, stage_alpha, return_progress)
 	_draw_umbra_boundary_billows(hidden_tiles, visible_lookup, hidden_lookup, return_progress_by_tile, time_seconds, stage_alpha)
 	_draw_umbra_light_sources(time_seconds)
+	_flush_umbra_shape_batch()
+
+func _begin_umbra_shape_batch(reset_mesh_cursor: bool = false) -> void:
+	_umbra_shape_batch_active = _umbra_shape_batch_enabled
+	_ensure_umbra_shape_batch_unit_circle()
+	if reset_mesh_cursor:
+		_umbra_shape_batch_mesh_cursor = 0
+	_umbra_shape_batch_vertices = PackedVector3Array()
+	_umbra_shape_batch_colors = PackedColorArray()
+	_umbra_shape_batch_indices = PackedInt32Array()
+
+func _ensure_umbra_shape_batch_unit_circle() -> void:
+	if _umbra_shape_batch_unit_circle.size() == UMBRA_SHAPE_BATCH_SEGMENTS:
+		return
+	_umbra_shape_batch_unit_circle.resize(UMBRA_SHAPE_BATCH_SEGMENTS)
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		var angle: float = TAU * float(segment_index) / float(UMBRA_SHAPE_BATCH_SEGMENTS)
+		_umbra_shape_batch_unit_circle[segment_index] = Vector2(cos(angle), sin(angle))
+
+func _flush_umbra_shape_batch() -> void:
+	_umbra_shape_batch_active = false
+	if _umbra_shape_batch_vertices.is_empty():
+		return
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = _umbra_shape_batch_vertices
+	arrays[Mesh.ARRAY_COLOR] = _umbra_shape_batch_colors
+	arrays[Mesh.ARRAY_INDEX] = _umbra_shape_batch_indices
+	var batch_mesh: ArrayMesh = null
+	if _umbra_shape_batch_mesh_cursor < _umbra_shape_batch_meshes.size():
+		batch_mesh = _umbra_shape_batch_meshes[_umbra_shape_batch_mesh_cursor]
+		batch_mesh.clear_surfaces()
+	else:
+		batch_mesh = ArrayMesh.new()
+		_umbra_shape_batch_meshes.append(batch_mesh)
+		_umbra_shape_batch_mesh_create_count += 1
+	batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_umbra_shape_batch_mesh_cursor += 1
+	_umbra_shape_batch_mesh_update_count += 1
+	_umbra_shape_batch_flush_count += 1
+	draw_mesh(batch_mesh, null)
+
+func _draw_or_queue_umbra_polygon(points: PackedVector2Array, color: Color) -> void:
+	if not _umbra_shape_batch_active:
+		draw_colored_polygon(points, color)
+		return
+	if points.size() < 3 or color.a <= 0.0:
+		return
+	var first_vertex: int = _umbra_shape_batch_vertices.size()
+	for point: Vector2 in points:
+		_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+		_umbra_shape_batch_colors.append(color)
+	for point_index: int in range(1, points.size() - 1):
+		_umbra_shape_batch_indices.append(first_vertex)
+		_umbra_shape_batch_indices.append(first_vertex + point_index)
+		_umbra_shape_batch_indices.append(first_vertex + point_index + 1)
+
+func _queue_umbra_shape_circle(
+	center: Vector2,
+	radius: float,
+	ellipse_scale: Vector2,
+	rotation: float,
+	color: Color
+) -> void:
+	if radius <= 0.0 or color.a <= 0.0:
+		return
+	var center_vertex: int = _umbra_shape_batch_vertices.size()
+	_umbra_shape_batch_vertices.append(Vector3(center.x, center.y, 0.0))
+	_umbra_shape_batch_colors.append(color)
+	var ring_vertex: int = _umbra_shape_batch_vertices.size()
+	var cosine: float = cos(rotation)
+	var sine: float = sin(rotation)
+	var axis_x := Vector2(cosine, sine) * radius * ellipse_scale.x
+	var axis_y := Vector2(-sine, cosine) * radius * ellipse_scale.y
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		var unit_point: Vector2 = _umbra_shape_batch_unit_circle[segment_index]
+		var point: Vector2 = center + axis_x * unit_point.x + axis_y * unit_point.y
+		_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+		_umbra_shape_batch_colors.append(color)
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		_umbra_shape_batch_indices.append(center_vertex)
+		_umbra_shape_batch_indices.append(ring_vertex + segment_index)
+		_umbra_shape_batch_indices.append(
+			ring_vertex + (segment_index + 1) % UMBRA_SHAPE_BATCH_SEGMENTS
+		)
+
+func _draw_or_queue_umbra_circle(center: Vector2, radius: float, color: Color) -> void:
+	if _umbra_shape_batch_active:
+		_queue_umbra_shape_circle(center, radius, Vector2.ONE, 0.0, color)
+	else:
+		draw_circle(center, radius, color)
 
 func _umbra_stage_fill_alpha(stage_id: String) -> float:
 	return {
@@ -2430,6 +2682,9 @@ func _umbra_stage_fill_alpha(stage_id: String) -> float:
 		"heart": 0.70,
 		"eclipse": 0.74
 	}.get(stage_id, 0.60)
+
+func _umbra_visual_time_seconds() -> float:
+	return float(presentation.get("umbra_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
 
 func _draw_umbra_tile_billows(tile: Vector2i, time_seconds: float, stage_alpha: float, return_progress: float) -> void:
 	var seed: int = tile.x * 92821 + tile.y * 68917 + 1709
@@ -2510,8 +2765,12 @@ func _draw_umbra_boundary_billows(hidden_tiles: Array[Vector2i], visible_lookup:
 				)
 			var edge_points: PackedVector2Array = _umbra_boundary_edge(tile, neighbor_offset)
 			if edge_points.size() == 2:
+				# Preserve the authored boundary-line ordering exactly while still
+				# collapsing the hundreds of soft lobe circles between edges.
+				_flush_umbra_shape_batch()
 				draw_line(edge_points[0], edge_points[1], Color(0.008, 0.005, 0.020, 0.86 * return_progress), 3.4, true)
 				draw_line(edge_points[0], edge_points[1], Color(0.20, 0.105, 0.285, (0.30 + stage_alpha * 0.10) * return_progress), 1.1, true)
+				_begin_umbra_shape_batch()
 
 func _umbra_boundary_edge(tile: Vector2i, neighbor_offset: Vector2i) -> PackedVector2Array:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
@@ -2535,6 +2794,20 @@ func _umbra_boundary_edge(tile: Vector2i, neighbor_offset: Vector2i) -> PackedVe
 
 func _draw_umbra_soft_lobe(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
 	if layer_count <= 0 or color.a <= 0.0:
+		return
+	if _umbra_shape_batch_active:
+		for layer_index: int in range(layer_count, 0, -1):
+			var t: float = float(layer_index) / float(layer_count)
+			var inner_weight: float = pow(1.0 - t, 0.76)
+			var layer_alpha: float = color.a * (0.028 + inner_weight * 0.082)
+			var layer_radius: float = radius * (0.12 + t * 0.88)
+			_queue_umbra_shape_circle(
+				center,
+				layer_radius,
+				ellipse_scale,
+				rotation,
+				Color(color.r, color.g, color.b, layer_alpha)
+			)
 		return
 	draw_set_transform(center, rotation, ellipse_scale)
 	for layer_index: int in range(layer_count, 0, -1):
@@ -2610,6 +2883,7 @@ func _draw_umbra_light_source_reach(source: Dictionary, time_seconds: float) -> 
 
 func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 	var font: Font = get_theme_default_font()
+	_begin_umbra_shape_batch(true)
 	for source_var: Variant in presentation.get("umbra_light_sources", []):
 		if typeof(source_var) != TYPE_DICTIONARY:
 			continue
@@ -2629,12 +2903,17 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var orb_center: Vector2 = _umbra_light_orb_center(tile, source_seed, time_seconds)
 		var orb_radius: float = clampf(_tile_width() * 0.115, 11.0, 20.0) * breath
 		_draw_umbra_light_orb(orb_center, orb_radius, glow_brightness, source_seed, time_seconds)
+		# Counters are text-bearing HUD details. Flush the batched glow underneath
+		# before drawing their native font and outline commands on top.
+		_flush_umbra_shape_batch()
 		var count_text: String = "∞" if remaining < 0 else str(maxi(0, remaining))
 		var chip_rect: Rect2 = _draw_umbra_light_orb_counter(orb_center, orb_radius, count_text, font, glow_brightness)
 		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player turn%s remaining." % [remaining, "" if remaining == 1 else "s"]
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
 		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
 		_register_tooltip(marker_rect, tooltip)
+		_begin_umbra_shape_batch()
+	_flush_umbra_shape_batch()
 
 func _tethered_light_tooltip(source: Dictionary) -> String:
 	var radius: int = maxi(1, int(source.get("radius", 1)))
@@ -2673,7 +2952,7 @@ func _draw_umbra_tethered_light_marker(tile: Vector2i, source_seed: float, time_
 	for mote_index: int in range(3):
 		var phase: float = time_seconds * (0.72 + float(mote_index) * 0.11) + source_seed * 0.013 + float(mote_index) * TAU / 3.0
 		var mote_center: Vector2 = center + Vector2(cos(phase) * halo_radius * 0.84, sin(phase) * halo_radius * 0.28)
-		draw_circle(mote_center, 1.8 + float(mote_index) * 0.35, Color(1.0, 0.90, 0.52, 0.78))
+		_draw_or_queue_umbra_circle(mote_center, 1.8 + float(mote_index) * 0.35, Color(1.0, 0.90, 0.52, 0.78))
 	return Rect2(center - Vector2(halo_radius * 1.9, halo_radius), Vector2(halo_radius * 3.8, halo_radius * 2.0))
 
 func _umbra_light_orb_breath(source_seed: float, time_seconds: float) -> float:
@@ -2730,7 +3009,7 @@ func _draw_umbra_light_orb(orb_center: Vector2, orb_radius: float, glow_brightne
 		var layer_radius: float = orb_radius * (0.16 + outer_t * 0.92)
 		var layer_color: Color = Color("ff9d16").lerp(Color("fff8c9"), pow(core_weight, 0.66))
 		layer_color.a = lerpf(0.012, 0.20, pow(core_weight, 0.74))
-		draw_circle(layer_center, layer_radius, layer_color)
+		_draw_or_queue_umbra_circle(layer_center, layer_radius, layer_color)
 	_draw_campfire_soft_ellipse(
 		orb_center + core_drift - Vector2(orb_radius * 0.25, orb_radius * 0.28),
 		orb_radius * 0.55,
@@ -2767,6 +3046,10 @@ func _draw_umbra_light_orb_motes(orb_center: Vector2, orb_radius: float, source_
 func _draw_umbra_light_orb_counter(orb_center: Vector2, orb_radius: float, count_text: String, font: Font, pulse: float) -> Rect2:
 	var chip_radius: float = clampf(orb_radius * 0.56, 7.5, 10.5)
 	var chip_center: Vector2 = orb_center + Vector2(orb_radius * 0.82, orb_radius * 0.68)
+	# The caller flushes the orb first, so the chip glow can use its own pooled
+	# translucent batch while the label remains a native text draw above it.
+	if _umbra_shape_batch_enabled:
+		_begin_umbra_shape_batch()
 	_draw_campfire_soft_ellipse(
 		chip_center,
 		chip_radius * 1.85 * pulse,
@@ -2775,6 +3058,8 @@ func _draw_umbra_light_orb_counter(orb_center: Vector2, orb_radius: float, count
 		Color(1.0, 0.67, 0.18, 0.28),
 		10
 	)
+	if _umbra_shape_batch_enabled:
+		_flush_umbra_shape_batch()
 	var chip_rect := Rect2(chip_center - Vector2.ONE * chip_radius, Vector2.ONE * chip_radius * 2.0)
 	if font != null:
 		draw_string(font, Vector2(chip_rect.position.x + 1.2, chip_center.y + 5.2), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color(0.05, 0.025, 0.01, 0.92))
@@ -2864,6 +3149,20 @@ func _draw_campfire_soft_floor_bloom(floor_point: Vector2, flame_point: Vector2,
 
 func _draw_campfire_soft_ellipse(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
 	if layer_count <= 0 or color.a <= 0.0:
+		return
+	if _umbra_shape_batch_active:
+		for layer_index: int in range(layer_count, 0, -1):
+			var t: float = float(layer_index) / float(layer_count)
+			var inner_weight: float = pow(1.0 - t, 0.84)
+			var layer_alpha: float = color.a * (0.022 + inner_weight * 0.056)
+			var layer_radius: float = radius * (0.10 + t * 0.90)
+			_queue_umbra_shape_circle(
+				center,
+				layer_radius,
+				ellipse_scale,
+				rotation,
+				Color(color.r, color.g, color.b, layer_alpha)
+			)
 		return
 	for layer_index: int in range(layer_count, 0, -1):
 		var t: float = float(layer_index) / float(layer_count)
@@ -3640,10 +3939,14 @@ func _flush_ambient_particle_batch() -> void:
 	arrays[Mesh.ARRAY_TEX_UV] = _ambient_batch_uvs
 	arrays[Mesh.ARRAY_COLOR] = _ambient_batch_colors
 	arrays[Mesh.ARRAY_INDEX] = _ambient_batch_indices
-	var batch_mesh := ArrayMesh.new()
-	batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	_ambient_batch_mesh = batch_mesh
-	draw_mesh(batch_mesh, _ambient_combined_atlas)
+	if _ambient_batch_mesh == null:
+		_ambient_batch_mesh = ArrayMesh.new()
+		_ambient_batch_mesh_create_count += 1
+	else:
+		_ambient_batch_mesh.clear_surfaces()
+	_ambient_batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_ambient_batch_mesh_update_count += 1
+	draw_mesh(_ambient_batch_mesh, _ambient_combined_atlas)
 
 func _ensure_ambient_combined_atlas() -> void:
 	if _ambient_combined_atlas != null:
@@ -3797,8 +4100,31 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
-	if tile == _hover_tile:
+	if tile == _hover_tile and _controller_focus_tile.x < 0:
 		draw_colored_polygon(polygon, HOVER_HIGHLIGHT)
+	if tile == _controller_focus_tile:
+		if exit_tiles.has(tile):
+			_draw_controller_door_focus(tile)
+		else:
+			draw_colored_polygon(polygon, Color(0.98, 0.79, 0.37, 0.16))
+			_draw_tile_ring(tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90)
+
+func _draw_controller_door_focus(tile: Vector2i) -> void:
+	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.009)
+	draw_colored_polygon(_tile_polygon(tile), Color(0.18, 0.79, 0.78, lerpf(0.22, 0.36, pulse)))
+	_draw_tile_ring(tile, Color(0.40, 0.96, 0.91, 0.98), lerpf(4.0, 5.4, pulse), 0.94)
+	_draw_tile_ring(tile, Color(1.0, 0.84, 0.42, lerpf(0.56, 0.94, pulse)), 2.2, 1.10)
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width()
+	var marker_y: float = center.y - _tile_height() * 0.42
+	var chevron_half: float = clampf(tile_width * 0.075, 7.0, 13.0)
+	var chevron := PackedVector2Array([
+		Vector2(center.x - chevron_half, marker_y - chevron_half * 0.32),
+		Vector2(center.x, marker_y + chevron_half * 0.45),
+		Vector2(center.x + chevron_half, marker_y - chevron_half * 0.32),
+	])
+	draw_polyline(chevron, Color(0.06, 0.11, 0.12, 0.78), 6.0, true)
+	draw_polyline(chevron, Color(0.76, 1.0, 0.94, 0.98), 3.0, true)
 
 func _draw_attack_target_pulse(tile: Vector2i) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -4174,7 +4500,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if _loot_renders_below_path(loot):
 			continue
 		_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
-		_register_tooltip(loot_rect.grow(8.0), _loot_tooltip_text(loot))
+		_register_tooltip(loot_rect.grow(18.0), _loot_tooltip_text(loot))
 
 func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
 	var tint: Color = _foreground_blocker_tint(tile_id, tile, pillar_rect, obstruction_entries)
@@ -5301,7 +5627,8 @@ func _rebuild_hud_health_rects_cache() -> bool:
 	return true
 
 func _hud_hover_actor_key(hud_units: Array[Dictionary]) -> String:
-	if _hover_tile.x < 0:
+	var focus_tile: Vector2i = _controller_focus_tile if _controller_focus_tile.x >= 0 else _hover_tile
+	if focus_tile.x < 0:
 		return ""
 	for unit: Dictionary in hud_units:
 		if str(unit.get("role", "")) != "enemy":
@@ -5309,10 +5636,10 @@ func _hud_hover_actor_key(hud_units: Array[Dictionary]) -> String:
 		var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
 		var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
 		if (
-			_hover_tile.x >= origin.x
-			and _hover_tile.y >= origin.y
-			and _hover_tile.x < origin.x + maxi(1, footprint.x)
-			and _hover_tile.y < origin.y + maxi(1, footprint.y)
+			focus_tile.x >= origin.x
+			and focus_tile.y >= origin.y
+			and focus_tile.x < origin.x + maxi(1, footprint.x)
+			and focus_tile.y < origin.y + maxi(1, footprint.y)
 		):
 			return _enemy_hud_actor_key(unit)
 	return ""
@@ -5475,7 +5802,7 @@ func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> voi
 
 func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, font: Font) -> void:
 	var display_hp: int = _health_bar_fill_hp(unit, preview)
-	var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 1.0)
+	var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 2.0)
 	var hp_text: String = "%d/%d" % [display_hp, int(unit.get("max_hp", 1))]
 	var text_color: Color = Color("fff4dc") if preview.is_empty() else Color("ffe1ae")
 	for offset: Vector2 in [
@@ -5490,7 +5817,7 @@ func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, f
 			hp_text,
 			HORIZONTAL_ALIGNMENT_CENTER,
 			rect.size.x,
-			10,
+			13,
 			Color("140f0b")
 		)
 	draw_string(
@@ -5499,7 +5826,7 @@ func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, f
 		hp_text,
 		HORIZONTAL_ALIGNMENT_CENTER,
 		rect.size.x,
-		10,
+		13,
 		text_color
 	)
 
@@ -6130,7 +6457,10 @@ func _enemy_intent_expanded(unit: Dictionary) -> bool:
 		actor_key = "enemy_%d" % int(unit.get("id", -1))
 	if not actor_key.is_empty() and expanded_keys.has(actor_key):
 		return true
-	return _unit_footprint_tiles(unit).has(_hover_tile)
+	return (
+		_unit_footprint_tiles(unit).has(_hover_tile)
+		or _unit_footprint_tiles(unit).has(_controller_focus_tile)
+	)
 
 func _all_enemy_intents_expanded() -> bool:
 	return bool(presentation.get("show_all_enemy_intents", presentation.get("expand_enemy_intents", false)))
@@ -11901,7 +12231,31 @@ func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vecto
 	return Rect2(content_position + pan, content_size)
 
 func _board_vertical_bias() -> float:
-	return BOARD_COMBAT_VERTICAL_BIAS if str(presentation.get("board_framing_mode", "room")) == "combat" else BOARD_ROOM_VERTICAL_BIAS
+	if str(presentation.get("board_framing_mode", "room")) != "combat":
+		return BOARD_ROOM_VERTICAL_BIAS
+	if bool(presentation.get("controller_combat_navigation", false)):
+		return lerpf(
+			BOARD_CONTROLLER_COMPACT_VERTICAL_BIAS,
+			BOARD_CONTROLLER_EXPANDED_VERTICAL_BIAS,
+			_controller_viewport_expansion()
+		)
+	return BOARD_COMBAT_VERTICAL_BIAS
+
+func _controller_viewport_expansion() -> float:
+	# Controller framing is authored against two fixed output envelopes: the
+	# Steam Deck's 800p panel and the desktop 1080p proof surface. Interpolating
+	# only from viewport size keeps a stable composition for a given display; it
+	# never reacts to actors, props, tutorials, hand focus, or animation state.
+	# Viewport.size is the physical output envelope. get_viewport_rect() may report
+	# a stretched logical override (the Deck proof is 1280x800 rendered from a
+	# 1503x939 logical canvas), which would incorrectly treat 800p as a midpoint.
+	var viewport_height: float = float(get_viewport().size.y) if is_inside_tree() else size.y
+	return clampf(
+		(viewport_height - BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT)
+		/ (BOARD_CONTROLLER_EXPANDED_VIEWPORT_HEIGHT - BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT),
+		0.0,
+		1.0
+	)
 
 func _navigation_pan_limits(extents: Dictionary, tile_width: float) -> Rect2:
 	var content_rect: Rect2 = _navigation_content_rect(extents, tile_width)
