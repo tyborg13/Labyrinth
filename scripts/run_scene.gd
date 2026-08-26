@@ -16098,8 +16098,7 @@ func _refresh_stage_view() -> void:
 		_board_status_detail(preview),
 		_exit_labels_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_labels_for_board(display_state),
 		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_icon_ids_for_board(display_state),
-		presentation,
-		true
+		presentation
 	)
 	performance_phase_started = _record_runtime_performance_phase("stage_board_submission", performance_phase_started)
 	_refresh_boss_health_overlay(display_state, presentation)
@@ -19647,6 +19646,7 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		return
 	var reduced_motion: bool = _reduced_motion_enabled()
 	var started_usec: int = Time.get_ticks_usec()
+	var state_validated_for_animation: bool = false
 	while true:
 		var elapsed_seconds: float = maxf(0.0, initial_elapsed_seconds) + float(Time.get_ticks_usec() - started_usec) / 1000000.0
 		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
@@ -19663,7 +19663,8 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
 			presentation["effect_progress"] = 1.0 if reduced_motion else t
 		presentation["floating_texts"] = FloatingCombatText.animate_entries(base_texts, elapsed_seconds, reduced_motion)
-		_render_board_state(display_state, presentation)
+		_render_board_state(display_state, presentation, state_validated_for_animation)
+		state_validated_for_animation = true
 		if elapsed_seconds >= duration_seconds:
 			break
 		await get_tree().process_frame
@@ -19829,6 +19830,7 @@ func _animate_defeats_and_terrain_destruction(
 		frame_count = maxi(frame_count, terrain_frame_count)
 		frame_seconds = minf(frame_seconds, _terrain_destruction_frame_seconds_for_unit(terrain))
 	frame_count = maxi(1, frame_count)
+	var state_validated_for_animation: bool = false
 	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
 		var frame: int = frame_number - 1
 		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
@@ -19853,9 +19855,10 @@ func _animate_defeats_and_terrain_destruction(
 			presentation["death_animation_units"] = animated_units
 		if not animated_terrain.is_empty():
 			presentation["terrain_destruction_units"] = animated_terrain
-		_render_board_state(after_state, presentation)
+		_render_board_state(after_state, presentation, state_validated_for_animation)
+		state_validated_for_animation = true
 	)
-	_render_board_state(after_state, {})
+	_render_board_state(after_state, {}, state_validated_for_animation)
 	await get_tree().create_timer(0.04).timeout
 
 func _death_hold_presentation(
@@ -19997,11 +20000,17 @@ func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Di
 	var base_texts: Array[Dictionary] = _fatigue_floating_texts_for_events(display_state, fatigue_events)
 	var duration_seconds: float = FloatingCombatText.total_duration(base_texts)
 	var started_usec: int = Time.get_ticks_usec()
+	var state_validated_for_animation: bool = false
 	while true:
 		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
 		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 		_set_fatigue_edge_progress(minf(t, FATIGUE_EDGE_HOLD_PROGRESS))
-		_render_board_state(display_state, _fatigue_damage_presentation_for_elapsed(display_state, fatigue_events, elapsed_seconds))
+		_render_board_state(
+			display_state,
+			_fatigue_damage_presentation_for_elapsed(display_state, fatigue_events, elapsed_seconds),
+			state_validated_for_animation
+		)
+		state_validated_for_animation = true
 		if elapsed_seconds >= duration_seconds:
 			break
 		await get_tree().process_frame
@@ -20014,7 +20023,7 @@ func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Di
 			break
 		await get_tree().process_frame
 	_set_fatigue_edge_progress(-1.0)
-	_render_board_state(display_state, {})
+	_render_board_state(display_state, {}, state_validated_for_animation)
 
 func _set_fatigue_edge_progress(progress: float) -> void:
 	if _fatigue_edge_overlay == null:
@@ -20248,7 +20257,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_color": Color(0.53, 0.48, 0.92, 0.24),
 					"effect": {"kind": "blink", "from": player_before_tile, "to": player_after_tile},
 					"effect_progress": t
-				})
+				}, true)
 			)
 			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
@@ -20275,7 +20284,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 					"focus_tiles": focus_tiles,
 					"focus_color": Color(0.40, 0.86, 0.94, 0.18 + 0.12 * t)
-				})
+				}, true)
 			)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
@@ -20298,7 +20307,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_actor_color": Color("ffe394"),
 					"focus_tiles": [target_tile],
 					"focus_color": Color(1.0, 0.82, 0.34, 0.16 + 0.22 * sin(t * PI))
-				})
+				}, true)
 			)
 			await _animate_floating_text_presentation(primary_display_state, {
 				"focus_tiles": [target_tile],
@@ -20392,7 +20401,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 							attack_destroyed_terrain,
 							_attack_terrain_destruction_progress(effect, t)
 						)
-				_render_board_state(effect_display_state, presentation)
+				_render_board_state(effect_display_state, presentation, true)
 			)
 			var final_feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
 				effect,
@@ -20731,7 +20740,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 								attack_destroyed_terrain,
 								_attack_terrain_destruction_progress(step, t)
 							)
-					_render_board_state(effect_display_state, presentation)
+					_render_board_state(effect_display_state, presentation, true)
 				)
 				var final_feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
 					step,
@@ -20788,6 +20797,7 @@ func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) 
 		frame_count = maxi(frame_count, _enemy_death_frame_count_for_unit(enemy))
 		frame_seconds = minf(frame_seconds, _enemy_death_frame_seconds_for_unit(enemy))
 	frame_count = maxi(1, frame_count)
+	var state_validated_for_animation: bool = false
 	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
 		var frame: int = frame_number - 1
 		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
@@ -20805,7 +20815,8 @@ func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) 
 			"death_animation_units": animated_units,
 			"focus_tiles": [((spawned[0] as Dictionary).get("pos", Vector2i.ZERO))],
 			"focus_color": Color(0.50, 0.26, 0.62, 0.22)
-		})
+		}, state_validated_for_animation)
+		state_validated_for_animation = true
 	)
 	animated_state.clear()
 	animated_state.merge(final_state, true)
@@ -20931,7 +20942,7 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			draw_tile,
 			segment_to
 		)
-		_render_board_state(display_state, presentation)
+		_render_board_state(display_state, presentation, true)
 	)
 
 func _movement_actor_frame_presentation(
@@ -21060,7 +21071,7 @@ func _stop_music_tween() -> void:
 		_music_tween.kill()
 	_music_tween = null
 
-func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
+func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
@@ -21094,7 +21105,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		_objective_exit_labels_for_board(display_state),
 		_objective_exit_icon_ids_for_board(display_state),
 		rendered_presentation,
-		true
+		state_stable_since_last_submission
 	)
 	_refresh_boss_health_overlay(display_state, rendered_presentation)
 

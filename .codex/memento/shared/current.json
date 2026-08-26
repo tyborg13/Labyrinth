@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-26T22:54:13Z",
+  "updated_at": "2026-08-26T23:09:11Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8848,7 +8848,7 @@
       }
     },
     {
-      "id": "mnt_20260826T225413Z_73e5635a",
+      "id": "mnt_20260826T230911Z_a310f896",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -8857,16 +8857,18 @@
         "symbol": null
       },
       "scope_key": "project:.",
-      "summary": "Combat animation submissions use immutable-reference and per-actor invalidation fast paths",
-      "details": "RunScene opts CombatBoardView animation submissions into trusted same-reference combat state and shallow-copies movement presentation top levels. CombatBoardView must preserve the conservative default for generic in-place callers, route moving actors through targeted HUD/obstruction/tile cache updates, and invalidate idle redraws per animation source rather than by one global cadence signature. The dense submission benchmark is the semantic/performance guard for player and enemy motion.",
+      "summary": "Validate mutable combat boundaries before stable same-reference animation fast paths",
+      "details": "RunScene's enemy animation state is mutable across authored step commits. Generic board submissions and the first frame after any possible mutation must retain conservative same-reference detection; only subsequent frames over a proven-stable state reference may set the trust flag. Movement interpolation over an unchanged pre-step snapshot can trust immediately. The dense submission benchmark must keep a production-style in-place enemy commit assertion for visible-unit, HUD, and obstruction cache equivalence.",
       "status": "active",
-      "created_at": "2026-08-26T22:54:13Z",
-      "updated_at": "2026-08-26T22:54:13Z",
+      "created_at": "2026-08-26T23:09:11Z",
+      "updated_at": "2026-08-26T23:09:11Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260826T225413Z_73e5635a"
+      ],
       "source": {
         "branch": "codex/steam-deck-animation-performance-pass",
-        "commit": "d9cff55c"
+        "commit": "0db93d0d"
       }
     }
   ]

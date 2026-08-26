@@ -48,6 +48,7 @@ func _initialize() -> void:
 	var enemy: Dictionary = (board.call("_units_by_key", board.call("_visible_units")) as Dictionary).get("enemy_1", {}) as Dictionary
 	var enemy_center: Vector2 = board.call("world_position_for_unit_origin", enemy, enemy.get("pos", Vector2i.ZERO)) as Vector2
 	_verify_incremental_geometry(board, state, presentation, "enemy_1", enemy, enemy_center + Vector2(-44.0, 22.0), Vector2i(2, 2))
+	_verify_in_place_enemy_commit(board, state, presentation, "enemy_1", Vector2i(2, 2))
 	_set_board_state(board, state, presentation)
 
 	var results: Dictionary = {
@@ -89,10 +90,10 @@ func _submit_sequence(board: Control, state: Dictionary, presentations: Array[Di
 	for presentation: Dictionary in presentations:
 		_set_board_state(board, state, presentation)
 
-func _set_board_state(board: Control, state: Dictionary, presentation: Dictionary) -> void:
+func _set_board_state(board: Control, state: Dictionary, presentation: Dictionary, trust_same_reference_state: bool = true) -> void:
 	var arguments: Array = [state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation]
 	if _trusted_same_reference_supported:
-		arguments.append(true)
+		arguments.append(trust_same_reference_state)
 	board.callv("set_combat_state", arguments)
 
 func _method_argument_count(object: Object, method_name: String) -> int:
@@ -138,6 +139,53 @@ func _verify_incremental_geometry(
 	_expect(incremental_hud_entries == full_hud_entries, "%s incremental HUD entries must equal a forced full rebuild" % actor_key)
 	_expect(incremental_health_rects == full_health_rects, "%s incremental health rects must equal a forced full rebuild" % actor_key)
 	_expect(incremental_obstructions == full_obstructions, "%s incremental obstruction entries must equal a forced full rebuild" % actor_key)
+
+func _verify_in_place_enemy_commit(
+	board: Control,
+	state: Dictionary,
+	base: Dictionary,
+	actor_key: String,
+	committed_tile: Vector2i
+) -> void:
+	# Enemy animation playback interpolates through presentation, then mutates its
+	# working combat dictionary in place at the authored step boundary. The first
+	# post-mutation submission must remain conservative before later frames opt
+	# back into the stable same-reference fast path.
+	var original_enemies: Array = (state.get("enemies", []) as Array).duplicate(true)
+	_set_board_state(board, state, base)
+	var units_by_key: Dictionary = board.call("_units_by_key", board.call("_visible_units")) as Dictionary
+	var enemy_before: Dictionary = units_by_key.get(actor_key, {}) as Dictionary
+	var enemy_center: Vector2 = board.call("world_position_for_unit_origin", enemy_before, enemy_before.get("pos", Vector2i.ZERO)) as Vector2
+	_set_board_state(board, state, _moving_presentation(base, actor_key, enemy_center + Vector2(36.0, 18.0), committed_tile))
+
+	var enemies: Array = state.get("enemies", []) as Array
+	for enemy_index: int in range(enemies.size()):
+		var enemy: Dictionary = enemies[enemy_index] as Dictionary
+		if "enemy_%d" % int(enemy.get("id", -1)) != actor_key:
+			continue
+		enemy["pos"] = committed_tile
+		enemies[enemy_index] = enemy
+		break
+	_set_board_state(board, state, base, false)
+	var incremental_units: Array = (board.get("_visible_units_cache") as Array).duplicate(true)
+	var incremental_hud_entries: Array = (board.get("_hud_layout_entries_cache") as Array).duplicate(true)
+	var incremental_health_rects: Dictionary = (board.get("_hud_health_rects_cache") as Dictionary).duplicate(true)
+	var incremental_obstructions: Array = (board.get("_foreground_obstruction_entries_cache") as Array).duplicate(true)
+	var committed_enemy: Dictionary = (board.call("_units_by_key", incremental_units) as Dictionary).get(actor_key, {}) as Dictionary
+	_expect(committed_enemy.get("pos", Vector2i(-1, -1)) == committed_tile, "%s committed in-place movement must replace interpolated geometry" % actor_key)
+
+	board.set("_submission_cache_initialized", false)
+	board.set("_submission_cache_valid", false)
+	board.call("_rebuild_submission_caches")
+	board.set("_hud_health_rects_source_snapshot", {})
+	board.call("_rebuild_hud_health_rects_cache")
+	_expect(incremental_units == (board.get("_visible_units_cache") as Array), "%s committed in-place units must equal a forced full rebuild" % actor_key)
+	_expect(incremental_hud_entries == (board.get("_hud_layout_entries_cache") as Array), "%s committed in-place HUD entries must equal a forced full rebuild" % actor_key)
+	_expect(incremental_health_rects == (board.get("_hud_health_rects_cache") as Dictionary), "%s committed in-place health rects must equal a forced full rebuild" % actor_key)
+	_expect(incremental_obstructions == (board.get("_foreground_obstruction_entries_cache") as Array), "%s committed in-place obstructions must equal a forced full rebuild" % actor_key)
+
+	state["enemies"] = original_enemies
+	_set_board_state(board, state, base, false)
 
 func _stress_state() -> Dictionary:
 	var combat := CombatEngine.new()

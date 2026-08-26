@@ -1239,10 +1239,10 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var previous_combat_render_source: Dictionary = {}
 	var next_combat_render_source: Dictionary = {}
 	var combat_render_changes: Dictionary = {}
-	# Generic callers keep conservative in-place mutation detection. RunScene owns
-	# immutable animation snapshots and explicitly opts out when it resubmits the
-	# same state reference, avoiding two recursive combat-state comparisons per
-	# rendered animation frame.
+	# Generic callers keep conservative in-place mutation detection. RunScene opts
+	# out only for a stable sequence of animation samples after the state boundary
+	# has been validated, avoiding recursive combat-state comparisons on each
+	# subsequent rendered frame without hiding in-place enemy-step commits.
 	if state_reference_changed or (_submission_cache_initialized and not trust_same_reference_state):
 		previous_combat_render_source = (
 			_submission_cache_source_snapshot.get("combat", {}) as Dictionary
