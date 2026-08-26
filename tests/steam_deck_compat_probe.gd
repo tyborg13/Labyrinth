@@ -181,6 +181,22 @@ func _capture_run_surfaces() -> void:
 	instance.set("_controller_stick", Vector2.ZERO)
 	instance.call("_controller_process_board_cursor", 0.0)
 	_assert_board_cursor_center(instance)
+	var equipment_tile := Vector2i(4, 3)
+	var equipment_trigger: String = str(controller_board.call("controller_tooltip_for_tile", equipment_tile))
+	_require(equipment_trigger.begins_with("equipment:"), "Board equipment should expose its rich tooltip trigger to pointer and controller inspection")
+	var equipment_loot: Dictionary = ((instance.get("_combat_state") as Dictionary).get("loot", []) as Array)[0] as Dictionary
+	var equipment_texture: Texture2D = controller_board.call("_loot_texture", equipment_loot) as Texture2D
+	var equipment_rect: Rect2 = controller_board.call("_loot_rect_for_tile", equipment_tile, equipment_texture, equipment_loot) as Rect2
+	_require(
+		str(controller_board.call("_get_tooltip", equipment_rect.get_center())).begins_with("equipment:"),
+		"Pointer hover over the live equipment pickup rect should expose its tooltip without requiring a retained-layer redraw"
+	)
+	var equipment_candidate: Dictionary = instance.call("_controller_candidate_for_tile", equipment_tile) as Dictionary
+	_require(str(equipment_candidate.get("kind", "")) == "equipment", "The free controller cursor should identify an equipment pickup as equipment")
+	_require(str(equipment_candidate.get("detail", "")).contains("Adds"), "Focused board equipment should explain the cards it adds without opening Character")
+	instance.call("_controller_set_board_tile", equipment_tile)
+	await _settle()
+	await _save_screenshot("combat_equipment_pickup_tooltip.png")
 	await _save_screenshot("combat_board_cursor.png")
 
 	instance.call("_controller_set_hand_focused", false)
@@ -268,7 +284,14 @@ func _capture_run_surfaces() -> void:
 	var room_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	var combat_coord: Vector2i = _first_available_combat_coord(run_engine, room_state)
 	_require(combat_coord != Vector2i(999, 999), "Steam Deck proof needs an available combat room")
+	instance.call("_controller_clear_focus_candidate")
+	instance.set("_controller_virtual_board_position", Vector2.INF)
 	instance.call("_refresh_controller_interface")
+	_require((instance.get("_controller_focus_candidate") as Dictionary).is_empty(), "Room navigation should start with a genuinely free cursor and no implicit door target")
+	_require(instance.get("_controller_board_tile") == Vector2i(-1, -1), "Room navigation should not assign the first door before the cursor reaches one")
+	var room_coord_before_accept: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room", Vector2i(-1, -1))
+	await instance.call("_controller_activate_current")
+	_require((instance.get("_run_state") as Dictionary).get("current_room", Vector2i(-2, -2)) == room_coord_before_accept, "A in free room space should not open any door")
 	var exits: Dictionary = instance.get("_exit_destinations_by_tile") as Dictionary
 	var combat_door: Vector2i = Vector2i(-1, -1)
 	for tile_var: Variant in exits.keys():
@@ -276,6 +299,16 @@ func _capture_run_surfaces() -> void:
 			combat_door = tile_var as Vector2i
 			break
 	_require(combat_door.x >= 0, "Room controller navigation should expose the combat route as a board door")
+	instance.call("_controller_set_board_tile", combat_door)
+	var loadout_control: Control = instance.get("loadout_button") as Control
+	var loadout_candidate: Dictionary = instance.call("_controller_candidate_for_control", loadout_control) as Dictionary
+	instance.call("_controller_set_focus_candidate", loadout_candidate, true)
+	await instance.call("_controller_activate_current")
+	await _settle()
+	_require((instance.get("_upgrade_scrim") as Control).visible, "A on the Character button during room navigation should open Character, not a focused door")
+	_require((instance.get("_run_state") as Dictionary).get("current_room", Vector2i(-2, -2)) == room_coord_before_accept, "Opening Character from room navigation must not travel through the previously focused door")
+	instance.call("_close_card_upgrade_overlay")
+	await _settle()
 	instance.call("_controller_set_board_tile", combat_door)
 	_assert_board_cursor_center(instance)
 	_assert_prompt_bar(instance.get("_controller_prompt_bar") as Control, "Room door navigation")
@@ -307,6 +340,10 @@ func _capture_run_surfaces() -> void:
 	await _settle()
 
 func _exercise_controller_combat_events(instance: Node) -> void:
+	# A GUI probe runs beside the host Mac pointer. Keep incidental host-mouse
+	# jitter from changing modality during long authored action waits; explicit
+	# pointer/controller handoff cases below still call set_modality directly.
+	_router.set("_last_controller_activity_msec", Time.get_ticks_msec() + 60000)
 	await _load_combat_fixture(instance)
 	instance.set("_controller_region", "hand")
 	instance.set("_controller_hand_index", 0)
@@ -489,6 +526,16 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 			_require(detail_panel != null and bool(detail_panel.get_meta("tooltip_surface", false)), "Header cursor detail should reuse the shared game tooltip presentation")
 		await _save_screenshot("combat_header_cursor.png")
 
+	await _load_combat_fixture(instance)
+	instance.set("_controller_region", "hand")
+	instance.call("_controller_set_hand_focused", true)
+	# Async GDScript executes synchronously until its first await, so this checks
+	# the presentation state at the exact moment the enemy phase begins.
+	instance.call("_on_pass_turn_pressed")
+	_require(str(instance.get("_controller_region")) == "board" and not bool(instance.get("_controller_hand_focused")), "Pass should tuck the controller hand before the first enemy action frame")
+	await _wait_for_combat_animation(instance)
+	_require(not bool(instance.get("_controller_hand_focused")), "Pass should leave the hand tucked when control returns to the player")
+
 func _exercise_controller_merchant(instance: Node, run_engine, restore_state: Dictionary) -> void:
 	var merchant_state: Dictionary = _blacksmith_controller_state(run_engine)
 	_require(not merchant_state.is_empty(), "Controller proof should find a deterministic blacksmith room")
@@ -588,6 +635,12 @@ func _exercise_controller_loadout(instance: Node, base_state: Dictionary) -> voi
 	instance.call("_open_character_overlay", "equipment")
 	await _settle()
 	var gear_tiles: Dictionary = instance.get("_equipment_inventory_tiles") as Dictionary
+	var gear_slots: Dictionary = instance.get("_equipment_slot_panels") as Dictionary
+	var initial_gear_focus: Control = _viewport.gui_get_focus_owner()
+	_require(
+		gear_slots.values().has(initial_gear_focus) or gear_tiles.values().has(initial_gear_focus),
+		"Opening Character with a controller should immediately focus a meaningful gear tile instead of the Close button"
+	)
 	var gear_tile: Control = gear_tiles.get("iron_cleaver") as Control
 	_require(gear_tile != null and gear_tile.focus_mode == Control.FOCUS_ALL, "Spare gear should be controller-focusable outside combat")
 	gear_tile.grab_focus()
@@ -622,6 +675,11 @@ func _exercise_controller_loadout(instance: Node, base_state: Dictionary) -> voi
 	var reserve_tile: Control = reserve_tiles.get(reserve_index) as Control
 	var attuned_tiles: Dictionary = instance.get("_magic_attuned_tiles") as Dictionary
 	var attuned_tile: Control = attuned_tiles.get(0) as Control
+	var initial_magic_focus: Control = _viewport.gui_get_focus_owner()
+	_require(
+		attuned_tiles.values().has(initial_magic_focus) or reserve_tiles.values().has(initial_magic_focus),
+		"Switching to Magic with a controller should immediately focus a spell tile instead of an unrelated control"
+	)
 	_require(reserve_tile != null and attuned_tile != null, "Magic swap should expose both controller endpoints")
 	reserve_tile.grab_focus()
 	# Establish the pre-handoff inspection deterministically even if a deferred
@@ -752,6 +810,13 @@ func _load_combat_fixture(instance: Node) -> void:
 	combat_state["card_play_bonus_this_turn"] = 0
 	combat_state["traps"] = []
 	combat_state["terrain"] = []
+	combat_state["loot"] = [{
+		"id": "steam_deck_probe_equipment",
+		"kind": "equipment",
+		"equipment_id": "training_sword",
+		"pos": Vector2i(4, 3),
+		"claimed": false,
+	}]
 	var restrictions: Dictionary = (combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
 	restrictions["immobilized"] = false
 	restrictions["frozen"] = false

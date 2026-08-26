@@ -107,8 +107,8 @@ const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_IMMOBILIZE: Color = Color("b8c48f")
 const STATUS_POISON: Color = Color("86bf63")
-const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(128.0, 28.0)
-const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(124.0, 30.0)
+const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(142.0, 32.0)
+const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(138.0, 34.0)
 const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
@@ -312,7 +312,9 @@ const RENDER_LAYER_AMBIENT: String = "ambient"
 const RENDER_LAYER_OVERLAYS: String = "overlays"
 const RENDER_LAYER_GROUND: String = "ground"
 const RENDER_LAYER_PATH: String = "path"
+const RENDER_LAYER_IMPACT_FLOOR: String = "impact_floor"
 const RENDER_LAYER_WORLD: String = "world"
+const RENDER_LAYER_ACTION_FLOOR: String = "action_floor"
 const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
 const RENDER_LAYER_FOREGROUND: String = "foreground"
 const RENDER_LAYER_HUD: String = "hud"
@@ -630,7 +632,9 @@ var _ambient_render_layer: Control = null
 var _overlay_render_layer: Control = null
 var _ground_render_layer: Control = null
 var _path_render_layer: Control = null
+var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
+var _action_floor_render_layer: Control = null
 var _scene_render_layers_by_tile: Dictionary = {}
 var _scene_render_layers: Array = []
 var _foreground_render_layer: Control = null
@@ -659,6 +663,10 @@ func _ready() -> void:
 		set_process(false)
 		return
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	# Godot only starts its tooltip timer for Controls that advertise tooltip
+	# content. The board resolves that content dynamically in _get_tooltip(), so a
+	# non-empty sentinel is required for real pointer hover to reach that virtual.
+	tooltip_text = " "
 	# The board's input rect remains stage-sized, but its art may flow beneath the
 	# surrounding HUD. The scene keeps fixed HUD controls above this canvas.
 	clip_contents = false
@@ -693,7 +701,9 @@ func _create_dynamic_render_layer() -> void:
 	_overlay_render_layer = _create_retained_render_layer("OverlayRenderLayer", RENDER_LAYER_OVERLAYS)
 	_ground_render_layer = _create_retained_render_layer("GroundRenderLayer", RENDER_LAYER_GROUND)
 	_path_render_layer = _create_retained_render_layer("PathRenderLayer", RENDER_LAYER_PATH)
+	_impact_floor_render_layer = _create_retained_render_layer("ImpactFloorRenderLayer", RENDER_LAYER_IMPACT_FLOOR)
 	_dynamic_render_layer = _create_retained_render_layer("DynamicRenderLayer", RENDER_LAYER_WORLD)
+	_action_floor_render_layer = _create_retained_render_layer("ActionFloorRenderLayer", RENDER_LAYER_ACTION_FLOOR)
 	_foreground_render_layer = _create_retained_render_layer("ForegroundRenderLayer", RENDER_LAYER_FOREGROUND)
 	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
@@ -714,7 +724,7 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 
 func _retained_render_layers() -> Array:
 	var layers: Array = []
-	for layer: Control in [_ambient_render_layer, _overlay_render_layer, _ground_render_layer, _path_render_layer, _dynamic_render_layer]:
+	for layer: Control in [_ambient_render_layer, _overlay_render_layer, _ground_render_layer, _path_render_layer, _impact_floor_render_layer, _dynamic_render_layer, _action_floor_render_layer]:
 		if layer != null and is_instance_valid(layer):
 			layers.append(layer)
 	for layer_var: Variant in _scene_render_layers:
@@ -747,7 +757,7 @@ func _sync_scene_render_layers() -> void:
 			layer.set("_render_layer_tile", tile)
 			_scene_render_layers_by_tile[tile] = layer
 		_scene_render_layers.append(layer)
-	var insertion_index: int = _dynamic_render_layer.get_index() + 1
+	var insertion_index: int = _action_floor_render_layer.get_index() + 1
 	for layer_var: Variant in _scene_render_layers:
 		move_child(layer_var as Control, insertion_index)
 		insertion_index += 1
@@ -966,11 +976,11 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 		or not _confirmation_target_tiles_lookup_cache.is_empty()
 	):
 		_queue_render_layer_redraw(_overlay_render_layer)
-	if not skip_impact and (
-		str(presentation.get("umbra_stage", "clear")) != "clear"
-		or _impact_animation_active()
-	):
+	if not skip_impact and str(presentation.get("umbra_stage", "clear")) != "clear":
 		_queue_render_layer_redraw(_dynamic_render_layer)
+	if not skip_impact and _impact_animation_active():
+		_queue_render_layer_redraw(_impact_floor_render_layer)
+		_queue_render_layer_redraw(_action_floor_render_layer)
 	if (
 		_campfire_atmosphere_active()
 		or _pillar_torch_ember_motes_active()
@@ -1578,7 +1588,8 @@ func _queue_presentation_change_redraws(
 	var ambient_changed: bool = false
 	var overlay_changed: bool = false
 	var path_changed: bool = false
-	var world_changed: bool = false
+	var impact_floor_changed: bool = false
+	var action_floor_changed: bool = false
 	var impact_changed: bool = false
 	var unit_movement_changed: bool = false
 	var foreground_changed: bool = false
@@ -1598,18 +1609,18 @@ func _queue_presentation_change_redraws(
 				effects_changed = true
 			"effect", "effect_progress":
 				effects_changed = true
-				world_changed = true
+				action_floor_changed = true
 			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect":
 				effects_changed = true
 			"trap_effects":
 				effects_changed = true
-				world_changed = true
+				action_floor_changed = true
 			"damage_preview":
 				effects_changed = true
 			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
-				world_changed = true
+				impact_floor_changed = true
 				impact_changed = true
 			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids":
 				unit_movement_changed = true
@@ -1631,9 +1642,12 @@ func _queue_presentation_change_redraws(
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if path_changed:
 		_queue_render_layer_redraw(_path_render_layer)
-	if world_changed:
+	if impact_floor_changed or action_floor_changed:
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
-		_queue_render_layer_redraw(_dynamic_render_layer)
+	if impact_floor_changed:
+		_queue_render_layer_redraw(_impact_floor_render_layer)
+	if action_floor_changed:
+		_queue_render_layer_redraw(_action_floor_render_layer)
 	if impact_changed:
 		_queue_impact_scene_redraws()
 	if unit_movement_changed:
@@ -2216,6 +2230,12 @@ func _navigation_transform_changed(update_hover: bool) -> void:
 	navigation_changed.emit()
 
 func _get_tooltip(at_position: Vector2) -> String:
+	# Equipment floats and bobs independently of its tile layer. Resolve its live
+	# draw rect directly so pointer inspection is reliable even between retained
+	# scene-layer redraws or near the edge of the sprite's glow.
+	var live_loot_tooltip: String = _loot_tooltip_at_position(at_position)
+	if not live_loot_tooltip.is_empty():
+		return live_loot_tooltip
 	var tooltip_sources: Array = _retained_render_layers()
 	tooltip_sources.reverse()
 	tooltip_sources.append(self)
@@ -2227,6 +2247,32 @@ func _get_tooltip(at_position: Vector2) -> String:
 			var rect: Rect2 = region.get("rect", Rect2())
 			if rect.has_point(at_position):
 				return str(region.get("tooltip", ""))
+	return ""
+
+func _loot_tooltip_at_position(at_position: Vector2) -> String:
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if bool(loot.get("claimed", false)):
+			continue
+		var tile: Vector2i = loot.get("pos", Vector2i(-1, -1))
+		if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+			continue
+		var texture: Texture2D = _loot_texture(loot)
+		if texture == null:
+			continue
+		if _loot_rect_for_tile(tile, texture, loot).grow(18.0).has_point(at_position):
+			return _loot_tooltip_text(loot)
+	return ""
+
+func controller_tooltip_for_tile(tile: Vector2i) -> String:
+	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if not bool(loot.get("claimed", false)) and _board_tile_is_visible_to_player(tile):
+			return _loot_tooltip_text(loot)
 	return ""
 
 func _make_custom_tooltip(for_text: String) -> Object:
@@ -2250,8 +2296,12 @@ func _draw() -> void:
 				_draw_ground_render_layer()
 			RENDER_LAYER_PATH:
 				_draw_path_render_layer()
+			RENDER_LAYER_IMPACT_FLOOR:
+				_draw_impact_floor_render_layer()
 			RENDER_LAYER_WORLD:
 				_draw_world_render_layer()
+			RENDER_LAYER_ACTION_FLOOR:
+				_draw_action_floor_render_layer()
 			RENDER_LAYER_SCENE_TILE:
 				_draw_scene_tile_render_layer()
 			RENDER_LAYER_FOREGROUND:
@@ -2287,7 +2337,9 @@ func _draw_dynamic_board() -> void:
 	_draw_overlay_render_layer()
 	_draw_ground_render_layer()
 	_draw_path_render_layer()
+	_draw_impact_floor_render_layer()
 	_draw_world_render_layer()
+	_draw_action_floor_render_layer()
 	if not combat_state.is_empty():
 		var grid: Array = combat_state.get("grid", [])
 		var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
@@ -2325,12 +2377,30 @@ func _draw_world_render_layer() -> void:
 		return
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	var section_started_usec: int = Time.get_ticks_usec()
-	_draw_impact_decals()
-	_record_render_section_time("impact_decals", section_started_usec)
-	section_started_usec = Time.get_ticks_usec()
 	_draw_umbra_overlay(tiles)
 	_record_render_section_time("umbra", section_started_usec)
-	section_started_usec = Time.get_ticks_usec()
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_impact_floor_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	_draw_impact_decals()
+	_record_render_section_time("impact_decals", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_action_floor_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
 	_draw_elemental_spell_floor_overlay()
 	_draw_elemental_trap_floor_overlay()
 	_record_render_section_time("elemental_floor_overlays", section_started_usec)
@@ -4430,7 +4500,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if _loot_renders_below_path(loot):
 			continue
 		_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
-		_register_tooltip(loot_rect.grow(8.0), _loot_tooltip_text(loot))
+		_register_tooltip(loot_rect.grow(18.0), _loot_tooltip_text(loot))
 
 func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
 	var tint: Color = _foreground_blocker_tint(tile_id, tile, pillar_rect, obstruction_entries)
@@ -5732,7 +5802,7 @@ func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> voi
 
 func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, font: Font) -> void:
 	var display_hp: int = _health_bar_fill_hp(unit, preview)
-	var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 1.0)
+	var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 2.0)
 	var hp_text: String = "%d/%d" % [display_hp, int(unit.get("max_hp", 1))]
 	var text_color: Color = Color("fff4dc") if preview.is_empty() else Color("ffe1ae")
 	for offset: Vector2 in [
@@ -5747,7 +5817,7 @@ func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, f
 			hp_text,
 			HORIZONTAL_ALIGNMENT_CENTER,
 			rect.size.x,
-			10,
+			13,
 			Color("140f0b")
 		)
 	draw_string(
@@ -5756,7 +5826,7 @@ func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, f
 		hp_text,
 		HORIZONTAL_ALIGNMENT_CENTER,
 		rect.size.x,
-		10,
+		13,
 		text_color
 	)
 

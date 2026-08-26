@@ -62,7 +62,7 @@ func _initialize() -> void:
 
 	var results: Dictionary = {
 		"schema_version": 2,
-		"workload_id": "combat_board_max_content_v2",
+		"workload_id": "combat_board_max_content_active_umbra_v3",
 		"warmup_frames": WARMUP_FRAMES,
 		"phase_frames": PHASE_FRAMES,
 		"viewport": "%dx%d" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
@@ -189,10 +189,15 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 					PHASE_FRAMES - 1,
 					int(ceil(phase_elapsed_ms / (CONTINUOUS_REDRAW_SECONDS * 1000.0))) + 2
 				)
-				_expect(int(layer_counts.get("world", 0)) >= PHASE_FRAMES - 2, "action impact submissions must redraw the world layer on every authored frame")
+				_expect(int(layer_counts.get("impact_floor", 0)) >= PHASE_FRAMES - 2, "action impact submissions must redraw the isolated below-Umbra impact layer on every authored frame")
+				_expect(int(layer_counts.get("action_floor", 0)) >= PHASE_FRAMES - 2, "elemental action submissions must redraw the isolated above-Umbra floor layer on every authored frame")
 				_expect(int(layer_counts.get("effects", 0)) >= PHASE_FRAMES - 2, "action effect submissions must redraw the effects layer on every authored frame")
 				_expect(int(scene_tile_counts.get("3,3", 0)) >= PHASE_FRAMES - 2, "action impacts must redraw the large-enemy scene layer on every authored frame")
-				_expect(int(layer_counts.get("world", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit impact submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
+				var world_draws: int = int(layer_counts.get("world", 0))
+				_expect(world_draws > 2, "active Pressing Umbra must continue animating during the action workload")
+				_expect(world_draws <= continuous_redraw_budget, "authored action submissions must not raise active Umbra/world redraws above its normal 30 Hz cadence")
+				_expect(int(layer_counts.get("impact_floor", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit impacts must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
+				_expect(int(layer_counts.get("action_floor", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit impact submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
 				_expect(int(layer_counts.get("effects", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit effect submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
 		elif phase_name == "interaction":
 			_expect(int(layer_counts.get("overlays", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive tile overlays")
@@ -279,6 +284,9 @@ func _action_presentation() -> Dictionary:
 		"locked_door_tiles": {},
 		"ambient_time_seconds": 42.0,
 		"visible_enemy_ids": [1, 2, 3, 4, 5, 6],
+		"umbra_stage": "pressing",
+		"umbra_visible_tiles": _umbra_visible_tiles(),
+		"umbra_light_sources": [{"id": "perf_light", "pos": Vector2i(4, 4), "radius": 2}],
 		"pulse_attack_tiles": true,
 		"damage_preview": damage_preview,
 		"impact_actor_keys": ["enemy_1", "enemy_2", "enemy_3", "enemy_4", "enemy_5", "enemy_6"],
@@ -297,6 +305,12 @@ func _action_presentation() -> Dictionary:
 			"progress": 0.0
 		}
 	}
+
+func _umbra_visible_tiles() -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	for tile: Vector2i in [Vector2i(4, 4), Vector2i(4, 3), Vector2i(3, 4), Vector2i(5, 4), Vector2i(4, 5)]:
+		tiles.append(tile)
+	return tiles
 
 func _movement_presentation() -> Dictionary:
 	return {
@@ -430,10 +444,12 @@ func _verify_post_process_redraw_cadence(board: Control, source_state: Dictionar
 	var explicit_counts: Dictionary = explicit_snapshot.get("layer_draw_counts", {}) as Dictionary
 	var explicit_scene_counts: Dictionary = explicit_snapshot.get("scene_tile_draw_counts", {}) as Dictionary
 	var explicit_effects: int = int(explicit_counts.get("effects", 0))
-	var explicit_world: int = int(explicit_counts.get("world", 0))
+	var explicit_impact_floor: int = int(explicit_counts.get("impact_floor", 0))
+	var explicit_action_floor: int = int(explicit_counts.get("action_floor", 0))
 	var explicit_impact_scene: int = int(explicit_scene_counts.get("3,3", 0))
 	_expect(explicit_effects >= 1, "a post-process explicit effect submission must render in its submitted frame")
-	_expect(explicit_world >= 1, "a post-process explicit impact submission must render the world layer in its submitted frame")
+	_expect(explicit_impact_floor >= 1, "a post-process explicit impact submission must render below Umbra in its submitted frame")
+	_expect(explicit_action_floor >= 1, "a post-process explicit impact submission must render the action-floor layer in its submitted frame")
 	_expect(explicit_impact_scene >= 1, "a post-process explicit impact submission must render its actor scene layer in its submitted frame")
 
 	var elapsed_before_following_process: float = float(board.get("_continuous_presentation_elapsed"))
@@ -444,21 +460,23 @@ func _verify_post_process_redraw_cadence(board: Control, source_state: Dictionar
 	var continuous_counts: Dictionary = continuous_snapshot.get("layer_draw_counts", {}) as Dictionary
 	var continuous_scene_counts: Dictionary = continuous_snapshot.get("scene_tile_draw_counts", {}) as Dictionary
 	var continuous_effects: int = int(continuous_counts.get("effects", 0))
-	var continuous_world: int = int(continuous_counts.get("world", 0))
+	var continuous_impact_floor: int = int(continuous_counts.get("impact_floor", 0))
+	var continuous_action_floor: int = int(continuous_counts.get("action_floor", 0))
 	var continuous_impact_scene: int = int(continuous_scene_counts.get("3,3", 0))
 	_expect(continuous_effects > explicit_effects, "a post-process effect submission must not suppress the following due continuous redraw")
-	_expect(continuous_world > explicit_world, "a post-process impact submission must not suppress the following due continuous world redraw")
+	_expect(continuous_impact_floor > explicit_impact_floor, "a post-process impact submission must not suppress the following due continuous below-Umbra impact redraw")
+	_expect(continuous_action_floor > explicit_action_floor, "a post-process impact submission must not suppress the following due continuous action-floor redraw")
 	_expect(continuous_impact_scene > explicit_impact_scene, "a post-process impact submission must not suppress the following due actor redraw")
 	var submitted_process_frame: int = submitter.submitted_process_frame
 	submitter.queue_free()
 	return {
-		"verified": continuous_effects > explicit_effects and continuous_world > explicit_world and continuous_impact_scene > explicit_impact_scene,
+		"verified": continuous_effects > explicit_effects and continuous_impact_floor > explicit_impact_floor and continuous_action_floor > explicit_action_floor and continuous_impact_scene > explicit_impact_scene,
 		"submitted_process_frame": submitted_process_frame,
 		"elapsed_before_following_process": elapsed_before_following_process,
 		"explicit_effects_frame": explicit_effects_frame,
 		"explicit_impact_frame": explicit_impact_frame,
-		"explicit_draw_counts": {"effects": explicit_effects, "world": explicit_world, "impact_scene": explicit_impact_scene},
-		"following_draw_counts": {"effects": continuous_effects, "world": continuous_world, "impact_scene": continuous_impact_scene}
+		"explicit_draw_counts": {"effects": explicit_effects, "impact_floor": explicit_impact_floor, "action_floor": explicit_action_floor, "impact_scene": explicit_impact_scene},
+		"following_draw_counts": {"effects": continuous_effects, "impact_floor": continuous_impact_floor, "action_floor": continuous_action_floor, "impact_scene": continuous_impact_scene}
 	}
 
 func _reset_render_instrumentation(board: Control) -> void:

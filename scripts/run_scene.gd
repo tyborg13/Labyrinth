@@ -63,6 +63,8 @@ const CONTROLLER_BOARD_CURSOR_SPEED: float = 760.0
 const CONTROLLER_TILE_CURSOR_MAGNET_RADIUS: float = 46.0
 const CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS: float = 34.0
 const CONTROLLER_MOVING_CURSOR_SNAP_STRENGTH: float = 0.22
+const CONTROLLER_BOARD_HORIZONTAL_SHIFT: float = -18.0
+const CONTROLLER_BOARD_WIDTH_TRIM: float = 44.0
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -1300,23 +1302,23 @@ const SKILL_TREE_DIALOG_SIZE: Vector2 = Vector2(1500.0, 900.0)
 const SKILL_TREE_DIALOG_MIN_SIZE: Vector2 = Vector2(1120.0, 620.0)
 const PROGRESSION_SUMMARY_COMPACT_VIEWPORT_WIDTH: float = 1200.0
 const CHARACTER_BODY_MIN_HEIGHT: float = 360.0
-const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(178.0, 92.0)
-const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 58.0)
-const EQUIPMENT_ICON_SIZE: Vector2 = Vector2(42.0, 42.0)
+const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(190.0, 104.0)
+const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 66.0)
+const EQUIPMENT_ICON_SIZE: Vector2 = Vector2(50.0, 50.0)
 const EQUIPMENT_DRAG_GHOST_SIZE: Vector2 = Vector2(78.0, 78.0)
 const EQUIPMENT_DRAG_CURSOR_OFFSET: Vector2 = Vector2(18.0, 20.0)
 const EQUIPMENT_SWAP_SNAP_SECONDS: float = 0.22
 const EQUIPMENT_SWAP_RETURN_SECONDS: float = 0.24
-const EQUIPMENT_DECK_BADGE_SIZE: Vector2 = Vector2(164.0, 34.0)
-const ITEM_EQUIPPED_TILE_SIZE: Vector2 = Vector2(300.0, 52.0)
-const ITEM_INVENTORY_TILE_SIZE: Vector2 = Vector2(336.0, 56.0)
-const ITEM_ART_CHIP_SIZE: Vector2 = Vector2(42.0, 42.0)
+const EQUIPMENT_DECK_BADGE_SIZE: Vector2 = Vector2(164.0, 42.0)
+const ITEM_EQUIPPED_TILE_SIZE: Vector2 = Vector2(300.0, 64.0)
+const ITEM_INVENTORY_TILE_SIZE: Vector2 = Vector2(336.0, 68.0)
+const ITEM_ART_CHIP_SIZE: Vector2 = Vector2(50.0, 50.0)
 const ITEM_DRAG_CURSOR_OFFSET: Vector2 = Vector2(14.0, 18.0)
-const MAGIC_ATTUNED_TILE_SIZE: Vector2 = Vector2(292.0, 46.0)
-const MAGIC_INVENTORY_TILE_SIZE: Vector2 = Vector2(164.0, 38.0)
+const MAGIC_ATTUNED_TILE_SIZE: Vector2 = Vector2(292.0, 58.0)
+const MAGIC_INVENTORY_TILE_SIZE: Vector2 = Vector2(168.0, 52.0)
 const MAGIC_DRAG_CURSOR_OFFSET: Vector2 = Vector2(14.0, 18.0)
-const EQUIPMENT_TOOLTIP_CARD_SIZE: Vector2 = Vector2(150.0, 150.0 * CARD_ASPECT_RATIO)
-const CARD_TOOLTIP_SIZE: Vector2 = Vector2(180.0, 180.0 * CARD_ASPECT_RATIO)
+const EQUIPMENT_TOOLTIP_CARD_SIZE: Vector2 = Vector2(180.0, 180.0 * CARD_ASPECT_RATIO)
+const CARD_TOOLTIP_SIZE: Vector2 = Vector2(224.0, 224.0 * CARD_ASPECT_RATIO)
 const PINNED_TOOLTIP_CURSOR_OFFSET: Vector2 = Vector2(12.0, 0.0)
 const TURN_ORDER_PANEL_MIN_SIZE: Vector2 = Vector2(176.0, 0.0)
 const TURN_ORDER_PANEL_MIN_WIDTH: float = 176.0
@@ -2095,6 +2097,8 @@ func _build_controller_interface() -> void:
 func _on_input_modality_changed(modality: String) -> void:
 	if modality == InputRouterScript.MODALITY_POINTER:
 		_controller_set_hand_focused(true)
+		if not _controller_magic_source_kind.is_empty():
+			_clear_controller_magic_selection()
 		# Invalidate any controller-hand layout callback and rebuild the board only
 		# after the pointer stage rect has settled. The outer Control rect and the
 		# board's projected content framing are separate caches; restoring just the
@@ -2160,7 +2164,7 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		return true
 	if _controller_custom_room_available():
 		_controller_region = "board"
-		if _controller_board_tile == INVALID_TARGET_TILE or not _exit_destinations_by_tile.has(_controller_board_tile):
+		if not is_finite(_controller_virtual_board_position.x) or not is_finite(_controller_virtual_board_position.y):
 			_controller_enter_board(false)
 		if (
 			not _current_room_merchant_kind().is_empty()
@@ -2218,9 +2222,9 @@ func _handle_controller_input(event: InputEvent) -> bool:
 				_controller_set_hand_focused(true)
 				_controller_set_hand_index(maxi(0, _controller_hand_index))
 		else:
+			_controller_region = "board"
+			_controller_set_hand_focused(false)
 			await _on_pass_turn_pressed()
-			_controller_region = "hand"
-			_controller_set_hand_focused(true)
 		_refresh_controller_interface()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
@@ -2464,12 +2468,23 @@ func _controller_enter_board(prefer_target: bool) -> void:
 	if _controller_custom_combat_available():
 		_controller_set_hand_focused(false)
 	_controller_reset_stick_repeat()
-	var candidate_tile: Vector2i = INVALID_TARGET_TILE
 	if _controller_custom_room_available():
-		var room_tiles: Array[Vector2i] = _controller_board_tiles()
-		if not room_tiles.is_empty():
-			candidate_tile = room_tiles[0]
-	elif prefer_target and not _pending_target_tiles.is_empty():
+		# Room navigation deliberately begins in free-cursor space. A door is not a
+		# default action: the player must move close enough to snap to that door before
+		# A may travel. This also prevents opening a stale door while activating a HUD
+		# control such as Character from the same navigation region.
+		_controller_focus_candidate.clear()
+		_controller_board_tile = INVALID_TARGET_TILE
+		_controller_release_control_focus()
+		_controller_clear_board_focus()
+		_controller_clear_board_hover_presentation()
+		if not is_finite(_controller_virtual_board_position.x) or not is_finite(_controller_virtual_board_position.y):
+			_controller_virtual_board_position = get_viewport_rect().size * 0.5
+		_controller_show_free_analog_cursor()
+		_refresh_controller_prompts()
+		return
+	var candidate_tile: Vector2i = INVALID_TARGET_TILE
+	if prefer_target and not _pending_target_tiles.is_empty():
 		candidate_tile = _pending_target_tiles[0]
 	if candidate_tile == INVALID_TARGET_TILE:
 		candidate_tile = (_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
@@ -2599,6 +2614,13 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		detail = "Travel through this door"
 	elif _state_has_visible_enemy_at_tile(_combat_state, tile):
 		kind = "enemy"
+	else:
+		var board_tooltip: String = str(board_view.call("controller_tooltip_for_tile", tile)) if board_view.has_method("controller_tooltip_for_tile") else ""
+		if board_tooltip.begins_with("equipment:"):
+			kind = "equipment"
+			detail = _controller_equipment_pickup_detail(board_tooltip.trim_prefix("equipment:"))
+		elif not board_tooltip.is_empty():
+			detail = board_tooltip
 	return {
 		"key": _controller_tile_key(tile),
 		"kind": kind,
@@ -2626,6 +2648,26 @@ func _controller_candidate_for_control(control: Control) -> Dictionary:
 		"snap_radius": CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS,
 	}
 
+func _controller_equipment_pickup_detail(equipment_id: String) -> String:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	if item.is_empty():
+		return "Equipment pickup"
+	var card_names: Array[String] = []
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+		var card_id: String = str(card_id_var)
+		var card: Dictionary = GameData.card_def(card_id)
+		card_names.append(str(card.get("name", card_id)))
+	var detail_lines: Array[String] = [
+		str(item.get("name", equipment_id)),
+		"%s · %s" % [
+			_equipment_slot_label(GameData.equipment_slot(equipment_id)),
+			_equipment_rarity_label(GameData.equipment_rarity(equipment_id)),
+		],
+	]
+	if not card_names.is_empty():
+		detail_lines.append("Adds %s" % ", ".join(card_names))
+	return "\n".join(detail_lines)
+
 func _controller_header_focus_controls() -> Array[Control]:
 	var result: Array[Control] = []
 	for control: Control in [grimoire_button, loadout_button, menu_button]:
@@ -2652,7 +2694,7 @@ func _controller_set_focus_candidate(candidate: Dictionary, sync_virtual_cursor:
 	if sync_virtual_cursor:
 		_controller_virtual_board_position = point
 	var kind: String = str(candidate.get("kind", "tile"))
-	if kind in ["tile", "door", "enemy"]:
+	if kind in ["tile", "door", "enemy", "equipment"]:
 		_controller_release_control_focus()
 		_controller_set_board_tile(candidate.get("tile", INVALID_TARGET_TILE), sync_virtual_cursor)
 		return
@@ -2675,8 +2717,11 @@ func _controller_refreshed_focus_candidate(candidate: Dictionary) -> Dictionary:
 	if candidate.is_empty():
 		return {}
 	var kind: String = str(candidate.get("kind", "tile"))
-	if kind in ["tile", "door", "enemy"]:
-		return _controller_candidate_for_tile(candidate.get("tile", INVALID_TARGET_TILE))
+	if kind in ["tile", "door", "enemy", "equipment"]:
+		var tile: Vector2i = candidate.get("tile", INVALID_TARGET_TILE)
+		if not _controller_board_tiles().has(tile):
+			return {}
+		return _controller_candidate_for_tile(tile)
 	var control: Control = candidate.get("control", null) as Control
 	return _controller_candidate_for_control(control)
 
@@ -2776,8 +2821,12 @@ func _controller_activate_current() -> void:
 			(focused_control as BaseButton).pressed.emit()
 		return
 	if str(_run_state.get("mode", "room")) == "room":
-		if _controller_board_tile != INVALID_TARGET_TILE:
-			await _on_board_tile_clicked(_controller_board_tile)
+		# Never fall back to a remembered board tile. Room travel is valid only while
+		# the live cursor candidate is the rendered door under the pointer.
+		if candidate_kind == "door":
+			var door_tile: Vector2i = _controller_focus_candidate.get("tile", INVALID_TARGET_TILE)
+			if door_tile != INVALID_TARGET_TILE and _exit_destinations_by_tile.has(door_tile):
+				await _on_board_tile_clicked(door_tile)
 		return
 	if _controller_region == "hand":
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -2921,6 +2970,8 @@ func _recover_controller_focus() -> void:
 		and current.focus_mode == Control.FOCUS_ALL
 	):
 		return
+	if scope == _upgrade_scrim and _focus_character_loadout_default():
+		return
 	var candidates: Array[Control] = []
 	_controller_collect_focusable_controls(scope, candidates)
 	if candidates.is_empty():
@@ -2931,6 +2982,37 @@ func _recover_controller_focus() -> void:
 		return a_position.y < b_position.y if not is_equal_approx(a_position.y, b_position.y) else a_position.x < b_position.x
 	)
 	candidates[0].grab_focus()
+
+func _focus_character_loadout_default() -> bool:
+	var candidate: Control = null
+	if _progression_overlay_mode == "equipment":
+		for slot: String in GameData.equipment_slots():
+			var slot_candidate: Control = _equipment_slot_panels.get(slot, null) as Control
+			if slot_candidate != null and slot_candidate.is_visible_in_tree() and slot_candidate.focus_mode == Control.FOCUS_ALL:
+				candidate = slot_candidate
+				break
+		if candidate == null:
+			for equipment_var: Variant in _equipment_inventory_tiles.values():
+				var equipment_candidate: Control = equipment_var as Control
+				if equipment_candidate != null and equipment_candidate.is_visible_in_tree():
+					candidate = equipment_candidate
+					break
+	elif _progression_overlay_mode == "magic":
+		for index: int in range(GameData.magic_loadout_limit()):
+			var magic_candidate: Control = _magic_attuned_tiles.get(index, null) as Control
+			if magic_candidate != null and magic_candidate.is_visible_in_tree() and magic_candidate.focus_mode == Control.FOCUS_ALL:
+				candidate = magic_candidate
+				break
+		if candidate == null:
+			for magic_var: Variant in _magic_inventory_tiles.values():
+				var reserve_candidate: Control = magic_var as Control
+				if reserve_candidate != null and reserve_candidate.is_visible_in_tree():
+					candidate = reserve_candidate
+					break
+	if candidate == null:
+		return false
+	candidate.grab_focus()
+	return true
 
 func _controller_collect_focusable_controls(root_control: Control, result: Array[Control]) -> void:
 	if root_control != null and root_control.is_visible_in_tree() and root_control.focus_mode == Control.FOCUS_ALL:
@@ -2956,10 +3038,17 @@ func _refresh_controller_interface() -> void:
 		return
 	if _controller_custom_room_available():
 		_controller_region = "board"
-		if _controller_board_tile == INVALID_TARGET_TILE or not _exit_destinations_by_tile.has(_controller_board_tile):
-			_controller_enter_board(false)
+		if not _controller_focus_candidate.is_empty():
+			var refreshed_room_candidate: Dictionary = _controller_refreshed_focus_candidate(_controller_focus_candidate)
+			if refreshed_room_candidate.is_empty():
+				_controller_clear_focus_candidate()
+				_controller_show_free_analog_cursor()
+			else:
+				_controller_set_focus_candidate(refreshed_room_candidate, true)
 		else:
-			_controller_set_board_tile(_controller_board_tile)
+			if not is_finite(_controller_virtual_board_position.x) or not is_finite(_controller_virtual_board_position.y):
+				_controller_virtual_board_position = get_viewport_rect().size * 0.5
+			_controller_show_free_analog_cursor()
 		return
 	if _controller_region == "board" and not _controller_focus_candidate.is_empty():
 		var refreshed_candidate: Dictionary = _controller_refreshed_focus_candidate(_controller_focus_candidate)
@@ -3091,7 +3180,13 @@ func _sync_board_view_rect() -> void:
 			- CONTROLLER_FOCUSED_HAND_ROW_HEIGHT
 		)
 		board_size.y = maxf(1.0, focused_stage_height + 56.0 + CONTROLLER_BOARD_BOTTOM_EXTENSION)
-	board_view.position = stage_root.global_position - Vector2(0.0, 56.0)
+	var board_offset := Vector2(0.0, -56.0)
+	if _controller_combat_layout_active():
+		# Reserve breathing room for the right-side turn-order rail without tying the
+		# board to hand focus or any transient actor/animation bounds.
+		board_size.x = maxf(1.0, board_size.x - CONTROLLER_BOARD_WIDTH_TRIM)
+		board_offset.x = CONTROLLER_BOARD_HORIZONTAL_SHIFT
+	board_view.position = stage_root.global_position + board_offset
 	board_view.size = board_size
 
 func _notification(what: int) -> void:
@@ -22681,6 +22776,12 @@ func _on_pass_turn_pressed() -> void:
 		return
 	if not _combat_engine.is_player_turn(_combat_state):
 		return
+	if _controller_is_active():
+		# Expose the battlefield before the first enemy action is presented. This is
+		# deliberately independent of the later animation state and stays tucked when
+		# the next player turn begins.
+		_controller_region = "board"
+		_controller_set_hand_focused(false)
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.PASS_CONSEQUENCE)
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
@@ -24870,7 +24971,7 @@ func _build_item_card_tile_body(card_id: String) -> Control:
 	name_label.text = str(card.get("name", card_id))
 	name_label.clip_text = true
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_CAPTION)
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
 	name_label.add_theme_color_override("font_color", Color("fff0ce"))
 	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
 	name_label.add_theme_constant_override("outline_size", 1)
@@ -25000,7 +25101,7 @@ func _build_card_art_badge_content(card: Dictionary, accent: Color, label_text: 
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
 	label.add_theme_color_override("font_color", Color("fff6d8"))
 	label.add_theme_color_override("font_outline_color", Color("100a07"))
 	label.add_theme_constant_override("outline_size", 2)
@@ -25699,9 +25800,7 @@ func _configure_controller_loadout_focus(tile: PanelContainer, accent: Color) ->
 func _on_controller_loadout_focus_changed(tile: PanelContainer, focused: bool) -> void:
 	if not is_instance_valid(tile):
 		return
-	var accent: Color = tile.get_meta("controller_focus_accent", Color("8f6f46"))
-	var active: bool = focused or _controller_magic_tile_is_selected(tile)
-	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, active))
+	_apply_controller_loadout_focus_style(tile, focused)
 	if focused:
 		_show_controller_loadout_tooltip(tile)
 	else:
@@ -25770,8 +25869,14 @@ func _position_controller_loadout_tooltip() -> void:
 	desired.y = clampf(desired.y, bounds.position.y + 12.0, maxf(bounds.position.y + 12.0, bounds.end.y - tooltip_size.y - 12.0))
 	_controller_loadout_tooltip.global_position = desired
 
-func _clear_controller_loadout_tooltip_if_unfocused(tile: Control) -> void:
-	if tile == null or not is_instance_valid(tile) or tile.has_focus():
+func _clear_controller_loadout_tooltip_if_unfocused(tile_var: Variant) -> void:
+	# A modal/tab rebuild can free the focus tile before this deferred cleanup is
+	# delivered. Accept Variant so Godot can deliver that stale Object safely,
+	# then discard it before the typed Control cast.
+	if typeof(tile_var) != TYPE_OBJECT or not is_instance_valid(tile_var) or not (tile_var is Control):
+		return
+	var tile: Control = tile_var as Control
+	if tile.has_focus():
 		return
 	if _controller_loadout_tooltip_anchor == tile:
 		_clear_controller_loadout_tooltip()
@@ -25798,8 +25903,32 @@ func _refresh_controller_loadout_focus_styles() -> void:
 			if typeof(tile_var) != TYPE_OBJECT or not is_instance_valid(tile_var) or not (tile_var is PanelContainer):
 				continue
 			var tile := tile_var as PanelContainer
-			var accent: Color = tile.get_meta("controller_focus_accent", Color("8f6f46"))
-			tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, tile.has_focus() or _controller_magic_tile_is_selected(tile)))
+			_apply_controller_loadout_focus_style(tile, tile.has_focus())
+
+func _apply_controller_loadout_focus_style(tile: PanelContainer, focused: bool) -> void:
+	var accent: Color = tile.get_meta("controller_focus_accent", Color("8f6f46"))
+	var selected: bool = _controller_magic_tile_is_selected(tile)
+	var style: StyleBoxFlat = _equipment_panel_style(accent, focused or selected)
+	if selected:
+		style.bg_color = style.bg_color.lightened(0.08)
+		style.border_color = Color("79e0d3")
+		style.set_border_width_all(3)
+	if focused:
+		style.bg_color = style.bg_color.lightened(0.08)
+		style.border_color = Color("ffe08a")
+		style.set_border_width_all(4)
+		style.shadow_color = Color(0.98, 0.66, 0.22, 0.34)
+		style.shadow_size = 7
+		style.shadow_offset = Vector2.ZERO
+	tile.add_theme_stylebox_override("panel", style)
+	if tile is MagicCardTile:
+		var magic_tile := tile as MagicCardTile
+		var name_label: Label = tile.find_child("CardBadgeName", true, false) as Label
+		if name_label != null:
+			var card: Dictionary = GameData.card_def(magic_tile.card_id)
+			var card_name: String = str(card.get("name", magic_tile.card_id))
+			name_label.text = "◆ %s" % card_name if selected else card_name
+			name_label.add_theme_color_override("font_color", Color("a9fff1") if selected else Color("fff6d8"))
 
 func _controller_activate_magic_tile(source_kind: String, index: int, card_id: String) -> void:
 	if card_id.is_empty() or not _magic_overlay_can_change():
@@ -25986,6 +26115,7 @@ func _build_equipment_tooltip_panel(equipment_id: String, interactive: bool = fa
 	var item: Dictionary = GameData.equipment_def(equipment_id)
 	var accent := Color(GameData.equipment_accent(equipment_id))
 	var panel := PanelContainer.new()
+	panel.set_meta("equipment_tooltip_surface", true)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, true))
 	var margin := MarginContainer.new()

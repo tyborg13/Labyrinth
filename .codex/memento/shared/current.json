@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-26T03:25:08Z",
+  "updated_at": "2026-08-26T14:18:27Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8775,6 +8775,30 @@
       "source": {
         "branch": "codex/optimize-steam-deck-combat-rendering-from-uploaded-telemetry",
         "commit": "0390fb4"
+      }
+    },
+    {
+      "id": "mnt_20260826T141827Z_c71b0323",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": "_draw_action_floor_render_layer"
+      },
+      "scope_key": "symbol:scripts/combat_board_view.gd#_draw_action_floor_render_layer",
+      "summary": "Preserve impact/Umbra/elemental-floor order while isolating action redraws",
+      "details": "Use impact_floor below world for impact decals, world for Umbra at its normal 30 Hz cadence, and action_floor above world for elemental spell/trap overlays; scene tiles remain above all three. Authored action submissions redraw the two cheap action layers without increasing active Umbra/world cadence.",
+      "status": "active",
+      "created_at": "2026-08-26T14:18:27Z",
+      "updated_at": "2026-08-26T14:18:27Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260826T135732Z_62e38a88"
+      ],
+      "source": {
+        "branch": "codex/optimize-steam-deck-combat-rendering-from-uploaded-telemetry",
+        "commit": "55320c2"
       }
     }
   ]
