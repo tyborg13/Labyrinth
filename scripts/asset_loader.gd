@@ -3,7 +3,7 @@ class_name AssetLoader
 
 const TEXTURE_EXTENSIONS: PackedStringArray = ["svg", "png", "webp", "jpg"]
 const PNG_FIRST_TEXTURE_EXTENSIONS: PackedStringArray = ["png", "svg", "webp", "jpg"]
-const AUDIO_EXTENSIONS: PackedStringArray = ["wav"]
+const AUDIO_EXTENSIONS: PackedStringArray = ["wav", "ogg"]
 const DEFAULT_ALPHA_POLYGON_THRESHOLD: float = 0.08
 const DEFAULT_ALPHA_POLYGON_SIMPLIFY_EPSILON: float = 3.0
 const DEFAULT_ALPHA_POLYGON_MIN_AREA: float = 8.0
@@ -42,24 +42,24 @@ static func load_texture(path: String) -> Texture2D:
 	_texture_cache[path] = texture
 	return texture
 
-static func load_audio_stream(path: String) -> AudioStream:
+static func load_audio_stream(path: String, loop: bool = false) -> AudioStream:
 	if path.is_empty():
 		return null
 	if _audio_cache.has(path):
-		return _audio_cache.get(path, null)
+		return _configure_audio_loop(_audio_cache.get(path, null) as AudioStream, loop)
 	if _should_prefer_source_file(path, AUDIO_EXTENSIONS):
 		var source_stream: AudioStream = _load_audio_stream_from_file(path)
 		if source_stream != null:
 			_audio_cache[path] = source_stream
-			return source_stream
+			return _configure_audio_loop(source_stream, loop)
 	if ResourceLoader.exists(path):
 		var loaded: Resource = load(path)
 		if loaded is AudioStream:
 			_audio_cache[path] = loaded
-			return loaded
+			return _configure_audio_loop(loaded as AudioStream, loop)
 	var stream: AudioStream = _load_audio_stream_from_file(path)
 	_audio_cache[path] = stream
-	return stream
+	return _configure_audio_loop(stream, loop)
 
 static func _load_texture_from_file(path: String) -> Texture2D:
 	if not FileAccess.file_exists(path):
@@ -75,7 +75,18 @@ static func _load_audio_stream_from_file(path: String) -> AudioStream:
 	match path.get_extension().to_lower():
 		"wav":
 			return AudioStreamWAV.load_from_file(path)
+		"ogg":
+			return AudioStreamOggVorbis.load_from_file(path)
 	return null
+
+static func _configure_audio_loop(stream: AudioStream, loop: bool) -> AudioStream:
+	if stream == null or not loop:
+		return stream
+	if stream is AudioStreamOggVorbis:
+		(stream as AudioStreamOggVorbis).loop = true
+	elif stream is AudioStreamWAV:
+		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+	return stream
 
 static func _should_prefer_source_file(path: String, extensions: PackedStringArray) -> bool:
 	if not OS.has_feature("editor"):

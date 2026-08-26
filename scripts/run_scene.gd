@@ -19600,7 +19600,7 @@ func _play_music(entry: Dictionary) -> void:
 		_fade_out_music()
 		return
 	var path: String = str(entry.get("path", ""))
-	var resource: AudioStream = AssetLoader.load_audio_stream(path)
+	var resource: AudioStream = AssetLoader.load_audio_stream(path, bool(entry.get("loop", false)))
 	if resource == null:
 		_fade_out_music()
 		return

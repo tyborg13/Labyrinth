@@ -46,6 +46,7 @@ const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
+const AssetLoader = preload("res://scripts/asset_loader.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
@@ -103,7 +104,7 @@ func _initialize() -> void:
 	HealthBarThemeSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
-	_test_music_library_routes_elemental_combat_tracks()
+	_test_music_library_routes_non_boss_combat_to_schubert()
 	_test_ui_skin_button_system()
 	_test_relic_data_rarity_and_offer_weights()
 	_test_equipment_data_rarity_and_starter_deck()
@@ -594,30 +595,25 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var repeated: Dictionary = GrimoireLibrary.unlock_entries(next_state, ["keyword:shock"])
 	_assert((repeated.get("added", []) as Array).is_empty(), "Repeated Grimoire discoveries should not add duplicates")
 
-func _test_music_library_routes_elemental_combat_tracks() -> void:
-	var expected_tracks: Dictionary = {
-		ElementData.FIRE: MusicLibrary.FIRE_COMBAT_TRACK_ID,
-		ElementData.ICE: MusicLibrary.ICE_COMBAT_TRACK_ID,
-		ElementData.LIGHTNING: MusicLibrary.LIGHTNING_COMBAT_TRACK_ID,
-		ElementData.AIR: MusicLibrary.AIR_COMBAT_TRACK_ID,
-		ElementData.EARTH: MusicLibrary.EARTH_COMBAT_TRACK_ID
-	}
-	for element_id_var: Variant in expected_tracks.keys():
-		var element_id: String = str(element_id_var)
+func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
+	for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING, ElementData.AIR, ElementData.EARTH, ElementData.NONE]:
 		var entry: Dictionary = MusicLibrary.entry_for_context("combat", {
 			"type": "combat",
 			"element": element_id
 		})
-		var expected_track_id: String = str(expected_tracks.get(element_id, ""))
 		var path: String = str(entry.get("path", ""))
-		_assert(str(entry.get("id", "")) == expected_track_id, "%s combat rooms should use their element music track" % ElementData.name(element_id))
-		_assert(FileAccess.file_exists(path), "%s music asset should exist" % expected_track_id)
-		_assert(_audio_asset_loads(path), "%s music asset should load as audio" % expected_track_id)
+		_assert(str(entry.get("id", "")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "%s non-boss combat should use the Schubert tactical loop" % ElementData.name(element_id))
+		_assert(FileAccess.file_exists(path), "Schubert combat music asset should exist")
+		_assert(_audio_asset_loads(path), "Schubert combat music asset should load as audio")
+		_assert(path.get_extension().to_lower() == "ogg", "Schubert combat music should use the compact Ogg preview")
+		_assert(bool(entry.get("loop", false)), "Schubert combat music should request continuous stream looping")
+		_assert(is_equal_approx(float(entry.get("volume_db", 0.0)), -5.5), "Schubert combat music should compensate for its quieter mastered source")
+		_assert(FileAccess.get_sha256(path) == "bb0a7c9b30883e87f0d2c0be88fd11844056ce40c628860950a02fc51677403b", "Shipped Schubert combat music should match the verified version-3 preview")
 	var room_entry: Dictionary = MusicLibrary.entry_for_context("room", {
 		"type": "combat",
 		"element": ElementData.FIRE
 	})
-	_assert(str(room_entry.get("id", "")) == MusicLibrary.FIRE_COMBAT_TRACK_ID, "Uncleared elemental combat rooms should use their element music outside combat mode")
+	_assert(str(room_entry.get("id", "")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Uncleared combat rooms should establish the Schubert loop before battle")
 	var cleared_entry: Dictionary = MusicLibrary.entry_for_context("room", {
 		"type": "combat",
 		"element": ElementData.FIRE,
@@ -628,7 +624,7 @@ func _test_music_library_routes_elemental_combat_tracks() -> void:
 		"type": "combat",
 		"element": ElementData.NONE
 	})
-	_assert(str(generic_entry.get("id", "")) == MusicLibrary.GENERIC_COMBAT_TRACK_ID, "Neutral combat should keep the generic combat music fallback")
+	_assert(str(generic_entry.get("id", "")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Neutral non-boss combat should use the Schubert tactical loop")
 	var boss_entry: Dictionary = MusicLibrary.entry_for_context("combat", {
 		"type": "boss",
 		"element": ElementData.LIGHTNING,
@@ -640,6 +636,18 @@ func _test_music_library_routes_elemental_combat_tracks() -> void:
 		"element": ElementData.LIGHTNING
 	})
 	_assert(str(generic_boss_entry.get("id", "")) == MusicLibrary.GENERIC_COMBAT_TRACK_ID, "Boss fallback should not use non-boss elemental combat music")
+	var boss_enemy_fallback: Dictionary = MusicLibrary.entry_for_context("combat", {
+		"type": "combat",
+		"element": ElementData.EARTH
+	}, {
+		"enemies": [{"type": "tharokh"}]
+	})
+	_assert(str(boss_enemy_fallback.get("id", "")) == MusicLibrary.GENERIC_COMBAT_TRACK_ID, "Boss-bar enemies in combat rooms should keep the generic boss fallback instead of Schubert")
+	var source_stream: AudioStream = AssetLoader._load_audio_stream_from_file(str(generic_entry.get("path", "")))
+	_assert(source_stream is AudioStreamOggVorbis, "AssetLoader source-file fallback should load the Schubert Ogg directly")
+	AssetLoader._audio_cache.erase(str(generic_entry.get("path", "")))
+	var looped_stream: AudioStream = AssetLoader.load_audio_stream(str(generic_entry.get("path", "")), true)
+	_assert(looped_stream is AudioStreamOggVorbis and (looped_stream as AudioStreamOggVorbis).loop, "Configured Schubert stream should use gapless Ogg looping")
 	for merchant_type: String in ["blacksmith", "arcanist", "scavenger"]:
 		var merchant_entry: Dictionary = MusicLibrary.entry_for_context("room", {
 			"type": merchant_type,

@@ -10,6 +10,7 @@ const ICE_COMBAT_TRACK_ID: String = "combat.ice"
 const LIGHTNING_COMBAT_TRACK_ID: String = "combat.lightning"
 const AIR_COMBAT_TRACK_ID: String = "combat.air"
 const EARTH_COMBAT_TRACK_ID: String = "combat.earth"
+const SCHUBERT_COMBAT_TRACK_ID: String = "combat.schubert_d810_movement_ii"
 const ZEKARION_BOSS_TRACK_ID: String = "boss.zekarion"
 const RELIC_ROOM_TRACK_ID: String = "room.relic"
 
@@ -38,6 +39,11 @@ const TRACKS: Dictionary = {
 		"path": "res://assets/audio/music/earth_combat.wav",
 		"volume_db": -12.0
 	},
+	SCHUBERT_COMBAT_TRACK_ID: {
+		"path": "res://assets/audio/music/schubert_d810_movement_ii_driving_loop.ogg",
+		"volume_db": -5.5,
+		"loop": true
+	},
 	ZEKARION_BOSS_TRACK_ID: {
 		"path": "res://assets/audio/music/zekarion_boss.wav",
 		"volume_db": -12.0
@@ -49,7 +55,7 @@ const TRACKS: Dictionary = {
 }
 
 const ROOM_TYPE_TRACKS: Dictionary = {
-	"combat": GENERIC_COMBAT_TRACK_ID,
+	"combat": SCHUBERT_COMBAT_TRACK_ID,
 	"boss": GENERIC_COMBAT_TRACK_ID,
 	"treasure": RELIC_ROOM_TRACK_ID,
 	"blacksmith": RELIC_ROOM_TRACK_ID,
@@ -93,6 +99,8 @@ static func _track_id_for_context(mode: String, room: Dictionary, combat_state: 
 		var resting_room_type: String = str(room.get("type", ""))
 		if bool(room.get("cleared", false)) and resting_room_type in ["combat", "boss"]:
 			return RELIC_ROOM_TRACK_ID
+		if resting_room_type == "combat":
+			return SCHUBERT_COMBAT_TRACK_ID
 		var resting_element_track_id: String = _element_track_id(resting_room_type, str(room.get("element", "")))
 		if not resting_element_track_id.is_empty():
 			return resting_element_track_id
@@ -106,6 +114,8 @@ static func _track_id_for_context(mode: String, room: Dictionary, combat_state: 
 	var boss_track_id: String = _boss_track_id(room, combat_state)
 	if not boss_track_id.is_empty():
 		return boss_track_id
+	if room_type == "combat":
+		return SCHUBERT_COMBAT_TRACK_ID
 	var element_track_id: String = _element_track_id(room_type, element_id)
 	if not element_track_id.is_empty():
 		return element_track_id
