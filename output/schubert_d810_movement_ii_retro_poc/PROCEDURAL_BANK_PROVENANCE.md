@@ -2,9 +2,9 @@
 
 ## Asset set
 
-**Name:** Escape the Umbra Procedural Mourning Strings v1  
-**Created for:** Schubert D.810 Movement II active tactical-loop proof of concept  
-**Creation method:** deterministic local synthesis by `scripts/build_active_tactical_loop.py`  
+- **Name:** Escape the Umbra Procedural Mourning Strings v1
+- **Created for:** Schubert D.810 Movement II active tactical-loop proof of concept
+- **Creation method:** deterministic local synthesis by `scripts/build_active_tactical_loop.py`
 **Source format:** generated mono PCM WAV, 16 kHz, 16-bit container with deliberately reduced 9-11-bit signal precision
 
 ## Rights and source status
