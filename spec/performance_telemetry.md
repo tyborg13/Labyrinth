@@ -85,6 +85,26 @@ python3 tools/steam_performance_stats.py report \
 
 The report command queries Steam's `GetGlobalStatsForGame` Web API in batches and covers every key in the manifest. Platform and cohort ratios can then be calculated as `missed_frames / samples`; timed-phase mean milliseconds are `tenths_ms / calls / 10`. Whole-operation `_total` phases remain in local JSON but are excluded from Steam sums so nested phases are not double-counted.
 
+`GetGlobalStatsForGame` requires a publisher Web API key, not a Steam Community user API key. A Steamworks partner administrator creates one under **Users & Permissions → Manage Groups**. Prefer a dedicated group containing only the queried application (`4530510` for main and `4531660` for Playtest), grant only **General API calls**, and use an IP whitelist when the trusted reader has a stable outbound address. Valve documents publisher-key creation and permissions in [Authentication using Web API Keys](https://partner.steamgames.com/doc/webapi_overview/auth?l=english&language=english).
+
+On a trusted macOS development machine, store the key without placing it in shell history or the repository:
+
+```bash
+security add-generic-password -U -a "$USER" \
+  -s "labyrinth-steamworks-publisher-key" -w
+```
+
+Enter the value only at the secure prompt created by the trailing `-w`. A report can then inject it directly from Login Keychain into that subprocess without printing it:
+
+```bash
+STEAMWORKS_PUBLISHER_KEY="$(security find-generic-password \
+  -a "$USER" -s "labyrinth-steamworks-publisher-key" -w)" \
+python3 tools/steam_performance_stats.py report \
+  --appid 4530510 \
+  --days 7 \
+  --output output/steam-performance-main.json
+```
+
 Steam Cloud/Remote Storage still only synchronizes player-owned files between that player's devices; it is not used as a central developer analytics inbox. The richer JSON performance window remains the exact diagnostic source of truth, while Steam User Stats provides automatic fleet-wide aggregates without another runtime dependency.
 
 References:

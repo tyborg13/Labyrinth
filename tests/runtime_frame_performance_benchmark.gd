@@ -1198,11 +1198,13 @@ func _timed_call(target: Object, method_name: String, arguments: Array = []) -> 
 func _routed_left_click(control: Control, local_position: Vector2) -> float:
 	if control == null or control.get_viewport() == null:
 		return 0.0
-	var global_position: Vector2 = control.get_global_transform() * local_position
+	# Viewport GUI input is expressed in viewport coordinates. Include CanvasLayer
+	# transforms so UiLayer controls receive the event at their rendered position.
+	var global_position: Vector2 = control.get_global_transform_with_canvas() * local_position
 	var motion := InputEventMouseMotion.new()
 	motion.position = global_position
 	motion.global_position = global_position
-	control.get_viewport().push_input(motion)
+	control.get_viewport().push_input(motion, true)
 	var press := InputEventMouseButton.new()
 	press.position = global_position
 	press.global_position = global_position
@@ -1216,9 +1218,18 @@ func _routed_left_click(control: Control, local_position: Vector2) -> float:
 	release.button_mask = 0
 	release.pressed = false
 	var started: int = Time.get_ticks_usec()
-	control.get_viewport().push_input(press)
-	control.get_viewport().push_input(release)
+	control.get_viewport().push_input(press, true)
+	control.get_viewport().push_input(release, true)
 	return float(Time.get_ticks_usec() - started) / 1000.0
+
+func _routed_pointer_motion(control: Control, local_position: Vector2) -> void:
+	if control == null or control.get_viewport() == null:
+		return
+	var global_position: Vector2 = control.get_global_transform_with_canvas() * local_position
+	var motion := InputEventMouseMotion.new()
+	motion.position = global_position
+	motion.global_position = global_position
+	control.get_viewport().push_input(motion, true)
 
 func _board_pointer_click(instance: Node, tile: Vector2i) -> float:
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
@@ -1645,7 +1656,13 @@ func _select_card(instance: Node, hand_index: int, play_kind: String = "play") -
 		return 0.0
 	var hand: Array = (((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array)
 	var local_x: float = widget.size.x - 18.0 if hand_index == hand.size() - 1 else 18.0
-	var handler_ms: float = _routed_left_click(widget, Vector2(local_x, minf(72.0, widget.size.y * 0.24)))
+	var hover_position := Vector2(local_x, minf(72.0, widget.size.y * 0.24))
+	_routed_pointer_motion(widget, hover_position)
+	# A real card click follows hover delivery. Give the retained hand fan one frame
+	# to raise the hovered card before routing the press so the native workload does
+	# not click an overlapping neighbor with the pre-hover geometry.
+	await process_frame
+	var handler_ms: float = _routed_left_click(widget, hover_position)
 	await process_frame
 	if int(instance.get("_selected_card_index")) != hand_index and int(instance.get("_card_action_choice_index")) == hand_index:
 		var option_button: Button = instance.find_child("CardActionChoice%s" % play_kind.capitalize(), true, false) as Button
@@ -1653,7 +1670,17 @@ func _select_card(instance: Node, hand_index: int, play_kind: String = "play") -
 		if option_button != null and not option_button.disabled:
 			handler_ms += _routed_left_click(option_button, option_button.size * 0.5)
 			await process_frame
-	_expect(int(instance.get("_selected_card_index")) == hand_index, "card click must enter the requested preview mode")
+	var selected_index: int = int(instance.get("_selected_card_index"))
+	_expect(
+		selected_index == hand_index,
+		"card click must enter the requested preview mode (requested=%d selected=%d choice=%d hovered=%d mode=%s)" % [
+			hand_index,
+			selected_index,
+			int(instance.get("_card_action_choice_index")),
+			int(instance.get("_hovered_card_index")),
+			str(instance.get("_card_action_choice_mode")),
+		]
+	)
 	return handler_ms
 
 func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
@@ -2208,6 +2235,7 @@ func _clear_probe_output(dir_path: String) -> void:
 func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		_errors.append(message)
+		print("RUNTIME FRAME PERF SEMANTIC ERROR: %s" % message)
 
 func _phase_log(message: String) -> void:
 	print("RUNTIME FRAME PERF PHASE: %s (%d ms)" % [message, Time.get_ticks_msec()])

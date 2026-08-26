@@ -72,6 +72,34 @@ python3 tools/steam_performance_stats.py report \
 
 The report command expects `STEAMWORKS_PUBLISHER_KEY` to already be configured in the trusted development environment. The Steam client needs no publisher Web API key to upload: the authenticated SDK session writes client-set User Stats. The publisher key is only for this developer-side global read. Never request that a user paste the key into chat, print it, commit it, place it in an exported build, or persist it beyond the trusted environment they authorized. Creating/revoking a key, publishing stat definitions, or changing App Admin is an external mutation and still requires explicit user authorization.
 
+If the trusted environment does not have a key, do not stop at “telemetry unavailable.” Give the user the one-time bootstrap path and continue local profiling while they complete the account-only step:
+
+1. A Steamworks partner administrator opens **Users & Permissions → Manage Groups**.
+2. Create a dedicated performance-telemetry group, or select an existing least-privilege group.
+3. Associate the exact app being queried. Escape the Umbra uses main app `4530510` and Playtest app `4531660`; include both only when the same key should query both variants.
+4. Select **Create WebAPI Key**, grant only **General API calls**, optionally restrict it to the trusted machine's stable outbound IP, and save.
+5. Do not use an ordinary Steam Community user Web API key: `GetGlobalStatsForGame` requires a publisher key whose group contains the queried app.
+
+On macOS, offer Login Keychain instead of asking the user to paste or export the key. The user runs this command themselves and enters the value at the secure prompt created by the trailing `-w`:
+
+```bash
+security add-generic-password -U -a "$USER" \
+  -s "labyrinth-steamworks-publisher-key" -w
+```
+
+After the user confirms it is stored, inject it only into the report subprocess without printing it:
+
+```bash
+STEAMWORKS_PUBLISHER_KEY="$(security find-generic-password \
+  -a "$USER" -s "labyrinth-steamworks-publisher-key" -w)" \
+python3 tools/steam_performance_stats.py report \
+  --appid <tested-app-id> \
+  --days <test-window-days> \
+  --output /tmp/<task-id>-steam.json
+```
+
+If the account lacks Steamworks administrator rights, identify an administrator from the partner home page; only an administrator can create the publisher key or grant the required access. Never inspect or echo the resulting secret.
+
 Validate transport before interpreting performance:
 
 - An omitted-key/API error is not a zero; it usually means the definitions are unpublished, the app/key is wrong, or access failed.
