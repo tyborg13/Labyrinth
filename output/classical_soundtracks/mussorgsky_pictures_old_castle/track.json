@@ -116,11 +116,11 @@
   "reproducibility": {
     "arrangement_notes": {
       "path": "versions/v01/ARRANGEMENT_NOTES.md",
-      "sha256": "bef4e61c7e15dd52d0bf4fda6b03dd5c2866aa50801def8114a5a7346e8814cd"
+      "sha256": "76660ac5badcd9e70044d43d251030fd895a121a79c96c4d5b37174a67753dc4"
     },
     "build_script": {
       "path": "scripts/build_arrangement.py",
-      "sha256": "0145f6452d54d4696a64bbd32f07e222c7862e441949ac5e9cb17f309c5b8618"
+      "sha256": "7433d6b039c8752dfac763106aec0694b7964c09ecbbcaa0e0ce82fbc26b968e"
     },
     "expected_part_count": 1,
     "normalized_full_score_midi": {
@@ -129,7 +129,7 @@
     },
     "normalized_full_score_musicxml": {
       "path": "normalized/full_score.musicxml",
-      "sha256": "bb56582299c7cac6121204e4ca39697cd8de744ac268adcb7c0c067925a77841"
+      "sha256": "9e1b5b570455937f99da6c4e01be30d6672f4969f01084fd69ac38c45fe1b10b"
     },
     "normalized_parts": [
       {
@@ -150,17 +150,17 @@
     "composer": "Modest Mussorgsky (1839-1881)",
     "composition": "Pictures at an Exhibition - The Old Castle",
     "composition_public_domain": true,
-    "composition_public_domain_evidence": "Modest Mussorgsky died in 1881 and the original solo-piano suite was first published by V. Bessel & Co. in 1886; the Sibley Music Library record marks this scanned edition public domain.",
+    "composition_public_domain_evidence": "Modest Mussorgsky died in 1881; the solo-piano suite was first published by V. Bessel & Co. in 1886, and the Sibley Music Library marks its 1918 Breitkopf & Härtel reprint public domain.",
     "date_retrieved": "2026-08-26",
-    "license_evidence": "The Sibley Music Library institutional record states \"This item is in the public domain\" for the 1918 Breitkopf & Hartel reprint of the 1886 Bessel first edition.",
+    "license_evidence": "The Sibley Music Library marks the checked-in 1918 Breitkopf & Härtel reprint public domain; no third-party machine-readable transcription was used, and this repository contribution dedicates its project-authored reduction and normalized score outputs to the public domain under CC0 1.0 Universal.",
     "license_file": "LICENSE_SOURCE.md",
-    "path": "source/mussorgsky_pictures_at_an_exhibition_bessel_1886.pdf",
+    "path": "source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
     "rights_basis": "public_domain",
     "rights_status": "cleared",
     "sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
-    "source_format": "Scanned PDF of the 1886 Bessel first edition (solo piano)",
+    "source_format": "Scanned PDF of the 1918 Breitkopf & Härtel reprint of the 1886 Bessel edition (solo piano)",
     "source_url": "https://urresearch.rochester.edu/fileDownloadForInstitutionalItem.action?itemId=13118&itemFileId=30373",
-    "transcription_license": "Public domain"
+    "transcription_license": "Public domain via CC0 1.0 Universal dedication"
   },
   "title": "Pictures at an Exhibition - The Old Castle",
   "track_id": "mussorgsky_pictures_old_castle",

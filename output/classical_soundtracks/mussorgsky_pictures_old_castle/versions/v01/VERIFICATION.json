@@ -102,7 +102,7 @@
     "undercrypt_bass": "2b1a1a07e74969533c0ef2766602633fcb6180a12ae6fa3dddc6dbdb1264679e",
     "veiled_violin": "c683d2911eba6adb35e58027b1dd363f5057996a789f06f8a4aa604d9092ffc8"
   },
-  "config_sha256": "0765b0d868fc8871ce0741aa9be22349ea0cf49cddecc9a799adf4d7447f15b0",
+  "config_sha256": "5902ab57c6212e45c68c2a2338bf2a2cd73bd01bc79dd03e4543bcc8fb271f24",
   "midi": {
     "configured_tracks": [
       "Ashen Violin / Lute Ostinato",
@@ -128,11 +128,11 @@
   "reproducibility": {
     "arrangement_notes": {
       "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v01/ARRANGEMENT_NOTES.md",
-      "sha256": "bef4e61c7e15dd52d0bf4fda6b03dd5c2866aa50801def8114a5a7346e8814cd"
+      "sha256": "76660ac5badcd9e70044d43d251030fd895a121a79c96c4d5b37174a67753dc4"
     },
     "build_script": {
       "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/scripts/build_arrangement.py",
-      "sha256": "0145f6452d54d4696a64bbd32f07e222c7862e441949ac5e9cb17f309c5b8618"
+      "sha256": "7433d6b039c8752dfac763106aec0694b7964c09ecbbcaa0e0ce82fbc26b968e"
     },
     "expected_part_count": 1,
     "normalized_full_score_midi": {
@@ -141,7 +141,7 @@
     },
     "normalized_full_score_musicxml": {
       "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/full_score.musicxml",
-      "sha256": "bb56582299c7cac6121204e4ca39697cd8de744ac268adcb7c0c067925a77841"
+      "sha256": "9e1b5b570455937f99da6c4e01be30d6672f4969f01084fd69ac38c45fe1b10b"
     },
     "normalized_parts": [
       {
@@ -159,10 +159,10 @@
   },
   "source": {
     "license_file": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/LICENSE_SOURCE.md",
-    "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_bessel_1886.pdf",
+    "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
     "rights_basis": "public_domain",
     "sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
-    "transcription_license": "Public domain"
+    "transcription_license": "Public domain via CC0 1.0 Universal dedication"
   },
   "track_id": "mussorgsky_pictures_old_castle"
 }

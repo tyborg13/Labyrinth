@@ -26,7 +26,7 @@ from tools.classical_soundtrack_pipeline.common import (  # noqa: E402
 from tools.classical_soundtrack_pipeline.normalization import write_normalized_score  # noqa: E402
 
 
-SOURCE_PDF = TRACK_ROOT / "source" / "mussorgsky_pictures_at_an_exhibition_bessel_1886.pdf"
+SOURCE_PDF = TRACK_ROOT / "source" / "mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf"
 EXPECTED_SOURCE_SHA256 = "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71"
 CONFIG_PATH = TRACK_ROOT / "track.json"
 NORMALIZED_DIR = TRACK_ROOT / "normalized"
@@ -39,9 +39,10 @@ MEASURE_COUNT = 32
 TICKS_PER_BEAT = 480
 QPM = 72
 
-# A score-derived manual reduction of the opening lament and its first broad
-# response from the public-domain 1886 piano score, PDF pages 8-9 (printed
-# pages 7-8). Each tuple is (offset in quarter notes, duration, concert pitch).
+# A project-authored manual reduction of selected opening material from the
+# public-domain 1918 reprint, principally PDF page 8 (printed page 7). See
+# ARRANGEMENT_NOTES.md for the source-system map, cuts, reprise, and authored
+# loop close. Each tuple is (offset in quarter notes, duration, concert pitch).
 # Dense keyboard sonorities are deliberately reduced; the melodic contour,
 # G-sharp drone, modal inflections, and tonic/dominant cadence are retained.
 MELODY: dict[int, list[tuple[float, float, str]]] = {
@@ -100,7 +101,7 @@ TRACKS = (
 def _source_score() -> stream.Score:
     score = stream.Score(id="old_castle_source_reduction")
     score.metadata = metadata.Metadata()
-    score.metadata.title = "Il vecchio castello - public-domain score-derived opening reduction"
+    score.metadata.title = "Il vecchio castello - project-authored selected opening reduction"
     score.metadata.composer = "Modest Mussorgsky"
     piano = stream.Part(id="piano_source_reduction")
     piano.partName = "Piano (score-derived source reduction)"
@@ -260,8 +261,8 @@ def main() -> int:
         "ok": True,
         "source_pdf": str(SOURCE_PDF),
         "source_pdf_sha256": sha256(SOURCE_PDF),
-        "source_score_pages": "PDF pages 8-9 (printed pages 7-8)",
-        "selection": "32-measure opening-lament reduction and tonic-cadence loop",
+        "source_score_pages": "PDF page 8 (printed page 7); later movement omitted",
+        "selection": "Project-authored 32-measure opening reduction, reprise, and tonic-cadence loop close",
         "normalized": normalized,
         "arrangement_midi": str(ARRANGEMENT_MIDI),
         "arrangement_midi_sha256": sha256(ARRANGEMENT_MIDI),

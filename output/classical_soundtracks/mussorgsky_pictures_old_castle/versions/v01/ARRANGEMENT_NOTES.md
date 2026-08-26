@@ -2,15 +2,18 @@
 
 ## Selection and order
 
-- Uses a 32-measure, 6/8 score-derived reduction centered on the opening lament and first broad response shown on source PDF pages 8-9 (printed pages 7-8).
-- Measures 1-4 establish the printed low G-sharp drone and ostinato before the troubadour line enters.
-- Measures 5-20 state the lament, its lower answer, and the rising response.
-- Measures 21-32 restate the recognizable opening contour, compress the later keyboard texture into essential harmony, and cadence on G-sharp minor so the loop can return to the opening drone.
-- The rest of the complete piano movement is omitted from this first game-length audition. No source repeats or alternate endings apply to the selected material.
+Source coordinates below use the scan's PDF page number, the printed page number, the system counted from the top, and bars counted left-to-right within that system. The edition does not print continuous movement bar numbers.
+
+- Builder measures 1-4 condense PDF 8 (printed page 7), system 1, source bars 1-6. The source has six accompaniment-only introduction bars; v01 keeps its G-sharp drone and ostinato character but shortens the introduction by two bars before the troubadour line enters.
+- Builder measures 5-12 reduce the first lament entrance from PDF 8 (printed page 7), system 2, source bars 1-6, continuing through system 3, source bars 1-2. Melodic contour and the bass drone are retained while piano doublings are removed.
+- Builder measures 13-20 condense the rising response from PDF 8 (printed page 7), system 3, source bars 3-5, and system 4, source bars 1-5. This is an eight-bar game reduction of that span, not a bar-for-bar copy.
+- Builder measures 21-28 are a constructed reprise: measures 21-23 restate builder measures 5-7, while measures 24-28 reshape fragments from PDF 8 (printed page 7), systems 4-5, into a shorter answer over essential source harmony.
+- Builder measures 29-32 are a constructed loop close assembled from the lower-answer contour already used in builder measures 11-12 and the tonic/dominant material of PDF 8 (printed page 7), system 5. They are not four consecutive source bars; the final G-sharp-minor cadence is authored so the crossfade can return to builder measure 1.
+- Material after PDF 8 (printed page 7), system 5—including the remainder on PDF pages 9-10 (printed pages 8-9)—is omitted from v01. `normalized/full_score.*` and the normalized part therefore represent this selected, reordered 32-measure reduction, not the complete movement.
 
 ## Transcription and harmony
 
-- The score-specific build script is the transcription source of truth; generated MusicXML/MIDI is never hand-edited.
+- The score-specific build script is the project-authored reduction source of truth; generated MusicXML/MIDI is never hand-edited.
 - The melodic contour, G-sharp drone, 6/8 meter, modal minor inflections, tonic/dominant centers, and essential chord tones remain recognizable.
 - Dense piano doublings and inner chord tones are reduced to one harmony line plus one ostinato line. This is an explicit pitch-density reduction, not a scholarly note-for-note edition.
 - No new functional harmony or transposition is introduced. The audition remains in G-sharp minor; the cello melody is voiced one octave below the source-reduction register and the selective violin echo one octave above it.

@@ -56,7 +56,7 @@
   "bank_manifest": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
   "bank_manifest_sha256": "2fc0b70a096ec2bbbcfdf3bd3cdbf3d3f595a780835329332ee548d581019ea6",
   "config_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/track.json",
-  "config_sha256": "0765b0d868fc8871ce0741aa9be22349ea0cf49cddecc9a799adf4d7447f15b0",
+  "config_sha256": "5902ab57c6212e45c68c2a2338bf2a2cd73bd01bc79dd03e4543bcc8fb271f24",
   "midi_note_counts": {
     "Ashen Violin / Lute Ostinato": 192,
     "Funeral Pulse / Procedural Percussion": 28,

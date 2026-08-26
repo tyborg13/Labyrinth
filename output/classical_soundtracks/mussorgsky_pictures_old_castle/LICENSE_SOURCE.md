@@ -2,20 +2,22 @@
 
 - Composition: Pictures at an Exhibition - The Old Castle
 - Composer: Modest Mussorgsky (1839-1881)
-- Underlying composition public-domain evidence: Modest Mussorgsky died in 1881 and the original solo-piano suite was first published by V. Bessel & Co. in 1886; the Sibley Music Library record marks this scanned edition public domain.
+- Underlying composition public-domain evidence: Modest Mussorgsky died in 1881; the solo-piano suite was first published by V. Bessel & Co. in 1886, and the Sibley Music Library marks its 1918 Breitkopf & Härtel reprint public domain.
 - Immutable source URL: https://urresearch.rochester.edu/fileDownloadForInstitutionalItem.action?itemId=13118&itemFileId=30373
 - Persistent catalogue record: https://hdl.handle.net/1802/13415
-- Source format: Scanned PDF of the 1886 Bessel first edition (solo piano)
-- Machine-readable transcription license: Public domain
-- License evidence: The Sibley Music Library institutional record states "This item is in the public domain" for the 1918 Breitkopf & Hartel reprint of the 1886 Bessel first edition.
+- Source format: Scanned PDF of the 1918 Breitkopf & Härtel reprint of the 1886 Bessel edition (solo piano)
+- Machine-readable transcription license: Public domain via CC0 1.0 Universal dedication
+- License evidence: The Sibley Music Library marks the checked-in 1918 Breitkopf & Härtel reprint public domain; no third-party machine-readable transcription was used, and this repository contribution dedicates its project-authored reduction and normalized score outputs to the public domain under CC0 1.0 Universal.
 - Date retrieved: 2026-08-26
-- Saved unchanged as: `source/mussorgsky_pictures_at_an_exhibition_bessel_1886.pdf`
+- Saved unchanged as: `source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf`
 - Immutable source SHA-256: `0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71`
 
 ## Transcription and arrangement boundary
 
-The immutable source is the public-domain piano score. `scripts/build_arrangement.py` contains a reproducible, score-derived manual reduction of the opening lament and first broad response on PDF pages 8-9 (printed score pages 7-8). That script writes the normalized source-reduction MusicXML/MIDI, its separate piano part, and the independently voiced audition MIDI. No modern arrangement, commercial MIDI, audio recording, SoundFont, sample pack, ROM/rip, or generated-model audio was used.
+The immutable source is the public-domain scan. `scripts/build_arrangement.py` contains this project's reproducible, score-derived manual reduction of selected opening material. That script writes the normalized source-reduction MusicXML/MIDI, its separate piano part, and the independently voiced audition MIDI. No third-party machine-readable transcription, modern arrangement, commercial MIDI, audio recording, SoundFont, sample pack, ROM/rip, or generated-model audio was used.
+
+To the extent that this project-authored reduction and its generated normalized score outputs contain copyrightable expression, this repository contribution dedicates them to the public domain under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 
 Musical source credit for public-facing use:
 
-> Modest Mussorgsky, *Pictures at an Exhibition: The Old Castle* (1874), original solo-piano composition; public-domain 1886 first edition preserved by the Sibley Music Library.
+> Modest Mussorgsky, *Pictures at an Exhibition: The Old Castle* (1874), original solo-piano composition; public-domain 1918 Breitkopf & Härtel reprint of the 1886 Bessel edition preserved by the Sibley Music Library.

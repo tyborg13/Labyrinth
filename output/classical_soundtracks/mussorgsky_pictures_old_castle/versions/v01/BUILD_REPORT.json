@@ -14,7 +14,7 @@
     "full_score_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/full_score.mid",
     "full_score_midi_sha256": "61a864b00329303ab4d720de135991058c694ecbce6f4ee4cd564ef681c4e875",
     "full_score_musicxml": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/full_score.musicxml",
-    "full_score_musicxml_sha256": "bb56582299c7cac6121204e4ca39697cd8de744ac268adcb7c0c067925a77841",
+    "full_score_musicxml_sha256": "9e1b5b570455937f99da6c4e01be30d6672f4969f01084fd69ac38c45fe1b10b",
     "part_count": 1,
     "parts": [
       {
@@ -27,10 +27,10 @@
     ]
   },
   "ok": true,
-  "selection": "32-measure opening-lament reduction and tonic-cadence loop",
-  "source_pdf": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_bessel_1886.pdf",
+  "selection": "Project-authored 32-measure opening reduction, reprise, and tonic-cadence loop close",
+  "source_pdf": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
   "source_pdf_sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
-  "source_score_pages": "PDF pages 8-9 (printed pages 7-8)",
+  "source_score_pages": "PDF page 8 (printed page 7); later movement omitted",
   "structural_duration_seconds": 80.0,
   "tempo_qpm": 72
 }
