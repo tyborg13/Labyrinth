@@ -4,7 +4,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
-const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
+const DEFAULT_VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
@@ -142,10 +142,12 @@ var _profiled_initial_refresh: bool = false
 var _render_pulse: RenderPulse = null
 var _focus_observation_count: int = 0
 var _unfocused_observation_count: int = 0
+var _viewport_size: Vector2i = DEFAULT_VIEWPORT_SIZE
 
 func _initialize() -> void:
 	_phase_log("initialize")
 	ParallelRuntime.apply_from_environment()
+	_viewport_size = _requested_viewport_size()
 	# Synthetic pointer calls do not wake the desktop event loop the way a real
 	# mouse event does. Disable low-processor sleeping for this probe so a target
 	# that produces an identical retained visual cannot inject a one-second idle
@@ -159,8 +161,8 @@ func _initialize() -> void:
 	# otherwise live in an inactive macOS fullscreen Space and receive Metal
 	# drawables at roughly 1 Hz despite normal game-side frame work.
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	DisplayServer.window_set_size(VIEWPORT_SIZE)
-	root.size = VIEWPORT_SIZE
+	DisplayServer.window_set_size(_viewport_size)
+	root.size = _viewport_size
 	_render_pulse = RenderPulse.new()
 	_render_pulse.name = "PerformanceRenderPulse"
 	_render_pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -199,6 +201,52 @@ func _initialize() -> void:
 	_install_stress_combat(instance, "specialists")
 	_phase_log("stress combat installed")
 	await _settle_frames(8)
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_ATTRIBUTION_ONLY") == "1":
+		_set_umbra_visual_time(instance, 42.0)
+		_set_umbra_shape_batching(instance, false)
+		await _settle_render_frames(4)
+		_reset_board_render_instrumentation(instance)
+		sampler.begin()
+		for _frame: int in range(90):
+			await _await_render_frame()
+		var unbatched_frames: Dictionary = _sampler_phase_result(sampler.finish())
+		var unbatched_profile: Dictionary = _board_render_instrumentation(instance)
+		await _save_root_screenshot("dense_attribution_unbatched.png")
+		var unbatched_attribution: Dictionary = await _measure_draw_call_attribution(instance)
+		_set_umbra_shape_batching(instance, true)
+		await _settle_render_frames(4)
+		_reset_board_render_instrumentation(instance)
+		sampler.begin()
+		for _frame: int in range(90):
+			await _await_render_frame()
+		var batched_frames: Dictionary = _sampler_phase_result(sampler.finish())
+		var batched_profile: Dictionary = _board_render_instrumentation(instance)
+		_expect(int(unbatched_profile.get("umbra_shape_batch_mesh_update_count", -1)) == 0, "disabled Umbra batching must execute the authored immediate-draw reference path")
+		_expect(int(batched_profile.get("umbra_shape_batch_mesh_count", 0)) > 0, "batched Umbra rendering must retain pooled meshes")
+		_expect(int(batched_profile.get("umbra_shape_batch_mesh_update_count", 0)) > 0, "active Umbra presentation must update its pooled geometry batches")
+		_expect(int(batched_profile.get("umbra_shape_batch_mesh_create_count", -1)) == 0, "steady-state Umbra rendering must reuse its warmed mesh pool without allocations")
+		await _save_root_screenshot("dense_attribution_batched.png")
+		var batched_attribution: Dictionary = await _measure_draw_call_attribution(instance)
+		_expect(int(batched_attribution.get("all_visible", 999999)) <= int(unbatched_attribution.get("all_visible", 0)) - 1200, "dense Umbra batching must collapse at least 1,200 completed-frame draw calls")
+		var unbatched_layers: Dictionary = unbatched_attribution.get("board_layers", {}) as Dictionary
+		var batched_layers: Dictionary = batched_attribution.get("board_layers", {}) as Dictionary
+		var unbatched_world: int = int((unbatched_layers.get("world", {}) as Dictionary).get("attributed_draw_calls", 0))
+		var batched_world: int = int((batched_layers.get("world", {}) as Dictionary).get("attributed_draw_calls", 999999))
+		_expect(batched_world * 10 <= unbatched_world, "Umbra world-layer draw calls must fall by at least 90 percent")
+		print("RUNTIME DRAW ATTRIBUTION A/B: %s" % JSON.stringify({
+			"unbatched": unbatched_attribution,
+			"unbatched_frames": unbatched_frames,
+			"unbatched_profile": unbatched_profile,
+			"batched": batched_attribution,
+			"batched_frames": batched_frames,
+			"batched_profile": batched_profile,
+		}))
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		ProgressionStore.clear_saved_run()
+		quit(0 if _errors.is_empty() else 1)
+		return
 	var cold_interaction: Dictionary = await _measure_cold_interaction(instance, sampler)
 	_install_stress_combat(instance, "specialists")
 	await _settle_frames(2)
@@ -293,7 +341,7 @@ func _initialize() -> void:
 	var results: Dictionary = {
 		"schema_version": 3,
 		"workload_id": WORKLOAD_ID,
-		"viewport": "%dx%d" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
+		"viewport": "%dx%d" % [_viewport_size.x, _viewport_size.y],
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),
 		"probe_low_processor_usage_mode": OS.low_processor_usage_mode,
@@ -366,6 +414,103 @@ func _measure_idle(sampler: FrameSampler) -> Dictionary:
 	for _frame: int in range(IDLE_FRAMES):
 		await _await_render_frame()
 	return _sampler_phase_result(sampler.finish())
+
+func _measure_draw_call_attribution(instance: Node) -> Dictionary:
+	# Toggle one already-rendered surface at a time and let the renderer settle.
+	# This attributes steady-state draw calls without rebuilding the authored
+	# fixture or changing the order/depth of any retained gameplay layer.
+	var result: Dictionary = {}
+	await _settle_render_frames(3)
+	result["all_visible"] = int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+	var surfaces: Dictionary = {
+		"board": instance.get_node_or_null("BoardUnderlay/CombatBoard"),
+		"hand_box": instance.get("hand_box"),
+		"hand_row": instance.get("hand_row"),
+		"relic_bar": instance.get("relic_bar"),
+		"turn_order": instance.get("_turn_order_panel"),
+		"top_bar": instance.get_node_or_null("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"),
+		"left_action_stack": instance.get("left_action_stack"),
+	}
+	for surface_name: String in surfaces:
+		var surface: CanvasItem = surfaces.get(surface_name, null) as CanvasItem
+		if surface == null or not surface.visible:
+			continue
+		surface.visible = false
+		await _settle_render_frames(3)
+		var hidden_draw_calls: int = int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+		result[surface_name] = {
+			"hidden_draw_calls": hidden_draw_calls,
+			"attributed_draw_calls": maxi(0, int(result["all_visible"]) - hidden_draw_calls),
+		}
+		surface.visible = true
+		await _settle_render_frames(3)
+	var board: Control = surfaces.get("board", null) as Control
+	if board != null and board.has_method("_retained_render_layers"):
+		var board_layers: Dictionary = {}
+		var retained_layers: Array = board.call("_retained_render_layers") as Array
+		var board_visible_calls: int = int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+		for layer_kind: String in ["ambient", "overlays", "ground", "path", "world", "scene_tile", "foreground", "hud", "effects"]:
+			var matching_layers: Array[CanvasItem]
+			for layer_var: Variant in retained_layers:
+				var layer: CanvasItem = layer_var as CanvasItem
+				if layer != null and str(layer.get("_render_layer_kind")) == layer_kind:
+					matching_layers.append(layer)
+			for layer: CanvasItem in matching_layers:
+				layer.visible = false
+			await _settle_render_frames(3)
+			var hidden_draw_calls: int = int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+			board_layers[layer_kind] = {
+				"hidden_draw_calls": hidden_draw_calls,
+				"attributed_draw_calls": maxi(0, board_visible_calls - hidden_draw_calls),
+				"layer_count": matching_layers.size(),
+			}
+			for layer: CanvasItem in matching_layers:
+				layer.visible = true
+			await _settle_render_frames(3)
+		result["board_layers"] = board_layers
+	return result
+
+func _set_umbra_shape_batching(instance: Node, enabled: bool) -> void:
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	if board == null:
+		return
+	board.set("_umbra_shape_batch_enabled", enabled)
+	board.queue_redraw()
+	if board.has_method("_retained_render_layers"):
+		for layer_var: Variant in board.call("_retained_render_layers") as Array:
+			var layer: Control = layer_var as Control
+			if layer == null:
+				continue
+			layer.set("_umbra_shape_batch_enabled", enabled)
+			layer.queue_redraw()
+
+func _set_umbra_visual_time(instance: Node, time_seconds: float) -> void:
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	if board == null:
+		return
+	var render_sources: Array[Control]
+	render_sources.append(board)
+	if board.has_method("_retained_render_layers"):
+		for layer_var: Variant in board.call("_retained_render_layers") as Array:
+			var layer: Control = layer_var as Control
+			if layer != null:
+				render_sources.append(layer)
+	for source: Control in render_sources:
+		var source_presentation: Dictionary = (source.get("presentation") as Dictionary).duplicate(true)
+		source_presentation["umbra_time_seconds"] = time_seconds
+		source.set("presentation", source_presentation)
+		source.queue_redraw()
+
+func _reset_board_render_instrumentation(instance: Node) -> void:
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	if board != null and board.has_method("reset_render_instrumentation"):
+		board.call("reset_render_instrumentation")
+
+func _board_render_instrumentation(instance: Node) -> Dictionary:
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	if board == null or not board.has_method("render_instrumentation_snapshot"):
+		return {}
+	return board.call("render_instrumentation_snapshot") as Dictionary
 
 func _measure_cold_interaction(instance: Node, sampler: FrameSampler) -> Dictionary:
 	# Run before the explicit warmup and action-tracker prewarm settle. This is the
@@ -1979,10 +2124,21 @@ func _save_root_screenshot(file_name: String) -> void:
 	# Retina windows return the backing texture at device-pixel resolution even
 	# though the authored viewport is 1920x1080. Normalize proof output to the UI
 	# rubric's required logical resolution.
-	if image.get_size() != VIEWPORT_SIZE:
-		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
-	_expect(image.get_size() == VIEWPORT_SIZE, "%s must capture 1920x1080" % file_name)
+	if image.get_size() != _viewport_size:
+		image.resize(_viewport_size.x, _viewport_size.y, Image.INTERPOLATE_LANCZOS)
+	_expect(image.get_size() == _viewport_size, "%s must capture %dx%d" % [file_name, _viewport_size.x, _viewport_size.y])
 	_expect(image.save_png(path) == OK, "%s could not be saved" % file_name)
+
+func _requested_viewport_size() -> Vector2i:
+	var requested: String = OS.get_environment("LABYRINTH_RUNTIME_PERF_VIEWPORT_SIZE").strip_edges().to_lower()
+	var dimensions: PackedStringArray = requested.split("x", false, 1)
+	if dimensions.size() != 2 or not dimensions[0].is_valid_int() or not dimensions[1].is_valid_int():
+		return DEFAULT_VIEWPORT_SIZE
+	var width: int = int(dimensions[0])
+	var height: int = int(dimensions[1])
+	if width < 640 or height < 480:
+		return DEFAULT_VIEWPORT_SIZE
+	return Vector2i(width, height)
 
 func _await_render_frame() -> void:
 	# A retained scene may correctly have no dirty gameplay draw command. Pulse a

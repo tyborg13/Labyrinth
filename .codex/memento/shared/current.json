@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-25T21:12:46Z",
+  "updated_at": "2026-08-26T03:25:08Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8753,6 +8753,28 @@
       "source": {
         "branch": "codex/polish-steam-deck-cursor-hand-input-stability-and-performance",
         "commit": "be6590c"
+      }
+    },
+    {
+      "id": "mnt_20260826T032508Z_d22f27e4",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Batch dense Umbra translucency through pooled ArrayMeshes",
+      "details": "Dense Pressing Umbra was the dominant completed-frame cost: matched native attribution measured roughly 1,450 world-layer and 240 foreground draw calls from individually submitted soft-lobe/light circles. Preserve authored layer order by flushing before native antialiased boundary lines and text counters, batch the translucent triangles into a per-layer ArrayMesh pool, and precompute the unit-circle samples so steady redraws create no meshes or per-shape trig work. Keep the immediate path available for deterministic A/B proof.",
+      "status": "active",
+      "created_at": "2026-08-26T03:25:08Z",
+      "updated_at": "2026-08-26T03:25:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/optimize-steam-deck-combat-rendering-from-uploaded-telemetry",
+        "commit": "0390fb4"
       }
     }
   ]

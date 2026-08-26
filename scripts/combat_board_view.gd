@@ -321,6 +321,7 @@ const ELEMENTAL_FOREGROUND_PARTICLE_COUNT: int = 15
 const HUD_LAYOUT_CACHE_LIMIT: int = 32
 const UMBRA_RETURN_STAGGER_SECONDS: float = 0.52
 const UMBRA_RETURN_FADE_SECONDS: float = 0.46
+const UMBRA_SHAPE_BATCH_SEGMENTS: int = 48
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
 const AMBIENT_PARTICLE_OPACITY: float = 0.68
 const AMBIENT_PARTICLE_SPEED_SCALE: float = 1.0
@@ -522,6 +523,19 @@ var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
 var _ambient_combined_atlas: Texture2D = null
 var _ambient_combined_atlas_regions: Dictionary = {}
 var _ambient_batch_mesh: ArrayMesh = null
+var _ambient_batch_mesh_create_count: int = 0
+var _ambient_batch_mesh_update_count: int = 0
+var _umbra_shape_batch_enabled: bool = true
+var _umbra_shape_batch_active: bool = false
+var _umbra_shape_batch_vertices: PackedVector3Array = PackedVector3Array()
+var _umbra_shape_batch_colors: PackedColorArray = PackedColorArray()
+var _umbra_shape_batch_indices: PackedInt32Array = PackedInt32Array()
+var _umbra_shape_batch_unit_circle: PackedVector2Array = PackedVector2Array()
+var _umbra_shape_batch_meshes: Array[ArrayMesh]
+var _umbra_shape_batch_mesh_cursor: int = 0
+var _umbra_shape_batch_mesh_create_count: int = 0
+var _umbra_shape_batch_mesh_update_count: int = 0
+var _umbra_shape_batch_flush_count: int = 0
 var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
@@ -828,6 +842,12 @@ func render_instrumentation_snapshot() -> Dictionary:
 	var layer_draw_counts: Dictionary = {}
 	var layer_draw_total_usec: Dictionary = {}
 	var scene_tile_draw_counts: Dictionary = {}
+	var ambient_batch_mesh_create_count: int = _ambient_batch_mesh_create_count
+	var ambient_batch_mesh_update_count: int = _ambient_batch_mesh_update_count
+	var umbra_shape_batch_mesh_count: int = _umbra_shape_batch_meshes.size()
+	var umbra_shape_batch_mesh_create_count: int = _umbra_shape_batch_mesh_create_count
+	var umbra_shape_batch_mesh_update_count: int = _umbra_shape_batch_mesh_update_count
+	var umbra_shape_batch_flush_count: int = _umbra_shape_batch_flush_count
 	if not _retained_render_layers().is_empty():
 		dynamic_count = 0
 		dynamic_total_usec = 0
@@ -844,6 +864,13 @@ func render_instrumentation_snapshot() -> Dictionary:
 			if layer_kind == RENDER_LAYER_SCENE_TILE:
 				var layer_tile: Vector2i = layer.get("_render_layer_tile") as Vector2i
 				scene_tile_draw_counts["%d,%d" % [layer_tile.x, layer_tile.y]] = layer_count
+			ambient_batch_mesh_create_count += int(layer.get("_ambient_batch_mesh_create_count"))
+			ambient_batch_mesh_update_count += int(layer.get("_ambient_batch_mesh_update_count"))
+			var layer_umbra_meshes: Array = layer.get("_umbra_shape_batch_meshes") as Array
+			umbra_shape_batch_mesh_count += layer_umbra_meshes.size()
+			umbra_shape_batch_mesh_create_count += int(layer.get("_umbra_shape_batch_mesh_create_count"))
+			umbra_shape_batch_mesh_update_count += int(layer.get("_umbra_shape_batch_mesh_update_count"))
+			umbra_shape_batch_flush_count += int(layer.get("_umbra_shape_batch_flush_count"))
 			_merge_render_section_metrics(section_total_usec, layer.get("_render_section_total_usec") as Dictionary, false)
 			_merge_render_section_metrics(section_max_usec, layer.get("_render_section_max_usec") as Dictionary, true)
 	return {
@@ -866,6 +893,13 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
 		"layout_content_rebuild_count": _board_layout_content_rebuild_count,
 		"unit_shadow_sync_misses": _unit_shadow_sync_miss_metrics.duplicate(true),
+		"ambient_batch_mesh_create_count": ambient_batch_mesh_create_count,
+		"ambient_batch_mesh_update_count": ambient_batch_mesh_update_count,
+		"umbra_shape_batch_enabled": _umbra_shape_batch_enabled,
+		"umbra_shape_batch_mesh_count": umbra_shape_batch_mesh_count,
+		"umbra_shape_batch_mesh_create_count": umbra_shape_batch_mesh_create_count,
+		"umbra_shape_batch_mesh_update_count": umbra_shape_batch_mesh_update_count,
+		"umbra_shape_batch_flush_count": umbra_shape_batch_flush_count,
 	}
 
 func _merge_render_section_metrics(target: Dictionary, source: Dictionary, keep_maximum: bool) -> void:
@@ -887,6 +921,11 @@ func reset_render_instrumentation() -> void:
 	_render_section_total_usec.clear()
 	_render_section_max_usec.clear()
 	_unit_shadow_sync_miss_metrics.clear()
+	_ambient_batch_mesh_create_count = 0
+	_ambient_batch_mesh_update_count = 0
+	_umbra_shape_batch_mesh_create_count = 0
+	_umbra_shape_batch_mesh_update_count = 0
+	_umbra_shape_batch_flush_count = 0
 	for layer: Control in _retained_render_layers():
 		layer.call("reset_render_instrumentation")
 
@@ -2255,7 +2294,7 @@ func _draw_dynamic_board() -> void:
 		var units_to_draw: Array[Dictionary] = _visible_units()
 		_draw_scene_objects(grid, tiles, units_to_draw)
 		_draw_large_enemy_attack_highlights(units_to_draw)
-		_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
+		_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
 		_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 		_draw_campfire_ember_motes()
 	_draw_effects_render_layer()
@@ -2369,7 +2408,7 @@ func _draw_foreground_render_layer() -> void:
 	_draw_large_enemy_attack_highlights(units_to_draw)
 	_record_render_section_time("foreground_attack_highlights", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
-	_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
+	_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
 	_record_render_section_time("foreground_umbra_markers", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
 	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
@@ -2444,12 +2483,13 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
 	if stage_id == "clear" or tiles.is_empty():
 		return
+	_begin_umbra_shape_batch(true)
 	var visible_lookup: Dictionary = {}
 	for tile_var: Variant in presentation.get("umbra_visible_tiles", []):
 		if typeof(tile_var) == TYPE_VECTOR2I:
 			visible_lookup[tile_var] = true
 	var stage_alpha: float = _umbra_stage_fill_alpha(stage_id)
-	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var time_seconds: float = _umbra_visual_time_seconds()
 	var hidden_tiles: Array[Vector2i] = _vector2i_array([])
 	var hidden_lookup: Dictionary = {}
 	var return_progress_by_tile: Dictionary = {}
@@ -2460,7 +2500,10 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 		hidden_tiles.append(tile)
 		hidden_lookup[tile] = true
 		return_progress_by_tile[tile] = return_progress
-		draw_colored_polygon(_tile_polygon(tile), Color(0.012, 0.008, 0.026, stage_alpha * return_progress))
+		_draw_or_queue_umbra_polygon(
+			_tile_polygon(tile),
+			Color(0.012, 0.008, 0.026, stage_alpha * return_progress)
+		)
 	for tile: Vector2i in hidden_tiles:
 		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
 		if return_progress <= 0.0:
@@ -2468,6 +2511,97 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 		_draw_umbra_tile_billows(tile, time_seconds, stage_alpha, return_progress)
 	_draw_umbra_boundary_billows(hidden_tiles, visible_lookup, hidden_lookup, return_progress_by_tile, time_seconds, stage_alpha)
 	_draw_umbra_light_sources(time_seconds)
+	_flush_umbra_shape_batch()
+
+func _begin_umbra_shape_batch(reset_mesh_cursor: bool = false) -> void:
+	_umbra_shape_batch_active = _umbra_shape_batch_enabled
+	_ensure_umbra_shape_batch_unit_circle()
+	if reset_mesh_cursor:
+		_umbra_shape_batch_mesh_cursor = 0
+	_umbra_shape_batch_vertices = PackedVector3Array()
+	_umbra_shape_batch_colors = PackedColorArray()
+	_umbra_shape_batch_indices = PackedInt32Array()
+
+func _ensure_umbra_shape_batch_unit_circle() -> void:
+	if _umbra_shape_batch_unit_circle.size() == UMBRA_SHAPE_BATCH_SEGMENTS:
+		return
+	_umbra_shape_batch_unit_circle.resize(UMBRA_SHAPE_BATCH_SEGMENTS)
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		var angle: float = TAU * float(segment_index) / float(UMBRA_SHAPE_BATCH_SEGMENTS)
+		_umbra_shape_batch_unit_circle[segment_index] = Vector2(cos(angle), sin(angle))
+
+func _flush_umbra_shape_batch() -> void:
+	_umbra_shape_batch_active = false
+	if _umbra_shape_batch_vertices.is_empty():
+		return
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = _umbra_shape_batch_vertices
+	arrays[Mesh.ARRAY_COLOR] = _umbra_shape_batch_colors
+	arrays[Mesh.ARRAY_INDEX] = _umbra_shape_batch_indices
+	var batch_mesh: ArrayMesh = null
+	if _umbra_shape_batch_mesh_cursor < _umbra_shape_batch_meshes.size():
+		batch_mesh = _umbra_shape_batch_meshes[_umbra_shape_batch_mesh_cursor]
+		batch_mesh.clear_surfaces()
+	else:
+		batch_mesh = ArrayMesh.new()
+		_umbra_shape_batch_meshes.append(batch_mesh)
+		_umbra_shape_batch_mesh_create_count += 1
+	batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_umbra_shape_batch_mesh_cursor += 1
+	_umbra_shape_batch_mesh_update_count += 1
+	_umbra_shape_batch_flush_count += 1
+	draw_mesh(batch_mesh, null)
+
+func _draw_or_queue_umbra_polygon(points: PackedVector2Array, color: Color) -> void:
+	if not _umbra_shape_batch_active:
+		draw_colored_polygon(points, color)
+		return
+	if points.size() < 3 or color.a <= 0.0:
+		return
+	var first_vertex: int = _umbra_shape_batch_vertices.size()
+	for point: Vector2 in points:
+		_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+		_umbra_shape_batch_colors.append(color)
+	for point_index: int in range(1, points.size() - 1):
+		_umbra_shape_batch_indices.append(first_vertex)
+		_umbra_shape_batch_indices.append(first_vertex + point_index)
+		_umbra_shape_batch_indices.append(first_vertex + point_index + 1)
+
+func _queue_umbra_shape_circle(
+	center: Vector2,
+	radius: float,
+	ellipse_scale: Vector2,
+	rotation: float,
+	color: Color
+) -> void:
+	if radius <= 0.0 or color.a <= 0.0:
+		return
+	var center_vertex: int = _umbra_shape_batch_vertices.size()
+	_umbra_shape_batch_vertices.append(Vector3(center.x, center.y, 0.0))
+	_umbra_shape_batch_colors.append(color)
+	var ring_vertex: int = _umbra_shape_batch_vertices.size()
+	var cosine: float = cos(rotation)
+	var sine: float = sin(rotation)
+	var axis_x := Vector2(cosine, sine) * radius * ellipse_scale.x
+	var axis_y := Vector2(-sine, cosine) * radius * ellipse_scale.y
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		var unit_point: Vector2 = _umbra_shape_batch_unit_circle[segment_index]
+		var point: Vector2 = center + axis_x * unit_point.x + axis_y * unit_point.y
+		_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+		_umbra_shape_batch_colors.append(color)
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		_umbra_shape_batch_indices.append(center_vertex)
+		_umbra_shape_batch_indices.append(ring_vertex + segment_index)
+		_umbra_shape_batch_indices.append(
+			ring_vertex + (segment_index + 1) % UMBRA_SHAPE_BATCH_SEGMENTS
+		)
+
+func _draw_or_queue_umbra_circle(center: Vector2, radius: float, color: Color) -> void:
+	if _umbra_shape_batch_active:
+		_queue_umbra_shape_circle(center, radius, Vector2.ONE, 0.0, color)
+	else:
+		draw_circle(center, radius, color)
 
 func _umbra_stage_fill_alpha(stage_id: String) -> float:
 	return {
@@ -2478,6 +2612,9 @@ func _umbra_stage_fill_alpha(stage_id: String) -> float:
 		"heart": 0.70,
 		"eclipse": 0.74
 	}.get(stage_id, 0.60)
+
+func _umbra_visual_time_seconds() -> float:
+	return float(presentation.get("umbra_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
 
 func _draw_umbra_tile_billows(tile: Vector2i, time_seconds: float, stage_alpha: float, return_progress: float) -> void:
 	var seed: int = tile.x * 92821 + tile.y * 68917 + 1709
@@ -2558,8 +2695,12 @@ func _draw_umbra_boundary_billows(hidden_tiles: Array[Vector2i], visible_lookup:
 				)
 			var edge_points: PackedVector2Array = _umbra_boundary_edge(tile, neighbor_offset)
 			if edge_points.size() == 2:
+				# Preserve the authored boundary-line ordering exactly while still
+				# collapsing the hundreds of soft lobe circles between edges.
+				_flush_umbra_shape_batch()
 				draw_line(edge_points[0], edge_points[1], Color(0.008, 0.005, 0.020, 0.86 * return_progress), 3.4, true)
 				draw_line(edge_points[0], edge_points[1], Color(0.20, 0.105, 0.285, (0.30 + stage_alpha * 0.10) * return_progress), 1.1, true)
+				_begin_umbra_shape_batch()
 
 func _umbra_boundary_edge(tile: Vector2i, neighbor_offset: Vector2i) -> PackedVector2Array:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
@@ -2583,6 +2724,20 @@ func _umbra_boundary_edge(tile: Vector2i, neighbor_offset: Vector2i) -> PackedVe
 
 func _draw_umbra_soft_lobe(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
 	if layer_count <= 0 or color.a <= 0.0:
+		return
+	if _umbra_shape_batch_active:
+		for layer_index: int in range(layer_count, 0, -1):
+			var t: float = float(layer_index) / float(layer_count)
+			var inner_weight: float = pow(1.0 - t, 0.76)
+			var layer_alpha: float = color.a * (0.028 + inner_weight * 0.082)
+			var layer_radius: float = radius * (0.12 + t * 0.88)
+			_queue_umbra_shape_circle(
+				center,
+				layer_radius,
+				ellipse_scale,
+				rotation,
+				Color(color.r, color.g, color.b, layer_alpha)
+			)
 		return
 	draw_set_transform(center, rotation, ellipse_scale)
 	for layer_index: int in range(layer_count, 0, -1):
@@ -2658,6 +2813,7 @@ func _draw_umbra_light_source_reach(source: Dictionary, time_seconds: float) -> 
 
 func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 	var font: Font = get_theme_default_font()
+	_begin_umbra_shape_batch(true)
 	for source_var: Variant in presentation.get("umbra_light_sources", []):
 		if typeof(source_var) != TYPE_DICTIONARY:
 			continue
@@ -2677,12 +2833,17 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		var orb_center: Vector2 = _umbra_light_orb_center(tile, source_seed, time_seconds)
 		var orb_radius: float = clampf(_tile_width() * 0.115, 11.0, 20.0) * breath
 		_draw_umbra_light_orb(orb_center, orb_radius, glow_brightness, source_seed, time_seconds)
+		# Counters are text-bearing HUD details. Flush the batched glow underneath
+		# before drawing their native font and outline commands on top.
+		_flush_umbra_shape_batch()
 		var count_text: String = "∞" if remaining < 0 else str(maxi(0, remaining))
 		var chip_rect: Rect2 = _draw_umbra_light_orb_counter(orb_center, orb_radius, count_text, font, glow_brightness)
 		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player turn%s remaining." % [remaining, "" if remaining == 1 else "s"]
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
 		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
 		_register_tooltip(marker_rect, tooltip)
+		_begin_umbra_shape_batch()
+	_flush_umbra_shape_batch()
 
 func _tethered_light_tooltip(source: Dictionary) -> String:
 	var radius: int = maxi(1, int(source.get("radius", 1)))
@@ -2721,7 +2882,7 @@ func _draw_umbra_tethered_light_marker(tile: Vector2i, source_seed: float, time_
 	for mote_index: int in range(3):
 		var phase: float = time_seconds * (0.72 + float(mote_index) * 0.11) + source_seed * 0.013 + float(mote_index) * TAU / 3.0
 		var mote_center: Vector2 = center + Vector2(cos(phase) * halo_radius * 0.84, sin(phase) * halo_radius * 0.28)
-		draw_circle(mote_center, 1.8 + float(mote_index) * 0.35, Color(1.0, 0.90, 0.52, 0.78))
+		_draw_or_queue_umbra_circle(mote_center, 1.8 + float(mote_index) * 0.35, Color(1.0, 0.90, 0.52, 0.78))
 	return Rect2(center - Vector2(halo_radius * 1.9, halo_radius), Vector2(halo_radius * 3.8, halo_radius * 2.0))
 
 func _umbra_light_orb_breath(source_seed: float, time_seconds: float) -> float:
@@ -2778,7 +2939,7 @@ func _draw_umbra_light_orb(orb_center: Vector2, orb_radius: float, glow_brightne
 		var layer_radius: float = orb_radius * (0.16 + outer_t * 0.92)
 		var layer_color: Color = Color("ff9d16").lerp(Color("fff8c9"), pow(core_weight, 0.66))
 		layer_color.a = lerpf(0.012, 0.20, pow(core_weight, 0.74))
-		draw_circle(layer_center, layer_radius, layer_color)
+		_draw_or_queue_umbra_circle(layer_center, layer_radius, layer_color)
 	_draw_campfire_soft_ellipse(
 		orb_center + core_drift - Vector2(orb_radius * 0.25, orb_radius * 0.28),
 		orb_radius * 0.55,
@@ -2815,6 +2976,10 @@ func _draw_umbra_light_orb_motes(orb_center: Vector2, orb_radius: float, source_
 func _draw_umbra_light_orb_counter(orb_center: Vector2, orb_radius: float, count_text: String, font: Font, pulse: float) -> Rect2:
 	var chip_radius: float = clampf(orb_radius * 0.56, 7.5, 10.5)
 	var chip_center: Vector2 = orb_center + Vector2(orb_radius * 0.82, orb_radius * 0.68)
+	# The caller flushes the orb first, so the chip glow can use its own pooled
+	# translucent batch while the label remains a native text draw above it.
+	if _umbra_shape_batch_enabled:
+		_begin_umbra_shape_batch()
 	_draw_campfire_soft_ellipse(
 		chip_center,
 		chip_radius * 1.85 * pulse,
@@ -2823,6 +2988,8 @@ func _draw_umbra_light_orb_counter(orb_center: Vector2, orb_radius: float, count
 		Color(1.0, 0.67, 0.18, 0.28),
 		10
 	)
+	if _umbra_shape_batch_enabled:
+		_flush_umbra_shape_batch()
 	var chip_rect := Rect2(chip_center - Vector2.ONE * chip_radius, Vector2.ONE * chip_radius * 2.0)
 	if font != null:
 		draw_string(font, Vector2(chip_rect.position.x + 1.2, chip_center.y + 5.2), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color(0.05, 0.025, 0.01, 0.92))
@@ -2912,6 +3079,20 @@ func _draw_campfire_soft_floor_bloom(floor_point: Vector2, flame_point: Vector2,
 
 func _draw_campfire_soft_ellipse(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
 	if layer_count <= 0 or color.a <= 0.0:
+		return
+	if _umbra_shape_batch_active:
+		for layer_index: int in range(layer_count, 0, -1):
+			var t: float = float(layer_index) / float(layer_count)
+			var inner_weight: float = pow(1.0 - t, 0.84)
+			var layer_alpha: float = color.a * (0.022 + inner_weight * 0.056)
+			var layer_radius: float = radius * (0.10 + t * 0.90)
+			_queue_umbra_shape_circle(
+				center,
+				layer_radius,
+				ellipse_scale,
+				rotation,
+				Color(color.r, color.g, color.b, layer_alpha)
+			)
 		return
 	for layer_index: int in range(layer_count, 0, -1):
 		var t: float = float(layer_index) / float(layer_count)
@@ -3688,10 +3869,14 @@ func _flush_ambient_particle_batch() -> void:
 	arrays[Mesh.ARRAY_TEX_UV] = _ambient_batch_uvs
 	arrays[Mesh.ARRAY_COLOR] = _ambient_batch_colors
 	arrays[Mesh.ARRAY_INDEX] = _ambient_batch_indices
-	var batch_mesh := ArrayMesh.new()
-	batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	_ambient_batch_mesh = batch_mesh
-	draw_mesh(batch_mesh, _ambient_combined_atlas)
+	if _ambient_batch_mesh == null:
+		_ambient_batch_mesh = ArrayMesh.new()
+		_ambient_batch_mesh_create_count += 1
+	else:
+		_ambient_batch_mesh.clear_surfaces()
+	_ambient_batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_ambient_batch_mesh_update_count += 1
+	draw_mesh(_ambient_batch_mesh, _ambient_combined_atlas)
 
 func _ensure_ambient_combined_atlas() -> void:
 	if _ambient_combined_atlas != null:
