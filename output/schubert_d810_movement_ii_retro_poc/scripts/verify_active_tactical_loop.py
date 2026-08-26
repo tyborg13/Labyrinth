@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 import json
+import math
 from pathlib import Path
 import re
 import subprocess
@@ -146,10 +147,27 @@ def verify_midi() -> dict[str, object]:
     midi = mido.MidiFile(loop.ARRANGEMENT_MIDI)
     assert midi.type == 1
     assert midi.ticks_per_beat == loop.TICKS_PER_BEAT
-    track_by_name = {loop.midi_track_name(track): track for track in midi.tracks}
     expected_names = [spec.name for spec in loop.LOOP_TRACKS]
-    assert [name for name in expected_names if name in track_by_name] == expected_names
-    assert len([name for name in track_by_name if name in expected_names]) == 5
+    track_names = [loop.midi_track_name(track) for track in midi.tracks]
+    assert track_names == ["Conductor / Loop Map", *expected_names]
+    assert len(set(track_names)) == len(track_names)
+    track_by_name = dict(zip(track_names, midi.tracks, strict=True))
+    note_channels: set[int] = set()
+    percussion_note_events = 0
+    for track in midi.tracks:
+        note_messages = [
+            message
+            for message in track
+            if message.type == "note_on" and message.velocity > 0
+        ]
+        if loop.midi_track_name(track) == "Conductor / Loop Map":
+            assert not note_messages
+        for message in note_messages:
+            note_channels.add(message.channel)
+            if message.channel == 9:
+                percussion_note_events += 1
+    assert note_channels == {0, 1, 2, 3, 4}
+    assert percussion_note_events == 0
 
     built_events, transformation = loop.build_track_events()
     actual_signatures: dict[str, list[tuple[int, int, int, int]]] = {}
@@ -182,6 +200,10 @@ def verify_midi() -> dict[str, object]:
     return {
         "sha256": loop.sha256(loop.ARRANGEMENT_MIDI),
         "track_names": expected_names,
+        "total_midi_tracks": len(midi.tracks),
+        "musical_track_count": len(expected_names),
+        "note_channels": sorted(note_channels),
+        "percussion_channel_note_events": percussion_note_events,
         "note_counts": {
             name: len(signatures) for name, signatures in actual_signatures.items()
         },
@@ -340,6 +362,96 @@ def long_silence_events(path: Path) -> list[str]:
     ]
 
 
+def decoded_pcm_continuity(path: Path) -> dict[str, object]:
+    """Measure the delivered container's decoded boundary without trusting build data."""
+    command = [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-i",
+        str(path),
+        "-ac",
+        "2",
+        "-ar",
+        str(loop.OUTPUT_SAMPLE_RATE),
+        "-c:a",
+        "pcm_f32le",
+        "-f",
+        "f32le",
+        "-",
+    ]
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    assert process.stdout is not None
+    assert process.stderr is not None
+    bin_count = 65_536
+    histogram = np.zeros((2, bin_count), dtype=np.int64)
+    difference_count = 0
+    first_frame: np.ndarray | None = None
+    previous_frame: np.ndarray | None = None
+    remainder = b""
+
+    def add_differences(differences: np.ndarray) -> None:
+        nonlocal difference_count
+        if differences.size == 0:
+            return
+        difference_count += len(differences)
+        scale = bin_count / 2.0
+        for channel in range(2):
+            indices = np.minimum(
+                (differences[:, channel] * scale).astype(np.int64),
+                bin_count - 1,
+            )
+            histogram[channel] += np.bincount(indices, minlength=bin_count)
+
+    while True:
+        chunk = process.stdout.read(4 * 1024 * 1024)
+        if not chunk:
+            break
+        payload = remainder + chunk
+        usable = len(payload) - (len(payload) % 8)
+        remainder = payload[usable:]
+        if usable == 0:
+            continue
+        frames = np.frombuffer(payload[:usable], dtype="<f4").reshape(-1, 2)
+        if first_frame is None:
+            first_frame = frames[0].astype(np.float64)
+        if previous_frame is not None:
+            add_differences(
+                np.abs(frames[0].astype(np.float64) - previous_frame)[None, :]
+            )
+        if len(frames) > 1:
+            add_differences(np.abs(np.diff(frames, axis=0)))
+        previous_frame = frames[-1].astype(np.float64)
+
+    stderr = process.stderr.read().decode("utf-8", errors="replace")
+    return_code = process.wait()
+    assert return_code == 0, stderr
+    assert not remainder
+    assert first_frame is not None and previous_frame is not None
+    assert difference_count > 0
+    percentile_values: list[float] = []
+    percentile_target = math.ceil(difference_count * 0.999)
+    for channel in range(2):
+        index = int(
+            np.searchsorted(
+                np.cumsum(histogram[channel]), percentile_target, side="left"
+            )
+        )
+        percentile_values.append((index + 1) * 2.0 / bin_count)
+    seam_delta = np.abs(first_frame - previous_frame)
+    return {
+        "decoded_frames": difference_count + 1,
+        "first_frame": first_frame.tolist(),
+        "last_frame": previous_frame.tolist(),
+        "first_last_sample_delta": seam_delta.tolist(),
+        "p99_9_adjacent_sample_delta_histogram_upper_bound": percentile_values,
+        "histogram_bin_width": 2.0 / bin_count,
+    }
+
+
 def ogg_serials(path: Path) -> set[int]:
     data = path.read_bytes()
     offset = 0
@@ -383,11 +495,18 @@ def verify_audio() -> dict[str, object]:
     assert abs(independent_peak - audio_report["peak_dbfs"]) < 0.15
     silence_events = long_silence_events(loop.AUDIO_FLAC)
     assert not silence_events
-    seam = audio_report["loop_crossfade"]
-    for channel_delta, channel_typical in zip(
-        seam["first_last_sample_delta"], seam["p99_9_adjacent_sample_delta"]
-    ):
-        assert channel_delta <= channel_typical
+    pre_encode_seam = audio_report["loop_crossfade"]
+    decoded_seams = {
+        "ogg_vorbis": decoded_pcm_continuity(loop.AUDIO_OGG),
+        "lossless_flac": decoded_pcm_continuity(loop.AUDIO_FLAC),
+    }
+    for container in decoded_seams.values():
+        for channel_delta, channel_typical in zip(
+            container["first_last_sample_delta"],
+            container["p99_9_adjacent_sample_delta_histogram_upper_bound"],
+        ):
+            assert channel_delta < 0.01
+            assert channel_delta <= channel_typical
     assert audio_report["echo"]["circular"] is True
     assert audio_report["echo"]["taps"][-1]["gain"] <= 0.022
     assert audio_report["reconstruction_filter"].startswith("5-sample")
@@ -402,7 +521,8 @@ def verify_audio() -> dict[str, object]:
         "reported_peak_dbfs": audio_report["peak_dbfs"],
         "silence_events_at_minus_60_dbfs_over_750ms": silence_events,
         "duration_seconds": audio_report["duration_seconds"],
-        "loop_crossfade": seam,
+        "pre_encode_loop_crossfade": pre_encode_seam,
+        "decoded_container_loop_seams": decoded_seams,
         "echo": audio_report["echo"],
         "reconstruction_filter": audio_report["reconstruction_filter"],
     }

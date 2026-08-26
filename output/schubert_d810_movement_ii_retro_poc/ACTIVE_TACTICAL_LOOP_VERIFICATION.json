@@ -1,5 +1,47 @@
 {
   "audio": {
+    "decoded_container_loop_seams": {
+      "lossless_flac": {
+        "decoded_frames": 11849479,
+        "first_frame": [
+          0.00372314453125,
+          0.00445556640625
+        ],
+        "first_last_sample_delta": [
+          6.103515625e-05,
+          6.103515625e-05
+        ],
+        "histogram_bin_width": 3.0517578125e-05,
+        "last_frame": [
+          0.003662109375,
+          0.00439453125
+        ],
+        "p99_9_adjacent_sample_delta_histogram_upper_bound": [
+          0.028411865234375,
+          0.028411865234375
+        ]
+      },
+      "ogg_vorbis": {
+        "decoded_frames": 11849536,
+        "first_frame": [
+          0.002504151314496994,
+          0.0028318508993834257
+        ],
+        "first_last_sample_delta": [
+          0.002535294977860758,
+          0.0028771523684554268
+        ],
+        "histogram_bin_width": 3.0517578125e-05,
+        "last_frame": [
+          -3.114366336376406e-05,
+          -4.5301469072001055e-05
+        ],
+        "p99_9_adjacent_sample_delta_histogram_upper_bound": [
+          0.028350830078125,
+          0.028411865234375
+        ]
+      }
+    },
     "duration_seconds": 268.69566893424036,
     "echo": {
       "circular": true,
@@ -39,22 +81,6 @@
     },
     "flac_sha256": "de37a38d388b571cc630b22471c7a50be78d2f78e49f831c0b99b5dca8ec07d2",
     "independent_peak_dbfs": -7.5,
-    "loop_crossfade": {
-      "crossfade_quarters": 4.0,
-      "crossfade_samples": 115043,
-      "crossfade_seconds": 2.608695652173913,
-      "first_last_sample_delta": [
-        7.657156974143035e-05,
-        6.613872376773876e-05
-      ],
-      "method": "one-measure equal-power tail-to-head overlap with loop-point rotation",
-      "p99_9_adjacent_sample_delta": [
-        0.02836216273537707,
-        0.028395664189746084
-      ],
-      "render_start_rotation_quarters": 4.0,
-      "rendered_duration_quarters": 412.0
-    },
     "ogg": {
       "format": {
         "bit_rate": "62520",
@@ -73,6 +99,22 @@
     },
     "ogg_serial": "0x53383230",
     "ogg_sha256": "b47019565e8a6e703cd4348c551550c907dc831575f1a009ce8e15d17c2a3705",
+    "pre_encode_loop_crossfade": {
+      "crossfade_quarters": 4.0,
+      "crossfade_samples": 115043,
+      "crossfade_seconds": 2.608695652173913,
+      "first_last_sample_delta": [
+        7.657156974143035e-05,
+        6.613872376773876e-05
+      ],
+      "method": "one-measure equal-power tail-to-head overlap with loop-point rotation",
+      "p99_9_adjacent_sample_delta": [
+        0.02836216273537707,
+        0.028395664189746084
+      ],
+      "render_start_rotation_quarters": 4.0,
+      "rendered_duration_quarters": 412.0
+    },
     "reconstruction_filter": "5-sample moving average after pitch-shifted sample playback",
     "reported_peak_dbfs": -7.499564771426246,
     "silence_events_at_minus_60_dbfs_over_750ms": [],
@@ -92,6 +134,14 @@
       "A2: source performed measures 25-32",
       "LOOP_END / rendered audio uses a one-measure equal-power crossfade and rotation"
     ],
+    "musical_track_count": 5,
+    "note_channels": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
     "note_counts": {
       "Ashen Bow / Violin II": 532,
       "Grave Cello": 406,
@@ -106,6 +156,7 @@
       "Undercrypt Bass / Cello -8ve": 1,
       "Veiled Bow / Violin I": 1
     },
+    "percussion_channel_note_events": 0,
     "sha256": "43783e67509027a1684cf48dc9b1e671c2e2427ee9f9c3c62a211720446b9d9f",
     "source_mapping": {
       "all_non_bass_pitches_exact_source_pitches": true,
@@ -142,6 +193,7 @@
         "dropped": 186
       }
     },
+    "total_midi_tracks": 6,
     "track_names": [
       "Veiled Bow / Violin I",
       "Ashen Bow / Violin II",

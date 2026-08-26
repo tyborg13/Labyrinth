@@ -73,17 +73,17 @@ The renderer adds a dark cross-stereo echo after the dry mix:
 
 The echo is circular so its quiet tail wraps naturally instead of being chopped at the loop point. A one-measure, 2.609-second equal-power overlap blends the final A return into the opening A. The audio is then rotated by that measure, placing the blended seam at the end of the file. Consequently, the Ogg/FLAC begins one measure later than the structural MIDI and lasts 412 rather than 416 quarters.
 
-The measured first-to-last sample deltas are 0.000058 left and 0.000045 right, well below ordinary adjacent-sample changes in the render. The Ogg/FLAC files can therefore be looped directly without adding another crossfade. The structural MIDI retains explicit `LOOP_START`, section, and `LOOP_END` markers; a MIDI-based engine should reproduce the documented one-measure crossfade itself.
+The verifier decodes each delivered container and measures its actual first-to-last sample delta rather than trusting the pre-encode mix. The decoded FLAC deltas are approximately 0.000061 per channel; lossy Vorbis raises them to approximately 0.002535 left and 0.002877 right. Both remain well below ordinary adjacent-sample changes of approximately 0.0284. The Ogg/FLAC files can therefore be looped directly without adding another crossfade. The structural MIDI retains explicit `LOOP_START`, section, and `LOOP_END` markers; a MIDI-based engine should reproduce the documented one-measure crossfade itself.
 
 ## Audio and verification
 
 - Ogg Vorbis: 44.1 kHz stereo, approximately 2.2 MB.
-- FLAC: 44.1 kHz stereo, approximately 13 MB.
+- FLAC: 44.1 kHz stereo, approximately 10.5 MB.
 - Rendered duration: 268.696 seconds by FFprobe.
 - Independent Mediabunny 1.55.2 duration: 268.701 seconds for Ogg and 268.696 seconds for FLAC.
 - Independently measured peak: -7.5 dBFS.
 - Both containers pass strict FFmpeg decoding.
-- `ACTIVE_TACTICAL_LOOP_VERIFICATION.json` proves five-track monophony, maximum five simultaneous voices, source mapping for 2,766 events, exact cello-octave derivation, sample-bank hashes/formats, duration, codecs, peak, and loop-seam constraints.
+- `ACTIVE_TACTICAL_LOOP_VERIFICATION.json` proves exactly one conductor plus five uniquely named monophonic musical tracks on channels 0-4, no channel-9 percussion, maximum five simultaneous voices, source mapping for 2,766 events, exact cello-octave derivation, sample-bank hashes/formats, duration, codecs, peak, and decoded-container loop-seam constraints.
 
 ## Rebuild
 
