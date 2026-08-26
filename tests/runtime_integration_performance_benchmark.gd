@@ -156,12 +156,18 @@ func _initialize() -> void:
 		_expect(str(instance.get("_preview_shortcuts_cache_key")) == shortcut_key_before, "repeated move hover changed the shortcut-cache key")
 		_expect((instance.get("_pass_preview_cache") as Dictionary).size() == repeated_move_cache_size, "repeated move hover grew the pass-preview cache")
 		_expect(hash(instance.get("_board_presentation") as Dictionary) == move_presentation_digest, "repeated move hover changed board presentation semantics")
-		await instance.call("_on_board_tile_clicked", move_target)
-		await _settle_ui()
 
 	_expect(instance.get("_combat_state") as Dictionary == committed_before_move_hovers, "move preview/hover handling mutated committed combat state")
+	instance.call("_cancel_card_selection")
+	await _settle_ui()
+	# Current two-click compound targeting may resolve a uniquely determined
+	# move-plus-melee sequence from the first board click. Measure attack hover
+	# independently through Bone Dart's real routed card-selection path so this
+	# read-only integration workload never commits a card while profiling.
+	await instance.call("_on_card_pressed", HAND.find("bone_dart"))
+	await _settle_ui()
 	var attack_preview: Dictionary = instance.call("_active_card_preview") as Dictionary
-	_expect(str((attack_preview.get("action", {}) as Dictionary).get("type", "")) == "melee", "follow-up selected preview action is not melee")
+	_expect(str((attack_preview.get("action", {}) as Dictionary).get("type", "")) == "ranged", "selected Bone Dart preview action is not ranged")
 	var attack_targets: Array[Vector2i] = _sorted_tiles(attack_preview.get("target_tiles", []))
 	_expect(not attack_targets.is_empty(), "selected follow-up attack produced no legal targets")
 	results["attack_hover_target_count"] = attack_targets.size()

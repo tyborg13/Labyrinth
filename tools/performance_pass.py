@@ -36,6 +36,10 @@ NATIVE_BENCHMARKS = {
         "RUNTIME FRAME PERF RESULT:",
         "tests/runtime_frame_performance_benchmark.gd",
     ),
+    "reward_animation": (
+        "REWARD ANIMATION PERF RESULT:",
+        "tests/reward_animation_performance_benchmark.gd",
+    ),
 }
 
 COMPARISON_METRICS = {
@@ -88,6 +92,21 @@ COMPARISON_METRICS = {
     "runtime_frame.action_play.frames_over_16_67_ms": "lower",
     "runtime_frame.action_play.frames_over_33_33_ms": "lower",
     "runtime_frame.static_memory_bytes": "lower",
+    "reward_animation.idle.frame_interval_ms.median": "lower",
+    "reward_animation.idle.frame_interval_ms.p95": "lower",
+    "reward_animation.idle.frames_over_16_67_ms": "lower",
+    "reward_animation.victory.frame_interval_ms.median": "lower",
+    "reward_animation.victory.frame_interval_ms.p95": "lower",
+    "reward_animation.victory.frames_over_16_67_ms": "lower",
+    "reward_animation.victory.frames_over_33_33_ms": "lower",
+    "reward_animation.per_card_flips.card_1.frame_interval_ms.p95": "lower",
+    "reward_animation.per_card_flips.card_2.frame_interval_ms.p95": "lower",
+    "reward_animation.per_card_flips.card_3.frame_interval_ms.p95": "lower",
+    "reward_animation.reward_reveal.frame_interval_ms.median": "lower",
+    "reward_animation.reward_reveal.frame_interval_ms.p95": "lower",
+    "reward_animation.reward_reveal.frames_over_16_67_ms": "lower",
+    "reward_animation.reward_reveal.frames_over_33_33_ms": "lower",
+    "reward_animation.static_memory_bytes": "lower",
     "simulation.board_submission_us_per_call": "lower",
     "simulation.presentation_cached_us_per_call": "lower",
     "runtime_integration.full_ui_cached_us_per_refresh": "lower",
@@ -120,6 +139,17 @@ COMPATIBILITY_FIELDS = {
     "runtime frame window mode": ("benchmarks", "runtime_frame", "result", "probe_window_mode"),
     "runtime frame render pulse": ("benchmarks", "runtime_frame", "result", "probe_render_pulse"),
     "runtime frame throttle threshold": ("benchmarks", "runtime_frame", "result", "probe_throttle_threshold_ms"),
+    "reward animation schema": ("benchmarks", "reward_animation", "result", "schema_version"),
+    "reward animation workload": ("benchmarks", "reward_animation", "result", "workload_id"),
+    "reward animation viewport": ("benchmarks", "reward_animation", "result", "viewport"),
+    "reward animation renderer": ("benchmarks", "reward_animation", "result", "renderer"),
+    "reward animation rendering method": ("benchmarks", "reward_animation", "result", "rendering_method"),
+    "reward animation low processor mode": ("benchmarks", "reward_animation", "result", "probe_low_processor_usage_mode"),
+    "reward animation low processor sleep": ("benchmarks", "reward_animation", "result", "probe_low_processor_usage_mode_sleep_usec"),
+    "reward animation foreground window": ("benchmarks", "reward_animation", "result", "probe_foreground_window"),
+    "reward animation window mode": ("benchmarks", "reward_animation", "result", "probe_window_mode"),
+    "reward animation render pulse": ("benchmarks", "reward_animation", "result", "probe_render_pulse"),
+    "reward animation throttle threshold": ("benchmarks", "reward_animation", "result", "probe_throttle_threshold_ms"),
 }
 
 
