@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-26T21:12:38Z",
+  "updated_at": "2026-08-26T22:54:13Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8845,6 +8845,28 @@
       "source": {
         "branch": "codex/steam-deck-animation-performance-pass",
         "commit": "3e47380"
+      }
+    },
+    {
+      "id": "mnt_20260826T225413Z_73e5635a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Combat animation submissions use immutable-reference and per-actor invalidation fast paths",
+      "details": "RunScene opts CombatBoardView animation submissions into trusted same-reference combat state and shallow-copies movement presentation top levels. CombatBoardView must preserve the conservative default for generic in-place callers, route moving actors through targeted HUD/obstruction/tile cache updates, and invalidate idle redraws per animation source rather than by one global cadence signature. The dense submission benchmark is the semantic/performance guard for player and enemy motion.",
+      "status": "active",
+      "created_at": "2026-08-26T22:54:13Z",
+      "updated_at": "2026-08-26T22:54:13Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-animation-performance-pass",
+        "commit": "d9cff55c"
       }
     }
   ]

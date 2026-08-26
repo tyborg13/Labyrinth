@@ -29,6 +29,10 @@ HEADLESS_BENCHMARKS = {
         "TRAP IDLE PERF RESULT:",
         "tests/trap_idle_performance_benchmark.gd",
     ),
+    "combat_board_submission": (
+        "COMBAT BOARD SUBMISSION PERF RESULT:",
+        "tests/combat_board_submission_performance_benchmark.gd",
+    ),
 }
 NATIVE_BENCHMARKS = {
     "render": ("RENDER PERF RESULT:", "tests/render_performance_benchmark.gd"),
@@ -112,6 +116,11 @@ COMPARISON_METRICS = {
     "runtime_integration.full_ui_cached_us_per_refresh": "lower",
     "trap_idle.lookup_us_per_call.median": "lower",
     "trap_idle.lookup_us_per_call.p95": "lower",
+    "combat_board_submission.identical_submission_usec.median": "lower",
+    "combat_board_submission.effect_progress_submission_usec.median": "lower",
+    "combat_board_submission.effect_progress_submission_usec.p95": "lower",
+    "combat_board_submission.movement_submission_usec.median": "lower",
+    "combat_board_submission.movement_submission_usec.p95": "lower",
 }
 
 COMPATIBILITY_FIELDS = {
@@ -150,6 +159,10 @@ COMPATIBILITY_FIELDS = {
     "reward animation window mode": ("benchmarks", "reward_animation", "result", "probe_window_mode"),
     "reward animation render pulse": ("benchmarks", "reward_animation", "result", "probe_render_pulse"),
     "reward animation throttle threshold": ("benchmarks", "reward_animation", "result", "probe_throttle_threshold_ms"),
+    "combat board submission schema": ("benchmarks", "combat_board_submission", "result", "schema_version"),
+    "combat board submission workload": ("benchmarks", "combat_board_submission", "result", "workload_id"),
+    "combat board submission retained layers": ("benchmarks", "combat_board_submission", "result", "retained_layer_count"),
+    "combat board submission samples": ("benchmarks", "combat_board_submission", "result", "animation_samples"),
 }
 
 
@@ -339,6 +352,8 @@ def _compatibility_problems(
     for label, path in COMPATIBILITY_FIELDS.items():
         before = _nested_value(baseline, path)
         after = _nested_value(candidate, path)
+        if before is None and after is None:
+            continue
         if before is None or after is None:
             problems.append(f"{label} metadata missing (baseline={before!r}, candidate={after!r})")
         elif before != after:

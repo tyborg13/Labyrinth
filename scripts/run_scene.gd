@@ -16098,7 +16098,8 @@ func _refresh_stage_view() -> void:
 		_board_status_detail(preview),
 		_exit_labels_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_labels_for_board(display_state),
 		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_icon_ids_for_board(display_state),
-		presentation
+		presentation,
+		true
 	)
 	performance_phase_started = _record_runtime_performance_phase("stage_board_submission", performance_phase_started)
 	_refresh_boss_health_overlay(display_state, presentation)
@@ -20940,7 +20941,10 @@ func _movement_actor_frame_presentation(
 	draw_tile: Vector2i,
 	focus_tile: Vector2i
 ) -> Dictionary:
-	var presentation: Dictionary = base_presentation.duplicate(true)
+	# Movement frames replace only top-level presentation fields. Preserve the
+	# immutable nested snapshots so CombatBoardView can identify unchanged inputs
+	# by reference instead of recursively comparing the entire presentation tree.
+	var presentation: Dictionary = base_presentation.duplicate(false)
 	if not presentation.has("focus_tiles"):
 		presentation["focus_tiles"] = [focus_tile]
 	presentation["unit_world_positions"] = {actor_key: moving_footprint_center}
@@ -21089,7 +21093,8 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		"",
 		_objective_exit_labels_for_board(display_state),
 		_objective_exit_icon_ids_for_board(display_state),
-		rendered_presentation
+		rendered_presentation,
+		true
 	)
 	_refresh_boss_health_overlay(display_state, rendered_presentation)
 

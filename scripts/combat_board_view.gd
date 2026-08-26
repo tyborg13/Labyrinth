@@ -563,7 +563,7 @@ var _idle_frames_by_type: Dictionary = {}
 var _death_frames_by_type: Dictionary = {}
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
-var _idle_frame_key: String = ""
+var _idle_frame_by_source: Dictionary = {}
 var _board_layout_cache_valid: bool = false
 var _board_layout_content_cache_valid: bool = false
 var _board_layout_cache_size: Vector2 = Vector2(-1.0, -1.0)
@@ -617,6 +617,7 @@ var _hud_layout_cache_order: Array = []
 var _enemy_hud_side_by_actor: Dictionary = {}
 var _foreground_obstruction_candidates_cache: Array = []
 var _foreground_obstruction_candidates_source_snapshot: Dictionary = {}
+var _foreground_obstruction_candidates_cache_valid: bool = false
 var _texture_used_rect_cache: Dictionary = {}
 var _unit_shadow_prewarm_urgent_queue: Array[Texture2D] = []
 var _unit_shadow_prewarm_background_queue: Array[Texture2D] = []
@@ -988,15 +989,21 @@ func _process(delta: float) -> void:
 	if animating != _idle_animating:
 		_idle_animating = animating
 		_idle_elapsed = 0.0
-		_idle_frame_key = ""
-		_queue_active_idle_redraws()
+		_idle_frame_by_source.clear()
 	if not animating:
 		return
 	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, 3600.0)
-	var next_frame_key: String = _active_idle_frame_key()
-	if next_frame_key != _idle_frame_key:
-		_idle_frame_key = next_frame_key
-		_queue_active_idle_redraws()
+	var next_frames: Dictionary = _active_idle_frames_by_source()
+	var changed_sources: Dictionary = {}
+	for source_var: Variant in next_frames:
+		if not _idle_frame_by_source.has(source_var) or _idle_frame_by_source.get(source_var) != next_frames.get(source_var):
+			changed_sources[source_var] = true
+	for source_var: Variant in _idle_frame_by_source:
+		if not next_frames.has(source_var):
+			changed_sources[source_var] = true
+	_idle_frame_by_source = next_frames
+	if not changed_sources.is_empty():
+		_queue_active_idle_redraws(changed_sources)
 
 func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
 	if _ambient_particles_active() or _campfire_atmosphere_active():
@@ -1071,20 +1078,30 @@ func _queue_impact_scene_redraws() -> void:
 		if impact_keys.has(str(unit.get("key", ""))):
 			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 
-func _queue_active_idle_redraws() -> void:
+func _queue_active_idle_redraws(changed_sources: Dictionary) -> void:
 	for unit: Dictionary in _visible_units():
-		if _unit_idle_animation_active(unit):
+		var actor_key: String = str(unit.get("key", unit.get("id", "")))
+		if _unit_idle_animation_active(unit) and changed_sources.has("u:%s" % actor_key):
 			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 	for prop_var: Variant in presentation.get("scene_props", []):
-		if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
-			_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var as Dictionary
+		var prop_source: String = "p:%s:%s" % [str(prop.get("kind", "")), str(prop.get("tile", Vector2i.ZERO))]
+		if _scene_prop_idle_animation_active(prop) and changed_sources.has(prop_source):
+			_queue_scene_render_layer_for_tile(prop.get("tile", Vector2i(-1, -1)))
 	for trap_var: Variant in combat_state.get("traps", []):
-		if typeof(trap_var) == TYPE_DICTIONARY and _trap_idle_animation_active(trap_var as Dictionary):
-			# Traps retain their authored below-path ordering without invalidating
-			# target highlights, paths, decals, or Umbra on every idle frame.
-			_queue_render_layer_redraw(_ground_render_layer)
-			break
-	if _pillar_torch_idle_animation_active():
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		var trap_source: String = "t:%s:%s" % [str(trap.get("element", "")), str(trap.get("pos", Vector2i.ZERO))]
+		if not _trap_idle_animation_active(trap) or not changed_sources.has(trap_source):
+			continue
+		# Traps retain their authored below-path ordering without invalidating
+		# target highlights, paths, decals, or Umbra on every idle frame.
+		_queue_render_layer_redraw(_ground_render_layer)
+		break
+	if _pillar_torch_idle_animation_active() and (changed_sources.has("tl") or changed_sources.has("tr")):
 		var grid: Array = combat_state.get("grid", [])
 		for tile: Vector2i in _rendered_tiles_in_draw_order():
 			if _tile_renders_as_pillar(grid, tile):
@@ -1206,7 +1223,7 @@ func _any_idle_animation_active() -> bool:
 		return true
 	return false
 
-func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
+func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
 	# presentation changes therefore retain the exact combat dictionary reference;
@@ -1219,23 +1236,24 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# The live combat dictionary may already contain an in-place mutation by the
 	# time it is resubmitted. Use the last deep cache snapshot as the authoritative
 	# previous render source so selective invalidation still sees that mutation.
-	var previous_combat_render_source: Dictionary = (
-		_submission_cache_source_snapshot.get("combat", {}) as Dictionary
-		if _submission_cache_initialized
-		else _combat_submission_cache_source(combat_state)
-	)
-	var next_combat_render_source: Dictionary = _combat_submission_cache_source(next_state)
-	var combat_render_changes: Dictionary = (
-		_changed_presentation_keys(previous_combat_render_source, next_combat_render_source)
-		if state_reference_changed or _submission_cache_initialized
-		else {}
-	)
-	if not state_reference_changed and _submission_cache_initialized:
-		state_changed = (
-			_combat_submission_cache_source(next_state)
-			!= (_submission_cache_source_snapshot.get("combat", {}) as Dictionary)
+	var previous_combat_render_source: Dictionary = {}
+	var next_combat_render_source: Dictionary = {}
+	var combat_render_changes: Dictionary = {}
+	# Generic callers keep conservative in-place mutation detection. RunScene owns
+	# immutable animation snapshots and explicitly opts out when it resubmits the
+	# same state reference, avoiding two recursive combat-state comparisons per
+	# rendered animation frame.
+	if state_reference_changed or (_submission_cache_initialized and not trust_same_reference_state):
+		previous_combat_render_source = (
+			_submission_cache_source_snapshot.get("combat", {}) as Dictionary
+			if _submission_cache_initialized
+			else _combat_submission_cache_source(combat_state)
 		)
-		same_reference_state_mutation = state_changed
+		next_combat_render_source = _combat_submission_cache_source(next_state)
+		combat_render_changes = _changed_presentation_keys(previous_combat_render_source, next_combat_render_source)
+		if not state_reference_changed and _submission_cache_initialized:
+			state_changed = not combat_render_changes.is_empty()
+			same_reference_state_mutation = state_changed
 	var move_tiles_changed: bool = next_move_tiles != move_tiles
 	var attack_tiles_changed: bool = next_attack_tiles != attack_tiles
 	var selected_tile_changed: bool = next_selected_tile != selected_tile
@@ -1273,7 +1291,6 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			or combat_render_changes.has("illusions")
 			or combat_render_changes.has("enemies")
 			or combat_render_changes.has("npcs")
-			or not moving_actor_keys.is_empty()
 			or presentation_changes.has("preview_units")
 			or presentation_changes.has("death_animation_units")
 			or presentation_changes.has("visible_enemy_ids")
@@ -1282,6 +1299,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_units_by_key = _units_by_key(_visible_units())
 			previous_unit_render_tiles = _unit_render_tiles_by_key(_visible_units())
 			previous_unit_obstruction_entries = _unit_obstruction_entries_by_key(_visible_units())
+		elif not moving_actor_keys.is_empty():
+			previous_unit_render_tiles = _unit_render_tiles_for_actor_keys(_visible_units(), moving_actor_keys)
+			previous_unit_obstruction_entries = _unit_obstruction_entries_for_actor_keys(_visible_units(), moving_actor_keys)
 	submission_phase_started = _record_submission_performance_phase("diff", submission_phase_started)
 	var layout_inputs_changed: bool = state_changed or exit_tiles_changed or _board_layout_signature.is_empty()
 	for layout_key: String in [
@@ -1413,7 +1433,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			submission_sources_changed = true
 			break
 	if submission_sources_changed:
-		_rebuild_submission_caches()
+		_rebuild_submission_caches(presentation_changes, state_changed, moving_actor_keys)
 	else:
 		_submission_cache_valid = true
 		_submission_cache_combat_changed = false
@@ -1436,7 +1456,19 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			hud_layout_inputs_changed = true
 			break
 	if hud_layout_inputs_changed:
-		_rebuild_hud_health_rects_cache()
+		var structural_hud_change: bool = (
+			state_changed
+			or layout_changed
+			or visual_framing_changed
+			or presentation_changes.has("expanded_enemy_actor_keys")
+			or presentation_changes.has("expand_enemy_intents")
+			or presentation_changes.has("show_all_enemy_intents")
+			or presentation_changes.has("preview_units")
+			or presentation_changes.has("death_animation_units")
+			or presentation_changes.has("visible_enemy_ids")
+		)
+		if structural_hud_change or not _refresh_moving_hud_geometry(moving_actor_keys):
+			_rebuild_hud_health_rects_cache()
 	submission_phase_started = _record_submission_performance_phase("hud_layout", submission_phase_started)
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer) and (layout_changed or _scene_render_layers.is_empty()):
 		_sync_scene_render_layers()
@@ -1596,10 +1628,15 @@ func _queue_interaction_change_redraws(
 func _changed_presentation_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
 	var changed: Dictionary = {}
 	for key_var: Variant in previous:
-		if not next.has(key_var) or previous.get(key_var) != next.get(key_var):
+		if not next.has(key_var):
+			changed[str(key_var)] = true
+			continue
+		var previous_value: Variant = previous.get(key_var)
+		var next_value: Variant = next.get(key_var)
+		if not is_same(previous_value, next_value) and previous_value != next_value:
 			changed[str(key_var)] = true
 	for key_var: Variant in next:
-		if not previous.has(key_var) or previous.get(key_var) != next.get(key_var):
+		if not previous.has(key_var):
 			changed[str(key_var)] = true
 	return changed
 
@@ -1631,6 +1668,14 @@ func _unit_render_tiles_by_key(units_to_draw: Array[Dictionary]) -> Dictionary:
 			result[actor_key] = _effective_unit_tile(unit)
 	return result
 
+func _unit_render_tiles_for_actor_keys(units_to_draw: Array[Dictionary], actor_keys: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_keys.has(actor_key):
+			result[actor_key] = _effective_unit_tile(unit)
+	return result
+
 func _units_by_key(units_to_draw: Array[Dictionary]) -> Dictionary:
 	var result: Dictionary = {}
 	for unit: Dictionary in units_to_draw:
@@ -1646,6 +1691,14 @@ func _unit_obstruction_entries_by_key(units_to_draw: Array[Dictionary]) -> Dicti
 		if actor_key.is_empty():
 			continue
 		result[actor_key] = {"tile": _effective_unit_tile(unit), "rect": _unit_draw_rect(unit)}
+	return result
+
+func _unit_obstruction_entries_for_actor_keys(units_to_draw: Array[Dictionary], actor_keys: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_keys.has(actor_key):
+			result[actor_key] = {"tile": _effective_unit_tile(unit), "rect": _unit_draw_rect(unit)}
 	return result
 
 func _queue_presentation_change_redraws(
@@ -1840,8 +1893,8 @@ func _queue_moving_actor_redraws(
 	previous_unit_render_tiles: Dictionary,
 	previous_unit_obstruction_entries: Dictionary
 ) -> void:
-	var current_render_tiles: Dictionary = _unit_render_tiles_by_key(_visible_units())
-	var current_obstruction_entries: Dictionary = _unit_obstruction_entries_by_key(_visible_units())
+	var current_render_tiles: Dictionary = _unit_render_tiles_for_actor_keys(_visible_units(), moving_actor_keys)
+	var current_obstruction_entries: Dictionary = _unit_obstruction_entries_for_actor_keys(_visible_units(), moving_actor_keys)
 	var previous_moving_entries: Array = []
 	var current_moving_entries: Array = []
 	for actor_key_var: Variant in moving_actor_keys:
@@ -1863,6 +1916,8 @@ func _queue_moving_actor_redraws(
 			_queue_scene_render_layer_for_tile(candidate.get("tile", Vector2i(-1, -1)))
 
 func _foreground_obstruction_candidates() -> Array:
+	if _foreground_obstruction_candidates_cache_valid:
+		return _foreground_obstruction_candidates_cache
 	var source: Dictionary = {
 		"size": size,
 		"navigation_zoom": _navigation_zoom,
@@ -1872,8 +1927,6 @@ func _foreground_obstruction_candidates() -> Array:
 		"terrain": combat_state.get("terrain", []),
 		"umbra_visible_tiles": presentation.get("umbra_visible_tiles", [])
 	}
-	if source == _foreground_obstruction_candidates_source_snapshot:
-		return _foreground_obstruction_candidates_cache
 	var candidates: Array = []
 	var grid: Array = combat_state.get("grid", [])
 	for tile: Vector2i in _rendered_tiles_in_draw_order():
@@ -1915,6 +1968,7 @@ func _foreground_obstruction_candidates() -> Array:
 				})
 	_foreground_obstruction_candidates_source_snapshot = source.duplicate(true)
 	_foreground_obstruction_candidates_cache = candidates
+	_foreground_obstruction_candidates_cache_valid = true
 	return _foreground_obstruction_candidates_cache
 
 func _moving_entries_obstruct_candidate(moving_entries: Array, candidate: Dictionary) -> bool:
@@ -2002,71 +2056,45 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		"moss": source_state.get("moss", {}),
 	}
 
-func _rebuild_submission_caches() -> bool:
-	var effect: Dictionary = presentation.get("effect", {})
-	# Compare inputs by the derived cache they affect. Preview effects and damage
-	# change on nearly every target hover; rebuilding spatial indexes, visible
-	# units, and obstruction geometry for those changes made target feedback scale
-	# with every actor and prop on the board.
-	var combat_source: Dictionary = _combat_submission_cache_source(combat_state)
-	var scene_source: Dictionary = {
-		"scene_props": presentation.get("scene_props", []),
-	}
-	var unit_source: Dictionary = {
-		"preview_units": presentation.get("preview_units", []),
-		"death_animation_units": presentation.get("death_animation_units", []),
-		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
-		"unit_world_positions": presentation.get("unit_world_positions", {}),
-		"unit_footprint_world_positions": presentation.get("unit_footprint_world_positions", {}),
-		"visible_enemy_ids": presentation.get("visible_enemy_ids", []),
-		"umbra_visible_tiles": presentation.get("umbra_visible_tiles", []),
-		"umbra_light_sources": presentation.get("umbra_light_sources", []),
-		"umbra_stage": presentation.get("umbra_stage", "clear"),
-	}
-	var damage_source: Dictionary = {
-		"damage_preview": presentation.get("damage_preview", {}),
-		"effect_damage_preview": effect.get("damage_preview", {}),
-	}
-	var ability_source: Dictionary = {
-		"ability_tiles": presentation.get("ability_tiles", []),
-	}
-	var combat_changed: bool = (
-		not _submission_cache_initialized
-		or combat_source != (_submission_cache_source_snapshot.get("combat", {}) as Dictionary)
-	)
-	var scene_changed: bool = (
-		not _submission_cache_initialized
-		or scene_source != (_submission_cache_source_snapshot.get("scene", {}) as Dictionary)
-	)
-	var units_changed: bool = (
-		not _submission_cache_initialized
-		or unit_source != (_submission_cache_source_snapshot.get("units", {}) as Dictionary)
+func _rebuild_submission_caches(presentation_changes: Dictionary = {}, combat_changed_hint: bool = true, moving_actor_keys: Dictionary = {}) -> bool:
+	# set_combat_state already computes the exact top-level presentation diff.
+	# Use that routing information directly instead of rebuilding and recursively
+	# comparing five overlapping source dictionaries on every animation sample.
+	# Interpolated world positions do not change the visible-unit list: draw and
+	# HUD helpers read those positions from presentation at use time.
+	var first_submission: bool = not _submission_cache_initialized
+	var combat_changed: bool = first_submission or combat_changed_hint
+	var scene_changed: bool = first_submission or presentation_changes.has("scene_props")
+	var units_changed: bool = combat_changed or first_submission
+	for unit_key: String in ["preview_units", "death_animation_units", "visible_enemy_ids"]:
+		if presentation_changes.has(unit_key):
+			units_changed = true
+			break
+	var unit_geometry_changed: bool = units_changed
+	for geometry_key: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles"]:
+		if presentation_changes.has(geometry_key):
+			unit_geometry_changed = true
+			break
+	var visibility_changed: bool = (
+		presentation_changes.has("umbra_visible_tiles")
+		or presentation_changes.has("umbra_stage")
 	)
 	var damage_changed: bool = (
-		not _submission_cache_initialized
-		or damage_source != (_submission_cache_source_snapshot.get("damage", {}) as Dictionary)
+		first_submission
+		or presentation_changes.has("damage_preview")
+		or presentation_changes.has("effect")
 	)
-	var ability_changed: bool = (
-		not _submission_cache_initialized
-		or ability_source != (_submission_cache_source_snapshot.get("ability", {}) as Dictionary)
-	)
+	var ability_changed: bool = first_submission or presentation_changes.has("ability_tiles")
 	_submission_cache_combat_changed = combat_changed
-	if not combat_changed and not scene_changed and not units_changed and not damage_changed and not ability_changed:
+	if not combat_changed and not scene_changed and not unit_geometry_changed and not visibility_changed and not damage_changed and not ability_changed:
 		_submission_cache_valid = true
 		_submission_cache_combat_changed = false
 		return false
-	# Snapshot only the category that changed. In particular, a new per-target
-	# damage preview no longer deep-copies the entire combat state.
+	# Keep the one authoritative combat snapshot used to detect non-conforming
+	# in-place state mutation. Presentation is owned as immutable copy-on-write
+	# data by RunScene, so the already-computed change set is its source of truth.
 	if combat_changed:
-		_submission_cache_source_snapshot["combat"] = combat_source.duplicate(true)
-	if scene_changed:
-		_submission_cache_source_snapshot["scene"] = scene_source.duplicate(true)
-	if units_changed:
-		_submission_cache_source_snapshot["units"] = unit_source.duplicate(true)
-	if damage_changed:
-		_submission_cache_source_snapshot["damage"] = damage_source.duplicate(true)
-	if ability_changed:
-		_submission_cache_source_snapshot["ability"] = ability_source.duplicate(true)
+		_submission_cache_source_snapshot["combat"] = _combat_submission_cache_source(combat_state).duplicate(true)
 	_submission_cache_initialized = true
 	if damage_changed:
 		_damage_preview_cache = _build_damage_preview_map(presentation)
@@ -2111,11 +2139,15 @@ func _rebuild_submission_caches() -> bool:
 	# Scene props participate in foreground obstruction even though they do not
 	# affect the visible-unit list. Keep that derived cache aligned when a room
 	# prop changes without paying to rebuild it for damage-only hovers.
-	if combat_changed or units_changed or scene_changed:
+	if combat_changed or units_changed or scene_changed or visibility_changed:
 		if is_inside_tree():
 			_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units_cache)
 		else:
 			_foreground_obstruction_entries_cache.clear()
+	elif unit_geometry_changed and not _refresh_moving_foreground_obstruction_entries(moving_actor_keys):
+		_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units_cache)
+	if combat_changed or scene_changed or visibility_changed:
+		_foreground_obstruction_candidates_cache_valid = false
 	_submission_cache_valid = true
 	return true
 
@@ -4549,6 +4581,7 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 	var entries: Array[Dictionary] = []
 	for unit: Dictionary in units_to_draw:
 		entries.append({
+			"actor_key": str(unit.get("key", "")),
 			"tile": _effective_unit_tile(unit),
 			"rect": _unit_draw_rect(unit)
 		})
@@ -4616,6 +4649,33 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 			"rect": _trap_draw_rect(trap_tile)
 		})
 	return entries
+
+func _refresh_moving_foreground_obstruction_entries(moving_actor_keys: Dictionary) -> bool:
+	if moving_actor_keys.is_empty() or _foreground_obstruction_entries_cache.is_empty():
+		return false
+	var units_by_key: Dictionary = _units_by_key(_visible_units_cache)
+	var next_entries: Array[Dictionary] = _foreground_obstruction_entries_cache.duplicate(false)
+	var refreshed_actor_keys: Dictionary = {}
+	for entry_index: int in range(next_entries.size()):
+		var entry: Dictionary = next_entries[entry_index]
+		var actor_key: String = str(entry.get("actor_key", ""))
+		if actor_key.is_empty() or not moving_actor_keys.has(actor_key):
+			continue
+		var unit: Dictionary = units_by_key.get(actor_key, {}) as Dictionary
+		if unit.is_empty():
+			return false
+		next_entries[entry_index] = {
+			"actor_key": actor_key,
+			"tile": _effective_unit_tile(unit),
+			"rect": _unit_draw_rect(unit)
+		}
+		refreshed_actor_keys[actor_key] = true
+	for actor_key_var: Variant in moving_actor_keys:
+		var actor_key: String = str(actor_key_var)
+		if units_by_key.has(actor_key) and not refreshed_actor_keys.has(actor_key):
+			return false
+	_foreground_obstruction_entries_cache = next_entries
+	return true
 
 func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, obstruction_entries: Array) -> void:
 	if tile_id == "pillar":
@@ -5810,22 +5870,7 @@ func _rebuild_hud_health_rects_cache() -> bool:
 		return false
 	var hud_units: Array[Dictionary] = _hud_layout_units()
 	performance_phase_started = _record_submission_performance_phase("hud_units", performance_phase_started)
-	var source: Dictionary = {
-		"visible_units": hud_units,
-		# HUD geometry changes only when pointer hover expands a different enemy's
-		# intent. Every empty tile is layout-equivalent, and every tile in a large
-		# enemy footprint is equivalent too. Keying by the raw tile forced the dense
-		# collision solver to build a distinct layout for every Blink destination.
-		"hover_actor_key": _hud_hover_actor_key(hud_units),
-		"size": size,
-		"navigation_zoom": _navigation_zoom,
-		"navigation_pan": _navigation_pan,
-		"expanded_enemy_actor_keys": presentation.get("expanded_enemy_actor_keys", []),
-		"expand_enemy_intents": presentation.get("expand_enemy_intents", false),
-		"show_all_enemy_intents": presentation.get("show_all_enemy_intents", false),
-		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
-		"unit_world_positions": presentation.get("unit_world_positions", {})
-	}
+	var source: Dictionary = _hud_layout_source(hud_units)
 	performance_phase_started = _record_submission_performance_phase("hud_source", performance_phase_started)
 	if source == _hud_health_rects_source_snapshot:
 		return false
@@ -5851,6 +5896,76 @@ func _rebuild_hud_health_rects_cache() -> bool:
 	while _hud_layout_cache_order.size() > HUD_LAYOUT_CACHE_LIMIT:
 		var stale_signature: Variant = _hud_layout_cache_order.pop_front()
 		_hud_layout_cache_by_signature.erase(stale_signature)
+	return true
+
+func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
+	return {
+		"visible_units": hud_units,
+		# HUD geometry changes only when pointer hover expands a different enemy's
+		# intent. Every empty tile is layout-equivalent, and every tile in a large
+		# enemy footprint is equivalent too. Keying by the raw tile forced the dense
+		# collision solver to build a distinct layout for every Blink destination.
+		"hover_actor_key": _hud_hover_actor_key(hud_units),
+		"size": size,
+		"navigation_zoom": _navigation_zoom,
+		"navigation_pan": _navigation_pan,
+		"expanded_enemy_actor_keys": presentation.get("expanded_enemy_actor_keys", []),
+		"expand_enemy_intents": presentation.get("expand_enemy_intents", false),
+		"show_all_enemy_intents": presentation.get("show_all_enemy_intents", false),
+		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
+		"unit_world_positions": presentation.get("unit_world_positions", {})
+	}
+
+func _refresh_moving_hud_geometry(moving_actor_keys: Dictionary) -> bool:
+	# Collapsed HUDs have no inter-actor collision solving: their geometry is a
+	# direct function of each actor's center. Update only actors that moved instead
+	# of rebuilding, hashing, and deep-copying the whole room layout every frame.
+	# Expanded enemy intents and bosses retain the full solver path because their
+	# contours deliberately avoid other actors and fixed HUD elements.
+	if moving_actor_keys.is_empty() or _hud_layout_entries_cache.is_empty() or _all_enemy_intents_expanded():
+		return false
+	var hud_units: Array[Dictionary] = _hud_layout_units()
+	if not (presentation.get("expanded_enemy_actor_keys", []) as Array).is_empty():
+		return false
+	if not _hud_hover_actor_key(hud_units).is_empty():
+		return false
+	var units_by_key: Dictionary = _units_by_key(hud_units)
+	var next_entries: Array = _hud_layout_entries_cache.duplicate(false)
+	var next_health_rects: Dictionary = _hud_health_rects_cache.duplicate(false)
+	var font: Font = get_theme_default_font()
+	for entry_index: int in range(next_entries.size()):
+		var entry_var: Variant = next_entries[entry_index]
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var actor_key: String = str(entry.get("actor_key", ""))
+		if not moving_actor_keys.has(actor_key):
+			continue
+		var unit: Dictionary = units_by_key.get(actor_key, {}) as Dictionary
+		if unit.is_empty() or bool(unit.get("boss_bar", false)):
+			return false
+		var center: Vector2 = _unit_center(unit)
+		var next_entry: Dictionary = entry.duplicate(false)
+		next_entry["center"] = center
+		match str(entry.get("kind", "")):
+			"npc":
+				pass
+			"enemy":
+				var layout: Dictionary = _enemy_hud_layout(unit, center, [], font)
+				var health_rect: Rect2 = layout.get("health_rect", Rect2()) as Rect2
+				next_entry["health_rect"] = health_rect
+				next_entry["layout"] = layout
+				next_health_rects[actor_key] = health_rect
+			_:
+				var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+				next_entry["health_rect"] = health_rect
+				next_health_rects[actor_key] = health_rect
+		next_entries[entry_index] = next_entry
+	_hud_layout_entries_cache = next_entries
+	_hud_health_rects_cache = next_health_rects
+	# Keep the latest immutable source references for a future full rebuild. This
+	# intentionally avoids inserting animation-frame-specific layouts into the LRU.
+	_hud_health_rects_source_snapshot = _hud_layout_source(hud_units).duplicate(false)
 	return true
 
 func _hud_hover_actor_key(hud_units: Array[Dictionary]) -> String:
@@ -12032,32 +12147,42 @@ func _trap_activation_texture(trap: Dictionary, progress: float) -> Texture2D:
 		return null
 	return frames[_trap_activation_frame_index(progress, frames.size())]
 
-func _active_idle_frame_key() -> String:
-	var parts: Array[String] = []
+func _active_idle_frames_by_source() -> Dictionary:
+	var result: Dictionary = {}
 	for unit: Dictionary in _visible_units():
 		if str(unit.get("role", "")) != "npc" and int(unit.get("hp", 0)) <= 0:
 			continue
 		if not _unit_idle_animation_active(unit):
 			continue
 		var actor_key: String = str(unit.get("key", unit.get("id", "")))
-		parts.append("u:%s:%d" % [actor_key, _idle_frame_index(unit)])
+		result["u:%s" % actor_key] = _idle_frame_index(unit)
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) != TYPE_DICTIONARY:
 			continue
 		var prop: Dictionary = prop_var
 		if not _scene_prop_idle_animation_active(prop):
 			continue
-		parts.append("p:%s:%s:%d" % [str(prop.get("kind", "")), str(prop.get("tile", Vector2i.ZERO)), _scene_prop_idle_frame_index(prop)])
+		result["p:%s:%s" % [str(prop.get("kind", "")), str(prop.get("tile", Vector2i.ZERO))]] = _scene_prop_idle_frame_index(prop)
 	for trap_var: Variant in combat_state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
 		var trap: Dictionary = trap_var
 		if not _trap_idle_animation_active(trap):
 			continue
-		parts.append("t:%s:%s:%d" % [str(trap.get("element", "")), str(trap.get("pos", Vector2i.ZERO)), _trap_idle_frame_index(trap)])
+		result["t:%s:%s" % [str(trap.get("element", "")), str(trap.get("pos", Vector2i.ZERO))]] = _trap_idle_frame_index(trap)
 	if _pillar_torch_idle_animation_active():
-		parts.append("tl:%d" % _pillar_torch_idle_frame_index("left"))
-		parts.append("tr:%d" % _pillar_torch_idle_frame_index("right"))
+		result["tl"] = _pillar_torch_idle_frame_index("left")
+		result["tr"] = _pillar_torch_idle_frame_index("right")
+	return result
+
+func _active_idle_frame_key() -> String:
+	# Preserve the diagnostic/test surface while runtime redraw routing uses the
+	# structured per-source map to invalidate only the animation that advanced.
+	var parts: Array[String] = []
+	var frames_by_source: Dictionary = _active_idle_frames_by_source()
+	for source_var: Variant in frames_by_source:
+		var source: String = str(source_var)
+		parts.append("%s:%d" % [source, int(frames_by_source.get(source_var, 0))])
 	return "|".join(parts)
 
 func _unit_idle_animation_active(unit: Dictionary) -> bool:
@@ -12932,6 +13057,7 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 	_board_layout_cache_tile_polygons.clear()
 	_unit_shadow_draw_geometry_cache.clear()
 	_unit_shadow_draw_mesh_cache.clear()
+	_foreground_obstruction_candidates_cache_valid = false
 	if content_changed:
 		_board_layout_content_cache_valid = false
 		_board_layout_cache_tiles.clear()
