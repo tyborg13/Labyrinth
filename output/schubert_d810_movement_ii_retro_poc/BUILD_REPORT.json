@@ -79,7 +79,10 @@
     "rms_linear": 0.060562555194950636,
     "renderer": "sample-free deterministic additive/pulse/triangle oscillator synth",
     "encoder": "FFmpeg native Vorbis quality 5 (experimental encoder API)",
-    "lossless_encoder": "FFmpeg FLAC compression level 8"
+    "lossless_encoder": "FFmpeg FLAC compression level 8",
+    "ogg_sha256": "93ff01b2b6ef31e52965fdbf240c7b64a692871301370c517a7cafcda7a65a0f",
+    "flac_sha256": "ecd02002cff366f1152febe588713a5dd870a840bed44a1c5b7c7bb0f04c6409",
+    "ogg_stream_serial": "0x53383130"
   },
   "tools": {
     "python": "3.12.13",

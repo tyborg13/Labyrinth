@@ -7,7 +7,14 @@ from collections import defaultdict
 import json
 from pathlib import Path
 import subprocess
+import sys
 import xml.etree.ElementTree as ET
+
+if sys.version_info < (3, 12):
+    raise SystemExit(
+        "This verification requires Python 3.12 or newer; "
+        f"found {sys.version.split()[0]}"
+    )
 
 import mido
 
@@ -217,11 +224,29 @@ def verify_audio() -> dict[str, object]:
     audio_report = build_report["audio_preview"]
     assert audio_report["peak_linear"] < 0.99
     assert audio_report["peak_dbfs"] < -0.1
+    ogg_hash = build.sha256(build.AUDIO_PREVIEW)
+    flac_hash = build.sha256(build.AUDIO_PREVIEW_LOSSLESS)
+    assert ogg_hash == audio_report["ogg_sha256"]
+    assert flac_hash == audio_report["flac_sha256"]
+    ogg_bytes = build.AUDIO_PREVIEW.read_bytes()
+    offset = 0
+    serials: set[int] = set()
+    while offset < len(ogg_bytes):
+        assert ogg_bytes[offset : offset + 4] == b"OggS"
+        segment_count = ogg_bytes[offset + 26]
+        header_end = offset + 27 + segment_count
+        page_end = header_end + sum(ogg_bytes[offset + 27 : header_end])
+        serials.add(int.from_bytes(ogg_bytes[offset + 14 : offset + 18], "little"))
+        offset = page_end
+    assert serials == {0x53383130}
     return {
         "ogg_vorbis": ogg,
         "lossless_flac": flac,
         "render_peak_dbfs": audio_report["peak_dbfs"],
         "render_rms_linear": audio_report["rms_linear"],
+        "ogg_sha256": ogg_hash,
+        "flac_sha256": flac_hash,
+        "ogg_stream_serials": ["0x53383130"],
     }
 
 

@@ -35,6 +35,12 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
+if sys.version_info < (3, 12):
+    raise SystemExit(
+        "This reproducible build requires Python 3.12 or newer; "
+        f"found {sys.version.split()[0]}"
+    )
+
 import mido
 import music21
 from music21 import chord, converter, dynamics, expressions, note, stream, tempo
@@ -861,6 +867,51 @@ def oscillator(shape: str, phase: np.ndarray) -> np.ndarray:
     raise ValueError(f"Unknown oscillator shape {shape}")
 
 
+def ogg_crc(page: bytes | bytearray) -> int:
+    polynomial = 0x04C11DB7
+    table: list[int] = []
+    for index in range(256):
+        remainder = index << 24
+        for _ in range(8):
+            if remainder & 0x80000000:
+                remainder = ((remainder << 1) ^ polynomial) & 0xFFFFFFFF
+            else:
+                remainder = (remainder << 1) & 0xFFFFFFFF
+        table.append(remainder)
+    checksum = 0
+    for value in page:
+        checksum = (
+            ((checksum << 8) & 0xFFFFFFFF)
+            ^ table[((checksum >> 24) & 0xFF) ^ value]
+        )
+    return checksum
+
+
+def normalize_ogg_serial(path: Path, serial: int = 0x53383130) -> None:
+    """Replace FFmpeg's random Ogg serial and repair page CRCs."""
+    data = bytearray(path.read_bytes())
+    offset = 0
+    page_count = 0
+    while offset < len(data):
+        if data[offset : offset + 4] != b"OggS":
+            raise RuntimeError(f"Invalid Ogg page capture at byte {offset}")
+        segment_count = data[offset + 26]
+        header_end = offset + 27 + segment_count
+        body_size = sum(data[offset + 27 : header_end])
+        page_end = header_end + body_size
+        if page_end > len(data):
+            raise RuntimeError("Truncated Ogg page")
+        data[offset + 14 : offset + 18] = serial.to_bytes(4, "little")
+        data[offset + 22 : offset + 26] = b"\x00\x00\x00\x00"
+        checksum = ogg_crc(data[offset:page_end])
+        data[offset + 22 : offset + 26] = checksum.to_bytes(4, "little")
+        offset = page_end
+        page_count += 1
+    if page_count == 0:
+        raise RuntimeError("Ogg file contained no pages")
+    path.write_bytes(data)
+
+
 def render_procedural_preview() -> dict[str, object]:
     if shutil.which("ffmpeg") is None:
         raise RuntimeError(
@@ -1015,6 +1066,7 @@ def render_procedural_preview() -> dict[str, object]:
         str(AUDIO_PREVIEW),
     ]
     subprocess.run(vorbis_command, check=True)
+    normalize_ogg_serial(AUDIO_PREVIEW)
     temporary_wave.unlink()
     return {
         "path": str(AUDIO_PREVIEW.relative_to(POC_ROOT)),
@@ -1028,6 +1080,9 @@ def render_procedural_preview() -> dict[str, object]:
         "renderer": "sample-free deterministic additive/pulse/triangle oscillator synth",
         "encoder": vorbis_label,
         "lossless_encoder": "FFmpeg FLAC compression level 8",
+        "ogg_sha256": sha256(AUDIO_PREVIEW),
+        "flac_sha256": sha256(AUDIO_PREVIEW_LOSSLESS),
+        "ogg_stream_serial": "0x53383130",
     }
 
 

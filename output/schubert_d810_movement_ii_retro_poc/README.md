@@ -20,16 +20,21 @@ The unchanged OpenScore source and its license are under `source/`. The public-d
 
 ## Rebuild
 
+Prerequisites:
+
+- Python 3.12 or newer
+- FFmpeg with FLAC plus either `libvorbis` or the native Vorbis encoder
+
 From this POC folder:
 
 ```bash
-python3 -m venv .venv
+python3.12 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python scripts/build_arrangement.py
 .venv/bin/python scripts/verify_outputs.py
 ```
 
-FFmpeg with either `libvorbis` or its native Vorbis encoder is required for the compact preview. The current build used FFmpeg's native Vorbis encoder and also emitted a lossless FLAC reference. Pass `--skip-audio` to build only MusicXML and MIDI.
+If the Python 3.12+ executable has a different name, substitute its absolute path in the first command. The current build used Python 3.12.13 and FFmpeg's native Vorbis encoder, and also emitted a lossless FLAC reference. The script replaces FFmpeg's random Ogg stream serial with a fixed value and repairs page checksums so repeated builds are byte-stable on the pinned toolchain. Pass `--skip-audio` to build only MusicXML and MIDI.
 
 `scripts/build_arrangement.py` verifies the immutable source hash before doing any work. `scripts/verify_outputs.py` writes `VERIFICATION_REPORT.json` and fails on source drift, missing parts, hanging/incorrect arranged notes, excess voice count, or invalid preview containers.
 
