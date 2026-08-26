@@ -13,6 +13,7 @@ const EARTH_COMBAT_TRACK_ID: String = "combat.earth"
 const SCHUBERT_COMBAT_TRACK_ID: String = "combat.schubert_d810_movement_ii"
 const ZEKARION_BOSS_TRACK_ID: String = "boss.zekarion"
 const RELIC_ROOM_TRACK_ID: String = "room.relic"
+const PRE_BATTLE_MODE: String = "pre_battle"
 
 const TRACKS: Dictionary = {
 	GENERIC_COMBAT_TRACK_ID: {
@@ -95,6 +96,11 @@ static func entry(track_id: String) -> Dictionary:
 static func _track_id_for_context(mode: String, room: Dictionary, combat_state: Dictionary = {}) -> String:
 	if MODE_TRACKS.has(mode):
 		return str(MODE_TRACKS.get(mode, ""))
+	if mode == PRE_BATTLE_MODE:
+		var preview_room_type: String = str(room.get("type", combat_state.get("room_type", "")))
+		if preview_room_type == "combat" and _boss_track_id(room, combat_state).is_empty():
+			return SCHUBERT_COMBAT_TRACK_ID
+		return ""
 	if mode == "room":
 		var resting_room_type: String = str(room.get("type", ""))
 		if bool(room.get("cleared", false)) and resting_room_type in ["combat", "boss"]:

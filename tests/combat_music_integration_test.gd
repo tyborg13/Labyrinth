@@ -1,6 +1,7 @@
 extends SceneTree
 
 const MusicLibrary = preload("res://scripts/music_library.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
 var _failures: Array[String] = []
@@ -17,14 +18,14 @@ func _run() -> void:
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
 	await process_frame
-	var entry: Dictionary = MusicLibrary.entry_for_context("combat", {
+	var entry: Dictionary = MusicLibrary.entry_for_context(RunEngine.MODE_PRE_BATTLE, {
 		"type": "combat",
 		"element": "fire"
 	})
 	instance.call("_play_music", entry)
 	await process_frame
 	var player: AudioStreamPlayer = instance.get("_music_player") as AudioStreamPlayer
-	_assert(str(instance.get("_active_music_id")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Live run scene should activate the Schubert track for ordinary combat")
+	_assert(str(instance.get("_active_music_id")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Live run scene should activate the Schubert track in ordinary pre-battle")
 	_assert(player != null, "Live run scene should create a music player")
 	if player != null:
 		_assert(player.bus == SettingsStore.MUSIC_BUS, "Schubert playback should use the Music bus")

@@ -614,6 +614,22 @@ func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
 		"element": ElementData.FIRE
 	})
 	_assert(str(room_entry.get("id", "")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Uncleared combat rooms should establish the Schubert loop before battle")
+	var pre_battle_entry: Dictionary = MusicLibrary.entry_for_context(RunEngine.MODE_PRE_BATTLE, {
+		"type": "combat",
+		"element": ElementData.ICE
+	})
+	_assert(str(pre_battle_entry.get("id", "")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Actual non-boss pre-battle mode should keep the Schubert loop playing through loadout")
+	var boss_pre_battle_entry: Dictionary = MusicLibrary.entry_for_context(RunEngine.MODE_PRE_BATTLE, {
+		"type": "boss",
+		"boss_id": "zekarion"
+	})
+	_assert(boss_pre_battle_entry.is_empty(), "Boss pre-battle should preserve its existing no-music behavior")
+	var boss_enemy_pre_battle_entry: Dictionary = MusicLibrary.entry_for_context(RunEngine.MODE_PRE_BATTLE, {
+		"type": "combat"
+	}, {
+		"enemies": [{"type": "tharokh"}]
+	})
+	_assert(boss_enemy_pre_battle_entry.is_empty(), "Boss-bar enemies should not receive non-boss music during pre-battle")
 	var cleared_entry: Dictionary = MusicLibrary.entry_for_context("room", {
 		"type": "combat",
 		"element": ElementData.FIRE,
