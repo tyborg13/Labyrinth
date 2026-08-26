@@ -1,0 +1,271 @@
+{
+  "audio": {
+    "duration_seconds": 268.69566893424036,
+    "echo": {
+      "circular": true,
+      "darkening_filter": "9-sample moving average before echo taps",
+      "model": "finite three-tap circular cross-stereo dark echo",
+      "purpose": "restrained SNES-DSP-like room depth without a rhythmic repeat",
+      "taps": [
+        {
+          "delay_ms": 96.0,
+          "gain": 0.12
+        },
+        {
+          "delay_ms": 192.0,
+          "gain": 0.052
+        },
+        {
+          "delay_ms": 288.0,
+          "gain": 0.022
+        }
+      ]
+    },
+    "flac": {
+      "format": {
+        "bit_rate": "312712",
+        "duration": "268.695669",
+        "size": "10503062"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "flac",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "flac_sha256": "de37a38d388b571cc630b22471c7a50be78d2f78e49f831c0b99b5dca8ec07d2",
+    "independent_peak_dbfs": -7.5,
+    "loop_crossfade": {
+      "crossfade_quarters": 4.0,
+      "crossfade_samples": 115043,
+      "crossfade_seconds": 2.608695652173913,
+      "first_last_sample_delta": [
+        7.657156974143035e-05,
+        6.613872376773876e-05
+      ],
+      "method": "one-measure equal-power tail-to-head overlap with loop-point rotation",
+      "p99_9_adjacent_sample_delta": [
+        0.02836216273537707,
+        0.028395664189746084
+      ],
+      "render_start_rotation_quarters": 4.0,
+      "rendered_duration_quarters": 412.0
+    },
+    "ogg": {
+      "format": {
+        "bit_rate": "62520",
+        "duration": "268.696961",
+        "size": "2099879"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "vorbis",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "ogg_serial": "0x53383230",
+    "ogg_sha256": "b47019565e8a6e703cd4348c551550c907dc831575f1a009ce8e15d17c2a3705",
+    "reconstruction_filter": "5-sample moving average after pitch-shifted sample playback",
+    "reported_peak_dbfs": -7.499564771426246,
+    "silence_events_at_minus_60_dbfs_over_750ms": [],
+    "strict_decode": true
+  },
+  "midi": {
+    "duration_quarters": 416.0,
+    "duration_seconds": 271.30434782608694,
+    "form": "A-B-C-B-A",
+    "global_max_simultaneous_voices": 5,
+    "markers": [
+      "LOOP_START / structural MIDI",
+      "A1: source performed measures 25-32",
+      "B1: source performed measures 49-64",
+      "C1: source performed measures 73-88",
+      "B2: source performed measures 49-64",
+      "A2: source performed measures 25-32",
+      "LOOP_END / rendered audio uses a one-measure equal-power crossfade and rotation"
+    ],
+    "note_counts": {
+      "Ashen Bow / Violin II": 532,
+      "Grave Cello": 406,
+      "Hollow Viola": 665,
+      "Undercrypt Bass / Cello -8ve": 396,
+      "Veiled Bow / Violin I": 767
+    },
+    "per_track_max_polyphony": {
+      "Ashen Bow / Violin II": 1,
+      "Grave Cello": 1,
+      "Hollow Viola": 1,
+      "Undercrypt Bass / Cello -8ve": 1,
+      "Veiled Bow / Violin I": 1
+    },
+    "sha256": "43783e67509027a1684cf48dc9b1e671c2e2427ee9f9c3c62a211720446b9d9f",
+    "source_mapping": {
+      "all_non_bass_pitches_exact_source_pitches": true,
+      "exact_octave_below_cello_events": 396,
+      "mapped_events": 2766,
+      "new_pitch_classes": false,
+      "section_event_counts": {
+        "A1": 316,
+        "A2": 315,
+        "B1": 689,
+        "B2": 659,
+        "C1": 787
+      }
+    },
+    "thinning": {
+      "Ashen Bow / Violin II": {
+        "considered": 792,
+        "dropped": 260
+      },
+      "Grave Cello": {
+        "considered": 406,
+        "dropped": 0
+      },
+      "Hollow Viola": {
+        "considered": 665,
+        "dropped": 0
+      },
+      "Undercrypt Bass / Cello -8ve": {
+        "considered": 406,
+        "dropped": 10
+      },
+      "Veiled Bow / Violin I": {
+        "considered": 953,
+        "dropped": 186
+      }
+    },
+    "track_names": [
+      "Veiled Bow / Violin I",
+      "Ashen Bow / Violin II",
+      "Hollow Viola",
+      "Grave Cello",
+      "Undercrypt Bass / Cello -8ve"
+    ]
+  },
+  "ok": true,
+  "procedural_bank": {
+    "commercial_use_status": "Original project-generated assets with no third-party audio rights input; intended for unrestricted use in Escape the Umbra and its distributed builds.",
+    "manifest_sha256": "6e47f373b7c7f91dbe97f356f95b48497415aa7e31f7bbc15d0491b07dce5ac5",
+    "provenance": "Generated locally from mathematical sinusoidal partials and fixed integer phase seeds. No recording, sample pack, SoundFont, model output, or third-party audio was used.",
+    "samples": [
+      {
+        "bank_id": "veiled_violin",
+        "channels": 1,
+        "frames": 10254,
+        "loop_seam_sample_delta": 0.3753662109375,
+        "p99_9_adjacent_sample_delta": 0.44281005859375,
+        "sample_rate": 16000,
+        "sample_width": 2,
+        "sha256": "c683d2911eba6adb35e58027b1dd363f5057996a789f06f8a4aa604d9092ffc8"
+      },
+      {
+        "bank_id": "ashen_violin",
+        "channels": 1,
+        "frames": 10242,
+        "loop_seam_sample_delta": 0.217010498046875,
+        "p99_9_adjacent_sample_delta": 0.221893310546875,
+        "sample_rate": 16000,
+        "sample_width": 2,
+        "sha256": "61582413be61cd25d182bdb1645c83af6b663070d9be9730525a02bc1ec890a0"
+      },
+      {
+        "bank_id": "hollow_viola",
+        "channels": 1,
+        "frames": 10274,
+        "loop_seam_sample_delta": 0.0626220703125,
+        "p99_9_adjacent_sample_delta": 0.08025711059570315,
+        "sample_rate": 16000,
+        "sample_width": 2,
+        "sha256": "9cac0ff97b72b9822e4774fdd4d270b8f4b719f5662e27035519715b07f70c74"
+      },
+      {
+        "bank_id": "grave_cello",
+        "channels": 1,
+        "frames": 10274,
+        "loop_seam_sample_delta": 0.009765625,
+        "p99_9_adjacent_sample_delta": 0.039154052734375,
+        "sample_rate": 16000,
+        "sample_width": 2,
+        "sha256": "17eb59965eabbe0a910585f100296ce56cd868884d440139a3b5c7b13df40f09"
+      },
+      {
+        "bank_id": "undercrypt_bass",
+        "channels": 1,
+        "frames": 10096,
+        "loop_seam_sample_delta": 0.0313720703125,
+        "p99_9_adjacent_sample_delta": 0.035308837890625,
+        "sample_rate": 16000,
+        "sample_width": 2,
+        "sha256": "2b1a1a07e74969533c0ef2766602633fcb6180a12ae6fa3dddc6dbdb1264679e"
+      }
+    ]
+  },
+  "selection": {
+    "audio_duration_seconds": 268.69565217391306,
+    "form": "A-B-C-B-A",
+    "midi_duration_seconds": 271.30434782608694,
+    "source_segments": {
+      "A": {
+        "performed_measures": [
+          25,
+          32
+        ],
+        "requested_window": "2:05-2:45",
+        "source_preview_seconds": [
+          125.21739130434783,
+          166.95652173913044
+        ],
+        "source_quarters": [
+          192.0,
+          256.0
+        ]
+      },
+      "B": {
+        "performed_measures": [
+          49,
+          64
+        ],
+        "requested_window": "4:10-5:10",
+        "source_preview_seconds": [
+          250.43478260869566,
+          313.04347826086956
+        ],
+        "source_quarters": [
+          384.0,
+          480.0
+        ]
+      },
+      "C": {
+        "performed_measures": [
+          73,
+          88
+        ],
+        "requested_window": "6:15-7:17",
+        "source_preview_seconds": [
+          375.6521739130435,
+          438.2608695652174
+        ],
+        "source_quarters": [
+          576.0,
+          672.0
+        ]
+      }
+    }
+  },
+  "source_sha256": "c1370ff43b2272b88e04d41d3cc31ca6717a982eaa09cc5540a5952b4f3c1bd5",
+  "version_one_unchanged": {
+    "faithful_retro.mid": "2c9a7303ef50cb244bb94b95cc367d730590ab15e4ce77ffa806e8b70269fd66",
+    "faithful_retro_preview.flac": "ecd02002cff366f1152febe588713a5dd870a840bed44a1c5b7c7bb0f04c6409",
+    "faithful_retro_preview.ogg": "93ff01b2b6ef31e52965fdbf240c7b64a692871301370c517a7cafcda7a65a0f",
+    "normalized/movement_ii_four_parts.mid": "874d96d94e256126c0a569516c6f678d29b8638d5bf8f5fe27147d177fa509cf",
+    "normalized/movement_ii_four_parts.musicxml": "03eae6073fab5f208829746631b87740b041383c893529349875f346900ba5a6"
+  }
+}
