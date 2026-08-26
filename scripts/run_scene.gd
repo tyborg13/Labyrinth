@@ -1481,6 +1481,7 @@ var _enemy_intent_compass_cache: Dictionary = {}
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
+var _runtime_animation_clock_stats: Dictionary = {}
 var _performance_telemetry_finalized: bool = false
 var _analytics_store: AnalyticsStore = AnalyticsStore.new()
 var _analytics_combat_tracker: Dictionary = {}
@@ -16169,6 +16170,7 @@ func set_runtime_performance_instrumentation_enabled(enabled: bool) -> void:
 	_runtime_performance_instrumentation_enabled = enabled
 	_runtime_performance_totals_usec.clear()
 	_runtime_performance_counts.clear()
+	_runtime_animation_clock_stats.clear()
 	_combat_engine.set_runtime_performance_instrumentation_enabled(enabled)
 
 func _stage_visibility_presentation(visibility_state: Dictionary) -> Dictionary:
@@ -16234,6 +16236,33 @@ func consume_runtime_performance_instrumentation_snapshot() -> Dictionary:
 	_runtime_performance_counts.clear()
 	_combat_engine.clear_runtime_performance_instrumentation_snapshot()
 	return result
+
+func runtime_animation_clock_snapshot() -> Dictionary:
+	return _runtime_animation_clock_stats.duplicate(true)
+
+func clear_runtime_animation_clock_snapshot() -> void:
+	_runtime_animation_clock_stats.clear()
+
+func _record_runtime_animation_clock(
+	authored_frames: int,
+	rendered_frames: int,
+	authored_duration_usec: int,
+	observed_duration_usec: int
+) -> void:
+	if not _runtime_performance_instrumentation_enabled:
+		return
+	var skipped_frames: int = maxi(0, authored_frames - rendered_frames)
+	var overrun_usec: int = maxi(0, observed_duration_usec - authored_duration_usec)
+	_runtime_animation_clock_stats["run_count"] = int(_runtime_animation_clock_stats.get("run_count", 0)) + 1
+	_runtime_animation_clock_stats["authored_frames"] = int(_runtime_animation_clock_stats.get("authored_frames", 0)) + authored_frames
+	_runtime_animation_clock_stats["rendered_frames"] = int(_runtime_animation_clock_stats.get("rendered_frames", 0)) + rendered_frames
+	_runtime_animation_clock_stats["skipped_frames"] = int(_runtime_animation_clock_stats.get("skipped_frames", 0)) + skipped_frames
+	_runtime_animation_clock_stats["authored_duration_usec"] = int(_runtime_animation_clock_stats.get("authored_duration_usec", 0)) + authored_duration_usec
+	_runtime_animation_clock_stats["observed_duration_usec"] = int(_runtime_animation_clock_stats.get("observed_duration_usec", 0)) + observed_duration_usec
+	_runtime_animation_clock_stats["max_overrun_usec"] = maxi(
+		int(_runtime_animation_clock_stats.get("max_overrun_usec", 0)),
+		overrun_usec
+	)
 
 func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	if not _runtime_performance_instrumentation_enabled:
@@ -19739,6 +19768,43 @@ func _attack_feedback_elapsed_seconds(
 func _attack_feedback_waits_for_trap(effect: Dictionary) -> bool:
 	return not (effect.get("triggered_traps", []) as Array).is_empty()
 
+func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render_frame: Callable) -> void:
+	var safe_frame_count: int = maxi(0, frame_count)
+	if safe_frame_count == 0 or not render_frame.is_valid():
+		return
+	var started_usec: int = Time.get_ticks_usec()
+	var rendered_frames: int = 0
+	if frame_seconds <= 0.0:
+		render_frame.call(safe_frame_count)
+		rendered_frames = 1
+		await get_tree().process_frame
+		_record_runtime_animation_clock(
+			safe_frame_count,
+			rendered_frames,
+			0,
+			Time.get_ticks_usec() - started_usec
+		)
+		return
+	var frame_duration_usec: int = maxi(1, int(round(frame_seconds * 1000000.0)))
+	var authored_duration_usec: int = safe_frame_count * frame_duration_usec
+	var last_rendered_frame: int = 0
+	while true:
+		var elapsed_usec: int = Time.get_ticks_usec() - started_usec
+		var due_frame: int = clampi(1 + int(elapsed_usec / frame_duration_usec), 1, safe_frame_count)
+		if due_frame > last_rendered_frame:
+			render_frame.call(due_frame)
+			rendered_frames += 1
+			last_rendered_frame = due_frame
+		if elapsed_usec >= authored_duration_usec:
+			break
+		await get_tree().process_frame
+	_record_runtime_animation_clock(
+		safe_frame_count,
+		rendered_frames,
+		authored_duration_usec,
+		Time.get_ticks_usec() - started_usec
+	)
+
 func _animate_defeats_and_terrain_destruction(
 	before_state: Dictionary,
 	after_state: Dictionary,
@@ -19762,7 +19828,8 @@ func _animate_defeats_and_terrain_destruction(
 		frame_count = maxi(frame_count, terrain_frame_count)
 		frame_seconds = minf(frame_seconds, _terrain_destruction_frame_seconds_for_unit(terrain))
 	frame_count = maxi(1, frame_count)
-	for frame: int in range(frame_count):
+	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
+		var frame: int = frame_number - 1
 		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var animated_units: Array[Dictionary] = []
 		for unit: Dictionary in death_units:
@@ -19786,7 +19853,7 @@ func _animate_defeats_and_terrain_destruction(
 		if not animated_terrain.is_empty():
 			presentation["terrain_destruction_units"] = animated_terrain
 		_render_board_state(after_state, presentation)
-		await get_tree().create_timer(frame_seconds).timeout
+	)
 	_render_board_state(after_state, {})
 	await get_tree().create_timer(0.04).timeout
 
@@ -20011,13 +20078,16 @@ func _animate_missed_equipment_resolution(victory_state: Dictionary, salvaged_eq
 		_render_board_state(resolved_state, {})
 		return resolved_state
 	_show_combat_log_message(RunEngineScript.MISSED_EQUIPMENT_NOTICE)
-	for frame: int in range(MISSED_EQUIPMENT_FRAMES + 1):
-		var progress: float = float(frame) / float(MISSED_EQUIPMENT_FRAMES)
-		_render_board_state(presentation_state, {
-			"missed_equipment_ids": missed_equipment,
-			"missed_equipment_progress": progress
-		})
-		await get_tree().create_timer(MISSED_EQUIPMENT_FRAME_SECONDS).timeout
+	await _play_timed_animation_frames(
+		MISSED_EQUIPMENT_FRAMES + 1,
+		MISSED_EQUIPMENT_FRAME_SECONDS,
+		func(frame_number: int) -> void:
+			var progress: float = float(frame_number - 1) / float(MISSED_EQUIPMENT_FRAMES)
+			_render_board_state(presentation_state, {
+				"missed_equipment_ids": missed_equipment,
+				"missed_equipment_progress": progress
+			})
+	)
 	_render_board_state(resolved_state, {})
 	await get_tree().create_timer(0.08).timeout
 	return resolved_state
@@ -20168,8 +20238,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_player_trap_result(after_state, before_state, triggered_traps, base_presentation)
 		"blink":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			for frame: int in range(1, ATTACK_FRAMES + 1):
-				var t: float = float(frame) / float(ATTACK_FRAMES)
+			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
+				var t: float = float(frame_number) / float(ATTACK_FRAMES)
 				_render_board_state(before_state, {
 					"focus_actor_keys": ["player"],
 					"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -20178,7 +20248,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"effect": {"kind": "blink", "from": player_before_tile, "to": player_after_tile},
 					"effect_progress": t
 				})
-				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
+			)
 			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -20197,15 +20267,15 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"illusion":
 			var focus_tiles: Array[Vector2i] = _vector2i_array([target_tile])
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			for frame: int in range(1, ATTACK_FRAMES + 1):
-				var t: float = float(frame) / float(ATTACK_FRAMES)
+			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
+				var t: float = float(frame_number) / float(ATTACK_FRAMES)
 				_render_board_state(before_state, {
 					"focus_actor_keys": ["player"],
 					"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 					"focus_tiles": focus_tiles,
 					"focus_color": Color(0.40, 0.86, 0.94, 0.18 + 0.12 * t)
 				})
-				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
+			)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -20220,15 +20290,15 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			}))
 		"illuminate":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			for frame: int in range(1, ATTACK_FRAMES + 1):
-				var t: float = float(frame) / float(ATTACK_FRAMES)
+			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
+				var t: float = float(frame_number) / float(ATTACK_FRAMES)
 				_render_board_state(primary_display_state, {
 					"focus_actor_keys": ["player"],
 					"focus_actor_color": Color("ffe394"),
 					"focus_tiles": [target_tile],
 					"focus_color": Color(1.0, 0.82, 0.34, 0.16 + 0.22 * sin(t * PI))
 				})
-				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
+			)
 			await _animate_floating_text_presentation(primary_display_state, {
 				"focus_tiles": [target_tile],
 				"focus_color": Color(1.0, 0.84, 0.42, 0.30),
@@ -20283,9 +20353,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				attack_floating_texts = _player_action_floating_texts(before_state, after_state)
 			var attack_impact_actor_keys: Array[String] = _player_action_impact_actor_keys(before_state, after_state)
 			var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
-			var final_feedback_elapsed_seconds: float = 0.0
-			for frame: int in range(1, attack_frame_count + 1):
-				var t: float = float(frame) / float(attack_frame_count)
+			await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
+				var t: float = float(frame_number) / float(attack_frame_count)
 				var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
 					effect,
 					t,
@@ -20317,17 +20386,20 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						_reduced_motion_enabled()
 					)
 					effect_display_state = primary_display_state
-					final_feedback_elapsed_seconds = feedback_elapsed_seconds
 					if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
 						presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
 							attack_destroyed_terrain,
 							_attack_terrain_destruction_progress(effect, t)
 						)
 				_render_board_state(effect_display_state, presentation)
-				if attack_frame_seconds > 0.0:
-					await get_tree().create_timer(attack_frame_seconds).timeout
-				else:
-					await get_tree().process_frame
+			)
+			var final_feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
+				effect,
+				1.0,
+				attack_frame_count,
+				attack_frame_seconds,
+				_reduced_motion_enabled()
+			)
 			var impact_presentation: Dictionary = {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -20618,9 +20690,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					animated_state,
 					attack_feedback_state
 				)
-				var final_feedback_elapsed_seconds: float = 0.0
-				for frame: int in range(1, attack_frame_count + 1):
-					var t: float = float(frame) / float(attack_frame_count)
+				await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
+					var t: float = float(frame_number) / float(attack_frame_count)
 					var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
 						step,
 						t,
@@ -20654,17 +20725,20 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 							_reduced_motion_enabled()
 						)
 						effect_display_state = attack_feedback_state
-						final_feedback_elapsed_seconds = feedback_elapsed_seconds
 						if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
 							presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
 								attack_destroyed_terrain,
 								_attack_terrain_destruction_progress(step, t)
 							)
 					_render_board_state(effect_display_state, presentation)
-					if attack_frame_seconds > 0.0:
-						await get_tree().create_timer(attack_frame_seconds).timeout
-					else:
-						await get_tree().process_frame
+				)
+				var final_feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
+					step,
+					1.0,
+					attack_frame_count,
+					attack_frame_seconds,
+					_reduced_motion_enabled()
+				)
 				var before_attack_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				var impact_presentation: Dictionary = {
@@ -20713,7 +20787,8 @@ func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) 
 		frame_count = maxi(frame_count, _enemy_death_frame_count_for_unit(enemy))
 		frame_seconds = minf(frame_seconds, _enemy_death_frame_seconds_for_unit(enemy))
 	frame_count = maxi(1, frame_count)
-	for frame: int in range(frame_count):
+	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
+		var frame: int = frame_number - 1
 		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var animated_units: Array[Dictionary] = []
 		for enemy_var: Variant in spawned:
@@ -20730,7 +20805,7 @@ func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) 
 			"focus_tiles": [((spawned[0] as Dictionary).get("pos", Vector2i.ZERO))],
 			"focus_color": Color(0.50, 0.26, 0.62, 0.22)
 		})
-		await get_tree().create_timer(frame_seconds).timeout
+	)
 	animated_state.clear()
 	animated_state.merge(final_state, true)
 	if _combat_objective_hud != null:
@@ -20835,24 +20910,28 @@ func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, p
 
 func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
-	for path_index: int in range(path.size() - 1):
+	var segment_count: int = maxi(0, path.size() - 1)
+	var total_frame_count: int = segment_count * MOVE_STEP_FRAMES
+	await _play_timed_animation_frames(total_frame_count, MOVE_FRAME_SECONDS, func(frame_number: int) -> void:
+		var zero_based_frame: int = frame_number - 1
+		var path_index: int = mini(segment_count - 1, int(zero_based_frame / MOVE_STEP_FRAMES))
+		var segment_frame: int = zero_based_frame % MOVE_STEP_FRAMES + 1
 		var segment_from: Vector2i = path[path_index]
 		var segment_to: Vector2i = path[path_index + 1]
 		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
 		var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_to)
 		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
-		for frame: int in range(1, MOVE_STEP_FRAMES + 1):
-			var t: float = float(frame) / float(MOVE_STEP_FRAMES)
-			var moving_footprint_center: Vector2 = from_point.lerp(to_point, t)
-			var presentation: Dictionary = _movement_actor_frame_presentation(
-				base_presentation,
-				actor_key,
-				moving_footprint_center,
-				draw_tile,
-				segment_to
-			)
-			_render_board_state(display_state, presentation)
-			await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+		var t: float = float(segment_frame) / float(MOVE_STEP_FRAMES)
+		var moving_footprint_center: Vector2 = from_point.lerp(to_point, t)
+		var presentation: Dictionary = _movement_actor_frame_presentation(
+			base_presentation,
+			actor_key,
+			moving_footprint_center,
+			draw_tile,
+			segment_to
+		)
+		_render_board_state(display_state, presentation)
+	)
 
 func _movement_actor_frame_presentation(
 	base_presentation: Dictionary,
@@ -22210,7 +22289,8 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 		await get_tree().process_frame
 		return
 	var frame_count: int = maxi(1, DOOR_OPENING_FRAMES)
-	for frame: int in range(frame_count):
+	await _play_timed_animation_frames(frame_count, DOOR_OPENING_FRAME_SECONDS, func(frame_number: int) -> void:
+		var frame: int = frame_number - 1
 		var progress: float = 1.0 if frame_count <= 1 else float(frame) / float(frame_count - 1)
 		_board_presentation = {
 			"door_opening": {
@@ -22220,7 +22300,7 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 			}
 		}
 		_refresh_stage_view()
-		await get_tree().create_timer(DOOR_OPENING_FRAME_SECONDS).timeout
+	)
 	await get_tree().create_timer(DOOR_OPENING_SETTLE_SECONDS).timeout
 
 func _continue_pending_escape_after_reward() -> bool:

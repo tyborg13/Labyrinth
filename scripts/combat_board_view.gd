@@ -2720,6 +2720,7 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
 	if stage_id == "clear" or tiles.is_empty():
 		return
+	var phase_started_usec: int = Time.get_ticks_usec()
 	_begin_umbra_shape_batch(true)
 	var visible_lookup: Dictionary = {}
 	for tile_var: Variant in presentation.get("umbra_visible_tiles", []):
@@ -2730,6 +2731,8 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var hidden_tiles: Array[Vector2i] = _vector2i_array([])
 	var hidden_lookup: Dictionary = {}
 	var return_progress_by_tile: Dictionary = {}
+	_record_render_section_time("umbra_setup", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
 	for tile: Vector2i in tiles:
 		if visible_lookup.has(tile):
 			continue
@@ -2741,14 +2744,23 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 			_tile_polygon(tile),
 			Color(0.012, 0.008, 0.026, stage_alpha * return_progress)
 		)
+	_record_render_section_time("umbra_tile_fills", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
 	for tile: Vector2i in hidden_tiles:
 		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
 		if return_progress <= 0.0:
 			continue
 		_draw_umbra_tile_billows(tile, time_seconds, stage_alpha, return_progress)
+	_record_render_section_time("umbra_tile_billows", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
 	_draw_umbra_boundary_billows(hidden_tiles, visible_lookup, hidden_lookup, return_progress_by_tile, time_seconds, stage_alpha)
+	_record_render_section_time("umbra_boundary_billows", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
 	_draw_umbra_light_sources(time_seconds)
+	_record_render_section_time("umbra_light_sources", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
 	_flush_umbra_shape_batch()
+	_record_render_section_time("umbra_batch_flush", phase_started_usec)
 
 func _begin_umbra_shape_batch(reset_mesh_cursor: bool = false) -> void:
 	_umbra_shape_batch_active = _umbra_shape_batch_enabled
@@ -3550,10 +3562,13 @@ func _advance_ambient_intensity_transition(delta: float) -> void:
 func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 	if tiles.is_empty():
 		return
+	var phase_started_usec: int = Time.get_ticks_usec()
 	# Canvas draw commands retain the mesh resource until the next redraw.
 	var time_seconds: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
 	var active_element_ids: PackedStringArray = _ambient_active_element_ids()
 	_begin_ambient_particle_batch()
+	_record_render_section_time("ambient_particle_setup", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
 	for element_id: String in active_element_ids:
 		var particle_count: int = _ambient_particle_count(element_id, tiles.size())
 		if particle_count <= 0:
@@ -3566,7 +3581,10 @@ func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 			var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
 			var base_point: Vector2 = _tile_center(tiles[tile_index])
 			_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds, motion_time_seconds)
+	_record_render_section_time("ambient_particle_simulation", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
 	_flush_ambient_particle_batch()
+	_record_render_section_time("ambient_particle_batch_flush", phase_started_usec)
 
 func _ambient_particle_count(element_id: String, tile_count: int, intensity_override: float = -1.0) -> int:
 	var base_count: int = 0

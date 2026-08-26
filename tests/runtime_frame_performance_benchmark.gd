@@ -276,6 +276,7 @@ func _initialize() -> void:
 	var focused_run: bool = OS.get_environment("LABYRINTH_RUNTIME_PERF_FOCUSED") == "1"
 	var focused_actions: bool = OS.get_environment("LABYRINTH_RUNTIME_PERF_FOCUSED_ACTIONS") == "1"
 	var focused_interactions: bool = OS.get_environment("LABYRINTH_RUNTIME_PERF_FOCUSED_INTERACTIONS") == "1"
+	var focused_enemy_rounds: bool = OS.get_environment("LABYRINTH_RUNTIME_PERF_FOCUSED_ENEMY_ROUNDS") == "1"
 	var composition_matrix: Dictionary = {}
 	var interaction_matrix: Dictionary = {}
 	var umbra_stage_matrix: Dictionary = {}
@@ -293,7 +294,7 @@ func _initialize() -> void:
 	if not focused_run or focused_actions:
 		action_matrix = await _measure_action_matrix(instance, sampler)
 		ability_action_matrix = await _measure_ability_action_matrix(instance, sampler)
-	if not focused_run:
+	if not focused_run or focused_enemy_rounds:
 		enemy_round_matrix = await _measure_enemy_round_matrix(instance, sampler)
 	var action_visual_proof: Dictionary = {}
 	if not focused_run or focused_actions:
@@ -354,12 +355,14 @@ func _initialize() -> void:
 		"probe_throttle_samples": throttle_samples,
 		"probe_window_mode": "windowed",
 		"probe_render_pulse": true,
+		"engine_max_fps": Engine.max_fps,
 		"warmup_frames": WARMUP_FRAMES,
 		"depth": 13,
 		"hand_card_count": HAND.size(),
 		"relic_count": RELICS.size(),
 		"skill_count": SKILLS.size(),
 		"composition_ids": COMPOSITIONS.duplicate(),
+		"measured_composition_ids": _benchmark_composition_ids(),
 		"idle": idle,
 		"cold_interaction": cold_interaction,
 		"startup_prewarm_idle": startup_prewarm_idle,
@@ -1263,7 +1266,7 @@ func _board_pointer_hover(instance: Node, tile: Vector2i) -> void:
 
 func _measure_composition_matrix(instance: Node) -> Dictionary:
 	var results: Dictionary = {}
-	for composition_id: String in COMPOSITIONS:
+	for composition_id: String in _benchmark_composition_ids():
 		_phase_log("composition %s" % composition_id)
 		_install_stress_combat(instance, composition_id)
 		await _settle_frames(4)
@@ -1304,6 +1307,7 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		await _await_render_frame()
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		_reset_board_render_instrumentation(instance)
+		instance.call("set_runtime_performance_instrumentation_enabled", true)
 		sampler.begin()
 		var action_started: int = Time.get_ticks_usec()
 		var interaction: Dictionary = {}
@@ -1329,6 +1333,9 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		phase["animation_settle_frame_samples"] = interaction.get("animation_settle_frame_samples", [])
 		phase["interaction_steps"] = int(interaction.get("step_count", 0))
 		phase["board_profile"] = _board_render_instrumentation(instance)
+		phase["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
+		phase["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		phase["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
 		_expect(bool(phase["state_changed"]), "%s confirmed play must change committed combat state" % card_id)
 		_expect(int(phase.get("sample_count", 0)) > 0, "%s committed play must produce sampled animation frames" % card_id)
@@ -1578,11 +1585,12 @@ func _prepare_manual_skill_state(instance: Node, skill_id: String) -> void:
 
 func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dictionary:
 	var results: Dictionary = {}
-	for composition_id: String in COMPOSITIONS:
+	for composition_id: String in _benchmark_composition_ids():
 		_phase_log("enemy round %s" % composition_id)
 		_install_stress_combat(instance, composition_id)
 		await _settle_frames(3)
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+		instance.call("set_runtime_performance_instrumentation_enabled", true)
 		sampler.begin()
 		var started: int = Time.get_ticks_usec()
 		await instance.call("_on_pass_turn_pressed")
@@ -1591,6 +1599,9 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 		var sampled: Dictionary = sampler.finish()
 		var result: Dictionary = _sampler_phase_result(sampled)
 		result["total_ms"] = total_ms
+		result["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
+		result["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		result["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
 		_expect(bool(result["state_changed"]), "%s pass must execute the enemy round" % composition_id)
 		results[composition_id] = result
@@ -2096,6 +2107,19 @@ func _benchmark_card_ids() -> Array[String]:
 	for card_id: String in HAND:
 		if requested.has(card_id):
 			result.append(card_id)
+	return result
+
+func _benchmark_composition_ids() -> Array[String]:
+	var filter_text: String = OS.get_environment("LABYRINTH_RUNTIME_PERF_COMPOSITION_FILTER").strip_edges()
+	if filter_text.is_empty():
+		return COMPOSITIONS.duplicate()
+	var requested: Dictionary = {}
+	for composition_id: String in filter_text.split(",", false):
+		requested[composition_id.strip_edges()] = true
+	var result: Array[String] = []
+	for composition_id: String in COMPOSITIONS:
+		if requested.has(composition_id):
+			result.append(composition_id)
 	return result
 
 func _benchmark_manual_skill_ids() -> Array[String]:
