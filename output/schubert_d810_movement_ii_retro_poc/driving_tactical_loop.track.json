@@ -18,6 +18,12 @@
     "flac_sha256": "722be73cd85a4c69618ffa3b66c3f0b1f98ab91dd3ace78772c04c0f1ac8c18b",
     "ogg_sha256": "bb0a7c9b30883e87f0d2c0be88fd11844056ce40c628860950a02fc51677403b"
   },
+  "approval": {
+    "approved_by": "project owner",
+    "approved_on": "2026-08-26",
+    "status": "approved",
+    "version": "v03"
+  },
   "render": {
     "bank_manifest": "../../assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
     "crossfade_seconds": 2.608695652173913,
@@ -113,10 +119,11 @@
   "schema_version": 1,
   "source": {
     "composer": "Franz Schubert (1797-1828)",
-    "composition": "String Quartet No. 14 in D minor, D.810, Death and the Maiden, Movement II (Andante con moto)",
+    "composition": "String Quartet No. 14 in D minor, D.810, \"Death and the Maiden,\" Movement II (Andante con moto)",
     "composition_public_domain": true,
+    "composition_public_domain_evidence": "Schubert died in 1828, so the composition is public domain in jurisdictions whose copyright term is life plus 100 years or shorter.",
     "date_retrieved": "2026-08-25",
-    "license_evidence": "The OpenScore String Quartets repository README and LICENSE.txt release its score transcriptions under CC0 1.0 Universal.",
+    "license_evidence": "The OpenScore String Quartets repository README states that the scores are released under Creative Commons Zero (CC0) and points to its LICENSE.txt.",
     "license_file": "LICENSE_SOURCE.md",
     "path": "source/openscore_sq7397765.mxl",
     "rights_status": "cleared",
@@ -125,10 +132,76 @@
     "source_url": "https://raw.githubusercontent.com/OpenScore/StringQuartets/91c780acf1502e7b4f745dc100836c501f41d8e3/scores/Schubert%2C_Franz/String_Quartet_in_D_minor%2C_D.810%2C_Op.14_%28%E2%80%9CDeath_and_the_Maiden%E2%80%9D%29/sq7397765.mxl",
     "transcription_license": "CC0 1.0 Universal"
   },
+  "reproducibility": {
+    "arrangement_notes": {
+      "path": "DRIVING_TACTICAL_LOOP_NOTES.md",
+      "sha256": "f435da435de2a749985d27812a30e587a15931a563ee5c4337ae9b7a43e7cea7"
+    },
+    "build_script": {
+      "path": "scripts/build_driving_tactical_loop.py",
+      "sha256": "c2facde789ead7c3445534d30bd1d9223b119f76d232367518f7e2f4f6226dc1"
+    },
+    "expected_part_count": 4,
+    "normalized_full_score_midi": {
+      "path": "normalized/movement_ii_four_parts.mid",
+      "sha256": "874d96d94e256126c0a569516c6f678d29b8638d5bf8f5fe27147d177fa509cf"
+    },
+    "normalized_full_score_musicxml": {
+      "path": "normalized/movement_ii_four_parts.musicxml",
+      "sha256": "03eae6073fab5f208829746631b87740b041383c893529349875f346900ba5a6"
+    },
+    "normalized_parts": [
+      {
+        "midi": {
+          "path": "normalized/parts/violin_i.mid",
+          "sha256": "58b7f680b79358928542e909fbb6af69bab022eb04061231a4943a23eb846d68"
+        },
+        "musicxml": {
+          "path": "normalized/parts/violin_i.musicxml",
+          "sha256": "6a07479133a7b182fbf6cad7ae903c4d460b7e52e14b7d3265aa611174fe564f"
+        },
+        "name": "Violin I"
+      },
+      {
+        "midi": {
+          "path": "normalized/parts/violin_ii.mid",
+          "sha256": "8fca89f8383257a4571956e3bd553f8171f73c9e06b0c9c8d356da97323d9c9f"
+        },
+        "musicxml": {
+          "path": "normalized/parts/violin_ii.musicxml",
+          "sha256": "77eb4faea333718334073ddc69b17c7c59c13d3d9db5fe8cb2bde56dfbe8c15b"
+        },
+        "name": "Violin II"
+      },
+      {
+        "midi": {
+          "path": "normalized/parts/viola.mid",
+          "sha256": "c19c4fc5f81863c2ea8b3e8f7f5dae8fddfa4de19bce84bd5be14f5916a49bb4"
+        },
+        "musicxml": {
+          "path": "normalized/parts/viola.musicxml",
+          "sha256": "6fb1bcccd50d4018cc4ffb6135dfc882ee65d71d93088623c52d8a7bbd03ab66"
+        },
+        "name": "Viola"
+      },
+      {
+        "midi": {
+          "path": "normalized/parts/cello.mid",
+          "sha256": "bb29eaf7354fd9a6d287301727d83c119a3b4fadfa7ab8e44cf92e76bc5fa067"
+        },
+        "musicxml": {
+          "path": "normalized/parts/cello.musicxml",
+          "sha256": "fb03d4be09a29c28b3bd3e4cab173da5be6d11210dfb3c8f988da7d3ba9da7de"
+        },
+        "name": "Cello"
+      }
+    ]
+  },
   "title": "String Quartet No. 14 in D minor, D.810 — Movement II — Driving Tactical Loop",
   "track_id": "schubert_d810_movement_ii_driving_v03",
   "verification": {
     "duration_tolerance_seconds": 0.02,
+    "max_loop_seam_to_p99_9_ratio": 1.0,
     "max_silence_seconds": 0.75,
     "peak_tolerance_db": 0.05
   }

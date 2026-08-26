@@ -3,9 +3,11 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 import wave
 
 if TYPE_CHECKING:
@@ -49,6 +51,22 @@ def require_file(path: Path, label: str) -> None:
         raise PipelineError(f"Missing {label}: {path}")
 
 
+def _normalized_evidence(value: object) -> str:
+    text = str(value).lower()
+    text = re.sub(r"[`*_#>]", "", text)
+    text = re.sub(r"[^a-z0-9:/._%+()\-]+", " ", text)
+    return " ".join(text.split())
+
+
+def _reject_placeholder(key: str, value: object) -> str:
+    text = str(value).strip()
+    normalized = _normalized_evidence(text)
+    forbidden = ("todo", "tbd", "unknown", "ambiguous", "unclear", "proprietary", "all rights reserved")
+    if not normalized or any(token in normalized for token in forbidden):
+        raise PipelineError(f"source.{key} is incomplete or ambiguous: {text!r}")
+    return text
+
+
 def verify_source_clearance(config: dict[str, object], config_path: Path) -> dict[str, object]:
     source = config.get("source")
     if not isinstance(source, dict):
@@ -60,9 +78,25 @@ def verify_source_clearance(config: dict[str, object], config_path: Path) -> dic
         )
     if source.get("composition_public_domain") is not True:
         raise PipelineError("The composition must be explicitly marked public domain")
-    for key in ("composer", "composition", "source_url", "source_format", "transcription_license", "license_evidence", "date_retrieved"):
-        if not str(source.get(key, "")).strip():
-            raise PipelineError(f"source.{key} must be documented before transformation")
+    required_keys = (
+        "composer",
+        "composition",
+        "source_url",
+        "source_format",
+        "transcription_license",
+        "license_evidence",
+        "composition_public_domain_evidence",
+        "date_retrieved",
+    )
+    values = {key: _reject_placeholder(key, source.get(key, "")) for key in required_keys}
+    parsed_url = urlparse(values["source_url"])
+    if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+        raise PipelineError("source.source_url must be an immutable HTTP(S) source URL")
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", values["date_retrieved"]):
+        raise PipelineError("source.date_retrieved must use YYYY-MM-DD")
+    normalized_license = _normalized_evidence(values["transcription_license"])
+    if "cc0" not in normalized_license and "public domain" not in normalized_license:
+        raise PipelineError("Machine-readable source license must explicitly be CC0 or public domain")
     source_path = resolve_from(config_path, str(source.get("path", "")))
     license_path = resolve_from(config_path, str(source.get("license_file", "LICENSE_SOURCE.md")))
     require_file(source_path, "immutable source")
@@ -71,9 +105,9 @@ def verify_source_clearance(config: dict[str, object], config_path: Path) -> dic
     actual = sha256(source_path)
     if len(expected) != 64 or actual != expected:
         raise PipelineError(f"Source hash mismatch for {source_path}: expected {expected}, got {actual}")
-    license_text = license_path.read_text(encoding="utf-8")
-    required_evidence = (str(source["source_url"]), expected, str(source["transcription_license"]), str(source["date_retrieved"]))
-    missing = [item for item in required_evidence if item not in license_text]
+    license_text = _normalized_evidence(license_path.read_text(encoding="utf-8"))
+    required_evidence = (*values.values(), expected)
+    missing = [item for item in required_evidence if _normalized_evidence(item) not in license_text]
     if missing:
         raise PipelineError(f"LICENSE_SOURCE.md is missing config evidence: {missing}")
     return {
@@ -82,6 +116,51 @@ def verify_source_clearance(config: dict[str, object], config_path: Path) -> dic
         "license_file": str(license_path),
         "transcription_license": str(source["transcription_license"]),
     }
+
+
+def _verify_artifact(config_path: Path, raw: object, label: str) -> dict[str, str]:
+    if not isinstance(raw, dict):
+        raise PipelineError(f"reproducibility.{label} must be an object with path and sha256")
+    path_value = _reject_placeholder(f"reproducibility.{label}.path", raw.get("path", ""))
+    expected = str(raw.get("sha256", "")).lower()
+    path = resolve_from(config_path, path_value)
+    require_file(path, label)
+    actual = sha256(path)
+    if len(expected) != 64 or actual != expected:
+        raise PipelineError(f"Reproducibility hash mismatch for {label}: expected {expected}, got {actual}")
+    return {"path": str(path), "sha256": actual}
+
+
+def verify_reproducibility(config: dict[str, object], config_path: Path) -> dict[str, object]:
+    reproducibility = config.get("reproducibility")
+    if not isinstance(reproducibility, dict):
+        raise PipelineError("track config requires a reproducibility object")
+    report: dict[str, object] = {}
+    for key in ("build_script", "arrangement_notes", "normalized_full_score_musicxml", "normalized_full_score_midi"):
+        report[key] = _verify_artifact(config_path, reproducibility.get(key), key)
+    expected_count = int(reproducibility.get("expected_part_count", 0))
+    raw_parts = reproducibility.get("normalized_parts")
+    if expected_count <= 0 or not isinstance(raw_parts, list) or len(raw_parts) != expected_count:
+        raise PipelineError(
+            f"reproducibility.normalized_parts must contain all {expected_count or 'declared'} original parts"
+        )
+    parts: list[dict[str, object]] = []
+    names: set[str] = set()
+    for index, raw_part in enumerate(raw_parts):
+        if not isinstance(raw_part, dict):
+            raise PipelineError(f"normalized part {index + 1} must be an object")
+        name = _reject_placeholder(f"normalized_parts[{index}].name", raw_part.get("name", ""))
+        if name in names:
+            raise PipelineError(f"Duplicate normalized part name: {name}")
+        names.add(name)
+        parts.append({
+            "name": name,
+            "musicxml": _verify_artifact(config_path, raw_part.get("musicxml"), f"normalized_parts[{index}].musicxml"),
+            "midi": _verify_artifact(config_path, raw_part.get("midi"), f"normalized_parts[{index}].midi"),
+        })
+    report["expected_part_count"] = expected_count
+    report["normalized_parts"] = parts
+    return report
 
 
 def write_mono_wave(path: Path, samples: "np.ndarray", sample_rate: int) -> None:

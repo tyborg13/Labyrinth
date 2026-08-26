@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -87,6 +88,27 @@ class ClassicalSoundtrackPipelineTests(unittest.TestCase):
             sys.path.remove(str(TOOLS_DIR))
 
     @unittest.skipUnless(audio_dependencies_available(), "requires pinned Python 3.12 audio environment")
+    def test_provenance_gate_rejects_mismatches_and_placeholder_licenses(self) -> None:
+        sys.path.insert(0, str(TOOLS_DIR))
+        try:
+            from classical_soundtrack_pipeline.common import PipelineError, read_json, verify_source_clearance
+
+            original = read_json(CONFIG)
+            verify_source_clearance(original, CONFIG)
+            for key in ("composer", "composition", "source_format", "license_evidence", "composition_public_domain_evidence"):
+                mutated = copy.deepcopy(original)
+                mutated["source"][key] = "Deliberate evidence mismatch"
+                with self.subTest(key=key), self.assertRaises(PipelineError):
+                    verify_source_clearance(mutated, CONFIG)
+            for license_value in ("TODO", "unknown", "proprietary", "all rights reserved"):
+                mutated = copy.deepcopy(original)
+                mutated["source"]["transcription_license"] = license_value
+                with self.subTest(license=license_value), self.assertRaises(PipelineError):
+                    verify_source_clearance(mutated, CONFIG)
+        finally:
+            sys.path.remove(str(TOOLS_DIR))
+
+    @unittest.skipUnless(audio_dependencies_available(), "requires pinned Python 3.12 audio environment")
     def test_normalizer_writes_full_score_and_separate_parts(self) -> None:
         sys.path.insert(0, str(TOOLS_DIR))
         try:
@@ -119,8 +141,10 @@ class ClassicalSoundtrackPipelineTests(unittest.TestCase):
             self.skipTest("approved Ogg requires FFmpeg's native Vorbis encoder")
         sys.path.insert(0, str(TOOLS_DIR))
         try:
-            from classical_soundtrack_pipeline.render import render_track
-            from classical_soundtrack_pipeline.verify import verify_track
+            from classical_soundtrack_pipeline.common import PipelineError
+            from classical_soundtrack_pipeline.promote import promote_track
+            from classical_soundtrack_pipeline.render import _assert_publishable, render_track
+            from classical_soundtrack_pipeline.verify import _validate_loop_seam, verify_track
 
             with tempfile.TemporaryDirectory() as temporary:
                 output = Path(temporary)
@@ -130,6 +154,36 @@ class ClassicalSoundtrackPipelineTests(unittest.TestCase):
                 verification = verify_track(CONFIG, output)
                 self.assertTrue(verification["ok"])
                 self.assertEqual(736, verification["midi"]["note_counts"]["Funeral Pulse / Procedural Percussion"])
+                self.assertIn("ogg", verification["audio"]["decoded_loop_metrics"])
+
+                promoted = output / "promoted.ogg"
+                promotion = promote_track(CONFIG, output, promoted)
+                self.assertTrue(promotion["ok"])
+                self.assertEqual(report["audio"]["ogg_sha256"], sha256(promoted))
+
+                config = json.loads(CONFIG.read_text(encoding="utf-8"))
+                config["approval"]["status"] = "audition"
+                rejected_config = output / "unapproved.track.json"
+                rejected_config.write_text(json.dumps(config), encoding="utf-8")
+                rejected_asset = output / "must_not_promote.ogg"
+                with self.assertRaises(PipelineError):
+                    promote_track(rejected_config, output, rejected_asset)
+                self.assertFalse(rejected_asset.exists())
+
+                candidate = output / "candidate.bin"
+                protected = output / "existing_audition.bin"
+                candidate.write_bytes(b"new candidate")
+                protected.write_bytes(b"approved audition")
+                with self.assertRaises(PipelineError):
+                    _assert_publishable(candidate, protected)
+                self.assertEqual(b"approved audition", protected.read_bytes())
+
+                bad_seam = {
+                    "first_last_sample_delta": [0.5, 0.4],
+                    "p99_9_adjacent_sample_delta": [0.01, 0.01],
+                }
+                with self.assertRaises(PipelineError):
+                    _validate_loop_seam(bad_seam, 1.0, "deliberately bad fixture")
         finally:
             sys.path.remove(str(TOOLS_DIR))
 

@@ -29,9 +29,16 @@ def create_scaffold(root: Path, track_id: str, title: str, composer: str, bank_m
         "track_id": track_id,
         "title": title,
         "composer": composer,
+        "approval": {
+            "status": "audition",
+            "version": "v01",
+            "approved_by": "",
+            "approved_on": "",
+        },
         "source": {
             "rights_status": "source_required",
             "composition_public_domain": False,
+            "composition_public_domain_evidence": "",
             "composer": composer,
             "composition": title,
             "source_url": "",
@@ -49,6 +56,14 @@ def create_scaffold(root: Path, track_id: str, title: str, composer: str, bank_m
             "midi_sha256": "",
             "notes_file": "versions/v01/ARRANGEMENT_NOTES.md",
             "expected_note_counts": {},
+        },
+        "reproducibility": {
+            "build_script": {"path": "scripts/build_arrangement.py", "sha256": ""},
+            "arrangement_notes": {"path": "versions/v01/ARRANGEMENT_NOTES.md", "sha256": ""},
+            "normalized_full_score_musicxml": {"path": "normalized/full_score.musicxml", "sha256": ""},
+            "normalized_full_score_midi": {"path": "normalized/full_score.mid", "sha256": ""},
+            "expected_part_count": 0,
+            "normalized_parts": [],
         },
         "render": {
             "bank_manifest": str(relative_bank),
@@ -79,6 +94,7 @@ def create_scaffold(root: Path, track_id: str, title: str, composer: str, bank_m
             "duration_tolerance_seconds": 0.02,
             "peak_tolerance_db": 0.05,
             "max_silence_seconds": 0.75,
+            "max_loop_seam_to_p99_9_ratio": 1.0,
         },
         "expected_outputs": {},
     }
@@ -88,10 +104,11 @@ def create_scaffold(root: Path, track_id: str, title: str, composer: str, bank_m
         "> STOP: do not arrange or render until every field below is complete, the rights are unambiguous, and `source.rights_status` in `track.json` is `cleared`.\n\n"
         f"- Composition: {title}\n"
         f"- Composer: {composer}\n"
+        "- Underlying composition public-domain evidence: TODO\n"
         "- Source URL: TODO\n"
         "- Source format: TODO\n"
-        "- Copyright/license status: TODO\n"
-        "- Evidence: TODO\n"
+        "- Machine-readable transcription license: TODO (must explicitly be CC0 or public domain)\n"
+        "- License evidence: TODO\n"
         "- Date retrieved: TODO (YYYY-MM-DD)\n"
         "- Immutable source SHA-256: TODO\n\n"
         "Keep the original downloaded file byte-for-byte unchanged under `source/`. Do not use a modern arrangement, commercial MIDI, or audio recording as the musical source.\n",
@@ -117,7 +134,7 @@ def create_scaffold(root: Path, track_id: str, title: str, composer: str, bank_m
     )
     (destination / "README.md").write_text(
         f"# {title}\n\n"
-        "Start with `LICENSE_SOURCE.md`, preserve the immutable download under `source/`, normalize four original parts under `normalized/parts/`, and keep every audition under a new `versions/vNN/` directory. The repo skill `$create-labyrinth-classical-track` contains the complete workflow.\n",
+        "Start with `LICENSE_SOURCE.md`, preserve the immutable download under `source/`, normalize all original parts under `normalized/parts/`, and keep every audition under a new `versions/vNN/` directory. The repo skill `$create-labyrinth-classical-track` contains the complete workflow.\n",
         encoding="utf-8",
     )
     return destination

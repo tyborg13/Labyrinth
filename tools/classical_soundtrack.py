@@ -10,7 +10,7 @@ from pathlib import Path
 import shutil
 import sys
 
-from classical_soundtrack_pipeline.common import PipelineError, read_json, sha256
+from classical_soundtrack_pipeline.common import PipelineError
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -66,25 +66,13 @@ def command_verify(args: argparse.Namespace) -> int:
 
 
 def command_promote(args: argparse.Namespace) -> int:
-    from classical_soundtrack_pipeline.verify import verify_track
+    from classical_soundtrack_pipeline.promote import promote_track
 
-    config_path = Path(args.config).resolve()
-    output_dir = Path(args.output_dir).resolve() if args.output_dir else None
-    report = verify_track(config_path, output_dir)
-    config = read_json(config_path)
-    render = config["render"]
-    if not isinstance(render, dict):
-        raise PipelineError("render must be an object")
-    source_dir = output_dir or config_path.parent
-    preview = source_dir / f"{render['output_basename']}.ogg"
-    destination = Path(args.asset_path).resolve()
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    if destination.exists():
-        if sha256(destination) != sha256(preview):
-            raise PipelineError(f"Refusing to overwrite a different game asset: {destination}")
-    else:
-        shutil.copyfile(preview, destination)
-    _json({"ok": True, "asset_path": str(destination), "sha256": sha256(destination), "verification": report})
+    _json(promote_track(
+        Path(args.config),
+        Path(args.output_dir) if args.output_dir else None,
+        Path(args.asset_path),
+    ))
     return 0
 
 

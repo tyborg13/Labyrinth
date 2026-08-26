@@ -3,7 +3,9 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 import math
+import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 
@@ -223,6 +225,37 @@ def _vorbis_command(input_wave: Path, output: Path, preference: str) -> tuple[li
     raise PipelineError(f"Requested Vorbis encoder is unavailable: {preference}")
 
 
+def _assert_publishable(candidate: Path, destination: Path) -> None:
+    if destination.exists():
+        if sha256(destination) != sha256(candidate):
+            raise PipelineError(
+                f"Refusing to overwrite existing audition artifact {destination}; create a new vNN"
+            )
+
+
+def _publish_immutable(candidate: Path, destination: Path) -> None:
+    """Atomically publish after the complete output set passes preflight."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        return
+    sibling = tempfile.NamedTemporaryFile(
+        prefix=f".{destination.name}.", suffix=".pending", dir=destination.parent, delete=False
+    )
+    sibling_path = Path(sibling.name)
+    sibling.close()
+    try:
+        shutil.copyfile(candidate, sibling_path)
+        try:
+            os.link(sibling_path, destination)
+        except FileExistsError:
+            if sha256(destination) != sha256(candidate):
+                raise PipelineError(
+                    f"Refusing to overwrite concurrently created audition artifact {destination}; create a new vNN"
+                )
+    finally:
+        sibling_path.unlink(missing_ok=True)
+
+
 def render_track(config_path: Path, output_dir: Path | None = None) -> dict[str, object]:
     config_path = config_path.resolve()
     config = read_json(config_path)
@@ -319,58 +352,80 @@ def render_track(config_path: Path, output_dir: Path | None = None) -> dict[str,
     flac_path = destination / f"{basename}.flac"
     report_path = destination / f"{basename}.render.json"
     ogg_path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-    temporary_path = Path(temporary.name)
-    temporary.close()
-    try:
-        write_stereo_wave(temporary_path, looped, sample_rate)
-        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(temporary_path), "-c:a", "flac", "-compression_level", "8", str(flac_path)], check=True)
+    with tempfile.TemporaryDirectory(prefix="labyrinth-classical-render-") as temporary:
+        staging = Path(temporary)
+        wave_path = staging / "render.wav"
+        candidate_ogg = staging / "preview.ogg"
+        candidate_flac = staging / "preview.flac"
+        candidate_report = staging / "preview.render.json"
+        write_stereo_wave(wave_path, looped, sample_rate)
+        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(wave_path), "-c:a", "flac", "-compression_level", "8", str(candidate_flac)], check=True)
         vorbis_command, vorbis_label = _vorbis_command(
-            temporary_path,
-            ogg_path,
+            wave_path,
+            candidate_ogg,
             str(render.get("vorbis_encoder", "auto")),
         )
         subprocess.run(vorbis_command, check=True)
         serial_value = render.get("ogg_stream_serial", "0x45545531")
         serial = int(str(serial_value), 0) if isinstance(serial_value, str) else int(serial_value)
-        normalize_ogg_serial(ogg_path, serial)
-    finally:
-        temporary_path.unlink(missing_ok=True)
-    peak = float(np.max(np.abs(looped)))
-    report = {
-        "schema_version": 1,
-        "track_id": config.get("track_id"),
-        "config_path": str(config_path),
-        "config_sha256": sha256(config_path),
-        "bank_manifest": str(bank_path),
-        "bank_manifest_sha256": sha256(bank_path),
-        "midi_note_counts": counts,
-        "audio": {
-            "ogg_path": str(ogg_path),
-            "ogg_sha256": sha256(ogg_path),
-            "flac_path": str(flac_path),
-            "flac_sha256": sha256(flac_path),
-            "sample_rate": sample_rate,
-            "channels": 2,
-            "structural_duration_seconds": structural_seconds,
-            "duration_seconds": len(looped) / sample_rate,
-            "peak_linear": peak,
-            "peak_dbfs": 20.0 * math.log10(max(peak, 1e-12)),
-            "rms_linear": float(np.sqrt(np.mean(np.square(looped)))),
-            "master_gain": master_gain,
-            "pre_master_stem_rms": {
-                "upper_strings": float(np.sqrt(np.mean(np.square(upper_stem)))),
-                "low_strings": float(np.sqrt(np.mean(np.square(low_stem)))),
-                "percussion": float(np.sqrt(np.mean(np.square(percussion_mix)))),
+        normalize_ogg_serial(candidate_ogg, serial)
+        candidate_hashes = {
+            "ogg_sha256": sha256(candidate_ogg),
+            "flac_sha256": sha256(candidate_flac),
+        }
+        expected_outputs = config.get("expected_outputs", {})
+        if not isinstance(expected_outputs, dict):
+            raise PipelineError("expected_outputs must be an object")
+        for key, actual in candidate_hashes.items():
+            expected_hash = str(expected_outputs.get(key, ""))
+            if expected_hash and expected_hash != actual:
+                raise PipelineError(
+                    f"Candidate {key} drifted before publication: expected {expected_hash}, got {actual}"
+                )
+        peak = float(np.max(np.abs(looped)))
+        report = {
+            "schema_version": 1,
+            "track_id": config.get("track_id"),
+            "config_path": str(config_path),
+            "config_sha256": sha256(config_path),
+            "bank_manifest": str(bank_path),
+            "bank_manifest_sha256": sha256(bank_path),
+            "midi_note_counts": counts,
+            "audio": {
+                "ogg_path": str(ogg_path),
+                "ogg_sha256": candidate_hashes["ogg_sha256"],
+                "flac_path": str(flac_path),
+                "flac_sha256": candidate_hashes["flac_sha256"],
+                "sample_rate": sample_rate,
+                "channels": 2,
+                "structural_duration_seconds": structural_seconds,
+                "duration_seconds": len(looped) / sample_rate,
+                "peak_linear": peak,
+                "peak_dbfs": 20.0 * math.log10(max(peak, 1e-12)),
+                "rms_linear": float(np.sqrt(np.mean(np.square(looped)))),
+                "master_gain": master_gain,
+                "pre_master_stem_rms": {
+                    "upper_strings": float(np.sqrt(np.mean(np.square(upper_stem)))),
+                    "low_strings": float(np.sqrt(np.mean(np.square(low_stem)))),
+                    "percussion": float(np.sqrt(np.mean(np.square(percussion_mix)))),
+                },
+                "encoder": vorbis_label,
+                "ffmpeg_version": subprocess.run(
+                    ["ffmpeg", "-version"], check=True, capture_output=True, text=True
+                ).stdout.splitlines()[0],
+                "ogg_stream_serial": f"0x{serial:08x}",
+                "echo": echo_report,
+                "loop_crossfade": crossfade_report,
             },
-            "encoder": vorbis_label,
-            "ffmpeg_version": subprocess.run(
-                ["ffmpeg", "-version"], check=True, capture_output=True, text=True
-            ).stdout.splitlines()[0],
-            "ogg_stream_serial": f"0x{serial:08x}",
-            "echo": echo_report,
-            "loop_crossfade": crossfade_report,
-        },
-    }
-    write_json(report_path, report)
+        }
+        write_json(candidate_report, report)
+        publications = (
+            (candidate_ogg, ogg_path),
+            (candidate_flac, flac_path),
+            (candidate_report, report_path),
+        )
+        for candidate, final_path in publications:
+            _assert_publishable(candidate, final_path)
+        for candidate, final_path in publications:
+            _publish_immutable(candidate, final_path)
     return report

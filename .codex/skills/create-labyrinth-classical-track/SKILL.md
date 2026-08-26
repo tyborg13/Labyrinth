@@ -29,7 +29,7 @@ Preserve normalized full-score MusicXML/MIDI and the original instrumental parts
 
 Use the canonical `classical_dark_fantasy_v1` procedural bank. Change track-specific gain, pan, release, vibrato, echo, and percussion mappings in `track.json`. Do not alter the canonical bank in place; create a new version if synthesis changes any sample hash.
 
-Run `doctor`, the score-specific build, `render`, and `verify`. Render experiments to a temporary output directory. After user approval, set expected hashes, rerun verification, and retain the MIDI, Ogg, FLAC, render report, verification report, and complete arrangement notes.
+Run `doctor`, the score-specific build, `render`, and `verify`. Freeze hashes for the build script, arrangement notes, normalized full score, every original part, and MIDI. Render experiments to a temporary output directory; rendering refuses to replace different audition bytes. After user approval, set `approval.status` plus approver/date/version, choose a fixed Vorbis encoder, set expected Ogg/FLAC hashes, rerun verification, and retain the MIDI, Ogg, FLAC, render report, verification report, and complete arrangement notes.
 
 ## Audition and integrate
 
