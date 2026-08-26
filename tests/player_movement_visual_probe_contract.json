@@ -1,5 +1,5 @@
 {
-  "min_images": 8,
+  "min_images": 9,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -65,6 +65,15 @@
       "height": 1080,
       "regions": [
         {"rect": [240, 130, 1440, 760], "min_luma_range": 65, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*09_auto_pass_next_activation.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 130, 1440, 760], "min_luma_range": 65, "min_luma_stdev": 12},
+        {"rect": [100, 820, 1720, 240], "min_luma_range": 45, "min_luma_stdev": 8}
       ]
     }
   ]

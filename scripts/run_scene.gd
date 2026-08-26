@@ -19316,6 +19316,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	else:
 		_animation_lock = false
 		_refresh_ui()
+	await _maybe_auto_pass_exhausted_player_turn()
 
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var card_id: String = _card_id_for_hand_index(hand_index)
@@ -19387,6 +19388,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	else:
 		_animation_lock = false
 		_refresh_ui()
+	await _maybe_auto_pass_exhausted_player_turn()
 
 func _card_destination_pile(card_id: String) -> String:
 	if GameData.card_consumes_on_play(card_id):
@@ -22849,6 +22851,17 @@ func _on_pass_turn_pressed() -> void:
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
 	await _resolve_enemy_round()
+
+func _maybe_auto_pass_exhausted_player_turn() -> bool:
+	if (
+		_animation_lock
+		or str(_run_state.get("mode", "room")) != "combat"
+		or _combat_state.is_empty()
+		or not _combat_engine.player_turn_resources_exhausted(_combat_state)
+	):
+		return false
+	await _resolve_enemy_round()
+	return true
 
 func _open_menu_overlay() -> void:
 	if _menu_scrim == null:

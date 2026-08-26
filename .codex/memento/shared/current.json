@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-26T22:38:55Z",
+  "updated_at": "2026-08-26T23:40:02Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8824,28 +8824,6 @@
       }
     },
     {
-      "id": "mnt_20260826T223855Z_31b59049",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "folder",
-        "path": "scripts",
-        "symbol": null
-      },
-      "scope_key": "folder:scripts",
-      "summary": "Exhausting card plays does not auto-end the player activation.",
-      "details": "The player may still spend independent movement before, between, or after cards, so enemy resolution begins only from explicit Pass or another true turn-ending rule.",
-      "status": "active",
-      "created_at": "2026-08-26T22:38:55Z",
-      "updated_at": "2026-08-26T22:38:55Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
-        "commit": "ced4324f"
-      }
-    },
-    {
       "id": "mnt_20260826T223855Z_8e96e989",
       "layer": "shared",
       "kind": "pitfall",
@@ -8865,6 +8843,30 @@
       "source": {
         "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
         "commit": "ced4324f"
+      }
+    },
+    {
+      "id": "mnt_20260826T234002Z_7c1af566",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Auto-pass only after both turn resource pools are exhausted.",
+      "details": "Either remaining card plays or remaining independent movement keeps the player activation open. When both reach zero, completing the card or movement action automatically begins enemy resolution without requiring Pass.",
+      "status": "active",
+      "created_at": "2026-08-26T23:40:02Z",
+      "updated_at": "2026-08-26T23:40:02Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260826T223855Z_31b59049"
+      ],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "2d27559b"
       }
     }
   ]

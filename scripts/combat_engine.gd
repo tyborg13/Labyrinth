@@ -2295,6 +2295,14 @@ func cards_remaining_this_turn(state: Dictionary) -> int:
 		_card_play_capacity(state) - int(state.get("cards_played_this_turn", 0))
 	)
 
+func player_turn_resources_exhausted(state: Dictionary) -> bool:
+	return (
+		combat_outcome(state) == ""
+		and is_player_turn(state)
+		and cards_remaining_this_turn(state) <= 0
+		and player_movement_remaining(state) <= 0
+	)
+
 func card_play_budget(state: Dictionary) -> Dictionary:
 	var total_remaining: int = cards_remaining_this_turn(state)
 	var banked_capacity: int = clampi(int(state.get("banked_play_active", 0)), 0, 1)

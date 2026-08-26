@@ -110,6 +110,28 @@ func _initialize() -> void:
 		await _settle_hand_transition()
 	await _save_screenshot("%s/08_cancel_restores_idle.png" % OUTPUT_DIR)
 
+	await _load_fixture(instance)
+	var combat := CombatEngine.new()
+	var exhausted_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	exhausted_state["cards_played_this_turn"] = combat.cards_remaining_this_turn(exhausted_state)
+	exhausted_state["player_movement_remaining"] = 1
+	var exhausted_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	exhausted_run_state["combat_state"] = exhausted_state.duplicate(true)
+	instance.set("_combat_state", exhausted_state)
+	instance.set("_run_state", exhausted_run_state)
+	instance.call("_refresh_ui")
+	var turn_before_auto_pass: int = int(exhausted_state.get("turn", 0))
+	await instance.call("_on_board_tile_clicked", Vector2i(2, 4))
+	instance.call("_on_board_tile_hovered", Vector2i(3, 4))
+	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
+	await _settle_ui()
+	var after_auto_pass: Dictionary = instance.get("_combat_state") as Dictionary
+	_assert(int(after_auto_pass.get("turn", 0)) > turn_before_auto_pass, "Spending the last movement after card plays are exhausted should auto-pass into the next activation")
+	_assert(combat.is_player_turn(after_auto_pass), "Auto-pass should finish enemy resolution at the next player activation")
+	_assert(combat.player_movement_remaining(after_auto_pass) == combat.player_movement_capacity(after_auto_pass), "The activation reached by auto-pass should refill movement")
+	_assert(combat.cards_remaining_this_turn(after_auto_pass) > 0, "The activation reached by auto-pass should refill card plays")
+	await _save_screenshot("%s/09_auto_pass_next_activation.png" % OUTPUT_DIR)
+
 	instance.queue_free()
 	await process_frame
 	if _errors.is_empty():

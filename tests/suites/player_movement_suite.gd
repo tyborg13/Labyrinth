@@ -6,6 +6,7 @@ const GameData = preload("res://scripts/game_data.gd")
 static func run(expect: Callable) -> void:
 	_test_default_pool_and_split_spending(expect)
 	_test_card_play_interleaving(expect)
+	_test_turn_resource_exhaustion(expect)
 	_test_turn_reset_and_relic_capacity(expect)
 	_test_ghost_stride_translation(expect)
 
@@ -39,6 +40,18 @@ static func _test_card_play_interleaving(expect: Callable) -> void:
 	var after_card: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	state = combat.apply_player_movement(state, after_card + Vector2i(0, 1))
 	expect.call(combat.player_movement_remaining(state) == 0, "Movement should remain usable after a card play")
+
+static func _test_turn_resource_exhaustion(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _state(combat)
+	expect.call(not combat.player_turn_resources_exhausted(state), "A fresh activation should not be exhausted")
+	state["cards_played_this_turn"] = combat.cards_remaining_this_turn(state)
+	expect.call(not combat.player_turn_resources_exhausted(state), "Exhausting card plays alone should preserve the movement phase")
+	state["cards_played_this_turn"] = 0
+	state["player_movement_remaining"] = 0
+	expect.call(not combat.player_turn_resources_exhausted(state), "Exhausting movement alone should preserve card plays")
+	state["cards_played_this_turn"] = combat.cards_remaining_this_turn(state)
+	expect.call(combat.player_turn_resources_exhausted(state), "Exhausting both movement and card plays should end the activation automatically")
 
 static func _test_turn_reset_and_relic_capacity(expect: Callable) -> void:
 	var combat := CombatEngine.new()
