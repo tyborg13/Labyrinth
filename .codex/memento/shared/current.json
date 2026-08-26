@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-26T18:12:04Z",
+  "updated_at": "2026-08-26T20:42:53Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8867,6 +8867,28 @@
       "source": {
         "branch": "codex/create-first-old-castle-classical-soundtrack-audition",
         "commit": "c65403a"
+      }
+    },
+    {
+      "id": "mnt_20260826T204253Z_ce64794a",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks/mussorgsky_pictures_old_castle",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks/mussorgsky_pictures_old_castle",
+      "summary": "Old Castle menu mix keeps v04 pulse and an audible low-mid veil",
+      "details": "For the owner-approved in-game trial, keep no custom intro, the v04 uniform four-hit 6/8 percussion, no isolated high-string stabs, and the v06 long G-sharp3/D-sharp4 low-mid Umbra veil. Preserve the original melody and contiguous measures 7-68; future taste iterations should branch from v07 without overwriting audition versions.",
+      "status": "active",
+      "created_at": "2026-08-26T20:42:53Z",
+      "updated_at": "2026-08-26T20:42:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-first-old-castle-classical-soundtrack-audition",
+        "commit": "3c77ea8"
       }
     }
   ]

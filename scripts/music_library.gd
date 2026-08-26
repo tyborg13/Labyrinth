@@ -11,6 +11,7 @@ const LIGHTNING_COMBAT_TRACK_ID: String = "combat.lightning"
 const AIR_COMBAT_TRACK_ID: String = "combat.air"
 const EARTH_COMBAT_TRACK_ID: String = "combat.earth"
 const SCHUBERT_COMBAT_TRACK_ID: String = "combat.schubert_d810_movement_ii"
+const OLD_CASTLE_MENU_TRACK_ID: String = "menu.mussorgsky_old_castle"
 const ZEKARION_BOSS_TRACK_ID: String = "boss.zekarion"
 const RELIC_ROOM_TRACK_ID: String = "room.relic"
 const PRE_BATTLE_MODE: String = "pre_battle"
@@ -43,6 +44,11 @@ const TRACKS: Dictionary = {
 	SCHUBERT_COMBAT_TRACK_ID: {
 		"path": "res://assets/audio/music/schubert_d810_movement_ii_driving_loop.ogg",
 		"volume_db": -5.5,
+		"loop": true
+	},
+	OLD_CASTLE_MENU_TRACK_ID: {
+		"path": "res://assets/audio/music/mussorgsky_old_castle_main_menu.ogg",
+		"volume_db": -6.5,
 		"loop": true
 	},
 	ZEKARION_BOSS_TRACK_ID: {

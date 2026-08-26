@@ -29,6 +29,8 @@ The public-domain scan remains the visual reference. `scripts/build_full_arrange
 
 No modern copyrighted arrangement, commercial MIDI, audio recording, SoundFont, sample pack, ROM/rip, or generated-model audio was used. The v02 arrangement uses the CC0 transcription and the repository's procedural instrument bank.
 
+The v03 main-menu audition derives one contiguous measure span from v02, changes fixed playback tempo and mix treatment, and adds only project-authored octave doublings plus MIDI triggers for the repository's existing procedural percussion bank. v04-v07 revise only those project-authored voices, percussion, synthesis parameters, and loop treatment. v07 preserves the owner-approved v06 MIDI byte-for-byte. No main-menu version introduces an additional third-party musical or audio source.
+
 To the extent that the project-authored extraction, reduction, and normalized score outputs contain copyrightable expression, this repository contribution dedicates them to the public domain under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 
 Musical source credit for public-facing use:
