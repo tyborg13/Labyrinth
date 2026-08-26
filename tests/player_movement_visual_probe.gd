@@ -2,6 +2,7 @@ extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
@@ -81,11 +82,32 @@ func _initialize() -> void:
 	await instance.call("_on_board_tile_clicked", Vector2i(2, 4))
 	instance.call("_on_board_tile_hovered", Vector2i(3, 4))
 	await _settle_ui()
-	instance.call("_on_cancel_requested")
-	await _settle_ui()
-	_assert(not bool(instance.get("_player_movement_selected")), "Cancel should leave movement targeting")
+	var router: Node = root.get_node_or_null("InputRouter")
+	_assert(router != null, "Controller movement cancellation should have an input router")
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+		instance.call("_refresh_controller_prompts")
+		var prompt_labels: Array[String] = []
+		var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
+		for prompt_var: Variant in prompt_bar.call("prompts_snapshot"):
+			prompt_labels.append(str((prompt_var as Dictionary).get("label", "")))
+		_assert(
+			prompt_labels.has("Target") and prompt_labels.has("Cancel"),
+			"Movement targeting should advertise controller Target and Cancel; got %s in region %s (movement selected=%s)"
+			% [prompt_labels, str(instance.get("_controller_region")), str(instance.get("_player_movement_selected"))]
+		)
+	var cancel_event := InputEventAction.new()
+	cancel_event.action = InputRouterScript.ACTION_CANCEL
+	cancel_event.pressed = true
+	var controller_cancel_handled: bool = await instance.call("_handle_controller_input", cancel_event)
+	await _settle_hand_transition()
+	_assert(controller_cancel_handled and not bool(instance.get("_player_movement_selected")), "Controller B should leave movement targeting")
 	_assert((instance.get("_combat_state") as Dictionary) == state_before_cancel, "Cancel should not spend movement or mutate combat")
 	_assert_movement_hud(instance, 2, 2, "after cancel")
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
+		instance.call("_refresh_controller_interface")
+		await _settle_hand_transition()
 	await _save_screenshot("%s/08_cancel_restores_idle.png" % OUTPUT_DIR)
 
 	instance.queue_free()

@@ -186,7 +186,11 @@ static func _test_ghost_stride_afterimage_and_plunder(expect: Callable) -> void:
 	var illusions: Array = state.get("illusions", []) as Array
 	expect.call(illusions.size() == 1 and (illusions[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Afterimage should leave an illusion at the Blink origin")
 	expect.call(combat.skill_was_used(state, "afterimage"), "Afterimage should spend after creating its illusion")
-	expect.call(int(state.get("card_play_bonus_this_turn", 0)) == 1 and combat.skill_was_used(state, "plunderers_step"), "Plunderer's Step should refund the first movement that collects loot")
+	expect.call(int(state.get("card_play_bonus_this_turn", 0)) == 0 and not combat.skill_was_used(state, "plunderers_step"), "Independent movement should not turn Plunderer's Step into an extra card play")
+	var card_move_state: Dictionary = _state(combat, ["plunderers_step"], ["quick_stab"])
+	card_move_state["loot"] = [{"kind": "healing_vial", "pos": Vector2i(3, 4), "amount": 10, "claimed": false}]
+	card_move_state = combat.apply_player_action(card_move_state, {"type": "move", "range": 1}, Vector2i(3, 4))
+	expect.call(int(card_move_state.get("card_play_bonus_this_turn", 0)) == 1 and combat.skill_was_used(card_move_state, "plunderers_step"), "Plunderer's Step should still refund card-based movement that collects loot")
 	var pass_through_action: Dictionary = {"type": "move", "range": 2}
 	expect.call(combat.valid_targets_for_player_action(state, pass_through_action).has(Vector2i(1, 4)), "A friendly Afterimage should not block a route back through its tile")
 	state = combat.apply_player_action(state, pass_through_action, Vector2i(1, 4))

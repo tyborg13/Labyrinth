@@ -2121,6 +2121,9 @@ func _on_input_modality_changed(modality: String) -> void:
 		_controller_suspend_custom_navigation()
 		call_deferred("_refresh_pointer_after_layout", pointer_layout_revision)
 	else:
+		if _player_movement_selected:
+			_controller_region = "board"
+			_controller_hand_focused = false
 		_apply_controller_hand_layout()
 		_restore_controller_loadout_tooltip_for_focus_owner()
 		call_deferred("_sync_board_view_rect")
@@ -2209,7 +2212,11 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			return true
 		return false
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
-		if _selected_card_index >= 0 and _card_action_choice_index >= 0:
+		if _player_movement_selected:
+			await _on_cancel_requested()
+			_controller_region = "board"
+			_controller_set_hand_focused(false)
+		elif _selected_card_index >= 0 and _card_action_choice_index >= 0:
 			_controller_enter_card_mode()
 		elif _selected_card_index >= 0:
 			await _on_cancel_requested()
@@ -3037,6 +3044,9 @@ func _refresh_controller_interface() -> void:
 	if not _controller_custom_navigation_available():
 		_controller_suspend_custom_navigation()
 		return
+	if _player_movement_selected:
+		_controller_region = "board"
+		_controller_set_hand_focused(false)
 	if _controller_card_mode_active():
 		_controller_suspend_custom_navigation()
 		call_deferred("_focus_controller_card_mode")
@@ -3130,16 +3140,18 @@ func _refresh_controller_prompts() -> void:
 	elif _controller_region == "board":
 		var candidate_kind: String = str(_controller_focus_candidate.get("kind", ""))
 		var candidate_control: Control = _controller_focus_candidate.get("control", null) as Control
-		if candidate_kind == "control" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
+		if _player_movement_selected:
+			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
+		elif candidate_kind == "control" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Open"})
 		elif candidate_kind == "relic" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Inspect"})
 		elif _selected_card_index >= 0:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
-		if _selected_card_index >= 0:
+		if _player_movement_selected or _selected_card_index >= 0:
 			prompts.append({
 				"action": InputRouterScript.ACTION_CANCEL,
-				"label": "Modes" if _card_action_choice_index >= 0 else "Cancel",
+				"label": "Cancel",
 			})
 		prompts.append({"action": &"controller_move", "label": "Move"})
 		prompts.append({"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Focus Hand"})
@@ -10580,6 +10592,7 @@ func _combat_skill_activation_surface_available() -> bool:
 		and _selected_card_index < 0
 		and _card_action_choice_index < 0
 		and _drag_card_index < 0
+		and not _player_movement_selected
 		and not _pending_umbra_commit_locked
 		and _combat_skill_card_selection_zone.is_empty()
 	)
@@ -11851,7 +11864,13 @@ func _refresh_player_movement_meter() -> void:
 		"%d of %d movement remaining. Click your character, then a destination tile."
 		% [remaining, capacity]
 	)
-	var enabled: bool = remaining > 0 and _combat_engine.is_player_turn(_combat_state)
+	var enabled: bool = (
+		remaining > 0
+		and _combat_engine.is_player_turn(_combat_state)
+		and not _combat_engine.player_movement_targets(_combat_state).is_empty()
+	)
+	if not enabled and remaining > 0 and _combat_engine.is_player_turn(_combat_state):
+		_movement_meter.tooltip_text = "Movement unavailable: there is no legal destination."
 	_movement_meter.modulate = Color.WHITE if enabled else Color(1.0, 1.0, 1.0, 0.42)
 	if _player_movement_selected:
 		_movement_meter.modulate = Color(0.70, 0.94, 1.0, 1.0)
@@ -13222,6 +13241,8 @@ func _clear_combat_skill_card_selection() -> void:
 		_combat_skill_card_selection_prompt.visible = false
 
 func _commit_combat_skill_state(next_combat_state: Dictionary, skill_id: String) -> void:
+	if next_combat_state != _combat_state and _player_movement_selected:
+		_cancel_player_movement_selection(false)
 	if not _stage_combat_skill_state(next_combat_state, skill_id):
 		return
 	_refresh_ui()
@@ -19252,7 +19273,9 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	var action: Dictionary = _player_movement_action.duplicate(true)
 	var committed_combat_state: Dictionary = _combat_engine.apply_player_movement(previous_combat_state, target_tile)
 	var movement_result: Dictionary = committed_combat_state.get("last_player_movement", {}) as Dictionary
-	if int(movement_result.get("spent", 0)) <= 0:
+	var previous_position: Vector2i = (previous_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+	var committed_position: Vector2i = (committed_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+	if int(movement_result.get("spent", 0)) <= 0 or committed_position == previous_position:
 		return
 	_animation_lock = true
 	_cancel_player_movement_selection(false)

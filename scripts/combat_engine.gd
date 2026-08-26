@@ -1309,7 +1309,8 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				var contextual_skill_id: String = str(action.get("_skill_id", ""))
 				if not contextual_skill_id.is_empty() and has_skill(next_state, contextual_skill_id) and not skill_was_used(next_state, contextual_skill_id):
 					_mark_skill_used(next_state, contextual_skill_id, "%s turns movement into a Blink." % SkillTreeLibrary.display_name(contextual_skill_id))
-				next_state = _maybe_refund_loot_play(next_state, loot_before)
+				if not bool(resolved_action.get("_movement_pool", false)):
+					next_state = _maybe_refund_loot_play(next_state, loot_before)
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
 			if target_is_valid:
@@ -1406,7 +1407,8 @@ func _apply_player_move_along_path(
 	performance_phase_started = _record_runtime_performance_phase("move_path_long_relics", performance_phase_started)
 	next_state = _trigger_player_movement_radiance(next_state, resolved_action, resolved_path, false)
 	performance_phase_started = _record_runtime_performance_phase("move_path_radiance", performance_phase_started)
-	next_state = _maybe_refund_loot_play(next_state, loot_before)
+	if not bool(resolved_action.get("_movement_pool", false)):
+		next_state = _maybe_refund_loot_play(next_state, loot_before)
 	performance_phase_started = _record_runtime_performance_phase("move_path_loot_refund", performance_phase_started)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 	_record_runtime_performance_phase("move_path_log", performance_phase_started)
@@ -2251,12 +2253,16 @@ func player_movement_targets(state: Dictionary) -> Array[Vector2i]:
 	return valid_targets_for_player_action(state, action)
 
 func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictionary:
-	var action: Dictionary = player_movement_action(state)
-	if action.is_empty() or not valid_targets_for_player_action(state, action).has(target_tile):
-		return state.duplicate(true)
-	var origin: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var planned_path: Array[Vector2i] = path_for_player_action(state, action, target_tile)
-	var next_state: Dictionary = apply_player_action(state, action, target_tile)
+	var movement_state: Dictionary = state.duplicate(true)
+	# This field describes only the current request. Leaving an older successful
+	# result in place lets a stale UI target masquerade as a newly committed move.
+	movement_state.erase("last_player_movement")
+	var action: Dictionary = player_movement_action(movement_state)
+	if action.is_empty() or not valid_targets_for_player_action(movement_state, action).has(target_tile):
+		return movement_state
+	var origin: Vector2i = (_normalized_player(movement_state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var planned_path: Array[Vector2i] = path_for_player_action(movement_state, action, target_tile)
+	var next_state: Dictionary = apply_player_action(movement_state, action, target_tile)
 	var destination: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", origin)
 	var spent: int = 0
 	if destination != origin:
@@ -2264,7 +2270,7 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 			spent = PathUtils.manhattan(origin, destination)
 		else:
 			spent = maxi(0, _movement_path_through_endpoint(planned_path, destination).size() - 1)
-	var remaining_before: int = player_movement_remaining(state)
+	var remaining_before: int = player_movement_remaining(movement_state)
 	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
 	next_state["player_movement_remaining"] = maxi(0, remaining_before - spent)
 	next_state["last_player_movement"] = {

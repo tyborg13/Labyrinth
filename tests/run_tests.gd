@@ -50,6 +50,7 @@ const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -9481,9 +9482,41 @@ func _test_run_scene_direct_card_and_player_movement_selection() -> void:
 	var movement_count: Label = instance.get("_movement_meter_count") as Label
 	var movement_capacity: int = CombatEngine.new().player_movement_capacity(instance.get("_combat_state"))
 	_assert(movement_meter != null and movement_count != null and movement_count.text == "%d / %d movement" % [movement_capacity, movement_capacity], "Combat HUD should show the full independent movement pool")
-	instance.call("_on_cancel_requested")
+	_assert(not bool(instance.call("_combat_skill_activation_surface_available")), "Manual combat skills should not activate against a cached movement target set")
+	var armed_state: Dictionary = combat_state.duplicate(true)
+	armed_state["skill_ids"] = ["ghost_stride"]
+	armed_state = CombatEngine.new().arm_ghost_stride(armed_state)
+	instance.call("_commit_combat_skill_state", armed_state, "ghost_stride")
 	await process_frame
-	_assert(not bool(instance.get("_player_movement_selected")), "Cancel should leave independent movement targeting without spending movement")
+	_assert(not bool(instance.get("_player_movement_selected")), "A defensive combat-skill state change should invalidate movement targeting")
+	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(3, 5)], 9215)
+	await process_frame
+	combat_state = instance.get("_combat_state")
+	player_tile = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	await instance.call("_on_board_tile_clicked", player_tile)
+	await process_frame
+	var router: Node = root.get_node_or_null("InputRouter")
+	_assert(router != null, "Controller movement cancellation requires the input router")
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+		instance.call("_refresh_controller_prompts")
+		var prompt_labels: Array[String] = []
+		var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
+		for prompt_var: Variant in prompt_bar.call("prompts_snapshot"):
+			prompt_labels.append(str((prompt_var as Dictionary).get("label", "")))
+		_assert(
+			prompt_labels.has("Target") and prompt_labels.has("Cancel"),
+			"Controller movement targeting should advertise Target and Cancel; got %s in region %s"
+			% [prompt_labels, str(instance.get("_controller_region"))]
+		)
+	var cancel_event := InputEventAction.new()
+	cancel_event.action = InputRouterScript.ACTION_CANCEL
+	cancel_event.pressed = true
+	var controller_cancel_handled: bool = await instance.call("_handle_controller_input", cancel_event)
+	await process_frame
+	_assert(controller_cancel_handled and not bool(instance.get("_player_movement_selected")), "Controller B should leave independent movement targeting without spending movement")
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
 	instance.queue_free()
 	await process_frame
 
