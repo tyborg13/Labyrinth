@@ -538,6 +538,7 @@ var _umbra_shape_batch_mesh_cursor: int = 0
 var _umbra_shape_batch_mesh_create_count: int = 0
 var _umbra_shape_batch_mesh_update_count: int = 0
 var _umbra_shape_batch_flush_count: int = 0
+var _umbra_boundary_line_batch_enabled: bool = true
 var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
@@ -628,6 +629,7 @@ var _submission_cache_combat_changed: bool = false
 var _is_dynamic_render_layer: bool = false
 var _render_layer_kind: String = ""
 var _render_layer_tile: Vector2i = Vector2i(-1, -1)
+var _render_layer_scene_effect_pass: int = 0
 var _ambient_render_layer: Control = null
 var _overlay_render_layer: Control = null
 var _ground_render_layer: Control = null
@@ -636,6 +638,8 @@ var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
 var _action_floor_render_layer: Control = null
 var _scene_render_layers_by_tile: Dictionary = {}
+var _scene_back_effect_render_layers_by_tile: Dictionary = {}
+var _scene_front_effect_render_layers_by_tile: Dictionary = {}
 var _scene_render_layers: Array = []
 var _foreground_render_layer: Control = null
 var _hud_render_layer: Control = null
@@ -650,6 +654,8 @@ var _dynamic_draw_max_usec: int = 0
 var _render_section_total_usec: Dictionary = {}
 var _render_section_max_usec: Dictionary = {}
 var _unit_shadow_sync_miss_metrics: Dictionary = {}
+var _full_dynamic_redraw_count: int = 0
+var _unclassified_presentation_redraw_keys: Dictionary = {}
 var _submission_performance_instrumentation_enabled: bool = false
 var _submission_performance_total_usec: Dictionary = {}
 var _submission_performance_counts: Dictionary = {}
@@ -741,22 +747,41 @@ func _sync_scene_render_layers() -> void:
 	var desired_lookup: Dictionary = {}
 	for tile: Vector2i in desired_tiles:
 		desired_lookup[tile] = true
-	for tile_var: Variant in _scene_render_layers_by_tile.keys():
-		if desired_lookup.has(tile_var):
-			continue
-		var stale_layer: Control = _scene_render_layers_by_tile.get(tile_var, null) as Control
-		_scene_render_layers_by_tile.erase(tile_var)
-		if stale_layer != null and is_instance_valid(stale_layer):
-			remove_child(stale_layer)
-			stale_layer.queue_free()
+	for layers_by_tile: Dictionary in [
+		_scene_back_effect_render_layers_by_tile,
+		_scene_render_layers_by_tile,
+		_scene_front_effect_render_layers_by_tile,
+	]:
+		for tile_var: Variant in layers_by_tile.keys():
+			if desired_lookup.has(tile_var):
+				continue
+			var stale_layer: Control = layers_by_tile.get(tile_var, null) as Control
+			layers_by_tile.erase(tile_var)
+			if stale_layer != null and is_instance_valid(stale_layer):
+				remove_child(stale_layer)
+				stale_layer.queue_free()
 	_scene_render_layers.clear()
 	for tile: Vector2i in desired_tiles:
+		var back_effect_layer: Control = _scene_back_effect_render_layers_by_tile.get(tile, null) as Control
+		if back_effect_layer == null or not is_instance_valid(back_effect_layer):
+			back_effect_layer = _create_retained_render_layer("SceneTileBackEffect_%d_%d" % [tile.x, tile.y], RENDER_LAYER_SCENE_TILE)
+			back_effect_layer.set("_render_layer_tile", tile)
+			back_effect_layer.set("_render_layer_scene_effect_pass", -1)
+			_scene_back_effect_render_layers_by_tile[tile] = back_effect_layer
 		var layer: Control = _scene_render_layers_by_tile.get(tile, null) as Control
 		if layer == null or not is_instance_valid(layer):
 			layer = _create_retained_render_layer("SceneTile_%d_%d" % [tile.x, tile.y], RENDER_LAYER_SCENE_TILE)
 			layer.set("_render_layer_tile", tile)
 			_scene_render_layers_by_tile[tile] = layer
+		var front_effect_layer: Control = _scene_front_effect_render_layers_by_tile.get(tile, null) as Control
+		if front_effect_layer == null or not is_instance_valid(front_effect_layer):
+			front_effect_layer = _create_retained_render_layer("SceneTileFrontEffect_%d_%d" % [tile.x, tile.y], RENDER_LAYER_SCENE_TILE)
+			front_effect_layer.set("_render_layer_tile", tile)
+			front_effect_layer.set("_render_layer_scene_effect_pass", 1)
+			_scene_front_effect_render_layers_by_tile[tile] = front_effect_layer
+		_scene_render_layers.append(back_effect_layer)
 		_scene_render_layers.append(layer)
+		_scene_render_layers.append(front_effect_layer)
 	var insertion_index: int = _action_floor_render_layer.get_index() + 1
 	for layer_var: Variant in _scene_render_layers:
 		move_child(layer_var as Control, insertion_index)
@@ -824,6 +849,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			layer.set(field, get(field))
 
 func _queue_dynamic_redraw() -> void:
+	_full_dynamic_redraw_count += 1
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		queue_redraw()
 		return
@@ -873,7 +899,8 @@ func render_instrumentation_snapshot() -> Dictionary:
 			layer_draw_total_usec[layer_kind] = int(layer_draw_total_usec.get(layer_kind, 0)) + layer_total
 			if layer_kind == RENDER_LAYER_SCENE_TILE:
 				var layer_tile: Vector2i = layer.get("_render_layer_tile") as Vector2i
-				scene_tile_draw_counts["%d,%d" % [layer_tile.x, layer_tile.y]] = layer_count
+				var tile_key: String = "%d,%d" % [layer_tile.x, layer_tile.y]
+				scene_tile_draw_counts[tile_key] = int(scene_tile_draw_counts.get(tile_key, 0)) + layer_count
 			ambient_batch_mesh_create_count += int(layer.get("_ambient_batch_mesh_create_count"))
 			ambient_batch_mesh_update_count += int(layer.get("_ambient_batch_mesh_update_count"))
 			var layer_umbra_meshes: Array = layer.get("_umbra_shape_batch_meshes") as Array
@@ -903,6 +930,8 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
 		"layout_content_rebuild_count": _board_layout_content_rebuild_count,
 		"unit_shadow_sync_misses": _unit_shadow_sync_miss_metrics.duplicate(true),
+		"full_dynamic_redraw_count": _full_dynamic_redraw_count,
+		"unclassified_presentation_redraw_keys": _unclassified_presentation_redraw_keys.duplicate(),
 		"ambient_batch_mesh_create_count": ambient_batch_mesh_create_count,
 		"ambient_batch_mesh_update_count": ambient_batch_mesh_update_count,
 		"umbra_shape_batch_enabled": _umbra_shape_batch_enabled,
@@ -931,6 +960,8 @@ func reset_render_instrumentation() -> void:
 	_render_section_total_usec.clear()
 	_render_section_max_usec.clear()
 	_unit_shadow_sync_miss_metrics.clear()
+	_full_dynamic_redraw_count = 0
+	_unclassified_presentation_redraw_keys.clear()
 	_ambient_batch_mesh_create_count = 0
 	_ambient_batch_mesh_update_count = 0
 	_umbra_shape_batch_mesh_create_count = 0
@@ -1063,6 +1094,10 @@ func _queue_scene_render_layer_for_tile(tile: Vector2i) -> void:
 	var layer: Control = _scene_render_layers_by_tile.get(tile, null) as Control
 	_queue_render_layer_redraw(layer)
 
+func _queue_scene_effect_render_layers_for_tile(tile: Vector2i) -> void:
+	_queue_render_layer_redraw(_scene_back_effect_render_layers_by_tile.get(tile, null) as Control)
+	_queue_render_layer_redraw(_scene_front_effect_render_layers_by_tile.get(tile, null) as Control)
+
 func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
 	# Retained scene layers draw large actors on the far tile of their footprint.
 	# Falling back to the origin only works for 1x1 actors and freezes dragon
@@ -1180,6 +1215,20 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# unrelated late-run state on the normal immutable-snapshot path.
 	var state_reference_changed: bool = not is_same(next_state, combat_state)
 	var state_changed: bool = state_reference_changed and next_state != combat_state
+	# The live combat dictionary may already contain an in-place mutation by the
+	# time it is resubmitted. Use the last deep cache snapshot as the authoritative
+	# previous render source so selective invalidation still sees that mutation.
+	var previous_combat_render_source: Dictionary = (
+		_submission_cache_source_snapshot.get("combat", {}) as Dictionary
+		if _submission_cache_initialized
+		else _combat_submission_cache_source(combat_state)
+	)
+	var next_combat_render_source: Dictionary = _combat_submission_cache_source(next_state)
+	var combat_render_changes: Dictionary = (
+		_changed_presentation_keys(previous_combat_render_source, next_combat_render_source)
+		if state_reference_changed or _submission_cache_initialized
+		else {}
+	)
 	if not state_reference_changed and _submission_cache_initialized:
 		state_changed = (
 			_combat_submission_cache_source(next_state)
@@ -1209,13 +1258,20 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var previous_unit_render_tiles: Dictionary = {}
 	var previous_unit_obstruction_entries: Dictionary = {}
 	var previous_elemental_scene_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
+	var previous_focus_actor_keys: Array = presentation.get("focus_actor_keys", []) as Array
+	var previous_terrain_destruction_units: Array = presentation.get("terrain_destruction_units", []) as Array
+	var previous_scene_props: Array = presentation.get("scene_props", []) as Array
 	var previous_units_by_key: Dictionary = {}
 	var track_visible_unit_changes: bool = false
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
 		previous_damage_preview = _damage_preview_map().duplicate(true)
 		moving_actor_keys = _changed_unit_presentation_actor_keys(presentation, next_presentation)
 		track_visible_unit_changes = (
-			not moving_actor_keys.is_empty()
+			combat_render_changes.has("player")
+			or combat_render_changes.has("illusions")
+			or combat_render_changes.has("enemies")
+			or combat_render_changes.has("npcs")
+			or not moving_actor_keys.is_empty()
 			or presentation_changes.has("preview_units")
 			or presentation_changes.has("death_animation_units")
 			or presentation_changes.has("visible_enemy_ids")
@@ -1444,11 +1500,20 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	_update_cursor_shape()
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
-	if state_changed or _submission_cache_combat_changed or layout_changed or visual_framing_changed or floor_changed or moss_changed:
+	if layout_changed or visual_framing_changed or floor_changed or moss_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_dynamic_redraw()
 	else:
+		if _submission_cache_combat_changed:
+			_queue_combat_state_change_redraws(
+				combat_render_changes,
+				previous_combat_render_source,
+				next_combat_render_source,
+				moving_actor_keys,
+				previous_unit_render_tiles,
+				previous_unit_obstruction_entries
+			)
 		if interaction_changed:
 			_queue_interaction_change_redraws(
 				move_tiles_changed,
@@ -1466,7 +1531,13 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_unit_render_tiles,
 			previous_unit_obstruction_entries,
 			previous_elemental_scene_tiles,
-			next_elemental_scene_tiles
+			next_elemental_scene_tiles,
+			previous_focus_actor_keys,
+			next_presentation.get("focus_actor_keys", []) as Array,
+			previous_terrain_destruction_units,
+			next_presentation.get("terrain_destruction_units", []) as Array,
+			previous_scene_props,
+			next_presentation.get("scene_props", []) as Array
 		)
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
 
@@ -1581,7 +1652,13 @@ func _queue_presentation_change_redraws(
 	previous_unit_render_tiles: Dictionary = {},
 	previous_unit_obstruction_entries: Dictionary = {},
 	previous_elemental_scene_tiles: Array = [],
-	next_elemental_scene_tiles: Array = []
+	next_elemental_scene_tiles: Array = [],
+	previous_focus_actor_keys: Array = [],
+	next_focus_actor_keys: Array = [],
+	previous_terrain_destruction_units: Array = [],
+	next_terrain_destruction_units: Array = [],
+	previous_scene_props: Array = [],
+	next_scene_props: Array = []
 ) -> void:
 	if changed_keys.is_empty() and not damage_preview_changed:
 		return
@@ -1626,6 +1703,22 @@ func _queue_presentation_change_redraws(
 				unit_movement_changed = true
 				foreground_changed = true
 				hud_changed = true
+			"focus_actor_color", "focus_actor_keys":
+				_queue_focus_actor_scene_redraws(previous_focus_actor_keys, next_focus_actor_keys, previous_unit_render_tiles)
+			"terrain_destruction_units":
+				_queue_scene_tiles_for_presentation_entries(previous_terrain_destruction_units, next_terrain_destruction_units, "pos")
+			"scene_props":
+				_queue_scene_tiles_for_presentation_entries(previous_scene_props, next_scene_props, "tile")
+				_queue_render_layer_redraw(_ambient_render_layer)
+				foreground_changed = true
+			"tile_drag_aiming":
+				# This flag changes pointer interpretation only; it has no rendered pixels.
+				pass
+			"umbra_visible_tiles":
+				_queue_dynamic_redraw()
+			"umbra_light_sources", "umbra_stage":
+				_queue_render_layer_redraw(_dynamic_render_layer)
+				foreground_changed = true
 			"enemy_intent_compasses":
 				for unit: Dictionary in _visible_units():
 					if str(unit.get("role", "")) == "enemy":
@@ -1634,6 +1727,8 @@ func _queue_presentation_change_redraws(
 				# Unclassified presentation state remains conservative. The retained
 				# layers optimize known animation-only submissions without risking a
 				# stale frame when a new presentation field is introduced.
+				var unclassified_key: String = str(key_var)
+				_unclassified_presentation_redraw_keys[unclassified_key] = int(_unclassified_presentation_redraw_keys.get(unclassified_key, 0)) + 1
 				_queue_dynamic_redraw()
 				return
 	if ambient_changed:
@@ -1666,13 +1761,76 @@ func _queue_presentation_change_redraws(
 		_queue_render_layer_redraw(_effects_render_layer)
 		_queue_elemental_scene_depth_redraws(previous_elemental_scene_tiles, next_elemental_scene_tiles)
 
+func _queue_combat_state_change_redraws(
+	changed_keys: Dictionary,
+	previous_source: Dictionary,
+	next_source: Dictionary,
+	moving_actor_keys: Dictionary,
+	previous_unit_render_tiles: Dictionary,
+	previous_unit_obstruction_entries: Dictionary
+) -> void:
+	var units_changed: bool = false
+	for key: String in ["player", "illusions", "enemies", "npcs"]:
+		if changed_keys.has(key):
+			units_changed = true
+			break
+	if units_changed:
+		_queue_moving_actor_redraws(moving_actor_keys, previous_unit_render_tiles, previous_unit_obstruction_entries)
+		_queue_render_layer_redraw(_foreground_render_layer)
+		_queue_render_layer_redraw(_hud_render_layer)
+	if changed_keys.has("player_turn_restrictions"):
+		for player_source: Dictionary in [
+			previous_source.get("player", {}) as Dictionary,
+			next_source.get("player", {}) as Dictionary,
+		]:
+			_queue_scene_render_layer_for_tile(player_source.get("pos", Vector2i(-1, -1)))
+		_queue_render_layer_redraw(_hud_render_layer)
+	if changed_keys.has("terrain"):
+		_queue_scene_tiles_for_state_entries(previous_source.get("terrain", []) as Array, next_source.get("terrain", []) as Array)
+	if changed_keys.has("loot"):
+		_queue_render_layer_redraw(_ground_render_layer)
+		_queue_scene_tiles_for_state_entries(previous_source.get("loot", []) as Array, next_source.get("loot", []) as Array)
+	if changed_keys.has("traps"):
+		_queue_render_layer_redraw(_ground_render_layer)
+	if changed_keys.has("elemental_intensity"):
+		_queue_render_layer_redraw(_ambient_render_layer)
+	if changed_keys.has("grid") or changed_keys.has("room_element"):
+		_queue_dynamic_redraw()
+
+func _queue_scene_tiles_for_state_entries(previous_entries: Array, next_entries: Array) -> void:
+	_queue_scene_tiles_for_presentation_entries(previous_entries, next_entries, "pos")
+
+func _queue_scene_tiles_for_presentation_entries(previous_entries: Array, next_entries: Array, position_key: String) -> void:
+	var queued_tiles: Dictionary = {}
+	for entry_var: Variant in previous_entries + next_entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var tile: Vector2i = (entry_var as Dictionary).get(position_key, Vector2i(-1, -1))
+		if tile.x < 0 or queued_tiles.has(tile):
+			continue
+		queued_tiles[tile] = true
+		_queue_scene_render_layer_for_tile(tile)
+
+func _queue_focus_actor_scene_redraws(previous_actor_keys: Array, next_actor_keys: Array, previous_unit_render_tiles: Dictionary) -> void:
+	var current_unit_render_tiles: Dictionary = _unit_render_tiles_by_key(_visible_units())
+	var queued_keys: Dictionary = {}
+	for actor_key_var: Variant in previous_actor_keys + next_actor_keys:
+		var actor_key: String = str(actor_key_var)
+		if actor_key.is_empty() or queued_keys.has(actor_key):
+			continue
+		queued_keys[actor_key] = true
+		if previous_unit_render_tiles.has(actor_key):
+			_queue_scene_render_layer_for_tile(previous_unit_render_tiles.get(actor_key, Vector2i(-1, -1)))
+		if current_unit_render_tiles.has(actor_key):
+			_queue_scene_render_layer_for_tile(current_unit_render_tiles.get(actor_key, Vector2i(-1, -1)))
+
 func _queue_elemental_scene_depth_redraws(previous_tiles: Array, next_tiles: Array) -> void:
 	var queued_tiles: Dictionary = {}
 	for tile_var: Variant in previous_tiles + next_tiles:
 		if typeof(tile_var) != TYPE_VECTOR2I or queued_tiles.has(tile_var):
 			continue
 		queued_tiles[tile_var] = true
-		_queue_scene_render_layer_for_tile(tile_var as Vector2i)
+		_queue_scene_effect_render_layers_for_tile(tile_var as Vector2i)
 
 func _queue_moving_actor_redraws(
 	moving_actor_keys: Dictionary,
@@ -2453,15 +2611,18 @@ func _draw_scene_tile_render_layer() -> void:
 		_record_dynamic_draw_time(started_usec)
 		return
 	var section_started_usec: int = Time.get_ticks_usec()
+	if _render_layer_scene_effect_pass != 0:
+		_draw_elemental_scene_depth_pass(_render_layer_tile, _render_layer_scene_effect_pass > 0)
+		_record_render_section_time("scene_tile_effects", section_started_usec)
+		_record_dynamic_draw_time(started_usec)
+		return
 	var grid: Array = combat_state.get("grid", [])
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	var obstruction_entries: Array = _foreground_obstruction_entries_cache
 	_draw_enemy_threat_depth_pass(_render_layer_tile)
-	_draw_elemental_scene_depth_pass(_render_layer_tile, false)
 	_draw_scene_props_for_tile(_render_layer_tile, obstruction_entries)
 	_draw_tile_props(grid, _render_layer_tile, obstruction_entries)
 	_draw_unit_bodies_for_tile(_render_layer_tile, units_to_draw)
-	_draw_elemental_scene_depth_pass(_render_layer_tile, true)
 	_record_render_section_time("scene_tiles", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -2667,6 +2828,41 @@ func _queue_umbra_shape_circle(
 			ring_vertex + (segment_index + 1) % UMBRA_SHAPE_BATCH_SEGMENTS
 		)
 
+func _queue_umbra_shape_line(start: Vector2, finish: Vector2, color: Color, width: float) -> void:
+	var direction: Vector2 = finish - start
+	if direction.length_squared() <= 0.001 or width <= 0.0 or color.a <= 0.0:
+		return
+	var normal: Vector2 = direction.normalized().orthogonal()
+	var half_width: float = width * 0.5
+	# Match draw_line(..., antialiased=true) with a one-pixel transparent fringe.
+	# Keeping the line in the same triangle stream preserves its authored order
+	# between the surrounding translucent Umbra lobes without another mesh upload.
+	var offsets: PackedFloat32Array = PackedFloat32Array([
+		-half_width - 1.0,
+		-half_width,
+		half_width,
+		half_width + 1.0,
+	])
+	var colors: PackedColorArray = PackedColorArray([
+		Color(color.r, color.g, color.b, 0.0),
+		color,
+		color,
+		Color(color.r, color.g, color.b, 0.0),
+	])
+	var first_vertex: int = _umbra_shape_batch_vertices.size()
+	for endpoint: Vector2 in [start, finish]:
+		for offset_index: int in range(offsets.size()):
+			var point: Vector2 = endpoint + normal * offsets[offset_index]
+			_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+			_umbra_shape_batch_colors.append(colors[offset_index])
+	for strip_index: int in range(3):
+		var start_left: int = first_vertex + strip_index
+		var start_right: int = start_left + 1
+		var finish_left: int = first_vertex + 4 + strip_index
+		var finish_right: int = finish_left + 1
+		for vertex_index: int in [start_left, finish_left, finish_right, start_left, finish_right, start_right]:
+			_umbra_shape_batch_indices.append(vertex_index)
+
 func _draw_or_queue_umbra_circle(center: Vector2, radius: float, color: Color) -> void:
 	if _umbra_shape_batch_active:
 		_queue_umbra_shape_circle(center, radius, Vector2.ONE, 0.0, color)
@@ -2765,12 +2961,19 @@ func _draw_umbra_boundary_billows(hidden_tiles: Array[Vector2i], visible_lookup:
 				)
 			var edge_points: PackedVector2Array = _umbra_boundary_edge(tile, neighbor_offset)
 			if edge_points.size() == 2:
-				# Preserve the authored boundary-line ordering exactly while still
-				# collapsing the hundreds of soft lobe circles between edges.
-				_flush_umbra_shape_batch()
-				draw_line(edge_points[0], edge_points[1], Color(0.008, 0.005, 0.020, 0.86 * return_progress), 3.4, true)
-				draw_line(edge_points[0], edge_points[1], Color(0.20, 0.105, 0.285, (0.30 + stage_alpha * 0.10) * return_progress), 1.1, true)
-				_begin_umbra_shape_batch()
+				var outer_color := Color(0.008, 0.005, 0.020, 0.86 * return_progress)
+				var inner_color := Color(0.20, 0.105, 0.285, (0.30 + stage_alpha * 0.10) * return_progress)
+				if _umbra_shape_batch_active and _umbra_boundary_line_batch_enabled:
+					_queue_umbra_shape_line(edge_points[0], edge_points[1], outer_color, 3.4)
+					_queue_umbra_shape_line(edge_points[0], edge_points[1], inner_color, 1.1)
+				else:
+					var resume_shape_batch: bool = _umbra_shape_batch_active
+					if resume_shape_batch:
+						_flush_umbra_shape_batch()
+					draw_line(edge_points[0], edge_points[1], outer_color, 3.4, true)
+					draw_line(edge_points[0], edge_points[1], inner_color, 1.1, true)
+					if resume_shape_batch:
+						_begin_umbra_shape_batch()
 
 func _umbra_boundary_edge(tile: Vector2i, neighbor_offset: Vector2i) -> PackedVector2Array:
 	var polygon: PackedVector2Array = _tile_polygon(tile)

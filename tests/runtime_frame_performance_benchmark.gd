@@ -199,6 +199,7 @@ func _initialize() -> void:
 	await _settle_frames(8)
 	_phase_log("initial settle complete")
 	_install_stress_combat(instance, "specialists")
+	_set_candidate_batching_enabled(instance)
 	_phase_log("stress combat installed")
 	await _settle_frames(8)
 	if OS.get_environment("LABYRINTH_RUNTIME_PERF_ATTRIBUTION_ONLY") == "1":
@@ -499,6 +500,22 @@ func _set_umbra_visual_time(instance: Node, time_seconds: float) -> void:
 		var source_presentation: Dictionary = (source.get("presentation") as Dictionary).duplicate(true)
 		source_presentation["umbra_time_seconds"] = time_seconds
 		source.set("presentation", source_presentation)
+		source.queue_redraw()
+
+func _set_candidate_batching_enabled(instance: Node) -> void:
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	if board == null:
+		return
+	var all_batching_enabled: bool = OS.get_environment("LABYRINTH_RUNTIME_PERF_DISABLE_CANDIDATE_BATCHING") != "1"
+	var umbra_batching_enabled: bool = all_batching_enabled and OS.get_environment("LABYRINTH_RUNTIME_PERF_DISABLE_UMBRA_BOUNDARY_BATCH") != "1"
+	var render_sources: Array[Control] = [board]
+	if board.has_method("_retained_render_layers"):
+		for layer_var: Variant in board.call("_retained_render_layers") as Array:
+			var layer: Control = layer_var as Control
+			if layer != null:
+				render_sources.append(layer)
+	for source: Control in render_sources:
+		source.set("_umbra_boundary_line_batch_enabled", umbra_batching_enabled)
 		source.queue_redraw()
 
 func _reset_board_render_instrumentation(instance: Node) -> void:
@@ -1286,6 +1303,7 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		await _select_card(instance, hand_index)
 		await _await_render_frame()
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+		_reset_board_render_instrumentation(instance)
 		sampler.begin()
 		var action_started: int = Time.get_ticks_usec()
 		var interaction: Dictionary = {}
@@ -1310,6 +1328,7 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		phase["target_step_completion"] = _duration_phase_result(interaction.get("step_completion_samples", []) as Array[float], "interaction_step_completion")
 		phase["animation_settle_frame_samples"] = interaction.get("animation_settle_frame_samples", [])
 		phase["interaction_steps"] = int(interaction.get("step_count", 0))
+		phase["board_profile"] = _board_render_instrumentation(instance)
 		phase["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
 		_expect(bool(phase["state_changed"]), "%s confirmed play must change committed combat state" % card_id)
 		_expect(int(phase.get("sample_count", 0)) > 0, "%s committed play must produce sampled animation frames" % card_id)
@@ -1329,7 +1348,11 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 	await _select_card(instance, hand_index)
 	await _await_render_frame()
 	var interaction_steps: int = 0
-	while not bool(instance.call("_pending_card_requires_confirmation")) and interaction_steps < MAX_PREVIEW_STEPS:
+	while (
+		not bool(instance.call("_pending_card_requires_confirmation"))
+		and not bool(instance.get("_animation_lock"))
+		and interaction_steps < MAX_PREVIEW_STEPS
+	):
 		var preview: Dictionary = instance.call("_active_card_preview") as Dictionary
 		var targets: Array[Vector2i] = _preview_interaction_tiles(instance, preview)
 		if targets.is_empty():
@@ -1339,7 +1362,10 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 		_board_pointer_click(instance, target)
 		await process_frame
 		interaction_steps += 1
-	_expect(bool(instance.call("_pending_card_requires_confirmation")), "Wildfire visual replay must reach self-tile confirmation")
+	_expect(
+		bool(instance.call("_pending_card_requires_confirmation")) or bool(instance.get("_animation_lock")),
+		"Wildfire visual replay must start or reach self-tile confirmation"
+	)
 	if bool(instance.call("_pending_card_requires_confirmation")):
 		var player_tile: Vector2i = (((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
 		_board_pointer_click(instance, player_tile)
@@ -1370,7 +1396,7 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 
 func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary:
 	var results: Dictionary = {}
-	for skill_id: String in MANUAL_SKILLS:
+	for skill_id: String in _benchmark_manual_skill_ids():
 		_phase_log("ability action %s" % skill_id)
 		_install_stress_combat(instance, "specialists")
 		_prepare_manual_skill_state(instance, skill_id)
@@ -1389,6 +1415,7 @@ func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Di
 				if selection_button != null and selection_button.visible and not selection_button.disabled:
 					_routed_left_click(selection_button, selection_button.size * 0.5)
 					routed_controls["selection"] = selection_button.name
+					await process_frame
 		elif selection_zone == "discard":
 			var discard_indices: Array = instance.get("_combat_skill_card_selection_indices") as Array
 			if not discard_indices.is_empty():
@@ -1397,6 +1424,7 @@ func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Di
 				if selection_button != null and not selection_button.disabled:
 					_routed_left_click(selection_button, selection_button.size * 0.5)
 					routed_controls["selection"] = selection_button.name
+					await process_frame
 		var wait_frames: int = 0
 		while bool(instance.get("_animation_lock")) and wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
 			await _await_render_frame()
@@ -1475,6 +1503,9 @@ func _verify_post_skill_hand_pointer_input(instance: Node, skill_id: String) -> 
 	for hand_index: int in range(hand.size()):
 		var widget: Control = instance.call("_hand_card_control", hand_index) as Control
 		if widget == null or not widget.visible or widget.mouse_filter != Control.MOUSE_FILTER_STOP:
+			continue
+		var options: Dictionary = instance.call("_card_play_options_for_index", hand_index) as Dictionary
+		if not bool(options.get("any_playable", false)):
 			continue
 		var handler_ms: float = await _select_card(instance, hand_index)
 		var selected: bool = int(instance.get("_selected_card_index")) == hand_index
@@ -1784,6 +1815,8 @@ func _hand_geometry_diagnostics(instance: Node, hand_box: Control) -> Dictionary
 func _install_stress_combat(instance: Node, composition_id: String) -> Dictionary:
 	_phase_log("install %s: reset" % composition_id)
 	instance.call("_cancel_drag_play")
+	instance.call("_cancel_card_selection")
+	instance.call("_cancel_combat_skill_card_selection")
 	instance.call("_reset_card_resolution")
 	var layout: Dictionary = {
 		"name": "Depth 13 Runtime Performance Chamber",
@@ -2030,6 +2063,19 @@ func _benchmark_card_ids() -> Array[String]:
 	for card_id: String in HAND:
 		if requested.has(card_id):
 			result.append(card_id)
+	return result
+
+func _benchmark_manual_skill_ids() -> Array[String]:
+	var filter_text: String = OS.get_environment("LABYRINTH_RUNTIME_PERF_ABILITY_FILTER").strip_edges()
+	if filter_text.is_empty():
+		return MANUAL_SKILLS.duplicate()
+	var requested: Dictionary = {}
+	for skill_id: String in filter_text.split(",", false):
+		requested[skill_id.strip_edges()] = true
+	var result: Array[String] = []
+	for skill_id: String in MANUAL_SKILLS:
+		if requested.has(skill_id):
+			result.append(skill_id)
 	return result
 
 func _combined_action_phase(action_matrix: Dictionary) -> Dictionary:
