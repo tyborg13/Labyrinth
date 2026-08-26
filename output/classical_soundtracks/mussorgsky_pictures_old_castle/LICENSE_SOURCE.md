@@ -23,9 +23,9 @@
 
 ## Transcription and arrangement boundary
 
-The unchanged PDMX v9 MIDI is the machine-readable source. Its preserved evidence record identifies the exact archive member, dataset and archive hashes, score ID, public score URL, CC0 license, lack of a license conflict, and all-valid status. The build selects the `Il vecchio castello` interval from tick 274080 through tick 428160: 107 complete 6/8 measures, including the final fermata-rest measure.
+The unchanged PDMX v9 MIDI is the machine-readable source. Its preserved evidence record identifies the exact archive member, dataset and archive hashes, score ID, public score URL, CC0 license, lack of a license conflict, and all-valid status. The build selects the `Il vecchio castello` interval from tick 274080 through tick 428160: 107 complete 6/8 measures, including the final measure's tied bass sustain and fermata rest.
 
-The public-domain scan remains the visual reference. `scripts/build_full_arrangement.py` checks the opening lament event-by-event, one pitch/onset anchor at the start of every printed system, the final G-sharp-minor cadence, the final rest measure, both movement boundaries, the source note counts, and both immutable hashes. The normalized score is a five-voice outer-line reduction of the source MIDI, not a scholarly re-engraving of every piano chord tone.
+The public-domain scan remains the visual reference. `scripts/build_full_arrangement.py` checks the opening lament event-by-event, one pitch/onset anchor at the start of every printed system, the final G-sharp-minor cadence, the bass G-sharp tied into the last measure, both movement boundaries, the source note counts, and both immutable hashes. The normalized score is a five-voice outer-line reduction of the source MIDI, not a scholarly re-engraving of every piano chord tone.
 
 No modern copyrighted arrangement, commercial MIDI, audio recording, SoundFont, sample pack, ROM/rip, or generated-model audio was used. The v02 arrangement uses the CC0 transcription and the repository's procedural instrument bank.
 

@@ -68,7 +68,7 @@
       69
     ]
   },
-  "selection": "Complete 107-measure movement in printed order, including the final fermata-rest measure; no cuts, repeats, or constructed cadence",
+  "selection": "Complete 107-measure movement in printed order, including the final tied-sustain and fermata-rest measure; no cuts, repeats, or constructed cadence",
   "source": {
     "anchors": {
       "final_cadence": {
@@ -83,7 +83,16 @@
           "G#5"
         ]
       },
-      "final_fermata_rest_measure": 107,
+      "final_measure": {
+        "measure": 107,
+        "new_note_onsets": 0,
+        "tied_bass_sustain": {
+          "end_offset_ticks": 443,
+          "pitch": "G#2",
+          "source_start_measure": 106,
+          "source_start_offset_ticks": 1200
+        }
+      },
       "opening_melody_anchors": [
         {
           "measure": 7,

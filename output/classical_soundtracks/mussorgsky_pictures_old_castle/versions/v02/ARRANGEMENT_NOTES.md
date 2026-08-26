@@ -3,7 +3,7 @@
 ## Selection and order
 
 - v02 covers all 107 printed measures of `Il vecchio castello`, from PDF page 8 / printed page 7 through PDF page 10 / printed page 9, in the score's order.
-- There are no cuts, reordered passages, inserted repeats, shortened introductions, or constructed cadence. Measure 106 carries the final cadence and measure 107 retains the printed fermata rest.
+- There are no cuts, reordered passages, inserted repeats, shortened introductions, or constructed cadence. Measure 106 introduces the final cadence; its last bass G-sharp sustains into measure 107 before the printed fermata rest.
 - At a fixed 72 quarter notes per minute, the score structure lasts 267.5 seconds (approximately 4:28) before the renderer's short instrument releases.
 - The first one-minute v01 loop sketch and all seven artifacts in its version tree remain byte-for-byte unchanged.
 

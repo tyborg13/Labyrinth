@@ -213,8 +213,16 @@ def _verify_anchors(staves: tuple[list[MidiNote], list[MidiNote]]) -> dict[str, 
     final_bass = _pitches_at(staves[1], 106, 0)
     if final_treble != (68, 80) or final_bass != (44, 51, 59):
         raise RuntimeError("Final G-sharp-minor cadence anchor drifted")
-    if any(event.start >= 106 * MEASURE_TICKS for staff in staves for event in staff):
+    final_measure_start = 106 * MEASURE_TICKS
+    if any(event.start >= final_measure_start for staff in staves for event in staff):
         raise RuntimeError("Expected printed m107 to contain no new note onset")
+    tied_into_final = [
+        event
+        for event in staves[1]
+        if event.start < final_measure_start < event.end
+    ]
+    if tied_into_final != [MidiNote(152400, 153083, 44, 96, 1)]:
+        raise RuntimeError("Expected the final bass G-sharp to sustain from m106 into m107")
     return {
         "printed_system_anchors": checked,
         "opening_melody_anchors": opening,
@@ -223,7 +231,16 @@ def _verify_anchors(staves: tuple[list[MidiNote], list[MidiNote]]) -> dict[str, 
             "treble_pitches": [_pitch_name(value) for value in final_treble],
             "bass_pitches": [_pitch_name(value) for value in final_bass],
         },
-        "final_fermata_rest_measure": 107,
+        "final_measure": {
+            "measure": 107,
+            "new_note_onsets": 0,
+            "tied_bass_sustain": {
+                "pitch": _pitch_name(tied_into_final[0].pitch),
+                "source_start_measure": 106,
+                "source_start_offset_ticks": tied_into_final[0].start - 105 * MEASURE_TICKS,
+                "end_offset_ticks": tied_into_final[0].end - final_measure_start,
+            },
+        },
     }
 
 
@@ -516,8 +533,8 @@ def main() -> int:
     report = {
         "ok": True,
         "selection": (
-            "Complete 107-measure movement in printed order, including the final fermata-rest "
-            "measure; no cuts, repeats, or constructed cadence"
+            "Complete 107-measure movement in printed order, including the final tied-sustain "
+            "and fermata-rest measure; no cuts, repeats, or constructed cadence"
         ),
         "source": source_report,
         "source_score_pages": "PDF pages 8-10 (printed pages 7-9)",

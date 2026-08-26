@@ -111,11 +111,11 @@
   "reproducibility": {
     "arrangement_notes": {
       "path": "versions/v02/ARRANGEMENT_NOTES.md",
-      "sha256": "ad0d4e1034bfdc1e92da6c2b0708f4b742e6b6121f646d3f566e371d81e4549c"
+      "sha256": "d0ed5f25aaa4b74bfb5862784f9e0f429465739d53339ef6a1c440b2e0e87456"
     },
     "build_script": {
       "path": "scripts/build_full_arrangement.py",
-      "sha256": "d3cf18a486cc822c25b9124608a576caf50a817ba1cc96803b3c099b0d7f7f99"
+      "sha256": "b1004b070977b8c5e9805065a0c5e507e9aa3d79fbb46688e80e720096a4c498"
     },
     "expected_part_count": 5,
     "normalized_full_score_midi": {

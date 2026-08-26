@@ -48,7 +48,7 @@
   "bank_manifest": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
   "bank_manifest_sha256": "2fc0b70a096ec2bbbcfdf3bd3cdbf3d3f595a780835329332ee548d581019ea6",
   "config_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/track.v02.json",
-  "config_sha256": "db3c42b73caf4de667965affea365e97ed2be308225e9a7d4152fb9aa54b629d",
+  "config_sha256": "1c25ef1e86ed73cc7cea06e228271120cfb858626a3bef4b3de1ac3ab181705c",
   "midi_note_counts": {
     "Ashen Violin / Inner Voice": 160,
     "Grave Cello / Troubadour": 291,

@@ -102,7 +102,7 @@
     "undercrypt_bass": "2b1a1a07e74969533c0ef2766602633fcb6180a12ae6fa3dddc6dbdb1264679e",
     "veiled_violin": "c683d2911eba6adb35e58027b1dd363f5057996a789f06f8a4aa604d9092ffc8"
   },
-  "config_sha256": "db3c42b73caf4de667965affea365e97ed2be308225e9a7d4152fb9aa54b629d",
+  "config_sha256": "1c25ef1e86ed73cc7cea06e228271120cfb858626a3bef4b3de1ac3ab181705c",
   "midi": {
     "configured_tracks": [
       "Ashen Violin / Inner Voice",
@@ -126,11 +126,11 @@
   "reproducibility": {
     "arrangement_notes": {
       "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/ARRANGEMENT_NOTES.md",
-      "sha256": "ad0d4e1034bfdc1e92da6c2b0708f4b742e6b6121f646d3f566e371d81e4549c"
+      "sha256": "d0ed5f25aaa4b74bfb5862784f9e0f429465739d53339ef6a1c440b2e0e87456"
     },
     "build_script": {
       "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/scripts/build_full_arrangement.py",
-      "sha256": "d3cf18a486cc822c25b9124608a576caf50a817ba1cc96803b3c099b0d7f7f99"
+      "sha256": "b1004b070977b8c5e9805065a0c5e507e9aa3d79fbb46688e80e720096a4c498"
     },
     "expected_part_count": 5,
     "normalized_full_score_midi": {

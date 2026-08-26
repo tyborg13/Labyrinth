@@ -41,8 +41,17 @@ class OldCastleFullArrangementTests(unittest.TestCase):
             self.source_report["source_staff_note_counts"],
         )
         self.assertEqual(
-            107,
-            self.source_report["anchors"]["final_fermata_rest_measure"],
+            {
+                "measure": 107,
+                "new_note_onsets": 0,
+                "tied_bass_sustain": {
+                    "pitch": "G#2",
+                    "source_start_measure": 106,
+                    "source_start_offset_ticks": 1200,
+                    "end_offset_ticks": 443,
+                },
+            },
+            self.source_report["anchors"]["final_measure"],
         )
 
     def test_every_printed_system_and_opening_lament_are_anchored(self) -> None:
