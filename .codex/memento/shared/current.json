@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-26T17:46:39Z",
+  "updated_at": "2026-08-26T18:08:22Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8802,7 +8802,7 @@
       }
     },
     {
-      "id": "mnt_20260826T174639Z_9e60eba8",
+      "id": "mnt_20260826T180822Z_35bb152a",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -8811,16 +8811,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Keep animated elemental depth passes separate from static scene-tile content and route combat/presentation diffs to only the retained layers whose pixels change.",
-      "details": "Steam Deck telemetry and matched native workloads showed CPU-bound presentation rebuilds. Back/static/front scene layers preserve draw order while avoiding actor/prop redraws on elemental effect frames; Umbra boundary lines should stay in the existing triangle batch because per-edge mesh flushes dominate. Selective combat invalidation must compare against _submission_cache_source_snapshot, not the live dictionary, so in-place mutations still redraw correctly. Unknown presentation keys remain conservative full redraws and are instrumented.",
+      "summary": "Selective animation invalidation uses immutable snapshots; same-reference mutations force a conservative full redraw",
+      "details": "The retained board splits each scene tile into back-effect, static, and front-effect layers and batches Umbra boundary shapes, so normal presentation updates redraw only affected layers. Cache comparisons use deep snapshots including room_coord, turn, moss, grid, elemental intensity, and visible entities. If a caller resubmits the same Dictionary after mutating it in place, the board uses the cached prior source for transition comparison and conservatively redraws all dynamic layers to avoid stale old/new tiles. Unknown presentation keys also remain conservative.",
       "status": "active",
-      "created_at": "2026-08-26T17:46:39Z",
-      "updated_at": "2026-08-26T17:46:39Z",
+      "created_at": "2026-08-26T18:08:22Z",
+      "updated_at": "2026-08-26T18:08:22Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260826T174639Z_9e60eba8"
+      ],
       "source": {
         "branch": "codex/steam-deck-animation-performance-pass",
-        "commit": "6e63ac4"
+        "commit": "e1687f1"
       }
     }
   ]
