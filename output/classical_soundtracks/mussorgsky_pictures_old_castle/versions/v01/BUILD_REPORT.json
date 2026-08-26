@@ -1,0 +1,36 @@
+{
+  "arrangement_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v01/arrangement.mid",
+  "arrangement_midi_sha256": "fe2021d054e8179ade63c2d808e2624d8cd9a2e4bdcab5f0420dbe46b91b771b",
+  "arrangement_note_counts": {
+    "Ashen Violin / Lute Ostinato": 192,
+    "Funeral Pulse / Procedural Percussion": 28,
+    "Grave Cello / Troubadour": 93,
+    "Hollow Viola / Stone Harmony": 32,
+    "Undercrypt Bass / G-sharp Drone": 64,
+    "Veiled Violin / Castle Air": 47
+  },
+  "normalized": {
+    "expanded_repeats": false,
+    "full_score_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/full_score.mid",
+    "full_score_midi_sha256": "61a864b00329303ab4d720de135991058c694ecbce6f4ee4cd564ef681c4e875",
+    "full_score_musicxml": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/full_score.musicxml",
+    "full_score_musicxml_sha256": "bb56582299c7cac6121204e4ca39697cd8de744ac268adcb7c0c067925a77841",
+    "part_count": 1,
+    "parts": [
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/parts/01_piano_score_derived_source_reduction.mid",
+        "midi_sha256": "61a864b00329303ab4d720de135991058c694ecbce6f4ee4cd564ef681c4e875",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/parts/01_piano_score_derived_source_reduction.musicxml",
+        "musicxml_sha256": "c9226d4d25878de979fe7cf1bab5d084f275e75d7914d34ea33c83ce04176eff",
+        "name": "Piano (score-derived source reduction)"
+      }
+    ]
+  },
+  "ok": true,
+  "selection": "32-measure opening-lament reduction and tonic-cadence loop",
+  "source_pdf": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_bessel_1886.pdf",
+  "source_pdf_sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
+  "source_score_pages": "PDF pages 8-9 (printed pages 7-8)",
+  "structural_duration_seconds": 80.0,
+  "tempo_qpm": 72
+}

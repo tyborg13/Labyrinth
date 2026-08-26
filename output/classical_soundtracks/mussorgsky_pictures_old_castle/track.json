@@ -1,0 +1,173 @@
+{
+  "approval": {
+    "approved_by": "",
+    "approved_on": "",
+    "status": "audition",
+    "version": "v01"
+  },
+  "arrangement": {
+    "expected_note_counts": {
+      "Ashen Violin / Lute Ostinato": 192,
+      "Funeral Pulse / Procedural Percussion": 28,
+      "Grave Cello / Troubadour": 93,
+      "Hollow Viola / Stone Harmony": 32,
+      "Undercrypt Bass / G-sharp Drone": 64,
+      "Veiled Violin / Castle Air": 47
+    },
+    "midi_path": "versions/v01/arrangement.mid",
+    "midi_sha256": "fe2021d054e8179ade63c2d808e2624d8cd9a2e4bdcab5f0420dbe46b91b771b",
+    "notes_file": "versions/v01/ARRANGEMENT_NOTES.md",
+    "version": "v01"
+  },
+  "composer": "Modest Mussorgsky",
+  "expected_outputs": {},
+  "render": {
+    "bank_manifest": "../../../assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
+    "crossfade_seconds": 10.0,
+    "echo": {
+      "darkening_filter_width": 9,
+      "taps": [
+        {
+          "delay_seconds": 0.096,
+          "gain": 0.12
+        },
+        {
+          "delay_seconds": 0.192,
+          "gain": 0.052
+        },
+        {
+          "delay_seconds": 0.288,
+          "gain": 0.022
+        }
+      ]
+    },
+    "ogg_stream_serial": "0x4f4c4431",
+    "output_basename": "versions/v01/preview",
+    "output_signal_quantization_bits": 15,
+    "percussion": {
+      "midi_track": "Funeral Pulse / Procedural Percussion",
+      "notes": {
+        "36": "umbra_war_drum",
+        "41": "bone_tom",
+        "42": "ash_tick"
+      }
+    },
+    "percussion_reconstruction_filter_width": 3,
+    "sample_rate": 44100,
+    "saturation_drive": 1.08,
+    "string_reconstruction_filter_width": 5,
+    "target_peak_dbfs": -7.5,
+    "tempo_mode": "fixed_qpm",
+    "tempo_qpm": 72,
+    "tracks": [
+      {
+        "bank_id": "veiled_violin",
+        "midi_track": "Veiled Violin / Castle Air",
+        "pan": 80,
+        "release_seconds": 0.16,
+        "render_gain": 0.38,
+        "stem": "upper",
+        "vibrato_cents": 3.2,
+        "vibrato_hz": 4.9
+      },
+      {
+        "bank_id": "ashen_violin",
+        "midi_track": "Ashen Violin / Lute Ostinato",
+        "pan": 44,
+        "release_seconds": 0.08,
+        "render_gain": 0.36,
+        "stem": "upper",
+        "vibrato_cents": 1.4,
+        "vibrato_hz": 4.4
+      },
+      {
+        "bank_id": "hollow_viola",
+        "midi_track": "Hollow Viola / Stone Harmony",
+        "pan": 72,
+        "release_seconds": 0.18,
+        "render_gain": 0.46,
+        "stem": "middle",
+        "vibrato_cents": 1.8,
+        "vibrato_hz": 4.1
+      },
+      {
+        "bank_id": "grave_cello",
+        "midi_track": "Grave Cello / Troubadour",
+        "pan": 55,
+        "release_seconds": 0.22,
+        "render_gain": 0.86,
+        "stem": "low",
+        "vibrato_cents": 2.0,
+        "vibrato_hz": 4.0
+      },
+      {
+        "bank_id": "undercrypt_bass",
+        "midi_track": "Undercrypt Bass / G-sharp Drone",
+        "pan": 64,
+        "release_seconds": 0.26,
+        "render_gain": 0.64,
+        "stem": "low",
+        "vibrato_cents": 0.7,
+        "vibrato_hz": 3.2
+      }
+    ],
+    "vorbis_encoder": "auto"
+  },
+  "reproducibility": {
+    "arrangement_notes": {
+      "path": "versions/v01/ARRANGEMENT_NOTES.md",
+      "sha256": "bef4e61c7e15dd52d0bf4fda6b03dd5c2866aa50801def8114a5a7346e8814cd"
+    },
+    "build_script": {
+      "path": "scripts/build_arrangement.py",
+      "sha256": "0145f6452d54d4696a64bbd32f07e222c7862e441949ac5e9cb17f309c5b8618"
+    },
+    "expected_part_count": 1,
+    "normalized_full_score_midi": {
+      "path": "normalized/full_score.mid",
+      "sha256": "61a864b00329303ab4d720de135991058c694ecbce6f4ee4cd564ef681c4e875"
+    },
+    "normalized_full_score_musicxml": {
+      "path": "normalized/full_score.musicxml",
+      "sha256": "bb56582299c7cac6121204e4ca39697cd8de744ac268adcb7c0c067925a77841"
+    },
+    "normalized_parts": [
+      {
+        "midi": {
+          "path": "normalized/parts/01_piano_score_derived_source_reduction.mid",
+          "sha256": "61a864b00329303ab4d720de135991058c694ecbce6f4ee4cd564ef681c4e875"
+        },
+        "musicxml": {
+          "path": "normalized/parts/01_piano_score_derived_source_reduction.musicxml",
+          "sha256": "c9226d4d25878de979fe7cf1bab5d084f275e75d7914d34ea33c83ce04176eff"
+        },
+        "name": "Piano (score-derived source reduction)"
+      }
+    ]
+  },
+  "schema_version": 1,
+  "source": {
+    "composer": "Modest Mussorgsky (1839-1881)",
+    "composition": "Pictures at an Exhibition - The Old Castle",
+    "composition_public_domain": true,
+    "composition_public_domain_evidence": "Modest Mussorgsky died in 1881 and the original solo-piano suite was first published by V. Bessel & Co. in 1886; the Sibley Music Library record marks this scanned edition public domain.",
+    "date_retrieved": "2026-08-26",
+    "license_evidence": "The Sibley Music Library institutional record states \"This item is in the public domain\" for the 1918 Breitkopf & Hartel reprint of the 1886 Bessel first edition.",
+    "license_file": "LICENSE_SOURCE.md",
+    "path": "source/mussorgsky_pictures_at_an_exhibition_bessel_1886.pdf",
+    "rights_basis": "public_domain",
+    "rights_status": "cleared",
+    "sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
+    "source_format": "Scanned PDF of the 1886 Bessel first edition (solo piano)",
+    "source_url": "https://urresearch.rochester.edu/fileDownloadForInstitutionalItem.action?itemId=13118&itemFileId=30373",
+    "transcription_license": "Public domain"
+  },
+  "title": "Pictures at an Exhibition - The Old Castle",
+  "track_id": "mussorgsky_pictures_old_castle",
+  "verification": {
+    "duration_tolerance_seconds": 0.02,
+    "max_loop_seam_to_p99_9_ratio": 1.0,
+    "max_silence_seconds": 0.75,
+    "peak_tolerance_db": 0.05
+  }
+}
