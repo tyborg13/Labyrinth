@@ -72,7 +72,14 @@ python3 tools/steam_performance_stats.py report \
 
 The report command expects `STEAMWORKS_PUBLISHER_KEY` to already be configured in the trusted development environment. The Steam client needs no publisher Web API key to upload: the authenticated SDK session writes client-set User Stats. The publisher key is only for this developer-side global read. Never request that a user paste the key into chat, print it, commit it, place it in an exported build, or persist it beyond the trusted environment they authorized. Creating/revoking a key, publishing stat definitions, or changing App Admin is an external mutation and still requires explicit user authorization.
 
-If the trusted environment does not have a key, do not stop at “telemetry unavailable.” Give the user the one-time bootstrap path and continue local profiling while they complete the account-only step:
+If the trusted environment does not have a key, do not stop at “telemetry unavailable” and do not make the user operate Steamworks when an authorized signed-in browser session is available. Prefer this autonomous, secret-safe bootstrap:
+
+1. Use Computer Use or browser control with the existing signed-in Steamworks session.
+2. Open **Users & Permissions → Manage Groups**, select the group associated with the exact tested app, and inspect its existing Web API key.
+3. If an existing publisher key is available, copy it only long enough to inject it into the report subprocess. Never include it in tool output, chat, shell tracing, files, command history, or source control. Clear the clipboard immediately after the subprocess receives it.
+4. Run the report and validate transport/sample denominators before continuing.
+
+Reading an existing key through an already authorized account is the default no-involvement path. If no signed-in browser session or suitable existing key is available, explain that specific limitation. Creating or revoking a key is an external mutation: do it only when the user has explicitly authorized that change. The least-privilege creation path is:
 
 1. A Steamworks partner administrator opens **Users & Permissions → Manage Groups**.
 2. Create a dedicated performance-telemetry group, or select an existing least-privilege group.
@@ -80,7 +87,7 @@ If the trusted environment does not have a key, do not stop at “telemetry unav
 4. Select **Create WebAPI Key**, grant only **General API calls**, optionally restrict it to the trusted machine's stable outbound IP, and save.
 5. Do not use an ordinary Steam Community user Web API key: `GetGlobalStatsForGame` requires a publisher key whose group contains the queried app.
 
-On macOS, offer Login Keychain instead of asking the user to paste or export the key. The user runs this command themselves and enters the value at the secure prompt created by the trailing `-w`:
+On macOS, use Login Keychain as the fallback when browser retrieval is unavailable and the user chooses to store the key locally. Never ask them to paste or export the key into chat. The secure prompt created by the trailing `-w` keeps the value out of shell history:
 
 ```bash
 security add-generic-password -U -a "$USER" \

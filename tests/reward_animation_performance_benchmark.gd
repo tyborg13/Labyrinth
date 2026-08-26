@@ -182,6 +182,9 @@ func _initialize() -> void:
 	var nodes_after_reveal: int = _subtree_node_count(instance)
 	_expect(nodes_after_reveal <= nodes_before_reveal, "reward reveal must not grow the prepared scene tree")
 
+	# Replay proof only after every timing sampler has stopped. Screenshot readback
+	# and PNG encoding are synchronous and must not contaminate animation metrics.
+	var active_visual_proof: Dictionary = await _capture_active_animation_visuals(instance)
 	await _settle_render_frames(6)
 	await _save_root_screenshot("reward_animation_settled.png")
 	var final_orphans: int = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
@@ -214,6 +217,7 @@ func _initialize() -> void:
 		"victory": victory,
 		"per_card_flips": per_card_flips,
 		"reward_reveal": reward_reveal,
+		"active_visual_proof": active_visual_proof,
 		"initial_nodes": initial_nodes,
 		"nodes_before_reveal": nodes_before_reveal,
 		"nodes_after_reveal": nodes_after_reveal,
@@ -227,6 +231,60 @@ func _initialize() -> void:
 	sampler.queue_free()
 	await process_frame
 	_finish(results)
+
+func _capture_active_animation_visuals(instance: Node) -> Dictionary:
+	var captured_paths: Array[String] = []
+	var victory_overlay: Control = instance.get("_post_combat_victory_overlay") as Control
+	PostCombatRewardSequence.play_victory(victory_overlay, false)
+	# At 120 Hz this lands during unfurl; at 60 Hz it lands near its full hold.
+	# Both are an active, non-settled state of the production animation.
+	for _frame: int in range(18):
+		await _await_render_frame()
+	var victory_label: Label = PostCombatRewardSequence.victory_label(victory_overlay)
+	_expect(victory_overlay.visible and victory_label != null and victory_label.modulate.a > 0.0, "active victory proof must capture a visible animated banner")
+	await _save_root_screenshot("reward_animation_victory_active.png")
+	captured_paths.append(ProjectSettings.globalize_path("%s/reward_animation_victory_active.png" % OUTPUT_DIR))
+	var victory_wait_frames: int = 0
+	while victory_overlay.visible and victory_wait_frames < 240:
+		await _await_render_frame()
+		victory_wait_frames += 1
+	_expect(victory_wait_frames < 240, "active victory proof replay must settle")
+
+	var flip_parts: Dictionary = await _prepare_reward_reveal(instance)
+	var slots: Array[Control] = flip_parts.get("slots", []) as Array[Control]
+	var banner: TextureRect = flip_parts.get("banner") as TextureRect
+	var title: Label = flip_parts.get("title") as Label
+	var secondary_actions: Control = flip_parts.get("secondary_actions") as Control
+	PostCombatRewardSequence.settle_banner(banner, title)
+	for slot: Control in slots:
+		PostCombatRewardSequence.show_card_back(slot)
+	await _settle_render_frames(3)
+	_expect(not slots.is_empty(), "active flip proof requires a prepared reward card")
+	if slots.is_empty():
+		return {"captured_paths": captured_paths}
+	var first_slot: Control = slots[0]
+	var scaler: Control = first_slot.find_child(PostCombatRewardSequence.CARD_FRAME_NAME, true, false) as Control
+	var base_scale: Vector2 = scaler.get_meta("reward_reveal_base_scale", scaler.scale) as Vector2
+	PostCombatRewardSequence._flip_card(first_slot)
+	var close_wait_frames: int = 0
+	while scaler.scale.x > base_scale.x * 0.22 and close_wait_frames < 120:
+		await _await_render_frame()
+		close_wait_frames += 1
+	_expect(close_wait_frames < 120 and scaler.scale.x < base_scale.x * 0.35, "mid-flip proof must capture the card near its closed edge")
+	await _save_root_screenshot("reward_animation_card_mid_flip.png")
+	captured_paths.append(ProjectSettings.globalize_path("%s/reward_animation_card_mid_flip.png" % OUTPUT_DIR))
+	var flip_wait_frames: int = 0
+	while not scaler.scale.is_equal_approx(base_scale) and flip_wait_frames < 180:
+		await _await_render_frame()
+		flip_wait_frames += 1
+	_expect(flip_wait_frames < 180, "active card-flip proof replay must settle")
+	PostCombatRewardSequence.settle_reward(banner, title, slots, secondary_actions)
+	instance.set("_reward_reveal_pending", false)
+	return {
+		"captured_paths": captured_paths,
+		"mid_flip_close_wait_frames": close_wait_frames,
+		"victory_wait_frames": victory_wait_frames,
+	}
 
 func _finish(results: Dictionary) -> void:
 	if _errors.is_empty():

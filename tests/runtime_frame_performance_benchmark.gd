@@ -1346,13 +1346,17 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 	if hand_index < 0:
 		return {}
 	await _select_card(instance, hand_index)
+	var selection_wait_frames: int = 0
+	while bool(instance.get("_animation_lock")) and selection_wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
+		await _await_render_frame()
+		selection_wait_frames += 1
+	_expect(selection_wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "Wildfire selection animation must settle before targeting")
 	await _await_render_frame()
+	var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	var interaction_steps: int = 0
-	while (
-		not bool(instance.call("_pending_card_requires_confirmation"))
-		and not bool(instance.get("_animation_lock"))
-		and interaction_steps < MAX_PREVIEW_STEPS
-	):
+	var action_start_wait_frames: int = 0
+	var action_started: bool = false
+	while not bool(instance.call("_pending_card_requires_confirmation")) and not action_started and interaction_steps < MAX_PREVIEW_STEPS:
 		var preview: Dictionary = instance.call("_active_card_preview") as Dictionary
 		var targets: Array[Vector2i] = _preview_interaction_tiles(instance, preview)
 		if targets.is_empty():
@@ -1360,15 +1364,40 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 		var target: Vector2i = _preferred_target(instance, targets)
 		_board_pointer_hover(instance, target)
 		_board_pointer_click(instance, target)
-		await process_frame
 		interaction_steps += 1
-	_expect(
-		bool(instance.call("_pending_card_requires_confirmation")) or bool(instance.get("_animation_lock")),
-		"Wildfire visual replay must start or reach self-tile confirmation"
-	)
-	if bool(instance.call("_pending_card_requires_confirmation")):
+		# Viewport-routed input is delivered asynchronously. Wait only until the
+		# authored handler exposes confirmation or starts the committed animation;
+		# do not wait out that animation before taking the proof screenshots.
+		for _start_frame: int in range(30):
+			await _await_render_frame()
+			action_start_wait_frames += 1
+			action_started = (
+				before_state != (instance.get("_combat_state") as Dictionary)
+				or bool(instance.get("_animation_lock"))
+				or int(instance.get("_selected_card_index")) < 0
+				or _hand_index(instance, "wildfire_halo") < 0
+			)
+			if bool(instance.call("_pending_card_requires_confirmation")) or action_started:
+				break
+		if action_started:
+			break
+		# Multi-step cards can briefly lock input between target choices. Let that
+		# authored step settle, then require the real confirmation state below.
+		var step_wait_frames: int = 0
+		while bool(instance.get("_animation_lock")) and step_wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
+			await _await_render_frame()
+			step_wait_frames += 1
+		_expect(step_wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "Wildfire target step must settle before confirmation")
+	var reached_confirmation: bool = bool(instance.call("_pending_card_requires_confirmation"))
+	_expect(reached_confirmation or action_started, "Wildfire visual replay must reach confirmation or start a committed action before capture")
+	if not reached_confirmation and not action_started:
+		return {}
+	if reached_confirmation:
 		var player_tile: Vector2i = (((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
 		_board_pointer_click(instance, player_tile)
+		await process_frame
+		action_started = true
+	_expect(bool(instance.get("_animation_lock")), "Wildfire confirmation must start the committed animation before capture")
 	var captured: Array[String] = []
 	var capture_frames: Dictionary = {
 		18: "action_effect_18.png",
@@ -1386,9 +1415,13 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 		await _await_render_frame()
 		wait_frames += 1
 	_expect(wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "Wildfire visual replay must settle before the deadlock guard")
+	var committed: bool = before_state != (instance.get("_combat_state") as Dictionary)
+	_expect(committed, "Wildfire visual replay must commit combat state before reporting proof")
 	await _settle_frames(3)
 	return {
 		"captured_paths": captured,
+		"committed": committed,
+		"action_start_wait_frames": action_start_wait_frames,
 		"interaction_steps": interaction_steps,
 		"post_capture_settle_frames": wait_frames,
 		"timed": false,

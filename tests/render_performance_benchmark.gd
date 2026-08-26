@@ -407,14 +407,35 @@ func _verify_in_place_state_redraw(board: Control, presentation: Dictionary) -> 
 	await process_frame
 	board.call("reset_render_instrumentation")
 	var enemies: Array = retained_state.get("enemies", []) as Array
-	var first_enemy: Dictionary = enemies[0] as Dictionary
-	first_enemy["hp"] = int(first_enemy.get("hp", 0)) - 1
+	var changed_enemy: Dictionary = enemies[1] as Dictionary
+	var old_tile: Vector2i = changed_enemy.get("pos", Vector2i(-1, -1))
+	var new_tile := Vector2i(4, 3)
+	changed_enemy["hp"] = int(changed_enemy.get("hp", 0)) - 1
+	changed_enemy["pos"] = new_tile
 	board.call("set_combat_state", retained_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
 	await process_frame
 	await process_frame
 	var snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
-	var redrew: bool = int(snapshot.get("dynamic_draw_count", 0)) > 0
-	_expect(redrew, "in-place state mutations detected by the deep cache snapshot must still invalidate retained layers")
+	var scene_counts: Dictionary = snapshot.get("scene_tile_draw_counts", {}) as Dictionary
+	var old_tile_redrew: bool = int(scene_counts.get("%d,%d" % [old_tile.x, old_tile.y], 0)) > 0
+	var new_tile_redrew: bool = int(scene_counts.get("%d,%d" % [new_tile.x, new_tile.y], 0)) > 0
+	var redrew: bool = int(snapshot.get("full_dynamic_redraw_count", 0)) > 0 and old_tile_redrew and new_tile_redrew
+	_expect(redrew, "in-place unit mutations must conservatively invalidate both old and new retained scene tiles")
+	var cache_field_mutations: Array[Dictionary] = [
+		{"key": "moss", "value": {"floor": [Vector2i(3, 3)]}},
+		{"key": "room_coord", "value": Vector2i(8, 11)},
+		{"key": "turn", "value": 2},
+	]
+	for mutation: Dictionary in cache_field_mutations:
+		board.call("reset_render_instrumentation")
+		retained_state[str(mutation.get("key", ""))] = mutation.get("value")
+		board.call("set_combat_state", retained_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
+		await process_frame
+		await process_frame
+		var field_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+		var field_redrew: bool = int(field_snapshot.get("full_dynamic_redraw_count", 0)) > 0
+		_expect(field_redrew, "in-place %s mutations must be detected by the deep submission snapshot" % str(mutation.get("key", "state")))
+		redrew = redrew and field_redrew
 	return redrew
 
 func _verify_post_process_redraw_cadence(board: Control, source_state: Dictionary) -> Dictionary:

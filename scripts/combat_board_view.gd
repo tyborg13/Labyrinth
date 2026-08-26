@@ -1215,6 +1215,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# unrelated late-run state on the normal immutable-snapshot path.
 	var state_reference_changed: bool = not is_same(next_state, combat_state)
 	var state_changed: bool = state_reference_changed and next_state != combat_state
+	var same_reference_state_mutation: bool = false
 	# The live combat dictionary may already contain an in-place mutation by the
 	# time it is resubmitted. Use the last deep cache snapshot as the authoritative
 	# previous render source so selective invalidation still sees that mutation.
@@ -1234,6 +1235,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			_combat_submission_cache_source(next_state)
 			!= (_submission_cache_source_snapshot.get("combat", {}) as Dictionary)
 		)
+		same_reference_state_mutation = state_changed
 	var move_tiles_changed: bool = next_move_tiles != move_tiles
 	var attack_tiles_changed: bool = next_attack_tiles != attack_tiles
 	var selected_tile_changed: bool = next_selected_tile != selected_tile
@@ -1266,7 +1268,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
 		previous_damage_preview = _damage_preview_map().duplicate(true)
 		moving_actor_keys = _changed_unit_presentation_actor_keys(presentation, next_presentation)
-		track_visible_unit_changes = (
+		track_visible_unit_changes = not same_reference_state_mutation and (
 			combat_render_changes.has("player")
 			or combat_render_changes.has("illusions")
 			or combat_render_changes.has("enemies")
@@ -1328,7 +1330,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	submission_phase_started = _record_submission_performance_phase("signatures", submission_phase_started)
 	if state_changed or not _submission_cache_initialized:
 		_update_ambient_intensity_targets(next_state)
-	_update_umbra_return_transition(combat_state, presentation, next_state, next_presentation, layout_changed)
+	var previous_transition_state: Dictionary = previous_combat_render_source if same_reference_state_mutation else combat_state
+	_update_umbra_return_transition(previous_transition_state, presentation, next_state, next_presentation, layout_changed)
 	_submission_cache_valid = false
 	# Combat and presentation dictionaries are copy-on-write snapshots owned by
 	# the caller. CombatBoardView only reads them and stores derived render data,
@@ -1500,7 +1503,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	_update_cursor_shape()
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
-	if layout_changed or visual_framing_changed or floor_changed or moss_changed:
+	if same_reference_state_mutation or layout_changed or visual_framing_changed or floor_changed or moss_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_dynamic_redraw()
@@ -1983,6 +1986,8 @@ func _update_umbra_return_transition(previous_state: Dictionary, previous_presen
 
 func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 	return {
+		"room_coord": source_state.get("room_coord", Vector2i.ZERO),
+		"turn": source_state.get("turn", 0),
 		"player": source_state.get("player", {}),
 		"player_turn_restrictions": source_state.get("player_turn_restrictions", {}),
 		"illusions": source_state.get("illusions", []),
@@ -1993,7 +1998,8 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		"traps": source_state.get("traps", []),
 		"elemental_intensity": source_state.get("elemental_intensity", {}),
 		"grid": source_state.get("grid", []),
-		"room_element": source_state.get("room_element", ElementData.NONE)
+		"room_element": source_state.get("room_element", ElementData.NONE),
+		"moss": source_state.get("moss", {}),
 	}
 
 func _rebuild_submission_caches() -> bool:
