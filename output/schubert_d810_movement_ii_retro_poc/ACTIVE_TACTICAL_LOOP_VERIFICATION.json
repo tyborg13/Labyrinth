@@ -4,41 +4,41 @@
       "lossless_flac": {
         "decoded_frames": 11849479,
         "first_frame": [
-          0.00372314453125,
-          0.00445556640625
+          0.0106201171875,
+          0.0140380859375
         ],
         "first_last_sample_delta": [
-          6.103515625e-05,
-          6.103515625e-05
+          0.000244140625,
+          0.00048828125
         ],
         "histogram_bin_width": 3.0517578125e-05,
         "last_frame": [
-          0.003662109375,
-          0.00439453125
+          0.0108642578125,
+          0.0145263671875
         ],
         "p99_9_adjacent_sample_delta_histogram_upper_bound": [
-          0.028411865234375,
-          0.028411865234375
+          0.028717041015625,
+          0.029144287109375
         ]
       },
       "ogg_vorbis": {
         "decoded_frames": 11849536,
         "first_frame": [
-          0.002504151314496994,
-          0.0028318508993834257
+          0.007278829347342253,
+          0.009065598249435425
         ],
         "first_last_sample_delta": [
-          0.002535294977860758,
-          0.0028771523684554268
+          0.007077962756738998,
+          0.009120123555476312
         ],
         "histogram_bin_width": 3.0517578125e-05,
         "last_frame": [
-          -3.114366336376406e-05,
-          -4.5301469072001055e-05
+          0.00020086659060325474,
+          -5.452530604088679e-05
         ],
         "p99_9_adjacent_sample_delta_histogram_upper_bound": [
-          0.028350830078125,
-          0.028411865234375
+          0.0286865234375,
+          0.029144287109375
         ]
       }
     },
@@ -65,9 +65,9 @@
     },
     "flac": {
       "format": {
-        "bit_rate": "312712",
+        "bit_rate": "317982",
         "duration": "268.695669",
-        "size": "10503062"
+        "size": "10680054"
       },
       "programs": [],
       "stream_groups": [],
@@ -79,13 +79,13 @@
         }
       ]
     },
-    "flac_sha256": "de37a38d388b571cc630b22471c7a50be78d2f78e49f831c0b99b5dca8ec07d2",
+    "flac_sha256": "0219033378a4aaa074ed70e899089ebe0a5294d95afcac9d69dafe67656e6051",
     "independent_peak_dbfs": -7.5,
     "ogg": {
       "format": {
-        "bit_rate": "62520",
+        "bit_rate": "63484",
         "duration": "268.696961",
-        "size": "2099879"
+        "size": "2132270"
       },
       "programs": [],
       "stream_groups": [],
@@ -98,19 +98,19 @@
       ]
     },
     "ogg_serial": "0x53383230",
-    "ogg_sha256": "b47019565e8a6e703cd4348c551550c907dc831575f1a009ce8e15d17c2a3705",
+    "ogg_sha256": "41116fd9726d8d50ca85326420233b7838947230d678f38d76eb92c80d62dbb4",
     "pre_encode_loop_crossfade": {
       "crossfade_quarters": 4.0,
       "crossfade_samples": 115043,
       "crossfade_seconds": 2.608695652173913,
       "first_last_sample_delta": [
-        7.657156974143035e-05,
-        6.613872376773876e-05
+        0.00028480013929130243,
+        0.00047271332730640554
       ],
       "method": "one-measure equal-power tail-to-head overlap with loop-point rotation",
       "p99_9_adjacent_sample_delta": [
-        0.02836216273537707,
-        0.028395664189746084
+        0.028668500107314584,
+        0.02911823226143332
       ],
       "render_start_rotation_quarters": 4.0,
       "rendered_duration_quarters": 412.0
@@ -143,11 +143,11 @@
       4
     ],
     "note_counts": {
-      "Ashen Bow / Violin II": 532,
+      "Ashen Bow / Violin II": 792,
       "Grave Cello": 406,
       "Hollow Viola": 665,
       "Undercrypt Bass / Cello -8ve": 396,
-      "Veiled Bow / Violin I": 767
+      "Veiled Bow / Violin I": 953
     },
     "per_track_max_polyphony": {
       "Ashen Bow / Violin II": 1,
@@ -157,24 +157,24 @@
       "Veiled Bow / Violin I": 1
     },
     "percussion_channel_note_events": 0,
-    "sha256": "43783e67509027a1684cf48dc9b1e671c2e2427ee9f9c3c62a211720446b9d9f",
+    "sha256": "9a69b30ab27ff24c10fcd54d81f4d5485f1c6a27fca77fb732e41f32bfff76b8",
     "source_mapping": {
       "all_non_bass_pitches_exact_source_pitches": true,
       "exact_octave_below_cello_events": 396,
-      "mapped_events": 2766,
+      "mapped_events": 3212,
       "new_pitch_classes": false,
       "section_event_counts": {
-        "A1": 316,
-        "A2": 315,
-        "B1": 689,
-        "B2": 659,
-        "C1": 787
+        "A1": 342,
+        "A2": 342,
+        "B1": 813,
+        "B2": 813,
+        "C1": 902
       }
     },
     "thinning": {
       "Ashen Bow / Violin II": {
         "considered": 792,
-        "dropped": 260
+        "dropped": 0
       },
       "Grave Cello": {
         "considered": 406,
@@ -190,7 +190,7 @@
       },
       "Veiled Bow / Violin I": {
         "considered": 953,
-        "dropped": 186
+        "dropped": 0
       }
     },
     "total_midi_tracks": 6,

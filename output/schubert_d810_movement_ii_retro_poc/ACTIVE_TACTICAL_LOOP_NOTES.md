@@ -36,15 +36,15 @@ This is a montage rather than a recomposition. Every non-bass MIDI pitch is reta
 
 - Tempo remains a steady 92 QPM.
 - The MIDI has five monophonic musical tracks and no percussion.
-- Violin I keeps every note longer than 0.75 quarters and deterministically removes one in five short events.
-- Violin II keeps every note longer than 0.75 quarters, removes one in three short events on the first pass, and one in two on its darker reprises.
+- Violin I retains every selected source note.
+- Violin II retains every selected source note, including the active inner motion on both passes.
 - Upper velocities are reduced by 6 and 9 units respectively, and their gates are shortened to 80% and 74%.
 - Viola retains every selected event at slightly reduced velocity and 94% gates.
 - Cello retains every selected event, gains 10 velocity units, and receives gates up to 108% subject to monophony.
 - The bass shadow follows eligible arranged cello notes exactly one octave lower. No independent bass line was composed.
 - No new pitch class, percussion part, countermelody, or replacement harmony was introduced.
 
-The thinning removes 186 of 953 considered short Violin I events and 260 of 792 considered short Violin II events. All 406 cello events are retained; 396 are low enough to receive the octave-below shadow.
+No selected upper-string event is removed. “Thinner” now means quieter, shorter-gated, lower-gain, and darker in timbre while preserving all 953 Violin I and 792 Violin II events. All 406 cello events are retained; 396 are low enough to receive the octave-below shadow.
 
 ## Procedural sample bank
 
@@ -73,17 +73,17 @@ The renderer adds a dark cross-stereo echo after the dry mix:
 
 The echo is circular so its quiet tail wraps naturally instead of being chopped at the loop point. A one-measure, 2.609-second equal-power overlap blends the final A return into the opening A. The audio is then rotated by that measure, placing the blended seam at the end of the file. Consequently, the Ogg/FLAC begins one measure later than the structural MIDI and lasts 412 rather than 416 quarters.
 
-The verifier decodes each delivered container and measures its actual first-to-last sample delta rather than trusting the pre-encode mix. The decoded FLAC deltas are approximately 0.000061 per channel; lossy Vorbis raises them to approximately 0.002535 left and 0.002877 right. Both remain well below ordinary adjacent-sample changes of approximately 0.0284. The Ogg/FLAC files can therefore be looped directly without adding another crossfade. The structural MIDI retains explicit `LOOP_START`, section, and `LOOP_END` markers; a MIDI-based engine should reproduce the documented one-measure crossfade itself.
+The verifier decodes each delivered container and measures its actual first-to-last sample delta rather than trusting the pre-encode mix. With the complete upper-string motion restored, the decoded FLAC deltas are approximately 0.000244 left and 0.000488 right; lossy Vorbis raises them to approximately 0.007078 left and 0.009120 right. Both remain below ordinary adjacent-sample changes of approximately 0.029. The Ogg/FLAC files can therefore be looped directly without adding another crossfade. The structural MIDI retains explicit `LOOP_START`, section, and `LOOP_END` markers; a MIDI-based engine should reproduce the documented one-measure crossfade itself.
 
 ## Audio and verification
 
-- Ogg Vorbis: 44.1 kHz stereo, approximately 2.2 MB.
-- FLAC: 44.1 kHz stereo, approximately 10.5 MB.
+- Ogg Vorbis: 44.1 kHz stereo, approximately 2.1 MB.
+- FLAC: 44.1 kHz stereo, approximately 10.7 MB.
 - Rendered duration: 268.696 seconds by FFprobe.
 - Independent Mediabunny 1.55.2 duration: 268.701 seconds for Ogg and 268.696 seconds for FLAC.
 - Independently measured peak: -7.5 dBFS.
 - Both containers pass strict FFmpeg decoding.
-- `ACTIVE_TACTICAL_LOOP_VERIFICATION.json` proves exactly one conductor plus five uniquely named monophonic musical tracks on channels 0-4, no channel-9 percussion, maximum five simultaneous voices, source mapping for 2,766 events, exact cello-octave derivation, sample-bank hashes/formats, duration, codecs, peak, and decoded-container loop-seam constraints.
+- `ACTIVE_TACTICAL_LOOP_VERIFICATION.json` proves exactly one conductor plus five uniquely named monophonic musical tracks on channels 0-4, no channel-9 percussion, maximum five simultaneous voices, source mapping for 3,212 events, exact cello-octave derivation, sample-bank hashes/formats, duration, codecs, peak, and decoded-container loop-seam constraints.
 
 ## Rebuild
 

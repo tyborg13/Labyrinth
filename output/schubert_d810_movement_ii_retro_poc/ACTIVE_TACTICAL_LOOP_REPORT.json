@@ -25,43 +25,43 @@
     },
     "encoder": "FFmpeg native Vorbis quality 5 (experimental encoder API)",
     "flac_path": "active_tactical_loop_preview.flac",
-    "flac_sha256": "de37a38d388b571cc630b22471c7a50be78d2f78e49f831c0b99b5dca8ec07d2",
+    "flac_sha256": "0219033378a4aaa074ed70e899089ebe0a5294d95afcac9d69dafe67656e6051",
     "loop_crossfade": {
       "crossfade_quarters": 4.0,
       "crossfade_samples": 115043,
       "crossfade_seconds": 2.608695652173913,
       "first_last_sample_delta": [
-        7.657156974143035e-05,
-        6.613872376773876e-05
+        0.00028480013929130243,
+        0.00047271332730640554
       ],
       "method": "one-measure equal-power tail-to-head overlap with loop-point rotation",
       "p99_9_adjacent_sample_delta": [
-        0.02836216273537707,
-        0.028395664189746084
+        0.028668500107314584,
+        0.02911823226143332
       ],
       "render_start_rotation_quarters": 4.0,
       "rendered_duration_quarters": 412.0
     },
     "lossless_encoder": "FFmpeg FLAC compression level 8",
-    "master_gain": 0.4535881805799694,
+    "master_gain": 0.454821271763931,
     "ogg_path": "active_tactical_loop_preview.ogg",
-    "ogg_sha256": "b47019565e8a6e703cd4348c551550c907dc831575f1a009ce8e15d17c2a3705",
+    "ogg_sha256": "41116fd9726d8d50ca85326420233b7838947230d678f38d76eb92c80d62dbb4",
     "ogg_stream_serial": "0x53383230",
     "peak_dbfs": -7.499564771426246,
     "peak_linear": 0.42171763413294266,
     "reconstruction_filter": "5-sample moving average after pitch-shifted sample playback",
     "renderer": "deterministic looped-sample playback from the generated procedural bank",
-    "rms_linear": 0.0783354158061544,
+    "rms_linear": 0.07887054503882746,
     "sample_rate": 44100
   },
   "midi": {
     "musical_voice_tracks": 5,
     "note_counts": {
-      "Ashen Bow / Violin II": 532,
+      "Ashen Bow / Violin II": 792,
       "Grave Cello": 406,
       "Hollow Viola": 665,
       "Undercrypt Bass / Cello -8ve": 396,
-      "Veiled Bow / Violin I": 767
+      "Veiled Bow / Violin I": 953
     },
     "path": "active_tactical_loop.mid",
     "pitch_ranges_midi": {
@@ -86,7 +86,7 @@
         93
       ]
     },
-    "sha256": "43783e67509027a1684cf48dc9b1e671c2e2427ee9f9c3c62a211720446b9d9f",
+    "sha256": "9a69b30ab27ff24c10fcd54d81f4d5485f1c6a27fca77fb732e41f32bfff76b8",
     "structural_duration_quarters": 416.0,
     "structural_duration_seconds": 271.30434782608694,
     "tempo_qpm": 92,
@@ -325,7 +325,7 @@
     "thinning": {
       "Ashen Bow / Violin II": {
         "considered": 792,
-        "dropped": 260
+        "dropped": 0
       },
       "Grave Cello": {
         "considered": 406,
@@ -341,10 +341,10 @@
       },
       "Veiled Bow / Violin I": {
         "considered": 953,
-        "dropped": 186
+        "dropped": 0
       }
     },
-    "upper_voice_policy": "Keep all notes longer than 0.75 quarters; deterministically omit one in five short Violin I events, one in three short first-pass Violin II events, and one in two short Violin II reprise events."
+    "upper_voice_policy": "Retain every selected Violin I and Violin II note. Thin the upper orchestration only through lower velocities, shorter gates, lower render gains, and darker procedural samples; do not thin note content."
   },
   "version": 2
 }

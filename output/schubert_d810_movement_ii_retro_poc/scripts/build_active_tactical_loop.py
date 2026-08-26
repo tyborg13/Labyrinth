@@ -315,23 +315,6 @@ def source_events() -> dict[str, list[base.NoteEvent]]:
     return events
 
 
-def keep_upper_event(
-    spec: LoopTrackSpec,
-    event: base.NoteEvent,
-    local_index: int,
-    occurrence_index: int,
-) -> bool:
-    """Thin only short upper-voice motion with stable, documented patterns."""
-    if event.duration_ql > 0.75:
-        return True
-    if spec.source_track == "Pulse I / Violin I":
-        return (local_index + occurrence_index * 2) % 5 != 1
-    if spec.source_track == "Pulse II / Violin II":
-        modulus = 2 if occurrence_index > 0 else 3
-        return (local_index + occurrence_index) % modulus != 1
-    return True
-
-
 def clamp_monophonic(events: list[ArrangedEvent]) -> list[ArrangedEvent]:
     ordered = sorted(events, key=lambda event: (event.start_ql, event.pitch))
     clamped: list[ArrangedEvent] = []
@@ -377,13 +360,8 @@ def build_track_events() -> tuple[dict[str, list[ArrangedEvent]], dict[str, obje
                 if event.start_ql < segment.source_end_ql
                 and event.end_ql > segment.source_start_ql
             ]
-            for local_index, event in enumerate(selected):
+            for event in selected:
                 considered += 1
-                if not keep_upper_event(
-                    spec, event, local_index, section.occurrence_index
-                ):
-                    dropped += 1
-                    continue
                 source_start = max(event.start_ql, segment.source_start_ql)
                 source_end = min(event.end_ql, segment.source_end_ql)
                 start = section.destination_start_ql + (
@@ -1082,9 +1060,9 @@ def build(skip_audio: bool = False) -> dict[str, object]:
         "transformation": {
             **transformation,
             "upper_voice_policy": (
-                "Keep all notes longer than 0.75 quarters; deterministically omit "
-                "one in five short Violin I events, one in three short first-pass "
-                "Violin II events, and one in two short Violin II reprise events."
+                "Retain every selected Violin I and Violin II note. Thin the upper "
+                "orchestration only through lower velocities, shorter gates, lower "
+                "render gains, and darker procedural samples; do not thin note content."
             ),
             "cello_policy": (
                 "Keep every selected cello event, add 10 velocity units, lengthen "
