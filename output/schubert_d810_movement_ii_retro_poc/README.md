@@ -1,0 +1,38 @@
+# Schubert D.810 Movement II - Retro POC
+
+This folder is a provenance-first audition package. It is not wired into the game and does not replace any existing music asset.
+
+## Primary audition files
+
+- `faithful_retro.mid` - five-voice faithful retro arrangement
+- `faithful_retro_preview.ogg` - compact reference preview, Ogg Vorbis
+- `faithful_retro_preview.flac` - lossless reference from the same procedural render
+- `ARRANGEMENT_NOTES.md` - every material transformation and next-version directions
+- `LICENSE_SOURCE.md` - source, license, hashes, URLs, and audio provenance
+
+## Normalized source outputs
+
+- `normalized/movement_ii_four_parts.musicxml`
+- `normalized/movement_ii_four_parts.mid`
+- `normalized/parts/` - separate MusicXML and MIDI files for Violin I, Violin II, Viola, and Cello
+
+The unchanged OpenScore source and its license are under `source/`. The public-domain IMSLP reference edition is under `source/reference/`.
+
+## Rebuild
+
+From this POC folder:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python scripts/build_arrangement.py
+.venv/bin/python scripts/verify_outputs.py
+```
+
+FFmpeg with either `libvorbis` or its native Vorbis encoder is required for the compact preview. The current build used FFmpeg's native Vorbis encoder and also emitted a lossless FLAC reference. Pass `--skip-audio` to build only MusicXML and MIDI.
+
+`scripts/build_arrangement.py` verifies the immutable source hash before doing any work. `scripts/verify_outputs.py` writes `VERIFICATION_REPORT.json` and fails on source drift, missing parts, hanging/incorrect arranged notes, excess voice count, or invalid preview containers.
+
+## Courtesy credit
+
+Musical source: OpenScore String Quartets (CC0), score 7397765. Original composition by Franz Schubert (public domain).

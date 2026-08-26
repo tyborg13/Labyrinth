@@ -1,0 +1,111 @@
+{
+  "ok": true,
+  "provenance": {
+    "openscore_mxl_sha256": "c1370ff43b2272b88e04d41d3cc31ca6717a982eaa09cc5540a5952b4f3c1bd5",
+    "openscore_license_sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+    "imslp_reference_pdf_sha256": "55db640f6b3ec6715a0bd5527ed3f26cca181036a4e848a32027dd7d29bef48e"
+  },
+  "musicxml": {
+    "part_names": [
+      "Violin 1",
+      "Violin 2",
+      "Viola",
+      "Violoncello"
+    ],
+    "measure_objects_per_part": [
+      180,
+      180,
+      180,
+      180
+    ],
+    "separate_part_measure_objects": {
+      "Violin 1": 180,
+      "Violin 2": 180,
+      "Viola": 180,
+      "Violoncello": 180
+    },
+    "opening_heading": "II. | Andante con moto"
+  },
+  "normalized_midi": {
+    "note_track_names": [
+      "Violin 1",
+      "Violin 2",
+      "Viola",
+      "Violoncello"
+    ],
+    "note_counts": {
+      "Violin 1": 2520,
+      "Violin 2": 1849,
+      "Viola": 1582,
+      "Violoncello": 1110
+    }
+  },
+  "arrangement_midi": {
+    "tempo_qpm": 92,
+    "note_track_names": [
+      "Pulse I / Violin I",
+      "Pulse II / Violin II",
+      "Triangle / Viola",
+      "Low Triangle / Cello",
+      "Sub-Bass Shadow / Cello -8ve"
+    ],
+    "per_track_note_counts": {
+      "Pulse I / Violin I": 2468,
+      "Pulse II / Violin II": 1663,
+      "Triangle / Viola": 1544,
+      "Low Triangle / Cello": 1075,
+      "Sub-Bass Shadow / Cello -8ve": 1038
+    },
+    "per_track_max_polyphony": {
+      "Pulse I / Violin I": 1,
+      "Pulse II / Violin II": 1,
+      "Triangle / Viola": 1,
+      "Low Triangle / Cello": 1,
+      "Sub-Bass Shadow / Cello -8ve": 1
+    },
+    "global_max_simultaneous_musical_voices": 5,
+    "source_derived_tracks_exact_match": [
+      "Pulse I / Violin I",
+      "Pulse II / Violin II",
+      "Triangle / Viola",
+      "Low Triangle / Cello"
+    ],
+    "bass_shadow_exact_cello_octave_derivation": true
+  },
+  "audio": {
+    "ogg_vorbis": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "vorbis",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "783.400635",
+        "size": "5130631",
+        "bit_rate": "52393"
+      }
+    },
+    "lossless_flac": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "flac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "783.399478",
+        "size": "26971734",
+        "bit_rate": "275432"
+      }
+    },
+    "render_peak_dbfs": -8.21167536073676,
+    "render_rms_linear": 0.060562555194950636
+  }
+}
