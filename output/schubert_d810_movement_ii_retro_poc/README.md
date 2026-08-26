@@ -21,6 +21,17 @@ This folder is a provenance-first audition package. It is not wired into the gam
 
 Version 2 is additive: its build and verifier assert the hashes of the version-1 MIDI, previews, and combined normalized files so the first audition remains unchanged.
 
+## Version 3: driving tactical loop
+
+- `driving_tactical_loop.mid` - the complete version-2 string material with a separate percussion track and modest violin lift
+- `driving_tactical_loop_preview.ogg` - compact 4:29 seamless-loop audition render
+- `driving_tactical_loop_preview.flac` - lossless render of the same loop
+- `DRIVING_TACTICAL_LOOP_NOTES.md` - exact balance changes, beat design, preservation policy, and audition questions
+- `DRIVING_PERCUSSION_PROVENANCE.md` - rights and generation evidence for the three original percussion WAVs
+- `procedural_percussion_bank/` - reproducibly generated 16 kHz low drum, muted tom, ash tick, and manifest
+
+Version 3 is also additive. Its verifier locks both prior versions by hash, proves that all 3,212 version-2 string events remain at identical pitches/times/gates, and verifies that percussion is isolated to MIDI channel 10.
+
 ## Normalized source outputs
 
 - `normalized/movement_ii_four_parts.musicxml`
@@ -57,6 +68,15 @@ Build and verify the active tactical loop separately:
 ```
 
 The version-2 build writes only `active_tactical_loop*`, `procedural_bank/`, and its own reports. It does not rebuild or overwrite the faithful first version.
+
+Build and verify the driving percussion draft separately:
+
+```bash
+.venv/bin/python scripts/build_driving_tactical_loop.py
+.venv/bin/python scripts/verify_driving_tactical_loop.py
+```
+
+The version-3 build writes only `driving_tactical_loop*`, `procedural_percussion_bank/`, and its own reports. It reads the version-2 string bank but verifies its hashes and never writes it.
 
 ## Courtesy credit
 

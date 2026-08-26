@@ -1,0 +1,297 @@
+{
+  "audio": {
+    "channels": 2,
+    "duration_quarters": 412.0,
+    "duration_seconds": 268.69566893424036,
+    "echo": {
+      "circular": true,
+      "darkening_filter": "9-sample moving average before echo taps",
+      "model": "finite three-tap circular cross-stereo dark echo",
+      "purpose": "restrained SNES-DSP-like room depth without a rhythmic repeat",
+      "taps": [
+        {
+          "delay_ms": 96.0,
+          "gain": 0.12
+        },
+        {
+          "delay_ms": 192.0,
+          "gain": 0.052
+        },
+        {
+          "delay_ms": 288.0,
+          "gain": 0.022
+        }
+      ]
+    },
+    "encoder": "FFmpeg native Vorbis quality 5 (experimental encoder API)",
+    "flac_path": "driving_tactical_loop_preview.flac",
+    "flac_sha256": "722be73cd85a4c69618ffa3b66c3f0b1f98ab91dd3ace78772c04c0f1ac8c18b",
+    "loop_crossfade": {
+      "crossfade_quarters": 4.0,
+      "crossfade_samples": 115043,
+      "crossfade_seconds": 2.608695652173913,
+      "first_last_sample_delta": [
+        0.00076051598384623,
+        0.00042937143831365404
+      ],
+      "method": "one-measure equal-power tail-to-head overlap with loop-point rotation",
+      "p99_9_adjacent_sample_delta": [
+        0.03074542259196699,
+        0.035618236345665515
+      ],
+      "render_start_rotation_quarters": 4.0,
+      "rendered_duration_quarters": 412.0
+    },
+    "lossless_encoder": "FFmpeg FLAC compression level 8",
+    "master_gain": 0.4601848778462657,
+    "ogg_path": "driving_tactical_loop_preview.ogg",
+    "ogg_sha256": "bb0a7c9b30883e87f0d2c0be88fd11844056ce40c628860950a02fc51677403b",
+    "ogg_stream_serial": "0x53383330",
+    "peak_dbfs": -7.499564771426246,
+    "peak_linear": 0.42171763413294266,
+    "percussion_reconstruction_filter": "3-sample moving average; percussion otherwise dry",
+    "pre_master_stem_rms": {
+      "low_strings_cello_and_bass": 0.12195231195906829,
+      "percussion": 0.01639528592781092,
+      "upper_strings_violin_i_ii": 0.04538342195636122
+    },
+    "renderer": "deterministic looped procedural strings plus deterministic procedural percussion one-shots",
+    "rms_linear": 0.08249465362022329,
+    "sample_rate": 44100,
+    "string_reconstruction_filter": "5-sample moving average after pitch-shifted sample playback"
+  },
+  "midi": {
+    "path": "driving_tactical_loop.mid",
+    "percussion_note_count": 736,
+    "sha256": "df56ad03016dd25cef53cbf86be05900f6040b603146f8c1096b41d800a7fbb2",
+    "string_note_counts": {
+      "Ashen Bow / Violin II": 792,
+      "Grave Cello": 406,
+      "Hollow Viola": 665,
+      "Undercrypt Bass / Cello -8ve": 396,
+      "Veiled Bow / Violin I": 953
+    },
+    "structural_duration_quarters": 416.0,
+    "structural_duration_seconds": 271.30434782608694,
+    "tempo_qpm": 92,
+    "ticks_per_beat": 480,
+    "track_count_including_conductor": 7
+  },
+  "procedural_percussion_bank": {
+    "commercial_use_status": "Original project-generated assets with no third-party audio rights input; intended for unrestricted use in Escape the Umbra and its distributed builds.",
+    "manifest_path": "procedural_percussion_bank/bank_manifest.json",
+    "manifest_sha256": "9806b300609d95c0c565d7ea8b238e3ded42e164d8bc3f9b8bb2c969e4791ed1",
+    "name": "Escape the Umbra Procedural Funeral Pulse v1",
+    "provenance": "Generated locally from mathematical oscillators, fixed integer-noise seeds, and deterministic envelopes. No recording, sample pack, SoundFont, ROM, model output, or third-party audio was used.",
+    "sample_rate": 16000,
+    "samples": [
+      {
+        "bank_id": "umbra_war_drum",
+        "channels": 1,
+        "duration_seconds": 0.72,
+        "filename": "umbra_war_drum.wav",
+        "frames": 11520,
+        "generator": "deterministic local mathematical synthesis",
+        "label": "Low war drum",
+        "midi_note": 36,
+        "pan": 61,
+        "path": "procedural_percussion_bank/umbra_war_drum.wav",
+        "render_gain": 0.25,
+        "sample_rate": 16000,
+        "sample_width_bits": 16,
+        "sha256": "6286624ce4b2bf0f8f372a524217846a7096bb9f453dea8b60f69d3207f346ea",
+        "signal_quantization_bits": 10,
+        "synthesis": "exponentially swept sinusoidal membrane plus deterministic transient"
+      },
+      {
+        "bank_id": "bone_tom",
+        "channels": 1,
+        "duration_seconds": 0.38,
+        "filename": "bone_tom.wav",
+        "frames": 6080,
+        "generator": "deterministic local mathematical synthesis",
+        "label": "Muted bone tom",
+        "midi_note": 41,
+        "pan": 70,
+        "path": "procedural_percussion_bank/bone_tom.wav",
+        "render_gain": 0.17,
+        "sample_rate": 16000,
+        "sample_width_bits": 16,
+        "sha256": "3789e4f0aec579f355416bc05cea5758f018b528ae7db37069100b221f0432ec",
+        "signal_quantization_bits": 10,
+        "synthesis": "short swept sinusoidal membrane with an inharmonic upper partial"
+      },
+      {
+        "bank_id": "ash_tick",
+        "channels": 1,
+        "duration_seconds": 0.085,
+        "filename": "ash_tick.wav",
+        "frames": 1360,
+        "generator": "deterministic local mathematical synthesis",
+        "label": "Ash tick",
+        "midi_note": 42,
+        "pan": 76,
+        "path": "procedural_percussion_bank/ash_tick.wav",
+        "render_gain": 0.065,
+        "sample_rate": 16000,
+        "sample_width_bits": 16,
+        "sha256": "1d2eff817f2e52e2b7ffa177914a6c2b33cc534b4f34b53bbefa1b469837aeb7",
+        "signal_quantization_bits": 8,
+        "synthesis": "high-passed deterministic integer-noise burst with a quiet metallic partial"
+      }
+    ]
+  },
+  "procedural_string_bank": {
+    "path": "procedural_bank/bank_manifest.json",
+    "sha256": "6e47f373b7c7f91dbe97f356f95b48497415aa7e31f7bbc15d0491b07dce5ac5",
+    "status": "reused unchanged from version 2"
+  },
+  "selection": {
+    "form": "A-B-C-B-A",
+    "sections": [
+      {
+        "destination_end_ql": 64.0,
+        "destination_start_ql": 0.0,
+        "label": "A1",
+        "occurrence_index": 0,
+        "performed_measure_end": 32,
+        "performed_measure_start": 25,
+        "requested_window": "2:05-2:45",
+        "segment_key": "A",
+        "source_end_ql": 256.0,
+        "source_preview_end_seconds": 166.95652173913044,
+        "source_preview_start_seconds": 125.21739130434783,
+        "source_start_ql": 192.0
+      },
+      {
+        "destination_end_ql": 160.0,
+        "destination_start_ql": 64.0,
+        "label": "B1",
+        "occurrence_index": 0,
+        "performed_measure_end": 64,
+        "performed_measure_start": 49,
+        "requested_window": "4:10-5:10",
+        "segment_key": "B",
+        "source_end_ql": 480.0,
+        "source_preview_end_seconds": 313.04347826086956,
+        "source_preview_start_seconds": 250.43478260869566,
+        "source_start_ql": 384.0
+      },
+      {
+        "destination_end_ql": 256.0,
+        "destination_start_ql": 160.0,
+        "label": "C1",
+        "occurrence_index": 0,
+        "performed_measure_end": 88,
+        "performed_measure_start": 73,
+        "requested_window": "6:15-7:17",
+        "segment_key": "C",
+        "source_end_ql": 672.0,
+        "source_preview_end_seconds": 438.2608695652174,
+        "source_preview_start_seconds": 375.6521739130435,
+        "source_start_ql": 576.0
+      },
+      {
+        "destination_end_ql": 352.0,
+        "destination_start_ql": 256.0,
+        "label": "B2",
+        "occurrence_index": 1,
+        "performed_measure_end": 64,
+        "performed_measure_start": 49,
+        "requested_window": "4:10-5:10",
+        "segment_key": "B",
+        "source_end_ql": 480.0,
+        "source_preview_end_seconds": 313.04347826086956,
+        "source_preview_start_seconds": 250.43478260869566,
+        "source_start_ql": 384.0
+      },
+      {
+        "destination_end_ql": 416.0,
+        "destination_start_ql": 352.0,
+        "label": "A2",
+        "occurrence_index": 1,
+        "performed_measure_end": 32,
+        "performed_measure_start": 25,
+        "requested_window": "2:05-2:45",
+        "segment_key": "A",
+        "source_end_ql": 256.0,
+        "source_preview_end_seconds": 166.95652173913044,
+        "source_preview_start_seconds": 125.21739130434783,
+        "source_start_ql": 192.0
+      }
+    ],
+    "structural_duration_quarters": 416.0,
+    "structural_duration_seconds": 271.30434782608694
+  },
+  "source": {
+    "license": "OpenScore String Quartets CC0; composition public domain",
+    "path": "source/openscore_sq7397765.mxl",
+    "sha256": "c1370ff43b2272b88e04d41d3cc31ca6717a982eaa09cc5540a5952b4f3c1bd5"
+  },
+  "tools": {
+    "mido": "1.3.3",
+    "music21": "10.5.0",
+    "numpy": "2.5.2",
+    "python": "3.12.13"
+  },
+  "transformation": {
+    "cello_and_bass_settings_changed_from_version_two": false,
+    "new_schubert_pitch_classes": false,
+    "percussion": {
+      "channel_human_number": 10,
+      "channel_zero_based": 9,
+      "counts_by_bank_id": {
+        "ash_tick": 352,
+        "bone_tom": 176,
+        "umbra_war_drum": 208
+      },
+      "counts_by_section": {
+        "A1": 80,
+        "A2": 80,
+        "B1": 192,
+        "B2": 192,
+        "C1": 192
+      },
+      "description": "Low drum on beats 1/3; muted tom backbeats; quiet offbeat ash ticks with sparser A sections.",
+      "total_events": 736
+    },
+    "thinning": {
+      "Ashen Bow / Violin II": {
+        "considered": 792,
+        "dropped": 0
+      },
+      "Grave Cello": {
+        "considered": 406,
+        "dropped": 0
+      },
+      "Hollow Viola": {
+        "considered": 665,
+        "dropped": 0
+      },
+      "Undercrypt Bass / Cello -8ve": {
+        "considered": 406,
+        "dropped": 10
+      },
+      "Veiled Bow / Violin I": {
+        "considered": 953,
+        "dropped": 0
+      }
+    },
+    "upper_voice_balance_changes": {
+      "Ashen Bow / Violin II": {
+        "midi_velocity_lift": 4,
+        "render_gain_change_db": 2.566369545193611,
+        "version_2_render_gain": 0.32,
+        "version_3_render_gain": 0.43
+      },
+      "Veiled Bow / Violin I": {
+        "midi_velocity_lift": 3,
+        "render_gain_change_db": 1.8550810647379743,
+        "version_2_render_gain": 0.42,
+        "version_3_render_gain": 0.52
+      }
+    },
+    "version_two_string_content_retained": true
+  },
+  "version": 3
+}
