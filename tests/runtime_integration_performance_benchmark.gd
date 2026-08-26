@@ -78,11 +78,9 @@ func _initialize() -> void:
 	var cached_option_digest: int = _option_digest(instance)
 	_expect(rebuilt_option_digest == cached_option_digest, "cached card options differ from a cold rebuild")
 	_expect((instance.get("_card_play_options_cache") as Dictionary).size() == option_cache_size, "cached card-option sweeps grew the option cache")
-	_verify_fallback_template_semantics(instance)
 	results["card_option_digest"] = cached_option_digest
 	results["card_option_cache_entries"] = option_cache_size
 	results["card_preview_cold_us_by_id"] = _profile_cold_printed_previews(instance)
-	results["fallback_preview_cold_us_by_kind"] = _profile_cold_fallback_previews(instance)
 
 	# Measure the complete real UI refresh synchronously while draining deferred
 	# layout work between samples. Cold samples invalidate all view signatures;
@@ -334,32 +332,10 @@ func _option_digest(instance: Node) -> int:
 		var options: Dictionary = instance.call("_card_play_options_for_index", index) as Dictionary
 		canonical.append({
 			"play": _preview_digest(options.get("play", {})),
-			"attack": _preview_digest(options.get("attack", {})),
-			"move": _preview_digest(options.get("move", {})),
 			"printed_playable": bool(options.get("printed_playable", false)),
-			"attack_playable": bool(options.get("attack_playable", false)),
-			"move_playable": bool(options.get("move_playable", false))
+			"any_playable": bool(options.get("any_playable", false))
 		})
 	return hash(canonical)
-
-func _verify_fallback_template_semantics(instance: Node) -> void:
-	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
-	var hand: Array = (combat_state.get("deck", {}) as Dictionary).get("hand", [])
-	for index: int in range(hand.size()):
-		var card_id: String = str(hand[index])
-		for play_kind: String in ["attack", "move"]:
-			var shared_preview: Dictionary = instance.call("_fallback_preview_for_index", index, play_kind) as Dictionary
-			var direct_preview: Dictionary = instance.call(
-				"_card_preview_from_state",
-				card_id,
-				combat_state,
-				instance.call("_fallback_actions", play_kind),
-				0
-			) as Dictionary
-			_expect(
-				shared_preview == direct_preview,
-				"shared %s fallback preview differs from direct preview for hand index %d" % [play_kind, index]
-			)
 
 func _profile_cold_printed_previews(instance: Node) -> Dictionary:
 	var result: Dictionary = {}
@@ -368,15 +344,6 @@ func _profile_cold_printed_previews(instance: Node) -> Dictionary:
 		var started_us: int = Time.get_ticks_usec()
 		instance.call("_card_preview_for_index", index)
 		result[HAND[index]] = Time.get_ticks_usec() - started_us
-	return result
-
-func _profile_cold_fallback_previews(instance: Node) -> Dictionary:
-	var result: Dictionary = {}
-	for play_kind: String in ["attack", "move"]:
-		instance.call("_mark_combat_preview_state_changed")
-		var started_us: int = Time.get_ticks_usec()
-		instance.call("_fallback_preview_for_index", 0, play_kind)
-		result[play_kind] = Time.get_ticks_usec() - started_us
 	return result
 
 func _verify_aoe_target_semantics(instance: Node, combat: CombatEngine, state: Dictionary) -> void:

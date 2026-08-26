@@ -139,7 +139,7 @@ without filling deliberately unspent points.
 | --- | --- | --- |
 | Quick Wits | Manual, once per combat | Discard a card to draw a card without spending a play or Time. |
 | Measured Breath | Automatic | End an activation with an unused play to bank one play for the next activation. |
-| Ghost Stride | Contextual, once per combat | You may use a card's basic Move as Blink `2`. |
+| Ghost Stride | Manual, once per combat | Arm your next use of independent movement to become Blink `2`. |
 | Discerning Eye | Contextual, once between bosses | Replace every card in a combat reward. |
 
 ### Branch skills
@@ -147,7 +147,7 @@ without filling deliberately unspent points.
 | Skill | Requires | Effect |
 | --- | --- | --- |
 | Rehearsed Escape | Quick Wits | Once per combat, arm to discard the next non-item Burn card instead of burning it. It is offered only while a qualifying card is in hand and spends its charge when preservation resolves. |
-| Makeshift Tool | Quick Wits | Once per combat, arm to discard the next item used as a basic Attack or Move instead of consuming it. It is offered only while an item is in hand and spends its charge when preservation resolves. |
+| Makeshift Tool | Quick Wits | Once per combat, arm to discard the next played item instead of consuming it. It is offered only while an item is in hand and spends its charge when preservation resolves. |
 | Carry the Guard | Measured Breath | Once per combat, after gaining block, arm during an activation to convert all block remaining at its end into stoneskin. |
 | Pain Remembers | Measured Breath | After the first health loss each combat, when the hand has room, return the next non-item discard to it. |
 | Sure-Footed | Ghost Stride | Once per combat, the first trap blast that would affect the player leaves them untouched and resolves normally against everything else. |

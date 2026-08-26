@@ -1,0 +1,71 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*01_full_pool_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 130, 1440, 760], "min_luma_range": 65, "min_luma_stdev": 12},
+        {"rect": [100, 820, 1720, 240], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*02_selected_path_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [330, 220, 1260, 600], "min_luma_range": 65, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*03_split_pool_one_remaining.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [100, 820, 1720, 240], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*04_direct_printed_card_flow.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [330, 220, 1260, 760], "min_luma_range": 65, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*05_card_played_movement_preserved.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [100, 820, 1720, 240], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*06_post_card_movement_selected.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [330, 220, 1260, 600], "min_luma_range": 65, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*07_pool_exhausted.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [100, 820, 1720, 240], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*08_cancel_restores_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 130, 1440, 760], "min_luma_range": 65, "min_luma_stdev": 12}
+      ]
+    }
+  ]
+}

@@ -20,6 +20,7 @@ const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_
 const InlineIconDescriptionSuite = preload("res://tests/suites/inline_icon_description_suite.gd")
 const SkillTreeSuite = preload("res://tests/suites/skill_tree_suite.gd")
 const SkillCombatSuite = preload("res://tests/suites/skill_combat_suite.gd")
+const PlayerMovementSuite = preload("res://tests/suites/player_movement_suite.gd")
 const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const RelicSuite = preload("res://tests/suites/relic_suite.gd")
 const RadiancePackageSuite = preload("res://tests/suites/radiance_package_suite.gd")
@@ -87,6 +88,7 @@ func _initialize() -> void:
 	DragonBossSuite.run(Callable(self, "_assert"))
 	SkillTreeSuite.run(Callable(self, "_assert"))
 	SkillCombatSuite.run(Callable(self, "_assert"))
+	PlayerMovementSuite.run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
 	AttackFxSuite.run(Callable(self, "_assert"))
@@ -343,9 +345,8 @@ func _initialize() -> void:
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_pass_preview_chip_updates()
-	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
-	await _test_run_scene_combat_interaction_context_paths()
+	await _test_run_scene_direct_card_and_player_movement_selection()
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
 	await _test_run_scene_reward_heal_choice_sits_below_cards()
@@ -365,7 +366,6 @@ func _initialize() -> void:
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
-	_test_run_scene_fallback_attack_uses_scaled_damage()
 	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_intensity_condition_rows_mark_activity()
@@ -9451,6 +9451,42 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_direct_card_and_player_movement_selection() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for direct-card and independent-movement coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(3, 5)], 9214)
+	await process_frame
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	var pending_actions: Array = instance.get("_pending_actions")
+	_assert(int(instance.get("_card_action_choice_index")) == -1, "Card clicks should never open the removed play-mode selector")
+	_assert(int(instance.get("_selected_card_index")) == 0, "A playable card click should enter its printed targeting flow directly")
+	_assert(pending_actions.size() == 1 and str((pending_actions[0] as Dictionary).get("type", "")) == "melee", "Direct card selection should retain the card's printed action")
+	instance.call("_on_cancel_requested")
+	await process_frame
+	var combat_state: Dictionary = instance.get("_combat_state")
+	var player_tile: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	await instance.call("_on_board_tile_clicked", player_tile)
+	await process_frame
+	await process_frame
+	_assert(bool(instance.get("_player_movement_selected")), "Clicking the protagonist should enter independent movement targeting")
+	var movement_targets: Array = instance.get("_player_movement_target_tiles")
+	_assert(not movement_targets.is_empty(), "Independent movement targeting should expose legal destination tiles")
+	var movement_meter: Control = instance.get("_movement_meter") as Control
+	var movement_count: Label = instance.get("_movement_meter_count") as Label
+	var movement_capacity: int = CombatEngine.new().player_movement_capacity(instance.get("_combat_state"))
+	_assert(movement_meter != null and movement_count != null and movement_count.text == "%d / %d movement" % [movement_capacity, movement_capacity], "Combat HUD should show the full independent movement pool")
+	instance.call("_on_cancel_requested")
+	await process_frame
+	_assert(not bool(instance.get("_player_movement_selected")), "Cancel should leave independent movement targeting without spending movement")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_combat_interaction_context_paths() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -10781,7 +10817,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var combat_state: Dictionary = combat.create_combat(95, _simple_room_layout(), {
 		"hp": 12,
 		"max_hp": 20,
-		"deck_cards": ["patch_up", "quick_stab"],
+		"deck_cards": ["patch_up", "brace"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
@@ -10790,7 +10826,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	player["hp"] = 12
 	combat_state["player"] = player
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["patch_up", "quick_stab"]
+	deck["hand"] = ["patch_up", "brace"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -10811,30 +10847,21 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var confirmation_tiles: Array = (board_view.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array
 	_assert(int(armed_player.get("hp", 0)) == 12 and int(armed_player.get("block", 0)) == 0, "Selecting a targetless card should preview without applying its effects")
 	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0, "Selecting a targetless card should not spend a card play")
-	_assert(((armed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "quick_stab"], "Selecting a targetless card should leave the exact hand intact")
+	_assert(((armed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "brace"], "Selecting a targetless card should leave the exact hand intact")
 	_assert(_button_with_text(context, "Play Card") == null, "A targetless card should not add a third confirmation control")
 	_assert(confirmation_tiles == [player_tile], "A targetless card should expose only the protagonist tile as its confirmation target")
-	_assert(str(context.get_meta("action_verb", "")) == "READY · CLICK YOUR TILE" and str(context.get_meta("target_state", "")) == "SELF", "Targetless confirmation should direct the player to the pulsing self tile")
-
-	await instance.call("_on_card_action_choice_pressed", "move")
-	await process_frame
-	_assert(str(instance.get("_card_action_choice_mode")) == "move" and int(instance.get("_selected_card_index")) == 0, "An armed targetless card should remain switchable to Basic Move before commitment")
-	await instance.call("_on_card_action_choice_pressed", "play")
-	await process_frame
-	armed_state = instance.get("_combat_state")
-	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Switching back to Printed should re-arm the card without committing it")
 
 	instance.call("_on_cancel_requested")
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == -1, "Cancel should close targetless confirmation")
-	_assert((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "quick_stab"], "Canceling targetless confirmation should preserve the exact hand")
+	_assert((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "brace"], "Canceling targetless confirmation should preserve the exact hand")
 
 	await _choose_clicked_card_action(instance, 0, "play")
 	instance.call("_on_card_pressed", 1)
 	await process_frame
 	armed_state = instance.get("_combat_state")
 	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Selecting another card should replace targetless confirmation without committing the first card")
-	_assert(int(instance.get("_card_action_choice_index")) == 1, "Selecting another card should move the play-mode rail to that card")
+	_assert(int(instance.get("_card_action_choice_index")) == -1 and int(instance.get("_selected_card_index")) == 1, "Selecting another card should enter that card's printed flow without a mode rail")
 	instance.call("_on_cancel_requested")
 	await process_frame
 
@@ -10846,7 +10873,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var committed_player: Dictionary = committed_state.get("player", {})
 	_assert(int(committed_player.get("hp", 0)) == 14, "Confirming a targetless self card should commit its heal")
 	_assert(int(committed_player.get("block", 0)) == 2, "Confirming a targetless self card should commit its block")
-	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["quick_stab"], "Confirming should consume only the armed targetless card")
+	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["brace"], "Confirming should consume only the armed targetless card")
 	instance.queue_free()
 	await process_frame
 
@@ -13935,16 +13962,13 @@ func _buttons_under(node: Node) -> Array[Button]:
 	return buttons
 
 func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: String) -> void:
+	_assert(play_kind == "play", "Card-click test helpers should request only the printed flow")
 	instance.call("_on_card_pressed", hand_index)
 	await process_frame
 	await process_frame
-	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode options for that exact card")
-	var initial_mode: String = str(instance.get("_card_action_choice_mode"))
-	if initial_mode != play_kind:
-		await instance.call("_on_card_action_choice_pressed", play_kind)
-		await process_frame
-		await process_frame
-	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested play mode should be active")
+	_assert(int(instance.get("_card_action_choice_index")) == -1, "Clicking a playable hand card should bypass play-mode options")
+	_assert(int(instance.get("_selected_card_index")) == hand_index, "Clicking a playable hand card should select that card's printed flow")
+	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Direct card selection should retain the printed play context")
 
 func _button_with_text(node: Node, text: String) -> Button:
 	for button: Button in _buttons_under(node):

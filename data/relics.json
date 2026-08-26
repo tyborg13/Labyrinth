@@ -30,7 +30,7 @@
   "pilgrim_boots": {
     "name": "Pilgrim Boots",
     "rarity": "common",
-    "description": "Non-attack @icon(move) and @icon(blink) gain @icon(range) +{0.amount}. @icon(move) leaves @icon(illuminate) {1.radius} @icon(time) {1.duration} on entered tiles; @icon(blink) covers both endpoints.",
+    "description": "Gain @icon(move) +{0.value} each turn. Your movement leaves @icon(illuminate) {1.radius} @icon(time) {1.duration} on entered tiles; @icon(blink) covers both endpoints.",
     "icon_path": "res://assets/art/relics/pilgrim_boots.png",
     "accent": "#8f9499",
     "design_version": 2,
@@ -38,7 +38,7 @@
     "upside_tier": 1,
     "build_tags": ["radiance", "move", "blink", "positioning"],
     "effects": [
-      {"type": "card_action_mod", "requires_any_action_types": ["move", "blink"], "excludes_action_types": ["melee", "ranged", "aoe", "push", "pull"], "action_types": ["move", "blink"], "field": "range", "amount": 1},
+      {"type": "movement_pool_bonus", "value": 1},
       {"type": "resolved_action_light", "action_types": ["move", "blink"], "excludes_card_action_types": ["melee", "ranged", "aoe", "push", "pull"], "position_mode": "path", "radius": 1, "duration": 2}
     ]
   },

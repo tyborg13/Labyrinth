@@ -698,7 +698,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.call("_commit_combat_skill_state", resolved_escape, "rehearsed_escape")
 	await process_frame
 	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count + 1, "Preserving a Burn card should emit exactly one realized skill trigger")
-	var resolved_item: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0, 1, {"play_mode": "attack"})
+	var resolved_item: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0, 1, {"play_mode": "play"})
 	instance.call("_commit_combat_skill_state", resolved_item, "makeshift_tool")
 	await process_frame
 	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count + 1, "Preserving an item should emit exactly one realized skill trigger")
@@ -841,22 +841,22 @@ func _test_makeshift_tool_loadout_persistence(instance: Node) -> void:
 	item_progression = ProgressionStore.normalized_data(item_progression)
 	_expect(ProgressionStore.save_data(item_progression), "Makeshift Tool integration fixture should persist its legal build")
 
-	var preserved: Dictionary = await _play_item_as_basic_move(instance, item_progression, true)
+	var preserved: Dictionary = await _play_item_as_printed_card(instance, item_progression, true)
 	var preserved_combat: Dictionary = preserved.get("combat", {}) as Dictionary
 	var preserved_run: Dictionary = preserved.get("run", {}) as Dictionary
 	var preserved_saved: Dictionary = preserved.get("saved", {}) as Dictionary
 	var preserved_deck: Dictionary = preserved_combat.get("deck", {}) as Dictionary
-	_expect((preserved_deck.get("discard", []) as Array).has("crimson_draught") and not (preserved_deck.get("consumed", []) as Array).has("crimson_draught"), "Armed Makeshift Tool should redirect a basic-use item to discard")
+	_expect((preserved_deck.get("discard", []) as Array).has("crimson_draught") and not (preserved_deck.get("consumed", []) as Array).has("crimson_draught"), "Armed Makeshift Tool should redirect a played item to discard")
 	_expect((preserved_run.get("equipped_items", []) as Array).has("crimson_draught") and (preserved_saved.get("equipped_items", []) as Array).has("crimson_draught"), "Preserving an item should retain it in both the live and saved run loadout")
 	_expect((preserved_run.get("deck_cards", []) as Array).has("crimson_draught") and (preserved_saved.get("deck_cards", []) as Array).has("crimson_draught"), "Preserving an item should retain its compiled deck card across checkpoint reload")
-	_expect(CombatEngine.new().skill_was_used(preserved_combat, "makeshift_tool"), "Makeshift Tool should spend only after the protected basic use resolves")
+	_expect(CombatEngine.new().skill_was_used(preserved_combat, "makeshift_tool"), "Makeshift Tool should spend only after the protected item play resolves")
 
-	var consumed: Dictionary = await _play_item_as_basic_move(instance, item_progression, false)
+	var consumed: Dictionary = await _play_item_as_printed_card(instance, item_progression, false)
 	var consumed_combat: Dictionary = consumed.get("combat", {}) as Dictionary
 	var consumed_run: Dictionary = consumed.get("run", {}) as Dictionary
 	var consumed_saved: Dictionary = consumed.get("saved", {}) as Dictionary
 	var consumed_deck: Dictionary = consumed_combat.get("deck", {}) as Dictionary
-	_expect((consumed_deck.get("consumed", []) as Array).has("crimson_draught"), "Declining Makeshift Tool should still consume an item used as a basic Move")
+	_expect((consumed_deck.get("consumed", []) as Array).has("crimson_draught"), "Declining Makeshift Tool should still consume a played item")
 	_expect(not (consumed_run.get("equipped_items", []) as Array).has("crimson_draught") and not (consumed_saved.get("equipped_items", []) as Array).has("crimson_draught"), "An unprotected item should leave both the live and saved run loadout")
 	_expect(not (consumed_run.get("deck_cards", []) as Array).has("crimson_draught") and not (consumed_saved.get("deck_cards", []) as Array).has("crimson_draught"), "Consuming an item should remove its compiled deck card across checkpoint reload")
 
@@ -866,7 +866,7 @@ func _test_makeshift_tool_loadout_persistence(instance: Node) -> void:
 	await process_frame
 	await process_frame
 
-func _play_item_as_basic_move(instance: Node, progression: Dictionary, arm_makeshift: bool) -> Dictionary:
+func _play_item_as_printed_card(instance: Node, progression: Dictionary, arm_makeshift: bool) -> Dictionary:
 	var run_engine := RunEngine.new()
 	var combat_engine := CombatEngine.new()
 	var run_state: Dictionary = run_engine.create_debug_boss_run(progression)
@@ -890,18 +890,14 @@ func _play_item_as_basic_move(instance: Node, progression: Dictionary, arm_makes
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var move_action: Dictionary = combat_engine.fallback_move_action(combat_state, 2)
-	var move_targets: Array[Vector2i] = combat_engine.valid_targets_for_player_action(combat_state, move_action)
-	_expect(not move_targets.is_empty(), "Makeshift Tool integration fixture should expose a legal basic Move target")
-	if move_targets.is_empty():
-		return {"combat": combat_state, "run": run_state, "saved": {}}
-	var move_target: Vector2i = move_targets[0]
-	var resolved_state: Dictionary = combat_engine.apply_player_action(combat_state, move_action, move_target)
-	instance.set("_card_action_choice_mode", "move")
-	var move_actions: Array = [move_action]
+	var resolved_state: Dictionary = combat_state.duplicate(true)
+	var printed_actions: Array = combat_engine.card_play_actions("crimson_draught", combat_state)
 	var selected_targets: Array[Vector2i]
-	selected_targets.append(move_target)
-	await instance.call("_play_player_card", 0, resolved_state, move_actions, selected_targets)
+	for action_var: Variant in printed_actions:
+		var action: Dictionary = action_var as Dictionary
+		resolved_state = combat_engine.apply_player_action(resolved_state, action)
+		selected_targets.append(Vector2i(-1, -1))
+	await instance.call("_play_player_card", 0, resolved_state, printed_actions, selected_targets)
 	await process_frame
 	await process_frame
 	return {

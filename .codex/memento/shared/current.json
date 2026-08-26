@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-26T14:18:27Z",
+  "updated_at": "2026-08-26T22:38:55Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8799,6 +8799,72 @@
       "source": {
         "branch": "codex/optimize-steam-deck-combat-rendering-from-uploaded-telemetry",
         "commit": "55320c2"
+      }
+    },
+    {
+      "id": "mnt_20260826T223855Z_159441ca",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Independent player movement is a per-activation pool, not a card action payment.",
+      "details": "Movement-pool actions carry _movement_pool and must not snapshot card payment or trigger Confluence/card-play spending. Each resolved path tile costs one movement; Blink costs Manhattan distance.",
+      "status": "active",
+      "created_at": "2026-08-26T22:38:55Z",
+      "updated_at": "2026-08-26T22:38:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "ced4324f"
+      }
+    },
+    {
+      "id": "mnt_20260826T223855Z_31b59049",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Exhausting card plays does not auto-end the player activation.",
+      "details": "The player may still spend independent movement before, between, or after cards, so enemy resolution begins only from explicit Pass or another true turn-ending rule.",
+      "status": "active",
+      "created_at": "2026-08-26T22:38:55Z",
+      "updated_at": "2026-08-26T22:38:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "ced4324f"
+      }
+    },
+    {
+      "id": "mnt_20260826T223855Z_8e96e989",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "normalize_player_movement_pool"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#normalize_player_movement_pool",
+      "summary": "Legacy combat saves without movement-pool fields load with a full current-capacity pool.",
+      "details": "Normalize both capacity and remaining movement during combat restore; do not default missing remaining movement to zero.",
+      "status": "active",
+      "created_at": "2026-08-26T22:38:55Z",
+      "updated_at": "2026-08-26T22:38:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "ced4324f"
       }
     }
   ]

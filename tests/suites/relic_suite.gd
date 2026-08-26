@@ -49,6 +49,7 @@ const SUPPORTED_EFFECT_TYPES := [
 	"light_source_umbra_suppression",
 	"long_move_card_play",
 	"movement_end_reward",
+	"movement_pool_bonus",
 	"opening_draw_bonus",
 	"overheal_to_stoneskin",
 	"player_state_action_mod",
@@ -131,7 +132,6 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 	expect.call(radiance_by_rarity == {"common": 6, "rare": 8, "epic": 4, "legendary": 2}, "Radiance relics should preserve the approved 6/8/4/2 rarity mix")
 
 static func _test_conditional_card_mutations(expect: Callable) -> void:
-	_expect_action_delta(expect, "threaded_path", "pilgrim_boots", "move", "range", 1)
 	_expect_action_delta(expect, "hearth_rush", "flint_edge", "melee", "burn", 2)
 	_expect_action_delta(expect, "chain_bolt", "storm_capacitor", "ranged", "chain", 1)
 	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "damage", 1)
