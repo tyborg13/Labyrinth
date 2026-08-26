@@ -1,0 +1,4 @@
+interface:
+  display_name: "Classical Soundtrack Builder"
+  short_description: "Build provenance-safe retro classical tracks"
+  default_prompt: "Use $create-labyrinth-classical-track to source, arrange, render, verify, and audition a public-domain classical track with Escape the Umbra’s procedural retro instrument bank."

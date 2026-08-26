@@ -1,6 +1,8 @@
 # Schubert D.810 Movement II - Retro POC
 
-This folder is a provenance-first audition package. It is not wired into the game and does not replace any existing music asset.
+This folder is the provenance-first source and audition package. The approved driving-loop Ogg is also copied into the game as non-boss combat music; the immutable source, editable MIDI, lossless render, and every earlier audition remain here.
+
+The approved v03 style is now also captured by `driving_tactical_loop.track.json`. The shared renderer, verifier, deterministic bank generator, new-track scaffold, and production workflow are documented in `spec/classical_soundtrack_pipeline.md` and exposed through `tools/classical_soundtrack.py` plus `$create-labyrinth-classical-track`. All earlier audition artifacts remain unchanged.
 
 ## Primary audition files
 
