@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-import shutil
 
-from .common import PipelineError, read_json, sha256
+from .common import PipelineError, publish_immutable, read_json, sha256
 from .verify import require_promotion_ready, verify_track
 
 
@@ -19,12 +18,7 @@ def promote_track(config_path: Path, output_dir: Path | None, asset_path: Path) 
     source_dir = output_dir or config_path.parent
     preview = source_dir / f"{render['output_basename']}.ogg"
     destination = asset_path.resolve()
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    if destination.exists():
-        if sha256(destination) != sha256(preview):
-            raise PipelineError(f"Refusing to overwrite a different game asset: {destination}")
-    else:
-        shutil.copyfile(preview, destination)
+    publish_immutable(preview, destination, "game asset")
     return {
         "ok": True,
         "asset_path": str(destination),

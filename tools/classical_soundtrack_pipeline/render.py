@@ -3,9 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 import math
-import os
 from pathlib import Path
-import shutil
 import subprocess
 import tempfile
 
@@ -15,8 +13,10 @@ import numpy as np
 from .bank import midi_frequency
 from .common import (
     PipelineError,
+    assert_publishable,
     load_mono_wave,
     normalize_ogg_serial,
+    publish_immutable,
     read_json,
     require_executable,
     resolve_from,
@@ -225,37 +225,6 @@ def _vorbis_command(input_wave: Path, output: Path, preference: str) -> tuple[li
     raise PipelineError(f"Requested Vorbis encoder is unavailable: {preference}")
 
 
-def _assert_publishable(candidate: Path, destination: Path) -> None:
-    if destination.exists():
-        if sha256(destination) != sha256(candidate):
-            raise PipelineError(
-                f"Refusing to overwrite existing audition artifact {destination}; create a new vNN"
-            )
-
-
-def _publish_immutable(candidate: Path, destination: Path) -> None:
-    """Atomically publish after the complete output set passes preflight."""
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    if destination.exists():
-        return
-    sibling = tempfile.NamedTemporaryFile(
-        prefix=f".{destination.name}.", suffix=".pending", dir=destination.parent, delete=False
-    )
-    sibling_path = Path(sibling.name)
-    sibling.close()
-    try:
-        shutil.copyfile(candidate, sibling_path)
-        try:
-            os.link(sibling_path, destination)
-        except FileExistsError:
-            if sha256(destination) != sha256(candidate):
-                raise PipelineError(
-                    f"Refusing to overwrite concurrently created audition artifact {destination}; create a new vNN"
-                )
-    finally:
-        sibling_path.unlink(missing_ok=True)
-
-
 def render_track(config_path: Path, output_dir: Path | None = None) -> dict[str, object]:
     config_path = config_path.resolve()
     config = read_json(config_path)
@@ -425,7 +394,7 @@ def render_track(config_path: Path, output_dir: Path | None = None) -> dict[str,
             (candidate_report, report_path),
         )
         for candidate, final_path in publications:
-            _assert_publishable(candidate, final_path)
+            assert_publishable(candidate, final_path, "audition artifact")
         for candidate, final_path in publications:
-            _publish_immutable(candidate, final_path)
+            publish_immutable(candidate, final_path, "audition artifact")
     return report

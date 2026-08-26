@@ -100,10 +100,15 @@ class ClassicalSoundtrackPipelineTests(unittest.TestCase):
                 mutated["source"][key] = "Deliberate evidence mismatch"
                 with self.subTest(key=key), self.assertRaises(PipelineError):
                     verify_source_clearance(mutated, CONFIG)
-            for license_value in ("TODO", "unknown", "proprietary", "all rights reserved"):
+            for license_value in ("TODO", "unknown", "proprietary", "all rights reserved", "not CC0", "not public domain", "CC0 status pending"):
                 mutated = copy.deepcopy(original)
                 mutated["source"]["transcription_license"] = license_value
                 with self.subTest(license=license_value), self.assertRaises(PipelineError):
+                    verify_source_clearance(mutated, CONFIG)
+            for rights_basis in ("", "copyrighted", "cc_by"):
+                mutated = copy.deepcopy(original)
+                mutated["source"]["rights_basis"] = rights_basis
+                with self.subTest(rights_basis=rights_basis), self.assertRaises(PipelineError):
                     verify_source_clearance(mutated, CONFIG)
         finally:
             sys.path.remove(str(TOOLS_DIR))
@@ -141,9 +146,9 @@ class ClassicalSoundtrackPipelineTests(unittest.TestCase):
             self.skipTest("approved Ogg requires FFmpeg's native Vorbis encoder")
         sys.path.insert(0, str(TOOLS_DIR))
         try:
-            from classical_soundtrack_pipeline.common import PipelineError
+            from classical_soundtrack_pipeline.common import PipelineError, assert_publishable, publish_immutable
             from classical_soundtrack_pipeline.promote import promote_track
-            from classical_soundtrack_pipeline.render import _assert_publishable, render_track
+            from classical_soundtrack_pipeline.render import render_track
             from classical_soundtrack_pipeline.verify import _validate_loop_seam, verify_track
 
             with tempfile.TemporaryDirectory() as temporary:
@@ -175,8 +180,21 @@ class ClassicalSoundtrackPipelineTests(unittest.TestCase):
                 candidate.write_bytes(b"new candidate")
                 protected.write_bytes(b"approved audition")
                 with self.assertRaises(PipelineError):
-                    _assert_publishable(candidate, protected)
+                    assert_publishable(candidate, protected, "audition artifact")
                 self.assertEqual(b"approved audition", protected.read_bytes())
+
+                concurrent = output / "concurrently_created.bin"
+                assert_publishable(candidate, concurrent, "audition artifact")
+                concurrent.write_bytes(b"different concurrent bytes")
+                with self.assertRaises(PipelineError):
+                    publish_immutable(candidate, concurrent, "audition artifact")
+                self.assertEqual(b"different concurrent bytes", concurrent.read_bytes())
+
+                game_asset = output / "existing_game_asset.ogg"
+                game_asset.write_bytes(b"different game asset")
+                with self.assertRaises(PipelineError):
+                    promote_track(CONFIG, output, game_asset)
+                self.assertEqual(b"different game asset", game_asset.read_bytes())
 
                 bad_seam = {
                     "first_last_sample_delta": [0.5, 0.4],

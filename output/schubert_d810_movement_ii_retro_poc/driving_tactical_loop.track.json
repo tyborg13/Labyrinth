@@ -126,6 +126,7 @@
     "license_evidence": "The OpenScore String Quartets repository README states that the scores are released under Creative Commons Zero (CC0) and points to its LICENSE.txt.",
     "license_file": "LICENSE_SOURCE.md",
     "path": "source/openscore_sq7397765.mxl",
+    "rights_basis": "cc0",
     "rights_status": "cleared",
     "sha256": "c1370ff43b2272b88e04d41d3cc31ca6717a982eaa09cc5540a5952b4f3c1bd5",
     "source_format": "Compressed MusicXML (.mxl)",

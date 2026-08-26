@@ -29,7 +29,7 @@ Use sources in this order:
 
 Never use a modern copyrighted arrangement, commercial MIDI, audio recording, SoundFont, sample pack, ripped game/console audio, ROM content, or generated-model audio as the musical or instrumental source. If rights are ambiguous, stop and find a different source. An IMSLP public-domain edition is useful as a visual cross-check even when OpenScore supplies the machine-readable source.
 
-`LICENSE_SOURCE.md` and the `source` object in `track.json` must agree on the composition, composer, immutable URL, source format, transcription license, license evidence, underlying-composition public-domain evidence, retrieval date, local filename, and SHA-256. The gate rejects placeholders and ambiguous or proprietary license labels; the machine-readable transcription must explicitly be CC0 or public domain. Keep the original file unchanged.
+`LICENSE_SOURCE.md` and the `source` object in `track.json` must agree on the composition, composer, immutable URL, source format, transcription license, license evidence, underlying-composition public-domain evidence, retrieval date, local filename, and SHA-256. Set `source.rights_basis` to the positive enum `cc0` or `public_domain`; its license label and evidence must agree. The gate rejects placeholders, pending/negated claims such as “not CC0,” and ambiguous or proprietary license labels. Keep the original file unchanged.
 
 ## Track layout and versioning
 

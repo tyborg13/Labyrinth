@@ -47,6 +47,7 @@ def create_scaffold(root: Path, track_id: str, title: str, composer: str, bank_m
             "license_evidence": "",
             "date_retrieved": "",
             "path": "source/REPLACE_WITH_IMMUTABLE_SOURCE",
+            "rights_basis": "",
             "sha256": "",
             "license_file": "LICENSE_SOURCE.md",
         },

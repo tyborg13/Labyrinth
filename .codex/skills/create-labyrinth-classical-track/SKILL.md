@@ -21,7 +21,7 @@ Read `references/review_checklist.md` before implementation. Read the full pipel
 
 Search in this order: OpenScore CC0, another reputable CC0 or explicit public-domain machine-readable source, then a public-domain IMSLP score plus reproducible transcription. Save the original file unchanged under `source/` and record its immutable URL and SHA-256.
 
-Do not use a modern copyrighted arrangement, commercial MIDI, recording, SoundFont, sample pack, ROM/rip, or generated-model audio. If any rights are ambiguous, stop using that source and find another. Do not set `source.rights_status` to `cleared` until `LICENSE_SOURCE.md` and `track.json` contain matching evidence.
+Do not use a modern copyrighted arrangement, commercial MIDI, recording, SoundFont, sample pack, ROM/rip, or generated-model audio. If any rights are ambiguous, stop using that source and find another. Set the positive `source.rights_basis` enum to `cc0` or `public_domain`; never infer permission from a label that merely mentions those terms. Do not set `source.rights_status` to `cleared` until `LICENSE_SOURCE.md` and `track.json` contain matching evidence.
 
 ## Build reproducibly
 

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
+import tempfile
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 import wave
@@ -51,6 +53,32 @@ def require_file(path: Path, label: str) -> None:
         raise PipelineError(f"Missing {label}: {path}")
 
 
+def assert_publishable(candidate: Path, destination: Path, label: str = "artifact") -> None:
+    if destination.exists() and sha256(destination) != sha256(candidate):
+        raise PipelineError(f"Refusing to overwrite existing {label} {destination}")
+
+
+def publish_immutable(candidate: Path, destination: Path, label: str = "artifact") -> None:
+    """Atomically create or accept an identical destination; never replace bytes."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        assert_publishable(candidate, destination, label)
+        return
+    sibling = tempfile.NamedTemporaryFile(
+        prefix=f".{destination.name}.", suffix=".pending", dir=destination.parent, delete=False
+    )
+    sibling_path = Path(sibling.name)
+    sibling.close()
+    try:
+        shutil.copyfile(candidate, sibling_path)
+        try:
+            os.link(sibling_path, destination)
+        except FileExistsError:
+            assert_publishable(candidate, destination, label)
+    finally:
+        sibling_path.unlink(missing_ok=True)
+
+
 def _normalized_evidence(value: object) -> str:
     text = str(value).lower()
     text = re.sub(r"[`*_#>]", "", text)
@@ -61,7 +89,24 @@ def _normalized_evidence(value: object) -> str:
 def _reject_placeholder(key: str, value: object) -> str:
     text = str(value).strip()
     normalized = _normalized_evidence(text)
-    forbidden = ("todo", "tbd", "unknown", "ambiguous", "unclear", "proprietary", "all rights reserved")
+    forbidden = (
+        "todo",
+        "tbd",
+        "unknown",
+        "ambiguous",
+        "unclear",
+        "pending",
+        "proprietary",
+        "all rights reserved",
+        "not cc0",
+        "non cc0",
+        "non-cc0",
+        "not public domain",
+        "not in public domain",
+        "not in the public domain",
+        "denied",
+        "revoked",
+    )
     if not normalized or any(token in normalized for token in forbidden):
         raise PipelineError(f"source.{key} is incomplete or ambiguous: {text!r}")
     return text
@@ -89,14 +134,20 @@ def verify_source_clearance(config: dict[str, object], config_path: Path) -> dic
         "date_retrieved",
     )
     values = {key: _reject_placeholder(key, source.get(key, "")) for key in required_keys}
+    rights_basis = str(source.get("rights_basis", ""))
+    if rights_basis not in {"cc0", "public_domain"}:
+        raise PipelineError("source.rights_basis must be exactly cc0 or public_domain")
     parsed_url = urlparse(values["source_url"])
     if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
         raise PipelineError("source.source_url must be an immutable HTTP(S) source URL")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", values["date_retrieved"]):
         raise PipelineError("source.date_retrieved must use YYYY-MM-DD")
     normalized_license = _normalized_evidence(values["transcription_license"])
-    if "cc0" not in normalized_license and "public domain" not in normalized_license:
-        raise PipelineError("Machine-readable source license must explicitly be CC0 or public domain")
+    required_license_phrase = "cc0" if rights_basis == "cc0" else "public domain"
+    if required_license_phrase not in normalized_license:
+        raise PipelineError(
+            f"source.transcription_license must positively match rights_basis={rights_basis}"
+        )
     source_path = resolve_from(config_path, str(source.get("path", "")))
     license_path = resolve_from(config_path, str(source.get("license_file", "LICENSE_SOURCE.md")))
     require_file(source_path, "immutable source")
@@ -115,6 +166,7 @@ def verify_source_clearance(config: dict[str, object], config_path: Path) -> dic
         "sha256": actual,
         "license_file": str(license_path),
         "transcription_license": str(source["transcription_license"]),
+        "rights_basis": rights_basis,
     }
 
 
