@@ -7,14 +7,14 @@
   },
   "arrangement": {
     "expected_note_counts": {
-      "Ashen Violin / Inner Voice": 50,
-      "Grave Cello / Troubadour": 293,
-      "Hollow Viola / Lower Harmony": 415,
-      "Undercrypt Bass / G-sharp Pedal": 172,
-      "Veiled Violin / Castle Air": 164
+      "Ashen Violin / Inner Voice": 160,
+      "Grave Cello / Troubadour": 291,
+      "Hollow Viola / Lower Harmony": 438,
+      "Undercrypt Bass / G-sharp Pedal": 438,
+      "Veiled Violin / Castle Air": 291
     },
     "midi_path": "versions/v02/arrangement.mid",
-    "midi_sha256": "d05e350642a493437d11993c3e795d5676100f26bb0c7b97c5c151e14d708216",
+    "midi_sha256": "e4fe6d11b0148372cf07c759556e579403f0c7bc0f1b3db51b941b0851a86c94",
     "notes_file": "versions/v02/ARRANGEMENT_NOTES.md",
     "version": "v02"
   },
@@ -111,32 +111,76 @@
   "reproducibility": {
     "arrangement_notes": {
       "path": "versions/v02/ARRANGEMENT_NOTES.md",
-      "sha256": "8758392f8b489b5f8dc67edc9bc2b6f9367e691821f32053abadfd1b154a7350"
+      "sha256": "ad0d4e1034bfdc1e92da6c2b0708f4b742e6b6121f646d3f566e371d81e4549c"
     },
     "build_script": {
       "path": "scripts/build_full_arrangement.py",
-      "sha256": "0c5d9061da13d06de33a4fac3ef36d5e7c9b3e652804d649b360d4f37eac041d"
+      "sha256": "d3cf18a486cc822c25b9124608a576caf50a817ba1cc96803b3c099b0d7f7f99"
     },
-    "expected_part_count": 1,
+    "expected_part_count": 5,
     "normalized_full_score_midi": {
       "path": "versions/v02/normalized/full_score.mid",
-      "sha256": "a373439170c09a135d16f19c1c54a7178a678fafb1bb23a6056749b62bb73551"
+      "sha256": "a713acac2ab6541fbefa25578fcd48edd49ede36447256a05c7718fb5974d75a"
     },
     "normalized_full_score_musicxml": {
       "path": "versions/v02/normalized/full_score.musicxml",
-      "sha256": "52cb17432f52abb41668c625f386be2d81e05fbf3ab42e939ea64f273c221270"
+      "sha256": "0fb5eebc1c50f4e4431589fd2d117659c8873bbe7a7fc83b66ec2b431ca0f0a6"
     },
     "normalized_parts": [
       {
         "midi": {
-          "path": "versions/v02/normalized/parts/01_piano_full_movement_scan_transcription.mid",
-          "sha256": "a373439170c09a135d16f19c1c54a7178a678fafb1bb23a6056749b62bb73551"
+          "path": "versions/v02/normalized/parts/01_veiled_violin_castle_air.mid",
+          "sha256": "4665f77133774e68620219f598b8ed5147f315711e7bd8945e0aef0dff342a04"
         },
         "musicxml": {
-          "path": "versions/v02/normalized/parts/01_piano_full_movement_scan_transcription.musicxml",
-          "sha256": "5f2df3e8a73832e7793f3b730ca8c017f6a478ce471c14d05169cd4510059d4b"
+          "path": "versions/v02/normalized/parts/01_veiled_violin_castle_air.musicxml",
+          "sha256": "e4f997172b8f727638113e8605dfe1c3a640570713a1be19670db4b3c0105fcc"
         },
-        "name": "Piano (full movement scan transcription)"
+        "name": "Veiled Violin / Castle Air"
+      },
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/02_ashen_violin_inner_voice.mid",
+          "sha256": "93dd3f5997780187e9d9fddef6793652c4eb56b44f834b65f6d04f44b71bd8e5"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/02_ashen_violin_inner_voice.musicxml",
+          "sha256": "ec0ee27399ac8315b089cbed03c826bae7d9d33c0055a41315c2332d13cd9f1d"
+        },
+        "name": "Ashen Violin / Inner Voice"
+      },
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/03_hollow_viola_lower_harmony.mid",
+          "sha256": "fd8edd3c061014aec2456aad3a933758af756c397753530cd2d555d230e6f10e"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/03_hollow_viola_lower_harmony.musicxml",
+          "sha256": "d1d3576733bff95c7aafae762a33d3485c12242bec08befc721044b7a38b9a9d"
+        },
+        "name": "Hollow Viola / Lower Harmony"
+      },
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/04_grave_cello_troubadour.mid",
+          "sha256": "3b9b04cc2b4f8d1526db2089aae96e302c356d0a5f04f293c314f71edd90136d"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/04_grave_cello_troubadour.musicxml",
+          "sha256": "e8813a4d7633e1eb8753235d4435e117317115db96846e4809636383e148efce"
+        },
+        "name": "Grave Cello / Troubadour"
+      },
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/05_undercrypt_bass_g_sharp_pedal.mid",
+          "sha256": "c37828b254677332688d224004de585bdcf034da1e8d8b07860779cb81ab38e3"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/05_undercrypt_bass_g_sharp_pedal.musicxml",
+          "sha256": "ab8aa9027a2c3421d9d8cc7cca3b3629c063a5373e9abce8a3ab30b66233729b"
+        },
+        "name": "Undercrypt Bass / G-sharp Pedal"
       }
     ]
   },
@@ -147,32 +191,24 @@
     "composition_public_domain": true,
     "composition_public_domain_evidence": "Modest Mussorgsky died in 1881; the solo-piano suite was first published by V. Bessel & Co. in 1886, and the Sibley Music Library marks its 1918 Breitkopf & Härtel reprint public domain.",
     "date_retrieved": "2026-08-26",
-    "license_evidence": "The Sibley Music Library marks the checked-in 1918 Breitkopf & Härtel reprint public domain; no third-party machine-readable transcription was used, and this repository contribution dedicates its project-authored reduction and normalized score outputs to the public domain under CC0 1.0 Universal.",
+    "license_evidence": "PDMX v9 metadata for score 5952494 identifies the solo-piano score as downloadable, public domain, and cc-zero; PDMX marks the row no-license-conflict and all-valid.",
     "license_file": "LICENSE_SOURCE.md",
-    "path": "source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
-    "rights_basis": "public_domain",
+    "path": "source/mussorgsky_pictures_at_an_exhibition_pdmx_cc0.mid",
+    "rights_basis": "cc0",
     "rights_status": "cleared",
-    "sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
-    "source_format": "Scanned PDF of the 1918 Breitkopf & Härtel reprint of the 1886 Bessel edition (solo piano)",
-    "source_url": "https://urresearch.rochester.edu/fileDownloadForInstitutionalItem.action?itemId=13118&itemFileId=30373",
-    "transcription_license": "Public domain via CC0 1.0 Universal dedication"
+    "sha256": "e8c7fe31e8ff267a8fa4f4ca5edd076955e49cd89548d7367a588e163079cc34",
+    "source_format": "MIDI export of the one-part solo-piano score in PDMX v9 (archive member mid/11/49/QmTV1L2x37h7VPCZNdqXCuAJq2ykz61ZxfpmnWUoWG8qLF.mid)",
+    "source_url": "https://doi.org/10.5281/zenodo.15571083",
+    "transcription_license": "CC0 1.0 Universal"
   },
   "title": "Pictures at an Exhibition - The Old Castle (Complete v02)",
   "track_id": "mussorgsky_pictures_old_castle_v02",
-  "transcription_inputs": [
-    {
-      "path": "transcription/omr_raw/score_page_07.musicxml",
-      "sha256": "c6c8db0e8fb9160670e9b22fc83c2a41267ad95aaf99d0277c68fa8445c6eb49"
-    },
-    {
-      "path": "transcription/omr_raw/score_page_08.musicxml",
-      "sha256": "b5bea01cb8e4b2651bc6c9f4daca7c075733b4b6ed0ac122dd9477de544be61e"
-    },
-    {
-      "path": "transcription/omr_raw/score_page_09.musicxml",
-      "sha256": "86fa0442eed797c90448e0bd0e46191ae51528fb2fed326fa5932358908aa6b3"
-    }
-  ],
+  "reference_source": {
+    "catalogue_url": "https://hdl.handle.net/1802/13415",
+    "path": "source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
+    "sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
+    "source_score_pages": "PDF pages 8-10 (printed pages 7-9)"
+  },
   "verification": {
     "duration_tolerance_seconds": 0.02,
     "max_loop_seam_to_p99_9_ratio": 1.0,

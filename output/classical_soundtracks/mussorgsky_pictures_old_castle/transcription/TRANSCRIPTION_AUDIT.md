@@ -1,10 +1,10 @@
 # Complete-movement transcription audit
 
-## Authority and scope
+## Sources and boundary
 
-The sole musical authority is the checked-in public-domain 1918 Breitkopf & Härtel reprint of the 1886 Bessel solo-piano edition. `Il vecchio castello` occupies PDF pages 8-10, printed pages 7-9. The movement has 106 printed measures in 6/8.
+The machine-readable source is the unchanged, no-license-conflict CC0 solo-piano MIDI from PDMX v9 recorded in `source/PDMX_RECORD.json`. The checked-in public-domain 1918 Breitkopf & Härtel scan is the visual reference.
 
-No third-party MusicXML, MIDI, modern arrangement, or performance recording was imported. The three raw MusicXML files in `omr_raw/` were generated inside this project with `homr` 0.7.0 from the checked-in scan and are retained so the transformation is inspectable and repeatable.
+In the complete-suite MIDI, `Il vecchio castello` begins at absolute tick 274080 with a 6/8 meter, five-sharp key signature, and movement tempo marker. The printed movement ends at tick 428160; the next movement's meter marker begins at tick 430560. With 480 ticks per quarter and 1440 ticks per 6/8 measure, the selected interval contains 107 measures. Measure 106 holds the final G-sharp-minor cadence and measure 107 is the printed fermata rest.
 
 ## Page and measure map
 
@@ -12,23 +12,25 @@ No third-party MusicXML, MIDI, modern arrangement, or performance recording was 
 | --- | --- | --- |
 | PDF 8 / printed 7 | 1-5: 6, 6, 6, 6, 6 | 1-30 |
 | PDF 9 / printed 8 | 1-6: 7, 6, 6, 7, 6, 7 | 31-69 |
-| PDF 10 / printed 9 | 1-6: 6, 6, 7, 7, 6, 5 | 70-106 |
+| PDF 10 / printed 9 | 1-6: 6, 6, 7, 7, 6, 6 | 70-107 |
 
-The frozen page inputs contain 30, 39, and 37 measures respectively, matching those printed barlines exactly. `scripts/build_full_arrangement.py` rejects any different hash, page count, or total count.
+The final silent bar is visually present after the last sounding cadence. It was omitted by the first OMR-derived draft, which is why that rejected draft reported 106 rather than 107 measures.
 
-## Deterministic cleanup
+## Source anchors and deterministic extraction
 
-The optical pass identifies four stable principal voices: two upper-staff voices and two lower-staff voices. Rare extra OMR voices are engraving doublings or recognition artifacts and are excluded from this practical reduction.
+`scripts/build_full_arrangement.py` rejects any change to the source MIDI, PDMX evidence record, or reference scan. It then checks:
 
-OMR sometimes encodes a whole-measure rest as four quarter notes or allows simultaneous voices to overflow or underfill a printed barline. The builder normalizes each principal voice to exactly three quarter notes per measure by:
+1. the exact movement and next-movement boundary markers;
+2. 575 non-zero treble-staff events and 593 non-zero bass-staff events in the selected movement;
+3. the printed opening lament, including the two-note ornament in measure 9;
+4. one pitch/onset group at the start of each of the scan's 17 printed systems;
+5. the complete G-sharp-minor cadence in measure 106; and
+6. the absence of a new note onset in the final fermata-rest measure.
 
-1. preserving recognized pitch/chord order and note duration until the printed barline;
-2. retaining recognized grace-note groups immediately before their principal note;
-3. trimming only duration that crosses that barline; and
-4. filling an underfull remainder with silence.
+Every checked anchor is written to `versions/v02/BUILD_REPORT.json`. Generated MusicXML part identifiers and encoding dates are frozen, so rebuilds do not change across processes or calendar dates.
 
-The generated build report lists every affected measure, source voice, and raw duration. This is a practical, source-checked game transcription, not a critical or scholarly engraving; the immutable scan should be consulted if a later edit depends on an inner-note or articulation detail.
+## Reduction boundary
 
-## Arrangement boundary
+The preserved CC0 MIDI contains the original piano source. The normalized and arranged outputs retain the highest and lowest sounding pitch at each onset on each staff, which preserves the leading line, bass motion, chord boundaries, rhythm, and harmonic outer voices while reducing dense piano chords to four practical bowed lines. The leading treble line is also doubled one octave lower by the cello, yielding five timbral lines in the game arrangement. The audition MIDI keeps exact source ticks; normalized notation rounds only playback gate endpoints to a 15-tick (1/128-note) MusicXML grid so one-tick MuseScore articulation gaps do not become unportable 2048th-note rests.
 
-The normalized v02 score retains all 106 measures in source order. The arrangement does not cut, reorder, repeat, reharmonize, or construct a new cadence. It maps the recognized piano voices onto five procedural bowed voices, uses octave placement to fit those instruments, and simplifies dense chord voicings where a monophonic game voice cannot carry every simultaneous piano note. The leading melody, rhythmic placement, meter, bass motion, harmonic progression, and formal sequence remain source-derived.
+There are no cuts, reordered passages, inserted repeats, reharmonizations, blanket timing trims, or constructed cadence. Source onset ticks and playback durations are retained; whole-piece tempo is deliberately flattened to 72 quarter notes per minute for this first audition. This is a practical, source-checked game reduction rather than a critical edition, so the immutable scan remains authoritative if a later iteration depends on an omitted inner chord tone, articulation, or engraving detail.

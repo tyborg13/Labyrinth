@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-26T17:22:37Z",
+  "updated_at": "2026-08-26T17:59:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -8843,6 +8843,28 @@
       "source": {
         "branch": "codex/create-first-old-castle-classical-soundtrack-audition",
         "commit": "8d9b0f0"
+      }
+    },
+    {
+      "id": "mnt_20260826T175900Z_eec82a25",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks",
+      "summary": "Anchor full classical reductions to a cleared symbolic score and the printed scan",
+      "details": "For full-movement auditions, prefer a no-license-conflict CC0 symbolic source such as PDMX, freeze its archive/member/hash evidence, then verify the movement boundary, printed measure count (including silent terminal measures), melody ornaments, cadence, and at least one anchor per printed system against a public-domain scan before arranging.",
+      "status": "active",
+      "created_at": "2026-08-26T17:59:00Z",
+      "updated_at": "2026-08-26T17:59:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-first-old-castle-classical-soundtrack-audition",
+        "commit": "25f5184"
       }
     }
   ]

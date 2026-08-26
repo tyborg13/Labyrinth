@@ -3,16 +3,15 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from dataclasses import dataclass
 import json
 from pathlib import Path
 import re
 import sys
-import xml.etree.ElementTree as ET
 
 import mido
-from music21 import bar, chord, clef, key, metadata, meter, note, pitch, stream, tempo
+from music21 import bar, clef, key, metadata, meter, note, stream, tempo, tie
 
 
 TRACK_ROOT = Path(__file__).resolve().parents[1]
@@ -28,14 +27,13 @@ from tools.classical_soundtrack_pipeline.common import (  # noqa: E402
 from tools.classical_soundtrack_pipeline.normalization import write_normalized_score  # noqa: E402
 
 
-SOURCE_PDF = TRACK_ROOT / "source" / "mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf"
-EXPECTED_SOURCE_SHA256 = "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71"
-TRANSCRIPTION_ROOT = TRACK_ROOT / "transcription" / "omr_raw"
-TRANSCRIPTION_PAGES = (
-    (TRANSCRIPTION_ROOT / "score_page_07.musicxml", "c6c8db0e8fb9160670e9b22fc83c2a41267ad95aaf99d0277c68fa8445c6eb49", 30),
-    (TRANSCRIPTION_ROOT / "score_page_08.musicxml", "b5bea01cb8e4b2651bc6c9f4daca7c075733b4b6ed0ac122dd9477de544be61e", 39),
-    (TRANSCRIPTION_ROOT / "score_page_09.musicxml", "86fa0442eed797c90448e0bd0e46191ae51528fb2fed326fa5932358908aa6b3", 37),
-)
+SOURCE_MIDI = TRACK_ROOT / "source" / "mussorgsky_pictures_at_an_exhibition_pdmx_cc0.mid"
+EXPECTED_SOURCE_MIDI_SHA256 = "e8c7fe31e8ff267a8fa4f4ca5edd076955e49cd89548d7367a588e163079cc34"
+SOURCE_RECORD = TRACK_ROOT / "source" / "PDMX_RECORD.json"
+EXPECTED_SOURCE_RECORD_SHA256 = "0e749f0673c5962aac59378c57028fa38fb2a26c8690c3945b5e004144b7e99d"
+REFERENCE_PDF = TRACK_ROOT / "source" / "mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf"
+EXPECTED_REFERENCE_PDF_SHA256 = "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71"
+
 EXPECTED_V01_HASHES = {
     "ARRANGEMENT_NOTES.md": "76660ac5badcd9e70044d43d251030fd895a121a79c96c4d5b37174a67753dc4",
     "BUILD_REPORT.json": "a92c3e51320b3170b8d37d66118799181e4699b25fe44d544b7dbdc455b0250a",
@@ -52,21 +50,14 @@ NORMALIZED_DIR = VERSION_DIR / "normalized"
 ARRANGEMENT_MIDI = VERSION_DIR / "arrangement.mid"
 BUILD_REPORT = VERSION_DIR / "BUILD_REPORT.json"
 
-MEASURE_QUARTERS = 3.0
-MEASURE_COUNT = 106
 TICKS_PER_BEAT = 480
+MEASURE_TICKS = 1440
+MEASURE_QUARTERS = 3.0
+MEASURE_COUNT = 107
+SOURCE_START_TICK = 274080
+SOURCE_END_TICK = SOURCE_START_TICK + MEASURE_COUNT * MEASURE_TICKS
+NEXT_MOVEMENT_TICK = 430560
 QPM = 72
-
-# homr identifies the four principal voices consistently across the scan.
-# Rare auxiliary voices are engraving artifacts or doublings and are not needed
-# for this five-voice game reduction.
-SOURCE_VOICES = (("1", "1"), ("1", "2"), ("2", "5"), ("2", "6"))
-VOICE_IDS = {
-    ("1", "1"): "upper_primary",
-    ("1", "2"): "upper_secondary",
-    ("2", "5"): "lower_primary",
-    ("2", "6"): "lower_pedal",
-}
 
 TRACKS = (
     "Veiled Violin / Castle Air",
@@ -76,221 +67,210 @@ TRACKS = (
     "Undercrypt Bass / G-sharp Pedal",
 )
 
+# One pitch/onset anchor at every printed system start. These were checked
+# against PDF pages 8-10 (printed pages 7-9). Staff 0 is treble, 1 is bass.
+SYSTEM_ANCHORS = (
+    (1, 1, 0, (44, 51)),
+    (7, 0, 1200, (63,)),
+    (13, 0, 0, (56,)),
+    (19, 0, 0, (68,)),
+    (25, 0, 0, (56, 64)),
+    (31, 0, 0, (64, 69, 73, 76)),
+    (38, 0, 0, (64, 69, 73, 76)),
+    (44, 0, 0, (63, 67, 70, 75)),
+    (50, 0, 0, (80,)),
+    (57, 0, 0, (63, 66, 72)),
+    (63, 0, 0, (63, 68, 75)),
+    (70, 0, 0, (68,)),
+    (76, 0, 0, (63, 66, 72)),
+    (82, 0, 0, (63, 68, 75)),
+    (89, 0, 0, (64, 69, 73, 76)),
+    (96, 0, 0, (68,)),
+    (102, 0, 0, (56, 58, 61, 64)),
+)
+
+# The iconic first lament, including the printed two-note ornament in m9.
+OPENING_MELODY_ANCHORS = (
+    (7, 1200, (63,)),
+    (8, 0, (68,)),
+    (9, 240, (71,)),
+    (9, 480, (70,)),
+    (9, 720, (68,)),
+    (9, 767, (70,)),
+    (9, 815, (68,)),
+    (9, 960, (64,)),
+    (9, 1200, (68,)),
+    (10, 0, (68,)),
+    (10, 480, (63,)),
+    (10, 720, (66,)),
+    (11, 240, (64,)),
+    (11, 480, (63,)),
+    (11, 720, (63,)),
+    (11, 767, (64,)),
+    (11, 960, (63,)),
+    (11, 1200, (61,)),
+    (12, 0, (63,)),
+    (12, 240, (56,)),
+)
+
+
+@dataclass(frozen=True)
+class MidiNote:
+    start: int
+    end: int
+    pitch: int
+    velocity: int
+    staff: int
+
 
 @dataclass
-class Group:
-    duration: float
-    pitches: list[str]
-    rest: bool = False
-    grace: bool = False
+class ArrangementNote:
+    start: int
+    end: int
+    pitch: int
+    velocity: int
 
 
-def _pitch_name(element: ET.Element) -> str | None:
-    raw = element.find("pitch")
-    if raw is None:
-        return None
-    alter = int(raw.findtext("alter", "0"))
-    accidental = {-2: "bb", -1: "b", 0: "", 1: "#", 2: "##"}.get(alter)
-    if accidental is None:
-        raise RuntimeError(f"Unsupported OMR accidental alteration: {alter}")
-    return f"{raw.findtext('step')}{accidental}{raw.findtext('octave')}"
+def _pitch_name(midi_pitch: int) -> str:
+    names = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+    return f"{names[midi_pitch % 12]}{midi_pitch // 12 - 1}"
 
 
-def _raw_measure_voices(measure: ET.Element, divisions: int) -> dict[tuple[str, str], list[Group]]:
-    voices: dict[tuple[str, str], list[Group]] = defaultdict(list)
-    for element in measure.findall("note"):
-        key_value = (element.findtext("staff", "1"), element.findtext("voice", "1"))
-        if key_value not in SOURCE_VOICES:
+def _track_notes(track: mido.MidiTrack, staff: int) -> list[MidiNote]:
+    absolute = 0
+    active: dict[tuple[int, int], deque[tuple[int, int]]] = defaultdict(deque)
+    notes: list[MidiNote] = []
+    for message in track:
+        absolute += message.time
+        if message.type == "note_on" and message.velocity > 0:
+            active[(message.channel, message.note)].append((absolute, message.velocity))
             continue
-        duration = int(element.findtext("duration", "0")) / divisions
-        value = _pitch_name(element)
-        is_rest = element.find("rest") is not None
-        is_grace = element.find("grace") is not None or duration == 0.0
-        if element.find("chord") is not None and voices[key_value]:
-            group = voices[key_value][-1]
-            if value is not None and value not in group.pitches:
-                group.pitches.append(value)
-            if value is not None:
-                group.rest = False
-            group.grace = group.grace and is_grace
+        is_note_end = message.type == "note_off" or (
+            message.type == "note_on" and message.velocity == 0
+        )
+        key_value = (getattr(message, "channel", -1), getattr(message, "note", -1))
+        if not is_note_end or not active[key_value]:
             continue
-        voices[key_value].append(Group(duration, [value] if value else [], is_rest, is_grace))
-    return voices
-
-
-def _normalize_groups(groups: list[Group]) -> tuple[list[Group], dict[str, object]]:
-    raw_total = sum(value.duration for value in groups if not value.grace)
-    sounding = any(value.pitches for value in groups)
-    if not sounding:
-        return [Group(MEASURE_QUARTERS, [], rest=True)], {
-            "raw_quarters": raw_total,
-            "normalized_quarters": MEASURE_QUARTERS,
-            "action": "whole-measure rest normalized to 6/8",
-        }
-
-    normalized: list[Group] = []
-    cursor = 0.0
-    trimmed = False
-    for raw in groups:
-        if raw.grace:
-            if raw.pitches:
-                normalized.append(Group(0.0, list(raw.pitches), grace=True))
+        start, velocity = active[key_value].popleft()
+        if start < SOURCE_START_TICK or start >= SOURCE_END_TICK or absolute <= start:
             continue
-        remaining = MEASURE_QUARTERS - cursor
-        if remaining <= 1e-9:
-            trimmed = True
-            break
-        duration = min(raw.duration, remaining)
-        if duration <= 1e-9:
-            continue
-        if duration < raw.duration - 1e-9:
-            trimmed = True
-        normalized.append(Group(duration, list(raw.pitches), raw.rest and not raw.pitches))
-        cursor += duration
-    if cursor < MEASURE_QUARTERS - 1e-9:
-        normalized.append(Group(MEASURE_QUARTERS - cursor, [], rest=True))
-    action = "unchanged"
-    if trimmed:
-        action = "trimmed OMR overflow at the printed barline"
-    elif abs(raw_total - MEASURE_QUARTERS) > 1e-9:
-        action = "padded OMR underfill to the printed barline"
-    return normalized, {
-        "raw_quarters": raw_total,
-        "normalized_quarters": MEASURE_QUARTERS,
-        "action": action,
-    }
+        notes.append(MidiNote(
+            start=start - SOURCE_START_TICK,
+            end=min(absolute, SOURCE_END_TICK) - SOURCE_START_TICK,
+            pitch=message.note,
+            velocity=velocity,
+            staff=staff,
+        ))
+    return sorted(notes, key=lambda event: (event.start, event.pitch, event.end))
 
 
-def _load_transcription() -> tuple[list[dict[tuple[str, str], list[Group]]], dict[str, object]]:
-    measures: list[dict[tuple[str, str], list[Group]]] = []
-    repair_events: dict[str, list[dict[str, object]]] = defaultdict(list)
-    page_reports: list[dict[str, object]] = []
-    for page_path, expected_hash, expected_measures in TRANSCRIPTION_PAGES:
-        actual_hash = sha256(page_path)
-        if actual_hash != expected_hash:
-            raise RuntimeError(f"Frozen OMR input drifted: {page_path}")
-        root = ET.parse(page_path).getroot()
-        page_measures = root.findall(".//part/measure")
-        if len(page_measures) != expected_measures:
-            raise RuntimeError(
-                f"Expected {expected_measures} measures in {page_path}, found {len(page_measures)}"
-            )
-        divisions = 4
-        page_start = len(measures) + 1
-        for raw_measure in page_measures:
-            attributes = raw_measure.find("attributes")
-            raw_divisions = attributes.findtext("divisions") if attributes is not None else None
-            if raw_divisions:
-                divisions = int(raw_divisions)
-            raw_voices = _raw_measure_voices(raw_measure, divisions)
-            clean: dict[tuple[str, str], list[Group]] = {}
-            global_measure = len(measures) + 1
-            for voice_key in SOURCE_VOICES:
-                groups, repair = _normalize_groups(raw_voices.get(voice_key, []))
-                clean[voice_key] = groups
-                if repair["action"] != "unchanged":
-                    repair_events[repair["action"]].append({
-                        "measure": global_measure,
-                        "voice": VOICE_IDS[voice_key],
-                        "raw_quarters": repair["raw_quarters"],
-                    })
-            measures.append(clean)
-        page_reports.append({
-            "path": str(page_path),
-            "sha256": actual_hash,
-            "global_measure_span": [page_start, len(measures)],
-            "measure_count": len(page_measures),
-        })
-    if len(measures) != MEASURE_COUNT:
-        raise RuntimeError(f"Expected {MEASURE_COUNT} complete-movement measures, found {len(measures)}")
-    return measures, {
-        "omr_tool": "homr 0.7.0",
-        "pages": page_reports,
-        "measure_count": len(measures),
-        "repairs": {key_value: values for key_value, values in sorted(repair_events.items())},
-    }
-
-
-def _music21_value(group: Group):
-    unique = sorted(set(group.pitches), key=lambda name: int(pitch.Pitch(name).midi))
-    if group.rest or not unique:
-        return note.Rest(quarterLength=group.duration)
-    if len(unique) == 1:
-        value = note.Note(unique[0], quarterLength=group.duration)
-    else:
-        value = chord.Chord(unique, quarterLength=group.duration)
-    value.volume.velocity = 60
-    return value
-
-
-def _source_score(measures: list[dict[tuple[str, str], list[Group]]]) -> stream.Score:
-    score = stream.Score(id="old_castle_complete_transcription")
-    score.metadata = metadata.Metadata()
-    score.metadata.title = "Il vecchio castello - complete project-authored scan transcription"
-    score.metadata.composer = "Modest Mussorgsky"
-    piano = stream.Part(id="piano_full_movement_transcription")
-    piano.partName = "Piano (full movement scan transcription)"
-    piano.insert(0, clef.TrebleClef())
-    piano.insert(0, key.KeySignature(5))
-    piano.insert(0, meter.TimeSignature("6/8"))
-    piano.insert(0, tempo.MetronomeMark(number=QPM))
-
-    for measure_number, voice_groups in enumerate(measures, 1):
-        measure = stream.Measure(number=measure_number)
-        for voice_key in SOURCE_VOICES:
-            voice = stream.Voice(id=VOICE_IDS[voice_key])
-            for group in voice_groups[voice_key]:
-                if group.grace:
-                    for name in group.pitches:
-                        voice.append(note.Note(name).getGrace())
-                    continue
-                voice.append(_music21_value(group))
-            measure.insert(0, voice)
-        if measure_number == MEASURE_COUNT:
-            measure.rightBarline = bar.Barline("final")
-        piano.append(measure)
-    score.insert(0, piano)
-    return score
-
-
-def _stabilize_normalized_musicxml(report: dict[str, object]) -> None:
-    xml_paths = [Path(str(report["full_score_musicxml"]))]
-    for part_report in report["parts"]:
-        xml_paths.append(Path(str(part_report["musicxml_path"])))
-    for xml_path in xml_paths:
-        text = xml_path.read_text(encoding="utf-8")
-        text, score_part_count = re.subn(r'<score-part id="P[^"]+">', '<score-part id="P1">', text)
-        text, part_count = re.subn(r'<part id="P[^"]+">', '<part id="P1">', text)
-        if score_part_count != 1 or part_count != 1:
-            raise RuntimeError(f"Expected one generated MusicXML part id in {xml_path}")
-        xml_path.write_text(text, encoding="utf-8")
-    report["full_score_musicxml_sha256"] = sha256(Path(str(report["full_score_musicxml"])))
-    for part_report in report["parts"]:
-        part_report["musicxml_sha256"] = sha256(Path(str(part_report["musicxml_path"])))
-
-
-def _timeline(groups: list[Group]) -> list[tuple[float, float, list[int]]]:
-    events: list[tuple[float, float, list[int]]] = []
-    cursor = 0.0
-    pending_graces: list[int] = []
-    for group in groups:
-        values = sorted({int(pitch.Pitch(name).midi) for name in group.pitches})
-        if group.grace:
-            pending_graces.extend(values)
-            continue
-        duration = group.duration
-        if values:
-            grace_slot = min(0.125 * len(pending_graces), duration * 0.35)
-            if pending_graces and grace_slot > 0:
-                grace_duration = grace_slot / len(pending_graces)
-                for index, midi_note in enumerate(pending_graces):
-                    events.append((cursor + index * grace_duration, grace_duration * 0.82, [midi_note]))
-            main_duration = duration - grace_slot
-            if main_duration > 0:
-                events.append((cursor + grace_slot, main_duration, values))
-        pending_graces.clear()
-        cursor += duration
+def _meta_events(track: mido.MidiTrack) -> list[tuple[int, mido.MetaMessage]]:
+    absolute = 0
+    events: list[tuple[int, mido.MetaMessage]] = []
+    for message in track:
+        absolute += message.time
+        if message.is_meta:
+            events.append((absolute, message))
     return events
+
+
+def _pitches_at(notes: list[MidiNote], measure: int, offset: int) -> tuple[int, ...]:
+    tick = (measure - 1) * MEASURE_TICKS + offset
+    return tuple(sorted({event.pitch for event in notes if event.start == tick}))
+
+
+def _verify_anchors(staves: tuple[list[MidiNote], list[MidiNote]]) -> dict[str, object]:
+    checked: list[dict[str, object]] = []
+    for measure, staff, offset, expected in SYSTEM_ANCHORS:
+        actual = _pitches_at(staves[staff], measure, offset)
+        if actual != expected:
+            raise RuntimeError(
+                f"Printed-system anchor drift at m{measure} staff {staff} offset {offset}: "
+                f"expected {expected}, found {actual}"
+            )
+        checked.append({
+            "measure": measure,
+            "staff": "treble" if staff == 0 else "bass",
+            "offset_ticks": offset,
+            "pitches": [_pitch_name(value) for value in expected],
+        })
+
+    opening: list[dict[str, object]] = []
+    for measure, offset, expected in OPENING_MELODY_ANCHORS:
+        actual = _pitches_at(staves[0], measure, offset)
+        if actual != expected:
+            raise RuntimeError(
+                f"Opening-melody anchor drift at m{measure} offset {offset}: "
+                f"expected {expected}, found {actual}"
+            )
+        opening.append({
+            "measure": measure,
+            "offset_ticks": offset,
+            "pitches": [_pitch_name(value) for value in expected],
+        })
+
+    final_treble = _pitches_at(staves[0], 106, 0)
+    final_bass = _pitches_at(staves[1], 106, 0)
+    if final_treble != (68, 80) or final_bass != (44, 51, 59):
+        raise RuntimeError("Final G-sharp-minor cadence anchor drifted")
+    if any(event.start >= 106 * MEASURE_TICKS for staff in staves for event in staff):
+        raise RuntimeError("Expected printed m107 to contain no new note onset")
+    return {
+        "printed_system_anchors": checked,
+        "opening_melody_anchors": opening,
+        "final_cadence": {
+            "measure": 106,
+            "treble_pitches": [_pitch_name(value) for value in final_treble],
+            "bass_pitches": [_pitch_name(value) for value in final_bass],
+        },
+        "final_fermata_rest_measure": 107,
+    }
+
+
+def _load_source() -> tuple[tuple[list[MidiNote], list[MidiNote]], dict[str, object]]:
+    if sha256(SOURCE_MIDI) != EXPECTED_SOURCE_MIDI_SHA256:
+        raise RuntimeError("Immutable CC0 PDMX source MIDI hash drifted")
+    if sha256(SOURCE_RECORD) != EXPECTED_SOURCE_RECORD_SHA256:
+        raise RuntimeError("PDMX provenance record hash drifted")
+    if sha256(REFERENCE_PDF) != EXPECTED_REFERENCE_PDF_SHA256:
+        raise RuntimeError("Immutable public-domain reference scan hash drifted")
+
+    source = mido.MidiFile(SOURCE_MIDI)
+    if source.type != 1 or source.ticks_per_beat != TICKS_PER_BEAT or len(source.tracks) != 2:
+        raise RuntimeError("Unexpected PDMX source MIDI structure")
+    meta = _meta_events(source.tracks[0])
+    at_start = [message for tick, message in meta if tick == SOURCE_START_TICK]
+    if not any(message.type == "time_signature" and message.numerator == 6 and message.denominator == 8 for message in at_start):
+        raise RuntimeError("Old Castle source boundary lacks its 6/8 meter")
+    if not any(message.type == "key_signature" and message.key == "B" for message in at_start):
+        raise RuntimeError("Old Castle source boundary lacks its five-sharp key signature")
+    if not any(message.type == "set_tempo" and message.tempo == 652175 for message in at_start):
+        raise RuntimeError("Old Castle source boundary tempo marker drifted")
+    if not any(tick == NEXT_MOVEMENT_TICK and message.type == "time_signature" for tick, message in meta):
+        raise RuntimeError("Next-movement boundary marker drifted")
+
+    staves = (_track_notes(source.tracks[0], 0), _track_notes(source.tracks[1], 1))
+    expected_counts = (575, 593)
+    actual_counts = tuple(len(staff) for staff in staves)
+    if actual_counts != expected_counts:
+        raise RuntimeError(f"Expected source staff counts {expected_counts}, found {actual_counts}")
+    anchors = _verify_anchors(staves)
+    report = {
+        "source_midi": str(SOURCE_MIDI),
+        "source_midi_sha256": sha256(SOURCE_MIDI),
+        "source_record": str(SOURCE_RECORD),
+        "source_record_sha256": sha256(SOURCE_RECORD),
+        "reference_pdf": str(REFERENCE_PDF),
+        "reference_pdf_sha256": sha256(REFERENCE_PDF),
+        "movement_start_tick": SOURCE_START_TICK,
+        "movement_end_tick": SOURCE_END_TICK,
+        "next_movement_tick": NEXT_MOVEMENT_TICK,
+        "ticks_per_beat": TICKS_PER_BEAT,
+        "measure_count": MEASURE_COUNT,
+        "source_staff_note_counts": {"treble": len(staves[0]), "bass": len(staves[1])},
+        "anchors": anchors,
+    }
+    return staves, report
 
 
 def _in_range(value: int, low: int, high: int) -> int:
@@ -301,68 +281,181 @@ def _in_range(value: int, low: int, high: int) -> int:
     return max(low, min(high, value))
 
 
-def _section_velocity(measure_number: int) -> int:
-    if measure_number <= 28:
-        return 58
-    if measure_number <= 46:
-        return 64
-    if measure_number <= 54:
-        return 57
-    if measure_number <= 68:
-        return 63
-    if measure_number <= 86:
-        return 59
-    if measure_number <= 94:
-        return 65
-    if measure_number <= 101:
-        return 56
-    return max(46, 60 - (measure_number - 102) * 3)
+def _arranged_velocity(source_velocity: int, offset: int) -> int:
+    return max(34, min(92, int(round(38 + source_velocity * 0.45 + offset))))
+
+
+def _onset_groups(notes: list[MidiNote]) -> list[list[MidiNote]]:
+    groups: dict[int, dict[int, MidiNote]] = defaultdict(dict)
+    for event in notes:
+        previous = groups[event.start].get(event.pitch)
+        if previous is None or event.end > previous.end:
+            groups[event.start][event.pitch] = event
+    return [
+        [by_pitch[value] for value in sorted(by_pitch)]
+        for _, by_pitch in sorted(groups.items())
+    ]
 
 
 def _arrangement_events(
-    measures: list[dict[tuple[str, str], list[Group]]],
-) -> dict[str, list[tuple[int, int, int, int]]]:
-    events: dict[str, list[tuple[int, int, int, int]]] = defaultdict(list)
+    staves: tuple[list[MidiNote], list[MidiNote]],
+) -> dict[str, list[ArrangementNote]]:
+    events: dict[str, list[ArrangementNote]] = defaultdict(list)
 
-    def add(track: str, measure_number: int, offset: float, duration: float, midi_note: int, velocity: int) -> None:
-        start = int(round(((measure_number - 1) * MEASURE_QUARTERS + offset) * TICKS_PER_BEAT))
-        gate = max(1, int(round(max(0.04, duration * 0.92) * TICKS_PER_BEAT)))
-        events[track].append((start, start + gate, midi_note, velocity))
+    def add(track: str, source: MidiNote, midi_pitch: int, velocity_offset: int) -> None:
+        events[track].append(ArrangementNote(
+            start=source.start,
+            end=source.end,
+            pitch=midi_pitch,
+            velocity=_arranged_velocity(source.velocity, velocity_offset),
+        ))
 
-    doubled_sections = ((29, 46), (55, 68), (74, 94), (102, 105))
-    for measure_number, voices in enumerate(measures, 1):
-        base_velocity = _section_velocity(measure_number)
-        primary_timeline = _timeline(voices[("1", "1")])
-        for offset, duration, values in primary_timeline:
-            if not values:
+    for group in _onset_groups(staves[0]):
+        lowest = group[0]
+        highest = group[-1]
+        add(TRACKS[0], highest, _in_range(highest.pitch, 60, 88), -6)
+        add(TRACKS[3], highest, _in_range(highest.pitch - 12, 36, 67), 7)
+        if lowest.pitch != highest.pitch:
+            add(TRACKS[1], lowest, _in_range(lowest.pitch, 55, 83), -10)
+
+    for group in _onset_groups(staves[1]):
+        lowest = group[0]
+        highest = group[-1]
+        add(TRACKS[2], highest, _in_range(highest.pitch, 48, 76), -11)
+        add(TRACKS[4], lowest, _in_range(lowest.pitch, 28, 55), -7)
+
+    for track_name in TRACKS:
+        events[track_name].sort(key=lambda event: (event.start, event.pitch, event.end))
+        cleaned: list[ArrangementNote] = []
+        previous_by_pitch: dict[int, ArrangementNote] = {}
+        for event in events[track_name]:
+            previous = previous_by_pitch.get(event.pitch)
+            if previous is not None and event.start - previous.start < 15:
+                previous.end = max(previous.end, event.end)
+                previous.velocity = max(previous.velocity, event.velocity)
                 continue
-            add(TRACKS[3], measure_number, offset, duration, _in_range(max(values) - 12, 36, 67), base_velocity + 4)
-            chord_tone = sorted(values)[-2] if len(values) > 1 else max(values)
-            if len(values) > 1 or any(start <= measure_number <= end for start, end in doubled_sections):
-                add(TRACKS[0], measure_number, offset, duration, _in_range(chord_tone, 60, 88), base_velocity - 10)
-
-        for offset, duration, values in _timeline(voices[("1", "2")]):
-            if values:
-                add(TRACKS[1], measure_number, offset, duration, _in_range(max(values), 55, 83), base_velocity - 13)
-
-        for offset, duration, values in _timeline(voices[("2", "5")]):
-            if values:
-                add(TRACKS[2], measure_number, offset, duration, _in_range(max(values), 48, 76), base_velocity - 15)
-
-        pedal_timeline = _timeline(voices[("2", "6")])
-        if not any(values for _, _, values in pedal_timeline):
-            pedal_timeline = _timeline(voices[("2", "5")])
-        for offset, duration, values in pedal_timeline:
-            if values:
-                add(TRACKS[4], measure_number, offset, duration, _in_range(min(values), 28, 55), base_velocity - 12)
-
+            if previous is not None and previous.end >= event.start:
+                previous.end = event.start
+            cleaned.append(event)
+            previous_by_pitch[event.pitch] = event
+        events[track_name] = cleaned
     return events
 
 
-def _write_arrangement_midi(events: dict[str, list[tuple[int, int, int, int]]]) -> dict[str, int]:
+def _event_lanes(events: list[ArrangementNote]) -> list[list[ArrangementNote]]:
+    lanes: list[list[ArrangementNote]] = []
+    lane_ends: list[int] = []
+    for event in events:
+        for index, lane_end in enumerate(lane_ends):
+            if lane_end <= event.start:
+                lanes[index].append(event)
+                lane_ends[index] = event.end
+                break
+        else:
+            lanes.append([event])
+            lane_ends.append(event.end)
+    return lanes
+
+
+def _score_value(event: ArrangementNote, duration_ticks: int, tie_type: str | None):
+    value = note.Note(_pitch_name(event.pitch), quarterLength=duration_ticks / TICKS_PER_BEAT)
+    value.volume.velocity = event.velocity
+    if tie_type is not None:
+        value.tie = tie.Tie(tie_type)
+    return value
+
+
+def _score_tick(value: int) -> int:
+    """Quantize MuseScore playback gates to the smallest portable MusicXML grid."""
+    return int(round(value / 15.0)) * 15
+
+
+def _normalized_score(events: dict[str, list[ArrangementNote]]) -> stream.Score:
+    score = stream.Score(id="old_castle_complete_reduction")
+    score.metadata = metadata.Metadata()
+    score.metadata.title = "Il vecchio castello - complete five-voice source reduction"
+    score.metadata.composer = "Modest Mussorgsky"
+
+    for part_index, track_name in enumerate(TRACKS):
+        part = stream.Part(id=f"reduction_part_{part_index + 1}")
+        part.partName = track_name
+        part.insert(0, clef.BassClef() if part_index >= 2 else clef.TrebleClef())
+        part.insert(0, key.KeySignature(5))
+        part.insert(0, meter.TimeSignature("6/8"))
+        part.insert(0, tempo.MetronomeMark(number=QPM))
+        lanes = _event_lanes(events[track_name])
+        for measure_number in range(1, MEASURE_COUNT + 1):
+            measure = stream.Measure(number=measure_number)
+            measure_start = (measure_number - 1) * MEASURE_TICKS
+            measure_end = measure_start + MEASURE_TICKS
+            for lane_index, lane in enumerate(lanes):
+                voice = stream.Voice(id=f"voice_{lane_index + 1}")
+                cursor = 0
+                for event in lane:
+                    score_start = max(0, _score_tick(event.start))
+                    score_end = min(
+                        MEASURE_COUNT * MEASURE_TICKS,
+                        max(score_start + 15, _score_tick(event.end)),
+                    )
+                    if score_end <= measure_start or score_start >= measure_end:
+                        continue
+                    local_start = max(score_start, measure_start) - measure_start
+                    local_end = min(score_end, measure_end) - measure_start
+                    local_start = max(local_start, cursor)
+                    if local_end <= local_start:
+                        continue
+                    if local_start > cursor:
+                        voice.append(note.Rest(quarterLength=(local_start - cursor) / TICKS_PER_BEAT))
+                    tie_type = None
+                    if score_start < measure_start and score_end > measure_end:
+                        tie_type = "continue"
+                    elif score_start < measure_start:
+                        tie_type = "stop"
+                    elif score_end > measure_end:
+                        tie_type = "start"
+                    voice.append(_score_value(event, local_end - local_start, tie_type))
+                    cursor = local_end
+                if cursor < MEASURE_TICKS:
+                    voice.append(note.Rest(quarterLength=(MEASURE_TICKS - cursor) / TICKS_PER_BEAT))
+                measure.insert(0, voice)
+            if measure_number == MEASURE_COUNT:
+                measure.rightBarline = bar.Barline("final")
+            part.append(measure)
+        score.insert(0, part)
+    return score
+
+
+def _stabilize_musicxml_file(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    text, date_count = re.subn(
+        r"<encoding-date>[^<]+</encoding-date>",
+        "<encoding-date>2026-08-26</encoding-date>",
+        text,
+    )
+    if date_count != 1:
+        raise RuntimeError(f"Expected one generated MusicXML encoding date in {path}")
+    ids = re.findall(r'<score-part id="(P[^"]+)">', text)
+    if not ids:
+        raise RuntimeError(f"Expected generated MusicXML part ids in {path}")
+    for index, old_id in enumerate(ids, 1):
+        text = text.replace(f'id="{old_id}"', f'id="P{index}"')
+    path.write_text(text, encoding="utf-8")
+
+
+def _stabilize_normalized_musicxml(report: dict[str, object]) -> None:
+    full_path = Path(str(report["full_score_musicxml"]))
+    _stabilize_musicxml_file(full_path)
+    report["full_score_musicxml_sha256"] = sha256(full_path)
+    for part_report in report["parts"]:
+        part_path = Path(str(part_report["musicxml_path"]))
+        _stabilize_musicxml_file(part_path)
+        part_report["musicxml_sha256"] = sha256(part_path)
+
+
+def _write_arrangement_midi(events: dict[str, list[ArrangementNote]]) -> dict[str, int]:
     VERSION_DIR.mkdir(parents=True, exist_ok=True)
     midi = mido.MidiFile(type=1, ticks_per_beat=TICKS_PER_BEAT)
-    total_ticks = int(MEASURE_COUNT * MEASURE_QUARTERS * TICKS_PER_BEAT)
+    total_ticks = MEASURE_COUNT * MEASURE_TICKS
     conductor = mido.MidiTrack()
     conductor.append(mido.MetaMessage("track_name", name="Conductor", time=0))
     conductor.append(mido.MetaMessage("time_signature", numerator=6, denominator=8, time=0))
@@ -375,9 +468,13 @@ def _write_arrangement_midi(events: dict[str, list[tuple[int, int, int, int]]]) 
         track = mido.MidiTrack()
         track.append(mido.MetaMessage("track_name", name=track_name, time=0))
         scheduled: list[tuple[int, int, mido.Message]] = []
-        for start, end, midi_note, velocity in events[track_name]:
-            scheduled.append((start, 1, mido.Message("note_on", note=midi_note, velocity=velocity, channel=channel, time=0)))
-            scheduled.append((end, 0, mido.Message("note_off", note=midi_note, velocity=0, channel=channel, time=0)))
+        for event in events[track_name]:
+            scheduled.append((event.start, 1, mido.Message(
+                "note_on", note=event.pitch, velocity=event.velocity, channel=channel, time=0
+            )))
+            scheduled.append((event.end, 0, mido.Message(
+                "note_off", note=event.pitch, velocity=0, channel=channel, time=0
+            )))
         scheduled.sort(key=lambda item: (item[0], item[1], item[2].note))
         previous_tick = 0
         for absolute_tick, _, message in scheduled:
@@ -393,6 +490,9 @@ def _write_arrangement_midi(events: dict[str, list[tuple[int, int, int, int]]]) 
 
 def _verify_v01_unchanged() -> dict[str, str]:
     version = TRACK_ROOT / "versions" / "v01"
+    actual_files = sorted(path.name for path in version.iterdir() if path.is_file())
+    if actual_files != sorted(EXPECTED_V01_HASHES):
+        raise RuntimeError(f"v01 artifact tree drifted: found {actual_files}")
     actual: dict[str, str] = {}
     for name, expected_hash in EXPECTED_V01_HASHES.items():
         path = version / name
@@ -403,22 +503,29 @@ def _verify_v01_unchanged() -> dict[str, str]:
 
 
 def main() -> int:
-    if sha256(SOURCE_PDF) != EXPECTED_SOURCE_SHA256:
-        raise RuntimeError("Immutable public-domain source PDF hash drifted")
     v01_hashes = _verify_v01_unchanged()
     config = read_json(CONFIG_PATH)
     verify_source_clearance(config, CONFIG_PATH)
-    measures, transcription_report = _load_transcription()
-    normalized = write_normalized_score(_source_score(measures), NORMALIZED_DIR, expand_repeats=False)
+    staves, source_report = _load_source()
+    events = _arrangement_events(staves)
+    normalized = write_normalized_score(
+        _normalized_score(events), NORMALIZED_DIR, expand_repeats=False
+    )
     _stabilize_normalized_musicxml(normalized)
-    counts = _write_arrangement_midi(_arrangement_events(measures))
+    counts = _write_arrangement_midi(events)
     report = {
         "ok": True,
-        "source_pdf": str(SOURCE_PDF),
-        "source_pdf_sha256": sha256(SOURCE_PDF),
+        "selection": (
+            "Complete 107-measure movement in printed order, including the final fermata-rest "
+            "measure; no cuts, repeats, or constructed cadence"
+        ),
+        "source": source_report,
         "source_score_pages": "PDF pages 8-10 (printed pages 7-9)",
-        "selection": "Complete 106-measure movement in printed order; no cuts, repeats, or constructed cadence",
-        "transcription": transcription_report,
+        "page_measure_spans": {
+            "PDF 8 / printed 7": [1, 30],
+            "PDF 9 / printed 8": [31, 69],
+            "PDF 10 / printed 9": [70, 107],
+        },
         "normalized": normalized,
         "arrangement_midi": str(ARRANGEMENT_MIDI),
         "arrangement_midi_sha256": sha256(ARRANGEMENT_MIDI),
