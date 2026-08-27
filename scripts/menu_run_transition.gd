@@ -10,7 +10,9 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const MESSAGE := "Entering the Labyrinth"
 const DOT_SECONDS := 0.38
 const REVEAL_SECONDS := 0.22
-const MUSIC_HANDOFF_SECONDS := 0.8
+const MENU_MUSIC_FADE_OUT_SECONDS := 0.2
+const MUSIC_GAP_SECONDS := 0.1
+const ROOM_MUSIC_FADE_IN_SECONDS := 0.3
 
 var phase: StringName = &"loading"
 var message_label: Label
@@ -146,11 +148,9 @@ func _load_destination() -> void:
 	_surface.hide()
 	get_tree().current_scene = destination
 	destination.process_mode = _destination_process_mode
-	# Keep menu music through the reveal, then overlap its short fade-out
-	# with the incoming track so authored opening rests do not create a gap.
-	if destination.has_method("start_initial_music_after_loading"):
-		destination.call("start_initial_music_after_loading")
-	_fade_menu_music_into_room()
+	# The room is playable immediately; its music waits for the outgoing
+	# track to fade out completely and a brief quiet beat. Never overlap.
+	_handoff_menu_music_to_room()
 	_release_input()
 	_set_phase(&"complete")
 	finished.emit(destination)
@@ -185,19 +185,21 @@ func _fail() -> void:
 	failed.emit()
 	queue_free()
 
-func _fade_menu_music_into_room() -> void:
-	if not is_instance_valid(_menu_music):
-		return
-	var music := _menu_music
-	_menu_music = null
-	music.name = "MenuMusicTail"
-	music.reparent(destination)
-	music.process_mode = _menu_music_process_mode
-	# The room owns the brief tail; input and the visual transition do not
-	# wait for it, and leaving the room also cleans up the player/tween.
+func _handoff_menu_music_to_room() -> void:
+	# Room ownership cancels the sequence safely if the player leaves.
 	var tween := destination.create_tween().set_ignore_time_scale(true)
-	tween.tween_property(music, "volume_linear", 0.0, MUSIC_HANDOFF_SECONDS)
-	tween.tween_callback(music.queue_free)
+	if is_instance_valid(_menu_music):
+		var music := _menu_music
+		_menu_music = null
+		music.name = "MenuMusicTail"
+		music.reparent(destination)
+		music.process_mode = _menu_music_process_mode
+		tween.tween_property(music, "volume_linear", 0.0, MENU_MUSIC_FADE_OUT_SECONDS)
+		tween.tween_callback(music.stop)
+		tween.tween_callback(music.queue_free)
+	tween.tween_interval(MUSIC_GAP_SECONDS)
+	if destination.has_method("start_initial_music_after_loading"):
+		tween.tween_callback(Callable(destination, "start_initial_music_after_loading").bind(ROOM_MUSIC_FADE_IN_SECONDS))
 
 func _restore_menu_music_process_mode() -> void:
 	if is_instance_valid(_menu_music):

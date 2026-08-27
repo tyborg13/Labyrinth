@@ -240,12 +240,11 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 	assert(not is_instance_valid(transition), "Loading must finish before the probe deadline")
 	assert(current_scene != null and current_scene.scene_file_path == "res://scenes/run_scene.tscn", "The real RunScene must be current after loading")
 	assert(not root.gui_disable_input, "Input must be restored after loading")
-	assert(is_instance_valid(menu_music) and menu_music.get_parent() == current_scene and menu_music.playing, "The music overlap must not delay room activation")
+	assert(is_instance_valid(menu_music) and menu_music.get_parent() == current_scene and menu_music.playing, "Menu fade-out must not delay room activation")
 	var room_music := current_scene.get_node_or_null("MusicPlayer") as AudioStreamPlayer
 	var entry: Dictionary = MusicLibrary.entry(str(current_scene.get("_active_music_id")))
 	if not entry.is_empty():
-		assert(room_music != null and room_music.playing and not room_music.stream_paused, "The room track must be playing on activation")
-		assert(is_equal_approx(room_music.volume_db, float(entry.get("volume_db", -12.0))), "The handoff must not fade in from silence")
+		assert(room_music != null and not room_music.playing, "Room music must wait for the outgoing fade and gap")
 	await RenderingServer.frame_post_draw
 	images.append(root.get_texture().get_image())
 	phases.append("room")
@@ -254,7 +253,23 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 	music_positions.append(-1.0)
 	var load_elapsed_ms := Time.get_ticks_msec() - started
 	if audio_record != null:
-		await create_timer(1.0).timeout
+		var handoff_start := Time.get_ticks_msec()
+		var menu_stopped_ms := -1
+		var room_started_ms := -1
+		while Time.get_ticks_msec() - handoff_start < 1300:
+			var outgoing := is_instance_valid(menu_music) and menu_music.playing
+			var incoming := room_music != null and room_music.playing
+			assert(not (outgoing and incoming), "Menu and room audio must never overlap")
+			var elapsed := Time.get_ticks_msec() - handoff_start
+			if not outgoing and menu_stopped_ms < 0:
+				menu_stopped_ms = elapsed
+			if incoming and room_started_ms < 0:
+				room_started_ms = elapsed
+			await process_frame
+		if resume:
+			assert(room_started_ms - menu_stopped_ms >= 60 and room_started_ms - menu_stopped_ms < 250, "Audio must have a short intentional gap")
+			assert(is_equal_approx(room_music.volume_db, float(entry.get("volume_db", -12.0))), "The room fade-in must finish at authored volume")
+		print("AUDIO HANDOFF PASS: no overlap; menu stopped %d ms, room started %d ms" % [menu_stopped_ms, room_started_ms])
 		audio_record.set_recording_active(false)
 		var recording := audio_record.get_recording()
 		var audio_path := "%s/%s_music_handoff.wav" % [OUTPUT_DIR, suffix]
@@ -269,8 +284,8 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 				silent_frames = silent_frames + 1 if silent else 0
 				longest_silence = maxi(longest_silence, silent_frames)
 			var silence_ms := 1000.0 * float(longest_silence) / float(recording.mix_rate)
-			assert(silence_ms < 50.0, "The captured menu-to-combat mix must not contain a silent handoff gap")
-			print("AUDIO CONTINUITY PASS: longest silent interval %.3f ms" % silence_ms)
+			assert(silence_ms >= 50.0, "The captured mix must retain the requested quiet beat between tracks")
+			print("AUDIO GAP: longest silent interval %.3f ms" % silence_ms)
 		assert(recording.save_to_wav(ProjectSettings.globalize_path(audio_path)) == OK, "Audio proof must save")
 		AudioServer.remove_bus_effect(music_bus, AudioServer.get_bus_effect_count(music_bus) - 1)
 		print("AUDIO PROOF: " + ProjectSettings.globalize_path(audio_path))

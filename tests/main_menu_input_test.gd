@@ -264,7 +264,7 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	transition.phase_changed.connect(func(value: StringName):
 		phase_times[str(value)] = Time.get_ticks_msec()
 		if value == &"complete":
-			_expect(music.playing and not music.stream_paused and music.get_parent() == transition.destination, "Menu music must overlap the incoming track without delaying room activation")
+			_expect(music.playing and not music.stream_paused and music.get_parent() == transition.destination, "Menu fade-out must not delay room activation")
 		if value == &"revealing":
 			_expect(music.playing and not music.stream_paused, "Menu music must continue through the visual reveal")
 			_expect(transition.destination.initial_presentation_is_ready(), "Reveal must wait for the complete hand/dock layout, even without a fade")
@@ -295,20 +295,49 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	var entry: Dictionary = MusicLibrary.entry(str(room.get("_active_music_id")))
 	if mode == "continue":
 		_expect(not entry.is_empty(), "Combat Continue must retain its existing music selection")
-	if not entry.is_empty():
-		_expect(room_music != null and room_music.playing and not room_music.stream_paused, "Room music must play as the room is activated")
-		if room_music != null:
-			_expect(is_equal_approx(room_music.volume_db, float(entry.get("volume_db", -12.0))), "Menu handoff must not fade the room track up from silence")
-	else:
-		_expect(room_music == null or not room_music.playing, "Rooms without authored music must retain their existing quiet context")
+	_expect(room_music == null or not room_music.playing, "Room music must wait while menu music fades out")
 	_expect(current_scene == room and not root.gui_disable_input, "The completed room must become current with restored input")
 	_expect(room.process_mode == Node.PROCESS_MODE_INHERIT, "The room must resume normal processing")
-	_expect(not room.get("_initial_music_deferred"), "Music deferral must end with menu loading, including unscored rooms")
-	room_music = room.get_node_or_null("MusicPlayer") as AudioStreamPlayer
-	if room_music != null and room_music.playing:
+	await process_frame
+	_expect(not is_instance_valid(menu) and not is_instance_valid(transition), "Visual completion must free the menu/helper without waiting for audio")
+	var handoff_start: int = int(phase_times["complete"])
+	var menu_stopped_ms := -1
+	var room_started_ms := -1
+	var no_overlap := true
+	var menu_faded_down := true
+	var previous_volume := music.volume_linear
+	var initial_room_volume := -1.0
+	while Time.get_ticks_msec() - handoff_start < 1500:
+		var outgoing := is_instance_valid(music) and music.playing
+		var incoming := room_music != null and room_music.playing
+		no_overlap = no_overlap and not (outgoing and incoming)
+		var elapsed := Time.get_ticks_msec() - handoff_start
+		if outgoing:
+			menu_faded_down = menu_faded_down and music.volume_linear <= previous_volume + 0.001 and music.get_stream_playback() == original_playback
+			previous_volume = music.volume_linear
+		elif menu_stopped_ms < 0:
+			menu_stopped_ms = elapsed
+		if incoming and room_started_ms < 0:
+			room_started_ms = elapsed
+			initial_room_volume = room_music.volume_linear
+		if not room.get("_initial_music_deferred") and not is_instance_valid(music) and (not incoming or elapsed - room_started_ms > 350):
+			break
+		await process_frame
+	_expect(no_overlap, "Menu and room tracks must never play simultaneously")
+	_expect(menu_faded_down and menu_stopped_ms >= 150 and menu_stopped_ms < 450, "Menu audio must fade down over a fraction of a second after room activation")
+	_expect(not room.get("_initial_music_deferred"), "Music deferral must clear after the intentional gap, even in unscored rooms")
+	_expect(not is_instance_valid(music) and room.get_node_or_null("MenuMusicTail") == null, "Outgoing music must be freed before the new track begins")
+	if not entry.is_empty():
+		var target_volume := db_to_linear(float(entry.get("volume_db", -12.0)))
+		_expect(room_started_ms - menu_stopped_ms >= 60 and room_started_ms - menu_stopped_ms < 250, "A short intentional gap must separate the tracks")
+		_expect(initial_room_volume >= 0.0 and initial_room_volume < target_volume, "The room track must begin with a fade-in")
+		_expect(is_equal_approx(room_music.volume_linear, target_volume), "The short room fade-in must reach the authored level")
 		var playing_track := room_music.get_stream_playback()
-		room.call("start_initial_music_after_loading")
+		room.call("start_initial_music_after_loading", MenuRunTransition.ROOM_MUSIC_FADE_IN_SECONDS)
 		_expect(room_music.get_stream_playback() == playing_track, "Repeated completion must not restart the room track")
+	else:
+		_expect(room_music == null or not room_music.playing, "Unscored rooms must retain their quiet context")
+	print("Music handoff %s: menu stopped=%d ms, room started=%d ms, overlap=%s" % [mode, menu_stopped_ms, room_started_ms, not no_overlap])
 	room.call("_play_music", MusicLibrary.entry(MusicLibrary.RELIC_ROOM_TRACK_ID))
 	room_music = room.get_node("MusicPlayer")
 	_expect(room_music.playing and is_equal_approx(room_music.volume_db, -60.0) and room.get("_music_tween") != null, "Later in-run music changes must retain their existing fade")
@@ -323,9 +352,6 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	print("Run entry PASS: %s reduced_motion=%s reveal_ms=%d" % [mode, reduced_motion, reveal_ms])
 	await process_frame
 	_expect(not is_instance_valid(menu) and not is_instance_valid(transition), "Completion must free the old menu and loading layer")
-	_expect(is_instance_valid(music) and music.get_stream_playback() == original_playback, "The short audio tail must preserve the original playback after menu cleanup")
-	await create_timer(MenuRunTransition.MUSIC_HANDOFF_SECONDS + 0.05).timeout
-	_expect(not is_instance_valid(music) and room.get_node_or_null("MenuMusicTail") == null, "The outgoing menu audio must be freed after its short fade")
 	room.queue_free()
 	await process_frame
 	await process_frame

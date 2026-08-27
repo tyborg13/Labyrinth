@@ -21094,16 +21094,19 @@ func _stop_attack_sfx_player(player: AudioStreamPlayer, generation: int = -1) ->
 func defer_initial_music_until_reveal() -> void:
 	_initial_music_deferred = true
 
-func start_initial_music_after_loading() -> void:
+func start_initial_music_after_loading(fade_seconds: float) -> void:
 	if not _initial_music_deferred:
 		return
 	_initial_music_deferred = false
 	if _music_player == null or _music_player.stream == null or _active_music_id.is_empty():
 		return
-	# The menu already supplied continuous music while this scene loaded.
-	# Start at the authored level instead of introducing a 2.5s quiet gap.
-	_music_player.volume_db = float(MusicLibrary.entry(_active_music_id).get("volume_db", -12.0))
+	# The outgoing menu track has already stopped. Fade in separately.
+	var target_volume := db_to_linear(float(MusicLibrary.entry(_active_music_id).get("volume_db", -12.0)))
+	_stop_music_tween()
+	_music_player.volume_linear = 0.0
 	_music_player.play()
+	_music_tween = create_tween().set_ignore_time_scale(true)
+	_music_tween.tween_property(_music_player, "volume_linear", target_volume, fade_seconds)
 
 func _update_music_for_context(room: Dictionary) -> void:
 	_play_music(MusicLibrary.entry_for_context(str(_run_state.get("mode", "room")), room, _combat_state))

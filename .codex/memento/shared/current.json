@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-27T19:37:57Z",
+  "updated_at": "2026-08-27T19:54:26Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9212,27 +9212,27 @@
       }
     },
     {
-      "id": "mnt_20260827T193757Z_65579e1b",
+      "id": "mnt_20260827T195426Z_97b97168",
       "layer": "shared",
-      "kind": "pitfall",
+      "kind": "user_preference",
       "scope": {
         "level": "file",
         "path": "scripts/menu_run_transition.gd",
         "symbol": null
       },
       "scope_key": "file:scripts/menu_run_transition.gd",
-      "summary": "Keep menu audio active through loading and overlap room-track openings.",
-      "details": "Disabling the reparented menu pauses inherited AudioStreamPlayer processing even without an explicit stop. Temporarily use ALWAYS and restore it on failure/exit. Defer RunScene playback until the ready room is active, start its selected stream at authored volume, and transfer the original menu player into the room for a 0.8-second linear-amplitude fade. An immediate cut still produced a 377 ms silent gap from the boss track opening in live Music-bus capture; the short outgoing overlap removes it without delaying input or visual cleanup. Keep normal 2.5-second fades for subsequent in-run context changes and preserve unscored rooms.",
+      "summary": "Do not overlap the main-menu and room music tracks.",
+      "details": "The user rejected overlapping music, even compared with silence. Keep menu music through loading; after the room becomes active, use a short outgoing fade, a small intentional quiet gap, then a separate incoming fade. The current audition uses 0.2s out, 0.1s gap, and 0.3s in without blocking input. Preserve temporary independent menu-audio processing while the menu is disabled, and keep the later in-run context fades unchanged. Authored room-track opening rests are acceptable; do not cover them by reintroducing overlap.",
       "status": "active",
-      "created_at": "2026-08-27T19:37:57Z",
-      "updated_at": "2026-08-27T19:37:57Z",
+      "created_at": "2026-08-27T19:54:26Z",
+      "updated_at": "2026-08-27T19:54:26Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260827T193114Z_492e9537"
+        "mnt_20260827T193757Z_65579e1b"
       ],
       "source": {
         "branch": "codex/main-menu-loading-transition",
-        "commit": "523367e2"
+        "commit": "f07c0ba5"
       }
     }
   ]
