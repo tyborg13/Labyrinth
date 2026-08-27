@@ -209,6 +209,15 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	current_scene = menu
 	await process_frame
 	await process_frame
+	var music: AudioStreamPlayer = menu.get_node("MusicPlayer")
+	# A nonzero position makes an accidental restart distinguishable from
+	# continuous playback across the menu reparent and process lock.
+	music.seek(20.0)
+	await create_timer(0.06).timeout
+	var original_playback := music.get_stream_playback()
+	var previous_music_position := music.get_playback_position()
+	var music_kept_playing := true
+	var room_music_waited := true
 	var start_button: Button = menu.get_node("MenuColumn/StartButton")
 	if mode == "continue":
 		var continue_button: Button = menu.get_node("MenuColumn/ContinueButton")
@@ -226,6 +235,7 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	_expect(transition != null, "%s should enter the shared loading flow" % mode)
 	if transition == null:
 		return
+	_expect(music.playing and not music.stream_paused, "Locking the menu must not pause its music")
 	_expect(menu.is_inside_tree() and menu.is_visible_in_tree(), "The actual main menu must remain visible while loading")
 	_expect(root.gui_disable_input and menu.process_mode == Node.PROCESS_MODE_DISABLED, "Loading must block GUI, keyboard and controller input")
 	_expect(start_button.disabled and menu.replacement_confirm_button.disabled, "Loading must also guard repeated semantic button activation")
@@ -253,7 +263,10 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	var result: Array[Node] = []
 	transition.phase_changed.connect(func(value: StringName):
 		phase_times[str(value)] = Time.get_ticks_msec()
+		if value == &"complete":
+			_expect(music.playing and not music.stream_paused and music.get_parent() == transition.destination, "Menu music must overlap the incoming track without delaying room activation")
 		if value == &"revealing":
+			_expect(music.playing and not music.stream_paused, "Menu music must continue through the visual reveal")
 			_expect(transition.destination.initial_presentation_is_ready(), "Reveal must wait for the complete hand/dock layout, even without a fade")
 			if mode == "continue":
 				_expect(int(transition.destination.get("_hand_layout_pending_revision")) == -1, "Combat Continue must settle the card hand before revealing")
@@ -264,13 +277,41 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	transition.finished.connect(func(node: Node): result.append(node))
 	var deadline := Time.get_ticks_msec() + 15000
 	while result.is_empty() and Time.get_ticks_msec() < deadline:
+		if transition.phase in [&"loading", &"preparing", &"revealing"]:
+			var position := music.get_playback_position()
+			music_kept_playing = music_kept_playing and music.playing and not music.stream_paused and music.has_stream_playback() and music.get_stream_playback() == original_playback and position >= previous_music_position
+			previous_music_position = position
+			if is_instance_valid(transition.destination) and transition.destination.is_inside_tree():
+				var room_music := transition.destination.get_node_or_null("MusicPlayer") as AudioStreamPlayer
+				room_music_waited = room_music_waited and (room_music == null or not room_music.playing)
 		await process_frame
+	_expect(music_kept_playing and previous_music_position > 20.06, "Menu music must advance without pausing, stopping or restarting during loading and room preparation")
+	_expect(room_music_waited, "Room music must wait for the ready-to-reveal handoff")
 	_expect(not result.is_empty(), "%s loading should finish" % mode)
 	if result.is_empty():
 		return
 	var room: Node = result[0]
+	var room_music := room.get_node_or_null("MusicPlayer") as AudioStreamPlayer
+	var entry: Dictionary = MusicLibrary.entry(str(room.get("_active_music_id")))
+	if mode == "continue":
+		_expect(not entry.is_empty(), "Combat Continue must retain its existing music selection")
+	if not entry.is_empty():
+		_expect(room_music != null and room_music.playing and not room_music.stream_paused, "Room music must play as the room is activated")
+		if room_music != null:
+			_expect(is_equal_approx(room_music.volume_db, float(entry.get("volume_db", -12.0))), "Menu handoff must not fade the room track up from silence")
+	else:
+		_expect(room_music == null or not room_music.playing, "Rooms without authored music must retain their existing quiet context")
 	_expect(current_scene == room and not root.gui_disable_input, "The completed room must become current with restored input")
 	_expect(room.process_mode == Node.PROCESS_MODE_INHERIT, "The room must resume normal processing")
+	_expect(not room.get("_initial_music_deferred"), "Music deferral must end with menu loading, including unscored rooms")
+	room_music = room.get_node_or_null("MusicPlayer") as AudioStreamPlayer
+	if room_music != null and room_music.playing:
+		var playing_track := room_music.get_stream_playback()
+		room.call("start_initial_music_after_loading")
+		_expect(room_music.get_stream_playback() == playing_track, "Repeated completion must not restart the room track")
+	room.call("_play_music", MusicLibrary.entry(MusicLibrary.RELIC_ROOM_TRACK_ID))
+	room_music = room.get_node("MusicPlayer")
+	_expect(room_music.playing and is_equal_approx(room_music.volume_db, -60.0) and room.get("_music_tween") != null, "Later in-run music changes must retain their existing fade")
 	var run_state: Dictionary = room.get("_run_state")
 	if mode == "continue":
 		_expect(int(run_state.get("seed")) == 82271, "Continue must load the same saved run")
@@ -282,6 +323,9 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	print("Run entry PASS: %s reduced_motion=%s reveal_ms=%d" % [mode, reduced_motion, reveal_ms])
 	await process_frame
 	_expect(not is_instance_valid(menu) and not is_instance_valid(transition), "Completion must free the old menu and loading layer")
+	_expect(is_instance_valid(music) and music.get_stream_playback() == original_playback, "The short audio tail must preserve the original playback after menu cleanup")
+	await create_timer(MenuRunTransition.MUSIC_HANDOFF_SECONDS + 0.05).timeout
+	_expect(not is_instance_valid(music) and room.get_node_or_null("MenuMusicTail") == null, "The outgoing menu audio must be freed after its short fade")
 	room.queue_free()
 	await process_frame
 	await process_frame
@@ -294,13 +338,19 @@ func _test_loading_failure_preserves_save_and_recovers_focus() -> void:
 	root.add_child(menu)
 	current_scene = menu
 	await process_frame
+	var music: AudioStreamPlayer = menu.get_node("MusicPlayer")
+	var original_playback := music.get_stream_playback()
+	var original_music_process_mode := music.process_mode
 	menu._using_keyboard_navigation = true
 	# A valid resource of the wrong type exercises recoverable scene failure
 	# without generating an intentional engine missing-resource error.
 	menu.call("_change_scene_to_file", "res://themes/default_theme.tres", Callable(menu, "_prepare_new_game"))
 	var deadline := Time.get_ticks_msec() + 5000
 	while menu._loading_run and Time.get_ticks_msec() < deadline:
+		_expect(music.playing and not music.stream_paused, "Music must continue while a failing load is pending")
 		await process_frame
+	_expect(music.playing and not music.stream_paused and music.get_stream_playback() == original_playback, "Failed loading must preserve the same playing menu track")
+	_expect(music.process_mode == original_music_process_mode, "Failure must restore the music processing policy")
 	_expect(not menu._loading_run and current_scene == menu, "A failed load must restore the existing menu")
 	_expect(not root.gui_disable_input and menu.process_mode == Node.PROCESS_MODE_INHERIT, "A failed load must restore input and processing")
 	_expect(FileAccess.get_file_as_bytes(RUN_PATH) == before, "A failed New Run load must leave the previous save byte-for-byte intact")

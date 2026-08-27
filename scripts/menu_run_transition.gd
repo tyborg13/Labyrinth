@@ -10,6 +10,7 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const MESSAGE := "Entering the Labyrinth"
 const DOT_SECONDS := 0.38
 const REVEAL_SECONDS := 0.22
+const MUSIC_HANDOFF_SECONDS := 0.8
 
 var phase: StringName = &"loading"
 var message_label: Label
@@ -18,6 +19,8 @@ var _surface: Control
 var _menu: Control
 var _menu_parent: Node
 var _menu_process_mode: ProcessMode
+var _menu_music: AudioStreamPlayer
+var _menu_music_process_mode: ProcessMode
 var _destination_process_mode: ProcessMode
 var _viewport: Viewport
 var _input_was_disabled: bool
@@ -36,6 +39,11 @@ func begin(menu: Control, path: String, prepare_run: Callable) -> void:
 	_menu = menu
 	_menu_parent = menu.get_parent()
 	_menu_process_mode = menu.process_mode
+	_menu_music = menu.get_node_or_null("MusicPlayer") as AudioStreamPlayer
+	if _menu_music != null:
+		_menu_music_process_mode = _menu_music.process_mode
+		# Disabling menu input must not pause its inherited audio processing.
+		_menu_music.process_mode = Node.PROCESS_MODE_ALWAYS
 	_path = path
 	_prepare_run = prepare_run
 	_settings = SettingsStore.load_settings()
@@ -112,9 +120,8 @@ func _load_destination() -> void:
 	# Only commit New Run replacement / resume intent after loading succeeds.
 	if _prepare_run.is_valid():
 		_prepare_run.call()
-	var music := _menu.get_node_or_null("MusicPlayer") as AudioStreamPlayer
-	if music != null:
-		music.stop()
+	if destination.has_method("defer_initial_music_until_reveal"):
+		destination.call("defer_initial_music_until_reveal")
 	_destination_process_mode = destination.process_mode
 	destination.process_mode = Node.PROCESS_MODE_DISABLED
 	_menu_parent.add_child(destination)
@@ -139,6 +146,11 @@ func _load_destination() -> void:
 	_surface.hide()
 	get_tree().current_scene = destination
 	destination.process_mode = _destination_process_mode
+	# Keep menu music through the reveal, then overlap its short fade-out
+	# with the incoming track so authored opening rests do not create a gap.
+	if destination.has_method("start_initial_music_after_loading"):
+		destination.call("start_initial_music_after_loading")
+	_fade_menu_music_into_room()
 	_release_input()
 	_set_phase(&"complete")
 	finished.emit(destination)
@@ -167,12 +179,32 @@ func _release_input() -> void:
 func _fail() -> void:
 	_menu.reparent(_menu_parent, false)
 	_menu.process_mode = _menu_process_mode
+	_restore_menu_music_process_mode()
 	get_tree().current_scene = _menu
 	_release_input()
 	failed.emit()
 	queue_free()
 
+func _fade_menu_music_into_room() -> void:
+	if not is_instance_valid(_menu_music):
+		return
+	var music := _menu_music
+	_menu_music = null
+	music.name = "MenuMusicTail"
+	music.reparent(destination)
+	music.process_mode = _menu_music_process_mode
+	# The room owns the brief tail; input and the visual transition do not
+	# wait for it, and leaving the room also cleans up the player/tween.
+	var tween := destination.create_tween().set_ignore_time_scale(true)
+	tween.tween_property(music, "volume_linear", 0.0, MUSIC_HANDOFF_SECONDS)
+	tween.tween_callback(music.queue_free)
+
+func _restore_menu_music_process_mode() -> void:
+	if is_instance_valid(_menu_music):
+		_menu_music.process_mode = _menu_music_process_mode
+
 func _exit_tree() -> void:
 	_release_input()
+	_restore_menu_music_process_mode()
 	if is_instance_valid(destination):
 		destination.process_mode = _destination_process_mode

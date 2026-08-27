@@ -6,6 +6,7 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const MusicLibrary = preload("res://scripts/music_library.gd")
 
 const PROGRESSION_PATH: String = "user://main_menu_resume_probe_progression.json"
 const RUN_PATH: String = "user://main_menu_resume_probe_run.save"
@@ -154,6 +155,16 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 		ProgressionStore.save_run_state(run)
 	var menu = await _instantiate_menu()
 	current_scene = menu
+	var menu_music: AudioStreamPlayer = menu.get_node("MusicPlayer")
+	var menu_playback := menu_music.get_stream_playback()
+	var audio_record: AudioEffectRecord
+	var music_bus := AudioServer.get_bus_index(SettingsStore.MUSIC_BUS)
+	if OS.get_cmdline_user_args().has("--audio-proof"):
+		audio_record = AudioEffectRecord.new()
+		audio_record.format = AudioStreamWAV.FORMAT_16_BITS
+		AudioServer.add_bus_effect(music_bus, audio_record)
+		audio_record.set_recording_active(true)
+		await create_timer(0.5).timeout
 	var cursor := root.get_node_or_null("CursorFeedback") as CanvasLayer
 	if cursor != null:
 		cursor.hide()
@@ -169,6 +180,13 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 		menu._loading_error.hide()
 		menu._loading_error.confirmed.emit()
 		await _save_screenshot("%s/loading_error_focus_recovered.png" % OUTPUT_DIR)
+		assert(menu_music.playing and not menu_music.stream_paused and menu_music.get_stream_playback() == menu_playback, "A failed load must preserve continuous menu music")
+		if audio_record != null:
+			audio_record.set_recording_active(false)
+			var recording := audio_record.get_recording()
+			assert(recording != null and recording.data.size() > 0, "Failed-load audio proof must contain live output")
+			assert(recording.save_to_wav(ProjectSettings.globalize_path("%s/%s_music_handoff.wav" % [OUTPUT_DIR, suffix])) == OK, "Failed-load audio proof must save")
+			AudioServer.remove_bus_effect(music_bus, AudioServer.get_bus_effect_count(music_bus) - 1)
 		print(ProjectSettings.globalize_path(OUTPUT_DIR))
 		_stop_menu_music(menu)
 		menu.queue_free()
@@ -184,6 +202,7 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 	var transition = root.get_node("MenuRunTransition")
 	transition.phase_changed.connect(func(phase: StringName) -> void:
 		if phase == &"revealing":
+			assert(menu_music.playing and not menu_music.stream_paused, "Menu music must continue through the visual reveal")
 			assert(transition.destination.initial_presentation_is_ready(), "Reveal must wait for the full room presentation")
 			if resume:
 				assert(transition.destination.get("_hand_layout_pending_revision") == -1, "The combat hand and Pass must be positioned before reveal")
@@ -193,6 +212,7 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 	var phases: Array[String] = []
 	var alpha_values: Array[float] = []
 	var dot_counts: Array[int] = []
+	var music_positions: Array[float] = []
 	var started := Time.get_ticks_msec()
 	while is_instance_valid(transition) and Time.get_ticks_msec() - started < 15000:
 		await RenderingServer.frame_post_draw
@@ -206,21 +226,56 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 			phases.append(str(transition.phase))
 			alpha_values.append(transition._surface.modulate.a)
 			dot_counts.append(transition.message_label.visible_characters)
+			if transition.phase in [&"loading", &"preparing", &"revealing"]:
+				assert(menu_music.playing and not menu_music.stream_paused, "Menu audio must remain active throughout loading")
+				assert(menu_music.get_stream_playback() == menu_playback, "Loading must not restart the menu track")
+				music_positions.append(menu_music.get_playback_position())
+			else:
+				music_positions.append(-1.0)
 		else:
 			phases.append("complete")
 			alpha_values.append(0.0)
 			dot_counts.append(-1)
+			music_positions.append(-1.0)
 	assert(not is_instance_valid(transition), "Loading must finish before the probe deadline")
 	assert(current_scene != null and current_scene.scene_file_path == "res://scenes/run_scene.tscn", "The real RunScene must be current after loading")
 	assert(not root.gui_disable_input, "Input must be restored after loading")
+	assert(is_instance_valid(menu_music) and menu_music.get_parent() == current_scene and menu_music.playing, "The music overlap must not delay room activation")
+	var room_music := current_scene.get_node_or_null("MusicPlayer") as AudioStreamPlayer
+	var entry: Dictionary = MusicLibrary.entry(str(current_scene.get("_active_music_id")))
+	if not entry.is_empty():
+		assert(room_music != null and room_music.playing and not room_music.stream_paused, "The room track must be playing on activation")
+		assert(is_equal_approx(room_music.volume_db, float(entry.get("volume_db", -12.0))), "The handoff must not fade in from silence")
 	await RenderingServer.frame_post_draw
 	images.append(root.get_texture().get_image())
 	phases.append("room")
 	alpha_values.append(0.0)
 	dot_counts.append(-1)
+	music_positions.append(-1.0)
+	var load_elapsed_ms := Time.get_ticks_msec() - started
+	if audio_record != null:
+		await create_timer(1.0).timeout
+		audio_record.set_recording_active(false)
+		var recording := audio_record.get_recording()
+		var audio_path := "%s/%s_music_handoff.wav" % [OUTPUT_DIR, suffix]
+		assert(recording != null and recording.data.size() > 0, "Audio proof must capture the live Music bus")
+		if resume:
+			var silent_frames := 0
+			var longest_silence := 0
+			var channels := 2 if recording.stereo else 1
+			var pcm := recording.data
+			for offset: int in range(0, pcm.size(), 2 * channels):
+				var silent := pcm.decode_s16(offset) == 0 and (channels == 1 or pcm.decode_s16(offset + 2) == 0)
+				silent_frames = silent_frames + 1 if silent else 0
+				longest_silence = maxi(longest_silence, silent_frames)
+			var silence_ms := 1000.0 * float(longest_silence) / float(recording.mix_rate)
+			assert(silence_ms < 50.0, "The captured menu-to-combat mix must not contain a silent handoff gap")
+			print("AUDIO CONTINUITY PASS: longest silent interval %.3f ms" % silence_ms)
+		assert(recording.save_to_wav(ProjectSettings.globalize_path(audio_path)) == OK, "Audio proof must save")
+		AudioServer.remove_bus_effect(music_bus, AudioServer.get_bus_effect_count(music_bus) - 1)
+		print("AUDIO PROOF: " + ProjectSettings.globalize_path(audio_path))
 	var records: Array = []
 	var saved_states: Dictionary = {}
-	var load_elapsed_ms := Time.get_ticks_msec() - started
 	for index: int in range(images.size()):
 		var frame: Image = images[index]
 		var low: float = 1.0
@@ -239,7 +294,7 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 			path = "%s/%s_frame_%03d_%s.png" % [OUTPUT_DIR, suffix, index, phases[index]]
 			assert(frame.save_png(ProjectSettings.globalize_path(path)) == OK, "Representative transition proof frames must save")
 			saved_states[state_key] = path
-		records.append({"frame": index, "phase": phases[index], "menu_alpha": alpha_values[index], "visible_characters": dot_counts[index], "luma_range": high - low, "path": path})
+		records.append({"frame": index, "phase": phases[index], "menu_alpha": alpha_values[index], "visible_characters": dot_counts[index], "menu_music_position": music_positions[index], "luma_range": high - low, "path": path})
 	var manifest := FileAccess.open("%s/%s_continuity.json" % [OUTPUT_DIR, suffix], FileAccess.WRITE)
 	manifest.store_string(JSON.stringify({"flow": suffix, "resolution": [1920, 1080], "ui_scale": 1.0, "elapsed_ms": load_elapsed_ms, "frames": records}, "  "))
 	manifest.close()

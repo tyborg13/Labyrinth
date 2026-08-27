@@ -1736,6 +1736,7 @@ var _music_player: AudioStreamPlayer
 var _sfx_players: Array = []
 var _music_tween: Tween
 var _active_music_id: String = ""
+var _initial_music_deferred: bool = false
 var _settings: Dictionary = {}
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_grab_offset: Vector2 = Vector2.ZERO
@@ -21090,6 +21091,20 @@ func _stop_attack_sfx_player(player: AudioStreamPlayer, generation: int = -1) ->
 	player.stop()
 	player.stream = null
 
+func defer_initial_music_until_reveal() -> void:
+	_initial_music_deferred = true
+
+func start_initial_music_after_loading() -> void:
+	if not _initial_music_deferred:
+		return
+	_initial_music_deferred = false
+	if _music_player == null or _music_player.stream == null or _active_music_id.is_empty():
+		return
+	# The menu already supplied continuous music while this scene loaded.
+	# Start at the authored level instead of introducing a 2.5s quiet gap.
+	_music_player.volume_db = float(MusicLibrary.entry(_active_music_id).get("volume_db", -12.0))
+	_music_player.play()
+
 func _update_music_for_context(room: Dictionary) -> void:
 	_play_music(MusicLibrary.entry_for_context(str(_run_state.get("mode", "room")), room, _combat_state))
 
@@ -21110,6 +21125,8 @@ func _play_music(entry: Dictionary) -> void:
 	_active_music_id = track_id
 	_stop_music_tween()
 	_music_player.volume_db = MUSIC_SILENCE_DB
+	if _initial_music_deferred:
+		return
 	_music_player.play()
 	_fade_music_to(float(entry.get("volume_db", -12.0)))
 
