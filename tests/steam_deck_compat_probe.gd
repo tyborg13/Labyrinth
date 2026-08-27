@@ -112,6 +112,10 @@ func _capture_run_surfaces() -> void:
 	instance.call("_close_dialogue")
 	await _load_combat_fixture(instance)
 	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	# This GUI probe runs beside the host Mac pointer. Prevent incidental host
+	# mouse jitter from changing modality during authored controller waits; the
+	# explicit pointer/controller handoff below still changes modality directly.
+	_router.set("_last_controller_activity_msec", Time.get_ticks_msec() + 60000)
 	instance.call("_controller_cycle_hand", 1)
 	await _settle()
 	_require(int(instance.get("_hovered_card_index")) == int(instance.get("_controller_hand_index")), "Controller hand navigation should use the card's authored hover/focus treatment")
@@ -136,6 +140,7 @@ func _capture_run_surfaces() -> void:
 	var focused_board_position: Vector2 = controller_board.position
 	var focused_board_size: Vector2 = controller_board.size
 	await _assert_controller_layout_survives_animation_lock(instance, "Focused controller hand")
+	_assert_combat_resource_stack(instance, "Focused controller hand")
 	await _save_screenshot("combat_hand_focus.png")
 	await _press_controller_button(JOY_BUTTON_X)
 	_require(str(instance.get("_controller_region")) == "board" and not bool(instance.get("_controller_hand_focused")), "X should be the sole hand-unfocus action and enter unobstructed board navigation")
@@ -362,69 +367,82 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	await _press_controller_button(JOY_BUTTON_LEFT_SHOULDER)
 	_require(int(instance.get("_controller_hand_index")) == 0, "The opposite shoulder should return hand focus to the first card")
 	await _press_controller_button(JOY_BUTTON_A)
-	_require(str(instance.get("_controller_region")) == "card_mode", "A routed confirm event should enter the card's Printed/Attack/Move selector")
-	_require(int(instance.get("_card_action_choice_index")) == 0, "Controller card selection should preserve the chosen hand index")
-	await _save_screenshot("combat_card_mode_focus.png")
+	_require(str(instance.get("_controller_region")) == "board", "A routed confirm event should enter the printed card's board targeting directly")
+	_require(int(instance.get("_selected_card_index")) == 0, "Direct printed targeting should preserve the chosen hand index")
+	_require(int(instance.get("_card_action_choice_index")) < 0, "Direct printed targeting should not create a legacy card-mode choice")
 	var selector: Control = instance.get("_card_action_mode_selector") as Control
-	for option_var: Variant in selector.get_children() if selector != null else []:
-		var option: Button = option_var as Button
-		if option != null:
-			_require(option.get_theme_stylebox("focus") is StyleBoxEmpty, "Card modes should never use the old debug focus rectangle")
-	var controller_board: Control = instance.get("board_view") as Control
-	var controller_navigation_snapshot: Dictionary = controller_board.call("navigation_snapshot") if controller_board != null else {}
-	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
-	instance.call("_refresh_controller_interface")
-	await _settle()
-	_require(instance.find_child("ControllerGridCursor", true, false) == null, "Mouse and keyboard card choice should remain free of controller-only frames")
-	_assert_pointer_board_rect_restored(instance, controller_navigation_snapshot)
-	await _save_screenshot("combat_card_mode_pointer.png")
-	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
-	instance.call("_refresh_controller_interface")
-	await _settle()
-	var initial_mode: String = str(instance.get("_controller_card_mode"))
-	await _press_controller_button(JOY_BUTTON_DPAD_DOWN)
-	var fallback_mode: String = str(instance.get("_controller_card_mode"))
-	_require(fallback_mode != initial_mode, "D-pad should move between playable card modes")
-	await _press_controller_button(JOY_BUTTON_A)
-	_require(str(instance.get("_controller_region")) == "board", "A on a card mode should enter snapped board targeting")
-	_require(str(instance.get("_card_action_choice_mode")) == fallback_mode, "The focused fallback mode should become the active card action")
-	_require(not bool(instance.get("_controller_hand_focused")), "Entering card targeting should automatically tuck the hand out of the board's way")
-	_require(int(instance.get("_selected_card_index")) == 0, "The tucked targeting hand should retain the selected card as a memory cue")
+	_require(selector == null or not selector.visible, "The removed Printed/Attack/Move selector should stay hidden for controller play")
+	_require(not bool(instance.get("_controller_hand_focused")), "Entering direct card targeting should tuck the hand out of the board's way")
+	var card_targeting_prompts: Array[String] = _controller_prompt_labels(instance)
+	_require(card_targeting_prompts.has("Target") and card_targeting_prompts.has("Cancel"), "Direct card targeting should advertise Target and Cancel; got %s" % [card_targeting_prompts])
 	var targeting_hand_scroll: ScrollContainer = instance.get("hand_scroll") as ScrollContainer
 	_require(
 		targeting_hand_scroll != null and targeting_hand_scroll.visible and not targeting_hand_scroll.clip_contents,
 		"Targeting should keep the selected card crown visible while tucking its body below the screen"
 	)
-	await _save_screenshot("combat_targeting_tucked_hand.png")
+	await _save_screenshot("combat_direct_printed_targeting.png")
+	var controller_board: Control = instance.get("board_view") as Control
+	var controller_navigation_snapshot: Dictionary = controller_board.call("navigation_snapshot") if controller_board != null else {}
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
+	instance.call("_refresh_controller_interface")
+	await _settle()
+	_require(instance.find_child("ControllerGridCursor", true, false) == null, "Pointer card targeting should remain free of controller-only frames")
+	_assert_pointer_board_rect_restored(instance, controller_navigation_snapshot)
+	await _save_screenshot("combat_direct_printed_pointer.png")
+	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	instance.call("_refresh_controller_interface")
+	await _settle()
+	_require(str(instance.get("_controller_region")) == "board" and int(instance.get("_selected_card_index")) == 0, "Returning to controller input should preserve the active printed-card target flow")
+	_require(not bool(instance.get("_controller_hand_focused")), "Controller handoff should restore the tucked targeting hand")
 	await _press_controller_button(JOY_BUTTON_B)
-	_require(str(instance.get("_controller_region")) == "card_mode", "B from card targeting should return to mode selection before cancelling the card")
-	await _press_controller_button(JOY_BUTTON_B)
-	_require(str(instance.get("_controller_region")) == "hand" and int(instance.get("_selected_card_index")) < 0, "B from mode selection should cancel back to the hand")
+	_require(str(instance.get("_controller_region")) == "board" and int(instance.get("_selected_card_index")) < 0, "B should cancel direct card targeting back to unobstructed board navigation")
+	await _press_controller_button(JOY_BUTTON_X)
+	_require(str(instance.get("_controller_region")) == "hand" and bool(instance.get("_controller_hand_focused")), "X should return from the cancelled board flow to hand focus")
 
 	await _load_combat_fixture(instance)
-	instance.set("_controller_region", "hand")
-	instance.set("_controller_hand_index", 4)
-	var fallback_only_options: Dictionary = (instance.call("_card_play_options_for_index", 4) as Dictionary).duplicate(false)
-	_require(bool(fallback_only_options.get("attack_playable", false)) and bool(fallback_only_options.get("move_playable", false)), "Fallback-only regression setup requires legal Attack and Move options")
-	# Model the reachable selector shape directly: Printed is disabled while more
-	# than one fallback is legal. Core combat legality is already exercised above;
-	# this isolates controller normalization from any one card's evolving rules.
-	fallback_only_options["play"] = {"playable": false}
-	fallback_only_options["printed_playable"] = false
-	instance.call("_show_card_action_choices", 4, fallback_only_options)
-	instance.call("_refresh_ui")
-	instance.call("_controller_enter_card_mode")
-	await _settle()
-	var fallback_only_modes: Array = instance.call("_controller_available_card_modes")
-	var fallback_only_mode: String = str(instance.get("_controller_card_mode"))
-	_require(not fallback_only_modes.has("play") and fallback_only_modes.size() >= 2, "Fallback-only controller setup should expose multiple modes without Printed")
-	_require(fallback_only_modes.has(fallback_only_mode), "Controller card-mode entry should normalize an unavailable Printed default to a playable fallback")
-	var fallback_focus: Control = _viewport.gui_get_focus_owner()
-	_require(fallback_focus != null and str(fallback_focus.get_meta("play_kind", "")) == fallback_only_mode, "Fallback-only mode entry should visibly focus the normalized playable placard")
+	instance.set("_controller_region", "board")
+	instance.call("_controller_set_hand_focused", false)
+	var movement_start_state: Dictionary = instance.get("_combat_state") as Dictionary
+	var movement_start_tile: Vector2i = (movement_start_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	var movement_start_remaining: int = _combat_movement_remaining(movement_start_state)
+	instance.call("_controller_set_board_tile", movement_start_tile)
 	await _press_controller_button(JOY_BUTTON_A)
-	_require(str(instance.get("_controller_region")) == "board", "A should activate the normalized fallback mode instead of exiting to the hand")
+	_require(bool(instance.get("_player_movement_selected")) and str(instance.get("_controller_region")) == "board", "A on the protagonist should enter independent movement targeting")
+	_require(not bool(instance.get("_controller_hand_focused")), "Independent movement targeting should keep the hand tucked")
+	var movement_prompts: Array[String] = _controller_prompt_labels(instance)
+	_require(movement_prompts.has("Target") and movement_prompts.has("Cancel"), "Movement targeting should advertise Target and Cancel; got %s" % [movement_prompts])
+	var movement_targets: Array = instance.get("_player_movement_target_tiles") as Array
+	_require(not movement_targets.is_empty(), "Steam Deck movement proof requires a legal destination")
+	await _save_screenshot("combat_movement_targeting.png")
+	var movement_target: Vector2i = movement_targets[0] as Vector2i
+	instance.call("_controller_set_board_tile", movement_target)
+	await _press_controller_button(JOY_BUTTON_A)
+	await _wait_for_combat_animation(instance)
+	await _wait_for_combat_dock(instance)
+	var movement_after_state: Dictionary = instance.get("_combat_state") as Dictionary
+	_require((movement_after_state.get("player", {}) as Dictionary).get("pos", Vector2i(-2, -2)) == movement_target, "A on a legal movement destination should move the protagonist")
+	_require(_combat_movement_remaining(movement_after_state) < movement_start_remaining, "Each controller-routed tile traversed should spend independent movement")
+	_require(not bool(instance.get("_player_movement_selected")) and str(instance.get("_controller_region")) == "hand", "Committed movement should return controller focus to the hand while cards remain")
+	_assert_combat_resource_stack(instance, "Movement committed")
+	await _save_screenshot("combat_movement_committed.png")
+
+	await _load_combat_fixture(instance)
+	instance.set("_controller_region", "board")
+	instance.call("_controller_set_hand_focused", false)
+	var cancel_start_state: Dictionary = instance.get("_combat_state") as Dictionary
+	var cancel_start_tile: Vector2i = (cancel_start_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	var cancel_start_remaining: int = _combat_movement_remaining(cancel_start_state)
+	instance.call("_controller_set_board_tile", cancel_start_tile)
+	await _press_controller_button(JOY_BUTTON_A)
+	_require(bool(instance.get("_player_movement_selected")), "Movement cancel proof should begin with the protagonist selected")
 	await _press_controller_button(JOY_BUTTON_B)
-	await _press_controller_button(JOY_BUTTON_B)
+	var cancel_after_state: Dictionary = instance.get("_combat_state") as Dictionary
+	_require(not bool(instance.get("_player_movement_selected")) and str(instance.get("_controller_region")) == "board", "B should cancel movement targeting without leaving board navigation")
+	_require((cancel_after_state.get("player", {}) as Dictionary).get("pos", Vector2i(-2, -2)) == cancel_start_tile and _combat_movement_remaining(cancel_after_state) == cancel_start_remaining, "Cancelling movement should not move the protagonist or spend movement")
+	await _press_controller_button(JOY_BUTTON_X)
+	_require(str(instance.get("_controller_region")) == "hand" and bool(instance.get("_controller_hand_focused")), "X should restore hand focus after cancelling movement")
+	await _settle()
+	await _save_screenshot("combat_movement_cancelled.png")
 
 	await _load_combat_fixture(instance)
 	instance.set("_controller_region", "hand")
@@ -434,10 +452,15 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 		await _press_controller_button(JOY_BUTTON_RIGHT_SHOULDER)
 	_require(int(instance.get("_controller_hand_index")) == 3, "Routed shoulder events should reach Guarded Step for optional-step coverage")
 	await _press_controller_button(JOY_BUTTON_A)
-	await _press_controller_button(JOY_BUTTON_A)
 	_require(str(instance.get("_controller_region")) == "board" and bool(instance.call("_current_action_can_skip")), "Guarded Step should expose its optional movement step through controller targeting")
 	var cards_played_before: int = int((instance.get("_combat_state") as Dictionary).get("cards_played_this_turn", 0))
 	var player_before_skip: Dictionary = ((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).duplicate(true)
+	var preview_player_before_skip: Dictionary = ((instance.get("_preview_combat_state") as Dictionary).get("player", {}) as Dictionary).duplicate(true)
+	_require(
+		preview_player_before_skip.get("pos", Vector2i(-1, -1)) == player_before_skip.get("pos", Vector2i(-2, -2)) and (instance.get("_pending_selected_targets") as Array).is_empty(),
+		"Entering Guarded Step targeting should not preselect or apply a movement tile; combat=%s preview=%s selected=%s"
+		% [player_before_skip.get("pos", Vector2i(-2, -2)), preview_player_before_skip.get("pos", Vector2i(-1, -1)), instance.get("_pending_selected_targets")]
+	)
 	var animated_board: Control = instance.get("board_view") as Control
 	var animated_board_position: Vector2 = animated_board.position
 	var animated_board_size: Vector2 = animated_board.size
@@ -446,7 +469,11 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	var combat_after_skip: Dictionary = instance.get("_combat_state") as Dictionary
 	_require(int(combat_after_skip.get("cards_played_this_turn", 0)) > cards_played_before, "Y should skip the optional action and finish the card instead of passing the turn")
 	var player_after_skip: Dictionary = combat_after_skip.get("player", {}) as Dictionary
-	_require(player_after_skip.get("pos", Vector2i(-1, -1)) == player_before_skip.get("pos", Vector2i(-2, -2)), "Skipping Guarded Step's optional movement should leave the player on the original tile")
+	_require(
+		player_after_skip.get("pos", Vector2i(-1, -1)) == player_before_skip.get("pos", Vector2i(-2, -2)),
+		"Skipping Guarded Step's optional movement should leave the player on the original tile; before=%s after=%s selected_targets=%s"
+		% [player_before_skip.get("pos", Vector2i(-2, -2)), player_after_skip.get("pos", Vector2i(-1, -1)), instance.get("_pending_selected_targets")]
+	)
 	_require(int(player_after_skip.get("block", 0)) > int(player_before_skip.get("block", 0)), "Skipping movement should still resolve Guarded Step's automatic block effect")
 	_require(str((combat_after_skip.get("current_actor", {}) as Dictionary).get("kind", "")) == "player", "Skipping a card step must not end the player's turn")
 	_require(str(instance.get("_controller_region")) == "hand", "Completing a card through Skip should return controller focus to the remaining hand")
@@ -752,6 +779,18 @@ func _wait_for_combat_animation(instance: Node) -> void:
 		await create_timer(0.05).timeout
 	_require(false, "Controller-triggered combat animation should complete within ten seconds")
 
+func _wait_for_combat_dock(instance: Node) -> void:
+	# Card and hand reconstruction intentionally suppresses the dock until the
+	# stable fan envelope is known. Wait for that authored post-action layout.
+	for _frame: int in range(24):
+		var play_meter: Control = instance.get("_play_meter") as Control
+		var movement_meter: Control = instance.get("_movement_meter") as Control
+		if play_meter != null and play_meter.visible and movement_meter != null and movement_meter.visible:
+			await _settle()
+			return
+		await process_frame
+	_require(false, "Combat resource dock should return after the post-action hand layout settles")
+
 func _assert_controller_layout_survives_animation_lock(instance: Node, label: String) -> void:
 	var board: Control = instance.get("board_view") as Control
 	var row: Control = instance.get("hand_row") as Control
@@ -786,8 +825,8 @@ func _load_combat_fixture(instance: Node) -> void:
 	instance.call("_cancel_drag_play")
 	instance.call("_reset_card_resolution")
 	var hand: Array = ["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"]
-	# Keep one enemy adjacent so Quick Stab's printed action and the fallback
-	# attack/move modes are all genuinely playable during event-level navigation.
+	# Keep one enemy adjacent so Quick Stab's printed action immediately enters a
+	# genuine controller targeting flow without depending on legacy card modes.
 	var layout: Dictionary = _room_layout(Vector2i(2, 4), [Vector2i(3, 4), Vector2i(5, 2)])
 	var combat := CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(127801, layout, {
@@ -829,6 +868,9 @@ func _load_combat_fixture(instance: Node) -> void:
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
+	# Direct fixture injection bypasses the production checkpoint setter, so own
+	# its preview-cache invalidation explicitly before exercising another card.
+	instance.call("_mark_combat_preview_state_changed")
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
 	await _settle()
@@ -877,6 +919,43 @@ func _assert_prompt_bar(prompt_bar: Control, label: String) -> void:
 	_assert_control_inside_logical_viewport(prompt_bar, "%s prompt bar" % label, 8.0)
 	var prompts: Array = prompt_bar.call("prompts_snapshot") if prompt_bar != null else []
 	_require(not prompts.is_empty(), "%s should expose at least one contextual controller command" % label)
+
+func _controller_prompt_labels(instance: Node) -> Array[String]:
+	var result: Array[String] = []
+	var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
+	if prompt_bar == null:
+		return result
+	for prompt_var: Variant in prompt_bar.call("prompts_snapshot"):
+		if typeof(prompt_var) == TYPE_DICTIONARY:
+			result.append(str((prompt_var as Dictionary).get("label", "")))
+	return result
+
+func _combat_movement_remaining(combat_state: Dictionary) -> int:
+	return CombatEngine.new().player_movement_remaining(combat_state)
+
+func _assert_combat_resource_stack(instance: Node, label: String) -> void:
+	var play_meter: Control = instance.get("_play_meter") as Control
+	var movement_meter: Control = instance.get("_movement_meter") as Control
+	var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	_require(play_meter != null and play_meter.visible, "%s should show card plays" % label)
+	_require(movement_meter != null and movement_meter.visible, "%s should show movement" % label)
+	_require(pass_chip != null and pass_chip.visible, "%s should show Pass below the resources" % label)
+	if play_meter == null or movement_meter == null or pass_chip == null:
+		return
+	_assert_control_inside_logical_viewport(play_meter, "%s card-play meter" % label, 8.0)
+	_assert_control_inside_logical_viewport(movement_meter, "%s movement meter" % label, 8.0)
+	_assert_control_inside_logical_viewport(pass_chip, "%s Pass control" % label, 8.0)
+	var play_rect: Rect2 = play_meter.get_global_rect()
+	var movement_rect: Rect2 = movement_meter.get_global_rect()
+	var pass_rect: Rect2 = pass_chip.get_global_rect()
+	_require(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0, "%s resources should share one column" % label)
+	_require(movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack immediately beneath card plays" % label)
+	_require(absf(pass_rect.get_center().x - movement_rect.get_center().x) <= 1.0 and pass_rect.position.y >= movement_rect.end.y + 5.0, "%s Pass should stack beneath movement" % label)
+	var play_icon: TextureRect = instance.get("_play_meter_icon") as TextureRect
+	var movement_icon: TextureRect = instance.get("_movement_meter_icon") as TextureRect
+	_require(play_icon != null and movement_icon != null and movement_icon.size == Vector2(30.0, 30.0) and movement_icon.size.x < play_icon.size.x, "%s movement icon should be reduced to fit comfortably inside its frame" % label)
+	if movement_icon != null:
+		_require(movement_rect.encloses(movement_icon.get_global_rect()), "%s movement icon should remain inside its plaque" % label)
 
 func _assert_prompt_above_modal(instance: Node, modal: Control, label: String) -> void:
 	var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
@@ -1015,7 +1094,7 @@ func _assert_pointer_board_rect_restored(instance: Node, controller_navigation_s
 	var prompt_host: Control = instance.get("_contextual_combat_prompt_host") as Control
 	if prompt_host != null and prompt_host.visible:
 		var prompt_rect: Rect2 = prompt_host.get_global_rect()
-		for blocker_name: String in ["_play_meter", "_pass_preview_overlay"]:
+		for blocker_name: String in ["_play_meter", "_movement_meter", "_pass_preview_overlay"]:
 			var blocker: Control = instance.get(blocker_name) as Control
 			if blocker == null or not blocker.visible:
 				continue

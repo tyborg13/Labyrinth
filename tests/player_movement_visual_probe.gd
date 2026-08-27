@@ -228,7 +228,17 @@ func _assert_movement_hud(instance: Node, expected_remaining: int, expected_capa
 	_assert(count != null and count.text == "%d / %d movement" % [expected_remaining, expected_capacity], "%s should show the exact movement count" % label)
 	var play_meter: Control = instance.get("_play_meter") as Control
 	if meter != null and play_meter != null:
-		_assert(not meter.get_global_rect().intersects(play_meter.get_global_rect()), "%s movement and card-play meters should not overlap" % label)
+		var movement_rect: Rect2 = meter.get_global_rect()
+		var play_rect: Rect2 = play_meter.get_global_rect()
+		_assert(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0, "%s movement and card-play meters should share one resource column" % label)
+		_assert(movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack immediately below card plays" % label)
+		var movement_icon: TextureRect = instance.get("_movement_meter_icon") as TextureRect
+		var play_icon: TextureRect = instance.get("_play_meter_icon") as TextureRect
+		_assert(movement_icon != null and play_icon != null and movement_icon.size.x < play_icon.size.x, "%s movement icon should fit more comfortably inside its frame than the card-play icon" % label)
+		var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+		if pass_chip != null and pass_chip.visible:
+			var pass_rect: Rect2 = pass_chip.get_global_rect()
+			_assert(absf(pass_rect.get_center().x - movement_rect.get_center().x) <= 1.0 and pass_rect.position.y >= movement_rect.end.y + 5.0, "%s Pass should stack beneath the co-located resource meters" % label)
 
 func _assert_board_path(instance: Node, destination: Vector2i, label: String) -> void:
 	var board: Node = instance.get_node(BOARD_PATH)

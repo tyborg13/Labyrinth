@@ -1352,6 +1352,7 @@ const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 100.0)
 const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 100.0
+const RESOURCE_METER_STACK_GAP: float = 4.0
 const PASS_PREVIEW_STACK_GAP: float = 6.0
 const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(60.0, 38.0)
 const COMBAT_LOG_TRANSIENT_SECONDS: float = 3.0
@@ -2121,10 +2122,10 @@ func _on_input_modality_changed(modality: String) -> void:
 		_controller_suspend_custom_navigation()
 		call_deferred("_refresh_pointer_after_layout", pointer_layout_revision)
 	else:
-		if _player_movement_selected:
+		if _player_movement_selected or _selected_card_index >= 0:
 			_controller_region = "board"
 			_controller_hand_focused = false
-		_apply_controller_hand_layout()
+			_apply_controller_hand_layout()
 		_restore_controller_loadout_tooltip_for_focus_owner()
 		call_deferred("_sync_board_view_rect")
 		call_deferred("_layout_combat_action_dock")
@@ -3044,7 +3045,7 @@ func _refresh_controller_interface() -> void:
 	if not _controller_custom_navigation_available():
 		_controller_suspend_custom_navigation()
 		return
-	if _player_movement_selected:
+	if _player_movement_selected or _selected_card_index >= 0:
 		_controller_region = "board"
 		_controller_set_hand_focused(false)
 	if _controller_card_mode_active():
@@ -4278,7 +4279,8 @@ func _layout_choice_button_overlay() -> void:
 	var preview_size: Vector2 = _pass_preview_overlay.get_combined_minimum_size()
 	var combat_dock: bool = str(_run_state.get("mode", "room")) == "combat" and _play_meter != null and _play_meter.visible
 	if combat_dock:
-		var meter_rect: Rect2 = _play_meter.get_global_rect()
+		var resource_meter: Control = _movement_meter if _movement_meter != null and _movement_meter.visible else _play_meter
+		var meter_rect: Rect2 = resource_meter.get_global_rect()
 		_pass_preview_overlay.global_position = Vector2(
 			meter_rect.get_center().x - preview_size.x * 0.5,
 			meter_rect.position.y + meter_rect.size.y + PASS_PREVIEW_STACK_GAP
@@ -8913,8 +8915,8 @@ func _setup_movement_meter() -> void:
 	_movement_meter.add_child(content)
 
 	_movement_meter_icon = TextureRect.new()
-	_movement_meter_icon.position = Vector2(12.0, 11.0)
-	_movement_meter_icon.size = Vector2(34.0, 34.0)
+	_movement_meter_icon.position = Vector2(14.0, 13.0)
+	_movement_meter_icon.size = Vector2(30.0, 30.0)
 	_movement_meter_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_movement_meter_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_movement_meter_icon.texture = ActionIcons.icon_texture("move")
@@ -9324,8 +9326,10 @@ func _layout_combat_action_dock() -> void:
 	# These positions share the canvas coordinate space used by the rendered hand
 	# bounds. Window backing scale is intentionally not applied a second time.
 	var meter_size: Vector2 = _play_meter.get_combined_minimum_size()
+	var movement_size: Vector2 = _movement_meter.get_combined_minimum_size()
 	var pass_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
-	var dock_height: float = meter_size.y + PASS_PREVIEW_STACK_GAP + pass_size.y
+	var resource_stack_height: float = meter_size.y + RESOURCE_METER_STACK_GAP + movement_size.y
+	var dock_height: float = resource_stack_height + PASS_PREVIEW_STACK_GAP + pass_size.y
 	# The dock answers a stable question: where does the resting hand begin?  Do
 	# not feed the transient hover/focus transforms back into this placement or
 	# the meter visibly slides whenever the player inspects a card.
@@ -9345,7 +9349,7 @@ func _layout_combat_action_dock() -> void:
 	var meter_left: float = pass_left + (pass_size.x - meter_size.x) * 0.5
 	var dock_top: float = viewport_size.y * 0.754
 	if hand_bounds.size.y > 0.0:
-		dock_top = hand_bounds.position.y - meter_size.y - 12.0
+		dock_top = hand_bounds.position.y - resource_stack_height - 12.0
 	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
 	var top_limit: float = 8.0
 	if board_bounds.size.y > 0.0:
@@ -9356,14 +9360,9 @@ func _layout_combat_action_dock() -> void:
 		clampf(meter_left, 8.0, maxf(8.0, viewport_size.x - meter_size.x - 8.0)),
 		dock_top
 	)
-	var movement_size: Vector2 = _movement_meter.get_combined_minimum_size()
-	var movement_left: float = viewport_size.x - movement_size.x - 8.0
-	if hand_bounds.size.x > 0.0:
-		var movement_hover_reserve: float = HandFanContainer.DEFAULT_EMPHASIS_MAX_SIDE_SHIFT
-		movement_left = hand_bounds.end.x + 24.0 + movement_hover_reserve
 	_movement_meter.global_position = Vector2(
-		clampf(movement_left, 8.0, maxf(8.0, viewport_size.x - movement_size.x - 8.0)),
-		dock_top
+		clampf(pass_left + (pass_size.x - movement_size.x) * 0.5, 8.0, maxf(8.0, viewport_size.x - movement_size.x - 8.0)),
+		dock_top + meter_size.y + RESOURCE_METER_STACK_GAP
 	)
 	_layout_combat_objective_hud()
 
