@@ -9,9 +9,15 @@ Do not regenerate, crop, retouch, or replace its typography without a new reques
 - Native dimensions: 1672 × 941
 - SHA-256: `a2fea0706c12f6e9e066e5b3f54d2660423d42d733975a110f0ffe45b79f211c`
 - Native Godot 4.6 boot settings: black background, KEEP aspect-ratio stretch,
-  linear filtering, image enabled, minimum display time zero.
+  linear filtering, image enabled, minimum display time 2000 milliseconds.
 - Main scene remains `scenes/main_menu.tscn`; there is no new loading scene,
-  input gate, artificial delay, or change to gameplay/saves.
+  input gate, or change to gameplay/saves.
+
+After inspecting the first implementation, the user requested a couple of seconds
+to see the seal even on fast starts. The native two-second minimum replaces the
+original zero-wait setting; do not remove it as a startup optimization. This uses
+[Godot's minimum display time setting](https://docs.godotengine.org/en/4.6/classes/class_projectsettings.html#class-projectsettings-property-application-boot-splash-minimum-display-time),
+not a timer or loading scene in the game.
 
 The image's almost-16:9 aspect ratio is preserved, rather than stretched or
 cropped to an exact 16:9 ratio. Black fills any remaining space.
@@ -30,7 +36,8 @@ third-party components already used by the game.
 
 - **Surface:** native engine boot splash, before scene UI exists.
 - **Player question:** is the game starting, and which engine made it?
-- **Primary action:** none; startup advances automatically to the existing menu.
+- **Primary action:** none; after the native minimum, startup advances automatically
+  to the existing menu.
 - **Hierarchy:** central brass seal, then its embedded three-word engine credit;
   stone, ember and violet shadow supply the game's established material palette.
 - **Interaction paths:** the boot image has no interactive controls. Existing
@@ -59,6 +66,9 @@ Run the focused native proof through `tools/visual_probe_runner.py`, with
 after sizing its native window. It captures the screen region directly; it does
 not recreate the splash with scene UI. Its short capture hold exists only in the
 probe. It then loads the unchanged main menu and captures its viewport.
+Before adding any probe waits, it records the first main-loop callback time and
+checks that the native two-second minimum has elapsed. That timing check covers
+the engine startup path, not the later reissued image's capture hold.
 The screen-region API supports macOS and Windows; it requires a working native
 display and cannot be replaced by a headless renderer.
 
@@ -81,6 +91,17 @@ Verified on 2026-08-27 with Godot 4.6.1:
   runtime scene/resource management or certificate handling.
 
 The PCK check is packaging proof, not a Windows runtime or Steam upload test.
+
+### Two-second timing follow-up
+
+The updated native probe passed with its first callback at 2619 ms, before any
+probe timer. Fresh splash and menu captures were inspected at 1920 × 1080 and
+100% UI scale. A minimal fast-start control on this macOS host reached its first
+callback at 75 ms with the setting disabled and 2075 ms with the production
+2000 ms value. These separate headless timing checks isolate the native wait
+from ordinary asset loading; the native probe supplies the rendering proof.
+The five focused Python checks and five icon checks still pass. The approved PNG,
+its import metadata, attribution, and export/staging code are unchanged.
 
 ## Inspection
 

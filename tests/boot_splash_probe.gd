@@ -6,7 +6,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const SIZE := Vector2i(1920, 1080)
-const OUTPUT_DIR := "user://probes/boot_splash_makers_seal_20260827_v1"
+const OUTPUT_DIR := "user://probes/boot_splash_makers_seal_20260827_v2"
 const APPROVED_SHA256 := "a2fea0706c12f6e9e066e5b3f54d2660423d42d733975a110f0ffe45b79f211c"
 
 
@@ -19,10 +19,16 @@ func _initialize() -> void:
 
 
 func _capture() -> void:
+	# The engine's startup hold occurs before the first main-loop callback.
+	# Measure before the window-settling or capture timers below can affect it.
+	var startup_elapsed_ms := Time.get_ticks_msec()
+	var minimum_display_ms: int = ProjectSettings.get_setting("application/boot_splash/minimum_display_time")
+	assert(minimum_display_ms == 2000, "The approved seal needs a two-second minimum.")
+	assert(startup_elapsed_ms >= minimum_display_ms, "Startup skipped the native splash minimum.")
+	print("Native startup timing: minimum_ms=%d first_callback_ms=%d" % [minimum_display_ms, startup_elapsed_ms])
 	assert(DisplayServer.get_name() != "headless", "Native splash proof needs a real renderer.")
 	var splash_path: String = ProjectSettings.get_setting("application/boot_splash/image")
 	assert(FileAccess.get_sha256(splash_path) == APPROVED_SHA256, "Approved splash pixels changed.")
-	assert(ProjectSettings.get_setting("application/boot_splash/minimum_display_time") == 0)
 	assert(ProjectSettings.get_setting("application/boot_splash/show_image"))
 	var stretch_mode: int = ProjectSettings.get_setting("application/boot_splash/stretch_mode")
 	assert(stretch_mode == RenderingServer.SPLASH_STRETCH_MODE_KEEP)
@@ -55,7 +61,7 @@ func _capture() -> void:
 	await process_frame
 	RenderingServer.render_loop_enabled = false
 	# Reissue the same native API/settings after sizing the proof window. The
-	# short hold is probe-only; production startup has no delay or extra scene.
+	# short capture hold is probe-only; production uses the native 2000 ms minimum.
 	RenderingServer.set_boot_image_with_stretch(
 		splash,
 		ProjectSettings.get_setting("application/boot_splash/bg_color"),

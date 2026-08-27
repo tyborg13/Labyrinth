@@ -33,7 +33,7 @@ class BootSplashTests(unittest.TestCase):
         self.assertEqual(app["boot_splash/stretch_mode"], "1")  # Godot 4.6 KEEP.
         self.assertEqual(app["boot_splash/show_image"], "true")
         self.assertEqual(app["boot_splash/use_filter"], "true")
-        self.assertEqual(app["boot_splash/minimum_display_time"], "0")
+        self.assertEqual(app["boot_splash/minimum_display_time"], "2000")  # Milliseconds.
         self.assertEqual(app["run/main_scene"], '"res://scenes/main_menu.tscn"')
         self.assertNotIn("boot_splash/fullsize", app)  # Retired in Godot 4.6.
 
