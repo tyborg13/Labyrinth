@@ -751,9 +751,9 @@ func _on_steam_status_changed(_active: bool) -> void:
 	embers_label.text = _profile_text()
 
 func _play_menu_music() -> void:
-	var entry: Dictionary = MusicLibrary.entry(MusicLibrary.RELIC_ROOM_TRACK_ID)
+	var entry: Dictionary = MusicLibrary.entry(MusicLibrary.OLD_CASTLE_MENU_TRACK_ID)
 	var path: String = str(entry.get("path", ""))
-	var stream: AudioStream = AssetLoader.load_audio_stream(path)
+	var stream: AudioStream = AssetLoader.load_audio_stream(path, bool(entry.get("loop", false)))
 	if stream == null:
 		return
 	if _music_player == null:

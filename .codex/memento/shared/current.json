@@ -4504,28 +4504,6 @@
       }
     },
     {
-      "id": "mnt_20260710T204022Z_2914dfb4",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Combat preview caches are revision-scoped and semantics-tested",
-      "details": "Card previews/options, shortcut plans, and pass forecasts cache only within an unchanged combat-state/selection revision; state replacement and selection progression must call the corresponding mark/invalidate helper. Direct test-state assignment is covered by state hashes. Optimized move legality, AOE target lookup, movement plans, and shortcut prefilters retain exhaustive-reference equality checks in the performance harnesses.",
-      "status": "active",
-      "created_at": "2026-07-10T20:40:22Z",
-      "updated_at": "2026-07-10T20:40:22Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/broad-runtime-performance-optimization-pass",
-        "commit": "28ee6ca"
-      }
-    },
-    {
       "id": "mnt_20260710T204032Z_cdc64db9",
       "layer": "shared",
       "kind": "decision",
@@ -8690,17 +8668,17 @@
       }
     },
     {
-      "id": "mnt_20260825T211246Z_946efe03",
+      "id": "mnt_20260825T211246Z_5ede2b15",
       "layer": "shared",
       "kind": "decision",
       "scope": {
         "level": "file",
-        "path": "scripts/steam_service.gd",
+        "path": "scripts/combat_board_view.gd",
         "symbol": null
       },
-      "scope_key": "file:scripts/steam_service.gd",
-      "summary": "Steam stat writes require the current-stats readiness handshake",
-      "details": "Call requestCurrentStats after Steam initialization and wait for user_stats_received before GetStat, SetStat, or StoreStats. Queue additive performance-stat deltas while readiness is pending, retry/timeout visibly, and preserve asynchronous store durability diagnostics.",
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Controller board framing uses fixed physical-height envelopes",
+      "details": "Interpolate fixed zoom and vertical-bias endpoints from the physical viewport height at 800p and 1080p. Do not derive framing from actors, notes, hand focus, or animation state; tuck the hand independently so the board remains stable.",
       "status": "active",
       "created_at": "2026-08-25T21:12:46Z",
       "updated_at": "2026-08-25T21:12:46Z",
@@ -8734,17 +8712,17 @@
       }
     },
     {
-      "id": "mnt_20260825T211246Z_5ede2b15",
+      "id": "mnt_20260825T211246Z_946efe03",
       "layer": "shared",
       "kind": "decision",
       "scope": {
         "level": "file",
-        "path": "scripts/combat_board_view.gd",
+        "path": "scripts/steam_service.gd",
         "symbol": null
       },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Controller board framing uses fixed physical-height envelopes",
-      "details": "Interpolate fixed zoom and vertical-bias endpoints from the physical viewport height at 800p and 1080p. Do not derive framing from actors, notes, hand focus, or animation state; tuck the hand independently so the board remains stable.",
+      "scope_key": "file:scripts/steam_service.gd",
+      "summary": "Steam stat writes require the current-stats readiness handshake",
+      "details": "Call requestCurrentStats after Steam initialization and wait for user_stats_received before GetStat, SetStat, or StoreStats. Queue additive performance-stat deltas while readiness is pending, retry/timeout visibly, and preserve asynchronous store durability diagnostics.",
       "status": "active",
       "created_at": "2026-08-25T21:12:46Z",
       "updated_at": "2026-08-25T21:12:46Z",
@@ -8802,6 +8780,50 @@
       }
     },
     {
+      "id": "mnt_20260826T163509Z_464a5e2f",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks",
+      "summary": "Stabilize music21 MusicXML part ids before freezing hashes",
+      "details": "music21 10.5 generates a random P... id for score-part and part elements on every MusicXML write, so identical score data produces different XML hashes. Score-specific classical builders that construct scores in memory should replace those generated single-part ids deterministically inside the builder before recording reproducibility hashes, then prove two consecutive rebuilds are byte-identical.",
+      "status": "active",
+      "created_at": "2026-08-26T16:35:09Z",
+      "updated_at": "2026-08-26T16:35:09Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-first-old-castle-classical-soundtrack-audition",
+        "commit": "ced4324"
+      }
+    },
+    {
+      "id": "mnt_20260826T172237Z_3b99e78d",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks",
+      "summary": "Treat optical score timing as provisional until normalized to printed meter and barlines",
+      "details": "Project-generated OMR can encode whole-measure rests as four quarters and can overfill or underfill simultaneous voices. Freeze raw input hashes, retain recognized pitch/chord order, normalize each voice to the source meter at printed barlines, and report every repair by measure and voice before arranging or rendering.",
+      "status": "active",
+      "created_at": "2026-08-26T17:22:37Z",
+      "updated_at": "2026-08-26T17:22:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-first-old-castle-classical-soundtrack-audition",
+        "commit": "8d9b0f0"
+      }
+    },
+    {
       "id": "mnt_20260826T180822Z_35bb152a",
       "layer": "shared",
       "kind": "decision",
@@ -8823,6 +8845,52 @@
       "source": {
         "branch": "codex/steam-deck-animation-performance-pass",
         "commit": "e1687f1"
+      }
+    },
+    {
+      "id": "mnt_20260826T181204Z_6e184250",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks",
+      "summary": "Anchor full classical reductions to a cleared symbolic score and the printed scan",
+      "details": "For full-movement auditions, prefer a no-license-conflict CC0 symbolic source such as PDMX, freeze its archive/member/hash evidence, then verify the movement boundary, printed measure count (including terminal measures with cross-bar sustains), melody ornaments, cadence, and at least one anchor per printed system against a public-domain scan before arranging.",
+      "status": "active",
+      "created_at": "2026-08-26T18:12:04Z",
+      "updated_at": "2026-08-26T18:12:04Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260826T175900Z_eec82a25"
+      ],
+      "source": {
+        "branch": "codex/create-first-old-castle-classical-soundtrack-audition",
+        "commit": "c65403a"
+      }
+    },
+    {
+      "id": "mnt_20260826T204253Z_ce64794a",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks/mussorgsky_pictures_old_castle",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks/mussorgsky_pictures_old_castle",
+      "summary": "Old Castle menu mix keeps v04 pulse and an audible low-mid veil",
+      "details": "For the owner-approved in-game trial, keep no custom intro, the v04 uniform four-hit 6/8 percussion, no isolated high-string stabs, and the v06 long G-sharp3/D-sharp4 low-mid Umbra veil. Preserve the original melody and contiguous measures 7-68; future taste iterations should branch from v07 without overwriting audition versions.",
+      "status": "active",
+      "created_at": "2026-08-26T20:42:53Z",
+      "updated_at": "2026-08-26T20:42:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-first-old-castle-classical-soundtrack-audition",
+        "commit": "3c77ea8"
       }
     },
     {
@@ -8848,6 +8916,50 @@
       }
     },
     {
+      "id": "mnt_20260826T223855Z_159441ca",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Independent player movement is a per-activation pool, not a card action payment.",
+      "details": "Movement-pool actions carry _movement_pool and must not snapshot card payment or trigger Confluence/card-play spending. Each resolved path tile costs one movement; Blink costs Manhattan distance.",
+      "status": "active",
+      "created_at": "2026-08-26T22:38:55Z",
+      "updated_at": "2026-08-26T22:38:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "ced4324f"
+      }
+    },
+    {
+      "id": "mnt_20260826T223855Z_8e96e989",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "normalize_player_movement_pool"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#normalize_player_movement_pool",
+      "summary": "Legacy combat saves without movement-pool fields load with a full current-capacity pool.",
+      "details": "Normalize both capacity and remaining movement during combat restore; do not default missing remaining movement to zero.",
+      "status": "active",
+      "created_at": "2026-08-26T22:38:55Z",
+      "updated_at": "2026-08-26T22:38:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "ced4324f"
+      }
+    },
+    {
       "id": "mnt_20260826T230911Z_a310f896",
       "layer": "shared",
       "kind": "decision",
@@ -8869,6 +8981,98 @@
       "source": {
         "branch": "codex/steam-deck-animation-performance-pass",
         "commit": "0db93d0d"
+      }
+    },
+    {
+      "id": "mnt_20260826T234002Z_7c1af566",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Auto-pass only after both turn resource pools are exhausted.",
+      "details": "Either remaining card plays or remaining independent movement keeps the player activation open. When both reach zero, completing the card or movement action automatically begins enemy resolution without requiring Pass.",
+      "status": "active",
+      "created_at": "2026-08-26T23:40:02Z",
+      "updated_at": "2026-08-26T23:40:02Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260826T223855Z_31b59049"
+      ],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "2d27559b"
+      }
+    },
+    {
+      "id": "mnt_20260827T014137Z_4af1ea10",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat preview caches are revision-scoped; direct state injection must invalidate them.",
+      "details": "Production combat checkpoints own _mark_combat_preview_state_changed. Tests or probes that replace _combat_state directly must call the same helper before refreshing UI; cache keys no longer hash the injected state and otherwise can leak a prior scenario preview.",
+      "status": "active",
+      "created_at": "2026-08-27T01:41:37Z",
+      "updated_at": "2026-08-27T01:41:37Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260710T204022Z_2914dfb4"
+      ],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "ab25e69e"
+      }
+    },
+    {
+      "id": "mnt_20260827T014206Z_96193314",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Keep card-play and movement resources in one vertical combat-HUD stack.",
+      "details": "Card plays belong above independent movement, with Pass directly beneath both; preserve shared centering and a comfortably inset movement glyph across desktop and Steam Deck layouts.",
+      "status": "active",
+      "created_at": "2026-08-27T01:42:06Z",
+      "updated_at": "2026-08-27T01:42:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "ab25e69e"
+      }
+    },
+    {
+      "id": "mnt_20260827T020018Z_eb2415f6",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/input_router.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/input_router.gd",
+      "summary": "Forced input state in GUI probes must isolate ambient host events",
+      "details": "Visual/controller probes run alongside the host input stream. set_forced_state_for_test must hold the authored modality against incidental mouse and joy events until the probe explicitly changes it, and probes must call clear_forced_state_for_test during cleanup. A one-time set_modality call or mouse-motion grace period does not protect against host mouse-button events and makes Steam Deck proof nondeterministic.",
+      "status": "active",
+      "created_at": "2026-08-27T02:00:18Z",
+      "updated_at": "2026-08-27T02:00:18Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/replace-card-modes-with-independent-two-tile-player-movement-pool",
+        "commit": "d64566a2"
       }
     },
     {

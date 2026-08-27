@@ -1151,8 +1151,6 @@ const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "aoe", "push", "pull"]
 # AOE patterns can hit beyond their aim-center range, so only direct attacks use
 # the cheap distance prefilter before the exhaustive shortcut legality pass.
 const SHORTCUT_DIRECT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
-const FALLBACK_ATTACK_BASE_DAMAGE: int = 3
-const FALLBACK_MOVE_RANGE: int = 2
 const CARD_WIDGET_BASE_SIZE: Vector2 = Vector2(250.0, 352.0)
 const CARD_ASPECT_RATIO: float = 352.0 / 250.0
 const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
@@ -1355,6 +1353,7 @@ const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 100.0)
 const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 100.0
+const RESOURCE_METER_STACK_GAP: float = 4.0
 const PASS_PREVIEW_STACK_GAP: float = 6.0
 const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(60.0, 38.0)
 const COMBAT_LOG_TRANSIENT_SECONDS: float = 3.0
@@ -1487,6 +1486,9 @@ var _performance_telemetry_finalized: bool = false
 var _analytics_store: AnalyticsStore = AnalyticsStore.new()
 var _analytics_combat_tracker: Dictionary = {}
 var _selected_card_index: int = -1
+var _player_movement_selected: bool = false
+var _player_movement_action: Dictionary = {}
+var _player_movement_target_tiles: Array[Vector2i] = []
 var _card_action_choice_index: int = -1
 var _card_action_choice_options: Dictionary = {}
 var _card_action_choice_mode: String = "play"
@@ -1623,6 +1625,9 @@ var _play_meter_count: Label
 var _play_meter_icon: TextureRect
 var _play_meter_banked_badge: PanelContainer
 var _play_meter_banked_label: Label
+var _movement_meter: PanelContainer
+var _movement_meter_count: Label
+var _movement_meter_icon: TextureRect
 var _action_step_tracker: PanelContainer
 var _action_tracker_prewarm_host: Control
 var _action_tracker_prewarm_queue: Array[Dictionary]
@@ -1876,6 +1881,7 @@ func _ready() -> void:
 	_setup_contextual_combat_tutorial()
 	_setup_action_step_tracker()
 	_setup_play_meter()
+	_setup_movement_meter()
 	_setup_elemental_intensity_bar()
 	_connect_header_layout_signals()
 	_connect_choice_overlay_layout_signals()
@@ -2122,7 +2128,10 @@ func _on_input_modality_changed(modality: String) -> void:
 		_controller_suspend_custom_navigation()
 		call_deferred("_refresh_pointer_after_layout", pointer_layout_revision)
 	else:
-		_apply_controller_hand_layout()
+		if _player_movement_selected or _selected_card_index >= 0:
+			_controller_region = "board"
+			_controller_hand_focused = false
+			_apply_controller_hand_layout()
 		_restore_controller_loadout_tooltip_for_focus_owner()
 		call_deferred("_sync_board_view_rect")
 		call_deferred("_layout_combat_action_dock")
@@ -2210,7 +2219,11 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			return true
 		return false
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
-		if _selected_card_index >= 0 and _card_action_choice_index >= 0:
+		if _player_movement_selected:
+			await _on_cancel_requested()
+			_controller_region = "board"
+			_controller_set_hand_focused(false)
+		elif _selected_card_index >= 0 and _card_action_choice_index >= 0:
 			_controller_enter_card_mode()
 		elif _selected_card_index >= 0:
 			await _on_cancel_requested()
@@ -2850,7 +2863,7 @@ func _controller_activate_current() -> void:
 		return
 	if _controller_region == "board" and _controller_board_tile != INVALID_TARGET_TILE:
 		await _on_board_tile_clicked(_controller_board_tile)
-		if _selected_card_index < 0:
+		if _selected_card_index < 0 and not _player_movement_selected:
 			_controller_region = "hand"
 			_controller_set_hand_focused(true)
 			_controller_set_hand_index(maxi(0, _controller_hand_index))
@@ -3038,6 +3051,9 @@ func _refresh_controller_interface() -> void:
 	if not _controller_custom_navigation_available():
 		_controller_suspend_custom_navigation()
 		return
+	if _player_movement_selected or _selected_card_index >= 0:
+		_controller_region = "board"
+		_controller_set_hand_focused(false)
 	if _controller_card_mode_active():
 		_controller_suspend_custom_navigation()
 		call_deferred("_focus_controller_card_mode")
@@ -3131,16 +3147,18 @@ func _refresh_controller_prompts() -> void:
 	elif _controller_region == "board":
 		var candidate_kind: String = str(_controller_focus_candidate.get("kind", ""))
 		var candidate_control: Control = _controller_focus_candidate.get("control", null) as Control
-		if candidate_kind == "control" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
+		if _player_movement_selected:
+			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
+		elif candidate_kind == "control" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Open"})
 		elif candidate_kind == "relic" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Inspect"})
 		elif _selected_card_index >= 0:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
-		if _selected_card_index >= 0:
+		if _player_movement_selected or _selected_card_index >= 0:
 			prompts.append({
 				"action": InputRouterScript.ACTION_CANCEL,
-				"label": "Modes" if _card_action_choice_index >= 0 else "Cancel",
+				"label": "Cancel",
 			})
 		prompts.append({"action": &"controller_move", "label": "Move"})
 		prompts.append({"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Focus Hand"})
@@ -4267,7 +4285,8 @@ func _layout_choice_button_overlay() -> void:
 	var preview_size: Vector2 = _pass_preview_overlay.get_combined_minimum_size()
 	var combat_dock: bool = str(_run_state.get("mode", "room")) == "combat" and _play_meter != null and _play_meter.visible
 	if combat_dock:
-		var meter_rect: Rect2 = _play_meter.get_global_rect()
+		var resource_meter: Control = _movement_meter if _movement_meter != null and _movement_meter.visible else _play_meter
+		var meter_rect: Rect2 = resource_meter.get_global_rect()
 		_pass_preview_overlay.global_position = Vector2(
 			meter_rect.get_center().x - preview_size.x * 0.5,
 			meter_rect.position.y + meter_rect.size.y + PASS_PREVIEW_STACK_GAP
@@ -7779,42 +7798,22 @@ func _commit_drag_drop(zone: String) -> void:
 		return
 	var hand_index: int = _drag_card_index
 	var options: Dictionary = _drag_card_options.duplicate(false)
-	var preview: Dictionary = {}
-	var label_override: String = ""
-	match zone:
-		"play":
-			preview = options.get("play", {})
-		"attack":
-			preview = options.get("attack", {})
-			label_override = _fallback_label("attack")
-		"move":
-			preview = options.get("move", {})
-			label_override = _fallback_label("move")
-		_:
-			await _animate_drag_cancel_to_source()
-			return
+	if zone != "play":
+		await _animate_drag_cancel_to_source()
+		return
+	var preview: Dictionary = options.get("play", {}) as Dictionary
 	if not bool(preview.get("playable", false)):
 		await _animate_drag_cancel_to_source()
 		return
 	if _drag_card_proxy != null:
 		var destination_rect: Rect2 = _stage_card_rect(_drag_card_source_rect.size)
-		if zone in ["attack", "move"]:
-			var command_panel: PanelContainer = _drag_zone_panels.get(zone, null) as PanelContainer
-			if command_panel != null:
-				destination_rect = _rect_from_center(command_panel.get_global_rect().get_center(), _drag_card_source_rect.size)
 		await _animate_card_proxy_to_rect(_drag_card_proxy, destination_rect, 0.10)
 	_cancel_drag_play()
 	# Dragging is an alternate way to choose the card, not an extra confirmation
 	# gesture. Targetless cards still finish on the player's tile.
-	await _begin_card_preview(hand_index, preview, label_override, false)
+	await _begin_card_preview(hand_index, preview, "", false)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
-	for zone: String in ["attack", "move"]:
-		var panel: PanelContainer = _drag_zone_panels.get(zone, null)
-		if panel == null or not panel.visible:
-			continue
-		if panel.get_global_rect().has_point(mouse_position):
-			return zone
 	if bool(_drag_card_options.get("printed_playable", false)) and board_view != null and board_view.get_global_rect().has_point(mouse_position):
 		return "play"
 	return ""
@@ -8156,10 +8155,6 @@ func _drag_zone_detail_text(zone: String, valid: bool) -> String:
 	match zone:
 		"play":
 			return "Card Action"
-		"attack":
-			return _fallback_command_detail("attack")
-		"move":
-			return _fallback_command_detail("move")
 		_:
 			return ""
 
@@ -8297,6 +8292,7 @@ func _contextual_combat_prompt_protected_rects() -> Array:
 		discard_pile,
 		_turn_order_panel,
 		_play_meter,
+		_movement_meter,
 		mini_map_overlay,
 		_action_step_tracker,
 		_choice_button_overlay,
@@ -8717,9 +8713,6 @@ func _schedule_action_tracker_prewarm(hand: Array) -> void:
 		return
 	for mode_def: Dictionary in [
 		{"play_kind": "play", "text": "PRINTED", "accent": Color("d8aa5f")},
-		{"play_kind": "attack", "text": "ATTACK", "accent": Color("d97558")},
-		{"play_kind": "move", "text": "MOVE", "accent": Color("65a7bf")},
-		{"play_kind": "blink", "text": "BLINK", "accent": Color("ae8ee0")},
 	]:
 		_queue_action_tracker_prewarm_job("mode|%s" % str(mode_def.get("play_kind", "")), {
 			"kind": "mode",
@@ -8728,7 +8721,7 @@ func _schedule_action_tracker_prewarm(hand: Array) -> void:
 	var action_values: Array[Dictionary]
 	for hand_index: int in range(hand.size()):
 		var options: Dictionary = _card_play_options_for_index(hand_index)
-		for mode: String in ["play", "attack", "move", "blink"]:
+		for mode: String in ["play"]:
 			var preview: Dictionary = options.get(mode, {}) as Dictionary
 			for action_var: Variant in preview.get("actions", []) as Array:
 				if typeof(action_var) == TYPE_DICTIONARY:
@@ -8896,6 +8889,63 @@ func _setup_play_meter() -> void:
 	_sync_hand_side_widths()
 	_play_meter.set_meta("panel_surface_accent", Color("c28a53"))
 	_refresh_card_play_meter()
+
+func _setup_movement_meter() -> void:
+	_movement_meter = PanelContainer.new()
+	_movement_meter.name = "PlayerMovementMeter"
+	_movement_meter.custom_minimum_size = Vector2(228.0, 58.0)
+	_movement_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_movement_meter.tooltip_text = "Movement remaining"
+	_movement_meter.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+
+	var art_host := TextureRect.new()
+	art_host.name = "PlayerMovementFrameArtHost"
+	art_host.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art_host.anchor_right = 1.0
+	art_host.anchor_bottom = 1.0
+	art_host.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art_host.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art_host.texture = AssetLoader.load_texture(CARD_PLAY_METER_FRAME_TEXTURE_PATH)
+	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art_host.z_index = 2
+	art_host.set_meta("expected_target_size", Vector2i(228, 58))
+	_movement_meter.add_child(art_host)
+
+	var content := Control.new()
+	content.name = "PlayerMovementMeterContent"
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.anchor_right = 1.0
+	content.anchor_bottom = 1.0
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.z_index = 3
+	_movement_meter.add_child(content)
+
+	_movement_meter_icon = TextureRect.new()
+	_movement_meter_icon.position = Vector2(14.0, 13.0)
+	_movement_meter_icon.size = Vector2(30.0, 30.0)
+	_movement_meter_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_movement_meter_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_movement_meter_icon.texture = ActionIcons.icon_texture("move")
+	_movement_meter_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(_movement_meter_icon)
+
+	_movement_meter_count = Label.new()
+	_movement_meter_count.position = Vector2(50.0, 0.0)
+	_movement_meter_count.size = Vector2(166.0, 58.0)
+	_movement_meter_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_movement_meter_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_movement_meter_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_movement_meter_count, UiTypography.SIZE_BODY_LARGE)
+	_movement_meter_count.add_theme_color_override("font_color", Color("d9f5ff"))
+	_movement_meter_count.add_theme_color_override("font_outline_color", Color("15252d"))
+	_movement_meter_count.add_theme_constant_override("outline_size", 2)
+	content.add_child(_movement_meter_count)
+
+	_movement_meter.z_index = 120
+	_movement_meter.z_as_relative = false
+	_movement_meter.set_meta("panel_surface_accent", Color("65a7bf"))
+	ui_root.add_child(_movement_meter)
+	_refresh_player_movement_meter()
 
 func _sync_hand_side_widths() -> void:
 	if left_action_stack == null:
@@ -9262,7 +9312,7 @@ func _layout_boss_health_overlay() -> void:
 		)
 
 func _layout_combat_action_dock() -> void:
-	if _play_meter == null:
+	if _play_meter == null or _movement_meter == null:
 		return
 	var in_combat: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
 	# A new hand changes the authored fan envelope asynchronously. Never show the
@@ -9270,18 +9320,22 @@ func _layout_combat_action_dock() -> void:
 	# absence is preferable to a Pass button covering a newly drawn card.
 	if in_combat and _hand_layout_pending_revision == _hand_layout_revision:
 		_play_meter.visible = false
+		_movement_meter.visible = false
 		if _pass_preview_overlay != null:
 			_pass_preview_overlay.visible = false
 		return
 	_play_meter.visible = in_combat
+	_movement_meter.visible = in_combat
 	if not in_combat:
 		return
 	var viewport_size: Vector2 = get_viewport_rect().size
 	# These positions share the canvas coordinate space used by the rendered hand
 	# bounds. Window backing scale is intentionally not applied a second time.
 	var meter_size: Vector2 = _play_meter.get_combined_minimum_size()
+	var movement_size: Vector2 = _movement_meter.get_combined_minimum_size()
 	var pass_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
-	var dock_height: float = meter_size.y + PASS_PREVIEW_STACK_GAP + pass_size.y
+	var resource_stack_height: float = meter_size.y + RESOURCE_METER_STACK_GAP + movement_size.y
+	var dock_height: float = resource_stack_height + PASS_PREVIEW_STACK_GAP + pass_size.y
 	# The dock answers a stable question: where does the resting hand begin?  Do
 	# not feed the transient hover/focus transforms back into this placement or
 	# the meter visibly slides whenever the player inspects a card.
@@ -9301,7 +9355,7 @@ func _layout_combat_action_dock() -> void:
 	var meter_left: float = pass_left + (pass_size.x - meter_size.x) * 0.5
 	var dock_top: float = viewport_size.y * 0.754
 	if hand_bounds.size.y > 0.0:
-		dock_top = hand_bounds.position.y - meter_size.y - 12.0
+		dock_top = hand_bounds.position.y - resource_stack_height - 12.0
 	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
 	var top_limit: float = 8.0
 	if board_bounds.size.y > 0.0:
@@ -9311,6 +9365,10 @@ func _layout_combat_action_dock() -> void:
 	_play_meter.global_position = Vector2(
 		clampf(meter_left, 8.0, maxf(8.0, viewport_size.x - meter_size.x - 8.0)),
 		dock_top
+	)
+	_movement_meter.global_position = Vector2(
+		clampf(pass_left + (pass_size.x - movement_size.x) * 0.5, 8.0, maxf(8.0, viewport_size.x - movement_size.x - 8.0)),
+		dock_top + meter_size.y + RESOURCE_METER_STACK_GAP
 	)
 	_layout_combat_objective_hud()
 
@@ -9714,6 +9772,7 @@ func _refresh_ui() -> void:
 		_large_map_view.call("set_run_state", _run_state)
 	_refresh_pile_counts()
 	_refresh_card_play_meter()
+	_refresh_player_movement_meter()
 	_refresh_action_step_tracker()
 	_refresh_pile_visuals()
 	_refresh_choice_bar()
@@ -9739,6 +9798,7 @@ func _refresh_animation_lock_ui() -> void:
 	_refresh_turn_order_bar()
 	_refresh_combat_objective_hud()
 	_refresh_card_play_meter()
+	_refresh_player_movement_meter()
 	_refresh_choice_bar()
 	_refresh_stage_view()
 	_refresh_hand_panel()
@@ -10543,6 +10603,7 @@ func _combat_skill_activation_surface_available() -> bool:
 		and _selected_card_index < 0
 		and _card_action_choice_index < 0
 		and _drag_card_index < 0
+		and not _player_movement_selected
 		and not _pending_umbra_commit_locked
 		and _combat_skill_card_selection_zone.is_empty()
 	)
@@ -10562,7 +10623,9 @@ func _skill_hud_status(skill_id: String) -> String:
 			return "ARMED"
 		if effect_type == "preserve_burn" and bool(flags.get("burn_preserve_armed", false)):
 			return "ARMED"
-		if effect_type == "preserve_fallback_item" and bool(flags.get("item_preserve_armed", false)):
+		if effect_type == "preserve_item" and bool(flags.get("item_preserve_armed", false)):
+			return "ARMED"
+		if effect_type == "arm_movement_blink" and bool(flags.get("movement_blink_armed", false)):
 			return "ARMED"
 		if effect_type == "convert_block" and bool(flags.get("guard_carry_armed", false)):
 			return "ARMED"
@@ -11797,6 +11860,34 @@ func _refresh_card_play_meter() -> void:
 	call_deferred("_layout_combat_action_dock")
 	call_deferred("_sync_hand_side_widths")
 
+func _refresh_player_movement_meter() -> void:
+	if _movement_meter == null or _movement_meter_count == null:
+		return
+	var active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
+	_movement_meter.visible = active
+	if not active:
+		_movement_meter_count.text = ""
+		return
+	var remaining: int = _combat_engine.player_movement_remaining(_combat_state)
+	var capacity: int = _combat_engine.player_movement_capacity(_combat_state)
+	_movement_meter_count.text = "%d / %d movement" % [remaining, capacity]
+	_movement_meter.tooltip_text = (
+		"%d of %d movement remaining. Click your character, then a destination tile."
+		% [remaining, capacity]
+	)
+	var enabled: bool = (
+		remaining > 0
+		and _combat_engine.is_player_turn(_combat_state)
+		and not _combat_engine.player_movement_targets(_combat_state).is_empty()
+	)
+	if not enabled and remaining > 0 and _combat_engine.is_player_turn(_combat_state):
+		_movement_meter.tooltip_text = "Movement unavailable: there is no legal destination."
+	_movement_meter.modulate = Color.WHITE if enabled else Color(1.0, 1.0, 1.0, 0.42)
+	if _player_movement_selected:
+		_movement_meter.modulate = Color(0.70, 0.94, 1.0, 1.0)
+	_layout_combat_action_dock()
+	call_deferred("_layout_combat_action_dock")
+
 func _refresh_action_step_tracker() -> void:
 	if _action_step_tracker == null or _action_step_tracker_steps == null or _action_context_command_bar == null:
 		return
@@ -12101,6 +12192,7 @@ func _action_step_tracker_protected_rects() -> Array:
 		discard_pile,
 		_turn_order_panel,
 		_play_meter,
+		_movement_meter,
 		mini_map_overlay,
 		_choice_button_overlay,
 		_pass_preview_overlay,
@@ -12193,20 +12285,6 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 	_action_context_command_bar.alignment = BoxContainer.ALIGNMENT_END
 	_action_context_command_bar.add_theme_constant_override("separation", 8)
 	if context_mode == "drag":
-		_action_context_command_bar.add_child(_build_drag_command_zone(
-			"attack",
-			"Basic Attack",
-			_fallback_command_detail("attack"),
-			Color("cf7657"),
-			Color("2f1d18")
-		))
-		_action_context_command_bar.add_child(_build_drag_command_zone(
-			"move",
-			"Basic Move",
-			_fallback_command_detail("move"),
-			Color("5b8ea2"),
-			Color("18262f")
-		))
 		_update_drag_overlay_hover(_drag_hover_zone)
 		return
 	if context_mode not in ["selection", "choice"]:
@@ -12220,59 +12298,9 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
 
 func _refresh_card_action_mode_selector(context_mode: String) -> void:
-	if _card_action_mode_selector == null or context_mode != "choice":
-		return
-	if _card_action_mode_host != null:
-		_card_action_mode_host.visible = true
-	_card_action_mode_selector.visible = true
-	var mode_group := ButtonGroup.new()
-	mode_group.allow_unpress = false
-	_card_action_mode_selector.add_child(_build_card_action_mode_option(
-			"play",
-			"PRINTED",
-			bool(_card_action_choice_options.get("printed_playable", false)),
-			Color("d8aa5f"),
-			"Use this card's printed actions",
-			mode_group
-		))
-	_card_action_mode_selector.add_child(_build_card_action_mode_option(
-			"attack",
-			"ATTACK %d" % _fallback_attack_damage(),
-			bool(_card_action_choice_options.get("attack_playable", false)),
-			Color("d97558"),
-			"Spend this card for a basic Attack",
-			mode_group
-		))
-	_card_action_mode_selector.add_child(_build_card_action_mode_option(
-			"move",
-			"MOVE %d" % FALLBACK_MOVE_RANGE,
-			bool(_card_action_choice_options.get("move_playable", false)),
-			Color("65a7bf"),
-			"Spend this card for a basic Move",
-			mode_group
-		))
-	if bool(_card_action_choice_options.get("blink_available", false)):
-		_card_action_mode_selector.add_child(_build_card_action_mode_option(
-				"blink",
-				"BLINK %d" % FALLBACK_MOVE_RANGE,
-				bool(_card_action_choice_options.get("blink_playable", false)),
-				Color("ae8ee0"),
-				"Use Ghost Stride to spend this card for a Blink",
-				mode_group
-			))
-	var option_count: int = _card_action_mode_selector.get_child_count()
-	_card_action_mode_selector.add_theme_constant_override("separation", CARD_ACTION_MODE_OPTION_OVERLAP)
-	for option_var: Variant in _card_action_mode_selector.get_children():
-		var option: Control = option_var as Control
-		if option != null:
-			option.custom_minimum_size.y = CARD_ACTION_MODE_OPTION_HEIGHT
-	var stack_height: float = CARD_ACTION_MODE_OPTION_HEIGHT * float(option_count) + float(CARD_ACTION_MODE_OPTION_OVERLAP * maxi(0, option_count - 1))
-	if _card_action_mode_host != null:
-		_card_action_mode_host.custom_minimum_size = Vector2(CARD_ACTION_MODE_STACK_WIDTH, stack_height)
-	_action_step_tracker.custom_minimum_size = Vector2(
-		ACTION_STEP_TRACKER_CHOICE_MIN_SIZE.x,
-		maxf(ACTION_STEP_TRACKER_CHOICE_MIN_SIZE.y, stack_height + ACTION_STEP_CHIP_SIZE.y + 20.0)
-	)
+	# Card clicks now enter their printed action flow directly; the former mode
+	# selector host stays hidden for save/UI compatibility.
+	return
 
 func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
 	var button := UiTooltipButton.new()
@@ -12376,14 +12404,6 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 	var target_tone: String = "neutral"
 	if context_mode == "drag":
 		match _drag_hover_zone:
-			"attack":
-				verb_text = "RELEASE · ATTACK"
-				target_text = _fallback_command_detail("attack").to_upper()
-				target_tone = "attack"
-			"move":
-				verb_text = "RELEASE · MOVE"
-				target_text = _fallback_command_detail("move").to_upper()
-				target_tone = "move"
 			"play":
 				verb_text = "RELEASE TO PLAY"
 				target_text = _action_context_valid_target_count_text(_drag_card_options.get("play", {}))
@@ -12393,20 +12413,16 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 					verb_text = "DROP ON BOARD"
 					target_text = _action_context_valid_target_count_text(_drag_card_options.get("play", {}))
 				else:
-					verb_text = "CHOOSE A DEFAULT COMMAND"
-					target_text = "FULL CARD UNAVAILABLE"
+					verb_text = "CARD UNAVAILABLE"
+					target_text = "NO PRINTED TARGET"
 					target_tone = "invalid"
-		if _drag_hover_zone == "attack":
-			_set_action_context_risk("warning", "FALLBACK · ATTACK")
-		elif _drag_hover_zone == "move":
-			_set_action_context_risk("warning", "FALLBACK · MOVE")
-		elif bool(_drag_card_options.get("printed_playable", false)):
+		if bool(_drag_card_options.get("printed_playable", false)):
 			_set_action_context_risk("primary", "PRIMARY · FULL CARD")
 		else:
-			_set_action_context_risk("neutral", "FALLBACK ONLY")
+			_set_action_context_risk("neutral", "CARD UNAVAILABLE")
 	elif context_mode == "choice" and _selected_card_index < 0:
 		verb_text = "CARD UNAVAILABLE"
-		target_text = "CHOOSE ATTACK OR MOVE"
+		target_text = "NO PRINTED TARGET"
 		target_tone = "invalid"
 		_set_action_context_risk("neutral", "NO PRINTED TARGET")
 	elif context_mode == "resolution":
@@ -13089,8 +13105,10 @@ func _on_combat_skill_pressed(skill_id: String) -> void:
 			_begin_prismatic_card_selection(skill_id)
 		"preserve_burn":
 			_commit_combat_skill_state(_combat_engine.arm_rehearsed_escape(_combat_state), skill_id)
-		"preserve_fallback_item":
+		"preserve_item":
 			_commit_combat_skill_state(_combat_engine.arm_makeshift_tool(_combat_state), skill_id)
+		"arm_movement_blink":
+			_commit_combat_skill_state(_combat_engine.arm_ghost_stride(_combat_state), skill_id)
 		"convert_block":
 			_commit_combat_skill_state(_combat_engine.arm_carry_the_guard(_combat_state), skill_id)
 
@@ -13234,6 +13252,8 @@ func _clear_combat_skill_card_selection() -> void:
 		_combat_skill_card_selection_prompt.visible = false
 
 func _commit_combat_skill_state(next_combat_state: Dictionary, skill_id: String) -> void:
+	if next_combat_state != _combat_state and _player_movement_selected:
+		_cancel_player_movement_selection(false)
 	if not _stage_combat_skill_state(next_combat_state, skill_id):
 		return
 	_refresh_ui()
@@ -13688,7 +13708,7 @@ func _pass_preview_state_after_resolved_target(resolved_state: Dictionary, actio
 		working_state,
 		_selected_card_index,
 		_combat_engine.card_plays_spent_for_actions(actions),
-		{"play_mode": _card_action_choice_mode}
+		{"play_mode": "play"}
 	)
 
 func _pass_preview_state_after_pending_preview(preview: Dictionary) -> Dictionary:
@@ -13700,7 +13720,7 @@ func _pass_preview_state_after_pending_preview(preview: Dictionary) -> Dictionar
 			resolved_state,
 			_selected_card_index,
 			_combat_engine.card_plays_spent_for_actions(preview.get("actions", []) as Array),
-			{"play_mode": _card_action_choice_mode}
+			{"play_mode": "play"}
 		)
 	return resolved_state
 
@@ -15367,6 +15387,8 @@ func _refresh_hand_panel() -> void:
 		# by an immediate hover cannot flash the stale five-card placement.
 		if _play_meter != null:
 			_play_meter.visible = false
+		if _movement_meter != null:
+			_movement_meter.visible = false
 		if _pass_preview_overlay != null:
 			_pass_preview_overlay.visible = false
 	_release_hand_card_slots_to_pool()
@@ -16630,6 +16652,19 @@ func _sanitize_preview_for_umbra_information(source_preview: Dictionary) -> Dict
 func _active_card_preview() -> Dictionary:
 	if _combat_skill_card_selection_zone == "hand":
 		return {}
+	if _player_movement_selected:
+		return {
+			"card_id": "",
+			"state": _combat_state,
+			"actions": [_player_movement_action],
+			"action_index": 0,
+			"target_tiles": _vector2i_array(_player_movement_target_tiles),
+			"complete": false,
+			"playable": true,
+			"action": _player_movement_action,
+			"skip_allowed": false,
+			"movement_pool": true
+		}
 	if _drag_card_index >= 0:
 		if bool(_drag_card_options.get("printed_playable", false)):
 			return _sanitize_preview_for_umbra_information(_drag_card_options.get("play", {}) as Dictionary)
@@ -16695,55 +16730,20 @@ func _card_preview_for_index(index: int) -> Dictionary:
 	_card_preview_cache[cache_key] = preview
 	return preview
 
-func _fallback_preview_for_index(index: int, play_kind: String) -> Dictionary:
-	if _combat_state.is_empty():
-		return {}
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
-		return {"playable": false}
-	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
-	if index < 0 or index >= hand.size():
-		return {}
-	var cache_key: String = _card_preview_cache_key(index, play_kind)
-	if _fallback_preview_cache.has(cache_key):
-		return _fallback_preview_cache.get(cache_key, {}) as Dictionary
-	# Fallback actions and legality are identical for every card in the hand; only
-	# the card id carried into the eventual play differs. Compute one state-scoped
-	# template per fallback kind instead of repeating path/target work per card.
-	var shared_key: String = _card_preview_cache_key(-1, "shared_%s" % play_kind)
-	var shared_preview: Dictionary = _fallback_preview_cache.get(shared_key, {}) as Dictionary
-	if shared_preview.is_empty():
-		var fallback_actions: Array = _fallback_actions(play_kind)
-		shared_preview = {"playable": false} if fallback_actions.is_empty() else _card_preview_from_state("", _combat_state, fallback_actions, 0)
-		_fallback_preview_cache[shared_key] = shared_preview
-	var preview: Dictionary = shared_preview.duplicate(false)
-	preview["card_id"] = str(hand[index])
-	_fallback_preview_cache[cache_key] = preview
-	return preview
-
 func _card_play_options_for_index(index: int) -> Dictionary:
 	var cache_key: String = _card_preview_cache_key(index, "options")
 	if _card_play_options_cache.has(cache_key):
 		return _card_play_options_cache.get(cache_key, {}) as Dictionary
 	var printed: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index))
-	var attack: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "attack"))
-	var move: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "move"))
-	var blink: Dictionary = _sanitize_preview_for_umbra_information(_fallback_preview_for_index(index, "blink"))
 	var printed_playable: bool = bool(printed.get("playable", false))
-	var attack_playable: bool = bool(attack.get("playable", false))
-	var move_playable: bool = bool(move.get("playable", false))
-	var blink_available: bool = not _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE).is_empty()
-	var blink_playable: bool = blink_available and bool(blink.get("playable", false))
 	var options: Dictionary = {
 		"play": printed,
-		"attack": attack,
-		"move": move,
-		"blink": blink,
 		"printed_playable": printed_playable,
-		"attack_playable": attack_playable,
-		"move_playable": move_playable,
-		"blink_available": blink_available,
-		"blink_playable": blink_playable,
-		"any_playable": printed_playable or attack_playable or move_playable or blink_playable
+		"attack_playable": false,
+		"move_playable": false,
+		"blink_available": false,
+		"blink_playable": false,
+		"any_playable": printed_playable
 	}
 	_card_play_options_cache[cache_key] = options
 	return options
@@ -16793,59 +16793,19 @@ func _cancel_card_action_choice() -> void:
 func _on_card_action_choice_pressed(play_kind: String) -> void:
 	if _animation_lock or _card_action_choice_index < 0 or str(_run_state.get("mode", "room")) != "combat":
 		return
+	if play_kind != "play":
+		return
 	var hand_index: int = _card_action_choice_index
 	var options: Dictionary = _card_play_options_for_index(hand_index)
-	var preview_key: String = "play" if play_kind == "play" else play_kind
-	var playable_key: String = "printed_playable" if play_kind == "play" else "%s_playable" % play_kind
-	var preview: Dictionary = options.get(preview_key, {})
-	if not bool(options.get(playable_key, false)) or not bool(preview.get("playable", false)):
+	var preview: Dictionary = options.get("play", {})
+	if not bool(options.get("printed_playable", false)) or not bool(preview.get("playable", false)):
 		return
-	if _selected_card_index == hand_index and _card_action_choice_mode == play_kind:
+	if _selected_card_index == hand_index:
 		return
-	var label_override: String = "" if play_kind == "play" else _fallback_label(play_kind)
-	_card_action_choice_mode = play_kind
+	_card_action_choice_mode = "play"
 	_card_action_choice_options = options.duplicate(false)
 	_clear_active_card_preview_state()
-	await _begin_card_preview(hand_index, preview, label_override)
-
-func _fallback_actions(play_kind: String) -> Array:
-	match play_kind:
-		"attack":
-			return [{"type": "melee", "damage": _fallback_attack_damage(), "range": 1}]
-		"move":
-			return [_combat_engine.fallback_move_action(_combat_state, FALLBACK_MOVE_RANGE)]
-		"blink":
-			var blink_action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
-			return [] if blink_action.is_empty() else [blink_action]
-		_:
-			return []
-
-func _fallback_attack_damage() -> int:
-	return GameData.fixed_point_amount(FALLBACK_ATTACK_BASE_DAMAGE)
-
-func _fallback_label(play_kind: String) -> String:
-	match play_kind:
-		"attack":
-			return "%d Attack" % _fallback_attack_damage()
-		"move":
-			return "%d Move" % FALLBACK_MOVE_RANGE
-		"blink":
-			var action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
-			return "%d Blink" % int(action.get("range", FALLBACK_MOVE_RANGE))
-		_:
-			return ""
-
-func _fallback_command_detail(play_kind: String) -> String:
-	match play_kind:
-		"attack":
-			return "%d Damage" % _fallback_attack_damage()
-		"move":
-			return "Range %d" % FALLBACK_MOVE_RANGE
-		"blink":
-			var action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
-			return "Blink Range %d" % int(action.get("range", FALLBACK_MOVE_RANGE))
-		_:
-			return ""
+	await _begin_card_preview(hand_index, preview)
 
 func _card_widget_display_for_index(index: int) -> Dictionary:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -18643,24 +18603,18 @@ func _on_card_pressed(index: int) -> void:
 		return
 	if _drag_card_index >= 0:
 		return
+	if _player_movement_selected:
+		_cancel_player_movement_selection(false)
 	if _pending_umbra_commit_locked and _selected_card_index >= 0:
 		return
 	if _selected_card_index == index:
 		_cancel_card_selection()
 		return
-	if _card_action_choice_index == index:
-		_cancel_card_action_choice()
-		return
 	if _selected_card_index >= 0 or _card_action_choice_index >= 0:
 		_reset_card_resolution()
 	var options: Dictionary = _card_play_options_for_index(index)
-	_show_card_action_choices(index, options)
-	var initial_mode: String = _card_action_choice_mode
-	var initial_playable_key: String = "printed_playable" if initial_mode == "play" else "%s_playable" % initial_mode
-	if bool(options.get(initial_playable_key, false)):
-		await _on_card_action_choice_pressed(initial_mode)
-	else:
-		_refresh_ui()
+	if bool(options.get("printed_playable", false)):
+		await _begin_card_preview(index, options.get("play", {}) as Dictionary)
 
 func _on_card_drag_started(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
@@ -18671,6 +18625,8 @@ func _on_card_drag_started(index: int) -> void:
 		return
 	if _pending_umbra_commit_locked:
 		return
+	if _player_movement_selected:
+		_cancel_player_movement_selection(false)
 	if _card_action_choice_index >= 0:
 		_clear_card_action_choice_state()
 	if _selected_card_index >= 0:
@@ -18768,7 +18724,7 @@ func _on_confirm_card_play_pressed() -> void:
 	)
 
 func _on_card_hover_started(index: int) -> void:
-	if _animation_lock or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
+	if _animation_lock or _player_movement_selected or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
 		return
 	_hovered_card_index = index
 	_set_hand_emphasized_index(index)
@@ -18779,7 +18735,7 @@ func _on_card_hover_started(index: int) -> void:
 	_refresh_contextual_combat_tutorial()
 
 func _on_card_hover_ended(index: int) -> void:
-	if _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0:
+	if _player_movement_selected or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0:
 		return
 	if _hovered_card_index == index:
 		_hovered_card_index = -1
@@ -18825,7 +18781,7 @@ func _board_hover_stage_refresh_needed(tile: Vector2i) -> bool:
 	if mode != "combat":
 		_board_hover_threat_active = false
 		return false
-	if _selected_card_index >= 0 or _hovered_card_index >= 0 or _drag_card_index >= 0:
+	if _player_movement_selected or _selected_card_index >= 0 or _hovered_card_index >= 0 or _drag_card_index >= 0:
 		_board_hover_threat_active = false
 		return true
 	var threat_active: bool = _hovered_tile_has_visible_enemy(tile)
@@ -18890,6 +18846,15 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	if mode == "room" and _exit_destinations_by_tile.has(tile):
 		await _on_map_view_room_selected(_exit_destinations_by_tile[tile], tile)
 		return
+	if mode == "combat" and _player_movement_selected:
+		if _player_movement_target_tiles.has(tile):
+			await _commit_player_movement(tile)
+		return
+	if mode == "combat" and _selected_card_index < 0:
+		var player_tile: Vector2i = (_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+		if tile == player_tile:
+			_begin_player_movement_selection()
+		return
 	if mode != "combat" or _selected_card_index < 0:
 		return
 	if _pending_card_requires_confirmation():
@@ -18939,7 +18904,7 @@ func _on_board_cancel_requested() -> void:
 	# Right-click/B on the board is contextual cancellation, never a pause-menu
 	# shortcut. Escape and the dedicated menu action remain the explicit ways to
 	# open/close pause UI.
-	if _drag_card_index >= 0 or _card_action_choice_index >= 0 or _selected_card_index >= 0:
+	if _player_movement_selected or _drag_card_index >= 0 or _card_action_choice_index >= 0 or _selected_card_index >= 0:
 		await _on_cancel_requested()
 
 func _on_cancel_requested() -> void:
@@ -18976,6 +18941,9 @@ func _on_cancel_requested() -> void:
 		return
 	if _card_action_choice_index >= 0:
 		_cancel_card_action_choice()
+		return
+	if _player_movement_selected:
+		_cancel_player_movement_selection()
 		return
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
@@ -19131,6 +19099,40 @@ func _cancel_card_selection() -> void:
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.CANCEL_OPTIONAL)
 	_reset_card_resolution()
 	_refresh_card_preview_ui()
+
+func _begin_player_movement_selection() -> void:
+	if (
+		_animation_lock
+		or str(_run_state.get("mode", "room")) != "combat"
+		or not _combat_engine.is_player_turn(_combat_state)
+		or _selected_card_index >= 0
+		or _drag_card_index >= 0
+		or not _combat_skill_card_selection_zone.is_empty()
+	):
+		return
+	var action: Dictionary = _combat_engine.player_movement_action(_combat_state)
+	var targets: Array[Vector2i] = _combat_engine.player_movement_targets(_combat_state)
+	if action.is_empty() or targets.is_empty():
+		return
+	_player_movement_selected = true
+	_player_movement_action = action.duplicate(true)
+	_player_movement_target_tiles = _vector2i_array(targets)
+	_hovered_card_index = -1
+	_mark_preview_selection_changed()
+	_refresh_player_movement_meter()
+	_refresh_card_preview_ui()
+
+func _cancel_player_movement_selection(refresh_ui: bool = true) -> void:
+	if not _player_movement_selected:
+		return
+	_player_movement_selected = false
+	_player_movement_action.clear()
+	_player_movement_target_tiles.clear()
+	_hovered_board_tile = INVALID_TARGET_TILE
+	_mark_preview_selection_changed()
+	if refresh_ui:
+		_refresh_player_movement_meter()
+		_refresh_card_preview_ui()
 
 func _current_action_can_skip() -> bool:
 	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size() or not _pending_action_can_skip:
@@ -19299,6 +19301,65 @@ func _append_skipped_target_placeholders(start_action_index: int, end_action_ind
 		if _combat_engine.player_action_needs_target(_pending_actions[index]):
 			_pending_selected_targets.append(INVALID_TARGET_TILE)
 
+func _commit_player_movement(target_tile: Vector2i) -> void:
+	if (
+		_animation_lock
+		or not _player_movement_selected
+		or not _player_movement_target_tiles.has(target_tile)
+		or not _combat_engine.is_player_turn(_combat_state)
+	):
+		return
+	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
+	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
+	var action: Dictionary = _player_movement_action.duplicate(true)
+	var committed_combat_state: Dictionary = _combat_engine.apply_player_movement(previous_combat_state, target_tile)
+	var movement_result: Dictionary = committed_combat_state.get("last_player_movement", {}) as Dictionary
+	var previous_position: Vector2i = (previous_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+	var committed_position: Vector2i = (committed_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
+	if int(movement_result.get("spent", 0)) <= 0 or committed_position == previous_position:
+		return
+	_animation_lock = true
+	_cancel_player_movement_selection(false)
+	_refresh_animation_lock_ui()
+	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(_run_state, committed_combat_state)
+	committed_run_state = _hold_committed_run_state(committed_run_state, "player_movement")
+	await _animate_player_action_step(previous_combat_state, committed_combat_state, "", action, target_tile)
+	await _animate_enemy_loss_feedback_between_states(
+		previous_combat_state,
+		committed_combat_state,
+		ElementData.NONE
+	)
+	await _animate_defeats_and_terrain_destruction(previous_combat_state, committed_combat_state)
+	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
+	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
+	if outcome == "victory":
+		var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(committed_combat_state)
+		if post_combat_board_state != committed_combat_state:
+			await _animate_defeats_and_terrain_destruction(committed_combat_state, post_combat_board_state)
+		if _reach_exit_victory_preserves_board(committed_combat_state):
+			transition_combat_state = _combat_engine.resolve_missed_equipment_after_victory(post_combat_board_state)
+		else:
+			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
+		if str(committed_run_state.get("mode", "room")) == "reward":
+			await _play_post_combat_victory(transition_combat_state)
+	_board_presentation.clear()
+	_set_action_banner("")
+	_run_state = committed_run_state
+	_sync_combat_state_from_run()
+	_release_committed_run_state()
+	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
+	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
+	_analytics_log_player_moved(previous_combat_state, committed_combat_state)
+	_analytics_log_playable_cards()
+	_analytics_log_combat_transition(previous_run_state, "player_movement", transition_combat_state)
+	if _reward_intro_pending():
+		await _play_reward_reveal()
+	else:
+		_animation_lock = false
+		_refresh_ui()
+	await _maybe_auto_pass_exhausted_player_turn()
+
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var card_id: String = _card_id_for_hand_index(hand_index)
 	var source_rect: Rect2 = _hand_card_global_rect(hand_index)
@@ -19320,7 +19381,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		resolved_state,
 		hand_index,
 		plays_spent,
-		{"play_mode": _card_action_choice_mode}
+		{"play_mode": "play"}
 	)
 	var pile_kind: String = str(committed_combat_state.get("last_card_destination", _card_destination_pile(card_id)))
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
@@ -19371,8 +19432,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	else:
 		_animation_lock = false
 		_refresh_ui()
-	if str(_run_state.get("mode", "room")) == "combat" and _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
-		await _resolve_enemy_round()
+	await _maybe_auto_pass_exhausted_player_turn()
 
 func _card_destination_pile(card_id: String) -> String:
 	if GameData.card_consumes_on_play(card_id):
@@ -21948,6 +22008,8 @@ func _action_prompt(action: Dictionary) -> String:
 			return "Resolve"
 
 func _player_action_label(card_id: String, _action: Dictionary, _state: Dictionary = _combat_state) -> String:
+	if bool(_action.get("_movement_pool", false)):
+		return "Ghost Stride" if str(_action.get("type", "")) == "blink" else "Movement"
 	return str(_card_def(card_id, _state).get("name", card_id))
 
 func _player_action_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
@@ -22897,9 +22959,22 @@ func _on_pass_turn_pressed() -> void:
 		_controller_region = "board"
 		_controller_set_hand_focused(false)
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.PASS_CONSEQUENCE)
+	if _player_movement_selected:
+		_cancel_player_movement_selection(false)
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
 	await _resolve_enemy_round()
+
+func _maybe_auto_pass_exhausted_player_turn() -> bool:
+	if (
+		_animation_lock
+		or str(_run_state.get("mode", "room")) != "combat"
+		or _combat_state.is_empty()
+		or not _combat_engine.player_turn_resources_exhausted(_combat_state)
+	):
+		return false
+	await _resolve_enemy_round()
+	return true
 
 func _open_menu_overlay() -> void:
 	if _menu_scrim == null:
@@ -27627,6 +27702,16 @@ func _analytics_log_card_played(card_id: String, card_instance_id: String, befor
 		return
 	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), _analytics_card_play_payload(card_id, before_state, resolved_state, actions, selected_targets))
 
+func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dictionary) -> void:
+	var movement: Dictionary = resolved_state.get("last_player_movement", {}) as Dictionary
+	if int(movement.get("spent", 0)) <= 0:
+		return
+	_analytics_store.write_event(
+		"player_moved",
+		_analytics_context_from_states(_run_state, before_state),
+		movement.duplicate(true)
+	)
+
 func _analytics_card_play_payload(card_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> Dictionary:
 	var before_player: Dictionary = before_state.get("player", {})
 	var after_player: Dictionary = resolved_state.get("player", {})
@@ -27718,10 +27803,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var intensity_spent: Dictionary = _elemental_intensity_counter_delta(before_state, resolved_state, "elemental_intensity_spent_total")
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var play_mode: String = "printed"
-	var comparable_actions: Array = _analytics_actions_without_runtime_orientation(actions)
 	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
-	if flurry_plays_spent <= 1 and JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
-		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("move")) else "custom"
 	var flurry_played: bool = bool(printed_card.get("flurry", false)) and play_mode == "printed"
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	var before_umbra: Dictionary = before_state.get("umbra", {}) as Dictionary
@@ -27974,6 +28056,10 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 func _sync_combat_state_from_run() -> void:
 	var entering_combat: bool = _combat_state.is_empty()
 	_combat_state = (_run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	if not _combat_state.is_empty():
+		_combat_state = _combat_engine.normalize_player_movement_pool(_combat_state)
+		if str(_run_state.get("mode", "")) == "combat":
+			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
 	if entering_combat and not _combat_state.is_empty():
 		# Never let a prior room's cached render signature suppress the first
 		# complete Turn Clock render on combat-room entry.

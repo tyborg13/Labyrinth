@@ -26,6 +26,14 @@ These assumptions are baked into the current coefficients:
 
 - Player pace: `2` cards per turn, `2` draw per turn, and a `7`-card
   maximum hand.
+- Every player activation also starts with `2` tiles of independent movement.
+  The player can split that pool before, between, or after printed card plays;
+  movement costs no card play and no initiative Time. Printed Move and Blink
+  actions remain additional movement supplied by their cards.
+- The scorer does not add those `2` shared movement tiles to every card's
+  intrinsic reach or value. They are a turn-level positioning resource, so
+  playability and realized-value analysis should compare movement cohorts while
+  printed movement remains the only movement credited directly to a card.
 - Combat uses natural player-facing units throughout: the player starts a new
   run at `24` HP, and authored damage, health, healing, block, stoneskin, and
   damaging statuses are stored and resolved without the retired `×10` layer.

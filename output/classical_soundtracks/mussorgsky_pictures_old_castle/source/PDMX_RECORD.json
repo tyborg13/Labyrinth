@@ -1,0 +1,39 @@
+{
+  "archive_member": "mid/11/49/QmTV1L2x37h7VPCZNdqXCuAJq2ykz61ZxfpmnWUoWG8qLF.mid",
+  "archive_name": "mid.tar.gz",
+  "archive_sha256": "e444f9b466f02c9a054d31478c9886847f39c575a65ec45a0aaa1a5ee088c1d1",
+  "artist_name": "Modest Mussorgsky",
+  "composer_name": "Modeste Moussorgsky",
+  "dataset": "PDMX v9",
+  "dataset_doi": "https://doi.org/10.5281/zenodo.15571083",
+  "dataset_index_sha256": "fc2187e7e09185f4b28be57b6478a96a1243a037f8fd13624f17de2d8bfd44bd",
+  "license": "cc-zero",
+  "license_conflict": false,
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "local_filename": "mussorgsky_pictures_at_an_exhibition_pdmx_cc0.mid",
+  "local_sha256": "e8c7fe31e8ff267a8fa4f4ca5edd076955e49cd89548d7367a588e163079cc34",
+  "metadata_archive_member": "metadata/7/5952494.json",
+  "metadata_archive_sha256": "325b57ad69c34d45b05b8f307d88ebd10ff67554a7a9b4c183676e7586deffa3",
+  "metadata_file_sha256": "f446a39b2c9bca56fb9fc7cb2f92999acc4f96c039b4ae5de9e3ddfd41f94b62",
+  "metadata_score_id": 5952494,
+  "metadata_source_score_url": "https://musescore.com/frank_luna/scores/5952494",
+  "metadata_values": {
+    "description": "Solo",
+    "has_custom_audio": false,
+    "is_downloadable": true,
+    "is_public_domain": true,
+    "license": "cc-zero",
+    "parts": 1,
+    "parts_names": [
+      "Piano"
+    ],
+    "score_title": "Pictures at an Exhibition"
+  },
+  "pdmx_csv_path": "./data/11/49/QmTV1L2x37h7VPCZNdqXCuAJq2ykz61ZxfpmnWUoWG8qLF.json",
+  "pdmx_midi_path": "./mid/11/49/QmTV1L2x37h7VPCZNdqXCuAJq2ykz61ZxfpmnWUoWG8qLF.mid",
+  "pdmx_pdf_path": "./pdf/11/49/QmTV1L2x37h7VPCZNdqXCuAJq2ykz61ZxfpmnWUoWG8qLF.pdf",
+  "retrieved_on": "2026-08-26",
+  "score_title": "Pictures at an Exhibition",
+  "subset_all_valid": true,
+  "subset_no_license_conflict": true
+}

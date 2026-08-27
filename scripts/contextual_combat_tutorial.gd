@@ -22,9 +22,9 @@ const PROMPT_ORDER: Array[String] = [
 const PROMPTS: Dictionary = {
 	FULL_CARD_FALLBACK: {
 		"id": FULL_CARD_FALLBACK,
-		"icon": "card_play",
-		"text": "Play the full card, or spend it on a basic Attack or Move.",
-		"grimoire_entry": "combat:card_plays",
+		"icon": "move",
+		"text": "Cards use their printed actions. Click your character, then a tile, to spend movement.",
+		"grimoire_entry": "combat:targeting",
 		"accent": "d7a953"
 	},
 	SELECT_TARGET: {

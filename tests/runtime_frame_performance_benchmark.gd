@@ -991,10 +991,10 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 	samples.clear()
 	var drag_index: int = _hand_index(instance, "gust_step")
 	samples.append(_timed_call(instance, "_on_card_drag_started", [drag_index]))
-	for zone: String in ["play", "attack", "move", ""]:
+	for zone: String in ["play", ""]:
 		samples.append(_timed_call(instance, "_update_drag_overlay_hover", [zone]))
 	samples.append(_timed_call(instance, "_cancel_drag_play"))
-	results["card_drag_fallback_zones_cancel"] = _duration_phase_result(samples, "input_handler")
+	results["card_drag_play_zone_cancel"] = _duration_phase_result(samples, "input_handler")
 
 	samples.clear()
 	for pile_kind: String in ["draw", "discard", "burn"]:

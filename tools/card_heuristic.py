@@ -25,6 +25,11 @@ control intents and blocking routes. These objective-dependent pressures are
 reported as analytics cohorts rather than baked into every card's intrinsic
 coefficient: movement and control matter more for exits, AOE matters more for
 reinforcement density, and execute damage matters most against leaders.
+Each player activation also grants a shared two-tile movement pool that can be
+split before, between, or after printed card plays without spending a play or
+initiative Time. Because it is turn-shared rather than card-owned, this tool
+reports that positioning resource but does not add it to every card's intrinsic
+reach or movement value.
 Cinder Oozes join fire rooms and split into summoned, rewardless Cinder
 Droplets rather than extra ember or death-card-play payouts. Frostglass Lancers
 join ice rooms as precision four-tile line-thrust enemies that can move sideways
@@ -112,6 +117,7 @@ FINAL_BOSS_DEPTH = DEPTHS_PER_SEQUENCE * SEQUENCES_PER_RUN
 PLAYER_BASE_INITIATIVE = 9
 BASE_CARDS_PER_TURN = 2
 BASE_DRAW_PER_TURN = 2
+BASE_PLAYER_MOVEMENT = 2
 MAX_HAND_SIZE = 7
 COMBAT_OBJECTIVE_WEIGHTS_PERCENT = {
     "kill_all": 25,
@@ -166,6 +172,9 @@ def encounter_assumptions() -> dict[str, Any]:
             "base_initiative": PLAYER_BASE_INITIATIVE,
             "cards_per_turn": BASE_CARDS_PER_TURN,
             "draw_per_turn": BASE_DRAW_PER_TURN,
+            "independent_movement_per_turn": BASE_PLAYER_MOVEMENT,
+            "movement_timing": "may be split before, between, or after printed card plays without spending a play or initiative Time",
+            "movement_score_policy": "turn-shared positioning context; do not add it to every card's intrinsic reach or movement value",
             "max_hand_size": MAX_HAND_SIZE,
         },
         "combat_objectives": {

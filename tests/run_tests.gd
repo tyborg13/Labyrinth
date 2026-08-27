@@ -20,6 +20,7 @@ const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_
 const InlineIconDescriptionSuite = preload("res://tests/suites/inline_icon_description_suite.gd")
 const SkillTreeSuite = preload("res://tests/suites/skill_tree_suite.gd")
 const SkillCombatSuite = preload("res://tests/suites/skill_combat_suite.gd")
+const PlayerMovementSuite = preload("res://tests/suites/player_movement_suite.gd")
 const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const RelicSuite = preload("res://tests/suites/relic_suite.gd")
 const RadiancePackageSuite = preload("res://tests/suites/radiance_package_suite.gd")
@@ -49,6 +50,7 @@ const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -87,6 +89,7 @@ func _initialize() -> void:
 	DragonBossSuite.run(Callable(self, "_assert"))
 	SkillTreeSuite.run(Callable(self, "_assert"))
 	SkillCombatSuite.run(Callable(self, "_assert"))
+	PlayerMovementSuite.run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
 	AttackFxSuite.run(Callable(self, "_assert"))
@@ -343,9 +346,8 @@ func _initialize() -> void:
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_pass_preview_chip_updates()
-	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
-	await _test_run_scene_combat_interaction_context_paths()
+	await _test_run_scene_direct_card_and_player_movement_selection()
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
 	await _test_run_scene_reward_heal_choice_sits_below_cards()
@@ -365,7 +367,6 @@ func _initialize() -> void:
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
-	_test_run_scene_fallback_attack_uses_scaled_damage()
 	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_intensity_condition_rows_mark_activity()
@@ -598,6 +599,15 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert((repeated.get("added", []) as Array).is_empty(), "Repeated Grimoire discoveries should not add duplicates")
 
 func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
+	var menu_entry: Dictionary = MusicLibrary.entry(MusicLibrary.OLD_CASTLE_MENU_TRACK_ID)
+	var menu_path: String = str(menu_entry.get("path", ""))
+	_assert(str(menu_entry.get("id", "")) == MusicLibrary.OLD_CASTLE_MENU_TRACK_ID, "Main-menu music should have a dedicated route outside room and combat selectors")
+	_assert(menu_path == "res://assets/audio/music/mussorgsky_old_castle_main_menu.ogg", "Main-menu music should point to the promoted Old Castle Ogg")
+	_assert(FileAccess.file_exists(menu_path), "Promoted Old Castle main-menu music should exist")
+	_assert(_audio_asset_loads(menu_path), "Promoted Old Castle main-menu music should load as audio")
+	_assert(bool(menu_entry.get("loop", false)), "Old Castle main-menu music should request native looping")
+	_assert(is_equal_approx(float(menu_entry.get("volume_db", 0.0)), -6.5), "Old Castle main-menu music should retain its audition-level presence")
+	_assert(FileAccess.get_sha256(menu_path) == "57fabef2f4298b22ef7477e18b261702152483c9cb7aabe43acd99ece952fdc8", "Shipped Old Castle menu music should match the verified v07 Ogg")
 	for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING, ElementData.AIR, ElementData.EARTH, ElementData.NONE]:
 		var entry: Dictionary = MusicLibrary.entry_for_context("combat", {
 			"type": "combat",
@@ -9451,6 +9461,81 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_direct_card_and_player_movement_selection() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for direct-card and independent-movement coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(3, 5)], 9214)
+	await process_frame
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	var pending_actions: Array = instance.get("_pending_actions")
+	_assert(int(instance.get("_card_action_choice_index")) == -1, "Card clicks should never open the removed play-mode selector")
+	_assert(int(instance.get("_selected_card_index")) == 0, "A playable card click should enter its printed targeting flow directly")
+	_assert(pending_actions.size() == 1 and str((pending_actions[0] as Dictionary).get("type", "")) == "melee", "Direct card selection should retain the card's printed action")
+	instance.call("_on_cancel_requested")
+	await process_frame
+	var combat_state: Dictionary = instance.get("_combat_state")
+	var player_tile: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	await instance.call("_on_board_tile_clicked", player_tile)
+	await process_frame
+	await process_frame
+	_assert(bool(instance.get("_player_movement_selected")), "Clicking the protagonist should enter independent movement targeting")
+	var movement_targets: Array = instance.get("_player_movement_target_tiles")
+	_assert(not movement_targets.is_empty(), "Independent movement targeting should expose legal destination tiles")
+	var movement_meter: Control = instance.get("_movement_meter") as Control
+	var movement_count: Label = instance.get("_movement_meter_count") as Label
+	var movement_capacity: int = CombatEngine.new().player_movement_capacity(instance.get("_combat_state"))
+	_assert(movement_meter != null and movement_count != null and movement_count.text == "%d / %d movement" % [movement_capacity, movement_capacity], "Combat HUD should show the full independent movement pool")
+	_assert(not bool(instance.call("_combat_skill_activation_surface_available")), "Manual combat skills should not activate against a cached movement target set")
+	var armed_state: Dictionary = combat_state.duplicate(true)
+	armed_state["skill_ids"] = ["ghost_stride"]
+	armed_state = CombatEngine.new().arm_ghost_stride(armed_state)
+	instance.call("_commit_combat_skill_state", armed_state, "ghost_stride")
+	await process_frame
+	_assert(not bool(instance.get("_player_movement_selected")), "A defensive combat-skill state change should invalidate movement targeting")
+	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(3, 5)], 9215)
+	await process_frame
+	combat_state = instance.get("_combat_state")
+	player_tile = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	await instance.call("_on_board_tile_clicked", player_tile)
+	await process_frame
+	var router: Node = root.get_node_or_null("InputRouter")
+	_assert(router != null, "Controller movement cancellation requires the input router")
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+		var incidental_host_click := InputEventMouseButton.new()
+		incidental_host_click.button_index = MOUSE_BUTTON_LEFT
+		incidental_host_click.pressed = true
+		router.call("_input", incidental_host_click)
+		_assert(str(router.call("modality")) == InputRouterScript.MODALITY_CONTROLLER, "Forced controller tests should ignore incidental host pointer buttons")
+		instance.call("_refresh_controller_prompts")
+		var prompt_labels: Array[String] = []
+		var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
+		for prompt_var: Variant in prompt_bar.call("prompts_snapshot"):
+			prompt_labels.append(str((prompt_var as Dictionary).get("label", "")))
+		_assert(
+			prompt_labels.has("Target") and prompt_labels.has("Cancel"),
+			"Controller movement targeting should advertise Target and Cancel; got %s in region %s"
+			% [prompt_labels, str(instance.get("_controller_region"))]
+		)
+	var cancel_event := InputEventAction.new()
+	cancel_event.action = InputRouterScript.ACTION_CANCEL
+	cancel_event.pressed = true
+	var controller_cancel_handled: bool = await instance.call("_handle_controller_input", cancel_event)
+	await process_frame
+	_assert(controller_cancel_handled and not bool(instance.get("_player_movement_selected")), "Controller B should leave independent movement targeting without spending movement")
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
+	instance.queue_free()
+	await process_frame
+	if router != null and router.has_method("clear_forced_state_for_test"):
+		router.call("clear_forced_state_for_test")
+
 func _test_run_scene_combat_interaction_context_paths() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -10781,7 +10866,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var combat_state: Dictionary = combat.create_combat(95, _simple_room_layout(), {
 		"hp": 12,
 		"max_hp": 20,
-		"deck_cards": ["patch_up", "quick_stab"],
+		"deck_cards": ["patch_up", "brace"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
@@ -10790,7 +10875,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	player["hp"] = 12
 	combat_state["player"] = player
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["patch_up", "quick_stab"]
+	deck["hand"] = ["patch_up", "brace"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -10811,30 +10896,21 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var confirmation_tiles: Array = (board_view.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array
 	_assert(int(armed_player.get("hp", 0)) == 12 and int(armed_player.get("block", 0)) == 0, "Selecting a targetless card should preview without applying its effects")
 	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0, "Selecting a targetless card should not spend a card play")
-	_assert(((armed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "quick_stab"], "Selecting a targetless card should leave the exact hand intact")
+	_assert(((armed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "brace"], "Selecting a targetless card should leave the exact hand intact")
 	_assert(_button_with_text(context, "Play Card") == null, "A targetless card should not add a third confirmation control")
 	_assert(confirmation_tiles == [player_tile], "A targetless card should expose only the protagonist tile as its confirmation target")
-	_assert(str(context.get_meta("action_verb", "")) == "READY · CLICK YOUR TILE" and str(context.get_meta("target_state", "")) == "SELF", "Targetless confirmation should direct the player to the pulsing self tile")
-
-	await instance.call("_on_card_action_choice_pressed", "move")
-	await process_frame
-	_assert(str(instance.get("_card_action_choice_mode")) == "move" and int(instance.get("_selected_card_index")) == 0, "An armed targetless card should remain switchable to Basic Move before commitment")
-	await instance.call("_on_card_action_choice_pressed", "play")
-	await process_frame
-	armed_state = instance.get("_combat_state")
-	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Switching back to Printed should re-arm the card without committing it")
 
 	instance.call("_on_cancel_requested")
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == -1, "Cancel should close targetless confirmation")
-	_assert((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "quick_stab"], "Canceling targetless confirmation should preserve the exact hand")
+	_assert((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "brace"], "Canceling targetless confirmation should preserve the exact hand")
 
 	await _choose_clicked_card_action(instance, 0, "play")
 	instance.call("_on_card_pressed", 1)
 	await process_frame
 	armed_state = instance.get("_combat_state")
 	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 12, "Selecting another card should replace targetless confirmation without committing the first card")
-	_assert(int(instance.get("_card_action_choice_index")) == 1, "Selecting another card should move the play-mode rail to that card")
+	_assert(int(instance.get("_card_action_choice_index")) == -1 and int(instance.get("_selected_card_index")) == 1, "Selecting another card should enter that card's printed flow without a mode rail")
 	instance.call("_on_cancel_requested")
 	await process_frame
 
@@ -10846,7 +10922,7 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var committed_player: Dictionary = committed_state.get("player", {})
 	_assert(int(committed_player.get("hp", 0)) == 14, "Confirming a targetless self card should commit its heal")
 	_assert(int(committed_player.get("block", 0)) == 2, "Confirming a targetless self card should commit its block")
-	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["quick_stab"], "Confirming should consume only the armed targetless card")
+	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["brace"], "Confirming should consume only the armed targetless card")
 	instance.queue_free()
 	await process_frame
 
@@ -13955,16 +14031,13 @@ func _buttons_under(node: Node) -> Array[Button]:
 	return buttons
 
 func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: String) -> void:
+	_assert(play_kind == "play", "Card-click test helpers should request only the printed flow")
 	instance.call("_on_card_pressed", hand_index)
 	await process_frame
 	await process_frame
-	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode options for that exact card")
-	var initial_mode: String = str(instance.get("_card_action_choice_mode"))
-	if initial_mode != play_kind:
-		await instance.call("_on_card_action_choice_pressed", play_kind)
-		await process_frame
-		await process_frame
-	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested play mode should be active")
+	_assert(int(instance.get("_card_action_choice_index")) == -1, "Clicking a playable hand card should bypass play-mode options")
+	_assert(int(instance.get("_selected_card_index")) == hand_index, "Clicking a playable hand card should select that card's printed flow")
+	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Direct card selection should retain the printed play context")
 
 func _button_with_text(node: Node, text: String) -> Button:
 	for button: Button in _buttons_under(node):
@@ -14146,25 +14219,28 @@ func _label_text_fits(label: Label) -> bool:
 	return font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x <= label.size.x + 1.0
 
 func _assert_current_combat_dock_geometry(instance: Node, context: String) -> void:
-	var meter: Control = instance.get("_play_meter") as Control
+	var play_meter: Control = instance.get("_play_meter") as Control
+	var movement_meter: Control = instance.get("_movement_meter") as Control
 	var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	var pass_overlay: Control = instance.get("_pass_preview_overlay") as Control
-	_assert(meter != null and meter.visible, "%s should retain a visible card-play dock" % context)
+	_assert(play_meter != null and play_meter.visible and movement_meter != null and movement_meter.visible, "%s should retain a visible stacked resource dock" % context)
 	_assert(pass_chip != null and pass_overlay != null and pass_overlay.visible, "%s should retain a visible Pass dock" % context)
-	if meter == null or pass_chip == null:
+	if play_meter == null or movement_meter == null or pass_chip == null:
 		return
-	var meter_rect: Rect2 = meter.get_global_rect()
+	var play_rect: Rect2 = play_meter.get_global_rect()
+	var movement_rect: Rect2 = movement_meter.get_global_rect()
 	var pass_rect: Rect2 = pass_chip.get_global_rect()
 	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
-	_assert(viewport_rect.encloses(meter_rect) and viewport_rect.encloses(pass_rect), "%s dock should remain fully inside the viewport" % context)
-	_assert(absf(pass_rect.get_center().x - meter_rect.get_center().x) <= 1.0 and pass_rect.position.y >= meter_rect.end.y + 5.0, "%s Pass should remain centered below the card-play plaque" % context)
+	_assert(viewport_rect.encloses(play_rect) and viewport_rect.encloses(movement_rect) and viewport_rect.encloses(pass_rect), "%s dock should remain fully inside the viewport" % context)
+	_assert(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0 and movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack directly below card plays" % context)
+	_assert(absf(pass_rect.get_center().x - movement_rect.get_center().x) <= 1.0 and pass_rect.position.y >= movement_rect.end.y + 5.0, "%s Pass should remain centered below both resource plaques" % context)
 	var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
 	if hand_bounds.size.x > 0.0:
 		_assert(pass_rect.end.x <= hand_bounds.position.x - 20.0, "%s dock should clear the resting hand envelope" % context)
 	for pile_property: String in ["draw_pile", "discard_pile"]:
 		var pile: Control = instance.get(pile_property) as Control
 		if pile != null and pile.visible:
-			_assert(not meter_rect.intersects(pile.get_global_rect()) and not pass_rect.intersects(pile.get_global_rect()), "%s dock should remain independent of %s" % [context, pile.name])
+			_assert(not play_rect.intersects(pile.get_global_rect()) and not movement_rect.intersects(pile.get_global_rect()) and not pass_rect.intersects(pile.get_global_rect()), "%s dock should remain independent of %s" % [context, pile.name])
 
 func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_defeat: bool, expect_danger: bool, context: String) -> void:
 	var chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
@@ -14183,11 +14259,14 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		if preview_overlay != null and preview_overlay.visible and piles_bar != null:
 			var piles_rect: Rect2 = piles_bar.get_global_rect()
 			var viewport_width: float = instance.get_viewport().get_visible_rect().size.x
-			var meter: Control = instance.get("_play_meter") as Control
-			_assert(meter != null and meter.visible, "%s pass forecast should pair with the independent card-play dock" % context)
-			if meter != null:
-				var meter_rect: Rect2 = meter.get_global_rect()
-				_assert(absf(chip_rect.get_center().x - meter_rect.get_center().x) <= 1.0 and chip_rect.position.y >= meter_rect.end.y + 5.0, "%s pass forecast should center under the card-play plaque" % context)
+			var play_meter: Control = instance.get("_play_meter") as Control
+			var movement_meter: Control = instance.get("_movement_meter") as Control
+			_assert(play_meter != null and play_meter.visible and movement_meter != null and movement_meter.visible, "%s pass forecast should pair with the stacked resource dock" % context)
+			if play_meter != null and movement_meter != null:
+				var play_rect: Rect2 = play_meter.get_global_rect()
+				var movement_rect: Rect2 = movement_meter.get_global_rect()
+				_assert(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0 and movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack beneath card plays" % context)
+				_assert(absf(chip_rect.get_center().x - movement_rect.get_center().x) <= 1.0 and chip_rect.position.y >= movement_rect.end.y + 5.0, "%s pass forecast should center under the movement plaque" % context)
 			_assert(not chip_rect.intersects(piles_rect), "%s Pass dock should remain independent of the pile icons" % context)
 			var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
 			if hand_bounds.size.x > 0.0:

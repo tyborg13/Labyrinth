@@ -53,6 +53,7 @@ available:
 - `card_drawn`
 - `card_became_playable`
 - `card_played`
+- `player_moved`
 - `enemy_action_resolved`
 - `enemy_status_tick`
 - `defiance_triggered`
@@ -133,6 +134,8 @@ movement, and elemental-intensity payoffs during the resolved transition.
 - immediate status application deltas for burn, bleed, expose, freeze, shock,
   immobilize, and poison
 - actual resolved action list and chosen targets
+- `play_mode`, retained as an additive compatibility field and always recorded
+  as `printed` now that cards no longer have basic Attack or Move modes
 - the player-facing targeting gesture via `target_decision_count` and
   `target_decision_tile`. Card plays now record one board decision even when a
   combined move-and-melee card internally resolves both its preferred movement
@@ -164,12 +167,19 @@ at the actual resolved endpoint, which may differ from the chosen target after
 a hidden-enemy movement interruption; the existing movement-interruption and
 fixed-light-source deltas preserve both facts without adding a target event.
 
+`player_moved` records independent movement-pool use separately from card play.
+Its payload includes `action_type`, `origin`, requested `target`, resolved
+`destination`, tiles `spent`, movement remaining before/after, and total
+movement capacity. This preserves split movement and card-interleaved movement
+without attributing either to a card. Ghost Stride movement is identified by
+`action_type: "blink"`.
+
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and
 large-area attacks. Runtime-selected AOE aim orientation is additive on the
 resolved action as `orientation`; legal push and pull direction choices are
-additive as `force_direction`, while `play_mode` comparison ignores those runtime
-direction fields so printed cards still classify as printed plays.
+additive as `force_direction`. These runtime direction fields do not change the
+card's printed-play classification.
 
 `enemy_status_tick` captures delayed enemy status resolution. Burn and poison
 use `trigger: "turn_start"` when the affected enemy's initiative activation
@@ -378,7 +388,7 @@ Update analytics instrumentation when changes affect:
 - draw rules, opening hand, reshuffle, or fatigue
 - combat-unit migrations or Defiance capacity, restoration, spending, or
   persistence
-- alternate card play modes
+- card play targeting or independent player movement rules
 - elemental intensity production, gating, spending, enemy use, trap scaling, or
   room-start rules
 - Umbra stage progression, visibility, hidden-enemy information, or Radiance

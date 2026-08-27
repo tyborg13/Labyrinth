@@ -19,13 +19,16 @@ Moltshards, discoveries, or run history.
 RunScene persists only after an irreversible mutation is internally coherent:
 
 - New run creation, room travel, and pre-battle combat start.
-- A full card play or the Basic Attack/Basic Move fallback. The checkpoint
-  includes every resolved action in a compound card, the removed hand card,
-  destination pile, health cost, card-play/time counters, player/enemy/terrain
-  changes, pickups, traps, loot, deck order, elemental intensity, statuses, and
-  RNG state.
-- Pass or automatic player-activation completion, including the scheduled
-  player timeline entry.
+- A printed card play. The checkpoint includes every resolved action in a
+  compound card, the removed hand card, destination pile, health cost,
+  card-play/time counters, player/enemy/terrain changes, pickups, traps, loot,
+  deck order, elemental intensity, statuses, and RNG state.
+- Each committed use of the independent player movement pool. The checkpoint
+  includes the resolved path and destination, remaining and total movement,
+  player/enemy/terrain changes, pickups, traps, loot, statuses, and RNG state.
+- Pass and player-activation completion, including the scheduled player
+  timeline entry. Exhausting card plays alone does not end the activation,
+  because the player may still spend movement before passing.
 - Enemy initiative activation, start-of-turn status resolution, every resolved
   enemy action, post-action RNG state, intent reassignment, rescheduling, and
   the next player-turn preparation/draw. CombatEngine emits full commit steps
@@ -59,7 +62,7 @@ animation from restoring the last combat or losing ember banking/recovery data.
 If profile persistence fails, the resumable slot keeps the unprocessed terminal
 snapshot, including held embers, so a later resume can retry exactly once.
 Explicit save/quit checks the held committed state during terminal presentation
-and never replaces that unprocessed fallback with the finalized display state.
+and never replaces that unprocessed terminal snapshot with the finalized display state.
 Campfire Embrace likewise clears the run only after the bank/rest profile write
 succeeds; a failed write leaves the previous resumable run unchanged.
 
@@ -76,7 +79,7 @@ target decisions have produced its final coherent combat result.
 Resume loads the complete run dictionary and repairs missing legacy defaults
 through `RunEngine.repair_loaded_run_state`. Combat state already contains board
 positions, ordered piles, HP/defenses/statuses, actors, initiative clock/queue,
-action counters, room loot, and `rng_state`. A pending combat continuation
+action counters, player movement capacity/remaining, room loot, and `rng_state`. A pending combat continuation
 advances through saved post-action snapshots; it never calls enemy action
 resolution again.
 

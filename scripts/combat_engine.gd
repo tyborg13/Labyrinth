@@ -12,6 +12,7 @@ const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
+const BASE_PLAYER_MOVEMENT: int = 2
 const MAX_HAND_SIZE: int = 7
 const MAX_LOG_LINES: int = 12
 const PLAYER_BASE_INITIATIVE: int = 9
@@ -454,7 +455,7 @@ func skill_is_ready(state: Dictionary, skill_id: String) -> bool:
 				and not bool((state.get("skill_flags", {}) as Dictionary).get("burn_preserve_armed", false))
 				and _hand_has_non_item_burn(state)
 			)
-		"preserve_fallback_item":
+		"preserve_item":
 			return (
 				is_player_turn(state)
 				and not bool((state.get("skill_flags", {}) as Dictionary).get("item_preserve_armed", false))
@@ -467,15 +468,16 @@ func skill_is_ready(state: Dictionary, skill_id: String) -> bool:
 				and int(player.get("block", 0)) > 0
 				and not bool((state.get("skill_flags", {}) as Dictionary).get("guard_carry_armed", false))
 			)
-		"fallback_blink":
-			if not is_player_turn(state) or cards_remaining_this_turn(state) <= 0:
+		"arm_movement_blink":
+			if not is_player_turn(state) or player_movement_remaining(state) <= 0:
 				return false
-			if (((state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty()):
+			if bool((state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false)):
 				return false
 			var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
 			var blink_action: Dictionary = {
 				"type": "blink",
-				"range": maxi(1, int(effect.get("range", 0)))
+				"range": mini(player_movement_remaining(state), maxi(1, int(effect.get("range", 0)))),
+				"_movement_pool": true
 			}
 			return player_action_can_resolve(state, blink_action) and not valid_targets_for_player_action(state, blink_action).is_empty()
 	return true
@@ -597,12 +599,21 @@ func arm_rehearsed_escape(state: Dictionary) -> Dictionary:
 	return next_state
 
 func arm_makeshift_tool(state: Dictionary) -> Dictionary:
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_fallback_item")
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_item")
 	if not skill_is_ready(state, skill_id):
 		return state.duplicate(true)
 	var next_state: Dictionary = state.duplicate(true)
 	_set_skill_flag(next_state, "item_preserve_armed", true)
-	_log(next_state, "%s is armed for the next item's basic Attack or Move." % SkillTreeLibrary.display_name(skill_id))
+	_log(next_state, "%s is armed for the next item played." % SkillTreeLibrary.display_name(skill_id))
+	return next_state
+
+func arm_ghost_stride(state: Dictionary) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("arm_movement_blink")
+	if not skill_is_ready(state, skill_id):
+		return state.duplicate(true)
+	var next_state: Dictionary = state.duplicate(true)
+	_set_skill_flag(next_state, "movement_blink_armed", true)
+	_log(next_state, "%s is armed for the next movement." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
 func arm_carry_the_guard(state: Dictionary) -> Dictionary:
@@ -627,21 +638,6 @@ func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String =
 	if bool(flags.get("prismatic_armed", false)) and str(flags.get("prismatic_target_card_id", "")) == card_id:
 		_set_skill_flag(next_state, "prismatic_resolving", true)
 	return next_state
-
-func fallback_move_action(state: Dictionary, normal_range: int) -> Dictionary:
-	return {"type": "move", "range": normal_range, "_fallback_kind": "move"}
-
-func fallback_blink_action(state: Dictionary, normal_range: int) -> Dictionary:
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("fallback_blink")
-	if skill_is_ready(state, skill_id):
-		var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
-		return {
-			"type": "blink",
-			"range": maxi(1, int(effect.get("range", normal_range))),
-			"_skill_id": skill_id,
-			"_fallback_kind": "move"
-		}
-	return {}
 
 func skill_events(state: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -799,6 +795,8 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"cards_per_turn": int(player_snapshot.get("cards_per_turn", BASE_CARDS_PER_TURN)) + GameData.stat_bonus_from_relics(relic_ids, "cards_per_turn_bonus"),
 		"draw_per_turn": int(player_snapshot.get("draw_per_turn", BASE_DRAW_PER_TURN)) + GameData.stat_bonus_from_relics(relic_ids, "draw_per_turn_bonus"),
 		"cards_played_this_turn": 0,
+		"player_movement_capacity": BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_relics(relic_ids, "movement_pool_bonus"),
+		"player_movement_remaining": BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_relics(relic_ids, "movement_pool_bonus"),
 		"death_bonus_card_plays_this_turn": 0,
 		"card_play_bonus_this_turn": 0,
 		"pending_relic_card_plays": 0,
@@ -1132,7 +1130,7 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	match action_type:
 		"move":
-			var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+			var move_range: int = _move_range_for_action(state, action)
 			return _actual_player_movement_path(state, player_pos, target_tile, move_range)
 		"blink":
 			if target_tile.x >= 0:
@@ -1143,7 +1141,7 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 
 func movement_plan_for_player_action(state: Dictionary, action: Dictionary, prevalidated_targets: Variant = null) -> Dictionary:
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+	var move_range: int = _move_range_for_action(state, action)
 	var target_tiles: Array[Vector2i] = []
 	if str(action.get("type", "")) != "move" or move_range <= 0 or not player_action_can_resolve(state, action):
 		return {
@@ -1207,8 +1205,9 @@ func apply_prevalidated_player_move(state: Dictionary, action: Dictionary, targe
 	var performance_phase_started: int = _record_runtime_performance_phase("prevalidated_move_validate", performance_total_started)
 	var next_state: Dictionary = state.duplicate(true)
 	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_duplicate", performance_phase_started)
-	_mark_first_confluence_benefit(next_state, action)
-	_snapshot_pending_card_payment(next_state)
+	if not bool(action.get("_movement_pool", false)):
+		_mark_first_confluence_benefit(next_state, action)
+		_snapshot_pending_card_payment(next_state)
 	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_prelude", performance_phase_started)
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_resolve_action", performance_phase_started)
@@ -1228,8 +1227,9 @@ func apply_planned_player_move(state: Dictionary, action: Dictionary, target_til
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
 	var performance_phase_started: int = _record_runtime_performance_phase("planned_move_duplicate", performance_total_started)
-	_mark_first_confluence_benefit(next_state, action)
-	_snapshot_pending_card_payment(next_state)
+	if not bool(action.get("_movement_pool", false)):
+		_mark_first_confluence_benefit(next_state, action)
+		_snapshot_pending_card_payment(next_state)
 	performance_phase_started = _record_runtime_performance_phase("planned_move_prelude", performance_phase_started)
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	performance_phase_started = _record_runtime_performance_phase("planned_move_resolve_action", performance_phase_started)
@@ -1270,9 +1270,10 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	# Targeted actions are only committed after their chosen target validates. Keep
 	# Confluence's activation event on that same boundary so previews or stale
 	# target requests cannot claim a benefit that never resolved.
-	if target_is_valid:
+	if target_is_valid and not bool(action.get("_movement_pool", false)):
 		_mark_first_confluence_benefit(next_state, action)
-	_snapshot_pending_card_payment(next_state)
+	if not bool(action.get("_movement_pool", false)):
+		_snapshot_pending_card_payment(next_state)
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
@@ -1307,8 +1308,9 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				next_state = _trigger_player_movement_radiance(next_state, resolved_action, blink_path, true)
 				var contextual_skill_id: String = str(action.get("_skill_id", ""))
 				if not contextual_skill_id.is_empty() and has_skill(next_state, contextual_skill_id) and not skill_was_used(next_state, contextual_skill_id):
-					_mark_skill_used(next_state, contextual_skill_id, "%s turns the basic Move into a Blink." % SkillTreeLibrary.display_name(contextual_skill_id))
-				next_state = _maybe_refund_loot_play(next_state, loot_before)
+					_mark_skill_used(next_state, contextual_skill_id, "%s turns movement into a Blink." % SkillTreeLibrary.display_name(contextual_skill_id))
+				if not bool(resolved_action.get("_movement_pool", false)):
+					next_state = _maybe_refund_loot_play(next_state, loot_before)
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
 			if target_is_valid:
@@ -1405,7 +1407,8 @@ func _apply_player_move_along_path(
 	performance_phase_started = _record_runtime_performance_phase("move_path_long_relics", performance_phase_started)
 	next_state = _trigger_player_movement_radiance(next_state, resolved_action, resolved_path, false)
 	performance_phase_started = _record_runtime_performance_phase("move_path_radiance", performance_phase_started)
-	next_state = _maybe_refund_loot_play(next_state, loot_before)
+	if not bool(resolved_action.get("_movement_pool", false)):
+		next_state = _maybe_refund_loot_play(next_state, loot_before)
 	performance_phase_started = _record_runtime_performance_phase("move_path_loot_refund", performance_phase_started)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 	_record_runtime_performance_phase("move_path_log", performance_phase_started)
@@ -1526,7 +1529,7 @@ func _prevalidated_player_move_path_is_usable(state: Dictionary, action: Diction
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	if movement_path[0] != player_pos or movement_path[movement_path.size() - 1] != target_tile:
 		return false
-	var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+	var move_range: int = _move_range_for_action(state, action)
 	if movement_path.size() - 1 > move_range:
 		return false
 	var grid: Array = state.get("grid", [])
@@ -1552,16 +1555,15 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	var card: Dictionary = card_def(card_id, next_state)
 	var destination: String = "discard"
 	if bool(card.get("consume_on_play", false)):
-		var makeshift_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_fallback_item")
-		var fallback_kind: String = _semantic_fallback_kind(play_context)
+		var makeshift_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_item")
 		var makeshift_armed: bool = bool((next_state.get("skill_flags", {}) as Dictionary).get("item_preserve_armed", false))
-		if fallback_kind in ["attack", "move"] and has_skill(next_state, makeshift_id) and makeshift_armed:
+		if has_skill(next_state, makeshift_id) and makeshift_armed:
 			var makeshift_discard: Array = deck.get("discard", []).duplicate()
 			makeshift_discard.append(card_id)
 			deck["discard"] = makeshift_discard
 			destination = "discard"
 			_erase_skill_flag(next_state, "item_preserve_armed")
-			_mark_skill_used(next_state, makeshift_id, "%s preserves the item after its basic use." % SkillTreeLibrary.display_name(makeshift_id))
+			_mark_skill_used(next_state, makeshift_id, "%s preserves the played item." % SkillTreeLibrary.display_name(makeshift_id))
 		else:
 			var consumed: Array = deck.get("consumed", []).duplicate()
 			consumed.append(card_id)
@@ -1662,17 +1664,6 @@ func _card_payment_uses_banked_play(snapshot: Dictionary, state: Dictionary, pla
 		int(snapshot.get("banked_remaining", 0)) > 0
 		and maxi(1, plays_spent) > int(snapshot.get("ordinary_remaining", 0))
 	)
-
-func _semantic_fallback_kind(play_context: Dictionary) -> String:
-	var explicit_kind: String = str(play_context.get("fallback_kind", ""))
-	if explicit_kind in ["attack", "move"]:
-		return explicit_kind
-	match str(play_context.get("play_mode", "play")):
-		"attack":
-			return "attack"
-		"move", "blink":
-			return "move"
-	return ""
 
 func _card_spend_uses_banked_play(state: Dictionary, plays_spent: int) -> bool:
 	var budget: Dictionary = card_play_budget(state)
@@ -2186,6 +2177,8 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["turn"] = int(next_state.get("turn", 1)) + 1
 	next_state["player_turn_time_spent"] = 0
 	next_state["cards_played_this_turn"] = 0
+	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
+	next_state["player_movement_remaining"] = int(next_state.get("player_movement_capacity", BASE_PLAYER_MOVEMENT))
 	next_state["death_bonus_card_plays_this_turn"] = 0
 	next_state["card_play_bonus_this_turn"] = maxi(0, int(next_state.get("pending_relic_card_plays", 0)))
 	next_state["pending_relic_card_plays"] = 0
@@ -2208,12 +2201,106 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
 	return next_state
 
+func player_movement_capacity(state: Dictionary) -> int:
+	return maxi(
+		0,
+		BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_relics(state.get("relics", []), "movement_pool_bonus")
+	)
+
+func player_movement_remaining(state: Dictionary) -> int:
+	if not is_player_turn(state):
+		return 0
+	var capacity: int = player_movement_capacity(state)
+	return clampi(int(state.get("player_movement_remaining", capacity)), 0, capacity)
+
+func normalize_player_movement_pool(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var capacity: int = player_movement_capacity(next_state)
+	next_state["player_movement_capacity"] = capacity
+	next_state["player_movement_remaining"] = clampi(
+		int(next_state.get("player_movement_remaining", capacity)),
+		0,
+		capacity
+	)
+	return next_state
+
+func player_movement_action(state: Dictionary) -> Dictionary:
+	var remaining: int = player_movement_remaining(state)
+	if remaining <= 0 or combat_outcome(state) != "":
+		return {}
+	var ghost_stride_id: String = SkillTreeLibrary.skill_id_for_effect("arm_movement_blink")
+	var ghost_stride_armed: bool = bool((state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false))
+	if not ghost_stride_id.is_empty() and ghost_stride_armed and has_skill(state, ghost_stride_id) and not skill_was_used(state, ghost_stride_id):
+		var effect: Dictionary = SkillTreeLibrary.effect(ghost_stride_id)
+		return {
+			"type": "blink",
+			"range": mini(remaining, maxi(1, int(effect.get("range", remaining)))),
+			"_movement_pool": true,
+			"_skill_id": ghost_stride_id,
+			"_card_action_types": ["blink"]
+		}
+	return {
+		"type": "move",
+		"range": remaining,
+		"_movement_pool": true,
+		"_card_action_types": ["move"]
+	}
+
+func player_movement_targets(state: Dictionary) -> Array[Vector2i]:
+	var action: Dictionary = player_movement_action(state)
+	if action.is_empty():
+		return []
+	return valid_targets_for_player_action(state, action)
+
+func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictionary:
+	var movement_state: Dictionary = state.duplicate(true)
+	# This field describes only the current request. Leaving an older successful
+	# result in place lets a stale UI target masquerade as a newly committed move.
+	movement_state.erase("last_player_movement")
+	var action: Dictionary = player_movement_action(movement_state)
+	if action.is_empty() or not valid_targets_for_player_action(movement_state, action).has(target_tile):
+		return movement_state
+	var origin: Vector2i = (_normalized_player(movement_state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var planned_path: Array[Vector2i] = path_for_player_action(movement_state, action, target_tile)
+	var next_state: Dictionary = apply_player_action(movement_state, action, target_tile)
+	var destination: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", origin)
+	var spent: int = 0
+	if destination != origin:
+		if str(action.get("type", "")) == "blink":
+			spent = PathUtils.manhattan(origin, destination)
+		else:
+			spent = maxi(0, _movement_path_through_endpoint(planned_path, destination).size() - 1)
+	var remaining_before: int = player_movement_remaining(movement_state)
+	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
+	next_state["player_movement_remaining"] = maxi(0, remaining_before - spent)
+	next_state["last_player_movement"] = {
+		"action_type": str(action.get("type", "move")),
+		"origin": origin,
+		"target": target_tile,
+		"destination": destination,
+		"spent": spent,
+		"remaining_before": remaining_before,
+		"remaining_after": int(next_state.get("player_movement_remaining", 0)),
+		"capacity": int(next_state.get("player_movement_capacity", BASE_PLAYER_MOVEMENT))
+	}
+	if spent > 0 and bool((next_state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false)):
+		_erase_skill_flag(next_state, "movement_blink_armed")
+	return next_state
+
 func cards_remaining_this_turn(state: Dictionary) -> int:
 	if not is_player_turn(state):
 		return 0
 	return maxi(
 		0,
 		_card_play_capacity(state) - int(state.get("cards_played_this_turn", 0))
+	)
+
+func player_turn_resources_exhausted(state: Dictionary) -> bool:
+	return (
+		combat_outcome(state) == ""
+		and is_player_turn(state)
+		and cards_remaining_this_turn(state) <= 0
+		and player_movement_remaining(state) <= 0
 	)
 
 func card_play_budget(state: Dictionary) -> Dictionary:
@@ -8615,6 +8702,12 @@ func _move_bonus_for_current_turn(state: Dictionary) -> int:
 	if bool((state.get("turn_flags", {}) as Dictionary).get("first_move_bonus_used", false)):
 		return 0
 	return GameData.stat_bonus_from_relics(state.get("relics", []), "first_move_bonus")
+
+func _move_range_for_action(state: Dictionary, action: Dictionary) -> int:
+	var move_range: int = maxi(0, int(action.get("range", 0)))
+	if bool(action.get("_movement_pool", false)):
+		return move_range
+	return move_range + _move_bonus_for_current_turn(state)
 
 func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index: int) -> int:
 	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
