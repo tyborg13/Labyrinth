@@ -8,7 +8,7 @@ const DEFAULT_VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v8"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v9"
 const HAND: Array[String] = [
 	"threaded_path",
 	"sidestep_slash",
@@ -394,7 +394,9 @@ func _initialize() -> void:
 		"engine_max_fps": Engine.max_fps,
 		"warmup_frames": WARMUP_FRAMES,
 		"depth": 13,
-		"hand_card_count": HAND.size(),
+		"hand_card_count": _workload_hand().size(),
+		"gameplay_hand_cap": CombatEngine.MAX_HAND_SIZE,
+		"synthetic_over_cap_hand": _workload_hand().size() > CombatEngine.MAX_HAND_SIZE,
 		"relic_count": RELICS.size(),
 		"skill_count": SKILLS.size(),
 		"composition_ids": COMPOSITIONS.duplicate(),
@@ -929,8 +931,9 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 	var results: Dictionary = {}
 	var details: Dictionary = {}
 	var samples: Array[float] = []
-	for index: int in range(HAND.size()):
-		var card_id: String = HAND[index]
+	var workload_hand: Array[String] = _workload_hand()
+	for index: int in range(workload_hand.size()):
+		var card_id: String = workload_hand[index]
 		var card_enter_ms: float = _timed_call(instance, "_on_card_hover_started", [index])
 		samples.append(card_enter_ms)
 		RenderingServer.force_draw(false)
@@ -1913,6 +1916,7 @@ func _hand_geometry_diagnostics(instance: Node, hand_box: Control) -> Dictionary
 	return result
 
 func _install_stress_combat(instance: Node, composition_id: String) -> Dictionary:
+	var workload_hand: Array[String] = _workload_hand()
 	_phase_log("install %s: reset" % composition_id)
 	instance.call("_cancel_drag_play")
 	instance.call("_cancel_card_selection")
@@ -1938,17 +1942,17 @@ func _install_stress_combat(instance: Node, composition_id: String) -> Dictionar
 		"deck_cards": HAND.duplicate(),
 		"relics": RELICS.duplicate(),
 		"skill_ids": SKILLS.duplicate(),
-		"hand_size": HAND.size(),
+		"hand_size": workload_hand.size(),
 		# Keep the rendered interaction matrix at a high but plausible turn budget.
 		# Pathological flurry scaling is measured separately without waiting for
 		# hundreds of post-draw frames to make the rest of the matrix unreachable.
 		"cards_per_turn": 4,
-		"draw_per_turn": HAND.size(),
+		"draw_per_turn": workload_hand.size(),
 		"heal_bonus": 0,
 	})
 	_phase_log("install %s: combat created" % composition_id)
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = HAND.duplicate()
+	deck["hand"] = workload_hand
 	var stress_draw: Array = []
 	var stress_discard: Array = []
 	for _repeat: int in range(3):
@@ -2029,7 +2033,7 @@ func _profile_initial_refresh_parts(instance: Node) -> void:
 		_phase_log("diagnostic %s start" % method_name)
 		instance.call(method_name)
 		_phase_log("diagnostic %s %.3f ms" % [method_name, float(Time.get_ticks_usec() - started) / 1000.0])
-	for card_id: String in HAND:
+	for card_id: String in _workload_hand():
 		var hand_index: int = _hand_index(instance, card_id)
 		var started: int = Time.get_ticks_usec()
 		_phase_log("diagnostic card options %s start" % card_id)
@@ -2152,15 +2156,26 @@ func _hand_index(instance: Node, card_id: String) -> int:
 	var deck: Dictionary = (instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary
 	return (deck.get("hand", []) as Array).find(card_id)
 
+func _workload_hand() -> Array[String]:
+	var hand: Array[String] = HAND.duplicate()
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_CAPPED_HAND") == "1":
+		# Preserve the five action types plus ordinary movement while matching the
+		# real hand cap. The original ten-card fan remains an explicitly labelled
+		# synthetic over-cap stress workload, not a normal gameplay hand.
+		for card_id: String in ["glowstone_ward", "static_pivot", "cinder_fusillade"]:
+			hand.erase(card_id)
+		_expect(hand.size() <= CombatEngine.MAX_HAND_SIZE, "capped workload must respect the gameplay hand limit")
+	return hand
+
 func _benchmark_card_ids() -> Array[String]:
 	var filter_text: String = OS.get_environment("LABYRINTH_RUNTIME_PERF_CARD_FILTER").strip_edges()
 	if filter_text.is_empty():
-		return HAND.duplicate()
+		return _workload_hand()
 	var requested: Dictionary = {}
 	for card_id: String in filter_text.split(",", false):
 		requested[card_id.strip_edges()] = true
 	var result: Array[String] = []
-	for card_id: String in HAND:
+	for card_id: String in _workload_hand():
 		if requested.has(card_id):
 			result.append(card_id)
 	return result

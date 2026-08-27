@@ -4,7 +4,7 @@
 
 Independent review rejected `b9739b82`: an interaction-disabled hand can still contain pulsing intensity glows and animated time-cost clocks. Freezing the entire fan paused those visuals. The corrective implementation now bypasses raster caching for any visible active card animation, running pose/ready-wave tween, interactive card, or processing-driven descendant. It leaves the real hand and original blending/overlap completely untouched in those cases. Static board, Umbra, ambient-particle and mesh-lifetime improvements remain enabled.
 
-**All comparison figures below come from fresh matched runs of the corrected implementation.** The high-intensity workload keeps the hand live. The rejected implementation's earlier 68.6% submission reduction is withdrawn; the corrected candidate reduces median action draw calls by **32.6%** and action-frame p95 by **38.3%**. Runtime changes are at `0a82b94ba8dce35b0e2ec96c27d31cb6aa727667`; the subsequent final-proof commit changes only this report and the benchmark's post-action geometry assertion.
+**All comparison figures below come from fresh matched runs of the corrected implementation.** The high-intensity workload keeps the hand live. With the normal **seven-card hand cap**, the corrected candidate reduces median action draw calls by **36.6%** and action-frame p95 by **35.6%**. A separate synthetic ten-card stress run gives **32.6%** and **38.3%** respectively; it exceeds the normal hand cap and is not a normal gameplay hand. The rejected whole-hand implementation's earlier 68.6% submission reduction is withdrawn. Runtime changes are at `0a82b94ba8dce35b0e2ec96c27d31cb6aa727667`; subsequent commits change only this report and benchmark proof, including the capped-hand calibration and post-action geometry assertion.
 
 After the Mac was unlocked, the new native animation proof **passed**. Three visible glows advance without raster freezing; the clock advances 12.21 simulated seconds across the half-second wait. Original phases, parenting and overlap remain untouched. Static-hand cache mean channel error is 0.17943/255, only 0.00286% of channels differ by more than two levels, and restoration is pixel-identical. All nine native 1920×1080 screenshots were inspected. The corrected full headless suite **passed**, including eligibility regressions for active glows, running clocks, future processing-driven details, hidden details, and interactive cards.
 
@@ -55,7 +55,29 @@ Godot **4.6.1**, **Apple M5 Pro**, native **Metal / Mobile**, **1920×1080**, **
 
 Baseline checkout: `/private/tmp/labyrinth-action-base.yxLMJ5`, detached at `af82241f`. It received only the equivalent benchmark timing/window configuration and task shader-directory setup, not candidate game rendering changes. Baseline and candidate share imported assets, workload, warmup, renderer, and UI settings. No heavy tests ran concurrently with the matched action timings.
 
-The fixture exercises a dense depth-13 room, all-element ambience, pressing Umbra, a ten-card hand, relics, varied actors/terrain, public card/target input, movement, Blink, ranged/area/line attacks, and an enemy round. Completion and state-change assertions ensure actions really execute. Cold/warm preview, dense Blink, and ranged-trap input regression paths also run. Both runs report empty semantic errors, zero unfocused observations, actual 1920×1080 window/render-target sizes, and no >=500 ms delivery-throttle signature. The high-intensity hand remains live throughout; the untimed fire-impact capture explicitly reports `locked_hand_cache_active: false`.
+The fixture exercises a synthetic dense depth-13 room, all-element ambience, pressing Umbra, relics, varied actors/terrain, public card/target input, movement, Blink, ranged/area/line attacks, and an enemy round. Completion and state-change assertions ensure actions really execute. Cold/warm preview, dense Blink, and ranged-trap input regression paths also run. Both seven-card and ten-card matched pairs report empty semantic errors, zero unfocused observations, actual 1920×1080 window/render-target sizes, and no >=500 ms delivery-throttle signature. The high-intensity hand remains live throughout; the untimed fire-impact capture explicitly reports `locked_hand_cache_active: false`.
+
+The inherited ten-card hand exceeds `CombatEngine.MAX_HAND_SIZE == 7`. The new `LABYRINTH_RUNTIME_PERF_CAPPED_HAND=1` calibration keeps seven cards, including all five measured action types, and records the hand count, gameplay cap and over-cap flag. The rest of the deliberately dense synthetic scene stays matched; this is not a claim that its entire debug progression/loadout is an ordinary naturally reached save. The original oversized fan remains useful as separately labelled layout/submission stress, not as the primary gameplay-hand estimate.
+
+### Seven-card capped-hand calibration
+
+All cells are **baseline → candidate**, milliseconds. Both runs assert `hand_card_count: 7`, `gameplay_hand_cap: 7`, `synthetic_over_cap_hand: false`.
+
+| Action | Median | p95 | p99 | Max | >16.67 ms / N | >33.33 ms / N | Median draw calls |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bone_dart | 7.99 → 8.29 | 18.96 → 10.08 | 25.30 → 18.44 | 108.54 → 105.53 | 25/206 → 3/213 | 2/206 → 2/213 | 1659 → 1056 |
+| shadow_step | 7.68 → 8.33 | 23.73 → 11.83 | 55.61 → 40.75 | 137.51 → 123.09 | 37/235 → 5/256 | 4/235 → 3/256 | 1619 → 1026 |
+| threaded_path | 6.48 → 8.33 | 23.77 → 14.28 | 41.53 → 17.92 | 73.37 → 76.53 | 96/403 → 7/433 | 6/403 → 4/433 | 1858 → 1255 |
+| thunderline | 8.20 → 8.34 | 19.34 → 10.58 | 49.49 → 49.45 | 59.74 → 61.09 | 26/131 → 2/138 | 2/131 → 2/138 | 1655 → 1056 |
+| wildfire_halo | 10.30 → 9.47 | 26.58 → 17.92 | 53.82 → 43.26 | 123.79 → 111.30 | 69/230 → 35/255 | 3/230 → 3/255 | 1652 → 1045 |
+
+Combined actions: median **8.070 → 8.360 ms**, p95 **23.615 → 15.216 ms**, p99 **49.485 → 42.912 ms**, max **137.513 → 123.090 ms**. >16.67 ms **253/1,205 (21.00%) → 52/1,295 (4.02%)**. >33.33 ms **17/1,205 (1.41%) → 14/1,295 (1.08%)**. Median draw calls **1,652 → 1,047** (36.6% fewer), median rendered objects **8,011 → 7,414**, median primitives **129,678 → 125,599**.
+
+Enemy-round median **8.118 → 8.291 ms**, p95 **17.733 → 10.657 ms**, max **19.446 → 17.149 ms**, >16.67 ms **22/88 → 1/90**, >33.33 ms **0/88 → 0/90**, median draw calls **1,630 → 1,027**. Idle median **7.593 → 8.246 ms**, p95 **17.837 → 9.340 ms**, max **19.361 → 10.456 ms**, >16.67 ms **34/150 → 0/150**, >33.33 ms **0/150 → 0/150**, median draw calls **1,630 → 1,027**.
+
+Capped-hand static CPU memory **171,076,851 → 174,588,930 bytes**, delta **3,512,079 bytes (~3.35 MiB)**. Settled nodes **3,476 → 3,479**, stable on repeat; pre-existing orphan nodes stay **2 → 2**. The baseline repeats native null-mesh errors; the candidate has no native ERROR lines. All seven fresh candidate screenshots and the matched baseline fire impact were inspected; the restored fan has six correctly sized cards after the trap action, and the impact retains live animated card detail.
+
+### Synthetic ten-card over-cap stress
 
 All cells below are **baseline → candidate**. Frame times are milliseconds; long-frame cells preserve their denominators.
 
@@ -71,17 +93,17 @@ Combined actions: median **8.095 → 8.364 ms**, p95 **23.835 → 14.701 ms**, p
 
 Enemy-round median **8.122 → 8.306 ms**, p95 **17.975 → 9.439 ms**, max **21.445 → 17.632 ms**, >16.67 ms **21/86 → 2/90**, >33.33 ms **0/86 → 0/90**, median draw calls **1,826 → 1,227**. Settled idle median **7.345 → 8.225 ms**, p95 **18.246 → 9.388 ms**, p99 **19.617 → 9.798 ms**, max **19.964 → 9.799 ms**, >16.67 ms **34/150 → 0/150**, >33.33 ms **0/150 → 0/150**, median draw calls **1,830 → 1,227**. Both idle and high-intensity actions keep the hand live.
 
-The median increases toward the display's roughly 8.3 ms delivery rhythm while long-frame frequency falls. This is consistent with presentation quantization, not proof that every frame's CPU work is below that interval. Do not claim every percentile improved or divide authored action completion time into an FPS. These are one matched baseline/candidate pair, not confidence intervals; scheduling and animated content can affect small differences. Godot's periodically updated process monitor is retained in raw diagnostics, but is not interpreted as an exact per-frame CPU timer.
+The median increases toward the display's roughly 8.3 ms delivery rhythm while long-frame frequency falls. This is consistent with presentation quantization, not proof that every frame's CPU work is below that interval. Do not claim every percentile improved or divide authored action completion time into an FPS. Each hand-size comparison is one matched baseline/candidate pair, not a confidence interval; scheduling and animated content can affect small differences. Godot's periodically updated process monitor is retained in raw diagnostics, but is not interpreted as an exact per-frame CPU timer.
 
 ### Remaining hitches and memory
 
-The sustained-rendering reduction does **not** remove transition hitches: maximum action frame intervals remain about **102–174 ms**, and >33 ms counts improve only slightly. Wildfire still has more sustained long frames than the other actions. The next attribution target is the cold/transition path, not a claim that all Deck chugging is solved.
+The sustained-rendering reduction does **not** remove transition hitches: candidate maximum action frame intervals remain about **61–123 ms** with seven cards and **102–174 ms** with ten cards, and >33 ms counts improve only slightly. A couple of capped-hand per-action maxima are slightly worse despite better p95. Wildfire still has more sustained long frames than the other actions. The next attribution target is the cold/transition path, not a claim that all Deck chugging is solved.
 
-Candidate static CPU memory: **177,462,422 bytes**, baseline **173,876,455**, delta **3,585,967 bytes (~3.42 MiB)**. This monitor does not include all GPU render-target memory; the new full-pixel caches trade bounded GPU storage for fewer submissions. Settled node counts are **3,577 → 3,580**; repeating installation stays at 3,580. Full-scene orphan count is a pre-existing **2 → 2** in both baseline and candidate, not zero. The isolated board probe asserts and reports **zero** orphan nodes. Native null-mesh errors recur in the final baseline log; the final candidate action matrix and live-cache proof contain no native ERROR lines after the ownership guard. The native full-scene runs still report two CanvasItem RIDs at shutdown. Full-suite shutdown also prints its known dummy-renderer RID/resource cleanup warnings; the runner and suite finish successfully.
+Ten-card candidate static CPU memory: **177,462,422 bytes**, baseline **173,876,455**, delta **3,585,967 bytes (~3.42 MiB)**. This monitor does not include all GPU render-target memory; the new full-pixel caches trade bounded GPU storage for fewer submissions. Ten-card settled node counts are **3,577 → 3,580**; repeating installation stays at 3,580. Full-scene orphan count is a pre-existing **2 → 2** in both baseline and candidate, not zero. The isolated board probe asserts and reports **zero** orphan nodes. Native null-mesh errors recur in the final baseline log; the final candidate action matrix and live-cache proof contain no native ERROR lines after the ownership guard. The native full-scene runs still report two CanvasItem RIDs at shutdown. Full-suite shutdown also prints its known dummy-renderer RID/resource cleanup warnings; the runner and suite finish successfully.
 
 ## Final equivalence and regression proof
 
-- Full Godot suite: **PASS** on the current runtime implementation, including animation-cache eligibility tests for active glows, running clocks, processing descendants, hidden descendants, and interactive cards. Subsequent changes affect only benchmark geometry validation and this report.
+- Full Godot suite: **PASS** on the current runtime implementation, including animation-cache eligibility tests for active glows, running clocks, processing descendants, hidden descendants, and interactive cards. Subsequent changes affect only benchmark geometry validation, capped-hand proof and this report.
 - Native board probe: semantic errors empty; static floor direct/cache max channel delta **2/255**, mean **0.000613/255**. Umbra legacy mesh/instanced max delta **1/255**, mean **0.000000121/255**.
 - Ambient descriptor check: **5 elements, 60 particles, 180 motion samples**, full-precision hashes, texture/soft/glow variants, size, cycle, offset, and rotation checked against the original formulas.
 - Native live RunScene A/B: board mean delta **0.004263/255**, max **6/255**; genuinely static locked hand mean **0.179429/255**, max **14/255**, only **0.002864%** of RGB channels differ by more than two levels. Original parent, children and geometry restore; the restored static hand is pixel-identical. A real hand refresh invalidates the cache.
@@ -93,8 +115,10 @@ UI rubric handoff: the surface is the combat board and card fan; the player's qu
 
 ### Raw proof paths
 
-- Matched baseline: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787806149502918000-15864-runtime_frame_performanc-1/godot.log`
-- Corrected candidate: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787806221465495000-15914-runtime_frame_performanc-1/godot.log`
+- Seven-card matched baseline: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787806777817138000-16589-runtime_frame_performanc-1/godot.log`
+- Seven-card corrected candidate: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787806850002515000-16684-runtime_frame_performanc-1/godot.log`
+- Ten-card matched baseline: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787806149502918000-15864-runtime_frame_performanc-1/godot.log`
+- Ten-card corrected candidate: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787806221465495000-15914-runtime_frame_performanc-1/godot.log`
 - Corrected full suite: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-1787803715188674000-14971/godot.log`
 - Native particle/static/Umbra equivalence and retained-shadow lifetime: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787802859577033000-13654-render_performance_bench-1/godot.log`
 - Live hand/board A/B, restoration, invalidation and time-separated glow/clock proof: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787805779687295000-15455-runtime_frame_performanc-1/godot.log`
@@ -104,10 +128,10 @@ Images live under each native run's printed `Library/Application Support/Escape 
 
 ## Reproduction
 
-From the candidate worktree:
+From the candidate worktree (omit `LABYRINTH_RUNTIME_PERF_CAPPED_HAND=1` to repeat the synthetic ten-card stress variant):
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/steam-deck-animation-performance-pass && LABYRINTH_RUNTIME_PERF_FOCUSED=1 LABYRINTH_RUNTIME_PERF_FOCUSED_ACTIONS=1 LABYRINTH_RUNTIME_PERF_FOCUSED_ENEMY_ROUNDS=1 LABYRINTH_RUNTIME_PERF_CARD_FILTER=bone_dart,wildfire_halo,threaded_path,thunderline,shadow_step LABYRINTH_RUNTIME_PERF_ABILITY_FILTER=none LABYRINTH_RUNTIME_PERF_COMPOSITION_FILTER=specialists python3 tools/visual_probe_runner.py tests/runtime_frame_performance_benchmark.gd --task-id steam-deck-animation-performance-pass-actions --timeout 180
+cd /Users/borgerding/workspace/Labyrinth.worktrees/steam-deck-animation-performance-pass && LABYRINTH_RUNTIME_PERF_CAPPED_HAND=1 LABYRINTH_RUNTIME_PERF_FOCUSED=1 LABYRINTH_RUNTIME_PERF_FOCUSED_ACTIONS=1 LABYRINTH_RUNTIME_PERF_FOCUSED_ENEMY_ROUNDS=1 LABYRINTH_RUNTIME_PERF_CARD_FILTER=bone_dart,wildfire_halo,threaded_path,thunderline,shadow_step LABYRINTH_RUNTIME_PERF_ABILITY_FILTER=none LABYRINTH_RUNTIME_PERF_COMPOSITION_FILTER=specialists python3 tools/visual_probe_runner.py tests/runtime_frame_performance_benchmark.gd --task-id steam-deck-animation-performance-pass-actions --timeout 180
 ```
 
 ```bash
