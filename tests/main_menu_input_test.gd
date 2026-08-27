@@ -1,5 +1,8 @@
 extends SceneTree
 
+const RunEngine = preload("res://scripts/run_engine.gd")
+const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
+
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -20,6 +23,11 @@ func _initialize() -> void:
 	await _test_startup_sequence(false)
 	await _test_startup_sequence(true)
 	await _test_startup_interruption_restores_input()
+	await _test_run_entry("new", false)
+	await _test_run_entry("continue", false)
+	await _test_run_entry("replace", false)
+	await _test_run_entry("new", true)
+	await _test_loading_failure_preserves_save_and_recovers_focus()
 	SettingsStore.clear_storage()
 	_cleanup_storage()
 	if _failures.is_empty():
@@ -180,6 +188,126 @@ func _test_startup_interruption_restores_input() -> void:
 	startup.queue_free()
 	await process_frame
 	_expect(not root.gui_disable_input, "Interrupted startup should not strand the input lock")
+
+func _test_run_entry(mode: String, reduced_motion: bool) -> void:
+	var settings := SettingsStore.default_settings()
+	settings["reduced_motion"] = reduced_motion
+	SettingsStore.save_settings(settings)
+	ProgressionStore.clear_saved_run()
+	var progression := ProgressionStore.default_data()
+	progression["embers"] = 42
+	ProgressionStore.save_data(progression)
+	var saved: Dictionary = {}
+	if mode != "new":
+		saved = RunEngine.new().create_new_run(82271, progression)
+		ProgressionStore.save_run_state(saved)
+	var menu = load("res://scenes/main_menu.tscn").instantiate()
+	root.add_child(menu)
+	current_scene = menu
+	await process_frame
+	await process_frame
+	var start_button: Button = menu.get_node("MenuColumn/StartButton")
+	if mode == "continue":
+		var continue_button: Button = menu.get_node("MenuColumn/ContinueButton")
+		continue_button.grab_focus()
+		await _send_accept(0, JOY_BUTTON_A)
+	elif mode == "replace":
+		await _click_after_hover(menu, start_button)
+		_expect(menu._replacement_confirmation_open, "New Run with a save must still require confirmation")
+		_expect(current_scene == menu and not root.gui_disable_input, "Opening confirmation must not start loading")
+		menu.replacement_confirm_button.grab_focus()
+		await _send_accept(KEY_ENTER)
+	else:
+		await _click_after_hover(menu, start_button)
+	var transition = root.get_node_or_null("MenuRunTransition")
+	_expect(transition != null, "%s should enter the shared loading flow" % mode)
+	if transition == null:
+		return
+	_expect(menu.is_inside_tree() and menu.is_visible_in_tree(), "The actual main menu must remain visible while loading")
+	_expect(root.gui_disable_input and menu.process_mode == Node.PROCESS_MODE_DISABLED, "Loading must block GUI, keyboard and controller input")
+	_expect(start_button.disabled and menu.replacement_confirm_button.disabled, "Loading must also guard repeated semantic button activation")
+	menu.call("_on_start_button_pressed")
+	menu.call("_on_continue_button_pressed")
+	menu.call("_on_replacement_confirm_button_pressed")
+	menu.call("_on_settings_button_pressed")
+	menu.call("_on_replacement_cancel_button_pressed")
+	_expect(not menu.settings_panel.visible and current_scene == transition, "Repeated activation and cancel must neither reopen the menu nor create another run")
+	_expect(not menu._replacement_confirmation_open, "The replacement prompt must be dismissed under loading")
+	transition.set_process(false)
+	var counts: Array[int] = []
+	var message_size: Vector2 = transition.message_label.get_minimum_size()
+	for index: int in range(5):
+		transition._elapsed = float(index) * MenuRunTransition.DOT_SECONDS + 0.001
+		transition._update_dots()
+		counts.append(transition.message_label.visible_characters)
+		_expect(transition.message_label.get_minimum_size() == message_size, "Cycling dots must not resize or recenter the message")
+	if reduced_motion:
+		_expect(counts == [-1, -1, -1, -1, -1], "Reduced motion must keep the complete static loading message")
+	else:
+		var base: int = MenuRunTransition.MESSAGE.length()
+		_expect(counts == [base + 1, base + 2, base + 3, base, base + 1], "Loading dots must cycle 1, 2, 3, none, 1 without rewriting the label")
+	var phase_times: Dictionary = {}
+	var result: Array[Node] = []
+	transition.phase_changed.connect(func(value: StringName):
+		phase_times[str(value)] = Time.get_ticks_msec()
+		if value == &"revealing":
+			_expect(transition.destination.is_node_ready(), "Reveal must wait for the real destination ready lifecycle")
+			_expect(not transition.destination.get("_run_state").is_empty(), "Reveal must wait for the room state to exist")
+			_expect(transition.destination.process_mode == Node.PROCESS_MODE_DISABLED, "Hidden room input must stay disabled through reveal")
+	)
+	transition.finished.connect(func(node: Node): result.append(node))
+	var deadline := Time.get_ticks_msec() + 15000
+	while result.is_empty() and Time.get_ticks_msec() < deadline:
+		await process_frame
+	_expect(not result.is_empty(), "%s loading should finish" % mode)
+	if result.is_empty():
+		return
+	var room: Node = result[0]
+	_expect(current_scene == room and not root.gui_disable_input, "The completed room must become current with restored input")
+	_expect(room.process_mode == Node.PROCESS_MODE_INHERIT, "The room must resume normal processing")
+	var run_state: Dictionary = room.get("_run_state")
+	if mode == "continue":
+		_expect(int(run_state.get("seed")) == 82271, "Continue must load the same saved run")
+	elif mode == "replace":
+		_expect(int(run_state.get("seed")) != 82271 and int(ProgressionStore.load_data().get("embers")) == 0, "Confirmed replacement must create a new run with the established ember reset")
+	_expect(not root.has_meta("labyrinth_resume_saved_run"), "Resume metadata must be consumed exactly once")
+	var reveal_ms: int = int(phase_times.get("complete", 0)) - int(phase_times.get("revealing", 0))
+	_expect(reveal_ms < 50 if reduced_motion else reveal_ms >= 175, "Reveal timing must respect reduced motion")
+	print("Run entry PASS: %s reduced_motion=%s reveal_ms=%d" % [mode, reduced_motion, reveal_ms])
+	await process_frame
+	_expect(not is_instance_valid(menu) and not is_instance_valid(transition), "Completion must free the old menu and loading layer")
+	room.queue_free()
+	await process_frame
+	await process_frame
+
+func _test_loading_failure_preserves_save_and_recovers_focus() -> void:
+	var saved := RunEngine.new().create_new_run(82272, ProgressionStore.default_data())
+	ProgressionStore.save_run_state(saved)
+	var before := FileAccess.get_file_as_bytes(RUN_PATH)
+	var menu = load("res://scenes/main_menu.tscn").instantiate()
+	root.add_child(menu)
+	current_scene = menu
+	await process_frame
+	menu._using_keyboard_navigation = true
+	# A valid resource of the wrong type exercises recoverable scene failure
+	# without generating an intentional engine missing-resource error.
+	menu.call("_change_scene_to_file", "res://themes/default_theme.tres", Callable(menu, "_prepare_new_game"))
+	var deadline := Time.get_ticks_msec() + 5000
+	while menu._loading_run and Time.get_ticks_msec() < deadline:
+		await process_frame
+	_expect(not menu._loading_run and current_scene == menu, "A failed load must restore the existing menu")
+	_expect(not root.gui_disable_input and menu.process_mode == Node.PROCESS_MODE_INHERIT, "A failed load must restore input and processing")
+	_expect(FileAccess.get_file_as_bytes(RUN_PATH) == before, "A failed New Run load must leave the previous save byte-for-byte intact")
+	_expect(menu._loading_error != null and menu._loading_error.visible, "A failed load must show a recoverable error")
+	menu._loading_error.hide()
+	menu._loading_error.confirmed.emit()
+	await process_frame
+	_expect(menu.continue_button.has_focus(), "Dismissing a loading error must recover keyboard/controller focus")
+	menu.call("_on_settings_button_pressed")
+	_expect(menu.settings_panel.visible, "Menu actions must work again after a failed load")
+	_stop_menu_music(menu)
+	menu.queue_free()
+	await process_frame
 
 func _send_accept(key: int, joy_button: int = -1) -> void:
 	for pressed: bool in [true, false]:

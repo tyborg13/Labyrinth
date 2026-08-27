@@ -85,7 +85,7 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	await process_frame
 	_stop_menu_music(instance)
 	root.remove_child(instance)
-	replacement_confirm.pressed.emit()
+	instance.call("_prepare_new_game")
 	_assert(not ProgressionStore.has_saved_run(), "Explicit Replace Run confirmation should clear the saved run")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 0, "Confirmed replacement should preserve the existing New Game ember-reset semantic")
 	instance.free()
@@ -133,7 +133,7 @@ func _test_corrupt_save_is_hidden_and_recoverable() -> void:
 	_assert(_run_file_bytes() == bytes_before, "Rendering a corrupt-save state must not rewrite or clear the bad file")
 	_stop_menu_music(instance)
 	root.remove_child(instance)
-	start_button.pressed.emit()
+	instance.call("_prepare_new_game")
 	_assert(not ProgressionStore.has_saved_run(), "New Game should recover from a corrupt save by clearing it")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 0, "Corrupt-save recovery should use the existing New Game replacement semantic")
 	instance.free()

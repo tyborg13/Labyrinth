@@ -9,6 +9,7 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
+const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
 const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
@@ -143,6 +144,8 @@ var _title_base_lines: Array[Label]
 var _title_face_lines: Array[Label]
 var _title_face_materials: Array[ShaderMaterial]
 var _controller_prompt_bar
+var _loading_run: bool = false
+var _loading_error: AcceptDialog
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -160,6 +163,8 @@ func _ready() -> void:
 	_play_menu_music()
 
 func _input(event: InputEvent) -> void:
+	if _loading_run:
+		return
 	if InputRouterScript.is_controller_event(event):
 		_using_keyboard_navigation = true
 		if not _menu_or_settings_has_focus():
@@ -181,6 +186,8 @@ func _input(event: InputEvent) -> void:
 			call_deferred("_clear_menu_keyboard_focus")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _loading_run:
+		return
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
 		if _replacement_confirmation_open:
 			_on_replacement_cancel_button_pressed()
@@ -809,6 +816,8 @@ func _focusable_menu_buttons() -> Array:
 	return [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]
 
 func _on_start_button_pressed() -> void:
+	if _loading_run:
+		return
 	_refresh_saved_run_preview()
 	if not _saved_run_preview.is_empty():
 		_replacement_confirmation_open = true
@@ -821,6 +830,8 @@ func _on_start_button_pressed() -> void:
 	_begin_new_game()
 
 func _on_replacement_cancel_button_pressed() -> void:
+	if _loading_run:
+		return
 	_replacement_confirmation_open = false
 	_set_menu_actions_locked(false)
 	_sync_context_panels()
@@ -829,9 +840,14 @@ func _on_replacement_cancel_button_pressed() -> void:
 		start_button.grab_focus()
 
 func _on_replacement_confirm_button_pressed() -> void:
+	if _loading_run:
+		return
 	_begin_new_game()
 
 func _begin_new_game() -> void:
+	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_new_game)
+
+func _prepare_new_game() -> void:
 	var scene_tree: SceneTree = get_tree() if is_inside_tree() else null
 	if scene_tree != null and scene_tree.root.has_meta("labyrinth_resume_saved_run"):
 		scene_tree.root.remove_meta("labyrinth_resume_saved_run")
@@ -840,17 +856,21 @@ func _begin_new_game() -> void:
 		ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
 	_saved_run_preview = {}
-	if scene_tree != null:
-		_change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _on_continue_button_pressed() -> void:
+	if _loading_run:
+		return
 	_refresh_saved_run_preview()
 	if continue_button.disabled:
 		return
+	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_continue)
+
+func _prepare_continue() -> void:
 	get_tree().root.set_meta("labyrinth_resume_saved_run", true)
-	_change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _on_settings_button_pressed() -> void:
+	if _loading_run:
+		return
 	if settings_panel.has_method("open"):
 		settings_panel.call("open")
 	else:
@@ -863,6 +883,8 @@ func _on_settings_button_pressed() -> void:
 		_clear_menu_keyboard_focus()
 
 func _on_settings_back_button_pressed() -> void:
+	if _loading_run:
+		return
 	settings_panel.visible = false
 	_sync_context_panels()
 	_refresh_controller_prompts()
@@ -872,17 +894,55 @@ func _on_settings_back_button_pressed() -> void:
 		_clear_menu_keyboard_focus()
 
 func _on_quit_button_pressed() -> void:
+	if _loading_run:
+		return
 	get_tree().quit()
 
 func _on_boss_button_pressed() -> void:
+	if _loading_run:
+		return
+	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_boss_run)
+
+func _prepare_boss_run() -> void:
 	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
 		get_tree().root.remove_meta("labyrinth_resume_saved_run")
 	get_tree().root.set_meta("labyrinth_debug_boss_run", true)
-	_change_scene_to_file("res://scenes/run_scene.tscn")
 
-func _change_scene_to_file(path: String) -> void:
-	var cursor_feedback: Node = get_node_or_null("/root/CursorFeedback")
-	if cursor_feedback != null and cursor_feedback.has_method("change_scene_to_file"):
-		cursor_feedback.call("change_scene_to_file", path)
+func _change_scene_to_file(path: String, prepare_run: Callable = Callable()) -> void:
+	if _loading_run or not is_inside_tree():
 		return
-	get_tree().change_scene_to_file(path)
+	_loading_run = true
+	_replacement_confirmation_open = false
+	_sync_context_panels()
+	_set_menu_actions_locked(true)
+	replacement_confirm_button.disabled = true
+	replacement_cancel_button.disabled = true
+	_clear_menu_keyboard_focus()
+	if _controller_prompt_bar != null:
+		_controller_prompt_bar.modulate.a = 0.0
+	var transition := MenuRunTransition.new()
+	transition.failed.connect(_on_run_loading_failed)
+	transition.begin(self, path, prepare_run)
+
+func _on_run_loading_failed() -> void:
+	if _controller_prompt_bar != null:
+		_controller_prompt_bar.modulate.a = 1.0
+	_loading_run = false
+	replacement_confirm_button.disabled = false
+	replacement_cancel_button.disabled = false
+	_reload_progression()
+	_refresh_controller_prompts()
+	if _loading_error == null:
+		_loading_error = AcceptDialog.new()
+		_loading_error.title = "Unable to enter"
+		_loading_error.dialog_text = "The Labyrinth could not be loaded.\nPlease try again."
+		_apply_label_style(_loading_error.get_label(), UI_FONT, 24, Color("f4dfb0"), Color("170e16"), 2)
+		_apply_confirmation_button_style(_loading_error.get_ok_button(), false)
+		_loading_error.confirmed.connect(_restore_menu_focus_after_loading_error)
+		_loading_error.canceled.connect(_restore_menu_focus_after_loading_error)
+		add_child(_loading_error)
+	_loading_error.popup_centered()
+
+func _restore_menu_focus_after_loading_error() -> void:
+	if _using_keyboard_navigation:
+		_focus_default_keyboard_target()
