@@ -69,7 +69,7 @@ Candidate static CPU memory: **177,295,982 bytes**, baseline **173,832,402**, de
 
 ## Equivalence and regression proof
 
-- Full Godot suite: **PASS**, including a repeat after extracting the hand helper.
+- Full Godot suite: **PASS**, including the final rerun after the shadow-ownership fix.
 - Native board probe: semantic errors empty; static floor direct/cache max channel delta **2/255**, mean **0.000613/255**. Umbra legacy mesh/instanced max delta **1/255**, mean **0.000000121/255**.
 - Ambient descriptor check: **5 elements, 60 particles, 180 motion samples**, full-precision hashes, texture/soft/glow variants, size, cycle, offset, and rotation checked against the original formulas.
 - Native live RunScene A/B: board mean delta **0.00451/255**; locked hand mean **0.18823/255** (mostly one-level RGBA8 rounding), only **0.00265%** of RGB channels differ by more than two levels. Original parent, children, geometry and appearance restore, and a real hand refresh invalidates the frozen cache.
@@ -80,7 +80,7 @@ Candidate static CPU memory: **177,295,982 bytes**, baseline **173,832,402**, de
 
 - Matched baseline: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787800813921658000-5004-runtime_frame_performanc-1/godot.log`
 - Final candidate: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787802779912190000-13585-runtime_frame_performanc-1/godot.log`
-- Final full suite: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-1787801531926795000-5866/godot.log`
+- Final full suite: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-1787802856314150000-13644/godot.log`
 - Native particle/static/Umbra equivalence and retained-shadow lifetime: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787802859577033000-13654-render_performance_bench-1/godot.log`
 - Live hand/board cache A/B and invalidation: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787801427093475000-5617-runtime_frame_performanc-1/godot.log`
 - Verified live fire impact after the shadow-ownership fix (non-preview fire AoE at progress 0.5625, hand cache active, action committed, no native null-mesh errors): `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787802726068693000-13533-runtime_frame_performanc-1/godot.log`
