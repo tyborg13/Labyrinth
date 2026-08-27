@@ -2340,7 +2340,23 @@ func _verify_live_render_cache_equivalence(instance: Node) -> Dictionary:
 		Vector2i(hand_rect.position - Vector2(50.0, 50.0)),
 		Vector2i(hand_rect.size + Vector2(100.0, 100.0))
 	).intersection(Rect2i(Vector2i.ZERO, _viewport_size))
-	var hand_direct: Image = board_cached.get_region(capture_rect)
+	var animated_hand_proof: Dictionary = await _verify_locked_hand_live_animations(instance, hand, capture_rect)
+	# The high-intensity hand above must remain live. Test the raster path on an
+	# actually static hand, with no active elemental conditions or hovered clocks.
+	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
+	combat_state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
+	instance.call("_mark_combat_preview_state_changed")
+	instance.call("_refresh_hand_panel")
+	await _settle_frames(20)
+	for index: int in range(hand.get_child_count()):
+		var card: CardWidget = instance.call("_hand_card_control", index) as CardWidget
+		card.set_external_highlighted(false)
+		card.call("_on_local_mouse_exited")
+	await _settle_frames(20)
+	await _render_frozen_cache_proof_frame()
+	var static_direct_frame: Image = _root_screenshot_image()
+	static_direct_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_static_direct.png" % OUTPUT_DIR))
+	var hand_direct: Image = static_direct_frame.get_region(capture_rect)
 	instance.call("_begin_locked_hand_render_cache")
 	await _render_frozen_cache_proof_frame()
 	_phase_log("cache visual proof: cached hand")
@@ -2371,7 +2387,77 @@ func _verify_live_render_cache_equivalence(instance: Node) -> Dictionary:
 	await _render_frozen_cache_proof_frame()
 	_expect(not bool(instance.get("_locked_hand_cache_active")), "a real hand refresh must invalidate the frozen cache")
 	_expect(hand.get_parent() == hand_parent and hand.get_child_count() == hand_child_count, "hand refresh must retain the live hand and its real controls")
-	return {"board": board_delta, "locked_hand": hand_delta, "restored_hand": restored_delta, "hand_rect": str(hand_rect), "capture_rect": str(capture_rect), "viewport_texture_size": root.get_texture().get_size(), "viewport_stretch": str(root.get_stretch_transform()), "hand_transform": str(hand.get_global_transform_with_canvas()), "hand_size": hand.size, "board_transform": str(board.get_global_transform_with_canvas()), "board_size": board.size}
+	var clock_proof: Dictionary = await _verify_locked_hand_clock_animation(instance)
+	return {"board": board_delta, "locked_hand": hand_delta, "restored_hand": restored_delta, "animated_hand": animated_hand_proof, "animated_clock": clock_proof, "hand_rect": str(hand_rect), "capture_rect": str(capture_rect), "viewport_texture_size": root.get_texture().get_size(), "viewport_stretch": str(root.get_stretch_transform()), "hand_transform": str(hand.get_global_transform_with_canvas()), "hand_size": hand.size, "board_transform": str(board.get_global_transform_with_canvas()), "board_size": board.size}
+
+func _verify_locked_hand_live_animations(instance: Node, hand: Control, capture_rect: Rect2i) -> Dictionary:
+	var glows: Array[Control] = []
+	for index: int in range(hand.get_child_count()):
+		var card: CardWidget = instance.call("_hand_card_control", index) as CardWidget
+		var glow: Control = card.get("_intensity_active_glow") as Control
+		if glow != null and glow.is_visible_in_tree():
+			glows.append(glow)
+			glow.set("_pulse_phase", 0.75)
+			glow.queue_redraw()
+			_expect(not card.can_cache_locked_appearance(), "an active intensity glow must make its disabled card ineligible for raster caching")
+	_expect(not glows.is_empty(), "animated hand regression must contain visible active intensity glows")
+	if glows.is_empty():
+		return {}
+	var original_parent: Node = hand.get_parent()
+	var original_children: Array[Node] = hand.get_children()
+	instance.call("_begin_locked_hand_render_cache")
+	await _render_frozen_cache_proof_frame()
+	_expect(not bool(instance.get("_locked_hand_cache_active")), "active intensity glows must keep the hand live during actions")
+	var first_frame: Image = _root_screenshot_image()
+	first_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_glow_early.png" % OUTPUT_DIR))
+	var first_phase: float = float(glows[0].get("_pulse_phase"))
+	var started: int = Time.get_ticks_usec()
+	await create_timer(0.7).timeout
+	await _render_frozen_cache_proof_frame()
+	var elapsed_seconds: float = float(Time.get_ticks_usec() - started) / 1000000.0
+	var second_phase: float = float(glows[0].get("_pulse_phase"))
+	var phase_advance: float = fposmod(second_phase - first_phase, 1.0)
+	var second_frame: Image = _root_screenshot_image()
+	second_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_glow_late.png" % OUTPUT_DIR))
+	var delta: Dictionary = _image_channel_difference(first_frame.get_region(capture_rect), second_frame.get_region(capture_rect))
+	_expect(phase_advance > 0.20 and phase_advance < 0.45, "disabled card glow must keep advancing at its authored 2.8-second period")
+	_expect(float(delta.get("mean_channel_delta", 0.0)) > 0.005, "native time-separated hand images must show the active glow pulse, not a frozen raster")
+	instance.call("_end_locked_hand_render_cache")
+	_expect(is_equal_approx(float(glows[0].get("_pulse_phase")), second_phase), "ending the bypassed cache must not reset or jump the live pulse phase")
+	_expect(hand.get_parent() == original_parent and hand.get_children() == original_children, "animated hand fallback must leave original parenting and overlap order untouched")
+	for glow: Control in glows:
+		_expect(glow.is_processing() and glow.is_visible_in_tree(), "every active intensity glow must remain visible and processing after restoration")
+	return {"glow_count": glows.size(), "elapsed_seconds": elapsed_seconds, "phase_advance": phase_advance, "pixel_change": delta, "cache_bypassed": not bool(instance.get("_locked_hand_cache_active"))}
+
+func _verify_locked_hand_clock_animation(instance: Node) -> Dictionary:
+	var card: CardWidget = instance.call("_hand_card_control", 0) as CardWidget
+	var clock: Control = card.get("_time_badge") as Control
+	_expect(clock != null and clock.is_visible_in_tree(), "clock animation regression requires a visible time badge")
+	if clock == null:
+		return {}
+	clock.call("set_hovered", true)
+	_expect(not card.can_cache_locked_appearance(), "a running clock must make its otherwise static disabled card ineligible for raster caching")
+	instance.call("_begin_locked_hand_render_cache")
+	await _render_frozen_cache_proof_frame()
+	_expect(not bool(instance.get("_locked_hand_cache_active")), "a running time-cost clock must keep the hand live")
+	var clock_bounds: Rect2 = clock.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, clock.size)
+	var clock_rect := Rect2i(Vector2i(clock_bounds.position.floor()), Vector2i(clock_bounds.end.ceil() - clock_bounds.position.floor())).intersection(Rect2i(Vector2i.ZERO, _viewport_size))
+	var first_frame: Image = _root_screenshot_image()
+	first_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_clock_early.png" % OUTPUT_DIR))
+	var first_seconds: float = float(clock.get("_clock_seconds"))
+	await create_timer(0.5).timeout
+	await _render_frozen_cache_proof_frame()
+	var second_seconds: float = float(clock.get("_clock_seconds"))
+	var second_frame: Image = _root_screenshot_image()
+	second_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_clock_late.png" % OUTPUT_DIR))
+	var delta: Dictionary = _image_channel_difference(first_frame.get_region(clock_rect), second_frame.get_region(clock_rect))
+	var clock_advance: float = fposmod(second_seconds - first_seconds, 43200.0)
+	_expect(clock_advance >= 10.0 and clock_advance < 24.0, "disabled card clock must keep the authored 24 simulated seconds per real second")
+	_expect(float(delta.get("mean_channel_delta", 0.0)) > 0.005, "time-separated native clock images must show moving hands")
+	instance.call("_end_locked_hand_render_cache")
+	_expect(is_equal_approx(float(clock.get("_clock_seconds")), second_seconds), "ending the bypassed cache must not reset the clock")
+	clock.call("set_hovered", false)
+	return {"clock_advance_seconds": clock_advance, "pixel_change": delta, "cache_bypassed": not bool(instance.get("_locked_hand_cache_active"))}
 
 func _render_frozen_cache_proof_frame() -> void:
 	# All gameplay redraw timers are intentionally frozen for pixel equivalence.

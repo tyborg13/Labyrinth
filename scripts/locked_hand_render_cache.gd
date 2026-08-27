@@ -1,6 +1,6 @@
 extends RefCounted
 
-# Only capture a hand whose interaction and animated emphasis are already locked.
+# Only capture a hand whose interaction and every visible animation are static.
 # Restore before every real hand refresh; the raster is not a live UI substitute.
 const CACHE_MARGIN: float = 40.0
 
@@ -23,6 +23,7 @@ func capture(hand_box: Control, host: Control) -> void:
 		or hand_box.get_child_count() <= 0
 		or hand_box.size.x <= 1.0
 		or hand_box.size.y <= 1.0
+		or _has_live_presentation(hand_box)
 	):
 		return
 	var original_parent: Node = hand_box.get_parent()
@@ -139,6 +140,20 @@ func capture(hand_box: Control, host: Control) -> void:
 	await RenderingServer.frame_post_draw
 	if active and is_instance_valid(_viewport):
 		_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+
+func _has_live_presentation(node: Node) -> bool:
+	if node is CanvasItem and not (node as CanvasItem).is_visible_in_tree():
+		return false
+	if node is CardWidget and not (node as CardWidget).can_cache_locked_appearance():
+		return true
+	# Also fail open for future processing-driven card details, not just today's
+	# known pulse and clock. An optimization must not turn off their presentation.
+	if node.is_processing() or node.is_physics_processing():
+		return true
+	for child: Node in node.get_children():
+		if _has_live_presentation(child):
+			return true
+	return false
 
 func restore() -> void:
 	var hand_box: Control = _hand

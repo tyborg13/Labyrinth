@@ -11071,6 +11071,9 @@ func _test_card_widget_active_intensity_condition_glows() -> void:
 	var glow: Control = widget.get_node_or_null("IntensityActiveGlow") as Control
 	_assert(glow != null and glow.visible, "A card with an active elemental intensity condition should show the full-card glow")
 	_assert(glow != null and str(glow.get("element_id")) == ElementData.EARTH, "The active intensity glow should use the triggered element")
+	var hand_cache := preload("res://scripts/locked_hand_render_cache.gd").new()
+	_assert(not widget.can_cache_locked_appearance(), "An active intensity glow must prevent freezing an otherwise disabled card")
+	_assert(bool(hand_cache.call("_has_live_presentation", widget)), "The hand cache must retain live rendering for active intensity glows")
 	var fire_layout: Dictionary = _simple_room_layout()
 	fire_layout["element"] = ElementData.FIRE
 	var inactive_state: Dictionary = combat.create_combat(15127, fire_layout, {
@@ -11085,6 +11088,23 @@ func _test_card_widget_active_intensity_condition_glows() -> void:
 	widget.set_display_overrides(str(inactive_display.get("summary_bbcode", "")), inactive_display.get("modifier_lines", []), inactive_display.get("summary_rows", []))
 	await process_frame
 	_assert(glow != null and not glow.visible, "A card below its elemental intensity threshold should hide the full-card glow")
+	_assert(widget.can_cache_locked_appearance(), "An unhovered disabled card without active conditions may use the static cache")
+	_assert(not bool(hand_cache.call("_has_live_presentation", widget)), "A static card subtree should remain eligible for the hand cache")
+	var clock: Control = widget.get_node_or_null("TimeCostBadge") as Control
+	_assert(clock != null and clock.visible, "Cache eligibility coverage requires the card's visible time badge")
+	if clock != null:
+		clock.call("set_hovered", true)
+		_assert(not widget.can_cache_locked_appearance(), "A running clock must prevent freezing an otherwise disabled card")
+		_assert(bool(hand_cache.call("_has_live_presentation", widget)), "The hand cache must retain live rendering for an animated clock")
+		clock.call("set_hovered", false)
+	var future_detail := Control.new()
+	widget.add_child(future_detail)
+	future_detail.set_process(true)
+	_assert(bool(hand_cache.call("_has_live_presentation", widget)), "Future visible processing-driven card details must conservatively bypass the cache")
+	future_detail.visible = false
+	_assert(not bool(hand_cache.call("_has_live_presentation", widget)), "Invisible processing details do not change the rendered hand")
+	widget.set_interaction_state(false, false, true, false, true, true)
+	_assert(not widget.can_cache_locked_appearance(), "Playable cards must never enter the locked appearance cache")
 	widget.queue_free()
 	instance.queue_free()
 	await process_frame

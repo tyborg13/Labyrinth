@@ -749,6 +749,22 @@ func set_hover_pose(next_lift: float, next_scale: float) -> void:
 	if is_node_ready() and (_local_hovered or _external_highlighted):
 		_update_pose()
 
+func can_cache_locked_appearance() -> bool:
+	# Disabled is not synonymous with static: intensity glows remain animated,
+	# and a retained hover can still run the clock. Keep the complete card live
+	# so those details retain their original alpha/overlap with neighboring cards.
+	if _interactive or _ready_wave_active:
+		return false
+	if _pose_tween != null and _pose_tween.is_running():
+		return false
+	if _ready_wave_tween != null and _ready_wave_tween.is_running():
+		return false
+	if _intensity_active_glow != null and _intensity_active_glow.is_visible_in_tree():
+		return false
+	if _time_badge != null and _time_badge.is_visible_in_tree() and _time_badge.is_processing():
+		return false
+	return true
+
 func set_external_highlighted(highlighted: bool) -> void:
 	if _external_highlighted == highlighted:
 		return
