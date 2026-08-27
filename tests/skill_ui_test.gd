@@ -460,7 +460,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	await process_frame
 	await process_frame
 	var status_grid := instance.get("_skill_status_grid") as GridContainer
-	var status_tiles: Array = status_grid.get_children() if status_grid != null else []
+	var status_tiles: Array[Control] = _visible_control_children(status_grid)
 	var status_root_height: float = (instance.get("ui_root") as Control).get_global_rect().size.y
 	_expect(
 		popover != null
@@ -496,8 +496,11 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		if page_index > 0:
 			instance.call("_on_skill_status_page_pressed", 1)
 			await process_frame
-		status_tiles = status_grid.get_children()
+		status_tiles = _visible_control_children(status_grid)
 		_expect(status_tiles.size() == 10, "Ability page %d should retain a stable ten-slot palette" % [page_index + 1])
+		for retained_tile: Node in status_grid.get_children():
+			if retained_tile is Control and not (retained_tile as Control).visible:
+				_expect((retained_tile as Control).focus_mode == Control.FOCUS_NONE, "Hidden retained ability tiles must not take controller focus")
 		for tile_var: Variant in status_tiles:
 			var page_tile := tile_var as Button
 			var page_skill_id: String = str(page_tile.get_meta("skill_id", ""))
@@ -772,8 +775,10 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	await process_frame
 	var pile_scrim := instance.get("_pile_scrim") as Control
 	var pile_title := instance.get("_pile_dialog_title") as Label
-	var item_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_0", true, false) as Button
-	var recall_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_1", true, false) as Button
+	var displayed_discard_cards: Array[Control] = _visible_control_children(instance.get("_pile_dialog_cards") as Control)
+	_expect(displayed_discard_cards.size() == 2, "Encore should show exactly the two current discard cards, excluding retained hidden cards")
+	var item_card: Button = displayed_discard_cards[0] as Button if displayed_discard_cards.size() > 0 else null
+	var recall_card: Button = displayed_discard_cards[1] as Button if displayed_discard_cards.size() > 1 else null
 	_expect(pile_scrim != null and pile_scrim.visible and pile_title != null and pile_title.text.contains("Choose a Card to Return"), "Encore should open the full-card discard pile in selection mode")
 	var recalled_widget: CardWidget = _card_widget_descendant(recall_card)
 	var item_widget: CardWidget = _card_widget_descendant(item_card)
@@ -813,12 +818,16 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		if reduced_encore_button != null:
 			reduced_encore_button.pressed.emit()
 		await process_frame
-		var reduced_recall_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_1", true, false) as Button
+		var reduced_discard_cards: Array[Control] = _visible_control_children(instance.get("_pile_dialog_cards") as Control)
+		var reduced_recall_card: Button = reduced_discard_cards[1] as Button if reduced_discard_cards.size() > 1 else null
+		_expect(reduced_recall_card != null and int(reduced_recall_card.get_meta("source_card_index", -1)) == 0, "Reduced-motion Encore should preserve the displayed discard ordering")
 		var reduced_encore_motion_started_msec: int = Time.get_ticks_msec()
 		if reduced_recall_card != null:
 			await _click_control(reduced_recall_card)
 		await _wait_for_animation_unlock(instance)
 		var reduced_encore_motion_msec: int = Time.get_ticks_msec() - reduced_encore_motion_started_msec
+		var reduced_encore_result: Dictionary = instance.get("_combat_state") as Dictionary
+		_expect(combat_engine.skill_was_used(reduced_encore_result, "encore") and ((reduced_encore_result.get("deck", {}) as Dictionary).get("hand", []) as Array).has("quick_stab"), "Reduced-motion Encore must actually recall the chosen card")
 		_expect(
 			reduced_recall_card != null and reduced_encore_motion_msec < normal_encore_motion_msec,
 			"Reduced motion should keep Encore's visible state transition while shortening its card flight (%dms vs %dms)" % [
@@ -1244,6 +1253,15 @@ func _hand_selection_button(instance: Node, hand_index: int) -> Button:
 	if hand_box == null:
 		return null
 	return hand_box.find_child("SkillHandSelectionCard_%d" % hand_index, true, false) as Button
+
+func _visible_control_children(parent: Node) -> Array[Control]:
+	var result: Array[Control]
+	if parent == null:
+		return result
+	for child: Node in parent.get_children():
+		if child is Control and (child as Control).is_visible_in_tree():
+			result.append(child as Control)
+	return result
 
 func _card_widget_descendant(node: Node) -> CardWidget:
 	if node == null:

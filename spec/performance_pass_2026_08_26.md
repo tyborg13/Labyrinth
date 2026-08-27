@@ -1,5 +1,34 @@
 # Steam Deck action-rendering follow-up — 2026-08-26
 
+## Master integration and publication validation — 2026-08-27
+
+The user approved integrating current master, rerunning movement compatibility tests, and publishing. Master `dedc741ce758a156887bc9f33b4380808a1597f8` merged without conflicts at `2ad0b0f1a687feaeaa6604a212d2cbea77aa7e79`. Its independent movement pool, printed-card-only targeting, resource exhaustion auto-pass, controller corrections, and music changes are preserved. No additional game-code compatibility patch was necessary. Independent movement already uses the shared wall-clock action animation and retained board rendering; it leaves the hand live. Card resolution restores any static hand cache before refresh and auto-pass.
+
+The runtime benchmark is now workload **v10**: a separate `movement_pool_action` phase clicks the protagonist and destination through the viewport GUI router, samples rendered frames, asserts exactly one movement point spent with the card budget unchanged, and then selects Bone Dart through real card input. Keeping it separate avoids silently changing the five-card `action_play` distribution. The fixture has seven cards; its Pilgrim Boots give three movement points. One move changes the pool **3 → 2**, leaves **4 card plays**, and permits the subsequent card click.
+
+Fresh native **M5 Pro / Metal Mobile / 1920×1080 / 100%** integration run: five-action median **8.373 ms**, p95 **15.625 ms**, p99 **43.067 ms**, max **120.394 ms**; >16.67 ms **55/1,286 (4.28%)**, >33.33 ms **14/1,286 (1.09%)**; median draw calls **1,045**. Independent movement: median **8.509 ms**, p95 **38.267 ms**, max **62.701 ms**, both threshold counts **3/45**; total input-to-completion **510.86 ms**, including the authored **360 ms** animation, observed at **360.75 ms** with all eight authored frames. This small movement sample still includes start/finish hitches; it is not evidence that all Deck stutter is solved. These are integration regression measurements, **not a new matched baseline/candidate comparison or Steam Deck hardware measurement**. The earlier matched comparisons below remain the attribution evidence.
+
+All five card actions commit, semantic errors are empty, focus observations remain uninterrupted, and no >=500 ms delivery-throttle signature occurs. Repeated settled installation is stable at **3,462 nodes**; orphan count remains the pre-existing **2 → 2**. Static CPU memory is **174,183,089 bytes**; this is not a complete GPU-memory measurement. An earlier integration run lost focus for 86 observations and is excluded from timing conclusions.
+
+Integration verification:
+
+- **Full Godot suite: PASS.** The first run found only a missing local generated import for the newly merged Old Castle music. A single-asset isolated import repaired the ignored cache without changing source or import metadata; the rerun passes. Existing shutdown RID/resource warnings remain.
+- **Focused player movement test: PASS.** Native movement visual proof also passes all nine states: full pool, targeting/path, split movement, direct printed card, interleaving, exhaustion, cancellation, and next activation after auto-pass.
+- **Skill UI test: PASS after correcting stale test assumptions**, with no runtime change. Its original 28 failures also reproduced on master: it counted hidden retained ability tiles and searched for retired discard wrapper names. It now checks ten visible tiles per page, hidden tiles excluded from controller focus, current displayed discard order/source indices, and actual Encore recall in both normal and reduced-motion modes.
+- **Native controller compatibility probe: PASS**, 24 validated screenshots. Inspected the six directly relevant hand, movement targeting/commit/cancel, and printed-targeting pointer/controller images, plus all nine movement images and all seven action benchmark images. Resource counts, targeting feedback, hand input recovery and the upstream presentation remain intact. Movement probe image 08 is a fixture reset/modality transition capture, not a settled card-content equivalence proof; the subsequent settled activation and dedicated cache proof cover that separately.
+- **Fresh cache equivalence/live-animation proof: PASS.** Board mean channel delta **0.003766/255**, static-hand mean **0.179839/255**, restored hand pixel-identical. Three live glows bypass caching and advance **0.25485 cycles**; the live clock also bypasses caching and advances **12.0948 simulated seconds**. These are time-separated animation checks, not exact cadence measurements including readback.
+
+Raw integration logs (temporary local evidence):
+
+- Full suite: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-in-1787836162272346000-22143/godot.log`
+- Movement: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-mo-1787836165777965000-22162/godot.log`
+- Corrected skill UI: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-sk-1787836506601705000-22529/godot.log`
+- Original skill UI failures on master: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-ma-1787836328640931000-22271/godot.log` (that checkout additionally lacked several generated imports).
+- Native movement: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787836343631374000-22291-player_movement_visual_p-1/godot.log`
+- Native controller: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787836397015557000-22438-controller_compat_1080_p-1/godot.log`
+- Valid native actions/movement: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787836654344432000-22651-runtime_frame_performanc-1/godot.log`
+- Native cache/animation equivalence: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787836746081404000-22720-runtime_frame_performanc-1/godot.log`
+
 ## Review correction and final native validation — 2026-08-27
 
 Independent review rejected `b9739b82`: an interaction-disabled hand can still contain pulsing intensity glows and animated time-cost clocks. Freezing the entire fan paused those visuals. The corrective implementation now bypasses raster caching for any visible active card animation, running pose/ready-wave tween, interactive card, or processing-driven descendant. It leaves the real hand and original blending/overlap completely untouched in those cases. Static board, Umbra, ambient-particle and mesh-lifetime improvements remain enabled.

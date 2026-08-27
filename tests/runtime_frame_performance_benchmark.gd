@@ -8,7 +8,7 @@ const DEFAULT_VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v9"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v10"
 const HAND: Array[String] = [
 	"threaded_path",
 	"sidestep_slash",
@@ -324,9 +324,11 @@ func _initialize() -> void:
 	var action_matrix: Dictionary = {}
 	var ability_action_matrix: Dictionary = {}
 	var enemy_round_matrix: Dictionary = {}
+	var movement_pool_action: Dictionary = {}
 	if not focused_run or focused_actions:
 		action_matrix = await _measure_action_matrix(instance, sampler)
 		ability_action_matrix = await _measure_ability_action_matrix(instance, sampler)
+		movement_pool_action = await _measure_movement_pool_action(instance, sampler)
 	if not focused_run or focused_enemy_rounds:
 		enemy_round_matrix = await _measure_enemy_round_matrix(instance, sampler)
 	var action_visual_proof: Dictionary = {}
@@ -365,6 +367,7 @@ func _initialize() -> void:
 	_collect_throttle_samples(blink_preview_workload, "blink_preview_workload", throttle_samples)
 	_collect_throttle_samples(live_save_blink_workload, "live_save_blink_workload", throttle_samples)
 	_collect_throttle_samples(action_matrix, "action_matrix", throttle_samples)
+	_collect_throttle_samples(movement_pool_action, "movement_pool_action", throttle_samples)
 	_collect_throttle_samples(ability_action_matrix, "ability_action_matrix", throttle_samples)
 	_collect_throttle_samples(enemy_round_matrix, "enemy_round_matrix", throttle_samples)
 	_expect(repeated_install_nodes <= final_nodes, "repeating the same live fixture install must not grow the settled node tree")
@@ -427,6 +430,7 @@ func _initialize() -> void:
 		"flurry_scaling": flurry_scaling,
 		"action_play": _combined_action_phase(action_matrix),
 		"action_matrix": action_matrix,
+		"movement_pool_action": movement_pool_action,
 		"action_visual_proof": action_visual_proof,
 		"ability_action_matrix": ability_action_matrix,
 		"enemy_round_matrix": enemy_round_matrix,
@@ -1332,6 +1336,70 @@ func _measure_composition_matrix(instance: Node) -> Dictionary:
 			await _await_render_frame()
 		results[composition_id] = composition_result
 	return results
+
+func _measure_movement_pool_action(instance: Node, sampler: FrameSampler) -> Dictionary:
+	_phase_log("independent movement pool")
+	_install_stress_combat(instance, "specialists")
+	await _settle_render_frames(4)
+	var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var origin: Vector2i = (before_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var pool_before: int = _combat.player_movement_remaining(before_state)
+	var cards_before: Dictionary = _combat.card_play_budget(before_state)
+	_board_pointer_click(instance, origin)
+	await _await_render_frame()
+	_expect(bool(instance.get("_player_movement_selected")), "routed protagonist click must select independent movement")
+	var targets: Array[Vector2i] = _vector2i_array(instance.get("_player_movement_target_tiles"))
+	var target := Vector2i(-1, -1)
+	for candidate: Vector2i in targets:
+		if absi(candidate.x - origin.x) + absi(candidate.y - origin.y) == 1:
+			target = candidate
+			break
+	_expect(target.x >= 0, "independent movement fixture must offer a one-tile destination")
+	if target.x < 0:
+		return {}
+	_board_pointer_hover(instance, target)
+	await _await_render_frame()
+	_reset_board_render_instrumentation(instance)
+	instance.call("set_runtime_performance_instrumentation_enabled", true)
+	sampler.begin()
+	var started: int = Time.get_ticks_usec()
+	_board_pointer_click(instance, target)
+	await _await_render_frame()
+	var wait_frames: int = 0
+	while bool(instance.get("_animation_lock")) and wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
+		await _await_render_frame()
+		wait_frames += 1
+	await _await_render_frame()
+	var completion_ms: float = float(Time.get_ticks_usec() - started) / 1000.0
+	var phase: Dictionary = _sampler_phase_result(sampler.finish())
+	var after_state: Dictionary = instance.get("_combat_state") as Dictionary
+	var pool_after: int = _combat.player_movement_remaining(after_state)
+	phase["action_completion_ms"] = completion_ms
+	phase["state_changed"] = before_state != after_state
+	phase["pool_before"] = pool_before
+	phase["pool_after"] = pool_after
+	phase["card_budget_before"] = cards_before
+	phase["card_budget_after"] = _combat.card_play_budget(after_state)
+	phase["board_profile"] = _board_render_instrumentation(instance)
+	phase["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
+	phase["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+	instance.call("set_runtime_performance_instrumentation_enabled", false)
+	_expect(wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "independent movement animation must finish before the deadlock guard")
+	_expect((after_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == target, "routed independent movement must commit the chosen destination")
+	_expect(pool_after == pool_before - 1, "one-tile independent movement must spend exactly one movement point")
+	_expect(phase["card_budget_after"] == cards_before, "independent movement must preserve the card-play budget")
+	_expect(int(phase.get("sample_count", 0)) > 0, "independent movement must produce sampled rendered frames")
+	_expect(not bool(instance.get("_locked_hand_cache_active")), "movement completion must leave the hand live")
+	var hand_index: int = _hand_index(instance, "bone_dart")
+	_expect(hand_index >= 0, "post-movement input check requires Bone Dart")
+	if hand_index >= 0:
+		await _select_card(instance, hand_index)
+		await _await_render_frame()
+		phase["post_movement_card_selectable"] = int(instance.get("_selected_card_index")) == hand_index
+		_expect(bool(phase["post_movement_card_selectable"]), "real card input must recover after independent movement")
+		instance.call("_cancel_card_selection")
+		await _await_render_frame()
+	return phase
 
 func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary:
 	var results: Dictionary = {}
