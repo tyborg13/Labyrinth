@@ -6331,6 +6331,9 @@ func _rebuild_hud_health_rects_cache() -> bool:
 	return true
 
 func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
+	# Framing and safe-rect changes can move the board without changing its
+	# Control size. Resolve first: layout can also update the default zoom/pan.
+	_ensure_board_layout_cache()
 	return {
 		"visible_units": hud_units,
 		# HUD geometry changes only when pointer hover expands a different enemy's
@@ -6339,6 +6342,8 @@ func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
 		# collision solver to build a distinct layout for every Blink destination.
 		"hover_actor_key": _hud_hover_actor_key(hud_units),
 		"size": size,
+		"board_origin": _board_layout_cache_origin,
+		"tile_width": _board_layout_cache_tile_width,
 		"navigation_zoom": _navigation_zoom,
 		"navigation_pan": _navigation_pan,
 		"expanded_enemy_actor_keys": presentation.get("expanded_enemy_actor_keys", []),

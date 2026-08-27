@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-27T04:09:59Z",
+  "updated_at": "2026-08-27T13:47:40Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9141,6 +9141,28 @@
       "source": {
         "branch": "codex/steam-deck-animation-performance-pass",
         "commit": "b9739b82"
+      }
+    },
+    {
+      "id": "mnt_20260827T134740Z_96eaaa55",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Resolve board framing before forming HUD layout cache keys: controller-to-pointer transitions can change origin/tile width with the same Control size, and layout resolution can itself change default zoom/pan.",
+      "details": "Reusing an otherwise identical HUD source left the player health bar at the previous controller-framed coordinates. Key the resolved origin/tile width, not only modality or size. The movement visual probe checks cached health geometry against the current unit-center calculation after cancellation and modality switching; fixture resets must use the production combat-state sync so stale previews do not obscure this check.",
+      "status": "active",
+      "created_at": "2026-08-27T13:47:40Z",
+      "updated_at": "2026-08-27T13:47:40Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/steam-deck-animation-performance-pass",
+        "commit": "8eda1ff3"
       }
     }
   ]

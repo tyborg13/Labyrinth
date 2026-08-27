@@ -108,6 +108,7 @@ func _initialize() -> void:
 		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
 		instance.call("_refresh_controller_interface")
 		await _settle_hand_transition()
+	_assert_player_health_anchor(instance, "pointer after controller cancellation")
 	await _save_screenshot("%s/08_cancel_restores_idle.png" % OUTPUT_DIR)
 
 	await _load_fixture(instance)
@@ -117,8 +118,8 @@ func _initialize() -> void:
 	exhausted_state["player_movement_remaining"] = 1
 	var exhausted_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	exhausted_run_state["combat_state"] = exhausted_state.duplicate(true)
-	instance.set("_combat_state", exhausted_state)
 	instance.set("_run_state", exhausted_run_state)
+	instance.call("_sync_combat_state_from_run")
 	instance.call("_refresh_ui")
 	var turn_before_auto_pass: int = int(exhausted_state.get("turn", 0))
 	await instance.call("_on_board_tile_clicked", Vector2i(2, 4))
@@ -184,7 +185,8 @@ func _load_fixture(instance: Node) -> void:
 	run_state["progression"] = progression.duplicate(true)
 	instance.set("_progression", progression)
 	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
+	# Fixture replacement must invalidate the same derived previews as a live commit.
+	instance.call("_sync_combat_state_from_run")
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
 	Input.warp_mouse(Vector2(960.0, 86.0))
@@ -220,6 +222,7 @@ func _simple_grid() -> Array:
 	return grid
 
 func _assert_movement_hud(instance: Node, expected_remaining: int, expected_capacity: int, label: String) -> void:
+	_assert_player_health_anchor(instance, label)
 	var combat := CombatEngine.new()
 	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
 	_assert(combat.player_movement_remaining(combat_state) == expected_remaining, "%s should have %d movement remaining" % [label, expected_remaining])
@@ -249,6 +252,18 @@ func _assert_board_path(instance: Node, destination: Vector2i, label: String) ->
 	var target_tiles: Array = board.get("move_tiles") as Array
 	_assert(target_tiles.has(destination), "%s should highlight the hovered legal destination" % label)
 	_assert(path_tiles.size() >= 2 and path_tiles.back() == destination, "%s should preview a path ending at the destination" % label)
+
+func _assert_player_health_anchor(instance: Node, label: String) -> void:
+	var board: Node = instance.get_node(BOARD_PATH)
+	for unit: Dictionary in board.call("_hud_layout_units"):
+		if str(unit.get("key", "")) != "player":
+			continue
+		var center: Vector2 = board.call("_unit_center", unit)
+		var expected: Rect2 = board.call("_unit_health_bar_rect", unit, center)
+		var cached: Dictionary = board.get("_hud_health_rects_cache") as Dictionary
+		_assert(cached.get("player", Rect2()) == expected, "%s should keep the cached player health bar anchored to current board geometry" % label)
+		return
+	_assert(false, "%s should contain the player's visible HUD unit" % label)
 
 func _movement_targets(instance: Node) -> Array[Vector2i]:
 	var combat := CombatEngine.new()
