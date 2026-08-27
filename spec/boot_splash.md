@@ -44,6 +44,9 @@ third-party components already used by the game.
 `python3 tests/test_boot_splash.py` guards the approved file hash and PNG size,
 project settings, attribution, and the real desktop staging function for all
 three platforms using temporary fake export outputs (no Steam upload).
+It also guards the import sidecar's canonical source/cache paths. Godot's broad
+repository scan can follow the trailer's `game-assets` symlink and rewrite that
+sidecar to the marketing alias; do not commit that generated metadata drift.
 
 `tests/boot_splash_export_test.gd` mounts a real exported PCK from an empty
 project and verifies the approved raw PNG bytes and dimensions. It rejects an
@@ -61,13 +64,16 @@ display and cannot be replaced by a headless renderer.
 
 Verified on 2026-08-27 with Godot 4.6.1:
 
-- Four focused Python checks passed, including staging attribution on all three
+- Five focused Python checks passed, including staging attribution on all three
   desktop platforms; five icon-identity checks passed; shell syntax and diff
   whitespace checks passed.
 - Native Metal/Mobile proof passed at 1920 × 1080 with two inspected screenshots:
   the full seal/credit is visible without clipping, followed by the existing menu.
 - A real PCK exported through the Steam Windows preset contains the exact raw
   approved PNG; the empty-project mount test passed.
+- The canonical import sidecar also passed fresh import, texture loading, PCK
+  export, and empty-project raw-image verification in an isolated project with
+  no trailer symlink or preexisting import cache.
 - Ordinary main-scene headless startup completed without script/parse failures.
 - The native probe and ordinary startup smoke report two resources still in use
   at process exit. Sandboxed headless runs also report the host's system-CA

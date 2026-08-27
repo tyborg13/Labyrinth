@@ -37,6 +37,17 @@ class BootSplashTests(unittest.TestCase):
         self.assertEqual(app["run/main_scene"], '"res://scenes/main_menu.tscn"')
         self.assertNotIn("boot_splash/fullsize", app)  # Retired in Godot 4.6.
 
+    def test_import_metadata_uses_canonical_asset_path(self):
+        # The trailer's game-assets symlink can rewrite shared import sidecars.
+        # Shipping metadata must not depend on that marketing-only alias.
+        metadata = SPLASH.with_suffix(".png.import").read_text()
+        source = "res://" + SPLASH.relative_to(ROOT).as_posix()
+        digest = hashlib.md5(source.encode()).hexdigest()  # Godot cache key, not security.
+        imported = f"res://.godot/imported/{SPLASH.name}-{digest}.ctex"
+        self.assertIn(f'\nsource_file="{source}"\n', metadata)
+        self.assertIn(f'\ndest_files=["{imported}"]\n', metadata)
+        self.assertIn(f'\npath="{imported}"\n', metadata)
+
     def test_logo_attribution(self):
         notice = (ROOT / NOTICE).read_text()
         for required in (
