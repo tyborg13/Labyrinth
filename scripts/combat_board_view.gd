@@ -22,6 +22,22 @@ signal tile_drag_released(start_tile: Vector2i, current_tile: Vector2i)
 signal cancel_requested
 signal navigation_changed
 
+class AmbientParticleTemplate:
+	extends RefCounted
+
+	var seed: int = 0
+	var base_point: Vector2 = Vector2.ZERO
+	var variant_index: int = 0
+	var texture: Texture2D = null
+	var glow_texture: Texture2D = null
+	var soft_texture: Texture2D = null
+	var cycle_phase: float = 0.0
+	var speed: float = 0.0
+	var draw_size: Vector2 = Vector2.ZERO
+	var wind_direction: float = 1.0
+	var air_variant_index: int = 0
+	var hashes: PackedFloat64Array = PackedFloat64Array()
+
 const GRID_OUTLINE: Color = Color("1f1713")
 const MOVE_HIGHLIGHT: Color = Color(0.28, 0.75, 0.86, 0.20)
 const ATTACK_HIGHLIGHT: Color = Color(0.96, 0.40, 0.25, 0.20)
@@ -516,6 +532,8 @@ var _ambient_hash01_caches_by_element: Dictionary = {}
 var _ambient_hash_cache_room_coord: Vector2i = Vector2i(-999999, -999999)
 var _ambient_motion_time_by_element: Dictionary = {}
 var _ambient_motion_source_time_by_element: Dictionary = {}
+var _ambient_particle_templates_by_element: Dictionary = {}
+var _ambient_particle_template_signature: String = ""
 var _ambient_particle_batch_enabled: bool = true
 var _ambient_batch_active: bool = false
 var _ambient_batch_vertices: PackedVector3Array = PackedVector3Array()
@@ -528,6 +546,7 @@ var _ambient_batch_mesh: ArrayMesh = null
 var _ambient_batch_mesh_create_count: int = 0
 var _ambient_batch_mesh_update_count: int = 0
 var _umbra_shape_batch_enabled: bool = true
+var _umbra_circle_multimesh_enabled: bool = true
 var _umbra_shape_batch_active: bool = false
 var _umbra_shape_batch_vertices: PackedVector3Array = PackedVector3Array()
 var _umbra_shape_batch_colors: PackedColorArray = PackedColorArray()
@@ -535,10 +554,21 @@ var _umbra_shape_batch_indices: PackedInt32Array = PackedInt32Array()
 var _umbra_shape_batch_unit_circle: PackedVector2Array = PackedVector2Array()
 var _umbra_shape_batch_meshes: Array[ArrayMesh]
 var _umbra_shape_batch_mesh_cursor: int = 0
+var _umbra_circle_batch_transforms: Array[Transform2D]
+var _umbra_circle_batch_colors: PackedColorArray = PackedColorArray()
+var _umbra_circle_batch_mesh: ArrayMesh = null
+var _umbra_circle_batch_multimeshes: Array[MultiMesh]
+var _umbra_circle_batch_multimesh_cursor: int = 0
 var _umbra_shape_batch_mesh_create_count: int = 0
 var _umbra_shape_batch_mesh_update_count: int = 0
 var _umbra_shape_batch_flush_count: int = 0
 var _umbra_boundary_line_batch_enabled: bool = true
+var _is_static_render_cache_layer: bool = false
+var _static_render_cache_enabled: bool = true
+var _static_render_cache_viewport: SubViewport = null
+var _static_render_cache_layer: Control = null
+var _static_render_cache_texture: Sprite2D = null
+var _static_render_cache_update_count: int = 0
 var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
@@ -555,6 +585,7 @@ var _unit_shadow_polygon_cache: Dictionary = {}
 var _unit_shadow_bottom_ratio_cache: Dictionary = {}
 var _unit_shadow_draw_geometry_cache: Dictionary = {}
 var _unit_shadow_draw_mesh_cache: Dictionary = {}
+var _submitted_shadow_meshes: Array[ArrayMesh]
 var _door_opening_frames: Array[Texture2D] = []
 var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
@@ -664,7 +695,7 @@ var _umbra_return_start_by_tile: Dictionary = {}
 var _board_layout_content_rebuild_count: int = 0
 
 func _ready() -> void:
-	if _is_dynamic_render_layer:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		focus_mode = Control.FOCUS_NONE
 		set_process(false)
@@ -680,7 +711,9 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(960.0, 680.0)
 	set_process(true)
 	resized.connect(_on_board_resized)
+	get_viewport().size_changed.connect(_sync_static_render_cache)
 	_load_assets(false)
+	_create_static_render_cache()
 	_create_dynamic_render_layer()
 
 func _exit_tree() -> void:
@@ -698,8 +731,97 @@ func _on_board_resized() -> void:
 	_sync_dynamic_render_state(false)
 	for layer: Control in _retained_render_layers():
 		layer.call("_invalidate_board_layout_cache", false)
+	_sync_static_render_cache()
 	queue_redraw()
 	_queue_dynamic_redraw()
+
+func _create_static_render_cache() -> void:
+	if _static_render_cache_viewport != null and is_instance_valid(_static_render_cache_viewport):
+		return
+	_static_render_cache_viewport = SubViewport.new()
+	_static_render_cache_viewport.name = "StaticBoardRenderCacheViewport"
+	_static_render_cache_viewport.transparent_bg = true
+	_static_render_cache_viewport.msaa_2d = get_viewport().msaa_2d
+	_static_render_cache_viewport.canvas_item_default_texture_filter = get_viewport().canvas_item_default_texture_filter
+	_static_render_cache_viewport.handle_input_locally = false
+	_static_render_cache_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
+	_static_render_cache_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(_static_render_cache_viewport)
+	_static_render_cache_layer = get_script().new() as Control
+	_static_render_cache_layer.name = "StaticBoardRenderCacheLayer"
+	_static_render_cache_layer.set("_is_static_render_cache_layer", true)
+	_static_render_cache_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_static_render_cache_layer.focus_mode = Control.FOCUS_NONE
+	_static_render_cache_viewport.add_child(_static_render_cache_layer)
+	_static_render_cache_texture = Sprite2D.new()
+	_static_render_cache_texture.name = "StaticBoardRenderCacheTexture"
+	_static_render_cache_texture.centered = false
+	_static_render_cache_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var cache_material := CanvasItemMaterial.new()
+	cache_material.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
+	_static_render_cache_texture.material = cache_material
+	_static_render_cache_texture.texture = _static_render_cache_viewport.get_texture()
+	add_child(_static_render_cache_texture)
+	move_child(_static_render_cache_texture, 0)
+	_sync_static_render_cache()
+
+func _static_render_cache_size() -> Vector2i:
+	var pixel_scale: Vector2 = get_viewport().get_stretch_transform().get_scale()
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size * pixel_scale
+	return Vector2i(maxi(2, ceili(viewport_size.x)), maxi(2, ceili(viewport_size.y)))
+
+func _sync_static_render_cache() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer:
+		return
+	if _static_render_cache_viewport == null or not is_instance_valid(_static_render_cache_viewport):
+		return
+	var cache_has_content: bool = _static_render_cache_enabled and not combat_state.is_empty()
+	_static_render_cache_texture.visible = cache_has_content
+	if not cache_has_content:
+		return
+	var cache_size: Vector2i = _static_render_cache_size()
+	var pixel_transform: Transform2D = get_viewport().get_stretch_transform() * get_global_transform_with_canvas()
+	if _static_render_cache_viewport.size != cache_size:
+		_static_render_cache_viewport.size = cache_size
+	_static_render_cache_viewport.global_canvas_transform = pixel_transform
+	_static_render_cache_layer.size = size
+	# Cover the viewport rather than the board's input rect: zoomed/panned floor
+	# art is intentionally allowed to extend underneath surrounding HUD controls.
+	_static_render_cache_texture.transform = pixel_transform.affine_inverse()
+	_ensure_board_layout_cache()
+	for field: String in [
+		"combat_state", "presentation", "exit_tiles", "_navigation_zoom", "_navigation_pan",
+		"_navigation_uses_default_zoom", "_navigation_content_signature",
+		"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
+		"_board_visual_framing_signature", "_board_layout_cache_visual_top_offset",
+		"_floor_variant_signature", "_moss_signature", "_tile_textures",
+		"_floor_texture_variants", "_element_overlay_texture_variants"
+	]:
+		_static_render_cache_layer.set(field, get(field))
+	# Layout depends on the real viewport and UI safe area. A SubViewport must
+	# reuse the resolved board geometry, not reframe the room inside itself.
+	for field: String in [
+		"_board_layout_cache_valid", "_board_layout_content_cache_valid",
+		"_board_layout_cache_size", "_board_layout_cache_tiles", "_board_layout_cache_extents",
+		"_board_layout_cache_tile_width", "_board_layout_cache_origin",
+		"_board_layout_cache_tile_centers", "_board_layout_cache_tile_polygons"
+	]:
+		var value: Variant = get(field)
+		_static_render_cache_layer.set(field, value.duplicate() if value is Dictionary or value is Array else value)
+	_static_render_cache_layer.queue_redraw()
+	_static_render_cache_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
+	_static_render_cache_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_static_render_cache_update_count += 1
+
+func set_static_render_cache_enabled(enabled: bool) -> void:
+	if _static_render_cache_enabled == enabled:
+		return
+	_static_render_cache_enabled = enabled
+	if enabled:
+		_sync_static_render_cache()
+	elif _static_render_cache_texture != null:
+		_static_render_cache_texture.visible = false
+	queue_redraw()
 
 func _create_dynamic_render_layer() -> void:
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
@@ -881,7 +1003,7 @@ func render_instrumentation_snapshot() -> Dictionary:
 	var scene_tile_draw_counts: Dictionary = {}
 	var ambient_batch_mesh_create_count: int = _ambient_batch_mesh_create_count
 	var ambient_batch_mesh_update_count: int = _ambient_batch_mesh_update_count
-	var umbra_shape_batch_mesh_count: int = _umbra_shape_batch_meshes.size()
+	var umbra_shape_batch_mesh_count: int = _umbra_shape_batch_meshes.size() + _umbra_circle_batch_multimeshes.size()
 	var umbra_shape_batch_mesh_create_count: int = _umbra_shape_batch_mesh_create_count
 	var umbra_shape_batch_mesh_update_count: int = _umbra_shape_batch_mesh_update_count
 	var umbra_shape_batch_flush_count: int = _umbra_shape_batch_flush_count
@@ -905,7 +1027,8 @@ func render_instrumentation_snapshot() -> Dictionary:
 			ambient_batch_mesh_create_count += int(layer.get("_ambient_batch_mesh_create_count"))
 			ambient_batch_mesh_update_count += int(layer.get("_ambient_batch_mesh_update_count"))
 			var layer_umbra_meshes: Array = layer.get("_umbra_shape_batch_meshes") as Array
-			umbra_shape_batch_mesh_count += layer_umbra_meshes.size()
+			var layer_umbra_circle_multimeshes: Array = layer.get("_umbra_circle_batch_multimeshes") as Array
+			umbra_shape_batch_mesh_count += layer_umbra_meshes.size() + layer_umbra_circle_multimeshes.size()
 			umbra_shape_batch_mesh_create_count += int(layer.get("_umbra_shape_batch_mesh_create_count"))
 			umbra_shape_batch_mesh_update_count += int(layer.get("_umbra_shape_batch_mesh_update_count"))
 			umbra_shape_batch_flush_count += int(layer.get("_umbra_shape_batch_flush_count"))
@@ -940,6 +1063,9 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"umbra_shape_batch_mesh_create_count": umbra_shape_batch_mesh_create_count,
 		"umbra_shape_batch_mesh_update_count": umbra_shape_batch_mesh_update_count,
 		"umbra_shape_batch_flush_count": umbra_shape_batch_flush_count,
+		"static_render_cache_enabled": _static_render_cache_enabled,
+		"static_render_cache_active": _static_render_cache_texture != null and _static_render_cache_texture.visible,
+		"static_render_cache_update_count": _static_render_cache_update_count,
 	}
 
 func _merge_render_section_metrics(target: Dictionary, source: Dictionary, keep_maximum: bool) -> void:
@@ -1347,6 +1473,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var previous_visual_top_offset: float = _board_layout_cache_visual_top_offset
 	var floor_changed: bool = next_floor_signature != _floor_variant_signature
 	var moss_changed: bool = next_moss_signature != _moss_signature
+	var static_presentation_changed: bool = presentation_changes.has("board_backdrop_visible")
 	submission_phase_started = _record_submission_performance_phase("signatures", submission_phase_started)
 	if state_changed or not _submission_cache_initialized:
 		_update_ambient_intensity_targets(next_state)
@@ -1533,7 +1660,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_sync_dynamic_render_state(layout_changed, visual_framing_changed, retained_sync_fields)
 	submission_phase_started = _record_submission_performance_phase("retained_sync", submission_phase_started)
 	_update_cursor_shape()
-	if layout_changed or visual_framing_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
+	if layout_changed or visual_framing_changed or floor_changed or moss_changed or static_presentation_changed or _dynamic_render_layer == null:
+		_sync_static_render_cache()
 		queue_redraw()
 	if same_reference_state_mutation or layout_changed or visual_framing_changed or floor_changed or moss_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
@@ -2418,6 +2546,7 @@ func _navigation_transform_changed(update_hover: bool) -> void:
 	_sync_dynamic_render_state(false)
 	for layer: Control in _retained_render_layers():
 		layer.call("_invalidate_board_layout_cache", false)
+	_sync_static_render_cache()
 	queue_redraw()
 	_queue_dynamic_redraw()
 	if update_hover:
@@ -2482,6 +2611,13 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	return UiTooltipPanel.make_text(for_text)
 
 func _draw() -> void:
+	# Canvas draw commands retain RIDs, not the ArrayMesh resources. Shared cache
+	# invalidation must not free a shadow still submitted by an unchanged layer.
+	# Godot clears this CanvasItem's old commands before entering _draw().
+	_submitted_shadow_meshes.clear()
+	if _is_static_render_cache_layer:
+		_draw_static_board_contents()
+		return
 	if _is_dynamic_render_layer:
 		match _render_layer_kind:
 			RENDER_LAYER_AMBIENT:
@@ -2514,6 +2650,11 @@ func _draw() -> void:
 		_draw_dynamic_board()
 
 func _draw_static_board() -> void:
+	if _static_render_cache_enabled and _static_render_cache_texture != null and _static_render_cache_texture.visible:
+		return
+	_draw_static_board_contents()
+
+func _draw_static_board_contents() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_static_draw_count += 1
 	if not bool(presentation.get("board_backdrop_visible", false)):
@@ -2776,7 +2917,9 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 			_tile_polygon(tile),
 			Color(0.012, 0.008, 0.026, stage_alpha * return_progress)
 		)
+	_flush_umbra_shape_batch()
 	_record_render_section_time("umbra_tile_fills", phase_started_usec)
+	_begin_umbra_shape_batch()
 	phase_started_usec = Time.get_ticks_usec()
 	for tile: Vector2i in hidden_tiles:
 		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
@@ -2786,7 +2929,9 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	_record_render_section_time("umbra_tile_billows", phase_started_usec)
 	phase_started_usec = Time.get_ticks_usec()
 	_draw_umbra_boundary_billows(hidden_tiles, visible_lookup, hidden_lookup, return_progress_by_tile, time_seconds, stage_alpha)
+	_flush_umbra_shape_batch()
 	_record_render_section_time("umbra_boundary_billows", phase_started_usec)
+	_begin_umbra_shape_batch()
 	phase_started_usec = Time.get_ticks_usec()
 	_draw_umbra_light_sources(time_seconds)
 	_record_render_section_time("umbra_light_sources", phase_started_usec)
@@ -2799,9 +2944,12 @@ func _begin_umbra_shape_batch(reset_mesh_cursor: bool = false) -> void:
 	_ensure_umbra_shape_batch_unit_circle()
 	if reset_mesh_cursor:
 		_umbra_shape_batch_mesh_cursor = 0
+		_umbra_circle_batch_multimesh_cursor = 0
 	_umbra_shape_batch_vertices = PackedVector3Array()
 	_umbra_shape_batch_colors = PackedColorArray()
 	_umbra_shape_batch_indices = PackedInt32Array()
+	_umbra_circle_batch_transforms.clear()
+	_umbra_circle_batch_colors = PackedColorArray()
 
 func _ensure_umbra_shape_batch_unit_circle() -> void:
 	if _umbra_shape_batch_unit_circle.size() == UMBRA_SHAPE_BATCH_SEGMENTS:
@@ -2811,28 +2959,77 @@ func _ensure_umbra_shape_batch_unit_circle() -> void:
 		var angle: float = TAU * float(segment_index) / float(UMBRA_SHAPE_BATCH_SEGMENTS)
 		_umbra_shape_batch_unit_circle[segment_index] = Vector2(cos(angle), sin(angle))
 
-func _flush_umbra_shape_batch() -> void:
-	_umbra_shape_batch_active = false
-	if _umbra_shape_batch_vertices.is_empty():
+func _ensure_umbra_circle_batch_mesh() -> void:
+	if _umbra_circle_batch_mesh != null:
 		return
+	_ensure_umbra_shape_batch_unit_circle()
+	var vertices := PackedVector3Array([Vector3.ZERO])
+	for unit_point: Vector2 in _umbra_shape_batch_unit_circle:
+		vertices.append(Vector3(unit_point.x, unit_point.y, 0.0))
+	var indices := PackedInt32Array()
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		indices.append(0)
+		indices.append(1 + segment_index)
+		indices.append(1 + (segment_index + 1) % UMBRA_SHAPE_BATCH_SEGMENTS)
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = _umbra_shape_batch_vertices
-	arrays[Mesh.ARRAY_COLOR] = _umbra_shape_batch_colors
-	arrays[Mesh.ARRAY_INDEX] = _umbra_shape_batch_indices
-	var batch_mesh: ArrayMesh = null
-	if _umbra_shape_batch_mesh_cursor < _umbra_shape_batch_meshes.size():
-		batch_mesh = _umbra_shape_batch_meshes[_umbra_shape_batch_mesh_cursor]
-		batch_mesh.clear_surfaces()
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_INDEX] = indices
+	_umbra_circle_batch_mesh = ArrayMesh.new()
+	_umbra_circle_batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+func _flush_umbra_circle_batch() -> void:
+	if _umbra_circle_batch_transforms.is_empty():
+		return
+	_ensure_umbra_circle_batch_mesh()
+	var batch_multimesh: MultiMesh = null
+	if _umbra_circle_batch_multimesh_cursor < _umbra_circle_batch_multimeshes.size():
+		batch_multimesh = _umbra_circle_batch_multimeshes[_umbra_circle_batch_multimesh_cursor]
 	else:
-		batch_mesh = ArrayMesh.new()
-		_umbra_shape_batch_meshes.append(batch_mesh)
+		batch_multimesh = MultiMesh.new()
+		batch_multimesh.transform_format = MultiMesh.TRANSFORM_2D
+		batch_multimesh.use_colors = true
+		batch_multimesh.mesh = _umbra_circle_batch_mesh
+		_umbra_circle_batch_multimeshes.append(batch_multimesh)
 		_umbra_shape_batch_mesh_create_count += 1
-	batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	_umbra_shape_batch_mesh_cursor += 1
+	var instance_count: int = _umbra_circle_batch_transforms.size()
+	if batch_multimesh.instance_count != instance_count:
+		batch_multimesh.instance_count = 0
+		batch_multimesh.instance_count = instance_count
+	for instance_index: int in range(instance_count):
+		batch_multimesh.set_instance_transform_2d(instance_index, _umbra_circle_batch_transforms[instance_index])
+		batch_multimesh.set_instance_color(instance_index, _umbra_circle_batch_colors[instance_index])
+	draw_multimesh(batch_multimesh, null)
+	_umbra_circle_batch_multimesh_cursor += 1
 	_umbra_shape_batch_mesh_update_count += 1
+	_umbra_circle_batch_transforms.clear()
+	_umbra_circle_batch_colors = PackedColorArray()
+
+func _flush_umbra_shape_batch() -> void:
+	_umbra_shape_batch_active = false
+	var submitted_geometry: bool = not _umbra_shape_batch_vertices.is_empty() or not _umbra_circle_batch_transforms.is_empty()
+	if not _umbra_shape_batch_vertices.is_empty():
+		var arrays: Array = []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = _umbra_shape_batch_vertices
+		arrays[Mesh.ARRAY_COLOR] = _umbra_shape_batch_colors
+		arrays[Mesh.ARRAY_INDEX] = _umbra_shape_batch_indices
+		var batch_mesh: ArrayMesh = null
+		if _umbra_shape_batch_mesh_cursor < _umbra_shape_batch_meshes.size():
+			batch_mesh = _umbra_shape_batch_meshes[_umbra_shape_batch_mesh_cursor]
+			batch_mesh.clear_surfaces()
+		else:
+			batch_mesh = ArrayMesh.new()
+			_umbra_shape_batch_meshes.append(batch_mesh)
+			_umbra_shape_batch_mesh_create_count += 1
+		batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		_umbra_shape_batch_mesh_cursor += 1
+		_umbra_shape_batch_mesh_update_count += 1
+		draw_mesh(batch_mesh, null)
+	_flush_umbra_circle_batch()
+	if not submitted_geometry:
+		return
 	_umbra_shape_batch_flush_count += 1
-	draw_mesh(batch_mesh, null)
 
 func _draw_or_queue_umbra_polygon(points: PackedVector2Array, color: Color) -> void:
 	if not _umbra_shape_batch_active:
@@ -2840,6 +3037,9 @@ func _draw_or_queue_umbra_polygon(points: PackedVector2Array, color: Color) -> v
 		return
 	if points.size() < 3 or color.a <= 0.0:
 		return
+	if not _umbra_circle_batch_transforms.is_empty():
+		_flush_umbra_shape_batch()
+		_begin_umbra_shape_batch()
 	var first_vertex: int = _umbra_shape_batch_vertices.size()
 	for point: Vector2 in points:
 		_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
@@ -2858,35 +3058,52 @@ func _queue_umbra_shape_circle(
 ) -> void:
 	if radius <= 0.0 or color.a <= 0.0:
 		return
-	var center_vertex: int = _umbra_shape_batch_vertices.size()
-	_umbra_shape_batch_vertices.append(Vector3(center.x, center.y, 0.0))
-	_umbra_shape_batch_colors.append(color)
-	var ring_vertex: int = _umbra_shape_batch_vertices.size()
+	if _umbra_circle_multimesh_enabled and not _umbra_shape_batch_vertices.is_empty():
+		_flush_umbra_shape_batch()
+		_begin_umbra_shape_batch()
 	var cosine: float = cos(rotation)
 	var sine: float = sin(rotation)
 	var axis_x := Vector2(cosine, sine) * radius * ellipse_scale.x
 	var axis_y := Vector2(-sine, cosine) * radius * ellipse_scale.y
-	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
-		var unit_point: Vector2 = _umbra_shape_batch_unit_circle[segment_index]
-		var point: Vector2 = center + axis_x * unit_point.x + axis_y * unit_point.y
-		_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+	if not _umbra_circle_multimesh_enabled:
+		var center_vertex: int = _umbra_shape_batch_vertices.size()
+		_umbra_shape_batch_vertices.append(Vector3(center.x, center.y, 0.0))
 		_umbra_shape_batch_colors.append(color)
-	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
-		_umbra_shape_batch_indices.append(center_vertex)
-		_umbra_shape_batch_indices.append(ring_vertex + segment_index)
-		_umbra_shape_batch_indices.append(
-			ring_vertex + (segment_index + 1) % UMBRA_SHAPE_BATCH_SEGMENTS
-		)
+		var ring_vertex: int = _umbra_shape_batch_vertices.size()
+		for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+			var unit_point: Vector2 = _umbra_shape_batch_unit_circle[segment_index]
+			var point: Vector2 = center + axis_x * unit_point.x + axis_y * unit_point.y
+			_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+			_umbra_shape_batch_colors.append(color)
+		for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+			_umbra_shape_batch_indices.append(center_vertex)
+			_umbra_shape_batch_indices.append(ring_vertex + segment_index)
+			_umbra_shape_batch_indices.append(ring_vertex + (segment_index + 1) % UMBRA_SHAPE_BATCH_SEGMENTS)
+		return
+	_umbra_circle_batch_transforms.append(Transform2D(axis_x, axis_y, center))
+	# ArrayMesh stores vertex colors as UNORM8. MultiMesh retains float colors;
+	# match the old mesh's channel truncation so many translucent lobes do not
+	# subtly change the fog's density when their geometry becomes instanced.
+	_umbra_circle_batch_colors.append(Color(
+		float(int(clampf(color.r, 0.0, 1.0) * 255.0)) / 255.0,
+		float(int(clampf(color.g, 0.0, 1.0) * 255.0)) / 255.0,
+		float(int(clampf(color.b, 0.0, 1.0) * 255.0)) / 255.0,
+		float(int(clampf(color.a, 0.0, 1.0) * 255.0)) / 255.0
+	))
 
 func _queue_umbra_shape_line(start: Vector2, finish: Vector2, color: Color, width: float) -> void:
+	# Circles and lines alternate along the Umbra boundary. Flush at the type
+	# boundary to retain their original alpha order, not group all lines on top.
+	if not _umbra_circle_batch_transforms.is_empty():
+		_flush_umbra_shape_batch()
+		_begin_umbra_shape_batch()
 	var direction: Vector2 = finish - start
 	if direction.length_squared() <= 0.001 or width <= 0.0 or color.a <= 0.0:
 		return
 	var normal: Vector2 = direction.normalized().orthogonal()
 	var half_width: float = width * 0.5
 	# Match draw_line(..., antialiased=true) with a one-pixel transparent fringe.
-	# Keeping the line in the same triangle stream preserves its authored order
-	# between the surrounding translucent Umbra lobes without another mesh upload.
+	# Keeping the line in one triangle stream avoids one Canvas draw per edge.
 	var offsets: PackedFloat32Array = PackedFloat32Array([
 		-half_width - 1.0,
 		-half_width,
@@ -3605,14 +3822,12 @@ func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 		var particle_count: int = _ambient_particle_count(element_id, tiles.size())
 		if particle_count <= 0:
 			continue
-		_prepare_ambient_hash_cache(element_id)
-		var room_seed: int = _ambient_room_seed(element_id)
 		var motion_time_seconds: float = _ambient_motion_time(element_id, time_seconds)
+		var intensity_opacity: float = _ambient_intensity_opacity(element_id)
+		var templates: Array = _ambient_particle_templates(element_id, tiles, particle_count)
 		for index: int in range(particle_count):
-			var particle_seed: int = room_seed + index * 7919
-			var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
-			var base_point: Vector2 = _tile_center(tiles[tile_index])
-			_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds, motion_time_seconds)
+			var particle_template: AmbientParticleTemplate = templates[index] as AmbientParticleTemplate
+			_draw_ambient_particle_from_template(element_id, particle_template, time_seconds, motion_time_seconds, intensity_opacity)
 	_record_render_section_time("ambient_particle_simulation", phase_started_usec)
 	phase_started_usec = Time.get_ticks_usec()
 	_flush_ambient_particle_batch()
@@ -3713,6 +3928,112 @@ func _ambient_cycle(seed: int, time_seconds: float, speed: float) -> float:
 
 func _ambient_particle_alpha(cycle: float) -> float:
 	return clampf(sin(cycle * PI), 0.0, 1.0)
+
+func _ambient_particle_templates(element_id: String, tiles: Array[Vector2i], particle_count: int) -> Array:
+	_ensure_board_layout_cache()
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	var signature: String = "%s|%s|%d|%.5f|%.5f|%.5f" % [
+		str(room_coord),
+		_board_layout_signature,
+		tiles.size(),
+		_board_layout_cache_origin.x,
+		_board_layout_cache_origin.y,
+		_board_layout_cache_tile_width,
+	]
+	if signature != _ambient_particle_template_signature:
+		_ambient_particle_template_signature = signature
+		_ambient_particle_templates_by_element.clear()
+	var templates: Array = _ambient_particle_templates_by_element.get(element_id, []) as Array
+	if templates.size() >= particle_count:
+		return templates
+	_prepare_ambient_hash_cache(element_id)
+	var room_seed: int = _ambient_room_seed(element_id)
+	var wind_direction: float = _ambient_air_wind_direction() if element_id == "air" else 1.0
+	for index: int in range(templates.size(), particle_count):
+		var particle_seed: int = room_seed + index * 7919
+		var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
+		templates.append(_build_ambient_particle_template(element_id, _tile_center(tiles[tile_index]), particle_seed, wind_direction))
+	_ambient_particle_templates_by_element[element_id] = templates
+	return templates
+
+func _build_ambient_particle_template(element_id: String, base_point: Vector2, seed: int, wind_direction: float) -> AmbientParticleTemplate:
+	var particle_template := AmbientParticleTemplate.new()
+	particle_template.seed = seed
+	particle_template.base_point = base_point
+	particle_template.wind_direction = wind_direction
+	particle_template.hashes.resize(64)
+	for hash_offset: int in range(particle_template.hashes.size()):
+		particle_template.hashes[hash_offset] = _ambient_hash01(seed + hash_offset)
+	particle_template.cycle_phase = _ambient_hash01(seed + 101)
+	particle_template.speed = _ambient_particle_speed(element_id, seed)
+	particle_template.variant_index = int(particle_template.hashes[41] * float(AMBIENT_PARTICLE_ATLAS_COLUMNS))
+	particle_template.texture = _ambient_particle_texture(element_id, particle_template.variant_index)
+	particle_template.glow_texture = _ambient_particle_glow_texture(element_id, particle_template.variant_index)
+	if element_id == "fire":
+		particle_template.soft_texture = _ambient_fire_soft_texture(particle_template.variant_index)
+	elif element_id == "air":
+		particle_template.air_variant_index = 1 if particle_template.hashes[41] < 0.72 else 3
+		var wisp_texture: Texture2D = _ambient_air_wisp_texture(particle_template.air_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
+		if wisp_texture != null:
+			particle_template.texture = wisp_texture
+		particle_template.soft_texture = _ambient_air_wisp_soft_texture(particle_template.air_variant_index)
+		var wisp_glow_texture: Texture2D = _ambient_air_wisp_glow_texture(particle_template.air_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
+		if wisp_glow_texture != null:
+			particle_template.glow_texture = wisp_glow_texture
+	if particle_template.texture != null:
+		var draw_width: float = _ambient_particle_draw_width_from_hash(element_id, particle_template.hashes[9])
+		var texture_size: Vector2 = particle_template.texture.get_size()
+		particle_template.draw_size = Vector2(draw_width, draw_width)
+		if texture_size.x > 0.0:
+			particle_template.draw_size.y = draw_width * texture_size.y / texture_size.x
+	return particle_template
+
+func _draw_ambient_particle_from_template(
+	element_id: String,
+	particle_template: AmbientParticleTemplate,
+	time_seconds: float,
+	motion_time_seconds: float,
+	intensity_opacity: float
+) -> void:
+	var texture: Texture2D = particle_template.texture
+	if texture == null:
+		return
+	var cycle: float = wrapf(
+		particle_template.cycle_phase + motion_time_seconds * particle_template.speed * AMBIENT_PARTICLE_SPEED_SCALE,
+		0.0,
+		1.0
+	)
+	var alpha: float = _ambient_alpha_for_element_with_opacity(element_id, cycle, intensity_opacity)
+	if alpha <= 0.04:
+		return
+	var tile_width: float = _tile_width()
+	var point: Vector2 = particle_template.base_point + _ambient_particle_offset_from_template(element_id, particle_template, cycle, time_seconds, tile_width)
+	var previous_cycle: float = wrapf(cycle - _ambient_motion_blur_cycle_delta(element_id), 0.0, 1.0)
+	var previous_point: Vector2 = particle_template.base_point + _ambient_particle_offset_from_template(
+		element_id,
+		particle_template,
+		previous_cycle,
+		time_seconds - 0.12,
+		tile_width
+	)
+	var velocity: Vector2 = point - previous_point
+	var rotation: float = _ambient_particle_rotation_from_template(element_id, particle_template, time_seconds)
+	if element_id == "fire":
+		_draw_ambient_fire_particle_from_template(particle_template, point, velocity, rotation, alpha, time_seconds)
+		return
+	if element_id == "air":
+		_draw_ambient_air_wisp_particle(texture, particle_template.soft_texture, particle_template.glow_texture, point, velocity, particle_template.draw_size, rotation, alpha)
+		return
+	if particle_template.glow_texture != null:
+		_draw_ambient_particle_trail(particle_template.glow_texture, point, velocity, particle_template.draw_size, alpha, element_id)
+		_draw_ambient_particle_sprite(
+			particle_template.glow_texture,
+			point,
+			particle_template.draw_size * _ambient_glow_scale(element_id),
+			rotation,
+			alpha * _ambient_glow_alpha(element_id)
+		)
+	_draw_ambient_particle_sprite(texture, point, particle_template.draw_size, rotation, alpha)
 
 func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, time_seconds: float, motion_time_seconds: float) -> void:
 	var variant_index: int = int(_ambient_hash01(seed + 41) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS))
@@ -3884,9 +4205,13 @@ func _ambient_particle_speed(element_id: String, seed: int) -> float:
 			return 0.10
 
 func _ambient_alpha_for_element(element_id: String, cycle: float) -> float:
+	return _ambient_alpha_for_element_with_opacity(element_id, cycle, _ambient_intensity_opacity(element_id))
+
+func _ambient_intensity_opacity(element_id: String) -> float:
 	var display_intensity: float = _ambient_display_intensity(element_id)
-	var activation: float = clampf(display_intensity, 0.0, 1.0)
-	var intensity_opacity: float = ElementalIntensityRules.ambient_opacity_scale_continuous(display_intensity) * activation
+	return ElementalIntensityRules.ambient_opacity_scale_continuous(display_intensity) * clampf(display_intensity, 0.0, 1.0)
+
+func _ambient_alpha_for_element_with_opacity(element_id: String, cycle: float, intensity_opacity: float) -> float:
 	if element_id == "lightning":
 		var pulse: float = 1.0 - clampf(absf(cycle - 0.16) / 0.24, 0.0, 1.0)
 		return clampf(pulse * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
@@ -3925,7 +4250,46 @@ func _ambient_particle_offset(element_id: String, seed: int, cycle: float, time_
 		_:
 			return Vector2(lateral, y_jitter)
 
+func _ambient_particle_offset_from_template(
+	element_id: String,
+	particle_template: AmbientParticleTemplate,
+	cycle: float,
+	time_seconds: float,
+	tile_width: float
+) -> Vector2:
+	var hashes: PackedFloat64Array = particle_template.hashes
+	var lateral: float = lerpf(-0.54, 0.54, hashes[3]) * tile_width
+	var y_jitter: float = lerpf(-0.18, 0.22, hashes[4]) * tile_width
+	match element_id:
+		"fire":
+			return Vector2(
+				lateral + sin(time_seconds * lerpf(1.2, 2.5, hashes[5]) + hashes[6] * TAU) * tile_width * 0.07,
+				_tile_height() * 0.30 - cycle * tile_width * 0.90
+			)
+		"ice":
+			return Vector2(
+				lateral + sin(time_seconds * lerpf(0.8, 1.6, hashes[5]) + hashes[6] * TAU) * tile_width * 0.12 - cycle * tile_width * 0.16,
+				-tile_width * 0.66 + cycle * tile_width * 1.02
+			)
+		"lightning":
+			return Vector2(lateral, y_jitter - tile_width * 0.10)
+		"air":
+			return Vector2(
+				lateral + (cycle - 0.5) * tile_width * 1.55 * particle_template.wind_direction,
+				y_jitter + sin((cycle + hashes[5]) * TAU) * tile_width * 0.10
+			)
+		"earth":
+			return Vector2(
+				lateral + sin(time_seconds * 0.7 + hashes[5] * TAU) * tile_width * 0.06,
+				y_jitter - cycle * tile_width * 0.24
+			)
+		_:
+			return Vector2(lateral, y_jitter)
+
 func _ambient_particle_draw_width(element_id: String, seed: int) -> float:
+	return _ambient_particle_draw_width_from_hash(element_id, _ambient_hash01(seed + 9))
+
+func _ambient_particle_draw_width_from_hash(element_id: String, scale_hash: float) -> float:
 	var tile_width: float = _tile_width()
 	var min_scale: float = 0.0
 	var max_scale: float = 0.0
@@ -3948,7 +4312,7 @@ func _ambient_particle_draw_width(element_id: String, seed: int) -> float:
 		_:
 			min_scale = 0.16
 			max_scale = 0.28
-	return tile_width * lerpf(min_scale, max_scale, _ambient_hash01(seed + 9))
+	return tile_width * lerpf(min_scale, max_scale, scale_hash)
 
 func _ambient_particle_rotation(element_id: String, seed: int, time_seconds: float) -> float:
 	var base_angle: float = lerpf(-0.32, 0.32, _ambient_hash01(seed + 10))
@@ -3959,6 +4323,23 @@ func _ambient_particle_rotation(element_id: String, seed: int, time_seconds: flo
 			return base_angle + sin(time_seconds * 0.45 + _ambient_hash01(seed + 11) * TAU) * 0.12
 		"lightning":
 			return lerpf(-0.46, 0.46, _ambient_hash01(seed + 10))
+		_:
+			return base_angle
+
+func _ambient_particle_rotation_from_template(element_id: String, particle_template: AmbientParticleTemplate, time_seconds: float) -> float:
+	var hashes: PackedFloat64Array = particle_template.hashes
+	var base_angle: float = lerpf(-0.32, 0.32, hashes[10])
+	match element_id:
+		"air":
+			var air_base_angle: float = 0.0 if particle_template.wind_direction > 0.0 else PI
+			if particle_template.air_variant_index == 3:
+				air_base_angle = PI * 0.5 if particle_template.wind_direction > 0.0 else -PI * 0.5
+			var wobble: float = lerpf(-0.08, 0.08, hashes[10])
+			return air_base_angle + wobble + sin(time_seconds * 0.38 + hashes[11] * TAU) * 0.045
+		"earth":
+			return base_angle + sin(time_seconds * 0.45 + hashes[11] * TAU) * 0.12
+		"lightning":
+			return lerpf(-0.46, 0.46, hashes[10])
 		_:
 			return base_angle
 
@@ -4012,6 +4393,57 @@ func _draw_ambient_fire_particle(texture: Texture2D, soft_texture: Texture2D, gl
 		)
 	_draw_ambient_particle_sprite(
 		texture,
+		point + ember_offset * 0.18,
+		draw_size * Vector2(0.58, 0.56),
+		rotation,
+		alpha * 0.16,
+		Color(1.0, 0.72, 0.38, 1.0)
+	)
+
+func _draw_ambient_fire_particle_from_template(
+	particle_template: AmbientParticleTemplate,
+	point: Vector2,
+	velocity: Vector2,
+	rotation: float,
+	alpha: float,
+	time_seconds: float
+) -> void:
+	var hashes: PackedFloat64Array = particle_template.hashes
+	var draw_size: Vector2 = particle_template.draw_size
+	var flicker: float = 0.88 + sin(time_seconds * lerpf(7.0, 10.5, hashes[14]) + hashes[15] * TAU) * 0.12
+	var ember_offset := Vector2(
+		sin(time_seconds * lerpf(1.6, 2.8, hashes[16]) + hashes[17] * TAU) * draw_size.x * 0.10,
+		sin(time_seconds * lerpf(2.2, 3.8, hashes[18]) + hashes[19] * TAU) * draw_size.y * 0.05
+	)
+	if particle_template.glow_texture != null:
+		_draw_ambient_particle_trail(particle_template.glow_texture, point, velocity, draw_size, alpha * 0.90, "fire")
+		_draw_ambient_particle_sprite(
+			particle_template.glow_texture,
+			point + ember_offset * 0.45,
+			draw_size * Vector2(2.35, 2.05),
+			rotation + sin(time_seconds * 0.9 + hashes[20] * TAU) * 0.16,
+			alpha * 0.24 * flicker,
+			Color(1.0, 0.60, 0.22, 1.0)
+		)
+	if particle_template.soft_texture != null:
+		_draw_ambient_particle_sprite(
+			particle_template.soft_texture,
+			point + ember_offset,
+			draw_size * Vector2(1.30, 1.18),
+			rotation + sin(time_seconds * 1.3 + hashes[21] * TAU) * 0.22,
+			alpha * 0.82 * flicker,
+			Color(1.0, 0.78, 0.42, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			particle_template.soft_texture,
+			point - ember_offset * 0.35,
+			draw_size * Vector2(0.72, 0.68),
+			rotation - sin(time_seconds * 1.7 + hashes[22] * TAU) * 0.18,
+			alpha * 0.46,
+			Color(1.0, 0.94, 0.66, 1.0)
+		)
+	_draw_ambient_particle_sprite(
+		particle_template.texture,
 		point + ember_offset * 0.18,
 		draw_size * Vector2(0.58, 0.56),
 		rotation,
@@ -12661,6 +13093,7 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 	if shadow_mesh == null:
 		_draw_unit_shadow_fallback(unit)
 		return
+	_submitted_shadow_meshes.append(shadow_mesh)
 	draw_mesh(shadow_mesh, null, Transform2D.IDENTITY, Color(1.0, 1.0, 1.0, shadow_alpha_scale))
 
 func _unit_shadow_draw_mesh(texture: Texture2D, draw_rect: Rect2, unit_type: String, shadow_geometry: Array) -> ArrayMesh:
@@ -13057,6 +13490,8 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 	_board_layout_cache_tile_polygons.clear()
 	_unit_shadow_draw_geometry_cache.clear()
 	_unit_shadow_draw_mesh_cache.clear()
+	_ambient_particle_template_signature = ""
+	_ambient_particle_templates_by_element.clear()
 	_foreground_obstruction_candidates_cache_valid = false
 	if content_changed:
 		_board_layout_content_cache_valid = false

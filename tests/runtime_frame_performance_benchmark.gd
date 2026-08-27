@@ -160,8 +160,7 @@ func _initialize() -> void:
 	# The game defaults to fullscreen. A native probe launched from another app can
 	# otherwise live in an inactive macOS fullscreen Space and receive Metal
 	# drawables at roughly 1 Hz despite normal game-side frame work.
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	DisplayServer.window_set_size(_viewport_size)
+	root.mode = Window.MODE_WINDOWED
 	root.size = _viewport_size
 	_render_pulse = RenderPulse.new()
 	_render_pulse.name = "PerformanceRenderPulse"
@@ -179,12 +178,20 @@ func _initialize() -> void:
 	ProgressionStore.set_storage_path("user://labyrinth_progression_runtime_frame_performance.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_runtime_frame_performance.save")
 	ProgressionStore.clear_saved_run()
+	var probe_settings_store = load("res://scripts/settings_store.gd")
+	probe_settings_store.set_storage_path("user://runtime_performance_settings.json")
+	var probe_settings: Dictionary = probe_settings_store.default_settings()
+	probe_settings["display_mode"] = "windowed"
+	probe_settings["ui_scale"] = 1.0
+	probe_settings_store.save_settings(probe_settings)
 	await process_frame
 
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	_phase_log("scene loaded")
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
+	root.mode = Window.MODE_WINDOWED
+	root.size = _viewport_size
 	_phase_log("scene ready")
 	var sampler := FrameSampler.new()
 	root.add_child(sampler)
@@ -197,11 +204,37 @@ func _initialize() -> void:
 		quit(1)
 		return
 	await _settle_frames(8)
+	# macOS can deliver the startup fullscreen transition after scene _ready.
+	# Apply the authored window size after that transition has settled as well.
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	root.mode = Window.MODE_WINDOWED
+	root.size = _viewport_size
+	await _settle_frames(8)
 	_phase_log("initial settle complete")
 	_install_stress_combat(instance, "specialists")
 	_set_candidate_batching_enabled(instance)
 	_phase_log("stress combat installed")
 	await _settle_frames(8)
+	await _settle_probe_window()
+	await _settle_frames(8)
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_CACHE_VISUAL_ONLY") == "1":
+		var cache_visual_proof: Dictionary = await _verify_live_render_cache_equivalence(instance)
+		cache_visual_proof["semantic_errors"] = _errors
+		print("RUNTIME RENDER CACHE VISUAL RESULT: %s" % JSON.stringify(cache_visual_proof))
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_ACTION_VISUAL_ONLY") == "1":
+		var action_proof: Dictionary = await _capture_wildfire_action_visuals(instance)
+		action_proof["semantic_errors"] = _errors
+		print("RUNTIME ACTION VISUAL RESULT: %s" % JSON.stringify(action_proof))
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
 	if OS.get_environment("LABYRINTH_RUNTIME_PERF_ATTRIBUTION_ONLY") == "1":
 		_set_umbra_visual_time(instance, 42.0)
 		_set_umbra_shape_batching(instance, false)
@@ -339,6 +372,7 @@ func _initialize() -> void:
 	_expect(bool(board_instrumentation.get("split_layers_active", false)), "live RunScene must use retained combat-board layers")
 	_expect(finally_focused and _unfocused_observation_count == 0, "native frame proof must remain focused for every observed rendered frame")
 	_expect(throttle_samples.is_empty(), "native frame proof must not contain a >=500 ms delivery-throttle signature")
+	_expect(root.size == _viewport_size and DisplayServer.window_get_size() == _viewport_size, "native frame proof must finish at the measured pixel dimensions")
 
 	var results: Dictionary = {
 		"schema_version": 3,
@@ -354,6 +388,8 @@ func _initialize() -> void:
 		"probe_throttle_threshold_ms": 500.0,
 		"probe_throttle_samples": throttle_samples,
 		"probe_window_mode": "windowed",
+		"probe_actual_window_size": str(DisplayServer.window_get_size()),
+		"probe_actual_viewport_texture_size": str(root.get_texture().get_size()),
 		"probe_render_pulse": true,
 		"engine_max_fps": Engine.max_fps,
 		"warmup_frames": WARMUP_FRAMES,
@@ -1406,17 +1442,27 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 		action_started = true
 	_expect(bool(instance.get("_animation_lock")), "Wildfire confirmation must start the committed animation before capture")
 	var captured: Array[String] = []
-	var capture_frames: Dictionary = {
-		18: "action_effect_18.png",
-		28: "action_effect_28.png",
-		38: "action_effect_38.png",
-	}
-	for frame_index: int in range(1, 39):
+	var captured_presentation: Dictionary = {}
+	var replay_frames: int = 0
+	var board: Control = instance.get("board_view") as Control
+	# A frame offset from confirmation can still be inside the played-card flyout.
+	# Require a real, non-preview elemental effect in its visible middle phase.
+	while bool(instance.get("_animation_lock")) and replay_frames < MAX_ANIMATION_SETTLE_FRAMES:
 		await _await_render_frame()
-		if capture_frames.has(frame_index):
-			var file_name: String = str(capture_frames[frame_index])
-			await _save_root_screenshot(file_name)
-			captured.append(ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name]))
+		replay_frames += 1
+		var presentation: Dictionary = board.get("presentation") as Dictionary
+		var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+		var effect_progress: float = float(presentation.get("effect_progress", -1.0))
+		if str(effect.get("kind", "")) != "aoe" or str(effect.get("element", "")) != "fire" or bool(effect.get("preview", false)):
+			continue
+		if effect_progress < 0.55 or effect_progress > 0.85:
+			continue
+		var capture_path: String = ProjectSettings.globalize_path("%s/live_fire_impact.png" % OUTPUT_DIR)
+		_expect(_root_screenshot_image().save_png(capture_path) == OK, "live fire impact screenshot must save successfully")
+		captured.append(capture_path)
+		captured_presentation = {"kind": effect.get("kind"), "element": effect.get("element"), "progress": effect_progress, "locked_hand_cache_active": instance.get("_locked_hand_cache_active") == true}
+		break
+	_expect(not captured.is_empty(), "Wildfire visual proof must capture an actual rendered fire impact, not only its card flyout")
 	var wait_frames: int = 0
 	while bool(instance.get("_animation_lock")) and wait_frames < MAX_ANIMATION_SETTLE_FRAMES:
 		await _await_render_frame()
@@ -1427,6 +1473,7 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 	await _settle_frames(3)
 	return {
 		"captured_paths": captured,
+		"captured_presentation": captured_presentation,
 		"committed": committed,
 		"action_start_wait_frames": action_start_wait_frames,
 		"interaction_steps": interaction_steps,
@@ -2247,17 +2294,122 @@ func _vector2i_array(values: Variant) -> Array[Vector2i]:
 			result.append(value)
 	return result
 
-func _save_root_screenshot(file_name: String) -> void:
-	await _await_render_frame()
+func _root_screenshot_image() -> Image:
 	var image: Image = root.get_viewport().get_texture().get_image()
-	var path: String = ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name])
 	# Retina windows return the backing texture at device-pixel resolution even
 	# though the authored viewport is 1920x1080. Normalize proof output to the UI
 	# rubric's required logical resolution.
 	if image.get_size() != _viewport_size:
 		image.resize(_viewport_size.x, _viewport_size.y, Image.INTERPOLATE_LANCZOS)
+	return image
+
+func _save_root_screenshot(file_name: String) -> void:
+	await _await_render_frame()
+	var image: Image = _root_screenshot_image()
+	var path: String = ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name])
 	_expect(image.get_size() == _viewport_size, "%s must capture %dx%d" % [file_name, _viewport_size.x, _viewport_size.y])
 	_expect(image.save_png(path) == OK, "%s could not be saved" % file_name)
+
+func _verify_live_render_cache_equivalence(instance: Node) -> Dictionary:
+	_phase_log("cache visual proof: lock UI")
+	instance.set("_hovered_card_index", -1)
+	instance.set("_animation_lock", true)
+	instance.call("_refresh_animation_lock_ui")
+	await _settle_frames(8)
+	var board: Control = instance.get("board_view") as Control
+	board.set_process(false)
+	await _render_frozen_cache_proof_frame()
+	board.call("set_static_render_cache_enabled", false)
+	await _render_frozen_cache_proof_frame()
+	_phase_log("cache visual proof: direct board")
+	var board_direct: Image = _root_screenshot_image()
+	board_direct.save_png(ProjectSettings.globalize_path("%s/live_board_direct.png" % OUTPUT_DIR))
+	board.call("set_static_render_cache_enabled", true)
+	await _render_frozen_cache_proof_frame()
+	_phase_log("cache visual proof: cached board")
+	var board_cached: Image = _root_screenshot_image()
+	board_cached.save_png(ProjectSettings.globalize_path("%s/live_board_cached.png" % OUTPUT_DIR))
+	var board_delta: Dictionary = _image_channel_difference(board_direct, board_cached)
+	_expect(float(board_delta.get("mean_channel_delta", 255.0)) <= 0.05, "live RunScene static board cache must preserve the direct-rendered board geometry and pixels")
+
+	var hand: Control = instance.get("hand_box") as Control
+	var hand_parent: Node = hand.get_parent()
+	var hand_child_count: int = hand.get_child_count()
+	var hand_rect: Rect2 = hand.get_global_rect()
+	var capture_rect := Rect2i(
+		Vector2i(hand_rect.position - Vector2(50.0, 50.0)),
+		Vector2i(hand_rect.size + Vector2(100.0, 100.0))
+	).intersection(Rect2i(Vector2i.ZERO, _viewport_size))
+	var hand_direct: Image = board_cached.get_region(capture_rect)
+	instance.call("_begin_locked_hand_render_cache")
+	await _render_frozen_cache_proof_frame()
+	_phase_log("cache visual proof: cached hand")
+	var cached_frame: Image = _root_screenshot_image()
+	cached_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_cached.png" % OUTPUT_DIR))
+	var hand_cached: Image = cached_frame.get_region(capture_rect)
+	var hand_delta: Dictionary = _image_channel_difference(hand_direct, hand_cached)
+	_expect(bool(instance.get("_locked_hand_cache_active")), "live hand equivalence proof must exercise the raster cache")
+	# RGBA8 compositing changes rounding by 1–2 levels; a handful of separately
+	# resolved MSAA glyph-edge pixels can differ more. Bound both the mean and the
+	# fraction beyond rounding, so a font/layout/filtering change cannot pass.
+	_expect(float(hand_delta.get("over_two_channel_ratio", 1.0)) <= 0.0001 and float(hand_delta.get("mean_channel_delta", 255.0)) <= 0.25, "locked hand raster cache must preserve the direct-rendered card appearance within RGBA8/MSAA rounding")
+	instance.call("_end_locked_hand_render_cache")
+	await _render_frozen_cache_proof_frame()
+	_phase_log("cache visual proof: restored hand")
+	var restored_frame: Image = _root_screenshot_image()
+	restored_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_restored.png" % OUTPUT_DIR))
+	var restored_delta: Dictionary = _image_channel_difference(hand_direct, restored_frame.get_region(capture_rect))
+	_expect(hand.get_parent() == hand_parent, "ending the cache must restore the original live hand parent")
+	_expect(hand.get_child_count() == hand_child_count, "ending the cache must retain every real hand card control")
+	_expect(hand.get_global_rect().is_equal_approx(hand_rect), "ending the cache must restore the original hand geometry")
+	_expect(not bool(instance.get("_locked_hand_cache_active")), "ending the cache must clear the active cache flag")
+	_expect(float(restored_delta.get("mean_channel_delta", 255.0)) <= 0.2, "restored live hand must match its pre-cache appearance")
+	instance.call("_begin_locked_hand_render_cache")
+	await _render_frozen_cache_proof_frame()
+	_expect(bool(instance.get("_locked_hand_cache_active")), "hand refresh regression must start with an active cache")
+	instance.call("_refresh_hand_panel")
+	await _render_frozen_cache_proof_frame()
+	_expect(not bool(instance.get("_locked_hand_cache_active")), "a real hand refresh must invalidate the frozen cache")
+	_expect(hand.get_parent() == hand_parent and hand.get_child_count() == hand_child_count, "hand refresh must retain the live hand and its real controls")
+	return {"board": board_delta, "locked_hand": hand_delta, "restored_hand": restored_delta, "hand_rect": str(hand_rect), "capture_rect": str(capture_rect), "viewport_texture_size": root.get_texture().get_size(), "viewport_stretch": str(root.get_stretch_transform()), "hand_transform": str(hand.get_global_transform_with_canvas()), "hand_size": hand.size, "board_transform": str(board.get_global_transform_with_canvas()), "board_size": board.size}
+
+func _render_frozen_cache_proof_frame() -> void:
+	# All gameplay redraw timers are intentionally frozen for pixel equivalence.
+	# Force two completed frames so queued container sorts and UPDATE_ONCE targets
+	# settle without depending on a later unrelated animation to wake the renderer.
+	await process_frame
+	RenderingServer.force_draw(true, 0.0)
+	await process_frame
+	RenderingServer.force_draw(true, 0.0)
+
+func _image_channel_difference(reference: Image, candidate: Image) -> Dictionary:
+	if reference.get_size() != candidate.get_size():
+		return {"mean_channel_delta": 255.0, "size_mismatch": true}
+	reference.convert(Image.FORMAT_RGBA8)
+	candidate.convert(Image.FORMAT_RGBA8)
+	var reference_data: PackedByteArray = reference.get_data()
+	var candidate_data: PackedByteArray = candidate.get_data()
+	var max_delta: int = 0
+	var total_delta: int = 0
+	var changed_channels: int = 0
+	var over_two_channels: int = 0
+	for index: int in range(reference_data.size()):
+		if index % 4 == 3:
+			continue
+		var delta: int = absi(int(reference_data[index]) - int(candidate_data[index]))
+		max_delta = maxi(max_delta, delta)
+		total_delta += delta
+		if delta > 0:
+			changed_channels += 1
+		if delta > 2:
+			over_two_channels += 1
+	var channel_count: int = reference.get_width() * reference.get_height() * 3
+	return {
+		"max_channel_delta": max_delta,
+		"mean_channel_delta": float(total_delta) / float(maxi(1, channel_count)),
+		"changed_channel_ratio": float(changed_channels) / float(maxi(1, channel_count)),
+		"over_two_channel_ratio": float(over_two_channels) / float(maxi(1, channel_count)),
+	}
 
 func _requested_viewport_size() -> Vector2i:
 	var requested: String = OS.get_environment("LABYRINTH_RUNTIME_PERF_VIEWPORT_SIZE").strip_edges().to_lower()
@@ -2291,6 +2443,23 @@ func _acquire_probe_window_focus() -> bool:
 		if DisplayServer.window_is_focused():
 			return true
 	return false
+
+func _settle_probe_window() -> void:
+	# Native fullscreen startup/exit is asynchronous. Reading Window.size once
+	# can report the requested size before macOS delivers a later resize event.
+	var deadline: int = Time.get_ticks_msec() + 5000
+	var stable_samples: int = 0
+	while Time.get_ticks_msec() < deadline and stable_samples < 20:
+		if DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_WINDOWED or root.size != _viewport_size or DisplayServer.window_get_size() != _viewport_size:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			root.mode = Window.MODE_WINDOWED
+			root.size = _viewport_size
+			DisplayServer.window_set_size(_viewport_size)
+			stable_samples = 0
+		else:
+			stable_samples += 1
+		await create_timer(0.05).timeout
+	_expect(stable_samples == 20, "native probe must retain its authored window size for a full second before measurement")
 
 func _collect_throttle_samples(value: Variant, path: String, result: Array[Dictionary]) -> void:
 	if typeof(value) == TYPE_DICTIONARY:

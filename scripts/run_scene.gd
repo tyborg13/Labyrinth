@@ -28,6 +28,7 @@ const SettingsPanelScript = preload("res://scripts/settings_panel.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
+const LockedHandRenderCache = preload("res://scripts/locked_hand_render_cache.gd")
 const CardFocusTooltipStack = preload("res://scripts/card_focus_tooltip_stack.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -1612,6 +1613,10 @@ var _hand_card_pool: Array[Dictionary]
 var _hand_layout_revision: int = 0
 var _hand_layout_pending_revision: int = -1
 var _hand_layout_envelope_signature: String = "<unset>"
+var _locked_hand_render_cache := LockedHandRenderCache.new()
+var _locked_hand_cache_active: bool:
+	get:
+		return _locked_hand_render_cache.active
 var _play_meter: PanelContainer
 var _play_meter_slot: HBoxContainer
 var _play_meter_count: Label
@@ -9741,6 +9746,12 @@ func _refresh_animation_lock_ui() -> void:
 	_refresh_contextual_combat_tutorial()
 	_update_performance_telemetry_context()
 
+func _begin_locked_hand_render_cache() -> void:
+	await _locked_hand_render_cache.capture(hand_box, self)
+
+func _end_locked_hand_render_cache() -> void:
+	_locked_hand_render_cache.restore()
+
 func _update_performance_telemetry_context() -> void:
 	var telemetry: Node = get_node_or_null("/root/PerformanceTelemetry")
 	if telemetry == null or not telemetry.has_method("set_gameplay_context"):
@@ -15259,6 +15270,9 @@ func _consume_hand_ready_wave() -> void:
 	_hand_ready_wave_reason = ""
 
 func _refresh_hand_panel() -> void:
+	# Any real hand refresh (draw, resource change, resize, or unlock) invalidates
+	# the frozen image. Restore the controls before their normal update path runs.
+	_end_locked_hand_render_cache()
 	_clear_idle_card_fx_layer()
 	var mode: String = str(_run_state.get("mode", "room"))
 	# This signature intentionally excludes hover/focus/card identity. Those states
@@ -19301,6 +19315,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_animation_lock = true
 	_begin_card_play_meter_spend_preview(plays_spent)
 	_refresh_animation_lock_ui()
+	await _begin_locked_hand_render_cache()
 	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(
 		resolved_state,
 		hand_index,
@@ -19350,6 +19365,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_card_play_budget_override = {}
 	_reset_card_resolution()
 	_hovered_card_index = -1
+	_end_locked_hand_render_cache()
 	if _reward_intro_pending():
 		await _play_reward_reveal()
 	else:
@@ -20555,6 +20571,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 func _resolve_enemy_round() -> void:
 	_animation_lock = true
 	_refresh_animation_lock_ui()
+	await _begin_locked_hand_render_cache()
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
@@ -20611,6 +20628,7 @@ func _resolve_enemy_round() -> void:
 		await _animate_draw_cards_fx(_draw_entries_between_states(before_draw_state, _combat_state))
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
+	_end_locked_hand_render_cache()
 	if _reward_intro_pending():
 		await _play_reward_reveal()
 	else:
