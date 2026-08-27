@@ -1,0 +1,23 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*native_boot_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [560, 230, 800, 620], "min_luma_range": 50, "min_luma_stdev": 8},
+        {"rect": [690, 865, 540, 100], "min_luma_range": 80, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*main_menu_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [70, 40, 700, 650], "min_luma_range": 60, "min_luma_stdev": 8}
+      ]
+    }
+  ]
+}

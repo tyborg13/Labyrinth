@@ -1,0 +1,21 @@
+Escape the Umbra - Godot splash artwork attribution
+
+The Maker's Seal boot splash incorporates an adaptation of the Godot Engine logo.
+
+Godot Engine Logo
+Copyright (c) 2017 Andrea Calabró
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+
+Original logo and license:
+https://godotengine.org/press/
+https://github.com/godotengine/godot/blob/master/misc/logo/LICENSE.txt
+
+Changes: the logo is reinterpreted as embossed antique brass in an original
+painted stone-door scene, with "Made with Godot" text. The composite artwork was
+created with ImageGen using Escape the Umbra artwork and the official Godot icon
+as references. This credit refers to the logo, not to ownership of the game.
+Use of the logo identifies the engine and does not imply Godot endorsement.
+
+This game uses Godot Engine, available under the MIT license:
+https://godotengine.org/license/

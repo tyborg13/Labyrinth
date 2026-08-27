@@ -1,0 +1,98 @@
+# Maker's Seal boot splash
+
+The user selected concept 5, **The Maker's Seal**, on 2026-08-27 and explicitly
+requested it **as is**. The shipping PNG is an unchanged copy of the approved
+ImageGen output, including the embossed Godot face and "Made with Godot" text.
+Do not regenerate, crop, retouch, or replace its typography without a new request.
+
+- Asset: `assets/art/ui/boot_splash_makers_seal.png`
+- Native dimensions: 1672 × 941
+- SHA-256: `a2fea0706c12f6e9e066e5b3f54d2660423d42d733975a110f0ffe45b79f211c`
+- Native Godot 4.6 boot settings: black background, KEEP aspect-ratio stretch,
+  linear filtering, image enabled, minimum display time zero.
+- Main scene remains `scenes/main_menu.tscn`; there is no new loading scene,
+  input gate, artificial delay, or change to gameplay/saves.
+
+The image's almost-16:9 aspect ratio is preserved, rather than stretched or
+cropped to an exact 16:9 ratio. Black fills any remaining space.
+
+## Attribution and distribution
+
+`GODOT_SPLASH_LICENSE.txt` credits the original logo author, links CC BY 4.0 and
+the original logo, identifies the adaptation, and links the engine's MIT license.
+The normal Steam export workflow copies that notice beside each platform's
+app/executable, outside the PCK, so the player can read it without an extractor.
+For exports made directly through the Godot editor, distribute this notice
+alongside the app/executable as well. This change is not an audit of other
+third-party components already used by the game.
+
+## UI design statement
+
+- **Surface:** native engine boot splash, before scene UI exists.
+- **Player question:** is the game starting, and which engine made it?
+- **Primary action:** none; startup advances automatically to the existing menu.
+- **Hierarchy:** central brass seal, then its embedded three-word engine credit;
+  stone, ember and violet shadow supply the game's established material palette.
+- **Interaction paths:** the boot image has no interactive controls. Existing
+  pointer, keyboard, and controller paths in the menu are unchanged.
+- **Proof matrix:** native splash and main-menu handoff at 1920 × 1080, 100% UI
+  scale, through `tests/boot_splash_probe.gd`. The static native image does not
+  add motion or depend on scene UI-scale settings.
+
+## Verification
+
+`python3 tests/test_boot_splash.py` guards the approved file hash and PNG size,
+project settings, attribution, and the real desktop staging function for all
+three platforms using temporary fake export outputs (no Steam upload).
+
+`tests/boot_splash_export_test.gd` mounts a real exported PCK from an empty
+project and verifies the approved raw PNG bytes and dimensions. It rejects an
+environment where the source PNG is already available, preventing a false pass
+from filesystem fallback.
+
+Run the focused native proof through `tools/visual_probe_runner.py`, with
+`tests/boot_splash_probe_contract.json`. The probe reissues Godot's actual
+`RenderingServer.set_boot_image_with_stretch` API using the production settings
+after sizing its native window. It captures the screen region directly; it does
+not recreate the splash with scene UI. Its short capture hold exists only in the
+probe. It then loads the unchanged main menu and captures its viewport.
+The screen-region API supports macOS and Windows; it requires a working native
+display and cannot be replaced by a headless renderer.
+
+Verified on 2026-08-27 with Godot 4.6.1:
+
+- Four focused Python checks passed, including staging attribution on all three
+  desktop platforms; five icon-identity checks passed; shell syntax and diff
+  whitespace checks passed.
+- Native Metal/Mobile proof passed at 1920 × 1080 with two inspected screenshots:
+  the full seal/credit is visible without clipping, followed by the existing menu.
+- A real PCK exported through the Steam Windows preset contains the exact raw
+  approved PNG; the empty-project mount test passed.
+- Ordinary main-scene headless startup completed without script/parse failures.
+- The native probe and ordinary startup smoke report two resources still in use
+  at process exit. Sandboxed headless runs also report the host's system-CA
+  retrieval error. These warnings were not suppressed; this task does not change
+  runtime scene/resource management or certificate handling.
+
+The PCK check is packaging proof, not a Windows runtime or Steam upload test.
+
+## Inspection
+
+A saved-run/Continue fixture is **not applicable**: the change is visible before
+any save or gameplay state loads. Inspect the native startup using the task-local
+Godot runner, or repeat the focused native proof for a stable screenshot.
+
+## UI rubric
+
+| Gate | Result |
+| --- | --- |
+| Immediate comprehension | Pass: familiar engine mark and "Made with Godot". |
+| Visual hierarchy | Pass: one central seal and subordinate attribution. |
+| Gameplay visibility | Exception: startup precedes gameplay; nothing is obscured. |
+| Compact, precise copy | Pass: the approved three-word credit is unchanged. |
+| State and consequence | Exception: static boot display has no selectable state. |
+| Interaction completeness | Pass: no action required; no input paths changed. |
+| Visual cohesion | Pass: approved brass/stone/ember/violet artwork. |
+| Accessibility | Pass: no motion or color-only information; readable text and icon. |
+| Layout resilience | Pass: native 1920 × 1080 capture preserves the whole image and legible credit. |
+| Visual proof | Pass: fresh inspected native splash and main-menu captures, validated by the probe contract. |
