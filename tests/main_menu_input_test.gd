@@ -27,6 +27,7 @@ func _initialize() -> void:
 	await _test_run_entry("continue", false)
 	await _test_run_entry("replace", false)
 	await _test_run_entry("new", true)
+	await _test_run_entry("continue", true)
 	await _test_loading_failure_preserves_save_and_recovers_focus()
 	SettingsStore.clear_storage()
 	_cleanup_storage()
@@ -199,7 +200,9 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	ProgressionStore.save_data(progression)
 	var saved: Dictionary = {}
 	if mode != "new":
-		saved = RunEngine.new().create_new_run(82271, progression)
+		saved = RunEngine.new().create_debug_boss_run(progression) if mode == "continue" else RunEngine.new().create_new_run(82271, progression)
+		saved["debug_boss_run"] = false
+		saved["seed"] = 82271
 		ProgressionStore.save_run_state(saved)
 	var menu = load("res://scenes/main_menu.tscn").instantiate()
 	root.add_child(menu)
@@ -251,6 +254,9 @@ func _test_run_entry(mode: String, reduced_motion: bool) -> void:
 	transition.phase_changed.connect(func(value: StringName):
 		phase_times[str(value)] = Time.get_ticks_msec()
 		if value == &"revealing":
+			_expect(transition.destination.initial_presentation_is_ready(), "Reveal must wait for the complete hand/dock layout, even without a fade")
+			if mode == "continue":
+				_expect(int(transition.destination.get("_hand_layout_pending_revision")) == -1, "Combat Continue must settle the card hand before revealing")
 			_expect(transition.destination.is_node_ready(), "Reveal must wait for the real destination ready lifecycle")
 			_expect(not transition.destination.get("_run_state").is_empty(), "Reveal must wait for the room state to exist")
 			_expect(transition.destination.process_mode == Node.PROCESS_MODE_DISABLED, "Hidden room input must stay disabled through reveal")

@@ -182,6 +182,12 @@ func _capture_loading_sequence(reduced_motion: bool) -> void:
 	else:
 		menu.call("_on_start_button_pressed")
 	var transition = root.get_node("MenuRunTransition")
+	transition.phase_changed.connect(func(phase: StringName) -> void:
+		if phase == &"revealing":
+			assert(transition.destination.initial_presentation_is_ready(), "Reveal must wait for the full room presentation")
+			if resume:
+				assert(transition.destination.get("_hand_layout_pending_revision") == -1, "The combat hand and Pass must be positioned before reveal")
+	)
 	var images: Array[Image] = []
 	var message_rect := Rect2()
 	var phases: Array[String] = []

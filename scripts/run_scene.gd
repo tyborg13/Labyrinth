@@ -1892,6 +1892,13 @@ func _ready() -> void:
 	call_deferred("_refresh_hand_panel_after_viewport_change")
 	call_deferred("_refresh_controller_interface")
 
+func initial_presentation_is_ready() -> bool:
+	# Initial viewport/hand refreshes schedule further container fitting. The
+	# menu must cover that work even when reduced motion omits its reveal fade.
+	return is_node_ready() and not _run_state.is_empty() and (
+		str(_run_state.get("mode", "")) != "combat" or _hand_layout_pending_revision < 0
+	)
+
 func _on_hand_viewport_size_changed() -> void:
 	call_deferred("_refresh_hand_panel_after_viewport_change")
 

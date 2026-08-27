@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-27T17:47:55Z",
+  "updated_at": "2026-08-27T18:35:23Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9187,6 +9187,28 @@
       "source": {
         "branch": "codex/godot-seal-splash",
         "commit": "f45e139c"
+      }
+    },
+    {
+      "id": "mnt_20260827T183523Z_1fa3e467",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Menu reveal must wait for deferred hand and action-dock fitting.",
+      "details": "RunScene ready schedules a two-frame viewport hand refresh, which then schedules a further multi-frame hand fit that hides Pass and movement/card-play controls until completion. A fixed three-frame wait can reveal missing controls, especially with reduced motion. MenuRunTransition polls initial_presentation_is_ready after frame_post_draw; keep that contract aligned with future startup presentation work.",
+      "status": "active",
+      "created_at": "2026-08-27T18:35:23Z",
+      "updated_at": "2026-08-27T18:35:23Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/main-menu-loading-transition",
+        "commit": "15fc5756"
       }
     }
   ]

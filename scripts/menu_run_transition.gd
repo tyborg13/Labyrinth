@@ -119,11 +119,16 @@ func _load_destination() -> void:
 	destination.process_mode = Node.PROCESS_MODE_DISABLED
 	_menu_parent.add_child(destination)
 	# RunScene._ready builds the room synchronously, then its hand layout waits
-	# two process frames. Let those deferred updates settle and submit a real
-	# render before revealing any pixel or allowing hidden-room input.
+	# two process frames before scheduling additional hand/dock fitting. Allow
+	# that first refresh to run, then use the room's live readiness contract;
+	# a frame count alone can reveal a still-hidden Pass button in reduced motion.
 	for frame: int in range(3):
 		await get_tree().process_frame
-	await _present_frame()
+	while true:
+		await _present_frame()
+		if not destination.has_method("initial_presentation_is_ready") or bool(destination.call("initial_presentation_is_ready")):
+			break
+		await get_tree().process_frame
 	_set_phase(&"revealing")
 	var duration := SettingsStore.motion_duration(REVEAL_SECONDS, _settings)
 	if duration > 0.0:
