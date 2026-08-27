@@ -1,12 +1,14 @@
 # Steam Deck action-rendering follow-up — 2026-08-26
 
-## Review correction and current validation status — 2026-08-27
+## Review correction and final native validation — 2026-08-27
 
 Independent review rejected `b9739b82`: an interaction-disabled hand can still contain pulsing intensity glows and animated time-cost clocks. Freezing the entire fan paused those visuals. The corrective implementation now bypasses raster caching for any visible active card animation, running pose/ready-wave tween, interactive card, or processing-driven descendant. It leaves the real hand and original blending/overlap completely untouched in those cases. Static board, Umbra, ambient-particle and mesh-lifetime improvements remain enabled.
 
-**The action timing and draw-call figures below are historical results from the rejected whole-hand cache, not measurements of the corrected candidate.** The high-intensity workload now takes the live-hand fallback, so its earlier 68.6% submission reduction must not be claimed for the corrected branch. A new matched action run is required.
+**All comparison figures below come from fresh matched runs of the corrected implementation.** The high-intensity workload keeps the hand live. The rejected implementation's earlier 68.6% submission reduction is withdrawn; the corrected candidate reduces median action draw calls by **32.6%** and action-frame p95 by **38.3%**. Runtime changes are at `0a82b94ba8dce35b0e2ec96c27d31cb6aa727667`; the subsequent final-proof commit changes only this report and the benchmark's post-action geometry assertion.
 
-Native verification could not start because the Mac was locked: the probe failed its foreground-window gate, and Computer Use independently reported the locked session. The new native proof exercises visible glow motion over 0.7 seconds, clock motion over 0.5 seconds, unchanged phases/parenting on restoration, and static-hand raster equivalence separately. It has not yet completed. The corrected full headless suite **passed**, including eligibility regressions for active glows, running clocks, future processing-driven details, hidden details, and interactive cards. Publication/inspection readiness remains blocked on fresh native proof and independent exact-HEAD signoff.
+After the Mac was unlocked, the new native animation proof **passed**. Three visible glows advance without raster freezing; the clock advances 12.21 simulated seconds across the half-second wait. Original phases, parenting and overlap remain untouched. Static-hand cache mean channel error is 0.17943/255, only 0.00286% of channels differ by more than two levels, and restoration is pixel-identical. All nine native 1920×1080 screenshots were inspected. The corrected full headless suite **passed**, including eligibility regressions for active glows, running clocks, future processing-driven details, hidden details, and interactive cards.
+
+Native animation proof: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787805779687295000-15455-runtime_frame_performanc-1/godot.log` (semantic errors empty). Fresh action runs exposed a benchmark assumption, also reproduced on baseline: a legitimate restored 1.28× hover pose was incorrectly labelled pooled-card stretching. The shared assertion now checks the authored emphasis scale, unchanged native card/slot dimensions, and the corresponding rotated envelope. It does not remove the geometry regression check. Timing runs that failed this assertion or lost foreground focus are excluded from the final comparison.
 
 Corrective headless log: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-1787803715188674000-14971/godot.log` (runner exit 0 / TEST RESULT PASS; shutdown still reports 151 CanvasItem RIDs, 380 dummy textures, and 21 resources in use, versus 19 resources in the pre-correction run). Rejected native launch: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787803607341695000-14873-runtime_frame_performanc-1/godot.log` (no native proof or timing results collected).
 
@@ -47,57 +49,56 @@ Attribution logs:
 - `/private/tmp/labyrinth-godot-home/steam-deck-action-hotspot-base-1787795454502878000-98495-render_performance_bench-1/godot.log`
 - `/private/tmp/labyrinth-godot-home/steam-deck-ambient-template-candidat-1787796316433802000-99636-render_performance_bench-1/godot.log`
 
-## Historical matched live action benchmark — pre-review implementation
-
-This section preserves the rejected implementation's results for audit. It does **not** establish current-candidate performance after the animation-preserving fallback.
+## Final matched live action benchmark
 
 Godot **4.6.1**, **Apple M5 Pro**, native **Metal / Mobile**, **1920×1080**, **100% UI scale**, foreground/windowed, uncapped engine FPS with the same display/compositor. These are Mac frame intervals, **not Steam Deck FPS**.
 
 Baseline checkout: `/private/tmp/labyrinth-action-base.yxLMJ5`, detached at `af82241f`. It received only the equivalent benchmark timing/window configuration and task shader-directory setup, not candidate game rendering changes. Baseline and candidate share imported assets, workload, warmup, renderer, and UI settings. No heavy tests ran concurrently with the matched action timings.
 
-The fixture exercises a dense depth-13 room, all-element ambience, pressing Umbra, a ten-card hand, relics, varied actors/terrain, public card/target input, movement, Blink, ranged/area/line attacks, and an enemy round. Completion and state-change assertions ensure actions really execute. Cold/warm preview, dense Blink, and ranged-trap input regression paths also run. Native focus remains true and neither report contains the rejected >=500 ms delivery-throttle signature.
+The fixture exercises a dense depth-13 room, all-element ambience, pressing Umbra, a ten-card hand, relics, varied actors/terrain, public card/target input, movement, Blink, ranged/area/line attacks, and an enemy round. Completion and state-change assertions ensure actions really execute. Cold/warm preview, dense Blink, and ranged-trap input regression paths also run. Both runs report empty semantic errors, zero unfocused observations, actual 1920×1080 window/render-target sizes, and no >=500 ms delivery-throttle signature. The high-intensity hand remains live throughout; the untimed fire-impact capture explicitly reports `locked_hand_cache_active: false`.
 
 All cells below are **baseline → candidate**. Frame times are milliseconds; long-frame cells preserve their denominators.
 
 | Action | Median | p95 | p99 | Max | >16.67 ms / N | >33.33 ms / N | Median draw calls |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| bone_dart | 8.06 → 8.32 | 18.00 → 11.24 | 24.95 → 23.17 | 108.82 → 106.12 | 27/208 → 4/222 | 2/208 → 2/222 | 1827 → 571 |
-| shadow_step | 8.14 → 8.29 | 23.92 → 13.59 | 57.13 → 41.98 | 175.61 → 182.22 | 38/237 → 7/258 | 3/237 → 3/258 | 1787 → 539 |
-| threaded_path | 6.31 → 8.33 | 24.09 → 14.08 | 36.28 → 24.79 | 112.14 → 112.01 | 106/400 → 6/433 | 6/400 → 4/433 | 2026 → 778 |
-| thunderline | 8.11 → 8.34 | 21.78 → 14.63 | 52.05 → 48.88 | 101.36 → 103.72 | 26/130 → 2/140 | 2/130 → 2/140 | 1823 → 592 |
-| wildfire_halo | 10.34 → 9.36 | 26.50 → 17.38 | 44.98 → 45.42 | 176.67 → 168.70 | 71/227 → 29/266 | 3/227 → 3/266 | 1816 → 626 |
+| bone_dart | 7.56 → 8.31 | 19.08 → 11.17 | 28.50 → 19.52 | 109.24 → 107.84 | 26/205 → 3/212 | 2/205 → 2/212 | 1859 → 1256 |
+| shadow_step | 8.08 → 8.29 | 24.01 → 13.93 | 57.77 → 45.88 | 175.97 → 173.56 | 37/235 → 4/254 | 4/235 → 3/254 | 1819 → 1226 |
+| threaded_path | 6.71 → 8.35 | 24.03 → 14.26 | 51.92 → 22.15 | 114.69 → 108.72 | 105/393 → 6/431 | 5/393 → 4/431 | 2057 → 1458 |
+| thunderline | 8.18 → 8.35 | 19.77 → 10.48 | 52.08 → 51.74 | 102.60 → 102.43 | 24/132 → 2/137 | 2/132 → 2/137 | 1855 → 1252 |
+| wildfire_halo | 10.42 → 9.50 | 27.24 → 17.76 | 63.14 → 44.20 | 161.97 → 159.30 | 68/231 → 31/257 | 3/231 → 3/257 | 1848 → 1249 |
 
-Combined actions: median **8.12 → 8.36 ms**, p95 **23.53 → 14.99 ms**, p99 **49.50 → 35.15 ms**. >16.67 ms **268/1,202 (22.30%) → 48/1,319 (3.64%)**. >33.33 ms **16/1,202 (1.33%) → 14/1,319 (1.06%)**. Median draw calls **1,818 → 571** (68.6% fewer).
+Combined actions: median **8.095 → 8.364 ms**, p95 **23.835 → 14.701 ms**, p99 **57.765 → 44.202 ms**, max **175.965 → 173.562 ms**. >16.67 ms **260/1,196 (21.74%) → 46/1,291 (3.56%)**. >33.33 ms **16/1,196 (1.34%) → 14/1,291 (1.08%)**. Median draw calls **1,851 → 1,248** (32.6% fewer); median rendered objects **9,816 → 9,213**, median primitives **137,236 → 133,229**. The gain is in sustained submission/geometry work and tail pacing, not removal of visible content.
 
-Enemy-round median **7.95 → 8.34 ms**, p95 **18.22 → 10.29 ms**, max **21.14 → 17.20 ms**, median draw calls **1,798 → 479**. Settled idle p95 **18.05 → 9.23 ms**, >16.67 ms **33/150 → 0/150**. Idle keeps the interactive hand live, so its median draw calls remain **1,798 → 1,227**, higher than locked action frames.
+Enemy-round median **8.122 → 8.306 ms**, p95 **17.975 → 9.439 ms**, max **21.445 → 17.632 ms**, >16.67 ms **21/86 → 2/90**, >33.33 ms **0/86 → 0/90**, median draw calls **1,826 → 1,227**. Settled idle median **7.345 → 8.225 ms**, p95 **18.246 → 9.388 ms**, p99 **19.617 → 9.798 ms**, max **19.964 → 9.799 ms**, >16.67 ms **34/150 → 0/150**, >33.33 ms **0/150 → 0/150**, median draw calls **1,830 → 1,227**. Both idle and high-intensity actions keep the hand live.
 
-The median can increase toward the display's roughly 8.3 ms delivery rhythm while long-frame frequency falls. Do not claim every percentile improved or divide authored action completion time into an FPS. Two earlier candidate runs before the final shadow-ownership guard showed the same large draw-call reduction; small interval and draw-count differences vary with animated content and scheduling.
+The median increases toward the display's roughly 8.3 ms delivery rhythm while long-frame frequency falls. This is consistent with presentation quantization, not proof that every frame's CPU work is below that interval. Do not claim every percentile improved or divide authored action completion time into an FPS. These are one matched baseline/candidate pair, not confidence intervals; scheduling and animated content can affect small differences. Godot's periodically updated process monitor is retained in raw diagnostics, but is not interpreted as an exact per-frame CPU timer.
 
-### Pre-review hitches and memory
+### Remaining hitches and memory
 
-The large sustained-rendering reduction does **not** remove transition hitches: maximum action frame intervals remain about **102–182 ms**, and >33 ms counts improve only slightly. Wildfire still has more sustained long frames than the other actions. The next attribution target is the cold/transition path, not a claim that all Deck chugging is solved.
+The sustained-rendering reduction does **not** remove transition hitches: maximum action frame intervals remain about **102–174 ms**, and >33 ms counts improve only slightly. Wildfire still has more sustained long frames than the other actions. The next attribution target is the cold/transition path, not a claim that all Deck chugging is solved.
 
-Candidate static CPU memory: **177,295,982 bytes**, baseline **173,832,402**, delta **3,463,580 bytes (~3.30 MiB)**. This monitor does not include all GPU render-target memory; the new full-pixel caches trade bounded GPU storage for fewer submissions. Settled node counts are **3,577 → 3,580**; repeating installation stays at 3,580. Full-scene orphan count is a pre-existing **2 → 2** in both baseline and candidate, not zero. The isolated board probe asserts and reports **zero** orphan nodes. Native null-mesh errors occurred in both the baseline and pre-guard candidate logs; the final action matrix and focused impact replay contain no native ERROR lines after the ownership guard. Full-suite shutdown still prints its known dummy-renderer RID/resource cleanup warnings; the runner and suite finish successfully.
+Candidate static CPU memory: **177,462,422 bytes**, baseline **173,876,455**, delta **3,585,967 bytes (~3.42 MiB)**. This monitor does not include all GPU render-target memory; the new full-pixel caches trade bounded GPU storage for fewer submissions. Settled node counts are **3,577 → 3,580**; repeating installation stays at 3,580. Full-scene orphan count is a pre-existing **2 → 2** in both baseline and candidate, not zero. The isolated board probe asserts and reports **zero** orphan nodes. Native null-mesh errors recur in the final baseline log; the final candidate action matrix and live-cache proof contain no native ERROR lines after the ownership guard. The native full-scene runs still report two CanvasItem RIDs at shutdown. Full-suite shutdown also prints its known dummy-renderer RID/resource cleanup warnings; the runner and suite finish successfully.
 
-## Pre-review equivalence and regression proof
+## Final equivalence and regression proof
 
-The single-frame hand comparison below missed the animation freeze. It is insufficient to prove hand animation fidelity and is being replaced by the time-separated proof described above. Board/particle/mesh code is unchanged by the correction.
-
-- Full Godot suite: **PASS**, including the final rerun after the shadow-ownership fix.
+- Full Godot suite: **PASS** on the current runtime implementation, including animation-cache eligibility tests for active glows, running clocks, processing descendants, hidden descendants, and interactive cards. Subsequent changes affect only benchmark geometry validation and this report.
 - Native board probe: semantic errors empty; static floor direct/cache max channel delta **2/255**, mean **0.000613/255**. Umbra legacy mesh/instanced max delta **1/255**, mean **0.000000121/255**.
 - Ambient descriptor check: **5 elements, 60 particles, 180 motion samples**, full-precision hashes, texture/soft/glow variants, size, cycle, offset, and rotation checked against the original formulas.
-- Native live RunScene A/B: board mean delta **0.00451/255**; locked hand mean **0.18823/255** (mostly one-level RGBA8 rounding), only **0.00265%** of RGB channels differ by more than two levels. Original parent, children, geometry and appearance restore, and a real hand refresh invalidates the frozen cache.
-- Fresh 1920×1080 screenshots inspected for populated idle, targeting, actual fire impact, dense isolated effects, and direct/cached board and hand composition. Particle density, fog alpha order, terrain/actor depth, card typography, and HUD placement remain intact.
+- Native live RunScene A/B: board mean delta **0.004263/255**, max **6/255**; genuinely static locked hand mean **0.179429/255**, max **14/255**, only **0.002864%** of RGB channels differ by more than two levels. Original parent, children and geometry restore; the restored static hand is pixel-identical. A real hand refresh invalidates the cache.
+- Time-separated native animation proof: all three active glows bypass the cache and advance their existing phase (0.25522 cycles during the authored wait and proof capture); the retained-hover clock advances **12.2085 simulated seconds** across its half-second wait. Early/late image differences confirm motion while original parenting and overlap remain unchanged. The glow proof's diagnostic elapsed field excludes prior screenshot readback, so it is not an exact wall-clock cadence measurement.
+- Fresh **1920×1080 / 100%** screenshots inspected: nine live board/hand direct-cache-restored/glow/clock images and seven final candidate idle/targeting/dense Blink/post-trap/actual fire-impact images, plus the matched baseline fire impact. The untimed fire replay captures non-preview fire AoE at progress **0.5625**, action committed, with hand cache **inactive**. Particle density, fog alpha order, terrain/actor depth, card typography, selection/focus, and HUD placement remain intact. The lower-right action-choice panel during impact also exists in the baseline; it is not a new cache artifact.
 - No card/enemy/relic/ability identities or balance data changed; no new Steam stat definitions require publication.
+
+UI rubric handoff: the surface is the combat board and card fan; the player's question remains which action/target to choose and what its consequences are. Board targets, actionable cards, resources and combat feedback keep their existing hierarchy. Mouse, keyboard and controller routes are unchanged. The shared CardWidget/HandFanContainer components retain their layouts and live animated details. Applicable rubric gates pass in the inspected default, selected, active-impact and maximum-content states; there are no new identities, copy or icon assets.
 
 ### Raw proof paths
 
-- Matched baseline: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787800813921658000-5004-runtime_frame_performanc-1/godot.log`
-- Pre-review candidate: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787802779912190000-13585-runtime_frame_performanc-1/godot.log`
-- Pre-review full suite: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-1787802856314150000-13644/godot.log`
+- Matched baseline: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787806149502918000-15864-runtime_frame_performanc-1/godot.log`
+- Corrected candidate: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787806221465495000-15914-runtime_frame_performanc-1/godot.log`
+- Corrected full suite: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pass-1787803715188674000-14971/godot.log`
 - Native particle/static/Umbra equivalence and retained-shadow lifetime: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787802859577033000-13654-render_performance_bench-1/godot.log`
-- Live hand/board cache A/B and invalidation: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787801427093475000-5617-runtime_frame_performanc-1/godot.log`
-- Verified live fire impact after the shadow-ownership fix (non-preview fire AoE at progress 0.5625, hand cache active, action committed, no native null-mesh errors): `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787802726068693000-13533-runtime_frame_performanc-1/godot.log`
+- Live hand/board A/B, restoration, invalidation and time-separated glow/clock proof: `/private/tmp/labyrinth-godot-home/steam-deck-animation-performance-pas-1787805779687295000-15455-runtime_frame_performanc-1/godot.log`
+- Verified live fire impact: the corrected candidate log above, after all timed samplers finish.
 
 Images live under each native run's printed `Library/Application Support/Escape the Umbra Visual Probe …/performance/` directory. These temporary paths are local evidence, not shipped assets.
 
@@ -125,4 +126,4 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/steam-deck-animation-performa
 cd /Users/borgerding/workspace/Labyrinth.worktrees/steam-deck-animation-performance-pass && python3 tools/godot_task_runner.py --task-id steam-deck-animation-performance-pass --timeout 300 --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
-The performance/UI skill's equivalence gate caused rejection of reordered fog lines, differently sized cached card text, and (through independent review) frozen card glows. Publication still requires fresh native validation, independent exact-HEAD review and a verified pre-action inspection fixture, followed by explicit user approval.
+The performance/UI skill's equivalence gate caused rejection of reordered fog lines, differently sized cached card text, and (through independent review) frozen card glows. Fresh native validation is now complete. Handoff still requires independent exact-HEAD review and a verified pre-action inspection fixture; publication requires explicit user approval.

@@ -1839,6 +1839,7 @@ func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 	_expect(hand_after.size() == hand_before.size() - 1, "ranged trap play must remove exactly one card from hand")
 	_expect(hand_box != null and hand_box.get_child_count() == hand_after.size(), "post-trap hand must render every remaining card exactly once")
 	var expected_size: Vector2 = instance.call("_hand_card_size", hand_after.size(), false) as Vector2
+	var hand_fan: HandFanContainer = hand_box as HandFanContainer
 	var geometry_after: Dictionary = _hand_geometry_diagnostics(instance, hand_box)
 	var slot_diagnostics: Array[Dictionary]
 	if hand_box != null:
@@ -1848,18 +1849,26 @@ func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 			if slot == null or widget == null:
 				continue
 			var visual_rect: Rect2 = instance.call("_control_visual_global_rect", widget) as Rect2
+			# A live hand may legitimately restore hover/focus after an action. Check
+			# the authored emphasis rather than mistaking its 1.28x pose for the
+			# pooled-layout stretching this regression is intended to catch.
+			var expected_scale: float = HandFanContainer.card_scale_for_emphasized_layout(
+				index, hand_fan.emphasized_index(), hand_fan.emphasis_strength()
+			)
 			slot_diagnostics.append({
 				"index": index,
 				"slot_size": slot.size,
 				"slot_minimum": slot.custom_minimum_size,
 				"slot_scale": slot.scale,
+				"expected_emphasis_scale": expected_scale,
 				"slot_anchors": Vector4(slot.anchor_left, slot.anchor_top, slot.anchor_right, slot.anchor_bottom),
 				"widget_visual_size": visual_rect.size,
 			})
 			_expect(slot.anchor_left == 0.0 and slot.anchor_top == 0.0 and slot.anchor_right == 0.0 and slot.anchor_bottom == 0.0, "post-trap pooled hand slot %d must use top-left anchors" % index)
 			_expect(slot.size.is_equal_approx(expected_size), "post-trap pooled hand slot %d must retain authored card dimensions" % index)
 			_expect(widget.size.is_equal_approx(Vector2(250.0, 352.0)), "post-trap pooled card %d must retain its native CardWidget dimensions" % index)
-			_expect(visual_rect.size.x <= expected_size.x * 1.10 and visual_rect.size.y <= expected_size.y * 1.10, "post-trap pooled card %d must not stretch beyond its rotated hand envelope" % index)
+			_expect(slot.scale.is_equal_approx(Vector2.ONE * expected_scale), "post-trap pooled slot %d must keep its authored hover/focus scale" % index)
+			_expect(visual_rect.size.x <= expected_size.x * expected_scale * 1.10 and visual_rect.size.y <= expected_size.y * expected_scale * 1.10, "post-trap pooled card %d must not stretch beyond its rotated, authored hand envelope" % index)
 	await _save_root_screenshot("ranged_trap_hand.png")
 	await _settle_render_frames(4)
 	return {
