@@ -140,6 +140,43 @@ class ClassicalSoundtrackPipelineTests(unittest.TestCase):
             sys.path.remove(str(TOOLS_DIR))
 
     @unittest.skipUnless(audio_dependencies_available(), "requires pinned Python 3.12 audio environment")
+    def test_string_track_can_request_a_slow_attack_without_changing_the_default(self) -> None:
+        sys.path.insert(0, str(TOOLS_DIR))
+        try:
+            import numpy as np
+
+            from classical_soundtrack_pipeline.render import RenderNote, _sampled_note, midi_frequency
+
+            sample = {
+                "sample_rate": 1_000,
+                "stored_effective_frequency_hz": midi_frequency(60),
+                "loop_start_sample": 0,
+                "loop_end_sample_exclusive": 100,
+            }
+            wave = np.ones(100, dtype=np.float64)
+            track = {
+                "release_seconds": 0.0,
+                "render_gain": 1.0,
+                "vibrato_cents": 0.0,
+                "vibrato_hz": 0.0,
+            }
+            rendered_default = _sampled_note(
+                RenderNote(0.0, 1.0, 60, 88), track, sample, wave, 1_000
+            )
+            rendered_slow = _sampled_note(
+                RenderNote(0.0, 1.0, 60, 88),
+                {**track, "attack_seconds": 0.2},
+                sample,
+                wave,
+                1_000,
+            )
+            self.assertAlmostEqual(1.0, rendered_default[50], places=12)
+            self.assertLess(rendered_slow[50], rendered_default[50] * 0.2)
+            self.assertAlmostEqual(1.0, rendered_slow[250], places=12)
+        finally:
+            sys.path.remove(str(TOOLS_DIR))
+
+    @unittest.skipUnless(audio_dependencies_available(), "requires pinned Python 3.12 audio environment")
     def test_reference_render_and_verifier_match_approved_outputs(self) -> None:
         encoders = subprocess.run(["ffmpeg", "-hide_banner", "-encoders"], check=True, capture_output=True, text=True).stdout
         if " vorbis " not in encoders:

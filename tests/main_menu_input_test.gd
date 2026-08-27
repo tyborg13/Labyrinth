@@ -1,7 +1,9 @@
 extends SceneTree
 
+const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const PROGRESSION_PATH: String = "user://main_menu_input_test_progression.json"
 const RUN_PATH: String = "user://main_menu_input_test_run.save"
@@ -58,7 +60,17 @@ func _test_hover_and_press_same_frame_activates_once() -> void:
 	_expect(settings_panel.visible, "Settings should reopen on the first pointer click after focus recovery")
 
 	var music_player: AudioStreamPlayer = instance.get_node_or_null("MusicPlayer") as AudioStreamPlayer
+	_expect(music_player != null, "Main menu should create its dedicated music player")
 	if music_player != null:
+		var entry: Dictionary = MusicLibrary.entry(MusicLibrary.OLD_CASTLE_MENU_TRACK_ID)
+		_expect(music_player.bus == SettingsStore.MUSIC_BUS, "Main-menu music should use the Music bus")
+		_expect(music_player.playing, "The Old Castle main-menu track should start automatically")
+		_expect(is_equal_approx(music_player.volume_db, float(entry.get("volume_db", 0.0))), "Main-menu playback should use the authored track volume")
+		_expect(music_player.stream is AudioStreamOggVorbis, "The Old Castle main-menu track should use the promoted Ogg")
+		if music_player.stream is AudioStreamOggVorbis:
+			var ogg_stream: AudioStreamOggVorbis = music_player.stream as AudioStreamOggVorbis
+			_expect(ogg_stream.loop, "The Old Castle main-menu Ogg should loop natively")
+			_expect(ogg_stream.get_length() > 131.5 and ogg_stream.get_length() < 131.6, "The Old Castle main-menu Ogg should retain its verified duration")
 		music_player.stop()
 		music_player.stream = null
 	instance.queue_free()

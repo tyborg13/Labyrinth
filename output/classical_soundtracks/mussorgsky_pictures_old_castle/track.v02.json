@@ -1,0 +1,218 @@
+{
+  "approval": {
+    "approved_by": "",
+    "approved_on": "",
+    "status": "audition",
+    "version": "v02"
+  },
+  "arrangement": {
+    "expected_note_counts": {
+      "Ashen Violin / Inner Voice": 160,
+      "Grave Cello / Troubadour": 291,
+      "Hollow Viola / Lower Harmony": 438,
+      "Undercrypt Bass / G-sharp Pedal": 438,
+      "Veiled Violin / Castle Air": 291
+    },
+    "midi_path": "versions/v02/arrangement.mid",
+    "midi_sha256": "e4fe6d11b0148372cf07c759556e579403f0c7bc0f1b3db51b941b0851a86c94",
+    "notes_file": "versions/v02/ARRANGEMENT_NOTES.md",
+    "version": "v02"
+  },
+  "composer": "Modest Mussorgsky",
+  "expected_outputs": {},
+  "render": {
+    "bank_manifest": "../../../assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
+    "crossfade_seconds": 0.0,
+    "echo": {
+      "darkening_filter_width": 9,
+      "taps": [
+        {
+          "delay_seconds": 0.096,
+          "gain": 0.1
+        },
+        {
+          "delay_seconds": 0.192,
+          "gain": 0.04
+        },
+        {
+          "delay_seconds": 0.288,
+          "gain": 0.016
+        }
+      ]
+    },
+    "ogg_stream_serial": "0x4f4c4432",
+    "output_basename": "versions/v02/preview",
+    "output_signal_quantization_bits": 15,
+    "percussion": {
+      "midi_track": "",
+      "notes": {}
+    },
+    "percussion_reconstruction_filter_width": 3,
+    "sample_rate": 44100,
+    "saturation_drive": 1.06,
+    "string_reconstruction_filter_width": 5,
+    "target_peak_dbfs": -8.0,
+    "tempo_mode": "fixed_qpm",
+    "tempo_qpm": 72,
+    "tracks": [
+      {
+        "bank_id": "veiled_violin",
+        "midi_track": "Veiled Violin / Castle Air",
+        "pan": 82,
+        "release_seconds": 0.18,
+        "render_gain": 0.3,
+        "stem": "upper",
+        "vibrato_cents": 3.0,
+        "vibrato_hz": 4.8
+      },
+      {
+        "bank_id": "ashen_violin",
+        "midi_track": "Ashen Violin / Inner Voice",
+        "pan": 42,
+        "release_seconds": 0.12,
+        "render_gain": 0.32,
+        "stem": "upper",
+        "vibrato_cents": 1.4,
+        "vibrato_hz": 4.3
+      },
+      {
+        "bank_id": "hollow_viola",
+        "midi_track": "Hollow Viola / Lower Harmony",
+        "pan": 70,
+        "release_seconds": 0.2,
+        "render_gain": 0.38,
+        "stem": "middle",
+        "vibrato_cents": 1.6,
+        "vibrato_hz": 4.0
+      },
+      {
+        "bank_id": "grave_cello",
+        "midi_track": "Grave Cello / Troubadour",
+        "pan": 54,
+        "release_seconds": 0.24,
+        "render_gain": 0.72,
+        "stem": "low",
+        "vibrato_cents": 2.2,
+        "vibrato_hz": 3.9
+      },
+      {
+        "bank_id": "undercrypt_bass",
+        "midi_track": "Undercrypt Bass / G-sharp Pedal",
+        "pan": 64,
+        "release_seconds": 0.28,
+        "render_gain": 0.5,
+        "stem": "low",
+        "vibrato_cents": 0.6,
+        "vibrato_hz": 3.1
+      }
+    ],
+    "vorbis_encoder": "auto"
+  },
+  "reproducibility": {
+    "arrangement_notes": {
+      "path": "versions/v02/ARRANGEMENT_NOTES.md",
+      "sha256": "d0ed5f25aaa4b74bfb5862784f9e0f429465739d53339ef6a1c440b2e0e87456"
+    },
+    "build_script": {
+      "path": "scripts/build_full_arrangement.py",
+      "sha256": "b1004b070977b8c5e9805065a0c5e507e9aa3d79fbb46688e80e720096a4c498"
+    },
+    "expected_part_count": 5,
+    "normalized_full_score_midi": {
+      "path": "versions/v02/normalized/full_score.mid",
+      "sha256": "a713acac2ab6541fbefa25578fcd48edd49ede36447256a05c7718fb5974d75a"
+    },
+    "normalized_full_score_musicxml": {
+      "path": "versions/v02/normalized/full_score.musicxml",
+      "sha256": "0fb5eebc1c50f4e4431589fd2d117659c8873bbe7a7fc83b66ec2b431ca0f0a6"
+    },
+    "normalized_parts": [
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/01_veiled_violin_castle_air.mid",
+          "sha256": "4665f77133774e68620219f598b8ed5147f315711e7bd8945e0aef0dff342a04"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/01_veiled_violin_castle_air.musicxml",
+          "sha256": "e4f997172b8f727638113e8605dfe1c3a640570713a1be19670db4b3c0105fcc"
+        },
+        "name": "Veiled Violin / Castle Air"
+      },
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/02_ashen_violin_inner_voice.mid",
+          "sha256": "93dd3f5997780187e9d9fddef6793652c4eb56b44f834b65f6d04f44b71bd8e5"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/02_ashen_violin_inner_voice.musicxml",
+          "sha256": "ec0ee27399ac8315b089cbed03c826bae7d9d33c0055a41315c2332d13cd9f1d"
+        },
+        "name": "Ashen Violin / Inner Voice"
+      },
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/03_hollow_viola_lower_harmony.mid",
+          "sha256": "fd8edd3c061014aec2456aad3a933758af756c397753530cd2d555d230e6f10e"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/03_hollow_viola_lower_harmony.musicxml",
+          "sha256": "d1d3576733bff95c7aafae762a33d3485c12242bec08befc721044b7a38b9a9d"
+        },
+        "name": "Hollow Viola / Lower Harmony"
+      },
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/04_grave_cello_troubadour.mid",
+          "sha256": "3b9b04cc2b4f8d1526db2089aae96e302c356d0a5f04f293c314f71edd90136d"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/04_grave_cello_troubadour.musicxml",
+          "sha256": "e8813a4d7633e1eb8753235d4435e117317115db96846e4809636383e148efce"
+        },
+        "name": "Grave Cello / Troubadour"
+      },
+      {
+        "midi": {
+          "path": "versions/v02/normalized/parts/05_undercrypt_bass_g_sharp_pedal.mid",
+          "sha256": "c37828b254677332688d224004de585bdcf034da1e8d8b07860779cb81ab38e3"
+        },
+        "musicxml": {
+          "path": "versions/v02/normalized/parts/05_undercrypt_bass_g_sharp_pedal.musicxml",
+          "sha256": "ab8aa9027a2c3421d9d8cc7cca3b3629c063a5373e9abce8a3ab30b66233729b"
+        },
+        "name": "Undercrypt Bass / G-sharp Pedal"
+      }
+    ]
+  },
+  "schema_version": 1,
+  "source": {
+    "composer": "Modest Mussorgsky (1839-1881)",
+    "composition": "Pictures at an Exhibition - The Old Castle",
+    "composition_public_domain": true,
+    "composition_public_domain_evidence": "Modest Mussorgsky died in 1881; the solo-piano suite was first published by V. Bessel & Co. in 1886, and the Sibley Music Library marks its 1918 Breitkopf & Härtel reprint public domain.",
+    "date_retrieved": "2026-08-26",
+    "license_evidence": "PDMX v9 metadata for score 5952494 identifies the solo-piano score as downloadable, public domain, and cc-zero; PDMX marks the row no-license-conflict and all-valid.",
+    "license_file": "LICENSE_SOURCE.md",
+    "path": "source/mussorgsky_pictures_at_an_exhibition_pdmx_cc0.mid",
+    "rights_basis": "cc0",
+    "rights_status": "cleared",
+    "sha256": "e8c7fe31e8ff267a8fa4f4ca5edd076955e49cd89548d7367a588e163079cc34",
+    "source_format": "MIDI export of the one-part solo-piano score in PDMX v9 (archive member mid/11/49/QmTV1L2x37h7VPCZNdqXCuAJq2ykz61ZxfpmnWUoWG8qLF.mid)",
+    "source_url": "https://doi.org/10.5281/zenodo.15571083",
+    "transcription_license": "CC0 1.0 Universal"
+  },
+  "title": "Pictures at an Exhibition - The Old Castle (Complete v02)",
+  "track_id": "mussorgsky_pictures_old_castle_v02",
+  "reference_source": {
+    "catalogue_url": "https://hdl.handle.net/1802/13415",
+    "path": "source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
+    "sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
+    "source_score_pages": "PDF pages 8-10 (printed pages 7-9)"
+  },
+  "verification": {
+    "duration_tolerance_seconds": 0.02,
+    "max_loop_seam_to_p99_9_ratio": 1.0,
+    "max_silence_seconds": 3.0,
+    "peak_tolerance_db": 0.05
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "audio": {
+    "decoded_loop_metrics": {
+      "flac": {
+        "decoded_frames": 3087000,
+        "duration_seconds": 70.0,
+        "first_frame": [
+          0.02362060546875,
+          0.0230712890625
+        ],
+        "first_last_sample_delta": [
+          0.00048828125,
+          0.00042724609375
+        ],
+        "last_frame": [
+          0.02313232421875,
+          0.02264404296875
+        ],
+        "p99_9_adjacent_sample_delta": [
+          0.02239990234375,
+          0.02471923828125
+        ],
+        "peak_dbfs": -7.5000949322368635,
+        "seam_to_p99_9_ratio": [
+          0.021798365122615803,
+          0.01728395061728395
+        ]
+      },
+      "ogg": {
+        "decoded_frames": 3087040,
+        "duration_seconds": 70.00090702947846,
+        "first_frame": [
+          0.016769809648394585,
+          0.01641738787293434
+        ],
+        "first_last_sample_delta": [
+          0.01589013822376728,
+          0.01624596118927002
+        ],
+        "last_frame": [
+          0.0008796722395345569,
+          0.000171426116139628
+        ],
+        "p99_9_adjacent_sample_delta": [
+          0.02237820439040661,
+          0.0246906578540802
+        ],
+        "peak_dbfs": -7.444913329965135,
+        "seam_to_p99_9_ratio": [
+          0.7100720838254243,
+          0.6579800864473657
+        ]
+      }
+    },
+    "flac": {
+      "format": {
+        "duration": "70.000000",
+        "size": "2954801"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "flac",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "flac_sha256": "cc591f7a64a75b60cdc759d483317d22b820cd1776a872e9b3fbfe03ce028b39",
+    "long_silence_events": {
+      "flac": [],
+      "ogg": []
+    },
+    "ogg": {
+      "format": {
+        "duration": "70.000907",
+        "size": "533430"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "vorbis",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "ogg_sha256": "6facdf9570066521a7a53a6859972c5476e5da23742b344351df65212fbb3a00",
+    "peak_dbfs": -7.5000949322368635,
+    "strict_decode": true
+  },
+  "bank_manifest_sha256": "2fc0b70a096ec2bbbcfdf3bd3cdbf3d3f595a780835329332ee548d581019ea6",
+  "bank_sample_hashes": {
+    "ash_tick": "1d2eff817f2e52e2b7ffa177914a6c2b33cc534b4f34b53bbefa1b469837aeb7",
+    "ashen_violin": "61582413be61cd25d182bdb1645c83af6b663070d9be9730525a02bc1ec890a0",
+    "bone_tom": "3789e4f0aec579f355416bc05cea5758f018b528ae7db37069100b221f0432ec",
+    "grave_cello": "17eb59965eabbe0a910585f100296ce56cd868884d440139a3b5c7b13df40f09",
+    "hollow_viola": "9cac0ff97b72b9822e4774fdd4d270b8f4b719f5662e27035519715b07f70c74",
+    "umbra_war_drum": "6286624ce4b2bf0f8f372a524217846a7096bb9f453dea8b60f69d3207f346ea",
+    "undercrypt_bass": "2b1a1a07e74969533c0ef2766602633fcb6180a12ae6fa3dddc6dbdb1264679e",
+    "veiled_violin": "c683d2911eba6adb35e58027b1dd363f5057996a789f06f8a4aa604d9092ffc8"
+  },
+  "config_sha256": "5902ab57c6212e45c68c2a2338bf2a2cd73bd01bc79dd03e4543bcc8fb271f24",
+  "midi": {
+    "configured_tracks": [
+      "Ashen Violin / Lute Ostinato",
+      "Funeral Pulse / Procedural Percussion",
+      "Grave Cello / Troubadour",
+      "Hollow Viola / Stone Harmony",
+      "Undercrypt Bass / G-sharp Drone",
+      "Veiled Violin / Castle Air"
+    ],
+    "note_counts": {
+      "Ashen Violin / Lute Ostinato": 192,
+      "Funeral Pulse / Procedural Percussion": 28,
+      "Grave Cello / Troubadour": 93,
+      "Hollow Viola / Stone Harmony": 32,
+      "Undercrypt Bass / G-sharp Drone": 64,
+      "Veiled Violin / Castle Air": 47
+    },
+    "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v01/arrangement.mid",
+    "sha256": "fe2021d054e8179ade63c2d808e2624d8cd9a2e4bdcab5f0420dbe46b91b771b",
+    "structural_duration_seconds": 80.0
+  },
+  "ok": true,
+  "reproducibility": {
+    "arrangement_notes": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v01/ARRANGEMENT_NOTES.md",
+      "sha256": "76660ac5badcd9e70044d43d251030fd895a121a79c96c4d5b37174a67753dc4"
+    },
+    "build_script": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/scripts/build_arrangement.py",
+      "sha256": "7433d6b039c8752dfac763106aec0694b7964c09ecbbcaa0e0ce82fbc26b968e"
+    },
+    "expected_part_count": 1,
+    "normalized_full_score_midi": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/full_score.mid",
+      "sha256": "61a864b00329303ab4d720de135991058c694ecbce6f4ee4cd564ef681c4e875"
+    },
+    "normalized_full_score_musicxml": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/full_score.musicxml",
+      "sha256": "9e1b5b570455937f99da6c4e01be30d6672f4969f01084fd69ac38c45fe1b10b"
+    },
+    "normalized_parts": [
+      {
+        "midi": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/parts/01_piano_score_derived_source_reduction.mid",
+          "sha256": "61a864b00329303ab4d720de135991058c694ecbce6f4ee4cd564ef681c4e875"
+        },
+        "musicxml": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/normalized/parts/01_piano_score_derived_source_reduction.musicxml",
+          "sha256": "c9226d4d25878de979fe7cf1bab5d084f275e75d7914d34ea33c83ce04176eff"
+        },
+        "name": "Piano (score-derived source reduction)"
+      }
+    ]
+  },
+  "source": {
+    "license_file": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/LICENSE_SOURCE.md",
+    "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
+    "rights_basis": "public_domain",
+    "sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
+    "transcription_license": "Public domain via CC0 1.0 Universal dedication"
+  },
+  "track_id": "mussorgsky_pictures_old_castle"
+}

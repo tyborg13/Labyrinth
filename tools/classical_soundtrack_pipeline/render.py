@@ -139,7 +139,10 @@ def _sampled_note(note: RenderNote, track: dict[str, object], sample: dict[str, 
     if release_start < total_samples:
         progress = np.linspace(0.0, 1.0, total_samples - release_start, endpoint=True)
         envelope[release_start:] = np.cos(progress * math.pi / 2.0) ** 2
-    attack = min(total_samples, max(8, int(round(0.012 * output_rate))))
+    attack_seconds = float(track.get("attack_seconds", 0.012))
+    if attack_seconds < 0.0:
+        raise PipelineError("String track attack_seconds must be non-negative")
+    attack = min(total_samples, max(8, int(round(attack_seconds * output_rate))))
     envelope[:attack] *= np.sin(np.linspace(0.0, math.pi / 2.0, attack, endpoint=True)) ** 2
     velocity_gain = (note.velocity / 88.0) ** 1.45
     return signal * envelope * velocity_gain * float(track["render_gain"])

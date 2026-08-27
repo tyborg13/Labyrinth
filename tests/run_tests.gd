@@ -599,6 +599,15 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert((repeated.get("added", []) as Array).is_empty(), "Repeated Grimoire discoveries should not add duplicates")
 
 func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
+	var menu_entry: Dictionary = MusicLibrary.entry(MusicLibrary.OLD_CASTLE_MENU_TRACK_ID)
+	var menu_path: String = str(menu_entry.get("path", ""))
+	_assert(str(menu_entry.get("id", "")) == MusicLibrary.OLD_CASTLE_MENU_TRACK_ID, "Main-menu music should have a dedicated route outside room and combat selectors")
+	_assert(menu_path == "res://assets/audio/music/mussorgsky_old_castle_main_menu.ogg", "Main-menu music should point to the promoted Old Castle Ogg")
+	_assert(FileAccess.file_exists(menu_path), "Promoted Old Castle main-menu music should exist")
+	_assert(_audio_asset_loads(menu_path), "Promoted Old Castle main-menu music should load as audio")
+	_assert(bool(menu_entry.get("loop", false)), "Old Castle main-menu music should request native looping")
+	_assert(is_equal_approx(float(menu_entry.get("volume_db", 0.0)), -6.5), "Old Castle main-menu music should retain its audition-level presence")
+	_assert(FileAccess.get_sha256(menu_path) == "57fabef2f4298b22ef7477e18b261702152483c9cb7aabe43acd99ece952fdc8", "Shipped Old Castle menu music should match the verified v07 Ogg")
 	for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING, ElementData.AIR, ElementData.EARTH, ElementData.NONE]:
 		var entry: Dictionary = MusicLibrary.entry_for_context("combat", {
 			"type": "combat",

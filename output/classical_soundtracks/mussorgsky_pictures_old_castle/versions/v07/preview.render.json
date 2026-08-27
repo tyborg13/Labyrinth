@@ -1,0 +1,71 @@
+{
+  "audio": {
+    "channels": 2,
+    "duration_seconds": 131.5404761904762,
+    "echo": {
+      "circular": true,
+      "darkening_filter": "7-sample moving average before echo taps",
+      "model": "finite circular cross-stereo dark echo",
+      "taps": [
+        {
+          "delay_ms": 86.0,
+          "gain": 0.085
+        },
+        {
+          "delay_ms": 172.0,
+          "gain": 0.034
+        },
+        {
+          "delay_ms": 258.0,
+          "gain": 0.012
+        }
+      ]
+    },
+    "encoder": "FFmpeg native Vorbis quality 5 (experimental encoder API)",
+    "ffmpeg_version": "ffmpeg version 8.1.1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "flac_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v07/preview.flac",
+    "flac_sha256": "b046eec1b977b303cf80b5055010eaee5f326b7bb761157e963b91cd5ef7c0b7",
+    "loop_crossfade": {
+      "crossfade_samples": 58065,
+      "crossfade_seconds": 1.3166666666666667,
+      "first_last_sample_delta": [
+        0.001816280739775339,
+        0.0021641661732460776
+      ],
+      "method": "equal-power tail-to-head overlap with loop-point rotation",
+      "p99_9_adjacent_sample_delta": [
+        0.019962127248982546,
+        0.022256318633068792
+      ]
+    },
+    "master_gain": 0.5188205585688482,
+    "ogg_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v07/preview.ogg",
+    "ogg_sha256": "57fabef2f4298b22ef7477e18b261702152483c9cb7aabe43acd99ece952fdc8",
+    "ogg_stream_serial": "0x4f4c4437",
+    "peak_dbfs": -8.000252735705352,
+    "peak_linear": 0.3980955868888482,
+    "pre_master_stem_rms": {
+      "low_strings": 0.0910816674424084,
+      "percussion": 0.01091553939975495,
+      "upper_strings": 0.04920039513186852
+    },
+    "rms_linear": 0.07263236170973826,
+    "sample_rate": 44100,
+    "structural_duration_seconds": 132.85714285714286
+  },
+  "bank_manifest": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
+  "bank_manifest_sha256": "2fc0b70a096ec2bbbcfdf3bd3cdbf3d3f595a780835329332ee548d581019ea6",
+  "config_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/track.v07.json",
+  "config_sha256": "ada7716a0292c5116dc809fcf56cd2ce57674fd3a0297d660e808e82b4d76c9f",
+  "midi_note_counts": {
+    "Ashen Violin / Inner Voice": 101,
+    "Funeral Pulse / Menu Percussion": 248,
+    "Grave Cello / Troubadour": 188,
+    "Hollow Viola / Lower Harmony": 262,
+    "Umbra Veil / Low-Mid G-sharp-D-sharp Breath": 14,
+    "Undercrypt Bass / G-sharp Pedal": 262,
+    "Veiled Violin / Castle Air": 188
+  },
+  "schema_version": 1,
+  "track_id": "mussorgsky_pictures_old_castle_main_menu_v07"
+}
