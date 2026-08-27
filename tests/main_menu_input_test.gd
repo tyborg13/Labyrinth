@@ -16,9 +16,14 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path(RUN_PATH)
 	ProgressionStore.clear_saved_run()
 	await _test_hover_and_press_same_frame_activates_once()
+	SettingsStore.set_storage_path("user://startup_input_test_settings.json")
+	await _test_startup_sequence(false)
+	await _test_startup_sequence(true)
+	await _test_startup_interruption_restores_input()
+	SettingsStore.clear_storage()
 	_cleanup_storage()
 	if _failures.is_empty():
-		print("TEST RESULT: PASS — main menu first-click input")
+		print("TEST RESULT: PASS — main menu input and startup transitions")
 		quit(0)
 		return
 	for failure: String in _failures:
@@ -96,6 +101,107 @@ func _click_after_hover(instance: Node, button: Button) -> void:
 	release_event.global_position = button_center
 	instance.get_viewport().push_input(release_event, true)
 	await process_frame
+
+func _test_startup_sequence(reduced_motion: bool) -> void:
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["reduced_motion"] = reduced_motion
+	_expect(SettingsStore.save_settings(settings), "Startup test settings should save")
+	var packed: PackedScene = load("res://scenes/startup.tscn")
+	var startup = packed.instantiate()
+	var phase_times: Dictionary = {}
+	var result: Array[Control] = []
+	startup.phase_changed.connect(func(value: StringName): phase_times[str(value)] = Time.get_ticks_msec())
+	startup.finished.connect(func(value: Control): result.append(value))
+	var cursor := root.get_node_or_null("CursorFeedback") as CanvasLayer
+	var cursor_was_visible: bool = cursor.visible if cursor != null else false
+	root.add_child(startup)
+	_expect(root.gui_disable_input, "Startup should gate hidden GUI input")
+	if cursor != null:
+		_expect(not cursor.visible and not cursor.is_processing_input(), "Startup should hide the cursor and suppress click feedback")
+	while startup.phase != &"hold":
+		await process_frame
+	_expect(is_equal_approx(startup.seal.modulate.a, 1.0), "The two-second hold should be fully opaque")
+	while result.is_empty() and startup.phase != &"menu_fade_in":
+		await process_frame
+	if not reduced_motion:
+		var gated_menu: Control = startup.menu
+		var button: Button = gated_menu.get_node("MenuColumn/SettingsButton")
+		button.grab_focus()
+		await _click_after_hover(gated_menu, button)
+		await _send_accept(KEY_ENTER)
+		await _send_accept(0, JOY_BUTTON_A)
+		_expect(not gated_menu.get_node("SettingsPanel").visible, "Pointer, keyboard and controller must not activate the fading menu")
+	while result.is_empty():
+		await process_frame
+	var menu: Control = result[0]
+	_expect(phase_times["fade_out"] - phase_times["hold"] >= 2000, "The seal should remain fully visible for at least two seconds")
+	if not reduced_motion:
+		_expect(phase_times["hold"] - phase_times["fade_in"] >= 350, "Normal startup should fade the seal in")
+		_expect(phase_times["menu_black"] - phase_times["fade_out"] >= 300, "Normal startup should fade the seal out")
+		_expect(phase_times["complete"] - phase_times["menu_fade_in"] >= 350, "Normal startup should fade the menu in")
+	else:
+		_expect(phase_times["menu_black"] - phase_times["fade_out"] < 50, "Reduced motion should omit the seal fade-out")
+		_expect(phase_times["complete"] - phase_times["menu_fade_in"] < 50, "Reduced motion should omit the menu fade")
+	_expect(not root.gui_disable_input, "Finished startup should restore GUI input")
+	_expect(current_scene == menu and is_equal_approx(menu.modulate.a, 1.0), "The existing menu should become the fully visible current scene")
+	if cursor != null:
+		_expect(cursor.visible == cursor_was_visible and cursor.is_processing_input(), "Startup should restore the cursor and its input")
+	var settings_button: Button = menu.get_node("MenuColumn/SettingsButton")
+	var settings_panel: PanelContainer = menu.get_node("SettingsPanel")
+	await _click_after_hover(menu, settings_button)
+	_expect(settings_panel.visible, "The first pointer click after startup should work")
+	settings_panel.call("back_button").pressed.emit()
+	await process_frame
+	settings_button.grab_focus()
+	await _send_accept(KEY_ENTER)
+	_expect(settings_panel.visible, "Keyboard activation should work after startup")
+	settings_panel.call("back_button").pressed.emit()
+	await process_frame
+	settings_button.grab_focus()
+	await _send_accept(0, JOY_BUTTON_A)
+	_expect(settings_panel.visible, "Controller activation should work after startup")
+	print("Startup timing reduced_motion=%s: %s" % [reduced_motion, JSON.stringify(phase_times)])
+	_stop_menu_music(menu)
+	menu.queue_free()
+	await process_frame
+	# Normal return paths load this scene directly and must never replay startup.
+	var returning_menu: Control = load("res://scenes/main_menu.tscn").instantiate()
+	root.add_child(returning_menu)
+	await process_frame
+	_expect(not root.gui_disable_input and is_equal_approx(returning_menu.modulate.a, 1.0), "Returning to the menu should not replay the intro")
+	_stop_menu_music(returning_menu)
+	returning_menu.queue_free()
+	await process_frame
+
+func _test_startup_interruption_restores_input() -> void:
+	var startup = load("res://scenes/startup.tscn").instantiate()
+	root.add_child(startup)
+	_expect(root.gui_disable_input, "Startup interruption test should begin locked")
+	startup.queue_free()
+	await process_frame
+	_expect(not root.gui_disable_input, "Interrupted startup should not strand the input lock")
+
+func _send_accept(key: int, joy_button: int = -1) -> void:
+	for pressed: bool in [true, false]:
+		var event: InputEvent
+		if joy_button >= 0:
+			var joy := InputEventJoypadButton.new()
+			joy.button_index = joy_button
+			joy.pressed = pressed
+			event = joy
+		else:
+			var keyboard := InputEventKey.new()
+			keyboard.keycode = key
+			keyboard.pressed = pressed
+			event = keyboard
+		root.push_input(event, true)
+		await process_frame
+
+func _stop_menu_music(menu: Control) -> void:
+	var music := menu.get_node_or_null("MusicPlayer") as AudioStreamPlayer
+	if music != null:
+		music.stop()
+		music.stream = null
 
 func _cleanup_storage() -> void:
 	ProgressionStore.clear_saved_run()

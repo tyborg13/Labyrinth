@@ -1,13 +1,17 @@
 extends SceneTree
-## Capture the engine's native boot renderer, not a TextureRect recreation.
-## Screen capture is supported on macOS/Windows. Run via visual_probe_runner.py.
+## Exercise the real startup scene, including its hold, fades and menu handoff.
 
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const SIZE := Vector2i(1920, 1080)
-const OUTPUT_DIR := "user://probes/boot_splash_makers_seal_20260827_v2"
+const OUTPUT_DIR := "user://probes/boot_splash_makers_seal_20260827_v3"
 const APPROVED_SHA256 := "a2fea0706c12f6e9e066e5b3f54d2660423d42d733975a110f0ffe45b79f211c"
+
+var _recording: bool = false
+var _record_start_ms: int
+var _last_frame_ms: int = -1000
+var _frames: Array[Dictionary] = []
 
 
 func _initialize() -> void:
@@ -15,97 +19,142 @@ func _initialize() -> void:
 	ProgressionStore.set_storage_path("user://boot_splash_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://boot_splash_probe_run.save")
 	SettingsStore.set_storage_path("user://boot_splash_probe_settings.json")
-	call_deferred("_capture")
+	call_deferred("_run")
 
 
-func _capture() -> void:
-	# The engine's startup hold occurs before the first main-loop callback.
-	# Measure before the window-settling or capture timers below can affect it.
-	var startup_elapsed_ms := Time.get_ticks_msec()
-	var minimum_display_ms: int = ProjectSettings.get_setting("application/boot_splash/minimum_display_time")
-	assert(minimum_display_ms == 2000, "The approved seal needs a two-second minimum.")
-	assert(startup_elapsed_ms >= minimum_display_ms, "Startup skipped the native splash minimum.")
-	print("Native startup timing: minimum_ms=%d first_callback_ms=%d" % [minimum_display_ms, startup_elapsed_ms])
-	assert(DisplayServer.get_name() != "headless", "Native splash proof needs a real renderer.")
-	var splash_path: String = ProjectSettings.get_setting("application/boot_splash/image")
-	assert(FileAccess.get_sha256(splash_path) == APPROVED_SHA256, "Approved splash pixels changed.")
-	assert(ProjectSettings.get_setting("application/boot_splash/show_image"))
-	var stretch_mode: int = ProjectSettings.get_setting("application/boot_splash/stretch_mode")
-	assert(stretch_mode == RenderingServer.SPLASH_STRETCH_MODE_KEEP)
-	var splash := Image.new()
-	assert(splash.load_png_from_buffer(FileAccess.get_file_as_bytes(splash_path)) == OK)
-	assert(splash != null and not splash.is_empty())
-	assert(splash.get_size() == Vector2i(1672, 941))
-	var settings: Dictionary = SettingsStore.default_settings()
+func _run() -> void:
+	assert(DisplayServer.get_name() != "headless", "Startup visual proof needs a real renderer.")
+	assert(FileAccess.get_sha256("res://assets/art/ui/boot_splash_makers_seal.png") == APPROVED_SHA256)
+	assert(ProjectSettings.get_setting("application/boot_splash/minimum_display_time") == 0)
+	assert(not ProjectSettings.get_setting("application/boot_splash/show_image"))
+	assert(ProjectSettings.get_setting("application/run/main_scene") == "res://scenes/startup.tscn")
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR.path_join("motion")))
+	var settings := SettingsStore.default_settings()
 	settings["display_mode"] = SettingsStore.DISPLAY_WINDOWED
 	settings["ui_scale"] = 1.0
-	assert(SettingsStore.save_settings(settings))
 	root.mode = Window.MODE_WINDOWED
 	root.borderless = true
 	root.size = SIZE
-	root.position = DisplayServer.screen_get_position() + Vector2i(100, 100)
 	root.grab_focus()
-	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
-	var cursor := root.get_node_or_null("CursorFeedback")
-	if cursor != null:
-		cursor.set_process(false)
-		cursor.hide()
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
-	await process_frame
-	await process_frame
-	# Let macOS finish leaving the project's default fullscreen window.
 	await create_timer(1.0).timeout
 	root.size = SIZE
-	root.position = DisplayServer.screen_get_position() + Vector2i(100, 100)
-	await process_frame
-	await process_frame
-	RenderingServer.render_loop_enabled = false
-	# Reissue the same native API/settings after sizing the proof window. The
-	# short capture hold is probe-only; production uses the native 2000 ms minimum.
-	RenderingServer.set_boot_image_with_stretch(
-		splash,
-		ProjectSettings.get_setting("application/boot_splash/bg_color"),
-		stretch_mode,
-		ProjectSettings.get_setting("application/boot_splash/use_filter")
-	)
-	await create_timer(0.5).timeout
-	# Use native bounds: Window.position can stay stale during macOS transitions.
-	var capture_rect := Rect2i(DisplayServer.window_get_position(), DisplayServer.window_get_size())
-	var capture: Image = DisplayServer.screen_get_image_rect(capture_rect)
-	assert(capture != null and not capture.is_empty(), "Could not capture the native splash window.")
-	print("Native boot: root=%s native_rect=%s capture=%s" % [root.size, capture_rect, capture.get_size()])
-	if capture.get_size() != SIZE:
-		push_error("Native splash capture must be exactly 1920x1080.")
-		quit(1)
-		return
-	assert(capture.save_png(ProjectSettings.globalize_path(OUTPUT_DIR.path_join("native_boot_1920x1080.png"))) == OK)
-	RenderingServer.render_loop_enabled = true
-	var main_scene_path: String = ProjectSettings.get_setting("application/run/main_scene")
-	assert(main_scene_path == "res://scenes/main_menu.tscn")
-	var packed: PackedScene = load(main_scene_path)
-	var menu := packed.instantiate()
-	root.add_child(menu)
-	await process_frame
-	await process_frame
-	await process_frame
+	RenderingServer.frame_post_draw.connect(_record_frame)
+	await _capture_sequence(settings, false)
+	await _capture_sequence(settings, true)
+	await _capture_motion(settings)
+	RenderingServer.frame_post_draw.disconnect(_record_frame)
+	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	print("TEST RESULT: PASS (startup fades, two-second hold, reduced motion and menu handoff)")
+	quit()
+
+
+func _capture_sequence(settings: Dictionary, reduced: bool) -> void:
+	settings["reduced_motion"] = reduced
+	assert(SettingsStore.save_settings(settings))
+	var startup = load("res://scenes/startup.tscn").instantiate()
+	var phase_times: Dictionary = {}
+	var completed_menu: Array[Control] = []
+	startup.phase_changed.connect(func(value: StringName): phase_times[str(value)] = Time.get_ticks_msec())
+	startup.finished.connect(func(value: Control): completed_menu.append(value))
+	root.add_child(startup)
+	current_scene = startup
 	root.size = SIZE
-	await RenderingServer.frame_post_draw
-	assert(menu.get_node("MenuColumn/StartButton").visible, "Startup must reach the existing menu.")
-	var menu_capture: Image = root.get_texture().get_image()
-	assert(menu_capture.get_size() == SIZE)
-	assert(menu_capture.save_png(ProjectSettings.globalize_path(OUTPUT_DIR.path_join("main_menu_1920x1080.png"))) == OK)
-	var music := menu.get_node_or_null("MusicPlayer")
+	if not reduced:
+		await _capture_black()
+		while startup.phase != &"fade_in":
+			await process_frame
+		await create_timer(0.19).timeout
+		assert(startup.seal.modulate.a > 0.1 and startup.seal.modulate.a < 0.9)
+		await _capture("normal_01_seal_fade_in")
+	while startup.phase != &"hold":
+		await process_frame
+	assert(is_equal_approx(startup.seal.modulate.a, 1.0))
+	assert(root.gui_disable_input)
+	await _capture("reduced_01_seal" if reduced else "normal_02_seal_opaque")
+	if not reduced:
+		while startup.phase != &"fade_out":
+			await process_frame
+		await create_timer(0.16).timeout
+		assert(startup.seal.modulate.a > 0.1 and startup.seal.modulate.a < 0.9)
+		await _capture("normal_03_seal_fade_out")
+		while startup.phase != &"menu_fade_in":
+			await process_frame
+		await create_timer(0.18).timeout
+		assert(startup.menu.modulate.a > 0.1 and startup.menu.modulate.a < 0.9)
+		assert(root.gui_disable_input)
+		await _capture("normal_04_menu_fade_in")
+	while completed_menu.is_empty():
+		await process_frame
+	var menu: Control = completed_menu[0]
+	assert(phase_times["fade_out"] - phase_times["hold"] >= 2000)
+	assert(not root.gui_disable_input and current_scene == menu)
+	assert(is_equal_approx(menu.modulate.a, 1.0))
+	assert(menu.get_node("MenuColumn/StartButton").visible)
+	await _capture("reduced_02_menu" if reduced else "normal_05_menu_ready")
+	print("Startup phases reduced_motion=%s: %s" % [reduced, JSON.stringify(phase_times)])
+	_dispose_menu(menu)
+	await process_frame
+	await process_frame
+
+
+func _capture_motion(settings: Dictionary) -> void:
+	# Separate pass: PNG snapshot compression must not add hitches to the clip.
+	settings["reduced_motion"] = false
+	assert(SettingsStore.save_settings(settings))
+	var startup = load("res://scenes/startup.tscn").instantiate()
+	var completed_menu: Array[Control] = []
+	startup.finished.connect(func(value: Control): completed_menu.append(value))
+	_recording = true
+	_record_start_ms = Time.get_ticks_msec()
+	root.add_child(startup)
+	current_scene = startup
+	while completed_menu.is_empty():
+		await process_frame
+	await create_timer(0.25).timeout
+	_recording = false
+	var file := FileAccess.open(OUTPUT_DIR.path_join("motion/frames.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify(_frames, "\t"))
+	file.close()
+	_dispose_menu(completed_menu[0])
+	await process_frame
+	await process_frame
+
+
+func _dispose_menu(menu: Control) -> void:
+	var music := menu.get_node_or_null("MusicPlayer") as AudioStreamPlayer
 	if music != null:
 		music.stop()
 		music.stream = null
-	print(ProjectSettings.globalize_path(OUTPUT_DIR))
-	print("TEST RESULT: PASS (native boot splash and main-menu handoff)")
 	menu.queue_free()
-	await process_frame
-	menu = null
-	packed = null
-	splash = null
-	capture = null
-	menu_capture = null
-	await process_frame
-	quit(0)
+
+
+func _capture_black() -> void:
+	await RenderingServer.frame_post_draw
+	var screenshot := root.get_texture().get_image()
+	assert(screenshot.get_size() == SIZE)
+	screenshot.convert(Image.FORMAT_RGB8)
+	var bytes := screenshot.get_data()
+	assert(bytes.count(0) == bytes.size(), "The initial transition frame must be solid black.")
+	# The generic PNG quality gate intentionally rejects blank frames. Validate
+	# every black pixel above and keep this special transition proof as JPEG.
+	assert(screenshot.save_jpg(ProjectSettings.globalize_path(OUTPUT_DIR.path_join("normal_00_black_1920x1080.jpg")), 1.0) == OK)
+
+
+func _capture(label: String) -> void:
+	await RenderingServer.frame_post_draw
+	var screenshot := root.get_texture().get_image()
+	assert(screenshot.get_size() == SIZE)
+	assert(screenshot.save_png(ProjectSettings.globalize_path(OUTPUT_DIR.path_join(label + "_1920x1080.png"))) == OK)
+
+
+func _record_frame() -> void:
+	if not _recording:
+		return
+	var elapsed_ms := Time.get_ticks_msec() - _record_start_ms
+	if elapsed_ms - _last_frame_ms < 50:
+		return
+	_last_frame_ms = elapsed_ms
+	var filename := "frame_%04d.jpg" % _frames.size()
+	var capture := root.get_texture().get_image()
+	assert(capture.save_jpg(ProjectSettings.globalize_path(OUTPUT_DIR.path_join("motion").path_join(filename)), 0.92) == OK)
+	_frames.append({"file": filename, "elapsed_ms": elapsed_ms})

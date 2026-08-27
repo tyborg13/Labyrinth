@@ -31,10 +31,10 @@ class BootSplashTests(unittest.TestCase):
         self.assertEqual(app["boot_splash/image"].strip('"'), "res://" + str(SPLASH.relative_to(ROOT)))
         self.assertEqual(app["boot_splash/bg_color"], "Color(0, 0, 0, 1)")
         self.assertEqual(app["boot_splash/stretch_mode"], "1")  # Godot 4.6 KEEP.
-        self.assertEqual(app["boot_splash/show_image"], "true")
+        self.assertEqual(app["boot_splash/show_image"], "false")  # Black until the scene can fade in.
         self.assertEqual(app["boot_splash/use_filter"], "true")
-        self.assertEqual(app["boot_splash/minimum_display_time"], "2000")  # Milliseconds.
-        self.assertEqual(app["run/main_scene"], '"res://scenes/main_menu.tscn"')
+        self.assertEqual(app["boot_splash/minimum_display_time"], "0")  # The scene owns the hold.
+        self.assertEqual(app["run/main_scene"], '"res://scenes/startup.tscn"')
         self.assertNotIn("boot_splash/fullsize", app)  # Retired in Godot 4.6.
 
     def test_import_metadata_uses_canonical_asset_path(self):

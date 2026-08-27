@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-27T17:20:48Z",
+  "updated_at": "2026-08-27T17:47:55Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9166,7 +9166,7 @@
       }
     },
     {
-      "id": "mnt_20260827T172048Z_550519d1",
+      "id": "mnt_20260827T174755Z_d51a3135",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -9175,16 +9175,18 @@
         "symbol": null
       },
       "scope_key": "file:project.godot",
-      "summary": "Keep the approved Maker's Seal splash visible with a native 2000 ms minimum; the user found zero-wait startup too brief to see.",
-      "details": "The selected artwork must remain unchanged. The two-second minimum was explicitly requested after inspecting the initial splash; do not remove it as a startup optimization. Use application/boot_splash/minimum_display_time rather than a separate loading scene.",
+      "summary": "Startup must fade the unchanged Maker's Seal in and out, with a full two-second opaque hold before revealing the menu.",
+      "details": "The user found both the zero-wait splash and its hard cut unsatisfactory. Godot's native splash is static: keep native boot black with no wait, and let scenes/startup.tscn own the fades and two-second hold. Do not restore the old native 2000 ms wait, which would duplicate the intro. Honor reduced motion and keep returning-to-menu paths on scenes/main_menu.tscn.",
       "status": "active",
-      "created_at": "2026-08-27T17:20:48Z",
-      "updated_at": "2026-08-27T17:20:48Z",
+      "created_at": "2026-08-27T17:47:55Z",
+      "updated_at": "2026-08-27T17:47:55Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260827T172048Z_550519d1"
+      ],
       "source": {
         "branch": "codex/godot-seal-splash",
-        "commit": "25630f3c"
+        "commit": "f45e139c"
       }
     }
   ]
