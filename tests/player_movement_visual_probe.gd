@@ -134,6 +134,8 @@ func _initialize() -> void:
 
 	instance.queue_free()
 	await process_frame
+	if router != null and router.has_method("clear_forced_state_for_test"):
+		router.call("clear_forced_state_for_test")
 	if _errors.is_empty():
 		print("PLAYER MOVEMENT VISUAL PROBE: PASS")
 		print(ProjectSettings.globalize_path(OUTPUT_DIR))

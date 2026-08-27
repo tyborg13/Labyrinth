@@ -33,6 +33,7 @@ var _modality: String = MODALITY_POINTER
 var _controller_family: String = FAMILY_XBOX
 var _active_device_id: int = -1
 var _forced_family_for_test: String = ""
+var _forced_modality_for_test: String = ""
 var _last_controller_activity_msec: int = -10000
 var _steam_input_initialized: bool = false
 
@@ -43,6 +44,10 @@ func _ready() -> void:
 	_refresh_connected_family()
 
 func _input(event: InputEvent) -> void:
+	# GUI probes share the host's real input stream. A forced test state must stay
+	# deterministic until the probe explicitly authors its next modality.
+	if not _forced_modality_for_test.is_empty():
+		return
 	if event is InputEventJoypadButton:
 		var button_event := event as InputEventJoypadButton
 		if button_event.pressed:
@@ -171,8 +176,13 @@ static func glyph_label_for_family(action_name: StringName, family: String) -> S
 	return "?"
 
 func set_forced_state_for_test(next_modality: String, family: String) -> void:
+	_forced_modality_for_test = MODALITY_CONTROLLER if next_modality == MODALITY_CONTROLLER else MODALITY_POINTER
 	force_family_for_test(family)
-	set_modality(next_modality)
+	set_modality(_forced_modality_for_test)
+
+func clear_forced_state_for_test() -> void:
+	_forced_modality_for_test = ""
+	clear_forced_family_for_test()
 
 func _refresh_connected_family() -> void:
 	var devices: Array[int] = Input.get_connected_joypads()

@@ -72,6 +72,8 @@ func _run() -> void:
 	print("CONTROLLER CURSOR PERF RESULT: %s" % JSON.stringify(result))
 	instance.queue_free()
 	await process_frame
+	if router != null and router.has_method("clear_forced_state_for_test"):
+		router.call("clear_forced_state_for_test")
 	var candidate_instrumentation_present: bool = int(result["controller_cursor_total_calls"]) > 0
 	var candidate_regression_free: bool = (
 		not candidate_instrumentation_present

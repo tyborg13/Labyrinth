@@ -9499,6 +9499,11 @@ func _test_run_scene_direct_card_and_player_movement_selection() -> void:
 	_assert(router != null, "Controller movement cancellation requires the input router")
 	if router != null:
 		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+		var incidental_host_click := InputEventMouseButton.new()
+		incidental_host_click.button_index = MOUSE_BUTTON_LEFT
+		incidental_host_click.pressed = true
+		router.call("_input", incidental_host_click)
+		_assert(str(router.call("modality")) == InputRouterScript.MODALITY_CONTROLLER, "Forced controller tests should ignore incidental host pointer buttons")
 		instance.call("_refresh_controller_prompts")
 		var prompt_labels: Array[String] = []
 		var prompt_bar: Control = instance.get("_controller_prompt_bar") as Control
@@ -9519,6 +9524,8 @@ func _test_run_scene_direct_card_and_player_movement_selection() -> void:
 		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
 	instance.queue_free()
 	await process_frame
+	if router != null and router.has_method("clear_forced_state_for_test"):
+		router.call("clear_forced_state_for_test")
 
 func _test_run_scene_combat_interaction_context_paths() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")

@@ -112,10 +112,14 @@ func _capture_run_surfaces() -> void:
 	instance.call("_close_dialogue")
 	await _load_combat_fixture(instance)
 	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
-	# This GUI probe runs beside the host Mac pointer. Prevent incidental host
-	# mouse jitter from changing modality during authored controller waits; the
-	# explicit pointer/controller handoff below still changes modality directly.
-	_router.set("_last_controller_activity_msec", Time.get_ticks_msec() + 60000)
+	var incidental_host_click := InputEventMouseButton.new()
+	incidental_host_click.button_index = MOUSE_BUTTON_LEFT
+	incidental_host_click.pressed = true
+	_router.call("_input", incidental_host_click)
+	_require(
+		str(_router.call("modality")) == InputRouterScript.MODALITY_CONTROLLER,
+		"Forced controller proof should ignore incidental host pointer buttons"
+	)
 	instance.call("_controller_cycle_hand", 1)
 	await _settle()
 	_require(int(instance.get("_hovered_card_index")) == int(instance.get("_controller_hand_index")), "Controller hand navigation should use the card's authored hover/focus treatment")
@@ -345,10 +349,6 @@ func _capture_run_surfaces() -> void:
 	await _settle()
 
 func _exercise_controller_combat_events(instance: Node) -> void:
-	# A GUI probe runs beside the host Mac pointer. Keep incidental host-mouse
-	# jitter from changing modality during long authored action waits; explicit
-	# pointer/controller handoff cases below still call set_modality directly.
-	_router.set("_last_controller_activity_msec", Time.get_ticks_msec() + 60000)
 	await _load_combat_fixture(instance)
 	instance.set("_controller_region", "hand")
 	instance.set("_controller_hand_index", 0)
@@ -384,12 +384,14 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	var controller_board: Control = instance.get("board_view") as Control
 	var controller_navigation_snapshot: Dictionary = controller_board.call("navigation_snapshot") if controller_board != null else {}
 	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_STEAM_DECK)
+	_require(str(_router.call("modality")) == InputRouterScript.MODALITY_POINTER, "Authored pointer handoff should override the prior forced controller state")
 	instance.call("_refresh_controller_interface")
 	await _settle()
 	_require(instance.find_child("ControllerGridCursor", true, false) == null, "Pointer card targeting should remain free of controller-only frames")
 	_assert_pointer_board_rect_restored(instance, controller_navigation_snapshot)
 	await _save_screenshot("combat_direct_printed_pointer.png")
 	_router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	_require(str(_router.call("modality")) == InputRouterScript.MODALITY_CONTROLLER, "Authored controller handoff should override the prior forced pointer state")
 	instance.call("_refresh_controller_interface")
 	await _settle()
 	_require(str(instance.get("_controller_region")) == "board" and int(instance.get("_selected_card_index")) == 0, "Returning to controller input should preserve the active printed-card target flow")
@@ -1128,6 +1130,8 @@ func _settle() -> void:
 	await process_frame
 
 func _cleanup_storage() -> void:
+	if _router != null and _router.has_method("clear_forced_state_for_test"):
+		_router.call("clear_forced_state_for_test")
 	ProgressionStore.clear_saved_run()
 	SettingsStore.clear_storage()
 	if FileAccess.file_exists(PROGRESSION_PATH):
