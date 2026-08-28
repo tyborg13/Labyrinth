@@ -1,5 +1,6 @@
 extends SceneTree
 
+const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -414,6 +415,7 @@ func _command_walk(raw: String) -> void:
 		return
 	_combat_state = transition_state.duplicate(true)
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
+	_log_item_pickups(before_combat_state, _combat_state)
 	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
 	_analytics_store.write_event("player_moved", _analytics_context(before_combat_state), movement.duplicate(true))
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
@@ -489,7 +491,7 @@ func _print_board() -> void:
 	for loot_var: Variant in _combat_state.get("loot", []):
 		if typeof(loot_var) == TYPE_DICTIONARY and not bool((loot_var as Dictionary).get("claimed", false)):
 			var loot: Dictionary = loot_var
-			var loot_mark: String = "H" if str(loot.get("kind", "")) == "healing_vial" else "S" if str(loot.get("kind", "")) == "rusty_shield" else "$"
+			var loot_mark: String = "!" if str(loot.get("kind", "")) == "item" else "G" if str(loot.get("kind", "")) == "equipment" else "$"
 			marks[loot.get("pos", Vector2i.ZERO)] = loot_mark
 	for illusion_var: Variant in _combat_state.get("illusions", []):
 		if typeof(illusion_var) == TYPE_DICTIONARY and int((illusion_var as Dictionary).get("hp", 0)) > 0:
@@ -1401,8 +1403,7 @@ func _commit_pending() -> void:
 	var actions: Array = (_pending.get("actions", []) as Array).duplicate(true)
 	var targets: Array[Vector2i] = _vector2i_array(_pending.get("targets", []))
 	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index, _combat_engine.card_plays_spent_for_actions(actions), {"play_mode": "play"})
-	if GameData.card_consumes_on_play(card_id):
-		_run_state = _run_engine.consume_equipped_item_card(_run_state, card_id)
+	_log_item_pickups(before_combat_state, _combat_state)
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
 	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
@@ -1434,6 +1435,7 @@ func _resolve_enemy_round(reason: String) -> void:
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
 	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
 	var after_phase_state: Dictionary = (phase.get("state", {}) as Dictionary).duplicate(true)
+	_log_item_pickups(before_combat_state, after_phase_state)
 	_log_enemy_status_ticks(phase, after_phase_state)
 	var hp_before: int = int((before_combat_state.get("player", {}) as Dictionary).get("hp", 0))
 	var before_draw_state: Dictionary = (phase.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
@@ -1444,8 +1446,8 @@ func _resolve_enemy_round(reason: String) -> void:
 	var next_turn_state: Dictionary = {}
 	if outcome.is_empty() and not before_draw_state.is_empty():
 		next_turn_state = _combat_state.duplicate(true)
-		_analytics_reconcile_combat_tracker(before_draw_state, _combat_state)
-		_log_card_draws(before_draw_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
+		_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
+		_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
 		_log_playable_cards()
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	var transition_state: Dictionary = _combat_state.duplicate(true)
@@ -1954,7 +1956,18 @@ func _analytics_next_card_instance_id(tracker: Dictionary) -> String:
 	tracker["next_instance_seq"] = next_seq + 1
 	return "%s_i%03d" % [str(tracker.get("combat_id", "combat")), next_seq]
 
+func _log_item_pickups(before_state: Dictionary, after_state: Dictionary) -> void:
+	for loot: Dictionary in BattlefieldItemRules.pickups_between(before_state, after_state):
+		var card_id: String = str(loot.get("card_id", ""))
+		_analytics_store.write_event("item_picked_up", _analytics_context(after_state, card_id), {
+			"loot_id": str(loot.get("id", "")), "card_id": card_id,
+			"destination": str(loot.get("destination", "inventory")),
+			"equipped_items": after_state.get("equipped_items", []).duplicate(),
+			"item_inventory": after_state.get("item_inventory", []).duplicate()
+		})
+
 func _log_card_draws(before_state: Dictionary, after_state: Dictionary, before_tracker: Dictionary, after_tracker: Dictionary, reason: String) -> void:
+	var pickup_counts: Dictionary = BattlefieldItemRules.hand_pickup_counts(before_state, after_state)
 	var before_hand_ids: Dictionary = {}
 	for instance_id_var: Variant in _analytics_zone_ids(before_tracker, "hand"):
 		before_hand_ids[str(instance_id_var)] = true
@@ -1965,8 +1978,12 @@ func _log_card_draws(before_state: Dictionary, after_state: Dictionary, before_t
 		if before_hand_ids.has(instance_id):
 			continue
 		var card_id: String = after_hand_cards[index]
+		var draw_reason: String = reason
+		if int(pickup_counts.get(card_id, 0)) > 0:
+			draw_reason = "item_pickup"
+			pickup_counts[card_id] = int(pickup_counts[card_id]) - 1
 		_analytics_store.write_event("card_drawn", _analytics_context(after_state, card_id, instance_id), {
-			"reason": reason,
+			"reason": draw_reason,
 			"hand_index": index,
 			"hand_size": after_hand_cards.size(),
 			"draw_pile_size": _analytics_zone_cards(after_state, "draw").size()
@@ -2810,10 +2827,10 @@ func _movement_gain_text(state: Dictionary, action: Dictionary, target: Vector2i
 
 func _loot_text(loot: Dictionary) -> String:
 	match str(loot.get("kind", "")):
-		"healing_vial":
-			return "Healing potion: Heal %d" % int(loot.get("amount", 0))
-		"rusty_shield":
-			return "Rusty shield: Gain %d block" % int(loot.get("amount", 0))
+		"item":
+			return "Item card: %s" % str(GameData.card_def(str(loot.get("card_id", ""))).get("name", "Item"))
+		"equipment":
+			return "Equipment: %s" % str(GameData.equipment_def(str(loot.get("equipment_id", ""))).get("name", "Gear"))
 	return "Loot"
 
 func _terrain_label(terrain: Dictionary) -> String:

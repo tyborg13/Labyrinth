@@ -177,7 +177,7 @@ func _load_combat_fixture(instance: Node, seed: int) -> void:
 			{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 22, "max_hp": 22, "block": 0},
 			{"id": 2, "type": "acolyte", "pos": Vector2i(6, 2), "hp": 24, "max_hp": 24, "block": 0}
 		],
-		"loot": [{"id": "vial", "kind": "healing_vial", "amount": 4, "pos": Vector2i(5, 4)}],
+		"loot": [{"id": "vial", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(5, 4)}],
 		"traps": [{"id": "trap", "element": "fire", "pos": Vector2i(4, 3), "damage": 3, "armed": true}],
 		"terrain": [{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(5, 2), "hp": 8, "max_hp": 8}]
 	}

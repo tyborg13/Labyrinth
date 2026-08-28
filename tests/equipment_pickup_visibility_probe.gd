@@ -12,14 +12,14 @@ const GEOMETRY_OUTPUT_FILES := {
 }
 const GEOMETRY_COLORS := {
 	"player": Color("55d8ff"),
-	"rusty_shield": Color("ffad4d"),
-	"healing_vial": Color("72e08d"),
+	"bone_ward_charm": Color("ffad4d"),
+	"crimson_draught": Color("72e08d"),
 	"equipment": Color("d59cff")
 }
 const GEOMETRY_LABELS := {
 	"player": "PLAYER",
-	"rusty_shield": "SHIELD",
-	"healing_vial": "HEALING VIAL",
+	"bone_ward_charm": "BONE-WARD CHARM",
+	"crimson_draught": "CRIMSON DRAUGHT",
 	"equipment": "EQUIPMENT"
 }
 
@@ -71,7 +71,7 @@ func _capture_zoom(viewport: SubViewport, board: Control, state: Dictionary, zoo
 	var parent_geometry: Dictionary = _pickup_and_actor_geometry(board, state)
 	_verify_dynamic_layer_geometry(geometry, parent_geometry, zoom)
 	var widths: Dictionary = {}
-	for object_id: String in ["player", "healing_vial", "rusty_shield", "equipment"]:
+	for object_id: String in ["player", "crimson_draught", "bone_ward_charm", "equipment"]:
 		var rect: Rect2 = geometry.get(object_id, Rect2()) as Rect2
 		widths[object_id] = rect.size.x
 		_expect(rect.size.x > 0.0, "%s should have a non-empty rendered geometry bound at %.2fx zoom" % [object_id, zoom])
@@ -79,8 +79,8 @@ func _capture_zoom(viewport: SubViewport, board: Control, state: Dictionary, zoo
 		"PICKUP ZOOM GEOMETRY: zoom=%.2f player=%.2f vial=%.2f shield=%.2f equipment=%.2f" % [
 			zoom,
 			float(widths.get("player", 0.0)),
-			float(widths.get("healing_vial", 0.0)),
-			float(widths.get("rusty_shield", 0.0)),
+			float(widths.get("crimson_draught", 0.0)),
+			float(widths.get("bone_ward_charm", 0.0)),
 			float(widths.get("equipment", 0.0))
 		]
 	)
@@ -120,7 +120,7 @@ func _draw_geometry_overlay(overlay: Control, geometry: Dictionary, zoom: float)
 	_draw_geometry_header(overlay, font, zoom)
 	var player_rect: Rect2 = geometry.get("player", Rect2()) as Rect2
 	var player_width: float = maxf(0.001, player_rect.size.x)
-	for object_id: String in ["player", "rusty_shield", "healing_vial", "equipment"]:
+	for object_id: String in ["player", "bone_ward_charm", "crimson_draught", "equipment"]:
 		var rect: Rect2 = geometry.get(object_id, Rect2()) as Rect2
 		var color: Color = GEOMETRY_COLORS.get(object_id, Color.WHITE) as Color
 		var ratio: float = rect.size.x / player_width
@@ -185,11 +185,11 @@ func _pickup_and_actor_geometry(render_layer: Control, state: Dictionary) -> Dic
 	for loot_var: Variant in state.get("loot", []) as Array:
 		var loot: Dictionary = loot_var as Dictionary
 		var texture: Texture2D = render_layer.call("_loot_texture", loot) as Texture2D
-		geometry[str(loot.get("kind", ""))] = render_layer.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
+		geometry[str(loot.get("card_id", loot.get("kind", "")))] = render_layer.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
 	return geometry
 
 func _verify_dynamic_layer_geometry(dynamic_geometry: Dictionary, parent_geometry: Dictionary, zoom: float) -> void:
-	for object_id: String in ["player", "healing_vial", "rusty_shield", "equipment"]:
+	for object_id: String in ["player", "crimson_draught", "bone_ward_charm", "equipment"]:
 		var dynamic_rect: Rect2 = dynamic_geometry.get(object_id, Rect2()) as Rect2
 		var parent_rect: Rect2 = parent_geometry.get(object_id, Rect2()) as Rect2
 		_expect(
@@ -201,7 +201,7 @@ func _verify_zoom_geometry(snapshots: Dictionary) -> void:
 	var min_widths: Dictionary = snapshots.get("min", {}) as Dictionary
 	var default_widths: Dictionary = snapshots.get("default", {}) as Dictionary
 	var max_widths: Dictionary = snapshots.get("max", {}) as Dictionary
-	for object_id: String in ["healing_vial", "rusty_shield", "equipment"]:
+	for object_id: String in ["crimson_draught", "bone_ward_charm", "equipment"]:
 		var min_width: float = float(min_widths.get(object_id, 0.0))
 		var default_width: float = float(default_widths.get(object_id, 0.0))
 		var max_width: float = float(max_widths.get(object_id, 0.0))
@@ -239,13 +239,11 @@ func _probe_state() -> Dictionary:
 			"pos": Vector2i(4, 3)
 		}, {
 			"id": "probe_vial",
-			"kind": "healing_vial",
-			"amount": 4,
+			"kind": "item", "card_id": "crimson_draught",
 			"pos": Vector2i(5, 4)
 		}, {
 			"id": "probe_shield",
-			"kind": "rusty_shield",
-			"amount": 5,
+			"kind": "item", "card_id": "bone_ward_charm",
 			"pos": Vector2i(3, 4)
 		}],
 		"terrain": [],

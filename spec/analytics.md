@@ -65,6 +65,7 @@ available:
 - `equipment_equipped`
 - `magic_attuned`
 - `item_equipped`
+- `item_picked_up`
 - `merchant_trade`
 
 `run_started` includes the compiled starting deck plus the equipment model used
@@ -236,7 +237,17 @@ one of the six attuned slots outside combat. Its payload records the reserve and
 attuned indices, the attuned `card_id`, full `attuned_magic_cards`,
 `magic_inventory`, `reward_cards`, and rebuilt `deck_cards`.
 
-`item_equipped` fires when the character overlay equips or stows a Scavenger
+`item_picked_up` records a newly collected battlefield item, with `loot_id`,
+`card_id`, `destination` (`hand`, `draw`, or `inventory`), and the resulting
+`equipped_items` and `item_inventory`. Duplicate cards remain separate pickups.
+Both live UI and the headless harness emit it. Direct hand acquisitions keep the
+existing `card_drawn` event with `reason: item_pickup`; they do not remove a card
+from the draw pile. Full-hand acquisitions go on top of draw and produce their
+normal `card_drawn` only when actually drawn. Full-slot pickups produce no draw.
+Combat snapshots now own item loadout transactions, so checkpoint replay and
+reload copy the result rather than granting or consuming items a second time.
+
+`item_equipped` fires when the character overlay equips or stows an owned
 consumable outside combat. Its payload records `action` (`equip` or `stow`),
 `card_id`, `inventory_index`, `equipped_index`, full `equipped_items`,
 `item_inventory`, and rebuilt `deck_cards`.

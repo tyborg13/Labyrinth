@@ -76,9 +76,12 @@ First-sequence standard trap damage is 6/7/8 natural damage at depths
 1/2/3, first-boss traps hit for 5 to avoid one-shotting full-health lightning
 wisps, and later sequences add 0/1/1/2/2/3 damage.
 Depth 1-2 fire traps use shallow burn before depth-3 fire/earth trap statuses
-cap at 2. Each normal room places exactly one utility pickup: a 2 HP healing vial
-25% of the time or a 3 block rusty shield 75% of the time. Boss rooms place one
-of each. Combat rooms scatter 5-7 low-HP boxes/crates across eligible
+cap at 2. Combat and boss rooms scatter 0/1/2 consumable item cards at
+15/65/20 percent, spacing them away from equipment and each other. A free item
+slot grants the pickup to hand (or the top of draw at the seven-card hand cap);
+full item slots store it only in reserve. Pickup access is encounter context,
+not an intrinsic draw or tempo bonus. Equipment drop eligibility/rates are
+unchanged. Combat rooms scatter 5-7 low-HP boxes/crates across eligible
 passable floor tiles, including edge-band tiles when connectivity stays intact.
 Those crates block movement without blocking line of sight and take damage from
 area effects, deterministic lightning strikes, and adjacent trap blasts. The
@@ -993,7 +996,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="source_filter",
         action="store_const",
         const="item",
-        help="Only consumable item cards sold by the Scavenger.",
+        help="Only consumable item cards found in combat or sold by the Scavenger.",
     )
     source_group.add_argument(
         "--starters",

@@ -264,6 +264,9 @@ static func card_consumes_on_play(card_id: String) -> bool:
 	var card: Dictionary = _raw_card_def(card_id)
 	return bool(card.get("consume_on_play", false))
 
+static func item_icon_path(card_id: String) -> String:
+	return str(_raw_card_def(card_id).get("icon_path", "")) if card_is_item(card_id) else ""
+
 static func item_offer_weight(card_id: String) -> int:
 	return rarity_offer_weight(card_rarity(card_id))
 

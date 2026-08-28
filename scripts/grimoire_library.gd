@@ -42,7 +42,7 @@ const CHARACTER_BODIES := {
 	],
 	"scavenger": [
 		"NPC merchant associated with single-use item cards.",
-		"Scavenger rooms offer item cards. Items can be equipped into item slots and are consumed when played."
+		"Find item cards in combat rooms or buy them from the Scavenger. Pickups fill an open item slot and enter your hand, or your draw pile if your hand is full. With both slots occupied, they go to inventory. Items are consumed when played."
 	],
 	"emaciated_man": [
 		"NPC encountered in the starting chamber.",

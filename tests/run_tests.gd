@@ -37,6 +37,7 @@ const MapUiSuite = preload("res://tests/suites/map_ui_suite.gd")
 const CombatBoardLayoutSuite = preload("res://tests/suites/combat_board_layout_suite.gd")
 const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass_suite.gd")
 const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.gd")
+const ItemPickupSuite = preload("res://tests/suites/item_pickup_suite.gd")
 const ControllerInputSuite = preload("res://tests/suites/controller_input_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
@@ -107,6 +108,7 @@ func _initialize() -> void:
 	EnemyIntentCompassSuite.run(Callable(self, "_assert"))
 	HealthBarThemeSuite.run(Callable(self, "_assert"))
 	ControllerInputSuite.run(Callable(self, "_assert"))
+	ItemPickupSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_non_boss_combat_to_schubert()
@@ -1236,16 +1238,9 @@ func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 			var loot: Dictionary = loot_var
 			loot_by_kind[str(loot.get("kind", ""))] = loot
 			_assert(PathUtils.is_passable(room.get("grid", []), loot.get("pos", Vector2i(-1, -1))), "Generated pickups should sit on passable floor tiles")
-		if room_type == "combat":
-			var utility_count: int = int(loot_by_kind.has("healing_vial")) + int(loot_by_kind.has("rusty_shield"))
-			_assert(utility_count == 1, "Combat rooms should place exactly one attrition-limited utility pickup")
-			if loot_by_kind.has("healing_vial"):
-				_assert(int((loot_by_kind.get("healing_vial", {}) as Dictionary).get("amount", 0)) == 2, "Healing vials should heal 2")
-			if loot_by_kind.has("rusty_shield"):
-				_assert(int((loot_by_kind.get("rusty_shield", {}) as Dictionary).get("amount", 0)) == 3, "Rusty shields should grant 3 block")
-		elif room_type == "boss":
-			_assert(loot_by_kind.has("healing_vial") and int((loot_by_kind.get("healing_vial", {}) as Dictionary).get("amount", 0)) == 2, "Boss rooms should place one 2-HP healing vial")
-			_assert(loot_by_kind.has("rusty_shield") and int((loot_by_kind.get("rusty_shield", {}) as Dictionary).get("amount", 0)) == 3, "Boss rooms should place one 3-block shield")
+		if room_type in ["combat", "boss"]:
+			_assert(not loot_by_kind.has("healing_vial") and not loot_by_kind.has("rusty_shield"), "Legacy utility pickups should never spawn")
+			_assert((room.get("loot", []) as Array).size() <= 2, "Combat and boss rooms should have at most two item pickups")
 		else:
 			_assert(loot_by_kind.is_empty(), "%s rooms should not place battlefield pickups" % room_type.capitalize())
 		_assert(not loot_by_kind.has("ember_cache"), "Generated tile loot should no longer spawn random ember caches")
@@ -2228,8 +2223,10 @@ func _test_missed_equipment_resolution_and_persistence(default_progression: Dict
 			_assert(bool(loot.get("claimed", false)) and str(loot.get("resolution", "")) == "missed", "Missed equipment should be visibly resolved instead of remaining actionable")
 		elif str(loot.get("id", "")) == "collected_gear":
 			_assert(str(loot.get("resolution", "")) != "missed", "Already collected equipment should not be replayed or classified as missed")
+		elif str(loot.get("kind", "")) == "item":
+			_assert(bool(loot.get("claimed", false)) and str(loot.get("resolution", "")) == "missed", "Victory removes uncollected item cards without granting them")
 		elif str(loot.get("id", "")).begins_with("mixed_"):
-			_assert(not bool(loot.get("claimed", false)), "Victory should leave non-equipment tactical pickup state unchanged")
+			_assert(not bool(loot.get("claimed", false)), "Victory should leave non-item resource pickup state unchanged")
 
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
@@ -2256,7 +2253,8 @@ func _test_missed_equipment_resolution_and_persistence(default_progression: Dict
 			if str((loot_var as Dictionary).get("id", "")) == mixed_id:
 				mixed_loot = loot_var as Dictionary
 				break
-		_assert(not mixed_loot.is_empty() and not bool(mixed_loot.get("claimed", false)), "Cleared layout should preserve non-equipment pickup %s unchanged" % mixed_id)
+		var is_missed_item: bool = str(mixed_loot.get("kind", "")) == "item"
+		_assert(not mixed_loot.is_empty() and bool(mixed_loot.get("claimed", false)) == is_missed_item, "Cleared layout resolves item cards but preserves other resources: %s" % mixed_id)
 
 	_assert(ProgressionStore.save_run_state(reward_state), "Reward-boundary missed-equipment state should save")
 	var resumed_state: Dictionary = run_engine.repair_loaded_run_state(ProgressionStore.load_saved_run())
@@ -2293,9 +2291,9 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "battle_rhythm") == 175, "Rare arcanist magic should nearly match the first level-up")
 	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "blood_price") == 265, "Epic arcanist magic should exceed the first level-up")
 	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "wildfire_halo") == 400, "Legendary arcanist magic should demand deep-run savings")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "crimson_draught") == 90, "Common Scavenger items should require saving across multiple combats")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "mossglass_elixir") == 145, "Rare Scavenger items should create a real level-up tradeoff")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "storm_jar") == 220, "Epic Scavenger items should exceed the first level-up")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "crimson_draught") == 25, "Common item prices should match modest consumable effects")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "mossglass_elixir") == 40, "Rare item prices should reflect their smaller effects")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "storm_jar") == 60, "Epic item prices should remain affordable alongside free pickups")
 	_assert(run_engine.merchant_sell_value(RunEngine.MERCHANT_BLACKSMITH, "ward_kite") == 53, "Merchant resale should be useful but well below buy price")
 	var blacksmith_state: Dictionary = {}
 	var blacksmith_coord: Vector2i = Vector2i(999, 999)
@@ -5675,12 +5673,12 @@ func _test_pickup_tooltips_describe_effects() -> void:
 	board.size = Vector2(960.0, 680.0)
 	board.combat_state = {"grid": _simple_grid()}
 	_assert(
-		str(board.call("_loot_tooltip_text", {"kind": "healing_vial", "amount": 4})) == "Healing potion: Heal 4",
-		"Potion tooltips should describe the exact healing effect"
+		str(board.call("_loot_tooltip_text", {"kind": "item", "card_id": "crimson_draught"})) == "item:crimson_draught",
+		"Item tooltips should request the actual card preview"
 	)
 	_assert(
-		str(board.call("_loot_tooltip_text", {"kind": "rusty_shield", "amount": 4})) == "Rusty shield: Gain 4 block",
-		"Rusty shield tooltips should describe the exact block effect"
+		str(board.call("_loot_tooltip_text", {"kind": "item", "card_id": "bone_ward_charm"})) == "item:bone_ward_charm",
+		"Every item pickup should use its own card identity"
 	)
 	_assert(
 		str(board.call("_loot_tooltip_text", {"kind": "dropped_embers", "amount": 23})) == "Dropped embers: Reclaim 23",
@@ -5690,10 +5688,10 @@ func _test_pickup_tooltips_describe_effects() -> void:
 		str(board.call("_loot_tooltip_text", {"kind": "equipment", "equipment_id": "iron_cleaver"})) == "equipment:iron_cleaver",
 		"Equipment pickup tooltips should route through the shared equipment preview"
 	)
-	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "healing_vial"})
+	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "item", "card_id": "crimson_draught"})
 	var equipment_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "equipment", "equipment_id": "iron_cleaver"})
-	_assert(equipment_rect.size.x > potion_rect.size.x, "Equipment pickups should render larger than ordinary pickups")
-	_assert(equipment_rect.end.y < potion_rect.end.y, "Equipment pickups should float above the consumable pickup baseline")
+	_assert(is_equal_approx(equipment_rect.size.x, potion_rect.size.x), "Item and equipment pickups should share their render size")
+	_assert(is_equal_approx(equipment_rect.end.y, potion_rect.end.y), "Item pickups should share the equipment floating baseline")
 	var low_bob: Vector2 = board.call("_equipment_pickup_bob_offset", 0.0)
 	var high_bob: Vector2 = board.call("_equipment_pickup_bob_offset", 1.0)
 	_assert(high_bob.y < low_bob.y, "Equipment pickups should bob upward as their visibility pulse rises")

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-27T19:54:26Z",
+  "updated_at": "2026-08-28T12:26:59Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4049,28 +4049,6 @@
       "source": {
         "branch": "codex/scavenger-consumable-item-merchant",
         "commit": "0aef32a"
-      }
-    },
-    {
-      "id": "mnt_20260702T192213Z_67905c06",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Item loadout UI should mirror gear drag/drop",
-      "details": "Character Gear item cards should use cropped art icons, not two-letter text badges, and player-facing equip/stow controls should stay drag-based like equipment. Dragging an equipped consumable back to inventory may leave the item loadout empty; do not reintroduce button-only item management unless the interaction model is deliberately redesigned.",
-      "status": "active",
-      "created_at": "2026-07-02T19:22:13Z",
-      "updated_at": "2026-07-02T19:22:13Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/scavenger-consumable-item-merchant",
-        "commit": "568a58b"
       }
     },
     {
@@ -9233,6 +9211,52 @@
       "source": {
         "branch": "codex/main-menu-loading-transition",
         "commit": "f07c0ba5"
+      }
+    },
+    {
+      "id": "mnt_20260828T122200Z_524fa8c1",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/battlefield_item_rules.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/battlefield_item_rules.gd",
+      "summary": "Combat snapshots own equipped_items and item_inventory for item-card pickups and consumption.",
+      "details": "Collection fills a free two-slot loadout slot and appends to hand below the seven-card cap, otherwise the top (back) of draw. Full slots store inventory only. RunEngine copies snapshot ownership idempotently; never separately erase a consumed item in RunScene or the headless harness. Legacy floor vials/shields migrate to card pickups with claimed flags preserved. Controller pickup detail_key must reach the board custom-tooltip builder to show real cards.",
+      "status": "active",
+      "created_at": "2026-08-28T12:22:00Z",
+      "updated_at": "2026-08-28T12:22:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/item-card-pickups-20260828",
+        "commit": "15569d54"
+      }
+    },
+    {
+      "id": "mnt_20260828T122659Z_c7126677",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Item loadout tiles use distinct item icons and retain equipment-style drag/drop.",
+      "details": "Use GameData.item_icon_path for compact inventory/loadout chips, matching the floating battlefield pickup; full card art stays inside actual CardWidgets. Keep item equip/stow drag based like equipment, including the ability to stow all items. Controller pickup inspection must reuse the rich board tooltip builder.",
+      "status": "active",
+      "created_at": "2026-08-28T12:26:59Z",
+      "updated_at": "2026-08-28T12:26:59Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260702T192213Z_67905c06"
+      ],
+      "source": {
+        "branch": "codex/item-card-pickups-20260828",
+        "commit": "15569d54"
       }
     }
   ]

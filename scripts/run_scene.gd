@@ -1,5 +1,6 @@
 extends Control
 
+const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -1869,6 +1870,7 @@ func _ready() -> void:
 		and bool(ProjectSettings.get_setting("telemetry/performance/section_instrumentation_enabled", true))
 	)
 	board_view.equipment_tooltip_builder = Callable(self, "_build_equipment_tooltip_panel")
+	board_view.item_tooltip_builder = Callable(self, "_build_item_pickup_tooltip_panel")
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
 		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
@@ -2094,6 +2096,7 @@ func _build_controller_interface() -> void:
 		return
 	_controller_analog_cursor = ControllerAnalogCursorScript.new()
 	_controller_analog_cursor.name = "ControllerAnalogCursor"
+	_controller_analog_cursor.detail_builder = Callable(board_view, "_make_custom_tooltip")
 	ui_root.add_child(_controller_analog_cursor)
 	_controller_prompt_bar = ControllerPromptBarScript.new()
 	_controller_prompt_bar.name = "ControllerPromptBar"
@@ -2636,6 +2639,7 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		return {}
 	var kind: String = "tile"
 	var detail: String = ""
+	var detail_key: String = ""
 	if _exit_destinations_by_tile.has(tile):
 		kind = "door"
 		detail = "Travel through this door"
@@ -2646,6 +2650,11 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		if board_tooltip.begins_with("equipment:"):
 			kind = "equipment"
 			detail = _controller_equipment_pickup_detail(board_tooltip.trim_prefix("equipment:"))
+			detail_key = board_tooltip
+		elif board_tooltip.begins_with("item:"):
+			kind = "item"
+			detail = str(GameData.card_def(board_tooltip.trim_prefix("item:")).get("name", "Item"))
+			detail_key = board_tooltip
 		elif not board_tooltip.is_empty():
 			detail = board_tooltip
 	return {
@@ -2654,6 +2663,7 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		"tile": tile,
 		"point": _controller_board_point(tile),
 		"detail": detail,
+		"detail_key": detail_key,
 		"snap_radius": CONTROLLER_TILE_CURSOR_MAGNET_RADIUS,
 	}
 
@@ -2721,7 +2731,7 @@ func _controller_set_focus_candidate(candidate: Dictionary, sync_virtual_cursor:
 	if sync_virtual_cursor:
 		_controller_virtual_board_position = point
 	var kind: String = str(candidate.get("kind", "tile"))
-	if kind in ["tile", "door", "enemy", "equipment"]:
+	if kind in ["tile", "door", "enemy", "equipment", "item"]:
 		_controller_release_control_focus()
 		_controller_set_board_tile(candidate.get("tile", INVALID_TARGET_TILE), sync_virtual_cursor)
 		return
@@ -2744,7 +2754,7 @@ func _controller_refreshed_focus_candidate(candidate: Dictionary) -> Dictionary:
 	if candidate.is_empty():
 		return {}
 	var kind: String = str(candidate.get("kind", "tile"))
-	if kind in ["tile", "door", "enemy", "equipment"]:
+	if kind in ["tile", "door", "enemy", "equipment", "item"]:
 		var tile: Vector2i = candidate.get("tile", INVALID_TARGET_TILE)
 		if not _controller_board_tiles().has(tile):
 			return {}
@@ -2765,7 +2775,8 @@ func _controller_update_analog_cursor(candidate: Dictionary, fully_snapped: bool
 		point,
 		magnetic_strength,
 		str(candidate.get("kind", "tile")),
-		str(candidate.get("detail", ""))
+		str(candidate.get("detail", "")),
+		str(candidate.get("detail_key", ""))
 	)
 
 func _controller_clear_focus_candidate() -> void:
@@ -18288,10 +18299,8 @@ func _movement_pickup_chip(loot: Dictionary) -> Dictionary:
 	var amount: int = int(loot.get("amount", 0))
 	var label: String = "Pickup"
 	match str(loot.get("kind", "")):
-		"healing_vial":
-			label = "+%d HP" % amount
-		"rusty_shield":
-			label = "+%d Block" % amount
+		"item":
+			label = "Item → %s" % {"hand": "Hand", "draw": "Deck", "inventory": "Inventory"}.get(str(loot.get("destination", "")), "Inventory")
 		"dropped_embers":
 			label = "+%d Embers" % amount
 		"equipment":
@@ -18328,7 +18337,7 @@ func _movement_picked_loot_between(before_state: Dictionary, after_state: Dictio
 			continue
 		var after_loot: Dictionary = loot_var
 		if bool(after_loot.get("claimed", false)):
-			after_claimed[_movement_loot_key(after_loot)] = true
+			after_claimed[_movement_loot_key(after_loot)] = after_loot
 	var picked: Array = []
 	for loot_var: Variant in before_state.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:
@@ -18337,7 +18346,7 @@ func _movement_picked_loot_between(before_state: Dictionary, after_state: Dictio
 		if bool(before_loot.get("claimed", false)):
 			continue
 		if after_claimed.has(_movement_loot_key(before_loot)):
-			picked.append(before_loot.duplicate(true))
+			picked.append((after_claimed[_movement_loot_key(before_loot)] as Dictionary).duplicate(true))
 	return picked
 
 func _movement_trap_key(trap: Dictionary) -> String:
@@ -19358,6 +19367,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
+	_log_item_pickups(previous_combat_state, committed_combat_state)
 	_analytics_log_player_moved(previous_combat_state, committed_combat_state)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "player_movement", transition_combat_state)
@@ -19391,10 +19401,9 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		plays_spent,
 		{"play_mode": "play"}
 	)
+	_log_item_pickups(previous_combat_state, committed_combat_state)
 	var pile_kind: String = str(committed_combat_state.get("last_card_destination", _card_destination_pile(card_id)))
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
-	if GameData.card_consumes_on_play(card_id) and pile_kind == "consume":
-		committed_run_state = _run_engine.consume_equipped_item_card(committed_run_state, card_id)
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
@@ -20628,13 +20637,10 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
 		var loot: Dictionary = loot_var
-		if str(loot.get("kind", "")) != "equipment":
+		if str(loot.get("kind", "")) not in ["equipment", "item"]:
 			continue
 		var loot_tile: Vector2i = loot.get("pos", player_after_tile)
-		await _animate_equipment_pickup_acquisition_flair(
-			str(loot.get("equipment_id", "")),
-			loot_tile
-		)
+		await _animate_pickup_acquisition_flair(loot, loot_tile)
 
 func _resolve_enemy_round() -> void:
 	_animation_lock = true
@@ -20661,6 +20667,11 @@ func _resolve_enemy_round() -> void:
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
 	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []), previous_run_state, commit_checkpoints)
 	var final_combat_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	# Forced movement can collect items during enemy activations too.
+	for loot: Dictionary in BattlefieldItemRules.pickups_between(previous_combat_state, final_combat_state):
+		_render_board_state(final_combat_state, {})
+		await _animate_pickup_acquisition_flair(loot, loot.get("pos", INVALID_TARGET_TILE))
+	_log_item_pickups(previous_combat_state, final_combat_state)
 	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, final_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
@@ -20688,8 +20699,8 @@ func _resolve_enemy_round() -> void:
 	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	if outcome == "" and not before_draw_state.is_empty():
 		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
-		_analytics_reconcile_combat_tracker(before_draw_state, _combat_state)
-		_analytics_log_card_draws(before_draw_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
+		_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
+		_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
 		_analytics_log_playable_cards()
 		if not fatigue_events.is_empty():
 			await _animate_fatigue_damage(_combat_state, fatigue_events)
@@ -22714,17 +22725,27 @@ func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2
 	_queue_free_node_now(banner)
 
 func _animate_equipment_pickup_acquisition_flair(equipment_id: String, tile: Vector2i) -> void:
-	if _card_fx_layer == null or equipment_id.is_empty():
+	await _animate_pickup_acquisition_flair({"kind": "equipment", "equipment_id": equipment_id}, tile)
+
+func _animate_pickup_acquisition_flair(loot: Dictionary, tile: Vector2i) -> void:
+	var is_item: bool = str(loot.get("kind", "")) == "item"
+	var content_id: String = str(loot.get("card_id", "")) if is_item else str(loot.get("equipment_id", ""))
+	if _card_fx_layer == null or content_id.is_empty():
 		return
-	var equipment: Dictionary = GameData.equipment_def(equipment_id)
+	var equipment: Dictionary = GameData.card_def(content_id) if is_item else GameData.equipment_def(content_id)
 	if equipment.is_empty():
 		return
 	var center: Vector2 = _board_global_position_for_tile(tile)
-	var accent := Color(GameData.equipment_accent(equipment_id))
+	var accent := Color(GameData.card_rarity_accent(GameData.card_rarity(content_id)) if is_item else GameData.equipment_accent(content_id))
+	var banner: Label = _spawn_loadout_acquisition_banner("ITEM FOUND" if is_item else "GEAR FOUND", center + Vector2(0.0, -92.0), accent)
+	if _reduced_motion_enabled():
+		await get_tree().create_timer(0.35).timeout
+		_queue_free_node_now(banner)
+		return
 	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "equipment")
-	var banner: Label = _spawn_loadout_acquisition_banner("GEAR FOUND", center + Vector2(0.0, -92.0), accent)
 	var icon := TextureRect.new()
-	icon.name = "EquipmentAcquisitionIcon"
+	icon.name = "ItemAcquisitionIcon" if is_item else "EquipmentAcquisitionIcon"
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.texture = AssetLoader.load_texture(str(equipment.get("icon_path", "")))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -25202,7 +25223,6 @@ func _build_item_card_tile_body(card_id: String) -> Control:
 	return margin
 
 func _build_item_card_art_chip(card_id: String, chip_size: Vector2) -> Control:
-	var card: Dictionary = GameData.card_def(card_id)
 	var accent: Color = _item_card_accent(card_id)
 	var chip := PanelContainer.new()
 	chip.name = "ItemCardArtChip"
@@ -25213,16 +25233,16 @@ func _build_item_card_art_chip(card_id: String, chip_size: Vector2) -> Control:
 	chip.add_theme_stylebox_override("panel", _equipment_icon_style(accent))
 	var icon := TextureRect.new()
 	icon.name = "ItemCardArtIcon"
-	icon.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
+	icon.texture = AssetLoader.load_texture(GameData.item_icon_path(card_id))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-	icon.offset_left = -12.0
-	icon.offset_top = -4.0
-	icon.offset_right = 12.0
-	icon.offset_bottom = 4.0
+	icon.offset_left = 2.0
+	icon.offset_top = 2.0
+	icon.offset_right = -2.0
+	icon.offset_bottom = -2.0
 	chip.add_child(icon)
 	return chip
 
@@ -26312,7 +26332,10 @@ func _build_merchant_item_tooltip_panel(merchant_kind: String, item_id: String, 
 		return _build_equipment_tooltip_panel(item_id, interactive)
 	return _build_card_tooltip_panel(item_id, interactive)
 
-func _build_card_tooltip_panel(card_id: String, interactive: bool = false) -> Control:
+func _build_item_pickup_tooltip_panel(card_id: String) -> Control:
+	return _build_card_tooltip_panel(card_id, false, true)
+
+func _build_card_tooltip_panel(card_id: String, interactive: bool = false, pickup: bool = false) -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = CARD_TOOLTIP_SIZE + Vector2(18.0, 18.0)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
@@ -26324,7 +26347,24 @@ func _build_card_tooltip_panel(card_id: String, interactive: bool = false) -> Co
 	margin.add_theme_constant_override("margin_right", 9)
 	margin.add_theme_constant_override("margin_bottom", 9)
 	panel.add_child(margin)
-	margin.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
+	if pickup:
+		panel.set_meta("item_pickup_tooltip_surface", true)
+		var column := VBoxContainer.new()
+		column.add_theme_constant_override("separation", 8)
+		margin.add_child(column)
+		column.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
+		var destination := Label.new()
+		var items: Array = _combat_state.get("equipped_items", _run_state.get("equipped_items", []))
+		destination.text = "Item · Stored in inventory"
+		if items.size() < GameData.item_loadout_limit():
+			var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+			destination.text = "Item · Ready in hand" if hand.size() < CombatEngineScript.MAX_HAND_SIZE else "Item · Top of draw pile"
+		UiTypography.set_label_size(destination, UiTypography.SIZE_CAPTION)
+		destination.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		destination.add_theme_color_override("font_color", Color("fff0ce"))
+		column.add_child(destination)
+	else:
+		margin.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
 	return panel
 
 func _build_equipment_tooltip_panel(equipment_id: String, interactive: bool = false) -> Control:
@@ -27682,7 +27722,18 @@ func _analytics_hand_instance_id(hand_index: int) -> String:
 		return ""
 	return str(hand_ids[hand_index])
 
+func _log_item_pickups(before_state: Dictionary, after_state: Dictionary) -> void:
+	for loot: Dictionary in BattlefieldItemRules.pickups_between(before_state, after_state):
+		var card_id: String = str(loot.get("card_id", ""))
+		_analytics_store.write_event("item_picked_up", _analytics_context_from_states(_run_state, after_state, card_id), {
+			"loot_id": str(loot.get("id", "")), "card_id": card_id,
+			"destination": str(loot.get("destination", "inventory")),
+			"equipped_items": after_state.get("equipped_items", []).duplicate(),
+			"item_inventory": after_state.get("item_inventory", []).duplicate()
+		})
+
 func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary, before_tracker: Dictionary, after_tracker: Dictionary, reason: String) -> void:
+	var pickup_counts: Dictionary = BattlefieldItemRules.hand_pickup_counts(before_state, after_state)
 	var before_hand_ids: Dictionary = {}
 	for instance_id_var: Variant in _analytics_zone_ids(before_tracker, "hand"):
 		before_hand_ids[str(instance_id_var)] = true
@@ -27693,8 +27744,12 @@ func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary
 		if before_hand_ids.has(instance_id):
 			continue
 		var card_id: String = after_hand_cards[index]
+		var draw_reason: String = reason
+		if int(pickup_counts.get(card_id, 0)) > 0:
+			draw_reason = "item_pickup"
+			pickup_counts[card_id] = int(pickup_counts[card_id]) - 1
 		_analytics_store.write_event("card_drawn", _analytics_context_from_states(_run_state, after_state, card_id, instance_id), {
-			"reason": reason,
+			"reason": draw_reason,
 			"hand_index": index,
 			"hand_size": after_hand_cards.size(),
 			"draw_pile_size": _analytics_zone_cards(after_state, "draw").size()
