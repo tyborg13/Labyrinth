@@ -8,7 +8,7 @@ const DEFAULT_VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v12"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v13"
 const HAND: Array[String] = [
 	"threaded_path",
 	"sidestep_slash",
@@ -80,6 +80,9 @@ class FrameSampler:
 
 	var active: bool = false
 	var previous_tick_usec: int = 0
+	var last_draw_tick_usec: int = 0
+	var request_render: Callable
+	var observe_frame: Callable
 	var frame_intervals_ms: Array[float] = []
 	var process_ms: Array[float] = []
 	var render_setup_cpu_ms: Array[float] = []
@@ -91,8 +94,17 @@ class FrameSampler:
 	var primitives_in_frame: Array[float] = []
 
 	func _ready() -> void:
-		process_priority = 1000
-		set_process(true)
+		RenderingServer.frame_post_draw.connect(_on_frame_post_draw)
+		set_process(false)
+
+	func _exit_tree() -> void:
+		RenderingServer.frame_post_draw.disconnect(_on_frame_post_draw)
+
+	func _process(_delta: float) -> void:
+		# Request delivery during production coroutines too; timestamp only after
+		# rendering, never in the process callback that requests the redraw.
+		if request_render.is_valid():
+			request_render.call()
 
 	func begin() -> void:
 		frame_intervals_ms.clear()
@@ -103,11 +115,14 @@ class FrameSampler:
 		draw_calls.clear()
 		objects_in_frame.clear()
 		primitives_in_frame.clear()
-		previous_tick_usec = Time.get_ticks_usec()
+		assert(last_draw_tick_usec > 0, "Frame sampling requires a settled rendered frame")
+		previous_tick_usec = last_draw_tick_usec
 		active = true
+		set_process(true)
 
 	func finish() -> Dictionary:
 		active = false
+		set_process(false)
 		return {
 			"frame_interval_ms": frame_intervals_ms.duplicate(),
 			"process_ms": process_ms.duplicate(),
@@ -119,10 +134,13 @@ class FrameSampler:
 			"primitives_in_frame": primitives_in_frame.duplicate(),
 		}
 
-	func _process(_delta: float) -> void:
+	func _on_frame_post_draw() -> void:
+		var now_tick: int = Time.get_ticks_usec()
+		last_draw_tick_usec = now_tick
 		if not active:
 			return
-		var now_tick: int = Time.get_ticks_usec()
+		if observe_frame.is_valid():
+			observe_frame.call()
 		frame_intervals_ms.append(float(now_tick - previous_tick_usec) / 1000.0)
 		process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
 		render_setup_cpu_ms.append(RenderingServer.get_frame_setup_time_cpu())
@@ -215,6 +233,11 @@ func _initialize() -> void:
 	root.size = _viewport_size
 	_phase_log("scene ready")
 	var sampler := FrameSampler.new()
+	sampler.request_render = _render_pulse.pulse
+	sampler.observe_frame = func() -> void:
+		_focus_observation_count += 1
+		if not DisplayServer.window_is_focused():
+			_unfocused_observation_count += 1
 	sampler.measured_viewport_rid = root.get_viewport_rid()
 	RenderingServer.viewport_set_measure_render_time(sampler.measured_viewport_rid, true)
 	root.add_child(sampler)
@@ -404,6 +427,7 @@ func _initialize() -> void:
 	var results: Dictionary = {
 		"schema_version": 3,
 		"workload_id": WORKLOAD_ID,
+		"sample_boundary": "RenderingServer.frame_post_draw_v1",
 		"viewport": "%dx%d" % [_viewport_size.x, _viewport_size.y],
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),

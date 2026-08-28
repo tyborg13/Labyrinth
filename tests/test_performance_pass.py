@@ -37,6 +37,13 @@ class PerformancePassTest(unittest.TestCase):
         problems = performance_pass._compatibility_problems(baseline, candidate)
         self.assertTrue(any("enemy round semantics differs" in problem for problem in problems))
 
+    def test_process_clock_reports_cannot_compare_to_post_draw_reports(self):
+        for benchmark in ("runtime_frame", "reward_animation"):
+            baseline = {"benchmarks": {benchmark: {"result": {}}}}
+            candidate = {"benchmarks": {benchmark: {"result": {"sample_boundary": "RenderingServer.frame_post_draw_v1"}}}}
+            problems = performance_pass._compatibility_problems(baseline, candidate)
+            self.assertTrue(any("sample boundary metadata missing" in problem for problem in problems))
+
 
 if __name__ == "__main__":
     unittest.main()
