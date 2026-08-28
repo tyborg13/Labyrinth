@@ -5690,7 +5690,7 @@ func _test_pickup_tooltips_describe_effects() -> void:
 	)
 	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "item", "card_id": "crimson_draught"})
 	var equipment_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "equipment", "equipment_id": "iron_cleaver"})
-	_assert(is_equal_approx(equipment_rect.size.x, potion_rect.size.x), "Item and equipment pickups should share their render size")
+	_assert(is_equal_approx(equipment_rect.size.x * 0.75, potion_rect.size.x), "Item pickups should render at three quarters of the equipment size")
 	_assert(is_equal_approx(equipment_rect.end.y, potion_rect.end.y), "Item pickups should share the equipment floating baseline")
 	var low_bob: Vector2 = board.call("_equipment_pickup_bob_offset", 0.0)
 	var high_bob: Vector2 = board.call("_equipment_pickup_bob_offset", 1.0)

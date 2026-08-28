@@ -75,6 +75,8 @@ func _capture_zoom(viewport: SubViewport, board: Control, state: Dictionary, zoo
 		var rect: Rect2 = geometry.get(object_id, Rect2()) as Rect2
 		widths[object_id] = rect.size.x
 		_expect(rect.size.x > 0.0, "%s should have a non-empty rendered geometry bound at %.2fx zoom" % [object_id, zoom])
+	for item_id: String in ["crimson_draught", "bone_ward_charm"]:
+		_expect(is_equal_approx(float(widths[item_id]) / float(widths["equipment"]), 0.75), "Item pickups should remain 25 percent smaller than equipment at every zoom")
 	print(
 		"PICKUP ZOOM GEOMETRY: zoom=%.2f player=%.2f vial=%.2f shield=%.2f equipment=%.2f" % [
 			zoom,
@@ -193,7 +195,7 @@ func _verify_dynamic_layer_geometry(dynamic_geometry: Dictionary, parent_geometr
 		var dynamic_rect: Rect2 = dynamic_geometry.get(object_id, Rect2()) as Rect2
 		var parent_rect: Rect2 = parent_geometry.get(object_id, Rect2()) as Rect2
 		_expect(
-			is_equal_approx(dynamic_rect.size.x, parent_rect.size.x) and is_equal_approx(dynamic_rect.size.y, parent_rect.size.y),
+			dynamic_rect.is_equal_approx(parent_rect),
 			"DynamicRenderLayer %s geometry must match the parent at %.2fx zoom so visible board actors and pickups scale together" % [object_id, zoom]
 		)
 

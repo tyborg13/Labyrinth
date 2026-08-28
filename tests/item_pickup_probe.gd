@@ -118,6 +118,7 @@ func _initialize() -> void:
 	await _save("12_reduced_motion.png")
 	if _physical_size().x == 1920:
 		await _card_sheet()
+	await _capture_movement_alignment()
 	_router.call("clear_forced_state_for_test")
 	_scene.queue_free()
 	await process_frame
@@ -200,6 +201,87 @@ func _settle() -> void:
 	RenderingServer.force_draw()
 	await process_frame
 
+func _capture_movement_alignment() -> void:
+	# Rebuild a pillar-filled room like the user's inspection. The old blank
+	# board fixture did not earn enough adaptive clearance to expose this bug.
+	_router.call("set_forced_state_for_test", InputRouter.MODALITY_POINTER, InputRouter.FAMILY_XBOX)
+	var settings: Dictionary = _scene.get("_settings")
+	settings["reduced_motion"] = false
+	_scene.set("_settings", settings)
+	var engine := RunEngine.new()
+	var run_state: Dictionary = engine.create_new_run(82, _scene.get("_progression"))
+	var coord := Vector2i(0, -1)
+	var room: Dictionary = engine.room_metadata(run_state, coord)
+	var layout: Dictionary = engine.call("_combat_layout_for_room", room, Vector2i(1, 0), run_state)
+	layout["player_start"] = Vector2i(1, 1)
+	layout["enemies"] = [{"id": 1, "type": "warden", "pos": Vector2i(7, 6), "hp": 40, "max_hp": 40}]
+	layout["loot"] = [
+		{"id": "route_item_a", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(2, 1)},
+		{"id": "route_item_b", "kind": "item", "card_id": "nail_bomb", "pos": Vector2i(2, 7)},
+		{"id": "route_gear", "kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(7, 4)}
+	]
+	var cleared_tiles: Array = [Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(2, 7), Vector2i(7, 4), Vector2i(7, 6), Vector2i(6, 6)]
+	for key: String in ["terrain", "traps"]:
+		var entries: Array = []
+		for entry: Dictionary in layout.get(key, []):
+			if not cleared_tiles.has(entry.get("pos")):
+				entries.append(entry)
+		layout[key] = entries
+	var combat: Dictionary = CombatEngine.new().create_combat(82, layout, {"hp": 12, "max_hp": 24, "deck_cards": [], "equipped_items": [], "item_inventory": []})
+	combat["deck"] = {"hand": ["quick_stab", "bone_dart", "shadow_step"], "draw": ["pale_spark", "pale_spark", "waning_pulse", "waning_pulse"], "discard": [], "burned": [], "consumed": [], "cycles": 0}
+	run_state["current_room"] = coord
+	run_state["current_room_layout"] = layout
+	run_state["mode"] = "combat"
+	_scene.set("_run_state", engine.set_combat_state(run_state, combat))
+	_scene.call("_sync_combat_state_from_run")
+	_scene.call("_analytics_initialize_combat_tracker", combat)
+	_scene.call("_refresh_ui")
+	await _settle()
+	await _save("14_route_before_pickup.png")
+	_scene.call("_begin_player_movement_selection")
+	_scene.call("_commit_player_movement", Vector2i(3, 1))
+	var movement_captured: bool = false
+	var deadline: int = Time.get_ticks_msec() + 8000
+	while Time.get_ticks_msec() < deadline and bool(_scene.get("_animation_lock")):
+		await process_frame
+		var board: Control = _scene.get("board_view")
+		var overrides: Dictionary = (board.get("presentation") as Dictionary).get("unit_world_positions", {})
+		if not movement_captured and overrides.has("player"):
+			movement_captured = true
+			await _save("15_route_moving.png", false)
+	_require(movement_captured and not bool(_scene.get("_animation_lock")), "Live movement through the item finishes within its deadline")
+	combat = _scene.get("_combat_state")
+	_require(combat["player"]["pos"] == Vector2i(3, 1) and combat["equipped_items"] == ["crimson_draught"], "The route crosses the item and ends on the next tile")
+	await _save("16_route_after_pickup.png")
+	var enemy_start: Vector2i = combat["enemies"][0]["pos"]
+	for _turn: int in range(4):
+		await _scene.call("_on_pass_turn_pressed")
+		combat = _scene.get("_combat_state")
+		if combat["enemies"][0]["pos"] != enemy_start:
+			break
+	_require(combat["enemies"][0]["pos"] != enemy_start, "The next enemy movement is exercised after collection")
+	await _save("17_route_after_enemy_move.png")
+	_scene.call("_begin_player_movement_selection")
+	await _scene.call("_commit_player_movement", Vector2i(2, 1))
+	combat = _scene.get("_combat_state")
+	_require(combat["player"]["pos"] == Vector2i(2, 1), "A later player movement completes after the enemy turn")
+	await _save("18_route_later_player_move.png")
+	# Resize and zoom use distinct invalidation paths; both must preserve actor
+	# alignment, rather than merely fixing the one collection transition.
+	var board: Control = _scene.get("board_view")
+	board.call("_on_board_resized")
+	board.call("set_navigation_zoom", float(board.call("navigation_snapshot")["zoom"]) * 0.95, board.size * 0.5)
+	await _save("19_route_after_navigation.png")
+
+func _assert_actor_alignment() -> void:
+	var board: Control = _scene.get("board_view")
+	var origin: Vector2 = board.call("_board_origin")
+	for layer: Control in board.call("_retained_render_layers"):
+		_require((layer.call("_board_origin") as Vector2).is_equal_approx(origin), "Every retained layer shares the authoritative floor origin")
+		for unit: Dictionary in board.call("_visible_units"):
+			var expected: Vector2 = board.call("_unit_center", unit)
+			_require((layer.call("_unit_center", unit) as Vector2).is_equal_approx(expected), "Player/enemy centers remain on the same tiles in animated and idle layers")
+
 func _assert_hand_card_content() -> void:
 	var state: Dictionary = _scene.get("_combat_state")
 	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
@@ -216,6 +298,7 @@ func _save(filename: String, settle: bool = true) -> void:
 	if settle:
 		await _settle()
 	_assert_hand_card_content()
+	_assert_actor_alignment()
 	var image: Image = _viewport.get_texture().get_image()
 	_require(image != null and image.get_size() == _physical_size(), "Screenshot has exact physical resolution")
 	if image != null:

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-28T12:26:59Z",
+  "updated_at": "2026-08-28T19:04:10Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -7195,28 +7195,6 @@
       }
     },
     {
-      "id": "mnt_20260808T120711Z_21f8b87e",
-      "layer": "shared",
-      "kind": "pitfall",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Retained render layers must inherit adaptive visual top clearance",
-      "details": "_board_layout_cache_visual_top_offset retains historical clearance across same-room visual snapshots. Materialize it on the parent before retained-layer invalidation and copy it in _sync_dynamic_render_state; otherwise a same-frame tall-content to Blink/illusion transition can leave floors and actors using different board origins.",
-      "status": "active",
-      "created_at": "2026-08-08T12:07:11Z",
-      "updated_at": "2026-08-08T12:07:11Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/fix-retained-combat-actor-tile-framing-desync",
-        "commit": "617e6d7"
-      }
-    },
-    {
       "id": "mnt_20260808T120722Z_e8f417ef",
       "layer": "shared",
       "kind": "pitfall",
@@ -9257,6 +9235,30 @@
       "source": {
         "branch": "codex/item-card-pickups-20260828",
         "commit": "15569d54"
+      }
+    },
+    {
+      "id": "mnt_20260828T190410Z_6cb386ac",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Retained render layers must reuse the complete resolved floor layout after invalidation.",
+      "details": "The owner retains adaptive top clearance across animation snapshots. Copying only its top-offset scalar during state sync is insufficient: a later layer-local resize/navigation invalidation can erase that history and independently frame actors about a tile above the floor. Movement overrides remain in owner pixel coordinates, so the mismatch appears as an upward jump when movement ends and affects enemies too. Have retained dynamic layers delegate layout rebuilds to the owner via _copy_resolved_board_layout_to, including resolved origin/width, navigation and independent container copies. Treat the retained layer size only as its cache-validity key while full-rect anchors settle. Regression proof must use tall-content/retained-clearance rooms, then invalidate/resize a child and compare complete actor geometry; an empty board can hide this defect.",
+      "status": "active",
+      "created_at": "2026-08-28T19:04:10Z",
+      "updated_at": "2026-08-28T19:04:10Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260808T120711Z_21f8b87e"
+      ],
+      "source": {
+        "branch": "codex/item-card-pickups-20260828",
+        "commit": "57c2a253"
       }
     }
   ]

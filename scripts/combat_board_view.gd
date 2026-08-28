@@ -154,6 +154,7 @@ const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
 const LOOT_DRAW_TILE_WIDTH_SCALE: float = 0.34
 const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
+const ITEM_LOOT_TILE_WIDTH_SCALE: float = 0.42
 const EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE: float = -0.02
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
@@ -801,14 +802,7 @@ func _sync_static_render_cache() -> void:
 		_static_render_cache_layer.set(field, get(field))
 	# Layout depends on the real viewport and UI safe area. A SubViewport must
 	# reuse the resolved board geometry, not reframe the room inside itself.
-	for field: String in [
-		"_board_layout_cache_valid", "_board_layout_content_cache_valid",
-		"_board_layout_cache_size", "_board_layout_cache_tiles", "_board_layout_cache_extents",
-		"_board_layout_cache_tile_width", "_board_layout_cache_origin",
-		"_board_layout_cache_tile_centers", "_board_layout_cache_tile_polygons"
-	]:
-		var value: Variant = get(field)
-		_static_render_cache_layer.set(field, value.duplicate() if value is Dictionary or value is Array else value)
+	_copy_resolved_board_layout_to(_static_render_cache_layer)
 	_static_render_cache_layer.queue_redraw()
 	_static_render_cache_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
 	_static_render_cache_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
@@ -5782,7 +5776,11 @@ func _loot_draw_width(loot: Dictionary) -> float:
 	# Board objects share the zoomed tile-space basis used by actor frames. Fixed
 	# pixel widths (and equipment's old min/max clamp) made pickups appear to
 	# shrink relative to actors, or stop growing altogether, when navigating in.
-	var width_scale: float = EQUIPMENT_LOOT_TILE_WIDTH_SCALE if _is_floating_loot(loot) else LOOT_DRAW_TILE_WIDTH_SCALE
+	var width_scale: float = LOOT_DRAW_TILE_WIDTH_SCALE
+	if str(loot.get("kind", "")) == "item":
+		width_scale = ITEM_LOOT_TILE_WIDTH_SCALE
+	elif str(loot.get("kind", "")) == "equipment":
+		width_scale = EQUIPMENT_LOOT_TILE_WIDTH_SCALE
 	return _tile_width() * width_scale
 
 func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null, loot: Dictionary = {}) -> Rect2:
@@ -13511,9 +13509,33 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 		_board_layout_cache_tiles.clear()
 		_board_layout_cache_extents.clear()
 
+func _copy_resolved_board_layout_to(layer: Control) -> void:
+	_ensure_board_layout_cache()
+	for field: String in [
+		"_board_layout_cache_valid", "_board_layout_content_cache_valid",
+		"_board_layout_cache_tiles", "_board_layout_cache_extents",
+		"_board_layout_cache_tile_width", "_board_layout_cache_origin",
+		"_board_layout_cache_visual_top_offset", "_board_layout_cache_tile_centers",
+		"_board_layout_cache_tile_polygons", "_navigation_zoom", "_navigation_pan",
+		"_navigation_uses_default_zoom"
+	]:
+		var value: Variant = get(field)
+		layer.set(field, value.duplicate() if value is Dictionary or value is Array else value)
+	# Retained controls share the owner's coordinate space even while full-rect
+	# anchors are settling; their local size must not trigger independent framing.
+	layer.set("_board_layout_cache_size", layer.size)
+
 func _ensure_board_layout_cache() -> void:
 	if _board_layout_cache_valid and _board_layout_cache_size == size:
 		return
+	if _is_dynamic_render_layer:
+		# Animation positions are already in the owner's resolved pixel space.
+		# Reframing them per layer can lose retained top clearance after a pickup,
+		# resize or zoom, so idle sprites jump away from the authoritative floor.
+		var board: Control = get_parent() as Control
+		if board != null and board.has_method("_copy_resolved_board_layout_to"):
+			board.call("_copy_resolved_board_layout_to", self)
+			return
 	if _navigation_uses_default_zoom:
 		_navigation_zoom = _default_navigation_zoom_for_viewport()
 	var tiles: Array[Vector2i] = _board_layout_cache_tiles
