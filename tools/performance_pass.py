@@ -151,6 +151,18 @@ COMPARISON_METRICS = {
     "combat_board_submission.movement_submission_usec.p95": "lower",
 }
 
+# Enemy rounds contain long authored animations; completion duration cannot
+# substitute for the frame tails or synchronous input cost within that interval.
+COMPARISON_METRICS.update({
+    f"runtime_frame.enemy_round_matrix.{composition}.{metric}": "lower"
+    for composition in ("specialists", "split_swarm", "dragon_support")
+    for metric in (
+        "input_handler_ms", "frame_interval_ms.median", "frame_interval_ms.p95",
+        "frame_interval_ms.p99", "frame_interval_ms.max",
+        "frames_over_16_67_ms", "frames_over_33_33_ms",
+    )
+})
+
 COMPATIBILITY_FIELDS = {
     "report schema": ("schema_version",),
     "platform": ("environment", "platform"),
@@ -168,6 +180,7 @@ COMPATIBILITY_FIELDS = {
     "phase frames": ("benchmarks", "render", "result", "phase_frames"),
     "ambient particle count": ("benchmarks", "render", "result", "ambient_particle_count"),
     "runtime frame schema": ("benchmarks", "runtime_frame", "result", "schema_version"),
+    "enemy round semantics": ("benchmarks", "runtime_frame", "result", "enemy_round_digests"),
     "runtime frame workload": ("benchmarks", "runtime_frame", "result", "workload_id"),
     "runtime frame viewport": ("benchmarks", "runtime_frame", "result", "viewport"),
     "runtime frame renderer": ("benchmarks", "runtime_frame", "result", "renderer"),

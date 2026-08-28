@@ -8,7 +8,7 @@ const DEFAULT_VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v10"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v12"
 const HAND: Array[String] = [
 	"threaded_path",
 	"sidestep_slash",
@@ -317,6 +317,7 @@ func _initialize() -> void:
 	var prewarm_settle_frames: int = await _settle_action_tracker_prewarm(instance)
 	var initial_nodes: int = _subtree_node_count(instance)
 	var initial_orphans: int = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
+	var initial_orphan_details: Array[Dictionary] = _orphan_node_details()
 	var idle: Dictionary = await _measure_idle(sampler)
 	await _save_root_screenshot("dense_idle.png")
 	await _settle_render_frames(4)
@@ -457,12 +458,15 @@ func _initialize() -> void:
 		"action_visual_proof": action_visual_proof,
 		"ability_action_matrix": ability_action_matrix,
 		"enemy_round_matrix": enemy_round_matrix,
+		"enemy_round_digests": _enemy_round_digests(enemy_round_matrix),
 		"initial_nodes": initial_nodes,
 		"final_nodes": final_nodes,
 		"repeated_install_nodes": repeated_install_nodes,
 		"initial_orphan_nodes": initial_orphans,
+		"initial_orphan_details": initial_orphan_details,
 		"final_objects": int(Performance.get_monitor(Performance.OBJECT_COUNT)),
 		"final_orphan_nodes": final_orphans,
+		"final_orphan_details": _orphan_node_details(),
 		"static_memory_bytes": int(Performance.get_monitor(Performance.MEMORY_STATIC)),
 		"board_instrumentation": board_instrumentation,
 		"semantic_errors": _errors,
@@ -1182,10 +1186,10 @@ func _verify_pile_card_definition_invalidation(instance: Node) -> void:
 	for entry_var: Variant in instance.get("_pile_dialog_card_pool") as Array:
 		var entry: Dictionary = entry_var as Dictionary
 		var button: Button = entry.get("button", null) as Button
-		if str(entry.get("card_id", "")) == "shadow_step" and button != null and button.visible:
+		if str(entry.get("card_id", "")) == "gust_step" and button != null and button.visible:
 			original_entry = entry
 			break
-	_expect(not original_entry.is_empty(), "pile invalidation workload requires a visible pooled Shadow Step")
+	_expect(not original_entry.is_empty(), "pile invalidation workload requires a visible pooled Gust Step")
 	if original_entry.is_empty():
 		instance.call("_close_pile_view")
 		return
@@ -1195,7 +1199,9 @@ func _verify_pile_card_definition_invalidation(instance: Node) -> void:
 
 	var modified_state: Dictionary = original_state.duplicate(true)
 	var relics: Array = (modified_state.get("relics", []) as Array).duplicate()
-	relics.erase("pilgrim_boots")
+	# Pilgrim Boots now changes movement aftermath rather than printed card data.
+	# Tailwind Fletching still modifies Gust Step's pull amount and damage.
+	relics.append("tailwind_fletching")
 	modified_state["relics"] = relics
 	instance.set("_combat_state", modified_state)
 	var modified_run_state: Dictionary = original_run_state.duplicate(true)
@@ -1203,12 +1209,12 @@ func _verify_pile_card_definition_invalidation(instance: Node) -> void:
 	modified_run_state["relics"] = relics.duplicate()
 	instance.set("_run_state", modified_run_state)
 	instance.call("_open_pile_view", "discard")
-	var expected_definition: Dictionary = instance.call("_card_def", "shadow_step", modified_state) as Dictionary
+	var expected_definition: Dictionary = instance.call("_card_def", "gust_step", modified_state) as Dictionary
 	var refreshed_definition_hash: int = -1
 	for entry_var: Variant in instance.get("_pile_dialog_card_pool") as Array:
 		var entry: Dictionary = entry_var as Dictionary
 		var button: Button = entry.get("button", null) as Button
-		if str(entry.get("card_id", "")) != "shadow_step" or button == null or not button.visible:
+		if str(entry.get("card_id", "")) != "gust_step" or button == null or not button.visible:
 			continue
 		var widget: Control = entry.get("widget", null) as Control
 		refreshed_definition_hash = hash(widget.get("_card_override"))
@@ -1255,6 +1261,13 @@ func _measure_flurry_scaling(instance: Node) -> Dictionary:
 	_install_stress_combat(instance, "specialists")
 	var results: Dictionary = {}
 	var cinder_index: int = _hand_index(instance, "cinder_fusillade")
+	if cinder_index < 0:
+		var flurry_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+		var flurry_hand: Array = (flurry_state.get("deck", {}) as Dictionary).get("hand", []) as Array
+		flurry_hand[flurry_hand.size() - 1] = "cinder_fusillade"
+		instance.set("_combat_state", flurry_state)
+		cinder_index = _hand_index(instance, "cinder_fusillade")
+	_expect(cinder_index >= 0, "Flurry scaling must retain its actual card in the capped hand")
 	for repeat_count: int in [1, 4, 10, 20]:
 		var state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		state["cards_per_turn"] = repeat_count
@@ -1269,6 +1282,7 @@ func _measure_flurry_scaling(instance: Node) -> Dictionary:
 		_expect(shortcut_playable == reference_playable, "Flurry skip-suffix shortcut must match the full continuation walk at %d repeats" % repeat_count)
 		var started: int = Time.get_ticks_usec()
 		var options: Dictionary = instance.call("_card_play_options_for_index", cinder_index) as Dictionary
+		_expect(not ((options.get("play", {}) as Dictionary).get("actions", []) as Array).is_empty(), "Flurry option benchmark must build actual actions")
 		results[str(repeat_count)] = {
 			"option_build_ms": float(Time.get_ticks_usec() - started) / 1000.0,
 			"playable": bool(options.get("printed_playable", false)),
@@ -1603,6 +1617,15 @@ func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Di
 				var selection_button: Button = _visible_pile_selection_button(instance, int(discard_indices[0]))
 				_expect(selection_button != null and not selection_button.disabled, "%s discard choice must expose a live pile selection button" % skill_id)
 				if selection_button != null and not selection_button.disabled:
+					# A pooled button can be visible but outside the scroll viewport.
+					# Bring the actual card onscreen before routing the pointer click.
+					await _await_render_frame()
+					var scroll_parent: Node = selection_button.get_parent()
+					while scroll_parent != null and not scroll_parent is ScrollContainer:
+						scroll_parent = scroll_parent.get_parent()
+					if scroll_parent is ScrollContainer:
+						(scroll_parent as ScrollContainer).ensure_control_visible(selection_button)
+						await _await_render_frame()
 					_routed_left_click(selection_button, selection_button.size * 0.5)
 					routed_controls["selection"] = selection_button.name
 					await process_frame
@@ -1729,24 +1752,111 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 	for composition_id: String in _benchmark_composition_ids():
 		_phase_log("enemy round %s" % composition_id)
 		_install_stress_combat(instance, composition_id)
-		await _settle_frames(3)
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+		# create_combat's initial queue can let the player act again immediately.
+		# Schedule every fixture enemy before the next player activation explicitly.
+		var queue: Array[Dictionary] = []
+		var clock: int = int(before_state.get("initiative_clock", 0))
+		var sequence: int = int(before_state.get("activation_seq", 0))
+		for enemy: Dictionary in before_state.get("enemies", []):
+			if int(enemy.get("hp", 0)) <= 0:
+				continue
+			sequence += 1
+			queue.append({"kind": "enemy", "enemy_id": int(enemy.get("id", -1)), "time": clock + 1, "seq": sequence})
+		# Session-generated analytics IDs would make equivalent cross-process
+		# reference digests differ despite identical gameplay.
+		var analytics: Dictionary = (before_state.get("analytics", {}) as Dictionary).duplicate(true)
+		analytics["combat_id"] = "runtime_enemy_round_%s" % composition_id
+		before_state["analytics"] = analytics
+		before_state["turn_queue"] = queue
+		before_state["activation_seq"] = sequence
+		before_state["player_turn_time_spent"] = 0
+		instance.set("_combat_state", before_state)
+		var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+		run_state["combat_state"] = before_state
+		instance.set("_run_state", run_state)
+		instance.call("_mark_combat_preview_state_changed")
+		instance.call("_refresh_ui")
+		# Untimed semantic oracle. The live route must reach this exact combat state;
+		# merely observing a changed player turn does not prove any enemy acted.
+		var reference: Dictionary = _combat.advance_to_next_player_turn_with_steps(_combat.finish_player_activation(before_state))
+		# RunScene stages analytics cursors and normalizes the movement pool when
+		# committing engine output. Apply those same semantics to the oracle, while
+		# restoring progression so reference construction cannot change the live run.
+		var progression_before_reference: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
+		var staged_reference: Dictionary = instance.call("_stage_combat_skill_event_analytics_for_state", run_state, reference.get("state", {})) as Dictionary
+		var expected_state: Dictionary = _combat.normalize_player_movement_pool(staged_reference.get("combat_state", {}) as Dictionary)
+		instance.set("_progression", progression_before_reference)
+		_expect(_combat.combat_outcome(expected_state).is_empty(), "%s fixture must survive to its next player turn" % composition_id)
+		var enemy_activations: int = 0
+		for step: Dictionary in reference.get("steps", []):
+			if str(step.get("boundary", "")) == "initiative_activate":
+				enemy_activations += 1
+		_expect(enemy_activations >= queue.size() and enemy_activations > 0, "%s fixture must activate all scheduled enemies" % composition_id)
+		await _settle_frames(3)
+		var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
+		_expect(pass_button != null and pass_button.is_visible_in_tree() and not pass_button.disabled, "%s must expose the live Pass button" % composition_id)
 		instance.call("set_runtime_performance_instrumentation_enabled", true)
 		sampler.begin()
 		var started: int = Time.get_ticks_usec()
-		await instance.call("_on_pass_turn_pressed")
+		var input_handler_ms: float = 0.0
+		if pass_button != null and not pass_button.disabled:
+			input_handler_ms = _routed_left_click(pass_button, pass_button.size * 0.5)
+		await process_frame
+		var settle_frames: int = 0
+		# Dense status/attack animations legitimately take longer than one card.
+		while bool(instance.get("_animation_lock")) and settle_frames < MAX_ANIMATION_SETTLE_FRAMES * 8:
+			await _await_render_frame()
+			settle_frames += 1
+		_expect(not bool(instance.get("_animation_lock")), "%s enemy round must finish before its deadlock guard" % composition_id)
 		await _await_render_frame()
 		var total_ms: float = float(Time.get_ticks_usec() - started) / 1000.0
 		var sampled: Dictionary = sampler.finish()
 		var result: Dictionary = _sampler_phase_result(sampled)
 		result["total_ms"] = total_ms
+		result["input_handler_ms"] = input_handler_ms
 		result["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
 		result["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
-		result["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
+		var final_state: Dictionary = instance.get("_combat_state") as Dictionary
+		result["state_changed"] = before_state != final_state
+		result["matches_reference"] = final_state == expected_state
+		var mismatched_keys: Array[String] = []
+		for key: String in expected_state:
+			if final_state.get(key) != expected_state[key]:
+				mismatched_keys.append(key)
+		for key: String in final_state:
+			if not expected_state.has(key):
+				mismatched_keys.append(key)
+		result["mismatched_state_keys"] = mismatched_keys
+		result["enemy_activations"] = enemy_activations
+		result["reference_digest"] = hash(reference)
+		result["reference_step_count"] = (reference.get("steps", []) as Array).size()
 		_expect(bool(result["state_changed"]), "%s pass must execute the enemy round" % composition_id)
+		_expect(bool(result["matches_reference"]), "%s routed enemy round must match the complete engine reference state" % composition_id)
 		results[composition_id] = result
 	return results
+
+func _enemy_round_digests(rounds: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for composition_id: String in rounds:
+		var phase: Dictionary = rounds[composition_id] as Dictionary
+		result[composition_id] = {
+			"digest": phase.get("reference_digest", 0),
+			"steps": phase.get("reference_step_count", 0),
+			"enemy_activations": phase.get("enemy_activations", 0),
+		}
+	return result
+
+func _orphan_node_details() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for instance_id: int in Node.get_orphan_node_ids():
+		var node: Node = instance_from_id(instance_id) as Node
+		if node == null:
+			continue
+		var script: Script = node.get_script() as Script
+		result.append({"class": node.get_class(), "name": str(node.name), "script": script.resource_path if script != null else ""})
+	return result
 
 func _exercise_preview_steps(instance: Node, measure_all_hovers: bool, workload_id: String = "card") -> Dictionary:
 	var hover_samples: Array[float] = []
@@ -1855,11 +1965,13 @@ func _preferred_target(instance: Node, targets: Array[Vector2i]) -> Vector2i:
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	var board_center: Vector2 = board.size * 0.5
 	var chosen: Vector2i = targets[0]
-	var chosen_distance: float = -1.0
+	var chosen_distance: float = INF
 	for target: Vector2i in targets:
 		var point: Vector2 = board.call("world_position_for_tile", target) as Vector2
 		var distance: float = point.distance_squared_to(board_center)
-		if distance > chosen_distance:
+		# Edge tiles can sit beneath the HUD or hand. Keep routed test clicks near
+		# the board center instead of choosing the most distant, occluded tile.
+		if distance < chosen_distance:
 			chosen = target
 			chosen_distance = distance
 	return chosen

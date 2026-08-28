@@ -31,6 +31,12 @@ class PerformancePassTest(unittest.TestCase):
         problems = performance_pass._compatibility_problems(baseline, candidate)
         self.assertTrue(any("enemy forecast digest differs" in problem for problem in problems))
 
+    def test_native_enemy_round_changes_reject_comparison(self):
+        baseline = {"benchmarks": {"runtime_frame": {"result": {"enemy_round_digests": {"specialists": {"digest": 11, "steps": 3, "enemy_activations": 2}}}}}}
+        candidate = {"benchmarks": {"runtime_frame": {"result": {"enemy_round_digests": {"specialists": {"digest": 12, "steps": 3, "enemy_activations": 2}}}}}}
+        problems = performance_pass._compatibility_problems(baseline, candidate)
+        self.assertTrue(any("enemy round semantics differs" in problem for problem in problems))
+
 
 if __name__ == "__main__":
     unittest.main()
