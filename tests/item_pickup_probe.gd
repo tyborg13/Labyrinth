@@ -142,7 +142,8 @@ func _load_fixture(equipped: Array = [], hand: Array = ["quick_stab", "bone_dart
 	run_state["mode"] = "combat"
 	run_state = engine.set_combat_state(run_state, combat)
 	_scene.set("_run_state", run_state)
-	_scene.set("_combat_state", combat)
+	# Use the production state boundary so prior fixture preview rows cannot survive.
+	_scene.call("_sync_combat_state_from_run")
 	_scene.set("_animation_lock", false)
 	_scene.call("_analytics_initialize_combat_tracker", combat)
 	_scene.call("_refresh_ui")
@@ -199,9 +200,22 @@ func _settle() -> void:
 	RenderingServer.force_draw()
 	await process_frame
 
+func _assert_hand_card_content() -> void:
+	var state: Dictionary = _scene.get("_combat_state")
+	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
+	var hand_box: Control = _scene.get("hand_box")
+	var widgets: Array[Node] = hand_box.find_children("*", "CardWidget", true, false)
+	_require(widgets.size() == hand.size(), "Every hand card has a matching live widget")
+	for index: int in range(mini(widgets.size(), hand.size())):
+		var card_id: String = str(hand[index])
+		var display: Dictionary = _scene.call("_card_widget_display", card_id, state)
+		_require(str(widgets[index].get("card_id")) == card_id, "Hand widget identity matches its card")
+		_require(widgets[index].get("_summary_rows") == display.get("summary_rows", []), "Hand actions match the current card, not a previous fixture")
+
 func _save(filename: String, settle: bool = true) -> void:
 	if settle:
 		await _settle()
+	_assert_hand_card_content()
 	var image: Image = _viewport.get_texture().get_image()
 	_require(image != null and image.get_size() == _physical_size(), "Screenshot has exact physical resolution")
 	if image != null:
