@@ -8,6 +8,7 @@ const RunSceneScript = preload("res://scripts/run_scene.gd")
 const SAMPLE_BATCHES: int = 7
 const PREVIEW_ITERATIONS: int = 8
 const PREVIEW_REFERENCE_ITERATIONS: int = 2
+const ENEMY_FORECAST_ITERATIONS: int = 8
 const SHORTCUT_COLD_ITERATIONS: int = 4
 const SHORTCUT_CACHED_ITERATIONS: int = 80
 const SHORTCUT_REFERENCE_ITERATIONS: int = 1
@@ -83,6 +84,37 @@ func _initialize() -> void:
 	_record_metric(results, "presentation_cached_us_per_call", _measure_samples(PRESENTATION_CACHED_ITERATIONS, func() -> void:
 		run_scene.call("_preview_presentation", preview)
 	))
+
+	var scheduled_forecast_state: Dictionary = state.duplicate(true)
+	scheduled_forecast_state["current_actor"] = {"kind": "transition"}
+	scheduled_forecast_state["initiative_clock"] = 0
+	scheduled_forecast_state["turn_queue"] = [
+		{"kind": "enemy", "enemy_id": 1, "time": 1, "seq": 1},
+		{"kind": "enemy", "enemy_id": 2, "time": 2, "seq": 2},
+		{"kind": "player", "time": 3, "seq": 3},
+	]
+	var scheduled_forecast_snapshot: Dictionary = scheduled_forecast_state.duplicate(true)
+	var forecast_reference: Dictionary = combat.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_forecast_state)
+	var forecast_digest: int = hash(forecast_reference)
+	_record_metric(results, "enemy_forecast_us_per_call", _measure_samples(ENEMY_FORECAST_ITERATIONS, func() -> void:
+		combat.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_forecast_state)
+	))
+	var forecast_repeat: Dictionary = combat.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_forecast_state)
+	combat.set_runtime_performance_instrumentation_enabled(true)
+	var profiled_forecast: Dictionary = combat.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_forecast_state)
+	results["enemy_forecast_profile"] = combat.runtime_performance_instrumentation_snapshot()
+	combat.set_runtime_performance_instrumentation_enabled(false)
+	if profiled_forecast != forecast_reference:
+		semantic_errors.append("instrumented enemy forecast differs from the uninstrumented result")
+	if forecast_repeat != forecast_reference:
+		semantic_errors.append("enemy forecast result changed between identical runs")
+	if scheduled_forecast_state != scheduled_forecast_snapshot:
+		semantic_errors.append("enemy forecast mutated its source state")
+	if (forecast_reference.get("steps", []) as Array).is_empty():
+		semantic_errors.append("enemy forecast benchmark must resolve at least one revealed enemy action")
+	results["enemy_forecast_digest"] = forecast_digest
+	results["enemy_forecast_step_count"] = (forecast_reference.get("steps", []) as Array).size()
+	results["enemy_forecast_source_unchanged"] = scheduled_forecast_state == scheduled_forecast_snapshot
 
 	var move_action: Dictionary = actions[0]
 	_record_metric(results, "move_apply_us_per_call", _measure_samples(MOVE_APPLY_ITERATIONS, func() -> void:

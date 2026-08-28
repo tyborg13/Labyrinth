@@ -82,6 +82,10 @@ class FrameSampler:
 	var previous_tick_usec: int = 0
 	var frame_intervals_ms: Array[float] = []
 	var process_ms: Array[float] = []
+	var render_setup_cpu_ms: Array[float] = []
+	var viewport_render_cpu_ms: Array[float] = []
+	var viewport_render_gpu_ms: Array[float] = []
+	var measured_viewport_rid: RID
 	var draw_calls: Array[float] = []
 	var objects_in_frame: Array[float] = []
 	var primitives_in_frame: Array[float] = []
@@ -93,6 +97,9 @@ class FrameSampler:
 	func begin() -> void:
 		frame_intervals_ms.clear()
 		process_ms.clear()
+		render_setup_cpu_ms.clear()
+		viewport_render_cpu_ms.clear()
+		viewport_render_gpu_ms.clear()
 		draw_calls.clear()
 		objects_in_frame.clear()
 		primitives_in_frame.clear()
@@ -104,6 +111,9 @@ class FrameSampler:
 		return {
 			"frame_interval_ms": frame_intervals_ms.duplicate(),
 			"process_ms": process_ms.duplicate(),
+			"render_setup_cpu_ms": render_setup_cpu_ms.duplicate(),
+			"viewport_render_cpu_ms": viewport_render_cpu_ms.duplicate(),
+			"viewport_render_gpu_ms": viewport_render_gpu_ms.duplicate(),
 			"draw_calls": draw_calls.duplicate(),
 			"objects_in_frame": objects_in_frame.duplicate(),
 			"primitives_in_frame": primitives_in_frame.duplicate(),
@@ -115,6 +125,17 @@ class FrameSampler:
 		var now_tick: int = Time.get_ticks_usec()
 		frame_intervals_ms.append(float(now_tick - previous_tick_usec) / 1000.0)
 		process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
+		render_setup_cpu_ms.append(RenderingServer.get_frame_setup_time_cpu())
+		viewport_render_cpu_ms.append(
+			RenderingServer.viewport_get_measured_render_time_cpu(measured_viewport_rid)
+			if measured_viewport_rid.is_valid()
+			else 0.0
+		)
+		viewport_render_gpu_ms.append(
+			RenderingServer.viewport_get_measured_render_time_gpu(measured_viewport_rid)
+			if measured_viewport_rid.is_valid()
+			else 0.0
+		)
 		draw_calls.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
 		objects_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)))
 		primitives_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)))
@@ -194,6 +215,8 @@ func _initialize() -> void:
 	root.size = _viewport_size
 	_phase_log("scene ready")
 	var sampler := FrameSampler.new()
+	sampler.measured_viewport_rid = root.get_viewport_rid()
+	RenderingServer.viewport_set_measure_render_time(sampler.measured_viewport_rid, true)
 	root.add_child(sampler)
 	var initially_focused: bool = await _acquire_probe_window_focus()
 	if not initially_focused:
@@ -2277,6 +2300,9 @@ func _benchmark_manual_skill_ids() -> Array[String]:
 func _combined_action_phase(action_matrix: Dictionary) -> Dictionary:
 	var intervals: Array[float] = []
 	var process_samples: Array[float] = []
+	var render_setup_cpu_samples: Array[float] = []
+	var viewport_render_cpu_samples: Array[float] = []
+	var viewport_render_gpu_samples: Array[float] = []
 	var draw_samples: Array[float] = []
 	var object_samples: Array[float] = []
 	var primitive_samples: Array[float] = []
@@ -2284,10 +2310,21 @@ func _combined_action_phase(action_matrix: Dictionary) -> Dictionary:
 		var card_result: Dictionary = action_matrix.get(card_id, {}) as Dictionary
 		intervals.append_array(card_result.get("raw_frame_intervals_ms", []) as Array[float])
 		process_samples.append_array(card_result.get("raw_process_ms", []) as Array[float])
+		render_setup_cpu_samples.append_array(card_result.get("raw_render_setup_cpu_ms", []) as Array[float])
+		viewport_render_cpu_samples.append_array(card_result.get("raw_viewport_render_cpu_ms", []) as Array[float])
+		viewport_render_gpu_samples.append_array(card_result.get("raw_viewport_render_gpu_ms", []) as Array[float])
 		draw_samples.append_array(card_result.get("raw_draw_calls", []) as Array[float])
 		object_samples.append_array(card_result.get("raw_objects_in_frame", []) as Array[float])
 		primitive_samples.append_array(card_result.get("raw_primitives_in_frame", []) as Array[float])
-	return _phase_result(intervals, process_samples, draw_samples, object_samples, primitive_samples)
+	var result: Dictionary = _phase_result(intervals, process_samples, draw_samples, object_samples, primitive_samples)
+	result["render_setup_cpu_ms"] = _stats(render_setup_cpu_samples)
+	result["viewport_render_cpu_ms"] = _stats(viewport_render_cpu_samples)
+	result["viewport_render_gpu_ms"] = _stats(viewport_render_gpu_samples)
+	result["viewport_render_gpu_timing_available"] = float((result["viewport_render_gpu_ms"] as Dictionary).get("max", 0.0)) > 0.0
+	result["raw_render_setup_cpu_ms"] = render_setup_cpu_samples
+	result["raw_viewport_render_cpu_ms"] = viewport_render_cpu_samples
+	result["raw_viewport_render_gpu_ms"] = viewport_render_gpu_samples
+	return result
 
 func _combined_target_step_completion_phase(action_matrix: Dictionary) -> Dictionary:
 	var samples: Array[float]
@@ -2317,6 +2354,13 @@ func _sampler_phase_result(sampled: Dictionary) -> Dictionary:
 	)
 	result["raw_frame_intervals_ms"] = sampled.get("frame_interval_ms", [])
 	result["raw_process_ms"] = sampled.get("process_ms", [])
+	result["render_setup_cpu_ms"] = _stats(sampled.get("render_setup_cpu_ms", []) as Array[float])
+	result["viewport_render_cpu_ms"] = _stats(sampled.get("viewport_render_cpu_ms", []) as Array[float])
+	result["viewport_render_gpu_ms"] = _stats(sampled.get("viewport_render_gpu_ms", []) as Array[float])
+	result["viewport_render_gpu_timing_available"] = float((result["viewport_render_gpu_ms"] as Dictionary).get("max", 0.0)) > 0.0
+	result["raw_render_setup_cpu_ms"] = sampled.get("render_setup_cpu_ms", [])
+	result["raw_viewport_render_cpu_ms"] = sampled.get("viewport_render_cpu_ms", [])
+	result["raw_viewport_render_gpu_ms"] = sampled.get("viewport_render_gpu_ms", [])
 	result["raw_draw_calls"] = sampled.get("draw_calls", [])
 	result["raw_objects_in_frame"] = sampled.get("objects_in_frame", [])
 	result["raw_primitives_in_frame"] = sampled.get("primitives_in_frame", [])
@@ -2653,7 +2697,7 @@ func _collect_throttle_samples(value: Variant, path: String, result: Array[Dicti
 					result.append({"path": path, "measurement_class": measurement_class, "duration_ms": float(sample_var)})
 		for key_var: Variant in dictionary.keys():
 			var key: String = str(key_var)
-			if key in ["raw_frame_intervals_ms", "raw_intervals_ms", "raw_duration_ms", "raw_process_ms", "raw_draw_calls", "raw_objects_in_frame", "raw_primitives_in_frame"]:
+			if key in ["raw_frame_intervals_ms", "raw_intervals_ms", "raw_duration_ms", "raw_process_ms", "raw_render_setup_cpu_ms", "raw_viewport_render_cpu_ms", "raw_viewport_render_gpu_ms", "raw_draw_calls", "raw_objects_in_frame", "raw_primitives_in_frame"]:
 				continue
 			_collect_throttle_samples(dictionary[key_var], "%s.%s" % [path, key], result)
 	elif typeof(value) == TYPE_ARRAY:

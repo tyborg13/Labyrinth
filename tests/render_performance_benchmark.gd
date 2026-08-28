@@ -49,6 +49,7 @@ func _initialize() -> void:
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	viewport.disable_3d = true
 	root.add_child(viewport)
+	RenderingServer.viewport_set_measure_render_time(viewport.get_viewport_rid(), true)
 	var board: Control = CombatBoardView.new()
 	board.size = Vector2(VIEWPORT_SIZE)
 	viewport.add_child(board)
@@ -114,6 +115,9 @@ func _initialize() -> void:
 func _measure_phase(board: Control, state: Dictionary, source_presentation: Dictionary, phase_name: String) -> Dictionary:
 	var frame_intervals_ms: Array[float]
 	var process_ms: Array[float]
+	var render_setup_cpu_ms: Array[float]
+	var viewport_render_cpu_ms: Array[float]
+	var viewport_render_gpu_ms: Array[float]
 	var draw_calls: Array[float]
 	var objects_in_frame: Array[float]
 	var primitives_in_frame: Array[float]
@@ -163,6 +167,9 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		frame_intervals_ms.append(float(now_tick - previous_tick) / 1000.0)
 		previous_tick = now_tick
 		process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
+		render_setup_cpu_ms.append(RenderingServer.get_frame_setup_time_cpu())
+		viewport_render_cpu_ms.append(RenderingServer.viewport_get_measured_render_time_cpu(board.get_viewport().get_viewport_rid()))
+		viewport_render_gpu_ms.append(RenderingServer.viewport_get_measured_render_time_gpu(board.get_viewport().get_viewport_rid()))
 		draw_calls.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
 		objects_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)))
 		primitives_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)))
@@ -219,6 +226,10 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 	var result: Dictionary = {
 		"frame_interval_ms": _stats(frame_intervals_ms),
 		"process_ms": _stats(process_ms),
+		"render_setup_cpu_ms": _stats(render_setup_cpu_ms),
+		"viewport_render_cpu_ms": _stats(viewport_render_cpu_ms),
+		"viewport_render_gpu_ms": _stats(viewport_render_gpu_ms),
+		"viewport_render_gpu_timing_available": float(_stats(viewport_render_gpu_ms).get("max", 0.0)) > 0.0,
 		"draw_calls": _stats(draw_calls),
 		"objects_in_frame": _stats(objects_in_frame),
 		"primitives_in_frame": _stats(primitives_in_frame),

@@ -1849,12 +1849,15 @@ func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
 	}
 
 func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Dictionary) -> Dictionary:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
+	_record_runtime_performance_phase("enemy_preview_initial_duplicate", performance_total_started)
 	var steps: Array[Dictionary] = []
 	var player_turn_before_state: Dictionary = {}
 	var initially_visible_enemy_ids: Dictionary = {}
 	var revealed_enemy_ids: Dictionary = {}
 	var unrevealed_before_player: bool = false
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	for enemy_var: Variant in next_state.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
@@ -1864,15 +1867,24 @@ func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Diction
 		if (initial_enemy.get("intent", {}) as Dictionary).is_empty():
 			continue
 		initially_visible_enemy_ids[int(initial_enemy.get("id", -1))] = true
+	_record_runtime_performance_phase("enemy_preview_visible_intents", performance_phase_started)
 	var safety: int = 0
 	while combat_outcome(next_state) == "" and safety < 100:
 		safety += 1
+		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var before_pop_state: Dictionary = next_state.duplicate(true)
+		_record_runtime_performance_phase("enemy_preview_before_pop_duplicate", performance_phase_started)
+		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var popped: Dictionary = _pop_next_actor(next_state)
+		_record_runtime_performance_phase("enemy_preview_pop_actor", performance_phase_started)
+		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		next_state = (popped.get("state", next_state) as Dictionary).duplicate(true)
+		_record_runtime_performance_phase("enemy_preview_pop_result_duplicate", performance_phase_started)
 		if not (popped.get("reinforcement_steps", []) as Array).is_empty():
 			unrevealed_before_player = true
+			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			next_state = before_pop_state.duplicate(true)
+			_record_runtime_performance_phase("enemy_preview_reinforcement_restore_duplicate", performance_phase_started)
 			break
 		if combat_outcome(next_state) != "":
 			player_turn_before_state = next_state.duplicate(true)
@@ -1898,7 +1910,9 @@ func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Diction
 					next_state = before_pop_state.duplicate(true)
 					break
 				revealed_enemy_ids[enemy_id] = true
+				performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 				var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false)
+				_record_runtime_performance_phase("enemy_preview_resolve_enemy_turn_total", performance_phase_started)
 				# resolve_enemy_turn_with_steps already returns a state derived from its
 				# own deep copy. Keep ownership of that result instead of cloning it again.
 				next_state = turn_result.get("state", next_state) as Dictionary
@@ -1917,6 +1931,7 @@ func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Diction
 				continue
 	if safety >= 100:
 		_log(next_state, "The initiative clock stalls.")
+	_record_runtime_performance_phase("enemy_preview_total", performance_total_started)
 	return {
 		"state": next_state,
 		"steps": steps,
@@ -1928,19 +1943,24 @@ func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 	return (resolve_enemy_phase_with_steps(state).get("state", state.duplicate(true)) as Dictionary).duplicate(true)
 
 func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_commit_steps: bool = true) -> Dictionary:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
+	_record_runtime_performance_phase("enemy_turn_initial_duplicate", performance_total_started)
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.state = int(next_state.get("rng_state", 0))
 	var steps: Array[Dictionary] = []
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
+		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
+		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	next_state["current_actor"] = _enemy_actor_entry(next_state, enemy, int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 	var intent: Dictionary = (enemy.get("intent", {}) as Dictionary).duplicate(true)
 	var turn_time_cost: int = _enemy_intent_time_cost(intent)
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_setup: Dictionary = next_state.duplicate(true)
 	enemy["block"] = 0
 	(next_state.get("enemies", []) as Array)[enemy_index] = enemy
@@ -1951,10 +1971,13 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	for step_var: Variant in turn_setup.get("steps", []):
 		if typeof(step_var) == TYPE_DICTIONARY:
 			steps.append(_umbra_marked_enemy_status_step(before_turn_setup, next_state, step_var as Dictionary, int(enemy.get("id", -1))))
+	_record_runtime_performance_phase("enemy_turn_setup", performance_phase_started)
 	if combat_outcome(next_state) != "":
 		next_state["rng_state"] = rng.state
+		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
 		return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
 	if bool(turn_setup.get("skip_all", false)):
+		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var before_skip_resolution: Dictionary = next_state.duplicate(true)
 		var skip_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < skip_enemies.size():
@@ -1968,15 +1991,19 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		var skip_refresh_step: Dictionary = _enemy_intent_refresh_step(next_state, int(enemy.get("id", -1)))
 		if not skip_refresh_step.is_empty():
 			steps.append(skip_refresh_step)
+		_record_runtime_performance_phase("enemy_turn_skipped_complete", performance_phase_started)
+		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	var shocked: bool = bool(turn_setup.get("shocked", false))
 	var immobilized: bool = bool(turn_setup.get("immobilized", false))
 	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	intent = enemy.get("intent", {})
 	if not intent.is_empty():
+		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 		var actions: Array = intent.get("actions", [])
 		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, shocked)
+		_record_runtime_performance_phase("enemy_turn_plan_total", performance_phase_started)
 		for action_index: int in range(actions.size()):
 			var action_var: Variant = actions[action_index]
 			if typeof(action_var) != TYPE_DICTIONARY:
@@ -1988,6 +2015,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 				continue
 			if immobilized and _enemy_action_is_movement(action):
 				continue
+			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			var before_state: Dictionary = next_state.duplicate(true)
 			var followup_action: Dictionary = {}
 			if not shocked:
@@ -1995,7 +2023,11 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var action_context: Dictionary = activation_plan.duplicate(true)
 			action_context["action_index"] = action_index
 			var bleed_steps: Array[Dictionary] = []
+			_record_runtime_performance_phase("enemy_turn_action_prepare", performance_phase_started)
+			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
+			_record_runtime_performance_phase("enemy_turn_action_resolve_%s" % str(action.get("type", "other")), performance_phase_started)
+			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
 			_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))
 			next_state["rng_state"] = rng.state
@@ -2006,6 +2038,8 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action, action_context), int(enemy.get("id", -1)))
 			if not step.is_empty():
 				steps.append(step)
+			_record_runtime_performance_phase("enemy_turn_action_presentation", performance_phase_started)
+	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_complete: Dictionary = next_state.duplicate(true)
 	if combat_outcome(next_state) == "":
 		var post_turn_enemies: Array = next_state.get("enemies", [])
@@ -2020,6 +2054,8 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	var refresh_step: Dictionary = _enemy_intent_refresh_step(next_state, int(enemy.get("id", -1)))
 	if not refresh_step.is_empty():
 		steps.append(refresh_step)
+	_record_runtime_performance_phase("enemy_turn_complete", performance_phase_started)
+	_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
 	return {
 		"state": next_state,
 		"steps": steps,
@@ -7939,11 +7975,14 @@ func _preview_block_for_intent(intent: Dictionary) -> int:
 	return total
 
 func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false, attack_disabled: bool = false) -> Dictionary:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
+		_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 		return {}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
+		_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 		return {}
 	var intent: Dictionary = intent_override if not intent_override.is_empty() else enemy.get("intent", {})
 	var actions: Array = intent.get("actions", [])
@@ -7983,9 +8022,12 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		planning_attack = {"type": "melee", "range": 1, "damage": 0}
 	var move_range: int = 0 if movement_disabled else int(movement_action.get("range", 0))
 	var movement_type: String = str(movement_action.get("type", "move_toward"))
+	var performance_phase_started: int = _record_runtime_performance_phase("enemy_plan_setup", performance_total_started)
 	var actual_records: Array[Dictionary] = _enemy_actual_path_records(state, enemy, move_range)
+	performance_phase_started = _record_runtime_performance_phase("enemy_plan_actual_paths", performance_phase_started)
 	var pure_retreat: bool = movement_type == "move_away" and movement_index >= 0 and attack_index < 0
 	var direct_candidate: Dictionary = _best_enemy_retreat_candidate(state, enemy, actual_records) if pure_retreat else _best_enemy_direct_attack_candidate(state, enemy, planning_attack, actual_records, movement_type)
+	performance_phase_started = _record_runtime_performance_phase("enemy_plan_direct_candidate", performance_phase_started)
 	var target: Dictionary = {}
 	var actual_path: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
 	var future_route: Array[Vector2i] = actual_path.duplicate()
@@ -8004,6 +8046,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		# player-only tile path changes which obstacle redirected and large enemies
 		# strike. Preserve that plan and optimize its implementation, not its rules.
 		var future_candidate: Dictionary = {} if pure_retreat else _best_enemy_future_route_candidate(state, enemy, planning_attack, move_range)
+		performance_phase_started = _record_runtime_performance_phase("enemy_plan_future_candidate_total", performance_phase_started)
 		if not future_candidate.is_empty():
 			target = (future_candidate.get("target", {}) as Dictionary).duplicate(true)
 			future_route = _vector2i_values(future_candidate.get("route", []))
@@ -8051,6 +8094,8 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 			projected_attack_tiles = _boss_action_threat_tiles(preview_state, preview_enemy, pattern_action)
 		attack_available = not _actor_targets_in_tiles(preview_state, projected_attack_tiles).is_empty()
 		target = {}
+	_record_runtime_performance_phase("enemy_plan_finalize", performance_phase_started)
+	_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 	return {
 		"enemy_index": enemy_index,
 		"enemy_key": _enemy_key(enemy),
@@ -8169,8 +8214,9 @@ func _best_enemy_direct_attack_candidate(state: Dictionary, enemy: Dictionary, a
 			var destination: Vector2i = record.get("tile", enemy.get("pos", Vector2i.ZERO))
 			var candidate_enemy: Dictionary = enemy.duplicate(true)
 			candidate_enemy["pos"] = destination
-			var candidate_state: Dictionary = _state_with_enemy_anchor(state, candidate_enemy, destination)
-			if not _enemy_action_reaches_target(candidate_state, candidate_enemy, attack_action, target):
+			# Reach checks read the moved enemy plus the unchanged grid/actor targets.
+			# They do not need a deep copy of the combat state at every anchor.
+			if not _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
 				continue
 			var candidate: Dictionary = {
 				"target": target,
@@ -8236,8 +8282,17 @@ func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: D
 
 func _best_enemy_future_route_candidate(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, move_range: int) -> Dictionary:
 	var best: Dictionary = {}
+	# Each route to a possible target explores the same board anchors. Cache the
+	# target-independent occupancy facts once for this planning call rather than
+	# rescanning terrain, enemies, traps, and actor targets for every neighboring
+	# edge in the search.
+	var context_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var planning_context: Dictionary = _enemy_future_planning_context(state, enemy)
+	_record_runtime_performance_phase("enemy_future_context", context_started)
 	for target: Dictionary in _actor_targets(state):
-		var route_record: Dictionary = _enemy_future_route_to_attack(state, enemy, attack_action, target, move_range)
+		var search_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		var route_record: Dictionary = _enemy_future_route_to_attack(state, enemy, attack_action, target, move_range, planning_context)
+		_record_runtime_performance_phase("enemy_future_search", search_started)
 		if route_record.is_empty():
 			continue
 		var candidate: Dictionary = route_record.duplicate(true)
@@ -8290,7 +8345,7 @@ func _objective_exit_block_score(state: Dictionary, destination: Vector2i) -> in
 		best_score = mini(best_score, score)
 	return best_score
 
-func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, target: Dictionary, move_range: int) -> Dictionary:
+func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, target: Dictionary, move_range: int, planning_context: Dictionary) -> Dictionary:
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	var start_path: Array[Vector2i] = _vector2i_values([start])
 	var open: Array[Dictionary]
@@ -8307,14 +8362,17 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 		closed[current_tile] = true
 		var candidate_enemy: Dictionary = enemy.duplicate(true)
 		candidate_enemy["pos"] = current_tile
-		var candidate_state: Dictionary = _state_with_enemy_anchor(state, candidate_enemy, current_tile)
-		if _enemy_anchor_is_dynamically_open(state, enemy, current_tile) and _enemy_action_reaches_target(candidate_state, candidate_enemy, attack_action, target):
+		var anchor_details: Dictionary = _enemy_future_anchor_details(state, enemy, current_tile, planning_context)
+		if bool(anchor_details.get("dynamically_open", false)) and _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
 			return current
 		for direction: Vector2i in PathUtils.DIRS_4:
 			var next_tile: Vector2i = current_tile + direction
-			if closed.has(next_tile) or not _enemy_anchor_is_in_grid(state, enemy, next_tile):
+			if closed.has(next_tile):
 				continue
-			var step_cost: int = _enemy_future_anchor_step_cost(state, enemy, next_tile, attack_action, target, move_range)
+			var next_anchor_details: Dictionary = _enemy_future_anchor_details(state, enemy, next_tile, planning_context)
+			if not bool(next_anchor_details.get("in_grid", false)):
+				continue
+			var step_cost: int = _enemy_future_anchor_step_cost(state, next_anchor_details, attack_action, move_range)
 			if step_cost < 0:
 				continue
 			var route: Array[Vector2i] = _vector2i_values(current.get("route", []))
@@ -8325,7 +8383,7 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 			var prefix_blocked: bool = bool(current.get("prefix_blocked", false))
 			var open_prefix_steps: int = int(current.get("open_prefix_steps", 0))
 			if not prefix_blocked and open_prefix_steps < move_range:
-				if _enemy_anchor_is_dynamically_open(state, enemy, next_tile):
+				if bool(next_anchor_details.get("dynamically_open", false)):
 					open_prefix_steps += 1
 				else:
 					prefix_blocked = true
@@ -8373,11 +8431,11 @@ func _enemy_route_record_precedes(candidate: Dictionary, incumbent: Dictionary) 
 		return _tile_precedes(candidate_tile, incumbent_tile)
 	return _enemy_path_precedes(_vector2i_values(candidate.get("route", [])), _vector2i_values(incumbent.get("route", [])))
 
-func _enemy_future_anchor_step_cost(state: Dictionary, enemy: Dictionary, anchor: Vector2i, attack_action: Dictionary, _target: Dictionary, move_range: int) -> int:
-	if _enemy_anchor_overlaps_any_actor_target(state, enemy, anchor):
+func _enemy_future_anchor_step_cost(state: Dictionary, anchor_details: Dictionary, attack_action: Dictionary, move_range: int) -> int:
+	if bool(anchor_details.get("actor_target_overlap", false)):
 		return -1
-	var cost: int = 1 + _enemy_anchor_trap_penalty(state, enemy, anchor)
-	var terrain_indices: Array[int] = _enemy_anchor_terrain_indices(state, enemy, anchor)
+	var cost: int = 1 + int(anchor_details.get("trap_penalty", 0))
+	var terrain_indices: Array[int] = _int_values(anchor_details.get("terrain_indices", []))
 	if not terrain_indices.is_empty():
 		var damage: int = int(attack_action.get("damage", 0))
 		if damage <= 0:
@@ -8386,9 +8444,58 @@ func _enemy_future_anchor_step_cost(state: Dictionary, enemy: Dictionary, anchor
 			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
 			var hits: int = ceili(float(int(terrain.get("hp", 0))) / float(damage))
 			cost += maxi(1, hits) * maxi(1, move_range)
-	var blocking_enemy_count: int = _enemy_anchor_blocking_enemy_count(state, enemy, anchor)
+	var blocking_enemy_count: int = int(anchor_details.get("blocking_enemy_count", 0))
 	cost += blocking_enemy_count * ENEMY_PATH_TEMPORARY_BLOCKER_TURN_COST * maxi(1, move_range)
 	return cost
+
+func _enemy_future_planning_context(state: Dictionary, enemy: Dictionary) -> Dictionary:
+	var blocking_enemy_entries_by_tile: Dictionary = {}
+	var enemy_id: int = int(enemy.get("id", -1))
+	var enemies: Array = state.get("enemies", [])
+	for enemy_index: int in range(enemies.size()):
+		if typeof(enemies[enemy_index]) != TYPE_DICTIONARY:
+			continue
+		var other: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		if int(other.get("hp", 0)) <= 0 or int(other.get("id", -1)) == enemy_id:
+			continue
+		for tile: Vector2i in _enemy_footprint_tiles(other):
+			var blocking_entries: Dictionary = blocking_enemy_entries_by_tile.get(tile, {})
+			blocking_entries[enemy_index] = true
+			blocking_enemy_entries_by_tile[tile] = blocking_entries
+	return {
+		"anchor_details": {},
+		"blocking_enemy_entries_by_tile": blocking_enemy_entries_by_tile,
+	}
+
+func _enemy_future_blocking_enemy_count(enemy: Dictionary, anchor: Vector2i, planning_context: Dictionary) -> int:
+	var blocking_enemy_entries: Dictionary = {}
+	var blocking_enemy_entries_by_tile: Dictionary = planning_context.get("blocking_enemy_entries_by_tile", {})
+	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
+		var tile_entries: Dictionary = blocking_enemy_entries_by_tile.get(tile, {})
+		for enemy_index_var: Variant in tile_entries.keys():
+			blocking_enemy_entries[enemy_index_var] = true
+	return blocking_enemy_entries.size()
+
+func _enemy_future_anchor_details(state: Dictionary, enemy: Dictionary, anchor: Vector2i, planning_context: Dictionary) -> Dictionary:
+	var cache: Dictionary = planning_context.get("anchor_details", {})
+	if cache.has(anchor):
+		return cache[anchor] as Dictionary
+	var in_grid: bool = _enemy_anchor_is_in_grid(state, enemy, anchor)
+	var terrain_indices: Array[int] = _enemy_anchor_terrain_indices(state, enemy, anchor)
+	var blocking_enemy_count: int = _enemy_future_blocking_enemy_count(enemy, anchor, planning_context)
+	var actor_target_overlap: bool = _enemy_anchor_overlaps_any_actor_target(state, enemy, anchor)
+	var trap_penalty: int = _enemy_anchor_trap_penalty(state, enemy, anchor)
+	var details: Dictionary = {
+		"in_grid": in_grid,
+		"terrain_indices": terrain_indices,
+		"blocking_enemy_count": blocking_enemy_count,
+		"actor_target_overlap": actor_target_overlap,
+		"trap_penalty": trap_penalty,
+		"dynamically_open": terrain_indices.is_empty() and blocking_enemy_count == 0 and not actor_target_overlap,
+	}
+	cache[anchor] = details
+	planning_context["anchor_details"] = cache
+	return details
 
 func _enemy_anchor_is_in_grid(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> bool:
 	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):

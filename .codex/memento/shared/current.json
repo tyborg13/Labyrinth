@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-27T19:54:26Z",
+  "updated_at": "2026-08-28T21:07:55Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9233,6 +9233,28 @@
       "source": {
         "branch": "codex/main-menu-loading-transition",
         "commit": "f07c0ba5"
+      }
+    },
+    {
+      "id": "mnt_20260828T210755Z_aa92a4d4",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "_enemy_future_planning_context"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#_enemy_future_planning_context",
+      "summary": "Repeated enemy normalization dominated small-board route occupancy checks. Keep blocker indexing scoped to one planning call; cross-turn caches risk stale positions, footprints, terrain, traps, and targets.",
+      "details": "The August 2026 six-step forecast probe attributed 26.8 ms to repeated blocker scans before per-plan indexing. Preserve blocker-entry counting and route tie breaks; language migration is not required to remove this repeated work. See spec/performance_pass_2026_08_28_cpu_gpu.md for CPU evidence and remaining native-proof limits.",
+      "status": "active",
+      "created_at": "2026-08-28T21:07:55Z",
+      "updated_at": "2026-08-28T21:07:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "15569d54"
       }
     }
   ]

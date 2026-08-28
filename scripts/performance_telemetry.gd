@@ -1,7 +1,7 @@
 extends Node
 class_name PerformanceTelemetrySampler
 
-const SCHEMA_VERSION: int = 1
+const SCHEMA_VERSION: int = 2
 const DEFAULT_STORAGE_DIR: String = "user://telemetry"
 const DEFAULT_FLUSH_INTERVAL_SECONDS: float = 60.0
 const RENDER_SAMPLE_INTERVAL_FRAMES: int = 10
@@ -104,6 +104,15 @@ var _primitives_total: float = 0.0
 var _primitives_max: float = 0.0
 var _process_ms_total: float = 0.0
 var _process_ms_max: float = 0.0
+var _physics_process_ms_total: float = 0.0
+var _physics_process_ms_max: float = 0.0
+var _render_setup_cpu_ms_total: float = 0.0
+var _render_setup_cpu_ms_max: float = 0.0
+var _viewport_render_cpu_ms_total: float = 0.0
+var _viewport_render_cpu_ms_max: float = 0.0
+var _viewport_render_gpu_ms_total: float = 0.0
+var _viewport_render_gpu_ms_max: float = 0.0
+var _measured_viewport_rid: RID
 var _gameplay_context: Dictionary = {}
 var _gameplay_context_signature: int = 0
 var _active_frame_cohorts: Array[String] = ["frontend"]
@@ -131,6 +140,9 @@ func _ready() -> void:
 		_configured_upload_endpoint()
 	)
 	_install_id = _ensure_installation_id() if _local_storage_enabled else _random_id("perf_install_ephemeral")
+	if _sampling_enabled and get_viewport() != null:
+		_measured_viewport_rid = get_viewport().get_viewport_rid()
+		RenderingServer.viewport_set_measure_render_time(_measured_viewport_rid, true)
 	_http_request = HTTPRequest.new()
 	_http_request.name = "PerformanceTelemetryUpload"
 	_http_request.request_completed.connect(_on_upload_completed)
@@ -267,6 +279,26 @@ func _sample_frame(frame_ms: float, render_metrics: Dictionary = {}) -> void:
 		"process_ms",
 		float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0
 	))
+	var physics_process_ms: float = float(render_metrics.get(
+		"physics_process_ms",
+		float(Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS)) * 1000.0
+	))
+	var render_setup_cpu_ms: float = float(render_metrics.get(
+		"render_setup_cpu_ms",
+		RenderingServer.get_frame_setup_time_cpu()
+	))
+	var viewport_render_cpu_ms: float = float(render_metrics.get(
+		"viewport_render_cpu_ms",
+		RenderingServer.viewport_get_measured_render_time_cpu(_measured_viewport_rid)
+		if _measured_viewport_rid.is_valid()
+		else 0.0
+	))
+	var viewport_render_gpu_ms: float = float(render_metrics.get(
+		"viewport_render_gpu_ms",
+		RenderingServer.viewport_get_measured_render_time_gpu(_measured_viewport_rid)
+		if _measured_viewport_rid.is_valid()
+		else 0.0
+	))
 	_render_sample_count += 1
 	_draw_calls_total += draw_calls
 	_draw_calls_max = maxf(_draw_calls_max, draw_calls)
@@ -276,6 +308,14 @@ func _sample_frame(frame_ms: float, render_metrics: Dictionary = {}) -> void:
 	_primitives_max = maxf(_primitives_max, primitives)
 	_process_ms_total += process_ms
 	_process_ms_max = maxf(_process_ms_max, process_ms)
+	_physics_process_ms_total += physics_process_ms
+	_physics_process_ms_max = maxf(_physics_process_ms_max, physics_process_ms)
+	_render_setup_cpu_ms_total += render_setup_cpu_ms
+	_render_setup_cpu_ms_max = maxf(_render_setup_cpu_ms_max, render_setup_cpu_ms)
+	_viewport_render_cpu_ms_total += viewport_render_cpu_ms
+	_viewport_render_cpu_ms_max = maxf(_viewport_render_cpu_ms_max, viewport_render_cpu_ms)
+	_viewport_render_gpu_ms_total += viewport_render_gpu_ms
+	_viewport_render_gpu_ms_max = maxf(_viewport_render_gpu_ms_max, viewport_render_gpu_ms)
 
 func _build_summary(reason: String) -> Dictionary:
 	var stats: Dictionary = _stats(_frame_samples_ms)
@@ -304,6 +344,16 @@ func _build_summary(reason: String) -> Dictionary:
 			"primitives_max": _primitives_max,
 			"process_ms_mean": _process_ms_total / render_divisor,
 			"process_ms_max": _process_ms_max,
+			"physics_process_ms_mean": _physics_process_ms_total / render_divisor,
+			"physics_process_ms_max": _physics_process_ms_max,
+			"render_setup_cpu_ms_mean": _render_setup_cpu_ms_total / render_divisor,
+			"render_setup_cpu_ms_max": _render_setup_cpu_ms_max,
+			"viewport_render_cpu_ms_mean": _viewport_render_cpu_ms_total / render_divisor,
+			"viewport_render_cpu_ms_max": _viewport_render_cpu_ms_max,
+			"viewport_render_cpu_timing_available": _viewport_render_cpu_ms_max > 0.0,
+			"viewport_render_gpu_ms_mean": _viewport_render_gpu_ms_total / render_divisor,
+			"viewport_render_gpu_ms_max": _viewport_render_gpu_ms_max,
+			"viewport_render_gpu_timing_available": _viewport_render_gpu_ms_max > 0.0,
 		},
 		"memory": {
 			"static_bytes": int(Performance.get_monitor(Performance.MEMORY_STATIC)),
@@ -660,6 +710,14 @@ func _reset_window() -> void:
 	_primitives_max = 0.0
 	_process_ms_total = 0.0
 	_process_ms_max = 0.0
+	_physics_process_ms_total = 0.0
+	_physics_process_ms_max = 0.0
+	_render_setup_cpu_ms_total = 0.0
+	_render_setup_cpu_ms_max = 0.0
+	_viewport_render_cpu_ms_total = 0.0
+	_viewport_render_cpu_ms_max = 0.0
+	_viewport_render_gpu_ms_total = 0.0
+	_viewport_render_gpu_ms_max = 0.0
 	_cohort_frame_windows.clear()
 
 func _configured_upload_endpoint() -> String:

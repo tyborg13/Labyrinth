@@ -30,6 +30,10 @@ func _run() -> void:
 			"objects": 4000.0,
 			"primitives": 72000.0,
 			"process_ms": 8.0,
+			"physics_process_ms": 1.25,
+			"render_setup_cpu_ms": 0.75,
+			"viewport_render_cpu_ms": 3.5,
+			"viewport_render_gpu_ms": 4.25,
 		})
 	var summary: Dictionary = sampler.flush_now("test")
 	var frame_stats: Dictionary = summary.get("frame_interval_ms", {}) as Dictionary
@@ -59,6 +63,8 @@ func _run() -> void:
 	summary["sections"] = {
 		"stage_base": {"count": 4, "total_usec": 1200},
 		"engine_trap_blast": {"count": 2, "total_usec": 500},
+		"engine_enemy_turn_plan_total": {"count": 1, "total_usec": 9000},
+		"engine_enemy_plan_actual_paths": {"count": 2, "total_usec": 600},
 	}
 	var steam_deltas: Dictionary = sampler.steam_metric_deltas_for_test(summary, "Linux", true)
 	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_sessions", 0)) == 1, "The first Steam telemetry submission should count the platform session")
@@ -71,10 +77,17 @@ func _run() -> void:
 	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_stage_calls", 0)) == 4, "Steam telemetry should retain subsystem call denominators")
 	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_stage_tenths_ms", 0)) == 12, "Steam telemetry should retain subsystem time in mergeable tenths of milliseconds")
 	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_traps_tenths_ms", 0)) == 5, "Steam telemetry should distinguish combat-engine trap costs")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_other_tenths_ms", 0)) == 6, "Nested enemy-planning totals must not double-count their detailed phases in Steam aggregates")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_other_calls", 0)) == 2, "Steam section denominators must exclude inclusive parent totals")
 	_expect(steam_deltas.size() < 64, "A single window should update only its active subset of the larger Steam stat schema")
 	var render: Dictionary = summary.get("render", {}) as Dictionary
 	_expect(int(render.get("sample_count", 0)) == 5, "Explicit render samples should be retained with the frame window")
 	_expect(float(render.get("draw_calls_max", 0.0)) == 1245.0, "Telemetry should retain peak draw-call pressure")
+	_expect(is_equal_approx(float(render.get("physics_process_ms_mean", 0.0)), 1.25), "Telemetry should separate physics-process CPU from total process time")
+	_expect(is_equal_approx(float(render.get("render_setup_cpu_ms_mean", 0.0)), 0.75), "Telemetry should retain RenderingServer frame-setup CPU time")
+	_expect(is_equal_approx(float(render.get("viewport_render_cpu_ms_mean", 0.0)), 3.5), "Telemetry should retain measured viewport render CPU time")
+	_expect(is_equal_approx(float(render.get("viewport_render_gpu_ms_mean", 0.0)), 4.25), "Telemetry should retain measured viewport GPU time")
+	_expect(bool(render.get("viewport_render_cpu_timing_available", false)) and bool(render.get("viewport_render_gpu_timing_available", false)), "Positive viewport timings should be marked available")
 	var context: Dictionary = summary.get("context", {}) as Dictionary
 	_expect(str(context.get("mode", "")) == "combat" and int(context.get("room_depth", 0)) == 9, "Telemetry should associate performance with gameplay context that omits Steam identity")
 	_expect(not summary.has("steam_id") and not summary.has("persona_name"), "Performance payloads must not include Steam identity")
@@ -98,6 +111,7 @@ func _run() -> void:
 	_expect((exit_summary.get("frame_cohorts", {}) as Dictionary).has("combat_idle"), "The scene-exit boundary should flush the final gameplay cohort before RunScene is freed")
 	sampler.sample_frame_for_test(12.0)
 	var frontend_summary: Dictionary = sampler.flush_now("test_frontend")
+	_expect(not bool((frontend_summary.get("render", {}) as Dictionary).get("viewport_render_gpu_timing_available", true)), "A window without positive GPU timings must not imply that rendering was free")
 	var frontend_cohorts: Dictionary = frontend_summary.get("frame_cohorts", {}) as Dictionary
 	_expect(
 		frontend_cohorts.size() == 1 and frontend_cohorts.has("frontend"),

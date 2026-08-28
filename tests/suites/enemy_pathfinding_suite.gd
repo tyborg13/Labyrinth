@@ -22,6 +22,8 @@ static func run(expect: Callable) -> void:
 	_test_enemy_congestion_is_a_hard_current_blocker(expect)
 	_test_open_detour_beats_avoidable_allied_stall(expect)
 	_test_large_footprint_stops_when_attack_is_available(expect)
+	_test_cached_anchor_queries_match_uncached_footprints(expect)
+	_test_reach_checks_do_not_require_moved_state_clones(expect)
 	_test_threat_exposes_exact_plan_beside_conservative_union(expect)
 	_test_lightning_projection_matches_deterministic_strikes(expect)
 	_test_exact_projection_respects_action_denying_statuses(expect)
@@ -433,6 +435,56 @@ static func _test_enemy_action_analytics_retains_path(expect: Callable) -> void:
 	run_scene.free()
 	AnalyticsStore.clear_storage()
 	AnalyticsStore.set_storage_dir(previous_storage_dir)
+
+static func _test_cached_anchor_queries_match_uncached_footprints(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {"actions": [{"type": "melee", "range": 1, "damage": 3}]}
+	var moving_enemy: Dictionary = _enemy(Vector2i(1, 1), intent)
+	moving_enemy["footprint"] = Vector2i(2, 2)
+	var large_blocker: Dictionary = _enemy(Vector2i(3, 3), intent, "crawler", 2)
+	large_blocker["footprint"] = Vector2i(2, 2)
+	var wide_blocker: Dictionary = _enemy(Vector2i(4, 4), intent, "crawler", 3)
+	wide_blocker["footprint"] = Vector2i(2, 1)
+	var dead_blocker: Dictionary = _enemy(Vector2i(3, 4), intent, "crawler", 4)
+	dead_blocker["hp"] = 0
+	var state: Dictionary = _state(combat, 274, Vector2i(6, 6), [moving_enemy, large_blocker, wide_blocker, dead_blocker],
+		[{"id": "crate", "pos": Vector2i(5, 4), "hp": 3, "max_hp": 3}],
+		[{"id": "trap", "pos": Vector2i(4, 5), "element": "fire", "damage": 2}],
+		[{"id": 7, "pos": Vector2i(6, 2), "hp": 4, "max_hp": 4}])
+	var snapshot: Dictionary = state.duplicate(true)
+	var context: Dictionary = combat.call("_enemy_future_planning_context", state, moving_enemy)
+	for y: int in range(-1, 9):
+		for x: int in range(-1, 9):
+			var anchor := Vector2i(x, y)
+			var details: Dictionary = combat.call("_enemy_future_anchor_details", state, moving_enemy, anchor, context)
+			expect.call(int(details.get("blocking_enemy_count", -1)) == int(combat.call("_enemy_anchor_blocking_enemy_count", state, moving_enemy, anchor)), "Cached blocker counts must match uncached scans at %s" % anchor)
+			expect.call(bool(details.get("dynamically_open", false)) == bool(combat.call("_enemy_anchor_is_dynamically_open", state, moving_enemy, anchor)), "Cached dynamic occupancy must preserve terrain, actor, and footprint rules at %s" % anchor)
+	var overlap: Dictionary = combat.call("_enemy_future_anchor_details", state, moving_enemy, Vector2i(3, 3), context)
+	expect.call(int(overlap.get("blocking_enemy_count", 0)) == 2, "A multi-tile blocker must count once even when several footprint cells overlap")
+	expect.call(state == snapshot, "Building and reusing the per-plan occupancy cache must not mutate combat state")
+
+static func _test_reach_checks_do_not_require_moved_state_clones(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var enemy: Dictionary = _enemy(Vector2i(2, 2), {"actions": []})
+	enemy["footprint"] = Vector2i(2, 2)
+	var state: Dictionary = _state(combat, 275, Vector2i(6, 4), [enemy], [], [], [{"id": 8, "pos": Vector2i(4, 6), "hp": 4, "max_hp": 4}])
+	var actions: Array = [
+		{"type": "melee", "range": 1},
+		{"type": "ranged", "range": 4},
+		{"type": "push", "range": 2},
+		{"type": "pull", "range": 3},
+		{"type": "aoe", "range": 0, "pattern": [[1, 0], [2, 0], [3, 0]], "orient_toward_target": true, "stop_at_blockers": true},
+		{"type": "aoe", "range": 3, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true},
+	]
+	for anchor: Vector2i in _tiles([Vector2i(1, 1), Vector2i(3, 3), Vector2i(4, 4), Vector2i(5, 5)]):
+		var moved_enemy: Dictionary = enemy.duplicate(true)
+		moved_enemy["pos"] = anchor
+		var moved_state: Dictionary = combat.call("_state_with_enemy_anchor", state, moved_enemy, anchor)
+		for action: Dictionary in actions:
+			for target: Dictionary in combat.call("_actor_targets", state):
+				var original_result: bool = combat.call("_enemy_action_reaches_target", state, moved_enemy, action, target)
+				var cloned_result: bool = combat.call("_enemy_action_reaches_target", moved_state, moved_enemy, action, target)
+				expect.call(original_result == cloned_result, "%s reach checks must depend on the moved enemy argument, not a cloned state enemy entry" % str(action.get("type", "")))
 
 static func _state(combat: CombatEngine, seed: int, player_pos: Vector2i, enemies: Array, terrain: Array = [], traps: Array = [], illusions: Array = [], grid_override: Array = []) -> Dictionary:
 	var grid: Array = _grid() if grid_override.is_empty() else grid_override.duplicate(true)
