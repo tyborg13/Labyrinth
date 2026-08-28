@@ -2026,7 +2026,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			_record_runtime_performance_phase("enemy_turn_action_prepare", performance_phase_started)
 			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
-			_record_runtime_performance_phase("enemy_turn_action_resolve_%s" % str(action.get("type", "other")), performance_phase_started)
+			_record_runtime_performance_phase("enemy_turn_action_resolve_%s_total" % str(action.get("type", "other")), performance_phase_started)
 			performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
 			_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))

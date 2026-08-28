@@ -3,6 +3,7 @@ extends RefCounted
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
+const PerformanceTelemetryScript = preload("res://scripts/performance_telemetry.gd")
 
 static func run(expect: Callable) -> void:
 	_test_deterministic_illusion_tie(expect)
@@ -202,7 +203,26 @@ static func _test_forced_choke_crosses_and_triggers_trap(expect: Callable) -> vo
 	var state: Dictionary = _state(combat, 26, Vector2i(2, 4), [_enemy(Vector2i(5, 4), intent)], [], traps, [], _corridor_grid())
 	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
 	expect.call(_tiles(plan.get("path", [])).has(Vector2i(4, 4)), "A finite trap cost should still permit the only attack-enabling route")
+	var reference: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	combat.set_runtime_performance_instrumentation_enabled(true)
 	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	expect.call(result == reference, "Instrumenting an enemy trap activation must preserve the resolved state and steps")
+	var profile: Dictionary = combat.runtime_performance_instrumentation_snapshot()
+	expect.call(profile.has("enemy_turn_action_resolve_move_toward_total"), "Enemy movement resolution must be recorded as an inclusive parent")
+	var sections: Dictionary = {}
+	var trap_calls: int = 0
+	for phase_var: Variant in profile.keys():
+		var phase: String = str(phase_var)
+		if phase.begins_with("enemy_turn_action_resolve_") or phase.begins_with("trap_"):
+			sections["engine_%s" % phase] = profile[phase_var]
+		if phase.begins_with("trap_") and not phase.ends_with("_total"):
+			trap_calls += int((profile[phase_var] as Dictionary).get("count", 0))
+	expect.call(trap_calls > 0, "The real enemy movement must exercise nested trap instrumentation")
+	var sampler := PerformanceTelemetryScript.new()
+	var deltas: Dictionary = sampler.steam_metric_deltas_for_test({"sections": sections}, "Linux", true)
+	expect.call(int(deltas.get("perf_v1_linux_steamdeck_section_engine_traps_calls", 0)) == trap_calls, "Steam must retain the real nested trap phase denominators")
+	expect.call(int(deltas.get("perf_v1_linux_steamdeck_section_engine_other_calls", 0)) == 0, "Steam must exclude inclusive action resolution instead of counting trap work again")
+	sampler.free()
 	var resolved: Dictionary = result.get("state", {})
 	expect.call((resolved.get("traps", []) as Array).is_empty(), "Voluntary movement across a forced choke should trigger the trap")
 	var saw_path: bool = false
