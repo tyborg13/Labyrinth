@@ -200,6 +200,17 @@ func make_button_style(variant: String = VARIANT_STANDARD, state: String = STATE
 		style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
 		style.shadow_size = 4 if compact else 5
 		style.shadow_offset = Vector2(0.0, 3.0)
+	if umbra:
+		# The title-menu's generated sprite is the entire visible surface. This
+		# layout-only StyleBox preserves native Button hit testing and text.
+		style.bg_color = Color.TRANSPARENT
+		style.border_color = Color.TRANSPARENT
+		style.border_width_left = 0
+		style.border_width_top = 0
+		style.border_width_right = 0
+		style.border_width_bottom = 0
+		style.shadow_color = Color.TRANSPARENT
+		style.shadow_size = 0
 	return style
 
 func button_native_size(height: float, min_width: float = 0.0, variant: String = VARIANT_STANDARD) -> Vector2:
@@ -246,7 +257,7 @@ func apply_button_stylebox_overrides(
 	button.add_theme_stylebox_override("hover_pressed", styles["hover_pressed_override"])
 	button.add_theme_stylebox_override("focus", styles[STATE_FOCUS])
 	button.add_theme_stylebox_override("disabled", styles[STATE_DISABLED])
-	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR if variant == VARIANT_UMBRA else CanvasItem.TEXTURE_FILTER_NEAREST
 	button.set_meta("button_variant", variant)
 	if button is Button:
 		(button as Button).alignment = HORIZONTAL_ALIGNMENT_CENTER

@@ -64,11 +64,14 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	_assert(resume_stats.text == "HP 175 / 260  ·  HELD 74 EMBERS", "Resume card should show accurate saved HP and explicitly identify held embers")
 	_assert(footer.text == "LV 3  |  EMBERS 91  |  SKILLS 2/19", "Main-menu profile summary should show learned skills instead of retired card growth")
 	_assert(continue_button.text == "Continue Run" and not continue_button.disabled, "Continue should become the primary enabled action for a valid save")
-	_assert(str(continue_button.get_meta("button_variant", "")) == "umbra" and str(start_button.get_meta("button_variant", "")) == "umbra", "Main-menu actions should use the code-native Umbra Obsidian button variant")
+	_assert(str(continue_button.get_meta("button_variant", "")) == "umbra" and str(start_button.get_meta("button_variant", "")) == "umbra", "Main-menu actions should use the generated-art Umbra Obsidian button variant")
 	_assert(bool(continue_button.get_meta("umbra_selected", false)) and not bool(start_button.get_meta("umbra_selected", false)), "A valid save should make Continue the only glowing default selection")
 	var continue_style: StyleBoxFlat = continue_button.get_theme_stylebox("normal") as StyleBoxFlat
 	var start_style: StyleBoxFlat = start_button.get_theme_stylebox("normal") as StyleBoxFlat
-	_assert(continue_style != null and start_style != null and continue_style.bg_color != start_style.bg_color, "Primary Continue should be visually distinct from New Game")
+	_assert(continue_style != null and start_style != null and continue_style.bg_color == Color.TRANSPARENT and start_style.bg_color == Color.TRANSPARENT, "Umbra layout styles should stay transparent so generated raster art is the sole visible button surface")
+	var continue_ornament: Control = continue_button.get_node_or_null("ThemedButtonOrnament") as Control
+	var start_ornament: Control = start_button.get_node_or_null("ThemedButtonOrnament") as Control
+	_assert(continue_ornament != null and start_ornament != null and str(continue_ornament.call("_visual_state")) == "selected" and str(start_ornament.call("_visual_state")) == "normal", "Primary Continue should render the only focused generated-art state")
 	_assert(_run_file_bytes() == bytes_before, "Rendering the valid-save summary must not rewrite the run file")
 
 	start_button.pressed.emit()

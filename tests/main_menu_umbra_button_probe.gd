@@ -92,9 +92,12 @@ func _capture_main_menu_states() -> void:
 func _verify_umbra_construction(instance: Control) -> void:
 	for button: Button in _menu_buttons(instance):
 		_require(str(button.get_meta("button_variant", "")) == UiSkin.VARIANT_UMBRA, "%s should use the Umbra Obsidian variant" % button.name)
-		_require(button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) != null, "%s should retain the shared scalable button ornament" % button.name)
+		var ornament: Control = button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) as Control
+		_require(ornament != null, "%s should retain the generated-art button renderer" % button.name)
+		_require(ornament != null and ornament.show_behind_parent, "%s generated art should render behind the native Button label" % button.name)
 		for state_name: String in ["normal", "hover", "pressed", "focus", "disabled"]:
-			_require(button.get_theme_stylebox(state_name) is StyleBoxFlat, "%s %s should remain code-native" % [button.name, state_name])
+			var style: StyleBoxFlat = button.get_theme_stylebox(state_name) as StyleBoxFlat
+			_require(style != null and style.bg_color == Color.TRANSPARENT and style.border_color == Color.TRANSPARENT, "%s %s should leave the generated raster as the sole visible surface" % [button.name, state_name])
 
 func _verify_exclusive_selection(instance: Control, expected: Button, state_label: String) -> void:
 	var selected_count: int = 0
@@ -116,7 +119,7 @@ func _verify_exclusive_selection(instance: Control, expected: Button, state_labe
 func _verify_focus_styles(button: Button) -> void:
 	var normal_style: StyleBoxFlat = button.get_theme_stylebox("normal") as StyleBoxFlat
 	var focus_style: StyleBoxFlat = button.get_theme_stylebox("focus") as StyleBoxFlat
-	_require(normal_style != null and normal_style.bg_color == Color("13141a"), "Focused Umbra buttons should retain the selected obsidian base")
+	_require(normal_style != null and normal_style.bg_color == Color.TRANSPARENT, "Focused Umbra buttons should use the selected generated raster without a generic fill")
 	_require(focus_style != null and focus_style.bg_color == Color.TRANSPARENT, "Umbra focus should use a transparent overlay instead of a generic filled box")
 	_require(not button.button_pressed, "Focus should not silently toggle the menu action")
 
