@@ -897,6 +897,13 @@ func _capture_production_aspect_geometry(instance: Node) -> void:
 	print("HUD GEOMETRY 1920x1227 board=%s hand_top=%.1f gap=%.1f" % [board_bounds, hand_top, hand_top - board_bounds.end.y])
 
 func _assert_compact_pile_controls(instance: Node) -> void:
+	var piles: Control = instance.get("piles_bar") as Control
+	var viewport_rect: Rect2 = instance.get_viewport().get_visible_rect()
+	_assert(piles != null and piles.get_parent() == instance.get("ui_root"), "Combat piles should be independent viewport HUD controls")
+	if piles != null:
+		var piles_rect: Rect2 = piles.get_global_rect()
+		_assert(viewport_rect.grow(1.0).encloses(piles_rect), "Combat piles should remain fully onscreen")
+		_assert(absf(viewport_rect.end.x - piles_rect.end.x - 12.0) <= 1.0 and absf(viewport_rect.end.y - piles_rect.end.y - 12.0) <= 1.0, "Combat piles should dock at the bottom-right safe margin")
 	for pile_name: String in ["draw_pile", "discard_pile"]:
 		var pile: Control = instance.get(pile_name) as Control
 		_assert(pile != null and pile.visible, "%s should remain a visible combat pile control" % pile_name)

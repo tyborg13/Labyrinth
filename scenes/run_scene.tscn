@@ -250,89 +250,89 @@ visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="PilesBar" type="HBoxContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack"]
+[node name="PilesBar" type="HBoxContainer" parent="UiLayer/UiRoot"]
 custom_minimum_size = Vector2(104, 0)
-layout_mode = 2
+layout_mode = 0
 theme_override_constants/separation = 6
 
-[node name="DrawPile" type="PanelContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
+[node name="DrawPile" type="PanelContainer" parent="UiLayer/UiRoot/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
 script = ExtResource("7_tooltip_panel")
 
-[node name="DrawMargin" type="MarginContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile"]
+[node name="DrawMargin" type="MarginContainer" parent="UiLayer/UiRoot/PilesBar/DrawPile"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="DrawVBox" type="VBoxContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin"]
+[node name="DrawVBox" type="VBoxContainer" parent="UiLayer/UiRoot/PilesBar/DrawPile/DrawMargin"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="DrawTitle" type="Label" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox"]
+[node name="DrawTitle" type="Label" parent="UiLayer/UiRoot/PilesBar/DrawPile/DrawMargin/DrawVBox"]
 layout_mode = 2
 horizontal_alignment = 1
 text = "DRAW"
 
-[node name="DrawCount" type="Label" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox"]
+[node name="DrawCount" type="Label" parent="UiLayer/UiRoot/PilesBar/DrawPile/DrawMargin/DrawVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_alignment = 1
 vertical_alignment = 1
 text = "0"
 
-[node name="DiscardPile" type="PanelContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
+[node name="DiscardPile" type="PanelContainer" parent="UiLayer/UiRoot/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
 script = ExtResource("7_tooltip_panel")
 
-[node name="DiscardMargin" type="MarginContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile"]
+[node name="DiscardMargin" type="MarginContainer" parent="UiLayer/UiRoot/PilesBar/DiscardPile"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="DiscardVBox" type="VBoxContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin"]
+[node name="DiscardVBox" type="VBoxContainer" parent="UiLayer/UiRoot/PilesBar/DiscardPile/DiscardMargin"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="DiscardTitle" type="Label" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox"]
+[node name="DiscardTitle" type="Label" parent="UiLayer/UiRoot/PilesBar/DiscardPile/DiscardMargin/DiscardVBox"]
 layout_mode = 2
 horizontal_alignment = 1
 text = "DISC"
 
-[node name="DiscardCount" type="Label" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox"]
+[node name="DiscardCount" type="Label" parent="UiLayer/UiRoot/PilesBar/DiscardPile/DiscardMargin/DiscardVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_alignment = 1
 vertical_alignment = 1
 text = "0"
 
-[node name="BurnPile" type="PanelContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
+[node name="BurnPile" type="PanelContainer" parent="UiLayer/UiRoot/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
 script = ExtResource("7_tooltip_panel")
 
-[node name="BurnMargin" type="MarginContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile"]
+[node name="BurnMargin" type="MarginContainer" parent="UiLayer/UiRoot/PilesBar/BurnPile"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="BurnVBox" type="VBoxContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin"]
+[node name="BurnVBox" type="VBoxContainer" parent="UiLayer/UiRoot/PilesBar/BurnPile/BurnMargin"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="BurnTitle" type="Label" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox"]
+[node name="BurnTitle" type="Label" parent="UiLayer/UiRoot/PilesBar/BurnPile/BurnMargin/BurnVBox"]
 layout_mode = 2
 horizontal_alignment = 1
 text = "EXH"
 
-[node name="BurnCount" type="Label" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox"]
+[node name="BurnCount" type="Label" parent="UiLayer/UiRoot/PilesBar/BurnPile/BurnMargin/BurnVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_alignment = 1

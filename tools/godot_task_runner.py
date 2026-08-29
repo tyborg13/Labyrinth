@@ -170,6 +170,11 @@ def command_run(args: argparse.Namespace) -> int:
     home_dir.mkdir(parents=True, exist_ok=True)
 
     command = list(args.command)
+    if command_requests_editor_scan(command) and not args.allow_editor_scan:
+        raise SystemExit(
+            "error: refusing Godot --editor scan; it generates project-wide .import/.uid sidecars in clean worktrees. "
+            "Use a runtime test for parser coverage, or pass --allow-editor-scan only when the metadata changes are intentional."
+        )
     if command and Path(command[0]).name == "godot" and "--log-file" not in command:
         command = [command[0], "--log-file", str(home_dir / "godot.log"), *command[1:]]
 
@@ -207,6 +212,10 @@ def godot_output_has_failure(output: str) -> bool:
     return any(marker in output for marker in FAILURE_MARKERS)
 
 
+def command_requests_editor_scan(command: list[str]) -> bool:
+    return bool(command) and Path(command[0]).name == "godot" and "--editor" in command
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", default=".", help="Project directory used as cwd.")
@@ -228,6 +237,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--allow-steam",
         action="store_true",
         help="Permit Steam initialization for Steam-specific inspection. Steam is disabled by default for isolated tests and visual proof.",
+    )
+    parser.add_argument(
+        "--allow-editor-scan",
+        action="store_true",
+        help="Permit an intentional Godot --editor filesystem scan that may update project-wide .import/.uid metadata.",
     )
     parser.add_argument("command", nargs=argparse.REMAINDER, help="Command to run after --.")
     parser.set_defaults(func=command_run)

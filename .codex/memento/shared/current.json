@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-28T19:04:10Z",
+  "updated_at": "2026-08-29T16:42:42Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9259,6 +9259,28 @@
       "source": {
         "branch": "codex/item-card-pickups-20260828",
         "commit": "57c2a253"
+      }
+    },
+    {
+      "id": "mnt_20260829T164242Z_80fbeb89",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Do not use Godot editor scans as parser checks in isolated worktrees",
+      "details": "Running godot --editor --quit in a clean worktree can generate project-wide adjacent .import and .uid sidecars, including misleading metadata for mirrored assets. Keep legitimate sidecars visible to version control and use runtime tests for parser coverage; tools/godot_task_runner.py rejects --editor unless --allow-editor-scan is explicitly passed.",
+      "status": "active",
+      "created_at": "2026-08-29T16:42:42Z",
+      "updated_at": "2026-08-29T16:42:42Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/item-card-pickups-20260828",
+        "commit": "29986f11"
       }
     }
   ]

@@ -12794,11 +12794,11 @@ func _rendered_tiles_in_draw_order() -> Array[Vector2i]:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_tiles
 
-func rendered_visual_bounds() -> Rect2:
+func rendered_visual_rects() -> Array[Rect2]:
 	# This is deliberately based on the exact draw rectangles used by the static
-	# board and DynamicRenderLayer, rather than only tile diamonds. Consumers use
-	# it for framing/collision proof so tall pillars, doors, actors, pickups, and
-	# room props cannot be silently clipped while the tile polygon still fits.
+	# board and DynamicRenderLayer, rather than only tile diamonds. Keeping the
+	# rectangles separate lets HUD collision checks distinguish a genuinely
+	# occupied corner from the empty corner of their combined bounding box.
 	_ensure_board_layout_cache()
 	var rects: Array[Rect2] = []
 	var grid: Array = combat_state.get("grid", [])
@@ -12873,6 +12873,13 @@ func rendered_visual_bounds() -> Rect2:
 		var trap: Dictionary = trap_var
 		if _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))):
 			rects.append(_trap_draw_rect(trap.get("pos", Vector2i(-1, -1))))
+	return rects
+
+func rendered_visual_bounds() -> Rect2:
+	# Consumers use the combined bound for broad framing so tall pillars, doors,
+	# actors, pickups, and room props cannot be silently clipped while the tile
+	# polygon still fits.
+	var rects: Array[Rect2] = rendered_visual_rects()
 	var bounds := Rect2()
 	var has_bounds: bool = false
 	for rect: Rect2 in rects:

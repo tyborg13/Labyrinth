@@ -60,7 +60,7 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScript = CardWidget
 const ACTION_STEP_TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
 const ACTION_STEP_CHOICE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
-const ACTION_STEP_PILES_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
+const ACTION_STEP_PILES_PATH: String = "UiLayer/UiRoot/PilesBar"
 const MAP_RULE_SCAN_DEPTH: int = 8
 
 var _failures: Array[String] = []
@@ -9434,7 +9434,7 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
 	var left_action_stack: VBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack")
 	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
+	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/PilesBar")
 	var play_meter: Control = instance.get("_play_meter") as Control
 	var pass_hand_x: float = hand_scroll.global_position.x
 	var pass_action_width: float = left_action_stack.size.x
@@ -14252,7 +14252,7 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		_assert(pass_art != null and pass_art.get_meta("expected_target_size", Vector2i.ZERO) == Vector2i(270, 100) and pass_art.texture != null and str(pass_art.get_meta("pass_forecast_art_state", "")) == "normal", "%s pass forecast should use the native v2 normal frame" % context)
 		_assert(chip.find_child("PassFocusEdgeCue", true, false) != null and chip.find_child("PassActionStateGlow", true, false) == null, "%s pass forecast should reserve code-drawn treatment for the narrow focus edge, not a colored action wash" % context)
 		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
-		var piles_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
+		var piles_bar: Control = instance.get_node("UiLayer/UiRoot/PilesBar") as Control
 		var action_step_tracker: Control = instance.find_child(ACTION_STEP_TRACKER_PATH, true, false) as Control
 		if preview_overlay != null and preview_overlay.visible and piles_bar != null:
 			var piles_rect: Rect2 = piles_bar.get_global_rect()

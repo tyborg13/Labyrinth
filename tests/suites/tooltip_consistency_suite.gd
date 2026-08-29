@@ -54,9 +54,9 @@ static func _test_static_run_scene_tooltip_controls(expect: Callable) -> void:
 		"UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/GrimoireButton",
 		"UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton",
 		"UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay",
-		"UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile",
-		"UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile",
-		"UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile"
+		"UiLayer/UiRoot/PilesBar/DrawPile",
+		"UiLayer/UiRoot/PilesBar/DiscardPile",
+		"UiLayer/UiRoot/PilesBar/BurnPile"
 	]
 	for path: String in paths:
 		var control: Control = scene.get_node(path) as Control
