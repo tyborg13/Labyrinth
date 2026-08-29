@@ -11,9 +11,11 @@ Generation mode: built-in `image_gen` precise-object edits, 2026-08-29.
 
 Final prompt set:
 
-- Inactive slab direction: isolate one inactive concept-5 button, with a long
-  black faceted obsidian body, dark etched fractures, aged-brass corner armor,
-  no text or markers, and genuine transparency.
+- Inactive slab direction: edit the focused generated slab into an unlit state
+  while preserving its stone relief and fracture placement. Extinguish only
+  the molten emission, restore every warmed region to continuous textured
+  charcoal-grey stone, and forbid black masks, soot clouds, flat fill, or
+  missing-texture blotches.
 - Focused slab direction: preserve the same slab and add the concept-5 molten
   fracture network in the lower-right half, using pale-yellow cores, orange
   inner light, and a restrained ember-red subsurface halo.
@@ -24,6 +26,8 @@ Final prompt set:
   oversized cursors, labels, logos, watermarks, and opaque backgrounds.
 
 `focused_button_source.png` and `focus_marker_source.png` preserve the selected
-built-in outputs. The shipped `main_menu_umbra_*.png` files are alpha-cropped,
-resampled production sprites. The inactive button is an exact-geometry color
-derivative of the focused source so changing focus never shifts the silhouette.
+built-in source outputs. The corrected inactive generation is preserved in the
+shipped `main_menu_umbra_button_idle.png`; the production sprites are
+alpha-cleaned, cropped, and resampled. Focused and inactive slabs share the
+same production canvas and authored bounds so changing focus does not shift the
+menu layout.

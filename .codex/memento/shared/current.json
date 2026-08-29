@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-29T21:51:05Z",
+  "updated_at": "2026-08-29T21:58:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9258,7 +9258,7 @@
       }
     },
     {
-      "id": "mnt_20260829T215105Z_64d30791",
+      "id": "mnt_20260829T215854Z_f0934033",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -9267,18 +9267,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/main_menu.gd",
-      "summary": "Main-menu Umbra buttons use generated raster art, never procedural reconstruction",
-      "details": "Match approved concept 5 with generated black obsidian slabs and aged-brass armor, a generated molten internal-fracture focused state, and separate generated side-marker widgets. Exactly one hovered, focused, pressed, or default-primary choice may glow. Preserve native Button text, focus, accessibility, and input behavior, plus the Steam-aligned logo/background composition.",
+      "summary": "Generated Umbra menu states preserve continuous charcoal-grey stone",
+      "details": "Match approved concept 5 with generated obsidian slabs, aged-brass armor, a molten focused state, and separate generated side markers; never reconstruct these elements procedurally. The inactive state must extinguish only the emission while retaining continuous textured charcoal-grey stone and narrow grey fissures\u2014never use broad black masks, blotches, soot, or missing-texture regions where the glow was. Exactly one hovered, focused, pressed, or default-primary choice may glow. Preserve native Button text, focus, accessibility, and input behavior plus the Steam-aligned logo/background composition.",
       "status": "active",
-      "created_at": "2026-08-29T21:51:05Z",
-      "updated_at": "2026-08-29T21:51:05Z",
+      "created_at": "2026-08-29T21:58:54Z",
+      "updated_at": "2026-08-29T21:58:54Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260829T192621Z_495f28b3"
+        "mnt_20260829T215105Z_64d30791"
       ],
       "source": {
         "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
-        "commit": "b076e822"
+        "commit": "0b81974d"
       }
     }
   ]
