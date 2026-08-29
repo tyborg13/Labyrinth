@@ -1,0 +1,18 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*main_menu_branding_1920x1080_scale100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [48, 38, 740, 330],
+          "min_luma_range": 90,
+          "min_luma_stdev": 14
+        }
+      ]
+    }
+  ]
+}

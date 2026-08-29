@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-27T19:54:26Z",
+  "updated_at": "2026-08-29T18:13:14Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9233,6 +9233,28 @@
       "source": {
         "branch": "codex/main-menu-loading-transition",
         "commit": "f07c0ba5"
+      }
+    },
+    {
+      "id": "mnt_20260829T181314Z_f9ed20c9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/main_menu.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/main_menu.gd",
+      "summary": "Main-menu branding uses one shared Steam title gradient",
+      "details": "Apply the five-stop cream-to-ember-to-wine palette across the complete two-row ESCAPE / THE UMBRA mark. Each word label receives its row offset plus the same full-logo gradient height; restarting the ramp per label makes every word cream-topped and visibly diverges from the generated Steam artwork.",
+      "status": "active",
+      "created_at": "2026-08-29T18:13:14Z",
+      "updated_at": "2026-08-29T18:13:14Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
+        "commit": "15569d54"
       }
     }
   ]

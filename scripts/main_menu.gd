@@ -26,6 +26,7 @@ const TITLE_BASE_SIZE: int = 114
 const TITLE_MIN_SIZE: int = 42
 const TITLE_SMALL_LINE_MIN_SIZE: int = 28
 const TITLE_LINE_SPACING: int = -8
+const TITLE_LINE_VERTICAL_PADDING: float = 38.0
 const TITLE_TO_MENU_EXTRA_GAP: float = 14.0
 const MENU_FONT_SIZE: int = 34
 const MENU_BUTTON_HEIGHT: float = 78.0
@@ -61,6 +62,7 @@ uniform vec4 high_color : source_color;
 uniform vec4 mid_color : source_color;
 uniform vec4 low_color : source_color;
 uniform vec4 bottom_color : source_color;
+uniform float gradient_offset = 0.0;
 uniform float gradient_height = 1.0;
 uniform float texture_strength = 0.12;
 
@@ -80,6 +82,19 @@ float stone_noise(vec2 point) {
 	return mix(top, bottom, blend.y);
 }
 
+vec4 title_color_ramp(float position) {
+	if (position <= 0.26) {
+		return mix(top_color, high_color, clamp(position / 0.26, 0.0, 1.0));
+	}
+	if (position <= 0.56) {
+		return mix(high_color, mid_color, clamp((position - 0.26) / 0.30, 0.0, 1.0));
+	}
+	if (position <= 0.80) {
+		return mix(mid_color, low_color, clamp((position - 0.56) / 0.24, 0.0, 1.0));
+	}
+	return mix(low_color, bottom_color, clamp((position - 0.80) / 0.20, 0.0, 1.0));
+}
+
 void vertex() {
 	local_y = VERTEX.y;
 	local_position = VERTEX;
@@ -87,11 +102,8 @@ void vertex() {
 
 void fragment() {
 	vec4 glyph = texture(TEXTURE, UV);
-	float y = clamp(local_y / max(gradient_height, 1.0), 0.0, 1.0);
-	vec4 ramp = mix(top_color, high_color, smoothstep(0.00, 0.32, y));
-	ramp = mix(ramp, mid_color, smoothstep(0.22, 0.62, y));
-	ramp = mix(ramp, low_color, smoothstep(0.50, 0.86, y));
-	ramp = mix(ramp, bottom_color, smoothstep(0.76, 1.00, y));
+	float y = clamp((gradient_offset + local_y) / max(gradient_height, 1.0), 0.0, 1.0);
+	vec4 ramp = title_color_ramp(y);
 	float fine_grain = stone_noise(local_position / 5.0);
 	float broad_grain = stone_noise(local_position / 19.0 + vec2(19.0, 7.0));
 	float fleck_noise = stone_noise(local_position / 3.6 + vec2(5.0, 13.0));
@@ -630,6 +642,7 @@ func _update_layout() -> void:
 func _layout_title_lines(title_font_size: int) -> void:
 	_ensure_title_line_labels()
 	var row_ys: Array = _title_row_y_positions(title_font_size)
+	var shared_gradient_height: float = _title_text_height(title_font_size) + TITLE_LINE_VERTICAL_PADDING
 	var row_next_x: Array = []
 	for row_index: int in range(_title_row_count()):
 		row_next_x.append(_title_row_offset_x(title_font_size, row_index))
@@ -639,14 +652,15 @@ func _layout_title_lines(title_font_size: int) -> void:
 		var line_text := str(TITLE_LINE_TEXTS[index])
 		var line_width: float = DISPLAY_FONT.get_string_size(line_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, line_font_size).x
 		var line_height: float = DISPLAY_FONT.get_height(line_font_size)
-		var line_size := Vector2(line_width + 80.0, line_height + 38.0)
+		var line_size := Vector2(line_width + 80.0, line_height + TITLE_LINE_VERTICAL_PADDING)
 		var line_position := Vector2(float(row_next_x[row_index]), float(row_ys[row_index]))
 		_layout_title_line(_title_shadow_lines, index, line_position, line_size, line_font_size)
 		_layout_title_line(_title_rim_lines, index, line_position, line_size, line_font_size)
 		_layout_title_line(_title_base_lines, index, line_position, line_size, line_font_size)
 		_layout_title_line(_title_face_lines, index, line_position, line_size, line_font_size)
 		if index < _title_face_materials.size():
-			_title_face_materials[index].set_shader_parameter("gradient_height", line_size.y)
+			_title_face_materials[index].set_shader_parameter("gradient_offset", line_position.y)
+			_title_face_materials[index].set_shader_parameter("gradient_height", shared_gradient_height)
 		row_next_x[row_index] = line_position.x + line_width + _title_word_gap(title_font_size)
 
 func _layout_title_line(labels: Array[Label], index: int, position: Vector2, size: Vector2, font_size: int) -> void:
