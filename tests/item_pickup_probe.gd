@@ -56,8 +56,14 @@ func _initialize() -> void:
 	await _load_fixture()
 	_assert_multi_pickup_hand_destinations()
 	await _assert_pile_interactions()
+	var layout_only: bool = OS.get_environment("LABYRINTH_ITEM_PROOF_LAYOUT_ONLY") == "1"
+	if layout_only:
+		_router.call("set_forced_state_for_test", InputRouter.MODALITY_CONTROLLER, InputRouter.FAMILY_STEAM_DECK)
+		_scene.call("_controller_set_hand_focused", false)
+		_scene.set("_controller_region", "board")
+		await _settle()
 	await _save("01_spaced_pickups.png")
-	if OS.get_environment("LABYRINTH_ITEM_PROOF_LAYOUT_ONLY") == "1":
+	if layout_only:
 		await _finish_probe()
 		return
 	var board: Control = _scene.get("board_view")
