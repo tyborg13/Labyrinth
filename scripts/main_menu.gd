@@ -185,11 +185,19 @@ func _input(event: InputEvent) -> void:
 		_using_keyboard_navigation = true
 		if not _menu_or_settings_has_focus():
 			_focus_default_keyboard_target()
+			get_viewport().set_input_as_handled()
 		_refresh_controller_prompts()
+	elif _is_keyboard_navigation_event(event):
+		# Native Control focus navigation can consume arrow keys before
+		# _unhandled_input, so claim keyboard ownership in the early input pass.
+		_using_keyboard_navigation = true
+		if not _menu_or_settings_has_focus():
+			_focus_default_keyboard_target()
+			get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion:
-		_using_keyboard_navigation = false
 		# Empty-space pointer motion must not steal keyboard/controller focus.
-		# Pointer handoff happens when the cursor actually enters an action.
+		# Pointer ownership begins only when the cursor enters an enabled action.
+		pass
 	elif event is InputEventMouseButton:
 		_using_keyboard_navigation = false
 		var mouse_button := event as InputEventMouseButton
@@ -424,6 +432,9 @@ func _umbra_menu_buttons() -> Array[Button]:
 	return buttons
 
 func _on_umbra_button_pointer_highlighted(button: Button) -> void:
+	if button == null or button.disabled or not button.visible:
+		_restore_umbra_selection()
+		return
 	_using_keyboard_navigation = false
 	# Clear stale navigation focus before a later mouse-down can begin, but only
 	# after the pointer reaches a real action. Clearing on arbitrary motion made
@@ -442,8 +453,19 @@ func _on_umbra_button_departed() -> void:
 	call_deferred("_restore_umbra_selection")
 
 func _restore_umbra_selection() -> void:
+	# Explicit activation and navigation focus outrank a stale pointer hover.
+	# Keep these as full passes so menu order cannot let an earlier hovered
+	# action override a later focused action during deferred restoration.
 	for button: Button in _umbra_menu_buttons():
-		if button.visible and not button.disabled and (button.has_focus() or button.is_hovered() or button.is_pressed()):
+		if button.visible and not button.disabled and button.is_pressed():
+			_set_umbra_selected_button(button)
+			return
+	for button: Button in _umbra_menu_buttons():
+		if button.visible and not button.disabled and button.has_focus():
+			_set_umbra_selected_button(button)
+			return
+	for button: Button in _umbra_menu_buttons():
+		if button.visible and not button.disabled and button.is_hovered():
 			_set_umbra_selected_button(button)
 			return
 	# Keep the last valid choice through pointer gaps and empty-space motion.

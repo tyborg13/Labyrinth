@@ -8,7 +8,7 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const PROGRESSION_PATH: String = "user://main_menu_umbra_button_probe_progression.json"
 const RUN_PATH: String = "user://main_menu_umbra_button_probe_run.save"
 const SETTINGS_PATH: String = "user://main_menu_umbra_button_probe_settings.json"
-const OUTPUT_DIR: String = "user://probes/main_menu_umbra_buttons_20260829_v2"
+const OUTPUT_DIR: String = "user://probes/main_menu_umbra_buttons_20260829_v3"
 const CAPTURE_SIZE := Vector2i(1920, 1080)
 
 var _ui_skin := UiSkin.new()
@@ -106,6 +106,25 @@ func _capture_main_menu_states() -> void:
 	_verify_exclusive_selection(instance, settings_button, "keyboard/controller descent with pointer in empty space")
 	await _save_screenshot(render_viewport, "keyboard_focus_settings_pointer_empty")
 
+	var start_center: Vector2 = start_button.get_global_rect().get_center()
+	var start_hover_event := InputEventMouseMotion.new()
+	start_hover_event.position = start_center
+	start_hover_event.global_position = start_center
+	render_viewport.push_input(start_hover_event, true)
+	await _settle_frames()
+	_require(start_button.is_hovered(), "Reverse mixed-input proof should retain a real stale New Game hover")
+	instance._using_keyboard_navigation = true
+	quit_button.grab_focus()
+	instance.call_deferred("_restore_umbra_selection")
+	await _settle_frames()
+	_require(start_button.is_hovered(), "Deferred restoration proof should keep New Game hovered")
+	_require(quit_button.has_focus(), "Keyboard/controller focus should reach Quit while New Game remains hovered")
+	_verify_focus_styles(quit_button)
+	_verify_exclusive_selection(instance, quit_button, "later Quit focus over earlier stale New Game hover")
+	await _save_screenshot(render_viewport, "stale_new_game_hover_focus_quit")
+
+	render_viewport.push_input(empty_event, true)
+	await _settle_frames()
 	start_button.grab_focus()
 	await _settle_frames()
 	start_button.button_down.emit()
