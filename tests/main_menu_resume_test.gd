@@ -114,7 +114,7 @@ func _test_no_save_hides_summary() -> void:
 	_assert(bool(settings_button.get_meta("umbra_selected", false)) and not bool(start_button.get_meta("umbra_selected", false)), "Pointer hover should move the exclusive Umbra glow to the hovered action")
 	settings_button.mouse_exited.emit()
 	await process_frame
-	_assert(bool(start_button.get_meta("umbra_selected", false)) and not bool(settings_button.get_meta("umbra_selected", false)), "Leaving the menu actions should restore the glow to the default primary action")
+	_assert(bool(settings_button.get_meta("umbra_selected", false)) and not bool(start_button.get_meta("umbra_selected", false)), "Leaving a menu action should retain the last selection instead of snapping to the default primary action")
 	_assert(not resume_panel.visible and not replacement_panel.visible, "No-save state should hide all saved-run context panels")
 	_assert(resume_location.text.is_empty() and resume_stats.text.is_empty(), "No-save state should clear summary text instead of retaining stale data")
 	_stop_menu_music(instance)

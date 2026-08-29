@@ -188,12 +188,8 @@ func _input(event: InputEvent) -> void:
 		_refresh_controller_prompts()
 	elif event is InputEventMouseMotion:
 		_using_keyboard_navigation = false
-		var mouse_motion := event as InputEventMouseMotion
-		# Clear stale keyboard focus before a later mouse-down can begin. A
-		# deferred clear may otherwise run between press and release when hover
-		# and click arrive in the same frame, canceling the button activation.
-		if mouse_motion.button_mask == 0:
-			_clear_menu_keyboard_focus()
+		# Empty-space pointer motion must not steal keyboard/controller focus.
+		# Pointer handoff happens when the cursor actually enters an action.
 	elif event is InputEventMouseButton:
 		_using_keyboard_navigation = false
 		var mouse_button := event as InputEventMouseButton
@@ -398,14 +394,15 @@ func _apply_confirmation_button_style(button: Button, destructive: bool) -> void
 
 func _apply_continue_button_state(primary: bool) -> void:
 	_umbra_primary_button = continue_button if primary else start_button
-	_restore_default_umbra_selection()
+	_restore_umbra_selection()
 
 func _connect_umbra_selection_signals() -> void:
 	for button: Button in _umbra_menu_buttons():
+		var pointer_highlighted := Callable(self, "_on_umbra_button_pointer_highlighted").bind(button)
 		var highlighted := Callable(self, "_on_umbra_button_highlighted").bind(button)
 		var departed := Callable(self, "_on_umbra_button_departed")
-		if not button.mouse_entered.is_connected(highlighted):
-			button.mouse_entered.connect(highlighted)
+		if not button.mouse_entered.is_connected(pointer_highlighted):
+			button.mouse_entered.connect(pointer_highlighted)
 		if not button.focus_entered.is_connected(highlighted):
 			button.focus_entered.connect(highlighted)
 		if not button.button_down.is_connected(highlighted):
@@ -426,18 +423,33 @@ func _umbra_menu_buttons() -> Array[Button]:
 	buttons.append(boss_button)
 	return buttons
 
+func _on_umbra_button_pointer_highlighted(button: Button) -> void:
+	_using_keyboard_navigation = false
+	# Clear stale navigation focus before a later mouse-down can begin, but only
+	# after the pointer reaches a real action. Clearing on arbitrary motion made
+	# an idle cursor reset sequential navigation back to Continue Run.
+	if Input.get_mouse_button_mask() == 0:
+		_clear_menu_keyboard_focus()
+	_on_umbra_button_highlighted(button)
+
 func _on_umbra_button_highlighted(button: Button) -> void:
 	if button == null or button.disabled or not button.visible:
-		_restore_default_umbra_selection()
+		_restore_umbra_selection()
 		return
 	_set_umbra_selected_button(button)
 
 func _on_umbra_button_departed() -> void:
-	call_deferred("_restore_default_umbra_selection")
+	call_deferred("_restore_umbra_selection")
 
-func _restore_default_umbra_selection() -> void:
+func _restore_umbra_selection() -> void:
 	for button: Button in _umbra_menu_buttons():
 		if button.visible and not button.disabled and (button.has_focus() or button.is_hovered() or button.is_pressed()):
+			_set_umbra_selected_button(button)
+			return
+	# Keep the last valid choice through pointer gaps and empty-space motion.
+	# The primary action is only the initial/fallback selection, not a magnet.
+	for button: Button in _umbra_menu_buttons():
+		if bool(button.get_meta(UMBRA_SELECTION_META, false)) and button.visible and not button.disabled:
 			_set_umbra_selected_button(button)
 			return
 	var target: Button = _umbra_primary_button
@@ -633,7 +645,7 @@ func _set_menu_actions_locked(locked: bool) -> void:
 	settings_button.disabled = locked
 	quit_button.disabled = locked
 	boss_button.disabled = locked
-	call_deferred("_restore_default_umbra_selection")
+	call_deferred("_restore_umbra_selection")
 
 func _update_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
@@ -890,7 +902,13 @@ func _focus_default_keyboard_target() -> void:
 	if settings_panel.visible:
 		settings_back_button.grab_focus()
 		return
-	var target: Button = continue_button if not continue_button.disabled else start_button
+	var target: Button
+	for button: Button in _umbra_menu_buttons():
+		if bool(button.get_meta(UMBRA_SELECTION_META, false)) and button.visible and not button.disabled:
+			target = button
+			break
+	if target == null:
+		target = continue_button if not continue_button.disabled else start_button
 	target.grab_focus()
 
 func _focusable_menu_buttons() -> Array:

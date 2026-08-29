@@ -8,7 +8,7 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const PROGRESSION_PATH: String = "user://main_menu_umbra_button_probe_progression.json"
 const RUN_PATH: String = "user://main_menu_umbra_button_probe_run.save"
 const SETTINGS_PATH: String = "user://main_menu_umbra_button_probe_settings.json"
-const OUTPUT_DIR: String = "user://probes/main_menu_umbra_buttons_20260829_v1"
+const OUTPUT_DIR: String = "user://probes/main_menu_umbra_buttons_20260829_v2"
 const CAPTURE_SIZE := Vector2i(1920, 1080)
 
 var _ui_skin := UiSkin.new()
@@ -67,6 +67,22 @@ func _capture_main_menu_states() -> void:
 	_verify_exclusive_selection(instance, settings_button, "pointer hover")
 	await _save_screenshot(render_viewport, "pointer_hover_settings")
 
+	var gap_position := Vector2(
+		settings_center.x,
+		(settings_button.get_global_rect().end.y + quit_button.get_global_rect().position.y) * 0.5
+	)
+	var gap_event := InputEventMouseMotion.new()
+	gap_event.position = gap_position
+	gap_event.global_position = gap_position
+	render_viewport.push_input(gap_event, true)
+	await _settle_frames()
+	_require(_no_button_is_hovered(instance), "Pointer-gap proof should place the cursor between actions")
+	_verify_exclusive_selection(instance, settings_button, "pointer gap after Settings")
+	await _save_screenshot(render_viewport, "pointer_gap_retains_settings")
+
+	render_viewport.push_input(hover_event, true)
+	await _settle_frames()
+
 	start_button.grab_focus()
 	await _settle_frames()
 	_require(start_button.has_focus(), "Keyboard/controller focus should reach New Game")
@@ -75,6 +91,23 @@ func _capture_main_menu_states() -> void:
 	_verify_exclusive_selection(instance, start_button, "pointer-to-keyboard/controller focus handoff")
 	await _save_screenshot(render_viewport, "pointer_to_focus_handoff_new_game")
 
+	var empty_event := InputEventMouseMotion.new()
+	empty_event.position = Vector2(1400.0, 930.0)
+	empty_event.global_position = empty_event.position
+	render_viewport.push_input(empty_event, true)
+	await _settle_frames()
+	_require(_no_button_is_hovered(instance), "Empty-space proof should move the cursor away from every action")
+	_require(start_button.has_focus(), "Empty-space pointer motion should preserve New Game focus")
+	settings_button.grab_focus()
+	await _settle_frames()
+	render_viewport.push_input(empty_event, true)
+	await _settle_frames()
+	_require(settings_button.has_focus(), "Sequential keyboard/controller navigation should retain Settings focus under an idle pointer")
+	_verify_exclusive_selection(instance, settings_button, "keyboard/controller descent with pointer in empty space")
+	await _save_screenshot(render_viewport, "keyboard_focus_settings_pointer_empty")
+
+	start_button.grab_focus()
+	await _settle_frames()
 	start_button.button_down.emit()
 	start_button.set_meta("button_gallery_state", UiSkin.STATE_PRESSED)
 	start_button.add_theme_stylebox_override("normal", _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_PRESSED))
@@ -128,6 +161,12 @@ func _any_button_has_focus(instance: Control) -> bool:
 		if button.has_focus():
 			return true
 	return false
+
+func _no_button_is_hovered(instance: Control) -> bool:
+	for button: Button in _menu_buttons(instance):
+		if button.is_hovered():
+			return false
+	return true
 
 func _menu_buttons(instance: Control) -> Array[Button]:
 	var buttons: Array[Button]
