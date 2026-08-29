@@ -1,6 +1,7 @@
 extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -36,17 +37,25 @@ func _initialize() -> void:
 	root.add_child(instance)
 	await _settle_ui()
 	var combat := CombatEngine.new()
-	var installed_state: Dictionary = _install_stress_combat(instance, combat)
+	var installed_state: Dictionary = await _install_stress_combat(instance, combat)
 	await _settle_ui()
 	await _settle_action_tracker_prewarm(instance)
 	_verify_aoe_target_semantics(instance, combat, installed_state)
+	var flurry_preview_shortcut: Dictionary = _verify_flurry_skip_suffix_preview_semantics(instance, combat, installed_state)
+	var enemy_round_lock_ui: Dictionary = await _verify_enemy_round_lock_ui_equivalence(instance)
+	var skill_sigil_event_cache: Dictionary = await _verify_skill_sigil_event_cache(instance)
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var unit_shadow_local_mesh: Dictionary = _verify_unit_shadow_local_mesh_equivalence(board)
 	var source_snapshot: Dictionary = installed_state.duplicate(true)
 	var results: Dictionary = {
 		"schema_version": 1,
 		"hand_card_count": HAND.size(),
-		"initial_node_count": _subtree_node_count(instance)
+		"initial_node_count": _subtree_node_count(instance),
+		"flurry_preview_shortcut": flurry_preview_shortcut,
+		"enemy_round_lock_ui": enemy_round_lock_ui,
+		"skill_sigil_event_cache": skill_sigil_event_cache,
+		"unit_shadow_local_mesh": unit_shadow_local_mesh,
 	}
-	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	var render_counts_before: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
 	# Exercise a real presentation change. Repeating _refresh_stage_view with an
 	# unchanged retained snapshot may correctly produce no redraw at all.
@@ -228,7 +237,8 @@ func _initialize() -> void:
 		print("RUNTIME INTEGRATION PERF RESULT: %s" % JSON.stringify(results))
 	else:
 		push_error("RUNTIME INTEGRATION PERF RESULT: FAIL %s" % JSON.stringify(results))
-	instance.queue_free()
+	instance.free()
+	await process_frame
 	await process_frame
 	ProgressionStore.clear_saved_run()
 	quit(0 if _errors.is_empty() else 1)
@@ -295,6 +305,10 @@ func _install_stress_combat(instance: Node, combat: CombatEngine) -> Dictionary:
 	instance.set("_combat_state", combat_state)
 	instance.set("_animation_lock", false)
 	instance.call("_mark_combat_preview_state_changed")
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var shadows_ready: bool = await board.call("prepare_unit_shadows_for_state", combat_state)
+	_expect(shadows_ready, "stress combat living unit shadows must finish prewarming before the first visible board refresh")
+	board.call("reset_render_instrumentation")
 	instance.call("_refresh_ui")
 	return combat_state
 
@@ -369,6 +383,246 @@ func _verify_aoe_target_semantics(instance: Node, combat: CombatEngine, state: D
 		var optimized: Array[Vector2i] = _sorted_tiles(combat.valid_targets_for_player_action(state, action))
 		var reference: Array[Vector2i] = _reference_aoe_targets(combat, state, action)
 		_expect(optimized == reference, "optimized AOE legality differs from privacy-safe reference targeting for %s" % str(action.get("orientation", "automatic")))
+
+func _verify_flurry_skip_suffix_preview_semantics(instance: Node, combat: CombatEngine, source_state: Dictionary) -> Dictionary:
+	var state: Dictionary = source_state.duplicate(true)
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["cinder_fusillade"]
+	state["deck"] = deck
+	state["cards_per_turn"] = 20
+	state["cards_played_this_turn"] = 0
+	state["death_bonus_card_plays_this_turn"] = 0
+	state["card_play_bonus_this_turn"] = 0
+	var prepared_state: Dictionary = combat.prepare_player_card(state, 0, "play")
+	var actions: Array = combat.card_play_actions("cinder_fusillade", prepared_state)
+	var shortcut_started: int = Time.get_ticks_usec()
+	var shortcut_preview: Dictionary = instance.call(
+		"_card_preview_from_state", "cinder_fusillade", prepared_state, actions, 0, false, true, true
+	) as Dictionary
+	var shortcut_usec: int = Time.get_ticks_usec() - shortcut_started
+	var reference_started: int = Time.get_ticks_usec()
+	var reference_preview: Dictionary = instance.call(
+		"_card_preview_from_state", "cinder_fusillade", prepared_state, actions, 0, false, true, false
+	) as Dictionary
+	var reference_usec: int = Time.get_ticks_usec() - reference_started
+	_expect(shortcut_preview == reference_preview, "Flurry skip-suffix preview shortcut must match the complete target walk")
+	_expect(actions.size() == 40, "Flurry shortcut fixture must exercise twenty complete repetitions")
+	return {
+		"action_count": actions.size(),
+		"preview_digest": hash(shortcut_preview),
+		"shortcut_usec": shortcut_usec,
+		"reference_usec": reference_usec,
+	}
+
+func _verify_enemy_round_lock_ui_equivalence(instance: Node) -> Dictionary:
+	await _await_hand_layout_ready(instance)
+	instance.set("_animation_lock", true)
+	var full_started: int = Time.get_ticks_usec()
+	instance.call("_refresh_animation_lock_ui")
+	var full_usec: int = Time.get_ticks_usec() - full_started
+	var full_snapshot: Dictionary = _enemy_round_lock_ui_snapshot(instance)
+	instance.set("_animation_lock", false)
+	instance.call("_refresh_ui")
+	await _await_hand_layout_ready(instance)
+	instance.set("_animation_lock", true)
+	var retained_started: int = Time.get_ticks_usec()
+	instance.call("_refresh_enemy_round_lock_ui")
+	var retained_usec: int = Time.get_ticks_usec() - retained_started
+	var retained_snapshot: Dictionary = _enemy_round_lock_ui_snapshot(instance)
+	var snapshot_differences: Dictionary = _dictionary_differences(full_snapshot, retained_snapshot)
+	_expect(
+		snapshot_differences.is_empty(),
+		"retained enemy-round lock UI must match the complete lock refresh: %s" % str(snapshot_differences)
+	)
+	instance.set("_animation_lock", false)
+	instance.call("_refresh_ui")
+	await _await_hand_layout_ready(instance)
+	return {
+		"snapshot_digest": hash(retained_snapshot),
+		"full_usec": full_usec,
+		"retained_usec": retained_usec,
+		"snapshot_differences": snapshot_differences,
+	}
+
+func _verify_skill_sigil_event_cache(instance: Node) -> Dictionary:
+	var original_combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var original_signature: String = str(instance.get("_relic_bar_signature"))
+	var original_event_revision_seen: int = int(instance.get("_skill_event_revision_seen"))
+	var original_run_event_revision_seen: int = int(instance.get("_run_skill_event_revision_seen"))
+	var fixture: Dictionary = original_combat_state.duplicate(true)
+	fixture["skill_ids"] = ["quick_wits"]
+	fixture["skill_event_revision"] = original_event_revision_seen
+	instance.set("_combat_state", fixture)
+	instance.set("_relic_bar_signature", "")
+	instance.call("_refresh_relic_bar")
+	await process_frame
+	var original_sigil: Button = instance.get("_skill_sigil") as Button
+	_expect(original_sigil != null and is_instance_valid(original_sigil), "skill event cache fixture must build its ability sigil")
+	if original_sigil == null or not is_instance_valid(original_sigil):
+		instance.set("_combat_state", original_combat_state)
+		instance.set("_relic_bar_signature", original_signature)
+		instance.set("_skill_event_revision_seen", original_event_revision_seen)
+		instance.set("_run_skill_event_revision_seen", original_run_event_revision_seen)
+		return {}
+	var original_instance_id: int = original_sigil.get_instance_id()
+	var original_presentation: Dictionary = {
+		"owned_count": int(original_sigil.get_meta("owned_count", -1)),
+		"ready_count": int(original_sigil.get_meta("ready_count", -1)),
+		"preview_skill_ids": (original_sigil.get_meta("preview_skill_ids", []) as Array).duplicate(),
+		"child_count": original_sigil.get_child_count(),
+	}
+	var cached_signature: String = str(instance.get("_relic_bar_signature"))
+	var event_only_fixture: Dictionary = fixture.duplicate(true)
+	event_only_fixture["skill_event_revision"] = original_event_revision_seen + 1
+	instance.set("_combat_state", event_only_fixture)
+	instance.call("_refresh_relic_bar")
+	await process_frame
+	var cached_sigil: Button = instance.get("_skill_sigil") as Button
+	var cached_presentation: Dictionary = {}
+	if cached_sigil != null and is_instance_valid(cached_sigil):
+		cached_presentation = {
+			"owned_count": int(cached_sigil.get_meta("owned_count", -1)),
+			"ready_count": int(cached_sigil.get_meta("ready_count", -1)),
+			"preview_skill_ids": (cached_sigil.get_meta("preview_skill_ids", []) as Array).duplicate(),
+			"child_count": cached_sigil.get_child_count(),
+		}
+	_expect(cached_sigil != null and is_instance_valid(cached_sigil), "event-only skill revision must retain a live ability sigil")
+	_expect(cached_sigil != null and cached_sigil.get_instance_id() == original_instance_id, "event-only skill revision must not rebuild the ability sigil subtree")
+	_expect(str(instance.get("_relic_bar_signature")) == cached_signature, "event-only skill revision must preserve the visible relic-bar signature")
+	_expect(cached_presentation == original_presentation, "event-only skill revision must preserve ability sigil presentation")
+	_expect(int(instance.get("_skill_event_revision_seen")) == original_event_revision_seen + 1, "event-only skill revision must advance the pulse cursor")
+	_expect(cached_sigil != null and cached_sigil.pivot_offset != Vector2.ZERO, "event-only skill revision must still dispatch the existing sigil pulse")
+	var subtree_reused: bool = cached_sigil != null and cached_sigil.get_instance_id() == original_instance_id
+	instance.set("_combat_state", original_combat_state)
+	instance.set("_skill_event_revision_seen", original_event_revision_seen)
+	instance.set("_run_skill_event_revision_seen", original_run_event_revision_seen)
+	instance.set("_relic_bar_signature", "")
+	instance.call("_refresh_relic_bar")
+	await process_frame
+	return {
+		"sigil_instance_id": original_instance_id,
+		"presentation_digest": hash(cached_presentation),
+		"event_revision_advanced": true,
+		"subtree_reused": subtree_reused,
+	}
+
+func _verify_unit_shadow_local_mesh_equivalence(board: Control) -> Dictionary:
+	var frame_values: Array = board.call("_unit_idle_frames", {"type": "player"}) as Array
+	var texture: Texture2D = null
+	for frame_var: Variant in frame_values:
+		if frame_var is Texture2D:
+			texture = frame_var as Texture2D
+			break
+	_expect(texture != null, "local shadow mesh proof requires a loaded player idle frame")
+	if texture == null:
+		return {}
+	var shadow_data: Dictionary = board.call("_unit_shadow_data_for_texture", texture) as Dictionary
+	var polygons: Array[PackedVector2Array] = shadow_data.get("polygons", []) as Array[PackedVector2Array]
+	var bounds: Rect2 = shadow_data.get("bounds", Rect2()) as Rect2
+	_expect(not polygons.is_empty() and bounds.size.x > 0.0 and bounds.size.y > 0.0, "local shadow mesh proof requires non-empty player silhouette polygons")
+	if polygons.is_empty() or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		return {}
+	var draw_size := Vector2(137.0, 193.0)
+	var draw_rect_a := Rect2(Vector2(211.0, 307.0), draw_size)
+	var draw_rect_b := Rect2(Vector2(733.0, 419.0), draw_size)
+	var shadow_size: Vector2 = board.call("_unit_shadow_draw_size", texture, draw_size, bounds) as Vector2
+	var foot_offset := Vector2(0.0, float(board.call("_tile_height")) * CombatBoardView.UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
+	var origin_a: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect_a, bounds, "player") as Vector2
+	var origin_b: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect_b, bounds, "player") as Vector2
+	origin_a += foot_offset
+	origin_b += foot_offset
+	var max_projection_delta: float = 0.0
+	for polygon: PackedVector2Array in polygons:
+		var local_hard: PackedVector2Array = board.call("_project_unit_shadow_polygon", polygon, shadow_size, Vector2.ZERO) as PackedVector2Array
+		var old_hard_a: PackedVector2Array = board.call("_project_unit_shadow_polygon", polygon, shadow_size, origin_a) as PackedVector2Array
+		var old_hard_b: PackedVector2Array = board.call("_project_unit_shadow_polygon", polygon, shadow_size, origin_b) as PackedVector2Array
+		var local_soft: PackedVector2Array = board.call("_scaled_polygon", local_hard, CombatBoardView.UNIT_SHADOW_SOFT_SCALE) as PackedVector2Array
+		var old_soft_a: PackedVector2Array = board.call("_scaled_polygon", old_hard_a, CombatBoardView.UNIT_SHADOW_SOFT_SCALE) as PackedVector2Array
+		for index: int in range(local_hard.size()):
+			max_projection_delta = maxf(max_projection_delta, (local_hard[index] + origin_a).distance_to(old_hard_a[index]))
+			max_projection_delta = maxf(max_projection_delta, (local_hard[index] + origin_b).distance_to(old_hard_b[index]))
+		for index: int in range(local_soft.size()):
+			max_projection_delta = maxf(max_projection_delta, (local_soft[index] + origin_a).distance_to(old_soft_a[index]))
+	_expect(max_projection_delta <= 0.0001, "local shadow projection must match the previous absolute-position geometry")
+	var geometry_a: Array = board.call("_unit_shadow_draw_geometry", texture, draw_rect_a, "player") as Array
+	var geometry_cache_size_after_a: int = (board.get("_unit_shadow_draw_geometry_cache") as Dictionary).size()
+	var geometry_b: Array = board.call("_unit_shadow_draw_geometry", texture, draw_rect_b, "player") as Array
+	var geometry_cache_size_after_b: int = (board.get("_unit_shadow_draw_geometry_cache") as Dictionary).size()
+	_expect(geometry_a == geometry_b, "equal-size shadow geometry must be independent of board position")
+	_expect(geometry_cache_size_after_b == geometry_cache_size_after_a, "moving equal-size shadow geometry must reuse one cache entry")
+	var mesh_a: ArrayMesh = board.call("_unit_shadow_draw_mesh", texture, draw_rect_a, "player", geometry_a) as ArrayMesh
+	var mesh_cache_size_after_a: int = (board.get("_unit_shadow_draw_mesh_cache") as Dictionary).size()
+	var mesh_b: ArrayMesh = board.call("_unit_shadow_draw_mesh", texture, draw_rect_b, "player", geometry_b) as ArrayMesh
+	var mesh_cache_size_after_b: int = (board.get("_unit_shadow_draw_mesh_cache") as Dictionary).size()
+	_expect(mesh_a != null and mesh_b != null and mesh_a == mesh_b, "moving an equal-size unit shadow must reuse the same ArrayMesh")
+	_expect(mesh_cache_size_after_b == mesh_cache_size_after_a, "moving an equal-size unit shadow must not grow the mesh cache")
+	return {
+		"max_projection_delta": max_projection_delta,
+		"geometry_cache_reused": geometry_cache_size_after_b == geometry_cache_size_after_a,
+		"mesh_cache_reused": mesh_a != null and mesh_a == mesh_b and mesh_cache_size_after_b == mesh_cache_size_after_a,
+		"polygon_count": polygons.size(),
+	}
+
+func _await_hand_layout_ready(instance: Node) -> void:
+	var waited_frames: int = 0
+	while int(instance.get("_hand_layout_pending_revision")) >= 0 and waited_frames < 30:
+		await process_frame
+		waited_frames += 1
+	_expect(waited_frames < 30, "combat hand layout must settle before lock-UI equivalence proof")
+	await process_frame
+
+func _dictionary_differences(expected: Dictionary, actual: Dictionary) -> Dictionary:
+	var differences: Dictionary = {}
+	for key: Variant in expected:
+		if not actual.has(key) or actual[key] != expected[key]:
+			differences[key] = {
+				"expected": expected[key],
+				"actual": actual.get(key),
+			}
+	for key: Variant in actual:
+		if not expected.has(key):
+			differences[key] = {
+				"expected": null,
+				"actual": actual[key],
+			}
+	return differences
+
+func _enemy_round_lock_ui_snapshot(instance: Node) -> Dictionary:
+	var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	var pass_art: TextureRect = instance.find_child("PassForecastFrameArtHost", true, false) as TextureRect
+	var hand_state: Array = []
+	var hand: Array = ((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array
+	for index: int in range(hand.size()):
+		var widget: Control = instance.call("_hand_card_control", index) as Control
+		hand_state.append({
+			"visible": widget != null and widget.visible,
+			"modulate": widget.modulate if widget != null else Color.TRANSPARENT,
+			"mouse_filter": widget.mouse_filter if widget != null else Control.MOUSE_FILTER_IGNORE,
+		})
+	var play_meter: Control = instance.get("_play_meter") as Control
+	var movement_meter: Control = instance.get("_movement_meter") as Control
+	var choice_bar_control: Control = instance.get("choice_bar") as Control
+	var hand_row_control: Control = instance.get("hand_row") as Control
+	var piles_bar_control: Control = instance.get("piles_bar") as Control
+	return {
+		"pass_found": pass_button != null,
+		"pass_disabled": pass_button == null or pass_button.disabled,
+		"pass_focus_mode": pass_button.focus_mode if pass_button != null else Control.FOCUS_NONE,
+		"pass_interaction_state": str(pass_button.get_meta("pass_interaction_state", "")) if pass_button != null else "",
+		"pass_art_state": str(pass_art.get_meta("pass_forecast_art_state", "")) if pass_art != null else "",
+		"pass_art_modulate": pass_art.modulate if pass_art != null else Color.TRANSPARENT,
+		"hand": hand_state,
+		"play_meter_visible": play_meter != null and play_meter.visible,
+		"play_meter_modulate": play_meter.modulate if play_meter != null else Color.TRANSPARENT,
+		"movement_meter_visible": movement_meter != null and movement_meter.visible,
+		"movement_meter_modulate": movement_meter.modulate if movement_meter != null else Color.TRANSPARENT,
+		"choice_bar_visible": choice_bar_control != null and choice_bar_control.visible,
+		"choice_bar_children": choice_bar_control.get_child_count() if choice_bar_control != null else -1,
+		"hand_row_visible": hand_row_control != null and hand_row_control.visible,
+		"piles_bar_visible": piles_bar_control != null and piles_bar_control.visible,
+		"turn_order_render_signature": str(instance.get("_turn_order_render_signature")),
+		"board_presentation": hash(instance.get("_board_presentation")),
+	}
 
 func _reference_aoe_targets(combat: CombatEngine, state: Dictionary, action: Dictionary) -> Array[Vector2i]:
 	var targets: Array[Vector2i] = []

@@ -9,6 +9,7 @@ const SAMPLE_BATCHES: int = 7
 const PREVIEW_ITERATIONS: int = 8
 const PREVIEW_REFERENCE_ITERATIONS: int = 2
 const ENEMY_FORECAST_ITERATIONS: int = 8
+const ENEMY_ROUND_ITERATIONS: int = 4
 const SHORTCUT_COLD_ITERATIONS: int = 4
 const SHORTCUT_CACHED_ITERATIONS: int = 80
 const SHORTCUT_REFERENCE_ITERATIONS: int = 1
@@ -116,6 +117,70 @@ func _initialize() -> void:
 	results["enemy_forecast_step_count"] = (forecast_reference.get("steps", []) as Array).size()
 	results["enemy_forecast_source_unchanged"] = scheduled_forecast_state == scheduled_forecast_snapshot
 
+	var scheduled_round_state: Dictionary = state.duplicate(true)
+	scheduled_round_state["current_actor"] = {"kind": "transition"}
+	scheduled_round_state["initiative_clock"] = 0
+	var scheduled_round_queue: Array = []
+	for enemy_index: int in range((_benchmark_enemies() as Array).size()):
+		scheduled_round_queue.append({"kind": "enemy", "enemy_id": enemy_index + 1, "time": enemy_index + 1, "seq": enemy_index + 1})
+	scheduled_round_queue.append({"kind": "player", "time": scheduled_round_queue.size() + 1, "seq": scheduled_round_queue.size() + 1})
+	scheduled_round_state["turn_queue"] = scheduled_round_queue
+	var scheduled_round_snapshot: Dictionary = scheduled_round_state.duplicate(true)
+	var turn_order_after_pop_state: Dictionary = scheduled_round_state.duplicate(true)
+	var pop_result: Dictionary = combat.call("_pop_next_actor", turn_order_after_pop_state) as Dictionary
+	turn_order_after_pop_state = pop_result.get("state", turn_order_after_pop_state) as Dictionary
+	var shared_turn_order_context: Dictionary = combat.call(
+		"_turn_order_projection_context",
+		turn_order_after_pop_state,
+		combat.umbra_visible_tile_lookup(turn_order_after_pop_state)
+	) as Dictionary
+	var independent_before_order: Array[Dictionary] = combat.current_turn_order(scheduled_round_state)
+	var shared_before_order: Array[Dictionary] = combat.current_turn_order(scheduled_round_state, 8, shared_turn_order_context)
+	var independent_after_order: Array[Dictionary] = combat.current_turn_order(turn_order_after_pop_state)
+	var shared_after_order: Array[Dictionary] = combat.current_turn_order(turn_order_after_pop_state, 8, shared_turn_order_context)
+	if independent_before_order != shared_before_order or independent_after_order != shared_after_order:
+		semantic_errors.append("shared turn-order projection context differs from independent projection")
+	var committed_round: Dictionary = _resolve_enemy_round(combat, scheduled_round_state, true)
+	var no_commit_round: Dictionary = _resolve_enemy_round(combat, scheduled_round_state, false)
+	var committed_presentation_steps: Array = _steps_without_commits(committed_round.get("steps", []))
+	var no_commit_presentation_steps: Array = _steps_without_commits(no_commit_round.get("steps", []))
+	var committed_step_count: int = _step_kind_count(committed_round.get("steps", []), "commit")
+	var no_commit_step_count: int = _step_kind_count(no_commit_round.get("steps", []), "commit")
+	if committed_round.get("state", {}) != no_commit_round.get("state", {}):
+		semantic_errors.append("enemy round without recovery commits produced a different final state")
+	if committed_round.get("player_turn_before_state", {}) != no_commit_round.get("player_turn_before_state", {}):
+		semantic_errors.append("enemy round without recovery commits produced a different player-turn boundary state")
+	if committed_presentation_steps != no_commit_presentation_steps:
+		semantic_errors.append("enemy round without recovery commits changed presentation steps")
+	if committed_step_count <= 0:
+		semantic_errors.append("committed enemy round produced no recovery checkpoints")
+	if no_commit_step_count != 0:
+		semantic_errors.append("no-commit enemy round still produced recovery checkpoints")
+	if scheduled_round_state != scheduled_round_snapshot:
+		semantic_errors.append("enemy round benchmark mutated its source state")
+	# Warm both modes before measuring full deterministic enemy rounds.
+	_resolve_enemy_round(combat, scheduled_round_state, true)
+	_resolve_enemy_round(combat, scheduled_round_state, false)
+	_record_metric(results, "enemy_round_committed_us_per_call", _measure_samples(ENEMY_ROUND_ITERATIONS, func() -> void:
+		_resolve_enemy_round(combat, scheduled_round_state, true)
+	))
+	_record_metric(results, "enemy_round_no_commit_us_per_call", _measure_samples(ENEMY_ROUND_ITERATIONS, func() -> void:
+		_resolve_enemy_round(combat, scheduled_round_state, false)
+	))
+	combat.set_runtime_performance_instrumentation_enabled(true)
+	var profiled_no_commit_round: Dictionary = _resolve_enemy_round(combat, scheduled_round_state, false)
+	results["enemy_round_no_commit_profile"] = combat.runtime_performance_instrumentation_snapshot()
+	combat.set_runtime_performance_instrumentation_enabled(false)
+	if profiled_no_commit_round != no_commit_round:
+		semantic_errors.append("instrumented no-commit enemy round differs from the uninstrumented result")
+	results["enemy_round_commit_step_count"] = committed_step_count
+	results["enemy_round_no_commit_step_count"] = no_commit_step_count
+	results["enemy_round_presentation_step_count"] = no_commit_presentation_steps.size()
+	results["enemy_round_final_state_digest"] = hash(no_commit_round.get("state", {}))
+	results["enemy_round_presentation_digest"] = hash(no_commit_presentation_steps)
+	results["enemy_round_source_unchanged"] = scheduled_round_state == scheduled_round_snapshot
+	results["turn_order_shared_context_matches"] = independent_before_order == shared_before_order and independent_after_order == shared_after_order
+
 	var move_action: Dictionary = actions[0]
 	_record_metric(results, "move_apply_us_per_call", _measure_samples(MOVE_APPLY_ITERATIONS, func() -> void:
 		combat.apply_player_action(state, move_action, hovered_tile)
@@ -190,6 +255,45 @@ func _record_metric(results: Dictionary, key: String, stats: Dictionary) -> void
 	results["%s_p95" % key] = float(stats.get("p95", 0.0))
 	results["%s_min" % key] = float(stats.get("min", 0.0))
 	results["%s_max" % key] = float(stats.get("max", 0.0))
+
+func _resolve_enemy_round(combat: CombatEngine, state: Dictionary, include_commit_steps: bool) -> Dictionary:
+	var next_state: Dictionary = state
+	var steps: Array = []
+	var player_turn_before_state: Dictionary = {}
+	var safety: int = 0
+	while combat.combat_outcome(next_state) == "" and safety < 100:
+		safety += 1
+		var slice_result: Dictionary = combat.advance_one_activation_with_steps(next_state, include_commit_steps)
+		next_state = slice_result.get("state", next_state) as Dictionary
+		steps.append_array(slice_result.get("steps", []))
+		var slice_player_before: Variant = slice_result.get("player_turn_before_state", {})
+		if typeof(slice_player_before) == TYPE_DICTIONARY and not (slice_player_before as Dictionary).is_empty():
+			player_turn_before_state = slice_player_before as Dictionary
+		if bool(slice_result.get("complete", false)):
+			break
+	return {
+		"state": next_state,
+		"steps": steps,
+		"player_turn_before_state": player_turn_before_state,
+		"safety": safety,
+	}
+
+func _steps_without_commits(steps_var: Variant) -> Array:
+	var result: Array = []
+	for step_var: Variant in steps_var as Array:
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var as Dictionary
+		if str(step.get("kind", "")) != "commit":
+			result.append(step)
+	return result
+
+func _step_kind_count(steps_var: Variant, kind: String) -> int:
+	var count: int = 0
+	for step_var: Variant in steps_var as Array:
+		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("kind", "")) == kind:
+			count += 1
+	return count
 
 func _shortcut_digest(shortcuts: Dictionary) -> int:
 	var plans: Dictionary = shortcuts.get("plans", {})

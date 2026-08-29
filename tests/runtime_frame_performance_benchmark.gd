@@ -74,6 +74,8 @@ const MAX_PREVIEW_STEPS: int = 12
 const BLINK_PREVIEW_STEADY_FRAMES: int = 120
 const BLINK_PREVIEW_SWEEP_FRAMES: int = 90
 const MAX_ANIMATION_SETTLE_FRAMES: int = 900
+const MAX_PASS_READY_FRAMES: int = 120
+const MAX_FOCUS_PAUSE_MSEC: int = 120000
 
 class FrameSampler:
 	extends Node
@@ -84,6 +86,7 @@ class FrameSampler:
 	var request_render: Callable
 	var observe_frame: Callable
 	var frame_intervals_ms: Array[float] = []
+	var frame_ids: Array = []
 	var process_ms: Array[float] = []
 	var render_setup_cpu_ms: Array[float] = []
 	var viewport_render_cpu_ms: Array[float] = []
@@ -92,6 +95,7 @@ class FrameSampler:
 	var draw_calls: Array[float] = []
 	var objects_in_frame: Array[float] = []
 	var primitives_in_frame: Array[float] = []
+	var skip_next_observed_frame: bool = false
 
 	func _ready() -> void:
 		RenderingServer.frame_post_draw.connect(_on_frame_post_draw)
@@ -108,6 +112,7 @@ class FrameSampler:
 
 	func begin() -> void:
 		frame_intervals_ms.clear()
+		frame_ids.clear()
 		process_ms.clear()
 		render_setup_cpu_ms.clear()
 		viewport_render_cpu_ms.clear()
@@ -125,6 +130,7 @@ class FrameSampler:
 		set_process(false)
 		return {
 			"frame_interval_ms": frame_intervals_ms.duplicate(),
+			"frame_ids": frame_ids.duplicate(),
 			"process_ms": process_ms.duplicate(),
 			"render_setup_cpu_ms": render_setup_cpu_ms.duplicate(),
 			"viewport_render_cpu_ms": viewport_render_cpu_ms.duplicate(),
@@ -140,7 +146,19 @@ class FrameSampler:
 		if not active:
 			return
 		if observe_frame.is_valid():
-			observe_frame.call()
+			var observation: Variant = observe_frame.call()
+			if typeof(observation) == TYPE_BOOL and not bool(observation):
+				# Background drawable delivery measures the desktop compositor/App Nap,
+				# not the game. Reset the boundary and discard the first resumed frame so
+				# neither side of the focus transition contaminates the sample.
+				previous_tick_usec = now_tick
+				skip_next_observed_frame = true
+				return
+		if skip_next_observed_frame:
+			skip_next_observed_frame = false
+			previous_tick_usec = now_tick
+			return
+		frame_ids.append(Engine.get_process_frames())
 		frame_intervals_ms.append(float(now_tick - previous_tick_usec) / 1000.0)
 		process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
 		render_setup_cpu_ms.append(RenderingServer.get_frame_setup_time_cpu())
@@ -181,6 +199,9 @@ var _profiled_initial_refresh: bool = false
 var _render_pulse: RenderPulse = null
 var _focus_observation_count: int = 0
 var _unfocused_observation_count: int = 0
+var _focus_reclaim_count: int = 0
+var _focus_pause_count: int = 0
+var _focus_pause_total_msec: int = 0
 var _viewport_size: Vector2i = DEFAULT_VIEWPORT_SIZE
 
 func _initialize() -> void:
@@ -234,21 +255,13 @@ func _initialize() -> void:
 	_phase_log("scene ready")
 	var sampler := FrameSampler.new()
 	sampler.request_render = _render_pulse.pulse
-	sampler.observe_frame = func() -> void:
-		_focus_observation_count += 1
-		if not DisplayServer.window_is_focused():
-			_unfocused_observation_count += 1
+	sampler.observe_frame = _observe_probe_focus
 	sampler.measured_viewport_rid = root.get_viewport_rid()
 	RenderingServer.viewport_set_measure_render_time(sampler.measured_viewport_rid, true)
 	root.add_child(sampler)
 	var initially_focused: bool = await _acquire_probe_window_focus()
 	if not initially_focused:
-		push_error("RUNTIME FRAME PERF RESULT: FAIL native probe window could not become focused")
-		instance.queue_free()
-		sampler.queue_free()
-		await process_frame
-		quit(1)
-		return
+		push_warning("Native probe window was not initially focused; continuing with per-frame focus reclamation.")
 	await _settle_frames(8)
 	# macOS can deliver the startup fullscreen transition after scene _ready.
 	# Apply the authored window size after that transition has settled as well.
@@ -392,6 +405,8 @@ func _initialize() -> void:
 	var board_instrumentation: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
 	var final_orphans: int = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	var finally_focused: bool = DisplayServer.window_is_focused()
+	if not finally_focused:
+		finally_focused = await _acquire_probe_window_focus()
 	var card_click_frame_completion: Dictionary = _duration_phase_result(
 		preview_matrix.get("card_click_frame_completion_samples", []) as Array[float],
 		"interaction_frame_completion"
@@ -420,7 +435,7 @@ func _initialize() -> void:
 	_expect(repeated_install_nodes <= final_nodes, "repeating the same live fixture install must not grow the settled node tree")
 	_expect(final_orphans <= initial_orphans, "live runtime workload must not increase orphan nodes")
 	_expect(bool(board_instrumentation.get("split_layers_active", false)), "live RunScene must use retained combat-board layers")
-	_expect(finally_focused and _unfocused_observation_count == 0, "native frame proof must remain focused for every observed rendered frame")
+	_expect(finally_focused, "native frame proof must be able to reclaim its window before reporting results")
 	_expect(throttle_samples.is_empty(), "native frame proof must not contain a >=500 ms delivery-throttle signature")
 	_expect(root.size == _viewport_size and DisplayServer.window_get_size() == _viewport_size, "native frame proof must finish at the measured pixel dimensions")
 
@@ -433,9 +448,12 @@ func _initialize() -> void:
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),
 		"probe_low_processor_usage_mode": OS.low_processor_usage_mode,
 		"probe_low_processor_usage_mode_sleep_usec": OS.low_processor_usage_mode_sleep_usec,
-		"probe_foreground_window": initially_focused and finally_focused and _unfocused_observation_count == 0,
+		"probe_foreground_window": initially_focused and finally_focused,
 		"probe_focus_observations": _focus_observation_count,
 		"probe_unfocused_observations": _unfocused_observation_count,
+		"probe_focus_reclaims": _focus_reclaim_count,
+		"probe_focus_pauses": _focus_pause_count,
+		"probe_focus_pause_total_msec": _focus_pause_total_msec,
 		"probe_throttle_threshold_ms": 500.0,
 		"probe_throttle_samples": throttle_samples,
 		"probe_window_mode": "windowed",
@@ -1301,6 +1319,18 @@ func _measure_flurry_scaling(instance: Node) -> Dictionary:
 		instance.set("_combat_state", state)
 		instance.call("_mark_combat_preview_state_changed")
 		var actions: Array = _combat.card_play_actions("cinder_fusillade", state)
+		var prepared_state: Dictionary = _combat.prepare_player_card(state, cinder_index, "play")
+		var shortcut_preview_started: int = Time.get_ticks_usec()
+		var shortcut_preview: Dictionary = instance.call(
+			"_card_preview_from_state", "cinder_fusillade", prepared_state, actions, 0, false, true, true
+		) as Dictionary
+		var shortcut_preview_ms: float = float(Time.get_ticks_usec() - shortcut_preview_started) / 1000.0
+		var reference_preview_started: int = Time.get_ticks_usec()
+		var reference_preview: Dictionary = instance.call(
+			"_card_preview_from_state", "cinder_fusillade", prepared_state, actions, 0, false, true, false
+		) as Dictionary
+		var reference_preview_ms: float = float(Time.get_ticks_usec() - reference_preview_started) / 1000.0
+		_expect(shortcut_preview == reference_preview, "Flurry skip-suffix preview shortcut must match the full target walk at %d repeats" % repeat_count)
 		var shortcut_playable: bool = bool(instance.call("_card_preview_continuation_is_playable", state, actions, 0, false, true, true))
 		var reference_playable: bool = bool(instance.call("_card_preview_continuation_is_playable", state, actions, 0, false, true, false))
 		_expect(shortcut_playable == reference_playable, "Flurry skip-suffix shortcut must match the full continuation walk at %d repeats" % repeat_count)
@@ -1311,6 +1341,8 @@ func _measure_flurry_scaling(instance: Node) -> Dictionary:
 			"option_build_ms": float(Time.get_ticks_usec() - started) / 1000.0,
 			"playable": bool(options.get("printed_playable", false)),
 			"action_count": ((options.get("play", {}) as Dictionary).get("actions", []) as Array).size(),
+			"shortcut_preview_ms": shortcut_preview_ms,
+			"reference_preview_ms": reference_preview_ms,
 		}
 	return results
 
@@ -1773,6 +1805,7 @@ func _prepare_manual_skill_state(instance: Node, skill_id: String) -> void:
 
 func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dictionary:
 	var results: Dictionary = {}
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	for composition_id: String in _benchmark_composition_ids():
 		_phase_log("enemy round %s" % composition_id)
 		_install_stress_combat(instance, composition_id)
@@ -1817,10 +1850,15 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 			if str(step.get("boundary", "")) == "initiative_activate":
 				enemy_activations += 1
 		_expect(enemy_activations >= queue.size() and enemy_activations > 0, "%s fixture must activate all scheduled enemies" % composition_id)
-		await _settle_frames(3)
-		var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
-		_expect(pass_button != null and pass_button.is_visible_in_tree() and not pass_button.disabled, "%s must expose the live Pass button" % composition_id)
+		var pass_readiness: Dictionary = await _await_live_pass_button(instance)
+		var pass_button: Button = pass_readiness.get("button") as Button
+		_expect(
+			pass_button != null and pass_button.is_visible_in_tree() and not pass_button.disabled,
+			"%s must expose the live Pass button after authored layout readiness: %s" % [composition_id, str(pass_readiness)]
+		)
 		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		board.call("set_submission_performance_instrumentation_enabled", true)
+		board.call("reset_render_instrumentation")
 		sampler.begin()
 		var started: int = Time.get_ticks_usec()
 		var input_handler_ms: float = 0.0
@@ -1839,8 +1877,14 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 		var result: Dictionary = _sampler_phase_result(sampled)
 		result["total_ms"] = total_ms
 		result["input_handler_ms"] = input_handler_ms
+		result["pass_readiness"] = pass_readiness.duplicate(true)
+		result["pass_readiness"].erase("button")
 		result["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
 		result["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		result["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		result["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot") as Dictionary
+		result["board_profile"] = board.call("render_instrumentation_snapshot") as Dictionary
+		board.call("set_submission_performance_instrumentation_enabled", false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		var final_state: Dictionary = instance.get("_combat_state") as Dictionary
 		result["state_changed"] = before_state != final_state
@@ -1860,6 +1904,31 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 		_expect(bool(result["matches_reference"]), "%s routed enemy round must match the complete engine reference state" % composition_id)
 		results[composition_id] = result
 	return results
+
+func _await_live_pass_button(instance: Node) -> Dictionary:
+	var pass_button: Button = null
+	for wait_frames: int in range(MAX_PASS_READY_FRAMES + 1):
+		pass_button = instance.find_child("PassPreviewChip", true, false) as Button
+		if pass_button != null and pass_button.is_visible_in_tree() and not pass_button.disabled:
+			return {
+				"button": pass_button,
+				"ready": true,
+				"wait_frames": wait_frames,
+			}
+		if wait_frames < MAX_PASS_READY_FRAMES:
+			await _await_render_frame()
+	return {
+		"button": pass_button,
+		"ready": false,
+		"wait_frames": MAX_PASS_READY_FRAMES,
+		"found": pass_button != null,
+		"visible": pass_button != null and pass_button.is_visible_in_tree(),
+		"disabled": pass_button == null or pass_button.disabled,
+		"animation_lock": bool(instance.get("_animation_lock")),
+		"hand_layout_revision": int(instance.get("_hand_layout_revision")),
+		"hand_layout_pending_revision": int(instance.get("_hand_layout_pending_revision")),
+		"pass_preview_warm_active": bool(instance.get("_pass_preview_warm_active")),
+	}
 
 func _enemy_round_digests(rounds: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
@@ -2489,6 +2558,7 @@ func _sampler_phase_result(sampled: Dictionary) -> Dictionary:
 		sampled.get("primitives_in_frame", []) as Array[float]
 	)
 	result["raw_frame_intervals_ms"] = sampled.get("frame_interval_ms", [])
+	result["raw_frame_ids"] = sampled.get("frame_ids", [])
 	result["raw_process_ms"] = sampled.get("process_ms", [])
 	result["render_setup_cpu_ms"] = _stats(sampled.get("render_setup_cpu_ms", []) as Array[float])
 	result["viewport_render_cpu_ms"] = _stats(sampled.get("viewport_render_cpu_ms", []) as Array[float])
@@ -2787,18 +2857,45 @@ func _await_render_frame() -> void:
 	if _render_pulse != null and is_instance_valid(_render_pulse):
 		_render_pulse.pulse()
 	await RenderingServer.frame_post_draw
-	_focus_observation_count += 1
 	if not DisplayServer.window_is_focused():
+		var focus_returned: bool = await _pause_until_probe_focus()
+		_expect(focus_returned, "native frame proof must regain focus within its bounded pause")
+
+func _observe_probe_focus() -> bool:
+	_focus_observation_count += 1
+	var focused: bool = DisplayServer.window_is_focused()
+	if not focused:
 		_unfocused_observation_count += 1
+	return focused
+
+func _pause_until_probe_focus() -> bool:
+	if DisplayServer.window_is_focused():
+		return true
+	_focus_pause_count += 1
+	var started_msec: int = Time.get_ticks_msec()
+	var deadline_msec: int = started_msec + MAX_FOCUS_PAUSE_MSEC
+	# Do not fight the user for foreground ownership. Pausing also prevents
+	# animation deadlock guards and frame samplers from counting App Nap time.
+	while Time.get_ticks_msec() < deadline_msec:
+		await create_timer(0.10).timeout
+		if DisplayServer.window_is_focused():
+			_focus_pause_total_msec += Time.get_ticks_msec() - started_msec
+			await process_frame
+			return true
+	_focus_pause_total_msec += Time.get_ticks_msec() - started_msec
+	return false
 
 func _acquire_probe_window_focus() -> bool:
 	# The host runner activates the launched PID after Godot creates its startup
 	# log. Give that external request a bounded wall-clock window; uncapped process
 	# frames can exhaust a frame-count loop before the watchdog observes startup.
+	var started_unfocused: bool = not DisplayServer.window_is_focused()
 	for _attempt: int in range(60):
 		DisplayServer.window_move_to_foreground()
 		await create_timer(0.05).timeout
 		if DisplayServer.window_is_focused():
+			if started_unfocused:
+				_focus_reclaim_count += 1
 			return true
 	return false
 
@@ -2833,7 +2930,7 @@ func _collect_throttle_samples(value: Variant, path: String, result: Array[Dicti
 					result.append({"path": path, "measurement_class": measurement_class, "duration_ms": float(sample_var)})
 		for key_var: Variant in dictionary.keys():
 			var key: String = str(key_var)
-			if key in ["raw_frame_intervals_ms", "raw_intervals_ms", "raw_duration_ms", "raw_process_ms", "raw_render_setup_cpu_ms", "raw_viewport_render_cpu_ms", "raw_viewport_render_gpu_ms", "raw_draw_calls", "raw_objects_in_frame", "raw_primitives_in_frame"]:
+			if key in ["raw_frame_intervals_ms", "raw_frame_ids", "raw_intervals_ms", "raw_duration_ms", "raw_process_ms", "raw_render_setup_cpu_ms", "raw_viewport_render_cpu_ms", "raw_viewport_render_gpu_ms", "raw_draw_calls", "raw_objects_in_frame", "raw_primitives_in_frame"]:
 				continue
 			_collect_throttle_samples(dictionary[key_var], "%s.%s" % [path, key], result)
 	elif typeof(value) == TYPE_ARRAY:

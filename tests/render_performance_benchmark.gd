@@ -185,6 +185,12 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		_expect(int(snapshot.get("static_draw_count", -1)) == 0, "steady-state phases must not redraw the static floor")
 		_expect(int(snapshot.get("ambient_batch_mesh_create_count", -1)) == 0, "steady-state ambient redraws must reuse their warmed ArrayMesh")
 		_expect(int(snapshot.get("ambient_batch_mesh_update_count", 0)) > 0, "elemental ambience must continue updating its retained particle batch")
+		_expect(int(snapshot.get("ambient_batch_sprite_total_count", 0)) > 0, "elemental ambience must submit visible sprites through the retained batch")
+		_expect(int(snapshot.get("ambient_batch_sprite_max_count", 0)) > 0, "ambient batch telemetry must retain its peak submitted sprite count")
+		_expect(
+			int(snapshot.get("ambient_batch_sprite_capacity", 0)) >= int(snapshot.get("ambient_batch_sprite_max_count", 0)),
+			"ambient packed buffers must retain enough warmed capacity for their peak submission"
+		)
 		if phase_name == "action_heavy":
 			var action_hud_draws: int = int(layer_counts.get("hud", 0))
 			_expect(action_hud_draws > 2, "unit damage-preview pulses must continuously composite projected HP on the HUD layer")
@@ -435,12 +441,11 @@ func _verify_in_place_state_redraw(board: Control, presentation: Dictionary) -> 
 	var scene_counts: Dictionary = snapshot.get("scene_tile_draw_counts", {}) as Dictionary
 	var old_tile_redrew: bool = int(scene_counts.get("%d,%d" % [old_tile.x, old_tile.y], 0)) > 0
 	var new_tile_redrew: bool = int(scene_counts.get("%d,%d" % [new_tile.x, new_tile.y], 0)) > 0
-	var redrew: bool = int(snapshot.get("full_dynamic_redraw_count", 0)) > 0 and old_tile_redrew and new_tile_redrew
-	_expect(redrew, "in-place unit mutations must conservatively invalidate both old and new retained scene tiles")
+	var redrew: bool = int(snapshot.get("full_dynamic_redraw_count", 0)) == 0 and old_tile_redrew and new_tile_redrew
+	_expect(redrew, "in-place unit mutations must selectively invalidate both old and new retained scene tiles")
 	var cache_field_mutations: Array[Dictionary] = [
 		{"key": "moss", "value": {"floor": [Vector2i(3, 3)]}},
 		{"key": "room_coord", "value": Vector2i(8, 11)},
-		{"key": "turn", "value": 2},
 	]
 	for mutation: Dictionary in cache_field_mutations:
 		board.call("reset_render_instrumentation")

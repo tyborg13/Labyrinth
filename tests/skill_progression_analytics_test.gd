@@ -74,7 +74,11 @@ func _initialize() -> void:
 		"turn": 3,
 		"message": "The banked play costs no Time.",
 	}
+	# Construct this writer before the first append so the regression proves that
+	# a live peer invalidates its cached key index when another store writes.
+	var concurrent_replay_store: AnalyticsStore = AnalyticsStore.new()
 	_expect(store.write_event("skill_triggered", context, trigger_payload, trigger_idempotency_key), "Skill-trigger analytics should write successfully")
+	_expect(concurrent_replay_store.write_event("skill_triggered", context, trigger_payload, trigger_idempotency_key), "A concurrently alive analytics store should observe newly appended idempotency keys")
 	var replay_store: AnalyticsStore = AnalyticsStore.new()
 	var replay_payload: Dictionary = trigger_payload.duplicate(true)
 	replay_payload["message"] = "A crash replay must not replace the original event."
