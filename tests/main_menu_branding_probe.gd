@@ -89,4 +89,3 @@ func _require(condition: bool, message: String) -> void:
 		return
 	push_error(message)
 	quit(1)
-
