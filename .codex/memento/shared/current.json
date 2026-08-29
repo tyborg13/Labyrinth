@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-29T18:13:14Z",
+  "updated_at": "2026-08-29T19:26:21Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9255,6 +9255,28 @@
       "source": {
         "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
         "commit": "15569d54"
+      }
+    },
+    {
+      "id": "mnt_20260829T192621Z_495f28b3",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/main_menu.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/main_menu.gd",
+      "summary": "Main-menu Umbra fractures glow only on the active choice",
+      "details": "The main action stack uses dark fractured obsidian slabs with aged-brass corner armor. Exactly one enabled primary, hovered, focused, or pressed action carries the ember-lit fracture network and side markers; disabled and inactive actions retain dark etched fractures. Preserve the Steam-aligned logo, background, left-aligned labels, and existing pointer/keyboard/controller behavior.",
+      "status": "active",
+      "created_at": "2026-08-29T19:26:21Z",
+      "updated_at": "2026-08-29T19:26:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
+        "commit": "62cce529"
       }
     }
   ]

@@ -34,6 +34,7 @@ const MENU_BUTTON_HEIGHT_COMPACT: float = 64.0
 const MENU_BUTTON_MIN_WIDTH: float = 380.0
 const MENU_BUTTON_MAX_WIDTH: float = 470.0
 const MENU_SEPARATION: int = 14
+const UMBRA_SELECTION_META: String = "umbra_selected"
 const CONTEXT_PANEL_MIN_WIDTH: float = 300.0
 const CONTEXT_PANEL_MAX_WIDTH: float = 360.0
 const CONTEXT_PANEL_GAP: float = 24.0
@@ -158,6 +159,9 @@ var _title_face_materials: Array[ShaderMaterial]
 var _controller_prompt_bar
 var _loading_run: bool = false
 var _loading_error: AcceptDialog
+var _umbra_primary_button: Button
+var _umbra_normal_style: StyleBoxFlat
+var _umbra_selected_style: StyleBoxFlat
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -266,8 +270,11 @@ func _apply_style() -> void:
 	_apply_title_layer_style(_title_face_lines, Color.WHITE, Color.TRANSPARENT, 0, Color.WHITE)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
+	_umbra_normal_style = _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_NORMAL)
+	_umbra_selected_style = _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_SELECTED)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button]:
 		_apply_menu_button_style(button)
+	_connect_umbra_selection_signals()
 	_apply_confirmation_button_style(replacement_cancel_button, false)
 	_apply_confirmation_button_style(replacement_confirm_button, true)
 	boss_button.visible = false
@@ -371,13 +378,17 @@ func _apply_menu_button_style(button: Button) -> void:
 	button.focus_mode = Control.FOCUS_ALL
 	button.add_theme_font_override("font", UI_FONT)
 	button.add_theme_font_size_override("font_size", MENU_FONT_SIZE)
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_UMBRA)
 	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 func _apply_confirmation_button_style(button: Button, destructive: bool) -> void:
-	_apply_menu_button_style(button)
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.focus_mode = Control.FOCUS_ALL
+	button.add_theme_font_override("font", UI_FONT)
 	button.add_theme_font_size_override("font_size", 20)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
 	if not destructive:
 		return
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_DESTRUCTIVE)
@@ -385,12 +396,66 @@ func _apply_confirmation_button_style(button: Button, destructive: bool) -> void
 	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 func _apply_continue_button_state(primary: bool) -> void:
-	_apply_menu_button_style(continue_button)
-	if not primary:
+	_umbra_primary_button = continue_button if primary else start_button
+	_restore_default_umbra_selection()
+
+func _connect_umbra_selection_signals() -> void:
+	for button: Button in _umbra_menu_buttons():
+		var highlighted := Callable(self, "_on_umbra_button_highlighted").bind(button)
+		var departed := Callable(self, "_on_umbra_button_departed")
+		if not button.mouse_entered.is_connected(highlighted):
+			button.mouse_entered.connect(highlighted)
+		if not button.focus_entered.is_connected(highlighted):
+			button.focus_entered.connect(highlighted)
+		if not button.button_down.is_connected(highlighted):
+			button.button_down.connect(highlighted)
+		if not button.mouse_exited.is_connected(departed):
+			button.mouse_exited.connect(departed)
+		if not button.focus_exited.is_connected(departed):
+			button.focus_exited.connect(departed)
+		if not button.button_up.is_connected(departed):
+			button.button_up.connect(departed)
+
+func _umbra_menu_buttons() -> Array[Button]:
+	var buttons: Array[Button]
+	buttons.append(continue_button)
+	buttons.append(start_button)
+	buttons.append(settings_button)
+	buttons.append(quit_button)
+	buttons.append(boss_button)
+	return buttons
+
+func _on_umbra_button_highlighted(button: Button) -> void:
+	if button == null or button.disabled or not button.visible:
+		_restore_default_umbra_selection()
 		return
-	_ui_skin.apply_button_stylebox_overrides(continue_button, UiSkin.VARIANT_SELECTED)
-	_ui_skin.apply_button_text_overrides(continue_button, Color("fff2cf"), Color("080606"), Color("8d806b"), 5)
-	continue_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_set_umbra_selected_button(button)
+
+func _on_umbra_button_departed() -> void:
+	call_deferred("_restore_default_umbra_selection")
+
+func _restore_default_umbra_selection() -> void:
+	for button: Button in _umbra_menu_buttons():
+		if button.visible and not button.disabled and (button.has_focus() or button.is_hovered() or button.is_pressed()):
+			_set_umbra_selected_button(button)
+			return
+	var target: Button = _umbra_primary_button
+	if target == null or target.disabled or not target.visible:
+		target = null
+	_set_umbra_selected_button(target)
+
+func _set_umbra_selected_button(selected_button: Button) -> void:
+	for button: Button in _umbra_menu_buttons():
+		var selected: bool = button == selected_button and not button.disabled and button.visible
+		button.set_meta(UMBRA_SELECTION_META, selected)
+		button.add_theme_stylebox_override(
+			"normal",
+			_umbra_selected_style if selected else _umbra_normal_style
+		)
+		button.queue_redraw()
+		var ornament: Control = button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) as Control
+		if ornament != null:
+			ornament.queue_redraw()
 
 func _make_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -567,6 +632,7 @@ func _set_menu_actions_locked(locked: bool) -> void:
 	settings_button.disabled = locked
 	quit_button.disabled = locked
 	boss_button.disabled = locked
+	call_deferred("_restore_default_umbra_selection")
 
 func _update_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size

@@ -64,6 +64,8 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	_assert(resume_stats.text == "HP 175 / 260  ·  HELD 74 EMBERS", "Resume card should show accurate saved HP and explicitly identify held embers")
 	_assert(footer.text == "LV 3  |  EMBERS 91  |  SKILLS 2/19", "Main-menu profile summary should show learned skills instead of retired card growth")
 	_assert(continue_button.text == "Continue Run" and not continue_button.disabled, "Continue should become the primary enabled action for a valid save")
+	_assert(str(continue_button.get_meta("button_variant", "")) == "umbra" and str(start_button.get_meta("button_variant", "")) == "umbra", "Main-menu actions should use the code-native Umbra Obsidian button variant")
+	_assert(bool(continue_button.get_meta("umbra_selected", false)) and not bool(start_button.get_meta("umbra_selected", false)), "A valid save should make Continue the only glowing default selection")
 	var continue_style: StyleBoxFlat = continue_button.get_theme_stylebox("normal") as StyleBoxFlat
 	var start_style: StyleBoxFlat = start_button.get_theme_stylebox("normal") as StyleBoxFlat
 	_assert(continue_style != null and start_style != null and continue_style.bg_color != start_style.bg_color, "Primary Continue should be visually distinct from New Game")
@@ -97,11 +99,19 @@ func _test_no_save_hides_summary() -> void:
 	if instance == null:
 		return
 	var continue_button: Button = instance.get_node("MenuColumn/ContinueButton")
+	var start_button: Button = instance.get_node("MenuColumn/StartButton")
+	var settings_button: Button = instance.get_node("MenuColumn/SettingsButton")
 	var resume_panel: PanelContainer = instance.get_node("ResumePanel")
 	var replacement_panel: PanelContainer = instance.get_node("ReplacementPanel")
 	var resume_location: Label = instance.get_node("ResumePanel/ResumeMargin/ResumeVBox/ResumeLocation")
 	var resume_stats: Label = instance.get_node("ResumePanel/ResumeMargin/ResumeVBox/ResumeStats")
 	_assert(continue_button.disabled and continue_button.text == "Continue", "No-save state should keep Continue secondary and disabled")
+	_assert(not bool(continue_button.get_meta("umbra_selected", false)) and bool(start_button.get_meta("umbra_selected", false)), "Without a save, New Game should be the only glowing default selection")
+	settings_button.mouse_entered.emit()
+	_assert(bool(settings_button.get_meta("umbra_selected", false)) and not bool(start_button.get_meta("umbra_selected", false)), "Pointer hover should move the exclusive Umbra glow to the hovered action")
+	settings_button.mouse_exited.emit()
+	await process_frame
+	_assert(bool(start_button.get_meta("umbra_selected", false)) and not bool(settings_button.get_meta("umbra_selected", false)), "Leaving the menu actions should restore the glow to the default primary action")
 	_assert(not resume_panel.visible and not replacement_panel.visible, "No-save state should hide all saved-run context panels")
 	_assert(resume_location.text.is_empty() and resume_stats.text.is_empty(), "No-save state should clear summary text instead of retaining stale data")
 	_stop_menu_music(instance)
