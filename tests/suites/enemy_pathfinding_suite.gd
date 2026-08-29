@@ -468,11 +468,18 @@ static func _test_cached_anchor_queries_match_uncached_footprints(expect: Callab
 	var dead_blocker: Dictionary = _enemy(Vector2i(3, 4), intent, "crawler", 4)
 	dead_blocker["hp"] = 0
 	var state: Dictionary = _state(combat, 274, Vector2i(6, 6), [moving_enemy, large_blocker, wide_blocker, dead_blocker],
-		[{"id": "crate", "pos": Vector2i(5, 4), "hp": 3, "max_hp": 3}],
+		[
+			{"id": "destroyed_crate", "pos": Vector2i(5, 4), "hp": 0, "max_hp": 3},
+			{"id": "live_crate", "pos": Vector2i(5, 4), "hp": 3, "max_hp": 3},
+			{"id": "dead_only", "pos": Vector2i(2, 5), "hp": 0, "max_hp": 3},
+		],
 		[{"id": "trap", "pos": Vector2i(4, 5), "element": "fire", "damage": 2}],
 		[{"id": 7, "pos": Vector2i(6, 2), "hp": 4, "max_hp": 4}])
 	var snapshot: Dictionary = state.duplicate(true)
 	var context: Dictionary = combat.call("_enemy_future_planning_context", state, moving_enemy)
+	var terrain_index_by_tile: Dictionary = context.get("terrain_index_by_tile", {}) as Dictionary
+	expect.call(int(terrain_index_by_tile.get(Vector2i(5, 4), -1)) == 1, "Cached terrain lookup must retain the first live duplicate after a destroyed entry")
+	expect.call(not terrain_index_by_tile.has(Vector2i(2, 5)), "Destroyed terrain without a live duplicate must not block cached future anchors")
 	for y: int in range(-1, 9):
 		for x: int in range(-1, 9):
 			var anchor := Vector2i(x, y)

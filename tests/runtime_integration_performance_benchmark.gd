@@ -5,6 +5,7 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const UnitShadowCacheResourceScript = preload("res://scripts/unit_shadow_cache_resource.gd")
 
 const HAND: Array[String] = [
 	"sidestep_slash",
@@ -36,14 +37,23 @@ func _initialize() -> void:
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
+	print("RUNTIME INTEGRATION STEP: scene_settled")
 	var combat := CombatEngine.new()
-	var installed_state: Dictionary = await _install_stress_combat(instance, combat)
+	var installed_state: Dictionary = _install_stress_combat(instance, combat)
+	print("RUNTIME INTEGRATION STEP: stress_combat_installed")
 	await _settle_ui()
 	await _settle_action_tracker_prewarm(instance)
+	print("RUNTIME INTEGRATION STEP: tracker_prewarm_settled")
 	_verify_aoe_target_semantics(instance, combat, installed_state)
+	print("RUNTIME INTEGRATION STEP: aoe_semantics_verified")
 	var flurry_preview_shortcut: Dictionary = _verify_flurry_skip_suffix_preview_semantics(instance, combat, installed_state)
+	print("RUNTIME INTEGRATION STEP: flurry_semantics_verified")
 	var enemy_round_lock_ui: Dictionary = await _verify_enemy_round_lock_ui_equivalence(instance)
+	print("RUNTIME INTEGRATION STEP: enemy_lock_ui_verified")
+	var frame_sliced_unlock: Dictionary = await _verify_frame_sliced_unlock_atomicity(instance)
+	print("RUNTIME INTEGRATION STEP: sliced_unlock_verified")
 	var skill_sigil_event_cache: Dictionary = await _verify_skill_sigil_event_cache(instance)
+	print("RUNTIME INTEGRATION STEP: sigil_cache_verified")
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	var unit_shadow_local_mesh: Dictionary = _verify_unit_shadow_local_mesh_equivalence(board)
 	var source_snapshot: Dictionary = installed_state.duplicate(true)
@@ -53,6 +63,7 @@ func _initialize() -> void:
 		"initial_node_count": _subtree_node_count(instance),
 		"flurry_preview_shortcut": flurry_preview_shortcut,
 		"enemy_round_lock_ui": enemy_round_lock_ui,
+		"frame_sliced_unlock": frame_sliced_unlock,
 		"skill_sigil_event_cache": skill_sigil_event_cache,
 		"unit_shadow_local_mesh": unit_shadow_local_mesh,
 	}
@@ -306,11 +317,60 @@ func _install_stress_combat(instance: Node, combat: CombatEngine) -> Dictionary:
 	instance.set("_animation_lock", false)
 	instance.call("_mark_combat_preview_state_changed")
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
-	var shadows_ready: bool = await board.call("prepare_unit_shadows_for_state", combat_state)
-	_expect(shadows_ready, "stress combat living unit shadows must finish prewarming before the first visible board refresh")
+	# Match the shipped prebattle lifecycle: the encounter preview loads its unit
+	# textures before Start is enabled, while Start itself only verifies exact
+	# generated shadow data for the already-known composition.
+	board.call("prepare_unit_assets_for_state", combat_state)
+	var prepare_frame_before: int = Engine.get_process_frames()
+	var prepare_started_usec: int = Time.get_ticks_usec()
+	var shadows_ready: bool = bool(board.call("prepare_unit_shadows_for_state", combat_state))
+	var prepare_elapsed_usec: int = Time.get_ticks_usec() - prepare_started_usec
+	_expect(shadows_ready, "generated unit-shadow data must make immediate combat Start exact and ready")
+	_expect(Engine.get_process_frames() == prepare_frame_before, "combat Start shadow preparation must not wait for a rendered or process frame")
+	_expect(prepare_elapsed_usec < 16667, "combat Start shadow preparation must stay inside one 60 Hz CPU budget")
+	_expect(int(board.get("_unit_shadow_last_prepare_waited_frames")) == 0, "combat Start shadow preparation must report zero waited frames")
+	_expect((board.get("_unit_shadow_precomputed_missing_keys") as Dictionary).is_empty(), "generated unit-shadow cache must cover every loaded player, enemy, NPC, idle, and death texture")
+	_expect(
+		(board.get("_unit_shadow_prewarm_pending_ids") as Dictionary).is_empty(),
+		"complete generated shadow coverage must leave no background worker ownership: %s" % str((board.get("_unit_shadow_prewarm_pending_ids") as Dictionary).keys())
+	)
+	_expect(
+		(board.get("_unit_shadow_prewarm_urgent_queue") as Array).is_empty(),
+		"complete generated shadow coverage must leave no urgent shadow queue: %d" % (board.get("_unit_shadow_prewarm_urgent_queue") as Array).size()
+	)
+	_expect(
+		(board.get("_unit_shadow_prewarm_background_queue") as Array).is_empty(),
+		"complete generated shadow coverage must leave no background shadow queue: %d" % (board.get("_unit_shadow_prewarm_background_queue") as Array).size()
+	)
+	_verify_unit_shadow_cache_source_hashes(board)
+	var immediate_shadow_textures: Array = board.call("_unit_shadow_immediate_textures_for_state", combat_state) as Array
+	_expect(immediate_shadow_textures.size() <= 3, "stress composition should gate only on one current texture per living unit type")
+	for texture_var: Variant in immediate_shadow_textures:
+		var texture: Texture2D = texture_var as Texture2D
+		var texture_ready: bool = texture != null and (board.get("_unit_shadow_polygon_cache") as Dictionary).has(texture.get_instance_id())
+		_expect(texture_ready, "the first visible animation frame must use its exact generated shadow geometry")
 	board.call("reset_render_instrumentation")
 	instance.call("_refresh_ui")
+	RenderingServer.force_draw()
+	var immediate_draw_metrics: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+	_expect(int((immediate_draw_metrics.get("unit_shadow_sync_misses", {}) as Dictionary).get("count", 0)) == 0, "first combat draw must not synchronously extract any unit-shadow geometry")
+	_expect(int((immediate_draw_metrics.get("unit_shadow_draw_cache", {}) as Dictionary).get("fallback", 0)) == 0, "first combat draw must not substitute a generic shadow")
 	return combat_state
+
+func _verify_unit_shadow_cache_source_hashes(board: Control) -> void:
+	var cache: Resource = load(CombatBoardView.UNIT_SHADOW_CACHE_PATH) as Resource
+	_expect(cache != null, "generated unit-shadow cache must load as a production resource")
+	if cache != null:
+		_expect(int(cache.get("schema_version")) == UnitShadowCacheResourceScript.SCHEMA_VERSION, "generated unit-shadow cache schema must match runtime extraction")
+		_expect(str(cache.get("extraction_signature")) == UnitShadowCacheResourceScript.expected_extraction_signature(), "generated unit-shadow cache extraction constants must match runtime extraction")
+	var expected_hashes: Dictionary = board.get("_unit_shadow_precomputed_source_sha256") as Dictionary
+	_expect(not expected_hashes.is_empty(), "generated unit-shadow cache must publish source fingerprints")
+	for source_path_var: Variant in expected_hashes:
+		var source_path: String = str(source_path_var)
+		_expect(
+			FileAccess.get_sha256(source_path) == str(expected_hashes[source_path_var]),
+			"generated unit-shadow cache must match source art: %s" % source_path
+		)
 
 func _stress_grid() -> Array:
 	var grid: Array = []
@@ -444,6 +504,83 @@ func _verify_enemy_round_lock_ui_equivalence(instance: Node) -> Dictionary:
 		"snapshot_differences": snapshot_differences,
 	}
 
+func _verify_frame_sliced_unlock_atomicity(instance: Node) -> Dictionary:
+	instance.call("set_runtime_performance_instrumentation_enabled", true)
+	var production_refresh_started_frame: int = Engine.get_process_frames()
+	instance.set("_animation_lock", true)
+	instance.call("_refresh_ui", false, true, false)
+	var fast_path_synchronous: bool = (
+		not bool(instance.get("_frame_sliced_ui_refresh_active"))
+		and not bool(instance.get("_animation_lock"))
+		and Engine.get_process_frames() == production_refresh_started_frame
+	)
+	_expect(fast_path_synchronous, "production final refresh must preserve its zero-extra-frame click-to-interactive cadence")
+	var observed_slice_frames: int = Engine.get_process_frames() - production_refresh_started_frame
+	var below_budget_without_telemetry: int = int(instance.call("_runtime_elapsed_excluding_telemetry_usec", 7999, 0))
+	var below_budget_with_telemetry: int = int(instance.call("_runtime_elapsed_excluding_telemetry_usec", 8499, 500))
+	var at_budget_without_telemetry: int = int(instance.call("_runtime_elapsed_excluding_telemetry_usec", 8000, 0))
+	var at_budget_with_telemetry: int = int(instance.call("_runtime_elapsed_excluding_telemetry_usec", 8500, 500))
+	_expect(below_budget_without_telemetry == below_budget_with_telemetry, "telemetry bookkeeping must not advance an enemy/UI slice toward its CPU budget")
+	_expect(at_budget_without_telemetry == at_budget_with_telemetry, "slice exhaustion must occur at the same gameplay-work boundary with instrumentation on or off")
+	var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
+	_expect(pass_button != null and not pass_button.disabled, "Pass must become interactive only after the sliced refresh completes")
+	var sections: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+	var inclusive_totals: Array[String] = []
+	for phase: String in [
+		"refresh_ui_relic_bar_total",
+		"refresh_ui_turn_order_total",
+		"refresh_ui_action_step_tracker_total",
+		"refresh_ui_choice_bar_total",
+		"refresh_ui_stage_total",
+		"refresh_ui_hand_total",
+	]:
+		inclusive_totals.append(phase)
+	for phase: String in inclusive_totals:
+		_expect(sections.has(phase), "inclusive runtime wrapper must use the Steam-excluded _total suffix: %s" % phase)
+		_expect(not sections.has(phase.trim_suffix("_total")), "legacy inclusive wrapper name would double-count Steam section time: %s" % phase.trim_suffix("_total"))
+	var frame_profile: Dictionary = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+	for frame_var: Variant in frame_profile.get("top_frames", []):
+		var frame: Dictionary = frame_var as Dictionary
+		var exclusive_sum: int = 0
+		for phase_usec_var: Variant in (frame.get("exclusive_phase_usec", {}) as Dictionary).values():
+			exclusive_sum += int(phase_usec_var)
+		_expect(exclusive_sum == int(frame.get("exclusive_total_usec", -1)), "each retained frame must partition its CPU union exactly once")
+	instance.call("set_runtime_performance_instrumentation_enabled", false)
+	instance.call("set_runtime_performance_instrumentation_enabled", true)
+	var crossed_base_usec: int = Time.get_ticks_usec() - 1000
+	instance.call("_record_external_runtime_performance_interval", "crossed_left", crossed_base_usec, crossed_base_usec + 700, false)
+	instance.call("_record_external_runtime_performance_interval", "crossed_right", crossed_base_usec + 300, crossed_base_usec + 1000, false)
+	var crossed_sections: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+	_expect(crossed_sections.has("telemetry_ambiguous_overlap"), "real RunScene snapshots must retain exclusive-only ambiguity buckets")
+	_expect(int((crossed_sections.get("telemetry_ambiguous_overlap", {}) as Dictionary).get("exclusive_total_usec", 0)) == 400, "real RunScene ambiguity attribution must preserve the crossed overlap")
+	instance.call("set_runtime_performance_instrumentation_enabled", false)
+	var dense_off_started_usec: int = Time.get_ticks_usec()
+	for _dense_index: int in range(64):
+		instance.call("_record_runtime_performance_phase", "telemetry_dense_leaf", Time.get_ticks_usec())
+	instance.call("runtime_performance_frame_instrumentation_snapshot")
+	var dense_off_usec: int = Time.get_ticks_usec() - dense_off_started_usec
+	instance.call("set_runtime_performance_instrumentation_enabled", true)
+	var dense_on_started_usec: int = Time.get_ticks_usec()
+	for _dense_index: int in range(64):
+		instance.call("_record_runtime_performance_phase", "telemetry_dense_leaf", Time.get_ticks_usec())
+	var dense_profile: Dictionary = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+	var dense_on_usec: int = Time.get_ticks_usec() - dense_on_started_usec
+	var dense_overhead_usec: int = int(dense_profile.get("telemetry_record_overhead_usec", 0))
+	var dense_commit_overhead_usec: int = int(dense_profile.get("telemetry_commit_overhead_usec", 0))
+	_expect(dense_overhead_usec > 0, "actual dense instrumentation must report positive record bookkeeping overhead")
+	_expect(dense_commit_overhead_usec > 0, "actual dense instrumentation must report its partition/commit overhead")
+	_expect(maxi(0, dense_on_usec - dense_off_usec) < 16667, "64 dense section timers must add less than one 60 Hz frame of instrumentation overhead")
+	instance.call("set_runtime_performance_instrumentation_enabled", false)
+	return {
+		"observed_slice_frames": observed_slice_frames,
+		"fast_path_synchronous": fast_path_synchronous,
+		"pass_enabled_after_completion": pass_button != null and not pass_button.disabled,
+		"inclusive_total_names": inclusive_totals,
+		"dense_record_overhead_usec": dense_overhead_usec,
+		"dense_commit_overhead_usec": dense_commit_overhead_usec,
+		"dense_incremental_wall_usec": maxi(0, dense_on_usec - dense_off_usec),
+	}
+
 func _verify_skill_sigil_event_cache(instance: Node) -> Dictionary:
 	var original_combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	var original_signature: String = str(instance.get("_relic_bar_signature"))
@@ -517,11 +654,15 @@ func _verify_unit_shadow_local_mesh_equivalence(board: Control) -> Dictionary:
 	if texture == null:
 		return {}
 	var shadow_data: Dictionary = board.call("_unit_shadow_data_for_texture", texture) as Dictionary
-	var polygons: Array[PackedVector2Array] = shadow_data.get("polygons", []) as Array[PackedVector2Array]
+	var polygons: Array[PackedVector2Array] = _packed_vector2_array_array(shadow_data.get("polygons", []))
 	var bounds: Rect2 = shadow_data.get("bounds", Rect2()) as Rect2
 	_expect(not polygons.is_empty() and bounds.size.x > 0.0 and bounds.size.y > 0.0, "local shadow mesh proof requires non-empty player silhouette polygons")
 	if polygons.is_empty() or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
 		return {}
+	var filtered_polygons: Array = board.call("_packed_vector2_array_array", [polygons[0], "malformed", 7]) as Array
+	var missing_polygons: Array = board.call("_packed_vector2_array_array", null) as Array
+	_expect(filtered_polygons.size() == 1 and filtered_polygons[0] == polygons[0], "unit-shadow polygon conversion must retain only valid PackedVector2Array entries")
+	_expect(missing_polygons.is_empty(), "unit-shadow polygon conversion must return a typed empty fallback for missing data")
 	var draw_size := Vector2(137.0, 193.0)
 	var draw_rect_a := Rect2(Vector2(211.0, 307.0), draw_size)
 	var draw_rect_b := Rect2(Vector2(733.0, 419.0), draw_size)
@@ -750,6 +891,15 @@ func _sorted_tiles(values: Variant) -> Array[Vector2i]:
 	result.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return a.y < b.y or (a.y == b.y and a.x < b.x)
 	)
+	return result
+
+func _packed_vector2_array_array(values: Variant) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array] = []
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value: Variant in values as Array:
+		if typeof(value) == TYPE_PACKED_VECTOR2_ARRAY:
+			result.append(value as PackedVector2Array)
 	return result
 
 func _subtree_node_count(node: Node) -> int:

@@ -2515,9 +2515,9 @@ func _combined_action_phase(action_matrix: Dictionary) -> Dictionary:
 		var card_result: Dictionary = action_matrix.get(card_id, {}) as Dictionary
 		intervals.append_array(card_result.get("raw_frame_intervals_ms", []) as Array[float])
 		process_samples.append_array(card_result.get("raw_process_ms", []) as Array[float])
-		render_setup_cpu_samples.append_array(card_result.get("raw_render_setup_cpu_ms", []) as Array[float])
-		viewport_render_cpu_samples.append_array(card_result.get("raw_viewport_render_cpu_ms", []) as Array[float])
-		viewport_render_gpu_samples.append_array(card_result.get("raw_viewport_render_gpu_ms", []) as Array[float])
+		render_setup_cpu_samples.append_array(_float_array(card_result.get("raw_render_setup_cpu_ms", [])))
+		viewport_render_cpu_samples.append_array(_float_array(card_result.get("raw_viewport_render_cpu_ms", [])))
+		viewport_render_gpu_samples.append_array(_float_array(card_result.get("raw_viewport_render_gpu_ms", [])))
 		draw_samples.append_array(card_result.get("raw_draw_calls", []) as Array[float])
 		object_samples.append_array(card_result.get("raw_objects_in_frame", []) as Array[float])
 		primitive_samples.append_array(card_result.get("raw_primitives_in_frame", []) as Array[float])
@@ -2560,9 +2560,9 @@ func _sampler_phase_result(sampled: Dictionary) -> Dictionary:
 	result["raw_frame_intervals_ms"] = sampled.get("frame_interval_ms", [])
 	result["raw_frame_ids"] = sampled.get("frame_ids", [])
 	result["raw_process_ms"] = sampled.get("process_ms", [])
-	result["render_setup_cpu_ms"] = _stats(sampled.get("render_setup_cpu_ms", []) as Array[float])
-	result["viewport_render_cpu_ms"] = _stats(sampled.get("viewport_render_cpu_ms", []) as Array[float])
-	result["viewport_render_gpu_ms"] = _stats(sampled.get("viewport_render_gpu_ms", []) as Array[float])
+	result["render_setup_cpu_ms"] = _stats(_float_array(sampled.get("render_setup_cpu_ms", [])))
+	result["viewport_render_cpu_ms"] = _stats(_float_array(sampled.get("viewport_render_cpu_ms", [])))
+	result["viewport_render_gpu_ms"] = _stats(_float_array(sampled.get("viewport_render_gpu_ms", [])))
 	result["viewport_render_gpu_timing_available"] = float((result["viewport_render_gpu_ms"] as Dictionary).get("max", 0.0)) > 0.0
 	result["raw_render_setup_cpu_ms"] = sampled.get("render_setup_cpu_ms", [])
 	result["raw_viewport_render_cpu_ms"] = sampled.get("viewport_render_cpu_ms", [])
@@ -2615,6 +2615,15 @@ func _stats(source: Array[float]) -> Dictionary:
 		"max": values[values.size() - 1],
 		"mean": total / float(values.size()),
 	}
+
+func _float_array(values: Variant) -> Array[float]:
+	var result: Array[float] = []
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value: Variant in values as Array:
+		if typeof(value) == TYPE_FLOAT or typeof(value) == TYPE_INT:
+			result.append(float(value))
+	return result
 
 func _percentile(sorted_values: Array[float], percentile: float) -> float:
 	var index: int = clampi(int(ceil(float(sorted_values.size()) * percentile)) - 1, 0, sorted_values.size() - 1)

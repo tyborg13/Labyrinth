@@ -118,6 +118,10 @@ var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
 var _runtime_performance_max_usec: Dictionary = {}
+var _runtime_performance_interval_sink: Callable = Callable()
+
+func set_runtime_performance_interval_sink(sink: Callable) -> void:
+	_runtime_performance_interval_sink = sink
 
 func set_runtime_performance_instrumentation_enabled(enabled: bool) -> void:
 	_runtime_performance_instrumentation_enabled = enabled
@@ -150,12 +154,16 @@ func clear_runtime_performance_instrumentation_snapshot() -> void:
 func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	if not _runtime_performance_instrumentation_enabled:
 		return 0
-	var now_usec: int = Time.get_ticks_usec()
-	var elapsed_usec: int = now_usec - started_usec
+	var measured_end_usec: int = Time.get_ticks_usec()
+	var elapsed_usec: int = measured_end_usec - started_usec
 	_runtime_performance_totals_usec[phase] = int(_runtime_performance_totals_usec.get(phase, 0)) + elapsed_usec
 	_runtime_performance_counts[phase] = int(_runtime_performance_counts.get(phase, 0)) + 1
 	_runtime_performance_max_usec[phase] = maxi(int(_runtime_performance_max_usec.get(phase, 0)), elapsed_usec)
-	return now_usec
+	if _runtime_performance_interval_sink.is_valid():
+		_runtime_performance_interval_sink.call("engine_%s" % phase, started_usec, measured_end_usec, false)
+		var bookkeeping_end_usec: int = Time.get_ticks_usec()
+		_runtime_performance_interval_sink.call("telemetry_engine_record_overhead", measured_end_usec, bookkeeping_end_usec, true)
+	return Time.get_ticks_usec()
 
 static func default_run_stats() -> Dictionary:
 	return {
@@ -1218,7 +1226,7 @@ func apply_prevalidated_player_move(state: Dictionary, action: Dictionary, targe
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_resolve_action", performance_phase_started)
 	next_state = _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
-	_record_runtime_performance_phase("prevalidated_move_apply_path", performance_phase_started)
+	_record_runtime_performance_phase("prevalidated_move_apply_path_total", performance_phase_started)
 	_record_runtime_performance_phase("prevalidated_move_total", performance_total_started)
 	return next_state
 
@@ -1247,7 +1255,7 @@ func apply_planned_player_move(state: Dictionary, action: Dictionary, target_til
 		movement_plan.get("hidden_enemy_tiles", {}) as Dictionary,
 		true
 	)
-	_record_runtime_performance_phase("planned_move_apply_path", performance_phase_started)
+	_record_runtime_performance_phase("planned_move_apply_path_total", performance_phase_started)
 	_record_runtime_performance_phase("planned_move_total", performance_total_started)
 	return next_state
 
@@ -1290,7 +1298,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			if target_is_valid:
 				var movement_path: Array[Vector2i] = path_for_player_action(next_state, action, target_tile)
 				if movement_path.size() <= 1:
-					_record_runtime_performance_phase("player_action_body", performance_phase_started)
+					_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 					_record_runtime_performance_phase("player_action_total", performance_total_started)
 					return next_state
 				next_state = _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
@@ -1380,7 +1388,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		"illusion":
 			if target_is_valid:
 				next_state = _create_illusion(next_state, target_tile, int(resolved_action.get("health", resolved_action.get("amount", 0))))
-	_record_runtime_performance_phase("player_action_body", performance_phase_started)
+	_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 	_record_runtime_performance_phase("player_action_total", performance_total_started)
 	return next_state
 
@@ -1404,7 +1412,7 @@ func _apply_player_move_along_path(
 	var resolved_path: Array[Vector2i] = _player_path_until_hidden_collision(next_state, movement_path, hidden_collision_tiles, use_hidden_collision_lookup)
 	performance_phase_started = _record_runtime_performance_phase("move_path_hidden_collision", performance_phase_started)
 	next_state = _move_player_along_path(next_state, resolved_path)
-	performance_phase_started = _record_runtime_performance_phase("move_path_traverse", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("move_path_traverse_total", performance_phase_started)
 	var resolved_endpoint: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", resolved_path[0])
 	resolved_path = _movement_path_through_endpoint(resolved_path, resolved_endpoint)
 	_mark_first_move_used(next_state)
@@ -1848,6 +1856,23 @@ func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
 		"player_turn_before_state": player_turn_before_state
 	}
 
+func recover_player_turn_after_stalled_initiative(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	if next_state.is_empty() or combat_outcome(next_state) != "":
+		return next_state
+	# This path is reserved for corrupt/adversarial continuation queues that fail
+	# the normal 100-activation bound. Remove the already-scheduled player entry
+	# before preparing one deterministic player activation, so finishing recovery
+	# cannot leave a duplicate player actor in the initiative queue.
+	var repaired_queue: Array = []
+	for entry_var: Variant in next_state.get("turn_queue", []):
+		if typeof(entry_var) == TYPE_DICTIONARY and str((entry_var as Dictionary).get("kind", "")) == "player":
+			continue
+		repaired_queue.append(entry_var)
+	next_state["turn_queue"] = repaired_queue
+	_log(next_state, "The stalled initiative clock resets to the Reaver.")
+	return prepare_next_player_turn(next_state)
+
 func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: bool = true) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
@@ -2088,7 +2113,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	for step_var: Variant in turn_setup.get("steps", []):
 		if typeof(step_var) == TYPE_DICTIONARY:
 			steps.append(_umbra_marked_enemy_status_step(before_turn_setup, next_state, step_var as Dictionary, int(enemy.get("id", -1))))
-	_record_runtime_performance_phase("enemy_turn_setup", performance_phase_started)
+	_record_runtime_performance_phase("enemy_turn_setup_total", performance_phase_started)
 	if combat_outcome(next_state) != "":
 		next_state["rng_state"] = rng.state
 		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
@@ -2108,7 +2133,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		var skip_refresh_step: Dictionary = _enemy_intent_refresh_step(next_state, int(enemy.get("id", -1)))
 		if not skip_refresh_step.is_empty():
 			steps.append(skip_refresh_step)
-		_record_runtime_performance_phase("enemy_turn_skipped_complete", performance_phase_started)
+		_record_runtime_performance_phase("enemy_turn_skipped_complete_total", performance_phase_started)
 		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	var shocked: bool = bool(turn_setup.get("shocked", false))
@@ -2156,7 +2181,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			next_state["rng_state"] = rng.state
 			if include_commit_steps:
 				_append_commit_step(steps, before_state, next_state, "enemy_action")
-			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_commit", performance_phase_started)
+			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_commit_total", performance_phase_started)
 			for bleed_step: Dictionary in bleed_steps:
 				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(enemy.get("id", -1))))
 			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_bleed_steps", performance_phase_started)
@@ -2167,7 +2192,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			if not step.is_empty():
 				steps.append(step)
 			_record_runtime_performance_phase("enemy_turn_action_append", performance_phase_started)
-			_record_runtime_performance_phase("enemy_turn_action_presentation", presentation_started)
+			_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_complete: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
 	if combat_outcome(next_state) == "":
@@ -2183,7 +2208,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	var refresh_step: Dictionary = _enemy_intent_refresh_step(next_state, int(enemy.get("id", -1)))
 	if not refresh_step.is_empty():
 		steps.append(refresh_step)
-	_record_runtime_performance_phase("enemy_turn_complete", performance_phase_started)
+	_record_runtime_performance_phase("enemy_turn_complete_total", performance_phase_started)
 	_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
 	return {
 		"state": next_state,
@@ -4083,9 +4108,9 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 			continue
 		last_damage = terrain_damage
 		next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
-	performance_phase_started = _record_runtime_performance_phase("player_aoe_damage", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("player_aoe_damage_total", performance_phase_started)
 	next_state = _trigger_traps_on_tiles(next_state, affected_traps)
-	performance_phase_started = _record_runtime_performance_phase("player_aoe_traps", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("player_aoe_traps_total", performance_phase_started)
 	next_state = _trigger_resolved_action_light(next_state, resolved_action, center, affected)
 	performance_phase_started = _record_runtime_performance_phase("player_aoe_light", performance_phase_started)
 	if hidden_enemy_affected:
@@ -5084,7 +5109,7 @@ func _append_turn_order_step(steps: Array[Dictionary], before_state: Dictionary,
 	else:
 		before_order = current_turn_order(before_state, TURN_ORDER_PREVIEW_LIMIT)
 		after_order = current_turn_order(after_state, TURN_ORDER_PREVIEW_LIMIT)
-	var performance_phase_started: int = _record_runtime_performance_phase("turn_order_step_projection", performance_total_started)
+	var performance_phase_started: int = _record_runtime_performance_phase("turn_order_step_projection_total", performance_total_started)
 	if _turn_order_signature(before_order) == _turn_order_signature(after_order):
 		_record_runtime_performance_phase("turn_order_step_signature", performance_phase_started)
 		_record_runtime_performance_phase("turn_order_step_total", performance_total_started)
@@ -6521,7 +6546,7 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i]) -> Dictio
 		_collect_loot_at_player(next_state)
 		performance_phase_started = _record_runtime_performance_phase("traverse_loot", performance_phase_started)
 		next_state = _trigger_trap_on_player(next_state)
-		performance_phase_started = _record_runtime_performance_phase("traverse_trap", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("traverse_trap_total", performance_phase_started)
 		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 			break
 	var result_state: Dictionary = _dispel_illusion_at_player(next_state)
@@ -6773,7 +6798,7 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 			next_state = _damage_enemy(next_state, enemy_index, damage)
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) > 0:
 			next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, trap, trap.get("pos", Vector2i.ZERO), false)
-	performance_phase_started = _record_runtime_performance_phase("trap_enemies", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("trap_enemies_total", performance_phase_started)
 	next_state = _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, blast_tiles), damage)
 	performance_phase_started = _record_runtime_performance_phase("trap_terrain", performance_phase_started)
 	_log(next_state, _trap_trigger_log(next_state, trap, damage))
@@ -8426,7 +8451,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		attack_available = not _actor_targets_in_tiles(preview_state, projected_attack_tiles).is_empty()
 		target = {}
 	_record_runtime_performance_phase("enemy_plan_projected_attack", finalize_phase_started)
-	_record_runtime_performance_phase("enemy_plan_finalize", finalize_started)
+	_record_runtime_performance_phase("enemy_plan_finalize_total", finalize_started)
 	_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 	return {
 		"enemy_index": enemy_index,
@@ -8810,9 +8835,12 @@ func _enemy_future_planning_context(state: Dictionary, enemy: Dictionary) -> Dic
 	for terrain_index: int in range(terrain_entries.size()):
 		if typeof(terrain_entries[terrain_index]) != TYPE_DICTIONARY:
 			continue
-		var terrain: Dictionary = terrain_entries[terrain_index] as Dictionary
+		var terrain: Dictionary = _normalized_terrain(terrain_entries[terrain_index] as Dictionary)
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
 		var tile: Vector2i = terrain.get("pos", INVALID_TILE)
-		# Match _terrain_index_at_tile's first-entry behavior for malformed saves.
+		# Match _terrain_index_at_tile's first-live-entry behavior for malformed
+		# saves that retain destroyed terrain or duplicate entries at one tile.
 		if not terrain_index_by_tile.has(tile):
 			terrain_index_by_tile[tile] = terrain_index
 	var trap_entries: Array = state.get("traps", []) as Array

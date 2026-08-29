@@ -1,6 +1,7 @@
 extends SceneTree
 
 const PerformanceTelemetryScript = preload("res://scripts/performance_telemetry.gd")
+const PerformancePhasePartitionerScript = preload("res://scripts/performance_phase_partitioner.gd")
 
 var _failures: Array[String] = []
 
@@ -8,6 +9,7 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	_test_phase_partitioning()
 	var global_sampler: Node = root.get_node_or_null("PerformanceTelemetry")
 	if global_sampler != null:
 		global_sampler.set_process(false)
@@ -61,10 +63,20 @@ func _run() -> void:
 	for expected_cohort: String in ["combat_idle", "density_5_plus", "depth_5_12", "relics_0_4"]:
 		_expect(cohorts.has(expected_cohort), "Telemetry should retain the active %s frame cohort" % expected_cohort)
 	summary["sections"] = {
-		"stage_base": {"count": 4, "total_usec": 1200},
-		"engine_trap_blast": {"count": 2, "total_usec": 500},
-		"engine_enemy_turn_plan_total": {"count": 1, "total_usec": 9000},
-		"engine_enemy_plan_actual_paths": {"count": 2, "total_usec": 600},
+		"stage_base": {"count": 4, "total_usec": 1200, "exclusive_total_usec": 1200},
+		"engine_trap_blast": {"count": 2, "total_usec": 500, "exclusive_total_usec": 500},
+		"engine_enemy_turn_plan_total": {"count": 1, "total_usec": 9000, "exclusive_total_usec": 300},
+		"engine_enemy_plan_actual_paths": {"count": 2, "total_usec": 600, "exclusive_total_usec": 600},
+		"enemy_round_lock_ui_total": {"count": 1, "total_usec": 9000, "exclusive_total_usec": 250},
+		"enemy_round_lock_ui_pass": {"count": 1, "total_usec": 100, "exclusive_total_usec": 100},
+		"enemy_round_lock_cache_capture_wall_total": {"count": 1, "total_usec": 30000, "exclusive_total_usec": 0},
+		"enemy_round_lock_post_draw_wall_total": {"count": 1, "total_usec": 20000, "exclusive_total_usec": 0},
+		"enemy_round_simulation_slice_total": {"count": 1, "total_usec": 8000},
+		"enemy_round_final_checkpoint_total": {"count": 1, "total_usec": 7000},
+		"combat_checkpoint_base_duplicate": {"count": 1, "total_usec": 300, "exclusive_total_usec": 300},
+		"refresh_ui_relic_bar_total": {"count": 1, "total_usec": 6000},
+		"relic_bar_state": {"count": 1, "total_usec": 400, "exclusive_total_usec": 400},
+		"enemy_round_draw_card_events": {"count": 1, "total_usec": 200, "exclusive_total_usec": 200},
 	}
 	var steam_deltas: Dictionary = sampler.steam_metric_deltas_for_test(summary, "Linux", true)
 	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_sessions", 0)) == 1, "The first Steam telemetry submission should count the platform session")
@@ -77,8 +89,10 @@ func _run() -> void:
 	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_stage_calls", 0)) == 4, "Steam telemetry should retain subsystem call denominators")
 	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_stage_tenths_ms", 0)) == 12, "Steam telemetry should retain subsystem time in mergeable tenths of milliseconds")
 	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_traps_tenths_ms", 0)) == 5, "Steam telemetry should distinguish combat-engine trap costs")
-	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_other_tenths_ms", 0)) == 6, "Nested enemy-planning totals must not double-count their detailed phases in Steam aggregates")
-	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_other_calls", 0)) == 2, "Steam section denominators must exclude inclusive parent totals")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_other_tenths_ms", 0)) == 6, "Published v1 Steam section time must retain its non-wrapper timer unit")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_engine_other_calls", 0)) == 2, "Published v1 Steam section denominators must retain their non-wrapper invocation unit")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_scene_other_tenths_ms", 0)) == 10, "Published v1 Steam scene time must exclude wrapper and awaited wall totals")
+	_expect(int(steam_deltas.get("perf_v1_linux_steamdeck_section_scene_other_calls", 0)) == 4, "Published v1 Steam scene denominators must remain compatible with existing additive history")
 	_expect(steam_deltas.size() < 64, "A single window should update only its active subset of the larger Steam stat schema")
 	var render: Dictionary = summary.get("render", {}) as Dictionary
 	_expect(int(render.get("sample_count", 0)) == 5, "Explicit render samples should be retained with the frame window")
@@ -132,6 +146,52 @@ func _run() -> void:
 func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+func _test_phase_partitioning() -> void:
+	var flat: Dictionary = PerformancePhasePartitionerScript.partition([
+		{"phase": "flat", "start_usec": 0, "end_usec": 100, "priority": 10},
+	])
+	var nested: Dictionary = PerformancePhasePartitionerScript.partition([
+		{"phase": "wrapper", "start_usec": 0, "end_usec": 100, "priority": 0},
+		{"phase": "leaf", "start_usec": 20, "end_usec": 80, "priority": 10},
+	])
+	var nested_phases: Dictionary = nested.get("phase_usec", {}) as Dictionary
+	_expect(int(flat.get("total_usec", 0)) == 100, "A single measured interval should retain its exact CPU union")
+	_expect(int(nested.get("total_usec", 0)) == 100, "Adding a nested timer must not inflate frame ranking")
+	_expect(int(nested_phases.get("wrapper", 0)) == 40 and int(nested_phases.get("leaf", 0)) == 60, "Nested partitioning must retain wrapper-only gaps and deepest leaf work")
+	var crossed: Dictionary = PerformancePhasePartitionerScript.partition([
+		{"phase": "left", "start_usec": 0, "end_usec": 70, "priority": 10},
+		{"phase": "right", "start_usec": 30, "end_usec": 100, "priority": 10},
+	])
+	var crossed_phases: Dictionary = crossed.get("phase_usec", {}) as Dictionary
+	_expect(int(crossed.get("total_usec", 0)) == 100, "Crossed intervals must retain their union without double-counting")
+	_expect(int(crossed_phases.get(PerformancePhasePartitionerScript.AMBIGUOUS_PHASE, 0)) == 40, "Crossed sibling overlap must use a stable ambiguous bucket")
+	var tied: Dictionary = PerformancePhasePartitionerScript.partition([
+		{"phase": "wrapper_tie", "start_usec": 0, "end_usec": 100, "priority": 0},
+		{"phase": "leaf_tie", "start_usec": 0, "end_usec": 100, "priority": 10},
+	])
+	_expect(int((tied.get("phase_usec", {}) as Dictionary).get("leaf_tie", 0)) == 100, "Identical endpoints must use explicit priority rather than registration order")
+	var clipped: Dictionary = PerformancePhasePartitionerScript.partition([
+		{"phase": "cross_frame", "start_usec": 0, "end_usec": 100, "priority": 10},
+	], 25, 75)
+	_expect(int(clipped.get("total_usec", 0)) == 50, "Cross-frame intervals must clip to the telemetry frame window")
+	var engine_nested: Dictionary = PerformancePhasePartitionerScript.partition([
+		{"phase": "scene_wrapper", "start_usec": 0, "end_usec": 100, "priority": 0},
+		{"phase": "engine_leaf", "start_usec": 20, "end_usec": 80, "priority": 10},
+		{"phase": "awaited_wall", "start_usec": 0, "end_usec": 1000, "diagnostic_only": true},
+	])
+	var engine_phases: Dictionary = engine_nested.get("phase_usec", {}) as Dictionary
+	_expect(int(engine_nested.get("total_usec", 0)) == 100, "Engine intervals nested inside scene wrappers must partition one shared CPU union")
+	_expect(int(engine_phases.get("scene_wrapper", 0)) == 40 and int(engine_phases.get("engine_leaf", 0)) == 60, "Engine leaves must own their nested work while scene wrappers retain exclusive gaps")
+	_expect(not engine_phases.has("awaited_wall"), "Explicit diagnostic wall intervals must never enter CPU attribution")
+	var sliced_async: Dictionary = PerformancePhasePartitionerScript.partition([
+		{"phase": "early_cpu", "start_usec": 0, "end_usec": 20, "priority": 10},
+		{"phase": "late_cpu", "start_usec": 80, "end_usec": 100, "priority": 10},
+		{"phase": "sliced_async_diagnostic", "start_usec": 0, "end_usec": 100, "diagnostic_only": true},
+	])
+	var sliced_phases: Dictionary = sliced_async.get("phase_usec", {}) as Dictionary
+	_expect(int(sliced_async.get("total_usec", 0)) == 40, "Work-await-work instrumentation must retain both CPU segments without charging the await")
+	_expect(int(sliced_phases.get("early_cpu", 0)) == 20 and int(sliced_phases.get("late_cpu", 0)) == 20, "Async diagnostic wrappers must not hide early or late leaf work")
 
 func _manifest_metric_names() -> Array[String]:
 	var file := FileAccess.open("res://steam/performance_stats_manifest.json", FileAccess.READ)

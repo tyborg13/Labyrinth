@@ -542,8 +542,9 @@ func _append_steam_section_deltas(deltas: Dictionary, prefix: String, sections: 
 	var groups: Dictionary = {}
 	for phase_var: Variant in sections.keys():
 		var phase: String = str(phase_var)
-		# Whole-operation totals overlap their detailed phases. Keep them in local
-		# JSON, but exclude them from globally summed subsystem time.
+		# Preserve the published v1 Steam-stat unit: non-wrapper timer invocations.
+		# Exclusive partition data is additive in local/HTTP payloads, but changing
+		# these existing account-stat numerators would mix incompatible history.
 		if phase.ends_with("_total"):
 			continue
 		var section: Dictionary = sections[phase_var] as Dictionary

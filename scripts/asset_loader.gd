@@ -27,19 +27,30 @@ static func load_texture(path: String) -> Texture2D:
 	if path.is_empty():
 		return null
 	if _texture_cache.has(path):
-		return _texture_cache.get(path, null)
+		return _tag_texture_source(_texture_cache.get(path, null) as Texture2D, path)
 	if _should_prefer_source_file(path, TEXTURE_EXTENSIONS):
 		var source_texture: Texture2D = _load_texture_from_file(path)
 		if source_texture != null:
+			_tag_texture_source(source_texture, path)
 			_texture_cache[path] = source_texture
 			return source_texture
 	if ResourceLoader.exists(path):
 		var loaded: Resource = load(path)
 		if loaded is Texture2D:
-			_texture_cache[path] = loaded
-			return loaded
+			var loaded_texture: Texture2D = _tag_texture_source(loaded as Texture2D, path)
+			_texture_cache[path] = loaded_texture
+			return loaded_texture
 	var texture: Texture2D = _load_texture_from_file(path)
+	_tag_texture_source(texture, path)
 	_texture_cache[path] = texture
+	return texture
+
+static func _tag_texture_source(texture: Texture2D, path: String) -> Texture2D:
+	# ImageTexture instances created from source files do not retain a resource_path.
+	# Keep the logical asset identity on every load path so generated caches use the
+	# same key in editor, headless, and exported builds.
+	if texture != null and not path.is_empty():
+		texture.set_meta("asset_source_path", path)
 	return texture
 
 static func load_audio_stream(path: String, loop: bool = false) -> AudioStream:

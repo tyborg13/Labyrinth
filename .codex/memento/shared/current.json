@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-29T20:35:50Z",
+  "updated_at": "2026-08-29T22:12:13Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9280,28 +9280,6 @@
       }
     },
     {
-      "id": "mnt_20260829T203550Z_3b8c6796",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Prewarm unit shadows before entering combat",
-      "details": "Use prepare_unit_shadows_for_state while the pre-battle overlay remains visible so all living base and idle textures finish alpha-polygon preparation before the first combat draw. Production combat should report zero synchronous unit-shadow source misses; the synchronous path is only a bounded safety fallback.",
-      "status": "active",
-      "created_at": "2026-08-29T20:35:50Z",
-      "updated_at": "2026-08-29T20:35:50Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
-        "commit": "c20d2c9a"
-      }
-    },
-    {
       "id": "mnt_20260829T203550Z_5f7001bb",
       "layer": "shared",
       "kind": "decision",
@@ -9365,6 +9343,74 @@
       "source": {
         "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
         "commit": "c20d2c9a"
+      }
+    },
+    {
+      "id": "mnt_20260829T221212Z_a34d70f0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Generate exact unit-shadow silhouettes ahead of runtime",
+      "details": "Generate assets/generated/unit_shadow_cache.res from stable asset-source keys, store extraction schema/signature and SHA-256 source fingerprints, and reject stale entries synchronously. Runtime keeps only a bounded extraction fallback for missing or build-rejected content.",
+      "status": "active",
+      "created_at": "2026-08-29T22:12:12Z",
+      "updated_at": "2026-08-29T22:12:12Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260829T203550Z_3b8c6796"
+      ],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "bcdf00a3"
+      }
+    },
+    {
+      "id": "mnt_20260829T221212Z_7f44592a",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/performance_phase_partitioner.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/performance_phase_partitioner.gd",
+      "summary": "Inclusive nested timers require exclusive interval partitioning without quadratic scans",
+      "details": "Keep inclusive local diagnostics, but rank frames from a non-overlapping exclusive partition. Use the sorted event/Fenwick/heap sweep; pairwise crossed-interval discovery and per-boundary full rescans can make the profiler itself stall on dense frames. Keep Steam perf_v1 aggregation unchanged.",
+      "status": "active",
+      "created_at": "2026-08-29T22:12:12Z",
+      "updated_at": "2026-08-29T22:12:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "bcdf00a3"
+      }
+    },
+    {
+      "id": "mnt_20260829T221213Z_333ab076",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Production end-turn UI refresh preserves zero-extra-frame input cadence",
+      "details": "Retained and cached refresh work completes synchronously before input unlock. Do not enable rendered-frame UI slicing in production without an explicit cadence change; enemy batching may yield only after its gameplay CPU budget, excluding telemetry bookkeeping.",
+      "status": "active",
+      "created_at": "2026-08-29T22:12:13Z",
+      "updated_at": "2026-08-29T22:12:13Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "bcdf00a3"
       }
     }
   ]

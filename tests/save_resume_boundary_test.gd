@@ -369,6 +369,66 @@ func _test_enemy_and_turn_boundaries(base_run: Dictionary) -> void:
 		_assert(not compact_marker.has("state"), "The compact enemy-turn marker should not serialize per-action combat snapshots")
 	_assert_run_resume("turn/compact_enemy_phase_marker", compact_scheduled_run_state)
 	_assert_playable_continuation("resume/compact_enemy_phase_replay", compact_scheduled_run_state, final_run_state)
+	var malformed_scheduled: Dictionary = scheduled.duplicate(true)
+	var malformed_queue: Array = (malformed_scheduled.get("turn_queue", []) as Array).duplicate(true)
+	malformed_queue.push_front({
+		"kind": "removed_actor_kind",
+		"time": int(malformed_scheduled.get("initiative_clock", 0)) - 1,
+		"seq": -1,
+	})
+	malformed_scheduled["turn_queue"] = malformed_queue
+	malformed_scheduled["current_actor"] = {"kind": "transition"}
+	var malformed_expected_phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(malformed_scheduled)
+	var malformed_expected_run: Dictionary = _run_scene.call(
+		"_run_state_for_combat_checkpoint",
+		base_run,
+		malformed_expected_phase.get("state", {}) as Dictionary
+	) as Dictionary
+	var malformed_marker_run: Dictionary = _run_scene.call(
+		"_run_state_with_combat_checkpoints",
+		_run_scene.call("_run_state_for_combat_checkpoint", base_run, malformed_scheduled),
+		[_run_scene.call("_enemy_phase_continuation_checkpoint")]
+	) as Dictionary
+	_assert_playable_continuation(
+		"resume/malformed_actor_progress",
+		malformed_marker_run,
+		malformed_expected_run
+	)
+	var stalled_scheduled: Dictionary = scheduled.duplicate(true)
+	var stalled_player: Dictionary = (stalled_scheduled.get("player", {}) as Dictionary).duplicate(true)
+	stalled_player["hp"] = 1000000000
+	stalled_player["max_hp"] = 1000000000
+	stalled_scheduled["player"] = stalled_player
+	var stalled_enemy_id: int = int(((stalled_scheduled.get("enemies", []) as Array)[0] as Dictionary).get("id", -1))
+	var stalled_queue: Array = []
+	for malformed_index: int in range(101):
+		stalled_queue.append({
+			"kind": "enemy",
+			"enemy_id": stalled_enemy_id,
+			"time": int(stalled_scheduled.get("initiative_clock", 0)) - 1000 + malformed_index,
+			"seq": malformed_index,
+		})
+	stalled_queue.append_array(stalled_scheduled.get("turn_queue", []) as Array)
+	stalled_scheduled["turn_queue"] = stalled_queue
+	stalled_scheduled["current_actor"] = {"kind": "transition"}
+	var stalled_marker_run: Dictionary = _run_scene.call(
+		"_run_state_with_combat_checkpoints",
+		_run_scene.call("_run_state_for_combat_checkpoint", base_run, stalled_scheduled),
+		[_run_scene.call("_enemy_phase_continuation_checkpoint")]
+	) as Dictionary
+	_run_scene.set("_run_state", stalled_marker_run)
+	_run_scene.set("_combat_state", stalled_scheduled)
+	var consumed_safety_slices: int = 0
+	while consumed_safety_slices < 100 and bool(_run_scene.call("_consume_next_pending_combat_checkpoint")):
+		consumed_safety_slices += 1
+	_assert(consumed_safety_slices == 100, "Safety-bound fixture should consume exactly 100 malformed actors before recovery")
+	_assert(bool(_run_scene.call("_has_pending_combat_checkpoints")), "Safety-bound fixture should still own a continuation marker before deterministic recovery")
+	_run_scene.call("_recover_stalled_enemy_phase_continuation")
+	var recovered_stalled_run: Dictionary = _run_scene.call("_committed_run_state") as Dictionary
+	var recovered_stalled_combat: Dictionary = recovered_stalled_run.get("combat_state", {}) as Dictionary
+	_assert(not recovered_stalled_run.has(COMBAT_CONTINUATION_KEY), "Safety recovery must clear the exhausted continuation marker")
+	_assert(_combat_engine.is_player_turn(recovered_stalled_combat), "Safety recovery must surface a playable player activation instead of a transition soft lock")
+	_matrix_rows.append("resume/safety_bound_recovery")
 	var scheduled_run_state: Dictionary = _combat_checkpoint_run_state(base_run, scheduled, commit_checkpoints)
 	_assert_run_resume("turn/pass_activation", scheduled_run_state)
 	_assert_playable_continuation("resume/pass_activation", scheduled_run_state, final_run_state)

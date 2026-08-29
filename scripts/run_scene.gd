@@ -20,6 +20,7 @@ const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const PerformancePhasePartitionerScript = preload("res://scripts/performance_phase_partitioner.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const LabyrinthMapViewScript = preload("res://scripts/labyrinth_map_view.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
@@ -66,6 +67,13 @@ const CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS: float = 34.0
 const CONTROLLER_MOVING_CURSOR_SNAP_STRENGTH: float = 0.22
 const CONTROLLER_BOARD_HORIZONTAL_SHIFT: float = -18.0
 const CONTROLLER_BOARD_WIDTH_TRIM: float = 44.0
+const RUNTIME_PERFORMANCE_DIAGNOSTIC_PHASES: Dictionary = {
+	"enemy_round_lock_cache_capture_wall_total": true,
+	"enemy_round_lock_post_draw_wall_total": true,
+	"enemy_round_lock_and_cache_wall_total": true,
+	"enemy_round_final_refresh_ui_wall_total": true,
+	"refresh_ui_sliced_wall_total": true,
+}
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -1482,13 +1490,22 @@ var _stage_visibility_cache: Dictionary = {}
 var _enemy_intent_compass_cache_key: String = ""
 var _enemy_intent_compass_cache: Dictionary = {}
 var _runtime_performance_instrumentation_enabled: bool = false
+var _frame_sliced_ui_refresh_active: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
 var _runtime_performance_max_usec: Dictionary = {}
 var _runtime_performance_frame_id: int = -1
 var _runtime_performance_frame_total_usec: int = 0
 var _runtime_performance_frame_phase_usec: Dictionary = {}
+var _runtime_performance_frame_intervals: Array[Dictionary] = []
+var _runtime_performance_exclusive_totals_usec: Dictionary = {}
+var _runtime_performance_exclusive_segment_counts: Dictionary = {}
+var _runtime_performance_telemetry_overhead_usec: int = 0
+var _runtime_performance_record_overhead_live_usec: int = 0
+var _runtime_performance_commit_overhead_usec: int = 0
 var _runtime_performance_frame_top: Array[Dictionary] = []
+var _runtime_ui_slice_budget_usec: int = 8000
+var _runtime_enemy_slice_budget_usec: int = 8000
 var _runtime_animation_clock_stats: Dictionary = {}
 var _performance_telemetry_finalized: bool = false
 var _analytics_store: AnalyticsStore = AnalyticsStore.new()
@@ -9751,9 +9768,18 @@ func _start_debug_boss_run() -> void:
 	_load_run_state(_ensure_run_analytics_metadata(run_state))
 	_analytics_log_run_started()
 
-func _refresh_ui(frame_sliced: bool = false) -> void:
+func _refresh_ui(
+	frame_sliced: bool = false,
+	unlock_animation_after_slices: bool = false,
+	queue_hand_ready_wave_on_unlock: bool = false
+) -> void:
+	if frame_sliced:
+		_frame_sliced_ui_refresh_active = true
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
+	var slice_cpu_started: int = Time.get_ticks_usec()
+	var slice_telemetry_overhead_started: int = _runtime_performance_record_overhead_live_usec
+	var sliced_wait_occurred: bool = false
 	if _dialogue_active and str(_run_state.get("mode", "room")) != "room":
 		_close_dialogue()
 	_sync_analytics_combat_tracker()
@@ -9765,7 +9791,7 @@ func _refresh_ui(frame_sliced: bool = false) -> void:
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_outcome_progression", performance_phase_started)
 	_sync_progression_from_run()
 	_sync_umbra_warning_progression()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_progression_sync", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_progression_sync_total", performance_phase_started)
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	_sync_grimoire_discoveries()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_grimoire_sync", performance_phase_started)
@@ -9789,16 +9815,19 @@ func _refresh_ui(frame_sliced: bool = false) -> void:
 	_set_stats_label_text(_displayed_ember_count())
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_umbra_and_stats", performance_phase_started)
 	_refresh_relic_bar()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_relic_bar", performance_phase_started)
-	if frame_sliced:
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_relic_bar_total", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
 		var relic_slice_wait_started: int = Time.get_ticks_usec()
 		await RenderingServer.frame_post_draw
 		var relic_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = relic_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
 		if _runtime_performance_instrumentation_enabled:
 			performance_total_started += relic_slice_resumed - relic_slice_wait_started
 			performance_phase_started = relic_slice_resumed
 	_refresh_turn_order_bar()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_turn_order", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_turn_order_total", performance_phase_started)
 	_refresh_combat_objective_hud()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_objective", performance_phase_started)
 	_layout_header_hud()
@@ -9814,7 +9843,7 @@ func _refresh_ui(frame_sliced: bool = false) -> void:
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_large_map", performance_phase_started)
 	_refresh_pile_counts()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_counts", performance_phase_started)
-	if frame_sliced:
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
 		# End-of-turn initiative/objective layout and the interactive resource dock
 		# are independent surfaces. Give the renderer the former before legality
 		# scans and Pass reconstruction start, keeping both CPU batches below a
@@ -9822,6 +9851,9 @@ func _refresh_ui(frame_sliced: bool = false) -> void:
 		var dock_slice_wait_started: int = Time.get_ticks_usec()
 		await RenderingServer.frame_post_draw
 		var dock_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = dock_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
 		if _runtime_performance_instrumentation_enabled:
 			performance_total_started += dock_slice_resumed - dock_slice_wait_started
 			performance_phase_started = dock_slice_resumed
@@ -9830,40 +9862,63 @@ func _refresh_ui(frame_sliced: bool = false) -> void:
 	_refresh_player_movement_meter()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_movement_meter", performance_phase_started)
 	_refresh_action_step_tracker()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_action_step_tracker", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_action_step_tracker_total", performance_phase_started)
 	_refresh_pile_visuals()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_visuals", performance_phase_started)
 	_refresh_choice_bar()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_choice_bar", performance_phase_started)
-	if frame_sliced:
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_choice_bar_total", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
 		var choice_slice_wait_started: int = Time.get_ticks_usec()
 		await RenderingServer.frame_post_draw
 		var choice_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = choice_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
 		if _runtime_performance_instrumentation_enabled:
 			performance_total_started += choice_slice_resumed - choice_slice_wait_started
 			performance_phase_started = choice_slice_resumed
 	_refresh_stage_view()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_stage", performance_phase_started)
-	if frame_sliced:
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_stage_total", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
 		var stage_slice_wait_started: int = Time.get_ticks_usec()
 		await RenderingServer.frame_post_draw
 		var stage_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = stage_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
 		if _runtime_performance_instrumentation_enabled:
 			performance_total_started += stage_slice_resumed - stage_slice_wait_started
 			performance_phase_started = stage_slice_resumed
 	_refresh_hand_panel()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_hand", performance_phase_started)
-	if frame_sliced:
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_hand_total", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
 		var hand_slice_wait_started: int = Time.get_ticks_usec()
 		await RenderingServer.frame_post_draw
 		var hand_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = hand_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
 		if _runtime_performance_instrumentation_enabled:
 			performance_total_started += hand_slice_resumed - hand_slice_wait_started
 			performance_phase_started = hand_slice_resumed
+	if unlock_animation_after_slices:
+		# Input must remain locked across every rendered scheduling boundary above.
+		# Unlock and rebuild all lock-dependent surfaces synchronously after the final
+		# await so no Pass/card/board event can enter the still-running refresh.
+		var unlock_inputs_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_animation_lock = false
+		if queue_hand_ready_wave_on_unlock:
+			_queue_hand_ready_wave("player_turn_start")
+		_refresh_card_play_meter()
+		_refresh_player_movement_meter()
+		_refresh_choice_bar()
+		_refresh_stage_view()
+		_refresh_hand_panel()
+		performance_phase_started = _record_runtime_performance_phase("refresh_ui_unlock_inputs_total", unlock_inputs_started)
 	_refresh_pile_interaction_states()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_interactions", performance_phase_started)
 	_refresh_visibility()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_visibility", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_visibility_total", performance_phase_started)
 	_sync_pre_battle_preview_after_refresh()
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
@@ -9876,12 +9931,17 @@ func _refresh_ui(frame_sliced: bool = false) -> void:
 	_refresh_log_overlay_visibility()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_log", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_tutorial", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_tutorial_total", performance_phase_started)
 	_maybe_auto_trigger_room_dialogue()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_auto_dialogue", performance_phase_started)
 	_update_performance_telemetry_context()
 	_record_runtime_performance_phase("refresh_ui_telemetry_context", performance_phase_started)
-	_record_runtime_performance_phase("refresh_ui_total", performance_total_started)
+	_record_runtime_performance_phase(
+		"refresh_ui_sliced_wall_total" if sliced_wait_occurred else "refresh_ui_total",
+		performance_total_started
+	)
+	if frame_sliced:
+		_frame_sliced_ui_refresh_active = false
 
 func _refresh_animation_lock_ui() -> void:
 	# Animation entry only changes combat interactivity/presentation. Avoid rebuilding
@@ -9890,7 +9950,7 @@ func _refresh_animation_lock_ui() -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	_refresh_turn_order_bar()
-	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_turn_order", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_turn_order_total", performance_phase_started)
 	_refresh_combat_objective_hud()
 	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_objective", performance_phase_started)
 	_refresh_card_play_meter()
@@ -9898,35 +9958,39 @@ func _refresh_animation_lock_ui() -> void:
 	_refresh_player_movement_meter()
 	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_movement_meter", performance_phase_started)
 	_refresh_choice_bar()
-	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_choices", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_choices_total", performance_phase_started)
 	_refresh_stage_view()
-	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_stage", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_stage_total", performance_phase_started)
 	_refresh_hand_panel()
-	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_hand", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_hand_total", performance_phase_started)
 	_refresh_visibility()
-	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_visibility", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_visibility_total", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
-	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_tutorial", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_tutorial_total", performance_phase_started)
 	_update_performance_telemetry_context()
 	_record_runtime_performance_phase("animation_lock_ui_telemetry", performance_phase_started)
 	_record_runtime_performance_phase("animation_lock_ui_total", performance_total_started)
 
 func _refresh_enemy_round_lock_ui() -> void:
 	# Passing does not alter combat state, resource counts, movement legality,
-	# initiative, objectives, or layout before the first enemy activation. Retain
-	# those surfaces and update only the controls whose lock presentation changes.
+	# objectives, or layout before the first enemy activation. Retain those
+	# surfaces and update only the controls whose lock presentation changes. The
+	# turn-order bar is included because entering the lock must clear any hovered
+	# card's transient time-cost projection.
 	# Rebuilding all of them made the click frame pay for pathfinding and container
 	# layout even though every displayed value remained identical.
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	_lock_existing_pass_preview()
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_pass", performance_phase_started)
+	_refresh_turn_order_bar()
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_turn_order_total", performance_phase_started)
 	_refresh_stage_view()
-	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_stage", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_stage_total", performance_phase_started)
 	_refresh_hand_panel()
-	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_hand", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_hand_total", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
-	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_tutorial", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_tutorial_total", performance_phase_started)
 	_update_performance_telemetry_context()
 	_record_runtime_performance_phase("enemy_round_lock_ui_telemetry", performance_phase_started)
 	_record_runtime_performance_phase("enemy_round_lock_ui_retained_total", performance_total_started)
@@ -9999,27 +10063,27 @@ func _refresh_card_preview_ui() -> void:
 	# late-run states.
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_turn_order_bar()
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_turn_order", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_turn_order_total", performance_phase_started)
 	_refresh_combat_objective_hud()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_objective", performance_phase_started)
 	_refresh_choice_bar()
 	# Choice refresh owns the action-step tracker refresh so the pass forecast and
 	# mode selector remain synchronized. Calling it explicitly here rebuilt every
 	# chip and mode placard twice on each card click.
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_choices_and_tracker", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_choices_and_tracker_total", performance_phase_started)
 	_refresh_stage_view()
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_stage", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_stage_total", performance_phase_started)
 	_refresh_hand_panel()
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_hand", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_hand_total", performance_phase_started)
 	_refresh_card_preview_visibility()
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_visibility", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_visibility_total", performance_phase_started)
 	# The choice refresh owns the tracker refresh, and the tracker performs and
 	# defers its own exact layout. Repeating both here paid for the same geometry
 	# three times on every card click.
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_layout", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
 	_update_performance_telemetry_context()
-	_record_runtime_performance_phase("card_preview_refresh_tutorial", performance_phase_started)
+	_record_runtime_performance_phase("card_preview_refresh_tutorial_total", performance_phase_started)
 
 func _refresh_pile_counts() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
@@ -10067,9 +10131,9 @@ func _refresh_relic_bar() -> void:
 	var skill_sigil_presentation: Dictionary = _skill_sigil_presentation(skill_ids)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_presentation", performance_phase_started)
 	_reconcile_skill_event_analytics()
-	performance_phase_started = _record_runtime_performance_phase("relic_bar_reconcile_analytics", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_reconcile_analytics_total", performance_phase_started)
 	_flush_run_skill_event_analytics("hud_run_skill")
-	performance_phase_started = _record_runtime_performance_phase("relic_bar_flush_analytics", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_flush_analytics_total", performance_phase_started)
 	_skill_event_revision_seen = maxi(_skill_event_revision_seen, event_revision)
 	_run_skill_event_revision_seen = maxi(_run_skill_event_revision_seen, run_event_revision)
 	_defiance_event_revision_seen = maxi(_defiance_event_revision_seen, defiance_event_revision)
@@ -12157,9 +12221,9 @@ func _refresh_action_step_tracker() -> void:
 	_refresh_card_action_mode_selector(context_mode)
 	performance_phase_started = _record_runtime_performance_phase("tracker_modes", performance_phase_started)
 	_build_action_context_commands(tracker_state)
-	performance_phase_started = _record_runtime_performance_phase("tracker_commands", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("tracker_commands_total", performance_phase_started)
 	_update_action_context_copy(tracker_state)
-	performance_phase_started = _record_runtime_performance_phase("tracker_copy", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("tracker_copy_total", performance_phase_started)
 	_layout_action_step_tracker()
 	_record_runtime_performance_phase("tracker_layout", performance_phase_started)
 	call_deferred("_layout_action_step_tracker")
@@ -13777,7 +13841,7 @@ func _pass_preview_source_state() -> Dictionary:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
 		var hovered_state: Dictionary = _pass_preview_confirmed_hover_state()
-		performance_phase_started = _record_runtime_performance_phase("pass_preview_source_hover", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("pass_preview_source_hover_total", performance_phase_started)
 		if not hovered_state.is_empty():
 			var safe_hovered_state: Dictionary = _visibility_safe_preview_display_state(hovered_state)
 			_record_runtime_performance_phase("pass_preview_source_visibility", performance_phase_started)
@@ -13816,13 +13880,13 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	var resolved_state: Dictionary = _cached_hover_resolved_preview_state()
 	if resolved_state.is_empty():
 		resolved_state = _combat_engine.apply_prevalidated_player_action(_preview_combat_state, action, _hovered_board_tile)
-	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_apply", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_apply_total", performance_phase_started)
 	var advanced_state: Dictionary = {}
 	if str(action.get("type", "")) in ["move", "blink"] and _remaining_actions_include_shortcut_attack(_pending_actions, _pending_action_index + 1):
 		advanced_state = _pass_preview_state_after_movement_only(resolved_state, _pending_actions, _pending_action_index + 1)
 	else:
 		advanced_state = _pass_preview_state_after_resolved_target(resolved_state, _pending_actions, _pending_action_index + 1)
-	_record_runtime_performance_phase("pass_preview_source_advance", performance_phase_started)
+	_record_runtime_performance_phase("pass_preview_source_advance_total", performance_phase_started)
 	return advanced_state
 
 func _umbra_hover_preview_would_reveal_information(state: Dictionary, action: Dictionary) -> bool:
@@ -13931,14 +13995,14 @@ func _pass_preview_summary() -> Dictionary:
 		return _pass_preview_cache.get(cache_key, {}) as Dictionary
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_cache_miss_key", performance_phase_started)
 	var source_state: Dictionary = _pass_preview_source_state()
-	performance_phase_started = _record_runtime_performance_phase("pass_preview_source", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_total", performance_phase_started)
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		_cache_pass_preview(cache_key, {})
 		return {}
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_finish_activation", performance_phase_started)
 	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state)
-	performance_phase_started = _record_runtime_performance_phase("pass_preview_enemy_actions", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("pass_preview_enemy_actions_total", performance_phase_started)
 	return _pass_preview_summary_from_phase_result(cache_key, source_state, phase_result)
 
 func _pass_preview_summary_from_phase_result(cache_key: String, source_state: Dictionary, phase_result: Dictionary) -> Dictionary:
@@ -15567,7 +15631,7 @@ func _refresh_hand_panel() -> void:
 		var retained_update_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var retained_update_succeeded: bool = _update_existing_hand_interaction_state()
 		_record_runtime_performance_phase(
-			"hand_retained_update" if retained_update_succeeded else "hand_retained_rejected",
+			"hand_retained_update_total" if retained_update_succeeded else "hand_retained_rejected_total",
 			retained_update_started
 		)
 		if retained_update_succeeded:
@@ -15723,10 +15787,10 @@ func _update_existing_hand_interaction_state() -> bool:
 	for index: int in range(hand.size()):
 		var widget: CardWidget = _hand_card_control(index) as CardWidget
 		var options: Dictionary = _card_play_options_for_index(index)
-		performance_phase_started = _record_runtime_performance_phase("hand_interaction_options", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("hand_interaction_options_total", performance_phase_started)
 		var display: Dictionary = _card_widget_display_for_index(index)
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
-		performance_phase_started = _record_runtime_performance_phase("hand_interaction_display", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("hand_interaction_display_total", performance_phase_started)
 		var dimmed: bool = active_hand_index >= 0 and active_hand_index != index
 		var usable: bool = bool(options.get("any_playable", false)) and not _animation_lock
 		var printed_playable: bool = bool(options.get("printed_playable", false))
@@ -15761,7 +15825,7 @@ func _update_existing_hand_interaction_state() -> bool:
 	)
 	_set_hand_emphasized_index(emphasized_hand_index, false)
 	_consume_hand_ready_wave()
-	_record_runtime_performance_phase("hand_interaction_emphasis", performance_phase_started)
+	_record_runtime_performance_phase("hand_interaction_emphasis_total", performance_phase_started)
 	return true
 
 func _fit_current_hand_layout_to_visible_width(expected_revision: int, retry_count: int = 0) -> void:
@@ -16238,7 +16302,7 @@ func _refresh_stage_view() -> void:
 			)
 			if not cumulative_damage_preview.is_empty():
 				presentation["damage_preview"] = cumulative_damage_preview
-		performance_phase_started = _record_runtime_performance_phase("stage_preview_state", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("stage_preview_state_total", performance_phase_started)
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
 			card_preview_active = true
 			var action: Dictionary = preview.get("action", {})
@@ -16309,7 +16373,7 @@ func _refresh_stage_view() -> void:
 			presentation["focus_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_color"] = Color("f2ddb2")
 		presentation["show_all_enemy_intents"] = _show_all_enemy_intents
-	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation_total", performance_phase_started)
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and not _exit_destinations_by_tile.is_empty():
@@ -16413,8 +16477,17 @@ func set_runtime_performance_instrumentation_enabled(enabled: bool) -> void:
 	_runtime_performance_frame_id = -1
 	_runtime_performance_frame_total_usec = 0
 	_runtime_performance_frame_phase_usec.clear()
+	_runtime_performance_frame_intervals.clear()
+	_runtime_performance_exclusive_totals_usec.clear()
+	_runtime_performance_exclusive_segment_counts.clear()
+	_runtime_performance_telemetry_overhead_usec = 0
+	_runtime_performance_record_overhead_live_usec = 0
+	_runtime_performance_commit_overhead_usec = 0
 	_runtime_performance_frame_top.clear()
 	_runtime_animation_clock_stats.clear()
+	_combat_engine.set_runtime_performance_interval_sink(
+		Callable(self, "_record_external_runtime_performance_interval") if enabled else Callable()
+	)
 	_combat_engine.set_runtime_performance_instrumentation_enabled(enabled)
 
 func _stage_visibility_presentation(visibility_state: Dictionary) -> Dictionary:
@@ -16456,6 +16529,7 @@ func _enemy_intent_compass_descriptors(display_state: Dictionary, visible_enemy_
 	return _enemy_intent_compass_cache
 
 func runtime_performance_instrumentation_snapshot() -> Dictionary:
+	_commit_runtime_performance_frame()
 	var result: Dictionary = {}
 	for phase_var: Variant in _runtime_performance_totals_usec.keys():
 		var phase: String = str(phase_var)
@@ -16463,6 +16537,8 @@ func runtime_performance_instrumentation_snapshot() -> Dictionary:
 		result[phase] = {
 			"count": count,
 			"total_usec": int(_runtime_performance_totals_usec.get(phase, 0)),
+			"exclusive_total_usec": int(_runtime_performance_exclusive_totals_usec.get(phase, 0)),
+			"exclusive_segment_count": int(_runtime_performance_exclusive_segment_counts.get(phase, 0)),
 			"max_usec": int(_runtime_performance_max_usec.get(phase, 0)),
 			"usec_per_call": (
 				float(_runtime_performance_totals_usec.get(phase, 0)) / float(count)
@@ -16472,7 +16548,25 @@ func runtime_performance_instrumentation_snapshot() -> Dictionary:
 		}
 	var engine_result: Dictionary = _combat_engine.runtime_performance_instrumentation_snapshot()
 	for phase_var: Variant in engine_result.keys():
-		result["engine_%s" % str(phase_var)] = engine_result[phase_var]
+		var engine_phase: String = "engine_%s" % str(phase_var)
+		var engine_section: Dictionary = (engine_result[phase_var] as Dictionary).duplicate(true)
+		engine_section["exclusive_total_usec"] = int(_runtime_performance_exclusive_totals_usec.get(engine_phase, 0))
+		engine_section["exclusive_segment_count"] = int(_runtime_performance_exclusive_segment_counts.get(engine_phase, 0))
+		result[engine_phase] = engine_section
+	for exclusive_phase_var: Variant in _runtime_performance_exclusive_totals_usec.keys():
+		var exclusive_phase: String = str(exclusive_phase_var)
+		if result.has(exclusive_phase):
+			continue
+		var exclusive_usec: int = int(_runtime_performance_exclusive_totals_usec[exclusive_phase_var])
+		var exclusive_segments: int = int(_runtime_performance_exclusive_segment_counts.get(exclusive_phase, 0))
+		result[exclusive_phase] = {
+			"count": exclusive_segments,
+			"total_usec": 0,
+			"exclusive_total_usec": exclusive_usec,
+			"exclusive_segment_count": exclusive_segments,
+			"max_usec": exclusive_usec,
+			"usec_per_call": float(exclusive_usec) / float(exclusive_segments) if exclusive_segments > 0 else 0.0,
+		}
 	return result
 
 func consume_runtime_performance_instrumentation_snapshot() -> Dictionary:
@@ -16480,6 +16574,11 @@ func consume_runtime_performance_instrumentation_snapshot() -> Dictionary:
 	_runtime_performance_totals_usec.clear()
 	_runtime_performance_counts.clear()
 	_runtime_performance_max_usec.clear()
+	_runtime_performance_exclusive_totals_usec.clear()
+	_runtime_performance_exclusive_segment_counts.clear()
+	_runtime_performance_telemetry_overhead_usec = 0
+	_runtime_performance_record_overhead_live_usec = 0
+	_runtime_performance_commit_overhead_usec = 0
 	_combat_engine.clear_runtime_performance_instrumentation_snapshot()
 	return result
 
@@ -16488,7 +16587,11 @@ func runtime_performance_frame_instrumentation_snapshot() -> Dictionary:
 	return {
 		"top_frames": _runtime_performance_frame_top.duplicate(true),
 		"inclusive_phase_times": true,
-		"note": "Nested wall and child phases can overlap; use phase_usec for attribution, not total summation.",
+		"exclusive_phase_times": true,
+		"telemetry_record_overhead_usec": _runtime_performance_record_overhead_live_usec,
+		"telemetry_commit_overhead_usec": _runtime_performance_commit_overhead_usec,
+		"telemetry_masked_parent_overlap_usec": _runtime_performance_telemetry_overhead_usec,
+		"note": "phase_usec retains inclusive diagnostics; exclusive_phase_usec partitions measured CPU intervals without overlap.",
 	}
 
 func runtime_animation_clock_snapshot() -> Dictionary:
@@ -16521,38 +16624,106 @@ func _record_runtime_animation_clock(
 func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	if not _runtime_performance_instrumentation_enabled:
 		return 0
-	var now_usec: int = Time.get_ticks_usec()
-	var elapsed_usec: int = now_usec - started_usec
+	var measured_end_usec: int = Time.get_ticks_usec()
+	var elapsed_usec: int = measured_end_usec - started_usec
 	_runtime_performance_totals_usec[phase] = int(_runtime_performance_totals_usec.get(phase, 0)) + elapsed_usec
 	_runtime_performance_counts[phase] = int(_runtime_performance_counts.get(phase, 0)) + 1
 	_runtime_performance_max_usec[phase] = maxi(int(_runtime_performance_max_usec.get(phase, 0)), elapsed_usec)
-	_record_runtime_performance_frame_phase(phase, elapsed_usec)
-	return now_usec
+	_record_runtime_performance_frame_phase(phase, started_usec, measured_end_usec)
+	var bookkeeping_end_usec: int = Time.get_ticks_usec()
+	_record_runtime_performance_diagnostic_interval(measured_end_usec, bookkeeping_end_usec)
+	return Time.get_ticks_usec()
 
-func _record_runtime_performance_frame_phase(phase: String, elapsed_usec: int) -> void:
+func _record_external_runtime_performance_interval(
+	phase: String,
+	started_usec: int,
+	ended_usec: int,
+	diagnostic_only: bool = false
+) -> void:
+	if not _runtime_performance_instrumentation_enabled:
+		return
+	if diagnostic_only:
+		_record_runtime_performance_diagnostic_interval(started_usec, ended_usec)
+	else:
+		_record_runtime_performance_frame_phase(phase, started_usec, ended_usec)
+
+func _record_runtime_performance_diagnostic_interval(started_usec: int, ended_usec: int) -> void:
+	if ended_usec <= started_usec or _runtime_performance_frame_id < 0:
+		return
+	_runtime_performance_record_overhead_live_usec += ended_usec - started_usec
+	_runtime_performance_frame_intervals.append({
+		"phase": "telemetry_record_overhead",
+		"start_usec": started_usec,
+		"end_usec": ended_usec,
+		"diagnostic_only": true,
+		"exclude_covered_cpu": true,
+		"priority": 100,
+	})
+
+func _runtime_slice_cpu_elapsed_usec(started_usec: int, overhead_started_usec: int) -> int:
+	return _runtime_elapsed_excluding_telemetry_usec(
+		Time.get_ticks_usec() - started_usec,
+		_runtime_performance_record_overhead_live_usec - overhead_started_usec
+	)
+
+func _runtime_elapsed_excluding_telemetry_usec(wall_elapsed_usec: int, telemetry_overhead_usec: int) -> int:
+	return maxi(0, wall_elapsed_usec - telemetry_overhead_usec)
+
+func _record_runtime_performance_frame_phase(phase: String, started_usec: int, ended_usec: int) -> void:
 	var frame_id: int = Engine.get_process_frames()
 	if _runtime_performance_frame_id != frame_id:
 		_commit_runtime_performance_frame()
 		_runtime_performance_frame_id = frame_id
+	var elapsed_usec: int = maxi(0, ended_usec - started_usec)
 	_runtime_performance_frame_total_usec += elapsed_usec
 	_runtime_performance_frame_phase_usec[phase] = int(_runtime_performance_frame_phase_usec.get(phase, 0)) + elapsed_usec
+	_runtime_performance_frame_intervals.append({
+		"phase": phase,
+		"start_usec": started_usec,
+		"end_usec": ended_usec,
+		"diagnostic_only": RUNTIME_PERFORMANCE_DIAGNOSTIC_PHASES.has(phase),
+		"priority": 10 if not phase.ends_with("_total") else 0,
+	})
 
 func _commit_runtime_performance_frame() -> void:
 	if _runtime_performance_frame_id < 0 or _runtime_performance_frame_phase_usec.is_empty():
 		return
+	var commit_started_usec: int = Time.get_ticks_usec()
+	var partition: Dictionary = PerformancePhasePartitionerScript.partition(_runtime_performance_frame_intervals)
+	var exclusive_phase_usec: Dictionary = partition.get("phase_usec", {}) as Dictionary
+	var exclusive_segment_counts: Dictionary = partition.get("phase_segment_counts", {}) as Dictionary
+	for phase_var: Variant in exclusive_phase_usec.keys():
+		var phase: String = str(phase_var)
+		_runtime_performance_exclusive_totals_usec[phase] = (
+			int(_runtime_performance_exclusive_totals_usec.get(phase, 0))
+			+ int(exclusive_phase_usec[phase_var])
+		)
+		_runtime_performance_exclusive_segment_counts[phase] = (
+			int(_runtime_performance_exclusive_segment_counts.get(phase, 0))
+			+ int(exclusive_segment_counts.get(phase, 0))
+		)
+	_runtime_performance_telemetry_overhead_usec += int(partition.get("excluded_usec", 0))
 	_runtime_performance_frame_top.append({
 		"frame_id": _runtime_performance_frame_id,
 		"inclusive_total_usec": _runtime_performance_frame_total_usec,
+		"exclusive_total_usec": int(partition.get("total_usec", 0)),
+		"telemetry_masked_parent_overlap_usec": int(partition.get("excluded_usec", 0)),
 		"phase_usec": _runtime_performance_frame_phase_usec.duplicate(true),
+		"exclusive_phase_usec": exclusive_phase_usec.duplicate(true),
 	})
 	_runtime_performance_frame_top.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return int(a.get("inclusive_total_usec", 0)) > int(b.get("inclusive_total_usec", 0))
+		var a_total: int = int(a.get("exclusive_total_usec", 0))
+		var b_total: int = int(b.get("exclusive_total_usec", 0))
+		return a_total > b_total if a_total != b_total else int(a.get("frame_id", 0)) < int(b.get("frame_id", 0))
 	)
 	if _runtime_performance_frame_top.size() > 40:
 		_runtime_performance_frame_top.resize(40)
 	_runtime_performance_frame_id = -1
 	_runtime_performance_frame_total_usec = 0
 	_runtime_performance_frame_phase_usec.clear()
+	_runtime_performance_frame_intervals.clear()
+	var commit_elapsed_usec: int = Time.get_ticks_usec() - commit_started_usec
+	_runtime_performance_commit_overhead_usec += commit_elapsed_usec
 
 func _enemy_intent_preview_state(display_state: Dictionary) -> Dictionary:
 	if _selected_card_index < 0 or _preview_combat_state.is_empty():
@@ -16979,7 +17150,7 @@ func _card_preview_for_index(index: int) -> Dictionary:
 	var actions: Array = _combat_engine.card_play_actions(card_id, prepared_state)
 	performance_phase_started = _record_runtime_performance_phase("card_preview_actions", performance_phase_started)
 	var preview: Dictionary = _card_preview_from_state(card_id, prepared_state, actions, 0)
-	performance_phase_started = _record_runtime_performance_phase("card_preview_walk", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_walk_total", performance_phase_started)
 	_card_preview_cache[cache_key] = preview
 	_record_runtime_performance_phase("card_preview_total", performance_total_started)
 	return preview
@@ -16992,7 +17163,7 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 		_record_runtime_performance_phase("card_play_options_cache_hit", performance_phase_started)
 		return _card_play_options_cache.get(cache_key, {}) as Dictionary
 	var printed: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index))
-	performance_phase_started = _record_runtime_performance_phase("card_play_options_preview", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_play_options_preview_total", performance_phase_started)
 	var printed_playable: bool = bool(printed.get("playable", false))
 	var options: Dictionary = {
 		"play": printed,
@@ -17371,7 +17542,7 @@ func _warm_pass_preview_cache_across_frames(
 							"blink_playable": bool(options.get("blink_playable", false)),
 						}
 					})
-			_record_runtime_performance_phase("analytics_playable_warm_slice", playable_slice_started)
+			_record_runtime_performance_phase("analytics_playable_warm_slice_total", playable_slice_started)
 		_analytics_combat_tracker["playable_logged"] = playable_logged
 		var playable_write_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		_analytics_store.write_events(events)
@@ -17388,7 +17559,7 @@ func _warm_pass_preview_cache_across_frames(
 			return
 		var slice_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		_combat_engine.advance_revealed_enemy_actions_preview(cursor)
-		_record_runtime_performance_phase("pass_preview_warm_slice", slice_started)
+		_record_runtime_performance_phase("pass_preview_warm_slice_total", slice_started)
 	if generation != _pass_preview_warm_generation or cache_key != _pass_preview_key():
 		return
 	var phase_result: Dictionary = _combat_engine.revealed_enemy_actions_preview_result(cursor)
@@ -18302,7 +18473,7 @@ func _preview_immediate_attack_shortcuts(
 			else:
 				after_move_state = _combat_engine.apply_planned_player_move(preview_state, move_action, move_target, movement_plan)
 		candidate_phase_started = _record_runtime_performance_phase(
-			"shortcut_move_deferred" if safely_deferred else "shortcut_move_exact",
+			"shortcut_move_deferred" if safely_deferred else "shortcut_move_exact_total",
 			candidate_phase_started
 		)
 		var movement_risk_chips: Array = (
@@ -18325,7 +18496,7 @@ func _preview_immediate_attack_shortcuts(
 			int(candidate.get("route_traps", 0)),
 			int(candidate.get("route_pickups", 0))
 		)
-		candidate_phase_started = _record_runtime_performance_phase("shortcut_collect_attack", candidate_phase_started)
+		candidate_phase_started = _record_runtime_performance_phase("shortcut_collect_attack_total", candidate_phase_started)
 		if safely_deferred:
 			_annotate_deferred_shortcut_plans(plans, candidate, preview_state, move_action)
 	var tiles: Array[Vector2i] = []
@@ -19072,7 +19243,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_append_skipped_target_placeholders(0, _pending_action_index)
 		_mark_preview_selection_changed()
 		_refresh_card_preview_ui()
-		_record_runtime_performance_phase("card_preview_refresh", performance_phase_started)
+		_record_runtime_performance_phase("card_preview_refresh_total", performance_phase_started)
 		if complete_play_confirmed:
 			await _on_confirm_card_play_pressed()
 		return
@@ -19097,7 +19268,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_append_skipped_target_placeholders(0, _pending_action_index)
 	_mark_preview_selection_changed()
 	_refresh_card_preview_ui()
-	_record_runtime_performance_phase("card_preview_refresh", performance_phase_started)
+	_record_runtime_performance_phase("card_preview_refresh_total", performance_phase_started)
 
 func _pending_card_requires_confirmation() -> bool:
 	return (
@@ -19151,13 +19322,13 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 		var stage_refresh_needed: bool = _board_hover_stage_refresh_needed(tile)
 		if stage_refresh_needed:
 			_refresh_stage_view()
-		performance_phase_started = _record_runtime_performance_phase("hover_stage_refresh", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("hover_stage_refresh_total", performance_phase_started)
 		var action_context_can_change: bool = _pass_preview_hover_can_change()
 		performance_phase_started = _record_runtime_performance_phase("hover_context_check", performance_phase_started)
 		if action_context_can_change:
 			var previous_tracker_minimum: Vector2 = _action_step_tracker.get_combined_minimum_size() if _action_step_tracker != null else Vector2.ZERO
 			_update_action_context_copy()
-			performance_phase_started = _record_runtime_performance_phase("hover_context_copy", performance_phase_started)
+			performance_phase_started = _record_runtime_performance_phase("hover_context_copy_total", performance_phase_started)
 			var next_tracker_minimum: Vector2 = _action_step_tracker.get_combined_minimum_size() if _action_step_tracker != null else Vector2.ZERO
 			if not previous_tracker_minimum.is_equal_approx(next_tracker_minimum):
 				_layout_action_step_tracker()
@@ -21027,13 +21198,13 @@ func _resolve_enemy_round() -> void:
 	var performance_lock_started: int = performance_total_started
 	_animation_lock = true
 	_refresh_enemy_round_lock_ui()
-	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_ui", performance_lock_started)
+	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_ui_total", performance_lock_started)
 	await _begin_locked_hand_render_cache()
-	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_cache_capture_wall", performance_lock_started)
+	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_cache_capture_wall_total", performance_lock_started)
 	# Some retained-hand states need no cache rebuild and return immediately.
 	# Still submit the locked feedback before checkpoint preparation or enemy AI.
 	await RenderingServer.frame_post_draw
-	_record_runtime_performance_phase("enemy_round_lock_post_draw_wall", performance_lock_started)
+	_record_runtime_performance_phase("enemy_round_lock_post_draw_wall_total", performance_lock_started)
 	_record_runtime_performance_phase("enemy_round_lock_and_cache_wall_total", performance_total_started)
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
@@ -21066,15 +21237,34 @@ func _resolve_enemy_round() -> void:
 	var player_turn_before_state: Dictionary = {}
 	var phase_complete: bool = false
 	var phase_slice_safety: int = 0
+	var enemy_slice_batch_started_usec: int = Time.get_ticks_usec()
+	var enemy_slice_telemetry_overhead_started_usec: int = _runtime_performance_record_overhead_live_usec
+	var last_enemy_slice_frame: int = -1
 	while not phase_complete and _combat_engine.combat_outcome(phase_state) == "" and phase_slice_safety < 100:
+		var current_frame: int = Engine.get_process_frames()
+		var same_frame_budget_exhausted: bool = (
+			current_frame == last_enemy_slice_frame
+			and _runtime_slice_cpu_elapsed_usec(
+				enemy_slice_batch_started_usec,
+				enemy_slice_telemetry_overhead_started_usec
+			) >= _runtime_enemy_slice_budget_usec
+		)
+		# Lock feedback was already submitted above, and authored animations advance
+		# rendered frames between normal activations. Yield only when multiple
+		# animation-free activations actually consume this frame's CPU budget.
+		if same_frame_budget_exhausted:
+			await RenderingServer.frame_post_draw
+			current_frame = Engine.get_process_frames()
+			enemy_slice_batch_started_usec = Time.get_ticks_usec()
+			enemy_slice_telemetry_overhead_started_usec = _runtime_performance_record_overhead_live_usec
+		elif current_frame != last_enemy_slice_frame:
+			enemy_slice_batch_started_usec = Time.get_ticks_usec()
+			enemy_slice_telemetry_overhead_started_usec = _runtime_performance_record_overhead_live_usec
 		phase_slice_safety += 1
-		# A completed draw is a hard scheduling boundary: input-lock feedback is
-		# visible before the first activation, and no frame performs more than one
-		# enemy activation's deterministic work.
-		await RenderingServer.frame_post_draw
 		var slice_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var slice_result: Dictionary = _combat_engine.advance_one_activation_with_steps(phase_state, false)
-		_record_runtime_performance_phase("enemy_round_simulation_slice", slice_started)
+		_record_runtime_performance_phase("enemy_round_simulation_slice_total", slice_started)
+		last_enemy_slice_frame = Engine.get_process_frames()
 		var slice_steps: Array = slice_result.get("steps", []) as Array
 		phase_steps.append_array(slice_steps)
 		var slice_player_before: Variant = slice_result.get("player_turn_before_state", {})
@@ -21098,7 +21288,7 @@ func _resolve_enemy_round() -> void:
 	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(checkpoint_base_run_state, final_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
-	_record_runtime_performance_phase("enemy_round_final_checkpoint", finalization_phase_started)
+	_record_runtime_performance_phase("enemy_round_final_checkpoint_total", finalization_phase_started)
 	if outcome == "victory":
 		var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(final_combat_state)
 		if post_combat_board_state != final_combat_state:
@@ -21119,7 +21309,7 @@ func _resolve_enemy_round() -> void:
 	_run_state = final_run_state
 	_sync_combat_state_from_run()
 	_release_committed_run_state()
-	_record_runtime_performance_phase("enemy_round_final_commit_and_sync", finalization_phase_started)
+	_record_runtime_performance_phase("enemy_round_final_commit_and_sync_total", finalization_phase_started)
 	var enemy_analytics_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_analytics_log_enemy_phase_events(phase_result)
 	_record_runtime_performance_phase("enemy_round_analytics_write", enemy_analytics_started)
@@ -21143,7 +21333,7 @@ func _resolve_enemy_round() -> void:
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
-	_record_runtime_performance_phase("enemy_round_transition_analytics", finalization_phase_started)
+	_record_runtime_performance_phase("enemy_round_transition_analytics_total", finalization_phase_started)
 	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_end_locked_hand_render_cache()
 	_record_runtime_performance_phase("enemy_round_end_hand_cache", finalization_phase_started)
@@ -21152,11 +21342,11 @@ func _resolve_enemy_round() -> void:
 	else:
 		if outcome == "":
 			await _await_pass_preview_cache_warm()
-		_animation_lock = false
-		if outcome == "":
-			_queue_hand_ready_wave("player_turn_start")
 		finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		await _refresh_ui(true)
+		# Preserve the established click-to-interactive cadence. The retained/cached
+		# refresh work above is fast enough to complete synchronously; production does
+		# not insert rendered-frame waits while input remains locked.
+		await _refresh_ui(false, true, outcome == "")
 		_record_runtime_performance_phase("enemy_round_final_refresh_ui_wall_total", finalization_phase_started)
 
 func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> void:
@@ -22784,9 +22974,7 @@ func _on_pre_battle_start_pressed() -> void:
 	_pre_battle_start_pending = true
 	var preview_combat_state: Dictionary = _pre_battle_preview_run_state.get("combat_state", {}) as Dictionary
 	if not preview_combat_state.is_empty():
-		var shadows_ready: bool = await board_view.prepare_unit_shadows_for_state(preview_combat_state)
-		if not shadows_ready:
-			push_warning("Combat shadow prewarm exceeded its bounded pre-battle window; continuing with the synchronous safety path.")
+		board_view.prepare_unit_shadows_for_state(preview_combat_state)
 	_close_pre_battle_preview()
 	_run_state = _run_engine.begin_pre_battle_combat(_run_state)
 	_sync_progression_from_run()
@@ -23721,20 +23909,27 @@ func _consume_next_pending_combat_checkpoint() -> bool:
 	var checkpoint: Dictionary = checkpoints[0] as Dictionary
 	if bool(checkpoint.get("resume_enemy_phase", false)):
 		var slice_result: Dictionary = _combat_engine.advance_one_activation_with_steps(_combat_state)
+		var slice_state: Dictionary = slice_result.get("state", _combat_state) as Dictionary
 		var continuation_checkpoints: Array = _combat_commit_checkpoints(slice_result.get("steps", []) as Array)
+		# A malformed/stale actor can advance the owned initiative snapshot without
+		# producing a commit presentation. Preserve that progress before requeueing
+		# the compact marker; otherwise Continue would replay the same actor forever.
+		var continuation_base_run_state: Dictionary = _run_state
+		if continuation_checkpoints.is_empty():
+			continuation_base_run_state = _run_state_for_combat_checkpoint(_run_state, slice_state)
 		if not bool(slice_result.get("complete", false)):
 			continuation_checkpoints.append(_enemy_phase_continuation_checkpoint())
 		if continuation_checkpoints.is_empty():
 			_run_state = _hold_committed_run_state(
 				_run_state_for_combat_checkpoint(
 					_run_state,
-					slice_result.get("state", _combat_state) as Dictionary
+					slice_state
 				),
 				"enemy_phase_resumed"
 			)
 		else:
 			_run_state = _hold_committed_run_state(
-				_run_state_with_combat_checkpoints(_run_state, continuation_checkpoints),
+				_run_state_with_combat_checkpoints(continuation_base_run_state, continuation_checkpoints),
 				"enemy_activation_resumed"
 			)
 		_sync_combat_state_from_run()
@@ -23756,12 +23951,17 @@ func _resume_pending_combat_checkpoints() -> void:
 	if not _has_pending_combat_checkpoints() or _animation_lock:
 		return
 	_animation_lock = true
-	while _has_pending_combat_checkpoints():
+	var resume_safety: int = 0
+	while _has_pending_combat_checkpoints() and resume_safety < 100:
+		resume_safety += 1
 		await RenderingServer.frame_post_draw
 		if not _consume_next_pending_combat_checkpoint():
 			break
 		if str(_run_state.get("mode", "")) != "combat":
 			break
+	if resume_safety >= 100 and _has_pending_combat_checkpoints():
+		push_error("Enemy-phase continuation exceeded the 100-activation recovery bound; resetting to one deterministic player activation.")
+		_recover_stalled_enemy_phase_continuation()
 	_release_committed_run_state()
 	_board_presentation.clear()
 	_set_action_banner("")
@@ -23772,6 +23972,17 @@ func _resume_pending_combat_checkpoints() -> void:
 		return
 	_animation_lock = false
 	_refresh_ui()
+
+func _recover_stalled_enemy_phase_continuation() -> void:
+	var recovered_combat_state: Dictionary = _combat_engine.recover_player_turn_after_stalled_initiative(_combat_state)
+	_run_state = _hold_committed_run_state(
+		_run_state_with_combat_checkpoints(
+			_run_state_for_combat_checkpoint(_run_state, recovered_combat_state),
+			[]
+		),
+		"enemy_phase_resume_safety_recovered"
+	)
+	_sync_combat_state_from_run()
 
 func _persist_committed_boundary(boundary: String = "") -> bool:
 	return bool(_persist_run_state_snapshot(_committed_run_state(), false, boundary).get("saved", false))
@@ -24090,7 +24301,7 @@ func _open_pile_view(pile_kind: String) -> void:
 		if selecting_discard_card
 		else "%s Pile" % _pile_display_name(pile_kind)
 	)
-	performance_phase_started = _record_runtime_performance_phase("pile_prepare", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("pile_prepare_total", performance_phase_started)
 	if content_source == _pile_dialog_content_source and _pile_dialog_pool_has_cards(cards):
 		if _pile_dialog_scroll != null:
 			_pile_dialog_scroll.visible = not pile_empty
@@ -27733,17 +27944,17 @@ func _reconcile_skill_event_analytics() -> void:
 	# earlier failed save. A staged cursor means copied into the snapshot, never
 	# that the snapshot reached disk or that JSONL may be appended safely.
 	if not _persist_committed_boundary("combat_skill_event_outbox"):
-		_record_runtime_performance_phase("skill_analytics_persist_outbox_failed", performance_phase_started)
+		_record_runtime_performance_phase("skill_analytics_persist_outbox_failed_total", performance_phase_started)
 		_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
 		return
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_outbox", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_outbox_total", performance_phase_started)
 	var reconciled_all: bool = _reconcile_progression_analytics_outbox()
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_reconcile_outbox", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("skill_analytics_reconcile_outbox_total", performance_phase_started)
 	_sync_progression_analytics_outbox_to_run()
 	performance_phase_started = _record_runtime_performance_phase("skill_analytics_sync_run", performance_phase_started)
 	if str(_run_state.get("mode", "")) not in ["victory", "defeat"]:
 		_persist_committed_boundary("combat_skill_event_ack")
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_ack", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_ack_total", performance_phase_started)
 	if staged_now and not reconciled_all:
 		push_warning("Combat skill analytics remain queued for a later retry.")
 	_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
@@ -27768,13 +27979,13 @@ func _reconcile_skill_event_analytics_across_frames() -> void:
 		return
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if not _persist_committed_boundary("combat_skill_event_outbox"):
-		_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_failed", performance_phase_started)
+		_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_failed_total", performance_phase_started)
 		return
-	_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox", performance_phase_started)
+	_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_total", performance_phase_started)
 	await RenderingServer.frame_post_draw
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var reconciled_all: bool = _reconcile_progression_analytics_outbox()
-	_record_runtime_performance_phase("player_turn_skill_analytics_reconcile_outbox", performance_phase_started)
+	_record_runtime_performance_phase("player_turn_skill_analytics_reconcile_outbox_total", performance_phase_started)
 	await RenderingServer.frame_post_draw
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_sync_progression_analytics_outbox_to_run()
@@ -27782,7 +27993,7 @@ func _reconcile_skill_event_analytics_across_frames() -> void:
 	if str(_run_state.get("mode", "")) not in ["victory", "defeat"]:
 		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		_persist_committed_boundary("combat_skill_event_ack")
-		_record_runtime_performance_phase("player_turn_skill_analytics_persist_ack", performance_phase_started)
+		_record_runtime_performance_phase("player_turn_skill_analytics_persist_ack_total", performance_phase_started)
 	if staged_now and not reconciled_all:
 		push_warning("Combat skill analytics remain queued for a later retry.")
 
@@ -28326,7 +28537,7 @@ func _analytics_log_playable_cards() -> void:
 		if bool(playable_logged.get(instance_id, false)):
 			continue
 		var options: Dictionary = _card_play_options_for_index(index)
-		performance_phase_started = _record_runtime_performance_phase("analytics_playable_options", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("analytics_playable_options_total", performance_phase_started)
 		if not bool(options.get("any_playable", false)):
 			continue
 		var card_id: String = str(hand[index])

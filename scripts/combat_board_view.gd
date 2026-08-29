@@ -465,12 +465,13 @@ const TERRAIN_HEALTH_BAR_SIZE: Vector2 = Vector2(56.0, 8.0)
 const SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.22)
 const SHADOW_LIGHT_VECTOR: Vector2 = Vector2(1.0, 0.55)
 const SHADOW_POINT_COUNT: int = 24
+const UnitShadowCacheResourceScript = preload("res://scripts/unit_shadow_cache_resource.gd")
 const UNIT_SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.24)
 const UNIT_SHADOW_SOFT_COLOR: Color = Color(0.0, 0.0, 0.0, 0.10)
-const UNIT_SHADOW_ALPHA_THRESHOLD: float = 0.08
-const UNIT_SHADOW_SIMPLIFY_EPSILON: float = 3.0
-const UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON: float = 0.75
-const UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA: float = 8.0
+const UNIT_SHADOW_ALPHA_THRESHOLD: float = UnitShadowCacheResourceScript.ALPHA_THRESHOLD
+const UNIT_SHADOW_SIMPLIFY_EPSILON: float = UnitShadowCacheResourceScript.SIMPLIFY_EPSILON
+const UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON: float = UnitShadowCacheResourceScript.RETRY_SIMPLIFY_EPSILON
+const UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA: float = UnitShadowCacheResourceScript.MIN_ALPHA_POLYGON_AREA
 const UNIT_SHADOW_SHAPE_SCALE: float = 1.72
 const UNIT_SHADOW_WIDTH_SCALE: float = 0.82
 const UNIT_SHADOW_WIDTH_SLOPE_Y: float = 0.0
@@ -478,6 +479,8 @@ const UNIT_SHADOW_HEIGHT_CAST_X: float = -0.02
 const UNIT_SHADOW_HEIGHT_CAST_Y: float = 0.20
 const UNIT_SHADOW_FOOT_OFFSET_Y_RATIO: float = 0.0
 const UNIT_SHADOW_SOFT_SCALE: float = 1.12
+const UNIT_SHADOW_CACHE_PATH: String = "res://assets/generated/unit_shadow_cache.res"
+const UNIT_SHADOW_CACHE_SCHEMA_VERSION: int = UnitShadowCacheResourceScript.SCHEMA_VERSION
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -659,8 +662,14 @@ var _texture_used_rect_cache: Dictionary = {}
 var _unit_shadow_prewarm_urgent_queue: Array[Texture2D] = []
 var _unit_shadow_prewarm_background_queue: Array[Texture2D] = []
 var _unit_shadow_prewarm_queued_ids: Dictionary = {}
+var _unit_shadow_prewarm_pending_ids: Dictionary = {}
 var _unit_shadow_prewarm_thread: Thread = null
 var _unit_shadow_prewarm_active_texture: Texture2D = null
+var _unit_shadow_last_prepare_waited_frames: int = 0
+var _unit_shadow_precomputed_entries: Dictionary = {}
+var _unit_shadow_precomputed_source_sha256: Dictionary = {}
+var _unit_shadow_precomputed_loaded_keys: Dictionary = {}
+var _unit_shadow_precomputed_missing_keys: Dictionary = {}
 var _submission_cache_source_snapshot: Dictionary = {}
 var _submission_cache_initialized: bool = false
 var _submission_cache_combat_changed: bool = false
@@ -946,7 +955,9 @@ func _sync_dynamic_render_assets() -> void:
 			"_unit_textures", "_unit_assets_loaded",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
-			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache", "_door_opening_frames", "_door_opening_flipped_frames",
+			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache",
+			"_unit_shadow_prewarm_pending_ids",
+			"_door_opening_frames", "_door_opening_flipped_frames",
 			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
 		]:
 			layer.set(field, get(field))
@@ -12378,6 +12389,14 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	_unit_shadow_bottom_ratio_cache.clear()
 	_unit_shadow_draw_geometry_cache.clear()
 	_unit_shadow_draw_mesh_cache.clear()
+	_unit_shadow_prewarm_urgent_queue.clear()
+	_unit_shadow_prewarm_background_queue.clear()
+	_unit_shadow_prewarm_queued_ids.clear()
+	_unit_shadow_prewarm_pending_ids.clear()
+	_unit_shadow_last_prepare_waited_frames = 0
+	_unit_shadow_precomputed_loaded_keys.clear()
+	_unit_shadow_precomputed_missing_keys.clear()
+	_load_unit_shadow_precomputed_cache()
 	_ensure_unit_assets_for_type("player")
 	if load_full_unit_roster:
 		for enemy_type: String in GameData.enemies().keys():
@@ -12406,51 +12425,85 @@ func prepare_unit_assets_for_state(state: Dictionary) -> void:
 	# a time while the player inspects the encounter instead of blocking Start.
 	_ensure_unit_assets_for_submission(state, {})
 
-func prepare_unit_shadows_for_state(state: Dictionary, max_frames: int = 240) -> bool:
-	# A player can press Start immediately after the pre-battle panel appears. Keep
-	# that panel alive while the worker finishes the exact living sprite frames so
-	# alpha polygon extraction never lands on the first visible combat frame.
+func prepare_unit_shadows_for_state(state: Dictionary) -> bool:
+	# Generated alpha polygons keep the exact animated silhouette ready without an
+	# input-delaying frame gate. Missing or build-rejected generated entries fall
+	# back to exact synchronous extraction so visuals never swap through a generic
+	# shadow; cache coverage and source-fingerprint tests keep that fallback off the
+	# shipped path.
 	_ensure_unit_assets_for_submission(state, {})
-	var required_textures: Array[Texture2D] = _unit_shadow_living_textures_for_state(state)
+	var required_textures: Array[Texture2D] = _unit_shadow_immediate_textures_for_state(state)
 	for texture: Texture2D in required_textures:
 		_queue_unit_shadow_texture(texture, true)
-	var waited_frames: int = 0
-	while waited_frames < maxi(1, max_frames):
-		_process_next_unit_shadow_prewarm()
-		var ready: bool = true
-		for texture: Texture2D in required_textures:
-			if not _unit_shadow_polygon_cache.has(texture.get_instance_id()):
-				ready = false
-				break
-		if ready:
-			return true
-		await get_tree().process_frame
-		waited_frames += 1
-	return false
+		if not _unit_shadow_polygon_cache.has(texture.get_instance_id()):
+			_unit_shadow_data_for_texture(texture)
+			_texture_used_rect(texture)
+	_unit_shadow_last_prepare_waited_frames = 0
+	return true
 
-func _unit_shadow_living_textures_for_state(state: Dictionary) -> Array[Texture2D]:
-	var unit_types: Array[String] = []
+func _load_unit_shadow_precomputed_cache() -> void:
+	_unit_shadow_precomputed_entries.clear()
+	_unit_shadow_precomputed_source_sha256.clear()
+	var cache: Resource = load(UNIT_SHADOW_CACHE_PATH) as Resource
+	if (
+		cache == null
+		or int(cache.get("schema_version")) != UNIT_SHADOW_CACHE_SCHEMA_VERSION
+		or str(cache.get("extraction_signature")) != UnitShadowCacheResourceScript.expected_extraction_signature()
+	):
+		return
+	var entries_var: Variant = cache.get("entries")
+	if typeof(entries_var) == TYPE_DICTIONARY:
+		_unit_shadow_precomputed_entries = entries_var as Dictionary
+	var sources_var: Variant = cache.get("source_sha256")
+	if typeof(sources_var) == TYPE_DICTIONARY:
+		_unit_shadow_precomputed_source_sha256 = sources_var as Dictionary
+
+func _install_unit_shadow_precomputed_data(texture: Texture2D) -> bool:
+	if texture == null:
+		return false
+	var texture_id: int = texture.get_instance_id()
+	if _unit_shadow_polygon_cache.has(texture_id):
+		return true
+	var key: String = UnitShadowCacheResourceScript.texture_key(texture)
+	if key.is_empty() or not _unit_shadow_precomputed_entries.has(key):
+		if not key.is_empty():
+			_unit_shadow_precomputed_missing_keys[key] = true
+		return false
+	var entry: Dictionary = _unit_shadow_precomputed_entries.get(key, {}) as Dictionary
+	var shadow_data: Dictionary = entry.get("shadow_data", {}) as Dictionary
+	if shadow_data.is_empty():
+		_unit_shadow_precomputed_missing_keys[key] = true
+		return false
+	_unit_shadow_polygon_cache[texture_id] = shadow_data
+	var used_rect: Rect2i = entry.get("used_rect", Rect2i()) as Rect2i
+	_texture_used_rect_cache[texture_id] = used_rect
+	AssetLoader.cache_texture_used_rect(texture, used_rect)
+	_unit_shadow_precomputed_loaded_keys[key] = true
+	return true
+
+func _unit_shadow_immediate_textures_for_state(state: Dictionary) -> Array[Texture2D]:
+	var units: Array[Dictionary] = []
 	if not (state.get("player", {}) as Dictionary).is_empty():
-		unit_types.append("player")
+		var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(false)
+		player["type"] = "player"
+		player["key"] = "player"
+		units.append(player)
 	for enemy_var: Variant in state.get("enemies", []):
 		if typeof(enemy_var) == TYPE_DICTIONARY:
-			var enemy_type: String = str((enemy_var as Dictionary).get("type", ""))
-			if not enemy_type.is_empty() and not unit_types.has(enemy_type):
-				unit_types.append(enemy_type)
+			var enemy: Dictionary = enemy_var as Dictionary
+			if int(enemy.get("hp", 0)) > 0:
+				units.append(enemy)
 	for npc_var: Variant in state.get("npcs", []):
 		if typeof(npc_var) == TYPE_DICTIONARY:
 			var npc: Dictionary = npc_var as Dictionary
-			var npc_type: String = str(npc.get("id", npc.get("type", "")))
-			if not npc_type.is_empty() and not unit_types.has(npc_type):
-				unit_types.append(npc_type)
+			var prepared_npc: Dictionary = npc.duplicate(false)
+			prepared_npc["type"] = str(npc.get("id", npc.get("type", "")))
+			units.append(prepared_npc)
 	var textures: Array[Texture2D] = []
-	for unit_type: String in unit_types:
-		var base_texture: Texture2D = _unit_textures.get(unit_type, null) as Texture2D
-		if base_texture != null and not textures.has(base_texture):
-			textures.append(base_texture)
-		for frame_var: Variant in _idle_frames_by_type.get(unit_type, []):
-			if frame_var is Texture2D and not textures.has(frame_var as Texture2D):
-				textures.append(frame_var as Texture2D)
+	for unit: Dictionary in units:
+		var texture: Texture2D = _texture_for_unit(unit)
+		if texture != null and not textures.has(texture):
+			textures.append(texture)
 	return textures
 
 func _ensure_unit_assets_for_type(unit_type: String) -> void:
@@ -12495,8 +12548,10 @@ func _queue_unit_shadow_texture(texture: Texture2D, urgent: bool) -> void:
 	if texture == null:
 		return
 	var texture_id: int = texture.get_instance_id()
+	_install_unit_shadow_precomputed_data(texture)
 	if _unit_shadow_polygon_cache.has(texture_id):
 		return
+	_unit_shadow_prewarm_pending_ids[texture_id] = true
 	if _unit_shadow_prewarm_queued_ids.has(texture_id):
 		if urgent and _unit_shadow_prewarm_background_queue.has(texture):
 			_unit_shadow_prewarm_background_queue.erase(texture)
@@ -12517,6 +12572,7 @@ func _process_next_unit_shadow_prewarm() -> void:
 			var texture_id: int = _unit_shadow_prewarm_active_texture.get_instance_id()
 			if not _unit_shadow_polygon_cache.has(texture_id):
 				_unit_shadow_polygon_cache[texture_id] = result.get("shadow_data", {})
+			_unit_shadow_prewarm_pending_ids.erase(texture_id)
 			var used_rect: Rect2i = result.get("used_rect", Rect2i())
 			_texture_used_rect_cache[texture_id] = used_rect
 			AssetLoader.cache_texture_used_rect(_unit_shadow_prewarm_active_texture, used_rect)
@@ -12531,6 +12587,7 @@ func _process_next_unit_shadow_prewarm() -> void:
 		return
 	_unit_shadow_prewarm_queued_ids.erase(texture.get_instance_id())
 	if _unit_shadow_polygon_cache.has(texture.get_instance_id()):
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		return
 	var image: Image = texture.get_image()
 	if image == null or image.is_empty():
@@ -12541,6 +12598,7 @@ func _process_next_unit_shadow_prewarm() -> void:
 			"triangulations": empty_triangulations,
 			"bounds": Rect2(),
 		}
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		_texture_used_rect_cache[texture.get_instance_id()] = Rect2i()
 		return
 	_unit_shadow_prewarm_active_texture = texture
@@ -12550,6 +12608,7 @@ func _process_next_unit_shadow_prewarm() -> void:
 		_unit_shadow_prewarm_thread = null
 		_unit_shadow_prewarm_active_texture = null
 		_unit_shadow_data_for_texture(texture)
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		_texture_used_rect(texture)
 
 func _compute_unit_shadow_data_for_image(image: Image) -> Dictionary:
@@ -13502,9 +13561,11 @@ func _unit_shadow_draw_geometry(texture: Texture2D, draw_rect: Rect2, unit_type:
 	var shadow_data_was_missing: bool = not _unit_shadow_polygon_cache.has(texture.get_instance_id())
 	var shadow_data_started_usec: int = Time.get_ticks_usec() if shadow_data_was_missing else 0
 	var shadow_data: Dictionary = _unit_shadow_data_for_texture(texture)
-	var shadow_polygons: Array[PackedVector2Array] = shadow_data.get("polygons", []) as Array[PackedVector2Array]
+	var shadow_polygons: Array[PackedVector2Array] = _packed_vector2_array_array(
+		shadow_data.get("polygons", [])
+	)
 	var shadow_triangulations: Array[PackedInt32Array] = _packed_int32_array_array(
-		shadow_data.get("triangulations", []) as Array
+		shadow_data.get("triangulations", [])
 	)
 	var bounds: Rect2 = shadow_data.get("bounds", Rect2()) as Rect2
 	if shadow_data_was_missing:
@@ -13551,7 +13612,7 @@ func _draw_unit_shadow_fallback(unit: Dictionary) -> void:
 	_draw_iso_ground_shadow(center, width, height, width * 0.10, 0.20 * shadow_alpha_scale)
 
 func _unit_shadow_polygons_for_texture(texture: Texture2D) -> Array[PackedVector2Array]:
-	return _unit_shadow_data_for_texture(texture).get("polygons", []) as Array[PackedVector2Array]
+	return _packed_vector2_array_array(_unit_shadow_data_for_texture(texture).get("polygons", []))
 
 func _unit_shadow_bounds_for_texture(texture: Texture2D) -> Rect2:
 	return _unit_shadow_data_for_texture(texture).get("bounds", Rect2()) as Rect2
@@ -13650,9 +13711,10 @@ func _unit_shadow_stable_bottom_ratio(unit_type: String, fallback_texture: Textu
 			ratios.append(_unit_shadow_bottom_ratio(frame_texture, frame_bounds))
 	if ratios.is_empty() and _unit_textures.has(unit_type):
 		var base_texture: Texture2D = _unit_textures.get(unit_type, null)
-		var base_bounds: Rect2 = _unit_shadow_bounds_for_texture(base_texture)
-		if base_bounds.size.y > 0.0:
-			ratios.append(_unit_shadow_bottom_ratio(base_texture, base_bounds))
+		if base_texture != null:
+			var base_bounds: Rect2 = _unit_shadow_bounds_for_texture(base_texture)
+			if base_bounds.size.y > 0.0:
+				ratios.append(_unit_shadow_bottom_ratio(base_texture, base_bounds))
 	if ratios.is_empty():
 		ratios.append(_unit_shadow_bottom_ratio(fallback_texture, fallback_bounds))
 	ratios.sort()
@@ -13748,11 +13810,22 @@ func _vector2i_array(values: Array) -> Array[Vector2i]:
 			result.append(value)
 	return result
 
-func _packed_int32_array_array(values: Array) -> Array[PackedInt32Array]:
+func _packed_int32_array_array(values: Variant) -> Array[PackedInt32Array]:
 	var result: Array[PackedInt32Array] = []
-	for value: Variant in values:
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value: Variant in values as Array:
 		if typeof(value) == TYPE_PACKED_INT32_ARRAY:
 			result.append(value as PackedInt32Array)
+	return result
+
+func _packed_vector2_array_array(values: Variant) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array] = []
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value: Variant in values as Array:
+		if typeof(value) == TYPE_PACKED_VECTOR2_ARRAY:
+			result.append(value as PackedVector2Array)
 	return result
 
 func _vector2i_lookup(values: Array) -> Dictionary:
