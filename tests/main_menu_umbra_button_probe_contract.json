@@ -19,7 +19,7 @@
       ]
     },
     {
-      "pattern": "*keyboard_controller_focus_settings_1920x1080_scale100.png",
+      "pattern": "*pointer_to_focus_handoff_new_game_1920x1080_scale100.png",
       "width": 1920,
       "height": 1080,
       "regions": [

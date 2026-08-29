@@ -57,23 +57,24 @@ func _capture_main_menu_states() -> void:
 	_verify_exclusive_selection(instance, start_button, "idle default")
 	await _save_screenshot(render_viewport, "idle_default_new_game")
 
-	settings_button.mouse_entered.emit()
-	settings_button.set_meta("button_gallery_state", UiSkin.STATE_HOVER)
-	settings_button.add_theme_stylebox_override("normal", _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_HOVER))
-	settings_button.queue_redraw()
+	var settings_center: Vector2 = settings_button.get_global_rect().get_center()
+	var hover_event := InputEventMouseMotion.new()
+	hover_event.position = settings_center
+	hover_event.global_position = settings_center
+	render_viewport.push_input(hover_event, true)
+	await _settle_frames()
+	_require(settings_button.is_hovered(), "Real pointer input should hover Settings")
 	_verify_exclusive_selection(instance, settings_button, "pointer hover")
 	await _save_screenshot(render_viewport, "pointer_hover_settings")
 
-	_reset_forced_state(instance, settings_button)
-	instance.call("_restore_default_umbra_selection")
-	settings_button.grab_focus()
+	start_button.grab_focus()
 	await _settle_frames()
-	_require(settings_button.has_focus(), "Keyboard/controller focus should reach Settings")
-	_verify_focus_styles(settings_button)
-	_verify_exclusive_selection(instance, settings_button, "keyboard/controller focus")
-	await _save_screenshot(render_viewport, "keyboard_controller_focus_settings")
+	_require(start_button.has_focus(), "Keyboard/controller focus should reach New Game")
+	_require(settings_button.is_hovered(), "Pointer-to-focus proof should retain the stale Settings hover")
+	_verify_focus_styles(start_button)
+	_verify_exclusive_selection(instance, start_button, "pointer-to-keyboard/controller focus handoff")
+	await _save_screenshot(render_viewport, "pointer_to_focus_handoff_new_game")
 
-	settings_button.release_focus()
 	start_button.button_down.emit()
 	start_button.set_meta("button_gallery_state", UiSkin.STATE_PRESSED)
 	start_button.add_theme_stylebox_override("normal", _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_PRESSED))
@@ -97,11 +98,20 @@ func _verify_umbra_construction(instance: Control) -> void:
 
 func _verify_exclusive_selection(instance: Control, expected: Button, state_label: String) -> void:
 	var selected_count: int = 0
+	var active_ornament_count: int = 0
 	for button: Button in _menu_buttons(instance):
 		if bool(button.get_meta("umbra_selected", false)):
 			selected_count += 1
 			_require(button == expected, "%s should not light fractures on %s" % [state_label, button.name])
+		var ornament: Control = button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) as Control
+		_require(ornament != null, "%s should retain its Umbra ornament during %s" % [button.name, state_label])
+		if ornament != null:
+			var ornament_state: String = str(ornament.call("_visual_state"))
+			if ornament_state in [UiSkin.STATE_HOVER, UiSkin.STATE_PRESSED, UiSkin.STATE_SELECTED, UiSkin.STATE_FOCUS]:
+				active_ornament_count += 1
+				_require(button == expected, "%s should not render an active ornament on %s" % [state_label, button.name])
 	_require(selected_count == 1, "%s should light fractures on exactly one button" % state_label)
+	_require(active_ornament_count == 1, "%s should render exactly one glowing ornament" % state_label)
 
 func _verify_focus_styles(button: Button) -> void:
 	var normal_style: StyleBoxFlat = button.get_theme_stylebox("normal") as StyleBoxFlat
@@ -123,11 +133,6 @@ func _menu_buttons(instance: Control) -> Array[Button]:
 	buttons.append(instance.get_node("MenuColumn/SettingsButton") as Button)
 	buttons.append(instance.get_node("MenuColumn/QuitButton") as Button)
 	return buttons
-
-func _reset_forced_state(instance: Control, button: Button) -> void:
-	button.remove_meta("button_gallery_state")
-	instance.call("_apply_menu_button_style", button)
-	button.queue_redraw()
 
 func _save_screenshot(render_viewport: SubViewport, name: String) -> void:
 	await _settle_frames()

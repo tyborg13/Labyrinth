@@ -177,13 +177,18 @@ func make_button_style(variant: String = VARIANT_STANDARD, state: String = STATE
 		return style
 
 	if state == STATE_HOVER:
-		style.expand_margin_left = 1.0
-		style.expand_margin_top = 1.0
-		style.expand_margin_right = 1.0
-		style.expand_margin_bottom = 1.0
-		style.shadow_color = Color(0.86, 0.55, 0.22, 0.15)
-		style.shadow_size = 6
-		style.shadow_offset = Vector2(0.0, 2.0)
+		if umbra:
+			style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+			style.shadow_size = 5
+			style.shadow_offset = Vector2(0.0, 3.0)
+		else:
+			style.expand_margin_left = 1.0
+			style.expand_margin_top = 1.0
+			style.expand_margin_right = 1.0
+			style.expand_margin_bottom = 1.0
+			style.shadow_color = Color(0.86, 0.55, 0.22, 0.15)
+			style.shadow_size = 6
+			style.shadow_offset = Vector2(0.0, 2.0)
 	elif state == STATE_DISABLED:
 		style.shadow_color = Color.TRANSPARENT
 		style.shadow_size = 0
@@ -456,8 +461,9 @@ func _button_palette(variant: String, state: String) -> Dictionary:
 
 	match state:
 		STATE_HOVER:
-			background = Color("15151b") if variant == VARIANT_UMBRA else background.lightened(0.10)
-			border = Color("c88a40") if variant == VARIANT_UMBRA else (Color("e2b86e") if variant != VARIANT_DESTRUCTIVE else Color("ef8069"))
+			if variant != VARIANT_UMBRA:
+				background = background.lightened(0.10)
+				border = Color("e2b86e") if variant != VARIANT_DESTRUCTIVE else Color("ef8069")
 		STATE_PRESSED:
 			background = Color("090a0e") if variant == VARIANT_UMBRA else background.darkened(0.16)
 			border = Color("d28d3e") if variant == VARIANT_UMBRA else (Color("c58e48") if variant != VARIANT_DESTRUCTIVE else Color("c95a4d"))

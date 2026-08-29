@@ -212,6 +212,8 @@ func _visual_state() -> String:
 	var forced_state: String = str(_button.get_meta("button_gallery_state", ""))
 	if not forced_state.is_empty():
 		return forced_state
+	if _variant == VARIANT_UMBRA:
+		return _umbra_visual_state()
 	if _button.disabled:
 		return STATE_DISABLED
 	if _button.has_focus():
@@ -225,6 +227,19 @@ func _visual_state() -> String:
 	if bool(_button.get_meta("umbra_selected", false)):
 		return STATE_SELECTED
 	return STATE_NORMAL
+
+func _umbra_visual_state() -> String:
+	if _button.disabled:
+		return STATE_DISABLED
+	if not bool(_button.get_meta("umbra_selected", false)):
+		return STATE_NORMAL
+	if _button.is_pressed():
+		return STATE_PRESSED
+	if _button.has_focus():
+		return STATE_FOCUS
+	if _button.is_hovered():
+		return STATE_HOVER
+	return STATE_SELECTED
 
 func _accent_color(state: String) -> Color:
 	if state == STATE_DISABLED:

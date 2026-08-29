@@ -380,6 +380,7 @@ func _apply_menu_button_style(button: Button) -> void:
 	button.add_theme_font_size_override("font_size", MENU_FONT_SIZE)
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_UMBRA)
 	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
+	button.add_theme_color_override("font_hover_color", Color("f3e5c5"))
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 func _apply_confirmation_button_style(button: Button, destructive: bool) -> void:
