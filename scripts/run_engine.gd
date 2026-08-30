@@ -1751,6 +1751,12 @@ func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
 		if typeof(checkpoint_var) != TYPE_DICTIONARY:
 			continue
 		var checkpoint: Dictionary = (checkpoint_var as Dictionary).duplicate(true)
+		if bool(checkpoint.get("resume_enemy_phase", false)):
+			checkpoints.append({
+				"boundary": str(checkpoint.get("boundary", "enemy_phase_continue")),
+				"resume_enemy_phase": true
+			})
+			continue
 		if typeof(checkpoint.get("state", null)) != TYPE_DICTIONARY:
 			continue
 		var checkpoint_state: Dictionary = (checkpoint.get("state", {}) as Dictionary).duplicate(true)

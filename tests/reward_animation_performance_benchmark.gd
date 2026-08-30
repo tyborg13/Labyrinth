@@ -9,7 +9,7 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const OUTPUT_DIR: String = "user://performance/reward_animation_benchmark"
-const WORKLOAD_ID: String = "post_combat_reward_sequence_v1"
+const WORKLOAD_ID: String = "post_combat_reward_sequence_v2"
 const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_volley"]
 const IDLE_FRAMES: int = 120
 
@@ -18,6 +18,9 @@ class FrameSampler:
 
 	var active: bool = false
 	var previous_tick_usec: int = 0
+	var last_draw_tick_usec: int = 0
+	var request_render: Callable
+	var observe_frame: Callable
 	var frame_intervals_ms: Array[float] = []
 	var process_ms: Array[float] = []
 	var draw_calls: Array[float] = []
@@ -25,8 +28,17 @@ class FrameSampler:
 	var primitives_in_frame: Array[float] = []
 
 	func _ready() -> void:
-		process_priority = 1000
-		set_process(true)
+		RenderingServer.frame_post_draw.connect(_on_frame_post_draw)
+		set_process(false)
+
+	func _exit_tree() -> void:
+		RenderingServer.frame_post_draw.disconnect(_on_frame_post_draw)
+
+	func _process(_delta: float) -> void:
+		# Request delivery during production coroutines too; timestamp only after
+		# rendering, never in the process callback that requests the redraw.
+		if request_render.is_valid():
+			request_render.call()
 
 	func begin() -> void:
 		frame_intervals_ms.clear()
@@ -34,11 +46,14 @@ class FrameSampler:
 		draw_calls.clear()
 		objects_in_frame.clear()
 		primitives_in_frame.clear()
-		previous_tick_usec = Time.get_ticks_usec()
+		assert(last_draw_tick_usec > 0, "Frame sampling requires a settled rendered frame")
+		previous_tick_usec = last_draw_tick_usec
 		active = true
+		set_process(true)
 
 	func finish() -> Dictionary:
 		active = false
+		set_process(false)
 		return {
 			"frame_interval_ms": frame_intervals_ms.duplicate(),
 			"process_ms": process_ms.duplicate(),
@@ -47,10 +62,13 @@ class FrameSampler:
 			"primitives_in_frame": primitives_in_frame.duplicate(),
 		}
 
-	func _process(_delta: float) -> void:
+	func _on_frame_post_draw() -> void:
+		var now_tick: int = Time.get_ticks_usec()
+		last_draw_tick_usec = now_tick
 		if not active:
 			return
-		var now_tick: int = Time.get_ticks_usec()
+		if observe_frame.is_valid():
+			observe_frame.call()
 		frame_intervals_ms.append(float(now_tick - previous_tick_usec) / 1000.0)
 		process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
 		draw_calls.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
@@ -114,6 +132,11 @@ func _initialize() -> void:
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	var sampler := FrameSampler.new()
+	sampler.request_render = _render_pulse.pulse
+	sampler.observe_frame = func() -> void:
+		_focus_observations += 1
+		if not DisplayServer.window_is_focused():
+			_unfocused_observations += 1
 	root.add_child(sampler)
 	var initially_focused: bool = await _acquire_probe_window_focus()
 	_expect(initially_focused, "native reward animation probe window must become focused")
@@ -133,8 +156,11 @@ func _initialize() -> void:
 	sampler.begin()
 	var victory_started_usec: int = Time.get_ticks_usec()
 	await PostCombatRewardSequence.play_victory(victory_overlay, false)
+	var victory_completion_ms: float = float(Time.get_ticks_usec() - victory_started_usec) / 1000.0
+	await _await_render_frame()
 	var victory: Dictionary = _phase_result(sampler.finish())
-	victory["completion_ms"] = float(Time.get_ticks_usec() - victory_started_usec) / 1000.0
+	victory["completion_ms"] = victory_completion_ms
+	victory["render_completion_ms"] = float(Time.get_ticks_usec() - victory_started_usec) / 1000.0
 	victory["board_instrumentation"] = _board_instrumentation(instance)
 	_expect(not victory_overlay.visible, "victory animation must finish hidden")
 
@@ -153,8 +179,11 @@ func _initialize() -> void:
 		sampler.begin()
 		var flip_started_usec: int = Time.get_ticks_usec()
 		await PostCombatRewardSequence._flip_card(flip_slots[index])
+		var flip_completion_ms: float = float(Time.get_ticks_usec() - flip_started_usec) / 1000.0
+		await _await_render_frame()
 		var flip_result: Dictionary = _phase_result(sampler.finish())
-		flip_result["completion_ms"] = float(Time.get_ticks_usec() - flip_started_usec) / 1000.0
+		flip_result["completion_ms"] = flip_completion_ms
+		flip_result["render_completion_ms"] = float(Time.get_ticks_usec() - flip_started_usec) / 1000.0
 		flip_result["board_instrumentation"] = _board_instrumentation(instance)
 		per_card_flips["card_%d" % (index + 1)] = flip_result
 	_expect(_visible_reward_face_count(flip_slots) == flip_slots.size(), "isolated card flips must reveal every reward face")
@@ -173,8 +202,11 @@ func _initialize() -> void:
 		reveal_parts.get("secondary_actions") as Control,
 		false
 	)
+	var reveal_completion_ms: float = float(Time.get_ticks_usec() - reveal_started_usec) / 1000.0
+	await _await_render_frame()
 	var reward_reveal: Dictionary = _phase_result(sampler.finish())
-	reward_reveal["completion_ms"] = float(Time.get_ticks_usec() - reveal_started_usec) / 1000.0
+	reward_reveal["completion_ms"] = reveal_completion_ms
+	reward_reveal["render_completion_ms"] = float(Time.get_ticks_usec() - reveal_started_usec) / 1000.0
 	reward_reveal["board_instrumentation"] = _board_instrumentation(instance)
 	instance.set("_reward_reveal_pending", false)
 	_expect(_visible_reward_face_count(reveal_slots) == reveal_slots.size(), "production reward reveal must finish with every card face visible")
@@ -201,6 +233,7 @@ func _initialize() -> void:
 	var results: Dictionary = {
 		"schema_version": 1,
 		"workload_id": WORKLOAD_ID,
+		"sample_boundary": "RenderingServer.frame_post_draw_v1",
 		"viewport": "%dx%d" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),

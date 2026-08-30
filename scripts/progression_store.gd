@@ -768,7 +768,9 @@ static func queue_progression_analytics_event(
 	var safe_idempotency_key: String = idempotency_key.strip_edges()
 	if safe_event_type.is_empty() or safe_idempotency_key.is_empty():
 		return normalized
-	var outbox: Array[Dictionary] = progression_analytics_outbox(normalized)
+	var outbox: Array[Dictionary] = _normalized_progression_analytics_outbox(
+		normalized.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	)
 	for entry: Dictionary in outbox:
 		if str(entry.get("idempotency_key", "")) == safe_idempotency_key:
 			return normalized
@@ -779,30 +781,46 @@ static func queue_progression_analytics_event(
 		"payload": payload.duplicate(true),
 	})
 	normalized[PROGRESSION_ANALYTICS_OUTBOX_KEY] = outbox
-	return _normalized_data(normalized)
+	return normalized
 
 static func acknowledge_progression_analytics_event(data: Dictionary, idempotency_key: String) -> Dictionary:
+	return acknowledge_progression_analytics_events(data, [idempotency_key])
+
+static func acknowledge_progression_analytics_events(data: Dictionary, idempotency_keys: Array) -> Dictionary:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	var safe_idempotency_key: String = idempotency_key.strip_edges()
-	if safe_idempotency_key.is_empty():
+	var acknowledged: Dictionary = {}
+	for idempotency_key_var: Variant in idempotency_keys:
+		var safe_idempotency_key: String = str(idempotency_key_var).strip_edges()
+		if not safe_idempotency_key.is_empty():
+			acknowledged[safe_idempotency_key] = true
+	if acknowledged.is_empty():
 		return normalized
 	var remaining: Array[Dictionary] = []
-	for entry: Dictionary in progression_analytics_outbox(normalized):
-		if str(entry.get("idempotency_key", "")) != safe_idempotency_key:
+	for entry: Dictionary in _normalized_progression_analytics_outbox(
+		normalized.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	):
+		if not acknowledged.has(str(entry.get("idempotency_key", ""))):
 			remaining.append(entry.duplicate(true))
 	normalized[PROGRESSION_ANALYTICS_OUTBOX_KEY] = remaining
-	return _normalized_data(normalized)
+	return normalized
 
 static func merge_progression_analytics_outbox(data: Dictionary, source: Dictionary) -> Dictionary:
 	var merged: Dictionary = _normalized_data(data.duplicate(true))
-	for entry: Dictionary in progression_analytics_outbox(source):
-		merged = queue_progression_analytics_event(
-			merged,
-			str(entry.get("event_type", "")),
-			str(entry.get("idempotency_key", "")),
-			entry.get("context", {}) as Dictionary,
-			entry.get("payload", {}) as Dictionary
-		)
+	var outbox: Array[Dictionary] = _normalized_progression_analytics_outbox(
+		merged.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	)
+	var known_keys: Dictionary = {}
+	for entry: Dictionary in outbox:
+		known_keys[str(entry.get("idempotency_key", ""))] = true
+	for entry: Dictionary in _normalized_progression_analytics_outbox(
+		source.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	):
+		var idempotency_key: String = str(entry.get("idempotency_key", ""))
+		if known_keys.has(idempotency_key):
+			continue
+		known_keys[idempotency_key] = true
+		outbox.append(entry)
+	merged[PROGRESSION_ANALYTICS_OUTBOX_KEY] = outbox
 	return merged
 
 static func can_reset_skills(data: Dictionary) -> bool:
