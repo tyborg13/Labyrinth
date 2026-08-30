@@ -1,6 +1,9 @@
 # Godot-specific
 .import/
 .godot/
+*.translation
+# Keep adjacent *.import and *.uid sidecars versioned. Godot 4 uses them for
+# authored import settings and stable resource identities; do not ignore them.
 export.cfg
 
 # Generated builds and SteamCMD/SteamPipe working files

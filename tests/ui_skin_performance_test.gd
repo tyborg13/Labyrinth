@@ -10,6 +10,7 @@ const VARIANTS: Array[String] = [
 	UiSkin.VARIANT_DESTRUCTIVE,
 	UiSkin.VARIANT_SELECTED,
 	UiSkin.VARIANT_ICON,
+	UiSkin.VARIANT_UMBRA,
 ]
 const THEME_STATES: Array[String] = [
 	"normal",

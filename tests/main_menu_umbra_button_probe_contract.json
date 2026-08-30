@@ -1,0 +1,62 @@
+{
+  "min_images": 7,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*idle_default_new_game_1920x1080_scale100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [60, 370, 450, 380], "min_luma_range": 35, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*pointer_hover_settings_1920x1080_scale100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [60, 370, 450, 380], "min_luma_range": 35, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*pointer_gap_retains_settings_1920x1080_scale100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [60, 370, 450, 380], "min_luma_range": 35, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*pointer_to_focus_handoff_new_game_1920x1080_scale100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [60, 370, 450, 380], "min_luma_range": 35, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*keyboard_focus_settings_pointer_empty_1920x1080_scale100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [60, 370, 450, 380], "min_luma_range": 35, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*stale_new_game_hover_focus_quit_1920x1080_scale100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [60, 370, 450, 380], "min_luma_range": 35, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*pressed_new_game_1920x1080_scale100.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [60, 370, 450, 380], "min_luma_range": 35, "min_luma_stdev": 7}
+      ]
+    }
+  ]
+}

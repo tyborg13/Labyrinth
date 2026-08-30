@@ -252,9 +252,21 @@ Encounter calibration is also important:
 - Fire trap burn ramps gently in the first sequence: depth `1-2` fire traps
   apply shallow burn pressure, then deeper standard fire rooms restore the
   heavier trap payload.
-- A standard combat room places exactly one utility pickup: a `2` HP healing
-  vial on `25%` of rolls, otherwise a `3` block rusty shield. Boss rooms place
-  one of each. Combat rooms also scatter `5-7` `3`-HP boxes/crates across
+- Combat and boss rooms scatter consumable item cards: `15%` have none, `65%`
+  have one, and `20%` have two. Equipment eligibility and drop rates are unchanged.
+  Pickups prefer a five-tile Manhattan gap from other items and equipment, with
+  the best legal separation used in cramped layouts. Items roll by their existing
+  rarity weights. The retired instant-heal/shield objects no longer spawn.
+  A free item slot auto-equips a pickup and adds it to hand; at the seven-card
+  hand cap it goes on top of the draw pile instead. With both slots occupied it
+  goes only to reserve inventory. Consumption removes one owned copy permanently
+  unless the existing preserve-item skill applies. Pickup access is encounter
+  context, not an intrinsic draw/tempo bonus in every item's score.
+  Items now target modest tactical effects (mostly scores `2–3.7`; Storm Jar
+  remains a narrow epic control premium at `4.84`), rather than the previous
+  `6.45–11.69` band. Item Time costs are `3–5`, retaining initiative tradeoffs.
+  Shop costs are `25/40/60/90` embers by rarity.
+  Combat rooms also scatter `5-7` `3`-HP boxes/crates across
   eligible passable floor tiles, including edge-band and corner floor tiles when
   connectivity stays intact. They block movement, do not block line of sight,
   and can be destroyed by player or enemy attacks, area effects, deterministic

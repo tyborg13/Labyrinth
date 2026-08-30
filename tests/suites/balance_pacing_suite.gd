@@ -272,46 +272,39 @@ static func _test_every_boss_victory_restores_health(expect: Callable) -> void:
 
 static func _test_sustain_is_bounded(expect: Callable) -> void:
 	var generator := RoomGenerator.new()
-	var healing_rooms: int = 0
-	for seed: int in range(200):
-		var room: Dictionary = generator.generate_room(seed, {
-			"coord": Vector2i(2, 0),
-			"depth": 2,
-			"type": "combat",
-			"element": "fire"
-		}, Vector2i(1, 0))
-		var utility_loot: Array = []
+	var histogram: Array[int] = [0, 0, 0]
+	var seen_items: Dictionary = {}
+	for seed: int in range(600):
+		var metadata: Dictionary = {"coord": Vector2i(2, 0), "depth": 2, "type": "combat", "element": "fire", "equipment_drop": "iron_cleaver"}
+		var room: Dictionary = generator.generate_room(seed, metadata, Vector2i(1, 0))
+		var repeated: Dictionary = generator.generate_room(seed, metadata, Vector2i(1, 0))
+		expect.call(room.get("loot", []) == repeated.get("loot", []), "Pickup scatter must be deterministic")
+		var items: int = 0
+		var positions: Array[Vector2i] = []
 		for loot_var: Variant in room.get("loot", []):
-			if typeof(loot_var) != TYPE_DICTIONARY:
-				continue
-			var loot: Dictionary = loot_var as Dictionary
-			if str(loot.get("kind", "")) in ["healing_vial", "rusty_shield"]:
-				utility_loot.append(loot)
-		expect.call(utility_loot.size() == 1, "Normal combat rooms should contain exactly one utility pickup")
-		if utility_loot.size() == 1:
-			var utility: Dictionary = utility_loot[0] as Dictionary
-			if str(utility.get("kind", "")) == "healing_vial":
-				healing_rooms += 1
-				expect.call(int(utility.get("amount", 0)) == 2, "Healing vials should restore two natural HP")
-			else:
-				expect.call(int(utility.get("amount", 0)) == 3, "Rusty shields should grant three natural block")
-	expect.call(healing_rooms >= 30 and healing_rooms <= 70, "Normal-room healing should remain near its 25% authored chance across deterministic seeds")
-	var boss_room: Dictionary = generator.generate_room(290734, {
-		"coord": Vector2i(4, 0),
-		"depth": 4,
-		"type": "boss",
-		"boss_id": "zekarion",
-		"element": "lightning"
-	}, Vector2i(1, 0))
-	var boss_utility_kinds: Array[String] = []
-	for loot_var: Variant in boss_room.get("loot", []):
-		if typeof(loot_var) != TYPE_DICTIONARY:
-			continue
-		var kind: String = str((loot_var as Dictionary).get("kind", ""))
-		if kind in ["healing_vial", "rusty_shield"]:
-			boss_utility_kinds.append(kind)
-	boss_utility_kinds.sort()
-	expect.call(boss_utility_kinds == ["healing_vial", "rusty_shield"], "Boss rooms should retain one healing vial and one shield")
+			var loot: Dictionary = loot_var
+			var kind: String = str(loot.get("kind", ""))
+			expect.call(kind in ["item", "equipment"], "Legacy potion/shield objects must not spawn")
+			if kind == "item":
+				items += 1
+				seen_items[str(loot.get("card_id", ""))] = true
+				expect.call(GameData.card_is_item(str(loot.get("card_id", ""))), "Each drop must provide a live item card")
+			var tile: Vector2i = loot.get("pos", Vector2i.ZERO)
+			for other: Vector2i in positions:
+				expect.call(absi(tile.x - other.x) + absi(tile.y - other.y) >= 4, "Items and equipment should occupy separated parts of generated rooms")
+			positions.append(tile)
+			expect.call(tile != room.get("player_start", Vector2i.ZERO), "Pickups should require movement")
+		expect.call(items <= 2, "Never spawn three items")
+		if items <= 2:
+			histogram[items] += 1
+	expect.call(histogram[0] >= 60 and histogram[0] <= 120, "Zero-item rooms should be near 15%")
+	expect.call(histogram[1] >= 340 and histogram[1] <= 440, "One-item rooms should predominate near 65%")
+	expect.call(histogram[2] >= 85 and histogram[2] <= 155, "Two-item rooms should be near 20%")
+	expect.call(seen_items.size() == GameData.item_card_ids().size(), "Every item should be available as a floor pickup")
+	print("ITEM DROP SAMPLE (600 rooms): ", histogram)
+	for seed: int in range(30):
+		var boss: Dictionary = generator.generate_room(seed, {"coord": Vector2i(4, 0), "depth": 4, "type": "boss", "boss_id": "zekarion", "element": "lightning"}, Vector2i(1, 0))
+		expect.call((boss.get("loot", []) as Array).size() <= 2, "Boss rooms also cap item drops at two")
 	for card_id_var: Variant in GameData.cards().keys():
 		var card_id: String = str(card_id_var)
 		var card: Dictionary = GameData.card_def(card_id)

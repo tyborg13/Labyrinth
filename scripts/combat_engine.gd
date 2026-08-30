@@ -1,6 +1,7 @@
 extends RefCounted
 class_name CombatEngine
 
+const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -13,7 +14,7 @@ const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const BASE_PLAYER_MOVEMENT: int = 2
-const MAX_HAND_SIZE: int = 7
+const MAX_HAND_SIZE: int = BattlefieldItemRules.MAX_HAND_SIZE
 const MAX_LOG_LINES: int = 12
 const PLAYER_BASE_INITIATIVE: int = 9
 const PLAYER_MIN_INITIATIVE: int = 5
@@ -786,7 +787,9 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"illusions": [],
 		"next_illusion_id": 1,
 		"traps": room_layout.get("traps", []).duplicate(true),
-		"loot": room_layout.get("loot", []).duplicate(true),
+		"loot": BattlefieldItemRules.normalized_loot(room_layout.get("loot", [])),
+		"equipped_items": player_snapshot.get("equipped_items", BattlefieldItemRules.active_items_from_deck({"draw": deck_cards})).duplicate(),
+		"item_inventory": player_snapshot.get("item_inventory", []).duplicate(),
 		"terrain": room_layout.get("terrain", []).duplicate(true),
 		"umbra": _initial_umbra_state(room_layout),
 		"relics": relic_ids,
@@ -1583,6 +1586,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 			consumed.append(card_id)
 			deck["consumed"] = consumed
 			destination = "consume"
+			BattlefieldItemRules.consume(next_state, card_id)
 	elif bool(card.get("burn", false)):
 		var escape_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_burn")
 		var escape_armed: bool = bool((next_state.get("skill_flags", {}) as Dictionary).get("burn_preserve_armed", false))
@@ -2781,8 +2785,9 @@ func resolve_missed_equipment_after_victory(state: Dictionary) -> Dictionary:
 		if typeof(loot_entries[index]) != TYPE_DICTIONARY:
 			continue
 		var loot: Dictionary = (loot_entries[index] as Dictionary).duplicate(true)
-		if str(loot.get("kind", "")) != "equipment" or bool(loot.get("claimed", false)):
+		if str(loot.get("kind", "")) not in ["equipment", "item"] or bool(loot.get("claimed", false)):
 			continue
+		# Left-behind items disappear with the room; only equipment is salvageable.
 		var equipment_id: String = str(loot.get("equipment_id", ""))
 		if not equipment_id.is_empty() and not missed_equipment.has(equipment_id):
 			missed_equipment.append(equipment_id)
@@ -6596,8 +6601,6 @@ func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vect
 
 func _preferred_pickup_scores(state: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
-	var player: Dictionary = _normalized_player(state.get("player", {}))
-	var missing_health: int = maxi(0, int(player.get("max_hp", 0)) - int(player.get("hp", 0)))
 	for loot_var: Variant in state.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
@@ -6613,10 +6616,8 @@ func _preferred_pickup_scores(state: Dictionary) -> Dictionary:
 				score = 8
 			"dropped_embers":
 				score = 5
-			"rusty_shield":
+			"item":
 				score = 4
-			"healing_vial":
-				score = 4 if missing_health > 0 else 0
 		if score > 0:
 			result[tile] = score
 	return result
@@ -7481,17 +7482,9 @@ func _collect_loot_at_player(state: Dictionary) -> void:
 		loot_entries[index] = loot
 		var amount: int = int(loot.get("amount", 0))
 		match str(loot.get("kind", "")):
-			"healing_vial":
-				var player: Dictionary = state.get("player", {})
-				var total_heal: int = amount
-				player["hp"] = mini(int(player.get("max_hp", 1)), int(player.get("hp", 0)) + total_heal)
-				state["player"] = player
-				_log(state, "Collected a potion for %d health." % total_heal)
-			"rusty_shield":
-				var shield_player: Dictionary = state.get("player", {})
-				shield_player["block"] = int(shield_player.get("block", 0)) + amount
-				state["player"] = shield_player
-				_log(state, "Collected a rusty shield for %d block." % amount)
+			"item":
+				BattlefieldItemRules.collect(state, loot)
+				_log(state, "Found %s." % str(GameData.card_def(str(loot.get("card_id", ""))).get("name", "item")))
 			"dropped_embers":
 				state["recovered_embers_total"] = int(state.get("recovered_embers_total", 0)) + amount
 				state["recovery_marker_claimed"] = true

@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RunEngine
 
+const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
@@ -55,10 +56,10 @@ const MERCHANT_MAGIC_BUY_COST_BY_RARITY := {
 	"legendary": 400
 }
 const MERCHANT_ITEM_BUY_COST_BY_RARITY := {
-	"common": 90,
-	"rare": 145,
-	"epic": 220,
-	"legendary": 330
+	"common": 25,
+	"rare": 40,
+	"epic": 60,
+	"legendary": 90
 }
 const MERCHANT_SELL_VALUE_RATIO: float = 0.35
 const MERCHANT_OFFER_COUNT: int = 3
@@ -292,6 +293,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
 	next_state = _repair_equipment_state(next_state)
+	next_state = BattlefieldItemRules.repair_loaded_run(next_state)
 	next_state = _repair_skill_dependent_state(next_state)
 	next_state = _repair_pending_escape(next_state)
 	if not next_state.has("equipment_drop_misses"):
@@ -991,6 +993,16 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 	)
 	next_state = _apply_recovered_embers_from_combat(next_state, combat_state)
 	next_state = _apply_collected_equipment_from_combat(next_state, combat_state)
+	# Combat owns pickup/consumption transactions, including duplicate copies.
+	# Copying the snapshot is idempotent across checkpoints, finish and reload.
+	if combat_state.has("equipped_items"):
+		next_state["equipped_items"] = _item_card_array(combat_state.get("equipped_items", []))
+		next_state["item_inventory"] = _item_card_array(combat_state.get("item_inventory", []))
+		next_state = _rebuild_deck_cards(next_state)
+		for loot: Dictionary in BattlefieldItemRules.pickups_between(run_state.get("combat_state", {}), combat_state):
+			var card_id: String = str(loot.get("card_id", ""))
+			if next_state["equipped_items"].has(card_id) or next_state["item_inventory"].has(card_id):
+				next_state = _mark_loadout_unread(next_state, "equipment", card_id)
 	return next_state
 
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
@@ -2013,6 +2025,8 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"hp": int(run_state.get("player_hp", 1)),
 		"max_hp": int(run_state.get("player_max_hp", 1)),
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
+		"equipped_items": run_state.get("equipped_items", []).duplicate(),
+		"item_inventory": run_state.get("item_inventory", []).duplicate(),
 		"skill_ids": ((run_state.get("progression", {}) as Dictionary).get("skill_ids", []) as Array).duplicate(),
 		"level": int((run_state.get("progression", {}) as Dictionary).get("level", 1)),
 		DEFIANCE_CAPACITY_KEY: int(run_state.get(DEFIANCE_CAPACITY_KEY, 0)),

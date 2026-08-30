@@ -19,6 +19,8 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path(RUN_PATH)
 	ProgressionStore.clear_saved_run()
 	await _test_hover_and_press_same_frame_activates_once()
+	await _test_empty_space_pointer_motion_preserves_navigation_focus()
+	await _test_disabled_pointer_target_preserves_navigation_focus()
 	SettingsStore.set_storage_path("user://startup_input_test_settings.json")
 	await _test_startup_sequence(false)
 	await _test_startup_sequence(true)
@@ -69,7 +71,7 @@ func _test_hover_and_press_same_frame_activates_once() -> void:
 	await process_frame
 	_expect(not settings_panel.visible, "Settings Back should return to the main menu")
 	instance.call("_unhandled_input", navigation_event)
-	_expect(start_button.has_focus(), "Keyboard navigation should recover after Settings closes")
+	_expect(settings_button.has_focus(), "Keyboard navigation should resume at the last Settings selection after Settings closes")
 	await _click_after_hover(instance, settings_button)
 	_expect(settings_panel.visible, "Settings should reopen on the first pointer click after focus recovery")
 
@@ -88,6 +90,117 @@ func _test_hover_and_press_same_frame_activates_once() -> void:
 		music_player.stop()
 		music_player.stream = null
 	instance.queue_free()
+	await process_frame
+
+func _test_empty_space_pointer_motion_preserves_navigation_focus() -> void:
+	var saved := RunEngine.new().create_new_run(82273, ProgressionStore.default_data())
+	ProgressionStore.save_run_state(saved)
+	var menu = load("res://scenes/main_menu.tscn").instantiate()
+	root.add_child(menu)
+	await process_frame
+	await process_frame
+	var continue_button: Button = menu.get_node("MenuColumn/ContinueButton")
+	var start_button: Button = menu.get_node("MenuColumn/StartButton")
+	var settings_button: Button = menu.get_node("MenuColumn/SettingsButton")
+	continue_button.grab_focus()
+	await process_frame
+	_expect(continue_button.has_focus(), "Valid-save navigation should begin on Continue Run")
+
+	var empty_motion := InputEventMouseMotion.new()
+	empty_motion.position = Vector2(1700.0, 920.0)
+	empty_motion.global_position = empty_motion.position
+	menu.call("_input", empty_motion)
+	await process_frame
+	_expect(continue_button.has_focus(), "Pointer motion over empty space must not clear Continue Run focus")
+
+	await _push_navigation_down(menu.get_viewport())
+	menu.call("_input", empty_motion)
+	await process_frame
+	_expect(start_button.has_focus(), "Empty-space pointer motion must preserve New Game focus during sequential navigation")
+	_expect(bool(start_button.get_meta("umbra_selected", false)) and not bool(continue_button.get_meta("umbra_selected", false)), "Empty-space pointer motion must not snap the molten selection back to Continue Run")
+
+	await _push_navigation_down(menu.get_viewport())
+	menu.call("_input", empty_motion)
+	await process_frame
+	_expect(settings_button.has_focus(), "Empty-space pointer motion must preserve Settings focus farther down the list")
+	_expect(bool(settings_button.get_meta("umbra_selected", false)) and not bool(continue_button.get_meta("umbra_selected", false)), "Sequential navigation must retain the last focused Umbra selection")
+	_expect(menu._using_keyboard_navigation, "Empty-space pointer motion must preserve keyboard/controller ownership")
+
+	var settings_panel: PanelContainer = menu.get_node("SettingsPanel")
+	var settings_back_button: Button = settings_panel.call("back_button") as Button
+	await _send_accept(KEY_ENTER)
+	_expect(settings_panel.visible, "Keyboard accept after empty-space pointer motion should open Settings")
+	_expect(settings_back_button.has_focus(), "Keyboard ownership should focus Settings Back after empty-space pointer motion")
+	await _send_accept(KEY_ENTER)
+	_expect(not settings_panel.visible, "Keyboard accept on Settings Back should close Settings")
+	_expect(settings_button.has_focus(), "Returning from Settings should restore focus to Settings after empty-space pointer motion")
+
+	var start_center: Vector2 = start_button.get_global_rect().get_center()
+	var start_hover := InputEventMouseMotion.new()
+	start_hover.position = start_center
+	start_hover.global_position = start_center
+	menu.get_viewport().push_input(start_hover, true)
+	await process_frame
+	_expect(start_button.is_hovered(), "Mixed-input regression should establish a real stale New Game hover")
+	menu._using_keyboard_navigation = true
+	settings_button.grab_focus()
+	menu.call_deferred("_restore_umbra_selection")
+	await process_frame
+	await process_frame
+	_expect(settings_button.has_focus(), "Later keyboard focus should remain on Settings while New Game is hovered")
+	_expect(bool(settings_button.get_meta("umbra_selected", false)) and not bool(start_button.get_meta("umbra_selected", false)), "Focused Settings must outrank an earlier stale New Game hover during deferred restoration")
+	menu.get_viewport().push_input(empty_motion, true)
+	await process_frame
+
+	settings_button.mouse_entered.emit()
+	await process_frame
+	settings_button.mouse_exited.emit()
+	await process_frame
+	_expect(not settings_button.has_focus() and bool(settings_button.get_meta("umbra_selected", false)), "Pointer movement through an action gap should retain the last hovered selection without fabricating focus")
+	var navigation_resume := InputEventKey.new()
+	navigation_resume.keycode = KEY_DOWN
+	navigation_resume.pressed = true
+	menu.call("_unhandled_input", navigation_resume)
+	await process_frame
+	_expect(settings_button.has_focus() and not continue_button.has_focus(), "Keyboard/controller handoff from a pointer gap must resume at the last selection instead of Continue Run")
+	_stop_menu_music(menu)
+	menu.queue_free()
+	await process_frame
+	ProgressionStore.clear_saved_run()
+
+func _test_disabled_pointer_target_preserves_navigation_focus() -> void:
+	ProgressionStore.clear_saved_run()
+	var menu = load("res://scenes/main_menu.tscn").instantiate()
+	root.add_child(menu)
+	await process_frame
+	await process_frame
+	var continue_button: Button = menu.get_node("MenuColumn/ContinueButton")
+	var settings_button: Button = menu.get_node("MenuColumn/SettingsButton")
+	_expect(continue_button.disabled, "Continue should be disabled without a saved run")
+	menu._using_keyboard_navigation = true
+	settings_button.grab_focus()
+	await process_frame
+	continue_button.mouse_entered.emit()
+	await process_frame
+	_expect(menu._using_keyboard_navigation, "Hovering disabled Continue must not steal keyboard/controller ownership")
+	_expect(settings_button.has_focus(), "Hovering disabled Continue must not clear the current navigation focus")
+	_expect(bool(settings_button.get_meta("umbra_selected", false)) and not bool(continue_button.get_meta("umbra_selected", false)), "Disabled Continue must not replace the active molten selection")
+	_stop_menu_music(menu)
+	menu.queue_free()
+	await process_frame
+
+func _push_navigation_down(viewport: Viewport) -> void:
+	var down_event := InputEventKey.new()
+	down_event.keycode = KEY_DOWN
+	down_event.physical_keycode = KEY_DOWN
+	down_event.pressed = true
+	viewport.push_input(down_event, true)
+	await process_frame
+	var release_event := InputEventKey.new()
+	release_event.keycode = KEY_DOWN
+	release_event.physical_keycode = KEY_DOWN
+	release_event.pressed = false
+	viewport.push_input(release_event, true)
 	await process_frame
 
 func _click_after_hover(instance: Node, button: Button) -> void:

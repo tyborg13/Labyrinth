@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-29T22:12:13Z",
+  "updated_at": "2026-08-30T03:00:50Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4052,28 +4052,6 @@
       }
     },
     {
-      "id": "mnt_20260702T192213Z_67905c06",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Item loadout UI should mirror gear drag/drop",
-      "details": "Character Gear item cards should use cropped art icons, not two-letter text badges, and player-facing equip/stow controls should stay drag-based like equipment. Dragging an equipped consumable back to inventory may leave the item loadout empty; do not reintroduce button-only item management unless the interaction model is deliberately redesigned.",
-      "status": "active",
-      "created_at": "2026-07-02T19:22:13Z",
-      "updated_at": "2026-07-02T19:22:13Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/scavenger-consumable-item-merchant",
-        "commit": "568a58b"
-      }
-    },
-    {
       "id": "mnt_20260702T215120Z_d4ba5ae0",
       "layer": "shared",
       "kind": "user_preference",
@@ -6423,28 +6401,6 @@
       }
     },
     {
-      "id": "mnt_20260730T034106Z_2c8f311d",
-      "layer": "shared",
-      "kind": "pitfall",
-      "scope": {
-        "level": "file",
-        "path": "scripts/main_menu.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/main_menu.gd",
-      "summary": "Main-menu pointer handoff must not queue focus clearing behind mouse-down",
-      "details": "Clear keyboard focus synchronously on mouse motion only when no mouse button is held. A deferred clear from hover can run between a same-frame press and release and cancel native Button activation; preserve focus while button_mask is nonzero and defer the release-path clear until after activation.",
-      "status": "active",
-      "created_at": "2026-07-30T03:41:06Z",
-      "updated_at": "2026-07-30T03:41:06Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/fix-intermittent-main-menu-double-click",
-        "commit": "1760679"
-      }
-    },
-    {
       "id": "mnt_20260730T050743Z_cb0b1db4",
       "layer": "shared",
       "kind": "user_preference",
@@ -7214,28 +7170,6 @@
       "source": {
         "branch": "codex/create-drop-in-elemental-trap-assets-and-actual-tile-preview",
         "commit": "8468bac"
-      }
-    },
-    {
-      "id": "mnt_20260808T120711Z_21f8b87e",
-      "layer": "shared",
-      "kind": "pitfall",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Retained render layers must inherit adaptive visual top clearance",
-      "details": "_board_layout_cache_visual_top_offset retains historical clearance across same-room visual snapshots. Materialize it on the parent before retained-layer invalidation and copy it in _sync_dynamic_render_state; otherwise a same-frame tall-content to Blink/illusion transition can leave floors and actors using different board origins.",
-      "status": "active",
-      "created_at": "2026-08-08T12:07:11Z",
-      "updated_at": "2026-08-08T12:07:11Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/fix-retained-combat-actor-tile-framing-desync",
-        "commit": "617e6d7"
       }
     },
     {
@@ -9236,6 +9170,76 @@
       }
     },
     {
+      "id": "mnt_20260828T122200Z_524fa8c1",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/battlefield_item_rules.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/battlefield_item_rules.gd",
+      "summary": "Combat snapshots own equipped_items and item_inventory for item-card pickups and consumption.",
+      "details": "Collection fills a free two-slot loadout slot and appends to hand below the seven-card cap, otherwise the top (back) of draw. Full slots store inventory only. RunEngine copies snapshot ownership idempotently; never separately erase a consumed item in RunScene or the headless harness. Legacy floor vials/shields migrate to card pickups with claimed flags preserved. Controller pickup detail_key must reach the board custom-tooltip builder to show real cards.",
+      "status": "active",
+      "created_at": "2026-08-28T12:22:00Z",
+      "updated_at": "2026-08-28T12:22:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/item-card-pickups-20260828",
+        "commit": "15569d54"
+      }
+    },
+    {
+      "id": "mnt_20260828T122659Z_c7126677",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Item loadout tiles use distinct item icons and retain equipment-style drag/drop.",
+      "details": "Use GameData.item_icon_path for compact inventory/loadout chips, matching the floating battlefield pickup; full card art stays inside actual CardWidgets. Keep item equip/stow drag based like equipment, including the ability to stow all items. Controller pickup inspection must reuse the rich board tooltip builder.",
+      "status": "active",
+      "created_at": "2026-08-28T12:26:59Z",
+      "updated_at": "2026-08-28T12:26:59Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260702T192213Z_67905c06"
+      ],
+      "source": {
+        "branch": "codex/item-card-pickups-20260828",
+        "commit": "15569d54"
+      }
+    },
+    {
+      "id": "mnt_20260828T190410Z_6cb386ac",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Retained render layers must reuse the complete resolved floor layout after invalidation.",
+      "details": "The owner retains adaptive top clearance across animation snapshots. Copying only its top-offset scalar during state sync is insufficient: a later layer-local resize/navigation invalidation can erase that history and independently frame actors about a tile above the floor. Movement overrides remain in owner pixel coordinates, so the mismatch appears as an upward jump when movement ends and affects enemies too. Have retained dynamic layers delegate layout rebuilds to the owner via _copy_resolved_board_layout_to, including resolved origin/width, navigation and independent container copies. Treat the retained layer size only as its cache-validity key while full-rect anchors settle. Regression proof must use tall-content/retained-clearance rooms, then invalidate/resize a child and compare complete actor geometry; an empty board can hide this defect.",
+      "status": "active",
+      "created_at": "2026-08-28T19:04:10Z",
+      "updated_at": "2026-08-28T19:04:10Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260808T120711Z_21f8b87e"
+      ],
+      "source": {
+        "branch": "codex/item-card-pickups-20260828",
+        "commit": "57c2a253"
+      }
+    },
+    {
       "id": "mnt_20260828T210755Z_aa92a4d4",
       "layer": "shared",
       "kind": "pitfall",
@@ -9255,6 +9259,94 @@
       "source": {
         "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
         "commit": "15569d54"
+      }
+    },
+    {
+      "id": "mnt_20260829T164242Z_80fbeb89",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Do not use Godot editor scans as parser checks in isolated worktrees",
+      "details": "Running godot --editor --quit in a clean worktree can generate project-wide adjacent .import and .uid sidecars, including misleading metadata for mirrored assets. Keep legitimate sidecars visible to version control and use runtime tests for parser coverage; tools/godot_task_runner.py rejects --editor unless --allow-editor-scan is explicitly passed.",
+      "status": "active",
+      "created_at": "2026-08-29T16:42:42Z",
+      "updated_at": "2026-08-29T16:42:42Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/item-card-pickups-20260828",
+        "commit": "29986f11"
+      }
+    },
+    {
+      "id": "mnt_20260829T181314Z_f9ed20c9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/main_menu.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/main_menu.gd",
+      "summary": "Main-menu branding uses one shared Steam title gradient",
+      "details": "Apply the five-stop cream-to-ember-to-wine palette across the complete two-row ESCAPE / THE UMBRA mark. Each word label receives its row offset plus the same full-logo gradient height; restarting the ramp per label makes every word cream-topped and visibly diverges from the generated Steam artwork.",
+      "status": "active",
+      "created_at": "2026-08-29T18:13:14Z",
+      "updated_at": "2026-08-29T18:13:14Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
+        "commit": "15569d54"
+      }
+    },
+    {
+      "id": "mnt_20260829T203550Z_058bbcd0",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/runtime_frame_performance_benchmark.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/runtime_frame_performance_benchmark.gd",
+      "summary": "Native frame proof must exclude lost-focus samples",
+      "details": "macOS may refuse programmatic focus for a background Godot window. Pause the benchmark while unfocused, discard the first resumed frame, and fail the proof after a bounded focus wait rather than reporting desktop-switching delays as game stalls.",
+      "status": "active",
+      "created_at": "2026-08-29T20:35:50Z",
+      "updated_at": "2026-08-29T20:35:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "c20d2c9a"
+      }
+    },
+    {
+      "id": "mnt_20260829T203550Z_0ccb0b96",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Retain ambient particle packed-buffer capacity",
+      "details": "Grow ambient vertex, UV, color, and index buffers in sprite-count chunks and update live quad slots by index. Keep warmed capacity across redraws and submit only live indices; do not rebuild temporary arrays per sprite.",
+      "status": "active",
+      "created_at": "2026-08-29T20:35:50Z",
+      "updated_at": "2026-08-29T20:35:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "c20d2c9a"
       }
     },
     {
@@ -9302,47 +9394,49 @@
       }
     },
     {
-      "id": "mnt_20260829T203550Z_0ccb0b96",
+      "id": "mnt_20260829T215854Z_f0934033",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "user_preference",
       "scope": {
         "level": "file",
-        "path": "scripts/combat_board_view.gd",
+        "path": "scripts/main_menu.gd",
         "symbol": null
       },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Retain ambient particle packed-buffer capacity",
-      "details": "Grow ambient vertex, UV, color, and index buffers in sprite-count chunks and update live quad slots by index. Keep warmed capacity across redraws and submit only live indices; do not rebuild temporary arrays per sprite.",
+      "scope_key": "file:scripts/main_menu.gd",
+      "summary": "Generated Umbra menu states preserve continuous charcoal-grey stone",
+      "details": "Match approved concept 5 with generated obsidian slabs, aged-brass armor, a molten focused state, and separate generated side markers; never reconstruct these elements procedurally. The inactive state must extinguish only the emission while retaining continuous textured charcoal-grey stone and narrow grey fissures\u2014never use broad black masks, blotches, soot, or missing-texture regions where the glow was. Exactly one hovered, focused, pressed, or default-primary choice may glow. Preserve native Button text, focus, accessibility, and input behavior plus the Steam-aligned logo/background composition.",
       "status": "active",
-      "created_at": "2026-08-29T20:35:50Z",
-      "updated_at": "2026-08-29T20:35:50Z",
+      "created_at": "2026-08-29T21:58:54Z",
+      "updated_at": "2026-08-29T21:58:54Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260829T215105Z_64d30791"
+      ],
       "source": {
-        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
-        "commit": "c20d2c9a"
+        "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
+        "commit": "0b81974d"
       }
     },
     {
-      "id": "mnt_20260829T203550Z_058bbcd0",
+      "id": "mnt_20260829T221212Z_7f44592a",
       "layer": "shared",
       "kind": "pitfall",
       "scope": {
         "level": "file",
-        "path": "tests/runtime_frame_performance_benchmark.gd",
+        "path": "scripts/performance_phase_partitioner.gd",
         "symbol": null
       },
-      "scope_key": "file:tests/runtime_frame_performance_benchmark.gd",
-      "summary": "Native frame proof must exclude lost-focus samples",
-      "details": "macOS may refuse programmatic focus for a background Godot window. Pause the benchmark while unfocused, discard the first resumed frame, and fail the proof after a bounded focus wait rather than reporting desktop-switching delays as game stalls.",
+      "scope_key": "file:scripts/performance_phase_partitioner.gd",
+      "summary": "Inclusive nested timers require exclusive interval partitioning without quadratic scans",
+      "details": "Keep inclusive local diagnostics, but rank frames from a non-overlapping exclusive partition. Use the sorted event/Fenwick/heap sweep; pairwise crossed-interval discovery and per-boundary full rescans can make the profiler itself stall on dense frames. Keep Steam perf_v1 aggregation unchanged.",
       "status": "active",
-      "created_at": "2026-08-29T20:35:50Z",
-      "updated_at": "2026-08-29T20:35:50Z",
+      "created_at": "2026-08-29T22:12:12Z",
+      "updated_at": "2026-08-29T22:12:12Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
         "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
-        "commit": "c20d2c9a"
+        "commit": "bcdf00a3"
       }
     },
     {
@@ -9370,28 +9464,6 @@
       }
     },
     {
-      "id": "mnt_20260829T221212Z_7f44592a",
-      "layer": "shared",
-      "kind": "pitfall",
-      "scope": {
-        "level": "file",
-        "path": "scripts/performance_phase_partitioner.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/performance_phase_partitioner.gd",
-      "summary": "Inclusive nested timers require exclusive interval partitioning without quadratic scans",
-      "details": "Keep inclusive local diagnostics, but rank frames from a non-overlapping exclusive partition. Use the sorted event/Fenwick/heap sweep; pairwise crossed-interval discovery and per-boundary full rescans can make the profiler itself stall on dense frames. Keep Steam perf_v1 aggregation unchanged.",
-      "status": "active",
-      "created_at": "2026-08-29T22:12:12Z",
-      "updated_at": "2026-08-29T22:12:12Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
-        "commit": "bcdf00a3"
-      }
-    },
-    {
       "id": "mnt_20260829T221213Z_333ab076",
       "layer": "shared",
       "kind": "decision",
@@ -9411,6 +9483,52 @@
       "source": {
         "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
         "commit": "bcdf00a3"
+      }
+    },
+    {
+      "id": "mnt_20260829T223214Z_ca158720",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/main_menu.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/main_menu.gd",
+      "summary": "Empty-space pointer motion must not reset main-menu navigation focus",
+      "details": "Keep keyboard/controller focus and the last Umbra selection when the pointer moves over empty space or crosses gaps between actions. Pointer ownership begins only when mouse_entered reaches an enabled action; then clear stale navigation focus synchronously before mouse-down when no mouse button is held. The primary Continue/New Game action is only the initial or invalid-selection fallback, never a magnet after mouse exit or idle motion.",
+      "status": "active",
+      "created_at": "2026-08-29T22:32:14Z",
+      "updated_at": "2026-08-29T22:32:14Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260730T034106Z_2c8f311d"
+      ],
+      "source": {
+        "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
+        "commit": "3b6f3f32"
+      }
+    },
+    {
+      "id": "mnt_20260829T224923Z_91c2d766",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/main_menu.gd",
+        "symbol": "_input"
+      },
+      "scope_key": "symbol:scripts/main_menu.gd#_input",
+      "summary": "Claim main-menu keyboard navigation before native Control consumes it",
+      "details": "Godot Button focus navigation can consume arrow and tab events before _unhandled_input. Set _using_keyboard_navigation during the early _input pass, while allowing empty-space InputEventMouseMotion to remain inert; otherwise visible focus moves but Enter opens Settings in pointer mode and does not focus Back.",
+      "status": "active",
+      "created_at": "2026-08-29T22:49:23Z",
+      "updated_at": "2026-08-29T22:49:23Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
+        "commit": "176ecd38"
       }
     }
   ]

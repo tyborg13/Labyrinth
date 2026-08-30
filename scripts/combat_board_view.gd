@@ -154,6 +154,7 @@ const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
 const LOOT_DRAW_TILE_WIDTH_SCALE: float = 0.34
 const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
+const ITEM_LOOT_TILE_WIDTH_SCALE: float = 0.42
 const EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE: float = -0.02
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
@@ -599,6 +600,7 @@ var _door_opening_frames: Array[Texture2D] = []
 var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
 var equipment_tooltip_builder: Callable
+var item_tooltip_builder: Callable
 var _idle_frames_by_type: Dictionary = {}
 var _death_frames_by_type: Dictionary = {}
 var _idle_animating: bool = false
@@ -826,14 +828,7 @@ func _sync_static_render_cache() -> void:
 		_static_render_cache_layer.set(field, get(field))
 	# Layout depends on the real viewport and UI safe area. A SubViewport must
 	# reuse the resolved board geometry, not reframe the room inside itself.
-	for field: String in [
-		"_board_layout_cache_valid", "_board_layout_content_cache_valid",
-		"_board_layout_cache_size", "_board_layout_cache_tiles", "_board_layout_cache_extents",
-		"_board_layout_cache_tile_width", "_board_layout_cache_origin",
-		"_board_layout_cache_tile_centers", "_board_layout_cache_tile_polygons"
-	]:
-		var value: Variant = get(field)
-		_static_render_cache_layer.set(field, value.duplicate() if value is Dictionary or value is Array else value)
+	_copy_resolved_board_layout_to(_static_render_cache_layer)
 	_static_render_cache_layer.queue_redraw()
 	_static_render_cache_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
 	_static_render_cache_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
@@ -1297,7 +1292,7 @@ func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> vo
 			if typeof(loot_var) != TYPE_DICTIONARY:
 				continue
 			var loot: Dictionary = loot_var
-			if not bool(loot.get("claimed", false)) and str(loot.get("kind", "")) == "equipment":
+			if not bool(loot.get("claimed", false)) and _is_floating_loot(loot):
 				_queue_scene_render_layer_for_tile(loot.get("pos", Vector2i(-1, -1)))
 	if _impact_animation_active() and not skip_impact:
 		_queue_impact_scene_redraws()
@@ -1432,7 +1427,7 @@ func _equipment_pickup_beacon_active() -> bool:
 		var loot: Dictionary = loot_var
 		if bool(loot.get("claimed", false)):
 			continue
-		if str(loot.get("kind", "")) == "equipment":
+		if _is_floating_loot(loot):
 			return true
 	return false
 
@@ -2363,7 +2358,7 @@ func _rebuild_submission_caches(presentation_changes: Dictionary = {}, combat_ch
 			if typeof(loot_var) != TYPE_DICTIONARY:
 				continue
 			var loot: Dictionary = loot_var
-			if not bool(loot.get("claimed", false)) and str(loot.get("kind", "")) == "equipment":
+			if not bool(loot.get("claimed", false)) and _is_floating_loot(loot):
 				_equipment_pickup_beacon_cache = true
 				break
 	if ability_changed:
@@ -2715,6 +2710,11 @@ func controller_tooltip_for_tile(tile: Vector2i) -> String:
 func _make_custom_tooltip(for_text: String) -> Object:
 	if for_text.strip_edges().is_empty():
 		return null
+	if for_text.begins_with("item:"):
+		var card_id: String = for_text.trim_prefix("item:")
+		if item_tooltip_builder.is_valid():
+			return item_tooltip_builder.call(card_id)
+		return UiTooltipPanel.make_text(str(GameData.card_def(card_id).get("name", card_id)))
 	if for_text.begins_with("equipment:"):
 		var equipment_id: String = for_text.trim_prefix("equipment:")
 		if not equipment_id.is_empty() and equipment_tooltip_builder.is_valid():
@@ -5857,11 +5857,11 @@ func _door_is_visible(tile: Vector2i) -> bool:
 	var locked_doors: Dictionary = presentation.get("locked_door_tiles", {})
 	return bool(locked_doors.get(tile, false))
 
-func _is_equipment_loot(loot: Dictionary) -> bool:
-	return str(loot.get("kind", "")) == "equipment"
+func _is_floating_loot(loot: Dictionary) -> bool:
+	return str(loot.get("kind", "")) in ["equipment", "item"]
 
 func _loot_renders_below_path(loot: Dictionary) -> bool:
-	return not _is_equipment_loot(loot)
+	return not _is_floating_loot(loot)
 
 func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary) -> void:
 	var accent: Color = _equipment_loot_accent(loot)
@@ -5966,6 +5966,8 @@ func _draw_tile_diamond_fill(tile: Vector2i, color: Color, scale: float) -> void
 	draw_colored_polygon(points, color)
 
 func _equipment_pickup_pulse(tile: Vector2i, loot: Dictionary) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.5
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
 	return 0.5 + 0.5 * sin(time_seconds * 2.65 + _equipment_loot_phase(tile, loot))
 
@@ -5973,11 +5975,13 @@ func _equipment_pickup_bob_offset(pulse: float) -> Vector2:
 	return Vector2(0.0, -_tile_height() * (0.035 + pulse * 0.060))
 
 func _equipment_loot_phase(tile: Vector2i, loot: Dictionary) -> float:
-	var equipment_id: String = str(loot.get("equipment_id", ""))
+	var equipment_id: String = str(loot.get("equipment_id", loot.get("card_id", "")))
 	var seed: int = abs(tile.x * 92821 + tile.y * 68917 + equipment_id.length() * 131)
 	return (float(seed % 1000) / 1000.0) * TAU
 
 func _equipment_loot_accent(loot: Dictionary) -> Color:
+	if str(loot.get("kind", "")) == "item":
+		return Color(GameData.card_rarity_accent(GameData.card_rarity(str(loot.get("card_id", "")))))
 	return Color(GameData.equipment_accent(str(loot.get("equipment_id", ""))))
 
 func _equipment_pickup_glow_color(accent: Color) -> Color:
@@ -5987,7 +5991,11 @@ func _loot_draw_width(loot: Dictionary) -> float:
 	# Board objects share the zoomed tile-space basis used by actor frames. Fixed
 	# pixel widths (and equipment's old min/max clamp) made pickups appear to
 	# shrink relative to actors, or stop growing altogether, when navigating in.
-	var width_scale: float = EQUIPMENT_LOOT_TILE_WIDTH_SCALE if _is_equipment_loot(loot) else LOOT_DRAW_TILE_WIDTH_SCALE
+	var width_scale: float = LOOT_DRAW_TILE_WIDTH_SCALE
+	if str(loot.get("kind", "")) == "item":
+		width_scale = ITEM_LOOT_TILE_WIDTH_SCALE
+	elif str(loot.get("kind", "")) == "equipment":
+		width_scale = EQUIPMENT_LOOT_TILE_WIDTH_SCALE
 	return _tile_width() * width_scale
 
 func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null, loot: Dictionary = {}) -> Rect2:
@@ -5996,16 +6004,14 @@ func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null, loot: Dictio
 	if texture != null and texture.get_size().x > 0.0:
 		draw_height = draw_width * texture.get_size().y / texture.get_size().x
 	var center: Vector2 = _tile_center(tile)
-	var baseline_scale: float = EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE if _is_equipment_loot(loot) else 0.30
+	var baseline_scale: float = EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE if _is_floating_loot(loot) else 0.30
 	var bottom_y: float = center.y + _tile_height() * baseline_scale
 	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
 func _loot_tooltip_text(loot: Dictionary) -> String:
 	match str(loot.get("kind", "")):
-		"healing_vial":
-			return "Healing potion: Heal %d" % int(loot.get("amount", 0))
-		"rusty_shield":
-			return "Rusty shield: Gain %d block" % int(loot.get("amount", 0))
+		"item":
+			return "item:%s" % str(loot.get("card_id", ""))
 		"dropped_embers":
 			return "Dropped embers: Reclaim %d" % int(loot.get("amount", 0))
 		"equipment":
@@ -6020,6 +6026,8 @@ func _equipment_loot_fallback_tooltip(equipment_id: String) -> String:
 	return "%s\n%s" % [item_name, slot.capitalize()]
 
 func _loot_texture(loot: Dictionary) -> Texture2D:
+	if str(loot.get("kind", "")) == "item":
+		return AssetLoader.load_texture(GameData.item_icon_path(str(loot.get("card_id", ""))))
 	if str(loot.get("kind", "")) == "equipment":
 		var item: Dictionary = GameData.equipment_def(str(loot.get("equipment_id", "")))
 		return AssetLoader.load_texture(str(item.get("icon_path", "")))
@@ -11910,7 +11918,7 @@ func _visual_framing_signature_for_state(next_state: Dictionary, next_presentati
 	parts.append("props:%s" % ";".join(scene_prop_entries))
 	var visible_tiles: Variant = next_presentation.get("umbra_visible_tiles", null)
 	parts.append("terrain:%s" % _visual_framing_board_entries_signature(next_state.get("terrain", []), "pos", ["kind"], true, "hp", visible_tiles))
-	parts.append("loot:%s" % _visual_framing_board_entries_signature(next_state.get("loot", []), "pos", ["kind", "equipment_id"], true, "claimed", visible_tiles))
+	parts.append("loot:%s" % _visual_framing_board_entries_signature(next_state.get("loot", []), "pos", ["kind", "equipment_id", "card_id"], true, "claimed", visible_tiles))
 	parts.append("traps:%s" % _visual_framing_board_entries_signature(next_state.get("traps", []), "pos", [], false, "", visible_tiles))
 	# unit_world_positions contains per-frame interpolation coordinates. Stable
 	# state positions drive framing so an animation cannot move the entire board
@@ -12342,8 +12350,6 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	for frame_texture: Texture2D in _door_opening_frames:
 		_door_opening_flipped_frames.append(AssetLoader.flip_texture_h(frame_texture))
 	_loot_textures = {
-		"healing_vial": AssetLoader.load_texture("res://assets/art/tiles/healing_vial.png"),
-		"rusty_shield": AssetLoader.load_texture("res://assets/art/tiles/rusty_shield.png"),
 		"dropped_embers": AssetLoader.load_texture(DROPPED_EMBERS_PATH)
 	}
 	_terrain_textures = {
@@ -13123,11 +13129,11 @@ func _rendered_tiles_in_draw_order() -> Array[Vector2i]:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_tiles
 
-func rendered_visual_bounds() -> Rect2:
+func rendered_visual_rects() -> Array[Rect2]:
 	# This is deliberately based on the exact draw rectangles used by the static
-	# board and DynamicRenderLayer, rather than only tile diamonds. Consumers use
-	# it for framing/collision proof so tall pillars, doors, actors, pickups, and
-	# room props cannot be silently clipped while the tile polygon still fits.
+	# board and DynamicRenderLayer, rather than only tile diamonds. Keeping the
+	# rectangles separate lets HUD collision checks distinguish a genuinely
+	# occupied corner from the empty corner of their combined bounding box.
 	_ensure_board_layout_cache()
 	var rects: Array[Rect2] = []
 	var grid: Array = combat_state.get("grid", [])
@@ -13202,6 +13208,13 @@ func rendered_visual_bounds() -> Rect2:
 		var trap: Dictionary = trap_var
 		if _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))):
 			rects.append(_trap_draw_rect(trap.get("pos", Vector2i(-1, -1))))
+	return rects
+
+func rendered_visual_bounds() -> Rect2:
+	# Consumers use the combined bound for broad framing so tall pillars, doors,
+	# actors, pickups, and room props cannot be silently clipped while the tile
+	# polygon still fits.
+	var rects: Array[Rect2] = rendered_visual_rects()
 	var bounds := Rect2()
 	var has_bounds: bool = false
 	for rect: Rect2 in rects:
@@ -13930,9 +13943,33 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 		_board_layout_cache_tiles.clear()
 		_board_layout_cache_extents.clear()
 
+func _copy_resolved_board_layout_to(layer: Control) -> void:
+	_ensure_board_layout_cache()
+	for field: String in [
+		"_board_layout_cache_valid", "_board_layout_content_cache_valid",
+		"_board_layout_cache_tiles", "_board_layout_cache_extents",
+		"_board_layout_cache_tile_width", "_board_layout_cache_origin",
+		"_board_layout_cache_visual_top_offset", "_board_layout_cache_tile_centers",
+		"_board_layout_cache_tile_polygons", "_navigation_zoom", "_navigation_pan",
+		"_navigation_uses_default_zoom"
+	]:
+		var value: Variant = get(field)
+		layer.set(field, value.duplicate() if value is Dictionary or value is Array else value)
+	# Retained controls share the owner's coordinate space even while full-rect
+	# anchors are settling; their local size must not trigger independent framing.
+	layer.set("_board_layout_cache_size", layer.size)
+
 func _ensure_board_layout_cache() -> void:
 	if _board_layout_cache_valid and _board_layout_cache_size == size:
 		return
+	if _is_dynamic_render_layer:
+		# Animation positions are already in the owner's resolved pixel space.
+		# Reframing them per layer can lose retained top clearance after a pickup,
+		# resize or zoom, so idle sprites jump away from the authoritative floor.
+		var board: Control = get_parent() as Control
+		if board != null and board.has_method("_copy_resolved_board_layout_to"):
+			board.call("_copy_resolved_board_layout_to", self)
+			return
 	if _navigation_uses_default_zoom:
 		_navigation_zoom = _default_navigation_zoom_for_viewport()
 	var tiles: Array[Vector2i] = _board_layout_cache_tiles

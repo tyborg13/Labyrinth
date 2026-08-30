@@ -108,6 +108,34 @@ class GodotTaskRunnerTests(unittest.TestCase):
         self.assertIn("SCRIPT ERROR: fake script failure", result.stdout)
         self.assertIn("reported script or test failures", result.stderr)
 
+    def test_editor_scan_requires_explicit_opt_in(self) -> None:
+        command = [
+            sys.executable,
+            str(RUNNER),
+            "--project",
+            str(ROOT),
+            "--task-id",
+            "runner-test",
+            "--godot-home-root",
+            self.home_root.name,
+            "--",
+            "godot",
+            "--headless",
+            "--editor",
+            "--quit",
+        ]
+        result = subprocess.run(
+            command,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=10,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("refusing Godot --editor scan", result.stderr)
+        self.assertIn(".import/.uid sidecars", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

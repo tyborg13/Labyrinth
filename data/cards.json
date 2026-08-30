@@ -2195,15 +2195,15 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 2,
-    "description": "Consume. Heal 6 and gain 3 block.",
+    "time": 3,
+    "description": "Consume. Heal 2.",
     "accent": "#b85642",
     "art_path": "res://assets/art/cards/crimson_draught.png",
     "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 6 },
-      { "type": "block", "amount": 3 }
-    ]
+      {"type": "heal", "amount": 2}
+    ],
+    "icon_path": "res://assets/art/items/crimson_draught.png"
   },
   "mossglass_elixir": {
     "name": "Mossglass Elixir",
@@ -2212,16 +2212,16 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 2,
-    "description": "Consume. Heal 5, gain 3 stoneskin, and draw 1.",
+    "time": 4,
+    "description": "Consume. Heal 2 and gain 1 stoneskin.",
     "accent": "#78a05a",
     "art_path": "res://assets/art/cards/mossglass_elixir.png",
     "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 5 },
-      { "type": "stoneskin", "amount": 3 },
-      { "type": "draw", "amount": 1 }
-    ]
+      {"type": "heal", "amount": 2},
+      {"type": "stoneskin", "amount": 1}
+    ],
+    "icon_path": "res://assets/art/items/mossglass_elixir.png"
   },
   "nail_bomb": {
     "name": "Nail Bomb",
@@ -2230,14 +2230,15 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 4,
-    "description": "Consume. Bomb a tile within 4 for 11, bleed 1, and sunder 3.",
+    "time": 5,
+    "description": "Consume. Bomb a tile within 4 for 3 and sunder 1.",
     "accent": "#a16d4a",
     "art_path": "res://assets/art/cards/nail_bomb.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 11, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "bleed": 1, "sunder": 3 }
-    ]
+      {"type": "aoe", "damage": 3, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "sunder": 1}
+    ],
+    "icon_path": "res://assets/art/items/nail_bomb.png"
   },
   "pitch_firebomb": {
     "name": "Pitch Firebomb",
@@ -2247,14 +2248,15 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 4,
-    "description": "Consume. Hurl fire at range 5 for 9 and burn 3 in a wide blast.",
+    "time": 5,
+    "description": "Consume. Hurl fire at range 4 for 3 and burn 1 in a small blast.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/pitch_firebomb.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 9, "range": 5, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 3 }
-    ]
+      {"type": "aoe", "damage": 3, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 1}
+    ],
+    "icon_path": "res://assets/art/items/pitch_firebomb.png"
   },
   "frost_snare": {
     "name": "Frost Snare",
@@ -2264,14 +2266,15 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 3,
-    "description": "Consume. Snap a target at range 5 for 6, freeze 1, and immobilize.",
+    "time": 5,
+    "description": "Consume. Snap a target at range 3 for 1 and freeze 1.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/frost_snare.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 6, "range": 5, "freeze": 1, "immobilize": true }
-    ]
+      {"type": "ranged", "damage": 1, "range": 3, "freeze": 1}
+    ],
+    "icon_path": "res://assets/art/items/frost_snare.png"
   },
   "storm_jar": {
     "name": "Storm Jar",
@@ -2281,14 +2284,15 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 3,
-    "description": "Consume. Deal 9 at range 6, shock 1, and chain 2.",
+    "time": 5,
+    "description": "Consume. Deal 3 at range 4, shock 1, and chain 1.",
     "accent": "#d2b65f",
     "art_path": "res://assets/art/cards/storm_jar.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 9, "range": 6, "shock": 1, "chain": 2 }
-    ]
+      {"type": "ranged", "damage": 3, "range": 4, "shock": 1, "chain": 1}
+    ],
+    "icon_path": "res://assets/art/items/storm_jar.png"
   },
   "smoke_bomb": {
     "name": "Smoke Bomb",
@@ -2297,16 +2301,16 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 1,
-    "description": "Consume. Blink 5, gain 6 block, and draw 1.",
+    "time": 3,
+    "description": "Consume. Blink 2 and gain 2 block.",
     "accent": "#7f8790",
     "art_path": "res://assets/art/cards/smoke_bomb.png",
     "reward_pool": false,
     "actions": [
-      { "type": "blink", "range": 5 },
-      { "type": "block", "amount": 6 },
-      { "type": "draw", "amount": 1 }
-    ]
+      {"type": "blink", "range": 2},
+      {"type": "block", "amount": 2}
+    ],
+    "icon_path": "res://assets/art/items/smoke_bomb.png"
   },
   "jaw_trap": {
     "name": "Jaw Trap",
@@ -2315,14 +2319,15 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 3,
-    "description": "Consume. Clamp a target at range 3 for 10, bleed 2, and immobilize.",
+    "time": 4,
+    "description": "Consume. Clamp a target at range 3 for 3 and immobilize.",
     "accent": "#9b4f43",
     "art_path": "res://assets/art/cards/jaw_trap.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 10, "range": 3, "bleed": 2, "immobilize": true }
-    ]
+      {"type": "ranged", "damage": 3, "range": 3, "immobilize": true}
+    ],
+    "icon_path": "res://assets/art/items/jaw_trap.png"
   },
   "bone_ward_charm": {
     "name": "Bone-Ward Charm",
@@ -2331,16 +2336,16 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 2,
-    "description": "Consume. Gain 7 stoneskin, 8 block, and 1 card play.",
+    "time": 4,
+    "description": "Consume. Gain 2 stoneskin and 3 block.",
     "accent": "#d0a65b",
     "art_path": "res://assets/art/cards/bone_ward_charm.png",
     "reward_pool": false,
     "actions": [
-      { "type": "stoneskin", "amount": 7 },
-      { "type": "block", "amount": 8 },
-      { "type": "card_play", "amount": 1 }
-    ]
+      {"type": "stoneskin", "amount": 2},
+      {"type": "block", "amount": 3}
+    ],
+    "icon_path": "res://assets/art/items/bone_ward_charm.png"
   },
   "grave_dust_satchel": {
     "name": "Grave Dust Satchel",
@@ -2349,14 +2354,15 @@
     "consume_on_play": true,
     "item": true,
     "health_cost": 0,
-    "time": 4,
-    "description": "Consume. Dust a tile within 4 for 8, poison 5, expose 4, and pierce.",
+    "time": 5,
+    "description": "Consume. Dust a tile within 3 for 2, poison 2, and pierce.",
     "accent": "#8d7a63",
     "art_path": "res://assets/art/cards/grave_dust_satchel.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 8, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "poison": 5, "expose": 4, "pierce": true }
-    ]
+      {"type": "aoe", "damage": 2, "range": 3, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "poison": 2, "pierce": true}
+    ],
+    "icon_path": "res://assets/art/items/grave_dust_satchel.png"
   },
   "windlass_volley": {
     "name": "Windlass Volley",
