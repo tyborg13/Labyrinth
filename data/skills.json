@@ -231,6 +231,7 @@
     "name": "Layaway",
     "icon": "skill_layaway",
     "description": "Once between bosses, hold one ware for the next Scavenger visit. A pending hold blocks future uses until it returns.",
+    "retired": true,
     "branch": "foresight",
     "tier": "junction",
     "position": [3, 4],

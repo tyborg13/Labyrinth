@@ -5927,7 +5927,6 @@ func _build_scavenger_shop_overlay(stage: Control) -> void:
 	shop_host.add_child(_scavenger_shop_view)
 	_scavenger_shop_view.buy_requested.connect(_on_scavenger_buy_requested)
 	_scavenger_shop_view.sell_requested.connect(_on_scavenger_sell_requested)
-	_scavenger_shop_view.reserve_requested.connect(_on_merchant_layaway_pressed)
 	_scavenger_shop_view.leave_requested.connect(_on_merchant_hide_pressed)
 	_scavenger_shop_view.item_hovered.connect(_on_merchant_row_mouse_entered)
 	_scavenger_shop_view.item_unhovered.connect(_on_merchant_row_mouse_exited)
@@ -10355,7 +10354,11 @@ func _show_skill_status_page_for_skill(skill_id: String) -> void:
 
 func _refresh_skill_status_popover(skill_ids: Array[String], refresh_statuses: bool = true) -> void:
 	var previous_selected_id: String = _skill_status_selected_id
-	_skill_status_skill_ids = SkillTreeLibrary.normalized_ids(skill_ids)
+	var normalized_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(skill_ids)
+	_skill_status_skill_ids.clear()
+	for skill_id: String in normalized_skill_ids:
+		if SkillTreeLibrary.is_player_visible(skill_id):
+			_skill_status_skill_ids.append(skill_id)
 	if _skill_status_title != null:
 		_skill_status_title.text = "ABILITIES"
 	if _skill_status_grid == null or _skill_status_popover == null:
@@ -14561,17 +14564,6 @@ func _add_merchant_return_to_shop_button() -> void:
 	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE, 0.0, true, UiSkin.VARIANT_LARGE)
 	button.pressed.connect(_on_merchant_return_to_shop_pressed)
 	_relic_choice_bar.add_child(button)
-
-func _on_merchant_layaway_pressed(item_id: String) -> void:
-	if _merchant_trade_animation_active:
-		return
-	var before_state: Dictionary = _run_state.duplicate(true)
-	_run_state = _run_engine.reserve_merchant_offer(_run_state, item_id)
-	if _run_state == before_state:
-		return
-	_close_pinned_tooltip()
-	_persist_committed_boundary("merchant_offer_held")
-	_refresh_ui()
 
 func _on_merchant_row_mouse_entered(merchant_kind: String, item_id: String, row: Control = null) -> void:
 	_merchant_hovered_kind = merchant_kind
@@ -22350,6 +22342,8 @@ func _on_scavenger_sell_requested(item_id: String, source: Control) -> void:
 
 func _animate_merchant_trade_row(source_row: Control, merchant_kind: String, item_id: String, buying: bool) -> void:
 	if not _node_is_alive(source_row):
+		return
+	if _reduced_motion_enabled():
 		return
 	var row: Control = source_row
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE

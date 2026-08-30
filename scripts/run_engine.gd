@@ -82,7 +82,7 @@ const UNREAD_LOADOUT_MAGIC_KEY: String = "unread_loadout_magic"
 const NEW_LOADOUT_EQUIPMENT_KEY: String = "new_loadout_equipment"
 const NEW_LOADOUT_MAGIC_KEY: String = "new_loadout_magic"
 const RUN_CONTENT_SCHEMA_KEY: String = "run_content_schema"
-const RUN_CONTENT_SCHEMA: int = 2
+const RUN_CONTENT_SCHEMA: int = 3
 const COMBAT_UNITS_SCHEMA_KEY: String = "combat_units_schema"
 const COMBAT_UNITS_SCHEMA: int = 1
 const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
@@ -699,7 +699,11 @@ static func _normalized_skill_state(value: Variant) -> Dictionary:
 	return result
 
 func run_skill_ids(run_state: Dictionary) -> Array[String]:
-	return SkillTreeLibrary.normalized_ids((run_state.get("progression", {}) as Dictionary).get("skill_ids", []))
+	var result: Array[String] = []
+	for skill_id: String in SkillTreeLibrary.normalized_ids((run_state.get("progression", {}) as Dictionary).get("skill_ids", [])):
+		if not SkillTreeLibrary.is_retired(skill_id):
+			result.append(skill_id)
+	return result
 
 func has_run_skill(run_state: Dictionary, skill_id: String) -> bool:
 	return run_skill_ids(run_state).has(skill_id)
@@ -1732,7 +1736,10 @@ func apply_progression_update(run_state: Dictionary, progression: Dictionary, pr
 
 func _repair_combat_skill_state(combat_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = combat_state.duplicate(true)
-	var combat_skills: Array[String] = SkillTreeLibrary.normalized_ids(next_state.get("skill_ids", []))
+	var combat_skills: Array[String] = []
+	for skill_id: String in SkillTreeLibrary.normalized_ids(next_state.get("skill_ids", [])):
+		if not SkillTreeLibrary.is_retired(skill_id):
+			combat_skills.append(skill_id)
 	next_state["skill_ids"] = combat_skills
 	var flags: Dictionary = (next_state.get("skill_flags", {}) as Dictionary).duplicate(true)
 	if not combat_skills.has("prismatic_instinct"):

@@ -441,7 +441,7 @@ func configure(context: Dictionary) -> void:
 	_unspent_points = maxi(0, int(context.get("unspent_points", _required_count - _owned_ids.size())))
 	_editing_enabled = bool(context.get("editing_enabled", true))
 	var requested_focus: String = str(context.get("focused_id", _focused_id))
-	_focused_id = requested_focus if SkillTreeLibrary.has_definition(requested_focus) else _default_focus_id()
+	_focused_id = requested_focus if SkillTreeLibrary.is_player_visible(requested_focus) else _default_focus_id()
 	if is_node_ready():
 		_refresh_summary()
 		_refresh_nodes()
@@ -456,7 +456,7 @@ func owned_skill_ids() -> Array[String]:
 	return _string_array(_owned_ids)
 
 func focus_skill(skill_id: String, ensure_visible: bool = true) -> void:
-	if not SkillTreeLibrary.has_definition(skill_id):
+	if not SkillTreeLibrary.is_player_visible(skill_id):
 		return
 	_focused_id = skill_id
 	_refresh_nodes()
@@ -490,7 +490,7 @@ func activate_focused_skill() -> void:
 	_on_detail_action_pressed()
 
 func status_for_skill(skill_id: String) -> String:
-	if not SkillTreeLibrary.has_definition(skill_id):
+	if not SkillTreeLibrary.is_player_visible(skill_id):
 		return STATE_LOCKED
 	if _owned_ids.has(skill_id):
 		return STATE_OWNED
@@ -608,7 +608,7 @@ func connection_intersection_pairs(clearance: float = 2.0) -> Array[String]:
 		var source_id: String = str(link.get("from_id", ""))
 		var target_id: String = str(link.get("to_id", ""))
 		var points: PackedVector2Array = link.get("points", PackedVector2Array()) as PackedVector2Array
-		for skill_id: String in SkillTreeLibrary.ordered_ids():
+		for skill_id: String in SkillTreeLibrary.visible_ids():
 			if skill_id in [source_id, target_id]:
 				continue
 			var obstacle: Rect2 = _node_visual_rect(skill_id).grow(clearance)
@@ -863,7 +863,7 @@ func _legend_symbol_kind(state: String) -> String:
 func _build_skill_nodes() -> void:
 	if _shared_empty_node_style == null:
 		_shared_empty_node_style = StyleBoxEmpty.new()
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var node_size: Vector2 = _node_size(skill_id)
 		var node_center: Vector2 = _node_center(skill_id)
 		_node_centers[skill_id] = node_center
@@ -1012,7 +1012,7 @@ func _refresh_summary() -> void:
 	_summary_label.text = "LEARNED %d  ·  POINTS %d" % [_owned_ids.size(), _unspent_points]
 
 func _refresh_nodes() -> void:
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var button: Button = node_for_skill(skill_id)
 		if button == null:
 			continue
@@ -1047,7 +1047,7 @@ func _rebuild_link_geometry() -> void:
 		_last_link_geometry_usec = Time.get_ticks_usec() - started_usec
 		return
 	var links: Array[Dictionary]
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
 			var sort_key: String = "%s>%s" % [prerequisite_id, skill_id]
 			links.append({
@@ -1098,7 +1098,7 @@ func _refresh_links() -> void:
 func _refresh_detail() -> void:
 	if _detail_title == null:
 		return
-	if not SkillTreeLibrary.has_definition(_focused_id):
+	if not SkillTreeLibrary.is_player_visible(_focused_id):
 		_detail_status.text = "SELECT A SKILL"
 		_detail_title.text = "Skill Tree"
 		_detail_description.text = "Choose a node to inspect its effect and requirements."
@@ -1163,7 +1163,7 @@ func _ensure_focused_visible() -> void:
 func _configure_focus_neighbors() -> void:
 	var started_usec: int = Time.get_ticks_usec()
 	_navigation_rebuild_count += 1
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var button: Button = node_for_skill(skill_id)
 		if button == null:
 			continue
@@ -1231,7 +1231,7 @@ func _navigation_neighbor_for_direction(skill_id: String, direction: String) -> 
 	if direction in ["left", "right"]:
 		var best_id: String = ""
 		var best_distance: float = INF
-		for candidate_id: String in SkillTreeLibrary.ordered_ids():
+		for candidate_id: String in SkillTreeLibrary.visible_ids():
 			if candidate_id == skill_id:
 				continue
 			var delta: Vector2 = _node_center(candidate_id) - origin
@@ -1395,7 +1395,7 @@ func _direct_dependent_ids(skill_id: String) -> Array[String]:
 	var result: Array[String]
 	if skill_id.is_empty():
 		return result
-	for candidate_id: String in SkillTreeLibrary.ordered_ids():
+	for candidate_id: String in SkillTreeLibrary.visible_ids():
 		if SkillTreeLibrary.prerequisites(candidate_id).has(skill_id):
 			result.append(candidate_id)
 	return result
@@ -1617,7 +1617,7 @@ func _link_points(source_id: String, target_id: String) -> PackedVector2Array:
 func _row_visual_edge(skill_id: String, bottom: bool) -> float:
 	var row_y: float = _node_center(skill_id).y
 	var edge: float = _node_visual_rect(skill_id).end.y if bottom else _node_visual_rect(skill_id).position.y
-	for candidate_id: String in SkillTreeLibrary.ordered_ids():
+	for candidate_id: String in SkillTreeLibrary.visible_ids():
 		if not is_equal_approx(_node_center(candidate_id).y, row_y):
 			continue
 		var candidate_rect: Rect2 = _node_visual_rect(candidate_id)
@@ -1709,7 +1709,7 @@ func _vertical_route_obstacle_ranges(
 	var result: Array[Vector2]
 	var segment_start: float = minf(start_y, end_y)
 	var segment_end: float = maxf(start_y, end_y)
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		if skill_id in [source_id, target_id]:
 			continue
 		var obstacle: Rect2 = _node_visual_rect(skill_id).grow(LINK_NODE_CLEARANCE)

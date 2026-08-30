@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-30T15:47:08Z",
+  "updated_at": "2026-08-30T19:10:23Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9376,69 +9376,53 @@
       }
     },
     {
-      "id": "mnt_20260830T051223Z_57fffb9a",
+      "id": "mnt_20260830T191010Z_b55fc0d1",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/scavenger_shop_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/scavenger_shop_view.gd",
+      "summary": "Scavenger offers use one interactive wrapper around passive canonical art",
+      "details": "Render Magic and sell-tray cards as native 250x352 CardWidgets beneath a uniform scaled parent so frame, title, art, and action rows keep authored proportions. Keep nested CardWidgets and board-icon TextureRects passive; the complete outer Button owns pointer/controller focus, hover lift, selection glow, tooltip signaling, and the price plaque so every ware category behaves as one object.",
+      "status": "active",
+      "created_at": "2026-08-30T19:10:10Z",
+      "updated_at": "2026-08-30T19:10:10Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260830T051223Z_57fffb9a",
+        "mnt_20260830T154707Z_b015dec8"
+      ],
+      "source": {
+        "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
+        "commit": "9450345f"
+      }
+    },
+    {
+      "id": "mnt_20260830T191023Z_c3063d9b",
       "layer": "shared",
       "kind": "pitfall",
       "scope": {
-        "level": "symbol",
-        "path": "scripts/scavenger_shop_view.gd",
-        "symbol": "_enable_card_focus"
-      },
-      "scope_key": "symbol:scripts/scavenger_shop_view.gd#_enable_card_focus",
-      "summary": "Shop CardWidget focus must be enabled after ready",
-      "details": "CardWidget._ready() intentionally resets focus_mode to FOCUS_NONE. When constructing shop cards off-tree, setting FOCUS_ALL before the offer subtree enters the scene tree is silently overwritten; connect the card's ready signal and enable focus afterward so keyboard/controller navigation works.",
-      "status": "active",
-      "created_at": "2026-08-30T05:12:23Z",
-      "updated_at": "2026-08-30T05:12:23Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
-        "commit": "74e6a909"
-      }
-    },
-    {
-      "id": "mnt_20260830T121449Z_36e9d556",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
         "level": "file",
         "path": "scripts/scavenger_shop_view.gd",
         "symbol": null
       },
       "scope_key": "file:scripts/scavenger_shop_view.gd",
-      "summary": "Layer the Scavenger portrait behind a pixel-exact foreground counter occluder",
-      "details": "The full-screen shop keeps the merchant animated and separate from the raster stall, then clips a second instance of the same backdrop to the left counter region above the portrait. Reusing the same raster guarantees the counter edge, lighting, and pixels align while hiding the merchant below the waist. The three live offer columns use 280px shelf slots aligned to the authored cabinet cubbies.",
+      "summary": "Scavenger wares align to the painted stall posts, not an equal 280 px grid",
+      "details": "At the authored 1920x1080 canvas, use the shelf group at x=655 with a centered 30 px row inset and three 260 px cubbies, producing offer and primary-art centers 815, 1075, and 1335. These centers follow the raster uprights; assert both wrapper and actual CardWidget/icon centers. Keep the portrait as a separate animated layer clipped from y=70 and occluded by a pixel-matched backdrop counter beginning at y=636 so the hood and bench join remain intact.",
       "status": "active",
-      "created_at": "2026-08-30T12:14:49Z",
-      "updated_at": "2026-08-30T12:14:49Z",
+      "created_at": "2026-08-30T19:10:23Z",
+      "updated_at": "2026-08-30T19:10:23Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260830T121449Z_36e9d556",
+        "mnt_20260830T185923Z_583dc6f9"
+      ],
       "source": {
         "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
-        "commit": "34435691"
-      }
-    },
-    {
-      "id": "mnt_20260830T154707Z_b015dec8",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/scavenger_shop_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/scavenger_shop_view.gd",
-      "summary": "Shop Magic cards scale their native CardWidget composition as a unit",
-      "details": "Scavenger shelf and sell-tray cards are rendered at CardWidget's authored 250x352 size beneath an outer scaled Control. Do not resize CardWidget itself to the shelf dimensions: its compact layout redistributes the art, title, and frame internals, which can make the raster art crop and title/nameplate registration visibly wrong. Keep focus and hover on the native CardWidget inside the scaled composition root.",
-      "status": "active",
-      "created_at": "2026-08-30T15:47:07Z",
-      "updated_at": "2026-08-30T15:47:07Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
-        "commit": "1b008394"
+        "commit": "9450345f"
       }
     }
   ]
