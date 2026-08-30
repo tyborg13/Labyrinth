@@ -1970,8 +1970,6 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 			"player_aoe_preview_active":
 				overlay_changed = true
-				foreground_changed = true
-				hud_changed = true
 			"path_color", "path_tiles":
 				path_changed = true
 			"enemy_threat_previews":
@@ -4981,6 +4979,7 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
+	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
 		_draw_objective_leader_beacon(tile)
 	if _objective_exit_tiles_lookup_cache.has(tile):
@@ -4992,11 +4991,8 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if _confirmation_target_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
 		_draw_exit_tile_pulse(tile)
-	if _focus_tiles_lookup_cache.has(tile):
-		if _player_aoe_preview_active():
-			_draw_aoe_footprint_highlight(tile)
-		else:
-			draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
+	if _focus_tiles_lookup_cache.has(tile) and not draw_aoe_footprint:
+		draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
 	if _move_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, MOVE_HIGHLIGHT)
 		_draw_tile_ring(tile, Color(0.60, 0.91, 0.94, 0.58), 2.0, 0.86)
@@ -5010,6 +5006,10 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
+	if draw_aoe_footprint:
+		# Keep every legal center visible, then layer the concrete consequence on
+		# top so it remains the unmistakable primary targeting signal.
+		_draw_aoe_footprint_highlight(tile)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
 	if tile == _hover_tile and _controller_focus_tile.x < 0:
@@ -5047,8 +5047,6 @@ func _draw_attack_target_pulse(tile: Vector2i) -> void:
 	_draw_tile_ring(tile, Color(1.0, 0.78, 0.44, alpha), width, scale)
 
 func _draw_attack_tile_highlight(tile: Vector2i) -> void:
-	if _player_aoe_preview_active():
-		return
 	draw_colored_polygon(_tile_polygon(tile), ATTACK_HIGHLIGHT)
 	if bool(presentation.get("pulse_attack_tiles", false)):
 		_draw_attack_target_pulse(tile)
@@ -5057,8 +5055,11 @@ func _player_aoe_preview_active() -> bool:
 	return bool(presentation.get("player_aoe_preview_active", false))
 
 func _draw_aoe_footprint_highlight(tile: Vector2i) -> void:
-	draw_colored_polygon(_tile_polygon(tile), AOE_FOOTPRINT_HIGHLIGHT)
-	_draw_tile_ring(tile, AOE_FOOTPRINT_EDGE, 2.4, 0.92)
+	_draw_aoe_footprint_tile(tile, AOE_FOOTPRINT_HIGHLIGHT, AOE_FOOTPRINT_EDGE, 2.4)
+
+func _draw_aoe_footprint_tile(tile: Vector2i, fill: Color, edge: Color, edge_width: float) -> void:
+	draw_colored_polygon(_tile_polygon(tile), fill)
+	_draw_tile_ring(tile, edge, edge_width, 0.92)
 
 func _large_enemy_attack_highlight_tiles(units_to_draw: Array[Dictionary]) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -6128,7 +6129,7 @@ func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
 		return true
 	if not _terrain_damage_preview(terrain).is_empty():
 		return true
-	return not _player_aoe_preview_active() and attack_tiles.has(terrain.get("pos", Vector2i(-1, -1)))
+	return attack_tiles.has(terrain.get("pos", Vector2i(-1, -1)))
 
 func _terrain_damage_preview(terrain: Dictionary) -> Dictionary:
 	if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
@@ -7967,14 +7968,6 @@ func status_text_local_bounds() -> Rect2:
 		return label_bounds
 	var detail_bounds: Rect2 = layout.get("detail", Rect2()) as Rect2
 	return label_bounds.merge(detail_bounds)
-
-func _draw_target_reticle(center: Vector2, color: Color, radius: float = 10.0) -> void:
-	draw_circle(center, radius * 0.28, Color(color.r, color.g, color.b, color.a * 0.30))
-	draw_arc(center, radius, 0.0, TAU, 24, color, 2.2)
-	draw_line(center + Vector2(-radius - 3.0, 0.0), center + Vector2(-radius * 0.35, 0.0), color, 2.0)
-	draw_line(center + Vector2(radius + 3.0, 0.0), center + Vector2(radius * 0.35, 0.0), color, 2.0)
-	draw_line(center + Vector2(0.0, -radius - 3.0), center + Vector2(0.0, -radius * 0.35), color, 2.0)
-	draw_line(center + Vector2(0.0, radius + 3.0), center + Vector2(0.0, radius * 0.35), color, 2.0)
 
 func _draw_projectile_diamond(center: Vector2, direction: Vector2, color: Color, size: float = 5.0) -> void:
 	var dir: Vector2 = direction.normalized() if direction.length() > 0.01 else Vector2.RIGHT
@@ -10586,68 +10579,23 @@ func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, 
 			_draw_ranged_target_preview_curve(effect, from_point, center_point)
 		return
 	var accent: Color = _aoe_effect_accent(effect)
-	var secondary: Color = _aoe_effect_secondary(effect)
-	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
-	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.05)
-	var reveal: float = clampf(progress / 0.42, 0.0, 1.0)
-	var base_alpha: float = 0.42 + reveal * 0.42
-	for tile: Vector2i in tiles:
-		var ring_scale: float = 0.76 + 0.08 * reveal
-		_draw_tile_ring(tile, Color(accent.r, accent.g, accent.b, base_alpha), 3.0 + 1.0 * reveal, ring_scale)
-		draw_circle(_tile_center(tile), _tile_width() * 0.065, Color(secondary.r, secondary.g, secondary.b, 0.22 + 0.14 * pulse))
-	if center_point != Vector2.ZERO:
-		var reticle_radius: float = _tile_width() * (0.16 + 0.025 * pulse)
-		_draw_target_reticle(center_point + Vector2(0.0, -_tile_height() * 0.42), Color(accent.r, accent.g, accent.b, 0.84 + 0.14 * pulse), reticle_radius)
-	var line_tiles: Array[Vector2i] = _ordered_aoe_line_tiles_for_effect(effect)
-	if line_tiles.size() >= 2:
-		_draw_aoe_line_effect(line_tiles, accent, secondary, base_alpha)
-
-func _draw_aoe_line_effect(line_tiles: Array[Vector2i], accent: Color, secondary: Color, alpha: float) -> void:
-	var points := PackedVector2Array()
-	for tile: Vector2i in line_tiles:
-		points.append(_tile_center(tile) + Vector2(0.0, -_tile_height() * 0.62))
-	if points.size() < 2:
+	var visibility: float = _aoe_resolution_footprint_visibility(effect, progress)
+	if visibility <= 0.0:
 		return
-	var core_width: float = 4.6
-	draw_polyline(points, Color(0.0, 0.0, 0.0, alpha * 0.26), core_width + 9.0, true)
-	draw_polyline(points, Color(secondary.r, secondary.g, secondary.b, alpha * 0.44), core_width + 4.8, true)
-	draw_polyline(points, Color(accent.r, accent.g, accent.b, alpha), core_width, true)
-	for index: int in range(points.size() - 1):
-		_draw_aoe_bolt_segment(points[index], points[index + 1], accent, secondary, alpha)
-	for point: Vector2 in points:
-		draw_circle(point, 6.0, Color(1.0, 0.96, 0.72, alpha * 0.62))
-
-func _draw_aoe_bolt_segment(start: Vector2, finish: Vector2, accent: Color, secondary: Color, alpha: float) -> void:
-	var delta: Vector2 = finish - start
-	if delta.length_squared() <= 1.0:
-		return
-	var perpendicular: Vector2 = Vector2(-delta.y, delta.x).normalized()
-	var mid: Vector2 = start.lerp(finish, 0.5) + perpendicular * 7.0
-	draw_line(start, mid, Color(0.0, 0.0, 0.0, alpha * 0.24), 7.0, true)
-	draw_line(mid, finish, Color(0.0, 0.0, 0.0, alpha * 0.24), 7.0, true)
-	draw_line(start, mid, Color(secondary.r, secondary.g, secondary.b, alpha * 0.78), 3.4, true)
-	draw_line(mid, finish, Color(secondary.r, secondary.g, secondary.b, alpha * 0.78), 3.4, true)
-	draw_line(start, mid, Color(accent.r, accent.g, accent.b, alpha), 1.6, true)
-	draw_line(mid, finish, Color(accent.r, accent.g, accent.b, alpha), 1.6, true)
-
-func _ordered_aoe_line_tiles_for_effect(effect: Dictionary) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
-	if tiles.size() < 2:
-		return _vector2i_array([])
-	var same_x: bool = true
-	var same_y: bool = true
-	var first_tile: Vector2i = tiles[0]
+	var edge_rgb: Color = accent.lightened(0.34)
+	var fill := Color(accent.r, accent.g, accent.b, 0.18 * visibility)
+	var edge := Color(edge_rgb.r, edge_rgb.g, edge_rgb.b, 0.78 * visibility)
 	for tile: Vector2i in tiles:
-		if tile.x != first_tile.x:
-			same_x = false
-		if tile.y != first_tile.y:
-			same_y = false
-	if not same_x and not same_y:
-		return _vector2i_array([])
-	tiles.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
-		return a.y < b.y if same_x else a.x < b.x
-	)
-	return tiles
+		_draw_aoe_footprint_tile(tile, fill, edge, 2.0)
+
+func _aoe_resolution_footprint_visibility(effect: Dictionary, progress: float) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.86
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var impact_progress: float = AttackFxLibrary.impact_progress_for_style(style, progress)
+	var reveal: float = smoothstep(0.0, 0.16, impact_progress)
+	var fade: float = 1.0 - smoothstep(0.72, 1.0, impact_progress)
+	return reveal * fade
 
 func _aoe_effect_accent(effect: Dictionary) -> Color:
 	var element_id: String = _effect_element(effect)
@@ -10656,21 +10604,6 @@ func _aoe_effect_accent(effect: Dictionary) -> Color:
 			return Color(1.0, 0.91, 0.34, 1.0)
 		return ElementData.accent(element_id).lightened(0.22)
 	return Color(1.0, 0.76, 0.42, 1.0)
-
-func _aoe_effect_secondary(effect: Dictionary) -> Color:
-	match _effect_element(effect):
-		ElementData.FIRE:
-			return Color(1.0, 0.38, 0.18, 1.0)
-		ElementData.ICE:
-			return Color(0.62, 0.90, 1.0, 1.0)
-		ElementData.LIGHTNING:
-			return Color(0.58, 0.78, 1.0, 1.0)
-		ElementData.AIR:
-			return Color(0.70, 1.0, 0.90, 1.0)
-		ElementData.EARTH:
-			return Color(0.80, 0.94, 0.48, 1.0)
-		_:
-			return Color(1.0, 0.92, 0.64, 1.0)
 
 func _effect_element(effect: Dictionary) -> String:
 	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))

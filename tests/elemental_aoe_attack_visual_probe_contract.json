@@ -1,0 +1,15 @@
+{
+  "min_images": 9,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*cinderburst_20_travel.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "*cinderburst_40_impact.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "*molten_reach_20_travel.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "*molten_reach_40_impact.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "*rime_shard_20_travel.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "*rime_shard_40_impact.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "*rime_shard_80_reduced_motion.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "*thunderline_20_travel.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]},
+    {"pattern": "*thunderline_40_impact.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 100, 1320, 650], "min_luma_range": 12, "min_luma_stdev": 2}]}
+  ]
+}

@@ -7,7 +7,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR := "user://probes/aoe_targeting_preview_v2"
+const OUTPUT_DIR := "user://probes/aoe_targeting_preview_v3"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const BOARD_PATH := "BoardUnderlay/CombatBoard"
 const PLAYER_TILE := Vector2i(2, 4)
@@ -214,12 +214,13 @@ func _assert_aoe_preview(instance: Node, card_id: String, expected_tiles: Array,
 	_expect(
 		bool(presentation.get("player_aoe_preview_active", false))
 		and bool(board.call("_player_aoe_preview_active")),
-		"%s %s should suppress the broad legal-center wash while its footprint is active" % [card_id, direction]
+		"%s %s should select the prominent AOE footprint treatment" % [card_id, direction]
 	)
 	_expect(
 		_same_tiles(board.get("attack_tiles") as Array, legal_targets),
-		"%s %s should preserve its legal centers as interaction data while hiding their paint" % [card_id, direction]
+		"%s %s should keep every legal center visible beneath the focused footprint" % [card_id, direction]
 	)
+	_expect(not bool(presentation.get("pulse_attack_tiles", false)), "%s %s legal centers should remain static" % [card_id, direction])
 	_expect(
 		legal_targets.has(AIM_TILE) and legal_targets.size() > expected_tiles.size(),
 		"%s %s should keep a larger legal-center set behind the focused footprint" % [card_id, direction]
