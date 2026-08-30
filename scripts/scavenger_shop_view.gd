@@ -23,6 +23,7 @@ const MAGIC := "magic"
 const GEAR := "gear"
 const ITEM := "item"
 const MERCHANT_KIND := "scavenger"
+const NATIVE_CARD_SIZE := Vector2(250.0, 352.0)
 const OFFER_CARD_SIZE := Vector2(154.0, 216.0)
 const OFFER_TILE_SIZE := Vector2(196.0, 170.0)
 const SELL_TILE_SIZE := Vector2(218.0, 192.0)
@@ -479,17 +480,7 @@ func _build_magic_offer(item_id: String) -> Control:
 	stack.add_child(selection)
 	var center := CenterContainer.new()
 	selection.add_child(center)
-	var card := CardWidgetScene.instantiate()
-	card.name = "MagicCard_%s" % item_id
-	card.custom_minimum_size = OFFER_CARD_SIZE
-	card.configure(item_id, false, false, true, false, true, true, GameData.card_def(item_id))
-	card.set_hover_pose(-12.0, 1.055)
-	card.activated.connect(_select_item.bind(item_id, false, card))
-	card.focus_entered.connect(_focus_item.bind(item_id, false, card))
-	card.mouse_entered.connect(_hover_item.bind(item_id, card))
-	card.mouse_exited.connect(_unhover_item.bind(item_id, card))
-	card.ready.connect(_enable_card_focus.bind(card), CONNECT_ONE_SHOT)
-	center.add_child(card)
+	var card := _build_native_scaled_card(center, item_id, OFFER_CARD_SIZE, false, "MagicCard")
 	var affordable: bool = _offer_is_affordable(item_id, false)
 	card.set_meta("shop_affordable", affordable)
 	card.tooltip_text = _offer_tooltip(item_id, false, affordable)
@@ -573,17 +564,7 @@ func _build_sell_magic_offer(item_id: String) -> Control:
 	stack.add_child(selection)
 	var center := CenterContainer.new()
 	selection.add_child(center)
-	var card := CardWidgetScene.instantiate()
-	card.name = "SellMagicCard_%s" % item_id
-	card.custom_minimum_size = Vector2(112.0, 156.0)
-	card.configure(item_id, false, false, true, false, true, true, GameData.card_def(item_id))
-	card.set_hover_pose(-5.0, 1.045)
-	card.activated.connect(_select_item.bind(item_id, true, card))
-	card.focus_entered.connect(_focus_item.bind(item_id, true, card))
-	card.mouse_entered.connect(_hover_item.bind(item_id, card))
-	card.mouse_exited.connect(_unhover_item.bind(item_id, card))
-	card.ready.connect(_enable_card_focus.bind(card), CONNECT_ONE_SHOT)
-	center.add_child(card)
+	var card := _build_native_scaled_card(center, item_id, Vector2(112.0, 156.0), true, "SellMagicCard")
 	card.set_meta("shop_affordable", true)
 	card.tooltip_text = _offer_tooltip(item_id, true, true)
 	var value := Label.new()
@@ -597,6 +578,45 @@ func _build_sell_magic_offer(item_id: String) -> Control:
 	_offer_sources["sell:%s" % item_id] = card
 	_selection_effects["sell:%s" % item_id] = selection
 	return stack
+
+func _build_native_scaled_card(
+	container: Control,
+	item_id: String,
+	visual_size: Vector2,
+	selling: bool,
+	name_prefix: String
+) -> CardWidget:
+	# CardWidget's art crop, title fitting, and raster nameplate are authored at
+	# 250x352. Keep that complete composition intact, then scale an intermediary
+	# transform to the shelf size. Resizing CardWidget itself asks its compact
+	# layout to redistribute those pieces and can separate the title from the
+	# nameplate even though the outer frame looks correctly sized.
+	var visual_root := Control.new()
+	visual_root.name = "%sVisualRoot_%s" % [name_prefix, item_id]
+	visual_root.custom_minimum_size = visual_size
+	visual_root.size = visual_size
+	visual_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(visual_root)
+	var composition_root := Control.new()
+	composition_root.name = "NativeCardComposition"
+	composition_root.size = NATIVE_CARD_SIZE
+	composition_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fit: float = minf(visual_size.x / NATIVE_CARD_SIZE.x, visual_size.y / NATIVE_CARD_SIZE.y)
+	composition_root.scale = Vector2.ONE * fit
+	composition_root.position = (visual_size - NATIVE_CARD_SIZE * fit) * 0.5
+	visual_root.add_child(composition_root)
+	var card := CardWidgetScene.instantiate() as CardWidget
+	card.name = "%s_%s" % [name_prefix, item_id]
+	_place(card, Rect2(Vector2.ZERO, NATIVE_CARD_SIZE))
+	card.configure(item_id, false, false, true, false, true, true, GameData.card_def(item_id))
+	card.set_hover_pose(-12.0 if not selling else -7.0, 1.055 if not selling else 1.045)
+	card.activated.connect(_select_item.bind(item_id, selling, card))
+	card.focus_entered.connect(_focus_item.bind(item_id, selling, card))
+	card.mouse_entered.connect(_hover_item.bind(item_id, card))
+	card.mouse_exited.connect(_unhover_item.bind(item_id, card))
+	card.ready.connect(_enable_card_focus.bind(card), CONNECT_ONE_SHOT)
+	composition_root.add_child(card)
+	return card
 
 func _enable_card_focus(card: Control) -> void:
 	# CardWidget intentionally initializes as pointer-only. Shop cards are discrete
