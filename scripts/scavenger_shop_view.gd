@@ -588,6 +588,13 @@ func _offer_tooltip(item_id: String, selling: bool, affordable: bool) -> String:
 	return "%s\nPrice: %d embers — need %d more" % [_item_name(item_id), amount, amount - held]
 
 func _select_item(item_id: String, selling: bool, source: Control) -> void:
+	if (
+		_selected_source != null
+		and is_instance_valid(_selected_source)
+		and _selected_source != source
+		and _selected_source.has_method("set_external_highlighted")
+	):
+		_selected_source.call("set_external_highlighted", false)
 	_selected_item_id = item_id
 	_selected_is_sell = selling
 	_selected_source = source

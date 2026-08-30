@@ -60,10 +60,13 @@ func _capture_states() -> void:
 
 	var offers: Array = run_engine.merchant_offer_ids(state, RunEngine.MERCHANT_SCAVENGER)
 	var controller_offer_id: String = ""
+	var second_magic_id: String = ""
 	for offer_var: Variant in offers:
 		if run_engine.merchant_item_kind(str(offer_var)) == RunEngine.MERCHANT_ITEM_KIND_MAGIC:
-			controller_offer_id = str(offer_var)
-			break
+			if controller_offer_id.is_empty():
+				controller_offer_id = str(offer_var)
+			elif second_magic_id.is_empty():
+				second_magic_id = str(offer_var)
 	var controller_offer: Control = _offer_source(shop, controller_offer_id, false)
 	if controller_offer == null:
 		_fail("Scavenger Magic should expose a controller-focusable real card")
@@ -75,6 +78,18 @@ func _capture_states() -> void:
 		var controller_snapshot: Dictionary = shop.call("semantic_snapshot")
 		if str(controller_snapshot.get("selected_item_id", "")) != controller_offer_id:
 			_fail("Controller focus should populate the same detail panel as pointer selection")
+		if not bool(controller_offer.get("_external_highlighted")):
+			_fail("The focused Magic card should expose one clear lifted focus cue")
+		var second_magic: Control = _offer_source(shop, second_magic_id, false)
+		if second_magic == null:
+			_fail("Probe stock should expose a second Magic card for focus traversal")
+		else:
+			second_magic.grab_focus()
+			await _settle()
+			if bool(controller_offer.get("_external_highlighted")):
+				_fail("Moving controller focus should return the previous Magic card to neutral")
+			if not bool(second_magic.get("_external_highlighted")):
+				_fail("Moving controller focus should lift only the newly focused Magic card")
 		await _save("controller_focus.png")
 	var purchase_offer_id: String = ""
 	for offer_var: Variant in offers:
@@ -87,6 +102,9 @@ func _capture_states() -> void:
 	else:
 		purchase_offer.grab_focus()
 		await _settle()
+		var second_magic_source: Control = _offer_source(shop, second_magic_id, false)
+		if second_magic_source != null and bool(second_magic_source.get("_external_highlighted")):
+			_fail("Moving focus from Magic to Gear should clear the prior card's lifted focus cue")
 	var trade_action: Button = shop.find_child("ScavengerTradeActionButton", true, false) as Button
 	var purchase_embers_before: int = int((instance.get("_run_state") as Dictionary).get("held_embers", 0))
 	if trade_action == null or trade_action.disabled:
