@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-29T22:49:23Z",
+  "updated_at": "2026-08-30T03:52:41Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9351,6 +9351,28 @@
       "source": {
         "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
         "commit": "176ecd38"
+      }
+    },
+    {
+      "id": "mnt_20260830T035241Z_7decdd50",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/ui",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/ui",
+      "summary": "Runtime-loaded frontend rasters must use source-first loading and Keep File imports",
+      "details": "Direct Texture2D ext_resource or preload references can fail after a pull when the asset's .godot/imported artifact has not been rebuilt, blacking the startup scene or preventing the button ornament script from compiling. Load startup/menu PNGs from raw bytes through AssetLoader before ResourceLoader, remove hidden native splash image references that resolve before scripts, and set those PNG .import recipes to importer=keep so exported PCKs retain the exact raw files. Generic export include_filter does not preserve imported PNG source bytes.",
+      "status": "active",
+      "created_at": "2026-08-30T03:52:41Z",
+      "updated_at": "2026-08-30T03:52:41Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-clean-cache-startup-and-main-menu-texture-loading",
+        "commit": "b184db9a"
       }
     }
   ]

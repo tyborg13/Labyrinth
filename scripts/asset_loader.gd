@@ -42,6 +42,20 @@ static func load_texture(path: String) -> Texture2D:
 	_texture_cache[path] = texture
 	return texture
 
+static func load_texture_source_first(path: String) -> Texture2D:
+	# Source-first loading keeps direct repository launches working after a pull,
+	# before Godot has rebuilt newly added entries under .godot/imported. Exported
+	# builds fall back to ResourceLoader when the raw source is not packaged.
+	if path.is_empty():
+		return null
+	if _texture_cache.has(path):
+		return _texture_cache.get(path, null)
+	var source_texture: Texture2D = _load_texture_from_file(path)
+	if source_texture != null:
+		_texture_cache[path] = source_texture
+		return source_texture
+	return load_texture(path)
+
 static func load_audio_stream(path: String, loop: bool = false) -> AudioStream:
 	if path.is_empty():
 		return null
@@ -64,8 +78,21 @@ static func load_audio_stream(path: String, loop: bool = false) -> AudioStream:
 static func _load_texture_from_file(path: String) -> Texture2D:
 	if not FileAccess.file_exists(path):
 		return null
-	var image: Image = Image.load_from_file(path)
-	if image == null or image.is_empty():
+	var image := Image.new()
+	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(path)
+	var error: Error
+	match path.get_extension().to_lower():
+		"png":
+			error = image.load_png_from_buffer(bytes)
+		"jpg":
+			error = image.load_jpg_from_buffer(bytes)
+		"webp":
+			error = image.load_webp_from_buffer(bytes)
+		"svg":
+			error = image.load_svg_from_buffer(bytes)
+		_:
+			error = ERR_FILE_UNRECOGNIZED
+	if error != OK or image.is_empty():
 		return null
 	return ImageTexture.create_from_image(image)
 
@@ -93,7 +120,20 @@ static func _should_prefer_source_file(path: String, extensions: PackedStringArr
 		return false
 	if not extensions.has(path.get_extension().to_lower()):
 		return false
-	return not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path("res://.godot/imported"))
+	return not _has_imported_resource(path)
+
+static func _has_imported_resource(path: String) -> bool:
+	var import_config := ConfigFile.new()
+	if import_config.load("%s.import" % path) != OK:
+		return false
+	var remap_keys: PackedStringArray = import_config.get_section_keys("remap")
+	for key: String in remap_keys:
+		if key != "path" and not key.begins_with("path."):
+			continue
+		var imported_path: String = str(import_config.get_value("remap", key, ""))
+		if not imported_path.is_empty() and FileAccess.file_exists(imported_path):
+			return true
+	return false
 
 static func load_texture_region(path: String, region: Rect2i) -> Texture2D:
 	var texture: Texture2D = load_texture(path)

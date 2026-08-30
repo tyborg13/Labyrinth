@@ -15,6 +15,13 @@ ROOT = Path(__file__).resolve().parents[1]
 SPLASH = ROOT / "assets/art/ui/boot_splash_makers_seal.png"
 APPROVED_SHA256 = "a2fea0706c12f6e9e066e5b3f54d2660423d42d733975a110f0ffe45b79f211c"
 NOTICE = "GODOT_SPLASH_LICENSE.txt"
+RAW_FRONTEND_ART = (
+    SPLASH,
+    ROOT / "assets/art/ui/main_menu_umbra_button_idle.png",
+    ROOT / "assets/art/ui/main_menu_umbra_button_focused.png",
+    ROOT / "assets/art/ui/main_menu_umbra_focus_marker_left.png",
+    ROOT / "assets/art/ui/main_menu_umbra_focus_marker_right.png",
+)
 
 
 class BootSplashTests(unittest.TestCase):
@@ -28,7 +35,7 @@ class BootSplashTests(unittest.TestCase):
         config = configparser.ConfigParser(interpolation=None)
         config.read_string("[header]\n" + (ROOT / "project.godot").read_text())
         app = config["application"]
-        self.assertEqual(app["boot_splash/image"].strip('"'), "res://" + str(SPLASH.relative_to(ROOT)))
+        self.assertNotIn("boot_splash/image", app)  # Avoid import-dependent loading before startup.gd can run.
         self.assertEqual(app["boot_splash/bg_color"], "Color(0, 0, 0, 1)")
         self.assertEqual(app["boot_splash/stretch_mode"], "1")  # Godot 4.6 KEEP.
         self.assertEqual(app["boot_splash/show_image"], "false")  # Black until the scene can fade in.
@@ -37,16 +44,40 @@ class BootSplashTests(unittest.TestCase):
         self.assertEqual(app["run/main_scene"], '"res://scenes/startup.tscn"')
         self.assertNotIn("boot_splash/fullsize", app)  # Retired in Godot 4.6.
 
+    def test_startup_and_menu_art_use_clean_cache_safe_loading(self):
+        scene = (ROOT / "scenes/startup.tscn").read_text()
+        startup = (ROOT / "scripts/startup.gd").read_text()
+        self.assertNotIn(SPLASH.name, scene)
+        self.assertIn(SPLASH.name, startup)
+        self.assertIn("AssetLoader.load_texture_source_first", startup)
+
+        ornaments = (ROOT / "scripts/themed_button_ornament.gd").read_text()
+        self.assertIn("AssetLoader.load_texture_source_first", ornaments)
+        self.assertNotIn('preload("res://assets/art/ui/main_menu_umbra_', ornaments)
+
+        loader = (ROOT / "scripts/asset_loader.gd").read_text()
+        self.assertIn("return not _has_imported_resource(path)", loader)
+        self.assertIn('import_config.load("%s.import" % path)', loader)
+        self.assertIn("FileAccess.file_exists(imported_path)", loader)
+        self.assertNotIn('DirAccess.dir_exists_absolute(ProjectSettings.globalize_path("res://.godot/imported"))', loader)
+
+    def test_raw_frontend_art_uses_godot_keep_file_export_mode(self):
+        for asset in RAW_FRONTEND_ART:
+            with self.subTest(asset=asset.name):
+                metadata = asset.with_suffix(asset.suffix + ".import").read_text()
+                source = "res://" + asset.relative_to(ROOT).as_posix()
+                self.assertIn('\nimporter="keep"\n', metadata)
+                self.assertIn(f'\nsource_file="{source}"\n', metadata)
+                self.assertNotIn("dest_files=", metadata)
+                self.assertNotIn(".ctex", metadata)
+
     def test_import_metadata_uses_canonical_asset_path(self):
         # The trailer's game-assets symlink can rewrite shared import sidecars.
         # Shipping metadata must not depend on that marketing-only alias.
         metadata = SPLASH.with_suffix(".png.import").read_text()
         source = "res://" + SPLASH.relative_to(ROOT).as_posix()
-        digest = hashlib.md5(source.encode()).hexdigest()  # Godot cache key, not security.
-        imported = f"res://.godot/imported/{SPLASH.name}-{digest}.ctex"
         self.assertIn(f'\nsource_file="{source}"\n', metadata)
-        self.assertIn(f'\ndest_files=["{imported}"]\n', metadata)
-        self.assertIn(f'\npath="{imported}"\n', metadata)
+        self.assertIn('\nimporter="keep"\n', metadata)
 
     def test_logo_attribution(self):
         notice = (ROOT / NOTICE).read_text()

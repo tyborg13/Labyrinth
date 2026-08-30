@@ -1,5 +1,7 @@
 extends Control
 
+const AssetLoader = preload("res://scripts/asset_loader.gd")
+
 const STATE_NORMAL: String = "normal"
 const STATE_HOVER: String = "hover"
 const STATE_PRESSED: String = "pressed"
@@ -13,10 +15,15 @@ const VARIANT_ICON: String = "icon"
 const VARIANT_SELECTED: String = "selected"
 const VARIANT_UMBRA: String = "umbra"
 
-const UMBRA_BUTTON_IDLE_TEXTURE: Texture2D = preload("res://assets/art/ui/main_menu_umbra_button_idle.png")
-const UMBRA_BUTTON_FOCUSED_TEXTURE: Texture2D = preload("res://assets/art/ui/main_menu_umbra_button_focused.png")
-const UMBRA_FOCUS_MARKER_LEFT_TEXTURE: Texture2D = preload("res://assets/art/ui/main_menu_umbra_focus_marker_left.png")
-const UMBRA_FOCUS_MARKER_RIGHT_TEXTURE: Texture2D = preload("res://assets/art/ui/main_menu_umbra_focus_marker_right.png")
+const UMBRA_BUTTON_IDLE_PATH := "res://assets/art/ui/main_menu_umbra_button_idle.png"
+const UMBRA_BUTTON_FOCUSED_PATH := "res://assets/art/ui/main_menu_umbra_button_focused.png"
+const UMBRA_FOCUS_MARKER_LEFT_PATH := "res://assets/art/ui/main_menu_umbra_focus_marker_left.png"
+const UMBRA_FOCUS_MARKER_RIGHT_PATH := "res://assets/art/ui/main_menu_umbra_focus_marker_right.png"
+
+static var _umbra_button_idle_texture: Texture2D
+static var _umbra_button_focused_texture: Texture2D
+static var _umbra_focus_marker_left_texture: Texture2D
+static var _umbra_focus_marker_right_texture: Texture2D
 
 var _button: BaseButton
 var _variant: String = "standard"
@@ -82,8 +89,10 @@ func _draw() -> void:
 		_draw_focus_brackets(Color("ffe3a0"))
 
 func _draw_umbra_raster(state: String) -> void:
+	if not _ensure_umbra_raster_textures():
+		return
 	var selected: bool = state in [STATE_HOVER, STATE_PRESSED, STATE_SELECTED, STATE_FOCUS]
-	var texture: Texture2D = UMBRA_BUTTON_FOCUSED_TEXTURE if selected else UMBRA_BUTTON_IDLE_TEXTURE
+	var texture: Texture2D = _umbra_button_focused_texture if selected else _umbra_button_idle_texture
 	var tint := Color.WHITE
 	if state == STATE_DISABLED:
 		tint = Color(0.48, 0.46, 0.44, 0.78)
@@ -99,16 +108,32 @@ func _draw_umbra_raster_markers(pressed: bool) -> void:
 	var center_y: float = size.y * 0.5 + (1.5 if pressed else 0.0)
 	var marker_tint := Color(0.88, 0.84, 0.80, 1.0) if pressed else Color.WHITE
 	draw_texture_rect(
-		UMBRA_FOCUS_MARKER_LEFT_TEXTURE,
+		_umbra_focus_marker_left_texture,
 		Rect2(Vector2(-38.0, center_y - marker_size.y * 0.5), marker_size),
 		false,
 		marker_tint
 	)
 	draw_texture_rect(
-		UMBRA_FOCUS_MARKER_RIGHT_TEXTURE,
+		_umbra_focus_marker_right_texture,
 		Rect2(Vector2(size.x - 6.0, center_y - marker_size.y * 0.5), marker_size),
 		false,
 		marker_tint
+	)
+
+func _ensure_umbra_raster_textures() -> bool:
+	if _umbra_button_idle_texture == null:
+		_umbra_button_idle_texture = AssetLoader.load_texture_source_first(UMBRA_BUTTON_IDLE_PATH)
+	if _umbra_button_focused_texture == null:
+		_umbra_button_focused_texture = AssetLoader.load_texture_source_first(UMBRA_BUTTON_FOCUSED_PATH)
+	if _umbra_focus_marker_left_texture == null:
+		_umbra_focus_marker_left_texture = AssetLoader.load_texture_source_first(UMBRA_FOCUS_MARKER_LEFT_PATH)
+	if _umbra_focus_marker_right_texture == null:
+		_umbra_focus_marker_right_texture = AssetLoader.load_texture_source_first(UMBRA_FOCUS_MARKER_RIGHT_PATH)
+	return (
+		_umbra_button_idle_texture != null
+		and _umbra_button_focused_texture != null
+		and _umbra_focus_marker_left_texture != null
+		and _umbra_focus_marker_right_texture != null
 	)
 
 func _draw_corner(origin: Vector2, direction: Vector2, arm: float, color: Color, width: float) -> void:
