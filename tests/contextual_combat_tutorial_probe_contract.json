@@ -1,0 +1,22 @@
+{
+  "min_images": 16,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*01_select_player_pointer.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*02_choose_move_pointer.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*03_enemy_intent_confirmation.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*04_card_preview_cancel.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*05_blocked_feedback.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*06_card_target.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*07_card_finish.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*08_controller_card_selection.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*09_reduced_motion_move.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*10_turn_clock.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*11_pass_preview.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*12_core_handoff.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*13_reward_choice.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*14_path_choice.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*15_completion.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*16_completed_profile_absent.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]}
+  ]
+}

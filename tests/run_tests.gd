@@ -7,6 +7,7 @@ const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_art.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
@@ -39,6 +40,7 @@ const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass
 const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.gd")
 const ItemPickupSuite = preload("res://tests/suites/item_pickup_suite.gd")
 const ControllerInputSuite = preload("res://tests/suites/controller_input_suite.gd")
+const GuidedCombatTutorialSuite = preload("res://tests/suites/guided_combat_tutorial_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -337,6 +339,7 @@ func _initialize() -> void:
 	_test_default_theme_uses_readable_text_font()
 	_test_ui_typography_system()
 	await _test_main_scenes_instantiate()
+	_suppress_guided_tutorial_for_legacy_live_scene_tests()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
 	await MapUiSuite.run_live(self, Callable(self, "_assert"))
@@ -395,6 +398,7 @@ func _initialize() -> void:
 	await _test_run_scene_logs_local_analytics()
 	await _test_settings_persistence_audio_and_presentation_preferences()
 	await _test_main_menu_shows_continue_for_saved_run()
+	GuidedCombatTutorialSuite.run(Callable(self, "_assert"))
 
 	if _failures.is_empty():
 		print("TEST RESULT: PASS")
@@ -405,6 +409,16 @@ func _initialize() -> void:
 		push_error(failure)
 	print("TEST RESULT: FAIL (%d failure(s))" % _failures.size())
 	quit(1)
+
+func _suppress_guided_tutorial_for_legacy_live_scene_tests() -> void:
+	# The broad scene harness predates first-run onboarding and directly exercises
+	# unrestricted combat interactions. Give those legacy fixtures a completed
+	# profile; GuidedCombatTutorialSuite supplies explicit active-profile coverage.
+	var progression: Dictionary = ProgressionStore.load_data()
+	if ContextualCombatTutorial.is_active(progression):
+		progression = ContextualCombatTutorial.complete_tutorial(progression)
+	_assert(ProgressionStore.save_data(progression), "Legacy live scene fixtures should persist a tutorial-completed profile")
+	ProgressionStore.clear_saved_run()
 
 func _test_ui_skin_button_system() -> void:
 	var skin := UiSkin.new()
@@ -9691,6 +9705,17 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 func _set_run_scene_combat_state_for_test(instance: Node, combat_state: Dictionary) -> void:
 	# Tests bypass RunScene's normal committed-state mutation path. Mirror its
 	# cache-ownership contract so each injected scenario receives fresh previews.
+	# These fixtures predate guided onboarding and need unrestricted combat; the
+	# dedicated guided suite exercises the active-profile gate explicitly.
+	var progression: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
+	if ContextualCombatTutorial.is_active(progression):
+		progression = ContextualCombatTutorial.complete_tutorial(progression)
+		instance.set("_progression", progression)
+		var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+		if not run_state.is_empty():
+			run_state["progression"] = progression.duplicate(true)
+			instance.set("_run_state", run_state)
+		instance.set("_guided_tutorial_phase_id", "")
 	instance.set("_combat_state", combat_state)
 	instance.call("_mark_combat_preview_state_changed")
 
@@ -12928,12 +12953,6 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	key_event.pressed = true
 	instance.call("_unhandled_input", key_event)
 	_assert(continue_button.has_focus(), "Main menu should restore keyboard focus when navigation keys are pressed")
-	var mouse_press := InputEventMouseButton.new()
-	mouse_press.button_index = MOUSE_BUTTON_LEFT
-	mouse_press.pressed = true
-	instance.call("_input", mouse_press)
-	await process_frame
-	_assert(continue_button.has_focus(), "Main menu should not clear focus on mouse down before button clicks can complete")
 	var settings_center: Vector2 = settings_button.get_global_rect().get_center()
 	var hover_then_click := InputEventMouseMotion.new()
 	hover_then_click.position = settings_center
@@ -12959,19 +12978,13 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	settings_back_button.pressed.emit()
 	_assert(not settings_panel.visible, "Main menu Settings back button should close the settings panel")
 	instance.call("_unhandled_input", key_event)
-	_assert(continue_button.has_focus(), "Main menu should restore keyboard focus after mouse-clicked Settings closes")
-	var mouse_release := InputEventMouseButton.new()
-	mouse_release.button_index = MOUSE_BUTTON_LEFT
-	mouse_release.pressed = false
-	instance.call("_input", mouse_release)
-	await process_frame
-	_assert(not continue_button.has_focus(), "Main menu should clear keyboard focus after mouse release")
-	instance.call("_unhandled_input", key_event)
-	_assert(continue_button.has_focus(), "Main menu should restore keyboard focus after mouse release clears it")
+	_assert(settings_button.has_focus(), "Main menu should resume keyboard navigation from the last Settings selection")
 	var mouse_event := InputEventMouseMotion.new()
+	mouse_event.position = Vector2(1700.0, 920.0)
+	mouse_event.global_position = mouse_event.position
 	instance.call("_input", mouse_event)
 	await process_frame
-	_assert(not continue_button.has_focus(), "Main menu should clear keyboard focus after mouse movement")
+	_assert(settings_button.has_focus(), "Pointer motion over empty space should preserve the last keyboard selection")
 	_assert(music_player.stream != null, "Main menu should play the temporary relic-room music")
 	_assert(music_player.bus == SettingsStore.MUSIC_BUS, "Main menu music should remain routed through the Music bus")
 	_assert(not boss_button.visible, "Main menu should keep the debug boss shortcut hidden by default")

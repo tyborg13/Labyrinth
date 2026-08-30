@@ -67,6 +67,20 @@ available:
 - `item_equipped`
 - `item_picked_up`
 - `merchant_trade`
+- `guided_tutorial_started`
+- `guided_tutorial_step_completed`
+- `guided_tutorial_completed`
+- `guided_tutorial_dismissed`
+- `guided_tutorial_restarted`
+
+Guided tutorial events are local-only like the rest of the stream. Start events
+are idempotent per run and tutorial version. Step events
+record `tutorial_version`, the action-committed `milestone_id`, the transient
+`phase_id` that produced it, and `completed_step_count`. Dismissal records the
+phase and completed count so onboarding drop-off can be diagnosed without
+logging hover or other high-frequency input. Completion and replay record the
+tutorial version. These events never rename or replace combat-action events;
+movement, card, reward, and room choices continue to emit their normal records.
 
 `run_started` includes the compiled starting deck plus the equipment model used
 to build it: `reward_cards`, `equipped_equipment`, `equipment_inventory`, and

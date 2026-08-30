@@ -1,21 +1,22 @@
 extends SceneTree
 
-const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
-const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
 
 const OUTPUT_DIR: String = "user://probes/contextual_combat_tutorial"
 const STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_progression.json"
 const RUN_STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_run.save"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
+const INVALID_TILE: Vector2i = Vector2i(-999, -999)
 
 var _failed: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
-	# Keep tutorial collision proof on the same fixed combat-HUD canvas as the
-	# normal-state probe, even on a Retina host.
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_size(PROBE_VIEWPORT)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
@@ -28,96 +29,234 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path(RUN_STORAGE_PATH)
 	_remove_if_present(STORAGE_PATH)
 	_remove_if_present(RUN_STORAGE_PATH)
-	await _capture_fresh_sequence_and_returning_profile()
+	var active_progression: Dictionary = ProgressionStore.default_data()
+	active_progression[ContextualCombatTutorial.PROGRESSION_KEY] = ContextualCombatTutorial.default_state()
+	_assert(ProgressionStore.save_data(active_progression), "Probe should persist an explicit first-run tutorial profile")
+	await _capture_guided_run(active_progression)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	print("GUIDED COMBAT TUTORIAL PROBE: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
 
-func _capture_fresh_sequence_and_returning_profile() -> void:
+func _capture_guided_run(active_progression: Dictionary) -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	if packed == null:
-		_fail("Run scene should load for contextual tutorial probe")
+		_fail("Run scene should load for guided tutorial visual proof")
 		return
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
-	await _load_combat_fixture(instance, 11601)
+	await _load_combat_fixture(instance, 11601, active_progression)
 
-	_assert_prompt(instance, ContextualCombatTutorial.FULL_CARD_FALLBACK, "fresh combat")
-	await _assert_prompt_geometry_stable(instance, "full-card prompt")
-	_assert_prompt_clear_of_huds(instance, "full-card prompt")
-	await _save_root_screenshot("%s/01_full_card_fallback.png" % OUTPUT_DIR)
+	# Lesson 1: the real board owns selection and movement targeting.
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_SELECT_PLAYER)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_PLAYER, true, "select the Wanderer")
+	await _save_root_screenshot("%s/01_select_player_pointer.png" % OUTPUT_DIR)
 
-	var prompt: Node = instance.get("_contextual_combat_prompt") as Node
-	var before_advance: Dictionary = _combat_geometry(instance)
+	var player_tile: Vector2i = _player_tile(instance)
+	await instance.call("_on_board_tile_clicked", player_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_MOVE, true, "choose a movement tile")
+	_assert(not (instance.get("_player_movement_target_tiles") as Array).is_empty(), "Movement lesson should expose real legal movement tiles")
+	await _save_root_screenshot("%s/02_choose_move_pointer.png" % OUTPUT_DIR)
+	instance.call("_guided_tutorial_complete_milestone", ContextualCombatTutorial.MILESTONE_MOVE)
+	instance.call("_cancel_player_movement_selection")
+
+	# Lesson 2: hovering a real enemy must leave a persistent confirmation step.
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_INSPECT_ENEMY)
+	var enemy_tile: Vector2i = _first_enemy_tile(instance)
+	instance.call("_on_board_tile_hovered", enemy_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CONFIRM_INTENT, true, "confirm enemy intent")
+	_assert(instance.get("_hovered_board_tile") == enemy_tile, "Intent confirmation should preserve the inspected enemy as visible evidence")
+	await _save_root_screenshot("%s/03_enemy_intent_confirmation.png" % OUTPUT_DIR)
+
+	var prompt: Control = instance.get("_contextual_combat_prompt") as Control
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
-	_assert_geometry_equal(before_advance, _combat_geometry(instance), "advancing full-card prompt")
-	instance.call("_on_card_hover_started", 0)
-	await _settle_ui()
-	_assert_prompt(instance, ContextualCombatTutorial.TIMELINE_READING, "card hover")
-	await _assert_prompt_geometry_stable(instance, "timeline prompt")
-	_assert_prompt_clear_of_huds(instance, "timeline prompt")
-	await _save_root_screenshot("%s/02_timeline_reading.png" % OUTPUT_DIR)
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, true, "begin card preview lesson")
 
-	await _choose_clicked_card_action(instance, 0, "play")
+	# Lesson 3: use the production click-to-preview path and retain Cancel until used.
+	await instance.call("_on_card_pressed", 0)
 	await _settle_ui()
-	_assert_prompt(instance, ContextualCombatTutorial.SELECT_TARGET, "selected compound card")
-	await _assert_prompt_geometry_stable(instance, "target prompt")
-	_assert_prompt_clear_of_huds(instance, "target prompt")
-	await _save_root_screenshot("%s/03_select_target.png" % OUTPUT_DIR)
+	_assert(int(instance.get("_selected_card_index")) == 0, "Card-preview lesson should select the real hand card")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CANCEL_CARD, true, "cancel a card preview")
+	await _save_root_screenshot("%s/04_card_preview_cancel.png" % OUTPUT_DIR)
 
-	var first_targets: Array[Vector2i] = _vector2i_array(instance.get("_pending_target_tiles") as Array)
-	if first_targets.is_empty():
-		_fail("Compound-card fixture should offer a first target")
-		instance.queue_free()
-		return
-	var compound_setup_target: Vector2i = Vector2i(4, 4) if first_targets.has(Vector2i(4, 4)) else first_targets[0]
-	await instance.call("_on_board_tile_clicked", compound_setup_target)
+	var blocked_before: int = int(prompt.get_meta("blocked_count", 0))
+	await instance.call("_on_board_tile_clicked", Vector2i(1, 1))
+	await _settle_short()
+	_assert(int(prompt.get_meta("blocked_count", 0)) > blocked_before, "A non-highlighted action should produce visible blocked feedback")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CANCEL_CARD, true, "blocked action feedback")
+	await _save_root_screenshot("%s/05_blocked_feedback.png" % OUTPUT_DIR)
+
+	await instance.call("_on_cancel_requested")
 	await _settle_ui()
-	_assert_prompt(instance, ContextualCombatTutorial.CANCEL_OPTIONAL, "optional compound step")
-	await _assert_prompt_geometry_stable(instance, "optional prompt")
-	_assert_prompt_clear_of_huds(instance, "optional prompt")
-	await _save_root_screenshot("%s/04_cancel_optional.png" % OUTPUT_DIR)
+	_assert(int(instance.get("_selected_card_index")) == -1, "Cancel lesson should return the previewed card without spending it")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY, true, "reselect a card after cancellation")
 
-	var before_skip: Dictionary = _combat_geometry(instance)
-	prompt.call("_on_skipped_pressed")
+	# Lesson 4: a compound card exposes its real movement and attack steps.
+	await instance.call("_on_card_pressed", 0)
 	await _settle_ui()
-	_assert_geometry_equal(before_skip, _combat_geometry(instance), "skipping optional prompt")
-	_assert_state(instance, ContextualCombatTutorial.CANCEL_OPTIONAL, ContextualCombatTutorial.STATUS_SKIPPED, "prompt skip")
-	_assert(str((ContextualCombatTutorial.states_from_progression(ProgressionStore.load_data())).get(ContextualCombatTutorial.CANCEL_OPTIONAL, "")) == ContextualCombatTutorial.STATUS_SKIPPED, "Skipped prompt should be persisted immediately")
-	await _save_root_screenshot("%s/05_prompt_skip_persisted.png" % OUTPUT_DIR)
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_TARGET, true, "select the card target")
+	var first_targets: Array = instance.get("_pending_target_tiles") as Array
+	_assert(not first_targets.is_empty(), "Target lesson should expose real legal card targets")
+	await _save_root_screenshot("%s/06_card_target.png" % OUTPUT_DIR)
 
+	# Stage the second action directly instead of using the compound-card shortcut,
+	# which intentionally resolves movement + its only adjacent strike in one click.
+	# The selected card, production action tracker, board preview, and target controls
+	# remain the real RunScene controls rendered by the normal refresh path.
+	var setup_target: Vector2i = Vector2i(4, 4) if first_targets.has(Vector2i(4, 4)) else first_targets[0]
+	var preview_state: Dictionary = (instance.get("_preview_combat_state") as Dictionary).duplicate(true)
+	var preview_player: Dictionary = (preview_state.get("player", {}) as Dictionary).duplicate(true)
+	preview_player["pos"] = setup_target
+	preview_state["player"] = preview_player
+	instance.set("_preview_combat_state", preview_state)
+	instance.set("_pending_action_index", 1)
+	instance.set("_pending_selected_targets", instance.call("_vector2i_array", [setup_target]))
+	instance.call("_mark_preview_selection_changed")
+	instance.call("_refresh_card_preview_ui")
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_FINISH_CARD)
+	# The production compound shortcut normally authors this second-step target
+	# after the first preview refresh. Mirror that order so the proof captures the
+	# melee action rather than retaining the movement step's broad target set.
+	instance.set("_pending_target_tiles", instance.call("_vector2i_array", [enemy_tile]))
+	instance.call("_refresh_stage_view")
+	instance.call("_refresh_action_step_tracker")
+	instance.call("_refresh_contextual_combat_tutorial")
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_FINISH_CARD, true, "finish the compound card")
+	_assert((prompt.get_meta("spotlight_rects", []) as Array).size() == 1, "Compound-card finish proof should isolate its one remaining melee target")
+	_assert(int(instance.get("_selected_card_index")) == 0, "Compound-card finish step should preserve the selected card")
+	await _save_root_screenshot("%s/07_card_finish.png" % OUTPUT_DIR)
+
+	# The same production callout must swap to controller-native copy and glyphs.
 	instance.call("_cancel_card_selection")
+	var router: Node = root.get_node_or_null("InputRouter")
+	if router == null:
+		_fail("InputRouter should exist for controller tutorial proof")
+	else:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY)
 	await _settle_ui()
-	_assert_prompt(instance, ContextualCombatTutorial.PASS_CONSEQUENCE, "pass choice")
-	await _assert_prompt_geometry_stable(instance, "pass prompt")
-	_assert_prompt_clear_of_huds(instance, "pass prompt")
-	await _save_root_screenshot("%s/06_pass_consequence.png" % OUTPUT_DIR)
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY, true, "controller card selection")
+	_assert(bool(prompt.get_meta("controller_active", false)), "Controller capture should render controller-specific tutorial presentation")
+	_assert(str(prompt.get_meta("prompt_text", "")).contains("Select a lit card"), "Controller tutorial copy should remain concise and action-specific")
+	await _save_root_screenshot("%s/08_controller_card_selection.png" % OUTPUT_DIR)
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_XBOX)
+
+	# Reduced motion keeps the spotlight readable while removing its pulse.
+	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	reduced_settings["reduced_motion"] = true
+	instance.set("_settings", reduced_settings)
+	instance.call("_begin_player_movement_selection")
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_CHOOSE_MOVE)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_MOVE, true, "reduced-motion movement")
+	_assert(bool(prompt.get_meta("reduced_motion", false)), "Reduced-motion capture should render the static spotlight treatment")
+	await _save_root_screenshot("%s/09_reduced_motion_move.png" % OUTPUT_DIR)
+	instance.call("_cancel_player_movement_selection")
+	var normal_settings: Dictionary = reduced_settings.duplicate(true)
+	normal_settings["reduced_motion"] = false
+	instance.set("_settings", normal_settings)
+
+	# Lessons 5 and 6 retain the real turn-order and Pass consequence evidence.
+	instance.call("_guided_tutorial_complete_milestone", ContextualCombatTutorial.MILESTONE_CARD)
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_TURN_CLOCK)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_TURN_CLOCK, true, "read the Turn Clock")
+	await _save_root_screenshot("%s/10_turn_clock.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_PASS_TURN, true, "Pass consequence preview")
+	var pass_preview: Control = instance.get("_pass_preview_overlay") as Control
+	_assert(pass_preview != null and pass_preview.is_visible_in_tree(), "Pass lesson should keep the production consequence preview visible")
+	await _save_root_screenshot("%s/11_pass_preview.png" % OUTPUT_DIR)
 
-	var states: Dictionary = ContextualCombatTutorial.states_from_progression(instance.get("_progression") as Dictionary)
-	_assert(states.size() == 5, "Fresh sequence should resolve exactly five prompts")
+	await instance.call("_on_pass_turn_pressed")
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CORE_COMPLETE, false, "core combat handoff")
+	await _save_root_screenshot("%s/12_core_handoff.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+	_assert_no_prompt(instance, "free-play combat after the core lesson")
+
+	# Lesson 7: render the genuine post-combat card decision surface.
+	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	reward_state["mode"] = "reward"
+	reward_state["combat_state"] = {}
+	reward_state["pending_reward"] = {
+		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
+		"heal_amount": RunEngine.REWARD_HEAL,
+		"ember_amount": 0,
+		"intro_pending": false,
+	}
+	reward_state["progression"] = (instance.get("_progression") as Dictionary).duplicate(true)
+	instance.call("_load_run_state", reward_state)
+	instance.call("_close_dialogue")
+	instance.set("_animation_lock", false)
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_CHOOSE_REWARD)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_REWARD, true, "choose a combat reward")
+	var reward_bar: Control = instance.get("_relic_choice_bar") as Control
+	_assert(reward_bar != null and reward_bar.is_visible_in_tree() and reward_bar.get_child_count() > 0, "Reward lesson should spotlight the real production reward choices")
+	await _save_root_screenshot("%s/13_reward_choice.png" % OUTPUT_DIR)
+	instance.call("_guided_tutorial_complete_milestone", ContextualCombatTutorial.MILESTONE_REWARD)
+
+	# Lesson 8: a generated, cleared room supplies real highlighted door choices.
+	var run_engine := RunEngine.new()
+	var room_state: Dictionary = run_engine.create_new_run(22017, instance.get("_progression") as Dictionary)
+	room_state["progression"] = (instance.get("_progression") as Dictionary).duplicate(true)
+	instance.call("_load_run_state", room_state)
+	instance.call("_close_dialogue")
+	instance.set("_animation_lock", false)
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_CHOOSE_PATH)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_PATH, true, "choose the next room")
+	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile") as Dictionary
+	_assert(not exit_destinations.is_empty(), "Path lesson should spotlight real generated doorway destinations")
+	await _save_root_screenshot("%s/14_path_choice.png" % OUTPUT_DIR)
+
+	# Commit a real doorway choice. The final acknowledgement must sit above the
+	# production pre-battle dossier, exactly where the first-run flow lands.
+	var door_tile: Vector2i = exit_destinations.keys()[0] as Vector2i
+	var destination: Vector2i = exit_destinations[door_tile] as Vector2i
+	await instance.call("_on_map_view_room_selected", destination, door_tile)
+	await _settle_ui()
+	_assert(str((instance.get("_run_state") as Dictionary).get("mode", "")) == RunEngine.MODE_PRE_BATTLE, "The guided path choice should enter the real pre-battle state")
+	var pre_battle_scrim: Control = instance.get("_pre_battle_scrim") as Control
+	var prompt_host: Control = instance.get("_contextual_combat_prompt_host") as Control
+	_assert(pre_battle_scrim != null and pre_battle_scrim.is_visible_in_tree(), "The completion proof should retain the production pre-battle dossier")
+	_assert(prompt_host != null and prompt_host.z_index > pre_battle_scrim.z_index, "The completion prompt should render above the pre-battle dossier")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_COMPLETE, false, "guided-run completion over pre-battle")
+	await _save_root_screenshot("%s/15_completion_pre_battle.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+	_assert_no_prompt(instance, "completed tutorial immediately after Begin")
+	var completed_progression: Dictionary = ProgressionStore.load_data()
+	_assert(ContextualCombatTutorial.is_completed(completed_progression), "Begin should persist the completed tutorial profile")
+
 	instance.queue_free()
-	await process_frame
-	await process_frame
+	await _settle_short()
 
+	# A newly mounted RunScene with the persisted profile must stay tutorial-free.
 	var returning_instance: Node = packed.instantiate()
 	root.add_child(returning_instance)
 	await _settle_ui()
-	await _load_combat_fixture(returning_instance, 11602)
-	_assert_no_prompt(returning_instance, "returning combat")
-	returning_instance.call("_on_card_hover_started", 0)
+	await _load_combat_fixture(returning_instance, 11602, completed_progression)
+	_assert_no_prompt(returning_instance, "completed profile on a later combat")
+	returning_instance.call("_on_board_tile_hovered", _first_enemy_tile(returning_instance))
 	await _settle_ui()
-	_assert_no_prompt(returning_instance, "returning card hover")
-	await _choose_clicked_card_action(returning_instance, 0, "play")
-	await _settle_ui()
-	_assert_no_prompt(returning_instance, "returning card selection")
-	await _save_root_screenshot("%s/07_returning_profile_no_repeat.png" % OUTPUT_DIR)
+	_assert_no_prompt(returning_instance, "completed profile after enemy inspection")
+	await _save_root_screenshot("%s/16_completed_profile_absent.png" % OUTPUT_DIR)
 	returning_instance.queue_free()
-	await process_frame
+	await _settle_short()
+	if router != null:
+		router.call("clear_forced_state_for_test")
 
-func _load_combat_fixture(instance: Node, seed: int) -> void:
+func _load_combat_fixture(instance: Node, seed: int, progression: Dictionary) -> void:
 	instance.call("_cancel_drag_play")
 	instance.call("_reset_card_resolution")
 	var layout: Dictionary = _combat_layout()
@@ -128,7 +267,7 @@ func _load_combat_fixture(instance: Node, seed: int) -> void:
 		"deck_cards": ["sidestep_slash"],
 		"relics": [],
 		"hand_size": 1,
-		"heal_bonus": 0
+		"heal_bonus": 0,
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["sidestep_slash"]
@@ -143,14 +282,18 @@ func _load_combat_fixture(instance: Node, seed: int) -> void:
 	combat_state["traps"] = []
 	combat_state["terrain"] = []
 
-	var progression: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
+	var progression_copy: Dictionary = progression.duplicate(true)
+	instance.set("_progression", progression_copy)
 	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	run_state["mode"] = "combat"
 	run_state["current_room"] = layout.get("coord", Vector2i.ZERO)
 	run_state["current_room_layout"] = layout
 	run_state["combat_state"] = combat_state
-	run_state["progression"] = progression
+	run_state["progression"] = progression_copy
 	instance.call("_load_run_state", run_state)
+	instance.call("_close_dialogue")
+	instance.set("_animation_lock", false)
+	instance.call("_refresh_ui")
 	await _settle_ui()
 
 func _combat_layout() -> Dictionary:
@@ -166,11 +309,11 @@ func _combat_layout() -> Dictionary:
 			"pos": Vector2i(5, 4),
 			"hp": 140,
 			"max_hp": 140,
-			"block": 0
+			"block": 0,
 		}],
 		"traps": [],
 		"terrain": [],
-		"loot": []
+		"loot": [],
 	}
 
 func _simple_grid() -> Array:
@@ -182,176 +325,63 @@ func _simple_grid() -> Array:
 		grid.append(row)
 	return grid
 
-func _assert_prompt(instance: Node, expected_id: String, label: String) -> void:
+func _player_tile(instance: Node) -> Vector2i:
+	return ((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("pos", INVALID_TILE)
+
+func _first_enemy_tile(instance: Node) -> Vector2i:
+	var enemies: Array = (instance.get("_combat_state") as Dictionary).get("enemies", []) as Array
+	if enemies.is_empty():
+		_fail("Combat tutorial fixture should contain a visible enemy")
+		return INVALID_TILE
+	return (enemies[0] as Dictionary).get("pos", INVALID_TILE)
+
+func _assert_prompt(instance: Node, expected_phase: String, spotlight_required: bool, label: String) -> void:
 	var host: Control = instance.get("_contextual_combat_prompt_host") as Control
 	var prompt: Control = instance.get("_contextual_combat_prompt") as Control
-	if host == null or prompt == null or not host.visible or not prompt.visible:
-		_fail("Expected visible %s prompt for %s" % [expected_id, label])
+	if host == null or prompt == null or not host.is_visible_in_tree() or not prompt.is_visible_in_tree():
+		_fail("Expected visible %s tutorial phase for %s" % [expected_phase, label])
 		return
-	var active_id: String = str(instance.get("_active_contextual_combat_prompt_id"))
-	if active_id != expected_id or str(prompt.get_meta("prompt_id", "")) != expected_id:
-		_fail("Expected %s for %s, got %s" % [expected_id, label, active_id])
-	if host.get_child_count() != 1:
-		_fail("Fresh profiles should show at most one prompt at a time for %s" % label)
-	var message: String = str(prompt.get_meta("prompt_text", ""))
-	if message.is_empty() or message.contains("\n"):
-		_fail("%s should be one terse sentence" % expected_id)
-
-func _assert_prompt_geometry_stable(instance: Node, label: String) -> void:
-	var host: Control = instance.get("_contextual_combat_prompt_host") as Control
-	var prompt: Control = instance.get("_contextual_combat_prompt") as Control
-	if host == null or prompt == null:
-		_fail("Missing contextual tutorial overlay controls for %s" % label)
-		return
-	var active_id: String = str(instance.get("_active_contextual_combat_prompt_id"))
-	prompt.call("clear_prompt")
-	host.visible = false
-	await _settle_ui()
-	var before: Dictionary = _combat_geometry(instance)
-	_assert_healthy_board_scale(instance, "%s hidden-note baseline" % label)
-	instance.call("_refresh_contextual_combat_tutorial")
-	await _settle_ui()
-	_assert(str(instance.get("_active_contextual_combat_prompt_id")) == active_id, "%s should restore the same prompt after a visibility cycle" % label)
-	var during: Dictionary = _combat_geometry(instance)
-	_assert(host.get_parent() == instance.get("ui_root"), "%s should be a fixed UI overlay, not a reflowing container child" % label)
-	_assert(bool(host.get_meta("safe_layout_found", false)), "%s should find non-interactive overlay space" % label)
-	_assert_healthy_board_scale(instance, "%s visible note" % label)
-	prompt.call("clear_prompt")
-	host.visible = false
-	await _settle_ui()
-	var after: Dictionary = _combat_geometry(instance)
-	_assert_geometry_equal(before, during, "%s showing" % label)
-	_assert_geometry_equal(before, after, "%s hiding" % label)
-	instance.call("_refresh_contextual_combat_tutorial")
-	await _settle_ui()
-
-func _combat_geometry(instance: Node) -> Dictionary:
-	var pass_button: Button = _button_with_text(instance.get("_choice_button_overlay") as Node, "Pass")
-	var pass_preview: Control = instance.get("_pass_preview_overlay") as Control
-	var geometry: Dictionary = {
-		"board": (instance.get("board_view") as Control).get_global_rect(),
-		"rendered_board": instance.call("_contextual_combat_rendered_board_bounds"),
-		"hand": (instance.get("hand_row") as Control).get_global_rect(),
-		"pass": pass_button.get_global_rect() if pass_button != null else Rect2(-1.0, -1.0, 0.0, 0.0),
-		"pass_preview": pass_preview.get_global_rect() if pass_preview != null and pass_preview.visible else Rect2(-1.0, -1.0, 0.0, 0.0),
-		"draw": (instance.get("draw_pile") as Control).get_global_rect(),
-		"discard": (instance.get("discard_pile") as Control).get_global_rect(),
-		"timeline": (instance.get("_turn_order_panel") as Control).get_global_rect(),
-		"combat_widget": (instance.get("_play_meter") as Control).get_global_rect(),
-		"minimap": (instance.get("mini_map_overlay") as Control).get_global_rect()
-	}
-	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
-	var hand: Array = ((combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
-	for index: int in range(hand.size()):
-		var card_control: Control = instance.call("_hand_card_control", index) as Control
-		if card_control != null and card_control.is_visible_in_tree():
-			geometry["card_%d" % index] = instance.call("_control_visual_global_rect", card_control)
-	return geometry
-
-func _assert_geometry_equal(expected: Dictionary, actual: Dictionary, label: String) -> void:
-	_assert(expected.size() == actual.size(), "%s must keep the same protected geometry keys: %s != %s" % [label, expected.keys(), actual.keys()])
-	for key: String in expected.keys():
-		_assert(actual.has(key), "%s must retain protected geometry for %s" % [label, key])
-		var expected_rect: Rect2 = expected.get(key, Rect2())
-		var actual_rect: Rect2 = actual.get(key, Rect2())
-		_assert(expected_rect == actual_rect, "%s must keep %s rect exactly identical: %s != %s" % [label, key, expected_rect, actual_rect])
-
-func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: String) -> void:
-	instance.call("_on_card_pressed", hand_index)
-	await _settle_ui()
-	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Click should open play-mode choices for the exact hand card")
-	await instance.call("_on_card_action_choice_pressed", play_kind)
-	await _settle_ui()
+	_assert(str(instance.get("_active_contextual_combat_prompt_id")) == expected_phase, "%s should own the active RunScene phase" % label)
+	_assert(str(prompt.get_meta("prompt_id", "")) == expected_phase, "%s should configure the rendered callout with the same phase" % label)
+	_assert(not str(prompt.get_meta("prompt_text", "")).strip_edges().is_empty(), "%s should include concise action copy" % label)
+	_assert(host.get_global_rect().size.distance_to(Vector2(PROBE_VIEWPORT)) <= 1.0, "%s should use a fixed full-screen spotlight layer" % label)
+	var viewport_rect := Rect2(Vector2.ZERO, Vector2(PROBE_VIEWPORT))
+	var callout_rect: Rect2 = prompt.get_meta("callout_rect", Rect2())
+	_assert(callout_rect.has_area() and viewport_rect.encloses(callout_rect), "%s callout should remain fully inside the 1920x1080 viewport: %s" % [label, callout_rect])
+	var spotlight_rects: Array = prompt.get_meta("spotlight_rects", []) as Array
+	if spotlight_required:
+		_assert(not spotlight_rects.is_empty(), "%s should expose at least one real spotlight target" % label)
+	var frame_count: int = int(prompt.get_meta("spotlight_frame_count", -1))
+	_assert(frame_count > 0 or spotlight_rects.is_empty(), "%s should render a frame for every spotlight group" % label)
+	if spotlight_rects.size() > 4:
+		_assert(frame_count == 1, "%s should coalesce %d dense spotlight holes into one readable frame" % [label, spotlight_rects.size()])
+	for rect_var: Variant in spotlight_rects:
+		if typeof(rect_var) != TYPE_RECT2:
+			_fail("%s spotlight metadata should contain only Rect2 values" % label)
+			continue
+		var spotlight: Rect2 = rect_var
+		_assert(spotlight.has_area() and viewport_rect.intersects(spotlight), "%s spotlight should intersect the live viewport: %s" % [label, spotlight])
+		if spotlight_required:
+			_assert(not callout_rect.intersects(spotlight.grow(4.0)), "%s callout should not cover its highlighted action" % label)
 
 func _assert_no_prompt(instance: Node, label: String) -> void:
 	var host: Control = instance.get("_contextual_combat_prompt_host") as Control
-	if host != null and host.visible:
-		_fail("Returning profile repeated prompt %s during %s" % [str(instance.get("_active_contextual_combat_prompt_id")), label])
-
-func _assert_state(instance: Node, prompt_id: String, expected: String, label: String) -> void:
-	var states: Dictionary = ContextualCombatTutorial.states_from_progression(instance.get("_progression") as Dictionary)
-	_assert(str(states.get(prompt_id, "")) == expected, "%s should record %s=%s" % [label, prompt_id, expected])
-
-func _assert_prompt_clear_of_huds(instance: Node, label: String) -> void:
 	var prompt: Control = instance.get("_contextual_combat_prompt") as Control
-	var board: Control = instance.get("board_view") as Control
-	var timeline: Control = instance.get("_turn_order_panel") as Control
-	var mini_map: Control = instance.get("mini_map_overlay") as Control
-	var action_context: Control = instance.get("_action_step_tracker") as Control
-	var pass_preview: Control = instance.get("_pass_preview_overlay") as Control
-	if prompt == null or board == null:
-		_fail("Missing prompt or board for %s layout check" % label)
-		return
-	var prompt_rect: Rect2 = prompt.get_global_rect()
-	var rendered_board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
-	if prompt_rect.intersects(rendered_board_bounds):
-		_fail("%s should not block rendered board targets" % label)
-	if timeline != null and timeline.visible and prompt_rect.intersects(timeline.get_global_rect()):
-		_fail("%s should not obscure the turn timeline" % label)
-	if mini_map != null and mini_map.visible and prompt_rect.intersects(mini_map.get_global_rect()):
-		_fail("%s should not obscure the minimap" % label)
-	if action_context != null and action_context.visible and prompt_rect.intersects(action_context.get_global_rect()):
-		_fail("%s should not overlap the active combat action rail" % label)
-	if pass_preview != null and pass_preview.visible:
-		var pass_preview_rect: Rect2 = pass_preview.get_global_rect()
-		_assert(pass_preview_rect.size.x > 0.0 and pass_preview_rect.size.y > 0.0, "%s Pass-risk preview should have settled geometry" % label)
-		_assert(not prompt_rect.intersects(pass_preview_rect), "%s should not obscure the visible Pass-risk preview" % label)
-	var geometry: Dictionary = _combat_geometry(instance)
-	for key: String in ["pass", "pass_preview", "draw", "discard", "combat_widget"]:
-		var protected_rect: Rect2 = geometry.get(key, Rect2())
-		if protected_rect.size.x > 0.0 and protected_rect.size.y > 0.0 and prompt_rect.intersects(protected_rect):
-			_fail("%s should not obscure %s" % [label, key])
-	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
-	var hand: Array = ((combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
-	for index: int in range(hand.size()):
-		var card_control: Control = instance.call("_hand_card_control", index) as Control
-		if card_control != null and card_control.visible:
-			var card_rect: Rect2 = instance.call("_control_visual_global_rect", card_control)
-			if prompt_rect.intersects(card_rect):
-				_fail("%s should not obscure hand card %d" % [label, index])
-
-func _assert_healthy_board_scale(instance: Node, label: String) -> void:
-	var board: Control = instance.get("board_view") as Control
-	var rendered_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
-	_assert(board != null and board.visible, "%s should keep the board visible" % label)
-	_assert(rendered_bounds.size.x >= 520.0 and rendered_bounds.size.y >= 250.0, "%s should preserve a readable board, got %s" % [label, rendered_bounds])
-	var tile_width: float = 0.0
-	for tile_var: Variant in board.call("_rendered_tiles_in_draw_order") as Array:
-		if typeof(tile_var) != TYPE_VECTOR2I:
-			continue
-		var tile: Vector2i = tile_var
-		var polygon: PackedVector2Array = board.call("_tile_polygon", tile)
-		if not polygon.is_empty():
-			var min_x: float = polygon[0].x
-			var max_x: float = polygon[0].x
-			for point: Vector2 in polygon:
-				min_x = minf(min_x, point.x)
-				max_x = maxf(max_x, point.x)
-			tile_width = max_x - min_x
-		break
-	_assert(tile_width >= 89.0, "%s should preserve baseline tile scale, got %.2f" % [label, tile_width])
-
-func _vector2i_array(values: Array) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
-	for value: Variant in values:
-		if typeof(value) == TYPE_VECTOR2I:
-			result.append(value)
-	return result
-
-func _button_with_text(root_node: Node, text: String) -> Button:
-	if root_node == null:
-		return null
-	for node: Node in root_node.find_children("*", "Button", true, false):
-		var button: Button = node as Button
-		if button != null and button.text == text:
-			return button
-	return null
+	_assert(host != null and not host.visible, "%s should not show the tutorial host" % label)
+	_assert(prompt != null and not prompt.visible, "%s should not leave a tutorial callout visible" % label)
+	_assert(str(instance.get("_active_contextual_combat_prompt_id")).is_empty(), "%s should clear the active phase id" % label)
 
 func _settle_ui() -> void:
 	await process_frame
 	await process_frame
 	await process_frame
-	await create_timer(0.16).timeout
+	await create_timer(0.18).timeout
+	await process_frame
+
+func _settle_short() -> void:
+	await process_frame
+	await process_frame
+	await create_timer(0.05).timeout
 	await process_frame
 
 func _save_root_screenshot(output_path: String) -> void:
@@ -361,18 +391,22 @@ func _save_root_screenshot(output_path: String) -> void:
 	await RenderingServer.frame_post_draw
 	var image: Image = root.get_viewport().get_texture().get_image()
 	if image == null:
-		_fail("Tutorial proof should capture a renderer image")
+		_fail("Guided tutorial proof should capture a renderer image")
 		return
 	var source_size: Vector2i = image.get_size()
 	var scale_x: float = float(source_size.x) / float(PROBE_VIEWPORT.x)
 	var scale_y: float = float(source_size.y) / float(PROBE_VIEWPORT.y)
-	var valid_backing_size: bool = is_equal_approx(scale_x, scale_y) and is_equal_approx(float(source_size.x) / float(source_size.y), 16.0 / 9.0)
+	var valid_backing_size: bool = (
+		is_equal_approx(scale_x, scale_y)
+		and is_equal_approx(float(source_size.x) / float(source_size.y), 16.0 / 9.0)
+	)
 	if not valid_backing_size:
-		_fail("Tutorial proof must keep an exact 16:9 proportional backing, got %s (scale %.4f x %.4f)" % [source_size, scale_x, scale_y])
+		_fail("Guided tutorial proof must keep a 16:9 backing, got %s (scale %.4f x %.4f)" % [source_size, scale_x, scale_y])
 		return
 	if source_size != PROBE_VIEWPORT:
 		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
-	image.save_png(output_path)
+	var error: Error = image.save_png(output_path)
+	_assert(error == OK, "Guided tutorial proof should save %s" % output_path)
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

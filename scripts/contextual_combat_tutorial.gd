@@ -1,128 +1,375 @@
 extends RefCounted
 class_name ContextualCombatTutorial
 
-const PROGRESSION_KEY: String = "combat_micro_prompt_states"
+## Profile-backed curriculum for the first guided run. RunScene owns transient
+## motor phases (a selected card, hovered enemy, or open preview); this class
+## stores only action-committed milestones so save/resume never restores an
+## impossible UI selection.
+
+const PROGRESSION_KEY: String = "guided_combat_tutorial"
+const LEGACY_PROGRESSION_KEY: String = "combat_micro_prompt_states"
+const VERSION: int = 1
+
+const STATUS_ACTIVE: String = "active"
 const STATUS_COMPLETED: String = "completed"
-const STATUS_SKIPPED: String = "skipped"
+const STATUS_DISMISSED: String = "dismissed"
+const STATUS_LEGACY_EXEMPT: String = "legacy_exempt"
+const STATUS_SKIPPED: String = STATUS_DISMISSED
 
-const FULL_CARD_FALLBACK: String = "full_card_fallback"
-const SELECT_TARGET: String = "select_target"
-const CANCEL_OPTIONAL: String = "cancel_optional"
-const PASS_CONSEQUENCE: String = "pass_consequence"
-const TIMELINE_READING: String = "timeline_reading"
+const MILESTONE_MOVE: String = "move_committed"
+const MILESTONE_INTENT: String = "enemy_intent_read"
+const MILESTONE_CANCEL: String = "card_preview_cancelled"
+const MILESTONE_CARD: String = "card_committed"
+const MILESTONE_CLOCK: String = "turn_clock_read"
+const MILESTONE_PASS: String = "turn_passed"
+const MILESTONE_CORE: String = "combat_rhythm_learned"
+const MILESTONE_REWARD: String = "reward_chosen"
+const MILESTONE_PATH: String = "path_chosen"
 
-const PROMPT_ORDER: Array[String] = [
-	FULL_CARD_FALLBACK,
-	SELECT_TARGET,
-	CANCEL_OPTIONAL,
-	TIMELINE_READING,
-	PASS_CONSEQUENCE
+const MILESTONE_ORDER: Array = [
+	MILESTONE_MOVE,
+	MILESTONE_INTENT,
+	MILESTONE_CANCEL,
+	MILESTONE_CARD,
+	MILESTONE_CLOCK,
+	MILESTONE_PASS,
+	MILESTONE_CORE,
+	MILESTONE_REWARD,
+	MILESTONE_PATH,
 ]
 
-const PROMPTS: Dictionary = {
-	FULL_CARD_FALLBACK: {
-		"id": FULL_CARD_FALLBACK,
-		"icon": "move",
-		"text": "Cards use their printed actions. Click your character, then a tile, to spend movement.",
-		"grimoire_entry": "combat:targeting",
-		"accent": "d7a953"
+const PHASE_SELECT_PLAYER: String = "select_player"
+const PHASE_CHOOSE_MOVE: String = "choose_move"
+const PHASE_INSPECT_ENEMY: String = "inspect_enemy"
+const PHASE_CONFIRM_INTENT: String = "confirm_enemy_intent"
+const PHASE_SELECT_CARD_FOR_CANCEL: String = "select_card_for_cancel"
+const PHASE_CANCEL_CARD: String = "cancel_card_preview"
+const PHASE_SELECT_CARD_TO_PLAY: String = "select_card_to_play"
+const PHASE_SELECT_TARGET: String = "select_target"
+const PHASE_FINISH_CARD: String = "finish_card"
+const PHASE_TURN_CLOCK: String = "turn_clock"
+const PHASE_PASS_TURN: String = "pass_turn"
+const PHASE_CORE_COMPLETE: String = "core_complete"
+const PHASE_CHOOSE_REWARD: String = "choose_reward"
+const PHASE_CHOOSE_PATH: String = "choose_path"
+const PHASE_COMPLETE: String = "complete"
+
+# Retired probe names remain as phase aliases so older diagnostic scripts still
+# parse while they migrate to the guided curriculum.
+const FULL_CARD_FALLBACK: String = PHASE_SELECT_PLAYER
+const TIMELINE_READING: String = PHASE_TURN_CLOCK
+const SELECT_TARGET: String = PHASE_SELECT_TARGET
+const CANCEL_OPTIONAL: String = PHASE_CANCEL_CARD
+const PASS_CONSEQUENCE: String = PHASE_PASS_TURN
+
+const PHASE_ORDER: Array = [
+	PHASE_SELECT_PLAYER,
+	PHASE_CHOOSE_MOVE,
+	PHASE_INSPECT_ENEMY,
+	PHASE_CONFIRM_INTENT,
+	PHASE_SELECT_CARD_FOR_CANCEL,
+	PHASE_CANCEL_CARD,
+	PHASE_SELECT_CARD_TO_PLAY,
+	PHASE_SELECT_TARGET,
+	PHASE_FINISH_CARD,
+	PHASE_TURN_CLOCK,
+	PHASE_PASS_TURN,
+	PHASE_CORE_COMPLETE,
+	PHASE_CHOOSE_REWARD,
+	PHASE_CHOOSE_PATH,
+	PHASE_COMPLETE,
+]
+
+const PHASES: Dictionary = {
+	PHASE_SELECT_PLAYER: {
+		"id": PHASE_SELECT_PLAYER, "lesson": 1, "lesson_total": 8,
+		"icon": "move", "kicker": "MOVEMENT", "title": "Move the Wanderer",
+		"pointer_text": "Click your character to plan a move.",
+		"controller_text": "Focus your character, then select.",
+		"controller_action": "controller_accept", "action_label": "Select",
 	},
-	SELECT_TARGET: {
-		"id": SELECT_TARGET,
-		"icon": "ranged",
-		"text": "Choose a glowing tile to set this step's target.",
-		"grimoire_entry": "combat:targeting",
-		"accent": "65b7cf"
+	PHASE_CHOOSE_MOVE: {
+		"id": PHASE_CHOOSE_MOVE, "lesson": 1, "lesson_total": 8,
+		"icon": "move", "kicker": "MOVEMENT", "title": "Choose Your Step",
+		"pointer_text": "Click a glowing tile. You can move 2 tiles each turn.",
+		"controller_text": "Choose a glowing tile. You can move 2 tiles each turn.",
+		"controller_action": "controller_accept", "action_label": "Move",
 	},
-	CANCEL_OPTIONAL: {
-		"id": CANCEL_OPTIONAL,
-		"icon": "exhaust",
-		"text": "Cancel rewinds the card; Skip leaves this optional step unused.",
-		"grimoire_entry": "combat:targeting",
-		"accent": "b29ad8"
+	PHASE_INSPECT_ENEMY: {
+		"id": PHASE_INSPECT_ENEMY, "lesson": 2, "lesson_total": 8,
+		"icon": "", "kicker": "ENEMY INTENT", "title": "Read the Enemy",
+		"pointer_text": "Point to a foe to reveal its next action.",
+		"controller_text": "Focus a foe to reveal its next action.",
+		"controller_action": "controller_move", "action_label": "Inspect",
 	},
-	PASS_CONSEQUENCE: {
-		"id": PASS_CONSEQUENCE,
-		"icon": "health",
-		"text": "Pass ends the turn; On Turn End previews the consequence.",
-		"grimoire_entry": "combat:turn_clock",
-		"accent": "d97c62"
+	PHASE_CONFIRM_INTENT: {
+		"id": PHASE_CONFIRM_INTENT, "lesson": 2, "lesson_total": 8,
+		"icon": "", "kicker": "ENEMY INTENT", "title": "The Enemy's Plan",
+		"pointer_text": "The preview shows what this foe will do on its turn.",
+		"controller_text": "The preview shows what this foe will do on its turn.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Continue",
 	},
-	TIMELINE_READING: {
-		"id": TIMELINE_READING,
-		"icon": "time",
-		"text": "Card time adds a future slot; lower numbers act sooner.",
-		"grimoire_entry": "combat:turn_clock",
-		"accent": "79a9e6"
-	}
+	PHASE_SELECT_CARD_FOR_CANCEL: {
+		"id": PHASE_SELECT_CARD_FOR_CANCEL, "lesson": 3, "lesson_total": 8,
+		"icon": "card_play", "kicker": "CARD PREVIEW", "title": "Plan a Card",
+		"pointer_text": "Choose a lit card. Nothing is spent until its action resolves.",
+		"controller_text": "Choose a lit card. Nothing is spent until its action resolves.",
+		"controller_action": "controller_accept", "action_label": "Preview",
+	},
+	PHASE_CANCEL_CARD: {
+		"id": PHASE_CANCEL_CARD, "lesson": 3, "lesson_total": 8,
+		"icon": "", "kicker": "CARD PREVIEW", "title": "Change Your Mind",
+		"pointer_text": "Right-click, or use Cancel, to return this card safely.",
+		"controller_text": "Press Cancel to return this card safely.",
+		"controller_action": "controller_cancel", "action_label": "Cancel",
+	},
+	PHASE_SELECT_CARD_TO_PLAY: {
+		"id": PHASE_SELECT_CARD_TO_PLAY, "lesson": 4, "lesson_total": 8,
+		"icon": "card_play", "kicker": "PLAY A CARD", "title": "Choose Your Card",
+		"pointer_text": "Select a lit card to preview its action and targets.",
+		"controller_text": "Select a lit card to preview its action and targets.",
+		"controller_action": "controller_accept", "action_label": "Play",
+	},
+	PHASE_SELECT_TARGET: {
+		"id": PHASE_SELECT_TARGET, "lesson": 4, "lesson_total": 8,
+		"icon": "", "kicker": "TARGETING", "title": "Choose a Target",
+		"pointer_text": "Choose a glowing target. The board previews the result before you commit.",
+		"controller_text": "Choose a glowing target. The board previews the result before you commit.",
+		"controller_action": "controller_accept", "action_label": "Target",
+	},
+	PHASE_FINISH_CARD: {
+		"id": PHASE_FINISH_CARD, "lesson": 4, "lesson_total": 8,
+		"icon": "card_play", "kicker": "CARD STEPS", "title": "Finish the Card",
+		"pointer_text": "Follow its glowing steps. Optional steps may be skipped.",
+		"controller_text": "Follow its glowing steps. Optional steps may be skipped.",
+		"controller_action": "controller_accept", "action_label": "Resolve",
+	},
+	PHASE_TURN_CLOCK: {
+		"id": PHASE_TURN_CLOCK, "lesson": 5, "lesson_total": 8,
+		"icon": "time", "kicker": "TURN CLOCK", "title": "Read the Turn Clock",
+		"pointer_text": "Card Time places your next turn. Lower Time means you act sooner.",
+		"controller_text": "Card Time places your next turn. Lower Time means you act sooner.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Continue",
+	},
+	PHASE_PASS_TURN: {
+		"id": PHASE_PASS_TURN, "lesson": 6, "lesson_total": 8,
+		"icon": "", "kicker": "END TURN", "title": "Let the Enemy Act",
+		"pointer_text": "Pass gives up remaining actions. The preview shows what enemies do next.",
+		"controller_text": "Pass gives up remaining actions. The preview shows what enemies do next.",
+		"controller_action": "controller_pass", "action_label": "Pass",
+	},
+	PHASE_CORE_COMPLETE: {
+		"id": PHASE_CORE_COMPLETE, "lesson": 6, "lesson_total": 8,
+		"icon": "", "kicker": "YOUR TURN", "title": "Now Use the Rhythm",
+		"pointer_text": "Move, play, read the enemy, then pass. Finish this fight your way.",
+		"controller_text": "Move, play, read the enemy, then pass. Finish this fight your way.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Finish the Fight",
+	},
+	PHASE_CHOOSE_REWARD: {
+		"id": PHASE_CHOOSE_REWARD, "lesson": 7, "lesson_total": 8,
+		"icon": "", "kicker": "COMBAT REWARD", "title": "Shape Your Deck",
+		"pointer_text": "Choose one card, or Skip & Recover to heal instead.",
+		"controller_text": "Choose one card, or Skip & Recover to heal instead.",
+		"controller_action": "controller_accept", "action_label": "Choose",
+	},
+	PHASE_CHOOSE_PATH: {
+		"id": PHASE_CHOOSE_PATH, "lesson": 8, "lesson_total": 8,
+		"icon": "move", "kicker": "CHOOSE A PATH", "title": "Enter the Next Chamber",
+		"pointer_text": "Select a glowing doorway. The map previews where each route leads.",
+		"controller_text": "Select a glowing doorway. The map previews where each route leads.",
+		"controller_action": "controller_accept", "action_label": "Travel",
+	},
+	PHASE_COMPLETE: {
+		"id": PHASE_COMPLETE, "lesson": 8, "lesson_total": 8,
+		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "The Way Is Yours",
+		"pointer_text": "You know the rhythm. The Umbra will teach the rest.",
+		"controller_text": "You know the rhythm. The Umbra will teach the rest.",
+		"controller_action": "controller_accept", "action_label": "Begin",
+		"requires_continue": true, "continue_text": "Begin",
+	},
 }
 
+static func default_state() -> Dictionary:
+	return {"version": VERSION, "status": STATUS_ACTIVE, "completed_steps": []}
+
+static func legacy_exempt_state() -> Dictionary:
+	return {"version": VERSION, "status": STATUS_LEGACY_EXEMPT, "completed_steps": []}
+
+static func normalized_state(value: Variant, fresh_profile: bool = false, legacy_notes_present: bool = false) -> Dictionary:
+	if typeof(value) != TYPE_DICTIONARY:
+		return default_state() if fresh_profile and not legacy_notes_present else legacy_exempt_state()
+	var source: Dictionary = value as Dictionary
+	var status: String = str(source.get("status", STATUS_ACTIVE if fresh_profile else STATUS_LEGACY_EXEMPT))
+	if status not in [STATUS_ACTIVE, STATUS_COMPLETED, STATUS_DISMISSED, STATUS_LEGACY_EXEMPT]:
+		status = STATUS_ACTIVE if fresh_profile else STATUS_LEGACY_EXEMPT
+	var completed: Array[String]
+	if typeof(source.get("completed_steps", null)) == TYPE_ARRAY:
+		for step_var: Variant in source.get("completed_steps", []) as Array:
+			var step_id: String = str(step_var)
+			if MILESTONE_ORDER.has(step_id) and not completed.has(step_id):
+				completed.append(step_id)
+	completed.sort_custom(func(a: String, b: String) -> bool: return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b))
+	if status == STATUS_COMPLETED:
+		completed = _typed_string_array(MILESTONE_ORDER)
+	return {"version": VERSION, "status": status, "completed_steps": completed}
+
+static func state_from_progression(progression: Dictionary) -> Dictionary:
+	return normalized_state(
+		progression.get(PROGRESSION_KEY, null),
+		int(progression.get("run_counter", 0)) == 0,
+		progression.has(LEGACY_PROGRESSION_KEY)
+	)
+
+static func is_active(progression: Dictionary) -> bool:
+	return str(state_from_progression(progression).get("status", "")) == STATUS_ACTIVE
+
+static func is_completed(progression: Dictionary) -> bool:
+	return str(state_from_progression(progression).get("status", "")) == STATUS_COMPLETED
+
+static func has_completed(progression: Dictionary, milestone_id: String) -> bool:
+	return (state_from_progression(progression).get("completed_steps", []) as Array).has(milestone_id)
+
+static func completed_steps(progression: Dictionary) -> Array[String]:
+	var result: Array[String]
+	for step_var: Variant in state_from_progression(progression).get("completed_steps", []) as Array:
+		result.append(str(step_var))
+	return result
+
+static func complete_milestone(progression: Dictionary, milestone_id: String) -> Dictionary:
+	if not MILESTONE_ORDER.has(milestone_id):
+		return progression.duplicate(true)
+	var result: Dictionary = progression.duplicate(true)
+	var state: Dictionary = state_from_progression(result)
+	if str(state.get("status", "")) != STATUS_ACTIVE:
+		return result
+	var completed: Array = state.get("completed_steps", []) as Array
+	if completed.has(milestone_id):
+		return result
+	completed.append(milestone_id)
+	completed.sort_custom(func(a: String, b: String) -> bool: return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b))
+	state["completed_steps"] = completed
+	result[PROGRESSION_KEY] = state
+	result["progression_revision"] = int(result.get("progression_revision", 0)) + 1
+	result.erase(LEGACY_PROGRESSION_KEY)
+	return result
+
+static func complete_tutorial(progression: Dictionary) -> Dictionary:
+	var result: Dictionary = progression.duplicate(true)
+	var state: Dictionary = state_from_progression(result)
+	if str(state.get("status", "")) == STATUS_COMPLETED:
+		return result
+	if str(state.get("status", "")) != STATUS_ACTIVE:
+		return result
+	state["status"] = STATUS_COMPLETED
+	state["completed_steps"] = MILESTONE_ORDER.duplicate()
+	result[PROGRESSION_KEY] = state
+	result["progression_revision"] = int(result.get("progression_revision", 0)) + 1
+	result.erase(LEGACY_PROGRESSION_KEY)
+	return result
+
+static func dismiss_tutorial(progression: Dictionary) -> Dictionary:
+	var result: Dictionary = progression.duplicate(true)
+	var state: Dictionary = state_from_progression(result)
+	if str(state.get("status", "")) == STATUS_DISMISSED:
+		return result
+	if str(state.get("status", "")) != STATUS_ACTIVE:
+		return result
+	state["status"] = STATUS_DISMISSED
+	result[PROGRESSION_KEY] = state
+	result["progression_revision"] = int(result.get("progression_revision", 0)) + 1
+	result.erase(LEGACY_PROGRESSION_KEY)
+	return result
+
+static func restart_tutorial(progression: Dictionary) -> Dictionary:
+	var result: Dictionary = progression.duplicate(true)
+	result[PROGRESSION_KEY] = default_state()
+	result["progression_revision"] = int(result.get("progression_revision", 0)) + 1
+	result.erase(LEGACY_PROGRESSION_KEY)
+	return result
+
+static func merged_state(primary_progression: Dictionary, fallback_progression: Dictionary) -> Dictionary:
+	var primary: Dictionary = state_from_progression(primary_progression)
+	var fallback: Dictionary = state_from_progression(fallback_progression)
+	var completed: Array[String]
+	for state: Dictionary in [fallback, primary]:
+		for step_var: Variant in state.get("completed_steps", []) as Array:
+			var step_id: String = str(step_var)
+			if MILESTONE_ORDER.has(step_id) and not completed.has(step_id):
+				completed.append(step_id)
+	completed.sort_custom(func(a: String, b: String) -> bool: return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b))
+	var statuses: Array[String]
+	statuses.append(str(primary.get("status", "")))
+	statuses.append(str(fallback.get("status", "")))
+	var status: String = STATUS_LEGACY_EXEMPT
+	for candidate: String in [STATUS_COMPLETED, STATUS_DISMISSED, STATUS_ACTIVE, STATUS_LEGACY_EXEMPT]:
+		if statuses.has(candidate):
+			status = candidate
+			break
+	return {
+		"version": VERSION,
+		"status": status,
+		"completed_steps": MILESTONE_ORDER.duplicate() if status == STATUS_COMPLETED else completed,
+	}
+
+static func phase_definition(phase_id: String) -> Dictionary:
+	return (PHASES.get(phase_id, {}) as Dictionary).duplicate(true)
+
+static func phase_ids() -> Array[String]:
+	return _typed_string_array(PHASE_ORDER)
+
+static func milestone_ids() -> Array[String]:
+	return _typed_string_array(MILESTONE_ORDER)
+
+# Compatibility helpers used by unrelated visual fixtures to suppress onboarding.
 static func prompt_ids() -> Array[String]:
-	return PROMPT_ORDER.duplicate()
+	return milestone_ids()
 
 static func prompt_definition(prompt_id: String) -> Dictionary:
-	return (PROMPTS.get(prompt_id, {}) as Dictionary).duplicate(true)
+	var phase_by_milestone: Dictionary = {
+		MILESTONE_MOVE: PHASE_SELECT_PLAYER,
+		MILESTONE_INTENT: PHASE_INSPECT_ENEMY,
+		MILESTONE_CANCEL: PHASE_CANCEL_CARD,
+		MILESTONE_CARD: PHASE_SELECT_TARGET,
+		MILESTONE_CLOCK: PHASE_TURN_CLOCK,
+		MILESTONE_PASS: PHASE_PASS_TURN,
+		MILESTONE_CORE: PHASE_CORE_COMPLETE,
+		MILESTONE_REWARD: PHASE_CHOOSE_REWARD,
+		MILESTONE_PATH: PHASE_CHOOSE_PATH,
+	}
+	return phase_definition(str(phase_by_milestone.get(prompt_id, prompt_id)))
 
 static func normalized_states(value: Variant) -> Dictionary:
-	var normalized: Dictionary = {}
-	if typeof(value) != TYPE_DICTIONARY:
-		return normalized
-	var source: Dictionary = value as Dictionary
-	for prompt_id: String in PROMPT_ORDER:
-		var status: String = str(source.get(prompt_id, ""))
-		if status in [STATUS_COMPLETED, STATUS_SKIPPED]:
-			normalized[prompt_id] = status
-	return normalized
+	var state: Dictionary = normalized_state(value)
+	var result: Dictionary = {}
+	for step_var: Variant in state.get("completed_steps", []) as Array:
+		result[str(step_var)] = STATUS_COMPLETED
+	return result
 
 static func states_from_progression(progression: Dictionary) -> Dictionary:
-	return normalized_states(progression.get(PROGRESSION_KEY, {}))
-
-static func merged_states(primary_progression: Dictionary, fallback_progression: Dictionary) -> Dictionary:
-	var result: Dictionary = states_from_progression(fallback_progression)
-	for prompt_id: String in PROMPT_ORDER:
-		var primary_status: String = str(states_from_progression(primary_progression).get(prompt_id, ""))
-		if not primary_status.is_empty():
-			result[prompt_id] = primary_status
+	var result: Dictionary = {}
+	for step_id: String in completed_steps(progression):
+		result[step_id] = STATUS_COMPLETED
 	return result
-
-static func is_resolved(progression: Dictionary, prompt_id: String) -> bool:
-	return states_from_progression(progression).has(prompt_id)
 
 static func resolve_progression(progression: Dictionary, prompt_id: String, skipped: bool = false) -> Dictionary:
-	var result: Dictionary = progression.duplicate(true)
-	if not PROMPT_ORDER.has(prompt_id):
-		return result
-	var states: Dictionary = states_from_progression(result)
-	states[prompt_id] = STATUS_SKIPPED if skipped else STATUS_COMPLETED
-	result[PROGRESSION_KEY] = states
+	if skipped:
+		return dismiss_tutorial(progression)
+	var result: Dictionary = complete_milestone(progression, prompt_id)
+	if completed_steps(result).size() == MILESTONE_ORDER.size():
+		return complete_tutorial(result)
 	return result
 
-static func next_prompt(context: Dictionary, progression: Dictionary) -> Dictionary:
-	if bool(context.get("suppressed", false)):
-		return {}
-	if str(context.get("mode", "")) != "combat" or int(progression.get("run_counter", 0)) > 1:
-		return {}
-	if not bool(context.get("player_turn", false)):
-		return {}
-	for prompt_id: String in PROMPT_ORDER:
-		if is_resolved(progression, prompt_id):
-			continue
-		if _is_relevant(prompt_id, context):
-			return prompt_definition(prompt_id)
-	return {}
+static func merged_states(primary_progression: Dictionary, fallback_progression: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for step_var: Variant in merged_state(primary_progression, fallback_progression).get("completed_steps", []) as Array:
+		result[str(step_var)] = STATUS_COMPLETED
+	return result
 
-static func _is_relevant(prompt_id: String, context: Dictionary) -> bool:
-	var selected: bool = bool(context.get("card_selected", false))
-	match prompt_id:
-		FULL_CARD_FALLBACK:
-			return not selected and int(context.get("hand_count", 0)) > 0
-		SELECT_TARGET:
-			return selected and bool(context.get("target_required", false)) and int(context.get("target_count", 0)) > 0
-		CANCEL_OPTIONAL:
-			return selected and bool(context.get("optional_step", false))
-		TIMELINE_READING:
-			return not selected and bool(context.get("card_time_preview", false)) and bool(context.get("timeline_visible", false))
-		PASS_CONSEQUENCE:
-			return not selected and bool(context.get("pass_available", false)) and bool(context.get("pass_preview_visible", false))
-		_:
-			return false
+static func _typed_string_array(values: Array) -> Array[String]:
+	var result: Array[String]
+	for value: Variant in values:
+		result.append(str(value))
+	return result

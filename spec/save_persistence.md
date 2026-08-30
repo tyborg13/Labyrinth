@@ -14,6 +14,19 @@ profile when the live JSON is corrupt or an interrupted replacement leaves only
 the backup, so an update or migration cannot truncate learned skills, embers,
 Moltshards, discoveries, or run history.
 
+Progression schema 7 stores first-run onboarding under
+`guided_combat_tutorial` as a versioned record with `status` and
+`completed_steps`. The completed-step list contains only committed gameplay
+milestones; hover, focus, selected cards, open previews, targets, and other
+transient motor phases are deliberately reconstructed from the current run on
+resume. A brand-new profile starts `active`. Profiles from an older schema that
+have already begun a run—or that contain the retired
+`combat_micro_prompt_states` notes—migrate to `legacy_exempt`, so an update does
+not force veteran players through onboarding. Explicit replay resets just this
+record, while completion and dismissal remain permanent profile choices. Every
+runtime tutorial mutation increments `progression_revision` and is mirrored into
+the resumable run at the next committed persistence boundary.
+
 ## Committed boundaries
 
 RunScene persists only after an irreversible mutation is internally coherent:

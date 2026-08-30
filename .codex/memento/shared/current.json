@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-29T22:49:23Z",
+  "updated_at": "2026-08-30T17:22:56Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4370,28 +4370,6 @@
       }
     },
     {
-      "id": "mnt_20260709T194312Z_4d184678",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/contextual_combat_tutorial.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/contextual_combat_tutorial.gd",
-      "summary": "Combat onboarding uses five first-run contextual micro-prompts",
-      "details": "Keep prompt definitions and trigger priority in ContextualCombatTutorial, keep presentation in ContextualCombatPrompt, and integrate RunScene only through combat context plus interaction completion hooks. Prompt state persists under combat_micro_prompt_states; the layout host belongs above the hand so prompts never cover board targets or HUD anchors.",
-      "status": "active",
-      "created_at": "2026-07-09T19:43:12Z",
-      "updated_at": "2026-07-09T19:43:12Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/ui-contextual-first-run-onboarding",
-        "commit": "5d91a8e"
-      }
-    },
-    {
       "id": "mnt_20260710T023251Z_b4904583",
       "layer": "shared",
       "kind": "decision",
@@ -4753,28 +4731,6 @@
       "source": {
         "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
         "commit": "f7ee873"
-      }
-    },
-    {
-      "id": "mnt_20260713T134536Z_c5bb4745",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "symbol",
-        "path": "scripts/run_scene.gd",
-        "symbol": "_connect_board_aim_signals"
-      },
-      "scope_key": "symbol:scripts/run_scene.gd#_connect_board_aim_signals",
-      "summary": "Combat notes stay fixed while the board moves",
-      "details": "Board zoom and pan must not trigger contextual combat prompt relayout. The note is fixed HUD information; navigation_changed should remain a board signal but should not be connected to prompt placement.",
-      "status": "active",
-      "created_at": "2026-07-13T13:45:36Z",
-      "updated_at": "2026-07-13T13:45:36Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
-        "commit": "0358fa8"
       }
     },
     {
@@ -9351,6 +9307,31 @@
       "source": {
         "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
         "commit": "176ecd38"
+      }
+    },
+    {
+      "id": "mnt_20260830T172256Z_90761664",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "First-run onboarding uses the versioned guided combat tutorial, not transient combat notes",
+      "details": "The retired fixed combat-note queue is replaced by contextual_combat_tutorial.gd plus contextual_combat_prompt.gd and run_scene.gd integration. Persist only committed milestones in profile/run state; reconstruct transient motor phases from live gameplay. Fresh profiles begin active, returning profiles migrate as legacy_exempt, and completion/dismissal persist. Each phase semantically gates the real permitted action, spotlights its live target, supports pointer/controller/reduced motion, and cannot be bypassed through abilities, pause-menu screens, or pre-battle controls. Replay and Skip are available from the pause menu; analytics use guided_tutorial_* events.",
+      "status": "active",
+      "created_at": "2026-08-30T17:22:56Z",
+      "updated_at": "2026-08-30T17:22:56Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260709T194312Z_4d184678",
+        "mnt_20260713T134536Z_c5bb4745"
+      ],
+      "source": {
+        "branch": "codex/production-first-run-guided-combat-tutorial",
+        "commit": "b184db9a"
       }
     }
   ]

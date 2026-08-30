@@ -3,10 +3,11 @@ class_name ProgressionStore
 
 const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
-const PROGRESSION_SCHEMA: int = 6
+const PROGRESSION_SCHEMA: int = 7
 const GRIMOIRE_UNLOCKED_KEY: String = "grimoire_unlocked"
 const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
 const RUN_BESTS_KEY: String = "run_bests"
@@ -61,6 +62,7 @@ static func default_data() -> Dictionary:
 		UMBRA_WARNING_AVAILABLE_RUN_KEY: 0,
 		UMBRA_WARNING_SEEN_KEY: false,
 		"run_counter": 0,
+		ContextualCombatTutorial.PROGRESSION_KEY: ContextualCombatTutorial.default_state(),
 		"recovery_marker": {},
 		RUN_BESTS_KEY: {},
 		LAST_RUN_RESULT_KEY: {},
@@ -107,6 +109,13 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data = _migrated_legacy_stats(data)
 	if source_schema < 6:
 		data = _migrated_legacy_combat_unit_history(data)
+	data["run_counter"] = maxi(0, int(data.get("run_counter", 0)))
+	data[ContextualCombatTutorial.PROGRESSION_KEY] = ContextualCombatTutorial.normalized_state(
+		data.get(ContextualCombatTutorial.PROGRESSION_KEY, null),
+		int(data.get("run_counter", 0)) == 0,
+		data.has(ContextualCombatTutorial.LEGACY_PROGRESSION_KEY)
+	)
+	data.erase(ContextualCombatTutorial.LEGACY_PROGRESSION_KEY)
 	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())
 	var earned_skill_count: int = skill_points_for_level(int(data.get("level", 1)))
 	var source_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(data.get("skill_ids", []))
@@ -149,8 +158,6 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data["fire_rest_dialogue_seen"] = false
 	data[UMBRA_WARNING_AVAILABLE_RUN_KEY] = maxi(0, int(data.get(UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)))
 	data[UMBRA_WARNING_SEEN_KEY] = bool(data.get(UMBRA_WARNING_SEEN_KEY, false))
-	if not data.has("run_counter"):
-		data["run_counter"] = 0
 	if not data.has("recovery_marker"):
 		data["recovery_marker"] = {}
 	data[RUN_BESTS_KEY] = _normalized_run_metric_map(data.get(RUN_BESTS_KEY, {}), BEST_ELIGIBLE_STAT_IDS)
