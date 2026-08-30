@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-30T05:12:23Z",
+  "updated_at": "2026-08-30T12:14:49Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9395,6 +9395,28 @@
       "source": {
         "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
         "commit": "74e6a909"
+      }
+    },
+    {
+      "id": "mnt_20260830T121449Z_36e9d556",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/scavenger_shop_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/scavenger_shop_view.gd",
+      "summary": "Layer the Scavenger portrait behind a pixel-exact foreground counter occluder",
+      "details": "The full-screen shop keeps the merchant animated and separate from the raster stall, then clips a second instance of the same backdrop to the left counter region above the portrait. Reusing the same raster guarantees the counter edge, lighting, and pixels align while hiding the merchant below the waist. The three live offer columns use 280px shelf slots aligned to the authored cabinet cubbies.",
+      "status": "active",
+      "created_at": "2026-08-30T12:14:49Z",
+      "updated_at": "2026-08-30T12:14:49Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
+        "commit": "34435691"
       }
     }
   ]

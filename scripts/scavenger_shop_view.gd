@@ -14,7 +14,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const REFERENCE_SIZE := Vector2(1920.0, 1080.0)
-const BACKDROP_PATH := "res://assets/art/ui/scavenger_shop/stall_backdrop_v1.png"
+const BACKDROP_PATH := "res://assets/art/ui/scavenger_shop/stall_backdrop_v2.png"
 const SCAVENGER_PATH := "res://assets/art/npcs/scavenger.png"
 const DARK_FRAME_PATH := "res://assets/art/ui/panel_silver_inset.png"
 const PARCHMENT_FRAME_PATH := "res://assets/art/ui/panel_wood_parchment.png"
@@ -23,10 +23,12 @@ const MAGIC := "magic"
 const GEAR := "gear"
 const ITEM := "item"
 const MERCHANT_KIND := "scavenger"
-const OFFER_CARD_SIZE := Vector2(148.0, 208.0)
-const OFFER_TILE_SIZE := Vector2(178.0, 146.0)
-const SELL_TILE_SIZE := Vector2(132.0, 118.0)
-const SELL_PAGE_SIZE: int = 3
+const OFFER_CARD_SIZE := Vector2(154.0, 216.0)
+const OFFER_TILE_SIZE := Vector2(196.0, 170.0)
+const SELL_TILE_SIZE := Vector2(218.0, 192.0)
+const SELL_PAGE_SIZE: int = 2
+const SHELF_SLOT_WIDTH: float = 280.0
+const PORTRAIT_BASE_POSITION := Vector2(-82.0, -44.0)
 
 var _run_state: Dictionary = {}
 var _run_engine: RefCounted
@@ -40,7 +42,9 @@ var _ambient_time: float = 0.0
 
 var _canvas: Control
 var _backdrop: TextureRect
+var _portrait_clip: Control
 var _portrait: TextureRect
+var _counter_occluder: Control
 var _title_panel: PanelContainer
 var _currency_panel: PanelContainer
 var _currency_label: Label
@@ -150,20 +154,45 @@ func _build_static_scene() -> void:
 	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(vignette)
 
+	_portrait_clip = Control.new()
+	_portrait_clip.name = "MerchantAlcovePortraitClip"
+	_place(_portrait_clip, Rect2(0.0, 112.0, 640.0, 550.0))
+	_portrait_clip.clip_contents = true
+	_portrait_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_canvas.add_child(_portrait_clip)
+
 	_portrait = TextureRect.new()
 	_portrait.name = "ScavengerPortrait"
-	_place(_portrait, Rect2(42.0, 170.0, 520.0, 660.0))
+	_place(_portrait, Rect2(PORTRAIT_BASE_POSITION, Vector2(800.0, 800.0)))
 	_portrait.texture = AssetLoader.load_texture(SCAVENGER_PATH)
 	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_portrait.pivot_offset = _portrait.size * 0.55
-	_canvas.add_child(_portrait)
+	_portrait_clip.add_child(_portrait)
+
+	# Repaint the counter from the architectural raster above the portrait. This
+	# makes the merchant stand inside the stall instead of reading as a sticker
+	# pasted over it, while the backdrop remains a separately authored layer.
+	_counter_occluder = Control.new()
+	_counter_occluder.name = "ForegroundCounterOccluder"
+	_place(_counter_occluder, Rect2(0.0, 600.0, 640.0, 374.0))
+	_counter_occluder.clip_contents = true
+	_counter_occluder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_canvas.add_child(_counter_occluder)
+	var counter_raster := TextureRect.new()
+	_place(counter_raster, Rect2(0.0, -600.0, REFERENCE_SIZE.x, REFERENCE_SIZE.y))
+	counter_raster.texture = AssetLoader.load_texture(BACKDROP_PATH)
+	counter_raster.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	counter_raster.stretch_mode = TextureRect.STRETCH_SCALE
+	counter_raster.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	counter_raster.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_counter_occluder.add_child(counter_raster)
 
 	_title_panel = _raster_panel(DARK_FRAME_PATH, Color("4a3425"))
 	_title_panel.name = "ScavengerWaresTitlePanel"
-	_place(_title_panel, Rect2(560.0, 28.0, 890.0, 92.0))
+	_place(_title_panel, Rect2(600.0, 28.0, 870.0, 92.0))
 	_canvas.add_child(_title_panel)
 	var title := Label.new()
 	title.text = "SCAVENGER'S WARES"
@@ -178,7 +207,7 @@ func _build_static_scene() -> void:
 
 	_currency_panel = _raster_panel(DARK_FRAME_PATH, Color("493325"))
 	_currency_panel.name = "ScavengerCurrencyPanel"
-	_place(_currency_panel, Rect2(1470.0, 38.0, 395.0, 72.0))
+	_place(_currency_panel, Rect2(1495.0, 38.0, 385.0, 72.0))
 	_canvas.add_child(_currency_panel)
 	var currency_row := HBoxContainer.new()
 	currency_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -198,26 +227,26 @@ func _build_static_scene() -> void:
 	ember_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	currency_row.add_child(ember_icon)
 
-	_magic_group = _build_category_group("MAGIC", Rect2(610.0, 138.0, 820.0, 306.0))
-	_gear_group = _build_category_group("GEAR", Rect2(610.0, 458.0, 820.0, 206.0))
-	_item_group = _build_category_group("ITEMS", Rect2(610.0, 678.0, 820.0, 206.0))
+	_magic_group = _build_category_group("MAGIC", Rect2(650.0, 132.0, 840.0, 306.0))
+	_gear_group = _build_category_group("GEAR", Rect2(650.0, 404.0, 840.0, 252.0))
+	_item_group = _build_category_group("ITEMS", Rect2(650.0, 630.0, 840.0, 260.0))
 	_animated_groups = [_magic_group, _gear_group, _item_group]
 
 	_detail_panel = _raster_panel(PARCHMENT_FRAME_PATH, Color.WHITE)
 	_detail_panel.name = "ScavengerDetailPanel"
-	_place(_detail_panel, Rect2(1465.0, 150.0, 400.0, 700.0))
+	_place(_detail_panel, Rect2(1510.0, 150.0, 370.0, 710.0))
 	_canvas.add_child(_detail_panel)
 	_build_detail_content()
 
 	_sell_panel = _raster_panel(DARK_FRAME_PATH, Color("463226"))
 	_sell_panel.name = "SellFromPackPanel"
-	_place(_sell_panel, Rect2(52.0, 760.0, 520.0, 268.0))
+	_place(_sell_panel, Rect2(16.0, 700.0, 608.0, 318.0))
 	_canvas.add_child(_sell_panel)
 	_build_sell_content()
 
 	_leave_button = _raster_button("LEAVE", Color("6e2d24"), Color("9a4735"))
 	_leave_button.name = "ScavengerLeaveButton"
-	_place(_leave_button, Rect2(1500.0, 920.0, 330.0, 82.0))
+	_place(_leave_button, Rect2(1540.0, 920.0, 310.0, 82.0))
 	UiTypography.set_button_size(_leave_button, 30)
 	_leave_button.tooltip_text = "Close the shop and return to the room's doors."
 	_leave_button.pressed.connect(func() -> void: leave_requested.emit())
@@ -230,14 +259,14 @@ func _build_category_group(label_text: String, rect: Rect2) -> Control:
 	_canvas.add_child(group)
 	var plaque := PanelContainer.new()
 	plaque.name = "%sPlaque" % label_text.capitalize()
-	_place(plaque, Rect2((rect.size.x - 210.0) * 0.5, 0.0, 210.0, 48.0))
+	_place(plaque, Rect2(-120.0, 0.0, 150.0, 44.0))
 	plaque.add_theme_stylebox_override("panel", _raster_style(DARK_FRAME_PATH, Color("4b3526")))
 	group.add_child(plaque)
 	var label := Label.new()
 	label.text = label_text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, 24)
+	UiTypography.set_label_size(label, 22)
 	label.add_theme_color_override("font_color", Color("efd39d"))
 	label.add_theme_color_override("font_outline_color", Color("180e08"))
 	label.add_theme_constant_override("outline_size", 3)
@@ -245,8 +274,8 @@ func _build_category_group(label_text: String, rect: Rect2) -> Control:
 	var row := HBoxContainer.new()
 	row.name = "OfferRow"
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 28)
-	_place(row, Rect2(0.0, 50.0, rect.size.x, rect.size.y - 50.0))
+	row.add_theme_constant_override("separation", 0)
+	_place(row, Rect2(0.0, 38.0, rect.size.x, rect.size.y - 38.0))
 	group.add_child(row)
 	return group
 
@@ -315,27 +344,27 @@ func _build_detail_content() -> void:
 
 func _build_sell_content() -> void:
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 22)
-	margin.add_theme_constant_override("margin_top", 18)
-	margin.add_theme_constant_override("margin_right", 22)
-	margin.add_theme_constant_override("margin_bottom", 20)
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_bottom", 16)
 	_sell_panel.add_child(margin)
 	var stack := VBoxContainer.new()
-	stack.add_theme_constant_override("separation", 10)
+	stack.add_theme_constant_override("separation", 8)
 	margin.add_child(stack)
 	_sell_heading = Label.new()
 	_sell_heading.text = "SELL FROM PACK"
 	_sell_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_sell_heading, 23)
+	UiTypography.set_label_size(_sell_heading, 25)
 	_sell_heading.add_theme_color_override("font_color", Color("efd39d"))
 	_sell_heading.add_theme_color_override("font_outline_color", Color("170d08"))
 	_sell_heading.add_theme_constant_override("outline_size", 3)
 	stack.add_child(_sell_heading)
 	var instruction := Label.new()
-	instruction.text = "Choose an owned card, gear piece, or item. Its exact value appears before you sell."
+	instruction.text = "Choose a ware • review its exact value on the right"
 	instruction.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	instruction.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(instruction, 15)
+	UiTypography.set_label_size(instruction, 16)
 	instruction.add_theme_color_override("font_color", Color("cdbda3"))
 	stack.add_child(instruction)
 	var pager := HBoxContainer.new()
@@ -346,19 +375,21 @@ func _build_sell_content() -> void:
 	stack.add_child(pager)
 	_sell_previous = _raster_button("‹", Color("34271f"), Color("57422e"))
 	_sell_previous.name = "SellPreviousPage"
-	_sell_previous.custom_minimum_size = Vector2(26.0, SELL_TILE_SIZE.y)
+	_sell_previous.custom_minimum_size = Vector2(36.0, SELL_TILE_SIZE.y)
+	UiTypography.set_button_size(_sell_previous, 26)
 	_sell_previous.tooltip_text = "Previous pack page."
 	_sell_previous.pressed.connect(_turn_sell_page.bind(-1))
 	pager.add_child(_sell_previous)
 	_sell_row = HBoxContainer.new()
 	_sell_row.name = "SellInventoryRow"
-	_sell_row.custom_minimum_size = Vector2(SELL_TILE_SIZE.x * SELL_PAGE_SIZE + 8.0 * (SELL_PAGE_SIZE - 1), SELL_TILE_SIZE.y)
+	_sell_row.custom_minimum_size = Vector2(SELL_TILE_SIZE.x * SELL_PAGE_SIZE + 12.0 * (SELL_PAGE_SIZE - 1), SELL_TILE_SIZE.y)
 	_sell_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_sell_row.add_theme_constant_override("separation", 8)
+	_sell_row.add_theme_constant_override("separation", 12)
 	pager.add_child(_sell_row)
 	_sell_next = _raster_button("›", Color("34271f"), Color("57422e"))
 	_sell_next.name = "SellNextPage"
-	_sell_next.custom_minimum_size = Vector2(26.0, SELL_TILE_SIZE.y)
+	_sell_next.custom_minimum_size = Vector2(36.0, SELL_TILE_SIZE.y)
+	UiTypography.set_button_size(_sell_next, 26)
 	_sell_next.tooltip_text = "Next pack page."
 	_sell_next.pressed.connect(_turn_sell_page.bind(1))
 	pager.add_child(_sell_next)
@@ -377,7 +408,12 @@ func _rebuild_inventory() -> void:
 		var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
 		var target_group: Control = _magic_group if kind == MAGIC else (_gear_group if kind == GEAR else _item_group)
 		var row := target_group.get_node("OfferRow") as HBoxContainer
-		row.add_child(_build_offer(item_id, kind))
+		var shelf_slot := CenterContainer.new()
+		shelf_slot.name = "ShelfCubby_%s" % item_id
+		shelf_slot.custom_minimum_size = Vector2(SHELF_SLOT_WIDTH, row.size.y)
+		shelf_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		shelf_slot.add_child(_build_offer(item_id, kind))
+		row.add_child(shelf_slot)
 	_sellable_ids = _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND)
 	_populate_sell_page()
 	_update_selection_effects()
@@ -463,7 +499,7 @@ func _build_magic_offer(item_id: String) -> Control:
 	return stack
 
 func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
-	var button := _raster_button("", Color("34271f"), Color("51402e"))
+	var button := _raster_button("", Color("34271f"), Color("51402e")) if selling else _shelf_offer_button()
 	button.name = "%sOffer_%s" % [kind.capitalize(), item_id]
 	button.custom_minimum_size = SELL_TILE_SIZE if selling else OFFER_TILE_SIZE
 	button.pressed.connect(_select_item.bind(item_id, selling, button))
@@ -482,27 +518,37 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	icon_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	stack.add_child(icon_center)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(72.0, 72.0) if selling else Vector2(88.0, 88.0)
+	icon.custom_minimum_size = Vector2(112.0, 112.0)
 	icon.texture = AssetLoader.load_texture(_icon_path(item_id))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon_center.add_child(icon)
+	var caption_parent: Container = stack
+	if not selling:
+		var caption := _raster_panel(DARK_FRAME_PATH, Color("3d2b20"))
+		caption.custom_minimum_size = Vector2(178.0, 50.0)
+		stack.add_child(caption)
+		var caption_stack := VBoxContainer.new()
+		caption_stack.alignment = BoxContainer.ALIGNMENT_CENTER
+		caption_stack.add_theme_constant_override("separation", 0)
+		caption.add_child(caption_stack)
+		caption_parent = caption_stack
 	var name_label := Label.new()
 	name_label.text = _item_name(item_id)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	name_label.custom_minimum_size = Vector2((SELL_TILE_SIZE.x if selling else OFFER_TILE_SIZE.x) - 18.0, 22.0)
-	UiTypography.set_label_size(name_label, 14 if selling else 16)
+	name_label.custom_minimum_size = Vector2((SELL_TILE_SIZE.x if selling else 178.0) - 18.0, 22.0)
+	UiTypography.set_label_size(name_label, 16)
 	name_label.add_theme_color_override("font_color", Color("f0d8ad"))
-	stack.add_child(name_label)
+	caption_parent.add_child(name_label)
 	var amount: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if selling else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
 	var price := Label.new()
 	price.text = "VALUE %d" % amount if selling else "%d EMBERS" % amount
 	price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(price, 14)
+	UiTypography.set_label_size(price, 15)
 	price.add_theme_color_override("font_color", Color("9cdb96") if selling else Color("f2bd65"))
-	stack.add_child(price)
+	caption_parent.add_child(price)
 	var key: String = "%s:%s" % ["sell" if selling else "buy", item_id]
 	_offer_sources[key] = button
 	_selection_effects[key] = button
@@ -522,14 +568,14 @@ func _build_sell_magic_offer(item_id: String) -> Control:
 	stack.add_theme_constant_override("separation", 0)
 	var selection := PanelContainer.new()
 	selection.name = "SelectionEffect"
-	selection.custom_minimum_size = Vector2(76.0, 96.0)
+	selection.custom_minimum_size = Vector2(122.0, 166.0)
 	selection.add_theme_stylebox_override("panel", _selection_style(false))
 	stack.add_child(selection)
 	var center := CenterContainer.new()
 	selection.add_child(center)
 	var card := CardWidgetScene.instantiate()
 	card.name = "SellMagicCard_%s" % item_id
-	card.custom_minimum_size = Vector2(66.0, 92.0)
+	card.custom_minimum_size = Vector2(112.0, 156.0)
 	card.configure(item_id, false, false, true, false, true, true, GameData.card_def(item_id))
 	card.set_hover_pose(-5.0, 1.045)
 	card.activated.connect(_select_item.bind(item_id, true, card))
@@ -542,10 +588,10 @@ func _build_sell_magic_offer(item_id: String) -> Control:
 	card.tooltip_text = _offer_tooltip(item_id, true, true)
 	var value := Label.new()
 	value.text = "VALUE %d" % int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id))
-	value.custom_minimum_size = Vector2(SELL_TILE_SIZE.x, 20.0)
+	value.custom_minimum_size = Vector2(SELL_TILE_SIZE.x, 24.0)
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(value, 13)
+	UiTypography.set_label_size(value, 15)
 	value.add_theme_color_override("font_color", Color("9cdb96"))
 	stack.add_child(value)
 	_offer_sources["sell:%s" % item_id] = card
@@ -713,14 +759,14 @@ func _play_entry() -> void:
 	if _reduced_motion:
 		_canvas.modulate = Color.WHITE
 		_canvas.scale = Vector2.ONE * _canvas.scale.x
-		_portrait.position.x = 42.0
+		_portrait.position = PORTRAIT_BASE_POSITION
 		for group: Control in _animated_groups:
 			group.modulate = Color.WHITE
 		return
 	_canvas.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	var base_scale: Vector2 = _canvas.scale
 	_canvas.scale = base_scale * 0.985
-	_portrait.position.x = -36.0
+	_portrait.position.x = PORTRAIT_BASE_POSITION.x - 78.0
 	for index: int in range(_animated_groups.size()):
 		var group: Control = _animated_groups[index]
 		group.modulate = Color(1.0, 1.0, 1.0, 0.0)
@@ -728,10 +774,10 @@ func _play_entry() -> void:
 	var tween := create_tween().set_parallel(true)
 	tween.tween_property(_canvas, "modulate:a", 1.0, 0.24).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_canvas, "scale", base_scale, 0.30).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_portrait, "position:x", 42.0, 0.34).set_delay(0.05).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_portrait, "position:x", PORTRAIT_BASE_POSITION.x, 0.34).set_delay(0.05).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	for index: int in range(_animated_groups.size()):
 		var group: Control = _animated_groups[index]
-		var target_x: float = 610.0
+		var target_x: float = 650.0
 		tween.tween_property(group, "position:x", target_x, 0.24).set_delay(0.08 + index * 0.07).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tween.tween_property(group, "modulate:a", 1.0, 0.20).set_delay(0.08 + index * 0.07)
 
@@ -739,7 +785,7 @@ func _process(delta: float) -> void:
 	if not visible or _portrait == null or _reduced_motion:
 		return
 	_ambient_time += delta
-	_portrait.position.y = 170.0 + sin(_ambient_time * 1.15) * 3.0
+	_portrait.position.y = PORTRAIT_BASE_POSITION.y + sin(_ambient_time * 1.15) * 3.0
 	_portrait.rotation = sin(_ambient_time * 0.72) * 0.003
 
 func _animate_slot_scale(control: Control, target: Vector2) -> void:
@@ -777,6 +823,18 @@ func _raster_button(text_value: String, normal_tint: Color, hover_tint: Color) -
 	button.add_theme_color_override("font_disabled_color", Color("857d70"))
 	button.add_theme_color_override("font_outline_color", Color("170e09"))
 	button.add_theme_constant_override("outline_size", 2)
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	return button
+
+func _shelf_offer_button() -> Button:
+	var button := Button.new()
+	button.focus_mode = Control.FOCUS_ALL
+	var empty := StyleBoxEmpty.new()
+	button.add_theme_stylebox_override("normal", empty)
+	button.add_theme_stylebox_override("disabled", empty)
+	button.add_theme_stylebox_override("hover", _selection_style(true))
+	button.add_theme_stylebox_override("pressed", _selection_style(true))
+	button.add_theme_stylebox_override("focus", _selection_style(true))
 	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	return button
 
