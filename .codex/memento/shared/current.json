@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-30T04:40:41Z",
+  "updated_at": "2026-08-30T05:12:23Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9373,6 +9373,28 @@
       "source": {
         "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
         "commit": "b184db9a"
+      }
+    },
+    {
+      "id": "mnt_20260830T051223Z_57fffb9a",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/scavenger_shop_view.gd",
+        "symbol": "_enable_card_focus"
+      },
+      "scope_key": "symbol:scripts/scavenger_shop_view.gd#_enable_card_focus",
+      "summary": "Shop CardWidget focus must be enabled after ready",
+      "details": "CardWidget._ready() intentionally resets focus_mode to FOCUS_NONE. When constructing shop cards off-tree, setting FOCUS_ALL before the offer subtree enters the scene tree is silently overwritten; connect the card's ready signal and enable focus afterward so keyboard/controller navigation works.",
+      "status": "active",
+      "created_at": "2026-08-30T05:12:23Z",
+      "updated_at": "2026-08-30T05:12:23Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
+        "commit": "74e6a909"
       }
     }
   ]

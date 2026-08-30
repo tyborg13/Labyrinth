@@ -319,6 +319,9 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 func _repair_legacy_merchant_rooms(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	var rooms: Dictionary = (next_state.get("rooms", {}) as Dictionary).duplicate(true)
+	var current_room: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var current_room_key: String = _room_key(current_room)
+	var migrated_current_room: bool = false
 	for room_key_var: Variant in rooms.keys():
 		if typeof(rooms.get(room_key_var)) != TYPE_DICTIONARY:
 			continue
@@ -331,7 +334,19 @@ func _repair_legacy_merchant_rooms(run_state: Dictionary) -> Dictionary:
 		room["merchant_kind"] = MERCHANT_SCAVENGER
 		room["npcs"] = [{"id": MERCHANT_SCAVENGER, "pos": Vector2i(3, 4)}]
 		rooms[room_key_var] = room
+		if str(room_key_var) == current_room_key:
+			migrated_current_room = true
 	next_state["rooms"] = rooms
+	var layout: Dictionary = (next_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	var layout_type: String = str(layout.get("type", ""))
+	var layout_merchant_kind: String = str(layout.get("merchant_kind", ""))
+	if migrated_current_room or layout_type in [LEGACY_MERCHANT_BLACKSMITH, LEGACY_MERCHANT_ARCANIST] or layout_merchant_kind in [LEGACY_MERCHANT_BLACKSMITH, LEGACY_MERCHANT_ARCANIST]:
+		layout["type"] = MERCHANT_SCAVENGER
+		layout["merchant_kind"] = MERCHANT_SCAVENGER
+		layout["npcs"] = [{"id": MERCHANT_SCAVENGER, "pos": Vector2i(3, 4)}]
+		if layout.has("room_type"):
+			layout["room_type"] = MERCHANT_SCAVENGER
+		next_state["current_room_layout"] = layout
 	var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	var reservation: Dictionary = (skill_state.get("reserved_merchant", {}) as Dictionary).duplicate(true)
 	if str(reservation.get("kind", "")) in [LEGACY_MERCHANT_BLACKSMITH, LEGACY_MERCHANT_ARCANIST]:

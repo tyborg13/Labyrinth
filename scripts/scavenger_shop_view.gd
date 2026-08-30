@@ -25,7 +25,8 @@ const ITEM := "item"
 const MERCHANT_KIND := "scavenger"
 const OFFER_CARD_SIZE := Vector2(148.0, 208.0)
 const OFFER_TILE_SIZE := Vector2(178.0, 146.0)
-const SELL_TILE_SIZE := Vector2(142.0, 118.0)
+const SELL_TILE_SIZE := Vector2(132.0, 118.0)
+const SELL_PAGE_SIZE: int = 3
 
 var _run_state: Dictionary = {}
 var _run_engine: RefCounted
@@ -55,11 +56,16 @@ var _detail_price: Label
 var _detail_action: Button
 var _layaway_action: Button
 var _sell_panel: PanelContainer
+var _sell_heading: Label
 var _sell_row: HBoxContainer
+var _sell_previous: Button
+var _sell_next: Button
 var _leave_button: Button
 var _selection_effects: Dictionary = {}
 var _offer_sources: Dictionary = {}
 var _animated_groups: Array[Control] = []
+var _sellable_ids: Array = []
+var _sell_page: int = 0
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -81,6 +87,7 @@ func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bo
 		_selected_item_id = ""
 		_selected_is_sell = false
 		_selected_source = null
+		_sell_page = 0
 	_rebuild_inventory()
 	_restore_selection_after_rebuild()
 	_sync_currency()
@@ -316,14 +323,14 @@ func _build_sell_content() -> void:
 	var stack := VBoxContainer.new()
 	stack.add_theme_constant_override("separation", 10)
 	margin.add_child(stack)
-	var heading := Label.new()
-	heading.text = "SELL FROM PACK"
-	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(heading, 23)
-	heading.add_theme_color_override("font_color", Color("efd39d"))
-	heading.add_theme_color_override("font_outline_color", Color("170d08"))
-	heading.add_theme_constant_override("outline_size", 3)
-	stack.add_child(heading)
+	_sell_heading = Label.new()
+	_sell_heading.text = "SELL FROM PACK"
+	_sell_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(_sell_heading, 23)
+	_sell_heading.add_theme_color_override("font_color", Color("efd39d"))
+	_sell_heading.add_theme_color_override("font_outline_color", Color("170d08"))
+	_sell_heading.add_theme_constant_override("outline_size", 3)
+	stack.add_child(_sell_heading)
 	var instruction := Label.new()
 	instruction.text = "Choose an owned card, gear piece, or item. Its exact value appears before you sell."
 	instruction.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -331,22 +338,30 @@ func _build_sell_content() -> void:
 	UiTypography.set_label_size(instruction, 15)
 	instruction.add_theme_color_override("font_color", Color("cdbda3"))
 	stack.add_child(instruction)
-	var scroll := ScrollContainer.new()
-	scroll.name = "SellInventoryScroll"
-	scroll.custom_minimum_size = Vector2(0.0, 136.0)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	var sell_scroll_bar: HScrollBar = scroll.get_h_scroll_bar()
-	sell_scroll_bar.custom_minimum_size.y = 8.0
-	sell_scroll_bar.add_theme_stylebox_override("scroll", _scroll_bar_style(Color("1c1511"), 3))
-	sell_scroll_bar.add_theme_stylebox_override("grabber", _scroll_bar_style(Color("8c6740"), 3))
-	sell_scroll_bar.add_theme_stylebox_override("grabber_highlight", _scroll_bar_style(Color("d2a45d"), 3))
-	sell_scroll_bar.add_theme_stylebox_override("grabber_pressed", _scroll_bar_style(Color("e8c67e"), 3))
-	stack.add_child(scroll)
+	var pager := HBoxContainer.new()
+	pager.name = "SellInventoryPager"
+	pager.custom_minimum_size = Vector2(0.0, SELL_TILE_SIZE.y)
+	pager.alignment = BoxContainer.ALIGNMENT_CENTER
+	pager.add_theme_constant_override("separation", 5)
+	stack.add_child(pager)
+	_sell_previous = _raster_button("‹", Color("34271f"), Color("57422e"))
+	_sell_previous.name = "SellPreviousPage"
+	_sell_previous.custom_minimum_size = Vector2(26.0, SELL_TILE_SIZE.y)
+	_sell_previous.tooltip_text = "Previous pack page."
+	_sell_previous.pressed.connect(_turn_sell_page.bind(-1))
+	pager.add_child(_sell_previous)
 	_sell_row = HBoxContainer.new()
 	_sell_row.name = "SellInventoryRow"
-	_sell_row.add_theme_constant_override("separation", 10)
-	scroll.add_child(_sell_row)
+	_sell_row.custom_minimum_size = Vector2(SELL_TILE_SIZE.x * SELL_PAGE_SIZE + 8.0 * (SELL_PAGE_SIZE - 1), SELL_TILE_SIZE.y)
+	_sell_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_sell_row.add_theme_constant_override("separation", 8)
+	pager.add_child(_sell_row)
+	_sell_next = _raster_button("›", Color("34271f"), Color("57422e"))
+	_sell_next.name = "SellNextPage"
+	_sell_next.custom_minimum_size = Vector2(26.0, SELL_TILE_SIZE.y)
+	_sell_next.tooltip_text = "Next pack page."
+	_sell_next.pressed.connect(_turn_sell_page.bind(1))
+	pager.add_child(_sell_next)
 
 func _rebuild_inventory() -> void:
 	if _run_engine == null or _magic_group == null:
@@ -363,20 +378,41 @@ func _rebuild_inventory() -> void:
 		var target_group: Control = _magic_group if kind == MAGIC else (_gear_group if kind == GEAR else _item_group)
 		var row := target_group.get_node("OfferRow") as HBoxContainer
 		row.add_child(_build_offer(item_id, kind))
+	_sellable_ids = _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND)
+	_populate_sell_page()
+	_update_selection_effects()
+
+func _populate_sell_page() -> void:
+	for key_var: Variant in _offer_sources.keys():
+		var key: String = str(key_var)
+		if key.begins_with("sell:"):
+			_offer_sources.erase(key)
+			_selection_effects.erase(key)
 	_clear_children(_sell_row)
-	var sellable: Array = _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND)
-	if sellable.is_empty():
+	var page_count: int = maxi(1, ceili(float(_sellable_ids.size()) / float(SELL_PAGE_SIZE)))
+	_sell_page = clampi(_sell_page, 0, page_count - 1)
+	_sell_heading.text = "SELL FROM PACK" if page_count == 1 else "SELL FROM PACK  •  %d/%d" % [_sell_page + 1, page_count]
+	_sell_previous.disabled = _sell_page <= 0
+	_sell_next.disabled = _sell_page >= page_count - 1
+	if _sellable_ids.is_empty():
 		var empty := Label.new()
 		empty.text = "Nothing in your pack can be sold here."
-		empty.custom_minimum_size = Vector2(450.0, 110.0)
+		empty.custom_minimum_size = _sell_row.custom_minimum_size
 		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		UiTypography.set_label_size(empty, 17)
 		empty.add_theme_color_override("font_color", Color("a99b86"))
 		_sell_row.add_child(empty)
 	else:
-		for item_var: Variant in sellable:
-			_sell_row.add_child(_build_sell_offer(str(item_var)))
+		var first_index: int = _sell_page * SELL_PAGE_SIZE
+		for index: int in range(first_index, mini(first_index + SELL_PAGE_SIZE, _sellable_ids.size())):
+			_sell_row.add_child(_build_sell_offer(str(_sellable_ids[index])))
+
+func _turn_sell_page(delta: int) -> void:
+	_sell_page += delta
+	_populate_sell_page()
+	_restore_selection_after_rebuild()
+	_sync_detail()
 	_update_selection_effects()
 
 func _restore_selection_after_rebuild() -> void:
@@ -410,14 +446,17 @@ func _build_magic_offer(item_id: String) -> Control:
 	var card := CardWidgetScene.instantiate()
 	card.name = "MagicCard_%s" % item_id
 	card.custom_minimum_size = OFFER_CARD_SIZE
-	card.focus_mode = Control.FOCUS_ALL
 	card.configure(item_id, false, false, true, false, true, true, GameData.card_def(item_id))
 	card.set_hover_pose(-12.0, 1.055)
 	card.activated.connect(_select_item.bind(item_id, false, card))
 	card.focus_entered.connect(_focus_item.bind(item_id, false, card))
 	card.mouse_entered.connect(_hover_item.bind(item_id, card))
 	card.mouse_exited.connect(_unhover_item.bind(item_id, card))
+	card.ready.connect(_enable_card_focus.bind(card), CONNECT_ONE_SHOT)
 	center.add_child(card)
+	var affordable: bool = _offer_is_affordable(item_id, false)
+	card.set_meta("shop_affordable", affordable)
+	card.tooltip_text = _offer_tooltip(item_id, false, affordable)
 	stack.add_child(_price_plaque(item_id, false))
 	_offer_sources["buy:%s" % item_id] = card
 	_selection_effects["buy:%s" % item_id] = selection
@@ -431,6 +470,9 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	button.focus_entered.connect(_focus_item.bind(item_id, selling, button))
 	button.mouse_entered.connect(_hover_item.bind(item_id, button))
 	button.mouse_exited.connect(_unhover_item.bind(item_id, button))
+	var affordable: bool = _offer_is_affordable(item_id, selling)
+	button.set_meta("shop_affordable", affordable)
+	button.tooltip_text = _offer_tooltip(item_id, selling, affordable)
 	var stack := VBoxContainer.new()
 	stack.alignment = BoxContainer.ALIGNMENT_CENTER
 	stack.add_theme_constant_override("separation", 2)
@@ -467,21 +509,83 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	return button
 
 func _build_sell_offer(item_id: String) -> Control:
-	return _build_icon_offer(item_id, str(_run_engine.call("merchant_item_kind", item_id)), true)
+	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
+	if kind == MAGIC:
+		return _build_sell_magic_offer(item_id)
+	return _build_icon_offer(item_id, kind, true)
+
+func _build_sell_magic_offer(item_id: String) -> Control:
+	var stack := VBoxContainer.new()
+	stack.name = "SellMagicOffer_%s" % item_id
+	stack.custom_minimum_size = SELL_TILE_SIZE
+	stack.alignment = BoxContainer.ALIGNMENT_CENTER
+	stack.add_theme_constant_override("separation", 0)
+	var selection := PanelContainer.new()
+	selection.name = "SelectionEffect"
+	selection.custom_minimum_size = Vector2(76.0, 96.0)
+	selection.add_theme_stylebox_override("panel", _selection_style(false))
+	stack.add_child(selection)
+	var center := CenterContainer.new()
+	selection.add_child(center)
+	var card := CardWidgetScene.instantiate()
+	card.name = "SellMagicCard_%s" % item_id
+	card.custom_minimum_size = Vector2(66.0, 92.0)
+	card.configure(item_id, false, false, true, false, true, true, GameData.card_def(item_id))
+	card.set_hover_pose(-5.0, 1.045)
+	card.activated.connect(_select_item.bind(item_id, true, card))
+	card.focus_entered.connect(_focus_item.bind(item_id, true, card))
+	card.mouse_entered.connect(_hover_item.bind(item_id, card))
+	card.mouse_exited.connect(_unhover_item.bind(item_id, card))
+	card.ready.connect(_enable_card_focus.bind(card), CONNECT_ONE_SHOT)
+	center.add_child(card)
+	card.set_meta("shop_affordable", true)
+	card.tooltip_text = _offer_tooltip(item_id, true, true)
+	var value := Label.new()
+	value.text = "VALUE %d" % int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id))
+	value.custom_minimum_size = Vector2(SELL_TILE_SIZE.x, 20.0)
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(value, 13)
+	value.add_theme_color_override("font_color", Color("9cdb96"))
+	stack.add_child(value)
+	_offer_sources["sell:%s" % item_id] = card
+	_selection_effects["sell:%s" % item_id] = selection
+	return stack
+
+func _enable_card_focus(card: Control) -> void:
+	# CardWidget intentionally initializes as pointer-only. Shop cards are discrete
+	# choices, so opt them back into keyboard/controller focus after CardWidget._ready.
+	card.focus_mode = Control.FOCUS_ALL
 
 func _price_plaque(item_id: String, selling: bool) -> Control:
 	var plaque := PanelContainer.new()
 	plaque.custom_minimum_size = Vector2(126.0, 34.0)
-	plaque.add_theme_stylebox_override("panel", _raster_style(DARK_FRAME_PATH, Color("4c3423")))
 	var cost: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if selling else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
+	var affordable: bool = _offer_is_affordable(item_id, selling)
+	plaque.add_theme_stylebox_override("panel", _raster_style(DARK_FRAME_PATH, Color("4c3423") if affordable else Color("302b27")))
 	var label := Label.new()
 	label.text = "%d EMBERS" % cost
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	UiTypography.set_label_size(label, 15)
-	label.add_theme_color_override("font_color", Color("f0bd65"))
+	label.add_theme_color_override("font_color", Color("f0bd65") if affordable else Color("9d9488"))
 	plaque.add_child(label)
 	return plaque
+
+func _offer_is_affordable(item_id: String, selling: bool) -> bool:
+	if selling or _run_engine == null:
+		return true
+	var cost: int = int(_run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
+	return int(_run_engine.call("held_embers", _run_state)) >= cost
+
+func _offer_tooltip(item_id: String, selling: bool, affordable: bool) -> String:
+	var amount: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if selling else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
+	if selling:
+		return "%s\nSell value: %d embers" % [_item_name(item_id), amount]
+	if affordable:
+		return "%s\nPrice: %d embers" % [_item_name(item_id), amount]
+	var held: int = int(_run_engine.call("held_embers", _run_state))
+	return "%s\nPrice: %d embers — need %d more" % [_item_name(item_id), amount, amount - held]
 
 func _select_item(item_id: String, selling: bool, source: Control) -> void:
 	_selected_item_id = item_id
@@ -510,12 +614,18 @@ func _update_selection_effects() -> void:
 		var key: String = str(key_var)
 		var selected_key: String = "%s:%s" % ["sell" if _selected_is_sell else "buy", _selected_item_id]
 		var control := _selection_effects.get(key) as Control
+		var source := _offer_sources.get(key) as Control
 		if control == null:
 			continue
+		var affordable: bool = true if source == null else bool(source.get_meta("shop_affordable", true))
+		var base_tint := Color.WHITE if affordable else Color(0.48, 0.48, 0.48, 0.86)
+		var selected_tint := Color("fff1c2") if affordable else Color(0.60, 0.56, 0.48, 0.92)
 		if control is PanelContainer:
 			(control as PanelContainer).add_theme_stylebox_override("panel", _selection_style(key == selected_key))
 		else:
-			control.modulate = Color("fff1c2") if key == selected_key else Color.WHITE
+			control.modulate = selected_tint if key == selected_key else base_tint
+		if source != null and source != control:
+			source.modulate = selected_tint if key == selected_key else base_tint
 
 func _sync_currency() -> void:
 	if _currency_label != null:
@@ -684,15 +794,6 @@ func _selection_style(selected: bool) -> StyleBoxFlat:
 	style.corner_radius_bottom_right = 8
 	style.shadow_color = Color(1.0, 0.55, 0.12, 0.26) if selected else Color.TRANSPARENT
 	style.shadow_size = 14 if selected else 0
-	return style
-
-func _scroll_bar_style(color: Color, radius: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.corner_radius_top_left = radius
-	style.corner_radius_top_right = radius
-	style.corner_radius_bottom_left = radius
-	style.corner_radius_bottom_right = radius
 	return style
 
 func _place(control: Control, rect: Rect2) -> void:

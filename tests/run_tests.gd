@@ -12429,61 +12429,46 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	for widget: CardWidget in _card_widgets_under(equipment_tooltip):
 		_assert(widget.size.x > 0.0 and absf((widget.size.y / widget.size.x) - (352.0 / 250.0)) < 0.01, "Equipment tooltip card previews should preserve the real card aspect ratio")
 	equipment_tooltip.queue_free()
-	var merchant_equipment_row: Control = instance.call("_build_merchant_item_row", "scavenger", "iron_cleaver", false) as Control
-	if merchant_equipment_row != null:
-		root.add_child(merchant_equipment_row)
-	await process_frame
-	_assert(merchant_equipment_row != null and merchant_equipment_row.tooltip_text == "equipment:iron_cleaver", "Scavenger Gear should reuse the equipment tooltip trigger")
-	var merchant_equipment_tooltip: Control = merchant_equipment_row.call("_make_custom_tooltip", merchant_equipment_row.tooltip_text) as Control if merchant_equipment_row != null else null
+	var merchant_equipment_tooltip: Control = instance.call("_build_merchant_item_tooltip_panel", "scavenger", "iron_cleaver") as Control
 	if merchant_equipment_tooltip != null:
 		root.add_child(merchant_equipment_tooltip)
 		await process_frame
-	_assert(_card_widget_count_under(merchant_equipment_tooltip) == GameData.equipment_cards("iron_cleaver").size(), "Scavenger Gear hover should show real CardWidget previews for every granted equipment card")
+	_assert(_card_widget_count_under(merchant_equipment_tooltip) == GameData.equipment_cards("iron_cleaver").size(), "Pinned Scavenger Gear inspection should show real CardWidget previews for every granted equipment card")
 	if merchant_equipment_tooltip != null:
 		merchant_equipment_tooltip.queue_free()
-	if merchant_equipment_row != null:
-		merchant_equipment_row.queue_free()
-	var merchant_magic_row: Control = instance.call("_build_merchant_item_row", "scavenger", "spark_dart", false) as Control
-	if merchant_magic_row != null:
-		root.add_child(merchant_magic_row)
-		merchant_magic_row.position = Vector2(120.0, 180.0)
-		merchant_magic_row.size = Vector2(520.0, 72.0)
-	await process_frame
-	_assert(merchant_magic_row != null and merchant_magic_row.tooltip_text == "card:spark_dart", "Scavenger Magic should reuse the card tooltip trigger")
-	var merchant_magic_tooltip: Control = merchant_magic_row.call("_make_custom_tooltip", merchant_magic_row.tooltip_text) as Control if merchant_magic_row != null else null
+	var merchant_magic_tooltip: Control = instance.call("_build_merchant_item_tooltip_panel", "scavenger", "spark_dart") as Control
 	if merchant_magic_tooltip != null:
 		root.add_child(merchant_magic_tooltip)
 		await process_frame
-		_assert(_card_widget_count_under(merchant_magic_tooltip) == 1, "Scavenger Magic hover should show a real CardWidget preview")
+		_assert(_card_widget_count_under(merchant_magic_tooltip) == 1, "Pinned Scavenger Magic inspection should show a real CardWidget preview")
 	else:
-		_failures.append("Scavenger Magic hover should show a real CardWidget preview")
+		_failures.append("Pinned Scavenger Magic inspection should show a real CardWidget preview")
 	if merchant_magic_tooltip != null:
 		merchant_magic_tooltip.queue_free()
-	var merchant_item_row: Control = instance.call("_build_merchant_item_row", "scavenger", "crimson_draught", false) as Control
-	if merchant_item_row != null:
-		root.add_child(merchant_item_row)
-	await process_frame
-	_assert(merchant_item_row != null and merchant_item_row.tooltip_text == "card:crimson_draught", "Scavenger merchant rows should reuse the card tooltip trigger")
-	_assert(str(instance.call("_merchant_item_detail", "scavenger", "crimson_draught")).begins_with("Item | "), "Scavenger merchant details should identify item cards")
-	var merchant_item_tooltip: Control = merchant_item_row.call("_make_custom_tooltip", merchant_item_row.tooltip_text) as Control if merchant_item_row != null else null
+	var merchant_item_tooltip: Control = instance.call("_build_merchant_item_tooltip_panel", "scavenger", "crimson_draught") as Control
 	if merchant_item_tooltip != null:
 		root.add_child(merchant_item_tooltip)
 		await process_frame
-		_assert(_card_widget_count_under(merchant_item_tooltip) == 1, "Scavenger merchant hover should show a real CardWidget preview")
+		_assert(_card_widget_count_under(merchant_item_tooltip) == 1, "Pinned Scavenger Item inspection should show a real card-backed preview")
 	else:
-		_failures.append("Scavenger merchant hover should show a real CardWidget preview")
+		_failures.append("Pinned Scavenger Item inspection should show a real card-backed preview")
 	if merchant_item_tooltip != null:
 		merchant_item_tooltip.queue_free()
-	if merchant_item_row != null:
-		merchant_item_row.queue_free()
-	if merchant_magic_row != null:
+	var merchant_magic_source := Button.new()
+	merchant_magic_source.name = "ScavengerPinnedMagicSource"
+	merchant_magic_source.tooltip_text = "Spark Dart\nPrice: 110 embers"
+	merchant_magic_source.position = Vector2(120.0, 180.0)
+	merchant_magic_source.size = Vector2(148.0, 208.0)
+	root.add_child(merchant_magic_source)
+	await process_frame
+	if merchant_magic_source != null:
 		var mouse_motion := InputEventMouseMotion.new()
 		mouse_motion.position = Vector2(20.0, 7.0)
 		mouse_motion.global_position = mouse_motion.position
 		Input.parse_input_event(mouse_motion)
 		await process_frame
-		instance.call("_on_merchant_row_mouse_entered", "scavenger", "spark_dart", merchant_magic_row)
-		var tooltip_text_before_pin: String = merchant_magic_row.tooltip_text
+		instance.call("_on_merchant_row_mouse_entered", "scavenger", "spark_dart", merchant_magic_source)
+		var tooltip_text_before_pin: String = merchant_magic_source.tooltip_text
 		var tooltip_mouse_anchor: Vector2 = instance.call("_current_mouse_position")
 		_assert(tooltip_mouse_anchor.y > 40.0, "Pinned merchant tooltip test should use a non-clamped mouse anchor")
 		var shift_event := InputEventKey.new()
@@ -12495,7 +12480,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim")
 		var pinned_panel: Control = instance.get("_pinned_tooltip_panel")
 		_assert(pinned_scrim != null and pinned_scrim.visible, "Pressing Shift while hovering a merchant item should pin the item tooltip")
-		_assert(merchant_magic_row.tooltip_text.is_empty(), "Pinned merchant tooltips should suppress the row's normal hover tooltip while focused")
+		_assert(merchant_magic_source.tooltip_text.is_empty(), "Pinned merchant tooltips should suppress the source's normal hover tooltip while focused")
 		if pinned_panel != null:
 			var expected_pin_position: Vector2 = tooltip_mouse_anchor + Vector2(12.0, 0.0)
 			var viewport_size: Vector2 = instance.get_viewport_rect().size
@@ -12514,9 +12499,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		instance.call("_input", close_shift_event)
 		await process_frame
 		_assert(pinned_scrim != null and not pinned_scrim.visible, "Pressing Shift again should close a pinned merchant tooltip")
-		_assert(merchant_magic_row.tooltip_text == tooltip_text_before_pin, "Closing a pinned merchant tooltip should restore the row's normal hover tooltip")
-		merchant_magic_row.queue_free()
-	_assert(str(instance.call("_merchant_item_detail", "scavenger", "crown_of_thorns")) == "Trinket | Legendary", "Scavenger Gear details should spell out Legendary")
+		_assert(merchant_magic_source.tooltip_text == tooltip_text_before_pin, "Closing a pinned merchant tooltip should restore the source's normal hover tooltip")
+		merchant_magic_source.queue_free()
 	var card_tooltip: Control = instance.call("_build_card_tooltip_panel", "cleaver_hook") as Control
 	root.add_child(card_tooltip)
 	await process_frame

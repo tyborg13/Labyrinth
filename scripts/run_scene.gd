@@ -1239,13 +1239,6 @@ const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal, continue"
 const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank embers, end run"
 const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers, choose a skill, continue"
 const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
-const MERCHANT_PANEL_SIZE: Vector2 = Vector2(940.0, 290.0)
-const MERCHANT_COLUMN_SIZE: Vector2 = Vector2(430.0, 236.0)
-const MERCHANT_ROW_HEIGHT: float = 58.0
-const MERCHANT_ICON_SIZE: Vector2 = Vector2(44.0, 44.0)
-const MERCHANT_TITLE_BLACKSMITH: String = "BLACKSMITH"
-const MERCHANT_TITLE_ARCANIST: String = "ARCANIST"
-const MERCHANT_TITLE_SCAVENGER: String = "SCAVENGER"
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const RELIC_OFFER_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
@@ -14340,10 +14333,6 @@ func _relic_choice_title_accent(text: String) -> Color:
 			return Color("9fdc86")
 		RELIC_CHOICE_TITLE_TEXT:
 			return Color("f2c86a")
-		MERCHANT_TITLE_BLACKSMITH:
-			return Color("ef9356")
-		MERCHANT_TITLE_ARCANIST:
-			return Color("92d8ff")
 	return Color("f0c978")
 
 func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
@@ -14573,260 +14562,6 @@ func _add_merchant_return_to_shop_button() -> void:
 	button.pressed.connect(_on_merchant_return_to_shop_pressed)
 	_relic_choice_bar.add_child(button)
 
-func _merchant_title_text(merchant_kind: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		return MERCHANT_TITLE_BLACKSMITH
-	if merchant_kind == RunEngineScript.MERCHANT_ARCANIST:
-		return MERCHANT_TITLE_ARCANIST
-	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER:
-		return MERCHANT_TITLE_SCAVENGER
-	return ""
-
-func _merchant_accent(merchant_kind: String) -> Color:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		return Color("d9862f")
-	if merchant_kind == RunEngineScript.MERCHANT_ARCANIST:
-		return Color("8a67d8")
-	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER:
-		return Color("a6b85f")
-	return Color("c9b9a3")
-
-func _add_merchant_trade_panel(merchant_kind: String) -> void:
-	if _relic_choice_bar == null:
-		return
-	var accent: Color = _merchant_accent(merchant_kind)
-	var panel := PanelContainer.new()
-	panel.name = "MerchantTradePanel"
-	panel.custom_minimum_size = MERCHANT_PANEL_SIZE
-	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	panel.z_index = 35
-	panel.add_theme_stylebox_override("panel", _merchant_panel_style(accent))
-	_relic_choice_bar.add_child(panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 14)
-	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
-
-	var top_row := HBoxContainer.new()
-	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_row.add_theme_constant_override("separation", 10)
-	vbox.add_child(top_row)
-
-	var stock_label := Label.new()
-	stock_label.text = "Stock"
-	UiTypography.set_label_size(stock_label, UiTypography.SIZE_BODY)
-	stock_label.add_theme_color_override("font_color", Color("f5ead4"))
-	stock_label.add_theme_color_override("font_outline_color", Color("241912"))
-	stock_label.add_theme_constant_override("outline_size", 1)
-	top_row.add_child(stock_label)
-
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_row.add_child(spacer)
-
-	var ember_label := Label.new()
-	ember_label.text = "EMBERS %d" % _run_engine.held_embers(_run_state)
-	UiTypography.set_label_size(ember_label, UiTypography.SIZE_BODY)
-	ember_label.add_theme_color_override("font_color", Color("f0c978"))
-	ember_label.add_theme_color_override("font_outline_color", Color("241912"))
-	ember_label.add_theme_constant_override("outline_size", 1)
-	top_row.add_child(ember_label)
-
-	var hide_button := UiTooltipButton.new()
-	hide_button.name = "MerchantHideButton"
-	hide_button.text = "Hide"
-	hide_button.tooltip_text = "Hide the merchant interface and reveal every door."
-	_ui_skin.apply_button_stylebox_overrides(hide_button, UiSkin.VARIANT_STANDARD)
-	_ui_skin.apply_button_text_overrides(hide_button)
-	UiTypography.set_button_size(hide_button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(hide_button, UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, true, UiSkin.VARIANT_STANDARD)
-	hide_button.pressed.connect(_on_merchant_hide_pressed)
-	top_row.add_child(hide_button)
-
-	var columns := HBoxContainer.new()
-	columns.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	columns.add_theme_constant_override("separation", 14)
-	vbox.add_child(columns)
-	columns.add_child(_build_merchant_column(merchant_kind, false))
-	columns.add_child(_build_merchant_column(merchant_kind, true))
-
-func _build_merchant_column(merchant_kind: String, selling: bool) -> Control:
-	var accent: Color = _merchant_accent(merchant_kind)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = MERCHANT_COLUMN_SIZE
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _merchant_column_style(accent, selling))
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
-	panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 7)
-	margin.add_child(vbox)
-
-	var title := Label.new()
-	title.text = "Sell" if selling else "Buy"
-	UiTypography.set_label_size(title, UiTypography.SIZE_BODY)
-	title.add_theme_color_override("font_color", Color("fff1d5"))
-	title.add_theme_color_override("font_outline_color", Color("1d1510"))
-	title.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(title)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	vbox.add_child(scroll)
-
-	var rows := VBoxContainer.new()
-	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rows.add_theme_constant_override("separation", 6)
-	scroll.add_child(rows)
-
-	var item_ids: Array = _run_engine.merchant_sellable_ids(_run_state, merchant_kind) if selling else _run_engine.merchant_offer_ids(_run_state, merchant_kind)
-	if item_ids.is_empty():
-		rows.add_child(_build_merchant_empty_row("Nothing to sell" if selling else "Sold out"))
-		return panel
-	for item_id_var: Variant in item_ids:
-		rows.add_child(_build_merchant_item_row(merchant_kind, str(item_id_var), selling))
-	return panel
-
-func _build_merchant_empty_row(text: String) -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0.0, MERCHANT_ROW_HEIGHT)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _merchant_row_style(Color("6f6251"), false, false))
-	var label := Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
-	label.add_theme_color_override("font_color", Color("b9aa91"))
-	panel.add_child(label)
-	return panel
-
-func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: bool) -> Control:
-	var item_accent: Color = _merchant_item_accent(merchant_kind, item_id)
-	var affordable: bool = selling or _run_engine.held_embers(_run_state) >= _run_engine.merchant_buy_cost(merchant_kind, item_id)
-	var row: TooltipPanelContainer = null
-	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
-		var equipment_row := EquipmentTooltipPanelContainer.new()
-		equipment_row.equipment_id = item_id
-		equipment_row.host = self
-		equipment_row.tooltip_text = "equipment:%s" % item_id
-		row = equipment_row
-	else:
-		var card_row := EquipmentCardBadge.new()
-		card_row.card_id = item_id
-		card_row.host = self
-		card_row.tooltip_text = "card:%s" % item_id
-		row = card_row
-	row.custom_minimum_size = Vector2(0.0, MERCHANT_ROW_HEIGHT)
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.mouse_filter = Control.MOUSE_FILTER_STOP
-	row.add_theme_stylebox_override("panel", _merchant_row_style(item_accent, false, affordable))
-	row.mouse_entered.connect(_on_merchant_row_mouse_entered.bind(merchant_kind, item_id, row))
-	row.mouse_exited.connect(_on_merchant_row_mouse_exited.bind(merchant_kind, item_id, row))
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_bottom", 6)
-	row.add_child(margin)
-
-	var hbox := HBoxContainer.new()
-	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_theme_constant_override("separation", 8)
-	margin.add_child(hbox)
-
-	var icon_frame := PanelContainer.new()
-	icon_frame.custom_minimum_size = Vector2(MERCHANT_ICON_SIZE.x, MERCHANT_ICON_SIZE.y)
-	icon_frame.add_theme_stylebox_override("panel", _merchant_icon_style(item_accent))
-	hbox.add_child(icon_frame)
-	var icon_center := CenterContainer.new()
-	icon_frame.add_child(icon_center)
-	var icon := TextureRect.new()
-	icon.custom_minimum_size = MERCHANT_ICON_SIZE - Vector2(8.0, 8.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = AssetLoader.load_texture(_merchant_item_icon_path(merchant_kind, item_id))
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_center.add_child(icon)
-	_make_equipment_tile_content_passive(icon_frame)
-
-	var text_box := VBoxContainer.new()
-	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.add_theme_constant_override("separation", 1)
-	hbox.add_child(text_box)
-
-	var name_label := Label.new()
-	name_label.text = _merchant_item_name(merchant_kind, item_id)
-	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_BODY)
-	name_label.add_theme_color_override("font_color", Color("fff1d5") if affordable else Color("cdbca2"))
-	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	name_label.add_theme_constant_override("outline_size", 1)
-	text_box.add_child(name_label)
-
-	var detail_label := Label.new()
-	detail_label.text = _merchant_item_detail(merchant_kind, item_id)
-	detail_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(detail_label, UiTypography.SIZE_SMALL)
-	detail_label.add_theme_color_override("font_color", Color("cdbca2") if affordable else Color("9f927e"))
-	text_box.add_child(detail_label)
-	_make_equipment_tile_content_passive(text_box)
-
-	var amount: int = _run_engine.merchant_sell_value(merchant_kind, item_id) if selling else _run_engine.merchant_buy_cost(merchant_kind, item_id)
-	var price_chip: Control = _merchant_price_chip("%d" % amount, item_accent, selling, affordable)
-	_make_equipment_tile_content_passive(price_chip)
-	hbox.add_child(price_chip)
-	if not selling and _run_engine.run_skill_is_ready(_run_state, "layaway"):
-		var hold_button := UiTooltipButton.new()
-		hold_button.name = "Layaway_%s" % item_id
-		hold_button.text = "Hold"
-		hold_button.tooltip_text = SkillTreeLibrary.description("layaway")
-		hold_button.custom_minimum_size = Vector2(64.0, 42.0)
-		_ui_skin.apply_button_stylebox_overrides(hold_button, UiSkin.VARIANT_COMPACT)
-		_ui_skin.apply_button_text_overrides(hold_button)
-		UiTypography.set_button_size(hold_button, UiTypography.SIZE_SMALL)
-		hold_button.pressed.connect(_on_merchant_layaway_pressed.bind(item_id))
-		hbox.add_child(hold_button)
-
-	var button := Button.new()
-	button.text = "Sell" if selling else "Buy"
-	button.disabled = not affordable
-	button.custom_minimum_size = Vector2(82.0, 42.0)
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_COMPACT)
-	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
-	if selling:
-		button.pressed.connect(_on_merchant_sell_pressed.bind(merchant_kind, item_id, row))
-	else:
-		button.pressed.connect(_on_merchant_buy_pressed.bind(merchant_kind, item_id, row))
-	hbox.add_child(button)
-	return row
-
 func _on_merchant_layaway_pressed(item_id: String) -> void:
 	if _merchant_trade_animation_active:
 		return
@@ -14850,59 +14585,6 @@ func _on_merchant_row_mouse_exited(merchant_kind: String, item_id: String, row: 
 		if _merchant_hovered_row == row or row == null:
 			_merchant_hovered_row = null
 
-func _merchant_price_chip(text: String, accent: Color, selling: bool, enabled: bool) -> Control:
-	var chip := PanelContainer.new()
-	chip.custom_minimum_size = Vector2(62.0, 36.0)
-	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	chip.add_theme_stylebox_override("panel", _merchant_chip_style(accent, selling, enabled))
-	var label := Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
-	label.add_theme_color_override("font_color", Color("e1ffd1") if selling else Color("ffe1ad"))
-	label.add_theme_color_override("font_outline_color", Color("1b1008"))
-	label.add_theme_constant_override("outline_size", 1)
-	chip.add_child(label)
-	return chip
-
-func _merchant_item_name(merchant_kind: String, item_id: String) -> String:
-	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
-		return str(GameData.equipment_def(item_id).get("name", item_id))
-	return str(GameData.card_def(item_id).get("name", item_id))
-
-func _merchant_item_detail(merchant_kind: String, item_id: String) -> String:
-	var item_kind: String = _run_engine.merchant_item_kind(item_id)
-	if item_kind == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
-		return "%s | %s" % [
-			_equipment_slot_label(GameData.equipment_slot(item_id)),
-			_equipment_rarity_label(GameData.equipment_rarity(item_id))
-		]
-	var card: Dictionary = GameData.card_def(item_id)
-	if item_kind == RunEngineScript.MERCHANT_ITEM_KIND_ITEM:
-		return "Item | %s" % _equipment_rarity_label(str(card.get("rarity", "common")))
-	var element_name: String = ElementData.name(GameData.card_element(item_id))
-	if element_name.is_empty():
-		element_name = "Neutral"
-	return "%s | %s" % [element_name, _equipment_rarity_label(str(card.get("rarity", "common")))]
-
-func _merchant_item_tooltip(merchant_kind: String, item_id: String) -> String:
-	var lines: Array = [_merchant_item_name(merchant_kind, item_id), _merchant_item_detail(merchant_kind, item_id)]
-	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
-		for card_id_var: Variant in GameData.equipment_cards(item_id):
-			lines.append(str(GameData.card_def(str(card_id_var)).get("name", card_id_var)))
-	else:
-		lines.append(str(GameData.card_def(item_id).get("description", "")))
-	return "\n".join(lines)
-
-func _merchant_item_icon_path(merchant_kind: String, item_id: String) -> String:
-	var item_kind: String = _run_engine.merchant_item_kind(item_id)
-	if item_kind == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
-		return str(GameData.equipment_def(item_id).get("icon_path", ""))
-	if item_kind == RunEngineScript.MERCHANT_ITEM_KIND_ITEM:
-		return GameData.item_icon_path(item_id)
-	return str(GameData.card_def(item_id).get("art_path", ElementData.icon_path(GameData.card_element(item_id))))
-
 func _merchant_item_accent(merchant_kind: String, item_id: String) -> Color:
 	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return Color(GameData.equipment_accent(item_id))
@@ -14914,84 +14596,6 @@ func _item_card_accent(card_id: String) -> Color:
 	if not accent_text.is_empty():
 		return Color(accent_text)
 	return ElementData.accent(GameData.card_element(card_id))
-
-func _merchant_panel_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.075, 0.052, 0.040, 0.95)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.86)
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.46)
-	style.shadow_size = 18
-	style.shadow_offset = Vector2(0.0, 8.0)
-	return style
-
-func _merchant_column_style(accent: Color, selling: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.050, 0.038, 0.032, 0.88)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.44 if selling else 0.58)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	return style
-
-func _merchant_row_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.105, 0.075, 0.054, 0.94).lightened(0.05 if hovered else 0.0)
-	if not enabled:
-		style.bg_color = Color(0.066, 0.058, 0.050, 0.90)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.70 if enabled else 0.32)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	return style
-
-func _merchant_icon_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.035, 0.030, 0.027, 0.94)
-	style.border_color = accent.darkened(0.10)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
-	return style
-
-func _merchant_chip_style(accent: Color, selling: bool, enabled: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("14321a") if selling else Color("342415")
-	style.border_color = Color("83d088") if selling else accent.lightened(0.18)
-	if not enabled:
-		style.bg_color = Color("2a2520")
-		style.border_color = Color("8b7b66")
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	return style
 
 func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, enabled: bool) -> void:
 	var clip := Control.new()
@@ -22703,12 +22307,14 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 	if after_embers == before_embers:
 		_refresh_ui()
 		_merchant_trade_animation_active = false
+		call_deferred("_recover_controller_focus")
 		return
 	_persist_committed_boundary("merchant_buy")
 	_analytics_log_merchant_trade("buy", merchant_kind, item_id, amount, before_embers, after_embers)
 	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, true)
 	_refresh_ui()
 	_merchant_trade_animation_active = false
+	call_deferred("_recover_controller_focus")
 
 func _on_scavenger_buy_requested(item_id: String, source: Control) -> void:
 	await _on_merchant_buy_pressed(RunEngineScript.MERCHANT_SCAVENGER, item_id, source)
@@ -22730,12 +22336,14 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 	if after_embers == before_embers:
 		_refresh_ui()
 		_merchant_trade_animation_active = false
+		call_deferred("_recover_controller_focus")
 		return
 	_persist_committed_boundary("merchant_sell")
 	_analytics_log_merchant_trade("sell", merchant_kind, item_id, amount, before_embers, after_embers)
 	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, false)
 	_refresh_ui()
 	_merchant_trade_animation_active = false
+	call_deferred("_recover_controller_focus")
 
 func _on_scavenger_sell_requested(item_id: String, source: Control) -> void:
 	await _on_merchant_sell_pressed(RunEngineScript.MERCHANT_SCAVENGER, item_id, source)

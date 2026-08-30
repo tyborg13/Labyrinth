@@ -119,6 +119,13 @@ static func _test_legacy_merchant_save_migration(expect: Callable) -> void:
 	}
 	state["rooms"] = rooms
 	state["current_room"] = legacy_coord
+	state["current_room_layout"] = {
+		"type": RunEngine.LEGACY_MERCHANT_BLACKSMITH,
+		"merchant_kind": RunEngine.LEGACY_MERCHANT_BLACKSMITH,
+		"room_type": RunEngine.LEGACY_MERCHANT_BLACKSMITH,
+		"npcs": [{"id": RunEngine.LEGACY_MERCHANT_BLACKSMITH, "pos": Vector2i(3, 4)}],
+		"grid": [["migration_marker"]],
+	}
 	state["mode"] = "room"
 	state["skill_state"] = {
 		"reserved_merchant": {
@@ -133,6 +140,13 @@ static func _test_legacy_merchant_save_migration(expect: Callable) -> void:
 	expect.call(str(repaired_room.get("merchant_kind", "")) == RunEngine.MERCHANT_SCAVENGER, "Legacy merchant metadata should migrate to Scavenger")
 	var npcs: Array = repaired_room.get("npcs", []) as Array
 	expect.call(npcs.size() == 1 and str((npcs[0] as Dictionary).get("id", "")) == RunEngine.MERCHANT_SCAVENGER, "Legacy merchant NPCs should migrate to the single Scavenger")
+	var repaired_layout: Dictionary = repaired.get("current_room_layout", {}) as Dictionary
+	expect.call(str(repaired_layout.get("type", "")) == RunEngine.MERCHANT_SCAVENGER, "The live legacy room layout should migrate to Scavenger")
+	expect.call(str(repaired_layout.get("merchant_kind", "")) == RunEngine.MERCHANT_SCAVENGER, "The live layout merchant kind should migrate to Scavenger")
+	expect.call(str(repaired_layout.get("room_type", "")) == RunEngine.MERCHANT_SCAVENGER, "Legacy layout room type aliases should migrate to Scavenger")
+	var layout_npcs: Array = repaired_layout.get("npcs", []) as Array
+	expect.call(layout_npcs.size() == 1 and str((layout_npcs[0] as Dictionary).get("id", "")) == RunEngine.MERCHANT_SCAVENGER, "The live room layout should render the Scavenger NPC after migration")
+	expect.call(repaired_layout.get("grid", []) == [["migration_marker"]], "Merchant layout migration should preserve authored board data")
 	var reservation: Dictionary = ((repaired.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) as Dictionary)
 	expect.call(str(reservation.get("kind", "")) == RunEngine.MERCHANT_SCAVENGER, "Legacy Layaway reservations should migrate to the unified Scavenger")
 

@@ -51,17 +51,22 @@ func _capture_states() -> void:
 	for category: String in ["magic", "gear", "item"]:
 		if int(categories.get(category, 0)) != RunEngine.MERCHANT_OFFERS_PER_CATEGORY:
 			_fail("%s shelf should contain exactly three offers" % category.capitalize())
+	if shop.find_child("SellInventoryScroll", true, false) != null:
+		_fail("Sell From Pack must use the authored pager instead of a horizontal scrollbar")
+	var sell_next: Button = shop.find_child("SellNextPage", true, false) as Button
+	if sell_next == null or sell_next.disabled:
+		_fail("A full probe pack should expose an enabled next-page affordance")
 	await _save("normal.png")
 
 	var offers: Array = run_engine.merchant_offer_ids(state, RunEngine.MERCHANT_SCAVENGER)
 	var controller_offer_id: String = ""
 	for offer_var: Variant in offers:
-		if run_engine.merchant_item_kind(str(offer_var)) == RunEngine.MERCHANT_ITEM_KIND_GEAR:
+		if run_engine.merchant_item_kind(str(offer_var)) == RunEngine.MERCHANT_ITEM_KIND_MAGIC:
 			controller_offer_id = str(offer_var)
 			break
 	var controller_offer: Control = _offer_source(shop, controller_offer_id, false)
 	if controller_offer == null:
-		_fail("Scavenger Gear should expose a controller-focusable offer")
+		_fail("Scavenger Magic should expose a controller-focusable real card")
 	else:
 		controller_offer.grab_focus()
 		await _settle()
@@ -71,6 +76,17 @@ func _capture_states() -> void:
 		if str(controller_snapshot.get("selected_item_id", "")) != controller_offer_id:
 			_fail("Controller focus should populate the same detail panel as pointer selection")
 		await _save("controller_focus.png")
+	var purchase_offer_id: String = ""
+	for offer_var: Variant in offers:
+		if run_engine.merchant_item_kind(str(offer_var)) == RunEngine.MERCHANT_ITEM_KIND_GEAR:
+			purchase_offer_id = str(offer_var)
+			break
+	var purchase_offer: Control = _offer_source(shop, purchase_offer_id, false)
+	if purchase_offer == null:
+		_fail("Scavenger Gear should expose a purchasable board-icon offer")
+	else:
+		purchase_offer.grab_focus()
+		await _settle()
 	var trade_action: Button = shop.find_child("ScavengerTradeActionButton", true, false) as Button
 	var purchase_embers_before: int = int((instance.get("_run_state") as Dictionary).get("held_embers", 0))
 	if trade_action == null or trade_action.disabled:
@@ -83,11 +99,14 @@ func _capture_states() -> void:
 		var purchased_state: Dictionary = instance.get("_run_state") as Dictionary
 		if int(purchased_state.get("held_embers", 0)) >= purchase_embers_before:
 			_fail("The integrated Buy action should spend held embers")
-		if not (purchased_state.get("equipment_inventory", []) as Array).has(controller_offer_id):
+		if not (purchased_state.get("equipment_inventory", []) as Array).has(purchase_offer_id):
 			_fail("The integrated Gear purchase should enter equipment inventory")
 		var post_purchase_snapshot: Dictionary = shop.call("semantic_snapshot")
-		if str(post_purchase_snapshot.get("selected_item_id", "")) == controller_offer_id:
+		if str(post_purchase_snapshot.get("selected_item_id", "")) == purchase_offer_id:
 			_fail("Purchased wares should clear from the detail panel after the shelf restocks")
+		var recovered_focus: Control = root.gui_get_focus_owner()
+		if recovered_focus == null or not shop.is_ancestor_of(recovered_focus) or not recovered_focus.is_visible_in_tree():
+			_fail("A completed purchase should recover controller focus inside the rebuilt shop")
 		await _save("post_purchase.png")
 	var expensive_id: String = ""
 	var expensive_cost: int = -1
@@ -102,6 +121,8 @@ func _capture_states() -> void:
 	shop.call("configure", state, run_engine, false)
 	await _settle()
 	var expensive_source: Control = _offer_source(shop, expensive_id, false)
+	if expensive_source == null or bool(expensive_source.get_meta("shop_affordable", true)) or expensive_source.modulate.is_equal_approx(Color.WHITE):
+		_fail("Unaffordable shelf offers should be visibly dim before selection")
 	shop.call("_select_item", expensive_id, false, expensive_source)
 	await _settle()
 	trade_action = shop.find_child("ScavengerTradeActionButton", true, false) as Button
@@ -110,26 +131,51 @@ func _capture_states() -> void:
 	await _save("focused_unaffordable.png")
 
 	state = _scavenger_state(run_engine)
-	shop.call("configure", state, run_engine, false)
+	instance.call("_load_run_state", state)
 	await _settle()
+	instance.call("_close_dialogue")
+	await _settle()
+	shop = instance.find_child("ScavengerShopView", true, false) as Control
 	var sellable: Array = run_engine.merchant_sellable_ids(state, RunEngine.MERCHANT_SCAVENGER)
 	if sellable.is_empty():
 		_fail("Probe state should expose owned wares in Sell From Pack")
 		return
-	var sell_id: String = str(sellable[0])
+	var sell_id: String = ""
+	var sell_index: int = -1
+	for index: int in range(sellable.size()):
+		if run_engine.merchant_item_kind(str(sellable[index])) == RunEngine.MERCHANT_ITEM_KIND_MAGIC:
+			sell_id = str(sellable[index])
+			sell_index = index
+			break
+	if sell_id.is_empty():
+		_fail("Probe state should expose owned Magic in Sell From Pack")
+		return
+	for unused_page: int in range(floori(float(sell_index) / 3.0)):
+		sell_next = shop.find_child("SellNextPage", true, false) as Button
+		sell_next.pressed.emit()
+		await _settle()
 	var sell_source: Control = _offer_source(shop, sell_id, true)
-	shop.call("_select_item", sell_id, true, sell_source)
+	if sell_source == null or not str(sell_source.name).begins_with("SellMagicCard_"):
+		_fail("Owned Magic should render as a real CardWidget in Sell From Pack")
+		return
+	sell_source.grab_focus()
 	await _settle()
+	trade_action = shop.find_child("ScavengerTradeActionButton", true, false) as Button
 	if trade_action == null or not trade_action.text.begins_with("SELL FOR"):
 		_fail("Sell drawer selection should produce one explicit Sell For action")
 	await _save("sell_selected.png")
 
 	var before_embers: int = run_engine.held_embers(state)
-	state = run_engine.sell_merchant_item(state, RunEngine.MERCHANT_SCAVENGER, sell_id)
+	trade_action.grab_focus()
+	trade_action.pressed.emit()
+	await create_timer(0.70).timeout
+	await _settle()
+	state = instance.get("_run_state") as Dictionary
 	if run_engine.held_embers(state) <= before_embers:
 		_fail("Selling should increase held embers")
-	shop.call("configure", state, run_engine, false)
-	await _settle()
+	var sale_focus: Control = root.gui_get_focus_owner()
+	if sale_focus == null or not shop.is_ancestor_of(sale_focus) or not sale_focus.is_visible_in_tree():
+		_fail("A completed sale should recover controller focus inside the rebuilt shop")
 	await _save("post_sale.png")
 
 	shop.call("configure", state, run_engine, true)
