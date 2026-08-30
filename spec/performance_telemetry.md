@@ -4,10 +4,11 @@ Escape the Umbra records low-overhead performance windows so Steam Deck and play
 
 ## What is recorded
 
-`PerformanceTelemetry` samples frame intervals every rendered process frame and rendering monitors every tenth frame. Once per 60-second window (and on shutdown), it writes one summary containing:
+`PerformanceTelemetry` schema 2 samples frame intervals every rendered process frame and rendering monitors every tenth frame. Once per 60-second window (and on shutdown), it writes one summary containing:
 
 - frame interval mean, median, p95, p99, maximum, and missed 60/50/30/20 FPS budgets;
 - draw calls, canvas objects, primitives, and process-time mean/maximum;
+- physics-process CPU time, RenderingServer frame-setup CPU time, measured viewport render CPU time, and measured viewport GPU time, each as a mean and maximum;
 - static memory, object, node, and orphan-node counts;
 - renderer, viewport, OS/model, Steam Deck detection, and game version;
 - gameplay context: mode, depth/type/element, turn, living enemies, hand/relic counts, Umbra stage, animation activity, targeting state, controller hand state, and the active map/menu/grimoire/pile/character surface;
@@ -15,6 +16,10 @@ Escape the Umbra records low-overhead performance windows so Steam Deck and play
 - exact call counts and elapsed microseconds for instrumented stage, hand, card-preview, tracker, pile, character, and combat-engine phases.
 
 The sampler never writes raw per-frame events to disk. It keeps at most 7,200 frame samples plus the active cohort copies in memory and performs percentile sorting only when a summary is flushed. Context changes update a cached cohort list; they do not flush or write files. Payloads do not include Steam ID, persona name, save data, card history, or free-form player text.
+
+Viewport render timing is enabled only when performance sampling is active. Godot reports measurements from completed rendering work, so they attribute sustained phases and telemetry windows but should not be read as the exact cost of the current script frame. The runtime sampler measures the root viewport only; it does not include separate cached subviewports. Viewport CPU time excludes script execution. Complete rendering CPU attribution would require summing all drawn viewports plus RenderingServer frame-setup CPU; the current fields are partial attribution, while the section timers identify script-side work. The `viewport_render_cpu_timing_available` and `viewport_render_gpu_timing_available` flags require a positive measured value in the window. All-zero windows are unavailable evidence, not proof that rendering is free. In particular, [Godot 4.6.1's Metal backend returns zero GPU timestamps](https://github.com/godotengine/godot/blob/4.6.1-stable/drivers/metal/rendering_device_driver_metal.mm); the benchmark comparison tool omits unavailable GPU metrics. These new schema-2 fields remain local/HTTP diagnostics. They are not mirrored to Steam User Stats until matching definitions have been published in Steamworks App Admin. See the [RenderingServer timing API](https://docs.godotengine.org/en/4.6/classes/class_renderingserver.html#class-renderingserver-method-viewport-get-measured-render-time-cpu) for measurement scope.
+
+Enemy CPU sections separate forecast preparation, enemy-turn setup/actions/presentation/cleanup, intent-plan setup/reachable paths/direct candidates/finalization, and future-route context construction/search. Inclusive parent measurements use the `_total` suffix and remain in local JSON; Steam aggregation excludes them to avoid counting their child phases twice. Per-anchor diagnostic timers used during profiling are not retained in the runtime path.
 
 Each summary also includes a `steam_stats` transport diagnostic. It records the selected platform prefix, current-stats readiness, queued/pending counts, accepted and rejected keys, and any shutdown `StoreStats` result. This does not contain Steam identity; it exists so a support bundle can distinguish missing sampling from a client-side Steam upload failure.
 

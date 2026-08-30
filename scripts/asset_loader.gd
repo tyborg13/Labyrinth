@@ -27,19 +27,45 @@ static func load_texture(path: String) -> Texture2D:
 	if path.is_empty():
 		return null
 	if _texture_cache.has(path):
-		return _texture_cache.get(path, null)
+		return _tag_texture_source(_texture_cache.get(path, null) as Texture2D, path)
 	if _should_prefer_source_file(path, TEXTURE_EXTENSIONS):
 		var source_texture: Texture2D = _load_texture_from_file(path)
 		if source_texture != null:
+			_tag_texture_source(source_texture, path)
 			_texture_cache[path] = source_texture
 			return source_texture
 	if ResourceLoader.exists(path):
 		var loaded: Resource = load(path)
 		if loaded is Texture2D:
-			_texture_cache[path] = loaded
-			return loaded
+			var loaded_texture: Texture2D = _tag_texture_source(loaded as Texture2D, path)
+			_texture_cache[path] = loaded_texture
+			return loaded_texture
 	var texture: Texture2D = _load_texture_from_file(path)
+	_tag_texture_source(texture, path)
 	_texture_cache[path] = texture
+	return texture
+
+static func load_texture_source_first(path: String) -> Texture2D:
+	# Source-first loading keeps direct repository launches working after a pull,
+	# before Godot has rebuilt newly added entries under .godot/imported. Exported
+	# builds fall back to ResourceLoader when the raw source is not packaged.
+	if path.is_empty():
+		return null
+	if _texture_cache.has(path):
+		return _tag_texture_source(_texture_cache.get(path, null) as Texture2D, path)
+	var source_texture: Texture2D = _load_texture_from_file(path)
+	if source_texture != null:
+		_tag_texture_source(source_texture, path)
+		_texture_cache[path] = source_texture
+		return source_texture
+	return load_texture(path)
+
+static func _tag_texture_source(texture: Texture2D, path: String) -> Texture2D:
+	# ImageTexture instances created from source files do not retain a resource_path.
+	# Keep the logical asset identity on every load path so generated caches use the
+	# same key in editor, headless, and exported builds.
+	if texture != null and not path.is_empty():
+		texture.set_meta("asset_source_path", path)
 	return texture
 
 static func load_audio_stream(path: String, loop: bool = false) -> AudioStream:
@@ -64,8 +90,21 @@ static func load_audio_stream(path: String, loop: bool = false) -> AudioStream:
 static func _load_texture_from_file(path: String) -> Texture2D:
 	if not FileAccess.file_exists(path):
 		return null
-	var image: Image = Image.load_from_file(path)
-	if image == null or image.is_empty():
+	var image := Image.new()
+	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(path)
+	var error: Error
+	match path.get_extension().to_lower():
+		"png":
+			error = image.load_png_from_buffer(bytes)
+		"jpg":
+			error = image.load_jpg_from_buffer(bytes)
+		"webp":
+			error = image.load_webp_from_buffer(bytes)
+		"svg":
+			error = image.load_svg_from_buffer(bytes)
+		_:
+			error = ERR_FILE_UNRECOGNIZED
+	if error != OK or image.is_empty():
 		return null
 	return ImageTexture.create_from_image(image)
 
@@ -93,7 +132,20 @@ static func _should_prefer_source_file(path: String, extensions: PackedStringArr
 		return false
 	if not extensions.has(path.get_extension().to_lower()):
 		return false
-	return not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path("res://.godot/imported"))
+	return not _has_imported_resource(path)
+
+static func _has_imported_resource(path: String) -> bool:
+	var import_config := ConfigFile.new()
+	if import_config.load("%s.import" % path) != OK:
+		return false
+	var remap_keys: PackedStringArray = import_config.get_section_keys("remap")
+	for key: String in remap_keys:
+		if key != "path" and not key.begins_with("path."):
+			continue
+		var imported_path: String = str(import_config.get_value("remap", key, ""))
+		if not imported_path.is_empty() and FileAccess.file_exists(imported_path):
+			return true
+	return false
 
 static func load_texture_region(path: String, region: Rect2i) -> Texture2D:
 	var texture: Texture2D = load_texture(path)

@@ -27,8 +27,11 @@ seal; slow loads extend the opaque hold, not an empty black loading screen.
 The existing menu remains `scenes/main_menu.tscn`, so returning to it does not
 replay the intro. The native `minimum_display_time` is now zero and `show_image`
 is false: keeping the old native two-second hold would duplicate the sequence
-and show the image before its fade-in. The PNG remains configured as the native
-image resource, preserving its raw-image export inclusion.
+and show the image before its fade-in. The hidden native splash does not name the
+PNG, because Godot resolves that project setting before startup code can recover
+from a missing local import cache. Instead, the seal and generated menu rasters
+use Godot's `Keep File (exported as is)` import mode, and `startup.gd` loads the
+raw approved PNG through `AssetLoader`.
 
 `SettingsStore.motion_duration` disables the fades for reduced-motion users while
 preserving the two-second opaque hold. Viewport input is disabled until the menu
@@ -68,7 +71,8 @@ a marketing alias; the focused Python check detects that metadata drift.
 ## Verification
 
 - `tests/test_boot_splash.py`: approved bytes, native settings, canonical import
-  mapping, attribution and real desktop staging with temporary fake outputs.
+  mapping, clean-cache-safe runtime ownership, keep-file export policy, attribution
+  and real desktop staging with temporary fake outputs.
 - `tests/main_menu_input_test.gd`: actual startup in both motion modes, full hold
   timing, fade timing, blocked pointer/keyboard/controller actions, restored first
   clicks and key/controller activation, no replay on return, and teardown cleanup.
