@@ -99,6 +99,7 @@ func _capture_guided_run(active_progression: Dictionary) -> void:
 	await instance.call("_on_card_pressed", 0)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_TARGET, true, "select the card target")
+	_assert(int(prompt.get("_blocked_until_msec")) == 0, "A successful next phase should clear the blocked-action red accent")
 	var first_targets: Array = instance.get("_pending_target_tiles") as Array
 	_assert(not first_targets.is_empty(), "Target lesson should expose real legal card targets")
 	await _save_root_screenshot("%s/06_card_target.png" % OUTPUT_DIR)
@@ -231,6 +232,13 @@ func _capture_guided_run(active_progression: Dictionary) -> void:
 	_assert(pre_battle_scrim != null and pre_battle_scrim.is_visible_in_tree(), "The completion proof should retain the production pre-battle dossier")
 	_assert(prompt_host != null and prompt_host.z_index > pre_battle_scrim.z_index, "The completion prompt should render above the pre-battle dossier")
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_COMPLETE, false, "guided-run completion over pre-battle")
+	_assert((prompt.get_meta("spotlight_rects", []) as Array).is_empty(), "The final Begin acknowledgement should fully dim the underlying pre-battle dossier")
+	_assert(int(prompt.get_meta("spotlight_hole_count", -1)) == 0, "The final acknowledgement should cut no spotlight holes through the dimmer")
+	_assert(int(prompt.get_meta("spotlight_frame_count", -1)) == 0, "The final acknowledgement should draw no competing spotlight frames")
+	var begin_button: Button = prompt.get("_continue_button") as Button
+	var final_skip_button: Button = prompt.get("_skip_button") as Button
+	_assert(begin_button.visible and begin_button.text == "Begin", "The completion callout should expose Begin as its primary action")
+	_assert(not final_skip_button.visible, "The completed curriculum should not offer a competing Skip action")
 	await _save_root_screenshot("%s/15_completion_pre_battle.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()

@@ -8744,9 +8744,10 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 				if typeof(tile_var) == TYPE_VECTOR2I:
 					_guided_tutorial_append_tile_rect(rects, tile_var as Vector2i)
 		ContextualCombatTutorial.PHASE_COMPLETE:
-			var completion_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
-			if completion_bounds.has_area():
-				rects.append(completion_bounds)
+			# The final Begin acknowledgement owns the decision. Keep the newly
+			# revealed pre-battle dossier fully dimmed so its Start button cannot
+			# compete with the guide's primary action.
+			pass
 	return rects
 
 func _guided_tutorial_avoid_rects() -> Array:

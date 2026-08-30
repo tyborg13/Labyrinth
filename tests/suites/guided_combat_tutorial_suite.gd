@@ -1,6 +1,7 @@
 extends RefCounted
 
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const ContextualCombatPrompt = preload("res://scripts/contextual_combat_prompt.gd")
 const HandFanContainerScript = preload("res://scripts/hand_fan_container.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const ReplayRunSceneHarness = preload("res://tests/fixtures/guided_tutorial_run_scene_harness.gd")
@@ -20,13 +21,15 @@ class TutorialPromptStub:
 	var clear_count: int = 0
 	var blocked_messages: Array[String] = []
 	var configured_phase_id: String = ""
+	var configured_spotlights: Array = []
 
-	func configure(definition: Dictionary, _spotlights: Array, _avoid_rects: Array, _reduced_motion: bool) -> void:
+	func configure(definition: Dictionary, spotlights: Array, _avoid_rects: Array, _reduced_motion: bool) -> void:
 		configure_count += 1
 		configured_phase_id = str(definition.get("id", ""))
+		configured_spotlights = spotlights.duplicate()
 
-	func update_geometry(_spotlights: Array, _avoid_rects: Array) -> void:
-		pass
+	func update_geometry(spotlights: Array, _avoid_rects: Array) -> void:
+		configured_spotlights = spotlights.duplicate()
 
 	func clear_prompt() -> void:
 		clear_count += 1
@@ -53,6 +56,10 @@ class BoardPresentationStub:
 
 	var submission_count: int = 0
 	var last_presentation: Dictionary = {}
+	var rendered_bounds: Rect2 = Rect2(Vector2(100.0, 120.0), Vector2(1200.0, 720.0))
+
+	func rendered_visual_bounds() -> Rect2:
+		return rendered_bounds
 
 	func set_combat_state(
 		_next_state: Dictionary,
@@ -71,6 +78,7 @@ class BoardPresentationStub:
 
 
 static func run(expect: Callable) -> void:
+	_test_blocked_feedback_clears_only_on_phase_change(expect)
 	_test_first_run_phase_derivation(expect)
 	_test_hard_gate_blocks_wrong_actions_without_mutation(expect)
 	_test_action_only_advancement(expect)
@@ -82,6 +90,38 @@ static func run(expect: Callable) -> void:
 	_test_pause_menu_cannot_bypass_optional_surface_gate(expect)
 	_test_pre_battle_actions_cannot_bypass_visible_completion_gate(expect)
 	_test_skip_replay_and_completion_absence(expect)
+
+
+static func _test_blocked_feedback_clears_only_on_phase_change(expect: Callable) -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var prompt: Control = ContextualCombatPrompt.new()
+	tree.root.add_child(prompt)
+	var cancel_definition: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_CANCEL_CARD)
+	var target_definition: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_SELECT_TARGET)
+	prompt.call("configure", cancel_definition, [Rect2(Vector2(100.0, 100.0), Vector2(80.0, 80.0))], [], false)
+	prompt.call("show_blocked", "Use Cancel first.")
+	var blocked_until: int = int(prompt.get("_blocked_until_msec"))
+	var feedback: Label = prompt.get("_feedback") as Label
+	expect.call(blocked_until > Time.get_ticks_msec(), "Blocked input should begin a visible error-accent window")
+	expect.call(feedback.visible and feedback.text == "Use Cancel first.", "Blocked input should explain the rejected action")
+
+	prompt.call("update_geometry", [Rect2(Vector2(110.0, 100.0), Vector2(80.0, 80.0))], [])
+	expect.call(
+		int(prompt.get("_blocked_until_msec")) == blocked_until and feedback.visible and feedback.text == "Use Cancel first.",
+		"Same-phase geometry refreshes should preserve both blocked accent and explanation"
+	)
+	prompt.call("configure", cancel_definition, [Rect2(Vector2(120.0, 100.0), Vector2(80.0, 80.0))], [], false)
+	expect.call(
+		int(prompt.get("_blocked_until_msec")) == blocked_until and feedback.visible and feedback.text == "Use Cancel first.",
+		"Same-phase presentation refreshes should preserve both blocked accent and explanation"
+	)
+
+	prompt.call("configure", target_definition, [Rect2(Vector2(300.0, 220.0), Vector2(80.0, 80.0))], [], false)
+	expect.call(
+		int(prompt.get("_blocked_until_msec")) == 0 and not feedback.visible,
+		"A successful transition to a new tutorial phase should clear the prior error accent and explanation immediately"
+	)
+	prompt.free()
 
 
 static func _test_first_run_phase_derivation(expect: Callable) -> void:
@@ -573,6 +613,9 @@ static func _test_pre_battle_actions_cannot_bypass_visible_completion_gate(expec
 	pre_battle.visible = true
 	scene.add_child(pre_battle)
 	scene.set("_pre_battle_scrim", pre_battle)
+	var board := BoardPresentationStub.new()
+	scene.add_child(board)
+	scene.set("board_view", board)
 	var character := ColorRect.new()
 	character.visible = false
 	scene.add_child(character)
@@ -586,6 +629,7 @@ static func _test_pre_battle_actions_cannot_bypass_visible_completion_gate(expec
 		host.visible and prompt.configured_phase_id == ContextualCombatTutorial.PHASE_COMPLETE,
 		"The final acknowledgement should remain visible above the pre-battle dossier"
 	)
+	expect.call(prompt.configured_spotlights.is_empty(), "The final acknowledgement should fully dim the underlying pre-battle dossier")
 	expect.call(bool(scene.call("_guided_tutorial_hard_gate_active")), "The visible final acknowledgement should hard-gate pre-battle actions")
 	var progression_before: Dictionary = (scene.get("_progression") as Dictionary).duplicate(true)
 	var run_before: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)

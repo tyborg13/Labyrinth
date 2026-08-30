@@ -58,8 +58,13 @@ func configure(
 ) -> void:
 	if _callout == null:
 		_build()
+	var next_phase_id: String = str(definition.get("id", ""))
+	var phase_changed: bool = next_phase_id != _phase_id
 	_definition = definition.duplicate(true)
-	_phase_id = str(_definition.get("id", ""))
+	_phase_id = next_phase_id
+	if phase_changed:
+		_blocked_until_msec = 0
+		_feedback.visible = false
 	_reduced_motion = reduced_motion
 	_spotlight_rects = _normalized_rects(spotlight_rects)
 	_avoid_rects = _normalized_rects(avoid_rects)
@@ -77,7 +82,6 @@ func configure(
 	_skip_button.visible = _phase_id != "complete"
 	_refresh_progress_segments()
 	_refresh_modality()
-	_feedback.visible = false
 	set_meta("prompt_id", _phase_id)
 	set_meta("prompt_text", _message.text)
 	set_meta("spotlight_rects", _spotlight_rects.duplicate())
@@ -98,6 +102,9 @@ func clear_prompt() -> void:
 	_definition.clear()
 	_spotlight_rects.clear()
 	_avoid_rects.clear()
+	_blocked_until_msec = 0
+	if _feedback != null:
+		_feedback.visible = false
 	set_meta("prompt_id", "")
 	set_meta("spotlight_rects", [])
 	set_meta("spotlight_hole_count", 0)

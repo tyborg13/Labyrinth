@@ -16,7 +16,7 @@
     {"pattern": "*12_core_handoff.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
     {"pattern": "*13_reward_choice.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
     {"pattern": "*14_path_choice.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
-    {"pattern": "*15_completion.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
+    {"pattern": "*15_completion_pre_battle.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]},
     {"pattern": "*16_completed_profile_absent.png", "width": 1920, "height": 1080, "regions": [{"rect": [24, 24, 1872, 1032], "min_luma_range": 55, "min_luma_stdev": 8}]}
   ]
 }
