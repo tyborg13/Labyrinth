@@ -14,7 +14,7 @@ const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
-const ScavengerShopViewScript = preload("res://scripts/scavenger_shop_view.gd")
+const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -5955,7 +5955,7 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_layout_relic_choice_overlay()
 
 func _build_scavenger_shop_overlay(stage: Control) -> void:
-	_scavenger_shop_view = ScavengerShopViewScript.new()
+	_scavenger_shop_view = ScavengerShopView.new()
 	_scavenger_shop_view.name = "ScavengerShopView"
 	_scavenger_shop_view.visible = false
 	_scavenger_shop_view.z_index = 122

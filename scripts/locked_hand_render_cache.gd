@@ -2,6 +2,7 @@ extends RefCounted
 
 # Only capture a hand whose interaction and every visible animation are static.
 # Restore before every real hand refresh; the raster is not a live UI substitute.
+const CardWidget = preload("res://scripts/card_widget.gd")
 const CACHE_MARGIN: float = 40.0
 
 var active: bool = false

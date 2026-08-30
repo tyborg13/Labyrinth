@@ -1411,10 +1411,9 @@ func _preview_effect_needs_continuous_redraw(effect: Dictionary) -> bool:
 	var kind: String = str(effect.get("kind", ""))
 	if kind == "blink":
 		return _effect_textures.get("blink_rift_preview", null) == null
-	# Only the AOE preview still derives motion from wall-clock time. Authored
-	# elemental ranged previews are static curves, while Blink returned above
-	# only when its authored static texture is unavailable.
-	return kind == "aoe"
+	# Attack and AOE previews are deliberately static. Their tile highlights and
+	# thin path lines do not need to keep the effects layer alive at 30 Hz.
+	return false
 
 func _equipment_pickup_beacon_active() -> bool:
 	if _submission_cache_valid:
@@ -10556,14 +10555,26 @@ func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, 
 	if tiles.is_empty():
 		return
 	var preview: bool = bool(effect.get("preview", false))
+	if preview:
+		# Match direct ranged targeting: the affected area is already expressed by
+		# the shared focus-tile highlights, so only retain the familiar thin cast
+		# path. Extra rings, center reticles, and line-pattern bolts obscure that
+		# clean board language and can make a straight AOE read as lightning.
+		if (
+			from_point != Vector2.ZERO
+			and center_point != Vector2.ZERO
+			and from_point.distance_squared_to(center_point) > 1.0
+		):
+			_draw_ranged_target_preview_curve(effect, from_point, center_point)
+		return
 	var accent: Color = _aoe_effect_accent(effect)
 	var secondary: Color = _aoe_effect_secondary(effect)
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
-	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * (1.55 if preview else 1.05))
-	var reveal: float = 1.0 if preview else clampf(progress / 0.42, 0.0, 1.0)
-	var base_alpha: float = (0.76 + pulse * 0.18) if preview else (0.42 + reveal * 0.42)
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.05)
+	var reveal: float = clampf(progress / 0.42, 0.0, 1.0)
+	var base_alpha: float = 0.42 + reveal * 0.42
 	for tile: Vector2i in tiles:
-		var ring_scale: float = 0.74 + 0.06 * pulse if preview else 0.76 + 0.08 * reveal
+		var ring_scale: float = 0.76 + 0.08 * reveal
 		_draw_tile_ring(tile, Color(accent.r, accent.g, accent.b, base_alpha), 3.0 + 1.0 * reveal, ring_scale)
 		draw_circle(_tile_center(tile), _tile_width() * 0.065, Color(secondary.r, secondary.g, secondary.b, 0.22 + 0.14 * pulse))
 	if center_point != Vector2.ZERO:
@@ -10571,20 +10582,15 @@ func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, 
 		_draw_target_reticle(center_point + Vector2(0.0, -_tile_height() * 0.42), Color(accent.r, accent.g, accent.b, 0.84 + 0.14 * pulse), reticle_radius)
 	var line_tiles: Array[Vector2i] = _ordered_aoe_line_tiles_for_effect(effect)
 	if line_tiles.size() >= 2:
-		_draw_aoe_line_effect(line_tiles, accent, secondary, base_alpha, preview)
-	if preview and from_point != Vector2.ZERO and center_point != Vector2.ZERO:
-		var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.72)
-		var end: Vector2 = center_point + Vector2(0.0, -_tile_height() * 0.50)
-		var control: Vector2 = _arc_control_point(start, end)
-		_draw_bezier_glow(start, control, end, Color(secondary.r, secondary.g, secondary.b, 0.18 + 0.08 * pulse), 1.4)
+		_draw_aoe_line_effect(line_tiles, accent, secondary, base_alpha)
 
-func _draw_aoe_line_effect(line_tiles: Array[Vector2i], accent: Color, secondary: Color, alpha: float, preview: bool) -> void:
+func _draw_aoe_line_effect(line_tiles: Array[Vector2i], accent: Color, secondary: Color, alpha: float) -> void:
 	var points := PackedVector2Array()
 	for tile: Vector2i in line_tiles:
 		points.append(_tile_center(tile) + Vector2(0.0, -_tile_height() * 0.62))
 	if points.size() < 2:
 		return
-	var core_width: float = 4.0 if preview else 4.6
+	var core_width: float = 4.6
 	draw_polyline(points, Color(0.0, 0.0, 0.0, alpha * 0.26), core_width + 9.0, true)
 	draw_polyline(points, Color(secondary.r, secondary.g, secondary.b, alpha * 0.44), core_width + 4.8, true)
 	draw_polyline(points, Color(accent.r, accent.g, accent.b, alpha), core_width, true)

@@ -8,6 +8,7 @@ signal item_hovered(merchant_kind: String, item_id: String, source: Control)
 signal item_unhovered(merchant_kind: String, item_id: String, source: Control)
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
