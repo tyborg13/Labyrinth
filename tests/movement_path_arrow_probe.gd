@@ -359,8 +359,8 @@ func _verify_board_perspective_geometry(
 	_expect(from_point.distance_to(to_point) > 0.0, "Perspective fixture should use a nonzero isometric step")
 
 func _verify_layering_contract(board: Control) -> void:
-	_expect(bool(board.call("_loot_renders_below_path", {"kind": "healing_vial"})), "Ground potions should render below the movement path")
-	_expect(bool(board.call("_loot_renders_below_path", {"kind": "rusty_shield"})), "Ground shields should render below the movement path")
+	_expect(not bool(board.call("_loot_renders_below_path", {"kind": "item", "card_id": "crimson_draught"})), "Floating item potions should render above the movement path")
+	_expect(not bool(board.call("_loot_renders_below_path", {"kind": "item", "card_id": "bone_ward_charm"})), "Floating item charms should render above the movement path")
 	_expect(not bool(board.call("_loot_renders_below_path", {"kind": "equipment"})), "Floating equipment should render above the movement path")
 
 func _capture(
@@ -425,8 +425,8 @@ func _probe_state(room_coord: Vector2i, player_pos: Vector2i, include_layering_f
 	}
 	if include_layering_fixture:
 		state["loot"] = [
-			{"id": "probe_potion", "kind": "healing_vial", "amount": 40, "pos": Vector2i(3, 4)},
-			{"id": "probe_shield", "kind": "rusty_shield", "amount": 40, "pos": Vector2i(5, 4)},
+			{"id": "probe_potion", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(3, 4)},
+			{"id": "probe_shield", "kind": "item", "card_id": "bone_ward_charm", "pos": Vector2i(5, 4)},
 			{"id": "probe_equipment", "kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(6, 4)}
 		]
 		state["traps"] = [

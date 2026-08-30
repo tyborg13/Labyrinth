@@ -1,5 +1,6 @@
 extends Control
 
+const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -1173,6 +1174,7 @@ const PILE_CARD_SCALE: float = 0.42
 const PILE_STACK_OFFSET: Vector2 = Vector2(6.0, 7.0)
 const PILE_STACK_LAYERS: int = 3
 const PILE_ICON_SIZE: Vector2 = Vector2(88.0, 88.0)
+const PILE_HUD_EDGE_MARGIN: float = 12.0
 const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
@@ -1433,13 +1435,13 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var left_action_stack: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack
 @onready var choice_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar
 @onready var hand_row: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow
-@onready var piles_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar
-@onready var draw_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile
-@onready var discard_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile
-@onready var burn_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile
-@onready var draw_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawCount
-@onready var discard_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
-@onready var burn_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
+@onready var piles_bar: HBoxContainer = $UiLayer/UiRoot/PilesBar
+@onready var draw_pile: PanelContainer = $UiLayer/UiRoot/PilesBar/DrawPile
+@onready var discard_pile: PanelContainer = $UiLayer/UiRoot/PilesBar/DiscardPile
+@onready var burn_pile: PanelContainer = $UiLayer/UiRoot/PilesBar/BurnPile
+@onready var draw_count: Label = $UiLayer/UiRoot/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawCount
+@onready var discard_count: Label = $UiLayer/UiRoot/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
+@onready var burn_count: Label = $UiLayer/UiRoot/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
 @onready var hand_scroll: ScrollContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
 @onready var hand_tuck_margin: MarginContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin
 @onready var hand_box: HandFanContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox
@@ -1869,6 +1871,7 @@ func _ready() -> void:
 		and bool(ProjectSettings.get_setting("telemetry/performance/section_instrumentation_enabled", true))
 	)
 	board_view.equipment_tooltip_builder = Callable(self, "_build_equipment_tooltip_panel")
+	board_view.item_tooltip_builder = Callable(self, "_build_item_pickup_tooltip_panel")
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
 		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
@@ -1902,6 +1905,7 @@ func initial_presentation_is_ready() -> bool:
 
 func _on_hand_viewport_size_changed() -> void:
 	call_deferred("_refresh_hand_panel_after_viewport_change")
+	call_deferred("_layout_combat_piles")
 
 func _refresh_hand_panel_after_viewport_change() -> void:
 	await get_tree().process_frame
@@ -2094,6 +2098,7 @@ func _build_controller_interface() -> void:
 		return
 	_controller_analog_cursor = ControllerAnalogCursorScript.new()
 	_controller_analog_cursor.name = "ControllerAnalogCursor"
+	_controller_analog_cursor.detail_builder = Callable(board_view, "_make_custom_tooltip")
 	ui_root.add_child(_controller_analog_cursor)
 	_controller_prompt_bar = ControllerPromptBarScript.new()
 	_controller_prompt_bar.name = "ControllerPromptBar"
@@ -2636,6 +2641,7 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		return {}
 	var kind: String = "tile"
 	var detail: String = ""
+	var detail_key: String = ""
 	if _exit_destinations_by_tile.has(tile):
 		kind = "door"
 		detail = "Travel through this door"
@@ -2646,6 +2652,11 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		if board_tooltip.begins_with("equipment:"):
 			kind = "equipment"
 			detail = _controller_equipment_pickup_detail(board_tooltip.trim_prefix("equipment:"))
+			detail_key = board_tooltip
+		elif board_tooltip.begins_with("item:"):
+			kind = "item"
+			detail = str(GameData.card_def(board_tooltip.trim_prefix("item:")).get("name", "Item"))
+			detail_key = board_tooltip
 		elif not board_tooltip.is_empty():
 			detail = board_tooltip
 	return {
@@ -2654,6 +2665,7 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		"tile": tile,
 		"point": _controller_board_point(tile),
 		"detail": detail,
+		"detail_key": detail_key,
 		"snap_radius": CONTROLLER_TILE_CURSOR_MAGNET_RADIUS,
 	}
 
@@ -2721,7 +2733,7 @@ func _controller_set_focus_candidate(candidate: Dictionary, sync_virtual_cursor:
 	if sync_virtual_cursor:
 		_controller_virtual_board_position = point
 	var kind: String = str(candidate.get("kind", "tile"))
-	if kind in ["tile", "door", "enemy", "equipment"]:
+	if kind in ["tile", "door", "enemy", "equipment", "item"]:
 		_controller_release_control_focus()
 		_controller_set_board_tile(candidate.get("tile", INVALID_TARGET_TILE), sync_virtual_cursor)
 		return
@@ -2744,7 +2756,7 @@ func _controller_refreshed_focus_candidate(candidate: Dictionary) -> Dictionary:
 	if candidate.is_empty():
 		return {}
 	var kind: String = str(candidate.get("kind", "tile"))
-	if kind in ["tile", "door", "enemy", "equipment"]:
+	if kind in ["tile", "door", "enemy", "equipment", "item"]:
 		var tile: Vector2i = candidate.get("tile", INVALID_TARGET_TILE)
 		if not _controller_board_tiles().has(tile):
 			return {}
@@ -2765,7 +2777,8 @@ func _controller_update_analog_cursor(candidate: Dictionary, fully_snapped: bool
 		point,
 		magnetic_strength,
 		str(candidate.get("kind", "tile")),
-		str(candidate.get("detail", ""))
+		str(candidate.get("detail", "")),
+		str(candidate.get("detail_key", ""))
 	)
 
 func _controller_clear_focus_candidate() -> void:
@@ -3230,6 +3243,7 @@ func _notification(what: int) -> void:
 		_sync_board_view_rect()
 		_layout_mini_map_overlay()
 		_layout_combat_action_dock()
+		_layout_combat_piles()
 		_layout_context_choice_overlay()
 		_layout_relic_choice_overlay()
 		_layout_choice_button_overlay()
@@ -3362,9 +3376,9 @@ func _apply_style() -> void:
 	# board the combat focal plane rather than a backdrop behind oversized cards.
 	hand_row.custom_minimum_size = Vector2(0.0, 324.0)
 	for pile_label: Label in [
-		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
-		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
-		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnTitle,
+		$UiLayer/UiRoot/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
+		$UiLayer/UiRoot/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
+		$UiLayer/UiRoot/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnTitle,
 		draw_count,
 		discard_count,
 		burn_count
@@ -4319,6 +4333,11 @@ func _connect_choice_overlay_layout_signals() -> void:
 			control.resized.connect(_queue_action_step_tracker_layout)
 		if not control.resized.is_connected(_queue_contextual_combat_prompt_layout):
 			control.resized.connect(_queue_contextual_combat_prompt_layout)
+	if piles_bar != null and not piles_bar.resized.is_connected(_queue_combat_pile_layout):
+		piles_bar.resized.connect(_queue_combat_pile_layout)
+
+func _queue_combat_pile_layout() -> void:
+	call_deferred("_layout_combat_piles")
 
 func _queue_choice_button_overlay_layout() -> void:
 	call_deferred("_layout_choice_button_overlay")
@@ -8203,6 +8222,10 @@ func _drag_option_valid(zone: String) -> bool:
 			return false
 
 func _setup_pile_widgets() -> void:
+	# Piles are persistent combat HUD, independent of the hand-row container.
+	piles_bar.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	piles_bar.z_index = 120
+	piles_bar.z_as_relative = false
 	burn_pile.visible = false
 	burn_pile.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	burn_pile.custom_minimum_size = Vector2.ZERO
@@ -8213,6 +8236,21 @@ func _setup_pile_widgets() -> void:
 	for spec_var: Variant in pile_specs:
 		var spec: Dictionary = spec_var
 		_build_pile_widget(spec)
+	_layout_combat_piles()
+	call_deferred("_layout_combat_piles")
+
+func _layout_combat_piles() -> void:
+	if piles_bar == null or not piles_bar.is_inside_tree():
+		return
+	var pile_size: Vector2 = piles_bar.get_combined_minimum_size()
+	if pile_size.x <= 0.0 or pile_size.y <= 0.0:
+		return
+	piles_bar.size = pile_size
+	var viewport_size: Vector2 = get_viewport_rect().size
+	piles_bar.global_position = Vector2(
+		maxf(PILE_HUD_EDGE_MARGIN, viewport_size.x - pile_size.x - PILE_HUD_EDGE_MARGIN),
+		maxf(PILE_HUD_EDGE_MARGIN, viewport_size.y - pile_size.y - PILE_HUD_EDGE_MARGIN)
+	)
 
 func _setup_contextual_combat_tutorial() -> void:
 	_contextual_combat_prompt_host = CenterContainer.new()
@@ -9788,6 +9826,8 @@ func _refresh_ui() -> void:
 	_refresh_hand_panel()
 	_refresh_pile_interaction_states()
 	_refresh_visibility()
+	_layout_combat_piles()
+	call_deferred("_layout_combat_piles")
 	_sync_pre_battle_preview_after_refresh()
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
@@ -18288,10 +18328,8 @@ func _movement_pickup_chip(loot: Dictionary) -> Dictionary:
 	var amount: int = int(loot.get("amount", 0))
 	var label: String = "Pickup"
 	match str(loot.get("kind", "")):
-		"healing_vial":
-			label = "+%d HP" % amount
-		"rusty_shield":
-			label = "+%d Block" % amount
+		"item":
+			label = "Item → %s" % {"hand": "Hand", "draw": "Deck", "inventory": "Inventory"}.get(str(loot.get("destination", "")), "Inventory")
 		"dropped_embers":
 			label = "+%d Embers" % amount
 		"equipment":
@@ -18328,7 +18366,7 @@ func _movement_picked_loot_between(before_state: Dictionary, after_state: Dictio
 			continue
 		var after_loot: Dictionary = loot_var
 		if bool(after_loot.get("claimed", false)):
-			after_claimed[_movement_loot_key(after_loot)] = true
+			after_claimed[_movement_loot_key(after_loot)] = after_loot
 	var picked: Array = []
 	for loot_var: Variant in before_state.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:
@@ -18337,7 +18375,7 @@ func _movement_picked_loot_between(before_state: Dictionary, after_state: Dictio
 		if bool(before_loot.get("claimed", false)):
 			continue
 		if after_claimed.has(_movement_loot_key(before_loot)):
-			picked.append(before_loot.duplicate(true))
+			picked.append((after_claimed[_movement_loot_key(before_loot)] as Dictionary).duplicate(true))
 	return picked
 
 func _movement_trap_key(trap: Dictionary) -> String:
@@ -19358,6 +19396,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
+	_log_item_pickups(previous_combat_state, committed_combat_state)
 	_analytics_log_player_moved(previous_combat_state, committed_combat_state)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "player_movement", transition_combat_state)
@@ -19391,10 +19430,9 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		plays_spent,
 		{"play_mode": "play"}
 	)
+	_log_item_pickups(previous_combat_state, committed_combat_state)
 	var pile_kind: String = str(committed_combat_state.get("last_card_destination", _card_destination_pile(card_id)))
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
-	if GameData.card_consumes_on_play(card_id) and pile_kind == "consume":
-		committed_run_state = _run_engine.consume_equipped_item_card(committed_run_state, card_id)
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
@@ -20624,16 +20662,20 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	)
 	await _animate_defeats_and_terrain_destruction(before_state, after_state, {}, terrain_destruction_presented_inline)
 	await _animate_death_rewards(before_state, after_state)
-	for loot_var: Variant in _movement_picked_loot_between(before_state, after_state):
+	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
+	var hand_destination_indices: Dictionary = _pickup_hand_destination_indices(picked_loot, before_state, after_state)
+	for loot_var: Variant in picked_loot:
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
 		var loot: Dictionary = loot_var
-		if str(loot.get("kind", "")) != "equipment":
+		if str(loot.get("kind", "")) not in ["equipment", "item"]:
 			continue
 		var loot_tile: Vector2i = loot.get("pos", player_after_tile)
-		await _animate_equipment_pickup_acquisition_flair(
-			str(loot.get("equipment_id", "")),
-			loot_tile
+		await _animate_pickup_acquisition_flair(
+			loot,
+			loot_tile,
+			after_state,
+			int(hand_destination_indices.get(_movement_loot_key(loot), -1))
 		)
 
 func _resolve_enemy_round() -> void:
@@ -20661,6 +20703,18 @@ func _resolve_enemy_round() -> void:
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
 	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []), previous_run_state, commit_checkpoints)
 	var final_combat_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	# Forced movement can collect items during enemy activations too.
+	var picked_loot: Array[Dictionary] = BattlefieldItemRules.pickups_between(previous_combat_state, final_combat_state)
+	var hand_destination_indices: Dictionary = _pickup_hand_destination_indices(picked_loot, previous_combat_state, final_combat_state)
+	for loot: Dictionary in picked_loot:
+		_render_board_state(final_combat_state, {})
+		await _animate_pickup_acquisition_flair(
+			loot,
+			loot.get("pos", INVALID_TARGET_TILE),
+			final_combat_state,
+			int(hand_destination_indices.get(_movement_loot_key(loot), -1))
+		)
+	_log_item_pickups(previous_combat_state, final_combat_state)
 	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, final_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
@@ -20688,8 +20742,8 @@ func _resolve_enemy_round() -> void:
 	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	if outcome == "" and not before_draw_state.is_empty():
 		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
-		_analytics_reconcile_combat_tracker(before_draw_state, _combat_state)
-		_analytics_log_card_draws(before_draw_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
+		_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
+		_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
 		_analytics_log_playable_cards()
 		if not fatigue_events.is_empty():
 			await _animate_fatigue_damage(_combat_state, fatigue_events)
@@ -22714,17 +22768,27 @@ func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2
 	_queue_free_node_now(banner)
 
 func _animate_equipment_pickup_acquisition_flair(equipment_id: String, tile: Vector2i) -> void:
-	if _card_fx_layer == null or equipment_id.is_empty():
+	await _animate_pickup_acquisition_flair({"kind": "equipment", "equipment_id": equipment_id}, tile)
+
+func _animate_pickup_acquisition_flair(loot: Dictionary, tile: Vector2i, post_pickup_state: Dictionary = {}, hand_destination_index: int = -1) -> void:
+	var is_item: bool = str(loot.get("kind", "")) == "item"
+	var content_id: String = str(loot.get("card_id", "")) if is_item else str(loot.get("equipment_id", ""))
+	if _card_fx_layer == null or content_id.is_empty():
 		return
-	var equipment: Dictionary = GameData.equipment_def(equipment_id)
+	var equipment: Dictionary = GameData.card_def(content_id) if is_item else GameData.equipment_def(content_id)
 	if equipment.is_empty():
 		return
 	var center: Vector2 = _board_global_position_for_tile(tile)
-	var accent := Color(GameData.equipment_accent(equipment_id))
+	var accent := Color(GameData.card_rarity_accent(GameData.card_rarity(content_id)) if is_item else GameData.equipment_accent(content_id))
+	var banner: Label = _spawn_loadout_acquisition_banner("ITEM FOUND" if is_item else "GEAR FOUND", center + Vector2(0.0, -92.0), accent)
+	if _reduced_motion_enabled():
+		await get_tree().create_timer(0.35).timeout
+		_queue_free_node_now(banner)
+		return
 	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "equipment")
-	var banner: Label = _spawn_loadout_acquisition_banner("GEAR FOUND", center + Vector2(0.0, -92.0), accent)
 	var icon := TextureRect.new()
-	icon.name = "EquipmentAcquisitionIcon"
+	icon.name = "ItemAcquisitionIcon" if is_item else "EquipmentAcquisitionIcon"
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.texture = AssetLoader.load_texture(str(equipment.get("icon_path", "")))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -22752,7 +22816,8 @@ func _animate_equipment_pickup_acquisition_flair(equipment_id: String, tile: Vec
 	tween.parallel().tween_property(icon, "rotation", 0.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.parallel().tween_property(icon, "position", icon.position + Vector2(0.0, -18.0), 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	await tween.finished
-	await _animate_loadout_acquisition_ray(center, accent)
+	var ray_destination: Dictionary = _pickup_acquisition_ray_destination(loot, post_pickup_state, hand_destination_index)
+	await _animate_loadout_acquisition_ray(center, accent, ray_destination)
 	_queue_free_node_now(icon)
 	_queue_free_node_now(burst)
 	_queue_free_node_now(banner)
@@ -22785,13 +22850,65 @@ func _spawn_loadout_acquisition_banner(text: String, center: Vector2, accent: Co
 	_card_fx_layer.add_child(banner)
 	return banner
 
-func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color) -> void:
+func _pickup_acquisition_ray_destination(loot: Dictionary, post_pickup_state: Dictionary = {}, hand_destination_index: int = -1) -> Dictionary:
+	var is_item: bool = str(loot.get("kind", "")) == "item"
+	var destination: String = str(loot.get("destination", "inventory")) if is_item else "inventory"
+	if is_item and destination == "hand":
+		var state: Dictionary = post_pickup_state if not post_pickup_state.is_empty() else _combat_state
+		var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+		if not hand.is_empty():
+			var card_size: Vector2 = _hand_card_size(hand.size(), false)
+			var target_index: int = clampi(hand_destination_index, 0, hand.size() - 1) if hand_destination_index >= 0 else hand.size() - 1
+			var card_rect: Rect2 = _hand_receive_rect(target_index, hand.size(), card_size)
+			return {
+				"kind": "hand",
+				"target_global": card_rect.position + Vector2(card_rect.size.x * 0.5, minf(72.0, card_rect.size.y * 0.24))
+			}
+	if is_item and destination == "draw" and draw_pile != null:
+		return {"kind": "draw", "target_global": draw_pile.get_global_rect().get_center(), "arrival_control": draw_pile}
+	return {
+		"kind": "inventory" if is_item else "equipment",
+		"target_global": loadout_button.get_global_rect().get_center() if loadout_button != null else Vector2.ZERO,
+		"arrival_control": loadout_button
+	}
+
+func _pickup_hand_destination_indices(picked_loot: Array, before_state: Dictionary, after_state: Dictionary) -> Dictionary:
+	var before_hand: Array = ((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	var after_hand: Array = ((after_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	var available_indices: Dictionary = {}
+	for index: int in range(before_hand.size(), after_hand.size()):
+		var card_id: String = str(after_hand[index])
+		var indices: Array = available_indices.get(card_id, [])
+		indices.append(index)
+		available_indices[card_id] = indices
+	var result: Dictionary = {}
+	for loot_var: Variant in picked_loot:
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if str(loot.get("kind", "")) != "item" or str(loot.get("destination", "")) != "hand":
+			continue
+		var card_id: String = str(loot.get("card_id", ""))
+		var indices: Array = available_indices.get(card_id, [])
+		if indices.is_empty():
+			continue
+		result[_movement_loot_key(loot)] = int(indices.pop_front())
+		available_indices[card_id] = indices
+	return result
+
+func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color, destination: Dictionary = {}) -> void:
 	if _card_fx_layer == null or loadout_button == null:
 		return
 	await get_tree().process_frame
 	if not _node_is_alive(_card_fx_layer) or not _node_is_alive(loadout_button):
 		return
-	var target_global: Vector2 = loadout_button.get_global_rect().get_center()
+	var target_global: Vector2 = destination.get("target_global", loadout_button.get_global_rect().get_center()) as Vector2
+	var arrival_control: Control = (
+		loadout_button
+		if destination.is_empty()
+		else destination.get("arrival_control", null) as Control
+	)
+	var destination_kind: String = str(destination.get("kind", "loadout"))
 	var local_start: Vector2 = source_global - _card_fx_layer.global_position
 	var local_target: Vector2 = target_global - _card_fx_layer.global_position
 	var beam := RelicAcquisitionBeam.new()
@@ -22801,6 +22918,8 @@ func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color) -> 
 	beam.start = local_start
 	beam.target = local_target
 	beam.modulate = Color(1.0, 1.0, 1.0, 0.76)
+	beam.set_meta("acquisition_destination", destination_kind)
+	beam.set_meta("acquisition_target_global", target_global)
 	beam.z_index = 1600
 	_card_fx_layer.add_child(beam)
 	var beam_tween: Tween = create_tween().set_parallel(true)
@@ -22810,7 +22929,7 @@ func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color) -> 
 		_spawn_loadout_acquisition_mote(local_start, local_target, accent, mote_index)
 	await get_tree().create_timer(LOADOUT_ACQUISITION_RAY_SECONDS + 0.04).timeout
 	_queue_free_node_now(beam)
-	await _animate_loadout_button_arrival(accent)
+	await _animate_acquisition_destination_arrival(arrival_control, accent)
 
 func _spawn_loadout_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
 	if _card_fx_layer == null:
@@ -22838,18 +22957,20 @@ func _spawn_loadout_acquisition_mote(local_start: Vector2, local_target: Vector2
 	tween.tween_property(mote, "modulate:a", 0.0, 0.12).set_delay(delay + LOADOUT_ACQUISITION_RAY_SECONDS * 0.66)
 	tween.finished.connect(_queue_free_node_now.bind(mote))
 
-func _animate_loadout_button_arrival(accent: Color) -> void:
-	if loadout_button == null:
+func _animate_acquisition_destination_arrival(control: Control, accent: Color) -> void:
+	if not _node_is_alive(control):
 		return
-	loadout_button.pivot_offset = loadout_button.size * 0.5
-	loadout_button.modulate = Color(1.0, 1.0, 1.0, 1.0).lerp(accent.lightened(0.35), 0.34)
+	control.pivot_offset = control.size * 0.5
+	control.modulate = Color(1.0, 1.0, 1.0, 1.0).lerp(accent.lightened(0.35), 0.34)
 	var tween := create_tween()
 	tween.set_loops(2)
-	tween.tween_property(loadout_button, "scale", Vector2(1.16, 1.16), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(loadout_button, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(control, "scale", Vector2(1.16, 1.16), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(control, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await tween.finished
-	loadout_button.scale = Vector2.ONE
-	loadout_button.modulate = Color.WHITE
+	if not _node_is_alive(control):
+		return
+	control.scale = Vector2.ONE
+	control.modulate = Color.WHITE
 
 func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
 	if _card_fx_layer == null:
@@ -25202,7 +25323,6 @@ func _build_item_card_tile_body(card_id: String) -> Control:
 	return margin
 
 func _build_item_card_art_chip(card_id: String, chip_size: Vector2) -> Control:
-	var card: Dictionary = GameData.card_def(card_id)
 	var accent: Color = _item_card_accent(card_id)
 	var chip := PanelContainer.new()
 	chip.name = "ItemCardArtChip"
@@ -25213,16 +25333,16 @@ func _build_item_card_art_chip(card_id: String, chip_size: Vector2) -> Control:
 	chip.add_theme_stylebox_override("panel", _equipment_icon_style(accent))
 	var icon := TextureRect.new()
 	icon.name = "ItemCardArtIcon"
-	icon.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
+	icon.texture = AssetLoader.load_texture(GameData.item_icon_path(card_id))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-	icon.offset_left = -12.0
-	icon.offset_top = -4.0
-	icon.offset_right = 12.0
-	icon.offset_bottom = 4.0
+	icon.offset_left = 2.0
+	icon.offset_top = 2.0
+	icon.offset_right = -2.0
+	icon.offset_bottom = -2.0
 	chip.add_child(icon)
 	return chip
 
@@ -26312,7 +26432,10 @@ func _build_merchant_item_tooltip_panel(merchant_kind: String, item_id: String, 
 		return _build_equipment_tooltip_panel(item_id, interactive)
 	return _build_card_tooltip_panel(item_id, interactive)
 
-func _build_card_tooltip_panel(card_id: String, interactive: bool = false) -> Control:
+func _build_item_pickup_tooltip_panel(card_id: String) -> Control:
+	return _build_card_tooltip_panel(card_id, false, true)
+
+func _build_card_tooltip_panel(card_id: String, interactive: bool = false, pickup: bool = false) -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = CARD_TOOLTIP_SIZE + Vector2(18.0, 18.0)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
@@ -26324,7 +26447,24 @@ func _build_card_tooltip_panel(card_id: String, interactive: bool = false) -> Co
 	margin.add_theme_constant_override("margin_right", 9)
 	margin.add_theme_constant_override("margin_bottom", 9)
 	panel.add_child(margin)
-	margin.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
+	if pickup:
+		panel.set_meta("item_pickup_tooltip_surface", true)
+		var column := VBoxContainer.new()
+		column.add_theme_constant_override("separation", 8)
+		margin.add_child(column)
+		column.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
+		var destination := Label.new()
+		var items: Array = _combat_state.get("equipped_items", _run_state.get("equipped_items", []))
+		destination.text = "Item · Stored in inventory"
+		if items.size() < GameData.item_loadout_limit():
+			var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+			destination.text = "Item · Ready in hand" if hand.size() < CombatEngineScript.MAX_HAND_SIZE else "Item · Top of draw pile"
+		UiTypography.set_label_size(destination, UiTypography.SIZE_CAPTION)
+		destination.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		destination.add_theme_color_override("font_color", Color("fff0ce"))
+		column.add_child(destination)
+	else:
+		margin.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
 	return panel
 
 func _build_equipment_tooltip_panel(equipment_id: String, interactive: bool = false) -> Control:
@@ -27682,7 +27822,18 @@ func _analytics_hand_instance_id(hand_index: int) -> String:
 		return ""
 	return str(hand_ids[hand_index])
 
+func _log_item_pickups(before_state: Dictionary, after_state: Dictionary) -> void:
+	for loot: Dictionary in BattlefieldItemRules.pickups_between(before_state, after_state):
+		var card_id: String = str(loot.get("card_id", ""))
+		_analytics_store.write_event("item_picked_up", _analytics_context_from_states(_run_state, after_state, card_id), {
+			"loot_id": str(loot.get("id", "")), "card_id": card_id,
+			"destination": str(loot.get("destination", "inventory")),
+			"equipped_items": after_state.get("equipped_items", []).duplicate(),
+			"item_inventory": after_state.get("item_inventory", []).duplicate()
+		})
+
 func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary, before_tracker: Dictionary, after_tracker: Dictionary, reason: String) -> void:
+	var pickup_counts: Dictionary = BattlefieldItemRules.hand_pickup_counts(before_state, after_state)
 	var before_hand_ids: Dictionary = {}
 	for instance_id_var: Variant in _analytics_zone_ids(before_tracker, "hand"):
 		before_hand_ids[str(instance_id_var)] = true
@@ -27693,8 +27844,12 @@ func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary
 		if before_hand_ids.has(instance_id):
 			continue
 		var card_id: String = after_hand_cards[index]
+		var draw_reason: String = reason
+		if int(pickup_counts.get(card_id, 0)) > 0:
+			draw_reason = "item_pickup"
+			pickup_counts[card_id] = int(pickup_counts[card_id]) - 1
 		_analytics_store.write_event("card_drawn", _analytics_context_from_states(_run_state, after_state, card_id, instance_id), {
-			"reason": reason,
+			"reason": draw_reason,
 			"hand_index": index,
 			"hand_size": after_hand_cards.size(),
 			"draw_pile_size": _analytics_zone_cards(after_state, "draw").size()

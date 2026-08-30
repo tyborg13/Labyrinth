@@ -213,8 +213,8 @@ func _test_wheel_zoom(board: Control) -> void:
 func _test_pickup_zoom_geometry_matches_actor(board: Control) -> void:
 	var state: Dictionary = _board_state(Vector2i(2, 3))
 	state["loot"] = [
-		{"id": "zoom_vial", "kind": "healing_vial", "amount": 4, "pos": Vector2i(2, 2)},
-		{"id": "zoom_shield", "kind": "rusty_shield", "amount": 4, "pos": Vector2i(3, 2)},
+		{"id": "zoom_vial", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(2, 2)},
+		{"id": "zoom_shield", "kind": "item", "card_id": "bone_ward_charm", "pos": Vector2i(3, 2)},
 		{"id": "zoom_equipment", "kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(4, 2)}
 	]
 	board.set_combat_state(state)
@@ -226,7 +226,7 @@ func _test_pickup_zoom_geometry_matches_actor(board: Control) -> void:
 	var default_zoom: Dictionary = _pickup_and_actor_geometry(board, state)
 	board.call("set_navigation_zoom", maximum_zoom, board.size * 0.5)
 	var maximum: Dictionary = _pickup_and_actor_geometry(board, state)
-	for object_id: String in ["healing_vial", "rusty_shield", "equipment"]:
+	for object_id: String in ["crimson_draught", "bone_ward_charm", "equipment"]:
 		var min_width: float = float((minimum.get(object_id, Rect2()) as Rect2).size.x)
 		var default_width: float = float((default_zoom.get(object_id, Rect2()) as Rect2).size.x)
 		var max_width: float = float((maximum.get(object_id, Rect2()) as Rect2).size.x)
@@ -249,7 +249,7 @@ func _pickup_and_actor_geometry(board: Control, state: Dictionary) -> Dictionary
 	for loot_var: Variant in state.get("loot", []) as Array:
 		var loot: Dictionary = loot_var as Dictionary
 		var texture: Texture2D = board.call("_loot_texture", loot) as Texture2D
-		geometry[str(loot.get("kind", ""))] = board.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
+		geometry[str(loot.get("card_id", loot.get("kind", "")))] = board.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
 	return geometry
 
 func _test_click_without_drag(board: Control) -> void:

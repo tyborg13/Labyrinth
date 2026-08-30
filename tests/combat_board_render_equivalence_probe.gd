@@ -159,7 +159,7 @@ func _probe_state() -> Dictionary:
 		}],
 		"illusions": [],
 		"npcs": [],
-		"loot": [{"id": "vial", "kind": "healing_vial", "amount": 4, "pos": Vector2i(4, 2)}],
+		"loot": [{"id": "vial", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(4, 2)}],
 		"terrain": [{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(3, 2), "hp": 8, "max_hp": 8}],
 		"traps": [{"id": "trap", "element": "fire", "pos": Vector2i(4, 3), "damage": 3, "armed": true}],
 		"player_turn_restrictions": {}

@@ -86,6 +86,14 @@ static func _test_retained_layers_share_adaptive_framing_offset(expect: Callable
 				layer_center.is_equal_approx(parent_center),
 				"Retained layer %s should center actor tile %s on the floor geometry" % [layer_label, tile]
 			)
+		# A hand-size/viewport change can invalidate a retained layer after the
+		# parent has already retained clearance from an earlier animation snapshot.
+		layer.call("_invalidate_board_layout_cache", false)
+		var rebuilt_origin: Vector2 = layer.call("_board_origin") as Vector2
+		expect.call(rebuilt_origin.is_equal_approx(parent_origin), "Rebuilt %s must reuse the floor origin instead of losing its retained top clearance" % layer_label)
+		# Full-rect anchors may also settle after the owner's submission.
+		layer.size += Vector2(0.0, 1.0)
+		expect.call((layer.call("_board_origin") as Vector2).is_equal_approx(parent_origin), "Settling %s anchors must not independently reframe actors" % layer_label)
 	board.free()
 
 

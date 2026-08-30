@@ -2206,8 +2206,8 @@ func _stress_loot() -> Array:
 	return [
 		{"id": "runtime_ember_1", "kind": "embers", "amount": 3, "pos": Vector2i(2, 2), "claimed": false},
 		{"id": "runtime_ember_2", "kind": "embers", "amount": 4, "pos": Vector2i(6, 2), "claimed": false},
-		{"id": "runtime_vial_1", "kind": "healing_vial", "amount": 5, "pos": Vector2i(2, 6), "claimed": false},
-		{"id": "runtime_vial_2", "kind": "healing_vial", "amount": 5, "pos": Vector2i(6, 6), "claimed": false},
+		{"id": "runtime_vial_1", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(2, 6), "claimed": false},
+		{"id": "runtime_vial_2", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(6, 6), "claimed": false},
 		{"id": "runtime_equipment_1", "kind": "equipment", "equipment_id": "training_sword", "pos": Vector2i(1, 4), "claimed": false},
 		{"id": "runtime_equipment_2", "kind": "equipment", "equipment_id": "training_shield", "pos": Vector2i(7, 4), "claimed": false},
 	]

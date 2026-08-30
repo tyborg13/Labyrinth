@@ -10,7 +10,7 @@ const STABLE_PROOF_DIR_ENV: String = "LABYRINTH_ACTION_STEP_PROOF_DIR"
 const PROOF_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
 const CHOICE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
-const PILES_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
+const PILES_PATH: String = "UiLayer/UiRoot/PilesBar"
 
 var _last_statuses: Array = []
 var _stable_proof_dir: String = ""

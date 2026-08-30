@@ -16,9 +16,9 @@ const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.08
 const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 0
 const ENEMY_HP_SCALE_DEPTH_ONE: float = 0.85
 const ENEMY_HP_SCALE_DEPTH_THREE: float = 1.12
-const HEALING_POTION_AMOUNT: int = 2
-const HEALING_POTION_CHANCE_PERCENT: int = 25
-const RUSTY_SHIELD_BLOCK: int = 3
+const ITEM_ZERO_CHANCE_PERCENT: int = 15
+const ITEM_TWO_CHANCE_PERCENT: int = 20
+const PICKUP_SPACING_TILES: int = 5
 const TERRAIN_HP: int = 3
 const TERRAIN_TARGET_COUNT_MIN: int = 5
 const TERRAIN_TARGET_COUNT_MAX: int = 7
@@ -781,57 +781,56 @@ func _generate_loot(grid: Array, room: Dictionary, rng: RandomNumberGenerator, o
 		return loot
 	var candidates: Array[Vector2i] = []
 	for tile: Vector2i in _floor_tiles(grid):
-		if occupied.has(tile):
-			continue
-		candidates.append(tile)
+		if not occupied.has(tile):
+			candidates.append(tile)
 	var occupied_pickups: Dictionary = occupied.duplicate(true)
-	var utility_kinds: Array[String]
-	if room_type == "boss":
-		utility_kinds.append("healing_vial")
-		utility_kinds.append("rusty_shield")
-	elif rng.randi_range(1, 100) <= HEALING_POTION_CHANCE_PERCENT:
-		utility_kinds.append("healing_vial")
-	else:
-		utility_kinds.append("rusty_shield")
-	for utility_kind: String in utility_kinds:
-		var utility_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
-		if utility_tile.x < 0:
-			continue
-		occupied_pickups[utility_tile] = true
-		var is_healing: bool = utility_kind == "healing_vial"
-		loot.append({
-			"id": "loot_%s_%d_%d" % ["potion" if is_healing else "shield", utility_tile.x, utility_tile.y],
-			"kind": utility_kind,
-			"amount": HEALING_POTION_AMOUNT if is_healing else RUSTY_SHIELD_BLOCK,
-			"pos": utility_tile
-		})
+	var pickup_tiles: Array[Vector2i] = []
 	var equipment_id: String = str(room.get("equipment_drop", ""))
 	if room_type == "combat" and not equipment_id.is_empty():
-		var equipment_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
+		var equipment_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng, pickup_tiles)
 		if equipment_tile.x >= 0:
+			occupied_pickups[equipment_tile] = true
+			pickup_tiles.append(equipment_tile)
 			loot.append({
 				"id": "loot_equipment_%s_%d_%d" % [equipment_id, equipment_tile.x, equipment_tile.y],
-				"kind": "equipment",
-				"equipment_id": equipment_id,
-				"pos": equipment_tile
+				"kind": "equipment", "equipment_id": equipment_id, "pos": equipment_tile
 			})
+	var count_roll: int = rng.randi_range(1, 100)
+	var item_count: int = 0 if count_roll <= ITEM_ZERO_CHANCE_PERCENT else (2 if count_roll > 100 - ITEM_TWO_CHANCE_PERCENT else 1)
+	var item_ids: Array = GameData.item_card_ids()
+	for index: int in range(item_count):
+		var tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng, pickup_tiles)
+		if tile.x < 0 or item_ids.is_empty():
+			break
+		var card_id: String = _roll_item_pickup(item_ids, rng)
+		occupied_pickups[tile] = true
+		pickup_tiles.append(tile)
+		loot.append({"id": "loot_item_%d_%d_%d" % [index, tile.x, tile.y], "kind": "item", "card_id": card_id, "pos": tile})
 	return loot
 
-func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: RandomNumberGenerator) -> Vector2i:
+func _roll_item_pickup(item_ids: Array, rng: RandomNumberGenerator) -> String:
+	var total_weight: int = 0
+	for card_var: Variant in item_ids:
+		total_weight += GameData.item_offer_weight(str(card_var))
+	var roll: int = rng.randi_range(1, total_weight)
+	for card_var: Variant in item_ids:
+		roll -= GameData.item_offer_weight(str(card_var))
+		if roll <= 0:
+			return str(card_var)
+	return str(item_ids.back())
+
+func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: RandomNumberGenerator, pickup_tiles: Array[Vector2i] = []) -> Vector2i:
 	var best_tile: Vector2i = Vector2i(-1, -1)
 	var best_score: float = -INF
 	for tile: Vector2i in candidates:
 		if occupied.has(tile):
 			continue
-		var score: float = rng.randf()
-		if not occupied.is_empty():
-			var nearest_pickup_distance: int = 99
-			for occupied_tile_var: Variant in occupied.keys():
-				if typeof(occupied_tile_var) != TYPE_VECTOR2I:
-					continue
-				var occupied_tile: Vector2i = occupied_tile_var
-				nearest_pickup_distance = mini(nearest_pickup_distance, PathUtils.manhattan(tile, occupied_tile))
-			score -= absf(float(nearest_pickup_distance - 3)) * 0.08
+		# Only pickups enter the spacing score, not enemies or the player.
+		# Prefer five tiles apart; cramped layouts choose the best legal gap.
+		var distance: int = PICKUP_SPACING_TILES
+		for pickup_tile: Vector2i in pickup_tiles:
+			distance = mini(distance, PathUtils.manhattan(tile, pickup_tile))
+		var score: float = float(distance) + rng.randf() * 0.5
 		if score > best_score:
 			best_score = score
 			best_tile = tile

@@ -236,6 +236,9 @@ func _parse_args() -> Dictionary:
 			"--enemy-hp":
 				index += 1
 				parsed["enemy_hp"] = int(_required_arg(args, index, arg))
+			"--item-drops":
+				index += 1
+				parsed["item_drops"] = _required_arg(args, index, arg)
 			"--equipment-drop":
 				index += 1
 				parsed["equipment_drop"] = _required_arg(args, index, arg)
@@ -285,6 +288,7 @@ func _print_help() -> void:
 	print("  --trap-elements fire,ice [--trap-positions 3:4,5:2]")
 	print("  --enemy-types enemy_a,enemy_b --enemy-positions 6:1,5:4 --enemy-intents intent_a,intent_b")
 	print("  --enemy-hp N --equipment-drop equipment_id [--equipment-drop-position 6:5]")
+	print("  --item-drops crimson_draught@2:3,nail_bomb@6:1")
 	print("  --umbra-stage clear|fringe|advancing|pressing|deep|heart|eclipse")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
@@ -755,6 +759,39 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 			"pos": equipment_drop_tile
 		})
 		combat_state["loot"] = loot
+	var item_drops: String = str(_options.get("item_drops", ""))
+	if not item_drops.is_empty():
+		var loot: Array = []
+		for entry: Dictionary in combat_state.get("loot", []):
+			if str(entry.get("kind", "")) != "item":
+				loot.append(entry.duplicate(true))
+		var occupied_item_tiles: Dictionary = {}
+		occupied_item_tiles[(combat_state.get("player", {}) as Dictionary).get("pos", INVALID_COORD)] = true
+		for enemy: Dictionary in combat_state.get("enemies", []):
+			occupied_item_tiles[enemy.get("pos", INVALID_COORD)] = true
+		for existing_loot: Dictionary in loot:
+			occupied_item_tiles[existing_loot.get("pos", INVALID_COORD)] = true
+		var item_entries: PackedStringArray = item_drops.split(",", false)
+		if item_entries.size() > 2:
+			_fail("--item-drops allows at most two pickups")
+			return state
+		for entry: String in item_entries:
+			var parts: PackedStringArray = entry.split("@")
+			if parts.size() != 2 or not GameData.card_is_item(parts[0]):
+				_fail("--item-drops expects item_card@x:y entries")
+				return state
+			var tile: Vector2i = _parse_colon_coord(parts[1], "--item-drops")
+			if _failed:
+				return state
+			if occupied_item_tiles.has(tile) or not _inspection_trap_tile_is_valid(combat_state.get("grid", []), tile):
+				_fail("Item position %s must be an unoccupied in-bounds floor tile" % tile)
+				return state
+			occupied_item_tiles[tile] = true
+			combat_state = _clear_fixture_occupant_tiles(combat_state, _vector2i_array([tile]))
+			loot.append({"id": "inspection_item_%s_%s" % [parts[0], parts[1]], "kind": "item", "card_id": parts[0], "pos": tile})
+		combat_state["loot"] = loot
+	combat_state["equipped_items"] = state.get("equipped_items", []).duplicate()
+	combat_state["item_inventory"] = state.get("item_inventory", []).duplicate()
 	combat_state["relics"] = state.get("relics", []).duplicate(true)
 	state["combat_state"] = combat_state
 	var current_layout: Dictionary = (state.get("current_room_layout", {}) as Dictionary).duplicate(true)

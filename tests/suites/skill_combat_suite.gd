@@ -145,7 +145,7 @@ static func _test_measured_breath_borrowed_time_and_guard(expect: Callable) -> v
 static func _test_ghost_stride_afterimage_and_plunder(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = _state(combat, ["ghost_stride", "afterimage", "plunderers_step"], ["quick_stab"])
-	var loot: Array = [{"kind": "healing_vial", "pos": Vector2i(3, 4), "amount": 10, "claimed": false}]
+	var loot: Array = [{"kind": "item", "pos": Vector2i(3, 4), "card_id": "crimson_draught", "claimed": false}]
 	state["loot"] = loot
 	var move_action: Dictionary = combat.player_movement_action(state)
 	expect.call(str(move_action.get("type", "")) == "move", "Ghost Stride should preserve normal independent movement until armed")
@@ -188,7 +188,7 @@ static func _test_ghost_stride_afterimage_and_plunder(expect: Callable) -> void:
 	expect.call(combat.skill_was_used(state, "afterimage"), "Afterimage should spend after creating its illusion")
 	expect.call(int(state.get("card_play_bonus_this_turn", 0)) == 0 and not combat.skill_was_used(state, "plunderers_step"), "Independent movement should not turn Plunderer's Step into an extra card play")
 	var card_move_state: Dictionary = _state(combat, ["plunderers_step"], ["quick_stab"])
-	card_move_state["loot"] = [{"kind": "healing_vial", "pos": Vector2i(3, 4), "amount": 10, "claimed": false}]
+	card_move_state["loot"] = [{"kind": "item", "pos": Vector2i(3, 4), "card_id": "crimson_draught", "claimed": false}]
 	card_move_state = combat.apply_player_action(card_move_state, {"type": "move", "range": 1}, Vector2i(3, 4))
 	expect.call(int(card_move_state.get("card_play_bonus_this_turn", 0)) == 1 and combat.skill_was_used(card_move_state, "plunderers_step"), "Plunderer's Step should still refund card-based movement that collects loot")
 	var pass_through_action: Dictionary = {"type": "move", "range": 2}
