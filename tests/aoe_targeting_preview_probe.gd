@@ -7,7 +7,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR := "user://probes/aoe_targeting_preview_v1"
+const OUTPUT_DIR := "user://probes/aoe_targeting_preview_v2"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const BOARD_PATH := "BoardUnderlay/CombatBoard"
 const PLAYER_TILE := Vector2i(2, 4)
@@ -57,6 +57,7 @@ func _capture_states() -> void:
 	instance.set("_settings", settings)
 	_resolve_contextual_prompts(instance)
 	await _capture_single_target_reference(instance)
+	await _capture_aoe_idle_reference(instance)
 	await _capture_aoe_card(
 		instance,
 		"cinderburst",
@@ -116,9 +117,50 @@ func _capture_single_target_reference(instance: Node) -> void:
 		var effect: Dictionary = presentation.get("effect", {}) as Dictionary
 		_expect(str(effect.get("kind", "")) == "ranged", "Single-target reference should use the ranged preview")
 		_expect(bool(effect.get("preview", false)), "Single-target reference should remain a preview")
+		_expect(not bool(presentation.get("player_aoe_preview_active", false)), "Single-target reference should retain its ordinary attack-target treatment")
 	await _save_screenshot("%s/00_single_target.png" % OUTPUT_DIR)
 	instance.call("_on_cancel_requested")
 	await _settle()
+
+
+func _capture_aoe_idle_reference(instance: Node) -> void:
+	await _install_combat_fixture(instance, "cinderburst", 9905)
+	await _arm_printed_card(instance)
+	instance.call("_on_board_tile_hovered", Vector2i(-1, -1))
+	await _settle()
+	_assert_aoe_legal_centers_visible(instance, "before hover")
+	await _save_screenshot("%s/05_legal_aoe_centers.png" % OUTPUT_DIR)
+	instance.call("_on_board_tile_hovered", AIM_TILE)
+	await _settle()
+	var board: Control = instance.get_node_or_null(BOARD_PATH) as Control
+	_expect(
+		board != null and bool((board.get("presentation") as Dictionary).get("player_aoe_preview_active", false)),
+		"A valid AOE hover should switch from legal centers to the concrete footprint"
+	)
+	instance.call("_on_board_tile_hovered", Vector2i(-1, -1))
+	await _settle()
+	_assert_aoe_legal_centers_visible(instance, "after pointer exit")
+	instance.call("_on_cancel_requested")
+	await _settle()
+
+
+func _assert_aoe_legal_centers_visible(instance: Node, context: String) -> void:
+	var board: Control = instance.get_node_or_null(BOARD_PATH) as Control
+	_expect(board != null, "AOE %s should expose the production combat board" % context)
+	if board == null:
+		return
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	var active_preview: Dictionary = instance.call("_active_card_preview") as Dictionary
+	var legal_targets: Array = active_preview.get("target_tiles", []) as Array
+	_expect(not legal_targets.is_empty(), "AOE %s should retain discoverable legal centers" % context)
+	_expect(
+		_same_tiles(board.get("attack_tiles") as Array, legal_targets),
+		"AOE %s should submit every legal center to the board" % context
+	)
+	_expect((presentation.get("focus_tiles", []) as Array).is_empty(), "AOE %s should not imply a footprint" % context)
+	_expect((presentation.get("effect", {}) as Dictionary).is_empty(), "AOE %s should not draw a cast path" % context)
+	_expect(not bool(presentation.get("player_aoe_preview_active", false)), "AOE %s should keep legal-center guidance visible" % context)
+	_expect(not bool(presentation.get("pulse_attack_tiles", false)), "AOE legal centers should remain static")
 
 
 func _capture_aoe_card(
@@ -156,6 +198,7 @@ func _assert_aoe_preview(instance: Node, card_id: String, expected_tiles: Array,
 	var effect_tiles: Array = effect.get("tiles", []) as Array
 	var active_preview: Dictionary = instance.call("_active_card_preview") as Dictionary
 	var active_action: Dictionary = active_preview.get("action", {}) as Dictionary
+	var legal_targets: Array = active_preview.get("target_tiles", []) as Array
 	_expect(
 		str(effect.get("kind", "")) == "aoe",
 		"%s %s should render an AOE preview (effect=%s, action=%s, pending=%d, label=%s)" % [
@@ -168,6 +211,23 @@ func _assert_aoe_preview(instance: Node, card_id: String, expected_tiles: Array,
 		]
 	)
 	_expect(bool(effect.get("preview", false)), "%s %s should remain a non-committing preview" % [card_id, direction])
+	_expect(
+		bool(presentation.get("player_aoe_preview_active", false))
+		and bool(board.call("_player_aoe_preview_active")),
+		"%s %s should suppress the broad legal-center wash while its footprint is active" % [card_id, direction]
+	)
+	_expect(
+		_same_tiles(board.get("attack_tiles") as Array, legal_targets),
+		"%s %s should preserve its legal centers as interaction data while hiding their paint" % [card_id, direction]
+	)
+	_expect(
+		legal_targets.has(AIM_TILE) and legal_targets.size() > expected_tiles.size(),
+		"%s %s should keep a larger legal-center set behind the focused footprint" % [card_id, direction]
+	)
+	_expect(
+		(instance.get("_pending_target_tiles") as Array).has(AIM_TILE),
+		"%s %s should keep the focused center legal for confirmation" % [card_id, direction]
+	)
 	_expect(
 		_same_tiles(focus_tiles, expected_tiles),
 		"%s %s focus should preserve its complete authored pattern: %s" % [card_id, direction, focus_tiles]
@@ -309,11 +369,11 @@ func _same_tiles(actual: Array, expected: Array) -> bool:
 
 func _room_layout() -> Dictionary:
 	var enemy_positions: Array = [
-		Vector2i(4, 4),
 		Vector2i(5, 4),
 		Vector2i(4, 2),
 		Vector2i(6, 4),
 		Vector2i(4, 6),
+		Vector2i(6, 2),
 	]
 	var enemies: Array = []
 	for index: int in range(enemy_positions.size()):

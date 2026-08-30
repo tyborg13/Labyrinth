@@ -17586,6 +17586,8 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	performance_phase_started = _record_runtime_performance_phase("preview_effect", performance_phase_started)
 	if not effect.is_empty():
 		result["effect"] = effect
+		if action_type == "aoe" and bool(effect.get("preview", false)) and not (effect.get("tiles", []) as Array).is_empty():
+			result["player_aoe_preview_active"] = true
 	var preview_units: Array = _preview_units_for_action(preview)
 	performance_phase_started = _record_runtime_performance_phase("preview_units", performance_phase_started)
 	if not preview_units.is_empty():

@@ -46,6 +46,8 @@ const HOVER_HIGHLIGHT: Color = Color(1.0, 0.96, 0.82, 0.22)
 const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
+const AOE_FOOTPRINT_HIGHLIGHT: Color = Color(1.0, 0.68, 0.22, 0.38)
+const AOE_FOOTPRINT_EDGE: Color = Color(1.0, 0.90, 0.58, 0.92)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
 const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
 const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.333
@@ -1966,6 +1968,10 @@ func _queue_presentation_change_redraws(
 				ambient_changed = true
 			"ability_tiles", "confirmation_target_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
 				overlay_changed = true
+			"player_aoe_preview_active":
+				overlay_changed = true
+				foreground_changed = true
+				hud_changed = true
 			"path_color", "path_tiles":
 				path_changed = true
 			"enemy_threat_previews":
@@ -4987,7 +4993,10 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
 		_draw_exit_tile_pulse(tile)
 	if _focus_tiles_lookup_cache.has(tile):
-		draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
+		if _player_aoe_preview_active():
+			_draw_aoe_footprint_highlight(tile)
+		else:
+			draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
 	if _move_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, MOVE_HIGHLIGHT)
 		_draw_tile_ring(tile, Color(0.60, 0.91, 0.94, 0.58), 2.0, 0.86)
@@ -5038,9 +5047,18 @@ func _draw_attack_target_pulse(tile: Vector2i) -> void:
 	_draw_tile_ring(tile, Color(1.0, 0.78, 0.44, alpha), width, scale)
 
 func _draw_attack_tile_highlight(tile: Vector2i) -> void:
+	if _player_aoe_preview_active():
+		return
 	draw_colored_polygon(_tile_polygon(tile), ATTACK_HIGHLIGHT)
 	if bool(presentation.get("pulse_attack_tiles", false)):
 		_draw_attack_target_pulse(tile)
+
+func _player_aoe_preview_active() -> bool:
+	return bool(presentation.get("player_aoe_preview_active", false))
+
+func _draw_aoe_footprint_highlight(tile: Vector2i) -> void:
+	draw_colored_polygon(_tile_polygon(tile), AOE_FOOTPRINT_HIGHLIGHT)
+	_draw_tile_ring(tile, AOE_FOOTPRINT_EDGE, 2.4, 0.92)
 
 func _large_enemy_attack_highlight_tiles(units_to_draw: Array[Dictionary]) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -6110,7 +6128,7 @@ func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
 		return true
 	if not _terrain_damage_preview(terrain).is_empty():
 		return true
-	return attack_tiles.has(terrain.get("pos", Vector2i(-1, -1)))
+	return not _player_aoe_preview_active() and attack_tiles.has(terrain.get("pos", Vector2i(-1, -1)))
 
 func _terrain_damage_preview(terrain: Dictionary) -> Dictionary:
 	if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
