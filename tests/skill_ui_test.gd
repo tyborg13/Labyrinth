@@ -553,7 +553,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var primed_skill_state: Dictionary = (primed_run_state.get("skill_state", {}) as Dictionary).duplicate(true)
 	primed_skill_state["pending_card"] = "rime_shard"
 	primed_skill_state["pending_relic"] = "flint_edge"
-	primed_skill_state["reserved_merchant"] = {"kind": "blacksmith", "item_id": "stitcher_apron"}
+	primed_skill_state["reserved_merchant"] = {"kind": "scavenger", "item_id": "stitcher_apron"}
 	primed_run_state["skill_state"] = primed_skill_state
 	instance.set("_run_state", primed_run_state)
 	_expect(str(instance.call("_skill_hud_status", "deferred_choice")) == "PRIMED", "Deferred Choice should show its earned card waiting for the next reward")
@@ -1016,7 +1016,7 @@ func _test_out_of_combat_reset_preserves_unbanked_embers(instance: Node) -> void
 	pending_skill_state["pending_card"] = "rime_shard"
 	pending_skill_state["pending_relic"] = "flint_edge"
 	pending_skill_state["reserved_merchant"] = {
-		"kind": "blacksmith",
+		"kind": "scavenger",
 		"item_id": "stitcher_apron",
 		"origin_coord": Vector2i(3, 0),
 	}

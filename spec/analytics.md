@@ -252,9 +252,9 @@ consumable outside combat. Its payload records `action` (`equip` or `stow`),
 `card_id`, `inventory_index`, `equipped_index`, full `equipped_items`,
 `item_inventory`, and rebuilt `deck_cards`.
 
-`merchant_trade` fires when a blacksmith, arcanist, or scavenger transaction
-succeeds in a non-combat merchant room. Its payload records `action` (`buy` or `sell`),
-`merchant_kind`, `item_kind`, `item_id`, ember `amount`,
+`merchant_trade` fires when a Scavenger transaction succeeds in a non-combat
+merchant room. Its payload records `action` (`buy` or `sell`), `merchant_kind`
+(`scavenger`), `item_kind` (`magic`, `equipment`, or `item`), `item_id`, ember `amount`,
 `held_embers_before`, `held_embers_after`, the current `room`, and the updated
 equipment, magic, item, reward-card, and deck state.
 

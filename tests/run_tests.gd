@@ -38,6 +38,7 @@ const CombatBoardLayoutSuite = preload("res://tests/suites/combat_board_layout_s
 const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass_suite.gd")
 const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.gd")
 const ItemPickupSuite = preload("res://tests/suites/item_pickup_suite.gd")
+const ScavengerShopSuite = preload("res://tests/suites/scavenger_shop_suite.gd")
 const ControllerInputSuite = preload("res://tests/suites/controller_input_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
@@ -109,6 +110,7 @@ func _initialize() -> void:
 	HealthBarThemeSuite.run(Callable(self, "_assert"))
 	ControllerInputSuite.run(Callable(self, "_assert"))
 	ItemPickupSuite.run(Callable(self, "_assert"))
+	ScavengerShopSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_non_boss_combat_to_schubert()
@@ -145,7 +147,6 @@ func _initialize() -> void:
 	_test_equipment_run_state_and_reward_cards(default_progression)
 	_test_equipment_collection_to_equip_deck_flow(default_progression)
 	_test_missed_equipment_resolution_and_persistence(default_progression)
-	_test_merchant_room_placement_and_trading(default_progression)
 	_test_elemental_intensity_starts_from_room_element()
 	_test_elemental_intensity_actions_gate_effects()
 	_test_elemental_intensity_icons_surface_card_requirements()
@@ -534,8 +535,8 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(equipment_entries.has("keyword:bleed"), "Equipment should unlock keywords from granted cards")
 	var lantern_equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("cracked_lantern")
 	_assert(lantern_equipment_entries.has("equipment_card:lantern_shot"), "Cracked Lantern should unlock its Radiance card page under Equipment")
-	var npc_entries: Array[String] = GrimoireLibrary.entry_ids_for_npc_ids(["blacksmith"])
-	_assert(npc_entries.has("character:blacksmith"), "Seen NPCs should unlock character entries")
+	var npc_entries: Array[String] = GrimoireLibrary.entry_ids_for_npc_ids(["scavenger"])
+	_assert(npc_entries.has("character:scavenger"), "Seen NPCs should unlock the Scavenger character entry")
 	var crawler_entries: Array[String] = GrimoireLibrary.entry_ids_for_enemy_types(["crawler"])
 	_assert(crawler_entries.has("enemy:crawler"), "Seeing a crawler should unlock its creature entry")
 	_assert(crawler_entries.has("keyword:bleed"), "Enemy bleed intents should unlock the bleed entry")
@@ -572,17 +573,17 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	merchant_offer_state["current_room"] = Vector2i(2, 1)
 	merchant_offer_state["rooms"] = {
 		"2,1": {
-			"type": "arcanist",
-			"merchant_kind": "arcanist",
+			"type": "scavenger",
+			"merchant_kind": "scavenger",
 			"merchant_stock": ["spark_dart", "crimson_draught", "iron_cleaver"],
-			"npcs": [{"id": "blacksmith"}]
+			"npcs": [{"id": "scavenger"}]
 		}
 	}
 	var merchant_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(merchant_offer_state)
 	_assert(merchant_offer_entries.has("magick:spark_dart"), "Visible merchant-offer cards should unlock their Magick entry before purchase")
 	_assert(merchant_offer_entries.has("item:crimson_draught"), "Visible scavenger-offer cards should unlock item entries before purchase")
-	_assert(merchant_offer_entries.has("equipment:iron_cleaver"), "Visible blacksmith-offer equipment should unlock equipment entries before purchase")
-	_assert(merchant_offer_entries.has("character:blacksmith"), "Current-room NPCs should unlock character entries")
+	_assert(merchant_offer_entries.has("equipment:iron_cleaver"), "Visible Scavenger Gear should unlock equipment entries before purchase")
+	_assert(merchant_offer_entries.has("character:scavenger"), "Current-room Scavenger should unlock its character entry")
 	_assert(merchant_offer_entries.has("keyword:illuminate"), "Visible merchant-offer cards should unlock their Radiance rider before purchase")
 	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["magick:spark_dart", "keyword:shock"])
 	var added: Array = unlock_result.get("added", [])
@@ -678,7 +679,7 @@ func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
 	AssetLoader._audio_cache.erase(str(generic_entry.get("path", "")))
 	var looped_stream: AudioStream = AssetLoader.load_audio_stream(str(generic_entry.get("path", "")), true)
 	_assert(looped_stream is AudioStreamOggVorbis and (looped_stream as AudioStreamOggVorbis).loop, "Configured Schubert stream should use gapless Ogg looping")
-	for merchant_type: String in ["blacksmith", "arcanist", "scavenger"]:
+	for merchant_type: String in ["scavenger"]:
 		var merchant_entry: Dictionary = MusicLibrary.entry_for_context("room", {
 			"type": merchant_type,
 			"element": ElementData.NONE
@@ -1084,22 +1085,6 @@ func _test_special_rooms_use_corner_pillar_layout() -> void:
 		"type": "treasure"
 	}, Vector2i(0, -1))
 	_assert_corner_pillar_room(treasure_room, "Treasure")
-	var blacksmith_room: Dictionary = generator.generate_room(91, {
-		"coord": Vector2i(2, 1),
-		"depth": 2,
-		"type": "blacksmith",
-		"npcs": [{"id": "blacksmith", "pos": Vector2i(3, 4)}]
-	}, Vector2i(0, -1))
-	_assert_corner_pillar_room(blacksmith_room, "Blacksmith")
-	_assert((blacksmith_room.get("npcs", []) as Array).size() == 1, "Blacksmith rooms should keep their merchant NPC")
-	var arcanist_room: Dictionary = generator.generate_room(91, {
-		"coord": Vector2i(2, -1),
-		"depth": 2,
-		"type": "arcanist",
-		"npcs": [{"id": "arcanist", "pos": Vector2i(3, 4)}]
-	}, Vector2i(0, 1))
-	_assert_corner_pillar_room(arcanist_room, "Arcanist")
-	_assert((arcanist_room.get("npcs", []) as Array).size() == 1, "Arcanist rooms should keep their merchant NPC")
 	var scavenger_room: Dictionary = generator.generate_room(91, {
 		"coord": Vector2i(-2, 1),
 		"depth": 2,
@@ -6634,9 +6619,7 @@ func _test_final_art_units_use_16_frame_idle_sheets() -> void:
 		"bile_bloomer",
 		"chainbound_gaoler",
 		"grave_surgeon",
-		"frostglass_lancer",
-		"arcanist",
-		"blacksmith"
+		"frostglass_lancer"
 	]
 	for unit_type: String in unit_types:
 		var definition: Dictionary = GameData.enemy_def(unit_type)
@@ -6840,9 +6823,7 @@ func _test_final_art_idle_shadows_keep_silhouettes_for_every_frame() -> void:
 		"bile_bloomer",
 		"chainbound_gaoler",
 		"grave_surgeon",
-		"frostglass_lancer",
-		"arcanist",
-		"blacksmith"
+		"frostglass_lancer"
 	]
 	for unit_type: String in unit_types:
 		var unit := {"key": "shadow_%s" % unit_type, "role": "enemy", "type": unit_type, "pos": Vector2i.ZERO}
@@ -7490,15 +7471,13 @@ func _test_merchant_assets_load_for_board() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
 	board.call("_load_assets")
-	for npc_id: String in ["blacksmith", "arcanist", "scavenger"]:
+	for npc_id: String in ["scavenger"]:
 		var npc_def: Dictionary = GameData.npc_def(npc_id)
 		var art_path: String = str(npc_def.get("art_path", ""))
 		_assert(FileAccess.file_exists(art_path), "%s NPC sprite should exist" % npc_id)
 		var texture: Texture2D = (board.get("_unit_textures") as Dictionary).get(npc_id, null)
 		_assert(texture != null, "%s NPC sprite should load for board rendering" % npc_id)
 	var prop_textures: Dictionary = board.get("_scene_prop_textures") as Dictionary
-	_assert(prop_textures.get("blacksmith_forge", null) != null, "Blacksmith forge prop should load for board rendering")
-	_assert(prop_textures.get("arcanist_table", null) != null, "Arcanist table prop should load for board rendering")
 	_assert(prop_textures.get("scavenger_stall", null) != null, "Scavenger stall prop should load for board rendering")
 	board.free()
 
@@ -7508,8 +7487,8 @@ func _test_room_icon_library_covers_door_room_types() -> void:
 		{"room": {"type": "combat", "element": "none"}, "icon": "combat"},
 		{"room": {"type": "campfire", "element": "none"}, "icon": "campfire"},
 		{"room": {"type": "treasure", "element": "none"}, "icon": "treasure"},
-		{"room": {"type": "blacksmith", "element": "none"}, "icon": "blacksmith"},
-		{"room": {"type": "arcanist", "element": "none"}, "icon": "arcanist"},
+		{"room": {"type": "blacksmith", "element": "none"}, "icon": "scavenger"},
+		{"room": {"type": "arcanist", "element": "none"}, "icon": "scavenger"},
 		{"room": {"type": "scavenger", "element": "none"}, "icon": "scavenger"},
 		{"room": {"type": "boss", "element": "none"}, "icon": "boss"}
 	]
@@ -7599,7 +7578,7 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	for entry_var: Variant in map_view.call("_legend_entries"):
 		var entry: Dictionary = entry_var
 		labels[str(entry.get("label", ""))] = true
-	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Smith", "Arcanist", "Scavenger", "Boss"]:
+	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Scavenger", "Boss"]:
 		_assert(labels.has(expected_label), "Full map legend should include %s" % expected_label)
 	_assert(not labels.has("Fight"), "Full map legend should not invent a generic Fight room icon")
 	var marker_rooms: Dictionary = {
@@ -7871,7 +7850,7 @@ func _test_combat_board_loads_door_icons_for_room_types() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
 	var textures: Dictionary = board.get("_door_icon_textures") as Dictionary
-	for icon_id: String in ["fire", "combat", "campfire", "treasure", "blacksmith", "arcanist", "scavenger", "boss"]:
+	for icon_id: String in ["fire", "combat", "campfire", "treasure", "scavenger", "boss"]:
 		_assert(textures.get(icon_id, null) != null, "Combat board should load door icons for elemental and non-combat destinations")
 	board.free()
 
@@ -8091,7 +8070,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 				var room_type: String = str(room.get("type", "combat"))
 				if depth >= RunEngine.MERCHANT_ROOM_MIN_DEPTH and room_type not in ["boss", "campfire", "treasure"]:
 					total_eligible_rooms += 1
-				if room_type not in ["blacksmith", "arcanist", "scavenger"]:
+				if room_type != "scavenger":
 					continue
 				total_merchant_rooms += 1
 				merchant_types[room_type] = true
@@ -8103,7 +8082,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 					var neighbor: Vector2i = coord + dir
 					if maxi(absi(neighbor.x), absi(neighbor.y)) > MAP_RULE_SCAN_DEPTH:
 						continue
-					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) not in ["blacksmith", "arcanist", "scavenger"], "Merchant rooms should never be cardinally adjacent")
+					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) != "scavenger", "Scavenger rooms should never be cardinally adjacent")
 		signature_parts.sort()
 		var signature: String = "|".join(signature_parts)
 		if seed == 1:
@@ -8112,7 +8091,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 			found_different_signature = true
 	var density: float = float(total_merchant_rooms) / float(maxi(1, total_eligible_rooms))
 	_assert(density > 0.09 and density < 0.18, "Merchant rooms should average a moderate non-combat frequency")
-	_assert(merchant_types.has("blacksmith") and merchant_types.has("arcanist") and merchant_types.has("scavenger"), "Merchant generation should include blacksmith, arcanist, and scavenger rooms")
+	_assert(merchant_types.size() == 1 and merchant_types.has("scavenger"), "Merchant generation should use only the unified Scavenger room")
 	_assert(found_different_signature, "Merchant room placement should vary probabilistically by seed")
 
 func _test_run_map_repeats_depth_sequences() -> void:
@@ -8518,7 +8497,7 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	_assert(not ProgressionStore.umbra_warning_is_due(seen_progression, next_run_index + 1), "The Umbra warning should never repeat after it has been seen")
 	var post_warning_dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {"run_index": next_run_index + 1}, seen_progression)
 	_assert(str(((post_warning_dialogue.get("lines", []) as Array)[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Later runs should return to the Emaciated Man's default dialogue")
-	for merchant_id: String in ["blacksmith", "arcanist", "scavenger"]:
+	for merchant_id: String in ["scavenger"]:
 		var merchant_dialogue: Dictionary = dialogue_engine.build_room_dialogue({
 			"coord": Vector2i(2, 1),
 			"npcs": [{"id": merchant_id}]
@@ -12450,34 +12429,34 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	for widget: CardWidget in _card_widgets_under(equipment_tooltip):
 		_assert(widget.size.x > 0.0 and absf((widget.size.y / widget.size.x) - (352.0 / 250.0)) < 0.01, "Equipment tooltip card previews should preserve the real card aspect ratio")
 	equipment_tooltip.queue_free()
-	var merchant_equipment_row: Control = instance.call("_build_merchant_item_row", "blacksmith", "iron_cleaver", false) as Control
+	var merchant_equipment_row: Control = instance.call("_build_merchant_item_row", "scavenger", "iron_cleaver", false) as Control
 	if merchant_equipment_row != null:
 		root.add_child(merchant_equipment_row)
 	await process_frame
-	_assert(merchant_equipment_row != null and merchant_equipment_row.tooltip_text == "equipment:iron_cleaver", "Blacksmith merchant rows should reuse the equipment tooltip trigger")
+	_assert(merchant_equipment_row != null and merchant_equipment_row.tooltip_text == "equipment:iron_cleaver", "Scavenger Gear should reuse the equipment tooltip trigger")
 	var merchant_equipment_tooltip: Control = merchant_equipment_row.call("_make_custom_tooltip", merchant_equipment_row.tooltip_text) as Control if merchant_equipment_row != null else null
 	if merchant_equipment_tooltip != null:
 		root.add_child(merchant_equipment_tooltip)
 		await process_frame
-	_assert(_card_widget_count_under(merchant_equipment_tooltip) == GameData.equipment_cards("iron_cleaver").size(), "Blacksmith merchant hover should show real CardWidget previews for every granted equipment card")
+	_assert(_card_widget_count_under(merchant_equipment_tooltip) == GameData.equipment_cards("iron_cleaver").size(), "Scavenger Gear hover should show real CardWidget previews for every granted equipment card")
 	if merchant_equipment_tooltip != null:
 		merchant_equipment_tooltip.queue_free()
 	if merchant_equipment_row != null:
 		merchant_equipment_row.queue_free()
-	var merchant_magic_row: Control = instance.call("_build_merchant_item_row", "arcanist", "spark_dart", false) as Control
+	var merchant_magic_row: Control = instance.call("_build_merchant_item_row", "scavenger", "spark_dart", false) as Control
 	if merchant_magic_row != null:
 		root.add_child(merchant_magic_row)
 		merchant_magic_row.position = Vector2(120.0, 180.0)
 		merchant_magic_row.size = Vector2(520.0, 72.0)
 	await process_frame
-	_assert(merchant_magic_row != null and merchant_magic_row.tooltip_text == "card:spark_dart", "Arcanist merchant rows should reuse the card tooltip trigger")
+	_assert(merchant_magic_row != null and merchant_magic_row.tooltip_text == "card:spark_dart", "Scavenger Magic should reuse the card tooltip trigger")
 	var merchant_magic_tooltip: Control = merchant_magic_row.call("_make_custom_tooltip", merchant_magic_row.tooltip_text) as Control if merchant_magic_row != null else null
 	if merchant_magic_tooltip != null:
 		root.add_child(merchant_magic_tooltip)
 		await process_frame
-		_assert(_card_widget_count_under(merchant_magic_tooltip) == 1, "Arcanist merchant hover should show a real CardWidget preview")
+		_assert(_card_widget_count_under(merchant_magic_tooltip) == 1, "Scavenger Magic hover should show a real CardWidget preview")
 	else:
-		_failures.append("Arcanist merchant hover should show a real CardWidget preview")
+		_failures.append("Scavenger Magic hover should show a real CardWidget preview")
 	if merchant_magic_tooltip != null:
 		merchant_magic_tooltip.queue_free()
 	var merchant_item_row: Control = instance.call("_build_merchant_item_row", "scavenger", "crimson_draught", false) as Control
@@ -12503,7 +12482,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		mouse_motion.global_position = mouse_motion.position
 		Input.parse_input_event(mouse_motion)
 		await process_frame
-		instance.call("_on_merchant_row_mouse_entered", "arcanist", "spark_dart", merchant_magic_row)
+		instance.call("_on_merchant_row_mouse_entered", "scavenger", "spark_dart", merchant_magic_row)
 		var tooltip_text_before_pin: String = merchant_magic_row.tooltip_text
 		var tooltip_mouse_anchor: Vector2 = instance.call("_current_mouse_position")
 		_assert(tooltip_mouse_anchor.y > 40.0, "Pinned merchant tooltip test should use a non-clamped mouse anchor")
@@ -12522,12 +12501,12 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 			var viewport_size: Vector2 = instance.get_viewport_rect().size
 			expected_pin_position.x = clampf(expected_pin_position.x, 10.0, maxf(10.0, viewport_size.x - pinned_panel.size.x - 10.0))
 			expected_pin_position.y = clampf(expected_pin_position.y, 10.0, maxf(10.0, viewport_size.y - pinned_panel.size.y - 10.0))
-			_assert(_card_widget_count_under(pinned_panel) == 1, "Pinned arcanist tooltip should keep the card preview focused")
+			_assert(_card_widget_count_under(pinned_panel) == 1, "Pinned Scavenger Magic tooltip should keep the card preview focused")
 			_assert(pinned_panel.global_position.distance_to(expected_pin_position) < 3.0, "Pinned merchant tooltip should stay where the hover preview appeared instead of jumping to a side panel")
 			for widget: CardWidget in _card_widgets_under(pinned_panel):
 				_assert(widget.mouse_filter == Control.MOUSE_FILTER_STOP, "Pinned merchant card previews should route hover to the real card widget for nested icon tooltips")
 		else:
-			_failures.append("Pinned arcanist tooltip should keep the card preview focused")
+			_failures.append("Pinned Scavenger Magic tooltip should keep the card preview focused")
 		var close_shift_event := InputEventKey.new()
 		close_shift_event.keycode = KEY_SHIFT
 		close_shift_event.physical_keycode = KEY_SHIFT
@@ -12537,7 +12516,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		_assert(pinned_scrim != null and not pinned_scrim.visible, "Pressing Shift again should close a pinned merchant tooltip")
 		_assert(merchant_magic_row.tooltip_text == tooltip_text_before_pin, "Closing a pinned merchant tooltip should restore the row's normal hover tooltip")
 		merchant_magic_row.queue_free()
-	_assert(str(instance.call("_merchant_item_detail", "blacksmith", "crown_of_thorns")) == "Trinket | Legendary", "Blacksmith merchant details should spell out Legendary")
+	_assert(str(instance.call("_merchant_item_detail", "scavenger", "crown_of_thorns")) == "Trinket | Legendary", "Scavenger Gear details should spell out Legendary")
 	var card_tooltip: Control = instance.call("_build_card_tooltip_panel", "cleaver_hook") as Control
 	root.add_child(card_tooltip)
 	await process_frame
@@ -12693,9 +12672,9 @@ func _test_run_scene_logs_local_analytics() -> void:
 	merchant_rooms["2,1"] = {
 		"coord": Vector2i(2, 1),
 		"depth": 2,
-		"type": "blacksmith",
-		"merchant_kind": "blacksmith",
-		"npcs": [{"id": "blacksmith", "pos": Vector2i(3, 4)}],
+		"type": "scavenger",
+		"merchant_kind": "scavenger",
+		"npcs": [{"id": "scavenger", "pos": Vector2i(3, 4)}],
 		"connections": [],
 		"revealed": true,
 		"visited": true,
@@ -12706,7 +12685,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	merchant_run_state["combat_state"] = {}
 	instance.set("_run_state", merchant_run_state)
 	_set_run_scene_combat_state_for_test(instance, {})
-	instance.call("_on_merchant_sell_pressed", "blacksmith", "ward_kite")
+	instance.call("_on_merchant_sell_pressed", "scavenger", "ward_kite")
 	await process_frame
 	var item_event_state: Dictionary = instance.get("_run_state")
 	item_event_state["equipped_items"] = ["crimson_draught"]
@@ -12759,7 +12738,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	var merchant_event: Dictionary = merchant_events[merchant_events.size() - 1]
 	var merchant_payload: Dictionary = merchant_event.get("payload", {})
 	_assert(str(merchant_payload.get("action", "")) == "sell", "Merchant analytics should record trade action")
-	_assert(str(merchant_payload.get("merchant_kind", "")) == "blacksmith", "Merchant analytics should record merchant kind")
+	_assert(str(merchant_payload.get("merchant_kind", "")) == "scavenger", "Merchant analytics should record the unified Scavenger kind")
 	_assert(merchant_payload.has("equipped_items") and merchant_payload.has("item_inventory"), "Merchant analytics should include item inventory context")
 	var item_payload: Dictionary = (item_events[item_events.size() - 1] as Dictionary).get("payload", {})
 	_assert(str(item_payload.get("action", "")) == "equip", "Item analytics should record loadout action")

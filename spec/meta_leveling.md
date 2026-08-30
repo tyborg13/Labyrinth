@@ -166,7 +166,7 @@ without filling deliberately unspent points.
 | Curator's Patience | Quick Wits + Deferred Choice | After choosing a relic, save one unchosen relic for the next relic offer. |
 | Living Shadow | Pain Remembers + Afterimage | Once between the player's activations, a destroyed or dispelled illusion returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
 | True Bearing | Sure-Footed + Discerning Eye | Before combat, choose an open starting tile within `2` tiles of the entrance. |
-| Layaway | Measured Breath + Deferred Choice | Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns. |
+| Layaway | Measured Breath + Deferred Choice | Once between bosses, hold one ware for the next Scavenger visit. A pending hold blocks future uses until it returns. |
 
 ### Keystones
 

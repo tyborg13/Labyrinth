@@ -14,6 +14,7 @@ const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
+const ScavengerShopViewScript = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -1700,6 +1701,7 @@ var _relic_choice_title_effect: RelicChoiceTitleEffect
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
+var _scavenger_shop_view: ScavengerShopView
 var _post_combat_victory_overlay: Control
 var _reward_intro_suppressed: bool = false
 var _reward_reveal_pending: bool = false
@@ -1975,6 +1977,10 @@ func _input(event: InputEvent) -> void:
 			_advance_dialogue()
 			get_viewport().set_input_as_handled()
 		return
+	if _scavenger_shop_view != null and _scavenger_shop_view.visible and event.is_action_pressed("ui_cancel"):
+		_on_merchant_hide_pressed()
+		get_viewport().set_input_as_handled()
+		return
 	if _skill_choice_scrim != null and _skill_choice_scrim.visible:
 		if event.is_action_pressed("ui_cancel"):
 			_close_skill_choice_dialog()
@@ -2166,6 +2172,9 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		if event.is_action_pressed(InputRouterScript.ACTION_HAND_NEXT):
 			_controller_switch_character_tab(1)
 			return true
+	if _scavenger_shop_view != null and _scavenger_shop_view.visible and event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+		_on_merchant_hide_pressed()
+		return true
 	if _controller_uses_gui_focus():
 		_controller_clear_board_focus()
 		call_deferred("_recover_controller_focus")
@@ -2979,6 +2988,8 @@ func _refresh_controller_modal_after_layout() -> void:
 		_restore_controller_loadout_tooltip_for_focus_owner()
 
 func _controller_focus_scope() -> Control:
+	if _scavenger_shop_view != null and _scavenger_shop_view.visible:
+		return _scavenger_shop_view
 	for control: Control in [
 		_skill_choice_scrim,
 		_skill_status_scrim,
@@ -3121,10 +3132,10 @@ func _refresh_controller_prompts() -> void:
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
-	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _relic_choice_overlay != null and _relic_choice_overlay.visible:
+	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _scavenger_shop_view != null and _scavenger_shop_view.visible:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Trade"},
-			{"action": InputRouterScript.ACTION_CANCEL, "label": "Hide Shop"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Leave"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
 	elif (
@@ -5826,6 +5837,7 @@ func _build_context_choice_overlay() -> void:
 	margin.add_child(_context_choice_bar)
 	_layout_context_choice_overlay()
 	_build_relic_choice_overlay(stage_root)
+	_build_scavenger_shop_overlay(stage_root)
 	_build_run_end_recap(stage_root)
 	_post_combat_victory_overlay = PostCombatRewardSequence.build_victory_overlay(stage_root)
 
@@ -5910,6 +5922,22 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_bar.add_theme_constant_override("separation", 28)
 	_relic_choice_host.add_child(_relic_choice_bar)
 	_layout_relic_choice_overlay()
+
+func _build_scavenger_shop_overlay(stage: Control) -> void:
+	_scavenger_shop_view = ScavengerShopViewScript.new()
+	_scavenger_shop_view.name = "ScavengerShopView"
+	_scavenger_shop_view.visible = false
+	_scavenger_shop_view.z_index = 122
+	_scavenger_shop_view.z_as_relative = false
+	_scavenger_shop_view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var shop_host: Control = ui_root if ui_root != null else stage
+	shop_host.add_child(_scavenger_shop_view)
+	_scavenger_shop_view.buy_requested.connect(_on_scavenger_buy_requested)
+	_scavenger_shop_view.sell_requested.connect(_on_scavenger_sell_requested)
+	_scavenger_shop_view.reserve_requested.connect(_on_merchant_layaway_pressed)
+	_scavenger_shop_view.leave_requested.connect(_on_merchant_hide_pressed)
+	_scavenger_shop_view.item_hovered.connect(_on_merchant_row_mouse_entered)
+	_scavenger_shop_view.item_unhovered.connect(_on_merchant_row_mouse_exited)
 
 func _layout_relic_choice_overlay() -> void:
 	if _relic_choice_overlay == null:
@@ -13033,6 +13061,8 @@ func _refresh_card_preview_visibility() -> void:
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 
 func _refresh_choice_bar() -> void:
+	if _scavenger_shop_view != null:
+		_scavenger_shop_view.dismiss_immediately()
 	_clear_children(choice_bar)
 	if _choice_button_overlay != null:
 		_clear_children_now(_choice_button_overlay)
@@ -13057,8 +13087,8 @@ func _refresh_choice_bar() -> void:
 			var merchant_kind: String = _current_room_merchant_kind()
 			if not merchant_kind.is_empty():
 				if _merchant_shop_open:
-					_set_relic_choice_title(_merchant_title_text(merchant_kind))
-					_add_merchant_trade_panel(merchant_kind)
+					_scavenger_shop_view.configure(_run_state, _run_engine, _reduced_motion_enabled())
+					_scavenger_shop_view.present()
 				else:
 					_add_merchant_return_to_shop_button()
 		"campfire":
@@ -14699,7 +14729,7 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	var item_accent: Color = _merchant_item_accent(merchant_kind, item_id)
 	var affordable: bool = selling or _run_engine.held_embers(_run_state) >= _run_engine.merchant_buy_cost(merchant_kind, item_id)
 	var row: TooltipPanelContainer = null
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		var equipment_row := EquipmentTooltipPanelContainer.new()
 		equipment_row.equipment_id = item_id
 		equipment_row.host = self
@@ -14837,18 +14867,19 @@ func _merchant_price_chip(text: String, accent: Color, selling: bool, enabled: b
 	return chip
 
 func _merchant_item_name(merchant_kind: String, item_id: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return str(GameData.equipment_def(item_id).get("name", item_id))
 	return str(GameData.card_def(item_id).get("name", item_id))
 
 func _merchant_item_detail(merchant_kind: String, item_id: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	var item_kind: String = _run_engine.merchant_item_kind(item_id)
+	if item_kind == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return "%s | %s" % [
 			_equipment_slot_label(GameData.equipment_slot(item_id)),
 			_equipment_rarity_label(GameData.equipment_rarity(item_id))
 		]
 	var card: Dictionary = GameData.card_def(item_id)
-	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER:
+	if item_kind == RunEngineScript.MERCHANT_ITEM_KIND_ITEM:
 		return "Item | %s" % _equipment_rarity_label(str(card.get("rarity", "common")))
 	var element_name: String = ElementData.name(GameData.card_element(item_id))
 	if element_name.is_empty():
@@ -14857,7 +14888,7 @@ func _merchant_item_detail(merchant_kind: String, item_id: String) -> String:
 
 func _merchant_item_tooltip(merchant_kind: String, item_id: String) -> String:
 	var lines: Array = [_merchant_item_name(merchant_kind, item_id), _merchant_item_detail(merchant_kind, item_id)]
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		for card_id_var: Variant in GameData.equipment_cards(item_id):
 			lines.append(str(GameData.card_def(str(card_id_var)).get("name", card_id_var)))
 	else:
@@ -14865,12 +14896,15 @@ func _merchant_item_tooltip(merchant_kind: String, item_id: String) -> String:
 	return "\n".join(lines)
 
 func _merchant_item_icon_path(merchant_kind: String, item_id: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	var item_kind: String = _run_engine.merchant_item_kind(item_id)
+	if item_kind == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return str(GameData.equipment_def(item_id).get("icon_path", ""))
+	if item_kind == RunEngineScript.MERCHANT_ITEM_KIND_ITEM:
+		return GameData.item_icon_path(item_id)
 	return str(GameData.card_def(item_id).get("art_path", ElementData.icon_path(GameData.card_element(item_id))))
 
 func _merchant_item_accent(merchant_kind: String, item_id: String) -> Color:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return Color(GameData.equipment_accent(item_id))
 	return _item_card_accent(item_id)
 
@@ -16224,20 +16258,6 @@ func _stage_chrome_presentation() -> Dictionary:
 				"tile": Vector2i(4, 4),
 				"width_scale": 0.68,
 				"baseline_scale": 0.44,
-			}]
-		"blacksmith":
-			result["scene_props"] = [{
-				"kind": "blacksmith_forge",
-				"tile": Vector2i(5, 4),
-				"width_scale": 1.04,
-				"baseline_scale": 0.50,
-			}]
-		"arcanist":
-			result["scene_props"] = [{
-				"kind": "arcanist_table",
-				"tile": Vector2i(5, 4),
-				"width_scale": 1.06,
-				"baseline_scale": 0.50,
 			}]
 		"scavenger":
 			result["scene_props"] = [{
@@ -22690,6 +22710,9 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 	_refresh_ui()
 	_merchant_trade_animation_active = false
 
+func _on_scavenger_buy_requested(item_id: String, source: Control) -> void:
+	await _on_merchant_buy_pressed(RunEngineScript.MERCHANT_SCAVENGER, item_id, source)
+
 func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_row: Control = null) -> void:
 	if _merchant_trade_animation_active:
 		return
@@ -22713,6 +22736,9 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, false)
 	_refresh_ui()
 	_merchant_trade_animation_active = false
+
+func _on_scavenger_sell_requested(item_id: String, source: Control) -> void:
+	await _on_merchant_sell_pressed(RunEngineScript.MERCHANT_SCAVENGER, item_id, source)
 
 func _animate_merchant_trade_row(source_row: Control, merchant_kind: String, item_id: String, buying: bool) -> void:
 	if not _node_is_alive(source_row):
@@ -26428,7 +26454,7 @@ func _pulse_magic_tile(source_kind: String, index: int) -> void:
 	tween.tween_property(tile, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _build_merchant_item_tooltip_panel(merchant_kind: String, item_id: String, interactive: bool = false) -> Control:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return _build_equipment_tooltip_panel(item_id, interactive)
 	return _build_card_tooltip_panel(item_id, interactive)
 
@@ -27566,7 +27592,7 @@ func _analytics_log_merchant_trade(action: String, merchant_kind: String, item_i
 		"action": action,
 		"merchant_kind": merchant_kind,
 		"item_id": item_id,
-		"item_kind": _analytics_merchant_item_kind(merchant_kind),
+		"item_kind": _analytics_merchant_item_kind(item_id),
 		"amount": amount,
 		"held_embers_before": held_embers_before,
 		"held_embers_after": held_embers_after,
@@ -27582,12 +27608,11 @@ func _analytics_log_merchant_trade(action: String, merchant_kind: String, item_i
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true)
 	})
 
-func _analytics_merchant_item_kind(merchant_kind: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+func _analytics_merchant_item_kind(item_id: String) -> String:
+	var kind: String = _run_engine.merchant_item_kind(item_id)
+	if kind == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return "equipment"
-	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER:
-		return "item"
-	return "magic"
+	return kind
 
 func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: String, transition_combat_state: Dictionary = {}) -> void:
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))

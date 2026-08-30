@@ -186,26 +186,38 @@ static func _test_layaway(expect: Callable) -> void:
 	var state: Dictionary = _new_run(engine, ["layaway"])
 	var origin := Vector2i(3, 0)
 	var destination := Vector2i(3, 1)
-	state = _with_room(state, origin, "blacksmith", true, ["stitcher_apron", "rimeplate_harness", "sunken_anchor"])
-	state = _with_room(state, destination, "blacksmith", false, ["witchglass_aegis", "sunken_anchor", "rimeplate_harness"])
+	state = _with_room(state, origin, "scavenger", true, [
+		"rime_shard", "static_lash", "gust_step",
+		"stitcher_apron", "rimeplate_harness", "sunken_anchor",
+		"crimson_draught", "nail_bomb", "jaw_trap",
+	])
+	state = _with_room(state, destination, "scavenger", false, [
+		"frostbolt", "spark_dart", "dawnstep",
+		"witchglass_aegis", "sunken_anchor", "rimeplate_harness",
+		"smoke_bomb", "storm_jar", "mossglass_elixir",
+	])
 	state["current_room"] = origin
 	state["mode"] = "room"
 	var reserved: Dictionary = engine.reserve_merchant_offer(state, "stitcher_apron")
 	expect.call(engine.run_skill_used_this_sequence(reserved, "layaway"), "Layaway should spend its sequence use when an offer is held")
-	expect.call(not engine.merchant_offer_ids(reserved, "blacksmith").has("stitcher_apron"), "A held offer should leave the current merchant stock")
+	expect.call(not engine.merchant_offer_ids(reserved, "scavenger").has("stitcher_apron"), "A held offer should leave the current Scavenger stock")
 	var rollover_coord := Vector2i(5, 0)
-	var rollover: Dictionary = _with_room(reserved, rollover_coord, "arcanist", true, ["rime_shard", "static_lash", "gust_step"])
+	var rollover: Dictionary = _with_room(reserved, rollover_coord, "scavenger", true, [
+		"rime_shard", "static_lash", "gust_step",
+		"iron_cleaver", "ward_kite", "boiled_leather",
+		"crimson_draught", "nail_bomb", "jaw_trap",
+	])
 	rollover["current_room"] = rollover_coord
 	rollover["mode"] = "room"
 	expect.call(not engine.run_skill_is_ready(rollover, "layaway"), "A sequence refresh should not reopen Layaway while its prior reservation is pending")
 	var overwrite_attempt: Dictionary = engine.reserve_merchant_offer(rollover, "rime_shard")
 	var pending_reservation: Dictionary = (overwrite_attempt.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) as Dictionary
 	expect.call(str(pending_reservation.get("item_id", "")) == "stitcher_apron", "A new merchant must not overwrite the unresolved Layaway reservation")
-	expect.call(engine.merchant_offer_ids(overwrite_attempt, "arcanist").has("rime_shard"), "A blocked second hold should leave the new merchant's stock unchanged")
+	expect.call(engine.merchant_offer_ids(overwrite_attempt, "scavenger").has("rime_shard"), "A blocked second hold should leave the new Scavenger's stock unchanged")
 	var arrived: Dictionary = engine.move_to_room(reserved, destination)
-	var destination_stock: Array = engine.merchant_offer_ids(arrived, "blacksmith")
+	var destination_stock: Array = engine.merchant_offer_ids(arrived, "scavenger")
 	expect.call(arrived.get("current_room", Vector2i.ZERO) == destination, "The deterministic merchant fixture should permit travel to the next visit")
-	expect.call(not destination_stock.is_empty() and str(destination_stock[0]) == "stitcher_apron", "Layaway should return the held offer at the next merchant of the same kind")
+	expect.call(destination_stock.has("stitcher_apron"), "Layaway should return the held offer at the next Scavenger visit")
 	expect.call((arrived.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) == {}, "The reservation should clear after it returns")
 
 static func _test_curators_patience(expect: Callable) -> void:
@@ -350,7 +362,7 @@ static func _test_reset_preserves_spent_state_and_earned_pending(expect: Callabl
 		"used_by_sequence": {"0:discerning_eye": true, "0:layaway": true},
 		"pending_card": "rime_shard",
 		"pending_relic": "flint_edge",
-		"reserved_merchant": {"kind": "blacksmith", "item_id": "stitcher_apron", "origin_coord": Vector2i(3, 0)},
+		"reserved_merchant": {"kind": "scavenger", "item_id": "stitcher_apron", "origin_coord": Vector2i(3, 0)},
 		"previous_room": Vector2i.ZERO,
 		"moltshard_awarded": false
 	}
@@ -396,13 +408,21 @@ static func _test_reset_preserves_spent_state_and_earned_pending(expect: Callabl
 		relic_redemption = engine.claim_relic(relic_redemption, chosen_relic, other_relic)
 	expect.call(str((relic_redemption.get("skill_state", {}) as Dictionary).get("pending_relic", "")) == "", "Without Curator's Patience, the redeemed offer must not create a new pending relic")
 
-	var merchant_redemption: Dictionary = _with_room(updated, origin, "blacksmith", true, ["sunken_anchor", "rimeplate_harness"])
-	merchant_redemption = _with_room(merchant_redemption, destination, "blacksmith", false, ["witchglass_aegis", "sunken_anchor", "rimeplate_harness"])
+	var merchant_redemption: Dictionary = _with_room(updated, origin, "scavenger", true, [
+		"rime_shard", "static_lash", "gust_step",
+		"sunken_anchor", "rimeplate_harness",
+		"crimson_draught", "nail_bomb", "jaw_trap",
+	])
+	merchant_redemption = _with_room(merchant_redemption, destination, "scavenger", false, [
+		"frostbolt", "spark_dart", "dawnstep",
+		"witchglass_aegis", "sunken_anchor", "rimeplate_harness",
+		"smoke_bomb", "storm_jar", "mossglass_elixir",
+	])
 	merchant_redemption["current_room"] = origin
 	merchant_redemption["mode"] = "room"
 	merchant_redemption = engine.move_to_room(merchant_redemption, destination)
-	var returned_stock: Array = engine.merchant_offer_ids(merchant_redemption, "blacksmith")
-	expect.call(not returned_stock.is_empty() and str(returned_stock[0]) == "stitcher_apron", "Earned Layaway stock should return once after its source skill is removed")
+	var returned_stock: Array = engine.merchant_offer_ids(merchant_redemption, "scavenger")
+	expect.call(returned_stock.has("stitcher_apron"), "Earned Layaway stock should return once after its source skill is removed")
 	expect.call((merchant_redemption.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) == {}, "The removed-skill reservation should clear after returning")
 	var attempted_hold: Dictionary = engine.reserve_merchant_offer(merchant_redemption, str(returned_stock[0]) if not returned_stock.is_empty() else "")
 	expect.call((attempted_hold.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) == {}, "Without Layaway, a merchant visit must not create a new reservation")

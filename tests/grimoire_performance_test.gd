@@ -84,13 +84,10 @@ func _stress_run_state(combat_state: Dictionary) -> Dictionary:
 	var equipment_ids: Array = GameData.equipment_ids()
 	var rooms: Dictionary = {
 		"4,3": {
-			"type": "merchant",
+			"type": "scavenger",
+			"merchant_kind": "scavenger",
 			"merchant_stock": card_ids.slice(0, mini(24, card_ids.size())),
-			"npcs": [
-				{"id": "arcanist"},
-				{"id": "blacksmith"},
-				{"id": "scavenger"}
-			]
+			"npcs": [{"id": "scavenger"}]
 		}
 	}
 	return {
@@ -195,7 +192,7 @@ func _test_public_copy_isolation() -> void:
 	_expect(GrimoireLibrary.entry_ids_for_enemy_types(["crawler"]) == canonical_enemy_entry_ids, "enemy candidate lookup leaked its cached array")
 
 	var source_state: Dictionary = {
-		"rooms": {"0,0": {"npcs": [{"id": "blacksmith"}]}},
+		"rooms": {"0,0": {"npcs": [{"id": "scavenger"}]}},
 		"current_room": Vector2i.ZERO,
 		"deck_cards": ["spark_dart"],
 		"progression": {
