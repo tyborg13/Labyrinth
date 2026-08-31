@@ -25,58 +25,16 @@ const BUTTON_MIN_WIDTH: float = 314.0
 const NEW_BEST_COLOR: Color = Color("72c78c")
 const DEFEAT_KICKER_COLOR: Color = Color("b98cff")
 const DEFEAT_VALUE_COLOR: Color = Color("f1dcc3")
-const LAST_LIGHT_TITLE_PATH: String = "res://assets/art/ui/run_end_last_light_title.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const DEFEAT_WINDOW_CENTER_NORMALIZED: Vector2 = Vector2(0.325, 0.470)
 const DEFEAT_METRIC_POSITIONS: Array[Vector2] = [
-	Vector2(812.0, 292.0),
-	Vector2(872.0, 352.0),
-	Vector2(916.0, 412.0),
+	Vector2(872.0, 292.0),
+	Vector2(902.0, 352.0),
+	Vector2(924.0, 412.0),
 	Vector2(932.0, 472.0),
-	Vector2(908.0, 532.0),
-	Vector2(856.0, 592.0),
+	Vector2(920.0, 532.0),
+	Vector2(894.0, 592.0),
 ]
-const TITLE_KEY_SHADER_CODE: String = """
-shader_type canvas_item;
-render_mode unshaded;
-
-void fragment() {
-	vec4 source = texture(TEXTURE, UV);
-	float luminance = dot(source.rgb, vec3(0.2126, 0.7152, 0.0722));
-	float alpha = smoothstep(0.035, 0.20, 1.0 - luminance);
-	vec3 cooled = mix(source.rgb * vec3(0.78, 0.80, 0.86), source.rgb, 0.68);
-	COLOR = vec4(cooled, alpha);
-}
-"""
-const TITLE_GLOW_SHADER_CODE: String = """
-shader_type canvas_item;
-render_mode unshaded, blend_add;
-
-uniform sampler2D title_texture : source_color, filter_linear;
-
-float keyed_alpha(vec2 uv) {
-	vec3 source = texture(title_texture, clamp(uv, vec2(0.0), vec2(1.0))).rgb;
-	float luminance = dot(source, vec3(0.2126, 0.7152, 0.0722));
-	return smoothstep(0.035, 0.20, 1.0 - luminance);
-}
-
-void fragment() {
-	float center = keyed_alpha(UV);
-	vec2 near_x = vec2(0.0075, 0.0);
-	vec2 near_y = vec2(0.0, 0.0225);
-	vec2 far_x = vec2(0.0140, 0.0);
-	vec2 far_y = vec2(0.0, 0.0420);
-	float near_halo = max(max(keyed_alpha(UV + near_x), keyed_alpha(UV - near_x)), max(keyed_alpha(UV + near_y), keyed_alpha(UV - near_y)));
-	near_halo = max(near_halo, max(max(keyed_alpha(UV + vec2(0.0055, 0.0165)), keyed_alpha(UV - vec2(0.0055, 0.0165))), max(keyed_alpha(UV + vec2(0.0055, -0.0165)), keyed_alpha(UV - vec2(0.0055, -0.0165)))));
-	float far_halo = max(max(keyed_alpha(UV + far_x), keyed_alpha(UV - far_x)), max(keyed_alpha(UV + far_y), keyed_alpha(UV - far_y)));
-	far_halo = max(far_halo, max(max(keyed_alpha(UV + vec2(0.0100, 0.0300)), keyed_alpha(UV - vec2(0.0100, 0.0300))), max(keyed_alpha(UV + vec2(0.0100, -0.0300)), keyed_alpha(UV - vec2(0.0100, -0.0300)))));
-	float close_glow = max(0.0, near_halo - center);
-	float outer_glow = max(0.0, far_halo - near_halo);
-	float halo = close_glow * 0.22 + outer_glow * 0.12;
-	vec3 umbra_glow = mix(vec3(0.34, 0.18, 0.52), vec3(0.76, 0.53, 1.0), close_glow);
-	COLOR = vec4(umbra_glow, halo);
-}
-"""
 const STAT_SPECS := [
 	{"id": "enemies_killed", "label": "ENEMIES KILLED"},
 	{"id": "damage_dealt", "label": "DAMAGE DEALT"},
@@ -107,9 +65,7 @@ var _victory_recovery_value: Label
 
 var _defeat_layout: Control
 var _defeat_kicker: Label
-var _defeat_title_glow: TextureRect
-var _defeat_title_raster: TextureRect
-var _defeat_accessibility_title: Label
+var _defeat_title: Label
 var _defeat_metrics: Control
 var _defeat_metric_rows: Dictionary = {}
 var _defeat_stat_values: Dictionary = {}
@@ -408,30 +364,16 @@ func _build_defeat_layout() -> void:
 	_defeat_kicker.add_theme_constant_override("outline_size", 3)
 	_defeat_layout.add_child(_defeat_kicker)
 
-	_defeat_title_glow = TextureRect.new()
-	_defeat_title_glow.name = "DefeatTitleGlow"
-	_defeat_title_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_defeat_title_glow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	_defeat_title_glow.texture = AssetLoader.load_texture_source_first(LAST_LIGHT_TITLE_PATH)
-	_defeat_title_glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_defeat_title_glow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_defeat_title_glow.material = _title_glow_material()
-	_defeat_layout.add_child(_defeat_title_glow)
-
-	_defeat_title_raster = TextureRect.new()
-	_defeat_title_raster.name = "DefeatTitleRaster"
-	_defeat_title_raster.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_defeat_title_raster.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	_defeat_title_raster.texture = AssetLoader.load_texture_source_first(LAST_LIGHT_TITLE_PATH)
-	_defeat_title_raster.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_defeat_title_raster.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_defeat_title_raster.material = _title_key_material()
-	_defeat_layout.add_child(_defeat_title_raster)
-
-	_defeat_accessibility_title = _label("OutcomeTitle", 18, HORIZONTAL_ALIGNMENT_LEFT)
-	_defeat_accessibility_title.modulate = Color(1.0, 1.0, 1.0, 0.0)
-	_defeat_accessibility_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_defeat_layout.add_child(_defeat_accessibility_title)
+	_defeat_title = _label("OutcomeTitle", 126, HORIZONTAL_ALIGNMENT_CENTER)
+	_defeat_title.add_theme_font_override("font", DISPLAY_FONT)
+	_defeat_title.add_theme_color_override("font_color", Color("c9c4c5"))
+	_defeat_title.add_theme_color_override("font_outline_color", Color("211827"))
+	_defeat_title.add_theme_color_override("font_shadow_color", Color(0.56, 0.34, 0.72, 0.48))
+	_defeat_title.add_theme_constant_override("outline_size", 7)
+	_defeat_title.add_theme_constant_override("shadow_offset_x", 0)
+	_defeat_title.add_theme_constant_override("shadow_offset_y", 3)
+	_defeat_title.add_theme_constant_override("shadow_outline_size", 7)
+	_defeat_layout.add_child(_defeat_title)
 
 	_defeat_metrics = Control.new()
 	_defeat_metrics.name = "DefeatStatLedger"
@@ -547,21 +489,6 @@ func _add_defeat_stat_metric(host: Control, spec: Dictionary) -> void:
 	_defeat_stat_values[stat_id] = value
 	_defeat_stat_bests[stat_id] = best
 
-func _title_key_material() -> ShaderMaterial:
-	var shader := Shader.new()
-	shader.code = TITLE_KEY_SHADER_CODE
-	var material := ShaderMaterial.new()
-	material.shader = shader
-	return material
-
-func _title_glow_material() -> ShaderMaterial:
-	var shader := Shader.new()
-	shader.code = TITLE_GLOW_SHADER_CODE
-	var material := ShaderMaterial.new()
-	material.shader = shader
-	material.set_shader_parameter("title_texture", AssetLoader.load_texture_source_first(LAST_LIGHT_TITLE_PATH))
-	return material
-
 func _label(node_name: String, font_size: int, alignment: HorizontalAlignment) -> Label:
 	var label := Label.new()
 	label.name = node_name
@@ -628,8 +555,8 @@ func _apply_model() -> void:
 	_victory_ember_value.text = str(int(_model.get("ember_amount", 0)))
 	_victory_recovery_value.text = str(_model.get("recovery_status", ""))
 	_defeat_kicker.text = str(_model.get("kicker", ""))
-	_defeat_accessibility_title.text = str(_model.get("title", ""))
-	_defeat_layout.tooltip_text = "%s — %s" % [_defeat_accessibility_title.text, _defeat_kicker.text]
+	_defeat_title.text = str(_model.get("title", ""))
+	_defeat_layout.tooltip_text = "%s — %s" % [_defeat_title.text, _defeat_kicker.text]
 	_defeat_ember_value.text = str(int(_model.get("ember_amount", 0)))
 	_defeat_recovery_value.text = str(_model.get("recovery_status", ""))
 	for stat_id_var: Variant in _victory_stat_values.keys():
@@ -737,14 +664,9 @@ func _update_defeat_layout(progress: float) -> void:
 	_defeat_layout.modulate = Color(1.0, 1.0, 1.0, progress)
 	_defeat_kicker.position = layout_origin + Vector2(1038.0, 62.0) * layout_scale + Vector2(hidden_slide, 0.0)
 	_defeat_kicker.size = Vector2(560.0, 48.0) * layout_scale
-	var title_position: Vector2 = layout_origin + Vector2(908.0, 42.0) * layout_scale + Vector2(hidden_slide, 0.0)
-	var title_size: Vector2 = Vector2(804.0, 268.0) * layout_scale
-	_defeat_title_glow.position = title_position
-	_defeat_title_glow.size = title_size
-	_defeat_title_raster.position = title_position
-	_defeat_title_raster.size = title_size
-	_defeat_accessibility_title.position = _defeat_title_raster.position
-	_defeat_accessibility_title.size = _defeat_title_raster.size
+	_defeat_title.position = layout_origin + Vector2(908.0, 104.0) * layout_scale + Vector2(hidden_slide, 0.0)
+	_defeat_title.size = Vector2(804.0, 160.0)
+	_defeat_title.scale = Vector2.ONE * layout_scale
 	_defeat_metrics.position = Vector2.ZERO
 	_defeat_metrics.size = size
 	for index: int in range(STAT_SPECS.size()):

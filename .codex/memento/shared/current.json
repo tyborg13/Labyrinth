@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-31T16:02:26Z",
+  "updated_at": "2026-08-31T16:27:44Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9650,7 +9650,7 @@
       }
     },
     {
-      "id": "mnt_20260831T160118Z_752c698d",
+      "id": "mnt_20260831T162744Z_8c086f69",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -9659,16 +9659,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_end_recap_overlay.gd",
-      "summary": "Last Light defeat UI should orbit the fixed death-site window rather than read as a straight ledger.",
-      "details": "Curve run stats around the lit window, keep Embers Lost close to the lower arc, use a restrained purple glow on the obsidian RUN ENDED raster, translate the board smoothly so the actual death tile reaches the fixed window, and render ember remains inside that tile's board ground layer\u2014not as screen-space UI.",
+      "summary": "Last Light uses a gentle stat contour and a live Labyrinth Crumble Display title.",
+      "details": "Keep the six run stats curved around the fixed death-site window, but limit their horizontal excursion to roughly 60 px from the outer row to the deepest row at the 1920x1080 authored canvas. Render RUN ENDED as live weight-900 Labyrinth Crumble Display text rather than the former obsidian raster; retain subtle purple separation, nearby Embers Lost, tile-bound ember remains, and board translation under the fixed window.",
       "status": "active",
-      "created_at": "2026-08-31T16:01:18Z",
-      "updated_at": "2026-08-31T16:01:18Z",
+      "created_at": "2026-08-31T16:27:44Z",
+      "updated_at": "2026-08-31T16:27:44Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260831T160118Z_752c698d"
+      ],
       "source": {
         "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
-        "commit": "0df74e5d"
+        "commit": "b7c8d967"
       }
     }
   ]

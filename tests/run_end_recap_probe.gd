@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://run_end_recap_probe_v6"
+const OUTPUT_ROOT: String = "user://run_end_recap_probe_v7"
 
 var _failed: bool = false
 var _resolution: Vector2i = Vector2i(1920, 1080)
@@ -174,12 +174,11 @@ func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
 		_fail("Defeat proof should use the approved Umbra kicker")
 	if not str(model.get("summary", "not empty")).is_empty():
 		_fail("Defeat proof should omit the removed summary tagline")
-	var title_raster: TextureRect = recap.find_child("DefeatTitleRaster", true, false) as TextureRect
-	if title_raster == null or title_raster.texture == null:
-		_fail("Defeat proof should render the obsidian RUN ENDED raster")
-	var title_glow: TextureRect = recap.find_child("DefeatTitleGlow", true, false) as TextureRect
-	if title_glow == null or title_glow.texture == null or not title_glow.material is ShaderMaterial:
-		_fail("Defeat proof should reinforce RUN ENDED with a raster-derived purple glow")
+	var defeat_title: Label = recap.find_child("OutcomeTitle", true, false) as Label
+	if defeat_title == null or defeat_title.text != "RUN ENDED" or defeat_title.get_theme_font("font") != load("res://fonts/LabyrinthCrumble-Display.tres"):
+		_fail("Defeat proof should render RUN ENDED in the standard bold Labyrinth Crumble display face")
+	if recap.find_child("DefeatTitleRaster", true, false) != null or recap.find_child("DefeatTitleGlow", true, false) != null:
+		_fail("Defeat proof should not retain the superseded obsidian title raster")
 	var ledger: Control = recap.find_child("DefeatStatLedger", true, false) as Control
 	if ledger == null or recap.find_child("RunStatGrid", true, false) != null:
 		_fail("Defeat proof should use the unboxed stat ledger, never a default grid")
@@ -201,6 +200,9 @@ func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
 		var last_row: Control = ledger.get_child(5) as Control
 		if not (first_row.position.x < middle_row.position.x and last_row.position.x < middle_row.position.x):
 			_fail("Defeat proof stats should arc around the Last Light contour instead of sharing one left edge")
+		var contour_scale: float = minf(recap.size.x / 1920.0, recap.size.y / 1080.0)
+		if not (is_equal_approx((middle_row.position.x - first_row.position.x) / contour_scale, 60.0) and is_equal_approx((middle_row.position.x - last_row.position.x) / contour_scale, 38.0)):
+			_fail("Defeat proof should halve the prior contour's horizontal excursion")
 		var ember_result: Control = recap.find_child("EmberResult", true, false) as Control
 		if ember_result == null or ember_result.position.y - last_row.position.y >= 90.0:
 			_fail("Defeat proof should pull the separate ember consequence up into the contoured stat composition")

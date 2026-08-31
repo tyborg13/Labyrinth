@@ -8,6 +8,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
 var _failures: Array[String] = []
@@ -285,10 +286,9 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 	_assert(stat_ledger != null and stat_ledger.get_child_count() == 6, "Defeat recap should expose one asymmetric contoured stat narrative")
 	_assert(overlay.find_child("OutcomeSummary", true, false) == null, "Defeat layout should not recreate the removed summary tagline")
 	_assert(overlay.find_child("DefeatCornerTop", true, false) == null and overlay.find_child("RecoveryRailRaster", true, false) == null, "Defeat UI should not repurpose unrelated frame-kit fragments")
-	var title_raster: TextureRect = overlay.find_child("DefeatTitleRaster", true, false) as TextureRect
-	_assert(title_raster != null and title_raster.texture != null and title_raster.material is ShaderMaterial, "RUN ENDED should use the authored obsidian raster treatment")
-	var title_glow: TextureRect = overlay.find_child("DefeatTitleGlow", true, false) as TextureRect
-	_assert(title_glow != null and title_glow.texture == title_raster.texture and title_glow.material is ShaderMaterial, "RUN ENDED should retain its raster source while gaining a restrained purple glow layer")
+	var defeat_title: Label = overlay.find_child("OutcomeTitle", true, false) as Label
+	_assert(defeat_title != null and defeat_title.text == "RUN ENDED" and defeat_title.get_theme_font("font") == DISPLAY_FONT, "RUN ENDED should use the standard bold Labyrinth Crumble display face")
+	_assert(overlay.find_child("DefeatTitleRaster", true, false) == null and overlay.find_child("DefeatTitleGlow", true, false) == null, "RUN ENDED should no longer use the obsidian raster treatment")
 	if stat_ledger != null:
 		var expected_metrics: Array[String] = ["EnemiesKilledMetric", "DamageDealtMetric", "DamageReceivedMetric", "DepthMetric", "RoomsClearedMetric", "BossesDefeatedMetric"]
 		for index: int in range(expected_metrics.size()):
@@ -297,6 +297,8 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 		var middle_row: Control = stat_ledger.get_child(3) as Control
 		var last_row: Control = stat_ledger.get_child(5) as Control
 		_assert(first_row.position.x < middle_row.position.x and last_row.position.x < middle_row.position.x, "Stat origins should arc around the Last Light window instead of sharing one left edge")
+		var contour_scale: float = minf(overlay.size.x / 1920.0, overlay.size.y / 1080.0)
+		_assert(is_equal_approx((middle_row.position.x - first_row.position.x) / contour_scale, 60.0) and is_equal_approx((middle_row.position.x - last_row.position.x) / contour_scale, 38.0), "The stat contour should use approximately half the prior horizontal excursion")
 		var ember_result: Control = overlay.find_child("EmberResult", true, false) as Control
 		_assert(ember_result != null and ember_result.position.y - last_row.position.y < 90.0, "The separate ember consequence should remain visually connected to the stat arc")
 	var kills_best: Label = overlay.find_child("EnemiesKilledBest", true, false) as Label
