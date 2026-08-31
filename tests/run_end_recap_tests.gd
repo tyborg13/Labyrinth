@@ -281,18 +281,24 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 	_assert(not overlay.has_decorative_edge_strokes(), "Defeat presentation must not draw arbitrary red edge strokes or decorative noise")
 	_assert(overlay.find_child("BuildRecap", true, false) == null, "Defeat recap should omit the prose build inventory")
 	_assert(overlay.find_child("RunStatGrid", true, false) == null, "Defeat recap should not regress to a default UI stat grid")
-	var stat_ledger: VBoxContainer = overlay.find_child("DefeatStatLedger", true, false) as VBoxContainer
-	_assert(stat_ledger != null and stat_ledger.get_child_count() == 6, "Defeat recap should expose one asymmetric vertical stat narrative")
+	var stat_ledger: Control = overlay.find_child("DefeatStatLedger", true, false) as Control
+	_assert(stat_ledger != null and stat_ledger.get_child_count() == 6, "Defeat recap should expose one asymmetric contoured stat narrative")
 	_assert(overlay.find_child("OutcomeSummary", true, false) == null, "Defeat layout should not recreate the removed summary tagline")
 	_assert(overlay.find_child("DefeatCornerTop", true, false) == null and overlay.find_child("RecoveryRailRaster", true, false) == null, "Defeat UI should not repurpose unrelated frame-kit fragments")
 	var title_raster: TextureRect = overlay.find_child("DefeatTitleRaster", true, false) as TextureRect
 	_assert(title_raster != null and title_raster.texture != null and title_raster.material is ShaderMaterial, "RUN ENDED should use the authored obsidian raster treatment")
-	var ember_raster: TextureRect = overlay.find_child("DeathSiteEmbers", true, false) as TextureRect
-	_assert(ember_raster != null and ember_raster.texture != null, "Player death should leave a raster ember pile at the death site")
+	var title_glow: TextureRect = overlay.find_child("DefeatTitleGlow", true, false) as TextureRect
+	_assert(title_glow != null and title_glow.texture == title_raster.texture and title_glow.material is ShaderMaterial, "RUN ENDED should retain its raster source while gaining a restrained purple glow layer")
 	if stat_ledger != null:
 		var expected_metrics: Array[String] = ["EnemiesKilledMetric", "DamageDealtMetric", "DamageReceivedMetric", "DepthMetric", "RoomsClearedMetric", "BossesDefeatedMetric"]
 		for index: int in range(expected_metrics.size()):
 			_assert(stat_ledger.get_child(index).name == expected_metrics[index], "Stats should flow in the concept's single vertical reading order")
+		var first_row: Control = stat_ledger.get_child(0) as Control
+		var middle_row: Control = stat_ledger.get_child(3) as Control
+		var last_row: Control = stat_ledger.get_child(5) as Control
+		_assert(first_row.position.x < middle_row.position.x and last_row.position.x < middle_row.position.x, "Stat origins should arc around the Last Light window instead of sharing one left edge")
+		var ember_result: Control = overlay.find_child("EmberResult", true, false) as Control
+		_assert(ember_result != null and ember_result.position.y - last_row.position.y < 90.0, "The separate ember consequence should remain visually connected to the stat arc")
 	var kills_best: Label = overlay.find_child("EnemiesKilledBest", true, false) as Label
 	var received_best: Label = overlay.find_child("DamageReceivedBest", true, false) as Label
 	var kills_heading: Label = overlay.find_child("EnemiesKilledHeading", true, false) as Label
@@ -401,6 +407,7 @@ func _test_run_scene_progression_and_actions() -> void:
 	var defeat_state: Dictionary = _terminal_state(engine, progression, Vector2i(2, 0), "defeat", 41)
 	instance.call("_load_run_state", defeat_state)
 	await process_frame
+	await process_frame
 	recap = instance.get("_run_end_recap") as Control
 	var defeat_model: Dictionary = recap.call("recap_model") if recap != null else {}
 	_assert(int(defeat_model.get("ember_amount", -1)) == 41, "Defeat display should preserve the pre-clear lost amount")
@@ -408,6 +415,27 @@ func _test_run_scene_progression_and_actions() -> void:
 	_assert(int(defeat_stats.get("enemies_killed", -1)) == 7 and int(defeat_stats.get("damage_dealt", -1)) == 620 and int(defeat_stats.get("damage_received", -1)) == 140, "Terminal recap should use the durable cumulative run-stat snapshot")
 	var defeat_new_bests: Array = defeat_model.get("new_bests", []) as Array
 	_assert(defeat_new_bests.has("enemies_killed") and defeat_new_bests.has("damage_dealt") and not defeat_new_bests.has("damage_received"), "Later strict improvements should surface only eligible NEW BEST fields")
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var death_tile: Vector2i = (defeat_state.get("current_room_layout", {}) as Dictionary).get("player_start", Vector2i(-1, -1))
+	var ember_snapshot: Dictionary = board.call("death_site_embers_snapshot") as Dictionary
+	_assert(ember_snapshot.get("tile", Vector2i(-1, -1)) == death_tile and ember_snapshot.get("texture", null) is Texture2D, "Death embers should be raster art owned by the exact terminal board tile")
+	var ember_rect: Rect2 = ember_snapshot.get("rect", Rect2()) as Rect2
+	var ember_tile_center: Vector2 = ember_snapshot.get("tile_center", Vector2.ZERO) as Vector2
+	var ember_tile_width: float = float(ember_snapshot.get("tile_width", 0.0))
+	_assert(ember_rect.size.x <= ember_tile_width * 0.40 and absf(ember_rect.get_center().x - ember_tile_center.x) < ember_tile_width * 0.03, "Death embers should fit the tile footprint instead of floating as a screen-space sticker")
+	var reframe_start: Vector2 = instance.get("_run_end_board_reframe_start") as Vector2
+	var reframe_target: Vector2 = instance.get("_run_end_board_reframe_target") as Vector2
+	_assert(reframe_start.distance_to(reframe_target) > 1.0, "Defeat should author a real board translation toward the fixed Last Light window")
+	instance.call("_seek_run_end_board_reframe", 0.5)
+	_assert(board.position.distance_to(reframe_start.lerp(reframe_target, 0.5)) < 0.01, "Board reframing should interpolate continuously rather than snapping")
+	instance.call("_seek_run_end_board_reframe", 1.0)
+	var settled_board_position: Vector2 = board.position
+	await process_frame
+	await process_frame
+	_assert(board.position.distance_to(settled_board_position) < 0.01, "The completed reframe should remain locked when subsequent UI focus frames render")
+	var fixed_window: Vector2 = recap.call("death_site_normalized") as Vector2
+	var centered_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	_assert(centered_death_site.distance_to(fixed_window) < 0.004, "The translated board should settle with the actual death tile beneath the fixed Last Light window")
 	var committed_defeat: Dictionary = ProgressionStore.load_data()
 	var marker: Dictionary = ProgressionStore.recovery_marker(committed_defeat)
 	_assert(int(committed_defeat.get("embers", -1)) == 0, "Defeat should commit zero carried embers")

@@ -1,13 +1,10 @@
 extends Control
 class_name DeathEngulfOverlay
 
-const AssetLoader = preload("res://scripts/asset_loader.gd")
-
 const ENGULF_SECONDS: float = 1.90
 const FINAL_SHROUD_ALPHA: float = 0.90
 const LIT_CORE_RADIUS: float = 0.105
 const LIT_FADE_RADIUS: float = 0.285
-const EMBER_TEXTURE_PATH: String = "res://assets/art/tiles/dropped_embers.png"
 
 const SHROUD_SHADER_CODE: String = """
 shader_type canvas_item;
@@ -64,7 +61,6 @@ var _playing: bool = false
 var _death_site_normalized: Vector2 = Vector2(0.32, 0.62)
 var _shroud_rect: ColorRect
 var _glow_rect: ColorRect
-var _ember_sprite: TextureRect
 var _shroud_material: ShaderMaterial
 var _glow_material: ShaderMaterial
 
@@ -173,16 +169,6 @@ func _build_layers() -> void:
 	_glow_rect.material = _glow_material
 	add_child(_glow_rect)
 
-	_ember_sprite = TextureRect.new()
-	_ember_sprite.name = "DeathSiteEmbers"
-	_ember_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ember_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_ember_sprite.texture = AssetLoader.load_texture_source_first(EMBER_TEXTURE_PATH)
-	_ember_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_ember_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_ember_sprite.custom_minimum_size = Vector2(92.0, 92.0)
-	add_child(_ember_sprite)
-
 func _shader_material(code: String) -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = code
@@ -191,7 +177,7 @@ func _shader_material(code: String) -> ShaderMaterial:
 	return material
 
 func _update_visuals() -> void:
-	if _shroud_material == null or _glow_material == null or _ember_sprite == null:
+	if _shroud_material == null or _glow_material == null:
 		return
 	var progress: float = engulf_progress()
 	var aspect := Vector2(size.x / maxf(1.0, size.y), 1.0)
@@ -206,13 +192,6 @@ func _update_visuals() -> void:
 	_glow_material.set_shader_parameter("aspect_scale", aspect)
 	_glow_material.set_shader_parameter("glow_alpha", lerpf(0.86, 1.0, _smoothstep(0.0, 0.32, progress)))
 	_glow_material.set_shader_parameter("pulse", pulse)
-	var ember_size: float = clampf(minf(size.x, size.y) * 0.102, 74.0, 112.0)
-	var site: Vector2 = ember_position()
-	_ember_sprite.position = site - Vector2.ONE * ember_size * 0.5 + Vector2(0.0, ember_size * 0.16)
-	_ember_sprite.size = Vector2.ONE * ember_size
-	_ember_sprite.pivot_offset = _ember_sprite.size * 0.5
-	_ember_sprite.scale = Vector2.ONE * (0.96 + pulse * 0.045)
-	_ember_sprite.modulate = Color(1.0, 0.82 + pulse * 0.08, 0.64, 0.96)
 
 func _smoothstep(edge0: float, edge1: float, value: float) -> float:
 	if is_equal_approx(edge0, edge1):

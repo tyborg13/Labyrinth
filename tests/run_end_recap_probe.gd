@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://run_end_recap_probe_v4"
+const OUTPUT_ROOT: String = "user://run_end_recap_probe_v6"
 
 var _failed: bool = false
 var _resolution: Vector2i = Vector2i(1920, 1080)
@@ -52,15 +52,19 @@ func _capture_states() -> void:
 	defeat_state.erase("_probe_terminal_combat_state")
 	await _install_state(instance, defeat_progression, defeat_state)
 	var recap: Control = instance.get("_run_end_recap") as Control
+	instance.call("_seek_run_end_board_reframe", 1.0)
 	_validate_last_light_semantics(instance, recap)
 	if recap != null:
 		recap.call("seek_presentation", 0.0)
+	instance.call("_seek_run_end_board_reframe", 0.0)
 	await _capture("defeat_pre_engulf.png")
 	if recap != null:
 		recap.call("seek_presentation", 0.95)
+	instance.call("_seek_run_end_board_reframe", 0.55)
 	await _capture("defeat_mid_engulf.png")
 	if recap != null:
 		recap.call("seek_presentation", float(recap.call("presentation_duration")))
+	instance.call("_seek_run_end_board_reframe", 1.0)
 	await _capture("defeat_final.png")
 	var main_menu_button: Button = recap.find_child("MainMenuButton", true, false) as Button if recap != null else null
 	if main_menu_button != null:
@@ -70,6 +74,7 @@ func _capture_states() -> void:
 	if recap != null:
 		recap.call("reset")
 		recap.call("set_motion_enabled", false)
+		instance.call("_reset_run_end_board_reframe")
 		instance.call("_show_run_end_recap", "defeat")
 	await create_timer(0.08).timeout
 	await _capture("defeat_reduced_motion_final.png")
@@ -172,6 +177,9 @@ func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
 	var title_raster: TextureRect = recap.find_child("DefeatTitleRaster", true, false) as TextureRect
 	if title_raster == null or title_raster.texture == null:
 		_fail("Defeat proof should render the obsidian RUN ENDED raster")
+	var title_glow: TextureRect = recap.find_child("DefeatTitleGlow", true, false) as TextureRect
+	if title_glow == null or title_glow.texture == null or not title_glow.material is ShaderMaterial:
+		_fail("Defeat proof should reinforce RUN ENDED with a raster-derived purple glow")
 	var ledger: Control = recap.find_child("DefeatStatLedger", true, false) as Control
 	if ledger == null or recap.find_child("RunStatGrid", true, false) != null:
 		_fail("Defeat proof should use the unboxed stat ledger, never a default grid")
@@ -180,13 +188,22 @@ func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
 			_fail("Defeat proof should not repurpose unrelated frame-kit fragments (%s)" % stray_fragment)
 	var stat_ids: Array[String] = ["EnemiesKilled", "DamageDealt", "DamageReceived", "Depth", "RoomsCleared", "BossesDefeated"]
 	if ledger != null and ledger.get_child_count() != stat_ids.size():
-		_fail("Defeat proof should present exactly six direct stat rows in one vertical ledger")
+		_fail("Defeat proof should present exactly six direct stat rows in one contoured narrative")
 	for index: int in range(stat_ids.size()):
 		var stat_id: String = stat_ids[index]
 		if recap.find_child("%sValue" % stat_id, true, false) == null:
 			_fail("Defeat proof is missing the %s stat" % stat_id)
 		if ledger != null and index < ledger.get_child_count() and ledger.get_child(index).name != "%sMetric" % stat_id:
 			_fail("Defeat proof stats should follow the concept's single vertical reading order")
+	if ledger != null and ledger.get_child_count() == stat_ids.size():
+		var first_row: Control = ledger.get_child(0) as Control
+		var middle_row: Control = ledger.get_child(3) as Control
+		var last_row: Control = ledger.get_child(5) as Control
+		if not (first_row.position.x < middle_row.position.x and last_row.position.x < middle_row.position.x):
+			_fail("Defeat proof stats should arc around the Last Light contour instead of sharing one left edge")
+		var ember_result: Control = recap.find_child("EmberResult", true, false) as Control
+		if ember_result == null or ember_result.position.y - last_row.position.y >= 90.0:
+			_fail("Defeat proof should pull the separate ember consequence up into the contoured stat composition")
 	var new_run_button: Button = recap.find_child("NewRunButton", true, false) as Button
 	var main_menu_button: Button = recap.find_child("MainMenuButton", true, false) as Button
 	if new_run_button == null or main_menu_button == null:
@@ -197,17 +214,22 @@ func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
 		var source_aspect: float = 1024.0 / 224.0
 		if absf((new_run_button.size.x + 4.0) / (new_run_button.size.y + 10.0) - source_aspect) >= 0.01 or absf((main_menu_button.size.x + 4.0) / (main_menu_button.size.y + 10.0) - source_aspect) >= 0.01:
 			_fail("Defeat proof should preserve the raster action art's authored proportions")
-	var ember_raster: TextureRect = recap.find_child("DeathSiteEmbers", true, false) as TextureRect
-	if ember_raster == null or ember_raster.texture == null:
-		_fail("Defeat proof should leave raster embers at the death site")
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var ember_snapshot: Dictionary = board.call("death_site_embers_snapshot") as Dictionary
+	var death_tile: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room_layout", {}).get("player_start", Vector2i(-1, -1))
+	if ember_snapshot.get("tile", Vector2i(-1, -1)) != death_tile or not ember_snapshot.get("texture", null) is Texture2D:
+		_fail("Defeat proof should leave raster embers grounded on the exact death tile")
+	var ember_rect: Rect2 = ember_snapshot.get("rect", Rect2()) as Rect2
+	var tile_width: float = float(ember_snapshot.get("tile_width", 0.0))
+	if ember_rect.size.x > tile_width * 0.40:
+		_fail("Death-site embers should fit within the board tile footprint")
 	for unit_var: Variant in board.call("_visible_units") as Array:
 		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "player":
 			_fail("Terminal defeat board should remove the dead player before leaving embers")
-	var expected_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
-	var actual_site: Vector2 = recap.call("death_site_normalized") as Vector2
-	if expected_site.distance_to(actual_site) > 0.008:
-		_fail("Ember/Umbra origin should match the player's exact terminal tile (expected %s, actual %s)" % [expected_site, actual_site])
+	var centered_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	var fixed_window: Vector2 = recap.call("death_site_normalized") as Vector2
+	if centered_site.distance_to(fixed_window) > 0.008:
+		_fail("The translated death tile should settle beneath the fixed Umbra window (tile %s, window %s)" % [centered_site, fixed_window])
 
 func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i, outcome: String, held_embers: int, cleared_rooms: int, run_stats: Dictionary) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(8841 + held_embers * 3 + coord.x, progression)

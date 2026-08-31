@@ -68,6 +68,7 @@ const CONTROLLER_TILE_CURSOR_MAGNET_RADIUS: float = 46.0
 const CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS: float = 34.0
 const CONTROLLER_MOVING_CURSOR_SNAP_STRENGTH: float = 0.22
 const CONTROLLER_BOARD_HORIZONTAL_SHIFT: float = -18.0
+const RUN_END_BOARD_REFRAME_SECONDS: float = 1.12
 const CONTROLLER_BOARD_WIDTH_TRIM: float = 44.0
 const RUNTIME_PERFORMANCE_DIAGNOSTIC_PHASES: Dictionary = {
 	"enemy_round_lock_cache_capture_wall_total": true,
@@ -1529,6 +1530,11 @@ var _victory_carry_processed: bool = false
 var _defeat_loss_processed: bool = false
 var _victory_carry_amount: int = 0
 var _defeat_lost_amount: int = 0
+var _run_end_board_reframe_active: bool = false
+var _run_end_board_reframe_progress: float = 0.0
+var _run_end_board_reframe_start: Vector2 = Vector2.ZERO
+var _run_end_board_reframe_target: Vector2 = Vector2.ZERO
+var _run_end_board_reframe_tween: Tween
 var _exit_destinations_by_tile: Dictionary = {}
 var _animation_lock: bool = false
 var _escape_transition_in_progress: bool = false
@@ -3234,6 +3240,8 @@ func _queue_board_view_rect_sync() -> void:
 
 func _sync_board_view_rect() -> void:
 	if board_view == null or stage_root == null or not board_view.is_inside_tree() or not stage_root.is_inside_tree():
+		return
+	if _run_end_board_reframe_active and str(_run_state.get("mode", "")) == "defeat":
 		return
 	# The board deliberately borrows a thin band beneath the header. It is rendered
 	# below the HUD, so this gains useful combat space without stealing input from it.
@@ -9757,6 +9765,7 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_reset_run_end_board_reframe()
 	_close_dialogue()
 	_last_auto_dialogue_key = ""
 	_merchant_shop_room_coord = INVALID_ROOM_COORD
@@ -14314,23 +14323,97 @@ func _show_run_end_recap(outcome: String) -> void:
 		return
 	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
 	var model: Dictionary = RunEndRecapOverlay.build_model(_run_state, _progression, outcome, ember_amount)
-	_run_end_recap.present(model, _run_end_death_site_normalized())
+	var window_center: Vector2 = RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	_run_end_recap.present(model, window_center)
 	if outcome == "defeat":
+		_begin_run_end_board_reframe()
 		call_deferred("_sync_run_end_death_site")
 
 func _sync_run_end_death_site() -> void:
 	await get_tree().process_frame
 	if _run_end_recap == null or not _run_end_recap.visible or str(_run_state.get("mode", "")) != "defeat":
 		return
-	_run_end_recap.set_death_site_normalized(_run_end_death_site_normalized())
+	_run_end_recap.set_death_site_normalized(RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED)
+	_retarget_run_end_board_reframe()
+
+func _begin_run_end_board_reframe() -> void:
+	if _run_end_board_reframe_active or board_view == null or _run_end_recap == null:
+		return
+	var death_tile: Vector2i = _run_end_death_tile()
+	if death_tile.x < 0:
+		return
+	var recap_size: Vector2 = _run_end_recap.size
+	if recap_size.x <= 1.0 or recap_size.y <= 1.0:
+		call_deferred("_sync_run_end_death_site")
+		return
+	var board_point: Vector2 = board_view.call("world_position_for_tile", death_tile) as Vector2
+	var tile_global: Vector2 = board_view.get_global_transform() * board_point
+	var target_local: Vector2 = recap_size * RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	var target_global: Vector2 = _run_end_recap.get_global_transform() * target_local
+	_run_end_board_reframe_active = true
+	_run_end_board_reframe_progress = 0.0
+	_run_end_board_reframe_start = board_view.position
+	_run_end_board_reframe_target = board_view.position + target_global - tile_global
+	if _run_end_board_reframe_tween != null and _run_end_board_reframe_tween.is_valid():
+		_run_end_board_reframe_tween.kill()
+	if _reduced_motion_enabled() or not _run_end_recap.motion_enabled():
+		_seek_run_end_board_reframe(1.0)
+		return
+	_run_end_board_reframe_tween = create_tween()
+	_run_end_board_reframe_tween.set_trans(Tween.TRANS_CUBIC)
+	_run_end_board_reframe_tween.set_ease(Tween.EASE_IN_OUT)
+	_run_end_board_reframe_tween.tween_method(Callable(self, "_apply_run_end_board_reframe_progress"), 0.0, 1.0, RUN_END_BOARD_REFRAME_SECONDS)
+
+func _retarget_run_end_board_reframe() -> void:
+	if not _run_end_board_reframe_active:
+		_begin_run_end_board_reframe()
+		return
+	var death_tile: Vector2i = _run_end_death_tile()
+	if death_tile.x < 0 or board_view == null or _run_end_recap == null:
+		return
+	var board_point: Vector2 = board_view.call("world_position_for_tile", death_tile) as Vector2
+	var tile_global: Vector2 = board_view.get_global_transform() * board_point
+	var target_local: Vector2 = _run_end_recap.size * RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	var target_global: Vector2 = _run_end_recap.get_global_transform() * target_local
+	_run_end_board_reframe_target = board_view.position + target_global - tile_global
+	if _run_end_board_reframe_progress >= 1.0 or _reduced_motion_enabled() or not _run_end_recap.motion_enabled():
+		_seek_run_end_board_reframe(1.0)
+
+func _seek_run_end_board_reframe(progress: float) -> void:
+	if _run_end_board_reframe_tween != null and _run_end_board_reframe_tween.is_valid():
+		_run_end_board_reframe_tween.kill()
+	_run_end_board_reframe_tween = null
+	_apply_run_end_board_reframe_progress(progress)
+
+func _apply_run_end_board_reframe_progress(progress: float) -> void:
+	_run_end_board_reframe_progress = clampf(progress, 0.0, 1.0)
+	if board_view != null and _run_end_board_reframe_active:
+		board_view.position = _run_end_board_reframe_start.lerp(_run_end_board_reframe_target, _run_end_board_reframe_progress)
+
+func _reset_run_end_board_reframe() -> void:
+	if _run_end_board_reframe_tween != null and _run_end_board_reframe_tween.is_valid():
+		_run_end_board_reframe_tween.kill()
+	_run_end_board_reframe_tween = null
+	_run_end_board_reframe_active = false
+	_run_end_board_reframe_progress = 0.0
+	_run_end_board_reframe_start = Vector2.ZERO
+	_run_end_board_reframe_target = Vector2.ZERO
+	if board_view != null and board_view.is_inside_tree():
+		_sync_board_view_rect()
+
+func run_end_board_reframe_progress() -> float:
+	return _run_end_board_reframe_progress
+
+func _run_end_death_tile() -> Vector2i:
+	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
+	return layout.get("player_start", Vector2i(-1, -1))
 
 func _run_end_death_site_normalized() -> Vector2:
 	if board_view == null or _run_end_recap == null:
-		return Vector2(0.32, 0.62)
-	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
-	var death_tile: Vector2i = layout.get("player_start", Vector2i(-1, -1))
+		return RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	var death_tile: Vector2i = _run_end_death_tile()
 	if death_tile.x < 0:
-		return Vector2(0.32, 0.62)
+		return RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
 	var board_point: Vector2 = board_view.call("world_position_for_tile", death_tile) as Vector2
 	var global_point: Vector2 = board_view.get_global_transform() * board_point
 	var recap_point: Vector2 = _run_end_recap.get_global_transform().affine_inverse() * global_point
@@ -15972,7 +16055,8 @@ func _refresh_stage_view() -> void:
 	# The same room grid is shown both while cards are available and after combat.
 	# Make that framing intent explicit: no-hand rooms center their complete board
 	# instead of inheriting the combat hand-clearance composition.
-	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or post_combat_board_visible else "room"
+	var run_mode: String = str(_run_state.get("mode", "room"))
+	presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or post_combat_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
@@ -16090,6 +16174,13 @@ func _refresh_stage_view() -> void:
 		and _current_action_is_aimed_aoe()
 	)
 	presentation["reduced_motion"] = _reduced_motion_enabled()
+	if run_mode == "defeat":
+		var death_tile: Vector2i = _run_end_death_tile()
+		if death_tile.x >= 0:
+			presentation["death_site_embers"] = {
+				"tile": death_tile,
+				"amount": _defeat_lost_amount,
+			}
 	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
 	presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	performance_phase_started = _record_runtime_performance_phase("stage_chrome", performance_phase_started)
@@ -21519,7 +21610,8 @@ func _stop_music_tween() -> void:
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
-	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or _post_combat_board_state_is_visible() else "room"
+	var run_mode: String = str(_run_state.get("mode", "room"))
+	rendered_presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
@@ -21527,6 +21619,13 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["controller_combat_navigation"] = _controller_is_active() and str(_run_state.get("mode", "room")) == "combat"
 	rendered_presentation["controller_hand_focused"] = _controller_hand_focused
 	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
+	if run_mode == "defeat":
+		var death_tile: Vector2i = _run_end_death_tile()
+		if death_tile.x >= 0:
+			rendered_presentation["death_site_embers"] = {
+				"tile": death_tile,
+				"amount": _defeat_lost_amount,
+			}
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
 	var visible_enemy_ids: Array = rendered_presentation.get("visible_enemy_ids", []) as Array
 	rendered_presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
@@ -23495,6 +23594,8 @@ func _on_settings_changed(settings: Dictionary) -> void:
 	_settings = SettingsStore.normalize_settings(settings)
 	if _run_end_recap != null:
 		_run_end_recap.set_motion_enabled(not _reduced_motion_enabled())
+	if _run_end_board_reframe_active and _reduced_motion_enabled():
+		_seek_run_end_board_reframe(1.0)
 
 func _reduced_motion_enabled() -> bool:
 	return SettingsStore.reduced_motion_enabled(_settings)

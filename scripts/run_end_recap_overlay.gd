@@ -27,6 +27,15 @@ const DEFEAT_KICKER_COLOR: Color = Color("b98cff")
 const DEFEAT_VALUE_COLOR: Color = Color("f1dcc3")
 const LAST_LIGHT_TITLE_PATH: String = "res://assets/art/ui/run_end_last_light_title.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
+const DEFEAT_WINDOW_CENTER_NORMALIZED: Vector2 = Vector2(0.325, 0.470)
+const DEFEAT_METRIC_POSITIONS: Array[Vector2] = [
+	Vector2(812.0, 292.0),
+	Vector2(872.0, 352.0),
+	Vector2(916.0, 412.0),
+	Vector2(932.0, 472.0),
+	Vector2(908.0, 532.0),
+	Vector2(856.0, 592.0),
+]
 const TITLE_KEY_SHADER_CODE: String = """
 shader_type canvas_item;
 render_mode unshaded;
@@ -37,6 +46,35 @@ void fragment() {
 	float alpha = smoothstep(0.035, 0.20, 1.0 - luminance);
 	vec3 cooled = mix(source.rgb * vec3(0.78, 0.80, 0.86), source.rgb, 0.68);
 	COLOR = vec4(cooled, alpha);
+}
+"""
+const TITLE_GLOW_SHADER_CODE: String = """
+shader_type canvas_item;
+render_mode unshaded, blend_add;
+
+uniform sampler2D title_texture : source_color, filter_linear;
+
+float keyed_alpha(vec2 uv) {
+	vec3 source = texture(title_texture, clamp(uv, vec2(0.0), vec2(1.0))).rgb;
+	float luminance = dot(source, vec3(0.2126, 0.7152, 0.0722));
+	return smoothstep(0.035, 0.20, 1.0 - luminance);
+}
+
+void fragment() {
+	float center = keyed_alpha(UV);
+	vec2 near_x = vec2(0.0075, 0.0);
+	vec2 near_y = vec2(0.0, 0.0225);
+	vec2 far_x = vec2(0.0140, 0.0);
+	vec2 far_y = vec2(0.0, 0.0420);
+	float near_halo = max(max(keyed_alpha(UV + near_x), keyed_alpha(UV - near_x)), max(keyed_alpha(UV + near_y), keyed_alpha(UV - near_y)));
+	near_halo = max(near_halo, max(max(keyed_alpha(UV + vec2(0.0055, 0.0165)), keyed_alpha(UV - vec2(0.0055, 0.0165))), max(keyed_alpha(UV + vec2(0.0055, -0.0165)), keyed_alpha(UV - vec2(0.0055, -0.0165)))));
+	float far_halo = max(max(keyed_alpha(UV + far_x), keyed_alpha(UV - far_x)), max(keyed_alpha(UV + far_y), keyed_alpha(UV - far_y)));
+	far_halo = max(far_halo, max(max(keyed_alpha(UV + vec2(0.0100, 0.0300)), keyed_alpha(UV - vec2(0.0100, 0.0300))), max(keyed_alpha(UV + vec2(0.0100, -0.0300)), keyed_alpha(UV - vec2(0.0100, -0.0300)))));
+	float close_glow = max(0.0, near_halo - center);
+	float outer_glow = max(0.0, far_halo - near_halo);
+	float halo = close_glow * 0.22 + outer_glow * 0.12;
+	vec3 umbra_glow = mix(vec3(0.34, 0.18, 0.52), vec3(0.76, 0.53, 1.0), close_glow);
+	COLOR = vec4(umbra_glow, halo);
 }
 """
 const STAT_SPECS := [
@@ -53,7 +91,7 @@ var _model: Dictionary = {}
 var _model_fingerprint: String = ""
 var _motion_enabled: bool = true
 var _elapsed: float = 0.0
-var _death_site_normalized: Vector2 = Vector2(0.32, 0.62)
+var _death_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED
 
 var _death_shroud: DeathEngulfOverlay
 var _victory_panel: PanelContainer
@@ -69,9 +107,11 @@ var _victory_recovery_value: Label
 
 var _defeat_layout: Control
 var _defeat_kicker: Label
+var _defeat_title_glow: TextureRect
 var _defeat_title_raster: TextureRect
 var _defeat_accessibility_title: Label
-var _defeat_metrics: VBoxContainer
+var _defeat_metrics: Control
+var _defeat_metric_rows: Dictionary = {}
 var _defeat_stat_values: Dictionary = {}
 var _defeat_stat_bests: Dictionary = {}
 var _defeat_ember_value: Label
@@ -171,7 +211,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 static func _coord_depth(coord: Vector2i) -> int:
 	return maxi(abs(coord.x), abs(coord.y))
 
-func present(model: Dictionary, death_site_normalized: Vector2 = Vector2(0.32, 0.62)) -> void:
+func present(model: Dictionary, death_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED) -> void:
 	var next_model: Dictionary = model.duplicate(true)
 	var normalized_site := Vector2(clampf(death_site_normalized.x, 0.08, 0.92), clampf(death_site_normalized.y, 0.10, 0.90))
 	var fingerprint: String = "%s|%.4f|%.4f" % [JSON.stringify(next_model), normalized_site.x, normalized_site.y]
@@ -361,12 +401,22 @@ func _build_defeat_layout() -> void:
 	_defeat_layout.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_defeat_layout)
 
-	_defeat_kicker = _label("OutcomeKicker", 22, HORIZONTAL_ALIGNMENT_LEFT)
+	_defeat_kicker = _label("OutcomeKicker", 26, HORIZONTAL_ALIGNMENT_LEFT)
 	_defeat_kicker.add_theme_font_override("font", UI_FONT)
 	_defeat_kicker.add_theme_color_override("font_color", DEFEAT_KICKER_COLOR)
 	_defeat_kicker.add_theme_color_override("font_outline_color", Color("140d20"))
 	_defeat_kicker.add_theme_constant_override("outline_size", 3)
 	_defeat_layout.add_child(_defeat_kicker)
+
+	_defeat_title_glow = TextureRect.new()
+	_defeat_title_glow.name = "DefeatTitleGlow"
+	_defeat_title_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_defeat_title_glow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_defeat_title_glow.texture = AssetLoader.load_texture_source_first(LAST_LIGHT_TITLE_PATH)
+	_defeat_title_glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_defeat_title_glow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_defeat_title_glow.material = _title_glow_material()
+	_defeat_layout.add_child(_defeat_title_glow)
 
 	_defeat_title_raster = TextureRect.new()
 	_defeat_title_raster.name = "DefeatTitleRaster"
@@ -383,9 +433,9 @@ func _build_defeat_layout() -> void:
 	_defeat_accessibility_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_defeat_layout.add_child(_defeat_accessibility_title)
 
-	_defeat_metrics = VBoxContainer.new()
+	_defeat_metrics = Control.new()
 	_defeat_metrics.name = "DefeatStatLedger"
-	_defeat_metrics.add_theme_constant_override("separation", 3)
+	_defeat_metrics.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_defeat_layout.add_child(_defeat_metrics)
 	for spec_var: Variant in STAT_SPECS:
 		_add_defeat_stat_metric(_defeat_metrics, spec_var as Dictionary)
@@ -465,11 +515,12 @@ func _add_victory_stat_metric(host: GridContainer, spec: Dictionary) -> void:
 	_victory_stat_values[stat_id] = value
 	_victory_stat_bests[stat_id] = best
 
-func _add_defeat_stat_metric(host: VBoxContainer, spec: Dictionary) -> void:
+func _add_defeat_stat_metric(host: Control, spec: Dictionary) -> void:
 	var stat_id: String = str(spec.get("id", ""))
 	var row := Control.new()
 	row.name = "%sMetric" % stat_id.to_pascal_case()
-	row.custom_minimum_size = Vector2(520.0, 62.0)
+	row.custom_minimum_size = Vector2(500.0, 58.0)
+	row.size = row.custom_minimum_size
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	host.add_child(row)
 	var heading := _label("%sHeading" % stat_id.to_pascal_case(), 17, HORIZONTAL_ALIGNMENT_RIGHT)
@@ -492,6 +543,7 @@ func _add_defeat_stat_metric(host: VBoxContainer, spec: Dictionary) -> void:
 	best.add_theme_color_override("font_outline_color", Color("102217"))
 	best.add_theme_constant_override("outline_size", 2)
 	row.add_child(best)
+	_defeat_metric_rows[stat_id] = row
 	_defeat_stat_values[stat_id] = value
 	_defeat_stat_bests[stat_id] = best
 
@@ -500,6 +552,14 @@ func _title_key_material() -> ShaderMaterial:
 	shader.code = TITLE_KEY_SHADER_CODE
 	var material := ShaderMaterial.new()
 	material.shader = shader
+	return material
+
+func _title_glow_material() -> ShaderMaterial:
+	var shader := Shader.new()
+	shader.code = TITLE_GLOW_SHADER_CODE
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	material.set_shader_parameter("title_texture", AssetLoader.load_texture_source_first(LAST_LIGHT_TITLE_PATH))
 	return material
 
 func _label(node_name: String, font_size: int, alignment: HorizontalAlignment) -> Label:
@@ -668,31 +728,46 @@ func _update_victory_layout(progress: float) -> void:
 	_main_menu_button.modulate = Color(1.0, 1.0, 1.0, progress)
 
 func _update_defeat_layout(progress: float) -> void:
-	var content_x: float = size.x * 0.505
-	var content_width: float = minf(size.x * 0.430, 800.0)
-	var top: float = size.y * 0.025
-	var hidden_slide: float = (1.0 - progress) * 54.0
+	var layout_scale: float = minf(size.x / 1920.0, size.y / 1080.0)
+	var layout_origin := Vector2(
+		(size.x - 1920.0 * layout_scale) * 0.5,
+		(size.y - 1080.0 * layout_scale) * 0.5
+	)
+	var hidden_slide: float = (1.0 - progress) * 54.0 * layout_scale
 	_defeat_layout.modulate = Color(1.0, 1.0, 1.0, progress)
-	_defeat_kicker.position = Vector2(content_x + content_width * 0.10 + hidden_slide, top)
-	_defeat_kicker.size = Vector2(content_width * 0.90, size.y * 0.052)
-	_defeat_title_raster.position = Vector2(content_x - content_width * 0.10 + hidden_slide, top + size.y * 0.025)
-	_defeat_title_raster.size = Vector2(content_width * 1.08, size.y * 0.235)
+	_defeat_kicker.position = layout_origin + Vector2(1038.0, 62.0) * layout_scale + Vector2(hidden_slide, 0.0)
+	_defeat_kicker.size = Vector2(560.0, 48.0) * layout_scale
+	var title_position: Vector2 = layout_origin + Vector2(908.0, 42.0) * layout_scale + Vector2(hidden_slide, 0.0)
+	var title_size: Vector2 = Vector2(804.0, 268.0) * layout_scale
+	_defeat_title_glow.position = title_position
+	_defeat_title_glow.size = title_size
+	_defeat_title_raster.position = title_position
+	_defeat_title_raster.size = title_size
 	_defeat_accessibility_title.position = _defeat_title_raster.position
 	_defeat_accessibility_title.size = _defeat_title_raster.size
-	_defeat_metrics.position = Vector2(content_x - 28.0 + hidden_slide, top + size.y * 0.250)
-	_defeat_metrics.size = Vector2(520.0, size.y * 0.345)
-	_defeat_ember_result.position = Vector2(size.x * 0.405 + hidden_slide, top + size.y * 0.690)
-	_defeat_ember_result.size = Vector2(250.0, 78.0)
-	_defeat_recovery_value.position = Vector2(size.x * 0.505 + hidden_slide, top + size.y * 0.710)
-	_defeat_recovery_value.size = Vector2(minf(560.0, size.x * 0.34), 44.0)
-	var actions_y: float = minf(size.y - 82.0, top + size.y * 0.840)
+	_defeat_metrics.position = Vector2.ZERO
+	_defeat_metrics.size = size
+	for index: int in range(STAT_SPECS.size()):
+		var spec: Dictionary = STAT_SPECS[index] as Dictionary
+		var stat_id: String = str(spec.get("id", ""))
+		var row: Control = _defeat_metric_rows.get(stat_id, null) as Control
+		if row == null:
+			continue
+		row.position = layout_origin + DEFEAT_METRIC_POSITIONS[index] * layout_scale + Vector2(hidden_slide, 0.0)
+		row.scale = Vector2.ONE * layout_scale
+	_defeat_ember_result.position = layout_origin + Vector2(826.0, 664.0) * layout_scale + Vector2(hidden_slide, 0.0)
+	_defeat_ember_result.size = Vector2(250.0, 78.0) * layout_scale
+	_defeat_ember_result.scale = Vector2.ONE * layout_scale
+	_defeat_recovery_value.position = layout_origin + Vector2(970.0, 681.0) * layout_scale + Vector2(hidden_slide, 0.0)
+	_defeat_recovery_value.size = Vector2(560.0, 44.0) * layout_scale
+	var actions_y: float = minf(size.y - 82.0 * layout_scale, layout_origin.y + 905.0 * layout_scale)
 	# The ornament draws four pixels wider and ten pixels taller than the Button.
 	# These dimensions retain the source bitmap's exact 1024:224 aspect on screen.
 	var new_run_size := Vector2(361.7143, 70.0)
 	var main_menu_size := Vector2(297.7143, 56.0)
 	var action_gap: float = 34.0
 	var action_group_width: float = new_run_size.x + action_gap + main_menu_size.x
-	var actions_x: float = minf(size.x * 0.465, size.x - action_group_width - 24.0) + hidden_slide
+	var actions_x: float = minf(layout_origin.x + 846.0 * layout_scale, size.x - action_group_width - 24.0 * layout_scale) + hidden_slide
 	_new_run_button.custom_minimum_size = new_run_size
 	_main_menu_button.custom_minimum_size = main_menu_size
 	_new_run_button.position = Vector2(actions_x, actions_y)

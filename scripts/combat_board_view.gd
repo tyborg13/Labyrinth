@@ -1986,6 +1986,8 @@ func _queue_presentation_change_redraws(
 				action_floor_changed = true
 			"damage_preview":
 				effects_changed = true
+			"death_site_embers":
+				_queue_render_layer_redraw(_ground_render_layer)
 			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
@@ -5153,7 +5155,11 @@ func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 	# Traps and ordinary loot lie on the floor, so the raised route ribbon crosses
 	# over them. Floating equipment remains in _draw_tile_props with units and is
 	# intentionally painted after the route.
+	var death_site_embers: Dictionary = presentation.get("death_site_embers", {}) as Dictionary
+	var death_site_tile: Vector2i = death_site_embers.get("tile", Vector2i(-1, -1))
 	for tile: Vector2i in tiles:
+		if tile == death_site_tile:
+			_draw_death_site_embers(tile)
 		if not _board_tile_is_visible_to_player(tile):
 			continue
 		for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
@@ -5172,6 +5178,29 @@ func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
 			if typeof(trap_var) == TYPE_DICTIONARY:
 				_draw_trap_marker(trap_var as Dictionary)
+
+func _draw_death_site_embers(tile: Vector2i) -> void:
+	var texture: Texture2D = _loot_textures.get("dropped_embers", null) as Texture2D
+	if texture == null:
+		return
+	var ember_loot := {"kind": "dropped_embers"}
+	var draw_rect: Rect2 = _loot_rect_for_tile(tile, texture, ember_loot)
+	_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.16, 0.08)
+	draw_texture_rect(texture, draw_rect, false)
+
+func death_site_embers_snapshot() -> Dictionary:
+	var entry: Dictionary = presentation.get("death_site_embers", {}) as Dictionary
+	var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+	var texture: Texture2D = _loot_textures.get("dropped_embers", null) as Texture2D
+	if tile.x < 0 or texture == null:
+		return {}
+	return {
+		"tile": tile,
+		"rect": _loot_rect_for_tile(tile, texture, {"kind": "dropped_embers"}),
+		"tile_center": _tile_center(tile),
+		"tile_width": _tile_width(),
+		"texture": texture,
+	}
 
 func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = []) -> void:
 	for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
