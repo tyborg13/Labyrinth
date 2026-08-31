@@ -611,6 +611,18 @@ func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
 	_assert(bool(menu_entry.get("loop", false)), "Old Castle main-menu music should request native looping")
 	_assert(is_equal_approx(float(menu_entry.get("volume_db", 0.0)), -6.5), "Old Castle main-menu music should retain its audition-level presence")
 	_assert(FileAccess.get_sha256(menu_path) == "57fabef2f4298b22ef7477e18b261702152483c9cb7aabe43acd99ece952fdc8", "Shipped Old Castle menu music should match the verified v07 Ogg")
+	var death_entry: Dictionary = MusicLibrary.entry_for_context("defeat", {
+		"type": "boss",
+		"boss_id": "zekarion"
+	})
+	var death_path: String = str(death_entry.get("path", ""))
+	_assert(str(death_entry.get("id", "")) == MusicLibrary.CHOPIN_DEATH_TRACK_ID, "Terminal defeat should override combat and boss routes with the Chopin death loop")
+	_assert(death_path == "res://assets/audio/music/chopin_op35_funeral_march_death_loop.ogg", "Terminal defeat should point to the promoted Chopin Ogg")
+	_assert(FileAccess.file_exists(death_path), "Promoted Chopin death music should exist")
+	_assert(_audio_asset_loads(death_path), "Promoted Chopin death music should load as audio")
+	_assert(bool(death_entry.get("loop", false)), "Chopin death music should request native looping")
+	_assert(is_equal_approx(float(death_entry.get("volume_db", 0.0)), -7.0), "Chopin death music should remain understated beneath the defeat recap")
+	_assert(FileAccess.get_sha256(death_path) == "f005bda46c395579b32f0afeb749b5e16775efa2ecee5203e2a4bacd872b2569", "Shipped Chopin death music should match the verified owner-approved v05 Ogg")
 	for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING, ElementData.AIR, ElementData.EARTH, ElementData.NONE]:
 		var entry: Dictionary = MusicLibrary.entry_for_context("combat", {
 			"type": "combat",

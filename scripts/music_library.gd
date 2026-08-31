@@ -12,6 +12,7 @@ const AIR_COMBAT_TRACK_ID: String = "combat.air"
 const EARTH_COMBAT_TRACK_ID: String = "combat.earth"
 const SCHUBERT_COMBAT_TRACK_ID: String = "combat.schubert_d810_movement_ii"
 const OLD_CASTLE_MENU_TRACK_ID: String = "menu.mussorgsky_old_castle"
+const CHOPIN_DEATH_TRACK_ID: String = "death.chopin_op35_funeral_march"
 const ZEKARION_BOSS_TRACK_ID: String = "boss.zekarion"
 const RELIC_ROOM_TRACK_ID: String = "room.relic"
 const PRE_BATTLE_MODE: String = "pre_battle"
@@ -51,6 +52,11 @@ const TRACKS: Dictionary = {
 		"volume_db": -6.5,
 		"loop": true
 	},
+	CHOPIN_DEATH_TRACK_ID: {
+		"path": "res://assets/audio/music/chopin_op35_funeral_march_death_loop.ogg",
+		"volume_db": -7.0,
+		"loop": true
+	},
 	ZEKARION_BOSS_TRACK_ID: {
 		"path": "res://assets/audio/music/zekarion_boss.wav",
 		"volume_db": -12.0
@@ -80,6 +86,7 @@ const ELEMENT_TRACKS: Dictionary = {
 	ElementData.EARTH: EARTH_COMBAT_TRACK_ID
 }
 const MODE_TRACKS: Dictionary = {
+	"defeat": CHOPIN_DEATH_TRACK_ID,
 	"reward": RELIC_ROOM_TRACK_ID,
 	"treasure": RELIC_ROOM_TRACK_ID
 }

@@ -1412,6 +1412,8 @@ const TURN_ORDER_PORTRAITS := {
 }
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
+const DEATH_MUSIC_FADE_OUT_SECONDS: float = 0.6
+const DEATH_MUSIC_FADE_IN_SECONDS: float = 1.2
 const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var ui_root: Control = $UiLayer/UiRoot
@@ -20242,6 +20244,7 @@ func _animate_defeats_and_terrain_destruction(
 ) -> void:
 	var death_units: Array[Dictionary] = _defeated_player_units_between_states(before_state, after_state)
 	death_units.append_array(_defeated_enemy_units_between_states(before_state, after_state))
+	_start_terminal_defeat_music_if_needed(death_units, after_state)
 	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 	if skip_terrain_destruction:
 		destroyed_terrain.clear()
@@ -21572,6 +21575,77 @@ func _play_music(entry: Dictionary) -> void:
 		return
 	_music_player.play()
 	_fade_music_to(float(entry.get("volume_db", -12.0)))
+
+func _start_terminal_defeat_music_if_needed(
+	death_units: Array[Dictionary],
+	after_combat_state: Dictionary = {}
+) -> void:
+	var player_died: bool = false
+	for unit: Dictionary in death_units:
+		if str(unit.get("role", "")) == "player":
+			player_died = true
+			break
+	if not player_died:
+		return
+	var terminal_mode: String = str(_committed_run_state().get("mode", ""))
+	if terminal_mode != "defeat" and not after_combat_state.is_empty():
+		if _combat_engine.combat_outcome(after_combat_state) != "defeat":
+			return
+		terminal_mode = str(_run_engine.finish_combat(_run_state, after_combat_state).get("mode", ""))
+	if terminal_mode != "defeat":
+		return
+	_transition_music(
+		MusicLibrary.entry(MusicLibrary.CHOPIN_DEATH_TRACK_ID),
+		DEATH_MUSIC_FADE_OUT_SECONDS,
+		DEATH_MUSIC_FADE_IN_SECONDS
+	)
+
+func _transition_music(entry: Dictionary, fade_out_seconds: float, fade_in_seconds: float) -> void:
+	var track_id: String = str(entry.get("id", ""))
+	if track_id.is_empty() or track_id == _active_music_id:
+		return
+	var resource: AudioStream = AssetLoader.load_audio_stream(
+		str(entry.get("path", "")),
+		bool(entry.get("loop", false))
+	)
+	if resource == null:
+		return
+	_ensure_music_player()
+	_stop_music_tween()
+	_active_music_id = track_id
+	var target_volume_linear: float = db_to_linear(float(entry.get("volume_db", -12.0)))
+	if _music_player.stream == null or not _music_player.playing:
+		_start_transitioned_music(track_id, resource)
+		_music_tween = create_tween().set_ignore_time_scale(true)
+		_music_tween.tween_property(
+			_music_player,
+			"volume_linear",
+			target_volume_linear,
+			maxf(0.0, fade_in_seconds)
+		)
+		return
+	_music_tween = create_tween().set_ignore_time_scale(true)
+	_music_tween.tween_property(
+		_music_player,
+		"volume_linear",
+		0.0,
+		maxf(0.0, fade_out_seconds)
+	)
+	_music_tween.tween_callback(_start_transitioned_music.bind(track_id, resource))
+	_music_tween.tween_property(
+		_music_player,
+		"volume_linear",
+		target_volume_linear,
+		maxf(0.0, fade_in_seconds)
+	)
+
+func _start_transitioned_music(track_id: String, resource: AudioStream) -> void:
+	if _music_player == null or _active_music_id != track_id:
+		return
+	_music_player.stop()
+	_music_player.stream = resource
+	_music_player.volume_linear = 0.0
+	_music_player.play()
 
 func _ensure_music_player() -> void:
 	if _music_player != null:
