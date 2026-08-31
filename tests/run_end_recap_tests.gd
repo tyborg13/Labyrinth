@@ -316,6 +316,19 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 	var source_aspect: float = 1024.0 / 224.0
 	_assert(absf((new_run_button.size.x + 4.0) / (new_run_button.size.y + 10.0) - source_aspect) < 0.01, "Primary action raster should retain its authored aspect instead of stretching")
 	_assert(absf((main_menu_button.size.x + 4.0) / (main_menu_button.size.y + 10.0) - source_aspect) < 0.01, "Secondary action raster should retain its authored aspect instead of stretching")
+	var traversal_counts := {"new_run": 0, "main_menu": 0}
+	overlay.new_run_pressed.connect(func() -> void: traversal_counts["new_run"] = int(traversal_counts["new_run"]) + 1)
+	overlay.main_menu_pressed.connect(func() -> void: traversal_counts["main_menu"] = int(traversal_counts["main_menu"]) + 1)
+	new_run_button.grab_focus()
+	await process_frame
+	await _press_ui_action(&"ui_right")
+	_assert(main_menu_button.has_focus(), "ui_right should move horizontally from New Run to Main Menu")
+	await _press_ui_action(&"ui_accept")
+	_assert(int(traversal_counts["main_menu"]) == 1, "ui_accept should activate Main Menu after horizontal traversal")
+	await _press_ui_action(&"ui_left")
+	_assert(new_run_button.has_focus(), "ui_left should return horizontally from Main Menu to New Run")
+	await _press_ui_action(&"ui_accept")
+	_assert(int(traversal_counts["new_run"]) == 1, "ui_accept should activate New Run after horizontal traversal")
 
 	var animated_final_alpha: float = final_center_alpha
 	overlay.set_motion_enabled(false)
@@ -331,6 +344,7 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 	overlay.present(victory_model)
 	await process_frame
 	_assert(is_zero_approx(overlay.shroud_progress()), "Victory should remain coherent without inheriting the defeat shroud")
+	_assert(str(new_run_button.get_meta("button_variant", "")) == UiSkin.VARIANT_LARGE and str(main_menu_button.get_meta("button_variant", "")) == UiSkin.VARIANT_LARGE, "Victory should retain its established large action treatment instead of inheriting defeat's Obsidian raster")
 	overlay.queue_free()
 	await process_frame
 
@@ -477,6 +491,16 @@ func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
+
+func _press_ui_action(action: StringName) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventAction.new()
+		event.action = action
+		event.pressed = pressed
+		event.strength = 1.0 if pressed else 0.0
+		root.push_input(event)
+		await process_frame
+	await process_frame
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

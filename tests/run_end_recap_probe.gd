@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://run_end_recap_probe_v3"
+const OUTPUT_ROOT: String = "user://run_end_recap_probe_v4"
 
 var _failed: bool = false
 var _resolution: Vector2i = Vector2i(1920, 1080)
@@ -48,6 +48,8 @@ func _capture_states() -> void:
 		"damage_dealt": 780,
 		"damage_received": 260
 	})
+	await _capture_player_death_transition(instance, defeat_state)
+	defeat_state.erase("_probe_terminal_combat_state")
 	await _install_state(instance, defeat_progression, defeat_state)
 	var recap: Control = instance.get("_run_end_recap") as Control
 	_validate_last_light_semantics(instance, recap)
@@ -83,12 +85,68 @@ func _capture_states() -> void:
 	if recap != null:
 		recap.call("set_motion_enabled", true)
 		recap.call("seek_presentation", float(recap.call("presentation_duration")))
+		var victory_new_run: Button = recap.find_child("NewRunButton", true, false) as Button
+		var victory_main_menu: Button = recap.find_child("MainMenuButton", true, false) as Button
+		if victory_new_run == null or victory_main_menu == null or str(victory_new_run.get_meta("button_variant", "")) != "large" or str(victory_main_menu.get_meta("button_variant", "")) != "large":
+			_fail("Victory proof should retain the established large action treatment")
 	await _capture("victory_final.png")
 
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(_output_dir))
 	quit(1 if _failed else 0)
+
+func _capture_player_death_transition(instance: Node, terminal_state: Dictionary) -> void:
+	var after_combat: Dictionary = (terminal_state.get("_probe_terminal_combat_state", {}) as Dictionary).duplicate(true)
+	if after_combat.is_empty():
+		_fail("Lethal-transition proof should retain the terminal combat state")
+		return
+	var death_tile: Vector2i = (terminal_state.get("current_room_layout", {}) as Dictionary).get("player_start", Vector2i(-1, -1))
+	var after_player: Dictionary = (after_combat.get("player", {}) as Dictionary).duplicate(true)
+	after_player["hp"] = 0
+	after_combat["player"] = after_player
+	var before_combat: Dictionary = after_combat.duplicate(true)
+	var before_player: Dictionary = after_player.duplicate(true)
+	before_player["hp"] = maxi(18, int(before_player.get("max_hp", 18)))
+	before_combat["player"] = before_player
+	var living_run: Dictionary = terminal_state.duplicate(true)
+	living_run["mode"] = "combat"
+	living_run["game_over"] = false
+	living_run["victory"] = false
+	living_run["player_hp"] = int(before_player.get("hp", 18))
+	living_run["combat_state"] = before_combat
+	instance.call("_load_run_state", living_run)
+	instance.call("_close_dialogue")
+	await process_frame
+	await process_frame
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var living_player_found: bool = false
+	for unit_var: Variant in board.call("_visible_units") as Array:
+		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "player":
+			living_player_found = true
+	if not living_player_found:
+		_fail("Lethal-transition proof should begin with the living player rendered")
+	await _capture("defeat_player_living.png")
+	var death_presentation: Dictionary = instance.call("_death_hold_presentation", before_combat, after_combat, {}) as Dictionary
+	var death_units: Array = death_presentation.get("death_animation_units", []) as Array
+	if death_units.size() != 1:
+		_fail("Lethal transition should produce exactly one player death presentation unit")
+	else:
+		var death_unit: Dictionary = (death_units[0] as Dictionary).duplicate(true)
+		if str(death_unit.get("role", "")) != "player" or death_unit.get("pos", Vector2i(-1, -1)) != death_tile:
+			_fail("Player collapse should remain on the terminal death tile")
+		death_unit["death_frame"] = 0
+		death_unit["death_progress"] = 0.55
+		death_presentation["death_animation_units"] = [death_unit]
+	instance.call("_render_board_state", after_combat, death_presentation)
+	await process_frame
+	await process_frame
+	var rendered_death_units: Array = board.call("_death_animation_units_from_presentation") as Array
+	if rendered_death_units.size() != 1 or str((rendered_death_units[0] as Dictionary).get("role", "")) != "player":
+		_fail("CombatBoard should render the lethal player through its real collapse/fade path")
+	elif (rendered_death_units[0] as Dictionary).get("pos", Vector2i(-1, -1)) != death_tile:
+		_fail("Rendered player collapse should not drift from the eventual ember tile")
+	await _capture("defeat_player_collapse.png")
 
 func _install_state(instance: Node, progression: Dictionary, state: Dictionary) -> void:
 	ProgressionStore.save_data(progression)
@@ -197,6 +255,7 @@ func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i
 	state["combat_state"] = combat_state
 	state["held_embers"] = held_embers
 	state["unbanked_embers"] = held_embers
+	state["_probe_terminal_combat_state"] = combat_state.duplicate(true)
 	state = engine.finish_combat(state, combat_state)
 	state["mode"] = outcome
 	state["victory"] = outcome == "victory"

@@ -428,8 +428,10 @@ func _build_shared_actions() -> void:
 	_main_menu_button = _button("MainMenuButton", "Main Menu")
 	_main_menu_button.pressed.connect(func() -> void: main_menu_pressed.emit())
 	add_child(_main_menu_button)
-	_new_run_button.focus_neighbor_bottom = _main_menu_button.get_path()
-	_main_menu_button.focus_neighbor_top = _new_run_button.get_path()
+	_new_run_button.focus_neighbor_left = _main_menu_button.get_path()
+	_new_run_button.focus_neighbor_right = _main_menu_button.get_path()
+	_main_menu_button.focus_neighbor_left = _new_run_button.get_path()
+	_main_menu_button.focus_neighbor_right = _new_run_button.get_path()
 	for button: Button in [_new_run_button, _main_menu_button]:
 		button.mouse_entered.connect(_select_action.bind(button))
 		button.focus_entered.connect(_select_action.bind(button))
@@ -518,13 +520,23 @@ func _button(node_name: String, button_text: String) -> Button:
 	button.name = node_name
 	button.text = button_text
 	button.focus_mode = Control.FOCUS_ALL
-	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.add_theme_font_override("font", UI_FONT)
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_UMBRA)
-	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
-	UiTypography.set_button_size(button, 20)
-	_ui_skin.apply_button_native_size(button, BUTTON_HEIGHT, BUTTON_MIN_WIDTH, false, UiSkin.VARIANT_UMBRA)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_native_size(button, BUTTON_HEIGHT, BUTTON_MIN_WIDTH, false, UiSkin.VARIANT_LARGE)
 	return button
+
+func _apply_action_treatment(victory: bool) -> void:
+	var variant: String = UiSkin.VARIANT_LARGE if victory else UiSkin.VARIANT_UMBRA
+	for button: Button in [_new_run_button, _main_menu_button]:
+		_ui_skin.apply_button_stylebox_overrides(button, variant)
+		if victory:
+			_ui_skin.apply_button_text_overrides(button)
+			UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+		else:
+			_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
+			UiTypography.set_button_size(button, 20)
 
 func _select_action(button: Button) -> void:
 	if button == null:
@@ -548,6 +560,7 @@ func _apply_model() -> void:
 	var new_bests: Array = _model.get("new_bests", []) as Array
 	_victory_panel.visible = victory
 	_defeat_layout.visible = not victory
+	_apply_action_treatment(victory)
 	_victory_kicker.text = str(_model.get("kicker", ""))
 	_victory_title.text = str(_model.get("title", ""))
 	_victory_summary.text = str(_model.get("summary", ""))
