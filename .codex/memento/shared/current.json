@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-31T20:34:55Z",
+  "updated_at": "2026-08-31T21:03:31Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9740,7 +9740,7 @@
       }
     },
     {
-      "id": "mnt_20260831T203455Z_8c1158f5",
+      "id": "mnt_20260831T210331Z_dcc93570",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -9749,18 +9749,18 @@
         "symbol": null
       },
       "scope_key": "folder:output/classical_soundtracks/chopin_op35_funeral_march",
-      "summary": "For the Chopin death cue, preserve expressive non-iconic melody and suppress only the famous march lead from v2's former intro.",
-      "details": "Open immediately on the interesting B-section melody; keep that melody intact. Move v2's stripped intro passage between B and the Trio as connective contrast, with smooth source-derived bridges. The recognizable popular-culture lead belongs to the former v2 intro, not the B excerpt.",
+      "summary": "Chopin v04 tests a contiguous lower-key excerpt with only the late recognizable lead suppressed.",
+      "details": "Select v01 measures 93-100 (about 5:30.9-6:00.0) without internal cuts, reordering, or authored bridges. Preserve the initial expressive melody's rhythms and intervals, but lower the whole pitched texture uniformly by a minor third for a darker register; suppress Grave/Veiled lead only in measures 99-100.",
       "status": "active",
-      "created_at": "2026-08-31T20:34:55Z",
-      "updated_at": "2026-08-31T20:34:55Z",
+      "created_at": "2026-08-31T21:03:31Z",
+      "updated_at": "2026-08-31T21:03:31Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260831T200521Z_9704c7b7"
+        "mnt_20260831T203455Z_8c1158f5"
       ],
       "source": {
         "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
-        "commit": "9dbcad59"
+        "commit": "0350f12e"
       }
     }
   ]
