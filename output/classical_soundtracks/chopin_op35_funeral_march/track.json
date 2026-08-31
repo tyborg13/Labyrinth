@@ -1,0 +1,184 @@
+{
+  "approval": {
+    "approved_by": "",
+    "approved_on": "",
+    "status": "audition",
+    "version": "v01"
+  },
+  "arrangement": {
+    "expected_note_counts": {
+      "Ashen Violin / Upper Harmony": 256,
+      "Funeral Pulse / Procedural Percussion": 146,
+      "Grave Cello / Funeral Cantus": 639,
+      "Hollow Viola / Inner Lament": 230,
+      "Undercrypt Bass / Processional Root": 491,
+      "Veiled Violin / Trio Cantilena": 317
+    },
+    "midi_path": "versions/v01/arrangement.mid",
+    "midi_sha256": "342ae252fdb8012832dce8ae2a2d428f3c4b526d2460ca476c0a6138466b2f0c",
+    "notes_file": "versions/v01/ARRANGEMENT_NOTES.md",
+    "version": "v01"
+  },
+  "composer": "Fr\u00e9d\u00e9ric Chopin",
+  "expected_outputs": {},
+  "render": {
+    "bank_manifest": "../../../assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
+    "crossfade_seconds": 3.627981859410431,
+    "echo": {
+      "darkening_filter_width": 9,
+      "taps": [
+        {
+          "delay_seconds": 0.096,
+          "gain": 0.1
+        },
+        {
+          "delay_seconds": 0.192,
+          "gain": 0.042
+        },
+        {
+          "delay_seconds": 0.288,
+          "gain": 0.018
+        }
+      ]
+    },
+    "ogg_stream_serial": "0x43484f31",
+    "output_basename": "versions/v01/preview",
+    "output_signal_quantization_bits": 15,
+    "percussion": {
+      "midi_track": "Funeral Pulse / Procedural Percussion",
+      "notes": {
+        "36": "umbra_war_drum",
+        "41": "bone_tom",
+        "42": "ash_tick"
+      }
+    },
+    "percussion_reconstruction_filter_width": 3,
+    "sample_rate": 44100,
+    "saturation_drive": 1.06,
+    "string_reconstruction_filter_width": 5,
+    "target_peak_dbfs": -7.5,
+    "tempo_mode": "fixed_qpm",
+    "tempo_qpm": 66,
+    "tracks": [
+      {
+        "bank_id": "veiled_violin",
+        "midi_track": "Veiled Violin / Trio Cantilena",
+        "pan": 82,
+        "release_seconds": 0.16,
+        "render_gain": 0.42,
+        "stem": "upper",
+        "vibrato_cents": 3.2,
+        "vibrato_hz": 4.9
+      },
+      {
+        "bank_id": "ashen_violin",
+        "midi_track": "Ashen Violin / Upper Harmony",
+        "pan": 46,
+        "release_seconds": 0.1,
+        "render_gain": 0.38,
+        "stem": "upper",
+        "vibrato_cents": 2.2,
+        "vibrato_hz": 4.6
+      },
+      {
+        "bank_id": "hollow_viola",
+        "midi_track": "Hollow Viola / Inner Lament",
+        "pan": 72,
+        "release_seconds": 0.18,
+        "render_gain": 0.46,
+        "stem": "middle",
+        "vibrato_cents": 1.7,
+        "vibrato_hz": 4.2
+      },
+      {
+        "bank_id": "grave_cello",
+        "midi_track": "Grave Cello / Funeral Cantus",
+        "pan": 55,
+        "release_seconds": 0.24,
+        "render_gain": 0.9,
+        "stem": "low",
+        "vibrato_cents": 2.0,
+        "vibrato_hz": 4.0
+      },
+      {
+        "bank_id": "undercrypt_bass",
+        "midi_track": "Undercrypt Bass / Processional Root",
+        "pan": 64,
+        "release_seconds": 0.3,
+        "render_gain": 0.7,
+        "stem": "low",
+        "vibrato_cents": 0.6,
+        "vibrato_hz": 3.2
+      }
+    ],
+    "vorbis_encoder": "auto"
+  },
+  "reproducibility": {
+    "arrangement_notes": {
+      "path": "versions/v01/ARRANGEMENT_NOTES.md",
+      "sha256": "3f613d7baf207acae3db0d0d114463cf145cd5c9e3ad0d9363bcea3fdd161631"
+    },
+    "build_script": {
+      "path": "scripts/build_arrangement.py",
+      "sha256": "b041ad4a481dbe60a3ae710ae698cc442d5d3cc5f40f1c0577391eaf412128cd"
+    },
+    "expected_part_count": 2,
+    "normalized_full_score_midi": {
+      "path": "normalized/full_score.mid",
+      "sha256": "cfc5886a5a841f59bdb9148611ef459c96a634ac996e37e0f4683c5a98b2d778"
+    },
+    "normalized_full_score_musicxml": {
+      "path": "normalized/full_score.musicxml",
+      "sha256": "007afebdf2de467d734485f9069fcbeaa06c49895294d4d9ae38e0ae76039d29"
+    },
+    "normalized_parts": [
+      {
+        "midi": {
+          "path": "normalized/parts/01_piano_right_hand_source_midi_track.mid",
+          "sha256": "d7c3eb03e8abf02a1c1c72fa37d6bdf246ab2f3a649280816057b0bf46e41e59"
+        },
+        "musicxml": {
+          "path": "normalized/parts/01_piano_right_hand_source_midi_track.musicxml",
+          "sha256": "8f0706f62a96afc9595b6f8c672307edb39a9e47cc1f6d1db0d431934a3c7205"
+        },
+        "name": "Piano \u2014 Right-hand source MIDI track"
+      },
+      {
+        "midi": {
+          "path": "normalized/parts/02_piano_left_hand_source_midi_track.mid",
+          "sha256": "d7ee55fa79e657b5c7ac70114bb12b2340b783b2c199f3383dd82a171c0e759a"
+        },
+        "musicxml": {
+          "path": "normalized/parts/02_piano_left_hand_source_midi_track.musicxml",
+          "sha256": "fb99cd861c35c9f546196fd319bd985f706a54eb0e822f37f6906141c3d8691b"
+        },
+        "name": "Piano \u2014 Left-hand source MIDI track"
+      }
+    ]
+  },
+  "schema_version": 1,
+  "source": {
+    "composer": "Fr\u00e9d\u00e9ric Chopin (1810\u20131849)",
+    "composition": "Piano Sonata No. 2 in B-flat minor, Op. 35 \u2014 Movement III \u2014 Marche fun\u00e8bre",
+    "composition_public_domain": true,
+    "composition_public_domain_evidence": "Fr\u00e9d\u00e9ric Chopin died in 1849; Op. 35 was published in 1840, and the checked public-domain score record identifies the 1878 Breitkopf & H\u00e4rtel edition as public domain.",
+    "date_retrieved": "2026-08-31",
+    "license_evidence": "PDMX v9 row ./data/7/10/QmPAPGhqRi4DUH6zVttdyuRoTRH7wxzVHRfdtNCVZxfZuA.json marks the complete solo-piano score cc-zero, no-license-conflict, all-valid, downloadable, non-official, and without a paywall; source/PDMX_RECORD.json preserves the row and archive evidence.",
+    "license_file": "LICENSE_SOURCE.md",
+    "path": "source/chopin_piano_sonata_no2_op35_pdmx_cc0.mid",
+    "rights_basis": "cc0",
+    "rights_status": "cleared",
+    "sha256": "ec2a476e16556cdffc69d47bf0aebf4093842e9dde8f6c32170c7da6a6149ee3",
+    "source_format": "Unchanged MIDI export of the complete one-part solo-piano score in PDMX v9 (archive member mid/7/10/QmPAPGhqRi4DUH6zVttdyuRoTRH7wxzVHRfdtNCVZxfZuA.mid); the build extracts Movement III ticks 1124160..1331520",
+    "source_url": "https://doi.org/10.5281/zenodo.15571083",
+    "transcription_license": "CC0 1.0 Universal"
+  },
+  "title": "Piano Sonata No. 2 in B-flat minor, Op. 35 \u2014 Movement III \u2014 Marche fun\u00e8bre",
+  "track_id": "chopin_op35_funeral_march",
+  "verification": {
+    "duration_tolerance_seconds": 0.02,
+    "max_loop_seam_to_p99_9_ratio": 1.0,
+    "max_silence_seconds": 0.75,
+    "peak_tolerance_db": 0.05
+  }
+}
