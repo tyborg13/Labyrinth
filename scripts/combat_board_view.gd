@@ -6303,16 +6303,20 @@ func _death_animation_units_from_presentation() -> Array[Dictionary]:
 		var unit: Dictionary = (unit_var as Dictionary).duplicate(true)
 		var unit_type: String = str(unit.get("type", ""))
 		var unit_key: String = str(unit.get("key", ""))
+		var player_unit: bool = unit_key == "player" or str(unit.get("role", "")) == "player" or unit_type == "player"
+		if player_unit and unit_type.is_empty():
+			unit_type = "player"
+			unit["type"] = unit_type
 		if unit_type.is_empty() or unit_key.is_empty():
 			continue
 		var definition: Dictionary = GameData.enemy_def(unit_type)
-		if definition.is_empty():
+		if definition.is_empty() and not player_unit:
 			continue
 		unit["key"] = unit_key
-		unit["role"] = "enemy"
+		unit["role"] = "player" if player_unit else "enemy"
 		unit["death_animation"] = true
 		unit["boss_bar"] = false
-		unit["name"] = str(unit.get("name", definition.get("name", "Enemy")))
+		unit["name"] = str(unit.get("name", "Player" if player_unit else definition.get("name", "Enemy")))
 		unit["id"] = int(unit.get("id", -1))
 		var pos_value: Variant = unit.get("pos", Vector2i.ZERO)
 		unit["pos"] = pos_value if typeof(pos_value) == TYPE_VECTOR2I else Vector2i.ZERO

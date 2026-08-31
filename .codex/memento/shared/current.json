@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-30T21:30:50Z",
+  "updated_at": "2026-08-31T14:42:17Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9625,6 +9625,50 @@
       "source": {
         "branch": "codex/simplify-aoe-targeting-graphics",
         "commit": "3162c25c"
+      }
+    },
+    {
+      "id": "mnt_20260831T144217Z_9593d23b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_end_recap_overlay.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_end_recap_overlay.gd",
+      "summary": "Defeat recap follows the Last Light composition instead of a panel grid",
+      "details": "Keep defeat stats as one unboxed vertical ledger over the darkened room, preserve the Umbra button raster's authored proportions, use the purpose-built obsidian RUN ENDED raster, and avoid repurposed frame-kit fragments or symmetric stat cards.",
+      "status": "active",
+      "created_at": "2026-08-31T14:42:17Z",
+      "updated_at": "2026-08-31T14:42:17Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
+        "commit": "b083592a"
+      }
+    },
+    {
+      "id": "mnt_20260831T144217Z_e6fbe963",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Defeat effects anchor to the player's exact terminal tile after HUD collapse",
+      "details": "Derive the recap death-site coordinate from current_room_layout.player_start through CombatBoard transforms, defer the final sync one process frame after terminal HUD chrome hides, animate the player's lethal collapse before removing the terminal player unit, and leave the dropped-embers raster at that normalized location.",
+      "status": "active",
+      "created_at": "2026-08-31T14:42:17Z",
+      "updated_at": "2026-08-31T14:42:17Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
+        "commit": "b083592a"
       }
     }
   ]

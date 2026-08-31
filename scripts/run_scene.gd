@@ -13265,7 +13265,10 @@ func _deck_piles() -> Dictionary:
 
 func _refresh_visibility() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
-	mini_map_overlay.visible = mode != "combat"
+	var terminal_recap_visible: bool = mode in ["victory", "defeat"]
+	mini_map_overlay.visible = mode != "combat" and not terminal_recap_visible
+	room_title.visible = not terminal_recap_visible
+	room_subtitle.visible = not terminal_recap_visible
 	# Combat history remains available to the existing systems, but it no longer
 	# occupies a permanent board corner. Explicit event messages reveal briefly.
 	_refresh_log_overlay_visibility()
@@ -13281,6 +13284,7 @@ func _refresh_visibility() -> void:
 	if _context_choice_overlay != null and mode != "campfire":
 		_context_choice_overlay.visible = false
 	stats_label.visible = mode not in ["victory", "defeat"]
+	loadout_button.visible = mode not in ["victory", "defeat"]
 	grimoire_button.visible = mode not in ["victory", "defeat"]
 	menu_button.visible = mode not in ["victory", "defeat"]
 	if mode != "combat":
@@ -14310,7 +14314,33 @@ func _show_run_end_recap(outcome: String) -> void:
 		return
 	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
 	var model: Dictionary = RunEndRecapOverlay.build_model(_run_state, _progression, outcome, ember_amount)
-	_run_end_recap.present(model)
+	_run_end_recap.present(model, _run_end_death_site_normalized())
+	if outcome == "defeat":
+		call_deferred("_sync_run_end_death_site")
+
+func _sync_run_end_death_site() -> void:
+	await get_tree().process_frame
+	if _run_end_recap == null or not _run_end_recap.visible or str(_run_state.get("mode", "")) != "defeat":
+		return
+	_run_end_recap.set_death_site_normalized(_run_end_death_site_normalized())
+
+func _run_end_death_site_normalized() -> Vector2:
+	if board_view == null or _run_end_recap == null:
+		return Vector2(0.32, 0.62)
+	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
+	var death_tile: Vector2i = layout.get("player_start", Vector2i(-1, -1))
+	if death_tile.x < 0:
+		return Vector2(0.32, 0.62)
+	var board_point: Vector2 = board_view.call("world_position_for_tile", death_tile) as Vector2
+	var global_point: Vector2 = board_view.get_global_transform() * board_point
+	var recap_point: Vector2 = _run_end_recap.get_global_transform().affine_inverse() * global_point
+	var recap_size: Vector2 = _run_end_recap.size
+	if recap_size.x <= 1.0 or recap_size.y <= 1.0:
+		return Vector2(0.32, 0.62)
+	return Vector2(
+		clampf(recap_point.x / recap_size.x, 0.08, 0.92),
+		clampf(recap_point.y / recap_size.y, 0.10, 0.90)
+	)
 
 func _reward_choices_available() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
@@ -20111,7 +20141,8 @@ func _animate_defeats_and_terrain_destruction(
 	base_presentation: Dictionary = {},
 	skip_terrain_destruction: bool = false
 ) -> void:
-	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
+	var death_units: Array[Dictionary] = _defeated_player_units_between_states(before_state, after_state)
+	death_units.append_array(_defeated_enemy_units_between_states(before_state, after_state))
 	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 	if skip_terrain_destruction:
 		destroyed_terrain.clear()
@@ -20165,7 +20196,8 @@ func _death_hold_presentation(
 	base_presentation: Dictionary = {},
 	terrain_destruction_progress: float = 0.0
 ) -> Dictionary:
-	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
+	var death_units: Array[Dictionary] = _defeated_player_units_between_states(before_state, after_state)
+	death_units.append_array(_defeated_enemy_units_between_states(before_state, after_state))
 	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 	if death_units.is_empty() and destroyed_terrain.is_empty():
 		return base_presentation
@@ -22176,6 +22208,28 @@ func _defeated_enemy_units_between_states(before_state: Dictionary, after_state:
 		})
 	return units
 
+func _defeated_player_units_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var units: Array[Dictionary] = []
+	var before_player: Dictionary = before_state.get("player", {}) as Dictionary
+	var after_player: Dictionary = after_state.get("player", {}) as Dictionary
+	if before_player.is_empty() or int(before_player.get("hp", 0)) <= 0:
+		return units
+	if not after_player.is_empty() and int(after_player.get("hp", 0)) > 0:
+		return units
+	var final_player: Dictionary = after_player if not after_player.is_empty() else before_player
+	units.append({
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"name": "Player",
+		"pos": final_player.get("pos", before_player.get("pos", Vector2i.ZERO)),
+		"footprint": Vector2i.ONE,
+		"hp": maxi(1, int(before_player.get("hp", 1))),
+		"max_hp": maxi(1, int(before_player.get("max_hp", before_player.get("hp", 1)))),
+		"death_animation": true
+	})
+	return units
+
 func _destroyed_terrain_units_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var after_by_id: Dictionary = {}
 	for after_var: Variant in after_state.get("terrain", []):
@@ -22309,7 +22363,7 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "victory":
 		return "Victory"
 	if mode == "defeat":
-		return "Defeat"
+		return ""
 	return ""
 
 func _board_status_detail(preview: Dictionary) -> String:

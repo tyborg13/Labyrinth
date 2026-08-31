@@ -1,6 +1,7 @@
 extends Control
 class_name RunEndRecapOverlay
 
+const AssetLoader = preload("res://scripts/asset_loader.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -14,14 +15,30 @@ signal new_run_pressed
 signal main_menu_pressed
 
 const VICTORY_INTRO_SECONDS: float = 0.62
-const DEFEAT_PANEL_DELAY_SECONDS: float = 1.04
-const DEFEAT_PANEL_INTRO_SECONDS: float = 0.58
-const PANEL_MAX_SIZE: Vector2 = Vector2(710.0, 660.0)
+const DEFEAT_PANEL_DELAY_SECONDS: float = 1.18
+const DEFEAT_PANEL_INTRO_SECONDS: float = 0.62
+const PANEL_MAX_SIZE: Vector2 = Vector2(710.0, 620.0)
 const PANEL_MIN_WIDTH: float = 548.0
 const PANEL_EDGE_MARGIN: float = 42.0
-const BUTTON_HEIGHT: float = 54.0
-const BUTTON_MIN_WIDTH: float = 226.0
+const BUTTON_HEIGHT: float = 64.0
+const BUTTON_MIN_WIDTH: float = 314.0
 const NEW_BEST_COLOR: Color = Color("72c78c")
+const DEFEAT_KICKER_COLOR: Color = Color("b98cff")
+const DEFEAT_VALUE_COLOR: Color = Color("f1dcc3")
+const LAST_LIGHT_TITLE_PATH: String = "res://assets/art/ui/run_end_last_light_title.png"
+const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
+const TITLE_KEY_SHADER_CODE: String = """
+shader_type canvas_item;
+render_mode unshaded;
+
+void fragment() {
+	vec4 source = texture(TEXTURE, UV);
+	float luminance = dot(source.rgb, vec3(0.2126, 0.7152, 0.0722));
+	float alpha = smoothstep(0.035, 0.20, 1.0 - luminance);
+	vec3 cooled = mix(source.rgb * vec3(0.78, 0.80, 0.86), source.rgb, 0.68);
+	COLOR = vec4(cooled, alpha);
+}
+"""
 const STAT_SPECS := [
 	{"id": "enemies_killed", "label": "ENEMIES KILLED"},
 	{"id": "damage_dealt", "label": "DAMAGE DEALT"},
@@ -36,18 +53,31 @@ var _model: Dictionary = {}
 var _model_fingerprint: String = ""
 var _motion_enabled: bool = true
 var _elapsed: float = 0.0
+var _death_site_normalized: Vector2 = Vector2(0.32, 0.62)
 
 var _death_shroud: DeathEngulfOverlay
-var _panel: PanelContainer
-var _kicker_label: Label
-var _title_label: Label
-var _summary_label: Label
-var _accent_rule: ColorRect
-var _stat_value_labels: Dictionary = {}
-var _stat_best_labels: Dictionary = {}
-var _ember_label: Label
-var _ember_value: Label
-var _recovery_value: Label
+var _victory_panel: PanelContainer
+var _victory_kicker: Label
+var _victory_title: Label
+var _victory_summary: Label
+var _victory_accent_rule: ColorRect
+var _victory_stat_values: Dictionary = {}
+var _victory_stat_bests: Dictionary = {}
+var _victory_ember_label: Label
+var _victory_ember_value: Label
+var _victory_recovery_value: Label
+
+var _defeat_layout: Control
+var _defeat_kicker: Label
+var _defeat_title_raster: TextureRect
+var _defeat_accessibility_title: Label
+var _defeat_metrics: VBoxContainer
+var _defeat_stat_values: Dictionary = {}
+var _defeat_stat_bests: Dictionary = {}
+var _defeat_ember_value: Label
+var _defeat_recovery_value: Label
+var _defeat_ember_result: Control
+
 var _new_run_button: Button
 var _main_menu_button: Button
 
@@ -126,7 +156,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 		"outcome": normalized_outcome,
 		"kicker": "THE LABYRINTH YIELDS" if normalized_outcome == "victory" else "THE UMBRA CLOSES IN",
 		"title": "ASCENT COMPLETE" if normalized_outcome == "victory" else "RUN ENDED",
-		"summary": "The ascent is complete. Carried embers are secure." if normalized_outcome == "victory" else "The room remains. The Umbra waits.",
+		"summary": "The ascent is complete. Carried embers are secure." if normalized_outcome == "victory" else "",
 		"stats": stats,
 		"new_bests": new_bests,
 		"depth": int(stats.get("depth", 0)),
@@ -141,12 +171,15 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 static func _coord_depth(coord: Vector2i) -> int:
 	return maxi(abs(coord.x), abs(coord.y))
 
-func present(model: Dictionary) -> void:
+func present(model: Dictionary, death_site_normalized: Vector2 = Vector2(0.32, 0.62)) -> void:
 	var next_model: Dictionary = model.duplicate(true)
-	var fingerprint: String = JSON.stringify(next_model)
+	var normalized_site := Vector2(clampf(death_site_normalized.x, 0.08, 0.92), clampf(death_site_normalized.y, 0.10, 0.90))
+	var fingerprint: String = "%s|%.4f|%.4f" % [JSON.stringify(next_model), normalized_site.x, normalized_site.y]
 	var restart_motion: bool = not visible or fingerprint != _model_fingerprint
 	_model = next_model
 	_model_fingerprint = fingerprint
+	_death_site_normalized = normalized_site
+	_death_shroud.set_death_site_normalized(_death_site_normalized)
 	_apply_model()
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -159,6 +192,15 @@ func present(model: Dictionary) -> void:
 			_death_shroud.play()
 	set_process(_motion_enabled and _elapsed < _presentation_duration())
 	_update_presentation()
+	call_deferred("_focus_primary_action")
+
+func set_death_site_normalized(normalized_position: Vector2) -> void:
+	_death_site_normalized = Vector2(
+		clampf(normalized_position.x, 0.08, 0.92),
+		clampf(normalized_position.y, 0.10, 0.90)
+	)
+	if _death_shroud != null:
+		_death_shroud.set_death_site_normalized(_death_site_normalized)
 
 func reset() -> void:
 	_model.clear()
@@ -168,7 +210,6 @@ func reset() -> void:
 	set_process(false)
 	if _death_shroud != null:
 		_death_shroud.reset()
-	queue_redraw()
 
 func set_motion_enabled(enabled: bool) -> void:
 	_motion_enabled = enabled
@@ -203,6 +244,12 @@ func shroud_progress() -> float:
 func final_shroud_alpha() -> float:
 	return DeathEngulfOverlay.FINAL_SHROUD_ALPHA
 
+func death_site_normalized() -> Vector2:
+	return _death_site_normalized
+
+func death_site_ember_position() -> Vector2:
+	return _death_shroud.ember_position() if _death_shroud != null else Vector2.ZERO
+
 func has_decorative_edge_strokes() -> bool:
 	return _death_shroud.has_decorative_edge_strokes() if _death_shroud != null else false
 
@@ -216,7 +263,7 @@ func _process(delta: float) -> void:
 	_update_presentation()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_RESIZED and visible and _panel != null:
+	if what == NOTIFICATION_RESIZED and visible:
 		_update_presentation()
 
 func _draw() -> void:
@@ -233,60 +280,56 @@ func _build_children() -> void:
 	_death_shroud.anchor_bottom = 1.0
 	add_child(_death_shroud)
 
-	_panel = PanelContainer.new()
-	_panel.name = "OutcomeRecap"
-	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(_panel)
+	_build_victory_panel()
+	_build_defeat_layout()
+	_build_shared_actions()
 
+func _build_victory_panel() -> void:
+	_victory_panel = PanelContainer.new()
+	_victory_panel.name = "OutcomeRecap"
+	_victory_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_victory_panel)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 30)
 	margin.add_theme_constant_override("margin_top", 22)
 	margin.add_theme_constant_override("margin_right", 30)
 	margin.add_theme_constant_override("margin_bottom", 22)
-	_panel.add_child(margin)
-
+	_victory_panel.add_child(margin)
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 9)
 	margin.add_child(content)
-
-	_kicker_label = _label("OutcomeKicker", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
-	content.add_child(_kicker_label)
-
-	_title_label = _label("OutcomeTitle", 44, HORIZONTAL_ALIGNMENT_LEFT)
-	_title_label.add_theme_font_override("font", DISPLAY_FONT)
-	_title_label.add_theme_constant_override("outline_size", 5)
-	UiTypography.apply_stone_text(_title_label, 0.13, 4.0)
-	content.add_child(_title_label)
-
-	_accent_rule = ColorRect.new()
-	_accent_rule.name = "OutcomeAccentRule"
-	_accent_rule.custom_minimum_size = Vector2(0.0, 3.0)
-	_accent_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(_accent_rule)
-
-	_summary_label = _label("OutcomeSummary", UiTypography.SIZE_BODY_LARGE, HORIZONTAL_ALIGNMENT_LEFT)
-	_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_summary_label.custom_minimum_size = Vector2(420.0, 38.0)
-	content.add_child(_summary_label)
-
+	_victory_kicker = _label("VictoryOutcomeKicker", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
+	content.add_child(_victory_kicker)
+	_victory_title = _label("VictoryOutcomeTitle", 44, HORIZONTAL_ALIGNMENT_LEFT)
+	_victory_title.add_theme_font_override("font", DISPLAY_FONT)
+	_victory_title.add_theme_constant_override("outline_size", 5)
+	UiTypography.apply_stone_text(_victory_title, 0.13, 4.0)
+	content.add_child(_victory_title)
+	_victory_accent_rule = ColorRect.new()
+	_victory_accent_rule.custom_minimum_size = Vector2(0.0, 3.0)
+	_victory_accent_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(_victory_accent_rule)
+	_victory_summary = _label("VictoryOutcomeSummary", UiTypography.SIZE_BODY_LARGE, HORIZONTAL_ALIGNMENT_LEFT)
+	_victory_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_victory_summary.custom_minimum_size = Vector2(420.0, 38.0)
+	content.add_child(_victory_summary)
 	var stat_grid := GridContainer.new()
-	stat_grid.name = "RunStatGrid"
+	stat_grid.name = "VictoryRunStatGrid"
 	stat_grid.columns = 3
 	stat_grid.custom_minimum_size = Vector2(0.0, 184.0)
 	stat_grid.add_theme_constant_override("h_separation", 8)
 	stat_grid.add_theme_constant_override("v_separation", 8)
 	content.add_child(stat_grid)
 	for spec_var: Variant in STAT_SPECS:
-		_add_stat_metric(stat_grid, spec_var as Dictionary)
-
+		_add_victory_stat_metric(stat_grid, spec_var as Dictionary)
 	var ember_panel := PanelContainer.new()
-	ember_panel.name = "EmberResult"
+	ember_panel.name = "VictoryEmberResult"
 	ember_panel.custom_minimum_size = Vector2(0.0, 94.0)
 	content.add_child(ember_panel)
 	var ember_margin := MarginContainer.new()
-	ember_margin.add_theme_constant_override("margin_left", 16)
+	for side: String in ["left", "right"]:
+		ember_margin.add_theme_constant_override("margin_%s" % side, 16)
 	ember_margin.add_theme_constant_override("margin_top", 9)
-	ember_margin.add_theme_constant_override("margin_right", 16)
 	ember_margin.add_theme_constant_override("margin_bottom", 9)
 	ember_panel.add_child(ember_margin)
 	var ember_row := HBoxContainer.new()
@@ -294,72 +337,168 @@ func _build_children() -> void:
 	ember_margin.add_child(ember_row)
 	var amount_box := VBoxContainer.new()
 	amount_box.custom_minimum_size = Vector2(178.0, 0.0)
-	amount_box.add_theme_constant_override("separation", 1)
 	ember_row.add_child(amount_box)
-	_ember_label = _label("EmberLabel", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
-	amount_box.add_child(_ember_label)
-	_ember_value = _label("EmberValue", UiTypography.SIZE_HERO, HORIZONTAL_ALIGNMENT_LEFT)
-	_ember_value.add_theme_font_override("font", UI_FONT)
-	amount_box.add_child(_ember_value)
+	_victory_ember_label = _label("VictoryEmberLabel", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
+	amount_box.add_child(_victory_ember_label)
+	_victory_ember_value = _label("VictoryEmberValue", UiTypography.SIZE_HERO, HORIZONTAL_ALIGNMENT_LEFT)
+	_victory_ember_value.add_theme_font_override("font", UI_FONT)
+	amount_box.add_child(_victory_ember_value)
 	var recovery_box := VBoxContainer.new()
 	recovery_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	recovery_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	ember_row.add_child(recovery_box)
-	var recovery_heading := _label("RecoveryHeading", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
+	var recovery_heading := _label("VictoryRecoveryHeading", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
 	recovery_heading.text = "NEXT RUN"
 	recovery_box.add_child(recovery_heading)
-	_recovery_value = _label("RecoveryValue", UiTypography.SIZE_BODY, HORIZONTAL_ALIGNMENT_LEFT)
-	_recovery_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_recovery_value.custom_minimum_size = Vector2(240.0, 38.0)
-	recovery_box.add_child(_recovery_value)
+	_victory_recovery_value = _label("VictoryRecoveryValue", UiTypography.SIZE_BODY, HORIZONTAL_ALIGNMENT_LEFT)
+	_victory_recovery_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_victory_recovery_value.custom_minimum_size = Vector2(240.0, 38.0)
+	recovery_box.add_child(_victory_recovery_value)
 
-	var button_row := HBoxContainer.new()
-	button_row.name = "OutcomeActions"
-	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	button_row.add_theme_constant_override("separation", 14)
-	content.add_child(button_row)
+func _build_defeat_layout() -> void:
+	_defeat_layout = Control.new()
+	_defeat_layout.name = "LastLightRecap"
+	_defeat_layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_defeat_layout.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_defeat_layout)
+
+	_defeat_kicker = _label("OutcomeKicker", 22, HORIZONTAL_ALIGNMENT_LEFT)
+	_defeat_kicker.add_theme_font_override("font", UI_FONT)
+	_defeat_kicker.add_theme_color_override("font_color", DEFEAT_KICKER_COLOR)
+	_defeat_kicker.add_theme_color_override("font_outline_color", Color("140d20"))
+	_defeat_kicker.add_theme_constant_override("outline_size", 3)
+	_defeat_layout.add_child(_defeat_kicker)
+
+	_defeat_title_raster = TextureRect.new()
+	_defeat_title_raster.name = "DefeatTitleRaster"
+	_defeat_title_raster.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_defeat_title_raster.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_defeat_title_raster.texture = AssetLoader.load_texture_source_first(LAST_LIGHT_TITLE_PATH)
+	_defeat_title_raster.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_defeat_title_raster.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_defeat_title_raster.material = _title_key_material()
+	_defeat_layout.add_child(_defeat_title_raster)
+
+	_defeat_accessibility_title = _label("OutcomeTitle", 18, HORIZONTAL_ALIGNMENT_LEFT)
+	_defeat_accessibility_title.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_defeat_accessibility_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_defeat_layout.add_child(_defeat_accessibility_title)
+
+	_defeat_metrics = VBoxContainer.new()
+	_defeat_metrics.name = "DefeatStatLedger"
+	_defeat_metrics.add_theme_constant_override("separation", 3)
+	_defeat_layout.add_child(_defeat_metrics)
+	for spec_var: Variant in STAT_SPECS:
+		_add_defeat_stat_metric(_defeat_metrics, spec_var as Dictionary)
+
+	_defeat_ember_result = Control.new()
+	_defeat_ember_result.name = "EmberResult"
+	_defeat_layout.add_child(_defeat_ember_result)
+	var ember_icon := TextureRect.new()
+	ember_icon.name = "LostEmberRaster"
+	ember_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ember_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ember_icon.texture = AssetLoader.load_texture_source_first(EMBER_ICON_PATH)
+	ember_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ember_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ember_icon.position = Vector2(0.0, 9.0)
+	ember_icon.size = Vector2(44.0, 44.0)
+	_defeat_ember_result.add_child(ember_icon)
+	var ember_heading := _label("EmberLabel", 15, HORIZONTAL_ALIGNMENT_LEFT)
+	ember_heading.text = "EMBERS LOST"
+	ember_heading.position = Vector2(54.0, 1.0)
+	ember_heading.size = Vector2(230.0, 25.0)
+	ember_heading.add_theme_color_override("font_color", Color("d19879"))
+	_defeat_ember_result.add_child(ember_heading)
+	_defeat_ember_value = _label("EmberValue", 36, HORIZONTAL_ALIGNMENT_LEFT)
+	_defeat_ember_value.add_theme_font_override("font", UI_FONT)
+	_defeat_ember_value.position = Vector2(53.0, 22.0)
+	_defeat_ember_value.size = Vector2(240.0, 48.0)
+	_defeat_ember_value.add_theme_color_override("font_color", Color("ff9a63"))
+	_defeat_ember_result.add_child(_defeat_ember_value)
+
+	_defeat_recovery_value = _label("RecoveryValue", 17, HORIZONTAL_ALIGNMENT_LEFT)
+	_defeat_recovery_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_defeat_recovery_value.add_theme_color_override("font_color", Color("d9c8e3"))
+	_defeat_layout.add_child(_defeat_recovery_value)
+
+func _build_shared_actions() -> void:
 	_new_run_button = _button("NewRunButton", "New Run")
 	_new_run_button.pressed.connect(func() -> void: new_run_pressed.emit())
-	button_row.add_child(_new_run_button)
+	add_child(_new_run_button)
 	_main_menu_button = _button("MainMenuButton", "Main Menu")
 	_main_menu_button.pressed.connect(func() -> void: main_menu_pressed.emit())
-	button_row.add_child(_main_menu_button)
+	add_child(_main_menu_button)
+	_new_run_button.focus_neighbor_bottom = _main_menu_button.get_path()
+	_main_menu_button.focus_neighbor_top = _new_run_button.get_path()
+	for button: Button in [_new_run_button, _main_menu_button]:
+		button.mouse_entered.connect(_select_action.bind(button))
+		button.focus_entered.connect(_select_action.bind(button))
+	_new_run_button.set_meta("umbra_selected", true)
 
-func _add_stat_metric(host: GridContainer, spec: Dictionary) -> void:
+func _add_victory_stat_metric(host: GridContainer, spec: Dictionary) -> void:
 	var stat_id: String = str(spec.get("id", ""))
 	var panel := PanelContainer.new()
-	panel.name = "%sMetric" % stat_id.to_pascal_case()
 	panel.custom_minimum_size = Vector2(156.0, 88.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _inset_style(Color("6e5946"), Color(0.035, 0.030, 0.028, 0.86)))
 	host.add_child(panel)
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 11)
+	for side: String in ["left", "right"]:
+		margin.add_theme_constant_override("margin_%s" % side, 11)
 	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 11)
 	margin.add_theme_constant_override("margin_bottom", 6)
 	panel.add_child(margin)
 	var box := VBoxContainer.new()
-	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 0)
 	margin.add_child(box)
-	var heading := _label("%sHeading" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
+	var heading := _label("Victory%sHeading" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
 	heading.text = str(spec.get("label", stat_id.to_upper()))
 	box.add_child(heading)
-	var value := _label("%sValue" % stat_id.to_pascal_case(), 30, HORIZONTAL_ALIGNMENT_LEFT)
+	var value := _label("Victory%sValue" % stat_id.to_pascal_case(), 30, HORIZONTAL_ALIGNMENT_LEFT)
 	value.add_theme_font_override("font", UI_FONT)
-	value.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(value)
-	var best := _label("%sBest" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
+	var best := _label("Victory%sBest" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
 	best.text = "NEW BEST"
-	best.custom_minimum_size = Vector2(0.0, 15.0)
+	best.add_theme_color_override("font_color", NEW_BEST_COLOR)
+	box.add_child(best)
+	_victory_stat_values[stat_id] = value
+	_victory_stat_bests[stat_id] = best
+
+func _add_defeat_stat_metric(host: VBoxContainer, spec: Dictionary) -> void:
+	var stat_id: String = str(spec.get("id", ""))
+	var row := Control.new()
+	row.name = "%sMetric" % stat_id.to_pascal_case()
+	row.custom_minimum_size = Vector2(520.0, 62.0)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(row)
+	var heading := _label("%sHeading" % stat_id.to_pascal_case(), 17, HORIZONTAL_ALIGNMENT_RIGHT)
+	heading.text = str(spec.get("label", stat_id.to_upper()))
+	heading.position = Vector2(0.0, 13.0)
+	heading.size = Vector2(174.0, 36.0)
+	heading.add_theme_color_override("font_color", Color("c6ac90"))
+	row.add_child(heading)
+	var value := _label("%sValue" % stat_id.to_pascal_case(), 34, HORIZONTAL_ALIGNMENT_CENTER)
+	value.add_theme_font_override("font", UI_FONT)
+	value.position = Vector2(184.0, 6.0)
+	value.size = Vector2(86.0, 50.0)
+	value.add_theme_color_override("font_color", DEFEAT_VALUE_COLOR)
+	row.add_child(value)
+	var best := _label("%sBest" % stat_id.to_pascal_case(), 14, HORIZONTAL_ALIGNMENT_LEFT)
+	best.text = "NEW BEST"
+	best.position = Vector2(286.0, 16.0)
+	best.size = Vector2(126.0, 32.0)
 	best.add_theme_color_override("font_color", NEW_BEST_COLOR)
 	best.add_theme_color_override("font_outline_color", Color("102217"))
 	best.add_theme_constant_override("outline_size", 2)
-	box.add_child(best)
-	_stat_value_labels[stat_id] = value
-	_stat_best_labels[stat_id] = best
+	row.add_child(best)
+	_defeat_stat_values[stat_id] = value
+	_defeat_stat_bests[stat_id] = best
+
+func _title_key_material() -> ShaderMaterial:
+	var shader := Shader.new()
+	shader.code = TITLE_KEY_SHADER_CODE
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	return material
 
 func _label(node_name: String, font_size: int, alignment: HorizontalAlignment) -> Label:
 	var label := Label.new()
@@ -374,53 +513,74 @@ func _label(node_name: String, font_size: int, alignment: HorizontalAlignment) -
 	label.add_theme_constant_override("outline_size", 1)
 	return label
 
-func _button(node_name: String, text: String) -> Button:
+func _button(node_name: String, button_text: String) -> Button:
 	var button := Button.new()
 	button.name = node_name
-	button.text = text
+	button.text = button_text
+	button.focus_mode = Control.FOCUS_ALL
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.add_theme_font_override("font", UI_FONT)
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
-	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
-	_ui_skin.apply_button_native_size(button, BUTTON_HEIGHT, BUTTON_MIN_WIDTH, true, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_UMBRA)
+	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
+	UiTypography.set_button_size(button, 20)
+	_ui_skin.apply_button_native_size(button, BUTTON_HEIGHT, BUTTON_MIN_WIDTH, false, UiSkin.VARIANT_UMBRA)
 	return button
 
+func _select_action(button: Button) -> void:
+	if button == null:
+		return
+	_new_run_button.set_meta("umbra_selected", button == _new_run_button)
+	_main_menu_button.set_meta("umbra_selected", button == _main_menu_button)
+	_new_run_button.queue_redraw()
+	_main_menu_button.queue_redraw()
+
+func _focus_primary_action() -> void:
+	if not visible or _new_run_button == null:
+		return
+	_select_action(_new_run_button)
+	_new_run_button.grab_focus()
+
 func _apply_model() -> void:
-	if _panel == null or _model.is_empty():
+	if _model.is_empty():
 		return
 	var victory: bool = _is_victory()
-	var accent: Color = _accent_color()
-	_kicker_label.text = str(_model.get("kicker", ""))
-	_title_label.text = str(_model.get("title", ""))
-	_summary_label.text = str(_model.get("summary", ""))
 	var stats: Dictionary = _model.get("stats", {}) as Dictionary
 	var new_bests: Array = _model.get("new_bests", []) as Array
-	for stat_id_var: Variant in _stat_value_labels.keys():
+	_victory_panel.visible = victory
+	_defeat_layout.visible = not victory
+	_victory_kicker.text = str(_model.get("kicker", ""))
+	_victory_title.text = str(_model.get("title", ""))
+	_victory_summary.text = str(_model.get("summary", ""))
+	_victory_ember_label.text = str(_model.get("ember_label", ""))
+	_victory_ember_value.text = str(int(_model.get("ember_amount", 0)))
+	_victory_recovery_value.text = str(_model.get("recovery_status", ""))
+	_defeat_kicker.text = str(_model.get("kicker", ""))
+	_defeat_accessibility_title.text = str(_model.get("title", ""))
+	_defeat_layout.tooltip_text = "%s — %s" % [_defeat_accessibility_title.text, _defeat_kicker.text]
+	_defeat_ember_value.text = str(int(_model.get("ember_amount", 0)))
+	_defeat_recovery_value.text = str(_model.get("recovery_status", ""))
+	for stat_id_var: Variant in _victory_stat_values.keys():
 		var stat_id: String = str(stat_id_var)
-		var value_label: Label = _stat_value_labels.get(stat_id) as Label
-		var best_label: Label = _stat_best_labels.get(stat_id) as Label
-		if value_label != null:
-			value_label.text = str(int(stats.get(stat_id, 0)))
-		if best_label != null:
-			best_label.visible = new_bests.has(stat_id)
-	_ember_label.text = str(_model.get("ember_label", ""))
-	_ember_value.text = str(int(_model.get("ember_amount", 0)))
-	_recovery_value.text = str(_model.get("recovery_status", ""))
-	_panel.add_theme_stylebox_override("panel", _panel_style(victory, accent))
-	_accent_rule.color = accent
-	_kicker_label.add_theme_color_override("font_color", accent.lightened(0.20))
-	_title_label.add_theme_color_override("font_color", Color("fff1c8") if victory else Color("ffd8cf"))
-	_title_label.add_theme_color_override("font_outline_color", Color("28170b") if victory else Color("250609"))
-	_ember_label.add_theme_color_override("font_color", accent.lightened(0.22))
-	_ember_value.add_theme_color_override("font_color", Color("ffd27a") if victory else Color("f3987d"))
-	_recovery_value.add_theme_color_override("font_color", Color("e7d7b7") if victory else Color("efc2b6"))
-	var ember_panel: PanelContainer = _panel.find_child("EmberResult", true, false) as PanelContainer
+		(_victory_stat_values.get(stat_id) as Label).text = str(int(stats.get(stat_id, 0)))
+		(_victory_stat_bests.get(stat_id) as Label).visible = new_bests.has(stat_id)
+	for stat_id_var: Variant in _defeat_stat_values.keys():
+		var stat_id: String = str(stat_id_var)
+		(_defeat_stat_values.get(stat_id) as Label).text = str(int(stats.get(stat_id, 0)))
+		(_defeat_stat_bests.get(stat_id) as Label).visible = new_bests.has(stat_id)
+	var accent := Color("e7b85a")
+	_victory_panel.add_theme_stylebox_override("panel", _panel_style(accent))
+	_victory_accent_rule.color = accent
+	_victory_kicker.add_theme_color_override("font_color", accent.lightened(0.20))
+	_victory_title.add_theme_color_override("font_color", Color("fff1c8"))
+	_victory_ember_label.add_theme_color_override("font_color", accent.lightened(0.22))
+	_victory_ember_value.add_theme_color_override("font_color", Color("ffd27a"))
+	_victory_recovery_value.add_theme_color_override("font_color", Color("e7d7b7"))
+	var ember_panel: PanelContainer = _victory_panel.find_child("VictoryEmberResult", true, false) as PanelContainer
 	if ember_panel != null:
 		ember_panel.add_theme_stylebox_override("panel", _inset_style(accent, Color(accent.r * 0.12, accent.g * 0.10, accent.b * 0.08, 0.92)))
 
-func _panel_style(victory: bool, accent: Color) -> StyleBoxFlat:
-	var background: Color = Color(0.075, 0.052, 0.035, 0.965) if victory else Color(0.055, 0.030, 0.034, 0.95)
-	var style := _ui_skin.make_plain_card_style(background, accent, 0.0)
+func _panel_style(accent: Color) -> StyleBoxFlat:
+	var style := _ui_skin.make_plain_card_style(Color(0.075, 0.052, 0.035, 0.965), accent, 0.0)
 	style.border_width_left = 4
 	style.border_width_top = 4
 	style.border_width_right = 4
@@ -448,9 +608,6 @@ func _inset_style(border: Color, background: Color) -> StyleBoxFlat:
 	style.corner_radius_bottom_left = 7
 	return style
 
-func _accent_color() -> Color:
-	return Color("e7b85a") if _is_victory() else Color("bd4b43")
-
 func _is_victory() -> bool:
 	return str(_model.get("outcome", "defeat")) == "victory"
 
@@ -466,26 +623,68 @@ func _intro_progress() -> float:
 	return 1.0 - pow(1.0 - t, 3.0)
 
 func _update_presentation() -> void:
-	if _panel == null or not visible:
+	if not visible or size.x <= 0.0 or size.y <= 0.0:
 		return
 	var progress: float = _intro_progress()
-	var content_minimum: Vector2 = _panel.get_combined_minimum_size()
+	if _is_victory():
+		_update_victory_layout(progress)
+	else:
+		_update_defeat_layout(progress)
+	queue_redraw()
+
+func _update_victory_layout(progress: float) -> void:
+	var content_minimum: Vector2 = _victory_panel.get_combined_minimum_size()
 	var width: float = clampf(size.x * 0.41, PANEL_MIN_WIDTH, PANEL_MAX_SIZE.x)
-	width = maxf(width, content_minimum.x)
-	width = minf(width, maxf(320.0, size.x - 32.0))
-	var available_height: float = maxf(320.0, size.y - 20.0)
-	var desired_height: float = maxf(480.0, ceilf(content_minimum.y) + 4.0)
-	var height: float = minf(desired_height, minf(PANEL_MAX_SIZE.y, available_height))
+	width = minf(maxf(width, content_minimum.x), maxf(320.0, size.x - 32.0))
+	var height: float = minf(maxf(450.0, ceilf(content_minimum.y) + 4.0), minf(PANEL_MAX_SIZE.y, maxf(320.0, size.y - 120.0)))
 	var edge_margin: float = minf(PANEL_EDGE_MARGIN, maxf(16.0, size.x * 0.035))
 	var base_x: float = size.x - width - edge_margin
-	if base_x < 16.0:
-		base_x = (size.x - width) * 0.5
-	var base_y: float = (size.y - height) * 0.5
-	var slide: float = (1.0 - progress) * 46.0
-	_panel.position = Vector2(base_x + slide, base_y)
-	_panel.size = Vector2(width, height)
-	_panel.pivot_offset = _panel.size * 0.5
-	var beat: float = sin(clampf(_elapsed / _presentation_duration(), 0.0, 1.0) * PI) * 0.010 if _motion_enabled else 0.0
-	_panel.scale = Vector2.ONE * (0.985 + 0.015 * progress + beat)
-	_panel.modulate = Color(1.0, 1.0, 1.0, progress)
-	queue_redraw()
+	var base_y: float = maxf(12.0, (size.y - height - 84.0) * 0.5)
+	_victory_panel.position = Vector2(base_x + (1.0 - progress) * 46.0, base_y)
+	_victory_panel.size = Vector2(width, height)
+	_victory_panel.modulate = Color(1.0, 1.0, 1.0, progress)
+	var button_width: float = minf(BUTTON_MIN_WIDTH, width * 0.46)
+	var button_y: float = minf(size.y - BUTTON_HEIGHT - 12.0, base_y + height + 12.0)
+	_new_run_button.custom_minimum_size = Vector2(button_width, BUTTON_HEIGHT)
+	_main_menu_button.custom_minimum_size = Vector2(button_width, BUTTON_HEIGHT)
+	_new_run_button.position = Vector2(base_x, button_y)
+	_new_run_button.size = Vector2(button_width, BUTTON_HEIGHT)
+	_main_menu_button.position = Vector2(base_x + width - button_width, button_y)
+	_main_menu_button.size = Vector2(button_width, BUTTON_HEIGHT)
+	_new_run_button.modulate = Color(1.0, 1.0, 1.0, progress)
+	_main_menu_button.modulate = Color(1.0, 1.0, 1.0, progress)
+
+func _update_defeat_layout(progress: float) -> void:
+	var content_x: float = size.x * 0.505
+	var content_width: float = minf(size.x * 0.430, 800.0)
+	var top: float = size.y * 0.025
+	var hidden_slide: float = (1.0 - progress) * 54.0
+	_defeat_layout.modulate = Color(1.0, 1.0, 1.0, progress)
+	_defeat_kicker.position = Vector2(content_x + content_width * 0.10 + hidden_slide, top)
+	_defeat_kicker.size = Vector2(content_width * 0.90, size.y * 0.052)
+	_defeat_title_raster.position = Vector2(content_x - content_width * 0.10 + hidden_slide, top + size.y * 0.025)
+	_defeat_title_raster.size = Vector2(content_width * 1.08, size.y * 0.235)
+	_defeat_accessibility_title.position = _defeat_title_raster.position
+	_defeat_accessibility_title.size = _defeat_title_raster.size
+	_defeat_metrics.position = Vector2(content_x - 28.0 + hidden_slide, top + size.y * 0.250)
+	_defeat_metrics.size = Vector2(520.0, size.y * 0.345)
+	_defeat_ember_result.position = Vector2(size.x * 0.405 + hidden_slide, top + size.y * 0.690)
+	_defeat_ember_result.size = Vector2(250.0, 78.0)
+	_defeat_recovery_value.position = Vector2(size.x * 0.505 + hidden_slide, top + size.y * 0.710)
+	_defeat_recovery_value.size = Vector2(minf(560.0, size.x * 0.34), 44.0)
+	var actions_y: float = minf(size.y - 82.0, top + size.y * 0.840)
+	# The ornament draws four pixels wider and ten pixels taller than the Button.
+	# These dimensions retain the source bitmap's exact 1024:224 aspect on screen.
+	var new_run_size := Vector2(361.7143, 70.0)
+	var main_menu_size := Vector2(297.7143, 56.0)
+	var action_gap: float = 34.0
+	var action_group_width: float = new_run_size.x + action_gap + main_menu_size.x
+	var actions_x: float = minf(size.x * 0.465, size.x - action_group_width - 24.0) + hidden_slide
+	_new_run_button.custom_minimum_size = new_run_size
+	_main_menu_button.custom_minimum_size = main_menu_size
+	_new_run_button.position = Vector2(actions_x, actions_y)
+	_new_run_button.size = new_run_size
+	_main_menu_button.position = Vector2(actions_x + new_run_size.x + action_gap, actions_y + (new_run_size.y - main_menu_size.y) * 0.5)
+	_main_menu_button.size = main_menu_size
+	_new_run_button.modulate = Color(1.0, 1.0, 1.0, progress)
+	_main_menu_button.modulate = Color(1.0, 1.0, 1.0, progress)

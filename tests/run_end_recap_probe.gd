@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://run_end_recap_probe_v2"
+const OUTPUT_ROOT: String = "user://run_end_recap_probe_v3"
 
 var _failed: bool = false
 var _resolution: Vector2i = Vector2i(1920, 1080)
@@ -50,15 +50,21 @@ func _capture_states() -> void:
 	})
 	await _install_state(instance, defeat_progression, defeat_state)
 	var recap: Control = instance.get("_run_end_recap") as Control
+	_validate_last_light_semantics(instance, recap)
 	if recap != null:
 		recap.call("seek_presentation", 0.0)
 	await _capture("defeat_pre_engulf.png")
 	if recap != null:
-		recap.call("seek_presentation", 0.78)
+		recap.call("seek_presentation", 0.95)
 	await _capture("defeat_mid_engulf.png")
 	if recap != null:
 		recap.call("seek_presentation", float(recap.call("presentation_duration")))
 	await _capture("defeat_final.png")
+	var main_menu_button: Button = recap.find_child("MainMenuButton", true, false) as Button if recap != null else null
+	if main_menu_button != null:
+		main_menu_button.grab_focus()
+	await process_frame
+	await _capture("defeat_secondary_focused.png")
 	if recap != null:
 		recap.call("reset")
 		recap.call("set_motion_enabled", false)
@@ -96,6 +102,54 @@ func _install_state(instance: Node, progression: Dictionary, state: Dictionary) 
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	if board == null or not board.visible:
 		_fail("Terminal state should keep the final tactical room visible")
+
+func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
+	if recap == null:
+		return
+	var model: Dictionary = recap.call("recap_model") as Dictionary
+	if str(model.get("kicker", "")) != "THE UMBRA CLOSES IN":
+		_fail("Defeat proof should use the approved Umbra kicker")
+	if not str(model.get("summary", "not empty")).is_empty():
+		_fail("Defeat proof should omit the removed summary tagline")
+	var title_raster: TextureRect = recap.find_child("DefeatTitleRaster", true, false) as TextureRect
+	if title_raster == null or title_raster.texture == null:
+		_fail("Defeat proof should render the obsidian RUN ENDED raster")
+	var ledger: Control = recap.find_child("DefeatStatLedger", true, false) as Control
+	if ledger == null or recap.find_child("RunStatGrid", true, false) != null:
+		_fail("Defeat proof should use the unboxed stat ledger, never a default grid")
+	for stray_fragment: String in ["DefeatCornerTop", "DefeatCornerBottom", "RecoveryRailRaster"]:
+		if recap.find_child(stray_fragment, true, false) != null:
+			_fail("Defeat proof should not repurpose unrelated frame-kit fragments (%s)" % stray_fragment)
+	var stat_ids: Array[String] = ["EnemiesKilled", "DamageDealt", "DamageReceived", "Depth", "RoomsCleared", "BossesDefeated"]
+	if ledger != null and ledger.get_child_count() != stat_ids.size():
+		_fail("Defeat proof should present exactly six direct stat rows in one vertical ledger")
+	for index: int in range(stat_ids.size()):
+		var stat_id: String = stat_ids[index]
+		if recap.find_child("%sValue" % stat_id, true, false) == null:
+			_fail("Defeat proof is missing the %s stat" % stat_id)
+		if ledger != null and index < ledger.get_child_count() and ledger.get_child(index).name != "%sMetric" % stat_id:
+			_fail("Defeat proof stats should follow the concept's single vertical reading order")
+	var new_run_button: Button = recap.find_child("NewRunButton", true, false) as Button
+	var main_menu_button: Button = recap.find_child("MainMenuButton", true, false) as Button
+	if new_run_button == null or main_menu_button == null:
+		_fail("Defeat proof should contain both actions")
+	else:
+		if new_run_button.position.x >= main_menu_button.position.x:
+			_fail("Defeat proof actions should be side by side with New Run first")
+		var source_aspect: float = 1024.0 / 224.0
+		if absf((new_run_button.size.x + 4.0) / (new_run_button.size.y + 10.0) - source_aspect) >= 0.01 or absf((main_menu_button.size.x + 4.0) / (main_menu_button.size.y + 10.0) - source_aspect) >= 0.01:
+			_fail("Defeat proof should preserve the raster action art's authored proportions")
+	var ember_raster: TextureRect = recap.find_child("DeathSiteEmbers", true, false) as TextureRect
+	if ember_raster == null or ember_raster.texture == null:
+		_fail("Defeat proof should leave raster embers at the death site")
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	for unit_var: Variant in board.call("_visible_units") as Array:
+		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "player":
+			_fail("Terminal defeat board should remove the dead player before leaving embers")
+	var expected_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	var actual_site: Vector2 = recap.call("death_site_normalized") as Vector2
+	if expected_site.distance_to(actual_site) > 0.008:
+		_fail("Ember/Umbra origin should match the player's exact terminal tile (expected %s, actual %s)" % [expected_site, actual_site])
 
 func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i, outcome: String, held_embers: int, cleared_rooms: int, run_stats: Dictionary) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(8841 + held_embers * 3 + coord.x, progression)
