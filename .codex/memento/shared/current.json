@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-31T19:20:54Z",
+  "updated_at": "2026-08-31T20:05:21Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9737,6 +9737,28 @@
       "source": {
         "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
         "commit": "a8471790"
+      }
+    },
+    {
+      "id": "mnt_20260831T200521Z_9704c7b7",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks/chopin_op35_funeral_march",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks/chopin_op35_funeral_march",
+      "summary": "Chopin death music should feel funereal without stating the famous march motif.",
+      "details": "For v02 the user chose v01-preview regions roughly 5:01-5:08, 5:29-5:52, then 2:50-3:09. March-derived material should omit the culturally recognizable lead: v02 removes Grave Cello / Funeral Cantus and its Veiled Violin double from march slices while retaining inner harmony, bass, sparse pulse, and source-derived bridges.",
+      "status": "active",
+      "created_at": "2026-08-31T20:05:21Z",
+      "updated_at": "2026-08-31T20:05:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
+        "commit": "b8e01310"
       }
     }
   ]
