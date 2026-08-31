@@ -50,6 +50,7 @@ var _model_fingerprint: String = ""
 var _motion_enabled: bool = true
 var _elapsed: float = 0.0
 var _death_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED
+var _glow_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED
 
 var _death_shroud: DeathEngulfOverlay
 var _victory_panel: PanelContainer
@@ -175,7 +176,9 @@ func present(model: Dictionary, death_site_normalized: Vector2 = DEFEAT_WINDOW_C
 	_model = next_model
 	_model_fingerprint = fingerprint
 	_death_site_normalized = normalized_site
+	_glow_site_normalized = normalized_site
 	_death_shroud.set_death_site_normalized(_death_site_normalized)
+	_death_shroud.set_glow_site_normalized(_glow_site_normalized)
 	_apply_model()
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -197,6 +200,14 @@ func set_death_site_normalized(normalized_position: Vector2) -> void:
 	)
 	if _death_shroud != null:
 		_death_shroud.set_death_site_normalized(_death_site_normalized)
+
+func set_glow_site_normalized(normalized_position: Vector2) -> void:
+	_glow_site_normalized = Vector2(
+		clampf(normalized_position.x, 0.08, 0.92),
+		clampf(normalized_position.y, 0.10, 0.90)
+	)
+	if _death_shroud != null:
+		_death_shroud.set_glow_site_normalized(_glow_site_normalized)
 
 func reset() -> void:
 	_model.clear()
@@ -242,6 +253,9 @@ func final_shroud_alpha() -> float:
 
 func death_site_normalized() -> Vector2:
 	return _death_site_normalized
+
+func glow_site_normalized() -> Vector2:
+	return _glow_site_normalized
 
 func death_site_ember_position() -> Vector2:
 	return _death_shroud.ember_position() if _death_shroud != null else Vector2.ZERO

@@ -265,6 +265,12 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 	_assert(is_zero_approx(overlay.shroud_progress()), "Defeat should begin with the authored room fully visible before edge engulf")
 	_assert(is_zero_approx(overlay.sample_shroud_alpha(death_site)), "Pre-engulf death site should have no dark cover")
 	_assert(overlay.death_site_normalized().is_equal_approx(death_site), "Defeat effect should retain the exact supplied player death location")
+	var moving_glow_site := Vector2(0.18, 0.74)
+	overlay.set_glow_site_normalized(moving_glow_site)
+	_assert(overlay.death_site_normalized().is_equal_approx(death_site), "Moving the ember glow must not drag the fixed Umbra peephole")
+	_assert(overlay.glow_site_normalized().is_equal_approx(moving_glow_site), "The Last Light glow should expose its independent board-space anchor")
+	_assert(overlay.death_site_ember_position().is_equal_approx(overlay.size * moving_glow_site), "The Last Light glow should resolve to the projected ember position")
+	overlay.set_glow_site_normalized(death_site)
 
 	overlay.seek_presentation(DeathEngulfOverlay.ENGULF_SECONDS * 0.5)
 	var mid_edge_alpha: float = overlay.sample_shroud_alpha(Vector2(0.99, 0.50))
@@ -419,6 +425,29 @@ func _test_run_scene_progression_and_actions() -> void:
 	_assert(defeat_new_bests.has("enemies_killed") and defeat_new_bests.has("damage_dealt") and not defeat_new_bests.has("damage_received"), "Later strict improvements should surface only eligible NEW BEST fields")
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	var death_tile: Vector2i = (defeat_state.get("current_room_layout", {}) as Dictionary).get("player_start", Vector2i(-1, -1))
+	var player_death_unit: Dictionary = {
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"pos": death_tile,
+		"death_animation": true,
+		"death_frame": 7,
+		"death_progress": 0.5,
+	}
+	var player_death_frames: Array = board.call("_unit_death_frames", player_death_unit) as Array
+	_assert(player_death_frames.size() == 16, "Player death should load all 16 authored collapse frames")
+	if player_death_frames.size() == 16:
+		_assert((player_death_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Player death frames should preserve the downloaded 1020px native canvas")
+		_assert(board.call("_texture_for_unit", player_death_unit) == player_death_frames[7], "Player death rendering should select the requested authored frame")
+		player_death_unit["death_frame"] = 15
+		_assert(board.call("_texture_for_unit", player_death_unit) == player_death_frames[15] and player_death_frames[15] != player_death_frames[7], "Player death rendering should advance to distinct authored frames")
+		var native_rect := Rect2(Vector2(120.0, 80.0), Vector2(255.0, 255.0))
+		_assert((board.call("_death_animation_render_rect", player_death_unit, native_rect) as Rect2).is_equal_approx(native_rect), "Authored player death frames must bypass the procedural squash/stretch")
+		_assert((board.call("_death_animation_render_tint", player_death_unit) as Color).is_equal_approx(Color.WHITE), "Authored player death frames must retain their source colors")
+		_assert(is_equal_approx(float(board.call("_unit_shadow_alpha_scale", player_death_unit)), 1.0), "Authored player death silhouettes should retain their grounded shadow through the final frame")
+		for frame_var: Variant in player_death_frames:
+			var frame_texture: Texture2D = frame_var as Texture2D
+			_assert(not (board.call("_unit_shadow_polygons_for_texture", frame_texture) as Array).is_empty(), "Every authored player death frame should produce a silhouette shadow")
 	var ember_snapshot: Dictionary = board.call("death_site_embers_snapshot") as Dictionary
 	_assert(ember_snapshot.get("tile", Vector2i(-1, -1)) == death_tile and ember_snapshot.get("texture", null) is Texture2D, "Death embers should be raster art owned by the exact terminal board tile")
 	var ember_rect: Rect2 = ember_snapshot.get("rect", Rect2()) as Rect2
@@ -428,8 +457,16 @@ func _test_run_scene_progression_and_actions() -> void:
 	var reframe_start: Vector2 = instance.get("_run_end_board_reframe_start") as Vector2
 	var reframe_target: Vector2 = instance.get("_run_end_board_reframe_target") as Vector2
 	_assert(reframe_start.distance_to(reframe_target) > 1.0, "Defeat should author a real board translation toward the fixed Last Light window")
+	instance.call("_seek_run_end_board_reframe", 0.0)
+	var start_glow_site: Vector2 = recap.call("glow_site_normalized") as Vector2
+	var start_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	_assert(start_glow_site.distance_to(start_death_site) < 0.004, "Before the board slides, the Last Light glow should begin on the actual ember tile")
+	_assert(start_glow_site.distance_to(recap.call("death_site_normalized") as Vector2) > 0.01, "Before settling, the moving glow should not be pinned to the fixed peephole")
 	instance.call("_seek_run_end_board_reframe", 0.5)
 	_assert(board.position.distance_to(reframe_start.lerp(reframe_target, 0.5)) < 0.01, "Board reframing should interpolate continuously rather than snapping")
+	var mid_glow_site: Vector2 = recap.call("glow_site_normalized") as Vector2
+	var mid_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	_assert(mid_glow_site.distance_to(mid_death_site) < 0.004, "The Last Light glow should travel with the ember tile throughout the board slide")
 	instance.call("_seek_run_end_board_reframe", 1.0)
 	var settled_board_position: Vector2 = board.position
 	await process_frame
@@ -438,6 +475,7 @@ func _test_run_scene_progression_and_actions() -> void:
 	var fixed_window: Vector2 = recap.call("death_site_normalized") as Vector2
 	var centered_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
 	_assert(centered_death_site.distance_to(fixed_window) < 0.004, "The translated board should settle with the actual death tile beneath the fixed Last Light window")
+	_assert((recap.call("glow_site_normalized") as Vector2).distance_to(centered_death_site) < 0.004, "The traveling glow should settle with its ember tile beneath the peephole")
 	var committed_defeat: Dictionary = ProgressionStore.load_data()
 	var marker: Dictionary = ProgressionStore.recovery_marker(committed_defeat)
 	_assert(int(committed_defeat.get("embers", -1)) == 0, "Defeat should commit zero carried embers")

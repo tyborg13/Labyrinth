@@ -1,9 +1,11 @@
 {
-  "min_images": 8,
+  "min_images": 10,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {"pattern": "*/1920x1080/defeat_player_living.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080/defeat_player_collapse.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080/defeat_player_death_early.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080/defeat_player_death_mid.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080/defeat_player_death_final.png", "width": 1920, "height": 1080},
     {"pattern": "*/1920x1080/defeat_pre_engulf.png", "width": 1920, "height": 1080},
     {"pattern": "*/1920x1080/defeat_mid_engulf.png", "width": 1920, "height": 1080},
     {"pattern": "*/1920x1080/defeat_final.png", "width": 1920, "height": 1080},

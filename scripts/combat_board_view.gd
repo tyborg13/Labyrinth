@@ -6399,7 +6399,7 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact_shake, 0.0)
 		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
 		if death_animation:
-			shifted_rect = _death_animation_draw_rect(shifted_rect, float(unit.get("death_progress", 0.0)))
+			shifted_rect = _death_animation_render_rect(unit, shifted_rect)
 		var body_tint: Color = Color.WHITE
 		var role: String = str(unit.get("role", ""))
 		if role == "illusion_preview":
@@ -6418,7 +6418,7 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			draw_texture_rect(texture, echo_rect, false, Color(0.38, 0.90, 1.0, 0.18))
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
 		elif death_animation:
-			body_tint = _death_animation_tint(unit)
+			body_tint = _death_animation_render_tint(unit)
 		draw_texture_rect(texture, shifted_rect, false, body_tint)
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
@@ -12827,6 +12827,9 @@ func _unit_death_frames(unit: Dictionary) -> Array[Texture2D]:
 		return []
 	return _death_frames_by_type[unit_type]
 
+func _unit_has_authored_death_animation(unit: Dictionary) -> bool:
+	return not _unit_death_frames(unit).is_empty()
+
 func _unit_death_frame_count(unit: Dictionary) -> int:
 	return _unit_death_frames(unit).size()
 
@@ -12970,7 +12973,7 @@ func _unit_idle_animation_active(unit: Dictionary) -> bool:
 func _unit_death_animation_active(unit: Dictionary) -> bool:
 	if not visible or combat_state.is_empty() or not bool(unit.get("death_animation", false)):
 		return false
-	return not _unit_death_frames(unit).is_empty()
+	return _unit_has_authored_death_animation(unit)
 
 func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
 	if not visible or combat_state.is_empty():
@@ -13055,6 +13058,21 @@ func _scaled_unit_rect(rect: Rect2, scale: float) -> Rect2:
 	)
 	return Rect2(scaled_position, scaled_size)
 
+func _death_animation_render_rect(unit: Dictionary, rect: Rect2) -> Rect2:
+	# Authored collapse frames already contain the complete body motion on one
+	# consistently registered canvas. Applying the fallback squash/stretch on top
+	# would distort the pixel art and make its feet slide away from the death tile.
+	if _unit_has_authored_death_animation(unit):
+		return rect
+	return _death_animation_draw_rect(rect, float(unit.get("death_progress", 0.0)))
+
+func _death_animation_render_tint(unit: Dictionary) -> Color:
+	# Preserve the downloaded frame colors; the procedural violet dissolve remains
+	# available only for units that have no authored death sheet.
+	if _unit_has_authored_death_animation(unit):
+		return Color.WHITE
+	return _death_animation_tint(unit)
+
 func _death_animation_draw_rect(rect: Rect2, progress: float) -> Rect2:
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return rect
@@ -13072,6 +13090,8 @@ func _death_animation_tint(unit: Dictionary) -> Color:
 
 func _unit_shadow_alpha_scale(unit: Dictionary) -> float:
 	if not bool(unit.get("death_animation", false)):
+		return 1.0
+	if _unit_has_authored_death_animation(unit):
 		return 1.0
 	var t: float = clampf(float(unit.get("death_progress", 0.0)), 0.0, 1.0)
 	return 1.0 - smoothstep(0.45, 1.0, t)

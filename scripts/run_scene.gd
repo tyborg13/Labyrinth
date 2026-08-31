@@ -14326,6 +14326,7 @@ func _show_run_end_recap(outcome: String) -> void:
 	var window_center: Vector2 = RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
 	_run_end_recap.present(model, window_center)
 	if outcome == "defeat":
+		_sync_run_end_glow_site()
 		_begin_run_end_board_reframe()
 		call_deferred("_sync_run_end_death_site")
 
@@ -14335,6 +14336,12 @@ func _sync_run_end_death_site() -> void:
 		return
 	_run_end_recap.set_death_site_normalized(RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED)
 	_retarget_run_end_board_reframe()
+	_sync_run_end_glow_site()
+
+func _sync_run_end_glow_site() -> void:
+	if _run_end_recap == null or not _run_end_recap.visible or str(_run_state.get("mode", "")) != "defeat":
+		return
+	_run_end_recap.set_glow_site_normalized(_run_end_death_site_normalized())
 
 func _begin_run_end_board_reframe() -> void:
 	if _run_end_board_reframe_active or board_view == null or _run_end_recap == null:
@@ -14389,6 +14396,7 @@ func _apply_run_end_board_reframe_progress(progress: float) -> void:
 	_run_end_board_reframe_progress = clampf(progress, 0.0, 1.0)
 	if board_view != null and _run_end_board_reframe_active:
 		board_view.position = _run_end_board_reframe_start.lerp(_run_end_board_reframe_target, _run_end_board_reframe_progress)
+		_sync_run_end_glow_site()
 
 func _reset_run_end_board_reframe() -> void:
 	if _run_end_board_reframe_tween != null and _run_end_board_reframe_tween.is_valid():

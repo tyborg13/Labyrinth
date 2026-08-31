@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://run_end_recap_probe_v7"
+const OUTPUT_ROOT: String = "user://run_end_recap_probe_v8"
 
 var _failed: bool = false
 var _resolution: Vector2i = Vector2i(1920, 1080)
@@ -57,10 +57,12 @@ func _capture_states() -> void:
 	if recap != null:
 		recap.call("seek_presentation", 0.0)
 	instance.call("_seek_run_end_board_reframe", 0.0)
+	_validate_glow_tracks_death_site(instance, recap, "start")
 	await _capture("defeat_pre_engulf.png")
 	if recap != null:
 		recap.call("seek_presentation", 0.95)
 	instance.call("_seek_run_end_board_reframe", 0.55)
+	_validate_glow_tracks_death_site(instance, recap, "mid-reframe")
 	await _capture("defeat_mid_engulf.png")
 	if recap != null:
 		recap.call("seek_presentation", float(recap.call("presentation_duration")))
@@ -140,18 +142,45 @@ func _capture_player_death_transition(instance: Node, terminal_state: Dictionary
 		var death_unit: Dictionary = (death_units[0] as Dictionary).duplicate(true)
 		if str(death_unit.get("role", "")) != "player" or death_unit.get("pos", Vector2i(-1, -1)) != death_tile:
 			_fail("Player collapse should remain on the terminal death tile")
-		death_unit["death_frame"] = 0
-		death_unit["death_progress"] = 0.55
-		death_presentation["death_animation_units"] = [death_unit]
-	instance.call("_render_board_state", after_combat, death_presentation)
-	await process_frame
-	await process_frame
-	var rendered_death_units: Array = board.call("_death_animation_units_from_presentation") as Array
-	if rendered_death_units.size() != 1 or str((rendered_death_units[0] as Dictionary).get("role", "")) != "player":
-		_fail("CombatBoard should render the lethal player through its real collapse/fade path")
-	elif (rendered_death_units[0] as Dictionary).get("pos", Vector2i(-1, -1)) != death_tile:
-		_fail("Rendered player collapse should not drift from the eventual ember tile")
-	await _capture("defeat_player_collapse.png")
+		var authored_frames: Array = board.call("_unit_death_frames", death_unit) as Array
+		if authored_frames.size() != 16:
+			_fail("Player collapse proof should load all 16 authored death frames")
+		else:
+			if (authored_frames[0] as Texture2D).get_size() != Vector2(1020.0, 1020.0):
+				_fail("Player death proof should retain the downloaded native frame canvas")
+			var native_rect := Rect2(Vector2(120.0, 80.0), Vector2(255.0, 255.0))
+			if not (board.call("_death_animation_render_rect", death_unit, native_rect) as Rect2).is_equal_approx(native_rect):
+				_fail("Authored player death proof should bypass procedural squash/stretch")
+		for frame_spec: Dictionary in [
+			{"frame": 3, "progress": 0.20, "file": "defeat_player_death_early.png"},
+			{"frame": 9, "progress": 0.60, "file": "defeat_player_death_mid.png"},
+			{"frame": 15, "progress": 1.0, "file": "defeat_player_death_final.png"},
+		]:
+			var frame_unit: Dictionary = death_unit.duplicate(true)
+			frame_unit["death_frame"] = int(frame_spec.get("frame", 0))
+			frame_unit["death_progress"] = float(frame_spec.get("progress", 0.0))
+			var frame_presentation: Dictionary = death_presentation.duplicate(true)
+			frame_presentation["death_animation_units"] = [frame_unit]
+			if authored_frames.size() == 16 and board.call("_texture_for_unit", frame_unit) != authored_frames[int(frame_spec.get("frame", 0))]:
+				_fail("Authored player death proof should select frame %d" % int(frame_spec.get("frame", 0)))
+			instance.call("_render_board_state", after_combat, frame_presentation)
+			await process_frame
+			await process_frame
+			var rendered_death_units: Array = board.call("_death_animation_units_from_presentation") as Array
+			if rendered_death_units.size() != 1 or str((rendered_death_units[0] as Dictionary).get("role", "")) != "player":
+				_fail("CombatBoard should render the lethal player through its authored collapse path")
+			elif (rendered_death_units[0] as Dictionary).get("pos", Vector2i(-1, -1)) != death_tile:
+				_fail("Rendered player death frame should not drift from the eventual ember tile")
+			await _capture(str(frame_spec.get("file", "defeat_player_death.png")))
+
+func _validate_glow_tracks_death_site(instance: Node, recap: Control, stage: String) -> void:
+	if recap == null:
+		_fail("%s glow proof should have a recap overlay" % stage)
+		return
+	var glow_site: Vector2 = recap.call("glow_site_normalized") as Vector2
+	var projected_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	if glow_site.distance_to(projected_death_site) > 0.008:
+		_fail("%s Last Light glow should remain anchored to the projected ember tile" % stage)
 
 func _install_state(instance: Node, progression: Dictionary, state: Dictionary) -> void:
 	ProgressionStore.save_data(progression)
@@ -232,6 +261,7 @@ func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
 	var fixed_window: Vector2 = recap.call("death_site_normalized") as Vector2
 	if centered_site.distance_to(fixed_window) > 0.008:
 		_fail("The translated death tile should settle beneath the fixed Umbra window (tile %s, window %s)" % [centered_site, fixed_window])
+	_validate_glow_tracks_death_site(instance, recap, "settled")
 
 func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i, outcome: String, held_embers: int, cleared_rooms: int, run_stats: Dictionary) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(8841 + held_embers * 3 + coord.x, progression)

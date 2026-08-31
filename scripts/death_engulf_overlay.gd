@@ -59,6 +59,7 @@ var _elapsed: float = 0.0
 var _motion_enabled: bool = true
 var _playing: bool = false
 var _death_site_normalized: Vector2 = Vector2(0.32, 0.62)
+var _glow_site_normalized: Vector2 = Vector2(0.32, 0.62)
 var _shroud_rect: ColorRect
 var _glow_rect: ColorRect
 var _shroud_material: ShaderMaterial
@@ -94,8 +95,18 @@ func set_death_site_normalized(normalized_position: Vector2) -> void:
 func death_site_normalized() -> Vector2:
 	return _death_site_normalized
 
+func set_glow_site_normalized(normalized_position: Vector2) -> void:
+	_glow_site_normalized = Vector2(
+		clampf(normalized_position.x, 0.08, 0.92),
+		clampf(normalized_position.y, 0.10, 0.90)
+	)
+	_update_visuals()
+
+func glow_site_normalized() -> Vector2:
+	return _glow_site_normalized
+
 func ember_position() -> Vector2:
-	return Vector2(size.x * _death_site_normalized.x, size.y * _death_site_normalized.y)
+	return Vector2(size.x * _glow_site_normalized.x, size.y * _glow_site_normalized.y)
 
 func set_motion_enabled(enabled: bool) -> void:
 	_motion_enabled = enabled
@@ -188,7 +199,7 @@ func _update_visuals() -> void:
 	var pulse: float = 0.5
 	if _motion_enabled:
 		pulse = 0.5 + sin(_elapsed * 7.2) * 0.5
-	_glow_material.set_shader_parameter("death_center", _death_site_normalized)
+	_glow_material.set_shader_parameter("death_center", _glow_site_normalized)
 	_glow_material.set_shader_parameter("aspect_scale", aspect)
 	_glow_material.set_shader_parameter("glow_alpha", lerpf(0.86, 1.0, _smoothstep(0.0, 0.32, progress)))
 	_glow_material.set_shader_parameter("pulse", pulse)

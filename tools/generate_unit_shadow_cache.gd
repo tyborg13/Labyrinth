@@ -2,6 +2,7 @@ extends SceneTree
 
 const DEFAULT_OUTPUT_PATH: String = "res://assets/generated/unit_shadow_cache.res"
 const CombatBoardViewScript = preload("res://scripts/combat_board_view.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const UnitShadowCacheResourceScript = preload("res://scripts/unit_shadow_cache_resource.gd")
 
 func _initialize() -> void:
@@ -66,6 +67,11 @@ func _build_cache() -> Dictionary:
 		var source_path: String = UnitShadowCacheResourceScript.source_path(texture)
 		if not source_path.is_empty() and not source_sha256.has(source_path):
 			source_sha256[source_path] = FileAccess.get_sha256(source_path)
+	# This tool runs as a standalone SceneTree script, so the unattached Control
+	# does not receive normal tree teardown. Release its texture references before
+	# quitting to keep clean task-runner output and catch real renderer leaks.
+	board.free()
+	textures.clear()
 	return {
 		"entries": entries,
 		"source_sha256": source_sha256,
