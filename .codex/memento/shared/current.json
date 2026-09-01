@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-31T21:44:19Z",
+  "updated_at": "2026-09-01T20:55:19Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9783,6 +9783,28 @@
       "source": {
         "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
         "commit": "ca63ebde"
+      }
+    },
+    {
+      "id": "mnt_20260901T205519Z_6380270b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "assets/audio/sfx/card_draw_deal.wav",
+        "symbol": null
+      },
+      "scope_key": "file:assets/audio/sfx/card_draw_deal.wav",
+      "summary": "Card draws use the owner-confirmed post-two-second deal transient at a subordinate impact level",
+      "details": "The selected source window is 2.55-2.84 seconds from freesound_community-shuffleandcardflip1-40942.mp3, excluding the later hit beginning around 3.02 seconds. The mono 44.1 kHz WAV is amplified 18 dB to a -12.7 dBFS peak and plays at 0 dB on the SFX bus, about 9-11 dB below existing combat impacts; multi-card playback follows the 160 ms draw stagger.",
+      "status": "active",
+      "created_at": "2026-09-01T20:55:19Z",
+      "updated_at": "2026-09-01T20:55:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/play-card-deal-sound-on-draw",
+        "commit": "7da92e0b"
       }
     }
   ]

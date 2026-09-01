@@ -1131,6 +1131,11 @@ const MISSED_EQUIPMENT_FRAMES: int = 10
 const MISSED_EQUIPMENT_FRAME_SECONDS: float = 0.045
 const DRAW_FRAME_SECONDS: float = 0.32
 const DRAW_STAGGER_SECONDS: float = 0.16
+const CARD_DRAW_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/card_draw_deal.wav",
+	"duration": 0.29,
+	"volume_db": 0.0
+}
 const CARD_PLAY_SECONDS: float = 0.30
 const CARD_PLAY_HOLD_SECONDS: float = 0.11
 const CARD_PILE_SECONDS: float = 0.28
@@ -19930,6 +19935,7 @@ func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = R
 			0.0 if reduced_motion else 0.018,
 			float(draw_index) * DRAW_STAGGER_SECONDS
 		)
+		_schedule_card_draw_sfx(float(draw_index) * DRAW_STAGGER_SECONDS)
 		draw_proxies.append(proxy)
 		draw_tweens.append(tween)
 	if not draw_tweens.is_empty():
@@ -19944,6 +19950,17 @@ func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = R
 	# Keep the arrived proxies in their exact fan slots until the authoritative hand
 	# refresh replaces them. Releasing each one at arrival caused a blank-frame pop
 	# between the flight and the real hand card appearing.
+
+func _schedule_card_draw_sfx(delay_seconds: float) -> void:
+	if delay_seconds <= 0.0:
+		_play_card_draw_sfx()
+		return
+	get_tree().create_timer(delay_seconds).timeout.connect(_play_card_draw_sfx)
+
+func _play_card_draw_sfx() -> void:
+	if not _card_fx_can_continue_combat():
+		return
+	_play_sfx(CARD_DRAW_SFX_ENTRY)
 
 func _card_fx_can_continue_combat() -> bool:
 	return _node_is_alive(_card_fx_layer) and str(_run_state.get("mode", "room")) == "combat"

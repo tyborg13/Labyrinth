@@ -339,6 +339,7 @@ func _initialize() -> void:
 	_test_ui_typography_system()
 	await _test_main_scenes_instantiate()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
+	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
 	await MapUiSuite.run_live(self, Callable(self, "_assert"))
 	await _test_run_scene_combat_log_prominence()
