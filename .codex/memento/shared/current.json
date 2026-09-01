@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-01T20:55:19Z",
+  "updated_at": "2026-09-01T22:29:53Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9873,6 +9873,28 @@
       "source": {
         "branch": "codex/play-card-deal-sound-on-draw",
         "commit": "7da92e0b"
+      }
+    },
+    {
+      "id": "mnt_20260901T222953Z_1f166ecb",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/cards",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/cards",
+      "summary": "Item card simplicity must be authored, never simulated with blur",
+      "details": "The blurry item-card regression came from replacing authored art with uniformly low-frequency images, not from CardWidget imports or runtime texture filtering. Generate item art from the shipped card-art language: simple centered silhouettes, deliberate crisp pixel clusters, controlled medium-low detail, exact 256x144 output, and the canonical ragged alpha window. tests/test_item_card_art_quality.py guards size, mask, uniqueness, and local contrast; tests/item_card_art_probe.gd proves actual CardWidget and compact-badge rendering at 1920x1080.",
+      "status": "active",
+      "created_at": "2026-09-01T22:29:53Z",
+      "updated_at": "2026-09-01T22:29:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/diagnose-and-fix-blurry-item-card-art-regression",
+        "commit": "4def1b8b"
       }
     }
   ]
