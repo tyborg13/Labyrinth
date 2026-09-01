@@ -142,9 +142,11 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	var consumed_relic_draws: int = int(instance.call("_consume_pending_card_draw_sfx", relic_draw_after))
 	expect.call(consumed_relic_draws == 1, "The generic sound consumer should detect Iron Buckler's non-draw-action reward")
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_generation_before + 1, "Iron Buckler's real reward draw should play one sound")
+	var stale_relic_draws: int = int(instance.call("_consume_pending_card_draw_sfx", relic_draw_before))
+	expect.call(stale_relic_draws == 0, "Observing an older combat state should not rewind the exact-once draw cursor")
 	var replayed_relic_draws: int = int(instance.call("_consume_pending_card_draw_sfx", relic_draw_after))
-	expect.call(replayed_relic_draws == 0, "The exact-once revision guard should consume a committed draw transition only once")
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_generation_before + 1, "Revisiting the same committed relic state should stay silent")
+	expect.call(replayed_relic_draws == 0, "Revisiting a committed draw after a stale observation should stay silent")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_generation_before + 1, "Out-of-order state observations should not replay a committed relic draw")
 	instance.queue_free()
 	await tree.process_frame
 

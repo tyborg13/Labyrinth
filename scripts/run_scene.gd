@@ -20002,8 +20002,7 @@ func _baseline_card_draw_sfx_revision(combat_state: Dictionary) -> void:
 
 func _take_pending_card_draw_sfx_count(combat_state: Dictionary) -> int:
 	var revision: int = card_draw_revision(combat_state)
-	if revision < _card_draw_sfx_revision_seen:
-		_card_draw_sfx_revision_seen = revision
+	if revision <= _card_draw_sfx_revision_seen:
 		return 0
 	var draw_count: int = revision - _card_draw_sfx_revision_seen
 	_card_draw_sfx_revision_seen = revision
