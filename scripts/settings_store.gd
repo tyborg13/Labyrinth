@@ -15,7 +15,21 @@ const DIALOGUE_INSTANT: String = "instant"
 const MASTER_BUS: String = "Master"
 const MUSIC_BUS: String = "Music"
 const SFX_BUS: String = "SFX"
+const WORLD_SFX_BUS: String = "World SFX"
+const UI_SFX_BUS: String = "UI SFX"
 const SFX_HEADROOM_DB: float = -3.0
+
+# A restrained, dark chamber response: enough tail to place attacks in the
+# labyrinth without softening their transient timing or turning rapid combat
+# into a wash.
+const WORLD_REVERB_ROOM_SIZE: float = 0.62
+const WORLD_REVERB_DAMPING: float = 0.72
+const WORLD_REVERB_SPREAD: float = 0.78
+const WORLD_REVERB_HIPASS: float = 0.20
+const WORLD_REVERB_DRY: float = 1.0
+const WORLD_REVERB_WET: float = 0.13
+const WORLD_REVERB_PREDELAY_MSEC: float = 24.0
+const WORLD_REVERB_PREDELAY_FEEDBACK: float = 0.08
 
 const STANDARD_DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const FAST_DIALOGUE_CHARACTERS_PER_SECOND: float = 92.0
@@ -107,11 +121,11 @@ static func apply_settings(settings: Dictionary, window: Window = null, apply_di
 	return normalized
 
 static func ensure_audio_buses() -> void:
-	for bus_name: String in [MUSIC_BUS, SFX_BUS]:
-		if AudioServer.get_bus_index(bus_name) >= 0:
-			continue
-		AudioServer.add_bus()
-		AudioServer.set_bus_name(AudioServer.bus_count - 1, bus_name)
+	for bus_name: String in [MUSIC_BUS, SFX_BUS, WORLD_SFX_BUS, UI_SFX_BUS]:
+		_ensure_audio_bus(bus_name)
+	_route_audio_bus(WORLD_SFX_BUS, SFX_BUS)
+	_route_audio_bus(UI_SFX_BUS, SFX_BUS)
+	_ensure_world_sfx_reverb()
 
 static func apply_audio_settings(settings: Dictionary) -> void:
 	var normalized: Dictionary = normalize_settings(settings)
@@ -193,6 +207,45 @@ static func _apply_bus_volume(bus_name: String, volume: float, headroom_db: floa
 	var clamped: float = clampf(volume, 0.0, 1.0)
 	AudioServer.set_bus_mute(bus_index, clamped <= 0.0001)
 	AudioServer.set_bus_volume_db(bus_index, linear_to_db(maxf(clamped, 0.0001)) + headroom_db)
+
+static func _ensure_audio_bus(bus_name: String) -> void:
+	if AudioServer.get_bus_index(bus_name) >= 0:
+		return
+	AudioServer.add_bus()
+	AudioServer.set_bus_name(AudioServer.bus_count - 1, bus_name)
+
+static func _route_audio_bus(bus_name: String, destination_bus: String) -> void:
+	var bus_index: int = AudioServer.get_bus_index(bus_name)
+	if bus_index < 0 or AudioServer.get_bus_index(destination_bus) < 0:
+		return
+	if AudioServer.get_bus_send(bus_index) != destination_bus:
+		AudioServer.set_bus_send(bus_index, destination_bus)
+
+static func _ensure_world_sfx_reverb() -> void:
+	var bus_index: int = AudioServer.get_bus_index(WORLD_SFX_BUS)
+	if bus_index < 0:
+		return
+	var reverb: AudioEffectReverb
+	var reverb_index: int = -1
+	for effect_index: int in range(AudioServer.get_bus_effect_count(bus_index)):
+		var effect: AudioEffect = AudioServer.get_bus_effect(bus_index, effect_index)
+		if effect is AudioEffectReverb:
+			reverb = effect as AudioEffectReverb
+			reverb_index = effect_index
+			break
+	if reverb == null:
+		reverb = AudioEffectReverb.new()
+		AudioServer.add_bus_effect(bus_index, reverb)
+		reverb_index = AudioServer.get_bus_effect_count(bus_index) - 1
+	reverb.room_size = WORLD_REVERB_ROOM_SIZE
+	reverb.damping = WORLD_REVERB_DAMPING
+	reverb.spread = WORLD_REVERB_SPREAD
+	reverb.hipass = WORLD_REVERB_HIPASS
+	reverb.dry = WORLD_REVERB_DRY
+	reverb.wet = WORLD_REVERB_WET
+	reverb.predelay_msec = WORLD_REVERB_PREDELAY_MSEC
+	reverb.predelay_feedback = WORLD_REVERB_PREDELAY_FEEDBACK
+	AudioServer.set_bus_effect_enabled(bus_index, reverb_index, true)
 
 static func _number_or_default(value: Variant, fallback: float) -> float:
 	if typeof(value) in [TYPE_INT, TYPE_FLOAT]:

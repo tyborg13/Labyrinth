@@ -21503,7 +21503,7 @@ func _play_sfx(entry: Dictionary) -> void:
 	var generation: int = int(player.get_meta("play_generation", 0)) + 1
 	player.set_meta("play_generation", generation)
 	player.stream = resource
-	player.bus = SettingsStore.SFX_BUS
+	player.bus = SettingsStore.WORLD_SFX_BUS
 	player.volume_db = float(entry.get("volume_db", 0.0))
 	player.play()
 	var duration: float = float(entry.get("duration", 0.0))
@@ -21521,7 +21521,7 @@ func _acquire_sfx_player() -> AudioStreamPlayer:
 			return pooled_player
 	var player := AudioStreamPlayer.new()
 	player.name = "SfxPlayer%d" % _sfx_players.size()
-	player.bus = SettingsStore.SFX_BUS
+	player.bus = SettingsStore.WORLD_SFX_BUS
 	add_child(player)
 	_sfx_players.append(player)
 	return player

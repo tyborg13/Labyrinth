@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-08-31T21:44:19Z",
+  "updated_at": "2026-09-01T19:04:55Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9783,6 +9783,28 @@
       "source": {
         "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
         "commit": "ca63ebde"
+      }
+    },
+    {
+      "id": "mnt_20260901T190455Z_dfca9caf",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/settings_store.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/settings_store.gd",
+      "summary": "World and UI sound effects use separate child buses under the SFX volume bus.",
+      "details": "RunScene combat/world effects route to World SFX, which owns one restrained AudioEffectReverb (full dry signal, wet 0.13, 24 ms pre-delay, room size 0.62, damping 0.72, hipass 0.20). CursorFeedback routes to dry UI SFX. Both child buses send to SFX so the existing volume, mute, and -3 dB headroom still govern them; music stays on dry Music. Future diegetic ambience such as a campfire crackle belongs on World SFX.",
+      "status": "active",
+      "created_at": "2026-09-01T19:04:55Z",
+      "updated_at": "2026-09-01T19:04:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-subtle-labyrinth-room-reverb-to-world-sound-effects-while-keeping-ui",
+        "commit": "7da92e0b"
       }
     }
   ]

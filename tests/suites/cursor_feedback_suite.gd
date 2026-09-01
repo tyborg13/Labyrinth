@@ -143,7 +143,7 @@ static func _map_cursor_fixture() -> Dictionary:
 
 static func _test_click_audio_contract(expect: Callable) -> void:
 	var contract: Dictionary = CursorFeedbackScript.click_feedback_contract()
-	expect.call(str(contract.get("bus", "")) == "SFX", "Cursor click sounds should honor the existing SFX volume bus")
+	expect.call(str(contract.get("bus", "")) == "UI SFX", "Cursor click sounds should use the dry UI path beneath the SFX volume bus")
 	expect.call(float(contract.get("valid_seconds", 0.0)) < float(contract.get("invalid_seconds", 0.0)), "Valid click should be a tighter response than the dull invalid knock")
 	expect.call(float(contract.get("valid_seconds", 1.0)) <= 0.05, "Valid feedback should be short enough to read as a dry click rather than a tonal boop")
 	expect.call(str(contract.get("valid_character", "")).contains("click") and not bool(contract.get("valid_tonal_tail", true)), "Valid feedback should explicitly use a dry click character without a tonal tail")
