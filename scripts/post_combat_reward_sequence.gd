@@ -253,7 +253,8 @@ static func play_reward_reveal(
 	title: Label,
 	card_slots: Array[Control],
 	secondary_actions: Control,
-	reduced_motion: bool
+	reduced_motion: bool,
+	card_flip_cue: Callable = Callable()
 ) -> void:
 	if sequence_host == null or not sequence_host.is_inside_tree():
 		return
@@ -293,7 +294,7 @@ static func play_reward_reveal(
 	await sequence_host.get_tree().create_timer(CARD_BACK_HOLD_SECONDS).timeout
 
 	for index: int in range(card_slots.size()):
-		await _flip_card(card_slots[index])
+		await _flip_card(card_slots[index], card_flip_cue)
 		if index < card_slots.size() - 1:
 			await sequence_host.get_tree().create_timer(CARD_FLIP_STAGGER_SECONDS).timeout
 
@@ -305,12 +306,14 @@ static func play_reward_reveal(
 	settle_reward(banner, title, card_slots, secondary_actions)
 
 
-static func _flip_card(slot: Control) -> void:
+static func _flip_card(slot: Control, card_flip_cue: Callable = Callable()) -> void:
 	var scaler: Control = _card_scaler(slot)
 	if scaler == null:
 		return
 	var base_scale: Vector2 = scaler.get_meta("reward_reveal_base_scale", scaler.scale) as Vector2
 	var closed_scale := Vector2(maxf(0.01, base_scale.x * 0.045), base_scale.y * 1.025)
+	if card_flip_cue.is_valid():
+		card_flip_cue.call()
 	var close_tween: Tween = scaler.create_tween()
 	close_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	close_tween.tween_property(scaler, "scale", closed_scale, CARD_FLIP_CLOSE_SECONDS)

@@ -1137,6 +1137,12 @@ const CARD_DRAW_SFX_ENTRY: Dictionary = {
 	"volume_db": 0.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
+const REWARD_CARD_FLIP_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/reward_card_flip.wav",
+	"duration": 0.28,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
 const CARD_PLAY_SECONDS: float = 0.30
 const CARD_PLAY_HOLD_SECONDS: float = 0.11
 const CARD_PILE_SECONDS: float = 0.28
@@ -14507,7 +14513,8 @@ func _play_reward_reveal() -> void:
 		_relic_choice_title,
 		card_slots,
 		secondary_actions,
-		_reduced_motion_enabled()
+		_reduced_motion_enabled(),
+		Callable(self, "_play_reward_card_flip_sfx")
 	)
 	_finish_reward_intro()
 
@@ -19985,6 +19992,9 @@ func _play_card_draw_sfx() -> void:
 	if not _card_fx_can_continue_combat():
 		return
 	_play_sfx(CARD_DRAW_SFX_ENTRY)
+
+func _play_reward_card_flip_sfx() -> void:
+	_play_sfx(REWARD_CARD_FLIP_SFX_ENTRY)
 
 func _card_fx_can_continue_combat() -> bool:
 	return _node_is_alive(_card_fx_layer) and str(_run_state.get("mode", "room")) == "combat"

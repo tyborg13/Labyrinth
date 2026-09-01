@@ -13,7 +13,7 @@ const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_voll
 const OFFERED_RELICS: Array[String] = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const OWNED_CARD_ID: String = "spark_dart"
 const NEW_CARD_ID: String = "frostbolt"
-const PROOF_VERSION: String = "v3"
+const PROOF_VERSION: String = "v4"
 
 var _failed: bool = false
 
@@ -285,17 +285,21 @@ func _capture_reward_sequence_states(
 	banner = reveal_parts.get("banner") as TextureRect
 	title = reveal_parts.get("title") as Label
 	secondary_actions = reveal_parts.get("secondary_actions") as Control
+	var flip_sfx_generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
 	await PostCombatRewardSequence.play_reward_reveal(
 		instance.get("stage_root") as Control,
 		banner,
 		title,
 		slots,
 		secondary_actions,
-		false
+		false,
+		Callable(instance, "_play_reward_card_flip_sfx")
 	)
 	instance.set("_reward_reveal_pending", false)
 	_assert_reveal_faces(slots, slots.size(), "animated reveal completion")
 	_assert_reveal_transforms(slots, "animated reveal completion")
+	if _sfx_generation_total(instance.get("_sfx_players") as Array) != flip_sfx_generation_before + slots.size():
+		_fail("Animated reward reveal should play exactly one flip sound for each revealed card")
 
 func _capture_reduced_motion_reward(
 	instance: Node,
@@ -311,16 +315,20 @@ func _capture_reduced_motion_reward(
 	await _show_state(instance, state)
 	var reveal_parts: Dictionary = await _prepare_reward_reveal_proof(instance)
 	var slots: Array[Control] = reveal_parts.get("slots", []) as Array[Control]
+	var flip_sfx_generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
 	await PostCombatRewardSequence.play_reward_reveal(
 		instance.get("stage_root") as Control,
 		reveal_parts.get("banner") as TextureRect,
 		reveal_parts.get("title") as Label,
 		slots,
 		reveal_parts.get("secondary_actions") as Control,
-		true
+		true,
+		Callable(instance, "_play_reward_card_flip_sfx")
 	)
 	instance.set("_reward_reveal_pending", false)
 	_assert_reveal_faces(slots, slots.size(), "reduced-motion reveal completion")
+	if _sfx_generation_total(instance.get("_sfx_players") as Array) != flip_sfx_generation_before:
+		_fail("Reduced-motion reward settle should not play animated flip sounds")
 	await _save_root_screenshot(
 		"%s/card_reward_reduced_motion_%s.png" % [output_dir, PROOF_VERSION],
 		resolution
@@ -685,6 +693,14 @@ func _first_available_room_coord_of_type(engine: RunEngine, state: Dictionary, r
 		if str(engine.room_metadata(state, coord).get("type", "")) == room_type:
 			return coord
 	return Vector2i.ZERO
+
+func _sfx_generation_total(players: Array) -> int:
+	var total: int = 0
+	for player_var: Variant in players:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null:
+			total += int(player.get_meta("play_generation", 0))
+	return total
 
 func _labels_under(node: Node) -> Array[Label]:
 	var labels: Array[Label] = []

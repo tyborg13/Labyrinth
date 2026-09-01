@@ -3,6 +3,7 @@ extends RefCounted
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
@@ -40,6 +41,16 @@ static func run(expect: Callable) -> void:
 	if card_draw_stream != null:
 		expect.call(card_draw_stream.get_length() >= 0.28 and card_draw_stream.get_length() <= 0.30, "The card-draw sound should stay tightly trimmed before the following impact")
 	expect.call(float(card_draw_entry.get("volume_db", 99.0)) <= 0.0, "Card-draw playback should not boost the mastered asset above its safe level")
+	var reward_flip_entry: Dictionary = RunSceneScript.REWARD_CARD_FLIP_SFX_ENTRY
+	var reward_flip_path: String = str(reward_flip_entry.get("path", ""))
+	var reward_flip_stream: AudioStream = AssetLoader.load_audio_stream(reward_flip_path)
+	expect.call(reward_flip_path == "res://assets/audio/sfx/reward_card_flip.wav", "Reward cards should use the isolated final flip from the supplied shuffle track")
+	expect.call(FileAccess.file_exists(reward_flip_path), "The reward-card flip sound asset should exist")
+	expect.call(reward_flip_stream != null, "The reward-card flip sound should load as a playable audio stream")
+	if reward_flip_stream != null:
+		expect.call(reward_flip_stream.get_length() >= 0.27 and reward_flip_stream.get_length() <= 0.29, "The reward-card flip should stay tightly trimmed around the final discrete source sound")
+	expect.call(str(reward_flip_entry.get("bus", "")) == SettingsStore.UI_SFX_BUS, "Reward-card flips should use the dry UI SFX path")
+	expect.call(float(reward_flip_entry.get("volume_db", 99.0)) <= 0.0, "Reward-card flip playback should not boost the mastered asset above its safe level")
 	var draw_state: Dictionary = {
 		"player": {"hp": 10},
 		"enemies": [{"id": 0, "type": "crawler", "hp": 10, "max_hp": 10}],
@@ -147,8 +158,82 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	var replayed_relic_draws: int = int(instance.call("_consume_pending_card_draw_sfx", relic_draw_after))
 	expect.call(replayed_relic_draws == 0, "Revisiting a committed draw after a stale observation should stay silent")
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_generation_before + 1, "Out-of-order state observations should not replay a committed relic draw")
+	await _test_reward_flip_sequence(instance, tree, expect)
 	instance.queue_free()
 	await tree.process_frame
+
+static func _test_reward_flip_sequence(instance: Node, tree: SceneTree, expect: Callable) -> void:
+	var host := Control.new()
+	host.name = "RewardFlipSoundTestHost"
+	instance.add_child(host)
+	var banner := TextureRect.new()
+	host.add_child(banner)
+	var title := Label.new()
+	host.add_child(title)
+	var secondary_actions := Control.new()
+	host.add_child(secondary_actions)
+	PostCombatRewardSequence.prepare_banner(banner, title)
+	PostCombatRewardSequence.prepare_secondary_actions(secondary_actions)
+	var slots: Array[Control] = []
+	for index: int in range(3):
+		slots.append(_reward_flip_slot(host, index))
+	var generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	await PostCombatRewardSequence.play_reward_reveal(
+		host,
+		banner,
+		title,
+		slots,
+		secondary_actions,
+		false,
+		Callable(instance, "_play_reward_card_flip_sfx")
+	)
+	var players: Array = instance.get("_sfx_players") as Array
+	expect.call(_sfx_generation_total(players) == generation_before + slots.size(), "An animated three-card reward reveal should play exactly one flip sound per card")
+	for player_var: Variant in players:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null and player.stream != null:
+			expect.call(player.bus == SettingsStore.UI_SFX_BUS, "Every active reward-card flip should stay on the dry UI SFX path")
+
+	var reduced_host := Control.new()
+	reduced_host.name = "ReducedMotionRewardFlipSoundTestHost"
+	instance.add_child(reduced_host)
+	var reduced_slots: Array[Control] = []
+	for index: int in range(3):
+		reduced_slots.append(_reward_flip_slot(reduced_host, index))
+	var reduced_generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	await PostCombatRewardSequence.play_reward_reveal(
+		reduced_host,
+		null,
+		null,
+		reduced_slots,
+		null,
+		true,
+		Callable(instance, "_play_reward_card_flip_sfx")
+	)
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == reduced_generation_before, "Reduced motion should settle reward cards without implying three animated flips through audio")
+	host.queue_free()
+	reduced_host.queue_free()
+	await tree.process_frame
+
+static func _reward_flip_slot(host: Control, index: int) -> Control:
+	var slot := Control.new()
+	slot.name = "RewardFlipSoundSlot%d" % index
+	host.add_child(slot)
+	var scaler := Control.new()
+	scaler.name = PostCombatRewardSequence.CARD_FRAME_NAME
+	slot.add_child(scaler)
+	scaler.set_meta("reward_reveal_base_position", Vector2.ZERO)
+	scaler.set_meta("reward_reveal_base_scale", Vector2.ONE)
+	scaler.position = Vector2(0.0, 58.0)
+	var widget := Control.new()
+	widget.name = "CardWidget"
+	widget.visible = false
+	scaler.add_child(widget)
+	var back := TextureRect.new()
+	back.name = PostCombatRewardSequence.CARD_BACK_NAME
+	scaler.add_child(back)
+	slot.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	return slot
 
 static func _iron_buckler_draw_transition() -> Dictionary:
 	var combat := CombatEngine.new()

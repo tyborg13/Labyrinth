@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-01T20:55:19Z",
+  "updated_at": "2026-09-01T22:43:19Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9873,6 +9873,50 @@
       "source": {
         "branch": "codex/play-card-deal-sound-on-draw",
         "commit": "7da92e0b"
+      }
+    },
+    {
+      "id": "mnt_20260901T222953Z_1f166ecb",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/cards",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/cards",
+      "summary": "Item card simplicity must be authored, never simulated with blur",
+      "details": "The blurry item-card regression came from replacing authored art with uniformly low-frequency images, not from CardWidget imports or runtime texture filtering. Generate item art from the shipped card-art language: simple centered silhouettes, deliberate crisp pixel clusters, controlled medium-low detail, exact 256x144 output, and the canonical ragged alpha window. tests/test_item_card_art_quality.py guards size, mask, uniqueness, and local contrast; tests/item_card_art_probe.gd proves actual CardWidget and compact-badge rendering at 1920x1080.",
+      "status": "active",
+      "created_at": "2026-09-01T22:29:53Z",
+      "updated_at": "2026-09-01T22:29:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/diagnose-and-fix-blurry-item-card-art-regression",
+        "commit": "4def1b8b"
+      }
+    },
+    {
+      "id": "mnt_20260901T224319Z_709f8721",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "assets/audio/sfx/reward_card_flip.wav",
+        "symbol": null
+      },
+      "scope_key": "file:assets/audio/sfx/reward_card_flip.wav",
+      "summary": "Reward reveals use the final isolated shuffle-track flip transient",
+      "details": "Extracted 5.58-5.86 seconds from freesound_community-shuffleandcardflip1-40942.mp3, whose final audible event spans about 5.630-5.803 seconds. Keep the asset mono 44.1 kHz PCM16 at 0.280 seconds with only tiny anti-click fades and no gain boost. Animated post-combat rewards play it once at each card flip on the dry UI SFX bus; reduced-motion instant settle remains silent.",
+      "status": "active",
+      "created_at": "2026-09-01T22:43:19Z",
+      "updated_at": "2026-09-01T22:43:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-extracted-flip-sound-to-sequential-post-combat-reward-card-reveals",
+        "commit": "e4bf4b0d"
       }
     }
   ]
