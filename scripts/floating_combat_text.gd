@@ -4,9 +4,10 @@ class_name FloatingCombatText
 const KIND_DAMAGE: String = "damage"
 const KIND_EFFECT: String = "effect"
 
-const GENERIC_PRESENTATION_SECONDS: float = 0.35
-const ANIMATION_DURATION_SECONDS: float = 0.96
-const STAGGER_SECONDS: float = 0.13
+const GENERIC_PRESENTATION_SECONDS: float = 0.18
+const ANIMATION_DURATION_SECONDS: float = 0.48
+const ACTION_ADVANCE_SECONDS: float = 0.20
+const STAGGER_SECONDS: float = 0.07
 const TARGET_FRAME_SECONDS: float = 1.0 / 60.0
 
 const DAMAGE_PRESENTATION_SCALE: float = 1.25
@@ -16,14 +17,15 @@ const DAMAGE_EXIT_FONT_SIZE: int = 29
 const DAMAGE_REDUCED_MOTION_FONT_SIZE: int = 40
 const DAMAGE_OUTLINE_SIZE: int = 5
 const DAMAGE_WIDTH: float = 140.0
-const DAMAGE_SETTLE_PROGRESS: float = 0.32
-const DAMAGE_FADE_START: float = 0.78
-const DAMAGE_REDUCED_FADE_START: float = 0.88
-const ARC_RISE_HEIGHT: float = 58.0
-const ARC_LATERAL_DRIFT: float = 34.0
-const ARC_END_DROP: float = 18.0
-const ARC_APEX_PROGRESS: float = 0.34
+const DAMAGE_SETTLE_PROGRESS: float = 0.64
+const DAMAGE_FADE_START: float = 0.64
+const DAMAGE_REDUCED_FADE_START: float = 0.72
+const ARC_RISE_HEIGHT: float = 32.0
+const ARC_LATERAL_DRIFT: float = 24.0
+const ARC_END_DROP: float = 8.0
+const ARC_APEX_PROGRESS: float = 0.30
 const NORMAL_STACK_STEP_Y: float = 0.0
+const NORMAL_OVERLAP_STACK_STEP_Y: float = 20.0
 const REDUCED_STACK_STEP_Y: float = 36.0
 
 const EFFECT_BASE_FONT_SIZE: int = 24
@@ -111,6 +113,94 @@ static func total_duration(base_entries: Array) -> float:
 		sequence_count_by_anchor[anchor_key] = sequence_index + 1
 		largest_sequence_index = maxi(largest_sequence_index, sequence_index)
 	return ANIMATION_DURATION_SECONDS + float(largest_sequence_index) * STAGGER_SECONDS
+
+
+static func action_advance_duration(base_entries: Array) -> float:
+	if base_entries.is_empty():
+		return GENERIC_PRESENTATION_SECONDS
+	var sequence_count_by_anchor: Dictionary = {}
+	var largest_sequence_index: int = 0
+	for base_var: Variant in base_entries:
+		if typeof(base_var) != TYPE_DICTIONARY:
+			continue
+		var base_entry: Dictionary = base_var
+		var anchor_key: String = _anchor_key(base_entry)
+		var sequence_index: int = int(sequence_count_by_anchor.get(anchor_key, 0))
+		sequence_count_by_anchor[anchor_key] = sequence_index + 1
+		largest_sequence_index = maxi(largest_sequence_index, sequence_index)
+	return ACTION_ADVANCE_SECONDS + float(largest_sequence_index) * STAGGER_SECONDS
+
+
+static func timeline_group(base_entries: Array, start_seconds: float) -> Dictionary:
+	return {
+		"entries": base_entries.duplicate(true),
+		"start_seconds": maxf(0.0, start_seconds),
+	}
+
+
+static func timeline_duration(groups: Array) -> float:
+	var duration_seconds: float = 0.0
+	for group_var: Variant in groups:
+		if typeof(group_var) != TYPE_DICTIONARY:
+			continue
+		var group: Dictionary = group_var
+		var entries: Array = group.get("entries", []) as Array
+		if entries.is_empty():
+			continue
+		duration_seconds = maxf(
+			duration_seconds,
+			float(group.get("start_seconds", 0.0)) + total_duration(entries)
+		)
+	return duration_seconds
+
+
+static func animate_timeline(groups: Array, elapsed_seconds: float, reduced_motion: bool) -> Array[Dictionary]:
+	var active_batches: Array = []
+	for group_var: Variant in groups:
+		if typeof(group_var) != TYPE_DICTIONARY:
+			continue
+		var group: Dictionary = group_var
+		var entries: Array = group.get("entries", []) as Array
+		if entries.is_empty():
+			continue
+		var local_elapsed: float = elapsed_seconds - float(group.get("start_seconds", 0.0))
+		if local_elapsed < 0.0 or local_elapsed >= total_duration(entries):
+			continue
+		active_batches.append(animate_entries(entries, local_elapsed, reduced_motion))
+	_stack_timeline_batches(
+		active_batches,
+		REDUCED_STACK_STEP_Y if reduced_motion else NORMAL_OVERLAP_STACK_STEP_Y
+	)
+	var animated: Array[Dictionary] = []
+	for batch_var: Variant in active_batches:
+		for entry_var: Variant in batch_var as Array:
+			if typeof(entry_var) == TYPE_DICTIONARY:
+				animated.append(entry_var as Dictionary)
+	return animated
+
+
+static func _stack_timeline_batches(active_batches: Array, stack_step_y: float) -> void:
+	var newer_entry_count_by_anchor: Dictionary = {}
+	for batch_index: int in range(active_batches.size() - 1, -1, -1):
+		var batch: Array = active_batches[batch_index] as Array
+		var batch_count_by_anchor: Dictionary = {}
+		for entry_index: int in range(batch.size()):
+			if typeof(batch[entry_index]) != TYPE_DICTIONARY:
+				continue
+			var entry: Dictionary = batch[entry_index]
+			var anchor_key: String = _anchor_key(entry)
+			var motion_offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
+			motion_offset.y -= float(newer_entry_count_by_anchor.get(anchor_key, 0)) * stack_step_y
+			entry["motion_offset"] = motion_offset
+			batch[entry_index] = entry
+			batch_count_by_anchor[anchor_key] = int(batch_count_by_anchor.get(anchor_key, 0)) + 1
+		for anchor_key_var: Variant in batch_count_by_anchor:
+			var anchor_key: String = str(anchor_key_var)
+			newer_entry_count_by_anchor[anchor_key] = (
+				int(newer_entry_count_by_anchor.get(anchor_key, 0))
+				+ int(batch_count_by_anchor.get(anchor_key, 0))
+			)
+		active_batches[batch_index] = batch
 
 
 static func rendered_font_size(entry: Dictionary) -> float:

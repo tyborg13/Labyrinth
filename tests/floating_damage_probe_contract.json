@@ -1,5 +1,5 @@
 {
-  "min_images": 10,
+  "min_images": 15,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -76,6 +76,46 @@
     },
     {
       "pattern": "*reduced_motion_stack.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*loaded_toss_attack_draw_overlap.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*loaded_toss_draw_play_overlap.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*loaded_toss_reduced_overlap.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*gate_gambit_draw_play_overlap.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 120, 1320, 650], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*gate_gambit_play_block_overlap.png",
       "width": 1920,
       "height": 1080,
       "regions": [

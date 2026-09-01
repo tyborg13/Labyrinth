@@ -1547,6 +1547,10 @@ var _exit_destinations_by_tile: Dictionary = {}
 var _animation_lock: bool = false
 var _escape_transition_in_progress: bool = false
 var _board_presentation: Dictionary = {}
+var _player_popup_timeline_active: bool = false
+var _player_popup_timeline_started_usec: int = 0
+var _player_popup_timeline_groups: Array[Dictionary] = []
+var _player_popup_companion_states: Array[Dictionary] = []
 var _menu_scrim: ColorRect
 var _menu_dialog: PanelContainer
 var _settings_panel: PanelContainer
@@ -20112,6 +20116,56 @@ func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
 	await settle.finished
 	label.add_theme_color_override("font_color", Color("fff7df"))
 
+
+func _start_overlapping_draw_cards_fx(
+	draw_entries: Array,
+	source_rect_override: Rect2,
+	draw_sfx_count: int
+) -> Dictionary:
+	var completion: Dictionary = {"done": false}
+	_player_popup_companion_states.append(completion)
+	_animate_draw_cards_fx_and_complete(
+		draw_entries,
+		source_rect_override,
+		draw_sfx_count,
+		completion
+	)
+	return completion
+
+
+func _animate_draw_cards_fx_and_complete(
+	draw_entries: Array,
+	source_rect_override: Rect2,
+	draw_sfx_count: int,
+	completion: Dictionary
+) -> void:
+	await _animate_draw_cards_fx(draw_entries, source_rect_override, draw_sfx_count)
+	completion["done"] = true
+
+
+func _start_overlapping_card_play_reward(displayed_card_plays: int) -> Dictionary:
+	var completion: Dictionary = {"done": false}
+	_player_popup_companion_states.append(completion)
+	_animate_card_play_reward_and_complete(displayed_card_plays, completion)
+	return completion
+
+
+func _animate_card_play_reward_and_complete(displayed_card_plays: int, completion: Dictionary) -> void:
+	await _animate_card_play_reward(displayed_card_plays)
+	completion["done"] = true
+
+
+func _start_overlapping_intensity_gain(element_id: String, displayed_value: int) -> Dictionary:
+	var completion: Dictionary = {"done": false}
+	_player_popup_companion_states.append(completion)
+	_animate_intensity_gain_and_complete(element_id, displayed_value, completion)
+	return completion
+
+
+func _animate_intensity_gain_and_complete(element_id: String, displayed_value: int, completion: Dictionary) -> void:
+	await _animate_intensity_gain(element_id, displayed_value)
+	completion["done"] = true
+
 func _animate_ember_reward(_source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
 	await EmberRewardFeedback.play(
 		self,
@@ -20131,12 +20185,74 @@ func _set_ember_reward_display_count(value: int) -> void:
 func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
 	return board_view.global_position + board_view.world_position_for_tile(tile)
 
-func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, initial_elapsed_seconds: float = 0.0) -> void:
+func _begin_player_popup_timeline() -> void:
+	_player_popup_timeline_active = true
+	_player_popup_timeline_started_usec = Time.get_ticks_usec()
+	_player_popup_timeline_groups.clear()
+	_player_popup_companion_states.clear()
+
+
+func _player_popup_timeline_elapsed_seconds() -> float:
+	if not _player_popup_timeline_active or _player_popup_timeline_started_usec <= 0:
+		return 0.0
+	return float(Time.get_ticks_usec() - _player_popup_timeline_started_usec) / 1000000.0
+
+
+func _queue_player_popup_group(base_texts: Array, initial_elapsed_seconds: float = 0.0) -> void:
+	if not _player_popup_timeline_active or base_texts.is_empty():
+		return
+	_player_popup_timeline_groups.append(FloatingCombatText.timeline_group(
+		base_texts,
+		maxf(0.0, _player_popup_timeline_elapsed_seconds() - maxf(0.0, initial_elapsed_seconds))
+	))
+
+
+func _player_popup_companions_finished() -> bool:
+	for state: Dictionary in _player_popup_companion_states:
+		if not bool(state.get("done", false)):
+			return false
+	return true
+
+
+func _finish_player_popup_timeline(display_state: Dictionary) -> void:
+	if not _player_popup_timeline_active:
+		return
+	var duration_seconds: float = FloatingCombatText.timeline_duration(_player_popup_timeline_groups)
+	while (
+		_player_popup_timeline_elapsed_seconds() < duration_seconds
+		or not _player_popup_companions_finished()
+	):
+		_render_board_state(display_state, {})
+		await get_tree().process_frame
+	_player_popup_timeline_active = false
+	_player_popup_timeline_started_usec = 0
+	_player_popup_timeline_groups.clear()
+	_player_popup_companion_states.clear()
+
+
+func _animate_floating_text_presentation(
+	display_state: Dictionary,
+	base_presentation: Dictionary,
+	initial_elapsed_seconds: float = 0.0,
+	overlap_with_next_action: bool = false,
+	companion_completion: Dictionary = {}
+) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
 	var terrain_destruction_units: Array = (base_presentation.get("terrain_destruction_units", []) as Array).duplicate(true)
-	var duration_seconds: float = FloatingCombatText.total_duration(base_texts)
+	var use_player_timeline: bool = (
+		overlap_with_next_action
+		and _player_popup_timeline_active
+		and not base_texts.is_empty()
+	)
+	if use_player_timeline:
+		_queue_player_popup_group(base_texts, initial_elapsed_seconds)
+	var duration_seconds: float = (
+		FloatingCombatText.action_advance_duration(base_texts)
+		if use_player_timeline
+		else FloatingCombatText.total_duration(base_texts)
+	)
 	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
 		_render_board_state(display_state, base_presentation)
 		await get_tree().create_timer(duration_seconds).timeout
@@ -20159,10 +20275,18 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 				)
 		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
 			presentation["effect_progress"] = 1.0 if reduced_motion else t
-		presentation["floating_texts"] = FloatingCombatText.animate_entries(base_texts, elapsed_seconds, reduced_motion)
+		presentation["floating_texts"] = (
+			[]
+			if use_player_timeline
+			else FloatingCombatText.animate_entries(base_texts, elapsed_seconds, reduced_motion)
+		)
 		_render_board_state(display_state, presentation, state_validated_for_animation)
 		state_validated_for_animation = true
-		if elapsed_seconds >= duration_seconds:
+		var companion_finished: bool = (
+			companion_completion.is_empty()
+			or bool(companion_completion.get("done", false))
+		)
+		if elapsed_seconds >= duration_seconds and companion_finished:
 			break
 		await get_tree().process_frame
 
@@ -20531,6 +20655,7 @@ func _set_fatigue_edge_progress(progress: float) -> void:
 	_fatigue_edge_overlay.progress = progress
 
 func _animate_player_card_resolution(animated_state: Dictionary, card_id: String, actions: Array, selected_targets: Array[Vector2i]) -> void:
+	_begin_player_popup_timeline()
 	var target_index: int = 0
 	for action_index: int in range(actions.size()):
 		var action_var: Variant = actions[action_index]
@@ -20549,6 +20674,7 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile)
 		animated_state = after_state
 	_set_action_step_resolution_index(actions.size())
+	await _finish_player_popup_timeline(animated_state)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.04).timeout
 
@@ -20797,7 +20923,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("9beeff"),
 					"offset": -6.0
 				}]
-			}))
+			}), 0.0, true)
 		"illuminate":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
@@ -20818,7 +20944,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("ffe394"),
 					"offset": -8.0
 				}]
-			})
+			}, 0.0, true)
 		"vision", "truesight", "dispel_umbra":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra -%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
@@ -20831,7 +20957,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("ffe394"),
 					"offset": -8.0
 				}]
-			})
+			}, 0.0, true)
 		"melee", "ranged", "aoe", "push", "pull":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
@@ -20931,7 +21057,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						_attack_impact_presentation(impact_presentation),
 						1.0
 					),
-					final_feedback_elapsed_seconds
+					final_feedback_elapsed_seconds,
+					true
 				)
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
@@ -20947,7 +21074,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("90d9ff"),
 					"offset": -6.0
 				}]
-			}))
+			}), 0.0, true)
 		"stoneskin":
 			var skin_gain: int = int(player_after.get("stoneskin", 0)) - int(player_before.get("stoneskin", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -20961,7 +21088,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": ElementData.accent(ElementData.EARTH),
 					"offset": -6.0
 				}]
-			}))
+			}), 0.0, true)
 		"heal":
 			var heal_amount: int = int(player_after.get("hp", 0)) - int(player_before.get("hp", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -20975,10 +21102,15 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("9ee27e"),
 					"offset": -6.0
 				}]
-			}))
+			}), 0.0, true)
 		"draw":
 			var draw_amount: int = int(((after_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) - int(((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size())
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			_start_overlapping_draw_cards_fx(
+				_draw_entries_between_states(before_state, after_state),
+				Rect2(),
+				_take_pending_card_draw_sfx_count(after_state)
+			)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -20988,16 +21120,13 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("f1d18b"),
 					"offset": -6.0
 				}]
-			}))
-			await _animate_draw_cards_fx(
-				_draw_entries_between_states(before_state, after_state),
-				Rect2(),
-				_take_pending_card_draw_sfx_count(after_state)
-			)
-			await get_tree().create_timer(0.12).timeout
+			}), 0.0, true)
 		"card_play":
 			var card_plays_gained: int = maxi(0, _card_play_count_for_resolution_state(after_state) - _card_play_count_for_resolution_state(before_state))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var card_play_reward_completion: Dictionary = _start_overlapping_card_play_reward(
+				_card_play_count_for_resolution_state(after_state)
+			)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -21007,9 +21136,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("ffe27a"),
 					"offset": -6.0
 				}]
-			}))
-			await _animate_card_play_reward(_card_play_count_for_resolution_state(after_state))
-			await get_tree().create_timer(0.10).timeout
+			}), 0.0, true, card_play_reward_completion)
 		"intensity":
 			var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
 			var before_value: int = _combat_engine.elemental_intensity(before_state, element_id)
@@ -21021,6 +21148,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				else "%s %d" % [ElementData.name(element_id), after_value]
 			)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var intensity_completion: Dictionary = _start_overlapping_intensity_gain(element_id, after_value)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -21030,9 +21158,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": ElementData.accent(element_id),
 					"offset": -6.0
 				}]
-			}))
-			await _animate_intensity_gain(element_id, after_value)
-			await get_tree().create_timer(0.08).timeout
+			}), 0.0, true, intensity_completion)
 	if not secondary_enemy_loss_presentation.is_empty():
 		await _animate_floating_text_presentation(
 			after_state,
@@ -21806,6 +21932,17 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		var leader_tile: Vector2i = _objective_leader_tile(display_state, objective)
 		if leader_tile.x >= 0:
 			rendered_presentation["objective_leader_tile"] = leader_tile
+	if _player_popup_timeline_active:
+		var timeline_entries: Array[Dictionary] = FloatingCombatText.animate_timeline(
+			_player_popup_timeline_groups,
+			_player_popup_timeline_elapsed_seconds(),
+			_reduced_motion_enabled()
+		)
+		if not timeline_entries.is_empty():
+			var merged_floating_texts: Array = []
+			merged_floating_texts.append_array(timeline_entries)
+			merged_floating_texts.append_array(rendered_presentation.get("floating_texts", []) as Array)
+			rendered_presentation["floating_texts"] = merged_floating_texts
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	board_view.set_combat_state(
 		display_state,
