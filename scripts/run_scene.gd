@@ -13494,7 +13494,11 @@ func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 		_finish_combat_skill_card_motion()
 		return
 	await _animate_card_to_pile_fx(card_id, "discard", card_size, discard_proxy)
-	await _animate_draw_cards_fx(_draw_entries_between_states(before_state, next_state))
+	await _animate_draw_cards_fx(
+		_draw_entries_between_states(before_state, next_state),
+		Rect2(),
+		card_draw_sfx_count_between_states(before_state, next_state)
+	)
 	_finish_combat_skill_card_motion()
 
 func _begin_encore_card_selection(skill_id: String) -> void:
@@ -13529,7 +13533,11 @@ func _commit_encore(skill_id: String, discard_index: int) -> void:
 	if not _stage_combat_skill_state(next_state, skill_id):
 		_finish_combat_skill_card_motion()
 		return
-	await _animate_draw_cards_fx(_draw_entries_between_states(before_state, next_state), source_rect)
+	await _animate_draw_cards_fx(
+		_draw_entries_between_states(before_state, next_state),
+		source_rect,
+		card_draw_sfx_count_between_states(before_state, next_state)
+	)
 	_finish_combat_skill_card_motion()
 
 func _combat_skill_discard_selection_rect(discard_index: int) -> Rect2:
@@ -19885,8 +19893,12 @@ func _animate_card_consumed_fx(card_id: String, size_hint: Vector2, staged_proxy
 	await tween.finished
 	_release_card_proxy(proxy)
 
-func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = Rect2()) -> void:
-	if _card_fx_layer == null or draw_entries.is_empty():
+func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = Rect2(), draw_sfx_count: int = -1) -> void:
+	if not _card_fx_can_continue_combat():
+		return
+	var resolved_draw_sfx_count: int = draw_entries.size() if draw_sfx_count < 0 else maxi(0, draw_sfx_count)
+	_schedule_card_draw_sfx_sequence(resolved_draw_sfx_count)
+	if draw_entries.is_empty():
 		return
 	var final_total: int = draw_entries.size()
 	for entry_var: Variant in draw_entries:
@@ -19935,7 +19947,6 @@ func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = R
 			0.0 if reduced_motion else 0.018,
 			float(draw_index) * DRAW_STAGGER_SECONDS
 		)
-		_schedule_card_draw_sfx(float(draw_index) * DRAW_STAGGER_SECONDS)
 		draw_proxies.append(proxy)
 		draw_tweens.append(tween)
 	if not draw_tweens.is_empty():
@@ -19951,6 +19962,10 @@ func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = R
 	# refresh replaces them. Releasing each one at arrival caused a blank-frame pop
 	# between the flight and the real hand card appearing.
 
+func _schedule_card_draw_sfx_sequence(draw_count: int) -> void:
+	for draw_index: int in range(maxi(0, draw_count)):
+		_schedule_card_draw_sfx(float(draw_index) * DRAW_STAGGER_SECONDS)
+
 func _schedule_card_draw_sfx(delay_seconds: float) -> void:
 	if delay_seconds <= 0.0:
 		_play_card_draw_sfx()
@@ -19964,6 +19979,17 @@ func _play_card_draw_sfx() -> void:
 
 func _card_fx_can_continue_combat() -> bool:
 	return _node_is_alive(_card_fx_layer) and str(_run_state.get("mode", "room")) == "combat"
+
+static func card_draw_sfx_count_between_states(before_state: Dictionary, after_state: Dictionary) -> int:
+	var before_deck: Dictionary = before_state.get("deck", {}) as Dictionary
+	var after_deck: Dictionary = after_state.get("deck", {}) as Dictionary
+	return maxi(0, int(after_deck.get("draw_revision", 0)) - int(before_deck.get("draw_revision", 0)))
+
+static func opening_hand_draw_sfx_count(combat_state: Dictionary) -> int:
+	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
+	if deck.has("draw_revision"):
+		return maxi(0, int(deck.get("draw_revision", 0)))
+	return (deck.get("hand", []) as Array).size()
 
 func _draw_entries_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_counts: Dictionary = {}
@@ -20938,7 +20964,11 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -6.0
 				}]
 			}))
-			await _animate_draw_cards_fx(_draw_entries_between_states(before_state, after_state))
+			await _animate_draw_cards_fx(
+				_draw_entries_between_states(before_state, after_state),
+				Rect2(),
+				card_draw_sfx_count_between_states(before_state, after_state)
+			)
 			await get_tree().create_timer(0.12).timeout
 		"card_play":
 			var card_plays_gained: int = maxi(0, _card_play_count_for_resolution_state(after_state) - _card_play_count_for_resolution_state(before_state))
@@ -21156,7 +21186,11 @@ func _resolve_enemy_round() -> void:
 		_schedule_pass_preview_cache_warm(true)
 		if not fatigue_events.is_empty():
 			await _animate_fatigue_damage(_combat_state, fatigue_events)
-		await _animate_draw_cards_fx(_draw_entries_between_states(before_draw_state, _combat_state))
+		await _animate_draw_cards_fx(
+			_draw_entries_between_states(before_draw_state, _combat_state),
+			Rect2(),
+			card_draw_sfx_count_between_states(before_draw_state, _combat_state)
+		)
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
@@ -22914,6 +22948,7 @@ func _on_pre_battle_start_pressed() -> void:
 	_pre_battle_start_pending = false
 	_queue_hand_ready_wave("combat_start")
 	_refresh_ui()
+	_schedule_card_draw_sfx_sequence(opening_hand_draw_sfx_count(_combat_state))
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "room":

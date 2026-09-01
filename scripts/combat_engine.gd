@@ -825,6 +825,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 			"discard": [],
 			"burned": [],
 			"consumed": [],
+			"draw_revision": 0,
 			"cycles": 0,
 			"fatigue_base": FATIGUE_BASE_DAMAGE
 		},
@@ -7466,6 +7467,7 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 		hand.append(str(draw_pile.pop_back()))
 		deck["draw"] = draw_pile
 		deck["hand"] = hand
+		deck["draw_revision"] = int(deck.get("draw_revision", 0)) + 1
 	next_state["deck"] = deck
 	return next_state
 

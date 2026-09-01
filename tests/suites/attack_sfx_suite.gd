@@ -2,6 +2,7 @@ extends RefCounted
 
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
@@ -39,6 +40,27 @@ static func run(expect: Callable) -> void:
 	if card_draw_stream != null:
 		expect.call(card_draw_stream.get_length() >= 0.28 and card_draw_stream.get_length() <= 0.30, "The card-draw sound should stay tightly trimmed before the following impact")
 	expect.call(float(card_draw_entry.get("volume_db", 99.0)) <= 0.0, "Card-draw playback should not boost the mastered asset above its safe level")
+	var draw_state: Dictionary = {
+		"player": {"hp": 10},
+		"enemies": [{"id": 0, "type": "crawler", "hp": 10, "max_hp": 10}],
+		"deck": {
+			"draw": ["brace"],
+			"hand": ["brace"],
+			"discard": [],
+			"draw_revision": 4
+		}
+	}
+	var draw_before: Dictionary = draw_state.duplicate(true)
+	var draw_after: Dictionary = CombatEngine.new().call("_draw_cards_in_place", draw_state, 1)
+	expect.call(int((draw_after.get("deck", {}) as Dictionary).get("draw_revision", 0)) == 5, "CombatEngine should increment the semantic draw revision for every successful deck draw")
+	expect.call(RunSceneScript.card_draw_sfx_count_between_states(draw_before, draw_after) == 1, "A same-ID replacement draw should still count as one card-draw sound")
+	var recall_after: Dictionary = draw_before.duplicate(true)
+	var recall_deck: Dictionary = recall_after.get("deck", {}) as Dictionary
+	recall_deck["hand"] = ["brace", "lantern_shot"]
+	recall_deck["discard"] = []
+	recall_after["deck"] = recall_deck
+	expect.call(RunSceneScript.card_draw_sfx_count_between_states(draw_before, recall_after) == 0, "Moving a card from discard to hand should not count as a deck-draw sound")
+	expect.call(RunSceneScript.opening_hand_draw_sfx_count(draw_after) == 5, "Opening-hand cadence should use the exact number of successful initial deck draws")
 	var distinct_traps: Array[Dictionary] = AttackSfxLibrary.entries_for_traps([
 		{"element": "fire"},
 		{"element": "fire"},
@@ -78,6 +100,33 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 			expect.call(player.bus == SettingsStore.SFX_BUS, "Card-draw sounds should route through the shared SFX volume bus")
 	await tree.create_timer(0.20).timeout
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 2, "A completed draw should not schedule extra sounds")
+	var replacement_before: Dictionary = {
+		"player": {"hp": 10},
+		"enemies": [{"id": 0, "type": "crawler", "hp": 10, "max_hp": 10}],
+		"deck": {
+			"draw": ["brace"],
+			"hand": ["brace", "lantern_shot"],
+			"discard": [],
+			"draw_revision": 0
+		}
+	}
+	var replacement_draw_state: Dictionary = replacement_before.duplicate(true)
+	var replacement_draw_deck: Dictionary = replacement_draw_state.get("deck", {}) as Dictionary
+	replacement_draw_deck["hand"] = ["lantern_shot"]
+	replacement_draw_deck["discard"] = ["brace"]
+	replacement_draw_state["deck"] = replacement_draw_deck
+	var replacement_after: Dictionary = CombatEngine.new().call("_draw_cards_in_place", replacement_draw_state, 1)
+	var replacement_entries: Array = instance.call("_draw_entries_between_states", replacement_before, replacement_after) as Array
+	expect.call(replacement_entries.is_empty(), "The visual hand diff fixture should reproduce the same-ID replacement blind spot")
+	instance.call(
+		"_animate_draw_cards_fx",
+		replacement_entries,
+		Rect2(),
+		RunSceneScript.card_draw_sfx_count_between_states(replacement_before, replacement_after)
+	)
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 3, "A semantic same-ID replacement draw should still play exactly one sound without a visual diff entry")
+	await tree.create_timer(0.20).timeout
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 3, "A same-ID replacement draw should not schedule extra sounds")
 	instance.queue_free()
 	await tree.process_frame
 
