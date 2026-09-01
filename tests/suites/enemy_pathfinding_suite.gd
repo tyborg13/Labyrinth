@@ -22,6 +22,7 @@ static func run(expect: Callable) -> void:
 	_test_large_attack_only_enemy_uses_footprint_route_blocker(expect)
 	_test_enemy_congestion_is_a_hard_current_blocker(expect)
 	_test_open_detour_beats_avoidable_allied_stall(expect)
+	_test_distant_blocker_does_not_cause_early_u_turn(expect)
 	_test_large_footprint_stops_when_attack_is_available(expect)
 	_test_cached_anchor_queries_match_uncached_footprints(expect)
 	_test_reach_checks_do_not_require_moved_state_clones(expect)
@@ -346,6 +347,26 @@ static func _test_open_detour_beats_avoidable_allied_stall(expect: Callable) -> 
 	var route: Array[Vector2i] = _tiles(plan.get("route", []))
 	expect.call(not route.has(Vector2i(3, 4)) and route[route.size() - 1].distance_to(Vector2i(5, 4)) == 1.0, "The open detour should remain a coherent route to a future attack position")
 
+static func _test_distant_blocker_does_not_cause_early_u_turn(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Efficient Advance",
+		"actions": [
+			{"type": "move_toward", "range": 3},
+			{"type": "melee", "damage": 3, "range": 1}
+		]
+	}
+	var enemies: Array = [
+		_enemy(Vector2i(6, 2), intent),
+		_enemy(Vector2i(2, 2), {"name": "Wait", "actions": []}, "crawler", 2)
+	]
+	var state: Dictionary = _state(combat, 282, Vector2i(1, 2), enemies)
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	var path: Array[Vector2i] = _tiles(plan.get("path", []))
+	expect.call(path == _tiles([Vector2i(6, 2), Vector2i(5, 2), Vector2i(4, 2), Vector2i(3, 2)]), "A distant blocker should not make a single activation move away, sideways, then back before the detour is needed")
+	for index: int in range(1, path.size()):
+		expect.call(path[index].distance_to(Vector2i(1, 2)) < path[index - 1].distance_to(Vector2i(1, 2)), "Every open prefix step should make direct progress toward the player")
+
 static func _test_large_footprint_stops_when_attack_is_available(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var intent: Dictionary = {
@@ -436,6 +457,9 @@ static func _test_enemy_action_analytics_retains_path(expect: Callable) -> void:
 			"kind": "move",
 			"actor_key": "enemy_1",
 			"actor_name": "Crawler",
+			"enemy_type": "crawler",
+			"ai_role": "frontliner",
+			"intent_id": "lunge",
 			"from": Vector2i(5, 4),
 			"to": Vector2i(3, 4),
 			"path": [Vector2i(5, 4), Vector2i(4, 4), Vector2i(3, 4)],
@@ -452,6 +476,7 @@ static func _test_enemy_action_analytics_retains_path(expect: Callable) -> void:
 		var payload: Dictionary = events[0].get("payload", {})
 		expect.call(int(payload.get("path_steps", -1)) == 2, "Enemy action analytics should retain resolved path length")
 		expect.call((payload.get("path", []) as Array).size() == 3, "Enemy action analytics should retain every ordered route tile")
+		expect.call(str(payload.get("enemy_type", "")) == "crawler" and str(payload.get("ai_role", "")) == "frontliner" and str(payload.get("intent_id", "")) == "lunge", "Enemy action analytics should retain the acting tactical role and revealed intent id")
 	run_scene.free()
 	AnalyticsStore.clear_storage()
 	AnalyticsStore.set_storage_dir(previous_storage_dir)

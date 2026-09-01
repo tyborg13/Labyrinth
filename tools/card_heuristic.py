@@ -45,13 +45,25 @@ slow attrition end at about 19 initiative and use a radius-2 poison diamond for
 their main area-denial intent. Generic enemies keep their printed intent actions
 instead of being rewritten to match the room element. Tunnel Crawler claw
 attacks and the Bone Harrier's spear shot now add light one-turn bleed pressure.
+Normal enemies refresh intents through explicit frontliner, artillery,
+skirmisher, protector, controller, or support profiles. Tactically dead options
+such as stationary out-of-range shots, irrelevant retreats, unavailable heals,
+and distant defensive turns are rejected; seeded weighted variation remains
+only among near-best legal choices. Supports prioritize injured or threatened
+allies and hold a legal back-line support position, while protectors guard an
+exposed squad and otherwise advance to screen it. This increases realized enemy
+pressure and support reliability relative to full-list weighted roulette but
+does not change any printed card coefficient.
 Revealed enemy execution is deterministic: advancing attack intents stop at the
 first reachable attack-enabling tile with safe paths breaking equal-length
 ties; retreat attacks preserve their follow-up, attackless retreats maximize
 safe separation, and equal-distance player-side target ties prefer illusions.
 Future-turn route scoring treats destructible terrain as finite clearing time,
 allied congestion as a current hard blocker while crediting open current-turn
-detours, and traps as high-cost but traversable when no safe route exists.
+detours, and traps as high-cost but traversable when no safe route exists. It
+compares true total cost before open-prefix length and uses strongest immediate
+progress to break equal-cost route ties, delaying detours until a blocker is
+actually near instead of producing an early U-shaped movement.
 Conservative threat unions are supplemented by the exact current route,
 destination, and projected attack, including action-denying statuses and
 deterministic lightning-strike tiles.
@@ -160,6 +172,15 @@ BOSS_ENCOUNTER_ROLES = {
     "noctyrax": "Eclipse damage against actors outside Radiance",
 }
 
+ENEMY_TACTICAL_ROLES = {
+    "frontliner": "close distance and convert reachable attacks",
+    "artillery": "hold useful range and establish legal shots",
+    "skirmisher": "kite at close range and advance only to establish pressure",
+    "protector": "guard exposed allies or advance to screen the back line",
+    "controller": "establish range for control and pressure actions",
+    "support": "heal or guard relevant allies and avoid unnecessary melee pursuit",
+}
+
 
 def encounter_assumptions() -> dict[str, Any]:
     """Return the run structure that contextualizes card-score coefficients."""
@@ -170,6 +191,12 @@ def encounter_assumptions() -> dict[str, Any]:
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
+        "enemy_tactical_ai": {
+            "roles": ENEMY_TACTICAL_ROLES,
+            "selection": "reject tactically dead intents, then retain seeded weighted variation among near-best legal choices",
+            "path_tie_break": "true total cost first; equal routes prefer strongest immediate current-activation progress",
+            "score_policy": "raises realized encounter pressure without changing intrinsic printed-card coefficients",
+        },
         "warden_bulwark": "grants scaled Block to every other living enemy and never to the acting Warden",
         "player_flow": {
             "base_initiative": PLAYER_BASE_INITIATIVE,
