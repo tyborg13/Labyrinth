@@ -280,7 +280,7 @@ func _create_audio_players() -> void:
 	for index: int in range(3):
 		var player := AudioStreamPlayer.new()
 		player.name = "CursorClickPlayer%d" % (index + 1)
-		player.bus = SettingsStore.SFX_BUS
+		player.bus = SettingsStore.UI_SFX_BUS
 		add_child(player)
 		_audio_players.append(player)
 
@@ -404,7 +404,7 @@ static func click_feedback_contract() -> Dictionary:
 		"valid_tonal_tail": false,
 		"valid_latch_delay_seconds": 0.0065,
 		"invalid_character": "damped grit-and-wood knock",
-		"bus": SettingsStore.SFX_BUS
+		"bus": SettingsStore.UI_SFX_BUS
 	}
 
 static func build_click_stream(valid: bool) -> AudioStreamWAV:

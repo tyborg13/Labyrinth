@@ -87,6 +87,38 @@ func _capture_enemy_pathfinding_states() -> void:
 	_assert_board_projection(instance, forced_plan, "forced trap route", false)
 	await _save_root_screenshot("%s/03_forced_trap_route.png" % OUTPUT_DIR)
 
+	var distant_blocker_layout: Dictionary = _layout("Direct Progress Before Distant Blocker", _open_grid())
+	var distant_blocker_state: Dictionary = _combat_state(
+		18483,
+		distant_blocker_layout,
+		Vector2i(1, 2),
+		Vector2i(6, 2),
+		3,
+		[]
+	)
+	var blocker: Dictionary = {
+		"id": 2,
+		"type": "warden",
+		"name": "Distant Ally",
+		"pos": Vector2i(2, 2),
+		"hp": 20,
+		"max_hp": 20,
+		"block": 0,
+		"stoneskin": 0,
+		"intent": {"name": "Hold", "actions": [{"type": "block", "amount": 1}]},
+	}
+	var distant_enemies: Array = distant_blocker_state.get("enemies", []) as Array
+	distant_enemies.append(blocker)
+	distant_blocker_state["enemies"] = distant_enemies
+	var distant_blocker_plan: Dictionary = combat.enemy_intent_plan(distant_blocker_state, 0)
+	var direct_prefix: Array[Vector2i] = _vector2i_array(distant_blocker_plan.get("path", []))
+	_expect(direct_prefix == _vector2i_array([Vector2i(6, 2), Vector2i(5, 2), Vector2i(4, 2), Vector2i(3, 2)]), "A distant allied blocker should not cause an early sideways U-turn inside the current activation")
+	for step_index: int in range(1, direct_prefix.size()):
+		_expect(direct_prefix[step_index].distance_to(Vector2i(1, 2)) < direct_prefix[step_index - 1].distance_to(Vector2i(1, 2)), "Every visible step before the distant blocker should make direct progress toward the player")
+	await _install_and_hover(instance, distant_blocker_layout, distant_blocker_state, Vector2i(6, 2))
+	_assert_board_projection(instance, distant_blocker_plan, "distant blocker direct prefix", false)
+	await _save_root_screenshot("%s/05_distant_blocker_direct_prefix.png" % OUTPUT_DIR)
+
 	instance.queue_free()
 	await process_frame
 

@@ -11,10 +11,12 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
+const EnemyTacticalAiSuite = preload("res://tests/suites/enemy_tactical_ai_suite.gd")
 const EnemyIntentPreviewSuite = preload("res://tests/suites/enemy_intent_preview_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
 const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
+const AudioRoutingSuite = preload("res://tests/suites/audio_routing_suite.gd")
 const DragonBossSuite = preload("res://tests/suites/dragon_boss_suite.gd")
 const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
 const InlineIconDescriptionSuite = preload("res://tests/suites/inline_icon_description_suite.gd")
@@ -83,9 +85,11 @@ func _initialize() -> void:
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
+	EnemyTacticalAiSuite.run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
+	AudioRoutingSuite.run(Callable(self, "_assert"))
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	InlineIconDescriptionSuite.run(Callable(self, "_assert"))
 	DragonBossSuite.run(Callable(self, "_assert"))
@@ -1651,7 +1655,12 @@ func _test_initiative_advances_enemy_turns_until_player_reacts() -> void:
 	_assert(saw_turn_order_step, "Initiative advancement should emit turn-order animation snapshots as actors activate and reslot")
 	var next_order: Array[Dictionary] = combat.current_turn_order(after_state, 3)
 	_assert(str(next_order[0].get("kind", "")) == "player" and bool(next_order[0].get("active", false)), "The refreshed order should mark the player as the active actor")
-	_assert(str(next_order[1].get("kind", "")) == "enemy", "Enemies should immediately reslot for their next future turn after acting")
+	var rescheduled_enemy_visible: bool = false
+	for entry: Dictionary in next_order:
+		if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("projected", false)):
+			rescheduled_enemy_visible = true
+			break
+	_assert(rescheduled_enemy_visible, "Enemies should immediately reslot for their next future turn after acting, independent of the newly selected intent's timing")
 
 func _test_card_time_scale_changes_player_reentry_order() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1741,7 +1750,12 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	_assert(int(standard_state.get("player_turn_time_spent", 0)) == 9, "A normal two-card starter turn should spend about nine time")
 	_assert(str(standard_order[0].get("kind", "")) == "enemy", "A fast early enemy should still act once before a normal player return")
 	_assert(str(standard_order[1].get("kind", "")) == "player", "A normal two-card starter turn should return before the same fast enemy laps the player")
-	_assert(str(standard_order[2].get("kind", "")) == "enemy" and bool(standard_order[2].get("projected", false)), "The fast enemy's projected follow-up should remain visible after the player's standard return")
+	var projected_enemy_visible: bool = false
+	for entry: Dictionary in standard_order:
+		if str(entry.get("kind", "")) == "enemy" and bool(entry.get("projected", false)):
+			projected_enemy_visible = true
+			break
+	_assert(projected_enemy_visible, "The fast enemy's projected follow-up should remain visible after the player's standard return, independent of the chosen intent's timing")
 
 	var slow_layout: Dictionary = _simple_room_layout()
 	slow_layout["enemies"] = [
@@ -12568,7 +12582,7 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	_assert(not bool(repaired["reduced_motion"]), "Non-boolean reduced motion data should use its safe default")
 
 	SettingsStore.apply_audio_settings(custom)
-	for bus_name: String in [SettingsStore.MASTER_BUS, SettingsStore.MUSIC_BUS, SettingsStore.SFX_BUS]:
+	for bus_name: String in [SettingsStore.MASTER_BUS, SettingsStore.MUSIC_BUS, SettingsStore.SFX_BUS, SettingsStore.WORLD_SFX_BUS, SettingsStore.UI_SFX_BUS]:
 		_assert(AudioServer.get_bus_index(bus_name) >= 0, "Settings should provision the %s audio bus" % bus_name)
 	var master_index: int = AudioServer.get_bus_index(SettingsStore.MASTER_BUS)
 	var music_index: int = AudioServer.get_bus_index(SettingsStore.MUSIC_BUS)
@@ -12647,10 +12661,10 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	run_instance.call("_play_sfx", {"path": "res://assets/audio/sfx/action_block.wav", "volume_db": -8.0, "duration": 0.1})
 	var routed_sfx_found: bool = false
 	for child: Node in run_instance.get_children():
-		if child is AudioStreamPlayer and child != run_music and (child as AudioStreamPlayer).bus == SettingsStore.SFX_BUS:
+		if child is AudioStreamPlayer and child != run_music and (child as AudioStreamPlayer).bus == SettingsStore.WORLD_SFX_BUS:
 			routed_sfx_found = true
 			break
-	_assert(routed_sfx_found, "In-run effects should route through the SFX bus")
+	_assert(routed_sfx_found, "In-run effects should route through the reverberant World SFX bus")
 	run_instance.queue_free()
 	await process_frame
 

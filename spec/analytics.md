@@ -190,6 +190,11 @@ value-model work, but it is not yet card-source attributed.
 
 `enemy_action_resolved` records each resolved enemy movement, attack, defense,
 heal, summon, elemental-intensity build, or authored dragon-boss mechanic step.
+Its additive `enemy_type`, `ai_role`, and `intent_id` fields identify the actor's
+authored tactical role and the revealed intent that produced the action. This
+allows playtest analysis to compare realized range closure, retreat, healing,
+guarding, and route efficiency by decision policy; authored bosses retain an
+empty `ai_role` while still recording their enemy and intent ids.
 Group support actions include additive `support_targets` entries with each
 recipient's actor key, display name, tile, and realized amount; this lets Warden
 Bulwark record every protected ally without splitting one intent into misleading

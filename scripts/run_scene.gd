@@ -21587,7 +21587,7 @@ func _play_sfx(entry: Dictionary) -> void:
 	var generation: int = int(player.get_meta("play_generation", 0)) + 1
 	player.set_meta("play_generation", generation)
 	player.stream = resource
-	player.bus = SettingsStore.SFX_BUS
+	player.bus = SettingsStore.WORLD_SFX_BUS
 	player.volume_db = float(entry.get("volume_db", 0.0))
 	player.play()
 	var duration: float = float(entry.get("duration", 0.0))
@@ -21605,7 +21605,7 @@ func _acquire_sfx_player() -> AudioStreamPlayer:
 			return pooled_player
 	var player := AudioStreamPlayer.new()
 	player.name = "SfxPlayer%d" % _sfx_players.size()
-	player.bus = SettingsStore.SFX_BUS
+	player.bus = SettingsStore.WORLD_SFX_BUS
 	add_child(player)
 	_sfx_players.append(player)
 	return player
@@ -29025,6 +29025,9 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 				"action_type": str(step.get("action_type", kind)),
 				"presentation_kind": kind,
 				"boss_mechanic": bool(step.get("boss_mechanic", false)),
+				"enemy_type": str(step.get("enemy_type", "")),
+				"ai_role": str(step.get("ai_role", "")),
+				"intent_id": str(step.get("intent_id", "")),
 				"actor_key": str(step.get("actor_key", "")),
 				"actor_name": str(step.get("actor_name", "")),
 				"label": str(step.get("label", "")),
