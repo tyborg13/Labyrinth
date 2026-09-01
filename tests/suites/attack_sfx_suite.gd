@@ -104,7 +104,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	for player_var: Variant in players:
 		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
 		if player != null:
-			expect.call(player.bus == SettingsStore.SFX_BUS, "Card-draw sounds should route through the shared SFX volume bus")
+			expect.call(player.bus == SettingsStore.UI_SFX_BUS, "Card-draw sounds should use the dry UI SFX path while inheriting shared SFX volume")
 	await tree.create_timer(0.20).timeout
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 2, "A completed draw should not schedule extra sounds")
 	var replacement_before: Dictionary = {

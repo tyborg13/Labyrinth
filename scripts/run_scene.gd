@@ -1134,7 +1134,8 @@ const DRAW_STAGGER_SECONDS: float = 0.16
 const CARD_DRAW_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/card_draw_deal.wav",
 	"duration": 0.29,
-	"volume_db": 0.0
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
 }
 const CARD_PLAY_SECONDS: float = 0.30
 const CARD_PLAY_HOLD_SECONDS: float = 0.11
@@ -21587,7 +21588,7 @@ func _play_sfx(entry: Dictionary) -> void:
 	var generation: int = int(player.get_meta("play_generation", 0)) + 1
 	player.set_meta("play_generation", generation)
 	player.stream = resource
-	player.bus = SettingsStore.WORLD_SFX_BUS
+	player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
 	player.volume_db = float(entry.get("volume_db", 0.0))
 	player.play()
 	var duration: float = float(entry.get("duration", 0.0))
