@@ -8469,21 +8469,11 @@ func _enemy_tactical_group_guard_context(state: Dictionary, source_enemy_index: 
 	}
 
 func _enemy_tactical_screens_vulnerable_ally(state: Dictionary, source_enemy_index: int, source_at_destination: Dictionary) -> bool:
-	var enemies: Array = state.get("enemies", []) as Array
-	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-	var source_distance: int = _enemy_distance_to_tile(source_at_destination, player_pos)
-	for index: int in range(enemies.size()):
-		if index == source_enemy_index or typeof(enemies[index]) != TYPE_DICTIONARY:
-			continue
-		var ally: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
-		if int(ally.get("hp", 0)) <= 0:
-			continue
-		var ally_profile: Dictionary = (GameData.enemy_def(str(ally.get("type", ""))).get("ai_profile", {}) as Dictionary)
-		if str(ally_profile.get("role", "")) not in ["support", "artillery", "skirmisher"]:
-			continue
-		if source_distance < _enemy_distance_to_tile(ally, player_pos):
-			return true
-	return false
+	if source_enemy_index < 0:
+		return false
+	var context: Dictionary = _enemy_protector_screening_context(state, source_at_destination)
+	var score_by_tile: Dictionary = context.get("score_by_tile", {}) as Dictionary
+	return int(score_by_tile.get(source_at_destination.get("pos", INVALID_TILE), 0)) > 0
 
 func _intent_by_id(intents: Array, intent_id: String) -> Dictionary:
 	for intent_var: Variant in intents:
@@ -8695,8 +8685,26 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var actual_records: Array[Dictionary] = _enemy_actual_path_records(state, enemy, move_range)
 	performance_phase_started = _record_runtime_performance_phase("enemy_plan_actual_paths", performance_phase_started)
 	var pure_retreat: bool = movement_type == "move_away" and movement_index >= 0 and attack_index < 0
-	var direct_candidate: Dictionary = _best_enemy_retreat_candidate(state, enemy, actual_records) if pure_retreat else _best_enemy_direct_attack_candidate(state, enemy, planning_attack, actual_records, movement_type)
+	var protector_screening_context: Dictionary = (
+		_enemy_protector_screening_context(state, enemy)
+		if movement_type == "move_toward" and move_range > 0
+		else {}
+	)
+	var direct_candidate: Dictionary = _best_enemy_retreat_candidate(state, enemy, actual_records) if pure_retreat else _best_enemy_direct_attack_candidate(
+		state,
+		enemy,
+		planning_attack,
+		actual_records,
+		movement_type,
+		protector_screening_context
+	)
 	performance_phase_started = _record_runtime_performance_phase("enemy_plan_direct_candidate", performance_phase_started)
+	var protector_screening_candidate: Dictionary = (
+		_best_enemy_protector_screening_candidate(state, enemy, actual_records, protector_screening_context)
+		if direct_candidate.is_empty() and not pure_retreat
+		else {}
+	)
+	performance_phase_started = _record_runtime_performance_phase("enemy_plan_protector_screen", performance_phase_started)
 	var target: Dictionary = {}
 	var actual_path: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
 	var future_route: Array[Vector2i] = actual_path.duplicate()
@@ -8708,6 +8716,14 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		future_route = actual_path.duplicate()
 		route_cost = int(direct_candidate.get("cost", 0))
 		attack_available = not pure_retreat
+	elif not protector_screening_candidate.is_empty():
+		# A protector that cannot attack this activation may spend its movement
+		# intercepting the shortest player-to-backliner route. Keep the selected
+		# endpoint as the current-activation path instead of letting a later
+		# attack route pull the Warden back off the lane it meant to block.
+		actual_path = _vector2i_values(protector_screening_candidate.get("path", []))
+		future_route = actual_path.duplicate()
+		route_cost = int(protector_screening_candidate.get("cost", 0))
 	else:
 		# The future route also selects among the player and illusions and evaluates
 		# every legal footprint anchor. Even when this activation has no movement,
@@ -8893,7 +8909,127 @@ func _enemy_retreat_candidate_precedes(candidate: Dictionary, incumbent: Diction
 		return _tile_precedes(candidate_destination, incumbent_destination)
 	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
 
-func _best_enemy_direct_attack_candidate(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, path_records: Array[Dictionary], movement_type: String) -> Dictionary:
+func _enemy_protector_screening_context(state: Dictionary, enemy: Dictionary) -> Dictionary:
+	var profile: Dictionary = GameData.enemy_def(str(enemy.get("type", ""))).get("ai_profile", {}) as Dictionary
+	if str(profile.get("role", "")) != "protector":
+		return {}
+	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var terrain_occupied: Dictionary = _occupied_terrain_tiles(state)
+	var score_by_tile: Dictionary = {}
+	var ally_index_by_tile: Dictionary = {}
+	var source_id: int = int(enemy.get("id", -1))
+	var enemies: Array = state.get("enemies", []) as Array
+	for ally_index: int in range(enemies.size()):
+		if typeof(enemies[ally_index]) != TYPE_DICTIONARY:
+			continue
+		var ally: Dictionary = _normalized_enemy(enemies[ally_index] as Dictionary)
+		if int(ally.get("id", -1)) == source_id or int(ally.get("hp", 0)) <= 0:
+			continue
+		var ally_profile: Dictionary = GameData.enemy_def(str(ally.get("type", ""))).get("ai_profile", {}) as Dictionary
+		var ally_role: String = str(ally_profile.get("role", ""))
+		if ally_role not in ["support", "artillery", "skirmisher"]:
+			continue
+		var ally_pos: Vector2i = ally.get("pos", INVALID_TILE)
+		if ally_pos == INVALID_TILE:
+			continue
+		# Use the board's deterministic shortest terrain route, but deliberately
+		# ignore unit occupancy: the question is where the Warden can interpose
+		# before the player reaches this backliner, not where the player can walk
+		# while the current formation remains frozen in place.
+		var intercept_route: Array[Vector2i] = PathUtils.find_path(
+			state.get("grid", []),
+			player_pos,
+			ally_pos,
+			terrain_occupied,
+			true
+		)
+		if intercept_route.size() < 3:
+			continue
+		var role_priority: int = 60 if ally_role == "support" else (40 if ally_role == "artillery" else 20)
+		var missing_hp: int = maxi(0, int(ally.get("max_hp", 1)) - int(ally.get("hp", 0)))
+		for route_index: int in range(1, intercept_route.size() - 1):
+			var tile: Vector2i = intercept_route[route_index]
+			# Earlier route tiles intercept the player sooner. Role and injury break
+			# ties between allies without making a rearward tile beat a stronger
+			# forward screen on the same lane.
+			var screen_score: int = 100000 - route_index * 100 + role_priority + mini(19, missing_hp)
+			if screen_score <= int(score_by_tile.get(tile, -1)):
+				continue
+			score_by_tile[tile] = screen_score
+			ally_index_by_tile[tile] = ally_index
+	return {
+		"score_by_tile": score_by_tile,
+		"ally_index_by_tile": ally_index_by_tile,
+	}
+
+func _best_enemy_protector_screening_candidate(
+	state: Dictionary,
+	enemy: Dictionary,
+	path_records: Array[Dictionary],
+	context: Dictionary
+) -> Dictionary:
+	var score_by_tile: Dictionary = context.get("score_by_tile", {}) as Dictionary
+	if score_by_tile.is_empty():
+		return {}
+	var ally_index_by_tile: Dictionary = context.get("ally_index_by_tile", {}) as Dictionary
+	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var best: Dictionary = {}
+	for record: Dictionary in path_records:
+		var destination: Vector2i = record.get("tile", enemy.get("pos", Vector2i.ZERO))
+		var screen_score: int = int(score_by_tile.get(destination, 0))
+		if screen_score <= 0:
+			continue
+		var candidate: Dictionary = record.duplicate(true)
+		candidate["destination"] = destination
+		candidate["screening_score"] = screen_score
+		candidate["screening_ally_index"] = int(ally_index_by_tile.get(destination, -1))
+		candidate["player_distance"] = PathUtils.manhattan(destination, player_pos)
+		candidate["regression_cost"] = _enemy_path_regression_cost(
+			enemy,
+			_vector2i_values(record.get("path", [])),
+			player_pos,
+			true
+		)
+		candidate["cost"] = int(record.get("trap_cost", 0)) + int(record.get("steps", 0))
+		if best.is_empty() or _enemy_protector_screening_candidate_precedes(candidate, best):
+			best = candidate
+	return best
+
+func _enemy_protector_screening_candidate_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+	var candidate_trap_cost: int = int(candidate.get("trap_cost", 0))
+	var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))
+	if candidate_trap_cost != incumbent_trap_cost:
+		return candidate_trap_cost < incumbent_trap_cost
+	var candidate_score: int = int(candidate.get("screening_score", 0))
+	var incumbent_score: int = int(incumbent.get("screening_score", 0))
+	if candidate_score != incumbent_score:
+		return candidate_score > incumbent_score
+	var candidate_distance: int = int(candidate.get("player_distance", 9999))
+	var incumbent_distance: int = int(incumbent.get("player_distance", 9999))
+	if candidate_distance != incumbent_distance:
+		return candidate_distance < incumbent_distance
+	var candidate_steps: int = int(candidate.get("steps", 0))
+	var incumbent_steps: int = int(incumbent.get("steps", 0))
+	if candidate_steps != incumbent_steps:
+		return candidate_steps < incumbent_steps
+	var candidate_regression: int = int(candidate.get("regression_cost", 0))
+	var incumbent_regression: int = int(incumbent.get("regression_cost", 0))
+	if candidate_regression != incumbent_regression:
+		return candidate_regression < incumbent_regression
+	var candidate_destination: Vector2i = candidate.get("destination", INVALID_TILE)
+	var incumbent_destination: Vector2i = incumbent.get("destination", INVALID_TILE)
+	if candidate_destination != incumbent_destination:
+		return _tile_precedes(candidate_destination, incumbent_destination)
+	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
+
+func _best_enemy_direct_attack_candidate(
+	state: Dictionary,
+	enemy: Dictionary,
+	attack_action: Dictionary,
+	path_records: Array[Dictionary],
+	movement_type: String,
+	protector_screening_context: Dictionary = {}
+) -> Dictionary:
 	var best: Dictionary = {}
 	for target: Dictionary in _actor_targets(state):
 		for record: Dictionary in path_records:
@@ -8919,6 +9055,7 @@ func _best_enemy_direct_attack_candidate(state: Dictionary, enemy: Dictionary, a
 					movement_type != "move_away"
 				),
 				"exit_block_score": _objective_exit_block_score(state, destination),
+				"protector_screen_score": int((protector_screening_context.get("score_by_tile", {}) as Dictionary).get(destination, 0)),
 				"cost": int(record.get("trap_cost", 0)) + int(record.get("steps", 0))
 			}
 			if best.is_empty() or _enemy_direct_attack_candidate_precedes(candidate, best, movement_type):
@@ -8959,6 +9096,10 @@ func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: D
 		var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))
 		if candidate_trap_cost != incumbent_trap_cost:
 			return candidate_trap_cost < incumbent_trap_cost
+		var candidate_screen_score: int = int(candidate.get("protector_screen_score", 0))
+		var incumbent_screen_score: int = int(incumbent.get("protector_screen_score", 0))
+		if candidate_screen_score != incumbent_screen_score:
+			return candidate_screen_score > incumbent_screen_score
 		var candidate_regression: int = int(candidate.get("regression_cost", 0))
 		var incumbent_regression: int = int(incumbent.get("regression_cost", 0))
 		if candidate_regression != incumbent_regression:

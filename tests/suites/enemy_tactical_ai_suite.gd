@@ -2,6 +2,7 @@ extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const PathUtils = preload("res://scripts/path_utils.gd")
 
 static func run(expect: Callable) -> void:
 	_test_non_boss_roster_has_explicit_roles(expect)
@@ -12,6 +13,7 @@ static func run(expect: Callable) -> void:
 	_test_support_holds_a_legal_back_line_position(expect)
 	_test_low_health_support_heals_instead_of_attacking_at_close_range(expect)
 	_test_warden_guards_threatened_squadmates_and_advances_when_safe(expect)
+	_test_warden_steps_into_player_to_backliner_route(expect)
 	_test_tactical_evaluation_is_read_only_and_bounded(expect)
 	_test_resolved_steps_identify_tactical_policy(expect)
 	_test_seeded_variation_remains_between_sensible_attacks(expect)
@@ -113,24 +115,74 @@ static func _test_warden_guards_threatened_squadmates_and_advances_when_safe(exp
 	var threatened_ids: Array[String] = _option_ids(combat.enemy_tactical_intent_options(threatened_state, 0))
 	expect.call(threatened_ids == _string_array(["bulwark"]), "A Stone Warden should decisively choose Bulwark when a vulnerable squadmate is already exposed to the player; options=%s" % str(threatened_ids))
 
+static func _test_warden_steps_into_player_to_backliner_route(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _state(Vector2i(2, 4), [
+		_enemy("warden", 1, Vector2i(5, 3)),
+		_enemy("grave_surgeon", 2, Vector2i(6, 4)),
+	])
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0, _intent("warden", "marching_blow"))
+	var path: Array[Vector2i] = _tiles(plan.get("path", []))
+	expect.call(
+		plan.get("destination", Vector2i.ZERO) == Vector2i(5, 4),
+		"An off-axis Stone Warden should step onto the shortest player-to-Surgeon route instead of taking the equally close non-screening tile"
+	)
+	expect.call(
+		path == _tiles([Vector2i(5, 3), Vector2i(5, 4)]),
+		"The protector's current movement should use the direct legal step into its blocking tile; path=%s" % str(path)
+	)
+	var player_to_surgeon: Array[Vector2i] = PathUtils.find_path(
+		state.get("grid", []),
+		Vector2i(2, 4),
+		Vector2i(6, 4)
+	)
+	expect.call(player_to_surgeon.has(Vector2i(5, 4)), "The asserted Warden destination should actually lie on the efficient player-to-backliner route")
+
 static func _test_tactical_evaluation_is_read_only_and_bounded(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var state: Dictionary = _state(Vector2i(2, 4), [
-		_enemy("warden", 1, Vector2i(4, 4)),
-		_enemy("grave_surgeon", 2, Vector2i(5, 4)),
-		_enemy("harrier", 3, Vector2i(4, 5)),
+		_enemy("warden", 1, Vector2i(4, 2)),
+		_enemy("grave_surgeon", 2, Vector2i(6, 4)),
+		_enemy("harrier", 3, Vector2i(5, 5)),
+		_enemy("chainbound_gaoler", 4, Vector2i(6, 2)),
 	])
+	var grid: Array = state.get("grid", []) as Array
+	(grid[3] as Array)[3] = "pillar"
+	(grid[3] as Array)[5] = "pillar"
+	(grid[5] as Array)[3] = "pillar"
+	state["grid"] = grid
 	var enemies: Array = state.get("enemies", []) as Array
 	var wounded_harrier: Dictionary = enemies[2] as Dictionary
 	wounded_harrier["hp"] = 3
 	enemies[2] = wounded_harrier
 	state["enemies"] = enemies
 	var before: Dictionary = state.duplicate(true)
+	var expected_plan_calls: int = 0
+	combat.set_runtime_performance_instrumentation_enabled(true)
 	for enemy_index: int in range(enemies.size()):
-		var options: Array[Dictionary] = combat.enemy_tactical_intent_options(state, enemy_index)
+		combat.enemy_tactical_intent_options(state, enemy_index)
 		var enemy_type: String = str(((state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("type", ""))
 		var authored_count: int = (GameData.enemy_def(enemy_type).get("intents", []) as Array).size()
-		expect.call(options.size() <= authored_count, "%s tactical evaluation should plan each authored intent at most once" % enemy_type)
+		expected_plan_calls += authored_count
+	var performance: Dictionary = combat.runtime_performance_instrumentation_snapshot()
+	var plan_total: Dictionary = performance.get("enemy_plan_total", {}) as Dictionary
+	var future_search: Dictionary = performance.get("enemy_future_search", {}) as Dictionary
+	var measured_plan_calls: int = int(plan_total.get("count", 0))
+	var measured_future_searches: int = int(future_search.get("count", 0))
+	var total_usec: int = int(plan_total.get("total_usec", 0))
+	expect.call(
+		measured_plan_calls == expected_plan_calls,
+		"The congested four-enemy refresh should run exactly one plan per authored intent; expected=%d measured=%d" % [expected_plan_calls, measured_plan_calls]
+	)
+	expect.call(
+		measured_future_searches <= expected_plan_calls,
+		"With one player target, future-route searches should stay bounded to at most one per authored intent; plans=%d searches=%d" % [expected_plan_calls, measured_future_searches]
+	)
+	expect.call(
+		total_usec < 250000,
+		"The representative congested squad refresh should remain below the 250 ms decision-boundary ceiling; measured=%.2f ms" % (float(total_usec) / 1000.0)
+	)
+	print("ENEMY TACTICAL AI RESOURCE PROOF: plans=%d future_searches=%d total_ms=%.2f" % [measured_plan_calls, measured_future_searches, float(total_usec) / 1000.0])
 	expect.call(state == before, "Tactical intent evaluation should be a read-only decision pass over the combat snapshot")
 
 static func _test_resolved_steps_identify_tactical_policy(expect: Callable) -> void:

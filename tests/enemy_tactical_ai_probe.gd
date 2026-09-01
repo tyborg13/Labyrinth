@@ -106,6 +106,45 @@ func _capture_tactical_squad() -> void:
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	_expect((presentation.get("enemy_threat_previews", []) as Array).size() == 4, "Show-all proof should expose all four role-aware intent previews")
 	await _save_root_screenshot("%s/01_role_aware_squad.png" % OUTPUT_DIR)
+
+	var screening_layout: Dictionary = _screening_layout()
+	var screening_state: Dictionary = combat.create_combat(52782, screening_layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["threaded_path"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0,
+	})
+	screening_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	var screening_enemies: Array = screening_state.get("enemies", []) as Array
+	var screening_warden: Dictionary = screening_enemies[0] as Dictionary
+	screening_warden["intent"] = _intent("warden", "marching_blow")
+	screening_enemies[0] = screening_warden
+	var screening_surgeon: Dictionary = screening_enemies[1] as Dictionary
+	screening_surgeon["intent"] = _intent("grave_surgeon", "saw_jab")
+	screening_enemies[1] = screening_surgeon
+	screening_state["enemies"] = screening_enemies
+	screening_state = combat.call("_initialize_initiative_queue", screening_state) as Dictionary
+	var screening_plan: Dictionary = combat.enemy_intent_plan(screening_state, 0)
+	_expect(screening_plan.get("destination", Vector2i.ZERO) == Vector2i(5, 4), "The visual screening proof should end on the player-to-Surgeon route")
+	var screening_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	screening_run_state["mode"] = "combat"
+	screening_run_state["current_room"] = screening_layout.get("coord", Vector2i.ZERO)
+	screening_run_state["current_room_layout"] = screening_layout.duplicate(true)
+	screening_run_state["combat_state"] = screening_state.duplicate(true)
+	instance.set("_run_state", screening_run_state)
+	instance.set("_combat_state", screening_state.duplicate(true))
+	instance.set("_animation_lock", false)
+	instance.set("_drag_card_index", -1)
+	instance.set("_hovered_board_tile", INVALID_TILE)
+	instance.set("_show_all_enemy_intents", true)
+	instance.call("_reset_card_resolution")
+	instance.call("_refresh_ui")
+	await _settle_ui()
+	instance.call("_on_board_tile_hovered", Vector2i(5, 3))
+	await _settle_ui()
+	await _save_root_screenshot("%s/02_protector_screen_route.png" % OUTPUT_DIR)
 	instance.queue_free()
 	await process_frame
 
@@ -129,6 +168,24 @@ func _layout() -> Dictionary:
 		"loot": [],
 	}
 
+func _screening_layout() -> Dictionary:
+	return {
+		"name": "Protector Screening Route",
+		"coord": Vector2i(3, 0),
+		"depth": 2,
+		"type": "combat",
+		"umbra_stage": "clear",
+		"grid": _grid(),
+		"player_start": Vector2i(2, 4),
+		"enemies": [
+			_enemy("warden", 1, Vector2i(5, 3)),
+			_enemy("grave_surgeon", 2, Vector2i(6, 4)),
+		],
+		"terrain": [],
+		"traps": [],
+		"loot": [],
+	}
+
 func _enemy(enemy_type: String, enemy_id: int, pos: Vector2i) -> Dictionary:
 	var definition: Dictionary = GameData.enemy_def(enemy_type)
 	var max_hp: int = int(definition.get("max_hp", 10))
@@ -141,6 +198,15 @@ func _enemy(enemy_type: String, enemy_id: int, pos: Vector2i) -> Dictionary:
 		"block": 0,
 		"stoneskin": 0,
 	}
+
+func _intent(enemy_type: String, intent_id: String) -> Dictionary:
+	for intent_var: Variant in GameData.enemy_def(enemy_type).get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		var intent: Dictionary = intent_var as Dictionary
+		if str(intent.get("id", "")) == intent_id:
+			return intent.duplicate(true)
+	return {}
 
 func _grid() -> Array:
 	var grid: Array = []
