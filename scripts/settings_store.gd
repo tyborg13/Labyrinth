@@ -22,14 +22,25 @@ const SFX_HEADROOM_DB: float = -3.0
 # A restrained, dark chamber response: enough tail to place attacks in the
 # labyrinth without softening their transient timing or turning rapid combat
 # into a wash.
-const WORLD_REVERB_ROOM_SIZE: float = 0.62
+const WORLD_REVERB_ROOM_SIZE: float = 0.50
 const WORLD_REVERB_DAMPING: float = 0.72
 const WORLD_REVERB_SPREAD: float = 0.78
 const WORLD_REVERB_HIPASS: float = 0.20
 const WORLD_REVERB_DRY: float = 1.0
-const WORLD_REVERB_WET: float = 0.10
+const WORLD_REVERB_WET: float = 0.08
 const WORLD_REVERB_PREDELAY_MSEC: float = 24.0
 const WORLD_REVERB_PREDELAY_FEEDBACK: float = 0.08
+
+# Music shares the short chamber character, but its sustained material needs a
+# lighter, darker return so the mastered score remains forward and intelligible.
+const MUSIC_REVERB_ROOM_SIZE: float = 0.50
+const MUSIC_REVERB_DAMPING: float = 0.78
+const MUSIC_REVERB_SPREAD: float = 0.80
+const MUSIC_REVERB_HIPASS: float = 0.30
+const MUSIC_REVERB_DRY: float = 1.0
+const MUSIC_REVERB_WET: float = 0.04
+const MUSIC_REVERB_PREDELAY_MSEC: float = 28.0
+const MUSIC_REVERB_PREDELAY_FEEDBACK: float = 0.04
 
 const STANDARD_DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const FAST_DIALOGUE_CHARACTERS_PER_SECOND: float = 92.0
@@ -126,6 +137,7 @@ static func ensure_audio_buses() -> void:
 	_route_audio_bus(WORLD_SFX_BUS, SFX_BUS)
 	_route_audio_bus(UI_SFX_BUS, SFX_BUS)
 	_ensure_world_sfx_reverb()
+	_ensure_music_reverb()
 
 static func apply_audio_settings(settings: Dictionary) -> void:
 	var normalized: Dictionary = normalize_settings(settings)
@@ -222,7 +234,43 @@ static func _route_audio_bus(bus_name: String, destination_bus: String) -> void:
 		AudioServer.set_bus_send(bus_index, destination_bus)
 
 static func _ensure_world_sfx_reverb() -> void:
-	var bus_index: int = AudioServer.get_bus_index(WORLD_SFX_BUS)
+	_ensure_reverb(
+		WORLD_SFX_BUS,
+		WORLD_REVERB_ROOM_SIZE,
+		WORLD_REVERB_DAMPING,
+		WORLD_REVERB_SPREAD,
+		WORLD_REVERB_HIPASS,
+		WORLD_REVERB_DRY,
+		WORLD_REVERB_WET,
+		WORLD_REVERB_PREDELAY_MSEC,
+		WORLD_REVERB_PREDELAY_FEEDBACK
+	)
+
+static func _ensure_music_reverb() -> void:
+	_ensure_reverb(
+		MUSIC_BUS,
+		MUSIC_REVERB_ROOM_SIZE,
+		MUSIC_REVERB_DAMPING,
+		MUSIC_REVERB_SPREAD,
+		MUSIC_REVERB_HIPASS,
+		MUSIC_REVERB_DRY,
+		MUSIC_REVERB_WET,
+		MUSIC_REVERB_PREDELAY_MSEC,
+		MUSIC_REVERB_PREDELAY_FEEDBACK
+	)
+
+static func _ensure_reverb(
+	bus_name: String,
+	room_size: float,
+	damping: float,
+	spread: float,
+	hipass: float,
+	dry: float,
+	wet: float,
+	predelay_msec: float,
+	predelay_feedback: float
+) -> void:
+	var bus_index: int = AudioServer.get_bus_index(bus_name)
 	if bus_index < 0:
 		return
 	var reverb: AudioEffectReverb
@@ -237,14 +285,14 @@ static func _ensure_world_sfx_reverb() -> void:
 		reverb = AudioEffectReverb.new()
 		AudioServer.add_bus_effect(bus_index, reverb)
 		reverb_index = AudioServer.get_bus_effect_count(bus_index) - 1
-	reverb.room_size = WORLD_REVERB_ROOM_SIZE
-	reverb.damping = WORLD_REVERB_DAMPING
-	reverb.spread = WORLD_REVERB_SPREAD
-	reverb.hipass = WORLD_REVERB_HIPASS
-	reverb.dry = WORLD_REVERB_DRY
-	reverb.wet = WORLD_REVERB_WET
-	reverb.predelay_msec = WORLD_REVERB_PREDELAY_MSEC
-	reverb.predelay_feedback = WORLD_REVERB_PREDELAY_FEEDBACK
+	reverb.room_size = room_size
+	reverb.damping = damping
+	reverb.spread = spread
+	reverb.hipass = hipass
+	reverb.dry = dry
+	reverb.wet = wet
+	reverb.predelay_msec = predelay_msec
+	reverb.predelay_feedback = predelay_feedback
 	AudioServer.set_bus_effect_enabled(bus_index, reverb_index, true)
 
 static func _number_or_default(value: Variant, fallback: float) -> float:
