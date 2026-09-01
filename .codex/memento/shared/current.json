@@ -9674,28 +9674,6 @@
       }
     },
     {
-      "id": "mnt_20260831T173056Z_8dcfcabe",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Player death uses an authored same-stem collapse sheet",
-      "details": "assets/placeholders/units/player_reaver_death.png is a 4x4 row-major 4080px sheet with sixteen 1020px frames loaded automatically from the player_reaver art stem. Authored death frames preserve their native rect, source colors, and per-frame silhouette shadows; the procedural squash, violet dissolve, and shadow fade remain fallback behavior only when no death sheet exists.",
-      "status": "active",
-      "created_at": "2026-08-31T17:30:56Z",
-      "updated_at": "2026-08-31T17:30:56Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
-        "commit": "79d65e7f"
-      }
-    },
-    {
       "id": "mnt_20260831T173056Z_49cded16",
       "layer": "shared",
       "kind": "user_preference",
@@ -9707,6 +9685,28 @@
       "scope_key": "file:scripts/death_engulf_overlay.gd",
       "summary": "Last Light glow follows the ember tile, not the fixed peephole",
       "details": "Keep the Umbra shroud aperture fixed at the recap's authored window, but update the additive Last Light glow from the board-projected death/ember tile throughout reframing. The glow should travel with the remains and coincide with the aperture only after the board settles.",
+      "status": "active",
+      "created_at": "2026-08-31T17:30:56Z",
+      "updated_at": "2026-08-31T17:30:56Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
+        "commit": "79d65e7f"
+      }
+    },
+    {
+      "id": "mnt_20260831T173056Z_8dcfcabe",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Player death uses an authored same-stem collapse sheet",
+      "details": "assets/placeholders/units/player_reaver_death.png is a 4x4 row-major 4080px sheet with sixteen 1020px frames loaded automatically from the player_reaver art stem. Authored death frames preserve their native rect, source colors, and per-frame silhouette shadows; the procedural squash, violet dissolve, and shadow fade remain fallback behavior only when no death sheet exists.",
       "status": "active",
       "created_at": "2026-08-31T17:30:56Z",
       "updated_at": "2026-08-31T17:30:56Z",
@@ -9783,6 +9783,50 @@
       "source": {
         "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
         "commit": "ca63ebde"
+      }
+    },
+    {
+      "id": "mnt_20260901T153846Z_4f5923ed",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Normal enemies refresh intents through board-aware tactical roles",
+      "details": "Normal enemies with ai_profile evaluate every authored intent against the current board, reject tactically dead options, and preserve seeded weighted variation only inside a near-best score window. Frontliner, artillery, skirmisher, protector, controller, and support roles bias realized attacks, range closure/retreat, wounded-ally healing, exposed-ally guarding, and back-line positioning; authored bosses without ai_profile retain their scripted selection gates.",
+      "status": "active",
+      "created_at": "2026-09-01T15:38:46Z",
+      "updated_at": "2026-09-01T15:38:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/intelligent-role-based-enemy-ai-and-efficient-tactical-pathfinding",
+        "commit": "7da92e0b"
+      }
+    },
+    {
+      "id": "mnt_20260901T153847Z_2c3b39b1",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Future enemy routes compare true cost before current-prefix preferences",
+      "details": "Do not subtract immediately open prefix steps from future-route cost: that globally discounts longer routes and can make one activation move away, sideways, then back toward the target. Compare true total cost first, then open-prefix length and weighted current-activation distance progress; an occupied future anchor costs one activation plus its step so an equal open detour still beats stalling behind an adjacent ally.",
+      "status": "active",
+      "created_at": "2026-09-01T15:38:47Z",
+      "updated_at": "2026-09-01T15:38:47Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/intelligent-role-based-enemy-ai-and-efficient-tactical-pathfinding",
+        "commit": "7da92e0b"
       }
     },
     {

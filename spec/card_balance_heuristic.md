@@ -222,6 +222,16 @@ Encounter calibration is also important:
   the far side by default. This should make turn-1 reach and early enemy threat
   more variable than the old far-spawn calibration.
 - Revealed enemy execution is deterministic from the current board and intent.
+  Normal enemies now use explicit frontliner, artillery, skirmisher, protector,
+  controller, or support profiles when refreshing that intent. They discard
+  tactically dead options such as stationary out-of-range shots, irrelevant
+  retreats, unavailable heals, and distant defensive turns, then retain seeded
+  weighted variation only among the near-best legal choices. Support profiles
+  prioritize missing allied health and threatened allies without walking toward
+  the player when a support target is already in range; protectors prefer group
+  defense when a back-line ally is exposed and otherwise advance to screen it.
+  This raises realized enemy pressure and support reliability relative to the
+  old full-list weighted roulette without changing printed action coefficients.
   Advancing attack intents stop at the first reachable attack-enabling tile,
   with movement length ahead of trap exposure and safe routing used to break
   equally short ties. Retreat attacks maximize separation only while preserving
@@ -230,7 +240,11 @@ Encounter calibration is also important:
   reliable. When an attack is not reachable this activation, route scoring
   treats destructible terrain as finite clearing time, allied congestion as a
   temporary hard blocker while crediting immediately traversable detours, and
-  traps as high-cost but traversable when no safe route exists. Conservative
+  traps as high-cost but traversable when no safe route exists. True total route
+  cost is compared before open-prefix length; equal-cost routes prefer the
+  current-activation prefix with the strongest immediate progress, so an enemy
+  delays a detour around a distant blocker instead of taking an early U-shaped
+  path. Conservative
   threat unions remain visible, with the exact current route, destination, and
   projected attack shown separately; exact projections also honor freeze,
   shock, immobilize, and deterministic lightning-strike tiles.
