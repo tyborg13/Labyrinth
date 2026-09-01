@@ -27,7 +27,7 @@ const WORLD_REVERB_DAMPING: float = 0.72
 const WORLD_REVERB_SPREAD: float = 0.78
 const WORLD_REVERB_HIPASS: float = 0.20
 const WORLD_REVERB_DRY: float = 1.0
-const WORLD_REVERB_WET: float = 0.13
+const WORLD_REVERB_WET: float = 0.10
 const WORLD_REVERB_PREDELAY_MSEC: float = 24.0
 const WORLD_REVERB_PREDELAY_FEEDBACK: float = 0.08
 
