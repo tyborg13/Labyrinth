@@ -1641,6 +1641,7 @@ var _combat_skill_card_selection_cancel_button: Button
 var _skill_event_revision_seen: int = 0
 var _run_skill_event_revision_seen: int = 0
 var _defiance_event_revision_seen: int = 0
+var _card_draw_sfx_revision_seen: int = 0
 var _analytics_skill_event_revision: int = 0
 var _hand_panel_signature: String = "<unset>"
 var _hand_panel_content_signature: String = "<unset>"
@@ -9800,6 +9801,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_reconcile_progression_analytics_outbox()
 	_sync_progression_analytics_outbox_to_run()
 	_sync_combat_state_from_run()
+	_baseline_card_draw_sfx_revision(_combat_state)
 	_repair_legacy_empty_actor_transition()
 	if (
 		(content_migration_required or combat_units_migration_required)
@@ -9847,6 +9849,7 @@ func _refresh_ui(
 	unlock_animation_after_slices: bool = false,
 	queue_hand_ready_wave_on_unlock: bool = false
 ) -> void:
+	_consume_pending_card_draw_sfx(_combat_state)
 	if frame_sliced:
 		_frame_sliced_ui_refresh_active = true
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -13497,7 +13500,7 @@ func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 	await _animate_draw_cards_fx(
 		_draw_entries_between_states(before_state, next_state),
 		Rect2(),
-		card_draw_sfx_count_between_states(before_state, next_state)
+		_take_pending_card_draw_sfx_count(next_state)
 	)
 	_finish_combat_skill_card_motion()
 
@@ -13536,7 +13539,7 @@ func _commit_encore(skill_id: String, discard_index: int) -> void:
 	await _animate_draw_cards_fx(
 		_draw_entries_between_states(before_state, next_state),
 		source_rect,
-		card_draw_sfx_count_between_states(before_state, next_state)
+		_take_pending_card_draw_sfx_count(next_state)
 	)
 	_finish_combat_skill_card_motion()
 
@@ -19758,6 +19761,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
+	_consume_pending_card_draw_sfx(committed_combat_state)
 	await _animate_enemy_loss_feedback_between_states(
 		pre_commit_combat_state,
 		committed_combat_state,
@@ -19980,16 +19984,37 @@ func _play_card_draw_sfx() -> void:
 func _card_fx_can_continue_combat() -> bool:
 	return _node_is_alive(_card_fx_layer) and str(_run_state.get("mode", "room")) == "combat"
 
+static func card_draw_revision(combat_state: Dictionary) -> int:
+	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
+	return maxi(0, int(deck.get("draw_revision", 0)))
+
 static func card_draw_sfx_count_between_states(before_state: Dictionary, after_state: Dictionary) -> int:
-	var before_deck: Dictionary = before_state.get("deck", {}) as Dictionary
-	var after_deck: Dictionary = after_state.get("deck", {}) as Dictionary
-	return maxi(0, int(after_deck.get("draw_revision", 0)) - int(before_deck.get("draw_revision", 0)))
+	return maxi(0, card_draw_revision(after_state) - card_draw_revision(before_state))
 
 static func opening_hand_draw_sfx_count(combat_state: Dictionary) -> int:
 	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
 	if deck.has("draw_revision"):
-		return maxi(0, int(deck.get("draw_revision", 0)))
+		return card_draw_revision(combat_state)
 	return (deck.get("hand", []) as Array).size()
+
+func _baseline_card_draw_sfx_revision(combat_state: Dictionary) -> void:
+	_card_draw_sfx_revision_seen = card_draw_revision(combat_state)
+
+func _take_pending_card_draw_sfx_count(combat_state: Dictionary) -> int:
+	var revision: int = card_draw_revision(combat_state)
+	if revision < _card_draw_sfx_revision_seen:
+		_card_draw_sfx_revision_seen = revision
+		return 0
+	var draw_count: int = revision - _card_draw_sfx_revision_seen
+	_card_draw_sfx_revision_seen = revision
+	return draw_count
+
+func _consume_pending_card_draw_sfx(combat_state: Dictionary) -> int:
+	if not _card_fx_can_continue_combat():
+		return 0
+	var draw_count: int = _take_pending_card_draw_sfx_count(combat_state)
+	_schedule_card_draw_sfx_sequence(draw_count)
+	return draw_count
 
 func _draw_entries_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_counts: Dictionary = {}
@@ -20967,7 +20992,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_draw_cards_fx(
 				_draw_entries_between_states(before_state, after_state),
 				Rect2(),
-				card_draw_sfx_count_between_states(before_state, after_state)
+				_take_pending_card_draw_sfx_count(after_state)
 			)
 			await get_tree().create_timer(0.12).timeout
 		"card_play":
@@ -21034,6 +21059,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			after_state,
 			int(hand_destination_indices.get(_movement_loot_key(loot), -1))
 		)
+	_consume_pending_card_draw_sfx(after_state)
 
 func _resolve_enemy_round() -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -21110,13 +21136,21 @@ func _resolve_enemy_round() -> void:
 		var slice_steps: Array = slice_result.get("steps", []) as Array
 		phase_steps.append_array(slice_steps)
 		var slice_player_before: Variant = slice_result.get("player_turn_before_state", {})
+		var slice_player_turn_before_state: Dictionary = {}
 		if typeof(slice_player_before) == TYPE_DICTIONARY and not (slice_player_before as Dictionary).is_empty():
-			player_turn_before_state = (slice_player_before as Dictionary).duplicate(true)
+			slice_player_turn_before_state = (slice_player_before as Dictionary).duplicate(true)
+			player_turn_before_state = slice_player_turn_before_state
 		phase_complete = bool(slice_result.get("complete", false))
 		# The durable pre-phase state owns a deterministic continuation marker. A
 		# crash may replay this locked enemy turn, but live animation must not rewrite
 		# the complete run at every internal commit boundary.
 		await _animate_enemy_phase_steps(animated_state, slice_steps)
+		var draw_sfx_state: Dictionary = (
+			slice_player_turn_before_state
+			if not slice_player_turn_before_state.is_empty()
+			else (slice_result.get("state", phase_state) as Dictionary)
+		)
+		_consume_pending_card_draw_sfx(draw_sfx_state)
 		phase_state = slice_result.get("state", phase_state) as Dictionary
 	if phase_slice_safety >= 100:
 		push_error("Enemy phase slice safety limit reached before player activation.")
@@ -21189,7 +21223,7 @@ func _resolve_enemy_round() -> void:
 		await _animate_draw_cards_fx(
 			_draw_entries_between_states(before_draw_state, _combat_state),
 			Rect2(),
-			card_draw_sfx_count_between_states(before_draw_state, _combat_state)
+			_take_pending_card_draw_sfx_count(_combat_state)
 		)
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -22948,7 +22982,6 @@ func _on_pre_battle_start_pressed() -> void:
 	_pre_battle_start_pending = false
 	_queue_hand_ready_wave("combat_start")
 	_refresh_ui()
-	_schedule_card_draw_sfx_sequence(opening_hand_draw_sfx_count(_combat_state))
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "room":
@@ -28330,6 +28363,7 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))
 	var next_mode: String = str(_run_state.get("mode", "room"))
 	if previous_mode != "combat" and next_mode == "combat" and not transition_combat_state.is_empty():
+		_card_draw_sfx_revision_seen = 0
 		_run_state = _ensure_run_analytics_metadata(_run_state)
 		var analytics: Dictionary = (_run_state.get("analytics", {}) as Dictionary).duplicate(true)
 		analytics["combat_counter"] = int(analytics.get("combat_counter", 0)) + 1
@@ -28347,6 +28381,7 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 		_analytics_log_combat_started(reason)
 		return
 	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
+		_card_draw_sfx_revision_seen = 0
 		_analytics_log_combat_ended(transition_combat_state, reason)
 		if next_mode == "reward":
 			_analytics_log_reward_offered(transition_combat_state, reason)
