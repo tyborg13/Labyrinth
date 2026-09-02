@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-01T22:43:19Z",
+  "updated_at": "2026-09-02T03:25:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9696,28 +9696,6 @@
       }
     },
     {
-      "id": "mnt_20260831T173056Z_8dcfcabe",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Player death uses an authored same-stem collapse sheet",
-      "details": "assets/placeholders/units/player_reaver_death.png is a 4x4 row-major 4080px sheet with sixteen 1020px frames loaded automatically from the player_reaver art stem. Authored death frames preserve their native rect, source colors, and per-frame silhouette shadows; the procedural squash, violet dissolve, and shadow fade remain fallback behavior only when no death sheet exists.",
-      "status": "active",
-      "created_at": "2026-08-31T17:30:56Z",
-      "updated_at": "2026-08-31T17:30:56Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
-        "commit": "79d65e7f"
-      }
-    },
-    {
       "id": "mnt_20260831T192054Z_d6a304e7",
       "layer": "shared",
       "kind": "decision",
@@ -9917,6 +9895,30 @@
       "source": {
         "branch": "codex/add-extracted-flip-sound-to-sequential-post-combat-reward-card-reveals",
         "commit": "e4bf4b0d"
+      }
+    },
+    {
+      "id": "mnt_20260902T032512Z_436b744f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Enemy deaths use one silhouette-driven procedural shadow dissolve; player death remains authored.",
+      "details": "Runtime enemy deaths no longer load or select per-enemy _death sheets. CombatBoardView feeds the enemy's idle-frame silhouette into EnemyShadowDissolveEffect, which preserves native framing while the shader drives inward violet-black takeover, coherent breakup, a grounded shadow pool, and silhouette-derived wisps; reduced motion removes drift. The player's terminal defeat still uses the authored 16-frame same-stem collapse sheet.",
+      "status": "active",
+      "created_at": "2026-09-02T03:25:12Z",
+      "updated_at": "2026-09-02T03:25:12Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260831T173056Z_8dcfcabe"
+      ],
+      "source": {
+        "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
+        "commit": "4f8bf2da"
       }
     }
   ]

@@ -280,7 +280,7 @@ func _initialize() -> void:
 	_test_cinder_enemies_use_final_raster_art()
 	_test_cinder_enemies_have_turn_order_portraits()
 	_test_final_art_units_use_16_frame_idle_sheets()
-	_test_enemy_death_sheets_load_for_full_roster()
+	_test_enemy_shadow_dissolve_unifies_full_roster()
 	_test_terrain_destruction_sheets_load_for_full_prop_roster()
 	_test_elemental_trap_animation_sheets_load_and_respect_reduced_motion()
 	_test_final_art_idle_shadows_keep_silhouettes_for_every_frame()
@@ -6446,10 +6446,16 @@ func _test_final_art_units_use_16_frame_idle_sheets() -> void:
 		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", unit)), 0.1), "%s idle loop should use the default frame cadence" % unit_type)
 	board.free()
 
-func _test_enemy_death_sheets_load_for_full_roster() -> void:
+func _test_enemy_shadow_dissolve_unifies_full_roster() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
+	board.size = Vector2(1920.0, 1080.0)
+	root.add_child(board)
 	board.call("_load_assets")
+	# This suite runs during SceneTree initialization, before newly attached nodes
+	# receive _ready(); create the retained renderer explicitly so lifecycle
+	# assertions exercise the same effect-node ownership as live combat.
+	board.call("_create_dynamic_render_layer")
 	board.combat_state = {
 		"grid": _simple_grid(),
 		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
@@ -6463,30 +6469,37 @@ func _test_enemy_death_sheets_load_for_full_roster() -> void:
 		}]
 	}
 	for enemy_type: String in GameData.enemies().keys():
-		var definition: Dictionary = GameData.enemy_def(enemy_type)
-		var art_path: String = str(definition.get("art_path", ""))
-		var death_path: String = "%s_death.%s" % [art_path.get_basename(), art_path.get_extension()]
 		var unit := {
 			"key": "enemy_%s_death" % enemy_type,
 			"role": "enemy",
 			"type": enemy_type,
 			"death_animation": true,
-			"death_frame": 5,
 			"death_progress": 0.42
 		}
-		var death_frames: Array = board.call("_unit_death_frames", unit)
-		_assert(FileAccess.file_exists(death_path), "%s death sheet should exist beside its base art" % enemy_type)
-		_assert(death_frames.size() == 16, "%s death sheet should load all 16 shadow-dissolve frames" % enemy_type)
-		if death_frames.size() >= 16:
-			var first_frame: AtlasTexture = death_frames[0] as AtlasTexture
-			var last_frame: AtlasTexture = death_frames[death_frames.size() - 1] as AtlasTexture
-			_assert((death_frames[0] as Texture2D).get_size() == Vector2(255.0, 255.0), "%s death frames should use the native 255px unit canvas" % enemy_type)
-			_assert(first_frame != null and last_frame != null, "%s death frames should be atlas-backed slices" % enemy_type)
-			_assert(first_frame.region.position == Vector2.ZERO, "%s death animation should begin at the first source frame" % enemy_type)
-			_assert(last_frame.region.position == Vector2(765.0, 765.0), "%s death animation should include the final 4x4 source frame" % enemy_type)
-			_assert(board.call("_texture_for_unit", unit) == death_frames[5], "%s death presentation should select the requested death frame" % enemy_type)
+		var native_rect := Rect2(Vector2(10.0, 20.0), Vector2(100.0, 150.0))
+		var source_texture: Texture2D = board.call("_enemy_shadow_dissolve_source_texture", unit) as Texture2D
+		_assert(bool(board.call("_unit_uses_procedural_shadow_dissolve", unit)), "%s should use the unified procedural shadow dissolve" % enemy_type)
+		_assert((board.call("_unit_death_frames", unit) as Array).is_empty(), "%s runtime should not load a separate enemy death sheet" % enemy_type)
+		_assert(source_texture != null, "%s shadow dissolve should retain a silhouette source texture" % enemy_type)
+		_assert(int(board.call("_unit_death_frame_count", unit)) == 20, "%s should use the common 20-sample dissolve cadence" % enemy_type)
+		_assert(is_equal_approx(float(board.call("_unit_death_frame_seconds", unit)), 0.052), "%s should use the common dissolve frame timing" % enemy_type)
+		_assert((board.call("_death_animation_render_rect", unit, native_rect) as Rect2).is_equal_approx(native_rect), "%s procedural death should preserve native framing without squash or stretch" % enemy_type)
+		_assert((board.call("_death_animation_render_tint", unit) as Color).is_equal_approx(Color.WHITE), "%s procedural death should leave color transformation to the dissolve shader" % enemy_type)
+		var repeat_seed: float = float(board.call("_enemy_shadow_dissolve_seed_for_unit", unit))
+		_assert(is_equal_approx(repeat_seed, float(board.call("_enemy_shadow_dissolve_seed_for_unit", unit))), "%s dissolve breakup should be deterministic" % enemy_type)
+	var player_death_unit := {
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"death_animation": true,
+		"death_frame": 5,
+		"death_progress": 0.42
+	}
+	_assert(not bool(board.call("_unit_uses_procedural_shadow_dissolve", player_death_unit)), "Player defeat should retain its distinct authored terminal collapse")
+	_assert((board.call("_unit_death_frames", player_death_unit) as Array).size() == 16, "Player defeat should continue loading all authored collapse frames")
 	var death_entry := {
 		"key": "enemy_99",
+		"role": "enemy",
 		"id": 99,
 		"type": "crawler",
 		"name": "Tunnel Crawler",
@@ -6494,7 +6507,16 @@ func _test_enemy_death_sheets_load_for_full_roster() -> void:
 		"death_frame": 3,
 		"death_progress": 0.3
 	}
-	board.presentation = {"death_animation_units": [death_entry]}
+	var dissolve_state := {
+		"name": "Shadow dissolve test",
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
+		"enemies": [],
+		"loot": [],
+		"terrain": [],
+		"traps": []
+	}
+	board.set_combat_state(dissolve_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"death_animation_units": [death_entry]})
 	var found_death_unit: bool = false
 	for visible_var: Variant in board.call("_visible_units"):
 		if typeof(visible_var) != TYPE_DICTIONARY:
@@ -6506,6 +6528,26 @@ func _test_enemy_death_sheets_load_for_full_roster() -> void:
 		_assert(bool(visible_unit.get("death_animation", false)), "Death presentation units should be marked for dissolve rendering")
 		_assert(int(visible_unit.get("hp", 0)) > 0, "Death presentation units should stay drawable even when combat state HP is zero")
 	_assert(found_death_unit, "Combat board should surface presentation-only death animation units")
+	var effect_nodes: Dictionary = board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary
+	_assert(effect_nodes.size() == 1 and effect_nodes.has("enemy_99"), "A live enemy death should own exactly one shader effect node")
+	if effect_nodes.has("enemy_99"):
+		var effect: Control = effect_nodes.get("enemy_99") as Control
+		_assert(effect != null and effect.has_method("expanded_rect"), "Enemy shadow dissolve should use the dedicated effect renderer")
+		if effect != null:
+			var source_rect: Rect2 = effect.call("source_rect") as Rect2
+			var expanded_rect: Rect2 = effect.call("expanded_rect") as Rect2
+			_assert(expanded_rect.encloses(source_rect), "Dissolve canvas should expand beyond the body for silhouette-derived wisps")
+			_assert(is_equal_approx(float(effect.call("dissolve_progress")), 0.3), "Effect node should receive the submitted death progress")
+	death_entry["death_progress"] = 0.64
+	board.set_combat_state(dissolve_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"death_animation_units": [death_entry], "reduced_motion": true})
+	effect_nodes = board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary
+	if effect_nodes.has("enemy_99"):
+		var reduced_effect: Control = effect_nodes.get("enemy_99") as Control
+		_assert(bool(reduced_effect.call("reduced_motion_enabled")), "Reduced motion should disable spatial drift on the dissolve shader")
+		_assert(is_equal_approx(float(reduced_effect.call("dissolve_progress")), 0.64), "Existing effect nodes should update rather than duplicate across animation samples")
+	_assert(effect_nodes.size() == 1, "Animation samples should reuse one effect node per defeated enemy")
+	board.set_combat_state(dissolve_state)
+	_assert((board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary).is_empty(), "Clearing death presentation should release all dissolve effect nodes")
 	board.free()
 
 func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
