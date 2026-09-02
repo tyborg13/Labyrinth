@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T03:37:14Z",
+  "updated_at": "2026-09-02T03:43:11Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9920,7 +9920,7 @@
       }
     },
     {
-      "id": "mnt_20260902T033714Z_6868c676",
+      "id": "mnt_20260902T034311Z_a0ae82d1",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -9930,15 +9930,17 @@
       },
       "scope_key": "file:assets/audio/sfx/reward_collect.wav",
       "summary": "Reward collect cue isolates compilation event eight",
-      "details": "The source file freesound_community-collectable-videogame-sound-compilation-31233.mp3 contains ten events separated by silence. reward_collect.wav is event 8, cut from 16.82s through 18.12s with short edge fades, converted to mono 44.1 kHz PCM16, and mastered +10 dB for a roughly -10 dBFS peak.",
+      "details": "The source file freesound_community-collectable-videogame-sound-compilation-31233.mp3 contains ten events separated by silence. reward_collect.wav is event 8, cut from 16.82s through 18.12s with short edge fades, converted to mono 44.1 kHz PCM16, and mastered +10 dB before mono downmix; the shipped PCM measures about -6.8 dBFS sample peak.",
       "status": "active",
-      "created_at": "2026-09-02T03:37:14Z",
-      "updated_at": "2026-09-02T03:37:14Z",
+      "created_at": "2026-09-02T03:43:11Z",
+      "updated_at": "2026-09-02T03:43:11Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260902T033714Z_6868c676"
+      ],
       "source": {
         "branch": "codex/add-card-played-ui-sound",
-        "commit": "3ace2923"
+        "commit": "bc14d37f"
       }
     }
   ]

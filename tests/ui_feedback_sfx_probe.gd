@@ -165,7 +165,23 @@ func _settle() -> void:
 
 func _save_root_screenshot(output_path: String) -> void:
 	await RenderingServer.frame_post_draw
+	var expected_size := Vector2i(1920, 1080)
 	var image: Image = root.get_viewport().get_texture().get_image()
+	if image == null:
+		_fail("UI feedback sound proof should capture a renderer image")
+		return
+	var source_size: Vector2i = image.get_size()
+	var scale_x: float = float(source_size.x) / float(expected_size.x)
+	var scale_y: float = float(source_size.y) / float(expected_size.y)
+	var valid_backing_size: bool = (
+		is_equal_approx(scale_x, scale_y)
+		and is_equal_approx(float(source_size.x) / float(source_size.y), float(expected_size.x) / float(expected_size.y))
+	)
+	if not valid_backing_size:
+		_fail("UI feedback sound proof must preserve a 16:9 backing, got %s for %s" % [source_size, expected_size])
+		return
+	if source_size != expected_size:
+		image.resize(expected_size.x, expected_size.y, Image.INTERPOLATE_LANCZOS)
 	var error: Error = image.save_png(ProjectSettings.globalize_path(output_path))
 	if error != OK:
 		_fail("Could not save %s" % output_path)
