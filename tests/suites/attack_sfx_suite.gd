@@ -4,6 +4,8 @@ const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
@@ -61,6 +63,9 @@ static func run(expect: Callable) -> void:
 		expect.call(reward_flip_stream.get_length() >= 0.27 and reward_flip_stream.get_length() <= 0.29, "The reward-card flip should stay tightly trimmed around the final discrete source sound")
 	expect.call(str(reward_flip_entry.get("bus", "")) == SettingsStore.UI_SFX_BUS, "Reward-card flips should use the dry UI SFX path")
 	expect.call(float(reward_flip_entry.get("volume_db", 99.0)) <= 0.0, "Reward-card flip playback should not boost the mastered asset above its safe level")
+	_expect_ui_sfx_asset(expect, RunSceneScript.ITEM_EQUIP_SFX_ENTRY, "res://assets/audio/sfx/item_equip.wav", 0.52, 0.54, "Item equip")
+	_expect_ui_sfx_asset(expect, RunSceneScript.REWARD_COLLECT_SFX_ENTRY, "res://assets/audio/sfx/reward_collect.wav", 1.29, 1.31, "Reward collect")
+	_expect_ui_sfx_asset(expect, RunSceneScript.RELIC_CHOICES_OPEN_SFX_ENTRY, "res://assets/audio/sfx/relic_choices_open.wav", 2.44, 2.46, "Relic choices open")
 	var draw_state: Dictionary = {
 		"player": {"hp": 10},
 		"enemies": [{"id": 0, "type": "crawler", "hp": 10, "max_hp": 10}],
@@ -178,8 +183,93 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	expect.call(replayed_relic_draws == 0, "Revisiting a committed draw after a stale observation should stay silent")
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_generation_before + 1, "Out-of-order state observations should not replay a committed relic draw")
 	await _test_reward_flip_sequence(instance, tree, expect)
+	await _test_ui_feedback_actions(instance, tree, expect)
 	instance.queue_free()
 	await tree.process_frame
+
+static func _expect_ui_sfx_asset(expect: Callable, entry: Dictionary, expected_path: String, min_length: float, max_length: float, label: String) -> void:
+	var path: String = str(entry.get("path", ""))
+	var stream: AudioStream = AssetLoader.load_audio_stream(path)
+	expect.call(path == expected_path, "%s should use its authored trimmed asset" % label)
+	expect.call(FileAccess.file_exists(path), "%s sound asset should exist" % label)
+	expect.call(stream != null, "%s sound should load as a playable audio stream" % label)
+	if stream != null:
+		expect.call(stream.get_length() >= min_length and stream.get_length() <= max_length, "%s should retain its intentional trimmed duration" % label)
+	expect.call(str(entry.get("bus", "")) == SettingsStore.UI_SFX_BUS, "%s should use the dry UI SFX path" % label)
+	expect.call(float(entry.get("volume_db", 99.0)) <= 0.0, "%s playback should not boost the mastered asset above its safe level" % label)
+
+static func _test_ui_feedback_actions(instance: Node, tree: SceneTree, expect: Callable) -> void:
+	var engine := RunEngine.new()
+	var loadout_state: Dictionary = engine.create_new_run(6904, ProgressionStore.default_data())
+	loadout_state["mode"] = "room"
+	loadout_state["equipment_inventory"] = ["ward_kite"]
+	loadout_state["magic_inventory"] = ["spark_dart"]
+	loadout_state["attuned_magic_cards"] = ["pale_spark"]
+	loadout_state["item_inventory"] = ["crimson_draught"]
+	loadout_state["equipped_items"] = []
+	instance.call("_load_run_state", loadout_state)
+	await tree.process_frame
+	await tree.process_frame
+
+	instance.set("_progression_overlay_mode", "equipment")
+	var equipment_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	await instance.call("_equip_equipment_from_overlay", "ward_kite")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == equipment_before + 1, "A successful equipment swap should play exactly one item-equip cue")
+	await instance.call("_equip_equipment_from_overlay", "ward_kite")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == equipment_before + 1, "Re-equipping the already active equipment should stay silent")
+
+	instance.set("_progression_overlay_mode", "magic")
+	var magic_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	await instance.call("_swap_magic_from_overlay", 0, 0)
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == magic_before + 1, "A successful magic attunement should play exactly one item-equip cue")
+	await instance.call("_swap_magic_from_overlay", -1, 0)
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == magic_before + 1, "An invalid magic swap should stay silent")
+
+	instance.set("_progression_overlay_mode", "equipment")
+	var item_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	await instance.call("_equip_item_from_overlay", 0)
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == item_before + 1, "A successful item equip should play exactly one item-equip cue")
+	await instance.call("_equip_item_from_overlay", 0)
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == item_before + 1, "Equipping from an empty item slot should stay silent")
+
+	var reward_state: Dictionary = engine.create_new_run(31233, ProgressionStore.default_data())
+	reward_state["mode"] = "reward"
+	reward_state["pending_reward"] = {
+		"cards": ["spark_dart"],
+		"heal_amount": RunEngine.REWARD_HEAL,
+		"ember_amount": 0,
+		"intro_pending": false
+	}
+	instance.call("_load_run_state", reward_state)
+	await tree.process_frame
+	await tree.process_frame
+	var reward_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	await instance.call("_on_reward_card_pressed", "spark_dart")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == reward_before + 1, "Claiming a post-combat card should start exactly one reward-collect cue with its acquisition animation")
+	await instance.call("_on_reward_card_pressed", "spark_dart")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == reward_before + 1, "A stale post-combat card activation should stay silent")
+
+	var treasure_state: Dictionary = engine.create_new_run(44698, ProgressionStore.default_data())
+	treasure_state["mode"] = "treasure"
+	treasure_state["current_room"] = Vector2i(2, 1)
+	treasure_state["pending_relics"] = ["iron_lung", "ember_lens", "pilgrim_boots"]
+	var treasure_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	instance.call("_load_run_state", treasure_state)
+	await tree.process_frame
+	await tree.process_frame
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == treasure_before + 1, "A relic offer should play the loot-open cue once as its choices appear")
+	instance.call("_refresh_choice_bar")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == treasure_before + 1, "Refreshing the same relic offer should not replay the loot-open cue")
+	var relic_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	await instance.call("_on_relic_pressed", "iron_lung")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_before + 1, "Claiming a relic should start exactly one reward-collect cue with its acquisition animation")
+	await instance.call("_on_relic_pressed", "iron_lung")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_before + 1, "A stale relic activation should stay silent")
+
+	for player_var: Variant in instance.get("_sfx_players") as Array:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null and player.stream != null:
+			expect.call(player.bus == SettingsStore.UI_SFX_BUS, "Active equip and reward feedback should stay on the dry UI SFX path")
 
 static func _test_reward_flip_sequence(instance: Node, tree: SceneTree, expect: Callable) -> void:
 	var host := Control.new()

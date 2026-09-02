@@ -1149,6 +1149,24 @@ const REWARD_CARD_FLIP_SFX_ENTRY: Dictionary = {
 	"volume_db": 0.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
+const ITEM_EQUIP_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/item_equip.wav",
+	"duration": 0.53,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
+const REWARD_COLLECT_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/reward_collect.wav",
+	"duration": 1.30,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
+const RELIC_CHOICES_OPEN_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/relic_choices_open.wav",
+	"duration": 2.45,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
 const CARD_PLAY_SECONDS: float = 0.30
 const CARD_PLAY_HOLD_SECONDS: float = 0.11
 const CARD_PILE_SECONDS: float = 0.28
@@ -1786,6 +1804,7 @@ var _fatigue_edge_overlay: FatigueEdgeOverlay
 var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
 var _sfx_players: Array = []
+var _relic_choices_open_sfx_signature: String = ""
 var _music_tween: Tween
 var _active_music_id: String = ""
 var _initial_music_deferred: bool = false
@@ -13366,6 +13385,7 @@ func _refresh_choice_bar() -> void:
 	_clear_relic_choice_overlay()
 	_sync_merchant_shop_room()
 	var mode: String = str(_run_state.get("mode", "room"))
+	var relic_offer_sfx_signature: String = ""
 	if mode not in ["victory", "defeat"] and _run_end_recap != null:
 		_run_end_recap.reset()
 	choice_bar.custom_minimum_size = Vector2.ZERO
@@ -13413,6 +13433,7 @@ func _refresh_choice_bar() -> void:
 		"treasure":
 			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
+				relic_offer_sfx_signature = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), JSON.stringify(pending_relics)]
 				_set_relic_choice_title(RELIC_CHOICE_TITLE_TEXT)
 			for relic_id_var: Variant in pending_relics:
 				var relic_id: String = str(relic_id_var)
@@ -13445,6 +13466,10 @@ func _refresh_choice_bar() -> void:
 		if _relic_choice_overlay.visible:
 			_layout_relic_choice_overlay()
 			call_deferred("_layout_relic_choice_overlay")
+	if relic_offer_sfx_signature.is_empty():
+		_relic_choices_open_sfx_signature = ""
+	else:
+		_play_relic_choices_open_sfx_once(relic_offer_sfx_signature)
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	var button := UiTooltipButton.new()
@@ -20008,6 +20033,18 @@ func _play_card_play_sfx() -> void:
 func _play_reward_card_flip_sfx() -> void:
 	_play_sfx(REWARD_CARD_FLIP_SFX_ENTRY)
 
+func _play_item_equip_sfx() -> void:
+	_play_sfx(ITEM_EQUIP_SFX_ENTRY)
+
+func _play_reward_collect_sfx() -> void:
+	_play_sfx(REWARD_COLLECT_SFX_ENTRY)
+
+func _play_relic_choices_open_sfx_once(offer_signature: String) -> void:
+	if offer_signature.is_empty() or offer_signature == _relic_choices_open_sfx_signature:
+		return
+	_relic_choices_open_sfx_signature = offer_signature
+	_play_sfx(RELIC_CHOICES_OPEN_SFX_ENTRY)
+
 func _card_fx_can_continue_combat() -> bool:
 	return _node_is_alive(_card_fx_layer) and str(_run_state.get("mode", "room")) == "combat"
 
@@ -23267,6 +23304,7 @@ func _on_reward_card_pressed(card_id: String, source_control: Control = null) ->
 	_animation_lock = true
 	var source_rect: Rect2 = source_control.get_global_rect() if _node_is_alive(source_control) else Rect2()
 	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+	_play_reward_collect_sfx()
 	if _node_is_alive(source_control):
 		source_control.modulate = Color(1.0, 1.0, 1.0, 0.18)
 	await _animate_magic_reward_acquisition_flair(card_id, source_rect, accent)
@@ -23399,6 +23437,7 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 	_sync_combat_state_from_run()
 	_persist_committed_boundary("relic_claimed")
 	_refresh_ui()
+	_play_reward_collect_sfx()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
 	await _animate_relic_acquired(relic_id)
 	_relic_claim_in_progress = false
@@ -27169,6 +27208,7 @@ func _swap_magic_from_overlay(inventory_index: int, attuned_index: int) -> void:
 	if attuned_index < 0 or attuned_index >= attuned.size() or str(attuned[attuned_index]) != incoming_card_id:
 		_clear_magic_drag_state(true)
 		return
+	_play_item_equip_sfx()
 	_persist_committed_boundary("magic_attuned")
 	_analytics_log_magic_attuned(inventory_index, attuned_index, incoming_card_id)
 	_clear_magic_drag_state(false)
@@ -27198,6 +27238,7 @@ func _equip_item_from_overlay(inventory_index: int, equipped_index: int = -1) ->
 		_clear_item_drag_state(true)
 		_item_swap_animation_active = false
 		return
+	_play_item_equip_sfx()
 	_persist_committed_boundary("item_equipped")
 	var actual_equipped_index: int = _equipped_item_index_after_change(card_id, before_equipped, after_equipped, equipped_index)
 	_analytics_log_item_equipped("equip", card_id, inventory_index, actual_equipped_index)
@@ -27449,6 +27490,7 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 		_clear_equipment_drag_state(true)
 		return
 	_equipment_swap_animation_active = true
+	_play_item_equip_sfx()
 	_persist_committed_boundary("equipment_equipped")
 	_analytics_log_equipment_equipped(slot, before_id, equipment_id)
 	_refresh_ui()
