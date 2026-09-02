@@ -5004,6 +5004,13 @@ func _sorted_turn_queue(queue_value: Variant) -> Array:
 		var a_time: int = int(a_entry.get("time", 0))
 		var b_time: int = int(b_entry.get("time", 0))
 		if a_time == b_time:
+			# The Reaver wins exact clock ties. Turn-order projections already put
+			# the player's future slot first; applying the same rule here keeps the
+			# displayed forecast and the actor that actually activates consistent.
+			var a_is_player: bool = str(a_entry.get("kind", "")) == "player"
+			var b_is_player: bool = str(b_entry.get("kind", "")) == "player"
+			if a_is_player != b_is_player:
+				return a_is_player
 			return int(a_entry.get("seq", 0)) < int(b_entry.get("seq", 0))
 		return a_time < b_time
 	)

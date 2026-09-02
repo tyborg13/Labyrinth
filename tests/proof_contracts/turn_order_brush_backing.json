@@ -1,5 +1,5 @@
 {
-  "min_images": 5,
+  "min_images": 7,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -12,6 +12,22 @@
     },
     {
       "pattern": "*turn_order_brush_v2_04_final.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [1660, 80, 250, 850], "min_luma_range": 24, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*turn_order_player_tie_v1_00_forecast.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [1660, 80, 250, 850], "min_luma_range": 24, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*turn_order_player_tie_v1_01_scheduled.png",
       "width": 1920,
       "height": 1080,
       "regions": [
