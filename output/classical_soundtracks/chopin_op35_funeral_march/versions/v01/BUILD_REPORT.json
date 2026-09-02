@@ -1,0 +1,113 @@
+{
+  "added_doubling": "selective unison Veiled Violin doubling in documented march climax measures",
+  "arrangement_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/versions/v01/arrangement.mid",
+  "arrangement_midi_sha256": "342ae252fdb8012832dce8ae2a2d428f3c4b526d2460ca476c0a6138466b2f0c",
+  "arrangement_note_counts": {
+    "Ashen Violin / Upper Harmony": 256,
+    "Funeral Pulse / Procedural Percussion": 146,
+    "Grave Cello / Funeral Cantus": 639,
+    "Hollow Viola / Inner Lament": 230,
+    "Undercrypt Bass / Processional Root": 491,
+    "Veiled Violin / Trio Cantilena": 317
+  },
+  "harmony_changes": "none",
+  "loop_crossfade_alignment": {
+    "crossfade_samples": 159994,
+    "offset_from_exact_one_measure_seconds": -0.0083817769532053,
+    "reason": "nearby stereo zero crossing avoids a native Vorbis boundary transient",
+    "sample_rate": 44100
+  },
+  "loop_crossfade_seconds": 3.627981859410431,
+  "normalized": {
+    "expanded_repeats": false,
+    "full_score_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/full_score.mid",
+    "full_score_midi_sha256": "cfc5886a5a841f59bdb9148611ef459c96a634ac996e37e0f4683c5a98b2d778",
+    "full_score_musicxml": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/full_score.musicxml",
+    "full_score_musicxml_sha256": "007afebdf2de467d734485f9069fcbeaa06c49895294d4d9ae38e0ae76039d29",
+    "part_count": 2,
+    "parts": [
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/parts/01_piano_right_hand_source_midi_track.mid",
+        "midi_sha256": "d7c3eb03e8abf02a1c1c72fa37d6bdf246ab2f3a649280816057b0bf46e41e59",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/parts/01_piano_right_hand_source_midi_track.musicxml",
+        "musicxml_sha256": "8f0706f62a96afc9595b6f8c672307edb39a9e47cc1f6d1db0d431934a3c7205",
+        "name": "Piano \u2014 Right-hand source MIDI track"
+      },
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/parts/02_piano_left_hand_source_midi_track.mid",
+        "midi_sha256": "d7ee55fa79e657b5c7ac70114bb12b2340b783b2c199f3383dd82a171c0e759a",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/parts/02_piano_left_hand_source_midi_track.musicxml",
+        "musicxml_sha256": "fb99cd861c35c9f546196fd319bd985f706a54eb0e822f37f6906141c3d8691b",
+        "name": "Piano \u2014 Left-hand source MIDI track"
+      }
+    ]
+  },
+  "ok": true,
+  "sections": {
+    "march_first": {
+      "measures": [
+        1,
+        32
+      ]
+    },
+    "march_reprise": {
+      "measures": [
+        79,
+        108
+      ]
+    },
+    "trio": {
+      "measures": [
+        33,
+        78
+      ]
+    }
+  },
+  "source_boundary": {
+    "end_tick_exclusive": 1331520,
+    "measures_4_4": 108,
+    "next_movement_time_signature": "12/8",
+    "quarter_notes": 432.0,
+    "source_tempo_qpm": 60,
+    "start_tick": 1124160,
+    "ticks": 207360
+  },
+  "source_events": {
+    "left_hand_note_count": 1165,
+    "left_hand_pitch_range": [
+      25,
+      72
+    ],
+    "normalized_score_duration_grid_ticks": 30,
+    "normalized_score_max_duration_snap_error_ticks": 15,
+    "omitted_zero_duration_source_events": {
+      "left_hand": 40,
+      "right_hand": 4
+    },
+    "opening_left_hand_pitches": [
+      46,
+      41,
+      34
+    ],
+    "opening_reprise_exact_measure_count": 15,
+    "opening_right_hand_pitches": [
+      58,
+      53
+    ],
+    "reprise_first_measure": 79,
+    "right_hand_note_count": 1058,
+    "right_hand_pitch_range": [
+      49,
+      89
+    ],
+    "trio_first_measure": 33
+  },
+  "source_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/source/chopin_piano_sonata_no2_op35_pdmx_cc0.mid",
+  "source_midi_sha256": "ec2a476e16556cdffc69d47bf0aebf4093842e9dde8f6c32170c7da6a6149ee3",
+  "source_reference_pages": "PDF pages 11-13; page 14 confirms the Finale boundary",
+  "source_reference_pdf": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/source/chopin_op35_breitkopf_1878_public_domain.pdf",
+  "source_reference_pdf_sha256": "ec325b07ca4a8514681011fcd1265edcfe98c23d4e524a56fd743bc212b02abe",
+  "structural_duration_seconds": 392.72727272727275,
+  "tempo_qpm": 66,
+  "transpositions": "none"
+}

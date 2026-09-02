@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://run_end_recap_probe_v2"
+const OUTPUT_ROOT: String = "user://run_end_recap_probe_v8"
 
 var _failed: bool = false
 var _resolution: Vector2i = Vector2i(1920, 1080)
@@ -48,20 +48,35 @@ func _capture_states() -> void:
 		"damage_dealt": 780,
 		"damage_received": 260
 	})
+	await _capture_player_death_transition(instance, defeat_state)
+	defeat_state.erase("_probe_terminal_combat_state")
 	await _install_state(instance, defeat_progression, defeat_state)
 	var recap: Control = instance.get("_run_end_recap") as Control
+	instance.call("_seek_run_end_board_reframe", 1.0)
+	_validate_last_light_semantics(instance, recap)
 	if recap != null:
 		recap.call("seek_presentation", 0.0)
+	instance.call("_seek_run_end_board_reframe", 0.0)
+	_validate_glow_tracks_death_site(instance, recap, "start")
 	await _capture("defeat_pre_engulf.png")
 	if recap != null:
-		recap.call("seek_presentation", 0.78)
+		recap.call("seek_presentation", 0.95)
+	instance.call("_seek_run_end_board_reframe", 0.55)
+	_validate_glow_tracks_death_site(instance, recap, "mid-reframe")
 	await _capture("defeat_mid_engulf.png")
 	if recap != null:
 		recap.call("seek_presentation", float(recap.call("presentation_duration")))
+	instance.call("_seek_run_end_board_reframe", 1.0)
 	await _capture("defeat_final.png")
+	var main_menu_button: Button = recap.find_child("MainMenuButton", true, false) as Button if recap != null else null
+	if main_menu_button != null:
+		main_menu_button.grab_focus()
+	await process_frame
+	await _capture("defeat_secondary_focused.png")
 	if recap != null:
 		recap.call("reset")
 		recap.call("set_motion_enabled", false)
+		instance.call("_reset_run_end_board_reframe")
 		instance.call("_show_run_end_recap", "defeat")
 	await create_timer(0.08).timeout
 	await _capture("defeat_reduced_motion_final.png")
@@ -77,12 +92,95 @@ func _capture_states() -> void:
 	if recap != null:
 		recap.call("set_motion_enabled", true)
 		recap.call("seek_presentation", float(recap.call("presentation_duration")))
+		var victory_new_run: Button = recap.find_child("NewRunButton", true, false) as Button
+		var victory_main_menu: Button = recap.find_child("MainMenuButton", true, false) as Button
+		if victory_new_run == null or victory_main_menu == null or str(victory_new_run.get_meta("button_variant", "")) != "large" or str(victory_main_menu.get_meta("button_variant", "")) != "large":
+			_fail("Victory proof should retain the established large action treatment")
 	await _capture("victory_final.png")
 
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(_output_dir))
 	quit(1 if _failed else 0)
+
+func _capture_player_death_transition(instance: Node, terminal_state: Dictionary) -> void:
+	var after_combat: Dictionary = (terminal_state.get("_probe_terminal_combat_state", {}) as Dictionary).duplicate(true)
+	if after_combat.is_empty():
+		_fail("Lethal-transition proof should retain the terminal combat state")
+		return
+	var death_tile: Vector2i = (terminal_state.get("current_room_layout", {}) as Dictionary).get("player_start", Vector2i(-1, -1))
+	var after_player: Dictionary = (after_combat.get("player", {}) as Dictionary).duplicate(true)
+	after_player["hp"] = 0
+	after_combat["player"] = after_player
+	var before_combat: Dictionary = after_combat.duplicate(true)
+	var before_player: Dictionary = after_player.duplicate(true)
+	before_player["hp"] = maxi(18, int(before_player.get("max_hp", 18)))
+	before_combat["player"] = before_player
+	var living_run: Dictionary = terminal_state.duplicate(true)
+	living_run["mode"] = "combat"
+	living_run["game_over"] = false
+	living_run["victory"] = false
+	living_run["player_hp"] = int(before_player.get("hp", 18))
+	living_run["combat_state"] = before_combat
+	instance.call("_load_run_state", living_run)
+	instance.call("_close_dialogue")
+	await process_frame
+	await process_frame
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var living_player_found: bool = false
+	for unit_var: Variant in board.call("_visible_units") as Array:
+		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "player":
+			living_player_found = true
+	if not living_player_found:
+		_fail("Lethal-transition proof should begin with the living player rendered")
+	await _capture("defeat_player_living.png")
+	var death_presentation: Dictionary = instance.call("_death_hold_presentation", before_combat, after_combat, {}) as Dictionary
+	var death_units: Array = death_presentation.get("death_animation_units", []) as Array
+	if death_units.size() != 1:
+		_fail("Lethal transition should produce exactly one player death presentation unit")
+	else:
+		var death_unit: Dictionary = (death_units[0] as Dictionary).duplicate(true)
+		if str(death_unit.get("role", "")) != "player" or death_unit.get("pos", Vector2i(-1, -1)) != death_tile:
+			_fail("Player collapse should remain on the terminal death tile")
+		var authored_frames: Array = board.call("_unit_death_frames", death_unit) as Array
+		if authored_frames.size() != 16:
+			_fail("Player collapse proof should load all 16 authored death frames")
+		else:
+			if (authored_frames[0] as Texture2D).get_size() != Vector2(1020.0, 1020.0):
+				_fail("Player death proof should retain the downloaded native frame canvas")
+			var native_rect := Rect2(Vector2(120.0, 80.0), Vector2(255.0, 255.0))
+			if not (board.call("_death_animation_render_rect", death_unit, native_rect) as Rect2).is_equal_approx(native_rect):
+				_fail("Authored player death proof should bypass procedural squash/stretch")
+		for frame_spec: Dictionary in [
+			{"frame": 3, "progress": 0.20, "file": "defeat_player_death_early.png"},
+			{"frame": 9, "progress": 0.60, "file": "defeat_player_death_mid.png"},
+			{"frame": 15, "progress": 1.0, "file": "defeat_player_death_final.png"},
+		]:
+			var frame_unit: Dictionary = death_unit.duplicate(true)
+			frame_unit["death_frame"] = int(frame_spec.get("frame", 0))
+			frame_unit["death_progress"] = float(frame_spec.get("progress", 0.0))
+			var frame_presentation: Dictionary = death_presentation.duplicate(true)
+			frame_presentation["death_animation_units"] = [frame_unit]
+			if authored_frames.size() == 16 and board.call("_texture_for_unit", frame_unit) != authored_frames[int(frame_spec.get("frame", 0))]:
+				_fail("Authored player death proof should select frame %d" % int(frame_spec.get("frame", 0)))
+			instance.call("_render_board_state", after_combat, frame_presentation)
+			await process_frame
+			await process_frame
+			var rendered_death_units: Array = board.call("_death_animation_units_from_presentation") as Array
+			if rendered_death_units.size() != 1 or str((rendered_death_units[0] as Dictionary).get("role", "")) != "player":
+				_fail("CombatBoard should render the lethal player through its authored collapse path")
+			elif (rendered_death_units[0] as Dictionary).get("pos", Vector2i(-1, -1)) != death_tile:
+				_fail("Rendered player death frame should not drift from the eventual ember tile")
+			await _capture(str(frame_spec.get("file", "defeat_player_death.png")))
+
+func _validate_glow_tracks_death_site(instance: Node, recap: Control, stage: String) -> void:
+	if recap == null:
+		_fail("%s glow proof should have a recap overlay" % stage)
+		return
+	var glow_site: Vector2 = recap.call("glow_site_normalized") as Vector2
+	var projected_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	if glow_site.distance_to(projected_death_site) > 0.008:
+		_fail("%s Last Light glow should remain anchored to the projected ember tile" % stage)
 
 func _install_state(instance: Node, progression: Dictionary, state: Dictionary) -> void:
 	ProgressionStore.save_data(progression)
@@ -96,6 +194,74 @@ func _install_state(instance: Node, progression: Dictionary, state: Dictionary) 
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	if board == null or not board.visible:
 		_fail("Terminal state should keep the final tactical room visible")
+
+func _validate_last_light_semantics(instance: Node, recap: Control) -> void:
+	if recap == null:
+		return
+	var model: Dictionary = recap.call("recap_model") as Dictionary
+	if str(model.get("kicker", "")) != "THE UMBRA CLOSES IN":
+		_fail("Defeat proof should use the approved Umbra kicker")
+	if not str(model.get("summary", "not empty")).is_empty():
+		_fail("Defeat proof should omit the removed summary tagline")
+	var defeat_title: Label = recap.find_child("OutcomeTitle", true, false) as Label
+	if defeat_title == null or defeat_title.text != "RUN ENDED" or defeat_title.get_theme_font("font") != load("res://fonts/LabyrinthCrumble-Display.tres"):
+		_fail("Defeat proof should render RUN ENDED in the standard bold Labyrinth Crumble display face")
+	if recap.find_child("DefeatTitleRaster", true, false) != null or recap.find_child("DefeatTitleGlow", true, false) != null:
+		_fail("Defeat proof should not retain the superseded obsidian title raster")
+	var ledger: Control = recap.find_child("DefeatStatLedger", true, false) as Control
+	if ledger == null or recap.find_child("RunStatGrid", true, false) != null:
+		_fail("Defeat proof should use the unboxed stat ledger, never a default grid")
+	for stray_fragment: String in ["DefeatCornerTop", "DefeatCornerBottom", "RecoveryRailRaster"]:
+		if recap.find_child(stray_fragment, true, false) != null:
+			_fail("Defeat proof should not repurpose unrelated frame-kit fragments (%s)" % stray_fragment)
+	var stat_ids: Array[String] = ["EnemiesKilled", "DamageDealt", "DamageReceived", "Depth", "RoomsCleared", "BossesDefeated"]
+	if ledger != null and ledger.get_child_count() != stat_ids.size():
+		_fail("Defeat proof should present exactly six direct stat rows in one contoured narrative")
+	for index: int in range(stat_ids.size()):
+		var stat_id: String = stat_ids[index]
+		if recap.find_child("%sValue" % stat_id, true, false) == null:
+			_fail("Defeat proof is missing the %s stat" % stat_id)
+		if ledger != null and index < ledger.get_child_count() and ledger.get_child(index).name != "%sMetric" % stat_id:
+			_fail("Defeat proof stats should follow the concept's single vertical reading order")
+	if ledger != null and ledger.get_child_count() == stat_ids.size():
+		var first_row: Control = ledger.get_child(0) as Control
+		var middle_row: Control = ledger.get_child(3) as Control
+		var last_row: Control = ledger.get_child(5) as Control
+		if not (first_row.position.x < middle_row.position.x and last_row.position.x < middle_row.position.x):
+			_fail("Defeat proof stats should arc around the Last Light contour instead of sharing one left edge")
+		var contour_scale: float = minf(recap.size.x / 1920.0, recap.size.y / 1080.0)
+		if not (is_equal_approx((middle_row.position.x - first_row.position.x) / contour_scale, 60.0) and is_equal_approx((middle_row.position.x - last_row.position.x) / contour_scale, 38.0)):
+			_fail("Defeat proof should halve the prior contour's horizontal excursion")
+		var ember_result: Control = recap.find_child("EmberResult", true, false) as Control
+		if ember_result == null or ember_result.position.y - last_row.position.y >= 90.0:
+			_fail("Defeat proof should pull the separate ember consequence up into the contoured stat composition")
+	var new_run_button: Button = recap.find_child("NewRunButton", true, false) as Button
+	var main_menu_button: Button = recap.find_child("MainMenuButton", true, false) as Button
+	if new_run_button == null or main_menu_button == null:
+		_fail("Defeat proof should contain both actions")
+	else:
+		if new_run_button.position.x >= main_menu_button.position.x:
+			_fail("Defeat proof actions should be side by side with New Run first")
+		var source_aspect: float = 1024.0 / 224.0
+		if absf((new_run_button.size.x + 4.0) / (new_run_button.size.y + 10.0) - source_aspect) >= 0.01 or absf((main_menu_button.size.x + 4.0) / (main_menu_button.size.y + 10.0) - source_aspect) >= 0.01:
+			_fail("Defeat proof should preserve the raster action art's authored proportions")
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var ember_snapshot: Dictionary = board.call("death_site_embers_snapshot") as Dictionary
+	var death_tile: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room_layout", {}).get("player_start", Vector2i(-1, -1))
+	if ember_snapshot.get("tile", Vector2i(-1, -1)) != death_tile or not ember_snapshot.get("texture", null) is Texture2D:
+		_fail("Defeat proof should leave raster embers grounded on the exact death tile")
+	var ember_rect: Rect2 = ember_snapshot.get("rect", Rect2()) as Rect2
+	var tile_width: float = float(ember_snapshot.get("tile_width", 0.0))
+	if ember_rect.size.x > tile_width * 0.40:
+		_fail("Death-site embers should fit within the board tile footprint")
+	for unit_var: Variant in board.call("_visible_units") as Array:
+		if typeof(unit_var) == TYPE_DICTIONARY and str((unit_var as Dictionary).get("role", "")) == "player":
+			_fail("Terminal defeat board should remove the dead player before leaving embers")
+	var centered_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	var fixed_window: Vector2 = recap.call("death_site_normalized") as Vector2
+	if centered_site.distance_to(fixed_window) > 0.008:
+		_fail("The translated death tile should settle beneath the fixed Umbra window (tile %s, window %s)" % [centered_site, fixed_window])
+	_validate_glow_tracks_death_site(instance, recap, "settled")
 
 func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i, outcome: String, held_embers: int, cleared_rooms: int, run_stats: Dictionary) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(8841 + held_embers * 3 + coord.x, progression)
@@ -143,6 +309,7 @@ func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i
 	state["combat_state"] = combat_state
 	state["held_embers"] = held_embers
 	state["unbanked_embers"] = held_embers
+	state["_probe_terminal_combat_state"] = combat_state.duplicate(true)
 	state = engine.finish_combat(state, combat_state)
 	state["mode"] = outcome
 	state["victory"] = outcome == "victory"

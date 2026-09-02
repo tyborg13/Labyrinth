@@ -43,6 +43,8 @@ class MainMenuUmbraAssetTests(unittest.TestCase):
         for asset_name in (BUTTON_IDLE.name, BUTTON_FOCUSED.name, MARKER_LEFT.name, MARKER_RIGHT.name):
             self.assertIn(asset_name, source)
         self.assertIn("draw_texture_rect", source)
+        self.assertIn("AssetLoader.load_texture_source_first", source)
+        self.assertNotIn('preload("res://assets/art/ui/main_menu_umbra_', source)
         for forbidden in (
             "func _draw_umbra_corner",
             "func _draw_umbra_fractures",
@@ -50,6 +52,12 @@ class MainMenuUmbraAssetTests(unittest.TestCase):
             "func _draw_umbra_marker(",
         ):
             self.assertNotIn(forbidden, source)
+
+    def test_generated_rasters_are_exported_as_raw_files(self) -> None:
+        for asset in (BUTTON_IDLE, BUTTON_FOCUSED, MARKER_LEFT, MARKER_RIGHT):
+            metadata = asset.with_suffix(asset.suffix + ".import").read_text(encoding="utf-8")
+            self.assertIn('\nimporter="keep"\n', metadata)
+            self.assertNotIn(".ctex", metadata)
 
 
 if __name__ == "__main__":

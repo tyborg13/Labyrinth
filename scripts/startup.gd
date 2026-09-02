@@ -4,9 +4,11 @@ extends Control
 signal phase_changed(phase: StringName)
 signal finished(menu: Control)
 
+const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const MENU_SCENE_PATH := "res://scenes/main_menu.tscn"
+const MAKERS_SEAL_PATH := "res://assets/art/ui/boot_splash_makers_seal.png"
 const FADE_IN_SECONDS := 0.4
 const HOLD_SECONDS := 2.0
 const FADE_OUT_SECONDS := 0.35
@@ -27,6 +29,10 @@ var _cursor_input_was_enabled: bool
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
+	seal.texture = AssetLoader.load_texture_source_first(MAKERS_SEAL_PATH)
+	if seal.texture == null:
+		_fail("Could not load the Maker's Seal.")
+		return
 	_settings = SettingsStore.apply_settings(SettingsStore.load_settings(), get_window())
 	_viewport = get_viewport()
 	_input_was_disabled = _viewport.gui_disable_input

@@ -8,7 +8,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/elemental_aoe_attack_v1"
+const OUTPUT_DIR: String = "user://probes/elemental_aoe_attack_v2"
 const PROBE_VIEWPORT := Vector2i(1920, 1080)
 const PLAYER_TILE := Vector2i(2, 4)
 const EMPTY_CENTER := Vector2i(4, 4)
@@ -30,8 +30,15 @@ func _initialize() -> void:
 	ProgressionStore.set_storage_path("user://labyrinth_progression_elemental_aoe_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_elemental_aoe_probe.save")
 	ProgressionStore.clear_saved_run()
+	await _capture_card("cinderburst", AttackFxLibrary.STYLE_DEFAULT, false, "travel")
+	await _capture_card("cinderburst", AttackFxLibrary.STYLE_DEFAULT, false, "impact")
 	await _capture_card("molten_reach", AttackFxLibrary.STYLE_FIREBALL, false)
 	await _capture_card("rime_shard", AttackFxLibrary.STYLE_ICE_SHARDS, false)
+	# Lightning's authored animation is only 0.345 seconds. Capture travel and
+	# impact from independent casts so screenshot readback cannot consume the
+	# second proof state.
+	await _capture_card("thunderline", AttackFxLibrary.STYLE_LIGHTNING_BOLT, false, "travel")
+	await _capture_card("thunderline", AttackFxLibrary.STYLE_LIGHTNING_BOLT, false, "impact")
 	await _capture_card("rime_shard", AttackFxLibrary.STYLE_ICE_SHARDS, true)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	if _failures.is_empty():
@@ -44,7 +51,7 @@ func _initialize() -> void:
 	quit(1)
 
 
-func _capture_card(card_id: String, expected_style: String, reduced_motion: bool) -> void:
+func _capture_card(card_id: String, expected_style: String, reduced_motion: bool, capture_phase: String = "both") -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	_expect(packed != null, "%s proof should load RunScene" % card_id)
 	if packed == null:
@@ -91,12 +98,16 @@ func _capture_card(card_id: String, expected_style: String, reduced_motion: bool
 			_expect(bool(reduced_presentation.get("reduced_motion", false)), "%s should expose the reduced-motion presentation flag" % card_id)
 			await _save_root_screenshot("%s/%s_80_reduced_motion.png" % [OUTPUT_DIR, card_id])
 	else:
-		var travel_presentation: Dictionary = await _wait_for_effect(instance, card_id, expected_style, 0.18)
-		if not travel_presentation.is_empty():
-			await _save_root_screenshot("%s/%s_20_travel.png" % [OUTPUT_DIR, card_id])
-		var impact_presentation: Dictionary = await _wait_for_effect(instance, card_id, expected_style, 0.62)
-		if not impact_presentation.is_empty():
-			await _save_root_screenshot("%s/%s_40_impact.png" % [OUTPUT_DIR, card_id])
+		if capture_phase in ["both", "travel"]:
+			var travel_threshold: float = 0.12 if expected_style == AttackFxLibrary.STYLE_LIGHTNING_BOLT else 0.18
+			var travel_presentation: Dictionary = await _wait_for_effect(instance, card_id, expected_style, travel_threshold)
+			if not travel_presentation.is_empty():
+				await _save_root_screenshot("%s/%s_20_travel.png" % [OUTPUT_DIR, card_id])
+		if capture_phase in ["both", "impact"]:
+			var impact_threshold: float = 0.52 if expected_style in [AttackFxLibrary.STYLE_DEFAULT, AttackFxLibrary.STYLE_LIGHTNING_BOLT] else 0.62
+			var impact_presentation: Dictionary = await _wait_for_effect(instance, card_id, expected_style, impact_threshold)
+			if not impact_presentation.is_empty():
+				await _save_root_screenshot("%s/%s_40_impact.png" % [OUTPUT_DIR, card_id])
 	await create_timer(1.35).timeout
 	instance.queue_free()
 	await process_frame
@@ -117,10 +128,27 @@ func _wait_for_effect(instance: Node, card_id: String, expected_style: String, m
 			and progress + 0.0001 >= minimum_progress
 		):
 			_expect(int(effect.get("range", 0)) > 0, "%s should carry its range into production animation" % card_id)
-			_expect(AttackFxLibrary.uses_authored_elemental_attack(effect), "%s should select an authored elemental AOE animation" % card_id)
-			_expect(bool(board.call("_effect_uses_elemental_scene_depth", effect)), "%s should render its cast and impact through scene depth" % card_id)
+			var expects_authored_elemental: bool = expected_style != AttackFxLibrary.STYLE_DEFAULT
+			_expect(
+				AttackFxLibrary.uses_authored_elemental_attack(effect) == expects_authored_elemental,
+				"%s should preserve its expected authored-elemental animation classification" % card_id
+			)
+			_expect(
+				bool(board.call("_effect_uses_elemental_scene_depth", effect)) == expects_authored_elemental,
+				"%s should preserve its expected scene-depth rendering path" % card_id
+			)
+			_expect(not board.has_method("_draw_target_reticle"), "%s should not retain the legacy resolved target reticle" % card_id)
+			_expect(not board.has_method("_draw_aoe_line_effect"), "%s should not retain the legacy resolved line overlay" % card_id)
+			_expect(not board.has_method("_draw_aoe_bolt_segment"), "%s should not retain the legacy procedural bolt segments" % card_id)
 			var effect_tiles: Array = effect.get("tiles", []) as Array
 			_expect(effect_tiles.has(EMPTY_CENTER) and effect_tiles.has(ENEMY_TILE), "%s should preserve its area pattern during the elemental animation" % card_id)
+			var footprint_visibility: float = float(board.call("_aoe_resolution_footprint_visibility", effect, progress))
+			if bool(presentation.get("reduced_motion", false)):
+				_expect(footprint_visibility > 0.0, "%s reduced motion should retain a static resolved footprint" % card_id)
+			elif progress < AttackFxLibrary.travel_end_progress(expected_style):
+				_expect(is_zero_approx(footprint_visibility), "%s travel should use only its authored projectile, without an early board overlay" % card_id)
+			else:
+				_expect(footprint_visibility > 0.0, "%s impact should reveal the clean resolved footprint" % card_id)
 			return presentation.duplicate(true)
 		await process_frame
 	_expect(false, "%s should expose its authored AOE effect at progress %.2f" % [card_id, minimum_progress])

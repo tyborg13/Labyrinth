@@ -78,6 +78,18 @@ func _initialize() -> void:
 	_assert_vertical_turn_order_geometry(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, scheduled_state)
 	await _save_root_screenshot("user://probes/turn_order_brush_v2_04_final.png")
+	var tied_state: Dictionary = _equal_time_player_tie_state(instance, combat_state.duplicate(true))
+	_set_probe_combat_state(instance, tied_state)
+	await process_frame
+	_assert_player_wins_equal_time_forecast(instance, tied_state)
+	_assert_turn_order_badges_match_relative_clocks(instance, tied_state)
+	await _save_root_screenshot("user://probes/turn_order_player_tie_v1_00_forecast.png")
+	var tied_scheduled_state: Dictionary = combat_engine.finish_player_activation(tied_state.duplicate(true))
+	_assert_player_wins_equal_time_schedule(combat_engine, tied_scheduled_state)
+	_set_probe_combat_state(instance, tied_scheduled_state)
+	await process_frame
+	_assert_turn_order_badges_match_relative_clocks(instance, tied_scheduled_state)
+	await _save_root_screenshot("user://probes/turn_order_player_tie_v1_01_scheduled.png")
 	print("turn order probe: done")
 	print(ProjectSettings.globalize_path("user://probes"))
 	instance.queue_free()
@@ -93,6 +105,53 @@ func _save_root_screenshot(output_path: String) -> void:
 	if image.get_size() != VIEWPORT_SIZE:
 		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
+
+func _equal_time_player_tie_state(instance: Node, state: Dictionary) -> Dictionary:
+	var combat_engine = instance.get("_combat_engine")
+	var queue: Array = (state.get("turn_queue", []) as Array).duplicate(true)
+	if combat_engine == null or queue.is_empty():
+		push_error("Turn-order tie probe requires a combat engine and one queued enemy.")
+		quit(1)
+		return state
+	var tied_time: int = int(state.get("initiative_clock", 0)) + int(combat_engine.player_base_initiative(state))
+	var enemy_entry: Dictionary = (queue[0] as Dictionary).duplicate(true)
+	enemy_entry["time"] = tied_time
+	enemy_entry["seq"] = 1
+	state["turn_queue"] = [enemy_entry]
+	state["activation_seq"] = 1
+	state["player_turn_time_spent"] = 0
+	return state
+
+func _set_probe_combat_state(instance: Node, state: Dictionary) -> void:
+	instance.set("_combat_state", state.duplicate(true))
+	instance.set("_turn_order_source_signature", "<tie-probe-reset>")
+	instance.set("_turn_order_render_signature", "<tie-probe-reset>")
+	instance.call("_refresh_turn_order_bar")
+
+func _assert_player_wins_equal_time_forecast(instance: Node, state: Dictionary) -> void:
+	var combat_engine = instance.get("_combat_engine")
+	var order: Array = combat_engine.current_turn_order(state, 3)
+	if order.size() < 3:
+		push_error("Turn-order tie forecast should show the active player and both tied future actors.")
+		quit(1)
+		return
+	var player_entry: Dictionary = order[1] as Dictionary
+	var enemy_entry: Dictionary = order[2] as Dictionary
+	if str(player_entry.get("kind", "")) != "player" or str(enemy_entry.get("kind", "")) != "enemy" or int(player_entry.get("time", -1)) != int(enemy_entry.get("time", -2)):
+		push_error("Turn-order tie forecast should place the player's tied future slot before the enemy.")
+		quit(1)
+
+func _assert_player_wins_equal_time_schedule(combat_engine: RefCounted, state: Dictionary) -> void:
+	var order: Array = combat_engine.current_turn_order(state, 2)
+	if order.size() < 2:
+		push_error("Turn-order tied schedule should contain the player and enemy.")
+		quit(1)
+		return
+	var player_entry: Dictionary = order[0] as Dictionary
+	var enemy_entry: Dictionary = order[1] as Dictionary
+	if str(player_entry.get("kind", "")) != "player" or str(enemy_entry.get("kind", "")) != "enemy" or int(player_entry.get("time", -1)) != int(enemy_entry.get("time", -2)):
+		push_error("Committed turn order should keep the tied player ahead of the enemy.")
+		quit(1)
 
 func _assert_single_turn_order_exit(instance: Node) -> void:
 	var bar: Control = instance.get("_turn_order_bar") as Control

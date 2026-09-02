@@ -497,7 +497,8 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 			instance.call("_on_skill_status_page_pressed", 1)
 			await process_frame
 		status_tiles = _visible_control_children(status_grid)
-		_expect(status_tiles.size() == 10, "Ability page %d should retain a stable ten-slot palette" % [page_index + 1])
+		var expected_page_size: int = 10 if page_index < 2 else 9
+		_expect(status_tiles.size() == expected_page_size, "Ability page %d should contain its complete visible palette slice" % [page_index + 1])
 		for retained_tile: Node in status_grid.get_children():
 			if retained_tile is Control and not (retained_tile as Control).visible:
 				_expect((retained_tile as Control).focus_mode == Control.FOCUS_NONE, "Hidden retained ability tiles must not take controller focus")
@@ -508,7 +509,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 			var name_label := page_tile.find_child("SkillStatusName_%s" % page_skill_id, true, false) as Label
 			_expect(name_label != null and name_label.text == SkillTreeLibrary.display_name(page_skill_id), "%s should show its complete name beneath the icon" % page_skill_id)
 	paged_skill_ids.sort()
-	var all_skill_ids: Array[String] = SkillTreeLibrary.ordered_ids()
+	var all_skill_ids: Array[String] = SkillTreeLibrary.visible_ids()
 	all_skill_ids.sort()
 	_expect(paged_skill_ids == all_skill_ids, "Paging should expose every learned ability identity without a dropdown or scrollbar")
 	var stable_popover_size: Vector2 = popover.size
@@ -553,7 +554,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var primed_skill_state: Dictionary = (primed_run_state.get("skill_state", {}) as Dictionary).duplicate(true)
 	primed_skill_state["pending_card"] = "rime_shard"
 	primed_skill_state["pending_relic"] = "flint_edge"
-	primed_skill_state["reserved_merchant"] = {"kind": "blacksmith", "item_id": "stitcher_apron"}
+	primed_skill_state["reserved_merchant"] = {"kind": "scavenger", "item_id": "stitcher_apron"}
 	primed_run_state["skill_state"] = primed_skill_state
 	instance.set("_run_state", primed_run_state)
 	_expect(str(instance.call("_skill_hud_status", "deferred_choice")) == "PRIMED", "Deferred Choice should show its earned card waiting for the next reward")
@@ -1016,7 +1017,7 @@ func _test_out_of_combat_reset_preserves_unbanked_embers(instance: Node) -> void
 	pending_skill_state["pending_card"] = "rime_shard"
 	pending_skill_state["pending_relic"] = "flint_edge"
 	pending_skill_state["reserved_merchant"] = {
-		"kind": "blacksmith",
+		"kind": "scavenger",
 		"item_id": "stitcher_apron",
 		"origin_coord": Vector2i(3, 0),
 	}

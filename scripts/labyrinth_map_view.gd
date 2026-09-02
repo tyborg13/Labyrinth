@@ -16,8 +16,6 @@ const ROOM_COLORS := {
 	"campfire": Color("d9854c"),
 	"treasure": Color("89a862"),
 	"boss": Color("b75643"),
-	"blacksmith": Color("b06a42"),
-	"arcanist": Color("7e65b7"),
 	"scavenger": Color("b47a4e")
 }
 const CLEARED_TINT: Color = Color("5f6462")
@@ -1354,8 +1352,6 @@ func _legend_entries_ref() -> Array[Dictionary]:
 		})
 	_legend_entries_cache.append({"label": "Campfire", "room": {"type": "campfire", "element": ElementData.NONE}})
 	_legend_entries_cache.append({"label": "Relic", "room": {"type": "treasure", "element": ElementData.NONE}})
-	_legend_entries_cache.append({"label": "Smith", "room": {"type": "blacksmith", "element": ElementData.NONE}})
-	_legend_entries_cache.append({"label": "Arcanist", "room": {"type": "arcanist", "element": ElementData.NONE}})
 	_legend_entries_cache.append({"label": "Scavenger", "room": {"type": "scavenger", "element": ElementData.NONE}})
 	_legend_entries_cache.append({"label": "Boss", "room": {"type": "boss", "element": ElementData.LIGHTNING}})
 	return _legend_entries_cache
@@ -1414,10 +1410,6 @@ func _room_display_name(room: Dictionary) -> String:
 			return "Relic Cache"
 		"boss":
 			return "Outer Sanctum"
-		"blacksmith":
-			return "Blacksmith"
-		"arcanist":
-			return "Arcanist"
 		"scavenger":
 			return "Scavenger"
 		_:
@@ -1436,10 +1428,6 @@ func _room_type_label(room_type: String) -> String:
 			return "Relic"
 		"boss":
 			return "Boss"
-		"blacksmith":
-			return "Blacksmith"
-		"arcanist":
-			return "Arcanist"
 		"scavenger":
 			return "Scavenger"
 		_:

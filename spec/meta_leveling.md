@@ -102,9 +102,6 @@ flowchart TB
     AI --> LS
     SF --> TB["True Bearing"]
     DE --> TB
-    MB --> LA["Layaway"]
-    DC --> LA
-
     BT --> EN["Encore"]
     LS --> OA["Open Arsenal"]
     PI --> CO["Confluence"]
@@ -166,7 +163,12 @@ without filling deliberately unspent points.
 | Curator's Patience | Quick Wits + Deferred Choice | After choosing a relic, save one unchosen relic for the next relic offer. |
 | Living Shadow | Pain Remembers + Afterimage | Once between the player's activations, a destroyed or dispelled illusion returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
 | True Bearing | Sure-Footed + Discerning Eye | Before combat, choose an open starting tile within `2` tiles of the entrance. |
-| Layaway | Measured Breath + Deferred Choice | Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns. |
+
+Layaway is retired from the player-facing tree while the Scavenger shop is
+being iterated. Its data definition and run backend remain compatibility-only:
+existing profiles remove the learned id and refund its skill point, while stock
+already held by a legacy save still returns once. Players cannot learn or
+activate a new hold.
 
 ### Keystones
 
@@ -206,9 +208,10 @@ Reset behavior:
    through the normal immediate Learn action.
 
 Already-earned run choices survive a reset: a card saved by Deferred Choice,
-a relic saved by Curator's Patience, or stock held through Layaway still enters
-its next matching offer exactly once. Removing the source node prevents earning
-another pending benefit; it does not confiscate one the player already earned.
+a relic saved by Curator's Patience, or legacy stock held through retired
+Layaway still enters its next matching offer exactly once. Removing or retiring
+the source node prevents earning another pending benefit; it does not confiscate
+one the player already earned.
 
 Combat-limited abilities cannot be refreshed through reset because tree
 changes are unavailable during active combat. Defensive revision reconciliation

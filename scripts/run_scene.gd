@@ -14,6 +14,8 @@ const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
+const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
+const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -21,6 +23,7 @@ const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const PerformancePhasePartitionerScript = preload("res://scripts/performance_phase_partitioner.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const LabyrinthMapViewScript = preload("res://scripts/labyrinth_map_view.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
@@ -67,7 +70,15 @@ const CONTROLLER_TILE_CURSOR_MAGNET_RADIUS: float = 46.0
 const CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS: float = 34.0
 const CONTROLLER_MOVING_CURSOR_SNAP_STRENGTH: float = 0.22
 const CONTROLLER_BOARD_HORIZONTAL_SHIFT: float = -18.0
+const RUN_END_BOARD_REFRAME_SECONDS: float = 1.12
 const CONTROLLER_BOARD_WIDTH_TRIM: float = 44.0
+const RUNTIME_PERFORMANCE_DIAGNOSTIC_PHASES: Dictionary = {
+	"enemy_round_lock_cache_capture_wall_total": true,
+	"enemy_round_lock_post_draw_wall_total": true,
+	"enemy_round_lock_and_cache_wall_total": true,
+	"enemy_round_final_refresh_ui_wall_total": true,
+	"refresh_ui_sliced_wall_total": true,
+}
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -1122,6 +1133,36 @@ const MISSED_EQUIPMENT_FRAMES: int = 10
 const MISSED_EQUIPMENT_FRAME_SECONDS: float = 0.045
 const DRAW_FRAME_SECONDS: float = 0.32
 const DRAW_STAGGER_SECONDS: float = 0.16
+const CARD_DRAW_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/card_draw_deal.wav",
+	"duration": 0.29,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
+const CARD_PLAY_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/card_play_take.wav",
+	"duration": 0.222,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
+const REWARD_CARD_FLIP_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/reward_card_flip.wav",
+	"duration": 0.28,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
+const ITEM_EQUIP_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/item_equip.wav",
+	"duration": 0.53,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
+const RELIC_CHOICES_OPEN_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/relic_choices_open.wav",
+	"duration": 2.45,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
 const CARD_PLAY_SECONDS: float = 0.30
 const CARD_PLAY_HOLD_SECONDS: float = 0.11
 const CARD_PILE_SECONDS: float = 0.28
@@ -1239,13 +1280,6 @@ const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal, continue"
 const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank embers, end run"
 const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers, choose a skill, continue"
 const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
-const MERCHANT_PANEL_SIZE: Vector2 = Vector2(940.0, 290.0)
-const MERCHANT_COLUMN_SIZE: Vector2 = Vector2(430.0, 236.0)
-const MERCHANT_ROW_HEIGHT: float = 58.0
-const MERCHANT_ICON_SIZE: Vector2 = Vector2(44.0, 44.0)
-const MERCHANT_TITLE_BLACKSMITH: String = "BLACKSMITH"
-const MERCHANT_TITLE_ARCANIST: String = "ARCANIST"
-const MERCHANT_TITLE_SCAVENGER: String = "SCAVENGER"
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const RELIC_OFFER_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
@@ -1410,6 +1444,8 @@ const TURN_ORDER_PORTRAITS := {
 }
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
+const DEATH_MUSIC_FADE_OUT_SECONDS: float = 0.6
+const DEATH_MUSIC_FADE_IN_SECONDS: float = 1.2
 const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var ui_root: Control = $UiLayer/UiRoot
@@ -1475,6 +1511,9 @@ var _preview_shortcuts_cache_key: String = ""
 var _preview_shortcuts_cache: Dictionary = {}
 var _pass_preview_cache: Dictionary = {}
 var _pass_preview_cache_order: Array[String] = []
+var _pass_preview_warm_generation: int = 0
+var _pass_preview_warm_active: bool = false
+var _pass_preview_warm_key: String = ""
 var _hover_resolved_preview_key: String = ""
 var _hover_resolved_preview_state: Dictionary = {}
 var _stage_visibility_cache_key: String = ""
@@ -1482,8 +1521,22 @@ var _stage_visibility_cache: Dictionary = {}
 var _enemy_intent_compass_cache_key: String = ""
 var _enemy_intent_compass_cache: Dictionary = {}
 var _runtime_performance_instrumentation_enabled: bool = false
+var _frame_sliced_ui_refresh_active: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
 var _runtime_performance_counts: Dictionary = {}
+var _runtime_performance_max_usec: Dictionary = {}
+var _runtime_performance_frame_id: int = -1
+var _runtime_performance_frame_total_usec: int = 0
+var _runtime_performance_frame_phase_usec: Dictionary = {}
+var _runtime_performance_frame_intervals: Array[Dictionary] = []
+var _runtime_performance_exclusive_totals_usec: Dictionary = {}
+var _runtime_performance_exclusive_segment_counts: Dictionary = {}
+var _runtime_performance_telemetry_overhead_usec: int = 0
+var _runtime_performance_record_overhead_live_usec: int = 0
+var _runtime_performance_commit_overhead_usec: int = 0
+var _runtime_performance_frame_top: Array[Dictionary] = []
+var _runtime_ui_slice_budget_usec: int = 8000
+var _runtime_enemy_slice_budget_usec: int = 8000
 var _runtime_animation_clock_stats: Dictionary = {}
 var _performance_telemetry_finalized: bool = false
 var _analytics_store: AnalyticsStore = AnalyticsStore.new()
@@ -1511,10 +1564,19 @@ var _victory_carry_processed: bool = false
 var _defeat_loss_processed: bool = false
 var _victory_carry_amount: int = 0
 var _defeat_lost_amount: int = 0
+var _run_end_board_reframe_active: bool = false
+var _run_end_board_reframe_progress: float = 0.0
+var _run_end_board_reframe_start: Vector2 = Vector2.ZERO
+var _run_end_board_reframe_target: Vector2 = Vector2.ZERO
+var _run_end_board_reframe_tween: Tween
 var _exit_destinations_by_tile: Dictionary = {}
 var _animation_lock: bool = false
 var _escape_transition_in_progress: bool = false
 var _board_presentation: Dictionary = {}
+var _player_popup_timeline_active: bool = false
+var _player_popup_timeline_started_usec: int = 0
+var _player_popup_timeline_groups: Array[Dictionary] = []
+var _player_popup_companion_states: Array[Dictionary] = []
 var _menu_scrim: ColorRect
 var _menu_dialog: PanelContainer
 var _settings_panel: PanelContainer
@@ -1610,6 +1672,7 @@ var _combat_skill_card_selection_cancel_button: Button
 var _skill_event_revision_seen: int = 0
 var _run_skill_event_revision_seen: int = 0
 var _defiance_event_revision_seen: int = 0
+var _card_draw_sfx_revision_seen: int = 0
 var _analytics_skill_event_revision: int = 0
 var _hand_panel_signature: String = "<unset>"
 var _hand_panel_content_signature: String = "<unset>"
@@ -1618,12 +1681,13 @@ var _hand_card_pool: Array[Dictionary]
 var _hand_layout_revision: int = 0
 var _hand_layout_pending_revision: int = -1
 var _hand_layout_envelope_signature: String = "<unset>"
+var _draw_hand_transition_cards: Array[String]
+var _draw_hand_transition_proxies: Array[Control]
 var _locked_hand_render_cache := LockedHandRenderCache.new()
 var _locked_hand_cache_active: bool:
 	get:
 		return _locked_hand_render_cache.active
 var _play_meter: PanelContainer
-var _play_meter_slot: HBoxContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
 var _play_meter_banked_badge: PanelContainer
@@ -1705,6 +1769,7 @@ var _relic_choice_title_effect: RelicChoiceTitleEffect
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
+var _scavenger_shop_view: ScavengerShopView
 var _post_combat_victory_overlay: Control
 var _reward_intro_suppressed: bool = false
 var _reward_reveal_pending: bool = false
@@ -1740,9 +1805,12 @@ var _equipment_fx_layer: Control
 var _fatigue_edge_overlay: FatigueEdgeOverlay
 var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
+var _ambient_sfx_player: AudioStreamPlayer
 var _sfx_players: Array = []
+var _relic_choices_open_sfx_signature: String = ""
 var _music_tween: Tween
 var _active_music_id: String = ""
+var _active_ambient_sfx_id: String = ""
 var _initial_music_deferred: bool = false
 var _settings: Dictionary = {}
 var _drag_card_source_rect: Rect2 = Rect2()
@@ -2001,6 +2069,10 @@ func _input(event: InputEvent) -> void:
 			_advance_dialogue()
 			get_viewport().set_input_as_handled()
 		return
+	if _scavenger_shop_view != null and _scavenger_shop_view.visible and event.is_action_pressed("ui_cancel"):
+		_on_merchant_hide_pressed()
+		get_viewport().set_input_as_handled()
+		return
 	if _skill_choice_scrim != null and _skill_choice_scrim.visible:
 		if event.is_action_pressed("ui_cancel"):
 			_close_skill_choice_dialog()
@@ -2206,6 +2278,9 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		if event.is_action_pressed(InputRouterScript.ACTION_HAND_NEXT):
 			_controller_switch_character_tab(1)
 			return true
+	if _scavenger_shop_view != null and _scavenger_shop_view.visible and event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+		_on_merchant_hide_pressed()
+		return true
 	if _controller_uses_gui_focus():
 		_controller_clear_board_focus()
 		call_deferred("_recover_controller_focus")
@@ -3070,6 +3145,8 @@ func _controller_focus_scope() -> Control:
 		and _contextual_combat_prompt_host.visible
 	):
 		return _contextual_combat_prompt_host
+	if _scavenger_shop_view != null and _scavenger_shop_view.visible:
+		return _scavenger_shop_view
 	for control: Control in [
 		_skill_choice_scrim,
 		_skill_status_scrim,
@@ -3244,10 +3321,10 @@ func _refresh_controller_prompts() -> void:
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
-	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _relic_choice_overlay != null and _relic_choice_overlay.visible:
+	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _scavenger_shop_view != null and _scavenger_shop_view.visible:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Trade"},
-			{"action": InputRouterScript.ACTION_CANCEL, "label": "Hide Shop"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Leave"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
 	elif (
@@ -3330,6 +3407,8 @@ func _queue_board_view_rect_sync() -> void:
 func _sync_board_view_rect() -> void:
 	if board_view == null or stage_root == null or not board_view.is_inside_tree() or not stage_root.is_inside_tree():
 		return
+	if _run_end_board_reframe_active and str(_run_state.get("mode", "")) == "defeat":
+		return
 	# The board deliberately borrows a thin band beneath the header. It is rendered
 	# below the HUD, so this gains useful combat space without stealing input from it.
 	var board_size: Vector2 = stage_root.size + Vector2(0.0, 56.0)
@@ -3384,7 +3463,21 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_shutdown_audio()
 	_finalize_performance_telemetry_scene("scene_exit")
+
+func _shutdown_audio() -> void:
+	_stop_music_tween()
+	_active_music_id = ""
+	if _music_player != null:
+		_music_player.stop()
+		_music_player.stream = null
+	for player_var: Variant in _sfx_players:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if not is_instance_valid(player):
+			continue
+		player.stop()
+		player.stream = null
 
 func _finalize_performance_telemetry_scene(reason: String) -> void:
 	if _performance_telemetry_finalized:
@@ -5959,6 +6052,7 @@ func _build_context_choice_overlay() -> void:
 	margin.add_child(_context_choice_bar)
 	_layout_context_choice_overlay()
 	_build_relic_choice_overlay(stage_root)
+	_build_scavenger_shop_overlay(stage_root)
 	_build_run_end_recap(stage_root)
 	_post_combat_victory_overlay = PostCombatRewardSequence.build_victory_overlay(stage_root)
 
@@ -6043,6 +6137,21 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_bar.add_theme_constant_override("separation", 28)
 	_relic_choice_host.add_child(_relic_choice_bar)
 	_layout_relic_choice_overlay()
+
+func _build_scavenger_shop_overlay(stage: Control) -> void:
+	_scavenger_shop_view = ScavengerShopView.new()
+	_scavenger_shop_view.name = "ScavengerShopView"
+	_scavenger_shop_view.visible = false
+	_scavenger_shop_view.z_index = 122
+	_scavenger_shop_view.z_as_relative = false
+	_scavenger_shop_view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var shop_host: Control = ui_root if ui_root != null else stage
+	shop_host.add_child(_scavenger_shop_view)
+	_scavenger_shop_view.buy_requested.connect(_on_scavenger_buy_requested)
+	_scavenger_shop_view.sell_requested.connect(_on_scavenger_sell_requested)
+	_scavenger_shop_view.leave_requested.connect(_on_merchant_hide_pressed)
+	_scavenger_shop_view.item_hovered.connect(_on_merchant_row_mouse_entered)
+	_scavenger_shop_view.item_unhovered.connect(_on_merchant_row_mouse_exited)
 
 func _layout_relic_choice_overlay() -> void:
 	if _relic_choice_overlay == null:
@@ -9466,15 +9575,6 @@ func _warm_action_tracker_components() -> void:
 	_action_tracker_prewarm_scheduled = false
 
 func _setup_play_meter() -> void:
-	_play_meter_slot = HBoxContainer.new()
-	_play_meter_slot.name = "CardPlayMeterSlot"
-	_play_meter_slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var meter_spacer := Control.new()
-	meter_spacer.name = "CardPlayMeterSpacer"
-	meter_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	meter_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_play_meter_slot.add_child(meter_spacer)
-
 	_play_meter = PanelContainer.new()
 	_play_meter.name = "CardPlayMeter"
 	_play_meter.custom_minimum_size = Vector2(228.0, 58.0)
@@ -9627,8 +9727,6 @@ func _sync_hand_side_widths() -> void:
 	# retain their authored dock while the hand is centered on the full screen.
 	if hand_right_balance != null:
 		hand_right_balance.custom_minimum_size.x = left_width
-	if _play_meter_slot != null:
-		_play_meter_slot.custom_minimum_size.x = 0.0
 
 func _visible_hbox_minimum_width(container: HBoxContainer) -> float:
 	if container == null:
@@ -10331,6 +10429,7 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_reset_run_end_board_reframe()
 	_close_dialogue()
 	_last_auto_dialogue_key = ""
 	_merchant_shop_room_coord = INVALID_ROOM_COORD
@@ -10358,6 +10457,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_reconcile_progression_analytics_outbox()
 	_sync_progression_analytics_outbox_to_run()
 	_sync_combat_state_from_run()
+	_baseline_card_draw_sfx_revision(_combat_state)
 	_repair_legacy_empty_actor_transition()
 	if (
 		(content_migration_required or combat_units_migration_required)
@@ -10402,80 +10502,255 @@ func _start_debug_boss_run() -> void:
 	_load_run_state(_ensure_run_analytics_metadata(run_state))
 	_analytics_log_run_started()
 
-func _refresh_ui() -> void:
+func _refresh_ui(
+	frame_sliced: bool = false,
+	unlock_animation_after_slices: bool = false,
+	queue_hand_ready_wave_on_unlock: bool = false
+) -> void:
+	_consume_pending_card_draw_sfx(_combat_state)
+	if frame_sliced:
+		_frame_sliced_ui_refresh_active = true
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
+	var slice_cpu_started: int = Time.get_ticks_usec()
+	var slice_telemetry_overhead_started: int = _runtime_performance_record_overhead_live_usec
+	var sliced_wait_occurred: bool = false
 	if _dialogue_active and str(_run_state.get("mode", "room")) != "room":
 		_close_dialogue()
 	_sync_analytics_combat_tracker()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_dialogue_and_tracker", performance_phase_started)
 	if str(_run_state.get("mode", "room")) == "victory" and not _victory_carry_processed:
 		_process_victory_carry()
 	if str(_run_state.get("mode", "room")) == "defeat" and not _defeat_loss_processed:
 		_process_defeat_loss()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_outcome_progression", performance_phase_started)
 	_sync_progression_from_run()
 	_sync_umbra_warning_progression()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_progression_sync_total", performance_phase_started)
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	_sync_grimoire_discoveries()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_grimoire_sync", performance_phase_started)
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
 	var display_room: Dictionary = current_room.duplicate(true)
 	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
 		display_room["name"] = str(_combat_state.get("room_name", display_room.get("name", "Chamber")))
 		display_room["type"] = str(_combat_state.get("room_type", display_room.get("type", "combat")))
 		display_room["element"] = str(_combat_state.get("room_element", display_room.get("element", ElementData.NONE)))
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_room_metadata", performance_phase_started)
 	_update_music_for_context(display_room)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_music", performance_phase_started)
 	var room_element: String = str(display_room.get("element", ElementData.NONE))
 	var title_color: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("f0e6d2")
 	room_title.add_theme_color_override("font_color", title_color)
 	room_subtitle.add_theme_color_override("font_color", title_color.lightened(0.28) if ElementData.is_elemental(room_element) else Color("cdbca2"))
+	_update_ambient_sfx_for_context(str(_run_state.get("mode", "room")))
 	room_title.text = _room_title_text(display_room)
 	room_subtitle.text = _room_subtitle_text(display_room)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_room_header", performance_phase_started)
 	_refresh_umbra_subtitle()
 	_set_stats_label_text(_displayed_ember_count())
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_umbra_and_stats", performance_phase_started)
 	_refresh_relic_bar()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_relic_bar_total", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
+		var relic_slice_wait_started: int = Time.get_ticks_usec()
+		await RenderingServer.frame_post_draw
+		var relic_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = relic_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
+		if _runtime_performance_instrumentation_enabled:
+			performance_total_started += relic_slice_resumed - relic_slice_wait_started
+			performance_phase_started = relic_slice_resumed
 	_refresh_turn_order_bar()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_turn_order_total", performance_phase_started)
 	_refresh_combat_objective_hud()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_objective", performance_phase_started)
 	_layout_header_hud()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_header_layout", performance_phase_started)
 	_refresh_elemental_intensity_bar()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_elemental_intensity", performance_phase_started)
 	call_deferred("_layout_header_hud")
 	call_deferred("_layout_elemental_intensity_bar")
 	mini_map.set_run_state(_run_state)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_minimap", performance_phase_started)
 	if _large_map_view != null:
 		_large_map_view.call("set_run_state", _run_state)
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_large_map", performance_phase_started)
 	_refresh_pile_counts()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_counts", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
+		# End-of-turn initiative/objective layout and the interactive resource dock
+		# are independent surfaces. Give the renderer the former before legality
+		# scans and Pass reconstruction start, keeping both CPU batches below a
+		# single 60 Hz frame on weaker hardware.
+		var dock_slice_wait_started: int = Time.get_ticks_usec()
+		await RenderingServer.frame_post_draw
+		var dock_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = dock_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
+		if _runtime_performance_instrumentation_enabled:
+			performance_total_started += dock_slice_resumed - dock_slice_wait_started
+			performance_phase_started = dock_slice_resumed
 	_refresh_card_play_meter()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_card_play_meter", performance_phase_started)
 	_refresh_player_movement_meter()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_movement_meter", performance_phase_started)
 	_refresh_action_step_tracker()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_action_step_tracker_total", performance_phase_started)
 	_refresh_pile_visuals()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_visuals", performance_phase_started)
 	_refresh_choice_bar()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_choice_bar_total", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
+		var choice_slice_wait_started: int = Time.get_ticks_usec()
+		await RenderingServer.frame_post_draw
+		var choice_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = choice_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
+		if _runtime_performance_instrumentation_enabled:
+			performance_total_started += choice_slice_resumed - choice_slice_wait_started
+			performance_phase_started = choice_slice_resumed
 	_refresh_stage_view()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_stage_total", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
+		var stage_slice_wait_started: int = Time.get_ticks_usec()
+		await RenderingServer.frame_post_draw
+		var stage_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = stage_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
+		if _runtime_performance_instrumentation_enabled:
+			performance_total_started += stage_slice_resumed - stage_slice_wait_started
+			performance_phase_started = stage_slice_resumed
 	_refresh_hand_panel()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_hand_total", performance_phase_started)
+	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
+		var hand_slice_wait_started: int = Time.get_ticks_usec()
+		await RenderingServer.frame_post_draw
+		var hand_slice_resumed: int = Time.get_ticks_usec()
+		sliced_wait_occurred = true
+		slice_cpu_started = hand_slice_resumed
+		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
+		if _runtime_performance_instrumentation_enabled:
+			performance_total_started += hand_slice_resumed - hand_slice_wait_started
+			performance_phase_started = hand_slice_resumed
+	if unlock_animation_after_slices:
+		# Input must remain locked across every rendered scheduling boundary above.
+		# Unlock and rebuild all lock-dependent surfaces synchronously after the final
+		# await so no Pass/card/board event can enter the still-running refresh.
+		var unlock_inputs_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_animation_lock = false
+		if queue_hand_ready_wave_on_unlock:
+			_queue_hand_ready_wave("player_turn_start")
+		_refresh_card_play_meter()
+		_refresh_player_movement_meter()
+		_refresh_choice_bar()
+		_refresh_stage_view()
+		_refresh_hand_panel()
+		performance_phase_started = _record_runtime_performance_phase("refresh_ui_unlock_inputs_total", unlock_inputs_started)
 	_refresh_pile_interaction_states()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_interactions", performance_phase_started)
 	_refresh_visibility()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_visibility_total", performance_phase_started)
 	_layout_combat_piles()
 	call_deferred("_layout_combat_piles")
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_combat_pile_layout", performance_phase_started)
 	_sync_pre_battle_preview_after_refresh()
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_preview_and_tracker_layout", performance_phase_started)
 	_refresh_grimoire_badge()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_grimoire_badge", performance_phase_started)
 	_refresh_loadout_badge()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_loadout_badge", performance_phase_started)
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_log", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_tutorial_total", performance_phase_started)
 	_maybe_auto_trigger_room_dialogue()
+	performance_phase_started = _record_runtime_performance_phase("refresh_ui_auto_dialogue", performance_phase_started)
 	_update_performance_telemetry_context()
+	_record_runtime_performance_phase("refresh_ui_telemetry_context", performance_phase_started)
+	_record_runtime_performance_phase(
+		"refresh_ui_sliced_wall_total" if sliced_wait_occurred else "refresh_ui_total",
+		performance_total_started
+	)
+	if frame_sliced:
+		_frame_sliced_ui_refresh_active = false
 
 func _refresh_animation_lock_ui() -> void:
 	# Animation entry only changes combat interactivity/presentation. Avoid rebuilding
 	# unrelated maps, relics, piles, progression, and room chrome at the exact moment
 	# the player expects an action to begin.
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
 	_refresh_turn_order_bar()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_turn_order_total", performance_phase_started)
 	_refresh_combat_objective_hud()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_objective", performance_phase_started)
 	_refresh_card_play_meter()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_card_meter", performance_phase_started)
 	_refresh_player_movement_meter()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_movement_meter", performance_phase_started)
 	_refresh_choice_bar()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_choices_total", performance_phase_started)
 	_refresh_stage_view()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_stage_total", performance_phase_started)
 	_refresh_hand_panel()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_hand_total", performance_phase_started)
 	_refresh_visibility()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_visibility_total", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
+	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_tutorial_total", performance_phase_started)
 	_update_performance_telemetry_context()
+	_record_runtime_performance_phase("animation_lock_ui_telemetry", performance_phase_started)
+	_record_runtime_performance_phase("animation_lock_ui_total", performance_total_started)
+
+func _refresh_enemy_round_lock_ui() -> void:
+	# Passing does not alter combat state, resource counts, movement legality,
+	# objectives, or layout before the first enemy activation. Retain those
+	# surfaces and update only the controls whose lock presentation changes. The
+	# turn-order bar is included because entering the lock must clear any hovered
+	# card's transient time-cost projection.
+	# Rebuilding all of them made the click frame pay for pathfinding and container
+	# layout even though every displayed value remained identical.
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
+	_lock_existing_pass_preview()
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_pass", performance_phase_started)
+	_refresh_turn_order_bar()
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_turn_order_total", performance_phase_started)
+	_refresh_stage_view()
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_stage_total", performance_phase_started)
+	_refresh_hand_panel()
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_hand_total", performance_phase_started)
+	_refresh_contextual_combat_tutorial()
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_lock_ui_tutorial_total", performance_phase_started)
+	_update_performance_telemetry_context()
+	_record_runtime_performance_phase("enemy_round_lock_ui_telemetry", performance_phase_started)
+	_record_runtime_performance_phase("enemy_round_lock_ui_retained_total", performance_total_started)
+
+func _lock_existing_pass_preview() -> void:
+	var chip: Button = null
+	if _pass_preview_overlay != null:
+		chip = _pass_preview_overlay.get_node_or_null("PassPreviewChip") as Button
+	if chip == null and choice_bar != null:
+		chip = choice_bar.get_node_or_null("PassPreviewChip") as Button
+	if chip == null:
+		return
+	chip.disabled = true
+	chip.focus_mode = Control.FOCUS_NONE
+	chip.set_meta("pass_pressed", false)
+	chip.set_meta("pass_keyboard_focus", false)
+	var art_host: TextureRect = chip.find_child("PassForecastFrameArtHost", true, false) as TextureRect
+	var content: Control = chip.find_child("PassForecastContent", true, false) as Control
+	var focus_edge: PanelContainer = chip.find_child("PassFocusEdgeCue", true, false) as PanelContainer
+	var accent: Color = chip.get_meta("panel_surface_accent", Color("d7b36d"))
+	_refresh_pass_preview_interaction(chip, art_host, content, focus_edge, accent)
 
 func _begin_locked_hand_render_cache() -> void:
 	await _locked_hand_render_cache.capture(hand_box, self)
@@ -10527,27 +10802,27 @@ func _refresh_card_preview_ui() -> void:
 	# late-run states.
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_turn_order_bar()
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_turn_order", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_turn_order_total", performance_phase_started)
 	_refresh_combat_objective_hud()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_objective", performance_phase_started)
 	_refresh_choice_bar()
 	# Choice refresh owns the action-step tracker refresh so the pass forecast and
 	# mode selector remain synchronized. Calling it explicitly here rebuilt every
 	# chip and mode placard twice on each card click.
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_choices_and_tracker", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_choices_and_tracker_total", performance_phase_started)
 	_refresh_stage_view()
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_stage", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_stage_total", performance_phase_started)
 	_refresh_hand_panel()
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_hand", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_hand_total", performance_phase_started)
 	_refresh_card_preview_visibility()
-	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_visibility", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_visibility_total", performance_phase_started)
 	# The choice refresh owns the tracker refresh, and the tracker performs and
 	# defers its own exact layout. Repeating both here paid for the same geometry
 	# three times on every card click.
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_layout", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
 	_update_performance_telemetry_context()
-	_record_runtime_performance_phase("card_preview_refresh_tutorial", performance_phase_started)
+	_record_runtime_performance_phase("card_preview_refresh_tutorial_total", performance_phase_started)
 
 func _refresh_pile_counts() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
@@ -10569,6 +10844,8 @@ func _refresh_pile_counts() -> void:
 func _refresh_relic_bar() -> void:
 	if relic_bar == null or _relic_utility_bar == null or _relic_icon_grid == null:
 		return
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
 	var relic_ids: Array = (_run_state.get("relics", []) as Array).duplicate()
 	var skill_ids: Array[String] = _selected_skill_ids_for_hud()
 	var event_revision: int = int(_combat_state.get("skill_event_revision", 0)) if not _combat_state.is_empty() else 0
@@ -10589,30 +10866,39 @@ func _refresh_relic_bar() -> void:
 		or run_event_revision > _run_skill_event_revision_seen
 	)
 	var should_pulse_defiance: bool = defiance_event_revision > _defiance_event_revision_seen
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_state", performance_phase_started)
+	var skill_sigil_presentation: Dictionary = _skill_sigil_presentation(skill_ids)
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_presentation", performance_phase_started)
 	_reconcile_skill_event_analytics()
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_reconcile_analytics_total", performance_phase_started)
 	_flush_run_skill_event_analytics("hud_run_skill")
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_flush_analytics_total", performance_phase_started)
 	_skill_event_revision_seen = maxi(_skill_event_revision_seen, event_revision)
 	_run_skill_event_revision_seen = maxi(_run_skill_event_revision_seen, run_event_revision)
 	_defiance_event_revision_seen = maxi(_defiance_event_revision_seen, defiance_event_revision)
 	var signature: String = str(hash([
 		relic_ids,
 		skill_ids,
-		_combat_state.get("skill_flags", {}),
-			_run_state.get(RunEngineScript.SKILL_STATE_KEY, {}),
-			event_revision,
-			defiance_event_revision,
-			defiance_capacity,
-			defiance_remaining,
-			run_event_revision,
+		skill_sigil_presentation,
+		defiance_capacity,
+		defiance_remaining,
 		str(_run_state.get("mode", "room"))
 	]))
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_signature", performance_phase_started)
 	if signature == _relic_bar_signature:
 		if _skill_status_popover != null and _skill_status_popover.visible:
 			_refresh_skill_status_popover(skill_ids)
+		if should_pulse and _skill_sigil != null:
+			call_deferred("_pulse_skill_sigil")
+		if should_pulse_defiance and _defiance_badge != null:
+			call_deferred("_pulse_defiance_badge")
+		_record_runtime_performance_phase("relic_bar_cache_hit", performance_phase_started)
+		_record_runtime_performance_phase("relic_bar_total", performance_total_started)
 		return
 	_relic_bar_signature = signature
 	_clear_children(_relic_utility_bar)
 	_clear_children(_relic_icon_grid)
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_clear", performance_phase_started)
 	_skill_sigil = null
 	_defiance_badge = null
 	relic_bar.visible = defiance_capacity > 0 or not relic_ids.is_empty() or not skill_ids.is_empty()
@@ -10621,9 +10907,11 @@ func _refresh_relic_bar() -> void:
 		_relic_utility_bar.add_child(_defiance_badge)
 		if not skill_ids.is_empty() or not relic_ids.is_empty():
 			_relic_utility_bar.add_child(_build_header_utility_divider("DefianceUtilityDivider"))
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_defiance", performance_phase_started)
 	if not skill_ids.is_empty():
-		_skill_sigil = _build_skill_sigil(skill_ids)
+		_skill_sigil = _build_skill_sigil(skill_ids, skill_sigil_presentation)
 		_relic_utility_bar.add_child(_skill_sigil)
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_sigil", performance_phase_started)
 	for relic_id_var: Variant in relic_ids:
 		var relic_id: String = str(relic_id_var)
 		var relic: Dictionary = GameData.relic_def(relic_id)
@@ -10675,14 +10963,22 @@ func _refresh_relic_bar() -> void:
 			fallback.add_theme_constant_override("outline_size", 1)
 			margin.add_child(fallback)
 		_relic_icon_grid.add_child(frame)
-	_refresh_skill_status_popover(skill_ids, true)
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
+	# The hidden popover refreshes itself on open. Rebuilding its full palette on
+	# every combat status revision spent a frame on nodes the player could not see.
+	if _skill_status_popover != null and _skill_status_popover.visible:
+		_refresh_skill_status_popover(skill_ids, true)
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_popover", performance_phase_started)
 	_layout_header_hud()
+	performance_phase_started = _record_runtime_performance_phase("relic_bar_layout", performance_phase_started)
 	call_deferred("_layout_header_hud")
 	call_deferred("_layout_elemental_intensity_bar")
 	if should_pulse and _skill_sigil != null:
 		call_deferred("_pulse_skill_sigil")
 	if should_pulse_defiance and _defiance_badge != null:
 		call_deferred("_pulse_defiance_badge")
+	_record_runtime_performance_phase("relic_bar_deferred_effects", performance_phase_started)
+	_record_runtime_performance_phase("relic_bar_total", performance_total_started)
 
 func _build_header_utility_divider(node_name: String) -> ColorRect:
 	var divider := ColorRect.new()
@@ -10755,20 +11051,55 @@ func _selected_skill_ids_for_hud() -> Array[String]:
 func _baseline_run_skill_event_cursors() -> void:
 	_run_skill_event_revision_seen = _run_engine.run_skill_event_revision(_run_state)
 
-func _build_skill_sigil(skill_ids: Array[String]) -> Button:
+func _skill_sigil_presentation(skill_ids: Array[String]) -> Dictionary:
+	var compact: bool = ui_root != null and ui_root.get_global_rect().size.x < SKILL_SIGIL_COMPACT_VIEWPORT_WIDTH
+	var skill_statuses: Dictionary = {}
+	var ready_count: int = 0
+	for skill_id: String in skill_ids:
+		var status: String = _skill_hud_status(skill_id)
+		skill_statuses[skill_id] = status
+		if status == "READY":
+			ready_count += 1
+	var preview_count: int = SKILL_SIGIL_COMPACT_PREVIEW_COUNT if compact else SKILL_SIGIL_PREVIEW_COUNT
+	var preview_ids: Array[String] = []
+	for skill_id: String in skill_ids:
+		if str(skill_statuses.get(skill_id, "")) != "READY":
+			continue
+		preview_ids.append(skill_id)
+		if preview_ids.size() >= preview_count:
+			break
+	if preview_ids.size() < preview_count:
+		for skill_id: String in skill_ids:
+			if preview_ids.has(skill_id):
+				continue
+			preview_ids.append(skill_id)
+			if preview_ids.size() >= preview_count:
+				break
+	return {
+		"compact": compact,
+		"statuses": skill_statuses,
+		"ready_count": ready_count,
+		"preview_ids": preview_ids,
+	}
+
+func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {}) -> Button:
 	var button := Button.new()
 	button.name = "SkillSigil"
-	var compact: bool = ui_root != null and ui_root.get_global_rect().size.x < SKILL_SIGIL_COMPACT_VIEWPORT_WIDTH
+	if presentation.is_empty():
+		presentation = _skill_sigil_presentation(skill_ids)
+	var compact: bool = bool(presentation.get("compact", false))
 	button.custom_minimum_size = SKILL_SIGIL_COMPACT_SIZE if compact else SKILL_SIGIL_SIZE
 	button.text = ""
 	button.tooltip_text = ""
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.set_meta("header_utility", true)
-	var ready_count: int = _skill_status_ready_count(skill_ids)
-	var preview_ids: Array[String] = _skill_sigil_preview_ids(
-		skill_ids,
-		SKILL_SIGIL_COMPACT_PREVIEW_COUNT if compact else SKILL_SIGIL_PREVIEW_COUNT
-	)
+	# The caller computes status once for both cache invalidation and rendering.
+	# Recomputing manual-skill legality here used to repeat path and hand scans.
+	var skill_statuses: Dictionary = presentation.get("statuses", {}) as Dictionary
+	var ready_count: int = int(presentation.get("ready_count", 0))
+	var preview_ids: Array[String] = []
+	for skill_id_var: Variant in presentation.get("preview_ids", []) as Array:
+		preview_ids.append(str(skill_id_var))
 	button.set_meta("ready_count", ready_count)
 	button.set_meta("owned_count", skill_ids.size())
 	button.set_meta("preview_skill_ids", preview_ids)
@@ -10824,7 +11155,7 @@ func _build_skill_sigil(skill_ids: Array[String]) -> Button:
 	previews.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(previews)
 	for skill_id: String in preview_ids:
-		var accent: Color = _skill_status_accent(_skill_hud_status(skill_id))
+		var accent: Color = _skill_status_accent(str(skill_statuses.get(skill_id, "PASSIVE")))
 		var frame := PanelContainer.new()
 		frame.name = "SkillSigilPreview_%s" % skill_id
 		frame.custom_minimum_size = SKILL_SIGIL_PREVIEW_ICON_SIZE
@@ -10960,7 +11291,11 @@ func _show_skill_status_page_for_skill(skill_id: String) -> void:
 
 func _refresh_skill_status_popover(skill_ids: Array[String], refresh_statuses: bool = true) -> void:
 	var previous_selected_id: String = _skill_status_selected_id
-	_skill_status_skill_ids = SkillTreeLibrary.normalized_ids(skill_ids)
+	var normalized_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(skill_ids)
+	_skill_status_skill_ids.clear()
+	for skill_id: String in normalized_skill_ids:
+		if SkillTreeLibrary.is_player_visible(skill_id):
+			_skill_status_skill_ids.append(skill_id)
 	if _skill_status_title != null:
 		_skill_status_title.text = "ABILITIES"
 	if _skill_status_grid == null or _skill_status_popover == null:
@@ -12633,9 +12968,9 @@ func _refresh_action_step_tracker() -> void:
 	_refresh_card_action_mode_selector(context_mode)
 	performance_phase_started = _record_runtime_performance_phase("tracker_modes", performance_phase_started)
 	_build_action_context_commands(tracker_state)
-	performance_phase_started = _record_runtime_performance_phase("tracker_commands", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("tracker_commands_total", performance_phase_started)
 	_update_action_context_copy(tracker_state)
-	performance_phase_started = _record_runtime_performance_phase("tracker_copy", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("tracker_copy_total", performance_phase_started)
 	_layout_action_step_tracker()
 	_record_runtime_performance_phase("tracker_layout", performance_phase_started)
 	call_deferred("_layout_action_step_tracker")
@@ -13612,7 +13947,10 @@ func _deck_piles() -> Dictionary:
 
 func _refresh_visibility() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
-	mini_map_overlay.visible = mode != "combat"
+	var terminal_recap_visible: bool = mode in ["victory", "defeat"]
+	mini_map_overlay.visible = mode != "combat" and not terminal_recap_visible
+	room_title.visible = not terminal_recap_visible
+	room_subtitle.visible = not terminal_recap_visible
 	# Combat history remains available to the existing systems, but it no longer
 	# occupies a permanent board corner. Explicit event messages reveal briefly.
 	_refresh_log_overlay_visibility()
@@ -13628,6 +13966,7 @@ func _refresh_visibility() -> void:
 	if _context_choice_overlay != null and mode != "campfire":
 		_context_choice_overlay.visible = false
 	stats_label.visible = mode not in ["victory", "defeat"]
+	loadout_button.visible = mode not in ["victory", "defeat"]
 	grimoire_button.visible = mode not in ["victory", "defeat"]
 	menu_button.visible = mode not in ["victory", "defeat"]
 	if mode != "combat":
@@ -13660,6 +13999,8 @@ func _refresh_card_preview_visibility() -> void:
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 
 func _refresh_choice_bar() -> void:
+	if _scavenger_shop_view != null:
+		_scavenger_shop_view.dismiss_immediately()
 	_clear_children(choice_bar)
 	if _choice_button_overlay != null:
 		_clear_children_now(_choice_button_overlay)
@@ -13671,6 +14012,7 @@ func _refresh_choice_bar() -> void:
 	_clear_relic_choice_overlay()
 	_sync_merchant_shop_room()
 	var mode: String = str(_run_state.get("mode", "room"))
+	var relic_offer_sfx_signature: String = ""
 	if mode not in ["victory", "defeat"] and _run_end_recap != null:
 		_run_end_recap.reset()
 	choice_bar.custom_minimum_size = Vector2.ZERO
@@ -13684,8 +14026,8 @@ func _refresh_choice_bar() -> void:
 			var merchant_kind: String = _current_room_merchant_kind()
 			if not merchant_kind.is_empty():
 				if _merchant_shop_open:
-					_set_relic_choice_title(_merchant_title_text(merchant_kind))
-					_add_merchant_trade_panel(merchant_kind)
+					_scavenger_shop_view.configure(_run_state, _run_engine, _reduced_motion_enabled())
+					_scavenger_shop_view.present()
 				else:
 					_add_merchant_return_to_shop_button()
 		"campfire":
@@ -13718,6 +14060,7 @@ func _refresh_choice_bar() -> void:
 		"treasure":
 			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
+				relic_offer_sfx_signature = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), JSON.stringify(pending_relics)]
 				_set_relic_choice_title(RELIC_CHOICE_TITLE_TEXT)
 			for relic_id_var: Variant in pending_relics:
 				var relic_id: String = str(relic_id_var)
@@ -13750,6 +14093,10 @@ func _refresh_choice_bar() -> void:
 		if _relic_choice_overlay.visible:
 			_layout_relic_choice_overlay()
 			call_deferred("_layout_relic_choice_overlay")
+	if relic_offer_sfx_signature.is_empty():
+		_relic_choices_open_sfx_signature = ""
+	else:
+		_play_relic_choices_open_sfx_once(relic_offer_sfx_signature)
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	var button := UiTooltipButton.new()
@@ -13824,7 +14171,18 @@ func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 		_finish_combat_skill_card_motion()
 		return
 	await _animate_card_to_pile_fx(card_id, "discard", card_size, discard_proxy)
-	await _animate_draw_cards_fx(_draw_entries_between_states(before_state, next_state))
+	var draw_transition: Dictionary = _draw_hand_transition_between_states(
+		before_state,
+		next_state,
+		hand_index,
+		false
+	)
+	await _animate_draw_cards_fx(
+		draw_transition.get("draw_entries", []) as Array,
+		Rect2(),
+		_take_pending_card_draw_sfx_count(next_state),
+		draw_transition
+	)
 	_finish_combat_skill_card_motion()
 
 func _begin_encore_card_selection(skill_id: String) -> void:
@@ -13859,7 +14217,13 @@ func _commit_encore(skill_id: String, discard_index: int) -> void:
 	if not _stage_combat_skill_state(next_state, skill_id):
 		_finish_combat_skill_card_motion()
 		return
-	await _animate_draw_cards_fx(_draw_entries_between_states(before_state, next_state), source_rect)
+	var draw_transition: Dictionary = _draw_hand_transition_between_states(before_state, next_state)
+	await _animate_draw_cards_fx(
+		draw_transition.get("draw_entries", []) as Array,
+		source_rect,
+		_take_pending_card_draw_sfx_count(next_state),
+		draw_transition
+	)
 	_finish_combat_skill_card_motion()
 
 func _combat_skill_discard_selection_rect(discard_index: int) -> Rect2:
@@ -14258,7 +14622,7 @@ func _pass_preview_source_state() -> Dictionary:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
 		var hovered_state: Dictionary = _pass_preview_confirmed_hover_state()
-		performance_phase_started = _record_runtime_performance_phase("pass_preview_source_hover", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("pass_preview_source_hover_total", performance_phase_started)
 		if not hovered_state.is_empty():
 			var safe_hovered_state: Dictionary = _visibility_safe_preview_display_state(hovered_state)
 			_record_runtime_performance_phase("pass_preview_source_visibility", performance_phase_started)
@@ -14297,13 +14661,13 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	var resolved_state: Dictionary = _cached_hover_resolved_preview_state()
 	if resolved_state.is_empty():
 		resolved_state = _combat_engine.apply_prevalidated_player_action(_preview_combat_state, action, _hovered_board_tile)
-	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_apply", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_apply_total", performance_phase_started)
 	var advanced_state: Dictionary = {}
 	if str(action.get("type", "")) in ["move", "blink"] and _remaining_actions_include_shortcut_attack(_pending_actions, _pending_action_index + 1):
 		advanced_state = _pass_preview_state_after_movement_only(resolved_state, _pending_actions, _pending_action_index + 1)
 	else:
 		advanced_state = _pass_preview_state_after_resolved_target(resolved_state, _pending_actions, _pending_action_index + 1)
-	_record_runtime_performance_phase("pass_preview_source_advance", performance_phase_started)
+	_record_runtime_performance_phase("pass_preview_source_advance_total", performance_phase_started)
 	return advanced_state
 
 func _umbra_hover_preview_would_reveal_information(state: Dictionary, action: Dictionary) -> bool:
@@ -14412,14 +14776,18 @@ func _pass_preview_summary() -> Dictionary:
 		return _pass_preview_cache.get(cache_key, {}) as Dictionary
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_cache_miss_key", performance_phase_started)
 	var source_state: Dictionary = _pass_preview_source_state()
-	performance_phase_started = _record_runtime_performance_phase("pass_preview_source", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_total", performance_phase_started)
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		_cache_pass_preview(cache_key, {})
 		return {}
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_finish_activation", performance_phase_started)
 	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state)
-	performance_phase_started = _record_runtime_performance_phase("pass_preview_enemy_actions", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("pass_preview_enemy_actions_total", performance_phase_started)
+	return _pass_preview_summary_from_phase_result(cache_key, source_state, phase_result)
+
+func _pass_preview_summary_from_phase_result(cache_key: String, source_state: Dictionary, phase_result: Dictionary) -> Dictionary:
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	# The preview engine result is already an isolated snapshot and this summary
 	# only reads it. Avoid another full late-run state clone per first-time target.
 	var after_state: Dictionary = phase_result.get("state", {}) as Dictionary
@@ -14656,7 +15024,115 @@ func _show_run_end_recap(outcome: String) -> void:
 		return
 	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
 	var model: Dictionary = RunEndRecapOverlay.build_model(_run_state, _progression, outcome, ember_amount)
-	_run_end_recap.present(model)
+	var window_center: Vector2 = RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	_run_end_recap.present(model, window_center)
+	if outcome == "defeat":
+		_sync_run_end_glow_site()
+		_begin_run_end_board_reframe()
+		call_deferred("_sync_run_end_death_site")
+
+func _sync_run_end_death_site() -> void:
+	await get_tree().process_frame
+	if _run_end_recap == null or not _run_end_recap.visible or str(_run_state.get("mode", "")) != "defeat":
+		return
+	_run_end_recap.set_death_site_normalized(RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED)
+	_retarget_run_end_board_reframe()
+	_sync_run_end_glow_site()
+
+func _sync_run_end_glow_site() -> void:
+	if _run_end_recap == null or not _run_end_recap.visible or str(_run_state.get("mode", "")) != "defeat":
+		return
+	_run_end_recap.set_glow_site_normalized(_run_end_death_site_normalized())
+
+func _begin_run_end_board_reframe() -> void:
+	if _run_end_board_reframe_active or board_view == null or _run_end_recap == null:
+		return
+	var death_tile: Vector2i = _run_end_death_tile()
+	if death_tile.x < 0:
+		return
+	var recap_size: Vector2 = _run_end_recap.size
+	if recap_size.x <= 1.0 or recap_size.y <= 1.0:
+		call_deferred("_sync_run_end_death_site")
+		return
+	var board_point: Vector2 = board_view.call("world_position_for_tile", death_tile) as Vector2
+	var tile_global: Vector2 = board_view.get_global_transform() * board_point
+	var target_local: Vector2 = recap_size * RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	var target_global: Vector2 = _run_end_recap.get_global_transform() * target_local
+	_run_end_board_reframe_active = true
+	_run_end_board_reframe_progress = 0.0
+	_run_end_board_reframe_start = board_view.position
+	_run_end_board_reframe_target = board_view.position + target_global - tile_global
+	if _run_end_board_reframe_tween != null and _run_end_board_reframe_tween.is_valid():
+		_run_end_board_reframe_tween.kill()
+	if _reduced_motion_enabled() or not _run_end_recap.motion_enabled():
+		_seek_run_end_board_reframe(1.0)
+		return
+	_run_end_board_reframe_tween = create_tween()
+	_run_end_board_reframe_tween.set_trans(Tween.TRANS_CUBIC)
+	_run_end_board_reframe_tween.set_ease(Tween.EASE_IN_OUT)
+	_run_end_board_reframe_tween.tween_method(Callable(self, "_apply_run_end_board_reframe_progress"), 0.0, 1.0, RUN_END_BOARD_REFRAME_SECONDS)
+
+func _retarget_run_end_board_reframe() -> void:
+	if not _run_end_board_reframe_active:
+		_begin_run_end_board_reframe()
+		return
+	var death_tile: Vector2i = _run_end_death_tile()
+	if death_tile.x < 0 or board_view == null or _run_end_recap == null:
+		return
+	var board_point: Vector2 = board_view.call("world_position_for_tile", death_tile) as Vector2
+	var tile_global: Vector2 = board_view.get_global_transform() * board_point
+	var target_local: Vector2 = _run_end_recap.size * RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	var target_global: Vector2 = _run_end_recap.get_global_transform() * target_local
+	_run_end_board_reframe_target = board_view.position + target_global - tile_global
+	if _run_end_board_reframe_progress >= 1.0 or _reduced_motion_enabled() or not _run_end_recap.motion_enabled():
+		_seek_run_end_board_reframe(1.0)
+
+func _seek_run_end_board_reframe(progress: float) -> void:
+	if _run_end_board_reframe_tween != null and _run_end_board_reframe_tween.is_valid():
+		_run_end_board_reframe_tween.kill()
+	_run_end_board_reframe_tween = null
+	_apply_run_end_board_reframe_progress(progress)
+
+func _apply_run_end_board_reframe_progress(progress: float) -> void:
+	_run_end_board_reframe_progress = clampf(progress, 0.0, 1.0)
+	if board_view != null and _run_end_board_reframe_active:
+		board_view.position = _run_end_board_reframe_start.lerp(_run_end_board_reframe_target, _run_end_board_reframe_progress)
+		_sync_run_end_glow_site()
+
+func _reset_run_end_board_reframe() -> void:
+	if _run_end_board_reframe_tween != null and _run_end_board_reframe_tween.is_valid():
+		_run_end_board_reframe_tween.kill()
+	_run_end_board_reframe_tween = null
+	_run_end_board_reframe_active = false
+	_run_end_board_reframe_progress = 0.0
+	_run_end_board_reframe_start = Vector2.ZERO
+	_run_end_board_reframe_target = Vector2.ZERO
+	if board_view != null and board_view.is_inside_tree():
+		_sync_board_view_rect()
+
+func run_end_board_reframe_progress() -> float:
+	return _run_end_board_reframe_progress
+
+func _run_end_death_tile() -> Vector2i:
+	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
+	return layout.get("player_start", Vector2i(-1, -1))
+
+func _run_end_death_site_normalized() -> Vector2:
+	if board_view == null or _run_end_recap == null:
+		return RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	var death_tile: Vector2i = _run_end_death_tile()
+	if death_tile.x < 0:
+		return RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
+	var board_point: Vector2 = board_view.call("world_position_for_tile", death_tile) as Vector2
+	var global_point: Vector2 = board_view.get_global_transform() * board_point
+	var recap_point: Vector2 = _run_end_recap.get_global_transform().affine_inverse() * global_point
+	var recap_size: Vector2 = _run_end_recap.size
+	if recap_size.x <= 1.0 or recap_size.y <= 1.0:
+		return Vector2(0.32, 0.62)
+	return Vector2(
+		clampf(recap_point.x / recap_size.x, 0.08, 0.92),
+		clampf(recap_point.y / recap_size.y, 0.10, 0.90)
+	)
 
 func _reward_choices_available() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
@@ -14672,7 +15148,12 @@ func _play_post_combat_victory(board_state: Dictionary) -> void:
 	if board_state.is_empty() or _post_combat_victory_overlay == null:
 		return
 	_render_board_state(board_state, {})
-	await PostCombatRewardSequence.play_victory(_post_combat_victory_overlay, _reduced_motion_enabled())
+	var cue_seconds: float = _play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
+	await PostCombatRewardSequence.play_victory(
+		_post_combat_victory_overlay,
+		_reduced_motion_enabled(),
+		cue_seconds
+	)
 
 func _play_loaded_reward_intro() -> void:
 	if _reward_intro_in_progress or not _reward_intro_pending():
@@ -14709,7 +15190,8 @@ func _play_reward_reveal() -> void:
 		_relic_choice_title,
 		card_slots,
 		secondary_actions,
-		_reduced_motion_enabled()
+		_reduced_motion_enabled(),
+		Callable(self, "_play_reward_card_flip_sfx")
 	)
 	_finish_reward_intro()
 
@@ -14942,10 +15424,6 @@ func _relic_choice_title_accent(text: String) -> Color:
 			return Color("9fdc86")
 		RELIC_CHOICE_TITLE_TEXT:
 			return Color("f2c86a")
-		MERCHANT_TITLE_BLACKSMITH:
-			return Color("ef9356")
-		MERCHANT_TITLE_ARCANIST:
-			return Color("92d8ff")
 	return Color("f0c978")
 
 func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
@@ -15175,271 +15653,6 @@ func _add_merchant_return_to_shop_button() -> void:
 	button.pressed.connect(_on_merchant_return_to_shop_pressed)
 	_relic_choice_bar.add_child(button)
 
-func _merchant_title_text(merchant_kind: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		return MERCHANT_TITLE_BLACKSMITH
-	if merchant_kind == RunEngineScript.MERCHANT_ARCANIST:
-		return MERCHANT_TITLE_ARCANIST
-	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER:
-		return MERCHANT_TITLE_SCAVENGER
-	return ""
-
-func _merchant_accent(merchant_kind: String) -> Color:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		return Color("d9862f")
-	if merchant_kind == RunEngineScript.MERCHANT_ARCANIST:
-		return Color("8a67d8")
-	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER:
-		return Color("a6b85f")
-	return Color("c9b9a3")
-
-func _add_merchant_trade_panel(merchant_kind: String) -> void:
-	if _relic_choice_bar == null:
-		return
-	var accent: Color = _merchant_accent(merchant_kind)
-	var panel := PanelContainer.new()
-	panel.name = "MerchantTradePanel"
-	panel.custom_minimum_size = MERCHANT_PANEL_SIZE
-	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	panel.z_index = 35
-	panel.add_theme_stylebox_override("panel", _merchant_panel_style(accent))
-	_relic_choice_bar.add_child(panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 14)
-	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
-
-	var top_row := HBoxContainer.new()
-	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_row.add_theme_constant_override("separation", 10)
-	vbox.add_child(top_row)
-
-	var stock_label := Label.new()
-	stock_label.text = "Stock"
-	UiTypography.set_label_size(stock_label, UiTypography.SIZE_BODY)
-	stock_label.add_theme_color_override("font_color", Color("f5ead4"))
-	stock_label.add_theme_color_override("font_outline_color", Color("241912"))
-	stock_label.add_theme_constant_override("outline_size", 1)
-	top_row.add_child(stock_label)
-
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_row.add_child(spacer)
-
-	var ember_label := Label.new()
-	ember_label.text = "EMBERS %d" % _run_engine.held_embers(_run_state)
-	UiTypography.set_label_size(ember_label, UiTypography.SIZE_BODY)
-	ember_label.add_theme_color_override("font_color", Color("f0c978"))
-	ember_label.add_theme_color_override("font_outline_color", Color("241912"))
-	ember_label.add_theme_constant_override("outline_size", 1)
-	top_row.add_child(ember_label)
-
-	var hide_button := UiTooltipButton.new()
-	hide_button.name = "MerchantHideButton"
-	hide_button.text = "Hide"
-	hide_button.tooltip_text = "Hide the merchant interface and reveal every door."
-	_ui_skin.apply_button_stylebox_overrides(hide_button, UiSkin.VARIANT_STANDARD)
-	_ui_skin.apply_button_text_overrides(hide_button)
-	UiTypography.set_button_size(hide_button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(hide_button, UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, true, UiSkin.VARIANT_STANDARD)
-	hide_button.pressed.connect(_on_merchant_hide_pressed)
-	top_row.add_child(hide_button)
-
-	var columns := HBoxContainer.new()
-	columns.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	columns.add_theme_constant_override("separation", 14)
-	vbox.add_child(columns)
-	columns.add_child(_build_merchant_column(merchant_kind, false))
-	columns.add_child(_build_merchant_column(merchant_kind, true))
-
-func _build_merchant_column(merchant_kind: String, selling: bool) -> Control:
-	var accent: Color = _merchant_accent(merchant_kind)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = MERCHANT_COLUMN_SIZE
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _merchant_column_style(accent, selling))
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
-	panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 7)
-	margin.add_child(vbox)
-
-	var title := Label.new()
-	title.text = "Sell" if selling else "Buy"
-	UiTypography.set_label_size(title, UiTypography.SIZE_BODY)
-	title.add_theme_color_override("font_color", Color("fff1d5"))
-	title.add_theme_color_override("font_outline_color", Color("1d1510"))
-	title.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(title)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	vbox.add_child(scroll)
-
-	var rows := VBoxContainer.new()
-	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rows.add_theme_constant_override("separation", 6)
-	scroll.add_child(rows)
-
-	var item_ids: Array = _run_engine.merchant_sellable_ids(_run_state, merchant_kind) if selling else _run_engine.merchant_offer_ids(_run_state, merchant_kind)
-	if item_ids.is_empty():
-		rows.add_child(_build_merchant_empty_row("Nothing to sell" if selling else "Sold out"))
-		return panel
-	for item_id_var: Variant in item_ids:
-		rows.add_child(_build_merchant_item_row(merchant_kind, str(item_id_var), selling))
-	return panel
-
-func _build_merchant_empty_row(text: String) -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0.0, MERCHANT_ROW_HEIGHT)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _merchant_row_style(Color("6f6251"), false, false))
-	var label := Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
-	label.add_theme_color_override("font_color", Color("b9aa91"))
-	panel.add_child(label)
-	return panel
-
-func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: bool) -> Control:
-	var item_accent: Color = _merchant_item_accent(merchant_kind, item_id)
-	var affordable: bool = selling or _run_engine.held_embers(_run_state) >= _run_engine.merchant_buy_cost(merchant_kind, item_id)
-	var row: TooltipPanelContainer = null
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		var equipment_row := EquipmentTooltipPanelContainer.new()
-		equipment_row.equipment_id = item_id
-		equipment_row.host = self
-		equipment_row.tooltip_text = "equipment:%s" % item_id
-		row = equipment_row
-	else:
-		var card_row := EquipmentCardBadge.new()
-		card_row.card_id = item_id
-		card_row.host = self
-		card_row.tooltip_text = "card:%s" % item_id
-		row = card_row
-	row.custom_minimum_size = Vector2(0.0, MERCHANT_ROW_HEIGHT)
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.mouse_filter = Control.MOUSE_FILTER_STOP
-	row.add_theme_stylebox_override("panel", _merchant_row_style(item_accent, false, affordable))
-	row.mouse_entered.connect(_on_merchant_row_mouse_entered.bind(merchant_kind, item_id, row))
-	row.mouse_exited.connect(_on_merchant_row_mouse_exited.bind(merchant_kind, item_id, row))
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_bottom", 6)
-	row.add_child(margin)
-
-	var hbox := HBoxContainer.new()
-	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_theme_constant_override("separation", 8)
-	margin.add_child(hbox)
-
-	var icon_frame := PanelContainer.new()
-	icon_frame.custom_minimum_size = Vector2(MERCHANT_ICON_SIZE.x, MERCHANT_ICON_SIZE.y)
-	icon_frame.add_theme_stylebox_override("panel", _merchant_icon_style(item_accent))
-	hbox.add_child(icon_frame)
-	var icon_center := CenterContainer.new()
-	icon_frame.add_child(icon_center)
-	var icon := TextureRect.new()
-	icon.custom_minimum_size = MERCHANT_ICON_SIZE - Vector2(8.0, 8.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = AssetLoader.load_texture(_merchant_item_icon_path(merchant_kind, item_id))
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_center.add_child(icon)
-	_make_equipment_tile_content_passive(icon_frame)
-
-	var text_box := VBoxContainer.new()
-	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.add_theme_constant_override("separation", 1)
-	hbox.add_child(text_box)
-
-	var name_label := Label.new()
-	name_label.text = _merchant_item_name(merchant_kind, item_id)
-	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_BODY)
-	name_label.add_theme_color_override("font_color", Color("fff1d5") if affordable else Color("cdbca2"))
-	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	name_label.add_theme_constant_override("outline_size", 1)
-	text_box.add_child(name_label)
-
-	var detail_label := Label.new()
-	detail_label.text = _merchant_item_detail(merchant_kind, item_id)
-	detail_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(detail_label, UiTypography.SIZE_SMALL)
-	detail_label.add_theme_color_override("font_color", Color("cdbca2") if affordable else Color("9f927e"))
-	text_box.add_child(detail_label)
-	_make_equipment_tile_content_passive(text_box)
-
-	var amount: int = _run_engine.merchant_sell_value(merchant_kind, item_id) if selling else _run_engine.merchant_buy_cost(merchant_kind, item_id)
-	var price_chip: Control = _merchant_price_chip("%d" % amount, item_accent, selling, affordable)
-	_make_equipment_tile_content_passive(price_chip)
-	hbox.add_child(price_chip)
-	if not selling and _run_engine.run_skill_is_ready(_run_state, "layaway"):
-		var hold_button := UiTooltipButton.new()
-		hold_button.name = "Layaway_%s" % item_id
-		hold_button.text = "Hold"
-		hold_button.tooltip_text = SkillTreeLibrary.description("layaway")
-		hold_button.custom_minimum_size = Vector2(64.0, 42.0)
-		_ui_skin.apply_button_stylebox_overrides(hold_button, UiSkin.VARIANT_COMPACT)
-		_ui_skin.apply_button_text_overrides(hold_button)
-		UiTypography.set_button_size(hold_button, UiTypography.SIZE_SMALL)
-		hold_button.pressed.connect(_on_merchant_layaway_pressed.bind(item_id))
-		hbox.add_child(hold_button)
-
-	var button := Button.new()
-	button.text = "Sell" if selling else "Buy"
-	button.disabled = not affordable
-	button.custom_minimum_size = Vector2(82.0, 42.0)
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_COMPACT)
-	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
-	if selling:
-		button.pressed.connect(_on_merchant_sell_pressed.bind(merchant_kind, item_id, row))
-	else:
-		button.pressed.connect(_on_merchant_buy_pressed.bind(merchant_kind, item_id, row))
-	hbox.add_child(button)
-	return row
-
-func _on_merchant_layaway_pressed(item_id: String) -> void:
-	if _merchant_trade_animation_active:
-		return
-	var before_state: Dictionary = _run_state.duplicate(true)
-	_run_state = _run_engine.reserve_merchant_offer(_run_state, item_id)
-	if _run_state == before_state:
-		return
-	_close_pinned_tooltip()
-	_persist_committed_boundary("merchant_offer_held")
-	_refresh_ui()
-
 func _on_merchant_row_mouse_entered(merchant_kind: String, item_id: String, row: Control = null) -> void:
 	_merchant_hovered_kind = merchant_kind
 	_merchant_hovered_item_id = item_id
@@ -15452,57 +15665,8 @@ func _on_merchant_row_mouse_exited(merchant_kind: String, item_id: String, row: 
 		if _merchant_hovered_row == row or row == null:
 			_merchant_hovered_row = null
 
-func _merchant_price_chip(text: String, accent: Color, selling: bool, enabled: bool) -> Control:
-	var chip := PanelContainer.new()
-	chip.custom_minimum_size = Vector2(62.0, 36.0)
-	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	chip.add_theme_stylebox_override("panel", _merchant_chip_style(accent, selling, enabled))
-	var label := Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
-	label.add_theme_color_override("font_color", Color("e1ffd1") if selling else Color("ffe1ad"))
-	label.add_theme_color_override("font_outline_color", Color("1b1008"))
-	label.add_theme_constant_override("outline_size", 1)
-	chip.add_child(label)
-	return chip
-
-func _merchant_item_name(merchant_kind: String, item_id: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		return str(GameData.equipment_def(item_id).get("name", item_id))
-	return str(GameData.card_def(item_id).get("name", item_id))
-
-func _merchant_item_detail(merchant_kind: String, item_id: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		return "%s | %s" % [
-			_equipment_slot_label(GameData.equipment_slot(item_id)),
-			_equipment_rarity_label(GameData.equipment_rarity(item_id))
-		]
-	var card: Dictionary = GameData.card_def(item_id)
-	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER:
-		return "Item | %s" % _equipment_rarity_label(str(card.get("rarity", "common")))
-	var element_name: String = ElementData.name(GameData.card_element(item_id))
-	if element_name.is_empty():
-		element_name = "Neutral"
-	return "%s | %s" % [element_name, _equipment_rarity_label(str(card.get("rarity", "common")))]
-
-func _merchant_item_tooltip(merchant_kind: String, item_id: String) -> String:
-	var lines: Array = [_merchant_item_name(merchant_kind, item_id), _merchant_item_detail(merchant_kind, item_id)]
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		for card_id_var: Variant in GameData.equipment_cards(item_id):
-			lines.append(str(GameData.card_def(str(card_id_var)).get("name", card_id_var)))
-	else:
-		lines.append(str(GameData.card_def(item_id).get("description", "")))
-	return "\n".join(lines)
-
-func _merchant_item_icon_path(merchant_kind: String, item_id: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
-		return str(GameData.equipment_def(item_id).get("icon_path", ""))
-	return str(GameData.card_def(item_id).get("art_path", ElementData.icon_path(GameData.card_element(item_id))))
-
 func _merchant_item_accent(merchant_kind: String, item_id: String) -> Color:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return Color(GameData.equipment_accent(item_id))
 	return _item_card_accent(item_id)
 
@@ -15512,84 +15676,6 @@ func _item_card_accent(card_id: String) -> Color:
 	if not accent_text.is_empty():
 		return Color(accent_text)
 	return ElementData.accent(GameData.card_element(card_id))
-
-func _merchant_panel_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.075, 0.052, 0.040, 0.95)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.86)
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.46)
-	style.shadow_size = 18
-	style.shadow_offset = Vector2(0.0, 8.0)
-	return style
-
-func _merchant_column_style(accent: Color, selling: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.050, 0.038, 0.032, 0.88)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.44 if selling else 0.58)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	return style
-
-func _merchant_row_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.105, 0.075, 0.054, 0.94).lightened(0.05 if hovered else 0.0)
-	if not enabled:
-		style.bg_color = Color(0.066, 0.058, 0.050, 0.90)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.70 if enabled else 0.32)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	return style
-
-func _merchant_icon_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.035, 0.030, 0.027, 0.94)
-	style.border_color = accent.darkened(0.10)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
-	return style
-
-func _merchant_chip_style(accent: Color, selling: bool, enabled: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("14321a") if selling else Color("342415")
-	style.border_color = Color("83d088") if selling else accent.lightened(0.18)
-	if not enabled:
-		style.bg_color = Color("2a2520")
-		style.border_color = Color("8b7b66")
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	return style
 
 func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, enabled: bool) -> void:
 	var clip := Control.new()
@@ -15973,6 +16059,7 @@ func _refresh_hand_panel() -> void:
 	# Any real hand refresh (draw, resource change, resize, or unlock) invalidates
 	# the frozen image. Restore the controls before their normal update path runs.
 	_end_locked_hand_render_cache()
+	_finish_draw_hand_transition_for_refresh()
 	_clear_idle_card_fx_layer()
 	var mode: String = str(_run_state.get("mode", "room"))
 	# This signature intentionally excludes hover/focus/card identity. Those states
@@ -16044,7 +16131,7 @@ func _refresh_hand_panel() -> void:
 		var retained_update_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var retained_update_succeeded: bool = _update_existing_hand_interaction_state()
 		_record_runtime_performance_phase(
-			"hand_retained_update" if retained_update_succeeded else "hand_retained_rejected",
+			"hand_retained_update_total" if retained_update_succeeded else "hand_retained_rejected_total",
 			retained_update_started
 		)
 		if retained_update_succeeded:
@@ -16200,10 +16287,10 @@ func _update_existing_hand_interaction_state() -> bool:
 	for index: int in range(hand.size()):
 		var widget: CardWidget = _hand_card_control(index) as CardWidget
 		var options: Dictionary = _card_play_options_for_index(index)
-		performance_phase_started = _record_runtime_performance_phase("hand_interaction_options", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("hand_interaction_options_total", performance_phase_started)
 		var display: Dictionary = _card_widget_display_for_index(index)
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
-		performance_phase_started = _record_runtime_performance_phase("hand_interaction_display", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("hand_interaction_display_total", performance_phase_started)
 		var dimmed: bool = active_hand_index >= 0 and active_hand_index != index
 		var usable: bool = bool(options.get("any_playable", false)) and not _animation_lock
 		var printed_playable: bool = bool(options.get("printed_playable", false))
@@ -16238,7 +16325,7 @@ func _update_existing_hand_interaction_state() -> bool:
 	)
 	_set_hand_emphasized_index(emphasized_hand_index, false)
 	_consume_hand_ready_wave()
-	_record_runtime_performance_phase("hand_interaction_emphasis", performance_phase_started)
+	_record_runtime_performance_phase("hand_interaction_emphasis_total", performance_phase_started)
 	return true
 
 func _fit_current_hand_layout_to_visible_width(expected_revision: int, retry_count: int = 0) -> void:
@@ -16669,6 +16756,15 @@ func _clear_idle_card_fx_layer() -> void:
 		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
 			_release_card_proxy(child)
 	_clear_children_now(_card_fx_layer)
+
+func _finish_draw_hand_transition_for_refresh() -> void:
+	if hand_box != null:
+		hand_box.visible = true
+	for proxy: Control in _draw_hand_transition_proxies:
+		_release_card_proxy(proxy)
+	_draw_hand_transition_proxies.clear()
+	_draw_hand_transition_cards.clear()
+
 func _refresh_stage_view() -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
@@ -16684,7 +16780,8 @@ func _refresh_stage_view() -> void:
 	# The same room grid is shown both while cards are available and after combat.
 	# Make that framing intent explicit: no-hand rooms center their complete board
 	# instead of inheriting the combat hand-clearance composition.
-	presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or post_combat_board_visible else "room"
+	var run_mode: String = str(_run_state.get("mode", "room"))
+	presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or post_combat_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
@@ -16715,7 +16812,7 @@ func _refresh_stage_view() -> void:
 			)
 			if not cumulative_damage_preview.is_empty():
 				presentation["damage_preview"] = cumulative_damage_preview
-		performance_phase_started = _record_runtime_performance_phase("stage_preview_state", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("stage_preview_state_total", performance_phase_started)
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
 			card_preview_active = true
 			var action: Dictionary = preview.get("action", {})
@@ -16800,9 +16897,9 @@ func _refresh_stage_view() -> void:
 		if not _turn_order_hovered_enemy_key.is_empty() and not guided_intent_focus_active:
 			presentation["expanded_enemy_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_keys"] = [_turn_order_hovered_enemy_key]
-			presentation["focus_actor_color"] = Color("f2ddb2")
+		presentation["focus_actor_color"] = Color("f2ddb2")
 		presentation["show_all_enemy_intents"] = render_all_enemy_intents
-	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation_total", performance_phase_started)
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and not _exit_destinations_by_tile.is_empty():
@@ -16818,6 +16915,13 @@ func _refresh_stage_view() -> void:
 		and _current_action_is_aimed_aoe()
 	)
 	presentation["reduced_motion"] = _reduced_motion_enabled()
+	if run_mode == "defeat":
+		var death_tile: Vector2i = _run_end_death_tile()
+		if death_tile.x >= 0:
+			presentation["death_site_embers"] = {
+				"tile": death_tile,
+				"amount": _defeat_lost_amount,
+			}
 	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
 	presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	performance_phase_started = _record_runtime_performance_phase("stage_chrome", performance_phase_started)
@@ -16873,20 +16977,6 @@ func _stage_chrome_presentation() -> Dictionary:
 				"width_scale": 0.68,
 				"baseline_scale": 0.44,
 			}]
-		"blacksmith":
-			result["scene_props"] = [{
-				"kind": "blacksmith_forge",
-				"tile": Vector2i(5, 4),
-				"width_scale": 1.04,
-				"baseline_scale": 0.50,
-			}]
-		"arcanist":
-			result["scene_props"] = [{
-				"kind": "arcanist_table",
-				"tile": Vector2i(5, 4),
-				"width_scale": 1.06,
-				"baseline_scale": 0.50,
-			}]
 		"scavenger":
 			result["scene_props"] = [{
 				"kind": "scavenger_stall",
@@ -16902,7 +16992,21 @@ func set_runtime_performance_instrumentation_enabled(enabled: bool) -> void:
 	_runtime_performance_instrumentation_enabled = enabled
 	_runtime_performance_totals_usec.clear()
 	_runtime_performance_counts.clear()
+	_runtime_performance_max_usec.clear()
+	_runtime_performance_frame_id = -1
+	_runtime_performance_frame_total_usec = 0
+	_runtime_performance_frame_phase_usec.clear()
+	_runtime_performance_frame_intervals.clear()
+	_runtime_performance_exclusive_totals_usec.clear()
+	_runtime_performance_exclusive_segment_counts.clear()
+	_runtime_performance_telemetry_overhead_usec = 0
+	_runtime_performance_record_overhead_live_usec = 0
+	_runtime_performance_commit_overhead_usec = 0
+	_runtime_performance_frame_top.clear()
 	_runtime_animation_clock_stats.clear()
+	_combat_engine.set_runtime_performance_interval_sink(
+		Callable(self, "_record_external_runtime_performance_interval") if enabled else Callable()
+	)
 	_combat_engine.set_runtime_performance_instrumentation_enabled(enabled)
 
 func _stage_visibility_presentation(visibility_state: Dictionary) -> Dictionary:
@@ -16944,6 +17048,7 @@ func _enemy_intent_compass_descriptors(display_state: Dictionary, visible_enemy_
 	return _enemy_intent_compass_cache
 
 func runtime_performance_instrumentation_snapshot() -> Dictionary:
+	_commit_runtime_performance_frame()
 	var result: Dictionary = {}
 	for phase_var: Variant in _runtime_performance_totals_usec.keys():
 		var phase: String = str(phase_var)
@@ -16951,6 +17056,9 @@ func runtime_performance_instrumentation_snapshot() -> Dictionary:
 		result[phase] = {
 			"count": count,
 			"total_usec": int(_runtime_performance_totals_usec.get(phase, 0)),
+			"exclusive_total_usec": int(_runtime_performance_exclusive_totals_usec.get(phase, 0)),
+			"exclusive_segment_count": int(_runtime_performance_exclusive_segment_counts.get(phase, 0)),
+			"max_usec": int(_runtime_performance_max_usec.get(phase, 0)),
 			"usec_per_call": (
 				float(_runtime_performance_totals_usec.get(phase, 0)) / float(count)
 				if count > 0
@@ -16959,15 +17067,51 @@ func runtime_performance_instrumentation_snapshot() -> Dictionary:
 		}
 	var engine_result: Dictionary = _combat_engine.runtime_performance_instrumentation_snapshot()
 	for phase_var: Variant in engine_result.keys():
-		result["engine_%s" % str(phase_var)] = engine_result[phase_var]
+		var engine_phase: String = "engine_%s" % str(phase_var)
+		var engine_section: Dictionary = (engine_result[phase_var] as Dictionary).duplicate(true)
+		engine_section["exclusive_total_usec"] = int(_runtime_performance_exclusive_totals_usec.get(engine_phase, 0))
+		engine_section["exclusive_segment_count"] = int(_runtime_performance_exclusive_segment_counts.get(engine_phase, 0))
+		result[engine_phase] = engine_section
+	for exclusive_phase_var: Variant in _runtime_performance_exclusive_totals_usec.keys():
+		var exclusive_phase: String = str(exclusive_phase_var)
+		if result.has(exclusive_phase):
+			continue
+		var exclusive_usec: int = int(_runtime_performance_exclusive_totals_usec[exclusive_phase_var])
+		var exclusive_segments: int = int(_runtime_performance_exclusive_segment_counts.get(exclusive_phase, 0))
+		result[exclusive_phase] = {
+			"count": exclusive_segments,
+			"total_usec": 0,
+			"exclusive_total_usec": exclusive_usec,
+			"exclusive_segment_count": exclusive_segments,
+			"max_usec": exclusive_usec,
+			"usec_per_call": float(exclusive_usec) / float(exclusive_segments) if exclusive_segments > 0 else 0.0,
+		}
 	return result
 
 func consume_runtime_performance_instrumentation_snapshot() -> Dictionary:
 	var result: Dictionary = runtime_performance_instrumentation_snapshot()
 	_runtime_performance_totals_usec.clear()
 	_runtime_performance_counts.clear()
+	_runtime_performance_max_usec.clear()
+	_runtime_performance_exclusive_totals_usec.clear()
+	_runtime_performance_exclusive_segment_counts.clear()
+	_runtime_performance_telemetry_overhead_usec = 0
+	_runtime_performance_record_overhead_live_usec = 0
+	_runtime_performance_commit_overhead_usec = 0
 	_combat_engine.clear_runtime_performance_instrumentation_snapshot()
 	return result
+
+func runtime_performance_frame_instrumentation_snapshot() -> Dictionary:
+	_commit_runtime_performance_frame()
+	return {
+		"top_frames": _runtime_performance_frame_top.duplicate(true),
+		"inclusive_phase_times": true,
+		"exclusive_phase_times": true,
+		"telemetry_record_overhead_usec": _runtime_performance_record_overhead_live_usec,
+		"telemetry_commit_overhead_usec": _runtime_performance_commit_overhead_usec,
+		"telemetry_masked_parent_overlap_usec": _runtime_performance_telemetry_overhead_usec,
+		"note": "phase_usec retains inclusive diagnostics; exclusive_phase_usec partitions measured CPU intervals without overlap.",
+	}
 
 func runtime_animation_clock_snapshot() -> Dictionary:
 	return _runtime_animation_clock_stats.duplicate(true)
@@ -16999,10 +17143,106 @@ func _record_runtime_animation_clock(
 func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	if not _runtime_performance_instrumentation_enabled:
 		return 0
-	var now_usec: int = Time.get_ticks_usec()
-	_runtime_performance_totals_usec[phase] = int(_runtime_performance_totals_usec.get(phase, 0)) + now_usec - started_usec
+	var measured_end_usec: int = Time.get_ticks_usec()
+	var elapsed_usec: int = measured_end_usec - started_usec
+	_runtime_performance_totals_usec[phase] = int(_runtime_performance_totals_usec.get(phase, 0)) + elapsed_usec
 	_runtime_performance_counts[phase] = int(_runtime_performance_counts.get(phase, 0)) + 1
-	return now_usec
+	_runtime_performance_max_usec[phase] = maxi(int(_runtime_performance_max_usec.get(phase, 0)), elapsed_usec)
+	_record_runtime_performance_frame_phase(phase, started_usec, measured_end_usec)
+	var bookkeeping_end_usec: int = Time.get_ticks_usec()
+	_record_runtime_performance_diagnostic_interval(measured_end_usec, bookkeeping_end_usec)
+	return Time.get_ticks_usec()
+
+func _record_external_runtime_performance_interval(
+	phase: String,
+	started_usec: int,
+	ended_usec: int,
+	diagnostic_only: bool = false
+) -> void:
+	if not _runtime_performance_instrumentation_enabled:
+		return
+	if diagnostic_only:
+		_record_runtime_performance_diagnostic_interval(started_usec, ended_usec)
+	else:
+		_record_runtime_performance_frame_phase(phase, started_usec, ended_usec)
+
+func _record_runtime_performance_diagnostic_interval(started_usec: int, ended_usec: int) -> void:
+	if ended_usec <= started_usec or _runtime_performance_frame_id < 0:
+		return
+	_runtime_performance_record_overhead_live_usec += ended_usec - started_usec
+	_runtime_performance_frame_intervals.append({
+		"phase": "telemetry_record_overhead",
+		"start_usec": started_usec,
+		"end_usec": ended_usec,
+		"diagnostic_only": true,
+		"exclude_covered_cpu": true,
+		"priority": 100,
+	})
+
+func _runtime_slice_cpu_elapsed_usec(started_usec: int, overhead_started_usec: int) -> int:
+	return _runtime_elapsed_excluding_telemetry_usec(
+		Time.get_ticks_usec() - started_usec,
+		_runtime_performance_record_overhead_live_usec - overhead_started_usec
+	)
+
+func _runtime_elapsed_excluding_telemetry_usec(wall_elapsed_usec: int, telemetry_overhead_usec: int) -> int:
+	return maxi(0, wall_elapsed_usec - telemetry_overhead_usec)
+
+func _record_runtime_performance_frame_phase(phase: String, started_usec: int, ended_usec: int) -> void:
+	var frame_id: int = Engine.get_process_frames()
+	if _runtime_performance_frame_id != frame_id:
+		_commit_runtime_performance_frame()
+		_runtime_performance_frame_id = frame_id
+	var elapsed_usec: int = maxi(0, ended_usec - started_usec)
+	_runtime_performance_frame_total_usec += elapsed_usec
+	_runtime_performance_frame_phase_usec[phase] = int(_runtime_performance_frame_phase_usec.get(phase, 0)) + elapsed_usec
+	_runtime_performance_frame_intervals.append({
+		"phase": phase,
+		"start_usec": started_usec,
+		"end_usec": ended_usec,
+		"diagnostic_only": RUNTIME_PERFORMANCE_DIAGNOSTIC_PHASES.has(phase),
+		"priority": 10 if not phase.ends_with("_total") else 0,
+	})
+
+func _commit_runtime_performance_frame() -> void:
+	if _runtime_performance_frame_id < 0 or _runtime_performance_frame_phase_usec.is_empty():
+		return
+	var commit_started_usec: int = Time.get_ticks_usec()
+	var partition: Dictionary = PerformancePhasePartitionerScript.partition(_runtime_performance_frame_intervals)
+	var exclusive_phase_usec: Dictionary = partition.get("phase_usec", {}) as Dictionary
+	var exclusive_segment_counts: Dictionary = partition.get("phase_segment_counts", {}) as Dictionary
+	for phase_var: Variant in exclusive_phase_usec.keys():
+		var phase: String = str(phase_var)
+		_runtime_performance_exclusive_totals_usec[phase] = (
+			int(_runtime_performance_exclusive_totals_usec.get(phase, 0))
+			+ int(exclusive_phase_usec[phase_var])
+		)
+		_runtime_performance_exclusive_segment_counts[phase] = (
+			int(_runtime_performance_exclusive_segment_counts.get(phase, 0))
+			+ int(exclusive_segment_counts.get(phase, 0))
+		)
+	_runtime_performance_telemetry_overhead_usec += int(partition.get("excluded_usec", 0))
+	_runtime_performance_frame_top.append({
+		"frame_id": _runtime_performance_frame_id,
+		"inclusive_total_usec": _runtime_performance_frame_total_usec,
+		"exclusive_total_usec": int(partition.get("total_usec", 0)),
+		"telemetry_masked_parent_overlap_usec": int(partition.get("excluded_usec", 0)),
+		"phase_usec": _runtime_performance_frame_phase_usec.duplicate(true),
+		"exclusive_phase_usec": exclusive_phase_usec.duplicate(true),
+	})
+	_runtime_performance_frame_top.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_total: int = int(a.get("exclusive_total_usec", 0))
+		var b_total: int = int(b.get("exclusive_total_usec", 0))
+		return a_total > b_total if a_total != b_total else int(a.get("frame_id", 0)) < int(b.get("frame_id", 0))
+	)
+	if _runtime_performance_frame_top.size() > 40:
+		_runtime_performance_frame_top.resize(40)
+	_runtime_performance_frame_id = -1
+	_runtime_performance_frame_total_usec = 0
+	_runtime_performance_frame_phase_usec.clear()
+	_runtime_performance_frame_intervals.clear()
+	var commit_elapsed_usec: int = Time.get_ticks_usec() - commit_started_usec
+	_runtime_performance_commit_overhead_usec += commit_elapsed_usec
 
 func _enemy_intent_preview_state(display_state: Dictionary) -> Dictionary:
 	if _selected_card_index < 0 or _preview_combat_state.is_empty():
@@ -17413,6 +17653,8 @@ func _active_card_preview() -> Dictionary:
 	return {}
 
 func _card_preview_for_index(index: int) -> Dictionary:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
 	if _combat_state.is_empty():
 		return {}
 	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
@@ -17422,18 +17664,28 @@ func _card_preview_for_index(index: int) -> Dictionary:
 		return {}
 	var cache_key: String = _card_preview_cache_key(index)
 	if _card_preview_cache.has(cache_key):
+		_record_runtime_performance_phase("card_preview_cache_hit", performance_phase_started)
 		return _card_preview_cache.get(cache_key, {}) as Dictionary
 	var card_id: String = str(hand[index])
 	var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, index, "play")
-	var preview: Dictionary = _card_preview_from_state(card_id, prepared_state, _combat_engine.card_play_actions(card_id, prepared_state), 0)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_prepare", performance_phase_started)
+	var actions: Array = _combat_engine.card_play_actions(card_id, prepared_state)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_actions", performance_phase_started)
+	var preview: Dictionary = _card_preview_from_state(card_id, prepared_state, actions, 0)
+	performance_phase_started = _record_runtime_performance_phase("card_preview_walk_total", performance_phase_started)
 	_card_preview_cache[cache_key] = preview
+	_record_runtime_performance_phase("card_preview_total", performance_total_started)
 	return preview
 
 func _card_play_options_for_index(index: int) -> Dictionary:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
 	var cache_key: String = _card_preview_cache_key(index, "options")
 	if _card_play_options_cache.has(cache_key):
+		_record_runtime_performance_phase("card_play_options_cache_hit", performance_phase_started)
 		return _card_play_options_cache.get(cache_key, {}) as Dictionary
 	var printed: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index))
+	performance_phase_started = _record_runtime_performance_phase("card_play_options_preview_total", performance_phase_started)
 	var printed_playable: bool = bool(printed.get("playable", false))
 	var options: Dictionary = {
 		"play": printed,
@@ -17445,6 +17697,7 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 		"any_playable": printed_playable
 	}
 	_card_play_options_cache[cache_key] = options
+	_record_runtime_performance_phase("card_play_options_total", performance_total_started)
 	return options
 
 func _show_card_action_choices(index: int, options: Dictionary) -> void:
@@ -17673,6 +17926,9 @@ func _mark_preview_selection_changed() -> void:
 	_invalidate_preview_derived_caches()
 
 func _invalidate_preview_derived_caches() -> void:
+	_pass_preview_warm_generation += 1
+	_pass_preview_warm_active = false
+	_pass_preview_warm_key = ""
 	_preview_shortcuts_cache_key = ""
 	_preview_shortcuts_cache.clear()
 	_pass_preview_cache.clear()
@@ -17741,7 +17997,118 @@ func _cache_pass_preview(key: String, summary: Dictionary) -> void:
 		var expired_key: String = _pass_preview_cache_order.pop_front()
 		_pass_preview_cache.erase(expired_key)
 
-func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions: Array, action_index: int, has_effect: bool = false, use_position_only_move_legality: bool = true) -> Dictionary:
+func _schedule_pass_preview_cache_warm(include_playable_analytics: bool = false) -> void:
+	var cache_key: String = _pass_preview_key()
+	if _pass_preview_cache.has(cache_key) and not include_playable_analytics:
+		return
+	var source_state: Dictionary = _pass_preview_source_state()
+	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
+		_cache_pass_preview(cache_key, {})
+		return
+	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
+	_pass_preview_warm_generation += 1
+	var generation: int = _pass_preview_warm_generation
+	_pass_preview_warm_active = true
+	_pass_preview_warm_key = cache_key
+	_warm_pass_preview_cache_across_frames(
+		generation,
+		cache_key,
+		source_state,
+		scheduled_state,
+		include_playable_analytics
+	)
+
+func _warm_pass_preview_cache_across_frames(
+	generation: int,
+	cache_key: String,
+	source_state: Dictionary,
+	scheduled_state: Dictionary,
+	include_playable_analytics: bool
+) -> void:
+	if include_playable_analytics:
+		await RenderingServer.frame_post_draw
+		if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
+			return
+		await _reconcile_skill_event_analytics_across_frames()
+		if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
+			return
+		var playable_logged: Dictionary = (_analytics_combat_tracker.get("playable_logged", {}) as Dictionary).duplicate(true)
+		var events: Array[Dictionary] = []
+		var base_context: Dictionary = {}
+		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+		var hand_ids: Array = _analytics_zone_ids(_analytics_combat_tracker, "hand")
+		for index: int in range(mini(hand.size(), hand_ids.size())):
+			await RenderingServer.frame_post_draw
+			if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
+				return
+			var playable_slice_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+			var instance_id: String = str(hand_ids[index])
+			if not bool(playable_logged.get(instance_id, false)):
+				var options: Dictionary = _card_play_options_for_index(index)
+				if bool(options.get("any_playable", false)):
+					var card_id: String = str(hand[index])
+					playable_logged[instance_id] = true
+					if base_context.is_empty():
+						base_context = _analytics_context_from_states(_run_state, _combat_state)
+					var context: Dictionary = base_context.duplicate(true)
+					context["card_id"] = card_id
+					context["card_instance_id"] = instance_id
+					events.append({
+						"event_type": "card_became_playable",
+						"context": context,
+						"payload": {
+							"hand_index": index,
+							"printed_playable": bool(options.get("printed_playable", false)),
+							"attack_playable": bool(options.get("attack_playable", false)),
+							"move_playable": bool(options.get("move_playable", false)),
+							"blink_playable": bool(options.get("blink_playable", false)),
+						}
+					})
+			_record_runtime_performance_phase("analytics_playable_warm_slice_total", playable_slice_started)
+		_analytics_combat_tracker["playable_logged"] = playable_logged
+		var playable_write_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_analytics_store.write_events(events)
+		_record_runtime_performance_phase("analytics_playable_warm_write", playable_write_started)
+	if _pass_preview_cache.has(cache_key):
+		if generation == _pass_preview_warm_generation:
+			_pass_preview_warm_active = false
+			_pass_preview_warm_key = ""
+		return
+	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled_state)
+	while not bool(cursor.get("complete", false)):
+		await RenderingServer.frame_post_draw
+		if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
+			return
+		var slice_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_combat_engine.advance_revealed_enemy_actions_preview(cursor)
+		_record_runtime_performance_phase("pass_preview_warm_slice_total", slice_started)
+	if generation != _pass_preview_warm_generation or cache_key != _pass_preview_key():
+		return
+	var phase_result: Dictionary = _combat_engine.revealed_enemy_actions_preview_result(cursor)
+	_pass_preview_summary_from_phase_result(cache_key, source_state, phase_result)
+	if generation == _pass_preview_warm_generation:
+		_pass_preview_warm_active = false
+		_pass_preview_warm_key = ""
+
+func _await_pass_preview_cache_warm() -> void:
+	var generation: int = _pass_preview_warm_generation
+	var cache_key: String = _pass_preview_warm_key
+	while (
+		_pass_preview_warm_active
+		and generation == _pass_preview_warm_generation
+		and cache_key == _pass_preview_warm_key
+	):
+		await RenderingServer.frame_post_draw
+
+func _card_preview_from_state(
+	card_id: String,
+	combat_state: Dictionary,
+	actions: Array,
+	action_index: int,
+	has_effect: bool = false,
+	use_position_only_move_legality: bool = true,
+	allow_skip_suffix_shortcut: bool = true
+) -> Dictionary:
 	var working_state: Dictionary = combat_state
 	var cursor: int = action_index
 	var effect_seen: bool = has_effect or action_index > 0
@@ -17823,6 +18190,27 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 					"target_tiles": _vector2i_array(candidate_targets),
 					"complete": false,
 					"playable": not candidate_targets.is_empty(),
+					"action": action,
+					"skip_allowed": skip_playable
+				}
+			# Every candidate was already validated for the current action. If the
+			# remainder can be omitted after that action takes effect, applying the
+			# current attack to every candidate cannot change whether the card has a
+			# legal continuation. This avoids cloning and resolving dense combat state
+			# once per target for Flurry and other optional multi-action suffixes.
+			if (
+				allow_skip_suffix_shortcut
+				and not candidate_targets.is_empty()
+				and _continuation_can_finish_by_skipping_targets(actions, cursor + 1, true)
+			):
+				return {
+					"card_id": card_id,
+					"state": working_state,
+					"actions": actions,
+					"action_index": cursor,
+					"target_tiles": _vector2i_array(candidate_targets),
+					"complete": false,
+					"playable": true,
 					"action": action,
 					"skip_allowed": skip_playable
 				}
@@ -18063,6 +18451,8 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	performance_phase_started = _record_runtime_performance_phase("preview_effect", performance_phase_started)
 	if not effect.is_empty():
 		result["effect"] = effect
+		if action_type == "aoe" and bool(effect.get("preview", false)) and not (effect.get("tiles", []) as Array).is_empty():
+			result["player_aoe_preview_active"] = true
 	var preview_units: Array = _preview_units_for_action(preview)
 	performance_phase_started = _record_runtime_performance_phase("preview_units", performance_phase_started)
 	if not preview_units.is_empty():
@@ -18607,7 +18997,7 @@ func _preview_immediate_attack_shortcuts(
 			else:
 				after_move_state = _combat_engine.apply_planned_player_move(preview_state, move_action, move_target, movement_plan)
 		candidate_phase_started = _record_runtime_performance_phase(
-			"shortcut_move_deferred" if safely_deferred else "shortcut_move_exact",
+			"shortcut_move_deferred" if safely_deferred else "shortcut_move_exact_total",
 			candidate_phase_started
 		)
 		var movement_risk_chips: Array = (
@@ -18630,7 +19020,7 @@ func _preview_immediate_attack_shortcuts(
 			int(candidate.get("route_traps", 0)),
 			int(candidate.get("route_pickups", 0))
 		)
-		candidate_phase_started = _record_runtime_performance_phase("shortcut_collect_attack", candidate_phase_started)
+		candidate_phase_started = _record_runtime_performance_phase("shortcut_collect_attack_total", candidate_phase_started)
 		if safely_deferred:
 			_annotate_deferred_shortcut_plans(plans, candidate, preview_state, move_action)
 	var tiles: Array[Vector2i] = []
@@ -19390,7 +19780,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_append_skipped_target_placeholders(0, _pending_action_index)
 		_mark_preview_selection_changed()
 		_refresh_card_preview_ui()
-		_record_runtime_performance_phase("card_preview_refresh", performance_phase_started)
+		_record_runtime_performance_phase("card_preview_refresh_total", performance_phase_started)
 		if complete_play_confirmed:
 			await _on_confirm_card_play_pressed()
 		return
@@ -19415,7 +19805,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_append_skipped_target_placeholders(0, _pending_action_index)
 	_mark_preview_selection_changed()
 	_refresh_card_preview_ui()
-	_record_runtime_performance_phase("card_preview_refresh", performance_phase_started)
+	_record_runtime_performance_phase("card_preview_refresh_total", performance_phase_started)
 
 func _pending_card_requires_confirmation() -> bool:
 	return (
@@ -19482,13 +19872,13 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 		var stage_refresh_needed: bool = _board_hover_stage_refresh_needed(presented_tile)
 		if stage_refresh_needed:
 			_refresh_stage_view()
-		performance_phase_started = _record_runtime_performance_phase("hover_stage_refresh", performance_phase_started)
+		performance_phase_started = _record_runtime_performance_phase("hover_stage_refresh_total", performance_phase_started)
 		var action_context_can_change: bool = _pass_preview_hover_can_change()
 		performance_phase_started = _record_runtime_performance_phase("hover_context_check", performance_phase_started)
 		if action_context_can_change:
 			var previous_tracker_minimum: Vector2 = _action_step_tracker.get_combined_minimum_size() if _action_step_tracker != null else Vector2.ZERO
 			_update_action_context_copy()
-			performance_phase_started = _record_runtime_performance_phase("hover_context_copy", performance_phase_started)
+			performance_phase_started = _record_runtime_performance_phase("hover_context_copy_total", performance_phase_started)
 			var next_tracker_minimum: Vector2 = _action_step_tracker.get_combined_minimum_size() if _action_step_tracker != null else Vector2.ZERO
 			if not previous_tracker_minimum.is_equal_approx(next_tracker_minimum):
 				_layout_action_step_tracker()
@@ -20156,9 +20546,11 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
+	_play_card_play_sfx()
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
+	_consume_pending_card_draw_sfx(committed_combat_state)
 	await _animate_enemy_loss_feedback_between_states(
 		pre_commit_combat_state,
 		committed_combat_state,
@@ -20318,8 +20710,154 @@ func _animate_card_consumed_fx(card_id: String, size_hint: Vector2, staged_proxy
 	await tween.finished
 	_release_card_proxy(proxy)
 
-func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = Rect2()) -> void:
-	if _card_fx_layer == null or draw_entries.is_empty():
+func _animate_staged_draw_hand_fx(
+	draw_entries: Array,
+	source_rect: Rect2,
+	hand_transition: Dictionary
+) -> void:
+	var source_hand: Array[String] = _card_id_array(hand_transition.get("source_hand", []))
+	var target_hand: Array[String] = _card_id_array(hand_transition.get("target_hand", []))
+	var hidden_source_indices: Array[int] = _int_index_array(hand_transition.get("hidden_source_indices", []))
+	if target_hand.is_empty() or _card_fx_layer == null:
+		return
+
+	var source_cards: Array[String]
+	var source_proxies: Array[Control]
+	var can_reuse_staged_hand: bool = (
+		_draw_hand_transition_cards.size() == _draw_hand_transition_proxies.size()
+		and not _draw_hand_transition_cards.is_empty()
+	)
+	if can_reuse_staged_hand:
+		source_cards.append_array(_draw_hand_transition_cards)
+		source_proxies.append_array(_draw_hand_transition_proxies)
+	else:
+		if not _draw_hand_transition_proxies.is_empty():
+			_finish_draw_hand_transition_for_refresh()
+		_end_locked_hand_render_cache()
+		for source_index: int in range(source_hand.size()):
+			if hidden_source_indices.has(source_index):
+				continue
+			var source_card_rect: Rect2 = _hand_card_global_rect(source_index)
+			if source_card_rect.size.x <= 0.0 or source_card_rect.size.y <= 0.0:
+				continue
+			var retained_proxy: Control = _spawn_card_proxy(source_hand[source_index], source_card_rect)
+			_mount_card_proxy(retained_proxy, _card_fx_layer, source_card_rect)
+			var source_slot: Control = hand_box.get_child(source_index) as Control if source_index < hand_box.get_child_count() else null
+			if source_slot != null:
+				retained_proxy.rotation = source_slot.get_global_transform_with_canvas().get_rotation()
+			var source_widget: Control = _hand_card_control(source_index)
+			if source_widget != null:
+				retained_proxy.modulate = source_widget.modulate
+			source_cards.append(source_hand[source_index])
+			source_proxies.append(retained_proxy)
+	if hand_box != null:
+		hand_box.visible = false
+
+	var incoming_by_target: Dictionary = {}
+	for entry_var: Variant in draw_entries:
+		if not (entry_var is Dictionary):
+			continue
+		var entry: Dictionary = entry_var
+		var target_index: int = int(entry.get("index", -1))
+		if target_index >= 0 and target_index < target_hand.size():
+			incoming_by_target[target_index] = entry
+
+	var target_card_size: Vector2 = _hand_card_size(target_hand.size(), false)
+	var base_duration: float = DRAW_FRAME_SECONDS * (0.62 if _reduced_motion_enabled() else 1.0)
+	var total_duration: float = base_duration + float(maxi(0, draw_entries.size() - 1)) * DRAW_STAGGER_SECONDS
+	var used_source: Array[bool]
+	used_source.resize(source_proxies.size())
+	var target_proxies: Array[Control]
+	target_proxies.resize(target_hand.size())
+	var completion_tween: Tween = null
+	var draw_order: int = 0
+	for target_index: int in range(target_hand.size()):
+		var target_rect: Rect2 = _hand_receive_rect(target_index, target_hand.size(), target_card_size)
+		var target_rotation: float = HandFanContainer.card_rotation_for_layout(target_index, target_hand.size(), true)
+		var proxy: Control = null
+		var tween: Tween = null
+		if incoming_by_target.has(target_index):
+			var incoming_entry: Dictionary = incoming_by_target[target_index] as Dictionary
+			var incoming_card_id: String = str(incoming_entry.get("card_id", target_hand[target_index]))
+			proxy = _spawn_card_proxy(incoming_card_id, source_rect)
+			_mount_card_proxy(proxy, _card_fx_layer, source_rect)
+			var reduced_motion: bool = _reduced_motion_enabled()
+			if not reduced_motion:
+				proxy.rotation = deg_to_rad(-9.0 + float(draw_order) * 2.0)
+				proxy.modulate = Color(1.0, 1.0, 1.0, 0.82)
+			tween = _start_card_proxy_arc(
+				proxy,
+				target_rect,
+				0.0 if reduced_motion else CARD_DRAW_ARC_HEIGHT + float(draw_order) * 5.0,
+				base_duration,
+				target_rotation,
+				Color.WHITE,
+				0.0 if reduced_motion else 0.018,
+				float(draw_order) * DRAW_STAGGER_SECONDS
+			)
+			draw_order += 1
+			if draw_order == draw_entries.size():
+				completion_tween = tween
+		else:
+			var matched_source_index: int = -1
+			for source_index: int in range(source_cards.size()):
+				if not used_source[source_index] and source_cards[source_index] == target_hand[target_index]:
+					matched_source_index = source_index
+					break
+			if matched_source_index >= 0:
+				used_source[matched_source_index] = true
+				proxy = source_proxies[matched_source_index]
+				tween = _start_card_proxy_arc(
+					proxy,
+					target_rect,
+					0.0,
+					total_duration,
+					target_rotation,
+					Color.WHITE
+				)
+				if completion_tween == null:
+					completion_tween = tween
+			else:
+				# State repair should never need this path, but keep the visual fail-open:
+				# an unmatched retained identity appears in its authoritative slot instead
+				# of leaving an invisible reserved gap.
+				proxy = _spawn_card_proxy(target_hand[target_index], target_rect)
+				_mount_card_proxy(proxy, _card_fx_layer, target_rect)
+				proxy.rotation = target_rotation
+		if proxy != null:
+			proxy.z_index = 122 + target_index
+			target_proxies[target_index] = proxy
+
+	for source_index: int in range(source_proxies.size()):
+		if not used_source[source_index]:
+			_release_card_proxy(source_proxies[source_index])
+	_draw_hand_transition_cards.clear()
+	_draw_hand_transition_cards.append_array(target_hand)
+	_draw_hand_transition_proxies.clear()
+	for proxy: Control in target_proxies:
+		if proxy != null:
+			_draw_hand_transition_proxies.append(proxy)
+
+	if completion_tween != null:
+		await completion_tween.finished
+	if not _card_fx_can_continue_combat():
+		_finish_draw_hand_transition_for_refresh()
+		return
+	for proxy: Control in _draw_hand_transition_proxies:
+		if _node_is_alive(proxy) and proxy.has_meta("active_card_proxy_tween"):
+			proxy.remove_meta("active_card_proxy_tween")
+
+func _animate_draw_cards_fx(
+	draw_entries: Array,
+	source_rect_override: Rect2 = Rect2(),
+	draw_sfx_count: int = -1,
+	hand_transition: Dictionary = {}
+) -> void:
+	if not _card_fx_can_continue_combat():
+		return
+	var resolved_draw_sfx_count: int = draw_entries.size() if draw_sfx_count < 0 else maxi(0, draw_sfx_count)
+	_schedule_card_draw_sfx_sequence(resolved_draw_sfx_count)
+	if draw_entries.is_empty():
 		return
 	var final_total: int = draw_entries.size()
 	for entry_var: Variant in draw_entries:
@@ -20329,6 +20867,9 @@ func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = R
 	var source_rect: Rect2 = source_rect_override
 	if source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
 		source_rect = _rect_from_center(_pile_global_rect("draw").get_center(), size_hint * 0.54)
+	if not _card_id_array(hand_transition.get("target_hand", [])).is_empty():
+		await _animate_staged_draw_hand_fx(draw_entries, source_rect, hand_transition)
+		return
 	var draw_proxies: Array[Control] = []
 	var draw_tweens: Array[Tween] = []
 	for draw_index: int in range(draw_entries.size()):
@@ -20383,18 +20924,99 @@ func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = R
 	# refresh replaces them. Releasing each one at arrival caused a blank-frame pop
 	# between the flight and the real hand card appearing.
 
+func _schedule_card_draw_sfx_sequence(draw_count: int) -> void:
+	for draw_index: int in range(maxi(0, draw_count)):
+		_schedule_card_draw_sfx(float(draw_index) * DRAW_STAGGER_SECONDS)
+
+func _schedule_card_draw_sfx(delay_seconds: float) -> void:
+	if delay_seconds <= 0.0:
+		_play_card_draw_sfx()
+		return
+	get_tree().create_timer(delay_seconds).timeout.connect(_play_card_draw_sfx)
+
+func _play_card_draw_sfx() -> void:
+	if not _card_fx_can_continue_combat():
+		return
+	_play_sfx(CARD_DRAW_SFX_ENTRY)
+
+func _play_card_play_sfx() -> void:
+	if not _card_fx_can_continue_combat():
+		return
+	_play_sfx(CARD_PLAY_SFX_ENTRY)
+
+func _play_reward_card_flip_sfx() -> void:
+	_play_sfx(REWARD_CARD_FLIP_SFX_ENTRY)
+
+func _play_item_equip_sfx() -> void:
+	_play_sfx(ITEM_EQUIP_SFX_ENTRY)
+
+func _play_reward_collect_sfx() -> void:
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.REWARD_ACCEPTED_ID))
+
+func _play_relic_choices_open_sfx_once(offer_signature: String) -> void:
+	if offer_signature.is_empty() or offer_signature == _relic_choices_open_sfx_signature:
+		return
+	_relic_choices_open_sfx_signature = offer_signature
+	_play_sfx(RELIC_CHOICES_OPEN_SFX_ENTRY)
+
 func _card_fx_can_continue_combat() -> bool:
 	return _node_is_alive(_card_fx_layer) and str(_run_state.get("mode", "room")) == "combat"
 
-func _draw_entries_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+static func card_draw_revision(combat_state: Dictionary) -> int:
+	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
+	return maxi(0, int(deck.get("draw_revision", 0)))
+
+static func card_draw_sfx_count_between_states(before_state: Dictionary, after_state: Dictionary) -> int:
+	return maxi(0, card_draw_revision(after_state) - card_draw_revision(before_state))
+
+static func opening_hand_draw_sfx_count(combat_state: Dictionary) -> int:
+	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
+	if deck.has("draw_revision"):
+		return card_draw_revision(combat_state)
+	return (deck.get("hand", []) as Array).size()
+
+func _baseline_card_draw_sfx_revision(combat_state: Dictionary) -> void:
+	_card_draw_sfx_revision_seen = card_draw_revision(combat_state)
+
+func _take_pending_card_draw_sfx_count(combat_state: Dictionary) -> int:
+	var revision: int = card_draw_revision(combat_state)
+	if revision <= _card_draw_sfx_revision_seen:
+		return 0
+	var draw_count: int = revision - _card_draw_sfx_revision_seen
+	_card_draw_sfx_revision_seen = revision
+	return draw_count
+
+func _consume_pending_card_draw_sfx(combat_state: Dictionary) -> int:
+	if not _card_fx_can_continue_combat():
+		return 0
+	var draw_count: int = _take_pending_card_draw_sfx_count(combat_state)
+	_schedule_card_draw_sfx_sequence(draw_count)
+	return draw_count
+
+func _card_id_array(value: Variant) -> Array[String]:
+	var result: Array[String]
+	if value is Array:
+		for card_id_var: Variant in value:
+			result.append(str(card_id_var))
+	return result
+
+func _int_index_array(value: Variant) -> Array[int]:
+	var result: Array[int]
+	if value is Array:
+		for index_var: Variant in value:
+			result.append(int(index_var))
+	return result
+
+func _combat_hand_cards(combat_state: Dictionary) -> Array[String]:
+	return _card_id_array((combat_state.get("deck", {}) as Dictionary).get("hand", []))
+
+func _draw_entries_between_hands(before_hand: Array[String], after_hand: Array[String]) -> Array[Dictionary]:
 	var before_counts: Dictionary = {}
-	for card_id_var: Variant in (before_state.get("deck", {}) as Dictionary).get("hand", []):
-		var card_id: String = str(card_id_var)
+	for card_id: String in before_hand:
 		before_counts[card_id] = int(before_counts.get(card_id, 0)) + 1
-	var after_hand: Array = (after_state.get("deck", {}) as Dictionary).get("hand", [])
-	var drawn: Array[Dictionary] = []
+	var drawn: Array[Dictionary]
 	for index: int in range(after_hand.size()):
-		var card_id: String = str(after_hand[index])
+		var card_id: String = after_hand[index]
 		var remaining: int = int(before_counts.get(card_id, 0))
 		if remaining > 0:
 			before_counts[card_id] = remaining - 1
@@ -20405,6 +21027,34 @@ func _draw_entries_between_states(before_state: Dictionary, after_state: Diction
 			"total": after_hand.size()
 		})
 	return drawn
+
+func _draw_hand_transition_between_states(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	hidden_source_index: int = -1,
+	target_still_contains_hidden_source: bool = false
+) -> Dictionary:
+	var source_hand: Array[String] = _combat_hand_cards(before_state)
+	var visible_before_hand: Array[String] = source_hand.duplicate()
+	var target_hand: Array[String] = _combat_hand_cards(after_state)
+	var hidden_source_indices: Array[int]
+	if hidden_source_index >= 0 and hidden_source_index < source_hand.size():
+		hidden_source_indices.append(hidden_source_index)
+		visible_before_hand.remove_at(hidden_source_index)
+		if target_still_contains_hidden_source and hidden_source_index < target_hand.size():
+			target_hand.remove_at(hidden_source_index)
+	return {
+		"source_hand": source_hand,
+		"target_hand": target_hand,
+		"hidden_source_indices": hidden_source_indices,
+		"draw_entries": _draw_entries_between_hands(visible_before_hand, target_hand),
+	}
+
+func _draw_entries_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	return _draw_entries_between_hands(
+		_combat_hand_cards(before_state),
+		_combat_hand_cards(after_state)
+	)
 
 func _death_rewards_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_count: int = (before_state.get("death_rewards", []) as Array).size()
@@ -20482,6 +21132,59 @@ func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
 	await settle.finished
 	label.add_theme_color_override("font_color", Color("fff7df"))
 
+
+func _start_overlapping_draw_cards_fx(
+	draw_entries: Array,
+	source_rect_override: Rect2,
+	draw_sfx_count: int,
+	hand_transition: Dictionary = {}
+) -> Dictionary:
+	var completion: Dictionary = {"done": false}
+	_player_popup_companion_states.append(completion)
+	_animate_draw_cards_fx_and_complete(
+		draw_entries,
+		source_rect_override,
+		draw_sfx_count,
+		hand_transition,
+		completion
+	)
+	return completion
+
+
+func _animate_draw_cards_fx_and_complete(
+	draw_entries: Array,
+	source_rect_override: Rect2,
+	draw_sfx_count: int,
+	hand_transition: Dictionary,
+	completion: Dictionary
+) -> void:
+	await _animate_draw_cards_fx(draw_entries, source_rect_override, draw_sfx_count, hand_transition)
+	completion["done"] = true
+
+
+func _start_overlapping_card_play_reward(displayed_card_plays: int) -> Dictionary:
+	var completion: Dictionary = {"done": false}
+	_player_popup_companion_states.append(completion)
+	_animate_card_play_reward_and_complete(displayed_card_plays, completion)
+	return completion
+
+
+func _animate_card_play_reward_and_complete(displayed_card_plays: int, completion: Dictionary) -> void:
+	await _animate_card_play_reward(displayed_card_plays)
+	completion["done"] = true
+
+
+func _start_overlapping_intensity_gain(element_id: String, displayed_value: int) -> Dictionary:
+	var completion: Dictionary = {"done": false}
+	_player_popup_companion_states.append(completion)
+	_animate_intensity_gain_and_complete(element_id, displayed_value, completion)
+	return completion
+
+
+func _animate_intensity_gain_and_complete(element_id: String, displayed_value: int, completion: Dictionary) -> void:
+	await _animate_intensity_gain(element_id, displayed_value)
+	completion["done"] = true
+
 func _animate_ember_reward(_source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
 	await EmberRewardFeedback.play(
 		self,
@@ -20501,12 +21204,74 @@ func _set_ember_reward_display_count(value: int) -> void:
 func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
 	return board_view.global_position + board_view.world_position_for_tile(tile)
 
-func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, initial_elapsed_seconds: float = 0.0) -> void:
+func _begin_player_popup_timeline() -> void:
+	_player_popup_timeline_active = true
+	_player_popup_timeline_started_usec = Time.get_ticks_usec()
+	_player_popup_timeline_groups.clear()
+	_player_popup_companion_states.clear()
+
+
+func _player_popup_timeline_elapsed_seconds() -> float:
+	if not _player_popup_timeline_active or _player_popup_timeline_started_usec <= 0:
+		return 0.0
+	return float(Time.get_ticks_usec() - _player_popup_timeline_started_usec) / 1000000.0
+
+
+func _queue_player_popup_group(base_texts: Array, initial_elapsed_seconds: float = 0.0) -> void:
+	if not _player_popup_timeline_active or base_texts.is_empty():
+		return
+	_player_popup_timeline_groups.append(FloatingCombatText.timeline_group(
+		base_texts,
+		maxf(0.0, _player_popup_timeline_elapsed_seconds() - maxf(0.0, initial_elapsed_seconds))
+	))
+
+
+func _player_popup_companions_finished() -> bool:
+	for state: Dictionary in _player_popup_companion_states:
+		if not bool(state.get("done", false)):
+			return false
+	return true
+
+
+func _finish_player_popup_timeline(display_state: Dictionary) -> void:
+	if not _player_popup_timeline_active:
+		return
+	var duration_seconds: float = FloatingCombatText.timeline_duration(_player_popup_timeline_groups)
+	while (
+		_player_popup_timeline_elapsed_seconds() < duration_seconds
+		or not _player_popup_companions_finished()
+	):
+		_render_board_state(display_state, {})
+		await get_tree().process_frame
+	_player_popup_timeline_active = false
+	_player_popup_timeline_started_usec = 0
+	_player_popup_timeline_groups.clear()
+	_player_popup_companion_states.clear()
+
+
+func _animate_floating_text_presentation(
+	display_state: Dictionary,
+	base_presentation: Dictionary,
+	initial_elapsed_seconds: float = 0.0,
+	overlap_with_next_action: bool = false,
+	companion_completion: Dictionary = {}
+) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
 	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
 	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
 	var terrain_destruction_units: Array = (base_presentation.get("terrain_destruction_units", []) as Array).duplicate(true)
-	var duration_seconds: float = FloatingCombatText.total_duration(base_texts)
+	var use_player_timeline: bool = (
+		overlap_with_next_action
+		and _player_popup_timeline_active
+		and not base_texts.is_empty()
+	)
+	if use_player_timeline:
+		_queue_player_popup_group(base_texts, initial_elapsed_seconds)
+	var duration_seconds: float = (
+		FloatingCombatText.action_advance_duration(base_texts)
+		if use_player_timeline
+		else FloatingCombatText.total_duration(base_texts)
+	)
 	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
 		_render_board_state(display_state, base_presentation)
 		await get_tree().create_timer(duration_seconds).timeout
@@ -20529,10 +21294,18 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 				)
 		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
 			presentation["effect_progress"] = 1.0 if reduced_motion else t
-		presentation["floating_texts"] = FloatingCombatText.animate_entries(base_texts, elapsed_seconds, reduced_motion)
+		presentation["floating_texts"] = (
+			[]
+			if use_player_timeline
+			else FloatingCombatText.animate_entries(base_texts, elapsed_seconds, reduced_motion)
+		)
 		_render_board_state(display_state, presentation, state_validated_for_animation)
 		state_validated_for_animation = true
-		if elapsed_seconds >= duration_seconds:
+		var companion_finished: bool = (
+			companion_completion.is_empty()
+			or bool(companion_completion.get("done", false))
+		)
+		if elapsed_seconds >= duration_seconds and companion_finished:
 			break
 		await get_tree().process_frame
 
@@ -20680,7 +21453,9 @@ func _animate_defeats_and_terrain_destruction(
 	base_presentation: Dictionary = {},
 	skip_terrain_destruction: bool = false
 ) -> void:
-	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
+	var death_units: Array[Dictionary] = _defeated_player_units_between_states(before_state, after_state)
+	death_units.append_array(_defeated_enemy_units_between_states(before_state, after_state))
+	_start_terminal_defeat_music_if_needed(death_units, after_state)
 	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 	if skip_terrain_destruction:
 		destroyed_terrain.clear()
@@ -20734,7 +21509,8 @@ func _death_hold_presentation(
 	base_presentation: Dictionary = {},
 	terrain_destruction_progress: float = 0.0
 ) -> Dictionary:
-	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
+	var death_units: Array[Dictionary] = _defeated_player_units_between_states(before_state, after_state)
+	death_units.append_array(_defeated_enemy_units_between_states(before_state, after_state))
 	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
 	if death_units.is_empty() and destroyed_terrain.is_empty():
 		return base_presentation
@@ -20898,6 +21674,7 @@ func _set_fatigue_edge_progress(progress: float) -> void:
 	_fatigue_edge_overlay.progress = progress
 
 func _animate_player_card_resolution(animated_state: Dictionary, card_id: String, actions: Array, selected_targets: Array[Vector2i]) -> void:
+	_begin_player_popup_timeline()
 	var target_index: int = 0
 	for action_index: int in range(actions.size()):
 		var action_var: Variant = actions[action_index]
@@ -20916,6 +21693,7 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile)
 		animated_state = after_state
 	_set_action_step_resolution_index(actions.size())
+	await _finish_player_popup_timeline(animated_state)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.04).timeout
 
@@ -20993,6 +21771,24 @@ func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
 	impact_presentation.erase("effect")
 	impact_presentation.erase("effect_progress")
 	return impact_presentation
+
+
+func _attack_feedback_death_hold_presentation(
+	before_state: Dictionary,
+	display_state: Dictionary,
+	base_presentation: Dictionary,
+	terrain_destruction_progress: float = 0.0
+) -> Dictionary:
+	# Lethal attacks start drawing their resolved state as soon as contact occurs.
+	# Keep frame zero composited during that tail of the attack animation so the
+	# defeated actor never disappears between its hit reaction and dissolve.
+	return _death_hold_presentation(
+		before_state,
+		display_state,
+		base_presentation,
+		terrain_destruction_progress
+	)
+
 
 func _impact_decals_for_effect(effect: Dictionary, floating_texts: Array) -> Array[Dictionary]:
 	var decals: Array[Dictionary] = []
@@ -21164,7 +21960,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("9beeff"),
 					"offset": -6.0
 				}]
-			}))
+			}), 0.0, true)
 		"illuminate":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
@@ -21185,7 +21981,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("ffe394"),
 					"offset": -8.0
 				}]
-			})
+			}, 0.0, true)
 		"vision", "truesight", "dispel_umbra":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra -%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
@@ -21198,7 +21994,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("ffe394"),
 					"offset": -8.0
 				}]
-			})
+			}, 0.0, true)
 		"melee", "ranged", "aoe", "push", "pull":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
@@ -21263,6 +22059,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						_reduced_motion_enabled()
 					)
 					effect_display_state = primary_display_state
+					presentation = _attack_feedback_death_hold_presentation(
+						before_state,
+						primary_display_state,
+						presentation,
+						_attack_terrain_destruction_progress(effect, t)
+					)
 					if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
 						presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
 							attack_destroyed_terrain,
@@ -21298,7 +22100,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						_attack_impact_presentation(impact_presentation),
 						1.0
 					),
-					final_feedback_elapsed_seconds
+					final_feedback_elapsed_seconds,
+					true
 				)
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
@@ -21314,7 +22117,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("90d9ff"),
 					"offset": -6.0
 				}]
-			}))
+			}), 0.0, true)
 		"stoneskin":
 			var skin_gain: int = int(player_after.get("stoneskin", 0)) - int(player_before.get("stoneskin", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -21328,7 +22131,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": ElementData.accent(ElementData.EARTH),
 					"offset": -6.0
 				}]
-			}))
+			}), 0.0, true)
 		"heal":
 			var heal_amount: int = int(player_after.get("hp", 0)) - int(player_before.get("hp", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -21342,10 +22145,22 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("9ee27e"),
 					"offset": -6.0
 				}]
-			}))
+			}), 0.0, true)
 		"draw":
 			var draw_amount: int = int(((after_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) - int(((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size())
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var draw_transition: Dictionary = _draw_hand_transition_between_states(
+				before_state,
+				after_state,
+				_animating_hand_card_index,
+				true
+			)
+			_start_overlapping_draw_cards_fx(
+				draw_transition.get("draw_entries", []) as Array,
+				Rect2(),
+				_take_pending_card_draw_sfx_count(after_state),
+				draw_transition
+			)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -21355,12 +22170,13 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("f1d18b"),
 					"offset": -6.0
 				}]
-			}))
-			await _animate_draw_cards_fx(_draw_entries_between_states(before_state, after_state))
-			await get_tree().create_timer(0.12).timeout
+			}), 0.0, true)
 		"card_play":
 			var card_plays_gained: int = maxi(0, _card_play_count_for_resolution_state(after_state) - _card_play_count_for_resolution_state(before_state))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var card_play_reward_completion: Dictionary = _start_overlapping_card_play_reward(
+				_card_play_count_for_resolution_state(after_state)
+			)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -21370,9 +22186,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": Color("ffe27a"),
 					"offset": -6.0
 				}]
-			}))
-			await _animate_card_play_reward(_card_play_count_for_resolution_state(after_state))
-			await get_tree().create_timer(0.10).timeout
+			}), 0.0, true, card_play_reward_completion)
 		"intensity":
 			var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
 			var before_value: int = _combat_engine.elemental_intensity(before_state, element_id)
@@ -21384,6 +22198,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				else "%s %d" % [ElementData.name(element_id), after_value]
 			)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var intensity_completion: Dictionary = _start_overlapping_intensity_gain(element_id, after_value)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -21393,9 +22208,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"color": ElementData.accent(element_id),
 					"offset": -6.0
 				}]
-			}))
-			await _animate_intensity_gain(element_id, after_value)
-			await get_tree().create_timer(0.08).timeout
+			}), 0.0, true, intensity_completion)
 	if not secondary_enemy_loss_presentation.is_empty():
 		await _animate_floating_text_presentation(
 			after_state,
@@ -21422,33 +22235,110 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			after_state,
 			int(hand_destination_indices.get(_movement_loot_key(loot), -1))
 		)
+	_consume_pending_card_draw_sfx(after_state)
 
 func _resolve_enemy_round() -> void:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_lock_started: int = performance_total_started
 	_animation_lock = true
-	_refresh_animation_lock_ui()
+	_refresh_enemy_round_lock_ui()
+	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_ui_total", performance_lock_started)
 	await _begin_locked_hand_render_cache()
+	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_cache_capture_wall_total", performance_lock_started)
+	# Some retained-hand states need no cache rebuild and return immediately.
+	# Still submit the locked feedback before checkpoint preparation or enemy AI.
+	await RenderingServer.frame_post_draw
+	_record_runtime_performance_phase("enemy_round_lock_post_draw_wall_total", performance_lock_started)
+	_record_runtime_performance_phase("enemy_round_lock_and_cache_wall_total", performance_total_started)
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_snapshots", performance_phase_started)
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
-	var phase_result: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
-	var commit_checkpoints: Array = _combat_commit_checkpoints(phase_result.get("steps", []))
-	_hold_committed_run_state(
-		_run_state_with_combat_checkpoints(
-			_run_state_for_combat_checkpoint(previous_run_state, scheduled_state),
-			commit_checkpoints
-		),
-		"player_activation_finished"
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_finish_player_activation", performance_phase_started)
+	var initial_checkpoint_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, scheduled_state)
+	# The initial checkpoint owns the analytics outbox and staged revision cursors
+	# for the whole deterministic phase. Reuse that base for later boundaries so
+	# unchanged event streams do not rebuild and remerge the same outbox.
+	var checkpoint_base_run_state: Dictionary = initial_checkpoint_state.duplicate(true)
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_checkpoint_state_total", performance_phase_started)
+	var queued_checkpoint_state: Dictionary = _run_state_with_combat_checkpoints(
+		initial_checkpoint_state,
+		[_enemy_phase_continuation_checkpoint()]
 	)
+	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_checkpoint_queue_total", performance_phase_started)
+	_hold_committed_run_state(queued_checkpoint_state, "player_activation_finished")
+	_record_runtime_performance_phase("enemy_round_initial_checkpoint_persist_total", performance_phase_started)
 	await _animate_enemy_loss_feedback_between_states(_combat_state, scheduled_state)
 	await _animate_defeats_and_terrain_destruction(_combat_state, scheduled_state)
 	await _animate_turn_order_transition_between_states(_combat_state, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
 	_mark_combat_preview_state_changed()
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
-	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []), previous_run_state, commit_checkpoints)
-	var final_combat_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
-	# Forced movement can collect items during enemy activations too.
+	var phase_state: Dictionary = scheduled_state
+	var phase_steps: Array = []
+	var player_turn_before_state: Dictionary = {}
+	var phase_complete: bool = false
+	var phase_slice_safety: int = 0
+	var enemy_slice_batch_started_usec: int = Time.get_ticks_usec()
+	var enemy_slice_telemetry_overhead_started_usec: int = _runtime_performance_record_overhead_live_usec
+	var last_enemy_slice_frame: int = -1
+	while not phase_complete and _combat_engine.combat_outcome(phase_state) == "" and phase_slice_safety < 100:
+		var current_frame: int = Engine.get_process_frames()
+		var same_frame_budget_exhausted: bool = (
+			current_frame == last_enemy_slice_frame
+			and _runtime_slice_cpu_elapsed_usec(
+				enemy_slice_batch_started_usec,
+				enemy_slice_telemetry_overhead_started_usec
+			) >= _runtime_enemy_slice_budget_usec
+		)
+		# Lock feedback was already submitted above, and authored animations advance
+		# rendered frames between normal activations. Yield only when multiple
+		# animation-free activations actually consume this frame's CPU budget.
+		if same_frame_budget_exhausted:
+			await RenderingServer.frame_post_draw
+			current_frame = Engine.get_process_frames()
+			enemy_slice_batch_started_usec = Time.get_ticks_usec()
+			enemy_slice_telemetry_overhead_started_usec = _runtime_performance_record_overhead_live_usec
+		elif current_frame != last_enemy_slice_frame:
+			enemy_slice_batch_started_usec = Time.get_ticks_usec()
+			enemy_slice_telemetry_overhead_started_usec = _runtime_performance_record_overhead_live_usec
+		phase_slice_safety += 1
+		var slice_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		var slice_result: Dictionary = _combat_engine.advance_one_activation_with_steps(phase_state, false)
+		_record_runtime_performance_phase("enemy_round_simulation_slice_total", slice_started)
+		last_enemy_slice_frame = Engine.get_process_frames()
+		var slice_steps: Array = slice_result.get("steps", []) as Array
+		phase_steps.append_array(slice_steps)
+		var slice_player_before: Variant = slice_result.get("player_turn_before_state", {})
+		var slice_player_turn_before_state: Dictionary = {}
+		if typeof(slice_player_before) == TYPE_DICTIONARY and not (slice_player_before as Dictionary).is_empty():
+			slice_player_turn_before_state = (slice_player_before as Dictionary).duplicate(true)
+			player_turn_before_state = slice_player_turn_before_state
+		phase_complete = bool(slice_result.get("complete", false))
+		# The durable pre-phase state owns a deterministic continuation marker. A
+		# crash may replay this locked enemy turn, but live animation must not rewrite
+		# the complete run at every internal commit boundary.
+		await _animate_enemy_phase_steps(animated_state, slice_steps)
+		var draw_sfx_state: Dictionary = (
+			slice_player_turn_before_state
+			if not slice_player_turn_before_state.is_empty()
+			else (slice_result.get("state", phase_state) as Dictionary)
+		)
+		_consume_pending_card_draw_sfx(draw_sfx_state)
+		phase_state = slice_result.get("state", phase_state) as Dictionary
+	if phase_slice_safety >= 100:
+		push_error("Enemy phase slice safety limit reached before player activation.")
+	var phase_result: Dictionary = {
+		"state": phase_state,
+		"steps": phase_steps,
+		"player_turn_before_state": player_turn_before_state
+	}
+	var finalization_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var final_combat_state: Dictionary = phase_state.duplicate(true)
+	# Forced movement can collect items during enemy activations too. Present and
+	# log those pickups after the sliced phase reaches its final deterministic state.
 	var picked_loot: Array[Dictionary] = BattlefieldItemRules.pickups_between(previous_combat_state, final_combat_state)
 	var hand_destination_indices: Dictionary = _pickup_hand_destination_indices(picked_loot, previous_combat_state, final_combat_state)
 	for loot: Dictionary in picked_loot:
@@ -21460,9 +22350,10 @@ func _resolve_enemy_round() -> void:
 			int(hand_destination_indices.get(_movement_loot_key(loot), -1))
 		)
 	_log_item_pickups(previous_combat_state, final_combat_state)
-	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, final_combat_state)
+	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(checkpoint_base_run_state, final_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
+	_record_runtime_performance_phase("enemy_round_final_checkpoint_total", finalization_phase_started)
 	if outcome == "victory":
 		var post_combat_board_state: Dictionary = _combat_engine.post_combat_board_state(final_combat_state)
 		if post_combat_board_state != final_combat_state:
@@ -21475,6 +22366,7 @@ func _resolve_enemy_round() -> void:
 			await _play_post_combat_victory(transition_combat_state)
 	_board_presentation.clear()
 	_set_action_banner("")
+	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if _committed_run_state_override.is_empty() or _committed_run_state_override != final_run_state:
 		final_run_state = _hold_committed_run_state(final_run_state, "enemy_round_complete")
 	else:
@@ -21482,45 +22374,60 @@ func _resolve_enemy_round() -> void:
 	_run_state = final_run_state
 	_sync_combat_state_from_run()
 	_release_committed_run_state()
-	_analytics_log_enemy_status_ticks(phase_result)
-	_analytics_log_enemy_actions(phase_result)
+	_record_runtime_performance_phase("enemy_round_final_commit_and_sync_total", finalization_phase_started)
+	var enemy_analytics_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_analytics_log_enemy_phase_events(phase_result)
+	_record_runtime_performance_phase("enemy_round_analytics_write", enemy_analytics_started)
 	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	if outcome == "" and not before_draw_state.is_empty():
+		finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
+		finalization_phase_started = _record_runtime_performance_phase("enemy_round_draw_fatigue_events", finalization_phase_started)
 		_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
+		finalization_phase_started = _record_runtime_performance_phase("enemy_round_draw_tracker_reconcile", finalization_phase_started)
 		_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
+		finalization_phase_started = _record_runtime_performance_phase("enemy_round_draw_card_events", finalization_phase_started)
 		_analytics_log_playable_cards()
+		finalization_phase_started = _record_runtime_performance_phase("enemy_round_draw_playable_events", finalization_phase_started)
+		_record_runtime_performance_phase("enemy_round_draw_analytics", finalization_phase_started)
+		# The final player-turn state is known before the authored draw motion begins.
+		# Forecast one revealed enemy activation per rendered animation frame so the
+		# Pass chip is a cache hit when input unlocks instead of a one-frame AI burst.
+		_schedule_pass_preview_cache_warm(true)
 		if not fatigue_events.is_empty():
 			await _animate_fatigue_damage(_combat_state, fatigue_events)
-		await _animate_draw_cards_fx(_draw_entries_between_states(before_draw_state, _combat_state))
+		var draw_transition: Dictionary = _draw_hand_transition_between_states(before_draw_state, _combat_state)
+		await _animate_draw_cards_fx(
+			draw_transition.get("draw_entries", []) as Array,
+			Rect2(),
+			_take_pending_card_draw_sfx_count(_combat_state),
+			draw_transition
+		)
 		outcome = _combat_engine.combat_outcome(_combat_state)
+	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
+	_record_runtime_performance_phase("enemy_round_transition_analytics_total", finalization_phase_started)
+	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_end_locked_hand_render_cache()
+	_record_runtime_performance_phase("enemy_round_end_hand_cache", finalization_phase_started)
 	if _reward_intro_pending():
 		await _play_reward_reveal()
 	else:
-		_animation_lock = false
 		if outcome == "":
-			_queue_hand_ready_wave("player_turn_start")
-		_refresh_ui()
+			await _await_pass_preview_cache_warm()
+		finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		# Preserve the established click-to-interactive cadence. The retained/cached
+		# refresh work above is fast enough to complete synchronously; production does
+		# not insert rendered-frame waits while input remains locked.
+		await _refresh_ui(false, true, outcome == "")
+		_record_runtime_performance_phase("enemy_round_final_refresh_ui_wall_total", finalization_phase_started)
 
-func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_run_state: Dictionary, commit_checkpoints: Array) -> void:
+func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> void:
 	if steps.is_empty():
 		return
-	var commit_index: int = 0
 	for step_var: Variant in steps:
 		var step: Dictionary = step_var
 		if str(step.get("kind", "")) == "commit":
-			var checkpoint_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
-			if not checkpoint_state.is_empty():
-				_hold_committed_run_state(
-					_run_state_with_combat_checkpoints(
-						_run_state_for_combat_checkpoint(base_run_state, checkpoint_state),
-						_remaining_combat_checkpoints(commit_checkpoints, commit_index + 1)
-					),
-					str(step.get("boundary", "enemy_checkpoint"))
-				)
-			commit_index += 1
 			continue
 		if bool(step.get("hidden_by_umbra", false)):
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
@@ -21848,23 +22755,26 @@ func _movement_actor_frame_presentation(
 	presentation["unit_draw_tiles"] = {actor_key: draw_tile}
 	return presentation
 
-func _play_sfx(entry: Dictionary) -> void:
+func _play_sfx(entry: Dictionary) -> float:
 	var path: String = str(entry.get("path", ""))
 	if path.is_empty():
-		return
+		return 0.0
 	var resource: AudioStream = AssetLoader.load_audio_stream(path)
 	if resource == null:
-		return
+		return 0.0
 	var player: AudioStreamPlayer = _acquire_sfx_player()
 	var generation: int = int(player.get_meta("play_generation", 0)) + 1
 	player.set_meta("play_generation", generation)
+	player.set_meta("sfx_id", str(entry.get("id", "")))
 	player.stream = resource
-	player.bus = SettingsStore.SFX_BUS
+	player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
 	player.volume_db = float(entry.get("volume_db", 0.0))
 	player.play()
 	var duration: float = float(entry.get("duration", 0.0))
 	if duration > 0.0:
 		get_tree().create_timer(duration).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
+		return minf(duration, maxf(0.0, resource.get_length()))
+	return maxf(0.0, resource.get_length())
 
 func _play_trap_sfx(traps: Array) -> void:
 	for entry: Dictionary in AttackSfxLibrary.entries_for_traps(traps):
@@ -21877,10 +22787,48 @@ func _acquire_sfx_player() -> AudioStreamPlayer:
 			return pooled_player
 	var player := AudioStreamPlayer.new()
 	player.name = "SfxPlayer%d" % _sfx_players.size()
-	player.bus = SettingsStore.SFX_BUS
+	player.bus = SettingsStore.WORLD_SFX_BUS
 	add_child(player)
 	_sfx_players.append(player)
 	return player
+
+func _update_ambient_sfx_for_context(mode: String) -> void:
+	var entry: Dictionary = RunSfxLibrary.ambient_entry_for_mode(mode)
+	var next_id: String = str(entry.get("id", ""))
+	if next_id == _active_ambient_sfx_id:
+		return
+	_active_ambient_sfx_id = next_id
+	if next_id.is_empty():
+		if _ambient_sfx_player != null:
+			_ambient_sfx_player.stop()
+			_ambient_sfx_player.stream = null
+		return
+	var resource: AudioStream = AssetLoader.load_audio_stream(str(entry.get("path", "")))
+	if resource == null:
+		_active_ambient_sfx_id = ""
+		return
+	_ensure_ambient_sfx_player()
+	_ambient_sfx_player.stream = _looping_audio_stream(resource)
+	_ambient_sfx_player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
+	_ambient_sfx_player.volume_db = float(entry.get("volume_db", 0.0))
+	_ambient_sfx_player.play()
+
+func _ensure_ambient_sfx_player() -> void:
+	if _ambient_sfx_player != null:
+		return
+	_ambient_sfx_player = AudioStreamPlayer.new()
+	_ambient_sfx_player.name = "AmbientSfxPlayer"
+	_ambient_sfx_player.bus = SettingsStore.WORLD_SFX_BUS
+	add_child(_ambient_sfx_player)
+
+func _looping_audio_stream(resource: AudioStream) -> AudioStream:
+	var looped: AudioStream = resource.duplicate() as AudioStream
+	if looped is AudioStreamWAV:
+		var wav: AudioStreamWAV = looped as AudioStreamWAV
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_begin = 0
+		wav.loop_end = maxi(1, int(round(wav.get_length() * float(wav.mix_rate))))
+	return looped
 
 func _stop_attack_sfx_player(player: AudioStreamPlayer, generation: int = -1) -> void:
 	if not is_instance_valid(player):
@@ -21932,6 +22880,77 @@ func _play_music(entry: Dictionary) -> void:
 	_music_player.play()
 	_fade_music_to(float(entry.get("volume_db", -12.0)))
 
+func _start_terminal_defeat_music_if_needed(
+	death_units: Array[Dictionary],
+	after_combat_state: Dictionary = {}
+) -> void:
+	var player_died: bool = false
+	for unit: Dictionary in death_units:
+		if str(unit.get("role", "")) == "player":
+			player_died = true
+			break
+	if not player_died:
+		return
+	var terminal_mode: String = str(_committed_run_state().get("mode", ""))
+	if terminal_mode != "defeat" and not after_combat_state.is_empty():
+		if _combat_engine.combat_outcome(after_combat_state) != "defeat":
+			return
+		terminal_mode = str(_run_engine.finish_combat(_run_state, after_combat_state).get("mode", ""))
+	if terminal_mode != "defeat":
+		return
+	_transition_music(
+		MusicLibrary.entry(MusicLibrary.CHOPIN_DEATH_TRACK_ID),
+		DEATH_MUSIC_FADE_OUT_SECONDS,
+		DEATH_MUSIC_FADE_IN_SECONDS
+	)
+
+func _transition_music(entry: Dictionary, fade_out_seconds: float, fade_in_seconds: float) -> void:
+	var track_id: String = str(entry.get("id", ""))
+	if track_id.is_empty() or track_id == _active_music_id:
+		return
+	var resource: AudioStream = AssetLoader.load_audio_stream(
+		str(entry.get("path", "")),
+		bool(entry.get("loop", false))
+	)
+	if resource == null:
+		return
+	_ensure_music_player()
+	_stop_music_tween()
+	_active_music_id = track_id
+	var target_volume_linear: float = db_to_linear(float(entry.get("volume_db", -12.0)))
+	if _music_player.stream == null or not _music_player.playing:
+		_start_transitioned_music(track_id, resource)
+		_music_tween = create_tween().set_ignore_time_scale(true)
+		_music_tween.tween_property(
+			_music_player,
+			"volume_linear",
+			target_volume_linear,
+			maxf(0.0, fade_in_seconds)
+		)
+		return
+	_music_tween = create_tween().set_ignore_time_scale(true)
+	_music_tween.tween_property(
+		_music_player,
+		"volume_linear",
+		0.0,
+		maxf(0.0, fade_out_seconds)
+	)
+	_music_tween.tween_callback(_start_transitioned_music.bind(track_id, resource))
+	_music_tween.tween_property(
+		_music_player,
+		"volume_linear",
+		target_volume_linear,
+		maxf(0.0, fade_in_seconds)
+	)
+
+func _start_transitioned_music(track_id: String, resource: AudioStream) -> void:
+	if _music_player == null or _active_music_id != track_id:
+		return
+	_music_player.stop()
+	_music_player.stream = resource
+	_music_player.volume_linear = 0.0
+	_music_player.play()
+
 func _ensure_music_player() -> void:
 	if _music_player != null:
 		return
@@ -21977,7 +22996,8 @@ func _stop_music_tween() -> void:
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
-	rendered_presentation["board_framing_mode"] = "combat" if str(_run_state.get("mode", "room")) == "combat" or _post_combat_board_state_is_visible() else "room"
+	var run_mode: String = str(_run_state.get("mode", "room"))
+	rendered_presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
@@ -21985,6 +23005,13 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["controller_combat_navigation"] = _controller_is_active() and str(_run_state.get("mode", "room")) == "combat"
 	rendered_presentation["controller_hand_focused"] = _controller_hand_focused
 	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()
+	if run_mode == "defeat":
+		var death_tile: Vector2i = _run_end_death_tile()
+		if death_tile.x >= 0:
+			rendered_presentation["death_site_embers"] = {
+				"tile": death_tile,
+				"amount": _defeat_lost_amount,
+			}
 	_apply_umbra_board_presentation(display_state, rendered_presentation)
 	var visible_enemy_ids: Array = rendered_presentation.get("visible_enemy_ids", []) as Array
 	rendered_presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
@@ -21998,6 +23025,17 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		var leader_tile: Vector2i = _objective_leader_tile(display_state, objective)
 		if leader_tile.x >= 0:
 			rendered_presentation["objective_leader_tile"] = leader_tile
+	if _player_popup_timeline_active:
+		var timeline_entries: Array[Dictionary] = FloatingCombatText.animate_timeline(
+			_player_popup_timeline_groups,
+			_player_popup_timeline_elapsed_seconds(),
+			_reduced_motion_enabled()
+		)
+		if not timeline_entries.is_empty():
+			var merged_floating_texts: Array = []
+			merged_floating_texts.append_array(timeline_entries)
+			merged_floating_texts.append_array(rendered_presentation.get("floating_texts", []) as Array)
+			rendered_presentation["floating_texts"] = merged_floating_texts
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	board_view.set_combat_state(
 		display_state,
@@ -22666,6 +23704,28 @@ func _defeated_enemy_units_between_states(before_state: Dictionary, after_state:
 		})
 	return units
 
+func _defeated_player_units_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var units: Array[Dictionary] = []
+	var before_player: Dictionary = before_state.get("player", {}) as Dictionary
+	var after_player: Dictionary = after_state.get("player", {}) as Dictionary
+	if before_player.is_empty() or int(before_player.get("hp", 0)) <= 0:
+		return units
+	if not after_player.is_empty() and int(after_player.get("hp", 0)) > 0:
+		return units
+	var final_player: Dictionary = after_player if not after_player.is_empty() else before_player
+	units.append({
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"name": "Player",
+		"pos": final_player.get("pos", before_player.get("pos", Vector2i.ZERO)),
+		"footprint": Vector2i.ONE,
+		"hp": maxi(1, int(before_player.get("hp", 1))),
+		"max_hp": maxi(1, int(before_player.get("max_hp", before_player.get("hp", 1)))),
+		"death_animation": true
+	})
+	return units
+
 func _destroyed_terrain_units_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var after_by_id: Dictionary = {}
 	for after_var: Variant in after_state.get("terrain", []):
@@ -22799,7 +23859,7 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "victory":
 		return "Victory"
 	if mode == "defeat":
-		return "Defeat"
+		return ""
 	return ""
 
 func _board_status_detail(preview: Dictionary) -> String:
@@ -23150,6 +24210,9 @@ func _on_pre_battle_start_pressed() -> void:
 		return
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	_pre_battle_start_pending = true
+	var preview_combat_state: Dictionary = _pre_battle_preview_run_state.get("combat_state", {}) as Dictionary
+	if not preview_combat_state.is_empty():
+		board_view.prepare_unit_shadows_for_state(preview_combat_state)
 	_close_pre_battle_preview()
 	_run_state = _run_engine.begin_pre_battle_combat(_run_state)
 	_sync_progression_from_run()
@@ -23217,6 +24280,9 @@ func _map_travel_animation_seconds() -> float:
 	return 0.0
 
 func _play_door_opening_animation(door_tile: Vector2i) -> void:
+	var cue_seconds: float = _play_sfx(RunSfxLibrary.entry(RunSfxLibrary.DOOR_OPEN_ID))
+	var default_seconds: float = float(DOOR_OPENING_FRAMES) * DOOR_OPENING_FRAME_SECONDS + DOOR_OPENING_SETTLE_SECONDS
+	var opening_seconds: float = maxf(default_seconds, cue_seconds)
 	if _reduced_motion_enabled():
 		_board_presentation = {
 			"door_opening": {
@@ -23227,9 +24293,12 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 		}
 		_refresh_stage_view()
 		await get_tree().process_frame
+		await get_tree().create_timer(opening_seconds).timeout
 		return
 	var frame_count: int = maxi(1, DOOR_OPENING_FRAMES)
-	await _play_timed_animation_frames(frame_count, DOOR_OPENING_FRAME_SECONDS, func(frame_number: int) -> void:
+	var settle_seconds: float = minf(DOOR_OPENING_SETTLE_SECONDS, opening_seconds)
+	var frame_seconds: float = maxf(0.0, opening_seconds - settle_seconds) / float(frame_count)
+	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
 		var frame: int = frame_number - 1
 		var progress: float = 1.0 if frame_count <= 1 else float(frame) / float(frame_count - 1)
 		_board_presentation = {
@@ -23241,7 +24310,7 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 		}
 		_refresh_stage_view()
 	)
-	await get_tree().create_timer(DOOR_OPENING_SETTLE_SECONDS).timeout
+	await get_tree().create_timer(settle_seconds).timeout
 
 func _continue_pending_escape_after_reward() -> bool:
 	if _escape_transition_in_progress or str(_run_state.get("mode", "room")) != RunEngineScript.MODE_ESCAPE:
@@ -23296,6 +24365,7 @@ func _on_reward_card_pressed(card_id: String, source_control: Control = null) ->
 	_animation_lock = true
 	var source_rect: Rect2 = source_control.get_global_rect() if _node_is_alive(source_control) else Rect2()
 	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+	_play_reward_collect_sfx()
 	if _node_is_alive(source_control):
 		source_control.modulate = Color(1.0, 1.0, 1.0, 0.18)
 	await _animate_magic_reward_acquisition_flair(card_id, source_rect, accent)
@@ -23446,6 +24516,7 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 		_guided_tutorial_set_phase("", false)
 	_persist_committed_boundary("relic_claimed")
 	_refresh_ui()
+	_play_reward_collect_sfx()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
 	await _animate_relic_acquired(relic_id)
 	_relic_claim_in_progress = false
@@ -23467,12 +24538,17 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 	if after_embers == before_embers:
 		_refresh_ui()
 		_merchant_trade_animation_active = false
+		call_deferred("_recover_controller_focus")
 		return
 	_persist_committed_boundary("merchant_buy")
 	_analytics_log_merchant_trade("buy", merchant_kind, item_id, amount, before_embers, after_embers)
 	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, true)
 	_refresh_ui()
 	_merchant_trade_animation_active = false
+	call_deferred("_recover_controller_focus")
+
+func _on_scavenger_buy_requested(item_id: String, source: Control) -> void:
+	await _on_merchant_buy_pressed(RunEngineScript.MERCHANT_SCAVENGER, item_id, source)
 
 func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_row: Control = null) -> void:
 	if _merchant_trade_animation_active:
@@ -23491,15 +24567,22 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 	if after_embers == before_embers:
 		_refresh_ui()
 		_merchant_trade_animation_active = false
+		call_deferred("_recover_controller_focus")
 		return
 	_persist_committed_boundary("merchant_sell")
 	_analytics_log_merchant_trade("sell", merchant_kind, item_id, amount, before_embers, after_embers)
 	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, false)
 	_refresh_ui()
 	_merchant_trade_animation_active = false
+	call_deferred("_recover_controller_focus")
+
+func _on_scavenger_sell_requested(item_id: String, source: Control) -> void:
+	await _on_merchant_sell_pressed(RunEngineScript.MERCHANT_SCAVENGER, item_id, source)
 
 func _animate_merchant_trade_row(source_row: Control, merchant_kind: String, item_id: String, buying: bool) -> void:
 	if not _node_is_alive(source_row):
+		return
+	if _reduced_motion_enabled():
 		return
 	var row: Control = source_row
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -23970,6 +25053,8 @@ func _on_settings_changed(settings: Dictionary) -> void:
 	_settings = SettingsStore.normalize_settings(settings)
 	if _run_end_recap != null:
 		_run_end_recap.set_motion_enabled(not _reduced_motion_enabled())
+	if _run_end_board_reframe_active and _reduced_motion_enabled():
+		_seek_run_end_board_reframe(1.0)
 
 func _reduced_motion_enabled() -> bool:
 	return SettingsStore.reduced_motion_enabled(_settings)
@@ -24028,14 +25113,39 @@ func _committed_run_state() -> Dictionary:
 	return state
 
 func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
 	var base_state: Dictionary = base_run_state.duplicate(true)
+	performance_phase_started = _record_runtime_performance_phase("combat_checkpoint_base_duplicate", performance_phase_started)
 	var checkpoint_combat_state: Dictionary = combat_state.duplicate(true)
+	performance_phase_started = _record_runtime_performance_phase("combat_checkpoint_combat_duplicate", performance_phase_started)
 	base_state.erase(COMBAT_CONTINUATION_KEY)
+	var base_combat_state: Dictionary = base_state.get("combat_state", {}) as Dictionary
+	var base_analytics: Dictionary = base_combat_state.get("analytics", {}) as Dictionary
+	var checkpoint_analytics: Dictionary = checkpoint_combat_state.get("analytics", {}) as Dictionary
+	if (
+		not base_analytics.is_empty()
+		and str(base_analytics.get("combat_id", "")) == str(checkpoint_analytics.get("combat_id", ""))
+	):
+		if (
+			base_analytics.has(COMBAT_SKILL_EVENT_STAGED_REVISION_KEY)
+			or base_analytics.has(COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY)
+		):
+			checkpoint_analytics = checkpoint_analytics.duplicate(true)
+		if base_analytics.has(COMBAT_SKILL_EVENT_STAGED_REVISION_KEY):
+			checkpoint_analytics[COMBAT_SKILL_EVENT_STAGED_REVISION_KEY] = int(base_analytics.get(COMBAT_SKILL_EVENT_STAGED_REVISION_KEY, 0))
+		if base_analytics.has(COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY):
+			checkpoint_analytics[COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY] = int(base_analytics.get(COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY, 0))
+		checkpoint_combat_state["analytics"] = checkpoint_analytics
 	var staged_result: Dictionary = _stage_combat_skill_event_analytics_for_state(base_state, checkpoint_combat_state)
+	performance_phase_started = _record_runtime_performance_phase("combat_checkpoint_analytics", performance_phase_started)
 	base_state = staged_result.get("run_state", base_state) as Dictionary
 	checkpoint_combat_state = staged_result.get("combat_state", checkpoint_combat_state) as Dictionary
 	if _combat_engine.combat_outcome(checkpoint_combat_state).is_empty():
-		return _run_engine.set_combat_state(base_state, checkpoint_combat_state)
+		var active_state: Dictionary = _run_engine.set_combat_state(base_state, checkpoint_combat_state)
+		_record_runtime_performance_phase("combat_checkpoint_set_combat", performance_phase_started)
+		_record_runtime_performance_phase("combat_checkpoint_total", performance_total_started)
+		return active_state
 	var finished_state: Dictionary = _run_engine.finish_combat(base_state, checkpoint_combat_state)
 	var finished_progression: Dictionary = (finished_state.get("progression", {}) as Dictionary).duplicate(true)
 	if (
@@ -24072,6 +25182,7 @@ func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: 
 	return finished_state
 
 func _combat_commit_checkpoints(steps: Array) -> Array:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var checkpoints: Array = []
 	for step_var: Variant in steps:
 		if typeof(step_var) != TYPE_DICTIONARY:
@@ -24086,7 +25197,14 @@ func _combat_commit_checkpoints(steps: Array) -> Array:
 			"boundary": str(step.get("boundary", "enemy_checkpoint")),
 			"state": combat_state
 		})
+	_record_runtime_performance_phase("combat_checkpoint_extract_total", performance_total_started)
 	return checkpoints
+
+func _enemy_phase_continuation_checkpoint() -> Dictionary:
+	return {
+		"boundary": "enemy_phase_continue",
+		"resume_enemy_phase": true
+	}
 
 func _remaining_combat_checkpoints(checkpoints: Array, start_index: int) -> Array:
 	var remaining: Array = []
@@ -24096,10 +25214,14 @@ func _remaining_combat_checkpoints(checkpoints: Array, start_index: int) -> Arra
 	return remaining
 
 func _run_state_with_combat_checkpoints(run_state: Dictionary, checkpoints: Array) -> Dictionary:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var state: Dictionary = run_state.duplicate(true)
+	var performance_phase_started: int = _record_runtime_performance_phase("combat_checkpoint_queue_run_state_duplicate", performance_total_started)
 	state.erase(COMBAT_CONTINUATION_KEY)
 	if not checkpoints.is_empty() and str(state.get("mode", "")) == "combat":
 		state[COMBAT_CONTINUATION_KEY] = checkpoints.duplicate(true)
+	_record_runtime_performance_phase("combat_checkpoint_queue_checkpoints_duplicate", performance_phase_started)
+	_record_runtime_performance_phase("combat_checkpoint_queue_total", performance_total_started)
 	return state
 
 func _pending_combat_checkpoints() -> Array:
@@ -24112,6 +25234,9 @@ func _pending_combat_checkpoints() -> Array:
 		if typeof(checkpoint_var) != TYPE_DICTIONARY:
 			continue
 		var checkpoint: Dictionary = checkpoint_var as Dictionary
+		if bool(checkpoint.get("resume_enemy_phase", false)):
+			checkpoints.append(checkpoint.duplicate(true))
+			continue
 		if typeof(checkpoint.get("state", null)) != TYPE_DICTIONARY:
 			continue
 		checkpoints.append(checkpoint.duplicate(true))
@@ -24151,6 +25276,33 @@ func _consume_next_pending_combat_checkpoint() -> bool:
 		return false
 	var checkpoints: Array = _pending_combat_checkpoints()
 	var checkpoint: Dictionary = checkpoints[0] as Dictionary
+	if bool(checkpoint.get("resume_enemy_phase", false)):
+		var slice_result: Dictionary = _combat_engine.advance_one_activation_with_steps(_combat_state)
+		var slice_state: Dictionary = slice_result.get("state", _combat_state) as Dictionary
+		var continuation_checkpoints: Array = _combat_commit_checkpoints(slice_result.get("steps", []) as Array)
+		# A malformed/stale actor can advance the owned initiative snapshot without
+		# producing a commit presentation. Preserve that progress before requeueing
+		# the compact marker; otherwise Continue would replay the same actor forever.
+		var continuation_base_run_state: Dictionary = _run_state
+		if continuation_checkpoints.is_empty():
+			continuation_base_run_state = _run_state_for_combat_checkpoint(_run_state, slice_state)
+		if not bool(slice_result.get("complete", false)):
+			continuation_checkpoints.append(_enemy_phase_continuation_checkpoint())
+		if continuation_checkpoints.is_empty():
+			_run_state = _hold_committed_run_state(
+				_run_state_for_combat_checkpoint(
+					_run_state,
+					slice_state
+				),
+				"enemy_phase_resumed"
+			)
+		else:
+			_run_state = _hold_committed_run_state(
+				_run_state_with_combat_checkpoints(continuation_base_run_state, continuation_checkpoints),
+				"enemy_activation_resumed"
+			)
+		_sync_combat_state_from_run()
+		return true
 	var combat_state: Dictionary = (checkpoint.get("state", {}) as Dictionary).duplicate(true)
 	if combat_state.is_empty():
 		_run_state = _run_state_with_combat_checkpoints(_run_state, _remaining_combat_checkpoints(checkpoints, 1))
@@ -24168,9 +25320,17 @@ func _resume_pending_combat_checkpoints() -> void:
 	if not _has_pending_combat_checkpoints() or _animation_lock:
 		return
 	_animation_lock = true
-	while _consume_next_pending_combat_checkpoint():
+	var resume_safety: int = 0
+	while _has_pending_combat_checkpoints() and resume_safety < 100:
+		resume_safety += 1
+		await RenderingServer.frame_post_draw
+		if not _consume_next_pending_combat_checkpoint():
+			break
 		if str(_run_state.get("mode", "")) != "combat":
 			break
+	if resume_safety >= 100 and _has_pending_combat_checkpoints():
+		push_error("Enemy-phase continuation exceeded the 100-activation recovery bound; resetting to one deterministic player activation.")
+		_recover_stalled_enemy_phase_continuation()
 	_release_committed_run_state()
 	_board_presentation.clear()
 	_set_action_banner("")
@@ -24182,17 +25342,36 @@ func _resume_pending_combat_checkpoints() -> void:
 	_animation_lock = false
 	_refresh_ui()
 
+func _recover_stalled_enemy_phase_continuation() -> void:
+	var recovered_combat_state: Dictionary = _combat_engine.recover_player_turn_after_stalled_initiative(_combat_state)
+	_run_state = _hold_committed_run_state(
+		_run_state_with_combat_checkpoints(
+			_run_state_for_combat_checkpoint(_run_state, recovered_combat_state),
+			[]
+		),
+		"enemy_phase_resume_safety_recovered"
+	)
+	_sync_combat_state_from_run()
+
 func _persist_committed_boundary(boundary: String = "") -> bool:
 	return bool(_persist_run_state_snapshot(_committed_run_state(), false, boundary).get("saved", false))
 
 func _hold_committed_run_state(run_state: Dictionary, boundary: String = "") -> Dictionary:
-	return (_persist_run_state_snapshot(run_state, true, boundary).get("state", run_state) as Dictionary).duplicate(true)
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var persisted_state: Dictionary = _persist_run_state_snapshot(run_state, true, boundary).get("state", run_state) as Dictionary
+	var performance_phase_started: int = _record_runtime_performance_phase("combat_checkpoint_hold_persist_total", performance_total_started)
+	var result: Dictionary = persisted_state.duplicate(true)
+	_record_runtime_performance_phase("combat_checkpoint_hold_return_duplicate", performance_phase_started)
+	_record_runtime_performance_phase("combat_checkpoint_hold_total", performance_total_started)
+	return result
 
 func _release_committed_run_state() -> void:
 	_committed_run_state_override.clear()
 
 func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool, boundary: String) -> Dictionary:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var state: Dictionary = run_state.duplicate(true)
+	var performance_phase_started: int = _record_runtime_performance_phase("combat_checkpoint_persist_input_duplicate", performance_total_started)
 	if state.is_empty() or bool(state.get("debug_boss_run", false)):
 		return {"state": state, "saved": false}
 	if _save_in_progress:
@@ -24210,11 +25389,14 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 			ProgressionStore.save_run_state(terminal_resume_state)
 	else:
 		saved = ProgressionStore.save_run_state(state)
+	performance_phase_started = _record_runtime_performance_phase("combat_checkpoint_persist_storage", performance_phase_started)
 	if hold_for_animation:
 		_committed_run_state_override = state.duplicate(true)
+	_record_runtime_performance_phase("combat_checkpoint_persist_hold_duplicate", performance_phase_started)
 	_save_in_progress = false
 	if not saved:
 		push_error("Failed to persist committed run boundary: %s" % (boundary if not boundary.is_empty() else "unspecified"))
+	_record_runtime_performance_phase("combat_checkpoint_persist_total", performance_total_started)
 	return {"state": state, "saved": saved}
 
 func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
@@ -24501,7 +25683,7 @@ func _open_pile_view(pile_kind: String) -> void:
 		if selecting_discard_card
 		else "%s Pile" % _pile_display_name(pile_kind)
 	)
-	performance_phase_started = _record_runtime_performance_phase("pile_prepare", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("pile_prepare_total", performance_phase_started)
 	if content_source == _pile_dialog_content_source and _pile_dialog_pool_has_cards(cards):
 		if _pile_dialog_scroll != null:
 			_pile_dialog_scroll.visible = not pile_empty
@@ -27136,6 +28318,7 @@ func _swap_magic_from_overlay(inventory_index: int, attuned_index: int) -> void:
 	if attuned_index < 0 or attuned_index >= attuned.size() or str(attuned[attuned_index]) != incoming_card_id:
 		_clear_magic_drag_state(true)
 		return
+	_play_item_equip_sfx()
 	_persist_committed_boundary("magic_attuned")
 	_analytics_log_magic_attuned(inventory_index, attuned_index, incoming_card_id)
 	_clear_magic_drag_state(false)
@@ -27165,6 +28348,7 @@ func _equip_item_from_overlay(inventory_index: int, equipped_index: int = -1) ->
 		_clear_item_drag_state(true)
 		_item_swap_animation_active = false
 		return
+	_play_item_equip_sfx()
 	_persist_committed_boundary("item_equipped")
 	var actual_equipped_index: int = _equipped_item_index_after_change(card_id, before_equipped, after_equipped, equipped_index)
 	_analytics_log_item_equipped("equip", card_id, inventory_index, actual_equipped_index)
@@ -27243,7 +28427,7 @@ func _pulse_magic_tile(source_kind: String, index: int) -> void:
 	tween.tween_property(tile, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _build_merchant_item_tooltip_panel(merchant_kind: String, item_id: String, interactive: bool = false) -> Control:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+	if _run_engine.merchant_item_kind(item_id) == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return _build_equipment_tooltip_panel(item_id, interactive)
 	return _build_card_tooltip_panel(item_id, interactive)
 
@@ -27416,6 +28600,7 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 		_clear_equipment_drag_state(true)
 		return
 	_equipment_swap_animation_active = true
+	_play_item_equip_sfx()
 	_persist_committed_boundary("equipment_equipped")
 	_analytics_log_equipment_equipped(slot, before_id, equipment_id)
 	_refresh_ui()
@@ -27986,29 +29171,53 @@ func _moltshard_gain_idempotency_key(award_id: String) -> String:
 	return "%s|%s" % [MOLTSHARD_GAIN_EVENT_TYPE, award_id]
 
 func _reconcile_progression_analytics_outbox() -> bool:
-	for entry: Dictionary in ProgressionStore.progression_analytics_outbox(_progression):
-		var idempotency_key: String = str(entry.get("idempotency_key", ""))
-		var wrote_event: bool = _analytics_store.write_event(
-			str(entry.get("event_type", "")),
-			entry.get("context", {}) as Dictionary,
-			entry.get("payload", {}) as Dictionary,
-			idempotency_key
-		)
-		if not wrote_event:
-			return false
-		var disk_candidate: Dictionary = ProgressionStore.merge_progression_analytics_outbox(
-			_authoritative_profile_progression(),
-			_progression
-		)
-		disk_candidate = ProgressionStore.acknowledge_progression_analytics_event(disk_candidate, idempotency_key)
-		if not ProgressionStore.save_data(disk_candidate):
-			push_error("Failed to acknowledge progression analytics event: %s" % idempotency_key)
-			return false
-		var active_candidate: Dictionary = ProgressionStore.acknowledge_progression_analytics_event(
-			_progression,
-			idempotency_key
-		)
-		_progression = ProgressionStore.merge_progression_analytics_outbox(active_candidate, disk_candidate)
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
+	var outbox: Array[Dictionary] = ProgressionStore.progression_analytics_outbox(_progression)
+	if outbox.is_empty():
+		_record_runtime_performance_phase("progression_outbox_no_pending", performance_phase_started)
+		_record_runtime_performance_phase("progression_outbox_total", performance_total_started)
+		return true
+	var events: Array[Dictionary] = []
+	var idempotency_keys: Array[String] = []
+	for entry: Dictionary in outbox:
+		idempotency_keys.append(str(entry.get("idempotency_key", "")))
+		events.append({
+			"event_type": str(entry.get("event_type", "")),
+			"context": entry.get("context", {}) as Dictionary,
+			"payload": entry.get("payload", {}) as Dictionary,
+			"idempotency_key": str(entry.get("idempotency_key", "")),
+		})
+	performance_phase_started = _record_runtime_performance_phase("progression_outbox_collect", performance_phase_started)
+	# Append the whole durable outbox in one file transaction. If the process
+	# stops before the acknowledgement save, idempotency keys make the full batch
+	# safe to replay; keeping one save per event only multiplied disk flushes.
+	if not _analytics_store.write_events(events):
+		_record_runtime_performance_phase("progression_outbox_write_failed", performance_phase_started)
+		_record_runtime_performance_phase("progression_outbox_total", performance_total_started)
+		return false
+	performance_phase_started = _record_runtime_performance_phase("progression_outbox_write", performance_phase_started)
+	var disk_candidate: Dictionary = ProgressionStore.merge_progression_analytics_outbox(
+		_authoritative_profile_progression(),
+		_progression
+	)
+	performance_phase_started = _record_runtime_performance_phase("progression_outbox_disk_merge", performance_phase_started)
+	disk_candidate = ProgressionStore.acknowledge_progression_analytics_events(disk_candidate, idempotency_keys)
+	performance_phase_started = _record_runtime_performance_phase("progression_outbox_disk_ack", performance_phase_started)
+	var active_candidate: Dictionary = ProgressionStore.acknowledge_progression_analytics_events(
+		_progression,
+		idempotency_keys
+	)
+	performance_phase_started = _record_runtime_performance_phase("progression_outbox_active_ack", performance_phase_started)
+	if not ProgressionStore.save_data(disk_candidate):
+		push_error("Failed to acknowledge progression analytics event batch.")
+		_record_runtime_performance_phase("progression_outbox_save_failed", performance_phase_started)
+		_record_runtime_performance_phase("progression_outbox_total", performance_total_started)
+		return false
+	performance_phase_started = _record_runtime_performance_phase("progression_outbox_save", performance_phase_started)
+	_progression = ProgressionStore.merge_progression_analytics_outbox(active_candidate, disk_candidate)
+	_record_runtime_performance_phase("progression_outbox_active_merge", performance_phase_started)
+	_record_runtime_performance_phase("progression_outbox_total", performance_total_started)
 	return true
 
 func _combat_recovery_marker_amount(combat_state: Dictionary) -> int:
@@ -28122,6 +29331,8 @@ func _analytics_log_skill_reset(before_progression: Dictionary, after_progressio
 	})
 
 func _reconcile_skill_event_analytics() -> void:
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
 	var staged_now: bool = false
 	if not _combat_state.is_empty():
 		var staged_result: Dictionary = _stage_combat_skill_event_analytics_for_state(_run_state, _combat_state)
@@ -28131,25 +29342,81 @@ func _reconcile_skill_event_analytics() -> void:
 			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
 			staged_now = bool(staged_result.get("staged", false))
 		_analytics_skill_event_revision = _combat_skill_event_staged_revision(_combat_state)
+	performance_phase_started = _record_runtime_performance_phase("skill_analytics_stage", performance_phase_started)
 	if _is_debug_boss_run() or not _has_pending_combat_skill_event_analytics():
+		_record_runtime_performance_phase("skill_analytics_no_pending", performance_phase_started)
+		_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
 		return
 	# Re-prove the gameplay/outbox boundary even when the event was staged by an
 	# earlier failed save. A staged cursor means copied into the snapshot, never
 	# that the snapshot reached disk or that JSONL may be appended safely.
 	if not _persist_committed_boundary("combat_skill_event_outbox"):
+		_record_runtime_performance_phase("skill_analytics_persist_outbox_failed_total", performance_phase_started)
+		_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
 		return
+	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_outbox_total", performance_phase_started)
 	var reconciled_all: bool = _reconcile_progression_analytics_outbox()
+	performance_phase_started = _record_runtime_performance_phase("skill_analytics_reconcile_outbox_total", performance_phase_started)
 	_sync_progression_analytics_outbox_to_run()
+	performance_phase_started = _record_runtime_performance_phase("skill_analytics_sync_run", performance_phase_started)
 	if str(_run_state.get("mode", "")) not in ["victory", "defeat"]:
 		_persist_committed_boundary("combat_skill_event_ack")
+	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_ack_total", performance_phase_started)
+	if staged_now and not reconciled_all:
+		push_warning("Combat skill analytics remain queued for a later retry.")
+	_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
+
+func _reconcile_skill_event_analytics_across_frames() -> void:
+	# Turn completion already waits for forecast/playability warming before input
+	# unlocks. Use that authored wait to keep each durability stage in its own
+	# frame instead of stacking two saves, JSONL reconciliation, and outbox merging
+	# behind one animation callback.
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var staged_now: bool = false
+	if not _combat_state.is_empty():
+		var staged_result: Dictionary = _stage_combat_skill_event_analytics_for_state(_run_state, _combat_state)
+		if bool(staged_result.get("changed", false)):
+			_run_state = staged_result.get("run_state", _run_state) as Dictionary
+			_combat_state = staged_result.get("combat_state", _combat_state) as Dictionary
+			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
+			staged_now = bool(staged_result.get("staged", false))
+		_analytics_skill_event_revision = _combat_skill_event_staged_revision(_combat_state)
+	_record_runtime_performance_phase("player_turn_skill_analytics_stage", performance_phase_started)
+	if _is_debug_boss_run() or not _has_pending_combat_skill_event_analytics():
+		return
+	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	if not _persist_committed_boundary("combat_skill_event_outbox"):
+		_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_failed_total", performance_phase_started)
+		return
+	_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_total", performance_phase_started)
+	await RenderingServer.frame_post_draw
+	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var reconciled_all: bool = _reconcile_progression_analytics_outbox()
+	_record_runtime_performance_phase("player_turn_skill_analytics_reconcile_outbox_total", performance_phase_started)
+	await RenderingServer.frame_post_draw
+	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_sync_progression_analytics_outbox_to_run()
+	_record_runtime_performance_phase("player_turn_skill_analytics_sync_run", performance_phase_started)
+	if str(_run_state.get("mode", "")) not in ["victory", "defeat"]:
+		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_persist_committed_boundary("combat_skill_event_ack")
+		_record_runtime_performance_phase("player_turn_skill_analytics_persist_ack_total", performance_phase_started)
 	if staged_now and not reconciled_all:
 		push_warning("Combat skill analytics remain queued for a later retry.")
 
 func _stage_combat_skill_event_analytics_for_state(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	if combat_state.is_empty():
+		return {"run_state": run_state, "combat_state": combat_state, "changed": false, "staged": false}
+	var source_analytics: Dictionary = combat_state.get("analytics", {}) as Dictionary
+	if (
+		source_analytics.has(COMBAT_SKILL_EVENT_STAGED_REVISION_KEY)
+		and source_analytics.has(COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY)
+		and int(source_analytics.get(COMBAT_SKILL_EVENT_STAGED_REVISION_KEY, 0)) >= int(combat_state.get("skill_event_revision", 0))
+		and int(source_analytics.get(COMBAT_DEFIANCE_EVENT_STAGED_REVISION_KEY, 0)) >= int(combat_state.get("defiance_event_revision", 0))
+	):
+		return {"run_state": run_state, "combat_state": combat_state, "changed": false, "staged": false}
 	var next_run: Dictionary = run_state.duplicate(true)
 	var next_combat: Dictionary = combat_state.duplicate(true)
-	if next_combat.is_empty():
-		return {"run_state": next_run, "combat_state": next_combat, "changed": false, "staged": false}
 	var combat_analytics: Dictionary = (next_combat.get("analytics", {}) as Dictionary).duplicate(true)
 	var had_staged_cursor: bool = combat_analytics.has(COMBAT_SKILL_EVENT_STAGED_REVISION_KEY)
 	var staged_revision: int = int(combat_analytics.get(
@@ -28381,7 +29648,7 @@ func _analytics_log_merchant_trade(action: String, merchant_kind: String, item_i
 		"action": action,
 		"merchant_kind": merchant_kind,
 		"item_id": item_id,
-		"item_kind": _analytics_merchant_item_kind(merchant_kind),
+		"item_kind": _analytics_merchant_item_kind(item_id),
 		"amount": amount,
 		"held_embers_before": held_embers_before,
 		"held_embers_after": held_embers_after,
@@ -28397,17 +29664,17 @@ func _analytics_log_merchant_trade(action: String, merchant_kind: String, item_i
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true)
 	})
 
-func _analytics_merchant_item_kind(merchant_kind: String) -> String:
-	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+func _analytics_merchant_item_kind(item_id: String) -> String:
+	var kind: String = _run_engine.merchant_item_kind(item_id)
+	if kind == RunEngineScript.MERCHANT_ITEM_KIND_GEAR:
 		return "equipment"
-	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER:
-		return "item"
-	return "magic"
+	return kind
 
 func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: String, transition_combat_state: Dictionary = {}) -> void:
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))
 	var next_mode: String = str(_run_state.get("mode", "room"))
 	if previous_mode != "combat" and next_mode == "combat" and not transition_combat_state.is_empty():
+		_card_draw_sfx_revision_seen = 0
 		_run_state = _ensure_run_analytics_metadata(_run_state)
 		var analytics: Dictionary = (_run_state.get("analytics", {}) as Dictionary).duplicate(true)
 		analytics["combat_counter"] = int(analytics.get("combat_counter", 0)) + 1
@@ -28425,6 +29692,7 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 		_analytics_log_combat_started(reason)
 		return
 	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
+		_card_draw_sfx_revision_seen = 0
 		_analytics_log_combat_ended(transition_combat_state, reason)
 		if next_mode == "reward":
 			_analytics_log_reward_offered(transition_combat_state, reason)
@@ -28650,6 +29918,7 @@ func _log_item_pickups(before_state: Dictionary, after_state: Dictionary) -> voi
 func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary, before_tracker: Dictionary, after_tracker: Dictionary, reason: String) -> void:
 	var pickup_counts: Dictionary = BattlefieldItemRules.hand_pickup_counts(before_state, after_state)
 	var before_hand_ids: Dictionary = {}
+	var events: Array[Dictionary] = []
 	for instance_id_var: Variant in _analytics_zone_ids(before_tracker, "hand"):
 		before_hand_ids[str(instance_id_var)] = true
 	var after_hand_ids: Array = _analytics_zone_ids(after_tracker, "hand")
@@ -28663,36 +29932,61 @@ func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary
 		if int(pickup_counts.get(card_id, 0)) > 0:
 			draw_reason = "item_pickup"
 			pickup_counts[card_id] = int(pickup_counts[card_id]) - 1
-		_analytics_store.write_event("card_drawn", _analytics_context_from_states(_run_state, after_state, card_id, instance_id), {
-			"reason": draw_reason,
-			"hand_index": index,
-			"hand_size": after_hand_cards.size(),
-			"draw_pile_size": _analytics_zone_cards(after_state, "draw").size()
+		events.append({
+			"event_type": "card_drawn",
+			"context": _analytics_context_from_states(_run_state, after_state, card_id, instance_id),
+			"payload": {
+				"reason": draw_reason,
+				"hand_index": index,
+				"hand_size": after_hand_cards.size(),
+				"draw_pile_size": _analytics_zone_cards(after_state, "draw").size()
+			}
 		})
+	_analytics_store.write_events(events)
 
 func _analytics_log_playable_cards() -> void:
 	if _combat_state.is_empty() or _analytics_combat_tracker.is_empty():
 		return
+	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var performance_phase_started: int = performance_total_started
 	var playable_logged: Dictionary = (_analytics_combat_tracker.get("playable_logged", {}) as Dictionary).duplicate(true)
+	var events: Array[Dictionary] = []
+	var base_context: Dictionary = {}
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	var hand_ids: Array = _analytics_zone_ids(_analytics_combat_tracker, "hand")
+	performance_phase_started = _record_runtime_performance_phase("analytics_playable_setup", performance_phase_started)
 	for index: int in range(mini(hand.size(), hand_ids.size())):
 		var instance_id: String = str(hand_ids[index])
 		if bool(playable_logged.get(instance_id, false)):
 			continue
 		var options: Dictionary = _card_play_options_for_index(index)
+		performance_phase_started = _record_runtime_performance_phase("analytics_playable_options_total", performance_phase_started)
 		if not bool(options.get("any_playable", false)):
 			continue
 		var card_id: String = str(hand[index])
 		playable_logged[instance_id] = true
-		_analytics_store.write_event("card_became_playable", _analytics_context_from_states(_run_state, _combat_state, card_id, instance_id), {
-			"hand_index": index,
-			"printed_playable": bool(options.get("printed_playable", false)),
-			"attack_playable": bool(options.get("attack_playable", false)),
-			"move_playable": bool(options.get("move_playable", false)),
-			"blink_playable": bool(options.get("blink_playable", false))
+		if base_context.is_empty():
+			base_context = _analytics_context_from_states(_run_state, _combat_state)
+		var context: Dictionary = base_context.duplicate(true)
+		context["card_id"] = card_id
+		context["card_instance_id"] = instance_id
+		performance_phase_started = _record_runtime_performance_phase("analytics_playable_context", performance_phase_started)
+		events.append({
+			"event_type": "card_became_playable",
+			"context": context,
+			"payload": {
+				"hand_index": index,
+				"printed_playable": bool(options.get("printed_playable", false)),
+				"attack_playable": bool(options.get("attack_playable", false)),
+				"move_playable": bool(options.get("move_playable", false)),
+				"blink_playable": bool(options.get("blink_playable", false))
+			}
 		})
 	_analytics_combat_tracker["playable_logged"] = playable_logged
+	performance_phase_started = _record_runtime_performance_phase("analytics_playable_collect", performance_phase_started)
+	_analytics_store.write_events(events)
+	_record_runtime_performance_phase("analytics_playable_write", performance_phase_started)
+	_record_runtime_performance_phase("analytics_playable_total", performance_total_started)
 
 func _analytics_log_card_played(card_id: String, card_instance_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	if card_id.is_empty():
@@ -28998,7 +30292,8 @@ func _analytics_enemy_defense_bypassed(before_state: Dictionary, resolved_state:
 		total += mini(hp_loss, before_defense)
 	return total
 
-func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
+func _analytics_enemy_status_tick_events(phase_result: Dictionary, context: Dictionary) -> Array[Dictionary]:
+	var events: Array[Dictionary] = []
 	for step_var: Variant in phase_result.get("steps", []):
 		if typeof(step_var) != TYPE_DICTIONARY:
 			continue
@@ -29008,19 +30303,25 @@ func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
 			continue
 		if bool(step.get("boss_mechanic", false)):
 			continue
-		_analytics_store.write_event("enemy_status_tick", _analytics_context_from_states(_run_state, _combat_state), {
-			"kind": kind,
-			"actor_key": str(step.get("actor_key", "")),
-			"actor_name": str(step.get("actor_name", "")),
-			"label": str(step.get("label", "")),
-			"amount": int(step.get("amount", 0)),
-			"text": str(step.get("text", "")),
-			"trigger": str(step.get("trigger", "turn_start")),
-			"action_type": str(step.get("action_type", "")),
-			"tile": step.get("tile", Vector2i(-1, -1))
+		events.append({
+			"event_type": "enemy_status_tick",
+			"context": context,
+			"payload": {
+				"kind": kind,
+				"actor_key": str(step.get("actor_key", "")),
+				"actor_name": str(step.get("actor_name", "")),
+				"label": str(step.get("label", "")),
+				"amount": int(step.get("amount", 0)),
+				"text": str(step.get("text", "")),
+				"trigger": str(step.get("trigger", "turn_start")),
+				"action_type": str(step.get("action_type", "")),
+				"tile": step.get("tile", Vector2i(-1, -1))
+			}
 		})
+	return events
 
-func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
+func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionary) -> Array[Dictionary]:
+	var events: Array[Dictionary] = []
 	for step_var: Variant in phase_result.get("steps", []):
 		if typeof(step_var) != TYPE_DICTIONARY:
 			continue
@@ -29029,26 +30330,48 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "intensity"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
-		_analytics_store.write_event("enemy_action_resolved", _analytics_context_from_states(_run_state, _combat_state), {
-			"action_type": str(step.get("action_type", kind)),
-			"presentation_kind": kind,
-			"boss_mechanic": bool(step.get("boss_mechanic", false)),
-			"actor_key": str(step.get("actor_key", "")),
-			"actor_name": str(step.get("actor_name", "")),
-			"label": str(step.get("label", "")),
-			"from": step.get("from", step.get("tile", Vector2i(-1, -1))),
-			"to": step.get("to", step.get("tile", Vector2i(-1, -1))),
-			"path": path,
-			"path_steps": maxi(0, path.size() - 1),
-			"target_key": str(step.get("target_key", "")),
-			"target_losses": (step.get("target_losses", []) as Array).duplicate(true),
-			"enemy_losses": (step.get("enemy_losses", []) as Array).duplicate(true),
-			"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
-			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true),
-			"support_targets": (step.get("targets", []) as Array).duplicate(true),
-			"elemental_intensity_gained": (step.get("elemental_intensity_gained", {}) as Dictionary).duplicate(true),
-			"elemental_intensity_spent": (step.get("elemental_intensity_spent", {}) as Dictionary).duplicate(true)
+		events.append({
+			"event_type": "enemy_action_resolved",
+			"context": context,
+			"payload": {
+				"action_type": str(step.get("action_type", kind)),
+				"presentation_kind": kind,
+				"boss_mechanic": bool(step.get("boss_mechanic", false)),
+				"enemy_type": str(step.get("enemy_type", "")),
+				"ai_role": str(step.get("ai_role", "")),
+				"intent_id": str(step.get("intent_id", "")),
+				"actor_key": str(step.get("actor_key", "")),
+				"actor_name": str(step.get("actor_name", "")),
+				"label": str(step.get("label", "")),
+				"from": step.get("from", step.get("tile", Vector2i(-1, -1))),
+				"to": step.get("to", step.get("tile", Vector2i(-1, -1))),
+				"path": path,
+				"path_steps": maxi(0, path.size() - 1),
+				"target_key": str(step.get("target_key", "")),
+				"target_losses": (step.get("target_losses", []) as Array).duplicate(true),
+				"enemy_losses": (step.get("enemy_losses", []) as Array).duplicate(true),
+				"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
+				"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true),
+				"support_targets": (step.get("targets", []) as Array).duplicate(true),
+				"elemental_intensity_gained": (step.get("elemental_intensity_gained", {}) as Dictionary).duplicate(true),
+				"elemental_intensity_spent": (step.get("elemental_intensity_spent", {}) as Dictionary).duplicate(true)
+			}
 		})
+	return events
+
+func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
+	var context: Dictionary = _analytics_context_from_states(_run_state, _combat_state)
+	_analytics_store.write_events(_analytics_enemy_status_tick_events(phase_result, context))
+
+func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
+	var context: Dictionary = _analytics_context_from_states(_run_state, _combat_state)
+	_analytics_store.write_events(_analytics_enemy_action_events(phase_result, context))
+
+func _analytics_log_enemy_phase_events(phase_result: Dictionary) -> void:
+	var context: Dictionary = _analytics_context_from_states(_run_state, _combat_state)
+	var events: Array[Dictionary] = _analytics_enemy_status_tick_events(phase_result, context)
+	events.append_array(_analytics_enemy_action_events(phase_result, context))
+	_analytics_store.write_events(events)
 
 func _sync_combat_state_from_run() -> void:
 	var entering_combat: bool = _combat_state.is_empty()

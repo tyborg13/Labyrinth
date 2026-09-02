@@ -566,17 +566,24 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 	_require(not bool(instance.get("_controller_hand_focused")), "Pass should leave the hand tucked when control returns to the player")
 
 func _exercise_controller_merchant(instance: Node, run_engine, restore_state: Dictionary) -> void:
-	var merchant_state: Dictionary = _blacksmith_controller_state(run_engine)
-	_require(not merchant_state.is_empty(), "Controller proof should find a deterministic blacksmith room")
+	var merchant_state: Dictionary = _scavenger_controller_state(run_engine)
+	_require(not merchant_state.is_empty(), "Controller proof should find a deterministic Scavenger room")
 	instance.call("_load_run_state", merchant_state)
 	instance.call("_close_dialogue")
 	await _settle()
 	instance.call("_recover_controller_focus")
 	await _settle()
 	_require(not bool(instance.call("_controller_custom_room_available")), "An open merchant should use GUI focus rather than intercepting input for room doors")
-	_assert_focus_inside(instance.get("_relic_choice_overlay") as Control, "Merchant shop")
-	var buy_button: Button = _visible_button_with_text(instance, "Buy")
-	_require(buy_button != null and not buy_button.disabled, "Merchant controller proof should expose an affordable Buy action")
+	var shop: Control = instance.get("_scavenger_shop_view") as Control
+	_assert_focus_inside(shop, "Scavenger shop")
+	var gear_offer: Button = shop.find_child("GearOffer_*", true, false) as Button if shop != null else null
+	_require(gear_offer != null, "Scavenger controller proof should expose a focusable Gear offer")
+	if gear_offer != null:
+		gear_offer.grab_focus()
+		await _press_controller_button(JOY_BUTTON_A)
+		await _settle()
+	var buy_button: Button = shop.find_child("ScavengerTradeActionButton", true, false) as Button if shop != null else null
+	_require(buy_button != null and not buy_button.disabled and buy_button.text.begins_with("BUY FOR"), "Selecting a Scavenger ware should expose an affordable explicit Buy action")
 	buy_button.grab_focus()
 	await _save_screenshot("merchant_controller_focus.png")
 	var embers_before: int = int((instance.get("_run_state") as Dictionary).get("held_embers", 0))
@@ -592,11 +599,11 @@ func _exercise_controller_merchant(instance: Node, run_engine, restore_state: Di
 	instance.call("_close_dialogue")
 	await _settle()
 
-func _blacksmith_controller_state(run_engine) -> Dictionary:
+func _scavenger_controller_state(run_engine) -> Dictionary:
 	var progression: Dictionary = ProgressionStore.set_embers(ProgressionStore.default_data(), 600)
 	for seed: int in range(1, 90):
 		var state: Dictionary = run_engine.create_new_run(seed, progression)
-		var coord: Vector2i = _first_room_coord_of_type(run_engine, state, "blacksmith")
+		var coord: Vector2i = _first_room_coord_of_type(run_engine, state, "scavenger")
 		if coord.x >= 900:
 			continue
 		var room: Dictionary = run_engine.room_metadata(state, coord).duplicate(true)

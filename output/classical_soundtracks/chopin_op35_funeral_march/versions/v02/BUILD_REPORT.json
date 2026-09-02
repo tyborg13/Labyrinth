@@ -1,0 +1,157 @@
+{
+  "arrangement_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/versions/v02/arrangement.mid",
+  "arrangement_midi_sha256": "b951e9eab1bd5b6d8e489c4a2c5d5742785d9ba1a62dbae6874ed33651c6a56b",
+  "arrangement_note_counts": {
+    "Ashen Violin / Upper Harmony": 36,
+    "Funeral Pulse / Procedural Percussion": 12,
+    "Grave Cello / Funeral Cantus": 31,
+    "Hollow Viola / Inner Lament": 30,
+    "Undercrypt Bass / Processional Root": 78,
+    "Veiled Violin / Trio Cantilena": 27
+  },
+  "audible_loop_duration_seconds": 51.81818181818182,
+  "bridge_pitch_policy": "Every bridge pitch is asserted in an adjacent selected source window; no pitch is transposed or newly harmonized.",
+  "harmony_changes": "none",
+  "loop_crossfade_seconds": 0.9090909090909091,
+  "motif_policy": "Veiled Violin and Grave Cello are absent throughout march slices A and B; the exact v01 iconic opening onset/pitch signature is absent from every melodic track.",
+  "ok": true,
+  "slices_in_order": [
+    {
+      "key": "A",
+      "label": "March reprise, inner descent",
+      "march_main_melody_removed": true,
+      "snapped_v01_preview_seconds": [
+        301.8265635951,
+        309.0992908679
+      ],
+      "source_measures_inclusive": [
+        85,
+        86
+      ],
+      "source_ticks": [
+        161280,
+        165120
+      ],
+      "user_v01_preview_range": [
+        "5:01",
+        "5:08"
+      ]
+    },
+    {
+      "key": "B",
+      "label": "March reprise, harmonic crest and fall",
+      "march_main_melody_removed": true,
+      "snapped_v01_preview_seconds": [
+        330.917472686,
+        352.7356545042
+      ],
+      "source_measures_inclusive": [
+        93,
+        98
+      ],
+      "source_ticks": [
+        176640,
+        188160
+      ],
+      "user_v01_preview_range": [
+        "5:29",
+        "5:52"
+      ]
+    },
+    {
+      "key": "C",
+      "label": "Trio, veiled cantilena",
+      "march_main_melody_removed": false,
+      "snapped_v01_preview_seconds": [
+        170.917472686,
+        189.0992908679
+      ],
+      "source_measures_inclusive": [
+        49,
+        53
+      ],
+      "source_ticks": [
+        92160,
+        101760
+      ],
+      "user_v01_preview_range": [
+        "2:50",
+        "3:09"
+      ]
+    }
+  ],
+  "source_midi_sha256": "ec2a476e16556cdffc69d47bf0aebf4093842e9dde8f6c32170c7da6a6149ee3",
+  "structural_duration_seconds": 52.72727272727273,
+  "structure": {
+    "bridge_A_B": {
+      "end_tick": 4800,
+      "start_tick": 4320
+    },
+    "bridge_B_C": {
+      "end_tick": 17280,
+      "start_tick": 16320
+    },
+    "copied_note_counts": {
+      "A": {
+        "Ashen Violin / Upper Harmony": 8,
+        "Funeral Pulse / Procedural Percussion": 0,
+        "Grave Cello / Funeral Cantus": 0,
+        "Hollow Viola / Inner Lament": 8,
+        "Undercrypt Bass / Processional Root": 8,
+        "Veiled Violin / Trio Cantilena": 0
+      },
+      "B": {
+        "Ashen Violin / Upper Harmony": 24,
+        "Funeral Pulse / Procedural Percussion": 0,
+        "Grave Cello / Funeral Cantus": 0,
+        "Hollow Viola / Inner Lament": 18,
+        "Undercrypt Bass / Processional Root": 54,
+        "Veiled Violin / Trio Cantilena": 0
+      },
+      "C": {
+        "Ashen Violin / Upper Harmony": 0,
+        "Funeral Pulse / Procedural Percussion": 0,
+        "Grave Cello / Funeral Cantus": 30,
+        "Hollow Viola / Inner Lament": 0,
+        "Undercrypt Bass / Processional Root": 10,
+        "Veiled Violin / Trio Cantilena": 25
+      }
+    },
+    "iconic_signature_matches": {
+      "Ashen Violin / Upper Harmony": [],
+      "Grave Cello / Funeral Cantus": [],
+      "Hollow Viola / Inner Lament": [],
+      "Undercrypt Bass / Processional Root": [],
+      "Veiled Violin / Trio Cantilena": []
+    },
+    "loop_bridge": {
+      "end_tick": 27840,
+      "start_tick": 26880
+    },
+    "pre_roll": {
+      "end_tick": 480,
+      "start_tick": 0
+    },
+    "removed_main_melody_note_counts": {
+      "A": {
+        "Grave Cello / Funeral Cantus": 14,
+        "Veiled Violin / Trio Cantilena": 0
+      },
+      "B": {
+        "Grave Cello / Funeral Cantus": 28,
+        "Veiled Violin / Trio Cantilena": 8
+      }
+    },
+    "slice_starts": {
+      "A": 480,
+      "B": 4800,
+      "C": 17280
+    }
+  },
+  "tempo_qpm": 66,
+  "total_ticks": 27840,
+  "transpositions": "none",
+  "v01_arrangement_midi_sha256": "342ae252fdb8012832dce8ae2a2d428f3c4b526d2460ca476c0a6138466b2f0c",
+  "v01_preview_rotation_seconds": 3.627981859410431,
+  "version": "v02"
+}

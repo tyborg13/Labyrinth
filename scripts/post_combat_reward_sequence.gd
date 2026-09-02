@@ -11,6 +11,7 @@ const CARD_FRAME_NAME: String = "CardScaleFrame"
 const VICTORY_FONT_SIZE: int = 132
 const VICTORY_REDUCED_HOLD_SECONDS: float = 0.22
 const VICTORY_UNFURL_SECONDS: float = 0.30
+const VICTORY_SETTLE_SECONDS: float = 0.08
 const VICTORY_HOLD_SECONDS: float = 0.26
 const VICTORY_FADE_SECONDS: float = 0.22
 const BANNER_UNFURL_SECONDS: float = 0.30
@@ -91,7 +92,22 @@ static func hide_victory(overlay: Control) -> void:
 		label.rotation = 0.0
 
 
-static func play_victory(overlay: Control, reduced_motion: bool) -> void:
+static func victory_hold_seconds(minimum_visible_seconds: float, reduced_motion: bool) -> float:
+	var minimum_seconds: float = maxf(0.0, minimum_visible_seconds)
+	if reduced_motion:
+		return maxf(VICTORY_REDUCED_HOLD_SECONDS, minimum_seconds)
+	var animated_seconds: float = VICTORY_UNFURL_SECONDS + VICTORY_SETTLE_SECONDS + VICTORY_FADE_SECONDS
+	return maxf(VICTORY_HOLD_SECONDS, minimum_seconds - animated_seconds)
+
+
+static func victory_sequence_seconds(minimum_visible_seconds: float, reduced_motion: bool) -> float:
+	var hold_seconds: float = victory_hold_seconds(minimum_visible_seconds, reduced_motion)
+	if reduced_motion:
+		return hold_seconds
+	return VICTORY_UNFURL_SECONDS + VICTORY_SETTLE_SECONDS + hold_seconds + VICTORY_FADE_SECONDS
+
+
+static func play_victory(overlay: Control, reduced_motion: bool, minimum_visible_seconds: float = 0.0) -> void:
 	var label: Label = victory_label(overlay)
 	if overlay == null or label == null or not overlay.is_inside_tree():
 		return
@@ -99,7 +115,7 @@ static func play_victory(overlay: Control, reduced_motion: bool) -> void:
 	await overlay.get_tree().process_frame
 	label.pivot_offset = label.size * 0.5
 	if reduced_motion:
-		await overlay.get_tree().create_timer(VICTORY_REDUCED_HOLD_SECONDS).timeout
+		await overlay.get_tree().create_timer(victory_hold_seconds(minimum_visible_seconds, true)).timeout
 		hide_victory(overlay)
 		return
 
@@ -114,9 +130,9 @@ static func play_victory(overlay: Control, reduced_motion: bool) -> void:
 	await unfurl.finished
 	var settle: Tween = label.create_tween()
 	settle.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	settle.tween_property(label, "scale", Vector2.ONE, 0.08)
+	settle.tween_property(label, "scale", Vector2.ONE, VICTORY_SETTLE_SECONDS)
 	await settle.finished
-	await overlay.get_tree().create_timer(VICTORY_HOLD_SECONDS).timeout
+	await overlay.get_tree().create_timer(victory_hold_seconds(minimum_visible_seconds, false)).timeout
 	var fade: Tween = label.create_tween().set_parallel(true)
 	fade.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	fade.tween_property(label, "modulate:a", 0.0, VICTORY_FADE_SECONDS)
@@ -253,7 +269,8 @@ static func play_reward_reveal(
 	title: Label,
 	card_slots: Array[Control],
 	secondary_actions: Control,
-	reduced_motion: bool
+	reduced_motion: bool,
+	card_flip_cue: Callable = Callable()
 ) -> void:
 	if sequence_host == null or not sequence_host.is_inside_tree():
 		return
@@ -293,7 +310,7 @@ static func play_reward_reveal(
 	await sequence_host.get_tree().create_timer(CARD_BACK_HOLD_SECONDS).timeout
 
 	for index: int in range(card_slots.size()):
-		await _flip_card(card_slots[index])
+		await _flip_card(card_slots[index], card_flip_cue)
 		if index < card_slots.size() - 1:
 			await sequence_host.get_tree().create_timer(CARD_FLIP_STAGGER_SECONDS).timeout
 
@@ -305,12 +322,14 @@ static func play_reward_reveal(
 	settle_reward(banner, title, card_slots, secondary_actions)
 
 
-static func _flip_card(slot: Control) -> void:
+static func _flip_card(slot: Control, card_flip_cue: Callable = Callable()) -> void:
 	var scaler: Control = _card_scaler(slot)
 	if scaler == null:
 		return
 	var base_scale: Vector2 = scaler.get_meta("reward_reveal_base_scale", scaler.scale) as Vector2
 	var closed_scale := Vector2(maxf(0.01, base_scale.x * 0.045), base_scale.y * 1.025)
+	if card_flip_cue.is_valid():
+		card_flip_cue.call()
 	var close_tween: Tween = scaler.create_tween()
 	close_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	close_tween.tween_property(scaler, "scale", closed_scale, CARD_FLIP_CLOSE_SECONDS)

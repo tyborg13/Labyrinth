@@ -25,7 +25,11 @@ func _reset_card_resolution() -> void:
 	set("_pending_selected_targets", _typed_tiles([]))
 
 
-func _refresh_ui() -> void:
+func _refresh_ui(
+	_frame_sliced: bool = false,
+	_unlock_animation_after_slices: bool = false,
+	_queue_hand_ready_wave_on_unlock: bool = false
+) -> void:
 	tutorial_refresh_count += 1
 
 

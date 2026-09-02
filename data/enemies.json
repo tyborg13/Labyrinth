@@ -1,6 +1,11 @@
 {
   "crawler": {
     "name": "Tunnel Crawler",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 0
+    },
     "max_hp": 14,
     "base_initiative": 8,
     "reward_embers": 8,
@@ -65,6 +70,11 @@
   },
   "acolyte": {
     "name": "Dust Acolyte",
+    "ai_profile": {
+      "role": "artillery",
+      "preferred_range": 4,
+      "retreat_distance": 2
+    },
     "max_hp": 12,
     "base_initiative": 12,
     "reward_embers": 10,
@@ -134,6 +144,11 @@
   },
   "harrier": {
     "name": "Bone Harrier",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 4,
+      "retreat_distance": 2
+    },
     "max_hp": 10,
     "base_initiative": 9,
     "reward_embers": 9,
@@ -210,6 +225,11 @@
   },
   "warden": {
     "name": "Stone Warden",
+    "ai_profile": {
+      "role": "protector",
+      "preferred_range": 1,
+      "retreat_distance": 0
+    },
     "max_hp": 18,
     "base_initiative": 15,
     "reward_embers": 14,
@@ -288,6 +308,11 @@
   },
   "cinder_ooze": {
     "name": "Cinder Ooze",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 0
+    },
     "element": "fire",
     "max_hp": 12,
     "base_initiative": 13,
@@ -381,6 +406,11 @@
   },
   "cinder_droplet": {
     "name": "Cinder Droplet",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 1,
+      "retreat_distance": 1
+    },
     "max_hp": 4,
     "base_initiative": 9,
     "reward_embers": 0,
@@ -430,6 +460,11 @@
   },
   "bile_bloomer": {
     "name": "Bile Bloomer",
+    "ai_profile": {
+      "role": "artillery",
+      "preferred_range": 4,
+      "retreat_distance": 2
+    },
     "element": "earth",
     "max_hp": 14,
     "base_initiative": 14,
@@ -552,6 +587,11 @@
   },
   "chainbound_gaoler": {
     "name": "Chainbound Gaoler",
+    "ai_profile": {
+      "role": "controller",
+      "preferred_range": 2,
+      "retreat_distance": 1
+    },
     "element": "air",
     "max_hp": 14,
     "base_initiative": 13,
@@ -636,6 +676,11 @@
   },
   "grave_surgeon": {
     "name": "Grave Surgeon",
+    "ai_profile": {
+      "role": "support",
+      "preferred_range": 4,
+      "retreat_distance": 2
+    },
     "max_hp": 10,
     "base_initiative": 12,
     "reward_embers": 11,
@@ -703,6 +748,11 @@
   },
   "frostglass_lancer": {
     "name": "Frostglass Lancer",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 4,
+      "retreat_distance": 2
+    },
     "element": "ice",
     "max_hp": 12,
     "base_initiative": 11,
@@ -1230,6 +1280,11 @@
   },
   "veilbound_acolyte": {
     "name": "Veilbound Acolyte",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 4,
+      "retreat_distance": 2
+    },
     "element": "shadow",
     "max_hp": 4,
     "base_initiative": 18,
@@ -1288,6 +1343,11 @@
   },
   "lightning_wisp": {
     "name": "Lightning Wisp",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 4,
+      "retreat_distance": 2
+    },
     "element": "lightning",
     "max_hp": 6,
     "base_initiative": 7,

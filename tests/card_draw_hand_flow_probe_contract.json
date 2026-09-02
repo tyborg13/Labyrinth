@@ -1,0 +1,62 @@
+{
+  "min_images": 7,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*01_first_launch.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 760, 1200, 320], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*02_overlapping_stream.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 680, 1500, 400], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*03_first_settled_second_inflight.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 720, 1320, 360], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*04_staged_settled.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 760, 960, 320], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*05_authoritative_handoff.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 760, 960, 320], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*06_reduced_motion_stream.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 720, 1320, 360], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*07_reduced_motion_handoff.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 760, 960, 320], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    }
+  ]
+}

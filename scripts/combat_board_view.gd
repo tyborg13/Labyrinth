@@ -10,6 +10,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
+const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
@@ -46,6 +47,8 @@ const HOVER_HIGHLIGHT: Color = Color(1.0, 0.96, 0.82, 0.22)
 const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
+const AOE_FOOTPRINT_HIGHLIGHT: Color = Color(1.0, 0.68, 0.22, 0.38)
+const AOE_FOOTPRINT_EDGE: Color = Color(1.0, 0.90, 0.58, 0.92)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
 const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
 const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.333
@@ -162,6 +165,8 @@ const IDLE_SHEET_ROWS: int = 2
 const DEATH_FRAME_SECONDS: float = 0.065
 const DEATH_SHEET_COLUMNS: int = 4
 const DEATH_SHEET_ROWS: int = 4
+const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = 28
+const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = 0.037
 const TERRAIN_DESTRUCTION_FRAME_SECONDS: float = 0.065
 const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
 	"wooden_box": {
@@ -309,8 +314,6 @@ const CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE: float = 1.78
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
-const BLACKSMITH_FORGE_PATH: String = "res://assets/art/tiles/blacksmith_forge.png"
-const ARCANIST_TABLE_PATH: String = "res://assets/art/tiles/arcanist_table.png"
 const SCAVENGER_STALL_PATH: String = "res://assets/art/tiles/scavenger_stall.png"
 const COLUMN_TORCH_LEFT_PATH: String = "res://assets/art/tiles/column_torch_left.png"
 const COLUMN_TORCH_RIGHT_PATH: String = "res://assets/art/tiles/column_torch_right.png"
@@ -346,6 +349,7 @@ const AMBIENT_PARTICLE_OPACITY: float = 0.68
 const AMBIENT_PARTICLE_SPEED_SCALE: float = 1.0
 const AMBIENT_INTENSITY_TRANSITION_SECONDS: float = 1.5
 const AMBIENT_INTENSITY_EPSILON: float = 0.001
+const AMBIENT_BATCH_SPRITE_GROWTH: int = 64
 const COLUMN_TORCH_WIDTH_SCALE: float = 0.30
 const COLUMN_TORCH_FACE_OFFSET_X_SCALE: float = 0.26
 const COLUMN_TORCH_TOP_Y_SCALE: float = 0.27
@@ -465,12 +469,13 @@ const TERRAIN_HEALTH_BAR_SIZE: Vector2 = Vector2(56.0, 8.0)
 const SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.22)
 const SHADOW_LIGHT_VECTOR: Vector2 = Vector2(1.0, 0.55)
 const SHADOW_POINT_COUNT: int = 24
+const UnitShadowCacheResourceScript = preload("res://scripts/unit_shadow_cache_resource.gd")
 const UNIT_SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.24)
 const UNIT_SHADOW_SOFT_COLOR: Color = Color(0.0, 0.0, 0.0, 0.10)
-const UNIT_SHADOW_ALPHA_THRESHOLD: float = 0.08
-const UNIT_SHADOW_SIMPLIFY_EPSILON: float = 3.0
-const UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON: float = 0.75
-const UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA: float = 8.0
+const UNIT_SHADOW_ALPHA_THRESHOLD: float = UnitShadowCacheResourceScript.ALPHA_THRESHOLD
+const UNIT_SHADOW_SIMPLIFY_EPSILON: float = UnitShadowCacheResourceScript.SIMPLIFY_EPSILON
+const UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON: float = UnitShadowCacheResourceScript.RETRY_SIMPLIFY_EPSILON
+const UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA: float = UnitShadowCacheResourceScript.MIN_ALPHA_POLYGON_AREA
 const UNIT_SHADOW_SHAPE_SCALE: float = 1.72
 const UNIT_SHADOW_WIDTH_SCALE: float = 0.82
 const UNIT_SHADOW_WIDTH_SLOPE_Y: float = 0.0
@@ -478,6 +483,8 @@ const UNIT_SHADOW_HEIGHT_CAST_X: float = -0.02
 const UNIT_SHADOW_HEIGHT_CAST_Y: float = 0.20
 const UNIT_SHADOW_FOOT_OFFSET_Y_RATIO: float = 0.0
 const UNIT_SHADOW_SOFT_SCALE: float = 1.12
+const UNIT_SHADOW_CACHE_PATH: String = "res://assets/generated/unit_shadow_cache.res"
+const UNIT_SHADOW_CACHE_SCHEMA_VERSION: int = UnitShadowCacheResourceScript.SCHEMA_VERSION
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -541,6 +548,11 @@ var _ambient_batch_vertices: PackedVector3Array = PackedVector3Array()
 var _ambient_batch_uvs: PackedVector2Array = PackedVector2Array()
 var _ambient_batch_colors: PackedColorArray = PackedColorArray()
 var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
+var _ambient_batch_sprite_count: int = 0
+var _ambient_batch_sprite_capacity: int = 0
+var _ambient_batch_sprite_total_count: int = 0
+var _ambient_batch_sprite_max_count: int = 0
+var _ambient_batch_buffer_grow_count: int = 0
 var _ambient_combined_atlas: Texture2D = null
 var _ambient_combined_atlas_regions: Dictionary = {}
 var _ambient_batch_mesh: ArrayMesh = null
@@ -594,6 +606,9 @@ var equipment_tooltip_builder: Callable
 var item_tooltip_builder: Callable
 var _idle_frames_by_type: Dictionary = {}
 var _death_frames_by_type: Dictionary = {}
+var _enemy_shadow_dissolve_effects_by_key: Dictionary = {}
+var _enemy_shadow_dissolve_spare_effect: Control = null
+var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
 var _idle_frame_by_source: Dictionary = {}
@@ -655,8 +670,14 @@ var _texture_used_rect_cache: Dictionary = {}
 var _unit_shadow_prewarm_urgent_queue: Array[Texture2D] = []
 var _unit_shadow_prewarm_background_queue: Array[Texture2D] = []
 var _unit_shadow_prewarm_queued_ids: Dictionary = {}
+var _unit_shadow_prewarm_pending_ids: Dictionary = {}
 var _unit_shadow_prewarm_thread: Thread = null
 var _unit_shadow_prewarm_active_texture: Texture2D = null
+var _unit_shadow_last_prepare_waited_frames: int = 0
+var _unit_shadow_precomputed_entries: Dictionary = {}
+var _unit_shadow_precomputed_source_sha256: Dictionary = {}
+var _unit_shadow_precomputed_loaded_keys: Dictionary = {}
+var _unit_shadow_precomputed_missing_keys: Dictionary = {}
 var _submission_cache_source_snapshot: Dictionary = {}
 var _submission_cache_initialized: bool = false
 var _submission_cache_combat_changed: bool = false
@@ -664,6 +685,7 @@ var _is_dynamic_render_layer: bool = false
 var _render_layer_kind: String = ""
 var _render_layer_tile: Vector2i = Vector2i(-1, -1)
 var _render_layer_scene_effect_pass: int = 0
+var _render_instrumentation_owner: Node = null
 var _ambient_render_layer: Control = null
 var _overlay_render_layer: Control = null
 var _ground_render_layer: Control = null
@@ -688,11 +710,21 @@ var _dynamic_draw_max_usec: int = 0
 var _render_section_total_usec: Dictionary = {}
 var _render_section_max_usec: Dictionary = {}
 var _unit_shadow_sync_miss_metrics: Dictionary = {}
+var _unit_shadow_draw_cache_metrics: Dictionary = {}
 var _full_dynamic_redraw_count: int = 0
 var _unclassified_presentation_redraw_keys: Dictionary = {}
 var _submission_performance_instrumentation_enabled: bool = false
 var _submission_performance_total_usec: Dictionary = {}
 var _submission_performance_counts: Dictionary = {}
+var _retained_draw_frame_id: int = -1
+var _retained_draw_frame_total_usec: int = 0
+var _retained_draw_frame_count: int = 0
+var _retained_draw_frame_layer_usec: Dictionary = {}
+var _retained_draw_frame_layer_detail_usec: Dictionary = {}
+var _retained_draw_frame_max_usec: int = 0
+var _retained_draw_frame_max_count: int = 0
+var _retained_draw_frame_max_layers: Dictionary = {}
+var _retained_draw_frame_top: Array[Dictionary] = []
 var _umbra_return_start_by_tile: Dictionary = {}
 var _board_layout_content_rebuild_count: int = 0
 
@@ -715,6 +747,7 @@ func _ready() -> void:
 	resized.connect(_on_board_resized)
 	get_viewport().size_changed.connect(_sync_static_render_cache)
 	_load_assets(false)
+	_schedule_enemy_shadow_dissolve_shader_prewarm()
 	_create_static_render_cache()
 	_create_dynamic_render_layer()
 
@@ -833,6 +866,7 @@ func _create_dynamic_render_layer() -> void:
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
 	_sync_dynamic_render_assets()
 	_sync_dynamic_render_state(true)
+	_sync_enemy_shadow_dissolve_effects()
 	_queue_dynamic_redraw()
 
 func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Control:
@@ -840,6 +874,7 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 	layer.name = layer_name
 	layer.set("_is_dynamic_render_layer", true)
 	layer.set("_render_layer_kind", layer_kind)
+	layer.set("_render_instrumentation_owner", self)
 	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.focus_mode = Control.FOCUS_NONE
 	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -905,6 +940,112 @@ func _sync_scene_render_layers() -> void:
 		move_child(layer_var as Control, insertion_index)
 		insertion_index += 1
 
+
+func _sync_enemy_shadow_dissolve_effects() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer:
+		return
+	var active_keys: Dictionary = {}
+	for unit: Dictionary in _death_animation_units_from_presentation():
+		if not _unit_uses_procedural_shadow_dissolve(unit):
+			continue
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_key.is_empty():
+			continue
+		var render_tile: Vector2i = _scene_render_tile_for_unit(unit)
+		var target_layer: Control = _scene_render_layers_by_tile.get(render_tile, null) as Control
+		if target_layer == null or not is_instance_valid(target_layer):
+			continue
+		var source_texture: Texture2D = _enemy_shadow_dissolve_source_texture(unit)
+		if source_texture == null:
+			continue
+		var effect: Control = _enemy_shadow_dissolve_effects_by_key.get(actor_key, null) as Control
+		if effect == null or not is_instance_valid(effect) or effect.is_queued_for_deletion():
+			effect = _take_enemy_shadow_dissolve_effect()
+			effect.name = "EnemyShadowDissolve_%d" % int(unit.get("id", _enemy_shadow_dissolve_effects_by_key.size()))
+			if effect.get_parent() == null:
+				target_layer.add_child(effect)
+			elif effect.get_parent() != target_layer:
+				effect.reparent(target_layer, false)
+			_enemy_shadow_dissolve_effects_by_key[actor_key] = effect
+		elif effect.get_parent() != target_layer:
+			effect.reparent(target_layer, false)
+		var source_rect: Rect2 = _unit_draw_rect_for_texture(unit, _unit_center(unit), source_texture)
+		effect.call(
+			"configure",
+			source_texture,
+			source_rect,
+			float(unit.get("death_progress", 0.0)),
+			_enemy_shadow_dissolve_seed_for_unit(unit),
+			bool(presentation.get("reduced_motion", false))
+		)
+		active_keys[actor_key] = true
+	for actor_key_var: Variant in _enemy_shadow_dissolve_effects_by_key.keys():
+		if active_keys.has(actor_key_var):
+			continue
+		var stale_effect: Control = _enemy_shadow_dissolve_effects_by_key.get(actor_key_var, null) as Control
+		_enemy_shadow_dissolve_effects_by_key.erase(actor_key_var)
+		if stale_effect != null and is_instance_valid(stale_effect):
+			_return_enemy_shadow_dissolve_effect(stale_effect)
+
+
+func _schedule_enemy_shadow_dissolve_shader_prewarm() -> void:
+	if _enemy_shadow_dissolve_shader_prewarm_submitted:
+		return
+	var source_texture: Texture2D = _unit_textures.get("player", null) as Texture2D
+	if source_texture == null:
+		return
+	_enemy_shadow_dissolve_shader_prewarm_submitted = true
+	var effect: Control = EnemyShadowDissolveEffect.new() as Control
+	effect.name = "EnemyShadowDissolvePrewarm"
+	# A real, nearly transparent draw is required to compile the canvas pipeline.
+	# Keep it one pixel and behind the board, then retain the initialized material
+	# as the first death effect so no node/material allocation lands on a kill.
+	effect.z_index = RenderingServer.CANVAS_ITEM_Z_MIN
+	effect.self_modulate = Color(1.0, 1.0, 1.0, 0.001)
+	add_child(effect)
+	effect.call("configure", source_texture, Rect2(Vector2.ONE, Vector2.ONE), 0.46, 0.137, false)
+	_enemy_shadow_dissolve_spare_effect = effect
+	RenderingServer.frame_post_draw.connect(_finish_enemy_shadow_dissolve_shader_prewarm, CONNECT_ONE_SHOT)
+
+
+func _finish_enemy_shadow_dissolve_shader_prewarm() -> void:
+	if _enemy_shadow_dissolve_spare_effect == null or not is_instance_valid(_enemy_shadow_dissolve_spare_effect):
+		_enemy_shadow_dissolve_spare_effect = null
+		return
+	_enemy_shadow_dissolve_spare_effect.visible = false
+
+
+func _take_enemy_shadow_dissolve_effect() -> Control:
+	var effect: Control = _enemy_shadow_dissolve_spare_effect
+	if effect == null or not is_instance_valid(effect) or effect.is_queued_for_deletion():
+		effect = EnemyShadowDissolveEffect.new() as Control
+	else:
+		_enemy_shadow_dissolve_spare_effect = null
+	effect.z_index = 0
+	effect.self_modulate = Color.WHITE
+	effect.visible = true
+	return effect
+
+
+func _return_enemy_shadow_dissolve_effect(effect: Control) -> void:
+	effect.visible = false
+	if _enemy_shadow_dissolve_spare_effect == null or not is_instance_valid(_enemy_shadow_dissolve_spare_effect):
+		if effect.get_parent() != self:
+			effect.reparent(self, false)
+		effect.name = "EnemyShadowDissolveSpare"
+		_enemy_shadow_dissolve_spare_effect = effect
+		return
+	effect.queue_free()
+
+
+func _enemy_shadow_dissolve_seed_for_unit(unit: Dictionary) -> float:
+	var identity: String = "%s:%s:%s" % [
+		str(unit.get("type", "enemy")),
+		str(unit.get("id", -1)),
+		str(unit.get("key", "enemy")),
+	]
+	return fmod(absf(float(identity.hash())), 10007.0) / 997.0 + 0.137
+
 func _sync_dynamic_render_assets() -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
@@ -923,8 +1064,10 @@ func _sync_dynamic_render_assets() -> void:
 			"_unit_textures", "_unit_assets_loaded",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
-			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache", "_door_opening_frames", "_door_opening_flipped_frames",
-			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache", "_unit_shadow_sync_miss_metrics"
+			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache",
+			"_unit_shadow_prewarm_pending_ids",
+			"_door_opening_frames", "_door_opening_flipped_frames",
+			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
 		]:
 			layer.set(field, get(field))
 
@@ -988,16 +1131,23 @@ func _queue_render_layer_redraw(layer: Control) -> void:
 	layer.queue_redraw()
 
 func render_instrumentation_snapshot() -> Dictionary:
+	_commit_retained_draw_frame()
 	var dynamic_count: int = _dynamic_draw_count
 	var dynamic_total_usec: int = _dynamic_draw_total_usec
 	var dynamic_max_usec: int = _dynamic_draw_max_usec
 	var section_total_usec: Dictionary = _render_section_total_usec.duplicate()
 	var section_max_usec: Dictionary = _render_section_max_usec.duplicate()
+	var unit_shadow_sync_miss_metrics: Dictionary = _unit_shadow_sync_miss_metrics.duplicate(true)
+	var unit_shadow_draw_cache_metrics: Dictionary = _unit_shadow_draw_cache_metrics.duplicate(true)
 	var layer_draw_counts: Dictionary = {}
 	var layer_draw_total_usec: Dictionary = {}
 	var scene_tile_draw_counts: Dictionary = {}
 	var ambient_batch_mesh_create_count: int = _ambient_batch_mesh_create_count
 	var ambient_batch_mesh_update_count: int = _ambient_batch_mesh_update_count
+	var ambient_batch_sprite_total_count: int = _ambient_batch_sprite_total_count
+	var ambient_batch_sprite_max_count: int = _ambient_batch_sprite_max_count
+	var ambient_batch_sprite_capacity: int = _ambient_batch_sprite_capacity
+	var ambient_batch_buffer_grow_count: int = _ambient_batch_buffer_grow_count
 	var umbra_shape_batch_mesh_count: int = _umbra_shape_batch_meshes.size() + _umbra_circle_batch_multimeshes.size()
 	var umbra_shape_batch_mesh_create_count: int = _umbra_shape_batch_mesh_create_count
 	var umbra_shape_batch_mesh_update_count: int = _umbra_shape_batch_mesh_update_count
@@ -1021,6 +1171,13 @@ func render_instrumentation_snapshot() -> Dictionary:
 				scene_tile_draw_counts[tile_key] = int(scene_tile_draw_counts.get(tile_key, 0)) + layer_count
 			ambient_batch_mesh_create_count += int(layer.get("_ambient_batch_mesh_create_count"))
 			ambient_batch_mesh_update_count += int(layer.get("_ambient_batch_mesh_update_count"))
+			ambient_batch_sprite_total_count += int(layer.get("_ambient_batch_sprite_total_count"))
+			ambient_batch_sprite_max_count = maxi(
+				ambient_batch_sprite_max_count,
+				int(layer.get("_ambient_batch_sprite_max_count"))
+			)
+			ambient_batch_sprite_capacity += int(layer.get("_ambient_batch_sprite_capacity"))
+			ambient_batch_buffer_grow_count += int(layer.get("_ambient_batch_buffer_grow_count"))
 			var layer_umbra_meshes: Array = layer.get("_umbra_shape_batch_meshes") as Array
 			var layer_umbra_circle_multimeshes: Array = layer.get("_umbra_circle_batch_multimeshes") as Array
 			umbra_shape_batch_mesh_count += layer_umbra_meshes.size() + layer_umbra_circle_multimeshes.size()
@@ -1029,6 +1186,14 @@ func render_instrumentation_snapshot() -> Dictionary:
 			umbra_shape_batch_flush_count += int(layer.get("_umbra_shape_batch_flush_count"))
 			_merge_render_section_metrics(section_total_usec, layer.get("_render_section_total_usec") as Dictionary, false)
 			_merge_render_section_metrics(section_max_usec, layer.get("_render_section_max_usec") as Dictionary, true)
+			_merge_unit_shadow_sync_miss_metrics(
+				unit_shadow_sync_miss_metrics,
+				layer.get("_unit_shadow_sync_miss_metrics") as Dictionary
+			)
+			_merge_unit_shadow_draw_cache_metrics(
+				unit_shadow_draw_cache_metrics,
+				layer.get("_unit_shadow_draw_cache_metrics") as Dictionary
+			)
 	return {
 		"static_draw_count": _static_draw_count,
 		"dynamic_draw_count": dynamic_count,
@@ -1036,6 +1201,10 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"static_draw_max_usec": _static_draw_max_usec,
 		"dynamic_draw_total_usec": dynamic_total_usec,
 		"dynamic_draw_max_usec": dynamic_max_usec,
+		"dynamic_draw_frame_max_usec": _retained_draw_frame_max_usec,
+		"dynamic_draw_frame_max_count": _retained_draw_frame_max_count,
+		"dynamic_draw_frame_max_layers": _retained_draw_frame_max_layers.duplicate(true),
+		"dynamic_draw_frame_top": _retained_draw_frame_top.duplicate(true),
 		"render_section_total_usec": section_total_usec,
 		"render_section_max_usec": section_max_usec,
 		"layer_draw_counts": layer_draw_counts,
@@ -1048,11 +1217,16 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"hud_layout_cache_entries": _hud_layout_cache_by_signature.size(),
 		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
 		"layout_content_rebuild_count": _board_layout_content_rebuild_count,
-		"unit_shadow_sync_misses": _unit_shadow_sync_miss_metrics.duplicate(true),
+		"unit_shadow_sync_misses": unit_shadow_sync_miss_metrics,
+		"unit_shadow_draw_cache": unit_shadow_draw_cache_metrics,
 		"full_dynamic_redraw_count": _full_dynamic_redraw_count,
 		"unclassified_presentation_redraw_keys": _unclassified_presentation_redraw_keys.duplicate(),
 		"ambient_batch_mesh_create_count": ambient_batch_mesh_create_count,
 		"ambient_batch_mesh_update_count": ambient_batch_mesh_update_count,
+		"ambient_batch_sprite_total_count": ambient_batch_sprite_total_count,
+		"ambient_batch_sprite_max_count": ambient_batch_sprite_max_count,
+		"ambient_batch_sprite_capacity": ambient_batch_sprite_capacity,
+		"ambient_batch_buffer_grow_count": ambient_batch_buffer_grow_count,
 		"umbra_shape_batch_enabled": _umbra_shape_batch_enabled,
 		"umbra_shape_batch_mesh_count": umbra_shape_batch_mesh_count,
 		"umbra_shape_batch_mesh_create_count": umbra_shape_batch_mesh_create_count,
@@ -1072,6 +1246,41 @@ func _merge_render_section_metrics(target: Dictionary, source: Dictionary, keep_
 		else:
 			target[key] = int(target.get(key, 0)) + value
 
+func _merge_unit_shadow_sync_miss_metrics(target: Dictionary, source: Dictionary) -> void:
+	for metric: String in ["count", "total_usec"]:
+		target[metric] = int(target.get(metric, 0)) + int(source.get(metric, 0))
+	target["max_usec"] = maxi(int(target.get("max_usec", 0)), int(source.get("max_usec", 0)))
+	var target_by_type: Dictionary = target.get("by_type", {}) as Dictionary
+	var source_by_type: Dictionary = source.get("by_type", {}) as Dictionary
+	for type_var: Variant in source_by_type:
+		var unit_type: String = str(type_var)
+		var target_metrics: Dictionary = target_by_type.get(unit_type, {}) as Dictionary
+		var source_metrics: Dictionary = source_by_type.get(type_var, {}) as Dictionary
+		for metric: String in ["count", "total_usec"]:
+			target_metrics[metric] = int(target_metrics.get(metric, 0)) + int(source_metrics.get(metric, 0))
+		target_metrics["max_usec"] = maxi(
+			int(target_metrics.get("max_usec", 0)),
+			int(source_metrics.get("max_usec", 0))
+		)
+		target_by_type[unit_type] = target_metrics
+	if not target_by_type.is_empty():
+		target["by_type"] = target_by_type
+
+func _merge_unit_shadow_draw_cache_metrics(target: Dictionary, source: Dictionary) -> void:
+	for metric: String in ["geometry_hit", "geometry_miss", "mesh_hit", "mesh_miss", "fallback"]:
+		target[metric] = int(target.get(metric, 0)) + int(source.get(metric, 0))
+	var target_by_type: Dictionary = target.get("by_type", {}) as Dictionary
+	var source_by_type: Dictionary = source.get("by_type", {}) as Dictionary
+	for type_var: Variant in source_by_type:
+		var unit_type: String = str(type_var)
+		var target_metrics: Dictionary = target_by_type.get(unit_type, {}) as Dictionary
+		var source_metrics: Dictionary = source_by_type.get(type_var, {}) as Dictionary
+		for metric: String in ["geometry_hit", "geometry_miss", "mesh_hit", "mesh_miss", "fallback"]:
+			target_metrics[metric] = int(target_metrics.get(metric, 0)) + int(source_metrics.get(metric, 0))
+		target_by_type[unit_type] = target_metrics
+	if not target_by_type.is_empty():
+		target["by_type"] = target_by_type
+
 func reset_render_instrumentation() -> void:
 	_static_draw_count = 0
 	_static_draw_total_usec = 0
@@ -1082,10 +1291,23 @@ func reset_render_instrumentation() -> void:
 	_render_section_total_usec.clear()
 	_render_section_max_usec.clear()
 	_unit_shadow_sync_miss_metrics.clear()
+	_unit_shadow_draw_cache_metrics.clear()
 	_full_dynamic_redraw_count = 0
 	_unclassified_presentation_redraw_keys.clear()
+	_retained_draw_frame_id = -1
+	_retained_draw_frame_total_usec = 0
+	_retained_draw_frame_count = 0
+	_retained_draw_frame_layer_usec.clear()
+	_retained_draw_frame_layer_detail_usec.clear()
+	_retained_draw_frame_max_usec = 0
+	_retained_draw_frame_max_count = 0
+	_retained_draw_frame_max_layers.clear()
+	_retained_draw_frame_top.clear()
 	_ambient_batch_mesh_create_count = 0
 	_ambient_batch_mesh_update_count = 0
+	_ambient_batch_sprite_total_count = 0
+	_ambient_batch_sprite_max_count = 0
+	_ambient_batch_buffer_grow_count = 0
 	_umbra_shape_batch_mesh_create_count = 0
 	_umbra_shape_batch_mesh_update_count = 0
 	_umbra_shape_batch_flush_count = 0
@@ -1305,10 +1527,9 @@ func _preview_effect_needs_continuous_redraw(effect: Dictionary) -> bool:
 	var kind: String = str(effect.get("kind", ""))
 	if kind == "blink":
 		return _effect_textures.get("blink_rift_preview", null) == null
-	# Only the AOE preview still derives motion from wall-clock time. Authored
-	# elemental ranged previews are static curves, while Blink returned above
-	# only when its authored static texture is unavailable.
-	return kind == "aoe"
+	# Attack and AOE previews are deliberately static. Their tile highlights and
+	# thin path lines do not need to keep the effects layer alive at 30 Hz.
+	return false
 
 func _equipment_pickup_beacon_active() -> bool:
 	if _submission_cache_valid:
@@ -1407,7 +1628,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
 		previous_damage_preview = _damage_preview_map().duplicate(true)
 		moving_actor_keys = _changed_unit_presentation_actor_keys(presentation, next_presentation)
-		track_visible_unit_changes = not same_reference_state_mutation and (
+		# The retained visible-unit cache still represents the last submitted
+		# frame even when a non-conforming caller mutated the combat dictionary in
+		# place. Capture it before rebuilding the cache so the exact old/new actor
+		# tiles can use the same selective invalidation route as copy-on-write state.
+		track_visible_unit_changes = (
 			combat_render_changes.has("player")
 			or combat_render_changes.has("illusions")
 			or combat_render_changes.has("enemies")
@@ -1658,7 +1883,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or static_presentation_changed or _dynamic_render_layer == null:
 		_sync_static_render_cache()
 		queue_redraw()
-	if same_reference_state_mutation or layout_changed or visual_framing_changed or floor_changed or moss_changed:
+	if layout_changed or visual_framing_changed or floor_changed or moss_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_dynamic_redraw()
@@ -1697,6 +1922,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_scene_props,
 			next_presentation.get("scene_props", []) as Array
 		)
+	_sync_enemy_shadow_dissolve_effects()
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
 
 func set_submission_performance_instrumentation_enabled(enabled: bool) -> void:
@@ -1857,6 +2083,8 @@ func _queue_presentation_change_redraws(
 				ambient_changed = true
 			"ability_tiles", "confirmation_target_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
 				overlay_changed = true
+			"player_aoe_preview_active":
+				overlay_changed = true
 			"path_color", "path_tiles":
 				path_changed = true
 			"enemy_threat_previews":
@@ -1873,6 +2101,8 @@ func _queue_presentation_change_redraws(
 				action_floor_changed = true
 			"damage_preview":
 				effects_changed = true
+			"death_site_embers":
+				_queue_render_layer_redraw(_ground_render_layer)
 			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
@@ -2795,13 +3025,33 @@ func _draw_scene_tile_render_layer() -> void:
 		_record_render_section_time("scene_tile_effects", section_started_usec)
 		_record_dynamic_draw_time(started_usec)
 		return
+	var detailed_sections: bool = (
+		_render_instrumentation_owner != null
+		and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	)
+	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
 	var grid: Array = combat_state.get("grid", [])
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	var obstruction_entries: Array = _foreground_obstruction_entries_cache
+	if detailed_sections:
+		_record_render_section_time("scene_tile_setup", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	_draw_enemy_threat_depth_pass(_render_layer_tile)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_enemy_threat", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	_draw_scene_props_for_tile(_render_layer_tile, obstruction_entries)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_scene_props", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	_draw_tile_props(grid, _render_layer_tile, obstruction_entries)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_props", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	_draw_unit_bodies_for_tile(_render_layer_tile, units_to_draw)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_unit_bodies", phase_started_usec)
 	_record_render_section_time("scene_tiles", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -2883,6 +3133,63 @@ func _record_dynamic_draw_time(started_usec: int) -> void:
 	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
 	_dynamic_draw_total_usec += elapsed_usec
 	_dynamic_draw_max_usec = maxi(_dynamic_draw_max_usec, elapsed_usec)
+	if (
+		_render_instrumentation_owner != null
+		and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	):
+		_render_instrumentation_owner.call(
+			"_record_retained_layer_draw_frame",
+			Engine.get_process_frames(),
+			_render_layer_kind,
+			_render_instrumentation_detail_key(),
+			elapsed_usec
+		)
+
+func _render_instrumentation_detail_key() -> String:
+	if _render_layer_kind != RENDER_LAYER_SCENE_TILE:
+		return _render_layer_kind
+	var pass_id: String = "body"
+	if _render_layer_scene_effect_pass < 0:
+		pass_id = "effect_back"
+	elif _render_layer_scene_effect_pass > 0:
+		pass_id = "effect_front"
+	return "%s:%d,%d" % [pass_id, _render_layer_tile.x, _render_layer_tile.y]
+
+func _record_retained_layer_draw_frame(frame_id: int, layer_kind: String, layer_detail_key: String, elapsed_usec: int) -> void:
+	if _retained_draw_frame_id != frame_id:
+		_commit_retained_draw_frame()
+		_retained_draw_frame_id = frame_id
+	_retained_draw_frame_total_usec += maxi(0, elapsed_usec)
+	_retained_draw_frame_count += 1
+	_retained_draw_frame_layer_usec[layer_kind] = int(_retained_draw_frame_layer_usec.get(layer_kind, 0)) + maxi(0, elapsed_usec)
+	_retained_draw_frame_layer_detail_usec[layer_detail_key] = int(_retained_draw_frame_layer_detail_usec.get(layer_detail_key, 0)) + maxi(0, elapsed_usec)
+
+func _commit_retained_draw_frame() -> void:
+	if _retained_draw_frame_id < 0 or _retained_draw_frame_count <= 0:
+		return
+	var entry: Dictionary = {
+		"frame_id": _retained_draw_frame_id,
+		"total_usec": _retained_draw_frame_total_usec,
+		"draw_count": _retained_draw_frame_count,
+		"layer_usec": _retained_draw_frame_layer_usec.duplicate(true),
+		"layer_detail_usec": _retained_draw_frame_layer_detail_usec.duplicate(true),
+	}
+	if _retained_draw_frame_total_usec > _retained_draw_frame_max_usec:
+		_retained_draw_frame_max_usec = _retained_draw_frame_total_usec
+		_retained_draw_frame_max_count = _retained_draw_frame_count
+		_retained_draw_frame_max_layers = _retained_draw_frame_layer_usec.duplicate(true)
+	_retained_draw_frame_top.append(entry)
+	_retained_draw_frame_top.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("total_usec", 0)) > int(b.get("total_usec", 0))
+	)
+	if _retained_draw_frame_top.size() > 20:
+		_retained_draw_frame_top.resize(20)
+	_retained_draw_frame_id = -1
+	_retained_draw_frame_total_usec = 0
+	_retained_draw_frame_count = 0
+	_retained_draw_frame_layer_usec.clear()
+	_retained_draw_frame_layer_detail_usec.clear()
 
 func _record_render_section_time(section: String, started_usec: int) -> void:
 	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
@@ -4589,10 +4896,23 @@ func _begin_ambient_particle_batch() -> void:
 		return
 	_ensure_ambient_combined_atlas()
 	_ambient_batch_active = _ambient_combined_atlas != null
-	_ambient_batch_vertices = PackedVector3Array()
-	_ambient_batch_uvs = PackedVector2Array()
-	_ambient_batch_colors = PackedColorArray()
-	_ambient_batch_indices = PackedInt32Array()
+	_ambient_batch_sprite_count = 0
+	if _ambient_batch_active and _ambient_batch_sprite_capacity > 0:
+		# The mesh only references submitted indices, so the packed vertex buffers
+		# can retain their warmed capacity between redraws. Re-expanding the index
+		# buffer reuses its allocation and avoids thousands of append operations.
+		_ambient_batch_indices.resize(_ambient_batch_sprite_capacity * 6)
+
+func _reserve_ambient_particle_batch(required_sprite_capacity: int) -> void:
+	if required_sprite_capacity <= _ambient_batch_sprite_capacity:
+		return
+	var rounded_capacity: int = int(ceil(float(required_sprite_capacity) / float(AMBIENT_BATCH_SPRITE_GROWTH))) * AMBIENT_BATCH_SPRITE_GROWTH
+	_ambient_batch_vertices.resize(rounded_capacity * 4)
+	_ambient_batch_uvs.resize(rounded_capacity * 4)
+	_ambient_batch_colors.resize(rounded_capacity * 4)
+	_ambient_batch_indices.resize(rounded_capacity * 6)
+	_ambient_batch_sprite_capacity = rounded_capacity
+	_ambient_batch_buffer_grow_count += 1
 
 func _queue_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size: Vector2, rotation: float, alpha: float, modulate: Color) -> void:
 	if texture == null or alpha <= 0.0 or draw_size.x <= 0.0 or draw_size.y <= 0.0:
@@ -4600,30 +4920,43 @@ func _queue_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_siz
 	var uv_rect: Rect2 = _ambient_combined_uv_rect(texture)
 	if uv_rect.size.x <= 0.0 or uv_rect.size.y <= 0.0:
 		return
-	var axis_x := Vector2(cos(rotation), sin(rotation)) * draw_size.x
-	var axis_y := Vector2(-sin(rotation), cos(rotation)) * draw_size.y
-	var first_vertex: int = _ambient_batch_vertices.size()
-	for vertex: Vector2 in [
-		point - axis_x * 0.5 - axis_y * 0.5,
-		point + axis_x * 0.5 - axis_y * 0.5,
-		point + axis_x * 0.5 + axis_y * 0.5,
-		point - axis_x * 0.5 + axis_y * 0.5
-	]:
-		_ambient_batch_vertices.append(Vector3(vertex.x, vertex.y, 0.0))
-	_ambient_batch_uvs.append(uv_rect.position)
-	_ambient_batch_uvs.append(Vector2(uv_rect.end.x, uv_rect.position.y))
-	_ambient_batch_uvs.append(uv_rect.end)
-	_ambient_batch_uvs.append(Vector2(uv_rect.position.x, uv_rect.end.y))
+	_reserve_ambient_particle_batch(_ambient_batch_sprite_count + 1)
+	var axis_x := Vector2(cos(rotation), sin(rotation)) * draw_size.x * 0.5
+	var axis_y := Vector2(-sin(rotation), cos(rotation)) * draw_size.y * 0.5
+	var first_vertex: int = _ambient_batch_sprite_count * 4
+	var first_index: int = _ambient_batch_sprite_count * 6
+	var vertex: Vector2 = point - axis_x - axis_y
+	_ambient_batch_vertices[first_vertex] = Vector3(vertex.x, vertex.y, 0.0)
+	vertex = point + axis_x - axis_y
+	_ambient_batch_vertices[first_vertex + 1] = Vector3(vertex.x, vertex.y, 0.0)
+	vertex = point + axis_x + axis_y
+	_ambient_batch_vertices[first_vertex + 2] = Vector3(vertex.x, vertex.y, 0.0)
+	vertex = point - axis_x + axis_y
+	_ambient_batch_vertices[first_vertex + 3] = Vector3(vertex.x, vertex.y, 0.0)
+	_ambient_batch_uvs[first_vertex] = uv_rect.position
+	_ambient_batch_uvs[first_vertex + 1] = Vector2(uv_rect.end.x, uv_rect.position.y)
+	_ambient_batch_uvs[first_vertex + 2] = uv_rect.end
+	_ambient_batch_uvs[first_vertex + 3] = Vector2(uv_rect.position.x, uv_rect.end.y)
 	var color := Color(modulate.r, modulate.g, modulate.b, modulate.a * alpha)
-	for _index: int in range(4):
-		_ambient_batch_colors.append(color)
-	for offset: int in [0, 1, 2, 0, 2, 3]:
-		_ambient_batch_indices.append(first_vertex + offset)
+	_ambient_batch_colors[first_vertex] = color
+	_ambient_batch_colors[first_vertex + 1] = color
+	_ambient_batch_colors[first_vertex + 2] = color
+	_ambient_batch_colors[first_vertex + 3] = color
+	_ambient_batch_indices[first_index] = first_vertex
+	_ambient_batch_indices[first_index + 1] = first_vertex + 1
+	_ambient_batch_indices[first_index + 2] = first_vertex + 2
+	_ambient_batch_indices[first_index + 3] = first_vertex
+	_ambient_batch_indices[first_index + 4] = first_vertex + 2
+	_ambient_batch_indices[first_index + 5] = first_vertex + 3
+	_ambient_batch_sprite_count += 1
 
 func _flush_ambient_particle_batch() -> void:
 	_ambient_batch_active = false
-	if _ambient_batch_vertices.is_empty() or _ambient_combined_atlas == null:
+	if _ambient_batch_sprite_count <= 0 or _ambient_combined_atlas == null:
 		return
+	_ambient_batch_indices.resize(_ambient_batch_sprite_count * 6)
+	_ambient_batch_sprite_total_count += _ambient_batch_sprite_count
+	_ambient_batch_sprite_max_count = maxi(_ambient_batch_sprite_max_count, _ambient_batch_sprite_count)
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = _ambient_batch_vertices
@@ -4763,6 +5096,7 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
+	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
 		_draw_objective_leader_beacon(tile)
 	if _objective_exit_tiles_lookup_cache.has(tile):
@@ -4774,7 +5108,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if _confirmation_target_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
 		_draw_exit_tile_pulse(tile)
-	if _focus_tiles_lookup_cache.has(tile):
+	if _focus_tiles_lookup_cache.has(tile) and not draw_aoe_footprint:
 		draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
 	if _move_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, MOVE_HIGHLIGHT)
@@ -4789,6 +5123,10 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
+	if draw_aoe_footprint:
+		# Keep every legal center visible, then layer the concrete consequence on
+		# top so it remains the unmistakable primary targeting signal.
+		_draw_aoe_footprint_highlight(tile)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
 	if tile == _hover_tile and _controller_focus_tile.x < 0:
@@ -4829,6 +5167,16 @@ func _draw_attack_tile_highlight(tile: Vector2i) -> void:
 	draw_colored_polygon(_tile_polygon(tile), ATTACK_HIGHLIGHT)
 	if bool(presentation.get("pulse_attack_tiles", false)):
 		_draw_attack_target_pulse(tile)
+
+func _player_aoe_preview_active() -> bool:
+	return bool(presentation.get("player_aoe_preview_active", false))
+
+func _draw_aoe_footprint_highlight(tile: Vector2i) -> void:
+	_draw_aoe_footprint_tile(tile, AOE_FOOTPRINT_HIGHLIGHT, AOE_FOOTPRINT_EDGE, 2.4)
+
+func _draw_aoe_footprint_tile(tile: Vector2i, fill: Color, edge: Color, edge_width: float) -> void:
+	draw_colored_polygon(_tile_polygon(tile), fill)
+	_draw_tile_ring(tile, edge, edge_width, 0.92)
 
 func _large_enemy_attack_highlight_tiles(units_to_draw: Array[Dictionary]) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -4922,7 +5270,11 @@ func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 	# Traps and ordinary loot lie on the floor, so the raised route ribbon crosses
 	# over them. Floating equipment remains in _draw_tile_props with units and is
 	# intentionally painted after the route.
+	var death_site_embers: Dictionary = presentation.get("death_site_embers", {}) as Dictionary
+	var death_site_tile: Vector2i = death_site_embers.get("tile", Vector2i(-1, -1))
 	for tile: Vector2i in tiles:
+		if tile == death_site_tile:
+			_draw_death_site_embers(tile)
 		if not _board_tile_is_visible_to_player(tile):
 			continue
 		for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
@@ -4941,6 +5293,29 @@ func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
 			if typeof(trap_var) == TYPE_DICTIONARY:
 				_draw_trap_marker(trap_var as Dictionary)
+
+func _draw_death_site_embers(tile: Vector2i) -> void:
+	var texture: Texture2D = _loot_textures.get("dropped_embers", null) as Texture2D
+	if texture == null:
+		return
+	var ember_loot := {"kind": "dropped_embers"}
+	var draw_rect: Rect2 = _loot_rect_for_tile(tile, texture, ember_loot)
+	_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.16, 0.08)
+	draw_texture_rect(texture, draw_rect, false)
+
+func death_site_embers_snapshot() -> Dictionary:
+	var entry: Dictionary = presentation.get("death_site_embers", {}) as Dictionary
+	var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+	var texture: Texture2D = _loot_textures.get("dropped_embers", null) as Texture2D
+	if tile.x < 0 or texture == null:
+		return {}
+	return {
+		"tile": tile,
+		"rect": _loot_rect_for_tile(tile, texture, {"kind": "dropped_embers"}),
+		"tile_center": _tile_center(tile),
+		"tile_width": _tile_width(),
+		"texture": texture,
+	}
 
 func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = []) -> void:
 	for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
@@ -6072,16 +6447,20 @@ func _death_animation_units_from_presentation() -> Array[Dictionary]:
 		var unit: Dictionary = (unit_var as Dictionary).duplicate(true)
 		var unit_type: String = str(unit.get("type", ""))
 		var unit_key: String = str(unit.get("key", ""))
+		var player_unit: bool = unit_key == "player" or str(unit.get("role", "")) == "player" or unit_type == "player"
+		if player_unit and unit_type.is_empty():
+			unit_type = "player"
+			unit["type"] = unit_type
 		if unit_type.is_empty() or unit_key.is_empty():
 			continue
 		var definition: Dictionary = GameData.enemy_def(unit_type)
-		if definition.is_empty():
+		if definition.is_empty() and not player_unit:
 			continue
 		unit["key"] = unit_key
-		unit["role"] = "enemy"
+		unit["role"] = "player" if player_unit else "enemy"
 		unit["death_animation"] = true
 		unit["boss_bar"] = false
-		unit["name"] = str(unit.get("name", definition.get("name", "Enemy")))
+		unit["name"] = str(unit.get("name", "Player" if player_unit else definition.get("name", "Enemy")))
 		unit["id"] = int(unit.get("id", -1))
 		var pos_value: Variant = unit.get("pos", Vector2i.ZERO)
 		unit["pos"] = pos_value if typeof(pos_value) == TYPE_VECTOR2I else Vector2i.ZERO
@@ -6110,8 +6489,27 @@ func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]
 		_draw_unit_body(unit)
 
 func _draw_unit_body(unit: Dictionary) -> void:
+	var detailed_sections: bool = (
+		_render_instrumentation_owner != null
+		and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	)
+	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
 	_draw_enemy_intent_compass(unit)
+	if detailed_sections:
+		_record_render_section_time("unit_body_compass", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	_draw_unit_shadow(unit)
+	if detailed_sections:
+		_record_render_section_time("unit_body_shadow", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	# Enemy deaths are composited by a dedicated per-actor shader child on this
+	# retained tile layer. Drawing the source sprite again underneath it would fill
+	# every dissolved opening and turn the breakup into a tinted cross-fade.
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		if detailed_sections:
+			_record_render_section_time("unit_body_sprite", phase_started_usec)
+		return
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
 		var death_animation: bool = bool(unit.get("death_animation", false))
@@ -6123,7 +6521,7 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact_shake, 0.0)
 		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
 		if death_animation:
-			shifted_rect = _death_animation_draw_rect(shifted_rect, float(unit.get("death_progress", 0.0)))
+			shifted_rect = _death_animation_render_rect(unit, shifted_rect)
 		var body_tint: Color = Color.WHITE
 		var role: String = str(unit.get("role", ""))
 		if role == "illusion_preview":
@@ -6142,12 +6540,14 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			draw_texture_rect(texture, echo_rect, false, Color(0.38, 0.90, 1.0, 0.18))
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
 		elif death_animation:
-			body_tint = _death_animation_tint(unit)
+			body_tint = _death_animation_render_tint(unit)
 		draw_texture_rect(texture, shifted_rect, false, body_tint)
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
 			draw_texture_rect(texture, shifted_rect, false, flash)
+	if detailed_sections:
+		_record_render_section_time("unit_body_sprite", phase_started_usec)
 
 func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	if str(unit.get("role", "")) != "enemy" or bool(unit.get("death_animation", false)):
@@ -7723,14 +8123,6 @@ func status_text_local_bounds() -> Rect2:
 		return label_bounds
 	var detail_bounds: Rect2 = layout.get("detail", Rect2()) as Rect2
 	return label_bounds.merge(detail_bounds)
-
-func _draw_target_reticle(center: Vector2, color: Color, radius: float = 10.0) -> void:
-	draw_circle(center, radius * 0.28, Color(color.r, color.g, color.b, color.a * 0.30))
-	draw_arc(center, radius, 0.0, TAU, 24, color, 2.2)
-	draw_line(center + Vector2(-radius - 3.0, 0.0), center + Vector2(-radius * 0.35, 0.0), color, 2.0)
-	draw_line(center + Vector2(radius + 3.0, 0.0), center + Vector2(radius * 0.35, 0.0), color, 2.0)
-	draw_line(center + Vector2(0.0, -radius - 3.0), center + Vector2(0.0, -radius * 0.35), color, 2.0)
-	draw_line(center + Vector2(0.0, radius + 3.0), center + Vector2(0.0, radius * 0.35), color, 2.0)
 
 func _draw_projectile_diamond(center: Vector2, direction: Vector2, color: Color, size: float = 5.0) -> void:
 	var dir: Vector2 = direction.normalized() if direction.length() > 0.01 else Vector2.RIGHT
@@ -10329,74 +10721,36 @@ func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, 
 	if tiles.is_empty():
 		return
 	var preview: bool = bool(effect.get("preview", false))
+	if preview:
+		# Match direct ranged targeting: the affected area is already expressed by
+		# the shared focus-tile highlights, so only retain the familiar thin cast
+		# path. Extra rings, center reticles, and line-pattern bolts obscure that
+		# clean board language and can make a straight AOE read as lightning.
+		if (
+			from_point != Vector2.ZERO
+			and center_point != Vector2.ZERO
+			and from_point.distance_squared_to(center_point) > 1.0
+		):
+			_draw_ranged_target_preview_curve(effect, from_point, center_point)
+		return
 	var accent: Color = _aoe_effect_accent(effect)
-	var secondary: Color = _aoe_effect_secondary(effect)
-	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
-	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * (1.55 if preview else 1.05))
-	var reveal: float = 1.0 if preview else clampf(progress / 0.42, 0.0, 1.0)
-	var base_alpha: float = (0.76 + pulse * 0.18) if preview else (0.42 + reveal * 0.42)
-	for tile: Vector2i in tiles:
-		var ring_scale: float = 0.74 + 0.06 * pulse if preview else 0.76 + 0.08 * reveal
-		_draw_tile_ring(tile, Color(accent.r, accent.g, accent.b, base_alpha), 3.0 + 1.0 * reveal, ring_scale)
-		draw_circle(_tile_center(tile), _tile_width() * 0.065, Color(secondary.r, secondary.g, secondary.b, 0.22 + 0.14 * pulse))
-	if center_point != Vector2.ZERO:
-		var reticle_radius: float = _tile_width() * (0.16 + 0.025 * pulse)
-		_draw_target_reticle(center_point + Vector2(0.0, -_tile_height() * 0.42), Color(accent.r, accent.g, accent.b, 0.84 + 0.14 * pulse), reticle_radius)
-	var line_tiles: Array[Vector2i] = _ordered_aoe_line_tiles_for_effect(effect)
-	if line_tiles.size() >= 2:
-		_draw_aoe_line_effect(line_tiles, accent, secondary, base_alpha, preview)
-	if preview and from_point != Vector2.ZERO and center_point != Vector2.ZERO:
-		var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.72)
-		var end: Vector2 = center_point + Vector2(0.0, -_tile_height() * 0.50)
-		var control: Vector2 = _arc_control_point(start, end)
-		_draw_bezier_glow(start, control, end, Color(secondary.r, secondary.g, secondary.b, 0.18 + 0.08 * pulse), 1.4)
-
-func _draw_aoe_line_effect(line_tiles: Array[Vector2i], accent: Color, secondary: Color, alpha: float, preview: bool) -> void:
-	var points := PackedVector2Array()
-	for tile: Vector2i in line_tiles:
-		points.append(_tile_center(tile) + Vector2(0.0, -_tile_height() * 0.62))
-	if points.size() < 2:
+	var visibility: float = _aoe_resolution_footprint_visibility(effect, progress)
+	if visibility <= 0.0:
 		return
-	var core_width: float = 4.0 if preview else 4.6
-	draw_polyline(points, Color(0.0, 0.0, 0.0, alpha * 0.26), core_width + 9.0, true)
-	draw_polyline(points, Color(secondary.r, secondary.g, secondary.b, alpha * 0.44), core_width + 4.8, true)
-	draw_polyline(points, Color(accent.r, accent.g, accent.b, alpha), core_width, true)
-	for index: int in range(points.size() - 1):
-		_draw_aoe_bolt_segment(points[index], points[index + 1], accent, secondary, alpha)
-	for point: Vector2 in points:
-		draw_circle(point, 6.0, Color(1.0, 0.96, 0.72, alpha * 0.62))
-
-func _draw_aoe_bolt_segment(start: Vector2, finish: Vector2, accent: Color, secondary: Color, alpha: float) -> void:
-	var delta: Vector2 = finish - start
-	if delta.length_squared() <= 1.0:
-		return
-	var perpendicular: Vector2 = Vector2(-delta.y, delta.x).normalized()
-	var mid: Vector2 = start.lerp(finish, 0.5) + perpendicular * 7.0
-	draw_line(start, mid, Color(0.0, 0.0, 0.0, alpha * 0.24), 7.0, true)
-	draw_line(mid, finish, Color(0.0, 0.0, 0.0, alpha * 0.24), 7.0, true)
-	draw_line(start, mid, Color(secondary.r, secondary.g, secondary.b, alpha * 0.78), 3.4, true)
-	draw_line(mid, finish, Color(secondary.r, secondary.g, secondary.b, alpha * 0.78), 3.4, true)
-	draw_line(start, mid, Color(accent.r, accent.g, accent.b, alpha), 1.6, true)
-	draw_line(mid, finish, Color(accent.r, accent.g, accent.b, alpha), 1.6, true)
-
-func _ordered_aoe_line_tiles_for_effect(effect: Dictionary) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
-	if tiles.size() < 2:
-		return _vector2i_array([])
-	var same_x: bool = true
-	var same_y: bool = true
-	var first_tile: Vector2i = tiles[0]
+	var edge_rgb: Color = accent.lightened(0.34)
+	var fill := Color(accent.r, accent.g, accent.b, 0.18 * visibility)
+	var edge := Color(edge_rgb.r, edge_rgb.g, edge_rgb.b, 0.78 * visibility)
 	for tile: Vector2i in tiles:
-		if tile.x != first_tile.x:
-			same_x = false
-		if tile.y != first_tile.y:
-			same_y = false
-	if not same_x and not same_y:
-		return _vector2i_array([])
-	tiles.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
-		return a.y < b.y if same_x else a.x < b.x
-	)
-	return tiles
+		_draw_aoe_footprint_tile(tile, fill, edge, 2.0)
+
+func _aoe_resolution_footprint_visibility(effect: Dictionary, progress: float) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.86
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var impact_progress: float = AttackFxLibrary.impact_progress_for_style(style, progress)
+	var reveal: float = smoothstep(0.0, 0.16, impact_progress)
+	var fade: float = 1.0 - smoothstep(0.72, 1.0, impact_progress)
+	return reveal * fade
 
 func _aoe_effect_accent(effect: Dictionary) -> Color:
 	var element_id: String = _effect_element(effect)
@@ -10405,21 +10759,6 @@ func _aoe_effect_accent(effect: Dictionary) -> Color:
 			return Color(1.0, 0.91, 0.34, 1.0)
 		return ElementData.accent(element_id).lightened(0.22)
 	return Color(1.0, 0.76, 0.42, 1.0)
-
-func _aoe_effect_secondary(effect: Dictionary) -> Color:
-	match _effect_element(effect):
-		ElementData.FIRE:
-			return Color(1.0, 0.38, 0.18, 1.0)
-		ElementData.ICE:
-			return Color(0.62, 0.90, 1.0, 1.0)
-		ElementData.LIGHTNING:
-			return Color(0.58, 0.78, 1.0, 1.0)
-		ElementData.AIR:
-			return Color(0.70, 1.0, 0.90, 1.0)
-		ElementData.EARTH:
-			return Color(0.80, 0.94, 0.48, 1.0)
-		_:
-			return Color(1.0, 0.92, 0.64, 1.0)
 
 func _effect_element(effect: Dictionary) -> String:
 	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
@@ -11938,8 +12277,6 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	_scene_prop_textures = {
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
 		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH),
-		"blacksmith_forge": AssetLoader.load_texture(BLACKSMITH_FORGE_PATH),
-		"arcanist_table": AssetLoader.load_texture(ARCANIST_TABLE_PATH),
 		"scavenger_stall": AssetLoader.load_texture(SCAVENGER_STALL_PATH)
 	}
 	_scene_prop_idle_frames = {
@@ -12166,6 +12503,14 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	_unit_shadow_bottom_ratio_cache.clear()
 	_unit_shadow_draw_geometry_cache.clear()
 	_unit_shadow_draw_mesh_cache.clear()
+	_unit_shadow_prewarm_urgent_queue.clear()
+	_unit_shadow_prewarm_background_queue.clear()
+	_unit_shadow_prewarm_queued_ids.clear()
+	_unit_shadow_prewarm_pending_ids.clear()
+	_unit_shadow_last_prepare_waited_frames = 0
+	_unit_shadow_precomputed_loaded_keys.clear()
+	_unit_shadow_precomputed_missing_keys.clear()
+	_load_unit_shadow_precomputed_cache()
 	_ensure_unit_assets_for_type("player")
 	if load_full_unit_roster:
 		for enemy_type: String in GameData.enemies().keys():
@@ -12193,6 +12538,87 @@ func prepare_unit_assets_for_state(state: Dictionary) -> void:
 	# textures here lets expensive immutable alpha/shadow metadata build a frame at
 	# a time while the player inspects the encounter instead of blocking Start.
 	_ensure_unit_assets_for_submission(state, {})
+
+func prepare_unit_shadows_for_state(state: Dictionary) -> bool:
+	# Generated alpha polygons keep the exact animated silhouette ready without an
+	# input-delaying frame gate. Missing or build-rejected generated entries fall
+	# back to exact synchronous extraction so visuals never swap through a generic
+	# shadow; cache coverage and source-fingerprint tests keep that fallback off the
+	# shipped path.
+	_ensure_unit_assets_for_submission(state, {})
+	var required_textures: Array[Texture2D] = _unit_shadow_immediate_textures_for_state(state)
+	for texture: Texture2D in required_textures:
+		_queue_unit_shadow_texture(texture, true)
+		if not _unit_shadow_polygon_cache.has(texture.get_instance_id()):
+			_unit_shadow_data_for_texture(texture)
+			_texture_used_rect(texture)
+	_unit_shadow_last_prepare_waited_frames = 0
+	return true
+
+func _load_unit_shadow_precomputed_cache() -> void:
+	_unit_shadow_precomputed_entries.clear()
+	_unit_shadow_precomputed_source_sha256.clear()
+	var cache: Resource = load(UNIT_SHADOW_CACHE_PATH) as Resource
+	if (
+		cache == null
+		or int(cache.get("schema_version")) != UNIT_SHADOW_CACHE_SCHEMA_VERSION
+		or str(cache.get("extraction_signature")) != UnitShadowCacheResourceScript.expected_extraction_signature()
+	):
+		return
+	var entries_var: Variant = cache.get("entries")
+	if typeof(entries_var) == TYPE_DICTIONARY:
+		_unit_shadow_precomputed_entries = entries_var as Dictionary
+	var sources_var: Variant = cache.get("source_sha256")
+	if typeof(sources_var) == TYPE_DICTIONARY:
+		_unit_shadow_precomputed_source_sha256 = sources_var as Dictionary
+
+func _install_unit_shadow_precomputed_data(texture: Texture2D) -> bool:
+	if texture == null:
+		return false
+	var texture_id: int = texture.get_instance_id()
+	if _unit_shadow_polygon_cache.has(texture_id):
+		return true
+	var key: String = UnitShadowCacheResourceScript.texture_key(texture)
+	if key.is_empty() or not _unit_shadow_precomputed_entries.has(key):
+		if not key.is_empty():
+			_unit_shadow_precomputed_missing_keys[key] = true
+		return false
+	var entry: Dictionary = _unit_shadow_precomputed_entries.get(key, {}) as Dictionary
+	var shadow_data: Dictionary = entry.get("shadow_data", {}) as Dictionary
+	if shadow_data.is_empty():
+		_unit_shadow_precomputed_missing_keys[key] = true
+		return false
+	_unit_shadow_polygon_cache[texture_id] = shadow_data
+	var used_rect: Rect2i = entry.get("used_rect", Rect2i()) as Rect2i
+	_texture_used_rect_cache[texture_id] = used_rect
+	AssetLoader.cache_texture_used_rect(texture, used_rect)
+	_unit_shadow_precomputed_loaded_keys[key] = true
+	return true
+
+func _unit_shadow_immediate_textures_for_state(state: Dictionary) -> Array[Texture2D]:
+	var units: Array[Dictionary] = []
+	if not (state.get("player", {}) as Dictionary).is_empty():
+		var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(false)
+		player["type"] = "player"
+		player["key"] = "player"
+		units.append(player)
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY:
+			var enemy: Dictionary = enemy_var as Dictionary
+			if int(enemy.get("hp", 0)) > 0:
+				units.append(enemy)
+	for npc_var: Variant in state.get("npcs", []):
+		if typeof(npc_var) == TYPE_DICTIONARY:
+			var npc: Dictionary = npc_var as Dictionary
+			var prepared_npc: Dictionary = npc.duplicate(false)
+			prepared_npc["type"] = str(npc.get("id", npc.get("type", "")))
+			units.append(prepared_npc)
+	var textures: Array[Texture2D] = []
+	for unit: Dictionary in units:
+		var texture: Texture2D = _texture_for_unit(unit)
+		if texture != null and not textures.has(texture):
+			textures.append(texture)
+	return textures
 
 func _ensure_unit_assets_for_type(unit_type: String) -> void:
 	if unit_type.is_empty() or _unit_assets_loaded.has(unit_type):
@@ -12236,7 +12662,14 @@ func _queue_unit_shadow_texture(texture: Texture2D, urgent: bool) -> void:
 	if texture == null:
 		return
 	var texture_id: int = texture.get_instance_id()
-	if _unit_shadow_polygon_cache.has(texture_id) or _unit_shadow_prewarm_queued_ids.has(texture_id):
+	_install_unit_shadow_precomputed_data(texture)
+	if _unit_shadow_polygon_cache.has(texture_id):
+		return
+	_unit_shadow_prewarm_pending_ids[texture_id] = true
+	if _unit_shadow_prewarm_queued_ids.has(texture_id):
+		if urgent and _unit_shadow_prewarm_background_queue.has(texture):
+			_unit_shadow_prewarm_background_queue.erase(texture)
+			_unit_shadow_prewarm_urgent_queue.append(texture)
 		return
 	_unit_shadow_prewarm_queued_ids[texture_id] = true
 	if urgent:
@@ -12253,6 +12686,7 @@ func _process_next_unit_shadow_prewarm() -> void:
 			var texture_id: int = _unit_shadow_prewarm_active_texture.get_instance_id()
 			if not _unit_shadow_polygon_cache.has(texture_id):
 				_unit_shadow_polygon_cache[texture_id] = result.get("shadow_data", {})
+			_unit_shadow_prewarm_pending_ids.erase(texture_id)
 			var used_rect: Rect2i = result.get("used_rect", Rect2i())
 			_texture_used_rect_cache[texture_id] = used_rect
 			AssetLoader.cache_texture_used_rect(_unit_shadow_prewarm_active_texture, used_rect)
@@ -12267,10 +12701,18 @@ func _process_next_unit_shadow_prewarm() -> void:
 		return
 	_unit_shadow_prewarm_queued_ids.erase(texture.get_instance_id())
 	if _unit_shadow_polygon_cache.has(texture.get_instance_id()):
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		return
 	var image: Image = texture.get_image()
 	if image == null or image.is_empty():
-		_unit_shadow_polygon_cache[texture.get_instance_id()] = {"polygons": [], "bounds": Rect2()}
+		var empty_polygons: Array[PackedVector2Array] = []
+		var empty_triangulations: Array[PackedInt32Array] = []
+		_unit_shadow_polygon_cache[texture.get_instance_id()] = {
+			"polygons": empty_polygons,
+			"triangulations": empty_triangulations,
+			"bounds": Rect2(),
+		}
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		_texture_used_rect_cache[texture.get_instance_id()] = Rect2i()
 		return
 	_unit_shadow_prewarm_active_texture = texture
@@ -12280,6 +12722,7 @@ func _process_next_unit_shadow_prewarm() -> void:
 		_unit_shadow_prewarm_thread = null
 		_unit_shadow_prewarm_active_texture = null
 		_unit_shadow_data_for_texture(texture)
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		_texture_used_rect(texture)
 
 func _compute_unit_shadow_data_for_image(image: Image) -> Dictionary:
@@ -12391,6 +12834,8 @@ func _door_opening_frame_canvas_size() -> Vector2i:
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	var unit_type: String = str(unit.get("type", ""))
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return _enemy_shadow_dissolve_source_texture(unit)
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
 	if _unit_death_animation_active(unit) and not death_frames.is_empty():
 		return death_frames[_death_frame_index(unit)]
@@ -12403,6 +12848,15 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 		return idle_frames[_idle_frame_index(unit)]
 	return _unit_textures.get(unit_type, null)
 
+
+func _enemy_shadow_dissolve_source_texture(unit: Dictionary) -> Texture2D:
+	var unit_type: String = str(unit.get("type", ""))
+	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
+	if not idle_frames.is_empty():
+		var source_frame: int = clampi(int(unit.get("death_source_idle_frame", 0)), 0, idle_frames.size() - 1)
+		return idle_frames[source_frame]
+	return _unit_textures.get(unit_type, null) as Texture2D
+
 func _load_unit_texture_with_idle(unit_type: String, art_path: String) -> Texture2D:
 	var texture: Texture2D = AssetLoader.load_texture(art_path)
 	var idle_frames: Array[Texture2D] = _load_idle_frames_for_art_path(unit_type, art_path)
@@ -12410,9 +12864,13 @@ func _load_unit_texture_with_idle(unit_type: String, art_path: String) -> Textur
 		_idle_frames_by_type[unit_type] = idle_frames
 		if texture == null:
 			return idle_frames[0]
-	var death_frames: Array[Texture2D] = _load_death_frames_for_art_path(unit_type, art_path)
-	if not death_frames.is_empty():
-		_death_frames_by_type[unit_type] = death_frames
+	# Enemy death sheets remain source/reference assets, but runtime deliberately
+	# uses one procedural silhouette-driven dissolve. The player keeps the authored
+	# terminal collapse, which belongs to a different defeat/recap presentation.
+	if unit_type == "player":
+		var death_frames: Array[Texture2D] = _load_death_frames_for_art_path(unit_type, art_path)
+		if not death_frames.is_empty():
+			_death_frames_by_type[unit_type] = death_frames
 	return texture
 
 func _load_idle_frames_for_art_path(unit_type: String, art_path: String) -> Array[Texture2D]:
@@ -12506,8 +12964,23 @@ func _unit_death_frames(unit: Dictionary) -> Array[Texture2D]:
 		return []
 	return _death_frames_by_type[unit_type]
 
+func _unit_has_authored_death_animation(unit: Dictionary) -> bool:
+	return not _unit_death_frames(unit).is_empty()
+
 func _unit_death_frame_count(unit: Dictionary) -> int:
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return ENEMY_SHADOW_DISSOLVE_FRAME_COUNT
 	return _unit_death_frames(unit).size()
+
+
+func _unit_uses_procedural_shadow_dissolve(unit: Dictionary) -> bool:
+	if not bool(unit.get("death_animation", false)):
+		return false
+	var unit_type: String = str(unit.get("type", ""))
+	var role: String = str(unit.get("role", ""))
+	if unit_type == "player" or role == "player" or str(unit.get("key", "")) == "player":
+		return false
+	return role == "enemy" or not GameData.enemy_def(unit_type).is_empty()
 
 func _death_frame_index(unit: Dictionary) -> int:
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
@@ -12531,6 +13004,8 @@ func _unit_idle_frame_seconds(unit: Dictionary) -> float:
 	return maxf(0.01, float(definition.get("idle_frame_seconds", IDLE_FRAME_SECONDS)))
 
 func _unit_death_frame_seconds(unit: Dictionary) -> float:
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" or unit_type.is_empty():
 		return DEATH_FRAME_SECONDS
@@ -12649,7 +13124,7 @@ func _unit_idle_animation_active(unit: Dictionary) -> bool:
 func _unit_death_animation_active(unit: Dictionary) -> bool:
 	if not visible or combat_state.is_empty() or not bool(unit.get("death_animation", false)):
 		return false
-	return not _unit_death_frames(unit).is_empty()
+	return _unit_has_authored_death_animation(unit)
 
 func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
 	if not visible or combat_state.is_empty():
@@ -12734,6 +13209,21 @@ func _scaled_unit_rect(rect: Rect2, scale: float) -> Rect2:
 	)
 	return Rect2(scaled_position, scaled_size)
 
+func _death_animation_render_rect(unit: Dictionary, rect: Rect2) -> Rect2:
+	# Authored collapse frames already contain the complete body motion on one
+	# consistently registered canvas. Applying the fallback squash/stretch on top
+	# would distort the pixel art and make its feet slide away from the death tile.
+	if _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
+		return rect
+	return _death_animation_draw_rect(rect, float(unit.get("death_progress", 0.0)))
+
+func _death_animation_render_tint(unit: Dictionary) -> Color:
+	# Preserve the downloaded frame colors; the procedural violet dissolve remains
+	# available only for units that have no authored death sheet.
+	if _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
+		return Color.WHITE
+	return _death_animation_tint(unit)
+
 func _death_animation_draw_rect(rect: Rect2, progress: float) -> Rect2:
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return rect
@@ -12752,8 +13242,13 @@ func _death_animation_tint(unit: Dictionary) -> Color:
 func _unit_shadow_alpha_scale(unit: Dictionary) -> float:
 	if not bool(unit.get("death_animation", false)):
 		return 1.0
+	if _unit_has_authored_death_animation(unit):
+		return 1.0
 	var t: float = clampf(float(unit.get("death_progress", 0.0)), 0.0, 1.0)
-	return 1.0 - smoothstep(0.45, 1.0, t)
+	# Preserve normal floor contact at lethal impact, then retire the pre-existing
+	# actor shadow before the body becomes an umbral silhouette. This prevents the
+	# ordinary oval from reading like a new death-effect pool as the body clears.
+	return 1.0 - smoothstep(0.04, 0.30, t)
 
 func _unit_art_scale(unit: Dictionary) -> float:
 	var unit_type: String = str(unit.get("type", ""))
@@ -13154,48 +13649,95 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 func _draw_unit_shadow(unit: Dictionary) -> void:
 	if str(unit.get("role", "")) == "illusion" or _unit_is_preview_echo(unit):
 		return
+	var detailed_sections: bool = _unit_shadow_detailed_instrumentation_enabled()
+	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
 	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
 	if shadow_alpha_scale <= 0.02:
 		return
 	var texture: Texture2D = _texture_for_unit(unit)
+	if detailed_sections:
+		_record_render_section_time("unit_shadow_texture", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	if texture == null:
+		_record_unit_shadow_cache_metric("fallback", str(unit.get("type", "")))
 		_draw_unit_shadow_fallback(unit)
+		if detailed_sections:
+			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
 		return
 	var draw_rect: Rect2 = _unit_draw_rect(unit)
 	var unit_type: String = str(unit.get("type", ""))
 	var shadow_geometry: Array = _unit_shadow_draw_geometry(texture, draw_rect, unit_type)
+	if detailed_sections:
+		_record_render_section_time("unit_shadow_geometry", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	if shadow_geometry.is_empty():
+		_record_unit_shadow_cache_metric("fallback", unit_type)
 		_draw_unit_shadow_fallback(unit)
+		if detailed_sections:
+			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
 		return
 	var shadow_mesh: ArrayMesh = _unit_shadow_draw_mesh(texture, draw_rect, unit_type, shadow_geometry)
+	if detailed_sections:
+		_record_render_section_time("unit_shadow_mesh", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	if shadow_mesh == null:
+		_record_unit_shadow_cache_metric("fallback", unit_type)
 		_draw_unit_shadow_fallback(unit)
+		if detailed_sections:
+			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
 		return
+	var shadow_bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
+	var shadow_origin: Vector2 = _unit_shadow_foot_point(texture, draw_rect, shadow_bounds, unit_type)
+	shadow_origin += Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
 	_submitted_shadow_meshes.append(shadow_mesh)
-	draw_mesh(shadow_mesh, null, Transform2D.IDENTITY, Color(1.0, 1.0, 1.0, shadow_alpha_scale))
+	draw_mesh(shadow_mesh, null, Transform2D(0.0, shadow_origin), Color(1.0, 1.0, 1.0, shadow_alpha_scale))
+	if detailed_sections:
+		_record_render_section_time("unit_shadow_submit", phase_started_usec)
+
+func _unit_shadow_detailed_instrumentation_enabled() -> bool:
+	return (
+		_render_instrumentation_owner != null
+		and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	)
+
+func _record_unit_shadow_cache_metric(metric: String, unit_type: String) -> void:
+	if not _unit_shadow_detailed_instrumentation_enabled():
+		return
+	_unit_shadow_draw_cache_metrics[metric] = int(_unit_shadow_draw_cache_metrics.get(metric, 0)) + 1
+	var by_type: Dictionary = _unit_shadow_draw_cache_metrics.get("by_type", {}) as Dictionary
+	var type_metrics: Dictionary = by_type.get(unit_type, {}) as Dictionary
+	type_metrics[metric] = int(type_metrics.get(metric, 0)) + 1
+	by_type[unit_type] = type_metrics
+	_unit_shadow_draw_cache_metrics["by_type"] = by_type
 
 func _unit_shadow_draw_mesh(texture: Texture2D, draw_rect: Rect2, unit_type: String, shadow_geometry: Array) -> ArrayMesh:
 	var cache_key: String = _unit_shadow_draw_cache_key(texture, draw_rect, unit_type)
 	if _unit_shadow_draw_mesh_cache.has(cache_key):
+		_record_unit_shadow_cache_metric("mesh_hit", unit_type)
 		return _unit_shadow_draw_mesh_cache.get(cache_key, null) as ArrayMesh
+	_record_unit_shadow_cache_metric("mesh_miss", unit_type)
 	var vertices := PackedVector3Array()
 	var colors := PackedColorArray()
 	var indices := PackedInt32Array()
 	for geometry_var: Variant in shadow_geometry:
 		var geometry: Dictionary = geometry_var as Dictionary
+		var triangulated: PackedInt32Array = geometry.get("triangulated", PackedInt32Array()) as PackedInt32Array
 		_append_colored_polygon_to_mesh_arrays(
 			geometry.get("soft", PackedVector2Array()) as PackedVector2Array,
 			UNIT_SHADOW_SOFT_COLOR,
 			vertices,
 			colors,
-			indices
+			indices,
+			triangulated
 		)
 		_append_colored_polygon_to_mesh_arrays(
 			geometry.get("hard", PackedVector2Array()) as PackedVector2Array,
 			UNIT_SHADOW_COLOR,
 			vertices,
 			colors,
-			indices
+			indices,
+			triangulated
 		)
 	if vertices.is_empty() or indices.is_empty():
 		_unit_shadow_draw_mesh_cache[cache_key] = null
@@ -13209,17 +13751,19 @@ func _unit_shadow_draw_mesh(texture: Texture2D, draw_rect: Rect2, unit_type: Str
 	shadow_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	_unit_shadow_draw_mesh_cache[cache_key] = shadow_mesh
 	return shadow_mesh
-
 func _append_colored_polygon_to_mesh_arrays(
 	polygon: PackedVector2Array,
 	color: Color,
 	vertices: PackedVector3Array,
 	colors: PackedColorArray,
-	indices: PackedInt32Array
+	indices: PackedInt32Array,
+	pretriangulated: PackedInt32Array = PackedInt32Array()
 ) -> void:
 	if not _polygon_can_draw(polygon):
 		return
-	var triangulated: PackedInt32Array = Geometry2D.triangulate_polygon(polygon)
+	var triangulated: PackedInt32Array = pretriangulated
+	if triangulated.is_empty():
+		triangulated = Geometry2D.triangulate_polygon(polygon)
 	if triangulated.is_empty():
 		return
 	var first_vertex: int = vertices.size()
@@ -13230,10 +13774,11 @@ func _append_colored_polygon_to_mesh_arrays(
 		indices.append(first_vertex + index)
 
 func _unit_shadow_draw_cache_key(texture: Texture2D, draw_rect: Rect2, unit_type: String) -> String:
-	return "%d|%.3f,%.3f,%.3f,%.3f|%s" % [
+	# Shadow geometry is authored around the feet and translated at submission.
+	# Position is therefore not part of its identity: movement between tiles can
+	# reuse the same immutable mesh for a given sprite frame and draw size.
+	return "%d|%.3f,%.3f|%s" % [
 		texture.get_instance_id(),
-		draw_rect.position.x,
-		draw_rect.position.y,
 		draw_rect.size.x,
 		draw_rect.size.y,
 		unit_type
@@ -13242,12 +13787,20 @@ func _unit_shadow_draw_cache_key(texture: Texture2D, draw_rect: Rect2, unit_type
 func _unit_shadow_draw_geometry(texture: Texture2D, draw_rect: Rect2, unit_type: String) -> Array:
 	var cache_key: String = _unit_shadow_draw_cache_key(texture, draw_rect, unit_type)
 	if _unit_shadow_draw_geometry_cache.has(cache_key):
+		_record_unit_shadow_cache_metric("geometry_hit", unit_type)
 		return _unit_shadow_draw_geometry_cache.get(cache_key, []) as Array
+	_record_unit_shadow_cache_metric("geometry_miss", unit_type)
 	var geometry: Array = []
 	var shadow_data_was_missing: bool = not _unit_shadow_polygon_cache.has(texture.get_instance_id())
 	var shadow_data_started_usec: int = Time.get_ticks_usec() if shadow_data_was_missing else 0
-	var shadow_polygons: Array[PackedVector2Array] = _unit_shadow_polygons_for_texture(texture)
-	var bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
+	var shadow_data: Dictionary = _unit_shadow_data_for_texture(texture)
+	var shadow_polygons: Array[PackedVector2Array] = _packed_vector2_array_array(
+		shadow_data.get("polygons", [])
+	)
+	var shadow_triangulations: Array[PackedInt32Array] = _packed_int32_array_array(
+		shadow_data.get("triangulations", [])
+	)
+	var bounds: Rect2 = shadow_data.get("bounds", Rect2()) as Rect2
 	if shadow_data_was_missing:
 		var elapsed_usec: int = Time.get_ticks_usec() - shadow_data_started_usec
 		_unit_shadow_sync_miss_metrics["count"] = int(_unit_shadow_sync_miss_metrics.get("count", 0)) + 1
@@ -13264,14 +13817,20 @@ func _unit_shadow_draw_geometry(texture: Texture2D, draw_rect: Rect2, unit_type:
 		_unit_shadow_draw_geometry_cache[cache_key] = geometry
 		return geometry
 	var shadow_size: Vector2 = _unit_shadow_draw_size(texture, draw_rect.size, bounds)
-	var foot_point: Vector2 = _unit_shadow_foot_point(texture, draw_rect, bounds, unit_type)
-	var shadow_origin: Vector2 = foot_point + Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
-	for local_polygon: PackedVector2Array in shadow_polygons:
-		var shadow_polygon: PackedVector2Array = _project_unit_shadow_polygon(local_polygon, shadow_size, shadow_origin)
+	for polygon_index: int in range(shadow_polygons.size()):
+		var local_polygon: PackedVector2Array = shadow_polygons[polygon_index]
+		var shadow_polygon: PackedVector2Array = _project_unit_shadow_polygon(local_polygon, shadow_size, Vector2.ZERO)
 		if not _polygon_can_draw(shadow_polygon):
 			continue
 		var soft_polygon: PackedVector2Array = _scaled_polygon(shadow_polygon, UNIT_SHADOW_SOFT_SCALE)
-		geometry.append({"hard": shadow_polygon, "soft": soft_polygon if _polygon_can_draw(soft_polygon) else PackedVector2Array()})
+		var triangulated := PackedInt32Array()
+		if polygon_index < shadow_triangulations.size():
+			triangulated = shadow_triangulations[polygon_index]
+		geometry.append({
+			"hard": shadow_polygon,
+			"soft": soft_polygon if _polygon_can_draw(soft_polygon) else PackedVector2Array(),
+			"triangulated": triangulated,
+		})
 	_unit_shadow_draw_geometry_cache[cache_key] = geometry
 	return geometry
 
@@ -13286,15 +13845,16 @@ func _draw_unit_shadow_fallback(unit: Dictionary) -> void:
 	_draw_iso_ground_shadow(center, width, height, width * 0.10, 0.20 * shadow_alpha_scale)
 
 func _unit_shadow_polygons_for_texture(texture: Texture2D) -> Array[PackedVector2Array]:
-	return _unit_shadow_data_for_texture(texture).get("polygons", []) as Array[PackedVector2Array]
+	return _packed_vector2_array_array(_unit_shadow_data_for_texture(texture).get("polygons", []))
 
 func _unit_shadow_bounds_for_texture(texture: Texture2D) -> Rect2:
 	return _unit_shadow_data_for_texture(texture).get("bounds", Rect2()) as Rect2
 
 func _unit_shadow_data_for_texture(texture: Texture2D) -> Dictionary:
 	var local_polygons: Array[PackedVector2Array] = []
+	var local_triangulations: Array[PackedInt32Array] = []
 	if texture == null:
-		return {"polygons": local_polygons, "bounds": Rect2()}
+		return {"polygons": local_polygons, "triangulations": local_triangulations, "bounds": Rect2()}
 	var cache_key: int = texture.get_instance_id()
 	if _unit_shadow_polygon_cache.has(cache_key):
 		return _unit_shadow_polygon_cache.get(cache_key, {})
@@ -13329,9 +13889,10 @@ func _unit_shadow_data_for_image_with_simplify(image: Image, simplify_epsilon: f
 
 func _unit_shadow_data_from_opaque_polygons(opaque_polygons: Array[PackedVector2Array]) -> Dictionary:
 	var local_polygons: Array[PackedVector2Array] = []
+	var triangulations: Array[PackedInt32Array] = []
 	var bounds: Rect2 = _polygon_bounds(opaque_polygons)
 	if bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
-		return {"polygons": local_polygons, "bounds": Rect2()}
+		return {"polygons": local_polygons, "triangulations": triangulations, "bounds": Rect2()}
 	var bounds_center_x: float = bounds.position.x + bounds.size.x * 0.5
 	var bounds_bottom_y: float = bounds.position.y + bounds.size.y
 	for polygon: PackedVector2Array in opaque_polygons:
@@ -13340,10 +13901,17 @@ func _unit_shadow_data_from_opaque_polygons(opaque_polygons: Array[PackedVector2
 			local_polygon.append(Vector2(
 				(point.x - bounds_center_x) / bounds.size.x,
 				(point.y - bounds_bottom_y) / bounds.size.y
-		))
+			))
 		if _polygon_can_draw(local_polygon):
-			local_polygons.append(local_polygon)
-	var data: Dictionary = {"polygons": local_polygons, "bounds": bounds}
+			var triangulated: PackedInt32Array = Geometry2D.triangulate_polygon(local_polygon)
+			if not triangulated.is_empty():
+				local_polygons.append(local_polygon)
+				triangulations.append(triangulated)
+	var data: Dictionary = {
+		"polygons": local_polygons,
+		"triangulations": triangulations,
+		"bounds": bounds,
+	}
 	return data
 
 func _unit_shadow_draw_size(texture: Texture2D, draw_size: Vector2, bounds: Rect2) -> Vector2:
@@ -13376,9 +13944,10 @@ func _unit_shadow_stable_bottom_ratio(unit_type: String, fallback_texture: Textu
 			ratios.append(_unit_shadow_bottom_ratio(frame_texture, frame_bounds))
 	if ratios.is_empty() and _unit_textures.has(unit_type):
 		var base_texture: Texture2D = _unit_textures.get(unit_type, null)
-		var base_bounds: Rect2 = _unit_shadow_bounds_for_texture(base_texture)
-		if base_bounds.size.y > 0.0:
-			ratios.append(_unit_shadow_bottom_ratio(base_texture, base_bounds))
+		if base_texture != null:
+			var base_bounds: Rect2 = _unit_shadow_bounds_for_texture(base_texture)
+			if base_bounds.size.y > 0.0:
+				ratios.append(_unit_shadow_bottom_ratio(base_texture, base_bounds))
 	if ratios.is_empty():
 		ratios.append(_unit_shadow_bottom_ratio(fallback_texture, fallback_bounds))
 	ratios.sort()
@@ -13472,6 +14041,24 @@ func _vector2i_array(values: Array) -> Array[Vector2i]:
 	for value: Variant in values:
 		if typeof(value) == TYPE_VECTOR2I:
 			result.append(value)
+	return result
+
+func _packed_int32_array_array(values: Variant) -> Array[PackedInt32Array]:
+	var result: Array[PackedInt32Array] = []
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value: Variant in values as Array:
+		if typeof(value) == TYPE_PACKED_INT32_ARRAY:
+			result.append(value as PackedInt32Array)
+	return result
+
+func _packed_vector2_array_array(values: Variant) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array] = []
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value: Variant in values as Array:
+		if typeof(value) == TYPE_PACKED_VECTOR2_ARRAY:
+			result.append(value as PackedVector2Array)
 	return result
 
 func _vector2i_lookup(values: Array) -> Dictionary:

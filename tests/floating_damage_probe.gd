@@ -2,14 +2,18 @@ extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
-const OUTPUT_DIR: String = "user://probes/floating_combat_v3"
+const OUTPUT_DIR: String = "user://probes/floating_combat_v4"
 const PROGRESSION_PATH: String = "user://floating_damage_probe_progression.json"
 const RUN_PATH: String = "user://floating_damage_probe_run.save"
 const SETTINGS_PATH: String = "user://floating_damage_probe_settings.json"
+const LEGACY_GATE_GAMBIT_SERIAL_SECONDS: float = 4.03
+const LEGACY_LOADED_TOSS_SERIAL_SECONDS: float = 3.91
+const TARGET_MULTI_EFFECT_DURATION_RATIO: float = 0.50
 
 var _failures: Array[String] = []
 
@@ -197,11 +201,168 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 		"%s/reduced_motion_stack.png" % output_dir,
 		screenshot_size
 	)
+	await _capture_multi_effect_card_timelines(
+		instance,
+		viewport,
+		combat_state,
+		output_dir,
+		screenshot_size
+	)
+	await _verify_actual_multi_effect_resolution_pacing(instance, combat_state)
 
 	instance.queue_free()
 	await process_frame
 	viewport.queue_free()
 	await process_frame
+
+
+func _capture_multi_effect_card_timelines(
+	instance: Node,
+	viewport: SubViewport,
+	combat_state: Dictionary,
+	output_dir: String,
+	screenshot_size: Vector2i
+) -> void:
+	var loaded_toss_types: Array[String] = _card_action_types("loaded_toss")
+	var gate_gambit_types: Array[String] = _card_action_types("gate_gambit")
+	_expect(
+		loaded_toss_types == ["ranged", "draw", "card_play"],
+		"Loaded Toss should remain the attack, draw, and card-play overlap fixture"
+	)
+	_expect(
+		gate_gambit_types == ["draw", "card_play", "block"],
+		"Gate Gambit should remain the three-utility-effect overlap fixture"
+	)
+	var player_tile := Vector2i(3, 3)
+	var loaded_toss_groups: Array[Dictionary] = [
+		FloatingCombatText.timeline_group([
+			FloatingCombatText.damage_entry(Vector2i(5, 3), "-3", Color("f39779")),
+		], 0.0),
+		FloatingCombatText.timeline_group([{
+			"tile": player_tile,
+			"text": "+1 draw",
+			"color": Color("f1d18b"),
+		}], FloatingCombatText.ACTION_ADVANCE_SECONDS),
+		FloatingCombatText.timeline_group([{
+			"tile": player_tile,
+			"text": "+1 play",
+			"color": Color("ffe27a"),
+		}], FloatingCombatText.ACTION_ADVANCE_SECONDS * 2.0),
+	]
+	for capture: Dictionary in [
+		{
+			"name": "loaded_toss_attack_draw_overlap.png",
+			"elapsed": FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.02,
+			"reduced": false,
+		},
+		{
+			"name": "loaded_toss_draw_play_overlap.png",
+			"elapsed": FloatingCombatText.ACTION_ADVANCE_SECONDS * 2.0 + 0.02,
+			"reduced": false,
+		},
+		{
+			"name": "loaded_toss_reduced_overlap.png",
+			"elapsed": FloatingCombatText.ACTION_ADVANCE_SECONDS * 2.0 + 0.02,
+			"reduced": true,
+		},
+	]:
+		await _capture_timeline_state(
+			instance,
+			viewport,
+			combat_state,
+			loaded_toss_groups,
+			float(capture.get("elapsed", 0.0)),
+			bool(capture.get("reduced", false)),
+			["player", "enemy_2"],
+			"%s/%s" % [output_dir, str(capture.get("name", ""))],
+			screenshot_size
+		)
+	var gate_gambit_groups: Array[Dictionary] = [
+		FloatingCombatText.timeline_group([{
+			"tile": player_tile,
+			"text": "+3 draw",
+			"color": Color("f1d18b"),
+		}], 0.0),
+		FloatingCombatText.timeline_group([{
+			"tile": player_tile,
+			"text": "+2 play",
+			"color": Color("ffe27a"),
+		}], FloatingCombatText.ACTION_ADVANCE_SECONDS),
+		FloatingCombatText.timeline_group([{
+			"tile": player_tile,
+			"text": "+3 block",
+			"color": Color("90d9ff"),
+		}], FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.29),
+	]
+	for capture: Dictionary in [
+		{
+			"name": "gate_gambit_draw_play_overlap.png",
+			"elapsed": FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.02,
+		},
+		{
+			"name": "gate_gambit_play_block_overlap.png",
+			"elapsed": FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.31,
+		},
+	]:
+		await _capture_timeline_state(
+			instance,
+			viewport,
+			combat_state,
+			gate_gambit_groups,
+			float(capture.get("elapsed", 0.0)),
+			false,
+			["player"],
+			"%s/%s" % [output_dir, str(capture.get("name", ""))],
+			screenshot_size
+		)
+
+
+func _card_action_types(card_id: String) -> Array[String]:
+	var action_types: Array[String] = []
+	for action_var: Variant in GameData.card_def(card_id).get("actions", []):
+		if typeof(action_var) == TYPE_DICTIONARY:
+			action_types.append(str((action_var as Dictionary).get("type", "")))
+	return action_types
+
+
+func _verify_actual_multi_effect_resolution_pacing(instance: Node, combat_state: Dictionary) -> void:
+	var no_targets: Array[Vector2i] = []
+	var gate_gambit_started_usec: int = Time.get_ticks_usec()
+	await instance.call(
+		"_animate_player_card_resolution",
+		combat_state.duplicate(true),
+		"gate_gambit",
+		(GameData.card_def("gate_gambit").get("actions", []) as Array).duplicate(true),
+		no_targets
+	)
+	var gate_gambit_seconds: float = float(Time.get_ticks_usec() - gate_gambit_started_usec) / 1000000.0
+	_expect(
+		gate_gambit_seconds
+		<= LEGACY_GATE_GAMBIT_SERIAL_SECONDS * TARGET_MULTI_EFFECT_DURATION_RATIO,
+		"Gate Gambit's former 4.03-second serial presentation should resolve within half that time, got %.3f"
+		% gate_gambit_seconds
+	)
+	var loaded_toss_targets: Array[Vector2i] = []
+	loaded_toss_targets.append(Vector2i(5, 3))
+	var loaded_toss_started_usec: int = Time.get_ticks_usec()
+	await instance.call(
+		"_animate_player_card_resolution",
+		combat_state.duplicate(true),
+		"loaded_toss",
+		(GameData.card_def("loaded_toss").get("actions", []) as Array).duplicate(true),
+		loaded_toss_targets
+	)
+	var loaded_toss_seconds: float = float(Time.get_ticks_usec() - loaded_toss_started_usec) / 1000000.0
+	_expect(
+		loaded_toss_seconds
+		<= LEGACY_LOADED_TOSS_SERIAL_SECONDS * TARGET_MULTI_EFFECT_DURATION_RATIO,
+		"Loaded Toss's former 3.91-second serial presentation should resolve within half that time, got %.3f"
+		% loaded_toss_seconds
+	)
+	print(
+		"MULTI-EFFECT POPUP PACING: Gate Gambit %.3fs, Loaded Toss %.3fs"
+		% [gate_gambit_seconds, loaded_toss_seconds]
+	)
 
 
 func _capture_popup_state(
@@ -223,6 +384,59 @@ func _capture_popup_state(
 		elapsed_seconds,
 		reduced_motion
 	)
+	await _capture_animated_popup_state(
+		instance,
+		viewport,
+		combat_state,
+		animated_entries,
+		elapsed_seconds,
+		impact_keys,
+		path,
+		expected_size
+	)
+
+
+func _capture_timeline_state(
+	instance: Node,
+	viewport: SubViewport,
+	combat_state: Dictionary,
+	groups: Array[Dictionary],
+	elapsed_seconds: float,
+	reduced_motion: bool,
+	impact_keys: Array,
+	path: String,
+	expected_size: Vector2i
+) -> void:
+	var settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	settings["reduced_motion"] = reduced_motion
+	instance.set("_settings", settings)
+	var animated_entries: Array[Dictionary] = FloatingCombatText.animate_timeline(
+		groups,
+		elapsed_seconds,
+		reduced_motion
+	)
+	await _capture_animated_popup_state(
+		instance,
+		viewport,
+		combat_state,
+		animated_entries,
+		elapsed_seconds,
+		impact_keys,
+		path,
+		expected_size
+	)
+
+
+func _capture_animated_popup_state(
+	instance: Node,
+	viewport: SubViewport,
+	combat_state: Dictionary,
+	animated_entries: Array[Dictionary],
+	elapsed_seconds: float,
+	impact_keys: Array,
+	path: String,
+	expected_size: Vector2i
+) -> void:
 	_expect(not animated_entries.is_empty(), "%s should expose at least one active popup" % path)
 	instance.call("_render_board_state", combat_state, {
 		"focus_actor_keys": impact_keys,
@@ -308,15 +522,15 @@ func _install_combat_fixture(instance: Node) -> Dictionary:
 		{
 			"hp": 24,
 			"max_hp": 24,
-			"deck_cards": ["quick_stab", "brace", "whirlwind_slash"],
+			"deck_cards": ["loaded_toss", "gate_gambit", "crank_reload"],
 			"relics": [],
 			"hand_size": 3,
 			"heal_bonus": 0,
 		}
 	)
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab", "brace", "whirlwind_slash"]
-	deck["draw"] = []
+	deck["hand"] = ["loaded_toss", "gate_gambit", "crank_reload"]
+	deck["draw"] = ["quick_stab", "brace", "whirlwind_slash", "patch_up"]
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck

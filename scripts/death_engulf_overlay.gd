@@ -1,40 +1,119 @@
 extends Control
 class_name DeathEngulfOverlay
 
-const ENGULF_SECONDS: float = 1.55
-const FINAL_SHROUD_ALPHA: float = 0.43
-const SHROUD_COLOR: Color = Color(0.018, 0.020, 0.028, 1.0)
-const EDGE_FLOOD_ALPHA: float = 0.30
+const ENGULF_SECONDS: float = 1.90
+const FINAL_SHROUD_ALPHA: float = 0.90
+const LIT_CORE_RADIUS: float = 0.105
+const LIT_FADE_RADIUS: float = 0.285
+
+const SHROUD_SHADER_CODE: String = """
+shader_type canvas_item;
+render_mode unshaded;
+
+uniform vec2 death_center = vec2(0.32, 0.62);
+uniform vec2 aspect_scale = vec2(1.7777778, 1.0);
+uniform float engulf_progress : hint_range(0.0, 1.0) = 0.0;
+uniform float shroud_alpha : hint_range(0.0, 1.0) = 0.90;
+
+float cubic_ease(float x) {
+	return x < 0.5 ? 4.0 * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 3.0) * 0.5;
+}
+
+void fragment() {
+	vec2 delta = (UV - death_center) * aspect_scale;
+	float distance_from_death = length(delta);
+	float angle = atan(delta.y, delta.x);
+	float eased = cubic_ease(engulf_progress);
+	float irregularity = sin(angle * 5.0 + eased * 2.2) * 0.018;
+	irregularity += sin(angle * 9.0 - eased * 1.4) * 0.009;
+	float front_radius = mix(1.32, 0.175, eased) + irregularity * eased;
+	float coverage = smoothstep(front_radius - 0.055, front_radius + 0.070, distance_from_death);
+	float settled_halo = smoothstep(0.105, 0.285, distance_from_death);
+	float alpha = shroud_alpha * coverage * mix(1.0, settled_halo, smoothstep(0.72, 1.0, eased));
+	vec3 umbra = mix(vec3(0.020, 0.018, 0.030), vec3(0.035, 0.020, 0.055), 0.18 + 0.12 * sin(angle * 3.0));
+	COLOR = vec4(umbra, alpha);
+}
+"""
+
+const GLOW_SHADER_CODE: String = """
+shader_type canvas_item;
+render_mode unshaded, blend_add;
+
+uniform vec2 death_center = vec2(0.32, 0.62);
+uniform vec2 aspect_scale = vec2(1.7777778, 1.0);
+uniform float glow_alpha : hint_range(0.0, 1.0) = 0.0;
+uniform float pulse : hint_range(0.0, 1.0) = 0.5;
+
+void fragment() {
+	vec2 delta = (UV - death_center) * aspect_scale;
+	float distance_from_death = length(delta);
+	float warm_core = 1.0 - smoothstep(0.025, 0.175 + pulse * 0.010, distance_from_death);
+	float soft_falloff = 1.0 - smoothstep(0.070, 0.300 + pulse * 0.012, distance_from_death);
+	vec3 ember = vec3(1.0, 0.28, 0.055) * warm_core * 0.58;
+	ember += vec3(0.90, 0.16, 0.035) * soft_falloff * 0.28;
+	COLOR = vec4(ember, max(warm_core * 0.35, soft_falloff * 0.18) * glow_alpha);
+}
+"""
 
 var _elapsed: float = 0.0
 var _motion_enabled: bool = true
 var _playing: bool = false
+var _death_site_normalized: Vector2 = Vector2(0.32, 0.62)
+var _glow_site_normalized: Vector2 = Vector2(0.32, 0.62)
+var _shroud_rect: ColorRect
+var _glow_rect: ColorRect
+var _shroud_material: ShaderMaterial
+var _glow_material: ShaderMaterial
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
 	set_process(false)
+	_build_layers()
 
 func play(_board: Control = null) -> void:
 	_elapsed = 0.0 if _motion_enabled else ENGULF_SECONDS
 	_playing = true
 	visible = true
 	set_process(_motion_enabled)
-	queue_redraw()
+	_update_visuals()
 
 func reset() -> void:
 	_elapsed = 0.0
 	_playing = false
 	visible = false
 	set_process(false)
-	queue_redraw()
+	_update_visuals()
+
+func set_death_site_normalized(normalized_position: Vector2) -> void:
+	_death_site_normalized = Vector2(
+		clampf(normalized_position.x, 0.08, 0.92),
+		clampf(normalized_position.y, 0.10, 0.90)
+	)
+	_update_visuals()
+
+func death_site_normalized() -> Vector2:
+	return _death_site_normalized
+
+func set_glow_site_normalized(normalized_position: Vector2) -> void:
+	_glow_site_normalized = Vector2(
+		clampf(normalized_position.x, 0.08, 0.92),
+		clampf(normalized_position.y, 0.10, 0.90)
+	)
+	_update_visuals()
+
+func glow_site_normalized() -> Vector2:
+	return _glow_site_normalized
+
+func ember_position() -> Vector2:
+	return Vector2(size.x * _glow_site_normalized.x, size.y * _glow_site_normalized.y)
 
 func set_motion_enabled(enabled: bool) -> void:
 	_motion_enabled = enabled
 	if _playing and not _motion_enabled:
 		_elapsed = ENGULF_SECONDS
 		set_process(false)
-		queue_redraw()
+		_update_visuals()
 
 func motion_enabled() -> bool:
 	return _motion_enabled
@@ -44,7 +123,7 @@ func seek_seconds(seconds: float) -> void:
 	_playing = true
 	visible = true
 	set_process(_motion_enabled and _elapsed < ENGULF_SECONDS)
-	queue_redraw()
+	_update_visuals()
 
 func engulf_progress() -> float:
 	return clampf(_elapsed / ENGULF_SECONDS, 0.0, 1.0)
@@ -57,18 +136,20 @@ func has_decorative_edge_strokes() -> bool:
 
 func sample_alpha(normalized_position: Vector2, progress_override: float = -1.0) -> float:
 	var progress: float = engulf_progress() if progress_override < 0.0 else clampf(progress_override, 0.0, 1.0)
-	if progress >= 0.999:
-		return FINAL_SHROUD_ALPHA
-	var edge_distance: float = minf(
-		minf(normalized_position.x, 1.0 - normalized_position.x),
-		minf(normalized_position.y, 1.0 - normalized_position.y)
+	var aspect: float = size.x / maxf(1.0, size.y)
+	var delta := Vector2(
+		(normalized_position.x - _death_site_normalized.x) * aspect,
+		normalized_position.y - _death_site_normalized.y
 	)
+	var distance_from_death: float = delta.length()
 	var eased: float = _ease_in_out_cubic(progress)
-	var front_depth: float = minf(0.48, 0.02 + eased * 0.50)
-	var edge_coverage: float = 1.0 - _smoothstep(front_depth - 0.075, front_depth + 0.075, edge_distance)
-	var base_alpha: float = FINAL_SHROUD_ALPHA * _smoothstep(0.58, 1.0, progress)
-	var edge_alpha: float = EDGE_FLOOD_ALPHA * (0.55 + 0.45 * eased)
-	return clampf(base_alpha + (1.0 - base_alpha) * edge_alpha * edge_coverage, 0.0, 0.58)
+	var angle: float = atan2(delta.y, delta.x)
+	var irregularity: float = sin(angle * 5.0 + eased * 2.2) * 0.018
+	irregularity += sin(angle * 9.0 - eased * 1.4) * 0.009
+	var front_radius: float = lerpf(1.32, 0.175, eased) + irregularity * eased
+	var coverage: float = _smoothstep(front_radius - 0.055, front_radius + 0.070, distance_from_death)
+	var settled_halo: float = _smoothstep(LIT_CORE_RADIUS, LIT_FADE_RADIUS, distance_from_death)
+	return FINAL_SHROUD_ALPHA * coverage * lerpf(1.0, settled_halo, _smoothstep(0.72, 1.0, eased))
 
 func _process(delta: float) -> void:
 	if not _playing or not _motion_enabled:
@@ -76,94 +157,52 @@ func _process(delta: float) -> void:
 	_elapsed = minf(ENGULF_SECONDS, _elapsed + minf(delta, 1.0 / 30.0))
 	if _elapsed >= ENGULF_SECONDS:
 		set_process(false)
-	queue_redraw()
+	_update_visuals()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_RESIZED and visible:
-		queue_redraw()
+	if what == NOTIFICATION_RESIZED:
+		_update_visuals()
 
-func _draw() -> void:
-	if not visible or size.x <= 0.0 or size.y <= 0.0:
+func _build_layers() -> void:
+	_shroud_material = _shader_material(SHROUD_SHADER_CODE)
+	_shroud_rect = ColorRect.new()
+	_shroud_rect.name = "LocalizedUmbraShroud"
+	_shroud_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shroud_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shroud_rect.material = _shroud_material
+	add_child(_shroud_rect)
+
+	_glow_material = _shader_material(GLOW_SHADER_CODE)
+	_glow_rect = ColorRect.new()
+	_glow_rect.name = "LastLightGlow"
+	_glow_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_glow_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_glow_rect.material = _glow_material
+	add_child(_glow_rect)
+
+func _shader_material(code: String) -> ShaderMaterial:
+	var shader := Shader.new()
+	shader.code = code
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	return material
+
+func _update_visuals() -> void:
+	if _shroud_material == null or _glow_material == null:
 		return
 	var progress: float = engulf_progress()
-	if progress >= 0.999:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(SHROUD_COLOR.r, SHROUD_COLOR.g, SHROUD_COLOR.b, FINAL_SHROUD_ALPHA), true)
-		return
-	var eased: float = _ease_in_out_cubic(progress)
-	var base_alpha: float = FINAL_SHROUD_ALPHA * _smoothstep(0.58, 1.0, progress)
-	if base_alpha > 0.0:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(SHROUD_COLOR.r, SHROUD_COLOR.g, SHROUD_COLOR.b, base_alpha), true)
-	var edge_alpha: float = EDGE_FLOOD_ALPHA * (0.55 + 0.45 * eased)
-	var rect := Rect2(Vector2.ZERO, size)
-	_draw_edge_flood(rect, "left", eased, 0.20, 0.96, edge_alpha)
-	_draw_edge_flood(rect, "right", eased, 1.70, 0.92, edge_alpha)
-	_draw_edge_flood(rect, "top", eased, 3.30, 0.78, edge_alpha * 0.92)
-	_draw_edge_flood(rect, "bottom", eased, 4.60, 0.82, edge_alpha * 0.94)
-
-func _draw_edge_flood(rect: Rect2, edge: String, progress: float, phase: float, reach_scale: float, alpha: float) -> void:
-	if progress <= 0.0 or alpha <= 0.0:
-		return
-	var segments: int = 28
-	var color := Color(SHROUD_COLOR.r, SHROUD_COLOR.g, SHROUD_COLOR.b, alpha)
-	for index: int in range(segments):
-		var lane_a: float = float(index) / float(segments)
-		var lane_b: float = float(index + 1) / float(segments)
-		var reach_a: float
-		var reach_b: float
-		if edge in ["left", "right"]:
-			reach_a = _edge_reach(rect.size.x, lane_a, progress, phase, reach_scale)
-			reach_b = _edge_reach(rect.size.x, lane_b, progress, phase, reach_scale)
-		else:
-			reach_a = _edge_reach(rect.size.y, lane_a, progress, phase, reach_scale)
-			reach_b = _edge_reach(rect.size.y, lane_b, progress, phase, reach_scale)
-		if reach_a <= 0.5 or reach_b <= 0.5:
-			continue
-		var points: Array[Vector2] = []
-		match edge:
-			"left":
-				points = _vector2_array([
-					Vector2(rect.position.x, rect.position.y + rect.size.y * lane_a),
-					Vector2(rect.position.x, rect.position.y + rect.size.y * lane_b),
-					Vector2(rect.position.x + reach_b, rect.position.y + rect.size.y * lane_b),
-					Vector2(rect.position.x + reach_a, rect.position.y + rect.size.y * lane_a)
-				])
-			"right":
-				points = _vector2_array([
-					Vector2(rect.end.x, rect.position.y + rect.size.y * lane_a),
-					Vector2(rect.end.x, rect.position.y + rect.size.y * lane_b),
-					Vector2(rect.end.x - reach_b, rect.position.y + rect.size.y * lane_b),
-					Vector2(rect.end.x - reach_a, rect.position.y + rect.size.y * lane_a)
-				])
-			"top":
-				points = _vector2_array([
-					Vector2(rect.position.x + rect.size.x * lane_a, rect.position.y),
-					Vector2(rect.position.x + rect.size.x * lane_b, rect.position.y),
-					Vector2(rect.position.x + rect.size.x * lane_b, rect.position.y + reach_b),
-					Vector2(rect.position.x + rect.size.x * lane_a, rect.position.y + reach_a)
-				])
-			"bottom":
-				points = _vector2_array([
-					Vector2(rect.position.x + rect.size.x * lane_a, rect.end.y),
-					Vector2(rect.position.x + rect.size.x * lane_b, rect.end.y),
-					Vector2(rect.position.x + rect.size.x * lane_b, rect.end.y - reach_b),
-					Vector2(rect.position.x + rect.size.x * lane_a, rect.end.y - reach_a)
-				])
-		if points.size() >= 3:
-			draw_colored_polygon(PackedVector2Array(points), color)
-
-func _edge_reach(axis_size: float, lane: float, progress: float, phase: float, reach_scale: float) -> float:
-	var wave: float = sin(lane * TAU * 2.15 + phase) * 0.030
-	wave += sin(lane * TAU * 5.30 + phase * 0.63) * 0.014
-	var breathing: float = sin(progress * PI + lane * TAU + phase) * 0.018
-	var normalized_reach: float = minf(0.48, progress * 0.52 * reach_scale + wave * progress + breathing * progress)
-	return clampf(axis_size * normalized_reach, 0.0, axis_size * 0.48)
-
-func _vector2_array(values: Array) -> Array[Vector2]:
-	var result: Array[Vector2] = []
-	for value: Variant in values:
-		if value is Vector2:
-			result.append(value as Vector2)
-	return result
+	var aspect := Vector2(size.x / maxf(1.0, size.y), 1.0)
+	_shroud_material.set_shader_parameter("death_center", _death_site_normalized)
+	_shroud_material.set_shader_parameter("aspect_scale", aspect)
+	_shroud_material.set_shader_parameter("engulf_progress", progress)
+	_shroud_material.set_shader_parameter("shroud_alpha", FINAL_SHROUD_ALPHA)
+	var pulse: float = 0.5
+	if _motion_enabled:
+		pulse = 0.5 + sin(_elapsed * 7.2) * 0.5
+	_glow_material.set_shader_parameter("death_center", _glow_site_normalized)
+	_glow_material.set_shader_parameter("aspect_scale", aspect)
+	_glow_material.set_shader_parameter("glow_alpha", lerpf(0.86, 1.0, _smoothstep(0.0, 0.32, progress)))
+	_glow_material.set_shader_parameter("pulse", pulse)
 
 func _smoothstep(edge0: float, edge1: float, value: float) -> float:
 	if is_equal_approx(edge0, edge1):

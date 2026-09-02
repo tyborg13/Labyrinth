@@ -217,6 +217,10 @@ func _test_legacy_save_repair() -> void:
 		"skill_ids": [],
 	}
 	legacy["combat_state"] = legacy_combat_state
+	# Pending combat continuations are only meaningful in combat. Keep the legacy
+	# migration fixture internally consistent so repair preserves and migrates the
+	# authored checkpoint instead of correctly discarding it as stale room data.
+	legacy["mode"] = "combat"
 	legacy["pending_combat_checkpoints"] = [{
 		"state": {
 			"grid": layout_grid.duplicate(true),
@@ -228,7 +232,7 @@ func _test_legacy_save_repair() -> void:
 				"consumed": [legacy_reward_card],
 			},
 			"loot": layout.get("loot", []).duplicate(true),
-			"skill_flags": {"prismatic_target_card_id": legacy_reward_card},
+			"skill_flags": {"migration_probe_card_id": legacy_reward_card},
 		}
 	}]
 	legacy["compatibility_probe"] = {
@@ -271,7 +275,7 @@ func _test_legacy_save_repair() -> void:
 	var repaired_merchant_room: Dictionary = repaired_rooms.get(merchant_room_key, {}) as Dictionary
 	_assert((repaired_merchant_room.get("merchant_stock", []) as Array).has("cinderweave_mail") and (repaired_merchant_room.get("merchant_stock", []) as Array).has("cinderline_tempo"), "Merchant stock should migrate every renamed content id")
 	var repaired_checkpoint: Dictionary = (((repaired.get("pending_combat_checkpoints", []) as Array)[0] as Dictionary).get("state", {}) as Dictionary)
-	_assert(str((repaired_checkpoint.get("skill_flags", {}) as Dictionary).get("prismatic_target_card_id", "")) == "cinderline_tempo", "Pending combat checkpoint flags should migrate nested card ids")
+	_assert(str((repaired_checkpoint.get("skill_flags", {}) as Dictionary).get("migration_probe_card_id", "")) == "cinderline_tempo", "Pending combat checkpoint flags should migrate nested card ids")
 	var repaired_checkpoint_deck: Dictionary = repaired_checkpoint.get("deck", {}) as Dictionary
 	_assert((repaired_checkpoint_deck.get("hand", []) as Array).has("cinderline_tempo") and (repaired_checkpoint_deck.get("hand", []) as Array).has("cinderweave_guard"), "Pending combat checkpoint hands should migrate every renamed card id")
 	_assert(str((((repaired_checkpoint.get("grid", []) as Array)[1] as Array)[1])) == "stone", "Pending combat checkpoint grids should migrate to valid stone terrain")
@@ -352,6 +356,79 @@ func _test_enemy_and_turn_boundaries(base_run: Dictionary) -> void:
 	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled)
 	var commit_checkpoints: Array = _run_scene.call("_combat_commit_checkpoints", phase.get("steps", [])) as Array
 	var final_run_state: Dictionary = _run_scene.call("_run_state_for_combat_checkpoint", base_run, phase.get("state", {}) as Dictionary) as Dictionary
+	var compact_scheduled_run_state: Dictionary = _run_scene.call(
+		"_run_state_with_combat_checkpoints",
+		_run_scene.call("_run_state_for_combat_checkpoint", base_run, scheduled),
+		[_run_scene.call("_enemy_phase_continuation_checkpoint")]
+	) as Dictionary
+	var compact_checkpoints: Array = compact_scheduled_run_state.get(COMBAT_CONTINUATION_KEY, []) as Array
+	_assert(compact_checkpoints.size() == 1, "The live enemy-turn boundary should persist exactly one compact continuation marker")
+	if compact_checkpoints.size() == 1:
+		var compact_marker: Dictionary = compact_checkpoints[0] as Dictionary
+		_assert(bool(compact_marker.get("resume_enemy_phase", false)), "The compact enemy-turn marker should request deterministic phase replay")
+		_assert(not compact_marker.has("state"), "The compact enemy-turn marker should not serialize per-action combat snapshots")
+	_assert_run_resume("turn/compact_enemy_phase_marker", compact_scheduled_run_state)
+	_assert_playable_continuation("resume/compact_enemy_phase_replay", compact_scheduled_run_state, final_run_state)
+	var malformed_scheduled: Dictionary = scheduled.duplicate(true)
+	var malformed_queue: Array = (malformed_scheduled.get("turn_queue", []) as Array).duplicate(true)
+	malformed_queue.push_front({
+		"kind": "removed_actor_kind",
+		"time": int(malformed_scheduled.get("initiative_clock", 0)) - 1,
+		"seq": -1,
+	})
+	malformed_scheduled["turn_queue"] = malformed_queue
+	malformed_scheduled["current_actor"] = {"kind": "transition"}
+	var malformed_expected_phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(malformed_scheduled)
+	var malformed_expected_run: Dictionary = _run_scene.call(
+		"_run_state_for_combat_checkpoint",
+		base_run,
+		malformed_expected_phase.get("state", {}) as Dictionary
+	) as Dictionary
+	var malformed_marker_run: Dictionary = _run_scene.call(
+		"_run_state_with_combat_checkpoints",
+		_run_scene.call("_run_state_for_combat_checkpoint", base_run, malformed_scheduled),
+		[_run_scene.call("_enemy_phase_continuation_checkpoint")]
+	) as Dictionary
+	_assert_playable_continuation(
+		"resume/malformed_actor_progress",
+		malformed_marker_run,
+		malformed_expected_run
+	)
+	var stalled_scheduled: Dictionary = scheduled.duplicate(true)
+	var stalled_player: Dictionary = (stalled_scheduled.get("player", {}) as Dictionary).duplicate(true)
+	stalled_player["hp"] = 1000000000
+	stalled_player["max_hp"] = 1000000000
+	stalled_scheduled["player"] = stalled_player
+	var stalled_enemy_id: int = int(((stalled_scheduled.get("enemies", []) as Array)[0] as Dictionary).get("id", -1))
+	var stalled_queue: Array = []
+	for malformed_index: int in range(101):
+		stalled_queue.append({
+			"kind": "enemy",
+			"enemy_id": stalled_enemy_id,
+			"time": int(stalled_scheduled.get("initiative_clock", 0)) - 1000 + malformed_index,
+			"seq": malformed_index,
+		})
+	stalled_queue.append_array(stalled_scheduled.get("turn_queue", []) as Array)
+	stalled_scheduled["turn_queue"] = stalled_queue
+	stalled_scheduled["current_actor"] = {"kind": "transition"}
+	var stalled_marker_run: Dictionary = _run_scene.call(
+		"_run_state_with_combat_checkpoints",
+		_run_scene.call("_run_state_for_combat_checkpoint", base_run, stalled_scheduled),
+		[_run_scene.call("_enemy_phase_continuation_checkpoint")]
+	) as Dictionary
+	_run_scene.set("_run_state", stalled_marker_run)
+	_run_scene.set("_combat_state", stalled_scheduled)
+	var consumed_safety_slices: int = 0
+	while consumed_safety_slices < 100 and bool(_run_scene.call("_consume_next_pending_combat_checkpoint")):
+		consumed_safety_slices += 1
+	_assert(consumed_safety_slices == 100, "Safety-bound fixture should consume exactly 100 malformed actors before recovery")
+	_assert(bool(_run_scene.call("_has_pending_combat_checkpoints")), "Safety-bound fixture should still own a continuation marker before deterministic recovery")
+	_run_scene.call("_recover_stalled_enemy_phase_continuation")
+	var recovered_stalled_run: Dictionary = _run_scene.call("_committed_run_state") as Dictionary
+	var recovered_stalled_combat: Dictionary = recovered_stalled_run.get("combat_state", {}) as Dictionary
+	_assert(not recovered_stalled_run.has(COMBAT_CONTINUATION_KEY), "Safety recovery must clear the exhausted continuation marker")
+	_assert(_combat_engine.is_player_turn(recovered_stalled_combat), "Safety recovery must surface a playable player activation instead of a transition soft lock")
+	_matrix_rows.append("resume/safety_bound_recovery")
 	var scheduled_run_state: Dictionary = _combat_checkpoint_run_state(base_run, scheduled, commit_checkpoints)
 	_assert_run_resume("turn/pass_activation", scheduled_run_state)
 	_assert_playable_continuation("resume/pass_activation", scheduled_run_state, final_run_state)
@@ -656,7 +733,7 @@ func _assert_playable_continuation(label: String, saved_run: Dictionary, expecte
 	_assert(safety < 100, "%s continuation should be bounded" % label)
 	var resumed: Dictionary = _run_scene.call("_committed_run_state") as Dictionary
 	_assert(not resumed.has(COMBAT_CONTINUATION_KEY), "%s should consume its continuation cursor" % label)
-	_assert(resumed == expected_final_run, "%s should continue to the exact final state without replay or rollback" % label)
+	_assert(resumed == expected_final_run, "%s should continue to the exact final state without divergence" % label)
 	var final_combat: Dictionary = (resumed.get("combat_state", {}) as Dictionary)
 	if str(resumed.get("mode", "")) == "combat":
 		_assert(_combat_engine.is_player_turn(final_combat), "%s should resume at a playable player activation" % label)

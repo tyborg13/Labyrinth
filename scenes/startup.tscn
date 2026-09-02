@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/startup.gd" id="1_startup"]
-[ext_resource type="Texture2D" path="res://assets/art/ui/boot_splash_makers_seal.png" id="2_seal"]
 
 [node name="Startup" type="Control"]
 layout_mode = 3
@@ -25,7 +24,6 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 texture_filter = 2
-texture = ExtResource("2_seal")
 expand_mode = 1
 stretch_mode = 5
 mouse_filter = 2

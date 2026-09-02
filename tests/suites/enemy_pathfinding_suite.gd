@@ -3,6 +3,7 @@ extends RefCounted
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
+const PerformanceTelemetryScript = preload("res://scripts/performance_telemetry.gd")
 
 static func run(expect: Callable) -> void:
 	_test_deterministic_illusion_tie(expect)
@@ -21,7 +22,10 @@ static func run(expect: Callable) -> void:
 	_test_large_attack_only_enemy_uses_footprint_route_blocker(expect)
 	_test_enemy_congestion_is_a_hard_current_blocker(expect)
 	_test_open_detour_beats_avoidable_allied_stall(expect)
+	_test_distant_blocker_does_not_cause_early_u_turn(expect)
 	_test_large_footprint_stops_when_attack_is_available(expect)
+	_test_cached_anchor_queries_match_uncached_footprints(expect)
+	_test_reach_checks_do_not_require_moved_state_clones(expect)
 	_test_threat_exposes_exact_plan_beside_conservative_union(expect)
 	_test_lightning_projection_matches_deterministic_strikes(expect)
 	_test_exact_projection_respects_action_denying_statuses(expect)
@@ -200,7 +204,26 @@ static func _test_forced_choke_crosses_and_triggers_trap(expect: Callable) -> vo
 	var state: Dictionary = _state(combat, 26, Vector2i(2, 4), [_enemy(Vector2i(5, 4), intent)], [], traps, [], _corridor_grid())
 	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
 	expect.call(_tiles(plan.get("path", [])).has(Vector2i(4, 4)), "A finite trap cost should still permit the only attack-enabling route")
+	var reference: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	combat.set_runtime_performance_instrumentation_enabled(true)
 	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	expect.call(result == reference, "Instrumenting an enemy trap activation must preserve the resolved state and steps")
+	var profile: Dictionary = combat.runtime_performance_instrumentation_snapshot()
+	expect.call(profile.has("enemy_turn_action_resolve_move_toward_total"), "Enemy movement resolution must be recorded as an inclusive parent")
+	var sections: Dictionary = {}
+	var trap_calls: int = 0
+	for phase_var: Variant in profile.keys():
+		var phase: String = str(phase_var)
+		if phase.begins_with("enemy_turn_action_resolve_") or phase.begins_with("trap_"):
+			sections["engine_%s" % phase] = profile[phase_var]
+		if phase.begins_with("trap_") and not phase.ends_with("_total"):
+			trap_calls += int((profile[phase_var] as Dictionary).get("count", 0))
+	expect.call(trap_calls > 0, "The real enemy movement must exercise nested trap instrumentation")
+	var sampler := PerformanceTelemetryScript.new()
+	var deltas: Dictionary = sampler.steam_metric_deltas_for_test({"sections": sections}, "Linux", true)
+	expect.call(int(deltas.get("perf_v1_linux_steamdeck_section_engine_traps_calls", 0)) == trap_calls, "Steam must retain the real nested trap phase denominators")
+	expect.call(int(deltas.get("perf_v1_linux_steamdeck_section_engine_other_calls", 0)) == 0, "Steam must exclude inclusive action resolution instead of counting trap work again")
+	sampler.free()
 	var resolved: Dictionary = result.get("state", {})
 	expect.call((resolved.get("traps", []) as Array).is_empty(), "Voluntary movement across a forced choke should trigger the trap")
 	var saw_path: bool = false
@@ -324,6 +347,26 @@ static func _test_open_detour_beats_avoidable_allied_stall(expect: Callable) -> 
 	var route: Array[Vector2i] = _tiles(plan.get("route", []))
 	expect.call(not route.has(Vector2i(3, 4)) and route[route.size() - 1].distance_to(Vector2i(5, 4)) == 1.0, "The open detour should remain a coherent route to a future attack position")
 
+static func _test_distant_blocker_does_not_cause_early_u_turn(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Efficient Advance",
+		"actions": [
+			{"type": "move_toward", "range": 3},
+			{"type": "melee", "damage": 3, "range": 1}
+		]
+	}
+	var enemies: Array = [
+		_enemy(Vector2i(6, 2), intent),
+		_enemy(Vector2i(2, 2), {"name": "Wait", "actions": []}, "crawler", 2)
+	]
+	var state: Dictionary = _state(combat, 282, Vector2i(1, 2), enemies)
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	var path: Array[Vector2i] = _tiles(plan.get("path", []))
+	expect.call(path == _tiles([Vector2i(6, 2), Vector2i(5, 2), Vector2i(4, 2), Vector2i(3, 2)]), "A distant blocker should not make a single activation move away, sideways, then back before the detour is needed")
+	for index: int in range(1, path.size()):
+		expect.call(path[index].distance_to(Vector2i(1, 2)) < path[index - 1].distance_to(Vector2i(1, 2)), "Every open prefix step should make direct progress toward the player")
+
 static func _test_large_footprint_stops_when_attack_is_available(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var intent: Dictionary = {
@@ -414,6 +457,9 @@ static func _test_enemy_action_analytics_retains_path(expect: Callable) -> void:
 			"kind": "move",
 			"actor_key": "enemy_1",
 			"actor_name": "Crawler",
+			"enemy_type": "crawler",
+			"ai_role": "frontliner",
+			"intent_id": "lunge",
 			"from": Vector2i(5, 4),
 			"to": Vector2i(3, 4),
 			"path": [Vector2i(5, 4), Vector2i(4, 4), Vector2i(3, 4)],
@@ -430,9 +476,67 @@ static func _test_enemy_action_analytics_retains_path(expect: Callable) -> void:
 		var payload: Dictionary = events[0].get("payload", {})
 		expect.call(int(payload.get("path_steps", -1)) == 2, "Enemy action analytics should retain resolved path length")
 		expect.call((payload.get("path", []) as Array).size() == 3, "Enemy action analytics should retain every ordered route tile")
+		expect.call(str(payload.get("enemy_type", "")) == "crawler" and str(payload.get("ai_role", "")) == "frontliner" and str(payload.get("intent_id", "")) == "lunge", "Enemy action analytics should retain the acting tactical role and revealed intent id")
 	run_scene.free()
 	AnalyticsStore.clear_storage()
 	AnalyticsStore.set_storage_dir(previous_storage_dir)
+
+static func _test_cached_anchor_queries_match_uncached_footprints(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {"actions": [{"type": "melee", "range": 1, "damage": 3}]}
+	var moving_enemy: Dictionary = _enemy(Vector2i(1, 1), intent)
+	moving_enemy["footprint"] = Vector2i(2, 2)
+	var large_blocker: Dictionary = _enemy(Vector2i(3, 3), intent, "crawler", 2)
+	large_blocker["footprint"] = Vector2i(2, 2)
+	var wide_blocker: Dictionary = _enemy(Vector2i(4, 4), intent, "crawler", 3)
+	wide_blocker["footprint"] = Vector2i(2, 1)
+	var dead_blocker: Dictionary = _enemy(Vector2i(3, 4), intent, "crawler", 4)
+	dead_blocker["hp"] = 0
+	var state: Dictionary = _state(combat, 274, Vector2i(6, 6), [moving_enemy, large_blocker, wide_blocker, dead_blocker],
+		[
+			{"id": "destroyed_crate", "pos": Vector2i(5, 4), "hp": 0, "max_hp": 3},
+			{"id": "live_crate", "pos": Vector2i(5, 4), "hp": 3, "max_hp": 3},
+			{"id": "dead_only", "pos": Vector2i(2, 5), "hp": 0, "max_hp": 3},
+		],
+		[{"id": "trap", "pos": Vector2i(4, 5), "element": "fire", "damage": 2}],
+		[{"id": 7, "pos": Vector2i(6, 2), "hp": 4, "max_hp": 4}])
+	var snapshot: Dictionary = state.duplicate(true)
+	var context: Dictionary = combat.call("_enemy_future_planning_context", state, moving_enemy)
+	var terrain_index_by_tile: Dictionary = context.get("terrain_index_by_tile", {}) as Dictionary
+	expect.call(int(terrain_index_by_tile.get(Vector2i(5, 4), -1)) == 1, "Cached terrain lookup must retain the first live duplicate after a destroyed entry")
+	expect.call(not terrain_index_by_tile.has(Vector2i(2, 5)), "Destroyed terrain without a live duplicate must not block cached future anchors")
+	for y: int in range(-1, 9):
+		for x: int in range(-1, 9):
+			var anchor := Vector2i(x, y)
+			var details: Dictionary = combat.call("_enemy_future_anchor_details", state, moving_enemy, anchor, context)
+			expect.call(int(details.get("blocking_enemy_count", -1)) == int(combat.call("_enemy_anchor_blocking_enemy_count", state, moving_enemy, anchor)), "Cached blocker counts must match uncached scans at %s" % anchor)
+			expect.call(bool(details.get("dynamically_open", false)) == bool(combat.call("_enemy_anchor_is_dynamically_open", state, moving_enemy, anchor)), "Cached dynamic occupancy must preserve terrain, actor, and footprint rules at %s" % anchor)
+	var overlap: Dictionary = combat.call("_enemy_future_anchor_details", state, moving_enemy, Vector2i(3, 3), context)
+	expect.call(int(overlap.get("blocking_enemy_count", 0)) == 2, "A multi-tile blocker must count once even when several footprint cells overlap")
+	expect.call(state == snapshot, "Building and reusing the per-plan occupancy cache must not mutate combat state")
+
+static func _test_reach_checks_do_not_require_moved_state_clones(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var enemy: Dictionary = _enemy(Vector2i(2, 2), {"actions": []})
+	enemy["footprint"] = Vector2i(2, 2)
+	var state: Dictionary = _state(combat, 275, Vector2i(6, 4), [enemy], [], [], [{"id": 8, "pos": Vector2i(4, 6), "hp": 4, "max_hp": 4}])
+	var actions: Array = [
+		{"type": "melee", "range": 1},
+		{"type": "ranged", "range": 4},
+		{"type": "push", "range": 2},
+		{"type": "pull", "range": 3},
+		{"type": "aoe", "range": 0, "pattern": [[1, 0], [2, 0], [3, 0]], "orient_toward_target": true, "stop_at_blockers": true},
+		{"type": "aoe", "range": 3, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true},
+	]
+	for anchor: Vector2i in _tiles([Vector2i(1, 1), Vector2i(3, 3), Vector2i(4, 4), Vector2i(5, 5)]):
+		var moved_enemy: Dictionary = enemy.duplicate(true)
+		moved_enemy["pos"] = anchor
+		var moved_state: Dictionary = combat.call("_state_with_enemy_anchor", state, moved_enemy, anchor)
+		for action: Dictionary in actions:
+			for target: Dictionary in combat.call("_actor_targets", state):
+				var original_result: bool = combat.call("_enemy_action_reaches_target", state, moved_enemy, action, target)
+				var cloned_result: bool = combat.call("_enemy_action_reaches_target", moved_state, moved_enemy, action, target)
+				expect.call(original_result == cloned_result, "%s reach checks must depend on the moved enemy argument, not a cloned state enemy entry" % str(action.get("type", "")))
 
 static func _state(combat: CombatEngine, seed: int, player_pos: Vector2i, enemies: Array, terrain: Array = [], traps: Array = [], illusions: Array = [], grid_override: Array = []) -> Dictionary:
 	var grid: Array = _grid() if grid_override.is_empty() else grid_override.duplicate(true)

@@ -16,6 +16,7 @@ const VERSION: int = 1
 const TARGET_ENEMY_ID: int = 7101
 const SUPPORT_ENEMY_ID: int = 7102
 const TARGET_HP: int = 17
+const SUPPORT_FIRST_ACTIVATION_TIME: int = 13
 const PREVIEW_CARD_ID: String = "bone_dart"
 const KILL_CARD_ID: String = "quick_stab"
 const REFUND_CARD_ID: String = "brace"
@@ -88,7 +89,7 @@ static func prepare_for_run(run_state: Dictionary, combat_state: Dictionary) -> 
 	next_state["activation_seq"] = 2
 	next_state["turn_queue"] = [
 		_enemy_queue_entry(next_state["enemies"][0] as Dictionary, 13, 1),
-		_enemy_queue_entry(next_state["enemies"][1] as Dictionary, 14, 2),
+		_enemy_queue_entry(next_state["enemies"][1] as Dictionary, SUPPORT_FIRST_ACTIVATION_TIME, 2),
 	]
 	var deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = [PREVIEW_CARD_ID, KILL_CARD_ID, REFUND_CARD_ID, "guarded_step", "pale_spark"]

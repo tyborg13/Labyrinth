@@ -6,13 +6,19 @@ const DEFAULT_STORAGE_DIR: String = "user://analytics"
 const META_FILE_NAME: String = "meta.json"
 
 static var _storage_dir: String = DEFAULT_STORAGE_DIR
+static var _storage_generation: int = 0
 
 var _install_id: String = ""
 var _session_id: String = ""
 var _sequence: int = 0
+var _known_idempotency_keys: Dictionary = {}
+var _known_idempotency_generation: int = -1
 
 static func set_storage_dir(path: String) -> void:
-	_storage_dir = path if not path.is_empty() else DEFAULT_STORAGE_DIR
+	var next_storage_dir: String = path if not path.is_empty() else DEFAULT_STORAGE_DIR
+	if next_storage_dir != _storage_dir:
+		_storage_dir = next_storage_dir
+		_storage_generation += 1
 
 static func storage_dir() -> String:
 	return _storage_dir
@@ -22,6 +28,7 @@ static func clear_storage() -> void:
 	if DirAccess.dir_exists_absolute(absolute_dir):
 		_remove_dir_contents_recursive(absolute_dir)
 	_ensure_storage_dir()
+	_storage_generation += 1
 
 static func load_all_events() -> Array[Dictionary]:
 	var events: Array[Dictionary] = []
@@ -60,14 +67,81 @@ static func load_all_events() -> Array[Dictionary]:
 func _init() -> void:
 	_install_id = _ensure_installation_id()
 	_session_id = _random_id("session")
+	_reload_known_idempotency_keys()
 
 func write_event(event_type: String, context: Dictionary = {}, payload: Dictionary = {}, idempotency_key: String = "") -> bool:
 	if event_type.is_empty():
 		return false
-	if not idempotency_key.is_empty() and _idempotency_key_exists(idempotency_key):
+	_ensure_known_idempotency_keys_current()
+	if not idempotency_key.is_empty() and _known_idempotency_keys.has(idempotency_key):
 		return true
 	_sequence += 1
-	var record: Dictionary = {
+	var wrote_event: bool = _append_jsonl(_event_record(event_type, context, payload, idempotency_key))
+	if wrote_event and not idempotency_key.is_empty():
+		_storage_generation += 1
+		_known_idempotency_keys[idempotency_key] = true
+		_known_idempotency_generation = _storage_generation
+	elif not wrote_event and not idempotency_key.is_empty():
+		# A failed append may still have reached disk before FileAccess surfaced the
+		# error. Invalidate peer stores and rebuild this cache so an immediate retry
+		# remains idempotent.
+		_storage_generation += 1
+		_reload_known_idempotency_keys()
+	return wrote_event
+
+func write_events(events: Array) -> bool:
+	if events.is_empty():
+		return true
+	_ensure_known_idempotency_keys_current()
+	var existing_idempotency_keys: Dictionary = _known_idempotency_keys.duplicate(false)
+	var records: Array[Dictionary] = []
+	var appended_idempotency_keys: Array[String] = []
+	for event_var: Variant in events:
+		if typeof(event_var) != TYPE_DICTIONARY:
+			continue
+		var event: Dictionary = event_var as Dictionary
+		var event_type: String = str(event.get("event_type", ""))
+		if event_type.is_empty():
+			continue
+		var idempotency_key: String = str(event.get("idempotency_key", ""))
+		if not idempotency_key.is_empty() and existing_idempotency_keys.has(idempotency_key):
+			continue
+		_sequence += 1
+		records.append(_event_record(
+			event_type,
+			event.get("context", {}) as Dictionary,
+			event.get("payload", {}) as Dictionary,
+			idempotency_key
+		))
+		if not idempotency_key.is_empty():
+			existing_idempotency_keys[idempotency_key] = true
+			appended_idempotency_keys.append(idempotency_key)
+	var wrote_events: bool = _append_jsonl_records(records)
+	if wrote_events:
+		if not appended_idempotency_keys.is_empty():
+			_storage_generation += 1
+		for idempotency_key: String in appended_idempotency_keys:
+			_known_idempotency_keys[idempotency_key] = true
+		_known_idempotency_generation = _storage_generation
+	elif not appended_idempotency_keys.is_empty():
+		_storage_generation += 1
+		_reload_known_idempotency_keys()
+	return wrote_events
+
+func _ensure_known_idempotency_keys_current() -> void:
+	if _known_idempotency_generation != _storage_generation:
+		_reload_known_idempotency_keys()
+
+func _reload_known_idempotency_keys() -> void:
+	_known_idempotency_keys.clear()
+	for existing_event: Dictionary in load_all_events():
+		var existing_key: String = str(existing_event.get("idempotency_key", ""))
+		if not existing_key.is_empty():
+			_known_idempotency_keys[existing_key] = true
+	_known_idempotency_generation = _storage_generation
+
+func _event_record(event_type: String, context: Dictionary, payload: Dictionary, idempotency_key: String) -> Dictionary:
+	return {
 		"schema_version": SCHEMA_VERSION,
 		"event_id": _random_id("evt"),
 		"event_type": event_type,
@@ -100,12 +174,16 @@ func write_event(event_type: String, context: Dictionary = {}, payload: Dictiona
 		"card_instance_id": str(context.get("card_instance_id", "")),
 		"payload": _sanitize_variant(payload)
 	}
-	return _append_jsonl(record)
 
 func session_id() -> String:
 	return _session_id
 
 static func _append_jsonl(record: Dictionary) -> bool:
+	return _append_jsonl_records([record])
+
+static func _append_jsonl_records(records: Array) -> bool:
+	if records.is_empty():
+		return true
 	_ensure_storage_dir()
 	var file: FileAccess = FileAccess.open(_event_file_path(), FileAccess.READ_WRITE)
 	if file == null:
@@ -113,7 +191,9 @@ static func _append_jsonl(record: Dictionary) -> bool:
 	if file == null:
 		return false
 	file.seek_end()
-	file.store_line(JSON.stringify(record))
+	for record_var: Variant in records:
+		if typeof(record_var) == TYPE_DICTIONARY:
+			file.store_line(JSON.stringify(record_var as Dictionary))
 	file.flush()
 	var write_succeeded: bool = file.get_error() == OK
 	file.close()

@@ -58,9 +58,10 @@ func _test_skill_tree_view() -> void:
 	warm_view.queue_free()
 	await process_frame
 
-	_expect(view.node_count() == 30, "The tree should render all 30 skills")
+	_expect(view.node_count() == 29, "The tree should render all player-facing skills and hide retired Layaway")
+	_expect(view.node_for_skill("layaway") == null, "Retired Layaway should not leave a dead skill-tree node")
 	var expected_links: int = 0
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		expected_links += SkillTreeLibrary.prerequisites(skill_id).size()
 	_expect(view.connection_count() == expected_links, "The tree should render every prerequisite connector")
 	_expect(view.connection_arrowhead_count() == expected_links, "Every connector should retain its target arrowhead")
@@ -83,13 +84,15 @@ func _test_skill_tree_view() -> void:
 	)
 	_expect(
 		view.collinear_connection_overlap_pairs().is_empty(),
-		"Unrelated routes should never merge into an ambiguous rail: %s; deferred→layaway=%s; quick→curator=%s" % [
+		"Unrelated routes should never merge into an ambiguous rail: %s; quick→curator=%s" % [
 			", ".join(view.collinear_connection_overlap_pairs()),
-			view.connection_points("deferred_choice", "layaway"),
 			view.connection_points("quick_wits", "curators_patience"),
 		]
 	)
-	_expect(view.bridged_connection_pairs().size() == 11, "Every unavoidable route crossing should retain an explicit bridge")
+	_expect(
+		view.bridged_connection_pairs().size() == 6,
+		"Every unavoidable visible route crossing should retain an explicit bridge (found %d)" % view.bridged_connection_pairs().size()
+	)
 	_expect(view.unbridged_connection_pairs().is_empty(), "No route crossing should resemble an unexplained junction")
 	_expect(view.minimum_bridge_half_gap() >= 10.0, "Bridge gaps should visibly clear the upper route")
 	_expect(view.minimum_connection_width() >= 3.0, "Unfocused connectors should remain legible")
@@ -111,7 +114,7 @@ func _test_skill_tree_view() -> void:
 	for branch_id: String in ["Resolve", "Tactics", "Foresight", "Traverse"]:
 		_expect(view.find_child("SkillBranchHeader_%s" % branch_id, true, false) is Label, "%s should keep a stable root heading" % branch_id)
 	var graph_bounds := Rect2(Vector2.ZERO, view.graph_canvas_size())
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var node: Button = view.node_for_skill(skill_id)
 		_expect(node != null and node.size.x >= 76.0 and node.size.x <= 80.0, "%s should use a large scan-readable medallion" % skill_id)
 		_expect(node != null and node.tooltip_text.is_empty(), "%s should rely on the fixed detail pane instead of a tooltip" % skill_id)
@@ -158,7 +161,7 @@ func _test_skill_tree_view() -> void:
 	_expect(view.points_remaining() == 3, "A saved learn should consume exactly one point")
 	_expect(view.link_geometry_rebuild_count() == 1, "State reconfiguration should reuse static connector geometry")
 	_expect(view.navigation_rebuild_count() > navigation_before_learn_update, "A saved learn should rebuild controller exits after Learn becomes unavailable")
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var node: Button = view.node_for_skill(skill_id)
 		for neighbor_property: StringName in [&"focus_neighbor_left", &"focus_neighbor_right", &"focus_neighbor_top", &"focus_neighbor_bottom"]:
 			var neighbor_path: NodePath = node.get(neighbor_property)
@@ -172,7 +175,7 @@ func _test_skill_tree_view() -> void:
 	var navigation_before: int = view.navigation_rebuild_count()
 	var focus_before: Control = root.gui_get_focus_owner()
 	var hover_started: int = Time.get_ticks_usec()
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		view.node_for_skill(skill_id).mouse_entered.emit()
 	var hover_elapsed_usec: int = Time.get_ticks_usec() - hover_started
 	await process_frame
@@ -181,7 +184,7 @@ func _test_skill_tree_view() -> void:
 	_expect(view.graph_scroll_offset() == Vector2i.ZERO and scroll_before == Vector2i.ZERO, "The zoom-to-fit graph should have no scroll offset")
 	_expect(view.link_geometry_rebuild_count() == geometry_before, "Hover should never reroute connectors or recompute bridges")
 	_expect(view.navigation_rebuild_count() == navigation_before, "Hover should never rebuild directional navigation")
-	_expect(hover_elapsed_usec < 1000000, "A full 30-node hover sweep should complete comfortably under one second")
+	_expect(hover_elapsed_usec < 1000000, "A full visible-node hover sweep should complete comfortably under one second")
 
 	view.focus_skill("prismatic_instinct", false)
 	var prismatic_links: Array[String] = view.highlighted_connection_pairs()

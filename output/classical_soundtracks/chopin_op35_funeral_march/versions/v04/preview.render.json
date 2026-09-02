@@ -1,0 +1,70 @@
+{
+  "audio": {
+    "channels": 2,
+    "duration_seconds": 29.09090702947846,
+    "echo": {
+      "circular": true,
+      "darkening_filter": "11-sample moving average before echo taps",
+      "model": "finite circular cross-stereo dark echo",
+      "taps": [
+        {
+          "delay_ms": 104.0,
+          "gain": 0.078
+        },
+        {
+          "delay_ms": 208.0,
+          "gain": 0.03
+        },
+        {
+          "delay_ms": 312.0,
+          "gain": 0.012
+        }
+      ]
+    },
+    "encoder": "FFmpeg native Vorbis quality 5 (experimental encoder API)",
+    "ffmpeg_version": "ffmpeg version 8.1.1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "flac_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/versions/v04/preview.flac",
+    "flac_sha256": "00895a5616fea071e73fd22681747a6adc154db1196a74b650341ea9b4d7e16e",
+    "loop_crossfade": {
+      "crossfade_samples": 40091,
+      "crossfade_seconds": 0.9090909090909091,
+      "first_last_sample_delta": [
+        0.005322737051120482,
+        0.002879329830214293
+      ],
+      "method": "equal-power tail-to-head overlap with loop-point rotation",
+      "p99_9_adjacent_sample_delta": [
+        0.059377273357702216,
+        0.05559820152807301
+      ]
+    },
+    "master_gain": 0.34236280173370753,
+    "ogg_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/versions/v04/preview.ogg",
+    "ogg_sha256": "f005bda46c395579b32f0afeb749b5e16775efa2ecee5203e2a4bacd872b2569",
+    "ogg_stream_serial": "0x43484f34",
+    "peak_dbfs": -8.500485553274483,
+    "peak_linear": 0.3758163950436428,
+    "pre_master_stem_rms": {
+      "low_strings": 0.17583290102580698,
+      "percussion": 0.006321097112991718,
+      "upper_strings": 0.07884333518305285
+    },
+    "rms_linear": 0.08417648375341041,
+    "sample_rate": 44100,
+    "structural_duration_seconds": 30.0
+  },
+  "bank_manifest": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/assets/audio/instruments/classical_dark_fantasy_v1/bank_manifest.json",
+  "bank_manifest_sha256": "2fc0b70a096ec2bbbcfdf3bd3cdbf3d3f595a780835329332ee548d581019ea6",
+  "config_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/track.v04.json",
+  "config_sha256": "139b39dca71b99fcf530f92facad717179f4d253ad4b4dd7302d8277665f65cf",
+  "midi_note_counts": {
+    "Ashen Violin / Upper Harmony": 34,
+    "Funeral Pulse / Procedural Percussion": 15,
+    "Grave Cello / Funeral Cantus": 29,
+    "Hollow Viola / Inner Lament": 28,
+    "Undercrypt Bass / Processional Root": 64,
+    "Veiled Violin / Trio Cantilena": 9
+  },
+  "schema_version": 1,
+  "track_id": "chopin_op35_funeral_march_v04"
+}

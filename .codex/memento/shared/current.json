@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T14:55:13Z",
+  "updated_at": "2026-09-02T15:15:44Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -596,28 +596,6 @@
       "status": "active",
       "created_at": "2026-04-09T15:50:06Z",
       "updated_at": "2026-04-09T15:50:06Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "236aad5"
-      }
-    },
-    {
-      "id": "mnt_20260409T193110Z_90b2a4e0",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Move and attack targeting now rely on tile highlights and path lines only; CombatBoardView no longer draws extra preview glyphs like circles or plus signs over target tiles.",
-      "details": null,
-      "status": "active",
-      "created_at": "2026-04-09T19:31:10Z",
-      "updated_at": "2026-04-09T19:31:10Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
@@ -9196,6 +9174,28 @@
       }
     },
     {
+      "id": "mnt_20260828T210755Z_aa92a4d4",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "_enemy_future_planning_context"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#_enemy_future_planning_context",
+      "summary": "Repeated enemy normalization dominated small-board route occupancy checks. Keep blocker indexing scoped to one planning call; cross-turn caches risk stale positions, footprints, terrain, traps, and targets.",
+      "details": "The August 2026 six-step forecast probe attributed 26.8 ms to repeated blocker scans before per-plan indexing. Preserve blocker-entry counting and route tie breaks; language migration is not required to remove this repeated work. See spec/performance_pass_2026_08_28_cpu_gpu.md for CPU evidence and remaining native-proof limits.",
+      "status": "active",
+      "created_at": "2026-08-28T21:07:55Z",
+      "updated_at": "2026-08-28T21:07:55Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "15569d54"
+      }
+    },
+    {
       "id": "mnt_20260829T164242Z_80fbeb89",
       "layer": "shared",
       "kind": "pitfall",
@@ -9240,6 +9240,94 @@
       }
     },
     {
+      "id": "mnt_20260829T203550Z_058bbcd0",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/runtime_frame_performance_benchmark.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/runtime_frame_performance_benchmark.gd",
+      "summary": "Native frame proof must exclude lost-focus samples",
+      "details": "macOS may refuse programmatic focus for a background Godot window. Pause the benchmark while unfocused, discard the first resumed frame, and fail the proof after a bounded focus wait rather than reporting desktop-switching delays as game stalls.",
+      "status": "active",
+      "created_at": "2026-08-29T20:35:50Z",
+      "updated_at": "2026-08-29T20:35:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "c20d2c9a"
+      }
+    },
+    {
+      "id": "mnt_20260829T203550Z_0ccb0b96",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Retain ambient particle packed-buffer capacity",
+      "details": "Grow ambient vertex, UV, color, and index buffers in sprite-count chunks and update live quad slots by index. Keep warmed capacity across redraws and submit only live indices; do not rebuild temporary arrays per sprite.",
+      "status": "active",
+      "created_at": "2026-08-29T20:35:50Z",
+      "updated_at": "2026-08-29T20:35:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "c20d2c9a"
+      }
+    },
+    {
+      "id": "mnt_20260829T203550Z_4ed9adaa",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Enemy turns use a replayable crash boundary",
+      "details": "Persist the scheduled post-player-activation state once with a compact enemy-phase continuation marker, then avoid per-action saves during the locked enemy turn. A crash may replay that in-progress enemy turn; the next player-turn state must still persist normally and resume deterministically.",
+      "status": "active",
+      "created_at": "2026-08-29T20:35:50Z",
+      "updated_at": "2026-08-29T20:35:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "c20d2c9a"
+      }
+    },
+    {
+      "id": "mnt_20260829T203550Z_5f7001bb",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Cache unit-shadow meshes in local coordinates",
+      "details": "Unit shadow geometry depends on texture, draw size, and unit type, not the actor tile. Build meshes around local zero and translate them at draw time so movement reuses the same ArrayMesh without changing projected pixels.",
+      "status": "active",
+      "created_at": "2026-08-29T20:35:50Z",
+      "updated_at": "2026-08-29T20:35:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "c20d2c9a"
+      }
+    },
+    {
       "id": "mnt_20260829T215854Z_f0934033",
       "layer": "shared",
       "kind": "user_preference",
@@ -9261,6 +9349,74 @@
       "source": {
         "branch": "codex/match-main-menu-logo-to-current-steam-promotional-artwork",
         "commit": "0b81974d"
+      }
+    },
+    {
+      "id": "mnt_20260829T221212Z_7f44592a",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/performance_phase_partitioner.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/performance_phase_partitioner.gd",
+      "summary": "Inclusive nested timers require exclusive interval partitioning without quadratic scans",
+      "details": "Keep inclusive local diagnostics, but rank frames from a non-overlapping exclusive partition. Use the sorted event/Fenwick/heap sweep; pairwise crossed-interval discovery and per-boundary full rescans can make the profiler itself stall on dense frames. Keep Steam perf_v1 aggregation unchanged.",
+      "status": "active",
+      "created_at": "2026-08-29T22:12:12Z",
+      "updated_at": "2026-08-29T22:12:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "bcdf00a3"
+      }
+    },
+    {
+      "id": "mnt_20260829T221212Z_a34d70f0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Generate exact unit-shadow silhouettes ahead of runtime",
+      "details": "Generate assets/generated/unit_shadow_cache.res from stable asset-source keys, store extraction schema/signature and SHA-256 source fingerprints, and reject stale entries synchronously. Runtime keeps only a bounded extraction fallback for missing or build-rejected content.",
+      "status": "active",
+      "created_at": "2026-08-29T22:12:12Z",
+      "updated_at": "2026-08-29T22:12:12Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260829T203550Z_3b8c6796"
+      ],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "bcdf00a3"
+      }
+    },
+    {
+      "id": "mnt_20260829T221213Z_333ab076",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Production end-turn UI refresh preserves zero-extra-frame input cadence",
+      "details": "Retained and cached refresh work completes synchronously before input unlock. Do not enable rendered-frame UI slicing in production without an explicit cadence change; enemy batching may yield only after its gameplay CPU budget, excluding telemetry bookkeeping.",
+      "status": "active",
+      "created_at": "2026-08-29T22:12:13Z",
+      "updated_at": "2026-08-29T22:12:13Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/profile-and-optimize-cpu-gpu-inefficiencies-with-granular-telemetry",
+        "commit": "bcdf00a3"
       }
     },
     {
@@ -9310,6 +9466,462 @@
       }
     },
     {
+      "id": "mnt_20260830T035241Z_7decdd50",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/ui",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/ui",
+      "summary": "Runtime-loaded frontend rasters must use source-first loading and Keep File imports",
+      "details": "Direct Texture2D ext_resource or preload references can fail after a pull when the asset's .godot/imported artifact has not been rebuilt, blacking the startup scene or preventing the button ornament script from compiling. Load startup/menu PNGs from raw bytes through AssetLoader before ResourceLoader, remove hidden native splash image references that resolve before scripts, and set those PNG .import recipes to importer=keep so exported PCKs retain the exact raw files. Generic export include_filter does not preserve imported PNG source bytes.",
+      "status": "active",
+      "created_at": "2026-08-30T03:52:41Z",
+      "updated_at": "2026-08-30T03:52:41Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-clean-cache-startup-and-main-menu-texture-loading",
+        "commit": "b184db9a"
+      }
+    },
+    {
+      "id": "mnt_20260830T044040Z_6cef576a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Merchant gameplay is unified under the Scavenger",
+      "details": "New maps generate only scavenger merchant rooms. Each Scavenger visit stocks three Magic cards, three Gear offers, and three Item offers. Legacy blacksmith/arcanist rooms and Layaway reservations are migrated during run repair. The full-screen player-facing surface lives in scripts/scavenger_shop_view.gd and is composed from raster backdrop/panels plus real CardWidget and existing board icons.",
+      "status": "active",
+      "created_at": "2026-08-30T04:40:40Z",
+      "updated_at": "2026-08-30T04:40:40Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
+        "commit": "b184db9a"
+      }
+    },
+    {
+      "id": "mnt_20260830T191010Z_b55fc0d1",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/scavenger_shop_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/scavenger_shop_view.gd",
+      "summary": "Scavenger offers use one interactive wrapper around passive canonical art",
+      "details": "Render Magic and sell-tray cards as native 250x352 CardWidgets beneath a uniform scaled parent so frame, title, art, and action rows keep authored proportions. Keep nested CardWidgets and board-icon TextureRects passive; the complete outer Button owns pointer/controller focus, hover lift, selection glow, tooltip signaling, and the price plaque so every ware category behaves as one object.",
+      "status": "active",
+      "created_at": "2026-08-30T19:10:10Z",
+      "updated_at": "2026-08-30T19:10:10Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260830T051223Z_57fffb9a",
+        "mnt_20260830T154707Z_b015dec8"
+      ],
+      "source": {
+        "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
+        "commit": "9450345f"
+      }
+    },
+    {
+      "id": "mnt_20260830T191023Z_c3063d9b",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/scavenger_shop_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/scavenger_shop_view.gd",
+      "summary": "Scavenger wares align to the painted stall posts, not an equal 280 px grid",
+      "details": "At the authored 1920x1080 canvas, use the shelf group at x=655 with a centered 30 px row inset and three 260 px cubbies, producing offer and primary-art centers 815, 1075, and 1335. These centers follow the raster uprights; assert both wrapper and actual CardWidget/icon centers. Keep the portrait as a separate animated layer clipped from y=70 and occluded by a pixel-matched backdrop counter beginning at y=636 so the hood and bench join remain intact.",
+      "status": "active",
+      "created_at": "2026-08-30T19:10:23Z",
+      "updated_at": "2026-08-30T19:10:23Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260830T121449Z_36e9d556",
+        "mnt_20260830T185923Z_583dc6f9"
+      ],
+      "source": {
+        "branch": "codex/rebuild-scavenger-shop-as-animated-fullscreen-raster-experience",
+        "commit": "9450345f"
+      }
+    },
+    {
+      "id": "mnt_20260830T213050Z_79c60ecd",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "AOE aim keeps legal centers visible beneath a strong footprint, and AOE resolution never restores procedural targeting geometry.",
+      "details": "During active AOE aim, keep the subdued attack_tiles legal-center field visible continuously and layer the stronger static authored hit footprint above it, including empty hit cells and sparse gaps. During resolution, delete center reticles, per-tile dots or ring clusters, line overlays, and procedural zigzag/bolt segments for every AOE path. Authored elemental attacks show their normal projectile during travel, then a simple element-colored tile footprint at impact; generic and reduced-motion AOEs use the same clean footprint language. Preserve targeting, rotation, confirmation, cancel, pointer/controller, Umbra, damage, and authored elemental impact behavior.",
+      "status": "active",
+      "created_at": "2026-08-30T21:30:50Z",
+      "updated_at": "2026-08-30T21:30:50Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260830T210657Z_6824cd59"
+      ],
+      "source": {
+        "branch": "codex/simplify-aoe-targeting-graphics",
+        "commit": "3162c25c"
+      }
+    },
+    {
+      "id": "mnt_20260831T150226Z_dfc66bcc",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_end_recap_overlay.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_end_recap_overlay.gd",
+      "summary": "Defeat-specific Last Light action styling must not leak into victory",
+      "details": "The recap reuses New Run and Main Menu nodes across outcomes. Reapply the Umbra Obsidian raster treatment only for defeat and restore the established large button treatment whenever victory is presented; keep explicit left/right focus neighbors for the shared side-by-side actions.",
+      "status": "active",
+      "created_at": "2026-08-31T15:02:26Z",
+      "updated_at": "2026-08-31T15:02:26Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
+        "commit": "c04db725"
+      }
+    },
+    {
+      "id": "mnt_20260831T162744Z_8c086f69",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_end_recap_overlay.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_end_recap_overlay.gd",
+      "summary": "Last Light uses a gentle stat contour and a live Labyrinth Crumble Display title.",
+      "details": "Keep the six run stats curved around the fixed death-site window, but limit their horizontal excursion to roughly 60 px from the outer row to the deepest row at the 1920x1080 authored canvas. Render RUN ENDED as live weight-900 Labyrinth Crumble Display text rather than the former obsidian raster; retain subtle purple separation, nearby Embers Lost, tile-bound ember remains, and board translation under the fixed window.",
+      "status": "active",
+      "created_at": "2026-08-31T16:27:44Z",
+      "updated_at": "2026-08-31T16:27:44Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260831T160118Z_752c698d"
+      ],
+      "source": {
+        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
+        "commit": "b7c8d967"
+      }
+    },
+    {
+      "id": "mnt_20260831T173056Z_49cded16",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/death_engulf_overlay.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/death_engulf_overlay.gd",
+      "summary": "Last Light glow follows the ember tile, not the fixed peephole",
+      "details": "Keep the Umbra shroud aperture fixed at the recap's authored window, but update the additive Last Light glow from the board-projected death/ember tile throughout reframing. The glow should travel with the remains and coincide with the aperture only after the board settles.",
+      "status": "active",
+      "created_at": "2026-08-31T17:30:56Z",
+      "updated_at": "2026-08-31T17:30:56Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
+        "commit": "79d65e7f"
+      }
+    },
+    {
+      "id": "mnt_20260831T192054Z_d6a304e7",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks/chopin_op35_funeral_march",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks/chopin_op35_funeral_march",
+      "summary": "Preserve Chopin Funeral March v01 as the full-movement slice-selection audition.",
+      "details": "v01 contains all 108 Movement III measures at fixed 66 QPM with no cuts or reordering. When the user chooses death-screen slices and their order, build a new vNN and leave v01 immutable; do not integrate or promote until that later loop is approved.",
+      "status": "active",
+      "created_at": "2026-08-31T19:20:54Z",
+      "updated_at": "2026-08-31T19:20:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
+        "commit": "a8471790"
+      }
+    },
+    {
+      "id": "mnt_20260831T210331Z_dcc93570",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "output/classical_soundtracks/chopin_op35_funeral_march",
+        "symbol": null
+      },
+      "scope_key": "folder:output/classical_soundtracks/chopin_op35_funeral_march",
+      "summary": "Chopin v04 tests a contiguous lower-key excerpt with only the late recognizable lead suppressed.",
+      "details": "Select v01 measures 93-100 (about 5:30.9-6:00.0) without internal cuts, reordering, or authored bridges. Preserve the initial expressive melody's rhythms and intervals, but lower the whole pitched texture uniformly by a minor third for a darker register; suppress Grave/Veiled lead only in measures 99-100.",
+      "status": "active",
+      "created_at": "2026-08-31T21:03:31Z",
+      "updated_at": "2026-08-31T21:03:31Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260831T203455Z_8c1158f5"
+      ],
+      "source": {
+        "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
+        "commit": "0350f12e"
+      }
+    },
+    {
+      "id": "mnt_20260831T214419Z_59ab637b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Approved Chopin v05 is the terminal-defeat music route.",
+      "details": "v05 is MIDI/Ogg/FLAC byte-identical to owner-approved v04 (Ogg SHA-256 f005bda46c395579b32f0afeb749b5e16775efa2ecee5203e2a4bacd872b2569) and promotes to assets/audio/music/chopin_op35_funeral_march_death_loop.ogg. RunScene begins a 0.6s combat fade-out at the player death animation, then fades the looping track in over 1.2s. Terminal detection projects RunEngine.finish_combat from the exact lethal after-state when the durable enemy-phase checkpoint still says combat; this intentionally excludes Last Door escapes. Defeat mode also routes the track on reload, and leaving defeat or exiting the scene replaces/stops it.",
+      "status": "active",
+      "created_at": "2026-08-31T21:44:19Z",
+      "updated_at": "2026-08-31T21:44:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-chopin-funeral-march-16-bit-classical-audition",
+        "commit": "ca63ebde"
+      }
+    },
+    {
+      "id": "mnt_20260901T153846Z_4f5923ed",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Normal enemies refresh intents through board-aware tactical roles",
+      "details": "Normal enemies with ai_profile evaluate every authored intent against the current board, reject tactically dead options, and preserve seeded weighted variation only inside a near-best score window. Frontliner, artillery, skirmisher, protector, controller, and support roles bias realized attacks, range closure/retreat, wounded-ally healing, exposed-ally guarding, and back-line positioning; authored bosses without ai_profile retain their scripted selection gates.",
+      "status": "active",
+      "created_at": "2026-09-01T15:38:46Z",
+      "updated_at": "2026-09-01T15:38:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/intelligent-role-based-enemy-ai-and-efficient-tactical-pathfinding",
+        "commit": "7da92e0b"
+      }
+    },
+    {
+      "id": "mnt_20260901T153847Z_2c3b39b1",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Future enemy routes compare true cost before current-prefix preferences",
+      "details": "Do not subtract immediately open prefix steps from future-route cost: that globally discounts longer routes and can make one activation move away, sideways, then back toward the target. Compare true total cost first, then open-prefix length and weighted current-activation distance progress; an occupied future anchor costs one activation plus its step so an equal open detour still beats stalling behind an adjacent ally.",
+      "status": "active",
+      "created_at": "2026-09-01T15:38:47Z",
+      "updated_at": "2026-09-01T15:38:47Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/intelligent-role-based-enemy-ai-and-efficient-tactical-pathfinding",
+        "commit": "7da92e0b"
+      }
+    },
+    {
+      "id": "mnt_20260901T202335Z_021ab46b",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/settings_store.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/settings_store.gd",
+      "summary": "Approved room mix uses 8 percent world SFX reverb and 4 percent music reverb.",
+      "details": "After in-game audition, keep UI SFX dry; use a full-dry World SFX reverb at wet 0.08, room size 0.50, damping 0.72, hipass 0.20, and 24 ms pre-delay; and use an independent full-dry Music reverb at wet 0.04, room size 0.50, damping 0.78, hipass 0.30, and 28 ms pre-delay. Preserve independent music volume/mute and shared SFX volume/mute/headroom.",
+      "status": "active",
+      "created_at": "2026-09-01T20:23:35Z",
+      "updated_at": "2026-09-01T20:23:35Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260901T192610Z_b45dd0f7"
+      ],
+      "source": {
+        "branch": "codex/add-subtle-labyrinth-room-reverb-to-world-sound-effects-while-keeping-ui",
+        "commit": "0166ed10"
+      }
+    },
+    {
+      "id": "mnt_20260901T205519Z_6380270b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "assets/audio/sfx/card_draw_deal.wav",
+        "symbol": null
+      },
+      "scope_key": "file:assets/audio/sfx/card_draw_deal.wav",
+      "summary": "Card draws use the owner-confirmed post-two-second deal transient at a subordinate impact level",
+      "details": "The selected source window is 2.55-2.84 seconds from freesound_community-shuffleandcardflip1-40942.mp3, excluding the later hit beginning around 3.02 seconds. The mono 44.1 kHz WAV is amplified 18 dB to a -12.7 dBFS peak and plays at 0 dB on the SFX bus, about 9-11 dB below existing combat impacts; multi-card playback follows the 160 ms draw stagger.",
+      "status": "active",
+      "created_at": "2026-09-01T20:55:19Z",
+      "updated_at": "2026-09-01T20:55:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/play-card-deal-sound-on-draw",
+        "commit": "7da92e0b"
+      }
+    },
+    {
+      "id": "mnt_20260901T222953Z_1f166ecb",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/cards",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/cards",
+      "summary": "Item card simplicity must be authored, never simulated with blur",
+      "details": "The blurry item-card regression came from replacing authored art with uniformly low-frequency images, not from CardWidget imports or runtime texture filtering. Generate item art from the shipped card-art language: simple centered silhouettes, deliberate crisp pixel clusters, controlled medium-low detail, exact 256x144 output, and the canonical ragged alpha window. tests/test_item_card_art_quality.py guards size, mask, uniqueness, and local contrast; tests/item_card_art_probe.gd proves actual CardWidget and compact-badge rendering at 1920x1080.",
+      "status": "active",
+      "created_at": "2026-09-01T22:29:53Z",
+      "updated_at": "2026-09-01T22:29:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/diagnose-and-fix-blurry-item-card-art-regression",
+        "commit": "4def1b8b"
+      }
+    },
+    {
+      "id": "mnt_20260901T224319Z_709f8721",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "assets/audio/sfx/reward_card_flip.wav",
+        "symbol": null
+      },
+      "scope_key": "file:assets/audio/sfx/reward_card_flip.wav",
+      "summary": "Reward reveals use the final isolated shuffle-track flip transient",
+      "details": "Extracted 5.58-5.86 seconds from freesound_community-shuffleandcardflip1-40942.mp3, whose final audible event spans about 5.630-5.803 seconds. Keep the asset mono 44.1 kHz PCM16 at 0.280 seconds with only tiny anti-click fades and no gain boost. Animated post-combat rewards play it once at each card flip on the dry UI SFX bus; reduced-motion instant settle remains silent.",
+      "status": "active",
+      "created_at": "2026-09-01T22:43:19Z",
+      "updated_at": "2026-09-01T22:43:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-extracted-flip-sound-to-sequential-post-combat-reward-card-reveals",
+        "commit": "e4bf4b0d"
+      }
+    },
+    {
+      "id": "mnt_20260902T034311Z_a0ae82d1",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "assets/audio/sfx/reward_collect.wav",
+        "symbol": null
+      },
+      "scope_key": "file:assets/audio/sfx/reward_collect.wav",
+      "summary": "Reward collect cue isolates compilation event eight",
+      "details": "The source file freesound_community-collectable-videogame-sound-compilation-31233.mp3 contains ten events separated by silence. reward_collect.wav is event 8, cut from 16.82s through 18.12s with short edge fades, converted to mono 44.1 kHz PCM16, and mastered +10 dB before mono downmix; the shipped PCM measures about -6.8 dBFS sample peak.",
+      "status": "active",
+      "created_at": "2026-09-02T03:43:11Z",
+      "updated_at": "2026-09-02T03:43:11Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260902T033714Z_6868c676"
+      ],
+      "source": {
+        "branch": "codex/add-card-played-ui-sound",
+        "commit": "bc14d37f"
+      }
+    },
+    {
+      "id": "mnt_20260902T042518Z_47c805fa",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_sfx_library.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_sfx_library.gd",
+      "summary": "Run-scene SFX use world routing for door/campfire and dry UI routing for victory/reward",
+      "details": "When merging the stock run SFX branch with the later reward/equipment SFX work, keep one acceptance cue: RunSfxLibrary.reward_accepted replaces the shorter reward_collect cue for both card and relic claims so the two sounds do not stack. Door creak and campfire crackle belong on WorldSFX to receive room reverb; reward acceptance and Victory resolution belong on UISFX.",
+      "status": "active",
+      "created_at": "2026-09-02T04:25:18Z",
+      "updated_at": "2026-09-02T04:25:18Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/wire-downloaded-room-reward-and-victory-sound-effects",
+        "commit": "8a349bb0"
+      }
+    },
+    {
+      "id": "mnt_20260902T114121Z_0f040932",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_sfx_library.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_sfx_library.gd",
+      "summary": "Door, Victory, and accepted-reward cues sit six decibels below their first audition mix",
+      "details": "After in-game listening, the door creak, Victory resolution, and accepted card/relic reward cue were each judged too loud relative to music and other effects. Reduce each by about half linear amplitude (-6 dB): door -10 dB, Victory -7 dB, reward accepted -12 dB. Keep campfire crackle at -4 dB.",
+      "status": "active",
+      "created_at": "2026-09-02T11:41:21Z",
+      "updated_at": "2026-09-02T11:41:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/wire-downloaded-room-reward-and-victory-sound-effects",
+        "commit": "2ddd90bd"
+      }
+    },
+    {
       "id": "mnt_20260902T120138Z_5a4d1b5f",
       "layer": "shared",
       "kind": "user_preference",
@@ -9334,6 +9946,96 @@
       }
     },
     {
+      "id": "mnt_20260902T121142Z_00f41a6f",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "assets/shaders/enemy_shadow_dissolve.gdshader",
+        "symbol": null
+      },
+      "scope_key": "file:assets/shaders/enemy_shadow_dissolve.gdshader",
+      "summary": "Enemy death dissolves must evolve visibly from the opening frames.",
+      "details": "Keep lethal contact intact, then begin shadow takeover within the first few 28x0.037-second samples and distribute breakup across the full timeline; do not front-load an inert frozen pose or back-load most dissolution. Preserve the silhouette-only effect with no synthesized floor pool, the direct lethal handoff, and reduced-motion behavior. On the ANGLE compatibility renderer, factoring the progress threshold through a shader helper visually latched the first updated value even though the material uniform continued changing; keep the linear threshold expression inline unless fresh ANGLE proof shows otherwise.",
+      "status": "active",
+      "created_at": "2026-09-02T12:11:42Z",
+      "updated_at": "2026-09-02T12:11:42Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260902T041600Z_ff0719f5"
+      ],
+      "source": {
+        "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
+        "commit": "a15ad72b"
+      }
+    },
+    {
+      "id": "mnt_20260902T121937Z_05b4980a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "_sorted_turn_queue"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#_sorted_turn_queue",
+      "summary": "Exact initiative clock ties favor the player",
+      "details": "Use one queue comparator for live scheduling and turn-order projection: compare time first, then place player entries before enemy entries on exact ties, then preserve activation sequence among actors on the same side. Focused tests must cover forecast order, committed queue order, and the actor actually activated.",
+      "status": "active",
+      "created_at": "2026-09-02T12:19:37Z",
+      "updated_at": "2026-09-02T12:19:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-turn-order-time-ties",
+        "commit": "3cde5c2b"
+      }
+    },
+    {
+      "id": "mnt_20260902T124246Z_84531b8d",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Draw animation must stage the authoritative final hand, not only incoming cards",
+      "details": "Card-action intermediate combat states may still contain the played card even after its live widget is hidden. Animating new cards against that intermediate fan reserves an invisible slot, freezes the retained hand, and snaps on the later authoritative refresh. Build a transition that removes the hidden source index, map retained and incoming identities into the final hand fan, end the locked raster at motion start, animate the complete staged hand, and retain it until the real hand refresh replaces it. Reuse the staged composition across overlapping draw actions.",
+      "status": "active",
+      "created_at": "2026-09-02T12:42:46Z",
+      "updated_at": "2026-09-02T12:42:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-card-draw-hand-flow-hitch",
+        "commit": "3cde5c2b"
+      }
+    },
+    {
+      "id": "mnt_20260902T143115Z_a2d571ef",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Prewarm the procedural enemy-death shader before the first lethal frame and retain that initialized effect as a spare.",
+      "details": "On native Metal, Noctyrax's first procedural dissolve compiled one canvas pipeline on the kill frame and produced a 32.753 ms spike. A real nearly-transparent setup draw plus one retained node/material moved compilation to board startup: the cold kill then reported zero pipeline compilations and repeated kills stayed below 16 ms in the accepted capture. Keep the approved shader math unchanged; mathematically-zero early-exit branches altered ANGLE pixels around the middle breakup phase.",
+      "status": "active",
+      "created_at": "2026-09-02T14:31:15Z",
+      "updated_at": "2026-09-02T14:31:15Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
+        "commit": "a37b8e28"
+      }
+    },
+    {
       "id": "mnt_20260902T145512Z_752790a0",
       "layer": "shared",
       "kind": "user_preference",
@@ -9355,6 +10057,28 @@
       "source": {
         "branch": "codex/production-first-run-guided-combat-tutorial",
         "commit": "202843e5"
+      }
+    },
+    {
+      "id": "mnt_20260902T151544Z_eb8587b4",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/guided_combat_scenario.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/guided_combat_scenario.gd",
+      "summary": "Authored tutorial timing must not rely on initiative ties",
+      "details": "Bone Dart, Quick Stab, and Brace spend 5 Time; with the Reaver's base 9 initiative, the authored return is clock 14. Keep the support Crawler's first activation at clock 13 so it consumes Brace before the player returns regardless of the global exact-tie policy, and preserve the regression assertion in guided_combat_tutorial_suite.gd.",
+      "status": "active",
+      "created_at": "2026-09-02T15:15:44Z",
+      "updated_at": "2026-09-02T15:15:44Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-first-run-guided-combat-tutorial",
+        "commit": "bb9e268b"
       }
     }
   ]

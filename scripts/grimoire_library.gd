@@ -32,17 +32,9 @@ const EQUIPMENT_SLOT_TITLES := {
 }
 
 const CHARACTER_BODIES := {
-	"arcanist": [
-		"NPC merchant associated with learned magicks.",
-		"Arcanist rooms offer magic cards. Purchased magic enters reserve and can be attuned from the character sheet."
-	],
-	"blacksmith": [
-		"NPC merchant associated with weapons, armor, trinkets, and other equipment.",
-		"Blacksmith rooms offer equipment. Equipment changes the deck by adding its granted cards while equipped."
-	],
 	"scavenger": [
-		"NPC merchant associated with single-use item cards.",
-		"Find item cards in combat rooms or buy them from the Scavenger. Pickups fill an open item slot and enter your hand, or your draw pile if your hand is full. With both slots occupied, they go to inventory. Items are consumed when played."
+		"A wary merchant who gathers cards, gear, and single-use items from the labyrinth's forgotten corners.",
+		"Scavenger rooms offer Magic, Gear, and Items together. Purchased magic enters reserve, equipment enters inventory, and items enter the pack. The Scavenger also buys unequipped wares from your pack."
 	],
 	"emaciated_man": [
 		"NPC encountered in the starting chamber.",

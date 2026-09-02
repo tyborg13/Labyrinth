@@ -349,7 +349,7 @@ static func _test_depth_twenty_four_victory_is_terminal(expect: Callable) -> voi
 static func _test_boss_assets_and_grimoire_entries_exist(expect: Callable) -> void:
 	for boss_id: String in NEW_BOSS_IDS:
 		var definition: Dictionary = GameData.enemy_def(boss_id)
-		for suffix: String in ["", "_idle", "_death"]:
+		for suffix: String in ["", "_idle"]:
 			var path: String = "res://assets/art/enemies/%s%s.png" % [boss_id, suffix]
 			expect.call(FileAccess.file_exists(path), "%s should ship its %s raster" % [boss_id, "static" if suffix.is_empty() else suffix.trim_prefix("_")])
 		expect.call((definition.get("intents", []) as Array).size() >= 4, "%s should have a full authored intent kit" % boss_id)
@@ -364,23 +364,19 @@ static func _test_boss_animation_sheets_and_death_presentations(expect: Callable
 	for boss_id: String in NEW_BOSS_IDS:
 		var unit: Dictionary = {"key": "enemy_%s" % boss_id, "id": 91, "role": "enemy", "type": boss_id, "pos": Vector2i(5, 3)}
 		var idle_frames: Array = board.call("_unit_idle_frames", unit)
-		var death_frames: Array = board.call("_unit_death_frames", unit)
 		expect.call(idle_frames.size() == 16, "%s idle animation should load all 16 authored frames" % boss_id)
-		expect.call(death_frames.size() == 16, "%s death animation should load all 16 authored frames" % boss_id)
 		if idle_frames.size() == 16:
 			var idle_first: AtlasTexture = idle_frames[0] as AtlasTexture
 			var idle_last: AtlasTexture = idle_frames[15] as AtlasTexture
 			expect.call(idle_first != null and idle_first.region.position == Vector2.ZERO, "%s idle sheet should start at its first 255px cell" % boss_id)
 			expect.call(idle_last != null and idle_last.region.position == Vector2(765, 765), "%s idle sheet should include its last 4x4 cell" % boss_id)
-		if death_frames.size() == 16:
-			var death_first: AtlasTexture = death_frames[0] as AtlasTexture
-			var death_last: AtlasTexture = death_frames[15] as AtlasTexture
-			expect.call(death_first != null and death_first.region.position == Vector2.ZERO, "%s death sheet should start at its first 255px cell" % boss_id)
-			expect.call(death_last != null and death_last.region.position == Vector2(765, 765), "%s death sheet should include its last 4x4 cell" % boss_id)
-			var frame_unit: Dictionary = unit.duplicate(true)
-			frame_unit["death_animation"] = true
-			frame_unit["death_frame"] = 7
-			expect.call(board.call("_texture_for_unit", frame_unit) == death_frames[7], "%s death presentation should select the requested authored frame" % boss_id)
+		var dissolve_unit: Dictionary = unit.duplicate(true)
+		dissolve_unit["death_animation"] = true
+		dissolve_unit["death_progress"] = 0.47
+		expect.call(bool(board.call("_unit_uses_procedural_shadow_dissolve", dissolve_unit)), "%s should use the unified procedural shadow dissolve" % boss_id)
+		expect.call((board.call("_unit_death_frames", dissolve_unit) as Array).is_empty(), "%s runtime should not load a bespoke death sheet" % boss_id)
+		expect.call(int(board.call("_unit_death_frame_count", dissolve_unit)) == 28, "%s should use the denser shared shadow-dissolve cadence" % boss_id)
+		expect.call(board.call("_enemy_shadow_dissolve_source_texture", dissolve_unit) != null, "%s should retain its authored silhouette as the dissolve source" % boss_id)
 		var before_state: Dictionary = {"enemies": [unit.merged({"hp": 30, "max_hp": 30, "footprint": Vector2i(2, 2)})]}
 		var after_state: Dictionary = before_state.duplicate(true)
 		(after_state.get("enemies", []) as Array)[0]["hp"] = 0

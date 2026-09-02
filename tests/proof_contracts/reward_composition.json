@@ -2,16 +2,16 @@
   "min_images": 11,
   "expected_sizes": ["1920x1080"],
   "required_images": [
-    {"pattern": "*/1920x1080_ui100/card_reward_victory_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_backs_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_partial_reveal_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_settled_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_focused_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_recover_focused_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_reduced_motion_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_full_health_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/card_reward_reroll_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/relic_reward_v3.png", "width": 1920, "height": 1080},
-    {"pattern": "*/1920x1080_ui100/relic_reward_focused_v3.png", "width": 1920, "height": 1080}
+    {"pattern": "*/1920x1080_ui100/card_reward_victory_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_backs_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_partial_reveal_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_settled_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_focused_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_recover_focused_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_reduced_motion_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_full_health_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/card_reward_reroll_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/relic_reward_v4.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/relic_reward_focused_v4.png", "width": 1920, "height": 1080}
   ]
 }

@@ -1,0 +1,179 @@
+{
+  "audio": {
+    "decoded_loop_metrics": {
+      "flac": {
+        "decoded_frames": 1282909,
+        "duration_seconds": 29.09090702947846,
+        "first_frame": [
+          0.0040283203125,
+          -0.01104736328125
+        ],
+        "first_last_sample_delta": [
+          0.00531005859375,
+          0.00286865234375
+        ],
+        "last_frame": [
+          -0.00128173828125,
+          -0.013916015625
+        ],
+        "p99_9_adjacent_sample_delta": [
+          0.05938720703125,
+          0.05560302734375
+        ],
+        "peak_dbfs": -8.501015714085101,
+        "seam_to_p99_9_ratio": [
+          0.08941418293936279,
+          0.05159165751920966
+        ]
+      },
+      "ogg": {
+        "decoded_frames": 1282944,
+        "duration_seconds": 29.09170068027211,
+        "first_frame": [
+          0.000123244448332116,
+          -0.009740534238517284
+        ],
+        "first_last_sample_delta": [
+          0.0006332010962069035,
+          0.008418750017881393
+        ],
+        "last_frame": [
+          0.0007564455736428499,
+          -0.0013217841042205691
+        ],
+        "p99_9_adjacent_sample_delta": [
+          0.05935165286064148,
+          0.05547070875763893
+        ],
+        "peak_dbfs": -8.449634176102101,
+        "seam_to_p99_9_ratio": [
+          0.010668634581983227,
+          0.15176928880906065
+        ]
+      }
+    },
+    "flac": {
+      "format": {
+        "duration": "29.090907",
+        "size": "1306863"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "flac",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "flac_sha256": "00895a5616fea071e73fd22681747a6adc154db1196a74b650341ea9b4d7e16e",
+    "long_silence_events": {
+      "flac": [],
+      "ogg": []
+    },
+    "ogg": {
+      "format": {
+        "duration": "29.091701",
+        "size": "243428"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "vorbis",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "ogg_sha256": "f005bda46c395579b32f0afeb749b5e16775efa2ecee5203e2a4bacd872b2569",
+    "peak_dbfs": -8.501015714085101,
+    "strict_decode": true
+  },
+  "bank_manifest_sha256": "2fc0b70a096ec2bbbcfdf3bd3cdbf3d3f595a780835329332ee548d581019ea6",
+  "bank_sample_hashes": {
+    "ash_tick": "1d2eff817f2e52e2b7ffa177914a6c2b33cc534b4f34b53bbefa1b469837aeb7",
+    "ashen_violin": "61582413be61cd25d182bdb1645c83af6b663070d9be9730525a02bc1ec890a0",
+    "bone_tom": "3789e4f0aec579f355416bc05cea5758f018b528ae7db37069100b221f0432ec",
+    "grave_cello": "17eb59965eabbe0a910585f100296ce56cd868884d440139a3b5c7b13df40f09",
+    "hollow_viola": "9cac0ff97b72b9822e4774fdd4d270b8f4b719f5662e27035519715b07f70c74",
+    "umbra_war_drum": "6286624ce4b2bf0f8f372a524217846a7096bb9f453dea8b60f69d3207f346ea",
+    "undercrypt_bass": "2b1a1a07e74969533c0ef2766602633fcb6180a12ae6fa3dddc6dbdb1264679e",
+    "veiled_violin": "c683d2911eba6adb35e58027b1dd363f5057996a789f06f8a4aa604d9092ffc8"
+  },
+  "config_sha256": "139b39dca71b99fcf530f92facad717179f4d253ad4b4dd7302d8277665f65cf",
+  "midi": {
+    "configured_tracks": [
+      "Ashen Violin / Upper Harmony",
+      "Funeral Pulse / Procedural Percussion",
+      "Grave Cello / Funeral Cantus",
+      "Hollow Viola / Inner Lament",
+      "Undercrypt Bass / Processional Root",
+      "Veiled Violin / Trio Cantilena"
+    ],
+    "note_counts": {
+      "Ashen Violin / Upper Harmony": 34,
+      "Funeral Pulse / Procedural Percussion": 15,
+      "Grave Cello / Funeral Cantus": 29,
+      "Hollow Viola / Inner Lament": 28,
+      "Undercrypt Bass / Processional Root": 64,
+      "Veiled Violin / Trio Cantilena": 9
+    },
+    "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/versions/v04/arrangement.mid",
+    "sha256": "97ffdb5431fc643d1a6250e3a20c9ae54c9314a320afc878acaf0f93919720ca",
+    "structural_duration_seconds": 30.0
+  },
+  "ok": true,
+  "reproducibility": {
+    "arrangement_notes": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/versions/v04/ARRANGEMENT_NOTES.md",
+      "sha256": "427acea8216ddcb4eacad59ffb977fd7505f4e5bc611c559906ba29a1985b218"
+    },
+    "build_script": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/scripts/build_arrangement_v04.py",
+      "sha256": "00c594a9cc72f3211b6139c0f95e64fa887253c600aa98372d7eebb18216b15e"
+    },
+    "expected_part_count": 2,
+    "normalized_full_score_midi": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/full_score.mid",
+      "sha256": "cfc5886a5a841f59bdb9148611ef459c96a634ac996e37e0f4683c5a98b2d778"
+    },
+    "normalized_full_score_musicxml": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/full_score.musicxml",
+      "sha256": "007afebdf2de467d734485f9069fcbeaa06c49895294d4d9ae38e0ae76039d29"
+    },
+    "normalized_parts": [
+      {
+        "midi": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/parts/01_piano_right_hand_source_midi_track.mid",
+          "sha256": "d7c3eb03e8abf02a1c1c72fa37d6bdf246ab2f3a649280816057b0bf46e41e59"
+        },
+        "musicxml": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/parts/01_piano_right_hand_source_midi_track.musicxml",
+          "sha256": "8f0706f62a96afc9595b6f8c672307edb39a9e47cc1f6d1db0d431934a3c7205"
+        },
+        "name": "Piano \u2014 Right-hand source MIDI track"
+      },
+      {
+        "midi": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/parts/02_piano_left_hand_source_midi_track.mid",
+          "sha256": "d7ee55fa79e657b5c7ac70114bb12b2340b783b2c199f3383dd82a171c0e759a"
+        },
+        "musicxml": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/normalized/parts/02_piano_left_hand_source_midi_track.musicxml",
+          "sha256": "fb99cd861c35c9f546196fd319bd985f706a54eb0e822f37f6906141c3d8691b"
+        },
+        "name": "Piano \u2014 Left-hand source MIDI track"
+      }
+    ]
+  },
+  "source": {
+    "license_file": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/LICENSE_SOURCE.md",
+    "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/source/chopin_piano_sonata_no2_op35_pdmx_cc0.mid",
+    "rights_basis": "cc0",
+    "sha256": "ec2a476e16556cdffc69d47bf0aebf4093842e9dde8f6c32170c7da6a6149ee3",
+    "transcription_license": "CC0 1.0 Universal"
+  },
+  "track_id": "chopin_op35_funeral_march_v04"
+}

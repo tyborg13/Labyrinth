@@ -211,6 +211,16 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 		"The inspected support crawler should visibly promise the same move-and-attack sequence used after Pass"
 	)
 	var scheduled_state: Dictionary = combat.finish_player_activation(state)
+	var scheduled_order: Array[Dictionary] = combat.current_turn_order(scheduled_state, 2)
+	expect.call(
+		scheduled_order.size() >= 2
+		and str(scheduled_order[0].get("kind", "")) == "enemy"
+		and int(scheduled_order[0].get("enemy_id", -1)) == GuidedCombatScenario.SUPPORT_ENEMY_ID
+		and int(scheduled_order[0].get("time", -1)) == GuidedCombatScenario.SUPPORT_FIRST_ACTIVATION_TIME
+		and str(scheduled_order[1].get("kind", "")) == "player"
+		and int(scheduled_order[1].get("time", -1)) == 14,
+		"The support crawler should act before the player's clock-14 return without relying on exact-tie policy"
+	)
 	var phase_result: Dictionary = combat.advance_to_next_player_turn_with_steps(scheduled_state)
 	var after_enemy_turn: Dictionary = phase_result.get("state", {}) as Dictionary
 	var player_after_enemy: Dictionary = after_enemy_turn.get("player", {}) as Dictionary

@@ -12,16 +12,19 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
+const EnemyTacticalAiSuite = preload("res://tests/suites/enemy_tactical_ai_suite.gd")
 const EnemyIntentPreviewSuite = preload("res://tests/suites/enemy_intent_preview_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
 const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
+const AudioRoutingSuite = preload("res://tests/suites/audio_routing_suite.gd")
 const DragonBossSuite = preload("res://tests/suites/dragon_boss_suite.gd")
 const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
 const InlineIconDescriptionSuite = preload("res://tests/suites/inline_icon_description_suite.gd")
 const SkillTreeSuite = preload("res://tests/suites/skill_tree_suite.gd")
 const SkillCombatSuite = preload("res://tests/suites/skill_combat_suite.gd")
 const PlayerMovementSuite = preload("res://tests/suites/player_movement_suite.gd")
+const InitiativeOrderSuite = preload("res://tests/suites/initiative_order_suite.gd")
 const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const RelicSuite = preload("res://tests/suites/relic_suite.gd")
 const RadiancePackageSuite = preload("res://tests/suites/radiance_package_suite.gd")
@@ -31,6 +34,7 @@ const LethalPreviewSuite = preload("res://tests/suites/lethal_preview_suite.gd")
 const FloatingCombatTextSuite = preload("res://tests/suites/floating_combat_text_suite.gd")
 const AttackFxSuite = preload("res://tests/suites/attack_fx_suite.gd")
 const AttackSfxSuite = preload("res://tests/suites/attack_sfx_suite.gd")
+const RunSfxSuite = preload("res://tests/suites/run_sfx_suite.gd")
 const CombatObjectiveSuite = preload("res://tests/suites/combat_objective_suite.gd")
 const GrimoireSearchSuite = preload("res://tests/suites/grimoire_search_suite.gd")
 const MoveAttackShortcutSuite = preload("res://tests/suites/move_attack_shortcut_suite.gd")
@@ -39,6 +43,7 @@ const CombatBoardLayoutSuite = preload("res://tests/suites/combat_board_layout_s
 const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass_suite.gd")
 const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.gd")
 const ItemPickupSuite = preload("res://tests/suites/item_pickup_suite.gd")
+const ScavengerShopSuite = preload("res://tests/suites/scavenger_shop_suite.gd")
 const ControllerInputSuite = preload("res://tests/suites/controller_input_suite.gd")
 const GuidedCombatTutorialSuite = preload("res://tests/suites/guided_combat_tutorial_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
@@ -84,15 +89,18 @@ func _initialize() -> void:
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
+	EnemyTacticalAiSuite.run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
+	AudioRoutingSuite.run(Callable(self, "_assert"))
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	InlineIconDescriptionSuite.run(Callable(self, "_assert"))
 	DragonBossSuite.run(Callable(self, "_assert"))
 	SkillTreeSuite.run(Callable(self, "_assert"))
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	PlayerMovementSuite.run(Callable(self, "_assert"))
+	InitiativeOrderSuite.run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
 	AttackFxSuite.run(Callable(self, "_assert"))
@@ -111,6 +119,7 @@ func _initialize() -> void:
 	HealthBarThemeSuite.run(Callable(self, "_assert"))
 	ControllerInputSuite.run(Callable(self, "_assert"))
 	ItemPickupSuite.run(Callable(self, "_assert"))
+	ScavengerShopSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_non_boss_combat_to_schubert()
@@ -147,7 +156,6 @@ func _initialize() -> void:
 	_test_equipment_run_state_and_reward_cards(default_progression)
 	_test_equipment_collection_to_equip_deck_flow(default_progression)
 	_test_missed_equipment_resolution_and_persistence(default_progression)
-	_test_merchant_room_placement_and_trading(default_progression)
 	_test_elemental_intensity_starts_from_room_element()
 	_test_elemental_intensity_actions_gate_effects()
 	_test_elemental_intensity_icons_surface_card_requirements()
@@ -277,7 +285,7 @@ func _initialize() -> void:
 	_test_cinder_enemies_use_final_raster_art()
 	_test_cinder_enemies_have_turn_order_portraits()
 	_test_final_art_units_use_16_frame_idle_sheets()
-	_test_enemy_death_sheets_load_for_full_roster()
+	_test_enemy_shadow_dissolve_unifies_full_roster()
 	_test_terrain_destruction_sheets_load_for_full_prop_roster()
 	_test_elemental_trap_animation_sheets_load_and_respect_reduced_motion()
 	_test_final_art_idle_shadows_keep_silhouettes_for_every_frame()
@@ -341,6 +349,8 @@ func _initialize() -> void:
 	await _test_main_scenes_instantiate()
 	_suppress_guided_tutorial_for_legacy_live_scene_tests()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
+	await RunSfxSuite.run(self, Callable(self, "_assert"))
+	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
 	await MapUiSuite.run_live(self, Callable(self, "_assert"))
 	await _test_run_scene_combat_log_prominence()
@@ -548,8 +558,8 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(equipment_entries.has("keyword:bleed"), "Equipment should unlock keywords from granted cards")
 	var lantern_equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("cracked_lantern")
 	_assert(lantern_equipment_entries.has("equipment_card:lantern_shot"), "Cracked Lantern should unlock its Radiance card page under Equipment")
-	var npc_entries: Array[String] = GrimoireLibrary.entry_ids_for_npc_ids(["blacksmith"])
-	_assert(npc_entries.has("character:blacksmith"), "Seen NPCs should unlock character entries")
+	var npc_entries: Array[String] = GrimoireLibrary.entry_ids_for_npc_ids(["scavenger"])
+	_assert(npc_entries.has("character:scavenger"), "Seen NPCs should unlock the Scavenger character entry")
 	var crawler_entries: Array[String] = GrimoireLibrary.entry_ids_for_enemy_types(["crawler"])
 	_assert(crawler_entries.has("enemy:crawler"), "Seeing a crawler should unlock its creature entry")
 	_assert(crawler_entries.has("keyword:bleed"), "Enemy bleed intents should unlock the bleed entry")
@@ -586,17 +596,17 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	merchant_offer_state["current_room"] = Vector2i(2, 1)
 	merchant_offer_state["rooms"] = {
 		"2,1": {
-			"type": "arcanist",
-			"merchant_kind": "arcanist",
+			"type": "scavenger",
+			"merchant_kind": "scavenger",
 			"merchant_stock": ["spark_dart", "crimson_draught", "iron_cleaver"],
-			"npcs": [{"id": "blacksmith"}]
+			"npcs": [{"id": "scavenger"}]
 		}
 	}
 	var merchant_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(merchant_offer_state)
 	_assert(merchant_offer_entries.has("magick:spark_dart"), "Visible merchant-offer cards should unlock their Magick entry before purchase")
 	_assert(merchant_offer_entries.has("item:crimson_draught"), "Visible scavenger-offer cards should unlock item entries before purchase")
-	_assert(merchant_offer_entries.has("equipment:iron_cleaver"), "Visible blacksmith-offer equipment should unlock equipment entries before purchase")
-	_assert(merchant_offer_entries.has("character:blacksmith"), "Current-room NPCs should unlock character entries")
+	_assert(merchant_offer_entries.has("equipment:iron_cleaver"), "Visible Scavenger Gear should unlock equipment entries before purchase")
+	_assert(merchant_offer_entries.has("character:scavenger"), "Current-room Scavenger should unlock its character entry")
 	_assert(merchant_offer_entries.has("keyword:illuminate"), "Visible merchant-offer cards should unlock their Radiance rider before purchase")
 	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["magick:spark_dart", "keyword:shock"])
 	var added: Array = unlock_result.get("added", [])
@@ -624,6 +634,18 @@ func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
 	_assert(bool(menu_entry.get("loop", false)), "Old Castle main-menu music should request native looping")
 	_assert(is_equal_approx(float(menu_entry.get("volume_db", 0.0)), -6.5), "Old Castle main-menu music should retain its audition-level presence")
 	_assert(FileAccess.get_sha256(menu_path) == "57fabef2f4298b22ef7477e18b261702152483c9cb7aabe43acd99ece952fdc8", "Shipped Old Castle menu music should match the verified v07 Ogg")
+	var death_entry: Dictionary = MusicLibrary.entry_for_context("defeat", {
+		"type": "boss",
+		"boss_id": "zekarion"
+	})
+	var death_path: String = str(death_entry.get("path", ""))
+	_assert(str(death_entry.get("id", "")) == MusicLibrary.CHOPIN_DEATH_TRACK_ID, "Terminal defeat should override combat and boss routes with the Chopin death loop")
+	_assert(death_path == "res://assets/audio/music/chopin_op35_funeral_march_death_loop.ogg", "Terminal defeat should point to the promoted Chopin Ogg")
+	_assert(FileAccess.file_exists(death_path), "Promoted Chopin death music should exist")
+	_assert(_audio_asset_loads(death_path), "Promoted Chopin death music should load as audio")
+	_assert(bool(death_entry.get("loop", false)), "Chopin death music should request native looping")
+	_assert(is_equal_approx(float(death_entry.get("volume_db", 0.0)), -7.0), "Chopin death music should remain understated beneath the defeat recap")
+	_assert(FileAccess.get_sha256(death_path) == "f005bda46c395579b32f0afeb749b5e16775efa2ecee5203e2a4bacd872b2569", "Shipped Chopin death music should match the verified owner-approved v05 Ogg")
 	for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING, ElementData.AIR, ElementData.EARTH, ElementData.NONE]:
 		var entry: Dictionary = MusicLibrary.entry_for_context("combat", {
 			"type": "combat",
@@ -692,7 +714,7 @@ func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
 	AssetLoader._audio_cache.erase(str(generic_entry.get("path", "")))
 	var looped_stream: AudioStream = AssetLoader.load_audio_stream(str(generic_entry.get("path", "")), true)
 	_assert(looped_stream is AudioStreamOggVorbis and (looped_stream as AudioStreamOggVorbis).loop, "Configured Schubert stream should use gapless Ogg looping")
-	for merchant_type: String in ["blacksmith", "arcanist", "scavenger"]:
+	for merchant_type: String in ["scavenger"]:
 		var merchant_entry: Dictionary = MusicLibrary.entry_for_context("room", {
 			"type": merchant_type,
 			"element": ElementData.NONE
@@ -1098,22 +1120,6 @@ func _test_special_rooms_use_corner_pillar_layout() -> void:
 		"type": "treasure"
 	}, Vector2i(0, -1))
 	_assert_corner_pillar_room(treasure_room, "Treasure")
-	var blacksmith_room: Dictionary = generator.generate_room(91, {
-		"coord": Vector2i(2, 1),
-		"depth": 2,
-		"type": "blacksmith",
-		"npcs": [{"id": "blacksmith", "pos": Vector2i(3, 4)}]
-	}, Vector2i(0, -1))
-	_assert_corner_pillar_room(blacksmith_room, "Blacksmith")
-	_assert((blacksmith_room.get("npcs", []) as Array).size() == 1, "Blacksmith rooms should keep their merchant NPC")
-	var arcanist_room: Dictionary = generator.generate_room(91, {
-		"coord": Vector2i(2, -1),
-		"depth": 2,
-		"type": "arcanist",
-		"npcs": [{"id": "arcanist", "pos": Vector2i(3, 4)}]
-	}, Vector2i(0, 1))
-	_assert_corner_pillar_room(arcanist_room, "Arcanist")
-	_assert((arcanist_room.get("npcs", []) as Array).size() == 1, "Arcanist rooms should keep their merchant NPC")
 	var scavenger_room: Dictionary = generator.generate_room(91, {
 		"coord": Vector2i(-2, 1),
 		"depth": 2,
@@ -1667,7 +1673,12 @@ func _test_initiative_advances_enemy_turns_until_player_reacts() -> void:
 	_assert(saw_turn_order_step, "Initiative advancement should emit turn-order animation snapshots as actors activate and reslot")
 	var next_order: Array[Dictionary] = combat.current_turn_order(after_state, 3)
 	_assert(str(next_order[0].get("kind", "")) == "player" and bool(next_order[0].get("active", false)), "The refreshed order should mark the player as the active actor")
-	_assert(str(next_order[1].get("kind", "")) == "enemy", "Enemies should immediately reslot for their next future turn after acting")
+	var rescheduled_enemy_visible: bool = false
+	for entry: Dictionary in next_order:
+		if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("projected", false)):
+			rescheduled_enemy_visible = true
+			break
+	_assert(rescheduled_enemy_visible, "Enemies should immediately reslot for their next future turn after acting, independent of the newly selected intent's timing")
 
 func _test_card_time_scale_changes_player_reentry_order() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1757,7 +1768,12 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	_assert(int(standard_state.get("player_turn_time_spent", 0)) == 9, "A normal two-card starter turn should spend about nine time")
 	_assert(str(standard_order[0].get("kind", "")) == "enemy", "A fast early enemy should still act once before a normal player return")
 	_assert(str(standard_order[1].get("kind", "")) == "player", "A normal two-card starter turn should return before the same fast enemy laps the player")
-	_assert(str(standard_order[2].get("kind", "")) == "enemy" and bool(standard_order[2].get("projected", false)), "The fast enemy's projected follow-up should remain visible after the player's standard return")
+	var projected_enemy_visible: bool = false
+	for entry: Dictionary in standard_order:
+		if str(entry.get("kind", "")) == "enemy" and bool(entry.get("projected", false)):
+			projected_enemy_visible = true
+			break
+	_assert(projected_enemy_visible, "The fast enemy's projected follow-up should remain visible after the player's standard return, independent of the chosen intent's timing")
 
 	var slow_layout: Dictionary = _simple_room_layout()
 	slow_layout["enemies"] = [
@@ -2292,229 +2308,6 @@ func _test_missed_equipment_resolution_and_persistence(default_progression: Dict
 		_assert((payload.get("missed_equipment", []) as Array) == ["ward_kite"], "combat_ended should include the additive missed_equipment id list")
 		_assert((payload.get("collected_equipment", []) as Array) == ["iron_cleaver"], "combat_ended should keep collected equipment separate from missed equipment")
 	analytics_scene.free()
-
-func _test_merchant_room_placement_and_trading(default_progression: Dictionary) -> void:
-	var run_engine: RunEngine = RunEngine.new()
-	var purchase_budget: int = 600
-	var first_level_cost: int = ProgressionStore.next_level_cost(default_progression)
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, "iron_cleaver") == 150, "Common blacksmith gear should require saving across multiple combats")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, "duelist_rapier") > first_level_cost, "Rare blacksmith gear should compete with the first level-up")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, "grave_greatsword") == 360, "Epic blacksmith gear should cost multiple early level-up budgets")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, "crown_of_thorns") == 540, "Legendary blacksmith gear should be a major ember commitment")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "spark_dart") == 110, "Common arcanist magic should no longer be affordable from one or two enemy kills")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "battle_rhythm") == 175, "Rare arcanist magic should nearly match the first level-up")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "blood_price") == 265, "Epic arcanist magic should exceed the first level-up")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "wildfire_halo") == 400, "Legendary arcanist magic should demand deep-run savings")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "crimson_draught") == 25, "Common item prices should match modest consumable effects")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "mossglass_elixir") == 40, "Rare item prices should reflect their smaller effects")
-	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "storm_jar") == 60, "Epic item prices should remain affordable alongside free pickups")
-	_assert(run_engine.merchant_sell_value(RunEngine.MERCHANT_BLACKSMITH, "ward_kite") == 53, "Merchant resale should be useful but well below buy price")
-	var blacksmith_state: Dictionary = {}
-	var blacksmith_coord: Vector2i = Vector2i(999, 999)
-	var arcanist_state: Dictionary = {}
-	var arcanist_coord: Vector2i = Vector2i(999, 999)
-	var scavenger_state: Dictionary = {}
-	var scavenger_coord: Vector2i = Vector2i(999, 999)
-	for seed: int in range(1, 90):
-		var run_state: Dictionary = run_engine.create_new_run(seed, default_progression)
-		if blacksmith_coord.x >= 900:
-			var smith_coord: Vector2i = _first_room_coord_of_type(run_engine, run_state, "blacksmith")
-			if smith_coord.x < 900:
-				blacksmith_coord = smith_coord
-				blacksmith_state = run_state
-		if arcanist_coord.x >= 900:
-			var mage_coord: Vector2i = _first_room_coord_of_type(run_engine, run_state, "arcanist")
-			if mage_coord.x < 900:
-				arcanist_coord = mage_coord
-				arcanist_state = run_state
-		if scavenger_coord.x >= 900:
-			var scav_coord: Vector2i = _first_room_coord_of_type(run_engine, run_state, "scavenger")
-			if scav_coord.x < 900:
-				scavenger_coord = scav_coord
-				scavenger_state = run_state
-		if blacksmith_coord.x < 900 and arcanist_coord.x < 900 and scavenger_coord.x < 900:
-			break
-	_assert(blacksmith_coord.x < 900, "Generated maps should include blacksmith rooms across sampled seeds")
-	_assert(arcanist_coord.x < 900, "Generated maps should include arcanist rooms across sampled seeds")
-	_assert(scavenger_coord.x < 900, "Generated maps should include scavenger rooms across sampled seeds")
-
-	blacksmith_state["current_room"] = blacksmith_coord
-	blacksmith_state["mode"] = "room"
-	blacksmith_state = run_engine.set_held_embers(blacksmith_state, purchase_budget)
-	_assert(run_engine.merchant_kind_for_current_room(blacksmith_state) == RunEngine.MERCHANT_BLACKSMITH, "Blacksmith room metadata should identify the equipment merchant")
-	var blacksmith_offers: Array = run_engine.merchant_offer_ids(blacksmith_state, RunEngine.MERCHANT_BLACKSMITH)
-	_assert(blacksmith_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Blacksmiths should stock a compact set of equipment")
-	var equipment_slot_index: int = 0
-	var equipment_id: String = str(blacksmith_offers[equipment_slot_index])
-	var equipment_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, equipment_id)
-	var bought_equipment_state: Dictionary = run_engine.buy_merchant_item(blacksmith_state, RunEngine.MERCHANT_BLACKSMITH, equipment_id)
-	_assert(int(bought_equipment_state.get("held_embers", 0)) == purchase_budget - equipment_cost, "Buying equipment should spend held embers")
-	_assert((bought_equipment_state.get("equipment_inventory", []) as Array).has(equipment_id), "Bought equipment should enter equipment inventory")
-	_assert((bought_equipment_state.get("collected_equipment", []) as Array).has(equipment_id), "Bought equipment should count as collected while owned")
-	_assert(not run_engine.merchant_sellable_ids(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH).has(equipment_id), "Bought equipment should not be immediately sellable in the same blacksmith visit")
-	var post_buy_blacksmith_offers: Array = run_engine.merchant_offer_ids(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH)
-	_assert(post_buy_blacksmith_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Buying equipment should refill only the purchased blacksmith slot")
-	_assert(not post_buy_blacksmith_offers.has(equipment_id), "Owned equipment should leave merchant stock")
-	for index: int in range(blacksmith_offers.size()):
-		if index == equipment_slot_index:
-			_assert(str(post_buy_blacksmith_offers[index]) != equipment_id, "Purchased blacksmith slot should receive a replacement offer")
-		else:
-			_assert(str(post_buy_blacksmith_offers[index]) == str(blacksmith_offers[index]), "Buying equipment should preserve the other blacksmith offer slots")
-	var immediate_resell_state: Dictionary = run_engine.sell_merchant_item(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH, equipment_id)
-	_assert((immediate_resell_state.get("equipment_inventory", []) as Array).has(equipment_id), "Bought equipment should stay owned if an immediate resell is attempted")
-	_assert(int(immediate_resell_state.get("held_embers", 0)) == purchase_budget - equipment_cost, "Immediate equipment resell attempts should not refund embers")
-	_assert(run_engine.merchant_offer_ids(immediate_resell_state, RunEngine.MERCHANT_BLACKSMITH) == post_buy_blacksmith_offers, "Blocked immediate equipment resell should not reroll blacksmith offers")
-	var blacksmith_sell_first_state: Dictionary = blacksmith_state.duplicate(true)
-	blacksmith_sell_first_state = run_engine.set_held_embers(blacksmith_sell_first_state, purchase_budget)
-	blacksmith_sell_first_state["equipment_inventory"] = ["ward_kite"]
-	var collected_before_sale: Array = (blacksmith_sell_first_state.get("collected_equipment", []) as Array).duplicate()
-	if not collected_before_sale.has("ward_kite"):
-		collected_before_sale.append("ward_kite")
-	blacksmith_sell_first_state["collected_equipment"] = collected_before_sale
-	var blacksmith_sell_first_offers: Array = run_engine.merchant_offer_ids(blacksmith_sell_first_state, RunEngine.MERCHANT_BLACKSMITH)
-	var equipment_sale_value: int = run_engine.merchant_sell_value(RunEngine.MERCHANT_BLACKSMITH, "ward_kite")
-	var blacksmith_after_sell_first: Dictionary = run_engine.sell_merchant_item(blacksmith_sell_first_state, RunEngine.MERCHANT_BLACKSMITH, "ward_kite")
-	_assert(not (blacksmith_after_sell_first.get("equipment_inventory", []) as Array).has("ward_kite"), "Sold spare equipment should leave inventory")
-	_assert(not (blacksmith_after_sell_first.get("collected_equipment", []) as Array).has("ward_kite"), "Sold spare equipment should leave duplicate-exclusion ownership")
-	_assert(int(blacksmith_after_sell_first.get("held_embers", 0)) == purchase_budget + equipment_sale_value, "Selling spare equipment should add the sell value to held embers")
-	_assert(run_engine.merchant_offer_ids(blacksmith_after_sell_first, RunEngine.MERCHANT_BLACKSMITH) == blacksmith_sell_first_offers, "Selling spare equipment should leave blacksmith offers unchanged")
-	var blacksmith_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(blacksmith_after_sell_first, RunEngine.MERCHANT_BLACKSMITH, str(blacksmith_sell_first_offers[0]))
-	_assert(not run_engine.merchant_offer_ids(blacksmith_after_sell_first_buy, RunEngine.MERCHANT_BLACKSMITH).has("ward_kite"), "Sold equipment should not be introduced by a later blacksmith restock")
-	var regression_blacksmith_state: Dictionary = {}
-	var regression_blacksmith_coord: Vector2i = Vector2i(999, 999)
-	var blacksmith_route: Array = []
-	for seed: int in range(1, 120):
-		var candidate_state: Dictionary = run_engine.create_new_run(seed, default_progression)
-		var reachable_blacksmith: Dictionary = _first_reachable_room_of_type(run_engine, candidate_state, RunEngine.MERCHANT_BLACKSMITH)
-		if not reachable_blacksmith.is_empty():
-			regression_blacksmith_state = candidate_state
-			regression_blacksmith_coord = reachable_blacksmith.get("coord", Vector2i(999, 999))
-			blacksmith_route = (reachable_blacksmith.get("route", []) as Array).duplicate()
-			break
-	_assert(not blacksmith_route.is_empty(), "Blacksmith regression route should reach the sampled merchant room")
-	var visited_blacksmith_state: Dictionary = regression_blacksmith_state.duplicate(true)
-	for step_var: Variant in blacksmith_route:
-		var step: Vector2i = step_var
-		visited_blacksmith_state = _route_state_after_step(run_engine, visited_blacksmith_state, step)
-	var visited_blacksmith_room: Dictionary = run_engine.room_metadata(visited_blacksmith_state, regression_blacksmith_coord)
-	_assert(visited_blacksmith_room.has(RunEngine.MERCHANT_STOCK_KEY), "Entering a blacksmith room should persist the first-view stock")
-	var first_visit_blacksmith_offers: Array = run_engine.merchant_offer_ids(visited_blacksmith_state, RunEngine.MERCHANT_BLACKSMITH)
-	var unrelated_equipment_id: String = ""
-	for equipment_id_var: Variant in GameData.equipment_ids():
-		var candidate_equipment_id: String = str(equipment_id_var)
-		if first_visit_blacksmith_offers.has(candidate_equipment_id):
-			continue
-		if GameData.equipment_slot(candidate_equipment_id).is_empty():
-			continue
-		if (visited_blacksmith_state.get("equipped_equipment", {}) as Dictionary).values().has(candidate_equipment_id):
-			continue
-		unrelated_equipment_id = candidate_equipment_id
-		break
-	_assert(not unrelated_equipment_id.is_empty(), "Equipment pool should include an item outside first-view blacksmith stock")
-	if not unrelated_equipment_id.is_empty():
-		var unrelated_owned_state: Dictionary = visited_blacksmith_state.duplicate(true)
-		var unrelated_inventory: Array = (unrelated_owned_state.get("equipment_inventory", []) as Array).duplicate()
-		unrelated_inventory.append(unrelated_equipment_id)
-		unrelated_owned_state["equipment_inventory"] = unrelated_inventory
-		_assert(run_engine.merchant_offer_ids(unrelated_owned_state, RunEngine.MERCHANT_BLACKSMITH) == first_visit_blacksmith_offers, "First-view blacksmith stock should persist after unrelated ownership changes")
-	var externally_owned_offer_id: String = str(first_visit_blacksmith_offers[0])
-	var duplicate_owned_state: Dictionary = run_engine.set_held_embers(visited_blacksmith_state.duplicate(true), purchase_budget)
-	var duplicate_inventory: Array = (duplicate_owned_state.get("equipment_inventory", []) as Array).duplicate()
-	duplicate_inventory.append(externally_owned_offer_id)
-	duplicate_owned_state["equipment_inventory"] = duplicate_inventory
-	_assert(not run_engine.merchant_offer_ids(duplicate_owned_state, RunEngine.MERCHANT_BLACKSMITH).has(externally_owned_offer_id), "Stored blacksmith stock should hide equipment the player already owns")
-	var duplicate_buy_state: Dictionary = run_engine.buy_merchant_item(duplicate_owned_state, RunEngine.MERCHANT_BLACKSMITH, externally_owned_offer_id)
-	_assert(int(duplicate_buy_state.get("held_embers", 0)) == purchase_budget, "Blacksmiths should not sell a stored offer that became owned before purchase")
-
-	arcanist_state["current_room"] = arcanist_coord
-	arcanist_state["mode"] = "room"
-	arcanist_state = run_engine.set_held_embers(arcanist_state, purchase_budget)
-	_assert(run_engine.merchant_kind_for_current_room(arcanist_state) == RunEngine.MERCHANT_ARCANIST, "Arcanist room metadata should identify the magic merchant")
-	var arcanist_offers: Array = run_engine.merchant_offer_ids(arcanist_state, RunEngine.MERCHANT_ARCANIST)
-	_assert(arcanist_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Arcanists should stock a compact set of magic cards")
-	var magic_slot_index: int = 0
-	var card_id: String = str(arcanist_offers[magic_slot_index])
-	var magic_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, card_id)
-	var pre_magic_deck: Array = (arcanist_state.get("deck_cards", []) as Array).duplicate()
-	var bought_magic_state: Dictionary = run_engine.buy_merchant_item(arcanist_state, RunEngine.MERCHANT_ARCANIST, card_id)
-	_assert(int(bought_magic_state.get("held_embers", 0)) == purchase_budget - magic_cost, "Buying magic should spend held embers")
-	_assert((bought_magic_state.get("reward_cards", []) as Array).has(card_id), "Bought magic should enter reward-card history")
-	_assert((bought_magic_state.get("magic_inventory", []) as Array).has(card_id), "Bought magic should enter reserve magic")
-	_assert((bought_magic_state.get("deck_cards", []) as Array) == pre_magic_deck, "Bought magic should stay inactive until attuned")
-	_assert(not run_engine.merchant_sellable_ids(bought_magic_state, RunEngine.MERCHANT_ARCANIST).has(card_id), "Bought magic should not be immediately sellable in the same arcanist visit")
-	var post_buy_arcanist_offers: Array = run_engine.merchant_offer_ids(bought_magic_state, RunEngine.MERCHANT_ARCANIST)
-	_assert(post_buy_arcanist_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Buying magic should refill only the purchased arcanist slot")
-	_assert(not post_buy_arcanist_offers.has(card_id), "Bought magic should leave arcanist stock")
-	for index: int in range(arcanist_offers.size()):
-		if index == magic_slot_index:
-			_assert(str(post_buy_arcanist_offers[index]) != card_id, "Purchased arcanist slot should receive a replacement offer")
-		else:
-			_assert(str(post_buy_arcanist_offers[index]) == str(arcanist_offers[index]), "Buying magic should preserve the other arcanist offer slots")
-	var immediate_magic_resell_state: Dictionary = run_engine.sell_merchant_item(bought_magic_state, RunEngine.MERCHANT_ARCANIST, card_id)
-	_assert((immediate_magic_resell_state.get("magic_inventory", []) as Array).has(card_id), "Bought magic should stay in reserve if an immediate resell is attempted")
-	_assert((immediate_magic_resell_state.get("reward_cards", []) as Array).has(card_id), "Bought magic should stay in reward-card history if an immediate resell is attempted")
-	_assert(int(immediate_magic_resell_state.get("held_embers", 0)) == purchase_budget - magic_cost, "Immediate magic resell attempts should not refund embers")
-	_assert(run_engine.merchant_offer_ids(immediate_magic_resell_state, RunEngine.MERCHANT_ARCANIST) == post_buy_arcanist_offers, "Blocked immediate magic resell should not reroll arcanist offers")
-	var arcanist_sell_first_state: Dictionary = arcanist_state.duplicate(true)
-	arcanist_sell_first_state = run_engine.set_held_embers(arcanist_sell_first_state, purchase_budget)
-	arcanist_sell_first_state["magic_inventory"] = ["spark_dart"]
-	arcanist_sell_first_state["reward_cards"] = ["spark_dart"]
-	var arcanist_sell_first_offers: Array = run_engine.merchant_offer_ids(arcanist_sell_first_state, RunEngine.MERCHANT_ARCANIST)
-	var magic_sale_value: int = run_engine.merchant_sell_value(RunEngine.MERCHANT_ARCANIST, "spark_dart")
-	var arcanist_after_sell_first: Dictionary = run_engine.sell_merchant_item(arcanist_sell_first_state, RunEngine.MERCHANT_ARCANIST, "spark_dart")
-	_assert(not (arcanist_after_sell_first.get("magic_inventory", []) as Array).has("spark_dart"), "Sold reserve magic should leave reserve inventory")
-	_assert(not (arcanist_after_sell_first.get("reward_cards", []) as Array).has("spark_dart"), "Sold reserve magic should leave reward-card history")
-	_assert(int(arcanist_after_sell_first.get("held_embers", 0)) == purchase_budget + magic_sale_value, "Selling magic should add the sell value to held embers")
-	_assert(run_engine.merchant_offer_ids(arcanist_after_sell_first, RunEngine.MERCHANT_ARCANIST) == arcanist_sell_first_offers, "Selling reserve magic should leave arcanist offers unchanged")
-	var arcanist_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(arcanist_after_sell_first, RunEngine.MERCHANT_ARCANIST, str(arcanist_sell_first_offers[0]))
-	_assert(not run_engine.merchant_offer_ids(arcanist_after_sell_first_buy, RunEngine.MERCHANT_ARCANIST).has("spark_dart"), "Sold magic should not be introduced by a later arcanist restock")
-
-	scavenger_state["current_room"] = scavenger_coord
-	scavenger_state["mode"] = "room"
-	scavenger_state = run_engine.set_held_embers(scavenger_state, purchase_budget)
-	_assert(run_engine.merchant_kind_for_current_room(scavenger_state) == RunEngine.MERCHANT_SCAVENGER, "Scavenger room metadata should identify the item merchant")
-	var scavenger_offers: Array = run_engine.merchant_offer_ids(scavenger_state, RunEngine.MERCHANT_SCAVENGER)
-	_assert(scavenger_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Scavengers should stock a compact set of item cards")
-	var item_slot_index: int = 0
-	var item_card_id: String = str(scavenger_offers[item_slot_index])
-	_assert(GameData.card_is_item(item_card_id), "Scavenger stock should contain consumable item cards")
-	var item_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, item_card_id)
-	var pre_item_deck: Array = (scavenger_state.get("deck_cards", []) as Array).duplicate()
-	var bought_item_state: Dictionary = run_engine.buy_merchant_item(scavenger_state, RunEngine.MERCHANT_SCAVENGER, item_card_id)
-	_assert(int(bought_item_state.get("held_embers", 0)) == purchase_budget - item_cost, "Buying an item should spend held embers")
-	_assert((bought_item_state.get("item_inventory", []) as Array).has(item_card_id), "Bought items should enter item inventory")
-	_assert((bought_item_state.get("deck_cards", []) as Array) == pre_item_deck, "Bought items should stay inactive until equipped")
-	_assert(not run_engine.merchant_sellable_ids(bought_item_state, RunEngine.MERCHANT_SCAVENGER).has(item_card_id), "Bought items should not be immediately sellable in the same scavenger visit")
-	var post_buy_scavenger_offers: Array = run_engine.merchant_offer_ids(bought_item_state, RunEngine.MERCHANT_SCAVENGER)
-	_assert(post_buy_scavenger_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Buying an item should refill only the purchased scavenger slot")
-	for index: int in range(scavenger_offers.size()):
-		if index == item_slot_index:
-			_assert(str(post_buy_scavenger_offers[index]) != item_card_id, "Purchased scavenger slot should receive a replacement offer")
-		else:
-			_assert(str(post_buy_scavenger_offers[index]) == str(scavenger_offers[index]), "Buying an item should preserve the other scavenger offer slots")
-	var immediate_item_resell_state: Dictionary = run_engine.sell_merchant_item(bought_item_state, RunEngine.MERCHANT_SCAVENGER, item_card_id)
-	_assert((immediate_item_resell_state.get("item_inventory", []) as Array).has(item_card_id), "Bought items should stay in inventory if an immediate resell is attempted")
-	_assert(int(immediate_item_resell_state.get("held_embers", 0)) == purchase_budget - item_cost, "Immediate item resell attempts should not refund embers")
-	_assert(run_engine.merchant_offer_ids(immediate_item_resell_state, RunEngine.MERCHANT_SCAVENGER) == post_buy_scavenger_offers, "Blocked immediate item resell should not reroll scavenger offers")
-	var scavenger_sell_first_state: Dictionary = scavenger_state.duplicate(true)
-	scavenger_sell_first_state = run_engine.set_held_embers(scavenger_sell_first_state, purchase_budget)
-	var scavenger_sell_first_offers: Array = run_engine.merchant_offer_ids(scavenger_sell_first_state, RunEngine.MERCHANT_SCAVENGER)
-	var item_to_sell: String = ""
-	for candidate_item_var: Variant in GameData.item_card_ids():
-		var candidate_item_id: String = str(candidate_item_var)
-		if not scavenger_sell_first_offers.has(candidate_item_id):
-			item_to_sell = candidate_item_id
-			break
-	_assert(not item_to_sell.is_empty(), "Item pool should include a sellable item outside current scavenger stock")
-	scavenger_sell_first_state["item_inventory"] = [item_to_sell, "nail_bomb", item_to_sell]
-	var item_sale_value: int = run_engine.merchant_sell_value(RunEngine.MERCHANT_SCAVENGER, item_to_sell)
-	var scavenger_after_sell_first: Dictionary = run_engine.sell_merchant_item(scavenger_sell_first_state, RunEngine.MERCHANT_SCAVENGER, item_to_sell)
-	var remaining_items: Array = scavenger_after_sell_first.get("item_inventory", []) as Array
-	_assert(remaining_items.has(item_to_sell) and remaining_items.has("nail_bomb"), "Selling one duplicate item should remove only one owned copy")
-	_assert(int(scavenger_after_sell_first.get("held_embers", 0)) == purchase_budget + item_sale_value, "Selling an item should add the sell value to held embers")
-	_assert(run_engine.merchant_offer_ids(scavenger_after_sell_first, RunEngine.MERCHANT_SCAVENGER) == scavenger_sell_first_offers, "Selling items should leave scavenger offers unchanged")
-	var scavenger_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(scavenger_after_sell_first, RunEngine.MERCHANT_SCAVENGER, str(scavenger_sell_first_offers[0]))
-	_assert(not run_engine.merchant_offer_ids(scavenger_after_sell_first_buy, RunEngine.MERCHANT_SCAVENGER).has(item_to_sell), "Sold items should not be introduced by a later scavenger restock")
 
 func _test_elemental_intensity_starts_from_room_element() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -6648,9 +6441,7 @@ func _test_final_art_units_use_16_frame_idle_sheets() -> void:
 		"bile_bloomer",
 		"chainbound_gaoler",
 		"grave_surgeon",
-		"frostglass_lancer",
-		"arcanist",
-		"blacksmith"
+		"frostglass_lancer"
 	]
 	for unit_type: String in unit_types:
 		var definition: Dictionary = GameData.enemy_def(unit_type)
@@ -6673,10 +6464,16 @@ func _test_final_art_units_use_16_frame_idle_sheets() -> void:
 		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", unit)), 0.1), "%s idle loop should use the default frame cadence" % unit_type)
 	board.free()
 
-func _test_enemy_death_sheets_load_for_full_roster() -> void:
+func _test_enemy_shadow_dissolve_unifies_full_roster() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
+	board.size = Vector2(1920.0, 1080.0)
+	root.add_child(board)
 	board.call("_load_assets")
+	# This suite runs during SceneTree initialization, before newly attached nodes
+	# receive _ready(); create the retained renderer explicitly so lifecycle
+	# assertions exercise the same effect-node ownership as live combat.
+	board.call("_create_dynamic_render_layer")
 	board.combat_state = {
 		"grid": _simple_grid(),
 		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
@@ -6690,30 +6487,40 @@ func _test_enemy_death_sheets_load_for_full_roster() -> void:
 		}]
 	}
 	for enemy_type: String in GameData.enemies().keys():
-		var definition: Dictionary = GameData.enemy_def(enemy_type)
-		var art_path: String = str(definition.get("art_path", ""))
-		var death_path: String = "%s_death.%s" % [art_path.get_basename(), art_path.get_extension()]
 		var unit := {
 			"key": "enemy_%s_death" % enemy_type,
 			"role": "enemy",
 			"type": enemy_type,
 			"death_animation": true,
-			"death_frame": 5,
 			"death_progress": 0.42
 		}
-		var death_frames: Array = board.call("_unit_death_frames", unit)
-		_assert(FileAccess.file_exists(death_path), "%s death sheet should exist beside its base art" % enemy_type)
-		_assert(death_frames.size() == 16, "%s death sheet should load all 16 shadow-dissolve frames" % enemy_type)
-		if death_frames.size() >= 16:
-			var first_frame: AtlasTexture = death_frames[0] as AtlasTexture
-			var last_frame: AtlasTexture = death_frames[death_frames.size() - 1] as AtlasTexture
-			_assert((death_frames[0] as Texture2D).get_size() == Vector2(255.0, 255.0), "%s death frames should use the native 255px unit canvas" % enemy_type)
-			_assert(first_frame != null and last_frame != null, "%s death frames should be atlas-backed slices" % enemy_type)
-			_assert(first_frame.region.position == Vector2.ZERO, "%s death animation should begin at the first source frame" % enemy_type)
-			_assert(last_frame.region.position == Vector2(765.0, 765.0), "%s death animation should include the final 4x4 source frame" % enemy_type)
-			_assert(board.call("_texture_for_unit", unit) == death_frames[5], "%s death presentation should select the requested death frame" % enemy_type)
+		var native_rect := Rect2(Vector2(10.0, 20.0), Vector2(100.0, 150.0))
+		var source_texture: Texture2D = board.call("_enemy_shadow_dissolve_source_texture", unit) as Texture2D
+		_assert(bool(board.call("_unit_uses_procedural_shadow_dissolve", unit)), "%s should use the unified procedural shadow dissolve" % enemy_type)
+		_assert((board.call("_unit_death_frames", unit) as Array).is_empty(), "%s runtime should not load a separate enemy death sheet" % enemy_type)
+		_assert(source_texture != null, "%s shadow dissolve should retain a silhouette source texture" % enemy_type)
+		_assert(int(board.call("_unit_death_frame_count", unit)) == 28, "%s should use the denser common 28-sample dissolve cadence" % enemy_type)
+		_assert(is_equal_approx(float(board.call("_unit_death_frame_seconds", unit)), 0.037), "%s should keep the denser dissolve near the original total duration" % enemy_type)
+		_assert((board.call("_death_animation_render_rect", unit, native_rect) as Rect2).is_equal_approx(native_rect), "%s procedural death should preserve native framing without squash or stretch" % enemy_type)
+		_assert((board.call("_death_animation_render_tint", unit) as Color).is_equal_approx(Color.WHITE), "%s procedural death should leave color transformation to the dissolve shader" % enemy_type)
+		var cleared_shadow_unit: Dictionary = unit.duplicate(true)
+		cleared_shadow_unit["death_progress"] = 0.36
+		_assert(is_zero_approx(float(board.call("_unit_shadow_alpha_scale", cleared_shadow_unit))), "%s should retire its normal contact shadow before the body becomes an umbral silhouette" % enemy_type)
+		var repeat_seed: float = float(board.call("_enemy_shadow_dissolve_seed_for_unit", unit))
+		_assert(is_equal_approx(repeat_seed, float(board.call("_enemy_shadow_dissolve_seed_for_unit", unit))), "%s dissolve breakup should be deterministic" % enemy_type)
+	var player_death_unit := {
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"death_animation": true,
+		"death_frame": 5,
+		"death_progress": 0.42
+	}
+	_assert(not bool(board.call("_unit_uses_procedural_shadow_dissolve", player_death_unit)), "Player defeat should retain its distinct authored terminal collapse")
+	_assert((board.call("_unit_death_frames", player_death_unit) as Array).size() == 16, "Player defeat should continue loading all authored collapse frames")
 	var death_entry := {
 		"key": "enemy_99",
+		"role": "enemy",
 		"id": 99,
 		"type": "crawler",
 		"name": "Tunnel Crawler",
@@ -6721,7 +6528,16 @@ func _test_enemy_death_sheets_load_for_full_roster() -> void:
 		"death_frame": 3,
 		"death_progress": 0.3
 	}
-	board.presentation = {"death_animation_units": [death_entry]}
+	var dissolve_state := {
+		"name": "Shadow dissolve test",
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
+		"enemies": [],
+		"loot": [],
+		"terrain": [],
+		"traps": []
+	}
+	board.set_combat_state(dissolve_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"death_animation_units": [death_entry]})
 	var found_death_unit: bool = false
 	for visible_var: Variant in board.call("_visible_units"):
 		if typeof(visible_var) != TYPE_DICTIONARY:
@@ -6733,6 +6549,26 @@ func _test_enemy_death_sheets_load_for_full_roster() -> void:
 		_assert(bool(visible_unit.get("death_animation", false)), "Death presentation units should be marked for dissolve rendering")
 		_assert(int(visible_unit.get("hp", 0)) > 0, "Death presentation units should stay drawable even when combat state HP is zero")
 	_assert(found_death_unit, "Combat board should surface presentation-only death animation units")
+	var effect_nodes: Dictionary = board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary
+	_assert(effect_nodes.size() == 1 and effect_nodes.has("enemy_99"), "A live enemy death should own exactly one shader effect node")
+	if effect_nodes.has("enemy_99"):
+		var effect: Control = effect_nodes.get("enemy_99") as Control
+		_assert(effect != null and effect.has_method("expanded_rect"), "Enemy shadow dissolve should use the dedicated effect renderer")
+		if effect != null:
+			var source_rect: Rect2 = effect.call("source_rect") as Rect2
+			var expanded_rect: Rect2 = effect.call("expanded_rect") as Rect2
+			_assert(expanded_rect.encloses(source_rect), "Dissolve canvas should expand beyond the body for silhouette-derived wisps")
+			_assert(is_equal_approx(float(effect.call("dissolve_progress")), 0.3), "Effect node should receive the submitted death progress")
+	death_entry["death_progress"] = 0.64
+	board.set_combat_state(dissolve_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"death_animation_units": [death_entry], "reduced_motion": true})
+	effect_nodes = board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary
+	if effect_nodes.has("enemy_99"):
+		var reduced_effect: Control = effect_nodes.get("enemy_99") as Control
+		_assert(bool(reduced_effect.call("reduced_motion_enabled")), "Reduced motion should disable spatial drift on the dissolve shader")
+		_assert(is_equal_approx(float(reduced_effect.call("dissolve_progress")), 0.64), "Existing effect nodes should update rather than duplicate across animation samples")
+	_assert(effect_nodes.size() == 1, "Animation samples should reuse one effect node per defeated enemy")
+	board.set_combat_state(dissolve_state)
+	_assert((board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary).is_empty(), "Clearing death presentation should release all dissolve effect nodes")
 	board.free()
 
 func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
@@ -6854,9 +6690,7 @@ func _test_final_art_idle_shadows_keep_silhouettes_for_every_frame() -> void:
 		"bile_bloomer",
 		"chainbound_gaoler",
 		"grave_surgeon",
-		"frostglass_lancer",
-		"arcanist",
-		"blacksmith"
+		"frostglass_lancer"
 	]
 	for unit_type: String in unit_types:
 		var unit := {"key": "shadow_%s" % unit_type, "role": "enemy", "type": unit_type, "pos": Vector2i.ZERO}
@@ -7504,15 +7338,13 @@ func _test_merchant_assets_load_for_board() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
 	board.call("_load_assets")
-	for npc_id: String in ["blacksmith", "arcanist", "scavenger"]:
+	for npc_id: String in ["scavenger"]:
 		var npc_def: Dictionary = GameData.npc_def(npc_id)
 		var art_path: String = str(npc_def.get("art_path", ""))
 		_assert(FileAccess.file_exists(art_path), "%s NPC sprite should exist" % npc_id)
 		var texture: Texture2D = (board.get("_unit_textures") as Dictionary).get(npc_id, null)
 		_assert(texture != null, "%s NPC sprite should load for board rendering" % npc_id)
 	var prop_textures: Dictionary = board.get("_scene_prop_textures") as Dictionary
-	_assert(prop_textures.get("blacksmith_forge", null) != null, "Blacksmith forge prop should load for board rendering")
-	_assert(prop_textures.get("arcanist_table", null) != null, "Arcanist table prop should load for board rendering")
 	_assert(prop_textures.get("scavenger_stall", null) != null, "Scavenger stall prop should load for board rendering")
 	board.free()
 
@@ -7522,8 +7354,8 @@ func _test_room_icon_library_covers_door_room_types() -> void:
 		{"room": {"type": "combat", "element": "none"}, "icon": "combat"},
 		{"room": {"type": "campfire", "element": "none"}, "icon": "campfire"},
 		{"room": {"type": "treasure", "element": "none"}, "icon": "treasure"},
-		{"room": {"type": "blacksmith", "element": "none"}, "icon": "blacksmith"},
-		{"room": {"type": "arcanist", "element": "none"}, "icon": "arcanist"},
+		{"room": {"type": "blacksmith", "element": "none"}, "icon": "scavenger"},
+		{"room": {"type": "arcanist", "element": "none"}, "icon": "scavenger"},
 		{"room": {"type": "scavenger", "element": "none"}, "icon": "scavenger"},
 		{"room": {"type": "boss", "element": "none"}, "icon": "boss"}
 	]
@@ -7613,7 +7445,7 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	for entry_var: Variant in map_view.call("_legend_entries"):
 		var entry: Dictionary = entry_var
 		labels[str(entry.get("label", ""))] = true
-	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Smith", "Arcanist", "Scavenger", "Boss"]:
+	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Scavenger", "Boss"]:
 		_assert(labels.has(expected_label), "Full map legend should include %s" % expected_label)
 	_assert(not labels.has("Fight"), "Full map legend should not invent a generic Fight room icon")
 	var marker_rooms: Dictionary = {
@@ -7885,7 +7717,7 @@ func _test_combat_board_loads_door_icons_for_room_types() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
 	var textures: Dictionary = board.get("_door_icon_textures") as Dictionary
-	for icon_id: String in ["fire", "combat", "campfire", "treasure", "blacksmith", "arcanist", "scavenger", "boss"]:
+	for icon_id: String in ["fire", "combat", "campfire", "treasure", "scavenger", "boss"]:
 		_assert(textures.get(icon_id, null) != null, "Combat board should load door icons for elemental and non-combat destinations")
 	board.free()
 
@@ -8105,7 +7937,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 				var room_type: String = str(room.get("type", "combat"))
 				if depth >= RunEngine.MERCHANT_ROOM_MIN_DEPTH and room_type not in ["boss", "campfire", "treasure"]:
 					total_eligible_rooms += 1
-				if room_type not in ["blacksmith", "arcanist", "scavenger"]:
+				if room_type != "scavenger":
 					continue
 				total_merchant_rooms += 1
 				merchant_types[room_type] = true
@@ -8117,7 +7949,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 					var neighbor: Vector2i = coord + dir
 					if maxi(absi(neighbor.x), absi(neighbor.y)) > MAP_RULE_SCAN_DEPTH:
 						continue
-					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) not in ["blacksmith", "arcanist", "scavenger"], "Merchant rooms should never be cardinally adjacent")
+					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) != "scavenger", "Scavenger rooms should never be cardinally adjacent")
 		signature_parts.sort()
 		var signature: String = "|".join(signature_parts)
 		if seed == 1:
@@ -8126,7 +7958,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 			found_different_signature = true
 	var density: float = float(total_merchant_rooms) / float(maxi(1, total_eligible_rooms))
 	_assert(density > 0.09 and density < 0.18, "Merchant rooms should average a moderate non-combat frequency")
-	_assert(merchant_types.has("blacksmith") and merchant_types.has("arcanist") and merchant_types.has("scavenger"), "Merchant generation should include blacksmith, arcanist, and scavenger rooms")
+	_assert(merchant_types.size() == 1 and merchant_types.has("scavenger"), "Merchant generation should use only the unified Scavenger room")
 	_assert(found_different_signature, "Merchant room placement should vary probabilistically by seed")
 
 func _test_run_map_repeats_depth_sequences() -> void:
@@ -8532,7 +8364,7 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	_assert(not ProgressionStore.umbra_warning_is_due(seen_progression, next_run_index + 1), "The Umbra warning should never repeat after it has been seen")
 	var post_warning_dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {"run_index": next_run_index + 1}, seen_progression)
 	_assert(str(((post_warning_dialogue.get("lines", []) as Array)[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Later runs should return to the Emaciated Man's default dialogue")
-	for merchant_id: String in ["blacksmith", "arcanist", "scavenger"]:
+	for merchant_id: String in ["scavenger"]:
 		var merchant_dialogue: Dictionary = dialogue_engine.build_room_dialogue({
 			"coord": Vector2i(2, 1),
 			"npcs": [{"id": merchant_id}]
@@ -11816,6 +11648,26 @@ func _test_run_scene_surfaces_defeated_enemy_death_units() -> void:
 		_assert(hold_unit.get("pos", Vector2i.ZERO) == Vector2i(6, 4), "Death hold units should keep forced-movement deaths on the final tile")
 		_assert(int(hold_unit.get("death_frame", -1)) == 0, "Death hold units should start on the first death frame")
 		_assert(is_equal_approx(float(hold_unit.get("death_progress", -1.0)), 0.0), "Death hold units should not advance dissolve progress during impact text")
+	var contact_presentation: Dictionary = instance.call(
+		"_attack_feedback_death_hold_presentation",
+		before_state,
+		after_state,
+		{
+			"effect": {"kind": "melee", "from": Vector2i(5, 4), "to": Vector2i(6, 4)},
+			"effect_progress": 0.72,
+			"impact_actor_keys": ["enemy_7"]
+		},
+		0.35
+	)
+	var contact_units: Array = contact_presentation.get("death_animation_units", [])
+	_assert(contact_units.size() == 1, "Lethal attack contact should composite the defeated enemy before the resolved zero-HP state is drawn")
+	if not contact_units.is_empty():
+		var contact_unit: Dictionary = contact_units[0]
+		_assert(int(contact_unit.get("death_frame", -1)) == 0, "Lethal contact should hand directly into death frame zero without a hidden frame")
+		_assert(is_equal_approx(float(contact_unit.get("death_progress", -1.0)), 0.0), "Lethal contact should keep the silhouette intact until the dissolve timeline begins")
+	_assert((contact_presentation.get("impact_actor_keys", []) as Array).has("enemy_7"), "The continuity hold should preserve the lethal hit reaction")
+	var shader_source: String = FileAccess.get_file_as_string("res://assets/shaders/enemy_shadow_dissolve.gdshader")
+	_assert(not shader_source.contains("ground_shadow_pool"), "Enemy dissolution must not synthesize a new floor pool beneath the sprite")
 	instance.free()
 
 func _test_run_scene_surfaces_destroyed_terrain_units() -> void:
@@ -12475,61 +12327,46 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	for widget: CardWidget in _card_widgets_under(equipment_tooltip):
 		_assert(widget.size.x > 0.0 and absf((widget.size.y / widget.size.x) - (352.0 / 250.0)) < 0.01, "Equipment tooltip card previews should preserve the real card aspect ratio")
 	equipment_tooltip.queue_free()
-	var merchant_equipment_row: Control = instance.call("_build_merchant_item_row", "blacksmith", "iron_cleaver", false) as Control
-	if merchant_equipment_row != null:
-		root.add_child(merchant_equipment_row)
-	await process_frame
-	_assert(merchant_equipment_row != null and merchant_equipment_row.tooltip_text == "equipment:iron_cleaver", "Blacksmith merchant rows should reuse the equipment tooltip trigger")
-	var merchant_equipment_tooltip: Control = merchant_equipment_row.call("_make_custom_tooltip", merchant_equipment_row.tooltip_text) as Control if merchant_equipment_row != null else null
+	var merchant_equipment_tooltip: Control = instance.call("_build_merchant_item_tooltip_panel", "scavenger", "iron_cleaver") as Control
 	if merchant_equipment_tooltip != null:
 		root.add_child(merchant_equipment_tooltip)
 		await process_frame
-	_assert(_card_widget_count_under(merchant_equipment_tooltip) == GameData.equipment_cards("iron_cleaver").size(), "Blacksmith merchant hover should show real CardWidget previews for every granted equipment card")
+	_assert(_card_widget_count_under(merchant_equipment_tooltip) == GameData.equipment_cards("iron_cleaver").size(), "Pinned Scavenger Gear inspection should show real CardWidget previews for every granted equipment card")
 	if merchant_equipment_tooltip != null:
 		merchant_equipment_tooltip.queue_free()
-	if merchant_equipment_row != null:
-		merchant_equipment_row.queue_free()
-	var merchant_magic_row: Control = instance.call("_build_merchant_item_row", "arcanist", "spark_dart", false) as Control
-	if merchant_magic_row != null:
-		root.add_child(merchant_magic_row)
-		merchant_magic_row.position = Vector2(120.0, 180.0)
-		merchant_magic_row.size = Vector2(520.0, 72.0)
-	await process_frame
-	_assert(merchant_magic_row != null and merchant_magic_row.tooltip_text == "card:spark_dart", "Arcanist merchant rows should reuse the card tooltip trigger")
-	var merchant_magic_tooltip: Control = merchant_magic_row.call("_make_custom_tooltip", merchant_magic_row.tooltip_text) as Control if merchant_magic_row != null else null
+	var merchant_magic_tooltip: Control = instance.call("_build_merchant_item_tooltip_panel", "scavenger", "spark_dart") as Control
 	if merchant_magic_tooltip != null:
 		root.add_child(merchant_magic_tooltip)
 		await process_frame
-		_assert(_card_widget_count_under(merchant_magic_tooltip) == 1, "Arcanist merchant hover should show a real CardWidget preview")
+		_assert(_card_widget_count_under(merchant_magic_tooltip) == 1, "Pinned Scavenger Magic inspection should show a real CardWidget preview")
 	else:
-		_failures.append("Arcanist merchant hover should show a real CardWidget preview")
+		_failures.append("Pinned Scavenger Magic inspection should show a real CardWidget preview")
 	if merchant_magic_tooltip != null:
 		merchant_magic_tooltip.queue_free()
-	var merchant_item_row: Control = instance.call("_build_merchant_item_row", "scavenger", "crimson_draught", false) as Control
-	if merchant_item_row != null:
-		root.add_child(merchant_item_row)
-	await process_frame
-	_assert(merchant_item_row != null and merchant_item_row.tooltip_text == "card:crimson_draught", "Scavenger merchant rows should reuse the card tooltip trigger")
-	_assert(str(instance.call("_merchant_item_detail", "scavenger", "crimson_draught")).begins_with("Item | "), "Scavenger merchant details should identify item cards")
-	var merchant_item_tooltip: Control = merchant_item_row.call("_make_custom_tooltip", merchant_item_row.tooltip_text) as Control if merchant_item_row != null else null
+	var merchant_item_tooltip: Control = instance.call("_build_merchant_item_tooltip_panel", "scavenger", "crimson_draught") as Control
 	if merchant_item_tooltip != null:
 		root.add_child(merchant_item_tooltip)
 		await process_frame
-		_assert(_card_widget_count_under(merchant_item_tooltip) == 1, "Scavenger merchant hover should show a real CardWidget preview")
+		_assert(_card_widget_count_under(merchant_item_tooltip) == 1, "Pinned Scavenger Item inspection should show a real card-backed preview")
 	else:
-		_failures.append("Scavenger merchant hover should show a real CardWidget preview")
+		_failures.append("Pinned Scavenger Item inspection should show a real card-backed preview")
 	if merchant_item_tooltip != null:
 		merchant_item_tooltip.queue_free()
-	if merchant_item_row != null:
-		merchant_item_row.queue_free()
-	if merchant_magic_row != null:
+	var merchant_magic_source := Button.new()
+	merchant_magic_source.name = "ScavengerPinnedMagicSource"
+	merchant_magic_source.tooltip_text = "Spark Dart\nPrice: 110 embers"
+	merchant_magic_source.position = Vector2(120.0, 180.0)
+	merchant_magic_source.size = Vector2(148.0, 208.0)
+	root.add_child(merchant_magic_source)
+	await process_frame
+	if merchant_magic_source != null:
 		var mouse_motion := InputEventMouseMotion.new()
 		mouse_motion.position = Vector2(20.0, 7.0)
 		mouse_motion.global_position = mouse_motion.position
 		Input.parse_input_event(mouse_motion)
 		await process_frame
-		instance.call("_on_merchant_row_mouse_entered", "arcanist", "spark_dart", merchant_magic_row)
-		var tooltip_text_before_pin: String = merchant_magic_row.tooltip_text
+		instance.call("_on_merchant_row_mouse_entered", "scavenger", "spark_dart", merchant_magic_source)
+		var tooltip_text_before_pin: String = merchant_magic_source.tooltip_text
 		var tooltip_mouse_anchor: Vector2 = instance.call("_current_mouse_position")
 		_assert(tooltip_mouse_anchor.y > 40.0, "Pinned merchant tooltip test should use a non-clamped mouse anchor")
 		var shift_event := InputEventKey.new()
@@ -12541,18 +12378,18 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim")
 		var pinned_panel: Control = instance.get("_pinned_tooltip_panel")
 		_assert(pinned_scrim != null and pinned_scrim.visible, "Pressing Shift while hovering a merchant item should pin the item tooltip")
-		_assert(merchant_magic_row.tooltip_text.is_empty(), "Pinned merchant tooltips should suppress the row's normal hover tooltip while focused")
+		_assert(merchant_magic_source.tooltip_text.is_empty(), "Pinned merchant tooltips should suppress the source's normal hover tooltip while focused")
 		if pinned_panel != null:
 			var expected_pin_position: Vector2 = tooltip_mouse_anchor + Vector2(12.0, 0.0)
 			var viewport_size: Vector2 = instance.get_viewport_rect().size
 			expected_pin_position.x = clampf(expected_pin_position.x, 10.0, maxf(10.0, viewport_size.x - pinned_panel.size.x - 10.0))
 			expected_pin_position.y = clampf(expected_pin_position.y, 10.0, maxf(10.0, viewport_size.y - pinned_panel.size.y - 10.0))
-			_assert(_card_widget_count_under(pinned_panel) == 1, "Pinned arcanist tooltip should keep the card preview focused")
+			_assert(_card_widget_count_under(pinned_panel) == 1, "Pinned Scavenger Magic tooltip should keep the card preview focused")
 			_assert(pinned_panel.global_position.distance_to(expected_pin_position) < 3.0, "Pinned merchant tooltip should stay where the hover preview appeared instead of jumping to a side panel")
 			for widget: CardWidget in _card_widgets_under(pinned_panel):
 				_assert(widget.mouse_filter == Control.MOUSE_FILTER_STOP, "Pinned merchant card previews should route hover to the real card widget for nested icon tooltips")
 		else:
-			_failures.append("Pinned arcanist tooltip should keep the card preview focused")
+			_failures.append("Pinned Scavenger Magic tooltip should keep the card preview focused")
 		var close_shift_event := InputEventKey.new()
 		close_shift_event.keycode = KEY_SHIFT
 		close_shift_event.physical_keycode = KEY_SHIFT
@@ -12560,9 +12397,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		instance.call("_input", close_shift_event)
 		await process_frame
 		_assert(pinned_scrim != null and not pinned_scrim.visible, "Pressing Shift again should close a pinned merchant tooltip")
-		_assert(merchant_magic_row.tooltip_text == tooltip_text_before_pin, "Closing a pinned merchant tooltip should restore the row's normal hover tooltip")
-		merchant_magic_row.queue_free()
-	_assert(str(instance.call("_merchant_item_detail", "blacksmith", "crown_of_thorns")) == "Trinket | Legendary", "Blacksmith merchant details should spell out Legendary")
+		_assert(merchant_magic_source.tooltip_text == tooltip_text_before_pin, "Closing a pinned merchant tooltip should restore the source's normal hover tooltip")
+		merchant_magic_source.queue_free()
 	var card_tooltip: Control = instance.call("_build_card_tooltip_panel", "cleaver_hook") as Control
 	root.add_child(card_tooltip)
 	await process_frame
@@ -12718,9 +12554,9 @@ func _test_run_scene_logs_local_analytics() -> void:
 	merchant_rooms["2,1"] = {
 		"coord": Vector2i(2, 1),
 		"depth": 2,
-		"type": "blacksmith",
-		"merchant_kind": "blacksmith",
-		"npcs": [{"id": "blacksmith", "pos": Vector2i(3, 4)}],
+		"type": "scavenger",
+		"merchant_kind": "scavenger",
+		"npcs": [{"id": "scavenger", "pos": Vector2i(3, 4)}],
 		"connections": [],
 		"revealed": true,
 		"visited": true,
@@ -12731,7 +12567,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	merchant_run_state["combat_state"] = {}
 	instance.set("_run_state", merchant_run_state)
 	_set_run_scene_combat_state_for_test(instance, {})
-	instance.call("_on_merchant_sell_pressed", "blacksmith", "ward_kite")
+	instance.call("_on_merchant_sell_pressed", "scavenger", "ward_kite")
 	await process_frame
 	var item_event_state: Dictionary = instance.get("_run_state")
 	item_event_state["equipped_items"] = ["crimson_draught"]
@@ -12784,7 +12620,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	var merchant_event: Dictionary = merchant_events[merchant_events.size() - 1]
 	var merchant_payload: Dictionary = merchant_event.get("payload", {})
 	_assert(str(merchant_payload.get("action", "")) == "sell", "Merchant analytics should record trade action")
-	_assert(str(merchant_payload.get("merchant_kind", "")) == "blacksmith", "Merchant analytics should record merchant kind")
+	_assert(str(merchant_payload.get("merchant_kind", "")) == "scavenger", "Merchant analytics should record the unified Scavenger kind")
 	_assert(merchant_payload.has("equipped_items") and merchant_payload.has("item_inventory"), "Merchant analytics should include item inventory context")
 	var item_payload: Dictionary = (item_events[item_events.size() - 1] as Dictionary).get("payload", {})
 	_assert(str(item_payload.get("action", "")) == "equip", "Item analytics should record loadout action")
@@ -12840,7 +12676,7 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	_assert(not bool(repaired["reduced_motion"]), "Non-boolean reduced motion data should use its safe default")
 
 	SettingsStore.apply_audio_settings(custom)
-	for bus_name: String in [SettingsStore.MASTER_BUS, SettingsStore.MUSIC_BUS, SettingsStore.SFX_BUS]:
+	for bus_name: String in [SettingsStore.MASTER_BUS, SettingsStore.MUSIC_BUS, SettingsStore.SFX_BUS, SettingsStore.WORLD_SFX_BUS, SettingsStore.UI_SFX_BUS]:
 		_assert(AudioServer.get_bus_index(bus_name) >= 0, "Settings should provision the %s audio bus" % bus_name)
 	var master_index: int = AudioServer.get_bus_index(SettingsStore.MASTER_BUS)
 	var music_index: int = AudioServer.get_bus_index(SettingsStore.MUSIC_BUS)
@@ -12919,10 +12755,10 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	run_instance.call("_play_sfx", {"path": "res://assets/audio/sfx/action_block.wav", "volume_db": -8.0, "duration": 0.1})
 	var routed_sfx_found: bool = false
 	for child: Node in run_instance.get_children():
-		if child is AudioStreamPlayer and child != run_music and (child as AudioStreamPlayer).bus == SettingsStore.SFX_BUS:
+		if child is AudioStreamPlayer and child != run_music and (child as AudioStreamPlayer).bus == SettingsStore.WORLD_SFX_BUS:
 			routed_sfx_found = true
 			break
-	_assert(routed_sfx_found, "In-run effects should route through the SFX bus")
+	_assert(routed_sfx_found, "In-run effects should route through the reverberant World SFX bus")
 	run_instance.queue_free()
 	await process_frame
 

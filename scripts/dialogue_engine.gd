@@ -19,7 +19,7 @@ func _dialogue_for_npc(npc: Dictionary, room: Dictionary, run_state: Dictionary,
 	match npc_id:
 		"emaciated_man":
 			return _emaciated_man_dialogue(npc, room, run_state, progression)
-		"blacksmith", "arcanist", "scavenger":
+		"scavenger":
 			return _default_npc_dialogue(npc, room, run_state, progression)
 		_:
 			return {}
