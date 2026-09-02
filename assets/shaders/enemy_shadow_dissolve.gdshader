@@ -83,32 +83,6 @@ vec4 alpha_over(vec4 background, vec4 foreground) {
 }
 
 
-vec4 ground_shadow_pool(vec2 expanded_uv, float p) {
-	float arrival = smoothstep(0.10, 0.38, p);
-	float departure = 1.0 - smoothstep(0.78, 1.0, p);
-	float envelope = arrival * departure;
-	if (envelope <= 0.001) {
-		return vec4(0.0);
-	}
-	float bottom = source_uv_min.y + source_uv_size.y * 0.94;
-	float pool_width = mix(source_uv_size.x * 0.24, source_uv_size.x * 0.52, smoothstep(0.12, 0.72, p));
-	float pool_height = mix(0.010, 0.036, smoothstep(0.14, 0.62, p));
-	if (reduced_motion) {
-		pool_width = source_uv_size.x * 0.27;
-		pool_height = 0.014;
-		envelope *= 0.55;
-	}
-	vec2 pool_uv = (expanded_uv - vec2(0.5, bottom)) / vec2(max(pool_width, 0.001), max(pool_height, 0.001));
-	float pool_noise = fbm(vec2(pool_uv.x * 2.5 + seed * 0.2, pool_uv.y * 4.0 - seed * 0.1));
-	float distance_field = length(pool_uv) + (pool_noise - 0.5) * 0.24;
-	float breakup = smoothstep(0.18, 0.80, fbm(expanded_uv * vec2(19.0, 31.0) + seed));
-	float late_fragmentation = mix(1.0, breakup, smoothstep(0.68, 0.94, p));
-	float alpha = (1.0 - smoothstep(0.64, 1.08, distance_field)) * envelope * late_fragmentation * 0.74;
-	vec3 color = mix(umbra_low.rgb, umbra_high.rgb, clamp(pool_noise * 0.45, 0.0, 1.0));
-	return vec4(color, alpha);
-}
-
-
 vec4 silhouette_wisp(
 	vec2 sprite_uv,
 	float p,
@@ -176,7 +150,10 @@ void fragment() {
 	vec4 body = vec4(body_color, source.a * survival * final_fade);
 
 	float direction = hash21(vec2(floor(seed * 31.0), 17.0)) < 0.5 ? -1.0 : 1.0;
-	vec4 result = ground_shadow_pool(UV, p);
+	// Begin with a transparent effect canvas. The defeated actor keeps its normal
+	// pre-existing contact shadow while the silhouette itself dissolves; the
+	// death effect never synthesizes a new floor pool or oval underneath it.
+	vec4 result = vec4(0.0);
 	result = alpha_over(result, silhouette_wisp(sprite_uv, p, 0.0, direction, 0.19));
 	result = alpha_over(result, silhouette_wisp(sprite_uv, p, 1.0, -direction, 0.28));
 	result = alpha_over(result, silhouette_wisp(sprite_uv, p, 2.0, direction, 0.38));

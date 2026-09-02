@@ -375,7 +375,7 @@ static func _test_boss_animation_sheets_and_death_presentations(expect: Callable
 		dissolve_unit["death_progress"] = 0.47
 		expect.call(bool(board.call("_unit_uses_procedural_shadow_dissolve", dissolve_unit)), "%s should use the unified procedural shadow dissolve" % boss_id)
 		expect.call((board.call("_unit_death_frames", dissolve_unit) as Array).is_empty(), "%s runtime should not load a bespoke death sheet" % boss_id)
-		expect.call(int(board.call("_unit_death_frame_count", dissolve_unit)) == 20, "%s should use the shared shadow-dissolve cadence" % boss_id)
+		expect.call(int(board.call("_unit_death_frame_count", dissolve_unit)) == 28, "%s should use the denser shared shadow-dissolve cadence" % boss_id)
 		expect.call(board.call("_enemy_shadow_dissolve_source_texture", dissolve_unit) != null, "%s should retain its authored silhouette as the dissolve source" % boss_id)
 		var before_state: Dictionary = {"enemies": [unit.merged({"hp": 30, "max_hp": 30, "footprint": Vector2i(2, 2)})]}
 		var after_state: Dictionary = before_state.duplicate(true)

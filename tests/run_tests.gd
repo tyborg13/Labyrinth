@@ -6481,10 +6481,13 @@ func _test_enemy_shadow_dissolve_unifies_full_roster() -> void:
 		_assert(bool(board.call("_unit_uses_procedural_shadow_dissolve", unit)), "%s should use the unified procedural shadow dissolve" % enemy_type)
 		_assert((board.call("_unit_death_frames", unit) as Array).is_empty(), "%s runtime should not load a separate enemy death sheet" % enemy_type)
 		_assert(source_texture != null, "%s shadow dissolve should retain a silhouette source texture" % enemy_type)
-		_assert(int(board.call("_unit_death_frame_count", unit)) == 20, "%s should use the common 20-sample dissolve cadence" % enemy_type)
-		_assert(is_equal_approx(float(board.call("_unit_death_frame_seconds", unit)), 0.052), "%s should use the common dissolve frame timing" % enemy_type)
+		_assert(int(board.call("_unit_death_frame_count", unit)) == 28, "%s should use the denser common 28-sample dissolve cadence" % enemy_type)
+		_assert(is_equal_approx(float(board.call("_unit_death_frame_seconds", unit)), 0.037), "%s should keep the denser dissolve near the original total duration" % enemy_type)
 		_assert((board.call("_death_animation_render_rect", unit, native_rect) as Rect2).is_equal_approx(native_rect), "%s procedural death should preserve native framing without squash or stretch" % enemy_type)
 		_assert((board.call("_death_animation_render_tint", unit) as Color).is_equal_approx(Color.WHITE), "%s procedural death should leave color transformation to the dissolve shader" % enemy_type)
+		var cleared_shadow_unit: Dictionary = unit.duplicate(true)
+		cleared_shadow_unit["death_progress"] = 0.36
+		_assert(is_zero_approx(float(board.call("_unit_shadow_alpha_scale", cleared_shadow_unit))), "%s should retire its normal contact shadow before the body becomes an umbral silhouette" % enemy_type)
 		var repeat_seed: float = float(board.call("_enemy_shadow_dissolve_seed_for_unit", unit))
 		_assert(is_equal_approx(repeat_seed, float(board.call("_enemy_shadow_dissolve_seed_for_unit", unit))), "%s dissolve breakup should be deterministic" % enemy_type)
 	var player_death_unit := {
@@ -11616,6 +11619,26 @@ func _test_run_scene_surfaces_defeated_enemy_death_units() -> void:
 		_assert(hold_unit.get("pos", Vector2i.ZERO) == Vector2i(6, 4), "Death hold units should keep forced-movement deaths on the final tile")
 		_assert(int(hold_unit.get("death_frame", -1)) == 0, "Death hold units should start on the first death frame")
 		_assert(is_equal_approx(float(hold_unit.get("death_progress", -1.0)), 0.0), "Death hold units should not advance dissolve progress during impact text")
+	var contact_presentation: Dictionary = instance.call(
+		"_attack_feedback_death_hold_presentation",
+		before_state,
+		after_state,
+		{
+			"effect": {"kind": "melee", "from": Vector2i(5, 4), "to": Vector2i(6, 4)},
+			"effect_progress": 0.72,
+			"impact_actor_keys": ["enemy_7"]
+		},
+		0.35
+	)
+	var contact_units: Array = contact_presentation.get("death_animation_units", [])
+	_assert(contact_units.size() == 1, "Lethal attack contact should composite the defeated enemy before the resolved zero-HP state is drawn")
+	if not contact_units.is_empty():
+		var contact_unit: Dictionary = contact_units[0]
+		_assert(int(contact_unit.get("death_frame", -1)) == 0, "Lethal contact should hand directly into death frame zero without a hidden frame")
+		_assert(is_equal_approx(float(contact_unit.get("death_progress", -1.0)), 0.0), "Lethal contact should keep the silhouette intact until the dissolve timeline begins")
+	_assert((contact_presentation.get("impact_actor_keys", []) as Array).has("enemy_7"), "The continuity hold should preserve the lethal hit reaction")
+	var shader_source: String = FileAccess.get_file_as_string("res://assets/shaders/enemy_shadow_dissolve.gdshader")
+	_assert(not shader_source.contains("ground_shadow_pool"), "Enemy dissolution must not synthesize a new floor pool beneath the sprite")
 	instance.free()
 
 func _test_run_scene_surfaces_destroyed_terrain_units() -> void:

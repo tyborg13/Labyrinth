@@ -165,8 +165,8 @@ const IDLE_SHEET_ROWS: int = 2
 const DEATH_FRAME_SECONDS: float = 0.065
 const DEATH_SHEET_COLUMNS: int = 4
 const DEATH_SHEET_ROWS: int = 4
-const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = 20
-const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = 0.052
+const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = 28
+const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = 0.037
 const TERRAIN_DESTRUCTION_FRAME_SECONDS: float = 0.065
 const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
 	"wooden_box": {
@@ -13189,7 +13189,10 @@ func _unit_shadow_alpha_scale(unit: Dictionary) -> float:
 	if _unit_has_authored_death_animation(unit):
 		return 1.0
 	var t: float = clampf(float(unit.get("death_progress", 0.0)), 0.0, 1.0)
-	return 1.0 - smoothstep(0.16, 0.76, t)
+	# Preserve normal floor contact at lethal impact, then retire the pre-existing
+	# actor shadow before the body becomes an umbral silhouette. This prevents the
+	# ordinary oval from reading like a new death-effect pool as the body clears.
+	return 1.0 - smoothstep(0.04, 0.30, t)
 
 func _unit_art_scale(unit: Dictionary) -> float:
 	var unit_type: String = str(unit.get("type", ""))

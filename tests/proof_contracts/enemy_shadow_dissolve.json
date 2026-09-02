@@ -1,7 +1,15 @@
 {
-  "min_images": 9,
+  "min_images": 12,
   "expected_sizes": ["1920x1080"],
   "required_images": [
+    {
+      "pattern": "*lethal_impact_continuity_hold.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 45, "min_luma_stdev": 7}
+      ]
+    },
     {
       "pattern": "*00_silhouette_hold.png",
       "width": 1920,

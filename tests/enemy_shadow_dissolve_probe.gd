@@ -3,13 +3,15 @@ extends SceneTree
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
-const OUTPUT_ROOT: String = "user://enemy_shadow_dissolve_probe_v1"
+const OUTPUT_ROOT: String = "user://enemy_shadow_dissolve_probe_v2"
 const RESOLUTION: Vector2i = Vector2i(1920, 1080)
 const CHECKPOINTS: Array[Dictionary] = [
 	{"progress": 0.00, "file": "00_silhouette_hold.png"},
 	{"progress": 0.18, "file": "18_umbra_takeover.png"},
 	{"progress": 0.36, "file": "36_first_fractures.png"},
+	{"progress": 0.45, "file": "45_inward_breakup.png"},
 	{"progress": 0.54, "file": "54_shadow_breakup.png"},
+	{"progress": 0.63, "file": "63_silhouette_release.png"},
 	{"progress": 0.72, "file": "72_wisp_release.png"},
 	{"progress": 0.88, "file": "88_last_fragments.png"},
 	{"progress": 0.98, "file": "98_near_nothing.png"},
@@ -50,6 +52,29 @@ func _capture_sequence() -> void:
 			_fail("%s should not load a runtime enemy death sheet" % str(unit.get("type", "enemy")))
 
 	var captures: Array[Image] = []
+	board.call(
+		"set_combat_state",
+		state,
+		[],
+		[],
+		Vector2i(-1, -1),
+		"",
+		"",
+		{},
+		{},
+		{
+			"death_animation_units": _death_units_at_progress(0.0),
+			"impact_actor_keys": ["enemy_301", "enemy_302", "enemy_303"],
+			"impact_progress": 0.55,
+			"board_backdrop_visible": false,
+		}
+	)
+	await process_frame
+	await process_frame
+	await create_timer(0.045).timeout
+	_assert_effect_nodes(board, 0.0, false)
+	captures.append(await _capture("lethal_impact_continuity_hold.png"))
+
 	for checkpoint: Dictionary in CHECKPOINTS:
 		var progress: float = float(checkpoint.get("progress", 0.0))
 		var presentation := {
@@ -86,16 +111,16 @@ func _capture_sequence() -> void:
 	_assert_effect_nodes(board, reduced_progress, true)
 	captures.append(await _capture("reduced_motion_62_static_breakup.png"))
 
-	if captures.size() == 8:
-		var opening_change: float = _sampled_image_difference(captures[0], captures[3])
-		var completion_change: float = _sampled_image_difference(captures[0], captures[6])
+	if captures.size() == 11:
+		var opening_change: float = _sampled_image_difference(captures[1], captures[5])
+		var completion_change: float = _sampled_image_difference(captures[1], captures[9])
 		if opening_change < 0.0025:
 			_fail("Midpoint dissolve should visibly depart from the intact silhouettes")
 		if completion_change < 0.0035:
 			_fail("Near-complete dissolve should visibly clear the enemy silhouettes")
 		_save_contact_sheet(captures, "enemy_shadow_dissolve_contact_sheet.png")
 	else:
-		_fail("Dissolve proof should capture seven motion checkpoints plus reduced motion")
+		_fail("Dissolve proof should capture lethal continuity, nine motion checkpoints, and reduced motion")
 
 	board.call("set_combat_state", state)
 	if not (board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary).is_empty():
@@ -208,14 +233,19 @@ func _capture(file_name: String) -> Image:
 
 func _save_contact_sheet(images: Array[Image], file_name: String) -> void:
 	var columns: int = 4
-	var rows: int = 2
+	var rows: int = 3
 	var cell_size := Vector2i(RESOLUTION.x / columns, RESOLUTION.y / rows)
 	var sheet := Image.create_empty(RESOLUTION.x, RESOLUTION.y, false, Image.FORMAT_RGBA8)
 	sheet.fill(Color("120d18"))
 	for index: int in range(mini(images.size(), columns * rows)):
 		var frame: Image = images[index].duplicate()
-		frame.resize(cell_size.x, cell_size.y, Image.INTERPOLATE_LANCZOS)
-		sheet.blit_rect(frame, Rect2i(Vector2i.ZERO, cell_size), Vector2i((index % columns) * cell_size.x, (index / columns) * cell_size.y))
+		var fitted_size := Vector2i(cell_size.x, int(round(float(cell_size.x) / float(RESOLUTION.x) * float(RESOLUTION.y))))
+		if fitted_size.y > cell_size.y:
+			fitted_size = Vector2i(int(round(float(cell_size.y) / float(RESOLUTION.y) * float(RESOLUTION.x))), cell_size.y)
+		frame.resize(fitted_size.x, fitted_size.y, Image.INTERPOLATE_LANCZOS)
+		var cell_origin := Vector2i((index % columns) * cell_size.x, (index / columns) * cell_size.y)
+		var destination := cell_origin + (cell_size - fitted_size) / 2
+		sheet.blit_rect(frame, Rect2i(Vector2i.ZERO, fitted_size), destination)
 	var error: Error = sheet.save_png(ProjectSettings.globalize_path("%s/%s" % [_output_dir, file_name]))
 	if error != OK:
 		_fail("Enemy death proof should save its contact sheet")

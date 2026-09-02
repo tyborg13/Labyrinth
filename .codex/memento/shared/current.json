@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T03:25:12Z",
+  "updated_at": "2026-09-02T04:16:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9898,7 +9898,7 @@
       }
     },
     {
-      "id": "mnt_20260902T032512Z_436b744f",
+      "id": "mnt_20260902T041600Z_ff0719f5",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -9907,18 +9907,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Enemy deaths use one silhouette-driven procedural shadow dissolve; player death remains authored.",
-      "details": "Runtime enemy deaths no longer load or select per-enemy _death sheets. CombatBoardView feeds the enemy's idle-frame silhouette into EnemyShadowDissolveEffect, which preserves native framing while the shader drives inward violet-black takeover, coherent breakup, a grounded shadow pool, and silhouette-derived wisps; reduced motion removes drift. The player's terminal defeat still uses the authored 16-frame same-stem collapse sheet.",
+      "summary": "Enemy deaths hand directly from lethal contact into a silhouette-only procedural dissolve.",
+      "details": "When player attack feedback begins drawing a resolved zero-HP state, RunScene must composite death frame zero during the attack tail so the enemy never disappears and reappears before dissolution. EnemyShadowDissolveEffect transforms only the source silhouette: it does not synthesize a floor pool, and the ordinary actor contact shadow fades before the body becomes umbral. Runtime sampling uses 28 frames at 0.037 seconds (about the same one-second duration); reduced motion removes drift. Player terminal death remains authored.",
       "status": "active",
-      "created_at": "2026-09-02T03:25:12Z",
-      "updated_at": "2026-09-02T03:25:12Z",
+      "created_at": "2026-09-02T04:16:00Z",
+      "updated_at": "2026-09-02T04:16:00Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260831T173056Z_8dcfcabe"
+        "mnt_20260902T032512Z_436b744f"
       ],
       "source": {
         "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
-        "commit": "4f8bf2da"
+        "commit": "632fdd9e"
       }
     }
   ]
