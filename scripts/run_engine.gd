@@ -9,6 +9,7 @@ const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
+const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
@@ -844,6 +845,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 			if _equipment_drop_can_attempt(next_state, room):
 				next_state = _record_equipment_drop_attempt(next_state, layout)
 			var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
+			combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
 			next_state["combat_state"] = combat_state
 			next_state["mode"] = "combat"
 	return next_state
@@ -911,6 +913,7 @@ func pre_battle_preview_state(run_state: Dictionary) -> Dictionary:
 	var travel_dir: Vector2i = next_state.get("pre_battle_travel_dir", Vector2i.ZERO)
 	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
 	var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
+	combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
 	next_state["combat_state"] = combat_state
 	next_state["mode"] = "combat"
 	return next_state
@@ -975,6 +978,7 @@ func begin_pre_battle_combat(run_state: Dictionary) -> Dictionary:
 	if _equipment_drop_can_attempt(next_state, room):
 		next_state = _record_equipment_drop_attempt(next_state, layout)
 	var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
+	combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
 	next_state["combat_state"] = combat_state
 	next_state["mode"] = "combat"
 	_clear_pre_battle_state(next_state)

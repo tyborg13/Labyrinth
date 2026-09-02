@@ -41,6 +41,7 @@ const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const CardActionContextArt = preload("res://scripts/card_action_context_art.gd")
 const PreBattlePortraitEdgeMaterial = preload("res://scripts/pre_battle_portrait_edge_material.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
@@ -1654,8 +1655,6 @@ var _guided_tutorial_phase_id: String = ""
 var _guided_tutorial_pass_pending: bool = false
 var _guided_tutorial_started_logged: bool = false
 var _guided_tutorial_intent_enemy_tile: Vector2i = INVALID_TARGET_TILE
-var _guided_tutorial_replay_button: Button
-var _guided_tutorial_skip_button: Button
 var _action_context_command_bar: HBoxContainer
 var _action_context_connector: ColorRect
 var _action_step_tracker_position_locked: bool = false
@@ -2107,9 +2106,7 @@ func _input(event: InputEvent) -> void:
 			return
 		_set_show_all_enemy_intents(not _show_all_enemy_intents)
 		if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
-			var visible_enemy_tiles: Array[Vector2i] = _guided_tutorial_visible_enemy_tiles()
-			if not visible_enemy_tiles.is_empty():
-				_on_board_tile_hovered(visible_enemy_tiles[0])
+			_on_board_tile_hovered(GuidedCombatScenario.target_tile(_combat_state))
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_cancel"):
@@ -2270,7 +2267,7 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_TOGGLE):
 		if _guided_tutorial_hard_gate_active():
-			if _guided_tutorial_phase_id in [ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY]:
+			if _guided_tutorial_card_selection_phases().has(_guided_tutorial_phase_id):
 				_controller_region = "hand"
 				_controller_set_hand_focused(true)
 				var guided_indices: Array[int] = _guided_tutorial_playable_card_indices()
@@ -2505,7 +2502,7 @@ func _controller_cycle_hand(direction: int) -> void:
 	_controller_region = "hand"
 	if (
 		_guided_tutorial_hard_gate_active()
-		and _guided_tutorial_phase_id in [ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY]
+		and _guided_tutorial_card_selection_phases().has(_guided_tutorial_phase_id)
 	):
 		var guided_indices: Array[int] = _guided_tutorial_playable_card_indices()
 		if guided_indices.is_empty():
@@ -2525,7 +2522,7 @@ func _controller_set_hand_index(index: int) -> void:
 	var clamped_index: int = clampi(index, 0, hand.size() - 1)
 	if (
 		_guided_tutorial_hard_gate_active()
-		and _guided_tutorial_phase_id in [ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY]
+		and _guided_tutorial_card_selection_phases().has(_guided_tutorial_phase_id)
 	):
 		var guided_indices: Array[int] = _guided_tutorial_playable_card_indices()
 		if not guided_indices.is_empty() and not guided_indices.has(clamped_index):
@@ -3178,7 +3175,7 @@ func _refresh_controller_prompts() -> void:
 	var prompts: Array = []
 	if _guided_tutorial_hard_gate_active():
 		match _guided_tutorial_phase_id:
-			ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY:
+			ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, ContextualCombatTutorial.PHASE_SELECT_KILL_CARD, ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD:
 				prompts = [
 					{"action": InputRouterScript.ACTION_ACCEPT, "label": "Preview"},
 					{"action": InputRouterScript.ACTION_HAND_BUMPERS, "label": "Cards"},
@@ -3194,7 +3191,7 @@ func _refresh_controller_prompts() -> void:
 					{"action": InputRouterScript.ACTION_PASS, "label": "Pass"},
 					{"action": InputRouterScript.ACTION_MENU, "label": "Menu"},
 				]
-			ContextualCombatTutorial.PHASE_CONFIRM_INTENT, ContextualCombatTutorial.PHASE_TURN_CLOCK, ContextualCombatTutorial.PHASE_CORE_COMPLETE, ContextualCombatTutorial.PHASE_COMPLETE:
+			ContextualCombatTutorial.PHASE_CONFIRM_INTENT, ContextualCombatTutorial.PHASE_CARD_PLAYS, ContextualCombatTutorial.PHASE_FIRST_PLAY, ContextualCombatTutorial.PHASE_KILL_REFUND, ContextualCombatTutorial.PHASE_TURN_CLOCK, ContextualCombatTutorial.PHASE_CORE_COMPLETE, ContextualCombatTutorial.PHASE_COMPLETE:
 				prompts = [
 					{"action": InputRouterScript.ACTION_ACCEPT, "label": "Continue"},
 					{"action": &"controller_dpad", "label": "Navigate"},
@@ -6188,8 +6185,6 @@ func _build_menu_overlay() -> void:
 	for entry: Dictionary in [
 		{"text": "Character", "callback": Callable(self, "_on_character_pressed")},
 		{"text": "Grimoire", "callback": Callable(self, "_on_grimoire_button_pressed")},
-		{"id": "guided_replay", "text": "Replay Guided Tutorial", "callback": Callable(self, "_on_guided_tutorial_replay_pressed")},
-		{"id": "guided_skip", "text": "Skip Guided Tutorial", "callback": Callable(self, "_on_guided_tutorial_skip_pressed")},
 		{"text": "Settings", "callback": Callable(self, "_open_settings_overlay")},
 		{"text": "Exit to Desktop", "callback": Callable(self, "_on_exit_to_desktop_pressed")},
 		{"text": "Save and Quit", "callback": Callable(self, "_on_save_and_quit_pressed")},
@@ -6205,13 +6200,7 @@ func _build_menu_overlay() -> void:
 		_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, MENU_DIALOG_BUTTON_MIN_WIDTH, true, variant)
 		button.pressed.connect(entry.get("callback", Callable()))
 		vbox.add_child(button)
-		match str(entry.get("id", "")):
-			"guided_replay":
-				_guided_tutorial_replay_button = button
-			"guided_skip":
-				_guided_tutorial_skip_button = button
 	_ui_skin.apply_outer_panel_frame(_menu_dialog, UiSkin.SURFACE_DIALOG)
-	_refresh_guided_tutorial_menu_controls()
 
 func _build_grimoire_overlay() -> void:
 	_grimoire_scrim = ColorRect.new()
@@ -8560,8 +8549,8 @@ func _guided_tutorial_reconcile_phase() -> void:
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_INSPECT_ENEMY
 	elif _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CANCEL_CARD and _selected_card_index < 0 and not _animation_lock:
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL
-	elif _guided_tutorial_phase_id in [ContextualCombatTutorial.PHASE_SELECT_TARGET, ContextualCombatTutorial.PHASE_FINISH_CARD] and _selected_card_index < 0 and not _animation_lock:
-		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY
+	elif (_guided_tutorial_target_phases().has(_guided_tutorial_phase_id) or _guided_tutorial_finish_phases().has(_guided_tutorial_phase_id)) and _selected_card_index < 0 and not _animation_lock:
+		_guided_tutorial_phase_id = _guided_tutorial_next_card_selection_phase()
 	if not _guided_tutorial_phase_id.is_empty():
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
@@ -8570,10 +8559,20 @@ func _guided_tutorial_reconcile_phase() -> void:
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_PLAYER if player_turn else ""
 	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_INTENT):
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_INSPECT_ENEMY if player_turn else ""
+	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_PLAYS):
+		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_CARD_PLAYS if player_turn else ""
 	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_CANCEL):
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL if player_turn else ""
-	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_CARD):
-		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY if player_turn else ""
+	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_FIRST_CARD):
+		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD if player_turn else ""
+	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_FIRST_PLAY):
+		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_FIRST_PLAY if player_turn else ""
+	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_KILL_CARD):
+		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_KILL_CARD if player_turn else ""
+	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_KILL_REFUND):
+		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_KILL_REFUND if player_turn else ""
+	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_REFUND_CARD):
+		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD if player_turn else ""
 	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_CLOCK):
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_TURN_CLOCK if player_turn else ""
 	elif not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_PASS):
@@ -8589,6 +8588,44 @@ func _guided_tutorial_reconcile_phase() -> void:
 
 func _guided_tutorial_is_active() -> bool:
 	return not _is_debug_boss_run() and ContextualCombatTutorial.is_active(_progression)
+
+func _guided_tutorial_card_selection_phases() -> Array[String]:
+	return [
+		ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL,
+		ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD,
+		ContextualCombatTutorial.PHASE_SELECT_KILL_CARD,
+		ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD,
+	]
+
+func _guided_tutorial_target_phases() -> Array[String]:
+	return [
+		ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET,
+		ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET,
+	]
+
+func _guided_tutorial_finish_phases() -> Array[String]:
+	return [
+		ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD,
+		ContextualCombatTutorial.PHASE_FINISH_KILL_CARD,
+		ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD,
+	]
+
+func _guided_tutorial_next_card_selection_phase() -> String:
+	if not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_FIRST_CARD):
+		return ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD
+	if not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_KILL_CARD):
+		return ContextualCombatTutorial.PHASE_SELECT_KILL_CARD
+	return ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD
+
+func _guided_tutorial_expected_card_id(phase_id: String = "") -> String:
+	var phase: String = _guided_tutorial_phase_id if phase_id.is_empty() else phase_id
+	if phase in [ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_CANCEL_CARD, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD]:
+		return GuidedCombatScenario.expected_card_id(_combat_state, "preview")
+	if phase in [ContextualCombatTutorial.PHASE_SELECT_KILL_CARD, ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET, ContextualCombatTutorial.PHASE_FINISH_KILL_CARD]:
+		return GuidedCombatScenario.expected_card_id(_combat_state, "kill")
+	if phase in [ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD, ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD]:
+		return GuidedCombatScenario.expected_card_id(_combat_state, "refund")
+	return ""
 
 func _guided_tutorial_log_started_once() -> void:
 	if _guided_tutorial_started_logged or not _guided_tutorial_is_active():
@@ -8612,6 +8649,8 @@ func _guided_tutorial_phase_displayable(phase_id: String) -> bool:
 		return mode == "room" and not _exit_destinations_by_tile.is_empty()
 	if phase_id == ContextualCombatTutorial.PHASE_COMPLETE:
 		return mode in ["combat", "room", RunEngineScript.MODE_PRE_BATTLE]
+	if mode == "combat" and not GuidedCombatScenario.is_authored(_combat_state):
+		return false
 	var player_turn: bool = (
 		mode == "combat"
 		and not _combat_state.is_empty()
@@ -8629,6 +8668,9 @@ func _guided_tutorial_phase_displayable(phase_id: String) -> bool:
 
 func _guided_tutorial_phase_requires_spotlight(phase_id: String) -> bool:
 	return phase_id not in [
+		ContextualCombatTutorial.PHASE_CARD_PLAYS,
+		ContextualCombatTutorial.PHASE_FIRST_PLAY,
+		ContextualCombatTutorial.PHASE_KILL_REFUND,
 		ContextualCombatTutorial.PHASE_CORE_COMPLETE,
 		ContextualCombatTutorial.PHASE_COMPLETE,
 	]
@@ -8658,9 +8700,9 @@ func _guided_tutorial_prepare_controller_focus() -> void:
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
 		_controller_region = "board"
 		_controller_set_hand_focused(false)
-		_controller_clear_focus_candidate()
+		_controller_set_board_tile(GuidedCombatScenario.target_tile(_combat_state))
 		return
-	if _guided_tutorial_phase_id in [ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY]:
+	if _guided_tutorial_card_selection_phases().has(_guided_tutorial_phase_id):
 		var guided_indices: Array[int] = _guided_tutorial_playable_card_indices()
 		if guided_indices.is_empty():
 			return
@@ -8698,14 +8740,14 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 		ContextualCombatTutorial.PHASE_SELECT_PLAYER:
 			_guided_tutorial_append_tile_rect(rects, _guided_tutorial_player_tile())
 		ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
-			for tile: Vector2i in _player_movement_target_tiles:
-				_guided_tutorial_append_tile_rect(rects, tile)
+			_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.move_tile(_combat_state))
 		ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
-			for tile: Vector2i in _guided_tutorial_visible_enemy_tiles():
-				_guided_tutorial_append_tile_rect(rects, tile)
+			_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.target_tile(_combat_state))
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
 			_guided_tutorial_append_tile_rect(rects, _guided_tutorial_intent_enemy_tile)
-		ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY:
+		ContextualCombatTutorial.PHASE_CARD_PLAYS, ContextualCombatTutorial.PHASE_FIRST_PLAY, ContextualCombatTutorial.PHASE_KILL_REFUND:
+			_guided_tutorial_append_control_rect(rects, _play_meter, 8.0)
+		ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, ContextualCombatTutorial.PHASE_SELECT_KILL_CARD, ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD:
 			for index: int in _guided_tutorial_playable_card_indices():
 				var card_control: Control = _hand_card_control(index)
 				if card_control != null and card_control.visible:
@@ -8718,13 +8760,12 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 				var selected_card: Control = _hand_card_control(_selected_card_index)
 				if selected_card != null:
 					rects.append(_control_visual_global_rect(selected_card).grow(5.0))
-		ContextualCombatTutorial.PHASE_SELECT_TARGET, ContextualCombatTutorial.PHASE_FINISH_CARD:
+		ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD, ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET, ContextualCombatTutorial.PHASE_FINISH_KILL_CARD, ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD:
 			if _pending_card_requires_confirmation():
 				var confirmation_player: Vector2i = (_preview_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
 				_guided_tutorial_append_tile_rect(rects, confirmation_player)
 			else:
-				for tile: Vector2i in _pending_target_tiles:
-					_guided_tutorial_append_tile_rect(rects, tile)
+				_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.target_tile(_combat_state))
 			if _current_action_can_skip():
 				var skip_button: Button = _guided_tutorial_find_button(_action_step_tracker, "Skip")
 				if skip_button != null:
@@ -8811,12 +8852,25 @@ func _guided_tutorial_visible_enemy_tiles() -> Array[Vector2i]:
 				result.append(tile)
 	return result
 
+func _guided_tutorial_target_is_defeated(state: Dictionary) -> bool:
+	var target_id: int = GuidedCombatScenario.target_enemy_id(state)
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if int(enemy.get("id", -1)) == target_id:
+			return int(enemy.get("hp", 0)) <= 0
+	return false
+
 func _guided_tutorial_playable_card_indices() -> Array[int]:
 	var result: Array[int]
 	if _combat_state.is_empty() or _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
 		return result
 	var hand: Array = ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	var expected_card_id: String = _guided_tutorial_expected_card_id()
 	for index: int in range(hand.size()):
+		if not expected_card_id.is_empty() and str(hand[index]) != expected_card_id:
+			continue
 		var options: Dictionary = _card_play_options_for_index(index)
 		if bool(options.get("printed_playable", false)):
 			result.append(index)
@@ -8852,17 +8906,17 @@ func _guided_tutorial_allowed_board_tiles() -> Array[Vector2i]:
 		ContextualCombatTutorial.PHASE_SELECT_PLAYER:
 			result.append(_guided_tutorial_player_tile())
 		ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
-			result = _vector2i_array(_player_movement_target_tiles)
+			result = _vector2i_array([GuidedCombatScenario.move_tile(_combat_state)])
 		ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
-			result = _guided_tutorial_visible_enemy_tiles()
+			result = _vector2i_array([GuidedCombatScenario.target_tile(_combat_state)])
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
 			if _guided_tutorial_intent_enemy_tile != INVALID_TARGET_TILE:
 				result.append(_guided_tutorial_intent_enemy_tile)
-		ContextualCombatTutorial.PHASE_SELECT_TARGET, ContextualCombatTutorial.PHASE_FINISH_CARD:
+		ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD, ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET, ContextualCombatTutorial.PHASE_FINISH_KILL_CARD, ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD:
 			if _pending_card_requires_confirmation():
 				result.append((_preview_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE))
 			else:
-				result = _vector2i_array(_pending_target_tiles)
+				result = _vector2i_array([GuidedCombatScenario.target_tile(_combat_state)])
 		ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 			result = _vector2i_array(_exit_destinations_by_tile.keys())
 	return result
@@ -8873,13 +8927,7 @@ func _guided_tutorial_board_tile_allowed(tile: Vector2i) -> bool:
 func _guided_tutorial_card_allowed(index: int) -> bool:
 	if not _guided_tutorial_hard_gate_active():
 		return true
-	return (
-		_guided_tutorial_phase_id in [
-			ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL,
-			ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY,
-		]
-		and _guided_tutorial_playable_card_indices().has(index)
-	)
+	return _guided_tutorial_card_selection_phases().has(_guided_tutorial_phase_id) and _guided_tutorial_playable_card_indices().has(index)
 
 func _guided_tutorial_reject(message: String = "Follow the highlighted action.") -> void:
 	if _contextual_combat_prompt != null:
@@ -8918,7 +8966,16 @@ func _on_contextual_combat_prompt_completed(prompt_id: String) -> void:
 	match prompt_id:
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
 			_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_INTENT)
+			_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_CARD_PLAYS)
+		ContextualCombatTutorial.PHASE_CARD_PLAYS:
+			_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_PLAYS)
 			_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL)
+		ContextualCombatTutorial.PHASE_FIRST_PLAY:
+			_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_FIRST_PLAY)
+			_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_SELECT_KILL_CARD)
+		ContextualCombatTutorial.PHASE_KILL_REFUND:
+			_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_KILL_REFUND)
+			_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD)
 		ContextualCombatTutorial.PHASE_TURN_CLOCK:
 			_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_CLOCK)
 			_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_PASS_TURN)
@@ -10240,7 +10297,9 @@ func _start_run() -> void:
 	_progression = ProgressionStore.prepare_for_new_run(ProgressionStore.load_data())
 	ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
-	var new_run_state: Dictionary = _ensure_run_analytics_metadata(_run_engine.create_new_run(_new_seed(), _progression))
+	var new_run_state: Dictionary = _run_engine.create_new_run(_new_seed(), _progression)
+	new_run_state = GuidedCombatScenario.mark_run_eligible(new_run_state)
+	new_run_state = _ensure_run_analytics_metadata(new_run_state)
 	_load_run_state(new_run_state)
 	_analytics_log_run_started()
 	_persist_committed_boundary("run_started")
@@ -19163,12 +19222,15 @@ func _on_card_pressed(index: int) -> void:
 		await _begin_card_preview(index, options.get("play", {}) as Dictionary)
 		if tutorial_phase_before == ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL and _selected_card_index >= 0:
 			_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_CANCEL_CARD)
-		elif tutorial_phase_before == ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY and _selected_card_index >= 0:
-			_guided_tutorial_set_phase(
-				ContextualCombatTutorial.PHASE_FINISH_CARD
-				if _pending_card_requires_confirmation()
-				else ContextualCombatTutorial.PHASE_SELECT_TARGET
-			)
+		elif _guided_tutorial_card_selection_phases().has(tutorial_phase_before) and _selected_card_index >= 0:
+			var target_phase: String = ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET
+			var finish_phase: String = ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD
+			if tutorial_phase_before == ContextualCombatTutorial.PHASE_SELECT_KILL_CARD:
+				target_phase = ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET
+				finish_phase = ContextualCombatTutorial.PHASE_FINISH_KILL_CARD
+			elif tutorial_phase_before == ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD:
+				finish_phase = ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD
+			_guided_tutorial_set_phase(finish_phase if _pending_card_requires_confirmation() else target_phase)
 
 func _on_card_drag_started(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
@@ -19313,6 +19375,7 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 	_hovered_board_tile = presented_tile
 	if (
 		_guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_INSPECT_ENEMY
+		and presented_tile == GuidedCombatScenario.target_tile(_combat_state)
 		and _hovered_tile_has_visible_enemy(presented_tile)
 	):
 		_guided_tutorial_intent_enemy_tile = presented_tile
@@ -19444,8 +19507,10 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		preview_action_type = str((preview.get("action", {}) as Dictionary).get("type", ""))
 	if not _pending_target_tiles.has(tile) and shortcut_plan.is_empty():
 		return
-	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_SELECT_TARGET:
-		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_FINISH_CARD, false)
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET:
+		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD, false)
+	elif _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET:
+		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_FINISH_KILL_CARD, false)
 	if not shortcut_plan.is_empty():
 		await _on_pending_shortcut_clicked(tile, shortcut_plan)
 		return
@@ -19602,9 +19667,7 @@ func _on_enemy_intent_toggle_toggled(enabled: bool) -> void:
 		return
 	_set_show_all_enemy_intents(enabled)
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
-		var visible_enemy_tiles: Array[Vector2i] = _guided_tutorial_visible_enemy_tiles()
-		if not visible_enemy_tiles.is_empty():
-			_on_board_tile_hovered(visible_enemy_tiles[0])
+		_on_board_tile_hovered(GuidedCombatScenario.target_tile(_combat_state))
 
 func _refresh_enemy_intent_toggle() -> void:
 	if _enemy_intent_toggle_button == null:
@@ -19700,7 +19763,7 @@ func _cancel_card_selection() -> void:
 	_refresh_card_preview_ui()
 	if completes_tutorial_cancel:
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_CANCEL)
-		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_SELECT_CARD_TO_PLAY)
+		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD)
 
 func _begin_player_movement_selection() -> void:
 	if (
@@ -19747,7 +19810,7 @@ func _current_action_can_skip() -> bool:
 func _on_skip_action_pressed() -> void:
 	if _animation_lock or not _current_action_can_skip():
 		return
-	if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_FINISH_CARD:
+	if _guided_tutorial_hard_gate_active() and not _guided_tutorial_finish_phases().has(_guided_tutorial_phase_id):
 		_guided_tutorial_reject()
 		return
 	var previous_action_index: int = _pending_action_index
@@ -19970,6 +20033,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var card_id: String = _card_id_for_hand_index(hand_index)
+	var guided_commit_phase: String = _guided_tutorial_phase_id
 	var source_rect: Rect2 = _hand_card_global_rect(hand_index)
 	var card_size: Vector2 = source_rect.size if source_rect.size.length() > 0.0 else _hand_card_size(5, false)
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
@@ -20027,15 +20091,25 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, committed_combat_state, actions, selected_targets)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
-	if (
-		_guided_tutorial_is_active()
-		and _guided_tutorial_phase_id in [
-			ContextualCombatTutorial.PHASE_SELECT_TARGET,
-			ContextualCombatTutorial.PHASE_FINISH_CARD,
-		]
-	):
-		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_CARD)
-		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_TURN_CLOCK, false)
+	if _guided_tutorial_is_active():
+		match guided_commit_phase:
+			ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD:
+				if card_id == GuidedCombatScenario.PREVIEW_CARD_ID and _combat_engine.cards_remaining_this_turn(_combat_state) == 1:
+					_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_FIRST_CARD)
+					_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_FIRST_PLAY, false)
+			ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET, ContextualCombatTutorial.PHASE_FINISH_KILL_CARD:
+				if (
+					card_id == GuidedCombatScenario.KILL_CARD_ID
+					and _guided_tutorial_target_is_defeated(_combat_state)
+					and int(_combat_state.get("death_bonus_card_plays_this_turn", 0)) > int(previous_combat_state.get("death_bonus_card_plays_this_turn", 0))
+					and _combat_engine.cards_remaining_this_turn(_combat_state) == 1
+				):
+					_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_KILL_CARD)
+					_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_KILL_REFUND, false)
+			ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD:
+				if card_id == GuidedCombatScenario.REFUND_CARD_ID and _combat_engine.cards_remaining_this_turn(_combat_state) == 0:
+					_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_REFUND_CARD)
+					_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_TURN_CLOCK, false)
 	_animating_hand_card_index = -1
 	_card_play_count_override = -1
 	_card_play_resolution_spend = 0
@@ -20049,6 +20123,11 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		_animation_lock = false
 		_refresh_ui()
 	await _maybe_auto_pass_exhausted_player_turn()
+	# The resolution pipeline performs several animation-lock refreshes before the
+	# authored post-card lesson exists. Re-assert the final phase after all card
+	# proxy/hand cleanup so a stale deferred lock refresh cannot leave it hidden.
+	_refresh_contextual_combat_tutorial()
+	call_deferred("_refresh_contextual_combat_tutorial")
 
 func _card_destination_pile(card_id: String) -> String:
 	if GameData.card_consumes_on_play(card_id):
@@ -23759,7 +23838,6 @@ func _open_menu_overlay() -> void:
 		_settings_panel.visible = false
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
-	_refresh_guided_tutorial_menu_controls()
 	_menu_scrim.visible = true
 	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
@@ -23773,24 +23851,6 @@ func _close_menu_overlay() -> void:
 		_menu_dialog.visible = true
 	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
-
-func _refresh_guided_tutorial_menu_controls() -> void:
-	if _guided_tutorial_replay_button != null:
-		_guided_tutorial_replay_button.text = (
-			"Restart Guided Tutorial"
-			if ContextualCombatTutorial.is_active(_progression)
-			else "Replay Guided Tutorial"
-		)
-	if _guided_tutorial_skip_button != null:
-		_guided_tutorial_skip_button.visible = ContextualCombatTutorial.is_active(_progression)
-
-func _on_guided_tutorial_replay_pressed() -> void:
-	_close_menu_overlay()
-	_guided_tutorial_restart()
-
-func _on_guided_tutorial_skip_pressed() -> void:
-	_close_menu_overlay()
-	_guided_tutorial_dismiss()
 
 func _open_settings_overlay() -> void:
 	if _menu_scrim == null or _settings_panel == null:

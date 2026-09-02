@@ -81,6 +81,10 @@ phase and completed count so onboarding drop-off can be diagnosed without
 logging hover or other high-frequency input. Completion and replay record the
 tutorial version. These events never rename or replace combat-action events;
 movement, card, reward, and room choices continue to emit their normal records.
+Version 2 milestones include the authored first-combat sequence: the two-play
+counter acknowledgement, Bone Dart setup, Quick Stab kill, observed kill refund,
+and Brace spending that refunded play. Their normal `card_played` records remain
+the source of truth for damage and `death_bonus_card_plays_gained`.
 
 `run_started` includes the compiled starting deck plus the equipment model used
 to build it: `reward_cards`, `equipped_equipment`, `equipment_inventory`, and

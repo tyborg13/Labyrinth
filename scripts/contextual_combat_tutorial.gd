@@ -8,7 +8,7 @@ class_name ContextualCombatTutorial
 
 const PROGRESSION_KEY: String = "guided_combat_tutorial"
 const LEGACY_PROGRESSION_KEY: String = "combat_micro_prompt_states"
-const VERSION: int = 1
+const VERSION: int = 2
 
 const STATUS_ACTIVE: String = "active"
 const STATUS_COMPLETED: String = "completed"
@@ -18,8 +18,16 @@ const STATUS_SKIPPED: String = STATUS_DISMISSED
 
 const MILESTONE_MOVE: String = "move_committed"
 const MILESTONE_INTENT: String = "enemy_intent_read"
+const MILESTONE_PLAYS: String = "card_plays_read"
 const MILESTONE_CANCEL: String = "card_preview_cancelled"
-const MILESTONE_CARD: String = "card_committed"
+const MILESTONE_FIRST_CARD: String = "first_card_committed"
+const MILESTONE_FIRST_PLAY: String = "first_card_play_read"
+const MILESTONE_KILL_CARD: String = "kill_card_committed"
+const MILESTONE_KILL_REFUND: String = "kill_refund_read"
+const MILESTONE_REFUND_CARD: String = "refund_card_committed"
+# Compatibility name for fixtures that treated the first committed card as the
+# entire card lesson in tutorial version 1.
+const MILESTONE_CARD: String = MILESTONE_FIRST_CARD
 const MILESTONE_CLOCK: String = "turn_clock_read"
 const MILESTONE_PASS: String = "turn_passed"
 const MILESTONE_CORE: String = "combat_rhythm_learned"
@@ -29,8 +37,13 @@ const MILESTONE_PATH: String = "path_chosen"
 const MILESTONE_ORDER: Array = [
 	MILESTONE_MOVE,
 	MILESTONE_INTENT,
+	MILESTONE_PLAYS,
 	MILESTONE_CANCEL,
-	MILESTONE_CARD,
+	MILESTONE_FIRST_CARD,
+	MILESTONE_FIRST_PLAY,
+	MILESTONE_KILL_CARD,
+	MILESTONE_KILL_REFUND,
+	MILESTONE_REFUND_CARD,
 	MILESTONE_CLOCK,
 	MILESTONE_PASS,
 	MILESTONE_CORE,
@@ -42,11 +55,23 @@ const PHASE_SELECT_PLAYER: String = "select_player"
 const PHASE_CHOOSE_MOVE: String = "choose_move"
 const PHASE_INSPECT_ENEMY: String = "inspect_enemy"
 const PHASE_CONFIRM_INTENT: String = "confirm_enemy_intent"
+const PHASE_CARD_PLAYS: String = "card_plays"
 const PHASE_SELECT_CARD_FOR_CANCEL: String = "select_card_for_cancel"
 const PHASE_CANCEL_CARD: String = "cancel_card_preview"
-const PHASE_SELECT_CARD_TO_PLAY: String = "select_card_to_play"
-const PHASE_SELECT_TARGET: String = "select_target"
-const PHASE_FINISH_CARD: String = "finish_card"
+const PHASE_SELECT_FIRST_CARD: String = "select_first_card"
+const PHASE_SELECT_FIRST_TARGET: String = "select_first_target"
+const PHASE_FINISH_FIRST_CARD: String = "finish_first_card"
+const PHASE_FIRST_PLAY: String = "first_play_spent"
+const PHASE_SELECT_KILL_CARD: String = "select_kill_card"
+const PHASE_SELECT_KILL_TARGET: String = "select_kill_target"
+const PHASE_FINISH_KILL_CARD: String = "finish_kill_card"
+const PHASE_KILL_REFUND: String = "kill_refund"
+const PHASE_SELECT_REFUND_CARD: String = "select_refund_card"
+const PHASE_FINISH_REFUND_CARD: String = "finish_refund_card"
+# Compatibility aliases for older diagnostics.
+const PHASE_SELECT_CARD_TO_PLAY: String = PHASE_SELECT_FIRST_CARD
+const PHASE_SELECT_TARGET: String = PHASE_SELECT_FIRST_TARGET
+const PHASE_FINISH_CARD: String = PHASE_FINISH_FIRST_CARD
 const PHASE_TURN_CLOCK: String = "turn_clock"
 const PHASE_PASS_TURN: String = "pass_turn"
 const PHASE_CORE_COMPLETE: String = "core_complete"
@@ -58,7 +83,7 @@ const PHASE_COMPLETE: String = "complete"
 # parse while they migrate to the guided curriculum.
 const FULL_CARD_FALLBACK: String = PHASE_SELECT_PLAYER
 const TIMELINE_READING: String = PHASE_TURN_CLOCK
-const SELECT_TARGET: String = PHASE_SELECT_TARGET
+const SELECT_TARGET: String = PHASE_SELECT_FIRST_TARGET
 const CANCEL_OPTIONAL: String = PHASE_CANCEL_CARD
 const PASS_CONSEQUENCE: String = PHASE_PASS_TURN
 
@@ -67,11 +92,19 @@ const PHASE_ORDER: Array = [
 	PHASE_CHOOSE_MOVE,
 	PHASE_INSPECT_ENEMY,
 	PHASE_CONFIRM_INTENT,
+	PHASE_CARD_PLAYS,
 	PHASE_SELECT_CARD_FOR_CANCEL,
 	PHASE_CANCEL_CARD,
-	PHASE_SELECT_CARD_TO_PLAY,
-	PHASE_SELECT_TARGET,
-	PHASE_FINISH_CARD,
+	PHASE_SELECT_FIRST_CARD,
+	PHASE_SELECT_FIRST_TARGET,
+	PHASE_FINISH_FIRST_CARD,
+	PHASE_FIRST_PLAY,
+	PHASE_SELECT_KILL_CARD,
+	PHASE_SELECT_KILL_TARGET,
+	PHASE_FINISH_KILL_CARD,
+	PHASE_KILL_REFUND,
+	PHASE_SELECT_REFUND_CARD,
+	PHASE_FINISH_REFUND_CARD,
 	PHASE_TURN_CLOCK,
 	PHASE_PASS_TURN,
 	PHASE_CORE_COMPLETE,
@@ -192,6 +225,179 @@ const PHASES: Dictionary = {
 	},
 }
 
+# Version 2 is deliberately authored rather than permissive. These definitions
+# replace the broad version-1 copy while retaining its ids as test aliases.
+const AUTHORED_PHASES: Dictionary = {
+	PHASE_SELECT_PLAYER: {
+		"id": PHASE_SELECT_PLAYER, "lesson": 1, "lesson_total": 10,
+		"icon": "move", "kicker": "MOVEMENT", "title": "Move the Wanderer",
+		"pointer_text": "Click the glowing Wanderer to plan a move.",
+		"controller_text": "Select the glowing Wanderer to plan a move.",
+		"controller_action": "controller_accept", "action_label": "Select", "attention_pulse": true,
+	},
+	PHASE_CHOOSE_MOVE: {
+		"id": PHASE_CHOOSE_MOVE, "lesson": 1, "lesson_total": 10,
+		"icon": "move", "kicker": "MOVEMENT", "title": "Take This Step",
+		"pointer_text": "Move onto the one glowing tile. You begin each turn with 2 movement.",
+		"controller_text": "Move onto the one glowing tile. You begin each turn with 2 movement.",
+		"controller_action": "controller_accept", "action_label": "Move", "attention_pulse": true,
+	},
+	PHASE_INSPECT_ENEMY: {
+		"id": PHASE_INSPECT_ENEMY, "lesson": 2, "lesson_total": 10,
+		"icon": "", "kicker": "ENEMY INTENT", "title": "Read the Crawler",
+		"pointer_text": "Point to the glowing crawler to reveal its next action.",
+		"controller_text": "Focus the glowing crawler to reveal its next action.",
+		"controller_action": "controller_move", "action_label": "Inspect", "attention_pulse": true,
+	},
+	PHASE_CONFIRM_INTENT: {
+		"id": PHASE_CONFIRM_INTENT, "lesson": 2, "lesson_total": 10,
+		"icon": "", "kicker": "ENEMY INTENT", "title": "The Enemy's Plan",
+		"pointer_text": "This preview shows what the crawler will do when its turn arrives.",
+		"controller_text": "This preview shows what the crawler will do when its turn arrives.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Continue",
+	},
+	PHASE_CARD_PLAYS: {
+		"id": PHASE_CARD_PLAYS, "lesson": 3, "lesson_total": 10,
+		"icon": "card_play", "kicker": "CARD PLAYS", "title": "Two Plays Each Turn",
+		"pointer_text": "You normally get 2 card plays each turn. The counter tracks what remains.",
+		"controller_text": "You normally get 2 card plays each turn. The counter tracks what remains.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Continue",
+	},
+	PHASE_SELECT_CARD_FOR_CANCEL: {
+		"id": PHASE_SELECT_CARD_FOR_CANCEL, "lesson": 3, "lesson_total": 10,
+		"icon": "card_play", "kicker": "CARD PREVIEW", "title": "Plan Bone Dart",
+		"pointer_text": "Click the glowing Bone Dart. Nothing is spent while you preview it.",
+		"controller_text": "Select the glowing Bone Dart. Nothing is spent while you preview it.",
+		"controller_action": "controller_accept", "action_label": "Preview", "attention_pulse": true,
+	},
+	PHASE_CANCEL_CARD: {
+		"id": PHASE_CANCEL_CARD, "lesson": 3, "lesson_total": 10,
+		"icon": "", "kicker": "CARD PREVIEW", "title": "Change Your Mind",
+		"pointer_text": "Right-click, or use Cancel, to return Bone Dart safely.",
+		"controller_text": "Press Cancel to return Bone Dart safely.",
+		"controller_action": "controller_cancel", "action_label": "Cancel", "attention_pulse": true,
+	},
+	PHASE_SELECT_FIRST_CARD: {
+		"id": PHASE_SELECT_FIRST_CARD, "lesson": 4, "lesson_total": 10,
+		"icon": "card_play", "kicker": "FIRST PLAY", "title": "Play Bone Dart",
+		"pointer_text": "Click Bone Dart again. This time, you will commit the attack.",
+		"controller_text": "Select Bone Dart again. This time, you will commit the attack.",
+		"controller_action": "controller_accept", "action_label": "Play", "attention_pulse": true,
+	},
+	PHASE_SELECT_FIRST_TARGET: {
+		"id": PHASE_SELECT_FIRST_TARGET, "lesson": 4, "lesson_total": 10,
+		"icon": "", "kicker": "TARGETING", "title": "Aim at the Crawler",
+		"pointer_text": "Click the glowing crawler. Bone Dart will deal 6 damage.",
+		"controller_text": "Select the glowing crawler. Bone Dart will deal 6 damage.",
+		"controller_action": "controller_accept", "action_label": "Target", "attention_pulse": true,
+	},
+	PHASE_FINISH_FIRST_CARD: {
+		"id": PHASE_FINISH_FIRST_CARD, "lesson": 4, "lesson_total": 10,
+		"icon": "card_play", "kicker": "COMMIT", "title": "Release Bone Dart",
+		"pointer_text": "Confirm the glowing action to commit the card.",
+		"controller_text": "Confirm the glowing action to commit the card.",
+		"controller_action": "controller_accept", "action_label": "Resolve", "attention_pulse": true,
+	},
+	PHASE_FIRST_PLAY: {
+		"id": PHASE_FIRST_PLAY, "lesson": 4, "lesson_total": 10,
+		"icon": "card_play", "kicker": "CARD PLAYS", "title": "One Play Remains",
+		"pointer_text": "Bone Dart spent 1 card play. The counter has fallen from 2 to 1.",
+		"controller_text": "Bone Dart spent 1 card play. The counter has fallen from 2 to 1.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Continue",
+	},
+	PHASE_SELECT_KILL_CARD: {
+		"id": PHASE_SELECT_KILL_CARD, "lesson": 5, "lesson_total": 10,
+		"icon": "card_play", "kicker": "SECOND PLAY", "title": "Finish with Quick Stab",
+		"pointer_text": "Click the glowing Quick Stab. Your move put the crawler in reach.",
+		"controller_text": "Select the glowing Quick Stab. Your move put the crawler in reach.",
+		"controller_action": "controller_accept", "action_label": "Play", "attention_pulse": true,
+	},
+	PHASE_SELECT_KILL_TARGET: {
+		"id": PHASE_SELECT_KILL_TARGET, "lesson": 5, "lesson_total": 10,
+		"icon": "", "kicker": "LETHAL", "title": "Strike the Wounded Crawler",
+		"pointer_text": "Click the glowing crawler. Quick Stab deals the final 11 damage.",
+		"controller_text": "Select the glowing crawler. Quick Stab deals the final 11 damage.",
+		"controller_action": "controller_accept", "action_label": "Target", "attention_pulse": true,
+	},
+	PHASE_FINISH_KILL_CARD: {
+		"id": PHASE_FINISH_KILL_CARD, "lesson": 5, "lesson_total": 10,
+		"icon": "card_play", "kicker": "LETHAL", "title": "Commit Quick Stab",
+		"pointer_text": "Confirm the glowing action to defeat the crawler.",
+		"controller_text": "Confirm the glowing action to defeat the crawler.",
+		"controller_action": "controller_accept", "action_label": "Resolve", "attention_pulse": true,
+	},
+	PHASE_KILL_REFUND: {
+		"id": PHASE_KILL_REFUND, "lesson": 5, "lesson_total": 10,
+		"icon": "card_play", "kicker": "KILL REFUND", "title": "A Play Returns",
+		"pointer_text": "Defeating an enemy refunds 1 card play. You still have 1 to spend.",
+		"controller_text": "Defeating an enemy refunds 1 card play. You still have 1 to spend.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Use the Refund",
+	},
+	PHASE_SELECT_REFUND_CARD: {
+		"id": PHASE_SELECT_REFUND_CARD, "lesson": 6, "lesson_total": 10,
+		"icon": "card_play", "kicker": "REFUNDED PLAY", "title": "Play Brace",
+		"pointer_text": "Click the glowing Brace to spend the refunded play and gain 8 Block.",
+		"controller_text": "Select the glowing Brace to spend the refunded play and gain 8 Block.",
+		"controller_action": "controller_accept", "action_label": "Play", "attention_pulse": true,
+	},
+	PHASE_FINISH_REFUND_CARD: {
+		"id": PHASE_FINISH_REFUND_CARD, "lesson": 6, "lesson_total": 10,
+		"icon": "card_play", "kicker": "REFUNDED PLAY", "title": "Raise Your Guard",
+		"pointer_text": "Confirm the glowing action to gain 8 Block.",
+		"controller_text": "Confirm the glowing action to gain 8 Block.",
+		"controller_action": "controller_accept", "action_label": "Resolve", "attention_pulse": true,
+	},
+	PHASE_TURN_CLOCK: {
+		"id": PHASE_TURN_CLOCK, "lesson": 7, "lesson_total": 10,
+		"icon": "time", "kicker": "TURN CLOCK", "title": "Read the Turn Clock",
+		"pointer_text": "Card Time places your next turn. Lower Time means you act sooner.",
+		"controller_text": "Card Time places your next turn. Lower Time means you act sooner.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Continue",
+	},
+	PHASE_PASS_TURN: {
+		"id": PHASE_PASS_TURN, "lesson": 7, "lesson_total": 10,
+		"icon": "", "kicker": "END TURN", "title": "Let the Enemy Act",
+		"pointer_text": "Your actions are spent. Pass to let the remaining crawler take its turn.",
+		"controller_text": "Your actions are spent. Pass to let the remaining crawler take its turn.",
+		"controller_action": "controller_pass", "action_label": "Pass", "attention_pulse": true,
+	},
+	PHASE_CORE_COMPLETE: {
+		"id": PHASE_CORE_COMPLETE, "lesson": 8, "lesson_total": 10,
+		"icon": "", "kicker": "YOUR TURN", "title": "Now Fight Your Way",
+		"pointer_text": "You know the rhythm. Finish the remaining enemy however you choose.",
+		"controller_text": "You know the rhythm. Finish the remaining enemy however you choose.",
+		"controller_action": "controller_accept", "action_label": "Continue",
+		"requires_continue": true, "continue_text": "Finish the Fight",
+	},
+	PHASE_CHOOSE_REWARD: {
+		"id": PHASE_CHOOSE_REWARD, "lesson": 9, "lesson_total": 10,
+		"icon": "", "kicker": "COMBAT REWARD", "title": "Shape Your Deck",
+		"pointer_text": "Choose one card, or Skip & Recover to heal instead.",
+		"controller_text": "Choose one card, or Skip & Recover to heal instead.",
+		"controller_action": "controller_accept", "action_label": "Choose",
+	},
+	PHASE_CHOOSE_PATH: {
+		"id": PHASE_CHOOSE_PATH, "lesson": 10, "lesson_total": 10,
+		"icon": "move", "kicker": "CHOOSE A PATH", "title": "Enter the Next Chamber",
+		"pointer_text": "Select a glowing doorway. The map previews where each route leads.",
+		"controller_text": "Select a glowing doorway. The map previews where each route leads.",
+		"controller_action": "controller_accept", "action_label": "Travel",
+	},
+	PHASE_COMPLETE: {
+		"id": PHASE_COMPLETE, "lesson": 10, "lesson_total": 10,
+		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "The Way Is Yours",
+		"pointer_text": "You know the rhythm. The Umbra will teach the rest.",
+		"controller_text": "You know the rhythm. The Umbra will teach the rest.",
+		"controller_action": "controller_accept", "action_label": "Begin",
+		"requires_continue": true, "continue_text": "Begin",
+	},
+}
+
 static func default_state() -> Dictionary:
 	return {"version": VERSION, "status": STATUS_ACTIVE, "completed_steps": []}
 
@@ -202,6 +408,7 @@ static func normalized_state(value: Variant, fresh_profile: bool = false, legacy
 	if typeof(value) != TYPE_DICTIONARY:
 		return default_state() if fresh_profile and not legacy_notes_present else legacy_exempt_state()
 	var source: Dictionary = value as Dictionary
+	var source_version: int = int(source.get("version", 1))
 	var status: String = str(source.get("status", STATUS_ACTIVE if fresh_profile else STATUS_LEGACY_EXEMPT))
 	if status not in [STATUS_ACTIVE, STATUS_COMPLETED, STATUS_DISMISSED, STATUS_LEGACY_EXEMPT]:
 		status = STATUS_ACTIVE if fresh_profile else STATUS_LEGACY_EXEMPT
@@ -211,6 +418,11 @@ static func normalized_state(value: Variant, fresh_profile: bool = false, legacy
 			var step_id: String = str(step_var)
 			if MILESTONE_ORDER.has(step_id) and not completed.has(step_id):
 				completed.append(step_id)
+	# The authored scenario changes the meaning and ordering of every early
+	# action. An unfinished prototype-v1 guide restarts cleanly at its first rail;
+	# completed and dismissed profiles remain respected.
+	if source_version < VERSION and status == STATUS_ACTIVE:
+		completed.clear()
 	completed.sort_custom(func(a: String, b: String) -> bool: return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b))
 	if status == STATUS_COMPLETED:
 		completed = _typed_string_array(MILESTONE_ORDER)
@@ -315,7 +527,7 @@ static func merged_state(primary_progression: Dictionary, fallback_progression: 
 	}
 
 static func phase_definition(phase_id: String) -> Dictionary:
-	return (PHASES.get(phase_id, {}) as Dictionary).duplicate(true)
+	return (AUTHORED_PHASES.get(phase_id, PHASES.get(phase_id, {})) as Dictionary).duplicate(true)
 
 static func phase_ids() -> Array[String]:
 	return _typed_string_array(PHASE_ORDER)
@@ -331,8 +543,13 @@ static func prompt_definition(prompt_id: String) -> Dictionary:
 	var phase_by_milestone: Dictionary = {
 		MILESTONE_MOVE: PHASE_SELECT_PLAYER,
 		MILESTONE_INTENT: PHASE_INSPECT_ENEMY,
+		MILESTONE_PLAYS: PHASE_CARD_PLAYS,
 		MILESTONE_CANCEL: PHASE_CANCEL_CARD,
-		MILESTONE_CARD: PHASE_SELECT_TARGET,
+		MILESTONE_FIRST_CARD: PHASE_SELECT_FIRST_TARGET,
+		MILESTONE_FIRST_PLAY: PHASE_FIRST_PLAY,
+		MILESTONE_KILL_CARD: PHASE_SELECT_KILL_TARGET,
+		MILESTONE_KILL_REFUND: PHASE_KILL_REFUND,
+		MILESTONE_REFUND_CARD: PHASE_FINISH_REFUND_CARD,
 		MILESTONE_CLOCK: PHASE_TURN_CLOCK,
 		MILESTONE_PASS: PHASE_PASS_TURN,
 		MILESTONE_CORE: PHASE_CORE_COMPLETE,

@@ -2,6 +2,8 @@ extends RefCounted
 
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ContextualCombatPrompt = preload("res://scripts/contextual_combat_prompt.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
+const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const HandFanContainerScript = preload("res://scripts/hand_fan_container.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const ReplayRunSceneHarness = preload("res://tests/fixtures/guided_tutorial_run_scene_harness.gd")
@@ -78,8 +80,10 @@ class BoardPresentationStub:
 
 
 static func run(expect: Callable) -> void:
+	_test_authored_scenario_kill_refund(expect)
 	_test_blocked_feedback_clears_only_on_phase_change(expect)
 	_test_first_run_phase_derivation(expect)
+	_test_authored_reload_phase_reconstruction(expect)
 	_test_hard_gate_blocks_wrong_actions_without_mutation(expect)
 	_test_action_only_advancement(expect)
 	_test_intent_confirmation_pins_exact_enemy_evidence(expect)
@@ -90,6 +94,80 @@ static func run(expect: Callable) -> void:
 	_test_pause_menu_cannot_bypass_optional_surface_gate(expect)
 	_test_pre_battle_actions_cannot_bypass_visible_completion_gate(expect)
 	_test_skip_replay_and_completion_absence(expect)
+
+
+static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var base_state: Dictionary = combat.create_combat(90210, {
+		"name": "Authored Tutorial",
+		"coord": Vector2i(1, 0),
+		"type": "combat",
+		"grid": _simple_grid(),
+		"player_start": PLAYER_TILE,
+		"enemies": [{"id": 1, "type": "crawler", "pos": ENEMY_TILE, "hp": 14, "max_hp": 14}],
+		"traps": [], "terrain": [], "loot": [],
+	}, {
+		"hp": 24, "max_hp": 24,
+		"deck_cards": ["quick_stab", "brace", "pale_spark"],
+		"relics": [], "hand_size": 3,
+	})
+	var unmarked_run: Dictionary = {"progression": _active_progression()}
+	expect.call(
+		GuidedCombatScenario.prepare_for_run(unmarked_run, base_state) == base_state,
+		"Low-level combat generation should stay ordinary until the real New Run entry point opts in"
+	)
+	var run_state: Dictionary = GuidedCombatScenario.mark_run_eligible(unmarked_run)
+	var state: Dictionary = GuidedCombatScenario.prepare_for_run(run_state, base_state)
+	expect.call(GuidedCombatScenario.is_authored(state), "A fresh active profile should receive the deterministic authored combat state")
+	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
+	var move_tile: Vector2i = GuidedCombatScenario.move_tile(state)
+	var target_tile: Vector2i = GuidedCombatScenario.target_tile(state)
+	expect.call(
+		absi(player_tile.x - move_tile.x) + absi(player_tile.y - move_tile.y) == 1
+		and absi(move_tile.x - target_tile.x) + absi(move_tile.y - target_tile.y) == 1,
+		"The authored movement rail should end adjacent to its exact kill target"
+	)
+	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", []) as Array
+	expect.call(
+		hand.slice(0, 3) == [GuidedCombatScenario.PREVIEW_CARD_ID, GuidedCombatScenario.KILL_CARD_ID, GuidedCombatScenario.REFUND_CARD_ID],
+		"The authored opening hand should deterministically stage Bone Dart, Quick Stab, then Brace"
+	)
+	var target_before: Dictionary = _enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID)
+	expect.call(int(target_before.get("hp", 0)) == 17, "The authored target should have the exact 17 HP needed by the scripted two-card kill")
+
+	state = combat.apply_player_movement(state, move_tile)
+	expect.call((state.get("player", {}) as Dictionary).get("pos", INVALID_TILE) == move_tile, "The authored move should resolve through the normal movement pool")
+	state = _resolve_test_card(combat, state, GuidedCombatScenario.PREVIEW_CARD_ID, target_tile)
+	expect.call(
+		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 11
+		and combat.cards_remaining_this_turn(state) == 1,
+		"Bone Dart should deal 6 and visibly spend the first of two card plays"
+	)
+	state = _resolve_test_card(combat, state, GuidedCombatScenario.KILL_CARD_ID, target_tile)
+	expect.call(
+		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 0,
+		"Quick Stab should deal the exact remaining 11 damage and kill the authored target"
+	)
+	expect.call(
+		int(state.get("death_bonus_card_plays_this_turn", 0)) == 1
+		and combat.cards_remaining_this_turn(state) == 1,
+		"The real enemy-death mechanic should refund one play after the second base play is spent"
+	)
+	state = _resolve_test_card(combat, state, GuidedCombatScenario.REFUND_CARD_ID, INVALID_TILE)
+	expect.call(
+		combat.cards_remaining_this_turn(state) == 0
+		and int((state.get("player", {}) as Dictionary).get("block", 0)) == 8,
+		"Brace should spend the refunded play through normal card resolution and grant its real 8 Block"
+	)
+	expect.call(str(combat.combat_outcome(state)).is_empty(), "A support crawler should remain alive for the free-play handoff")
+
+	var dismissed_run: Dictionary = GuidedCombatScenario.mark_run_eligible({
+		"progression": ContextualCombatTutorial.dismiss_tutorial(_active_progression()),
+	})
+	expect.call(
+		GuidedCombatScenario.prepare_for_run(dismissed_run, base_state) == base_state,
+		"Dismissed tutorials should leave normal generated combat untouched"
+	)
 
 
 static func _test_blocked_feedback_clears_only_on_phase_change(expect: Callable) -> void:
@@ -152,8 +230,13 @@ static func _test_first_run_phase_derivation(expect: Callable) -> void:
 
 	for milestone_id: String in [
 		ContextualCombatTutorial.MILESTONE_INTENT,
+		ContextualCombatTutorial.MILESTONE_PLAYS,
 		ContextualCombatTutorial.MILESTONE_CANCEL,
-		ContextualCombatTutorial.MILESTONE_CARD,
+		ContextualCombatTutorial.MILESTONE_FIRST_CARD,
+		ContextualCombatTutorial.MILESTONE_FIRST_PLAY,
+		ContextualCombatTutorial.MILESTONE_KILL_CARD,
+		ContextualCombatTutorial.MILESTONE_KILL_REFUND,
+		ContextualCombatTutorial.MILESTONE_REFUND_CARD,
 		ContextualCombatTutorial.MILESTONE_CLOCK,
 		ContextualCombatTutorial.MILESTONE_PASS,
 		ContextualCombatTutorial.MILESTONE_CORE,
@@ -227,6 +310,59 @@ static func _test_hard_gate_blocks_wrong_actions_without_mutation(expect: Callab
 	scene.free()
 
 
+static func _test_authored_reload_phase_reconstruction(expect: Callable) -> void:
+	var scene: Node = _combat_fixture()
+	var progression: Dictionary = scene.get("_progression") as Dictionary
+	for milestone_id: String in [
+		ContextualCombatTutorial.MILESTONE_MOVE,
+		ContextualCombatTutorial.MILESTONE_INTENT,
+		ContextualCombatTutorial.MILESTONE_PLAYS,
+		ContextualCombatTutorial.MILESTONE_CANCEL,
+		ContextualCombatTutorial.MILESTONE_FIRST_CARD,
+	]:
+		progression = ContextualCombatTutorial.complete_milestone(progression, milestone_id)
+	scene.set("_progression", progression)
+	scene.set("_guided_tutorial_phase_id", "")
+	scene.call("_guided_tutorial_reconcile_phase")
+	expect.call(
+		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_FIRST_PLAY,
+		"Reload after Bone Dart should reconstruct the real one-play acknowledgement"
+	)
+	progression = ContextualCombatTutorial.complete_milestone(progression, ContextualCombatTutorial.MILESTONE_FIRST_PLAY)
+	scene.set("_progression", progression)
+	scene.set("_guided_tutorial_phase_id", "")
+	scene.call("_guided_tutorial_reconcile_phase")
+	expect.call(
+		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_SELECT_KILL_CARD,
+		"Reload after reading the first spend should return to the prescribed Quick Stab"
+	)
+	progression = ContextualCombatTutorial.complete_milestone(progression, ContextualCombatTutorial.MILESTONE_KILL_CARD)
+	scene.set("_progression", progression)
+	scene.set("_guided_tutorial_phase_id", "")
+	scene.call("_guided_tutorial_reconcile_phase")
+	expect.call(
+		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_KILL_REFUND,
+		"Reload after the scripted kill should preserve the refund explanation"
+	)
+	progression = ContextualCombatTutorial.complete_milestone(progression, ContextualCombatTutorial.MILESTONE_KILL_REFUND)
+	scene.set("_progression", progression)
+	scene.set("_guided_tutorial_phase_id", "")
+	scene.call("_guided_tutorial_reconcile_phase")
+	expect.call(
+		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD,
+		"Reload after reading the refund should return to the prescribed Brace play"
+	)
+	progression = ContextualCombatTutorial.complete_milestone(progression, ContextualCombatTutorial.MILESTONE_REFUND_CARD)
+	scene.set("_progression", progression)
+	scene.set("_guided_tutorial_phase_id", "")
+	scene.call("_guided_tutorial_reconcile_phase")
+	expect.call(
+		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_TURN_CLOCK,
+		"Reload after spending the refund should continue at the Turn Clock"
+	)
+	scene.free()
+
+
 static func _test_action_only_advancement(expect: Callable) -> void:
 	var scene: Node = _combat_fixture()
 	scene.set("_guided_tutorial_phase_id", ContextualCombatTutorial.PHASE_INSPECT_ENEMY)
@@ -265,8 +401,8 @@ static func _test_action_only_advancement(expect: Callable) -> void:
 		"The explicit acknowledgement action should commit the enemy-intent milestone"
 	)
 	expect.call(
-		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL,
-		"Acknowledging enemy intent should advance to the next actionable lesson"
+		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_CARD_PLAYS,
+		"Acknowledging enemy intent should first explain the two-play counter"
 	)
 	scene.free()
 
@@ -319,8 +455,8 @@ static func _test_intent_confirmation_pins_exact_enemy_evidence(expect: Callable
 		"Only Continue should commit the pinned enemy-intent lesson"
 	)
 	expect.call(
-		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL,
-		"Continue should advance from the pinned intent to the card-cancel lesson"
+		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_CARD_PLAYS,
+		"Continue should advance from pinned intent to the two-play explanation"
 	)
 	expect.call(scene.get("_guided_tutorial_intent_enemy_tile") == INVALID_TILE, "Leaving intent confirmation should clear its pinned enemy tile")
 	expect.call(scene.get("_hovered_board_tile") == INVALID_TILE, "Continue should clear the tutorial-owned enemy hover evidence")
@@ -707,10 +843,20 @@ static func _combat_fixture(scene_override: Node = null) -> Node:
 	var combat_state: Dictionary = {
 		"current_actor": {"kind": "player", "key": "player"},
 		"player": {"pos": PLAYER_TILE, "hp": 24, "max_hp": 24},
-		"enemies": [{"id": 1, "type": "crawler", "pos": ENEMY_TILE, "hp": 12, "max_hp": 12}],
+		"enemies": [{"id": GuidedCombatScenario.TARGET_ENEMY_ID, "type": "crawler", "pos": ENEMY_TILE, "hp": 17, "max_hp": 17}],
 		"deck": {"hand": [], "draw": ["quick_stab"], "discard": [], "burned": [], "consumed": []},
 		"cards_per_turn": 2,
 		"cards_played_this_turn": 0,
+		GuidedCombatScenario.STATE_KEY: {
+			"version": GuidedCombatScenario.VERSION,
+			"player_tile": PLAYER_TILE,
+			"move_tile": MOVE_TILE,
+			"target_tile": ENEMY_TILE,
+			"target_enemy_id": GuidedCombatScenario.TARGET_ENEMY_ID,
+			"preview_card_id": GuidedCombatScenario.PREVIEW_CARD_ID,
+			"kill_card_id": GuidedCombatScenario.KILL_CARD_ID,
+			"refund_card_id": GuidedCombatScenario.REFUND_CARD_ID,
+		},
 	}
 	scene.set("_progression", progression)
 	scene.set("_combat_state", combat_state)
@@ -721,6 +867,40 @@ static func _combat_fixture(scene_override: Node = null) -> Node:
 	scene.add_child(host)
 	scene.set("_contextual_combat_prompt_host", host)
 	return scene
+
+
+static func _resolve_test_card(combat: RefCounted, source_state: Dictionary, card_id: String, target_tile: Vector2i) -> Dictionary:
+	var hand: Array = (source_state.get("deck", {}) as Dictionary).get("hand", []) as Array
+	var hand_index: int = hand.find(card_id)
+	if hand_index < 0:
+		return source_state.duplicate(true)
+	var state: Dictionary = combat.call("prepare_player_card", source_state, hand_index, "play")
+	for action_var: Variant in combat.call("card_play_actions", card_id, state) as Array:
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		if bool(combat.call("player_action_needs_target", action)):
+			state = combat.call("apply_player_action", state, action, target_tile)
+		else:
+			state = combat.call("apply_player_action", state, action)
+	return combat.call("finish_player_card", state, hand_index, 1, {"play_mode": "play"}) as Dictionary
+
+
+static func _enemy_for_id(state: Dictionary, enemy_id: int) -> Dictionary:
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY and int((enemy_var as Dictionary).get("id", -1)) == enemy_id:
+			return enemy_var as Dictionary
+	return {}
+
+
+static func _simple_grid() -> Array:
+	var grid: Array = []
+	for y: int in range(9):
+		var row: Array = []
+		for x: int in range(10):
+			row.append("wall" if x == 0 or y == 0 or x == 9 or y == 8 else "stone")
+		grid.append(row)
+	return grid
 
 
 static func _attached_combat_fixture() -> Node:

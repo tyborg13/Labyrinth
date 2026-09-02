@@ -32,8 +32,8 @@ func _initialize() -> void:
 func _test_curriculum_catalog() -> void:
 	var phases: Array[String] = ContextualCombatTutorial.phase_ids()
 	var milestones: Array[String] = ContextualCombatTutorial.milestone_ids()
-	_assert(phases.size() == 15, "Guided curriculum should expose all fifteen motor and decision phases")
-	_assert(milestones.size() == 9, "Guided curriculum should persist exactly nine committed milestones")
+	_assert(phases.size() == 23, "Authored curriculum should expose all twenty-three motor, rule, and decision phases")
+	_assert(milestones.size() == 14, "Authored curriculum should persist exactly fourteen committed milestones")
 	_assert(phases.front() == ContextualCombatTutorial.PHASE_SELECT_PLAYER, "Curriculum should begin by selecting the player")
 	_assert(phases.back() == ContextualCombatTutorial.PHASE_COMPLETE, "Curriculum should end with an explicit completion phase")
 	for phase_id: String in phases:
@@ -42,7 +42,7 @@ func _test_curriculum_catalog() -> void:
 		_assert(not str(definition.get("title", "")).is_empty(), "%s should have a concise player-facing title" % phase_id)
 		_assert(not str(definition.get("pointer_text", "")).is_empty(), "%s should provide pointer instructions" % phase_id)
 		_assert(not str(definition.get("controller_text", "")).is_empty(), "%s should provide controller instructions" % phase_id)
-		_assert(int(definition.get("lesson", 0)) in range(1, 9), "%s should belong to one of eight lessons" % phase_id)
+		_assert(int(definition.get("lesson", 0)) in range(1, 11), "%s should belong to one of ten lessons" % phase_id)
 	_assert(ContextualCombatTutorial.phase_definition("unknown_phase").is_empty(), "Unknown phases should not synthesize tutorial content")
 
 func _test_new_and_returning_profile_migration() -> void:
@@ -116,7 +116,7 @@ func _test_milestones_and_revision_semantics() -> void:
 	progression = ContextualCombatTutorial.complete_tutorial(progression)
 	_assert(ContextualCombatTutorial.is_completed(progression), "Explicit final acknowledgement should complete onboarding")
 	_assert(ContextualCombatTutorial.completed_steps(progression).size() == ContextualCombatTutorial.milestone_ids().size(), "Completion should seal every milestone")
-	_assert(int(progression.get("progression_revision", -1)) == 10, "Nine milestone commits plus completion should produce ten revisions")
+	_assert(int(progression.get("progression_revision", -1)) == 15, "Fourteen milestone commits plus completion should produce fifteen revisions")
 
 func _test_terminal_states_and_replay() -> void:
 	var progression: Dictionary = ProgressionStore.default_data()

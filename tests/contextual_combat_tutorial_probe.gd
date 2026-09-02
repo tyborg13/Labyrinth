@@ -2,6 +2,7 @@ extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -32,10 +33,209 @@ func _initialize() -> void:
 	var active_progression: Dictionary = ProgressionStore.default_data()
 	active_progression[ContextualCombatTutorial.PROGRESSION_KEY] = ContextualCombatTutorial.default_state()
 	_assert(ProgressionStore.save_data(active_progression), "Probe should persist an explicit first-run tutorial profile")
-	await _capture_guided_run(active_progression)
+	await _capture_authored_guided_run(active_progression)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	print("GUIDED COMBAT TUTORIAL PROBE: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
+
+func _capture_authored_guided_run(active_progression: Dictionary) -> void:
+	var packed: PackedScene = load("res://scenes/run_scene.tscn")
+	if packed == null:
+		_fail("Run scene should load for authored tutorial visual proof")
+		return
+	var instance: Node = packed.instantiate()
+	root.add_child(instance)
+	await _settle_ui()
+	await _load_authored_combat_fixture(instance, 11601, active_progression)
+	var prompt: Control = instance.get("_contextual_combat_prompt") as Control
+	var combat = instance.get("_combat_engine")
+
+	# Camp contains ordinary run controls only; tutorial management stays in the
+	# contextual callout where it is relevant.
+	instance.call("_open_menu_overlay")
+	await _settle_ui()
+	var menu_texts: Array[String] = _button_texts(instance.get("_menu_dialog") as Node)
+	for button_text: String in menu_texts:
+		_assert(not button_text.to_lower().contains("tutorial") and not button_text.to_lower().contains("guided"), "Camp should not expose persistent tutorial-management buttons: %s" % button_text)
+	await _save_root_screenshot("%s/00_camp_without_tutorial_buttons.png" % OUTPUT_DIR)
+	instance.call("_close_menu_overlay")
+	await _settle_ui()
+
+	# Lesson 1: every instruction exposes exactly one conspicuous click target.
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_PLAYER, true, "select the glowing Wanderer")
+	_assert(bool(prompt.get_meta("attention_pulse", false)), "The player tile should opt into the authored attention pulse")
+	_assert(int(prompt.get_meta("spotlight_glow_count", 0)) == 1, "The player tile should render one filled pulsing glow")
+	await _save_root_screenshot("%s/01_select_player_pulse.png" % OUTPUT_DIR)
+	var player_tile: Vector2i = _player_tile(instance)
+	await instance.call("_on_board_tile_clicked", player_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_MOVE, true, "take the exact authored step")
+	var move_tile: Vector2i = GuidedCombatScenario.move_tile(instance.get("_combat_state") as Dictionary)
+	_assert((instance.call("_guided_tutorial_allowed_board_tiles") as Array) == [move_tile], "Movement rail should allow exactly the authored destination")
+	await _save_root_screenshot("%s/02_exact_move_pulse.png" % OUTPUT_DIR)
+
+	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	reduced_settings["reduced_motion"] = true
+	instance.set("_settings", reduced_settings)
+	instance.call("_refresh_contextual_combat_tutorial")
+	await _settle_ui()
+	_assert(bool(prompt.get_meta("reduced_motion", false)), "Reduced Motion should switch the required tile to static emphasis")
+	_assert(int(prompt.get_meta("spotlight_glow_count", 0)) == 1, "Reduced Motion should preserve the strong filled target glow")
+	await _save_root_screenshot("%s/03_exact_move_reduced_motion.png" % OUTPUT_DIR)
+	reduced_settings["reduced_motion"] = false
+	instance.set("_settings", reduced_settings)
+	instance.call("_refresh_contextual_combat_tutorial")
+	await instance.call("_on_board_tile_clicked", move_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_INSPECT_ENEMY, true, "inspect the authored crawler")
+	var target_tile: Vector2i = GuidedCombatScenario.target_tile(instance.get("_combat_state") as Dictionary)
+	_assert((instance.call("_guided_tutorial_allowed_board_tiles") as Array) == [target_tile], "Intent rail should isolate the exact crawler")
+	await _save_root_screenshot("%s/04_exact_enemy_intent.png" % OUTPUT_DIR)
+	instance.call("_on_board_tile_hovered", target_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CONFIRM_INTENT, true, "confirm the crawler intent")
+	await _save_root_screenshot("%s/05_intent_confirmation.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+
+	# Lesson 3: teach the two-play meter before asking for a card, then practice a
+	# reversible preview with one prescribed card.
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CARD_PLAYS, true, "read the two-play counter")
+	_assert(int(combat.call("cards_remaining_this_turn", instance.get("_combat_state") as Dictionary)) == 2, "The explanation should be backed by a real 2-play counter")
+	await _save_root_screenshot("%s/06_two_card_plays.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, true, "preview Bone Dart")
+	var bone_index: int = _card_index(instance, GuidedCombatScenario.PREVIEW_CARD_ID)
+	_assert((instance.call("_guided_tutorial_playable_card_indices") as Array) == [bone_index], "Only Bone Dart should be selectable during its authored rail")
+	await instance.call("_on_card_pressed", bone_index)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CANCEL_CARD, true, "cancel Bone Dart safely")
+	await _save_root_screenshot("%s/07_bone_dart_cancel.png" % OUTPUT_DIR)
+	var blocked_before: int = int(prompt.get_meta("blocked_count", 0))
+	await instance.call("_on_board_tile_clicked", Vector2i(1, 1))
+	await _settle_short()
+	_assert(int(prompt.get_meta("blocked_count", 0)) > blocked_before, "A wrong target should produce visible feedback without mutation")
+	await _save_root_screenshot("%s/08_wrong_click_feedback.png" % OUTPUT_DIR)
+	await instance.call("_on_cancel_requested")
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, true, "play Bone Dart for real")
+
+	# First attack: 2 -> 1 play and 17 -> 11 HP.
+	bone_index = _card_index(instance, GuidedCombatScenario.PREVIEW_CARD_ID)
+	await instance.call("_on_card_pressed", bone_index)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, true, "aim Bone Dart at the authored crawler")
+	await _save_root_screenshot("%s/09_bone_dart_target.png" % OUTPUT_DIR)
+	await instance.call("_on_board_tile_clicked", target_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_FIRST_PLAY, true, "read the one-play counter")
+	var first_state: Dictionary = instance.get("_combat_state") as Dictionary
+	_assert(int(combat.call("cards_remaining_this_turn", first_state)) == 1, "Bone Dart should spend exactly one real card play")
+	_assert(_enemy_hp(first_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 11, "Bone Dart should leave the authored crawler at 11 HP")
+	await _save_root_screenshot("%s/10_first_play_spent.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+
+	# Controller presentation must focus the same one legal Quick Stab card.
+	var router: Node = root.get_node_or_null("InputRouter")
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_CONTROLLER, InputRouterScript.FAMILY_STEAM_DECK)
+		instance.call("_refresh_contextual_combat_tutorial")
+		await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_KILL_CARD, true, "controller Quick Stab rail")
+	_assert(bool(prompt.get_meta("controller_active", false)), "Controller proof should use controller-native tutorial copy and glyphs")
+	await _save_root_screenshot("%s/11_controller_quick_stab.png" % OUTPUT_DIR)
+	if router != null:
+		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_XBOX)
+		instance.call("_refresh_contextual_combat_tutorial")
+		await _settle_ui()
+
+	# Second attack kills at exact damage, spends the second base play, and lets the
+	# engine's ordinary death reward return one play.
+	var stab_index: int = _card_index(instance, GuidedCombatScenario.KILL_CARD_ID)
+	_assert((instance.call("_guided_tutorial_playable_card_indices") as Array) == [stab_index], "Only Quick Stab should be selectable for the lethal rail")
+	await instance.call("_on_card_pressed", stab_index)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET, true, "target the lethal Quick Stab")
+	await _save_root_screenshot("%s/12_quick_stab_lethal.png" % OUTPUT_DIR)
+	await instance.call("_on_board_tile_clicked", target_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_KILL_REFUND, true, "read the kill refund")
+	var kill_state: Dictionary = instance.get("_combat_state") as Dictionary
+	_assert(_enemy_hp(kill_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 0, "Quick Stab should kill the scripted crawler")
+	_assert(int(kill_state.get("death_bonus_card_plays_this_turn", 0)) == 1, "The kill should earn the engine's real +1 card-play reward")
+	_assert(int(combat.call("cards_remaining_this_turn", kill_state)) == 1, "The counter should visibly return to 1 after the kill")
+	await _save_root_screenshot("%s/13_kill_refund.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+
+	# Spend the returned play on Brace, then teach timing and Pass before release.
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD, true, "spend the refund on Brace")
+	var brace_index: int = _card_index(instance, GuidedCombatScenario.REFUND_CARD_ID)
+	_assert((instance.call("_guided_tutorial_playable_card_indices") as Array) == [brace_index], "Only Brace should be selectable for the refunded play")
+	await instance.call("_on_card_pressed", brace_index)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD, true, "confirm Brace")
+	await _save_root_screenshot("%s/14_brace_confirmation.png" % OUTPUT_DIR)
+	await instance.call("_on_board_tile_clicked", _player_tile(instance))
+	await _settle_ui()
+	var brace_state: Dictionary = instance.get("_combat_state") as Dictionary
+	_assert(int((brace_state.get("player", {}) as Dictionary).get("block", 0)) == 8, "Brace should grant its real 8 Block")
+	_assert(int(combat.call("cards_remaining_this_turn", brace_state)) == 0, "Brace should spend the refunded play")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_TURN_CLOCK, true, "read the Turn Clock")
+	await _save_root_screenshot("%s/15_turn_clock.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_PASS_TURN, true, "Pass after spending the authored turn")
+	await _save_root_screenshot("%s/16_pass_preview.png" % OUTPUT_DIR)
+	await instance.call("_on_pass_turn_pressed")
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CORE_COMPLETE, false, "free-play handoff")
+	await _save_root_screenshot("%s/17_free_play_handoff.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+	_assert_no_prompt(instance, "free-play combat after authored rails")
+
+	# Preserve the existing production reward/path/completion proof.
+	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	reward_state["mode"] = "reward"
+	reward_state["combat_state"] = {}
+	reward_state["pending_reward"] = {"cards": ["quick_stab", "bone_dart", "sidestep_slash"], "heal_amount": RunEngine.REWARD_HEAL, "ember_amount": 0, "intro_pending": false}
+	reward_state["progression"] = (instance.get("_progression") as Dictionary).duplicate(true)
+	instance.call("_load_run_state", reward_state)
+	instance.call("_close_dialogue")
+	instance.set("_animation_lock", false)
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_CHOOSE_REWARD)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_REWARD, true, "choose a combat reward")
+	await _save_root_screenshot("%s/18_reward_choice.png" % OUTPUT_DIR)
+	instance.call("_guided_tutorial_complete_milestone", ContextualCombatTutorial.MILESTONE_REWARD)
+
+	var run_engine := RunEngine.new()
+	var room_state: Dictionary = run_engine.create_new_run(22017, instance.get("_progression") as Dictionary)
+	room_state["progression"] = (instance.get("_progression") as Dictionary).duplicate(true)
+	instance.call("_load_run_state", room_state)
+	instance.call("_close_dialogue")
+	instance.set("_animation_lock", false)
+	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_CHOOSE_PATH)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_PATH, true, "choose the next room")
+	await _save_root_screenshot("%s/19_path_choice.png" % OUTPUT_DIR)
+	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile") as Dictionary
+	var door_tile: Vector2i = exit_destinations.keys()[0] as Vector2i
+	await instance.call("_on_map_view_room_selected", exit_destinations[door_tile] as Vector2i, door_tile)
+	await _settle_ui()
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_COMPLETE, false, "guided-run completion")
+	await _save_root_screenshot("%s/20_completion.png" % OUTPUT_DIR)
+	prompt.call("_on_completed_pressed")
+	await _settle_ui()
+	_assert_no_prompt(instance, "completed tutorial")
+	_assert(ContextualCombatTutorial.is_completed(ProgressionStore.load_data()), "Begin should persist the completed authored tutorial")
+	instance.queue_free()
+	await _settle_short()
+	if router != null:
+		router.call("clear_forced_state_for_test")
 
 func _capture_guided_run(active_progression: Dictionary) -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
@@ -303,6 +503,54 @@ func _load_combat_fixture(instance: Node, seed: int, progression: Dictionary) ->
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
 	await _settle_ui()
+
+func _load_authored_combat_fixture(instance: Node, seed: int, progression: Dictionary) -> void:
+	instance.call("_cancel_drag_play")
+	instance.call("_reset_card_resolution")
+	var layout: Dictionary = _combat_layout()
+	var combat := CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(seed, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "brace", "pale_spark", "guarded_step", "shadow_step"],
+		"relics": [],
+		"hand_size": 5,
+		"heal_bonus": 0,
+	})
+	var progression_copy: Dictionary = progression.duplicate(true)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["current_room"] = layout.get("coord", Vector2i.ZERO)
+	run_state["current_room_layout"] = layout
+	run_state["progression"] = progression_copy
+	run_state = GuidedCombatScenario.mark_run_eligible(run_state)
+	combat_state = GuidedCombatScenario.prepare_for_run(run_state, combat_state)
+	run_state["combat_state"] = combat_state
+	instance.set("_progression", progression_copy)
+	instance.call("_load_run_state", run_state)
+	instance.call("_close_dialogue")
+	instance.set("_animation_lock", false)
+	instance.call("_refresh_ui")
+	await _settle_ui()
+
+func _card_index(instance: Node, card_id: String) -> int:
+	return (((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array).find(card_id)
+
+func _enemy_hp(state: Dictionary, enemy_id: int) -> int:
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY and int((enemy_var as Dictionary).get("id", -1)) == enemy_id:
+			return int((enemy_var as Dictionary).get("hp", 0))
+	return -1
+
+func _button_texts(node: Node) -> Array[String]:
+	var result: Array[String] = []
+	if node == null:
+		return result
+	if node is Button:
+		result.append((node as Button).text)
+	for child: Node in node.get_children():
+		result.append_array(_button_texts(child))
+	return result
 
 func _combat_layout() -> Dictionary:
 	return {

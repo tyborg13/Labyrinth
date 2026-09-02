@@ -12,7 +12,7 @@ The removed bitmap families were the three `button_wood_gold_*` planks and the e
 | Settings in main menu and in-run camp menu | `UiSkin` through `scripts/settings_panel.gd` | centered standard `OptionButton`, selected toggle state, compact cancel, destructive restore, standard back |
 | Run header | `UiSkin` through `scripts/run_scene.gd` | square icon variant for Grimoire and Menu |
 | Combat action area | `UiSkin` through `scripts/run_scene.gd` | large Pass; compact Rotate, Skip, and Cancel |
-| Guided first-run tutorial | `UiSkin` through `scripts/contextual_combat_prompt.gd` | spotlight callout with compact Continue and Skip Tutorial actions; pause menu exposes replay/restart and skip |
+| Guided first-run tutorial | `UiSkin` through `scripts/contextual_combat_prompt.gd` | spotlight callout with compact Continue and Skip Tutorial actions; Camp has no persistent tutorial-management buttons |
 | Pre-battle | `UiSkin` through `scripts/run_scene.gd` | standard Equip and selected primary Start |
 | Camp/menu, dialogue, map, pile, and upgrade overlays | `UiSkin` through `scripts/run_scene.gd` | standard commands, large room choices, destructive abandon, square close icons |
 | Merchant and dense progression controls | `UiSkin` through `scripts/run_scene.gd` | compact Buy/Sell and stepper controls; standard and selected progression commands |

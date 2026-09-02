@@ -86,6 +86,7 @@ func configure(
 	set_meta("prompt_text", _message.text)
 	set_meta("spotlight_rects", _spotlight_rects.duplicate())
 	set_meta("reduced_motion", _reduced_motion)
+	set_meta("attention_pulse", bool(_definition.get("attention_pulse", false)))
 	visible = not _phase_id.is_empty()
 	call_deferred("_layout_callout")
 	queue_redraw()
@@ -110,6 +111,7 @@ func clear_prompt() -> void:
 	set_meta("spotlight_hole_count", 0)
 	set_meta("spotlight_frame_count", 0)
 	set_meta("spotlight_frame_rects", [])
+	set_meta("spotlight_glow_count", 0)
 	visible = false
 	queue_redraw()
 
@@ -164,7 +166,11 @@ func _draw() -> void:
 	var pulse: float = 1.0 if _reduced_motion else 0.78 + 0.22 * sin(float(Time.get_ticks_msec()) * 0.005)
 	var blocked: bool = Time.get_ticks_msec() < _blocked_until_msec
 	var accent: Color = Color("e7775c") if blocked else Color("f0bd63")
+	var attention_pulse: bool = bool(_definition.get("attention_pulse", false))
+	set_meta("spotlight_glow_count", frame_spotlights.size() if attention_pulse else 0)
 	for rect: Rect2 in frame_spotlights:
+		if attention_pulse:
+			_draw_spotlight_glow(rect, accent, pulse)
 		_draw_spotlight_frame(rect, accent, pulse)
 	_draw_connector(frame_spotlights, accent)
 
@@ -241,6 +247,15 @@ func _draw_spotlight_frame(rect: Rect2, accent: Color, pulse: float) -> void:
 		draw_line(point, point + (corner_data["x"] as Vector2), accent.lightened(0.20), 5.0)
 		draw_line(point, point + (corner_data["y"] as Vector2), accent.lightened(0.20), 5.0)
 
+func _draw_spotlight_glow(rect: Rect2, accent: Color, pulse: float) -> void:
+	# A translucent fill makes the required tile/card unmistakable even in a
+	# busy room. The expanding halo supplies motion; the bright fill, corners,
+	# and connector remain as non-motion/non-color cues.
+	var strength: float = 1.0 if _reduced_motion else pulse
+	draw_rect(rect.grow(14.0 * strength), Color(accent.r, accent.g, accent.b, 0.07 + 0.07 * strength), true)
+	draw_rect(rect.grow(7.0 * strength), Color(accent.r, accent.g, accent.b, 0.10 + 0.10 * strength), true)
+	draw_rect(rect, Color(accent.r, accent.g, accent.b, 0.17 if _reduced_motion else 0.12 + 0.10 * strength), true)
+
 func _draw_connector(local_spotlights: Array, accent: Color) -> void:
 	if local_spotlights.is_empty() or _callout == null or not _callout.visible:
 		return
@@ -294,7 +309,7 @@ func _build() -> void:
 	var segments := HBoxContainer.new()
 	segments.add_theme_constant_override("separation", 3)
 	progress_row.add_child(segments)
-	for _index: int in range(8):
+	for _index: int in range(10):
 		var segment := ColorRect.new()
 		segment.custom_minimum_size = Vector2(18.0, 4.0)
 		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
