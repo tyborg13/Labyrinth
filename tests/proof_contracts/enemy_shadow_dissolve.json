@@ -1,0 +1,70 @@
+{
+  "min_images": 13,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*lethal_impact_continuity_hold.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 45, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*00_silhouette_hold.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 45, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*14_early_shadow_takeover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 42, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*34_inward_breakup.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 40, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*60_silhouette_release.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 38, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*88_last_fragments.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 35, "min_luma_stdev": 5}
+      ]
+    },
+    {
+      "pattern": "*reduced_motion_62_static_breakup.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 35, "min_luma_stdev": 5}
+      ]
+    },
+    {
+      "pattern": "*enemy_shadow_dissolve_contact_sheet.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 0, 1920, 1080], "min_luma_range": 40, "min_luma_stdev": 6}
+      ]
+    }
+  ]
+}

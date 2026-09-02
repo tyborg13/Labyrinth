@@ -21027,6 +21027,24 @@ func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
 	impact_presentation.erase("effect_progress")
 	return impact_presentation
 
+
+func _attack_feedback_death_hold_presentation(
+	before_state: Dictionary,
+	display_state: Dictionary,
+	base_presentation: Dictionary,
+	terrain_destruction_progress: float = 0.0
+) -> Dictionary:
+	# Lethal attacks start drawing their resolved state as soon as contact occurs.
+	# Keep frame zero composited during that tail of the attack animation so the
+	# defeated actor never disappears between its hit reaction and dissolve.
+	return _death_hold_presentation(
+		before_state,
+		display_state,
+		base_presentation,
+		terrain_destruction_progress
+	)
+
+
 func _impact_decals_for_effect(effect: Dictionary, floating_texts: Array) -> Array[Dictionary]:
 	var decals: Array[Dictionary] = []
 	if effect.is_empty():
@@ -21296,6 +21314,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						_reduced_motion_enabled()
 					)
 					effect_display_state = primary_display_state
+					presentation = _attack_feedback_death_hold_presentation(
+						before_state,
+						primary_display_state,
+						presentation,
+						_attack_terrain_destruction_progress(effect, t)
+					)
 					if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
 						presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
 							attack_destroyed_terrain,

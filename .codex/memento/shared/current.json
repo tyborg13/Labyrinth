@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T12:42:46Z",
+  "updated_at": "2026-09-02T14:31:15Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9696,28 +9696,6 @@
       }
     },
     {
-      "id": "mnt_20260831T173056Z_8dcfcabe",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Player death uses an authored same-stem collapse sheet",
-      "details": "assets/placeholders/units/player_reaver_death.png is a 4x4 row-major 4080px sheet with sixteen 1020px frames loaded automatically from the player_reaver art stem. Authored death frames preserve their native rect, source colors, and per-frame silhouette shadows; the procedural squash, violet dissolve, and shadow fade remain fallback behavior only when no death sheet exists.",
-      "status": "active",
-      "created_at": "2026-08-31T17:30:56Z",
-      "updated_at": "2026-08-31T17:30:56Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/production-last-light-defeat-recap-with-ember-death-site-and-umbra-engul",
-        "commit": "79d65e7f"
-      }
-    },
-    {
       "id": "mnt_20260831T192054Z_d6a304e7",
       "layer": "shared",
       "kind": "decision",
@@ -9988,6 +9966,30 @@
       }
     },
     {
+      "id": "mnt_20260902T121142Z_00f41a6f",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "assets/shaders/enemy_shadow_dissolve.gdshader",
+        "symbol": null
+      },
+      "scope_key": "file:assets/shaders/enemy_shadow_dissolve.gdshader",
+      "summary": "Enemy death dissolves must evolve visibly from the opening frames.",
+      "details": "Keep lethal contact intact, then begin shadow takeover within the first few 28x0.037-second samples and distribute breakup across the full timeline; do not front-load an inert frozen pose or back-load most dissolution. Preserve the silhouette-only effect with no synthesized floor pool, the direct lethal handoff, and reduced-motion behavior. On the ANGLE compatibility renderer, factoring the progress threshold through a shader helper visually latched the first updated value even though the material uniform continued changing; keep the linear threshold expression inline unless fresh ANGLE proof shows otherwise.",
+      "status": "active",
+      "created_at": "2026-09-02T12:11:42Z",
+      "updated_at": "2026-09-02T12:11:42Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260902T041600Z_ff0719f5"
+      ],
+      "source": {
+        "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
+        "commit": "a15ad72b"
+      }
+    },
+    {
       "id": "mnt_20260902T121937Z_05b4980a",
       "layer": "shared",
       "kind": "decision",
@@ -10029,6 +10031,28 @@
       "source": {
         "branch": "codex/fix-card-draw-hand-flow-hitch",
         "commit": "3cde5c2b"
+      }
+    },
+    {
+      "id": "mnt_20260902T143115Z_a2d571ef",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Prewarm the procedural enemy-death shader before the first lethal frame and retain that initialized effect as a spare.",
+      "details": "On native Metal, Noctyrax's first procedural dissolve compiled one canvas pipeline on the kill frame and produced a 32.753 ms spike. A real nearly-transparent setup draw plus one retained node/material moved compilation to board startup: the cold kill then reported zero pipeline compilations and repeated kills stayed below 16 ms in the accepted capture. Keep the approved shader math unchanged; mathematically-zero early-exit branches altered ANGLE pixels around the middle breakup phase.",
+      "status": "active",
+      "created_at": "2026-09-02T14:31:15Z",
+      "updated_at": "2026-09-02T14:31:15Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
+        "commit": "a37b8e28"
       }
     }
   ]

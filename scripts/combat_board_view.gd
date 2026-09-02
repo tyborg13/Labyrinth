@@ -10,6 +10,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
+const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
@@ -164,6 +165,8 @@ const IDLE_SHEET_ROWS: int = 2
 const DEATH_FRAME_SECONDS: float = 0.065
 const DEATH_SHEET_COLUMNS: int = 4
 const DEATH_SHEET_ROWS: int = 4
+const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = 28
+const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = 0.037
 const TERRAIN_DESTRUCTION_FRAME_SECONDS: float = 0.065
 const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
 	"wooden_box": {
@@ -603,6 +606,9 @@ var equipment_tooltip_builder: Callable
 var item_tooltip_builder: Callable
 var _idle_frames_by_type: Dictionary = {}
 var _death_frames_by_type: Dictionary = {}
+var _enemy_shadow_dissolve_effects_by_key: Dictionary = {}
+var _enemy_shadow_dissolve_spare_effect: Control = null
+var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
 var _idle_frame_by_source: Dictionary = {}
@@ -741,6 +747,7 @@ func _ready() -> void:
 	resized.connect(_on_board_resized)
 	get_viewport().size_changed.connect(_sync_static_render_cache)
 	_load_assets(false)
+	_schedule_enemy_shadow_dissolve_shader_prewarm()
 	_create_static_render_cache()
 	_create_dynamic_render_layer()
 
@@ -859,6 +866,7 @@ func _create_dynamic_render_layer() -> void:
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
 	_sync_dynamic_render_assets()
 	_sync_dynamic_render_state(true)
+	_sync_enemy_shadow_dissolve_effects()
 	_queue_dynamic_redraw()
 
 func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Control:
@@ -931,6 +939,112 @@ func _sync_scene_render_layers() -> void:
 	for layer_var: Variant in _scene_render_layers:
 		move_child(layer_var as Control, insertion_index)
 		insertion_index += 1
+
+
+func _sync_enemy_shadow_dissolve_effects() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer:
+		return
+	var active_keys: Dictionary = {}
+	for unit: Dictionary in _death_animation_units_from_presentation():
+		if not _unit_uses_procedural_shadow_dissolve(unit):
+			continue
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_key.is_empty():
+			continue
+		var render_tile: Vector2i = _scene_render_tile_for_unit(unit)
+		var target_layer: Control = _scene_render_layers_by_tile.get(render_tile, null) as Control
+		if target_layer == null or not is_instance_valid(target_layer):
+			continue
+		var source_texture: Texture2D = _enemy_shadow_dissolve_source_texture(unit)
+		if source_texture == null:
+			continue
+		var effect: Control = _enemy_shadow_dissolve_effects_by_key.get(actor_key, null) as Control
+		if effect == null or not is_instance_valid(effect) or effect.is_queued_for_deletion():
+			effect = _take_enemy_shadow_dissolve_effect()
+			effect.name = "EnemyShadowDissolve_%d" % int(unit.get("id", _enemy_shadow_dissolve_effects_by_key.size()))
+			if effect.get_parent() == null:
+				target_layer.add_child(effect)
+			elif effect.get_parent() != target_layer:
+				effect.reparent(target_layer, false)
+			_enemy_shadow_dissolve_effects_by_key[actor_key] = effect
+		elif effect.get_parent() != target_layer:
+			effect.reparent(target_layer, false)
+		var source_rect: Rect2 = _unit_draw_rect_for_texture(unit, _unit_center(unit), source_texture)
+		effect.call(
+			"configure",
+			source_texture,
+			source_rect,
+			float(unit.get("death_progress", 0.0)),
+			_enemy_shadow_dissolve_seed_for_unit(unit),
+			bool(presentation.get("reduced_motion", false))
+		)
+		active_keys[actor_key] = true
+	for actor_key_var: Variant in _enemy_shadow_dissolve_effects_by_key.keys():
+		if active_keys.has(actor_key_var):
+			continue
+		var stale_effect: Control = _enemy_shadow_dissolve_effects_by_key.get(actor_key_var, null) as Control
+		_enemy_shadow_dissolve_effects_by_key.erase(actor_key_var)
+		if stale_effect != null and is_instance_valid(stale_effect):
+			_return_enemy_shadow_dissolve_effect(stale_effect)
+
+
+func _schedule_enemy_shadow_dissolve_shader_prewarm() -> void:
+	if _enemy_shadow_dissolve_shader_prewarm_submitted:
+		return
+	var source_texture: Texture2D = _unit_textures.get("player", null) as Texture2D
+	if source_texture == null:
+		return
+	_enemy_shadow_dissolve_shader_prewarm_submitted = true
+	var effect: Control = EnemyShadowDissolveEffect.new() as Control
+	effect.name = "EnemyShadowDissolvePrewarm"
+	# A real, nearly transparent draw is required to compile the canvas pipeline.
+	# Keep it one pixel and behind the board, then retain the initialized material
+	# as the first death effect so no node/material allocation lands on a kill.
+	effect.z_index = RenderingServer.CANVAS_ITEM_Z_MIN
+	effect.self_modulate = Color(1.0, 1.0, 1.0, 0.001)
+	add_child(effect)
+	effect.call("configure", source_texture, Rect2(Vector2.ONE, Vector2.ONE), 0.46, 0.137, false)
+	_enemy_shadow_dissolve_spare_effect = effect
+	RenderingServer.frame_post_draw.connect(_finish_enemy_shadow_dissolve_shader_prewarm, CONNECT_ONE_SHOT)
+
+
+func _finish_enemy_shadow_dissolve_shader_prewarm() -> void:
+	if _enemy_shadow_dissolve_spare_effect == null or not is_instance_valid(_enemy_shadow_dissolve_spare_effect):
+		_enemy_shadow_dissolve_spare_effect = null
+		return
+	_enemy_shadow_dissolve_spare_effect.visible = false
+
+
+func _take_enemy_shadow_dissolve_effect() -> Control:
+	var effect: Control = _enemy_shadow_dissolve_spare_effect
+	if effect == null or not is_instance_valid(effect) or effect.is_queued_for_deletion():
+		effect = EnemyShadowDissolveEffect.new() as Control
+	else:
+		_enemy_shadow_dissolve_spare_effect = null
+	effect.z_index = 0
+	effect.self_modulate = Color.WHITE
+	effect.visible = true
+	return effect
+
+
+func _return_enemy_shadow_dissolve_effect(effect: Control) -> void:
+	effect.visible = false
+	if _enemy_shadow_dissolve_spare_effect == null or not is_instance_valid(_enemy_shadow_dissolve_spare_effect):
+		if effect.get_parent() != self:
+			effect.reparent(self, false)
+		effect.name = "EnemyShadowDissolveSpare"
+		_enemy_shadow_dissolve_spare_effect = effect
+		return
+	effect.queue_free()
+
+
+func _enemy_shadow_dissolve_seed_for_unit(unit: Dictionary) -> float:
+	var identity: String = "%s:%s:%s" % [
+		str(unit.get("type", "enemy")),
+		str(unit.get("id", -1)),
+		str(unit.get("key", "enemy")),
+	]
+	return fmod(absf(float(identity.hash())), 10007.0) / 997.0 + 0.137
 
 func _sync_dynamic_render_assets() -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
@@ -1808,6 +1922,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_scene_props,
 			next_presentation.get("scene_props", []) as Array
 		)
+	_sync_enemy_shadow_dissolve_effects()
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
 
 func set_submission_performance_instrumentation_enabled(enabled: bool) -> void:
@@ -6388,6 +6503,13 @@ func _draw_unit_body(unit: Dictionary) -> void:
 	if detailed_sections:
 		_record_render_section_time("unit_body_shadow", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
+	# Enemy deaths are composited by a dedicated per-actor shader child on this
+	# retained tile layer. Drawing the source sprite again underneath it would fill
+	# every dissolved opening and turn the breakup into a tinted cross-fade.
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		if detailed_sections:
+			_record_render_section_time("unit_body_sprite", phase_started_usec)
+		return
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
 		var death_animation: bool = bool(unit.get("death_animation", false))
@@ -12712,6 +12834,8 @@ func _door_opening_frame_canvas_size() -> Vector2i:
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	var unit_type: String = str(unit.get("type", ""))
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return _enemy_shadow_dissolve_source_texture(unit)
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
 	if _unit_death_animation_active(unit) and not death_frames.is_empty():
 		return death_frames[_death_frame_index(unit)]
@@ -12724,6 +12848,15 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 		return idle_frames[_idle_frame_index(unit)]
 	return _unit_textures.get(unit_type, null)
 
+
+func _enemy_shadow_dissolve_source_texture(unit: Dictionary) -> Texture2D:
+	var unit_type: String = str(unit.get("type", ""))
+	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
+	if not idle_frames.is_empty():
+		var source_frame: int = clampi(int(unit.get("death_source_idle_frame", 0)), 0, idle_frames.size() - 1)
+		return idle_frames[source_frame]
+	return _unit_textures.get(unit_type, null) as Texture2D
+
 func _load_unit_texture_with_idle(unit_type: String, art_path: String) -> Texture2D:
 	var texture: Texture2D = AssetLoader.load_texture(art_path)
 	var idle_frames: Array[Texture2D] = _load_idle_frames_for_art_path(unit_type, art_path)
@@ -12731,9 +12864,13 @@ func _load_unit_texture_with_idle(unit_type: String, art_path: String) -> Textur
 		_idle_frames_by_type[unit_type] = idle_frames
 		if texture == null:
 			return idle_frames[0]
-	var death_frames: Array[Texture2D] = _load_death_frames_for_art_path(unit_type, art_path)
-	if not death_frames.is_empty():
-		_death_frames_by_type[unit_type] = death_frames
+	# Enemy death sheets remain source/reference assets, but runtime deliberately
+	# uses one procedural silhouette-driven dissolve. The player keeps the authored
+	# terminal collapse, which belongs to a different defeat/recap presentation.
+	if unit_type == "player":
+		var death_frames: Array[Texture2D] = _load_death_frames_for_art_path(unit_type, art_path)
+		if not death_frames.is_empty():
+			_death_frames_by_type[unit_type] = death_frames
 	return texture
 
 func _load_idle_frames_for_art_path(unit_type: String, art_path: String) -> Array[Texture2D]:
@@ -12831,7 +12968,19 @@ func _unit_has_authored_death_animation(unit: Dictionary) -> bool:
 	return not _unit_death_frames(unit).is_empty()
 
 func _unit_death_frame_count(unit: Dictionary) -> int:
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return ENEMY_SHADOW_DISSOLVE_FRAME_COUNT
 	return _unit_death_frames(unit).size()
+
+
+func _unit_uses_procedural_shadow_dissolve(unit: Dictionary) -> bool:
+	if not bool(unit.get("death_animation", false)):
+		return false
+	var unit_type: String = str(unit.get("type", ""))
+	var role: String = str(unit.get("role", ""))
+	if unit_type == "player" or role == "player" or str(unit.get("key", "")) == "player":
+		return false
+	return role == "enemy" or not GameData.enemy_def(unit_type).is_empty()
 
 func _death_frame_index(unit: Dictionary) -> int:
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
@@ -12855,6 +13004,8 @@ func _unit_idle_frame_seconds(unit: Dictionary) -> float:
 	return maxf(0.01, float(definition.get("idle_frame_seconds", IDLE_FRAME_SECONDS)))
 
 func _unit_death_frame_seconds(unit: Dictionary) -> float:
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" or unit_type.is_empty():
 		return DEATH_FRAME_SECONDS
@@ -13062,14 +13213,14 @@ func _death_animation_render_rect(unit: Dictionary, rect: Rect2) -> Rect2:
 	# Authored collapse frames already contain the complete body motion on one
 	# consistently registered canvas. Applying the fallback squash/stretch on top
 	# would distort the pixel art and make its feet slide away from the death tile.
-	if _unit_has_authored_death_animation(unit):
+	if _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
 		return rect
 	return _death_animation_draw_rect(rect, float(unit.get("death_progress", 0.0)))
 
 func _death_animation_render_tint(unit: Dictionary) -> Color:
 	# Preserve the downloaded frame colors; the procedural violet dissolve remains
 	# available only for units that have no authored death sheet.
-	if _unit_has_authored_death_animation(unit):
+	if _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
 		return Color.WHITE
 	return _death_animation_tint(unit)
 
@@ -13094,7 +13245,10 @@ func _unit_shadow_alpha_scale(unit: Dictionary) -> float:
 	if _unit_has_authored_death_animation(unit):
 		return 1.0
 	var t: float = clampf(float(unit.get("death_progress", 0.0)), 0.0, 1.0)
-	return 1.0 - smoothstep(0.45, 1.0, t)
+	# Preserve normal floor contact at lethal impact, then retire the pre-existing
+	# actor shadow before the body becomes an umbral silhouette. This prevents the
+	# ordinary oval from reading like a new death-effect pool as the body clears.
+	return 1.0 - smoothstep(0.04, 0.30, t)
 
 func _unit_art_scale(unit: Dictionary) -> float:
 	var unit_type: String = str(unit.get("type", ""))
