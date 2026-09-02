@@ -93,15 +93,18 @@ vec4 silhouette_wisp(
 	if (reduced_motion) {
 		return vec4(0.0);
 	}
-	float arrival = smoothstep(0.24 + layer * 0.06, 0.48 + layer * 0.05, p);
+	float arrival = smoothstep(0.08 + layer * 0.04, 0.30 + layer * 0.05, p);
 	float departure = 1.0 - smoothstep(0.78 + layer * 0.04, 1.0, p);
 	float envelope = arrival * departure;
-	float rise = smoothstep(0.20, 0.94, p) * rise_scale;
+	float rise = smoothstep(0.06, 0.92, p) * rise_scale;
 	float drift = horizontal_direction * rise * (0.22 + 0.12 * layer);
 	vec2 sampled_uv = sprite_uv + vec2(-drift, rise);
 	vec4 source = sprite_sample(sampled_uv);
 	float field = dissolve_field(sampled_uv);
-	float threshold = smoothstep(0.24, 0.92, p) * 0.90;
+	// Sweep the breakup field almost linearly across the complete timeline. The
+	// old eased threshold barely moved during the opening third, which made a
+	// stopped idle pose read as a long freeze before the late breakup.
+	float threshold = 0.03 + p * 1.05;
 	float already_released = 1.0 - smoothstep(threshold - 0.10, threshold + 0.10, field);
 	float filament = fbm(vec2(
 		sampled_uv.x * (7.0 + layer * 2.5) + sampled_uv.y * 2.7,
@@ -120,7 +123,7 @@ void fragment() {
 	float p = clamp(progress, 0.0, 1.0);
 	vec2 sprite_uv = (UV - source_uv_min) / max(source_uv_size, vec2(0.0001));
 	float field = dissolve_field(sprite_uv);
-	float motion_envelope = smoothstep(0.16, 0.76, p);
+	float motion_envelope = smoothstep(0.04, 0.68, p);
 	float lateral_flow = sin((sprite_uv.y * 8.0 + seed * 1.7) + field * 4.0) * 0.014 * motion_envelope;
 	float downward_flow = (0.010 + field * 0.030) * motion_envelope;
 	if (reduced_motion) {
@@ -130,21 +133,25 @@ void fragment() {
 	vec2 flowed_uv = sprite_uv - vec2(lateral_flow, downward_flow);
 	vec4 source = sprite_sample(flowed_uv);
 	float flowed_field = dissolve_field(flowed_uv);
-	float threshold = smoothstep(0.26, 0.94, p);
+	float threshold = 0.03 + p * 1.05;
 	float fragmented_survival = smoothstep(threshold - 0.105, threshold + 0.105, flowed_field);
-	float breakup_blend = smoothstep(0.18, 0.34, p);
+	float breakup_blend = smoothstep(0.04, 0.16, p);
 	float survival = mix(1.0, fragmented_survival, breakup_blend);
-	float final_fade = 1.0 - smoothstep(0.92, 1.0, p);
+	float final_fade = 1.0 - smoothstep(0.88, 1.0, p);
 
-	float bottom_first_wave = clamp(p * 1.52 - (1.0 - flowed_uv.y) * 0.50 - flowed_field * 0.20, 0.0, 1.0);
-	float shadow_takeover = smoothstep(0.02, 0.72, bottom_first_wave);
+	float bottom_first_wave = clamp(
+		p * 1.82 + flowed_uv.y * 0.20 - 0.19 - flowed_field * 0.07,
+		0.0,
+		1.0
+	);
+	float shadow_takeover = smoothstep(0.0, 0.72, bottom_first_wave);
 	if (reduced_motion) {
-		shadow_takeover = smoothstep(0.02, 0.58, p);
+		shadow_takeover = smoothstep(0.0, 0.62, p);
 	}
 	float luma = dot(source.rgb, vec3(0.299, 0.587, 0.114));
 	vec3 shadow_color = mix(umbra_low.rgb, umbra_high.rgb, clamp(luma * 0.72 + flowed_field * 0.18, 0.0, 1.0));
 	float fracture_edge = (1.0 - smoothstep(0.0, 0.065, abs(flowed_field - threshold))) * breakup_blend;
-	fracture_edge *= source.a * smoothstep(0.22, 0.80, p) * (1.0 - smoothstep(0.82, 0.98, p));
+	fracture_edge *= source.a * smoothstep(0.08, 0.52, p) * (1.0 - smoothstep(0.82, 0.98, p));
 	vec3 body_color = mix(source.rgb, shadow_color, shadow_takeover);
 	body_color = mix(body_color, fracture_glint.rgb, fracture_edge * 0.52);
 	vec4 body = vec4(body_color, source.a * survival * final_fade);

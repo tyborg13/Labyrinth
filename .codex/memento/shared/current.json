@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T04:16:00Z",
+  "updated_at": "2026-09-02T12:11:42Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9898,27 +9898,27 @@
       }
     },
     {
-      "id": "mnt_20260902T041600Z_ff0719f5",
+      "id": "mnt_20260902T121142Z_00f41a6f",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "user_preference",
       "scope": {
         "level": "file",
-        "path": "scripts/combat_board_view.gd",
+        "path": "assets/shaders/enemy_shadow_dissolve.gdshader",
         "symbol": null
       },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Enemy deaths hand directly from lethal contact into a silhouette-only procedural dissolve.",
-      "details": "When player attack feedback begins drawing a resolved zero-HP state, RunScene must composite death frame zero during the attack tail so the enemy never disappears and reappears before dissolution. EnemyShadowDissolveEffect transforms only the source silhouette: it does not synthesize a floor pool, and the ordinary actor contact shadow fades before the body becomes umbral. Runtime sampling uses 28 frames at 0.037 seconds (about the same one-second duration); reduced motion removes drift. Player terminal death remains authored.",
+      "scope_key": "file:assets/shaders/enemy_shadow_dissolve.gdshader",
+      "summary": "Enemy death dissolves must evolve visibly from the opening frames.",
+      "details": "Keep lethal contact intact, then begin shadow takeover within the first few 28x0.037-second samples and distribute breakup across the full timeline; do not front-load an inert frozen pose or back-load most dissolution. Preserve the silhouette-only effect with no synthesized floor pool, the direct lethal handoff, and reduced-motion behavior. On the ANGLE compatibility renderer, factoring the progress threshold through a shader helper visually latched the first updated value even though the material uniform continued changing; keep the linear threshold expression inline unless fresh ANGLE proof shows otherwise.",
       "status": "active",
-      "created_at": "2026-09-02T04:16:00Z",
-      "updated_at": "2026-09-02T04:16:00Z",
+      "created_at": "2026-09-02T12:11:42Z",
+      "updated_at": "2026-09-02T12:11:42Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260902T032512Z_436b744f"
+        "mnt_20260902T041600Z_ff0719f5"
       ],
       "source": {
         "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
-        "commit": "632fdd9e"
+        "commit": "a15ad72b"
       }
     }
   ]

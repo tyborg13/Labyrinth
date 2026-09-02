@@ -1,5 +1,5 @@
 {
-  "min_images": 12,
+  "min_images": 13,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -19,7 +19,23 @@
       ]
     },
     {
-      "pattern": "*54_shadow_breakup.png",
+      "pattern": "*14_early_shadow_takeover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 42, "min_luma_stdev": 7}
+      ]
+    },
+    {
+      "pattern": "*34_inward_breakup.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 150, 1320, 760], "min_luma_range": 40, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*60_silhouette_release.png",
       "width": 1920,
       "height": 1080,
       "regions": [

@@ -3,16 +3,17 @@ extends SceneTree
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
-const OUTPUT_ROOT: String = "user://enemy_shadow_dissolve_probe_v2"
+const OUTPUT_ROOT: String = "user://enemy_shadow_dissolve_probe_v3"
 const RESOLUTION: Vector2i = Vector2i(1920, 1080)
 const CHECKPOINTS: Array[Dictionary] = [
 	{"progress": 0.00, "file": "00_silhouette_hold.png"},
-	{"progress": 0.18, "file": "18_umbra_takeover.png"},
-	{"progress": 0.36, "file": "36_first_fractures.png"},
-	{"progress": 0.45, "file": "45_inward_breakup.png"},
-	{"progress": 0.54, "file": "54_shadow_breakup.png"},
-	{"progress": 0.63, "file": "63_silhouette_release.png"},
-	{"progress": 0.72, "file": "72_wisp_release.png"},
+	{"progress": 0.07, "file": "07_first_shadow_change.png"},
+	{"progress": 0.14, "file": "14_early_shadow_takeover.png"},
+	{"progress": 0.22, "file": "22_first_fractures.png"},
+	{"progress": 0.34, "file": "34_inward_breakup.png"},
+	{"progress": 0.46, "file": "46_shadow_breakup.png"},
+	{"progress": 0.60, "file": "60_silhouette_release.png"},
+	{"progress": 0.74, "file": "74_wisp_release.png"},
 	{"progress": 0.88, "file": "88_last_fragments.png"},
 	{"progress": 0.98, "file": "98_near_nothing.png"},
 ]
@@ -111,16 +112,32 @@ func _capture_sequence() -> void:
 	_assert_effect_nodes(board, reduced_progress, true)
 	captures.append(await _capture("reduced_motion_62_static_breakup.png"))
 
-	if captures.size() == 11:
-		var opening_change: float = _sampled_image_difference(captures[1], captures[5])
-		var completion_change: float = _sampled_image_difference(captures[1], captures[9])
-		if opening_change < 0.0025:
-			_fail("Midpoint dissolve should visibly depart from the intact silhouettes")
+	if captures.size() == 12:
+		var first_step_change: float = _sampled_image_difference(captures[1], captures[2])
+		var opening_change: float = _sampled_image_difference(captures[1], captures[3])
+		var early_breakup_change: float = _sampled_image_difference(captures[3], captures[5])
+		var middle_change: float = _sampled_image_difference(captures[5], captures[7])
+		var completion_change: float = _sampled_image_difference(captures[1], captures[10])
+		print("DISSOLVE_PHASE_DELTAS first=%.6f opening=%.6f early=%.6f middle=%.6f completion=%.6f" % [
+			first_step_change,
+			opening_change,
+			early_breakup_change,
+			middle_change,
+			completion_change,
+		])
+		if first_step_change < 0.00015:
+			_fail("The first sampled dissolve step should visibly depart from the intact silhouette")
+		if opening_change < 0.0007:
+			_fail("The opening dissolve should visibly convert the silhouette before one sixth progress")
+		if early_breakup_change < 0.0010:
+			_fail("The early dissolve should keep changing through the first third")
+		if middle_change < 0.0010:
+			_fail("The dissolve should keep changing across the middle of the animation")
 		if completion_change < 0.0035:
 			_fail("Near-complete dissolve should visibly clear the enemy silhouettes")
 		_save_contact_sheet(captures, "enemy_shadow_dissolve_contact_sheet.png")
 	else:
-		_fail("Dissolve proof should capture lethal continuity, nine motion checkpoints, and reduced motion")
+		_fail("Dissolve proof should capture lethal continuity, ten motion checkpoints, and reduced motion")
 
 	board.call("set_combat_state", state)
 	if not (board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary).is_empty():
@@ -210,6 +227,11 @@ func _assert_effect_nodes(board: Control, expected_progress: float, reduced_moti
 			continue
 		if not is_equal_approx(float(effect.call("dissolve_progress")), expected_progress):
 			_fail("%s should receive progress %.2f" % [actor_key, expected_progress])
+		var shader_material: ShaderMaterial = effect.material as ShaderMaterial
+		if shader_material == null:
+			_fail("%s should retain its dissolve shader material" % actor_key)
+		elif not is_equal_approx(float(shader_material.get_shader_parameter("progress")), expected_progress):
+			_fail("%s shader uniform should receive progress %.2f" % [actor_key, expected_progress])
 		if bool(effect.call("reduced_motion_enabled")) != reduced_motion:
 			_fail("%s should receive the reduced-motion state" % actor_key)
 		var source_rect: Rect2 = effect.call("source_rect") as Rect2
