@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T12:11:42Z",
+  "updated_at": "2026-09-02T14:31:15Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9919,6 +9919,28 @@
       "source": {
         "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
         "commit": "a15ad72b"
+      }
+    },
+    {
+      "id": "mnt_20260902T143115Z_a2d571ef",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Prewarm the procedural enemy-death shader before the first lethal frame and retain that initialized effect as a spare.",
+      "details": "On native Metal, Noctyrax's first procedural dissolve compiled one canvas pipeline on the kill frame and produced a 32.753 ms spike. A real nearly-transparent setup draw plus one retained node/material moved compilation to board startup: the cold kill then reported zero pipeline compilations and repeated kills stayed below 16 ms in the accepted capture. Keep the approved shader math unchanged; mathematically-zero early-exit branches altered ANGLE pixels around the middle breakup phase.",
+      "status": "active",
+      "created_at": "2026-09-02T14:31:15Z",
+      "updated_at": "2026-09-02T14:31:15Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/unify-enemy-death-into-polished-procedural-shadow-dissolution",
+        "commit": "a37b8e28"
       }
     }
   ]

@@ -261,6 +261,10 @@ func _save_contact_sheet(images: Array[Image], file_name: String) -> void:
 	sheet.fill(Color("120d18"))
 	for index: int in range(mini(images.size(), columns * rows)):
 		var frame: Image = images[index].duplicate()
+		# Metal can return the viewport in a packed RGB format while the contact
+		# sheet is RGBA8. Normalize before blitting so native proof stays portable.
+		if frame.get_format() != Image.FORMAT_RGBA8:
+			frame.convert(Image.FORMAT_RGBA8)
 		var fitted_size := Vector2i(cell_size.x, int(round(float(cell_size.x) / float(RESOLUTION.x) * float(RESOLUTION.y))))
 		if fitted_size.y > cell_size.y:
 			fitted_size = Vector2i(int(round(float(cell_size.y) / float(RESOLUTION.y) * float(RESOLUTION.x))), cell_size.y)

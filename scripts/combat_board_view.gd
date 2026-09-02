@@ -607,6 +607,8 @@ var item_tooltip_builder: Callable
 var _idle_frames_by_type: Dictionary = {}
 var _death_frames_by_type: Dictionary = {}
 var _enemy_shadow_dissolve_effects_by_key: Dictionary = {}
+var _enemy_shadow_dissolve_spare_effect: Control = null
+var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
 var _idle_frame_by_source: Dictionary = {}
@@ -745,6 +747,7 @@ func _ready() -> void:
 	resized.connect(_on_board_resized)
 	get_viewport().size_changed.connect(_sync_static_render_cache)
 	_load_assets(false)
+	_schedule_enemy_shadow_dissolve_shader_prewarm()
 	_create_static_render_cache()
 	_create_dynamic_render_layer()
 
@@ -957,9 +960,12 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 			continue
 		var effect: Control = _enemy_shadow_dissolve_effects_by_key.get(actor_key, null) as Control
 		if effect == null or not is_instance_valid(effect) or effect.is_queued_for_deletion():
-			effect = EnemyShadowDissolveEffect.new() as Control
+			effect = _take_enemy_shadow_dissolve_effect()
 			effect.name = "EnemyShadowDissolve_%d" % int(unit.get("id", _enemy_shadow_dissolve_effects_by_key.size()))
-			target_layer.add_child(effect)
+			if effect.get_parent() == null:
+				target_layer.add_child(effect)
+			elif effect.get_parent() != target_layer:
+				effect.reparent(target_layer, false)
 			_enemy_shadow_dissolve_effects_by_key[actor_key] = effect
 		elif effect.get_parent() != target_layer:
 			effect.reparent(target_layer, false)
@@ -979,7 +985,57 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 		var stale_effect: Control = _enemy_shadow_dissolve_effects_by_key.get(actor_key_var, null) as Control
 		_enemy_shadow_dissolve_effects_by_key.erase(actor_key_var)
 		if stale_effect != null and is_instance_valid(stale_effect):
-			stale_effect.queue_free()
+			_return_enemy_shadow_dissolve_effect(stale_effect)
+
+
+func _schedule_enemy_shadow_dissolve_shader_prewarm() -> void:
+	if _enemy_shadow_dissolve_shader_prewarm_submitted:
+		return
+	var source_texture: Texture2D = _unit_textures.get("player", null) as Texture2D
+	if source_texture == null:
+		return
+	_enemy_shadow_dissolve_shader_prewarm_submitted = true
+	var effect: Control = EnemyShadowDissolveEffect.new() as Control
+	effect.name = "EnemyShadowDissolvePrewarm"
+	# A real, nearly transparent draw is required to compile the canvas pipeline.
+	# Keep it one pixel and behind the board, then retain the initialized material
+	# as the first death effect so no node/material allocation lands on a kill.
+	effect.z_index = RenderingServer.CANVAS_ITEM_Z_MIN
+	effect.self_modulate = Color(1.0, 1.0, 1.0, 0.001)
+	add_child(effect)
+	effect.call("configure", source_texture, Rect2(Vector2.ONE, Vector2.ONE), 0.46, 0.137, false)
+	_enemy_shadow_dissolve_spare_effect = effect
+	RenderingServer.frame_post_draw.connect(_finish_enemy_shadow_dissolve_shader_prewarm, CONNECT_ONE_SHOT)
+
+
+func _finish_enemy_shadow_dissolve_shader_prewarm() -> void:
+	if _enemy_shadow_dissolve_spare_effect == null or not is_instance_valid(_enemy_shadow_dissolve_spare_effect):
+		_enemy_shadow_dissolve_spare_effect = null
+		return
+	_enemy_shadow_dissolve_spare_effect.visible = false
+
+
+func _take_enemy_shadow_dissolve_effect() -> Control:
+	var effect: Control = _enemy_shadow_dissolve_spare_effect
+	if effect == null or not is_instance_valid(effect) or effect.is_queued_for_deletion():
+		effect = EnemyShadowDissolveEffect.new() as Control
+	else:
+		_enemy_shadow_dissolve_spare_effect = null
+	effect.z_index = 0
+	effect.self_modulate = Color.WHITE
+	effect.visible = true
+	return effect
+
+
+func _return_enemy_shadow_dissolve_effect(effect: Control) -> void:
+	effect.visible = false
+	if _enemy_shadow_dissolve_spare_effect == null or not is_instance_valid(_enemy_shadow_dissolve_spare_effect):
+		if effect.get_parent() != self:
+			effect.reparent(self, false)
+		effect.name = "EnemyShadowDissolveSpare"
+		_enemy_shadow_dissolve_spare_effect = effect
+		return
+	effect.queue_free()
 
 
 func _enemy_shadow_dissolve_seed_for_unit(unit: Dictionary) -> float:

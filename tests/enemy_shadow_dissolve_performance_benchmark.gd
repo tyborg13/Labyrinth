@@ -162,6 +162,11 @@ func _initialize() -> void:
 	root.add_child(sampler)
 	_expect(await _acquire_probe_window_focus(), "Native dragon-death benchmark window must become focused")
 	await _settle_render_frames(12)
+	var prewarmed_effect: Control = board.get("_enemy_shadow_dissolve_spare_effect") as Control
+	_expect(bool(board.get("_enemy_shadow_dissolve_shader_prewarm_submitted")), "Dragon-death shader prewarm must be submitted during board setup")
+	_expect(prewarmed_effect != null and is_instance_valid(prewarmed_effect), "Board setup must retain the initialized dissolve effect")
+	_expect(prewarmed_effect != null and not prewarmed_effect.visible, "The retained dissolve effect must be hidden after its prewarm draw")
+	var prewarmed_effect_id: int = prewarmed_effect.get_instance_id() if prewarmed_effect != null else 0
 
 	var alive_state: Dictionary = _alive_state()
 	var defeated_state: Dictionary = _defeated_state()
@@ -182,7 +187,11 @@ func _initialize() -> void:
 	var cold_pipeline_after: int = _canvas_pipeline_compilation_count()
 	cold_result["canvas_pipeline_compilations"] = cold_pipeline_after - cold_pipeline_before
 	_expect(int(cold_result.get("authored_updates_submitted", 0)) > 0, "Cold death must submit at least one authored dissolve update")
+	_expect(int(cold_result.get("skipped_authored_updates", -1)) == 0, "Cold death capture must submit every authored dissolve update")
 	_expect(int(cold_result.get("effect_nodes_at_peak", 0)) == 1, "Cold death must render one procedural dissolve node")
+	_expect(int(cold_result.get("canvas_pipeline_compilations", -1)) == 0, "The first dragon death must reuse the precompiled canvas pipeline")
+	var cold_effect: Control = (board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary).get("enemy_401", null) as Control
+	_expect(cold_effect != null and cold_effect.get_instance_id() == prewarmed_effect_id, "The first dragon death must reuse the retained effect node and material")
 
 	var warm_runs: Array[Dictionary] = []
 	for _repetition: int in range(WARM_REPETITIONS):
@@ -193,6 +202,7 @@ func _initialize() -> void:
 		warm_result["canvas_pipeline_compilations"] = _canvas_pipeline_compilation_count() - pipeline_before
 		warm_runs.append(warm_result)
 	var repeated_death: Dictionary = _aggregate_runs(warm_runs)
+	_expect(int(repeated_death.get("skipped_authored_updates", -1)) == 0, "Repeated death captures must submit every authored dissolve update")
 
 	board.call("set_combat_state", defeated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, _death_presentation(0.46))
 	await _settle_render_frames(3)
@@ -207,6 +217,8 @@ func _initialize() -> void:
 	board.call("set_combat_state", defeated_state, [], [], Vector2i(-1, -1), "", "", {}, {}, _base_presentation())
 	await _settle_render_frames(4)
 	_expect((board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary).is_empty(), "Clearing death presentation must release the dissolve node")
+	var returned_spare: Control = board.get("_enemy_shadow_dissolve_spare_effect") as Control
+	_expect(returned_spare != null and is_instance_valid(returned_spare) and not returned_spare.visible, "Clearing death presentation must return one hidden dissolve effect to the spare slot")
 	var final_nodes: int = int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
 	var final_orphans: int = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	_expect(final_nodes <= initial_nodes + 2, "Repeated dragon deaths must not grow the live node tree")
