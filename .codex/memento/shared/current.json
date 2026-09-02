@@ -9988,6 +9988,28 @@
       }
     },
     {
+      "id": "mnt_20260902T121937Z_05b4980a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "_sorted_turn_queue"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#_sorted_turn_queue",
+      "summary": "Exact initiative clock ties favor the player",
+      "details": "Use one queue comparator for live scheduling and turn-order projection: compare time first, then place player entries before enemy entries on exact ties, then preserve activation sequence among actors on the same side. Focused tests must cover forecast order, committed queue order, and the actor actually activated.",
+      "status": "active",
+      "created_at": "2026-09-02T12:19:37Z",
+      "updated_at": "2026-09-02T12:19:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-turn-order-time-ties",
+        "commit": "3cde5c2b"
+      }
+    },
+    {
       "id": "mnt_20260902T124246Z_84531b8d",
       "layer": "shared",
       "kind": "pitfall",
