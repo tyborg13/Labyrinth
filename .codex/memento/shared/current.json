@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-01T22:43:19Z",
+  "updated_at": "2026-09-02T03:37:14Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9917,6 +9917,28 @@
       "source": {
         "branch": "codex/add-extracted-flip-sound-to-sequential-post-combat-reward-card-reveals",
         "commit": "e4bf4b0d"
+      }
+    },
+    {
+      "id": "mnt_20260902T033714Z_6868c676",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "assets/audio/sfx/reward_collect.wav",
+        "symbol": null
+      },
+      "scope_key": "file:assets/audio/sfx/reward_collect.wav",
+      "summary": "Reward collect cue isolates compilation event eight",
+      "details": "The source file freesound_community-collectable-videogame-sound-compilation-31233.mp3 contains ten events separated by silence. reward_collect.wav is event 8, cut from 16.82s through 18.12s with short edge fades, converted to mono 44.1 kHz PCM16, and mastered +10 dB for a roughly -10 dBFS peak.",
+      "status": "active",
+      "created_at": "2026-09-02T03:37:14Z",
+      "updated_at": "2026-09-02T03:37:14Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-card-played-ui-sound",
+        "commit": "3ace2923"
       }
     }
   ]
