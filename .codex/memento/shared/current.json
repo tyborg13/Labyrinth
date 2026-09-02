@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T04:25:18Z",
+  "updated_at": "2026-09-02T11:41:21Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9963,6 +9963,28 @@
       "source": {
         "branch": "codex/wire-downloaded-room-reward-and-victory-sound-effects",
         "commit": "8a349bb0"
+      }
+    },
+    {
+      "id": "mnt_20260902T114121Z_0f040932",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_sfx_library.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_sfx_library.gd",
+      "summary": "Door, Victory, and accepted-reward cues sit six decibels below their first audition mix",
+      "details": "After in-game listening, the door creak, Victory resolution, and accepted card/relic reward cue were each judged too loud relative to music and other effects. Reduce each by about half linear amplitude (-6 dB): door -10 dB, Victory -7 dB, reward accepted -12 dB. Keep campfire crackle at -4 dB.",
+      "status": "active",
+      "created_at": "2026-09-02T11:41:21Z",
+      "updated_at": "2026-09-02T11:41:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/wire-downloaded-room-reward-and-victory-sound-effects",
+        "commit": "2ddd90bd"
       }
     }
   ]

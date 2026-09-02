@@ -55,6 +55,7 @@ func _capture_states() -> void:
 	var door_presentation: Dictionary = (instance.get("_board_presentation") as Dictionary).get("door_opening", {}) as Dictionary
 	_assert(not door_presentation.is_empty(), "Door proof should capture the real opening animation")
 	_assert(_has_played_sfx(instance, RunSfxLibrary.DOOR_OPEN_ID, true), "Door proof should capture the creak while it is playing")
+	_assert(is_equal_approx(_played_sfx_volume_db(instance, RunSfxLibrary.DOOR_OPEN_ID), -10.0), "Door creak should play at its half-amplitude audition level")
 	await _save_root_screenshot("%s/01_door_opening_audio_sync_1920x1080_ui100.png" % OUTPUT_DIR)
 	await _wait_for_completion(door_done, 2.0, "door opening")
 
@@ -70,6 +71,7 @@ func _capture_states() -> void:
 		var ambient_player: AudioStreamPlayer = instance.get("_ambient_sfx_player") as AudioStreamPlayer
 		_assert(ambient_player != null and ambient_player.playing, "Campfire proof should capture the active fire ambience")
 		if ambient_player != null and ambient_player.stream is AudioStreamWAV:
+			_assert(is_equal_approx(ambient_player.volume_db, -4.0), "Campfire ambience should retain its existing mix level")
 			_assert((ambient_player.stream as AudioStreamWAV).loop_mode == AudioStreamWAV.LOOP_FORWARD, "Campfire proof should use the sample-accurate loop stream")
 		else:
 			_fail("Campfire proof should expose its looped WAV stream")
@@ -82,6 +84,7 @@ func _capture_states() -> void:
 	await _save_root_screenshot("%s/03_reward_offer_before_accepted_audio_1920x1080_ui100.png" % OUTPUT_DIR)
 	await instance.call("_on_reward_card_pressed", "frostbolt")
 	_assert(_has_played_sfx(instance, RunSfxLibrary.REWARD_ACCEPTED_ID), "Card claim proof should emit the accepted-reward cue")
+	_assert(is_equal_approx(_played_sfx_volume_db(instance, RunSfxLibrary.REWARD_ACCEPTED_ID), -12.0), "Accepted reward should play at its half-amplitude audition level")
 
 	var victory_done: Dictionary = {"done": false, "elapsed": 0.0}
 	_track_victory_sequence(instance, victory_board, victory_done)
@@ -89,6 +92,7 @@ func _capture_states() -> void:
 	var victory_overlay: Control = instance.get("_post_combat_victory_overlay") as Control
 	_assert(victory_overlay != null and victory_overlay.visible, "Victory proof should capture the visible Victory text")
 	_assert(_has_played_sfx(instance, RunSfxLibrary.VICTORY_RESOLUTION_ID, true), "Victory proof should capture the resolution cue while it is playing")
+	_assert(is_equal_approx(_played_sfx_volume_db(instance, RunSfxLibrary.VICTORY_RESOLUTION_ID), -7.0), "Victory resolution should play at its half-amplitude audition level")
 	await _save_root_screenshot("%s/04_victory_resolution_audio_sync_1920x1080_ui100.png" % OUTPUT_DIR)
 	await _wait_for_completion(victory_done, 6.0, "victory resolution")
 	var victory_cue_seconds: float = float(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID).get("trimmed_duration", 0.0))
@@ -191,6 +195,13 @@ func _has_played_sfx(instance: Node, sfx_id: String, require_playing: bool = fal
 		if not require_playing or player.playing:
 			return true
 	return false
+
+func _played_sfx_volume_db(instance: Node, sfx_id: String) -> float:
+	for player_var: Variant in instance.get("_sfx_players") as Array:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null and str(player.get_meta("sfx_id", "")) == sfx_id:
+			return player.volume_db
+	return INF
 
 func _settle() -> void:
 	await process_frame

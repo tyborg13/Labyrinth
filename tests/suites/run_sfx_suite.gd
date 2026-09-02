@@ -12,6 +12,13 @@ const EXPECTED_DURATIONS: Dictionary = {
 	RunSfxLibrary.VICTORY_RESOLUTION_ID: 5.062375
 }
 
+const EXPECTED_VOLUME_DB: Dictionary = {
+	RunSfxLibrary.DOOR_OPEN_ID: -10.0,
+	RunSfxLibrary.CAMPFIRE_LOOP_ID: -4.0,
+	RunSfxLibrary.REWARD_ACCEPTED_ID: -12.0,
+	RunSfxLibrary.VICTORY_RESOLUTION_ID: -7.0
+}
+
 static func run(tree: SceneTree, expect: Callable) -> void:
 	_test_registry_and_trimmed_assets(expect)
 	_test_victory_timing_contract(expect)
@@ -29,6 +36,7 @@ static func _test_registry_and_trimmed_assets(expect: Callable) -> void:
 		var expected_duration: float = float(EXPECTED_DURATIONS[sfx_id])
 		expect.call(absf(stream.get_length() - expected_duration) <= 0.012, "%s should preserve its measured trimmed duration" % sfx_id)
 		expect.call(absf(float(entry.get("trimmed_duration", 0.0)) - expected_duration) <= 0.0001, "%s should document the measured shipped duration" % sfx_id)
+		expect.call(is_equal_approx(float(entry.get("volume_db", 99.0)), float(EXPECTED_VOLUME_DB[sfx_id])), "%s should retain its approved mix level" % sfx_id)
 		expect.call(not entry.has("duration"), "%s should play its complete trimmed stream without an early stop timer" % sfx_id)
 
 	var ambient: Dictionary = RunSfxLibrary.ambient_entry_for_mode("campfire")
