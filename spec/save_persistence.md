@@ -26,7 +26,10 @@ migrates to `active`, so every player receives the authored guide once after its
 rollout. Completion and dismissal are the only automatic suppression flags and
 remain permanent profile choices; explicit replay resets just this record. Every
 runtime tutorial mutation increments `progression_revision` and is mirrored into
-the resumable run at the next committed persistence boundary.
+the resumable run at the next committed persistence boundary. Starting a new run
+with an active, partially completed tutorial restarts its milestones at step one,
+so abandoning an authored encounter cannot strand the guide in an unreachable
+mid-curriculum state.
 
 ## Committed boundaries
 

@@ -111,6 +111,18 @@ static func _test_returning_profile_rollout_eligibility(expect: Callable) -> voi
 		bool(eligible_run.get(GuidedCombatScenario.RUN_ELIGIBILITY_KEY, false)),
 		"A veteran profile without a terminal tutorial flag should receive the authored scenario once"
 	)
+	var interrupted_profile: Dictionary = ContextualCombatTutorial.complete_milestone(
+		returning_profile,
+		ContextualCombatTutorial.MILESTONE_MOVE
+	)
+	var replacement_profile: Dictionary = ProgressionStore.prepare_for_new_run(interrupted_profile)
+	var replacement_run: Dictionary = RunEngine.new().create_new_run(90212, replacement_profile)
+	replacement_run = GuidedCombatScenario.mark_run_eligible(replacement_run)
+	expect.call(
+		ContextualCombatTutorial.completed_steps(replacement_profile).is_empty()
+		and bool(replacement_run.get(GuidedCombatScenario.RUN_ELIGIBILITY_KEY, false)),
+		"A replacement run should restart an interrupted active tutorial and remain eligible for the authored scenario"
+	)
 
 	var completed_profile: Dictionary = ContextualCombatTutorial.complete_tutorial(returning_profile)
 	var completed_run: Dictionary = GuidedCombatScenario.mark_run_eligible({"progression": completed_profile})

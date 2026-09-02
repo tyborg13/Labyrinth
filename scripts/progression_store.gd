@@ -865,6 +865,15 @@ static func mark_umbra_warning_seen(data: Dictionary) -> Dictionary:
 
 static func prepare_for_new_run(data: Dictionary) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	# Tutorial milestones describe one authored encounter. If that run was
+	# abandoned before completion or dismissal, restart the active guide so the
+	# replacement run receives the complete deterministic scenario instead of an
+	# unreachable mid-curriculum state.
+	if (
+		ContextualCombatTutorial.is_active(next_data)
+		and not ContextualCombatTutorial.completed_steps(next_data).is_empty()
+	):
+		next_data = ContextualCombatTutorial.restart_tutorial(next_data)
 	var next_run_counter: int = int(next_data.get("run_counter", 0)) + 1
 	next_data["run_counter"] = next_run_counter
 	var marker: Dictionary = recovery_marker(next_data)

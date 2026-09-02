@@ -149,6 +149,7 @@ func _test_terminal_states_and_replay() -> void:
 	_assert(ContextualCombatTutorial.dismiss_tutorial(progression) == progression, "Repeated dismissal should be idempotent")
 	_assert(ContextualCombatTutorial.complete_tutorial(progression) == progression, "Final acknowledgement should not overwrite a prior dismissal")
 
+	var dismissed: Dictionary = progression.duplicate(true)
 	progression = ContextualCombatTutorial.restart_tutorial(progression)
 	_assert(ContextualCombatTutorial.is_active(progression), "Replay should reactivate onboarding")
 	_assert(ContextualCombatTutorial.completed_steps(progression).is_empty(), "Replay should reset only tutorial milestones")
@@ -156,6 +157,21 @@ func _test_terminal_states_and_replay() -> void:
 	_assert(int(progression.get("run_counter", -1)) == 0, "Replay should preserve unrelated profile fields")
 	var completed: Dictionary = ContextualCombatTutorial.complete_tutorial(progression)
 	_assert(ContextualCombatTutorial.dismiss_tutorial(completed) == completed, "Dismissal should not overwrite prior completion without an explicit replay")
+
+	var interrupted: Dictionary = ProgressionStore.default_data()
+	interrupted["run_counter"] = 6
+	interrupted = ContextualCombatTutorial.complete_milestone(interrupted, ContextualCombatTutorial.MILESTONE_MOVE)
+	var interrupted_revision: int = int(interrupted.get("progression_revision", -1))
+	var replacement_run_profile: Dictionary = ProgressionStore.prepare_for_new_run(interrupted)
+	_assert(ContextualCombatTutorial.is_active(replacement_run_profile), "Starting a replacement run should keep an interrupted tutorial active")
+	_assert(ContextualCombatTutorial.completed_steps(replacement_run_profile).is_empty(), "Starting a replacement run should restart an interrupted authored tutorial at step one")
+	_assert(int(replacement_run_profile.get("progression_revision", -1)) == interrupted_revision + 1, "Restarting an interrupted tutorial should persist one revisioned flag reset")
+	_assert(int(replacement_run_profile.get("run_counter", -1)) == 7, "Restarting an interrupted tutorial should still advance the run counter once")
+
+	var dismissed_next_run: Dictionary = ProgressionStore.prepare_for_new_run(dismissed)
+	_assert(str(ContextualCombatTutorial.state_from_progression(dismissed_next_run).get("status", "")) == ContextualCombatTutorial.STATUS_DISMISSED, "Starting later runs should preserve the skipped suppression flag")
+	var completed_next_run: Dictionary = ProgressionStore.prepare_for_new_run(completed)
+	_assert(ContextualCombatTutorial.is_completed(completed_next_run), "Starting later runs should preserve the completed suppression flag")
 
 func _test_merge_semantics() -> void:
 	var profile: Dictionary = ProgressionStore.default_data()
