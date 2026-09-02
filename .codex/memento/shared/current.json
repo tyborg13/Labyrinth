@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T15:15:44Z",
+  "updated_at": "2026-09-02T15:24:42Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10079,6 +10079,28 @@
       "source": {
         "branch": "codex/production-first-run-guided-combat-tutorial",
         "commit": "bb9e268b"
+      }
+    },
+    {
+      "id": "mnt_20260902T152442Z_ef1590f9",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Turn-order focus color must not override normal card previews",
+      "details": "In _refresh_stage_view, the neutral enemy-hover focus_actor_color belongs inside the _turn_order_hovered_enemy_key condition. Leaving it unconditional overwrites _preview_presentation's movement, attack, and illumination colors during ordinary card previews; preserve the normal-preview regression assertion in guided_combat_tutorial_suite.gd when reconciling this block.",
+      "status": "active",
+      "created_at": "2026-09-02T15:24:42Z",
+      "updated_at": "2026-09-02T15:24:42Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-first-run-guided-combat-tutorial",
+        "commit": "6f9b2893"
       }
     }
   ]

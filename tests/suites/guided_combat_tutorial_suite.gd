@@ -92,6 +92,7 @@ static func run(expect: Callable) -> void:
 	_test_action_only_advancement(expect)
 	_test_intent_confirmation_pins_exact_enemy_evidence(expect)
 	_test_intent_confirmation_owns_rendered_evidence(expect)
+	_test_normal_card_preview_preserves_action_focus_color(expect)
 	_test_forced_tutorial_blocks_skill_surfaces(expect)
 	_test_controller_candidate_filtering(expect)
 	_test_modal_suspension_and_resume(expect)
@@ -683,6 +684,38 @@ static func _test_intent_confirmation_owns_rendered_evidence(expect: Callable) -
 		)
 		expect.call(keyboard_prompt.blocked_messages.size() == 1, "The rejected I-key should provide immediate tutorial feedback")
 		keyboard_scene.free()
+
+
+static func _test_normal_card_preview_preserves_action_focus_color(expect: Callable) -> void:
+	var scene: Node = _combat_fixture(ReplayRunSceneHarness.new())
+	var board := BoardPresentationStub.new()
+	scene.add_child(board)
+	scene.set("board_view", board)
+
+	var combat_state: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = [GuidedCombatScenario.KILL_CARD_ID]
+	combat_state["deck"] = deck
+	scene.set("_combat_state", combat_state)
+	scene.set("_preview_combat_state", combat_state.duplicate(true))
+	var run_state: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+	run_state["combat_state"] = combat_state.duplicate(true)
+	scene.set("_run_state", run_state)
+	scene.set("_guided_tutorial_phase_id", "")
+	scene.set("_selected_card_index", 0)
+	scene.set("_pending_actions", [{"type": "melee", "damage": 11, "range": 1}])
+	scene.set("_pending_action_index", 0)
+	scene.set("_pending_target_tiles", _tiles([ENEMY_TILE]))
+	scene.set("_hovered_board_tile", INVALID_TILE)
+	scene.set("_turn_order_hovered_enemy_key", "")
+
+	scene.call("_refresh_stage_view")
+	expect.call(board.submission_count == 1, "The normal card-preview fixture should submit a real board presentation")
+	expect.call(
+		board.last_presentation.get("focus_actor_color", Color.TRANSPARENT) == Color("f08c53"),
+		"A normal attack preview should retain its action-specific actor-focus color when no turn-order enemy is hovered"
+	)
+	scene.free()
 
 
 static func _test_forced_tutorial_blocks_skill_surfaces(expect: Callable) -> void:
