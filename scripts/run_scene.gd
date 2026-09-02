@@ -14,6 +14,7 @@ const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
+const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
 const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
@@ -1137,9 +1138,27 @@ const CARD_DRAW_SFX_ENTRY: Dictionary = {
 	"volume_db": 0.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
+const CARD_PLAY_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/card_play_take.wav",
+	"duration": 0.222,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
 const REWARD_CARD_FLIP_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/reward_card_flip.wav",
 	"duration": 0.28,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
+const ITEM_EQUIP_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/item_equip.wav",
+	"duration": 0.53,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
+const RELIC_CHOICES_OPEN_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/relic_choices_open.wav",
+	"duration": 2.45,
 	"volume_db": 0.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
@@ -1779,9 +1798,12 @@ var _equipment_fx_layer: Control
 var _fatigue_edge_overlay: FatigueEdgeOverlay
 var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
+var _ambient_sfx_player: AudioStreamPlayer
 var _sfx_players: Array = []
+var _relic_choices_open_sfx_signature: String = ""
 var _music_tween: Tween
 var _active_music_id: String = ""
+var _active_ambient_sfx_id: String = ""
 var _initial_music_deferred: bool = false
 var _settings: Dictionary = {}
 var _drag_card_source_rect: Rect2 = Rect2()
@@ -9896,6 +9918,7 @@ func _refresh_ui(
 	var title_color: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("f0e6d2")
 	room_title.add_theme_color_override("font_color", title_color)
 	room_subtitle.add_theme_color_override("font_color", title_color.lightened(0.28) if ElementData.is_elemental(room_element) else Color("cdbca2"))
+	_update_ambient_sfx_for_context(str(_run_state.get("mode", "room")))
 	room_title.text = _room_title_text(display_room)
 	room_subtitle.text = _room_subtitle_text(display_room)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_room_header", performance_phase_started)
@@ -13360,6 +13383,7 @@ func _refresh_choice_bar() -> void:
 	_clear_relic_choice_overlay()
 	_sync_merchant_shop_room()
 	var mode: String = str(_run_state.get("mode", "room"))
+	var relic_offer_sfx_signature: String = ""
 	if mode not in ["victory", "defeat"] and _run_end_recap != null:
 		_run_end_recap.reset()
 	choice_bar.custom_minimum_size = Vector2.ZERO
@@ -13407,6 +13431,7 @@ func _refresh_choice_bar() -> void:
 		"treasure":
 			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
+				relic_offer_sfx_signature = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), JSON.stringify(pending_relics)]
 				_set_relic_choice_title(RELIC_CHOICE_TITLE_TEXT)
 			for relic_id_var: Variant in pending_relics:
 				var relic_id: String = str(relic_id_var)
@@ -13439,6 +13464,10 @@ func _refresh_choice_bar() -> void:
 		if _relic_choice_overlay.visible:
 			_layout_relic_choice_overlay()
 			call_deferred("_layout_relic_choice_overlay")
+	if relic_offer_sfx_signature.is_empty():
+		_relic_choices_open_sfx_signature = ""
+	else:
+		_play_relic_choices_open_sfx_once(relic_offer_sfx_signature)
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	var button := UiTooltipButton.new()
@@ -14476,7 +14505,12 @@ func _play_post_combat_victory(board_state: Dictionary) -> void:
 	if board_state.is_empty() or _post_combat_victory_overlay == null:
 		return
 	_render_board_state(board_state, {})
-	await PostCombatRewardSequence.play_victory(_post_combat_victory_overlay, _reduced_motion_enabled())
+	var cue_seconds: float = _play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
+	await PostCombatRewardSequence.play_victory(
+		_post_combat_victory_overlay,
+		_reduced_motion_enabled(),
+		cue_seconds
+	)
 
 func _play_loaded_reward_intro() -> void:
 	if _reward_intro_in_progress or not _reward_intro_pending():
@@ -19770,6 +19804,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
+	_play_card_play_sfx()
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
@@ -19993,8 +20028,25 @@ func _play_card_draw_sfx() -> void:
 		return
 	_play_sfx(CARD_DRAW_SFX_ENTRY)
 
+func _play_card_play_sfx() -> void:
+	if not _card_fx_can_continue_combat():
+		return
+	_play_sfx(CARD_PLAY_SFX_ENTRY)
+
 func _play_reward_card_flip_sfx() -> void:
 	_play_sfx(REWARD_CARD_FLIP_SFX_ENTRY)
+
+func _play_item_equip_sfx() -> void:
+	_play_sfx(ITEM_EQUIP_SFX_ENTRY)
+
+func _play_reward_collect_sfx() -> void:
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.REWARD_ACCEPTED_ID))
+
+func _play_relic_choices_open_sfx_once(offer_signature: String) -> void:
+	if offer_signature.is_empty() or offer_signature == _relic_choices_open_sfx_signature:
+		return
+	_relic_choices_open_sfx_signature = offer_signature
+	_play_sfx(RELIC_CHOICES_OPEN_SFX_ENTRY)
 
 func _card_fx_can_continue_combat() -> bool:
 	return _node_is_alive(_card_fx_layer) and str(_run_state.get("mode", "room")) == "combat"
@@ -21737,16 +21789,17 @@ func _movement_actor_frame_presentation(
 	presentation["unit_draw_tiles"] = {actor_key: draw_tile}
 	return presentation
 
-func _play_sfx(entry: Dictionary) -> void:
+func _play_sfx(entry: Dictionary) -> float:
 	var path: String = str(entry.get("path", ""))
 	if path.is_empty():
-		return
+		return 0.0
 	var resource: AudioStream = AssetLoader.load_audio_stream(path)
 	if resource == null:
-		return
+		return 0.0
 	var player: AudioStreamPlayer = _acquire_sfx_player()
 	var generation: int = int(player.get_meta("play_generation", 0)) + 1
 	player.set_meta("play_generation", generation)
+	player.set_meta("sfx_id", str(entry.get("id", "")))
 	player.stream = resource
 	player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
 	player.volume_db = float(entry.get("volume_db", 0.0))
@@ -21754,6 +21807,8 @@ func _play_sfx(entry: Dictionary) -> void:
 	var duration: float = float(entry.get("duration", 0.0))
 	if duration > 0.0:
 		get_tree().create_timer(duration).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
+		return minf(duration, maxf(0.0, resource.get_length()))
+	return maxf(0.0, resource.get_length())
 
 func _play_trap_sfx(traps: Array) -> void:
 	for entry: Dictionary in AttackSfxLibrary.entries_for_traps(traps):
@@ -21770,6 +21825,44 @@ func _acquire_sfx_player() -> AudioStreamPlayer:
 	add_child(player)
 	_sfx_players.append(player)
 	return player
+
+func _update_ambient_sfx_for_context(mode: String) -> void:
+	var entry: Dictionary = RunSfxLibrary.ambient_entry_for_mode(mode)
+	var next_id: String = str(entry.get("id", ""))
+	if next_id == _active_ambient_sfx_id:
+		return
+	_active_ambient_sfx_id = next_id
+	if next_id.is_empty():
+		if _ambient_sfx_player != null:
+			_ambient_sfx_player.stop()
+			_ambient_sfx_player.stream = null
+		return
+	var resource: AudioStream = AssetLoader.load_audio_stream(str(entry.get("path", "")))
+	if resource == null:
+		_active_ambient_sfx_id = ""
+		return
+	_ensure_ambient_sfx_player()
+	_ambient_sfx_player.stream = _looping_audio_stream(resource)
+	_ambient_sfx_player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
+	_ambient_sfx_player.volume_db = float(entry.get("volume_db", 0.0))
+	_ambient_sfx_player.play()
+
+func _ensure_ambient_sfx_player() -> void:
+	if _ambient_sfx_player != null:
+		return
+	_ambient_sfx_player = AudioStreamPlayer.new()
+	_ambient_sfx_player.name = "AmbientSfxPlayer"
+	_ambient_sfx_player.bus = SettingsStore.WORLD_SFX_BUS
+	add_child(_ambient_sfx_player)
+
+func _looping_audio_stream(resource: AudioStream) -> AudioStream:
+	var looped: AudioStream = resource.duplicate() as AudioStream
+	if looped is AudioStreamWAV:
+		var wav: AudioStreamWAV = looped as AudioStreamWAV
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_begin = 0
+		wav.loop_end = maxi(1, int(round(wav.get_length() * float(wav.mix_rate))))
+	return looped
 
 func _stop_attack_sfx_player(player: AudioStreamPlayer, generation: int = -1) -> void:
 	if not is_instance_valid(player):
@@ -23203,6 +23296,9 @@ func _map_travel_animation_seconds() -> float:
 	return 0.0
 
 func _play_door_opening_animation(door_tile: Vector2i) -> void:
+	var cue_seconds: float = _play_sfx(RunSfxLibrary.entry(RunSfxLibrary.DOOR_OPEN_ID))
+	var default_seconds: float = float(DOOR_OPENING_FRAMES) * DOOR_OPENING_FRAME_SECONDS + DOOR_OPENING_SETTLE_SECONDS
+	var opening_seconds: float = maxf(default_seconds, cue_seconds)
 	if _reduced_motion_enabled():
 		_board_presentation = {
 			"door_opening": {
@@ -23213,9 +23309,12 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 		}
 		_refresh_stage_view()
 		await get_tree().process_frame
+		await get_tree().create_timer(opening_seconds).timeout
 		return
 	var frame_count: int = maxi(1, DOOR_OPENING_FRAMES)
-	await _play_timed_animation_frames(frame_count, DOOR_OPENING_FRAME_SECONDS, func(frame_number: int) -> void:
+	var settle_seconds: float = minf(DOOR_OPENING_SETTLE_SECONDS, opening_seconds)
+	var frame_seconds: float = maxf(0.0, opening_seconds - settle_seconds) / float(frame_count)
+	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
 		var frame: int = frame_number - 1
 		var progress: float = 1.0 if frame_count <= 1 else float(frame) / float(frame_count - 1)
 		_board_presentation = {
@@ -23227,7 +23326,7 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 		}
 		_refresh_stage_view()
 	)
-	await get_tree().create_timer(DOOR_OPENING_SETTLE_SECONDS).timeout
+	await get_tree().create_timer(settle_seconds).timeout
 
 func _continue_pending_escape_after_reward() -> bool:
 	if _escape_transition_in_progress or str(_run_state.get("mode", "room")) != RunEngineScript.MODE_ESCAPE:
@@ -23279,6 +23378,7 @@ func _on_reward_card_pressed(card_id: String, source_control: Control = null) ->
 	_animation_lock = true
 	var source_rect: Rect2 = source_control.get_global_rect() if _node_is_alive(source_control) else Rect2()
 	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+	_play_reward_collect_sfx()
 	if _node_is_alive(source_control):
 		source_control.modulate = Color(1.0, 1.0, 1.0, 0.18)
 	await _animate_magic_reward_acquisition_flair(card_id, source_rect, accent)
@@ -23411,6 +23511,7 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 	_sync_combat_state_from_run()
 	_persist_committed_boundary("relic_claimed")
 	_refresh_ui()
+	_play_reward_collect_sfx()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
 	await _animate_relic_acquired(relic_id)
 	_relic_claim_in_progress = false
@@ -27181,6 +27282,7 @@ func _swap_magic_from_overlay(inventory_index: int, attuned_index: int) -> void:
 	if attuned_index < 0 or attuned_index >= attuned.size() or str(attuned[attuned_index]) != incoming_card_id:
 		_clear_magic_drag_state(true)
 		return
+	_play_item_equip_sfx()
 	_persist_committed_boundary("magic_attuned")
 	_analytics_log_magic_attuned(inventory_index, attuned_index, incoming_card_id)
 	_clear_magic_drag_state(false)
@@ -27210,6 +27312,7 @@ func _equip_item_from_overlay(inventory_index: int, equipped_index: int = -1) ->
 		_clear_item_drag_state(true)
 		_item_swap_animation_active = false
 		return
+	_play_item_equip_sfx()
 	_persist_committed_boundary("item_equipped")
 	var actual_equipped_index: int = _equipped_item_index_after_change(card_id, before_equipped, after_equipped, equipped_index)
 	_analytics_log_item_equipped("equip", card_id, inventory_index, actual_equipped_index)
@@ -27461,6 +27564,7 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 		_clear_equipment_drag_state(true)
 		return
 	_equipment_swap_animation_active = true
+	_play_item_equip_sfx()
 	_persist_committed_boundary("equipment_equipped")
 	_analytics_log_equipment_equipped(slot, before_id, equipment_id)
 	_refresh_ui()

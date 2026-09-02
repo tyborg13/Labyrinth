@@ -3,6 +3,7 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const OUTPUT_DIR: String = "user://probes/card_play_confirmation_v2"
 const STORAGE_PATH: String = "user://card_play_confirmation_probe_progression.json"
@@ -39,24 +40,17 @@ func _capture_confirmation(packed: PackedScene, viewport_size: Vector2i) -> void
 	await _settle_ui()
 
 	var context: Control = instance.get("_action_step_tracker") as Control
-	var printed_mode: Button = context.find_child("CardActionChoicePlay", true, false) as Button
-	var move_mode: Button = context.find_child("CardActionChoiceMove", true, false) as Button
 	var board: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var player_tile: Vector2i = ((state_before.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
 	var confirmation_tiles: Array = (board.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array
-	var viewport_bounds := Rect2(Vector2.ZERO, Vector2(viewport_size)).grow(1.0)
 	_assert(instance.get_viewport().get_visible_rect().size == Vector2(viewport_size), "%s proof should use the requested logical viewport" % viewport_size)
 	_assert((instance.get("_combat_state") as Dictionary) == state_before, "%s card selection should not mutate live combat" % viewport_size)
-	_assert(int(instance.get("_selected_card_index")) == 0 and int(instance.get("_card_action_choice_index")) == 0, "%s should arm the exact selected card and keep its modes open" % viewport_size)
+	_assert(int(instance.get("_selected_card_index")) == 0, "%s should arm the exact selected card" % viewport_size)
+	_assert(int(instance.get("_card_action_choice_index")) == -1 and str(instance.get("_card_action_choice_mode")) == "play", "%s should auto-enter the sole legal Printed mode" % viewport_size)
 	_assert(int(instance.get("_pending_action_index")) >= (instance.get("_pending_actions") as Array).size(), "%s targetless preview should finish without committing" % viewport_size)
-	_assert(context != null and context.visible and viewport_bounds.encloses(context.get_global_rect()), "%s confirmation rail should remain fully visible" % viewport_size)
-	_assert(context != null and context.get_global_rect().size.x <= float(viewport_size.x) * 0.5, "%s confirmation rail should stay compact" % viewport_size)
+	_assert(context != null and not context.visible, "%s the execution tracker should stay hidden until the play is confirmed" % viewport_size)
 	_assert(_button_with_text(context, "Play Card") == null, "%s should not expose a third confirmation control" % viewport_size)
 	_assert(confirmation_tiles == [player_tile], "%s should expose only the protagonist tile as the targetless confirmation" % viewport_size)
-	_assert(printed_mode != null and printed_mode.button_pressed, "%s should keep Printed visibly selected" % viewport_size)
-	_assert(move_mode != null and not move_mode.disabled, "%s should keep alternate Move available before confirmation" % viewport_size)
-	_assert(str(context.get_meta("action_verb", "")) == "READY · CLICK YOUR TILE", "%s should identify the self-confirm state" % viewport_size)
-	_assert(str(context.get_meta("target_state", "")) == "SELF", "%s should identify the protagonist as the click target" % viewport_size)
 
 	var log_overlay: Control = instance.get("log_overlay") as Control
 	if log_overlay != null:
@@ -67,16 +61,31 @@ func _capture_confirmation(packed: PackedScene, viewport_size: Vector2i) -> void
 	var image: Image = capture_viewport.get_texture().get_image()
 	_assert(image != null and image.get_size() == viewport_size, "%s proof should capture an exact-size renderer frame" % viewport_size)
 	var frame_coverage: float = _non_black_frame_coverage(image)
-	var context_luma_range: float = _image_region_luma_range(image, context.get_global_rect()) if context != null else 0.0
 	_assert(frame_coverage >= 0.08, "%s proof should capture a complete scene frame, got %.3f non-black coverage" % [viewport_size, frame_coverage])
-	_assert(context_luma_range >= 0.15, "%s proof should visibly render the confirmation rail, got %.3f luminance range" % [viewport_size, context_luma_range])
-	if image != null and image.get_size() == viewport_size and frame_coverage >= 0.08 and context_luma_range >= 0.15:
+	if image != null and image.get_size() == viewport_size and frame_coverage >= 0.08:
 		image.save_png("%s/targetless_confirmation.png" % output_dir)
 
+	var rejected_sfx_generation: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
 	await instance.call("_on_board_tile_clicked", Vector2i(5, 4))
 	_assert((instance.get("_combat_state") as Dictionary) == state_before, "%s a non-player tile should not confirm a targetless card" % viewport_size)
-	await instance.call("_on_board_tile_clicked", player_tile)
-	await create_timer(1.5).timeout
+	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == rejected_sfx_generation, "%s a rejected board click should stay silent" % viewport_size)
+	var sfx_generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	instance.call("_on_board_tile_clicked", player_tile)
+	await create_timer(0.10).timeout
+	_assert(
+		_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_generation_before + 1,
+		"%s a confirmed play should start exactly one card-take sound" % viewport_size
+	)
+	_assert(_active_ui_sfx_count(instance.get("_sfx_players") as Array) == 1, "%s the card-take sound should be active on the UI SFX bus during card flight" % viewport_size)
+	_assert(_first_card_fx_proxy(instance) != null, "%s the card-take sound should overlap the card-to-center flight" % viewport_size)
+	_assert((instance.get("_combat_state") as Dictionary) == state_before, "%s board resolution should not commit before the card-flight sound and animation" % viewport_size)
+	RenderingServer.force_draw()
+	await process_frame
+	var flight_image: Image = capture_viewport.get_texture().get_image()
+	_assert(flight_image != null and flight_image.get_size() == viewport_size, "%s confirmed-play flight proof should keep the exact renderer size" % viewport_size)
+	if flight_image != null and flight_image.get_size() == viewport_size:
+		flight_image.save_png("%s/confirmed_play_card_flight.png" % output_dir)
+	await _wait_for_card_resolution(instance, 4.0)
 	_assert(int(instance.get("_selected_card_index")) == -1, "%s clicking the protagonist tile should finish the card" % viewport_size)
 	instance.queue_free()
 	capture_viewport.queue_free()
@@ -140,6 +149,38 @@ func _button_with_text(root_node: Node, text: String) -> Button:
 			return button
 	return null
 
+func _sfx_generation_total(players: Array) -> int:
+	var total: int = 0
+	for player_var: Variant in players:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null:
+			total += int(player.get_meta("play_generation", 0))
+	return total
+
+func _active_ui_sfx_count(players: Array) -> int:
+	var total: int = 0
+	for player_var: Variant in players:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null and player.stream != null and player.bus == SettingsStore.UI_SFX_BUS:
+			total += 1
+	return total
+
+func _first_card_fx_proxy(instance: Node) -> Control:
+	var fx_layer: Control = instance.get("_card_fx_layer") as Control
+	if fx_layer == null:
+		return null
+	for child: Node in fx_layer.get_children():
+		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
+			return child as Control
+	return null
+
+func _wait_for_card_resolution(instance: Node, timeout_seconds: float) -> void:
+	var deadline_msec: int = Time.get_ticks_msec() + roundi(timeout_seconds * 1000.0)
+	while Time.get_ticks_msec() < deadline_msec:
+		if not bool(instance.get("_animation_lock")) and int(instance.get("_selected_card_index")) < 0:
+			return
+		await process_frame
+
 func _non_black_frame_coverage(image: Image) -> float:
 	if image == null or image.is_empty():
 		return 0.0
@@ -152,21 +193,6 @@ func _non_black_frame_coverage(image: Image) -> float:
 			if maxf(pixel.r, maxf(pixel.g, pixel.b)) > 0.015:
 				non_black += 1
 	return float(non_black) / float(maxi(1, sampled))
-
-func _image_region_luma_range(image: Image, region: Rect2) -> float:
-	if image == null or image.is_empty():
-		return 0.0
-	var clipped: Rect2 = region.intersection(Rect2(Vector2.ZERO, Vector2(image.get_size())))
-	if clipped.size.x <= 1.0 or clipped.size.y <= 1.0:
-		return 0.0
-	var min_luma: float = INF
-	var max_luma: float = -INF
-	for y: int in range(int(floor(clipped.position.y)), int(ceil(clipped.end.y)), 3):
-		for x: int in range(int(floor(clipped.position.x)), int(ceil(clipped.end.x)), 3):
-			var luma: float = image.get_pixel(x, y).get_luminance()
-			min_luma = minf(min_luma, luma)
-			max_luma = maxf(max_luma, luma)
-	return maxf(0.0, max_luma - min_luma)
 
 func _settle_ui() -> void:
 	await process_frame
