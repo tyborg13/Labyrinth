@@ -41,6 +41,16 @@ static func run(expect: Callable) -> void:
 	if card_draw_stream != null:
 		expect.call(card_draw_stream.get_length() >= 0.28 and card_draw_stream.get_length() <= 0.30, "The card-draw sound should stay tightly trimmed before the following impact")
 	expect.call(float(card_draw_entry.get("volume_db", 99.0)) <= 0.0, "Card-draw playback should not boost the mastered asset above its safe level")
+	var card_play_entry: Dictionary = RunSceneScript.CARD_PLAY_SFX_ENTRY
+	var card_play_path: String = str(card_play_entry.get("path", ""))
+	var card_play_stream: AudioStream = AssetLoader.load_audio_stream(card_play_path)
+	expect.call(card_play_path == "res://assets/audio/sfx/card_play_take.wav", "Confirmed card plays should use the supplied taking-card transient")
+	expect.call(FileAccess.file_exists(card_play_path), "The card-play sound asset should exist")
+	expect.call(card_play_stream != null, "The card-play sound should load as a playable audio stream")
+	if card_play_stream != null:
+		expect.call(card_play_stream.get_length() >= 0.21 and card_play_stream.get_length() <= 0.23, "The card-play sound should stay tightly trimmed to the card-to-center motion")
+	expect.call(str(card_play_entry.get("bus", "")) == SettingsStore.UI_SFX_BUS, "Card-play confirmation should use the dry UI SFX path")
+	expect.call(float(card_play_entry.get("volume_db", 99.0)) <= 0.0, "Card-play playback should not boost the mastered asset above its safe level")
 	var reward_flip_entry: Dictionary = RunSceneScript.REWARD_CARD_FLIP_SFX_ENTRY
 	var reward_flip_path: String = str(reward_flip_entry.get("path", ""))
 	var reward_flip_stream: AudioStream = AssetLoader.load_audio_stream(reward_flip_path)
@@ -103,21 +113,30 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	instance.call("_animate_draw_cards_fx", [])
 	await tree.process_frame
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before, "An empty draw transition should stay silent")
+	instance.call("_play_card_play_sfx")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 1, "A confirmed card play should start exactly one taking-card sound")
+	var card_play_players: Array = instance.get("_sfx_players") as Array
+	for player_var: Variant in card_play_players:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null and player.stream != null:
+			expect.call(player.bus == SettingsStore.UI_SFX_BUS, "The active card-play sound should stay on the dry UI SFX path")
+	await tree.create_timer(0.24).timeout
+	var draw_generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
 	var draw_entries: Array = [
 		{"card_id": "brace", "index": 1, "total": 3},
 		{"card_id": "lantern_shot", "index": 2, "total": 3}
 	]
 	instance.call("_animate_draw_cards_fx", draw_entries)
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 1, "The first draw sound should begin with the first card launch")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == draw_generation_before + 1, "The first draw sound should begin with the first card launch")
 	await tree.create_timer(0.18).timeout
 	var players: Array = instance.get("_sfx_players") as Array
-	expect.call(_sfx_generation_total(players) == generation_before + 2, "A two-card draw should play exactly one staggered sound per card")
+	expect.call(_sfx_generation_total(players) == draw_generation_before + 2, "A two-card draw should play exactly one staggered sound per card")
 	for player_var: Variant in players:
 		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
 		if player != null:
 			expect.call(player.bus == SettingsStore.UI_SFX_BUS, "Card-draw sounds should use the dry UI SFX path while inheriting shared SFX volume")
 	await tree.create_timer(0.20).timeout
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 2, "A completed draw should not schedule extra sounds")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == draw_generation_before + 2, "A completed draw should not schedule extra sounds")
 	var replacement_before: Dictionary = {
 		"player": {"hp": 10},
 		"enemies": [{"id": 0, "type": "crawler", "hp": 10, "max_hp": 10}],
@@ -142,9 +161,9 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 		Rect2(),
 		RunSceneScript.card_draw_sfx_count_between_states(replacement_before, replacement_after)
 	)
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 3, "A semantic same-ID replacement draw should still play exactly one sound without a visual diff entry")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == draw_generation_before + 3, "A semantic same-ID replacement draw should still play exactly one sound without a visual diff entry")
 	await tree.create_timer(0.20).timeout
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == generation_before + 3, "A same-ID replacement draw should not schedule extra sounds")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == draw_generation_before + 3, "A same-ID replacement draw should not schedule extra sounds")
 	var relic_draw_transition: Dictionary = _iron_buckler_draw_transition()
 	var relic_draw_before: Dictionary = relic_draw_transition.get("before", {}) as Dictionary
 	var relic_draw_after: Dictionary = relic_draw_transition.get("after", {}) as Dictionary

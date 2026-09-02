@@ -1137,6 +1137,12 @@ const CARD_DRAW_SFX_ENTRY: Dictionary = {
 	"volume_db": 0.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
+const CARD_PLAY_SFX_ENTRY: Dictionary = {
+	"path": "res://assets/audio/sfx/card_play_take.wav",
+	"duration": 0.222,
+	"volume_db": 0.0,
+	"bus": SettingsStore.UI_SFX_BUS
+}
 const REWARD_CARD_FLIP_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/reward_card_flip.wav",
 	"duration": 0.28,
@@ -19770,6 +19776,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
+	_play_card_play_sfx()
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
@@ -19992,6 +19999,11 @@ func _play_card_draw_sfx() -> void:
 	if not _card_fx_can_continue_combat():
 		return
 	_play_sfx(CARD_DRAW_SFX_ENTRY)
+
+func _play_card_play_sfx() -> void:
+	if not _card_fx_can_continue_combat():
+		return
+	_play_sfx(CARD_PLAY_SFX_ENTRY)
 
 func _play_reward_card_flip_sfx() -> void:
 	_play_sfx(REWARD_CARD_FLIP_SFX_ENTRY)
