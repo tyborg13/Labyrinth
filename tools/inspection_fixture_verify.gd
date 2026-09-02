@@ -1,5 +1,6 @@
 extends SceneTree
 
+const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
@@ -30,6 +31,12 @@ func _initialize() -> void:
 	var actual_contract: Dictionary = _fixture_state_contract(run_state, progression)
 	if actual_contract != expected_contract:
 		_fail("saved fixture no longer matches its state contract\nexpected=%s\nactual=%s" % [JSON.stringify(expected_contract), JSON.stringify(actual_contract)])
+		return
+	if (
+		str(metadata.get("scenario", "")) == "guided_tutorial"
+		and not GuidedCombatScenario.is_authored(run_state.get("combat_state", {}) as Dictionary)
+	):
+		_fail("guided tutorial fixture is not at the authored pre-action combat state")
 		return
 	var payload: Dictionary = {
 		"ok": true,

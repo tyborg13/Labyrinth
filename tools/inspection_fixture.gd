@@ -4,6 +4,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
@@ -13,7 +14,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "bone_dart", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
 const MAX_ROUTE_STEPS: int = 4 * RunEngine.MAX_DEPTH * (RunEngine.MAX_DEPTH + 1) + 1
@@ -47,6 +48,9 @@ func _initialize() -> void:
 	var progression: Dictionary = _build_progression()
 	var run_state: Dictionary = _build_run_state(scenario, progression)
 	if _failed:
+		return
+	if scenario == "guided_tutorial" and not GuidedCombatScenario.is_authored(run_state.get("combat_state", {}) as Dictionary):
+		_fail("Guided tutorial fixture did not reach the authored pre-action combat state.")
 		return
 	run_state["inspection_fixture"] = _fixture_metadata(scenario, user_namespace, run_state)
 	if not str(_options.get("notice", "")).is_empty():
@@ -324,6 +328,10 @@ func _build_progression() -> Dictionary:
 		progression = ProgressionStore.prepare_for_new_run(progression)
 		progression = ProgressionStore.record_first_umbra_reach(progression, int(progression.get("run_counter", 1)))
 		progression = ProgressionStore.prepare_for_new_run(progression)
+	elif str(_options.get("scenario", "")) == "guided_tutorial":
+		# Mirror RunScene._start_run so the saved profile and embedded run snapshot
+		# agree on the first-run counter as well as tutorial eligibility.
+		progression = ProgressionStore.prepare_for_new_run(progression)
 	return progression
 
 func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
@@ -339,6 +347,8 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 			return _build_pre_battle_run(progression)
 		"combat":
 			return _build_combat_run(progression)
+		"guided_tutorial":
+			return _build_guided_tutorial_run(progression)
 		"boss":
 			var boss_state: Dictionary = _run_engine.create_debug_boss_run(progression)
 			boss_state = _apply_loadout(boss_state)
@@ -474,6 +484,21 @@ func _build_combat_run(progression: Dictionary) -> Dictionary:
 		if str(state.get("mode", "")) != "combat":
 			var fallback_coord: Vector2i = combat_coord if combat_coord != INVALID_COORD else _first_room_coord_of_type(state, "combat")
 			state = _force_combat_room(state, fallback_coord)
+	return _apply_combat_overrides(state)
+
+func _build_guided_tutorial_run(progression: Dictionary) -> Dictionary:
+	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
+	state = GuidedCombatScenario.mark_run_eligible(state)
+	var combat_coord: Vector2i = _first_available_room_coord_of_type(state, "combat")
+	if combat_coord == INVALID_COORD:
+		_fail("Could not find the first available combat room for the guided tutorial fixture.")
+		return state
+	state = _run_engine.move_to_room(state, combat_coord)
+	if str(state.get("mode", "")) != "combat":
+		_fail("Guided tutorial fixture did not enter combat at %s." % str(combat_coord))
+		return state
+	if str(_options.get("notice", "")).is_empty():
+		state["notice"] = "Inspection fixture: authored tutorial before the first click."
 	return _apply_combat_overrides(state)
 
 func _build_pre_battle_run(progression: Dictionary) -> Dictionary:
