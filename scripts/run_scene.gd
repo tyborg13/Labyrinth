@@ -1680,6 +1680,8 @@ var _hand_card_pool: Array[Dictionary]
 var _hand_layout_revision: int = 0
 var _hand_layout_pending_revision: int = -1
 var _hand_layout_envelope_signature: String = "<unset>"
+var _draw_hand_transition_cards: Array[String]
+var _draw_hand_transition_proxies: Array[Control]
 var _locked_hand_render_cache := LockedHandRenderCache.new()
 var _locked_hand_cache_active: bool:
 	get:
@@ -13537,10 +13539,17 @@ func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 		_finish_combat_skill_card_motion()
 		return
 	await _animate_card_to_pile_fx(card_id, "discard", card_size, discard_proxy)
+	var draw_transition: Dictionary = _draw_hand_transition_between_states(
+		before_state,
+		next_state,
+		hand_index,
+		false
+	)
 	await _animate_draw_cards_fx(
-		_draw_entries_between_states(before_state, next_state),
+		draw_transition.get("draw_entries", []) as Array,
 		Rect2(),
-		_take_pending_card_draw_sfx_count(next_state)
+		_take_pending_card_draw_sfx_count(next_state),
+		draw_transition
 	)
 	_finish_combat_skill_card_motion()
 
@@ -13576,10 +13585,12 @@ func _commit_encore(skill_id: String, discard_index: int) -> void:
 	if not _stage_combat_skill_state(next_state, skill_id):
 		_finish_combat_skill_card_motion()
 		return
+	var draw_transition: Dictionary = _draw_hand_transition_between_states(before_state, next_state)
 	await _animate_draw_cards_fx(
-		_draw_entries_between_states(before_state, next_state),
+		draw_transition.get("draw_entries", []) as Array,
 		source_rect,
-		_take_pending_card_draw_sfx_count(next_state)
+		_take_pending_card_draw_sfx_count(next_state),
+		draw_transition
 	)
 	_finish_combat_skill_card_motion()
 
@@ -15416,6 +15427,7 @@ func _refresh_hand_panel() -> void:
 	# Any real hand refresh (draw, resource change, resize, or unlock) invalidates
 	# the frozen image. Restore the controls before their normal update path runs.
 	_end_locked_hand_render_cache()
+	_finish_draw_hand_transition_for_refresh()
 	_clear_idle_card_fx_layer()
 	var mode: String = str(_run_state.get("mode", "room"))
 	# This signature intentionally excludes hover/focus/card identity. Those states
@@ -16112,6 +16124,15 @@ func _clear_idle_card_fx_layer() -> void:
 		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
 			_release_card_proxy(child)
 	_clear_children_now(_card_fx_layer)
+
+func _finish_draw_hand_transition_for_refresh() -> void:
+	if hand_box != null:
+		hand_box.visible = true
+	for proxy: Control in _draw_hand_transition_proxies:
+		_release_card_proxy(proxy)
+	_draw_hand_transition_proxies.clear()
+	_draw_hand_transition_cards.clear()
+
 func _refresh_stage_view() -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
@@ -19944,7 +19965,149 @@ func _animate_card_consumed_fx(card_id: String, size_hint: Vector2, staged_proxy
 	await tween.finished
 	_release_card_proxy(proxy)
 
-func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = Rect2(), draw_sfx_count: int = -1) -> void:
+func _animate_staged_draw_hand_fx(
+	draw_entries: Array,
+	source_rect: Rect2,
+	hand_transition: Dictionary
+) -> void:
+	var source_hand: Array[String] = _card_id_array(hand_transition.get("source_hand", []))
+	var target_hand: Array[String] = _card_id_array(hand_transition.get("target_hand", []))
+	var hidden_source_indices: Array[int] = _int_index_array(hand_transition.get("hidden_source_indices", []))
+	if target_hand.is_empty() or _card_fx_layer == null:
+		return
+
+	var source_cards: Array[String]
+	var source_proxies: Array[Control]
+	var can_reuse_staged_hand: bool = (
+		_draw_hand_transition_cards.size() == _draw_hand_transition_proxies.size()
+		and not _draw_hand_transition_cards.is_empty()
+	)
+	if can_reuse_staged_hand:
+		source_cards.append_array(_draw_hand_transition_cards)
+		source_proxies.append_array(_draw_hand_transition_proxies)
+	else:
+		if not _draw_hand_transition_proxies.is_empty():
+			_finish_draw_hand_transition_for_refresh()
+		_end_locked_hand_render_cache()
+		for source_index: int in range(source_hand.size()):
+			if hidden_source_indices.has(source_index):
+				continue
+			var source_card_rect: Rect2 = _hand_card_global_rect(source_index)
+			if source_card_rect.size.x <= 0.0 or source_card_rect.size.y <= 0.0:
+				continue
+			var retained_proxy: Control = _spawn_card_proxy(source_hand[source_index], source_card_rect)
+			_mount_card_proxy(retained_proxy, _card_fx_layer, source_card_rect)
+			var source_slot: Control = hand_box.get_child(source_index) as Control if source_index < hand_box.get_child_count() else null
+			if source_slot != null:
+				retained_proxy.rotation = source_slot.get_global_transform_with_canvas().get_rotation()
+			var source_widget: Control = _hand_card_control(source_index)
+			if source_widget != null:
+				retained_proxy.modulate = source_widget.modulate
+			source_cards.append(source_hand[source_index])
+			source_proxies.append(retained_proxy)
+	if hand_box != null:
+		hand_box.visible = false
+
+	var incoming_by_target: Dictionary = {}
+	for entry_var: Variant in draw_entries:
+		if not (entry_var is Dictionary):
+			continue
+		var entry: Dictionary = entry_var
+		var target_index: int = int(entry.get("index", -1))
+		if target_index >= 0 and target_index < target_hand.size():
+			incoming_by_target[target_index] = entry
+
+	var target_card_size: Vector2 = _hand_card_size(target_hand.size(), false)
+	var base_duration: float = DRAW_FRAME_SECONDS * (0.62 if _reduced_motion_enabled() else 1.0)
+	var total_duration: float = base_duration + float(maxi(0, draw_entries.size() - 1)) * DRAW_STAGGER_SECONDS
+	var used_source: Array[bool]
+	used_source.resize(source_proxies.size())
+	var target_proxies: Array[Control]
+	target_proxies.resize(target_hand.size())
+	var completion_tween: Tween = null
+	var draw_order: int = 0
+	for target_index: int in range(target_hand.size()):
+		var target_rect: Rect2 = _hand_receive_rect(target_index, target_hand.size(), target_card_size)
+		var target_rotation: float = HandFanContainer.card_rotation_for_layout(target_index, target_hand.size(), true)
+		var proxy: Control = null
+		var tween: Tween = null
+		if incoming_by_target.has(target_index):
+			var incoming_entry: Dictionary = incoming_by_target[target_index] as Dictionary
+			var incoming_card_id: String = str(incoming_entry.get("card_id", target_hand[target_index]))
+			proxy = _spawn_card_proxy(incoming_card_id, source_rect)
+			_mount_card_proxy(proxy, _card_fx_layer, source_rect)
+			var reduced_motion: bool = _reduced_motion_enabled()
+			if not reduced_motion:
+				proxy.rotation = deg_to_rad(-9.0 + float(draw_order) * 2.0)
+				proxy.modulate = Color(1.0, 1.0, 1.0, 0.82)
+			tween = _start_card_proxy_arc(
+				proxy,
+				target_rect,
+				0.0 if reduced_motion else CARD_DRAW_ARC_HEIGHT + float(draw_order) * 5.0,
+				base_duration,
+				target_rotation,
+				Color.WHITE,
+				0.0 if reduced_motion else 0.018,
+				float(draw_order) * DRAW_STAGGER_SECONDS
+			)
+			draw_order += 1
+			if draw_order == draw_entries.size():
+				completion_tween = tween
+		else:
+			var matched_source_index: int = -1
+			for source_index: int in range(source_cards.size()):
+				if not used_source[source_index] and source_cards[source_index] == target_hand[target_index]:
+					matched_source_index = source_index
+					break
+			if matched_source_index >= 0:
+				used_source[matched_source_index] = true
+				proxy = source_proxies[matched_source_index]
+				tween = _start_card_proxy_arc(
+					proxy,
+					target_rect,
+					0.0,
+					total_duration,
+					target_rotation,
+					Color.WHITE
+				)
+				if completion_tween == null:
+					completion_tween = tween
+			else:
+				# State repair should never need this path, but keep the visual fail-open:
+				# an unmatched retained identity appears in its authoritative slot instead
+				# of leaving an invisible reserved gap.
+				proxy = _spawn_card_proxy(target_hand[target_index], target_rect)
+				_mount_card_proxy(proxy, _card_fx_layer, target_rect)
+				proxy.rotation = target_rotation
+		if proxy != null:
+			proxy.z_index = 122 + target_index
+			target_proxies[target_index] = proxy
+
+	for source_index: int in range(source_proxies.size()):
+		if not used_source[source_index]:
+			_release_card_proxy(source_proxies[source_index])
+	_draw_hand_transition_cards.clear()
+	_draw_hand_transition_cards.append_array(target_hand)
+	_draw_hand_transition_proxies.clear()
+	for proxy: Control in target_proxies:
+		if proxy != null:
+			_draw_hand_transition_proxies.append(proxy)
+
+	if completion_tween != null:
+		await completion_tween.finished
+	if not _card_fx_can_continue_combat():
+		_finish_draw_hand_transition_for_refresh()
+		return
+	for proxy: Control in _draw_hand_transition_proxies:
+		if _node_is_alive(proxy) and proxy.has_meta("active_card_proxy_tween"):
+			proxy.remove_meta("active_card_proxy_tween")
+
+func _animate_draw_cards_fx(
+	draw_entries: Array,
+	source_rect_override: Rect2 = Rect2(),
+	draw_sfx_count: int = -1,
+	hand_transition: Dictionary = {}
+) -> void:
 	if not _card_fx_can_continue_combat():
 		return
 	var resolved_draw_sfx_count: int = draw_entries.size() if draw_sfx_count < 0 else maxi(0, draw_sfx_count)
@@ -19959,6 +20122,9 @@ func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = R
 	var source_rect: Rect2 = source_rect_override
 	if source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
 		source_rect = _rect_from_center(_pile_global_rect("draw").get_center(), size_hint * 0.54)
+	if not _card_id_array(hand_transition.get("target_hand", [])).is_empty():
+		await _animate_staged_draw_hand_fx(draw_entries, source_rect, hand_transition)
+		return
 	var draw_proxies: Array[Control] = []
 	var draw_tweens: Array[Tween] = []
 	for draw_index: int in range(draw_entries.size()):
@@ -20082,15 +20248,30 @@ func _consume_pending_card_draw_sfx(combat_state: Dictionary) -> int:
 	_schedule_card_draw_sfx_sequence(draw_count)
 	return draw_count
 
-func _draw_entries_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+func _card_id_array(value: Variant) -> Array[String]:
+	var result: Array[String]
+	if value is Array:
+		for card_id_var: Variant in value:
+			result.append(str(card_id_var))
+	return result
+
+func _int_index_array(value: Variant) -> Array[int]:
+	var result: Array[int]
+	if value is Array:
+		for index_var: Variant in value:
+			result.append(int(index_var))
+	return result
+
+func _combat_hand_cards(combat_state: Dictionary) -> Array[String]:
+	return _card_id_array((combat_state.get("deck", {}) as Dictionary).get("hand", []))
+
+func _draw_entries_between_hands(before_hand: Array[String], after_hand: Array[String]) -> Array[Dictionary]:
 	var before_counts: Dictionary = {}
-	for card_id_var: Variant in (before_state.get("deck", {}) as Dictionary).get("hand", []):
-		var card_id: String = str(card_id_var)
+	for card_id: String in before_hand:
 		before_counts[card_id] = int(before_counts.get(card_id, 0)) + 1
-	var after_hand: Array = (after_state.get("deck", {}) as Dictionary).get("hand", [])
-	var drawn: Array[Dictionary] = []
+	var drawn: Array[Dictionary]
 	for index: int in range(after_hand.size()):
-		var card_id: String = str(after_hand[index])
+		var card_id: String = after_hand[index]
 		var remaining: int = int(before_counts.get(card_id, 0))
 		if remaining > 0:
 			before_counts[card_id] = remaining - 1
@@ -20101,6 +20282,34 @@ func _draw_entries_between_states(before_state: Dictionary, after_state: Diction
 			"total": after_hand.size()
 		})
 	return drawn
+
+func _draw_hand_transition_between_states(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	hidden_source_index: int = -1,
+	target_still_contains_hidden_source: bool = false
+) -> Dictionary:
+	var source_hand: Array[String] = _combat_hand_cards(before_state)
+	var visible_before_hand: Array[String] = source_hand.duplicate()
+	var target_hand: Array[String] = _combat_hand_cards(after_state)
+	var hidden_source_indices: Array[int]
+	if hidden_source_index >= 0 and hidden_source_index < source_hand.size():
+		hidden_source_indices.append(hidden_source_index)
+		visible_before_hand.remove_at(hidden_source_index)
+		if target_still_contains_hidden_source and hidden_source_index < target_hand.size():
+			target_hand.remove_at(hidden_source_index)
+	return {
+		"source_hand": source_hand,
+		"target_hand": target_hand,
+		"hidden_source_indices": hidden_source_indices,
+		"draw_entries": _draw_entries_between_hands(visible_before_hand, target_hand),
+	}
+
+func _draw_entries_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	return _draw_entries_between_hands(
+		_combat_hand_cards(before_state),
+		_combat_hand_cards(after_state)
+	)
 
 func _death_rewards_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_count: int = (before_state.get("death_rewards", []) as Array).size()
@@ -20182,7 +20391,8 @@ func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
 func _start_overlapping_draw_cards_fx(
 	draw_entries: Array,
 	source_rect_override: Rect2,
-	draw_sfx_count: int
+	draw_sfx_count: int,
+	hand_transition: Dictionary = {}
 ) -> Dictionary:
 	var completion: Dictionary = {"done": false}
 	_player_popup_companion_states.append(completion)
@@ -20190,6 +20400,7 @@ func _start_overlapping_draw_cards_fx(
 		draw_entries,
 		source_rect_override,
 		draw_sfx_count,
+		hand_transition,
 		completion
 	)
 	return completion
@@ -20199,9 +20410,10 @@ func _animate_draw_cards_fx_and_complete(
 	draw_entries: Array,
 	source_rect_override: Rect2,
 	draw_sfx_count: int,
+	hand_transition: Dictionary,
 	completion: Dictionary
 ) -> void:
-	await _animate_draw_cards_fx(draw_entries, source_rect_override, draw_sfx_count)
+	await _animate_draw_cards_fx(draw_entries, source_rect_override, draw_sfx_count, hand_transition)
 	completion["done"] = true
 
 
@@ -21168,10 +21380,17 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"draw":
 			var draw_amount: int = int(((after_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()) - int(((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size())
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var draw_transition: Dictionary = _draw_hand_transition_between_states(
+				before_state,
+				after_state,
+				_animating_hand_card_index,
+				true
+			)
 			_start_overlapping_draw_cards_fx(
-				_draw_entries_between_states(before_state, after_state),
+				draw_transition.get("draw_entries", []) as Array,
 				Rect2(),
-				_take_pending_card_draw_sfx_count(after_state)
+				_take_pending_card_draw_sfx_count(after_state),
+				draw_transition
 			)
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
@@ -21408,10 +21627,12 @@ func _resolve_enemy_round() -> void:
 		_schedule_pass_preview_cache_warm(true)
 		if not fatigue_events.is_empty():
 			await _animate_fatigue_damage(_combat_state, fatigue_events)
+		var draw_transition: Dictionary = _draw_hand_transition_between_states(before_draw_state, _combat_state)
 		await _animate_draw_cards_fx(
-			_draw_entries_between_states(before_draw_state, _combat_state),
+			draw_transition.get("draw_entries", []) as Array,
 			Rect2(),
-			_take_pending_card_draw_sfx_count(_combat_state)
+			_take_pending_card_draw_sfx_count(_combat_state),
+			draw_transition
 		)
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	finalization_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0

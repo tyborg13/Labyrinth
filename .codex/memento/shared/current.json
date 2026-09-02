@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T11:41:21Z",
+  "updated_at": "2026-09-02T12:42:46Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9985,6 +9985,28 @@
       "source": {
         "branch": "codex/wire-downloaded-room-reward-and-victory-sound-effects",
         "commit": "2ddd90bd"
+      }
+    },
+    {
+      "id": "mnt_20260902T124246Z_84531b8d",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Draw animation must stage the authoritative final hand, not only incoming cards",
+      "details": "Card-action intermediate combat states may still contain the played card even after its live widget is hidden. Animating new cards against that intermediate fan reserves an invisible slot, freezes the retained hand, and snaps on the later authoritative refresh. Build a transition that removes the hidden source index, map retained and incoming identities into the final hand fan, end the locked raster at motion start, animate the complete staged hand, and retain it until the real hand refresh replaces it. Reuse the staged composition across overlapping draw actions.",
+      "status": "active",
+      "created_at": "2026-09-02T12:42:46Z",
+      "updated_at": "2026-09-02T12:42:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-card-draw-hand-flow-hitch",
+        "commit": "3cde5c2b"
       }
     }
   ]
