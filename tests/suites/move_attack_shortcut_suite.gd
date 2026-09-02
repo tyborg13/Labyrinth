@@ -14,6 +14,11 @@ const GRID_HEIGHT: int = 9
 static func run(expect: Callable) -> void:
 	_test_every_move_then_attack_card_builds_enemy_shortcut(expect)
 	_test_move_only_card_does_not_build_enemy_shortcut(expect)
+	_test_every_card_has_one_player_target_decision(expect)
+	_test_intensity_attacks_always_have_a_baseline(expect)
+	_test_ranged_aoe_can_anchor_on_an_empty_tile(expect)
+	_test_action_upgrades_preserve_one_target_decision(expect)
+	_test_preferred_routes_collect_pickups_without_crossing_traps(expect)
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
@@ -51,6 +56,7 @@ static func _test_every_move_then_attack_card_builds_enemy_shortcut(expect: Call
 			int(preview.get("action_index", -1)) == move_index,
 			"%s should enter its movement step before building a combined shortcut" % card_id
 		)
+		expect.call(not (preview.get("target_tiles", []) as Array).is_empty(), "%s should retain ordinary movement destinations beside its enemy shortcut" % card_id)
 		var shortcuts: Dictionary = run_scene.call("_preview_shortcuts_for_current_action", preview)
 		var plan: Dictionary = (shortcuts.get("plans", {}) as Dictionary).get(enemy_tile, {}) as Dictionary
 		expect.call(
@@ -72,11 +78,9 @@ static func _test_every_move_then_attack_card_builds_enemy_shortcut(expect: Call
 			covered_melee_cards += 1
 		run_scene.free()
 
-	expect.call(covered_card_ids.size() == 21, "Current card data should expose all 21 move-then-attack cards to shortcut coverage")
+	expect.call(covered_card_ids.size() == 15, "Current card data should expose all 15 move-then-attack cards to shortcut coverage")
 	expect.call(covered_melee_cards == 12, "Current card data should expose all 12 move-then-melee cards to prepared-runtime shortcut coverage")
-	expect.call(covered_card_ids.has("unsealed_gale"), "Move-then-AOE cards should be included in combined shortcut coverage")
-	for attack_type: String in ATTACK_TYPES:
-		expect.call(covered_attack_types.has(attack_type), "Move-attack shortcut coverage should include %s follow-ups" % attack_type)
+	expect.call(covered_attack_types.keys().all(func(attack_type: Variant) -> bool: return str(attack_type) in ["melee", "push"]), "Combined movement cards should only use adjacent melee or push follow-ups")
 
 
 static func _test_move_only_card_does_not_build_enemy_shortcut(expect: Callable) -> void:
@@ -93,6 +97,114 @@ static func _test_move_only_card_does_not_build_enemy_shortcut(expect: Callable)
 		"Movement followed only by automatic utility effects should keep normal tile targeting"
 	)
 	run_scene.free()
+
+
+static func _test_every_card_has_one_player_target_decision(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var converted_aoe_ids: Array[String] = ["ember_rain", "molten_reach", "rime_shard", "windlass_volley"]
+	for card_id_var: Variant in GameData.cards().keys():
+		var card_id: String = str(card_id_var)
+		var card: Dictionary = GameData.card_def(card_id)
+		var actions: Array = card.get("actions", []) as Array
+		var targeted_indices: Array[int] = []
+		var has_movement: bool = false
+		var has_ranged_attack: bool = false
+		for action_index: int in range(actions.size()):
+			var action: Dictionary = actions[action_index] as Dictionary
+			var action_type: String = str(action.get("type", ""))
+			has_movement = has_movement or action_type in MOVEMENT_TYPES
+			has_ranged_attack = has_ranged_attack or action_type in ["ranged", "aoe"] or (action_type in ["push", "pull"] and int(action.get("range", 0)) > 1)
+			if action_type in ATTACK_TYPES:
+				expect.call(not action.has("requires_intensity"), "%s should always retain a baseline attack instead of gating the whole attack behind intensity" % card_id)
+			if combat.player_action_needs_target(action):
+				targeted_indices.append(action_index)
+		expect.call(not (has_movement and has_ranged_attack), "%s should not combine movement with a ranged target" % card_id)
+		expect.call(targeted_indices.size() <= 2, "%s should never expose more than one combined target decision" % card_id)
+		if targeted_indices.size() == 2:
+			var move_action: Dictionary = actions[targeted_indices[0]] as Dictionary
+			var attack_action: Dictionary = actions[targeted_indices[1]] as Dictionary
+			expect.call(str(move_action.get("type", "")) == "move", "%s multi-action targeting should start with ordinary movement" % card_id)
+			expect.call(str(attack_action.get("type", "")) in ["melee", "push"] and int(attack_action.get("range", 0)) == 1, "%s multi-action targeting should finish with one adjacent enemy click" % card_id)
+			expect.call(bool(attack_action.get("required", false)), "%s enemy shortcut should commit its adjacent follow-up attack when the enemy is selected" % card_id)
+		if bool(card.get("flurry", false)):
+			var state: Dictionary = _combat_state(combat, card_id, Vector2i(8, PLAYER_START.y), 86000 + card_id.hash())
+			state["cards_played_this_turn"] = 0
+			var unresolved_targets: int = 0
+			for runtime_action_var: Variant in combat.card_play_actions(card_id, state):
+				var runtime_action: Dictionary = runtime_action_var as Dictionary
+				if combat.player_action_needs_target(runtime_action) and not bool(runtime_action.get("reuse_previous_target", false)):
+					unresolved_targets += 1
+			expect.call(unresolved_targets <= 1, "%s Flurry repetitions should reuse the first selected target" % card_id)
+	for card_id: String in converted_aoe_ids:
+		var actions: Array = GameData.card_def(card_id).get("actions", []) as Array
+		expect.call(actions.any(func(action: Variant) -> bool: return str((action as Dictionary).get("type", "")) == "aoe" and not ((action as Dictionary).get("pattern", []) as Array).is_empty()), "%s should provide an authored ranged AOE pattern" % card_id)
+
+
+static func _test_preferred_routes_collect_pickups_without_crossing_traps(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var goal := Vector2i(5, PLAYER_START.y)
+	var pickup_tile := Vector2i(3, PLAYER_START.y - 1)
+	var state: Dictionary = _combat_state(combat, "guarded_step", Vector2i(9, PLAYER_START.y), 87001)
+	state["loot"] = [{"id": "route_gear", "kind": "equipment", "equipment_id": "test_gear", "pos": pickup_tile, "claimed": false}]
+	var action: Dictionary = {"type": "move", "range": 5}
+	var plan: Dictionary = combat.movement_plan_for_player_action(state, action, [goal])
+	var pickup_path: Array[Vector2i] = combat.path_from_player_movement_plan(plan, goal)
+	expect.call(pickup_path.has(pickup_tile), "Preferred movement should spend spare range to collect useful gear")
+	state["traps"] = [{"id": "route_trap", "pos": pickup_tile, "element": "fire", "damage": 2, "triggered": false}]
+	plan = combat.movement_plan_for_player_action(state, action, [goal])
+	var safe_path: Array[Vector2i] = combat.path_from_player_movement_plan(plan, goal)
+	expect.call(not safe_path.has(pickup_tile), "Avoiding a live trap should outrank collecting a pickup")
+
+
+static func _test_intensity_attacks_always_have_a_baseline(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _combat_state(combat, "rime_shard", Vector2i(5, PLAYER_START.y), 87002)
+	state["elemental_intensity"] = {"fire": 0, "ice": 1, "lightning": 1, "air": 0, "earth": 0}
+	for card_id: String in ["rime_shard", "volt_surge"]:
+		var actions: Array = GameData.card_def(card_id).get("actions", []) as Array
+		var attack: Dictionary = actions[1] as Dictionary
+		var element_id: String = "ice" if card_id == "rime_shard" else "lightning"
+		var below_state: Dictionary = state.duplicate(true)
+		(below_state.get("elemental_intensity", {}) as Dictionary)[element_id] = 1
+		var threshold_state: Dictionary = below_state.duplicate(true)
+		(threshold_state.get("elemental_intensity", {}) as Dictionary)[element_id] = 2
+		expect.call(combat.player_action_can_resolve(below_state, attack), "%s should remain targetable below its intensity threshold" % card_id)
+		expect.call(not combat.valid_targets_for_player_action(below_state, attack).is_empty(), "%s should retain legal attack targets below its intensity threshold" % card_id)
+		expect.call(
+			combat.final_damage_for_player_action(threshold_state, attack) > combat.final_damage_for_player_action(below_state, attack),
+			"%s should gain damage at its threshold instead of gating its entire attack" % card_id
+		)
+
+
+static func _test_ranged_aoe_can_anchor_on_an_empty_tile(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var center := Vector2i(4, 4)
+	var state: Dictionary = _combat_state(combat, "ember_rain", Vector2i(4, 3), 87003)
+	state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 3), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0},
+		{"id": 2, "type": "crawler", "pos": Vector2i(5, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0},
+	]
+	var action: Dictionary = (GameData.card_def("ember_rain").get("actions", []) as Array)[0] as Dictionary
+	expect.call(combat.valid_targets_for_player_action(state, action).has(center), "Ranged AOE should allow an empty visible tile as its selected center")
+	var result: Dictionary = combat.apply_player_action(state, action, center)
+	for enemy_var: Variant in result.get("enemies", []):
+		expect.call(int((enemy_var as Dictionary).get("hp", 20)) < 20, "An empty-center AOE should damage enemies on the other pattern squares")
+	var light_sources: Array = (result.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+	expect.call(not light_sources.is_empty() and (light_sources[0] as Dictionary).get("pos", Vector2i(-1, -1)) == center, "An AOE Light rider should anchor at the selected empty center")
+
+
+static func _test_action_upgrades_preserve_one_target_decision(expect: Callable) -> void:
+	var action_element: Dictionary = {"kind": "action", "key": "action:new"}
+	var ranged_options: Array = GameData.upgrade_options_for_element("bone_dart", action_element, {})
+	var targetless_options: Array = GameData.upgrade_options_for_element("brace", action_element, {})
+	expect.call(
+		not ranged_options.any(func(option: Variant) -> bool: return str((option as Dictionary).get("label", "")) == "Add Move 1"),
+		"Targeted cards should not regain a second decision through the Add Move upgrade"
+	)
+	expect.call(
+		targetless_options.any(func(option: Variant) -> bool: return str((option as Dictionary).get("label", "")) == "Add Move 1"),
+		"Targetless cards should retain Add Move as their single target decision"
+	)
 
 
 static func _move_then_attack_cases(combat: CombatEngine) -> Array:
@@ -238,6 +350,14 @@ static func _test_live_single_click_sequence(tree: SceneTree, expect: Callable, 
 	await instance.call("_begin_card_preview", 0, preview)
 	var board: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	expect.call((board.get("attack_tiles") as Array).has(enemy_tile), "%s: enemy should be exposed as the combined shortcut target" % message)
+	expect.call(not (board.get("move_tiles") as Array).is_empty(), "%s: ordinary movement destinations should remain available beside the enemy shortcut" % message)
+	instance.call("_on_board_tile_hovered", enemy_tile)
+	await tree.process_frame
+	await tree.process_frame
+	var path_tiles: Array = ((board.get("presentation") as Dictionary).get("path_tiles", []) as Array)
+	expect.call(path_tiles.size() >= 2, "%s: hovering the enemy shortcut should show a movement route arrow" % message)
+	expect.call(path_tiles[0] == PLAYER_START if not path_tiles.is_empty() else false, "%s: the shortcut route arrow should begin at the player" % message)
+	expect.call(path_tiles[path_tiles.size() - 1] != enemy_tile if not path_tiles.is_empty() else false, "%s: the shortcut route arrow should end on the adjacent melee approach tile" % message)
 	await instance.call("_on_board_tile_clicked", enemy_tile)
 	var resolved_state: Dictionary = instance.get("_combat_state") as Dictionary
 	var resolved_enemy: Dictionary = (resolved_state.get("enemies", []) as Array)[0] as Dictionary

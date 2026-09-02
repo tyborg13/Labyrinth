@@ -1,0 +1,654 @@
+{
+  "arrangement_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/arrangement.mid",
+  "arrangement_midi_sha256": "3401715f71323a7ed665052d2e61f041ebeebce2c3abc9a009b71ffcacf4d568",
+  "arrangement_note_counts": {
+    "Ashen Violin / Inner Voice": 101,
+    "Funeral Pulse / Menu Percussion": 248,
+    "Grave Cello / Troubadour": 188,
+    "Hollow Viola / Lower Harmony": 262,
+    "Undercrypt Bass / G-sharp Pedal": 262,
+    "Veiled Violin / Castle Air": 188,
+    "Wraithlight Violin / High Embellishment": 20
+  },
+  "base_event_counts": {
+    "Ashen Violin / Inner Voice": 101,
+    "Grave Cello / Troubadour": 188,
+    "Hollow Viola / Lower Harmony": 262,
+    "Undercrypt Bass / G-sharp Pedal": 262,
+    "Veiled Violin / Castle Air": 188
+  },
+  "base_source": {
+    "anchors": {
+      "final_cadence": {
+        "bass_pitches": [
+          "G#2",
+          "D#3",
+          "B3"
+        ],
+        "measure": 106,
+        "treble_pitches": [
+          "G#4",
+          "G#5"
+        ]
+      },
+      "final_measure": {
+        "measure": 107,
+        "new_note_onsets": 0,
+        "tied_bass_sustain": {
+          "end_offset_ticks": 443,
+          "pitch": "G#2",
+          "source_start_measure": 106,
+          "source_start_offset_ticks": 1200
+        }
+      },
+      "opening_melody_anchors": [
+        {
+          "measure": 7,
+          "offset_ticks": 1200,
+          "pitches": [
+            "D#4"
+          ]
+        },
+        {
+          "measure": 8,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#4"
+          ]
+        },
+        {
+          "measure": 9,
+          "offset_ticks": 240,
+          "pitches": [
+            "B4"
+          ]
+        },
+        {
+          "measure": 9,
+          "offset_ticks": 480,
+          "pitches": [
+            "A#4"
+          ]
+        },
+        {
+          "measure": 9,
+          "offset_ticks": 720,
+          "pitches": [
+            "G#4"
+          ]
+        },
+        {
+          "measure": 9,
+          "offset_ticks": 767,
+          "pitches": [
+            "A#4"
+          ]
+        },
+        {
+          "measure": 9,
+          "offset_ticks": 815,
+          "pitches": [
+            "G#4"
+          ]
+        },
+        {
+          "measure": 9,
+          "offset_ticks": 960,
+          "pitches": [
+            "E4"
+          ]
+        },
+        {
+          "measure": 9,
+          "offset_ticks": 1200,
+          "pitches": [
+            "G#4"
+          ]
+        },
+        {
+          "measure": 10,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#4"
+          ]
+        },
+        {
+          "measure": 10,
+          "offset_ticks": 480,
+          "pitches": [
+            "D#4"
+          ]
+        },
+        {
+          "measure": 10,
+          "offset_ticks": 720,
+          "pitches": [
+            "F#4"
+          ]
+        },
+        {
+          "measure": 11,
+          "offset_ticks": 240,
+          "pitches": [
+            "E4"
+          ]
+        },
+        {
+          "measure": 11,
+          "offset_ticks": 480,
+          "pitches": [
+            "D#4"
+          ]
+        },
+        {
+          "measure": 11,
+          "offset_ticks": 720,
+          "pitches": [
+            "D#4"
+          ]
+        },
+        {
+          "measure": 11,
+          "offset_ticks": 767,
+          "pitches": [
+            "E4"
+          ]
+        },
+        {
+          "measure": 11,
+          "offset_ticks": 960,
+          "pitches": [
+            "D#4"
+          ]
+        },
+        {
+          "measure": 11,
+          "offset_ticks": 1200,
+          "pitches": [
+            "C#4"
+          ]
+        },
+        {
+          "measure": 12,
+          "offset_ticks": 0,
+          "pitches": [
+            "D#4"
+          ]
+        },
+        {
+          "measure": 12,
+          "offset_ticks": 240,
+          "pitches": [
+            "G#3"
+          ]
+        }
+      ],
+      "printed_system_anchors": [
+        {
+          "measure": 1,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#2",
+            "D#3"
+          ],
+          "staff": "bass"
+        },
+        {
+          "measure": 7,
+          "offset_ticks": 1200,
+          "pitches": [
+            "D#4"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 13,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#3"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 19,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#4"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 25,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#3",
+            "E4"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 31,
+          "offset_ticks": 0,
+          "pitches": [
+            "E4",
+            "A4",
+            "C#5",
+            "E5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 38,
+          "offset_ticks": 0,
+          "pitches": [
+            "E4",
+            "A4",
+            "C#5",
+            "E5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 44,
+          "offset_ticks": 0,
+          "pitches": [
+            "D#4",
+            "G4",
+            "A#4",
+            "D#5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 50,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 57,
+          "offset_ticks": 0,
+          "pitches": [
+            "D#4",
+            "F#4",
+            "C5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 63,
+          "offset_ticks": 0,
+          "pitches": [
+            "D#4",
+            "G#4",
+            "D#5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 70,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#4"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 76,
+          "offset_ticks": 0,
+          "pitches": [
+            "D#4",
+            "F#4",
+            "C5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 82,
+          "offset_ticks": 0,
+          "pitches": [
+            "D#4",
+            "G#4",
+            "D#5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 89,
+          "offset_ticks": 0,
+          "pitches": [
+            "E4",
+            "A4",
+            "C#5",
+            "E5"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 96,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#4"
+          ],
+          "staff": "treble"
+        },
+        {
+          "measure": 102,
+          "offset_ticks": 0,
+          "pitches": [
+            "G#3",
+            "A#3",
+            "C#4",
+            "E4"
+          ],
+          "staff": "treble"
+        }
+      ]
+    },
+    "measure_count": 107,
+    "movement_end_tick": 428160,
+    "movement_start_tick": 274080,
+    "next_movement_tick": 430560,
+    "reference_pdf": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_breitkopf_1918_reprint.pdf",
+    "reference_pdf_sha256": "0a73559cd865083558f6e5923dddae4390069883dad795725c19f18646e58b71",
+    "source_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_pdmx_cc0.mid",
+    "source_midi_sha256": "e8c7fe31e8ff267a8fa4f4ca5edd076955e49cd89548d7367a588e163079cc34",
+    "source_record": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/PDMX_RECORD.json",
+    "source_record_sha256": "0e749f0673c5962aac59378c57028fa38fb2a26c8690c3945b5e004144b7e99d",
+    "source_staff_note_counts": {
+      "bass": 593,
+      "treble": 575
+    },
+    "ticks_per_beat": 480
+  },
+  "boundary_clipped_event_counts": {
+    "Ashen Violin / Inner Voice": 0,
+    "Grave Cello / Troubadour": 0,
+    "Hollow Viola / Lower Harmony": 0,
+    "Undercrypt Bass / G-sharp Pedal": 0,
+    "Veiled Violin / Castle Air": 0
+  },
+  "high_embellishment": {
+    "event_count": 20,
+    "mapping": [
+      {
+        "duration_ticks": 239,
+        "embellishment_pitch": "B5",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 9,
+        "source_offset_ticks": 240,
+        "source_pitch": "B4"
+      },
+      {
+        "duration_ticks": 239,
+        "embellishment_pitch": "E5",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 11,
+        "source_offset_ticks": 240,
+        "source_pitch": "E4"
+      },
+      {
+        "duration_ticks": 239,
+        "embellishment_pitch": "G#5",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 15,
+        "source_offset_ticks": 1200,
+        "source_pitch": "G#4"
+      },
+      {
+        "duration_ticks": 227,
+        "embellishment_pitch": "G#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 18,
+        "source_offset_ticks": 0,
+        "source_pitch": "G#5"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "G#5",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 21,
+        "source_offset_ticks": 0,
+        "source_pitch": "G#4"
+      },
+      {
+        "duration_ticks": 239,
+        "embellishment_pitch": "A5",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 23,
+        "source_offset_ticks": 1200,
+        "source_pitch": "A4"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "B5",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 27,
+        "source_offset_ticks": 0,
+        "source_pitch": "B4"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "F#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 29,
+        "source_offset_ticks": 720,
+        "source_pitch": "F#5"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "G#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 33,
+        "source_offset_ticks": 720,
+        "source_pitch": "G#5"
+      },
+      {
+        "duration_ticks": 239,
+        "embellishment_pitch": "C#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 36,
+        "source_offset_ticks": 720,
+        "source_pitch": "C#5"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "E6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 40,
+        "source_offset_ticks": 0,
+        "source_pitch": "E5"
+      },
+      {
+        "duration_ticks": 239,
+        "embellishment_pitch": "G#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 43,
+        "source_offset_ticks": 240,
+        "source_pitch": "G#5"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "G#5",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 47,
+        "source_offset_ticks": 720,
+        "source_pitch": "G#4"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "G#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 50,
+        "source_offset_ticks": 0,
+        "source_pitch": "G#5"
+      },
+      {
+        "duration_ticks": 239,
+        "embellishment_pitch": "D#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 53,
+        "source_offset_ticks": 480,
+        "source_pitch": "D#5"
+      },
+      {
+        "duration_ticks": 239,
+        "embellishment_pitch": "F6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 56,
+        "source_offset_ticks": 480,
+        "source_pitch": "F5"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "D#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 61,
+        "source_offset_ticks": 0,
+        "source_pitch": "D#5"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "D#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 62,
+        "source_offset_ticks": 0,
+        "source_pitch": "D#5"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "D#6",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 66,
+        "source_offset_ticks": 0,
+        "source_pitch": "D#5"
+      },
+      {
+        "duration_ticks": 240,
+        "embellishment_pitch": "B5",
+        "relationship": "simultaneous one-octave doubling of the source melody",
+        "source_measure": 68,
+        "source_offset_ticks": 0,
+        "source_pitch": "B4"
+      }
+    ],
+    "new_pitch_classes": false,
+    "track": "Wraithlight Violin / High Embellishment"
+  },
+  "loop": {
+    "crossfade_seconds": 0.7142857142857143,
+    "rendered_duration_seconds": 132.14285714285714,
+    "structural_duration_seconds": 132.85714285714286,
+    "treatment": "one-quarter-note tail/head equal-power blend with loop-point rotation"
+  },
+  "normalized": {
+    "expanded_repeats": false,
+    "full_score_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/full_score.mid",
+    "full_score_midi_sha256": "fc1064b776e782f6f6310954e281bbadfce71aeafac834bc28786b396a8cf363",
+    "full_score_musicxml": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/full_score.musicxml",
+    "full_score_musicxml_sha256": "1d3b4c16ece92a3c767ae644e01a690632ba104468fd82ea607a58b00f5df29e",
+    "part_count": 6,
+    "parts": [
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/01_veiled_violin_castle_air.mid",
+        "midi_sha256": "a05163e503978f5c256d679b7c4743116900b1fbfbd7d3e82b5dc0b2623df4c8",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/01_veiled_violin_castle_air.musicxml",
+        "musicxml_sha256": "48dedcfec69df8b642107dca98fd13d5e47538af9df36b15165f6727e89d640f",
+        "name": "Veiled Violin / Castle Air"
+      },
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/02_ashen_violin_inner_voice.mid",
+        "midi_sha256": "d8454a8e3ae22e96ebfc7149cfbe00c8fcaa4dfc3fbb8a85b36520a4dd5028fc",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/02_ashen_violin_inner_voice.musicxml",
+        "musicxml_sha256": "584b7a55b720e7d2918fcb5b3a4bf2681d759eae393e12162af4043d7cf9bafe",
+        "name": "Ashen Violin / Inner Voice"
+      },
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/03_hollow_viola_lower_harmony.mid",
+        "midi_sha256": "cb302f5f2de25933531316308d5617baba25955ca71e61334680fe208c30d605",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/03_hollow_viola_lower_harmony.musicxml",
+        "musicxml_sha256": "1444d740630054693ca697f6a89ce6b1bad4c696c020dac247ce8ed337c64aff",
+        "name": "Hollow Viola / Lower Harmony"
+      },
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/04_grave_cello_troubadour.mid",
+        "midi_sha256": "e583dace8e7ffbcc087c5abf8dd2ae500d72422d937e94657670cb8439410774",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/04_grave_cello_troubadour.musicxml",
+        "musicxml_sha256": "4c7e3f8c9afb59d58440c110c5b38893e94613f54a2e52acab540fea7618b7ab",
+        "name": "Grave Cello / Troubadour"
+      },
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/05_undercrypt_bass_g_sharp_pedal.mid",
+        "midi_sha256": "3ce2055e2ab67703df056e33140b77304c1092114813c496d8b9d64be334d4e6",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/05_undercrypt_bass_g_sharp_pedal.musicxml",
+        "musicxml_sha256": "46b4de510095e6197f84cb37aa575674c70d60bd68ef24961b329f4cb7b596de",
+        "name": "Undercrypt Bass / G-sharp Pedal"
+      },
+      {
+        "midi_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/06_wraithlight_violin_high_embellishment.mid",
+        "midi_sha256": "a80b221c947d54a333b0c53d1e2560dabf8e4e4b2005a5c66687aa34afca7807",
+        "musicxml_path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v03/normalized/parts/06_wraithlight_violin_high_embellishment.musicxml",
+        "musicxml_sha256": "f3bc4b05a51427206f6418113af12bbac8797fd73a50d5bbbf3194e4c2c73222",
+        "name": "Wraithlight Violin / High Embellishment"
+      }
+    ]
+  },
+  "ok": true,
+  "percussion": {
+    "channel_zero_based": 9,
+    "counts_by_role": {
+      "bar-weight war drum": 62,
+      "first-group ash tick": 62,
+      "second dotted-beat tom": 62,
+      "second-group ash tick": 62
+    },
+    "description": "Restrained four-hit 6/8 pulse: low drum at each bar, quiet ash ticks at the end of each three-eighth group, and a muted tom on the second dotted beat.",
+    "total_events": 248
+  },
+  "previous_version_hashes_unchanged": {
+    "v01/ARRANGEMENT_NOTES.md": "76660ac5badcd9e70044d43d251030fd895a121a79c96c4d5b37174a67753dc4",
+    "v01/BUILD_REPORT.json": "a92c3e51320b3170b8d37d66118799181e4699b25fe44d544b7dbdc455b0250a",
+    "v01/VERIFICATION.json": "a27ae236529565eb9734bd2fbce3a9421d3fd64627f7a65e7d13a01b8cedf313",
+    "v01/arrangement.mid": "fe2021d054e8179ade63c2d808e2624d8cd9a2e4bdcab5f0420dbe46b91b771b",
+    "v01/preview.flac": "cc591f7a64a75b60cdc759d483317d22b820cd1776a872e9b3fbfe03ce028b39",
+    "v01/preview.ogg": "6facdf9570066521a7a53a6859972c5476e5da23742b344351df65212fbb3a00",
+    "v01/preview.render.json": "1b7e1de1112b51d71e00fbf3a56d79ab33c9a1d6d5bf22796501a204cf233168",
+    "v02/ARRANGEMENT_NOTES.md": "d0ed5f25aaa4b74bfb5862784f9e0f429465739d53339ef6a1c440b2e0e87456",
+    "v02/BUILD_REPORT.json": "636bc103281a036bc2ecdad83a86870f24a99fe655fcc2ff0deb90b879865355",
+    "v02/VERIFICATION.json": "b0904f5f053f539ab4b4b10b6f18a1c26061f3a638c83ce01c1f0be90a84907b",
+    "v02/arrangement.mid": "e4fe6d11b0148372cf07c759556e579403f0c7bc0f1b3db51b941b0851a86c94",
+    "v02/normalized/full_score.mid": "a713acac2ab6541fbefa25578fcd48edd49ede36447256a05c7718fb5974d75a",
+    "v02/normalized/full_score.musicxml": "0fb5eebc1c50f4e4431589fd2d117659c8873bbe7a7fc83b66ec2b431ca0f0a6",
+    "v02/normalized/parts/01_veiled_violin_castle_air.mid": "4665f77133774e68620219f598b8ed5147f315711e7bd8945e0aef0dff342a04",
+    "v02/normalized/parts/01_veiled_violin_castle_air.musicxml": "e4f997172b8f727638113e8605dfe1c3a640570713a1be19670db4b3c0105fcc",
+    "v02/normalized/parts/02_ashen_violin_inner_voice.mid": "93dd3f5997780187e9d9fddef6793652c4eb56b44f834b65f6d04f44b71bd8e5",
+    "v02/normalized/parts/02_ashen_violin_inner_voice.musicxml": "ec0ee27399ac8315b089cbed03c826bae7d9d33c0055a41315c2332d13cd9f1d",
+    "v02/normalized/parts/03_hollow_viola_lower_harmony.mid": "fd8edd3c061014aec2456aad3a933758af756c397753530cd2d555d230e6f10e",
+    "v02/normalized/parts/03_hollow_viola_lower_harmony.musicxml": "d1d3576733bff95c7aafae762a33d3485c12242bec08befc721044b7a38b9a9d",
+    "v02/normalized/parts/04_grave_cello_troubadour.mid": "3b9b04cc2b4f8d1526db2089aae96e302c356d0a5f04f293c314f71edd90136d",
+    "v02/normalized/parts/04_grave_cello_troubadour.musicxml": "e8813a4d7633e1eb8753235d4435e117317115db96846e4809636383e148efce",
+    "v02/normalized/parts/05_undercrypt_bass_g_sharp_pedal.mid": "c37828b254677332688d224004de585bdcf034da1e8d8b07860779cb81ab38e3",
+    "v02/normalized/parts/05_undercrypt_bass_g_sharp_pedal.musicxml": "ab8aa9027a2c3421d9d8cc7cca3b3629c063a5373e9abce8a3ab30b66233729b",
+    "v02/preview.flac": "ec66910152ba9ca6263d58f95c246f94bbee8a27fc87106a986c90aa7e53fb27",
+    "v02/preview.ogg": "39fd132e21a61abc5a30d423c32b5f2b294d64a52d2f9bbf76acb8e4ca483863",
+    "v02/preview.render.json": "476d37cedc85a8f1825fd7d19e3b5200d50f80765d2cef41930f7c3bbc686538"
+  },
+  "purpose": "Faster, lightly driven main-menu loop audition",
+  "selection": {
+    "measure_count": 62,
+    "ordering": "single contiguous source span; no cuts, reorder, or inserted repeat",
+    "source_printed_measure_end_inclusive": 68,
+    "source_printed_measure_start": 7,
+    "v02_end_seconds": 170.0,
+    "v02_start_seconds": 15.0,
+    "v02_user_description": "about 0:16 to 2:50"
+  },
+  "tempo": {
+    "increase_percent": 16.666666666666675,
+    "v02_qpm": 72,
+    "v03_qpm": 84
+  },
+  "version": "v03"
+}

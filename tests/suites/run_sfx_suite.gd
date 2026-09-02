@@ -34,6 +34,10 @@ static func _test_registry_and_trimmed_assets(expect: Callable) -> void:
 	var ambient: Dictionary = RunSfxLibrary.ambient_entry_for_mode("campfire")
 	expect.call(str(ambient.get("id", "")) == RunSfxLibrary.CAMPFIRE_LOOP_ID and bool(ambient.get("loop", false)), "Campfire mode should own the looping fire ambience")
 	expect.call(RunSfxLibrary.ambient_entry_for_mode("room").is_empty(), "Fire ambience should not continue outside campfire mode")
+	expect.call(str(RunSfxLibrary.entry(RunSfxLibrary.DOOR_OPEN_ID).get("bus", "")) == SettingsStore.WORLD_SFX_BUS, "Door creak should use the room-reverberated world SFX path")
+	expect.call(str(ambient.get("bus", "")) == SettingsStore.WORLD_SFX_BUS, "Campfire ambience should use the room-reverberated world SFX path")
+	expect.call(str(RunSfxLibrary.entry(RunSfxLibrary.REWARD_ACCEPTED_ID).get("bus", "")) == SettingsStore.UI_SFX_BUS, "Reward acceptance should stay dry on the UI SFX path")
+	expect.call(str(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID).get("bus", "")) == SettingsStore.UI_SFX_BUS, "Victory resolution should stay dry on the UI SFX path")
 
 static func _test_victory_timing_contract(expect: Callable) -> void:
 	var cue_seconds: float = float(EXPECTED_DURATIONS[RunSfxLibrary.VICTORY_RESOLUTION_ID])
@@ -57,7 +61,7 @@ static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
 	var ambient_player: AudioStreamPlayer = instance.get("_ambient_sfx_player") as AudioStreamPlayer
 	expect.call(ambient_player != null and ambient_player.playing, "Entering campfire mode should immediately start its background fire")
 	if ambient_player != null:
-		expect.call(ambient_player.bus == SettingsStore.SFX_BUS, "Campfire ambience should honor the Sound Effects volume setting")
+		expect.call(ambient_player.bus == SettingsStore.WORLD_SFX_BUS, "Campfire ambience should honor the world Sound Effects routing and room reverb")
 		expect.call(ambient_player.stream is AudioStreamWAV, "Campfire ambience should use the trimmed WAV stream")
 		if ambient_player.stream is AudioStreamWAV:
 			var looped_wav: AudioStreamWAV = ambient_player.stream as AudioStreamWAV

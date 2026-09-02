@@ -29,6 +29,10 @@ HEADLESS_BENCHMARKS = {
         "TRAP IDLE PERF RESULT:",
         "tests/trap_idle_performance_benchmark.gd",
     ),
+    "combat_board_submission": (
+        "COMBAT BOARD SUBMISSION PERF RESULT:",
+        "tests/combat_board_submission_performance_benchmark.gd",
+    ),
 }
 NATIVE_BENCHMARKS = {
     "render": ("RENDER PERF RESULT:", "tests/render_performance_benchmark.gd"),
@@ -36,26 +40,42 @@ NATIVE_BENCHMARKS = {
         "RUNTIME FRAME PERF RESULT:",
         "tests/runtime_frame_performance_benchmark.gd",
     ),
+    "reward_animation": (
+        "REWARD ANIMATION PERF RESULT:",
+        "tests/reward_animation_performance_benchmark.gd",
+    ),
 }
 
 COMPARISON_METRICS = {
     "render.idle.frame_interval_ms.median": "lower",
     "render.idle.frame_interval_ms.p95": "lower",
+    "render.idle.render_setup_cpu_ms.median": "lower",
+    "render.idle.viewport_render_cpu_ms.median": "lower",
+    "render.idle.viewport_render_gpu_ms.median": "lower",
     "render.idle.frames_over_16_67_ms": "lower",
     "render.idle.draw_calls.median": "lower",
     "render.idle.dynamic_draw_cpu_us_per_phase_frame": "lower",
     "render.interaction.frame_interval_ms.median": "lower",
     "render.interaction.frame_interval_ms.p95": "lower",
+    "render.interaction.render_setup_cpu_ms.median": "lower",
+    "render.interaction.viewport_render_cpu_ms.median": "lower",
+    "render.interaction.viewport_render_gpu_ms.median": "lower",
     "render.interaction.frames_over_16_67_ms": "lower",
     "render.interaction.draw_calls.median": "lower",
     "render.interaction.dynamic_draw_cpu_us_per_phase_frame": "lower",
     "render.movement.frame_interval_ms.median": "lower",
     "render.movement.frame_interval_ms.p95": "lower",
+    "render.movement.render_setup_cpu_ms.median": "lower",
+    "render.movement.viewport_render_cpu_ms.median": "lower",
+    "render.movement.viewport_render_gpu_ms.median": "lower",
     "render.movement.frames_over_16_67_ms": "lower",
     "render.movement.draw_calls.median": "lower",
     "render.movement.dynamic_draw_cpu_us_per_phase_frame": "lower",
     "render.action_heavy.frame_interval_ms.median": "lower",
     "render.action_heavy.frame_interval_ms.p95": "lower",
+    "render.action_heavy.render_setup_cpu_ms.median": "lower",
+    "render.action_heavy.viewport_render_cpu_ms.median": "lower",
+    "render.action_heavy.viewport_render_gpu_ms.median": "lower",
     "render.action_heavy.frames_over_16_67_ms": "lower",
     "render.action_heavy.frames_over_33_33_ms": "lower",
     "render.action_heavy.draw_calls.median": "lower",
@@ -63,6 +83,9 @@ COMPARISON_METRICS = {
     "render.static_memory_bytes": "lower",
     "runtime_frame.idle.frame_interval_ms.median": "lower",
     "runtime_frame.idle.frame_interval_ms.p95": "lower",
+    "runtime_frame.idle.render_setup_cpu_ms.median": "lower",
+    "runtime_frame.idle.viewport_render_cpu_ms.median": "lower",
+    "runtime_frame.idle.viewport_render_gpu_ms.median": "lower",
     "runtime_frame.idle.frames_over_16_67_ms": "lower",
     "runtime_frame.cold_interaction.card_click_handler.duration_ms.median": "lower",
     "runtime_frame.cold_interaction.card_click_handler.duration_ms.p95": "lower",
@@ -85,21 +108,69 @@ COMPARISON_METRICS = {
     "runtime_frame.action_completion.duration_ms.p95": "lower",
     "runtime_frame.action_play.frame_interval_ms.median": "lower",
     "runtime_frame.action_play.frame_interval_ms.p95": "lower",
+    "runtime_frame.action_play.render_setup_cpu_ms.median": "lower",
+    "runtime_frame.action_play.viewport_render_cpu_ms.median": "lower",
+    "runtime_frame.action_play.viewport_render_gpu_ms.median": "lower",
     "runtime_frame.action_play.frames_over_16_67_ms": "lower",
     "runtime_frame.action_play.frames_over_33_33_ms": "lower",
+    "runtime_frame.enemy_round_matrix.specialists.total_ms": "lower",
+    "runtime_frame.enemy_round_matrix.specialists.viewport_render_cpu_ms.median": "lower",
+    "runtime_frame.enemy_round_matrix.specialists.viewport_render_gpu_ms.median": "lower",
+    "runtime_frame.enemy_round_matrix.split_swarm.total_ms": "lower",
+    "runtime_frame.enemy_round_matrix.split_swarm.viewport_render_cpu_ms.median": "lower",
+    "runtime_frame.enemy_round_matrix.split_swarm.viewport_render_gpu_ms.median": "lower",
+    "runtime_frame.enemy_round_matrix.dragon_support.total_ms": "lower",
+    "runtime_frame.enemy_round_matrix.dragon_support.viewport_render_cpu_ms.median": "lower",
+    "runtime_frame.enemy_round_matrix.dragon_support.viewport_render_gpu_ms.median": "lower",
     "runtime_frame.static_memory_bytes": "lower",
+    "reward_animation.idle.frame_interval_ms.median": "lower",
+    "reward_animation.idle.frame_interval_ms.p95": "lower",
+    "reward_animation.idle.frames_over_16_67_ms": "lower",
+    "reward_animation.victory.frame_interval_ms.median": "lower",
+    "reward_animation.victory.frame_interval_ms.p95": "lower",
+    "reward_animation.victory.frames_over_16_67_ms": "lower",
+    "reward_animation.victory.frames_over_33_33_ms": "lower",
+    "reward_animation.per_card_flips.card_1.frame_interval_ms.p95": "lower",
+    "reward_animation.per_card_flips.card_2.frame_interval_ms.p95": "lower",
+    "reward_animation.per_card_flips.card_3.frame_interval_ms.p95": "lower",
+    "reward_animation.reward_reveal.frame_interval_ms.median": "lower",
+    "reward_animation.reward_reveal.frame_interval_ms.p95": "lower",
+    "reward_animation.reward_reveal.frames_over_16_67_ms": "lower",
+    "reward_animation.reward_reveal.frames_over_33_33_ms": "lower",
+    "reward_animation.static_memory_bytes": "lower",
     "simulation.board_submission_us_per_call": "lower",
+    "simulation.enemy_forecast_us_per_call": "lower",
     "simulation.presentation_cached_us_per_call": "lower",
     "runtime_integration.full_ui_cached_us_per_refresh": "lower",
     "trap_idle.lookup_us_per_call.median": "lower",
     "trap_idle.lookup_us_per_call.p95": "lower",
+    "combat_board_submission.identical_submission_usec.median": "lower",
+    "combat_board_submission.effect_progress_submission_usec.median": "lower",
+    "combat_board_submission.effect_progress_submission_usec.p95": "lower",
+    "combat_board_submission.movement_submission_usec.median": "lower",
+    "combat_board_submission.movement_submission_usec.p95": "lower",
 }
+
+# Enemy rounds contain long authored animations; completion duration cannot
+# substitute for the frame tails or synchronous input cost within that interval.
+COMPARISON_METRICS.update({
+    f"runtime_frame.enemy_round_matrix.{composition}.{metric}": "lower"
+    for composition in ("specialists", "split_swarm", "dragon_support")
+    for metric in (
+        "input_handler_ms", "frame_interval_ms.median", "frame_interval_ms.p95",
+        "frame_interval_ms.p99", "frame_interval_ms.max",
+        "frames_over_16_67_ms", "frames_over_33_33_ms",
+    )
+})
 
 COMPATIBILITY_FIELDS = {
     "report schema": ("schema_version",),
     "platform": ("environment", "platform"),
     "machine": ("environment", "machine"),
     "Godot version": ("environment", "godot"),
+    "simulation schema": ("benchmarks", "simulation", "result", "schema_version"),
+    "enemy forecast digest": ("benchmarks", "simulation", "result", "enemy_forecast_digest"),
+    "enemy forecast steps": ("benchmarks", "simulation", "result", "enemy_forecast_step_count"),
     "render schema": ("benchmarks", "render", "result", "schema_version"),
     "render workload": ("benchmarks", "render", "result", "workload_id"),
     "viewport": ("benchmarks", "render", "result", "viewport"),
@@ -109,6 +180,8 @@ COMPATIBILITY_FIELDS = {
     "phase frames": ("benchmarks", "render", "result", "phase_frames"),
     "ambient particle count": ("benchmarks", "render", "result", "ambient_particle_count"),
     "runtime frame schema": ("benchmarks", "runtime_frame", "result", "schema_version"),
+    "enemy round semantics": ("benchmarks", "runtime_frame", "result", "enemy_round_digests"),
+    "runtime frame sample boundary": ("benchmarks", "runtime_frame", "result", "sample_boundary"),
     "runtime frame workload": ("benchmarks", "runtime_frame", "result", "workload_id"),
     "runtime frame viewport": ("benchmarks", "runtime_frame", "result", "viewport"),
     "runtime frame renderer": ("benchmarks", "runtime_frame", "result", "renderer"),
@@ -120,6 +193,22 @@ COMPATIBILITY_FIELDS = {
     "runtime frame window mode": ("benchmarks", "runtime_frame", "result", "probe_window_mode"),
     "runtime frame render pulse": ("benchmarks", "runtime_frame", "result", "probe_render_pulse"),
     "runtime frame throttle threshold": ("benchmarks", "runtime_frame", "result", "probe_throttle_threshold_ms"),
+    "reward animation schema": ("benchmarks", "reward_animation", "result", "schema_version"),
+    "reward animation sample boundary": ("benchmarks", "reward_animation", "result", "sample_boundary"),
+    "reward animation workload": ("benchmarks", "reward_animation", "result", "workload_id"),
+    "reward animation viewport": ("benchmarks", "reward_animation", "result", "viewport"),
+    "reward animation renderer": ("benchmarks", "reward_animation", "result", "renderer"),
+    "reward animation rendering method": ("benchmarks", "reward_animation", "result", "rendering_method"),
+    "reward animation low processor mode": ("benchmarks", "reward_animation", "result", "probe_low_processor_usage_mode"),
+    "reward animation low processor sleep": ("benchmarks", "reward_animation", "result", "probe_low_processor_usage_mode_sleep_usec"),
+    "reward animation foreground window": ("benchmarks", "reward_animation", "result", "probe_foreground_window"),
+    "reward animation window mode": ("benchmarks", "reward_animation", "result", "probe_window_mode"),
+    "reward animation render pulse": ("benchmarks", "reward_animation", "result", "probe_render_pulse"),
+    "reward animation throttle threshold": ("benchmarks", "reward_animation", "result", "probe_throttle_threshold_ms"),
+    "combat board submission schema": ("benchmarks", "combat_board_submission", "result", "schema_version"),
+    "combat board submission workload": ("benchmarks", "combat_board_submission", "result", "workload_id"),
+    "combat board submission retained layers": ("benchmarks", "combat_board_submission", "result", "retained_layer_count"),
+    "combat board submission samples": ("benchmarks", "combat_board_submission", "result", "animation_samples"),
 }
 
 
@@ -287,6 +376,8 @@ def _metric_value(report: dict[str, Any], metric_path: str) -> float | None:
     for part in parts[1:]:
         if not isinstance(value, dict) or part not in value:
             return None
+        if part == "viewport_render_gpu_ms" and not value.get("viewport_render_gpu_timing_available", False):
+            return None
         value = value[part]
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         return float(value)
@@ -309,6 +400,8 @@ def _compatibility_problems(
     for label, path in COMPATIBILITY_FIELDS.items():
         before = _nested_value(baseline, path)
         after = _nested_value(candidate, path)
+        if before is None and after is None:
+            continue
         if before is None or after is None:
             problems.append(f"{label} metadata missing (baseline={before!r}, candidate={after!r})")
         elif before != after:

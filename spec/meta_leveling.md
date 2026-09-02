@@ -102,9 +102,6 @@ flowchart TB
     AI --> LS
     SF --> TB["True Bearing"]
     DE --> TB
-    MB --> LA["Layaway"]
-    DC --> LA
-
     BT --> EN["Encore"]
     LS --> OA["Open Arsenal"]
     PI --> CO["Confluence"]
@@ -139,7 +136,7 @@ without filling deliberately unspent points.
 | --- | --- | --- |
 | Quick Wits | Manual, once per combat | Discard a card to draw a card without spending a play or Time. |
 | Measured Breath | Automatic | End an activation with an unused play to bank one play for the next activation. |
-| Ghost Stride | Contextual, once per combat | You may use a card's basic Move as Blink `2`. |
+| Ghost Stride | Manual, once per combat | Arm your next use of independent movement to become Blink `2`. |
 | Discerning Eye | Contextual, once between bosses | Replace every card in a combat reward. |
 
 ### Branch skills
@@ -147,7 +144,7 @@ without filling deliberately unspent points.
 | Skill | Requires | Effect |
 | --- | --- | --- |
 | Rehearsed Escape | Quick Wits | Once per combat, arm to discard the next non-item Burn card instead of burning it. It is offered only while a qualifying card is in hand and spends its charge when preservation resolves. |
-| Makeshift Tool | Quick Wits | Once per combat, arm to discard the next item used as a basic Attack or Move instead of consuming it. It is offered only while an item is in hand and spends its charge when preservation resolves. |
+| Makeshift Tool | Quick Wits | Once per combat, arm to discard the next played item instead of consuming it. It is offered only while an item is in hand and spends its charge when preservation resolves. |
 | Carry the Guard | Measured Breath | Once per combat, after gaining block, arm during an activation to convert all block remaining at its end into stoneskin. |
 | Pain Remembers | Measured Breath | After the first health loss each combat, when the hand has room, return the next non-item discard to it. |
 | Sure-Footed | Ghost Stride | Once per combat, the first trap blast that would affect the player leaves them untouched and resolves normally against everything else. |
@@ -166,7 +163,12 @@ without filling deliberately unspent points.
 | Curator's Patience | Quick Wits + Deferred Choice | After choosing a relic, save one unchosen relic for the next relic offer. |
 | Living Shadow | Pain Remembers + Afterimage | Once between the player's activations, a destroyed or dispelled illusion returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
 | True Bearing | Sure-Footed + Discerning Eye | Before combat, choose an open starting tile within `2` tiles of the entrance. |
-| Layaway | Measured Breath + Deferred Choice | Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns. |
+
+Layaway is retired from the player-facing tree while the Scavenger shop is
+being iterated. Its data definition and run backend remain compatibility-only:
+existing profiles remove the learned id and refund its skill point, while stock
+already held by a legacy save still returns once. Players cannot learn or
+activate a new hold.
 
 ### Keystones
 
@@ -206,9 +208,10 @@ Reset behavior:
    through the normal immediate Learn action.
 
 Already-earned run choices survive a reset: a card saved by Deferred Choice,
-a relic saved by Curator's Patience, or stock held through Layaway still enters
-its next matching offer exactly once. Removing the source node prevents earning
-another pending benefit; it does not confiscate one the player already earned.
+a relic saved by Curator's Patience, or legacy stock held through retired
+Layaway still enters its next matching offer exactly once. Removing or retiring
+the source node prevents earning another pending benefit; it does not confiscate
+one the player already earned.
 
 Combat-limited abilities cannot be refreshed through reset because tree
 changes are unavailable during active combat. Defensive revision reconciliation

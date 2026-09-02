@@ -9,7 +9,7 @@ const RoomGenerator = preload("res://scripts/room_generator.gd")
 
 const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v4"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
-const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
+const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox"
 const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
 const LOG_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
@@ -76,11 +76,14 @@ func _capture_states() -> void:
 	instance.call("_on_card_pressed", 0)
 	await _settle_ui()
 	var targetless_context: Control = instance.get("_action_step_tracker") as Control
+	var targetless_board: Node = instance.get_node(BOARD_PATH)
+	var targetless_player_tile: Vector2i = ((targetless_before.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
 	_assert(int(instance.get("_selected_card_index")) == 0, "Targetless card click should arm the exact card")
 	_assert((instance.get("_combat_state") as Dictionary) == targetless_before, "Targetless card click should not mutate combat before confirmation")
-	_assert(_button_with_text(targetless_context, "Play Card") != null, "Targetless card context should expose Play Card")
-	_assert(str(targetless_context.get_meta("action_verb", "")) == "READY · PLAY CARD", "Targetless card context should state that the card is ready")
-	_assert(str(targetless_context.get_meta("target_state", "")) == "NO TARGET REQUIRED", "Targetless card context should explain why no board target is highlighted")
+	_assert(_button_with_text(targetless_context, "Play Card") == null, "Targetless card context should not expose a third confirmation control")
+	_assert(((targetless_board.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array) == [targetless_player_tile], "Targetless card context should highlight only the protagonist tile")
+	_assert(str(targetless_context.get_meta("action_verb", "")) == "READY · CLICK YOUR TILE", "Targetless card context should explain the self click")
+	_assert(str(targetless_context.get_meta("target_state", "")) == "SELF", "Targetless card context should identify the protagonist target")
 	_assert(targetless_context.find_child("CardActionChoiceMove", true, false) != null, "Targetless confirmation should keep alternate modes available")
 	await _save_root_screenshot("%s/targetless_confirmation.png" % OUTPUT_DIR)
 	instance.call("_on_cancel_requested")
@@ -894,6 +897,13 @@ func _capture_production_aspect_geometry(instance: Node) -> void:
 	print("HUD GEOMETRY 1920x1227 board=%s hand_top=%.1f gap=%.1f" % [board_bounds, hand_top, hand_top - board_bounds.end.y])
 
 func _assert_compact_pile_controls(instance: Node) -> void:
+	var piles: Control = instance.get("piles_bar") as Control
+	var viewport_rect: Rect2 = instance.get_viewport().get_visible_rect()
+	_assert(piles != null and piles.get_parent() == instance.get("ui_root"), "Combat piles should be independent viewport HUD controls")
+	if piles != null:
+		var piles_rect: Rect2 = piles.get_global_rect()
+		_assert(viewport_rect.grow(1.0).encloses(piles_rect), "Combat piles should remain fully onscreen")
+		_assert(absf(viewport_rect.end.x - piles_rect.end.x - 12.0) <= 1.0 and absf(viewport_rect.end.y - piles_rect.end.y - 12.0) <= 1.0, "Combat piles should dock at the bottom-right safe margin")
 	for pile_name: String in ["draw_pile", "discard_pile"]:
 		var pile: Control = instance.get(pile_name) as Control
 		_assert(pile != null and pile.visible, "%s should remain a visible combat pile control" % pile_name)

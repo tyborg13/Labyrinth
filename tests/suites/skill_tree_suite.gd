@@ -19,6 +19,10 @@ static func run(expect: Callable) -> void:
 
 static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.definitions().size() == 30, "The skill tree should define exactly 30 skills")
+	expect.call(SkillTreeLibrary.visible_ids().size() == 29, "The retired Layaway definition should remain save-compatible but stay out of the player-facing tree")
+	expect.call(not SkillTreeLibrary.visible_ids().has("layaway"), "Layaway should not render as a learnable skill while its shop action is retired")
+	expect.call(not SkillTreeLibrary.is_available("layaway", ["measured_breath", "deferred_choice"]), "Layaway should not consume a skill point while its shop action is retired")
+	expect.call(SkillTreeLibrary.normalized_ids(["layaway"]).has("layaway"), "Raw legacy ids should remain recognizable long enough for ProgressionStore to refund retired Layaway safely")
 	var validation_errors: Array[String] = SkillTreeLibrary.validation_errors()
 	expect.call(validation_errors.is_empty(), "The skill graph should have valid data, positions, prerequisites, and a complete level-20 route: %s" % str(validation_errors))
 	var caller_order: Array[String] = SkillTreeLibrary.ordered_ids()
@@ -26,7 +30,7 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.ordered_ids().size() == 30, "The cached authored order should return an isolated copy to callers")
 	var roots: Array[String]
 	var keystones: Array[String]
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var skill_def: Dictionary = SkillTreeLibrary.definition(skill_id)
 		expect.call(ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id)) != null, "%s should have a loadable tree icon" % skill_id)
 		expect.call(not SkillTreeLibrary.description(skill_id).to_lower().contains("sequence"), "%s should describe its refresh cadence in player language" % skill_id)
@@ -49,12 +53,12 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.description("afterimage").contains(str(afterimage_health)), "Afterimage copy should match the health shown on its illusion")
 	expect.call(SkillTreeLibrary.description("last_reserve").contains(str(reserve_health)), "Last Reserve copy should match the surviving health shown in combat")
 	expect.call(SkillTreeLibrary.description("last_door").contains(str(last_door_health)), "Last Door copy should match the returning health shown in the run UI")
-	expect.call(SkillTreeLibrary.description("ghost_stride") == "Once per combat, you may use a card's basic @icon(move) as @icon(blink) 2.", "Ghost Stride copy should preserve the choice to use the normal basic Move")
+	expect.call(SkillTreeLibrary.description("ghost_stride") == "Once per combat, arm so your next movement becomes @icon(blink) 2.", "Ghost Stride copy should describe its translated independent-movement trigger")
 	expect.call(SkillTreeLibrary.description("pain_remembers") == "After you first lose @icon(health) each combat, the next non-item card discarded while your hand has room returns to it.", "Pain Remembers copy should disclose that a full hand delays its recall")
-	expect.call(SkillTreeLibrary.description("prismatic_instinct") == "Once per combat, name a card with an @icon(elemental_intensity) condition in hand. The next printed play of any copy satisfies all such conditions. Basic Attack, @icon(move), and @icon(blink) do not consume the effect.", "Prismatic Instinct copy should describe its card-name scope, printed-play trigger, and non-consuming basic actions")
+	expect.call(SkillTreeLibrary.description("prismatic_instinct") == "Once per combat, name a card with an @icon(elemental_intensity) condition in hand. The next printed play of any copy satisfies all such conditions.", "Prismatic Instinct copy should describe its card-name scope and printed-play trigger")
 	expect.call(SkillTreeLibrary.description("curators_patience") == "After choosing a relic, save one unchosen relic for your next relic offer.", "Curator's Patience copy should identify the next relic offer")
 	expect.call(SkillTreeLibrary.description("living_shadow") == "Once between your turns, when @icon(illusion) is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.", "Living Shadow copy should use turn cadence, identify both illusion-removal triggers, and define a full hand")
-	expect.call(SkillTreeLibrary.description("layaway") == "Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns.", "Layaway copy should disclose that an unresolved hold blocks another use")
+	expect.call(SkillTreeLibrary.description("layaway") == "Once between bosses, hold one ware for the next Scavenger visit. A pending hold blocks future uses until it returns.", "Layaway copy should identify the unified Scavenger and disclose that an unresolved hold blocks another use")
 	expect.call(SkillTreeLibrary.description("open_arsenal") == "Equip any equipment in your trinket slot, ignoring its normal slot.", "Open Arsenal copy should explain which equipment restriction it ignores")
 	expect.call(SkillTreeLibrary.description("confluence") == "@icon(elemental_intensity) conditions use your highest value, regardless of element. @icon(draw) enabled solely by Confluence stops before it would trigger @icon(fatigue).", "Confluence copy should distinguish condition substitution from real intensity")
 	expect.call(SkillTreeLibrary.activation_kind("open_arsenal") == "passive" and SkillTreeLibrary.activation_kind("confluence") == "passive", "Always-on keystone rules should be classified as passive rather than automatic triggers")
@@ -161,7 +165,7 @@ static func _test_keystones_are_exclusive(expect: Callable) -> void:
 
 static func _test_max_build_requires_keystone(expect: Callable) -> void:
 	var non_keystone_ids: Array[String]
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		if not SkillTreeLibrary.is_keystone(skill_id):
 			non_keystone_ids.append(skill_id)
 	var legacy_selection: Array[String] = _topological_non_keystone_selection(SkillTreeLibrary.COMPLETE_BUILD_SIZE)
@@ -204,7 +208,7 @@ static func _test_max_build_requires_keystone(expect: Callable) -> void:
 		expect.call(not SkillTreeLibrary.is_available(unavailable_keystone_id, safe_eighteen), "%s should remain locked at point 19 when its authored parents are missing" % unavailable_keystone_id)
 		expect.call(SkillTreeLibrary.locked_reason(unavailable_keystone_id, safe_eighteen).begins_with("Requires "), "%s should name its missing authored prerequisite at point 19" % unavailable_keystone_id)
 
-	for keystone_id: String in SkillTreeLibrary.ordered_ids():
+	for keystone_id: String in SkillTreeLibrary.visible_ids():
 		if not SkillTreeLibrary.is_keystone(keystone_id):
 			continue
 		var preference: Array[String] = _recursive_prerequisites(keystone_id)
@@ -235,7 +239,7 @@ static func _topological_non_keystone_selection(limit: int) -> Array[String]:
 	var result: Array[String]
 	while result.size() < limit:
 		var added: bool = false
-		for skill_id: String in SkillTreeLibrary.ordered_ids():
+		for skill_id: String in SkillTreeLibrary.visible_ids():
 			if result.has(skill_id) or SkillTreeLibrary.is_keystone(skill_id):
 				continue
 			var prerequisites_met: bool = true

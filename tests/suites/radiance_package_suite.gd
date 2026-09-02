@@ -125,7 +125,7 @@ static func _test_attack_light_riders(expect: Callable) -> void:
 	synthetic_aoe_rider["illuminate_duration"] = 2
 	var squall_state: Dictionary = combat.create_combat(8295, _room(), {"hp": 24, "max_hp": 24, "deck_cards": ["squall_shot"], "relics": [], "hand_size": 1})
 	var squall_targets: Array[Vector2i] = combat.valid_targets_for_player_action(squall_state, synthetic_aoe_rider)
-	expect.call(squall_targets.has(Vector2i(4, 4)) and not squall_targets.has(Vector2i(4, 3)), "A Light-rider AOE should require an attackable selected center rather than an empty center that only overlaps a target")
+	expect.call(squall_targets.has(Vector2i(4, 4)) and squall_targets.has(Vector2i(4, 3)), "A Light-rider AOE should allow an empty selected center when other pattern squares hit targets")
 
 static func _test_movement_light_rider_uses_resolved_destination(expect: Callable) -> void:
 	var card: Dictionary = GameData.card_def("threaded_path")

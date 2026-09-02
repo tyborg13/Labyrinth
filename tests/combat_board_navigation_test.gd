@@ -24,10 +24,12 @@ func _initialize() -> void:
 	board.set_combat_state(state)
 	await process_frame
 	_test_navigation_reuses_content_cache(board)
+	_test_controller_tiles_match_visible_floor(board)
 	_test_hud_hover_layout_key_tracks_actor_not_empty_tile(board)
 	_test_tile_depth_preserves_top_face_hit_testing(board)
 	_test_backdrop_visibility_invalidates_static_layout(board, state)
 	_test_bounded_zoom_and_hit_testing(board)
+	_test_controller_hand_focus_preserves_board_framing(board, state)
 	_test_pickup_zoom_geometry_matches_actor(board)
 	_test_wheel_zoom(board)
 	_test_click_without_drag(board)
@@ -56,6 +58,17 @@ func _test_navigation_reuses_content_cache(board: Control) -> void:
 	_expect(after_count == before_count, "Pan and zoom should reuse cached tile order/extents instead of rebuilding room content each frame")
 	board.call("reset_navigation")
 
+func _test_controller_tiles_match_visible_floor(board: Control) -> void:
+	var navigable: Array = board.call("controller_navigable_tiles", false)
+	_expect(not navigable.is_empty(), "Controller navigation should expose the rendered floor")
+	for tile_var: Variant in navigable:
+		var tile: Vector2i = tile_var as Vector2i
+		_expect(tile.x > 0 and tile.x < 8 and tile.y > 0 and tile.y < 6, "Controller navigation must exclude the hidden perimeter-wall ring")
+	_expect(not navigable.has(Vector2i(0, 0)) and not navigable.has(Vector2i(8, 6)), "Invisible corner padding must never become a controller cursor stop")
+	board.call("set_controller_focus_tile", Vector2i(3, 3))
+	_expect(board.get("_controller_focus_tile") == Vector2i(3, 3), "Controller focus should be owned by the board renderer's projected tile overlay")
+	board.call("set_controller_focus_tile", Vector2i(-1, -1))
+
 func _test_hud_hover_layout_key_tracks_actor_not_empty_tile(board: Control) -> void:
 	var hud_units: Array[Dictionary] = []
 	for unit_var: Variant in board.call("_hud_layout_units") as Array:
@@ -75,6 +88,21 @@ func _test_hud_hover_layout_key_tracks_actor_not_empty_tile(board: Control) -> v
 	var enemy_layout_rebuilt: bool = bool(board.call("_rebuild_hud_health_rects_cache"))
 	_expect(not enemy_key.is_empty(), "Hovering an enemy footprint should identify the enemy whose intent expands")
 	_expect(enemy_layout_rebuilt, "Entering an enemy footprint should still rebuild the expanded enemy-intent layout")
+
+	board.set("_hover_tile", Vector2i(-1, -1))
+	board.call("set_controller_focus_tile", Vector2i(5, 3))
+	var controller_enemy_key: String = str(board.call("_hud_hover_actor_key", hud_units))
+	var focused_enemy: Dictionary = {}
+	for unit: Dictionary in hud_units:
+		if str(unit.get("role", "")) == "enemy" and unit.get("pos", Vector2i(-2, -2)) == Vector2i(5, 3):
+			focused_enemy = unit
+			break
+	_expect(controller_enemy_key == enemy_key and not controller_enemy_key.is_empty(), "Controller focus should select the same enemy HUD actor as pointer hover")
+	if not focused_enemy.is_empty():
+		var intent: Dictionary = focused_enemy.get("intent", {}) as Dictionary
+		_expect(bool(board.call("_enemy_intent_expanded", focused_enemy)), "Controller focus should expand the focused enemy intent")
+		_expect(not (board.call("_enemy_intent_rows_for_display", focused_enemy, intent) as Array).is_empty(), "Controller-expanded intents should retain action/value rows")
+	board.call("set_controller_focus_tile", Vector2i(-1, -1))
 
 func _test_tile_depth_preserves_top_face_hit_testing(board: Control) -> void:
 	var tile := Vector2i(4, 3)
@@ -146,6 +174,31 @@ func _test_bounded_zoom_and_hit_testing(board: Control) -> void:
 	_expect(pan.y <= limits.end.y + 0.01 and pan.y >= limits.position.y - 0.01, "Vertical panning should stay inside its board-aware bounds")
 	board.call("reset_navigation")
 
+func _test_controller_hand_focus_preserves_board_framing(board: Control, state: Dictionary) -> void:
+	var focused_presentation := {
+		"board_framing_mode": "combat",
+		"controller_combat_navigation": true,
+		"controller_hand_focused": true,
+	}
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, focused_presentation)
+	board.call("reset_navigation")
+	var focused_zoom: float = float((board.call("navigation_snapshot") as Dictionary).get("zoom", 0.0))
+	var focused_center_y: float = (board.call("world_position_for_tile", Vector2i(4, 3)) as Vector2).y
+
+	var tucked_presentation: Dictionary = focused_presentation.duplicate(false)
+	tucked_presentation["controller_hand_focused"] = false
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, tucked_presentation)
+	board.call("reset_navigation")
+	var tucked_zoom: float = float((board.call("navigation_snapshot") as Dictionary).get("zoom", 0.0))
+	var tucked_center_y: float = (board.call("world_position_for_tile", Vector2i(4, 3)) as Vector2).y
+	_expect(is_equal_approx(tucked_zoom, focused_zoom), "Focusing the controller hand should not resize the board behind it")
+	_expect(
+		is_equal_approx(tucked_center_y, focused_center_y),
+		"Focusing the controller hand should not move the board behind it (focused %.1f, tucked %.1f)" % [focused_center_y, tucked_center_y]
+	)
+	board.set_combat_state(state)
+	board.call("reset_navigation")
+
 func _test_wheel_zoom(board: Control) -> void:
 	var before_zoom: float = float((board.call("navigation_snapshot") as Dictionary).get("zoom", 0.0))
 	var wheel := InputEventMouseButton.new()
@@ -160,8 +213,8 @@ func _test_wheel_zoom(board: Control) -> void:
 func _test_pickup_zoom_geometry_matches_actor(board: Control) -> void:
 	var state: Dictionary = _board_state(Vector2i(2, 3))
 	state["loot"] = [
-		{"id": "zoom_vial", "kind": "healing_vial", "amount": 4, "pos": Vector2i(2, 2)},
-		{"id": "zoom_shield", "kind": "rusty_shield", "amount": 4, "pos": Vector2i(3, 2)},
+		{"id": "zoom_vial", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(2, 2)},
+		{"id": "zoom_shield", "kind": "item", "card_id": "bone_ward_charm", "pos": Vector2i(3, 2)},
 		{"id": "zoom_equipment", "kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(4, 2)}
 	]
 	board.set_combat_state(state)
@@ -173,7 +226,7 @@ func _test_pickup_zoom_geometry_matches_actor(board: Control) -> void:
 	var default_zoom: Dictionary = _pickup_and_actor_geometry(board, state)
 	board.call("set_navigation_zoom", maximum_zoom, board.size * 0.5)
 	var maximum: Dictionary = _pickup_and_actor_geometry(board, state)
-	for object_id: String in ["healing_vial", "rusty_shield", "equipment"]:
+	for object_id: String in ["crimson_draught", "bone_ward_charm", "equipment"]:
 		var min_width: float = float((minimum.get(object_id, Rect2()) as Rect2).size.x)
 		var default_width: float = float((default_zoom.get(object_id, Rect2()) as Rect2).size.x)
 		var max_width: float = float((maximum.get(object_id, Rect2()) as Rect2).size.x)
@@ -196,7 +249,7 @@ func _pickup_and_actor_geometry(board: Control, state: Dictionary) -> Dictionary
 	for loot_var: Variant in state.get("loot", []) as Array:
 		var loot: Dictionary = loot_var as Dictionary
 		var texture: Texture2D = board.call("_loot_texture", loot) as Texture2D
-		geometry[str(loot.get("kind", ""))] = board.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
+		geometry[str(loot.get("card_id", loot.get("kind", "")))] = board.call("_loot_rect_for_tile", loot.get("pos", Vector2i.ZERO), texture, loot) as Rect2
 	return geometry
 
 func _test_click_without_drag(board: Control) -> void:
@@ -279,7 +332,15 @@ func _board_state(room_coord: Vector2i) -> Dictionary:
 		"room_element": "none",
 		"grid": _simple_grid(),
 		"player": {"pos": Vector2i(3, 3), "hp": 24, "max_hp": 24, "block": 0},
-		"enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(5, 3), "hp": 18, "max_hp": 18, "block": 0}],
+		"enemies": [{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(5, 3),
+			"hp": 18,
+			"max_hp": 18,
+			"block": 0,
+			"intent": {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]},
+		}],
 		"illusions": [],
 		"npcs": [],
 		"loot": [],

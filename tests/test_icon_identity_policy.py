@@ -164,6 +164,14 @@ class IconIdentityPolicyTests(unittest.TestCase):
                 self.assertTrue(path, f"{family}:{item_id} must declare {field}")
                 concepts[f"{family}:{item_id}"] = path
 
+        cards = json.loads((REPO_ROOT / "data/cards.json").read_text(encoding="utf-8"))
+        for card_id, card in cards.items():
+            if card.get("item"):
+                path = card.get("icon_path", "")
+                self.assertTrue(path, f"item:{card_id} must declare a pickup icon")
+                self.assertNotEqual(path, card.get("art_path"), "Pickup icons must be separate from card art")
+                concepts[f"item:{card_id}"] = path
+
         card_role_emblems = _card_role_emblem_paths()
         self.assertEqual(
             card_role_emblems,

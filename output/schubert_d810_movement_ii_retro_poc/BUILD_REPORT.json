@@ -1,0 +1,93 @@
+{
+  "source": {
+    "path": "source/openscore_sq7397765.mxl",
+    "sha256": "c1370ff43b2272b88e04d41d3cc31ca6717a982eaa09cc5540a5952b4f3c1bd5",
+    "format": "compressed MusicXML (.mxl)"
+  },
+  "extraction": {
+    "source_measure_start_index": 341,
+    "source_measure_end_index_exclusive": 521,
+    "notated_measure_objects_per_part": 180,
+    "source_part_names": [
+      "Violin 1",
+      "Violin 2",
+      "Viola",
+      "Violoncello"
+    ]
+  },
+  "normalized": {
+    "expanded_quarter_length": 1200.0,
+    "expanded_measures_per_part": 300,
+    "tempo_event_count": 20,
+    "note_counts": {
+      "Violin 1": 2520,
+      "Violin 2": 1849,
+      "Viola": 1582,
+      "Violoncello": 1110
+    },
+    "separate_part_midis": {
+      "Violin 1": "normalized/parts/violin_i.mid",
+      "Violin 2": "normalized/parts/violin_ii.mid",
+      "Viola": "normalized/parts/viola.mid",
+      "Violoncello": "normalized/parts/cello.mid"
+    }
+  },
+  "arrangement": {
+    "tempo_qpm": 92,
+    "ticks_per_beat": 480,
+    "musical_voice_tracks": 5,
+    "note_counts": {
+      "Pulse I / Violin I": 2468,
+      "Pulse II / Violin II": 1663,
+      "Triangle / Viola": 1544,
+      "Low Triangle / Cello": 1075,
+      "Sub-Bass Shadow / Cello -8ve": 1038
+    },
+    "pitch_ranges_midi": {
+      "Pulse I / Violin I": [
+        55,
+        97
+      ],
+      "Pulse II / Violin II": [
+        55,
+        86
+      ],
+      "Triangle / Viola": [
+        48,
+        74
+      ],
+      "Low Triangle / Cello": [
+        36,
+        70
+      ],
+      "Sub-Bass Shadow / Cello -8ve": [
+        28,
+        58
+      ]
+    },
+    "last_note_quarter_length": 1199.68,
+    "nominal_duration_seconds": 782.4
+  },
+  "audio_preview": {
+    "path": "faithful_retro_preview.ogg",
+    "lossless_reference_path": "faithful_retro_preview.flac",
+    "sample_rate": 44100,
+    "channels": 2,
+    "duration_seconds": 783.3994565217391,
+    "peak_linear": 0.3885225513186132,
+    "peak_dbfs": -8.21167536073676,
+    "rms_linear": 0.060562555194950636,
+    "renderer": "sample-free deterministic additive/pulse/triangle oscillator synth",
+    "encoder": "FFmpeg native Vorbis quality 5 (experimental encoder API)",
+    "lossless_encoder": "FFmpeg FLAC compression level 8",
+    "ogg_sha256": "93ff01b2b6ef31e52965fdbf240c7b64a692871301370c517a7cafcda7a65a0f",
+    "flac_sha256": "ecd02002cff366f1152febe588713a5dd870a840bed44a1c5b7c7bb0f04c6409",
+    "ogg_stream_serial": "0x53383130"
+  },
+  "tools": {
+    "python": "3.12.13",
+    "music21": "10.5.0",
+    "mido": "1.3.3",
+    "numpy": "2.5.2"
+  }
+}

@@ -6,7 +6,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
-const PROGRESSION_SCHEMA: int = 6
+const PROGRESSION_SCHEMA: int = 7
 const GRIMOIRE_UNLOCKED_KEY: String = "grimoire_unlocked"
 const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
 const RUN_BESTS_KEY: String = "run_bests"
@@ -109,18 +109,30 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data = _migrated_legacy_combat_unit_history(data)
 	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())
 	var earned_skill_count: int = skill_points_for_level(int(data.get("level", 1)))
-	var source_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(data.get("skill_ids", []))
+	var serialized_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(data.get("skill_ids", []))
+	var source_skill_ids: Array[String] = []
+	for skill_id: String in serialized_skill_ids:
+		if not SkillTreeLibrary.is_retired(skill_id):
+			source_skill_ids.append(skill_id)
+	var retired_skill_count: int = serialized_skill_ids.size() - source_skill_ids.size()
 	# Schema 4 required a complete allocation at every level. Preserve those
 	# profiles exactly during migration, then allow schema 5 profiles to bank any
-	# number of earned points without normalization silently spending them.
+	# number of earned points without normalization silently spending them. A
+	# retired skill is an explicit refund: never fill its vacated point during an
+	# older complete-allocation migration.
 	var repair_target: int = earned_skill_count if source_schema < 5 else mini(source_skill_ids.size(), earned_skill_count)
+	if retired_skill_count > 0:
+		repair_target = mini(source_skill_ids.size(), earned_skill_count)
 	var repaired_skill_ids: Array[String] = SkillTreeLibrary.repaired_selection(source_skill_ids, repair_target, source_skill_ids)
 	if (
-		source_schema < 4
-		and earned_skill_count == SkillTreeLibrary.COMPLETE_BUILD_SIZE
-		and source_skill_ids.size() == earned_skill_count
-		and not _skill_selection_has_keystone(source_skill_ids)
-		and repaired_skill_ids != source_skill_ids
+		retired_skill_count > 0
+		or (
+			source_schema < 4
+			and earned_skill_count == SkillTreeLibrary.COMPLETE_BUILD_SIZE
+			and source_skill_ids.size() == earned_skill_count
+			and not _skill_selection_has_keystone(source_skill_ids)
+			and repaired_skill_ids != source_skill_ids
+		)
 	):
 		data["progression_revision"] = int(data.get("progression_revision", 0)) + 1
 	data["skill_ids"] = repaired_skill_ids
@@ -768,7 +780,9 @@ static func queue_progression_analytics_event(
 	var safe_idempotency_key: String = idempotency_key.strip_edges()
 	if safe_event_type.is_empty() or safe_idempotency_key.is_empty():
 		return normalized
-	var outbox: Array[Dictionary] = progression_analytics_outbox(normalized)
+	var outbox: Array[Dictionary] = _normalized_progression_analytics_outbox(
+		normalized.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	)
 	for entry: Dictionary in outbox:
 		if str(entry.get("idempotency_key", "")) == safe_idempotency_key:
 			return normalized
@@ -779,30 +793,46 @@ static func queue_progression_analytics_event(
 		"payload": payload.duplicate(true),
 	})
 	normalized[PROGRESSION_ANALYTICS_OUTBOX_KEY] = outbox
-	return _normalized_data(normalized)
+	return normalized
 
 static func acknowledge_progression_analytics_event(data: Dictionary, idempotency_key: String) -> Dictionary:
+	return acknowledge_progression_analytics_events(data, [idempotency_key])
+
+static func acknowledge_progression_analytics_events(data: Dictionary, idempotency_keys: Array) -> Dictionary:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	var safe_idempotency_key: String = idempotency_key.strip_edges()
-	if safe_idempotency_key.is_empty():
+	var acknowledged: Dictionary = {}
+	for idempotency_key_var: Variant in idempotency_keys:
+		var safe_idempotency_key: String = str(idempotency_key_var).strip_edges()
+		if not safe_idempotency_key.is_empty():
+			acknowledged[safe_idempotency_key] = true
+	if acknowledged.is_empty():
 		return normalized
 	var remaining: Array[Dictionary] = []
-	for entry: Dictionary in progression_analytics_outbox(normalized):
-		if str(entry.get("idempotency_key", "")) != safe_idempotency_key:
+	for entry: Dictionary in _normalized_progression_analytics_outbox(
+		normalized.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	):
+		if not acknowledged.has(str(entry.get("idempotency_key", ""))):
 			remaining.append(entry.duplicate(true))
 	normalized[PROGRESSION_ANALYTICS_OUTBOX_KEY] = remaining
-	return _normalized_data(normalized)
+	return normalized
 
 static func merge_progression_analytics_outbox(data: Dictionary, source: Dictionary) -> Dictionary:
 	var merged: Dictionary = _normalized_data(data.duplicate(true))
-	for entry: Dictionary in progression_analytics_outbox(source):
-		merged = queue_progression_analytics_event(
-			merged,
-			str(entry.get("event_type", "")),
-			str(entry.get("idempotency_key", "")),
-			entry.get("context", {}) as Dictionary,
-			entry.get("payload", {}) as Dictionary
-		)
+	var outbox: Array[Dictionary] = _normalized_progression_analytics_outbox(
+		merged.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	)
+	var known_keys: Dictionary = {}
+	for entry: Dictionary in outbox:
+		known_keys[str(entry.get("idempotency_key", ""))] = true
+	for entry: Dictionary in _normalized_progression_analytics_outbox(
+		source.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	):
+		var idempotency_key: String = str(entry.get("idempotency_key", ""))
+		if known_keys.has(idempotency_key):
+			continue
+		known_keys[idempotency_key] = true
+		outbox.append(entry)
+	merged[PROGRESSION_ANALYTICS_OUTBOX_KEY] = outbox
 	return merged
 
 static func can_reset_skills(data: Dictionary) -> bool:

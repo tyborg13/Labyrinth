@@ -16,15 +16,28 @@ static func apply_from_environment() -> String:
 	if requested_name.is_empty() and not task_id.is_empty():
 		requested_name = "%s %s" % [DEFAULT_PREFIX, _safe_fragment(task_id)]
 	if not requested_name.is_empty():
+		var initial_shader_cache: String = ProjectSettings.globalize_path("user://shader_cache")
 		_namespace = _safe_user_dir_name(requested_name)
 		ProjectSettings.set_setting("application/config/use_custom_user_dir", true)
 		ProjectSettings.set_setting("application/config/custom_user_dir_name", _namespace)
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://logs"))
+		# Native rendering initializes built-in shader directories before script
+		# startup. Preserve those empty directories after user:// is namespaced;
+		# otherwise newly compiled variants fail to save their cache files. Never
+		# copy compiled binaries, so isolated cold benchmarks remain cold.
+		_mirror_cache_directories(initial_shader_cache, ProjectSettings.globalize_path("user://shader_cache"))
 	_applied = true
 	return _namespace
 
 static func current_namespace() -> String:
 	return _namespace
+
+static func _mirror_cache_directories(source: String, destination: String) -> void:
+	if source == destination or not DirAccess.dir_exists_absolute(source):
+		return
+	DirAccess.make_dir_recursive_absolute(destination)
+	for directory: String in DirAccess.get_directories_at(source):
+		_mirror_cache_directories(source.path_join(directory), destination.path_join(directory))
 
 static func _safe_user_dir_name(value: String) -> String:
 	var result: String = value.strip_edges()

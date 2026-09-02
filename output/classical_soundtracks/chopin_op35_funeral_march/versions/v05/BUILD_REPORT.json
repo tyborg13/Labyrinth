@@ -1,0 +1,25 @@
+{
+  "arrangement_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/versions/v05/arrangement.mid",
+  "arrangement_midi_sha256": "97ffdb5431fc643d1a6250e3a20c9ae54c9314a320afc878acaf0f93919720ca",
+  "musical_content": {
+    "late_motif_policy": "v04 recognizable late Grave and Veiled lead remains suppressed",
+    "midi_byte_for_byte_equal_to_v04": true,
+    "musical_changes_from_v04": "none",
+    "selection": "v04 contiguous source measures 93-100, uniformly transposed down three semitones",
+    "v04_midi_sha256": "97ffdb5431fc643d1a6250e3a20c9ae54c9314a320afc878acaf0f93919720ca"
+  },
+  "ok": true,
+  "purpose": "Promotion package preserving owner-approved v04 music exactly",
+  "v04_builder_sha256": "00c594a9cc72f3211b6139c0f95e64fa887253c600aa98372d7eebb18216b15e",
+  "v04_config_sha256": "139b39dca71b99fcf530f92facad717179f4d253ad4b4dd7302d8277665f65cf",
+  "v04_version_hashes_unchanged": {
+    "ARRANGEMENT_NOTES.md": "427acea8216ddcb4eacad59ffb977fd7505f4e5bc611c559906ba29a1985b218",
+    "BUILD_REPORT.json": "b9c8c6003ada5435a32f41499e966c62c9fb3819d867d677e61e41ac1d7074c9",
+    "VERIFICATION.json": "d91a7d0f8bac8c713012f0850a7ea05888ced75c8f2c7032f8ac940934456e57",
+    "arrangement.mid": "97ffdb5431fc643d1a6250e3a20c9ae54c9314a320afc878acaf0f93919720ca",
+    "preview.flac": "00895a5616fea071e73fd22681747a6adc154db1196a74b650341ea9b4d7e16e",
+    "preview.ogg": "f005bda46c395579b32f0afeb749b5e16775efa2ecee5203e2a4bacd872b2569",
+    "preview.render.json": "19d2370432da2d9acc03ce2291d0c29a110cd38243572cedf71501bf075d683d"
+  },
+  "version": "v05"
+}

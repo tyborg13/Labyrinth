@@ -1,5 +1,7 @@
 # Local Analytics
 
+Runtime frame-time/render-load collection is specified separately in [performance_telemetry.md](performance_telemetry.md). Gameplay analytics and performance telemetry use distinct files and schemas so high-frequency performance sampling cannot inflate or destabilize the append-only gameplay-event contract below.
+
 The game now records local-only analytics as append-only JSON Lines under `user://analytics/` by default. The storage format is intentionally boring so it can later be uploaded to S3 and queried or compacted into Parquet without changing the in-game emitter.
 
 ## Storage
@@ -51,6 +53,7 @@ available:
 - `card_drawn`
 - `card_became_playable`
 - `card_played`
+- `player_moved`
 - `enemy_action_resolved`
 - `enemy_status_tick`
 - `defiance_triggered`
@@ -62,6 +65,7 @@ available:
 - `equipment_equipped`
 - `magic_attuned`
 - `item_equipped`
+- `item_picked_up`
 - `merchant_trade`
 
 `run_started` includes the compiled starting deck plus the equipment model used
@@ -131,6 +135,15 @@ movement, and elemental-intensity payoffs during the resolved transition.
 - immediate status application deltas for burn, bleed, expose, freeze, shock,
   immobilize, and poison
 - actual resolved action list and chosen targets
+- `play_mode`, retained as an additive compatibility field and always recorded
+  as `printed` now that cards no longer have basic Attack or Move modes
+- the player-facing targeting gesture via `target_decision_count` and
+  `target_decision_tile`. Card plays now record one board decision even when a
+  combined move-and-melee card internally resolves both its preferred movement
+  endpoint and enemy target. Choosing an empty destination instead records that
+  destination and resolves the movement-only branch without the follow-up
+  attack. Targetless cards record the protagonist tile used to confirm the
+  play.
 - consumable item flags via `item_card` and `consume_on_play`
 - Radiance and visibility context: `radiance_card`, Umbra stage and radius
   before/after, tiles illuminated, enemies newly revealed, fixed light sources
@@ -143,8 +156,10 @@ movement, and elemental-intensity payoffs during the resolved transition.
 
 Attack-carried Light remains one resolved attack action in this payload. Its
 additive `illuminate_radius` and `illuminate_duration` fields identify the
-post-hit rider, while the single chosen target remains the enemy, trap, or
-terrain impact tile. Standalone `illuminate` actions remain distinct and retain
+post-hit rider, while the single chosen target remains the enemy, trap, terrain
+impact tile, or freely selected AOE center. An AOE center may be empty when its
+other pattern squares hit actors, and any attack-carried Light anchors at that
+selected center. Standalone `illuminate` actions remain distinct and retain
 their free-tile target entry.
 
 Movement-carried Light likewise remains part of one resolved Move or Blink
@@ -153,12 +168,19 @@ at the actual resolved endpoint, which may differ from the chosen target after
 a hidden-enemy movement interruption; the existing movement-interruption and
 fixed-light-source deltas preserve both facts without adding a target event.
 
+`player_moved` records independent movement-pool use separately from card play.
+Its payload includes `action_type`, `origin`, requested `target`, resolved
+`destination`, tiles `spent`, movement remaining before/after, and total
+movement capacity. This preserves split movement and card-interleaved movement
+without attributing either to a card. Ghost Stride movement is identified by
+`action_type: "blink"`.
+
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and
 large-area attacks. Runtime-selected AOE aim orientation is additive on the
 resolved action as `orientation`; legal push and pull direction choices are
-additive as `force_direction`, while `play_mode` comparison ignores those runtime
-direction fields so printed cards still classify as printed plays.
+additive as `force_direction`. These runtime direction fields do not change the
+card's printed-play classification.
 
 `enemy_status_tick` captures delayed enemy status resolution. Burn and poison
 use `trigger: "turn_start"` when the affected enemy's initiative activation
@@ -168,6 +190,11 @@ value-model work, but it is not yet card-source attributed.
 
 `enemy_action_resolved` records each resolved enemy movement, attack, defense,
 heal, summon, elemental-intensity build, or authored dragon-boss mechanic step.
+Its additive `enemy_type`, `ai_role`, and `intent_id` fields identify the actor's
+authored tactical role and the revealed intent that produced the action. This
+allows playtest analysis to compare realized range closure, retreat, healing,
+guarding, and route efficiency by decision policy; authored bosses retain an
+empty `ai_role` while still recording their enemy and intent ids.
 Group support actions include additive `support_targets` entries with each
 recipient's actor key, display name, tile, and realized amount; this lets Warden
 Bulwark record every protected ally without splitting one intent into misleading
@@ -215,14 +242,24 @@ one of the six attuned slots outside combat. Its payload records the reserve and
 attuned indices, the attuned `card_id`, full `attuned_magic_cards`,
 `magic_inventory`, `reward_cards`, and rebuilt `deck_cards`.
 
-`item_equipped` fires when the character overlay equips or stows a Scavenger
+`item_picked_up` records a newly collected battlefield item, with `loot_id`,
+`card_id`, `destination` (`hand`, `draw`, or `inventory`), and the resulting
+`equipped_items` and `item_inventory`. Duplicate cards remain separate pickups.
+Both live UI and the headless harness emit it. Direct hand acquisitions keep the
+existing `card_drawn` event with `reason: item_pickup`; they do not remove a card
+from the draw pile. Full-hand acquisitions go on top of draw and produce their
+normal `card_drawn` only when actually drawn. Full-slot pickups produce no draw.
+Combat snapshots now own item loadout transactions, so checkpoint replay and
+reload copy the result rather than granting or consuming items a second time.
+
+`item_equipped` fires when the character overlay equips or stows an owned
 consumable outside combat. Its payload records `action` (`equip` or `stow`),
 `card_id`, `inventory_index`, `equipped_index`, full `equipped_items`,
 `item_inventory`, and rebuilt `deck_cards`.
 
-`merchant_trade` fires when a blacksmith, arcanist, or scavenger transaction
-succeeds in a non-combat merchant room. Its payload records `action` (`buy` or `sell`),
-`merchant_kind`, `item_kind`, `item_id`, ember `amount`,
+`merchant_trade` fires when a Scavenger transaction succeeds in a non-combat
+merchant room. Its payload records `action` (`buy` or `sell`), `merchant_kind`
+(`scavenger`), `item_kind` (`magic`, `equipment`, or `item`), `item_id`, ember `amount`,
 `held_embers_before`, `held_embers_after`, the current `room`, and the updated
 equipment, magic, item, reward-card, and deck state.
 
@@ -367,7 +404,7 @@ Update analytics instrumentation when changes affect:
 - draw rules, opening hand, reshuffle, or fatigue
 - combat-unit migrations or Defiance capacity, restoration, spending, or
   persistence
-- alternate card play modes
+- card play targeting or independent player movement rules
 - elemental intensity production, gating, spending, enemy use, trap scaling, or
   room-start rules
 - Umbra stage progression, visibility, hidden-enemy information, or Radiance

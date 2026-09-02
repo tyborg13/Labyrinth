@@ -215,7 +215,7 @@ func _long_state() -> Dictionary:
 	return {"mode": "room", "current_room": current, "rooms": rooms}
 
 func _probe_room(coord: Vector2i, depth: int, visited: bool, sealed: bool) -> Dictionary:
-	var types: Array = ["combat", "campfire", "combat", "treasure", "blacksmith", "combat", "arcanist", "combat", "scavenger"]
+	var types: Array = ["combat", "campfire", "combat", "treasure", "scavenger", "combat", "combat", "combat", "scavenger"]
 	var elements: Array = ["fire", "ice", "lightning", "air", "earth"]
 	var room_type: String = "start" if depth == 0 else str(types[depth % types.size()])
 	return {

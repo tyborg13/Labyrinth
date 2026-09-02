@@ -1,0 +1,210 @@
+{
+  "audio": {
+    "decoded_loop_metrics": {
+      "flac": {
+        "decoded_frames": 11796750,
+        "duration_seconds": 267.5,
+        "first_frame": [
+          0.0,
+          0.0
+        ],
+        "first_last_sample_delta": [
+          0.0,
+          0.0
+        ],
+        "last_frame": [
+          0.0,
+          0.0
+        ],
+        "p99_9_adjacent_sample_delta": [
+          0.01947021484375,
+          0.02178955078125
+        ],
+        "peak_dbfs": -8.000782896515972,
+        "seam_to_p99_9_ratio": [
+          0.0,
+          0.0
+        ]
+      },
+      "ogg": {
+        "decoded_frames": 11796800,
+        "duration_seconds": 267.5011337868481,
+        "first_frame": [
+          -1.8663748051039875e-05,
+          -2.217315704911016e-05
+        ],
+        "first_last_sample_delta": [
+          1.8663748051039875e-05,
+          2.217315704911016e-05
+        ],
+        "last_frame": [
+          0.0,
+          0.0
+        ],
+        "p99_9_adjacent_sample_delta": [
+          0.019492503255605698,
+          0.021814653649926186
+        ],
+        "peak_dbfs": -7.95852500995604,
+        "seam_to_p99_9_ratio": [
+          0.000957483387654303,
+          0.0010164340633107042
+        ]
+      }
+    },
+    "flac": {
+      "format": {
+        "duration": "267.500000",
+        "size": "10237955"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "flac",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "flac_sha256": "ec66910152ba9ca6263d58f95c246f94bbee8a27fc87106a986c90aa7e53fb27",
+    "long_silence_events": {
+      "flac": [],
+      "ogg": []
+    },
+    "ogg": {
+      "format": {
+        "duration": "267.501134",
+        "size": "1977647"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "vorbis",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "ogg_sha256": "39fd132e21a61abc5a30d423c32b5f2b294d64a52d2f9bbf76acb8e4ca483863",
+    "peak_dbfs": -8.000782896515972,
+    "strict_decode": true
+  },
+  "bank_manifest_sha256": "2fc0b70a096ec2bbbcfdf3bd3cdbf3d3f595a780835329332ee548d581019ea6",
+  "bank_sample_hashes": {
+    "ash_tick": "1d2eff817f2e52e2b7ffa177914a6c2b33cc534b4f34b53bbefa1b469837aeb7",
+    "ashen_violin": "61582413be61cd25d182bdb1645c83af6b663070d9be9730525a02bc1ec890a0",
+    "bone_tom": "3789e4f0aec579f355416bc05cea5758f018b528ae7db37069100b221f0432ec",
+    "grave_cello": "17eb59965eabbe0a910585f100296ce56cd868884d440139a3b5c7b13df40f09",
+    "hollow_viola": "9cac0ff97b72b9822e4774fdd4d270b8f4b719f5662e27035519715b07f70c74",
+    "umbra_war_drum": "6286624ce4b2bf0f8f372a524217846a7096bb9f453dea8b60f69d3207f346ea",
+    "undercrypt_bass": "2b1a1a07e74969533c0ef2766602633fcb6180a12ae6fa3dddc6dbdb1264679e",
+    "veiled_violin": "c683d2911eba6adb35e58027b1dd363f5057996a789f06f8a4aa604d9092ffc8"
+  },
+  "config_sha256": "1c25ef1e86ed73cc7cea06e228271120cfb858626a3bef4b3de1ac3ab181705c",
+  "midi": {
+    "configured_tracks": [
+      "Ashen Violin / Inner Voice",
+      "Grave Cello / Troubadour",
+      "Hollow Viola / Lower Harmony",
+      "Undercrypt Bass / G-sharp Pedal",
+      "Veiled Violin / Castle Air"
+    ],
+    "note_counts": {
+      "Ashen Violin / Inner Voice": 160,
+      "Grave Cello / Troubadour": 291,
+      "Hollow Viola / Lower Harmony": 438,
+      "Undercrypt Bass / G-sharp Pedal": 438,
+      "Veiled Violin / Castle Air": 291
+    },
+    "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/arrangement.mid",
+    "sha256": "e4fe6d11b0148372cf07c759556e579403f0c7bc0f1b3db51b941b0851a86c94",
+    "structural_duration_seconds": 267.5
+  },
+  "ok": true,
+  "reproducibility": {
+    "arrangement_notes": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/ARRANGEMENT_NOTES.md",
+      "sha256": "d0ed5f25aaa4b74bfb5862784f9e0f429465739d53339ef6a1c440b2e0e87456"
+    },
+    "build_script": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/scripts/build_full_arrangement.py",
+      "sha256": "b1004b070977b8c5e9805065a0c5e507e9aa3d79fbb46688e80e720096a4c498"
+    },
+    "expected_part_count": 5,
+    "normalized_full_score_midi": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/full_score.mid",
+      "sha256": "a713acac2ab6541fbefa25578fcd48edd49ede36447256a05c7718fb5974d75a"
+    },
+    "normalized_full_score_musicxml": {
+      "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/full_score.musicxml",
+      "sha256": "0fb5eebc1c50f4e4431589fd2d117659c8873bbe7a7fc83b66ec2b431ca0f0a6"
+    },
+    "normalized_parts": [
+      {
+        "midi": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/01_veiled_violin_castle_air.mid",
+          "sha256": "4665f77133774e68620219f598b8ed5147f315711e7bd8945e0aef0dff342a04"
+        },
+        "musicxml": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/01_veiled_violin_castle_air.musicxml",
+          "sha256": "e4f997172b8f727638113e8605dfe1c3a640570713a1be19670db4b3c0105fcc"
+        },
+        "name": "Veiled Violin / Castle Air"
+      },
+      {
+        "midi": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/02_ashen_violin_inner_voice.mid",
+          "sha256": "93dd3f5997780187e9d9fddef6793652c4eb56b44f834b65f6d04f44b71bd8e5"
+        },
+        "musicxml": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/02_ashen_violin_inner_voice.musicxml",
+          "sha256": "ec0ee27399ac8315b089cbed03c826bae7d9d33c0055a41315c2332d13cd9f1d"
+        },
+        "name": "Ashen Violin / Inner Voice"
+      },
+      {
+        "midi": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/03_hollow_viola_lower_harmony.mid",
+          "sha256": "fd8edd3c061014aec2456aad3a933758af756c397753530cd2d555d230e6f10e"
+        },
+        "musicxml": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/03_hollow_viola_lower_harmony.musicxml",
+          "sha256": "d1d3576733bff95c7aafae762a33d3485c12242bec08befc721044b7a38b9a9d"
+        },
+        "name": "Hollow Viola / Lower Harmony"
+      },
+      {
+        "midi": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/04_grave_cello_troubadour.mid",
+          "sha256": "3b9b04cc2b4f8d1526db2089aae96e302c356d0a5f04f293c314f71edd90136d"
+        },
+        "musicxml": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/04_grave_cello_troubadour.musicxml",
+          "sha256": "e8813a4d7633e1eb8753235d4435e117317115db96846e4809636383e148efce"
+        },
+        "name": "Grave Cello / Troubadour"
+      },
+      {
+        "midi": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/05_undercrypt_bass_g_sharp_pedal.mid",
+          "sha256": "c37828b254677332688d224004de585bdcf034da1e8d8b07860779cb81ab38e3"
+        },
+        "musicxml": {
+          "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/versions/v02/normalized/parts/05_undercrypt_bass_g_sharp_pedal.musicxml",
+          "sha256": "ab8aa9027a2c3421d9d8cc7cca3b3629c063a5373e9abce8a3ab30b66233729b"
+        },
+        "name": "Undercrypt Bass / G-sharp Pedal"
+      }
+    ]
+  },
+  "source": {
+    "license_file": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/LICENSE_SOURCE.md",
+    "path": "/Users/borgerding/workspace/Labyrinth.worktrees/create-first-old-castle-classical-soundtrack-audition/output/classical_soundtracks/mussorgsky_pictures_old_castle/source/mussorgsky_pictures_at_an_exhibition_pdmx_cc0.mid",
+    "rights_basis": "cc0",
+    "sha256": "e8c7fe31e8ff267a8fa4f4ca5edd076955e49cd89548d7367a588e163079cc34",
+    "transcription_license": "CC0 1.0 Universal"
+  },
+  "track_id": "mussorgsky_pictures_old_castle_v02"
+}

@@ -59,11 +59,24 @@ static func ordered_ids() -> Array[String]:
 	_ordered_ids_cache = _copy_string_array(result)
 	return result
 
+static func visible_ids() -> Array[String]:
+	var result: Array[String]
+	for skill_id: String in ordered_ids():
+		if is_player_visible(skill_id):
+			result.append(skill_id)
+	return result
+
 static func definition(skill_id: String) -> Dictionary:
 	return (definitions().get(skill_id, {}) as Dictionary).duplicate(true)
 
 static func has_definition(skill_id: String) -> bool:
 	return definitions().has(skill_id)
+
+static func is_retired(skill_id: String) -> bool:
+	return bool((definitions().get(skill_id, {}) as Dictionary).get("retired", false))
+
+static func is_player_visible(skill_id: String) -> bool:
+	return has_definition(skill_id) and not is_retired(skill_id)
 
 static func display_name(skill_id: String) -> String:
 	return str((definitions().get(skill_id, {}) as Dictionary).get("name", skill_id))
@@ -152,7 +165,7 @@ static func selection_is_valid(value: Variant, exact_count: int = -1) -> bool:
 	return true
 
 static func is_available(skill_id: String, selected_value: Variant) -> bool:
-	if not has_definition(skill_id):
+	if not is_player_visible(skill_id):
 		return false
 	var selected: Array[String] = normalized_ids(selected_value)
 	if selected.size() >= COMPLETE_BUILD_SIZE or not _is_authored_available(skill_id, selected):
@@ -171,6 +184,8 @@ static func available_ids(selected_value: Variant) -> Array[String]:
 static func locked_reason(skill_id: String, selected_value: Variant) -> String:
 	if not has_definition(skill_id):
 		return "Unknown skill."
+	if is_retired(skill_id):
+		return "Unavailable"
 	var selected: Array[String] = normalized_ids(selected_value)
 	if selected.has(skill_id):
 		return "Learned"
@@ -336,7 +351,10 @@ static func repaired_selection(value: Variant, target_count: int, preferred_orde
 				break
 			if result.has(skill_id) or not source.has(skill_id):
 				continue
-			if is_available(skill_id, result):
+			var retired_candidate: Array[String] = result.duplicate()
+			retired_candidate.append(skill_id)
+			var preserves_retired_skill: bool = is_retired(skill_id) and selection_is_valid(retired_candidate)
+			if is_available(skill_id, result) or preserves_retired_skill:
 				result.append(skill_id)
 				progress = true
 	while result.size() < safe_target:

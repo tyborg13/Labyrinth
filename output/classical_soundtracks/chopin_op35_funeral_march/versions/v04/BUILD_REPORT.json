@@ -1,0 +1,120 @@
+{
+  "arrangement_midi": "/Users/borgerding/workspace/Labyrinth.worktrees/create-chopin-funeral-march-16-bit-classical-audition/output/classical_soundtracks/chopin_op35_funeral_march/versions/v04/arrangement.mid",
+  "arrangement_midi_sha256": "97ffdb5431fc643d1a6250e3a20c9ae54c9314a320afc878acaf0f93919720ca",
+  "arrangement_note_counts": {
+    "Ashen Violin / Upper Harmony": 34,
+    "Funeral Pulse / Procedural Percussion": 15,
+    "Grave Cello / Funeral Cantus": 29,
+    "Hollow Viola / Inner Lament": 28,
+    "Undercrypt Bass / Processional Root": 64,
+    "Veiled Violin / Trio Cantilena": 9
+  },
+  "audible_loop_duration_seconds": 29.09090909090909,
+  "harmony_changes": "none beyond uniform transposition",
+  "loop_crossfade_seconds": 0.9090909090909091,
+  "loop_policy": "one exact copied source beat provides the renderer overlap; no composed bridge notes",
+  "ok": true,
+  "source_midi_sha256": "ec2a476e16556cdffc69d47bf0aebf4093842e9dde8f6c32170c7da6a6149ee3",
+  "source_selection": {
+    "selection_policy": "eight complete contiguous 4/4 bars; no cuts, reordering, or authored bridges",
+    "source_measures_inclusive": [
+      93,
+      100
+    ],
+    "v01_preview_requested": "approximately 5:30-5:59",
+    "v01_preview_snapped_seconds": [
+      330.917472686,
+      360.0083817769
+    ]
+  },
+  "structural_duration_seconds": 30.0,
+  "structure": {
+    "authored_bridge_note_count": 0,
+    "contiguous_excerpt": {
+      "end_tick": 15840,
+      "source_measures_inclusive": [
+        93,
+        100
+      ],
+      "source_ticks": [
+        176640,
+        192000
+      ],
+      "start_tick": 480
+    },
+    "copied_note_counts": {
+      "Ashen Violin / Upper Harmony": 33,
+      "Funeral Pulse / Procedural Percussion": 14,
+      "Grave Cello / Funeral Cantus": 28,
+      "Hollow Viola / Inner Lament": 27,
+      "Undercrypt Bass / Processional Root": 63,
+      "Veiled Violin / Trio Cantilena": 8
+    },
+    "iconic_signature_matches_after_transposition": {
+      "Ashen Violin / Upper Harmony": [],
+      "Grave Cello / Funeral Cantus": [],
+      "Hollow Viola / Inner Lament": [],
+      "Undercrypt Bass / Processional Root": [],
+      "Veiled Violin / Trio Cantilena": []
+    },
+    "initial_exact_source_event_counts": {
+      "Ashen Violin / Upper Harmony": 24,
+      "Funeral Pulse / Procedural Percussion": 10,
+      "Grave Cello / Funeral Cantus": 28,
+      "Hollow Viola / Inner Lament": 18,
+      "Undercrypt Bass / Processional Root": 54,
+      "Veiled Violin / Trio Cantilena": 8
+    },
+    "initial_grave_interval_steps_verified": 27,
+    "initial_grave_lead_event_count": 28,
+    "initial_grave_output_pitch_range": [
+      55,
+      86
+    ],
+    "initial_grave_source_pitch_range": [
+      58,
+      89
+    ],
+    "late_exact_accompaniment_event_counts": {
+      "Ashen Violin / Upper Harmony": 9,
+      "Funeral Pulse / Procedural Percussion": 4,
+      "Hollow Viola / Inner Lament": 9,
+      "Undercrypt Bass / Processional Root": 9
+    },
+    "late_motif_suppression": {
+      "end_tick": 15840,
+      "removed_lead_note_counts": {
+        "Grave Cello / Funeral Cantus": 14,
+        "Veiled Violin / Trio Cantilena": 0
+      },
+      "source_measures_inclusive": [
+        99,
+        100
+      ],
+      "start_tick": 12000
+    },
+    "pre_roll": {
+      "end_tick": 480,
+      "start_tick": 0
+    },
+    "pre_roll_exact_source_note_counts": {
+      "Ashen Violin / Upper Harmony": 1,
+      "Funeral Pulse / Procedural Percussion": 1,
+      "Grave Cello / Funeral Cantus": 1,
+      "Hollow Viola / Inner Lament": 1,
+      "Undercrypt Bass / Processional Root": 1,
+      "Veiled Violin / Trio Cantilena": 1
+    }
+  },
+  "tempo_qpm": 66,
+  "transpositions": {
+    "musical_effect": "all intervals, rhythms, harmony, and voice relationships are unchanged; only absolute register/key is lowered",
+    "percussion": 0,
+    "pitched_tracks": -3,
+    "source_key": "B-flat minor",
+    "target_key": "G minor"
+  },
+  "v01_arrangement_midi_sha256": "342ae252fdb8012832dce8ae2a2d428f3c4b526d2460ca476c0a6138466b2f0c",
+  "v02_helper_builder_sha256": "0b2a9dc641ccde4b4e11fc2886ab2239a5eae2d0304412b3c4bfab0ec520431c",
+  "version": "v04"
+}

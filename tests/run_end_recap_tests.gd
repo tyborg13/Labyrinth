@@ -3,9 +3,12 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
+const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
 var _failures: Array[String] = []
@@ -60,6 +63,8 @@ func _test_recap_model_values() -> void:
 		2
 	)
 	var defeat: Dictionary = RunEndRecapOverlay.build_model(run_state, progression, "defeat", 37)
+	_assert(str(defeat.get("kicker", "")) == "THE UMBRA CLOSES IN", "Defeat recap should use the approved Umbra takeover kicker")
+	_assert(str(defeat.get("summary", "not empty")).is_empty(), "Defeat recap should omit the rejected cute summary tagline")
 	_assert(int(defeat.get("depth", -1)) == 4, "Defeat recap should use current-room depth")
 	_assert(int(defeat.get("rooms_cleared", -1)) == 3, "Rooms cleared should count committed non-start cleared rooms")
 	_assert(str(defeat.get("boss_result", "")) == "1 guardian defeated", "Defeat recap should derive prior boss clears")
@@ -254,27 +259,54 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 		"run_result": {"new_bests": ["enemies_killed", "damage_dealt", "depth"]}
 	}
 	var model: Dictionary = RunEndRecapOverlay.build_model(run_state, ProgressionStore.default_data(), "defeat", 0)
-	overlay.present(model)
+	var death_site := Vector2(0.31, 0.62)
+	overlay.present(model, death_site)
 	overlay.seek_presentation(0.0)
 	_assert(is_zero_approx(overlay.shroud_progress()), "Defeat should begin with the authored room fully visible before edge engulf")
-	_assert(is_zero_approx(overlay.sample_shroud_alpha(Vector2(0.5, 0.5))), "Pre-engulf center should have no dark cover")
+	_assert(is_zero_approx(overlay.sample_shroud_alpha(death_site)), "Pre-engulf death site should have no dark cover")
+	_assert(overlay.death_site_normalized().is_equal_approx(death_site), "Defeat effect should retain the exact supplied player death location")
+	var moving_glow_site := Vector2(0.18, 0.74)
+	overlay.set_glow_site_normalized(moving_glow_site)
+	_assert(overlay.death_site_normalized().is_equal_approx(death_site), "Moving the ember glow must not drag the fixed Umbra peephole")
+	_assert(overlay.glow_site_normalized().is_equal_approx(moving_glow_site), "The Last Light glow should expose its independent board-space anchor")
+	_assert(overlay.death_site_ember_position().is_equal_approx(overlay.size * moving_glow_site), "The Last Light glow should resolve to the projected ember position")
+	overlay.set_glow_site_normalized(death_site)
 
-	overlay.seek_presentation(0.78)
-	var mid_edge_alpha: float = overlay.sample_shroud_alpha(Vector2(0.01, 0.50))
-	var mid_center_alpha: float = overlay.sample_shroud_alpha(Vector2(0.50, 0.50))
+	overlay.seek_presentation(DeathEngulfOverlay.ENGULF_SECONDS * 0.5)
+	var mid_edge_alpha: float = overlay.sample_shroud_alpha(Vector2(0.99, 0.50))
+	var mid_center_alpha: float = overlay.sample_shroud_alpha(death_site)
 	_assert(overlay.shroud_progress() > 0.45 and overlay.shroud_progress() < 0.60, "Mid-engulf seek should land in the inward edge progression")
-	_assert(mid_edge_alpha > mid_center_alpha + 0.12, "Mid-engulf darkness should visibly advance from the room edges toward its center")
-	_assert(mid_edge_alpha < 0.58, "The tactical room must remain readable during the darkest animated edge coverage")
+	_assert(mid_edge_alpha > mid_center_alpha + 0.35, "Mid-engulf darkness should advance from the far room edge toward the death site")
+	_assert(mid_center_alpha < 0.05, "The ember-lit death site should remain visible while the Umbra advances")
 
 	overlay.seek_presentation(overlay.presentation_duration())
-	var final_center_alpha: float = overlay.sample_shroud_alpha(Vector2(0.50, 0.50))
-	var final_edge_alpha: float = overlay.sample_shroud_alpha(Vector2(0.01, 0.50))
+	var final_center_alpha: float = overlay.sample_shroud_alpha(death_site)
+	var final_edge_alpha: float = overlay.sample_shroud_alpha(Vector2(0.99, 0.50))
 	_assert(is_equal_approx(overlay.shroud_progress(), 1.0), "Final defeat recap should retain the completed engulf state")
-	_assert(is_equal_approx(final_center_alpha, overlay.final_shroud_alpha()) and is_equal_approx(final_edge_alpha, overlay.final_shroud_alpha()), "Final shroud should settle to one coherent translucent composition")
-	_assert(overlay.final_shroud_alpha() > 0.30 and overlay.final_shroud_alpha() < 0.50, "Final shroud alpha should darken without obscuring the defeated room")
+	_assert(final_center_alpha < 0.08 and final_edge_alpha > 0.84, "Final Umbra should leave only the ember-lit death site readable")
+	_assert(overlay.final_shroud_alpha() > 0.84, "Final shroud should decisively take over the unlit room")
 	_assert(not overlay.has_decorative_edge_strokes(), "Defeat presentation must not draw arbitrary red edge strokes or decorative noise")
 	_assert(overlay.find_child("BuildRecap", true, false) == null, "Defeat recap should omit the prose build inventory")
-	_assert(overlay.find_child("RunStatGrid", true, false) != null, "Defeat recap should expose a visually structured run-stat grid")
+	_assert(overlay.find_child("RunStatGrid", true, false) == null, "Defeat recap should not regress to a default UI stat grid")
+	var stat_ledger: Control = overlay.find_child("DefeatStatLedger", true, false) as Control
+	_assert(stat_ledger != null and stat_ledger.get_child_count() == 6, "Defeat recap should expose one asymmetric contoured stat narrative")
+	_assert(overlay.find_child("OutcomeSummary", true, false) == null, "Defeat layout should not recreate the removed summary tagline")
+	_assert(overlay.find_child("DefeatCornerTop", true, false) == null and overlay.find_child("RecoveryRailRaster", true, false) == null, "Defeat UI should not repurpose unrelated frame-kit fragments")
+	var defeat_title: Label = overlay.find_child("OutcomeTitle", true, false) as Label
+	_assert(defeat_title != null and defeat_title.text == "RUN ENDED" and defeat_title.get_theme_font("font") == DISPLAY_FONT, "RUN ENDED should use the standard bold Labyrinth Crumble display face")
+	_assert(overlay.find_child("DefeatTitleRaster", true, false) == null and overlay.find_child("DefeatTitleGlow", true, false) == null, "RUN ENDED should no longer use the obsidian raster treatment")
+	if stat_ledger != null:
+		var expected_metrics: Array[String] = ["EnemiesKilledMetric", "DamageDealtMetric", "DamageReceivedMetric", "DepthMetric", "RoomsClearedMetric", "BossesDefeatedMetric"]
+		for index: int in range(expected_metrics.size()):
+			_assert(stat_ledger.get_child(index).name == expected_metrics[index], "Stats should flow in the concept's single vertical reading order")
+		var first_row: Control = stat_ledger.get_child(0) as Control
+		var middle_row: Control = stat_ledger.get_child(3) as Control
+		var last_row: Control = stat_ledger.get_child(5) as Control
+		_assert(first_row.position.x < middle_row.position.x and last_row.position.x < middle_row.position.x, "Stat origins should arc around the Last Light window instead of sharing one left edge")
+		var contour_scale: float = minf(overlay.size.x / 1920.0, overlay.size.y / 1080.0)
+		_assert(is_equal_approx((middle_row.position.x - first_row.position.x) / contour_scale, 60.0) and is_equal_approx((middle_row.position.x - last_row.position.x) / contour_scale, 38.0), "The stat contour should use approximately half the prior horizontal excursion")
+		var ember_result: Control = overlay.find_child("EmberResult", true, false) as Control
+		_assert(ember_result != null and ember_result.position.y - last_row.position.y < 90.0, "The separate ember consequence should remain visually connected to the stat arc")
 	var kills_best: Label = overlay.find_child("EnemiesKilledBest", true, false) as Label
 	var received_best: Label = overlay.find_child("DamageReceivedBest", true, false) as Label
 	var kills_heading: Label = overlay.find_child("EnemiesKilledHeading", true, false) as Label
@@ -282,30 +314,51 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 	_assert(received_best != null and not received_best.visible, "Damage taken should remain a neutral reported stat")
 	_assert(kills_heading != null and kills_heading.text == "ENEMIES KILLED", "Kill count should use an unambiguous player-facing label")
 
-	var recap_panel: PanelContainer = overlay.find_child("OutcomeRecap", true, false) as PanelContainer
+	var recap_layout: Control = overlay.find_child("LastLightRecap", true, false) as Control
 	overlay.size = Vector2(1920.0, 1080.0)
 	overlay.call("_update_presentation")
-	var roomy_minimum: Vector2 = recap_panel.get_combined_minimum_size() if recap_panel != null else Vector2.ZERO
-	var roomy_expected_height: float = maxf(480.0, ceilf(roomy_minimum.y) + 4.0)
-	_assert(recap_panel != null and is_equal_approx(recap_panel.size.y, roomy_expected_height), "Large-resolution recap height should follow content instead of leaving a fixed empty lower void")
+	var viewport_rect := Rect2(Vector2.ZERO, overlay.size)
+	_assert(recap_layout != null and viewport_rect.encloses(recap_layout.get_rect()), "1920×1080 Last Light recap should remain within the authored surface")
 	overlay.size = Vector2(1280.0, 720.0)
 	overlay.call("_update_presentation")
-	var compact_minimum: Vector2 = recap_panel.get_combined_minimum_size() if recap_panel != null else Vector2.ZERO
-	_assert(recap_panel != null and recap_panel.size.y + 0.5 >= compact_minimum.y and recap_panel.size.y <= 700.0, "1280×720 recap should remain fully contained and unclipped")
+	var new_run_button: Button = overlay.find_child("NewRunButton", true, false) as Button
+	var main_menu_button: Button = overlay.find_child("MainMenuButton", true, false) as Button
+	_assert(new_run_button != null and Rect2(Vector2.ZERO, overlay.size).encloses(new_run_button.get_rect()), "Compact Last Light recap should contain its primary action")
+	_assert(main_menu_button != null and Rect2(Vector2.ZERO, overlay.size).encloses(main_menu_button.get_rect()), "Compact Last Light recap should contain its secondary action")
+	_assert(str(new_run_button.get_meta("button_variant", "")) == UiSkin.VARIANT_UMBRA, "Run-end actions should use the raster Umbra Obsidian treatment")
+	_assert(new_run_button.position.x < main_menu_button.position.x and absf(new_run_button.get_rect().get_center().y - main_menu_button.get_rect().get_center().y) < 1.0, "Actions should share one lower baseline with New Run first")
+	var source_aspect: float = 1024.0 / 224.0
+	_assert(absf((new_run_button.size.x + 4.0) / (new_run_button.size.y + 10.0) - source_aspect) < 0.01, "Primary action raster should retain its authored aspect instead of stretching")
+	_assert(absf((main_menu_button.size.x + 4.0) / (main_menu_button.size.y + 10.0) - source_aspect) < 0.01, "Secondary action raster should retain its authored aspect instead of stretching")
+	var traversal_counts := {"new_run": 0, "main_menu": 0}
+	overlay.new_run_pressed.connect(func() -> void: traversal_counts["new_run"] = int(traversal_counts["new_run"]) + 1)
+	overlay.main_menu_pressed.connect(func() -> void: traversal_counts["main_menu"] = int(traversal_counts["main_menu"]) + 1)
+	new_run_button.grab_focus()
+	await process_frame
+	await _press_ui_action(&"ui_right")
+	_assert(main_menu_button.has_focus(), "ui_right should move horizontally from New Run to Main Menu")
+	await _press_ui_action(&"ui_accept")
+	_assert(int(traversal_counts["main_menu"]) == 1, "ui_accept should activate Main Menu after horizontal traversal")
+	await _press_ui_action(&"ui_left")
+	_assert(new_run_button.has_focus(), "ui_left should return horizontally from Main Menu to New Run")
+	await _press_ui_action(&"ui_accept")
+	_assert(int(traversal_counts["new_run"]) == 1, "ui_accept should activate New Run after horizontal traversal")
 
 	var animated_final_alpha: float = final_center_alpha
 	overlay.set_motion_enabled(false)
 	overlay.reset()
-	overlay.present(model)
+	overlay.present(model, death_site)
 	await process_frame
 	_assert(is_equal_approx(overlay.shroud_progress(), 1.0), "Reduced motion should skip directly to the completed shroud")
-	_assert(is_equal_approx(overlay.sample_shroud_alpha(Vector2(0.5, 0.5)), animated_final_alpha), "Reduced motion must preserve the same final translucent shroud")
-	_assert(recap_panel != null and is_equal_approx(recap_panel.modulate.a, 1.0), "Reduced motion must preserve the same fully readable recap panel")
+	_assert(is_equal_approx(overlay.sample_shroud_alpha(death_site), animated_final_alpha), "Reduced motion must preserve the same final localized shroud")
+	_assert(recap_layout != null and is_equal_approx(recap_layout.modulate.a, 1.0), "Reduced motion must preserve the same fully readable recap")
+	_assert(new_run_button != null and new_run_button.has_focus(), "Defeat recap should place keyboard/controller focus on New Run")
 
 	var victory_model: Dictionary = RunEndRecapOverlay.build_model(run_state, ProgressionStore.default_data(), "victory", 12)
 	overlay.present(victory_model)
 	await process_frame
 	_assert(is_zero_approx(overlay.shroud_progress()), "Victory should remain coherent without inheriting the defeat shroud")
+	_assert(str(new_run_button.get_meta("button_variant", "")) == UiSkin.VARIANT_LARGE and str(main_menu_button.get_meta("button_variant", "")) == UiSkin.VARIANT_LARGE, "Victory should retain its established large action treatment instead of inheriting defeat's Obsidian raster")
 	overlay.queue_free()
 	await process_frame
 
@@ -323,6 +376,11 @@ func _test_run_scene_progression_and_actions() -> void:
 	root.add_child(instance)
 	await process_frame
 	await process_frame
+	var living_player: Dictionary = {"player": {"pos": Vector2i(3, 4), "hp": 18, "max_hp": 100}}
+	var defeated_player: Dictionary = {"player": {"pos": Vector2i(3, 4), "hp": 0, "max_hp": 100}}
+	var player_death_units: Array = instance.call("_defeated_player_units_between_states", living_player, defeated_player) as Array
+	_assert(player_death_units.size() == 1 and str((player_death_units[0] as Dictionary).get("key", "")) == "player", "A lethal transition should retain the player for one authored death animation")
+	_assert((player_death_units[0] as Dictionary).get("pos", Vector2i(-1, -1)) == Vector2i(3, 4), "Player death animation should remain on the exact lethal tile")
 
 	var victory_state: Dictionary = _terminal_state(engine, progression, Vector2i(8, 0), "victory", 53)
 	var helper_source: Dictionary = victory_state.duplicate(true)
@@ -357,6 +415,7 @@ func _test_run_scene_progression_and_actions() -> void:
 	var defeat_state: Dictionary = _terminal_state(engine, progression, Vector2i(2, 0), "defeat", 41)
 	instance.call("_load_run_state", defeat_state)
 	await process_frame
+	await process_frame
 	recap = instance.get("_run_end_recap") as Control
 	var defeat_model: Dictionary = recap.call("recap_model") if recap != null else {}
 	_assert(int(defeat_model.get("ember_amount", -1)) == 41, "Defeat display should preserve the pre-clear lost amount")
@@ -364,6 +423,59 @@ func _test_run_scene_progression_and_actions() -> void:
 	_assert(int(defeat_stats.get("enemies_killed", -1)) == 7 and int(defeat_stats.get("damage_dealt", -1)) == 620 and int(defeat_stats.get("damage_received", -1)) == 140, "Terminal recap should use the durable cumulative run-stat snapshot")
 	var defeat_new_bests: Array = defeat_model.get("new_bests", []) as Array
 	_assert(defeat_new_bests.has("enemies_killed") and defeat_new_bests.has("damage_dealt") and not defeat_new_bests.has("damage_received"), "Later strict improvements should surface only eligible NEW BEST fields")
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var death_tile: Vector2i = (defeat_state.get("current_room_layout", {}) as Dictionary).get("player_start", Vector2i(-1, -1))
+	var player_death_unit: Dictionary = {
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"pos": death_tile,
+		"death_animation": true,
+		"death_frame": 7,
+		"death_progress": 0.5,
+	}
+	var player_death_frames: Array = board.call("_unit_death_frames", player_death_unit) as Array
+	_assert(player_death_frames.size() == 16, "Player death should load all 16 authored collapse frames")
+	if player_death_frames.size() == 16:
+		_assert((player_death_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Player death frames should preserve the downloaded 1020px native canvas")
+		_assert(board.call("_texture_for_unit", player_death_unit) == player_death_frames[7], "Player death rendering should select the requested authored frame")
+		player_death_unit["death_frame"] = 15
+		_assert(board.call("_texture_for_unit", player_death_unit) == player_death_frames[15] and player_death_frames[15] != player_death_frames[7], "Player death rendering should advance to distinct authored frames")
+		var native_rect := Rect2(Vector2(120.0, 80.0), Vector2(255.0, 255.0))
+		_assert((board.call("_death_animation_render_rect", player_death_unit, native_rect) as Rect2).is_equal_approx(native_rect), "Authored player death frames must bypass the procedural squash/stretch")
+		_assert((board.call("_death_animation_render_tint", player_death_unit) as Color).is_equal_approx(Color.WHITE), "Authored player death frames must retain their source colors")
+		_assert(is_equal_approx(float(board.call("_unit_shadow_alpha_scale", player_death_unit)), 1.0), "Authored player death silhouettes should retain their grounded shadow through the final frame")
+		for frame_var: Variant in player_death_frames:
+			var frame_texture: Texture2D = frame_var as Texture2D
+			_assert(not (board.call("_unit_shadow_polygons_for_texture", frame_texture) as Array).is_empty(), "Every authored player death frame should produce a silhouette shadow")
+	var ember_snapshot: Dictionary = board.call("death_site_embers_snapshot") as Dictionary
+	_assert(ember_snapshot.get("tile", Vector2i(-1, -1)) == death_tile and ember_snapshot.get("texture", null) is Texture2D, "Death embers should be raster art owned by the exact terminal board tile")
+	var ember_rect: Rect2 = ember_snapshot.get("rect", Rect2()) as Rect2
+	var ember_tile_center: Vector2 = ember_snapshot.get("tile_center", Vector2.ZERO) as Vector2
+	var ember_tile_width: float = float(ember_snapshot.get("tile_width", 0.0))
+	_assert(ember_rect.size.x <= ember_tile_width * 0.40 and absf(ember_rect.get_center().x - ember_tile_center.x) < ember_tile_width * 0.03, "Death embers should fit the tile footprint instead of floating as a screen-space sticker")
+	var reframe_start: Vector2 = instance.get("_run_end_board_reframe_start") as Vector2
+	var reframe_target: Vector2 = instance.get("_run_end_board_reframe_target") as Vector2
+	_assert(reframe_start.distance_to(reframe_target) > 1.0, "Defeat should author a real board translation toward the fixed Last Light window")
+	instance.call("_seek_run_end_board_reframe", 0.0)
+	var start_glow_site: Vector2 = recap.call("glow_site_normalized") as Vector2
+	var start_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	_assert(start_glow_site.distance_to(start_death_site) < 0.004, "Before the board slides, the Last Light glow should begin on the actual ember tile")
+	_assert(start_glow_site.distance_to(recap.call("death_site_normalized") as Vector2) > 0.01, "Before settling, the moving glow should not be pinned to the fixed peephole")
+	instance.call("_seek_run_end_board_reframe", 0.5)
+	_assert(board.position.distance_to(reframe_start.lerp(reframe_target, 0.5)) < 0.01, "Board reframing should interpolate continuously rather than snapping")
+	var mid_glow_site: Vector2 = recap.call("glow_site_normalized") as Vector2
+	var mid_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	_assert(mid_glow_site.distance_to(mid_death_site) < 0.004, "The Last Light glow should travel with the ember tile throughout the board slide")
+	instance.call("_seek_run_end_board_reframe", 1.0)
+	var settled_board_position: Vector2 = board.position
+	await process_frame
+	await process_frame
+	_assert(board.position.distance_to(settled_board_position) < 0.01, "The completed reframe should remain locked when subsequent UI focus frames render")
+	var fixed_window: Vector2 = recap.call("death_site_normalized") as Vector2
+	var centered_death_site: Vector2 = instance.call("_run_end_death_site_normalized") as Vector2
+	_assert(centered_death_site.distance_to(fixed_window) < 0.004, "The translated board should settle with the actual death tile beneath the fixed Last Light window")
+	_assert((recap.call("glow_site_normalized") as Vector2).distance_to(centered_death_site) < 0.004, "The traveling glow should settle with its ember tile beneath the peephole")
 	var committed_defeat: Dictionary = ProgressionStore.load_data()
 	var marker: Dictionary = ProgressionStore.recovery_marker(committed_defeat)
 	_assert(int(committed_defeat.get("embers", -1)) == 0, "Defeat should commit zero carried embers")
@@ -402,6 +514,8 @@ func _test_run_scene_progression_and_actions() -> void:
 	if menu_button != null:
 		menu_button.pressed.emit()
 	await process_frame
+	await process_frame
+	await create_timer(0.14, true, false, true).timeout
 	await process_frame
 	_assert(current_scene != null and current_scene.scene_file_path == "res://scenes/main_menu.tscn", "Main Menu action should leave the ended run for the main menu")
 	_assert(not ProgressionStore.has_saved_run(), "Main Menu action should clear any ended-run save")
@@ -445,6 +559,16 @@ func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
+
+func _press_ui_action(action: StringName) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventAction.new()
+		event.action = action
+		event.pressed = pressed
+		event.strength = 1.0 if pressed else 0.0
+		root.push_input(event)
+		await process_frame
+	await process_frame
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

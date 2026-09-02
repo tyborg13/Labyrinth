@@ -8,7 +8,7 @@ The removed bitmap families were the three `button_wood_gold_*` planks and the e
 
 | Surface | Construction after replacement | Variant/state use |
 | --- | --- | --- |
-| Main menu and saved-run replacement prompt | `UiSkin` through `scripts/main_menu.gd` | large, selected primary, destructive confirmation, disabled, keyboard focus |
+| Main menu and saved-run replacement prompt | `UiSkin` through `scripts/main_menu.gd`; the main action stack uses the code-native Umbra Obsidian variant while confirmation actions remain in the shared large/destructive family | dark-fractured idle slabs, one ember-fractured primary/hover/focus choice, disabled, pressed, destructive confirmation |
 | Settings in main menu and in-run camp menu | `UiSkin` through `scripts/settings_panel.gd` | centered standard `OptionButton`, selected toggle state, compact cancel, destructive restore, standard back |
 | Run header | `UiSkin` through `scripts/run_scene.gd` | square icon variant for Grimoire and Menu |
 | Combat action area | `UiSkin` through `scripts/run_scene.gd` | large Pass; compact Rotate, Skip, and Cancel |

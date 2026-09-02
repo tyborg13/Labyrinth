@@ -49,6 +49,7 @@ func _initialize() -> void:
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	viewport.disable_3d = true
 	root.add_child(viewport)
+	RenderingServer.viewport_set_measure_render_time(viewport.get_viewport_rid(), true)
 	var board: Control = CombatBoardView.new()
 	board.size = Vector2(VIEWPORT_SIZE)
 	viewport.add_child(board)
@@ -62,7 +63,7 @@ func _initialize() -> void:
 
 	var results: Dictionary = {
 		"schema_version": 2,
-		"workload_id": "combat_board_max_content_v2",
+		"workload_id": "combat_board_max_content_active_umbra_v3",
 		"warmup_frames": WARMUP_FRAMES,
 		"phase_frames": PHASE_FRAMES,
 		"viewport": "%dx%d" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
@@ -98,6 +99,10 @@ func _initialize() -> void:
 	var dedup_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary if board.has_method("render_instrumentation_snapshot") else {}
 	if bool(dedup_snapshot.get("presentation_redraw_dedup_active", false)):
 		results["post_process_redraw_cadence"] = await _verify_post_process_redraw_cadence(board, state)
+	results["ambient_template_equivalence"] = _verify_ambient_template_equivalence(board)
+	results["shadow_mesh_lifetime"] = await _verify_shadow_mesh_lifetime(board)
+	results["static_render_cache_visual_equivalence"] = await _verify_static_render_cache_visual_equivalence(board, viewport)
+	results["umbra_multimesh_visual_equivalence"] = await _verify_umbra_multimesh_visual_equivalence(board, viewport)
 	results["semantic_errors"] = _errors
 
 	if _errors.is_empty():
@@ -110,12 +115,16 @@ func _initialize() -> void:
 func _measure_phase(board: Control, state: Dictionary, source_presentation: Dictionary, phase_name: String) -> Dictionary:
 	var frame_intervals_ms: Array[float]
 	var process_ms: Array[float]
+	var render_setup_cpu_ms: Array[float]
+	var viewport_render_cpu_ms: Array[float]
+	var viewport_render_gpu_ms: Array[float]
 	var draw_calls: Array[float]
 	var objects_in_frame: Array[float]
 	var primitives_in_frame: Array[float]
 	# A process-frame await resumes before that frame is rendered. Bracket every
 	# phase on post-draw so the prior phase's final retained-layer work cannot be
 	# misattributed after the instrumentation reset.
+	await RenderingServer.frame_post_draw
 	await RenderingServer.frame_post_draw
 	_reset_render_instrumentation(board)
 	var previous_tick: int = Time.get_ticks_usec()
@@ -158,6 +167,9 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		frame_intervals_ms.append(float(now_tick - previous_tick) / 1000.0)
 		previous_tick = now_tick
 		process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
+		render_setup_cpu_ms.append(RenderingServer.get_frame_setup_time_cpu())
+		viewport_render_cpu_ms.append(RenderingServer.viewport_get_measured_render_time_cpu(board.get_viewport().get_viewport_rid()))
+		viewport_render_gpu_ms.append(RenderingServer.viewport_get_measured_render_time_gpu(board.get_viewport().get_viewport_rid()))
 		draw_calls.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)))
 		objects_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)))
 		primitives_in_frame.append(float(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)))
@@ -171,6 +183,14 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 		var scene_tile_counts: Dictionary = snapshot.get("scene_tile_draw_counts", {}) as Dictionary
 		_expect(int(snapshot.get("retained_layer_count", 0)) >= 4, "render benchmark requires retained board layers")
 		_expect(int(snapshot.get("static_draw_count", -1)) == 0, "steady-state phases must not redraw the static floor")
+		_expect(int(snapshot.get("ambient_batch_mesh_create_count", -1)) == 0, "steady-state ambient redraws must reuse their warmed ArrayMesh")
+		_expect(int(snapshot.get("ambient_batch_mesh_update_count", 0)) > 0, "elemental ambience must continue updating its retained particle batch")
+		_expect(int(snapshot.get("ambient_batch_sprite_total_count", 0)) > 0, "elemental ambience must submit visible sprites through the retained batch")
+		_expect(int(snapshot.get("ambient_batch_sprite_max_count", 0)) > 0, "ambient batch telemetry must retain its peak submitted sprite count")
+		_expect(
+			int(snapshot.get("ambient_batch_sprite_capacity", 0)) >= int(snapshot.get("ambient_batch_sprite_max_count", 0)),
+			"ambient packed buffers must retain enough warmed capacity for their peak submission"
+		)
 		if phase_name == "action_heavy":
 			var action_hud_draws: int = int(layer_counts.get("hud", 0))
 			_expect(action_hud_draws > 2, "unit damage-preview pulses must continuously composite projected HP on the HUD layer")
@@ -187,10 +207,15 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 					PHASE_FRAMES - 1,
 					int(ceil(phase_elapsed_ms / (CONTINUOUS_REDRAW_SECONDS * 1000.0))) + 2
 				)
-				_expect(int(layer_counts.get("world", 0)) >= PHASE_FRAMES - 2, "action impact submissions must redraw the world layer on every authored frame")
+				_expect(int(layer_counts.get("impact_floor", 0)) >= PHASE_FRAMES - 2, "action impact submissions must redraw the isolated below-Umbra impact layer on every authored frame")
+				_expect(int(layer_counts.get("action_floor", 0)) >= PHASE_FRAMES - 2, "elemental action submissions must redraw the isolated above-Umbra floor layer on every authored frame")
 				_expect(int(layer_counts.get("effects", 0)) >= PHASE_FRAMES - 2, "action effect submissions must redraw the effects layer on every authored frame")
 				_expect(int(scene_tile_counts.get("3,3", 0)) >= PHASE_FRAMES - 2, "action impacts must redraw the large-enemy scene layer on every authored frame")
-				_expect(int(layer_counts.get("world", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit impact submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
+				var world_draws: int = int(layer_counts.get("world", 0))
+				_expect(world_draws > 2, "active Pressing Umbra must continue animating during the action workload")
+				_expect(world_draws <= continuous_redraw_budget, "authored action submissions must not raise active Umbra/world redraws above its normal 30 Hz cadence")
+				_expect(int(layer_counts.get("impact_floor", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit impacts must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
+				_expect(int(layer_counts.get("action_floor", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit impact submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
 				_expect(int(layer_counts.get("effects", 999)) <= PHASE_FRAMES + continuous_redraw_budget, "explicit effect submissions must stay within the authored-frame plus 30 Hz wall-clock redraw budget")
 		elif phase_name == "interaction":
 			_expect(int(layer_counts.get("overlays", 0)) >= PHASE_FRAMES, "pointer interaction must redraw responsive tile overlays")
@@ -207,6 +232,10 @@ func _measure_phase(board: Control, state: Dictionary, source_presentation: Dict
 	var result: Dictionary = {
 		"frame_interval_ms": _stats(frame_intervals_ms),
 		"process_ms": _stats(process_ms),
+		"render_setup_cpu_ms": _stats(render_setup_cpu_ms),
+		"viewport_render_cpu_ms": _stats(viewport_render_cpu_ms),
+		"viewport_render_gpu_ms": _stats(viewport_render_gpu_ms),
+		"viewport_render_gpu_timing_available": float(_stats(viewport_render_gpu_ms).get("max", 0.0)) > 0.0,
 		"draw_calls": _stats(draw_calls),
 		"objects_in_frame": _stats(objects_in_frame),
 		"primitives_in_frame": _stats(primitives_in_frame),
@@ -277,6 +306,9 @@ func _action_presentation() -> Dictionary:
 		"locked_door_tiles": {},
 		"ambient_time_seconds": 42.0,
 		"visible_enemy_ids": [1, 2, 3, 4, 5, 6],
+		"umbra_stage": "pressing",
+		"umbra_visible_tiles": _umbra_visible_tiles(),
+		"umbra_light_sources": [{"id": "perf_light", "pos": Vector2i(4, 4), "radius": 2}],
 		"pulse_attack_tiles": true,
 		"damage_preview": damage_preview,
 		"impact_actor_keys": ["enemy_1", "enemy_2", "enemy_3", "enemy_4", "enemy_5", "enemy_6"],
@@ -295,6 +327,12 @@ func _action_presentation() -> Dictionary:
 			"progress": 0.0
 		}
 	}
+
+func _umbra_visible_tiles() -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	for tile: Vector2i in [Vector2i(4, 4), Vector2i(4, 3), Vector2i(3, 4), Vector2i(5, 4), Vector2i(4, 5)]:
+		tiles.append(tile)
+	return tiles
 
 func _movement_presentation() -> Dictionary:
 	return {
@@ -391,14 +429,34 @@ func _verify_in_place_state_redraw(board: Control, presentation: Dictionary) -> 
 	await process_frame
 	board.call("reset_render_instrumentation")
 	var enemies: Array = retained_state.get("enemies", []) as Array
-	var first_enemy: Dictionary = enemies[0] as Dictionary
-	first_enemy["hp"] = int(first_enemy.get("hp", 0)) - 1
+	var changed_enemy: Dictionary = enemies[1] as Dictionary
+	var old_tile: Vector2i = changed_enemy.get("pos", Vector2i(-1, -1))
+	var new_tile := Vector2i(4, 3)
+	changed_enemy["hp"] = int(changed_enemy.get("hp", 0)) - 1
+	changed_enemy["pos"] = new_tile
 	board.call("set_combat_state", retained_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
 	await process_frame
 	await process_frame
 	var snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
-	var redrew: bool = int(snapshot.get("dynamic_draw_count", 0)) > 0
-	_expect(redrew, "in-place state mutations detected by the deep cache snapshot must still invalidate retained layers")
+	var scene_counts: Dictionary = snapshot.get("scene_tile_draw_counts", {}) as Dictionary
+	var old_tile_redrew: bool = int(scene_counts.get("%d,%d" % [old_tile.x, old_tile.y], 0)) > 0
+	var new_tile_redrew: bool = int(scene_counts.get("%d,%d" % [new_tile.x, new_tile.y], 0)) > 0
+	var redrew: bool = int(snapshot.get("full_dynamic_redraw_count", 0)) == 0 and old_tile_redrew and new_tile_redrew
+	_expect(redrew, "in-place unit mutations must selectively invalidate both old and new retained scene tiles")
+	var cache_field_mutations: Array[Dictionary] = [
+		{"key": "moss", "value": {"floor": [Vector2i(3, 3)]}},
+		{"key": "room_coord", "value": Vector2i(8, 11)},
+	]
+	for mutation: Dictionary in cache_field_mutations:
+		board.call("reset_render_instrumentation")
+		retained_state[str(mutation.get("key", ""))] = mutation.get("value")
+		board.call("set_combat_state", retained_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
+		await process_frame
+		await process_frame
+		var field_snapshot: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
+		var field_redrew: bool = int(field_snapshot.get("full_dynamic_redraw_count", 0)) > 0
+		_expect(field_redrew, "in-place %s mutations must be detected by the deep submission snapshot" % str(mutation.get("key", "state")))
+		redrew = redrew and field_redrew
 	return redrew
 
 func _verify_post_process_redraw_cadence(board: Control, source_state: Dictionary) -> Dictionary:
@@ -428,10 +486,12 @@ func _verify_post_process_redraw_cadence(board: Control, source_state: Dictionar
 	var explicit_counts: Dictionary = explicit_snapshot.get("layer_draw_counts", {}) as Dictionary
 	var explicit_scene_counts: Dictionary = explicit_snapshot.get("scene_tile_draw_counts", {}) as Dictionary
 	var explicit_effects: int = int(explicit_counts.get("effects", 0))
-	var explicit_world: int = int(explicit_counts.get("world", 0))
+	var explicit_impact_floor: int = int(explicit_counts.get("impact_floor", 0))
+	var explicit_action_floor: int = int(explicit_counts.get("action_floor", 0))
 	var explicit_impact_scene: int = int(explicit_scene_counts.get("3,3", 0))
 	_expect(explicit_effects >= 1, "a post-process explicit effect submission must render in its submitted frame")
-	_expect(explicit_world >= 1, "a post-process explicit impact submission must render the world layer in its submitted frame")
+	_expect(explicit_impact_floor >= 1, "a post-process explicit impact submission must render below Umbra in its submitted frame")
+	_expect(explicit_action_floor >= 1, "a post-process explicit impact submission must render the action-floor layer in its submitted frame")
 	_expect(explicit_impact_scene >= 1, "a post-process explicit impact submission must render its actor scene layer in its submitted frame")
 
 	var elapsed_before_following_process: float = float(board.get("_continuous_presentation_elapsed"))
@@ -442,26 +502,239 @@ func _verify_post_process_redraw_cadence(board: Control, source_state: Dictionar
 	var continuous_counts: Dictionary = continuous_snapshot.get("layer_draw_counts", {}) as Dictionary
 	var continuous_scene_counts: Dictionary = continuous_snapshot.get("scene_tile_draw_counts", {}) as Dictionary
 	var continuous_effects: int = int(continuous_counts.get("effects", 0))
-	var continuous_world: int = int(continuous_counts.get("world", 0))
+	var continuous_impact_floor: int = int(continuous_counts.get("impact_floor", 0))
+	var continuous_action_floor: int = int(continuous_counts.get("action_floor", 0))
 	var continuous_impact_scene: int = int(continuous_scene_counts.get("3,3", 0))
 	_expect(continuous_effects > explicit_effects, "a post-process effect submission must not suppress the following due continuous redraw")
-	_expect(continuous_world > explicit_world, "a post-process impact submission must not suppress the following due continuous world redraw")
+	_expect(continuous_impact_floor > explicit_impact_floor, "a post-process impact submission must not suppress the following due continuous below-Umbra impact redraw")
+	_expect(continuous_action_floor > explicit_action_floor, "a post-process impact submission must not suppress the following due continuous action-floor redraw")
 	_expect(continuous_impact_scene > explicit_impact_scene, "a post-process impact submission must not suppress the following due actor redraw")
 	var submitted_process_frame: int = submitter.submitted_process_frame
 	submitter.queue_free()
 	return {
-		"verified": continuous_effects > explicit_effects and continuous_world > explicit_world and continuous_impact_scene > explicit_impact_scene,
+		"verified": continuous_effects > explicit_effects and continuous_impact_floor > explicit_impact_floor and continuous_action_floor > explicit_action_floor and continuous_impact_scene > explicit_impact_scene,
 		"submitted_process_frame": submitted_process_frame,
 		"elapsed_before_following_process": elapsed_before_following_process,
 		"explicit_effects_frame": explicit_effects_frame,
 		"explicit_impact_frame": explicit_impact_frame,
-		"explicit_draw_counts": {"effects": explicit_effects, "world": explicit_world, "impact_scene": explicit_impact_scene},
-		"following_draw_counts": {"effects": continuous_effects, "world": continuous_world, "impact_scene": continuous_impact_scene}
+		"explicit_draw_counts": {"effects": explicit_effects, "impact_floor": explicit_impact_floor, "action_floor": explicit_action_floor, "impact_scene": explicit_impact_scene},
+		"following_draw_counts": {"effects": continuous_effects, "impact_floor": continuous_impact_floor, "action_floor": continuous_action_floor, "impact_scene": continuous_impact_scene}
 	}
 
 func _reset_render_instrumentation(board: Control) -> void:
 	if board.has_method("reset_render_instrumentation"):
 		board.call("reset_render_instrumentation")
+
+func _verify_shadow_mesh_lifetime(board: Control) -> Dictionary:
+	board.set_process(false)
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var submitted_meshes: Array[WeakRef]
+	var sources: Array = board.call("_retained_render_layers") as Array
+	sources.append(board)
+	for source: Control in sources:
+		for mesh: ArrayMesh in source.get("_submitted_shadow_meshes") as Array:
+			submitted_meshes.append(weakref(mesh))
+	_expect(not submitted_meshes.is_empty(), "shadow lifetime proof must exercise actual submitted shadow meshes")
+	# Layout/content changes clear this shared lookup without necessarily
+	# redrawing every retained scene tile in the same frame.
+	(board.get("_unit_shadow_draw_mesh_cache") as Dictionary).clear()
+	await RenderingServer.frame_post_draw
+	for mesh_ref: WeakRef in submitted_meshes:
+		_expect(mesh_ref.get_ref() != null, "clearing the shared cache must not free a mesh still referenced by a retained CanvasItem")
+	return {"retained_meshes_checked": submitted_meshes.size()}
+
+func _verify_ambient_template_equivalence(board: Control) -> Dictionary:
+	var checked_particles: int = 0
+	var checked_motion_samples: int = 0
+	var tile_width: float = float(board.call("_tile_width"))
+	for element_id: String in ["fire", "ice", "lightning", "air", "earth"]:
+		var wind_direction: float = float(board.call("_ambient_air_wind_direction")) if element_id == "air" else 1.0
+		for particle_index: int in range(12):
+			var seed: int = int(board.call("_ambient_room_seed", element_id)) + particle_index * 7919
+			var particle_template = board.call("_build_ambient_particle_template", element_id, Vector2(400.0, 300.0), seed, wind_direction)
+			for hash_offset: int in range(64):
+				_expect(particle_template.hashes[hash_offset] == float(board.call("_ambient_hash01", seed + hash_offset)), "ambient template must retain full-precision deterministic hashes")
+			var variant_index: int = int(float(board.call("_ambient_hash01", seed + 41)) * CombatBoardView.AMBIENT_PARTICLE_ATLAS_COLUMNS)
+			var texture: Texture2D = board.call("_ambient_particle_texture", element_id, variant_index)
+			var glow: Texture2D = board.call("_ambient_particle_glow_texture", element_id, variant_index)
+			if element_id == "air":
+				var air_variant: int = int(board.call("_ambient_air_wisp_variant_index", seed))
+				var wisp: Texture2D = board.call("_ambient_air_wisp_texture", air_variant, CombatBoardView.AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
+				var wisp_glow: Texture2D = board.call("_ambient_air_wisp_glow_texture", air_variant, CombatBoardView.AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
+				if wisp != null:
+					texture = wisp
+				if wisp_glow != null:
+					glow = wisp_glow
+				_expect(particle_template.soft_texture == board.call("_ambient_air_wisp_soft_texture", air_variant), "air template must preserve its authored soft wisp")
+			elif element_id == "fire":
+				_expect(particle_template.soft_texture == board.call("_ambient_fire_soft_texture", variant_index), "fire template must preserve its authored soft texture")
+			_expect(texture != null and particle_template.texture == texture and particle_template.glow_texture == glow, "ambient template must preserve element texture variants")
+			var draw_width: float = float(board.call("_ambient_particle_draw_width", element_id, seed))
+			var expected_size := Vector2(draw_width, draw_width * texture.get_height() / texture.get_width())
+			_expect(particle_template.draw_size.is_equal_approx(expected_size), "ambient template must preserve sprite size")
+			for time_seconds: float in [0.0, 7.3, 42.0]:
+				var cycle: float = float(board.call("_ambient_cycle", seed + 101, time_seconds, particle_template.speed))
+				var cached_cycle: float = wrapf(particle_template.cycle_phase + time_seconds * particle_template.speed * CombatBoardView.AMBIENT_PARTICLE_SPEED_SCALE, 0.0, 1.0)
+				_expect(is_equal_approx(cycle, cached_cycle), "ambient template must preserve animation cycle")
+				var reference_offset: Vector2 = board.call("_ambient_particle_offset", element_id, seed, cycle, time_seconds, tile_width)
+				var cached_offset: Vector2 = board.call("_ambient_particle_offset_from_template", element_id, particle_template, cycle, time_seconds, tile_width)
+				_expect(reference_offset.is_equal_approx(cached_offset), "ambient template must preserve per-element motion")
+				var reference_rotation: float = float(board.call("_ambient_particle_rotation", element_id, seed, time_seconds))
+				var cached_rotation: float = float(board.call("_ambient_particle_rotation_from_template", element_id, particle_template, time_seconds))
+				_expect(is_equal_approx(reference_rotation, cached_rotation), "ambient template must preserve per-element rotation")
+				checked_motion_samples += 1
+			checked_particles += 1
+	return {"elements": 5, "particles": checked_particles, "motion_samples": checked_motion_samples}
+
+func _verify_static_render_cache_visual_equivalence(board: Control, viewport: SubViewport) -> Dictionary:
+	var state: Dictionary = _stress_state()
+	state["enemies"] = []
+	state["loot"] = []
+	state["terrain"] = []
+	state["traps"] = []
+	state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
+	var presentation: Dictionary = {"board_backdrop_visible": true}
+	board.set_process(false)
+	board.call("set_static_render_cache_enabled", false)
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
+	board.queue_redraw()
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var reference: Image = viewport.get_texture().get_image()
+	reference.convert(Image.FORMAT_RGBA8)
+	var reference_path: String = ProjectSettings.globalize_path("%s/static_floor_direct_reference.png" % OUTPUT_DIR)
+	_expect(reference.save_png(reference_path) == OK, "direct static-floor reference screenshot could not be saved")
+
+	board.call("set_static_render_cache_enabled", true)
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var candidate: Image = viewport.get_texture().get_image()
+	candidate.convert(Image.FORMAT_RGBA8)
+	var candidate_path: String = ProjectSettings.globalize_path("%s/static_floor_cached_candidate.png" % OUTPUT_DIR)
+	_expect(candidate.save_png(candidate_path) == OK, "cached static-floor screenshot could not be saved")
+
+	var reference_bytes: PackedByteArray = reference.get_data()
+	var candidate_bytes: PackedByteArray = candidate.get_data()
+	var total_delta: int = 0
+	var max_channel_delta: int = 0
+	var changed_channels: int = 0
+	if reference_bytes.size() == candidate_bytes.size():
+		for byte_index: int in range(reference_bytes.size()):
+			var delta: int = absi(int(reference_bytes[byte_index]) - int(candidate_bytes[byte_index]))
+			total_delta += delta
+			max_channel_delta = maxi(max_channel_delta, delta)
+			if delta > 0:
+				changed_channels += 1
+	else:
+		_errors.append("direct and cached static-floor screenshots must have identical byte dimensions")
+	var channel_count: int = maxi(1, reference_bytes.size())
+	var mean_channel_delta: float = float(total_delta) / float(channel_count)
+	var changed_channel_ratio: float = float(changed_channels) / float(channel_count)
+	# Sampling the RGBA8 viewport texture introduces edge-only rounding at a tiny
+	# fraction of channels. Keep the aggregate/spatial gates far tighter than one
+	# 8-bit step while allowing those isolated antialiasing differences.
+	_expect(max_channel_delta <= 24, "cached static floor must remain visually equivalent to direct CanvasItem rendering")
+	_expect(mean_channel_delta <= 0.01, "cached static floor must keep mean channel drift negligible")
+	_expect(changed_channel_ratio <= 0.002, "cached static floor differences must remain spatially negligible")
+	return {
+		"max_channel_delta": max_channel_delta,
+		"mean_channel_delta": mean_channel_delta,
+		"changed_channel_ratio": changed_channel_ratio,
+		"reference_path": reference_path,
+		"candidate_path": candidate_path,
+	}
+
+func _verify_umbra_multimesh_visual_equivalence(board: Control, viewport: SubViewport) -> Dictionary:
+	var state: Dictionary = _stress_state()
+	var grid: Array = _stress_grid()
+	(grid[1] as Array)[4] = "stone"
+	state["grid"] = grid
+	state["enemies"] = []
+	state["loot"] = []
+	state["terrain"] = []
+	state["traps"] = []
+	state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
+	var presentation: Dictionary = _action_presentation()
+	presentation["visible_enemy_ids"] = []
+	presentation["pulse_attack_tiles"] = false
+	presentation["damage_preview"] = {}
+	presentation["impact_actor_keys"] = []
+	presentation["impact_decals"] = []
+	presentation["effect"] = {}
+	presentation["ambient_time_seconds"] = 42.0
+	presentation["umbra_time_seconds"] = 42.0
+	board.set_process(false)
+	_set_umbra_circle_multimesh_enabled(board, false)
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
+	var render_sources: Array[Control]
+	render_sources.append(board)
+	if board.has_method("_retained_render_layers"):
+		for layer_var: Variant in board.call("_retained_render_layers") as Array:
+			var layer: Control = layer_var as Control
+			if layer != null:
+				render_sources.append(layer)
+	for source: Control in render_sources:
+		source.set("_ambient_display_intensities", {"fire": 0.0, "ice": 0.0, "lightning": 0.0, "air": 0.0, "earth": 0.0})
+		source.set("_idle_elapsed", 42.0)
+		source.queue_redraw()
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var reference: Image = viewport.get_texture().get_image()
+	reference.convert(Image.FORMAT_RGBA8)
+	var reference_path: String = ProjectSettings.globalize_path("%s/umbra_arraymesh_reference.png" % OUTPUT_DIR)
+	_expect(reference.save_png(reference_path) == OK, "Umbra ArrayMesh reference screenshot could not be saved")
+
+	_set_umbra_circle_multimesh_enabled(board, true)
+	board.call("_queue_dynamic_redraw")
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var candidate: Image = viewport.get_texture().get_image()
+	candidate.convert(Image.FORMAT_RGBA8)
+	var candidate_path: String = ProjectSettings.globalize_path("%s/umbra_multimesh_candidate.png" % OUTPUT_DIR)
+	_expect(candidate.save_png(candidate_path) == OK, "Umbra MultiMesh candidate screenshot could not be saved")
+
+	var reference_bytes: PackedByteArray = reference.get_data()
+	var candidate_bytes: PackedByteArray = candidate.get_data()
+	var total_delta: int = 0
+	var max_channel_delta: int = 0
+	var changed_channels: int = 0
+	if reference_bytes.size() == candidate_bytes.size():
+		for byte_index: int in range(reference_bytes.size()):
+			var delta: int = absi(int(reference_bytes[byte_index]) - int(candidate_bytes[byte_index]))
+			total_delta += delta
+			max_channel_delta = maxi(max_channel_delta, delta)
+			if delta > 0:
+				changed_channels += 1
+	else:
+		_errors.append("Umbra reference and MultiMesh screenshots must have identical byte dimensions")
+	var channel_count: int = maxi(1, reference_bytes.size())
+	var mean_channel_delta: float = float(total_delta) / float(channel_count)
+	var changed_channel_ratio: float = float(changed_channels) / float(channel_count)
+	# The instanced path matches ArrayMesh color quantization and alpha order.
+	# Permit only small rasterization-edge differences from transformed vertices.
+	_expect(max_channel_delta <= 2, "Umbra MultiMesh output must match the authored ArrayMesh colors and order")
+	_expect(mean_channel_delta <= 0.001, "Umbra MultiMesh output must keep mean channel drift negligible")
+	_expect(changed_channel_ratio <= 0.001, "Umbra MultiMesh output must keep rasterization rounding spatially negligible")
+	return {
+		"max_channel_delta": max_channel_delta,
+		"mean_channel_delta": mean_channel_delta,
+		"changed_channel_ratio": changed_channel_ratio,
+		"reference_path": reference_path,
+		"candidate_path": candidate_path,
+	}
+
+func _set_umbra_circle_multimesh_enabled(board: Control, enabled: bool) -> void:
+	var render_sources: Array[Control]
+	render_sources.append(board)
+	if board.has_method("_retained_render_layers"):
+		for layer_var: Variant in board.call("_retained_render_layers") as Array:
+			var layer: Control = layer_var as Control
+			if layer != null:
+				render_sources.append(layer)
+	for source: Control in render_sources:
+		source.set("_umbra_circle_multimesh_enabled", enabled)
+		source.queue_redraw()
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

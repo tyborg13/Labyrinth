@@ -11,13 +11,29 @@ config_version=5
 [application]
 
 config/name="Escape the Umbra"
-run/main_scene="res://scenes/main_menu.tscn"
+run/main_scene="res://scenes/startup.tscn"
 config/features=PackedStringArray("4.6")
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/minimum_display_time=0
+boot_splash/show_image=false
+boot_splash/stretch_mode=1
+boot_splash/use_filter=true
 
 [autoload]
 
 SteamService="*res://scripts/steam_service.gd"
+InputRouter="*res://scripts/input_router.gd"
 CursorFeedback="*res://scripts/cursor_feedback.gd"
+PerformanceTelemetry="*res://scripts/performance_telemetry.gd"
+
+[telemetry]
+
+performance/local_enabled=true
+performance/flush_interval_seconds=60.0
+performance/upload_url=""
+performance/steam_stats_enabled=true
+performance/steam_stats_store_interval_seconds=300.0
+performance/section_instrumentation_enabled=true
 
 [display]
 

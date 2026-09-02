@@ -1,0 +1,328 @@
+{
+  "audio": {
+    "decoded_container_loop_seams": {
+      "lossless_flac": {
+        "decoded_frames": 11849479,
+        "first_frame": [
+          0.01513671875,
+          0.01971435546875
+        ],
+        "first_last_sample_delta": [
+          0.000732421875,
+          0.00042724609375
+        ],
+        "histogram_bin_width": 3.0517578125e-05,
+        "last_frame": [
+          0.014404296875,
+          0.019287109375
+        ],
+        "p99_9_adjacent_sample_delta_histogram_upper_bound": [
+          0.030792236328125,
+          0.035675048828125
+        ]
+      },
+      "ogg_vorbis": {
+        "decoded_frames": 11849536,
+        "first_frame": [
+          0.009919785894453526,
+          0.01267970073968172
+        ],
+        "first_last_sample_delta": [
+          0.010090482770465314,
+          0.01315294177038595
+        ],
+        "histogram_bin_width": 3.0517578125e-05,
+        "last_frame": [
+          -0.00017069687601178885,
+          -0.00047324103070423007
+        ],
+        "p99_9_adjacent_sample_delta_histogram_upper_bound": [
+          0.03070068359375,
+          0.035552978515625
+        ]
+      }
+    },
+    "duration_seconds": 268.69566893424036,
+    "echo": {
+      "circular": true,
+      "darkening_filter": "9-sample moving average before echo taps",
+      "model": "finite three-tap circular cross-stereo dark echo",
+      "purpose": "restrained SNES-DSP-like room depth without a rhythmic repeat",
+      "taps": [
+        {
+          "delay_ms": 96.0,
+          "gain": 0.12
+        },
+        {
+          "delay_ms": 192.0,
+          "gain": 0.052
+        },
+        {
+          "delay_ms": 288.0,
+          "gain": 0.022
+        }
+      ]
+    },
+    "flac": {
+      "format": {
+        "bit_rate": "331576",
+        "duration": "268.695669",
+        "size": "11136662"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "flac",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "flac_sha256": "722be73cd85a4c69618ffa3b66c3f0b1f98ab91dd3ace78772c04c0f1ac8c18b",
+    "independent_peak_dbfs": -7.5,
+    "ogg": {
+      "format": {
+        "bit_rate": "64035",
+        "duration": "268.696961",
+        "size": "2150777"
+      },
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "channels": 2,
+          "codec_name": "vorbis",
+          "sample_rate": "44100"
+        }
+      ]
+    },
+    "ogg_serial": "0x53383330",
+    "ogg_sha256": "bb0a7c9b30883e87f0d2c0be88fd11844056ce40c628860950a02fc51677403b",
+    "pre_encode_loop_crossfade": {
+      "crossfade_quarters": 4.0,
+      "crossfade_samples": 115043,
+      "crossfade_seconds": 2.608695652173913,
+      "first_last_sample_delta": [
+        0.00076051598384623,
+        0.00042937143831365404
+      ],
+      "method": "one-measure equal-power tail-to-head overlap with loop-point rotation",
+      "p99_9_adjacent_sample_delta": [
+        0.03074542259196699,
+        0.035618236345665515
+      ],
+      "render_start_rotation_quarters": 4.0,
+      "rendered_duration_quarters": 412.0
+    },
+    "pre_master_stem_rms": {
+      "low_strings_cello_and_bass": 0.12195231195906829,
+      "percussion": 0.01639528592781092,
+      "upper_strings_violin_i_ii": 0.04538342195636122
+    },
+    "silence_events_at_minus_60_dbfs_over_750ms": [],
+    "strict_decode": true
+  },
+  "midi": {
+    "balance_and_retention": {
+      "all_3212_string_events_retained": true,
+      "cello_bass_viola_specs_identical_to_version_2": true,
+      "tracks": {
+        "Ashen Bow / Violin II": {
+          "all_timing_pitch_and_source_fields_identical_to_version_2": true,
+          "event_count": 792,
+          "maximum_per_note_amplitude_ratio_vs_version_2": 1.5720396410188333,
+          "minimum_per_note_amplitude_ratio_vs_version_2": 1.4652957558370028,
+          "velocity_lift": 4
+        },
+        "Grave Cello": {
+          "all_timing_pitch_and_source_fields_identical_to_version_2": true,
+          "event_count": 406,
+          "maximum_per_note_amplitude_ratio_vs_version_2": 1.0,
+          "minimum_per_note_amplitude_ratio_vs_version_2": 1.0,
+          "velocity_lift": 0
+        },
+        "Hollow Viola": {
+          "all_timing_pitch_and_source_fields_identical_to_version_2": true,
+          "event_count": 665,
+          "maximum_per_note_amplitude_ratio_vs_version_2": 1.0,
+          "minimum_per_note_amplitude_ratio_vs_version_2": 1.0,
+          "velocity_lift": 0
+        },
+        "Undercrypt Bass / Cello -8ve": {
+          "all_timing_pitch_and_source_fields_identical_to_version_2": true,
+          "event_count": 396,
+          "maximum_per_note_amplitude_ratio_vs_version_2": 1.0,
+          "minimum_per_note_amplitude_ratio_vs_version_2": 1.0,
+          "velocity_lift": 0
+        },
+        "Veiled Bow / Violin I": {
+          "all_timing_pitch_and_source_fields_identical_to_version_2": true,
+          "event_count": 953,
+          "maximum_per_note_amplitude_ratio_vs_version_2": 1.3749798267942117,
+          "minimum_per_note_amplitude_ratio_vs_version_2": 1.3157701886806639,
+          "velocity_lift": 3
+        }
+      }
+    },
+    "duration_quarters": 416.0,
+    "duration_seconds": 271.30434782608694,
+    "form": "A-B-C-B-A",
+    "markers": [
+      "LOOP_START / structural MIDI",
+      "A1: source performed measures 25-32",
+      "B1: source performed measures 49-64",
+      "C1: source performed measures 73-88",
+      "B2: source performed measures 49-64",
+      "A2: source performed measures 25-32",
+      "LOOP_END / rendered audio uses a one-measure equal-power crossfade and rotation"
+    ],
+    "maximum_simultaneous_melodic_voices": 5,
+    "maximum_simultaneous_voices_including_percussion": 6,
+    "percussion_note_channel_human_number": 10,
+    "percussion_note_channel_zero_based": 9,
+    "percussion_note_count": 736,
+    "percussion_note_numbers": [
+      36,
+      41,
+      42
+    ],
+    "sha256": "df56ad03016dd25cef53cbf86be05900f6040b603146f8c1096b41d800a7fbb2",
+    "source_mapping": {
+      "all_non_bass_pitches_exact_source_pitches": true,
+      "exact_octave_below_cello_events": 396,
+      "mapped_events": 3212,
+      "new_pitch_classes": false,
+      "section_event_counts": {
+        "A1": 342,
+        "A2": 342,
+        "B1": 813,
+        "B2": 813,
+        "C1": 902
+      }
+    },
+    "string_note_channels_zero_based": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "string_note_counts": {
+      "Ashen Bow / Violin II": 792,
+      "Grave Cello": 406,
+      "Hollow Viola": 665,
+      "Undercrypt Bass / Cello -8ve": 396,
+      "Veiled Bow / Violin I": 953
+    },
+    "thinning": {
+      "Ashen Bow / Violin II": {
+        "considered": 792,
+        "dropped": 0
+      },
+      "Grave Cello": {
+        "considered": 406,
+        "dropped": 0
+      },
+      "Hollow Viola": {
+        "considered": 665,
+        "dropped": 0
+      },
+      "Undercrypt Bass / Cello -8ve": {
+        "considered": 406,
+        "dropped": 10
+      },
+      "Veiled Bow / Violin I": {
+        "considered": 953,
+        "dropped": 0
+      }
+    },
+    "total_tracks": 7,
+    "track_names": [
+      "Conductor / Loop Map",
+      "Veiled Bow / Violin I",
+      "Ashen Bow / Violin II",
+      "Hollow Viola",
+      "Grave Cello",
+      "Undercrypt Bass / Cello -8ve",
+      "Funeral Pulse / Procedural Percussion"
+    ]
+  },
+  "ok": true,
+  "percussion_pattern": {
+    "A_sections_are_sparser_than_B_and_C_per_measure": true,
+    "counts_by_bank_id": {
+      "ash_tick": 352,
+      "bone_tom": 176,
+      "umbra_war_drum": 208
+    },
+    "counts_by_section": {
+      "A1": 80,
+      "A2": 80,
+      "B1": 192,
+      "B2": 192,
+      "C1": 192
+    },
+    "low_drum_beats": [
+      1,
+      3
+    ],
+    "new_compositional_pitch_content": false,
+    "total_events": 736
+  },
+  "prior_versions_unchanged": {
+    "ACTIVE_TACTICAL_LOOP_NOTES.md": "478dbf5b27ebac76a2177f2d86d0ab48a01b106480900e5d5b123a30e899eaa6",
+    "ACTIVE_TACTICAL_LOOP_REPORT.json": "7b13c4a6e02e33db0b6deaecf3610f8aa4d1fc0d8326285c346b8e6b1891dac5",
+    "ACTIVE_TACTICAL_LOOP_VERIFICATION.json": "de6b2c6d0799c32cbc7c41e7f272e24feff0b8cc32d085d9ef6251849dc022f3",
+    "PROCEDURAL_BANK_PROVENANCE.md": "c1f051125dee68d07f7baf1961253328a2e5409244cfbb62451c11214e6f143b",
+    "active_tactical_loop.mid": "9a69b30ab27ff24c10fcd54d81f4d5485f1c6a27fca77fb732e41f32bfff76b8",
+    "active_tactical_loop_preview.flac": "0219033378a4aaa074ed70e899089ebe0a5294d95afcac9d69dafe67656e6051",
+    "active_tactical_loop_preview.ogg": "41116fd9726d8d50ca85326420233b7838947230d678f38d76eb92c80d62dbb4",
+    "faithful_retro.mid": "2c9a7303ef50cb244bb94b95cc367d730590ab15e4ce77ffa806e8b70269fd66",
+    "faithful_retro_preview.flac": "ecd02002cff366f1152febe588713a5dd870a840bed44a1c5b7c7bb0f04c6409",
+    "faithful_retro_preview.ogg": "93ff01b2b6ef31e52965fdbf240c7b64a692871301370c517a7cafcda7a65a0f",
+    "normalized/movement_ii_four_parts.mid": "874d96d94e256126c0a569516c6f678d29b8638d5bf8f5fe27147d177fa509cf",
+    "normalized/movement_ii_four_parts.musicxml": "03eae6073fab5f208829746631b87740b041383c893529349875f346900ba5a6",
+    "procedural_bank/ashen_violin_d4.wav": "61582413be61cd25d182bdb1645c83af6b663070d9be9730525a02bc1ec890a0",
+    "procedural_bank/bank_manifest.json": "6e47f373b7c7f91dbe97f356f95b48497415aa7e31f7bbc15d0491b07dce5ac5",
+    "procedural_bank/grave_cello_c2.wav": "17eb59965eabbe0a910585f100296ce56cd868884d440139a3b5c7b13df40f09",
+    "procedural_bank/hollow_viola_c3.wav": "9cac0ff97b72b9822e4774fdd4d270b8f4b719f5662e27035519715b07f70c74",
+    "procedural_bank/undercrypt_bass_e1.wav": "2b1a1a07e74969533c0ef2766602633fcb6180a12ae6fa3dddc6dbdb1264679e",
+    "procedural_bank/veiled_violin_a4.wav": "c683d2911eba6adb35e58027b1dd363f5057996a789f06f8a4aa604d9092ffc8"
+  },
+  "procedural_percussion_bank": {
+    "commercial_use_status": "Original project-generated assets with no third-party audio rights input; intended for unrestricted use in Escape the Umbra and its distributed builds.",
+    "manifest_sha256": "9806b300609d95c0c565d7ea8b238e3ded42e164d8bc3f9b8bb2c969e4791ed1",
+    "provenance": "Generated locally from mathematical oscillators, fixed integer-noise seeds, and deterministic envelopes. No recording, sample pack, SoundFont, ROM, model output, or third-party audio was used.",
+    "samples": [
+      {
+        "bank_id": "umbra_war_drum",
+        "channels": 1,
+        "final_sample_absolute": 0.0,
+        "frames": 11520,
+        "sample_rate": 16000,
+        "sample_width": 2,
+        "sha256": "6286624ce4b2bf0f8f372a524217846a7096bb9f453dea8b60f69d3207f346ea"
+      },
+      {
+        "bank_id": "bone_tom",
+        "channels": 1,
+        "final_sample_absolute": 0.0,
+        "frames": 6080,
+        "sample_rate": 16000,
+        "sample_width": 2,
+        "sha256": "3789e4f0aec579f355416bc05cea5758f018b528ae7db37069100b221f0432ec"
+      },
+      {
+        "bank_id": "ash_tick",
+        "channels": 1,
+        "final_sample_absolute": 0.0,
+        "frames": 1360,
+        "sample_rate": 16000,
+        "sample_width": 2,
+        "sha256": "1d2eff817f2e52e2b7ffa177914a6c2b33cc534b4f34b53bbefa1b469837aeb7"
+      }
+    ]
+  },
+  "source_sha256": "c1370ff43b2272b88e04d41d3cc31ca6717a982eaa09cc5540a5952b4f3c1bd5"
+}

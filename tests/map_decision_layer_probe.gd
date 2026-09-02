@@ -491,10 +491,10 @@ func _dense_depth_five_state() -> Dictionary:
 	_add_dense_room(rooms, Vector2i(1, 0), 1, "combat", true, [Vector2i(1, -1), Vector2i(1, 1), Vector2i(0, 0), Vector2i(2, 0)])
 	_add_dense_room(rooms, Vector2i(1, 1), 1, "treasure", true, [Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 2)])
 	_add_dense_room(rooms, Vector2i(-2, -2), 2, "combat", false, [Vector2i(-2, -1), Vector2i(-1, -2), Vector2i(-2, -3)])
-	_add_dense_room(rooms, Vector2i(-2, -1), 2, "arcanist", true, [Vector2i(-2, 0), Vector2i(-2, -2), Vector2i(-3, -1)])
+	_add_dense_room(rooms, Vector2i(-2, -1), 2, "scavenger", true, [Vector2i(-2, 0), Vector2i(-2, -2), Vector2i(-3, -1)])
 	_add_dense_room(rooms, Vector2i(-2, 0), 2, "campfire", true, [Vector2i(-2, 1), Vector2i(-2, -1)])
 	_add_dense_room(rooms, Vector2i(-2, 1), 2, "combat", true, [Vector2i(-2, 2), Vector2i(-2, 0), Vector2i(-1, 1)])
-	_add_dense_room(rooms, Vector2i(-2, 2), 2, "arcanist", false, [Vector2i(-1, 2), Vector2i(-2, 1), Vector2i(-3, 2)])
+	_add_dense_room(rooms, Vector2i(-2, 2), 2, "scavenger", false, [Vector2i(-1, 2), Vector2i(-2, 1), Vector2i(-3, 2)])
 	_add_dense_room(rooms, Vector2i(0, 2), 2, "campfire", false, [Vector2i(1, 2), Vector2i(-1, 2)])
 	_add_dense_room(rooms, Vector2i(1, 2), 2, "combat", false, [Vector2i(2, 2), Vector2i(0, 2)])
 	_add_dense_room(rooms, Vector2i(2, -1), 2, "combat", false, [Vector2i(2, -2), Vector2i(2, 0), Vector2i(1, -1)])
@@ -505,7 +505,7 @@ func _dense_depth_five_state() -> Dictionary:
 	_add_dense_room(rooms, Vector2i(-4, -2), 4, "boss", false, [Vector2i(-4, -1), Vector2i(-4, -3), Vector2i(-5, -2)])
 	_add_dense_room(rooms, Vector2i(-4, -1), 4, "boss", true, [Vector2i(-4, 0), Vector2i(-4, -2), Vector2i(-3, -1), Vector2i(-5, -1)])
 	_add_dense_room(rooms, Vector2i(-4, 0), 4, "boss", false, [Vector2i(-4, 1), Vector2i(-4, -1), Vector2i(-5, 0)])
-	_add_dense_room(rooms, Vector2i(-5, -2), 5, "blacksmith", false, [Vector2i(-5, -1), Vector2i(-5, -3), Vector2i(-4, -2)])
+	_add_dense_room(rooms, Vector2i(-5, -2), 5, "scavenger", false, [Vector2i(-5, -1), Vector2i(-5, -3), Vector2i(-4, -2)])
 	_add_dense_room(rooms, Vector2i(-5, -1), 5, "combat", true, [Vector2i(-5, 0), Vector2i(-5, -2), Vector2i(-4, -1)])
 	_add_dense_room(rooms, Vector2i(-5, 0), 5, "treasure", true, [Vector2i(-5, 1), Vector2i(-5, -1), Vector2i(-4, 0)])
 	_add_dense_room(rooms, Vector2i(-5, 1), 5, "combat", false, [Vector2i(-5, 2), Vector2i(-5, 0), Vector2i(-4, 1), Vector2i(-6, 1)])
@@ -548,7 +548,7 @@ func _state_from_path(path: Array, destinations: Array, unavailable: Array) -> D
 	return {"mode": "room", "current_room": current, "rooms": rooms}
 
 func _probe_room(coord: Vector2i, depth: int, visited: bool, sealed: bool) -> Dictionary:
-	var types: Array = ["combat", "combat", "campfire", "combat", "treasure", "blacksmith", "combat", "arcanist", "combat", "scavenger"]
+	var types: Array = ["combat", "combat", "campfire", "combat", "treasure", "scavenger", "combat", "combat", "combat", "scavenger"]
 	var elements: Array = ["fire", "ice", "lightning", "air", "earth"]
 	var display_depth: int = depth
 	var room_type: String = "start" if depth == 0 else str(types[depth % types.size()])

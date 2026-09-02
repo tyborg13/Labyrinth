@@ -7,6 +7,9 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
+const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
 const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
@@ -23,6 +26,7 @@ const TITLE_BASE_SIZE: int = 114
 const TITLE_MIN_SIZE: int = 42
 const TITLE_SMALL_LINE_MIN_SIZE: int = 28
 const TITLE_LINE_SPACING: int = -8
+const TITLE_LINE_VERTICAL_PADDING: float = 38.0
 const TITLE_TO_MENU_EXTRA_GAP: float = 14.0
 const MENU_FONT_SIZE: int = 34
 const MENU_BUTTON_HEIGHT: float = 78.0
@@ -30,6 +34,7 @@ const MENU_BUTTON_HEIGHT_COMPACT: float = 64.0
 const MENU_BUTTON_MIN_WIDTH: float = 380.0
 const MENU_BUTTON_MAX_WIDTH: float = 470.0
 const MENU_SEPARATION: int = 14
+const UMBRA_SELECTION_META: String = "umbra_selected"
 const CONTEXT_PANEL_MIN_WIDTH: float = 300.0
 const CONTEXT_PANEL_MAX_WIDTH: float = 360.0
 const CONTEXT_PANEL_GAP: float = 24.0
@@ -58,6 +63,7 @@ uniform vec4 high_color : source_color;
 uniform vec4 mid_color : source_color;
 uniform vec4 low_color : source_color;
 uniform vec4 bottom_color : source_color;
+uniform float gradient_offset = 0.0;
 uniform float gradient_height = 1.0;
 uniform float texture_strength = 0.12;
 
@@ -77,6 +83,19 @@ float stone_noise(vec2 point) {
 	return mix(top, bottom, blend.y);
 }
 
+vec4 title_color_ramp(float position) {
+	if (position <= 0.26) {
+		return mix(top_color, high_color, clamp(position / 0.26, 0.0, 1.0));
+	}
+	if (position <= 0.56) {
+		return mix(high_color, mid_color, clamp((position - 0.26) / 0.30, 0.0, 1.0));
+	}
+	if (position <= 0.80) {
+		return mix(mid_color, low_color, clamp((position - 0.56) / 0.24, 0.0, 1.0));
+	}
+	return mix(low_color, bottom_color, clamp((position - 0.80) / 0.20, 0.0, 1.0));
+}
+
 void vertex() {
 	local_y = VERTEX.y;
 	local_position = VERTEX;
@@ -84,11 +103,8 @@ void vertex() {
 
 void fragment() {
 	vec4 glyph = texture(TEXTURE, UV);
-	float y = clamp(local_y / max(gradient_height, 1.0), 0.0, 1.0);
-	vec4 ramp = mix(top_color, high_color, smoothstep(0.00, 0.32, y));
-	ramp = mix(ramp, mid_color, smoothstep(0.22, 0.62, y));
-	ramp = mix(ramp, low_color, smoothstep(0.50, 0.86, y));
-	ramp = mix(ramp, bottom_color, smoothstep(0.76, 1.00, y));
+	float y = clamp((gradient_offset + local_y) / max(gradient_height, 1.0), 0.0, 1.0);
+	vec4 ramp = title_color_ramp(y);
 	float fine_grain = stone_noise(local_position / 5.0);
 	float broad_grain = stone_noise(local_position / 19.0 + vec2(19.0, 7.0));
 	float fleck_noise = stone_noise(local_position / 3.6 + vec2(5.0, 13.0));
@@ -140,6 +156,12 @@ var _title_rim_lines: Array[Label]
 var _title_base_lines: Array[Label]
 var _title_face_lines: Array[Label]
 var _title_face_materials: Array[ShaderMaterial]
+var _controller_prompt_bar
+var _loading_run: bool = false
+var _loading_error: AcceptDialog
+var _umbra_primary_button: Button
+var _umbra_normal_style: StyleBoxFlat
+var _umbra_selected_style: StyleBoxFlat
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -151,19 +173,31 @@ func _ready() -> void:
 		settings_panel.connect("back_requested", Callable(self, "_on_settings_back_button_pressed"))
 	resized.connect(_update_layout)
 	_apply_style()
+	_build_controller_prompt_bar()
 	_reload_progression()
 	_update_layout()
 	_play_menu_music()
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
-		_using_keyboard_navigation = false
-		var mouse_motion := event as InputEventMouseMotion
-		# Clear stale keyboard focus before a later mouse-down can begin. A
-		# deferred clear may otherwise run between press and release when hover
-		# and click arrive in the same frame, canceling the button activation.
-		if mouse_motion.button_mask == 0:
-			_clear_menu_keyboard_focus()
+	if _loading_run:
+		return
+	if InputRouterScript.is_controller_event(event):
+		_using_keyboard_navigation = true
+		if not _menu_or_settings_has_focus():
+			_focus_default_keyboard_target()
+			get_viewport().set_input_as_handled()
+		_refresh_controller_prompts()
+	elif _is_keyboard_navigation_event(event):
+		# Native Control focus navigation can consume arrow keys before
+		# _unhandled_input, so claim keyboard ownership in the early input pass.
+		_using_keyboard_navigation = true
+		if not _menu_or_settings_has_focus():
+			_focus_default_keyboard_target()
+			get_viewport().set_input_as_handled()
+	elif event is InputEventMouseMotion:
+		# Empty-space pointer motion must not steal keyboard/controller focus.
+		# Pointer ownership begins only when the cursor enters an enabled action.
+		pass
 	elif event is InputEventMouseButton:
 		_using_keyboard_navigation = false
 		var mouse_button := event as InputEventMouseButton
@@ -172,6 +206,17 @@ func _input(event: InputEvent) -> void:
 			call_deferred("_clear_menu_keyboard_focus")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _loading_run:
+		return
+	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+		if _replacement_confirmation_open:
+			_on_replacement_cancel_button_pressed()
+			get_viewport().set_input_as_handled()
+			return
+		if settings_panel.visible:
+			_on_settings_back_button_pressed()
+			get_viewport().set_input_as_handled()
+			return
 	if not _is_keyboard_navigation_event(event):
 		return
 	_using_keyboard_navigation = true
@@ -179,6 +224,36 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	_focus_default_keyboard_target()
 	get_viewport().set_input_as_handled()
+
+func _build_controller_prompt_bar() -> void:
+	if _controller_prompt_bar != null:
+		return
+	_controller_prompt_bar = ControllerPromptBarScript.new()
+	_controller_prompt_bar.name = "ControllerPromptBar"
+	_controller_prompt_bar.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_controller_prompt_bar.anchor_left = 1.0
+	_controller_prompt_bar.anchor_top = 1.0
+	_controller_prompt_bar.anchor_right = 1.0
+	_controller_prompt_bar.anchor_bottom = 1.0
+	_controller_prompt_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_controller_prompt_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_controller_prompt_bar.offset_left = -24.0
+	_controller_prompt_bar.offset_top = -20.0
+	_controller_prompt_bar.offset_right = -24.0
+	_controller_prompt_bar.offset_bottom = -20.0
+	add_child(_controller_prompt_bar)
+	_refresh_controller_prompts()
+
+func _refresh_controller_prompts() -> void:
+	if _controller_prompt_bar == null:
+		return
+	var prompts: Array = [
+		{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
+		{"action": &"controller_dpad", "label": "Navigate"},
+	]
+	if settings_panel.visible or _replacement_confirmation_open:
+		prompts.append({"action": InputRouterScript.ACTION_CANCEL, "label": "Back"})
+	_controller_prompt_bar.set_prompts(prompts)
 
 func _apply_style() -> void:
 	background_art.texture = AssetLoader.load_texture(BACKGROUND_ART_PATH)
@@ -199,8 +274,11 @@ func _apply_style() -> void:
 	_apply_title_layer_style(_title_face_lines, Color.WHITE, Color.TRANSPARENT, 0, Color.WHITE)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
+	_umbra_normal_style = _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_NORMAL)
+	_umbra_selected_style = _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_SELECTED)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button]:
 		_apply_menu_button_style(button)
+	_connect_umbra_selection_signals()
 	_apply_confirmation_button_style(replacement_cancel_button, false)
 	_apply_confirmation_button_style(replacement_confirm_button, true)
 	boss_button.visible = false
@@ -304,13 +382,18 @@ func _apply_menu_button_style(button: Button) -> void:
 	button.focus_mode = Control.FOCUS_ALL
 	button.add_theme_font_override("font", UI_FONT)
 	button.add_theme_font_size_override("font_size", MENU_FONT_SIZE)
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_UMBRA)
 	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
+	button.add_theme_color_override("font_hover_color", Color("f3e5c5"))
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 func _apply_confirmation_button_style(button: Button, destructive: bool) -> void:
-	_apply_menu_button_style(button)
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.focus_mode = Control.FOCUS_ALL
+	button.add_theme_font_override("font", UI_FONT)
 	button.add_theme_font_size_override("font_size", 20)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
 	if not destructive:
 		return
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_DESTRUCTIVE)
@@ -318,12 +401,96 @@ func _apply_confirmation_button_style(button: Button, destructive: bool) -> void
 	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 func _apply_continue_button_state(primary: bool) -> void:
-	_apply_menu_button_style(continue_button)
-	if not primary:
+	_umbra_primary_button = continue_button if primary else start_button
+	_restore_umbra_selection()
+
+func _connect_umbra_selection_signals() -> void:
+	for button: Button in _umbra_menu_buttons():
+		var pointer_highlighted := Callable(self, "_on_umbra_button_pointer_highlighted").bind(button)
+		var highlighted := Callable(self, "_on_umbra_button_highlighted").bind(button)
+		var departed := Callable(self, "_on_umbra_button_departed")
+		if not button.mouse_entered.is_connected(pointer_highlighted):
+			button.mouse_entered.connect(pointer_highlighted)
+		if not button.focus_entered.is_connected(highlighted):
+			button.focus_entered.connect(highlighted)
+		if not button.button_down.is_connected(highlighted):
+			button.button_down.connect(highlighted)
+		if not button.mouse_exited.is_connected(departed):
+			button.mouse_exited.connect(departed)
+		if not button.focus_exited.is_connected(departed):
+			button.focus_exited.connect(departed)
+		if not button.button_up.is_connected(departed):
+			button.button_up.connect(departed)
+
+func _umbra_menu_buttons() -> Array[Button]:
+	var buttons: Array[Button]
+	buttons.append(continue_button)
+	buttons.append(start_button)
+	buttons.append(settings_button)
+	buttons.append(quit_button)
+	buttons.append(boss_button)
+	return buttons
+
+func _on_umbra_button_pointer_highlighted(button: Button) -> void:
+	if button == null or button.disabled or not button.visible:
+		_restore_umbra_selection()
 		return
-	_ui_skin.apply_button_stylebox_overrides(continue_button, UiSkin.VARIANT_SELECTED)
-	_ui_skin.apply_button_text_overrides(continue_button, Color("fff2cf"), Color("080606"), Color("8d806b"), 5)
-	continue_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_using_keyboard_navigation = false
+	# Clear stale navigation focus before a later mouse-down can begin, but only
+	# after the pointer reaches a real action. Clearing on arbitrary motion made
+	# an idle cursor reset sequential navigation back to Continue Run.
+	if Input.get_mouse_button_mask() == 0:
+		_clear_menu_keyboard_focus()
+	_on_umbra_button_highlighted(button)
+
+func _on_umbra_button_highlighted(button: Button) -> void:
+	if button == null or button.disabled or not button.visible:
+		_restore_umbra_selection()
+		return
+	_set_umbra_selected_button(button)
+
+func _on_umbra_button_departed() -> void:
+	call_deferred("_restore_umbra_selection")
+
+func _restore_umbra_selection() -> void:
+	# Explicit activation and navigation focus outrank a stale pointer hover.
+	# Keep these as full passes so menu order cannot let an earlier hovered
+	# action override a later focused action during deferred restoration.
+	for button: Button in _umbra_menu_buttons():
+		if button.visible and not button.disabled and button.is_pressed():
+			_set_umbra_selected_button(button)
+			return
+	for button: Button in _umbra_menu_buttons():
+		if button.visible and not button.disabled and button.has_focus():
+			_set_umbra_selected_button(button)
+			return
+	for button: Button in _umbra_menu_buttons():
+		if button.visible and not button.disabled and button.is_hovered():
+			_set_umbra_selected_button(button)
+			return
+	# Keep the last valid choice through pointer gaps and empty-space motion.
+	# The primary action is only the initial/fallback selection, not a magnet.
+	for button: Button in _umbra_menu_buttons():
+		if bool(button.get_meta(UMBRA_SELECTION_META, false)) and button.visible and not button.disabled:
+			_set_umbra_selected_button(button)
+			return
+	var target: Button = _umbra_primary_button
+	if target == null or target.disabled or not target.visible:
+		target = null
+	_set_umbra_selected_button(target)
+
+func _set_umbra_selected_button(selected_button: Button) -> void:
+	for button: Button in _umbra_menu_buttons():
+		var selected: bool = button == selected_button and not button.disabled and button.visible
+		button.set_meta(UMBRA_SELECTION_META, selected)
+		button.add_theme_stylebox_override(
+			"normal",
+			_umbra_selected_style if selected else _umbra_normal_style
+		)
+		button.queue_redraw()
+		var ornament: Control = button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) as Control
+		if ornament != null:
+			ornament.queue_redraw()
 
 func _make_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -500,6 +667,7 @@ func _set_menu_actions_locked(locked: bool) -> void:
 	settings_button.disabled = locked
 	quit_button.disabled = locked
 	boss_button.disabled = locked
+	call_deferred("_restore_umbra_selection")
 
 func _update_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
@@ -565,10 +733,17 @@ func _update_layout() -> void:
 		panel_x = (viewport_size.x - panel_width) * 0.5
 	settings_panel.position = Vector2(panel_x, panel_y)
 	settings_panel.size = Vector2(panel_width, panel_height)
+	if _controller_prompt_bar != null:
+		var prompt_bottom: float = clampf(viewport_size.y * 0.032, 20.0, 34.0)
+		_controller_prompt_bar.offset_left = -margin_x
+		_controller_prompt_bar.offset_top = -prompt_bottom
+		_controller_prompt_bar.offset_right = -margin_x
+		_controller_prompt_bar.offset_bottom = -prompt_bottom
 
 func _layout_title_lines(title_font_size: int) -> void:
 	_ensure_title_line_labels()
 	var row_ys: Array = _title_row_y_positions(title_font_size)
+	var shared_gradient_height: float = _title_text_height(title_font_size) + TITLE_LINE_VERTICAL_PADDING
 	var row_next_x: Array = []
 	for row_index: int in range(_title_row_count()):
 		row_next_x.append(_title_row_offset_x(title_font_size, row_index))
@@ -578,14 +753,15 @@ func _layout_title_lines(title_font_size: int) -> void:
 		var line_text := str(TITLE_LINE_TEXTS[index])
 		var line_width: float = DISPLAY_FONT.get_string_size(line_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, line_font_size).x
 		var line_height: float = DISPLAY_FONT.get_height(line_font_size)
-		var line_size := Vector2(line_width + 80.0, line_height + 38.0)
+		var line_size := Vector2(line_width + 80.0, line_height + TITLE_LINE_VERTICAL_PADDING)
 		var line_position := Vector2(float(row_next_x[row_index]), float(row_ys[row_index]))
 		_layout_title_line(_title_shadow_lines, index, line_position, line_size, line_font_size)
 		_layout_title_line(_title_rim_lines, index, line_position, line_size, line_font_size)
 		_layout_title_line(_title_base_lines, index, line_position, line_size, line_font_size)
 		_layout_title_line(_title_face_lines, index, line_position, line_size, line_font_size)
 		if index < _title_face_materials.size():
-			_title_face_materials[index].set_shader_parameter("gradient_height", line_size.y)
+			_title_face_materials[index].set_shader_parameter("gradient_offset", line_position.y)
+			_title_face_materials[index].set_shader_parameter("gradient_height", shared_gradient_height)
 		row_next_x[row_index] = line_position.x + line_width + _title_word_gap(title_font_size)
 
 func _layout_title_line(labels: Array[Label], index: int, position: Vector2, size: Vector2, font_size: int) -> void:
@@ -697,9 +873,9 @@ func _on_steam_status_changed(_active: bool) -> void:
 	embers_label.text = _profile_text()
 
 func _play_menu_music() -> void:
-	var entry: Dictionary = MusicLibrary.entry(MusicLibrary.RELIC_ROOM_TRACK_ID)
+	var entry: Dictionary = MusicLibrary.entry(MusicLibrary.OLD_CASTLE_MENU_TRACK_ID)
 	var path: String = str(entry.get("path", ""))
-	var stream: AudioStream = AssetLoader.load_audio_stream(path)
+	var stream: AudioStream = AssetLoader.load_audio_stream(path, bool(entry.get("loop", false)))
 	if stream == null:
 		return
 	if _music_player == null:
@@ -718,6 +894,10 @@ func _on_music_finished() -> void:
 	_music_player.play()
 
 func _is_keyboard_navigation_event(event: InputEvent) -> bool:
+	if InputRouterScript.is_controller_event(event):
+		if event is InputEventJoypadButton:
+			return (event as InputEventJoypadButton).pressed
+		return absf((event as InputEventJoypadMotion).axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD
 	if not event is InputEventKey:
 		return false
 	var key_event := event as InputEventKey
@@ -731,11 +911,8 @@ func _is_keyboard_navigation_event(event: InputEvent) -> bool:
 	return false
 
 func _menu_or_settings_has_focus() -> bool:
-	for button_var: Variant in _focusable_menu_buttons():
-		var button := button_var as Button
-		if button != null and button.has_focus():
-			return true
-	return false
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	return focus_owner != null and (is_ancestor_of(focus_owner) or settings_panel == focus_owner or settings_panel.is_ancestor_of(focus_owner))
 
 func _clear_menu_keyboard_focus() -> void:
 	for button_var: Variant in _focusable_menu_buttons():
@@ -747,30 +924,51 @@ func _focus_default_keyboard_target() -> void:
 	if settings_panel.visible:
 		settings_back_button.grab_focus()
 		return
-	var target: Button = continue_button if not continue_button.disabled else start_button
+	var target: Button
+	for button: Button in _umbra_menu_buttons():
+		if bool(button.get_meta(UMBRA_SELECTION_META, false)) and button.visible and not button.disabled:
+			target = button
+			break
+	if target == null:
+		target = continue_button if not continue_button.disabled else start_button
 	target.grab_focus()
 
 func _focusable_menu_buttons() -> Array:
 	return [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]
 
 func _on_start_button_pressed() -> void:
+	if _loading_run:
+		return
 	_refresh_saved_run_preview()
 	if not _saved_run_preview.is_empty():
 		_replacement_confirmation_open = true
 		_set_menu_actions_locked(true)
 		_sync_context_panels()
+		_refresh_controller_prompts()
+		if _using_keyboard_navigation:
+			replacement_cancel_button.grab_focus()
 		return
 	_begin_new_game()
 
 func _on_replacement_cancel_button_pressed() -> void:
+	if _loading_run:
+		return
 	_replacement_confirmation_open = false
 	_set_menu_actions_locked(false)
 	_sync_context_panels()
+	_refresh_controller_prompts()
+	if _using_keyboard_navigation:
+		start_button.grab_focus()
 
 func _on_replacement_confirm_button_pressed() -> void:
+	if _loading_run:
+		return
 	_begin_new_game()
 
 func _begin_new_game() -> void:
+	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_new_game)
+
+func _prepare_new_game() -> void:
 	var scene_tree: SceneTree = get_tree() if is_inside_tree() else null
 	if scene_tree != null and scene_tree.root.has_meta("labyrinth_resume_saved_run"):
 		scene_tree.root.remove_meta("labyrinth_resume_saved_run")
@@ -779,47 +977,93 @@ func _begin_new_game() -> void:
 		ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
 	_saved_run_preview = {}
-	if scene_tree != null:
-		_change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _on_continue_button_pressed() -> void:
+	if _loading_run:
+		return
 	_refresh_saved_run_preview()
 	if continue_button.disabled:
 		return
+	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_continue)
+
+func _prepare_continue() -> void:
 	get_tree().root.set_meta("labyrinth_resume_saved_run", true)
-	_change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _on_settings_button_pressed() -> void:
+	if _loading_run:
+		return
 	if settings_panel.has_method("open"):
 		settings_panel.call("open")
 	else:
 		settings_panel.visible = true
 	_sync_context_panels()
+	_refresh_controller_prompts()
 	if _using_keyboard_navigation:
 		settings_back_button.grab_focus()
 	else:
 		_clear_menu_keyboard_focus()
 
 func _on_settings_back_button_pressed() -> void:
+	if _loading_run:
+		return
 	settings_panel.visible = false
 	_sync_context_panels()
+	_refresh_controller_prompts()
 	if _using_keyboard_navigation:
 		settings_button.grab_focus()
 	else:
 		_clear_menu_keyboard_focus()
 
 func _on_quit_button_pressed() -> void:
+	if _loading_run:
+		return
 	get_tree().quit()
 
 func _on_boss_button_pressed() -> void:
+	if _loading_run:
+		return
+	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_boss_run)
+
+func _prepare_boss_run() -> void:
 	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
 		get_tree().root.remove_meta("labyrinth_resume_saved_run")
 	get_tree().root.set_meta("labyrinth_debug_boss_run", true)
-	_change_scene_to_file("res://scenes/run_scene.tscn")
 
-func _change_scene_to_file(path: String) -> void:
-	var cursor_feedback: Node = get_node_or_null("/root/CursorFeedback")
-	if cursor_feedback != null and cursor_feedback.has_method("change_scene_to_file"):
-		cursor_feedback.call("change_scene_to_file", path)
+func _change_scene_to_file(path: String, prepare_run: Callable = Callable()) -> void:
+	if _loading_run or not is_inside_tree():
 		return
-	get_tree().change_scene_to_file(path)
+	_loading_run = true
+	_replacement_confirmation_open = false
+	_sync_context_panels()
+	_set_menu_actions_locked(true)
+	replacement_confirm_button.disabled = true
+	replacement_cancel_button.disabled = true
+	_clear_menu_keyboard_focus()
+	if _controller_prompt_bar != null:
+		_controller_prompt_bar.modulate.a = 0.0
+	var transition := MenuRunTransition.new()
+	transition.failed.connect(_on_run_loading_failed)
+	transition.begin(self, path, prepare_run)
+
+func _on_run_loading_failed() -> void:
+	if _controller_prompt_bar != null:
+		_controller_prompt_bar.modulate.a = 1.0
+	_loading_run = false
+	replacement_confirm_button.disabled = false
+	replacement_cancel_button.disabled = false
+	_reload_progression()
+	_refresh_controller_prompts()
+	if _loading_error == null:
+		_loading_error = AcceptDialog.new()
+		_loading_error.title = "Unable to enter"
+		_loading_error.dialog_text = "The Labyrinth could not be loaded.\nPlease try again."
+		_apply_label_style(_loading_error.get_label(), UI_FONT, 24, Color("f4dfb0"), Color("170e16"), 2)
+		_apply_confirmation_button_style(_loading_error.get_ok_button(), false)
+		_loading_error.confirmed.connect(_restore_menu_focus_after_loading_error)
+		_loading_error.canceled.connect(_restore_menu_focus_after_loading_error)
+		add_child(_loading_error)
+	_loading_error.popup_centered()
+
+func _restore_menu_focus_after_loading_error() -> void:
+	if _using_keyboard_navigation:
+		_focus_default_keyboard_target()

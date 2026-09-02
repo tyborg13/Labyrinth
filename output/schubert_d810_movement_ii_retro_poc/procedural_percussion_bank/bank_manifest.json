@@ -1,0 +1,62 @@
+{
+  "commercial_use_status": "Original project-generated assets with no third-party audio rights input; intended for unrestricted use in Escape the Umbra and its distributed builds.",
+  "name": "Escape the Umbra Procedural Funeral Pulse v1",
+  "provenance": "Generated locally from mathematical oscillators, fixed integer-noise seeds, and deterministic envelopes. No recording, sample pack, SoundFont, ROM, model output, or third-party audio was used.",
+  "sample_rate": 16000,
+  "samples": [
+    {
+      "bank_id": "umbra_war_drum",
+      "channels": 1,
+      "duration_seconds": 0.72,
+      "filename": "umbra_war_drum.wav",
+      "frames": 11520,
+      "generator": "deterministic local mathematical synthesis",
+      "label": "Low war drum",
+      "midi_note": 36,
+      "pan": 61,
+      "path": "procedural_percussion_bank/umbra_war_drum.wav",
+      "render_gain": 0.25,
+      "sample_rate": 16000,
+      "sample_width_bits": 16,
+      "sha256": "6286624ce4b2bf0f8f372a524217846a7096bb9f453dea8b60f69d3207f346ea",
+      "signal_quantization_bits": 10,
+      "synthesis": "exponentially swept sinusoidal membrane plus deterministic transient"
+    },
+    {
+      "bank_id": "bone_tom",
+      "channels": 1,
+      "duration_seconds": 0.38,
+      "filename": "bone_tom.wav",
+      "frames": 6080,
+      "generator": "deterministic local mathematical synthesis",
+      "label": "Muted bone tom",
+      "midi_note": 41,
+      "pan": 70,
+      "path": "procedural_percussion_bank/bone_tom.wav",
+      "render_gain": 0.17,
+      "sample_rate": 16000,
+      "sample_width_bits": 16,
+      "sha256": "3789e4f0aec579f355416bc05cea5758f018b528ae7db37069100b221f0432ec",
+      "signal_quantization_bits": 10,
+      "synthesis": "short swept sinusoidal membrane with an inharmonic upper partial"
+    },
+    {
+      "bank_id": "ash_tick",
+      "channels": 1,
+      "duration_seconds": 0.085,
+      "filename": "ash_tick.wav",
+      "frames": 1360,
+      "generator": "deterministic local mathematical synthesis",
+      "label": "Ash tick",
+      "midi_note": 42,
+      "pan": 76,
+      "path": "procedural_percussion_bank/ash_tick.wav",
+      "render_gain": 0.065,
+      "sample_rate": 16000,
+      "sample_width_bits": 16,
+      "sha256": "1d2eff817f2e52e2b7ffa177914a6c2b33cc534b4f34b53bbefa1b469837aeb7",
+      "signal_quantization_bits": 8,
+      "synthesis": "high-passed deterministic integer-noise burst with a quiet metallic partial"
+    }
+  ]
+}

@@ -460,7 +460,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	await process_frame
 	await process_frame
 	var status_grid := instance.get("_skill_status_grid") as GridContainer
-	var status_tiles: Array = status_grid.get_children() if status_grid != null else []
+	var status_tiles: Array[Control] = _visible_control_children(status_grid)
 	var status_root_height: float = (instance.get("ui_root") as Control).get_global_rect().size.y
 	_expect(
 		popover != null
@@ -496,8 +496,12 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		if page_index > 0:
 			instance.call("_on_skill_status_page_pressed", 1)
 			await process_frame
-		status_tiles = status_grid.get_children()
-		_expect(status_tiles.size() == 10, "Ability page %d should retain a stable ten-slot palette" % [page_index + 1])
+		status_tiles = _visible_control_children(status_grid)
+		var expected_page_size: int = 10 if page_index < 2 else 9
+		_expect(status_tiles.size() == expected_page_size, "Ability page %d should contain its complete visible palette slice" % [page_index + 1])
+		for retained_tile: Node in status_grid.get_children():
+			if retained_tile is Control and not (retained_tile as Control).visible:
+				_expect((retained_tile as Control).focus_mode == Control.FOCUS_NONE, "Hidden retained ability tiles must not take controller focus")
 		for tile_var: Variant in status_tiles:
 			var page_tile := tile_var as Button
 			var page_skill_id: String = str(page_tile.get_meta("skill_id", ""))
@@ -505,7 +509,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 			var name_label := page_tile.find_child("SkillStatusName_%s" % page_skill_id, true, false) as Label
 			_expect(name_label != null and name_label.text == SkillTreeLibrary.display_name(page_skill_id), "%s should show its complete name beneath the icon" % page_skill_id)
 	paged_skill_ids.sort()
-	var all_skill_ids: Array[String] = SkillTreeLibrary.ordered_ids()
+	var all_skill_ids: Array[String] = SkillTreeLibrary.visible_ids()
 	all_skill_ids.sort()
 	_expect(paged_skill_ids == all_skill_ids, "Paging should expose every learned ability identity without a dropdown or scrollbar")
 	var stable_popover_size: Vector2 = popover.size
@@ -550,7 +554,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var primed_skill_state: Dictionary = (primed_run_state.get("skill_state", {}) as Dictionary).duplicate(true)
 	primed_skill_state["pending_card"] = "rime_shard"
 	primed_skill_state["pending_relic"] = "flint_edge"
-	primed_skill_state["reserved_merchant"] = {"kind": "blacksmith", "item_id": "stitcher_apron"}
+	primed_skill_state["reserved_merchant"] = {"kind": "scavenger", "item_id": "stitcher_apron"}
 	primed_run_state["skill_state"] = primed_skill_state
 	instance.set("_run_state", primed_run_state)
 	_expect(str(instance.call("_skill_hud_status", "deferred_choice")) == "PRIMED", "Deferred Choice should show its earned card waiting for the next reward")
@@ -698,7 +702,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.call("_commit_combat_skill_state", resolved_escape, "rehearsed_escape")
 	await process_frame
 	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count + 1, "Preserving a Burn card should emit exactly one realized skill trigger")
-	var resolved_item: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0, 1, {"play_mode": "attack"})
+	var resolved_item: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0, 1, {"play_mode": "play"})
 	instance.call("_commit_combat_skill_state", resolved_item, "makeshift_tool")
 	await process_frame
 	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count + 1, "Preserving an item should emit exactly one realized skill trigger")
@@ -772,8 +776,10 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	await process_frame
 	var pile_scrim := instance.get("_pile_scrim") as Control
 	var pile_title := instance.get("_pile_dialog_title") as Label
-	var item_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_0", true, false) as Button
-	var recall_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_1", true, false) as Button
+	var displayed_discard_cards: Array[Control] = _visible_control_children(instance.get("_pile_dialog_cards") as Control)
+	_expect(displayed_discard_cards.size() == 2, "Encore should show exactly the two current discard cards, excluding retained hidden cards")
+	var item_card: Button = displayed_discard_cards[0] as Button if displayed_discard_cards.size() > 0 else null
+	var recall_card: Button = displayed_discard_cards[1] as Button if displayed_discard_cards.size() > 1 else null
 	_expect(pile_scrim != null and pile_scrim.visible and pile_title != null and pile_title.text.contains("Choose a Card to Return"), "Encore should open the full-card discard pile in selection mode")
 	var recalled_widget: CardWidget = _card_widget_descendant(recall_card)
 	var item_widget: CardWidget = _card_widget_descendant(item_card)
@@ -813,12 +819,16 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		if reduced_encore_button != null:
 			reduced_encore_button.pressed.emit()
 		await process_frame
-		var reduced_recall_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_1", true, false) as Button
+		var reduced_discard_cards: Array[Control] = _visible_control_children(instance.get("_pile_dialog_cards") as Control)
+		var reduced_recall_card: Button = reduced_discard_cards[1] as Button if reduced_discard_cards.size() > 1 else null
+		_expect(reduced_recall_card != null and int(reduced_recall_card.get_meta("source_card_index", -1)) == 0, "Reduced-motion Encore should preserve the displayed discard ordering")
 		var reduced_encore_motion_started_msec: int = Time.get_ticks_msec()
 		if reduced_recall_card != null:
 			await _click_control(reduced_recall_card)
 		await _wait_for_animation_unlock(instance)
 		var reduced_encore_motion_msec: int = Time.get_ticks_msec() - reduced_encore_motion_started_msec
+		var reduced_encore_result: Dictionary = instance.get("_combat_state") as Dictionary
+		_expect(combat_engine.skill_was_used(reduced_encore_result, "encore") and ((reduced_encore_result.get("deck", {}) as Dictionary).get("hand", []) as Array).has("quick_stab"), "Reduced-motion Encore must actually recall the chosen card")
 		_expect(
 			reduced_recall_card != null and reduced_encore_motion_msec < normal_encore_motion_msec,
 			"Reduced motion should keep Encore's visible state transition while shortening its card flight (%dms vs %dms)" % [
@@ -841,22 +851,22 @@ func _test_makeshift_tool_loadout_persistence(instance: Node) -> void:
 	item_progression = ProgressionStore.normalized_data(item_progression)
 	_expect(ProgressionStore.save_data(item_progression), "Makeshift Tool integration fixture should persist its legal build")
 
-	var preserved: Dictionary = await _play_item_as_basic_move(instance, item_progression, true)
+	var preserved: Dictionary = await _play_item_as_printed_card(instance, item_progression, true)
 	var preserved_combat: Dictionary = preserved.get("combat", {}) as Dictionary
 	var preserved_run: Dictionary = preserved.get("run", {}) as Dictionary
 	var preserved_saved: Dictionary = preserved.get("saved", {}) as Dictionary
 	var preserved_deck: Dictionary = preserved_combat.get("deck", {}) as Dictionary
-	_expect((preserved_deck.get("discard", []) as Array).has("crimson_draught") and not (preserved_deck.get("consumed", []) as Array).has("crimson_draught"), "Armed Makeshift Tool should redirect a basic-use item to discard")
+	_expect((preserved_deck.get("discard", []) as Array).has("crimson_draught") and not (preserved_deck.get("consumed", []) as Array).has("crimson_draught"), "Armed Makeshift Tool should redirect a played item to discard")
 	_expect((preserved_run.get("equipped_items", []) as Array).has("crimson_draught") and (preserved_saved.get("equipped_items", []) as Array).has("crimson_draught"), "Preserving an item should retain it in both the live and saved run loadout")
 	_expect((preserved_run.get("deck_cards", []) as Array).has("crimson_draught") and (preserved_saved.get("deck_cards", []) as Array).has("crimson_draught"), "Preserving an item should retain its compiled deck card across checkpoint reload")
-	_expect(CombatEngine.new().skill_was_used(preserved_combat, "makeshift_tool"), "Makeshift Tool should spend only after the protected basic use resolves")
+	_expect(CombatEngine.new().skill_was_used(preserved_combat, "makeshift_tool"), "Makeshift Tool should spend only after the protected item play resolves")
 
-	var consumed: Dictionary = await _play_item_as_basic_move(instance, item_progression, false)
+	var consumed: Dictionary = await _play_item_as_printed_card(instance, item_progression, false)
 	var consumed_combat: Dictionary = consumed.get("combat", {}) as Dictionary
 	var consumed_run: Dictionary = consumed.get("run", {}) as Dictionary
 	var consumed_saved: Dictionary = consumed.get("saved", {}) as Dictionary
 	var consumed_deck: Dictionary = consumed_combat.get("deck", {}) as Dictionary
-	_expect((consumed_deck.get("consumed", []) as Array).has("crimson_draught"), "Declining Makeshift Tool should still consume an item used as a basic Move")
+	_expect((consumed_deck.get("consumed", []) as Array).has("crimson_draught"), "Declining Makeshift Tool should still consume a played item")
 	_expect(not (consumed_run.get("equipped_items", []) as Array).has("crimson_draught") and not (consumed_saved.get("equipped_items", []) as Array).has("crimson_draught"), "An unprotected item should leave both the live and saved run loadout")
 	_expect(not (consumed_run.get("deck_cards", []) as Array).has("crimson_draught") and not (consumed_saved.get("deck_cards", []) as Array).has("crimson_draught"), "Consuming an item should remove its compiled deck card across checkpoint reload")
 
@@ -866,7 +876,7 @@ func _test_makeshift_tool_loadout_persistence(instance: Node) -> void:
 	await process_frame
 	await process_frame
 
-func _play_item_as_basic_move(instance: Node, progression: Dictionary, arm_makeshift: bool) -> Dictionary:
+func _play_item_as_printed_card(instance: Node, progression: Dictionary, arm_makeshift: bool) -> Dictionary:
 	var run_engine := RunEngine.new()
 	var combat_engine := CombatEngine.new()
 	var run_state: Dictionary = run_engine.create_debug_boss_run(progression)
@@ -890,18 +900,14 @@ func _play_item_as_basic_move(instance: Node, progression: Dictionary, arm_makes
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var move_action: Dictionary = combat_engine.fallback_move_action(combat_state, 2)
-	var move_targets: Array[Vector2i] = combat_engine.valid_targets_for_player_action(combat_state, move_action)
-	_expect(not move_targets.is_empty(), "Makeshift Tool integration fixture should expose a legal basic Move target")
-	if move_targets.is_empty():
-		return {"combat": combat_state, "run": run_state, "saved": {}}
-	var move_target: Vector2i = move_targets[0]
-	var resolved_state: Dictionary = combat_engine.apply_player_action(combat_state, move_action, move_target)
-	instance.set("_card_action_choice_mode", "move")
-	var move_actions: Array = [move_action]
+	var resolved_state: Dictionary = combat_state.duplicate(true)
+	var printed_actions: Array = combat_engine.card_play_actions("crimson_draught", combat_state)
 	var selected_targets: Array[Vector2i]
-	selected_targets.append(move_target)
-	await instance.call("_play_player_card", 0, resolved_state, move_actions, selected_targets)
+	for action_var: Variant in printed_actions:
+		var action: Dictionary = action_var as Dictionary
+		resolved_state = combat_engine.apply_player_action(resolved_state, action)
+		selected_targets.append(Vector2i(-1, -1))
+	await instance.call("_play_player_card", 0, resolved_state, printed_actions, selected_targets)
 	await process_frame
 	await process_frame
 	return {
@@ -1011,7 +1017,7 @@ func _test_out_of_combat_reset_preserves_unbanked_embers(instance: Node) -> void
 	pending_skill_state["pending_card"] = "rime_shard"
 	pending_skill_state["pending_relic"] = "flint_edge"
 	pending_skill_state["reserved_merchant"] = {
-		"kind": "blacksmith",
+		"kind": "scavenger",
 		"item_id": "stitcher_apron",
 		"origin_coord": Vector2i(3, 0),
 	}
@@ -1248,6 +1254,15 @@ func _hand_selection_button(instance: Node, hand_index: int) -> Button:
 	if hand_box == null:
 		return null
 	return hand_box.find_child("SkillHandSelectionCard_%d" % hand_index, true, false) as Button
+
+func _visible_control_children(parent: Node) -> Array[Control]:
+	var result: Array[Control]
+	if parent == null:
+		return result
+	for child: Node in parent.get_children():
+		if child is Control and (child as Control).is_visible_in_tree():
+			result.append(child as Control)
+	return result
 
 func _card_widget_descendant(node: Node) -> CardWidget:
 	if node == null:

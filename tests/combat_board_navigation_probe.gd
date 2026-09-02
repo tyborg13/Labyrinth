@@ -189,7 +189,7 @@ func _navigation_layout() -> Dictionary:
 			{"id": 2, "type": "harrier", "pos": Vector2i(8, 3), "hp": 18, "max_hp": 18, "block": 0},
 			{"id": 3, "type": "acolyte", "pos": Vector2i(10, 2), "hp": 24, "max_hp": 24, "block": 0}
 		],
-		"loot": [{"id": "vial", "kind": "healing_vial", "amount": 4, "pos": Vector2i(7, 5)}],
+		"loot": [{"id": "vial", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(7, 5)}],
 		"traps": [{"id": "trap", "element": "fire", "pos": Vector2i(6, 3), "damage": 3, "armed": true}],
 		"terrain": [{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(4, 3), "hp": 8, "max_hp": 8}]
 	}

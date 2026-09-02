@@ -97,13 +97,13 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	var dialog := instance.get("_upgrade_dialog") as Control
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
 	_expect(dialog != null and dialog.visible, "%s Skills dialog should be visible" % viewport_size)
-	_expect(tree != null and tree.node_count() == 30, "%s Skills dialog should render all 30 nodes" % viewport_size)
+	_expect(tree != null and tree.node_count() == SkillTreeLibrary.visible_ids().size(), "%s Skills dialog should render every player-visible node" % viewport_size)
 	_expect(tree != null and tree.owned_skill_ids().size() == 10, "%s Skills dialog should render ten learned skills" % viewport_size)
 	_expect(tree != null and tree.points_remaining() == 2, "%s Skills dialog should show two banked skill points" % viewport_size)
 	if tree != null:
 		_expect(tree.connection_arrowhead_count() == tree.connection_count(), "%s Every prerequisite route should expose one visible target arrowhead" % viewport_size)
 		_expect(tree.collinear_connection_overlap_pairs().is_empty(), "%s No unrelated prerequisite routes should merge onto one rail" % viewport_size)
-		_expect(tree.bridged_connection_pairs().size() == 11, "%s Every unavoidable route crossover should render with an explicit line bridge" % viewport_size)
+		_expect(tree.bridged_connection_pairs().size() == 6, "%s Every unavoidable visible-route crossover should render with an explicit line bridge" % viewport_size)
 		_expect(tree.unbridged_connection_pairs().is_empty(), "%s No route crossover should resemble an unexplained branch" % viewport_size)
 		tree.focus_skill("prismatic_instinct")
 		var prismatic_links: Array[String] = tree.highlighted_connection_pairs()
@@ -128,9 +128,10 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	if reset_button != null:
 		_assert_inside(reset_button, viewport_size, "%s whole-tree reset command" % viewport_size, 8.0)
 	if tree != null:
+		_expect(tree.node_for_skill("layaway") == null, "%s Retired Layaway should not render a hidden progression node" % viewport_size)
 		var geometry_before: int = tree.link_geometry_rebuild_count()
 		var focused_before: String = tree.focused_skill_id()
-		for skill_id: String in SkillTreeLibrary.ordered_ids():
+		for skill_id: String in SkillTreeLibrary.visible_ids():
 			tree.node_for_skill(skill_id).mouse_entered.emit()
 		await process_frame
 		_expect(tree.focused_skill_id() == focused_before, "%s Hovering should not change skill selection" % viewport_size)
@@ -522,7 +523,9 @@ func _capture_combat_surfaces(
 	var pile_scrim := instance.get("_pile_scrim") as Control
 	var pile_cards := instance.get("_pile_dialog_cards") as Control
 	_expect(pile_scrim != null and pile_scrim.visible, "%s Encore should open the discard pile" % viewport_size)
-	var discard_choice := pile_cards.find_child("DiscardSelectionCard_0", true, false) as Button if pile_cards != null else null
+	var discard_choice := instance.get_viewport().gui_get_focus_owner() as Button
+	if discard_choice == null or pile_cards == null or not pile_cards.is_ancestor_of(discard_choice):
+		discard_choice = _first_visible_enabled_button(pile_cards)
 	_expect(discard_choice != null, "%s Encore should make the full discarded card selectable" % viewport_size)
 	var discard_focus_style := discard_choice.get_theme_stylebox("focus") as StyleBoxFlat if discard_choice != null else null
 	_expect(discard_focus_style != null and discard_focus_style.border_width_left >= 4, "%s Encore should show a strong controller focus frame around the full card" % viewport_size)
@@ -688,7 +691,7 @@ func _assert_tree_fit_contract(tree: SkillTreeView, viewport_size: Vector2i, lab
 	_expect(tree.connection_arrowhead_count() == tree.connection_count(), "%s %s tree should draw one visible target arrowhead per prerequisite" % [viewport_size, label])
 	_expect(tree.minimum_target_segment_length() >= 10.0, "%s %s tree should expose every incoming arrow outside its target shadow" % [viewport_size, label])
 	var graph_bounds := Rect2(Vector2.ZERO, tree.graph_canvas_size())
-	for skill_id: String in SkillTreeLibrary.ordered_ids():
+	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var node: Button = tree.node_for_skill(skill_id)
 		_expect(node != null and graph_bounds.encloses(Rect2(node.position, node.size)), "%s %s %s should remain inside the authored graph canvas" % [viewport_size, label, skill_id])
 		_expect(node != null and graph_viewport.get_global_rect().grow(1.0).encloses(node.get_global_rect()), "%s %s %s should remain visible in the fitted frame" % [viewport_size, label, skill_id])
@@ -736,6 +739,15 @@ func _button_with_text(node: Node, expected: String) -> Button:
 		var found: Button = _button_with_text(child, expected)
 		if found != null:
 			return found
+	return null
+
+func _first_visible_enabled_button(parent: Node) -> Button:
+	if parent == null:
+		return null
+	for child: Node in parent.get_children():
+		var button := child as Button
+		if button != null and button.is_visible_in_tree() and not button.disabled:
+			return button
 	return null
 
 func _visible_button_with_text(node: Node, expected: String) -> Button:

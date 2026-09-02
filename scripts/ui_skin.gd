@@ -37,6 +37,7 @@ const VARIANT_LARGE: String = "large"
 const VARIANT_DESTRUCTIVE: String = "destructive"
 const VARIANT_SELECTED: String = "selected"
 const VARIANT_ICON: String = "icon"
+const VARIANT_UMBRA: String = "umbra"
 
 const STATE_NORMAL: String = "normal"
 const STATE_HOVER: String = "hover"
@@ -140,11 +141,12 @@ func make_button_style(variant: String = VARIANT_STANDARD, state: String = STATE
 	var radius: int = _button_corner_radius(variant)
 	var pressed_offset: float = 2.0 if state == STATE_PRESSED else 0.0
 	var compact: bool = variant == VARIANT_COMPACT
+	var umbra: bool = variant == VARIANT_UMBRA
 
 	style.bg_color = palette.get("background", Color.TRANSPARENT)
 	style.border_color = palette.get("border", Color("80653c"))
 	style.border_width_left = 2
-	style.border_width_top = 2
+	style.border_width_top = 1 if umbra else 2
 	style.border_width_right = 2
 	style.border_width_bottom = 3 if state != STATE_PRESSED else 2
 	style.corner_radius_top_left = radius
@@ -153,13 +155,15 @@ func make_button_style(variant: String = VARIANT_STANDARD, state: String = STATE
 	style.corner_radius_bottom_left = radius
 	style.anti_aliasing = true
 	style.anti_aliasing_size = 0.8
-	style.content_margin_left = 11.0 if compact else BUTTON_MARGIN_H
+	style.content_margin_left = 11.0 if compact else (26.0 if umbra else BUTTON_MARGIN_H)
 	style.content_margin_top = (5.0 if compact else BUTTON_MARGIN_V) + pressed_offset
-	style.content_margin_right = 11.0 if compact else BUTTON_MARGIN_H
+	style.content_margin_right = 11.0 if compact else (26.0 if umbra else BUTTON_MARGIN_H)
 	style.content_margin_bottom = maxf(3.0, (5.0 if compact else BUTTON_MARGIN_V) - pressed_offset)
 
 	if state == STATE_FOCUS:
 		style.bg_color = Color.TRANSPARENT
+		if umbra:
+			style.border_color = Color.TRANSPARENT
 		style.border_width_left = 2
 		style.border_width_top = 2
 		style.border_width_right = 2
@@ -168,18 +172,23 @@ func make_button_style(variant: String = VARIANT_STANDARD, state: String = STATE
 		style.expand_margin_top = 3.0
 		style.expand_margin_right = 3.0
 		style.expand_margin_bottom = 3.0
-		style.shadow_color = Color(0.94, 0.69, 0.32, 0.18)
-		style.shadow_size = 5
+		style.shadow_color = Color.TRANSPARENT if umbra else Color(0.94, 0.69, 0.32, 0.18)
+		style.shadow_size = 0 if umbra else 5
 		return style
 
 	if state == STATE_HOVER:
-		style.expand_margin_left = 1.0
-		style.expand_margin_top = 1.0
-		style.expand_margin_right = 1.0
-		style.expand_margin_bottom = 1.0
-		style.shadow_color = Color(0.86, 0.55, 0.22, 0.15)
-		style.shadow_size = 6
-		style.shadow_offset = Vector2(0.0, 2.0)
+		if umbra:
+			style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+			style.shadow_size = 5
+			style.shadow_offset = Vector2(0.0, 3.0)
+		else:
+			style.expand_margin_left = 1.0
+			style.expand_margin_top = 1.0
+			style.expand_margin_right = 1.0
+			style.expand_margin_bottom = 1.0
+			style.shadow_color = Color(0.86, 0.55, 0.22, 0.15)
+			style.shadow_size = 6
+			style.shadow_offset = Vector2(0.0, 2.0)
 	elif state == STATE_DISABLED:
 		style.shadow_color = Color.TRANSPARENT
 		style.shadow_size = 0
@@ -191,6 +200,17 @@ func make_button_style(variant: String = VARIANT_STANDARD, state: String = STATE
 		style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
 		style.shadow_size = 4 if compact else 5
 		style.shadow_offset = Vector2(0.0, 3.0)
+	if umbra:
+		# The title-menu's generated sprite is the entire visible surface. This
+		# layout-only StyleBox preserves native Button hit testing and text.
+		style.bg_color = Color.TRANSPARENT
+		style.border_color = Color.TRANSPARENT
+		style.border_width_left = 0
+		style.border_width_top = 0
+		style.border_width_right = 0
+		style.border_width_bottom = 0
+		style.shadow_color = Color.TRANSPARENT
+		style.shadow_size = 0
 	return style
 
 func button_native_size(height: float, min_width: float = 0.0, variant: String = VARIANT_STANDARD) -> Vector2:
@@ -206,6 +226,8 @@ func button_native_size(height: float, min_width: float = 0.0, variant: String =
 			width_ratio = 2.8
 		VARIANT_ICON:
 			width_ratio = 1.0
+		VARIANT_UMBRA:
+			width_ratio = 4.85
 	return Vector2(maxf(min_width, height * width_ratio), height)
 
 func apply_button_native_size(
@@ -235,7 +257,7 @@ func apply_button_stylebox_overrides(
 	button.add_theme_stylebox_override("hover_pressed", styles["hover_pressed_override"])
 	button.add_theme_stylebox_override("focus", styles[STATE_FOCUS])
 	button.add_theme_stylebox_override("disabled", styles[STATE_DISABLED])
-	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR if variant == VARIANT_UMBRA else CanvasItem.TEXTURE_FILTER_NEAREST
 	button.set_meta("button_variant", variant)
 	if button is Button:
 		(button as Button).alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -424,6 +446,8 @@ func _button_corner_radius(variant: String) -> int:
 			return 8
 		VARIANT_ICON:
 			return 7
+		VARIANT_UMBRA:
+			return 2
 		_:
 			return 6
 
@@ -442,23 +466,27 @@ func _button_palette(variant: String, state: String) -> Dictionary:
 	elif variant == VARIANT_DESTRUCTIVE:
 		background = Color("35171a")
 		border = Color("a84c43")
+	elif variant == VARIANT_UMBRA:
+		background = Color("101116")
+		border = Color("62543f")
 
 	match state:
 		STATE_HOVER:
-			background = background.lightened(0.10)
-			border = Color("e2b86e") if variant != VARIANT_DESTRUCTIVE else Color("ef8069")
+			if variant != VARIANT_UMBRA:
+				background = background.lightened(0.10)
+				border = Color("e2b86e") if variant != VARIANT_DESTRUCTIVE else Color("ef8069")
 		STATE_PRESSED:
-			background = background.darkened(0.16)
-			border = Color("c58e48") if variant != VARIANT_DESTRUCTIVE else Color("c95a4d")
+			background = Color("090a0e") if variant == VARIANT_UMBRA else background.darkened(0.16)
+			border = Color("d28d3e") if variant == VARIANT_UMBRA else (Color("c58e48") if variant != VARIANT_DESTRUCTIVE else Color("c95a4d"))
 		STATE_DISABLED:
-			background = Color("111217")
-			border = Color("59554e")
+			background = Color("0d0e12") if variant == VARIANT_UMBRA else Color("111217")
+			border = Color("403c35") if variant == VARIANT_UMBRA else Color("59554e")
 		STATE_SELECTED:
-			background = Color("3c2815") if variant != VARIANT_DESTRUCTIVE else Color("4b1c20")
-			border = Color("e0ad55") if variant != VARIANT_DESTRUCTIVE else Color("e8705d")
+			background = Color("13141a") if variant == VARIANT_UMBRA else (Color("3c2815") if variant != VARIANT_DESTRUCTIVE else Color("4b1c20"))
+			border = Color("d39a4c") if variant == VARIANT_UMBRA else (Color("e0ad55") if variant != VARIANT_DESTRUCTIVE else Color("e8705d"))
 		STATE_FOCUS:
 			background = Color.TRANSPARENT
-			border = Color("ffe3a0")
+			border = Color.TRANSPARENT if variant == VARIANT_UMBRA else Color("ffe3a0")
 	return {"background": background, "border": border}
 
 func apply_button_label_overrides(

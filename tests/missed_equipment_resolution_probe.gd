@@ -135,7 +135,7 @@ func _probe_layout() -> Dictionary:
 		"enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(6, 3), "hp": 10, "max_hp": 90, "block": 0, "intent": {}}],
 		"loot": [
 			{"id": "probe_missed_equipment", "kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(4, 3)},
-			{"id": "probe_heal", "kind": "healing_vial", "amount": 40, "pos": Vector2i(5, 4)}
+			{"id": "probe_heal", "kind": "item", "card_id": "crimson_draught", "pos": Vector2i(5, 4)}
 		],
 		"traps": [],
 		"terrain": []

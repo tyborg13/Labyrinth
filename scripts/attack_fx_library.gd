@@ -32,7 +32,10 @@ const ICE_TRAVEL_END_PROGRESS: float = 14.0 / 42.0
 static func style_for_effect(effect: Dictionary) -> String:
 	var action_type: String = str(effect.get("action_type", effect.get("kind", "")))
 	var element_id: String = str(effect.get("element", effect.get("_card_element", "none")))
-	if str(effect.get("kind", "")) == "ranged" and action_type == "ranged":
+	var kind: String = str(effect.get("kind", ""))
+	var is_ranged_attack: bool = kind == "ranged" and action_type == "ranged"
+	var is_ranged_aoe: bool = kind == "aoe" and action_type == "aoe" and int(effect.get("range", 0)) > 0
+	if is_ranged_attack or is_ranged_aoe:
 		match element_id:
 			"fire":
 				return STYLE_FIREBALL
@@ -50,6 +53,13 @@ static func uses_fireball(effect: Dictionary) -> bool:
 	return style_for_effect(effect) == STYLE_FIREBALL
 
 static func uses_authored_elemental_ranged(effect: Dictionary) -> bool:
+	return (
+		str(effect.get("kind", "")) == "ranged"
+		and str(effect.get("action_type", effect.get("kind", ""))) == "ranged"
+		and style_for_effect(effect) != STYLE_DEFAULT
+	)
+
+static func uses_authored_elemental_attack(effect: Dictionary) -> bool:
 	return style_for_effect(effect) != STYLE_DEFAULT
 
 static func animation_frame_count(effect: Dictionary, fallback_count: int, reduced_motion: bool) -> int:

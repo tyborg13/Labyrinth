@@ -114,6 +114,41 @@ func _initialize() -> void:
 			_require(float(rich_label.get_meta("inline_icon_size", 0.0)) > float(font_size), "Inline mechanic tooltip icons should be larger than the rules text")
 		_require(Rect2(Vector2.ZERO, Vector2(VIEWPORT_SIZE)).encloses(inline_tooltip.get_global_rect()), "Inline mechanic tooltip should remain inside the proof viewport")
 
+	# Hide the arranged comparison surfaces and prove the board pickup opens the
+	# same rich equipment preview through Godot's real pointer-hover pipeline.
+	for arranged_tooltip: Control in [equipment_tooltip, generic_tooltip, inline_tooltip]:
+		if arranged_tooltip != null:
+			arranged_tooltip.visible = false
+	var loot: Dictionary = (_probe_state().get("loot", []) as Array)[0] as Dictionary
+	var loot_texture: Texture2D = board.call("_loot_texture", loot) as Texture2D
+	var loot_rect: Rect2 = board.call("_loot_rect_for_tile", loot.get("pos", Vector2i(-1, -1)), loot_texture, loot) as Rect2
+	var hover_position: Vector2 = board.get_global_transform_with_canvas() * loot_rect.get_center()
+	var clear_motion := InputEventMouseMotion.new()
+	clear_motion.position = Vector2(20.0, 20.0)
+	clear_motion.global_position = clear_motion.position
+	root.push_input(clear_motion, true)
+	await process_frame
+	var hover_motion := InputEventMouseMotion.new()
+	hover_motion.position = hover_position
+	hover_motion.global_position = hover_position
+	root.push_input(hover_motion, true)
+	await create_timer(2.0).timeout
+	await process_frame
+	await process_frame
+	var hovered_control: Control = root.gui_get_hovered_control()
+	_require(hovered_control == board, "Pointer fixture should route the live equipment position to CombatBoard")
+	var pointer_equipment_tooltip: Control = _visible_equipment_tooltip_below(root)
+	_require(pointer_equipment_tooltip != null, "Pointer hover over board equipment should render the rich custom equipment tooltip")
+	_validate_equipment_preview(pointer_equipment_tooltip)
+	RenderingServer.force_draw(true)
+	var pointer_image: Image = root.get_texture().get_image()
+	if pointer_image.get_size() != VIEWPORT_SIZE:
+		pointer_image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
+	_require(
+		pointer_image.save_png(ProjectSettings.globalize_path("%s/equipment_pickup_pointer_hover_1920x1080.png" % OUTPUT_DIR)) == OK,
+		"Pointer equipment tooltip proof screenshot should save"
+	)
+
 	if _failures.is_empty():
 		print("TOOLTIP_CONSISTENCY_PROOF_DIR=%s" % ProjectSettings.globalize_path(OUTPUT_DIR))
 		print("TEST RESULT: PASS")
@@ -176,6 +211,17 @@ func _validate_equipment_preview(tooltip: Control) -> void:
 	_require(preview_ids.size() == expected_cards.size(), "Equipment tooltip should render every supplied card preview")
 	for card_id_var: Variant in expected_cards:
 		_require(preview_ids.has(str(card_id_var)), "Equipment tooltip should render %s" % str(card_id_var))
+
+
+func _visible_equipment_tooltip_below(parent: Node) -> Control:
+	for child: Node in parent.get_children(true):
+		var control: Control = child as Control
+		if control != null and control.is_visible_in_tree() and bool(control.get_meta("equipment_tooltip_surface", false)):
+			return control
+		var descendant: Control = _visible_equipment_tooltip_below(child)
+		if descendant != null:
+			return descendant
+	return null
 
 
 func _clear_probe_output() -> void:

@@ -1,5 +1,6 @@
 extends SceneTree
 
+const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -10,8 +11,6 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
-const FALLBACK_ATTACK_BASE_DAMAGE: int = 3
-const FALLBACK_MOVE_RANGE: int = 2
 const SHORTCUT_ATTACK_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull"]
 const DEFAULT_OUTPUT_DIR: String = "res://playtest/headless"
 const DEFAULT_SEED_BASE: int = 5052026
@@ -101,8 +100,9 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, skills, skill SKILL_ID [INDEX], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: state, moves, move N, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, pass, skills, skill SKILL_ID [INDEX], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
+	print("Combat movement: `walk x,y` spends the independent movement pool; it may be used before, between, or after card plays.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
 
 func _setup_paths() -> void:
@@ -200,6 +200,11 @@ func _handle_command(command: String) -> void:
 			_command_card(parts)
 		"drag":
 			_command_drag(parts)
+		"walk":
+			if parts.size() < 2:
+				_print_player_movement()
+			else:
+				_command_walk(parts[1])
 		"target", "t":
 			if parts.size() < 2:
 				_print_pending()
@@ -370,6 +375,65 @@ func _command_move(index: int) -> void:
 	_append_note("- Moved to %s: %s.\n" % [_coord_text(moves[index]), _room_label(_run_engine.room_metadata(_run_state, moves[index]))])
 	_print_state()
 
+func _print_player_movement() -> void:
+	if str(_run_state.get("mode", "")) != "combat":
+		print("Independent movement is only available in combat.")
+		return
+	var targets: Array[Vector2i] = _combat_engine.player_movement_targets(_combat_state)
+	print("Movement %d/%d. Legal destinations: %s" % [
+		_combat_engine.player_movement_remaining(_combat_state),
+		_combat_engine.player_movement_capacity(_combat_state),
+		", ".join(targets.map(func(tile: Vector2i) -> String: return _coord_text(tile))) if not targets.is_empty() else "none"
+	])
+	print("Command: walk x,y")
+
+func _command_walk(raw: String) -> void:
+	if str(_run_state.get("mode", "")) != "combat":
+		print("Not in combat.")
+		return
+	if not _pending.is_empty():
+		print("Finish or cancel the pending card before moving.")
+		return
+	var coords: PackedStringArray = raw.split(",", false)
+	if coords.size() != 2 or not coords[0].strip_edges().is_valid_int() or not coords[1].strip_edges().is_valid_int():
+		print("Movement needs a destination: `walk x,y`.")
+		_print_player_movement()
+		return
+	var target: Vector2i = Vector2i(int(coords[0]), int(coords[1]))
+	if not _combat_engine.player_movement_targets(_combat_state).has(target):
+		print("That movement destination is not legal.")
+		_print_player_movement()
+		return
+	var before_run_state: Dictionary = _run_state.duplicate(true)
+	var before_combat_state: Dictionary = _combat_state.duplicate(true)
+	var before_tracker: Dictionary = _analytics_snapshot_combat_tracker()
+	var transition_state: Dictionary = _combat_engine.apply_player_movement(_combat_state, target)
+	var movement: Dictionary = transition_state.get("last_player_movement", {}) as Dictionary
+	if int(movement.get("spent", 0)) <= 0:
+		print("Movement produced no effect.")
+		_print_player_movement()
+		return
+	_combat_state = transition_state.duplicate(true)
+	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
+	_log_item_pickups(before_combat_state, _combat_state)
+	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
+	_analytics_store.write_event("player_moved", _analytics_context(before_combat_state), movement.duplicate(true))
+	var outcome: String = _combat_engine.combat_outcome(_combat_state)
+	if outcome.is_empty():
+		_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
+	else:
+		_run_state = _run_engine.finish_combat(_run_state, _combat_state)
+	_sync_combat_state_from_run()
+	_log_playable_cards()
+	_log_combat_transition(before_run_state, "player_movement", transition_state)
+	_append_note("- Moved from %s to %s, spending %d movement (%d remaining).\n" % [
+		_coord_text(movement.get("origin", Vector2i.ZERO)),
+		_coord_text(movement.get("destination", target)),
+		int(movement.get("spent", 0)),
+		int(movement.get("remaining_after", 0))
+	])
+	_print_state()
+
 func _print_combat_state() -> void:
 	var player: Dictionary = _combat_state.get("player", {})
 	var plays_remaining: int = _combat_engine.cards_remaining_this_turn(_combat_state)
@@ -380,11 +444,13 @@ func _print_combat_state() -> void:
 		status_suffix += " " + player_status
 	if not restriction_status.is_empty():
 		status_suffix += " " + restriction_status
-	print("Combat %s | turn %d | plays %d%s | player %s block %d stone %d%s" % [
+	print("Combat %s | turn %d | plays %d%s | movement %d/%d | player %s block %d stone %d%s" % [
 		str(_combat_state.get("room_name", "")),
 		int(_combat_state.get("turn", 1)),
 		plays_remaining,
 		_play_pool_suffix(_combat_state),
+		_combat_engine.player_movement_remaining(_combat_state),
+		_combat_engine.player_movement_capacity(_combat_state),
 		_coord_text(player.get("pos", Vector2i.ZERO)),
 		int(player.get("block", 0)),
 		int(player.get("stoneskin", 0)),
@@ -406,7 +472,7 @@ func _print_combat_state() -> void:
 	if not _pending.is_empty():
 		_print_pending()
 	else:
-		print("Commands: card N, click N, drag N play|attack|move, skills, skill SKILL_ID [INDEX], pass, note TEXT")
+		print("Commands: card N, click N, drag N play, walk x,y, skills, skill SKILL_ID [INDEX], pass, note TEXT")
 
 func _print_board() -> void:
 	var grid: Array = _combat_state.get("grid", [])
@@ -425,7 +491,7 @@ func _print_board() -> void:
 	for loot_var: Variant in _combat_state.get("loot", []):
 		if typeof(loot_var) == TYPE_DICTIONARY and not bool((loot_var as Dictionary).get("claimed", false)):
 			var loot: Dictionary = loot_var
-			var loot_mark: String = "H" if str(loot.get("kind", "")) == "healing_vial" else "S" if str(loot.get("kind", "")) == "rusty_shield" else "$"
+			var loot_mark: String = "!" if str(loot.get("kind", "")) == "item" else "G" if str(loot.get("kind", "")) == "equipment" else "$"
 			marks[loot.get("pos", Vector2i.ZERO)] = loot_mark
 	for illusion_var: Variant in _combat_state.get("illusions", []):
 		if typeof(illusion_var) == TYPE_DICTIONARY and int((illusion_var as Dictionary).get("hp", 0)) > 0:
@@ -646,13 +712,7 @@ func _print_cards() -> void:
 		var card_id: String = str(hand[index])
 		var modes: Array[String] = []
 		if _can_start_card(index, "printed"):
-			modes.append("click")
-		if _can_start_card(index, "attack"):
-			modes.append("drag attack")
-		if _can_start_card(index, "move"):
-			modes.append("drag move")
-		if _can_start_card(index, "printed"):
-			modes.append("drag play")
+			modes.append("click / drag play")
 		var card: Dictionary = _card_def(card_id, _combat_state)
 		var timing: String = _card_timing_preview_text(card) if not modes.is_empty() else ""
 		var timing_suffix: String = "" if timing.is_empty() else " | %s" % timing
@@ -802,8 +862,10 @@ func _command_skill(parts: PackedStringArray) -> void:
 			next_state = _combat_engine.arm_prismatic_instinct(_combat_state, choice_index)
 		"preserve_burn":
 			next_state = _combat_engine.arm_rehearsed_escape(_combat_state)
-		"preserve_fallback_item":
+		"preserve_item":
 			next_state = _combat_engine.arm_makeshift_tool(_combat_state)
+		"arm_movement_blink":
+			next_state = _combat_engine.arm_ghost_stride(_combat_state)
 		"convert_block":
 			next_state = _combat_engine.arm_carry_the_guard(_combat_state)
 		_:
@@ -843,8 +905,10 @@ func _manual_skill_status(skill_id: String) -> String:
 			armed = bool(flags.get("prismatic_armed", false))
 		"preserve_burn":
 			armed = bool(flags.get("burn_preserve_armed", false))
-		"preserve_fallback_item":
+		"preserve_item":
 			armed = bool(flags.get("item_preserve_armed", false))
+		"arm_movement_blink":
+			armed = bool(flags.get("movement_blink_armed", false))
 		"convert_block":
 			armed = bool(flags.get("guard_carry_armed", false))
 	if armed:
@@ -898,11 +962,8 @@ func _command_card(parts: PackedStringArray) -> void:
 	var hand_index: int = int(parts[1])
 	if parts.size() >= 3:
 		var requested: String = parts[2].strip_edges().to_lower()
-		if requested in ["attack", "move", "fallback_attack", "fallback_move"]:
-			print("In the game, fallback attack/move is selected by dragging into a lane. Use `drag %d %s`." % [hand_index, "attack" if requested.contains("attack") else "move"])
-			return
 		if requested not in ["printed", "play"]:
-			print("Clicking a card only uses its printed text. Use `drag N play|attack|move` for drag lanes.")
+			print("Cards only use their printed actions. Use `card N` or `drag N play`.")
 			return
 	_start_card_from_input(hand_index, "printed", "click")
 
@@ -911,22 +972,17 @@ func _command_drag(parts: PackedStringArray) -> void:
 		print("Not in combat.")
 		return
 	if parts.size() < 3:
-		print("Drag needs a card and lane: `drag N play|attack|move`.")
+		print("Drag needs a card and lane: `drag N play`.")
 		_print_cards()
 		return
 	var hand_index: int = int(parts[1])
 	var lane: String = parts[2].strip_edges().to_lower()
 	if lane == "printed":
 		lane = "play"
-	if lane == "fallback_attack":
-		lane = "attack"
-	if lane == "fallback_move":
-		lane = "move"
-	var mode: String = "printed" if lane == "play" else lane
-	if lane not in ["play", "attack", "move"]:
-		print("Unknown drag lane: %s. Use play, attack, or move." % lane)
+	if lane != "play":
+		print("Unknown drag lane: %s. Cards only use the play lane." % lane)
 		return
-	_start_card_from_input(hand_index, mode, "drag %s" % lane)
+	_start_card_from_input(hand_index, "printed", "drag play")
 
 func _start_card_from_input(hand_index: int, mode: String, input_label: String) -> void:
 	if not _can_start_card(hand_index, mode):
@@ -961,19 +1017,7 @@ func _can_start_card(hand_index: int, mode: String) -> bool:
 	return bool(preview.get("playable", false))
 
 func _actions_for_card_mode(card_id: String, mode: String) -> Array:
-	match mode:
-		"attack":
-			return _fallback_attack_actions()
-		"move":
-			return _fallback_move_actions()
-		_:
-			return _combat_engine.card_play_actions(card_id, _combat_state)
-
-func _fallback_attack_actions() -> Array:
-	return [{"type": "melee", "damage": GameData.fixed_point_amount(FALLBACK_ATTACK_BASE_DAMAGE), "range": 1}]
-
-func _fallback_move_actions() -> Array:
-	return [{"type": "move", "range": FALLBACK_MOVE_RANGE}]
+	return _combat_engine.card_play_actions(card_id, _combat_state)
 
 func _continue_pending() -> void:
 	if _pending.is_empty():
@@ -1358,9 +1402,8 @@ func _commit_pending() -> void:
 	var instance_id: String = _analytics_hand_instance_id(hand_index)
 	var actions: Array = (_pending.get("actions", []) as Array).duplicate(true)
 	var targets: Array[Vector2i] = _vector2i_array(_pending.get("targets", []))
-	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index, _combat_engine.card_plays_spent_for_actions(actions))
-	if GameData.card_consumes_on_play(card_id):
-		_run_state = _run_engine.consume_equipped_item_card(_run_state, card_id)
+	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index, _combat_engine.card_plays_spent_for_actions(actions), {"play_mode": "play"})
+	_log_item_pickups(before_combat_state, _combat_state)
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
 	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
@@ -1373,13 +1416,10 @@ func _commit_pending() -> void:
 	_sync_combat_state_from_run()
 	_log_playable_cards()
 	_log_combat_transition(before_run_state, "card_play", transition_state)
-	_append_note("- Played %s as %s: %s.\n" % [card_id, str(_pending.get("mode", "")), _card_delta_text(before_combat_state, transition_state, actions)])
+	_append_note("- Played %s: %s.\n" % [card_id, _card_delta_text(before_combat_state, transition_state, actions)])
 	_print_card_resolution(card_id, before_combat_state, transition_state, actions, targets)
 	_pending = {}
-	if str(_run_state.get("mode", "")) == "combat" and _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
-		_resolve_enemy_round("auto_end_turn")
-	else:
-		_print_state()
+	_print_state()
 
 func _command_pass() -> void:
 	if str(_run_state.get("mode", "")) != "combat":
@@ -1395,6 +1435,7 @@ func _resolve_enemy_round(reason: String) -> void:
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
 	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
 	var after_phase_state: Dictionary = (phase.get("state", {}) as Dictionary).duplicate(true)
+	_log_item_pickups(before_combat_state, after_phase_state)
 	_log_enemy_status_ticks(phase, after_phase_state)
 	var hp_before: int = int((before_combat_state.get("player", {}) as Dictionary).get("hp", 0))
 	var before_draw_state: Dictionary = (phase.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
@@ -1405,8 +1446,8 @@ func _resolve_enemy_round(reason: String) -> void:
 	var next_turn_state: Dictionary = {}
 	if outcome.is_empty() and not before_draw_state.is_empty():
 		next_turn_state = _combat_state.duplicate(true)
-		_analytics_reconcile_combat_tracker(before_draw_state, _combat_state)
-		_log_card_draws(before_draw_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
+		_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
+		_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
 		_log_playable_cards()
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	var transition_state: Dictionary = _combat_state.duplicate(true)
@@ -1663,6 +1704,9 @@ func _target_action_can_skip(action: Dictionary, actions: Array) -> bool:
 
 func _sync_combat_state_from_run() -> void:
 	_combat_state = (_run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	if not _combat_state.is_empty():
+		_combat_state = _combat_engine.normalize_player_movement_pool(_combat_state)
+		_run_state["combat_state"] = _combat_state.duplicate(true)
 
 func _ensure_run_analytics_metadata(run_state: Dictionary, run_number: int) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
@@ -1912,7 +1956,18 @@ func _analytics_next_card_instance_id(tracker: Dictionary) -> String:
 	tracker["next_instance_seq"] = next_seq + 1
 	return "%s_i%03d" % [str(tracker.get("combat_id", "combat")), next_seq]
 
+func _log_item_pickups(before_state: Dictionary, after_state: Dictionary) -> void:
+	for loot: Dictionary in BattlefieldItemRules.pickups_between(before_state, after_state):
+		var card_id: String = str(loot.get("card_id", ""))
+		_analytics_store.write_event("item_picked_up", _analytics_context(after_state, card_id), {
+			"loot_id": str(loot.get("id", "")), "card_id": card_id,
+			"destination": str(loot.get("destination", "inventory")),
+			"equipped_items": after_state.get("equipped_items", []).duplicate(),
+			"item_inventory": after_state.get("item_inventory", []).duplicate()
+		})
+
 func _log_card_draws(before_state: Dictionary, after_state: Dictionary, before_tracker: Dictionary, after_tracker: Dictionary, reason: String) -> void:
+	var pickup_counts: Dictionary = BattlefieldItemRules.hand_pickup_counts(before_state, after_state)
 	var before_hand_ids: Dictionary = {}
 	for instance_id_var: Variant in _analytics_zone_ids(before_tracker, "hand"):
 		before_hand_ids[str(instance_id_var)] = true
@@ -1923,8 +1978,12 @@ func _log_card_draws(before_state: Dictionary, after_state: Dictionary, before_t
 		if before_hand_ids.has(instance_id):
 			continue
 		var card_id: String = after_hand_cards[index]
+		var draw_reason: String = reason
+		if int(pickup_counts.get(card_id, 0)) > 0:
+			draw_reason = "item_pickup"
+			pickup_counts[card_id] = int(pickup_counts[card_id]) - 1
 		_analytics_store.write_event("card_drawn", _analytics_context(after_state, card_id, instance_id), {
-			"reason": reason,
+			"reason": draw_reason,
 			"hand_index": index,
 			"hand_size": after_hand_cards.size(),
 			"draw_pile_size": _analytics_zone_cards(after_state, "draw").size()
@@ -1942,16 +2001,14 @@ func _log_playable_cards() -> void:
 			continue
 		var card_id: String = str(hand[index])
 		var printed_playable: bool = _can_start_card(index, "printed")
-		var attack_playable: bool = _can_start_card(index, "attack")
-		var move_playable: bool = _can_start_card(index, "move")
-		if not printed_playable and not attack_playable and not move_playable:
+		if not printed_playable:
 			continue
 		playable_logged[instance_id] = true
 		_analytics_store.write_event("card_became_playable", _analytics_context(_combat_state, card_id, instance_id), {
 			"hand_index": index,
 			"printed_playable": printed_playable,
-			"attack_playable": attack_playable,
-			"move_playable": move_playable
+			"attack_playable": false,
+			"move_playable": false
 		})
 	_analytics_tracker["playable_logged"] = playable_logged
 
@@ -1961,19 +2018,14 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var before_pos: Vector2i = before_player.get("pos", Vector2i.ZERO)
 	var after_pos: Vector2i = after_player.get("pos", Vector2i.ZERO)
 	var printed_card: Dictionary = _card_def(card_id, before_state)
-	var printed_actions: Array = (printed_card.get("actions", []) as Array).duplicate(true)
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var intensity_before: Dictionary = _combat_engine.elemental_intensities(before_state)
 	var intensity_after: Dictionary = _combat_engine.elemental_intensities(resolved_state)
-	var play_mode: String = "printed"
-	var comparable_actions: Array = _analytics_comparable_actions(actions)
 	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
-	if flurry_plays_spent <= 1 and JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
-		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_attack_actions()) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_move_actions()) else "custom"
-	var flurry_played: bool = bool(printed_card.get("flurry", false)) and play_mode == "printed"
+	var flurry_played: bool = bool(printed_card.get("flurry", false))
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	return {
-		"play_mode": play_mode,
+		"play_mode": "printed",
 		"flurry": flurry_played,
 		"flurry_plays_spent": flurry_plays_spent if flurry_played else 0,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),
@@ -2775,10 +2827,10 @@ func _movement_gain_text(state: Dictionary, action: Dictionary, target: Vector2i
 
 func _loot_text(loot: Dictionary) -> String:
 	match str(loot.get("kind", "")):
-		"healing_vial":
-			return "Healing potion: Heal %d" % int(loot.get("amount", 0))
-		"rusty_shield":
-			return "Rusty shield: Gain %d block" % int(loot.get("amount", 0))
+		"item":
+			return "Item card: %s" % str(GameData.card_def(str(loot.get("card_id", ""))).get("name", "Item"))
+		"equipment":
+			return "Equipment: %s" % str(GameData.equipment_def(str(loot.get("equipment_id", ""))).get("name", "Gear"))
 	return "Loot"
 
 func _terrain_label(terrain: Dictionary) -> String:

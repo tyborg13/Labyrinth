@@ -25,6 +25,11 @@ control intents and blocking routes. These objective-dependent pressures are
 reported as analytics cohorts rather than baked into every card's intrinsic
 coefficient: movement and control matter more for exits, AOE matters more for
 reinforcement density, and execute damage matters most against leaders.
+Each player activation also grants a shared two-tile movement pool that can be
+split before, between, or after printed card plays without spending a play or
+initiative Time. Because it is turn-shared rather than card-owned, this tool
+reports that positioning resource but does not add it to every card's intrinsic
+reach or movement value.
 Cinder Oozes join fire rooms and split into summoned, rewardless Cinder
 Droplets rather than extra ember or death-card-play payouts. Frostglass Lancers
 join ice rooms as precision four-tile line-thrust enemies that can move sideways
@@ -40,13 +45,25 @@ slow attrition end at about 19 initiative and use a radius-2 poison diamond for
 their main area-denial intent. Generic enemies keep their printed intent actions
 instead of being rewritten to match the room element. Tunnel Crawler claw
 attacks and the Bone Harrier's spear shot now add light one-turn bleed pressure.
+Normal enemies refresh intents through explicit frontliner, artillery,
+skirmisher, protector, controller, or support profiles. Tactically dead options
+such as stationary out-of-range shots, irrelevant retreats, unavailable heals,
+and distant defensive turns are rejected; seeded weighted variation remains
+only among near-best legal choices. Supports prioritize injured or threatened
+allies and hold a legal back-line support position, while protectors guard an
+exposed squad and otherwise advance to screen it. This increases realized enemy
+pressure and support reliability relative to full-list weighted roulette but
+does not change any printed card coefficient.
 Revealed enemy execution is deterministic: advancing attack intents stop at the
 first reachable attack-enabling tile with safe paths breaking equal-length
 ties; retreat attacks preserve their follow-up, attackless retreats maximize
 safe separation, and equal-distance player-side target ties prefer illusions.
 Future-turn route scoring treats destructible terrain as finite clearing time,
 allied congestion as a current hard blocker while crediting open current-turn
-detours, and traps as high-cost but traversable when no safe route exists.
+detours, and traps as high-cost but traversable when no safe route exists. It
+compares true total cost before open-prefix length and uses strongest immediate
+progress to break equal-cost route ties, delaying detours until a blocker is
+actually near instead of producing an early U-shaped movement.
 Conservative threat unions are supplemented by the exact current route,
 destination, and projected attack, including action-denying statuses and
 deterministic lightning-strike tiles.
@@ -71,9 +88,12 @@ First-sequence standard trap damage is 6/7/8 natural damage at depths
 1/2/3, first-boss traps hit for 5 to avoid one-shotting full-health lightning
 wisps, and later sequences add 0/1/1/2/2/3 damage.
 Depth 1-2 fire traps use shallow burn before depth-3 fire/earth trap statuses
-cap at 2. Each normal room places exactly one utility pickup: a 2 HP healing vial
-25% of the time or a 3 block rusty shield 75% of the time. Boss rooms place one
-of each. Combat rooms scatter 5-7 low-HP boxes/crates across eligible
+cap at 2. Combat and boss rooms scatter 0/1/2 consumable item cards at
+15/65/20 percent, spacing them away from equipment and each other. A free item
+slot grants the pickup to hand (or the top of draw at the seven-card hand cap);
+full item slots store it only in reserve. Pickup access is encounter context,
+not an intrinsic draw or tempo bonus. Equipment drop eligibility/rates are
+unchanged. Combat rooms scatter 5-7 low-HP boxes/crates across eligible
 passable floor tiles, including edge-band tiles when connectivity stays intact.
 Those crates block movement without blocking line of sight and take damage from
 area effects, deterministic lightning strikes, and adjacent trap blasts. The
@@ -112,6 +132,7 @@ FINAL_BOSS_DEPTH = DEPTHS_PER_SEQUENCE * SEQUENCES_PER_RUN
 PLAYER_BASE_INITIATIVE = 9
 BASE_CARDS_PER_TURN = 2
 BASE_DRAW_PER_TURN = 2
+BASE_PLAYER_MOVEMENT = 2
 MAX_HAND_SIZE = 7
 COMBAT_OBJECTIVE_WEIGHTS_PERCENT = {
     "kill_all": 25,
@@ -151,6 +172,15 @@ BOSS_ENCOUNTER_ROLES = {
     "noctyrax": "Eclipse damage against actors outside Radiance",
 }
 
+ENEMY_TACTICAL_ROLES = {
+    "frontliner": "close distance and convert reachable attacks",
+    "artillery": "hold useful range and establish legal shots",
+    "skirmisher": "kite at close range and advance only to establish pressure",
+    "protector": "guard exposed allies or advance to screen the back line",
+    "controller": "establish range for control and pressure actions",
+    "support": "heal or guard relevant allies and avoid unnecessary melee pursuit",
+}
+
 
 def encounter_assumptions() -> dict[str, Any]:
     """Return the run structure that contextualizes card-score coefficients."""
@@ -161,11 +191,20 @@ def encounter_assumptions() -> dict[str, Any]:
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
+        "enemy_tactical_ai": {
+            "roles": ENEMY_TACTICAL_ROLES,
+            "selection": "reject tactically dead intents, then retain seeded weighted variation among near-best legal choices",
+            "path_tie_break": "true total cost first; equal routes prefer strongest immediate current-activation progress",
+            "score_policy": "raises realized encounter pressure without changing intrinsic printed-card coefficients",
+        },
         "warden_bulwark": "grants scaled Block to every other living enemy and never to the acting Warden",
         "player_flow": {
             "base_initiative": PLAYER_BASE_INITIATIVE,
             "cards_per_turn": BASE_CARDS_PER_TURN,
             "draw_per_turn": BASE_DRAW_PER_TURN,
+            "independent_movement_per_turn": BASE_PLAYER_MOVEMENT,
+            "movement_timing": "may be split before, between, or after printed card plays without spending a play or initiative Time",
+            "movement_score_policy": "turn-shared positioning context; do not add it to every card's intrinsic reach or movement value",
             "max_hand_size": MAX_HAND_SIZE,
         },
         "combat_objectives": {
@@ -984,7 +1023,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="source_filter",
         action="store_const",
         const="item",
-        help="Only consumable item cards sold by the Scavenger.",
+        help="Only consumable item cards found in combat or sold by the Scavenger.",
     )
     source_group.add_argument(
         "--starters",

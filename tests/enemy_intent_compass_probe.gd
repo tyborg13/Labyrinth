@@ -58,8 +58,8 @@ func _initialize() -> void:
 	var dense: Dictionary = presentation.duplicate(true)
 	dense["scene_props"] = [
 		{"kind": "relic_chest", "tile": Vector2i(4, 3), "width_scale": 0.78, "baseline_scale": 0.44},
-		{"kind": "blacksmith_forge", "tile": Vector2i(6, 3), "width_scale": 0.92, "baseline_scale": 0.48},
-		{"kind": "arcanist_table", "tile": Vector2i(5, 5), "width_scale": 0.88, "baseline_scale": 0.46},
+		{"kind": "scavenger_stall", "tile": Vector2i(6, 3), "width_scale": 0.92, "baseline_scale": 0.48},
+		{"kind": "campfire_bonfire", "tile": Vector2i(5, 5), "width_scale": 0.88, "baseline_scale": 0.46},
 	]
 	await _capture(viewport, board, state, dense, "intent_emblems_dense_board_1920x1080.png")
 	var boss_attack_state: Dictionary = _large_hidden_probe_state()

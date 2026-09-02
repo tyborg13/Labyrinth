@@ -178,11 +178,12 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	await _settle()
 	run_end_recap = instance.get("_run_end_recap") as Control
 	if run_end_recap != null:
-		run_end_recap.call("seek_presentation", 0.62)
+		run_end_recap.call("seek_presentation", float(run_end_recap.call("presentation_duration")))
 	await _settle()
 	await _capture(output_dir, "defeat")
-	var defeat_panel: Control = run_end_recap.find_child("OutcomeRecap", true, false) as Control if run_end_recap != null else null
-	_check_inside_viewport(defeat_panel, "Defeat recap", UiTypography.SAFE_MARGIN)
+	var defeat_panel: Control = run_end_recap.find_child("LastLightRecap", true, false) as Control if run_end_recap != null else null
+	_check_inside_viewport(defeat_panel, "Defeat recap")
+	_check_descendant_minimum_font(defeat_panel, "Defeat recap")
 	_check_inside_viewport(run_end_recap.find_child("NewRunButton", true, false) as Control if run_end_recap != null else null, "Defeat new-run action")
 	_check_inside_viewport(run_end_recap.find_child("MainMenuButton", true, false) as Control if run_end_recap != null else null, "Defeat main-menu action")
 

@@ -87,6 +87,8 @@ const REFERENCE_VIEWPORT_HEIGHT: float = 1080.0
 const HEIGHT_BOOST_WEIGHT: float = 0.14
 const WIDTH_BOOST_WEIGHT: float = 0.06
 const MAX_UI_SCALE: float = 1.12
+const HANDHELD_MAX_WIDTH: float = 1366.0
+const HANDHELD_MAX_HEIGHT: float = 800.0
 
 static func display_font() -> Font:
 	return AssetLoader.load_font(DISPLAY_FONT_PATH)
@@ -137,6 +139,28 @@ static func ui_scale(control: Control) -> float:
 	var height_boost: float = clampf((REFERENCE_VIEWPORT_HEIGHT - viewport_size.y) / 700.0, 0.0, 1.0) * HEIGHT_BOOST_WEIGHT
 	var width_boost: float = clampf((REFERENCE_VIEWPORT_WIDTH - viewport_size.x) / 800.0, 0.0, 1.0) * WIDTH_BOOST_WEIGHT
 	return clampf(1.0 + height_boost + width_boost, 1.0, MAX_UI_SCALE)
+
+static func output_size(control: Control) -> Vector2:
+	if control == null or not control.is_inside_tree():
+		return Vector2.ZERO
+	var viewport: Viewport = control.get_viewport()
+	if viewport is SubViewport:
+		return Vector2((viewport as SubViewport).size)
+	var window: Window = control.get_window()
+	if window != null and window.size.x > 0 and window.size.y > 0:
+		return Vector2(window.size)
+	return viewport.get_visible_rect().size if viewport != null else Vector2.ZERO
+
+static func is_handheld_output(control: Control) -> bool:
+	return _size_is_handheld(output_size(control))
+
+static func _size_is_handheld(physical_size: Vector2) -> bool:
+	return (
+		physical_size.x > 0.0
+		and physical_size.y > 0.0
+		and physical_size.x <= HANDHELD_MAX_WIDTH
+		and physical_size.y <= HANDHELD_MAX_HEIGHT
+	)
 
 static func scaled_value(control: Control, value: float) -> float:
 	return value * ui_scale(control)

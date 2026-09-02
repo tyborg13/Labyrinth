@@ -26,6 +26,14 @@ These assumptions are baked into the current coefficients:
 
 - Player pace: `2` cards per turn, `2` draw per turn, and a `7`-card
   maximum hand.
+- Every player activation also starts with `2` tiles of independent movement.
+  The player can split that pool before, between, or after printed card plays;
+  movement costs no card play and no initiative Time. Printed Move and Blink
+  actions remain additional movement supplied by their cards.
+- The scorer does not add those `2` shared movement tiles to every card's
+  intrinsic reach or value. They are a turn-level positioning resource, so
+  playability and realized-value analysis should compare movement cohorts while
+  printed movement remains the only movement credited directly to a card.
 - Combat uses natural player-facing units throughout: the player starts a new
   run at `24` HP, and authored damage, health, healing, block, stoneskin, and
   damaging statuses are stored and resolved without the retired `×10` layer.
@@ -214,6 +222,16 @@ Encounter calibration is also important:
   the far side by default. This should make turn-1 reach and early enemy threat
   more variable than the old far-spawn calibration.
 - Revealed enemy execution is deterministic from the current board and intent.
+  Normal enemies now use explicit frontliner, artillery, skirmisher, protector,
+  controller, or support profiles when refreshing that intent. They discard
+  tactically dead options such as stationary out-of-range shots, irrelevant
+  retreats, unavailable heals, and distant defensive turns, then retain seeded
+  weighted variation only among the near-best legal choices. Support profiles
+  prioritize missing allied health and threatened allies without walking toward
+  the player when a support target is already in range; protectors prefer group
+  defense when a back-line ally is exposed and otherwise advance to screen it.
+  This raises realized enemy pressure and support reliability relative to the
+  old full-list weighted roulette without changing printed action coefficients.
   Advancing attack intents stop at the first reachable attack-enabling tile,
   with movement length ahead of trap exposure and safe routing used to break
   equally short ties. Retreat attacks maximize separation only while preserving
@@ -222,7 +240,11 @@ Encounter calibration is also important:
   reliable. When an attack is not reachable this activation, route scoring
   treats destructible terrain as finite clearing time, allied congestion as a
   temporary hard blocker while crediting immediately traversable detours, and
-  traps as high-cost but traversable when no safe route exists. Conservative
+  traps as high-cost but traversable when no safe route exists. True total route
+  cost is compared before open-prefix length; equal-cost routes prefer the
+  current-activation prefix with the strongest immediate progress, so an enemy
+  delays a detour around a distant blocker instead of taking an early U-shaped
+  path. Conservative
   threat unions remain visible, with the exact current route, destination, and
   projected attack shown separately; exact projections also honor freeze,
   shock, immobilize, and deterministic lightning-strike tiles.
@@ -244,9 +266,21 @@ Encounter calibration is also important:
 - Fire trap burn ramps gently in the first sequence: depth `1-2` fire traps
   apply shallow burn pressure, then deeper standard fire rooms restore the
   heavier trap payload.
-- A standard combat room places exactly one utility pickup: a `2` HP healing
-  vial on `25%` of rolls, otherwise a `3` block rusty shield. Boss rooms place
-  one of each. Combat rooms also scatter `5-7` `3`-HP boxes/crates across
+- Combat and boss rooms scatter consumable item cards: `15%` have none, `65%`
+  have one, and `20%` have two. Equipment eligibility and drop rates are unchanged.
+  Pickups prefer a five-tile Manhattan gap from other items and equipment, with
+  the best legal separation used in cramped layouts. Items roll by their existing
+  rarity weights. The retired instant-heal/shield objects no longer spawn.
+  A free item slot auto-equips a pickup and adds it to hand; at the seven-card
+  hand cap it goes on top of the draw pile instead. With both slots occupied it
+  goes only to reserve inventory. Consumption removes one owned copy permanently
+  unless the existing preserve-item skill applies. Pickup access is encounter
+  context, not an intrinsic draw/tempo bonus in every item's score.
+  Items now target modest tactical effects (mostly scores `2–3.7`; Storm Jar
+  remains a narrow epic control premium at `4.84`), rather than the previous
+  `6.45–11.69` band. Item Time costs are `3–5`, retaining initiative tradeoffs.
+  Shop costs are `25/40/60/90` embers by rarity.
+  Combat rooms also scatter `5-7` `3`-HP boxes/crates across
   eligible passable floor tiles, including edge-band and corner floor tiles when
   connectivity stays intact. They block movement, do not block line of sight,
   and can be destroyed by player or enemy attacks, area effects, deterministic

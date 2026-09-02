@@ -623,6 +623,8 @@ sync_staged_platform_output() {
 	rm -rf "${parent_dir}"
 	ensure_dir "${parent_dir}"
 	cp -R "${staging_parent_dir}/." "${parent_dir}/"
+	# Keep the splash logo credit readable beside the app/executable, outside the PCK.
+	cp "${PROJECT_ROOT}/GODOT_SPLASH_LICENSE.txt" "${parent_dir}/GODOT_SPLASH_LICENSE.txt"
 	if [[ "${platform}" == "linux" && -f "${output_path}" ]]; then
 		chmod +x "${output_path}"
 	fi

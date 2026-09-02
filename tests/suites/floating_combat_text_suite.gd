@@ -9,6 +9,7 @@ static func run(expect: Callable) -> void:
 	_test_damage_motion_curve(expect)
 	_test_effect_popup_motion_curve(expect)
 	_test_compound_popups_stagger_per_target(expect)
+	_test_overlapping_effect_timeline(expect)
 	_test_reduced_motion_hold(expect)
 	_test_damage_entries_are_explicit(expect)
 	_test_attack_feedback_begins_at_contact(expect)
@@ -61,14 +62,15 @@ static func _test_damage_motion_curve(expect: Callable) -> void:
 		"Damage feedback should keep a target-local actor anchor"
 	)
 	expect.call(
-		is_equal_approx(float(linger.get("alpha", 0.0)), 1.0)
+		float(linger.get("alpha", 0.0)) >= 0.60
 		and is_equal_approx(float(finished.get("alpha", 1.0)), 0.0),
-		"Damage feedback should remain fully readable into its linger beat before fading"
+		"Damage feedback should stay readable into its abbreviated fade before clearing"
 	)
 	expect.call(
-		FloatingCombatText.ANIMATION_DURATION_SECONDS >= 0.95
+		FloatingCombatText.ANIMATION_DURATION_SECONDS <= 0.48
+		and FloatingCombatText.ACTION_ADVANCE_SECONDS < FloatingCombatText.ANIMATION_DURATION_SECONDS
 		and FloatingCombatText.TARGET_FRAME_SECONDS <= (1.0 / 60.0) + 0.0001,
-		"Damage feedback should drift for the modestly longer schedule at display-frame cadence"
+		"Combat feedback should finish in half the old schedule while later actions can begin during its tail"
 	)
 	var right_half_motion: Vector2 = (
 		FloatingCombatText.animate_entry(
@@ -87,7 +89,7 @@ static func _test_damage_motion_curve(expect: Callable) -> void:
 static func _test_reduced_motion_hold(expect: Callable) -> void:
 	var base: Dictionary = FloatingCombatText.damage_entry(Vector2i(4, 3), "-7", Color("f39779"))
 	var early: Dictionary = FloatingCombatText.animate_entry(base, 0.0, true)
-	var late: Dictionary = FloatingCombatText.animate_entry(base, 0.82, true)
+	var late: Dictionary = FloatingCombatText.animate_entry(base, 0.68, true)
 	expect.call(
 		is_equal_approx(FloatingCombatText.rendered_font_size(early), FloatingCombatText.rendered_font_size(late))
 		and (early.get("motion_offset", Vector2.INF) as Vector2).is_equal_approx(late.get("motion_offset", Vector2.ZERO)),
@@ -103,7 +105,7 @@ static func _test_reduced_motion_hold(expect: Callable) -> void:
 		"color": Color("90d9ff"),
 	}
 	var effect_early: Dictionary = FloatingCombatText.animate_entry(effect_base, 0.0, true)
-	var effect_late: Dictionary = FloatingCombatText.animate_entry(effect_base, 0.82, true)
+	var effect_late: Dictionary = FloatingCombatText.animate_entry(effect_base, 0.68, true)
 	expect.call(
 		is_equal_approx(FloatingCombatText.rendered_font_size(effect_early), FloatingCombatText.rendered_font_size(effect_late))
 		and (effect_early.get("motion_offset", Vector2.INF) as Vector2).is_equal_approx(effect_late.get("motion_offset", Vector2.ZERO)),
@@ -147,8 +149,8 @@ static func _test_effect_popup_motion_curve(expect: Callable) -> void:
 	)
 	expect.call(
 		is_equal_approx(FloatingCombatText.total_duration([base]), FloatingCombatText.ANIMATION_DURATION_SECONDS)
-		and is_equal_approx(float(linger.get("alpha", 0.0)), 1.0),
-		"Every effect popup should receive the longer shared linger schedule"
+		and float(linger.get("alpha", 0.0)) >= 0.60,
+		"Every effect popup should retain a readable tail within the shortened shared schedule"
 	)
 
 
@@ -175,8 +177,9 @@ static func _test_compound_popups_stagger_per_target(expect: Callable) -> void:
 	)
 	expect.call(
 		FloatingCombatText.rendered_font_size(third_pop[2]) > FloatingCombatText.rendered_font_size(third_pop[1])
-		and FloatingCombatText.rendered_font_size(third_pop[2]) > FloatingCombatText.rendered_font_size(third_pop[0]),
-		"Each newly staggered popup should reclaim the large impact emphasis over the settling stack"
+		and float(third_pop[2].get("animation_progress", 1.0))
+		< float(third_pop[0].get("animation_progress", 0.0)),
+		"Each newly staggered effect should reclaim impact emphasis without eclipsing a larger damage number"
 	)
 	expect.call(
 		is_equal_approx(
@@ -193,6 +196,48 @@ static func _test_compound_popups_stagger_per_target(expect: Callable) -> void:
 	expect.call(
 		FloatingCombatText.animate_entries(separate_targets, 0.02, false).size() == 3,
 		"Simultaneous multi-target feedback should stay local to each independently affected actor"
+	)
+
+
+static func _test_overlapping_effect_timeline(expect: Callable) -> void:
+	var draw_entry: Dictionary = {
+		"tile": Vector2i(3, 3),
+		"text": "+1 draw",
+		"color": Color("f1d18b"),
+	}
+	var play_entry: Dictionary = {
+		"tile": Vector2i(3, 3),
+		"text": "+1 play",
+		"color": Color("ffe27a"),
+	}
+	var groups: Array[Dictionary] = [
+		FloatingCombatText.timeline_group([draw_entry], 0.0),
+		FloatingCombatText.timeline_group([play_entry], FloatingCombatText.ACTION_ADVANCE_SECONDS),
+	]
+	var overlap_elapsed: float = FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.02
+	var overlapping: Array[Dictionary] = FloatingCombatText.animate_timeline(groups, overlap_elapsed, false)
+	expect.call(
+		overlapping.size() == 2
+		and FloatingCombatText.rendered_font_size(overlapping[1]) > FloatingCombatText.rendered_font_size(overlapping[0])
+		and float(overlapping[0].get("alpha", 0.0)) >= 0.99
+		and absf(
+			(overlapping[0].get("motion_offset", Vector2.ZERO) as Vector2).y
+			- (overlapping[1].get("motion_offset", Vector2.ZERO) as Vector2).y
+		) >= 24.0,
+		"A new utility popup should arrive while the previous readable label has drifted clear"
+	)
+	expect.call(
+		FloatingCombatText.timeline_duration(groups)
+		<= FloatingCombatText.ANIMATION_DURATION_SECONDS + FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.0001,
+		"Two consecutive utility effects should complete as one overlapping timeline instead of two serial animations"
+	)
+	var reduced_overlap: Array[Dictionary] = FloatingCombatText.animate_timeline(groups, overlap_elapsed, true)
+	expect.call(
+		reduced_overlap.size() == 2
+		and (reduced_overlap[0].get("motion_offset", Vector2.ZERO) as Vector2).y
+		<= -FloatingCombatText.REDUCED_STACK_STEP_Y
+		and (reduced_overlap[1].get("motion_offset", Vector2.INF) as Vector2).is_zero_approx(),
+		"Reduced motion should keep overlapping utility feedback in a stable readable stack"
 	)
 
 

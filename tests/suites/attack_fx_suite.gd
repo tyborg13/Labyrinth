@@ -8,6 +8,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 static func run(expect: Callable) -> void:
 	_test_fireball_selection_is_exact(expect)
 	_test_every_element_owns_a_distinct_ranged_style(expect)
+	_test_ranged_elemental_aoes_reuse_authored_styles(expect)
 	_test_fireball_owns_a_complete_motion_schedule(expect)
 	_test_elemental_styles_own_distinct_motion_schedules(expect)
 	_test_elemental_spell_timing_is_staged(expect)
@@ -69,6 +70,57 @@ static func _test_every_element_owns_a_distinct_ranged_style(expect: Callable) -
 		and not AttackFxLibrary.uses_fireball({"kind": "ranged", "action_type": "ranged", "element": "ice"}),
 		"Fireball presentation should not leak onto melee, forced-movement, or non-fire attacks"
 	)
+
+
+static func _test_ranged_elemental_aoes_reuse_authored_styles(expect: Callable) -> void:
+	var expected_styles: Dictionary = {
+		"fire": AttackFxLibrary.STYLE_FIREBALL,
+		"earth": AttackFxLibrary.STYLE_EARTH_SPIKES,
+		"air": AttackFxLibrary.STYLE_AIR_GUST,
+		"lightning": AttackFxLibrary.STYLE_LIGHTNING_BOLT,
+		"ice": AttackFxLibrary.STYLE_ICE_SHARDS,
+	}
+	var board: CombatBoardView = CombatBoardView.new()
+	for element_id: String in expected_styles:
+		var effect: Dictionary = {
+			"kind": "aoe",
+			"action_type": "aoe",
+			"range": 5,
+			"element": element_id,
+			"from": Vector2i(2, 4),
+			"to": Vector2i(5, 4),
+			"center": Vector2i(5, 4),
+			"tiles": [Vector2i(5, 4), Vector2i(6, 4)],
+		}
+		expect.call(
+			AttackFxLibrary.style_for_effect(effect) == expected_styles[element_id]
+			and AttackFxLibrary.uses_authored_elemental_attack(effect)
+			and not AttackFxLibrary.uses_authored_elemental_ranged(effect)
+			and bool(board.call("_effect_uses_elemental_scene_depth", effect)),
+			"Ranged %s AOEs should reuse their authored elemental cast and impact without becoming single-target attacks" % element_id
+		)
+		expect.call(
+			AttackFxLibrary.animation_frame_count(effect, 6, false) > 6
+			and AttackFxLibrary.animation_frame_count(effect, 6, true) == 1
+			and is_zero_approx(AttackFxLibrary.animation_frame_seconds(effect, 0.04, true)),
+			"Ranged %s AOEs should receive the authored cadence and collapse to one readable reduced-motion impact" % element_id
+		)
+	var adjacent_aoe: Dictionary = {
+		"kind": "aoe", "action_type": "aoe", "range": 0, "element": "fire"
+	}
+	var neutral_ranged_aoe: Dictionary = {
+		"kind": "aoe", "action_type": "aoe", "range": 5, "element": "none"
+	}
+	var preview_aoe: Dictionary = {
+		"kind": "aoe", "action_type": "aoe", "range": 5, "element": "ice", "preview": true
+	}
+	expect.call(
+		AttackFxLibrary.style_for_effect(adjacent_aoe) == AttackFxLibrary.STYLE_DEFAULT
+		and AttackFxLibrary.style_for_effect(neutral_ranged_aoe) == AttackFxLibrary.STYLE_DEFAULT
+		and not bool(board.call("_effect_uses_elemental_scene_depth", preview_aoe)),
+		"Authored ranged AOE motion should not leak onto self AOEs, neutral AOEs, or targeting previews"
+	)
+	board.free()
 
 
 static func _test_fireball_owns_a_complete_motion_schedule(expect: Callable) -> void:
