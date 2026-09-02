@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://6pklu3yteiyx"
-path="res://.godot/imported/victory_resolution.wav-e7047270ef3a33bce862c9bad3095e9a.sample"
+path="res://.godot/imported/victory_resolution.wav-c3a55c451d8e142d0d9f3f09b08040ff.sample"
 
 [deps]
 
-source_file="res://marketing/trailer/public/game-assets/audio/sfx/run/victory_resolution.wav"
-dest_files=["res://.godot/imported/victory_resolution.wav-e7047270ef3a33bce862c9bad3095e9a.sample"]
+source_file="res://assets/audio/sfx/run/victory_resolution.wav"
+dest_files=["res://.godot/imported/victory_resolution.wav-c3a55c451d8e142d0d9f3f09b08040ff.sample"]
 
 [params]
 
