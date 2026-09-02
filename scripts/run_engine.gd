@@ -842,9 +842,13 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 				next_state["combat_state"] = {}
 				return next_state
 			var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
-			if _equipment_drop_can_attempt(next_state, room):
-				next_state = _record_equipment_drop_attempt(next_state, layout)
 			var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
+			var authored_tutorial: bool = GuidedCombatScenario.should_prepare(next_state, combat_state)
+			# The deterministic teaching room deliberately has no loot. Do not let a
+			# hidden generated roll consume or advance equipment pity when its result
+			# will be replaced before the player can ever see it.
+			if _equipment_drop_can_attempt(next_state, room) and not authored_tutorial:
+				next_state = _record_equipment_drop_attempt(next_state, layout)
 			combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
 			next_state["combat_state"] = combat_state
 			next_state["mode"] = "combat"
@@ -975,9 +979,10 @@ func begin_pre_battle_combat(run_state: Dictionary) -> Dictionary:
 		return next_state
 	var travel_dir: Vector2i = next_state.get("pre_battle_travel_dir", Vector2i.ZERO)
 	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
-	if _equipment_drop_can_attempt(next_state, room):
-		next_state = _record_equipment_drop_attempt(next_state, layout)
 	var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
+	var authored_tutorial: bool = GuidedCombatScenario.should_prepare(next_state, combat_state)
+	if _equipment_drop_can_attempt(next_state, room) and not authored_tutorial:
+		next_state = _record_equipment_drop_attempt(next_state, layout)
 	combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
 	next_state["combat_state"] = combat_state
 	next_state["mode"] = "combat"

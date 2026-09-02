@@ -5,6 +5,8 @@ const ContextualCombatPrompt = preload("res://scripts/contextual_combat_prompt.g
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const HandFanContainerScript = preload("res://scripts/hand_fan_container.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const ReplayRunSceneHarness = preload("res://tests/fixtures/guided_tutorial_run_scene_harness.gd")
 
@@ -81,6 +83,7 @@ class BoardPresentationStub:
 
 static func run(expect: Callable) -> void:
 	_test_authored_scenario_kill_refund(expect)
+	_test_authored_scenario_preserves_equipment_pity(expect)
 	_test_blocked_feedback_clears_only_on_phase_change(expect)
 	_test_first_run_phase_derivation(expect)
 	_test_authored_reload_phase_reconstruction(expect)
@@ -167,6 +170,43 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 	expect.call(
 		GuidedCombatScenario.prepare_for_run(dismissed_run, base_state) == base_state,
 		"Dismissed tutorials should leave normal generated combat untouched"
+	)
+
+
+static func _test_authored_scenario_preserves_equipment_pity(expect: Callable) -> void:
+	var engine := RunEngine.new()
+	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	var eligible_run: Dictionary = engine.create_new_run(90211, progression)
+	eligible_run["equipment_drop_misses"] = RunEngine.EQUIPMENT_DROP_PITY_MISSES
+	eligible_run = GuidedCombatScenario.mark_run_eligible(eligible_run)
+	var combat_coord := Vector2i(999, 999)
+	for candidate: Vector2i in engine.available_moves(eligible_run):
+		if str(engine.room_metadata(eligible_run, candidate).get("type", "")) == "combat":
+			combat_coord = candidate
+			break
+	expect.call(combat_coord != Vector2i(999, 999), "The first-run fixture should expose an eligible combat room")
+	var authored_run: Dictionary = engine.move_to_room(eligible_run, combat_coord)
+	var authored_combat: Dictionary = authored_run.get("combat_state", {}) as Dictionary
+	expect.call(GuidedCombatScenario.is_authored(authored_combat), "The equipment-pity fixture should enter the authored tutorial")
+	expect.call(
+		int(authored_run.get("equipment_drop_misses", -1)) == RunEngine.EQUIPMENT_DROP_PITY_MISSES,
+		"Replacing a forced equipment roll with the teaching room must preserve equipment pity"
+	)
+	expect.call(
+		not _combat_loot_has_kind(authored_combat, "equipment"),
+		"The deterministic teaching room should remain free of random equipment clutter"
+	)
+
+	var ordinary_run: Dictionary = engine.create_new_run(90211, ContextualCombatTutorial.dismiss_tutorial(progression))
+	ordinary_run["equipment_drop_misses"] = RunEngine.EQUIPMENT_DROP_PITY_MISSES
+	var ordinary_combat_run: Dictionary = engine.move_to_room(ordinary_run, combat_coord)
+	expect.call(
+		int(ordinary_combat_run.get("equipment_drop_misses", -1)) == 0,
+		"The same forced roll in ordinary combat should still reset equipment pity"
+	)
+	expect.call(
+		_combat_loot_has_kind(ordinary_combat_run.get("combat_state", {}) as Dictionary, "equipment"),
+		"Ordinary combat should still present the forced equipment drop"
 	)
 
 
@@ -891,6 +931,13 @@ static func _enemy_for_id(state: Dictionary, enemy_id: int) -> Dictionary:
 		if typeof(enemy_var) == TYPE_DICTIONARY and int((enemy_var as Dictionary).get("id", -1)) == enemy_id:
 			return enemy_var as Dictionary
 	return {}
+
+
+static func _combat_loot_has_kind(state: Dictionary, kind: String) -> bool:
+	for loot_var: Variant in state.get("loot", []):
+		if typeof(loot_var) == TYPE_DICTIONARY and str((loot_var as Dictionary).get("kind", "")) == kind:
+			return true
+	return false
 
 
 static func _simple_grid() -> Array:
