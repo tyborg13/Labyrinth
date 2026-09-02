@@ -65,17 +65,23 @@ func _test_new_and_returning_profile_migration() -> void:
 	var legacy_notes: Dictionary = _schema_six_profile(0)
 	legacy_notes[ContextualCombatTutorial.LEGACY_PROGRESSION_KEY] = {"full_card_fallback": "completed"}
 	var migrated_notes: Dictionary = ProgressionStore.normalized_data(legacy_notes)
-	_assert(
-		str(ContextualCombatTutorial.state_from_progression(migrated_notes).get("status", "")) == ContextualCombatTutorial.STATUS_LEGACY_EXEMPT,
-		"Profiles that saw the retired combat notes should not be forced through replacement onboarding"
-	)
+	_assert(ContextualCombatTutorial.is_active(migrated_notes), "Profiles that saw the retired combat notes should receive the authored guide once")
+	_assert(ContextualCombatTutorial.completed_steps(migrated_notes).is_empty(), "Retired combat notes should not skip any authored tutorial steps")
 	_assert(not migrated_notes.has(ContextualCombatTutorial.LEGACY_PROGRESSION_KEY), "Migration should erase the retired prompt-state key")
 
 	var returning: Dictionary = ProgressionStore.normalized_data(_schema_six_profile(3))
-	_assert(
-		str(ContextualCombatTutorial.state_from_progression(returning).get("status", "")) == ContextualCombatTutorial.STATUS_LEGACY_EXEMPT,
-		"Returning profiles without tutorial state should remain exempt"
-	)
+	_assert(ContextualCombatTutorial.is_active(returning), "Returning profiles without tutorial state should receive the authored guide once")
+	_assert(ContextualCombatTutorial.completed_steps(returning).is_empty(), "Returning profiles should begin the authored guide at its first step")
+
+	var formerly_exempt: Dictionary = _schema_six_profile(7)
+	formerly_exempt[ContextualCombatTutorial.PROGRESSION_KEY] = {
+		"version": ContextualCombatTutorial.VERSION,
+		"status": ContextualCombatTutorial.STATUS_LEGACY_EXEMPT,
+		"completed_steps": [ContextualCombatTutorial.MILESTONE_CARD],
+	}
+	var migrated_exempt: Dictionary = ProgressionStore.normalized_data(formerly_exempt)
+	_assert(ContextualCombatTutorial.is_active(migrated_exempt), "A persisted legacy exemption should migrate to unseen onboarding")
+	_assert(ContextualCombatTutorial.completed_steps(migrated_exempt).is_empty(), "Legacy exemption migration should restart at the authored scenario's first step")
 
 	var malformed: Dictionary = _schema_six_profile(4)
 	malformed[ContextualCombatTutorial.PROGRESSION_KEY] = {
@@ -90,13 +96,21 @@ func _test_new_and_returning_profile_migration() -> void:
 	}
 	var repaired: Dictionary = ProgressionStore.normalized_data(malformed)
 	var repaired_state: Dictionary = ContextualCombatTutorial.state_from_progression(repaired)
-	_assert(str(repaired_state.get("status", "")) == ContextualCombatTutorial.STATUS_LEGACY_EXEMPT, "Malformed returning status should fail closed to legacy exemption")
+	_assert(str(repaired_state.get("status", "")) == ContextualCombatTutorial.STATUS_ACTIVE, "Malformed tutorial status should safely restart unseen onboarding")
 	_assert(int(repaired_state.get("version", 0)) == ContextualCombatTutorial.VERSION, "Malformed versions should normalize to the current record version")
-	_assert(
-		(repaired_state.get("completed_steps", []) as Array) == [ContextualCombatTutorial.MILESTONE_MOVE, ContextualCombatTutorial.MILESTONE_CARD],
-		"Migration should remove unknown and duplicate milestones, then restore curriculum order"
-	)
+	_assert((repaired_state.get("completed_steps", []) as Array).is_empty(), "Malformed tutorial state should not strand a profile partway through the authored scenario")
 	_assert(ProgressionStore.normalized_data(repaired) == repaired, "Tutorial profile migration should be idempotent")
+
+	var completed_returning: Dictionary = _schema_six_profile(9)
+	completed_returning[ContextualCombatTutorial.PROGRESSION_KEY] = ContextualCombatTutorial.complete_tutorial(ProgressionStore.default_data()).get(ContextualCombatTutorial.PROGRESSION_KEY, {})
+	completed_returning = ProgressionStore.normalized_data(completed_returning)
+	_assert(ContextualCombatTutorial.is_completed(completed_returning), "A completed tutorial flag should remain terminal for returning profiles")
+
+	var dismissed_returning: Dictionary = _schema_six_profile(11)
+	dismissed_returning[ContextualCombatTutorial.PROGRESSION_KEY] = ContextualCombatTutorial.dismiss_tutorial(ProgressionStore.default_data()).get(ContextualCombatTutorial.PROGRESSION_KEY, {})
+	dismissed_returning = ProgressionStore.normalized_data(dismissed_returning)
+	_assert(not ContextualCombatTutorial.is_active(dismissed_returning), "A skipped tutorial flag should remain terminal for returning profiles")
+	_assert(str(ContextualCombatTutorial.state_from_progression(dismissed_returning).get("status", "")) == ContextualCombatTutorial.STATUS_DISMISSED, "A skipped tutorial should not reappear on later profile loads")
 
 func _test_milestones_and_revision_semantics() -> void:
 	var original: Dictionary = ProgressionStore.default_data()
@@ -181,6 +195,18 @@ func _test_save_and_load_round_trip() -> void:
 	_assert(ContextualCombatTutorial.state_from_progression(loaded) == ContextualCombatTutorial.state_from_progression(progression), "Versioned tutorial state should survive profile reload")
 	_assert(int(loaded.get("progression_revision", -1)) == int(progression.get("progression_revision", -2)), "Tutorial revision should survive profile reload")
 	_assert(int(loaded.get("embers", -1)) == 17, "Tutorial persistence should preserve unrelated profile progression")
+
+	var skipped: Dictionary = ContextualCombatTutorial.dismiss_tutorial(loaded)
+	_assert(ProgressionStore.save_data(skipped), "Skipping the tutorial should persist its terminal flag")
+	var loaded_skipped: Dictionary = ProgressionStore.load_data()
+	_assert(str(ContextualCombatTutorial.state_from_progression(loaded_skipped).get("status", "")) == ContextualCombatTutorial.STATUS_DISMISSED, "A saved skip flag should suppress the tutorial after reload")
+	_assert(int(loaded_skipped.get("embers", -1)) == 17, "Skipping the tutorial should preserve unrelated profile progression")
+
+	var completed: Dictionary = ContextualCombatTutorial.complete_tutorial(ContextualCombatTutorial.restart_tutorial(loaded_skipped))
+	_assert(ProgressionStore.save_data(completed), "Completing the tutorial should persist its terminal flag")
+	var loaded_completed: Dictionary = ProgressionStore.load_data()
+	_assert(ContextualCombatTutorial.is_completed(loaded_completed), "A saved completion flag should suppress the tutorial after reload")
+	_assert(int(loaded_completed.get("embers", -1)) == 17, "Completing the tutorial should preserve unrelated profile progression")
 
 func _schema_six_profile(run_counter: int) -> Dictionary:
 	var profile: Dictionary = ProgressionStore.default_data()

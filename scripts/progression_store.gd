@@ -111,9 +111,7 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data = _migrated_legacy_combat_unit_history(data)
 	data["run_counter"] = maxi(0, int(data.get("run_counter", 0)))
 	data[ContextualCombatTutorial.PROGRESSION_KEY] = ContextualCombatTutorial.normalized_state(
-		data.get(ContextualCombatTutorial.PROGRESSION_KEY, null),
-		int(data.get("run_counter", 0)) == 0,
-		data.has(ContextualCombatTutorial.LEGACY_PROGRESSION_KEY)
+		data.get(ContextualCombatTutorial.PROGRESSION_KEY, null)
 	)
 	data.erase(ContextualCombatTutorial.LEGACY_PROGRESSION_KEY)
 	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())

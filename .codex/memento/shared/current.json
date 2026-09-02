@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T12:01:38Z",
+  "updated_at": "2026-09-02T14:45:19Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9331,6 +9331,28 @@
       "source": {
         "branch": "codex/production-first-run-guided-combat-tutorial",
         "commit": "606ddc22"
+      }
+    },
+    {
+      "id": "mnt_20260902T144519Z_2e8eabce",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/contextual_combat_tutorial.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/contextual_combat_tutorial.gd",
+      "summary": "Ship authored tutorials once to every profile",
+      "details": "A missing, malformed, retired-notes, or legacy_exempt guided tutorial record means unseen and must activate the complete authored scenario regardless of run count. Only completed or dismissed/skipped are terminal suppression states; both preserve unrelated progression and prevent future runs from showing the tutorial.",
+      "status": "active",
+      "created_at": "2026-09-02T14:45:19Z",
+      "updated_at": "2026-09-02T14:45:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/production-first-run-guided-combat-tutorial",
+        "commit": "95dc341d"
       }
     }
   ]

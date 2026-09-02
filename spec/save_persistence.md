@@ -19,11 +19,12 @@ Progression schema 7 stores first-run onboarding under
 `completed_steps`. The completed-step list contains only committed gameplay
 milestones; hover, focus, selected cards, open previews, targets, and other
 transient motor phases are deliberately reconstructed from the current run on
-resume. A brand-new profile starts `active`. Profiles from an older schema that
-have already begun a run—or that contain the retired
-`combat_micro_prompt_states` notes—migrate to `legacy_exempt`, so an update does
-not force veteran players through onboarding. Explicit replay resets just this
-record, while completion and dismissal remain permanent profile choices. Every
+resume. Any profile without a terminal tutorial record starts `active`, including
+profiles from an older schema that have already begun runs or contain the retired
+`combat_micro_prompt_states` notes. The retired `legacy_exempt` status also
+migrates to `active`, so every player receives the authored guide once after its
+rollout. Completion and dismissal are the only automatic suppression flags and
+remain permanent profile choices; explicit replay resets just this record. Every
 runtime tutorial mutation increments `progression_revision` and is mirrored into
 the resumable run at the next committed persistence boundary.
 

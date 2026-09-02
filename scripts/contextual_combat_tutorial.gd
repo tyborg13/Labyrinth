@@ -13,6 +13,8 @@ const VERSION: int = 2
 const STATUS_ACTIVE: String = "active"
 const STATUS_COMPLETED: String = "completed"
 const STATUS_DISMISSED: String = "dismissed"
+# Retired persisted value from the pre-rollout implementation. Normalization
+# treats it as unseen so veteran profiles receive the authored guide once.
 const STATUS_LEGACY_EXEMPT: String = "legacy_exempt"
 const STATUS_SKIPPED: String = STATUS_DISMISSED
 
@@ -401,17 +403,17 @@ const AUTHORED_PHASES: Dictionary = {
 static func default_state() -> Dictionary:
 	return {"version": VERSION, "status": STATUS_ACTIVE, "completed_steps": []}
 
-static func legacy_exempt_state() -> Dictionary:
-	return {"version": VERSION, "status": STATUS_LEGACY_EXEMPT, "completed_steps": []}
-
-static func normalized_state(value: Variant, fresh_profile: bool = false, legacy_notes_present: bool = false) -> Dictionary:
+static func normalized_state(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
-		return default_state() if fresh_profile and not legacy_notes_present else legacy_exempt_state()
+		return default_state()
 	var source: Dictionary = value as Dictionary
 	var source_version: int = int(source.get("version", 1))
-	var status: String = str(source.get("status", STATUS_ACTIVE if fresh_profile else STATUS_LEGACY_EXEMPT))
-	if status not in [STATUS_ACTIVE, STATUS_COMPLETED, STATUS_DISMISSED, STATUS_LEGACY_EXEMPT]:
-		status = STATUS_ACTIVE if fresh_profile else STATUS_LEGACY_EXEMPT
+	var source_status: String = str(source.get("status", ""))
+	var resets_to_unseen: bool = (
+		source_status == STATUS_LEGACY_EXEMPT
+		or source_status not in [STATUS_ACTIVE, STATUS_COMPLETED, STATUS_DISMISSED]
+	)
+	var status: String = STATUS_ACTIVE if resets_to_unseen else source_status
 	var completed: Array[String]
 	if typeof(source.get("completed_steps", null)) == TYPE_ARRAY:
 		for step_var: Variant in source.get("completed_steps", []) as Array:
@@ -421,7 +423,7 @@ static func normalized_state(value: Variant, fresh_profile: bool = false, legacy
 	# The authored scenario changes the meaning and ordering of every early
 	# action. An unfinished prototype-v1 guide restarts cleanly at its first rail;
 	# completed and dismissed profiles remain respected.
-	if source_version < VERSION and status == STATUS_ACTIVE:
+	if resets_to_unseen or (source_version < VERSION and status == STATUS_ACTIVE):
 		completed.clear()
 	completed.sort_custom(func(a: String, b: String) -> bool: return MILESTONE_ORDER.find(a) < MILESTONE_ORDER.find(b))
 	if status == STATUS_COMPLETED:
@@ -429,11 +431,7 @@ static func normalized_state(value: Variant, fresh_profile: bool = false, legacy
 	return {"version": VERSION, "status": status, "completed_steps": completed}
 
 static func state_from_progression(progression: Dictionary) -> Dictionary:
-	return normalized_state(
-		progression.get(PROGRESSION_KEY, null),
-		int(progression.get("run_counter", 0)) == 0,
-		progression.has(LEGACY_PROGRESSION_KEY)
-	)
+	return normalized_state(progression.get(PROGRESSION_KEY, null))
 
 static func is_active(progression: Dictionary) -> bool:
 	return str(state_from_progression(progression).get("status", "")) == STATUS_ACTIVE
@@ -515,8 +513,8 @@ static func merged_state(primary_progression: Dictionary, fallback_progression: 
 	var statuses: Array[String]
 	statuses.append(str(primary.get("status", "")))
 	statuses.append(str(fallback.get("status", "")))
-	var status: String = STATUS_LEGACY_EXEMPT
-	for candidate: String in [STATUS_COMPLETED, STATUS_DISMISSED, STATUS_ACTIVE, STATUS_LEGACY_EXEMPT]:
+	var status: String = STATUS_ACTIVE
+	for candidate: String in [STATUS_COMPLETED, STATUS_DISMISSED, STATUS_ACTIVE]:
 		if statuses.has(candidate):
 			status = candidate
 			break

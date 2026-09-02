@@ -83,6 +83,7 @@ class BoardPresentationStub:
 
 static func run(expect: Callable) -> void:
 	_test_authored_scenario_kill_refund(expect)
+	_test_returning_profile_rollout_eligibility(expect)
 	_test_authored_scenario_preserves_equipment_pity(expect)
 	_test_blocked_feedback_clears_only_on_phase_change(expect)
 	_test_first_run_phase_derivation(expect)
@@ -97,6 +98,33 @@ static func run(expect: Callable) -> void:
 	_test_pause_menu_cannot_bypass_optional_surface_gate(expect)
 	_test_pre_battle_actions_cannot_bypass_visible_completion_gate(expect)
 	_test_skip_replay_and_completion_absence(expect)
+
+
+static func _test_returning_profile_rollout_eligibility(expect: Callable) -> void:
+	var returning_profile: Dictionary = ProgressionStore.default_data()
+	returning_profile["run_counter"] = 12
+	returning_profile.erase(ContextualCombatTutorial.PROGRESSION_KEY)
+	returning_profile[ContextualCombatTutorial.LEGACY_PROGRESSION_KEY] = {"movement": "completed"}
+	returning_profile = ProgressionStore.normalized_data(returning_profile)
+	var eligible_run: Dictionary = GuidedCombatScenario.mark_run_eligible({"progression": returning_profile})
+	expect.call(
+		bool(eligible_run.get(GuidedCombatScenario.RUN_ELIGIBILITY_KEY, false)),
+		"A veteran profile without a terminal tutorial flag should receive the authored scenario once"
+	)
+
+	var completed_profile: Dictionary = ContextualCombatTutorial.complete_tutorial(returning_profile)
+	var completed_run: Dictionary = GuidedCombatScenario.mark_run_eligible({"progression": completed_profile})
+	expect.call(
+		not bool(completed_run.get(GuidedCombatScenario.RUN_ELIGIBILITY_KEY, false)),
+		"Completing the tutorial should keep later runs out of the authored scenario"
+	)
+
+	var dismissed_profile: Dictionary = ContextualCombatTutorial.dismiss_tutorial(returning_profile)
+	var dismissed_run: Dictionary = GuidedCombatScenario.mark_run_eligible({"progression": dismissed_profile})
+	expect.call(
+		not bool(dismissed_run.get(GuidedCombatScenario.RUN_ELIGIBILITY_KEY, false)),
+		"Skipping the tutorial should keep later runs out of the authored scenario"
+	)
 
 
 static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
