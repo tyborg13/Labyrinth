@@ -32,6 +32,7 @@ func _run_transition_regression() -> void:
 	await process_frame
 	await process_frame
 	var before_state: Dictionary = await _load_combat_fixture(instance)
+	await _run_pass_preview_warm_invalidation_regression(instance)
 	var intermediate_state: Dictionary = before_state.duplicate(true)
 	var intermediate_deck: Dictionary = (intermediate_state.get("deck", {}) as Dictionary).duplicate(true)
 	intermediate_deck["hand"] = ["shadow_step", "brace", "quick_stab", "lantern_shot", "patch_up"]
@@ -74,6 +75,9 @@ func _run_transition_regression() -> void:
 	var initial_proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
 	_expect(hand_box != null and not hand_box.visible, "Staged draw should hide the stale live hand")
 	_expect(initial_proxies.size() == target_hand.size(), "Staged draw should represent every final hand identity from its first frame")
+	instance.call("_refresh_hand_panel")
+	_expect(not hand_box.visible, "An incidental locked hand refresh must not expose the stale live hand during staged draw")
+	_expect((instance.get("_draw_hand_transition_proxies") as Array).size() == target_hand.size(), "An incidental locked hand refresh must not retire running staged proxies")
 	var initial_centers: Array[Vector2] = _proxy_centers(instance, initial_proxies)
 
 	await create_timer(0.07).timeout
@@ -134,6 +138,32 @@ func _run_transition_regression() -> void:
 		)
 	instance.queue_free()
 	await process_frame
+
+func _run_pass_preview_warm_invalidation_regression(instance: Node) -> void:
+	# Production begins warming the next-turn Pass forecast before the staged draw.
+	# Hiding a pointer-hovered hand then emits hover-ended while input is locked,
+	# changing the forecast key before the warm coroutine finishes.
+	instance.set("_hovered_card_index", 0)
+	var warm_key: String = str(instance.call("_pass_preview_key"))
+	var warm_generation: int = int(instance.get("_pass_preview_warm_generation")) + 1
+	instance.set("_pass_preview_warm_generation", warm_generation)
+	instance.set("_pass_preview_warm_active", true)
+	instance.set("_pass_preview_warm_key", warm_key)
+	_expect(bool(instance.get("_pass_preview_warm_active")), "Pass-preview warmup should be active before staged draw invalidation")
+	_expect(not warm_key.is_empty(), "Pass-preview warmup should own its scheduled hover key")
+
+	instance.set("_animation_lock", true)
+	instance.call("_on_card_hover_ended", 0)
+	_expect(int(instance.get("_hovered_card_index")) == -1, "Locked staged draw should still clear the stale card hover")
+	_expect(str(instance.call("_pass_preview_key")) != warm_key, "Clearing hover should invalidate the scheduled Pass-preview key")
+	_expect(
+		bool(instance.call("_finish_pass_preview_cache_warm_if_stale", warm_generation, warm_key)),
+		"The current Pass-preview worker should recognize and retire its invalidated key"
+	)
+	_expect(not bool(instance.get("_pass_preview_warm_active")), "A stale Pass-preview warmup must clear its active lifecycle flag")
+	_expect(str(instance.get("_pass_preview_warm_key")).is_empty(), "A stale Pass-preview warmup must release its owned key")
+	await instance.call("_await_pass_preview_cache_warm")
+	instance.set("_animation_lock", false)
 
 func _load_combat_fixture(instance: Node) -> Dictionary:
 	var layout: Dictionary = {

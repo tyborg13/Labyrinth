@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T15:24:42Z",
+  "updated_at": "2026-09-02T16:22:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10101,6 +10101,28 @@
       "source": {
         "branch": "codex/production-first-run-guided-combat-tutorial",
         "commit": "6f9b2893"
+      }
+    },
+    {
+      "id": "mnt_20260902T162200Z_1cfc7e4b",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Async next-turn draw ownership must release without stranding combat lock",
+      "details": "Deferred hand-layout or hover refreshes can run while staged draw proxies own the visible hand. Do not retire those proxies until their active Tweens have settled and the live combat hand matches the staged target; freeing a running proxy prevents Tween.finished and strands _animation_lock. Likewise, if a current Pass-preview warm job discovers that _pass_preview_key changed, clear its active flag and owned key before returning so _await_pass_preview_cache_warm can finish. Preserve the card-draw flow test and real enemy-round probe races.",
+      "status": "active",
+      "created_at": "2026-09-02T16:22:00Z",
+      "updated_at": "2026-09-02T16:22:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-post-draw-combat-input-deadlock",
+        "commit": "ccf85b33"
       }
     }
   ]

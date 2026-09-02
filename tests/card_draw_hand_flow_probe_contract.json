@@ -1,5 +1,5 @@
 {
-  "min_images": 7,
+  "min_images": 8,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -56,6 +56,14 @@
       "height": 1080,
       "regions": [
         {"rect": [480, 760, 960, 320], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*08_next_turn_unlocked.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 720, 1450, 360], "min_luma_range": 45, "min_luma_stdev": 8}
       ]
     }
   ]

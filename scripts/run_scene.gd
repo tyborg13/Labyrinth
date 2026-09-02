@@ -16757,7 +16757,22 @@ func _clear_idle_card_fx_layer() -> void:
 			_release_card_proxy(child)
 	_clear_children_now(_card_fx_layer)
 
-func _finish_draw_hand_transition_for_refresh() -> void:
+func _finish_draw_hand_transition_for_refresh(force: bool = false) -> void:
+	if not force and not _draw_hand_transition_proxies.is_empty() and str(_run_state.get("mode", "room")) == "combat":
+		# Deferred layout and hover refreshes can arrive while the staged hand owns
+		# the visible cards. Retiring a running proxy frees its Tween without emitting
+		# `finished`, stranding the combat coroutine in animation lock. A refresh may
+		# replace the staged hand only after motion settles and live state owns the same
+		# final identities; intermediate card-action states can still include the hidden
+		# played card even after the staged target has removed it.
+		if _draw_hand_transition_cards != _combat_hand_cards(_combat_state):
+			return
+		for proxy: Control in _draw_hand_transition_proxies:
+			if not _node_is_alive(proxy) or not proxy.has_meta("active_card_proxy_tween"):
+				continue
+			var active_tween: Variant = proxy.get_meta("active_card_proxy_tween")
+			if active_tween is Tween and (active_tween as Tween).is_valid() and (active_tween as Tween).is_running():
+				return
 	if hand_box != null:
 		hand_box.visible = true
 	for proxy: Control in _draw_hand_transition_proxies:
@@ -18070,9 +18085,7 @@ func _warm_pass_preview_cache_across_frames(
 		_analytics_store.write_events(events)
 		_record_runtime_performance_phase("analytics_playable_warm_write", playable_write_started)
 	if _pass_preview_cache.has(cache_key):
-		if generation == _pass_preview_warm_generation:
-			_pass_preview_warm_active = false
-			_pass_preview_warm_key = ""
+		_finish_pass_preview_cache_warm(generation, cache_key)
 		return
 	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled_state)
 	while not bool(cursor.get("complete", false)):
@@ -18082,13 +18095,27 @@ func _warm_pass_preview_cache_across_frames(
 		var slice_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		_combat_engine.advance_revealed_enemy_actions_preview(cursor)
 		_record_runtime_performance_phase("pass_preview_warm_slice_total", slice_started)
-	if generation != _pass_preview_warm_generation or cache_key != _pass_preview_key():
+	if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
+		return
+	if _finish_pass_preview_cache_warm_if_stale(generation, cache_key):
 		return
 	var phase_result: Dictionary = _combat_engine.revealed_enemy_actions_preview_result(cursor)
 	_pass_preview_summary_from_phase_result(cache_key, source_state, phase_result)
-	if generation == _pass_preview_warm_generation:
-		_pass_preview_warm_active = false
-		_pass_preview_warm_key = ""
+	_finish_pass_preview_cache_warm(generation, cache_key)
+
+func _finish_pass_preview_cache_warm(generation: int, cache_key: String) -> void:
+	if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
+		return
+	_pass_preview_warm_active = false
+	_pass_preview_warm_key = ""
+
+func _finish_pass_preview_cache_warm_if_stale(generation: int, cache_key: String) -> bool:
+	if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
+		return false
+	if cache_key == _pass_preview_key():
+		return false
+	_finish_pass_preview_cache_warm(generation, cache_key)
+	return true
 
 func _await_pass_preview_cache_warm() -> void:
 	var generation: int = _pass_preview_warm_generation
@@ -20732,7 +20759,7 @@ func _animate_staged_draw_hand_fx(
 		source_proxies.append_array(_draw_hand_transition_proxies)
 	else:
 		if not _draw_hand_transition_proxies.is_empty():
-			_finish_draw_hand_transition_for_refresh()
+			_finish_draw_hand_transition_for_refresh(true)
 		_end_locked_hand_render_cache()
 		for source_index: int in range(source_hand.size()):
 			if hidden_source_indices.has(source_index):

@@ -72,8 +72,57 @@ func _capture_hand_flow() -> void:
 	await _commit_authoritative_hand(instance, reduced_target)
 	_assert_authoritative_handoff(instance, reduced_target, reduced_settled_centers, "reduced motion")
 	await _save_root_screenshot("%s/card_draw_flow_v1_07_reduced_motion_handoff.png" % OUTPUT_DIR)
+	await _capture_real_turn_draw_unlock(instance)
 	instance.queue_free()
 	await process_frame
+
+func _capture_real_turn_draw_unlock(instance: Node) -> void:
+	var combat_state: Dictionary = await _load_combat_fixture(instance)
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["brace"]
+	deck["draw"] = ["patch_up", "lantern_shot"]
+	deck["discard"] = ["shadow_step", "quick_stab"]
+	combat_state["deck"] = deck
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["combat_state"] = combat_state.duplicate(true)
+	instance.set("_combat_state", combat_state)
+	instance.set("_run_state", run_state)
+	instance.call("_mark_combat_preview_state_changed")
+	instance.set("_hand_panel_signature", "<unset>")
+	instance.call("_refresh_ui")
+	await _await_initial_presentation(instance)
+	instance.set("_hovered_card_index", 0)
+
+	var completion: Dictionary = {"done": false}
+	_resolve_enemy_round_and_mark(instance, completion)
+	var injected_races: bool = false
+	var deadline: int = Time.get_ticks_msec() + 15000
+	while not bool(completion.get("done", false)) and Time.get_ticks_msec() < deadline:
+		if not injected_races and not (instance.get("_draw_hand_transition_proxies") as Array).is_empty():
+			injected_races = true
+			instance.call("_refresh_hand_panel")
+			instance.call("_on_card_hover_ended", 0)
+		await process_frame
+	_assert(injected_races, "Production turn proof should reach a live staged next-turn draw")
+	_assert(bool(completion.get("done", false)), "Production enemy round should finish after staged draw refresh and hover invalidation")
+	_assert(not bool(instance.get("_animation_lock")), "Production next-turn handoff should release combat animation lock")
+	_assert(not bool(instance.get("_pass_preview_warm_active")), "Production next-turn handoff should retire Pass-preview warmup ownership")
+	_assert(str(instance.get("_pass_preview_warm_key")).is_empty(), "Production next-turn handoff should release the Pass-preview warm key")
+	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Production next-turn handoff should retire staged draw proxies")
+	var hand_box: Control = instance.get("hand_box") as Control
+	_assert(hand_box != null and hand_box.visible, "Production next-turn handoff should expose the authoritative live hand")
+	await _save_root_screenshot("%s/card_draw_flow_v1_08_next_turn_unlocked.png" % OUTPUT_DIR)
+
+	await instance.call("_on_card_pressed", 0)
+	_assert(
+		int(instance.get("_selected_card_index")) == 0 or int(instance.get("_card_action_choice_index")) == 0,
+		"The authoritative next-turn hand should accept card input immediately after draw"
+	)
+	instance.call("_reset_card_resolution")
+
+func _resolve_enemy_round_and_mark(instance: Node, completion: Dictionary) -> void:
+	await instance.call("_resolve_enemy_round")
+	completion["done"] = true
 
 func _prepare_transition(instance: Node, reduced_motion: bool) -> Dictionary:
 	var before_state: Dictionary = await _load_combat_fixture(instance)
@@ -156,8 +205,15 @@ func _load_combat_fixture(instance: Node) -> Dictionary:
 	instance.set("_animation_lock", false)
 	instance.set("_hand_panel_signature", "<unset>")
 	instance.call("_refresh_ui")
+	await _await_initial_presentation(instance)
 	await _settle()
 	return combat_state
+
+func _await_initial_presentation(instance: Node) -> void:
+	var readiness_deadline: int = Time.get_ticks_msec() + 2000
+	while not bool(instance.call("initial_presentation_is_ready")) and Time.get_ticks_msec() < readiness_deadline:
+		await process_frame
+	_assert(bool(instance.call("initial_presentation_is_ready")), "Card-draw proof fixture should settle deferred hand layout before staging motion")
 
 func _commit_authoritative_hand(instance: Node, target_hand: Array) -> void:
 	var final_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
