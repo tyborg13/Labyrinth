@@ -117,7 +117,7 @@ const PHASES: Dictionary = {
 	PHASE_SELECT_PLAYER: {
 		"id": PHASE_SELECT_PLAYER, "lesson": 1, "lesson_total": 8,
 		"icon": "move", "kicker": "MOVEMENT", "title": "Move the Wanderer",
-		"pointer_text": "Click your character to plan a move.",
+		"pointer_text": "Click your character to choose a move.",
 		"controller_text": "Focus your character, then select.",
 		"controller_action": "controller_accept", "action_label": "Select",
 	},
@@ -231,15 +231,15 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_SELECT_PLAYER: {
 		"id": PHASE_SELECT_PLAYER, "lesson": 1, "lesson_total": 10,
 		"icon": "move", "kicker": "MOVEMENT", "title": "Move the Wanderer",
-		"pointer_text": "Click the glowing Wanderer to plan a move.",
-		"controller_text": "Select the glowing Wanderer to plan a move.",
+		"pointer_text": "Click the glowing tile to choose a move.",
+		"controller_text": "Select the glowing tile to choose a move.",
 		"controller_action": "controller_accept", "action_label": "Select", "attention_pulse": true,
 	},
 	PHASE_CHOOSE_MOVE: {
 		"id": PHASE_CHOOSE_MOVE, "lesson": 1, "lesson_total": 10,
 		"icon": "move", "kicker": "MOVEMENT", "title": "Take This Step",
-		"pointer_text": "Move onto the one glowing tile. You begin each turn with 2 movement.",
-		"controller_text": "Move onto the one glowing tile. You begin each turn with 2 movement.",
+		"pointer_text": "You begin each turn with 2 movement. Use 1 to move onto the glowing tile.",
+		"controller_text": "You begin each turn with 2 movement. Use 1 to move onto the glowing tile.",
 		"controller_action": "controller_accept", "action_label": "Move", "attention_pulse": true,
 	},
 	PHASE_INSPECT_ENEMY: {
@@ -267,7 +267,7 @@ const AUTHORED_PHASES: Dictionary = {
 	},
 	PHASE_SELECT_CARD_FOR_CANCEL: {
 		"id": PHASE_SELECT_CARD_FOR_CANCEL, "lesson": 3, "lesson_total": 10,
-		"icon": "card_play", "kicker": "CARD PREVIEW", "title": "Plan Bone Dart",
+		"icon": "card_play", "kicker": "CARD PREVIEW", "title": "Select Bone Dart",
 		"pointer_text": "Click the glowing Bone Dart. Nothing is spent while you preview it.",
 		"controller_text": "Select the glowing Bone Dart. Nothing is spent while you preview it.",
 		"controller_action": "controller_accept", "action_label": "Preview", "attention_pulse": true,

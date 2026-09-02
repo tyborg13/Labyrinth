@@ -12889,18 +12889,51 @@ func enemy_intent_visual_global_rect(actor_key: String) -> Rect2:
 		var local_rect: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
 		if not local_rect.has_area():
 			return Rect2()
-		var transform: Transform2D = get_global_transform()
-		var points: Array[Vector2] = [
-			transform * local_rect.position,
-			transform * Vector2(local_rect.end.x, local_rect.position.y),
-			transform * local_rect.end,
-			transform * Vector2(local_rect.position.x, local_rect.end.y),
-		]
-		var result := Rect2(points[0], Vector2.ZERO)
-		for point: Vector2 in points:
-			result = result.expand(point)
-		return result
+		return _visual_rect_to_global(local_rect)
 	return Rect2()
+
+func enemy_inspection_visual_global_rect(actor_key: String) -> Rect2:
+	if actor_key.is_empty() or not is_inside_tree():
+		return Rect2()
+	var local_bounds := Rect2()
+	for unit: Dictionary in _visible_units():
+		if _enemy_hud_actor_key(unit) != actor_key:
+			continue
+		local_bounds = _enemy_hud_actor_clear_rect(unit, _unit_center(unit))
+		break
+	if not local_bounds.has_area():
+		return Rect2()
+	_rebuild_hud_health_rects_cache()
+	for entry_var: Variant in _hud_layout_entries_cache:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if str(entry.get("actor_key", "")) != actor_key:
+			continue
+		var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
+		if health_rect.has_area():
+			local_bounds = local_bounds.merge(health_rect)
+		var layout: Dictionary = entry.get("layout", {}) as Dictionary
+		var intent_rect: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
+		if intent_rect.has_area():
+			local_bounds = local_bounds.merge(intent_rect)
+		break
+	return _visual_rect_to_global(local_bounds)
+
+func _visual_rect_to_global(local_rect: Rect2) -> Rect2:
+	if not local_rect.has_area():
+		return Rect2()
+	var transform: Transform2D = get_global_transform()
+	var points: Array[Vector2] = [
+		transform * local_rect.position,
+		transform * Vector2(local_rect.end.x, local_rect.position.y),
+		transform * local_rect.end,
+		transform * Vector2(local_rect.position.x, local_rect.end.y),
+	]
+	var result := Rect2(points[0], Vector2.ZERO)
+	for point: Vector2 in points:
+		result = result.expand(point)
+	return result
 
 func rendered_visual_bounds() -> Rect2:
 	# Consumers use the combined bound for broad framing so tall pillars, doors,

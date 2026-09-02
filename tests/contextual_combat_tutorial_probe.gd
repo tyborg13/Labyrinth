@@ -8,7 +8,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
-const OUTPUT_DIR: String = "user://probes/contextual_combat_tutorial_v3"
+const OUTPUT_DIR: String = "user://probes/contextual_combat_tutorial_v4"
 const STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_progression.json"
 const RUN_STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_run.save"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
@@ -48,6 +48,7 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await _settle_ui()
 	await _load_authored_combat_fixture(instance, 11601, active_progression)
 	var prompt: Control = instance.get("_contextual_combat_prompt") as Control
+	var board: Control = instance.get("board_view") as Control
 	var combat = instance.get("_combat_engine")
 
 	# Camp contains ordinary run controls only; tutorial management stays in the
@@ -92,6 +93,10 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_INSPECT_ENEMY, true, "inspect the authored crawler")
 	var support_tile: Vector2i = GuidedCombatScenario.support_tile(instance.get("_combat_state") as Dictionary)
 	_assert((instance.call("_guided_tutorial_allowed_board_tiles") as Array) == [support_tile], "Intent rail should isolate the crawler that will later attack")
+	var support_actor_key: String = "enemy_%d" % GuidedCombatScenario.SUPPORT_ENEMY_ID
+	var support_inspection_rect: Rect2 = board.call("enemy_inspection_visual_global_rect", support_actor_key) as Rect2
+	var inspect_spotlights: Array = prompt.get_meta("spotlight_rects", []) as Array
+	_assert(inspect_spotlights.size() == 1 and (inspect_spotlights[0] as Rect2).encloses(support_inspection_rect), "The initial crawler border should contain its complete silhouette and Health")
 	await _save_root_screenshot("%s/04_exact_enemy_intent.png" % OUTPUT_DIR)
 	instance.call("_on_board_tile_hovered", support_tile)
 	await _settle_ui()
@@ -101,6 +106,14 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	var intent_rect: Rect2 = intent_evidence[0] as Rect2 if not intent_evidence.is_empty() else Rect2()
 	var intent_callout_rect: Rect2 = prompt.get_meta("callout_rect", Rect2()) as Rect2
 	_assert(not intent_callout_rect.intersects(intent_rect), "Tutorial copy should not cover the enemy intent evidence it explains")
+	var expanded_inspection_rect: Rect2 = board.call("enemy_inspection_visual_global_rect", support_actor_key) as Rect2
+	var expanded_spotlights: Array = prompt.get_meta("spotlight_rects", []) as Array
+	_assert(
+		expanded_spotlights.size() == 1
+		and (expanded_spotlights[0] as Rect2).encloses(expanded_inspection_rect)
+		and (expanded_spotlights[0] as Rect2).encloses(intent_rect),
+		"The expanded step-two border should contain the complete crawler and its full move-and-attack intent"
+	)
 	await _save_root_screenshot("%s/05_intent_confirmation.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()

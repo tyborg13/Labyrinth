@@ -8788,9 +8788,9 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 		ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
 			_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.move_tile(_combat_state))
 		ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
-			_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.support_tile(_combat_state))
+			_guided_tutorial_append_enemy_inspection_rect(rects, GuidedCombatScenario.support_tile(_combat_state))
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
-			_guided_tutorial_append_tile_rect(rects, _guided_tutorial_intent_enemy_tile)
+			_guided_tutorial_append_enemy_inspection_rect(rects, _guided_tutorial_intent_enemy_tile)
 		ContextualCombatTutorial.PHASE_CARD_PLAYS, ContextualCombatTutorial.PHASE_FIRST_PLAY, ContextualCombatTutorial.PHASE_KILL_REFUND:
 			_guided_tutorial_append_control_rect(rects, _play_meter, 8.0)
 		ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, ContextualCombatTutorial.PHASE_SELECT_KILL_CARD, ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD:
@@ -8902,6 +8902,17 @@ func _guided_tutorial_append_tile_rect(rects: Array, tile: Vector2i) -> void:
 	var rect: Rect2 = _guided_tutorial_tile_global_rect(tile)
 	if rect.has_area():
 		rects.append(rect)
+
+func _guided_tutorial_append_enemy_inspection_rect(rects: Array, tile: Vector2i) -> void:
+	if tile == INVALID_TARGET_TILE or board_view == null or not board_view.is_inside_tree():
+		return
+	var enemy_id: int = _guided_tutorial_enemy_id_at_tile(tile)
+	if enemy_id >= 0 and board_view.has_method("enemy_inspection_visual_global_rect"):
+		var inspection_rect: Rect2 = board_view.call("enemy_inspection_visual_global_rect", "enemy_%d" % enemy_id) as Rect2
+		if inspection_rect.has_area():
+			rects.append(inspection_rect.grow(8.0))
+			return
+	_guided_tutorial_append_tile_rect(rects, tile)
 
 func _guided_tutorial_tile_global_rect(tile: Vector2i) -> Rect2:
 	if tile == INVALID_TARGET_TILE or board_view == null or not board_view.is_inside_tree():
