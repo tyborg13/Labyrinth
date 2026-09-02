@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T03:27:43Z",
+  "updated_at": "2026-09-02T04:28:06Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -9310,27 +9310,27 @@
       }
     },
     {
-      "id": "mnt_20260902T032742Z_e04d94d3",
+      "id": "mnt_20260902T042806Z_dbf30d7a",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "user_preference",
       "scope": {
-        "level": "project",
-        "path": ".",
+        "level": "folder",
+        "path": "scripts",
         "symbol": null
       },
-      "scope_key": "project:.",
-      "summary": "First-run onboarding uses an authored, opt-in combat scenario",
-      "details": "The guided combat tutorial is a deterministic rail on runs explicitly marked by RunScene's real New Run entry path: exact move tile, Bone Dart setup, Quick Stab lethal, real enemy-kill card-play refund, Brace spend, then free combat. Actionable phases gate every other input and use one strong pulsing gold target (a static strong glow under Reduced Motion); only committed milestones persist and transient phases reconstruct from live combat. Dismissal/completion persist, Skip stays contextual in the callout, and Camp exposes no persistent replay/skip tutorial controls. Low-level RunEngine combat creation stays ordinary unless the run carries guided_combat_scenario_eligible.",
+      "scope_key": "folder:scripts",
+      "summary": "Guided tutorial emphasis must use only a tight pulsing border around the exact live target.",
+      "details": "Do not add filled yellow washes, broad board/window frames, or poetic tutorial copy. Recompute card borders from live transformed card geometry; keep supporting evidence such as the full enemy-intent panel visible without framing it as another target; and author defense lessons so the shown Block absorbs a real enemy attack.",
       "status": "active",
-      "created_at": "2026-09-02T03:27:42Z",
-      "updated_at": "2026-09-02T03:27:42Z",
+      "created_at": "2026-09-02T04:28:06Z",
+      "updated_at": "2026-09-02T04:28:06Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260830T172256Z_90761664"
+        "mnt_20260902T032742Z_e04d94d3"
       ],
       "source": {
         "branch": "codex/production-first-run-guided-combat-tutorial",
-        "commit": "7f5d88d6"
+        "commit": "10b9e258"
       }
     }
   ]

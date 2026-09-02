@@ -8,7 +8,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
-const OUTPUT_DIR: String = "user://probes/contextual_combat_tutorial"
+const OUTPUT_DIR: String = "user://probes/contextual_combat_tutorial_v3"
 const STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_progression.json"
 const RUN_STORAGE_PATH: String = "user://contextual_combat_tutorial_probe_run.save"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
@@ -64,7 +64,8 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	# Lesson 1: every instruction exposes exactly one conspicuous click target.
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_PLAYER, true, "select the glowing Wanderer")
 	_assert(bool(prompt.get_meta("attention_pulse", false)), "The player tile should opt into the authored attention pulse")
-	_assert(int(prompt.get_meta("spotlight_glow_count", 0)) == 1, "The player tile should render one filled pulsing glow")
+	_assert(int(prompt.get_meta("spotlight_glow_count", -1)) == 0, "Tutorial emphasis should never tint the target with a filled gold wash")
+	_assert(int(prompt.get_meta("spotlight_pulse_border_count", 0)) == 1, "The player tile should render one tight pulsing border")
 	await _save_root_screenshot("%s/01_select_player_pulse.png" % OUTPUT_DIR)
 	var player_tile: Vector2i = _player_tile(instance)
 	await instance.call("_on_board_tile_clicked", player_tile)
@@ -80,7 +81,8 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	instance.call("_refresh_contextual_combat_tutorial")
 	await _settle_ui()
 	_assert(bool(prompt.get_meta("reduced_motion", false)), "Reduced Motion should switch the required tile to static emphasis")
-	_assert(int(prompt.get_meta("spotlight_glow_count", 0)) == 1, "Reduced Motion should preserve the strong filled target glow")
+	_assert(int(prompt.get_meta("spotlight_glow_count", -1)) == 0, "Reduced Motion should preserve an untinted target")
+	_assert(int(prompt.get_meta("spotlight_pulse_border_count", 0)) == 1, "Reduced Motion should preserve the static target border")
 	await _save_root_screenshot("%s/03_exact_move_reduced_motion.png" % OUTPUT_DIR)
 	reduced_settings["reduced_motion"] = false
 	instance.set("_settings", reduced_settings)
@@ -88,12 +90,17 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await instance.call("_on_board_tile_clicked", move_tile)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_INSPECT_ENEMY, true, "inspect the authored crawler")
-	var target_tile: Vector2i = GuidedCombatScenario.target_tile(instance.get("_combat_state") as Dictionary)
-	_assert((instance.call("_guided_tutorial_allowed_board_tiles") as Array) == [target_tile], "Intent rail should isolate the exact crawler")
+	var support_tile: Vector2i = GuidedCombatScenario.support_tile(instance.get("_combat_state") as Dictionary)
+	_assert((instance.call("_guided_tutorial_allowed_board_tiles") as Array) == [support_tile], "Intent rail should isolate the crawler that will later attack")
 	await _save_root_screenshot("%s/04_exact_enemy_intent.png" % OUTPUT_DIR)
-	instance.call("_on_board_tile_hovered", target_tile)
+	instance.call("_on_board_tile_hovered", support_tile)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CONFIRM_INTENT, true, "confirm the crawler intent")
+	var intent_evidence: Array = prompt.get_meta("evidence_rects", []) as Array
+	_assert(intent_evidence.size() == 1 and (intent_evidence[0] as Rect2).has_area(), "Intent confirmation should keep the complete move-and-attack panel undimmed")
+	var intent_rect: Rect2 = intent_evidence[0] as Rect2 if not intent_evidence.is_empty() else Rect2()
+	var intent_callout_rect: Rect2 = prompt.get_meta("callout_rect", Rect2()) as Rect2
+	_assert(not intent_callout_rect.intersects(intent_rect), "Tutorial copy should not cover the enemy intent evidence it explains")
 	await _save_root_screenshot("%s/05_intent_confirmation.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
@@ -108,15 +115,28 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, true, "preview Bone Dart")
 	var bone_index: int = _card_index(instance, GuidedCombatScenario.PREVIEW_CARD_ID)
 	_assert((instance.call("_guided_tutorial_playable_card_indices") as Array) == [bone_index], "Only Bone Dart should be selectable during its authored rail")
+	var bone_control: Control = instance.call("_hand_card_control", bone_index) as Control
+	instance.call("_on_card_hover_started", bone_index)
+	await _settle_ui()
+	var live_bone_rect: Rect2 = instance.call("_control_visual_global_rect", bone_control) as Rect2
+	var guided_card_rects: Array = prompt.get_meta("spotlight_rects", []) as Array
+	var guided_bone_rect: Rect2 = guided_card_rects[0] as Rect2 if not guided_card_rects.is_empty() else Rect2()
+	_assert(
+		guided_card_rects.size() == 1
+		and guided_bone_rect.position.distance_to(live_bone_rect.position) <= 1.0
+		and guided_bone_rect.size.distance_to(live_bone_rect.size) <= 1.0,
+		"The Bone Dart border should follow the card's live hovered position and size (border=%s, card=%s)" % [guided_bone_rect, live_bone_rect]
+	)
+	await _save_root_screenshot("%s/07_bone_dart_live_border.png" % OUTPUT_DIR)
 	await instance.call("_on_card_pressed", bone_index)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CANCEL_CARD, true, "cancel Bone Dart safely")
-	await _save_root_screenshot("%s/07_bone_dart_cancel.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/08_bone_dart_cancel.png" % OUTPUT_DIR)
 	var blocked_before: int = int(prompt.get_meta("blocked_count", 0))
 	await instance.call("_on_board_tile_clicked", Vector2i(1, 1))
 	await _settle_short()
 	_assert(int(prompt.get_meta("blocked_count", 0)) > blocked_before, "A wrong target should produce visible feedback without mutation")
-	await _save_root_screenshot("%s/08_wrong_click_feedback.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/09_wrong_click_feedback.png" % OUTPUT_DIR)
 	await instance.call("_on_cancel_requested")
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, true, "play Bone Dart for real")
@@ -126,14 +146,15 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await instance.call("_on_card_pressed", bone_index)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, true, "aim Bone Dart at the authored crawler")
-	await _save_root_screenshot("%s/09_bone_dart_target.png" % OUTPUT_DIR)
+	var target_tile: Vector2i = GuidedCombatScenario.target_tile(instance.get("_combat_state") as Dictionary)
+	await _save_root_screenshot("%s/10_bone_dart_target.png" % OUTPUT_DIR)
 	await instance.call("_on_board_tile_clicked", target_tile)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_FIRST_PLAY, true, "read the one-play counter")
 	var first_state: Dictionary = instance.get("_combat_state") as Dictionary
 	_assert(int(combat.call("cards_remaining_this_turn", first_state)) == 1, "Bone Dart should spend exactly one real card play")
 	_assert(_enemy_hp(first_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 11, "Bone Dart should leave the authored crawler at 11 HP")
-	await _save_root_screenshot("%s/10_first_play_spent.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/11_first_play_spent.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
 
@@ -145,7 +166,7 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 		await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_KILL_CARD, true, "controller Quick Stab rail")
 	_assert(bool(prompt.get_meta("controller_active", false)), "Controller proof should use controller-native tutorial copy and glyphs")
-	await _save_root_screenshot("%s/11_controller_quick_stab.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/12_controller_quick_stab.png" % OUTPUT_DIR)
 	if router != null:
 		router.call("set_forced_state_for_test", InputRouterScript.MODALITY_POINTER, InputRouterScript.FAMILY_XBOX)
 		instance.call("_refresh_contextual_combat_tutorial")
@@ -158,7 +179,7 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await instance.call("_on_card_pressed", stab_index)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET, true, "target the lethal Quick Stab")
-	await _save_root_screenshot("%s/12_quick_stab_lethal.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/13_quick_stab_lethal.png" % OUTPUT_DIR)
 	await instance.call("_on_board_tile_clicked", target_tile)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_KILL_REFUND, true, "read the kill refund")
@@ -166,7 +187,7 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	_assert(_enemy_hp(kill_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 0, "Quick Stab should kill the scripted crawler")
 	_assert(int(kill_state.get("death_bonus_card_plays_this_turn", 0)) == 1, "The kill should earn the engine's real +1 card-play reward")
 	_assert(int(combat.call("cards_remaining_this_turn", kill_state)) == 1, "The counter should visibly return to 1 after the kill")
-	await _save_root_screenshot("%s/13_kill_refund.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/14_kill_refund.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
 
@@ -177,22 +198,30 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await instance.call("_on_card_pressed", brace_index)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD, true, "confirm Brace")
-	await _save_root_screenshot("%s/14_brace_confirmation.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/15_brace_confirmation.png" % OUTPUT_DIR)
 	await instance.call("_on_board_tile_clicked", _player_tile(instance))
 	await _settle_ui()
 	var brace_state: Dictionary = instance.get("_combat_state") as Dictionary
 	_assert(int((brace_state.get("player", {}) as Dictionary).get("block", 0)) == 8, "Brace should grant its real 8 Block")
 	_assert(int(combat.call("cards_remaining_this_turn", brace_state)) == 0, "Brace should spend the refunded play")
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_TURN_CLOCK, true, "read the Turn Clock")
-	await _save_root_screenshot("%s/15_turn_clock.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/16_turn_clock.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_PASS_TURN, true, "Pass after spending the authored turn")
-	await _save_root_screenshot("%s/16_pass_preview.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/17_pass_preview.png" % OUTPUT_DIR)
+	var hp_before_pass: int = int((brace_state.get("player", {}) as Dictionary).get("hp", 0))
+	var support_before_pass: Vector2i = (_enemy_for_id(brace_state, GuidedCombatScenario.SUPPORT_ENEMY_ID)).get("pos", INVALID_TILE)
 	await instance.call("_on_pass_turn_pressed")
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CORE_COMPLETE, false, "free-play handoff")
-	await _save_root_screenshot("%s/17_free_play_handoff.png" % OUTPUT_DIR)
+	var after_pass_state: Dictionary = instance.get("_combat_state") as Dictionary
+	var player_after_pass: Dictionary = after_pass_state.get("player", {}) as Dictionary
+	var support_after_pass: Vector2i = (_enemy_for_id(after_pass_state, GuidedCombatScenario.SUPPORT_ENEMY_ID)).get("pos", INVALID_TILE)
+	_assert(int(player_after_pass.get("hp", 0)) == hp_before_pass, "Brace should prevent the crawler's real attack from reducing Health")
+	_assert(support_after_pass != support_before_pass and support_after_pass.distance_to(_player_tile(instance)) == 1.0, "The inspected crawler should visibly move into melee range before attacking")
+	_assert((prompt.get_meta("spotlight_rects", []) as Array).is_empty(), "The free-play handoff should not draw a board-sized gold frame")
+	await _save_root_screenshot("%s/18_block_result_handoff.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
 	_assert_no_prompt(instance, "free-play combat after authored rails")
@@ -209,7 +238,7 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_CHOOSE_REWARD)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_REWARD, true, "choose a combat reward")
-	await _save_root_screenshot("%s/18_reward_choice.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/19_reward_choice.png" % OUTPUT_DIR)
 	instance.call("_guided_tutorial_complete_milestone", ContextualCombatTutorial.MILESTONE_REWARD)
 
 	var run_engine := RunEngine.new()
@@ -221,14 +250,16 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	instance.call("_guided_tutorial_set_phase", ContextualCombatTutorial.PHASE_CHOOSE_PATH)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CHOOSE_PATH, true, "choose the next room")
-	await _save_root_screenshot("%s/19_path_choice.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/20_path_choice.png" % OUTPUT_DIR)
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile") as Dictionary
 	var door_tile: Vector2i = exit_destinations.keys()[0] as Vector2i
 	await instance.call("_on_map_view_room_selected", exit_destinations[door_tile] as Vector2i, door_tile)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_COMPLETE, false, "guided-run completion")
-	await _save_root_screenshot("%s/20_completion.png" % OUTPUT_DIR)
-	prompt.call("_on_completed_pressed")
+	await _save_root_screenshot("%s/21_completion.png" % OUTPUT_DIR)
+	var begin_button: Button = prompt.get("_continue_button") as Button
+	_assert(begin_button != null and begin_button.visible and begin_button.text == "Begin", "The final acknowledgement should expose an interactive Begin button")
+	await _click_control(begin_button)
 	await _settle_ui()
 	_assert_no_prompt(instance, "completed tutorial")
 	_assert(ContextualCombatTutorial.is_completed(ProgressionStore.load_data()), "Begin should persist the completed authored tutorial")
@@ -542,6 +573,29 @@ func _enemy_hp(state: Dictionary, enemy_id: int) -> int:
 			return int((enemy_var as Dictionary).get("hp", 0))
 	return -1
 
+func _enemy_for_id(state: Dictionary, enemy_id: int) -> Dictionary:
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY and int((enemy_var as Dictionary).get("id", -1)) == enemy_id:
+			return enemy_var as Dictionary
+	return {}
+
+func _click_control(control: Control) -> void:
+	var viewport: Viewport = control.get_viewport()
+	var point: Vector2 = control.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	viewport.push_input(motion, true)
+	await process_frame
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = pressed
+		event.position = point
+		event.global_position = point
+		viewport.push_input(event, true)
+		await process_frame
+
 func _button_texts(node: Node) -> Array[String]:
 	var result: Array[String] = []
 	if node == null:
@@ -609,8 +663,7 @@ func _assert_prompt(instance: Node, expected_phase: String, spotlight_required: 
 		_assert(not spotlight_rects.is_empty(), "%s should expose at least one real spotlight target" % label)
 	var frame_count: int = int(prompt.get_meta("spotlight_frame_count", -1))
 	_assert(frame_count > 0 or spotlight_rects.is_empty(), "%s should render a frame for every spotlight group" % label)
-	if spotlight_rects.size() > 4:
-		_assert(frame_count == 1, "%s should coalesce %d dense spotlight holes into one readable frame" % [label, spotlight_rects.size()])
+	_assert(frame_count == spotlight_rects.size(), "%s should keep one tight border per exact target" % label)
 	for rect_var: Variant in spotlight_rects:
 		if typeof(rect_var) != TYPE_RECT2:
 			_fail("%s spotlight metadata should contain only Rect2 values" % label)

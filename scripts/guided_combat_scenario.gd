@@ -57,9 +57,16 @@ static func prepare_for_run(run_state: Dictionary, combat_state: Dictionary) -> 
 		"description": CombatObjectiveRules.description(CombatObjectiveRules.KILL_ALL),
 		"icon_path": CombatObjectiveRules.icon_path(CombatObjectiveRules.KILL_ALL),
 	}
+	var support_crawler: Dictionary = _authored_crawler(
+		SUPPORT_ENEMY_ID,
+		support_tile,
+		int(GameData.enemy_def("crawler").get("max_hp", 14)),
+		0
+	)
+	support_crawler["intent"] = _tutorial_support_intent()
 	next_state["enemies"] = [
 		_authored_crawler(TARGET_ENEMY_ID, target_tile, TARGET_HP, 0),
-		_authored_crawler(SUPPORT_ENEMY_ID, support_tile, int(GameData.enemy_def("crawler").get("max_hp", 14)), 1),
+		support_crawler,
 	]
 	next_state["traps"] = []
 	next_state["terrain"] = []
@@ -95,7 +102,9 @@ static func prepare_for_run(run_state: Dictionary, combat_state: Dictionary) -> 
 		"player_tile": player_tile,
 		"move_tile": move_tile,
 		"target_tile": target_tile,
+		"support_tile": support_tile,
 		"target_enemy_id": TARGET_ENEMY_ID,
+		"support_enemy_id": SUPPORT_ENEMY_ID,
 		"preview_card_id": PREVIEW_CARD_ID,
 		"kill_card_id": KILL_CARD_ID,
 		"refund_card_id": REFUND_CARD_ID,
@@ -129,6 +138,12 @@ static func target_tile(combat_state: Dictionary) -> Vector2i:
 
 static func target_enemy_id(combat_state: Dictionary) -> int:
 	return int((combat_state.get(STATE_KEY, {}) as Dictionary).get("target_enemy_id", -1))
+
+static func support_tile(combat_state: Dictionary) -> Vector2i:
+	return (combat_state.get(STATE_KEY, {}) as Dictionary).get("support_tile", Vector2i(-1, -1))
+
+static func support_enemy_id(combat_state: Dictionary) -> int:
+	return int((combat_state.get(STATE_KEY, {}) as Dictionary).get("support_enemy_id", -1))
 
 static func expected_card_id(combat_state: Dictionary, role: String) -> String:
 	var scenario: Dictionary = combat_state.get(STATE_KEY, {}) as Dictionary
@@ -164,15 +179,24 @@ static func _authored_lane(grid: Array) -> Dictionary:
 
 static func _support_tile(grid: Array, occupied: Array[Vector2i], origin: Vector2i) -> Vector2i:
 	var result := Vector2i(-1, -1)
-	var best_distance: int = -1
+	var best_score: int = 999999
 	for y: int in range(grid.size()):
 		for x: int in range(_grid_width(grid)):
 			var tile := Vector2i(x, y)
 			if occupied.has(tile) or not PathUtils.is_passable(grid, tile):
 				continue
-			var distance: int = absi(tile.x - origin.x) + absi(tile.y - origin.y)
-			if distance > best_distance:
-				best_distance = distance
+			var path: Array[Vector2i] = PathUtils.find_path(grid, tile, origin, {}, true)
+			if path.is_empty():
+				continue
+			var distance: int = path.size() - 1
+			# Skitter Strike moves 3 and then attacks at range 1. Prefer a
+			# four-step route so its movement and Brace's damage absorption are
+			# both visible when the player passes.
+			if distance < 2 or distance > 4:
+				continue
+			var score: int = absi(4 - distance) * 10000 + tile.y * 100 + tile.x
+			if score < best_score:
+				best_score = score
 				result = tile
 	return result
 
@@ -198,6 +222,17 @@ static func _authored_crawler(enemy_id: int, tile: Vector2i, hp: int, intent_ind
 		"immobilize": false,
 		"poison": {"damage": 0, "delay": 0},
 		"intent": intent,
+	}
+
+static func _tutorial_support_intent() -> Dictionary:
+	return {
+		"id": "guided_skitter_strike",
+		"name": "Skitter Strike",
+		"time": 5,
+		"actions": [
+			{"type": "move_toward", "range": 3},
+			{"type": "melee", "damage": 4, "range": 1},
+		],
 	}
 
 static func _enemy_queue_entry(enemy: Dictionary, scheduled_time: int, sequence: int) -> Dictionary:

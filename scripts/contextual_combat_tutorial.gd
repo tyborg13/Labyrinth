@@ -30,7 +30,7 @@ const MILESTONE_REFUND_CARD: String = "refund_card_committed"
 const MILESTONE_CARD: String = MILESTONE_FIRST_CARD
 const MILESTONE_CLOCK: String = "turn_clock_read"
 const MILESTONE_PASS: String = "turn_passed"
-const MILESTONE_CORE: String = "combat_rhythm_learned"
+const MILESTONE_CORE: String = "combat_basics_learned"
 const MILESTONE_REWARD: String = "reward_chosen"
 const MILESTONE_PATH: String = "path_chosen"
 
@@ -195,9 +195,9 @@ const PHASES: Dictionary = {
 	},
 	PHASE_CORE_COMPLETE: {
 		"id": PHASE_CORE_COMPLETE, "lesson": 6, "lesson_total": 8,
-		"icon": "", "kicker": "YOUR TURN", "title": "Now Use the Rhythm",
-		"pointer_text": "Move, play, read the enemy, then pass. Finish this fight your way.",
-		"controller_text": "Move, play, read the enemy, then pass. Finish this fight your way.",
+		"icon": "", "kicker": "YOUR TURN", "title": "Finish the Fight",
+		"pointer_text": "Use movement, cards, enemy intent, and Pass to defeat the remaining enemy.",
+		"controller_text": "Use movement, cards, enemy intent, and Pass to defeat the remaining enemy.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Finish the Fight",
 	},
@@ -217,9 +217,9 @@ const PHASES: Dictionary = {
 	},
 	PHASE_COMPLETE: {
 		"id": PHASE_COMPLETE, "lesson": 8, "lesson_total": 8,
-		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "The Way Is Yours",
-		"pointer_text": "You know the rhythm. The Umbra will teach the rest.",
-		"controller_text": "You know the rhythm. The Umbra will teach the rest.",
+		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "Tutorial Complete",
+		"pointer_text": "You know the basic combat controls. Continue to the next room.",
+		"controller_text": "You know the basic combat controls. Continue to the next room.",
 		"controller_action": "controller_accept", "action_label": "Begin",
 		"requires_continue": true, "continue_text": "Begin",
 	},
@@ -245,15 +245,15 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_INSPECT_ENEMY: {
 		"id": PHASE_INSPECT_ENEMY, "lesson": 2, "lesson_total": 10,
 		"icon": "", "kicker": "ENEMY INTENT", "title": "Read the Crawler",
-		"pointer_text": "Point to the glowing crawler to reveal its next action.",
+		"pointer_text": "Move the pointer over the glowing crawler to reveal its next action.",
 		"controller_text": "Focus the glowing crawler to reveal its next action.",
 		"controller_action": "controller_move", "action_label": "Inspect", "attention_pulse": true,
 	},
 	PHASE_CONFIRM_INTENT: {
 		"id": PHASE_CONFIRM_INTENT, "lesson": 2, "lesson_total": 10,
-		"icon": "", "kicker": "ENEMY INTENT", "title": "The Enemy's Plan",
-		"pointer_text": "This preview shows what the crawler will do when its turn arrives.",
-		"controller_text": "This preview shows what the crawler will do when its turn arrives.",
+		"icon": "", "kicker": "ENEMY INTENT", "title": "Skitter Strike",
+		"pointer_text": "This crawler will move up to 3 tiles, then attack for 4 damage.",
+		"controller_text": "This crawler will move up to 3 tiles, then attack for 4 damage.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Continue",
 	},
@@ -362,15 +362,15 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_PASS_TURN: {
 		"id": PHASE_PASS_TURN, "lesson": 7, "lesson_total": 10,
 		"icon": "", "kicker": "END TURN", "title": "Let the Enemy Act",
-		"pointer_text": "Your actions are spent. Pass to let the remaining crawler take its turn.",
-		"controller_text": "Your actions are spent. Pass to let the remaining crawler take its turn.",
+		"pointer_text": "Your actions are spent. Pass so the crawler attacks into your Block.",
+		"controller_text": "Your actions are spent. Pass so the crawler attacks into your Block.",
 		"controller_action": "controller_pass", "action_label": "Pass", "attention_pulse": true,
 	},
 	PHASE_CORE_COMPLETE: {
 		"id": PHASE_CORE_COMPLETE, "lesson": 8, "lesson_total": 10,
-		"icon": "", "kicker": "YOUR TURN", "title": "Now Fight Your Way",
-		"pointer_text": "You know the rhythm. Finish the remaining enemy however you choose.",
-		"controller_text": "You know the rhythm. Finish the remaining enemy however you choose.",
+		"icon": "", "kicker": "BLOCK", "title": "Block Absorbed the Hit",
+		"pointer_text": "The crawler's 4-damage attack used 4 Block, so you lost no Health. Defeat it on your own.",
+		"controller_text": "The crawler's 4-damage attack used 4 Block, so you lost no Health. Defeat it on your own.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Finish the Fight",
 	},
@@ -390,9 +390,9 @@ const AUTHORED_PHASES: Dictionary = {
 	},
 	PHASE_COMPLETE: {
 		"id": PHASE_COMPLETE, "lesson": 10, "lesson_total": 10,
-		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "The Way Is Yours",
-		"pointer_text": "You know the rhythm. The Umbra will teach the rest.",
-		"controller_text": "You know the rhythm. The Umbra will teach the rest.",
+		"icon": "move", "kicker": "GUIDE COMPLETE", "title": "Tutorial Complete",
+		"pointer_text": "You know the basic combat controls. Continue to the next room.",
+		"controller_text": "You know the basic combat controls. Continue to the next room.",
 		"controller_action": "controller_accept", "action_label": "Begin",
 		"requires_continue": true, "continue_text": "Begin",
 	},

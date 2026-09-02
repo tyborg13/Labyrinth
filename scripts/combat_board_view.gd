@@ -12875,6 +12875,33 @@ func rendered_visual_rects() -> Array[Rect2]:
 			rects.append(_trap_draw_rect(trap.get("pos", Vector2i(-1, -1))))
 	return rects
 
+func enemy_intent_visual_global_rect(actor_key: String) -> Rect2:
+	if actor_key.is_empty() or not is_inside_tree():
+		return Rect2()
+	_rebuild_hud_health_rects_cache()
+	for entry_var: Variant in _hud_layout_entries_cache:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if str(entry.get("actor_key", "")) != actor_key:
+			continue
+		var layout: Dictionary = entry.get("layout", {}) as Dictionary
+		var local_rect: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
+		if not local_rect.has_area():
+			return Rect2()
+		var transform: Transform2D = get_global_transform()
+		var points: Array[Vector2] = [
+			transform * local_rect.position,
+			transform * Vector2(local_rect.end.x, local_rect.position.y),
+			transform * local_rect.end,
+			transform * Vector2(local_rect.position.x, local_rect.end.y),
+		]
+		var result := Rect2(points[0], Vector2.ZERO)
+		for point: Vector2 in points:
+			result = result.expand(point)
+		return result
+	return Rect2()
+
 func rendered_visual_bounds() -> Rect2:
 	# Consumers use the combined bound for broad framing so tall pillars, doors,
 	# actors, pickups, and room props cannot be silently clipped while the tile

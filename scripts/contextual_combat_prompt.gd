@@ -13,19 +13,20 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const CALLOUT_MIN_SIZE: Vector2 = Vector2(430.0, 194.0)
 const CALLOUT_MARGIN: float = 24.0
 const CALLOUT_TARGET_GAP: float = 22.0
-const SPOTLIGHT_GROW: float = 8.0
+const SPOTLIGHT_GROW: float = 3.0
 const SPOTLIGHT_CORNER: float = 16.0
 const MAX_SPOTLIGHTS: int = 24
-const DENSE_SPOTLIGHT_FRAME_THRESHOLD: int = 4
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _phase_id: String = ""
 var _definition: Dictionary = {}
 var _spotlight_rects: Array = []
+var _evidence_rects: Array = []
 var _avoid_rects: Array = []
 var _reduced_motion: bool = false
 var _blocked_until_msec: int = 0
 var _blocked_count: int = 0
+var _completion_requested: bool = false
 
 var _callout: PanelContainer
 var _icon_frame: PanelContainer
@@ -65,6 +66,7 @@ func configure(
 	if phase_changed:
 		_blocked_until_msec = 0
 		_feedback.visible = false
+		_completion_requested = false
 	_reduced_motion = reduced_motion
 	_spotlight_rects = _normalized_rects(spotlight_rects)
 	_avoid_rects = _normalized_rects(avoid_rects)
@@ -80,6 +82,10 @@ func configure(
 	_continue_button.visible = bool(_definition.get("requires_continue", false))
 	_continue_button.text = str(_definition.get("continue_text", "Continue"))
 	_skip_button.visible = _phase_id != "complete"
+	# The final acknowledgement sits over an existing full-screen pre-battle
+	# modal. Own that input plane explicitly so its Begin button cannot lose the
+	# pointer to the modal beneath it. Gameplay phases remain click-through.
+	mouse_filter = Control.MOUSE_FILTER_STOP if _phase_id == "complete" else Control.MOUSE_FILTER_IGNORE
 	_refresh_progress_segments()
 	_refresh_modality()
 	set_meta("prompt_id", _phase_id)
@@ -92,9 +98,22 @@ func configure(
 	queue_redraw()
 
 func update_geometry(spotlight_rects: Array, avoid_rects: Array = []) -> void:
-	_spotlight_rects = _normalized_rects(spotlight_rects)
-	_avoid_rects = _normalized_rects(avoid_rects)
+	var next_spotlights: Array = _normalized_rects(spotlight_rects)
+	var next_avoid_rects: Array = _normalized_rects(avoid_rects)
+	if next_spotlights == _spotlight_rects and next_avoid_rects == _avoid_rects:
+		return
+	_spotlight_rects = next_spotlights
+	_avoid_rects = next_avoid_rects
 	set_meta("spotlight_rects", _spotlight_rects.duplicate())
+	_layout_callout()
+	queue_redraw()
+
+func set_evidence_rects(evidence_rects: Array) -> void:
+	var next_evidence: Array = _normalized_rects(evidence_rects)
+	if next_evidence == _evidence_rects:
+		return
+	_evidence_rects = next_evidence
+	set_meta("evidence_rects", _evidence_rects.duplicate())
 	_layout_callout()
 	queue_redraw()
 
@@ -102,8 +121,10 @@ func clear_prompt() -> void:
 	_phase_id = ""
 	_definition.clear()
 	_spotlight_rects.clear()
+	_evidence_rects.clear()
 	_avoid_rects.clear()
 	_blocked_until_msec = 0
+	_completion_requested = false
 	if _feedback != null:
 		_feedback.visible = false
 	set_meta("prompt_id", "")
@@ -112,6 +133,9 @@ func clear_prompt() -> void:
 	set_meta("spotlight_frame_count", 0)
 	set_meta("spotlight_frame_rects", [])
 	set_meta("spotlight_glow_count", 0)
+	set_meta("spotlight_pulse_border_count", 0)
+	set_meta("evidence_rects", [])
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
 	queue_redraw()
 
@@ -144,6 +168,23 @@ func _process(_delta: float) -> void:
 	if not _reduced_motion or _feedback.visible:
 		queue_redraw()
 
+func _input(event: InputEvent) -> void:
+	if (
+		_phase_id != "complete"
+		or _continue_button == null
+		or not _continue_button.visible
+		or not (event is InputEventMouseButton)
+	):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if (
+		mouse_event.button_index == MOUSE_BUTTON_LEFT
+		and mouse_event.pressed
+		and _continue_button.get_global_rect().has_point(mouse_event.position)
+	):
+		_on_completed_pressed()
+		get_viewport().set_input_as_handled()
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED and visible:
 		call_deferred("_layout_callout")
@@ -158,40 +199,29 @@ func _draw() -> void:
 		local_rect = local_rect.intersection(Rect2(Vector2.ZERO, size))
 		if local_rect.has_area():
 			local_spotlights.append(local_rect)
-	_draw_dimmer_with_holes(local_spotlights)
-	var frame_spotlights: Array = _spotlight_frame_rects(local_spotlights)
-	set_meta("spotlight_hole_count", local_spotlights.size())
+	var local_evidence: Array = []
+	for global_rect: Rect2 in _evidence_rects:
+		var local_rect := Rect2(global_rect.position - global_position, global_rect.size).grow(SPOTLIGHT_GROW)
+		local_rect = local_rect.intersection(Rect2(Vector2.ZERO, size))
+		if local_rect.has_area():
+			local_evidence.append(local_rect)
+	var holes: Array = local_spotlights.duplicate()
+	holes.append_array(local_evidence)
+	_draw_dimmer_with_holes(holes)
+	var frame_spotlights: Array = local_spotlights.duplicate()
+	set_meta("spotlight_hole_count", holes.size())
 	set_meta("spotlight_frame_count", frame_spotlights.size())
 	set_meta("spotlight_frame_rects", _global_spotlight_rects(frame_spotlights))
 	var pulse: float = 1.0 if _reduced_motion else 0.78 + 0.22 * sin(float(Time.get_ticks_msec()) * 0.005)
 	var blocked: bool = Time.get_ticks_msec() < _blocked_until_msec
 	var accent: Color = Color("e7775c") if blocked else Color("f0bd63")
 	var attention_pulse: bool = bool(_definition.get("attention_pulse", false))
-	set_meta("spotlight_glow_count", frame_spotlights.size() if attention_pulse else 0)
+	# Keep tutorial emphasis outside the target. A filled wash changes the
+	# board/card art underneath it and can read like a screen-wide color filter.
+	set_meta("spotlight_glow_count", 0)
+	set_meta("spotlight_pulse_border_count", frame_spotlights.size() if attention_pulse else 0)
 	for rect: Rect2 in frame_spotlights:
-		if attention_pulse:
-			_draw_spotlight_glow(rect, accent, pulse)
-		_draw_spotlight_frame(rect, accent, pulse)
-	_draw_connector(frame_spotlights, accent)
-
-func _spotlight_frame_rects(spotlights: Array) -> Array:
-	if spotlights.size() <= 1:
-		return spotlights.duplicate()
-	var should_group: bool = spotlights.size() > DENSE_SPOTLIGHT_FRAME_THRESHOLD
-	if not should_group:
-		for first_index: int in range(spotlights.size() - 1):
-			var first: Rect2 = spotlights[first_index]
-			for second_index: int in range(first_index + 1, spotlights.size()):
-				var second: Rect2 = spotlights[second_index]
-				if first.intersection(second).get_area() > 1.0:
-					should_group = true
-					break
-			if should_group:
-				break
-	if not should_group:
-		return spotlights.duplicate()
-	var grouped: Rect2 = _global_rect_union(spotlights)
-	return [grouped] if grouped.has_area() else []
+		_draw_spotlight_frame(rect, accent, pulse if attention_pulse else 1.0)
 
 func _global_spotlight_rects(local_rects: Array) -> Array:
 	var result: Array = []
@@ -232,10 +262,10 @@ func _draw_dimmer_with_holes(holes: Array) -> void:
 				draw_rect(cell, Color(0.025, 0.018, 0.025, 0.76))
 
 func _draw_spotlight_frame(rect: Rect2, accent: Color, pulse: float) -> void:
-	var glow_color := Color(accent.r, accent.g, accent.b, 0.18 * pulse)
-	for grow_amount: float in [10.0, 6.0, 3.0]:
-		draw_rect(rect.grow(grow_amount), glow_color, false, 3.0)
-	draw_rect(rect, Color(accent.r, accent.g, accent.b, 0.98), false, 3.0)
+	var halo_alpha: float = 0.10 + 0.13 * pulse
+	var halo_distance: float = 2.0 if _reduced_motion else 2.0 + 3.0 * pulse
+	draw_rect(rect.grow(halo_distance), Color(accent.r, accent.g, accent.b, halo_alpha), false, 3.0)
+	draw_rect(rect, Color(accent.r, accent.g, accent.b, 0.94), false, 2.5)
 	var corner: float = minf(SPOTLIGHT_CORNER, minf(rect.size.x, rect.size.y) * 0.30)
 	for corner_data: Dictionary in [
 		{"point": rect.position, "x": Vector2(corner, 0.0), "y": Vector2(0.0, corner)},
@@ -244,36 +274,8 @@ func _draw_spotlight_frame(rect: Rect2, accent: Color, pulse: float) -> void:
 		{"point": Vector2(rect.position.x, rect.end.y), "x": Vector2(corner, 0.0), "y": Vector2(0.0, -corner)},
 	]:
 		var point: Vector2 = corner_data["point"]
-		draw_line(point, point + (corner_data["x"] as Vector2), accent.lightened(0.20), 5.0)
-		draw_line(point, point + (corner_data["y"] as Vector2), accent.lightened(0.20), 5.0)
-
-func _draw_spotlight_glow(rect: Rect2, accent: Color, pulse: float) -> void:
-	# A translucent fill makes the required tile/card unmistakable even in a
-	# busy room. The expanding halo supplies motion; the bright fill, corners,
-	# and connector remain as non-motion/non-color cues.
-	var strength: float = 1.0 if _reduced_motion else pulse
-	draw_rect(rect.grow(14.0 * strength), Color(accent.r, accent.g, accent.b, 0.07 + 0.07 * strength), true)
-	draw_rect(rect.grow(7.0 * strength), Color(accent.r, accent.g, accent.b, 0.10 + 0.10 * strength), true)
-	draw_rect(rect, Color(accent.r, accent.g, accent.b, 0.17 if _reduced_motion else 0.12 + 0.10 * strength), true)
-
-func _draw_connector(local_spotlights: Array, accent: Color) -> void:
-	if local_spotlights.is_empty() or _callout == null or not _callout.visible:
-		return
-	var panel_rect: Rect2 = _callout.get_rect()
-	var target: Vector2 = local_spotlights[0].get_center()
-	var best_distance: float = panel_rect.get_center().distance_squared_to(target)
-	for rect: Rect2 in local_spotlights:
-		var candidate: Vector2 = rect.get_center()
-		var distance: float = panel_rect.get_center().distance_squared_to(candidate)
-		if distance < best_distance:
-			best_distance = distance
-			target = candidate
-	var start: Vector2 = Vector2(
-		clampf(target.x, panel_rect.position.x, panel_rect.end.x),
-		clampf(target.y, panel_rect.position.y, panel_rect.end.y)
-	)
-	draw_line(start, target, Color(accent.r, accent.g, accent.b, 0.86), 3.0, true)
-	draw_circle(target, 6.0, accent.lightened(0.18))
+		draw_line(point, point + (corner_data["x"] as Vector2), accent.lightened(0.20), 4.0)
+		draw_line(point, point + (corner_data["y"] as Vector2), accent.lightened(0.20), 4.0)
 
 func _build() -> void:
 	if _callout != null:
@@ -497,7 +499,7 @@ func _layout_callout() -> void:
 			score += rect.get_center().distance_to(focus_bounds.get_center()) * 0.05
 		for global_avoid: Rect2 in _avoid_rects:
 			var local_avoid := Rect2(global_avoid.position - global_position, global_avoid.size)
-			score += rect.intersection(local_avoid).get_area() * 0.45
+			score += rect.intersection(local_avoid).get_area() * 12.0
 		if score < best_score:
 			best_score = score
 			chosen = candidate
@@ -533,8 +535,10 @@ func _global_rect_union(rects: Array) -> Rect2:
 	return result
 
 func _on_completed_pressed() -> void:
-	if not _phase_id.is_empty():
-		completed.emit(_phase_id)
+	if _phase_id.is_empty() or _completion_requested:
+		return
+	_completion_requested = true
+	completed.emit(_phase_id)
 
 func _on_skipped_pressed() -> void:
 	if not _phase_id.is_empty():

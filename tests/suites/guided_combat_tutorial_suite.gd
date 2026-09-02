@@ -162,6 +162,35 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 		and int((state.get("player", {}) as Dictionary).get("block", 0)) == 8,
 		"Brace should spend the refunded play through normal card resolution and grant its real 8 Block"
 	)
+	var support_before: Dictionary = _enemy_for_id(state, GuidedCombatScenario.SUPPORT_ENEMY_ID)
+	var support_actions: Array = (support_before.get("intent", {}) as Dictionary).get("actions", []) as Array
+	expect.call(
+		support_actions.size() == 2
+		and str((support_actions[0] as Dictionary).get("type", "")) == "move_toward"
+		and str((support_actions[1] as Dictionary).get("type", "")) == "melee",
+		"The inspected support crawler should visibly promise the same move-and-attack sequence used after Pass"
+	)
+	var scheduled_state: Dictionary = combat.finish_player_activation(state)
+	var phase_result: Dictionary = combat.advance_to_next_player_turn_with_steps(scheduled_state)
+	var after_enemy_turn: Dictionary = phase_result.get("state", {}) as Dictionary
+	var player_after_enemy: Dictionary = after_enemy_turn.get("player", {}) as Dictionary
+	var support_attack_used_block: bool = false
+	for step_var: Variant in phase_result.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var as Dictionary
+		if (
+			str(step.get("kind", "")) == "melee"
+			and str(step.get("actor_key", "")) == "enemy_%d" % GuidedCombatScenario.SUPPORT_ENEMY_ID
+			and int(step.get("block_loss", 0)) == 4
+		):
+			support_attack_used_block = true
+	expect.call(
+		support_attack_used_block
+		and int(player_after_enemy.get("hp", 0)) == int((state.get("player", {}) as Dictionary).get("hp", 0))
+		and int(player_after_enemy.get("block", 0)) == 0,
+		"Passing should let the inspected crawler consume 4 Block, leave Health unchanged, then clear the remaining Block at the next turn"
+	)
 	expect.call(str(combat.combat_outcome(state)).is_empty(), "A support crawler should remain alive for the free-play handoff")
 
 	var dismissed_run: Dictionary = GuidedCombatScenario.mark_run_eligible({
@@ -892,7 +921,9 @@ static func _combat_fixture(scene_override: Node = null) -> Node:
 			"player_tile": PLAYER_TILE,
 			"move_tile": MOVE_TILE,
 			"target_tile": ENEMY_TILE,
+			"support_tile": ENEMY_TILE,
 			"target_enemy_id": GuidedCombatScenario.TARGET_ENEMY_ID,
+			"support_enemy_id": GuidedCombatScenario.TARGET_ENEMY_ID,
 			"preview_card_id": GuidedCombatScenario.PREVIEW_CARD_ID,
 			"kill_card_id": GuidedCombatScenario.KILL_CARD_ID,
 			"refund_card_id": GuidedCombatScenario.REFUND_CARD_ID,

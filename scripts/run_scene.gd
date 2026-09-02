@@ -1919,6 +1919,7 @@ func _refresh_hand_panel_after_viewport_change() -> void:
 	_refresh_hand_panel()
 
 func _process(delta: float) -> void:
+	_refresh_guided_tutorial_live_geometry()
 	if not _dialogue_active or _dialogue_text_complete or _dialogue_text_label == null:
 		return
 	var line: Dictionary = _current_dialogue_line()
@@ -1934,6 +1935,26 @@ func _process(delta: float) -> void:
 	_dialogue_text_label.visible_characters = int(floor(_dialogue_char_progress))
 	if _dialogue_char_progress >= float(text.length()):
 		_complete_current_dialogue_line()
+
+func _refresh_guided_tutorial_live_geometry() -> void:
+	if (
+		_contextual_combat_prompt_host == null
+		or not _contextual_combat_prompt_host.visible
+		or _contextual_combat_prompt == null
+	):
+		return
+	# HandFanContainer animates position, rotation, and scale without resizing
+	# the card Controls. Sample those live transforms while a card is the exact
+	# tutorial target so the border stays attached throughout hover/focus motion.
+	if _guided_tutorial_phase_id in [
+		ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL,
+		ContextualCombatTutorial.PHASE_CANCEL_CARD,
+		ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD,
+		ContextualCombatTutorial.PHASE_SELECT_KILL_CARD,
+		ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD,
+		ContextualCombatTutorial.PHASE_CONFIRM_INTENT,
+	]:
+		_layout_contextual_combat_prompt_overlay()
 
 func _physics_process(delta: float) -> void:
 	if not _controller_is_active():
@@ -3043,6 +3064,12 @@ func _refresh_controller_modal_after_layout() -> void:
 		_restore_controller_loadout_tooltip_for_focus_owner()
 
 func _controller_focus_scope() -> Control:
+	if (
+		_guided_tutorial_requires_continue()
+		and _contextual_combat_prompt_host != null
+		and _contextual_combat_prompt_host.visible
+	):
+		return _contextual_combat_prompt_host
 	for control: Control in [
 		_skill_choice_scrim,
 		_skill_status_scrim,
@@ -4692,6 +4719,16 @@ func _sync_pre_battle_overlay_layering() -> void:
 		_upgrade_scrim.move_to_front()
 	elif _pre_battle_scrim.visible:
 		_pre_battle_scrim.move_to_front()
+	# The final tutorial acknowledgement deliberately shares the pre-battle
+	# screen. Keep its real Control subtree last as well as at the higher z-index;
+	# Godot's GUI hit testing uses sibling order when overlapping full-screen
+	# Controls compete, even when their draw order is visually unambiguous.
+	if (
+		_contextual_combat_prompt_host != null
+		and _contextual_combat_prompt_host.visible
+		and _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_COMPLETE
+	):
+		_contextual_combat_prompt_host.move_to_front()
 
 func _rebuild_pre_battle_overlay() -> void:
 	if _pre_battle_panel == null:
@@ -8377,6 +8414,8 @@ func _layout_contextual_combat_prompt_overlay() -> void:
 		return
 	if not _contextual_combat_prompt_host.visible:
 		return
+	if _contextual_combat_prompt.has_method("set_evidence_rects"):
+		_contextual_combat_prompt.call("set_evidence_rects", _guided_tutorial_evidence_rects())
 	_contextual_combat_prompt.call(
 		"update_geometry",
 		_guided_tutorial_spotlight_rects(_guided_tutorial_phase_id),
@@ -8517,10 +8556,17 @@ func _refresh_contextual_combat_tutorial() -> void:
 	):
 		_contextual_combat_prompt.call("clear_prompt")
 		_contextual_combat_prompt_host.visible = false
+		if not _dialogue_active:
+			set_process(false)
 		_refresh_log_overlay_visibility()
 		return
 	_contextual_combat_prompt_host.visible = true
+	set_process(true)
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_COMPLETE:
+		_contextual_combat_prompt_host.move_to_front()
 	_guided_tutorial_log_started_once()
+	if _contextual_combat_prompt.has_method("set_evidence_rects"):
+		_contextual_combat_prompt.call("set_evidence_rects", _guided_tutorial_evidence_rects())
 	_contextual_combat_prompt.call(
 		"configure",
 		prompt,
@@ -8700,7 +8746,7 @@ func _guided_tutorial_prepare_controller_focus() -> void:
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
 		_controller_region = "board"
 		_controller_set_hand_focused(false)
-		_controller_set_board_tile(GuidedCombatScenario.target_tile(_combat_state))
+		_controller_set_board_tile(GuidedCombatScenario.support_tile(_combat_state))
 		return
 	if _guided_tutorial_card_selection_phases().has(_guided_tutorial_phase_id):
 		var guided_indices: Array[int] = _guided_tutorial_playable_card_indices()
@@ -8742,7 +8788,7 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 		ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
 			_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.move_tile(_combat_state))
 		ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
-			_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.target_tile(_combat_state))
+			_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.support_tile(_combat_state))
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
 			_guided_tutorial_append_tile_rect(rects, _guided_tutorial_intent_enemy_tile)
 		ContextualCombatTutorial.PHASE_CARD_PLAYS, ContextualCombatTutorial.PHASE_FIRST_PLAY, ContextualCombatTutorial.PHASE_KILL_REFUND:
@@ -8751,15 +8797,15 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 			for index: int in _guided_tutorial_playable_card_indices():
 				var card_control: Control = _hand_card_control(index)
 				if card_control != null and card_control.visible:
-					rects.append(_control_visual_global_rect(card_control).grow(5.0))
+					rects.append(_control_visual_global_rect(card_control))
 		ContextualCombatTutorial.PHASE_CANCEL_CARD:
 			var cancel_button: Button = _guided_tutorial_find_button(_action_step_tracker, "Cancel")
 			if cancel_button != null:
-				rects.append(cancel_button.get_global_rect().grow(5.0))
+				rects.append(cancel_button.get_global_rect())
 			elif _selected_card_index >= 0:
 				var selected_card: Control = _hand_card_control(_selected_card_index)
 				if selected_card != null:
-					rects.append(_control_visual_global_rect(selected_card).grow(5.0))
+					rects.append(_control_visual_global_rect(selected_card))
 		ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD, ContextualCombatTutorial.PHASE_SELECT_KILL_TARGET, ContextualCombatTutorial.PHASE_FINISH_KILL_CARD, ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD:
 			if _pending_card_requires_confirmation():
 				var confirmation_player: Vector2i = (_preview_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
@@ -8769,15 +8815,15 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 			if _current_action_can_skip():
 				var skip_button: Button = _guided_tutorial_find_button(_action_step_tracker, "Skip")
 				if skip_button != null:
-					rects.append(skip_button.get_global_rect().grow(5.0))
+					rects.append(skip_button.get_global_rect())
 		ContextualCombatTutorial.PHASE_TURN_CLOCK:
 			_guided_tutorial_append_control_rect(rects, _turn_order_panel, 6.0)
 		ContextualCombatTutorial.PHASE_PASS_TURN:
 			_guided_tutorial_append_control_rect(rects, _pass_preview_overlay, 6.0)
 		ContextualCombatTutorial.PHASE_CORE_COMPLETE:
-			var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
-			if board_bounds.has_area():
-				rects.append(board_bounds)
+			# This is an acknowledgement before free play, not a board-sized
+			# click target. The callout button owns the only required action.
+			pass
 		ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
 			_guided_tutorial_append_control_rect(rects, _relic_choice_bar, 8.0)
 		ContextualCombatTutorial.PHASE_CHOOSE_PATH:
@@ -8790,6 +8836,37 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 			# compete with the guide's primary action.
 			pass
 	return rects
+
+func _guided_tutorial_evidence_rects() -> Array:
+	var result: Array = []
+	if _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
+		return result
+	var intent_rect: Rect2 = _guided_tutorial_intent_global_rect()
+	if intent_rect.has_area():
+		result.append(intent_rect.grow(4.0))
+	return result
+
+func _guided_tutorial_intent_global_rect() -> Rect2:
+	if (
+		board_view == null
+		or not board_view.is_inside_tree()
+		or _guided_tutorial_intent_enemy_tile == INVALID_TARGET_TILE
+		or not board_view.has_method("enemy_intent_visual_global_rect")
+	):
+		return Rect2()
+	var enemy_id: int = _guided_tutorial_enemy_id_at_tile(_guided_tutorial_intent_enemy_tile)
+	if enemy_id < 0:
+		return Rect2()
+	return board_view.call("enemy_intent_visual_global_rect", "enemy_%d" % enemy_id) as Rect2
+
+func _guided_tutorial_enemy_id_at_tile(tile: Vector2i) -> int:
+	for enemy_var: Variant in _combat_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if int(enemy.get("hp", 0)) > 0 and _enemy_footprint_tiles(enemy).has(tile):
+			return int(enemy.get("id", -1))
+	return -1
 
 func _guided_tutorial_avoid_rects() -> Array:
 	var result: Array = []
@@ -8807,7 +8884,11 @@ func _guided_tutorial_avoid_rects() -> Array:
 	for index: int in range(hand.size()):
 		var card_control: Control = _hand_card_control(index)
 		if card_control != null and card_control.visible:
-			result.append(_control_visual_global_rect(card_control).grow(5.0))
+			result.append(_control_visual_global_rect(card_control).grow(3.0))
+	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
+		var intent_rect: Rect2 = _guided_tutorial_intent_global_rect()
+		if intent_rect.has_area():
+			result.append(intent_rect.grow(8.0))
 	return result
 
 func _guided_tutorial_append_control_rect(rects: Array, control: Control, grow_amount: float = 0.0) -> void:
@@ -8820,7 +8901,7 @@ func _guided_tutorial_append_control_rect(rects: Array, control: Control, grow_a
 func _guided_tutorial_append_tile_rect(rects: Array, tile: Vector2i) -> void:
 	var rect: Rect2 = _guided_tutorial_tile_global_rect(tile)
 	if rect.has_area():
-		rects.append(rect.grow(5.0))
+		rects.append(rect)
 
 func _guided_tutorial_tile_global_rect(tile: Vector2i) -> Rect2:
 	if tile == INVALID_TARGET_TILE or board_view == null or not board_view.is_inside_tree():
@@ -8908,7 +8989,7 @@ func _guided_tutorial_allowed_board_tiles() -> Array[Vector2i]:
 		ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
 			result = _vector2i_array([GuidedCombatScenario.move_tile(_combat_state)])
 		ContextualCombatTutorial.PHASE_INSPECT_ENEMY:
-			result = _vector2i_array([GuidedCombatScenario.target_tile(_combat_state)])
+			result = _vector2i_array([GuidedCombatScenario.support_tile(_combat_state)])
 		ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
 			if _guided_tutorial_intent_enemy_tile != INVALID_TARGET_TILE:
 				result.append(_guided_tutorial_intent_enemy_tile)
@@ -16655,6 +16736,10 @@ func _refresh_stage_view() -> void:
 			_guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CONFIRM_INTENT
 			and _state_has_visible_enemy_at_tile(display_state, _guided_tutorial_intent_enemy_tile)
 		)
+		if guided_intent_focus_active:
+			var guided_enemy_id: int = _guided_tutorial_enemy_id_at_tile(_guided_tutorial_intent_enemy_tile)
+			if guided_enemy_id >= 0:
+				presentation["expanded_enemy_actor_keys"] = ["enemy_%d" % guided_enemy_id]
 		var intent_focus_tile: Vector2i = (
 			_guided_tutorial_intent_enemy_tile
 			if guided_intent_focus_active
@@ -19375,7 +19460,7 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 	_hovered_board_tile = presented_tile
 	if (
 		_guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_INSPECT_ENEMY
-		and presented_tile == GuidedCombatScenario.target_tile(_combat_state)
+		and presented_tile == GuidedCombatScenario.support_tile(_combat_state)
 		and _hovered_tile_has_visible_enemy(presented_tile)
 	):
 		_guided_tutorial_intent_enemy_tile = presented_tile
