@@ -6,6 +6,7 @@ const RunScene = preload("res://scripts/run_scene.gd")
 static func run(expect: Callable) -> void:
 	_test_equal_initiative_ties_favor_player(expect)
 	_test_turn_order_removes_only_missing_instances(expect)
+	_test_status_death_creates_turn_order_boundary(expect)
 
 static func _test_equal_initiative_ties_favor_player(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -116,6 +117,63 @@ static func _test_turn_order_removes_only_missing_instances(expect: Callable) ->
 		card_removed.is_empty(),
 		"Committing card Time should reflow the player's persistent forecast slot instead of removing the active player"
 	)
+	view.free()
+
+static func _test_status_death_creates_turn_order_boundary(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var view := RunScene.new()
+	var before_state: Dictionary = combat.create_combat(91517, _room(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["brace"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var enemies: Array = (before_state.get("enemies", []) as Array).duplicate(true)
+	expect.call(not enemies.is_empty(), "Burn death turn-order test requires a generated enemy")
+	if enemies.is_empty():
+		view.free()
+		return
+	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+	enemy["hp"] = 1
+	enemy["burn"] = 5
+	enemies[0] = enemy
+	before_state["enemies"] = enemies
+	before_state["current_actor"] = combat.call(
+		"_enemy_actor_entry",
+		before_state,
+		enemy,
+		int(before_state.get("initiative_clock", 0)),
+		int(before_state.get("activation_seq", 0))
+	) as Dictionary
+	var before_order: Array[Dictionary] = combat.current_turn_order(before_state, 10)
+	var burn_input: Dictionary = before_state.duplicate(true)
+	var burn_result: Dictionary = combat.call("_resolve_enemy_start_of_turn", burn_input, 0) as Dictionary
+	var after_state: Dictionary = burn_result.get("state", burn_input) as Dictionary
+	var has_burn_step: bool = false
+	for step_var: Variant in burn_result.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var as Dictionary
+		if str(step.get("kind", "")) == "status_damage" and str(step.get("label", "")) == "Burn":
+			has_burn_step = true
+			break
+	expect.call(has_burn_step, "A lethal start-of-turn Burn should produce the production status-damage step")
+	var after_order: Array[Dictionary] = combat.current_turn_order(after_state, 10)
+	expect.call(
+		str(view.call("_turn_order_motion_signature", before_order)) != str(view.call("_turn_order_motion_signature", after_order)),
+		"A lethal production Burn step should create an immediate turn-order motion boundary"
+	)
+	var removed_indices: Array = view.call("_turn_order_removed_indices", before_order, after_order) as Array
+	var expected_actor_key: String = "enemy:%s" % str((before_state.get("current_actor", {}) as Dictionary).get("actor_key", ""))
+	var all_removed_match: bool = not removed_indices.is_empty()
+	for index_var: Variant in removed_indices:
+		var index: int = int(index_var)
+		if index < 0 or index >= before_order.size() or str(view.call("_turn_order_actor_key", before_order[index])) != expected_actor_key:
+			all_removed_match = false
+			break
+	expect.call(all_removed_match, "A lethal Burn should remove every scheduled instance of the defeated active enemy")
 	view.free()
 
 static func _turn_entry(kind: String, actor_key: String, time: int, sequence: int, active: bool) -> Dictionary:

@@ -22584,7 +22584,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						_enemy_phase_status_presentation(step)
 					)
 				)
-				await _animate_defeats_and_terrain_destruction(before_status_step_state, animated_state)
+				await _animate_turn_order_alongside_defeats(before_status_step_state, animated_state)
 			"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 				var focus_tiles: Array[Vector2i] = _vector2i_array([step.get("to", Vector2i(-1, -1))])
 				if str(step.get("kind", "")) in ["aoe", "lightning_strikes"]:
@@ -22688,7 +22688,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						),
 						final_feedback_elapsed_seconds
 					)
-				await _animate_defeats_and_terrain_destruction(before_attack_step_state, animated_state, {}, true)
+				await _animate_turn_order_alongside_defeats(before_attack_step_state, animated_state, {}, true)
 
 func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) -> void:
 	var final_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
@@ -22762,7 +22762,7 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 		"impact_actor_keys": impact_actor_keys,
 		"floating_texts": _visible_umbra_floating_texts(animated_state, _floating_texts_for_step(step))
 	}))
-	await _animate_defeats_and_terrain_destruction(before_step_state, animated_state)
+	await _animate_turn_order_alongside_defeats(before_step_state, animated_state)
 	await get_tree().create_timer(0.06).timeout
 
 func _visible_umbra_floating_texts(state: Dictionary, values: Array) -> Array[Dictionary]:
@@ -22813,7 +22813,7 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 			"impact_actor_keys": step.get("impact_actor_keys", []),
 			"floating_texts": _floating_texts_for_step(step)
 		}))
-		await _animate_defeats_and_terrain_destruction(
+		await _animate_turn_order_alongside_defeats(
 			before_move_state,
 			animated_state,
 			{},

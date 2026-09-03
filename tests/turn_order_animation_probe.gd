@@ -128,18 +128,40 @@ func _initialize() -> void:
 	reduced_settings["reduced_motion"] = false
 	instance.set("_settings", reduced_settings)
 
+	print("turn order probe: animating production Burn defeat")
+	var burn_boundary: Dictionary = _burn_death_production_boundary(instance, combat_state)
+	var burn_before_state: Dictionary = burn_boundary.get("before_state", {}) as Dictionary
+	var burn_after_state: Dictionary = burn_boundary.get("after_state", {}) as Dictionary
+	var burn_steps: Array = burn_boundary.get("steps", []) as Array
+	var burn_actor_key: String = str(burn_boundary.get("actor_key", ""))
+	_set_probe_combat_state(instance, burn_before_state)
+	await process_frame
+	await process_frame
+	var animated_burn_state: Dictionary = burn_before_state.duplicate(true)
+	instance.call("_animate_enemy_phase_steps", animated_burn_state, burn_steps)
+	await create_timer(0.58).timeout
+	await process_frame
+	_assert_actor_exiting(instance, burn_actor_key)
+	_assert_enemy_defeated_in_state(burn_after_state, burn_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_11_burn_death_exit.png")
+	await create_timer(0.92).timeout
+	await process_frame
+	_assert_actor_absent(instance, burn_actor_key)
+	_assert_vertical_turn_order_geometry(instance)
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_12_burn_death_settled.png")
+
 	var tied_state: Dictionary = _equal_time_player_tie_state(instance, combat_state.duplicate(true))
 	_set_probe_combat_state(instance, tied_state)
 	await process_frame
 	_assert_player_wins_equal_time_forecast(instance, tied_state)
 	_assert_turn_order_badges_match_relative_clocks(instance, tied_state)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_11_player_tie_forecast.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_13_player_tie_forecast.png")
 	var tied_scheduled_state: Dictionary = combat_engine.finish_player_activation(tied_state.duplicate(true))
 	_assert_player_wins_equal_time_schedule(combat_engine, tied_scheduled_state)
 	_set_probe_combat_state(instance, tied_scheduled_state)
 	await process_frame
 	_assert_turn_order_badges_match_relative_clocks(instance, tied_scheduled_state)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_12_player_tie_scheduled.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_14_player_tie_scheduled.png")
 	print("turn order probe: done")
 	print(ProjectSettings.globalize_path("user://probes"))
 	instance.queue_free()
@@ -207,6 +229,69 @@ func _state_with_first_enemy_defeated(state: Dictionary) -> Dictionary:
 	push_error("Turn-order defeat probe requires a living enemy.")
 	quit(1)
 	return result
+
+func _burn_death_production_boundary(instance: Node, state: Dictionary) -> Dictionary:
+	var before_state: Dictionary = state.duplicate(true)
+	var enemies: Array = (before_state.get("enemies", []) as Array).duplicate(true)
+	var enemy_index: int = -1
+	for index: int in range(enemies.size()):
+		if typeof(enemies[index]) != TYPE_DICTIONARY:
+			continue
+		var candidate: Dictionary = enemies[index] as Dictionary
+		if int(candidate.get("hp", 0)) > 0:
+			enemy_index = index
+			break
+	if enemy_index < 0:
+		push_error("Burn production-path probe requires a living enemy.")
+		quit(1)
+		return {}
+	var enemy: Dictionary = (enemies[enemy_index] as Dictionary).duplicate(true)
+	enemy["hp"] = 1
+	enemy["burn"] = 5
+	enemies[enemy_index] = enemy
+	before_state["enemies"] = enemies
+	var combat_engine = instance.get("_combat_engine")
+	before_state["current_actor"] = combat_engine.call(
+		"_enemy_actor_entry",
+		before_state,
+		enemy,
+		int(before_state.get("initiative_clock", 0)),
+		int(before_state.get("activation_seq", 0))
+	) as Dictionary
+	var actor_key: String = _first_enemy_turn_actor_key(instance, before_state)
+	var resolution_input: Dictionary = before_state.duplicate(true)
+	var burn_result: Dictionary = combat_engine.call("_resolve_enemy_start_of_turn", resolution_input, enemy_index) as Dictionary
+	var burn_steps: Array = burn_result.get("steps", []) as Array
+	var after_state: Dictionary = burn_result.get("state", resolution_input) as Dictionary
+	var has_lethal_burn_step: bool = false
+	for step_var: Variant in burn_steps:
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var as Dictionary
+		if str(step.get("kind", "")) == "status_damage" and str(step.get("label", "")) == "Burn":
+			has_lethal_burn_step = true
+			break
+	if not has_lethal_burn_step:
+		push_error("Burn production-path probe did not generate an enemy status-damage step.")
+		quit(1)
+	return {
+		"before_state": before_state,
+		"after_state": after_state,
+		"steps": burn_steps,
+		"actor_key": actor_key
+	}
+
+func _assert_enemy_defeated_in_state(state: Dictionary, actor_key: String) -> void:
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if "enemy:enemy_%d" % int(enemy.get("id", -1)) != actor_key:
+			continue
+		if int(enemy.get("hp", 0)) <= 0:
+			return
+	push_error("Production Burn boundary did not defeat %s." % actor_key)
+	quit(1)
 
 func _assert_active_player_persists(instance: Node) -> void:
 	var bar: Control = instance.get("_turn_order_bar") as Control
