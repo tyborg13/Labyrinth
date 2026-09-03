@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
 
 var _failed: bool = false
 
@@ -14,6 +15,7 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path("user://card_draw_hand_flow_test/current_run.save")
 	SettingsStore.set_storage_path("user://card_draw_hand_flow_test/settings.json")
 	ProgressionStore.clear_saved_run()
+	await _run_opening_hand_entry_regression()
 	await _run_transition_regression()
 	if _failed:
 		print("CARD DRAW HAND FLOW TEST RESULT: FAIL")
@@ -21,6 +23,86 @@ func _initialize() -> void:
 		return
 	print("CARD DRAW HAND FLOW TEST RESULT: PASS")
 	quit()
+
+func _run_opening_hand_entry_regression() -> void:
+	var packed: PackedScene = load("res://scenes/run_scene.tscn")
+	_expect(packed != null, "Run scene should load for opening-hand entry coverage")
+	if packed == null:
+		return
+	var instance: Node = packed.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await process_frame
+	instance.call("_close_dialogue")
+
+	var run_engine := RunEngine.new()
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var combat_coord := Vector2i(999, 999)
+	for coord_var: Variant in run_engine.available_moves(run_state):
+		if typeof(coord_var) != TYPE_VECTOR2I:
+			continue
+		var coord: Vector2i = coord_var
+		var preview_state: Dictionary = run_engine.move_to_room(run_state.duplicate(true), coord)
+		if str(preview_state.get("mode", "")) == "combat" and not (preview_state.get("combat_state", {}) as Dictionary).is_empty():
+			combat_coord = coord
+			break
+	_expect(combat_coord != Vector2i(999, 999), "Opening-hand entry coverage needs an available combat room")
+	if combat_coord == Vector2i(999, 999):
+		instance.queue_free()
+		await process_frame
+		return
+
+	await instance.call("_on_map_view_room_selected", combat_coord)
+	await process_frame
+	var preview_scrim: Control = instance.get("_pre_battle_scrim") as Control
+	_expect(preview_scrim != null and preview_scrim.visible, "Combat entry should pause on the pre-battle preview before Start")
+	var sfx_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	instance.call("_on_pre_battle_start_pressed")
+	var hand_box: Control = instance.get("hand_box") as Control
+	_expect(preview_scrim != null and not preview_scrim.visible, "Start should uncover the combat room before the opening deal")
+	_expect(bool(instance.get("_opening_hand_draw_in_progress")), "Start should enter an explicit opening-hand presentation phase")
+	_expect(bool(instance.get("_animation_lock")), "Opening-hand presentation should lock combat input")
+	_expect(hand_box != null and not hand_box.visible, "The authoritative complete hand must stay hidden before the first card launches")
+	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "No card proxy should launch before the uncovered room receives its presentation wait")
+	_expect(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "Draw audio must stay silent while the room is first uncovered")
+
+	var launch_deadline: int = Time.get_ticks_msec() + 3000
+	while (
+		(instance.get("_draw_hand_transition_proxies") as Array).is_empty()
+		and Time.get_ticks_msec() < launch_deadline
+	):
+		await process_frame
+	var opening_hand: Array = ((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array
+	var launch_proxies: Array = instance.get("_draw_hand_transition_proxies") as Array
+	_expect(launch_proxies.size() == opening_hand.size(), "The opening deal should stage every final hand identity once its first card launches")
+	_expect(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before + 1, "The first draw sound should begin on the same launch tick as the first visible opening card")
+	_expect(hand_box != null and not hand_box.visible, "The live complete hand should remain hidden while draw proxies own the deal")
+
+	var completion_deadline: int = Time.get_ticks_msec() + 5000
+	while bool(instance.get("_opening_hand_draw_in_progress")) and Time.get_ticks_msec() < completion_deadline:
+		await process_frame
+	_expect(not bool(instance.get("_opening_hand_draw_in_progress")), "Opening-hand presentation should complete within its authored cadence")
+	_expect(not bool(instance.get("_animation_lock")), "Completing the opening deal should restore combat input")
+	_expect(hand_box != null and hand_box.visible, "The authoritative playable hand should replace the settled proxies")
+	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Opening-deal proxies should retire at authoritative handoff")
+	_expect(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before + opening_hand.size(), "Opening deal should play exactly one synchronized draw sound per visible card")
+	var ready_wave_count: int = 0
+	if hand_box != null:
+		for card_index: int in range(hand_box.get_child_count()):
+			var widget: Control = instance.call("_hand_card_control", card_index) as Control
+			if widget != null and str(widget.get_meta("ready_wave_reason", "")) == "combat_start":
+				ready_wave_count += 1
+	_expect(ready_wave_count > 0, "The normal playable-hand ready wave should follow the opening deal")
+	instance.queue_free()
+	await process_frame
+
+func _sfx_generation_total(players: Array) -> int:
+	var total: int = 0
+	for player_var: Variant in players:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null:
+			total += int(player.get_meta("play_generation", 0))
+	return total
 
 func _run_transition_regression() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")

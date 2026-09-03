@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T16:22:00Z",
+  "updated_at": "2026-09-03T20:39:13Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10123,6 +10123,28 @@
       "source": {
         "branch": "codex/fix-post-draw-combat-input-deadlock",
         "commit": "ccf85b33"
+      }
+    },
+    {
+      "id": "mnt_20260903T203913Z_41303bb0",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Opening combat reveals the room before synchronized hand dealing",
+      "details": "Combat state may author the full opening hand before the pre-battle preview closes, but RunScene must keep the live hand hidden and input locked until the uncovered room has crossed a settled frame. Then stage every opening card through the shared draw proxies, start exactly one card-draw sound at each visible launch, hand off to the authoritative playable fan without a snap, and only then run the combat-start ready wave. Preserve card_draw_hand_flow_test.gd and the 1920x1080 opening sequence in card_draw_hand_flow_probe.gd.",
+      "status": "active",
+      "created_at": "2026-09-03T20:39:13Z",
+      "updated_at": "2026-09-03T20:39:13Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/synchronize-combat-entry-hand-draw-animation-and-audio",
+        "commit": "224e3dda"
       }
     }
   ]

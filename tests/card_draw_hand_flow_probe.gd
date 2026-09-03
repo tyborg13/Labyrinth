@@ -4,6 +4,8 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
+const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 
 const OUTPUT_DIR: String = "user://probes/card_draw_hand_flow_v1"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
@@ -33,6 +35,7 @@ func _capture_hand_flow() -> void:
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle()
+	await _capture_opening_hand_entry(instance)
 	var normal_proof: Dictionary = await _prepare_transition(instance, false)
 	var normal_target: Array = normal_proof.get("target_hand", []) as Array
 	var normal_completion: Dictionary = normal_proof.get("completion", {}) as Dictionary
@@ -75,6 +78,76 @@ func _capture_hand_flow() -> void:
 	await _capture_real_turn_draw_unlock(instance)
 	instance.queue_free()
 	await process_frame
+
+func _capture_opening_hand_entry(instance: Node) -> void:
+	instance.call("_close_dialogue")
+	var run_engine := RunEngine.new()
+	var progression: Dictionary = ContextualCombatTutorial.dismiss_tutorial((instance.get("_progression") as Dictionary).duplicate(true))
+	instance.set("_progression", progression)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["progression"] = progression.duplicate(true)
+	run_state.erase("guided_combat_scenario_eligible")
+	instance.call("_load_run_state", run_state)
+	await _settle()
+	instance.call("_close_dialogue")
+	run_state = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var combat_coord := Vector2i(999, 999)
+	for coord_var: Variant in run_engine.available_moves(run_state):
+		if typeof(coord_var) != TYPE_VECTOR2I:
+			continue
+		var coord: Vector2i = coord_var
+		var preview_state: Dictionary = run_engine.move_to_room(run_state.duplicate(true), coord)
+		if str(preview_state.get("mode", "")) == "combat" and not (preview_state.get("combat_state", {}) as Dictionary).is_empty():
+			combat_coord = coord
+			break
+	_assert(combat_coord != Vector2i(999, 999), "Opening-hand visual proof needs an available combat room")
+	await instance.call("_on_map_view_room_selected", combat_coord)
+	await _settle()
+	var preview_scrim: Control = instance.get("_pre_battle_scrim") as Control
+	_assert(preview_scrim != null and preview_scrim.visible, "Opening-hand proof should begin at the production pre-battle preview")
+	await _save_root_screenshot("%s/card_draw_flow_v1_00_pre_battle.png" % OUTPUT_DIR)
+
+	var sfx_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	instance.call("_on_pre_battle_start_pressed")
+	var hand_box: Control = instance.get("hand_box") as Control
+	_assert(preview_scrim != null and not preview_scrim.visible, "Start should uncover the combat room")
+	_assert(hand_box != null and not hand_box.visible, "Opening-hand proof should hide the authoritative complete hand")
+	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Room-reveal proof should precede the first card launch")
+	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "Room-reveal proof should precede the first draw sound")
+	await _save_root_screenshot("%s/card_draw_flow_v1_00_room_revealed.png" % OUTPUT_DIR)
+	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "The uncovered room should remain card-free for its presentation frame")
+	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "The uncovered-room frame should remain silent")
+
+	var launch_deadline: int = Time.get_ticks_msec() + 3000
+	while _sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before and Time.get_ticks_msec() < launch_deadline:
+		await process_frame
+	var opening_hand: Array = ((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array
+	_assert((instance.get("_draw_hand_transition_proxies") as Array).size() == opening_hand.size(), "First launch should stage the complete opening-hand composition")
+	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before + 1, "First visible launch should start exactly the first draw sound")
+	await create_timer(0.07).timeout
+	await _save_root_screenshot("%s/card_draw_flow_v1_00_first_opening_card.png" % OUTPUT_DIR)
+
+	await create_timer(0.16).timeout
+	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) >= sfx_before + 2, "Opening-hand stream should preserve the authored card-by-card cadence")
+	await _save_root_screenshot("%s/card_draw_flow_v1_00_opening_stream.png" % OUTPUT_DIR)
+
+	var completion_deadline: int = Time.get_ticks_msec() + 5000
+	while bool(instance.get("_opening_hand_draw_in_progress")) and Time.get_ticks_msec() < completion_deadline:
+		await process_frame
+	_assert(not bool(instance.get("_opening_hand_draw_in_progress")), "Opening-hand visual proof should reach authoritative handoff")
+	_assert(not bool(instance.get("_animation_lock")), "Opening-hand visual proof should restore combat input")
+	_assert(hand_box != null and hand_box.visible, "Final opening-hand proof should show the playable authoritative hand")
+	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Final opening-hand proof should retire staged proxies")
+	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before + opening_hand.size(), "Opening-hand visual proof should play one draw sound per visible card")
+	await _save_root_screenshot("%s/card_draw_flow_v1_00_opening_complete.png" % OUTPUT_DIR)
+
+func _sfx_generation_total(players: Array) -> int:
+	var total: int = 0
+	for player_var: Variant in players:
+		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if player != null:
+			total += int(player.get_meta("play_generation", 0))
+	return total
 
 func _capture_real_turn_draw_unlock(instance: Node) -> void:
 	var combat_state: Dictionary = await _load_combat_fixture(instance)

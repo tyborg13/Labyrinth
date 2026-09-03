@@ -1683,6 +1683,7 @@ var _hand_layout_pending_revision: int = -1
 var _hand_layout_envelope_signature: String = "<unset>"
 var _draw_hand_transition_cards: Array[String]
 var _draw_hand_transition_proxies: Array[Control]
+var _opening_hand_draw_in_progress: bool = false
 var _locked_hand_render_cache := LockedHandRenderCache.new()
 var _locked_hand_cache_active: bool:
 	get:
@@ -16774,7 +16775,7 @@ func _finish_draw_hand_transition_for_refresh(force: bool = false) -> void:
 			if active_tween is Tween and (active_tween as Tween).is_valid() and (active_tween as Tween).is_running():
 				return
 	if hand_box != null:
-		hand_box.visible = true
+		hand_box.visible = not _opening_hand_draw_in_progress
 	for proxy: Control in _draw_hand_transition_proxies:
 		_release_card_proxy(proxy)
 	_draw_hand_transition_proxies.clear()
@@ -24249,8 +24250,56 @@ func _on_pre_battle_start_pressed() -> void:
 	_analytics_log_combat_transition(previous_run_state, "pre_battle_start", _combat_state)
 	_persist_committed_boundary("pre_battle_start")
 	_pre_battle_start_pending = false
-	_queue_hand_ready_wave("combat_start")
+	await _present_opening_hand_after_combat_entry()
+
+func _present_opening_hand_after_combat_entry() -> void:
+	if str(_run_state.get("mode", "room")) != "combat" or _combat_state.is_empty():
+		_animation_lock = false
+		_refresh_ui()
+		return
+	var opening_transition: Dictionary = _draw_hand_transition_between_states({}, _combat_state)
+	var draw_entries: Array = opening_transition.get("draw_entries", []) as Array
+	var draw_sfx_count: int = _take_pending_card_draw_sfx_count(_combat_state)
+	if draw_entries.is_empty():
+		_animation_lock = false
+		_queue_hand_ready_wave("combat_start")
+		_refresh_ui()
+		return
+
+	# Opening-hand state already exists when combat begins. Keep the authoritative
+	# hand hidden and input locked while its fan geometry settles, then give the
+	# uncovered room one complete rendered frame before launching the first card.
+	# Taking the semantic draw count before this refresh also prevents the generic
+	# refresh consumer from playing the deal sounds behind the pre-battle overlay.
+	_animation_lock = true
+	_opening_hand_draw_in_progress = true
 	_refresh_ui()
+	if hand_box != null:
+		hand_box.visible = false
+	await _await_opening_hand_draw_layout()
+	if _card_fx_can_continue_combat():
+		await _animate_draw_cards_fx(draw_entries, Rect2(), draw_sfx_count, opening_transition)
+	_opening_hand_draw_in_progress = false
+	_animation_lock = false
+	_finish_draw_hand_transition_for_refresh(true)
+	if str(_run_state.get("mode", "room")) == "combat":
+		_queue_hand_ready_wave("combat_start")
+	_refresh_ui()
+
+func _await_opening_hand_draw_layout() -> void:
+	var wait_frames: int = 0
+	while (
+		_card_fx_can_continue_combat()
+		and _hand_layout_pending_revision >= 0
+		and wait_frames < 12
+	):
+		await get_tree().process_frame
+		wait_frames += 1
+	if _card_fx_can_continue_combat():
+		# Cross one final scene-frame boundary after the authored hand layout settles.
+		# This keeps the uncovered combat room visible before the first launch and
+		# remains deterministic for the headless regression path.
+		await get_tree().process_frame
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "room":
@@ -24284,12 +24333,13 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	_analytics_log_combat_transition(previous_run_state, "room_move", _combat_state)
 	_persist_committed_boundary("room_move_analytics")
 	_board_presentation.clear()
-	_animation_lock = false
 	_reset_card_resolution()
 	_hovered_board_tile = Vector2i(-1, -1)
 	if str(_run_state.get("mode", "room")) == "combat":
-		_queue_hand_ready_wave("combat_start")
-	_refresh_ui()
+		await _present_opening_hand_after_combat_entry()
+	else:
+		_animation_lock = false
+		_refresh_ui()
 
 func _begin_map_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:
 	if _reduced_motion_enabled():
@@ -24373,10 +24423,11 @@ func _continue_pending_escape_after_reward() -> bool:
 	_reset_card_resolution()
 	_hovered_board_tile = INVALID_TARGET_TILE
 	_escape_transition_in_progress = false
-	_animation_lock = false
 	if str(_run_state.get("mode", "room")) == "combat":
-		_queue_hand_ready_wave("combat_start")
-	_refresh_ui()
+		await _present_opening_hand_after_combat_entry()
+	else:
+		_animation_lock = false
+		_refresh_ui()
 	return true
 
 func _on_reward_card_pressed(card_id: String, source_control: Control = null) -> void:
