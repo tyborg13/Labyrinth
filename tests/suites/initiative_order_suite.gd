@@ -1,9 +1,11 @@
 extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const RunScene = preload("res://scripts/run_scene.gd")
 
 static func run(expect: Callable) -> void:
 	_test_equal_initiative_ties_favor_player(expect)
+	_test_turn_order_removes_only_missing_instances(expect)
 
 static func _test_equal_initiative_ties_favor_player(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -59,6 +61,72 @@ static func _test_equal_initiative_ties_favor_player(expect: Callable) -> void:
 		remaining_queue.size() == 1 and str((remaining_queue[0] as Dictionary).get("kind", "")) == "enemy",
 		"Winning an initiative tie should leave the tied enemy queued to act afterward"
 	)
+
+static func _test_turn_order_removes_only_missing_instances(expect: Callable) -> void:
+	var view := RunScene.new()
+	var active_player: Dictionary = _turn_entry("player", "player", 0, 0, true)
+	var future_player: Dictionary = _turn_entry("player", "player", 12, 3, false)
+	var enemy_first: Dictionary = _turn_entry("enemy", "enemy:7", 8, 1, false)
+	var enemy_repeat: Dictionary = _turn_entry("enemy", "enemy:7", 22, 4, false)
+	var before: Array[Dictionary] = []
+	before.append(active_player)
+	before.append(enemy_first)
+	before.append(future_player)
+	before.append(enemy_repeat)
+	var time_shifted_player: Dictionary = future_player.duplicate(true)
+	time_shifted_player["time"] = 26
+	var reordered: Array[Dictionary] = []
+	reordered.append(active_player)
+	reordered.append(enemy_first)
+	reordered.append(enemy_repeat)
+	reordered.append(time_shifted_player)
+	var reordered_removed: Array = view.call("_turn_order_removed_indices", before, reordered) as Array
+	expect.call(
+		reordered_removed.is_empty(),
+		"A Time-driven reorder should move persistent actor instances without treating the active portrait as removed"
+	)
+
+	var after_death: Array[Dictionary] = []
+	after_death.append(active_player)
+	after_death.append(future_player)
+	var death_removed: Array = view.call("_turn_order_removed_indices", before, after_death) as Array
+	expect.call(
+		death_removed == [1, 3],
+		"Defeating an enemy should remove every scheduled instance of that actor and preserve surviving portraits"
+	)
+
+	var combat := CombatEngine.new()
+	var card_state: Dictionary = combat.create_combat(71517, _room(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["brace"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var committed_card_state: Dictionary = combat.finish_player_card(card_state, 0)
+	var before_card_order: Array[Dictionary] = combat.current_turn_order(card_state, 10)
+	var after_card_order: Array[Dictionary] = combat.current_turn_order(committed_card_state, 10)
+	expect.call(
+		str(view.call("_turn_order_motion_signature", before_card_order)) != str(view.call("_turn_order_motion_signature", after_card_order)),
+		"Committing a real card Time cost should produce a turn-order motion boundary"
+	)
+	var card_removed: Array = view.call("_turn_order_removed_indices", before_card_order, after_card_order) as Array
+	expect.call(
+		card_removed.is_empty(),
+		"Committing card Time should reflow the player's persistent forecast slot instead of removing the active player"
+	)
+	view.free()
+
+static func _turn_entry(kind: String, actor_key: String, time: int, sequence: int, active: bool) -> Dictionary:
+	return {
+		"kind": kind,
+		"actor_key": actor_key,
+		"time": time,
+		"seq": sequence,
+		"active": active,
+		"eta": time
+	}
 
 static func _room() -> Dictionary:
 	var grid: Array = []

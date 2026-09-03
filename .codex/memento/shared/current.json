@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-02T16:22:00Z",
+  "updated_at": "2026-09-03T19:24:36Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10123,6 +10123,28 @@
       "source": {
         "branch": "codex/fix-post-draw-combat-input-deadlock",
         "commit": "ccf85b33"
+      }
+    },
+    {
+      "id": "mnt_20260903T192436Z_00c2b683",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Turn Clock motion should mirror combat causality",
+      "details": "Animate persistent turn-order instance additions, removals, and spatial reorders so Time-changing cards visibly reflow the rail and every defeated actor occurrence exits alongside the board death dissolve. Reduced Motion must skip intermediates and render the correct settled order immediately.",
+      "status": "active",
+      "created_at": "2026-09-03T19:24:36Z",
+      "updated_at": "2026-09-03T19:24:36Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/animate-turn-order-timeline-changes",
+        "commit": "224e3dda"
       }
     }
   ]

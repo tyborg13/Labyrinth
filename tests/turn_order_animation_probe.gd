@@ -55,41 +55,91 @@ func _initialize() -> void:
 	_assert_vertical_turn_order_geometry(instance)
 	_assert_backing_texture_has_transparent_bleed()
 	_assert_turn_order_badges_match_relative_clocks(instance, combat_state)
-	await _save_root_screenshot("user://probes/turn_order_brush_v2_00_before.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_00_stable.png")
 	var combat_engine = instance.get("_combat_engine")
 	var scheduled_state: Dictionary = combat_engine.finish_player_activation(combat_state.duplicate(true))
-	print("turn order probe: animating")
+	print("turn order probe: animating turn consumption")
 	instance.call("_animate_turn_order_transition_between_states", combat_state.duplicate(true), scheduled_state.duplicate(true))
 	await create_timer(0.10).timeout
 	await process_frame
 	_assert_single_turn_order_exit(instance)
-	await _save_root_screenshot("user://probes/turn_order_brush_v2_01_remove.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_01_turn_exit.png")
 	await create_timer(0.20).timeout
 	await process_frame
 	_assert_turn_order_width_locked(instance)
-	await _save_root_screenshot("user://probes/turn_order_brush_v2_02_reflow.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_02_turn_collapse.png")
 	await create_timer(0.20).timeout
 	await process_frame
-	await _save_root_screenshot("user://probes/turn_order_brush_v2_03_insert.png")
-	await create_timer(0.35).timeout
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_03_turn_insert.png")
+	await create_timer(0.55).timeout
 	await process_frame
 	_assert_turn_order_slot_count(instance, 10)
 	_assert_turn_order_panel_right_rail(instance)
 	_assert_vertical_turn_order_geometry(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, scheduled_state)
-	await _save_root_screenshot("user://probes/turn_order_brush_v2_04_final.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_04_turn_settled.png")
+
+	print("turn order probe: animating committed Time shift")
+	_set_probe_combat_state(instance, combat_state)
+	await process_frame
+	await process_frame
+	var time_shifted_state: Dictionary = combat_state.duplicate(true)
+	time_shifted_state["player_turn_time_spent"] = int(combat_state.get("player_turn_time_spent", 0)) + 9
+	instance.call("_animate_turn_order_transition_between_states", combat_state.duplicate(true), time_shifted_state.duplicate(true))
+	await create_timer(0.12).timeout
+	await process_frame
+	_assert_active_player_persists(instance)
+	_assert_reflow_in_progress(instance)
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_05_time_reflow.png")
+	await create_timer(0.48).timeout
+	await process_frame
+	_assert_turn_order_badges_match_relative_clocks(instance, time_shifted_state)
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_06_time_settled.png")
+
+	print("turn order probe: animating enemy defeat")
+	_set_probe_combat_state(instance, combat_state)
+	await process_frame
+	await process_frame
+	var defeated_actor_key: String = _first_enemy_turn_actor_key(instance, combat_state)
+	var defeated_state: Dictionary = _state_with_first_enemy_defeated(combat_state)
+	instance.call("_animate_turn_order_alongside_defeats", combat_state.duplicate(true), defeated_state.duplicate(true))
+	await create_timer(0.10).timeout
+	await process_frame
+	_assert_actor_exiting(instance, defeated_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_07_enemy_death_exit.png")
+	await create_timer(0.22).timeout
+	await process_frame
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_08_enemy_death_collapse.png")
+	await create_timer(0.78).timeout
+	await process_frame
+	_assert_actor_absent(instance, defeated_actor_key)
+	_assert_vertical_turn_order_geometry(instance)
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_09_enemy_death_settled.png")
+
+	print("turn order probe: verifying reduced motion")
+	_set_probe_combat_state(instance, combat_state)
+	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	reduced_settings["reduced_motion"] = true
+	instance.set("_settings", reduced_settings)
+	instance.call("_animate_turn_order_transition_between_states", combat_state.duplicate(true), defeated_state.duplicate(true))
+	await process_frame
+	_assert_reduced_motion_settled(instance, defeated_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_10_reduced_motion_settled.png")
+	reduced_settings["reduced_motion"] = false
+	instance.set("_settings", reduced_settings)
+
 	var tied_state: Dictionary = _equal_time_player_tie_state(instance, combat_state.duplicate(true))
 	_set_probe_combat_state(instance, tied_state)
 	await process_frame
 	_assert_player_wins_equal_time_forecast(instance, tied_state)
 	_assert_turn_order_badges_match_relative_clocks(instance, tied_state)
-	await _save_root_screenshot("user://probes/turn_order_player_tie_v1_00_forecast.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_11_player_tie_forecast.png")
 	var tied_scheduled_state: Dictionary = combat_engine.finish_player_activation(tied_state.duplicate(true))
 	_assert_player_wins_equal_time_schedule(combat_engine, tied_scheduled_state)
 	_set_probe_combat_state(instance, tied_scheduled_state)
 	await process_frame
 	_assert_turn_order_badges_match_relative_clocks(instance, tied_scheduled_state)
-	await _save_root_screenshot("user://probes/turn_order_player_tie_v1_01_scheduled.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v3_12_player_tie_scheduled.png")
 	print("turn order probe: done")
 	print(ProjectSettings.globalize_path("user://probes"))
 	instance.queue_free()
@@ -124,9 +174,116 @@ func _equal_time_player_tie_state(instance: Node, state: Dictionary) -> Dictiona
 
 func _set_probe_combat_state(instance: Node, state: Dictionary) -> void:
 	instance.set("_combat_state", state.duplicate(true))
+	instance.set("_turn_order_animating", false)
 	instance.set("_turn_order_source_signature", "<tie-probe-reset>")
 	instance.set("_turn_order_render_signature", "<tie-probe-reset>")
 	instance.call("_refresh_turn_order_bar")
+
+func _first_enemy_turn_actor_key(instance: Node, state: Dictionary) -> String:
+	var combat_engine = instance.get("_combat_engine")
+	for entry_var: Variant in combat_engine.current_turn_order(state, 10):
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var
+		if str(entry.get("kind", "")) == "enemy":
+			return "enemy:%s" % str(entry.get("actor_key", ""))
+	push_error("Turn-order defeat probe requires a visible enemy entry.")
+	quit(1)
+	return ""
+
+func _state_with_first_enemy_defeated(state: Dictionary) -> Dictionary:
+	var result: Dictionary = state.duplicate(true)
+	var enemies: Array = (result.get("enemies", []) as Array).duplicate(true)
+	for index: int in range(enemies.size()):
+		if typeof(enemies[index]) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		enemy["hp"] = 0
+		enemies[index] = enemy
+		result["enemies"] = enemies
+		return result
+	push_error("Turn-order defeat probe requires a living enemy.")
+	quit(1)
+	return result
+
+func _assert_active_player_persists(instance: Node) -> void:
+	var bar: Control = instance.get("_turn_order_bar") as Control
+	if bar == null:
+		push_error("Turn order bar missing during Time reflow probe.")
+		quit(1)
+		return
+	for slot: Control in _turn_order_slot_controls(bar):
+		if str(slot.get_meta("turn_order_actor_key", "")) != "player:player":
+			continue
+		if str(slot.get_meta("turn_order_animation_role", "")) != "active":
+			continue
+		if slot.modulate.a < 0.99 or slot.position.x > 8.0:
+			push_error("Committing Time should preserve the active player portrait while future turns reflow.")
+			quit(1)
+		return
+	push_error("Time reflow lost the active player portrait.")
+	quit(1)
+
+func _assert_reflow_in_progress(instance: Node) -> void:
+	var bar: Control = instance.get("_turn_order_bar") as Control
+	if bar == null or not bool(instance.get("_turn_order_animating")):
+		push_error("Time change should keep the turn rail in an authored reflow transition.")
+		quit(1)
+		return
+	for slot: Control in _turn_order_slot_controls(bar):
+		var rail_index: int = int(slot.get_meta("turn_order_rail_index", -1))
+		if rail_index < 0:
+			continue
+		var settled_position: Vector2 = instance.call("_turn_order_slot_position", rail_index) as Vector2
+		if slot.position.distance_to(settled_position) > 1.0:
+			return
+	push_error("Time change did not visibly move any turn-order portrait between slots.")
+	quit(1)
+
+func _assert_actor_exiting(instance: Node, actor_key: String) -> void:
+	var bar: Control = instance.get("_turn_order_bar") as Control
+	var matching: int = 0
+	var exiting: int = 0
+	if bar != null:
+		for slot: Control in _turn_order_slot_controls(bar):
+			if str(slot.get_meta("turn_order_actor_key", "")) != actor_key:
+				continue
+			matching += 1
+			if slot.modulate.a < 0.98 and slot.position.x > 0.0:
+				exiting += 1
+	if matching <= 0 or exiting != matching:
+		push_error("Every scheduled portrait for %s should slide and fade out on defeat (%d/%d exiting)." % [actor_key, exiting, matching])
+		quit(1)
+
+func _assert_actor_absent(instance: Node, actor_key: String) -> void:
+	var bar: Control = instance.get("_turn_order_bar") as Control
+	if bar == null:
+		push_error("Turn order bar missing after enemy defeat.")
+		quit(1)
+		return
+	for slot: Control in _turn_order_slot_controls(bar):
+		if str(slot.get_meta("turn_order_actor_key", "")) == actor_key:
+			push_error("Defeated actor %s remained in the settled turn order." % actor_key)
+			quit(1)
+			return
+
+func _assert_reduced_motion_settled(instance: Node, removed_actor_key: String) -> void:
+	if bool(instance.get("_turn_order_animating")):
+		push_error("Reduced Motion should bypass turn-order transition movement.")
+		quit(1)
+	_assert_actor_absent(instance, removed_actor_key)
+	var bar: Control = instance.get("_turn_order_bar") as Control
+	if bar == null:
+		return
+	for slot: Control in _turn_order_slot_controls(bar):
+		var rail_index: int = int(slot.get_meta("turn_order_rail_index", -1))
+		var settled_position: Vector2 = instance.call("_turn_order_slot_position", rail_index) as Vector2
+		if slot.position.distance_to(settled_position) > 0.5 or not slot.scale.is_equal_approx(Vector2.ONE) or slot.modulate.a < 0.99:
+			push_error("Reduced Motion should render only settled turn-order slots.")
+			quit(1)
+			return
 
 func _assert_player_wins_equal_time_forecast(instance: Node, state: Dictionary) -> void:
 	var combat_engine = instance.get("_combat_engine")

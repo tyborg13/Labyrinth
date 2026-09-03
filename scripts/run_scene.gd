@@ -1383,11 +1383,15 @@ const TURN_ORDER_RAIL_TOP_GAP: float = 14.0
 const TURN_ORDER_RAIL_EDGE_GAP: float = 18.0
 const TURN_ORDER_MAX_SLOTS: int = 10
 const TURN_ORDER_DISCLOSURE_LIMIT: int = 10
-const TURN_ORDER_REMOVE_SECONDS: float = 0.18
-const TURN_ORDER_REFLOW_SECONDS: float = 0.24
-const TURN_ORDER_INSERT_SECONDS: float = 0.20
-const TURN_ORDER_STYLE_SECONDS: float = 0.18
-const TURN_ORDER_FLOAT_OFFSET: float = 24.0
+const TURN_ORDER_REMOVE_SECONDS: float = 0.22
+const TURN_ORDER_REFLOW_SECONDS: float = 0.30
+const TURN_ORDER_INSERT_SECONDS: float = 0.24
+const TURN_ORDER_STYLE_SECONDS: float = 0.20
+const TURN_ORDER_EXIT_OFFSET: Vector2 = Vector2(38.0, -8.0)
+const TURN_ORDER_INSERT_OFFSET: Vector2 = Vector2(42.0, 6.0)
+const TURN_ORDER_UPDATE_SCALE: Vector2 = Vector2(1.055, 1.055)
+const TURN_ORDER_ACTIVATE_SCALE: Vector2 = Vector2(0.94, 0.94)
+const TURN_ORDER_UPDATE_TINT: Color = Color(1.15, 1.04, 0.76, 1.0)
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 100.0)
 const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 100.0
 const RESOURCE_METER_STACK_GAP: float = 4.0
@@ -12253,6 +12257,8 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("hidden_by_umbra", false)) else Control.CURSOR_ARROW
 	frame.tooltip_text = _turn_order_tooltip(entry, index)
 	frame.set_meta("turn_order_key", _turn_order_entry_key(entry))
+	frame.set_meta("turn_order_actor_key", _turn_order_actor_key(entry))
+	frame.set_meta("turn_order_animation_role", _turn_order_animation_role(entry))
 	frame.set_meta("turn_order_size", slot_size)
 	frame.set_meta("turn_order_projected", bool(entry.get("projected", false)))
 	frame.set_meta("turn_order_projection_card_name", str(entry.get("projected_card_name", "")))
@@ -12650,6 +12656,16 @@ func _turn_order_signature(entries: Array[Dictionary]) -> String:
 		])
 	return "|".join(parts)
 
+func _turn_order_motion_signature(entries: Array[Dictionary]) -> String:
+	var parts: Array[String] = []
+	for entry: Dictionary in entries:
+		parts.append("%s:%s:%s" % [
+			_turn_order_entry_key(entry),
+			str(bool(entry.get("active", false))),
+			str(bool(entry.get("projected", false)))
+		])
+	return "|".join(parts)
+
 func _turn_order_actor_key(entry: Dictionary) -> String:
 	return "%s:%s" % [str(entry.get("kind", "")), str(entry.get("actor_key", ""))]
 
@@ -12662,12 +12678,6 @@ func _turn_order_animation_role(entry: Dictionary) -> String:
 
 func _turn_order_animation_base_key(entry: Dictionary) -> String:
 	return "%s:%s" % [_turn_order_actor_key(entry), _turn_order_animation_role(entry)]
-
-func _turn_order_active_removal_indices(before_order: Array[Dictionary]) -> Array:
-	for index: int in range(before_order.size()):
-		if bool(before_order[index].get("active", false)):
-			return [index]
-	return []
 
 func _turn_order_index_set(indices: Array) -> Dictionary:
 	var result: Dictionary = {}
@@ -12696,6 +12706,30 @@ func _turn_order_instance_keys(entries: Array[Dictionary], excluded_indices: Arr
 		keys.append("%s#%d" % [key, occurrence])
 	return keys
 
+func _turn_order_removed_indices(before_order: Array[Dictionary], after_order: Array[Dictionary]) -> Array:
+	var after_keys: Array[String] = _turn_order_instance_keys(after_order)
+	var after_lookup: Dictionary = {}
+	for key: String in after_keys:
+		if not key.is_empty():
+			after_lookup[key] = true
+	var removed: Array = []
+	var before_keys: Array[String] = _turn_order_instance_keys(before_order)
+	for index: int in range(before_keys.size()):
+		var key: String = before_keys[index]
+		if not key.is_empty() and not after_lookup.has(key):
+			removed.append(index)
+	return removed
+
+func _turn_order_instance_signatures(entries: Array[Dictionary], excluded_indices: Array = []) -> Dictionary:
+	var signatures: Dictionary = {}
+	var keys: Array[String] = _turn_order_instance_keys(entries, excluded_indices)
+	for index: int in range(mini(entries.size(), keys.size())):
+		var key: String = keys[index]
+		if key.is_empty():
+			continue
+		signatures[key] = _turn_order_signature(_turn_order_array([entries[index]]))
+	return signatures
+
 func _turn_order_child_positions(entries: Array[Dictionary], excluded_indices: Array = []) -> Dictionary:
 	var positions: Dictionary = {}
 	if _turn_order_bar == null:
@@ -12718,19 +12752,37 @@ func _animate_turn_order_transition(before_order: Array[Dictionary], after_order
 		return
 	if _turn_order_signature(before_order) == _turn_order_signature(after_order):
 		return
+	if _reduced_motion_enabled():
+		_turn_order_panel_locked_width = -1.0
+		_set_turn_order_bar_entries(after_order)
+		_turn_order_animating = false
+		return
 	if before_order.is_empty():
 		_set_turn_order_bar_entries(after_order)
 		return
 	if _turn_order_is_activation_style_update(before_order, after_order):
+		_turn_order_animating = true
 		_set_turn_order_bar_entries(after_order)
-		await get_tree().create_timer(TURN_ORDER_STYLE_SECONDS).timeout
+		await get_tree().process_frame
+		var active_child: Control = _turn_order_bar.get_child(0) as Control if _turn_order_bar.get_child_count() > 0 else null
+		if active_child != null:
+			active_child.pivot_offset = active_child.size * 0.5
+			active_child.scale = TURN_ORDER_ACTIVATE_SCALE
+			active_child.modulate = TURN_ORDER_UPDATE_TINT
+			var activate_tween: Tween = create_tween().set_parallel(true)
+			activate_tween.tween_property(active_child, "scale", Vector2.ONE, TURN_ORDER_STYLE_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			activate_tween.tween_property(active_child, "modulate", Color.WHITE, TURN_ORDER_STYLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+			await activate_tween.finished
+		else:
+			await get_tree().create_timer(TURN_ORDER_STYLE_SECONDS).timeout
+		_turn_order_animating = false
 		return
 	_turn_order_animating = true
 	var working_order: Array[Dictionary] = _turn_order_array(before_order)
 	_turn_order_panel_locked_width = maxf(_turn_order_panel_width_for_count(working_order.size()), _turn_order_panel_width_for_count(after_order.size()))
 	_set_turn_order_bar_entries(working_order)
 	await get_tree().process_frame
-	var removed_indices: Array = _turn_order_active_removal_indices(working_order)
+	var removed_indices: Array = _turn_order_removed_indices(working_order, after_order)
 	if not removed_indices.is_empty():
 		var remove_tween: Tween = null
 		for index_var: Variant in removed_indices:
@@ -12742,12 +12794,15 @@ func _animate_turn_order_transition(before_order: Array[Dictionary], after_order
 				continue
 			if remove_tween == null:
 				remove_tween = create_tween().set_parallel(true)
-			var removed_target_position: Vector2 = removed_child.position + Vector2(0.0, -TURN_ORDER_FLOAT_OFFSET)
+			removed_child.pivot_offset = removed_child.size * 0.5
+			var removed_target_position: Vector2 = removed_child.position + TURN_ORDER_EXIT_OFFSET
 			remove_tween.tween_property(removed_child, "position", removed_target_position, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+			remove_tween.tween_property(removed_child, "scale", Vector2(0.90, 0.90), TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			remove_tween.tween_property(removed_child, "modulate:a", 0.0, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 		if remove_tween != null:
 			await remove_tween.finished
 	var previous_positions: Dictionary = _turn_order_child_positions(working_order, removed_indices)
+	var previous_signatures: Dictionary = _turn_order_instance_signatures(working_order, removed_indices)
 	var after_keys: Array[String] = _turn_order_instance_keys(after_order)
 	_set_turn_order_bar_entries(after_order)
 	await get_tree().process_frame
@@ -12768,9 +12823,20 @@ func _animate_turn_order_transition(before_order: Array[Dictionary], after_order
 				if reflow_tween == null:
 					reflow_tween = create_tween().set_parallel(true)
 				reflow_tween.tween_property(child, "position", final_position, TURN_ORDER_REFLOW_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+			var current_signature: String = _turn_order_signature(_turn_order_array([after_order[index]]))
+			if str(previous_signatures.get(instance_key, "")) != current_signature:
+				child.pivot_offset = child.size * 0.5
+				child.scale = TURN_ORDER_UPDATE_SCALE
+				child.modulate = TURN_ORDER_UPDATE_TINT
+				if reflow_tween == null:
+					reflow_tween = create_tween().set_parallel(true)
+				reflow_tween.tween_property(child, "scale", Vector2.ONE, TURN_ORDER_REFLOW_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+				reflow_tween.tween_property(child, "modulate", Color.WHITE, TURN_ORDER_REFLOW_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		else:
 			child.modulate.a = 0.0
-			child.position = final_position + Vector2(0.0, -TURN_ORDER_FLOAT_OFFSET)
+			child.position = final_position + TURN_ORDER_INSERT_OFFSET
+			child.pivot_offset = child.size * 0.5
+			child.scale = TURN_ORDER_ACTIVATE_SCALE
 			inserted_slots.append({
 				"child": child,
 				"position": final_position
@@ -12788,11 +12854,34 @@ func _animate_turn_order_transition(before_order: Array[Dictionary], after_order
 				continue
 			var target_position: Vector2 = slot.get("position", inserted_child.position)
 			insert_tween.tween_property(inserted_child, "position", target_position, TURN_ORDER_INSERT_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			insert_tween.tween_property(inserted_child, "scale", Vector2.ONE, TURN_ORDER_INSERT_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			insert_tween.tween_property(inserted_child, "modulate:a", 1.0, TURN_ORDER_INSERT_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		await insert_tween.finished
 	_turn_order_panel_locked_width = -1.0
 	_set_turn_order_bar_entries(after_order)
 	_turn_order_animating = false
+
+func _animate_turn_order_alongside_defeats(
+	before_state: Dictionary,
+	after_state: Dictionary,
+	base_presentation: Dictionary = {},
+	skip_terrain_destruction: bool = false
+) -> void:
+	var before_order: Array[Dictionary] = _turn_order_entries_from_state(before_state)
+	var after_order: Array[Dictionary] = _turn_order_entries_from_state(after_state)
+	var order_changed: bool = _turn_order_motion_signature(before_order) != _turn_order_motion_signature(after_order)
+	if order_changed:
+		# Fire both presentations from the same resolved combat boundary so a slain
+		# actor leaves the rail while its board sprite is dissolving.
+		_animate_turn_order_transition(before_order, after_order)
+	await _animate_defeats_and_terrain_destruction(
+		before_state,
+		after_state,
+		base_presentation,
+		skip_terrain_destruction
+	)
+	while order_changed and _turn_order_animating:
+		await get_tree().process_frame
 
 func _refresh_pile_visuals() -> void:
 	var piles: Dictionary = _deck_piles()
@@ -20583,7 +20672,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		committed_combat_state,
 		GameData.card_element(card_id)
 	)
-	await _animate_defeats_and_terrain_destruction(pre_commit_combat_state, committed_combat_state)
+	await _animate_turn_order_alongside_defeats(pre_commit_combat_state, committed_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	if outcome == "victory":
@@ -22245,7 +22334,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		action_type in ["melee", "ranged", "aoe", "push", "pull"]
 		or not triggered_traps.is_empty()
 	)
-	await _animate_defeats_and_terrain_destruction(before_state, after_state, {}, terrain_destruction_presented_inline)
+	await _animate_turn_order_alongside_defeats(before_state, after_state, {}, terrain_destruction_presented_inline)
 	await _animate_death_rewards(before_state, after_state)
 	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
 	var hand_destination_indices: Dictionary = _pickup_hand_destination_indices(picked_loot, before_state, after_state)
