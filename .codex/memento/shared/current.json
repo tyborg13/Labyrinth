@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-03T20:36:57Z",
+  "updated_at": "2026-09-03T21:07:59Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10126,7 +10126,7 @@
       }
     },
     {
-      "id": "mnt_20260903T203656Z_6ae1f361",
+      "id": "mnt_20260903T210759Z_5cb39ee6",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -10135,18 +10135,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Defeated Turn Clock portraits echo the board shadow death after a short delay",
-      "details": "Let the board sprite own the first death beat, then dissolve every matching scheduled portrait in place with the shared Umbra shadow shader before collapsing the rail. Keep ordinary turn progression and card-Time changes on the slide/reflow treatment, and make Reduced Motion snap directly to the settled order.",
+      "summary": "Turn Clock death echoes must be perceptually separate and readable at portrait scale",
+      "details": "Finish the battlefield enemy dissolve first, keep every matching Turn Clock portrait intact for a distinct post-death beat, then run a slower high-contrast Umbra breakup while preserving the recognizable portrait/chrome through the middle of the effect before rail collapse. A delay measured only from the start of the board death still reads simultaneous. Reduced Motion continues to snap the clock immediately.",
       "status": "active",
-      "created_at": "2026-09-03T20:36:56Z",
-      "updated_at": "2026-09-03T20:36:56Z",
+      "created_at": "2026-09-03T21:07:59Z",
+      "updated_at": "2026-09-03T21:07:59Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260903T192436Z_00c2b683"
+        "mnt_20260903T203656Z_6ae1f361"
       ],
       "source": {
         "branch": "codex/animate-turn-order-timeline-changes",
-        "commit": "488e91a7"
+        "commit": "a6baed8a"
       }
     }
   ]

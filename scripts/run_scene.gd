@@ -1393,9 +1393,10 @@ const TURN_ORDER_INSERT_OFFSET: Vector2 = Vector2(42.0, 6.0)
 const TURN_ORDER_UPDATE_SCALE: Vector2 = Vector2(1.055, 1.055)
 const TURN_ORDER_ACTIVATE_SCALE: Vector2 = Vector2(0.94, 0.94)
 const TURN_ORDER_UPDATE_TINT: Color = Color(1.15, 1.04, 0.76, 1.0)
-const TURN_ORDER_DEFEAT_ECHO_DELAY_SECONDS: float = 0.30
-const TURN_ORDER_DEFEAT_DISSOLVE_SECONDS: float = 0.48
+const TURN_ORDER_DEFEAT_ECHO_DELAY_SECONDS: float = 0.28
+const TURN_ORDER_DEFEAT_DISSOLVE_SECONDS: float = 0.96
 const TURN_ORDER_DEFEAT_SHADOW_TINT: Color = Color(0.12, 0.035, 0.19, 1.0)
+const TURN_ORDER_DEFEAT_EFFECT_MODULATE: Color = Color(1.18, 1.0, 1.26, 1.0)
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 100.0)
 const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 100.0
 const RESOURCE_METER_STACK_GAP: float = 4.0
@@ -12751,6 +12752,10 @@ func _turn_order_shadow_dissolve_slot(slot: Control) -> Dictionary:
 	var actor_key: String = str(slot.get_meta("turn_order_actor_key", ""))
 	var seed: float = _turn_order_shadow_dissolve_seed(actor_key)
 	effect.call("configure", portrait_texture, source_rect, 0.0, seed, false)
+	# The board shader was authored for a much larger sprite. A restrained lift in
+	# the Turn Clock keeps its violet fracture and wisps legible at portrait scale
+	# without introducing a second visual language.
+	effect.modulate = TURN_ORDER_DEFEAT_EFFECT_MODULATE
 	var visual_states: Array[Dictionary] = []
 	for child: Node in slot.get_children():
 		if child == effect or not child is CanvasItem:
@@ -12777,8 +12782,11 @@ func _animate_turn_order_shadow_dissolves(dissolve_slots: Array[Dictionary]) -> 
 	while true:
 		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
 		var progress: float = clampf(elapsed_seconds / TURN_ORDER_DEFEAT_DISSOLVE_SECONDS, 0.0, 1.0)
-		var content_shadow_mix: float = smoothstep(0.0, 0.20, progress)
-		var content_alpha: float = 1.0 - smoothstep(0.08, 0.30, progress)
+		# Keep the recognizable portrait and rail chrome through the middle of the
+		# shader breakup. Fading these in the opening third made the small widget
+		# read as an abrupt disappearance before its shadow wisps could register.
+		var content_shadow_mix: float = smoothstep(0.04, 0.52, progress)
+		var content_alpha: float = 1.0 - smoothstep(0.34, 0.92, progress)
 		for dissolve_slot: Dictionary in dissolve_slots:
 			var slot: Control = dissolve_slot.get("slot", null) as Control
 			var effect: Control = dissolve_slot.get("effect", null) as Control
@@ -12993,16 +13001,39 @@ func _animate_turn_order_alongside_defeats(
 	var after_order: Array[Dictionary] = _turn_order_entries_from_state(after_state)
 	var order_changed: bool = _turn_order_motion_signature(before_order) != _turn_order_motion_signature(after_order)
 	var defeated_actor_keys: Dictionary = _turn_order_defeated_actor_keys(before_state, after_state)
-	if order_changed:
-		# Fire both presentations from the same resolved combat boundary. Defeated
-		# portraits hold briefly so the board death leads, then echo its dissolution.
-		_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
-	await _animate_defeats_and_terrain_destruction(
-		before_state,
-		after_state,
-		base_presentation,
-		skip_terrain_destruction
-	)
+	if _reduced_motion_enabled():
+		# Preserve the accessibility contract: the Turn Clock resolves immediately
+		# even though the board presentation may still perform its own reduced path.
+		if order_changed:
+			_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
+		await _animate_defeats_and_terrain_destruction(
+			before_state,
+			after_state,
+			base_presentation,
+			skip_terrain_destruction
+		)
+		return
+	if defeated_actor_keys.is_empty():
+		if order_changed:
+			_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
+		await _animate_defeats_and_terrain_destruction(
+			before_state,
+			after_state,
+			base_presentation,
+			skip_terrain_destruction
+		)
+	else:
+		# Complete the battlefield death before the Turn Clock reacts. The clock
+		# then preserves the recognizable portrait for one quiet beat and performs
+		# its own full dissolution, making the two removals read sequentially.
+		await _animate_defeats_and_terrain_destruction(
+			before_state,
+			after_state,
+			base_presentation,
+			skip_terrain_destruction
+		)
+		if order_changed:
+			_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
 	while order_changed and _turn_order_animating:
 		await get_tree().process_frame
 
