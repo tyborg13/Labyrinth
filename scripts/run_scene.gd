@@ -18,6 +18,7 @@ const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
 const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
+const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
@@ -1392,6 +1393,9 @@ const TURN_ORDER_INSERT_OFFSET: Vector2 = Vector2(42.0, 6.0)
 const TURN_ORDER_UPDATE_SCALE: Vector2 = Vector2(1.055, 1.055)
 const TURN_ORDER_ACTIVATE_SCALE: Vector2 = Vector2(0.94, 0.94)
 const TURN_ORDER_UPDATE_TINT: Color = Color(1.15, 1.04, 0.76, 1.0)
+const TURN_ORDER_DEFEAT_ECHO_DELAY_SECONDS: float = 0.30
+const TURN_ORDER_DEFEAT_DISSOLVE_SECONDS: float = 0.48
+const TURN_ORDER_DEFEAT_SHADOW_TINT: Color = Color(0.12, 0.035, 0.19, 1.0)
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 100.0)
 const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 100.0
 const RESOURCE_METER_STACK_GAP: float = 4.0
@@ -12326,6 +12330,7 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.modulate = _turn_order_portrait_modulate(entry, active)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
+	frame.set_meta("turn_order_portrait_texture", portrait.texture)
 	var health_bar: SegmentedHealthBar = _turn_order_health_bar(entry, slot_size)
 	if health_bar != null:
 		frame.add_child(health_bar)
@@ -12720,6 +12725,94 @@ func _turn_order_removed_indices(before_order: Array[Dictionary], after_order: A
 			removed.append(index)
 	return removed
 
+func _turn_order_defeated_actor_keys(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
+	var keys: Dictionary = {}
+	for enemy: Dictionary in _defeated_enemy_units_between_states(before_state, after_state):
+		keys["enemy:%s" % _enemy_key(enemy)] = true
+	return keys
+
+func _turn_order_removal_style(actor_key: String, defeated_actor_keys: Dictionary) -> String:
+	return "shadow_dissolve" if bool(defeated_actor_keys.get(actor_key, false)) else "slide"
+
+func _turn_order_shadow_dissolve_seed(actor_key: String) -> float:
+	return fmod(absf(float(actor_key.hash())), 10007.0) / 997.0 + 0.137
+
+func _turn_order_shadow_dissolve_slot(slot: Control) -> Dictionary:
+	if slot == null:
+		return {}
+	var portrait_texture: Texture2D = slot.get_meta("turn_order_portrait_texture", null) as Texture2D
+	if portrait_texture == null:
+		return {}
+	var effect: Control = EnemyShadowDissolveEffect.new() as Control
+	effect.name = "TurnOrderShadowDissolve"
+	effect.z_index = 40
+	slot.add_child(effect)
+	var source_rect := Rect2(Vector2.ZERO, slot.size)
+	var actor_key: String = str(slot.get_meta("turn_order_actor_key", ""))
+	var seed: float = _turn_order_shadow_dissolve_seed(actor_key)
+	effect.call("configure", portrait_texture, source_rect, 0.0, seed, false)
+	var visual_states: Array[Dictionary] = []
+	for child: Node in slot.get_children():
+		if child == effect or not child is CanvasItem:
+			continue
+		var visual: CanvasItem = child as CanvasItem
+		visual_states.append({
+			"visual": visual,
+			"modulate": visual.modulate
+		})
+	slot.set_meta("turn_order_removal_style", "shadow_dissolve")
+	return {
+		"slot": slot,
+		"effect": effect,
+		"texture": portrait_texture,
+		"source_rect": source_rect,
+		"seed": seed,
+		"visual_states": visual_states
+	}
+
+func _animate_turn_order_shadow_dissolves(dissolve_slots: Array[Dictionary]) -> void:
+	if dissolve_slots.is_empty():
+		return
+	var started_usec: int = Time.get_ticks_usec()
+	while true:
+		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
+		var progress: float = clampf(elapsed_seconds / TURN_ORDER_DEFEAT_DISSOLVE_SECONDS, 0.0, 1.0)
+		var content_shadow_mix: float = smoothstep(0.0, 0.20, progress)
+		var content_alpha: float = 1.0 - smoothstep(0.08, 0.30, progress)
+		for dissolve_slot: Dictionary in dissolve_slots:
+			var slot: Control = dissolve_slot.get("slot", null) as Control
+			var effect: Control = dissolve_slot.get("effect", null) as Control
+			var texture: Texture2D = dissolve_slot.get("texture", null) as Texture2D
+			if slot == null or effect == null or texture == null or not is_instance_valid(slot) or not is_instance_valid(effect):
+				continue
+			effect.call(
+				"configure",
+				texture,
+				dissolve_slot.get("source_rect", Rect2(Vector2.ZERO, slot.size)) as Rect2,
+				progress,
+				float(dissolve_slot.get("seed", 0.137)),
+				false
+			)
+			for visual_state: Dictionary in dissolve_slot.get("visual_states", []):
+				var visual: CanvasItem = visual_state.get("visual", null) as CanvasItem
+				if visual == null or not is_instance_valid(visual):
+					continue
+				var base_modulate: Color = visual_state.get("modulate", Color.WHITE)
+				var shadowed: Color = base_modulate.lerp(
+					Color(
+						TURN_ORDER_DEFEAT_SHADOW_TINT.r,
+						TURN_ORDER_DEFEAT_SHADOW_TINT.g,
+						TURN_ORDER_DEFEAT_SHADOW_TINT.b,
+						base_modulate.a
+					),
+					content_shadow_mix
+				)
+				shadowed.a = base_modulate.a * content_alpha
+				visual.modulate = shadowed
+		if progress >= 1.0:
+			break
+		await get_tree().process_frame
+
 func _turn_order_instance_signatures(entries: Array[Dictionary], excluded_indices: Array = []) -> Dictionary:
 	var signatures: Dictionary = {}
 	var keys: Array[String] = _turn_order_instance_keys(entries, excluded_indices)
@@ -12747,7 +12840,11 @@ func _turn_order_child_positions(entries: Array[Dictionary], excluded_indices: A
 func _animate_turn_order_transition_between_states(before_state: Dictionary, after_state: Dictionary) -> void:
 	await _animate_turn_order_transition(_turn_order_entries_from_state(before_state), _turn_order_entries_from_state(after_state))
 
-func _animate_turn_order_transition(before_order: Array[Dictionary], after_order: Array[Dictionary]) -> void:
+func _animate_turn_order_transition(
+	before_order: Array[Dictionary],
+	after_order: Array[Dictionary],
+	defeated_actor_keys: Dictionary = {}
+) -> void:
 	if _turn_order_bar == null:
 		return
 	if _turn_order_signature(before_order) == _turn_order_signature(after_order):
@@ -12784,7 +12881,20 @@ func _animate_turn_order_transition(before_order: Array[Dictionary], after_order
 	await get_tree().process_frame
 	var removed_indices: Array = _turn_order_removed_indices(working_order, after_order)
 	if not removed_indices.is_empty():
+		var has_defeat_dissolve: bool = false
+		for index_var: Variant in removed_indices:
+			var candidate_index: int = int(index_var)
+			if candidate_index < 0 or candidate_index >= working_order.size():
+				continue
+			if _turn_order_removal_style(_turn_order_actor_key(working_order[candidate_index]), defeated_actor_keys) == "shadow_dissolve":
+				has_defeat_dissolve = true
+				break
+		if has_defeat_dissolve:
+			# Let the board actor own the first death beat. The Turn Clock answers a
+			# moment later with the same Umbra breakup, like a delayed final echo.
+			await get_tree().create_timer(TURN_ORDER_DEFEAT_ECHO_DELAY_SECONDS).timeout
 		var remove_tween: Tween = null
+		var dissolve_slots: Array[Dictionary] = []
 		for index_var: Variant in removed_indices:
 			var removed_index: int = int(index_var)
 			if removed_index < 0 or removed_index >= _turn_order_bar.get_child_count():
@@ -12792,6 +12902,16 @@ func _animate_turn_order_transition(before_order: Array[Dictionary], after_order
 			var removed_child: Control = _turn_order_bar.get_child(removed_index) as Control
 			if removed_child == null:
 				continue
+			var removal_style: String = _turn_order_removal_style(
+				_turn_order_actor_key(working_order[removed_index]),
+				defeated_actor_keys
+			)
+			removed_child.set_meta("turn_order_removal_style", removal_style)
+			if removal_style == "shadow_dissolve":
+				var dissolve_slot: Dictionary = _turn_order_shadow_dissolve_slot(removed_child)
+				if not dissolve_slot.is_empty():
+					dissolve_slots.append(dissolve_slot)
+					continue
 			if remove_tween == null:
 				remove_tween = create_tween().set_parallel(true)
 			removed_child.pivot_offset = removed_child.size * 0.5
@@ -12799,6 +12919,8 @@ func _animate_turn_order_transition(before_order: Array[Dictionary], after_order
 			remove_tween.tween_property(removed_child, "position", removed_target_position, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			remove_tween.tween_property(removed_child, "scale", Vector2(0.90, 0.90), TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			remove_tween.tween_property(removed_child, "modulate:a", 0.0, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		if not dissolve_slots.is_empty():
+			await _animate_turn_order_shadow_dissolves(dissolve_slots)
 		if remove_tween != null:
 			await remove_tween.finished
 	var previous_positions: Dictionary = _turn_order_child_positions(working_order, removed_indices)
@@ -12870,10 +12992,11 @@ func _animate_turn_order_alongside_defeats(
 	var before_order: Array[Dictionary] = _turn_order_entries_from_state(before_state)
 	var after_order: Array[Dictionary] = _turn_order_entries_from_state(after_state)
 	var order_changed: bool = _turn_order_motion_signature(before_order) != _turn_order_motion_signature(after_order)
+	var defeated_actor_keys: Dictionary = _turn_order_defeated_actor_keys(before_state, after_state)
 	if order_changed:
-		# Fire both presentations from the same resolved combat boundary so a slain
-		# actor leaves the rail while its board sprite is dissolving.
-		_animate_turn_order_transition(before_order, after_order)
+		# Fire both presentations from the same resolved combat boundary. Defeated
+		# portraits hold briefly so the board death leads, then echo its dissolution.
+		_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
 	await _animate_defeats_and_terrain_destruction(
 		before_state,
 		after_state,

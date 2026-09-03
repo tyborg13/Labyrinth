@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-03T19:24:36Z",
+  "updated_at": "2026-09-03T20:36:57Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10126,7 +10126,7 @@
       }
     },
     {
-      "id": "mnt_20260903T192436Z_00c2b683",
+      "id": "mnt_20260903T203656Z_6ae1f361",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -10135,16 +10135,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Turn Clock motion should mirror combat causality",
-      "details": "Animate persistent turn-order instance additions, removals, and spatial reorders so Time-changing cards visibly reflow the rail and every defeated actor occurrence exits alongside the board death dissolve. Reduced Motion must skip intermediates and render the correct settled order immediately.",
+      "summary": "Defeated Turn Clock portraits echo the board shadow death after a short delay",
+      "details": "Let the board sprite own the first death beat, then dissolve every matching scheduled portrait in place with the shared Umbra shadow shader before collapsing the rail. Keep ordinary turn progression and card-Time changes on the slide/reflow treatment, and make Reduced Motion snap directly to the settled order.",
       "status": "active",
-      "created_at": "2026-09-03T19:24:36Z",
-      "updated_at": "2026-09-03T19:24:36Z",
+      "created_at": "2026-09-03T20:36:56Z",
+      "updated_at": "2026-09-03T20:36:56Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260903T192436Z_00c2b683"
+      ],
       "source": {
         "branch": "codex/animate-turn-order-timeline-changes",
-        "commit": "224e3dda"
+        "commit": "488e91a7"
       }
     }
   ]

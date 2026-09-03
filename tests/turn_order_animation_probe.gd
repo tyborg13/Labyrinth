@@ -55,7 +55,7 @@ func _initialize() -> void:
 	_assert_vertical_turn_order_geometry(instance)
 	_assert_backing_texture_has_transparent_bleed()
 	_assert_turn_order_badges_match_relative_clocks(instance, combat_state)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_00_stable.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_00_stable.png")
 	var combat_engine = instance.get("_combat_engine")
 	var scheduled_state: Dictionary = combat_engine.finish_player_activation(combat_state.duplicate(true))
 	print("turn order probe: animating turn consumption")
@@ -63,21 +63,21 @@ func _initialize() -> void:
 	await create_timer(0.10).timeout
 	await process_frame
 	_assert_single_turn_order_exit(instance)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_01_turn_exit.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_01_turn_exit.png")
 	await create_timer(0.20).timeout
 	await process_frame
 	_assert_turn_order_width_locked(instance)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_02_turn_collapse.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_02_turn_collapse.png")
 	await create_timer(0.20).timeout
 	await process_frame
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_03_turn_insert.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_03_turn_insert.png")
 	await create_timer(0.55).timeout
 	await process_frame
 	_assert_turn_order_slot_count(instance, 10)
 	_assert_turn_order_panel_right_rail(instance)
 	_assert_vertical_turn_order_geometry(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, scheduled_state)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_04_turn_settled.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_04_turn_settled.png")
 
 	print("turn order probe: animating committed Time shift")
 	_set_probe_combat_state(instance, combat_state)
@@ -90,11 +90,11 @@ func _initialize() -> void:
 	await process_frame
 	_assert_active_player_persists(instance)
 	_assert_reflow_in_progress(instance)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_05_time_reflow.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_05_time_reflow.png")
 	await create_timer(0.48).timeout
 	await process_frame
 	_assert_turn_order_badges_match_relative_clocks(instance, time_shifted_state)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_06_time_settled.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_06_time_settled.png")
 
 	print("turn order probe: animating enemy defeat")
 	_set_probe_combat_state(instance, combat_state)
@@ -103,28 +103,32 @@ func _initialize() -> void:
 	var defeated_actor_key: String = _first_enemy_turn_actor_key(instance, combat_state)
 	var defeated_state: Dictionary = _state_with_first_enemy_defeated(combat_state)
 	instance.call("_animate_turn_order_alongside_defeats", combat_state.duplicate(true), defeated_state.duplicate(true))
-	await create_timer(0.10).timeout
+	await create_timer(0.12).timeout
 	await process_frame
-	_assert_actor_exiting(instance, defeated_actor_key)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_07_enemy_death_exit.png")
-	await create_timer(0.22).timeout
+	_assert_actor_waiting_for_shadow_echo(instance, defeated_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_07_enemy_board_death_leads.png")
+	await create_timer(0.28).timeout
 	await process_frame
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_08_enemy_death_collapse.png")
-	await create_timer(0.78).timeout
+	_assert_actor_shadow_dissolving(instance, defeated_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_08_enemy_portrait_dissolve.png")
+	await create_timer(0.42).timeout
+	await process_frame
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_09_enemy_death_collapse.png")
+	await create_timer(0.72).timeout
 	await process_frame
 	_assert_actor_absent(instance, defeated_actor_key)
 	_assert_vertical_turn_order_geometry(instance)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_09_enemy_death_settled.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_10_enemy_death_settled.png")
 
 	print("turn order probe: verifying reduced motion")
 	_set_probe_combat_state(instance, combat_state)
 	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
 	reduced_settings["reduced_motion"] = true
 	instance.set("_settings", reduced_settings)
-	instance.call("_animate_turn_order_transition_between_states", combat_state.duplicate(true), defeated_state.duplicate(true))
+	instance.call("_animate_turn_order_alongside_defeats", combat_state.duplicate(true), defeated_state.duplicate(true))
 	await process_frame
 	_assert_reduced_motion_settled(instance, defeated_actor_key)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_10_reduced_motion_settled.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_11_reduced_motion_settled.png")
 	reduced_settings["reduced_motion"] = false
 	instance.set("_settings", reduced_settings)
 
@@ -139,29 +143,33 @@ func _initialize() -> void:
 	await process_frame
 	var animated_burn_state: Dictionary = burn_before_state.duplicate(true)
 	instance.call("_animate_enemy_phase_steps", animated_burn_state, burn_steps)
-	await create_timer(0.58).timeout
+	await create_timer(0.60).timeout
 	await process_frame
-	_assert_actor_exiting(instance, burn_actor_key)
+	_assert_actor_waiting_for_shadow_echo(instance, burn_actor_key)
 	_assert_enemy_defeated_in_state(burn_after_state, burn_actor_key)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_11_burn_death_exit.png")
-	await create_timer(0.92).timeout
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_12_burn_board_death_leads.png")
+	await create_timer(0.28).timeout
+	await process_frame
+	_assert_actor_shadow_dissolving(instance, burn_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_13_burn_portrait_dissolve.png")
+	await create_timer(1.20).timeout
 	await process_frame
 	_assert_actor_absent(instance, burn_actor_key)
 	_assert_vertical_turn_order_geometry(instance)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_12_burn_death_settled.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_14_burn_death_settled.png")
 
 	var tied_state: Dictionary = _equal_time_player_tie_state(instance, combat_state.duplicate(true))
 	_set_probe_combat_state(instance, tied_state)
 	await process_frame
 	_assert_player_wins_equal_time_forecast(instance, tied_state)
 	_assert_turn_order_badges_match_relative_clocks(instance, tied_state)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_13_player_tie_forecast.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_15_player_tie_forecast.png")
 	var tied_scheduled_state: Dictionary = combat_engine.finish_player_activation(tied_state.duplicate(true))
 	_assert_player_wins_equal_time_schedule(combat_engine, tied_scheduled_state)
 	_set_probe_combat_state(instance, tied_scheduled_state)
 	await process_frame
 	_assert_turn_order_badges_match_relative_clocks(instance, tied_scheduled_state)
-	await _save_root_screenshot("user://probes/turn_order_motion_v3_14_player_tie_scheduled.png")
+	await _save_root_screenshot("user://probes/turn_order_motion_v4_16_player_tie_scheduled.png")
 	print("turn order probe: done")
 	print(ProjectSettings.globalize_path("user://probes"))
 	instance.queue_free()
@@ -327,19 +335,50 @@ func _assert_reflow_in_progress(instance: Node) -> void:
 	push_error("Time change did not visibly move any turn-order portrait between slots.")
 	quit(1)
 
-func _assert_actor_exiting(instance: Node, actor_key: String) -> void:
+func _assert_actor_waiting_for_shadow_echo(instance: Node, actor_key: String) -> void:
 	var bar: Control = instance.get("_turn_order_bar") as Control
 	var matching: int = 0
-	var exiting: int = 0
 	if bar != null:
 		for slot: Control in _turn_order_slot_controls(bar):
 			if str(slot.get_meta("turn_order_actor_key", "")) != actor_key:
 				continue
 			matching += 1
-			if slot.modulate.a < 0.98 and slot.position.x > 0.0:
-				exiting += 1
-	if matching <= 0 or exiting != matching:
-		push_error("Every scheduled portrait for %s should slide and fade out on defeat (%d/%d exiting)." % [actor_key, exiting, matching])
+			if slot.get_node_or_null("TurnOrderShadowDissolve") != null:
+				push_error("%s began its Turn Clock dissolution before the delayed death echo." % actor_key)
+				quit(1)
+				return
+			var rail_index: int = int(slot.get_meta("turn_order_rail_index", -1))
+			var settled_position: Vector2 = instance.call("_turn_order_slot_position", rail_index) as Vector2
+			if slot.position.distance_to(settled_position) > 0.5 or slot.modulate.a < 0.99:
+				push_error("%s should remain settled and readable while the board death owns the first beat." % actor_key)
+				quit(1)
+				return
+	if matching <= 0:
+		push_error("Delayed death echo lost every scheduled portrait for %s before its dissolution began." % actor_key)
+		quit(1)
+
+func _assert_actor_shadow_dissolving(instance: Node, actor_key: String) -> void:
+	var bar: Control = instance.get("_turn_order_bar") as Control
+	var matching: int = 0
+	var dissolving: int = 0
+	if bar != null:
+		for slot: Control in _turn_order_slot_controls(bar):
+			if str(slot.get_meta("turn_order_actor_key", "")) != actor_key:
+				continue
+			matching += 1
+			var effect: Control = slot.get_node_or_null("TurnOrderShadowDissolve") as Control
+			if effect == null:
+				continue
+			var progress: float = float(effect.call("dissolve_progress"))
+			if (
+				str(slot.get_meta("turn_order_removal_style", "")) == "shadow_dissolve"
+				and effect.visible
+				and progress > 0.04
+				and progress < 0.96
+			):
+				dissolving += 1
+	if matching <= 0 or dissolving != matching:
+		push_error("Every scheduled portrait for %s should share the delayed shadow dissolution (%d/%d dissolving)." % [actor_key, dissolving, matching])
 		quit(1)
 
 func _assert_actor_absent(instance: Node, actor_key: String) -> void:

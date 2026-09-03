@@ -167,6 +167,15 @@ static func _test_status_death_creates_turn_order_boundary(expect: Callable) -> 
 	)
 	var removed_indices: Array = view.call("_turn_order_removed_indices", before_order, after_order) as Array
 	var expected_actor_key: String = "enemy:%s" % str((before_state.get("current_actor", {}) as Dictionary).get("actor_key", ""))
+	var defeated_actor_keys: Dictionary = view.call("_turn_order_defeated_actor_keys", before_state, after_state) as Dictionary
+	expect.call(
+		str(view.call("_turn_order_removal_style", expected_actor_key, defeated_actor_keys)) == "shadow_dissolve",
+		"A production enemy death should select the delayed shadow-dissolve removal style"
+	)
+	expect.call(
+		str(view.call("_turn_order_removal_style", "player:player", defeated_actor_keys)) == "slide",
+		"Non-defeat turn-order removals should retain the ordinary slide treatment"
+	)
 	var all_removed_match: bool = not removed_indices.is_empty()
 	for index_var: Variant in removed_indices:
 		var index: int = int(index_var)
