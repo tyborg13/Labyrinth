@@ -43,27 +43,27 @@
       ]
     },
     {
-      "pattern": "*objective_intro_v2_00_center_hold.png",
+      "pattern": "*objective_intro_v3_00_text_only_hold.png",
       "width": 1920,
       "height": 1080,
       "regions": [
-        {"rect": [600, 400, 720, 280], "min_luma_range": 35, "min_luma_stdev": 6}
+        {"rect": [360, 170, 1200, 300], "min_luma_range": 35, "min_luma_stdev": 6}
       ]
     },
     {
-      "pattern": "*objective_intro_v2_01_traveling_to_hud.png",
+      "pattern": "*objective_intro_v3_01_chrome_arriving.png",
       "width": 1920,
       "height": 1080,
       "regions": [
-        {"rect": [240, 360, 1100, 360], "min_luma_range": 30, "min_luma_stdev": 5}
+        {"rect": [160, 220, 1320, 440], "min_luma_range": 30, "min_luma_stdev": 5}
       ]
     },
     {
-      "pattern": "*objective_intro_v2_02_reduced_motion_hold.png",
+      "pattern": "*objective_intro_v3_02_reduced_motion_text.png",
       "width": 1920,
       "height": 1080,
       "regions": [
-        {"rect": [680, 430, 560, 220], "min_luma_range": 30, "min_luma_stdev": 5}
+        {"rect": [480, 180, 960, 280], "min_luma_range": 30, "min_luma_stdev": 5}
       ]
     },
     {

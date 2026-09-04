@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-04T03:12:22Z",
+  "updated_at": "2026-09-04T12:01:34Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10172,7 +10172,7 @@
       }
     },
     {
-      "id": "mnt_20260904T031222Z_a2ef0eb8",
+      "id": "mnt_20260904T120134Z_66f6e03e",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -10181,16 +10181,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Opening combat foregrounds the scenario objective before dealing cards",
-      "details": "After the pre-battle overlay uncovers the room, keep combat input locked and reuse the live CombatObjectiveHud for a large center-screen pop, readable hold, and shrink/flight into its permanent dock before any opening-card proxy launches. Reduced Motion keeps a restrained static center hold and snaps to the same dock without a travel tween.",
+      "summary": "Combat objective intros begin as oversized upper-center text",
+      "details": "After the combat room is uncovered and before opening cards are dealt, show only the OBJECTIVE kicker and objective name as a large upper-center treatment. Keep panel fill, border, shadow, icon, and live detail absent during the readable hold; shrink and slide the text toward the established side dock, reveal the panel behind it first, and bring in compact widget content only at the end. Reduced Motion keeps a static text-only hold before snapping to the same persistent widget.",
       "status": "active",
-      "created_at": "2026-09-04T03:12:22Z",
-      "updated_at": "2026-09-04T03:12:22Z",
+      "created_at": "2026-09-04T12:01:34Z",
+      "updated_at": "2026-09-04T12:01:34Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260904T031222Z_a2ef0eb8"
+      ],
       "source": {
         "branch": "codex/animate-combat-objective-intro-into-hud",
-        "commit": "065fc36a"
+        "commit": "c66a75ca"
       }
     }
   ]

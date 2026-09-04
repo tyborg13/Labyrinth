@@ -115,38 +115,44 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 	_assert(hand_box != null and not hand_box.visible, "Opening-hand proof should hide the authoritative complete hand")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Room-reveal proof should precede the first card launch")
 	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "Room-reveal proof should precede the first draw sound")
-	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "prepared", "Room-reveal proof should stage the objective invisibly at screen center")
+	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "prepared", "Room-reveal proof should stage the objective invisibly at upper center")
 	if objective_hud != null:
-		var prepared_center: Vector2 = instance.get_viewport_rect().size * 0.5
+		var prepared_viewport_size: Vector2 = instance.get_viewport_rect().size
+		var prepared_center := Vector2(prepared_viewport_size.x * 0.5, prepared_viewport_size.y * 0.28)
 		var prepared_target: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
-		_assert(objective_hud.position + objective_hud.size * 0.5 == prepared_center, "Room-reveal proof should place the hidden objective at center")
+		_assert(objective_hud.position + objective_hud.size * 0.5 == prepared_center, "Room-reveal proof should place the hidden objective at upper center")
 		_assert(not objective_hud.position.is_equal_approx(prepared_target.position), "Room-reveal proof must not show the objective in its final dock before the pop")
-		_assert(is_zero_approx(objective_hud.modulate.a), "Room-reveal proof should keep the prepared center objective transparent")
+		_assert(is_zero_approx(objective_hud.modulate.a), "Room-reveal proof should keep the prepared upper-center objective transparent")
+		_assert(is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "Room-reveal proof should keep all widget chrome hidden")
 	await _save_root_screenshot("%s/card_draw_flow_v1_00_room_revealed.png" % OUTPUT_DIR)
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "The uncovered room should remain card-free for its presentation frame")
 	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "The uncovered-room frame should remain silent")
 	if objective_hud != null:
-		var reveal_center: Vector2 = instance.get_viewport_rect().size * 0.5
+		var reveal_viewport_size: Vector2 = instance.get_viewport_rect().size
+		var reveal_center := Vector2(reveal_viewport_size.x * 0.5, reveal_viewport_size.y * 0.28)
 		var reveal_target: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
-		_assert(objective_hud.position + objective_hud.size * 0.5 == reveal_center, "The first uncovered-room frame should keep the objective centered as its pop begins")
+		_assert(objective_hud.position + objective_hud.size * 0.5 == reveal_center, "The first uncovered-room frame should keep the objective at upper center as its pop begins")
 		_assert(not objective_hud.position.is_equal_approx(reveal_target.position), "The first uncovered-room frame should never expose the final objective dock")
 
 	var objective_deadline: int = Time.get_ticks_msec() + 2000
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "holding" and Time.get_ticks_msec() < objective_deadline:
 		await process_frame
-	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "holding", "Objective visual proof should reach the readable center-screen hold")
-	_assert(objective_hud != null and objective_hud.visible and objective_hud.scale.x > 1.8, "Objective center proof should show the enlarged live HUD")
+	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "holding", "Objective visual proof should reach the readable upper-center hold")
+	_assert(objective_hud != null and objective_hud.visible and objective_hud.scale.x > 2.5, "Objective upper-center proof should show the dramatically enlarged text")
+	_assert(objective_hud != null and is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "Objective upper-center proof should contain no panel background or compact widget content")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Objective center proof should remain visually separate from the opening deal")
-	await _save_root_screenshot("%s/objective_intro_v2_00_center_hold.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/objective_intro_v3_00_text_only_hold.png" % OUTPUT_DIR)
 
 	var travel_deadline: int = Time.get_ticks_msec() + 2000
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "traveling" and Time.get_ticks_msec() < travel_deadline:
 		await process_frame
 	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "traveling", "Objective visual proof should reach the center-to-HUD travel")
-	await create_timer(0.32).timeout
-	_assert(objective_hud != null and objective_hud.scale.x > 1.0 and objective_hud.scale.x < 1.9, "Objective travel proof should show the HUD shrinking in flight")
+	await create_timer(0.44).timeout
+	_assert(objective_hud != null and objective_hud.scale.x > 1.0 and objective_hud.scale.x < 2.5, "Objective travel proof should show the text shrinking in flight")
+	_assert(objective_hud != null and float(objective_hud.get("intro_chrome_progress")) > 0.0 and float(objective_hud.get("intro_chrome_progress")) < 1.0, "Objective travel proof should show the compact widget background appearing behind the text")
+	_assert(objective_hud != null and is_zero_approx(float(objective_hud.get("intro_content_progress"))), "Objective travel proof should avoid overlapping the large and compact objective copy")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Objective travel proof should precede opening-card motion")
-	await _save_root_screenshot("%s/objective_intro_v2_01_traveling_to_hud.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/objective_intro_v3_01_chrome_arriving.png" % OUTPUT_DIR)
 
 	var launch_deadline: int = Time.get_ticks_msec() + 3000
 	while _sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before and Time.get_ticks_msec() < launch_deadline:
@@ -190,7 +196,8 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 	var reduced_hand_box: Control = instance.get("hand_box") as Control
 	_assert(reduced_hand_box != null and not reduced_hand_box.visible, "Reduced Motion objective proof should still precede the opening deal")
 	_assert(bool(instance.get("_animation_lock")), "Reduced Motion objective proof should keep combat input locked")
-	await _save_root_screenshot("%s/objective_intro_v2_02_reduced_motion_hold.png" % OUTPUT_DIR)
+	_assert(objective_hud != null and is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "Reduced Motion proof should retain the text-only presentation before snapping to the HUD")
+	await _save_root_screenshot("%s/objective_intro_v3_02_reduced_motion_text.png" % OUTPUT_DIR)
 	var reduced_deadline: int = Time.get_ticks_msec() + 5000
 	while bool(instance.get("_opening_hand_draw_in_progress")) and Time.get_ticks_msec() < reduced_deadline:
 		await process_frame

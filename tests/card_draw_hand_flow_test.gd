@@ -66,24 +66,33 @@ func _run_opening_hand_entry_regression() -> void:
 	_expect(hand_box != null and not hand_box.visible, "The authoritative complete hand must stay hidden before the first card launches")
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "No card proxy should launch before the uncovered room receives its presentation wait")
 	_expect(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "Draw audio must stay silent while the room is first uncovered")
-	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "prepared", "The uncovered-room frame should pre-stage the objective at center before it appears")
+	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "prepared", "The uncovered-room frame should pre-stage the objective at upper center before it appears")
 	if objective_hud != null:
-		var prepared_viewport_center: Vector2 = instance.get_viewport_rect().size * 0.5
+		var prepared_viewport_size: Vector2 = instance.get_viewport_rect().size
+		var prepared_intro_center := Vector2(prepared_viewport_size.x * 0.5, prepared_viewport_size.y * 0.28)
 		var prepared_target_rect: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
-		_expect(objective_hud.position + objective_hud.size * 0.5 == prepared_viewport_center, "The hidden objective should already be centered before the first uncovered-room frame")
+		_expect(objective_hud.position + objective_hud.size * 0.5 == prepared_intro_center, "The hidden objective should already be staged at upper center before the first uncovered-room frame")
 		_expect(not objective_hud.position.is_equal_approx(prepared_target_rect.position), "The objective must not flash in its final dock before the center pop")
-		_expect(is_zero_approx(objective_hud.modulate.a), "The prepared center objective should stay transparent until its pop begins")
+		_expect(is_zero_approx(objective_hud.modulate.a), "The prepared upper-center objective should stay transparent until its pop begins")
+		_expect(is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "The prepared objective should keep its widget background and persistent contents hidden")
+		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "The prepared objective should keep the compact icon and detail hidden")
 
 	var objective_deadline: int = Time.get_ticks_msec() + 2000
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "holding" and Time.get_ticks_msec() < objective_deadline:
 		await process_frame
 	_expect(objective_hud != null and bool(objective_hud.get("intro_active")), "Battle entry should present the objective before dealing the opening hand")
-	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "holding", "The objective intro should reach its readable center-screen hold")
-	_expect(objective_hud != null and objective_hud.visible, "The centered objective intro should reuse the visible persistent objective HUD")
+	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "holding", "The objective intro should reach its readable upper-center hold")
+	_expect(objective_hud != null and objective_hud.visible, "The upper-center objective intro should reuse the visible persistent objective HUD")
 	if objective_hud != null:
-		var viewport_center: Vector2 = instance.get_viewport_rect().size * 0.5
-		_expect(objective_hud.position + objective_hud.size * 0.5 == viewport_center, "The enlarged objective should hold at the exact screen center")
-		_expect(objective_hud.scale.x > 1.8, "The centered objective should be substantially larger than its permanent HUD size")
+		var viewport_size: Vector2 = instance.get_viewport_rect().size
+		var intro_center := Vector2(viewport_size.x * 0.5, viewport_size.y * 0.28)
+		_expect(objective_hud.position + objective_hud.size * 0.5 == intro_center, "The enlarged objective should hold at upper center")
+		_expect(objective_hud.scale.x > 2.5, "The text-only objective should be dramatically larger than its permanent HUD size")
+		_expect(is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "The readable hold should show only objective text without panel chrome")
+		var intro_text_stack: Control = objective_hud.get("_intro_text_stack") as Control
+		var content_row: Control = objective_hud.get("_content_row") as Control
+		_expect(intro_text_stack != null and intro_text_stack.visible and intro_text_stack.modulate.a > 0.99, "The readable hold should show the dedicated OBJECTIVE text treatment")
+		_expect(content_row != null and is_zero_approx(content_row.modulate.a), "The icon, live detail, and compact widget copy should remain hidden during the text-only hold")
 		_expect(objective_hud.mouse_filter == Control.MOUSE_FILTER_IGNORE, "The objective intro should never intercept pointer input")
 	_expect(bool(instance.get("_animation_lock")), "Combat input should remain locked throughout the objective introduction")
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Opening cards should wait until the objective has traveled to its HUD position")
@@ -92,9 +101,12 @@ func _run_opening_hand_entry_regression() -> void:
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "traveling" and Time.get_ticks_msec() < travel_deadline:
 		await process_frame
 	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "traveling", "The objective should transition from its center hold toward the permanent HUD")
-	await create_timer(0.20).timeout
+	await create_timer(0.44).timeout
 	if objective_hud != null:
-		_expect(objective_hud.scale.x > 1.0 and objective_hud.scale.x < 1.9, "The traveling objective should visibly shrink toward its permanent size")
+		_expect(objective_hud.scale.x > 1.0 and objective_hud.scale.x < 2.5, "The traveling objective should visibly shrink toward its permanent size")
+		var chrome_progress: float = float(objective_hud.get("intro_chrome_progress"))
+		_expect(chrome_progress > 0.0 and chrome_progress < 1.0, "The widget background should fade in behind the text during the latter travel")
+		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "The compact widget text and icon should wait until the large text has nearly retired")
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Card-deal motion should not compete with the traveling objective")
 
 	var launch_deadline: int = Time.get_ticks_msec() + 3000
@@ -129,6 +141,10 @@ func _run_opening_hand_entry_regression() -> void:
 		var target_rect: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
 		_expect(objective_hud.position.is_equal_approx(target_rect.position), "The objective should land at the permanent HUD position")
 		_expect(objective_hud.scale.is_equal_approx(Vector2.ONE), "The settled objective should return to normal HUD scale")
+		_expect(is_equal_approx(float(objective_hud.get("intro_chrome_progress")), 1.0), "The settled objective should restore the complete widget background and content")
+		_expect(is_equal_approx(float(objective_hud.get("intro_content_progress")), 1.0), "The settled objective should restore the compact icon, title, and live detail")
+		var settled_intro_text: Control = objective_hud.get("_intro_text_stack") as Control
+		_expect(settled_intro_text != null and not settled_intro_text.visible, "The separate large intro text should retire after the widget settles")
 		_expect(objective_hud.mouse_filter == Control.MOUSE_FILTER_STOP, "The settled objective should restore its existing tooltip interaction")
 
 	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
@@ -139,9 +155,12 @@ func _run_opening_hand_entry_regression() -> void:
 	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "reduced_hold", "Reduced Motion should use a static center hold instead of the travel animation")
 	_expect(objective_hud != null and objective_hud.get("_intro_tween") == null, "Reduced Motion should not create an objective motion tween")
 	if objective_hud != null:
-		var reduced_viewport_center: Vector2 = instance.get_viewport_rect().size * 0.5
-		_expect(objective_hud.position + objective_hud.size * 0.5 == reduced_viewport_center, "Reduced Motion should retain the clear centered objective emphasis")
-		_expect(is_equal_approx(objective_hud.scale.x, 1.32), "Reduced Motion should use a restrained static enlargement")
+		var reduced_viewport_size: Vector2 = instance.get_viewport_rect().size
+		var reduced_intro_center := Vector2(reduced_viewport_size.x * 0.5, reduced_viewport_size.y * 0.28)
+		_expect(objective_hud.position + objective_hud.size * 0.5 == reduced_intro_center, "Reduced Motion should retain the clear upper-center objective emphasis")
+		_expect(is_equal_approx(objective_hud.scale.x, 2.05), "Reduced Motion should keep the new text treatment large without traveling")
+		_expect(is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "Reduced Motion should preserve the text-only hold before snapping to the complete widget")
+		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "Reduced Motion should keep compact widget content out of its text-only hold")
 	var reduced_deadline: int = Time.get_ticks_msec() + 1500
 	while objective_hud != null and bool(objective_hud.get("intro_active")) and Time.get_ticks_msec() < reduced_deadline:
 		await process_frame
@@ -150,6 +169,7 @@ func _run_opening_hand_entry_regression() -> void:
 		var reduced_target_rect: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
 		_expect(objective_hud.position.is_equal_approx(reduced_target_rect.position), "Reduced Motion should snap to the same permanent objective HUD position")
 		_expect(objective_hud.scale.is_equal_approx(Vector2.ONE), "Reduced Motion should settle at the normal persistent HUD scale")
+		_expect(is_equal_approx(float(objective_hud.get("intro_chrome_progress")), 1.0), "Reduced Motion should restore the complete persistent widget after its static hold")
 	instance.queue_free()
 	await process_frame
 
