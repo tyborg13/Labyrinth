@@ -8,8 +8,13 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const INTRO_START_SCALE: float = 0.88
 const INTRO_POP_SCALE: float = 2.65
-const INTRO_REDUCED_SCALE: float = 2.05
 const INTRO_VERTICAL_RATIO: float = 0.28
+const INTRO_TEXT_SIZE := Vector2(1280.0, 220.0)
+const INTRO_KICKER_START_FONT_SIZE: int = 40
+const INTRO_KICKER_FONT_SIZE: int = 46
+const INTRO_TITLE_START_FONT_SIZE: int = 82
+const INTRO_TITLE_FONT_SIZE: int = 92
+const INTRO_TEXT_TARGET_SCALE: float = 0.32
 const INTRO_POP_SECONDS: float = 0.24
 const INTRO_HOLD_SECONDS: float = 0.56
 const INTRO_TRAVEL_SECONDS: float = 0.64
@@ -29,6 +34,7 @@ var _title: Label
 var _detail: Label
 var _content_row: HBoxContainer
 var _intro_text_stack: VBoxContainer
+var _intro_kicker: Label
 var _intro_title: Label
 var _panel_style: StyleBoxFlat
 var _presentation_signature: String = ""
@@ -143,21 +149,26 @@ func _build() -> void:
 
 	_intro_text_stack = VBoxContainer.new()
 	_intro_text_stack.name = "ObjectiveIntroText"
+	_intro_text_stack.top_level = true
+	_intro_text_stack.z_as_relative = false
+	_intro_text_stack.z_index = 61
+	_intro_text_stack.custom_minimum_size = INTRO_TEXT_SIZE
+	_intro_text_stack.size = INTRO_TEXT_SIZE
 	_intro_text_stack.alignment = BoxContainer.ALIGNMENT_CENTER
 	_intro_text_stack.add_theme_constant_override("separation", 0)
 	_intro_text_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_intro_text_stack.visible = false
 	add_child(_intro_text_stack)
-	var intro_kicker := Label.new()
-	intro_kicker.text = "OBJECTIVE"
-	intro_kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	intro_kicker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.apply_label_role(intro_kicker, UiTypography.ROLE_CAPTION)
-	intro_kicker.add_theme_font_size_override("font_size", 16)
-	intro_kicker.add_theme_color_override("font_color", Color("d2ad72"))
-	intro_kicker.add_theme_color_override("font_outline_color", Color("12090a"))
-	intro_kicker.add_theme_constant_override("outline_size", 2)
-	_intro_text_stack.add_child(intro_kicker)
+	_intro_kicker = Label.new()
+	_intro_kicker.name = "ObjectiveIntroKicker"
+	_intro_kicker.text = "OBJECTIVE"
+	_intro_kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_intro_kicker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_label_role(_intro_kicker, UiTypography.ROLE_CAPTION)
+	_intro_kicker.add_theme_color_override("font_color", Color("d2ad72"))
+	_intro_kicker.add_theme_color_override("font_outline_color", Color("12090a"))
+	_intro_kicker.add_theme_constant_override("outline_size", 4)
+	_intro_text_stack.add_child(_intro_kicker)
 	_intro_title = Label.new()
 	_intro_title.name = "ObjectiveIntroTitle"
 	_intro_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -165,11 +176,11 @@ func _build() -> void:
 	_intro_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_intro_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.apply_label_role(_intro_title, UiTypography.ROLE_TITLE)
-	_intro_title.add_theme_font_size_override("font_size", 30)
 	_intro_title.add_theme_color_override("font_color", Color("fff0c7"))
 	_intro_title.add_theme_color_override("font_outline_color", Color("12090a"))
-	_intro_title.add_theme_constant_override("outline_size", 3)
+	_intro_title.add_theme_constant_override("outline_size", 7)
 	_intro_text_stack.add_child(_intro_title)
+	_set_intro_font_progress(1.0)
 
 func set_hud_rect(rect: Rect2) -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -200,6 +211,12 @@ func prepare_intro(target_rect: Rect2, viewport_size: Vector2) -> bool:
 	modulate = Color(1.0, 1.0, 1.0, 0.0)
 	_set_intro_chrome_progress(0.0)
 	_set_intro_content_progress(0.0)
+	_set_intro_font_progress(0.0)
+	_intro_text_stack.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_intro_text_stack.size = INTRO_TEXT_SIZE
+	_intro_text_stack.position = intro_center - INTRO_TEXT_SIZE * 0.5
+	_intro_text_stack.pivot_offset = INTRO_TEXT_SIZE * 0.5
+	_intro_text_stack.scale = Vector2.ONE
 	_intro_text_stack.visible = true
 	_intro_text_stack.modulate = Color.WHITE
 	return true
@@ -210,8 +227,10 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 			return
 
 	if reduced_motion:
-		scale = Vector2.ONE * INTRO_REDUCED_SCALE
+		scale = Vector2.ONE * INTRO_POP_SCALE
 		modulate = Color.WHITE
+		_set_intro_font_progress(1.0)
+		_intro_text_stack.scale = Vector2.ONE
 		intro_phase = "reduced_hold"
 		await get_tree().create_timer(INTRO_REDUCED_HOLD_SECONDS).timeout
 		if not _intro_can_continue():
@@ -233,6 +252,12 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 		1.0,
 		INTRO_POP_SECONDS * 0.72
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_method(
+		_set_intro_font_progress,
+		0.0,
+		1.0,
+		INTRO_POP_SECONDS
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await _intro_tween.finished
 	if not _intro_can_continue():
 		return
@@ -248,6 +273,18 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 		self,
 		"position",
 		target_rect.position,
+		INTRO_TRAVEL_SECONDS
+	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_property(
+		_intro_text_stack,
+		"position",
+		target_rect.position + target_rect.size * 0.5 - INTRO_TEXT_SIZE * 0.5,
+		INTRO_TRAVEL_SECONDS
+	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_property(
+		_intro_text_stack,
+		"scale",
+		Vector2.ONE * INTRO_TEXT_TARGET_SCALE,
 		INTRO_TRAVEL_SECONDS
 	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
 	_intro_tween.tween_property(
@@ -294,6 +331,7 @@ func cancel_intro() -> void:
 	if _intro_text_stack != null:
 		_intro_text_stack.visible = false
 		_intro_text_stack.modulate = Color.TRANSPARENT
+		_intro_text_stack.scale = Vector2.ONE
 
 func _intro_can_continue() -> bool:
 	return intro_active and visible and is_inside_tree()
@@ -325,6 +363,19 @@ func _set_intro_content_progress(progress: float) -> void:
 	if _content_row != null:
 		_content_row.modulate = Color(1.0, 1.0, 1.0, intro_content_progress)
 
+func _set_intro_font_progress(progress: float) -> void:
+	var amount: float = clampf(progress, 0.0, 1.0)
+	if _intro_kicker != null:
+		_intro_kicker.add_theme_font_size_override(
+			"font_size",
+			roundi(lerpf(INTRO_KICKER_START_FONT_SIZE, INTRO_KICKER_FONT_SIZE, amount))
+		)
+	if _intro_title != null:
+		_intro_title.add_theme_font_size_override(
+			"font_size",
+			roundi(lerpf(INTRO_TITLE_START_FONT_SIZE, INTRO_TITLE_FONT_SIZE, amount))
+		)
+
 func _finish_intro(target_rect: Rect2) -> void:
 	intro_active = false
 	intro_phase = "settled"
@@ -338,6 +389,7 @@ func _finish_intro(target_rect: Rect2) -> void:
 	if _intro_text_stack != null:
 		_intro_text_stack.visible = false
 		_intro_text_stack.modulate = Color.TRANSPARENT
+		_intro_text_stack.scale = Vector2.ONE
 	set_hud_rect(target_rect)
 
 func _live_detail(state: Dictionary, objective: Dictionary) -> String:

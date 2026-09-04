@@ -138,10 +138,16 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "holding" and Time.get_ticks_msec() < objective_deadline:
 		await process_frame
 	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "holding", "Objective visual proof should reach the readable upper-center hold")
-	_assert(objective_hud != null and objective_hud.visible and objective_hud.scale.x > 2.5, "Objective upper-center proof should show the dramatically enlarged text")
+	var intro_text_stack: Control = objective_hud.get("_intro_text_stack") as Control if objective_hud != null else null
+	var intro_kicker: Label = objective_hud.get("_intro_kicker") as Label if objective_hud != null else null
+	var intro_title: Label = objective_hud.get("_intro_title") as Label if objective_hud != null else null
+	_assert(objective_hud != null and objective_hud.visible, "Objective upper-center proof should show the enlarged text")
+	_assert(intro_text_stack != null and intro_text_stack.scale.is_equal_approx(Vector2.ONE), "Objective upper-center proof should render the large copy at native 1x scale")
+	_assert(intro_kicker != null and intro_kicker.get_theme_font_size("font_size") == 46, "Objective upper-center proof should use the authored large kicker size")
+	_assert(intro_title != null and intro_title.get_theme_font_size("font_size") == 92, "Objective upper-center proof should use the crisp enlarged title size")
 	_assert(objective_hud != null and is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "Objective upper-center proof should contain no panel background or compact widget content")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Objective center proof should remain visually separate from the opening deal")
-	await _save_root_screenshot("%s/objective_intro_v3_00_text_only_hold.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/objective_intro_v4_00_crisp_text_hold.png" % OUTPUT_DIR)
 
 	var travel_deadline: int = Time.get_ticks_msec() + 2000
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "traveling" and Time.get_ticks_msec() < travel_deadline:
@@ -154,11 +160,11 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 		and Time.get_ticks_msec() < chrome_arrival_deadline
 	):
 		await process_frame
-	_assert(objective_hud != null and objective_hud.scale.x > 1.0 and objective_hud.scale.x < 2.5, "Objective travel proof should show the text shrinking in flight")
+	_assert(intro_text_stack != null and intro_text_stack.scale.x > 0.32 and intro_text_stack.scale.x < 1.0, "Objective travel proof should show the text shrinking in flight")
 	_assert(objective_hud != null and float(objective_hud.get("intro_chrome_progress")) >= 0.5, "Objective travel proof should show the compact widget background appearing behind the text")
 	_assert(objective_hud != null and is_zero_approx(float(objective_hud.get("intro_content_progress"))), "Objective travel proof should avoid overlapping the large and compact objective copy")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Objective travel proof should precede opening-card motion")
-	await _save_root_screenshot("%s/objective_intro_v3_01_chrome_arriving.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/objective_intro_v4_01_chrome_arriving.png" % OUTPUT_DIR)
 
 	var content_arrival_deadline: int = Time.get_ticks_msec() + 1000
 	while (
@@ -171,7 +177,7 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 	_assert(late_intro_text != null and late_intro_text.modulate.a < 0.01, "Content-arrival proof should fully retire the large objective copy")
 	_assert(objective_hud != null and float(objective_hud.get("intro_content_progress")) > 0.0, "Content-arrival proof should capture the compact widget content fading in")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Content-arrival proof should remain separate from opening-card motion")
-	await _save_root_screenshot("%s/objective_intro_v3_02_content_arriving.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/objective_intro_v4_02_content_arriving.png" % OUTPUT_DIR)
 
 	var launch_deadline: int = Time.get_ticks_msec() + 3000
 	while _sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before and Time.get_ticks_msec() < launch_deadline:
@@ -212,11 +218,15 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 		await process_frame
 	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "reduced_hold", "Reduced Motion proof should use the static objective hold")
 	_assert(objective_hud != null and objective_hud.get("_intro_tween") == null, "Reduced Motion proof should omit center-to-HUD tweening")
+	var reduced_intro_text: Control = objective_hud.get("_intro_text_stack") as Control if objective_hud != null else null
+	var reduced_intro_title: Label = objective_hud.get("_intro_title") as Label if objective_hud != null else null
+	_assert(reduced_intro_text != null and reduced_intro_text.scale.is_equal_approx(Vector2.ONE), "Reduced Motion proof should render its static objective at native 1x scale")
+	_assert(reduced_intro_title != null and reduced_intro_title.get_theme_font_size("font_size") == 92, "Reduced Motion proof should retain the crisp enlarged title size")
 	var reduced_hand_box: Control = instance.get("hand_box") as Control
 	_assert(reduced_hand_box != null and not reduced_hand_box.visible, "Reduced Motion objective proof should still precede the opening deal")
 	_assert(bool(instance.get("_animation_lock")), "Reduced Motion objective proof should keep combat input locked")
 	_assert(objective_hud != null and is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "Reduced Motion proof should retain the text-only presentation before snapping to the HUD")
-	await _save_root_screenshot("%s/objective_intro_v3_03_reduced_motion_text.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/objective_intro_v4_03_reduced_motion_text.png" % OUTPUT_DIR)
 	var reduced_deadline: int = Time.get_ticks_msec() + 5000
 	while bool(instance.get("_opening_hand_draw_in_progress")) and Time.get_ticks_msec() < reduced_deadline:
 		await process_frame
