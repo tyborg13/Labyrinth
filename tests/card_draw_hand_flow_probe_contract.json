@@ -1,5 +1,5 @@
 {
-  "min_images": 16,
+  "min_images": 17,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -59,7 +59,15 @@
       ]
     },
     {
-      "pattern": "*objective_intro_v3_02_reduced_motion_text.png",
+      "pattern": "*objective_intro_v3_02_content_arriving.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 500, 620, 300], "min_luma_range": 30, "min_luma_stdev": 5}
+      ]
+    },
+    {
+      "pattern": "*objective_intro_v3_03_reduced_motion_text.png",
       "width": 1920,
       "height": 1080,
       "regions": [

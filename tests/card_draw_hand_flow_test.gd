@@ -101,13 +101,32 @@ func _run_opening_hand_entry_regression() -> void:
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "traveling" and Time.get_ticks_msec() < travel_deadline:
 		await process_frame
 	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "traveling", "The objective should transition from its center hold toward the permanent HUD")
-	await create_timer(0.44).timeout
+	var chrome_deadline: int = Time.get_ticks_msec() + 1000
+	while (
+		objective_hud != null
+		and float(objective_hud.get("intro_chrome_progress")) < 0.5
+		and Time.get_ticks_msec() < chrome_deadline
+	):
+		await process_frame
 	if objective_hud != null:
 		_expect(objective_hud.scale.x > 1.0 and objective_hud.scale.x < 2.5, "The traveling objective should visibly shrink toward its permanent size")
 		var chrome_progress: float = float(objective_hud.get("intro_chrome_progress"))
-		_expect(chrome_progress > 0.0 and chrome_progress < 1.0, "The widget background should fade in behind the text during the latter travel")
+		_expect(chrome_progress >= 0.5, "The widget background should fade in behind the text during the latter travel")
 		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "The compact widget text and icon should wait until the large text has nearly retired")
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Card-deal motion should not compete with the traveling objective")
+	var content_arrival_deadline: int = Time.get_ticks_msec() + 1000
+	while (
+		objective_hud != null
+		and is_zero_approx(float(objective_hud.get("intro_content_progress")))
+		and Time.get_ticks_msec() < content_arrival_deadline
+	):
+		await process_frame
+	if objective_hud != null:
+		var late_intro_text: Control = objective_hud.get("_intro_text_stack") as Control
+		var content_progress: float = float(objective_hud.get("intro_content_progress"))
+		_expect(late_intro_text != null and late_intro_text.modulate.a < 0.01, "The large objective copy should be fully gone before compact widget content arrives")
+		_expect(content_progress > 0.0, "The compact widget content should fade in only after the large copy retires")
+	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Late objective-content arrival should still precede opening-card motion")
 
 	var launch_deadline: int = Time.get_ticks_msec() + 3000
 	while (
