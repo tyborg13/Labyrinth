@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 
 const OUTPUT_DIR: String = "user://probes/umbra_action_animation_v1"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
@@ -13,6 +14,9 @@ const ENEMY_KEY: String = "enemy_71"
 const PLAYER_TILE := Vector2i(2, 4)
 const HIDDEN_SOURCE := Vector2i(6, 4)
 const UMBRA_EDGE := Vector2i(4, 4)
+const POCKET_SOURCE := Vector2i(7, 6)
+const POCKET_TILE := Vector2i(7, 4)
+const POCKET_TARGET := Vector2i(7, 2)
 
 var _errors: Array[String] = []
 var _animation_complete: bool = false
@@ -56,6 +60,8 @@ func _capture_states() -> void:
 	await _capture_hidden_ranged_attack(instance, false, false)
 	await _capture_hidden_ranged_attack(instance, false, true)
 	await _capture_hidden_ranged_attack(instance, true, true)
+	await _capture_isolated_light_pocket_attack(instance)
+	await _capture_hidden_movement_pocket(instance)
 	instance.queue_free()
 	await process_frame
 
@@ -96,6 +102,7 @@ func _capture_emerging_move(instance: Node) -> void:
 		if positions.has(ENEMY_KEY) and (presentation.get("visible_enemy_ids", []) as Array).has(ENEMY_ID):
 			captured_visible_motion = true
 			_expect((presentation.get("umbra_action_visible_actor_keys", []) as Array).has(ENEMY_KEY), "Visible movement frame should explicitly admit the emerging actor")
+			_expect((presentation.get("umbra_action_actor_clips", {}) as Dictionary).has(ENEMY_KEY), "Boundary-crossing movement should directly clip the actor sprite at the Umbra edge")
 			await _save_root_screenshot("%s/03_move_emerging_segment.png" % OUTPUT_DIR)
 			break
 	_expect(captured_hidden_motion, "Movement proof should observe interpolated motion while the enemy remains concealed")
@@ -156,11 +163,19 @@ func _capture_hidden_ranged_attack(instance: Node, reduced_motion: bool, capture
 			await _save_root_screenshot("%s/07_ranged_reduced_motion_impact.png" % OUTPUT_DIR)
 			captured_frame = true
 			break
-		if not capture_impact and progress >= 0.04 and progress <= 0.08:
-			await _save_root_screenshot("%s/05_ranged_emerging_travel.png" % OUTPUT_DIR)
-			captured_frame = true
-			break
-		if capture_impact and progress >= 0.40:
+		if not capture_impact:
+			var segments: Array = effect.get("umbra_visible_line_segments", []) as Array
+			var style: String = AttackFxLibrary.style_for_effect(effect)
+			var travel_start: float = 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style)
+			var travel_end: float = 0.66 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.travel_end_progress(style)
+			if not segments.is_empty() and progress >= travel_start and progress <= travel_end:
+				var spatial_progress: float = float(board.call("_umbra_ranged_spatial_progress", style, progress, travel_start, travel_end))
+				var first_segment: Dictionary = segments[0] as Dictionary
+				if spatial_progress >= float(first_segment.get("start", 0.0)) and spatial_progress <= float(first_segment.get("end", 1.0)):
+					await _save_root_screenshot("%s/05_ranged_emerging_travel.png" % OUTPUT_DIR)
+					captured_frame = true
+					break
+		if capture_impact and progress >= 0.70:
 			await _save_root_screenshot("%s/06_ranged_visible_impact.png" % OUTPUT_DIR)
 			captured_frame = true
 			break
@@ -172,6 +187,131 @@ func _capture_hidden_ranged_attack(instance: Node, reduced_motion: bool, capture
 		_expect(captured_frame, "Ranged proof should capture the projectile traveling out of the Umbra")
 	await _wait_for_animation()
 	_expect(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 17, "Hidden ranged animation should apply damage exactly once")
+
+
+func _capture_isolated_light_pocket_attack(instance: Node) -> void:
+	var state: Dictionary = _combat_state()
+	instance.set("_settings", SettingsStore.normalize_settings(SettingsStore.default_settings()))
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
+	enemy["pos"] = POCKET_SOURCE
+	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
+	umbra["light_sources"] = [{
+		"id": "probe_pocket",
+		"pos": POCKET_TILE,
+		"radius": 0,
+		"remaining_activations": 2,
+	}]
+	_install_state(instance, state)
+	await _settle_ui()
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var combat := CombatEngine.new()
+	_expect(not combat.is_tile_visible_to_player(state, POCKET_SOURCE), "Pocket projectile source should remain concealed")
+	_expect(combat.is_tile_visible_to_player(state, POCKET_TILE), "Pocket projectile should cross one isolated visible tile")
+	_expect(not combat.is_tile_visible_to_player(state, POCKET_TARGET), "Pocket projectile destination should return to concealment")
+	var step: Dictionary = {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"actor_key": ENEMY_KEY,
+		"actor_name": "Crawler",
+		"label": "Pocket Shot",
+		"enemy_type": "crawler",
+		"element": "fire",
+		"from": POCKET_SOURCE,
+		"to": POCKET_TARGET,
+		"tiles": [],
+		"hp_loss": 0,
+		"block_loss": 0,
+		"stoneskin_loss": 0,
+		"target_losses": [],
+		"terrain_losses": [],
+		"triggered_traps": [],
+		"impact_actor_keys": [],
+		"hidden_by_umbra": true,
+		"revealed_after_action": false,
+	}
+	_animation_complete = false
+	call_deferred("_run_hidden_step", instance, state, step)
+	var captured_frame: bool = false
+	for _frame: int in range(180):
+		await process_frame
+		var presentation: Dictionary = board.get("presentation") as Dictionary
+		var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+		if not bool(effect.get("umbra_action_clipped", false)):
+			if _animation_complete:
+				break
+			continue
+		var segments: Array = effect.get("umbra_visible_line_segments", []) as Array
+		_expect(effect.get("from", Vector2i(-1, -1)) == POCKET_TILE, "Isolated projectile should enter the visible span at the light pocket")
+		_expect(effect.get("to", Vector2i(-1, -1)) == POCKET_TILE, "Isolated projectile should leave the same logical light-pocket tile")
+		_expect(segments.size() == 1, "Isolated light pocket should retain one fractional visible projectile span")
+		_expect(not (presentation.get("visible_enemy_ids", []) as Array).has(ENEMY_ID), "Light-pocket projectile must not reveal its concealed source")
+		if segments.size() != 1:
+			continue
+		var segment: Dictionary = segments[0] as Dictionary
+		var segment_start: float = float(segment.get("start", 0.0))
+		var segment_end: float = float(segment.get("end", 0.0))
+		_expect(segment_end > segment_start, "Isolated light pocket should preserve non-zero projectile travel")
+		var progress: float = float(presentation.get("effect_progress", 0.0))
+		var style: String = AttackFxLibrary.style_for_effect(effect)
+		var travel_start: float = 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style)
+		var travel_end: float = 0.66 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.travel_end_progress(style)
+		if progress < travel_start or progress > travel_end:
+			continue
+		var spatial_progress: float = float(board.call("_umbra_ranged_spatial_progress", style, progress, travel_start, travel_end))
+		if spatial_progress >= segment_start and spatial_progress <= segment_end:
+			await _save_root_screenshot("%s/08_ranged_isolated_light_pocket.png" % OUTPUT_DIR)
+			captured_frame = true
+			break
+	_expect(captured_frame, "Pocket proof should capture the projectile while it traverses the isolated visible span")
+	await _wait_for_animation()
+
+
+func _capture_hidden_movement_pocket(instance: Node) -> void:
+	var state: Dictionary = _combat_state()
+	_install_state(instance, state)
+	await _settle_ui()
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var step: Dictionary = {
+		"kind": "move",
+		"actor_key": ENEMY_KEY,
+		"actor_name": "Crawler",
+		"label": "Probe the light",
+		"from": HIDDEN_SOURCE,
+		"to": HIDDEN_SOURCE,
+		"path": [HIDDEN_SOURCE, Vector2i(5, 4), UMBRA_EDGE, Vector2i(5, 4), HIDDEN_SOURCE],
+		"target_losses": [],
+		"enemy_losses": [],
+		"terrain_losses": [],
+		"triggered_traps": [],
+		"hidden_by_umbra": true,
+		"revealed_after_action": false,
+	}
+	_animation_complete = false
+	call_deferred("_run_hidden_step", instance, state, step)
+	var captured_entry: bool = false
+	var captured_exit: bool = false
+	for _frame: int in range(240):
+		await process_frame
+		var presentation: Dictionary = board.get("presentation") as Dictionary
+		var clips: Dictionary = presentation.get("umbra_action_actor_clips", {}) as Dictionary
+		if not clips.has(ENEMY_KEY):
+			if _animation_complete:
+				break
+			continue
+		_expect((presentation.get("visible_enemy_ids", []) as Array).has(ENEMY_ID), "A clipped movement frame should temporarily admit the moving enemy")
+		var focus_tiles: Array = presentation.get("focus_tiles", []) as Array
+		if not captured_entry and focus_tiles.has(UMBRA_EDGE):
+			await _save_root_screenshot("%s/09_move_visible_pocket_entry.png" % OUTPUT_DIR)
+			captured_entry = true
+		elif captured_entry and not captured_exit and focus_tiles.has(Vector2i(5, 4)):
+			await _save_root_screenshot("%s/10_move_visible_pocket_exit.png" % OUTPUT_DIR)
+			captured_exit = true
+	_expect(captured_entry, "Movement-pocket proof should capture the enemy entering visibility")
+	_expect(captured_exit, "Movement-pocket proof should capture the enemy returning to the Umbra")
+	await _wait_for_animation()
+	var final_presentation: Dictionary = board.get("presentation") as Dictionary
+	_expect(not (final_presentation.get("visible_enemy_ids", []) as Array).has(ENEMY_ID), "Enemy should be concealed again after returning to its hidden tile")
+	await _save_root_screenshot("%s/11_move_returned_hidden.png" % OUTPUT_DIR)
 
 
 func _run_hidden_step(instance: Node, state: Dictionary, step: Dictionary) -> void:

@@ -22952,18 +22952,20 @@ func _visible_umbra_action_step(state: Dictionary, step: Dictionary) -> Dictiona
 		state,
 		_umbra_action_line_tiles(from_tile, to_tile)
 	)
+	var visible_line_segments: Array = _umbra_action_visible_line_segments(state, from_tile, to_tile)
 	if visible_line.is_empty() and visible_tiles.is_empty():
 		return {}
 	var visible_attack: Dictionary = step.duplicate(true)
 	visible_attack.erase("hidden_by_umbra")
 	visible_attack["actor_name"] = "Unknown Presence"
 	visible_attack["umbra_action_clipped"] = true
-	# Start and end line FX on visible tiles so an authored trail cannot expose
-	# the concealed source through the Umbra's translucent cloud treatment. The
-	# upper Umbra layer still masks sprite-sized overlap at each boundary.
+	# Start and end line FX on visible tiles so authored trails cannot expose the
+	# concealed source. Fractional spans preserve separated islands of visibility
+	# when a projectile crosses a light pocket and returns to the Umbra.
 	if not visible_line.is_empty():
 		visible_attack["umbra_original_from"] = from_tile
 		visible_attack["umbra_original_to"] = to_tile
+		visible_attack["umbra_visible_line_segments"] = visible_line_segments
 		visible_attack["from"] = visible_line[0]
 		visible_attack["to"] = visible_line[visible_line.size() - 1]
 	if kind in ["aoe", "lightning_strikes"] and not visible_tiles.is_empty():
@@ -22993,6 +22995,50 @@ func _umbra_action_line_tiles(from_tile: Vector2i, to_tile: Vector2i) -> Array[V
 		if not tiles.has(tile):
 			tiles.append(tile)
 	return tiles
+
+func _umbra_action_visible_line_segments(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i) -> Array:
+	var segments: Array = []
+	if from_tile.x < 0 or to_tile.x < 0:
+		return segments
+	var delta: Vector2i = to_tile - from_tile
+	var sample_count: int = maxi(8, maxi(absi(delta.x), absi(delta.y)) * 16)
+	var segment_start: float = -1.0
+	var segment_start_hidden_tile := Vector2i(-1, -1)
+	var segment_start_visible_tile := Vector2i(-1, -1)
+	var previous_visible: bool = false
+	var previous_sample_tile := Vector2i(-1, -1)
+	for sample_index: int in range(sample_count + 1):
+		var progress: float = float(sample_index) / float(sample_count)
+		var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), progress)
+		var sample_tile := Vector2i(roundi(sample.x), roundi(sample.y))
+		var visible: bool = _combat_engine.is_tile_visible_to_player(state, sample_tile)
+		if visible and not previous_visible:
+			segment_start = maxf(0.0, (float(sample_index) - 0.5) / float(sample_count))
+			segment_start_hidden_tile = previous_sample_tile
+			segment_start_visible_tile = sample_tile
+		elif not visible and previous_visible and segment_start >= 0.0:
+			var completed_segment := {
+				"start": segment_start,
+				"end": maxf(segment_start, (float(sample_index) - 0.5) / float(sample_count)),
+				"end_visible_tile": previous_sample_tile,
+				"end_hidden_tile": sample_tile,
+			}
+			if segment_start_hidden_tile.x >= 0:
+				completed_segment["start_hidden_tile"] = segment_start_hidden_tile
+				completed_segment["start_visible_tile"] = segment_start_visible_tile
+			segments.append(completed_segment)
+			segment_start = -1.0
+			segment_start_hidden_tile = Vector2i(-1, -1)
+			segment_start_visible_tile = Vector2i(-1, -1)
+		previous_visible = visible
+		previous_sample_tile = sample_tile
+	if previous_visible and segment_start >= 0.0:
+		var final_segment := {"start": segment_start, "end": 1.0}
+		if segment_start_hidden_tile.x >= 0:
+			final_segment["start_hidden_tile"] = segment_start_hidden_tile
+			final_segment["start_visible_tile"] = segment_start_visible_tile
+		segments.append(final_segment)
+	return segments
 
 func _visible_umbra_floating_texts(state: Dictionary, values: Array) -> Array[Dictionary]:
 	var visible: Array[Dictionary] = []
@@ -23081,10 +23127,23 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		var frame_presentation: Dictionary = base_presentation
 		if bool(base_presentation.get("umbra_reveal_actor_on_visible_tiles", false)):
 			frame_presentation = base_presentation.duplicate(false)
-			if _umbra_movement_sample_visible(display_state, segment_from, segment_to, t):
+			var from_visible: bool = _combat_engine.is_tile_visible_to_player(display_state, segment_from)
+			var to_visible: bool = _combat_engine.is_tile_visible_to_player(display_state, segment_to)
+			var crosses_umbra_boundary: bool = from_visible != to_visible
+			if crosses_umbra_boundary or _umbra_movement_sample_visible(display_state, segment_from, segment_to, t):
 				frame_presentation["umbra_action_visible_actor_keys"] = [actor_key]
+				if crosses_umbra_boundary:
+					frame_presentation["umbra_action_actor_clips"] = {
+						actor_key: {
+							"hidden_tile": segment_to if from_visible else segment_from,
+							"visible_tile": segment_from if from_visible else segment_to,
+						}
+					}
+				else:
+					frame_presentation.erase("umbra_action_actor_clips")
 			else:
 				frame_presentation.erase("umbra_action_visible_actor_keys")
+				frame_presentation.erase("umbra_action_actor_clips")
 		var presentation: Dictionary = _movement_actor_frame_presentation(
 			frame_presentation,
 			actor_key,

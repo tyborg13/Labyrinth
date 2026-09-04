@@ -334,7 +334,6 @@ const RENDER_LAYER_GROUND: String = "ground"
 const RENDER_LAYER_PATH: String = "path"
 const RENDER_LAYER_IMPACT_FLOOR: String = "impact_floor"
 const RENDER_LAYER_WORLD: String = "world"
-const RENDER_LAYER_UMBRA_ACTION_OCCLUDER: String = "umbra_action_occluder"
 const RENDER_LAYER_ACTION_FLOOR: String = "action_floor"
 const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
 const RENDER_LAYER_FOREGROUND: String = "foreground"
@@ -693,7 +692,6 @@ var _ground_render_layer: Control = null
 var _path_render_layer: Control = null
 var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
-var _umbra_action_occluder_render_layer: Control = null
 var _action_floor_render_layer: Control = null
 var _scene_render_layers_by_tile: Dictionary = {}
 var _scene_back_effect_render_layers_by_tile: Dictionary = {}
@@ -865,13 +863,6 @@ func _create_dynamic_render_layer() -> void:
 	_action_floor_render_layer = _create_retained_render_layer("ActionFloorRenderLayer", RENDER_LAYER_ACTION_FLOOR)
 	_foreground_render_layer = _create_retained_render_layer("ForegroundRenderLayer", RENDER_LAYER_FOREGROUND)
 	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
-	# Preserve the ordinary world/scene/effects depth contract, then redraw Umbra
-	# only while a concealed action crosses its boundary. The duplicate treatment
-	# clips that action without pushing all world illumination above scene art.
-	_umbra_action_occluder_render_layer = _create_retained_render_layer(
-		"UmbraActionOccluderRenderLayer",
-		RENDER_LAYER_UMBRA_ACTION_OCCLUDER
-	)
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
 	_sync_dynamic_render_assets()
 	_sync_dynamic_render_state(true)
@@ -899,7 +890,7 @@ func _retained_render_layers() -> Array:
 		var layer: Control = layer_var as Control
 		if layer != null and is_instance_valid(layer):
 			layers.append(layer)
-	for layer: Control in [_foreground_render_layer, _effects_render_layer, _umbra_action_occluder_render_layer, _hud_render_layer]:
+	for layer: Control in [_foreground_render_layer, _effects_render_layer, _hud_render_layer]:
 		if layer != null and is_instance_valid(layer):
 			layers.append(layer)
 	return layers
@@ -1368,8 +1359,6 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if not skip_impact and str(presentation.get("umbra_stage", "clear")) != "clear":
 		_queue_render_layer_redraw(_dynamic_render_layer)
-		if _umbra_action_occluder_active():
-			_queue_render_layer_redraw(_umbra_action_occluder_render_layer)
 	if not skip_impact and _impact_animation_active():
 		_queue_render_layer_redraw(_impact_floor_render_layer)
 		_queue_render_layer_redraw(_action_floor_render_layer)
@@ -2119,7 +2108,7 @@ func _queue_presentation_change_redraws(
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
 				impact_floor_changed = true
 				impact_changed = true
-			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids":
+			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
 				unit_movement_changed = true
 				foreground_changed = true
 				hud_changed = true
@@ -2138,7 +2127,6 @@ func _queue_presentation_change_redraws(
 				_queue_dynamic_redraw()
 			"umbra_light_sources", "umbra_stage":
 				_queue_render_layer_redraw(_dynamic_render_layer)
-				_queue_render_layer_redraw(_umbra_action_occluder_render_layer)
 				foreground_changed = true
 			"enemy_intent_compasses":
 				for unit: Dictionary in _visible_units():
@@ -2180,10 +2168,7 @@ func _queue_presentation_change_redraws(
 	if effects_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_effects_render_layer)
-		_queue_render_layer_redraw(_umbra_action_occluder_render_layer)
 		_queue_elemental_scene_depth_redraws(previous_elemental_scene_tiles, next_elemental_scene_tiles)
-	elif unit_movement_changed:
-		_queue_render_layer_redraw(_umbra_action_occluder_render_layer)
 
 func _queue_combat_state_change_redraws(
 	changed_keys: Dictionary,
@@ -2877,8 +2862,6 @@ func _draw() -> void:
 				_draw_impact_floor_render_layer()
 			RENDER_LAYER_WORLD:
 				_draw_world_render_layer()
-			RENDER_LAYER_UMBRA_ACTION_OCCLUDER:
-				_draw_umbra_action_occluder_render_layer()
 			RENDER_LAYER_ACTION_FLOOR:
 				_draw_action_floor_render_layer()
 			RENDER_LAYER_SCENE_TILE:
@@ -2934,7 +2917,6 @@ func _draw_dynamic_board() -> void:
 		_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 		_draw_campfire_ember_motes()
 	_draw_effects_render_layer()
-	_draw_umbra_action_occluder_render_layer()
 	_draw_hud_render_layer()
 
 func _draw_ambient_render_layer() -> void:
@@ -2965,25 +2947,6 @@ func _draw_world_render_layer() -> void:
 	_draw_umbra_overlay(tiles)
 	_record_render_section_time("umbra", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
-
-func _draw_umbra_action_occluder_render_layer() -> void:
-	var started_usec: int = Time.get_ticks_usec()
-	_dynamic_draw_count += 1
-	_tooltip_regions.clear()
-	if combat_state.is_empty() or not _umbra_action_occluder_active():
-		_record_dynamic_draw_time(started_usec)
-		return
-	var section_started_usec: int = Time.get_ticks_usec()
-	_draw_umbra_overlay(_rendered_tiles_in_draw_order())
-	_record_render_section_time("umbra_action_occluder", section_started_usec)
-	_record_dynamic_draw_time(started_usec)
-
-func _umbra_action_occluder_active() -> bool:
-	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
-	return (
-		bool(effect.get("umbra_action_clipped", false))
-		or not (presentation.get("umbra_action_visible_actor_keys", []) as Array).is_empty()
-	)
 
 func _draw_impact_floor_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
@@ -6532,11 +6495,14 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
 	)
 	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
-	_draw_enemy_intent_compass(unit)
+	var umbra_clip: Dictionary = _umbra_actor_clip_for_unit(unit)
+	if umbra_clip.is_empty():
+		_draw_enemy_intent_compass(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_body_compass", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
-	_draw_unit_shadow(unit)
+	if umbra_clip.is_empty():
+		_draw_unit_shadow(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_body_shadow", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
@@ -6578,13 +6544,73 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
 		elif death_animation:
 			body_tint = _death_animation_render_tint(unit)
-		draw_texture_rect(texture, shifted_rect, false, body_tint)
+		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip)
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
-			draw_texture_rect(texture, shifted_rect, false, flash)
+			_draw_texture_rect_with_umbra_clip(texture, shifted_rect, flash, umbra_clip)
 	if detailed_sections:
 		_record_render_section_time("unit_body_sprite", phase_started_usec)
+
+func _umbra_actor_clip_for_unit(unit: Dictionary) -> Dictionary:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return {}
+	return (presentation.get("umbra_action_actor_clips", {}) as Dictionary).get(actor_key, {}) as Dictionary
+
+func _draw_texture_rect_with_umbra_clip(texture: Texture2D, draw_rect: Rect2, tint: Color, clip: Dictionary) -> void:
+	if clip.is_empty():
+		draw_texture_rect(texture, draw_rect, false, tint)
+		return
+	var hidden_tile: Vector2i = clip.get("hidden_tile", Vector2i(-1, -1))
+	var visible_tile: Vector2i = clip.get("visible_tile", Vector2i(-1, -1))
+	if hidden_tile.x < 0 or visible_tile.x < 0:
+		draw_texture_rect(texture, draw_rect, false, tint)
+		return
+	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
+		return
+	var boundary_plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
+	if boundary_plane.is_empty():
+		return
+	var boundary_midpoint: Vector2 = boundary_plane.get("point", Vector2.ZERO)
+	var boundary_normal: Vector2 = boundary_plane.get("normal", Vector2.ZERO)
+	var source_size := Vector2(texture.get_size())
+	var slice_count: int = clampi(ceili(draw_rect.size.y / 1.5), 1, 128)
+	for slice_index: int in range(slice_count):
+		var y_ratio_start: float = float(slice_index) / float(slice_count)
+		var y_ratio_end: float = float(slice_index + 1) / float(slice_count)
+		var dest_y_start: float = draw_rect.position.y + draw_rect.size.y * y_ratio_start
+		var dest_y_end: float = draw_rect.position.y + draw_rect.size.y * y_ratio_end
+		var sample_y: float = (dest_y_start + dest_y_end) * 0.5
+		var visible_x_start: float = draw_rect.position.x
+		var visible_x_end: float = draw_rect.end.x
+		if absf(boundary_normal.x) <= 0.001:
+			var slice_visible: bool = (
+				Vector2(draw_rect.get_center().x, sample_y) - boundary_midpoint
+			).dot(boundary_normal) >= 0.0
+			if not slice_visible:
+				continue
+		else:
+			var boundary_x: float = boundary_midpoint.x - (
+				boundary_normal.y * (sample_y - boundary_midpoint.y)
+			) / boundary_normal.x
+			if boundary_normal.x > 0.0:
+				visible_x_start = maxf(visible_x_start, boundary_x)
+			else:
+				visible_x_end = minf(visible_x_end, boundary_x)
+		if visible_x_end - visible_x_start <= 0.01:
+			continue
+		var source_x_start: float = (visible_x_start - draw_rect.position.x) / draw_rect.size.x * source_size.x
+		var source_x_end: float = (visible_x_end - draw_rect.position.x) / draw_rect.size.x * source_size.x
+		var destination := Rect2(
+			Vector2(visible_x_start, dest_y_start),
+			Vector2(visible_x_end - visible_x_start, dest_y_end - dest_y_start + 0.35)
+		)
+		var source := Rect2(
+			Vector2(source_x_start, source_size.y * y_ratio_start),
+			Vector2(source_x_end - source_x_start, source_size.y * (y_ratio_end - y_ratio_start))
+		)
+		draw_texture_rect_region(texture, destination, source, tint)
 
 func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	if str(unit.get("role", "")) != "enemy" or bool(unit.get("death_animation", false)):
@@ -6671,6 +6697,8 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
 		if bool(unit.get("death_animation", false)):
 			continue
+		if not _umbra_actor_clip_for_unit(unit).is_empty():
+			continue
 		var center: Vector2 = _unit_center(unit)
 		if str(unit.get("role", "")) == "npc":
 			_draw_npc_nameplate(unit, center)
@@ -6716,6 +6744,8 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 		var entry: Dictionary = entry_var as Dictionary
 		var unit: Dictionary = units_by_key.get(str(entry.get("actor_key", "")), {}) as Dictionary
 		if unit.is_empty():
+			continue
+		if not _umbra_actor_clip_for_unit(unit).is_empty():
 			continue
 		var center: Vector2 = entry.get("center", _unit_center(unit))
 		match str(entry.get("kind", "")):
@@ -8358,6 +8388,10 @@ func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
 		str(effect.get("kind", "")) in ["ranged", "aoe"]
 		and AttackFxLibrary.uses_authored_elemental_attack(effect)
 		and not bool(effect.get("preview", false))
+		and not (
+			str(effect.get("kind", "")) == "ranged"
+			and bool(effect.get("umbra_action_clipped", false))
+		)
 	)
 
 func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictionary) -> Array[Vector2i]:
@@ -8599,6 +8633,10 @@ func _draw_elemental_spell_floor_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
 	if effect.is_empty() or bool(effect.get("preview", false)):
 		return
+	if bool(effect.get("umbra_action_clipped", false)):
+		var original_target: Vector2i = effect.get("umbra_original_to", effect.get("to", Vector2i(-1, -1)))
+		if not _board_tile_is_visible_to_player(original_target):
+			return
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	if style == AttackFxLibrary.STYLE_DEFAULT:
 		return
@@ -8693,10 +8731,13 @@ func _draw_effect_overlay() -> void:
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
-			if not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
+			if bool(effect.get("umbra_action_clipped", false)):
+				_draw_umbra_clipped_ranged_effect(effect, progress)
+			elif not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
 				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
 			for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
-				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
+				if _board_tile_is_visible_to_player(force_tile):
+					_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
 		"melee":
 			if to_tile.x < 0:
 				return
@@ -8704,7 +8745,12 @@ func _draw_effect_overlay() -> void:
 		"push", "pull":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
-			if absi(from_tile.x - to_tile.x) + absi(from_tile.y - to_tile.y) > 1:
+			var force_from: Vector2i = effect.get("umbra_original_from", from_tile)
+			var force_to: Vector2i = effect.get("umbra_original_to", to_tile)
+			var force_distance: int = absi(force_from.x - force_to.x) + absi(force_from.y - force_to.y)
+			if bool(effect.get("umbra_action_clipped", false)) and force_distance > 1:
+				_draw_umbra_clipped_ranged_effect(effect, progress)
+			elif force_distance > 1:
 				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
 			else:
 				_draw_melee_slash_effect(from_point, to_point, progress)
@@ -8841,6 +8887,314 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
 		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
 		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress)
+
+func _draw_umbra_clipped_ranged_effect(effect: Dictionary, progress: float) -> void:
+	var original_from: Vector2i = effect.get("umbra_original_from", Vector2i(-1, -1))
+	var original_to: Vector2i = effect.get("umbra_original_to", Vector2i(-1, -1))
+	var segments: Array = effect.get("umbra_visible_line_segments", []) as Array
+	if original_from.x < 0 or original_to.x < 0 or segments.is_empty():
+		return
+	var full_start: Vector2 = _tile_center(original_from)
+	var full_end: Vector2 = _tile_center(original_to)
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var travel_start: float = 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = 0.66 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.travel_end_progress(style)
+	var target_visible: bool = _board_tile_is_visible_to_player(original_to)
+	if bool(presentation.get("reduced_motion", false)):
+		for segment_index: int in range(segments.size()):
+			var reduced_segment: Dictionary = segments[segment_index] as Dictionary
+			var reduced_start: float = clampf(float(reduced_segment.get("start", 0.0)), 0.0, 1.0)
+			var reduced_end: float = clampf(float(reduced_segment.get("end", 1.0)), reduced_start, 1.0)
+			var reduced_segment_start: Vector2 = full_start.lerp(full_end, reduced_start)
+			var reduced_segment_end: Vector2 = full_start.lerp(full_end, reduced_end)
+			if target_visible and segment_index == segments.size() - 1:
+				_draw_ranged_projectile_effect(effect, 1.0, reduced_segment_start, full_end)
+			else:
+				_draw_umbra_projectile_fragment(effect, reduced_segment_start, reduced_segment_end, 0.5, reduced_segment)
+		return
+	if progress < travel_start:
+		return
+	if progress > travel_end:
+		if target_visible:
+			var impact_segment: Dictionary = segments[segments.size() - 1] as Dictionary
+			_draw_ranged_projectile_effect(
+				effect,
+				progress,
+				full_start.lerp(full_end, float(impact_segment.get("start", 0.0))),
+				full_end
+			)
+		return
+	var spatial_progress: float = _umbra_ranged_spatial_progress(style, progress, travel_start, travel_end)
+	for segment_var: Variant in segments:
+		if typeof(segment_var) != TYPE_DICTIONARY:
+			continue
+		var segment: Dictionary = segment_var as Dictionary
+		var segment_start: float = clampf(float(segment.get("start", 0.0)), 0.0, 1.0)
+		var segment_end: float = clampf(float(segment.get("end", 1.0)), segment_start, 1.0)
+		if spatial_progress + 0.0001 < segment_start or spatial_progress - 0.0001 > segment_end:
+			continue
+		var segment_span: float = maxf(0.0001, segment_end - segment_start)
+		var local_spatial_progress: float = clampf((spatial_progress - segment_start) / segment_span, 0.0, 1.0)
+		_draw_umbra_projectile_fragment(
+			effect,
+			full_start.lerp(full_end, segment_start),
+			full_start.lerp(full_end, segment_end),
+			local_spatial_progress,
+			segment
+		)
+		return
+
+func _draw_umbra_projectile_fragment(
+	effect: Dictionary,
+	segment_start: Vector2,
+	segment_end: Vector2,
+	segment_progress: float,
+	clip_segment: Dictionary
+) -> void:
+	# Large authored projectile sheets extend well behind their logical center.
+	# Build a compact elemental streak whose longitudinal vertices are clamped to
+	# the visible interval, so neither its head nor tail can paint into Umbra.
+	var lifted_start: Vector2 = segment_start + Vector2(0.0, -24.0)
+	var lifted_end: Vector2 = segment_end + Vector2(0.0, -24.0)
+	var segment_delta: Vector2 = lifted_end - lifted_start
+	var segment_length: float = segment_delta.length()
+	if segment_length <= 0.01:
+		return
+	var direction: Vector2 = segment_delta / segment_length
+	var normal := Vector2(-direction.y, direction.x)
+	var local_progress: float = clampf(segment_progress, 0.0, 1.0)
+	var center: Vector2 = lifted_start.lerp(lifted_end, local_progress)
+	var available_before: float = segment_length * local_progress
+	var available_after: float = segment_length * (1.0 - local_progress)
+	var tail_length: float = minf(minf(_tile_width() * 0.42, segment_length * 0.58), available_before)
+	var head_length: float = minf(minf(_tile_width() * 0.16, segment_length * 0.24), available_after)
+	var shoulder_length: float = minf(_tile_width() * 0.07, available_before)
+	var back: Vector2 = center - direction * tail_length
+	var shoulder: Vector2 = center - direction * shoulder_length
+	var tip: Vector2 = center + direction * head_length
+	var half_width: float = minf(_tile_width() * 0.060, maxf(2.5, segment_length * 0.10))
+	var element_id: String = _projectile_element_id(_effect_element(effect))
+	var accent: Color = _projectile_accent(element_id)
+	var secondary: Color = _projectile_secondary(element_id)
+	var outer := PackedVector2Array([
+		back,
+		shoulder + normal * half_width * 1.35,
+		tip,
+		shoulder - normal * half_width * 1.35,
+	])
+	var texture: Texture2D = _umbra_projectile_fragment_texture(effect, local_progress)
+	if texture == null:
+		var inner := PackedVector2Array([
+			back,
+			shoulder + normal * half_width,
+			tip,
+			shoulder - normal * half_width,
+		])
+		_draw_umbra_clipped_colored_polygon(inner, Color(accent.r, accent.g, accent.b, 0.94), clip_segment)
+		return
+	_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.20), clip_segment)
+	var texture_size := Vector2(
+		clampf(_tile_width() * 0.82, 70.0, 112.0),
+		clampf(_tile_width() * 0.48, 40.0, 72.0)
+	)
+	_draw_umbra_clipped_oriented_texture(
+		texture,
+		center,
+		direction,
+		texture_size * 1.12,
+		available_before,
+		available_after,
+		Color(secondary.r, secondary.g, secondary.b, 0.24),
+		clip_segment
+	)
+	_draw_umbra_clipped_oriented_texture(
+		texture,
+		center,
+		direction,
+		texture_size,
+		available_before,
+		available_after,
+		Color.WHITE,
+		clip_segment
+	)
+
+func _umbra_projectile_fragment_texture(effect: Dictionary, progress: float) -> Texture2D:
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var frame_key: String = ""
+	match style:
+		AttackFxLibrary.STYLE_FIREBALL:
+			frame_key = "fireball_travel"
+		AttackFxLibrary.STYLE_EARTH_SPIKES:
+			frame_key = "elemental_earth_performance"
+		AttackFxLibrary.STYLE_AIR_GUST:
+			frame_key = "air_gust_travel"
+		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
+			frame_key = "lightning_bolt_travel"
+		AttackFxLibrary.STYLE_ICE_SHARDS:
+			frame_key = "ice_shard_travel"
+	if frame_key.is_empty():
+		return _projectile_texture(_projectile_element_id(_effect_element(effect)))
+	var frames: Array[Texture2D] = _authored_elemental_frames(frame_key)
+	if frames.is_empty():
+		return _projectile_texture(_projectile_element_id(_effect_element(effect)))
+	var frame_index: int = AttackFxLibrary.looping_frame_index(progress, frames.size(), 1.4)
+	return frames[frame_index]
+
+func _draw_umbra_clipped_oriented_texture(
+	texture: Texture2D,
+	center: Vector2,
+	direction: Vector2,
+	draw_size: Vector2,
+	available_before: float,
+	available_after: float,
+	tint: Color,
+	clip_segment: Dictionary
+) -> void:
+	var destination := Rect2(-draw_size * 0.5, draw_size)
+	var clipped_x_start: float = maxf(destination.position.x, -available_before)
+	var clipped_x_end: float = minf(destination.end.x, available_after)
+	if clipped_x_end - clipped_x_start <= 0.01:
+		return
+	var x_ratio_start: float = (clipped_x_start - destination.position.x) / destination.size.x
+	var x_ratio_end: float = (clipped_x_end - destination.position.x) / destination.size.x
+	var source_size := Vector2(texture.get_size())
+	var clipped_destination := Rect2(
+		Vector2(clipped_x_start, destination.position.y),
+		Vector2(clipped_x_end - clipped_x_start, destination.size.y)
+	)
+	var source := Rect2(
+		Vector2(source_size.x * x_ratio_start, 0.0),
+		Vector2(source_size.x * (x_ratio_end - x_ratio_start), source_size.y)
+	)
+	var normal := Vector2(-direction.y, direction.x)
+	var polygon_vertices: Array[Dictionary] = [
+		{
+			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.position.y,
+			"uv": Vector2(source.position.x / source_size.x, source.position.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.end.x + normal * clipped_destination.position.y,
+			"uv": Vector2(source.end.x / source_size.x, source.position.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.end.x + normal * clipped_destination.end.y,
+			"uv": Vector2(source.end.x / source_size.x, source.end.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.end.y,
+			"uv": Vector2(source.position.x / source_size.x, source.end.y / source_size.y),
+		},
+	]
+	polygon_vertices = _umbra_clip_polygon_vertices(polygon_vertices, clip_segment)
+	if polygon_vertices.size() < 3:
+		return
+	var points := PackedVector2Array()
+	var colors := PackedColorArray()
+	var uvs := PackedVector2Array()
+	for vertex: Dictionary in polygon_vertices:
+		points.append(vertex.get("point", Vector2.ZERO))
+		colors.append(tint)
+		uvs.append(vertex.get("uv", Vector2.ZERO))
+	draw_polygon(points, colors, uvs, texture)
+
+func _draw_umbra_clipped_colored_polygon(points: PackedVector2Array, color: Color, clip_segment: Dictionary) -> void:
+	var vertices: Array[Dictionary] = []
+	for point: Vector2 in points:
+		vertices.append({"point": point, "uv": Vector2.ZERO})
+	vertices = _umbra_clip_polygon_vertices(vertices, clip_segment)
+	if vertices.size() < 3:
+		return
+	var clipped_points := PackedVector2Array()
+	for vertex: Dictionary in vertices:
+		clipped_points.append(vertex.get("point", Vector2.ZERO))
+	draw_colored_polygon(clipped_points, color)
+
+func _umbra_clip_polygon_vertices(vertices: Array[Dictionary], clip_segment: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = vertices
+	for plane: Dictionary in _umbra_clip_planes_for_segment(clip_segment):
+		if result.is_empty():
+			break
+		var clipped: Array[Dictionary] = []
+		var plane_point: Vector2 = plane.get("point", Vector2.ZERO)
+		var plane_normal: Vector2 = plane.get("normal", Vector2.ZERO)
+		for vertex_index: int in range(result.size()):
+			var current: Dictionary = result[vertex_index]
+			var next: Dictionary = result[(vertex_index + 1) % result.size()]
+			var current_point: Vector2 = current.get("point", Vector2.ZERO)
+			var next_point: Vector2 = next.get("point", Vector2.ZERO)
+			var current_distance: float = (current_point - plane_point).dot(plane_normal)
+			var next_distance: float = (next_point - plane_point).dot(plane_normal)
+			var current_inside: bool = current_distance >= -0.001
+			var next_inside: bool = next_distance >= -0.001
+			if current_inside:
+				clipped.append(current)
+			if current_inside == next_inside:
+				continue
+			var denominator: float = current_distance - next_distance
+			if absf(denominator) <= 0.0001:
+				continue
+			var interpolation: float = clampf(current_distance / denominator, 0.0, 1.0)
+			clipped.append({
+				"point": current_point.lerp(next_point, interpolation),
+				"uv": (current.get("uv", Vector2.ZERO) as Vector2).lerp(next.get("uv", Vector2.ZERO) as Vector2, interpolation),
+			})
+		result = clipped
+	return result
+
+func _umbra_clip_planes_for_segment(segment: Dictionary) -> Array[Dictionary]:
+	var planes: Array[Dictionary] = []
+	for boundary: Dictionary in [
+		{
+			"hidden": segment.get("start_hidden_tile", Vector2i(-1, -1)),
+			"visible": segment.get("start_visible_tile", Vector2i(-1, -1)),
+		},
+		{
+			"hidden": segment.get("end_hidden_tile", Vector2i(-1, -1)),
+			"visible": segment.get("end_visible_tile", Vector2i(-1, -1)),
+		},
+	]:
+		var hidden_tile: Vector2i = boundary.get("hidden", Vector2i(-1, -1))
+		var visible_tile: Vector2i = boundary.get("visible", Vector2i(-1, -1))
+		if hidden_tile.x < 0 or visible_tile.x < 0:
+			continue
+		var plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
+		if not plane.is_empty():
+			planes.append(plane)
+	return planes
+
+func _umbra_tile_boundary_plane(hidden_tile: Vector2i, visible_tile: Vector2i) -> Dictionary:
+	var visible_center: Vector2 = _tile_center(visible_tile)
+	var hidden_polygon: PackedVector2Array = _tile_polygon(hidden_tile)
+	if hidden_polygon.size() < 4:
+		return {}
+	var closest_corner_index: int = 0
+	var second_corner_index: int = 1
+	var closest_distance: float = INF
+	var second_distance: float = INF
+	for corner_index: int in range(4):
+		var corner_distance: float = hidden_polygon[corner_index].distance_squared_to(visible_center)
+		if corner_distance < closest_distance:
+			second_distance = closest_distance
+			second_corner_index = closest_corner_index
+			closest_distance = corner_distance
+			closest_corner_index = corner_index
+		elif corner_distance < second_distance:
+			second_distance = corner_distance
+			second_corner_index = corner_index
+	var boundary_start: Vector2 = hidden_polygon[closest_corner_index]
+	var boundary_end: Vector2 = hidden_polygon[second_corner_index]
+	var midpoint: Vector2 = (boundary_start + boundary_end) * 0.5
+	var normal := Vector2(-(boundary_end - boundary_start).y, (boundary_end - boundary_start).x)
+	if (visible_center - midpoint).dot(normal) < 0.0:
+		normal *= -1.0
+	if normal.length_squared() <= 0.001:
+		return {}
+	return {"point": midpoint, "normal": normal.normalized()}
+
+func _umbra_ranged_spatial_progress(style: String, progress: float, travel_start: float, travel_end: float) -> float:
+	if style == AttackFxLibrary.STYLE_DEFAULT:
+		return clampf((progress - travel_start) / maxf(0.001, travel_end - travel_start), 0.0, 1.0)
+	return AttackFxLibrary.travel_progress_for_style(style, progress)
 
 func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2) -> Array[Vector2]:
 	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO)

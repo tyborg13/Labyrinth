@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-04T03:46:58Z",
+  "updated_at": "2026-09-04T04:52:51Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10172,7 +10172,7 @@
       }
     },
     {
-      "id": "mnt_20260904T034658Z_9dec2a34",
+      "id": "mnt_20260904T045251Z_08b5f797",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -10181,16 +10181,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Umbra-crossing enemy actions use a dedicated action-only occluder layer",
-      "details": "Hidden-origin movement and attack geometry is animated only where player-visible; the normal Umbra world layer keeps its established scene depth, while an additional Umbra pass above action FX and below HUD masks sprite/projectile overlap at shadow boundaries. Hidden movement paths must also animate visible light-pocket spans even when the destination remains concealed.",
+      "summary": "Umbra-crossing actions clip geometry at exact visible boundaries",
+      "details": "Hidden movement admits the actor only for crossing frames and clips sprite, HUD, and intent geometry against the shared isometric tile edge. Hidden line attacks carry fractional visible spans with entry and exit tile edges; textured projectile polygons preserve UVs while clipping against those planes, disappear in hidden gaps, and reappear in separate light pockets. Ordinary render ordering remains unchanged.",
       "status": "active",
-      "created_at": "2026-09-04T03:46:58Z",
-      "updated_at": "2026-09-04T03:46:58Z",
+      "created_at": "2026-09-04T04:52:51Z",
+      "updated_at": "2026-09-04T04:52:51Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260904T034658Z_9dec2a34"
+      ],
       "source": {
         "branch": "codex/animate-enemy-actions-emerging-from-umbra",
-        "commit": "99b14ece"
+        "commit": "080b3781"
       }
     }
   ]

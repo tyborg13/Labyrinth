@@ -6,11 +6,13 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 
 static func run(expect: Callable) -> void:
 	_test_hidden_attack_keeps_only_visible_line(expect)
+	_test_hidden_attack_keeps_isolated_visible_pocket(expect)
+	_test_hidden_attack_keeps_separate_visible_spans(expect)
 	_test_hidden_area_attack_keeps_only_visible_tiles(expect)
 	_test_emerging_move_reveals_only_visible_samples(expect)
 	_test_hidden_move_crossing_visible_pocket_animates(expect)
 	_test_fully_hidden_move_keeps_private_fallback(expect)
-	_test_umbra_composites_above_action_fx_below_hud(expect)
+	_test_action_fx_remain_below_hud(expect)
 
 
 static func _test_hidden_attack_keeps_only_visible_line(expect: Callable) -> void:
@@ -56,6 +58,65 @@ static func _test_hidden_area_attack_keeps_only_visible_tiles(expect: Callable) 
 	var effect_tiles: Array = visible_step.get("tiles", []) as Array
 	expect.call(effect_tiles == [Vector2i(4, 4), Vector2i(3, 4)], "Area attacks should retain every visible footprint tile without exposing concealed tiles")
 	expect.call(visible_step.get("center", Vector2i(-1, -1)) == Vector2i(4, 4), "A concealed area center should move to the first visible footprint tile for presentation")
+	scene.free()
+
+
+static func _test_hidden_attack_keeps_isolated_visible_pocket(expect: Callable) -> void:
+	var scene := RunScene.new()
+	var state: Dictionary = _state()
+	(state.get("umbra", {}) as Dictionary)["light_sources"] = [{
+		"id": "pocket",
+		"pos": Vector2i(7, 2),
+		"radius": 0,
+		"remaining_activations": 2,
+	}]
+	var visible_step: Dictionary = scene.call("_visible_umbra_action_step", state, {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"actor_key": "enemy_71",
+		"from": Vector2i(7, 4),
+		"to": Vector2i(7, 0),
+		"hidden_by_umbra": true,
+	}) as Dictionary
+	var segments: Array = visible_step.get("umbra_visible_line_segments", []) as Array
+	expect.call(not visible_step.is_empty(), "A projectile crossing an isolated light pocket should retain a visible animation step")
+	expect.call(visible_step.get("from", Vector2i(-1, -1)) == Vector2i(7, 2), "An isolated visible pocket may use one logical tile for its clipped endpoints")
+	expect.call(visible_step.get("to", Vector2i(-1, -1)) == Vector2i(7, 2), "The isolated pocket fixture should exercise the formerly collapsed from/to case")
+	expect.call(segments.size() == 1, "The isolated light pocket should produce one fractional visible span")
+	if segments.size() == 1:
+		var segment: Dictionary = segments[0] as Dictionary
+		expect.call(float(segment.get("end", 0.0)) > float(segment.get("start", 1.0)), "A one-tile light pocket should retain non-zero projectile travel distance")
+		expect.call(segment.has("start_hidden_tile") and segment.has("start_visible_tile"), "An isolated visible span should retain its exact entry edge for texture clipping")
+		expect.call(segment.has("end_visible_tile") and segment.has("end_hidden_tile"), "An isolated visible span should retain its exact exit edge for texture clipping")
+	var combat_engine: Variant = scene.get("_combat_engine")
+	expect.call(not combat_engine.is_tile_visible_to_player(state, Vector2i(7, 4)), "The pocket attack source should remain concealed")
+	expect.call(not combat_engine.is_tile_visible_to_player(state, Vector2i(7, 0)), "The pocket attack destination should return to concealment")
+	scene.free()
+
+
+static func _test_hidden_attack_keeps_separate_visible_spans(expect: Callable) -> void:
+	var scene := RunScene.new()
+	var state: Dictionary = _state()
+	(state.get("umbra", {}) as Dictionary)["light_sources"] = [{
+		"id": "pocket",
+		"pos": Vector2i(6, 4),
+		"radius": 0,
+		"remaining_activations": 2,
+	}]
+	var visible_step: Dictionary = scene.call("_visible_umbra_action_step", state, {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"actor_key": "enemy_71",
+		"from": Vector2i(7, 4),
+		"to": Vector2i(2, 4),
+		"hidden_by_umbra": true,
+	}) as Dictionary
+	var segments: Array = visible_step.get("umbra_visible_line_segments", []) as Array
+	expect.call(segments.size() == 2, "A projectile should disappear between a light pocket and the player's separate visible halo")
+	if segments.size() == 2:
+		var first_segment: Dictionary = segments[0] as Dictionary
+		var second_segment: Dictionary = segments[1] as Dictionary
+		expect.call(float(first_segment.get("end", 1.0)) < float(second_segment.get("start", 0.0)), "Separated visible spans must retain the intervening hidden travel time")
 	scene.free()
 
 
@@ -114,14 +175,12 @@ static func _test_hidden_move_crossing_visible_pocket_animates(expect: Callable)
 	scene.free()
 
 
-static func _test_umbra_composites_above_action_fx_below_hud(expect: Callable) -> void:
+static func _test_action_fx_remain_below_hud(expect: Callable) -> void:
 	var board := CombatBoardView.new()
 	board.call("_create_dynamic_render_layer")
 	var effects: Control = board.get("_effects_render_layer") as Control
-	var umbra: Control = board.get("_umbra_action_occluder_render_layer") as Control
 	var hud: Control = board.get("_hud_render_layer") as Control
-	expect.call(effects.get_index() < umbra.get_index(), "Umbra should composite above moving actors and action FX so concealed portions stay hidden")
-	expect.call(umbra.get_index() < hud.get_index(), "Combat HUD feedback should remain legible above the Umbra occluder")
+	expect.call(effects.get_index() < hud.get_index(), "Action FX should preserve the standard scene order below combat HUD feedback")
 	board.free()
 
 
