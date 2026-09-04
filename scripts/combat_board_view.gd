@@ -8824,7 +8824,17 @@ func _draw_umbra_projectile_fragment(
 			tip,
 			shoulder - normal * half_width,
 		])
-		_draw_umbra_clipped_colored_polygon(inner, Color(accent.r, accent.g, accent.b, 0.94), clip_segment)
+		_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.18), clip_segment)
+		_draw_umbra_clipped_colored_polygon(inner, Color(accent.r, accent.g, accent.b, 0.72), clip_segment)
+		var core := PackedVector2Array([
+			back,
+			shoulder + normal * half_width * 0.26,
+			tip,
+			shoulder - normal * half_width * 0.26,
+		])
+		var core_color: Color = accent.lightened(0.55)
+		core_color.a = 0.88
+		_draw_umbra_clipped_colored_polygon(core, core_color, clip_segment)
 		return
 	_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.20), clip_segment)
 	var texture_size := Vector2(
@@ -8852,27 +8862,12 @@ func _draw_umbra_projectile_fragment(
 		clip_segment
 	)
 
-func _umbra_projectile_fragment_texture(effect: Dictionary, progress: float) -> Texture2D:
-	var style: String = AttackFxLibrary.style_for_effect(effect)
-	var frame_key: String = ""
-	match style:
-		AttackFxLibrary.STYLE_FIREBALL:
-			frame_key = "fireball_travel"
-		AttackFxLibrary.STYLE_EARTH_SPIKES:
-			frame_key = "elemental_earth_performance"
-		AttackFxLibrary.STYLE_AIR_GUST:
-			frame_key = "air_gust_travel"
-		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-			frame_key = "lightning_bolt_travel"
-		AttackFxLibrary.STYLE_ICE_SHARDS:
-			frame_key = "ice_shard_travel"
-	if frame_key.is_empty():
-		return _projectile_texture(_projectile_element_id(_effect_element(effect)))
-	var frames: Array[Texture2D] = _authored_elemental_frames(frame_key)
-	if frames.is_empty():
-		return _projectile_texture(_projectile_element_id(_effect_element(effect)))
-	var frame_index: int = AttackFxLibrary.looping_frame_index(progress, frames.size(), 1.4)
-	return frames[frame_index]
+func _umbra_projectile_fragment_texture(effect: Dictionary, _progress: float) -> Texture2D:
+	# Elemental spells use clipped material geometry, including when only a short
+	# visible interval crosses Umbra. Do not resurrect the removed spell atlases.
+	if AttackFxLibrary.uses_authored_elemental_attack(effect):
+		return null
+	return _projectile_texture(_projectile_element_id(_effect_element(effect)))
 
 func _draw_umbra_clipped_oriented_texture(
 	texture: Texture2D,

@@ -19,6 +19,7 @@ static func run(expect: Callable) -> void:
 	_test_spell_ingredients_have_soft_transparent_boundaries(expect)
 	_test_spell_envelope_resolves_without_discontinuity(expect)
 	_test_ranged_previews_use_static_curves(expect)
+	_test_umbra_fragments_do_not_restore_spell_sprites(expect)
 	_test_ranged_preview_hp_composites_on_hud(expect)
 	_test_isometric_ground_anchor_is_exact_target_floor(expect)
 	_test_elemental_effects_resolve_into_scene_depth_tiles(expect)
@@ -571,3 +572,14 @@ static func _test_enemy_steps_inherit_the_attacker_element(expect: Callable) -> 
 		and str(step.get("element", "")) == "fire",
 		"Enemy ranged animation steps should carry their attacker's element into presentation selection"
 	)
+
+
+static func _test_umbra_fragments_do_not_restore_spell_sprites(expect: Callable) -> void:
+	var board := CombatBoardView.new()
+	for element: String in ["fire", "earth", "air", "lightning", "ice"]:
+		var effect: Dictionary = {"kind": "ranged", "element": element, "umbra_action_clipped": true}
+		expect.call(
+			board.call("_umbra_projectile_fragment_texture", effect, 0.5) == null,
+			"%s crossing Umbra must use bounded material geometry without restoring whole-spell atlases" % element
+		)
+	board.free()
