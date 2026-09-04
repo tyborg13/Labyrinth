@@ -97,12 +97,12 @@ func _capture_states() -> void:
 		9801
 	)
 
-	instance.call("_on_card_drag_started", 1)
+	var drag_source_rect: Rect2 = instance.call("_hand_card_global_rect", 1)
+	instance.call("_on_card_drag_started", 1, drag_source_rect.get_center())
 	await _settle_ui()
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	var drag_position: Vector2 = board.get_global_rect().get_center() + Vector2(-120.0, -40.0)
-	instance.call("_update_drag_proxy_position", drag_position)
-	instance.call("_update_drag_overlay_hover", instance.call("_drag_zone_at", drag_position))
+	await instance.call("_update_card_drag", drag_position)
 	await _settle_ui()
 	_assert_drag_state(instance)
 	await _save_root_screenshot("%s/drag_full_card.png" % OUTPUT_DIR)
@@ -115,15 +115,12 @@ func _capture_states() -> void:
 		var source_card: Control = instance.call("_hand_card_control", 1) as Control
 		var rail: Control = instance.get("_action_step_tracker") as Control
 		await _settle_ui()
-		_assert(str(rail.get_meta("drag_hover_zone", "")) == "move", "Fallback-hover proof should enter Move hover state")
 		_assert(source_card != null and source_card.has_meta("drag_hand_origin"), "Fallback-hover proof should keep the dragged card anchored in the hand")
 		_assert(source_card != null and not source_card.get_global_rect().intersects(move_panel.get_global_rect()), "The anchored hand card should stay clear of the hovered Move command")
-		var fallback_verb: Label = instance.get("_action_context_verb_label") as Label
-		_assert(fallback_verb != null and fallback_verb.text == "RELEASE · MOVE" and _label_text_fits(fallback_verb), "Move fallback instruction should remain fully readable")
-		_assert(str(rail.get_meta("risk_text", "")) == "FALLBACK · MOVE", "Move hover should replace the primary badge with the active fallback context")
+		_assert(rail != null and not rail.visible, "Fallback hover should remain free of redundant side instructions")
 		await _save_root_screenshot("%s/drag_fallback_move_hover.png" % OUTPUT_DIR)
 
-	await instance.call("_commit_drag_drop", "play")
+	instance.call("_finish_drag_play", true)
 	await _settle_ui()
 	_assert_context(instance, "MOVE", "STEP 1/2", "move target")
 	await _save_root_screenshot("%s/move_target.png" % OUTPUT_DIR)
@@ -726,15 +723,13 @@ func _assert_drag_state(instance: Node) -> void:
 	var context: Control = instance.get("_action_step_tracker") as Control
 	var dragged_index: int = int(instance.get("_drag_card_index"))
 	var source_card: Control = instance.call("_hand_card_control", dragged_index) as Control
-	_assert(overlay.visible and instance.get("_drag_card_proxy") == null, "Drag layer should stay active without creating a cursor-following card proxy")
+	_assert(overlay.visible and instance.get("_drag_card_proxy") == null, "Board targeting should replace the cursor-following card with the raster arrow")
 	_assert(source_card != null and source_card.has_meta("drag_hand_origin"), "Drag should keep the original card visible and anchored in the hand")
-	_assert(context.visible and str(context.get_meta("context_mode", "")) == "drag", "Drag should use the compact action context")
-	_assert(str(context.get_meta("drag_hover_zone", "")) == "play", "Battlefield drag should default to full-card play")
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	_assert(arrow != null and arrow.visible and bool(arrow.get_meta("raster_composed_arrow", false)), "Battlefield drag should show the authored raster targeting arrow")
+	_assert(context != null and not context.visible, "Drag should stay free of redundant side instruction copy")
 	var tutorial_host: Control = instance.get("_contextual_combat_prompt_host") as Control
 	_assert(tutorial_host == null or not tutorial_host.visible, "Dragging should temporarily hide contextual onboarding so the action rail remains unobstructed")
-	var verb_label: Label = instance.get("_action_context_verb_label") as Label
-	_assert(verb_label != null and verb_label.text == "RELEASE TO PLAY", "Primary drag copy should stay terse and explicit")
-	_assert(_label_text_fits(verb_label), "Primary drag copy should fit without ellipsis")
 	var panels: Dictionary = instance.get("_drag_zone_panels")
 	_assert(not panels.has("play"), "Full-card play should not create a central drop panel")
 	for zone: String in ["attack", "move"]:

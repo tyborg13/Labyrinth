@@ -9437,15 +9437,14 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	_assert(pending_actions.size() == 1 and str((pending_actions[0] as Dictionary).get("type", "")) == "move", "Clicked Basic Move should preserve its one-step move semantics")
 	instance.call("_on_cancel_requested")
 	await process_frame
-	instance.call("_on_card_drag_started", 0)
+	var drag_source_rect: Rect2 = instance.call("_hand_card_global_rect", 0)
+	instance.call("_on_card_drag_started", 0, drag_source_rect.get_center())
 	await process_frame
 	var overlay: Control = instance.get("_drag_overlay") as Control
 	_assert(overlay != null and overlay.visible, "Starting a card drag should show the proxy layer")
-	_assert(overlay != null and overlay.get_child_count() == 1, "Card drag should keep only the held-card proxy in its full-screen layer, with no central scrim or zones")
+	_assert(overlay != null and overlay.get_child_count() == 2, "Card drag should keep only the held-card proxy plus its dormant raster-arrow layer, with no central scrim or zones")
 	context = instance.get("_action_step_tracker") as Control
-	_assert(context != null and context.visible, "Card drag should show the compact action context")
-	_assert(context != null and str(context.get_meta("context_mode", "")) == "drag", "Drag action context should expose its drag state")
-	_assert(str(context.get_meta("risk_text", "")) == "FALLBACK ONLY", "Fallback-only drag should not label the unavailable full card as primary")
+	_assert(context != null and not context.visible, "Card drag should rely on the direct card/target visuals without adding side instruction copy")
 	var zone_panels: Dictionary = instance.get("_drag_zone_panels")
 	var zone_labels: Dictionary = instance.get("_drag_zone_labels")
 	var attack_panel: PanelContainer = zone_panels.get("attack", null) as PanelContainer
@@ -9473,7 +9472,8 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	hand_box = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox")
 	var restored_source: Control = hand_box.get_child(0) as Control if hand_box.get_child_count() > 0 else null
 	_assert(restored_source != null and restored_source.visible, "Invalid drag drops should restore the source card")
-	instance.call("_on_card_drag_started", 0)
+	drag_source_rect = instance.call("_hand_card_global_rect", 0)
+	instance.call("_on_card_drag_started", 0, drag_source_rect.get_center())
 	await process_frame
 	await instance.call("_commit_drag_drop", "move")
 	await process_frame
@@ -9498,17 +9498,18 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) > int(instance.call("_fallback_attack_damage")), "One-click printed targeting should retain the card's printed damage")
 	instance.call("_on_cancel_requested")
 	await process_frame
-	instance.call("_on_card_drag_started", 0)
+	drag_source_rect = instance.call("_hand_card_global_rect", 0)
+	instance.call("_on_card_drag_started", 0, drag_source_rect.get_center())
 	await process_frame
 	_assert(str(instance.call("_drag_zone_at", board_view.get_global_rect().get_center())) == "play", "The readable battlefield should be the primary full-card drop path")
-	var verb_label: Label = instance.get("_action_context_verb_label") as Label
-	_assert(verb_label != null and verb_label.text == "DROP ON BOARD", "The primary drag instruction should remain terse and explicit")
-	_assert(_label_text_fits(verb_label), "The primary drag instruction should fit without ellipsis")
-	await instance.call("_commit_drag_drop", "play")
+	var quick_stab_target := Vector2i(3, 5)
+	var quick_stab_target_position: Vector2 = board_view.get_global_transform_with_canvas() * (board_view.call("world_position_for_tile", quick_stab_target) as Vector2)
+	await instance.call("_update_card_drag", quick_stab_target_position)
 	await process_frame
 	pending_actions = instance.get("_pending_actions")
-	_assert(int(instance.get("_selected_card_index")) == 0 and str(instance.get("_selected_card_label_override")).is_empty(), "Full-card drag should enter printed-card targeting")
+	_assert(int(instance.get("_selected_card_index")) == 0 and str(instance.get("_selected_card_label_override")).is_empty(), "Board entry should convert the held card into printed-card targeting")
 	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) > int(instance.call("_fallback_attack_damage")), "Full-card drag should retain printed attack values")
+	_assert(context != null and not context.visible, "Raster-arrow targeting should not add a redundant side instruction block")
 	instance.call("_on_cancel_requested")
 	await process_frame
 	await _choose_clicked_card_action(instance, 0, "attack")
@@ -9520,15 +9521,18 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 
 	_install_combat_interaction_fixture(instance, "sidestep_slash", Vector2i(2, 5), [Vector2i(5, 5)], 9206)
 	await process_frame
-	instance.call("_on_card_drag_started", 0)
+	drag_source_rect = instance.call("_hand_card_global_rect", 0)
+	instance.call("_on_card_drag_started", 0, drag_source_rect.get_center())
 	await process_frame
-	await instance.call("_commit_drag_drop", "play")
+	var compound_target := Vector2i(5, 5)
+	var compound_target_position: Vector2 = board_view.get_global_transform_with_canvas() * (board_view.call("world_position_for_tile", compound_target) as Vector2)
+	await instance.call("_update_card_drag", compound_target_position)
 	await process_frame
 	pending_actions = instance.get("_pending_actions")
 	_assert(pending_actions.size() == 2, "Full-card drag should preserve every printed compound-card step")
 	_assert(str((pending_actions[0] as Dictionary).get("type", "")) == "move" and str((pending_actions[1] as Dictionary).get("type", "")) == "melee", "Compound full-card drag should preserve move then attack ordering")
 	context = instance.get("_action_step_tracker") as Control
-	_assert((context.get_meta("step_statuses", []) as Array).size() == 2, "Compound targeting should compose both steps into the action context")
+	_assert(context != null and not context.visible, "Compound drag targeting should also stay free of side instruction copy")
 	instance.call("_on_cancel_requested")
 	await process_frame
 	await _choose_clicked_card_action(instance, 0, "play")

@@ -31,83 +31,95 @@ func _capture_drag_overlay_frames() -> void:
 	await process_frame
 	await process_frame
 
-	await _load_combat_fixture(instance, "quick_stab", Vector2i(2, 5), Vector2i(3, 5), 9401)
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(3, 5), Vector2i(4, 5), 9401)
 	instance.call("_on_card_hover_started", 0)
 	await create_timer(0.16).timeout
 	var hover_source: Control = instance.call("_hand_card_control", 0) as Control
 	var hover_bounds: Rect2 = instance.call("_control_visual_global_rect", hover_source) if hover_source != null else Rect2()
-	await _save_root_screenshot("%s/drag_hover_origin_20260904.png" % OUTPUT_DIR)
-	instance.call("_on_card_drag_started", 0)
-	await create_timer(0.16).timeout
-	var cancel_position := Vector2(250.0, 700.0)
+	await _save_root_screenshot("%s/drag_hover_large_arrow_v2.png" % OUTPUT_DIR)
+	var drag_start: Vector2 = hover_bounds.get_center()
+	instance.call("_on_card_drag_started", 0, drag_start)
+	await process_frame
+	var board_rect: Rect2 = (instance.get("board_view") as Control).get_global_rect()
+	var cancel_position := Vector2(drag_start.x + 128.0, board_rect.end.y + 54.0)
 	await _position_card_drag(instance, cancel_position)
 	await process_frame
-	_assert_hand_origin_drag(instance, "hand-origin cancel drag", cancel_position)
-	_assert_drag_source_settled_from_hover(instance, hover_bounds)
-	_assert_drag_context(instance, "DRAG TO BOARD", "RELEASE CANCELS", false)
-	await _save_root_screenshot("%s/drag_hand_origin_cancel_20260904.png" % OUTPUT_DIR)
+	_assert_following_card_drag(instance, "pre-board following drag", cancel_position, hover_bounds)
+	await _save_root_screenshot("%s/drag_following_card_arrow_v2.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	await process_frame
 
-	await _load_combat_fixture(instance, "quick_stab", Vector2i(2, 5), Vector2i(3, 5), 9402)
-	instance.call("_on_card_drag_started", 0)
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(3, 5), Vector2i(4, 5), 9402)
+	drag_start = _drag_start_position(instance, 0)
+	instance.call("_on_card_drag_started", 0, drag_start)
 	await process_frame
-	var valid_target_position: Vector2 = _tile_global_position(instance, Vector2i(3, 5))
+	var valid_target_position: Vector2 = _tile_global_position(instance, Vector2i(4, 5))
 	await _position_card_drag(instance, valid_target_position)
 	await process_frame
-	_assert_hand_origin_drag(instance, "valid targeted drag", valid_target_position)
-	_assert_drag_context(instance, "RELEASE TO PLAY", "TARGETED PLAY", true)
-	_assert_drag_target_visible(instance, valid_target_position, "valid targeted drag")
-	await _save_root_screenshot("%s/drag_target_valid_20260904.png" % OUTPUT_DIR)
+	_assert_targeting_drag(instance, "center valid targeting", valid_target_position, hover_bounds)
+	await _save_root_screenshot("%s/drag_arrow_center_valid_v2.png" % OUTPUT_DIR)
 
-	var invalid_target_position: Vector2 = _tile_global_position(instance, Vector2i(6, 6))
-	await _position_card_drag(instance, invalid_target_position)
+	var left_target_position := Vector2(board_rect.position.x + board_rect.size.x * 0.18, board_rect.position.y + board_rect.size.y * 0.36)
+	await _position_card_drag(instance, left_target_position)
 	await process_frame
-	_assert_hand_origin_drag(instance, "invalid targeted drag", invalid_target_position)
-	_assert_drag_context(instance, "RELEASE CANCELS", "CHOOSE HIGHLIGHT", true)
-	_assert_drag_target_visible(instance, invalid_target_position, "invalid targeted drag")
-	await _save_root_screenshot("%s/drag_target_invalid_20260904.png" % OUTPUT_DIR)
-	await instance.call("_commit_drag_drop", "play", invalid_target_position)
+	_assert_targeting_drag(instance, "left targeting", left_target_position, hover_bounds)
+	await _save_root_screenshot("%s/drag_arrow_left_v2.png" % OUTPUT_DIR)
+
+	var right_target_position := Vector2(board_rect.position.x + board_rect.size.x * 0.82, board_rect.position.y + board_rect.size.y * 0.36)
+	await _position_card_drag(instance, right_target_position)
+	await process_frame
+	_assert_targeting_drag(instance, "right targeting", right_target_position, hover_bounds)
+	await _save_root_screenshot("%s/drag_arrow_right_v2.png" % OUTPUT_DIR)
+
+	await instance.call("_commit_drag_drop", "play", right_target_position)
 	await process_frame
 	if int(instance.get("_drag_card_index")) >= 0 or int(instance.get("_selected_card_index")) >= 0:
 		push_error("Invalid targeted release should return to the idle hand")
 	if _turn_order_has_card_projection(instance, "Quick Stab"):
 		push_error("Invalid targeted release should remove its Turn Clock projection")
-	await _save_root_screenshot("%s/drag_invalid_cancel_restored_20260904.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_invalid_cancel_restored_v2.png" % OUTPUT_DIR)
 
 	await _load_combat_fixture(instance, "stone_plate", Vector2i(2, 5), Vector2i(5, 5), 9403)
-	instance.call("_on_card_drag_started", 0)
+	drag_start = _drag_start_position(instance, 0)
+	instance.call("_on_card_drag_started", 0, drag_start)
 	await process_frame
 	var targetless_board_position: Vector2 = (instance.get("board_view") as Control).get_global_rect().get_center()
 	await _position_card_drag(instance, targetless_board_position)
 	await process_frame
-	_assert_hand_origin_drag(instance, "targetless board drag", targetless_board_position)
-	_assert_drag_context(instance, "RELEASE TO PLAY", "BOARD PLAY", false)
-	_assert_drag_target_visible(instance, targetless_board_position, "targetless board drag")
-	await _save_root_screenshot("%s/drag_targetless_ready_20260904.png" % OUTPUT_DIR)
+	_assert_targetless_board_drag(instance, targetless_board_position)
+	await _save_root_screenshot("%s/drag_targetless_following_v2.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	await process_frame
 
-	await _load_combat_fixture(instance, "quick_stab", Vector2i(2, 5), Vector2i(3, 5), 9404)
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(3, 5), Vector2i(4, 5), 9404)
 	var previous_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
 	instance.set("_settings", {"reduced_motion": true})
-	instance.call("_on_card_drag_started", 0)
+	drag_start = _drag_start_position(instance, 0)
+	instance.call("_on_card_drag_started", 0, drag_start)
 	await process_frame
-	valid_target_position = _tile_global_position(instance, Vector2i(3, 5))
+	valid_target_position = _tile_global_position(instance, Vector2i(4, 5))
 	await _position_card_drag(instance, valid_target_position)
 	await process_frame
-	_assert_hand_origin_drag(instance, "reduced-motion targeted drag", valid_target_position)
+	_assert_targeting_drag(instance, "reduced-motion targeted drag", valid_target_position, Rect2())
 	var hand_box: Control = instance.get("hand_box") as Control
-	if hand_box == null or int(hand_box.call("emphasized_index")) != -1:
-		push_error("Reduced-motion drag proof should use the settled hand pose without a transition")
-	_assert_drag_context(instance, "RELEASE TO PLAY", "TARGETED PLAY", true)
-	_assert_drag_target_visible(instance, valid_target_position, "reduced-motion targeted drag")
-	await _save_root_screenshot("%s/drag_target_valid_reduced_motion_20260904.png" % OUTPUT_DIR)
+	if hand_box == null or int(hand_box.call("emphasized_index")) != 0:
+		push_error("Reduced-motion targeting should immediately use the raised selected-card pose")
+	await _save_root_screenshot("%s/drag_arrow_reduced_motion_v2.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	instance.set("_settings", previous_settings)
 	await process_frame
 
-	await _capture_card_motion_frames(instance)
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(3, 5), Vector2i(4, 5), 9406)
+	drag_start = _drag_start_position(instance, 0)
+	instance.call("_on_card_drag_started", 0, drag_start)
+	await process_frame
+	valid_target_position = _tile_global_position(instance, Vector2i(4, 5))
+	await _position_card_drag(instance, valid_target_position)
+	instance.call("_commit_drag_drop", "play", valid_target_position)
+	await create_timer(0.10).timeout
+	_assert_drag_play_launch(instance)
+	await _save_root_screenshot("%s/drag_play_launch_from_hand_v2.png" % OUTPUT_DIR)
+	await create_timer(0.85).timeout
 
 	instance.queue_free()
 	await process_frame
@@ -229,51 +241,78 @@ func _tile_global_position(instance: Node, tile: Vector2i) -> Vector2:
 	var board: Control = instance.get("board_view") as Control
 	return board.get_global_transform_with_canvas() * (board.call("world_position_for_tile", tile) as Vector2)
 
-func _assert_drag_context(instance: Node, expected_verb: String, expected_risk: String, targeting_active: bool) -> void:
-	var context: Control = instance.get("_action_step_tracker") as Control
-	if context == null or not context.visible:
-		push_error("Drag proof should keep its compact action context visible")
-		return
-	if str(context.get_meta("action_verb", "")) != expected_verb:
-		push_error("Drag proof expected verb %s, got %s" % [expected_verb, str(context.get_meta("action_verb", ""))])
-	if str(context.get_meta("risk_text", "")) != expected_risk:
-		push_error("Drag proof expected risk %s, got %s" % [expected_risk, str(context.get_meta("risk_text", ""))])
-	if bool(instance.get("_drag_targeting_active")) != targeting_active:
-		push_error("Drag proof targeting mode mismatch for %s" % expected_verb)
+func _drag_start_position(instance: Node, hand_index: int) -> Vector2:
+	return (instance.call("_hand_card_global_rect", hand_index) as Rect2).get_center()
 
-func _assert_hand_origin_drag(instance: Node, context: String, cursor_position: Vector2) -> void:
-	if instance.get("_drag_card_proxy") != null:
-		push_error("%s should never create a cursor-following card proxy" % context)
+func _assert_no_drag_copy(instance: Node, context_name: String) -> void:
+	var tracker: Control = instance.get("_action_step_tracker") as Control
+	if tracker != null and tracker.visible:
+		push_error("%s should not add instructional side copy during a spatial drag interaction" % context_name)
+
+func _assert_following_card_drag(instance: Node, context: String, cursor_position: Vector2, hover_bounds: Rect2) -> void:
+	var proxy: Control = instance.get("_drag_card_proxy") as Control
+	if proxy == null:
+		push_error("%s should keep a small card attached to the pointer before board entry" % context)
 		return
+	var source_card: Control = instance.call("_hand_card_control", int(instance.get("_drag_card_index"))) as Control
+	if source_card == null or source_card.is_visible_in_tree():
+		push_error("%s should hide the duplicate hand copy while the card follows the pointer" % context)
+	var proxy_bounds: Rect2 = instance.call("_card_proxy_visual_rect", proxy)
+	if not proxy_bounds.grow(8.0).has_point(cursor_position):
+		push_error("%s should visibly stay attached to the pointer" % context)
+	if hover_bounds.size.x > 0.0 and (proxy_bounds.size.x >= hover_bounds.size.x - 1.0 or proxy_bounds.size.y >= hover_bounds.size.y - 1.0):
+		push_error("%s should shrink below the large hover preview before following the pointer" % context)
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	if bool(instance.get("_drag_targeting_active")) or (arrow != null and arrow.visible):
+		push_error("%s should not show the targeting arrow before board entry" % context)
+	_assert_no_drag_copy(instance, context)
+
+func _assert_targeting_drag(instance: Node, context: String, cursor_position: Vector2, hover_bounds: Rect2) -> void:
+	if instance.get("_drag_card_proxy") != null:
+		push_error("%s should replace the following card with the targeting arrow" % context)
 	var source_card: Control = instance.call("_hand_card_control", int(instance.get("_drag_card_index"))) as Control
 	if source_card == null or not source_card.is_visible_in_tree():
-		push_error("%s should keep the original card visible in hand" % context)
+		push_error("%s should restore the selected card visibly in the hand" % context)
 		return
 	if not bool(source_card.get_meta("drag_hand_origin", false)):
-		push_error("%s should mark the original card as the active drag origin" % context)
+		push_error("%s should mark the restored hand card as the active targeting origin" % context)
+	if not source_card.modulate.is_equal_approx(Color.WHITE):
+		push_error("%s should not tint the card according to target validity" % context)
 	var source_bounds: Rect2 = instance.call("_control_visual_global_rect", source_card)
 	var hand_scroll: Control = instance.get("hand_scroll") as Control
-	if hand_scroll == null or not hand_scroll.get_global_rect().has_point(source_bounds.get_center()):
-		push_error("%s should keep the dragged card anchored inside the hand" % context)
-	if source_bounds.has_point(cursor_position):
-		push_error("%s hand-origin card should never follow or cover the cursor" % context)
-
-func _assert_drag_target_visible(instance: Node, cursor_position: Vector2, context: String) -> void:
-	var source_card: Control = instance.call("_hand_card_control", int(instance.get("_drag_card_index"))) as Control
-	if source_card == null:
-		push_error("%s should retain its visible hand-origin card" % context)
-		return
+	if hand_scroll == null or not hand_scroll.get_global_rect().grow(72.0).has_point(source_bounds.get_center()):
+		push_error("%s should keep the selected card anchored in the hand" % context)
+	if hover_bounds.size.x > 0.0 and (source_bounds.size.x >= hover_bounds.size.x - 1.0 or source_bounds.size.y >= hover_bounds.size.y - 1.0):
+		push_error("%s selected pose should remain smaller than the hover preview" % context)
 	if (instance.call("_control_visual_global_rect", source_card) as Rect2).has_point(cursor_position):
 		push_error("%s should leave the hovered target and cursor unobscured" % context)
+	var hand_box: Control = instance.get("hand_box") as Control
+	if hand_box == null or int(hand_box.call("emphasized_index")) != int(instance.get("_drag_card_index")):
+		push_error("%s should visibly raise the selected card above the rest of the hand" % context)
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	if not bool(instance.get("_drag_targeting_active")) or arrow == null or not arrow.visible:
+		push_error("%s should show the active targeting arrow" % context)
+	elif not bool(arrow.get_meta("raster_composed_arrow", false)):
+		push_error("%s should use the authored raster-composed arrow" % context)
+	_assert_no_drag_copy(instance, context)
 
-func _assert_drag_source_settled_from_hover(instance: Node, hover_bounds: Rect2) -> void:
-	var source_card: Control = instance.call("_hand_card_control", int(instance.get("_drag_card_index"))) as Control
-	if source_card == null or hover_bounds.size.x <= 0.0:
-		push_error("Drag settle proof requires both hover and held hand-card geometry")
-		return
-	var held_bounds: Rect2 = instance.call("_control_visual_global_rect", source_card)
-	if held_bounds.size.x >= hover_bounds.size.x - 1.0 or held_bounds.size.y >= hover_bounds.size.y - 1.0:
-		push_error("Held card should settle smaller than its hover pose: hover=%s held=%s" % [hover_bounds.size, held_bounds.size])
+func _assert_targetless_board_drag(instance: Node, cursor_position: Vector2) -> void:
+	_assert_following_card_drag(instance, "targetless board drag", cursor_position, Rect2())
+	if bool(instance.get("_drag_targeting_active")) or int(instance.get("_selected_card_index")) >= 0:
+		push_error("Targetless board drag should confirm with the following card instead of tile targeting")
+
+func _assert_drag_play_launch(instance: Node) -> void:
+	if str(instance.get_meta("last_card_play_source_kind", "")) != "drag_hand":
+		push_error("A committed drag should reuse the normal hand-origin play launch")
+	var source_rect: Rect2 = instance.get_meta("last_card_play_source_rect", Rect2()) as Rect2
+	var hand_scroll: Control = instance.get("hand_scroll") as Control
+	if hand_scroll == null or not hand_scroll.get_global_rect().grow(72.0).has_point(source_rect.get_center()):
+		push_error("Drag play animation should start in the hand rather than at the cursor or screen edge")
+	if _first_card_fx_proxy(instance) == null:
+		push_error("Drag play launch proof should capture the real card animation in flight")
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	if arrow != null and arrow.visible:
+		push_error("The targeting arrow should clear before the played card launches")
 
 func _turn_order_has_card_projection(instance: Node, card_name: String) -> bool:
 	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
@@ -390,7 +429,14 @@ func _simple_grid() -> Array:
 	return grid
 
 func _save_root_screenshot(output_path: String) -> void:
+	await RenderingServer.frame_post_draw
 	var image: Image = root.get_viewport().get_texture().get_image()
+	if image != null and image.get_pixel(image.get_width() / 2, image.get_height() / 2).get_luminance() <= 0.01:
+		# macOS can occasionally return the cleared back buffer immediately after a
+		# proxy reparent. Capture the next completed frame instead of blessing black.
+		await process_frame
+		await RenderingServer.frame_post_draw
+		image = root.get_viewport().get_texture().get_image()
 	if image == null:
 		push_error("Card drag proof should capture a renderer image")
 		return

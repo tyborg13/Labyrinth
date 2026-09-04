@@ -1,6 +1,7 @@
 extends RefCounted
 
 const CardDragPlayRules = preload("res://scripts/card_drag_play_rules.gd")
+const CardDragTargetingArrow = preload("res://scripts/card_drag_targeting_arrow.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
@@ -38,10 +39,25 @@ static func run(expect: Callable) -> void:
 		CardDragPlayRules.release_outcome(false, targetless_preview, false) == CardDragPlayRules.OUTCOME_CANCEL,
 		"A targetless release outside the board should cancel"
 	)
-	var valid_cue: Dictionary = CardDragPlayRules.visual_cue(true, targeted_preview, true)
-	var invalid_cue: Dictionary = CardDragPlayRules.visual_cue(true, targeted_preview, false)
-	expect.call(str(valid_cue.get("verb", "")) == "RELEASE TO PLAY" and str(valid_cue.get("target", "")) == "VALID TARGET", "Legal target feedback should use both an action verb and target-state label")
-	expect.call(str(invalid_cue.get("verb", "")) == "RELEASE CANCELS" and str(invalid_cue.get("target", "")) == "INVALID TARGET", "Illegal target feedback should state the cancel consequence without relying on color")
+	_test_raster_arrow_geometry(expect)
+
+
+static func _test_raster_arrow_geometry(expect: Callable) -> void:
+	expect.call(FileAccess.file_exists(CardDragTargetingArrow.RIBBON_ASSET_PATH), "Targeting arrow should own a raster ribbon asset")
+	expect.call(FileAccess.file_exists(CardDragTargetingArrow.HEAD_ASSET_PATH), "Targeting arrow should own a separate raster arrowhead asset")
+	var start := Vector2(960.0, 900.0)
+	for finish: Vector2 in PackedVector2Array([Vector2(430.0, 360.0), Vector2(960.0, 280.0), Vector2(1490.0, 360.0)]):
+		var points: PackedVector2Array = CardDragTargetingArrow.sampled_curve(start, finish)
+		expect.call(points.size() >= 4 and points[0].is_equal_approx(start) and points[points.size() - 1].is_equal_approx(finish), "Raster arrow samples should exactly connect the selected card to left, center, and right targets")
+		var previous_tangent := Vector2.ZERO
+		for index: int in range(points.size() - 1):
+			var tangent: Vector2 = (points[index + 1] - points[index]).normalized()
+			if previous_tangent.length_squared() > 0.0:
+				expect.call(previous_tangent.dot(tangent) > 0.82, "Raster arrow samples should bend smoothly without broken or kinked segment joins")
+			previous_tangent = tangent
+	var source := FileAccess.open("res://scripts/card_drag_targeting_arrow.gd", FileAccess.READ)
+	var source_text: String = source.get_as_text() if source != null else ""
+	expect.call(not source_text.contains("draw_line") and not source_text.contains("draw_polyline") and not source_text.contains("draw_polygon"), "Targeting arrow must be composed from raster pieces rather than procedural line or polygon geometry")
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
@@ -93,30 +109,45 @@ static func _test_targeted_drag_entry_and_invalid_release(tree: SceneTree, expec
 	if instance == null:
 		return
 	var hand_before: Array = _hand(instance).duplicate()
-	instance.call("_on_card_drag_started", 0)
+	instance.call("_on_card_hover_started", 0)
+	await tree.create_timer(0.16).timeout
+	var hovered_card: Control = instance.call("_hand_card_control", 0) as Control
+	var hover_rect: Rect2 = instance.call("_control_visual_global_rect", hovered_card)
+	var drag_start: Vector2 = hover_rect.get_center()
+	instance.call("_on_card_drag_started", 0, drag_start)
 	await tree.process_frame
 	var source_card: Control = instance.call("_hand_card_control", 0) as Control
 	var hand_box: Control = instance.get("hand_box") as Control
-	expect.call(instance.get("_drag_card_proxy") == null, "Starting a card drag should not create a cursor-following card proxy")
-	expect.call(source_card != null and source_card.is_visible_in_tree() and bool(source_card.get_meta("drag_hand_origin", false)), "The dragged card should remain visibly marked at its hand origin")
-	expect.call(hand_box != null and int(hand_box.call("emphasized_index")) == -1, "The dragged card should settle out of its hover enlargement while held")
+	var proxy: Control = instance.get("_drag_card_proxy") as Control
+	expect.call(proxy != null and source_card != null and not source_card.is_visible_in_tree(), "Crossing the drag threshold should temporarily move the card with the pointer and hide its hand copy")
+	var proxy_rect: Rect2 = instance.call("_card_proxy_visual_rect", proxy)
+	expect.call(proxy_rect.size.x < hover_rect.size.x and proxy_rect.size.y < hover_rect.size.y, "The following card should settle smaller than the large hover preview")
+	var context: Control = instance.get("_action_step_tracker") as Control
+	expect.call(context != null and not context.visible, "Drag state should not add instructional side copy")
 	var valid_position: Vector2 = _tile_global_position(instance, TARGET_TILE)
 	await instance.call("_update_card_drag", valid_position)
 	await tree.process_frame
 	expect.call(bool(instance.get("_drag_targeting_active")), "Crossing onto the board with a targeted card should enter targeting before release")
 	expect.call(int(instance.get("_selected_card_index")) == 0, "Drag targeting should arm the exact held card")
 	expect.call((instance.get("_pending_target_tiles") as Array).has(TARGET_TILE), "Drag targeting should expose the normal legal target set")
+	expect.call(instance.get("_drag_card_proxy") == null, "Board entry should replace the following card with targeting feedback")
+	expect.call(source_card.is_visible_in_tree() and bool(source_card.get_meta("drag_hand_origin", false)), "Board entry should restore the original card as the selected hand anchor")
+	expect.call(hand_box != null and int(hand_box.call("emphasized_index")) == 0, "The targeted card should remain clearly raised above the other hand cards")
 	var source_rect: Rect2 = instance.call("_control_visual_global_rect", source_card)
 	var hand_scroll: Control = instance.get("hand_scroll") as Control
 	expect.call(hand_scroll != null and hand_scroll.get_global_rect().has_point(source_rect.get_center()), "The dragged card should stay anchored inside the hand while the pointer targets the board")
+	expect.call(source_rect.size.x < hover_rect.size.x and source_rect.size.y < hover_rect.size.y, "The selected targeting pose should be smaller than the hover preview")
 	expect.call(not source_rect.has_point(valid_position), "The hand-origin card should never cover the hovered board target")
-	var context: Control = instance.get("_action_step_tracker") as Control
-	expect.call(str(context.get_meta("target_state", "")) == "VALID TARGET", "A legal hovered square should be labeled as a valid target while held")
+	expect.call(source_card.modulate.is_equal_approx(Color.WHITE), "Target validity should never tint the selected card")
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	expect.call(arrow != null and arrow.visible and bool(arrow.get_meta("raster_composed_arrow", false)), "Targeting should show the raster-composed arrow from the selected card")
+	expect.call(str(arrow.get_meta("ribbon_asset_path", "")).ends_with("card_drag_arrow_ribbon_v1.png") and str(arrow.get_meta("head_asset_path", "")).ends_with("card_drag_arrow_head_v1.png"), "The targeting arrow should use authored raster ribbon and head pieces")
+	expect.call(not context.visible, "Arrow targeting should remain free of instructional side copy")
 	var invalid_position: Vector2 = _tile_global_position(instance, INVALID_TILE)
 	await instance.call("_update_card_drag", invalid_position)
 	await tree.process_frame
-	var invalid_verb: String = str(context.get_meta("action_verb", ""))
-	expect.call(invalid_verb == "RELEASE CANCELS", "An illegal hovered square should preview the cancel consequence (got %s)" % invalid_verb)
+	expect.call(bool(instance.get("_drag_targeting_active")) and arrow.visible, "Targeting should stay latched while the pointer moves across invalid space")
+	expect.call(source_card.modulate.is_equal_approx(Color.WHITE), "Invalid targets should not recolor the card")
 	await instance.call("_commit_drag_drop", "play", invalid_position)
 	await tree.process_frame
 	expect.call(int(instance.get("_drag_card_index")) == -1 and int(instance.get("_selected_card_index")) == -1, "Invalid target release should clear both drag and targeting state")
@@ -132,16 +163,18 @@ static func _test_targeted_leaving_board_cancels(tree: SceneTree, expect: Callab
 	if instance == null:
 		return
 	var hand_before: Array = _hand(instance).duplicate()
-	instance.call("_on_card_drag_started", 0)
+	instance.call("_on_card_drag_started", 0, _drag_start_position(instance, 0))
 	await tree.process_frame
 	await instance.call("_update_card_drag", _tile_global_position(instance, TARGET_TILE))
 	var outside_position := Vector2(8.0, 8.0)
 	await instance.call("_update_card_drag", outside_position)
 	await tree.process_frame
-	expect.call(not bool(instance.get("_drag_targeting_active")) and int(instance.get("_selected_card_index")) == -1, "Leaving the board while held should leave targeting mode and restore a clean cancel state")
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	expect.call(bool(instance.get("_drag_targeting_active")) and int(instance.get("_selected_card_index")) == 0, "Once board entry begins targeted play, the selected-card pose should remain latched until release")
+	expect.call(arrow != null and arrow.visible, "The targeting arrow should remain attached while the pointer leaves the board so the active card stays clear")
 	await instance.call("_commit_drag_drop", "", outside_position)
 	await tree.process_frame
-	expect.call(_hand(instance) == hand_before and int(instance.get("_drag_card_index")) == -1, "Releasing a targeted card after leaving the board should cancel without spending it")
+	expect.call(_hand(instance) == hand_before and int(instance.get("_drag_card_index")) == -1 and not arrow.visible, "Releasing a targeted card after leaving the board should cancel and clear the arrow without spending it")
 	instance.queue_free()
 	await tree.process_frame
 
@@ -151,7 +184,7 @@ static func _test_targeted_valid_release_plays(tree: SceneTree, expect: Callable
 	if instance == null:
 		return
 	var enemy_hp_before: int = _enemy_hp(instance)
-	instance.call("_on_card_drag_started", 0)
+	instance.call("_on_card_drag_started", 0, _drag_start_position(instance, 0))
 	await tree.process_frame
 	var target_position: Vector2 = _tile_global_position(instance, TARGET_TILE)
 	await instance.call("_update_card_drag", target_position)
@@ -160,6 +193,10 @@ static func _test_targeted_valid_release_plays(tree: SceneTree, expect: Callable
 	expect.call(_enemy_hp(instance) < enemy_hp_before, "Releasing a targeted card on a legal square should resolve its effect")
 	expect.call(not _hand(instance).has("quick_stab"), "A successful targeted drag should consume the exact hand card")
 	expect.call(int(instance.get("_selected_card_index")) == -1 and instance.get("_drag_card_proxy") == null, "A successful targeted drag should finish without stranded selection or proxy state")
+	expect.call(str(instance.get_meta("last_card_play_source_kind", "")) == "drag_hand", "A targeted drag should use the same hand-origin play launch as clicking")
+	expect.call(_last_play_source_inside_hand(instance), "A targeted drag play should launch upward from the hand rather than from the cursor or screen edge")
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	expect.call(arrow != null and not arrow.visible, "A successful targeted release should clear the targeting arrow")
 	instance.queue_free()
 	await tree.process_frame
 
@@ -170,7 +207,7 @@ static func _test_compound_target_release_plays(tree: SceneTree, expect: Callabl
 	if instance == null:
 		return
 	var enemy_hp_before: int = _enemy_hp(instance)
-	instance.call("_on_card_drag_started", 0)
+	instance.call("_on_card_drag_started", 0, _drag_start_position(instance, 0))
 	await tree.process_frame
 	var target_position: Vector2 = _tile_global_position(instance, compound_enemy_tile)
 	await instance.call("_update_card_drag", target_position)
@@ -187,7 +224,7 @@ static func _test_targetless_board_and_outside_releases(tree: SceneTree, expect:
 	if cancel_instance == null:
 		return
 	var hand_before: Array = _hand(cancel_instance).duplicate()
-	cancel_instance.call("_on_card_drag_started", 0)
+	cancel_instance.call("_on_card_drag_started", 0, _drag_start_position(cancel_instance, 0))
 	await tree.process_frame
 	var outside_position := Vector2(8.0, 8.0)
 	await cancel_instance.call("_update_card_drag", outside_position)
@@ -200,15 +237,19 @@ static func _test_targetless_board_and_outside_releases(tree: SceneTree, expect:
 	if play_instance == null:
 		return
 	var stoneskin_before: int = int(((play_instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("stoneskin", 0))
-	play_instance.call("_on_card_drag_started", 0)
+	play_instance.call("_on_card_drag_started", 0, _drag_start_position(play_instance, 0))
 	await tree.process_frame
 	var board_position: Vector2 = (play_instance.get("board_view") as Control).get_global_rect().get_center()
 	await play_instance.call("_update_card_drag", board_position)
 	expect.call(not bool(play_instance.get("_drag_targeting_active")) and int(play_instance.get("_selected_card_index")) == -1, "Targetless board drag should advertise confirmation without entering tile targeting")
+	expect.call(play_instance.get("_drag_card_proxy") != null, "A targetless card should keep following the pointer because the board itself is its drop target")
+	var arrow: Control = play_instance.get("_drag_target_arrow") as Control
+	expect.call(arrow != null and not arrow.visible, "Targetless board confirmation should not show a misleading tile-targeting arrow")
 	await play_instance.call("_commit_drag_drop", "play", board_position)
 	await tree.process_frame
 	var stoneskin_after: int = int(((play_instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("stoneskin", 0))
 	expect.call(stoneskin_after > stoneskin_before and not _hand(play_instance).has("stone_plate"), "Targetless release anywhere over the board should resolve the card")
+	expect.call(str(play_instance.get_meta("last_card_play_source_kind", "")) == "drag_hand" and _last_play_source_inside_hand(play_instance), "A targetless drag should also launch its play animation from the hand")
 	play_instance.queue_free()
 	await tree.process_frame
 
@@ -224,6 +265,7 @@ static func _test_click_targeting_regression(tree: SceneTree, expect: Callable) 
 	await instance.call("_on_board_tile_clicked", TARGET_TILE)
 	await tree.process_frame
 	expect.call(_enemy_hp(instance) < enemy_hp_before, "The existing click-target path should still resolve the card")
+	expect.call(str(instance.get_meta("last_card_play_source_kind", "")) == "hand" and _last_play_source_inside_hand(instance), "Click targeting should keep the same hand-origin play animation used by drag")
 	instance.queue_free()
 	await tree.process_frame
 
@@ -276,6 +318,20 @@ static func _live_instance(tree: SceneTree, expect: Callable, card_id: String, e
 static func _tile_global_position(instance: Node, tile: Vector2i) -> Vector2:
 	var board: Control = instance.get("board_view") as Control
 	return board.get_global_transform_with_canvas() * (board.call("world_position_for_tile", tile) as Vector2)
+
+
+static func _drag_start_position(instance: Node, hand_index: int) -> Vector2:
+	return (instance.call("_hand_card_global_rect", hand_index) as Rect2).get_center()
+
+
+static func _last_play_source_inside_hand(instance: Node) -> bool:
+	var source_rect: Rect2 = instance.get_meta("last_card_play_source_rect", Rect2()) as Rect2
+	var hand_scroll: Control = instance.get("hand_scroll") as Control
+	return (
+		hand_scroll != null
+		and source_rect.size.length_squared() > 0.0
+		and hand_scroll.get_global_rect().grow(72.0).has_point(source_rect.get_center())
+	)
 
 
 static func _hand(instance: Node) -> Array:
