@@ -2,6 +2,7 @@ extends RefCounted
 
 const CardDragPlayRules = preload("res://scripts/card_drag_play_rules.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const PLAYER_TILE := Vector2i(2, 4)
 const TARGET_TILE := Vector2i(3, 4)
@@ -44,12 +45,47 @@ static func run(expect: Callable) -> void:
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
+	await _test_card_widget_drag_threshold(tree, expect)
 	await _test_targeted_drag_entry_and_invalid_release(tree, expect)
 	await _test_targeted_leaving_board_cancels(tree, expect)
 	await _test_targeted_valid_release_plays(tree, expect)
 	await _test_compound_target_release_plays(tree, expect)
 	await _test_targetless_board_and_outside_releases(tree, expect)
 	await _test_click_targeting_regression(tree, expect)
+
+
+static func _test_card_widget_drag_threshold(tree: SceneTree, expect: Callable) -> void:
+	var widget: Control = CardWidgetScene.instantiate()
+	tree.root.add_child(widget)
+	await tree.process_frame
+	var signal_counts: Array[int] = [0, 0]
+	widget.drag_started.connect(func() -> void: signal_counts[0] += 1)
+	widget.activated.connect(func() -> void: signal_counts[1] += 1)
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = Vector2(40.0, 40.0)
+	widget.call("_gui_input", press)
+	var below_threshold := InputEventMouseMotion.new()
+	below_threshold.position = Vector2(49.0, 40.0)
+	widget.call("_gui_input", below_threshold)
+	expect.call(signal_counts[0] == 0, "CardWidget should not begin a drag before the 10px movement threshold")
+	var past_threshold := InputEventMouseMotion.new()
+	past_threshold.position = Vector2(51.0, 40.0)
+	widget.call("_gui_input", past_threshold)
+	widget.call("_gui_input", past_threshold)
+	expect.call(signal_counts[0] == 1, "CardWidget should emit exactly one drag start after crossing the movement threshold")
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	release.position = past_threshold.position
+	widget.call("_gui_input", release)
+	expect.call(signal_counts[1] == 0, "Releasing a real CardWidget drag should not also activate its click path")
+	widget.call("_gui_input", press)
+	widget.call("_gui_input", release)
+	expect.call(signal_counts[1] == 1, "A sub-threshold CardWidget press and release should retain the existing click path")
+	widget.queue_free()
+	await tree.process_frame
 
 
 static func _test_targeted_drag_entry_and_invalid_release(tree: SceneTree, expect: Callable) -> void:
@@ -59,12 +95,21 @@ static func _test_targeted_drag_entry_and_invalid_release(tree: SceneTree, expec
 	var hand_before: Array = _hand(instance).duplicate()
 	instance.call("_on_card_drag_started", 0)
 	await tree.process_frame
+	var source_card: Control = instance.call("_hand_card_control", 0) as Control
+	var hand_box: Control = instance.get("hand_box") as Control
+	expect.call(instance.get("_drag_card_proxy") == null, "Starting a card drag should not create a cursor-following card proxy")
+	expect.call(source_card != null and source_card.is_visible_in_tree() and bool(source_card.get_meta("drag_hand_origin", false)), "The dragged card should remain visibly marked at its hand origin")
+	expect.call(hand_box != null and int(hand_box.call("emphasized_index")) == -1, "The dragged card should settle out of its hover enlargement while held")
 	var valid_position: Vector2 = _tile_global_position(instance, TARGET_TILE)
 	await instance.call("_update_card_drag", valid_position)
 	await tree.process_frame
 	expect.call(bool(instance.get("_drag_targeting_active")), "Crossing onto the board with a targeted card should enter targeting before release")
 	expect.call(int(instance.get("_selected_card_index")) == 0, "Drag targeting should arm the exact held card")
 	expect.call((instance.get("_pending_target_tiles") as Array).has(TARGET_TILE), "Drag targeting should expose the normal legal target set")
+	var source_rect: Rect2 = instance.call("_control_visual_global_rect", source_card)
+	var hand_scroll: Control = instance.get("hand_scroll") as Control
+	expect.call(hand_scroll != null and hand_scroll.get_global_rect().has_point(source_rect.get_center()), "The dragged card should stay anchored inside the hand while the pointer targets the board")
+	expect.call(not source_rect.has_point(valid_position), "The hand-origin card should never cover the hovered board target")
 	var context: Control = instance.get("_action_step_tracker") as Control
 	expect.call(str(context.get_meta("target_state", "")) == "VALID TARGET", "A legal hovered square should be labeled as a valid target while held")
 	var invalid_position: Vector2 = _tile_global_position(instance, INVALID_TILE)
@@ -114,7 +159,7 @@ static func _test_targeted_valid_release_plays(tree: SceneTree, expect: Callable
 	await tree.process_frame
 	expect.call(_enemy_hp(instance) < enemy_hp_before, "Releasing a targeted card on a legal square should resolve its effect")
 	expect.call(not _hand(instance).has("quick_stab"), "A successful targeted drag should consume the exact hand card")
-	expect.call(int(instance.get("_selected_card_index")) == -1 and instance.get("_drag_commit_proxy") == null, "A successful targeted drag should finish without stranded selection or proxy state")
+	expect.call(int(instance.get("_selected_card_index")) == -1 and instance.get("_drag_card_proxy") == null, "A successful targeted drag should finish without stranded selection or proxy state")
 	instance.queue_free()
 	await tree.process_frame
 

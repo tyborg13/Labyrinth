@@ -26,7 +26,7 @@ static func visual_cue(over_board: bool, preview: Dictionary, hovered_target_is_
 			"tone": "invalid",
 			"risk": "CARD UNAVAILABLE",
 			"risk_tone": "neutral",
-			"proxy_state": "cancel",
+			"source_state": "cancel",
 		}
 	if not over_board:
 		return {
@@ -35,7 +35,7 @@ static func visual_cue(over_board: bool, preview: Dictionary, hovered_target_is_
 			"tone": "neutral",
 			"risk": "RELEASE CANCELS",
 			"risk_tone": "neutral",
-			"proxy_state": "held",
+			"source_state": "held",
 		}
 	if not preview_requires_target(preview):
 		return {
@@ -44,7 +44,7 @@ static func visual_cue(over_board: bool, preview: Dictionary, hovered_target_is_
 			"tone": "valid",
 			"risk": "BOARD PLAY",
 			"risk_tone": "primary",
-			"proxy_state": "ready",
+			"source_state": "ready",
 		}
 	if hovered_target_is_valid:
 		return {
@@ -53,7 +53,7 @@ static func visual_cue(over_board: bool, preview: Dictionary, hovered_target_is_
 			"tone": "valid",
 			"risk": "TARGETED PLAY",
 			"risk_tone": "primary",
-			"proxy_state": "target",
+			"source_state": "target",
 		}
 	return {
 		"verb": "RELEASE CANCELS",
@@ -61,7 +61,7 @@ static func visual_cue(over_board: bool, preview: Dictionary, hovered_target_is_
 		"tone": "invalid",
 		"risk": "CHOOSE HIGHLIGHT",
 		"risk_tone": "invalid",
-		"proxy_state": "cancel",
+		"source_state": "cancel",
 	}
 
 

@@ -1,9 +1,17 @@
 {
-  "min_images": 6,
+  "min_images": 7,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
-      "pattern": "*drag_lifted_cancel_20260903.png",
+      "pattern": "*drag_hover_origin_20260904.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [720, 680, 480, 400], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_hand_origin_cancel_20260904.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -11,7 +19,7 @@
       ]
     },
     {
-      "pattern": "*drag_target_valid_20260903.png",
+      "pattern": "*drag_target_valid_20260904.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -19,7 +27,7 @@
       ]
     },
     {
-      "pattern": "*drag_target_invalid_20260903.png",
+      "pattern": "*drag_target_invalid_20260904.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -27,7 +35,7 @@
       ]
     },
     {
-      "pattern": "*drag_invalid_cancel_restored_20260903.png",
+      "pattern": "*drag_invalid_cancel_restored_20260904.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -35,7 +43,7 @@
       ]
     },
     {
-      "pattern": "*drag_targetless_ready_20260903.png",
+      "pattern": "*drag_targetless_ready_20260904.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -43,7 +51,7 @@
       ]
     },
     {
-      "pattern": "*drag_target_valid_reduced_motion_20260903.png",
+      "pattern": "*drag_target_valid_reduced_motion_20260904.png",
       "width": 1920,
       "height": 1080,
       "regions": [

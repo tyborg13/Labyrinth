@@ -1168,14 +1168,13 @@ const RELIC_CHOICES_OPEN_SFX_ENTRY: Dictionary = {
 const CARD_PLAY_SECONDS: float = 0.30
 const CARD_PLAY_HOLD_SECONDS: float = 0.11
 const CARD_PILE_SECONDS: float = 0.28
-const CARD_SNAPBACK_SECONDS: float = 0.16
 const CARD_DRAW_ARC_HEIGHT: float = 54.0
 const CARD_PLAY_ARC_HEIGHT: float = 58.0
 const CARD_PILE_ARC_HEIGHT: float = 42.0
-const CARD_DRAG_TILT_DEGREES: float = 4.5
-const CARD_DRAG_LIFT_SCALE: float = 1.025
-const CARD_DRAG_BOARD_CURSOR_GAP: float = 46.0
-const CARD_DRAG_VIEWPORT_MARGIN: float = 12.0
+const CARD_DRAG_HAND_HELD_TINT: Color = Color(0.93, 0.94, 0.96, 0.86)
+const CARD_DRAG_HAND_READY_TINT: Color = Color(1.0, 0.97, 0.83, 0.92)
+const CARD_DRAG_HAND_TARGET_TINT: Color = Color(0.90, 1.0, 0.88, 0.92)
+const CARD_DRAG_HAND_CANCEL_TINT: Color = Color(0.78, 0.75, 0.72, 0.76)
 const CARD_PROXY_POOL_LIMIT: int = 2
 const DOOR_OPENING_FRAMES: int = 8
 const DOOR_OPENING_FRAME_SECONDS: float = 0.075
@@ -1812,7 +1811,6 @@ var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
 var _drag_targeting_active: bool = false
-var _drag_commit_proxy: Control
 var _card_fx_layer: Control
 var _card_proxy_pool_host: Control
 var _card_proxy_pool: Array[Control] = []
@@ -8063,6 +8061,10 @@ func _finish_drag_play(preserve_card_preview: bool) -> void:
 		var source_slot: Control = hand_box.get_child(_drag_card_index) as Control
 		if source_slot != null:
 			source_slot.visible = true
+		var source_card: Control = _hand_card_control(_drag_card_index)
+		if source_card != null:
+			source_card.modulate = Color.WHITE
+			source_card.remove_meta("drag_hand_origin")
 	if _drag_overlay != null:
 		_drag_overlay.visible = false
 	if _drag_card_proxy != null:
@@ -8079,8 +8081,6 @@ func _finish_drag_play(preserve_card_preview: bool) -> void:
 	_refresh_card_preview_ui()
 
 func _animate_drag_cancel_to_source() -> void:
-	if _drag_card_proxy != null and _drag_card_source_rect.size.length() > 0.0:
-		await _animate_card_proxy_to_rect(_drag_card_proxy, _drag_card_source_rect, CARD_SNAPBACK_SECONDS)
 	_cancel_drag_play()
 
 func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
@@ -8100,20 +8100,12 @@ func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.
 		await _animate_drag_cancel_to_source()
 		return
 	var hand_index: int = _drag_card_index
-	var source_rect: Rect2 = _drag_card_source_rect
-	_drag_commit_proxy = _take_drag_proxy_for_commit()
 	_finish_drag_play(outcome == CardDragPlayRules.OUTCOME_PLAY_TARGET)
 	if outcome == CardDragPlayRules.OUTCOME_PLAY_TARGETLESS:
 		await _begin_card_preview(hand_index, preview, "", true)
 	else:
 		_hovered_board_tile = target_tile
 		await _on_board_tile_clicked(target_tile)
-	if _drag_commit_proxy != null:
-		var unused_proxy: Control = _drag_commit_proxy
-		_drag_commit_proxy = null
-		if _node_is_alive(unused_proxy) and source_rect.size.length() > 0.0:
-			await _animate_card_proxy_to_rect(unused_proxy, source_rect, CARD_SNAPBACK_SECONDS)
-		_release_card_proxy(unused_proxy)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
 	if bool(_drag_card_options.get("printed_playable", false)) and _drag_board_tile_at(mouse_position).x >= 0:
@@ -8172,18 +8164,7 @@ func _update_card_drag(mouse_position: Vector2) -> void:
 	if _drag_targeting_active:
 		_set_drag_hover_tile(tile)
 	_update_drag_overlay_hover(zone)
-	_update_drag_proxy_position(mouse_position)
-
-func _take_drag_proxy_for_commit() -> Control:
-	if not _node_is_alive(_drag_card_proxy):
-		_drag_card_proxy = null
-		return null
-	var proxy: Control = _drag_card_proxy
-	var visual_rect: Rect2 = _card_proxy_visual_rect(proxy)
-	_drag_card_proxy = null
-	_mount_card_proxy(proxy, _card_fx_layer, visual_rect)
-	proxy.z_index = 1500
-	return proxy
+	_update_drag_hand_card_visual()
 
 func _current_mouse_position() -> Vector2:
 	return get_viewport().get_mouse_position()
@@ -8198,63 +8179,34 @@ func _mouse_event_position(event: InputEvent) -> Vector2:
 	return _current_mouse_position()
 
 func _update_drag_proxy_position(mouse_position: Vector2) -> void:
-	if _drag_card_proxy == null:
+	# Compatibility entry point for older broad visual probes. Active card drags no
+	# longer own a proxy; route the sampled pointer back through the real drag state.
+	if _drag_card_index < 0:
 		return
-	var over_board: bool = _drag_zone_at(mouse_position) == "play"
-	var visual_rect := _drag_proxy_rect(mouse_position, over_board)
-	_drag_card_proxy.position = _card_proxy_position_for_rect(visual_rect)
+	call_deferred("_update_card_drag", mouse_position)
+
+func _update_drag_hand_card_visual() -> void:
+	if _drag_card_index < 0:
+		return
+	var source_card: Control = _hand_card_control(_drag_card_index)
+	if source_card == null:
+		return
 	var cue: Dictionary = CardDragPlayRules.visual_cue(
-		over_board,
+		_drag_hover_zone == "play",
 		_drag_card_options.get("play", {}) as Dictionary,
 		_drag_hover_target_is_valid(_hovered_board_tile)
 	)
-	var proxy_state: String = str(cue.get("proxy_state", "held"))
-	_drag_card_proxy.modulate = _drag_proxy_modulate(proxy_state)
-	if _reduced_motion_enabled():
-		_drag_card_proxy.rotation = 0.0
-		_drag_card_proxy.scale = _drag_card_base_scale
-		return
-	var viewport_width: float = maxf(1.0, get_viewport_rect().size.x)
-	var normalized_x: float = clampf((mouse_position.x / viewport_width - 0.5) * 2.0, -1.0, 1.0)
-	var state_scale: float = 1.04 if proxy_state in ["ready", "target"] else 0.985 if proxy_state == "cancel" else CARD_DRAG_LIFT_SCALE
-	_drag_card_proxy.rotation = 0.0 if proxy_state in ["ready", "target"] else deg_to_rad(normalized_x * CARD_DRAG_TILT_DEGREES)
-	_drag_card_proxy.scale = _drag_card_base_scale * state_scale
-
-func _drag_proxy_rect(mouse_position: Vector2, over_board: bool) -> Rect2:
-	var card_size: Vector2 = _drag_card_source_rect.size
-	var visual_rect := Rect2(mouse_position - _drag_card_grab_offset, card_size)
-	if not over_board or card_size.x <= 0.0 or card_size.y <= 0.0:
-		return visual_rect
-	var viewport_size: Vector2 = get_viewport_rect().size
-	var place_right: bool = mouse_position.x <= viewport_size.x * 0.5
-	visual_rect.position.x = (
-		mouse_position.x + CARD_DRAG_BOARD_CURSOR_GAP
-		if place_right
-		else mouse_position.x - CARD_DRAG_BOARD_CURSOR_GAP - card_size.x
-	)
-	visual_rect.position.y = mouse_position.y - card_size.y * 0.5
-	visual_rect.position.x = clampf(
-		visual_rect.position.x,
-		CARD_DRAG_VIEWPORT_MARGIN,
-		maxf(CARD_DRAG_VIEWPORT_MARGIN, viewport_size.x - card_size.x - CARD_DRAG_VIEWPORT_MARGIN)
-	)
-	visual_rect.position.y = clampf(
-		visual_rect.position.y,
-		CARD_DRAG_VIEWPORT_MARGIN,
-		maxf(CARD_DRAG_VIEWPORT_MARGIN, viewport_size.y - card_size.y - CARD_DRAG_VIEWPORT_MARGIN)
-	)
-	return visual_rect
-
-func _drag_proxy_modulate(proxy_state: String) -> Color:
-	match proxy_state:
+	var source_state: String = str(cue.get("source_state", "held"))
+	match source_state:
 		"ready":
-			return Color(1.0, 0.95, 0.78, 0.94)
+			source_card.modulate = CARD_DRAG_HAND_READY_TINT
 		"target":
-			return Color(0.88, 1.0, 0.85, 0.94)
+			source_card.modulate = CARD_DRAG_HAND_TARGET_TINT
 		"cancel":
-			return Color(0.74, 0.70, 0.66, 0.90)
+			source_card.modulate = CARD_DRAG_HAND_CANCEL_TINT
 		_:
-			return Color.WHITE
+			source_card.modulate = CARD_DRAG_HAND_HELD_TINT
+	source_card.set_meta("drag_hand_origin", true)
 
 func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	var proxy: Control = _take_pooled_card_proxy()
@@ -16594,7 +16546,8 @@ func _refresh_hand_panel() -> void:
 				widget.set_meta("ready_wave_delay", ready_wave_delay)
 				widget.set_meta("ready_wave_playable", true)
 			if index == _drag_card_index:
-				widget.modulate = Color(1.0, 1.0, 1.0, 0.20)
+				widget.modulate = CARD_DRAG_HAND_HELD_TINT
+				widget.set_meta("drag_hand_origin", true)
 			elif index == _animating_hand_card_index:
 				widget.visible = false
 			if ready_wave_delay >= 0.0:
@@ -16688,7 +16641,10 @@ func _update_existing_hand_interaction_state() -> bool:
 		var alpha: float = 0.56 if not usable else 0.72 if dimmed else 0.90 if not printed_playable else 1.0
 		widget.modulate = Color(1.0, 1.0, 1.0, alpha)
 		if index == _drag_card_index:
-			widget.modulate = Color(1.0, 1.0, 1.0, 0.20)
+			widget.modulate = CARD_DRAG_HAND_HELD_TINT
+			widget.set_meta("drag_hand_origin", true)
+		else:
+			widget.remove_meta("drag_hand_origin")
 		performance_phase_started = _record_runtime_performance_phase("hand_interaction_widget", performance_phase_started)
 	var emphasized_hand_index: int = (
 		_hovered_card_index
@@ -20140,22 +20096,21 @@ func _on_card_drag_started(index: int) -> void:
 		return
 	var source_rect: Rect2 = _hand_card_global_rect(index)
 	_drag_card_index = index
-	_set_hand_emphasized_index(-1, false)
+	# The hand is the stable visual origin. Let the hover enlargement settle back
+	# into the fan while the board takes over all targeting feedback.
+	_set_hand_emphasized_index(-1, true)
 	_drag_card_options = options.duplicate(false)
 	_drag_hover_zone = ""
 	_drag_card_source_rect = source_rect
-	_drag_card_grab_offset = _current_mouse_position() - source_rect.position
 	if _drag_card_proxy != null:
 		_release_card_proxy(_drag_card_proxy)
-	_drag_card_proxy = _spawn_card_proxy(_card_id_for_hand_index(index), source_rect)
-	_mount_card_proxy(_drag_card_proxy, _drag_overlay, source_rect)
-	_drag_card_base_scale = _drag_card_proxy.scale
-	_update_drag_proxy_position(_current_mouse_position())
+		_drag_card_proxy = null
 	_show_drag_overlay()
 	_update_drag_overlay_hover(_drag_zone_at(_current_mouse_position()))
+	_update_drag_hand_card_visual()
 	var source_widget: Control = hand_box.get_child(index) as Control
 	if source_widget != null:
-		source_widget.visible = false
+		source_widget.visible = true
 
 func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false) -> void:
 	if not bool(preview.get("playable", false)):
@@ -20946,9 +20901,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	_play_card_play_sfx()
-	var committed_drag_proxy: Control = _drag_commit_proxy
-	_drag_commit_proxy = null
-	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size, committed_drag_proxy)
+	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
 	_consume_pending_card_draw_sfx(committed_combat_state)
@@ -21023,17 +20976,11 @@ func _card_destination_pile(card_id: String) -> String:
 		return "consume"
 	return "burn" if bool(_card_def(card_id, _combat_state).get("burn", false)) else "discard"
 
-func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vector2, drag_proxy = null) -> Control:
+func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vector2) -> Control:
 	if _card_fx_layer == null or card_id.is_empty() or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
-		_release_card_proxy(drag_proxy)
 		return null
-	var proxy: Control = drag_proxy as Control if _node_is_alive(drag_proxy) else null
-	if proxy == null:
-		proxy = _spawn_card_proxy(card_id, source_rect)
-		_mount_card_proxy(proxy, _card_fx_layer, source_rect)
-	else:
-		var drag_rect: Rect2 = _card_proxy_visual_rect(proxy)
-		_mount_card_proxy(proxy, _card_fx_layer, drag_rect)
+	var proxy: Control = _spawn_card_proxy(card_id, source_rect)
+	_mount_card_proxy(proxy, _card_fx_layer, source_rect)
 	proxy.z_index = 1500
 	proxy.modulate = Color.WHITE
 	var reduced_motion: bool = _reduced_motion_enabled()

@@ -110,17 +110,14 @@ func _capture_states() -> void:
 	var move_panel: Control = (instance.get("_drag_zone_panels") as Dictionary).get("move", null) as Control
 	_assert(move_panel != null, "Drag proof should expose the compact Move fallback")
 	if move_panel != null:
-		var move_hover_position: Vector2 = move_panel.get_global_rect().get_center()
 		instance.call("_update_drag_overlay_hover", "move")
 		await _settle_ui()
-		var proxy: Control = instance.get("_drag_card_proxy") as Control
+		var source_card: Control = instance.call("_hand_card_control", 1) as Control
 		var rail: Control = instance.get("_action_step_tracker") as Control
-		if proxy != null:
-			proxy.global_position = move_hover_position - proxy.size * proxy.scale * 0.5
 		await _settle_ui()
 		_assert(str(rail.get_meta("drag_hover_zone", "")) == "move", "Fallback-hover proof should enter Move hover state")
-		_assert(proxy != null and rail.z_index > proxy.z_index, "Action rail should remain readable above the held card proxy")
-		_assert(proxy != null and Rect2(proxy.global_position, proxy.size * proxy.scale).intersects(move_panel.get_global_rect()), "Fallback-hover proof should place the held card directly over the Move command")
+		_assert(source_card != null and source_card.has_meta("drag_hand_origin"), "Fallback-hover proof should keep the dragged card anchored in the hand")
+		_assert(source_card != null and not source_card.get_global_rect().intersects(move_panel.get_global_rect()), "The anchored hand card should stay clear of the hovered Move command")
 		var fallback_verb: Label = instance.get("_action_context_verb_label") as Label
 		_assert(fallback_verb != null and fallback_verb.text == "RELEASE · MOVE" and _label_text_fits(fallback_verb), "Move fallback instruction should remain fully readable")
 		_assert(str(rail.get_meta("risk_text", "")) == "FALLBACK · MOVE", "Move hover should replace the primary badge with the active fallback context")
@@ -727,7 +724,10 @@ func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: Str
 func _assert_drag_state(instance: Node) -> void:
 	var overlay: Control = instance.get("_drag_overlay") as Control
 	var context: Control = instance.get("_action_step_tracker") as Control
-	_assert(overlay.visible and overlay.get_child_count() == 1, "Drag layer should contain only the held card proxy")
+	var dragged_index: int = int(instance.get("_drag_card_index"))
+	var source_card: Control = instance.call("_hand_card_control", dragged_index) as Control
+	_assert(overlay.visible and instance.get("_drag_card_proxy") == null, "Drag layer should stay active without creating a cursor-following card proxy")
+	_assert(source_card != null and source_card.has_meta("drag_hand_origin"), "Drag should keep the original card visible and anchored in the hand")
 	_assert(context.visible and str(context.get_meta("context_mode", "")) == "drag", "Drag should use the compact action context")
 	_assert(str(context.get_meta("drag_hover_zone", "")) == "play", "Battlefield drag should default to full-card play")
 	var tutorial_host: Control = instance.get("_contextual_combat_prompt_host") as Control

@@ -642,7 +642,8 @@ func _assert_scene_regions_rendered(instance: Node, image: Image, label: String)
 	_assert(visible_card_count > 0, "%s should expose at least one independently checked hand card region" % label)
 
 	if int(instance.get("_drag_card_index")) >= 0:
-		_append_capture_region(regions, "drag card proxy", instance.get("_drag_card_proxy") as Control, 0.16, 0.010)
+		var dragged_index: int = int(instance.get("_drag_card_index"))
+		_append_capture_region(regions, "drag hand origin", instance.call("_hand_card_control", dragged_index) as Control, 0.16, 0.010)
 
 	var image_bounds := Rect2(Vector2.ZERO, Vector2(image.get_size()))
 	for region_var: Variant in regions:
