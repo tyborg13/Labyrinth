@@ -22976,14 +22976,14 @@ func _visible_umbra_action_step(state: Dictionary, step: Dictionary) -> Dictiona
 	return visible_attack
 
 func _visible_umbra_action_tiles(state: Dictionary, values: Array) -> Array[Vector2i]:
-	var visible: Array[Vector2i] = []
+	var visible: Array[Vector2i] = _vector2i_array([])
 	for tile: Vector2i in _vector2i_array(values):
 		if _combat_engine.is_tile_visible_to_player(state, tile) and not visible.has(tile):
 			visible.append(tile)
 	return visible
 
 func _umbra_action_line_tiles(from_tile: Vector2i, to_tile: Vector2i) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i] = _vector2i_array([])
 	if from_tile.x < 0 or to_tile.x < 0:
 		return tiles
 	var delta: Vector2i = to_tile - from_tile
@@ -23005,6 +23005,7 @@ func _umbra_action_visible_line_segments(state: Dictionary, from_tile: Vector2i,
 	var segment_start: float = -1.0
 	var segment_start_hidden_tile := Vector2i(-1, -1)
 	var segment_start_visible_tile := Vector2i(-1, -1)
+	var segment_start_clip_boundaries: Array[Dictionary] = _dictionary_array([])
 	var previous_visible: bool = false
 	var previous_sample_tile := Vector2i(-1, -1)
 	for sample_index: int in range(sample_count + 1):
@@ -23016,20 +23017,32 @@ func _umbra_action_visible_line_segments(state: Dictionary, from_tile: Vector2i,
 			segment_start = maxf(0.0, (float(sample_index) - 0.5) / float(sample_count))
 			segment_start_hidden_tile = previous_sample_tile
 			segment_start_visible_tile = sample_tile
+			segment_start_clip_boundaries = _umbra_action_transition_clip_boundaries(
+				state,
+				previous_sample_tile,
+				sample_tile
+			)
 		elif not visible and previous_visible and segment_start >= 0.0:
 			var completed_segment := {
 				"start": segment_start,
 				"end": maxf(segment_start, (float(sample_index) - 0.5) / float(sample_count)),
 				"end_visible_tile": previous_sample_tile,
 				"end_hidden_tile": sample_tile,
+				"end_clip_boundaries": _umbra_action_transition_clip_boundaries(
+					state,
+					sample_tile,
+					previous_sample_tile
+				),
 			}
 			if segment_start_hidden_tile.x >= 0:
 				completed_segment["start_hidden_tile"] = segment_start_hidden_tile
 				completed_segment["start_visible_tile"] = segment_start_visible_tile
+				completed_segment["start_clip_boundaries"] = segment_start_clip_boundaries
 			segments.append(completed_segment)
 			segment_start = -1.0
 			segment_start_hidden_tile = Vector2i(-1, -1)
 			segment_start_visible_tile = Vector2i(-1, -1)
+			segment_start_clip_boundaries.clear()
 		previous_visible = visible
 		previous_sample_tile = sample_tile
 	if previous_visible and segment_start >= 0.0:
@@ -23037,8 +23050,42 @@ func _umbra_action_visible_line_segments(state: Dictionary, from_tile: Vector2i,
 		if segment_start_hidden_tile.x >= 0:
 			final_segment["start_hidden_tile"] = segment_start_hidden_tile
 			final_segment["start_visible_tile"] = segment_start_visible_tile
+			final_segment["start_clip_boundaries"] = segment_start_clip_boundaries
 		segments.append(final_segment)
 	return segments
+
+func _umbra_action_transition_clip_boundaries(
+	state: Dictionary,
+	hidden_tile: Vector2i,
+	visible_tile: Vector2i
+) -> Array[Dictionary]:
+	var boundaries: Array[Dictionary] = _dictionary_array([])
+	if hidden_tile.x < 0 or visible_tile.x < 0:
+		return boundaries
+	var delta: Vector2i = visible_tile - hidden_tile
+	if absi(delta.x) + absi(delta.y) == 1:
+		boundaries.append({"hidden_tile": hidden_tile, "visible_tile": visible_tile})
+		return boundaries
+	if absi(delta.x) == 1 and absi(delta.y) == 1:
+		# A sampled diagonal crosses a four-tile corner. Each concealed cardinal
+		# neighbor contributes one side of the visible wedge; using only one side
+		# can expose projectile width over the other hidden tile.
+		var corner_neighbors: Array[Vector2i] = _vector2i_array([
+			Vector2i(hidden_tile.x, visible_tile.y),
+			Vector2i(visible_tile.x, hidden_tile.y),
+		])
+		for neighbor: Vector2i in corner_neighbors:
+			if not _combat_engine.is_tile_visible_to_player(state, neighbor):
+				boundaries.append({"hidden_tile": neighbor, "visible_tile": visible_tile})
+		# If both corner neighbors are already visible, still exclude the
+		# diagonally adjacent concealed source. These two planes favor privacy at
+		# the measure-zero corner rather than allowing a sprite tail to leak.
+		if boundaries.is_empty():
+			for neighbor: Vector2i in corner_neighbors:
+				boundaries.append({"hidden_tile": hidden_tile, "visible_tile": neighbor})
+		return boundaries
+	boundaries.append({"hidden_tile": hidden_tile, "visible_tile": visible_tile})
+	return boundaries
 
 func _visible_umbra_floating_texts(state: Dictionary, values: Array) -> Array[Dictionary]:
 	var visible: Array[Dictionary] = []

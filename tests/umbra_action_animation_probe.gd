@@ -17,6 +17,8 @@ const UMBRA_EDGE := Vector2i(4, 4)
 const POCKET_SOURCE := Vector2i(7, 6)
 const POCKET_TILE := Vector2i(7, 4)
 const POCKET_TARGET := Vector2i(7, 2)
+const DIAGONAL_SOURCE := Vector2i(6, 6)
+const DIAGONAL_TARGET := Vector2i(4, 4)
 
 var _errors: Array[String] = []
 var _animation_complete: bool = false
@@ -62,6 +64,7 @@ func _capture_states() -> void:
 	await _capture_hidden_ranged_attack(instance, true, true)
 	await _capture_isolated_light_pocket_attack(instance)
 	await _capture_hidden_movement_pocket(instance)
+	await _capture_diagonal_corner_attack(instance)
 	instance.queue_free()
 	await process_frame
 
@@ -312,6 +315,77 @@ func _capture_hidden_movement_pocket(instance: Node) -> void:
 	var final_presentation: Dictionary = board.get("presentation") as Dictionary
 	_expect(not (final_presentation.get("visible_enemy_ids", []) as Array).has(ENEMY_ID), "Enemy should be concealed again after returning to its hidden tile")
 	await _save_root_screenshot("%s/11_move_returned_hidden.png" % OUTPUT_DIR)
+
+
+func _capture_diagonal_corner_attack(instance: Node) -> void:
+	var state: Dictionary = _combat_state()
+	instance.set("_settings", SettingsStore.normalize_settings(SettingsStore.default_settings()))
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[0] as Dictionary
+	enemy["pos"] = DIAGONAL_SOURCE
+	_install_state(instance, state)
+	await _settle_ui()
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var combat := CombatEngine.new()
+	_expect(not combat.is_tile_visible_to_player(state, DIAGONAL_SOURCE), "Diagonal projectile source should remain concealed")
+	_expect(combat.is_tile_visible_to_player(state, DIAGONAL_TARGET), "Diagonal projectile target should sit on the visible halo edge")
+	_expect(not combat.is_tile_visible_to_player(state, Vector2i(5, 4)), "Diagonal projectile should keep its first corner neighbor concealed")
+	_expect(not combat.is_tile_visible_to_player(state, Vector2i(4, 5)), "Diagonal projectile should keep its second corner neighbor concealed")
+	var step: Dictionary = {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"actor_key": ENEMY_KEY,
+		"actor_name": "Crawler",
+		"label": "Diagonal Shot",
+		"enemy_type": "crawler",
+		"element": "ice",
+		"from": DIAGONAL_SOURCE,
+		"to": DIAGONAL_TARGET,
+		"tiles": [],
+		"hp_loss": 0,
+		"block_loss": 0,
+		"stoneskin_loss": 0,
+		"target_losses": [],
+		"terrain_losses": [],
+		"triggered_traps": [],
+		"impact_actor_keys": [],
+		"hidden_by_umbra": true,
+		"revealed_after_action": false,
+	}
+	_animation_complete = false
+	call_deferred("_run_hidden_step", instance, state, step)
+	var captured_frame: bool = false
+	for _frame: int in range(180):
+		await process_frame
+		var presentation: Dictionary = board.get("presentation") as Dictionary
+		var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+		if not bool(effect.get("umbra_action_clipped", false)):
+			if _animation_complete:
+				break
+			continue
+		var segments: Array = effect.get("umbra_visible_line_segments", []) as Array
+		_expect(segments.size() == 1, "Diagonal corner proof should retain one visible projectile span")
+		_expect(not (presentation.get("visible_enemy_ids", []) as Array).has(ENEMY_ID), "Diagonal projectile must not reveal its concealed source")
+		if segments.size() != 1:
+			continue
+		var segment: Dictionary = segments[0] as Dictionary
+		var boundaries: Array = segment.get("start_clip_boundaries", []) as Array
+		_expect(boundaries.size() == 2, "Diagonal projectile should clip against both hidden corner edges")
+		var progress: float = float(presentation.get("effect_progress", 0.0))
+		var style: String = AttackFxLibrary.style_for_effect(effect)
+		var travel_start: float = 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style)
+		var travel_end: float = 0.66 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.travel_end_progress(style)
+		if progress < travel_start or progress > travel_end:
+			continue
+		var spatial_progress: float = float(board.call("_umbra_ranged_spatial_progress", style, progress, travel_start, travel_end))
+		var segment_start: float = float(segment.get("start", 0.0))
+		var segment_end: float = float(segment.get("end", 1.0))
+		var local_progress: float = (spatial_progress - segment_start) / maxf(0.0001, segment_end - segment_start)
+		if local_progress >= 0.20 and local_progress <= 0.65:
+			await _save_root_screenshot("%s/12_ranged_diagonal_corner.png" % OUTPUT_DIR)
+			captured_frame = true
+			break
+	_expect(captured_frame, "Diagonal proof should capture a projectile emerging through the two-edge visible wedge")
+	await _wait_for_animation()
 
 
 func _run_hidden_step(instance: Node, state: Dictionary, step: Dictionary) -> void:

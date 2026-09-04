@@ -1,5 +1,5 @@
 {
-  "min_images": 11,
+  "min_images": 12,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -44,6 +44,14 @@
     },
     {
       "pattern": "*10_move_visible_pocket_exit.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [520, 120, 880, 720], "min_luma_range": 12, "min_luma_stdev": 4}
+      ]
+    },
+    {
+      "pattern": "*12_ranged_diagonal_corner.png",
       "width": 1920,
       "height": 1080,
       "regions": [

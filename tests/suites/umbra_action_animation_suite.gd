@@ -8,6 +8,7 @@ static func run(expect: Callable) -> void:
 	_test_hidden_attack_keeps_only_visible_line(expect)
 	_test_hidden_attack_keeps_isolated_visible_pocket(expect)
 	_test_hidden_attack_keeps_separate_visible_spans(expect)
+	_test_diagonal_hidden_attack_clips_both_corner_edges(expect)
 	_test_hidden_area_attack_keeps_only_visible_tiles(expect)
 	_test_emerging_move_reveals_only_visible_samples(expect)
 	_test_hidden_move_crossing_visible_pocket_animates(expect)
@@ -117,6 +118,41 @@ static func _test_hidden_attack_keeps_separate_visible_spans(expect: Callable) -
 		var first_segment: Dictionary = segments[0] as Dictionary
 		var second_segment: Dictionary = segments[1] as Dictionary
 		expect.call(float(first_segment.get("end", 1.0)) < float(second_segment.get("start", 0.0)), "Separated visible spans must retain the intervening hidden travel time")
+	scene.free()
+
+
+static func _test_diagonal_hidden_attack_clips_both_corner_edges(expect: Callable) -> void:
+	var scene := RunScene.new()
+	var state: Dictionary = _state()
+	var source := Vector2i(6, 6)
+	var target := Vector2i(4, 4)
+	var combat_engine: Variant = scene.get("_combat_engine")
+	expect.call(not combat_engine.is_tile_visible_to_player(state, source), "The diagonal fixture source should remain concealed")
+	expect.call(combat_engine.is_tile_visible_to_player(state, target), "The diagonal fixture target should sit on the visible halo edge")
+	expect.call(not combat_engine.is_tile_visible_to_player(state, Vector2i(5, 4)), "The first cardinal corner neighbor should remain concealed")
+	expect.call(not combat_engine.is_tile_visible_to_player(state, Vector2i(4, 5)), "The second cardinal corner neighbor should remain concealed")
+	var visible_step: Dictionary = scene.call("_visible_umbra_action_step", state, {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"actor_key": "enemy_71",
+		"from": source,
+		"to": target,
+		"hidden_by_umbra": true,
+	}) as Dictionary
+	var segments: Array = visible_step.get("umbra_visible_line_segments", []) as Array
+	expect.call(segments.size() == 1, "A diagonal attack entering the visible halo should retain one visible span")
+	if segments.size() == 1:
+		var segment: Dictionary = segments[0] as Dictionary
+		var boundaries: Array = segment.get("start_clip_boundaries", []) as Array
+		expect.call(boundaries.size() == 2, "A diagonal corner transition should clip against both concealed cardinal neighbors")
+		var hidden_tiles: Array = []
+		for boundary_var: Variant in boundaries:
+			if typeof(boundary_var) != TYPE_DICTIONARY:
+				continue
+			var boundary: Dictionary = boundary_var as Dictionary
+			hidden_tiles.append(boundary.get("hidden_tile", Vector2i(-1, -1)))
+			expect.call(boundary.get("visible_tile", Vector2i(-1, -1)) == target, "Each diagonal entry plane should face the visible destination tile")
+		expect.call(hidden_tiles.has(Vector2i(5, 4)) and hidden_tiles.has(Vector2i(4, 5)), "Diagonal entry metadata should preserve both exact corner edges")
 	scene.free()
 
 

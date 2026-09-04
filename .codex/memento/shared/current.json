@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-04T04:52:51Z",
+  "updated_at": "2026-09-04T05:09:53Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10172,7 +10172,7 @@
       }
     },
     {
-      "id": "mnt_20260904T045251Z_08b5f797",
+      "id": "mnt_20260904T050953Z_12c4f6a1",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -10181,18 +10181,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Umbra-crossing actions clip geometry at exact visible boundaries",
-      "details": "Hidden movement admits the actor only for crossing frames and clips sprite, HUD, and intent geometry against the shared isometric tile edge. Hidden line attacks carry fractional visible spans with entry and exit tile edges; textured projectile polygons preserve UVs while clipping against those planes, disappear in hidden gaps, and reappear in separate light pockets. Ordinary render ordering remains unchanged.",
+      "summary": "Umbra-crossing actions clip geometry to exact visible edge intersections",
+      "details": "Hidden movement admits the actor only for crossing frames and clips sprite, HUD, and intent geometry against the shared isometric edge. Hidden line attacks carry fractional visible spans with entry and exit metadata; cardinal transitions use one plane, while diagonal corner transitions retain one plane for each concealed cardinal neighbor so textured projectile polygons intersect both visible-wedge edges. UV-preserving fragments disappear in hidden gaps and reappear in separate light pockets without changing ordinary render order.",
       "status": "active",
-      "created_at": "2026-09-04T04:52:51Z",
-      "updated_at": "2026-09-04T04:52:51Z",
+      "created_at": "2026-09-04T05:09:53Z",
+      "updated_at": "2026-09-04T05:09:53Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260904T034658Z_9dec2a34"
+        "mnt_20260904T045251Z_08b5f797"
       ],
       "source": {
         "branch": "codex/animate-enemy-actions-emerging-from-umbra",
-        "commit": "080b3781"
+        "commit": "8f28d7ab"
       }
     }
   ]

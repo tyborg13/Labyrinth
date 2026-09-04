@@ -9067,7 +9067,7 @@ func _draw_umbra_clipped_oriented_texture(
 		Vector2(source_size.x * (x_ratio_end - x_ratio_start), source_size.y)
 	)
 	var normal := Vector2(-direction.y, direction.x)
-	var polygon_vertices: Array[Dictionary] = [
+	var polygon_vertices: Array[Dictionary] = _umbra_dictionary_array([
 		{
 			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.position.y,
 			"uv": Vector2(source.position.x / source_size.x, source.position.y / source_size.y),
@@ -9084,7 +9084,7 @@ func _draw_umbra_clipped_oriented_texture(
 			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.end.y,
 			"uv": Vector2(source.position.x / source_size.x, source.end.y / source_size.y),
 		},
-	]
+	])
 	polygon_vertices = _umbra_clip_polygon_vertices(polygon_vertices, clip_segment)
 	if polygon_vertices.size() < 3:
 		return
@@ -9098,7 +9098,7 @@ func _draw_umbra_clipped_oriented_texture(
 	draw_polygon(points, colors, uvs, texture)
 
 func _draw_umbra_clipped_colored_polygon(points: PackedVector2Array, color: Color, clip_segment: Dictionary) -> void:
-	var vertices: Array[Dictionary] = []
+	var vertices: Array[Dictionary] = _umbra_dictionary_array([])
 	for point: Vector2 in points:
 		vertices.append({"point": point, "uv": Vector2.ZERO})
 	vertices = _umbra_clip_polygon_vertices(vertices, clip_segment)
@@ -9114,7 +9114,7 @@ func _umbra_clip_polygon_vertices(vertices: Array[Dictionary], clip_segment: Dic
 	for plane: Dictionary in _umbra_clip_planes_for_segment(clip_segment):
 		if result.is_empty():
 			break
-		var clipped: Array[Dictionary] = []
+		var clipped: Array[Dictionary] = _umbra_dictionary_array([])
 		var plane_point: Vector2 = plane.get("point", Vector2.ZERO)
 		var plane_normal: Vector2 = plane.get("normal", Vector2.ZERO)
 		for vertex_index: int in range(result.size()):
@@ -9141,25 +9141,44 @@ func _umbra_clip_polygon_vertices(vertices: Array[Dictionary], clip_segment: Dic
 		result = clipped
 	return result
 
+func _umbra_dictionary_array(values: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for value: Variant in values:
+		if typeof(value) == TYPE_DICTIONARY:
+			result.append(value as Dictionary)
+	return result
+
 func _umbra_clip_planes_for_segment(segment: Dictionary) -> Array[Dictionary]:
-	var planes: Array[Dictionary] = []
-	for boundary: Dictionary in [
+	var planes: Array[Dictionary] = _umbra_dictionary_array([])
+	for boundary_group: Dictionary in [
 		{
+			"boundaries": segment.get("start_clip_boundaries", []),
 			"hidden": segment.get("start_hidden_tile", Vector2i(-1, -1)),
 			"visible": segment.get("start_visible_tile", Vector2i(-1, -1)),
 		},
 		{
+			"boundaries": segment.get("end_clip_boundaries", []),
 			"hidden": segment.get("end_hidden_tile", Vector2i(-1, -1)),
 			"visible": segment.get("end_visible_tile", Vector2i(-1, -1)),
 		},
 	]:
-		var hidden_tile: Vector2i = boundary.get("hidden", Vector2i(-1, -1))
-		var visible_tile: Vector2i = boundary.get("visible", Vector2i(-1, -1))
-		if hidden_tile.x < 0 or visible_tile.x < 0:
-			continue
-		var plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
-		if not plane.is_empty():
-			planes.append(plane)
+		var boundaries: Array = boundary_group.get("boundaries", []) as Array
+		if boundaries.is_empty():
+			var hidden_tile: Vector2i = boundary_group.get("hidden", Vector2i(-1, -1))
+			var visible_tile: Vector2i = boundary_group.get("visible", Vector2i(-1, -1))
+			if hidden_tile.x >= 0 and visible_tile.x >= 0:
+				boundaries = [{"hidden_tile": hidden_tile, "visible_tile": visible_tile}]
+		for boundary_var: Variant in boundaries:
+			if typeof(boundary_var) != TYPE_DICTIONARY:
+				continue
+			var boundary: Dictionary = boundary_var as Dictionary
+			var hidden_tile: Vector2i = boundary.get("hidden_tile", Vector2i(-1, -1))
+			var visible_tile: Vector2i = boundary.get("visible_tile", Vector2i(-1, -1))
+			if hidden_tile.x < 0 or visible_tile.x < 0:
+				continue
+			var plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
+			if not plane.is_empty():
+				planes.append(plane)
 	return planes
 
 func _umbra_tile_boundary_plane(hidden_tile: Vector2i, visible_tile: Vector2i) -> Dictionary:
