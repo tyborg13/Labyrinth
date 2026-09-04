@@ -7,6 +7,8 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const OUTPUT_DIR: String = "user://probes/card_drag_overlay"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
+var _fixture_room_variant: int = 0
+
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
@@ -36,7 +38,7 @@ func _capture_drag_overlay_frames() -> void:
 	await create_timer(0.16).timeout
 	var hover_source: Control = instance.call("_hand_card_control", 0) as Control
 	var hover_bounds: Rect2 = instance.call("_control_visual_global_rect", hover_source) if hover_source != null else Rect2()
-	await _save_root_screenshot("%s/drag_hover_large_arrow_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_hover_large_arrow_v4.png" % OUTPUT_DIR)
 	var initial_grab_ratio := Vector2(0.12, 0.16)
 	var drag_start: Vector2 = hover_bounds.position + hover_bounds.size * initial_grab_ratio
 	instance.call("_on_card_drag_started", 0, drag_start)
@@ -47,7 +49,7 @@ func _capture_drag_overlay_frames() -> void:
 	await process_frame
 	_assert_following_card_drag(instance, "pre-board following drag", cancel_position, hover_bounds)
 	_assert_proxy_grab_point(instance, cancel_position, initial_grab_ratio, "pre-board following drag")
-	await _save_root_screenshot("%s/drag_following_card_arrow_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_following_card_arrow_v4.png" % OUTPUT_DIR)
 	var follow_proxy: Control = instance.get("_drag_card_proxy") as Control
 	var follow_bounds: Rect2 = instance.call("_card_proxy_visual_rect", follow_proxy)
 	instance.call("_animate_drag_cancel_to_source")
@@ -59,7 +61,7 @@ func _capture_drag_overlay_frames() -> void:
 		var snapping_bounds: Rect2 = instance.call("_card_proxy_visual_rect", snapping_proxy)
 		if snapping_bounds.size.x > follow_bounds.size.x + 1.0 or snapping_bounds.size.y > follow_bounds.size.y + 1.0:
 			push_error("Pre-board snapback should settle smaller instead of growing through the stale hover pose")
-	await _save_root_screenshot("%s/drag_snapback_settling_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_snapback_settling_v4.png" % OUTPUT_DIR)
 	await create_timer(0.10).timeout
 	await process_frame
 
@@ -71,31 +73,31 @@ func _capture_drag_overlay_frames() -> void:
 	await _position_card_drag(instance, valid_target_position)
 	await process_frame
 	_assert_targeting_drag(instance, "center valid targeting", valid_target_position, hover_bounds)
-	await _save_root_screenshot("%s/drag_arrow_center_valid_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_arrow_center_valid_v4.png" % OUTPUT_DIR)
 
 	var left_target_position := Vector2(board_rect.position.x + 36.0, board_rect.position.y + board_rect.size.y * 0.26)
 	await _position_card_drag(instance, left_target_position)
 	await process_frame
 	_assert_targeting_drag(instance, "hard-left targeting", left_target_position, hover_bounds)
-	await _save_root_screenshot("%s/drag_arrow_hard_left_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_arrow_hard_left_v4.png" % OUTPUT_DIR)
 
 	var right_target_position := Vector2(board_rect.end.x - 36.0, board_rect.position.y + board_rect.size.y * 0.26)
 	await _position_card_drag(instance, right_target_position)
 	await process_frame
 	_assert_targeting_drag(instance, "hard-right targeting", right_target_position, hover_bounds)
-	await _save_root_screenshot("%s/drag_arrow_hard_right_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_arrow_hard_right_v4.png" % OUTPUT_DIR)
 
 	var short_target_position := Vector2(board_rect.get_center().x + 72.0, board_rect.end.y - 92.0)
 	await _position_card_drag(instance, short_target_position)
 	await process_frame
 	_assert_targeting_drag(instance, "short targeting", short_target_position, hover_bounds)
-	await _save_root_screenshot("%s/drag_arrow_short_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_arrow_short_v4.png" % OUTPUT_DIR)
 
 	var outside_target_position := Vector2(board_rect.position.x - 92.0, board_rect.end.y + 42.0)
 	await _position_card_drag(instance, outside_target_position)
 	await process_frame
 	_assert_targeting_drag(instance, "latched outside-board targeting", outside_target_position, hover_bounds)
-	await _save_root_screenshot("%s/drag_arrow_outside_latched_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_arrow_outside_latched_v4.png" % OUTPUT_DIR)
 
 	await _position_card_drag(instance, right_target_position)
 	await process_frame
@@ -105,7 +107,7 @@ func _capture_drag_overlay_frames() -> void:
 		push_error("Invalid targeted release should return to the idle hand")
 	if _turn_order_has_card_projection(instance, "Quick Stab"):
 		push_error("Invalid targeted release should remove its Turn Clock projection")
-	await _save_root_screenshot("%s/drag_invalid_cancel_restored_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_invalid_cancel_restored_v4.png" % OUTPUT_DIR)
 
 	await _load_combat_fixture(instance, "stone_plate", Vector2i(2, 5), Vector2i(5, 5), 9403)
 	drag_start = _drag_start_position(instance, 0)
@@ -115,9 +117,141 @@ func _capture_drag_overlay_frames() -> void:
 	await _position_card_drag(instance, targetless_board_position)
 	await process_frame
 	_assert_targetless_board_drag(instance, targetless_board_position)
-	await _save_root_screenshot("%s/drag_targetless_following_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_targetless_following_v4.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	await process_frame
+
+	var input_router: Node = root.get_node_or_null("InputRouter")
+	if input_router != null and input_router.has_method("clear_forced_state_for_test"):
+		input_router.call("clear_forced_state_for_test")
+	await _load_combat_fixture(instance, "lantern_shot", Vector2i(2, 5), Vector2i(5, 5), 9407)
+	var enemy_tile := Vector2i(5, 5)
+	var enemy_position: Vector2 = _tile_global_position(instance, enemy_tile)
+	root.warp_mouse(enemy_position)
+	instance.call("_on_board_tile_hovered", enemy_tile)
+	await process_frame
+	await process_frame
+	var board: Control = instance.get("board_view") as Control
+	var baseline_presentation: Dictionary = board.get("presentation") as Dictionary
+	if (baseline_presentation.get("enemy_threat_previews", []) as Array).is_empty():
+		push_error("Idle enemy hover proof should expose the crawler's threat preview before card targeting")
+	if not _presentation_has_enemy_movement_preview(baseline_presentation):
+		push_error("Idle enemy hover proof should include the crawler's movement destination ghost")
+	await _save_root_screenshot("%s/enemy_hover_movement_baseline_v4.png" % OUTPUT_DIR)
+
+	await instance.call("_on_card_pressed", 0)
+	root.warp_mouse(enemy_position)
+	instance.call("_sync_click_targeting_arrow", enemy_position)
+	instance.call("_on_board_tile_hovered", enemy_tile)
+	await process_frame
+	await process_frame
+	_assert_click_targeting_arrow(instance, enemy_position, "pointer click targeting")
+	var click_presentation: Dictionary = board.get("presentation") as Dictionary
+	if not (click_presentation.get("enemy_threat_previews", []) as Array).is_empty():
+		push_error("Click targeting should suppress hover-driven enemy threat previews")
+	if _presentation_has_enemy_movement_preview(click_presentation):
+		push_error("Click targeting should suppress the enemy movement destination ghost")
+	if not (board.get("attack_tiles") as Array).has(enemy_tile):
+		push_error("Click targeting should keep the card's legal target treatment after suppressing enemy hover evidence")
+	await _save_root_screenshot("%s/click_arrow_enemy_hover_suppressed_v4.png" % OUTPUT_DIR)
+
+	instance.call("_open_menu_overlay")
+	root.warp_mouse(Vector2(960.0, 540.0))
+	await process_frame
+	await process_frame
+	var modal_arrow: Control = instance.get("_drag_target_arrow") as Control
+	if int(instance.get("_selected_card_index")) != 0:
+		push_error("Opening a non-destructive menu should preserve the selected targeting card")
+	if modal_arrow != null and modal_arrow.visible:
+		push_error("The menu should suspend the targeting arrow while it owns the pointer")
+	if bool(instance.get_meta("targeting_cursor_suppressed", false)):
+		push_error("The menu should release targeting cursor suppression while it owns the pointer")
+	var cursor_feedback: Node = root.get_node_or_null("CursorFeedback")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_for_test"):
+		var modal_cursor_glyph: Control = cursor_feedback.call("glyph_for_test") as Control
+		if modal_cursor_glyph == null or not modal_cursor_glyph.visible:
+			push_error("The menu should visibly restore the forged pointer during suspended card targeting")
+	await _save_root_screenshot("%s/click_targeting_menu_cursor_restored_v4.png" % OUTPUT_DIR)
+	instance.call("_close_menu_overlay")
+	root.warp_mouse(enemy_position)
+	instance.call("_sync_click_targeting_arrow", enemy_position)
+	await process_frame
+	_assert_click_targeting_arrow(instance, enemy_position, "menu-close click targeting")
+
+	var click_previous_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	var click_reduced_settings: Dictionary = click_previous_settings.duplicate(true)
+	click_reduced_settings["reduced_motion"] = true
+	instance.set("_settings", click_reduced_settings)
+	instance.call("_sync_click_targeting_arrow", enemy_position)
+	await process_frame
+	_assert_click_targeting_arrow(instance, enemy_position, "reduced-motion click targeting")
+	await _save_root_screenshot("%s/click_arrow_reduced_motion_v4.png" % OUTPUT_DIR)
+	instance.set("_settings", click_previous_settings)
+
+	if input_router != null and input_router.has_method("set_forced_state_for_test"):
+		input_router.call("set_forced_state_for_test", "controller", "steam_deck")
+		await process_frame
+		instance.call("_controller_enter_board", true)
+		await process_frame
+		await process_frame
+		var controller_arrow: Control = instance.get("_drag_target_arrow") as Control
+		if controller_arrow != null and controller_arrow.visible:
+			push_error("Controller handoff should preserve board focus without following the stale mouse with a pointer arrow")
+		if bool(instance.get_meta("targeting_cursor_suppressed", false)):
+			push_error("Controller modality should release pointer-only cursor suppression")
+		await _save_root_screenshot("%s/click_targeting_controller_handoff_v4.png" % OUTPUT_DIR)
+
+		input_router.call("set_forced_state_for_test", "pointer", "steam_deck")
+		await process_frame
+		root.warp_mouse(enemy_position)
+		instance.call("_sync_click_targeting_arrow", enemy_position)
+		await process_frame
+		_assert_click_targeting_arrow(instance, enemy_position, "pointer handoff targeting")
+		await _save_root_screenshot("%s/click_arrow_pointer_handoff_restored_v4.png" % OUTPUT_DIR)
+
+	instance.call("_cancel_card_selection")
+	root.warp_mouse(enemy_position)
+	instance.call("_on_board_tile_hovered", enemy_tile)
+	await process_frame
+	await process_frame
+	var cancel_arrow: Control = instance.get("_drag_target_arrow") as Control
+	if int(instance.get("_selected_card_index")) >= 0 or (cancel_arrow != null and cancel_arrow.visible):
+		push_error("Click-targeting cancel should restore the idle hand and clear the arrow")
+	if int((instance.get("hand_box") as Control).call("emphasized_index")) != -1:
+		push_error("Click-targeting cancel should release the selected-card hand pose")
+	if bool(instance.get_meta("targeting_cursor_suppressed", false)):
+		push_error("Click-targeting cancel should restore the forged pointer")
+	var restored_presentation: Dictionary = board.get("presentation") as Dictionary
+	if (restored_presentation.get("enemy_threat_previews", []) as Array).is_empty():
+		push_error("Click-targeting cancel should restore ordinary enemy hover forecasts")
+	await _save_root_screenshot("%s/click_arrow_cancel_cursor_restored_v4.png" % OUTPUT_DIR)
+
+	await _load_combat_fixture(instance, "stone_plate", Vector2i(2, 5), Vector2i(5, 5), 9408)
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	if not bool(instance.call("_pending_card_requires_confirmation")):
+		push_error("Targetless first click should settle into its normal confirmation state")
+	if int((instance.get("hand_box") as Control).call("emphasized_index")) != 0:
+		push_error("Targetless first click should visibly retain the restrained selected-card pose")
+	var targetless_click_arrow: Control = instance.get("_drag_target_arrow") as Control
+	if targetless_click_arrow != null and targetless_click_arrow.visible:
+		push_error("Targetless click confirmation should not show a spatial targeting arrow")
+	if bool(instance.get_meta("targeting_cursor_suppressed", false)):
+		push_error("Targetless click confirmation should leave the normal pointer available")
+	await _save_root_screenshot("%s/targetless_second_click_ready_v4.png" % OUTPUT_DIR)
+	instance.call("_on_card_pressed", 0)
+	await _wait_for_card_fx_proxy(instance, 1.0)
+	await create_timer(0.08).timeout
+	if str(instance.get_meta("last_card_play_source_kind", "")) != "hand":
+		push_error("Targetless second click should confirm through the normal hand-origin play path")
+	if targetless_click_arrow != null and targetless_click_arrow.visible:
+		push_error("Targetless second-click play launch should remain free of the targeting arrow")
+	if _first_card_fx_proxy(instance) == null:
+		push_error("Targetless second-click confirmation should visibly launch the played card from the hand")
+	await _save_root_screenshot("%s/targetless_second_click_launch_v4.png" % OUTPUT_DIR)
+	await _wait_for_card_resolution(instance, 4.0)
+	if bool(instance.get("_animation_lock")):
+		push_error("Targetless second-click proof should finish before the next independent drag fixture")
 
 	await _load_combat_fixture(instance, "quick_stab", Vector2i(3, 5), Vector2i(4, 5), 9404)
 	var previous_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
@@ -132,7 +266,7 @@ func _capture_drag_overlay_frames() -> void:
 	var hand_box: Control = instance.get("hand_box") as Control
 	if hand_box == null or int(hand_box.call("emphasized_index")) != 0:
 		push_error("Reduced-motion targeting should immediately use the raised selected-card pose")
-	await _save_root_screenshot("%s/drag_arrow_reduced_motion_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_arrow_reduced_motion_v4.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	instance.set("_settings", previous_settings)
 	await process_frame
@@ -146,8 +280,11 @@ func _capture_drag_overlay_frames() -> void:
 	instance.call("_commit_drag_drop", "play", valid_target_position)
 	await create_timer(0.10).timeout
 	_assert_drag_play_launch(instance)
-	await _save_root_screenshot("%s/drag_play_launch_from_hand_v3.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_play_launch_from_hand_v4.png" % OUTPUT_DIR)
 	await create_timer(0.85).timeout
+
+	if input_router != null and input_router.has_method("clear_forced_state_for_test"):
+		input_router.call("clear_forced_state_for_test")
 
 	instance.queue_free()
 	await process_frame
@@ -235,6 +372,11 @@ func _load_combat_fixture(instance: Node, card_id: String, player_pos: Vector2i,
 	instance.call("_cancel_drag_play")
 	instance.call("_reset_card_resolution")
 	var layout: Dictionary = _drag_room_layout(player_pos, enemy_pos)
+	# Each probe fixture represents a fresh room. Give it a distinct coordinate so
+	# ambient intensity transitions from the preceding card cannot bleed into the
+	# next independently asserted screenshot while keeping the displayed depth at 4.
+	_fixture_room_variant = 1 - _fixture_room_variant
+	layout["coord"] = Vector2i(4, _fixture_room_variant)
 	var combat := CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(seed, layout, {
 		"hp": 20,
@@ -276,6 +418,56 @@ func _assert_no_drag_copy(instance: Node, context_name: String) -> void:
 	var tracker: Control = instance.get("_action_step_tracker") as Control
 	if tracker != null and tracker.visible:
 		push_error("%s should not add instructional side copy during a spatial drag interaction" % context_name)
+
+func _assert_click_targeting_arrow(instance: Node, cursor_position: Vector2, context: String) -> void:
+	if int(instance.get("_selected_card_index")) < 0 or int(instance.get("_drag_card_index")) >= 0:
+		push_error("%s should keep a clicked card selected without creating drag state" % context)
+	var source_card: Control = instance.call("_hand_card_control", int(instance.get("_selected_card_index"))) as Control
+	if source_card == null or not source_card.is_visible_in_tree():
+		push_error("%s should keep the selected card visible and raised in the hand" % context)
+	var hand_box: Control = instance.get("hand_box") as Control
+	if hand_box == null or int(hand_box.call("emphasized_index")) != int(instance.get("_selected_card_index")):
+		push_error("%s should use the restrained selected-card hand pose instead of the large hover preview" % context)
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	if arrow == null or not arrow.visible:
+		push_error("%s should show the shared targeting arrow" % context)
+	else:
+		if not bool(arrow.get_meta("raster_composed_arrow", false)) or not bool(arrow.get_meta("segmented_raster_arrow", false)):
+			push_error("%s should use the authored segmented raster arrow" % context)
+		var arrow_transform: Transform2D = arrow.get_global_transform_with_canvas()
+		var endpoint: Vector2 = arrow_transform * (arrow.call("targeting_end") as Vector2)
+		if endpoint.distance_to(cursor_position) > 1.0:
+			push_error("%s arrowhead should follow the live pointer, got %s instead of %s" % [context, endpoint, cursor_position])
+	if not bool(instance.get_meta("targeting_cursor_suppressed", false)):
+		push_error("%s should suppress the ordinary pointer while the arrow owns targeting" % context)
+	var cursor_feedback: Node = root.get_node_or_null("CursorFeedback")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		if not bool(cursor_feedback.call("glyph_visibility_suppressed")):
+			push_error("%s should register forged-pointer suppression with CursorFeedback" % context)
+		if cursor_feedback.has_method("glyph_for_test"):
+			var cursor_glyph: Control = cursor_feedback.call("glyph_for_test") as Control
+			if cursor_glyph != null and cursor_glyph.visible:
+				push_error("%s should hide the forged pointer glyph instead of layering it over the arrowhead" % context)
+
+func _wait_for_card_resolution(instance: Node, timeout_seconds: float) -> void:
+	var deadline_msec: int = Time.get_ticks_msec() + roundi(timeout_seconds * 1000.0)
+	while Time.get_ticks_msec() < deadline_msec:
+		if not bool(instance.get("_animation_lock")) and int(instance.get("_selected_card_index")) < 0:
+			return
+		await process_frame
+
+func _wait_for_card_fx_proxy(instance: Node, timeout_seconds: float) -> void:
+	var deadline_msec: int = Time.get_ticks_msec() + roundi(timeout_seconds * 1000.0)
+	while Time.get_ticks_msec() < deadline_msec:
+		if _first_card_fx_proxy(instance) != null:
+			return
+		await process_frame
+
+func _presentation_has_enemy_movement_preview(presentation: Dictionary) -> bool:
+	for preview_var: Variant in presentation.get("preview_units", []):
+		if typeof(preview_var) == TYPE_DICTIONARY and str((preview_var as Dictionary).get("role", "")) == "enemy_move_preview":
+			return true
+	return false
 
 func _assert_following_card_drag(instance: Node, context: String, cursor_position: Vector2, hover_bounds: Rect2) -> void:
 	var proxy: Control = instance.get("_drag_card_proxy") as Control

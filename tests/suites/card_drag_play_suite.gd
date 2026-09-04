@@ -3,6 +3,7 @@ extends RefCounted
 const CardDragPlayRules = preload("res://scripts/card_drag_play_rules.gd")
 const CardDragTargetingArrow = preload("res://scripts/card_drag_targeting_arrow.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const InputRouterScript = preload("res://scripts/input_router.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const PLAYER_TILE := Vector2i(2, 4)
@@ -99,6 +100,9 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await _test_compound_target_release_plays(tree, expect)
 	await _test_targetless_board_and_outside_releases(tree, expect)
 	await _test_click_targeting_regression(tree, expect)
+	await _test_click_targeting_arrow_and_hover_suppression(tree, expect)
+	await _test_controller_handoff_cancels_pointer_drags(tree, expect)
+	await _test_targetless_click_confirmation_paths(tree, expect)
 
 
 static func _test_card_widget_drag_threshold(tree: SceneTree, expect: Callable) -> void:
@@ -339,6 +343,273 @@ static func _test_click_targeting_regression(tree: SceneTree, expect: Callable) 
 	await tree.process_frame
 
 
+static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, expect: Callable) -> void:
+	var enemy_tile := Vector2i(5, 4)
+	var instance: Node = await _live_instance(tree, expect, "lantern_shot", enemy_tile, 93109)
+	if instance == null:
+		return
+	var board: Control = instance.get("board_view") as Control
+	instance.call("_on_board_tile_hovered", enemy_tile)
+	await tree.process_frame
+	var idle_presentation: Dictionary = board.get("presentation") as Dictionary
+	expect.call(not (idle_presentation.get("enemy_threat_previews", []) as Array).is_empty(), "Ordinary enemy hover should expose the movement forecast before card targeting owns the board")
+	expect.call(_presentation_has_enemy_movement_preview(idle_presentation), "The moving-enemy fixture should visibly own a destination ghost before targeting begins")
+
+	var hand_before: Array = _hand(instance).duplicate()
+	var enemy_hp_before: int = _enemy_hp(instance)
+	await instance.call("_on_card_pressed", 0)
+	await tree.process_frame
+	var target_position: Vector2 = _tile_global_position(instance, enemy_tile)
+	instance.call("_sync_click_targeting_arrow", target_position)
+	await tree.process_frame
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	expect.call(int(instance.get("_selected_card_index")) == 0 and int(instance.get("_drag_card_index")) == -1, "Click selection should enter pointer targeting without creating drag state")
+	expect.call(arrow != null and arrow.visible, "Click targeting should reuse the same segmented raster arrow as drag targeting")
+	var hand_box: Control = instance.get("hand_box") as Control
+	expect.call(hand_box != null and int(hand_box.call("emphasized_index")) == 0, "Click targeting should keep the selected card in the restrained raised pose")
+	var expected_start := Vector2.ZERO
+	if arrow != null:
+		var arrow_transform: Transform2D = arrow.get_global_transform_with_canvas()
+		var source_card: Control = instance.call("_hand_card_control", 0) as Control
+		var source_rect: Rect2 = instance.call("_control_visual_global_rect", source_card)
+		expected_start = source_rect.position + Vector2(source_rect.size.x * 0.5, 4.0)
+		expect.call((arrow_transform * (arrow.call("targeting_start") as Vector2)).distance_to(expected_start) <= 1.0, "Click and drag arrows should share the selected hand-card anchor")
+		expect.call((arrow_transform * (arrow.call("targeting_end") as Vector2)).distance_to(target_position) <= 1.0, "Click targeting arrowhead should land on the live pointer")
+	var cursor_feedback: Node = tree.root.get_node_or_null("CursorFeedback")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(bool(cursor_feedback.call("glyph_visibility_suppressed")), "A visible targeting arrow should suppress the forged pointer without changing input")
+	if arrow != null:
+		instance.call("_sync_click_targeting_arrow", expected_start + Vector2(10.0, 0.0))
+		await tree.process_frame
+		expect.call(not arrow.visible, "The arrow may stay visually quiet inside its short hand-anchor dead zone")
+		if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+			expect.call(bool(cursor_feedback.call("glyph_visibility_suppressed")), "The forged pointer should remain hidden throughout targeting even inside the arrow's short dead zone")
+
+	var second_pointer: Vector2 = target_position + Vector2(12.0, -8.0)
+	instance.call("_sync_click_targeting_arrow", second_pointer)
+	await tree.process_frame
+	if arrow != null:
+		expect.call((arrow.get_global_transform_with_canvas() * (arrow.call("targeting_end") as Vector2)).distance_to(second_pointer) <= 1.0, "Click targeting arrow should follow pointer motion even within one board tile")
+	expect.call(_hand(instance) == hand_before and _enemy_hp(instance) == enemy_hp_before, "Aiming with the click arrow should not commit the card before a legal target click")
+
+	instance.call("_on_board_tile_hovered", enemy_tile)
+	await tree.process_frame
+	var targeting_presentation: Dictionary = board.get("presentation") as Dictionary
+	expect.call((targeting_presentation.get("enemy_threat_previews", []) as Array).is_empty(), "Hover-driven enemy intent previews should be suppressed while a targeted card owns the pointer")
+	expect.call(not _presentation_has_enemy_movement_preview(targeting_presentation), "Enemy destination ghosts should not compete with the card targeting arrow")
+	expect.call((board.get("attack_tiles") as Array).has(enemy_tile), "Suppressing enemy hover evidence must preserve the card's legal target highlight")
+
+	tree.root.warp_mouse(target_position)
+	await tree.process_frame
+	expect.call(bool(instance.call("_map_shortcut_can_open")), "The map shortcut should remain available while pointer click-targeting is selected")
+	instance.call("_open_large_map")
+	await tree.process_frame
+	expect.call(int(instance.get("_selected_card_index")) == 0, "Opening a non-destructive modal should preserve the selected card")
+	expect.call(arrow != null and not arrow.visible, "A modal should suspend the targeting arrow while it owns the pointer")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "A modal should restore the forged pointer even though targeting remains selected behind it")
+	instance.call("_close_large_map")
+	await tree.process_frame
+	expect.call(arrow != null and arrow.visible, "Closing the map should immediately restore the still-selected card's targeting arrow")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(bool(cursor_feedback.call("glyph_visibility_suppressed")), "Closing the map should return pointer ownership to card targeting")
+	instance.call("_open_menu_overlay")
+	await tree.process_frame
+	expect.call(int(instance.get("_selected_card_index")) == 0 and arrow != null and not arrow.visible, "Button-opened menus should suspend targeting without discarding the selected card")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Button-opened menus should never inherit the targeting cursor suppression")
+	instance.call("_close_menu_overlay")
+	await tree.process_frame
+	expect.call(arrow != null and arrow.visible, "Closing a button-opened menu should restore the click-targeting arrow")
+	# Exercise the ordinary post-tutorial HUD surface rather than the guided run's
+	# intentional optional-surface lock.
+	instance.set("_guided_tutorial_phase_id", "")
+	instance.call("_toggle_skill_status_popover")
+	await tree.process_frame
+	var skill_status_scrim: Control = instance.get("_skill_status_scrim") as Control
+	expect.call(skill_status_scrim != null and skill_status_scrim.visible, "The Abilities popover fixture should open while a card remains selected")
+	expect.call(int(instance.get("_selected_card_index")) == 0 and arrow != null and not arrow.visible, "Abilities should suspend click targeting without discarding the selected card")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Abilities should restore the forged pointer while its popover owns input")
+	instance.call("_close_skill_status_popover")
+	await tree.process_frame
+	expect.call(arrow != null and arrow.visible, "Closing Abilities should restore the click-targeting arrow")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(bool(cursor_feedback.call("glyph_visibility_suppressed")), "Closing Abilities should return pointer ownership to click targeting")
+	var skill_choice_options: Array = [{
+		"text": "Keep Targeting",
+		"detail": "Probe-only modal ownership option",
+		"callback": Callable(instance, "_refresh_ui"),
+	}]
+	instance.call("_open_skill_choice_dialog", "Choose", "Probe modal ownership", skill_choice_options)
+	await tree.process_frame
+	var skill_choice_scrim: Control = instance.get("_skill_choice_scrim") as Control
+	expect.call(skill_choice_scrim != null and skill_choice_scrim.visible, "The skill-choice fixture should open a valid option modal")
+	expect.call(int(instance.get("_selected_card_index")) == 0 and arrow != null and not arrow.visible, "Skill choices should suspend click targeting without discarding the selected card")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Skill choices should restore the forged pointer while the modal owns input")
+	instance.call("_close_skill_choice_dialog")
+	await tree.process_frame
+	expect.call(arrow != null and arrow.visible, "Closing a skill choice should restore the click-targeting arrow")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(bool(cursor_feedback.call("glyph_visibility_suppressed")), "Closing a skill choice should return pointer ownership to click targeting")
+
+	instance.set("_show_all_enemy_intents", true)
+	instance.call("_refresh_stage_view")
+	var show_all_presentation: Dictionary = board.get("presentation") as Dictionary
+	expect.call(not (show_all_presentation.get("enemy_threat_previews", []) as Array).is_empty(), "Explicit show-all intent mode should remain visible during card targeting")
+	instance.set("_show_all_enemy_intents", false)
+	await instance.call("_on_board_tile_clicked", enemy_tile)
+	await tree.process_frame
+	expect.call(_enemy_hp(instance) < enemy_hp_before and not _hand(instance).has("lantern_shot"), "A legal click-arrow target should resolve the selected card through the normal click path")
+	expect.call(str(instance.get_meta("last_card_play_source_kind", "")) == "hand" and _last_play_source_inside_hand(instance), "Click-arrow play should retain the normal hand-origin launch")
+	expect.call(arrow != null and not arrow.visible, "Playing through click targeting should clear the shared arrow")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Card resolution should restore the forged pointer after the targeting arrow clears")
+	instance.queue_free()
+	await tree.process_frame
+
+	var cancel_instance: Node = await _live_instance(tree, expect, "lantern_shot", enemy_tile, 93110)
+	if cancel_instance == null:
+		return
+	await cancel_instance.call("_on_card_pressed", 0)
+	cancel_instance.call("_sync_click_targeting_arrow", _tile_global_position(cancel_instance, enemy_tile))
+	await tree.process_frame
+	var cancel_arrow: Control = cancel_instance.get("_drag_target_arrow") as Control
+	await cancel_instance.call("_on_card_pressed", 0)
+	await tree.process_frame
+	expect.call(int(cancel_instance.get("_selected_card_index")) == -1 and _hand(cancel_instance).has("lantern_shot"), "A second click on a targeted card should retain the existing cancel behavior")
+	expect.call(cancel_arrow != null and not cancel_arrow.visible, "Targeted-card second-click cancellation should clear the arrow")
+	hand_box = cancel_instance.get("hand_box") as Control
+	expect.call(hand_box != null and int(hand_box.call("emphasized_index")) == -1, "Targeted-card cancellation should release the selected-card hand pose")
+	cursor_feedback = tree.root.get_node_or_null("CursorFeedback")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Targeted-card cancellation should restore the forged pointer")
+	cancel_instance.call("_on_board_tile_hovered", enemy_tile)
+	await tree.process_frame
+	var cancel_board: Control = cancel_instance.get("board_view") as Control
+	var restored_presentation: Dictionary = cancel_board.get("presentation") as Dictionary
+	expect.call(not (restored_presentation.get("enemy_threat_previews", []) as Array).is_empty(), "Canceling targeting should immediately restore ordinary enemy hover forecasts")
+
+	var drag_start: Vector2 = (cancel_instance.call("_hand_card_global_rect", 0) as Rect2).get_center()
+	var drag_target: Vector2 = _tile_global_position(cancel_instance, enemy_tile)
+	cancel_instance.call("_on_card_drag_started", 0, drag_start)
+	await cancel_instance.call("_update_card_drag", drag_target)
+	await tree.process_frame
+	expect.call(bool(cancel_instance.get("_drag_targeting_active")), "Dragging a targeted card onto the board should enter the same aiming mode")
+	var drag_targeting_presentation: Dictionary = cancel_board.get("presentation") as Dictionary
+	expect.call((drag_targeting_presentation.get("enemy_threat_previews", []) as Array).is_empty(), "Drag targeting should suppress the same hover-driven enemy threat preview as click targeting")
+	expect.call(not _presentation_has_enemy_movement_preview(drag_targeting_presentation), "Drag targeting should also remove the enemy movement destination ghost")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(bool(cursor_feedback.call("glyph_visibility_suppressed")), "Drag targeting should suppress the forged pointer while the shared arrow owns aiming")
+	cancel_instance.queue_free()
+	await tree.process_frame
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Leaving the scene during active targeting should release forged-pointer suppression")
+
+
+static func _test_controller_handoff_cancels_pointer_drags(tree: SceneTree, expect: Callable) -> void:
+	var input_router: Node = tree.root.get_node_or_null("InputRouter")
+	if input_router != null:
+		if input_router.has_method("clear_forced_state_for_test"):
+			input_router.call("clear_forced_state_for_test")
+		input_router.call("set_modality", "pointer")
+	var preboard_instance: Node = await _live_instance(tree, expect, "quick_stab", TARGET_TILE, 93113)
+	if preboard_instance == null:
+		return
+	var preboard_hand: Array = _hand(preboard_instance).duplicate()
+	var preboard_source: Control = preboard_instance.call("_hand_card_control", 0) as Control
+	preboard_instance.call("_on_card_drag_started", 0, _drag_start_position(preboard_instance, 0))
+	await tree.process_frame
+	expect.call(preboard_instance.get("_drag_card_proxy") != null and int(preboard_instance.get("_drag_card_index")) == 0, "The pre-board fixture should hold a live pointer-following card before controller handoff")
+	var drift_motion := InputEventJoypadMotion.new()
+	drift_motion.device = 0
+	drift_motion.axis = JOY_AXIS_LEFT_X
+	drift_motion.axis_value = InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD * 0.5
+	var drift_handled: bool = bool(await preboard_instance.call("_handle_controller_input", drift_motion))
+	expect.call(not drift_handled and int(preboard_instance.get("_drag_card_index")) == 0, "Sub-threshold gamepad drift should not steal pointer modality or cancel a live mouse drag")
+	var active_motion := InputEventJoypadMotion.new()
+	active_motion.device = 0
+	active_motion.axis = JOY_AXIS_LEFT_X
+	active_motion.axis_value = InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD + 0.1
+	await preboard_instance.call("_handle_controller_input", active_motion)
+	expect.call(int(preboard_instance.get("_drag_card_index")) == -1 and preboard_instance.get("_drag_card_proxy") == null, "Real controller activity should synchronously cancel a pre-board pointer drag")
+	preboard_instance.set("_controller_stick", Vector2(0.8, 0.0))
+	var neutral_motion := InputEventJoypadMotion.new()
+	neutral_motion.device = 0
+	neutral_motion.axis = JOY_AXIS_LEFT_X
+	neutral_motion.axis_value = 0.0
+	var neutral_handled: bool = bool(await preboard_instance.call("_handle_controller_input", neutral_motion))
+	expect.call(neutral_handled and is_zero_approx((preboard_instance.get("_controller_stick") as Vector2).x), "Neutral motion should still clear a stale stick axis after controller modality is active")
+	await tree.process_frame
+	expect.call(preboard_source != null and preboard_source.is_visible_in_tree() and _hand(preboard_instance) == preboard_hand, "Canceling a pre-board drag for controller input should restore the exact card without spending it")
+	await preboard_instance.call("_commit_drag_drop", "play", _tile_global_position(preboard_instance, TARGET_TILE))
+	expect.call(_hand(preboard_instance) == preboard_hand, "A stale mouse release after controller handoff must not commit the canceled pre-board drag")
+	preboard_instance.queue_free()
+	await tree.process_frame
+	if input_router != null:
+		input_router.call("set_modality", "pointer")
+
+	var latched_instance: Node = await _live_instance(tree, expect, "quick_stab", TARGET_TILE, 93114)
+	if latched_instance == null:
+		return
+	var latched_hand: Array = _hand(latched_instance).duplicate()
+	var enemy_hp_before: int = _enemy_hp(latched_instance)
+	latched_instance.call("_on_card_drag_started", 0, _drag_start_position(latched_instance, 0))
+	await tree.process_frame
+	var target_position: Vector2 = _tile_global_position(latched_instance, TARGET_TILE)
+	await latched_instance.call("_update_card_drag", target_position)
+	await tree.process_frame
+	var latched_arrow: Control = latched_instance.get("_drag_target_arrow") as Control
+	expect.call(bool(latched_instance.get("_drag_targeting_active")) and latched_arrow != null and latched_arrow.visible, "The latched fixture should own the pointer targeting arrow before controller handoff")
+	await latched_instance.call("_handle_controller_input", active_motion)
+	expect.call(int(latched_instance.get("_drag_card_index")) == -1 and int(latched_instance.get("_selected_card_index")) == -1, "Real controller activity should synchronously clear both drag and preview state after board targeting has latched")
+	await tree.process_frame
+	expect.call(latched_instance.get("_drag_card_proxy") == null and latched_arrow != null and not latched_arrow.visible, "Controller handoff should leave no stale card proxy or pointer arrow")
+	var cursor_feedback: Node = tree.root.get_node_or_null("CursorFeedback")
+	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
+		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Controller handoff should release pointer-targeting cursor suppression")
+	await latched_instance.call("_commit_drag_drop", "play", target_position)
+	expect.call(_hand(latched_instance) == latched_hand and _enemy_hp(latched_instance) == enemy_hp_before, "A stale mouse release after controller handoff must not resolve a latched drag")
+	latched_instance.queue_free()
+	await tree.process_frame
+	if input_router != null:
+		input_router.call("set_modality", "pointer")
+
+
+static func _test_targetless_click_confirmation_paths(tree: SceneTree, expect: Callable) -> void:
+	var second_click_instance: Node = await _live_instance(tree, expect, "stone_plate", Vector2i(5, 4), 93111)
+	if second_click_instance == null:
+		return
+	var stoneskin_before: int = int(((second_click_instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("stoneskin", 0))
+	await second_click_instance.call("_on_card_pressed", 0)
+	await tree.process_frame
+	expect.call(bool(second_click_instance.call("_pending_card_requires_confirmation")), "The first targetless card click should retain its readable selected confirmation state")
+	var targetless_arrow: Control = second_click_instance.get("_drag_target_arrow") as Control
+	expect.call(targetless_arrow != null and not targetless_arrow.visible, "A targetless selected card should not show a tile-targeting arrow")
+	var hand_box: Control = second_click_instance.get("hand_box") as Control
+	expect.call(hand_box != null and int(hand_box.call("emphasized_index")) == 0, "Targetless click confirmation should keep the card visibly selected without the large hover pose")
+	await second_click_instance.call("_on_card_pressed", 0)
+	await tree.process_frame
+	var stoneskin_after: int = int(((second_click_instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("stoneskin", 0))
+	expect.call(stoneskin_after > stoneskin_before and not _hand(second_click_instance).has("stone_plate"), "Clicking the selected targetless card a second time should confirm and play it exactly once")
+	expect.call(str(second_click_instance.get_meta("last_card_play_source_kind", "")) == "hand" and _last_play_source_inside_hand(second_click_instance), "Targetless second-click confirmation should launch from the hand")
+	second_click_instance.queue_free()
+	await tree.process_frame
+
+	var player_click_instance: Node = await _live_instance(tree, expect, "stone_plate", Vector2i(5, 4), 93112)
+	if player_click_instance == null:
+		return
+	stoneskin_before = int(((player_click_instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("stoneskin", 0))
+	await player_click_instance.call("_on_card_pressed", 0)
+	await player_click_instance.call("_on_board_tile_clicked", PLAYER_TILE)
+	await tree.process_frame
+	stoneskin_after = int(((player_click_instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("stoneskin", 0))
+	expect.call(stoneskin_after > stoneskin_before and not _hand(player_click_instance).has("stone_plate"), "Clicking the player should remain a valid targetless-card confirmation path")
+	player_click_instance.queue_free()
+	await tree.process_frame
+
+
 static func _live_instance(tree: SceneTree, expect: Callable, card_id: String, enemy_tile: Vector2i, seed: int) -> Node:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	expect.call(packed != null, "Card drag integration fixture should load RunScene")
@@ -410,6 +681,13 @@ static func _hand(instance: Node) -> Array:
 static func _enemy_hp(instance: Node) -> int:
 	var enemies: Array = (instance.get("_combat_state") as Dictionary).get("enemies", []) as Array
 	return int((enemies[0] as Dictionary).get("hp", 0)) if not enemies.is_empty() else 0
+
+
+static func _presentation_has_enemy_movement_preview(presentation: Dictionary) -> bool:
+	for preview_var: Variant in presentation.get("preview_units", []):
+		if typeof(preview_var) == TYPE_DICTIONARY and str((preview_var as Dictionary).get("role", "")) == "enemy_move_preview":
+			return true
+	return false
 
 
 static func _turn_order_has_card_projection(instance: Node, card_name: String) -> bool:

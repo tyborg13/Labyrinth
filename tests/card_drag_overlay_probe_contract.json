@@ -1,9 +1,9 @@
 {
-  "min_images": 12,
+  "min_images": 21,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
-      "pattern": "*drag_hover_large_arrow_v3.png",
+      "pattern": "*drag_hover_large_arrow_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "pattern": "*drag_following_card_arrow_v3.png",
+      "pattern": "*drag_following_card_arrow_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "pattern": "*drag_snapback_settling_v3.png",
+      "pattern": "*drag_snapback_settling_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_center_valid_v3.png",
+      "pattern": "*drag_arrow_center_valid_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_hard_left_v3.png",
+      "pattern": "*drag_arrow_hard_left_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_hard_right_v3.png",
+      "pattern": "*drag_arrow_hard_right_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_short_v3.png",
+      "pattern": "*drag_arrow_short_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -59,7 +59,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_outside_latched_v3.png",
+      "pattern": "*drag_arrow_outside_latched_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "pattern": "*drag_invalid_cancel_restored_v3.png",
+      "pattern": "*drag_invalid_cancel_restored_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -75,7 +75,7 @@
       ]
     },
     {
-      "pattern": "*drag_targetless_following_v3.png",
+      "pattern": "*drag_targetless_following_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -83,7 +83,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_reduced_motion_v3.png",
+      "pattern": "*drag_arrow_reduced_motion_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -91,11 +91,92 @@
       ]
     },
     {
-      "pattern": "*drag_play_launch_from_hand_v3.png",
+      "pattern": "*drag_play_launch_from_hand_v4.png",
       "width": 1920,
       "height": 1080,
       "regions": [
         {"rect": [520, 300, 880, 780], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*enemy_hover_movement_baseline_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 820], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_arrow_enemy_hover_suppressed_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_targeting_menu_cursor_restored_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 8
+        }
+      ]
+    },
+    {
+      "pattern": "*click_arrow_reduced_motion_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_targeting_controller_handoff_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_arrow_pointer_handoff_restored_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_arrow_cancel_cursor_restored_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 820], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*targetless_second_click_ready_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [600, 580, 720, 500], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*targetless_second_click_launch_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [500, 320, 920, 760], "min_luma_range": 18, "min_luma_stdev": 6}
       ]
     }
   ]

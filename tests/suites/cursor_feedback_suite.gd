@@ -8,6 +8,7 @@ const RunSceneScript = preload("res://scripts/run_scene.gd")
 static func run(expect: Callable) -> void:
 	_test_visual_state_contract(expect)
 	_test_context_resolution(expect)
+	_test_visibility_suppression(expect)
 	_test_production_context_resolution(expect)
 	_test_click_audio_contract(expect)
 	_test_global_installation(expect)
@@ -92,6 +93,19 @@ static func _test_context_resolution(expect: Callable) -> void:
 	expect.call(not bool(help_context.get("actionable", true)) and not bool(help_context.get("drag_source", true)), "Help-shaped tooltip surfaces should remain click-inert")
 	expect.call(CursorFeedbackScript.state_for_context(help_context, true, false) == "pressed_invalid", "Clicking hover-only help should use dull feedback")
 	help_control.free()
+
+static func _test_visibility_suppression(expect: Callable) -> void:
+	expect.call(not CursorFeedbackScript.glyph_should_be_visible(true, true, false, true), "A targeting overlay should be able to hide the forged pointer without changing pointer modality")
+	expect.call(CursorFeedbackScript.glyph_should_be_visible(true, true, false, false), "Clearing targeting suppression should restore the forged pointer under ordinary pointer conditions")
+	var controller: CanvasLayer = CursorFeedbackScript.new()
+	controller.call("set_glyph_visibility_suppressed", "card_targeting_a", true)
+	controller.call("set_glyph_visibility_suppressed", "card_targeting_b", true)
+	expect.call(bool(controller.call("glyph_visibility_suppressed")), "Independent UI owners should compose forged-pointer suppression without overwriting each other")
+	controller.call("set_glyph_visibility_suppressed", "card_targeting_a", false)
+	expect.call(bool(controller.call("glyph_visibility_suppressed")), "Releasing one suppression owner should not reveal the cursor while another owner remains")
+	controller.call("set_glyph_visibility_suppressed", "card_targeting_b", false)
+	expect.call(not bool(controller.call("glyph_visibility_suppressed")), "Releasing the final suppression owner should restore normal forged-pointer visibility")
+	controller.free()
 
 static func _test_production_context_resolution(expect: Callable) -> void:
 	var map: Control = LabyrinthMapViewScript.new()

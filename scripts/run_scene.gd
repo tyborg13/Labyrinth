@@ -1175,6 +1175,7 @@ const CARD_PLAY_ARC_HEIGHT: float = 58.0
 const CARD_PILE_ARC_HEIGHT: float = 42.0
 const CARD_DRAG_FOLLOW_SCALE: float = 0.84
 const CARD_DRAG_FOLLOW_TILT_DEGREES: float = 3.2
+const CARD_TARGETING_CURSOR_SUPPRESSOR_PREFIX: String = "run_scene_card_targeting"
 const CARD_PROXY_POOL_LIMIT: int = 2
 const DOOR_OPENING_FRAMES: int = 8
 const DOOR_OPENING_FRAME_SECONDS: float = 0.075
@@ -1812,6 +1813,7 @@ var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
 var _drag_targeting_active: bool = false
+var _targeting_cursor_suppressor_key: String = ""
 var _card_fx_layer: Control
 var _card_proxy_pool_host: Control
 var _card_proxy_pool: Array[Control] = []
@@ -2186,6 +2188,8 @@ func _input(event: InputEvent) -> void:
 			await _animate_drag_cancel_to_source()
 			get_viewport().set_input_as_handled()
 			return
+	if event is InputEventMouseMotion and _click_card_targeting_active():
+		_sync_click_targeting_arrow(_mouse_event_position(event))
 	if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
 		if event.is_action_pressed("ui_left"):
 			_rotate_aoe_aim(-1)
@@ -2271,6 +2275,12 @@ func _on_input_modality_changed(modality: String) -> void:
 		_controller_suspend_custom_navigation()
 		call_deferred("_refresh_pointer_after_layout", pointer_layout_revision)
 	else:
+		# A pointer drag cannot coexist with controller navigation: cancel it before
+		# the controller event that caused this handoff continues through routing.
+		if _drag_card_index >= 0:
+			_cancel_drag_play()
+		else:
+			_sync_click_targeting_arrow()
 		if _player_movement_selected or _selected_card_index >= 0:
 			_controller_region = "board"
 			_controller_hand_focused = false
@@ -2282,12 +2292,20 @@ func _on_input_modality_changed(modality: String) -> void:
 	_refresh_controller_card_mode_visuals()
 	_refresh_large_map_navigation_hint()
 	_refresh_controller_prompts()
+	call_deferred("_sync_click_targeting_arrow")
 
 func _handle_controller_input(event: InputEvent) -> bool:
 	if event is InputEventJoypadButton and not (event as InputEventJoypadButton).pressed:
 		return false
+	var controller_activity: bool = true
+	if event is InputEventJoypadMotion:
+		controller_activity = absf((event as InputEventJoypadMotion).axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD
+	# Neutral-axis noise should still zero an already-active controller stick, but
+	# it must not steal pointer modality or cancel a live mouse drag.
+	if not controller_activity and not _controller_is_active():
+		return false
 	var router: Node = get_node_or_null("/root/InputRouter")
-	if router != null and router.has_method("mark_controller_device"):
+	if controller_activity and router != null and router.has_method("mark_controller_device"):
 		router.call("mark_controller_device", event.device)
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
 		if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
@@ -3143,6 +3161,10 @@ func _refresh_pointer_after_layout(expected_revision: int) -> void:
 	_refresh_controller_interface()
 
 func _schedule_controller_modal_refresh() -> void:
+	# Pointer targeting remains selected behind non-destructive overlays, but the
+	# overlay temporarily owns the pointer. Suspend or restore the arrow at the
+	# same visibility boundary that already governs modal controller focus.
+	_sync_click_targeting_arrow()
 	if _controller_modal_visible():
 		_controller_suspend_custom_navigation()
 	call_deferred("_refresh_controller_modal_after_layout")
@@ -3481,6 +3503,7 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_set_targeting_cursor_suppressed(false)
 	_shutdown_audio()
 	_finalize_performance_telemetry_scene("scene_exit")
 
@@ -4208,6 +4231,7 @@ func _open_skill_choice_dialog(title: String, description: String, options: Arra
 		call_deferred("_layout_skill_choice_dialog")
 		_show_skill_choice_option_detail(description, first_option_name, first_option_detail)
 		call_deferred("_grab_preferred_gui_focus", first_option_button, _skill_choice_cancel_button)
+		_schedule_controller_modal_refresh()
 
 func _show_skill_choice_option_detail(instruction: String, option_name: String, option_detail: String) -> void:
 	if _skill_choice_description == null:
@@ -4238,6 +4262,7 @@ func _close_skill_choice_dialog() -> void:
 		var return_focus: Control = _skill_choice_return_focus
 		_skill_choice_return_focus = null
 		call_deferred("_grab_preferred_gui_focus", return_focus, _skill_sigil)
+		_schedule_controller_modal_refresh()
 
 func _close_skill_status_popover(restore_focus: bool = true) -> void:
 	var was_visible: bool = _skill_status_scrim != null and _skill_status_scrim.visible
@@ -4251,6 +4276,8 @@ func _close_skill_status_popover(restore_focus: bool = true) -> void:
 		call_deferred("_grab_preferred_gui_focus", return_focus, _skill_sigil)
 	elif was_visible:
 		_skill_status_return_focus = null
+	if was_visible:
+		_schedule_controller_modal_refresh()
 
 func _can_restore_gui_focus(control: Variant) -> bool:
 	if control == null or not is_instance_valid(control):
@@ -8079,6 +8106,7 @@ func _finish_drag_play(preserve_card_preview: bool) -> void:
 	_set_hand_emphasized_index(-1, false)
 	if _drag_target_arrow != null:
 		_drag_target_arrow.clear_targeting()
+	_set_targeting_cursor_suppressed(false)
 	if _drag_overlay != null:
 		_drag_overlay.visible = false
 	if _drag_card_proxy != null:
@@ -8259,18 +8287,107 @@ func _set_drag_hand_targeting_pose() -> void:
 		source_card.set_meta("drag_hand_origin", true)
 
 func _update_drag_targeting_arrow(mouse_position: Vector2) -> void:
-	if _drag_target_arrow == null:
-		return
 	if not _drag_targeting_active or _drag_card_index < 0:
-		_drag_target_arrow.clear_targeting()
+		_sync_click_targeting_arrow()
 		return
-	var source_card: Control = _hand_card_control(_drag_card_index)
+	_set_card_targeting_arrow(_drag_card_index, mouse_position)
+
+func _targeted_card_aiming_active() -> bool:
+	if _drag_targeting_active and _drag_card_index >= 0:
+		return true
+	return (
+		not _animation_lock
+		and str(_run_state.get("mode", "room")) == "combat"
+		and _selected_card_index >= 0
+		and _pending_action_index >= 0
+		and _pending_action_index < _pending_actions.size()
+		and (not _pending_target_tiles.is_empty() or _orientation_pending())
+	)
+
+func _click_card_targeting_active() -> bool:
+	return (
+		_targeted_card_aiming_active()
+		and not _controller_is_active()
+		and _drag_card_index < 0
+		and not _controller_modal_visible()
+	)
+
+func _clicked_card_selection_pose_active() -> bool:
+	return (
+		not _animation_lock
+		and str(_run_state.get("mode", "room")) == "combat"
+		and _selected_card_index >= 0
+		and _drag_card_index < 0
+		and not _dialogue_active
+	)
+
+func _set_clicked_card_selection_pose() -> void:
+	if hand_box == null or _selected_card_index < 0:
+		return
+	if hand_box.emphasized_index() == _selected_card_index:
+		return
+	hand_box.set_emphasized_index(
+		_selected_card_index,
+		false,
+		HandFanContainer.TARGETING_EMPHASIS_SCALE,
+		HandFanContainer.TARGETING_EMPHASIS_EXTRA_LIFT
+	)
+	hand_box.apply_layout_immediately()
+	if _card_focus_tooltip_stack != null:
+		_card_focus_tooltip_stack.hide_stack()
+
+func _sync_click_targeting_arrow(mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	if _clicked_card_selection_pose_active():
+		_set_clicked_card_selection_pose()
+	if _click_card_targeting_active():
+		var endpoint: Vector2 = (
+			mouse_position
+			if mouse_position.x >= 0.0 and mouse_position.y >= 0.0
+			else _current_mouse_position()
+		)
+		_set_card_targeting_arrow(_selected_card_index, endpoint)
+		return
+	if _drag_card_index >= 0:
+		return
+	if _drag_target_arrow != null:
+		_drag_target_arrow.clear_targeting()
+	if _drag_overlay != null:
+		_drag_overlay.visible = false
+	_set_targeting_cursor_suppressed(false)
+
+func _set_card_targeting_arrow(source_index: int, endpoint: Vector2) -> void:
+	if _drag_target_arrow == null or _drag_overlay == null:
+		_set_targeting_cursor_suppressed(false)
+		return
+	var source_card: Control = _hand_card_control(source_index)
 	if source_card == null or not source_card.is_visible_in_tree():
 		_drag_target_arrow.clear_targeting()
+		_set_targeting_cursor_suppressed(false)
 		return
+	_drag_overlay.visible = true
+	_drag_overlay.move_to_front()
 	var source_rect: Rect2 = _control_visual_global_rect(source_card)
 	var arrow_start: Vector2 = source_rect.position + Vector2(source_rect.size.x * 0.5, 4.0)
-	_drag_target_arrow.set_targeting(arrow_start, mouse_position)
+	_drag_target_arrow.set_targeting(arrow_start, endpoint)
+	# Keep the forged pointer out of the targeting language for the entire mode,
+	# including the arrow's very short dead zone near its hand-card anchor.
+	_set_targeting_cursor_suppressed(true)
+
+func _set_targeting_cursor_suppressed(suppressed: bool) -> void:
+	var cursor_feedback: Node = get_node_or_null("/root/CursorFeedback")
+	if cursor_feedback == null or not cursor_feedback.has_method("set_glyph_visibility_suppressed"):
+		return
+	if _targeting_cursor_suppressor_key.is_empty():
+		_targeting_cursor_suppressor_key = "%s_%d" % [
+			CARD_TARGETING_CURSOR_SUPPRESSOR_PREFIX,
+			get_instance_id(),
+		]
+	cursor_feedback.call(
+		"set_glyph_visibility_suppressed",
+		_targeting_cursor_suppressor_key,
+		suppressed
+	)
+	set_meta("targeting_cursor_suppressed", suppressed)
 
 func _prepare_drag_play_source_rect(hand_index: int) -> Rect2:
 	if hand_index < 0 or hand_index >= hand_box.get_child_count():
@@ -8278,6 +8395,7 @@ func _prepare_drag_play_source_rect(hand_index: int) -> Rect2:
 	_set_drag_source_slot_visible(true)
 	if _drag_target_arrow != null:
 		_drag_target_arrow.clear_targeting()
+	_set_targeting_cursor_suppressed(false)
 	_set_hand_emphasized_index(-1, false)
 	var source_card: Control = _hand_card_control(hand_index)
 	if source_card != null:
@@ -10851,6 +10969,8 @@ func _refresh_ui(
 		"refresh_ui_sliced_wall_total" if sliced_wait_occurred else "refresh_ui_total",
 		performance_total_started
 	)
+	_sync_click_targeting_arrow()
+	call_deferred("_sync_click_targeting_arrow")
 	if frame_sliced:
 		_frame_sliced_ui_refresh_active = false
 
@@ -10879,6 +10999,7 @@ func _refresh_animation_lock_ui() -> void:
 	_refresh_contextual_combat_tutorial()
 	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_tutorial_total", performance_phase_started)
 	_update_performance_telemetry_context()
+	_sync_click_targeting_arrow()
 	_record_runtime_performance_phase("animation_lock_ui_telemetry", performance_phase_started)
 	_record_runtime_performance_phase("animation_lock_ui_total", performance_total_started)
 
@@ -10994,6 +11115,8 @@ func _refresh_card_preview_ui() -> void:
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_layout", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
 	_update_performance_telemetry_context()
+	_sync_click_targeting_arrow()
+	call_deferred("_sync_click_targeting_arrow")
 	_record_runtime_performance_phase("card_preview_refresh_tutorial_total", performance_phase_started)
 
 func _refresh_pile_counts() -> void:
@@ -11415,6 +11538,7 @@ func _toggle_skill_status_popover() -> void:
 	_layout_skill_status_popover()
 	call_deferred("_layout_skill_status_popover")
 	call_deferred("_grab_skill_status_palette_focus")
+	_schedule_controller_modal_refresh()
 
 func _layout_skill_status_popover() -> void:
 	if _skill_status_popover == null or not _skill_status_popover.visible or _skill_sigil == null or not is_instance_valid(_skill_sigil):
@@ -17262,7 +17386,14 @@ func _refresh_stage_view() -> void:
 		# The lesson temporarily owns one exact foe's evidence. Respect the saved
 		# show-all preference again as soon as the confirmation step ends.
 		var render_all_enemy_intents: bool = _show_all_enemy_intents and not guided_intent_focus_active
-		var enemy_hover_active: bool = _state_has_visible_enemy_at_tile(display_state, intent_focus_tile)
+		var enemy_hover_preview_allowed: bool = (
+			not _targeted_card_aiming_active()
+			or guided_intent_focus_active
+		)
+		var enemy_hover_active: bool = (
+			enemy_hover_preview_allowed
+			and _state_has_visible_enemy_at_tile(display_state, intent_focus_tile)
+		)
 		if render_all_enemy_intents or enemy_hover_active:
 			var intent_preview_state: Dictionary = _enemy_intent_preview_state(display_state)
 			var threat_previews: Array[Dictionary] = _dictionary_array([])
@@ -20116,7 +20247,10 @@ func _on_card_pressed(index: int) -> void:
 	if _pending_umbra_commit_locked and _selected_card_index >= 0:
 		return
 	if _selected_card_index == index:
-		_cancel_card_selection()
+		if _selected_targetless_card_can_confirm_on_second_click(index):
+			await _on_confirm_card_play_pressed()
+		else:
+			_cancel_card_selection()
 		return
 	if _selected_card_index >= 0 or _card_action_choice_index >= 0:
 		_reset_card_resolution()
@@ -20242,6 +20376,20 @@ func _pending_card_requires_confirmation() -> bool:
 		and not _pending_actions.is_empty()
 		and _pending_action_index >= _pending_actions.size()
 		and not _preview_combat_state.is_empty()
+	)
+
+func _selected_targetless_card_can_confirm_on_second_click(index: int) -> bool:
+	if (
+		index != _selected_card_index
+		or not _pending_card_requires_confirmation()
+		or _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CANCEL_CARD
+	):
+		return false
+	var options: Dictionary = _card_play_options_for_index(index)
+	var original_preview: Dictionary = options.get("play", {}) as Dictionary
+	return (
+		bool(options.get("printed_playable", false))
+		and not CardDragPlayRules.preview_requires_target(original_preview)
 	)
 
 func _on_confirm_card_play_pressed() -> void:
@@ -20969,6 +21117,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_animating_hand_card_index = hand_index
 	_begin_action_step_resolution_tracker(card_id, actions, selected_targets)
 	_animation_lock = true
+	_sync_click_targeting_arrow()
 	_begin_card_play_meter_spend_preview(plays_spent)
 	_refresh_animation_lock_ui()
 	await _begin_locked_hand_render_cache()
