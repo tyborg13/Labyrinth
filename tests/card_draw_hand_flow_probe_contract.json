@@ -1,7 +1,47 @@
 {
-  "min_images": 8,
+  "min_images": 13,
   "expected_sizes": ["1920x1080"],
   "required_images": [
+    {
+      "pattern": "*00_pre_battle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [260, 100, 1400, 860], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*00_room_revealed.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [420, 150, 1080, 650], "min_luma_range": 35, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*00_first_opening_card.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 650, 1320, 430], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*00_opening_stream.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 650, 1320, 430], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*00_opening_complete.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [420, 720, 1080, 360], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
     {
       "pattern": "*01_first_launch.png",
       "width": 1920,
