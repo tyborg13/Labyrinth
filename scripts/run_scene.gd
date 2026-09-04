@@ -1174,6 +1174,8 @@ const CARD_PLAY_ARC_HEIGHT: float = 58.0
 const CARD_PILE_ARC_HEIGHT: float = 42.0
 const CARD_DRAG_TILT_DEGREES: float = 4.5
 const CARD_DRAG_LIFT_SCALE: float = 1.025
+const CARD_DRAG_BOARD_CURSOR_GAP: float = 46.0
+const CARD_DRAG_VIEWPORT_MARGIN: float = 12.0
 const CARD_PROXY_POOL_LIMIT: int = 2
 const DOOR_OPENING_FRAMES: int = 8
 const DOOR_OPENING_FRAME_SECONDS: float = 0.075
@@ -8074,10 +8076,7 @@ func _finish_drag_play(preserve_card_preview: bool) -> void:
 	_drag_card_grab_offset = Vector2.ZERO
 	_drag_card_base_scale = Vector2.ONE
 	_update_drag_overlay_hover("")
-	_refresh_hand_panel()
-	_refresh_choice_bar()
-	_refresh_stage_view()
-	_refresh_contextual_combat_tutorial()
+	_refresh_card_preview_ui()
 
 func _animate_drag_cancel_to_source() -> void:
 	if _drag_card_proxy != null and _drag_card_source_rect.size.length() > 0.0:
@@ -8201,10 +8200,11 @@ func _mouse_event_position(event: InputEvent) -> Vector2:
 func _update_drag_proxy_position(mouse_position: Vector2) -> void:
 	if _drag_card_proxy == null:
 		return
-	var visual_rect := Rect2(mouse_position - _drag_card_grab_offset, _drag_card_source_rect.size)
+	var over_board: bool = _drag_zone_at(mouse_position) == "play"
+	var visual_rect := _drag_proxy_rect(mouse_position, over_board)
 	_drag_card_proxy.position = _card_proxy_position_for_rect(visual_rect)
 	var cue: Dictionary = CardDragPlayRules.visual_cue(
-		_drag_zone_at(mouse_position) == "play",
+		over_board,
 		_drag_card_options.get("play", {}) as Dictionary,
 		_drag_hover_target_is_valid(_hovered_board_tile)
 	)
@@ -8220,12 +8220,37 @@ func _update_drag_proxy_position(mouse_position: Vector2) -> void:
 	_drag_card_proxy.rotation = 0.0 if proxy_state in ["ready", "target"] else deg_to_rad(normalized_x * CARD_DRAG_TILT_DEGREES)
 	_drag_card_proxy.scale = _drag_card_base_scale * state_scale
 
+func _drag_proxy_rect(mouse_position: Vector2, over_board: bool) -> Rect2:
+	var card_size: Vector2 = _drag_card_source_rect.size
+	var visual_rect := Rect2(mouse_position - _drag_card_grab_offset, card_size)
+	if not over_board or card_size.x <= 0.0 or card_size.y <= 0.0:
+		return visual_rect
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var place_right: bool = mouse_position.x <= viewport_size.x * 0.5
+	visual_rect.position.x = (
+		mouse_position.x + CARD_DRAG_BOARD_CURSOR_GAP
+		if place_right
+		else mouse_position.x - CARD_DRAG_BOARD_CURSOR_GAP - card_size.x
+	)
+	visual_rect.position.y = mouse_position.y - card_size.y * 0.5
+	visual_rect.position.x = clampf(
+		visual_rect.position.x,
+		CARD_DRAG_VIEWPORT_MARGIN,
+		maxf(CARD_DRAG_VIEWPORT_MARGIN, viewport_size.x - card_size.x - CARD_DRAG_VIEWPORT_MARGIN)
+	)
+	visual_rect.position.y = clampf(
+		visual_rect.position.y,
+		CARD_DRAG_VIEWPORT_MARGIN,
+		maxf(CARD_DRAG_VIEWPORT_MARGIN, viewport_size.y - card_size.y - CARD_DRAG_VIEWPORT_MARGIN)
+	)
+	return visual_rect
+
 func _drag_proxy_modulate(proxy_state: String) -> Color:
 	match proxy_state:
 		"ready":
-			return Color("fff1c4")
+			return Color(1.0, 0.95, 0.78, 0.94)
 		"target":
-			return Color("dfffd9")
+			return Color(0.88, 1.0, 0.85, 0.94)
 		"cancel":
 			return Color(0.74, 0.70, 0.66, 0.90)
 		_:

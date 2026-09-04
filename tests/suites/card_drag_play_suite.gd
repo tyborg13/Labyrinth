@@ -76,6 +76,8 @@ static func _test_targeted_drag_entry_and_invalid_release(tree: SceneTree, expec
 	await tree.process_frame
 	expect.call(int(instance.get("_drag_card_index")) == -1 and int(instance.get("_selected_card_index")) == -1, "Invalid target release should clear both drag and targeting state")
 	expect.call(_hand(instance) == hand_before, "Invalid target release should not consume or spend the card")
+	expect.call((instance.call("_turn_order_card_time_preview") as Dictionary).is_empty(), "Invalid target release should clear the Turn Clock card-time preview")
+	expect.call(not _turn_order_has_card_projection(instance, "Quick Stab"), "Invalid target release should rebuild the Turn Clock without the canceled card projection")
 	instance.queue_free()
 	await tree.process_frame
 
@@ -238,6 +240,16 @@ static func _hand(instance: Node) -> Array:
 static func _enemy_hp(instance: Node) -> int:
 	var enemies: Array = (instance.get("_combat_state") as Dictionary).get("enemies", []) as Array
 	return int((enemies[0] as Dictionary).get("hp", 0)) if not enemies.is_empty() else 0
+
+
+static func _turn_order_has_card_projection(instance: Node, card_name: String) -> bool:
+	var turn_order_bar: Control = instance.get("_turn_order_bar") as Control
+	if turn_order_bar == null:
+		return false
+	for child: Node in turn_order_bar.get_children():
+		if str(child.get_meta("turn_order_projection_card_name", "")) == card_name:
+			return true
+	return false
 
 
 static func _layout(enemy_tile: Vector2i) -> Dictionary:
