@@ -12309,9 +12309,10 @@ func _refresh_combat_objective_hud() -> void:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode != "combat" or _combat_state.is_empty():
+		_combat_objective_hud.cancel_intro()
 		_combat_objective_hud.visible = false
 		return
-	if _combat_objective_hud.set_combat_state(_combat_objective_hud_state()):
+	if _combat_objective_hud.set_combat_state(_combat_objective_hud_state()) and not _combat_objective_hud.intro_active:
 		_layout_combat_objective_hud()
 
 func _combat_objective_hud_state() -> Dictionary:
@@ -12327,6 +12328,11 @@ func _combat_objective_hud_state() -> Dictionary:
 func _layout_combat_objective_hud() -> void:
 	if _combat_objective_hud == null:
 		return
+	if _combat_objective_hud.intro_active:
+		return
+	_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect())
+
+func _combat_objective_hud_target_rect() -> Rect2:
 	var hud_width: float = 350.0
 	var hud_height: float = 68.0
 	var left: float = UiTypography.SAFE_MARGIN
@@ -12345,11 +12351,44 @@ func _layout_combat_objective_hud() -> void:
 		if play_meter_rect.size.y > 0.0:
 			top = play_meter_rect.position.y - ui_root.get_global_rect().position.y - hud_height - 12.0
 	top = clampf(top, minimum_top, maxf(minimum_top, viewport_size.y - hud_height - UiTypography.SAFE_MARGIN))
-	_combat_objective_hud.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_combat_objective_hud.offset_left = left
-	_combat_objective_hud.offset_top = top
-	_combat_objective_hud.offset_right = left + hud_width
-	_combat_objective_hud.offset_bottom = top + hud_height
+	return Rect2(Vector2(left, top), Vector2(hud_width, hud_height))
+
+func _apply_combat_objective_hud_rect(rect: Rect2) -> void:
+	if _combat_objective_hud == null:
+		return
+	_combat_objective_hud.set_hud_rect(rect)
+
+func _animate_combat_objective_intro() -> void:
+	if (
+		_combat_objective_hud == null
+		or str(_run_state.get("mode", "room")) != "combat"
+		or _combat_state.is_empty()
+	):
+		return
+	_refresh_combat_objective_hud()
+	if not _combat_objective_hud.visible:
+		return
+	var target_rect: Rect2 = _combat_objective_hud_target_rect()
+	await _combat_objective_hud.play_intro(
+		target_rect,
+		get_viewport_rect().size,
+		_reduced_motion_enabled()
+	)
+
+func _prepare_combat_objective_intro() -> void:
+	if (
+		_combat_objective_hud == null
+		or str(_run_state.get("mode", "room")) != "combat"
+		or _combat_state.is_empty()
+	):
+		return
+	_refresh_combat_objective_hud()
+	if not _combat_objective_hud.visible:
+		return
+	_combat_objective_hud.prepare_intro(
+		_combat_objective_hud_target_rect(),
+		get_viewport_rect().size
+	)
 
 func _setup_boss_health_overlay() -> void:
 	_boss_health_overlay = Control.new()
@@ -23361,6 +23400,16 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 		_render_board_state(animated_state, {})
 		await get_tree().create_timer(0.16).timeout
 		return
+	var visible_action_step: Dictionary = _visible_umbra_action_step(animated_state, step)
+	if not visible_action_step.is_empty():
+		if kind == "move":
+			await _animate_move_step(animated_state, visible_action_step)
+		else:
+			# Reuse the complete authored attack timeline with geometry clipped to
+			# the visible span. This keeps impact feedback and reduced-motion timing
+			# identical to revealed attacks without disclosing the hidden actor.
+			await _animate_enemy_phase_steps(animated_state, [visible_action_step])
+		return
 	var before_step_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
 	if bool(step.get("revealed_after_action", false)):
@@ -23384,6 +23433,163 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 	}))
 	await _animate_turn_order_alongside_defeats(before_step_state, animated_state)
 	await get_tree().create_timer(0.06).timeout
+
+func _visible_umbra_action_step(state: Dictionary, step: Dictionary) -> Dictionary:
+	var kind: String = str(step.get("kind", ""))
+	if kind == "move":
+		var from_tile: Vector2i = step.get("from", Vector2i(-1, -1))
+		var to_tile: Vector2i = step.get("to", Vector2i(-1, -1))
+		var movement_path: Array[Vector2i] = _resolved_movement_animation_path(from_tile, to_tile, step.get("path", []))
+		if _visible_umbra_action_tiles(state, movement_path).is_empty():
+			return {}
+		var emerging_move: Dictionary = step.duplicate(true)
+		emerging_move.erase("hidden_by_umbra")
+		emerging_move["actor_name"] = "Unknown Presence"
+		emerging_move["umbra_reveal_actor_on_visible_tiles"] = true
+		return emerging_move
+	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
+		return {}
+	var visible_tiles: Array[Vector2i] = _visible_umbra_action_tiles(state, step.get("tiles", []))
+	var from_tile: Vector2i = step.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = step.get("to", Vector2i(-1, -1))
+	var visible_line: Array[Vector2i] = _visible_umbra_action_tiles(
+		state,
+		_umbra_action_line_tiles(from_tile, to_tile)
+	)
+	var visible_line_segments: Array = _umbra_action_visible_line_segments(state, from_tile, to_tile)
+	if visible_line.is_empty() and visible_tiles.is_empty():
+		return {}
+	var visible_attack: Dictionary = step.duplicate(true)
+	visible_attack.erase("hidden_by_umbra")
+	visible_attack["actor_name"] = "Unknown Presence"
+	visible_attack["umbra_action_clipped"] = true
+	# Start and end line FX on visible tiles so authored trails cannot expose the
+	# concealed source. Fractional spans preserve separated islands of visibility
+	# when a projectile crosses a light pocket and returns to the Umbra.
+	if not visible_line.is_empty():
+		visible_attack["umbra_original_from"] = from_tile
+		visible_attack["umbra_original_to"] = to_tile
+		visible_attack["umbra_visible_line_segments"] = visible_line_segments
+		visible_attack["from"] = visible_line[0]
+		visible_attack["to"] = visible_line[visible_line.size() - 1]
+	if kind in ["aoe", "lightning_strikes"] and not visible_tiles.is_empty():
+		visible_attack["tiles"] = visible_tiles
+		var center_tile: Vector2i = visible_attack.get("center", Vector2i(-1, -1))
+		if center_tile.x >= 0 and not visible_tiles.has(center_tile):
+			visible_attack["center"] = visible_tiles[0]
+	return visible_attack
+
+func _visible_umbra_action_tiles(state: Dictionary, values: Array) -> Array[Vector2i]:
+	var visible: Array[Vector2i] = _vector2i_array([])
+	for tile: Vector2i in _vector2i_array(values):
+		if _combat_engine.is_tile_visible_to_player(state, tile) and not visible.has(tile):
+			visible.append(tile)
+	return visible
+
+func _umbra_action_line_tiles(from_tile: Vector2i, to_tile: Vector2i) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = _vector2i_array([])
+	if from_tile.x < 0 or to_tile.x < 0:
+		return tiles
+	var delta: Vector2i = to_tile - from_tile
+	var sample_count: int = maxi(1, maxi(absi(delta.x), absi(delta.y)) * 4)
+	for sample_index: int in range(sample_count + 1):
+		var progress: float = float(sample_index) / float(sample_count)
+		var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), progress)
+		var tile := Vector2i(roundi(sample.x), roundi(sample.y))
+		if not tiles.has(tile):
+			tiles.append(tile)
+	return tiles
+
+func _umbra_action_visible_line_segments(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i) -> Array:
+	var segments: Array = []
+	if from_tile.x < 0 or to_tile.x < 0:
+		return segments
+	var delta: Vector2i = to_tile - from_tile
+	var sample_count: int = maxi(8, maxi(absi(delta.x), absi(delta.y)) * 16)
+	var segment_start: float = -1.0
+	var segment_start_hidden_tile := Vector2i(-1, -1)
+	var segment_start_visible_tile := Vector2i(-1, -1)
+	var segment_start_clip_boundaries: Array[Dictionary] = _dictionary_array([])
+	var previous_visible: bool = false
+	var previous_sample_tile := Vector2i(-1, -1)
+	for sample_index: int in range(sample_count + 1):
+		var progress: float = float(sample_index) / float(sample_count)
+		var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), progress)
+		var sample_tile := Vector2i(roundi(sample.x), roundi(sample.y))
+		var visible: bool = _combat_engine.is_tile_visible_to_player(state, sample_tile)
+		if visible and not previous_visible:
+			segment_start = maxf(0.0, (float(sample_index) - 0.5) / float(sample_count))
+			segment_start_hidden_tile = previous_sample_tile
+			segment_start_visible_tile = sample_tile
+			segment_start_clip_boundaries = _umbra_action_transition_clip_boundaries(
+				state,
+				previous_sample_tile,
+				sample_tile
+			)
+		elif not visible and previous_visible and segment_start >= 0.0:
+			var completed_segment := {
+				"start": segment_start,
+				"end": maxf(segment_start, (float(sample_index) - 0.5) / float(sample_count)),
+				"end_visible_tile": previous_sample_tile,
+				"end_hidden_tile": sample_tile,
+				"end_clip_boundaries": _umbra_action_transition_clip_boundaries(
+					state,
+					sample_tile,
+					previous_sample_tile
+				),
+			}
+			if segment_start_hidden_tile.x >= 0:
+				completed_segment["start_hidden_tile"] = segment_start_hidden_tile
+				completed_segment["start_visible_tile"] = segment_start_visible_tile
+				completed_segment["start_clip_boundaries"] = segment_start_clip_boundaries
+			segments.append(completed_segment)
+			segment_start = -1.0
+			segment_start_hidden_tile = Vector2i(-1, -1)
+			segment_start_visible_tile = Vector2i(-1, -1)
+			segment_start_clip_boundaries.clear()
+		previous_visible = visible
+		previous_sample_tile = sample_tile
+	if previous_visible and segment_start >= 0.0:
+		var final_segment := {"start": segment_start, "end": 1.0}
+		if segment_start_hidden_tile.x >= 0:
+			final_segment["start_hidden_tile"] = segment_start_hidden_tile
+			final_segment["start_visible_tile"] = segment_start_visible_tile
+			final_segment["start_clip_boundaries"] = segment_start_clip_boundaries
+		segments.append(final_segment)
+	return segments
+
+func _umbra_action_transition_clip_boundaries(
+	state: Dictionary,
+	hidden_tile: Vector2i,
+	visible_tile: Vector2i
+) -> Array[Dictionary]:
+	var boundaries: Array[Dictionary] = _dictionary_array([])
+	if hidden_tile.x < 0 or visible_tile.x < 0:
+		return boundaries
+	var delta: Vector2i = visible_tile - hidden_tile
+	if absi(delta.x) + absi(delta.y) == 1:
+		boundaries.append({"hidden_tile": hidden_tile, "visible_tile": visible_tile})
+		return boundaries
+	if absi(delta.x) == 1 and absi(delta.y) == 1:
+		# A sampled diagonal crosses a four-tile corner. Each concealed cardinal
+		# neighbor contributes one side of the visible wedge; using only one side
+		# can expose projectile width over the other hidden tile.
+		var corner_neighbors: Array[Vector2i] = _vector2i_array([
+			Vector2i(hidden_tile.x, visible_tile.y),
+			Vector2i(visible_tile.x, hidden_tile.y),
+		])
+		for neighbor: Vector2i in corner_neighbors:
+			if not _combat_engine.is_tile_visible_to_player(state, neighbor):
+				boundaries.append({"hidden_tile": neighbor, "visible_tile": visible_tile})
+		# If both corner neighbors are already visible, still exclude the
+		# diagonally adjacent concealed source. These two planes favor privacy at
+		# the measure-zero corner rather than allowing a sprite tail to leak.
+		if boundaries.is_empty():
+			for neighbor: Vector2i in corner_neighbors:
+				boundaries.append({"hidden_tile": hidden_tile, "visible_tile": neighbor})
+		return boundaries
+	boundaries.append({"hidden_tile": hidden_tile, "visible_tile": visible_tile})
+	return boundaries
 
 func _visible_umbra_floating_texts(state: Dictionary, values: Array) -> Array[Dictionary]:
 	var visible: Array[Dictionary] = []
@@ -23412,13 +23618,19 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
 	var path: Array[Vector2i] = _resolved_movement_animation_path(from_tile, to_tile, step.get("path", []))
+	var presented_path: Array[Vector2i] = path
+	if bool(step.get("umbra_reveal_actor_on_visible_tiles", false)):
+		presented_path = _visible_umbra_action_tiles(animated_state, path)
+		if presented_path.size() < 2:
+			presented_path = _vector2i_array([])
 	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 	await _animate_actor_along_path(animated_state, actor_key, path, {
 		"focus_actor_keys": [actor_key],
 		"focus_actor_color": PLAYER_ATTACK_FOCUS,
 		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-		"path_tiles": path,
-		"path_color": ENEMY_PATH_PREVIEW_COLOR
+		"path_tiles": presented_path,
+		"path_color": ENEMY_PATH_PREVIEW_COLOR,
+		"umbra_reveal_actor_on_visible_tiles": bool(step.get("umbra_reveal_actor_on_visible_tiles", false))
 	})
 	var before_move_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
@@ -23463,8 +23675,28 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
 		var t: float = float(segment_frame) / float(MOVE_STEP_FRAMES)
 		var moving_footprint_center: Vector2 = from_point.lerp(to_point, t)
+		var frame_presentation: Dictionary = base_presentation
+		if bool(base_presentation.get("umbra_reveal_actor_on_visible_tiles", false)):
+			frame_presentation = base_presentation.duplicate(false)
+			var from_visible: bool = _combat_engine.is_tile_visible_to_player(display_state, segment_from)
+			var to_visible: bool = _combat_engine.is_tile_visible_to_player(display_state, segment_to)
+			var crosses_umbra_boundary: bool = from_visible != to_visible
+			if crosses_umbra_boundary or _umbra_movement_sample_visible(display_state, segment_from, segment_to, t):
+				frame_presentation["umbra_action_visible_actor_keys"] = [actor_key]
+				if crosses_umbra_boundary:
+					frame_presentation["umbra_action_actor_clips"] = {
+						actor_key: {
+							"hidden_tile": segment_to if from_visible else segment_from,
+							"visible_tile": segment_from if from_visible else segment_to,
+						}
+					}
+				else:
+					frame_presentation.erase("umbra_action_actor_clips")
+			else:
+				frame_presentation.erase("umbra_action_visible_actor_keys")
+				frame_presentation.erase("umbra_action_actor_clips")
 		var presentation: Dictionary = _movement_actor_frame_presentation(
-			base_presentation,
+			frame_presentation,
 			actor_key,
 			moving_footprint_center,
 			draw_tile,
@@ -23472,6 +23704,11 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		)
 		_render_board_state(display_state, presentation, true)
 	)
+
+func _umbra_movement_sample_visible(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i, progress: float) -> bool:
+	var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), clampf(progress, 0.0, 1.0))
+	var sample_tile := Vector2i(roundi(sample.x), roundi(sample.y))
+	return _combat_engine.is_tile_visible_to_player(state, sample_tile)
 
 func _movement_actor_frame_presentation(
 	base_presentation: Dictionary,
@@ -23813,7 +24050,18 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 	target_presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(display_state)
 	target_presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(display_state)
 	target_presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
-	target_presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
+	var visible_enemy_ids: Array = _combat_engine.visible_enemy_ids(display_state)
+	for actor_key_var: Variant in target_presentation.get("umbra_action_visible_actor_keys", []):
+		var actor_key: String = str(actor_key_var)
+		for enemy_var: Variant in display_state.get("enemies", []):
+			if typeof(enemy_var) != TYPE_DICTIONARY:
+				continue
+			var enemy: Dictionary = enemy_var as Dictionary
+			var enemy_id: int = int(enemy.get("id", -1))
+			if _enemy_key(enemy) == actor_key and enemy_id >= 0 and not visible_enemy_ids.has(enemy_id):
+				visible_enemy_ids.append(enemy_id)
+				break
+	target_presentation["visible_enemy_ids"] = visible_enemy_ids
 	target_presentation["umbra_light_sources"] = _combat_engine.effective_light_sources(display_state)
 	var umbra_state: Dictionary = display_state.get("umbra", {}) as Dictionary
 	target_presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
@@ -24968,23 +25216,27 @@ func _present_opening_hand_after_combat_entry() -> void:
 	var opening_transition: Dictionary = _draw_hand_transition_between_states({}, _combat_state)
 	var draw_entries: Array = opening_transition.get("draw_entries", []) as Array
 	var draw_sfx_count: int = _take_pending_card_draw_sfx_count(_combat_state)
+
+	# Opening-hand state already exists when combat begins. Keep the authoritative
+	# hand hidden and input locked while its fan geometry settles. Give the uncovered
+	# room one complete rendered frame, introduce the scenario objective, and only
+	# then launch the first card so the two opening motions never compete. Taking the
+	# semantic draw count before this refresh also prevents the generic refresh
+	# consumer from playing the deal sounds behind the pre-battle overlay.
+	_animation_lock = true
+	_opening_hand_draw_in_progress = not draw_entries.is_empty()
+	_prepare_combat_objective_intro()
+	_refresh_ui()
+	if hand_box != null and not draw_entries.is_empty():
+		hand_box.visible = false
+	await _await_opening_hand_draw_layout()
+	if _card_fx_can_continue_combat():
+		await _animate_combat_objective_intro()
 	if draw_entries.is_empty():
 		_animation_lock = false
 		_queue_hand_ready_wave("combat_start")
 		_refresh_ui()
 		return
-
-	# Opening-hand state already exists when combat begins. Keep the authoritative
-	# hand hidden and input locked while its fan geometry settles, then give the
-	# uncovered room one complete rendered frame before launching the first card.
-	# Taking the semantic draw count before this refresh also prevents the generic
-	# refresh consumer from playing the deal sounds behind the pre-battle overlay.
-	_animation_lock = true
-	_opening_hand_draw_in_progress = true
-	_refresh_ui()
-	if hand_box != null:
-		hand_box.visible = false
-	await _await_opening_hand_draw_layout()
 	if _card_fx_can_continue_combat():
 		await _animate_draw_cards_fx(draw_entries, Rect2(), draw_sfx_count, opening_transition)
 	_opening_hand_draw_in_progress = false
