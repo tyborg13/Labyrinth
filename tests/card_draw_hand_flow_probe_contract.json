@@ -43,7 +43,7 @@
       ]
     },
     {
-      "pattern": "*objective_intro_v4_00_crisp_text_hold.png",
+      "pattern": "*objective_intro_v5_00_shadowed_crisp_text_hold.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "pattern": "*objective_intro_v4_01_chrome_arriving.png",
+      "pattern": "*objective_intro_v5_01_chrome_arriving_shadow_retired.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -59,7 +59,7 @@
       ]
     },
     {
-      "pattern": "*objective_intro_v4_02_content_arriving.png",
+      "pattern": "*objective_intro_v5_02_content_arriving.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "pattern": "*objective_intro_v4_03_reduced_motion_text.png",
+      "pattern": "*objective_intro_v5_03_reduced_motion_shadowed_text.png",
       "width": 1920,
       "height": 1080,
       "regions": [

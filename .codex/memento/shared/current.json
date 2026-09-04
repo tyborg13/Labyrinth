@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-04T12:42:47Z",
+  "updated_at": "2026-09-04T13:57:52Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10172,7 +10172,7 @@
       }
     },
     {
-      "id": "mnt_20260904T124247Z_1abdd159",
+      "id": "mnt_20260904T135752Z_98d31ca1",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -10181,18 +10181,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_objective_hud.gd",
-      "summary": "Battle objective intros use crisp native-size upper-center text",
-      "details": "The opening OBJECTIVE/title treatment should be authored at genuinely large font sizes and held at 1x CanvasItem scale so it stays crisp at 1920x1080. Keep the approved upper-center anchor, make the title slightly larger than the old approximately 80px effective rendering, then scale down only during the slide into the persistent widget; Reduced Motion uses the same native-size hold.",
+      "summary": "Battle objective intros use crisp shadowed upper-center text",
+      "details": "Author the opening OBJECTIVE/title treatment at genuinely large native font sizes and hold it at 1x CanvasItem scale. During the board-overlay hold, use a restrained dark downward drop shadow for separation and depth; fade that shadow as the text begins shrinking toward the persistent widget, whose title remains unchanged. Reduced Motion keeps the same static shadowed hold before snapping to the widget.",
       "status": "active",
-      "created_at": "2026-09-04T12:42:47Z",
-      "updated_at": "2026-09-04T12:42:47Z",
+      "created_at": "2026-09-04T13:57:52Z",
+      "updated_at": "2026-09-04T13:57:52Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260904T120134Z_66f6e03e"
+        "mnt_20260904T124247Z_1abdd159"
       ],
       "source": {
         "branch": "codex/animate-combat-objective-intro-into-hud",
-        "commit": "70178c1a"
+        "commit": "7438c4a5"
       }
     }
   ]

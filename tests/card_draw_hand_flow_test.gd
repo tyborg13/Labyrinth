@@ -76,6 +76,7 @@ func _run_opening_hand_entry_regression() -> void:
 		_expect(is_zero_approx(objective_hud.modulate.a), "The prepared upper-center objective should stay transparent until its pop begins")
 		var prepared_intro_text: Control = objective_hud.get("_intro_text_stack") as Control
 		_expect(prepared_intro_text != null and is_zero_approx(prepared_intro_text.modulate.a), "The transform-independent objective copy should also stay transparent until its pop begins")
+		_expect(is_zero_approx(float(objective_hud.get("intro_shadow_progress"))), "The objective shadow should wait for the text reveal")
 		_expect(is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "The prepared objective should keep its widget background and persistent contents hidden")
 		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "The prepared objective should keep the compact icon and detail hidden")
 
@@ -94,12 +95,17 @@ func _run_opening_hand_entry_regression() -> void:
 		var intro_text_stack: Control = objective_hud.get("_intro_text_stack") as Control
 		var intro_kicker: Label = objective_hud.get("_intro_kicker") as Label
 		var intro_title: Label = objective_hud.get("_intro_title") as Label
+		var settled_title: Label = objective_hud.get("_title") as Label
 		var content_row: Control = objective_hud.get("_content_row") as Control
 		_expect(intro_text_stack != null and intro_text_stack.visible and intro_text_stack.modulate.a > 0.99, "The readable hold should show the dedicated OBJECTIVE text treatment")
 		_expect(intro_text_stack != null and intro_text_stack.scale.is_equal_approx(Vector2.ONE), "The held objective copy should render at native 1x scale instead of enlarging a low-resolution label")
 		_expect(intro_text_stack != null and (intro_text_stack.position + intro_text_stack.size * 0.5).is_equal_approx(intro_center), "The native-size objective copy should preserve the approved upper-center placement")
 		_expect(intro_kicker != null and intro_kicker.get_theme_font_size("font_size") == 46, "The OBJECTIVE kicker should use its authored large native font size")
 		_expect(intro_title != null and intro_title.get_theme_font_size("font_size") == 92, "The opening objective title should be crisp and slightly larger than the previous approximately 80px presentation")
+		_expect(intro_kicker != null and intro_kicker.get_theme_color("font_shadow_color").a > 0.65, "The held OBJECTIVE kicker should gain a restrained drop shadow over the board")
+		_expect(intro_title != null and intro_title.get_theme_color("font_shadow_color").a > 0.75, "The held objective title should gain a readable drop shadow over the board")
+		_expect(intro_title != null and intro_title.get_theme_constant("shadow_offset_y") == 8, "The title shadow should sit below the glyphs to add depth")
+		_expect(settled_title != null and not settled_title.has_theme_color_override("font_shadow_color"), "The permanent objective widget should keep its established shadow-free title treatment")
 		_expect(content_row != null and is_zero_approx(content_row.modulate.a), "The icon, live detail, and compact widget copy should remain hidden during the text-only hold")
 		_expect(objective_hud.mouse_filter == Control.MOUSE_FILTER_IGNORE, "The objective intro should never intercept pointer input")
 	_expect(bool(instance.get("_animation_lock")), "Combat input should remain locked throughout the objective introduction")
@@ -119,6 +125,7 @@ func _run_opening_hand_entry_regression() -> void:
 	if objective_hud != null:
 		var traveling_intro_text: Control = objective_hud.get("_intro_text_stack") as Control
 		_expect(traveling_intro_text != null and traveling_intro_text.scale.x > 0.32 and traveling_intro_text.scale.x < 1.0, "The traveling objective copy should visibly shrink toward its permanent size")
+		_expect(float(objective_hud.get("intro_shadow_progress")) < 0.01, "The board-separation shadow should retire before the compact widget arrives")
 		var chrome_progress: float = float(objective_hud.get("intro_chrome_progress"))
 		_expect(chrome_progress >= 0.5, "The widget background should fade in behind the text during the latter travel")
 		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "The compact widget text and icon should wait until the large text has nearly retired")
@@ -191,6 +198,7 @@ func _run_opening_hand_entry_regression() -> void:
 		_expect(reduced_intro_text != null and reduced_intro_text.scale.is_equal_approx(Vector2.ONE), "Reduced Motion should render its static objective copy at native 1x scale")
 		_expect(reduced_intro_text != null and (reduced_intro_text.position + reduced_intro_text.size * 0.5).is_equal_approx(reduced_intro_center), "Reduced Motion should keep the native-size text in the approved upper-center position")
 		_expect(reduced_intro_title != null and reduced_intro_title.get_theme_font_size("font_size") == 92, "Reduced Motion should retain the same crisp, enlarged authored title size")
+		_expect(reduced_intro_title != null and reduced_intro_title.get_theme_color("font_shadow_color").a > 0.75, "Reduced Motion should retain the same shadowed board separation during its static hold")
 		_expect(is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "Reduced Motion should preserve the text-only hold before snapping to the complete widget")
 		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "Reduced Motion should keep compact widget content out of its text-only hold")
 	var reduced_deadline: int = Time.get_ticks_msec() + 1500

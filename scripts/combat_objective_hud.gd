@@ -15,10 +15,13 @@ const INTRO_KICKER_FONT_SIZE: int = 46
 const INTRO_TITLE_START_FONT_SIZE: int = 82
 const INTRO_TITLE_FONT_SIZE: int = 92
 const INTRO_TEXT_TARGET_SCALE: float = 0.32
+const INTRO_KICKER_SHADOW_COLOR := Color(0.008, 0.003, 0.012, 0.68)
+const INTRO_TITLE_SHADOW_COLOR := Color(0.008, 0.003, 0.012, 0.78)
 const INTRO_POP_SECONDS: float = 0.24
 const INTRO_HOLD_SECONDS: float = 0.56
 const INTRO_TRAVEL_SECONDS: float = 0.64
 const INTRO_REDUCED_HOLD_SECONDS: float = 0.65
+const INTRO_SHADOW_FADE_SECONDS: float = 0.22
 const INTRO_CHROME_DELAY_SECONDS: float = 0.20
 const INTRO_CHROME_FADE_SECONDS: float = 0.26
 const INTRO_TEXT_FADE_DELAY_SECONDS: float = 0.36
@@ -42,6 +45,7 @@ var intro_active: bool = false
 var intro_phase: String = ""
 var intro_chrome_progress: float = 1.0
 var intro_content_progress: float = 1.0
+var intro_shadow_progress: float = 0.0
 var _intro_tween: Tween
 
 func _ready() -> void:
@@ -168,6 +172,9 @@ func _build() -> void:
 	_intro_kicker.add_theme_color_override("font_color", Color("d2ad72"))
 	_intro_kicker.add_theme_color_override("font_outline_color", Color("12090a"))
 	_intro_kicker.add_theme_constant_override("outline_size", 4)
+	_intro_kicker.add_theme_constant_override("shadow_offset_x", 3)
+	_intro_kicker.add_theme_constant_override("shadow_offset_y", 6)
+	_intro_kicker.add_theme_constant_override("shadow_outline_size", 3)
 	_intro_text_stack.add_child(_intro_kicker)
 	_intro_title = Label.new()
 	_intro_title.name = "ObjectiveIntroTitle"
@@ -179,8 +186,12 @@ func _build() -> void:
 	_intro_title.add_theme_color_override("font_color", Color("fff0c7"))
 	_intro_title.add_theme_color_override("font_outline_color", Color("12090a"))
 	_intro_title.add_theme_constant_override("outline_size", 7)
+	_intro_title.add_theme_constant_override("shadow_offset_x", 4)
+	_intro_title.add_theme_constant_override("shadow_offset_y", 8)
+	_intro_title.add_theme_constant_override("shadow_outline_size", 4)
 	_intro_text_stack.add_child(_intro_title)
 	_set_intro_font_progress(1.0)
+	_set_intro_shadow_progress(0.0)
 
 func set_hud_rect(rect: Rect2) -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -212,6 +223,7 @@ func prepare_intro(target_rect: Rect2, viewport_size: Vector2) -> bool:
 	_set_intro_chrome_progress(0.0)
 	_set_intro_content_progress(0.0)
 	_set_intro_font_progress(0.0)
+	_set_intro_shadow_progress(0.0)
 	_intro_text_stack.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_intro_text_stack.size = INTRO_TEXT_SIZE
 	_intro_text_stack.position = intro_center - INTRO_TEXT_SIZE * 0.5
@@ -230,6 +242,7 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 		scale = Vector2.ONE * INTRO_POP_SCALE
 		modulate = Color.WHITE
 		_set_intro_font_progress(1.0)
+		_set_intro_shadow_progress(1.0)
 		_intro_text_stack.scale = Vector2.ONE
 		_intro_text_stack.modulate = Color.WHITE
 		intro_phase = "reduced_hold"
@@ -265,6 +278,12 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 		1.0,
 		INTRO_POP_SECONDS
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_method(
+		_set_intro_shadow_progress,
+		0.0,
+		1.0,
+		INTRO_POP_SECONDS
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	await _intro_tween.finished
 	if not _intro_can_continue():
 		return
@@ -307,6 +326,12 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 		INTRO_TEXT_FADE_SECONDS
 	).set_delay(INTRO_TEXT_FADE_DELAY_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	_intro_tween.tween_method(
+		_set_intro_shadow_progress,
+		1.0,
+		0.0,
+		INTRO_SHADOW_FADE_SECONDS
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_method(
 		_set_intro_chrome_progress,
 		0.0,
 		1.0,
@@ -335,6 +360,7 @@ func cancel_intro() -> void:
 	modulate = Color.WHITE
 	_set_intro_chrome_progress(1.0)
 	_set_intro_content_progress(1.0)
+	_set_intro_shadow_progress(0.0)
 	if _intro_text_stack != null:
 		_intro_text_stack.visible = false
 		_intro_text_stack.modulate = Color.TRANSPARENT
@@ -383,6 +409,29 @@ func _set_intro_font_progress(progress: float) -> void:
 			roundi(lerpf(INTRO_TITLE_START_FONT_SIZE, INTRO_TITLE_FONT_SIZE, amount))
 		)
 
+func _set_intro_shadow_progress(progress: float) -> void:
+	intro_shadow_progress = clampf(progress, 0.0, 1.0)
+	if _intro_kicker != null:
+		_intro_kicker.add_theme_color_override(
+			"font_shadow_color",
+			Color(
+				INTRO_KICKER_SHADOW_COLOR.r,
+				INTRO_KICKER_SHADOW_COLOR.g,
+				INTRO_KICKER_SHADOW_COLOR.b,
+				INTRO_KICKER_SHADOW_COLOR.a * intro_shadow_progress
+			)
+		)
+	if _intro_title != null:
+		_intro_title.add_theme_color_override(
+			"font_shadow_color",
+			Color(
+				INTRO_TITLE_SHADOW_COLOR.r,
+				INTRO_TITLE_SHADOW_COLOR.g,
+				INTRO_TITLE_SHADOW_COLOR.b,
+				INTRO_TITLE_SHADOW_COLOR.a * intro_shadow_progress
+			)
+		)
+
 func _finish_intro(target_rect: Rect2) -> void:
 	intro_active = false
 	intro_phase = "settled"
@@ -393,6 +442,7 @@ func _finish_intro(target_rect: Rect2) -> void:
 	modulate = Color.WHITE
 	_set_intro_chrome_progress(1.0)
 	_set_intro_content_progress(1.0)
+	_set_intro_shadow_progress(0.0)
 	if _intro_text_stack != null:
 		_intro_text_stack.visible = false
 		_intro_text_stack.modulate = Color.TRANSPARENT
