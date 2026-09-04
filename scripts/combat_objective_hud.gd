@@ -129,20 +129,28 @@ func set_hud_rect(rect: Rect2) -> void:
 	offset_right = rect.end.x
 	offset_bottom = rect.end.y
 
-func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool) -> void:
+func prepare_intro(target_rect: Rect2, viewport_size: Vector2) -> bool:
 	cancel_intro()
 	if not visible or not is_inside_tree():
-		return
+		return false
 	var center_rect := Rect2(
 		(viewport_size - target_rect.size) * 0.5,
 		target_rect.size
 	)
 	intro_active = true
-	intro_phase = "appearing"
+	intro_phase = "prepared"
 	z_index = 60
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pivot_offset = target_rect.size * 0.5
 	set_hud_rect(center_rect)
+	scale = Vector2.ONE * INTRO_START_SCALE
+	modulate = Color(1.0, 1.0, 1.0, 0.0)
+	return true
+
+func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool) -> void:
+	if not intro_active or intro_phase != "prepared":
+		if not prepare_intro(target_rect, viewport_size):
+			return
 
 	if reduced_motion:
 		scale = Vector2.ONE * INTRO_REDUCED_SCALE
@@ -154,8 +162,7 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 		_finish_intro(target_rect)
 		return
 
-	scale = Vector2.ONE * INTRO_START_SCALE
-	modulate = Color(1.0, 1.0, 1.0, 0.0)
+	intro_phase = "appearing"
 	_intro_tween = create_tween().set_parallel(true)
 	_intro_tween.tween_property(
 		self,

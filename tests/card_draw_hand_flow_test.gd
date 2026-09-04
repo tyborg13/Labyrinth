@@ -59,14 +59,21 @@ func _run_opening_hand_entry_regression() -> void:
 	var sfx_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
 	instance.call("_on_pre_battle_start_pressed")
 	var hand_box: Control = instance.get("hand_box") as Control
+	var objective_hud: Control = instance.get("_combat_objective_hud") as Control
 	_expect(preview_scrim != null and not preview_scrim.visible, "Start should uncover the combat room before the opening deal")
 	_expect(bool(instance.get("_opening_hand_draw_in_progress")), "Start should enter an explicit opening-hand presentation phase")
 	_expect(bool(instance.get("_animation_lock")), "Opening-hand presentation should lock combat input")
 	_expect(hand_box != null and not hand_box.visible, "The authoritative complete hand must stay hidden before the first card launches")
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "No card proxy should launch before the uncovered room receives its presentation wait")
 	_expect(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "Draw audio must stay silent while the room is first uncovered")
+	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "prepared", "The uncovered-room frame should pre-stage the objective at center before it appears")
+	if objective_hud != null:
+		var prepared_viewport_center: Vector2 = instance.get_viewport_rect().size * 0.5
+		var prepared_target_rect: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
+		_expect(objective_hud.position + objective_hud.size * 0.5 == prepared_viewport_center, "The hidden objective should already be centered before the first uncovered-room frame")
+		_expect(not objective_hud.position.is_equal_approx(prepared_target_rect.position), "The objective must not flash in its final dock before the center pop")
+		_expect(is_zero_approx(objective_hud.modulate.a), "The prepared center objective should stay transparent until its pop begins")
 
-	var objective_hud: Control = instance.get("_combat_objective_hud") as Control
 	var objective_deadline: int = Time.get_ticks_msec() + 2000
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "holding" and Time.get_ticks_msec() < objective_deadline:
 		await process_frame

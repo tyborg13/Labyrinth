@@ -110,15 +110,27 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 	var sfx_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
 	instance.call("_on_pre_battle_start_pressed")
 	var hand_box: Control = instance.get("hand_box") as Control
+	var objective_hud: Control = instance.get("_combat_objective_hud") as Control
 	_assert(preview_scrim != null and not preview_scrim.visible, "Start should uncover the combat room")
 	_assert(hand_box != null and not hand_box.visible, "Opening-hand proof should hide the authoritative complete hand")
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Room-reveal proof should precede the first card launch")
 	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "Room-reveal proof should precede the first draw sound")
+	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "prepared", "Room-reveal proof should stage the objective invisibly at screen center")
+	if objective_hud != null:
+		var prepared_center: Vector2 = instance.get_viewport_rect().size * 0.5
+		var prepared_target: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
+		_assert(objective_hud.position + objective_hud.size * 0.5 == prepared_center, "Room-reveal proof should place the hidden objective at center")
+		_assert(not objective_hud.position.is_equal_approx(prepared_target.position), "Room-reveal proof must not show the objective in its final dock before the pop")
+		_assert(is_zero_approx(objective_hud.modulate.a), "Room-reveal proof should keep the prepared center objective transparent")
 	await _save_root_screenshot("%s/card_draw_flow_v1_00_room_revealed.png" % OUTPUT_DIR)
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "The uncovered room should remain card-free for its presentation frame")
 	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "The uncovered-room frame should remain silent")
+	if objective_hud != null:
+		var reveal_center: Vector2 = instance.get_viewport_rect().size * 0.5
+		var reveal_target: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
+		_assert(objective_hud.position + objective_hud.size * 0.5 == reveal_center, "The first uncovered-room frame should keep the objective centered as its pop begins")
+		_assert(not objective_hud.position.is_equal_approx(reveal_target.position), "The first uncovered-room frame should never expose the final objective dock")
 
-	var objective_hud: Control = instance.get("_combat_objective_hud") as Control
 	var objective_deadline: int = Time.get_ticks_msec() + 2000
 	while objective_hud != null and str(objective_hud.get("intro_phase")) != "holding" and Time.get_ticks_msec() < objective_deadline:
 		await process_frame

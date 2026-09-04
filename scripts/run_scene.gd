@@ -11942,6 +11942,21 @@ func _animate_combat_objective_intro() -> void:
 		_reduced_motion_enabled()
 	)
 
+func _prepare_combat_objective_intro() -> void:
+	if (
+		_combat_objective_hud == null
+		or str(_run_state.get("mode", "room")) != "combat"
+		or _combat_state.is_empty()
+	):
+		return
+	_refresh_combat_objective_hud()
+	if not _combat_objective_hud.visible:
+		return
+	_combat_objective_hud.prepare_intro(
+		_combat_objective_hud_target_rect(),
+		get_viewport_rect().size
+	)
+
 func _setup_boss_health_overlay() -> void:
 	_boss_health_overlay = Control.new()
 	_boss_health_overlay.name = "BossHealthOverlay"
@@ -24536,6 +24551,7 @@ func _present_opening_hand_after_combat_entry() -> void:
 	# consumer from playing the deal sounds behind the pre-battle overlay.
 	_animation_lock = true
 	_opening_hand_draw_in_progress = not draw_entries.is_empty()
+	_prepare_combat_objective_intro()
 	_refresh_ui()
 	if hand_box != null and not draw_entries.is_empty():
 		hand_box.visible = false
