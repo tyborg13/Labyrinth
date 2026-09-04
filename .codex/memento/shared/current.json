@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-04T14:47:46Z",
+  "updated_at": "2026-09-04T16:11:14Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10172,27 +10172,27 @@
       }
     },
     {
-      "id": "mnt_20260904T144746Z_ae41230b",
+      "id": "mnt_20260904T161114Z_0cd0143f",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
         "level": "file",
-        "path": "scripts/run_scene.gd",
+        "path": "scripts/card_drag_targeting_arrow.gd",
         "symbol": null
       },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Card drag hands off from a following card to raster-arrow targeting",
-      "details": "Hover keeps the large readable preview. Crossing the drag threshold initially moves a slightly smaller card with the pointer. For targeted cards, first board entry latches targeting: the proxy disappears, the original card returns to the hand in a smaller raised selected pose, legal targets use the normal board presentation, and a smooth curved arrow made from raster ribbon/head assets connects the selected card to the pointer. Do not tint the card for valid/invalid targets or add drag instruction copy. Legal release plays through the normal hand-origin animation; illegal/outside release cancels. Targetless cards keep following the pointer and play on any board release.",
+      "scope_key": "file:scripts/card_drag_targeting_arrow.gd",
+      "summary": "Card drag targeting uses chunky segmented raster plates and an indented-bezel head",
+      "details": "Preserve the approved card-drag flow: hover is a large preview; pre-board drag follows the pointer; targeted board entry restores a smaller raised hand card and switches to an arrow; targetless drag keeps the card; valid release plays from the hand and invalid release cancels. The targeting arrow itself must use fixed native-size chunky pixel-art raster segments placed at uniform arc-length spacing with nearest filtering, never a stretched ribbon. Its separate indented black-iron/brass/ember head rotates with the final tangent, lands its tip on the pointer, and meets the final segment at its socket without a gap or body overrun. Do not tint the card or add drag instruction copy.",
       "status": "active",
-      "created_at": "2026-09-04T14:47:46Z",
-      "updated_at": "2026-09-04T14:47:46Z",
+      "created_at": "2026-09-04T16:11:14Z",
+      "updated_at": "2026-09-04T16:11:14Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260904T125826Z_6f117991"
+        "mnt_20260904T144746Z_ae41230b"
       ],
       "source": {
         "branch": "codex/drag-cards-to-play",
-        "commit": "f36a9b99"
+        "commit": "e9d5650b"
       }
     }
   ]

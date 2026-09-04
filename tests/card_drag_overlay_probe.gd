@@ -36,7 +36,7 @@ func _capture_drag_overlay_frames() -> void:
 	await create_timer(0.16).timeout
 	var hover_source: Control = instance.call("_hand_card_control", 0) as Control
 	var hover_bounds: Rect2 = instance.call("_control_visual_global_rect", hover_source) if hover_source != null else Rect2()
-	await _save_root_screenshot("%s/drag_hover_large_arrow_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_hover_large_arrow_v3.png" % OUTPUT_DIR)
 	var initial_grab_ratio := Vector2(0.12, 0.16)
 	var drag_start: Vector2 = hover_bounds.position + hover_bounds.size * initial_grab_ratio
 	instance.call("_on_card_drag_started", 0, drag_start)
@@ -47,7 +47,7 @@ func _capture_drag_overlay_frames() -> void:
 	await process_frame
 	_assert_following_card_drag(instance, "pre-board following drag", cancel_position, hover_bounds)
 	_assert_proxy_grab_point(instance, cancel_position, initial_grab_ratio, "pre-board following drag")
-	await _save_root_screenshot("%s/drag_following_card_arrow_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_following_card_arrow_v3.png" % OUTPUT_DIR)
 	var follow_proxy: Control = instance.get("_drag_card_proxy") as Control
 	var follow_bounds: Rect2 = instance.call("_card_proxy_visual_rect", follow_proxy)
 	instance.call("_animate_drag_cancel_to_source")
@@ -59,7 +59,7 @@ func _capture_drag_overlay_frames() -> void:
 		var snapping_bounds: Rect2 = instance.call("_card_proxy_visual_rect", snapping_proxy)
 		if snapping_bounds.size.x > follow_bounds.size.x + 1.0 or snapping_bounds.size.y > follow_bounds.size.y + 1.0:
 			push_error("Pre-board snapback should settle smaller instead of growing through the stale hover pose")
-	await _save_root_screenshot("%s/drag_snapback_settling_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_snapback_settling_v3.png" % OUTPUT_DIR)
 	await create_timer(0.10).timeout
 	await process_frame
 
@@ -71,27 +71,41 @@ func _capture_drag_overlay_frames() -> void:
 	await _position_card_drag(instance, valid_target_position)
 	await process_frame
 	_assert_targeting_drag(instance, "center valid targeting", valid_target_position, hover_bounds)
-	await _save_root_screenshot("%s/drag_arrow_center_valid_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_arrow_center_valid_v3.png" % OUTPUT_DIR)
 
-	var left_target_position := Vector2(board_rect.position.x + board_rect.size.x * 0.18, board_rect.position.y + board_rect.size.y * 0.36)
+	var left_target_position := Vector2(board_rect.position.x + 36.0, board_rect.position.y + board_rect.size.y * 0.26)
 	await _position_card_drag(instance, left_target_position)
 	await process_frame
-	_assert_targeting_drag(instance, "left targeting", left_target_position, hover_bounds)
-	await _save_root_screenshot("%s/drag_arrow_left_v2.png" % OUTPUT_DIR)
+	_assert_targeting_drag(instance, "hard-left targeting", left_target_position, hover_bounds)
+	await _save_root_screenshot("%s/drag_arrow_hard_left_v3.png" % OUTPUT_DIR)
 
-	var right_target_position := Vector2(board_rect.position.x + board_rect.size.x * 0.82, board_rect.position.y + board_rect.size.y * 0.36)
+	var right_target_position := Vector2(board_rect.end.x - 36.0, board_rect.position.y + board_rect.size.y * 0.26)
 	await _position_card_drag(instance, right_target_position)
 	await process_frame
-	_assert_targeting_drag(instance, "right targeting", right_target_position, hover_bounds)
-	await _save_root_screenshot("%s/drag_arrow_right_v2.png" % OUTPUT_DIR)
+	_assert_targeting_drag(instance, "hard-right targeting", right_target_position, hover_bounds)
+	await _save_root_screenshot("%s/drag_arrow_hard_right_v3.png" % OUTPUT_DIR)
 
+	var short_target_position := Vector2(board_rect.get_center().x + 72.0, board_rect.end.y - 92.0)
+	await _position_card_drag(instance, short_target_position)
+	await process_frame
+	_assert_targeting_drag(instance, "short targeting", short_target_position, hover_bounds)
+	await _save_root_screenshot("%s/drag_arrow_short_v3.png" % OUTPUT_DIR)
+
+	var outside_target_position := Vector2(board_rect.position.x - 92.0, board_rect.end.y + 42.0)
+	await _position_card_drag(instance, outside_target_position)
+	await process_frame
+	_assert_targeting_drag(instance, "latched outside-board targeting", outside_target_position, hover_bounds)
+	await _save_root_screenshot("%s/drag_arrow_outside_latched_v3.png" % OUTPUT_DIR)
+
+	await _position_card_drag(instance, right_target_position)
+	await process_frame
 	await instance.call("_commit_drag_drop", "play", right_target_position)
 	await process_frame
 	if int(instance.get("_drag_card_index")) >= 0 or int(instance.get("_selected_card_index")) >= 0:
 		push_error("Invalid targeted release should return to the idle hand")
 	if _turn_order_has_card_projection(instance, "Quick Stab"):
 		push_error("Invalid targeted release should remove its Turn Clock projection")
-	await _save_root_screenshot("%s/drag_invalid_cancel_restored_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_invalid_cancel_restored_v3.png" % OUTPUT_DIR)
 
 	await _load_combat_fixture(instance, "stone_plate", Vector2i(2, 5), Vector2i(5, 5), 9403)
 	drag_start = _drag_start_position(instance, 0)
@@ -101,7 +115,7 @@ func _capture_drag_overlay_frames() -> void:
 	await _position_card_drag(instance, targetless_board_position)
 	await process_frame
 	_assert_targetless_board_drag(instance, targetless_board_position)
-	await _save_root_screenshot("%s/drag_targetless_following_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_targetless_following_v3.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	await process_frame
 
@@ -118,7 +132,7 @@ func _capture_drag_overlay_frames() -> void:
 	var hand_box: Control = instance.get("hand_box") as Control
 	if hand_box == null or int(hand_box.call("emphasized_index")) != 0:
 		push_error("Reduced-motion targeting should immediately use the raised selected-card pose")
-	await _save_root_screenshot("%s/drag_arrow_reduced_motion_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_arrow_reduced_motion_v3.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	instance.set("_settings", previous_settings)
 	await process_frame
@@ -132,7 +146,7 @@ func _capture_drag_overlay_frames() -> void:
 	instance.call("_commit_drag_drop", "play", valid_target_position)
 	await create_timer(0.10).timeout
 	_assert_drag_play_launch(instance)
-	await _save_root_screenshot("%s/drag_play_launch_from_hand_v2.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/drag_play_launch_from_hand_v3.png" % OUTPUT_DIR)
 	await create_timer(0.85).timeout
 
 	instance.queue_free()
@@ -315,8 +329,8 @@ func _assert_targeting_drag(instance: Node, context: String, cursor_position: Ve
 	var arrow: Control = instance.get("_drag_target_arrow") as Control
 	if not bool(instance.get("_drag_targeting_active")) or arrow == null or not arrow.visible:
 		push_error("%s should show the active targeting arrow" % context)
-	elif not bool(arrow.get_meta("raster_composed_arrow", false)):
-		push_error("%s should use the authored raster-composed arrow" % context)
+	elif not bool(arrow.get_meta("raster_composed_arrow", false)) or not bool(arrow.get_meta("segmented_raster_arrow", false)):
+		push_error("%s should use the authored segmented raster arrow" % context)
 	_assert_no_drag_copy(instance, context)
 
 func _assert_targetless_board_drag(instance: Node, cursor_position: Vector2) -> void:

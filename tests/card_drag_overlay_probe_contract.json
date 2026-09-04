@@ -1,9 +1,9 @@
 {
-  "min_images": 10,
+  "min_images": 12,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
-      "pattern": "*drag_hover_large_arrow_v2.png",
+      "pattern": "*drag_hover_large_arrow_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "pattern": "*drag_following_card_arrow_v2.png",
+      "pattern": "*drag_following_card_arrow_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "pattern": "*drag_snapback_settling_v2.png",
+      "pattern": "*drag_snapback_settling_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_center_valid_v2.png",
+      "pattern": "*drag_arrow_center_valid_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_left_v2.png",
+      "pattern": "*drag_arrow_hard_left_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_right_v2.png",
+      "pattern": "*drag_arrow_hard_right_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -51,7 +51,23 @@
       ]
     },
     {
-      "pattern": "*drag_invalid_cancel_restored_v2.png",
+      "pattern": "*drag_arrow_short_v3.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [620, 420, 700, 420], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_arrow_outside_latched_v3.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [140, 360, 980, 620], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_invalid_cancel_restored_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -59,7 +75,7 @@
       ]
     },
     {
-      "pattern": "*drag_targetless_following_v2.png",
+      "pattern": "*drag_targetless_following_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -67,7 +83,7 @@
       ]
     },
     {
-      "pattern": "*drag_arrow_reduced_motion_v2.png",
+      "pattern": "*drag_arrow_reduced_motion_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -75,7 +91,7 @@
       ]
     },
     {
-      "pattern": "*drag_play_launch_from_hand_v2.png",
+      "pattern": "*drag_play_launch_from_hand_v3.png",
       "width": 1920,
       "height": 1080,
       "regions": [

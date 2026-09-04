@@ -43,20 +43,50 @@ static func run(expect: Callable) -> void:
 
 
 static func _test_raster_arrow_geometry(expect: Callable) -> void:
-	expect.call(FileAccess.file_exists(CardDragTargetingArrow.RIBBON_ASSET_PATH), "Targeting arrow should own a raster ribbon asset")
+	expect.call(FileAccess.file_exists(CardDragTargetingArrow.SEGMENT_ASSET_PATH), "Targeting arrow should own a raster body-segment asset")
 	expect.call(FileAccess.file_exists(CardDragTargetingArrow.HEAD_ASSET_PATH), "Targeting arrow should own a separate raster arrowhead asset")
+	var segment_image: Image = Image.load_from_file(CardDragTargetingArrow.SEGMENT_ASSET_PATH)
+	var head_image: Image = Image.load_from_file(CardDragTargetingArrow.HEAD_ASSET_PATH)
+	expect.call(segment_image != null and Vector2(segment_image.get_size()) == CardDragTargetingArrow.SEGMENT_DRAW_SIZE, "Targeting body segments should render at their fixed native raster size without stretching")
+	expect.call(head_image != null and Vector2(head_image.get_size()) == CardDragTargetingArrow.HEAD_DRAW_SIZE, "Targeting head should render at its fixed native raster size without stretching")
+	expect.call(CardDragTargetingArrow.SEGMENT_SPACING > CardDragTargetingArrow.SEGMENT_DRAW_SIZE.x, "Targeting body pieces should remain visibly segmented instead of overlapping into a cable")
 	var start := Vector2(960.0, 900.0)
-	for finish: Vector2 in PackedVector2Array([Vector2(430.0, 360.0), Vector2(960.0, 280.0), Vector2(1490.0, 360.0)]):
+	var finishes := PackedVector2Array([Vector2(330.0, 300.0), Vector2(960.0, 280.0), Vector2(1590.0, 300.0), Vector2(850.0, 650.0)])
+	for finish_index: int in range(finishes.size()):
+		var finish: Vector2 = finishes[finish_index]
 		var points: PackedVector2Array = CardDragTargetingArrow.sampled_curve(start, finish)
-		expect.call(points.size() >= 4 and points[0].is_equal_approx(start) and points[points.size() - 1].is_equal_approx(finish), "Raster arrow samples should exactly connect the selected card to left, center, and right targets")
+		expect.call(points.size() >= 4 and points[0].is_equal_approx(start) and points[points.size() - 1].is_equal_approx(finish), "Raster arrow arc samples should exactly connect the selected card to short, left, center, and right targets")
+		var placements: Array[Dictionary] = CardDragTargetingArrow.segment_placements(start, finish)
+		expect.call(placements.size() >= 2, "Every visible targeting arrow should have at least two full-size body segments before its head")
 		var previous_tangent := Vector2.ZERO
-		for index: int in range(points.size() - 1):
-			var tangent: Vector2 = (points[index + 1] - points[index]).normalized()
+		var previous_distance: float = -1.0
+		var expected_spacing: float = float(placements[0].get("spacing", 0.0))
+		expect.call(expected_spacing >= CardDragTargetingArrow.SEGMENT_DRAW_SIZE.x + 2.0, "Targeting body pieces should preserve a visible gap between their native-size silhouettes")
+		for placement: Dictionary in placements:
+			var tangent: Vector2 = placement.get("tangent", Vector2.ZERO)
+			var distance: float = float(placement.get("distance", 0.0))
+			if previous_distance >= 0.0:
+				expect.call(absf((distance - previous_distance) - expected_spacing) <= 0.01, "Targeting body pieces should use uniform arc-length spacing")
 			if previous_tangent.length_squared() > 0.0:
-				expect.call(previous_tangent.dot(tangent) > 0.82, "Raster arrow samples should bend smoothly without broken or kinked segment joins")
+				expect.call(previous_tangent.dot(tangent) > 0.95, "Individually rotated raster segments should follow the curve without broken or kinked turns")
 			previous_tangent = tangent
+			previous_distance = distance
+		var head: Dictionary = CardDragTargetingArrow.head_placement(start, finish)
+		var head_tip: Vector2 = head.get("tip", Vector2.ZERO)
+		var head_tangent: Vector2 = head.get("tangent", Vector2.ZERO)
+		expect.call(head_tip.distance_to(finish) <= 0.05, "The authored arrowhead tip should land exactly on the pointer")
+		expect.call(head_tangent.dot(CardDragTargetingArrow.tangent_at_arc_distance(CardDragTargetingArrow.curve_lookup(start, finish), float(head.get("arc_length", 0.0)))) > 0.999, "The arrowhead should rotate with the curve's final tangent")
+		var last_distance: float = float(placements[placements.size() - 1].get("distance", 0.0))
+		var terminal_limit: float = float(head.get("arc_length", 0.0)) - CardDragTargetingArrow.HEAD_DRAW_SIZE.x - CardDragTargetingArrow.SEGMENT_DRAW_SIZE.x * 0.5 + CardDragTargetingArrow.HEAD_SOCKET_OVERLAP
+		expect.call(absf(last_distance - terminal_limit) <= 0.01, "The final body segment should meet the arrowhead socket without extending through or past its tip")
+		if finish_index == 0:
+			expect.call(head_tangent.x < -0.1 and head_tangent.y < -0.1, "A hard-left target should visibly rotate the arrowhead left")
+		elif finish_index == 2:
+			expect.call(head_tangent.x > 0.1 and head_tangent.y < -0.1, "A hard-right target should visibly rotate the arrowhead right")
 	var source := FileAccess.open("res://scripts/card_drag_targeting_arrow.gd", FileAccess.READ)
 	var source_text: String = source.get_as_text() if source != null else ""
+	expect.call(source_text.contains("draw_texture(") and not source_text.contains("draw_texture_rect"), "Targeting arrow should stamp native-size raster pieces without length-scaling them")
+	expect.call(source_text.contains("TEXTURE_FILTER_NEAREST"), "Targeting arrow should preserve crisp pixel-art filtering while its pieces rotate")
 	expect.call(not source_text.contains("draw_line") and not source_text.contains("draw_polyline") and not source_text.contains("draw_polygon"), "Targeting arrow must be composed from raster pieces rather than procedural line or polygon geometry")
 
 
@@ -179,7 +209,8 @@ static func _test_targeted_drag_entry_and_invalid_release(tree: SceneTree, expec
 	expect.call(source_card.modulate.is_equal_approx(Color.WHITE), "Target validity should never tint the selected card")
 	var arrow: Control = instance.get("_drag_target_arrow") as Control
 	expect.call(arrow != null and arrow.visible and bool(arrow.get_meta("raster_composed_arrow", false)), "Targeting should show the raster-composed arrow from the selected card")
-	expect.call(str(arrow.get_meta("ribbon_asset_path", "")).ends_with("card_drag_arrow_ribbon_v1.png") and str(arrow.get_meta("head_asset_path", "")).ends_with("card_drag_arrow_head_v1.png"), "The targeting arrow should use authored raster ribbon and head pieces")
+	expect.call(bool(arrow.get_meta("segmented_raster_arrow", false)), "The targeting arrow body should be a discrete chain of authored raster segments")
+	expect.call(str(arrow.get_meta("segment_asset_path", "")).ends_with("card_drag_arrow_segment_v2.png") and str(arrow.get_meta("head_asset_path", "")).ends_with("card_drag_arrow_head_v2.png"), "The targeting arrow should use the reviewed chunky pixel-art segment and indented-bezel head assets")
 	expect.call(not context.visible, "Arrow targeting should remain free of instructional side copy")
 	var invalid_position: Vector2 = _tile_global_position(instance, INVALID_TILE)
 	await instance.call("_update_card_drag", invalid_position)
