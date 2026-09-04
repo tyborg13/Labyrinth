@@ -13363,7 +13363,9 @@ func _animate_turn_order_transition(
 			remove_tween.tween_property(removed_child, "modulate:a", 0.0, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 		if not dissolve_slots.is_empty():
 			await _animate_turn_order_shadow_dissolves(dissolve_slots)
-		if remove_tween != null:
+		# Slides and portrait dissolves run together. A short slide can finish
+		# while we await the dissolve; its finished signal is not replayed.
+		if remove_tween != null and remove_tween.is_running():
 			await remove_tween.finished
 	var previous_positions: Dictionary = _turn_order_child_positions(working_order, removed_indices)
 	var previous_signatures: Dictionary = _turn_order_instance_signatures(working_order, removed_indices)

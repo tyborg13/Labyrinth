@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-04T19:37:32Z",
+  "updated_at": "2026-09-04T20:28:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10193,6 +10193,28 @@
       "source": {
         "branch": "codex/drag-cards-to-play",
         "commit": "84c834e4"
+      }
+    },
+    {
+      "id": "mnt_20260904T202812Z_f74ab766",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_animate_turn_order_transition"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_animate_turn_order_transition",
+      "summary": "Mixed Turn Clock removals must not await an already-finished slide tween",
+      "details": "When a lethal AOE/trap kills the player and an enemy together, player portraits slide out in 0.22s while enemy portraits dissolve for 0.96s. After awaiting the dissolve, only await the slide if it is still running: Tween.finished is not replayed. Waiting unconditionally stranded combat with death music playing and the recap unreachable. Terminal proof must drive real lethal actions through resolution; directly installing a defeat snapshot cannot catch this race.",
+      "status": "active",
+      "created_at": "2026-09-04T20:28:12Z",
+      "updated_at": "2026-09-04T20:28:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/drag-cards-to-play",
+        "commit": "438d5b29"
       }
     }
   ]
