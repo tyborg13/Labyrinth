@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-03T21:07:59Z",
+  "updated_at": "2026-09-04T03:12:22Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10169,6 +10169,28 @@
       "source": {
         "branch": "codex/animate-turn-order-timeline-changes",
         "commit": "a6baed8a"
+      }
+    },
+    {
+      "id": "mnt_20260904T031222Z_a2ef0eb8",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Opening combat foregrounds the scenario objective before dealing cards",
+      "details": "After the pre-battle overlay uncovers the room, keep combat input locked and reuse the live CombatObjectiveHud for a large center-screen pop, readable hold, and shrink/flight into its permanent dock before any opening-card proxy launches. Reduced Motion keeps a restrained static center hold and snaps to the same dock without a travel tween.",
+      "status": "active",
+      "created_at": "2026-09-04T03:12:22Z",
+      "updated_at": "2026-09-04T03:12:22Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/animate-combat-objective-intro-into-hud",
+        "commit": "065fc36a"
       }
     }
   ]
