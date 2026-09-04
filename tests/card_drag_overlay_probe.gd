@@ -37,7 +37,8 @@ func _capture_drag_overlay_frames() -> void:
 	var hover_source: Control = instance.call("_hand_card_control", 0) as Control
 	var hover_bounds: Rect2 = instance.call("_control_visual_global_rect", hover_source) if hover_source != null else Rect2()
 	await _save_root_screenshot("%s/drag_hover_large_arrow_v2.png" % OUTPUT_DIR)
-	var drag_start: Vector2 = hover_bounds.get_center()
+	var initial_grab_ratio := Vector2(0.12, 0.16)
+	var drag_start: Vector2 = hover_bounds.position + hover_bounds.size * initial_grab_ratio
 	instance.call("_on_card_drag_started", 0, drag_start)
 	await process_frame
 	var board_rect: Rect2 = (instance.get("board_view") as Control).get_global_rect()
@@ -45,8 +46,21 @@ func _capture_drag_overlay_frames() -> void:
 	await _position_card_drag(instance, cancel_position)
 	await process_frame
 	_assert_following_card_drag(instance, "pre-board following drag", cancel_position, hover_bounds)
+	_assert_proxy_grab_point(instance, cancel_position, initial_grab_ratio, "pre-board following drag")
 	await _save_root_screenshot("%s/drag_following_card_arrow_v2.png" % OUTPUT_DIR)
-	await instance.call("_animate_drag_cancel_to_source")
+	var follow_proxy: Control = instance.get("_drag_card_proxy") as Control
+	var follow_bounds: Rect2 = instance.call("_card_proxy_visual_rect", follow_proxy)
+	instance.call("_animate_drag_cancel_to_source")
+	await create_timer(0.10).timeout
+	var snapping_proxy: Control = instance.get("_drag_card_proxy") as Control
+	if snapping_proxy == null:
+		push_error("Pre-board snapback should stay visible until it reaches the hand")
+	else:
+		var snapping_bounds: Rect2 = instance.call("_card_proxy_visual_rect", snapping_proxy)
+		if snapping_bounds.size.x > follow_bounds.size.x + 1.0 or snapping_bounds.size.y > follow_bounds.size.y + 1.0:
+			push_error("Pre-board snapback should settle smaller instead of growing through the stale hover pose")
+	await _save_root_screenshot("%s/drag_snapback_settling_v2.png" % OUTPUT_DIR)
+	await create_timer(0.10).timeout
 	await process_frame
 
 	await _load_combat_fixture(instance, "quick_stab", Vector2i(3, 5), Vector2i(4, 5), 9402)
@@ -266,6 +280,15 @@ func _assert_following_card_drag(instance: Node, context: String, cursor_positio
 	if bool(instance.get("_drag_targeting_active")) or (arrow != null and arrow.visible):
 		push_error("%s should not show the targeting arrow before board entry" % context)
 	_assert_no_drag_copy(instance, context)
+
+func _assert_proxy_grab_point(instance: Node, cursor_position: Vector2, grab_ratio: Vector2, context: String) -> void:
+	var proxy: Control = instance.get("_drag_card_proxy") as Control
+	if proxy == null:
+		return
+	var pointer_local: Vector2 = proxy.get_global_transform().affine_inverse() * cursor_position
+	var expected_local: Vector2 = proxy.size * grab_ratio
+	if pointer_local.distance_to(expected_local) > 2.0:
+		push_error("%s should preserve its off-center grab point under the pointer" % context)
 
 func _assert_targeting_drag(instance: Node, context: String, cursor_position: Vector2, hover_bounds: Rect2) -> void:
 	if instance.get("_drag_card_proxy") != null:

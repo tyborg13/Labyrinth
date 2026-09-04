@@ -1828,7 +1828,8 @@ var _active_ambient_sfx_id: String = ""
 var _initial_music_deferred: bool = false
 var _settings: Dictionary = {}
 var _drag_card_source_rect: Rect2 = Rect2()
-var _drag_card_grab_offset: Vector2 = Vector2.ZERO
+var _drag_card_cancel_rect: Rect2 = Rect2()
+var _drag_card_grab_ratio: Vector2 = Vector2(0.5, 0.5)
 var _drag_card_base_scale: Vector2 = Vector2.ONE
 var _drag_last_pointer_position: Vector2 = Vector2.ZERO
 var _pending_drag_play_source_rect: Rect2 = Rect2()
@@ -8088,15 +8089,17 @@ func _finish_drag_play(preserve_card_preview: bool) -> void:
 	_drag_hover_zone = ""
 	_drag_targeting_active = false
 	_drag_card_source_rect = Rect2()
-	_drag_card_grab_offset = Vector2.ZERO
+	_drag_card_cancel_rect = Rect2()
+	_drag_card_grab_ratio = Vector2(0.5, 0.5)
 	_drag_card_base_scale = Vector2.ONE
 	_drag_last_pointer_position = Vector2.ZERO
 	_update_drag_overlay_hover("")
 	_refresh_card_preview_ui()
 
 func _animate_drag_cancel_to_source() -> void:
-	if _drag_card_proxy != null and _drag_card_source_rect.size.length() > 0.0:
-		await _animate_card_proxy_to_rect(_drag_card_proxy, _drag_card_source_rect, CARD_SNAPBACK_SECONDS)
+	var target_rect: Rect2 = _drag_card_cancel_rect if _drag_card_cancel_rect.size.length() > 0.0 else _drag_card_source_rect
+	if _drag_card_proxy != null and target_rect.size.length() > 0.0:
+		await _animate_card_proxy_to_rect(_drag_card_proxy, target_rect, CARD_SNAPBACK_SECONDS)
 	_cancel_drag_play()
 
 func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
@@ -8204,16 +8207,20 @@ func _mouse_event_position(event: InputEvent) -> Vector2:
 func _update_drag_proxy_position(mouse_position: Vector2) -> void:
 	if _drag_card_proxy == null or _drag_card_index < 0:
 		return
-	var visual_rect := Rect2(mouse_position - _drag_card_grab_offset, _drag_card_source_rect.size)
-	_drag_card_proxy.position = _card_proxy_position_for_rect(visual_rect)
 	_drag_card_proxy.modulate = Color.WHITE
 	_drag_card_proxy.scale = _drag_card_base_scale
+	var rotation_radians: float = 0.0
 	if _reduced_motion_enabled():
-		_drag_card_proxy.rotation = 0.0
-		return
-	var viewport_width: float = maxf(1.0, get_viewport_rect().size.x)
-	var normalized_x: float = clampf((mouse_position.x / viewport_width - 0.5) * 2.0, -1.0, 1.0)
-	_drag_card_proxy.rotation = deg_to_rad(normalized_x * CARD_DRAG_FOLLOW_TILT_DEGREES)
+		rotation_radians = 0.0
+	else:
+		var viewport_width: float = maxf(1.0, get_viewport_rect().size.x)
+		var normalized_x: float = clampf((mouse_position.x / viewport_width - 0.5) * 2.0, -1.0, 1.0)
+		rotation_radians = deg_to_rad(normalized_x * CARD_DRAG_FOLLOW_TILT_DEGREES)
+	_drag_card_proxy.rotation = rotation_radians
+	var proxy_visual_size: Vector2 = CARD_WIDGET_BASE_SIZE * _drag_card_base_scale.abs()
+	var scaled_center_offset: Vector2 = (_drag_card_grab_ratio - Vector2(0.5, 0.5)) * proxy_visual_size
+	var proxy_center: Vector2 = mouse_position - scaled_center_offset.rotated(rotation_radians)
+	_drag_card_proxy.position = proxy_center - CARD_WIDGET_BASE_SIZE * 0.5
 
 func _update_drag_hand_card_visual() -> void:
 	if _drag_card_index < 0:
@@ -20151,13 +20158,24 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 	if not bool(options.get("any_playable", false)):
 		return
 	var source_rect: Rect2 = _hand_card_global_rect(index)
+	var drag_pointer: Vector2 = pointer_position if pointer_position.x >= 0.0 and pointer_position.y >= 0.0 else _current_mouse_position()
+	var source_card: Control = _hand_card_control(index)
+	var grab_ratio := Vector2(0.5, 0.5)
+	if source_card != null:
+		var local_pointer: Vector2 = source_card.get_global_transform_with_canvas().affine_inverse() * drag_pointer
+		grab_ratio = Vector2(
+			clampf(local_pointer.x / maxf(1.0, source_card.size.x), 0.0, 1.0),
+			clampf(local_pointer.y / maxf(1.0, source_card.size.y), 0.0, 1.0)
+		)
 	_drag_card_index = index
 	_set_hand_emphasized_index(-1, false)
+	hand_box.apply_layout_immediately()
 	_drag_card_options = options.duplicate(false)
 	_drag_hover_zone = ""
 	_drag_card_source_rect = source_rect
-	_drag_last_pointer_position = pointer_position if pointer_position.x >= 0.0 and pointer_position.y >= 0.0 else _current_mouse_position()
-	_drag_card_grab_offset = _drag_last_pointer_position - source_rect.position
+	_drag_card_cancel_rect = _hand_card_global_rect(index)
+	_drag_last_pointer_position = drag_pointer
+	_drag_card_grab_ratio = grab_ratio
 	if _drag_card_proxy != null:
 		_release_card_proxy(_drag_card_proxy)
 	_drag_card_proxy = _spawn_card_proxy(_card_id_for_hand_index(index), source_rect)

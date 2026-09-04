@@ -1,5 +1,5 @@
 {
-  "min_images": 9,
+  "min_images": 10,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -16,6 +16,14 @@
       "height": 1080,
       "regions": [
         {"rect": [480, 500, 960, 580], "min_luma_range": 20, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*drag_snapback_settling_v2.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [620, 600, 700, 480], "min_luma_range": 18, "min_luma_stdev": 6}
       ]
     },
     {

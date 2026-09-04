@@ -46,6 +46,12 @@ func refresh_layout() -> void:
 	update_minimum_size()
 	queue_sort()
 
+func apply_layout_immediately() -> void:
+	# Pointer drag ownership changes inside an input event. Apply the already-known
+	# fan geometry synchronously so its cancel target cannot retain one stale hover
+	# frame while the detached proxy is being mounted.
+	_notification(NOTIFICATION_SORT_CHILDREN)
+
 func set_emphasized_index(
 	index: int,
 	animated: bool = true,

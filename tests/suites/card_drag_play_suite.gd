@@ -62,6 +62,7 @@ static func _test_raster_arrow_geometry(expect: Callable) -> void:
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await _test_card_widget_drag_threshold(tree, expect)
+	await _test_off_center_follow_and_snapback(tree, expect)
 	await _test_targeted_drag_entry_and_invalid_release(tree, expect)
 	await _test_targeted_leaving_board_cancels(tree, expect)
 	await _test_targeted_valid_release_plays(tree, expect)
@@ -101,6 +102,43 @@ static func _test_card_widget_drag_threshold(tree: SceneTree, expect: Callable) 
 	widget.call("_gui_input", release)
 	expect.call(signal_counts[1] == 1, "A sub-threshold CardWidget press and release should retain the existing click path")
 	widget.queue_free()
+	await tree.process_frame
+
+
+static func _test_off_center_follow_and_snapback(tree: SceneTree, expect: Callable) -> void:
+	var instance: Node = await _live_instance(tree, expect, "quick_stab", TARGET_TILE, 93108)
+	if instance == null:
+		return
+	instance.call("_on_card_hover_started", 0)
+	await tree.create_timer(0.16).timeout
+	var source_card: Control = instance.call("_hand_card_control", 0) as Control
+	var hover_rect: Rect2 = instance.call("_control_visual_global_rect", source_card)
+	var grab_ratio := Vector2(0.07, 0.10)
+	var grab_position: Vector2 = hover_rect.position + hover_rect.size * grab_ratio
+	instance.call("_on_card_drag_started", 0, grab_position)
+	await tree.process_frame
+	var proxy: Control = instance.get("_drag_card_proxy") as Control
+	expect.call(proxy != null, "An off-center drag should still create the pre-board following card")
+	if proxy == null:
+		instance.queue_free()
+		await tree.process_frame
+		return
+	var pointer_in_proxy: Vector2 = proxy.get_global_transform().affine_inverse() * grab_position
+	var expected_local_grab: Vector2 = proxy.size * grab_ratio
+	expect.call(pointer_in_proxy.distance_to(expected_local_grab) <= 2.0, "Shrinking and tilting the following card should preserve the exact edge/corner grab point under the pointer")
+	var cancel_rect: Rect2 = instance.get("_drag_card_cancel_rect") as Rect2
+	expect.call(cancel_rect.size.x < hover_rect.size.x and cancel_rect.size.y < hover_rect.size.y, "Pre-board cancel should target the settled hand card rather than the stale enlarged hover rect")
+	var follow_rect: Rect2 = instance.call("_card_proxy_visual_rect", proxy)
+	instance.call("_animate_drag_cancel_to_source")
+	await tree.create_timer(0.11).timeout
+	var snapping_proxy: Control = instance.get("_drag_card_proxy") as Control
+	expect.call(snapping_proxy != null, "The snapback transition should remain visible until it reaches the hand")
+	if snapping_proxy != null:
+		var snapping_rect: Rect2 = instance.call("_card_proxy_visual_rect", snapping_proxy)
+		expect.call(snapping_rect.size.x <= follow_rect.size.x + 1.0 and snapping_rect.size.y <= follow_rect.size.y + 1.0, "Cancel snapback should settle toward the normal hand size without growing back through the hover preview")
+	await tree.create_timer(0.10).timeout
+	expect.call(int(instance.get("_drag_card_index")) == -1 and source_card.is_visible_in_tree(), "Off-center cancel should finish with one restored hand card and no active drag")
+	instance.queue_free()
 	await tree.process_frame
 
 
