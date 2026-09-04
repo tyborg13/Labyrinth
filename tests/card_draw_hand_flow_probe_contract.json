@@ -1,5 +1,5 @@
 {
-  "min_images": 13,
+  "min_images": 16,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -40,6 +40,30 @@
       "height": 1080,
       "regions": [
         {"rect": [420, 720, 1080, 360], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*objective_intro_v2_00_center_hold.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [600, 400, 720, 280], "min_luma_range": 35, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*objective_intro_v2_01_traveling_to_hud.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [240, 360, 1100, 360], "min_luma_range": 30, "min_luma_stdev": 5}
+      ]
+    },
+    {
+      "pattern": "*objective_intro_v2_02_reduced_motion_hold.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [680, 430, 560, 220], "min_luma_range": 30, "min_luma_stdev": 5}
       ]
     },
     {

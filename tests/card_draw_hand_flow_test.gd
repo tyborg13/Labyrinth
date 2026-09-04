@@ -66,6 +66,30 @@ func _run_opening_hand_entry_regression() -> void:
 	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "No card proxy should launch before the uncovered room receives its presentation wait")
 	_expect(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "Draw audio must stay silent while the room is first uncovered")
 
+	var objective_hud: Control = instance.get("_combat_objective_hud") as Control
+	var objective_deadline: int = Time.get_ticks_msec() + 2000
+	while objective_hud != null and str(objective_hud.get("intro_phase")) != "holding" and Time.get_ticks_msec() < objective_deadline:
+		await process_frame
+	_expect(objective_hud != null and bool(objective_hud.get("intro_active")), "Battle entry should present the objective before dealing the opening hand")
+	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "holding", "The objective intro should reach its readable center-screen hold")
+	_expect(objective_hud != null and objective_hud.visible, "The centered objective intro should reuse the visible persistent objective HUD")
+	if objective_hud != null:
+		var viewport_center: Vector2 = instance.get_viewport_rect().size * 0.5
+		_expect(objective_hud.position + objective_hud.size * 0.5 == viewport_center, "The enlarged objective should hold at the exact screen center")
+		_expect(objective_hud.scale.x > 1.8, "The centered objective should be substantially larger than its permanent HUD size")
+		_expect(objective_hud.mouse_filter == Control.MOUSE_FILTER_IGNORE, "The objective intro should never intercept pointer input")
+	_expect(bool(instance.get("_animation_lock")), "Combat input should remain locked throughout the objective introduction")
+	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Opening cards should wait until the objective has traveled to its HUD position")
+
+	var travel_deadline: int = Time.get_ticks_msec() + 2000
+	while objective_hud != null and str(objective_hud.get("intro_phase")) != "traveling" and Time.get_ticks_msec() < travel_deadline:
+		await process_frame
+	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "traveling", "The objective should transition from its center hold toward the permanent HUD")
+	await create_timer(0.20).timeout
+	if objective_hud != null:
+		_expect(objective_hud.scale.x > 1.0 and objective_hud.scale.x < 1.9, "The traveling objective should visibly shrink toward its permanent size")
+	_expect((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Card-deal motion should not compete with the traveling objective")
+
 	var launch_deadline: int = Time.get_ticks_msec() + 3000
 	while (
 		(instance.get("_draw_hand_transition_proxies") as Array).is_empty()
@@ -93,6 +117,32 @@ func _run_opening_hand_entry_regression() -> void:
 			if widget != null and str(widget.get_meta("ready_wave_reason", "")) == "combat_start":
 				ready_wave_count += 1
 	_expect(ready_wave_count > 0, "The normal playable-hand ready wave should follow the opening deal")
+	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "settled", "The objective intro should finish in its persistent HUD state")
+	if objective_hud != null:
+		var target_rect: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
+		_expect(objective_hud.position.is_equal_approx(target_rect.position), "The objective should land at the permanent HUD position")
+		_expect(objective_hud.scale.is_equal_approx(Vector2.ONE), "The settled objective should return to normal HUD scale")
+		_expect(objective_hud.mouse_filter == Control.MOUSE_FILTER_STOP, "The settled objective should restore its existing tooltip interaction")
+
+	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	reduced_settings["reduced_motion"] = true
+	instance.set("_settings", reduced_settings)
+	instance.call("_animate_combat_objective_intro")
+	await process_frame
+	_expect(objective_hud != null and str(objective_hud.get("intro_phase")) == "reduced_hold", "Reduced Motion should use a static center hold instead of the travel animation")
+	_expect(objective_hud != null and objective_hud.get("_intro_tween") == null, "Reduced Motion should not create an objective motion tween")
+	if objective_hud != null:
+		var reduced_viewport_center: Vector2 = instance.get_viewport_rect().size * 0.5
+		_expect(objective_hud.position + objective_hud.size * 0.5 == reduced_viewport_center, "Reduced Motion should retain the clear centered objective emphasis")
+		_expect(is_equal_approx(objective_hud.scale.x, 1.32), "Reduced Motion should use a restrained static enlargement")
+	var reduced_deadline: int = Time.get_ticks_msec() + 1500
+	while objective_hud != null and bool(objective_hud.get("intro_active")) and Time.get_ticks_msec() < reduced_deadline:
+		await process_frame
+	_expect(objective_hud != null and not bool(objective_hud.get("intro_active")), "Reduced Motion objective emphasis should settle promptly")
+	if objective_hud != null:
+		var reduced_target_rect: Rect2 = instance.call("_combat_objective_hud_target_rect") as Rect2
+		_expect(objective_hud.position.is_equal_approx(reduced_target_rect.position), "Reduced Motion should snap to the same permanent objective HUD position")
+		_expect(objective_hud.scale.is_equal_approx(Vector2.ONE), "Reduced Motion should settle at the normal persistent HUD scale")
 	instance.queue_free()
 	await process_frame
 

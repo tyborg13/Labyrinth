@@ -11876,9 +11876,10 @@ func _refresh_combat_objective_hud() -> void:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode != "combat" or _combat_state.is_empty():
+		_combat_objective_hud.cancel_intro()
 		_combat_objective_hud.visible = false
 		return
-	if _combat_objective_hud.set_combat_state(_combat_objective_hud_state()):
+	if _combat_objective_hud.set_combat_state(_combat_objective_hud_state()) and not _combat_objective_hud.intro_active:
 		_layout_combat_objective_hud()
 
 func _combat_objective_hud_state() -> Dictionary:
@@ -11894,6 +11895,11 @@ func _combat_objective_hud_state() -> Dictionary:
 func _layout_combat_objective_hud() -> void:
 	if _combat_objective_hud == null:
 		return
+	if _combat_objective_hud.intro_active:
+		return
+	_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect())
+
+func _combat_objective_hud_target_rect() -> Rect2:
 	var hud_width: float = 350.0
 	var hud_height: float = 68.0
 	var left: float = UiTypography.SAFE_MARGIN
@@ -11912,11 +11918,29 @@ func _layout_combat_objective_hud() -> void:
 		if play_meter_rect.size.y > 0.0:
 			top = play_meter_rect.position.y - ui_root.get_global_rect().position.y - hud_height - 12.0
 	top = clampf(top, minimum_top, maxf(minimum_top, viewport_size.y - hud_height - UiTypography.SAFE_MARGIN))
-	_combat_objective_hud.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_combat_objective_hud.offset_left = left
-	_combat_objective_hud.offset_top = top
-	_combat_objective_hud.offset_right = left + hud_width
-	_combat_objective_hud.offset_bottom = top + hud_height
+	return Rect2(Vector2(left, top), Vector2(hud_width, hud_height))
+
+func _apply_combat_objective_hud_rect(rect: Rect2) -> void:
+	if _combat_objective_hud == null:
+		return
+	_combat_objective_hud.set_hud_rect(rect)
+
+func _animate_combat_objective_intro() -> void:
+	if (
+		_combat_objective_hud == null
+		or str(_run_state.get("mode", "room")) != "combat"
+		or _combat_state.is_empty()
+	):
+		return
+	_refresh_combat_objective_hud()
+	if not _combat_objective_hud.visible:
+		return
+	var target_rect: Rect2 = _combat_objective_hud_target_rect()
+	await _combat_objective_hud.play_intro(
+		target_rect,
+		get_viewport_rect().size,
+		_reduced_motion_enabled()
+	)
 
 func _setup_boss_health_overlay() -> void:
 	_boss_health_overlay = Control.new()
@@ -24503,23 +24527,26 @@ func _present_opening_hand_after_combat_entry() -> void:
 	var opening_transition: Dictionary = _draw_hand_transition_between_states({}, _combat_state)
 	var draw_entries: Array = opening_transition.get("draw_entries", []) as Array
 	var draw_sfx_count: int = _take_pending_card_draw_sfx_count(_combat_state)
+
+	# Opening-hand state already exists when combat begins. Keep the authoritative
+	# hand hidden and input locked while its fan geometry settles. Give the uncovered
+	# room one complete rendered frame, introduce the scenario objective, and only
+	# then launch the first card so the two opening motions never compete. Taking the
+	# semantic draw count before this refresh also prevents the generic refresh
+	# consumer from playing the deal sounds behind the pre-battle overlay.
+	_animation_lock = true
+	_opening_hand_draw_in_progress = not draw_entries.is_empty()
+	_refresh_ui()
+	if hand_box != null and not draw_entries.is_empty():
+		hand_box.visible = false
+	await _await_opening_hand_draw_layout()
+	if _card_fx_can_continue_combat():
+		await _animate_combat_objective_intro()
 	if draw_entries.is_empty():
 		_animation_lock = false
 		_queue_hand_ready_wave("combat_start")
 		_refresh_ui()
 		return
-
-	# Opening-hand state already exists when combat begins. Keep the authoritative
-	# hand hidden and input locked while its fan geometry settles, then give the
-	# uncovered room one complete rendered frame before launching the first card.
-	# Taking the semantic draw count before this refresh also prevents the generic
-	# refresh consumer from playing the deal sounds behind the pre-battle overlay.
-	_animation_lock = true
-	_opening_hand_draw_in_progress = true
-	_refresh_ui()
-	if hand_box != null:
-		hand_box.visible = false
-	await _await_opening_hand_draw_layout()
 	if _card_fx_can_continue_combat():
 		await _animate_draw_cards_fx(draw_entries, Rect2(), draw_sfx_count, opening_transition)
 	_opening_hand_draw_in_progress = false

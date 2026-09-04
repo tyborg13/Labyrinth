@@ -6,10 +6,21 @@ const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
+const INTRO_START_SCALE: float = 0.82
+const INTRO_POP_SCALE: float = 1.90
+const INTRO_REDUCED_SCALE: float = 1.32
+const INTRO_POP_SECONDS: float = 0.24
+const INTRO_HOLD_SECONDS: float = 0.56
+const INTRO_TRAVEL_SECONDS: float = 0.56
+const INTRO_REDUCED_HOLD_SECONDS: float = 0.65
+
 var _icon: TextureRect
 var _title: Label
 var _detail: Label
 var _presentation_signature: String = ""
+var intro_active: bool = false
+var intro_phase: String = ""
+var _intro_tween: Tween
 
 func _ready() -> void:
 	_build()
@@ -110,6 +121,105 @@ func _build() -> void:
 	_detail.add_theme_font_size_override("font_size", 13)
 	_detail.add_theme_color_override("font_color", Color("c9c4b2"))
 	text_stack.add_child(_detail)
+
+func set_hud_rect(rect: Rect2) -> void:
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	offset_left = rect.position.x
+	offset_top = rect.position.y
+	offset_right = rect.end.x
+	offset_bottom = rect.end.y
+
+func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool) -> void:
+	cancel_intro()
+	if not visible or not is_inside_tree():
+		return
+	var center_rect := Rect2(
+		(viewport_size - target_rect.size) * 0.5,
+		target_rect.size
+	)
+	intro_active = true
+	intro_phase = "appearing"
+	z_index = 60
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pivot_offset = target_rect.size * 0.5
+	set_hud_rect(center_rect)
+
+	if reduced_motion:
+		scale = Vector2.ONE * INTRO_REDUCED_SCALE
+		modulate = Color.WHITE
+		intro_phase = "reduced_hold"
+		await get_tree().create_timer(INTRO_REDUCED_HOLD_SECONDS).timeout
+		if not _intro_can_continue():
+			return
+		_finish_intro(target_rect)
+		return
+
+	scale = Vector2.ONE * INTRO_START_SCALE
+	modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_intro_tween = create_tween().set_parallel(true)
+	_intro_tween.tween_property(
+		self,
+		"scale",
+		Vector2.ONE * INTRO_POP_SCALE,
+		INTRO_POP_SECONDS
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_property(
+		self,
+		"modulate:a",
+		1.0,
+		INTRO_POP_SECONDS * 0.72
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await _intro_tween.finished
+	if not _intro_can_continue():
+		return
+
+	intro_phase = "holding"
+	await get_tree().create_timer(INTRO_HOLD_SECONDS).timeout
+	if not _intro_can_continue():
+		return
+
+	intro_phase = "traveling"
+	_intro_tween = create_tween().set_parallel(true)
+	_intro_tween.tween_property(
+		self,
+		"position",
+		target_rect.position,
+		INTRO_TRAVEL_SECONDS
+	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_property(
+		self,
+		"scale",
+		Vector2.ONE,
+		INTRO_TRAVEL_SECONDS
+	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	await _intro_tween.finished
+	if not _intro_can_continue():
+		return
+	_finish_intro(target_rect)
+
+func cancel_intro() -> void:
+	if _intro_tween != null and _intro_tween.is_valid():
+		_intro_tween.kill()
+	_intro_tween = null
+	intro_active = false
+	intro_phase = ""
+	z_index = 34
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	scale = Vector2.ONE
+	modulate = Color.WHITE
+
+func _intro_can_continue() -> bool:
+	return intro_active and visible and is_inside_tree()
+
+func _finish_intro(target_rect: Rect2) -> void:
+	intro_active = false
+	intro_phase = "settled"
+	_intro_tween = null
+	z_index = 34
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	scale = Vector2.ONE
+	modulate = Color.WHITE
+	set_hud_rect(target_rect)
 
 func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 	var filters_hidden_enemies: bool = state.has("visible_enemy_ids")

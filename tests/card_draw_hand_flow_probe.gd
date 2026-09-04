@@ -118,6 +118,24 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "The uncovered room should remain card-free for its presentation frame")
 	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before, "The uncovered-room frame should remain silent")
 
+	var objective_hud: Control = instance.get("_combat_objective_hud") as Control
+	var objective_deadline: int = Time.get_ticks_msec() + 2000
+	while objective_hud != null and str(objective_hud.get("intro_phase")) != "holding" and Time.get_ticks_msec() < objective_deadline:
+		await process_frame
+	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "holding", "Objective visual proof should reach the readable center-screen hold")
+	_assert(objective_hud != null and objective_hud.visible and objective_hud.scale.x > 1.8, "Objective center proof should show the enlarged live HUD")
+	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Objective center proof should remain visually separate from the opening deal")
+	await _save_root_screenshot("%s/objective_intro_v2_00_center_hold.png" % OUTPUT_DIR)
+
+	var travel_deadline: int = Time.get_ticks_msec() + 2000
+	while objective_hud != null and str(objective_hud.get("intro_phase")) != "traveling" and Time.get_ticks_msec() < travel_deadline:
+		await process_frame
+	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "traveling", "Objective visual proof should reach the center-to-HUD travel")
+	await create_timer(0.32).timeout
+	_assert(objective_hud != null and objective_hud.scale.x > 1.0 and objective_hud.scale.x < 1.9, "Objective travel proof should show the HUD shrinking in flight")
+	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Objective travel proof should precede opening-card motion")
+	await _save_root_screenshot("%s/objective_intro_v2_01_traveling_to_hud.png" % OUTPUT_DIR)
+
 	var launch_deadline: int = Time.get_ticks_msec() + 3000
 	while _sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before and Time.get_ticks_msec() < launch_deadline:
 		await process_frame
@@ -140,6 +158,34 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "Final opening-hand proof should retire staged proxies")
 	_assert(_sfx_generation_total(instance.get("_sfx_players") as Array) == sfx_before + opening_hand.size(), "Opening-hand visual proof should play one draw sound per visible card")
 	await _save_root_screenshot("%s/card_draw_flow_v1_00_opening_complete.png" % OUTPUT_DIR)
+
+	instance.call("_load_run_state", run_state.duplicate(true))
+	await _settle()
+	instance.call("_close_dialogue")
+	await instance.call("_on_map_view_room_selected", combat_coord)
+	await _settle()
+	var reduced_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	reduced_settings["reduced_motion"] = true
+	instance.set("_settings", reduced_settings)
+	var reduced_scrim: Control = instance.get("_pre_battle_scrim") as Control
+	_assert(reduced_scrim != null and reduced_scrim.visible, "Reduced Motion proof should begin from the production pre-battle preview")
+	instance.call("_on_pre_battle_start_pressed")
+	var reduced_phase_deadline: int = Time.get_ticks_msec() + 1500
+	while objective_hud != null and str(objective_hud.get("intro_phase")) != "reduced_hold" and Time.get_ticks_msec() < reduced_phase_deadline:
+		await process_frame
+	_assert(objective_hud != null and str(objective_hud.get("intro_phase")) == "reduced_hold", "Reduced Motion proof should use the static objective hold")
+	_assert(objective_hud != null and objective_hud.get("_intro_tween") == null, "Reduced Motion proof should omit center-to-HUD tweening")
+	var reduced_hand_box: Control = instance.get("hand_box") as Control
+	_assert(reduced_hand_box != null and not reduced_hand_box.visible, "Reduced Motion objective proof should still precede the opening deal")
+	_assert(bool(instance.get("_animation_lock")), "Reduced Motion objective proof should keep combat input locked")
+	await _save_root_screenshot("%s/objective_intro_v2_02_reduced_motion_hold.png" % OUTPUT_DIR)
+	var reduced_deadline: int = Time.get_ticks_msec() + 5000
+	while bool(instance.get("_opening_hand_draw_in_progress")) and Time.get_ticks_msec() < reduced_deadline:
+		await process_frame
+	_assert(not bool(instance.get("_opening_hand_draw_in_progress")), "Reduced Motion production entry should complete its opening deal")
+	_assert(objective_hud != null and not bool(objective_hud.get("intro_active")), "Reduced Motion objective proof should settle promptly")
+	reduced_settings["reduced_motion"] = false
+	instance.set("_settings", reduced_settings)
 
 func _sfx_generation_total(players: Array) -> int:
 	var total: int = 0
