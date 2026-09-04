@@ -38,6 +38,7 @@ var _feedback_counts: Dictionary = {"valid": 0, "invalid": 0}
 var _transparent_native_cursor: ImageTexture
 var _installed_native_shapes: PackedInt32Array = PackedInt32Array()
 var _native_cursor_refresh_elapsed: float = 0.0
+var _glyph_visibility_suppressors: Dictionary = {}
 
 func _ready() -> void:
 	layer = 120
@@ -72,9 +73,7 @@ func _process(delta: float) -> void:
 	var viewport: Viewport = get_viewport()
 	var pointer_position: Vector2 = viewport.get_mouse_position()
 	_glyph.position = pointer_position - CustomCursorGlyphScript.HOTSPOT
-	var window: Window = get_window()
-	var pointer_inside: bool = viewport.get_visible_rect().grow(2.0).has_point(pointer_position)
-	_glyph.visible = glyph_should_be_visible(pointer_inside, window == null or window.has_focus(), _controller_modality_active())
+	_refresh_glyph_visibility()
 	_glyph.set_cursor_state(_resolved_cursor_state(viewport.gui_get_hovered_control(), pointer_position))
 
 func _input(event: InputEvent) -> void:
@@ -132,12 +131,44 @@ func feedback_counts() -> Dictionary:
 func glyph_for_test() -> Control:
 	return _glyph
 
+func set_glyph_visibility_suppressed(owner: String, suppressed: bool) -> void:
+	var key: String = owner.strip_edges()
+	if key.is_empty():
+		return
+	if suppressed:
+		_glyph_visibility_suppressors[key] = true
+	else:
+		_glyph_visibility_suppressors.erase(key)
+	_refresh_glyph_visibility()
+
+func glyph_visibility_suppressed() -> bool:
+	return not _glyph_visibility_suppressors.is_empty()
+
+func _refresh_glyph_visibility() -> void:
+	if _glyph == null:
+		return
+	var viewport: Viewport = get_viewport()
+	var pointer_position: Vector2 = viewport.get_mouse_position()
+	var window: Window = get_window()
+	var pointer_inside: bool = viewport.get_visible_rect().grow(2.0).has_point(pointer_position)
+	_glyph.visible = glyph_should_be_visible(
+		pointer_inside,
+		window == null or window.has_focus(),
+		_controller_modality_active(),
+		glyph_visibility_suppressed()
+	)
+
 func _controller_modality_active() -> bool:
 	var router: Node = get_node_or_null("/root/InputRouter")
 	return router != null and router.has_method("using_controller") and bool(router.call("using_controller"))
 
-static func glyph_should_be_visible(pointer_inside: bool, window_focused: bool, controller_active: bool) -> bool:
-	return pointer_inside and window_focused and not controller_active
+static func glyph_should_be_visible(
+	pointer_inside: bool,
+	window_focused: bool,
+	controller_active: bool,
+	visibility_suppressed: bool = false
+) -> bool:
+	return pointer_inside and window_focused and not controller_active and not visibility_suppressed
 
 func native_suppression_snapshot_for_test() -> Dictionary:
 	var maximum_alpha: float = 1.0

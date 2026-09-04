@@ -40,6 +40,8 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
+const CardDragPlayRules = preload("res://scripts/card_drag_play_rules.gd")
+const CardDragTargetingArrow = preload("res://scripts/card_drag_targeting_arrow.gd")
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const CardActionContextArt = preload("res://scripts/card_action_context_art.gd")
@@ -1171,8 +1173,9 @@ const CARD_SNAPBACK_SECONDS: float = 0.16
 const CARD_DRAW_ARC_HEIGHT: float = 54.0
 const CARD_PLAY_ARC_HEIGHT: float = 58.0
 const CARD_PILE_ARC_HEIGHT: float = 42.0
-const CARD_DRAG_TILT_DEGREES: float = 4.5
-const CARD_DRAG_LIFT_SCALE: float = 1.025
+const CARD_DRAG_FOLLOW_SCALE: float = 0.84
+const CARD_DRAG_FOLLOW_TILT_DEGREES: float = 3.2
+const CARD_TARGETING_CURSOR_SUPPRESSOR_PREFIX: String = "run_scene_card_targeting"
 const CARD_PROXY_POOL_LIMIT: int = 2
 const DOOR_OPENING_FRAMES: int = 8
 const DOOR_OPENING_FRAME_SECONDS: float = 0.075
@@ -1802,12 +1805,15 @@ var _pinned_pre_battle_tooltip_sources: Dictionary = {}
 var _card_focus_tooltip_stack: CardFocusTooltipStack
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
+var _drag_target_arrow: CardDragTargetingArrow
 var _drag_zone_panels: Dictionary = {}
 var _drag_zone_labels: Dictionary = {}
 var _drag_zone_detail_labels: Dictionary = {}
 var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
+var _drag_targeting_active: bool = false
+var _targeting_cursor_suppressor_key: String = ""
 var _card_fx_layer: Control
 var _card_proxy_pool_host: Control
 var _card_proxy_pool: Array[Control] = []
@@ -1824,8 +1830,12 @@ var _active_ambient_sfx_id: String = ""
 var _initial_music_deferred: bool = false
 var _settings: Dictionary = {}
 var _drag_card_source_rect: Rect2 = Rect2()
-var _drag_card_grab_offset: Vector2 = Vector2.ZERO
+var _drag_card_cancel_rect: Rect2 = Rect2()
+var _drag_card_grab_ratio: Vector2 = Vector2(0.5, 0.5)
 var _drag_card_base_scale: Vector2 = Vector2.ONE
+var _drag_last_pointer_position: Vector2 = Vector2.ZERO
+var _card_targeting_pointer_position: Vector2 = Vector2(-1.0, -1.0)
+var _pending_drag_play_source_rect: Rect2 = Rect2()
 var _animating_hand_card_index: int = -1
 var _hand_ready_wave_indices: Dictionary = {}
 var _hand_ready_wave_token: int = 0
@@ -1995,6 +2005,13 @@ func _refresh_hand_panel_after_viewport_change() -> void:
 	await get_tree().process_frame
 	_hand_panel_signature = "<unset>"
 	_refresh_hand_panel()
+	# Both ends of the shared targeting arrow are screen-space geometry. Rebuild
+	# the controller candidate after the board and hand settle, then re-anchor the
+	# arrow so a window/Steam Deck viewport change cannot leave it behind.
+	if _controller_is_active():
+		_refresh_controller_interface()
+	_sync_card_targeting_arrow_after_layout()
+	call_deferred("_sync_card_targeting_arrow_after_layout")
 
 func _process(delta: float) -> void:
 	_refresh_guided_tutorial_live_geometry()
@@ -2167,17 +2184,20 @@ func _input(event: InputEvent) -> void:
 		return
 	if _drag_card_index >= 0:
 		if event is InputEventMouseMotion:
-			_update_drag_overlay_hover(_drag_zone_at(_current_mouse_position()))
-			_update_drag_proxy_position(_current_mouse_position())
+			await _update_card_drag(_mouse_event_position(event))
+			get_viewport().set_input_as_handled()
 			return
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-			await _commit_drag_drop(_drag_zone_at(_current_mouse_position()))
+			var drag_release_position: Vector2 = _mouse_event_position(event)
+			await _commit_drag_drop(_drag_zone_at(drag_release_position), drag_release_position)
 			get_viewport().set_input_as_handled()
 			return
 		if event.is_action_pressed("ui_cancel"):
 			await _animate_drag_cancel_to_source()
 			get_viewport().set_input_as_handled()
 			return
+	if event is InputEventMouseMotion and _click_card_targeting_active():
+		_sync_click_targeting_arrow(_mouse_event_position(event))
 	if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
 		if event.is_action_pressed("ui_left"):
 			_rotate_aoe_aim(-1)
@@ -2263,10 +2283,28 @@ func _on_input_modality_changed(modality: String) -> void:
 		_controller_suspend_custom_navigation()
 		call_deferred("_refresh_pointer_after_layout", pointer_layout_revision)
 	else:
+		# A pointer drag cannot coexist with controller navigation: cancel it before
+		# the controller event that caused this handoff continues through routing.
+		if _drag_card_index >= 0:
+			_cancel_drag_play()
+		else:
+			_sync_click_targeting_arrow()
 		if _player_movement_selected or _selected_card_index >= 0:
 			_controller_region = "board"
 			_controller_hand_focused = false
 			_apply_controller_hand_layout()
+			# Seed card targeting before the next controller physics tick. Waiting for
+			# the deferred layout refresh lets the free analog cursor claim an arbitrary
+			# first tile, replacing the card's preferred legal target before its arrow
+			# ever appears. The settled refresh below recomputes this point after layout.
+			if (
+				_selected_card_index >= 0
+				and _targeted_card_aiming_active()
+				and _controller_custom_navigation_available()
+			):
+				_controller_enter_board(true)
+			elif not _controller_custom_navigation_available():
+				_controller_suspend_custom_navigation()
 		_restore_controller_loadout_tooltip_for_focus_owner()
 		call_deferred("_sync_board_view_rect")
 		call_deferred("_layout_combat_action_dock")
@@ -2274,12 +2312,20 @@ func _on_input_modality_changed(modality: String) -> void:
 	_refresh_controller_card_mode_visuals()
 	_refresh_large_map_navigation_hint()
 	_refresh_controller_prompts()
+	call_deferred("_sync_click_targeting_arrow")
 
 func _handle_controller_input(event: InputEvent) -> bool:
 	if event is InputEventJoypadButton and not (event as InputEventJoypadButton).pressed:
 		return false
+	var controller_activity: bool = true
+	if event is InputEventJoypadMotion:
+		controller_activity = absf((event as InputEventJoypadMotion).axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD
+	# Neutral-axis noise should still zero an already-active controller stick, but
+	# it must not steal pointer modality or cancel a live mouse drag.
+	if not controller_activity and not _controller_is_active():
+		return false
 	var router: Node = get_node_or_null("/root/InputRouter")
-	if router != null and router.has_method("mark_controller_device"):
+	if controller_activity and router != null and router.has_method("mark_controller_device"):
 		router.call("mark_controller_device", event.device)
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
 		if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
@@ -2928,6 +2974,16 @@ func _controller_refreshed_focus_candidate(candidate: Dictionary) -> Dictionary:
 func _controller_update_analog_cursor(candidate: Dictionary, fully_snapped: bool) -> void:
 	if _controller_analog_cursor == null or not _controller_is_active() or _controller_region != "board":
 		return
+	if not _controller_custom_navigation_available():
+		_controller_hide_analog_cursor()
+		return
+	if _sync_controller_card_targeting_arrow(candidate):
+		return
+	# Board/header inspection still uses the analog puck whenever a card is not
+	# actively aiming at board space. Clear any prior card arrow before restoring
+	# that cursor so the two targeting languages can never overlap.
+	if _drag_overlay != null and _drag_overlay.visible:
+		_sync_click_targeting_arrow()
 	var point: Vector2 = candidate.get("point", _controller_virtual_board_position)
 	var distance: float = _controller_virtual_board_position.distance_to(point)
 	var radius: float = maxf(1.0, float(candidate.get("snap_radius", CONTROLLER_TILE_CURSOR_MAGNET_RADIUS)))
@@ -2951,10 +3007,18 @@ func _controller_clear_focus_candidate() -> void:
 	_controller_clear_board_focus()
 	_controller_clear_board_hover_presentation()
 	_refresh_controller_prompts()
+	_sync_click_targeting_arrow()
 
 func _controller_show_free_analog_cursor() -> void:
 	if _controller_analog_cursor == null or not _controller_is_active() or _controller_region != "board":
 		return
+	if not _controller_custom_navigation_available():
+		_controller_hide_analog_cursor()
+		return
+	if _sync_controller_card_targeting_arrow():
+		return
+	if _drag_overlay != null and _drag_overlay.visible:
+		_sync_click_targeting_arrow()
 	_controller_analog_cursor.show_cursor(
 		_controller_virtual_board_position,
 		_controller_virtual_board_position,
@@ -3019,6 +3083,7 @@ func _controller_suspend_custom_navigation() -> void:
 	# target, but force the renderer/hover state to be rebuilt on resume.
 	_controller_board_tile = INVALID_TARGET_TILE
 	_controller_clear_board_hover_presentation()
+	_sync_click_targeting_arrow()
 
 func _controller_tile_key(tile: Vector2i) -> String:
 	return "tile:%d:%d" % [tile.x, tile.y]
@@ -3121,7 +3186,14 @@ func _refresh_controller_after_layout(expected_revision: int = -1) -> void:
 	# Controller combat has one fixed board composition. Only the foreground hand
 	# moves between focused and tucked states; actors and hand focus never resize it.
 	_sync_board_view_rect()
-	_refresh_controller_interface()
+	if _controller_custom_navigation_available() and _controller_card_targeting_needs_initial_candidate():
+		# Modality can switch while a pointer-selected card is already waiting for a
+		# target. Seed the same default board focus used by a controller card press so
+		# the first controller frame has an arrow endpoint and Accept can confirm it.
+		_controller_enter_board(true)
+	else:
+		_refresh_controller_interface()
+	_sync_click_targeting_arrow()
 
 func _refresh_pointer_after_layout(expected_revision: int) -> void:
 	await get_tree().process_frame
@@ -3135,8 +3207,17 @@ func _refresh_pointer_after_layout(expected_revision: int) -> void:
 	_refresh_controller_interface()
 
 func _schedule_controller_modal_refresh() -> void:
+	# Pointer targeting remains selected behind non-destructive overlays, but the
+	# overlay temporarily owns the pointer. Suspend or restore the arrow at the
+	# same visibility boundary that already governs modal controller focus.
+	_sync_click_targeting_arrow()
 	if _controller_modal_visible():
 		_controller_suspend_custom_navigation()
+	elif _controller_custom_navigation_available() and _controller_card_targeting_needs_initial_candidate():
+		# Modal close becomes visible to physics immediately. Seed the preferred card
+		# target in this same call so the free controller cursor cannot claim an
+		# arbitrary first candidate before the deferred geometry refresh runs.
+		_controller_enter_board(true)
 	call_deferred("_refresh_controller_modal_after_layout")
 
 func _refresh_controller_modal_after_layout() -> void:
@@ -3145,8 +3226,15 @@ func _refresh_controller_modal_after_layout() -> void:
 	_refresh_controller_prompts()
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.has_method("using_controller") and bool(router.call("using_controller")):
-		_recover_controller_focus()
+		if _controller_custom_navigation_available():
+			if _controller_card_targeting_needs_initial_candidate():
+				_controller_enter_board(true)
+			else:
+				_refresh_controller_interface()
+		else:
+			_recover_controller_focus()
 		_restore_controller_loadout_tooltip_for_focus_owner()
+	_sync_click_targeting_arrow()
 
 func _controller_focus_scope() -> Control:
 	if (
@@ -3473,6 +3561,7 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_set_targeting_cursor_suppressed(false)
 	_shutdown_audio()
 	_finalize_performance_telemetry_scene("scene_exit")
 
@@ -4200,6 +4289,7 @@ func _open_skill_choice_dialog(title: String, description: String, options: Arra
 		call_deferred("_layout_skill_choice_dialog")
 		_show_skill_choice_option_detail(description, first_option_name, first_option_detail)
 		call_deferred("_grab_preferred_gui_focus", first_option_button, _skill_choice_cancel_button)
+		_schedule_controller_modal_refresh()
 
 func _show_skill_choice_option_detail(instruction: String, option_name: String, option_detail: String) -> void:
 	if _skill_choice_description == null:
@@ -4230,6 +4320,7 @@ func _close_skill_choice_dialog() -> void:
 		var return_focus: Control = _skill_choice_return_focus
 		_skill_choice_return_focus = null
 		call_deferred("_grab_preferred_gui_focus", return_focus, _skill_sigil)
+		_schedule_controller_modal_refresh()
 
 func _close_skill_status_popover(restore_focus: bool = true) -> void:
 	var was_visible: bool = _skill_status_scrim != null and _skill_status_scrim.visible
@@ -4243,6 +4334,8 @@ func _close_skill_status_popover(restore_focus: bool = true) -> void:
 		call_deferred("_grab_preferred_gui_focus", return_focus, _skill_sigil)
 	elif was_visible:
 		_skill_status_return_focus = null
+	if was_visible:
+		_schedule_controller_modal_refresh()
 
 func _can_restore_gui_focus(control: Variant) -> bool:
 	if control == null or not is_instance_valid(control):
@@ -7760,6 +7853,13 @@ func _build_drag_overlay() -> void:
 	_drag_overlay.anchor_right = 1.0
 	_drag_overlay.anchor_bottom = 1.0
 	ui_root.add_child(_drag_overlay)
+	_drag_target_arrow = CardDragTargetingArrow.new()
+	_drag_target_arrow.name = "CardDragTargetingArrow"
+	_drag_target_arrow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_drag_target_arrow.anchor_right = 1.0
+	_drag_target_arrow.anchor_bottom = 1.0
+	_drag_target_arrow.z_index = 90
+	_drag_overlay.add_child(_drag_target_arrow)
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
 	_drag_zone_detail_labels.clear()
@@ -8036,17 +8136,36 @@ func _show_drag_overlay() -> void:
 	if _drag_overlay == null:
 		return
 	_close_pile_view()
-	_drag_overlay.visible = true
-	_drag_overlay.move_to_front()
+	if not _drag_overlay.visible:
+		_drag_overlay.visible = true
+		_drag_overlay.move_to_front()
 	_refresh_choice_bar()
 	_refresh_stage_view()
 	_refresh_contextual_combat_tutorial()
 
 func _cancel_drag_play() -> void:
+	_finish_drag_play(false)
+
+func _finish_drag_play(preserve_card_preview: bool) -> void:
+	var dragged_card_index: int = _drag_card_index
+	if (
+		not preserve_card_preview
+		and _drag_targeting_active
+		and _selected_card_index == dragged_card_index
+	):
+		_clear_active_card_preview_state()
 	if _drag_card_index >= 0 and _drag_card_index < hand_box.get_child_count():
 		var source_slot: Control = hand_box.get_child(_drag_card_index) as Control
 		if source_slot != null:
 			source_slot.visible = true
+		var source_card: Control = _hand_card_control(_drag_card_index)
+		if source_card != null:
+			source_card.modulate = Color.WHITE
+			source_card.remove_meta("drag_hand_origin")
+	_set_hand_emphasized_index(-1, false)
+	if _drag_target_arrow != null:
+		_drag_target_arrow.clear_targeting()
+	_set_targeting_cursor_suppressed(false)
 	if _drag_overlay != null:
 		_drag_overlay.visible = false
 	if _drag_card_proxy != null:
@@ -8055,47 +8174,126 @@ func _cancel_drag_play() -> void:
 	_drag_card_index = -1
 	_drag_card_options.clear()
 	_drag_hover_zone = ""
+	_drag_targeting_active = false
 	_drag_card_source_rect = Rect2()
-	_drag_card_grab_offset = Vector2.ZERO
+	_drag_card_cancel_rect = Rect2()
+	_drag_card_grab_ratio = Vector2(0.5, 0.5)
 	_drag_card_base_scale = Vector2.ONE
+	_drag_last_pointer_position = Vector2.ZERO
 	_update_drag_overlay_hover("")
-	_refresh_hand_panel()
-	_refresh_choice_bar()
-	_refresh_stage_view()
-	_refresh_contextual_combat_tutorial()
+	_refresh_card_preview_ui()
 
 func _animate_drag_cancel_to_source() -> void:
-	if _drag_card_proxy != null and _drag_card_source_rect.size.length() > 0.0:
-		await _animate_card_proxy_to_rect(_drag_card_proxy, _drag_card_source_rect, CARD_SNAPBACK_SECONDS)
+	var target_rect: Rect2 = _drag_card_cancel_rect if _drag_card_cancel_rect.size.length() > 0.0 else _drag_card_source_rect
+	if _drag_card_proxy != null and target_rect.size.length() > 0.0:
+		await _animate_card_proxy_to_rect(_drag_card_proxy, target_rect, CARD_SNAPBACK_SECONDS)
 	_cancel_drag_play()
 
-func _commit_drag_drop(zone: String) -> void:
+func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	if _drag_card_index < 0:
 		return
-	if not _drag_option_valid(zone):
+	if mouse_position.x < 0.0 or mouse_position.y < 0.0:
+		mouse_position = _current_mouse_position()
+	var preview: Dictionary = _drag_card_options.get("play", {}) as Dictionary
+	if zone == "play" and CardDragPlayRules.preview_requires_target(preview) and not _drag_targeting_active:
+		await _enter_drag_targeting()
+	var target_tile: Vector2i = _drag_board_tile_at(mouse_position)
+	if _drag_targeting_active:
+		_set_drag_hover_tile(target_tile)
+	var target_is_valid: bool = _drag_hover_target_is_valid(target_tile)
+	var outcome: String = CardDragPlayRules.release_outcome(zone == "play", preview, target_is_valid)
+	if outcome == CardDragPlayRules.OUTCOME_CANCEL:
 		await _animate_drag_cancel_to_source()
+		return
+	if outcome == CardDragPlayRules.OUTCOME_CONTINUE_TARGETING:
+		# A board release has already communicated the player's intent to aim this
+		# card. End only the held pointer gesture so distant targets can be reached
+		# comfortably, then hand ownership to the established click-targeting mode.
+		if _drag_targeting_active and _selected_card_index == _drag_card_index:
+			_finish_drag_play(true)
+			_sync_click_targeting_arrow(mouse_position)
+			# The hand layout settles one frame after drag ownership is released.
+			# Re-anchor once afterward from the current pointer position. A motion event
+			# may arrive before this callback, so retaining the fixed release point here
+			# would overwrite the newer endpoint and make the arrow appear to stick.
+			call_deferred("_sync_click_targeting_arrow")
+		else:
+			await _animate_drag_cancel_to_source()
 		return
 	var hand_index: int = _drag_card_index
-	var options: Dictionary = _drag_card_options.duplicate(false)
-	if zone != "play":
-		await _animate_drag_cancel_to_source()
-		return
-	var preview: Dictionary = options.get("play", {}) as Dictionary
-	if not bool(preview.get("playable", false)):
-		await _animate_drag_cancel_to_source()
-		return
-	if _drag_card_proxy != null:
-		var destination_rect: Rect2 = _stage_card_rect(_drag_card_source_rect.size)
-		await _animate_card_proxy_to_rect(_drag_card_proxy, destination_rect, 0.10)
-	_cancel_drag_play()
-	# Dragging is an alternate way to choose the card, not an extra confirmation
-	# gesture. Targetless cards still finish on the player's tile.
-	await _begin_card_preview(hand_index, preview, "", false)
+	_pending_drag_play_source_rect = await _prepare_drag_play_source_rect(hand_index)
+	_finish_drag_play(outcome == CardDragPlayRules.OUTCOME_PLAY_TARGET)
+	if outcome == CardDragPlayRules.OUTCOME_PLAY_TARGETLESS:
+		await _begin_card_preview(hand_index, preview, "", true)
+	else:
+		_hovered_board_tile = target_tile
+		await _on_board_tile_clicked(target_tile)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
-	if bool(_drag_card_options.get("printed_playable", false)) and board_view != null and board_view.get_global_rect().has_point(mouse_position):
+	if bool(_drag_card_options.get("printed_playable", false)) and _drag_board_tile_at(mouse_position).x >= 0:
 		return "play"
 	return ""
+
+func _drag_board_tile_at(mouse_position: Vector2) -> Vector2i:
+	if board_view == null or not board_view.has_method("tile_at_global_position"):
+		return INVALID_TARGET_TILE
+	var tile: Vector2i = board_view.call("tile_at_global_position", mouse_position)
+	return tile
+
+func _enter_drag_targeting() -> void:
+	if _drag_targeting_active or _drag_card_index < 0:
+		return
+	var preview: Dictionary = _drag_card_options.get("play", {}) as Dictionary
+	if not CardDragPlayRules.preview_requires_target(preview):
+		return
+	_drag_targeting_active = true
+	if _drag_card_proxy != null:
+		_release_card_proxy(_drag_card_proxy)
+		_drag_card_proxy = null
+	_set_drag_source_slot_visible(true)
+	await _begin_card_preview(_drag_card_index, preview)
+	_set_drag_hand_targeting_pose()
+	_update_drag_targeting_arrow(_drag_last_pointer_position)
+
+func _leave_drag_targeting() -> void:
+	# Targeting intentionally latches after first board entry. This prevents the
+	# selected-card pose and arrow from flapping when the pointer crosses an edge.
+	# Releasing outside the board cancels; an illegal board release hands the same
+	# selected card and arrow to persistent two-click targeting.
+	return
+
+func _set_drag_hover_tile(tile: Vector2i) -> void:
+	if _hovered_board_tile == tile:
+		_update_action_context_copy()
+		return
+	_hovered_board_tile = tile
+	_refresh_stage_view()
+	_update_action_context_copy()
+
+func _drag_hover_target_is_valid(tile: Vector2i) -> bool:
+	if not _drag_targeting_active or tile.x < 0:
+		return false
+	if _pending_target_tiles.has(tile):
+		return true
+	var preview: Dictionary = _active_card_preview()
+	if preview.is_empty():
+		return false
+	return not _shortcut_plan_for_tile(preview, tile).is_empty()
+
+func _update_card_drag(mouse_position: Vector2) -> void:
+	_drag_last_pointer_position = mouse_position
+	var zone: String = _drag_zone_at(mouse_position)
+	var preview: Dictionary = _drag_card_options.get("play", {}) as Dictionary
+	if not _drag_targeting_active and zone == "play" and CardDragPlayRules.preview_requires_target(preview):
+		await _enter_drag_targeting()
+	var tile: Vector2i = _drag_board_tile_at(mouse_position) if _drag_targeting_active else INVALID_TARGET_TILE
+	if _drag_targeting_active:
+		_set_drag_hover_tile(tile)
+		_update_drag_targeting_arrow(mouse_position)
+	else:
+		_update_drag_proxy_position(mouse_position)
+	_update_drag_overlay_hover(zone)
+	_update_drag_hand_card_visual()
 
 func _current_mouse_position() -> Vector2:
 	return get_viewport().get_mouse_position()
@@ -8110,18 +8308,247 @@ func _mouse_event_position(event: InputEvent) -> Vector2:
 	return _current_mouse_position()
 
 func _update_drag_proxy_position(mouse_position: Vector2) -> void:
-	if _drag_card_proxy == null:
+	if _drag_card_proxy == null or _drag_card_index < 0:
 		return
-	var visual_rect := Rect2(mouse_position - _drag_card_grab_offset, _drag_card_source_rect.size)
-	_drag_card_proxy.position = _card_proxy_position_for_rect(visual_rect)
+	_drag_card_proxy.modulate = Color.WHITE
+	_drag_card_proxy.scale = _drag_card_base_scale
+	var rotation_radians: float = 0.0
 	if _reduced_motion_enabled():
-		_drag_card_proxy.rotation = 0.0
-		_drag_card_proxy.scale = _drag_card_base_scale
+		rotation_radians = 0.0
+	else:
+		var viewport_width: float = maxf(1.0, get_viewport_rect().size.x)
+		var normalized_x: float = clampf((mouse_position.x / viewport_width - 0.5) * 2.0, -1.0, 1.0)
+		rotation_radians = deg_to_rad(normalized_x * CARD_DRAG_FOLLOW_TILT_DEGREES)
+	_drag_card_proxy.rotation = rotation_radians
+	var proxy_visual_size: Vector2 = CARD_WIDGET_BASE_SIZE * _drag_card_base_scale.abs()
+	var scaled_center_offset: Vector2 = (_drag_card_grab_ratio - Vector2(0.5, 0.5)) * proxy_visual_size
+	var proxy_center: Vector2 = mouse_position - scaled_center_offset.rotated(rotation_radians)
+	_drag_card_proxy.position = proxy_center - CARD_WIDGET_BASE_SIZE * 0.5
+
+func _update_drag_hand_card_visual() -> void:
+	if _drag_card_index < 0:
 		return
-	var viewport_width: float = maxf(1.0, get_viewport_rect().size.x)
-	var normalized_x: float = clampf((mouse_position.x / viewport_width - 0.5) * 2.0, -1.0, 1.0)
-	_drag_card_proxy.rotation = deg_to_rad(normalized_x * CARD_DRAG_TILT_DEGREES)
-	_drag_card_proxy.scale = _drag_card_base_scale * CARD_DRAG_LIFT_SCALE
+	var source_card: Control = _hand_card_control(_drag_card_index)
+	if source_card == null:
+		return
+	source_card.modulate = Color.WHITE
+	if _drag_targeting_active:
+		source_card.set_meta("drag_hand_origin", true)
+	else:
+		source_card.remove_meta("drag_hand_origin")
+
+func _set_drag_source_slot_visible(is_visible: bool) -> void:
+	if _drag_card_index < 0 or _drag_card_index >= hand_box.get_child_count():
+		return
+	var source_slot: Control = hand_box.get_child(_drag_card_index) as Control
+	if source_slot != null:
+		source_slot.visible = is_visible
+
+func _set_drag_hand_targeting_pose() -> void:
+	if _drag_card_index < 0 or hand_box == null:
+		return
+	_set_drag_source_slot_visible(true)
+	hand_box.set_emphasized_index(
+		_drag_card_index,
+		false,
+		HandFanContainer.TARGETING_EMPHASIS_SCALE,
+		HandFanContainer.TARGETING_EMPHASIS_EXTRA_LIFT
+	)
+	if _card_focus_tooltip_stack != null:
+		_card_focus_tooltip_stack.hide_stack()
+	var source_card: Control = _hand_card_control(_drag_card_index)
+	if source_card != null:
+		source_card.modulate = Color.WHITE
+		source_card.set_meta("drag_hand_origin", true)
+
+func _update_drag_targeting_arrow(mouse_position: Vector2) -> void:
+	if not _drag_targeting_active or _drag_card_index < 0:
+		_sync_click_targeting_arrow()
+		return
+	_set_card_targeting_arrow(_drag_card_index, mouse_position)
+
+func _sync_card_targeting_arrow_after_layout() -> void:
+	if _drag_targeting_active and _drag_card_index >= 0:
+		_set_drag_hand_targeting_pose()
+		_update_drag_targeting_arrow(_drag_last_pointer_position)
+		return
+	_sync_click_targeting_arrow()
+
+func _targeted_card_aiming_active() -> bool:
+	if _drag_targeting_active and _drag_card_index >= 0:
+		return true
+	return (
+		not _animation_lock
+		and str(_run_state.get("mode", "room")) == "combat"
+		and _selected_card_index >= 0
+		and _pending_action_index >= 0
+		and _pending_action_index < _pending_actions.size()
+		and (not _pending_target_tiles.is_empty() or _orientation_pending())
+	)
+
+func _click_card_targeting_active() -> bool:
+	return (
+		_targeted_card_aiming_active()
+		and not _controller_is_active()
+		and _drag_card_index < 0
+		and not _controller_modal_visible()
+	)
+
+func _controller_card_targeting_active(candidate: Dictionary = {}) -> bool:
+	if (
+		not _targeted_card_aiming_active()
+		or not _controller_is_active()
+		or _drag_card_index >= 0
+		or _controller_region != "board"
+		or _controller_modal_visible()
+	):
+		return false
+	var resolved_candidate: Dictionary = candidate if not candidate.is_empty() else _controller_focus_candidate
+	if resolved_candidate.is_empty():
+		# Between magnetic board candidates the controller still owns a real virtual
+		# board position. Let the shared arrow follow it just as pointer targeting
+		# follows the mouse through an illegal square.
+		return (
+			is_finite(_controller_virtual_board_position.x)
+			and is_finite(_controller_virtual_board_position.y)
+		)
+	return str(resolved_candidate.get("kind", "tile")) in ["tile", "door", "enemy", "equipment", "item"]
+
+func _controller_card_targeting_needs_initial_candidate() -> bool:
+	return (
+		_controller_is_active()
+		and _controller_region == "board"
+		and _targeted_card_aiming_active()
+		and _controller_focus_candidate.is_empty()
+		and (
+			not is_finite(_controller_virtual_board_position.x)
+			or not is_finite(_controller_virtual_board_position.y)
+		)
+	)
+
+func _controller_card_targeting_endpoint(candidate: Dictionary = {}) -> Vector2:
+	var resolved_candidate: Dictionary = candidate if not candidate.is_empty() else _controller_focus_candidate
+	if not resolved_candidate.is_empty():
+		var candidate_kind: String = str(resolved_candidate.get("kind", "tile"))
+		if candidate_kind in ["tile", "door", "enemy", "equipment", "item"]:
+			return resolved_candidate.get("point", _controller_virtual_board_position) as Vector2
+	if _controller_board_tile != INVALID_TARGET_TILE:
+		return _controller_board_point(_controller_board_tile)
+	if is_finite(_controller_virtual_board_position.x) and is_finite(_controller_virtual_board_position.y):
+		return _controller_virtual_board_position
+	return Vector2(-1.0, -1.0)
+
+func _sync_controller_card_targeting_arrow(candidate: Dictionary = {}) -> bool:
+	if not _controller_card_targeting_active(candidate):
+		return false
+	var endpoint: Vector2 = _controller_card_targeting_endpoint(candidate)
+	if endpoint.x < 0.0 or endpoint.y < 0.0:
+		return false
+	_controller_hide_analog_cursor()
+	_set_card_targeting_arrow(_selected_card_index, endpoint, false)
+	return true
+
+func _player_preview_target_curve_visible(action_type: String) -> bool:
+	# Only direct ranged attacks share the same attacker-to-target line language.
+	# Pointer and controller selection now share the card-origin arrow, while
+	# push/pull and AOE retain their distinct effect evidence.
+	return action_type != "ranged" or not _targeted_card_aiming_active()
+
+func _clicked_card_selection_pose_active() -> bool:
+	return (
+		not _animation_lock
+		and str(_run_state.get("mode", "room")) == "combat"
+		and _selected_card_index >= 0
+		and _drag_card_index < 0
+		and not _dialogue_active
+	)
+
+func _set_clicked_card_selection_pose() -> void:
+	if hand_box == null or _selected_card_index < 0:
+		return
+	if hand_box.emphasized_index() == _selected_card_index:
+		return
+	hand_box.set_emphasized_index(
+		_selected_card_index,
+		false,
+		HandFanContainer.TARGETING_EMPHASIS_SCALE,
+		HandFanContainer.TARGETING_EMPHASIS_EXTRA_LIFT
+	)
+	hand_box.apply_layout_immediately()
+	if _card_focus_tooltip_stack != null:
+		_card_focus_tooltip_stack.hide_stack()
+
+func _sync_click_targeting_arrow(mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	if _clicked_card_selection_pose_active():
+		_set_clicked_card_selection_pose()
+	if _sync_controller_card_targeting_arrow():
+		return
+	if _click_card_targeting_active():
+		if mouse_position.x >= 0.0 and mouse_position.y >= 0.0:
+			_card_targeting_pointer_position = mouse_position
+		elif _card_targeting_pointer_position.x < 0.0 or _card_targeting_pointer_position.y < 0.0:
+			_card_targeting_pointer_position = _current_mouse_position()
+		_set_card_targeting_arrow(_selected_card_index, _card_targeting_pointer_position)
+		return
+	if _drag_card_index >= 0:
+		return
+	if _drag_target_arrow != null:
+		_drag_target_arrow.clear_targeting()
+	if _drag_overlay != null:
+		_drag_overlay.visible = false
+	_card_targeting_pointer_position = Vector2(-1.0, -1.0)
+	_set_targeting_cursor_suppressed(false)
+
+func _set_card_targeting_arrow(source_index: int, endpoint: Vector2, suppress_pointer_cursor: bool = true) -> void:
+	if _drag_target_arrow == null or _drag_overlay == null:
+		_set_targeting_cursor_suppressed(false)
+		return
+	var source_card: Control = _hand_card_control(source_index)
+	if source_card == null or not source_card.is_visible_in_tree():
+		_drag_target_arrow.clear_targeting()
+		_set_targeting_cursor_suppressed(false)
+		return
+	_drag_overlay.visible = true
+	_drag_overlay.move_to_front()
+	var source_rect: Rect2 = _control_visual_global_rect(source_card)
+	var arrow_start: Vector2 = source_rect.position + Vector2(source_rect.size.x * 0.5, 4.0)
+	_drag_target_arrow.set_targeting(arrow_start, endpoint)
+	# Pointer aiming suppresses the forged mouse glyph. Controller aiming uses the
+	# same arrow but hides its analog puck separately, so never leave a stale
+	# pointer-only suppressor behind after a modality handoff.
+	_set_targeting_cursor_suppressed(suppress_pointer_cursor)
+
+func _set_targeting_cursor_suppressed(suppressed: bool) -> void:
+	if bool(get_meta("targeting_cursor_suppressed", false)) == suppressed:
+		return
+	var cursor_feedback: Node = get_node_or_null("/root/CursorFeedback")
+	if cursor_feedback == null or not cursor_feedback.has_method("set_glyph_visibility_suppressed"):
+		return
+	if _targeting_cursor_suppressor_key.is_empty():
+		_targeting_cursor_suppressor_key = "%s_%d" % [
+			CARD_TARGETING_CURSOR_SUPPRESSOR_PREFIX,
+			get_instance_id(),
+		]
+	cursor_feedback.call(
+		"set_glyph_visibility_suppressed",
+		_targeting_cursor_suppressor_key,
+		suppressed
+	)
+	set_meta("targeting_cursor_suppressed", suppressed)
+
+func _prepare_drag_play_source_rect(hand_index: int) -> Rect2:
+	if hand_index < 0 or hand_index >= hand_box.get_child_count():
+		return Rect2()
+	_set_drag_source_slot_visible(true)
+	if _drag_target_arrow != null:
+		_drag_target_arrow.clear_targeting()
+	_set_targeting_cursor_suppressed(false)
+	_set_hand_emphasized_index(-1, false)
+	var source_card: Control = _hand_card_control(hand_index)
+	if source_card != null:
+		source_card.modulate = Color.WHITE
+	await get_tree().process_frame
+	return _hand_card_global_rect(hand_index)
 
 func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	var proxy: Control = _take_pooled_card_proxy()
@@ -10689,6 +11116,8 @@ func _refresh_ui(
 		"refresh_ui_sliced_wall_total" if sliced_wait_occurred else "refresh_ui_total",
 		performance_total_started
 	)
+	_sync_click_targeting_arrow()
+	call_deferred("_sync_click_targeting_arrow")
 	if frame_sliced:
 		_frame_sliced_ui_refresh_active = false
 
@@ -10717,6 +11146,7 @@ func _refresh_animation_lock_ui() -> void:
 	_refresh_contextual_combat_tutorial()
 	performance_phase_started = _record_runtime_performance_phase("animation_lock_ui_tutorial_total", performance_phase_started)
 	_update_performance_telemetry_context()
+	_sync_click_targeting_arrow()
 	_record_runtime_performance_phase("animation_lock_ui_telemetry", performance_phase_started)
 	_record_runtime_performance_phase("animation_lock_ui_total", performance_total_started)
 
@@ -10832,6 +11262,8 @@ func _refresh_card_preview_ui() -> void:
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_layout", performance_phase_started)
 	_refresh_contextual_combat_tutorial()
 	_update_performance_telemetry_context()
+	_sync_click_targeting_arrow()
+	call_deferred("_sync_click_targeting_arrow")
 	_record_runtime_performance_phase("card_preview_refresh_tutorial_total", performance_phase_started)
 
 func _refresh_pile_counts() -> void:
@@ -11253,6 +11685,7 @@ func _toggle_skill_status_popover() -> void:
 	_layout_skill_status_popover()
 	call_deferred("_layout_skill_status_popover")
 	call_deferred("_grab_skill_status_palette_focus")
+	_schedule_controller_modal_refresh()
 
 func _layout_skill_status_popover() -> void:
 	if _skill_status_popover == null or not _skill_status_popover.visible or _skill_sigil == null or not is_instance_valid(_skill_sigil):
@@ -11876,9 +12309,10 @@ func _refresh_combat_objective_hud() -> void:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode != "combat" or _combat_state.is_empty():
+		_combat_objective_hud.cancel_intro()
 		_combat_objective_hud.visible = false
 		return
-	if _combat_objective_hud.set_combat_state(_combat_objective_hud_state()):
+	if _combat_objective_hud.set_combat_state(_combat_objective_hud_state()) and not _combat_objective_hud.intro_active:
 		_layout_combat_objective_hud()
 
 func _combat_objective_hud_state() -> Dictionary:
@@ -11894,6 +12328,11 @@ func _combat_objective_hud_state() -> Dictionary:
 func _layout_combat_objective_hud() -> void:
 	if _combat_objective_hud == null:
 		return
+	if _combat_objective_hud.intro_active:
+		return
+	_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect())
+
+func _combat_objective_hud_target_rect() -> Rect2:
 	var hud_width: float = 350.0
 	var hud_height: float = 68.0
 	var left: float = UiTypography.SAFE_MARGIN
@@ -11912,11 +12351,44 @@ func _layout_combat_objective_hud() -> void:
 		if play_meter_rect.size.y > 0.0:
 			top = play_meter_rect.position.y - ui_root.get_global_rect().position.y - hud_height - 12.0
 	top = clampf(top, minimum_top, maxf(minimum_top, viewport_size.y - hud_height - UiTypography.SAFE_MARGIN))
-	_combat_objective_hud.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_combat_objective_hud.offset_left = left
-	_combat_objective_hud.offset_top = top
-	_combat_objective_hud.offset_right = left + hud_width
-	_combat_objective_hud.offset_bottom = top + hud_height
+	return Rect2(Vector2(left, top), Vector2(hud_width, hud_height))
+
+func _apply_combat_objective_hud_rect(rect: Rect2) -> void:
+	if _combat_objective_hud == null:
+		return
+	_combat_objective_hud.set_hud_rect(rect)
+
+func _animate_combat_objective_intro() -> void:
+	if (
+		_combat_objective_hud == null
+		or str(_run_state.get("mode", "room")) != "combat"
+		or _combat_state.is_empty()
+	):
+		return
+	_refresh_combat_objective_hud()
+	if not _combat_objective_hud.visible:
+		return
+	var target_rect: Rect2 = _combat_objective_hud_target_rect()
+	await _combat_objective_hud.play_intro(
+		target_rect,
+		get_viewport_rect().size,
+		_reduced_motion_enabled()
+	)
+
+func _prepare_combat_objective_intro() -> void:
+	if (
+		_combat_objective_hud == null
+		or str(_run_state.get("mode", "room")) != "combat"
+		or _combat_state.is_empty()
+	):
+		return
+	_refresh_combat_objective_hud()
+	if not _combat_objective_hud.visible:
+		return
+	_combat_objective_hud.prepare_intro(
+		_combat_objective_hud_target_rect(),
+		get_viewport_rect().size
+	)
 
 func _setup_boss_health_overlay() -> void:
 	_boss_health_overlay = Control.new()
@@ -12930,7 +13402,9 @@ func _animate_turn_order_transition(
 			remove_tween.tween_property(removed_child, "modulate:a", 0.0, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 		if not dissolve_slots.is_empty():
 			await _animate_turn_order_shadow_dissolves(dissolve_slots)
-		if remove_tween != null:
+		# Slides and portrait dissolves run together. A short slide can finish
+		# while we await the dissolve; its finished signal is not replayed.
+		if remove_tween != null and remove_tween.is_running():
 			await remove_tween.finished
 	var previous_positions: Dictionary = _turn_order_child_positions(working_order, removed_indices)
 	var previous_signatures: Dictionary = _turn_order_instance_signatures(working_order, removed_indices)
@@ -13233,18 +13707,10 @@ func _action_step_tracker_state() -> Dictionary:
 			"selected_targets": _action_step_resolution_targets
 		}
 	if _drag_card_index >= 0:
-		var printed_preview: Dictionary = _drag_card_options.get("play", {})
-		var drag_actions: Array = printed_preview.get("actions", [])
-		if drag_actions.is_empty():
-			drag_actions = _combat_engine.card_play_actions(_card_id_for_hand_index(_drag_card_index), _combat_state)
-		return {
-			"active": true,
-			"mode": "drag",
-			"card_id": _card_id_for_hand_index(_drag_card_index),
-			"actions": drag_actions,
-			"action_index": clampi(int(printed_preview.get("action_index", 0)), 0, maxi(0, drag_actions.size() - 1)),
-			"selected_targets": []
-		}
+		# Drag state is communicated spatially by the held card, selected hand pose,
+		# raster targeting arrow, and board targets. A side instruction block only
+		# competes with those direct cues.
+		return {}
 	if _card_action_choice_index >= 0:
 		var choice_card_id: String = _card_id_for_hand_index(_card_action_choice_index)
 		if choice_card_id.is_empty():
@@ -13656,25 +14122,7 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 	var verb_text: String = ""
 	var target_text: String = ""
 	var target_tone: String = "neutral"
-	if context_mode == "drag":
-		match _drag_hover_zone:
-			"play":
-				verb_text = "RELEASE TO PLAY"
-				target_text = _action_context_valid_target_count_text(_drag_card_options.get("play", {}))
-				target_tone = "valid"
-			_:
-				if bool(_drag_card_options.get("printed_playable", false)):
-					verb_text = "DROP ON BOARD"
-					target_text = _action_context_valid_target_count_text(_drag_card_options.get("play", {}))
-				else:
-					verb_text = "CARD UNAVAILABLE"
-					target_text = "NO PRINTED TARGET"
-					target_tone = "invalid"
-		if bool(_drag_card_options.get("printed_playable", false)):
-			_set_action_context_risk("primary", "PRIMARY · FULL CARD")
-		else:
-			_set_action_context_risk("neutral", "CARD UNAVAILABLE")
-	elif context_mode == "choice" and _selected_card_index < 0:
+	if context_mode == "choice" and _selected_card_index < 0:
 		verb_text = "CARD UNAVAILABLE"
 		target_text = "NO PRINTED TARGET"
 		target_tone = "invalid"
@@ -16466,7 +16914,12 @@ func _refresh_hand_panel() -> void:
 				widget.set_meta("ready_wave_delay", ready_wave_delay)
 				widget.set_meta("ready_wave_playable", true)
 			if index == _drag_card_index:
-				widget.modulate = Color(1.0, 1.0, 1.0, 0.20)
+				widget.modulate = Color.WHITE
+				card_slot.visible = _drag_targeting_active
+				if _drag_targeting_active:
+					widget.set_meta("drag_hand_origin", true)
+				else:
+					widget.remove_meta("drag_hand_origin")
 			elif index == _animating_hand_card_index:
 				widget.visible = false
 			if ready_wave_delay >= 0.0:
@@ -16556,11 +17009,17 @@ func _update_existing_hand_interaction_state() -> bool:
 			widget.call_deferred("play_ready_wave", ready_wave_delay)
 		elif _animation_lock:
 			widget.reset_ready_wave_state()
-		widget.visible = index != _animating_hand_card_index
+		widget.visible = index != _animating_hand_card_index and (index != _drag_card_index or _drag_targeting_active)
 		var alpha: float = 0.56 if not usable else 0.72 if dimmed else 0.90 if not printed_playable else 1.0
 		widget.modulate = Color(1.0, 1.0, 1.0, alpha)
 		if index == _drag_card_index:
-			widget.modulate = Color(1.0, 1.0, 1.0, 0.20)
+			widget.modulate = Color.WHITE
+			if _drag_targeting_active:
+				widget.set_meta("drag_hand_origin", true)
+			else:
+				widget.remove_meta("drag_hand_origin")
+		else:
+			widget.remove_meta("drag_hand_origin")
 		performance_phase_started = _record_runtime_performance_phase("hand_interaction_widget", performance_phase_started)
 	var emphasized_hand_index: int = (
 		_hovered_card_index
@@ -17115,7 +17574,14 @@ func _refresh_stage_view() -> void:
 		# The lesson temporarily owns one exact foe's evidence. Respect the saved
 		# show-all preference again as soon as the confirmation step ends.
 		var render_all_enemy_intents: bool = _show_all_enemy_intents and not guided_intent_focus_active
-		var enemy_hover_active: bool = _state_has_visible_enemy_at_tile(display_state, intent_focus_tile)
+		var enemy_hover_preview_allowed: bool = (
+			not _targeted_card_aiming_active()
+			or guided_intent_focus_active
+		)
+		var enemy_hover_active: bool = (
+			enemy_hover_preview_allowed
+			and _state_has_visible_enemy_at_tile(display_state, intent_focus_tile)
+		)
 		if render_all_enemy_intents or enemy_hover_active:
 			var intent_preview_state: Dictionary = _enemy_intent_preview_state(display_state)
 			var threat_previews: Array[Dictionary] = _dictionary_array([])
@@ -18843,6 +19309,7 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 				"from": from_tile,
 				"to": target_tile,
 				"preview": true,
+				"target_curve_visible": _player_preview_target_curve_visible(action_type),
 				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
 				"force_tiles": force_tiles,
 				"damage_preview": _preview_damage_for_action(state, action, target_tile)
@@ -19969,7 +20436,10 @@ func _on_card_pressed(index: int) -> void:
 	if _pending_umbra_commit_locked and _selected_card_index >= 0:
 		return
 	if _selected_card_index == index:
-		_cancel_card_selection()
+		if _selected_targetless_card_can_confirm_on_second_click(index):
+			await _on_confirm_card_play_pressed()
+		else:
+			_cancel_card_selection()
 		return
 	if _selected_card_index >= 0 or _card_action_choice_index >= 0:
 		_reset_card_resolution()
@@ -19989,7 +20459,7 @@ func _on_card_pressed(index: int) -> void:
 				finish_phase = ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD
 			_guided_tutorial_set_phase(finish_phase if _pending_card_requires_confirmation() else target_phase)
 
-func _on_card_drag_started(index: int) -> void:
+func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
 		return
 	if _guided_tutorial_hard_gate_active():
@@ -20011,23 +20481,34 @@ func _on_card_drag_started(index: int) -> void:
 	if not bool(options.get("any_playable", false)):
 		return
 	var source_rect: Rect2 = _hand_card_global_rect(index)
+	var drag_pointer: Vector2 = pointer_position if pointer_position.x >= 0.0 and pointer_position.y >= 0.0 else _current_mouse_position()
+	var source_card: Control = _hand_card_control(index)
+	var grab_ratio := Vector2(0.5, 0.5)
+	if source_card != null:
+		var local_pointer: Vector2 = source_card.get_global_transform_with_canvas().affine_inverse() * drag_pointer
+		grab_ratio = Vector2(
+			clampf(local_pointer.x / maxf(1.0, source_card.size.x), 0.0, 1.0),
+			clampf(local_pointer.y / maxf(1.0, source_card.size.y), 0.0, 1.0)
+		)
 	_drag_card_index = index
 	_set_hand_emphasized_index(-1, false)
+	hand_box.apply_layout_immediately()
 	_drag_card_options = options.duplicate(false)
 	_drag_hover_zone = ""
 	_drag_card_source_rect = source_rect
-	_drag_card_grab_offset = _current_mouse_position() - source_rect.position
+	_drag_card_cancel_rect = _hand_card_global_rect(index)
+	_drag_last_pointer_position = drag_pointer
+	_drag_card_grab_ratio = grab_ratio
 	if _drag_card_proxy != null:
 		_release_card_proxy(_drag_card_proxy)
 	_drag_card_proxy = _spawn_card_proxy(_card_id_for_hand_index(index), source_rect)
 	_mount_card_proxy(_drag_card_proxy, _drag_overlay, source_rect)
-	_drag_card_base_scale = _drag_card_proxy.scale
-	_update_drag_proxy_position(_current_mouse_position())
+	_drag_card_base_scale = _drag_card_proxy.scale * CARD_DRAG_FOLLOW_SCALE
+	_update_drag_proxy_position(_drag_last_pointer_position)
 	_show_drag_overlay()
-	_update_drag_overlay_hover(_drag_zone_at(_current_mouse_position()))
-	var source_widget: Control = hand_box.get_child(index) as Control
-	if source_widget != null:
-		source_widget.visible = false
+	_update_drag_overlay_hover(_drag_zone_at(_drag_last_pointer_position))
+	_update_drag_hand_card_visual()
+	_set_drag_source_slot_visible(false)
 
 func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false) -> void:
 	if not bool(preview.get("playable", false)):
@@ -20084,6 +20565,20 @@ func _pending_card_requires_confirmation() -> bool:
 		and not _pending_actions.is_empty()
 		and _pending_action_index >= _pending_actions.size()
 		and not _preview_combat_state.is_empty()
+	)
+
+func _selected_targetless_card_can_confirm_on_second_click(index: int) -> bool:
+	if (
+		index != _selected_card_index
+		or not _pending_card_requires_confirmation()
+		or _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CANCEL_CARD
+	):
+		return false
+	var options: Dictionary = _card_play_options_for_index(index)
+	var original_preview: Dictionary = options.get("play", {}) as Dictionary
+	return (
+		bool(options.get("printed_playable", false))
+		and not CardDragPlayRules.preview_requires_target(original_preview)
 	)
 
 func _on_confirm_card_play_pressed() -> void:
@@ -20791,7 +21286,15 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var card_id: String = _card_id_for_hand_index(hand_index)
 	var guided_commit_phase: String = _guided_tutorial_phase_id
-	var source_rect: Rect2 = _hand_card_global_rect(hand_index)
+	var uses_drag_hand_source: bool = _pending_drag_play_source_rect.size.x > 0.0 and _pending_drag_play_source_rect.size.y > 0.0
+	var source_rect: Rect2 = (
+		_pending_drag_play_source_rect
+		if uses_drag_hand_source
+		else _hand_card_global_rect(hand_index)
+	)
+	_pending_drag_play_source_rect = Rect2()
+	set_meta("last_card_play_source_rect", source_rect)
+	set_meta("last_card_play_source_kind", "drag_hand" if uses_drag_hand_source else "hand")
 	var card_size: Vector2 = source_rect.size if source_rect.size.length() > 0.0 else _hand_card_size(5, false)
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
@@ -20803,6 +21306,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_animating_hand_card_index = hand_index
 	_begin_action_step_resolution_tracker(card_id, actions, selected_targets)
 	_animation_lock = true
+	_sync_click_targeting_arrow()
 	_begin_card_play_meter_spend_preview(plays_spent)
 	_refresh_animation_lock_ui()
 	await _begin_locked_hand_render_cache()
@@ -20897,8 +21401,8 @@ func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vecto
 	if _card_fx_layer == null or card_id.is_empty() or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
 		return null
 	var proxy: Control = _spawn_card_proxy(card_id, source_rect)
-	proxy.z_index = 1500
 	_mount_card_proxy(proxy, _card_fx_layer, source_rect)
+	proxy.z_index = 1500
 	proxy.modulate = Color.WHITE
 	var reduced_motion: bool = _reduced_motion_enabled()
 	var target_multiplier: float = 1.02 if reduced_motion else 1.08
@@ -22896,6 +23400,16 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 		_render_board_state(animated_state, {})
 		await get_tree().create_timer(0.16).timeout
 		return
+	var visible_action_step: Dictionary = _visible_umbra_action_step(animated_state, step)
+	if not visible_action_step.is_empty():
+		if kind == "move":
+			await _animate_move_step(animated_state, visible_action_step)
+		else:
+			# Reuse the complete authored attack timeline with geometry clipped to
+			# the visible span. This keeps impact feedback and reduced-motion timing
+			# identical to revealed attacks without disclosing the hidden actor.
+			await _animate_enemy_phase_steps(animated_state, [visible_action_step])
+		return
 	var before_step_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
 	if bool(step.get("revealed_after_action", false)):
@@ -22919,6 +23433,163 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 	}))
 	await _animate_turn_order_alongside_defeats(before_step_state, animated_state)
 	await get_tree().create_timer(0.06).timeout
+
+func _visible_umbra_action_step(state: Dictionary, step: Dictionary) -> Dictionary:
+	var kind: String = str(step.get("kind", ""))
+	if kind == "move":
+		var from_tile: Vector2i = step.get("from", Vector2i(-1, -1))
+		var to_tile: Vector2i = step.get("to", Vector2i(-1, -1))
+		var movement_path: Array[Vector2i] = _resolved_movement_animation_path(from_tile, to_tile, step.get("path", []))
+		if _visible_umbra_action_tiles(state, movement_path).is_empty():
+			return {}
+		var emerging_move: Dictionary = step.duplicate(true)
+		emerging_move.erase("hidden_by_umbra")
+		emerging_move["actor_name"] = "Unknown Presence"
+		emerging_move["umbra_reveal_actor_on_visible_tiles"] = true
+		return emerging_move
+	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
+		return {}
+	var visible_tiles: Array[Vector2i] = _visible_umbra_action_tiles(state, step.get("tiles", []))
+	var from_tile: Vector2i = step.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = step.get("to", Vector2i(-1, -1))
+	var visible_line: Array[Vector2i] = _visible_umbra_action_tiles(
+		state,
+		_umbra_action_line_tiles(from_tile, to_tile)
+	)
+	var visible_line_segments: Array = _umbra_action_visible_line_segments(state, from_tile, to_tile)
+	if visible_line.is_empty() and visible_tiles.is_empty():
+		return {}
+	var visible_attack: Dictionary = step.duplicate(true)
+	visible_attack.erase("hidden_by_umbra")
+	visible_attack["actor_name"] = "Unknown Presence"
+	visible_attack["umbra_action_clipped"] = true
+	# Start and end line FX on visible tiles so authored trails cannot expose the
+	# concealed source. Fractional spans preserve separated islands of visibility
+	# when a projectile crosses a light pocket and returns to the Umbra.
+	if not visible_line.is_empty():
+		visible_attack["umbra_original_from"] = from_tile
+		visible_attack["umbra_original_to"] = to_tile
+		visible_attack["umbra_visible_line_segments"] = visible_line_segments
+		visible_attack["from"] = visible_line[0]
+		visible_attack["to"] = visible_line[visible_line.size() - 1]
+	if kind in ["aoe", "lightning_strikes"] and not visible_tiles.is_empty():
+		visible_attack["tiles"] = visible_tiles
+		var center_tile: Vector2i = visible_attack.get("center", Vector2i(-1, -1))
+		if center_tile.x >= 0 and not visible_tiles.has(center_tile):
+			visible_attack["center"] = visible_tiles[0]
+	return visible_attack
+
+func _visible_umbra_action_tiles(state: Dictionary, values: Array) -> Array[Vector2i]:
+	var visible: Array[Vector2i] = _vector2i_array([])
+	for tile: Vector2i in _vector2i_array(values):
+		if _combat_engine.is_tile_visible_to_player(state, tile) and not visible.has(tile):
+			visible.append(tile)
+	return visible
+
+func _umbra_action_line_tiles(from_tile: Vector2i, to_tile: Vector2i) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = _vector2i_array([])
+	if from_tile.x < 0 or to_tile.x < 0:
+		return tiles
+	var delta: Vector2i = to_tile - from_tile
+	var sample_count: int = maxi(1, maxi(absi(delta.x), absi(delta.y)) * 4)
+	for sample_index: int in range(sample_count + 1):
+		var progress: float = float(sample_index) / float(sample_count)
+		var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), progress)
+		var tile := Vector2i(roundi(sample.x), roundi(sample.y))
+		if not tiles.has(tile):
+			tiles.append(tile)
+	return tiles
+
+func _umbra_action_visible_line_segments(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i) -> Array:
+	var segments: Array = []
+	if from_tile.x < 0 or to_tile.x < 0:
+		return segments
+	var delta: Vector2i = to_tile - from_tile
+	var sample_count: int = maxi(8, maxi(absi(delta.x), absi(delta.y)) * 16)
+	var segment_start: float = -1.0
+	var segment_start_hidden_tile := Vector2i(-1, -1)
+	var segment_start_visible_tile := Vector2i(-1, -1)
+	var segment_start_clip_boundaries: Array[Dictionary] = _dictionary_array([])
+	var previous_visible: bool = false
+	var previous_sample_tile := Vector2i(-1, -1)
+	for sample_index: int in range(sample_count + 1):
+		var progress: float = float(sample_index) / float(sample_count)
+		var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), progress)
+		var sample_tile := Vector2i(roundi(sample.x), roundi(sample.y))
+		var visible: bool = _combat_engine.is_tile_visible_to_player(state, sample_tile)
+		if visible and not previous_visible:
+			segment_start = maxf(0.0, (float(sample_index) - 0.5) / float(sample_count))
+			segment_start_hidden_tile = previous_sample_tile
+			segment_start_visible_tile = sample_tile
+			segment_start_clip_boundaries = _umbra_action_transition_clip_boundaries(
+				state,
+				previous_sample_tile,
+				sample_tile
+			)
+		elif not visible and previous_visible and segment_start >= 0.0:
+			var completed_segment := {
+				"start": segment_start,
+				"end": maxf(segment_start, (float(sample_index) - 0.5) / float(sample_count)),
+				"end_visible_tile": previous_sample_tile,
+				"end_hidden_tile": sample_tile,
+				"end_clip_boundaries": _umbra_action_transition_clip_boundaries(
+					state,
+					sample_tile,
+					previous_sample_tile
+				),
+			}
+			if segment_start_hidden_tile.x >= 0:
+				completed_segment["start_hidden_tile"] = segment_start_hidden_tile
+				completed_segment["start_visible_tile"] = segment_start_visible_tile
+				completed_segment["start_clip_boundaries"] = segment_start_clip_boundaries
+			segments.append(completed_segment)
+			segment_start = -1.0
+			segment_start_hidden_tile = Vector2i(-1, -1)
+			segment_start_visible_tile = Vector2i(-1, -1)
+			segment_start_clip_boundaries.clear()
+		previous_visible = visible
+		previous_sample_tile = sample_tile
+	if previous_visible and segment_start >= 0.0:
+		var final_segment := {"start": segment_start, "end": 1.0}
+		if segment_start_hidden_tile.x >= 0:
+			final_segment["start_hidden_tile"] = segment_start_hidden_tile
+			final_segment["start_visible_tile"] = segment_start_visible_tile
+			final_segment["start_clip_boundaries"] = segment_start_clip_boundaries
+		segments.append(final_segment)
+	return segments
+
+func _umbra_action_transition_clip_boundaries(
+	state: Dictionary,
+	hidden_tile: Vector2i,
+	visible_tile: Vector2i
+) -> Array[Dictionary]:
+	var boundaries: Array[Dictionary] = _dictionary_array([])
+	if hidden_tile.x < 0 or visible_tile.x < 0:
+		return boundaries
+	var delta: Vector2i = visible_tile - hidden_tile
+	if absi(delta.x) + absi(delta.y) == 1:
+		boundaries.append({"hidden_tile": hidden_tile, "visible_tile": visible_tile})
+		return boundaries
+	if absi(delta.x) == 1 and absi(delta.y) == 1:
+		# A sampled diagonal crosses a four-tile corner. Each concealed cardinal
+		# neighbor contributes one side of the visible wedge; using only one side
+		# can expose projectile width over the other hidden tile.
+		var corner_neighbors: Array[Vector2i] = _vector2i_array([
+			Vector2i(hidden_tile.x, visible_tile.y),
+			Vector2i(visible_tile.x, hidden_tile.y),
+		])
+		for neighbor: Vector2i in corner_neighbors:
+			if not _combat_engine.is_tile_visible_to_player(state, neighbor):
+				boundaries.append({"hidden_tile": neighbor, "visible_tile": visible_tile})
+		# If both corner neighbors are already visible, still exclude the
+		# diagonally adjacent concealed source. These two planes favor privacy at
+		# the measure-zero corner rather than allowing a sprite tail to leak.
+		if boundaries.is_empty():
+			for neighbor: Vector2i in corner_neighbors:
+				boundaries.append({"hidden_tile": hidden_tile, "visible_tile": neighbor})
+		return boundaries
+	boundaries.append({"hidden_tile": hidden_tile, "visible_tile": visible_tile})
+	return boundaries
 
 func _visible_umbra_floating_texts(state: Dictionary, values: Array) -> Array[Dictionary]:
 	var visible: Array[Dictionary] = []
@@ -22947,13 +23618,19 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
 	var path: Array[Vector2i] = _resolved_movement_animation_path(from_tile, to_tile, step.get("path", []))
+	var presented_path: Array[Vector2i] = path
+	if bool(step.get("umbra_reveal_actor_on_visible_tiles", false)):
+		presented_path = _visible_umbra_action_tiles(animated_state, path)
+		if presented_path.size() < 2:
+			presented_path = _vector2i_array([])
 	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 	await _animate_actor_along_path(animated_state, actor_key, path, {
 		"focus_actor_keys": [actor_key],
 		"focus_actor_color": PLAYER_ATTACK_FOCUS,
 		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-		"path_tiles": path,
-		"path_color": ENEMY_PATH_PREVIEW_COLOR
+		"path_tiles": presented_path,
+		"path_color": ENEMY_PATH_PREVIEW_COLOR,
+		"umbra_reveal_actor_on_visible_tiles": bool(step.get("umbra_reveal_actor_on_visible_tiles", false))
 	})
 	var before_move_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
@@ -22998,8 +23675,28 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
 		var t: float = float(segment_frame) / float(MOVE_STEP_FRAMES)
 		var moving_footprint_center: Vector2 = from_point.lerp(to_point, t)
+		var frame_presentation: Dictionary = base_presentation
+		if bool(base_presentation.get("umbra_reveal_actor_on_visible_tiles", false)):
+			frame_presentation = base_presentation.duplicate(false)
+			var from_visible: bool = _combat_engine.is_tile_visible_to_player(display_state, segment_from)
+			var to_visible: bool = _combat_engine.is_tile_visible_to_player(display_state, segment_to)
+			var crosses_umbra_boundary: bool = from_visible != to_visible
+			if crosses_umbra_boundary or _umbra_movement_sample_visible(display_state, segment_from, segment_to, t):
+				frame_presentation["umbra_action_visible_actor_keys"] = [actor_key]
+				if crosses_umbra_boundary:
+					frame_presentation["umbra_action_actor_clips"] = {
+						actor_key: {
+							"hidden_tile": segment_to if from_visible else segment_from,
+							"visible_tile": segment_from if from_visible else segment_to,
+						}
+					}
+				else:
+					frame_presentation.erase("umbra_action_actor_clips")
+			else:
+				frame_presentation.erase("umbra_action_visible_actor_keys")
+				frame_presentation.erase("umbra_action_actor_clips")
 		var presentation: Dictionary = _movement_actor_frame_presentation(
-			base_presentation,
+			frame_presentation,
 			actor_key,
 			moving_footprint_center,
 			draw_tile,
@@ -23007,6 +23704,11 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		)
 		_render_board_state(display_state, presentation, true)
 	)
+
+func _umbra_movement_sample_visible(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i, progress: float) -> bool:
+	var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), clampf(progress, 0.0, 1.0))
+	var sample_tile := Vector2i(roundi(sample.x), roundi(sample.y))
+	return _combat_engine.is_tile_visible_to_player(state, sample_tile)
 
 func _movement_actor_frame_presentation(
 	base_presentation: Dictionary,
@@ -23348,7 +24050,18 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 	target_presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(display_state)
 	target_presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(display_state)
 	target_presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
-	target_presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
+	var visible_enemy_ids: Array = _combat_engine.visible_enemy_ids(display_state)
+	for actor_key_var: Variant in target_presentation.get("umbra_action_visible_actor_keys", []):
+		var actor_key: String = str(actor_key_var)
+		for enemy_var: Variant in display_state.get("enemies", []):
+			if typeof(enemy_var) != TYPE_DICTIONARY:
+				continue
+			var enemy: Dictionary = enemy_var as Dictionary
+			var enemy_id: int = int(enemy.get("id", -1))
+			if _enemy_key(enemy) == actor_key and enemy_id >= 0 and not visible_enemy_ids.has(enemy_id):
+				visible_enemy_ids.append(enemy_id)
+				break
+	target_presentation["visible_enemy_ids"] = visible_enemy_ids
 	target_presentation["umbra_light_sources"] = _combat_engine.effective_light_sources(display_state)
 	var umbra_state: Dictionary = display_state.get("umbra", {}) as Dictionary
 	target_presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
@@ -24503,23 +25216,27 @@ func _present_opening_hand_after_combat_entry() -> void:
 	var opening_transition: Dictionary = _draw_hand_transition_between_states({}, _combat_state)
 	var draw_entries: Array = opening_transition.get("draw_entries", []) as Array
 	var draw_sfx_count: int = _take_pending_card_draw_sfx_count(_combat_state)
+
+	# Opening-hand state already exists when combat begins. Keep the authoritative
+	# hand hidden and input locked while its fan geometry settles. Give the uncovered
+	# room one complete rendered frame, introduce the scenario objective, and only
+	# then launch the first card so the two opening motions never compete. Taking the
+	# semantic draw count before this refresh also prevents the generic refresh
+	# consumer from playing the deal sounds behind the pre-battle overlay.
+	_animation_lock = true
+	_opening_hand_draw_in_progress = not draw_entries.is_empty()
+	_prepare_combat_objective_intro()
+	_refresh_ui()
+	if hand_box != null and not draw_entries.is_empty():
+		hand_box.visible = false
+	await _await_opening_hand_draw_layout()
+	if _card_fx_can_continue_combat():
+		await _animate_combat_objective_intro()
 	if draw_entries.is_empty():
 		_animation_lock = false
 		_queue_hand_ready_wave("combat_start")
 		_refresh_ui()
 		return
-
-	# Opening-hand state already exists when combat begins. Keep the authoritative
-	# hand hidden and input locked while its fan geometry settles, then give the
-	# uncovered room one complete rendered frame before launching the first card.
-	# Taking the semantic draw count before this refresh also prevents the generic
-	# refresh consumer from playing the deal sounds behind the pre-battle overlay.
-	_animation_lock = true
-	_opening_hand_draw_in_progress = true
-	_refresh_ui()
-	if hand_box != null:
-		hand_box.visible = false
-	await _await_opening_hand_draw_layout()
 	if _card_fx_can_continue_combat():
 		await _animate_draw_cards_fx(draw_entries, Rect2(), draw_sfx_count, opening_transition)
 	_opening_hand_draw_in_progress = false
@@ -29371,6 +30088,7 @@ func _reset_card_resolution() -> void:
 
 func _clear_active_card_preview_state() -> void:
 	_selected_card_index = -1
+	_card_targeting_pointer_position = Vector2(-1.0, -1.0)
 	_selected_card_label_override = ""
 	_hovered_card_index = -1
 	_set_hand_emphasized_index(-1, false)
@@ -29383,6 +30101,7 @@ func _clear_active_card_preview_state() -> void:
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
 	_aoe_aim_orientation = Vector2i(1, 0)
 	_preview_combat_state.clear()
+	_pending_drag_play_source_rect = Rect2()
 	_hovered_board_tile = Vector2i(-1, -1)
 	_mark_preview_selection_changed()
 

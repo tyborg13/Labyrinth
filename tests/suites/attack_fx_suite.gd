@@ -367,13 +367,17 @@ static func _test_ranged_previews_use_static_curves(expect: Callable) -> void:
 	var midpoint: Vector2 = points[points.size() / 2] if not points.is_empty() else Vector2.ZERO
 	var lifted_start: Vector2 = points.front() if not points.is_empty() else Vector2.ZERO
 	var lifted_finish: Vector2 = points.back() if not points.is_empty() else Vector2.ZERO
+	var player_preview_effect: Dictionary = preview_effect.duplicate(true)
+	player_preview_effect["target_curve_visible"] = false
 	expect.call(
 		points.size() == 17
 		and midpoint.y < lerpf(lifted_start.y, lifted_finish.y, 0.5)
 		and not bool(board.call("_effect_uses_elemental_scene_depth", preview_effect))
 		and board.call("_ranged_preview_depth_tile", preview_effect) == Vector2i(5, 4)
-		and not bool(board.call("_preview_effect_needs_continuous_redraw", preview_effect)),
-		"Ranged targeting should use one static merged arrow on its target scene layer with no projectile animation"
+		and not bool(board.call("_preview_effect_needs_continuous_redraw", preview_effect))
+		and bool(board.call("_target_preview_curve_visible", preview_effect))
+		and not bool(board.call("_target_preview_curve_visible", player_preview_effect)),
+		"Ranged preview curves should remain static and default on for enemy intent evidence while player cards can explicitly suppress them"
 	)
 	board.free()
 

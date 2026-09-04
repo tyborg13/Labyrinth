@@ -1,5 +1,5 @@
 {
-  "min_images": 13,
+  "min_images": 17,
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {
@@ -40,6 +40,38 @@
       "height": 1080,
       "regions": [
         {"rect": [420, 720, 1080, 360], "min_luma_range": 45, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*objective_intro_v5_00_shadowed_crisp_text_hold.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 170, 1200, 300], "min_luma_range": 35, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*objective_intro_v5_01_chrome_arriving_shadow_retired.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [160, 220, 1320, 440], "min_luma_range": 30, "min_luma_stdev": 5}
+      ]
+    },
+    {
+      "pattern": "*objective_intro_v5_02_content_arriving.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 500, 620, 300], "min_luma_range": 30, "min_luma_stdev": 5}
+      ]
+    },
+    {
+      "pattern": "*objective_intro_v5_03_reduced_motion_shadowed_text.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 180, 960, 280], "min_luma_range": 30, "min_luma_stdev": 5}
       ]
     },
     {

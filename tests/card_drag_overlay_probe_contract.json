@@ -1,0 +1,199 @@
+{
+  "min_images": 23,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*drag_hover_large_arrow_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [720, 650, 480, 430], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_following_card_arrow_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [480, 500, 960, 580], "min_luma_range": 20, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*drag_snapback_settling_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [620, 600, 700, 480], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_arrow_center_valid_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [340, 120, 1240, 880], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_arrow_hard_left_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [260, 120, 1320, 880], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_arrow_hard_right_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [340, 120, 1320, 880], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_arrow_short_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [620, 420, 700, 420], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_arrow_outside_latched_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [140, 360, 980, 620], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_invalid_release_continues_targeting_v5.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 20, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*drag_outside_release_cancel_restored_v5.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 0, 1920, 1080], "min_luma_range": 20, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*drag_move_attack_path_retained_v5.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_targetless_following_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 140, 1200, 780], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_arrow_reduced_motion_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 140, 1200, 780], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_play_launch_from_hand_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [520, 300, 880, 780], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*enemy_hover_movement_baseline_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 820], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_arrow_enemy_hover_suppressed_v5.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_targeting_menu_cursor_restored_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 8
+        }
+      ]
+    },
+    {
+      "pattern": "*click_arrow_reduced_motion_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_targeting_controller_shared_arrow_v5.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_arrow_pointer_handoff_restored_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 900], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*click_arrow_cancel_cursor_restored_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [300, 100, 1320, 820], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*targetless_second_click_ready_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [600, 580, 720, 500], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*targetless_second_click_launch_v4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [500, 320, 920, 760], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    }
+  ]
+}
