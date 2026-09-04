@@ -8762,7 +8762,8 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 
 func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	if bool(effect.get("preview", false)):
-		_draw_ranged_target_preview_curve(effect, from_point, to_point)
+		if _target_preview_curve_visible(effect):
+			_draw_ranged_target_preview_curve(effect, from_point, to_point)
 		return
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	match style:
@@ -8810,6 +8811,12 @@ func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2)
 	# when source and target have very different screen-space baselines.
 	var preview_control := Vector2(midpoint.x, desired_apex_y * 2.0 - midpoint.y)
 	return _sample_quadratic_points(start, preview_control, end, 16)
+
+func _target_preview_curve_visible(effect: Dictionary) -> bool:
+	# Player card previews explicitly yield line ownership to the segmented arrow
+	# anchored in the hand. Enemy intent previews omit the flag and retain this
+	# familiar airborne trajectory when they are shown independently.
+	return bool(effect.get("target_curve_visible", true))
 
 func _draw_enemy_threat_depth_pass(tile: Vector2i) -> void:
 	for threat_var: Variant in presentation.get("enemy_threat_previews", []):

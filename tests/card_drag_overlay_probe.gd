@@ -99,15 +99,54 @@ func _capture_drag_overlay_frames() -> void:
 	_assert_targeting_drag(instance, "latched outside-board targeting", outside_target_position, hover_bounds)
 	await _save_root_screenshot("%s/drag_arrow_outside_latched_v4.png" % OUTPUT_DIR)
 
-	await _position_card_drag(instance, right_target_position)
+	var invalid_board_position: Vector2 = _tile_global_position(instance, Vector2i(6, 2))
+	await _position_card_drag(instance, invalid_board_position)
 	await process_frame
-	await instance.call("_commit_drag_drop", "play", right_target_position)
+	root.warp_mouse(invalid_board_position)
+	await instance.call("_commit_drag_drop", "play", invalid_board_position)
 	await process_frame
+	_assert_click_targeting_arrow(instance, invalid_board_position, "invalid in-board release handoff")
+	if int(instance.get("_drag_card_index")) >= 0 or bool(instance.get("_drag_targeting_active")):
+		push_error("Invalid in-board release should end the held drag before pointer targeting continues")
+	if not _turn_order_has_card_projection(instance, "Quick Stab"):
+		push_error("Invalid in-board release should preserve its selected-card Turn Clock projection")
+	await _save_root_screenshot("%s/drag_invalid_release_continues_targeting_v5.png" % OUTPUT_DIR)
+
+	instance.call("_cancel_card_selection")
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(3, 5), Vector2i(4, 5), 9410)
+	drag_start = _drag_start_position(instance, 0)
+	instance.call("_on_card_drag_started", 0, drag_start)
+	await process_frame
+	valid_target_position = _tile_global_position(instance, Vector2i(4, 5))
+	await _position_card_drag(instance, valid_target_position)
+	await _position_card_drag(instance, outside_target_position)
+	root.warp_mouse(outside_target_position)
+	await instance.call("_commit_drag_drop", "", outside_target_position)
+	await process_frame
+	var outside_release_arrow: Control = instance.get("_drag_target_arrow") as Control
 	if int(instance.get("_drag_card_index")) >= 0 or int(instance.get("_selected_card_index")) >= 0:
-		push_error("Invalid targeted release should return to the idle hand")
+		push_error("Outside-board release should still return the targeted card to the idle hand")
+	if outside_release_arrow != null and outside_release_arrow.visible:
+		push_error("Outside-board release should clear the targeting arrow")
 	if _turn_order_has_card_projection(instance, "Quick Stab"):
-		push_error("Invalid targeted release should remove its Turn Clock projection")
-	await _save_root_screenshot("%s/drag_invalid_cancel_restored_v4.png" % OUTPUT_DIR)
+		push_error("Outside-board release should remove the canceled card's Turn Clock projection")
+	await _save_root_screenshot("%s/drag_outside_release_cancel_restored_v5.png" % OUTPUT_DIR)
+
+	await _load_combat_fixture(instance, "sidestep_slash", Vector2i(2, 5), Vector2i(5, 5), 9411)
+	drag_start = _drag_start_position(instance, 0)
+	instance.call("_on_card_drag_started", 0, drag_start)
+	await process_frame
+	var compound_target_position: Vector2 = _tile_global_position(instance, Vector2i(5, 5))
+	await _position_card_drag(instance, compound_target_position)
+	root.warp_mouse(compound_target_position)
+	await process_frame
+	var movement_presentation: Dictionary = (instance.get("board_view") as Control).get("presentation") as Dictionary
+	if (movement_presentation.get("path_tiles", []) as Array).size() < 2:
+		push_error("Move-and-attack card targeting should retain the player's movement-path arrow")
+	_assert_targeting_drag(instance, "move-and-attack path targeting", compound_target_position, Rect2())
+	await _save_root_screenshot("%s/drag_move_attack_path_retained_v5.png" % OUTPUT_DIR)
+	instance.call("_cancel_drag_play")
+	await process_frame
 
 	await _load_combat_fixture(instance, "stone_plate", Vector2i(2, 5), Vector2i(5, 5), 9403)
 	drag_start = _drag_start_position(instance, 0)
@@ -153,7 +192,14 @@ func _capture_drag_overlay_frames() -> void:
 		push_error("Click targeting should suppress the enemy movement destination ghost")
 	if not (board.get("attack_tiles") as Array).has(enemy_tile):
 		push_error("Click targeting should keep the card's legal target treatment after suppressing enemy hover evidence")
-	await _save_root_screenshot("%s/click_arrow_enemy_hover_suppressed_v4.png" % OUTPUT_DIR)
+	if not (click_presentation.get("focus_tiles", []) as Array).has(enemy_tile):
+		push_error("Click targeting should retain the exact hovered attack focus after suppressing the redundant curve")
+	var player_attack_effect: Dictionary = click_presentation.get("effect", {}) as Dictionary
+	if str(player_attack_effect.get("kind", "")) != "ranged" or bool(player_attack_effect.get("target_curve_visible", true)):
+		push_error("Player ranged targeting should suppress its curved trajectory while the card-origin arrow is active")
+	if (player_attack_effect.get("damage_preview", {}) as Dictionary).is_empty():
+		push_error("Suppressing the player ranged trajectory should preserve damage preview evidence")
+	await _save_root_screenshot("%s/click_arrow_enemy_hover_suppressed_v5.png" % OUTPUT_DIR)
 
 	instance.call("_open_menu_overlay")
 	root.warp_mouse(Vector2(960.0, 540.0))
@@ -191,15 +237,24 @@ func _capture_drag_overlay_frames() -> void:
 	if input_router != null and input_router.has_method("set_forced_state_for_test"):
 		input_router.call("set_forced_state_for_test", "controller", "steam_deck")
 		await process_frame
-		instance.call("_controller_enter_board", true)
 		await process_frame
 		await process_frame
-		var controller_arrow: Control = instance.get("_drag_target_arrow") as Control
-		if controller_arrow != null and controller_arrow.visible:
-			push_error("Controller handoff should preserve board focus without following the stale mouse with a pointer arrow")
+		await process_frame
+		var controller_candidate: Dictionary = instance.get("_controller_focus_candidate") as Dictionary
+		var controller_endpoint: Vector2 = controller_candidate.get("point", Vector2.ZERO)
+		_assert_controller_targeting_arrow(instance, controller_endpoint, "controller click targeting")
+		if instance.get("_controller_board_tile") != enemy_tile:
+			push_error("Controller targeting should focus the card's preferred legal target")
 		if bool(instance.get_meta("targeting_cursor_suppressed", false)):
 			push_error("Controller modality should release pointer-only cursor suppression")
-		await _save_root_screenshot("%s/click_targeting_controller_handoff_v4.png" % OUTPUT_DIR)
+		instance.call("_refresh_stage_view")
+		var controller_presentation: Dictionary = board.get("presentation") as Dictionary
+		var controller_attack_effect: Dictionary = controller_presentation.get("effect", {}) as Dictionary
+		if str(controller_attack_effect.get("action_type", "")) != "ranged" or bool(controller_attack_effect.get("target_curve_visible", true)):
+			push_error("Controller targeting should let the shared card arrow replace the redundant ranged curve")
+		if (controller_attack_effect.get("damage_preview", {}) as Dictionary).is_empty():
+			push_error("Controller shared-arrow targeting should preserve damage evidence")
+		await _save_root_screenshot("%s/click_targeting_controller_shared_arrow_v5.png" % OUTPUT_DIR)
 
 		input_router.call("set_forced_state_for_test", "pointer", "steam_deck")
 		await process_frame
@@ -448,6 +503,28 @@ func _assert_click_targeting_arrow(instance: Node, cursor_position: Vector2, con
 			var cursor_glyph: Control = cursor_feedback.call("glyph_for_test") as Control
 			if cursor_glyph != null and cursor_glyph.visible:
 				push_error("%s should hide the forged pointer glyph instead of layering it over the arrowhead" % context)
+
+func _assert_controller_targeting_arrow(instance: Node, target_position: Vector2, context: String) -> void:
+	if int(instance.get("_selected_card_index")) < 0 or int(instance.get("_drag_card_index")) >= 0:
+		push_error("%s should keep the card in the shared selected state without a pointer drag" % context)
+	var source_card: Control = instance.call("_hand_card_control", int(instance.get("_selected_card_index"))) as Control
+	if source_card == null or not source_card.is_visible_in_tree():
+		push_error("%s should keep its selected card visibly anchored in the controller hand" % context)
+	var arrow: Control = instance.get("_drag_target_arrow") as Control
+	if arrow == null or not arrow.visible:
+		push_error("%s should show the shared card-origin targeting arrow" % context)
+	else:
+		if not bool(arrow.get_meta("raster_composed_arrow", false)) or not bool(arrow.get_meta("segmented_raster_arrow", false)):
+			push_error("%s should use the same authored segmented raster arrow as pointer targeting" % context)
+		var arrow_transform: Transform2D = arrow.get_global_transform_with_canvas()
+		var endpoint: Vector2 = arrow_transform * (arrow.call("targeting_end") as Vector2)
+		if endpoint.distance_to(target_position) > 1.0:
+			push_error("%s arrowhead should follow the focused controller target, got %s instead of %s" % [context, endpoint, target_position])
+	var analog_cursor: Control = instance.get("_controller_analog_cursor") as Control
+	if analog_cursor == null or analog_cursor.visible:
+		push_error("%s should hide the competing controller analog puck" % context)
+	if bool(instance.get_meta("targeting_cursor_suppressed", false)):
+		push_error("%s should not retain pointer-only cursor suppression in controller modality" % context)
 
 func _wait_for_card_resolution(instance: Node, timeout_seconds: float) -> void:
 	var deadline_msec: int = Time.get_ticks_msec() + roundi(timeout_seconds * 1000.0)

@@ -37,13 +37,24 @@ func _ready() -> void:
 
 func set_targeting(start_global: Vector2, end_global: Vector2) -> void:
 	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
-	_start = inverse * start_global
-	_end = inverse * end_global
-	visible = _start.distance_to(_end) >= MIN_VISIBLE_DISTANCE
-	queue_redraw()
+	var next_start: Vector2 = inverse * start_global
+	var next_end: Vector2 = inverse * end_global
+	var next_visible: bool = next_start.distance_to(next_end) >= MIN_VISIBLE_DISTANCE
+	var changed: bool = (
+		not _start.is_equal_approx(next_start)
+		or not _end.is_equal_approx(next_end)
+		or visible != next_visible
+	)
+	_start = next_start
+	_end = next_end
+	visible = next_visible
+	if changed:
+		queue_redraw()
 
 
 func clear_targeting() -> void:
+	if not visible:
+		return
 	visible = false
 	queue_redraw()
 

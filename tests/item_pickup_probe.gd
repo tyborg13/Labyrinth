@@ -8,6 +8,7 @@ const InputRouter = preload("res://scripts/input_router.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const ItemSuite = preload("res://tests/suites/item_pickup_suite.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 
 var _viewport: SubViewport
 var _scene: Node
@@ -194,10 +195,18 @@ func _assert_rich_panel(key: String) -> void:
 	var cursor: Control = _scene.get("_controller_analog_cursor")
 	var panel: Control = cursor.get("_detail_panel")
 	_require(cursor.get("_detail_key") == key, "Controller inspection keeps the selected pickup identity")
-	_require(panel != null and not panel.find_children("*", "CardWidget", true, false).is_empty(), "Controller inspection contains actual CardWidgets")
+	_require(_panel_has_card_widget(panel), "Controller inspection contains actual CardWidgets")
 	if panel != null:
 		var rect: Rect2 = panel.get_global_rect()
 		_require(Rect2(Vector2.ZERO, Vector2(_logical_size())).encloses(rect), "Rich tooltip is fully inside the target viewport")
+
+func _panel_has_card_widget(panel: Control) -> bool:
+	if panel == null:
+		return false
+	for node: Node in panel.find_children("*", "Button", true, false):
+		if node.get_script() == CardWidget:
+			return true
+	return false
 
 func _assert_pile_interactions() -> void:
 	var draw_pile: Control = _scene.get("draw_pile") as Control

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-04T18:09:37Z",
+  "updated_at": "2026-09-04T19:37:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10172,7 +10172,7 @@
       }
     },
     {
-      "id": "mnt_20260904T174407Z_fc4f7b10",
+      "id": "mnt_20260904T193732Z_ffdfa7bc",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -10181,18 +10181,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Card pointer targeting shares the segmented arrow and removes competing hover evidence",
-      "details": "Preserve the approved drag flow and raster arrow styling. Pointer click-selection of a targeted card must use the same restrained raised-hand pose and segmented arrow, hide the forged cursor throughout aiming including the arrow dead zone, and suppress only hover-driven enemy movement/threat previews; explicit Show All and guided tutorial evidence remain available. Cancel, play, input-modality handoff, and scene exit must clear the arrow and cursor suppression. Targetless cards stay arrowless and may confirm either by clicking the selected card again or by clicking the player.",
+      "summary": "Card targeting shares one selected-card arrow path across drag, pointer, and controller",
+      "details": "Targeted card drags follow the pointer only before board entry, then return to a restrained raised hand pose and aim with the segmented raster card-origin arrow. A legal board release plays; an illegal in-board release ends the hold but preserves the selected card and arrow for persistent targeting; an outside-board release cancels. Two-click pointer and controller hand Accept enter the same selected-card state; pointer motion or controller board focus/free cursor moves the arrow, and the normal board click/controller Accept resolves the target. Pointer aiming hides the forged cursor; controller aiming hides its analog puck. Player direct-ranged preview curves yield to the card arrow, while movement-path and distinct push/pull/AOE evidence remain. Modals suspend both targeting cursors without discarding selection and restore the proper target afterward.",
       "status": "active",
-      "created_at": "2026-09-04T17:44:07Z",
-      "updated_at": "2026-09-04T17:44:07Z",
+      "created_at": "2026-09-04T19:37:32Z",
+      "updated_at": "2026-09-04T19:37:32Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260904T161114Z_0cd0143f"
+        "mnt_20260904T174407Z_fc4f7b10"
       ],
       "source": {
         "branch": "codex/drag-cards-to-play",
-        "commit": "74f82537"
+        "commit": "84c834e4"
       }
     }
   ]

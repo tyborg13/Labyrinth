@@ -1834,6 +1834,7 @@ var _drag_card_cancel_rect: Rect2 = Rect2()
 var _drag_card_grab_ratio: Vector2 = Vector2(0.5, 0.5)
 var _drag_card_base_scale: Vector2 = Vector2.ONE
 var _drag_last_pointer_position: Vector2 = Vector2.ZERO
+var _card_targeting_pointer_position: Vector2 = Vector2(-1.0, -1.0)
 var _pending_drag_play_source_rect: Rect2 = Rect2()
 var _animating_hand_card_index: int = -1
 var _hand_ready_wave_indices: Dictionary = {}
@@ -2004,6 +2005,13 @@ func _refresh_hand_panel_after_viewport_change() -> void:
 	await get_tree().process_frame
 	_hand_panel_signature = "<unset>"
 	_refresh_hand_panel()
+	# Both ends of the shared targeting arrow are screen-space geometry. Rebuild
+	# the controller candidate after the board and hand settle, then re-anchor the
+	# arrow so a window/Steam Deck viewport change cannot leave it behind.
+	if _controller_is_active():
+		_refresh_controller_interface()
+	_sync_card_targeting_arrow_after_layout()
+	call_deferred("_sync_card_targeting_arrow_after_layout")
 
 func _process(delta: float) -> void:
 	_refresh_guided_tutorial_live_geometry()
@@ -2285,6 +2293,18 @@ func _on_input_modality_changed(modality: String) -> void:
 			_controller_region = "board"
 			_controller_hand_focused = false
 			_apply_controller_hand_layout()
+			# Seed card targeting before the next controller physics tick. Waiting for
+			# the deferred layout refresh lets the free analog cursor claim an arbitrary
+			# first tile, replacing the card's preferred legal target before its arrow
+			# ever appears. The settled refresh below recomputes this point after layout.
+			if (
+				_selected_card_index >= 0
+				and _targeted_card_aiming_active()
+				and _controller_custom_navigation_available()
+			):
+				_controller_enter_board(true)
+			elif not _controller_custom_navigation_available():
+				_controller_suspend_custom_navigation()
 		_restore_controller_loadout_tooltip_for_focus_owner()
 		call_deferred("_sync_board_view_rect")
 		call_deferred("_layout_combat_action_dock")
@@ -2954,6 +2974,16 @@ func _controller_refreshed_focus_candidate(candidate: Dictionary) -> Dictionary:
 func _controller_update_analog_cursor(candidate: Dictionary, fully_snapped: bool) -> void:
 	if _controller_analog_cursor == null or not _controller_is_active() or _controller_region != "board":
 		return
+	if not _controller_custom_navigation_available():
+		_controller_hide_analog_cursor()
+		return
+	if _sync_controller_card_targeting_arrow(candidate):
+		return
+	# Board/header inspection still uses the analog puck whenever a card is not
+	# actively aiming at board space. Clear any prior card arrow before restoring
+	# that cursor so the two targeting languages can never overlap.
+	if _drag_overlay != null and _drag_overlay.visible:
+		_sync_click_targeting_arrow()
 	var point: Vector2 = candidate.get("point", _controller_virtual_board_position)
 	var distance: float = _controller_virtual_board_position.distance_to(point)
 	var radius: float = maxf(1.0, float(candidate.get("snap_radius", CONTROLLER_TILE_CURSOR_MAGNET_RADIUS)))
@@ -2977,10 +3007,18 @@ func _controller_clear_focus_candidate() -> void:
 	_controller_clear_board_focus()
 	_controller_clear_board_hover_presentation()
 	_refresh_controller_prompts()
+	_sync_click_targeting_arrow()
 
 func _controller_show_free_analog_cursor() -> void:
 	if _controller_analog_cursor == null or not _controller_is_active() or _controller_region != "board":
 		return
+	if not _controller_custom_navigation_available():
+		_controller_hide_analog_cursor()
+		return
+	if _sync_controller_card_targeting_arrow():
+		return
+	if _drag_overlay != null and _drag_overlay.visible:
+		_sync_click_targeting_arrow()
 	_controller_analog_cursor.show_cursor(
 		_controller_virtual_board_position,
 		_controller_virtual_board_position,
@@ -3045,6 +3083,7 @@ func _controller_suspend_custom_navigation() -> void:
 	# target, but force the renderer/hover state to be rebuilt on resume.
 	_controller_board_tile = INVALID_TARGET_TILE
 	_controller_clear_board_hover_presentation()
+	_sync_click_targeting_arrow()
 
 func _controller_tile_key(tile: Vector2i) -> String:
 	return "tile:%d:%d" % [tile.x, tile.y]
@@ -3147,7 +3186,14 @@ func _refresh_controller_after_layout(expected_revision: int = -1) -> void:
 	# Controller combat has one fixed board composition. Only the foreground hand
 	# moves between focused and tucked states; actors and hand focus never resize it.
 	_sync_board_view_rect()
-	_refresh_controller_interface()
+	if _controller_custom_navigation_available() and _controller_card_targeting_needs_initial_candidate():
+		# Modality can switch while a pointer-selected card is already waiting for a
+		# target. Seed the same default board focus used by a controller card press so
+		# the first controller frame has an arrow endpoint and Accept can confirm it.
+		_controller_enter_board(true)
+	else:
+		_refresh_controller_interface()
+	_sync_click_targeting_arrow()
 
 func _refresh_pointer_after_layout(expected_revision: int) -> void:
 	await get_tree().process_frame
@@ -3167,6 +3213,11 @@ func _schedule_controller_modal_refresh() -> void:
 	_sync_click_targeting_arrow()
 	if _controller_modal_visible():
 		_controller_suspend_custom_navigation()
+	elif _controller_custom_navigation_available() and _controller_card_targeting_needs_initial_candidate():
+		# Modal close becomes visible to physics immediately. Seed the preferred card
+		# target in this same call so the free controller cursor cannot claim an
+		# arbitrary first candidate before the deferred geometry refresh runs.
+		_controller_enter_board(true)
 	call_deferred("_refresh_controller_modal_after_layout")
 
 func _refresh_controller_modal_after_layout() -> void:
@@ -3175,8 +3226,15 @@ func _refresh_controller_modal_after_layout() -> void:
 	_refresh_controller_prompts()
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.has_method("using_controller") and bool(router.call("using_controller")):
-		_recover_controller_focus()
+		if _controller_custom_navigation_available():
+			if _controller_card_targeting_needs_initial_candidate():
+				_controller_enter_board(true)
+			else:
+				_refresh_controller_interface()
+		else:
+			_recover_controller_focus()
 		_restore_controller_loadout_tooltip_for_focus_owner()
+	_sync_click_targeting_arrow()
 
 func _controller_focus_scope() -> Control:
 	if (
@@ -8078,8 +8136,9 @@ func _show_drag_overlay() -> void:
 	if _drag_overlay == null:
 		return
 	_close_pile_view()
-	_drag_overlay.visible = true
-	_drag_overlay.move_to_front()
+	if not _drag_overlay.visible:
+		_drag_overlay.visible = true
+		_drag_overlay.move_to_front()
 	_refresh_choice_bar()
 	_refresh_stage_view()
 	_refresh_contextual_combat_tutorial()
@@ -8146,6 +8205,21 @@ func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.
 	if outcome == CardDragPlayRules.OUTCOME_CANCEL:
 		await _animate_drag_cancel_to_source()
 		return
+	if outcome == CardDragPlayRules.OUTCOME_CONTINUE_TARGETING:
+		# A board release has already communicated the player's intent to aim this
+		# card. End only the held pointer gesture so distant targets can be reached
+		# comfortably, then hand ownership to the established click-targeting mode.
+		if _drag_targeting_active and _selected_card_index == _drag_card_index:
+			_finish_drag_play(true)
+			_sync_click_targeting_arrow(mouse_position)
+			# The hand layout settles one frame after drag ownership is released.
+			# Re-anchor once afterward from the current pointer position. A motion event
+			# may arrive before this callback, so retaining the fixed release point here
+			# would overwrite the newer endpoint and make the arrow appear to stick.
+			call_deferred("_sync_click_targeting_arrow")
+		else:
+			await _animate_drag_cancel_to_source()
+		return
 	var hand_index: int = _drag_card_index
 	_pending_drag_play_source_rect = await _prepare_drag_play_source_rect(hand_index)
 	_finish_drag_play(outcome == CardDragPlayRules.OUTCOME_PLAY_TARGET)
@@ -8183,8 +8257,9 @@ func _enter_drag_targeting() -> void:
 
 func _leave_drag_targeting() -> void:
 	# Targeting intentionally latches after first board entry. This prevents the
-	# selected-card pose and arrow from flapping when the pointer crosses an edge;
-	# releasing anywhere illegal still cancels through the normal outcome rule.
+	# selected-card pose and arrow from flapping when the pointer crosses an edge.
+	# Releasing outside the board cancels; an illegal board release hands the same
+	# selected card and arrow to persistent two-click targeting.
 	return
 
 func _set_drag_hover_tile(tile: Vector2i) -> void:
@@ -8292,6 +8367,13 @@ func _update_drag_targeting_arrow(mouse_position: Vector2) -> void:
 		return
 	_set_card_targeting_arrow(_drag_card_index, mouse_position)
 
+func _sync_card_targeting_arrow_after_layout() -> void:
+	if _drag_targeting_active and _drag_card_index >= 0:
+		_set_drag_hand_targeting_pose()
+		_update_drag_targeting_arrow(_drag_last_pointer_position)
+		return
+	_sync_click_targeting_arrow()
+
 func _targeted_card_aiming_active() -> bool:
 	if _drag_targeting_active and _drag_card_index >= 0:
 		return true
@@ -8311,6 +8393,66 @@ func _click_card_targeting_active() -> bool:
 		and _drag_card_index < 0
 		and not _controller_modal_visible()
 	)
+
+func _controller_card_targeting_active(candidate: Dictionary = {}) -> bool:
+	if (
+		not _targeted_card_aiming_active()
+		or not _controller_is_active()
+		or _drag_card_index >= 0
+		or _controller_region != "board"
+		or _controller_modal_visible()
+	):
+		return false
+	var resolved_candidate: Dictionary = candidate if not candidate.is_empty() else _controller_focus_candidate
+	if resolved_candidate.is_empty():
+		# Between magnetic board candidates the controller still owns a real virtual
+		# board position. Let the shared arrow follow it just as pointer targeting
+		# follows the mouse through an illegal square.
+		return (
+			is_finite(_controller_virtual_board_position.x)
+			and is_finite(_controller_virtual_board_position.y)
+		)
+	return str(resolved_candidate.get("kind", "tile")) in ["tile", "door", "enemy", "equipment", "item"]
+
+func _controller_card_targeting_needs_initial_candidate() -> bool:
+	return (
+		_controller_is_active()
+		and _controller_region == "board"
+		and _targeted_card_aiming_active()
+		and _controller_focus_candidate.is_empty()
+		and (
+			not is_finite(_controller_virtual_board_position.x)
+			or not is_finite(_controller_virtual_board_position.y)
+		)
+	)
+
+func _controller_card_targeting_endpoint(candidate: Dictionary = {}) -> Vector2:
+	var resolved_candidate: Dictionary = candidate if not candidate.is_empty() else _controller_focus_candidate
+	if not resolved_candidate.is_empty():
+		var candidate_kind: String = str(resolved_candidate.get("kind", "tile"))
+		if candidate_kind in ["tile", "door", "enemy", "equipment", "item"]:
+			return resolved_candidate.get("point", _controller_virtual_board_position) as Vector2
+	if _controller_board_tile != INVALID_TARGET_TILE:
+		return _controller_board_point(_controller_board_tile)
+	if is_finite(_controller_virtual_board_position.x) and is_finite(_controller_virtual_board_position.y):
+		return _controller_virtual_board_position
+	return Vector2(-1.0, -1.0)
+
+func _sync_controller_card_targeting_arrow(candidate: Dictionary = {}) -> bool:
+	if not _controller_card_targeting_active(candidate):
+		return false
+	var endpoint: Vector2 = _controller_card_targeting_endpoint(candidate)
+	if endpoint.x < 0.0 or endpoint.y < 0.0:
+		return false
+	_controller_hide_analog_cursor()
+	_set_card_targeting_arrow(_selected_card_index, endpoint, false)
+	return true
+
+func _player_preview_target_curve_visible(action_type: String) -> bool:
+	# Only direct ranged attacks share the same attacker-to-target line language.
+	# Pointer and controller selection now share the card-origin arrow, while
+	# push/pull and AOE retain their distinct effect evidence.
+	return action_type != "ranged" or not _targeted_card_aiming_active()
 
 func _clicked_card_selection_pose_active() -> bool:
 	return (
@@ -8339,13 +8481,14 @@ func _set_clicked_card_selection_pose() -> void:
 func _sync_click_targeting_arrow(mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	if _clicked_card_selection_pose_active():
 		_set_clicked_card_selection_pose()
+	if _sync_controller_card_targeting_arrow():
+		return
 	if _click_card_targeting_active():
-		var endpoint: Vector2 = (
-			mouse_position
-			if mouse_position.x >= 0.0 and mouse_position.y >= 0.0
-			else _current_mouse_position()
-		)
-		_set_card_targeting_arrow(_selected_card_index, endpoint)
+		if mouse_position.x >= 0.0 and mouse_position.y >= 0.0:
+			_card_targeting_pointer_position = mouse_position
+		elif _card_targeting_pointer_position.x < 0.0 or _card_targeting_pointer_position.y < 0.0:
+			_card_targeting_pointer_position = _current_mouse_position()
+		_set_card_targeting_arrow(_selected_card_index, _card_targeting_pointer_position)
 		return
 	if _drag_card_index >= 0:
 		return
@@ -8353,9 +8496,10 @@ func _sync_click_targeting_arrow(mouse_position: Vector2 = Vector2(-1.0, -1.0)) 
 		_drag_target_arrow.clear_targeting()
 	if _drag_overlay != null:
 		_drag_overlay.visible = false
+	_card_targeting_pointer_position = Vector2(-1.0, -1.0)
 	_set_targeting_cursor_suppressed(false)
 
-func _set_card_targeting_arrow(source_index: int, endpoint: Vector2) -> void:
+func _set_card_targeting_arrow(source_index: int, endpoint: Vector2, suppress_pointer_cursor: bool = true) -> void:
 	if _drag_target_arrow == null or _drag_overlay == null:
 		_set_targeting_cursor_suppressed(false)
 		return
@@ -8369,11 +8513,14 @@ func _set_card_targeting_arrow(source_index: int, endpoint: Vector2) -> void:
 	var source_rect: Rect2 = _control_visual_global_rect(source_card)
 	var arrow_start: Vector2 = source_rect.position + Vector2(source_rect.size.x * 0.5, 4.0)
 	_drag_target_arrow.set_targeting(arrow_start, endpoint)
-	# Keep the forged pointer out of the targeting language for the entire mode,
-	# including the arrow's very short dead zone near its hand-card anchor.
-	_set_targeting_cursor_suppressed(true)
+	# Pointer aiming suppresses the forged mouse glyph. Controller aiming uses the
+	# same arrow but hides its analog puck separately, so never leave a stale
+	# pointer-only suppressor behind after a modality handoff.
+	_set_targeting_cursor_suppressed(suppress_pointer_cursor)
 
 func _set_targeting_cursor_suppressed(suppressed: bool) -> void:
+	if bool(get_meta("targeting_cursor_suppressed", false)) == suppressed:
+		return
 	var cursor_feedback: Node = get_node_or_null("/root/CursorFeedback")
 	if cursor_feedback == null or not cursor_feedback.has_method("set_glyph_visibility_suppressed"):
 		return
@@ -19121,6 +19268,7 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 				"from": from_tile,
 				"to": target_tile,
 				"preview": true,
+				"target_curve_visible": _player_preview_target_curve_visible(action_type),
 				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
 				"force_tiles": force_tiles,
 				"damage_preview": _preview_damage_for_action(state, action, target_tile)
@@ -29686,6 +29834,7 @@ func _reset_card_resolution() -> void:
 
 func _clear_active_card_preview_state() -> void:
 	_selected_card_index = -1
+	_card_targeting_pointer_position = Vector2(-1.0, -1.0)
 	_selected_card_label_override = ""
 	_hovered_card_index = -1
 	_set_hand_emphasized_index(-1, false)

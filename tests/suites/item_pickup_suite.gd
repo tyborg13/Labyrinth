@@ -8,6 +8,7 @@ const ItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const Cursor = preload("res://scripts/controller_analog_cursor.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 
 static func run(expect: Callable) -> void:
 	_test_collection_and_consumption(expect)
@@ -111,7 +112,7 @@ static func _test_rich_controller_previews(expect: Callable) -> void:
 	for key: String in ["equipment:iron_cleaver", "item:crimson_draught", "equipment:training_sword", "item:nail_bomb"]:
 		cursor.call("_set_detail", "pickup", key)
 		var panel: Control = cursor.get("_detail_panel")
-		expect.call(panel != null and not panel.find_children("*", "CardWidget", true, false).is_empty(), "Analog focus must build real cards for " + key)
+		expect.call(_panel_has_card_widget(panel), "Analog focus must build real cards for " + key)
 		var original_id: int = panel.get_instance_id()
 		cursor.call("_set_detail", "pickup", key)
 		expect.call((cursor.get("_detail_panel") as Control).get_instance_id() == original_id, "Stable focus should reuse the rich panel instead of rebuilding every frame")
@@ -120,6 +121,14 @@ static func _test_rich_controller_previews(expect: Callable) -> void:
 	cursor.free()
 	board.free()
 	host.free()
+
+static func _panel_has_card_widget(panel: Control) -> bool:
+	if panel == null:
+		return false
+	for node: Node in panel.find_children("*", "Button", true, false):
+		if node.get_script() == CardWidget:
+			return true
+	return false
 
 static func _test_missed_pickups(expect: Callable) -> void:
 	var combat := CombatEngine.new()
