@@ -10172,6 +10172,30 @@
       }
     },
     {
+      "id": "mnt_20260904T050953Z_12c4f6a1",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Umbra-crossing actions clip geometry to exact visible edge intersections",
+      "details": "Hidden movement admits the actor only for crossing frames and clips sprite, HUD, and intent geometry against the shared isometric edge. Hidden line attacks carry fractional visible spans with entry and exit metadata; cardinal transitions use one plane, while diagonal corner transitions retain one plane for each concealed cardinal neighbor so textured projectile polygons intersect both visible-wedge edges. UV-preserving fragments disappear in hidden gaps and reappear in separate light pockets without changing ordinary render order.",
+      "status": "active",
+      "created_at": "2026-09-04T05:09:53Z",
+      "updated_at": "2026-09-04T05:09:53Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260904T045251Z_08b5f797"
+      ],
+      "source": {
+        "branch": "codex/animate-enemy-actions-emerging-from-umbra",
+        "commit": "8f28d7ab"
+      }
+    },
+    {
       "id": "mnt_20260904T135752Z_98d31ca1",
       "layer": "shared",
       "kind": "user_preference",
