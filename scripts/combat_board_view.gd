@@ -334,6 +334,7 @@ const RENDER_LAYER_GROUND: String = "ground"
 const RENDER_LAYER_PATH: String = "path"
 const RENDER_LAYER_IMPACT_FLOOR: String = "impact_floor"
 const RENDER_LAYER_WORLD: String = "world"
+const RENDER_LAYER_UMBRA_ACTION_OCCLUDER: String = "umbra_action_occluder"
 const RENDER_LAYER_ACTION_FLOOR: String = "action_floor"
 const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
 const RENDER_LAYER_FOREGROUND: String = "foreground"
@@ -692,6 +693,7 @@ var _ground_render_layer: Control = null
 var _path_render_layer: Control = null
 var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
+var _umbra_action_occluder_render_layer: Control = null
 var _action_floor_render_layer: Control = null
 var _scene_render_layers_by_tile: Dictionary = {}
 var _scene_back_effect_render_layers_by_tile: Dictionary = {}
@@ -863,6 +865,13 @@ func _create_dynamic_render_layer() -> void:
 	_action_floor_render_layer = _create_retained_render_layer("ActionFloorRenderLayer", RENDER_LAYER_ACTION_FLOOR)
 	_foreground_render_layer = _create_retained_render_layer("ForegroundRenderLayer", RENDER_LAYER_FOREGROUND)
 	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
+	# Preserve the ordinary world/scene/effects depth contract, then redraw Umbra
+	# only while a concealed action crosses its boundary. The duplicate treatment
+	# clips that action without pushing all world illumination above scene art.
+	_umbra_action_occluder_render_layer = _create_retained_render_layer(
+		"UmbraActionOccluderRenderLayer",
+		RENDER_LAYER_UMBRA_ACTION_OCCLUDER
+	)
 	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
 	_sync_dynamic_render_assets()
 	_sync_dynamic_render_state(true)
@@ -890,7 +899,7 @@ func _retained_render_layers() -> Array:
 		var layer: Control = layer_var as Control
 		if layer != null and is_instance_valid(layer):
 			layers.append(layer)
-	for layer: Control in [_foreground_render_layer, _effects_render_layer, _hud_render_layer]:
+	for layer: Control in [_foreground_render_layer, _effects_render_layer, _umbra_action_occluder_render_layer, _hud_render_layer]:
 		if layer != null and is_instance_valid(layer):
 			layers.append(layer)
 	return layers
@@ -1359,6 +1368,8 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if not skip_impact and str(presentation.get("umbra_stage", "clear")) != "clear":
 		_queue_render_layer_redraw(_dynamic_render_layer)
+		if _umbra_action_occluder_active():
+			_queue_render_layer_redraw(_umbra_action_occluder_render_layer)
 	if not skip_impact and _impact_animation_active():
 		_queue_render_layer_redraw(_impact_floor_render_layer)
 		_queue_render_layer_redraw(_action_floor_render_layer)
@@ -2127,6 +2138,7 @@ func _queue_presentation_change_redraws(
 				_queue_dynamic_redraw()
 			"umbra_light_sources", "umbra_stage":
 				_queue_render_layer_redraw(_dynamic_render_layer)
+				_queue_render_layer_redraw(_umbra_action_occluder_render_layer)
 				foreground_changed = true
 			"enemy_intent_compasses":
 				for unit: Dictionary in _visible_units():
@@ -2168,7 +2180,10 @@ func _queue_presentation_change_redraws(
 	if effects_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_render_layer_redraw(_effects_render_layer)
+		_queue_render_layer_redraw(_umbra_action_occluder_render_layer)
 		_queue_elemental_scene_depth_redraws(previous_elemental_scene_tiles, next_elemental_scene_tiles)
+	elif unit_movement_changed:
+		_queue_render_layer_redraw(_umbra_action_occluder_render_layer)
 
 func _queue_combat_state_change_redraws(
 	changed_keys: Dictionary,
@@ -2862,6 +2877,8 @@ func _draw() -> void:
 				_draw_impact_floor_render_layer()
 			RENDER_LAYER_WORLD:
 				_draw_world_render_layer()
+			RENDER_LAYER_UMBRA_ACTION_OCCLUDER:
+				_draw_umbra_action_occluder_render_layer()
 			RENDER_LAYER_ACTION_FLOOR:
 				_draw_action_floor_render_layer()
 			RENDER_LAYER_SCENE_TILE:
@@ -2917,6 +2934,7 @@ func _draw_dynamic_board() -> void:
 		_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 		_draw_campfire_ember_motes()
 	_draw_effects_render_layer()
+	_draw_umbra_action_occluder_render_layer()
 	_draw_hud_render_layer()
 
 func _draw_ambient_render_layer() -> void:
@@ -2947,6 +2965,25 @@ func _draw_world_render_layer() -> void:
 	_draw_umbra_overlay(tiles)
 	_record_render_section_time("umbra", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
+
+func _draw_umbra_action_occluder_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty() or not _umbra_action_occluder_active():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	_draw_umbra_overlay(_rendered_tiles_in_draw_order())
+	_record_render_section_time("umbra_action_occluder", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _umbra_action_occluder_active() -> bool:
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	return (
+		bool(effect.get("umbra_action_clipped", false))
+		or not (presentation.get("umbra_action_visible_actor_keys", []) as Array).is_empty()
+	)
 
 func _draw_impact_floor_render_layer() -> void:
 	var started_usec: int = Time.get_ticks_usec()
@@ -8664,6 +8701,13 @@ func _draw_effect_overlay() -> void:
 			if to_tile.x < 0:
 				return
 			_draw_melee_slash_effect(from_point, to_point, progress)
+		"push", "pull":
+			if from_tile.x < 0 or to_tile.x < 0:
+				return
+			if absi(from_tile.x - to_tile.x) + absi(from_tile.y - to_tile.y) > 1:
+				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+			else:
+				_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
 			_draw_aoe_effect(effect, progress, from_point, center_point)
 		"lightning_strikes":

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-09-03T21:07:59Z",
+  "updated_at": "2026-09-04T03:46:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -10169,6 +10169,28 @@
       "source": {
         "branch": "codex/animate-turn-order-timeline-changes",
         "commit": "a6baed8a"
+      }
+    },
+    {
+      "id": "mnt_20260904T034658Z_9dec2a34",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Umbra-crossing enemy actions use a dedicated action-only occluder layer",
+      "details": "Hidden-origin movement and attack geometry is animated only where player-visible; the normal Umbra world layer keeps its established scene depth, while an additional Umbra pass above action FX and below HUD masks sprite/projectile overlap at shadow boundaries. Hidden movement paths must also animate visible light-pocket spans even when the destination remains concealed.",
+      "status": "active",
+      "created_at": "2026-09-04T03:46:58Z",
+      "updated_at": "2026-09-04T03:46:58Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/animate-enemy-actions-emerging-from-umbra",
+        "commit": "99b14ece"
       }
     }
   ]

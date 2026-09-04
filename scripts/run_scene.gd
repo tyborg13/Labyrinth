@@ -22896,6 +22896,16 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 		_render_board_state(animated_state, {})
 		await get_tree().create_timer(0.16).timeout
 		return
+	var visible_action_step: Dictionary = _visible_umbra_action_step(animated_state, step)
+	if not visible_action_step.is_empty():
+		if kind == "move":
+			await _animate_move_step(animated_state, visible_action_step)
+		else:
+			# Reuse the complete authored attack timeline with geometry clipped to
+			# the visible span. This keeps impact feedback and reduced-motion timing
+			# identical to revealed attacks without disclosing the hidden actor.
+			await _animate_enemy_phase_steps(animated_state, [visible_action_step])
+		return
 	var before_step_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
 	if bool(step.get("revealed_after_action", false)):
@@ -22919,6 +22929,70 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 	}))
 	await _animate_turn_order_alongside_defeats(before_step_state, animated_state)
 	await get_tree().create_timer(0.06).timeout
+
+func _visible_umbra_action_step(state: Dictionary, step: Dictionary) -> Dictionary:
+	var kind: String = str(step.get("kind", ""))
+	if kind == "move":
+		var from_tile: Vector2i = step.get("from", Vector2i(-1, -1))
+		var to_tile: Vector2i = step.get("to", Vector2i(-1, -1))
+		var movement_path: Array[Vector2i] = _resolved_movement_animation_path(from_tile, to_tile, step.get("path", []))
+		if _visible_umbra_action_tiles(state, movement_path).is_empty():
+			return {}
+		var emerging_move: Dictionary = step.duplicate(true)
+		emerging_move.erase("hidden_by_umbra")
+		emerging_move["actor_name"] = "Unknown Presence"
+		emerging_move["umbra_reveal_actor_on_visible_tiles"] = true
+		return emerging_move
+	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
+		return {}
+	var visible_tiles: Array[Vector2i] = _visible_umbra_action_tiles(state, step.get("tiles", []))
+	var from_tile: Vector2i = step.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = step.get("to", Vector2i(-1, -1))
+	var visible_line: Array[Vector2i] = _visible_umbra_action_tiles(
+		state,
+		_umbra_action_line_tiles(from_tile, to_tile)
+	)
+	if visible_line.is_empty() and visible_tiles.is_empty():
+		return {}
+	var visible_attack: Dictionary = step.duplicate(true)
+	visible_attack.erase("hidden_by_umbra")
+	visible_attack["actor_name"] = "Unknown Presence"
+	visible_attack["umbra_action_clipped"] = true
+	# Start and end line FX on visible tiles so an authored trail cannot expose
+	# the concealed source through the Umbra's translucent cloud treatment. The
+	# upper Umbra layer still masks sprite-sized overlap at each boundary.
+	if not visible_line.is_empty():
+		visible_attack["umbra_original_from"] = from_tile
+		visible_attack["umbra_original_to"] = to_tile
+		visible_attack["from"] = visible_line[0]
+		visible_attack["to"] = visible_line[visible_line.size() - 1]
+	if kind in ["aoe", "lightning_strikes"] and not visible_tiles.is_empty():
+		visible_attack["tiles"] = visible_tiles
+		var center_tile: Vector2i = visible_attack.get("center", Vector2i(-1, -1))
+		if center_tile.x >= 0 and not visible_tiles.has(center_tile):
+			visible_attack["center"] = visible_tiles[0]
+	return visible_attack
+
+func _visible_umbra_action_tiles(state: Dictionary, values: Array) -> Array[Vector2i]:
+	var visible: Array[Vector2i] = []
+	for tile: Vector2i in _vector2i_array(values):
+		if _combat_engine.is_tile_visible_to_player(state, tile) and not visible.has(tile):
+			visible.append(tile)
+	return visible
+
+func _umbra_action_line_tiles(from_tile: Vector2i, to_tile: Vector2i) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	if from_tile.x < 0 or to_tile.x < 0:
+		return tiles
+	var delta: Vector2i = to_tile - from_tile
+	var sample_count: int = maxi(1, maxi(absi(delta.x), absi(delta.y)) * 4)
+	for sample_index: int in range(sample_count + 1):
+		var progress: float = float(sample_index) / float(sample_count)
+		var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), progress)
+		var tile := Vector2i(roundi(sample.x), roundi(sample.y))
+		if not tiles.has(tile):
+			tiles.append(tile)
+	return tiles
 
 func _visible_umbra_floating_texts(state: Dictionary, values: Array) -> Array[Dictionary]:
 	var visible: Array[Dictionary] = []
@@ -22947,13 +23021,19 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
 	var path: Array[Vector2i] = _resolved_movement_animation_path(from_tile, to_tile, step.get("path", []))
+	var presented_path: Array[Vector2i] = path
+	if bool(step.get("umbra_reveal_actor_on_visible_tiles", false)):
+		presented_path = _visible_umbra_action_tiles(animated_state, path)
+		if presented_path.size() < 2:
+			presented_path = _vector2i_array([])
 	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 	await _animate_actor_along_path(animated_state, actor_key, path, {
 		"focus_actor_keys": [actor_key],
 		"focus_actor_color": PLAYER_ATTACK_FOCUS,
 		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-		"path_tiles": path,
-		"path_color": ENEMY_PATH_PREVIEW_COLOR
+		"path_tiles": presented_path,
+		"path_color": ENEMY_PATH_PREVIEW_COLOR,
+		"umbra_reveal_actor_on_visible_tiles": bool(step.get("umbra_reveal_actor_on_visible_tiles", false))
 	})
 	var before_move_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
@@ -22998,8 +23078,15 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
 		var t: float = float(segment_frame) / float(MOVE_STEP_FRAMES)
 		var moving_footprint_center: Vector2 = from_point.lerp(to_point, t)
+		var frame_presentation: Dictionary = base_presentation
+		if bool(base_presentation.get("umbra_reveal_actor_on_visible_tiles", false)):
+			frame_presentation = base_presentation.duplicate(false)
+			if _umbra_movement_sample_visible(display_state, segment_from, segment_to, t):
+				frame_presentation["umbra_action_visible_actor_keys"] = [actor_key]
+			else:
+				frame_presentation.erase("umbra_action_visible_actor_keys")
 		var presentation: Dictionary = _movement_actor_frame_presentation(
-			base_presentation,
+			frame_presentation,
 			actor_key,
 			moving_footprint_center,
 			draw_tile,
@@ -23007,6 +23094,11 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		)
 		_render_board_state(display_state, presentation, true)
 	)
+
+func _umbra_movement_sample_visible(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i, progress: float) -> bool:
+	var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), clampf(progress, 0.0, 1.0))
+	var sample_tile := Vector2i(roundi(sample.x), roundi(sample.y))
+	return _combat_engine.is_tile_visible_to_player(state, sample_tile)
 
 func _movement_actor_frame_presentation(
 	base_presentation: Dictionary,
@@ -23348,7 +23440,18 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 	target_presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(display_state)
 	target_presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(display_state)
 	target_presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
-	target_presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
+	var visible_enemy_ids: Array = _combat_engine.visible_enemy_ids(display_state)
+	for actor_key_var: Variant in target_presentation.get("umbra_action_visible_actor_keys", []):
+		var actor_key: String = str(actor_key_var)
+		for enemy_var: Variant in display_state.get("enemies", []):
+			if typeof(enemy_var) != TYPE_DICTIONARY:
+				continue
+			var enemy: Dictionary = enemy_var as Dictionary
+			var enemy_id: int = int(enemy.get("id", -1))
+			if _enemy_key(enemy) == actor_key and enemy_id >= 0 and not visible_enemy_ids.has(enemy_id):
+				visible_enemy_ids.append(enemy_id)
+				break
+	target_presentation["visible_enemy_ids"] = visible_enemy_ids
 	target_presentation["umbra_light_sources"] = _combat_engine.effective_light_sources(display_state)
 	var umbra_state: Dictionary = display_state.get("umbra", {}) as Dictionary
 	target_presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
