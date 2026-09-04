@@ -218,7 +218,7 @@ func prepare_intro(target_rect: Rect2, viewport_size: Vector2) -> bool:
 	_intro_text_stack.pivot_offset = INTRO_TEXT_SIZE * 0.5
 	_intro_text_stack.scale = Vector2.ONE
 	_intro_text_stack.visible = true
-	_intro_text_stack.modulate = Color.WHITE
+	_intro_text_stack.modulate = Color.TRANSPARENT
 	return true
 
 func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool) -> void:
@@ -231,6 +231,7 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 		modulate = Color.WHITE
 		_set_intro_font_progress(1.0)
 		_intro_text_stack.scale = Vector2.ONE
+		_intro_text_stack.modulate = Color.WHITE
 		intro_phase = "reduced_hold"
 		await get_tree().create_timer(INTRO_REDUCED_HOLD_SECONDS).timeout
 		if not _intro_can_continue():
@@ -248,6 +249,12 @@ func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	_intro_tween.tween_property(
 		self,
+		"modulate:a",
+		1.0,
+		INTRO_POP_SECONDS * 0.72
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_property(
+		_intro_text_stack,
 		"modulate:a",
 		1.0,
 		INTRO_POP_SECONDS * 0.72

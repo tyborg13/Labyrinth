@@ -74,6 +74,8 @@ func _run_opening_hand_entry_regression() -> void:
 		_expect(objective_hud.position + objective_hud.size * 0.5 == prepared_intro_center, "The hidden objective should already be staged at upper center before the first uncovered-room frame")
 		_expect(not objective_hud.position.is_equal_approx(prepared_target_rect.position), "The objective must not flash in its final dock before the center pop")
 		_expect(is_zero_approx(objective_hud.modulate.a), "The prepared upper-center objective should stay transparent until its pop begins")
+		var prepared_intro_text: Control = objective_hud.get("_intro_text_stack") as Control
+		_expect(prepared_intro_text != null and is_zero_approx(prepared_intro_text.modulate.a), "The transform-independent objective copy should also stay transparent until its pop begins")
 		_expect(is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "The prepared objective should keep its widget background and persistent contents hidden")
 		_expect(is_zero_approx(float(objective_hud.get("intro_content_progress"))), "The prepared objective should keep the compact icon and detail hidden")
 

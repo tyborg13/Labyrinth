@@ -123,6 +123,8 @@ func _capture_opening_hand_entry(instance: Node) -> void:
 		_assert(objective_hud.position + objective_hud.size * 0.5 == prepared_center, "Room-reveal proof should place the hidden objective at upper center")
 		_assert(not objective_hud.position.is_equal_approx(prepared_target.position), "Room-reveal proof must not show the objective in its final dock before the pop")
 		_assert(is_zero_approx(objective_hud.modulate.a), "Room-reveal proof should keep the prepared upper-center objective transparent")
+		var prepared_intro_text: Control = objective_hud.get("_intro_text_stack") as Control
+		_assert(prepared_intro_text != null and is_zero_approx(prepared_intro_text.modulate.a), "Room-reveal proof should keep the transform-independent objective copy transparent before its pop")
 		_assert(is_zero_approx(float(objective_hud.get("intro_chrome_progress"))), "Room-reveal proof should keep all widget chrome hidden")
 	await _save_root_screenshot("%s/card_draw_flow_v1_00_room_revealed.png" % OUTPUT_DIR)
 	_assert((instance.get("_draw_hand_transition_proxies") as Array).is_empty(), "The uncovered room should remain card-free for its presentation frame")
