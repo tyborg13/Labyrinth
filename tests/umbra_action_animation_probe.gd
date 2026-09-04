@@ -163,6 +163,16 @@ func _capture_hidden_ranged_attack(instance: Node, reduced_motion: bool, capture
 		_expect(not (presentation.get("visible_enemy_ids", []) as Array).has(ENEMY_ID), "Animating a hidden projectile must not reveal its source enemy")
 		var progress: float = float(presentation.get("effect_progress", 0.0))
 		if reduced_motion:
+			# Reduced motion resolves without an authored hold. Freeze the actual
+			# presentation after the live sequence settles so pixel proof captures
+			# the static result, rather than racing its immediate cleanup.
+			var frozen_impact: Dictionary = presentation.duplicate(true)
+			frozen_impact["effect_progress"] = 1.0
+			frozen_impact["reduced_motion"] = true
+			await _wait_for_animation()
+			instance.call("_render_board_state", state, frozen_impact)
+			await _settle_ui()
+			_expect((board.call("_elemental_scene_depth_tiles_for_presentation", frozen_impact) as Array).has(PLAYER_TILE), "Reduced Umbra impact must use the normal target scene-depth composition")
 			await _save_root_screenshot("%s/07_ranged_reduced_motion_impact.png" % OUTPUT_DIR)
 			captured_frame = true
 			break

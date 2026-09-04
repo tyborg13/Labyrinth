@@ -8334,10 +8334,6 @@ func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
 		str(effect.get("kind", "")) in ["ranged", "aoe"]
 		and AttackFxLibrary.uses_authored_elemental_attack(effect)
 		and not bool(effect.get("preview", false))
-		and not (
-			str(effect.get("kind", "")) == "ranged"
-			and bool(effect.get("umbra_action_clipped", false))
-		)
 	)
 
 func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictionary) -> Array[Vector2i]:
@@ -8362,6 +8358,21 @@ func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictiona
 	if from_tile.x < 0 or to_tile.x < 0:
 		return tiles
 	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if str(effect.get("kind", "")) == "ranged" and bool(effect.get("umbra_action_clipped", false)):
+		# Travel stays on its clipped interval. Only a visible, reached target
+		# receives the ordinary rear/actor/front impact, including reduced motion.
+		var original_target: Vector2i = effect.get("umbra_original_to", to_tile)
+		var visible_tiles: Variant = source_presentation.get("umbra_visible_tiles", null)
+		var target_visible: bool = original_target == to_tile and (
+			typeof(visible_tiles) != TYPE_ARRAY or (visible_tiles as Array).has(original_target)
+		)
+		var progress: float = float(source_presentation.get("effect_progress", 1.0))
+		if target_visible and (
+			bool(source_presentation.get("reduced_motion", false))
+			or progress >= AttackFxLibrary.travel_end_progress(style)
+		):
+			_elemental_append_unique_depth_tile(tiles, original_target)
+		return tiles
 	if style == AttackFxLibrary.STYLE_EARTH_SPIKES:
 		_elemental_append_unique_depth_tile(tiles, from_tile)
 		for spike_index: int in range(EARTH_PATH_SPIKE_COUNT):
@@ -8387,6 +8398,8 @@ func _elemental_scene_depth_tile_for_effect(effect: Dictionary, progress: float)
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
 	if from_tile.x < 0 or to_tile.x < 0:
 		return Vector2i(-1, -1)
+	if str(effect.get("kind", "")) == "ranged" and bool(effect.get("umbra_action_clipped", false)):
+		return to_tile
 	var travel_progress: float = 0.0
 	if bool(effect.get("preview", false)):
 		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
@@ -8734,6 +8747,7 @@ func _draw_umbra_clipped_ranged_effect(effect: Dictionary, progress: float) -> v
 	var travel_start: float = 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style)
 	var travel_end: float = 0.66 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.travel_end_progress(style)
 	var target_visible: bool = _board_tile_is_visible_to_player(original_to)
+	var impact_in_scene: bool = _is_dynamic_render_layer and _effect_uses_elemental_scene_depth(effect)
 	if bool(presentation.get("reduced_motion", false)):
 		for segment_index: int in range(segments.size()):
 			var reduced_segment: Dictionary = segments[segment_index] as Dictionary
@@ -8742,14 +8756,15 @@ func _draw_umbra_clipped_ranged_effect(effect: Dictionary, progress: float) -> v
 			var reduced_segment_start: Vector2 = full_start.lerp(full_end, reduced_start)
 			var reduced_segment_end: Vector2 = full_start.lerp(full_end, reduced_end)
 			if target_visible and segment_index == segments.size() - 1:
-				_draw_ranged_projectile_effect(effect, 1.0, reduced_segment_start, full_end)
+				if not impact_in_scene:
+					_draw_ranged_projectile_effect(effect, 1.0, reduced_segment_start, full_end)
 			else:
 				_draw_umbra_projectile_fragment(effect, reduced_segment_start, reduced_segment_end, 0.5, reduced_segment)
 		return
 	if progress < travel_start:
 		return
 	if progress > travel_end:
-		if target_visible:
+		if target_visible and not impact_in_scene:
 			var impact_segment: Dictionary = segments[segments.size() - 1] as Dictionary
 			_draw_ranged_projectile_effect(
 				effect,

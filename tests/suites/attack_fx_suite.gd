@@ -20,6 +20,7 @@ static func run(expect: Callable) -> void:
 	_test_spell_envelope_resolves_without_discontinuity(expect)
 	_test_ranged_previews_use_static_curves(expect)
 	_test_umbra_fragments_do_not_restore_spell_sprites(expect)
+	_test_umbra_impact_returns_to_scene_depth(expect)
 	_test_ranged_preview_hp_composites_on_hud(expect)
 	_test_isometric_ground_anchor_is_exact_target_floor(expect)
 	_test_elemental_effects_resolve_into_scene_depth_tiles(expect)
@@ -582,4 +583,30 @@ static func _test_umbra_fragments_do_not_restore_spell_sprites(expect: Callable)
 			board.call("_umbra_projectile_fragment_texture", effect, 0.5) == null,
 			"%s crossing Umbra must use bounded material geometry without restoring whole-spell atlases" % element
 		)
+	board.free()
+
+
+static func _test_umbra_impact_returns_to_scene_depth(expect: Callable) -> void:
+	var board := CombatBoardView.new()
+	for element: String in ["fire", "earth", "air", "lightning", "ice"]:
+		var effect: Dictionary = {
+			"kind": "ranged", "element": element, "umbra_action_clipped": true,
+			"from": Vector2i(4, 4), "to": Vector2i(2, 4),
+			"umbra_original_to": Vector2i(2, 4),
+		}
+		var travel_end: float = AttackFxLibrary.travel_end_progress(AttackFxLibrary.style_for_effect(effect))
+		var sample: Dictionary = {"effect": effect, "effect_progress": travel_end - 0.01, "umbra_visible_tiles": [Vector2i(2, 4)]}
+		expect.call((board.call("_elemental_scene_depth_tiles_for_presentation", sample) as Array).is_empty(), "%s Umbra travel must remain exclusively clipped" % element)
+		sample["effect_progress"] = travel_end
+		var tiles: Array = board.call("_elemental_scene_depth_tiles_for_presentation", sample)
+		expect.call(tiles == [Vector2i(2, 4)], "%s visible impact must restore only the target scene-depth layer" % element)
+		sample["effect_progress"] = 0.0
+		sample["reduced_motion"] = true
+		tiles = board.call("_elemental_scene_depth_tiles_for_presentation", sample)
+		expect.call(tiles == [Vector2i(2, 4)] and board.call("_elemental_scene_depth_tile_for_effect", effect, 0.0) == Vector2i(2, 4), "%s reduced-motion impact must restore both target depth passes immediately" % element)
+		sample["umbra_visible_tiles"] = []
+		expect.call((board.call("_elemental_scene_depth_tiles_for_presentation", sample) as Array).is_empty(), "%s hidden target must not acquire impact layers" % element)
+		sample["umbra_visible_tiles"] = [Vector2i(2, 4)]
+		effect["umbra_original_to"] = Vector2i(7, 4)
+		expect.call((board.call("_elemental_scene_depth_tiles_for_presentation", sample) as Array).is_empty(), "%s light pocket must not detonate at the clipped endpoint" % element)
 	board.free()
