@@ -63,10 +63,14 @@ func _capture_elemental_states() -> void:
 	if combat_coord == Vector2i.ZERO:
 		instance.queue_free()
 		return
-	instance.call("_on_map_view_room_selected", combat_coord)
+	await instance.call("_on_map_view_room_selected", combat_coord)
+	var pre_battle_scrim: Control = instance.get("_pre_battle_scrim") as Control
+	if pre_battle_scrim != null and pre_battle_scrim.visible:
+		await instance.call("_on_pre_battle_start_pressed")
 	await create_timer(0.95).timeout
 	await _settle()
 	instance.call("_close_dialogue")
+	_expect(not bool(instance.call("_controller_modal_visible")), "Elemental proof must capture the board without a pre-battle or other modal")
 
 	var settings: Dictionary = SettingsStore.default_settings()
 	settings["ui_scale"] = 1.0
@@ -183,14 +187,14 @@ func _elemental_presentation(effect: Dictionary, progress: float, element_id: St
 
 func _elemental_combat_state(source: Dictionary) -> Dictionary:
 	var combat_state: Dictionary = source.duplicate(true)
-	var grid: Array = (combat_state.get("grid", []) as Array).duplicate(true)
-	if grid.size() < 9:
-		grid.clear()
-		for y: int in range(9):
-			var row: Array = []
-			for x: int in range(9):
-				row.append("floor")
-			grid.append(row)
+	# Always author the fixture grid: generated rooms are already 9x9, so a
+	# size-based fallback silently retains their extra pillars and hidden walls.
+	var grid: Array = []
+	for y: int in range(9):
+		var row: Array = []
+		for x: int in range(9):
+			row.append("stone")
+		grid.append(row)
 	(grid[3] as Array)[4] = "pillar"
 	(grid[5] as Array)[6] = "pillar"
 	combat_state["grid"] = grid
@@ -224,6 +228,9 @@ func _elemental_combat_state(source: Dictionary) -> Dictionary:
 	}]
 	combat_state["traps"] = []
 	combat_state["illusions"] = []
+	combat_state["loot"] = []
+	combat_state["npcs"] = []
+	combat_state["moss"] = {}
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["firebrand_volley"]
 	deck["draw"] = []
@@ -237,6 +244,11 @@ func _install_combat_state(instance: Node, combat_state: Dictionary) -> void:
 	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
+	var layout: Dictionary = (run_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	for key: String in ["grid", "terrain", "traps", "loot", "enemies", "npcs", "moss"]:
+		layout[key] = combat_state.get(key, [])
+	layout["player_start"] = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	run_state["current_room_layout"] = layout
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_reset_card_resolution")
@@ -246,6 +258,7 @@ func _install_combat_state(instance: Node, combat_state: Dictionary) -> void:
 
 
 func _expect_scene_depth_fixture(instance: Node) -> void:
+	_expect_scene_layer_grid(instance, 2)
 	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
 	_expect(board != null, "Elemental depth proof should find the production combat board")
 	if board == null:
@@ -255,7 +268,6 @@ func _expect_scene_depth_fixture(instance: Node) -> void:
 	var target_layer: Control = scene_layers.get(Vector2i(5, 4), null) as Control
 	var crate_layer: Control = scene_layers.get(Vector2i(6, 4), null) as Control
 	var foreground_layer: Control = scene_layers.get(Vector2i(6, 5), null) as Control
-	_expect(scene_layers.size() == 81, "Elemental depth proof should retain all 81 tiles as independently sorted scene layers")
 	_expect(
 		background_layer != null
 		and target_layer != null
@@ -327,3 +339,32 @@ func _clear_probe_output() -> void:
 func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+
+func _expect_scene_layer_grid(instance: Node, expected_pillars: int) -> void:
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	_expect(board != null, "Elemental proof requires the production combat board")
+	if board == null:
+		return
+	var rendered_state: Dictionary = board.get("combat_state") as Dictionary
+	var rendered_grid: Array = rendered_state.get("grid", []) as Array
+	var intended_grid: Array = (instance.get("_combat_state") as Dictionary).get("grid", []) as Array
+	_expect(rendered_grid == intended_grid, "Rendered board grid must exactly match the installed combat fixture")
+	_expect(rendered_grid.size() == 9, "Elemental fixture must have exactly nine rows")
+	var pillars: int = 0
+	var cells: int = 0
+	for row_var: Variant in rendered_grid:
+		var row: Array = row_var as Array
+		_expect(row.size() == 9, "Every elemental fixture row must contain nine cells")
+		for cell_var: Variant in row:
+			var cell: String = str(cell_var)
+			_expect(cell in ["stone", "pillar"], "Elemental fixture must not retain generated-room walls or doors")
+			if cell == "pillar":
+				pillars += 1
+			cells += 1
+	_expect(pillars == expected_pillars, "Elemental fixture must contain exactly %d deliberate pillars, found %d" % [expected_pillars, pillars])
+	var layers: Dictionary = board.get("_scene_render_layers_by_tile") as Dictionary
+	_expect(cells == 81 and layers.size() == 81, "All 81 authored fixture cells must have independent scene layers")
+	for y: int in range(9):
+		for x: int in range(9):
+			_expect(layers.has(Vector2i(x, y)), "Elemental fixture must render scene layer at %s" % Vector2i(x, y))

@@ -3,6 +3,7 @@ extends RefCounted
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const ElementalSpellFx = preload("res://scripts/elemental_spell_fx.gd")
 
 
 static func run(expect: Callable) -> void:
@@ -14,18 +15,14 @@ static func run(expect: Callable) -> void:
 	_test_elemental_spell_timing_is_staged(expect)
 	_test_trap_impacts_reuse_direct_attack_cadence(expect)
 	_test_authored_raster_sampling_is_continuous(expect)
-	_test_fireball_sheets_load_as_authored_frames(expect)
-	_test_elemental_sheets_load_as_authored_frames(expect)
-	_test_sampled_fire_frames_own_transparent_bloom_padding(expect)
-	_test_fireball_path_is_straight(expect)
-	_test_all_authored_elemental_paths_are_straight(expect)
+	_test_spell_ingredients_are_cached_and_deterministic(expect)
+	_test_spell_ingredients_have_soft_transparent_boundaries(expect)
+	_test_spell_envelope_resolves_without_discontinuity(expect)
 	_test_ranged_previews_use_static_curves(expect)
 	_test_ranged_preview_hp_composites_on_hud(expect)
 	_test_isometric_ground_anchor_is_exact_target_floor(expect)
 	_test_elemental_effects_resolve_into_scene_depth_tiles(expect)
-	_test_elemental_integration_profiles_own_depth_and_authored_anchors(expect)
-	_test_ground_eruptions_own_compact_stable_bases(expect)
-	_test_fire_resolves_through_particle_tail(expect)
+	_test_spells_preserve_direct_and_trap_footprint_scales(expect)
 	_test_elemental_effects_render_below_the_hud(expect)
 	_test_enemy_steps_inherit_the_attacker_element(expect)
 
@@ -254,137 +251,103 @@ static func _test_authored_raster_sampling_is_continuous(expect: Callable) -> vo
 	)
 
 
-static func _test_fireball_sheets_load_as_authored_frames(expect: Callable) -> void:
-	var board: CombatBoardView = CombatBoardView.new()
-	board.call("_load_assets", false)
-	var travel_frames: Array = (board.get("_effect_frames") as Dictionary).get("fireball_travel", []) as Array
-	var wake_frames: Array = (board.get("_effect_frames") as Dictionary).get("fireball_wake", []) as Array
-	var impact_frames: Array = (board.get("_effect_frames") as Dictionary).get("fireball_impact", []) as Array
+static func _test_spell_ingredients_are_cached_and_deterministic(expect: Callable) -> void:
+	ElementalSpellFx.prepare()
+	var first_generation: Array[Texture2D] = _spell_ingredients()
+	var first_signatures: PackedInt64Array = _spell_ingredient_signatures(first_generation)
+	for repeat: int in range(4):
+		ElementalSpellFx.prepare()
+		var reused: Array[Texture2D] = _spell_ingredients()
+		expect.call(reused == first_generation, "Repeated board-layer initialization should reuse the same spell textures")
+	# Recreating ingredients should be independent of allocation order and prior use.
+	ElementalSpellFx._light = null
+	ElementalSpellFx._clouds.clear()
+	ElementalSpellFx.prepare()
+	var regenerated: Array[Texture2D] = _spell_ingredients()
 	expect.call(
-		travel_frames.size() == 8 and wake_frames.size() == 8 and impact_frames.size() == 8,
-		"Combat board should load eight distinct raster frames for fireball core, turbulent wake, and impact"
+		regenerated != first_generation
+		and _spell_ingredient_signatures(regenerated) == first_signatures,
+		"A fresh spell-resource cache should produce identical seeded texture pixels"
 	)
-	if travel_frames.size() == 8 and wake_frames.size() == 8 and impact_frames.size() == 8:
+	var pixel_budget: int = 0
+	for texture: Texture2D in regenerated:
+		pixel_budget += texture.get_width() * texture.get_height()
+	expect.call(
+		not regenerated.is_empty() and regenerated.size() <= 8 and pixel_budget <= 131072,
+		"Shared spell ingredients should remain a small bounded cache instead of whole-effect animation sheets"
+	)
+
+
+static func _spell_ingredients() -> Array[Texture2D]:
+	var result: Array[Texture2D] = []
+	if ElementalSpellFx._light != null:
+		result.append(ElementalSpellFx._light)
+	result.append_array(ElementalSpellFx._clouds)
+	return result
+
+
+static func _spell_ingredient_signatures(textures: Array[Texture2D]) -> PackedInt64Array:
+	var result := PackedInt64Array()
+	for texture: Texture2D in textures:
+		var image: Image = texture.get_image()
+		result.append(hash(image.get_data()) if image != null else 0)
+	return result
+
+
+static func _test_spell_ingredients_have_soft_transparent_boundaries(expect: Callable) -> void:
+	ElementalSpellFx.prepare()
+	for texture: Texture2D in _spell_ingredients():
+		var image: Image = texture.get_image()
+		if image == null or image.is_empty():
+			expect.call(false, "Every generated spell ingredient should own readable image data")
+			continue
+		var edges_clear: bool = true
+		var max_alpha: float = 0.0
+		var soft_pixels: int = 0
+		var transparent_pixels: int = 0
+		for y: int in range(image.get_height()):
+			for x: int in range(image.get_width()):
+				var alpha: float = image.get_pixel(x, y).a
+				max_alpha = maxf(max_alpha, alpha)
+				if x == 0 or y == 0 or x == image.get_width() - 1 or y == image.get_height() - 1:
+					edges_clear = edges_clear and alpha <= 0.01
+				if alpha > 0.01 and alpha < 0.90:
+					soft_pixels += 1
+				if alpha <= 0.01:
+					transparent_pixels += 1
 		expect.call(
-			(travel_frames[0] as Texture2D).get_size() == Vector2(256.0, 256.0)
-			and (wake_frames[0] as Texture2D).get_size() == Vector2(512.0, 512.0)
-			and (impact_frames[0] as Texture2D).get_size() == Vector2(512.0, 512.0),
-			"Fireball core, wake, and impact sheets should retain their validated square frame contracts"
+			edges_clear and max_alpha > 0.25 and soft_pixels > 16 and transparent_pixels > 16,
+			"Spell texture ingredients should contain visible feathered material within transparent edges, avoiding rectangular bloom borders"
 		)
-	board.free()
 
 
-static func _test_elemental_sheets_load_as_authored_frames(expect: Callable) -> void:
-	var board: CombatBoardView = CombatBoardView.new()
-	board.call("_load_assets", false)
-	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
-	var frame_keys: PackedStringArray = [
-		"elemental_fire_performance",
-		"elemental_earth_performance",
-		"elemental_air_performance",
-		"elemental_lightning_performance",
-		"elemental_ice_performance",
-		"elemental_fire_performance_bloom",
-		"elemental_earth_performance_bloom",
-		"elemental_air_performance_bloom",
-		"elemental_lightning_performance_bloom",
-		"elemental_ice_performance_bloom",
-		"earth_spike_travel",
-		"earth_spike_impact",
-		"earth_ground_layer",
-		"air_gust_travel",
-		"air_gust_impact",
-		"air_envelope_layer",
-		"lightning_bolt_travel",
-		"lightning_bolt_impact",
-		"lightning_envelope_layer",
-		"ice_shard_travel",
-		"ice_icicle_impact",
-		"ice_ground_layer",
-	]
-	for frame_key: String in frame_keys:
-		var frames: Array = effect_frames.get(frame_key, []) as Array
-		expect.call(frames.size() == 8, "%s should load all eight authored raster frames" % frame_key)
-		if frames.size() == 8:
-			expect.call(
-				(frames[0] as Texture2D).get_size() == Vector2(512.0, 512.0),
-				"%s should retain its validated 512x512 frame contract" % frame_key
-			)
-	board.free()
-
-
-static func _test_sampled_fire_frames_own_transparent_bloom_padding(expect: Callable) -> void:
-	var board: CombatBoardView = CombatBoardView.new()
-	board.call("_load_assets", false)
-	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
-	var sharp_frames: Array = effect_frames.get("elemental_fire_performance", []) as Array
-	var bloom_frames: Array = effect_frames.get("elemental_fire_performance_bloom", []) as Array
-	var sampled_frames: Dictionary = {}
-	for sample_index: int in range(65):
-		var frame_blend: Vector3 = board.call(
-			"_elemental_performance_frame_blend",
-			AttackFxLibrary.STYLE_FIREBALL,
-			float(sample_index) / 64.0,
-			sharp_frames.size(),
-			false
-		)
-		sampled_frames[int(frame_blend.x)] = true
-		sampled_frames[int(frame_blend.y)] = true
-	var reduced_blend: Vector3 = board.call("_elemental_performance_frame_blend", AttackFxLibrary.STYLE_FIREBALL, 0.52, sharp_frames.size(), true)
-	sampled_frames[int(reduced_blend.x)] = true
-	var safe_padding: bool = not sampled_frames.is_empty()
-	for frame_var: Variant in sampled_frames:
-		var frame_index: int = int(frame_var)
-		if sharp_frames.size() <= frame_index or bloom_frames.size() <= frame_index:
-			safe_padding = false
-			break
-		safe_padding = safe_padding and (
-			_max_top_edge_alpha(sharp_frames[frame_index] as Texture2D) <= 0.01
-			and _max_top_edge_alpha(bloom_frames[frame_index] as Texture2D) <= 0.01
-		)
+static func _test_spell_envelope_resolves_without_discontinuity(expect: Callable) -> void:
+	var previous: float = 0.0
+	var peak: float = 0.0
+	var finite_and_bounded: bool = true
+	var continuous: bool = true
+	for sample: int in range(257):
+		var t: float = float(sample) / 256.0
+		var value: float = ElementalSpellFx.envelope(t)
+		finite_and_bounded = finite_and_bounded and is_finite(value) and value >= 0.0 and value <= 1.0
+		continuous = continuous and absf(value - previous) < 0.20
+		peak = maxf(peak, value)
+		previous = value
 	expect.call(
-		sampled_frames.size() == 5
-		and sampled_frames.has(0)
-		and sampled_frames.has(1)
-		and sampled_frames.has(2)
-		and sampled_frames.has(3)
-		and sampled_frames.has(7)
-		and safe_padding,
-		"Every Fire impact cell selected in normal or reduced motion should own transparent top padding so bloom cannot reveal a rectangular atlas boundary"
+		finite_and_bounded and continuous and peak > 0.5
+		and is_zero_approx(ElementalSpellFx.envelope(0.0))
+		and is_zero_approx(ElementalSpellFx.envelope(1.0))
+		and ElementalSpellFx.envelope(0.9) > 0.0
+		and ElementalSpellFx.envelope(0.9) < peak * 0.5,
+		"Spell energy should rise continuously, leave a fading aftermath, and clear completely at the end"
 	)
-	board.free()
-
-
-static func _max_top_edge_alpha(texture: Texture2D) -> float:
-	var image: Image = texture.get_image()
-	if image == null or image.is_empty():
-		return 1.0
-	var max_alpha: float = 0.0
-	for x: int in range(image.get_width()):
-		max_alpha = maxf(max_alpha, image.get_pixel(x, 0).a)
-	return max_alpha
-
-
-static func _test_fireball_path_is_straight(expect: Callable) -> void:
-	var board: CombatBoardView = CombatBoardView.new()
-	var start := Vector2(18.0, 42.0)
-	var finish := Vector2(218.0, 112.0)
-	var midpoint: Vector2 = board.call("_fireball_travel_point", start, finish, 0.5)
-	expect.call(
-		midpoint.is_equal_approx(start.lerp(finish, 0.5)),
-		"Fireball travel should stay on the direct attacker-to-target line instead of using the generic projectile arc"
-	)
-	board.free()
-
-
-static func _test_all_authored_elemental_paths_are_straight(expect: Callable) -> void:
-	var start := Vector2(18.0, 42.0)
-	var finish := Vector2(218.0, 112.0)
-	for progress: float in [0.0, 0.19, 0.5, 0.83, 1.0]:
-		expect.call(
-			start.lerp(finish, progress).is_equal_approx(start + (finish - start) * progress),
-			"Authored elemental attacks should preserve direct attacker-to-target causality at %.2f progress" % progress
-		)
+	for element: String in ["fire", "earth", "air", "lightning", "ice"]:
+		for front: bool in [false, true]:
+			# Null is safe only if the boundary/zero-alpha paths submit no draw calls.
+			for t: float in [-1.0, 0.0, 1.0, 2.0]:
+				ElementalSpellFx.impact(null, element, Vector2.ZERO, 100.0, t, 1.0, false, front)
+			ElementalSpellFx.impact(null, element, Vector2.ZERO, 100.0, 0.4, 0.0, false, front)
+			ElementalSpellFx.impact(null, element, Vector2.ZERO, 100.0, 0.4, 0.0, true, front)
 
 
 static func _test_ranged_previews_use_static_curves(expect: Callable) -> void:
@@ -491,75 +454,9 @@ static func _test_elemental_effects_resolve_into_scene_depth_tiles(expect: Calla
 	board.free()
 
 
-static func _test_elemental_integration_profiles_own_depth_and_authored_anchors(expect: Callable) -> void:
-	var board: CombatBoardView = CombatBoardView.new()
-	var expected_anchors: Dictionary = {
-		AttackFxLibrary.STYLE_FIREBALL: 0.78,
-		AttackFxLibrary.STYLE_EARTH_SPIKES: 0.80,
-		AttackFxLibrary.STYLE_AIR_GUST: 0.80,
-		AttackFxLibrary.STYLE_LIGHTNING_BOLT: 0.78,
-		AttackFxLibrary.STYLE_ICE_SHARDS: 0.82,
-	}
-	var profile_signatures: Dictionary = {}
-	for style_var: Variant in expected_anchors:
-		var style: String = str(style_var)
-		var profile: Dictionary = board.call("_elemental_integration_profile", style)
-		var anchor: Vector2 = profile.get("ground_anchor", Vector2.ZERO)
-		var signature: String = "%.2f|%.2f|%.2f|%s" % [
-			float(profile.get("bloom_alpha", 0.0)),
-			float(profile.get("floor_alpha", 0.0)),
-			float(profile.get("volume_alpha", 0.0)),
-			str(profile.get("volume_color", Color.TRANSPARENT)),
-		]
-		profile_signatures[signature] = true
-		expect.call(
-			is_equal_approx(anchor.x, 0.50)
-			and is_equal_approx(anchor.y, float(expected_anchors.get(style, 0.0)))
-			and float(profile.get("bloom_alpha", 0.0)) >= 0.40
-			and float(profile.get("floor_alpha", 0.0)) >= 0.50
-			and float(profile.get("volume_alpha", 0.0)) >= 0.45,
-			"%s should map its authored raster origin to the tile floor and own bloom, floor light, and back-volume layers" % style
-		)
-		if style == AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-			expect.call(
-				float(profile.get("rear_core_alpha", 0.0)) >= 0.44
-				and float(profile.get("front_core_alpha", 0.0)) >= 0.60
-				and float(profile.get("front_core_alpha", 0.0)) > float(profile.get("rear_core_alpha", 0.0))
-				and float(profile.get("front_bloom_alpha", 0.0)) >= 0.85,
-				"Lightning should keep a materially readable white core instead of relying mainly on transparent bloom"
-			)
-		else:
-			expect.call(
-				float(profile.get("rear_core_alpha", 1.0)) < float(profile.get("front_core_alpha", 0.0))
-				and float(profile.get("front_core_alpha", 1.0)) <= 0.40
-				and float(profile.get("front_bloom_alpha", 0.0)) >= 0.75
-				and float(profile.get("front_veil_alpha", 0.0)) >= 0.50,
-				"%s should cross the victim with a bloom-led translucent front volume while keeping the crisp raster body subordinate" % style
-			)
-	expect.call(profile_signatures.size() == 5, "Each element should own a distinct scene-integration profile instead of sharing one flat overlay treatment")
-	var earth_contact_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_EARTH_SPIKES, 0)
-	var earth_peak_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_EARTH_SPIKES, 4)
-	var ice_contact_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_ICE_SHARDS, 0)
-	var ice_peak_anchor: Vector2 = board.call("_elemental_performance_ground_anchor", AttackFxLibrary.STYLE_ICE_SHARDS, 4)
-	expect.call(
-		is_equal_approx(earth_contact_anchor.y, 0.68)
-		and is_equal_approx(earth_peak_anchor.y, 0.80)
-		and is_equal_approx(ice_contact_anchor.y, 0.78)
-		and is_equal_approx(ice_peak_anchor.y, 0.82),
-		"Earth and Ice should use frame-calibrated contact and peak origins so planar growth never floats above the target floor"
-	)
-	board.free()
-
-
-static func _test_ground_eruptions_own_compact_stable_bases(expect: Callable) -> void:
+static func _test_spells_preserve_direct_and_trap_footprint_scales(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.size = Vector2(1920.0, 1080.0)
-	board.call("_load_assets", false)
-	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
-	var earth_cores: Array = board.call("_elemental_impact_core_frames", AttackFxLibrary.STYLE_EARTH_SPIKES) as Array
-	var ice_cores: Array = board.call("_elemental_impact_core_frames", AttackFxLibrary.STYLE_ICE_SHARDS) as Array
-	var earth_registry: Array = effect_frames.get("earth_spike_impact", []) as Array
-	var ice_registry: Array = effect_frames.get("ice_icicle_impact", []) as Array
 	var earth_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_EARTH_SPIKES))
 	var ice_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_ICE_SHARDS))
 	var air_scale: float = float(board.call("_elemental_performance_size_scale", AttackFxLibrary.STYLE_AIR_GUST))
@@ -571,18 +468,9 @@ static func _test_ground_eruptions_own_compact_stable_bases(expect: Callable) ->
 		AttackFxLibrary.STYLE_ICE_SHARDS: float(board.call("_elemental_detonation_scale", AttackFxLibrary.STYLE_ICE_SHARDS)),
 	}
 	expect.call(
-		not earth_cores.is_empty()
-		and not ice_cores.is_empty()
-		and earth_cores[0] == earth_registry[0]
-		and ice_cores[0] == ice_registry[0],
-		"Earth and Ice should use their narrow bottom-anchored eruption cores instead of baking a changing floor plate into the sharp body"
-	)
-	expect.call(
 		earth_scale < air_scale
-		and ice_scale < air_scale
-		and is_equal_approx(float(board.call("_elemental_ground_contact_expansion", "earth")), 0.18)
-		and is_equal_approx(float(board.call("_elemental_ground_contact_expansion", "ice")), 0.10),
-		"Earth and Ice should stay smaller than airborne impacts and keep their floor footprint expansion restrained"
+		and ice_scale < air_scale,
+		"Earth and Ice should preserve their more compact direct-attack scale"
 	)
 	expect.call(
 		is_equal_approx(float(detonation_scales.get(AttackFxLibrary.STYLE_FIREBALL, 0.0)), 0.50)
@@ -610,22 +498,6 @@ static func _test_ground_eruptions_own_compact_stable_bases(expect: Callable) ->
 		and trap_depth_tiles.has(Vector2i(3, 3))
 		and trap_depth_tiles.has(Vector2i(5, 4)),
 		"Trap blasts should select their authored element, exceed direct-attack scale, and enter scene-depth routing"
-	)
-	board.free()
-
-
-static func _test_fire_resolves_through_particle_tail(expect: Callable) -> void:
-	var board: CombatBoardView = CombatBoardView.new()
-	var core_late: float = float(board.call("_elemental_impact_core_fade", AttackFxLibrary.STYLE_FIREBALL, 0.90))
-	var volume_late: float = float(board.call("_elemental_impact_volume_fade", AttackFxLibrary.STYLE_FIREBALL, 0.90))
-	var volume_final: float = float(board.call("_elemental_impact_volume_fade", AttackFxLibrary.STYLE_FIREBALL, 1.0))
-	expect.call(
-		AttackFxLibrary.FIREBALL_ANIMATION_FRAMES == 48
-		and is_zero_approx(core_late)
-		and volume_late > 0.0
-		and is_zero_approx(volume_final)
-		and CombatBoardView.FIREBALL_IMPACT_EMBER_COUNT >= 27,
-		"Fire should retire its opaque explosion before a longer staggered ember-and-smoke tail resolves to zero"
 	)
 	board.free()
 
