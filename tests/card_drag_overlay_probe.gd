@@ -5,9 +5,16 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
 const OUTPUT_DIR: String = "user://probes/card_drag_overlay"
+const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(PROBE_VIEWPORT)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = PROBE_VIEWPORT
+	root.size = PROBE_VIEWPORT
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path("user://labyrinth_progression_card_drag_probe.json")
@@ -24,37 +31,67 @@ func _capture_drag_overlay_frames() -> void:
 	await process_frame
 	await process_frame
 
-	await _load_combat_fixture(instance, Vector2i(2, 5), Vector2i(3, 5), 9401)
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(2, 5), Vector2i(3, 5), 9401)
 	instance.call("_on_card_drag_started", 0)
 	await process_frame
-	_position_drag_proxy(instance, Vector2(640.0, 420.0), "play")
+	var cancel_position := Vector2(250.0, 700.0)
+	await _position_drag_proxy(instance, cancel_position)
 	await process_frame
-	_assert_drag_proxy_size(instance, "first drag", Vector2(640.0, 420.0))
-	await _save_root_screenshot("%s/playable_zones.png" % OUTPUT_DIR)
+	_assert_drag_proxy_size(instance, "lifted cancel drag", cancel_position)
+	_assert_drag_context(instance, "DRAG TO BOARD", "RELEASE CANCELS", false)
+	await _save_root_screenshot("%s/drag_lifted_cancel_20260903.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	await process_frame
 
-	await _load_combat_fixture(instance, Vector2i(2, 5), Vector2i(6, 5), 9402)
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(2, 5), Vector2i(3, 5), 9402)
 	instance.call("_on_card_drag_started", 0)
 	await process_frame
-	_position_drag_proxy(instance, Vector2(640.0, 458.0), "move")
+	var valid_target_position: Vector2 = _tile_global_position(instance, Vector2i(3, 5))
+	await _position_drag_proxy(instance, valid_target_position)
 	await process_frame
-	_assert_drag_proxy_size(instance, "reused fallback drag", Vector2(640.0, 458.0))
-	await _save_root_screenshot("%s/fallback_only_zones.png" % OUTPUT_DIR)
+	_assert_drag_proxy_size(instance, "valid targeted drag", valid_target_position)
+	_assert_drag_context(instance, "RELEASE TO PLAY", "TARGETED PLAY", true)
+	await _save_root_screenshot("%s/drag_target_valid_20260903.png" % OUTPUT_DIR)
+
+	var invalid_target_position: Vector2 = _tile_global_position(instance, Vector2i(6, 6))
+	await _position_drag_proxy(instance, invalid_target_position)
+	await process_frame
+	_assert_drag_proxy_size(instance, "invalid targeted drag", invalid_target_position)
+	_assert_drag_context(instance, "RELEASE CANCELS", "CHOOSE HIGHLIGHT", true)
+	await _save_root_screenshot("%s/drag_target_invalid_20260903.png" % OUTPUT_DIR)
+	await instance.call("_commit_drag_drop", "play", invalid_target_position)
+	await process_frame
+	if int(instance.get("_drag_card_index")) >= 0 or int(instance.get("_selected_card_index")) >= 0:
+		push_error("Invalid targeted release should return to the idle hand")
+
+	await _load_combat_fixture(instance, "stone_plate", Vector2i(2, 5), Vector2i(5, 5), 9403)
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	var targetless_board_position: Vector2 = (instance.get("board_view") as Control).get_global_rect().get_center()
+	await _position_drag_proxy(instance, targetless_board_position)
+	await process_frame
+	_assert_drag_proxy_size(instance, "targetless board drag", targetless_board_position)
+	_assert_drag_context(instance, "RELEASE TO PLAY", "BOARD PLAY", false)
+	await _save_root_screenshot("%s/drag_targetless_ready_20260903.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	await process_frame
 
-	await _load_combat_fixture(instance, Vector2i(2, 5), Vector2i(3, 5), 9403)
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(2, 5), Vector2i(3, 5), 9404)
+	var previous_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	instance.set("_settings", {"reduced_motion": true})
 	instance.call("_on_card_drag_started", 0)
 	await process_frame
-	_position_drag_proxy(instance, Vector2(122.0, 118.0), "")
+	valid_target_position = _tile_global_position(instance, Vector2i(3, 5))
+	await _position_drag_proxy(instance, valid_target_position)
 	await process_frame
-	_assert_drag_proxy_size(instance, "reused invalid-drop drag", Vector2(122.0, 118.0))
-	await _save_root_screenshot("%s/invalid_drop_before_release.png" % OUTPUT_DIR)
-	await instance.call("_commit_drag_drop", "")
+	var reduced_proxy: Control = instance.get("_drag_card_proxy") as Control
+	if reduced_proxy == null or not is_zero_approx(reduced_proxy.rotation):
+		push_error("Reduced-motion drag proof should keep the held card unrotated")
+	_assert_drag_context(instance, "RELEASE TO PLAY", "TARGETED PLAY", true)
+	await _save_root_screenshot("%s/drag_target_valid_reduced_motion_20260903.png" % OUTPUT_DIR)
+	await instance.call("_animate_drag_cancel_to_source")
+	instance.set("_settings", previous_settings)
 	await process_frame
-	await process_frame
-	await _save_root_screenshot("%s/invalid_drop_after_snapback.png" % OUTPUT_DIR)
 
 	await _capture_card_motion_frames(instance)
 
@@ -62,7 +99,7 @@ func _capture_drag_overlay_frames() -> void:
 	await process_frame
 
 func _capture_card_motion_frames(instance: Node) -> void:
-	await _load_combat_fixture(instance, Vector2i(2, 5), Vector2i(3, 5), 9404)
+	await _load_combat_fixture(instance, "quick_stab", Vector2i(2, 5), Vector2i(3, 5), 9405)
 	var card_id: String = str(instance.call("_card_id_for_hand_index", 0))
 	var source_rect: Rect2 = instance.call("_hand_card_global_rect", 0)
 	if card_id.is_empty() or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
@@ -140,7 +177,7 @@ func _capture_card_motion_frames(instance: Node) -> void:
 		push_error("Reduced-motion consume should finish on its shortened duration")
 	instance.set("_settings", previous_settings)
 
-func _load_combat_fixture(instance: Node, player_pos: Vector2i, enemy_pos: Vector2i, seed: int) -> void:
+func _load_combat_fixture(instance: Node, card_id: String, player_pos: Vector2i, enemy_pos: Vector2i, seed: int) -> void:
 	instance.call("_cancel_drag_play")
 	instance.call("_reset_card_resolution")
 	var layout: Dictionary = _drag_room_layout(player_pos, enemy_pos)
@@ -148,13 +185,13 @@ func _load_combat_fixture(instance: Node, player_pos: Vector2i, enemy_pos: Vecto
 	var combat_state: Dictionary = combat.create_combat(seed, layout, {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["quick_stab"],
+		"deck_cards": [card_id],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab"]
+	deck["hand"] = [card_id]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -166,16 +203,32 @@ func _load_combat_fixture(instance: Node, player_pos: Vector2i, enemy_pos: Vecto
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
+	instance.call("_mark_combat_preview_state_changed")
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
 
-func _position_drag_proxy(instance: Node, mouse_position: Vector2, hover_zone: String) -> void:
+func _position_drag_proxy(instance: Node, mouse_position: Vector2) -> void:
 	var source_rect: Rect2 = instance.get("_drag_card_source_rect")
 	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
 		instance.set("_drag_card_grab_offset", source_rect.size * 0.5)
-	instance.call("_update_drag_proxy_position", mouse_position)
-	instance.call("_update_drag_overlay_hover", hover_zone)
+	await instance.call("_update_card_drag", mouse_position)
+
+func _tile_global_position(instance: Node, tile: Vector2i) -> Vector2:
+	var board: Control = instance.get("board_view") as Control
+	return board.get_global_transform_with_canvas() * (board.call("world_position_for_tile", tile) as Vector2)
+
+func _assert_drag_context(instance: Node, expected_verb: String, expected_risk: String, targeting_active: bool) -> void:
+	var context: Control = instance.get("_action_step_tracker") as Control
+	if context == null or not context.visible:
+		push_error("Drag proof should keep its compact action context visible")
+		return
+	if str(context.get_meta("action_verb", "")) != expected_verb:
+		push_error("Drag proof expected verb %s, got %s" % [expected_verb, str(context.get_meta("action_verb", ""))])
+	if str(context.get_meta("risk_text", "")) != expected_risk:
+		push_error("Drag proof expected risk %s, got %s" % [expected_risk, str(context.get_meta("risk_text", ""))])
+	if bool(instance.get("_drag_targeting_active")) != targeting_active:
+		push_error("Drag proof targeting mode mismatch for %s" % expected_verb)
 
 func _assert_drag_proxy_size(instance: Node, context: String, expected_center: Vector2) -> void:
 	var proxy: Control = instance.get("_drag_card_proxy") as Control
@@ -301,7 +354,18 @@ func _simple_grid() -> Array:
 
 func _save_root_screenshot(output_path: String) -> void:
 	var image: Image = root.get_viewport().get_texture().get_image()
-	image.save_png(output_path)
+	if image == null:
+		push_error("Card drag proof should capture a renderer image")
+		return
+	var source_size := image.get_size()
+	var valid_aspect := is_equal_approx(float(source_size.x) / float(source_size.y), float(PROBE_VIEWPORT.x) / float(PROBE_VIEWPORT.y))
+	if not valid_aspect:
+		push_error("Card drag proof should preserve the 16:9 canvas, got %s" % source_size)
+		return
+	if source_size != PROBE_VIEWPORT:
+		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
+	if image.save_png(ProjectSettings.globalize_path(output_path)) != OK:
+		push_error("Could not save card drag proof %s" % output_path)
 
 func _clear_probe_output(output_dir: String) -> void:
 	var absolute_dir: String = ProjectSettings.globalize_path(output_dir)

@@ -40,6 +40,7 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
+const CardDragPlayRules = preload("res://scripts/card_drag_play_rules.gd")
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const CardActionContextArt = preload("res://scripts/card_action_context_art.gd")
@@ -1808,6 +1809,8 @@ var _drag_zone_detail_labels: Dictionary = {}
 var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
+var _drag_targeting_active: bool = false
+var _drag_commit_proxy: Control
 var _card_fx_layer: Control
 var _card_proxy_pool_host: Control
 var _card_proxy_pool: Array[Control] = []
@@ -2167,11 +2170,12 @@ func _input(event: InputEvent) -> void:
 		return
 	if _drag_card_index >= 0:
 		if event is InputEventMouseMotion:
-			_update_drag_overlay_hover(_drag_zone_at(_current_mouse_position()))
-			_update_drag_proxy_position(_current_mouse_position())
+			await _update_card_drag(_mouse_event_position(event))
+			get_viewport().set_input_as_handled()
 			return
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-			await _commit_drag_drop(_drag_zone_at(_current_mouse_position()))
+			var drag_release_position: Vector2 = _mouse_event_position(event)
+			await _commit_drag_drop(_drag_zone_at(drag_release_position), drag_release_position)
 			get_viewport().set_input_as_handled()
 			return
 		if event.is_action_pressed("ui_cancel"):
@@ -8043,6 +8047,16 @@ func _show_drag_overlay() -> void:
 	_refresh_contextual_combat_tutorial()
 
 func _cancel_drag_play() -> void:
+	_finish_drag_play(false)
+
+func _finish_drag_play(preserve_card_preview: bool) -> void:
+	var dragged_card_index: int = _drag_card_index
+	if (
+		not preserve_card_preview
+		and _drag_targeting_active
+		and _selected_card_index == dragged_card_index
+	):
+		_clear_active_card_preview_state()
 	if _drag_card_index >= 0 and _drag_card_index < hand_box.get_child_count():
 		var source_slot: Control = hand_box.get_child(_drag_card_index) as Control
 		if source_slot != null:
@@ -8055,6 +8069,7 @@ func _cancel_drag_play() -> void:
 	_drag_card_index = -1
 	_drag_card_options.clear()
 	_drag_hover_zone = ""
+	_drag_targeting_active = false
 	_drag_card_source_rect = Rect2()
 	_drag_card_grab_offset = Vector2.ZERO
 	_drag_card_base_scale = Vector2.ONE
@@ -8069,33 +8084,107 @@ func _animate_drag_cancel_to_source() -> void:
 		await _animate_card_proxy_to_rect(_drag_card_proxy, _drag_card_source_rect, CARD_SNAPBACK_SECONDS)
 	_cancel_drag_play()
 
-func _commit_drag_drop(zone: String) -> void:
+func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	if _drag_card_index < 0:
 		return
-	if not _drag_option_valid(zone):
+	if mouse_position.x < 0.0 or mouse_position.y < 0.0:
+		mouse_position = _current_mouse_position()
+	var preview: Dictionary = _drag_card_options.get("play", {}) as Dictionary
+	if zone == "play" and CardDragPlayRules.preview_requires_target(preview) and not _drag_targeting_active:
+		await _enter_drag_targeting()
+	var target_tile: Vector2i = _drag_board_tile_at(mouse_position)
+	if _drag_targeting_active:
+		_set_drag_hover_tile(target_tile)
+	var target_is_valid: bool = _drag_hover_target_is_valid(target_tile)
+	var outcome: String = CardDragPlayRules.release_outcome(zone == "play", preview, target_is_valid)
+	if outcome == CardDragPlayRules.OUTCOME_CANCEL:
 		await _animate_drag_cancel_to_source()
 		return
 	var hand_index: int = _drag_card_index
-	var options: Dictionary = _drag_card_options.duplicate(false)
-	if zone != "play":
-		await _animate_drag_cancel_to_source()
-		return
-	var preview: Dictionary = options.get("play", {}) as Dictionary
-	if not bool(preview.get("playable", false)):
-		await _animate_drag_cancel_to_source()
-		return
-	if _drag_card_proxy != null:
-		var destination_rect: Rect2 = _stage_card_rect(_drag_card_source_rect.size)
-		await _animate_card_proxy_to_rect(_drag_card_proxy, destination_rect, 0.10)
-	_cancel_drag_play()
-	# Dragging is an alternate way to choose the card, not an extra confirmation
-	# gesture. Targetless cards still finish on the player's tile.
-	await _begin_card_preview(hand_index, preview, "", false)
+	var source_rect: Rect2 = _drag_card_source_rect
+	_drag_commit_proxy = _take_drag_proxy_for_commit()
+	_finish_drag_play(outcome == CardDragPlayRules.OUTCOME_PLAY_TARGET)
+	if outcome == CardDragPlayRules.OUTCOME_PLAY_TARGETLESS:
+		await _begin_card_preview(hand_index, preview, "", true)
+	else:
+		_hovered_board_tile = target_tile
+		await _on_board_tile_clicked(target_tile)
+	if _drag_commit_proxy != null:
+		var unused_proxy: Control = _drag_commit_proxy
+		_drag_commit_proxy = null
+		if _node_is_alive(unused_proxy) and source_rect.size.length() > 0.0:
+			await _animate_card_proxy_to_rect(unused_proxy, source_rect, CARD_SNAPBACK_SECONDS)
+		_release_card_proxy(unused_proxy)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
-	if bool(_drag_card_options.get("printed_playable", false)) and board_view != null and board_view.get_global_rect().has_point(mouse_position):
+	if bool(_drag_card_options.get("printed_playable", false)) and _drag_board_tile_at(mouse_position).x >= 0:
 		return "play"
 	return ""
+
+func _drag_board_tile_at(mouse_position: Vector2) -> Vector2i:
+	if board_view == null or not board_view.has_method("tile_at_global_position"):
+		return INVALID_TARGET_TILE
+	var tile: Vector2i = board_view.call("tile_at_global_position", mouse_position)
+	return tile
+
+func _enter_drag_targeting() -> void:
+	if _drag_targeting_active or _drag_card_index < 0:
+		return
+	var preview: Dictionary = _drag_card_options.get("play", {}) as Dictionary
+	if not CardDragPlayRules.preview_requires_target(preview):
+		return
+	_drag_targeting_active = true
+	await _begin_card_preview(_drag_card_index, preview)
+
+func _leave_drag_targeting() -> void:
+	if not _drag_targeting_active:
+		return
+	_drag_targeting_active = false
+	if _selected_card_index == _drag_card_index:
+		_clear_active_card_preview_state()
+	_refresh_card_preview_ui()
+
+func _set_drag_hover_tile(tile: Vector2i) -> void:
+	if _hovered_board_tile == tile:
+		_update_action_context_copy()
+		return
+	_hovered_board_tile = tile
+	_refresh_stage_view()
+	_update_action_context_copy()
+
+func _drag_hover_target_is_valid(tile: Vector2i) -> bool:
+	if not _drag_targeting_active or tile.x < 0:
+		return false
+	if _pending_target_tiles.has(tile):
+		return true
+	var preview: Dictionary = _active_card_preview()
+	if preview.is_empty():
+		return false
+	return not _shortcut_plan_for_tile(preview, tile).is_empty()
+
+func _update_card_drag(mouse_position: Vector2) -> void:
+	var zone: String = _drag_zone_at(mouse_position)
+	var preview: Dictionary = _drag_card_options.get("play", {}) as Dictionary
+	if zone == "play" and CardDragPlayRules.preview_requires_target(preview):
+		await _enter_drag_targeting()
+	elif zone != "play" and _drag_targeting_active:
+		_leave_drag_targeting()
+	var tile: Vector2i = _drag_board_tile_at(mouse_position) if _drag_targeting_active else INVALID_TARGET_TILE
+	if _drag_targeting_active:
+		_set_drag_hover_tile(tile)
+	_update_drag_overlay_hover(zone)
+	_update_drag_proxy_position(mouse_position)
+
+func _take_drag_proxy_for_commit() -> Control:
+	if not _node_is_alive(_drag_card_proxy):
+		_drag_card_proxy = null
+		return null
+	var proxy: Control = _drag_card_proxy
+	var visual_rect: Rect2 = _card_proxy_visual_rect(proxy)
+	_drag_card_proxy = null
+	_mount_card_proxy(proxy, _card_fx_layer, visual_rect)
+	proxy.z_index = 1500
+	return proxy
 
 func _current_mouse_position() -> Vector2:
 	return get_viewport().get_mouse_position()
@@ -8114,14 +8203,33 @@ func _update_drag_proxy_position(mouse_position: Vector2) -> void:
 		return
 	var visual_rect := Rect2(mouse_position - _drag_card_grab_offset, _drag_card_source_rect.size)
 	_drag_card_proxy.position = _card_proxy_position_for_rect(visual_rect)
+	var cue: Dictionary = CardDragPlayRules.visual_cue(
+		_drag_zone_at(mouse_position) == "play",
+		_drag_card_options.get("play", {}) as Dictionary,
+		_drag_hover_target_is_valid(_hovered_board_tile)
+	)
+	var proxy_state: String = str(cue.get("proxy_state", "held"))
+	_drag_card_proxy.modulate = _drag_proxy_modulate(proxy_state)
 	if _reduced_motion_enabled():
 		_drag_card_proxy.rotation = 0.0
 		_drag_card_proxy.scale = _drag_card_base_scale
 		return
 	var viewport_width: float = maxf(1.0, get_viewport_rect().size.x)
 	var normalized_x: float = clampf((mouse_position.x / viewport_width - 0.5) * 2.0, -1.0, 1.0)
-	_drag_card_proxy.rotation = deg_to_rad(normalized_x * CARD_DRAG_TILT_DEGREES)
-	_drag_card_proxy.scale = _drag_card_base_scale * CARD_DRAG_LIFT_SCALE
+	var state_scale: float = 1.04 if proxy_state in ["ready", "target"] else 0.985 if proxy_state == "cancel" else CARD_DRAG_LIFT_SCALE
+	_drag_card_proxy.rotation = 0.0 if proxy_state in ["ready", "target"] else deg_to_rad(normalized_x * CARD_DRAG_TILT_DEGREES)
+	_drag_card_proxy.scale = _drag_card_base_scale * state_scale
+
+func _drag_proxy_modulate(proxy_state: String) -> Color:
+	match proxy_state:
+		"ready":
+			return Color("fff1c4")
+		"target":
+			return Color("dfffd9")
+		"cancel":
+			return Color(0.74, 0.70, 0.66, 0.90)
+		_:
+			return Color.WHITE
 
 func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	var proxy: Control = _take_pooled_card_proxy()
@@ -13657,23 +13765,18 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 	var target_text: String = ""
 	var target_tone: String = "neutral"
 	if context_mode == "drag":
-		match _drag_hover_zone:
-			"play":
-				verb_text = "RELEASE TO PLAY"
-				target_text = _action_context_valid_target_count_text(_drag_card_options.get("play", {}))
-				target_tone = "valid"
-			_:
-				if bool(_drag_card_options.get("printed_playable", false)):
-					verb_text = "DROP ON BOARD"
-					target_text = _action_context_valid_target_count_text(_drag_card_options.get("play", {}))
-				else:
-					verb_text = "CARD UNAVAILABLE"
-					target_text = "NO PRINTED TARGET"
-					target_tone = "invalid"
-		if bool(_drag_card_options.get("printed_playable", false)):
-			_set_action_context_risk("primary", "PRIMARY · FULL CARD")
-		else:
-			_set_action_context_risk("neutral", "CARD UNAVAILABLE")
+		var drag_cue: Dictionary = CardDragPlayRules.visual_cue(
+			_drag_hover_zone == "play",
+			_drag_card_options.get("play", {}) as Dictionary,
+			_drag_hover_target_is_valid(_hovered_board_tile)
+		)
+		verb_text = str(drag_cue.get("verb", "DRAG TO BOARD"))
+		target_text = str(drag_cue.get("target", ""))
+		target_tone = str(drag_cue.get("tone", "neutral"))
+		_set_action_context_risk(
+			str(drag_cue.get("risk_tone", "neutral")),
+			str(drag_cue.get("risk", "RELEASE CANCELS"))
+		)
 	elif context_mode == "choice" and _selected_card_index < 0:
 		verb_text = "CARD UNAVAILABLE"
 		target_text = "NO PRINTED TARGET"
@@ -20818,7 +20921,9 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	_play_card_play_sfx()
-	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
+	var committed_drag_proxy: Control = _drag_commit_proxy
+	_drag_commit_proxy = null
+	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size, committed_drag_proxy)
 	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
 	_consume_pending_card_draw_sfx(committed_combat_state)
@@ -20893,12 +20998,18 @@ func _card_destination_pile(card_id: String) -> String:
 		return "consume"
 	return "burn" if bool(_card_def(card_id, _combat_state).get("burn", false)) else "discard"
 
-func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vector2) -> Control:
+func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vector2, drag_proxy = null) -> Control:
 	if _card_fx_layer == null or card_id.is_empty() or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
+		_release_card_proxy(drag_proxy)
 		return null
-	var proxy: Control = _spawn_card_proxy(card_id, source_rect)
+	var proxy: Control = drag_proxy as Control if _node_is_alive(drag_proxy) else null
+	if proxy == null:
+		proxy = _spawn_card_proxy(card_id, source_rect)
+		_mount_card_proxy(proxy, _card_fx_layer, source_rect)
+	else:
+		var drag_rect: Rect2 = _card_proxy_visual_rect(proxy)
+		_mount_card_proxy(proxy, _card_fx_layer, drag_rect)
 	proxy.z_index = 1500
-	_mount_card_proxy(proxy, _card_fx_layer, source_rect)
 	proxy.modulate = Color.WHITE
 	var reduced_motion: bool = _reduced_motion_enabled()
 	var target_multiplier: float = 1.02 if reduced_motion else 1.08

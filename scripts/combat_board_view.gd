@@ -13474,6 +13474,11 @@ func _tile_step_offset(dir: Vector2i) -> Vector2:
 func world_position_for_tile(tile: Vector2i) -> Vector2:
 	return _tile_center(tile)
 
+
+func tile_at_global_position(global_position: Vector2) -> Vector2i:
+	var local_position: Vector2 = get_global_transform_with_canvas().affine_inverse() * global_position
+	return _tile_at_point(local_position)
+
 func world_position_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vector2:
 	var footprint: Vector2i = _resolved_unit_footprint(unit)
 	if footprint != Vector2i.ONE:

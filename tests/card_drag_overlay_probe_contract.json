@@ -1,0 +1,46 @@
+{
+  "min_images": 5,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*drag_lifted_cancel_20260903.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [0, 0, 1920, 1080], "min_luma_range": 20, "min_luma_stdev": 8}
+      ]
+    },
+    {
+      "pattern": "*drag_target_valid_20260903.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 140, 1200, 760], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_target_invalid_20260903.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 140, 1200, 760], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_targetless_ready_20260903.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 140, 1200, 760], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*drag_target_valid_reduced_motion_20260903.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [360, 140, 1200, 760], "min_luma_range": 18, "min_luma_stdev": 6}
+      ]
+    }
+  ]
+}
