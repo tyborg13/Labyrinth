@@ -1,0 +1,16 @@
+{
+  "min_images": 10,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*/card_mixed_before.png", "width": 1920, "height": 1080},
+    {"pattern": "*/card_mixed_after.png", "width": 1920, "height": 1080},
+    {"pattern": "*/card_player_only_before.png", "width": 1920, "height": 1080},
+    {"pattern": "*/card_player_only_after.png", "width": 1920, "height": 1080},
+    {"pattern": "*/movement_before.png", "width": 1920, "height": 1080},
+    {"pattern": "*/movement_after.png", "width": 1920, "height": 1080},
+    {"pattern": "*/enemy_attack_before.png", "width": 1920, "height": 1080},
+    {"pattern": "*/enemy_attack_after.png", "width": 1920, "height": 1080},
+    {"pattern": "*/card_mixed_reduced_before.png", "width": 1920, "height": 1080},
+    {"pattern": "*/card_mixed_reduced_after.png", "width": 1920, "height": 1080}
+  ]
+}

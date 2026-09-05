@@ -1,0 +1,313 @@
+{
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "min_images": 62,
+  "required_images": [
+    {
+      "pattern": "fire_05_preview.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_10_release.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_20_travel.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_30_contact.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_35_burst.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_40_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_50_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_60_end.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_70_cleared.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_80_reduced_motion.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_05_preview.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_10_release.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_20_travel.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_30_contact.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_35_burst.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_40_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_50_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_60_end.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_70_cleared.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_80_reduced_motion.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_05_preview.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_10_release.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_20_travel.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_30_contact.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_35_burst.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_40_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_50_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_60_end.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_70_cleared.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_80_reduced_motion.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_05_preview.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_10_release.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_20_travel.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_30_contact.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_35_burst.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_40_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_50_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_60_end.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_70_cleared.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_80_reduced_motion.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_05_preview.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_10_release.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_20_travel.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_30_contact.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_35_burst.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_40_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_50_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_60_end.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_70_cleared.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_80_reduced_motion.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "spells_90_depth_before.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_95_depth_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_96_depth_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_95_depth_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_96_depth_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_95_depth_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_96_depth_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_95_depth_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_96_depth_tail.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_95_depth_peak.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_96_depth_tail.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

@@ -4,6 +4,7 @@ class_name CombatBoardView
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const ElementalSpellFx = preload("res://scripts/elemental_spell_fx.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -339,7 +340,6 @@ const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
 const RENDER_LAYER_FOREGROUND: String = "foreground"
 const RENDER_LAYER_HUD: String = "hud"
 const RENDER_LAYER_EFFECTS: String = "effects"
-const ELEMENTAL_FOREGROUND_PARTICLE_COUNT: int = 15
 const HUD_LAYOUT_CACHE_LIMIT: int = 32
 const UMBRA_RETURN_STAGGER_SECONDS: float = 0.52
 const UMBRA_RETURN_FADE_SECONDS: float = 0.46
@@ -371,70 +371,15 @@ const MELEE_SLASH_SHEET_COLUMNS: int = 6
 const MELEE_SLASH_SHEET_ROWS: int = 1
 const ELEMENTAL_PROJECTILE_ATLAS_PATH: String = "res://assets/art/effects/elemental_projectiles.png"
 const ELEMENTAL_PROJECTILE_ATLAS_ROWS: int = 6
-const FIREBALL_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/fireball_travel_sheet.png"
-const FIREBALL_TRAVEL_SHEET_COLUMNS: int = 8
-const FIREBALL_TRAVEL_SHEET_ROWS: int = 1
-const FIREBALL_WAKE_SHEET_PATH: String = "res://assets/art/effects/fireball_wake_sheet.png"
-const FIREBALL_WAKE_SHEET_COLUMNS: int = 4
-const FIREBALL_WAKE_SHEET_ROWS: int = 2
-const FIREBALL_IMPACT_SHEET_PATH: String = "res://assets/art/effects/fireball_impact_sheet.png"
-const FIREBALL_IMPACT_SHEET_COLUMNS: int = 4
-const FIREBALL_IMPACT_SHEET_ROWS: int = 2
-const FIREBALL_TRAVEL_CYCLES: float = 1.35
-const FIREBALL_WAKE_CYCLES: float = 1.72
-const FIREBALL_AFTERIMAGE_COUNT: int = 3
-const FIREBALL_AFTERIMAGE_SPACING: float = 0.048
-const FIREBALL_TRAVEL_EMBER_COUNT: int = 13
-const FIREBALL_IMPACT_EMBER_COUNT: int = 27
-const FIREBALL_TRAVEL_DRAW_TILE_SCALE: float = 1.08
-const FIREBALL_IMPACT_DRAW_TILE_SCALE: float = 1.74
-const FIREBALL_TRAVEL_MIN_SIZE: float = 82.0
-const FIREBALL_TRAVEL_MAX_SIZE: float = 118.0
-const FIREBALL_IMPACT_MIN_SIZE: float = 124.0
-const FIREBALL_IMPACT_MAX_SIZE: float = 198.0
-const FIREBALL_FRAME_CORE_ANCHOR: Vector2 = Vector2(0.81, 0.50)
-const FIREBALL_WAKE_CORE_ANCHOR: Vector2 = Vector2(0.86, 0.50)
-const EARTH_SPIKE_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/earth_spike_travel_sheet_v2.png"
-const EARTH_SPIKE_IMPACT_SHEET_PATH: String = "res://assets/art/effects/earth_spike_impact_sheet_v2.png"
-const EARTH_GROUND_LAYER_SHEET_PATH: String = "res://assets/art/effects/earth_ground_layer_sheet.png"
-const AIR_GUST_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/air_gust_travel_sheet.png"
-const AIR_GUST_IMPACT_SHEET_PATH: String = "res://assets/art/effects/air_gust_impact_sheet.png"
-const AIR_ENVELOPE_LAYER_SHEET_PATH: String = "res://assets/art/effects/air_envelope_layer_sheet.png"
-const LIGHTNING_BOLT_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/lightning_bolt_travel_sheet.png"
-const LIGHTNING_BOLT_IMPACT_SHEET_PATH: String = "res://assets/art/effects/lightning_bolt_impact_sheet.png"
-const LIGHTNING_ENVELOPE_LAYER_SHEET_PATH: String = "res://assets/art/effects/lightning_envelope_layer_sheet.png"
-const ICE_SHARD_TRAVEL_SHEET_PATH: String = "res://assets/art/effects/ice_shard_travel_sheet_v2.png"
-const ICE_ICICLE_IMPACT_SHEET_PATH: String = "res://assets/art/effects/ice_icicle_impact_sheet_v2.png"
-const ICE_GROUND_LAYER_SHEET_PATH: String = "res://assets/art/effects/ice_ground_layer_sheet.png"
-const ELEMENTAL_FIRE_PERFORMANCE_SHEET_PATH: String = "res://assets/art/effects/elemental_fire_performance_sheet_v3.png"
-const ELEMENTAL_EARTH_PERFORMANCE_SHEET_PATH: String = "res://assets/art/effects/elemental_earth_performance_sheet_v3.png"
-const ELEMENTAL_AIR_PERFORMANCE_SHEET_PATH: String = "res://assets/art/effects/elemental_air_performance_sheet_v3.png"
-const ELEMENTAL_LIGHTNING_PERFORMANCE_SHEET_PATH: String = "res://assets/art/effects/elemental_lightning_performance_sheet_v4.png"
-const ELEMENTAL_ICE_PERFORMANCE_SHEET_PATH: String = "res://assets/art/effects/elemental_ice_performance_sheet_v3.png"
-const ELEMENTAL_FIRE_PERFORMANCE_BLOOM_SHEET_PATH: String = "res://assets/art/effects/elemental_fire_performance_bloom_sheet_v4.png"
-const ELEMENTAL_EARTH_PERFORMANCE_BLOOM_SHEET_PATH: String = "res://assets/art/effects/elemental_earth_performance_bloom_sheet_v4.png"
-const ELEMENTAL_AIR_PERFORMANCE_BLOOM_SHEET_PATH: String = "res://assets/art/effects/elemental_air_performance_bloom_sheet_v4.png"
-const ELEMENTAL_LIGHTNING_PERFORMANCE_BLOOM_SHEET_PATH: String = "res://assets/art/effects/elemental_lightning_performance_bloom_sheet_v4.png"
-const ELEMENTAL_ICE_PERFORMANCE_BLOOM_SHEET_PATH: String = "res://assets/art/effects/elemental_ice_performance_bloom_sheet_v4.png"
-const ELEMENTAL_ATTACK_SHEET_COLUMNS: int = 4
-const ELEMENTAL_ATTACK_SHEET_ROWS: int = 2
 const ELEMENTAL_PERFORMANCE_MIN_SIZE: float = 218.0
 const ELEMENTAL_PERFORMANCE_MAX_SIZE: float = 342.0
 const ELEMENTAL_COMPACT_DETONATION_SCALE: float = 0.50
 const TRAP_ELEMENTAL_DETONATION_SCALE: float = 1.15
-const ELEMENTAL_BACKGROUND_VOLUME_COUNT: int = 14
 const EARTH_PATH_SPIKE_COUNT: int = 6
-const EARTH_PATH_SPIKE_SIZE_SCALE: float = 0.68
 const EARTH_IMPACT_SIZE_SCALE: float = 2.08
-const AIR_GUST_TRAVEL_SIZE_SCALE: float = 1.18
 const AIR_GUST_IMPACT_SIZE_SCALE: float = 2.62
-const LIGHTNING_TRAVEL_SIZE_SCALE: float = 1.22
 const LIGHTNING_IMPACT_SIZE_SCALE: float = 2.76
-const ICE_TRAVEL_SIZE_SCALE: float = 1.16
 const ICE_IMPACT_SIZE_SCALE: float = 2.04
-const ELEMENTAL_TRAVEL_AFTERIMAGE_COUNT: int = 3
-const ELEMENTAL_TRAVEL_MOTE_COUNT: int = 12
-const ELEMENTAL_IMPACT_MOTE_COUNT: int = 18
 const PROJECTILE_DRAW_TILE_SCALE: float = 0.34
 const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
 const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
@@ -729,6 +674,7 @@ var _umbra_return_start_by_tile: Dictionary = {}
 var _board_layout_content_rebuild_count: int = 0
 
 func _ready() -> void:
+	ElementalSpellFx.prepare()
 	if _is_dynamic_render_layer or _is_static_render_cache_layer:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		focus_mode = Control.FOCUS_NONE
@@ -2108,7 +2054,7 @@ func _queue_presentation_change_redraws(
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
 				impact_floor_changed = true
 				impact_changed = true
-			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids":
+			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
 				unit_movement_changed = true
 				foreground_changed = true
 				hud_changed = true
@@ -6495,11 +6441,14 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
 	)
 	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
-	_draw_enemy_intent_compass(unit)
+	var umbra_clip: Dictionary = _umbra_actor_clip_for_unit(unit)
+	if umbra_clip.is_empty():
+		_draw_enemy_intent_compass(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_body_compass", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
-	_draw_unit_shadow(unit)
+	if umbra_clip.is_empty():
+		_draw_unit_shadow(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_body_shadow", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
@@ -6541,13 +6490,73 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
 		elif death_animation:
 			body_tint = _death_animation_render_tint(unit)
-		draw_texture_rect(texture, shifted_rect, false, body_tint)
+		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip)
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
-			draw_texture_rect(texture, shifted_rect, false, flash)
+			_draw_texture_rect_with_umbra_clip(texture, shifted_rect, flash, umbra_clip)
 	if detailed_sections:
 		_record_render_section_time("unit_body_sprite", phase_started_usec)
+
+func _umbra_actor_clip_for_unit(unit: Dictionary) -> Dictionary:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return {}
+	return (presentation.get("umbra_action_actor_clips", {}) as Dictionary).get(actor_key, {}) as Dictionary
+
+func _draw_texture_rect_with_umbra_clip(texture: Texture2D, draw_rect: Rect2, tint: Color, clip: Dictionary) -> void:
+	if clip.is_empty():
+		draw_texture_rect(texture, draw_rect, false, tint)
+		return
+	var hidden_tile: Vector2i = clip.get("hidden_tile", Vector2i(-1, -1))
+	var visible_tile: Vector2i = clip.get("visible_tile", Vector2i(-1, -1))
+	if hidden_tile.x < 0 or visible_tile.x < 0:
+		draw_texture_rect(texture, draw_rect, false, tint)
+		return
+	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
+		return
+	var boundary_plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
+	if boundary_plane.is_empty():
+		return
+	var boundary_midpoint: Vector2 = boundary_plane.get("point", Vector2.ZERO)
+	var boundary_normal: Vector2 = boundary_plane.get("normal", Vector2.ZERO)
+	var source_size := Vector2(texture.get_size())
+	var slice_count: int = clampi(ceili(draw_rect.size.y / 1.5), 1, 128)
+	for slice_index: int in range(slice_count):
+		var y_ratio_start: float = float(slice_index) / float(slice_count)
+		var y_ratio_end: float = float(slice_index + 1) / float(slice_count)
+		var dest_y_start: float = draw_rect.position.y + draw_rect.size.y * y_ratio_start
+		var dest_y_end: float = draw_rect.position.y + draw_rect.size.y * y_ratio_end
+		var sample_y: float = (dest_y_start + dest_y_end) * 0.5
+		var visible_x_start: float = draw_rect.position.x
+		var visible_x_end: float = draw_rect.end.x
+		if absf(boundary_normal.x) <= 0.001:
+			var slice_visible: bool = (
+				Vector2(draw_rect.get_center().x, sample_y) - boundary_midpoint
+			).dot(boundary_normal) >= 0.0
+			if not slice_visible:
+				continue
+		else:
+			var boundary_x: float = boundary_midpoint.x - (
+				boundary_normal.y * (sample_y - boundary_midpoint.y)
+			) / boundary_normal.x
+			if boundary_normal.x > 0.0:
+				visible_x_start = maxf(visible_x_start, boundary_x)
+			else:
+				visible_x_end = minf(visible_x_end, boundary_x)
+		if visible_x_end - visible_x_start <= 0.01:
+			continue
+		var source_x_start: float = (visible_x_start - draw_rect.position.x) / draw_rect.size.x * source_size.x
+		var source_x_end: float = (visible_x_end - draw_rect.position.x) / draw_rect.size.x * source_size.x
+		var destination := Rect2(
+			Vector2(visible_x_start, dest_y_start),
+			Vector2(visible_x_end - visible_x_start, dest_y_end - dest_y_start + 0.35)
+		)
+		var source := Rect2(
+			Vector2(source_x_start, source_size.y * y_ratio_start),
+			Vector2(source_x_end - source_x_start, source_size.y * (y_ratio_end - y_ratio_start))
+		)
+		draw_texture_rect_region(texture, destination, source, tint)
 
 func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	if str(unit.get("role", "")) != "enemy" or bool(unit.get("death_animation", false)):
@@ -6634,6 +6643,8 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
 		if bool(unit.get("death_animation", false)):
 			continue
+		if not _umbra_actor_clip_for_unit(unit).is_empty():
+			continue
 		var center: Vector2 = _unit_center(unit)
 		if str(unit.get("role", "")) == "npc":
 			_draw_npc_nameplate(unit, center)
@@ -6679,6 +6690,8 @@ func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void
 		var entry: Dictionary = entry_var as Dictionary
 		var unit: Dictionary = units_by_key.get(str(entry.get("actor_key", "")), {}) as Dictionary
 		if unit.is_empty():
+			continue
+		if not _umbra_actor_clip_for_unit(unit).is_empty():
 			continue
 		var center: Vector2 = entry.get("center", _unit_center(unit))
 		match str(entry.get("kind", "")):
@@ -8345,6 +8358,21 @@ func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictiona
 	if from_tile.x < 0 or to_tile.x < 0:
 		return tiles
 	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if str(effect.get("kind", "")) == "ranged" and bool(effect.get("umbra_action_clipped", false)):
+		# Travel stays on its clipped interval. Only a visible, reached target
+		# receives the ordinary rear/actor/front impact, including reduced motion.
+		var original_target: Vector2i = effect.get("umbra_original_to", to_tile)
+		var visible_tiles: Variant = source_presentation.get("umbra_visible_tiles", null)
+		var target_visible: bool = original_target == to_tile and (
+			typeof(visible_tiles) != TYPE_ARRAY or (visible_tiles as Array).has(original_target)
+		)
+		var progress: float = float(source_presentation.get("effect_progress", 1.0))
+		if target_visible and (
+			bool(source_presentation.get("reduced_motion", false))
+			or progress >= AttackFxLibrary.travel_end_progress(style)
+		):
+			_elemental_append_unique_depth_tile(tiles, original_target)
+		return tiles
 	if style == AttackFxLibrary.STYLE_EARTH_SPIKES:
 		_elemental_append_unique_depth_tile(tiles, from_tile)
 		for spike_index: int in range(EARTH_PATH_SPIKE_COUNT):
@@ -8370,6 +8398,8 @@ func _elemental_scene_depth_tile_for_effect(effect: Dictionary, progress: float)
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
 	if from_tile.x < 0 or to_tile.x < 0:
 		return Vector2i(-1, -1)
+	if str(effect.get("kind", "")) == "ranged" and bool(effect.get("umbra_action_clipped", false)):
+		return to_tile
 	var travel_progress: float = 0.0
 	if bool(effect.get("preview", false)):
 		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
@@ -8427,9 +8457,7 @@ func _draw_trap_elemental_depth_effect(trap: Dictionary, progress: float, foregr
 	var scale_ratio: float = _trap_elemental_scale_ratio(style)
 	_draw_scaled_elemental_begin(ground_point, scale_ratio)
 	if foreground_pass:
-		var draw_size: float = _elemental_performance_size(style, impact_progress)
 		_draw_elemental_foreground_performance(style, ground_point, impact_progress, core_fade, reduced_motion)
-		_draw_elemental_foreground_volume(element_id, ground_point, impact_progress, draw_size, volume_fade, reduced_motion)
 	else:
 		match style:
 			AttackFxLibrary.STYLE_EARTH_SPIKES:
@@ -8456,112 +8484,20 @@ func _draw_elemental_foreground_depth_effect(effect: Dictionary, style: String, 
 	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
 	if core_fade <= 0.0 and volume_fade <= 0.0:
 		return
-	var element_id: String = _elemental_style_id(style)
 	var ground_point: Vector2 = _elemental_ground_point(target_point)
-	var draw_size: float = _elemental_performance_size(style, impact_progress)
 	_draw_elemental_foreground_performance(style, ground_point, impact_progress, core_fade, reduced_motion)
-	_draw_elemental_foreground_volume(element_id, ground_point, impact_progress, draw_size, volume_fade, reduced_motion)
 
 func _draw_elemental_foreground_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	var core_frames: Array[Texture2D] = _elemental_impact_core_frames(style)
-	if core_frames.is_empty() or alpha <= 0.0:
-		return
-	var profile: Dictionary = _elemental_integration_profile(style)
-	var sample_progress: float = 0.52 if reduced_motion else impact_progress
-	var frame_blend: Vector3 = _elemental_performance_frame_blend(style, sample_progress, core_frames.size(), reduced_motion)
-	var draw_size: float = _elemental_performance_size(style, sample_progress)
-	var energy: float = 0.76 if reduced_motion else 0.54 + sin(clampf(impact_progress, 0.0, 1.0) * PI) * 0.46
-	var modulate: Color = _elemental_performance_modulate(style)
-	var bloom_frames: Array[Texture2D] = _elemental_performance_bloom_frames(style)
-	if not bloom_frames.is_empty():
-		var bloom_blend: Vector3 = _remap_frame_blend(frame_blend, bloom_frames.size())
-		var bloom_alpha: float = float(profile.get("front_bloom_alpha", 0.64)) * energy
-		_draw_elemental_blended_performance_frames(
-			bloom_frames,
-			bloom_blend,
-			ground_point + Vector2(0.0, -draw_size * 0.018),
-			draw_size * 1.25,
-			alpha * bloom_alpha * 0.52,
-			profile.get("bloom_color", Color.WHITE),
-			style
-		)
-		_draw_elemental_blended_performance_frames(
-			bloom_frames,
-			bloom_blend,
-			ground_point + Vector2(0.0, draw_size * 0.012),
-			draw_size * 1.08,
-			alpha * bloom_alpha * 0.44,
-			profile.get("bloom_color", Color.WHITE),
-			style
-		)
-	_draw_elemental_blended_impact_core_frames(
-		core_frames,
-		frame_blend,
-		ground_point,
-		draw_size * (0.985 + energy * 0.018),
-		alpha * float(profile.get("front_core_alpha", 0.34)),
-		modulate,
-		style
-	)
-
-func _draw_elemental_foreground_volume(element_id: String, ground_point: Vector2, impact_progress: float, draw_size: float, alpha: float, reduced_motion: bool) -> void:
-	var style: String = _elemental_style_for_id(element_id)
-	var profile: Dictionary = _elemental_integration_profile(style)
-	var soft_texture: Texture2D = _ambient_fire_soft_texture(2) if element_id in ["fire", "earth"] else _ambient_air_wisp_soft_texture(2)
-	if soft_texture != null:
-		var veil_energy: float = 0.82 if reduced_motion else 0.56 + sin(clampf(impact_progress, 0.0, 1.0) * PI) * 0.44
-		for veil_index: int in range(3):
-			var veil_depth: float = float(veil_index) / 2.0
-			_draw_ambient_particle_sprite(
-				soft_texture,
-				ground_point + Vector2(draw_size * lerpf(-0.055, 0.065, veil_depth), -draw_size * lerpf(0.16, 0.34, veil_depth)),
-				Vector2(draw_size * lerpf(1.02, 0.72, veil_depth), draw_size * lerpf(0.54, 0.70, veil_depth)),
-				lerpf(-0.12, 0.14, veil_depth),
-				alpha * veil_energy * float(profile.get("front_veil_alpha", 0.38)) * lerpf(0.54, 0.30, veil_depth),
-				_elemental_scene_color(element_id)
-			)
-	for particle_index: int in range(ELEMENTAL_FOREGROUND_PARTICLE_COUNT):
-		var delay: float = float(particle_index) * 0.014
-		var age: float = 0.46 if reduced_motion else clampf((impact_progress - 0.06 - delay) / 0.82, 0.0, 1.0)
-		if age <= 0.0 or age >= 1.0:
-			continue
-		var seed: int = 36017 + particle_index * 977 + _impact_element_seed(element_id) * 43
-		var angle: float = lerpf(0.10 * PI, 0.90 * PI, float(particle_index) / float(ELEMENTAL_FOREGROUND_PARTICLE_COUNT - 1))
-		angle += lerpf(-0.08, 0.08, _ambient_hash01(seed))
-		var radial: float = draw_size * lerpf(0.10, 0.48, age) * lerpf(0.72, 1.18, _ambient_hash01(seed + 3))
-		var lift: float = draw_size * lerpf(0.06, 0.28, _ambient_hash01(seed + 5)) * sin(age * PI)
-		var point: Vector2 = ground_point + Vector2(cos(angle) * radial, sin(angle) * radial * 0.32 - lift + draw_size * 0.08 * age * age)
-		var texture: Texture2D = null
-		var particle_soft_texture: Texture2D = null
-		var glow_texture: Texture2D = null
-		if element_id == "air":
-			texture = _ambient_air_wisp_texture(posmod(particle_index, AMBIENT_AIR_WISP_VARIANTS), clampi(int(age * 18.0), 0, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
-			particle_soft_texture = _ambient_air_wisp_soft_texture(posmod(particle_index, AMBIENT_AIR_WISP_VARIANTS))
-			glow_texture = _ambient_air_wisp_glow_texture(posmod(particle_index, AMBIENT_AIR_WISP_VARIANTS), clampi(int(age * 18.0), 0, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
-		else:
-			texture = _ambient_particle_texture(element_id, posmod(particle_index * 3 + 2, AMBIENT_PARTICLE_ATLAS_COLUMNS))
-			glow_texture = _ambient_particle_glow_texture(element_id, posmod(particle_index * 3 + 2, AMBIENT_PARTICLE_ATLAS_COLUMNS))
-			particle_soft_texture = _ambient_fire_soft_texture(posmod(particle_index, AMBIENT_FIRE_SOFT_ATLAS_COLUMNS)) if element_id in ["fire", "earth"] else glow_texture
-		if texture == null and particle_soft_texture == null and glow_texture == null:
-			continue
-		var size_scale: float = lerpf(0.085, 0.040, age) * lerpf(0.78, 1.20, _ambient_hash01(seed + 7))
-		var particle_size := Vector2.ONE * draw_size * size_scale
-		if element_id == "air":
-			particle_size = Vector2(draw_size * size_scale * 2.2, draw_size * size_scale * 0.78)
-		var particle_alpha: float = alpha * pow(1.0 - age, 0.82) * lerpf(0.58, 0.88, _ambient_hash01(seed + 11))
-		var particle_velocity := Vector2(cos(angle) * draw_size * 0.24, -draw_size * lerpf(0.18, 0.34, _ambient_hash01(seed + 13)))
-		if glow_texture != null:
-			_draw_ambient_particle_trail(glow_texture, point, particle_velocity, particle_size * Vector2(1.20, 0.90), particle_alpha * 0.92, element_id)
-			_draw_ambient_particle_sprite(glow_texture, point, particle_size * _ambient_glow_scale(element_id), angle - PI * 0.5, particle_alpha * _ambient_glow_alpha(element_id), _elemental_scene_color(element_id))
-		if particle_soft_texture != null:
-			_draw_ambient_particle_sprite(particle_soft_texture, point, particle_size * Vector2(1.34, 1.22), angle - PI * 0.5, particle_alpha * 0.76, _elemental_scene_color(element_id))
-		if texture != null:
-			_draw_ambient_particle_sprite(texture, point, particle_size, angle - PI * 0.5, particle_alpha * 0.54, _elemental_scene_color(element_id))
+	ElementalSpellFx.impact(self, _elemental_style_id(style), ground_point, _elemental_performance_size(style, impact_progress), impact_progress, alpha, reduced_motion, true)
 
 func _draw_elemental_spell_floor_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
 	if effect.is_empty() or bool(effect.get("preview", false)):
 		return
+	if bool(effect.get("umbra_action_clipped", false)):
+		var original_target: Vector2i = effect.get("umbra_original_to", effect.get("to", Vector2i(-1, -1)))
+		if not _board_tile_is_visible_to_player(original_target):
+			return
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	if style == AttackFxLibrary.STYLE_DEFAULT:
 		return
@@ -8609,30 +8545,15 @@ func _trap_elemental_effect_progress(trap: Dictionary, fallback_progress: float)
 	return clampf(float(trap.get("effect_progress", fallback_progress)), 0.0, 1.0)
 
 func _draw_trap_elemental_footprint(trap: Dictionary, element_id: String, progress: float, reduced_motion: bool) -> void:
-	var frame_progress: float = 0.52 if reduced_motion else clampf(progress, 0.0, 1.0)
+	var frame_progress: float = 0.38 if reduced_motion else clampf(progress, 0.0, 1.0)
 	var envelope: float = 0.44 if reduced_motion else sin(frame_progress * PI)
 	if envelope <= 0.0:
 		return
-	var frame_index: int = AttackFxLibrary.one_shot_frame_index(frame_progress, 8)
-	var texture: Texture2D = _elemental_floor_light_texture(element_id, frame_index)
-	if texture == null:
-		return
-	var tint: Color = _elemental_scene_color(element_id)
 	for tile: Vector2i in _trap_blast_tiles(trap):
 		if not _board_tile_is_visible_to_player(tile):
 			continue
-		var tile_ground: Vector2 = _elemental_ground_point(_tile_center(tile))
 		var is_center: bool = tile == trap.get("pos", Vector2i(-1, -1))
-		var width: float = _tile_width() * (1.42 if is_center else 1.08)
-		_draw_elemental_floor_light_sprite(
-			element_id,
-			texture,
-			tile_ground,
-			Vector2(width, width * 0.38),
-			envelope * (0.22 if is_center else 0.13),
-			tint,
-			frame_index
-		)
+		ElementalSpellFx.floor_light(self, element_id, _tile_center(tile), _tile_width() * (0.79 if is_center else 0.60), envelope * (0.55 if is_center else 0.33))
 
 func _draw_effect_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
@@ -8656,14 +8577,29 @@ func _draw_effect_overlay() -> void:
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
-			if not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
+			if bool(effect.get("umbra_action_clipped", false)):
+				_draw_umbra_clipped_ranged_effect(effect, progress)
+			elif not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
 				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
 			for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
-				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
+				if _board_tile_is_visible_to_player(force_tile):
+					_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
 		"melee":
 			if to_tile.x < 0:
 				return
 			_draw_melee_slash_effect(from_point, to_point, progress)
+		"push", "pull":
+			if from_tile.x < 0 or to_tile.x < 0:
+				return
+			var force_from: Vector2i = effect.get("umbra_original_from", from_tile)
+			var force_to: Vector2i = effect.get("umbra_original_to", to_tile)
+			var force_distance: int = absi(force_from.x - force_to.x) + absi(force_from.y - force_to.y)
+			if bool(effect.get("umbra_action_clipped", false)) and force_distance > 1:
+				_draw_umbra_clipped_ranged_effect(effect, progress)
+			elif force_distance > 1:
+				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+			else:
+				_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
 			_draw_aoe_effect(effect, progress, from_point, center_point)
 		"lightning_strikes":
@@ -8762,7 +8698,8 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 
 func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	if bool(effect.get("preview", false)):
-		_draw_ranged_target_preview_curve(effect, from_point, to_point)
+		if _target_preview_curve_visible(effect):
+			_draw_ranged_target_preview_curve(effect, from_point, to_point)
 		return
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	match style:
@@ -8798,6 +8735,330 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
 		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress)
 
+func _draw_umbra_clipped_ranged_effect(effect: Dictionary, progress: float) -> void:
+	var original_from: Vector2i = effect.get("umbra_original_from", Vector2i(-1, -1))
+	var original_to: Vector2i = effect.get("umbra_original_to", Vector2i(-1, -1))
+	var segments: Array = effect.get("umbra_visible_line_segments", []) as Array
+	if original_from.x < 0 or original_to.x < 0 or segments.is_empty():
+		return
+	var full_start: Vector2 = _tile_center(original_from)
+	var full_end: Vector2 = _tile_center(original_to)
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var travel_start: float = 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = 0.66 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.travel_end_progress(style)
+	var target_visible: bool = _board_tile_is_visible_to_player(original_to)
+	var impact_in_scene: bool = _is_dynamic_render_layer and _effect_uses_elemental_scene_depth(effect)
+	if bool(presentation.get("reduced_motion", false)):
+		for segment_index: int in range(segments.size()):
+			var reduced_segment: Dictionary = segments[segment_index] as Dictionary
+			var reduced_start: float = clampf(float(reduced_segment.get("start", 0.0)), 0.0, 1.0)
+			var reduced_end: float = clampf(float(reduced_segment.get("end", 1.0)), reduced_start, 1.0)
+			var reduced_segment_start: Vector2 = full_start.lerp(full_end, reduced_start)
+			var reduced_segment_end: Vector2 = full_start.lerp(full_end, reduced_end)
+			if target_visible and segment_index == segments.size() - 1:
+				if not impact_in_scene:
+					_draw_ranged_projectile_effect(effect, 1.0, reduced_segment_start, full_end)
+			else:
+				_draw_umbra_projectile_fragment(effect, reduced_segment_start, reduced_segment_end, 0.5, reduced_segment)
+		return
+	if progress < travel_start:
+		return
+	if progress > travel_end:
+		if target_visible and not impact_in_scene:
+			var impact_segment: Dictionary = segments[segments.size() - 1] as Dictionary
+			_draw_ranged_projectile_effect(
+				effect,
+				progress,
+				full_start.lerp(full_end, float(impact_segment.get("start", 0.0))),
+				full_end
+			)
+		return
+	var spatial_progress: float = _umbra_ranged_spatial_progress(style, progress, travel_start, travel_end)
+	for segment_var: Variant in segments:
+		if typeof(segment_var) != TYPE_DICTIONARY:
+			continue
+		var segment: Dictionary = segment_var as Dictionary
+		var segment_start: float = clampf(float(segment.get("start", 0.0)), 0.0, 1.0)
+		var segment_end: float = clampf(float(segment.get("end", 1.0)), segment_start, 1.0)
+		if spatial_progress + 0.0001 < segment_start or spatial_progress - 0.0001 > segment_end:
+			continue
+		var segment_span: float = maxf(0.0001, segment_end - segment_start)
+		var local_spatial_progress: float = clampf((spatial_progress - segment_start) / segment_span, 0.0, 1.0)
+		_draw_umbra_projectile_fragment(
+			effect,
+			full_start.lerp(full_end, segment_start),
+			full_start.lerp(full_end, segment_end),
+			local_spatial_progress,
+			segment
+		)
+		return
+
+func _draw_umbra_projectile_fragment(
+	effect: Dictionary,
+	segment_start: Vector2,
+	segment_end: Vector2,
+	segment_progress: float,
+	clip_segment: Dictionary
+) -> void:
+	# Large authored projectile sheets extend well behind their logical center.
+	# Build a compact elemental streak whose longitudinal vertices are clamped to
+	# the visible interval, so neither its head nor tail can paint into Umbra.
+	var lifted_start: Vector2 = segment_start + Vector2(0.0, -24.0)
+	var lifted_end: Vector2 = segment_end + Vector2(0.0, -24.0)
+	var segment_delta: Vector2 = lifted_end - lifted_start
+	var segment_length: float = segment_delta.length()
+	if segment_length <= 0.01:
+		return
+	var direction: Vector2 = segment_delta / segment_length
+	var normal := Vector2(-direction.y, direction.x)
+	var local_progress: float = clampf(segment_progress, 0.0, 1.0)
+	var center: Vector2 = lifted_start.lerp(lifted_end, local_progress)
+	var available_before: float = segment_length * local_progress
+	var available_after: float = segment_length * (1.0 - local_progress)
+	var tail_length: float = minf(minf(_tile_width() * 0.42, segment_length * 0.58), available_before)
+	var head_length: float = minf(minf(_tile_width() * 0.16, segment_length * 0.24), available_after)
+	var shoulder_length: float = minf(_tile_width() * 0.07, available_before)
+	var back: Vector2 = center - direction * tail_length
+	var shoulder: Vector2 = center - direction * shoulder_length
+	var tip: Vector2 = center + direction * head_length
+	var half_width: float = minf(_tile_width() * 0.060, maxf(2.5, segment_length * 0.10))
+	var element_id: String = _projectile_element_id(_effect_element(effect))
+	var accent: Color = _projectile_accent(element_id)
+	var secondary: Color = _projectile_secondary(element_id)
+	var outer := PackedVector2Array([
+		back,
+		shoulder + normal * half_width * 1.35,
+		tip,
+		shoulder - normal * half_width * 1.35,
+	])
+	var texture: Texture2D = _umbra_projectile_fragment_texture(effect, local_progress)
+	if texture == null:
+		var inner := PackedVector2Array([
+			back,
+			shoulder + normal * half_width,
+			tip,
+			shoulder - normal * half_width,
+		])
+		_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.18), clip_segment)
+		_draw_umbra_clipped_colored_polygon(inner, Color(accent.r, accent.g, accent.b, 0.72), clip_segment)
+		var core := PackedVector2Array([
+			back,
+			shoulder + normal * half_width * 0.26,
+			tip,
+			shoulder - normal * half_width * 0.26,
+		])
+		var core_color: Color = accent.lightened(0.55)
+		core_color.a = 0.88
+		_draw_umbra_clipped_colored_polygon(core, core_color, clip_segment)
+		return
+	_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.20), clip_segment)
+	var texture_size := Vector2(
+		clampf(_tile_width() * 0.82, 70.0, 112.0),
+		clampf(_tile_width() * 0.48, 40.0, 72.0)
+	)
+	_draw_umbra_clipped_oriented_texture(
+		texture,
+		center,
+		direction,
+		texture_size * 1.12,
+		available_before,
+		available_after,
+		Color(secondary.r, secondary.g, secondary.b, 0.24),
+		clip_segment
+	)
+	_draw_umbra_clipped_oriented_texture(
+		texture,
+		center,
+		direction,
+		texture_size,
+		available_before,
+		available_after,
+		Color.WHITE,
+		clip_segment
+	)
+
+func _umbra_projectile_fragment_texture(effect: Dictionary, _progress: float) -> Texture2D:
+	# Elemental spells use clipped material geometry, including when only a short
+	# visible interval crosses Umbra. Do not resurrect the removed spell atlases.
+	if AttackFxLibrary.uses_authored_elemental_attack(effect):
+		return null
+	return _projectile_texture(_projectile_element_id(_effect_element(effect)))
+
+func _draw_umbra_clipped_oriented_texture(
+	texture: Texture2D,
+	center: Vector2,
+	direction: Vector2,
+	draw_size: Vector2,
+	available_before: float,
+	available_after: float,
+	tint: Color,
+	clip_segment: Dictionary
+) -> void:
+	var destination := Rect2(-draw_size * 0.5, draw_size)
+	var clipped_x_start: float = maxf(destination.position.x, -available_before)
+	var clipped_x_end: float = minf(destination.end.x, available_after)
+	if clipped_x_end - clipped_x_start <= 0.01:
+		return
+	var x_ratio_start: float = (clipped_x_start - destination.position.x) / destination.size.x
+	var x_ratio_end: float = (clipped_x_end - destination.position.x) / destination.size.x
+	var source_size := Vector2(texture.get_size())
+	var clipped_destination := Rect2(
+		Vector2(clipped_x_start, destination.position.y),
+		Vector2(clipped_x_end - clipped_x_start, destination.size.y)
+	)
+	var source := Rect2(
+		Vector2(source_size.x * x_ratio_start, 0.0),
+		Vector2(source_size.x * (x_ratio_end - x_ratio_start), source_size.y)
+	)
+	var normal := Vector2(-direction.y, direction.x)
+	var polygon_vertices: Array[Dictionary] = _umbra_dictionary_array([
+		{
+			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.position.y,
+			"uv": Vector2(source.position.x / source_size.x, source.position.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.end.x + normal * clipped_destination.position.y,
+			"uv": Vector2(source.end.x / source_size.x, source.position.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.end.x + normal * clipped_destination.end.y,
+			"uv": Vector2(source.end.x / source_size.x, source.end.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.end.y,
+			"uv": Vector2(source.position.x / source_size.x, source.end.y / source_size.y),
+		},
+	])
+	polygon_vertices = _umbra_clip_polygon_vertices(polygon_vertices, clip_segment)
+	if polygon_vertices.size() < 3:
+		return
+	var points := PackedVector2Array()
+	var colors := PackedColorArray()
+	var uvs := PackedVector2Array()
+	for vertex: Dictionary in polygon_vertices:
+		points.append(vertex.get("point", Vector2.ZERO))
+		colors.append(tint)
+		uvs.append(vertex.get("uv", Vector2.ZERO))
+	draw_polygon(points, colors, uvs, texture)
+
+func _draw_umbra_clipped_colored_polygon(points: PackedVector2Array, color: Color, clip_segment: Dictionary) -> void:
+	var vertices: Array[Dictionary] = _umbra_dictionary_array([])
+	for point: Vector2 in points:
+		vertices.append({"point": point, "uv": Vector2.ZERO})
+	vertices = _umbra_clip_polygon_vertices(vertices, clip_segment)
+	if vertices.size() < 3:
+		return
+	var clipped_points := PackedVector2Array()
+	for vertex: Dictionary in vertices:
+		clipped_points.append(vertex.get("point", Vector2.ZERO))
+	draw_colored_polygon(clipped_points, color)
+
+func _umbra_clip_polygon_vertices(vertices: Array[Dictionary], clip_segment: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = vertices
+	for plane: Dictionary in _umbra_clip_planes_for_segment(clip_segment):
+		if result.is_empty():
+			break
+		var clipped: Array[Dictionary] = _umbra_dictionary_array([])
+		var plane_point: Vector2 = plane.get("point", Vector2.ZERO)
+		var plane_normal: Vector2 = plane.get("normal", Vector2.ZERO)
+		for vertex_index: int in range(result.size()):
+			var current: Dictionary = result[vertex_index]
+			var next: Dictionary = result[(vertex_index + 1) % result.size()]
+			var current_point: Vector2 = current.get("point", Vector2.ZERO)
+			var next_point: Vector2 = next.get("point", Vector2.ZERO)
+			var current_distance: float = (current_point - plane_point).dot(plane_normal)
+			var next_distance: float = (next_point - plane_point).dot(plane_normal)
+			var current_inside: bool = current_distance >= -0.001
+			var next_inside: bool = next_distance >= -0.001
+			if current_inside:
+				clipped.append(current)
+			if current_inside == next_inside:
+				continue
+			var denominator: float = current_distance - next_distance
+			if absf(denominator) <= 0.0001:
+				continue
+			var interpolation: float = clampf(current_distance / denominator, 0.0, 1.0)
+			clipped.append({
+				"point": current_point.lerp(next_point, interpolation),
+				"uv": (current.get("uv", Vector2.ZERO) as Vector2).lerp(next.get("uv", Vector2.ZERO) as Vector2, interpolation),
+			})
+		result = clipped
+	return result
+
+func _umbra_dictionary_array(values: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for value: Variant in values:
+		if typeof(value) == TYPE_DICTIONARY:
+			result.append(value as Dictionary)
+	return result
+
+func _umbra_clip_planes_for_segment(segment: Dictionary) -> Array[Dictionary]:
+	var planes: Array[Dictionary] = _umbra_dictionary_array([])
+	for boundary_group: Dictionary in [
+		{
+			"boundaries": segment.get("start_clip_boundaries", []),
+			"hidden": segment.get("start_hidden_tile", Vector2i(-1, -1)),
+			"visible": segment.get("start_visible_tile", Vector2i(-1, -1)),
+		},
+		{
+			"boundaries": segment.get("end_clip_boundaries", []),
+			"hidden": segment.get("end_hidden_tile", Vector2i(-1, -1)),
+			"visible": segment.get("end_visible_tile", Vector2i(-1, -1)),
+		},
+	]:
+		var boundaries: Array = boundary_group.get("boundaries", []) as Array
+		if boundaries.is_empty():
+			var hidden_tile: Vector2i = boundary_group.get("hidden", Vector2i(-1, -1))
+			var visible_tile: Vector2i = boundary_group.get("visible", Vector2i(-1, -1))
+			if hidden_tile.x >= 0 and visible_tile.x >= 0:
+				boundaries = [{"hidden_tile": hidden_tile, "visible_tile": visible_tile}]
+		for boundary_var: Variant in boundaries:
+			if typeof(boundary_var) != TYPE_DICTIONARY:
+				continue
+			var boundary: Dictionary = boundary_var as Dictionary
+			var hidden_tile: Vector2i = boundary.get("hidden_tile", Vector2i(-1, -1))
+			var visible_tile: Vector2i = boundary.get("visible_tile", Vector2i(-1, -1))
+			if hidden_tile.x < 0 or visible_tile.x < 0:
+				continue
+			var plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
+			if not plane.is_empty():
+				planes.append(plane)
+	return planes
+
+func _umbra_tile_boundary_plane(hidden_tile: Vector2i, visible_tile: Vector2i) -> Dictionary:
+	var visible_center: Vector2 = _tile_center(visible_tile)
+	var hidden_polygon: PackedVector2Array = _tile_polygon(hidden_tile)
+	if hidden_polygon.size() < 4:
+		return {}
+	var closest_corner_index: int = 0
+	var second_corner_index: int = 1
+	var closest_distance: float = INF
+	var second_distance: float = INF
+	for corner_index: int in range(4):
+		var corner_distance: float = hidden_polygon[corner_index].distance_squared_to(visible_center)
+		if corner_distance < closest_distance:
+			second_distance = closest_distance
+			second_corner_index = closest_corner_index
+			closest_distance = corner_distance
+			closest_corner_index = corner_index
+		elif corner_distance < second_distance:
+			second_distance = corner_distance
+			second_corner_index = corner_index
+	var boundary_start: Vector2 = hidden_polygon[closest_corner_index]
+	var boundary_end: Vector2 = hidden_polygon[second_corner_index]
+	var midpoint: Vector2 = (boundary_start + boundary_end) * 0.5
+	var normal := Vector2(-(boundary_end - boundary_start).y, (boundary_end - boundary_start).x)
+	if (visible_center - midpoint).dot(normal) < 0.0:
+		normal *= -1.0
+	if normal.length_squared() <= 0.001:
+		return {}
+	return {"point": midpoint, "normal": normal.normalized()}
+
+func _umbra_ranged_spatial_progress(style: String, progress: float, travel_start: float, travel_end: float) -> float:
+	if style == AttackFxLibrary.STYLE_DEFAULT:
+		return clampf((progress - travel_start) / maxf(0.001, travel_end - travel_start), 0.0, 1.0)
+	return AttackFxLibrary.travel_progress_for_style(style, progress)
+
 func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2) -> Array[Vector2]:
 	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO)
 	var end: Vector2 = to_point
@@ -8810,6 +9071,12 @@ func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2)
 	# when source and target have very different screen-space baselines.
 	var preview_control := Vector2(midpoint.x, desired_apex_y * 2.0 - midpoint.y)
 	return _sample_quadratic_points(start, preview_control, end, 16)
+
+func _target_preview_curve_visible(effect: Dictionary) -> bool:
+	# Player card previews explicitly yield line ownership to the segmented arrow
+	# anchored in the hand. Enemy intent previews omit the flag and retain this
+	# familiar airborne trajectory when they are shown independently.
+	return bool(effect.get("target_curve_visible", true))
 
 func _draw_enemy_threat_depth_pass(tile: Vector2i) -> void:
 	for threat_var: Variant in presentation.get("enemy_threat_previews", []):
@@ -9004,211 +9271,14 @@ func _draw_scaled_elemental_begin(ground_point: Vector2, scale_ratio: float) -> 
 func _draw_scaled_elemental_end() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
-func _elemental_scene_color(element_id: String) -> Color:
-	match element_id:
-		"earth":
-			return Color(0.72, 0.49, 0.23, 1.0)
-		"air":
-			return Color(0.58, 0.86, 1.0, 1.0)
-		"lightning":
-			return Color(0.68, 0.72, 1.0, 1.0)
-		"ice":
-			return Color(0.42, 0.76, 1.0, 1.0)
-		_:
-			return Color(1.0, 0.32, 0.07, 1.0)
-
 func _draw_elemental_spell_scene(style: String, progress: float, target_ground: Vector2, reduced_motion: bool) -> void:
-	var element_id: String = _elemental_style_id(style)
-	var tint: Color = _elemental_scene_color(element_id)
-	var stage_in: float = smoothstep(0.0, 0.10, progress)
-	var stage_out: float = 1.0 - smoothstep(0.78, 1.0, progress)
-	var envelope: float = minf(stage_in, stage_out)
-	if reduced_motion:
-		envelope = 0.42
-	var impact_progress: float = AttackFxLibrary.impact_progress_for_style(style, progress)
-	var impact_energy: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
-	var detonation_scale: float = _elemental_detonation_scale(style)
-	var light_frame_index: int = AttackFxLibrary.one_shot_frame_index(impact_progress, 8)
-	var light_texture: Texture2D = _elemental_floor_light_texture(element_id, light_frame_index)
-	if light_texture != null:
-		var light_size: float = clampf(_tile_width() * (2.15 + impact_energy * 1.20), 208.0, 390.0) * detonation_scale
-		_draw_elemental_floor_light_sprite(
-			element_id,
-			light_texture,
-			target_ground,
-			Vector2(light_size, light_size * 0.42),
-			(0.10 + impact_energy * 0.25) * envelope,
-			tint,
-			light_frame_index
-		)
-	var flash: float = 0.34 if reduced_motion else AttackFxLibrary.contact_flash_strength(style, progress)
-	if flash <= 0.0:
+	if not reduced_motion and progress < AttackFxLibrary.travel_end_progress(style):
 		return
-	if light_texture != null:
-		var flash_size: float = clampf(_tile_width() * (2.35 + flash * 1.35), 228.0, 420.0) * detonation_scale
-		_draw_elemental_floor_light_sprite(
-			element_id,
-			light_texture,
-			target_ground,
-			Vector2(flash_size, flash_size * 0.46),
-			0.56 * flash,
-			Color(1.0, 0.98, 0.90, 1.0),
-			light_frame_index
-		)
+	var t: float = 0.38 if reduced_motion else AttackFxLibrary.impact_progress_for_style(style, progress)
+	ElementalSpellFx.ground(self, _elemental_style_id(style), target_ground, _elemental_performance_size(style, t), t, 0.65 if reduced_motion else 1.0)
 
 func _draw_elemental_release(style: String, start: Vector2, ground_start: Vector2, end: Vector2, release_progress: float, alpha: float = 1.0) -> void:
-	var element_id: String = _elemental_style_id(style)
-	var direction: Vector2 = (end - start).normalized()
-	if direction.length_squared() <= 0.01:
-		direction = Vector2.RIGHT
-	var frame_key: String = "fireball_travel"
-	match style:
-		AttackFxLibrary.STYLE_EARTH_SPIKES:
-			frame_key = "elemental_earth_performance"
-		AttackFxLibrary.STYLE_AIR_GUST:
-			frame_key = "air_gust_travel"
-		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-			frame_key = "lightning_bolt_travel"
-		AttackFxLibrary.STYLE_ICE_SHARDS:
-			frame_key = "ice_shard_travel"
-	var frames: Array[Texture2D] = _authored_elemental_frames(frame_key)
-	if frames.is_empty():
-		return
-	var texture: Texture2D = frames[0]
-	var pulse: float = sin(clampf(release_progress, 0.0, 1.0) * PI * 0.72)
-	var release_alpha: float = alpha * clampf(0.34 + pulse * 0.90, 0.0, 1.0)
-	var draw_size: float = clampf(_tile_width() * lerpf(0.46, 0.92, release_progress), 46.0, 104.0)
-	if style == AttackFxLibrary.STYLE_EARTH_SPIKES:
-		_draw_elemental_performance_frame(texture, ground_start, draw_size * 1.18, release_alpha, Color.WHITE, style, 0)
-	else:
-		var stretch := Vector2(draw_size * lerpf(0.62, 1.28, release_progress), draw_size * lerpf(1.08, 0.72, release_progress))
-		_draw_authored_oriented_frame(texture, start, direction, stretch, release_alpha, Color.WHITE, Vector2(0.80, 0.50))
-	_draw_elemental_release_intake(element_id, start, release_progress, draw_size, release_alpha)
-
-func _draw_elemental_release_intake(element_id: String, center: Vector2, release_progress: float, draw_size: float, alpha: float) -> void:
-	for mote_index: int in range(9):
-		var texture: Texture2D = _ambient_particle_texture(element_id, posmod(mote_index * 3, AMBIENT_PARTICLE_ATLAS_COLUMNS))
-		if texture == null:
-			texture = _elemental_ground_texture(element_id, posmod(mote_index, AMBIENT_PARTICLE_ATLAS_COLUMNS))
-		if texture == null:
-			continue
-		var angle: float = float(mote_index) * 2.399963 + 0.31
-		var direction := Vector2(cos(angle), sin(angle))
-		var radius: float = draw_size * lerpf(1.05, 0.18, pow(release_progress, 0.72)) * lerpf(0.72, 1.22, _ambient_hash01(16001 + mote_index * 211))
-		var point: Vector2 = center + direction * radius
-		var mote_size: float = draw_size * lerpf(0.075, 0.035, release_progress)
-		_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, -angle, alpha * (0.42 + release_progress * 0.34))
-
-func _elemental_performance_frames(style: String) -> Array[Texture2D]:
-	return _authored_elemental_frames("elemental_%s_performance" % _elemental_style_id(style))
-
-func _elemental_impact_core_frames(style: String) -> Array[Texture2D]:
-	match style:
-		AttackFxLibrary.STYLE_EARTH_SPIKES:
-			return _authored_elemental_frames("earth_spike_impact")
-		AttackFxLibrary.STYLE_ICE_SHARDS:
-			return _authored_elemental_frames("ice_icicle_impact")
-		_:
-			return _elemental_performance_frames(style)
-
-func _elemental_performance_bloom_frames(style: String) -> Array[Texture2D]:
-	return _authored_elemental_frames("elemental_%s_performance_bloom" % _elemental_style_id(style))
-
-func _elemental_integration_profile(style: String) -> Dictionary:
-	match style:
-		AttackFxLibrary.STYLE_EARTH_SPIKES:
-			return {
-				"ground_anchor": Vector2(0.50, 0.80),
-				"bloom_alpha": 0.42,
-				"floor_alpha": 0.62,
-				"volume_alpha": 0.54,
-				"rear_core_alpha": 0.22,
-				"front_core_alpha": 0.36,
-				"front_bloom_alpha": 0.78,
-				"front_veil_alpha": 0.50,
-				"bloom_color": Color(1.0, 0.86, 0.62, 1.0),
-				"volume_color": Color(0.78, 0.62, 0.42, 1.0),
-			}
-		AttackFxLibrary.STYLE_AIR_GUST:
-			return {
-				"ground_anchor": Vector2(0.50, 0.80),
-				"bloom_alpha": 0.58,
-				"floor_alpha": 0.54,
-				"volume_alpha": 0.58,
-				"rear_core_alpha": 0.16,
-				"front_core_alpha": 0.25,
-				"front_bloom_alpha": 0.84,
-				"front_veil_alpha": 0.62,
-				"bloom_color": Color(0.72, 0.93, 1.0, 1.0),
-				"volume_color": Color(0.76, 0.91, 1.0, 1.0),
-			}
-		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-			return {
-				"ground_anchor": Vector2(0.50, 0.78),
-				"bloom_alpha": 0.94,
-				"floor_alpha": 0.92,
-				"volume_alpha": 0.48,
-				"rear_core_alpha": 0.46,
-				"front_core_alpha": 0.62,
-				"front_bloom_alpha": 0.90,
-				"front_veil_alpha": 0.54,
-				"bloom_color": Color(0.76, 0.80, 1.0, 1.0),
-				"volume_color": Color(0.66, 0.72, 1.0, 1.0),
-			}
-		AttackFxLibrary.STYLE_ICE_SHARDS:
-			return {
-				"ground_anchor": Vector2(0.50, 0.82),
-				"bloom_alpha": 0.72,
-				"floor_alpha": 0.76,
-				"volume_alpha": 0.52,
-				"rear_core_alpha": 0.20,
-				"front_core_alpha": 0.34,
-				"front_bloom_alpha": 0.88,
-				"front_veil_alpha": 0.54,
-				"bloom_color": Color(0.56, 0.84, 1.0, 1.0),
-				"volume_color": Color(0.66, 0.86, 1.0, 1.0),
-			}
-		_:
-			return {
-				"ground_anchor": Vector2(0.50, 0.78),
-				"bloom_alpha": 0.88,
-				"floor_alpha": 0.88,
-				"volume_alpha": 0.64,
-				"rear_core_alpha": 0.18,
-				"front_core_alpha": 0.30,
-				"front_bloom_alpha": 0.96,
-				"front_veil_alpha": 0.62,
-				"bloom_color": Color(1.0, 0.62, 0.22, 1.0),
-				"volume_color": Color(1.0, 0.42, 0.12, 1.0),
-			}
-
-func _elemental_performance_ground_anchor(style: String, frame_index: int = -1) -> Vector2:
-	if frame_index >= 0:
-		var frame_anchors: Array = []
-		match style:
-			AttackFxLibrary.STYLE_EARTH_SPIKES:
-				frame_anchors = [0.68, 0.70, 0.72, 0.73, 0.80, 0.82, 0.82, 0.79]
-			AttackFxLibrary.STYLE_AIR_GUST:
-				frame_anchors = [0.77, 0.77, 0.78, 0.79, 0.80, 0.80, 0.80, 0.79]
-			AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-				frame_anchors = [0.79, 0.79, 0.79, 0.79, 0.80, 0.80, 0.80, 0.79]
-			AttackFxLibrary.STYLE_ICE_SHARDS:
-				frame_anchors = [0.78, 0.79, 0.80, 0.81, 0.82, 0.82, 0.82, 0.81]
-			_:
-				frame_anchors = [0.75, 0.75, 0.76, 0.78, 0.80, 0.80, 0.79, 0.78]
-		if frame_index < frame_anchors.size():
-			return Vector2(0.50, frame_anchors[frame_index])
-	var profile: Dictionary = _elemental_integration_profile(style)
-	return profile.get("ground_anchor", Vector2(0.50, 0.78))
-
-func _elemental_performance_modulate(style: String) -> Color:
-	match style:
-		AttackFxLibrary.STYLE_AIR_GUST:
-			return Color(0.54, 0.92, 1.0, 1.0)
-		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
-			return Color(0.96, 0.98, 1.0, 1.0)
-		_:
-			return Color.WHITE
+	ElementalSpellFx.release(self, _elemental_style_id(style), start, ground_start, _tile_width(), release_progress, alpha)
 
 func _elemental_performance_size_scale(style: String) -> float:
 	match style:
@@ -9247,186 +9317,10 @@ func _elemental_impact_volume_fade(style: String, impact_progress: float) -> flo
 		return 1.0 - smoothstep(0.76, 1.0, impact_progress)
 	return _elemental_impact_core_fade(style, impact_progress)
 
-func _elemental_reduced_motion_frame_index(style: String, frame_count: int) -> int:
-	var preferred_frame: int = 3 if style == AttackFxLibrary.STYLE_FIREBALL else 4
-	return clampi(preferred_frame, 0, maxi(0, frame_count - 1))
-
-func _elemental_performance_frame_blend(style: String, impact_progress: float, frame_count: int, reduced_motion: bool) -> Vector3:
-	if frame_count <= 0:
-		return Vector3.ZERO
-	if reduced_motion:
-		var reduced_frame_index: int = _elemental_reduced_motion_frame_index(style, frame_count)
-		return Vector3(float(reduced_frame_index), float(reduced_frame_index), 0.0)
-	if style != AttackFxLibrary.STYLE_FIREBALL:
-		return AttackFxLibrary.one_shot_frame_blend(impact_progress, frame_count)
-	# The tallest source cells touch their atlas ceiling. Skip those cells and let
-	# scale, bloom, trails, and particles carry Fire's peak without exposing a
-	# rectangular texture boundary.
-	var safe_fire_sequence: Array = [0, 1, 2, 3, 3, 3, 7, 7]
-	var scaled_progress: float = clampf(impact_progress, 0.0, 1.0) * float(safe_fire_sequence.size())
-	var sequence_index: int = clampi(int(floor(scaled_progress)), 0, safe_fire_sequence.size() - 1)
-	var next_sequence_index: int = mini(sequence_index + 1, safe_fire_sequence.size() - 1)
-	var current_frame: int = clampi(int(safe_fire_sequence[sequence_index]), 0, frame_count - 1)
-	var next_frame: int = clampi(int(safe_fire_sequence[next_sequence_index]), 0, frame_count - 1)
-	var blend: float = 0.0 if current_frame == next_frame else smoothstep(0.0, 1.0, scaled_progress - floor(scaled_progress))
-	return Vector3(float(current_frame), float(next_frame), blend)
-
 func _draw_elemental_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> float:
-	var core_frames: Array[Texture2D] = _elemental_impact_core_frames(style)
-	if core_frames.is_empty() or alpha <= 0.0:
-		return 0.0
-	var bloom_frames: Array[Texture2D] = _elemental_performance_bloom_frames(style)
-	var profile: Dictionary = _elemental_integration_profile(style)
-	var element_id: String = _elemental_style_id(style)
-	var sample_progress: float = 0.52 if reduced_motion else impact_progress
-	var frame_blend: Vector3 = _elemental_performance_frame_blend(style, sample_progress, core_frames.size(), reduced_motion)
-	var draw_size: float = _elemental_performance_size(style, sample_progress)
-	var core_fade: float = 1.0 if reduced_motion else _elemental_impact_core_fade(style, impact_progress)
-	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
-	var modulate: Color = _elemental_performance_modulate(style)
-	var energy: float = 0.72 if reduced_motion else 0.48 + sin(clampf(impact_progress, 0.0, 1.0) * PI) * 0.52
-	var core_alpha: float = alpha * core_fade
-	var volume_alpha: float = alpha * volume_fade
-	_draw_elemental_ground_contact(
-		element_id,
-		ground_point,
-		impact_progress,
-		draw_size,
-		volume_alpha * float(profile.get("floor_alpha", 0.70))
-	)
-	_draw_elemental_background_volume(style, ground_point, impact_progress, draw_size, volume_alpha, reduced_motion)
-	if not bloom_frames.is_empty():
-		var bloom_blend: Vector3 = _remap_frame_blend(frame_blend, bloom_frames.size())
-		var bloom_color: Color = profile.get("bloom_color", Color.WHITE)
-		var bloom_alpha: float = float(profile.get("bloom_alpha", 0.65))
-		var bloom_layer_count: int = 2 if reduced_motion else 3
-		for bloom_layer: int in range(bloom_layer_count):
-			var layer_scale: float = 1.34 - float(bloom_layer) * 0.14
-			var layer_alpha: float = (0.16 + float(bloom_layer) * 0.10) * bloom_alpha * energy
-			_draw_elemental_blended_performance_frames(
-				bloom_frames,
-				bloom_blend,
-				ground_point,
-				draw_size * layer_scale,
-				core_alpha * layer_alpha,
-				bloom_color,
-				style
-			)
-	if not reduced_motion and int(frame_blend.x) > 0 and not bloom_frames.is_empty():
-		var echo_frame_index: int = mini(int(frame_blend.x) - 1, bloom_frames.size() - 1)
-		_draw_elemental_performance_frame(
-			bloom_frames[echo_frame_index],
-			ground_point + Vector2(0.0, draw_size * 0.025),
-			draw_size * 1.16,
-			core_alpha * 0.24,
-			profile.get("bloom_color", Color.WHITE),
-			style,
-			echo_frame_index
-		)
-	_draw_elemental_blended_impact_core_frames(
-		core_frames,
-		frame_blend,
-		ground_point,
-		draw_size * (0.99 + energy * 0.012),
-		core_alpha * float(profile.get("rear_core_alpha", 0.20)),
-		modulate,
-		style
-	)
-	return draw_size * maxf(core_fade, volume_fade)
-
-func _remap_frame_blend(frame_blend: Vector3, frame_count: int) -> Vector3:
-	if frame_count <= 0:
-		return Vector3.ZERO
-	return Vector3(
-		float(clampi(int(frame_blend.x), 0, frame_count - 1)),
-		float(clampi(int(frame_blend.y), 0, frame_count - 1)),
-		clampf(frame_blend.z, 0.0, 1.0)
-	)
-
-func _offset_frame_blend(frame_blend: Vector3, frame_offset: int, frame_count: int) -> Vector3:
-	if frame_count <= 0:
-		return Vector3.ZERO
-	return Vector3(
-		float(posmod(int(frame_blend.x) + frame_offset, frame_count)),
-		float(posmod(int(frame_blend.y) + frame_offset, frame_count)),
-		clampf(frame_blend.z, 0.0, 1.0)
-	)
-
-func _draw_elemental_blended_performance_frames(frames: Array[Texture2D], frame_blend: Vector3, ground_point: Vector2, draw_size: float, alpha: float, modulate: Color, style: String) -> void:
-	if frames.is_empty() or alpha <= 0.0:
-		return
-	var current_index: int = clampi(int(frame_blend.x), 0, frames.size() - 1)
-	var next_index: int = clampi(int(frame_blend.y), 0, frames.size() - 1)
-	var next_weight: float = clampf(frame_blend.z, 0.0, 1.0) if current_index != next_index else 0.0
-	var current_weight: float = 1.0 - next_weight
-	_draw_elemental_performance_frame(frames[current_index], ground_point, draw_size, alpha * current_weight, modulate, style, current_index)
-	if next_weight > 0.0:
-		_draw_elemental_performance_frame(frames[next_index], ground_point, draw_size, alpha * next_weight, modulate, style, next_index)
-
-func _draw_elemental_blended_impact_core_frames(frames: Array[Texture2D], frame_blend: Vector3, ground_point: Vector2, draw_size: float, alpha: float, modulate: Color, style: String) -> void:
-	if style not in [AttackFxLibrary.STYLE_EARTH_SPIKES, AttackFxLibrary.STYLE_ICE_SHARDS]:
-		_draw_elemental_blended_performance_frames(frames, frame_blend, ground_point, draw_size, alpha, modulate, style)
-		return
-	if frames.is_empty() or alpha <= 0.0:
-		return
-	var current_index: int = clampi(int(frame_blend.x), 0, frames.size() - 1)
-	var next_index: int = clampi(int(frame_blend.y), 0, frames.size() - 1)
-	var next_weight: float = clampf(frame_blend.z, 0.0, 1.0) if current_index != next_index else 0.0
-	_draw_authored_bottom_frame(frames[current_index], ground_point, draw_size, alpha * (1.0 - next_weight), modulate)
-	if next_weight > 0.0:
-		_draw_authored_bottom_frame(frames[next_index], ground_point, draw_size, alpha * next_weight, modulate)
-
-func _draw_elemental_background_volume(style: String, ground_point: Vector2, impact_progress: float, draw_size: float, alpha: float, reduced_motion: bool) -> void:
-	var profile: Dictionary = _elemental_integration_profile(style)
-	var element_id: String = _elemental_style_id(style)
-	var volume_color: Color = profile.get("volume_color", Color.WHITE)
-	var volume_alpha: float = float(profile.get("volume_alpha", 0.50))
-	var particle_count: int = 5 if reduced_motion else ELEMENTAL_BACKGROUND_VOLUME_COUNT
-	for particle_index: int in range(particle_count):
-		var variant: int = posmod(particle_index * 3 + 1, AMBIENT_PARTICLE_ATLAS_COLUMNS)
-		var texture: Texture2D = null
-		if element_id == "fire" or element_id == "earth":
-			texture = _ambient_fire_soft_texture(variant)
-		else:
-			texture = _ambient_air_wisp_soft_texture(variant)
-		if texture == null:
-			texture = _elemental_ground_texture(element_id, variant)
-		if texture == null:
-			continue
-		var seed: int = 27103 + particle_index * 1297 + element_id.length() * 79
-		var particle_age: float = 0.44 if reduced_motion else clampf((impact_progress - float(particle_index) * 0.018) / 0.82, 0.0, 1.0)
-		if particle_age <= 0.0 or particle_age >= 1.0:
-			continue
-		var side: float = lerpf(-1.0, 1.0, _ambient_hash01(seed))
-		var depth: float = lerpf(0.66, 1.24, _ambient_hash01(seed + 3))
-		var lift: float = draw_size * lerpf(0.04, 0.48, pow(particle_age, 0.72)) * depth
-		var spread: float = draw_size * (0.10 + particle_age * 0.28) * side
-		var point: Vector2 = ground_point + Vector2(spread, -lift)
-		var particle_size := Vector2(
-			draw_size * lerpf(0.24, 0.58, particle_age) * depth,
-			draw_size * lerpf(0.16, 0.40, particle_age) * depth
-		)
-		var particle_fade: float = sin(particle_age * PI) * alpha * volume_alpha * lerpf(0.54, 0.90, _ambient_hash01(seed + 7))
-		var plume_velocity := Vector2(side * draw_size * 0.16, -draw_size * lerpf(0.20, 0.38, particle_age))
-		_draw_ambient_particle_trail(texture, point, plume_velocity, particle_size, particle_fade * 0.72, element_id)
-		_draw_ambient_particle_sprite(
-			texture,
-			point,
-			particle_size * Vector2(1.18, 1.12),
-			lerpf(-0.48, 0.48, _ambient_hash01(seed + 11)) + particle_age * side * 0.34,
-			particle_fade * 0.82,
-			volume_color
-		)
-
-func _draw_elemental_performance_frame(texture: Texture2D, ground_point: Vector2, draw_size: float, alpha: float, modulate: Color = Color.WHITE, style: String = AttackFxLibrary.STYLE_FIREBALL, frame_index: int = -1) -> void:
-	if texture == null or draw_size <= 0.0 or alpha <= 0.0:
-		return
-	var ground_anchor: Vector2 = _elemental_performance_ground_anchor(style, frame_index)
-	var rect := Rect2(
-		ground_point - Vector2(draw_size * ground_anchor.x, draw_size * ground_anchor.y),
-		Vector2.ONE * draw_size
-	)
-	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
+	var draw_size: float = _elemental_performance_size(style, impact_progress)
+	ElementalSpellFx.impact(self, _elemental_style_id(style), ground_point, draw_size, impact_progress, alpha, reduced_motion, false)
+	return draw_size
 
 func _draw_earth_spike_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_EARTH_SPIKES
@@ -9453,99 +9347,20 @@ func _draw_earth_spike_attack_effect(effect: Dictionary, progress: float, from_p
 		_draw_earth_impact(end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
 
 func _draw_earth_spike_path(start: Vector2, end: Vector2, travel_progress: float, alpha: float, from_tile: Vector2i = Vector2i(-1, -1), to_tile: Vector2i = Vector2i(-1, -1)) -> void:
-	var frames: Array[Texture2D] = _elemental_performance_frames(AttackFxLibrary.STYLE_EARTH_SPIKES)
-	var bloom_frames: Array[Texture2D] = _elemental_performance_bloom_frames(AttackFxLibrary.STYLE_EARTH_SPIKES)
-	var ground_frames: Array[Texture2D] = _authored_elemental_frames("earth_ground_layer")
-	if frames.is_empty():
-		return
-	var direction: Vector2 = (end - start).normalized()
-	if direction.length_squared() <= 0.01:
-		direction = Vector2.RIGHT
-	var normal := Vector2(-direction.y, direction.x)
-	var draw_size: float = clampf(_tile_width() * 1.02, 82.0, 118.0)
-	for spike_index: int in range(EARTH_PATH_SPIKE_COUNT):
-		var path_progress: float = lerpf(0.10, 0.96, float(spike_index) / float(EARTH_PATH_SPIKE_COUNT - 1))
-		if (
-			_render_layer_kind == RENDER_LAYER_SCENE_TILE
-			and from_tile.x >= 0
-			and _render_layer_tile != _elemental_lerp_depth_tile(from_tile, to_tile, path_progress)
-		):
+	for burst: int in range(EARTH_PATH_SPIKE_COUNT):
+		var phase: float = lerpf(0.10, 0.96, float(burst) / float(EARTH_PATH_SPIKE_COUNT - 1))
+		if _render_layer_kind == RENDER_LAYER_SCENE_TILE and from_tile.x >= 0 and _render_layer_tile != _elemental_lerp_depth_tile(from_tile, to_tile, phase):
 			continue
-		var local_age: float = (travel_progress - path_progress) / 0.72
-		if local_age < 0.0 or local_age >= 1.0:
+		var age: float = (travel_progress - phase) / 0.55
+		if age <= 0.0 or age >= 1.0:
 			continue
-		var spike_frame_count: int = mini(3, frames.size())
-		var frame_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(clampf(local_age / 0.82, 0.0, 1.0), spike_frame_count)
-		var side_offset: float = sin(float(spike_index) * 2.17) * draw_size * 0.08
-		var point: Vector2 = start.lerp(end, path_progress) + normal * side_offset
-		var scale_jitter: float = 0.86 + 0.14 * _ambient_hash01(3101 + spike_index * 337)
-		var spike_fade: float = 1.0 - smoothstep(0.78, 1.0, local_age)
-		if not ground_frames.is_empty():
-			var ground_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(local_age, ground_frames.size())
-			_draw_authored_ground_frame_blend(
-				ground_frames,
-				ground_blend,
-				point,
-				Vector2.ONE * draw_size * scale_jitter * 1.36,
-				alpha * spike_fade * 0.58,
-				Color(0.78, 0.68, 0.56, 1.0)
-			)
-		var dust_texture: Texture2D = _ambient_fire_soft_texture(posmod(spike_index, AMBIENT_FIRE_SOFT_ATLAS_COLUMNS))
-		if dust_texture != null:
-			_draw_ambient_particle_sprite(
-				dust_texture,
-				point + Vector2(0.0, -draw_size * lerpf(0.10, 0.26, local_age)),
-				Vector2(draw_size * 1.12, draw_size * lerpf(0.42, 0.68, local_age)),
-				side_offset * 0.003,
-				alpha * spike_fade * 0.38,
-				Color(0.72, 0.56, 0.38, 1.0)
-			)
-		if not bloom_frames.is_empty():
-			_draw_elemental_blended_performance_frames(
-				bloom_frames,
-				_remap_frame_blend(frame_blend, bloom_frames.size()),
-				point,
-				draw_size * scale_jitter * 1.16,
-				alpha * spike_fade * 0.36,
-				Color(1.0, 0.84, 0.60, 1.0),
-				AttackFxLibrary.STYLE_EARTH_SPIKES
-			)
-		_draw_elemental_blended_performance_frames(
-			frames,
-			frame_blend,
-			point,
-			draw_size * scale_jitter,
-			alpha * spike_fade * 0.52,
-			Color.WHITE,
-			AttackFxLibrary.STYLE_EARTH_SPIKES
-		)
-		_draw_earth_spike_debris(point, local_age, draw_size, spike_index, alpha)
-
-func _draw_earth_spike_debris(point: Vector2, local_age: float, draw_size: float, spike_index: int, alpha: float) -> void:
-	if local_age < 0.18:
-		return
-	var debris_age: float = clampf((local_age - 0.18) / 0.82, 0.0, 1.0)
-	for debris_index: int in range(3):
-		var seed: int = 5501 + spike_index * 479 + debris_index * 149
-		var texture: Texture2D = _ambient_particle_texture("earth", debris_index)
-		if texture == null:
-			continue
-		var side: float = -1.0 if debris_index % 2 == 0 else 1.0
-		var offset := Vector2(
-			side * draw_size * (0.12 + 0.18 * debris_age),
-			-draw_size * (0.14 + 0.22 * sin(debris_age * PI)) + draw_size * 0.18 * debris_age
-		)
-		offset.x *= lerpf(0.72, 1.20, _ambient_hash01(seed))
-		var mote_size: float = draw_size * lerpf(0.105, 0.055, debris_age) * lerpf(0.72, 1.16, _ambient_hash01(seed + 3))
-		_draw_ambient_particle_sprite(texture, point + offset, Vector2.ONE * mote_size, debris_age * 2.3 * side, alpha * pow(1.0 - debris_age, 0.72))
+		var point: Vector2 = start.lerp(end, phase)
+		ElementalSpellFx.ground(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82)
+		ElementalSpellFx.impact(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82, false, false)
+		ElementalSpellFx.impact(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82, false, true)
 
 func _draw_earth_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	var draw_size: float = _draw_elemental_performance(AttackFxLibrary.STYLE_EARTH_SPIKES, point, impact_progress, alpha, reduced_motion)
-	if draw_size <= 0.0:
-		return
-	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.86, 1.0, impact_progress)
-	if not reduced_motion:
-		_draw_elemental_impact_motes("earth", point, impact_progress, draw_size, alpha * fade, false)
+	_draw_elemental_performance(AttackFxLibrary.STYLE_EARTH_SPIKES, point, impact_progress, alpha, reduced_motion)
 
 func _draw_air_gust_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_AIR_GUST
@@ -9571,64 +9386,10 @@ func _draw_air_gust_attack_effect(effect: Dictionary, progress: float, from_poin
 		_draw_air_gust_impact(end, ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
 
 func _draw_air_gust_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
-	var frames: Array[Texture2D] = _authored_elemental_frames("air_gust_travel")
-	var envelope_frames: Array[Texture2D] = _authored_elemental_frames("air_envelope_layer")
-	if frames.is_empty() or alpha <= 0.0:
-		return
-	var direction: Vector2 = (end - start).normalized()
-	if direction.length_squared() <= 0.01:
-		direction = Vector2.RIGHT
-	var normal := Vector2(-direction.y, direction.x)
-	var draw_size: float = clampf(_tile_width() * AIR_GUST_TRAVEL_SIZE_SCALE, 96.0, 138.0)
-	_draw_elemental_ground_trace("air", ground_start, ground_end, travel_progress, draw_size, alpha)
-	for sweep_index: int in range(3):
-		var sweep_progress: float = clampf(travel_progress * 1.34 - float(sweep_index) * 0.16, 0.0, 1.0)
-		if sweep_progress <= 0.0:
-			continue
-		var frame_blend: Vector3 = _offset_frame_blend(
-			AttackFxLibrary.looping_frame_blend(sweep_progress + float(sweep_index) * 0.17, frames.size(), 1.8),
-			sweep_index * 2,
-			frames.size()
-		)
-		var sweep_point: Vector2 = start.lerp(end, sweep_progress) + normal * sin(float(sweep_index) * 2.1 + sweep_progress * PI) * draw_size * (0.15 + float(sweep_index) * 0.04)
-		var sweep_direction: Vector2 = direction.rotated(lerpf(-0.075, 0.075, float(sweep_index) / 2.0))
-		var sweep_alpha: float = alpha * (0.72 - float(sweep_index) * 0.13) * (1.0 - smoothstep(0.78, 1.0, sweep_progress))
-		var sweep_size := Vector2(draw_size * (2.30 + float(sweep_index) * 0.30), draw_size * (0.62 + float(sweep_index) * 0.08))
-		_draw_authored_oriented_frame_blend(frames, frame_blend, sweep_point, sweep_direction, sweep_size, sweep_alpha * 0.74, Color(0.72, 0.93, 1.0, 1.0), Vector2(0.76, 0.50))
-		if not envelope_frames.is_empty():
-			var envelope_blend: Vector3 = _offset_frame_blend(_remap_frame_blend(frame_blend, envelope_frames.size()), sweep_index * 3, envelope_frames.size())
-			_draw_authored_oriented_frame_blend(envelope_frames, envelope_blend, sweep_point - direction * draw_size * 0.18, sweep_direction.rotated(0.045 if sweep_index % 2 == 0 else -0.045), sweep_size * Vector2(1.12, 1.18), sweep_alpha * 0.58, Color(0.88, 0.98, 1.0, 1.0), Vector2(0.74, 0.50))
-	_draw_air_wake_motes(start, end, travel_progress, direction, draw_size, alpha)
-
-func _draw_air_wake_motes(start: Vector2, end: Vector2, travel_progress: float, direction: Vector2, draw_size: float, alpha: float) -> void:
-	var normal := Vector2(-direction.y, direction.x)
-	for mote_index: int in range(ELEMENTAL_TRAVEL_MOTE_COUNT):
-		var spawn_progress: float = lerpf(0.02, 0.90, float(mote_index) / float(ELEMENTAL_TRAVEL_MOTE_COUNT - 1))
-		if travel_progress < spawn_progress:
-			continue
-		var age: float = (travel_progress - spawn_progress) / 0.34
-		if age >= 1.0:
-			continue
-		var seed: int = 7103 + mote_index * 631
-		var variant: int = posmod(mote_index * 3, AMBIENT_AIR_WISP_VARIANTS)
-		var texture: Texture2D = _ambient_air_wisp_texture(variant, clampi(int(age * 18.0), 0, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
-		if texture == null:
-			texture = _ambient_air_wisp_soft_texture(variant)
-		if texture == null:
-			continue
-		var side: float = -1.0 if mote_index % 2 == 0 else 1.0
-		var base_point: Vector2 = start.lerp(end, spawn_progress)
-		var point: Vector2 = base_point - direction * draw_size * age * 0.34 + normal * side * draw_size * (0.10 + age * 0.22) * lerpf(0.72, 1.28, _ambient_hash01(seed))
-		var size := Vector2(draw_size * lerpf(0.26, 0.48, age), draw_size * lerpf(0.12, 0.22, age))
-		_draw_ambient_particle_sprite(texture, point, size, direction.angle() + side * age * 0.32, alpha * pow(1.0 - age, 1.15) * 0.58, Color(0.78, 0.92, 1.0, 1.0))
+	ElementalSpellFx.travel(self, "air", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
 
 func _draw_air_gust_impact(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	var draw_size: float = _draw_elemental_performance(AttackFxLibrary.STYLE_AIR_GUST, ground_center, impact_progress, alpha, reduced_motion)
-	if draw_size <= 0.0:
-		return
-	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.86, 1.0, impact_progress)
-	if not reduced_motion:
-		_draw_elemental_impact_motes("air", center, impact_progress, draw_size, alpha * fade, true)
+	_draw_elemental_performance(AttackFxLibrary.STYLE_AIR_GUST, ground_center, impact_progress, alpha, reduced_motion)
 
 func _draw_lightning_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_LIGHTNING_BOLT
@@ -9654,71 +9415,10 @@ func _draw_lightning_attack_effect(effect: Dictionary, progress: float, from_poi
 		_draw_lightning_impact(end, ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
 
 func _draw_lightning_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
-	var frames: Array[Texture2D] = _authored_elemental_frames("lightning_bolt_travel")
-	var envelope_frames: Array[Texture2D] = _authored_elemental_frames("lightning_envelope_layer")
-	if frames.is_empty() or alpha <= 0.0:
-		return
-	var direction: Vector2 = (end - start).normalized()
-	if direction.length_squared() <= 0.01:
-		direction = Vector2.RIGHT
-	var normal := Vector2(-direction.y, direction.x)
-	var frame_blend: Vector3 = AttackFxLibrary.looping_frame_blend(travel_progress, frames.size(), 2.85)
-	var draw_size: float = clampf(_tile_width() * LIGHTNING_TRAVEL_SIZE_SCALE, 94.0, 138.0)
-	_draw_elemental_ground_trace("lightning", ground_start, ground_end, travel_progress, draw_size, alpha)
-	var lane_length: float = start.distance_to(end)
-	var lane_center: Vector2 = start.lerp(end, 0.50)
-	var search_alpha: float = (1.0 - smoothstep(0.34, 0.60, travel_progress)) * alpha
-	if not envelope_frames.is_empty() and search_alpha > 0.0:
-		for branch_index: int in range(2):
-			var branch_blend: Vector3 = _offset_frame_blend(_remap_frame_blend(frame_blend, envelope_frames.size()), branch_index * 3, envelope_frames.size())
-			var branch_offset: float = (-1.0 if branch_index == 0 else 1.0) * draw_size * 0.12
-			_draw_authored_oriented_frame_blend(
-				envelope_frames,
-				branch_blend,
-				lane_center + normal * branch_offset,
-				direction.rotated((-0.035 if branch_index == 0 else 0.035)),
-				Vector2(lane_length * lerpf(0.72, 1.02, travel_progress), draw_size * 0.72),
-				search_alpha * (0.30 + float(branch_index) * 0.12),
-				Color(0.64, 0.72, 1.0, 1.0)
-			)
-	var strike_alpha: float = smoothstep(0.22, 0.42, travel_progress) * (1.0 - smoothstep(0.97, 1.0, travel_progress)) * alpha
-	if strike_alpha > 0.0:
-		var jitter_direction: Vector2 = direction.rotated(sin(travel_progress * TAU * 7.0) * 0.018)
-		_draw_authored_oriented_frame_blend(
-			frames,
-			frame_blend,
-			lane_center,
-			jitter_direction,
-			Vector2(lane_length + draw_size * 0.72, draw_size * (0.82 + strike_alpha * 0.34)),
-			strike_alpha * 0.96,
-			Color.WHITE,
-			Vector2(0.50, 0.50)
-		)
-	_draw_elemental_travel_motes("lightning", start, end, travel_progress, direction, draw_size, alpha * 0.62)
+	ElementalSpellFx.travel(self, "lightning", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
 
 func _draw_lightning_impact(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	var draw_size: float = _draw_elemental_performance(AttackFxLibrary.STYLE_LIGHTNING_BOLT, ground_center, impact_progress, alpha, reduced_motion)
-	if draw_size <= 0.0:
-		return
-	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.82, 1.0, impact_progress)
-	var burst_frames: Array[Texture2D] = _authored_elemental_frames("lightning_bolt_impact")
-	if not burst_frames.is_empty():
-		var burst_progress: float = 0.52 if reduced_motion else clampf(0.14 + impact_progress * 0.90, 0.0, 1.0)
-		var burst_frame_index: int = AttackFxLibrary.one_shot_frame_index(burst_progress, burst_frames.size())
-		var burst_blend: Vector3 = Vector3(float(burst_frame_index), float(burst_frame_index), 0.0) if reduced_motion else AttackFxLibrary.one_shot_frame_blend(burst_progress, burst_frames.size())
-		var burst_energy: float = sin(burst_progress * PI)
-		_draw_authored_oriented_frame_blend(
-			burst_frames,
-			burst_blend,
-			ground_center,
-			Vector2.RIGHT,
-			Vector2.ONE * draw_size * (0.60 + burst_energy * 0.24),
-			alpha * fade * (0.68 + burst_energy * 0.26),
-			Color(0.78, 0.86, 1.0, 1.0),
-			Vector2(0.50, 0.50)
-		)
-	if not reduced_motion:
-		_draw_elemental_impact_motes("lightning", ground_center, impact_progress, draw_size, alpha * fade, false)
+	_draw_elemental_performance(AttackFxLibrary.STYLE_LIGHTNING_BOLT, ground_center, impact_progress, alpha, reduced_motion)
 
 func _draw_ice_shard_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_ICE_SHARDS
@@ -9744,283 +9444,10 @@ func _draw_ice_shard_attack_effect(effect: Dictionary, progress: float, from_poi
 		_draw_ice_icicle_impact(ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
 
 func _draw_ice_shard_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
-	var frames: Array[Texture2D] = _authored_elemental_frames("ice_shard_travel")
-	if frames.is_empty() or alpha <= 0.0:
-		return
-	var direction: Vector2 = (end - start).normalized()
-	if direction.length_squared() <= 0.01:
-		direction = Vector2.RIGHT
-	var normal := Vector2(-direction.y, direction.x)
-	var draw_size: float = clampf(_tile_width() * ICE_TRAVEL_SIZE_SCALE, 90.0, 132.0)
-	_draw_elemental_ground_trace("ice", ground_start, ground_end, travel_progress, draw_size, alpha)
-	for shard_wave: int in range(3):
-		var shard_progress: float = clampf(travel_progress * 1.42 - float(shard_wave) * 0.17, 0.0, 1.0)
-		if shard_progress <= 0.0:
-			continue
-		var frame_blend: Vector3 = _offset_frame_blend(
-			AttackFxLibrary.looping_frame_blend(shard_progress + float(shard_wave) * 0.21, frames.size(), 1.7),
-			shard_wave * 2,
-			frames.size()
-		)
-		var frame_index: int = int(frame_blend.x)
-		var point: Vector2 = start.lerp(end, shard_progress) + normal * (-1.0 + float(shard_wave)) * draw_size * (0.15 + 0.05 * shard_progress)
-		var wave_direction: Vector2 = direction.rotated((-0.052 + float(shard_wave) * 0.052) * (1.0 - shard_progress * 0.45))
-		var wave_alpha: float = alpha * (0.92 - float(shard_wave) * 0.16) * (1.0 - smoothstep(0.84, 1.0, shard_progress))
-		var wave_size := Vector2(draw_size * (1.20 + float(shard_wave) * 0.16), draw_size * (0.70 + float(shard_wave) * 0.06))
-		var glow_texture: Texture2D = _ambient_particle_glow_texture("ice", frame_index)
-		if glow_texture != null:
-			_draw_ambient_particle_sprite(glow_texture, point - direction * draw_size * 0.18, wave_size * Vector2(1.30, 1.12), wave_direction.angle(), wave_alpha * 0.22, Color(0.58, 0.86, 1.0, 1.0))
-		_draw_authored_oriented_frame_blend(frames, frame_blend, point, wave_direction, wave_size, wave_alpha * 0.76, Color.WHITE, Vector2(0.84, 0.50))
-	_draw_elemental_travel_motes("ice", start, end, travel_progress, direction, draw_size, alpha)
-	if travel_progress > 0.48:
-		var ground_frames: Array[Texture2D] = _authored_elemental_frames("ice_ground_layer")
-		if not ground_frames.is_empty():
-			var frost_age: float = clampf((travel_progress - 0.48) / 0.52, 0.0, 1.0)
-			var frost_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(frost_age * 0.18, ground_frames.size())
-			_draw_authored_ground_frame_blend(
-				ground_frames,
-				frost_blend,
-				ground_end,
-				Vector2(clampf(_tile_width() * 1.34, 122.0, 164.0), clampf(_tile_height() * 0.62, 34.0, 56.0)),
-				alpha * frost_age * 0.40,
-				Color.WHITE
-			)
+	ElementalSpellFx.travel(self, "ice", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
 
 func _draw_ice_icicle_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	var draw_size: float = _draw_elemental_performance(AttackFxLibrary.STYLE_ICE_SHARDS, point, impact_progress, alpha, reduced_motion)
-	if draw_size <= 0.0:
-		return
-	var fade: float = 1.0 if reduced_motion else 1.0 - smoothstep(0.88, 1.0, impact_progress)
-	if not reduced_motion:
-		_draw_elemental_impact_motes("ice", point, impact_progress, draw_size, alpha * fade, false)
-
-func _draw_elemental_travel_motes(element_id: String, start: Vector2, end: Vector2, travel_progress: float, direction: Vector2, draw_size: float, alpha: float) -> void:
-	var normal := Vector2(-direction.y, direction.x)
-	for mote_index: int in range(ELEMENTAL_TRAVEL_MOTE_COUNT):
-		var spawn_progress: float = lerpf(0.02, 0.90, float(mote_index) / float(ELEMENTAL_TRAVEL_MOTE_COUNT - 1))
-		if travel_progress < spawn_progress:
-			continue
-		var age: float = (travel_progress - spawn_progress) / 0.32
-		if age >= 1.0:
-			continue
-		var seed: int = 9109 + mote_index * 733 + (17 if element_id == "ice" else 0)
-		var variant: int = posmod(mote_index * 3 + 1, AMBIENT_PARTICLE_ATLAS_COLUMNS)
-		var texture: Texture2D = _ambient_particle_texture(element_id, variant)
-		var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant)
-		if texture == null and glow_texture == null:
-			continue
-		var side: float = -1.0 if mote_index % 2 == 0 else 1.0
-		var base_point: Vector2 = start.lerp(end, spawn_progress)
-		var side_drift: float = side * draw_size * (0.08 + 0.18 * age) * lerpf(0.70, 1.24, _ambient_hash01(seed))
-		var point: Vector2 = base_point - direction * draw_size * age * 0.24 + normal * side_drift + Vector2(0.0, draw_size * (0.10 if element_id == "ice" else -0.06) * age)
-		var fade: float = pow(1.0 - age, 1.08) * alpha
-		var mote_size: float = draw_size * lerpf(0.095, 0.045, age) * lerpf(0.72, 1.20, _ambient_hash01(seed + 3))
-		if glow_texture != null:
-			_draw_ambient_particle_sprite(glow_texture, point - direction * mote_size * 0.4, Vector2(mote_size * 2.4, mote_size * 1.12), direction.angle(), fade * 0.28)
-		if texture != null:
-			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, direction.angle() + side * age * 0.72, fade * 0.86)
-
-func _draw_elemental_impact_motes(element_id: String, center: Vector2, impact_progress: float, draw_size: float, alpha: float, use_air_wisps: bool) -> void:
-	if impact_progress < 0.08 or alpha <= 0.0:
-		return
-	var age: float = clampf((impact_progress - 0.08) / 0.92, 0.0, 1.0)
-	for mote_index: int in range(ELEMENTAL_IMPACT_MOTE_COUNT):
-		var seed: int = 11299 + mote_index * 887
-		var angle: float = float(mote_index) * 2.399963 + lerpf(-0.20, 0.20, _ambient_hash01(seed))
-		var direction := Vector2(cos(angle), sin(angle))
-		var radial_distance: float = draw_size * lerpf(0.28, 0.68, _ambient_hash01(seed + 3)) * pow(age, 0.66)
-		var depth_scale: float = lerpf(0.72, 1.24, (sin(angle) + 1.0) * 0.5)
-		var point: Vector2
-		if use_air_wisps:
-			point = center + direction * radial_distance
-		else:
-			var lift_scale: float = 0.28 if element_id == "lightning" else 0.44
-			var ballistic_lift: float = draw_size * lift_scale * lerpf(0.68, 1.18, _ambient_hash01(seed + 5)) * sin(age * PI)
-			var floor_direction := Vector2(direction.x, direction.y * 0.42)
-			point = center + floor_direction * radial_distance + Vector2(0.0, -ballistic_lift + draw_size * 0.10 * age * age)
-		var fade: float = pow(1.0 - age, 0.88) * alpha * lerpf(0.72, 1.0, _ambient_hash01(seed + 7))
-		if use_air_wisps:
-			var air_texture: Texture2D = _ambient_air_wisp_texture(posmod(mote_index, AMBIENT_AIR_WISP_VARIANTS), clampi(int(age * 18.0), 0, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
-			if air_texture != null:
-				_draw_ambient_particle_sprite(air_texture, point, Vector2(draw_size * lerpf(0.22, 0.42, age), draw_size * 0.14) * depth_scale, angle, fade * 0.52, Color(0.78, 0.92, 1.0, 1.0))
-			continue
-		var variant: int = posmod(mote_index * 5 + 2, AMBIENT_PARTICLE_ATLAS_COLUMNS)
-		var texture: Texture2D = _ambient_particle_texture(element_id, variant)
-		var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant)
-		var mote_size: float = draw_size * lerpf(0.070, 0.030, age) * lerpf(0.74, 1.18, _ambient_hash01(seed + 11)) * depth_scale
-		if glow_texture != null:
-			_draw_ambient_particle_sprite(glow_texture, point, Vector2(mote_size * 2.2, mote_size * 1.12), angle, fade * 0.24)
-		if texture != null:
-			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, angle + age * 1.6, fade * 0.82)
-
-func _draw_elemental_ground_trace(element_id: String, start: Vector2, end: Vector2, travel_progress: float, draw_size: float, alpha: float) -> void:
-	if alpha <= 0.0:
-		return
-	for echo_index: int in range(3, -1, -1):
-		var echo_progress: float = maxf(0.0, travel_progress - float(echo_index) * 0.055)
-		var point: Vector2 = start.lerp(end, echo_progress)
-		var frame_index: int = AttackFxLibrary.looping_frame_index(echo_progress + float(echo_index) * 0.13, AMBIENT_PARTICLE_ATLAS_COLUMNS, 2.3)
-		var texture: Texture2D = _elemental_ground_texture(element_id, frame_index)
-		if texture == null:
-			continue
-		var age: float = float(echo_index) / 3.0
-		var strength: float = lerpf(0.26, 0.055, age)
-		var footprint := Vector2(
-			draw_size * lerpf(0.82, 1.12, age),
-			maxf(10.0, _tile_height() * lerpf(0.18, 0.12, age))
-		)
-		_draw_ambient_particle_sprite(texture, point, footprint, 0.0, alpha * strength, _elemental_ground_modulate(element_id))
-
-func _draw_elemental_ground_contact(element_id: String, center: Vector2, impact_progress: float, draw_size: float, alpha: float) -> void:
-	if alpha <= 0.0:
-		return
-	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
-	var frame_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(impact_progress, 8)
-	for layer_index: int in range(3):
-		var layer_scale: float = 1.0 + float(layer_index) * 0.18
-		var footprint_width: float = draw_size * (0.86 + bloom * _elemental_ground_contact_expansion(element_id)) * layer_scale
-		var footprint := Vector2(footprint_width, maxf(18.0, footprint_width * 0.36))
-		var next_weight: float = clampf(frame_blend.z, 0.0, 1.0) if int(frame_blend.x) != int(frame_blend.y) else 0.0
-		var current_weight: float = 1.0 - next_weight
-		for blend_index: int in range(2):
-			var frame_index: int = int(frame_blend.x) if blend_index == 0 else int(frame_blend.y)
-			var frame_weight: float = current_weight if blend_index == 0 else next_weight
-			if frame_weight <= 0.0:
-				continue
-			var texture: Texture2D = _elemental_floor_light_texture(element_id, frame_index)
-			if texture == null:
-				continue
-			_draw_elemental_floor_light_sprite(
-				element_id,
-				texture,
-				center,
-				footprint,
-				alpha * (0.34 - float(layer_index) * 0.095) * frame_weight,
-				_elemental_ground_modulate(element_id),
-				frame_index
-			)
-
-func _elemental_ground_contact_expansion(element_id: String) -> float:
-	match element_id:
-		"ice":
-			return 0.10
-		"earth":
-			return 0.18
-		_:
-			return 0.46
-
-func _elemental_ground_texture(element_id: String, frame_index: int) -> Texture2D:
-	match element_id:
-		"fire":
-			return _ambient_fire_soft_texture(frame_index)
-		"air":
-			return _ambient_air_wisp_soft_texture(frame_index)
-	var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, frame_index)
-	if glow_texture != null:
-		return glow_texture
-	return _ambient_particle_texture(element_id, frame_index)
-
-func _elemental_floor_light_texture(element_id: String, frame_index: int) -> Texture2D:
-	var ground_layer_key: String = ""
-	if element_id == "earth":
-		ground_layer_key = "earth_ground_layer"
-	elif element_id == "ice":
-		ground_layer_key = "ice_ground_layer"
-	if not ground_layer_key.is_empty():
-		var ground_frames: Array[Texture2D] = _authored_elemental_frames(ground_layer_key)
-		if not ground_frames.is_empty():
-			return ground_frames[posmod(frame_index, ground_frames.size())]
-	var bloom_frames: Array[Texture2D] = _authored_elemental_frames("elemental_%s_performance_bloom" % element_id)
-	if not bloom_frames.is_empty():
-		return bloom_frames[posmod(frame_index, bloom_frames.size())]
-	return _elemental_ground_texture(element_id, frame_index)
-
-func _elemental_style_for_id(element_id: String) -> String:
-	match element_id:
-		"earth":
-			return AttackFxLibrary.STYLE_EARTH_SPIKES
-		"air":
-			return AttackFxLibrary.STYLE_AIR_GUST
-		"lightning":
-			return AttackFxLibrary.STYLE_LIGHTNING_BOLT
-		"ice":
-			return AttackFxLibrary.STYLE_ICE_SHARDS
-		_:
-			return AttackFxLibrary.STYLE_FIREBALL
-
-func _draw_elemental_floor_light_sprite(element_id: String, texture: Texture2D, floor_point: Vector2, draw_size: Vector2, alpha: float, modulate: Color, frame_index: int) -> void:
-	if texture == null or draw_size.x <= 0.0 or draw_size.y <= 0.0 or alpha <= 0.0:
-		return
-	var style: String = _elemental_style_for_id(element_id)
-	var source_anchor: Vector2 = Vector2(0.50, 0.50) if element_id in ["earth", "ice"] else _elemental_performance_ground_anchor(style, frame_index)
-	var rect := Rect2(
-		floor_point - Vector2(draw_size.x * source_anchor.x, draw_size.y * source_anchor.y),
-		draw_size
-	)
-	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
-
-func _elemental_ground_modulate(element_id: String) -> Color:
-	match element_id:
-		"fire":
-			return Color(1.0, 0.42, 0.08, 1.0)
-		"air":
-			return Color(0.66, 0.88, 1.0, 1.0)
-		"lightning":
-			return Color(0.64, 0.70, 1.0, 1.0)
-		"ice":
-			return Color(0.52, 0.82, 1.0, 1.0)
-		_:
-			return Color.WHITE
-
-func _draw_authored_oriented_frame(texture: Texture2D, center: Vector2, direction: Vector2, draw_size: Vector2, alpha: float, modulate: Color = Color.WHITE, anchor: Vector2 = Vector2(0.5, 0.5)) -> void:
-	if texture == null or alpha <= 0.0 or draw_size.x <= 0.0 or draw_size.y <= 0.0:
-		return
-	var facing: Vector2 = direction.normalized()
-	if facing.length_squared() <= 0.01:
-		facing = Vector2.RIGHT
-	var rect := Rect2(Vector2(-draw_size.x * anchor.x, -draw_size.y * anchor.y), draw_size)
-	draw_set_transform(center, facing.angle(), Vector2.ONE)
-	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
-func _draw_authored_oriented_frame_blend(frames: Array[Texture2D], frame_blend: Vector3, center: Vector2, direction: Vector2, draw_size: Vector2, alpha: float, modulate: Color = Color.WHITE, anchor: Vector2 = Vector2(0.5, 0.5)) -> void:
-	if frames.is_empty() or alpha <= 0.0:
-		return
-	var current_index: int = clampi(int(frame_blend.x), 0, frames.size() - 1)
-	var next_index: int = clampi(int(frame_blend.y), 0, frames.size() - 1)
-	var next_weight: float = clampf(frame_blend.z, 0.0, 1.0) if current_index != next_index else 0.0
-	_draw_authored_oriented_frame(frames[current_index], center, direction, draw_size, alpha * (1.0 - next_weight), modulate, anchor)
-	if next_weight > 0.0:
-		_draw_authored_oriented_frame(frames[next_index], center, direction, draw_size, alpha * next_weight, modulate, anchor)
-
-func _draw_authored_ground_frame(texture: Texture2D, center: Vector2, draw_size: Vector2, alpha: float, modulate: Color = Color.WHITE) -> void:
-	if texture == null or alpha <= 0.0 or draw_size.x <= 0.0 or draw_size.y <= 0.0:
-		return
-	var rect := Rect2(center - draw_size * 0.5, draw_size)
-	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
-
-func _draw_authored_ground_frame_blend(frames: Array[Texture2D], frame_blend: Vector3, center: Vector2, draw_size: Vector2, alpha: float, modulate: Color = Color.WHITE) -> void:
-	if frames.is_empty() or alpha <= 0.0:
-		return
-	var current_index: int = clampi(int(frame_blend.x), 0, frames.size() - 1)
-	var next_index: int = clampi(int(frame_blend.y), 0, frames.size() - 1)
-	var next_weight: float = clampf(frame_blend.z, 0.0, 1.0) if current_index != next_index else 0.0
-	_draw_authored_ground_frame(frames[current_index], center, draw_size, alpha * (1.0 - next_weight), modulate)
-	if next_weight > 0.0:
-		_draw_authored_ground_frame(frames[next_index], center, draw_size, alpha * next_weight, modulate)
-
-func _draw_authored_bottom_frame(texture: Texture2D, ground_point: Vector2, draw_size: float, alpha: float, modulate: Color = Color.WHITE) -> void:
-	if texture == null or alpha <= 0.0 or draw_size <= 0.0:
-		return
-	var rect := Rect2(ground_point + Vector2(-draw_size * 0.5, -draw_size * 0.957), Vector2.ONE * draw_size)
-	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
-
-func _authored_elemental_frames(frame_key: String) -> Array[Texture2D]:
-	var frames: Array[Texture2D] = []
-	for frame_var: Variant in _effect_frames.get(frame_key, []):
-		if frame_var is Texture2D:
-			frames.append(frame_var)
-	return frames
+	_draw_elemental_performance(AttackFxLibrary.STYLE_ICE_SHARDS, point, impact_progress, alpha, reduced_motion)
 
 func _draw_fireball_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_FIREBALL
@@ -10048,219 +9475,10 @@ func _draw_fireball_attack_effect(effect: Dictionary, progress: float, from_poin
 		_draw_fireball_impact_frame(end, ground_end, impact_progress, 1.0, false)
 
 func _draw_fireball_travel_composite(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float, preview: bool) -> void:
-	var frames: Array[Texture2D] = _fireball_frames("fireball_travel")
-	if frames.is_empty() or alpha <= 0.0:
-		return
-	var direction: Vector2 = (end - start).normalized()
-	if direction.length_squared() <= 0.01:
-		direction = Vector2.RIGHT
-	var normal := Vector2(-direction.y, direction.x)
-	var draw_size: float = clampf(_tile_width() * FIREBALL_TRAVEL_DRAW_TILE_SCALE, FIREBALL_TRAVEL_MIN_SIZE, FIREBALL_TRAVEL_MAX_SIZE)
-	var frame_blend: Vector3 = AttackFxLibrary.looping_frame_blend(travel_progress, frames.size(), FIREBALL_TRAVEL_CYCLES)
-	var frame_index: int = int(frame_blend.x)
-	var glow_texture: Texture2D = _ambient_fire_soft_texture(frame_index)
-	var point: Vector2 = _fireball_travel_point(start, end, travel_progress)
-	var turbulence_phase: float = travel_progress * TAU * 2.35
-	_draw_elemental_ground_trace("fire", ground_start, ground_end, travel_progress, draw_size, alpha * (0.56 if preview else 0.78))
-	if glow_texture != null:
-		_draw_ambient_particle_sprite(
-			glow_texture,
-			point - direction * draw_size * 0.24,
-			Vector2(draw_size * 1.92, draw_size * 0.92),
-			direction.angle(),
-			alpha * (0.18 if preview else 0.34),
-			Color(1.0, 0.42, 0.10, 1.0)
-		)
-	_draw_fireball_wake(point, direction, normal, draw_size, travel_progress, alpha, preview)
-	for afterimage_index: int in range(FIREBALL_AFTERIMAGE_COUNT, 0, -1):
-		var afterimage_progress: float = maxf(0.0, travel_progress - FIREBALL_AFTERIMAGE_SPACING * float(afterimage_index))
-		if is_equal_approx(afterimage_progress, travel_progress):
-			continue
-		var afterimage_point: Vector2 = _fireball_travel_point(start, end, afterimage_progress)
-		var afterimage_blend: Vector3 = _offset_frame_blend(
-			AttackFxLibrary.looping_frame_blend(afterimage_progress, frames.size(), FIREBALL_TRAVEL_CYCLES),
-			-afterimage_index,
-			frames.size()
-		)
-		var afterimage_alpha: float = alpha * (0.025 + float(FIREBALL_AFTERIMAGE_COUNT - afterimage_index) * 0.030)
-		var afterimage_scale: float = 0.68 + float(FIREBALL_AFTERIMAGE_COUNT - afterimage_index) * 0.06
-		_draw_authored_oriented_frame_blend(
-			frames,
-			afterimage_blend,
-			afterimage_point,
-			direction,
-			Vector2(draw_size * afterimage_scale * 1.38, draw_size * afterimage_scale * 0.72),
-			afterimage_alpha,
-			Color.WHITE,
-			FIREBALL_FRAME_CORE_ANCHOR
-		)
-	_draw_fireball_travel_embers(start, end, travel_progress, direction, normal, draw_size, alpha * (0.62 if preview else 1.0))
-	var core_scale: float = 0.92 + 0.085 * sin(turbulence_phase + float(frame_index) * 0.71)
-	var core_direction: Vector2 = direction.rotated(sin(turbulence_phase * 0.77) * 0.026)
-	var velocity_stretch: float = 1.35 + sin(travel_progress * PI) * 0.78
-	_draw_authored_oriented_frame_blend(
-		frames,
-		frame_blend,
-		point,
-		core_direction,
-		Vector2(draw_size * core_scale * velocity_stretch, draw_size * core_scale * lerpf(0.82, 0.58, sin(travel_progress * PI))),
-		alpha * 0.78,
-		Color.WHITE,
-		FIREBALL_FRAME_CORE_ANCHOR
-	)
-
-func _draw_fireball_wake(point: Vector2, direction: Vector2, normal: Vector2, draw_size: float, travel_progress: float, alpha: float, preview: bool) -> void:
-	var wake_frames: Array[Texture2D] = _fireball_frames("fireball_wake")
-	if wake_frames.is_empty():
-		return
-	var frame_blend: Vector3 = AttackFxLibrary.looping_frame_blend(travel_progress, wake_frames.size(), FIREBALL_WAKE_CYCLES)
-	var secondary_frame_blend: Vector3 = _offset_frame_blend(frame_blend, 3, wake_frames.size())
-	var frame_index: int = int(frame_blend.x)
-	var phase: float = travel_progress * TAU * 2.10
-	var pulse: float = 0.96 + sin(phase + float(frame_index) * 0.61) * 0.065
-	var wake_size := Vector2(draw_size * 1.78 * pulse, draw_size * (0.88 + cos(phase * 1.17) * 0.055))
-	var turbulence_offset: Vector2 = normal * sin(phase * 1.31) * draw_size * 0.036
-	_draw_authored_oriented_frame_blend(
-		wake_frames,
-		secondary_frame_blend,
-		point - direction * draw_size * 0.16 - turbulence_offset * 0.72,
-		direction.rotated(-sin(phase) * 0.045),
-		wake_size * Vector2(1.10, 1.14),
-		alpha * (0.11 if preview else 0.22),
-		Color(0.74, 0.28, 0.14, 1.0),
-		FIREBALL_WAKE_CORE_ANCHOR
-	)
-	_draw_authored_oriented_frame_blend(
-		wake_frames,
-		frame_blend,
-		point - direction * draw_size * 0.06 + turbulence_offset,
-		direction.rotated(sin(phase * 0.83) * 0.030),
-		wake_size,
-		alpha * (0.47 if preview else 0.76),
-		Color(1.0, 0.86, 0.72, 1.0),
-		FIREBALL_WAKE_CORE_ANCHOR
-	)
-
-func _draw_fireball_wake_sprite(texture: Texture2D, core_point: Vector2, direction: Vector2, draw_size: Vector2, alpha: float, modulate: Color) -> void:
-	if texture == null or draw_size.x <= 0.0 or draw_size.y <= 0.0 or alpha <= 0.0:
-		return
-	var rect := Rect2(
-		Vector2(-draw_size.x * FIREBALL_WAKE_CORE_ANCHOR.x, -draw_size.y * FIREBALL_WAKE_CORE_ANCHOR.y),
-		draw_size
-	)
-	draw_set_transform(core_point, direction.angle(), Vector2.ONE)
-	draw_texture_rect(texture, rect, false, Color(modulate.r, modulate.g, modulate.b, modulate.a * clampf(alpha, 0.0, 1.0)))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
-func _draw_fireball_travel_embers(start: Vector2, end: Vector2, travel_progress: float, direction: Vector2, normal: Vector2, draw_size: float, alpha: float) -> void:
-	for ember_index: int in range(FIREBALL_TRAVEL_EMBER_COUNT):
-		var spawn_progress: float = 0.025 + float(ember_index) / float(FIREBALL_TRAVEL_EMBER_COUNT - 1) * 0.88
-		if travel_progress < spawn_progress:
-			continue
-		var age: float = (travel_progress - spawn_progress) / 0.30
-		if age >= 1.0:
-			continue
-		var seed: int = 1901 + ember_index * 811
-		var variant_index: int = posmod(ember_index * 3 + 1, AMBIENT_PARTICLE_ATLAS_COLUMNS)
-		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
-		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
-		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
-		if texture == null and soft_texture == null:
-			continue
-		var base_point: Vector2 = _fireball_travel_point(start, end, spawn_progress)
-		var side_sign: float = -1.0 if ember_index % 2 == 0 else 1.0
-		var side_drift: float = side_sign * draw_size * (0.055 + 0.12 * age) * (0.55 + _ambient_hash01(seed + 3) * 0.45)
-		var flutter: float = sin(age * TAU * (0.72 + _ambient_hash01(seed + 5) * 0.42) + _ambient_hash01(seed + 7) * TAU) * draw_size * 0.055
-		var point: Vector2 = base_point + normal * (side_drift + flutter) - direction * draw_size * 0.24 * age + Vector2(0.0, -draw_size * 0.14 * age)
-		var fade: float = pow(1.0 - age, 1.35) * alpha
-		var mote_size: float = draw_size * lerpf(0.105, 0.055, age) * lerpf(0.78, 1.22, _ambient_hash01(seed + 11))
-		if glow_texture != null:
-			_draw_ambient_particle_sprite(glow_texture, point - direction * mote_size * 0.35, Vector2(mote_size * 2.35, mote_size * 1.20), direction.angle(), fade * 0.22, Color(1.0, 0.44, 0.10, 1.0))
-		if soft_texture != null:
-			_draw_ambient_particle_sprite(soft_texture, point, Vector2.ONE * mote_size * 1.28, direction.angle() + side_sign * 0.18, fade * 0.72, Color(1.0, 0.76, 0.32, 1.0))
-		if texture != null:
-			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, direction.angle(), fade * 0.78)
-
-func _fireball_travel_point(start: Vector2, end: Vector2, travel_progress: float) -> Vector2:
-	return start.lerp(end, clampf(travel_progress, 0.0, 1.0))
-
-func _draw_fireball_travel_sprite(texture: Texture2D, core_point: Vector2, direction: Vector2, draw_size: float, alpha: float) -> void:
-	if texture == null or draw_size <= 0.0 or alpha <= 0.0:
-		return
-	var rect := Rect2(
-		Vector2(-draw_size * FIREBALL_FRAME_CORE_ANCHOR.x, -draw_size * FIREBALL_FRAME_CORE_ANCHOR.y),
-		Vector2.ONE * draw_size
-	)
-	draw_set_transform(core_point, direction.angle(), Vector2.ONE)
-	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, clampf(alpha, 0.0, 1.0)))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	ElementalSpellFx.travel(self, "fire", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
 
 func _draw_fireball_impact_frame(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
-	var frames: Array[Texture2D] = _fireball_frames("fireball_impact")
-	if alpha <= 0.0:
-		return
-	var draw_size: float = _draw_elemental_performance(AttackFxLibrary.STYLE_FIREBALL, ground_center, impact_progress, alpha, reduced_motion)
-	if draw_size <= 0.0:
-		return
-	if not frames.is_empty() and not reduced_motion:
-		var contact_alpha: float = 1.0 - smoothstep(0.0, 0.34, impact_progress)
-		var contact_size: float = clampf(_tile_width() * 1.92, 158.0, 232.0) * _elemental_detonation_scale(AttackFxLibrary.STYLE_FIREBALL)
-		var contact_blend: Vector3 = AttackFxLibrary.one_shot_frame_blend(impact_progress, frames.size())
-		_draw_elemental_blended_performance_frames(
-			frames,
-			contact_blend,
-			ground_center,
-			contact_size,
-			alpha * contact_alpha * 0.44,
-			Color.WHITE,
-			AttackFxLibrary.STYLE_FIREBALL
-		)
-	if not reduced_motion:
-		_draw_fireball_impact_embers(ground_center, impact_progress, draw_size, alpha)
-
-func _draw_fireball_impact_embers(center: Vector2, impact_progress: float, draw_size: float, alpha: float) -> void:
-	if impact_progress < 0.06 or alpha <= 0.0:
-		return
-	for ember_index: int in range(FIREBALL_IMPACT_EMBER_COUNT):
-		var seed: int = 4201 + ember_index * 977
-		var wave_index: int = ember_index / 9
-		var spawn_progress: float = 0.06 + float(wave_index) * 0.24 + float(ember_index % 9) * 0.012
-		if impact_progress <= spawn_progress:
-			continue
-		var age: float = clampf((impact_progress - spawn_progress) / maxf(0.12, 1.0 - spawn_progress), 0.0, 1.0)
-		if age >= 1.0:
-			continue
-		var angle: float = float(ember_index) * 2.399963 + lerpf(-0.18, 0.18, _ambient_hash01(seed + 3))
-		var radial_speed: float = lerpf(0.38, 0.78, _ambient_hash01(seed + 5))
-		var radial_distance: float = draw_size * radial_speed * pow(age, 0.68)
-		var depth_scale: float = lerpf(0.74, 1.22, (sin(angle) + 1.0) * 0.5)
-		var floor_direction := Vector2(cos(angle), sin(angle) * 0.42)
-		var ballistic_lift: float = draw_size * lerpf(0.30, 0.60, _ambient_hash01(seed + 13)) * sin(age * PI)
-		var point: Vector2 = center + floor_direction * radial_distance + Vector2(0.0, -ballistic_lift + draw_size * 0.12 * age * age)
-		var variant_index: int = posmod(ember_index * 5 + 2, AMBIENT_PARTICLE_ATLAS_COLUMNS)
-		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
-		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
-		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
-		var stagger: float = lerpf(0.72, 1.0, _ambient_hash01(seed + 7))
-		var fade: float = pow(1.0 - age, 0.68) * alpha * stagger
-		var mote_size: float = draw_size * lerpf(0.075, 0.035, age) * lerpf(0.78, 1.18, _ambient_hash01(seed + 11)) * depth_scale
-		if glow_texture != null:
-			var ember_velocity := Vector2(floor_direction.x * draw_size * radial_speed * 0.42, -draw_size * lerpf(0.24, 0.44, _ambient_hash01(seed + 17)))
-			_draw_ambient_particle_trail(glow_texture, point, ember_velocity, Vector2(mote_size * 1.42, mote_size), fade * 0.58, "fire")
-			_draw_ambient_particle_sprite(glow_texture, point, Vector2(mote_size * 2.20, mote_size * 1.12), angle, fade * 0.20, Color(1.0, 0.43, 0.08, 1.0))
-		if soft_texture != null:
-			_draw_ambient_particle_sprite(soft_texture, point, Vector2.ONE * mote_size * 1.18, angle, fade * 0.65, Color(1.0, 0.72, 0.26, 1.0))
-			var smoke_point: Vector2 = point + Vector2(0.0, -draw_size * 0.06 * age)
-			_draw_ambient_particle_sprite(soft_texture, smoke_point, Vector2(mote_size * lerpf(1.8, 3.2, age), mote_size * lerpf(1.2, 2.4, age)), -angle * 0.18, fade * 0.16, Color(0.42, 0.30, 0.25, 1.0))
-		if texture != null:
-			_draw_ambient_particle_sprite(texture, point, Vector2.ONE * mote_size, angle, fade * 0.75)
-
-func _fireball_frames(frame_key: String) -> Array[Texture2D]:
-	var frames: Array[Texture2D] = []
-	for frame_var: Variant in _effect_frames.get(frame_key, []):
-		if frame_var is Texture2D:
-			frames.append(frame_var)
-	return frames
+	_draw_elemental_performance(AttackFxLibrary.STYLE_FIREBALL, ground_center, impact_progress, alpha, reduced_motion)
 
 func _draw_elemental_projectile_trail(
 	start: Vector2,
@@ -12308,131 +11526,6 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 			MELEE_SLASH_SHEET_COLUMNS,
 			MELEE_SLASH_SHEET_ROWS
 		),
-		"fireball_travel": _load_sprite_sheet_frames(
-			FIREBALL_TRAVEL_SHEET_PATH,
-			FIREBALL_TRAVEL_SHEET_COLUMNS,
-			FIREBALL_TRAVEL_SHEET_ROWS
-		),
-		"fireball_wake": _load_sprite_sheet_frames(
-			FIREBALL_WAKE_SHEET_PATH,
-			FIREBALL_WAKE_SHEET_COLUMNS,
-			FIREBALL_WAKE_SHEET_ROWS
-		),
-		"fireball_impact": _load_sprite_sheet_frames(
-			FIREBALL_IMPACT_SHEET_PATH,
-			FIREBALL_IMPACT_SHEET_COLUMNS,
-			FIREBALL_IMPACT_SHEET_ROWS
-		),
-		"earth_spike_travel": _load_sprite_sheet_frames(
-			EARTH_SPIKE_TRAVEL_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"earth_spike_impact": _load_sprite_sheet_frames(
-			EARTH_SPIKE_IMPACT_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"earth_ground_layer": _load_sprite_sheet_frames(
-			EARTH_GROUND_LAYER_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"air_gust_travel": _load_sprite_sheet_frames(
-			AIR_GUST_TRAVEL_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"air_gust_impact": _load_sprite_sheet_frames(
-			AIR_GUST_IMPACT_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"air_envelope_layer": _load_sprite_sheet_frames(
-			AIR_ENVELOPE_LAYER_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"lightning_bolt_travel": _load_sprite_sheet_frames(
-			LIGHTNING_BOLT_TRAVEL_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"lightning_bolt_impact": _load_sprite_sheet_frames(
-			LIGHTNING_BOLT_IMPACT_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"lightning_envelope_layer": _load_sprite_sheet_frames(
-			LIGHTNING_ENVELOPE_LAYER_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"ice_shard_travel": _load_sprite_sheet_frames(
-			ICE_SHARD_TRAVEL_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"ice_icicle_impact": _load_sprite_sheet_frames(
-			ICE_ICICLE_IMPACT_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"ice_ground_layer": _load_sprite_sheet_frames(
-			ICE_GROUND_LAYER_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_fire_performance": _load_sprite_sheet_frames(
-			ELEMENTAL_FIRE_PERFORMANCE_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_earth_performance": _load_sprite_sheet_frames(
-			ELEMENTAL_EARTH_PERFORMANCE_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_air_performance": _load_sprite_sheet_frames(
-			ELEMENTAL_AIR_PERFORMANCE_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_lightning_performance": _load_sprite_sheet_frames(
-			ELEMENTAL_LIGHTNING_PERFORMANCE_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_ice_performance": _load_sprite_sheet_frames(
-			ELEMENTAL_ICE_PERFORMANCE_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_fire_performance_bloom": _load_sprite_sheet_frames(
-			ELEMENTAL_FIRE_PERFORMANCE_BLOOM_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_earth_performance_bloom": _load_sprite_sheet_frames(
-			ELEMENTAL_EARTH_PERFORMANCE_BLOOM_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_air_performance_bloom": _load_sprite_sheet_frames(
-			ELEMENTAL_AIR_PERFORMANCE_BLOOM_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_lightning_performance_bloom": _load_sprite_sheet_frames(
-			ELEMENTAL_LIGHTNING_PERFORMANCE_BLOOM_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
-		"elemental_ice_performance_bloom": _load_sprite_sheet_frames(
-			ELEMENTAL_ICE_PERFORMANCE_BLOOM_SHEET_PATH,
-			ELEMENTAL_ATTACK_SHEET_COLUMNS,
-			ELEMENTAL_ATTACK_SHEET_ROWS
-		),
 		"defense_heal_casts": _load_sprite_sheet_frames(
 			DEFENSE_HEAL_CASTS_PATH,
 			DEFENSE_HEAL_CASTS_COLUMNS,
@@ -13473,6 +12566,11 @@ func _tile_step_offset(dir: Vector2i) -> Vector2:
 
 func world_position_for_tile(tile: Vector2i) -> Vector2:
 	return _tile_center(tile)
+
+
+func tile_at_global_position(global_position: Vector2) -> Vector2i:
+	var local_position: Vector2 = get_global_transform_with_canvas().affine_inverse() * global_position
+	return _tile_at_point(local_position)
 
 func world_position_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vector2:
 	var footprint: Vector2i = _resolved_unit_footprint(unit)

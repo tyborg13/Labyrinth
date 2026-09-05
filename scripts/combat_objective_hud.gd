@@ -6,10 +6,47 @@ const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
+const INTRO_START_SCALE: float = 0.88
+const INTRO_POP_SCALE: float = 2.65
+const INTRO_VERTICAL_RATIO: float = 0.28
+const INTRO_TEXT_SIZE := Vector2(1280.0, 220.0)
+const INTRO_KICKER_START_FONT_SIZE: int = 40
+const INTRO_KICKER_FONT_SIZE: int = 46
+const INTRO_TITLE_START_FONT_SIZE: int = 82
+const INTRO_TITLE_FONT_SIZE: int = 92
+const INTRO_TEXT_TARGET_SCALE: float = 0.32
+const INTRO_KICKER_SHADOW_COLOR := Color(0.008, 0.003, 0.012, 0.68)
+const INTRO_TITLE_SHADOW_COLOR := Color(0.008, 0.003, 0.012, 0.78)
+const INTRO_POP_SECONDS: float = 0.24
+const INTRO_HOLD_SECONDS: float = 0.56
+const INTRO_TRAVEL_SECONDS: float = 0.64
+const INTRO_REDUCED_HOLD_SECONDS: float = 0.65
+const INTRO_SHADOW_FADE_SECONDS: float = 0.22
+const INTRO_CHROME_DELAY_SECONDS: float = 0.20
+const INTRO_CHROME_FADE_SECONDS: float = 0.26
+const INTRO_TEXT_FADE_DELAY_SECONDS: float = 0.36
+const INTRO_TEXT_FADE_SECONDS: float = 0.12
+const INTRO_CONTENT_DELAY_SECONDS: float = 0.52
+const INTRO_CONTENT_FADE_SECONDS: float = 0.12
+const PANEL_BACKGROUND_COLOR := Color(0.055, 0.038, 0.062, 0.96)
+const PANEL_BORDER_COLOR := Color(0.66, 0.48, 0.27, 0.92)
+const PANEL_SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.58)
+
 var _icon: TextureRect
 var _title: Label
 var _detail: Label
+var _content_row: HBoxContainer
+var _intro_text_stack: VBoxContainer
+var _intro_kicker: Label
+var _intro_title: Label
+var _panel_style: StyleBoxFlat
 var _presentation_signature: String = ""
+var intro_active: bool = false
+var intro_phase: String = ""
+var intro_chrome_progress: float = 1.0
+var intro_content_progress: float = 1.0
+var intro_shadow_progress: float = 0.0
+var _intro_tween: Tween
 
 func _ready() -> void:
 	_build()
@@ -36,6 +73,7 @@ func set_combat_state(state: Dictionary) -> bool:
 	_icon.texture = AssetLoader.load_texture(icon_path)
 	_title.text = title_text
 	_detail.text = detail_text
+	_intro_title.text = title_text
 	tooltip_text = next_tooltip
 	return true
 
@@ -47,11 +85,11 @@ func _build() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_HELP
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.038, 0.062, 0.96)
-	style.border_color = Color(0.66, 0.48, 0.27, 0.92)
+	style.bg_color = PANEL_BACKGROUND_COLOR
+	style.border_color = PANEL_BORDER_COLOR
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(7)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
+	style.shadow_color = PANEL_SHADOW_COLOR
 	style.shadow_size = 8
 	style.shadow_offset = Vector2(0.0, 3.0)
 	style.content_margin_left = 12.0
@@ -59,7 +97,9 @@ func _build() -> void:
 	style.content_margin_right = 16.0
 	style.content_margin_bottom = 8.0
 	add_theme_stylebox_override("panel", style)
+	_panel_style = style
 	var row := HBoxContainer.new()
+	_content_row = row
 	row.add_theme_constant_override("separation", 12)
 	add_child(row)
 	var icon_frame := PanelContainer.new()
@@ -110,6 +150,304 @@ func _build() -> void:
 	_detail.add_theme_font_size_override("font_size", 13)
 	_detail.add_theme_color_override("font_color", Color("c9c4b2"))
 	text_stack.add_child(_detail)
+
+	_intro_text_stack = VBoxContainer.new()
+	_intro_text_stack.name = "ObjectiveIntroText"
+	_intro_text_stack.top_level = true
+	_intro_text_stack.z_as_relative = false
+	_intro_text_stack.z_index = 61
+	_intro_text_stack.custom_minimum_size = INTRO_TEXT_SIZE
+	_intro_text_stack.size = INTRO_TEXT_SIZE
+	_intro_text_stack.alignment = BoxContainer.ALIGNMENT_CENTER
+	_intro_text_stack.add_theme_constant_override("separation", 0)
+	_intro_text_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_intro_text_stack.visible = false
+	add_child(_intro_text_stack)
+	_intro_kicker = Label.new()
+	_intro_kicker.name = "ObjectiveIntroKicker"
+	_intro_kicker.text = "OBJECTIVE"
+	_intro_kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_intro_kicker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_label_role(_intro_kicker, UiTypography.ROLE_CAPTION)
+	_intro_kicker.add_theme_color_override("font_color", Color("d2ad72"))
+	_intro_kicker.add_theme_color_override("font_outline_color", Color("12090a"))
+	_intro_kicker.add_theme_constant_override("outline_size", 4)
+	_intro_kicker.add_theme_constant_override("shadow_offset_x", 3)
+	_intro_kicker.add_theme_constant_override("shadow_offset_y", 6)
+	_intro_kicker.add_theme_constant_override("shadow_outline_size", 3)
+	_intro_text_stack.add_child(_intro_kicker)
+	_intro_title = Label.new()
+	_intro_title.name = "ObjectiveIntroTitle"
+	_intro_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_intro_title.clip_text = true
+	_intro_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_intro_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_label_role(_intro_title, UiTypography.ROLE_TITLE)
+	_intro_title.add_theme_color_override("font_color", Color("fff0c7"))
+	_intro_title.add_theme_color_override("font_outline_color", Color("12090a"))
+	_intro_title.add_theme_constant_override("outline_size", 7)
+	_intro_title.add_theme_constant_override("shadow_offset_x", 4)
+	_intro_title.add_theme_constant_override("shadow_offset_y", 8)
+	_intro_title.add_theme_constant_override("shadow_outline_size", 4)
+	_intro_text_stack.add_child(_intro_title)
+	_set_intro_font_progress(1.0)
+	_set_intro_shadow_progress(0.0)
+
+func set_hud_rect(rect: Rect2) -> void:
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	offset_left = rect.position.x
+	offset_top = rect.position.y
+	offset_right = rect.end.x
+	offset_bottom = rect.end.y
+
+func prepare_intro(target_rect: Rect2, viewport_size: Vector2) -> bool:
+	cancel_intro()
+	if not visible or not is_inside_tree():
+		return false
+	var intro_center := Vector2(
+		viewport_size.x * 0.5,
+		viewport_size.y * INTRO_VERTICAL_RATIO
+	)
+	var intro_rect := Rect2(
+		intro_center - target_rect.size * 0.5,
+		target_rect.size
+	)
+	intro_active = true
+	intro_phase = "prepared"
+	z_index = 60
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pivot_offset = target_rect.size * 0.5
+	set_hud_rect(intro_rect)
+	scale = Vector2.ONE * INTRO_START_SCALE
+	modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_set_intro_chrome_progress(0.0)
+	_set_intro_content_progress(0.0)
+	_set_intro_font_progress(0.0)
+	_set_intro_shadow_progress(0.0)
+	_intro_text_stack.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_intro_text_stack.size = INTRO_TEXT_SIZE
+	_intro_text_stack.position = intro_center - INTRO_TEXT_SIZE * 0.5
+	_intro_text_stack.pivot_offset = INTRO_TEXT_SIZE * 0.5
+	_intro_text_stack.scale = Vector2.ONE
+	_intro_text_stack.visible = true
+	_intro_text_stack.modulate = Color.TRANSPARENT
+	return true
+
+func play_intro(target_rect: Rect2, viewport_size: Vector2, reduced_motion: bool) -> void:
+	if not intro_active or intro_phase != "prepared":
+		if not prepare_intro(target_rect, viewport_size):
+			return
+
+	if reduced_motion:
+		scale = Vector2.ONE * INTRO_POP_SCALE
+		modulate = Color.WHITE
+		_set_intro_font_progress(1.0)
+		_set_intro_shadow_progress(1.0)
+		_intro_text_stack.scale = Vector2.ONE
+		_intro_text_stack.modulate = Color.WHITE
+		intro_phase = "reduced_hold"
+		await get_tree().create_timer(INTRO_REDUCED_HOLD_SECONDS).timeout
+		if not _intro_can_continue():
+			return
+		_finish_intro(target_rect)
+		return
+
+	intro_phase = "appearing"
+	_intro_tween = create_tween().set_parallel(true)
+	_intro_tween.tween_property(
+		self,
+		"scale",
+		Vector2.ONE * INTRO_POP_SCALE,
+		INTRO_POP_SECONDS
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_property(
+		self,
+		"modulate:a",
+		1.0,
+		INTRO_POP_SECONDS * 0.72
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_property(
+		_intro_text_stack,
+		"modulate:a",
+		1.0,
+		INTRO_POP_SECONDS * 0.72
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_method(
+		_set_intro_font_progress,
+		0.0,
+		1.0,
+		INTRO_POP_SECONDS
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_method(
+		_set_intro_shadow_progress,
+		0.0,
+		1.0,
+		INTRO_POP_SECONDS
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await _intro_tween.finished
+	if not _intro_can_continue():
+		return
+
+	intro_phase = "holding"
+	await get_tree().create_timer(INTRO_HOLD_SECONDS).timeout
+	if not _intro_can_continue():
+		return
+
+	intro_phase = "traveling"
+	_intro_tween = create_tween().set_parallel(true)
+	_intro_tween.tween_property(
+		self,
+		"position",
+		target_rect.position,
+		INTRO_TRAVEL_SECONDS
+	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_property(
+		_intro_text_stack,
+		"position",
+		target_rect.position + target_rect.size * 0.5 - INTRO_TEXT_SIZE * 0.5,
+		INTRO_TRAVEL_SECONDS
+	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_property(
+		_intro_text_stack,
+		"scale",
+		Vector2.ONE * INTRO_TEXT_TARGET_SCALE,
+		INTRO_TRAVEL_SECONDS
+	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_property(
+		self,
+		"scale",
+		Vector2.ONE,
+		INTRO_TRAVEL_SECONDS
+	).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_property(
+		_intro_text_stack,
+		"modulate:a",
+		0.0,
+		INTRO_TEXT_FADE_SECONDS
+	).set_delay(INTRO_TEXT_FADE_DELAY_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_intro_tween.tween_method(
+		_set_intro_shadow_progress,
+		1.0,
+		0.0,
+		INTRO_SHADOW_FADE_SECONDS
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_intro_tween.tween_method(
+		_set_intro_chrome_progress,
+		0.0,
+		1.0,
+		INTRO_CHROME_FADE_SECONDS
+	).set_delay(INTRO_CHROME_DELAY_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_method(
+		_set_intro_content_progress,
+		0.0,
+		1.0,
+		INTRO_CONTENT_FADE_SECONDS
+	).set_delay(INTRO_CONTENT_DELAY_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await _intro_tween.finished
+	if not _intro_can_continue():
+		return
+	_finish_intro(target_rect)
+
+func cancel_intro() -> void:
+	if _intro_tween != null and _intro_tween.is_valid():
+		_intro_tween.kill()
+	_intro_tween = null
+	intro_active = false
+	intro_phase = ""
+	z_index = 34
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	scale = Vector2.ONE
+	modulate = Color.WHITE
+	_set_intro_chrome_progress(1.0)
+	_set_intro_content_progress(1.0)
+	_set_intro_shadow_progress(0.0)
+	if _intro_text_stack != null:
+		_intro_text_stack.visible = false
+		_intro_text_stack.modulate = Color.TRANSPARENT
+		_intro_text_stack.scale = Vector2.ONE
+
+func _intro_can_continue() -> bool:
+	return intro_active and visible and is_inside_tree()
+
+func _set_intro_chrome_progress(progress: float) -> void:
+	intro_chrome_progress = clampf(progress, 0.0, 1.0)
+	if _panel_style != null:
+		_panel_style.bg_color = Color(
+			PANEL_BACKGROUND_COLOR.r,
+			PANEL_BACKGROUND_COLOR.g,
+			PANEL_BACKGROUND_COLOR.b,
+			PANEL_BACKGROUND_COLOR.a * intro_chrome_progress
+		)
+		_panel_style.border_color = Color(
+			PANEL_BORDER_COLOR.r,
+			PANEL_BORDER_COLOR.g,
+			PANEL_BORDER_COLOR.b,
+			PANEL_BORDER_COLOR.a * intro_chrome_progress
+		)
+		_panel_style.shadow_color = Color(
+			PANEL_SHADOW_COLOR.r,
+			PANEL_SHADOW_COLOR.g,
+			PANEL_SHADOW_COLOR.b,
+			PANEL_SHADOW_COLOR.a * intro_chrome_progress
+		)
+
+func _set_intro_content_progress(progress: float) -> void:
+	intro_content_progress = clampf(progress, 0.0, 1.0)
+	if _content_row != null:
+		_content_row.modulate = Color(1.0, 1.0, 1.0, intro_content_progress)
+
+func _set_intro_font_progress(progress: float) -> void:
+	var amount: float = clampf(progress, 0.0, 1.0)
+	if _intro_kicker != null:
+		_intro_kicker.add_theme_font_size_override(
+			"font_size",
+			roundi(lerpf(INTRO_KICKER_START_FONT_SIZE, INTRO_KICKER_FONT_SIZE, amount))
+		)
+	if _intro_title != null:
+		_intro_title.add_theme_font_size_override(
+			"font_size",
+			roundi(lerpf(INTRO_TITLE_START_FONT_SIZE, INTRO_TITLE_FONT_SIZE, amount))
+		)
+
+func _set_intro_shadow_progress(progress: float) -> void:
+	intro_shadow_progress = clampf(progress, 0.0, 1.0)
+	if _intro_kicker != null:
+		_intro_kicker.add_theme_color_override(
+			"font_shadow_color",
+			Color(
+				INTRO_KICKER_SHADOW_COLOR.r,
+				INTRO_KICKER_SHADOW_COLOR.g,
+				INTRO_KICKER_SHADOW_COLOR.b,
+				INTRO_KICKER_SHADOW_COLOR.a * intro_shadow_progress
+			)
+		)
+	if _intro_title != null:
+		_intro_title.add_theme_color_override(
+			"font_shadow_color",
+			Color(
+				INTRO_TITLE_SHADOW_COLOR.r,
+				INTRO_TITLE_SHADOW_COLOR.g,
+				INTRO_TITLE_SHADOW_COLOR.b,
+				INTRO_TITLE_SHADOW_COLOR.a * intro_shadow_progress
+			)
+		)
+
+func _finish_intro(target_rect: Rect2) -> void:
+	intro_active = false
+	intro_phase = "settled"
+	_intro_tween = null
+	z_index = 34
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	scale = Vector2.ONE
+	modulate = Color.WHITE
+	_set_intro_chrome_progress(1.0)
+	_set_intro_content_progress(1.0)
+	_set_intro_shadow_progress(0.0)
+	if _intro_text_stack != null:
+		_intro_text_stack.visible = false
+		_intro_text_stack.modulate = Color.TRANSPARENT
+		_intro_text_stack.scale = Vector2.ONE
+	set_hud_rect(target_rect)
 
 func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 	var filters_hidden_enemies: bool = state.has("visible_enemy_ids")

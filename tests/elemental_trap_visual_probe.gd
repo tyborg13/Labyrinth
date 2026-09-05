@@ -76,6 +76,7 @@ func _capture_trap_board() -> void:
 		instance.call("_close_dialogue")
 	await _load_combat_fixture(instance)
 	await _settle_ui(10)
+	_expect(not bool(instance.call("_controller_modal_visible")), "Trap proof must capture the live board without a blocking modal")
 
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	_expect(board != null, "The elemental trap probe should find the live CombatBoardView")
@@ -94,10 +95,10 @@ func _capture_animation_states(board: Control, instance: Node) -> void:
 	idle_presentation["reduced_motion"] = false
 	board.set("presentation", idle_presentation)
 	board.set("_idle_elapsed", 0.0)
-	board.set("_idle_frame_key", "")
+	board.set("_idle_frame_by_source", {})
 	board.call("_sync_dynamic_render_state", false)
 	board.call("reset_render_instrumentation")
-	board.call("_queue_active_idle_redraws")
+	board.call("_queue_active_idle_redraws", board.call("_active_idle_frames_by_source"))
 	await _settle_ui(3)
 	var first_idle_image: Image = await _save_screenshot(SCREENSHOT_PATH)
 	var first_idle_key: String = str(board.call("_active_idle_frame_key"))

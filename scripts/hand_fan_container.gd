@@ -11,6 +11,8 @@ const DENSE_OVERLAP_RATIO_STEP: float = 0.07
 const MAX_CARD_OVERLAP_RATIO: float = 0.40
 const DEFAULT_EMPHASIS_SCALE: float = 1.28
 const DEFAULT_EMPHASIS_EXTRA_LIFT: float = 12.0
+const TARGETING_EMPHASIS_SCALE: float = 1.10
+const TARGETING_EMPHASIS_EXTRA_LIFT: float = 22.0
 const DEFAULT_EMPHASIS_REMAINING_OVERLAP: float = 12.0
 const DEFAULT_EMPHASIS_MAX_SIDE_SHIFT: float = 60.0
 const DEFAULT_MIN_EXPOSED_CARD_WIDTH: float = 36.0
@@ -24,6 +26,8 @@ var _max_rotation_degrees: float = DEFAULT_MAX_ROTATION_DEGREES
 var _bottom_overflow_allowance: float = DEFAULT_BOTTOM_OVERFLOW_ALLOWANCE
 var _emphasized_index: int = -1
 var _emphasis_strength: float = 0.0
+var _emphasis_scale: float = DEFAULT_EMPHASIS_SCALE
+var _emphasis_extra_lift: float = DEFAULT_EMPHASIS_EXTRA_LIFT
 var _emphasis_tween: Tween
 
 func _ready() -> void:
@@ -42,9 +46,22 @@ func refresh_layout() -> void:
 	update_minimum_size()
 	queue_sort()
 
-func set_emphasized_index(index: int, animated: bool = true) -> void:
+func apply_layout_immediately() -> void:
+	# Pointer drag ownership changes inside an input event. Apply the already-known
+	# fan geometry synchronously so its cancel target cannot retain one stale hover
+	# frame while the detached proxy is being mounted.
+	_notification(NOTIFICATION_SORT_CHILDREN)
+
+func set_emphasized_index(
+	index: int,
+	animated: bool = true,
+	emphasis_scale: float = DEFAULT_EMPHASIS_SCALE,
+	emphasis_extra_lift: float = DEFAULT_EMPHASIS_EXTRA_LIFT
+) -> void:
 	var child_count: int = _layout_children().size()
 	var next_index: int = index if index >= 0 and index < child_count else -1
+	_emphasis_scale = maxf(1.0, emphasis_scale)
+	_emphasis_extra_lift = maxf(0.0, emphasis_extra_lift)
 	if _emphasis_tween != null:
 		_emphasis_tween.kill()
 		_emphasis_tween = null
@@ -112,14 +129,17 @@ func _notification(what: int) -> void:
 			_fan_enabled,
 			_emphasized_index,
 			_emphasis_strength,
-			_arch_height
+			_arch_height,
+			_emphasis_scale,
+			_emphasis_extra_lift
 		)
 		fit_child_in_rect(child, rect)
 		child.pivot_offset = rect.size * 0.5
 		child.scale = Vector2.ONE * card_scale_for_emphasized_layout(
 			index,
 			_emphasized_index,
-			_emphasis_strength
+			_emphasis_strength,
+			_emphasis_scale
 		)
 		child.rotation = card_rotation_for_emphasized_layout(
 			index,
@@ -195,7 +215,8 @@ static func emphasized_card_rect_for_layout(
 	emphasized_index: int,
 	emphasis_strength: float,
 	arch_height: float = DEFAULT_ARCH_HEIGHT,
-	emphasis_scale: float = DEFAULT_EMPHASIS_SCALE
+	emphasis_scale: float = DEFAULT_EMPHASIS_SCALE,
+	emphasis_extra_lift: float = DEFAULT_EMPHASIS_EXTRA_LIFT
 ) -> Rect2:
 	var rect: Rect2 = card_rect_for_layout(index, total, card_size, card_gap, fan_enabled, arch_height)
 	if emphasized_index < 0 or emphasized_index >= total or emphasis_strength <= 0.0:
@@ -210,7 +231,7 @@ static func emphasized_card_rect_for_layout(
 		var focused_scale: float = lerpf(1.0, emphasis_scale, strength)
 		rect.position.y -= (
 			card_size.y * (focused_scale - 1.0) * 0.5
-			+ DEFAULT_EMPHASIS_EXTRA_LIFT * strength
+			+ emphasis_extra_lift * strength
 		)
 	return rect
 
