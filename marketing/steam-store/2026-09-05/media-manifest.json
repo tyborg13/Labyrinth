@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "source_root": "/Users/borgerding/workspace/Labyrinth.worktrees/wishlist-visual-polish-and-steam-trailer/marketing/trailer/public/footage",
+  "sources": {
+    "push_bloom": {
+      "file": "push_bloom.mp4",
+      "sha256": "15e0dff807920a5f86f67a2dde8ff7f5158b4c5ebcc08d73d4fdc01e82c0888b",
+      "bytes": 7207100,
+      "cue_file": "push_bloom.cues.json",
+      "cue_sha256": "282065b6ae9d909cd0b2cdf3cf01085877f6603726199ac318fe43e3a73beb10",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 504
+    },
+    "root_chain": {
+      "file": "root_chain.mp4",
+      "sha256": "801602b2d7ac680c5157ea8b2f3af0ba0bdf099aa3214e30cc044b5e149daf7a",
+      "bytes": 6856689,
+      "cue_file": "root_chain.cues.json",
+      "cue_sha256": "5a622b2a8edcefd892d4bf6ad18851a10be6af47c82d50a052cc8b86268427f0",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 501
+    },
+    "spell": {
+      "file": "spell.mp4",
+      "sha256": "a1e7954aa2f2781e63bb68c87b21b4edc4b46f8b9ae5e8242b0d057c69e81238",
+      "bytes": 3269707,
+      "cue_file": "spell.cues.json",
+      "cue_sha256": "b04032e7d5430e897ba5f49e244524f43eca2a798c5afbc0c8db2c249b51b7e7",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 284
+    },
+    "merchant": {
+      "file": "merchant.mp4",
+      "sha256": "9cf3193250c560fa2a9556ef5b5ce5e16466fd06f17af4464186f558f85d1f37",
+      "bytes": 1711424,
+      "cue_file": "merchant.cues.json",
+      "cue_sha256": "c12af014619a4a8f77229a95478d2c5f8da2b34fcd0a86e8ab8860aee70a9b85",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 243
+    },
+    "equipment": {
+      "file": "equipment.mp4",
+      "sha256": "5c98dffcfdec8fc71ab4adfe3f20cd404ce91d48d7c49e5b942670ab5ab9d04b",
+      "bytes": 2061781,
+      "cue_file": "equipment.cues.json",
+      "cue_sha256": "c03bedaebb9d3f8b5b4ad87d6c51c28f5c8f6eeb638ee1ea095ba23ce3668b2a",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 190
+    },
+    "route": {
+      "file": "route.mp4",
+      "sha256": "44d1a07807617ed1b7902464328dc4c6b8276b7a2db82e53dd329a9ebcab3f3f",
+      "bytes": 315668,
+      "cue_file": "route.cues.json",
+      "cue_sha256": "3174bc35ac7a07994a7f9092c7e9fc11d126b720e5295eb5652bd207840958bd",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 165
+    }
+  },
+  "policy": {
+    "screenshots": "Uncropped gameplay frames with native UI; no added text or art.",
+    "loops": "Full native frame, natural 30fps timing, silent, hard restart; no camera changes or added frames.",
+    "loop_max_seconds": 12,
+    "description_media_budget_bytes": 15000000
+  },
+  "valve_sources": [
+    "https://partner.steamgames.com/doc/store/assets/standard?l=english",
+    "https://partner.steamgames.com/doc/store/page/assets?l=english",
+    "https://partner.steamgames.com/doc/store/page/description?l=english"
+  ],
+  "screenshots": [
+    {
+      "file": "screenshots/01-line-up-the-cross.png",
+      "source": "push_bloom",
+      "source_frame": 239,
+      "source_seconds": 7.966666666666667,
+      "alt": "Aim Cinder Bloom at three enemies after pushing a crawler into the cross and moving into range.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "f1c63cf584712250f676640523636eeb60615677028b45051cbdc5060f5d9e7f",
+      "bytes": 2060252
+    },
+    {
+      "file": "screenshots/02-chain-the-lightning.png",
+      "source": "root_chain",
+      "source_frame": 287,
+      "source_seconds": 9.566666666666666,
+      "alt": "Lightning jumps from a crawler to an acolyte after the group is revealed by light.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "5235f5d1c80b920c26de4b1d9153b2821a90018753f3ad174f98fe815536f0b4",
+      "bytes": 1904551
+    },
+    {
+      "file": "screenshots/03-elemental-payoff.png",
+      "source": "push_bloom",
+      "source_frame": 281,
+      "source_seconds": 9.366666666666667,
+      "alt": "Cinder Bloom hits three enemies at once and leaves the surviving enemies burning.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "54af267f57654faf4329c98ec20c2a17999c412423cb647c806a643e21284da7",
+      "bytes": 1897137
+    },
+    {
+      "file": "screenshots/04-choose-a-spell.png",
+      "source": "spell",
+      "source_frame": 31,
+      "source_seconds": 1.0333333333333334,
+      "alt": "Choose between Updraft, Gust Step and Molten Reach after a fight.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "5cb709003060818ffbdd6b1089e57dd925339fdd535ed1b81f945a02acea48a1",
+      "bytes": 1335796
+    },
+    {
+      "file": "screenshots/05-scavengers-wares.png",
+      "source": "merchant",
+      "source_frame": 69,
+      "source_seconds": 2.3,
+      "alt": "A purchased spell rises from the Scavenger's stock as it is added to the pack.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "a920960d0e2abae3a9ff1c45200694289eb0a6776b5f9101b4e4920b065cc7ca",
+      "bytes": 2085821
+    },
+    {
+      "file": "screenshots/06-gear-builds-your-deck.png",
+      "source": "equipment",
+      "source_frame": 148,
+      "source_seconds": 4.933333333333334,
+      "alt": "The equipped Duelist Rapier supplies Riposte Lunge, Parry Rhythm and Needle Thrust to the deck.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "6f894f54688ad3aed74e87c33d5e6a0aec37e48c9b331a13c9e389ed5c3ae2e2",
+      "bytes": 931099
+    },
+    {
+      "file": "screenshots/07-light-reveals-threats.png",
+      "source": "root_chain",
+      "source_frame": 124,
+      "source_seconds": 4.133333333333334,
+      "alt": "Root Snare illuminates a hidden crawler and acolyte beside the rooted harrier.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "6499cb6db64385954f0b39889a959a4a18cc8d9bb73f291325b76e9a83397e32",
+      "bytes": 2074054
+    },
+    {
+      "file": "screenshots/08-choose-your-route.png",
+      "source": "route",
+      "source_frame": 40,
+      "source_seconds": 1.3333333333333333,
+      "alt": "Choose a connected route through elemental rooms, a relic room and the Scavenger.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "c405277912800fc191645ff3c566c57a51188f9ad6613d6d3a9704203ca5177a",
+      "bytes": 1231073
+    }
+  ],
+  "loops": [
+    {
+      "file": "loops/01-set-up-the-strike.mp4",
+      "source": "push_bloom",
+      "source_start_frame": 35,
+      "source_end_frame_exclusive": 351,
+      "frames": 316,
+      "duration_seconds": 10.533333333333333,
+      "fps": 30,
+      "width": 1170,
+      "height": 658,
+      "silent": true,
+      "alt": "Push a crawler into a group, walk into range and hit three foes with Cinder Bloom.",
+      "sha256": "3384076e08ca0c6beed4c2f0008d56cfb5534ebef6ede5159bb53332bd2a6dd7",
+      "bytes": 1452416
+    },
+    {
+      "file": "loops/02-choose-your-spell.mp4",
+      "source": "spell",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 138,
+      "frames": 138,
+      "duration_seconds": 4.6,
+      "fps": 30,
+      "width": 1170,
+      "height": 658,
+      "silent": true,
+      "alt": "Three spell rewards appear; Molten Reach is chosen and learned.",
+      "sha256": "b6a3693b60b928075f345628ba27d1d24239ab8cee55cabf3d1120c4c9df7d54",
+      "bytes": 668715
+    },
+    {
+      "file": "loops/03-shop-and-grow.mp4",
+      "source": "merchant",
+      "source_start_frame": 22,
+      "source_end_frame_exclusive": 126,
+      "frames": 104,
+      "duration_seconds": 3.466666666666667,
+      "fps": 30,
+      "width": 1170,
+      "height": 658,
+      "silent": true,
+      "alt": "Browse the Scavenger's wares, purchase Threaded Path and watch it arrive in the pack.",
+      "sha256": "c4253ab5d6c2ac6ed6137cf430ff5eb474ecb3f630a2527ea002b3d8969959ee",
+      "bytes": 318538
+    },
+    {
+      "file": "loops/04-reveal-and-chain.mp4",
+      "source": "root_chain",
+      "source_start_frame": 24,
+      "source_end_frame_exclusive": 348,
+      "frames": 324,
+      "duration_seconds": 10.8,
+      "fps": 30,
+      "width": 1170,
+      "height": 658,
+      "silent": true,
+      "alt": "Root a visible foe, reveal two hidden neighbors, reposition and chain lightning through the group.",
+      "sha256": "409aaaa10400740e5d98a280310e487b412cc177dab4b5e49b4f53fcac06c42e",
+      "bytes": 1473284
+    }
+  ],
+  "description_media_total_bytes": 3912953,
+  "source_repository_head": "74967089599dd29def6e6f6c36ff11218858f9f0"
+}

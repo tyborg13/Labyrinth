@@ -1,0 +1,14 @@
+{
+  "app_id": 4530510,
+  "source": "Steamworks uploaded asset cards and plain-editor asset insertion instructions",
+  "mapping": {
+    "{{STEAM_IMAGE_URL_BANNER_TACTICS}}": "{STEAM_APP_IMAGE}/extras/01-set-up-the-next-strike",
+    "{{STEAM_IMAGE_URL_BANNER_EQUIPMENT}}": "{STEAM_APP_IMAGE}/extras/02-your-gear-builds-your-deck",
+    "{{STEAM_IMAGE_URL_BANNER_UMBRA}}": "{STEAM_APP_IMAGE}/extras/03-bring-light-into-the-umbra",
+    "{{STEAM_IMAGE_URL_BANNER_DESCENT}}": "{STEAM_APP_IMAGE}/extras/04-choose-how-far-to-go",
+    "{{STEAM_VIDEO_EMBED_LOOP_01_SET_UP_THE_STRIKE}}": "[img]{STEAM_APP_IMAGE}/extras/01-set-up-the-strike[/img]",
+    "{{STEAM_VIDEO_EMBED_LOOP_02_CHOOSE_YOUR_SPELL}}": "[img]{STEAM_APP_IMAGE}/extras/02-choose-your-spell[/img]",
+    "{{STEAM_VIDEO_EMBED_LOOP_03_SHOP_AND_GROW}}": "[img]{STEAM_APP_IMAGE}/extras/03-shop-and-grow[/img]",
+    "{{STEAM_VIDEO_EMBED_LOOP_04_REVEAL_AND_CHAIN}}": "[img]{STEAM_APP_IMAGE}/extras/04-reveal-and-chain[/img]"
+  }
+}

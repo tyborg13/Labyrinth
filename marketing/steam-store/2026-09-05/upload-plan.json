@@ -1,0 +1,272 @@
+{
+  "schema": 1,
+  "app_id": 4530510,
+  "language": "english",
+  "short_description_file": "short-description.txt",
+  "short_description_characters": 222,
+  "about_template_file": "description.bbcode.template.txt",
+  "local_preview": "preview.html",
+  "placeholder_policy": "Replace every {{STEAM_*}} token with the exact corresponding custom asset reference from Steamworks before saving final public copy. Image tokens accept URLs; video tokens accept complete Steam-generated embed markup. No guessed video BBCode is provided.",
+  "gallery": [
+    {
+      "order": 1,
+      "file": "screenshots/01-line-up-the-cross.png",
+      "alt_text": "Aim Cinder Bloom at three enemies after pushing a crawler into the cross and moving into range.",
+      "sha256": "f1c63cf584712250f676640523636eeb60615677028b45051cbdc5060f5d9e7f",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "order": 2,
+      "file": "screenshots/02-chain-the-lightning.png",
+      "alt_text": "Lightning jumps from a crawler to an acolyte after the group is revealed by light.",
+      "sha256": "5235f5d1c80b920c26de4b1d9153b2821a90018753f3ad174f98fe815536f0b4",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "order": 3,
+      "file": "screenshots/03-elemental-payoff.png",
+      "alt_text": "Cinder Bloom hits three enemies at once and leaves the surviving enemies burning.",
+      "sha256": "54af267f57654faf4329c98ec20c2a17999c412423cb647c806a643e21284da7",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "order": 4,
+      "file": "screenshots/04-choose-a-spell.png",
+      "alt_text": "Choose between Updraft, Gust Step and Molten Reach after a fight.",
+      "sha256": "5cb709003060818ffbdd6b1089e57dd925339fdd535ed1b81f945a02acea48a1",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "order": 5,
+      "file": "screenshots/05-scavengers-wares.png",
+      "alt_text": "A purchased spell rises from the Scavenger's stock as it is added to the pack.",
+      "sha256": "a920960d0e2abae3a9ff1c45200694289eb0a6776b5f9101b4e4920b065cc7ca",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "order": 6,
+      "file": "screenshots/06-gear-builds-your-deck.png",
+      "alt_text": "The equipped Duelist Rapier supplies Riposte Lunge, Parry Rhythm and Needle Thrust to the deck.",
+      "sha256": "6f894f54688ad3aed74e87c33d5e6a0aec37e48c9b331a13c9e389ed5c3ae2e2",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "order": 7,
+      "file": "screenshots/07-light-reveals-threats.png",
+      "alt_text": "Root Snare illuminates a hidden crawler and acolyte beside the rooted harrier.",
+      "sha256": "6499cb6db64385954f0b39889a959a4a18cc8d9bb73f291325b76e9a83397e32",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "order": 8,
+      "file": "screenshots/08-choose-your-route.png",
+      "alt_text": "Choose a connected route through elemental rooms, a relic room and the Scavenger.",
+      "sha256": "c405277912800fc191645ff3c566c57a51188f9ad6613d6d3a9704203ca5177a",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "description_asset_uploads": [
+    {
+      "id": "banner_tactics",
+      "kind": "image",
+      "file": "banners/01-set-up-the-next-strike.png",
+      "width": 1170,
+      "height": 176,
+      "alt_text": "Set Up The Next Strike",
+      "sha256": "879c64a4f66f3481f1c7688ee737d89b6e4799f53b7aeeb96e6e52a43a2c89c0",
+      "bytes": 50128,
+      "placeholder": "{{STEAM_IMAGE_URL_BANNER_TACTICS}}",
+      "replacement": "Steam-hosted image URL",
+      "contains_english_heading": true
+    },
+    {
+      "id": "loop_01_set_up_the_strike",
+      "kind": "silent_animation",
+      "file": "loops/01-set-up-the-strike.mp4",
+      "width": 1170,
+      "height": 658,
+      "duration_seconds": 10.533333333333333,
+      "alt_text": "Push a crawler into a group, walk into range and hit three foes with Cinder Bloom.",
+      "sha256": "3384076e08ca0c6beed4c2f0008d56cfb5534ebef6ede5159bb53332bd2a6dd7",
+      "bytes": 1452416,
+      "placeholder": "{{STEAM_VIDEO_EMBED_LOOP_01_SET_UP_THE_STRIKE}}",
+      "replacement": "Complete video embed markup returned by the Steam custom-asset UI",
+      "muted": true,
+      "loop": true
+    },
+    {
+      "id": "banner_equipment",
+      "kind": "image",
+      "file": "banners/02-your-gear-builds-your-deck.png",
+      "width": 1170,
+      "height": 176,
+      "alt_text": "Your Gear Builds Your Deck",
+      "sha256": "92403856e5178053c37dd382e7f53d0729923ff444eff4c1c18c0ce5cd216a03",
+      "bytes": 53725,
+      "placeholder": "{{STEAM_IMAGE_URL_BANNER_EQUIPMENT}}",
+      "replacement": "Steam-hosted image URL",
+      "contains_english_heading": true
+    },
+    {
+      "id": "loop_02_choose_your_spell",
+      "kind": "silent_animation",
+      "file": "loops/02-choose-your-spell.mp4",
+      "width": 1170,
+      "height": 658,
+      "duration_seconds": 4.6,
+      "alt_text": "Three spell rewards appear; Molten Reach is chosen and learned.",
+      "sha256": "b6a3693b60b928075f345628ba27d1d24239ab8cee55cabf3d1120c4c9df7d54",
+      "bytes": 668715,
+      "placeholder": "{{STEAM_VIDEO_EMBED_LOOP_02_CHOOSE_YOUR_SPELL}}",
+      "replacement": "Complete video embed markup returned by the Steam custom-asset UI",
+      "muted": true,
+      "loop": true
+    },
+    {
+      "id": "loop_03_shop_and_grow",
+      "kind": "silent_animation",
+      "file": "loops/03-shop-and-grow.mp4",
+      "width": 1170,
+      "height": 658,
+      "duration_seconds": 3.466666666666667,
+      "alt_text": "Browse the Scavenger's wares, purchase Threaded Path and watch it arrive in the pack.",
+      "sha256": "c4253ab5d6c2ac6ed6137cf430ff5eb474ecb3f630a2527ea002b3d8969959ee",
+      "bytes": 318538,
+      "placeholder": "{{STEAM_VIDEO_EMBED_LOOP_03_SHOP_AND_GROW}}",
+      "replacement": "Complete video embed markup returned by the Steam custom-asset UI",
+      "muted": true,
+      "loop": true
+    },
+    {
+      "id": "banner_umbra",
+      "kind": "image",
+      "file": "banners/03-bring-light-into-the-umbra.png",
+      "width": 1170,
+      "height": 176,
+      "alt_text": "Bring Light Into The Umbra",
+      "sha256": "08f459c57c25627c90c372e01bdafb0ddfdb763f7e8fce7579ced5ea9d6deb90",
+      "bytes": 50312,
+      "placeholder": "{{STEAM_IMAGE_URL_BANNER_UMBRA}}",
+      "replacement": "Steam-hosted image URL",
+      "contains_english_heading": true
+    },
+    {
+      "id": "loop_04_reveal_and_chain",
+      "kind": "silent_animation",
+      "file": "loops/04-reveal-and-chain.mp4",
+      "width": 1170,
+      "height": 658,
+      "duration_seconds": 10.8,
+      "alt_text": "Root a visible foe, reveal two hidden neighbors, reposition and chain lightning through the group.",
+      "sha256": "409aaaa10400740e5d98a280310e487b412cc177dab4b5e49b4f53fcac06c42e",
+      "bytes": 1473284,
+      "placeholder": "{{STEAM_VIDEO_EMBED_LOOP_04_REVEAL_AND_CHAIN}}",
+      "replacement": "Complete video embed markup returned by the Steam custom-asset UI",
+      "muted": true,
+      "loop": true
+    },
+    {
+      "id": "banner_descent",
+      "kind": "image",
+      "file": "banners/04-choose-how-far-to-go.png",
+      "width": 1170,
+      "height": 176,
+      "alt_text": "Choose How Far To Go",
+      "sha256": "f335819e804f390b236ed546a63591d5f3c535b25a7ef9049622354f301b5524",
+      "bytes": 46208,
+      "placeholder": "{{STEAM_IMAGE_URL_BANNER_DESCENT}}",
+      "replacement": "Steam-hosted image URL",
+      "contains_english_heading": true
+    }
+  ],
+  "about_section_order": [
+    {
+      "section_id": "tactics",
+      "heading": "SET UP THE NEXT STRIKE",
+      "blocks": [
+        {
+          "kind": "banner",
+          "asset_id": "banner_tactics"
+        },
+        {
+          "kind": "text",
+          "text": "Push a crawler into a group, step into range, and catch all three enemies in a cross of fire. Combine card plays with movement to line up area attacks, exploit traps or get clear of danger. Raise elemental intensity for stronger card effects. Enemies and traps draw on that same power."
+        },
+        {
+          "kind": "loop",
+          "asset_id": "loop_01_set_up_the_strike"
+        }
+      ]
+    },
+    {
+      "section_id": "equipment",
+      "heading": "YOUR GEAR BUILDS YOUR DECK",
+      "blocks": [
+        {
+          "kind": "banner",
+          "asset_id": "banner_equipment"
+        },
+        {
+          "kind": "text",
+          "text": "A weapon brings its own cards. Swap a greatsword for a rapier, choose which spells to carry, and change how your deck plays between fights. Pick a spell after combat, browse the Scavenger’s stock, and build around the equipment and relics you find."
+        },
+        {
+          "kind": "loop",
+          "asset_id": "loop_02_choose_your_spell"
+        },
+        {
+          "kind": "loop",
+          "asset_id": "loop_03_shop_and_grow"
+        }
+      ]
+    },
+    {
+      "section_id": "umbra",
+      "heading": "BRING LIGHT INTO THE UMBRA",
+      "blocks": [
+        {
+          "kind": "banner",
+          "asset_id": "banner_umbra"
+        },
+        {
+          "kind": "text",
+          "text": "The deeper you descend, the more of each room the Umbra conceals. Hidden enemies still take their turns. Light reveals them and opens new targets: pin a foe with Root Snare, illuminate its neighbors, then send Chain Bolt through the exposed group."
+        },
+        {
+          "kind": "loop",
+          "asset_id": "loop_04_reveal_and_chain"
+        }
+      ]
+    },
+    {
+      "section_id": "descent",
+      "heading": "CHOOSE HOW FAR TO GO",
+      "blocks": [
+        {
+          "kind": "banner",
+          "asset_id": "banner_descent"
+        },
+        {
+          "kind": "text",
+          "text": "Choose your route through fights, shops and campfires. At a campfire, heal and continue, unlock permanent skills with your embers, or carry those embers out and end the run. Push on toward the dragons below when your build is ready."
+        }
+      ]
+    }
+  ],
+  "description_asset_total_bytes": 4113326,
+  "final_ui_checks": [
+    "All eight gallery frames are in the specified order.",
+    "All four banners and four loops load in the English About This Game section.",
+    "Every media item has its supplied alt text; banner heading images use the English localization group.",
+    "No {{STEAM_*}} placeholders remain in the final saved description.",
+    "Steam preview plays the animations silently and retains expected color, framing and mobile readability."
+  ]
+}
