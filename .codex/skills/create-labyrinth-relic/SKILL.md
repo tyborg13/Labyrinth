@@ -1,27 +1,23 @@
 ---
 name: create-labyrinth-relic
-description: Create, rebalance, review, or implement Escape the Umbra relics. Use when Codex needs to add or modify data/relics.json, tune relic room placement or offer rates, create relic icons in assets/art/relics, design reusable relic effect hooks, or update relic-related combat, run-map, UI, analytics, tests, and memento notes.
+description: Create, balance, illustrate, or review Escape the Umbra relics and their effects.
 ---
 
 # Create Labyrinth Relic
 
 ## Core Workflow
 
-1. Rebuild live repo context first. Read `AGENTS.md`, then run:
-   ```bash
-   memento brief data/relics.json scripts/game_data.gd scripts/run_engine.gd scripts/combat_engine.gd scripts/run_scene.gd tests/run_tests.gd assets/art/relics .codex/skills
-   ```
-2. Classify the request:
+1. Classify the request, then inspect only the relevant data, code, and reference sections:
    - **Data-only relic**: usually touch `data/relics.json` and `assets/art/relics/<relic_id>.png`.
    - **Reusable effect hook**: touch `scripts/game_data.gd`, `scripts/combat_engine.gd`, and tests.
    - **Room frequency/offer tuning**: touch `scripts/run_engine.gd`, tests, and this skill if durable rules changed.
    - **Visual-only relic work**: use the `imagegen` skill and current relic icons as style references.
-3. Design the relic as build glue. Prefer situational synergies and tactical rule-bending over plain stat bumps.
-4. Implement relic data, effect hooks, offer behavior, UI color behavior, icons, and tests together when adding new relics.
-5. Validate:
+2. Design the relic as build glue. Prefer situational synergies and tactical rule-bending over plain stat bumps.
+3. Implement relic data, effect hooks, offer behavior, UI color behavior, icons, and tests together when adding new relics.
+4. Validate changed data with JSON parsing and affected behavior with focused checks. Use risk-tier breadth for integration/full suites; these examples apply when data and shared runtime change:
    ```bash
    jq empty data/relics.json
-   godot --headless --path . --script tests/run_tests.gd
+   python3 tools/godot_task_runner.py --task-id <task-id> --stream -- godot --headless --path . --script tests/run_tests.gd
    ```
 
 ## Relic Data
@@ -72,6 +68,8 @@ description: Create, rebalance, review, or implement Escape the Umbra relics. Us
 - Review a contact sheet when adding many relics so scale and silhouette drift are obvious.
 
 ## Tests
+
+Select checks for affected behavior and the task risk tier. Do not add unrelated tests for art-only edits.
 
 Add or update focused tests for:
 

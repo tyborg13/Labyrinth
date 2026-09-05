@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -133,6 +134,31 @@ class ParallelTaskTests(unittest.TestCase):
         self.assertEqual((self.repo / "upstream.txt").read_text(), "upstream\n")
         metadata = PARALLEL_TASK.metadata_for(self.repo)
         self.assertEqual(metadata["publication_authorization"]["commit"], self.git("rev-parse", "HEAD"))
+
+    def test_integrate_without_memento_in_a_legacy_checkout(self) -> None:
+        # An older branch may retain the retired attributes. Unrelated merges
+        # must not bootstrap the retired tool or mutate repository config.
+        (self.repo / ".gitattributes").write_text("/.codex/memento/shared/* merge=memento\n")
+        self.git("add", ".gitattributes")
+        self.git("commit", "-q", "-m", "legacy attributes")
+        self.git("branch", "codex/legacy")
+        (self.repo / "upstream.txt").write_text("upstream\n")
+        self.git("add", "upstream.txt")
+        self.git("commit", "-q", "-m", "upstream")
+        self.git("switch", "-q", "codex/legacy")
+        (self.repo / "task.txt").write_text("task\n")
+        self.git("add", "task.txt")
+        self.git("commit", "-q", "-m", "task")
+        config_before = (self.repo / ".git/config").read_bytes()
+
+        with mock.patch.object(PARALLEL_TASK.shutil, "which", return_value=None):
+            report = PARALLEL_TASK.integrate_ref(self.repo, "master")
+
+        self.assertTrue(report["task_patch_unchanged"])
+        self.assertFalse(report["approval_still_valid"])
+        self.assertEqual((self.repo / "upstream.txt").read_text(), "upstream\n")
+        self.assertEqual((self.repo / "task.txt").read_text(), "task\n")
+        self.assertEqual((self.repo / ".git/config").read_bytes(), config_before)
 
     def test_push_requires_authorization_for_exact_head(self) -> None:
         remote_temp = tempfile.TemporaryDirectory()

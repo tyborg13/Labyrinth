@@ -76,7 +76,7 @@ Follow-up issue:
 - Fix: `CombatBoardView` retries shadow extraction at a finer simplify epsilon before falling back to an oval.
 - Additional proof: all 128 new idle frames reported drawable silhouette polygons, full Godot suite passed, reviewer signed off, and the inspection fixture was regenerated.
 
-## Durable Memento Notes Created
+## Durable findings from this case
 
 - `assets/art`: Retro Diffusion advanced idle sheets use native 4x4 cells.
 - `scripts/combat_board_view.gd`: Unit shadow simplification can drop generated idle frames; keep the finer retry path before oval fallback.

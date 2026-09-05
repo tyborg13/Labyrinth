@@ -1,6 +1,6 @@
 ---
 name: create-escape-the-umbra-trailer
-description: Create, recapture, edit, render, visually QA, or review authentic gameplay-first trailers for Escape the Umbra with the repository's deterministic Godot capture and Remotion pipeline. Use when Codex works on marketing/trailer, tools/steam_trailer_capture.gd, trailer footage, title cards, Steam calls to action, gameplay or progression shot selection, trailer camera motion, pacing, transitions, sound, or store-ready video delivery.
+description: Create, edit, render, or review authentic gameplay trailers for Escape the Umbra using its existing capture and editing pipeline.
 ---
 
 # Create Escape the Umbra Trailer
@@ -10,15 +10,10 @@ Build the trailer around what the current game genuinely does. Use editing to di
 ## Load The Right Context
 
 1. Use `$parallel-labyrinth-task` for substantive changes and stay in its isolated worktree through inspection.
-2. Use `$remotion-best-practices`, `$remotion-markup`, `$remotion-interactivity`, and `$remotion-render` whenever touching the Remotion edit.
-3. Run focused memory retrieval before edits:
-   ```bash
-   memento brief marketing/trailer tools/steam_trailer_capture.gd
-   ```
-4. Read `marketing/trailer/README.md`, the relevant section of `marketing/trailer/src/Trailer.tsx`, and the relevant capture in `tools/steam_trailer_capture.gd` before changing behavior.
-5. Always read [creative-standard.md](references/creative-standard.md) and [qa-checklist.md](references/qa-checklist.md).
-6. Read [capture-workflow.md](references/capture-workflow.md) for a new shot, recapture, or gameplay-authenticity fix.
-7. Read [edit-grammar.md](references/edit-grammar.md) for any timing, camera, text, transition, or audio change.
+2. Inspect `marketing/trailer/README.md` and the relevant edit or capture code for the requested change. The existing Remotion renderer remains part of this project; no global Remotion skill is required.
+3. Read [creative-standard.md](references/creative-standard.md) for creative decisions and [qa-checklist.md](references/qa-checklist.md) when validating a render or preparing handoff.
+4. Read [capture-workflow.md](references/capture-workflow.md) for a new shot, recapture, or gameplay-authenticity fix.
+5. Read [edit-grammar.md](references/edit-grammar.md) for timing, camera, text, transition, or audio changes.
 
 For a read-only plan or review, inspect only the files needed to support the decision and stop after the shot, edit, and proof plan. Do not preflight, capture, or render until implementation is requested.
 

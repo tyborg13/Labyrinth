@@ -1,10 +1,6 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
 
-# Memento shared memory (managed)
-/.codex/memento/shared/current.json merge=memento
-/.codex/memento/shared/events.jsonl merge=memento
-/.codex/memento/shared/archive.jsonl merge=memento
 
 # Canonical procedurally generated soundtrack-bank audio is binary.
 /assets/audio/instruments/**/*.wav binary

@@ -1,18 +1,15 @@
 ---
 name: create-labyrinth-ui
-description: Create, modify, refactor, or review player-facing UI for Escape the Umbra using the repository's game UI rubric and visual-proof workflow. Use for HUDs, combat feedback, cards, tooltips, rewards, merchants, loadouts, progression, map and room choices, dialogue, tutorials, settings, confirmations, menus, input/focus states, UI copy, accessibility, layout, and gameplay-signaling visual effects.
+description: Create, change, or review Escape the Umbra player-facing UI, copy, input behavior, and gameplay visual feedback.
 ---
 
 # Create Labyrinth UI
 
 ## Required workflow
 
-1. Read `spec/game_ui_rubric.md` and `spec/icon_identity_policy.md` completely. Treat every acceptance row and automatic rejection tripwire as required unless the task records a specific Exception.
-2. Rebuild the relevant context before designing:
-   ```bash
-   memento brief AGENTS.md spec/game_ui_rubric.md spec/ui_button_system.md scripts/ui_skin.gd scripts/ui_typography.gd scripts/ui_tooltip_panel.gd <changed-ui-paths> <relevant-probe-paths>
-   ```
-3. Classify the surface and write the rubric's design statement: player question, primary action, hierarchy/disclosure, every currently supported interaction path, and proof matrix.
+1. Classify the changed surface and scope. Read the relevant `spec/game_ui_rubric.md` sections for focused edits; read the full rubric for broad screen or shared interaction changes. Apply every affected acceptance gate and rejection tripwire.
+2. Inspect relevant component code and current presentation. Read `spec/icon_identity_policy.md` when creating or changing icon identities or registries; distinct concepts always require distinct purpose-built icons.
+3. Write the rubric's compact design statement. For a focused edit, reuse existing context and describe the changed decision, presentation, and proof; broad changes need the full statement.
 4. Inspect the live surface, its component builders, and its existing visual probe. Reuse `UiSkin`, `UiTypography`, `UiTooltipPanel`, `CardWidget`, and established icon libraries where applicable. Extend shared components when the pattern recurs.
 5. Implement for the player's decision, not for a generic app layout. Keep immediate state and actions scan-level; progressively disclose precise rules and optional detail.
 6. Add or update a focused real-renderer probe. By default, capture fresh versioned images only at `1920x1080` and `100%` UI scale for the changed states, focus/input behavior, and reduced motion required by the rubric. Add lower-resolution or alternate-scale runs only when the user or task explicitly requests them.
@@ -23,7 +20,7 @@ description: Create, modify, refactor, or review player-facing UI for Escape the
 
 - Keep exact card, relic, equipment, settings, accessibility, and detailed-inspection text when it is clearer than an unfamiliar symbol. Improve hierarchy before deleting necessary rules.
 - Give every distinct player-facing ability, relic, equipment item, keyword, status, and resource its own purpose-built icon asset. Reusing a generic icon, copying/recoloring another asset, or pointing distinct identities at the same path is a rejection, not a shortcut.
-- Prefer an existing icon plus short label, meter, counter, state treatment, target preview, or contextual callout over instructional prose.
+- For an existing concept, prefer its established icon plus short label, meter, counter, state treatment, target preview, or contextual callout over instructional prose.
 - Preserve every input path the current surface supports. When controller or Steam Deck support is present, include focus traversal, activation, back/cancel, focus recovery, and input handoff where applicable. Prove those paths logically and capture their changed visual states at `1920x1080`/`100%` unless the task explicitly requests another display configuration; do not infer a handheld-resolution proof requirement from controller support alone.
 - Do not claim an unsupported input path or add fixed device glyphs unless the task implements and proves the complete active-device and navigation path. Reuse the current device/glyph system when one exists.
 - Do not create one-off buttons, tooltips, typography scales, or panel languages when a shared system covers the need.

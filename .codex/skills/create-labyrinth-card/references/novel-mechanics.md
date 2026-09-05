@@ -88,7 +88,7 @@ Run:
 jq empty data/cards.json
 python3 tools/card_heuristic.py --card-id <card_id> --show-breakdown
 python3 tools/card_heuristic.py
-godot --headless --path . --script tests/run_tests.gd
+python3 tools/godot_task_runner.py --task-id <task-id> --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
 For UI/art changes, also run or inspect the game scene enough to verify card name fitting, icon rows, rarity frame, elemental tint, art visibility, and tooltips.

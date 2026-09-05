@@ -1,6 +1,6 @@
 ---
 name: create-labyrinth-classical-track
-description: "Create, revise, render, verify, audition, or integrate provenance-safe classical soundtrack adaptations for Escape the Umbra. Use when sourcing a public-domain composition, normalizing MusicXML/MIDI, arranging a new retro/dark-fantasy track, rebalancing an existing classical remix, using the procedural instrument bank, adding restrained percussion, preserving audition versions, documenting licenses, or promoting approved music into game contexts."
+description: Arrange, render, verify, or integrate public-domain classical soundtrack adaptations for Escape the Umbra.
 ---
 
 # Create a Labyrinth classical track

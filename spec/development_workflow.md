@@ -2,9 +2,11 @@
 
 This document is the executable workflow contract for isolated Labyrinth tasks. The repository helpers enforce the expensive failure points; skills describe how agents use them.
 
-## Project Memory
+## Context and completion
 
-`memento brief` is byte-for-byte read-only. Expiration and compaction happen only through explicit mutating commands. Shared `current.json`, `events.jsonl`, and `archive.jsonl` use the Memento Git merge driver so concurrent task notes reconcile by identity instead of timestamp conflict. Older clones run `memento configure-merge` once; `parallel_task.py integrate` verifies the driver is configured before merging.
+Read task-relevant code and specification sections as needed. Reuse instructions already present in context. Durable decisions belong beside their implementation or in the owning specification; the [retired memory archive](archive/memento/README.md) is available only for historical investigation.
+
+An implementation request authorizes ordinary local investigation, reversible changes, verification, and fixes through peer-reviewed handoff. Do not pause after the first edit or ask again to run required local checks. Publication still requires the explicit approval described below.
 
 ## Task Contract And Risk Tier
 
@@ -21,9 +23,11 @@ python3 tools/parallel_task.py preflight
 
 Risk tiers determine proof breadth, not whether review happens:
 
-- `low`: isolated documentation or tooling behavior. Run focused automated checks; a playable fixture may be not applicable.
+- `low`: isolated documentation or tooling behavior. Check changed links/frontmatter for documentation and run focused behavioral checks for executable changes; a playable fixture may be not applicable.
 - `standard`: normal gameplay, content, data, or UI work. Run focused checks and every affected integration suite/probe.
-- `high`: shared runtime behavior, saves, combat/reward flow, broad UI, workflow infrastructure, or ambiguous acceptance. Run the full Godot suite plus focused checks; UI work also needs semantic visual proof and a verified inspection fixture when playable.
+- `high`: shared runtime behavior, saves, combat/reward flow, broad UI, workflow infrastructure, or ambiguous acceptance. Runtime changes require the full Godot suite plus focused checks. Workflow infrastructure requires the affected Python/workflow suites and relevant CLI integration checks; engine tests are needed only if runtime behavior is affected. UI work also needs semantic visual proof and a verified inspection fixture when playable.
+
+Select proof for changed behavior and plausible regressions. Art-only work needs visual/integration proof, not unrelated balance scoring. Repeat successful checks only after relevant changes, failures, or new evidence.
 
 Every finished Labyrinth branch still receives substantive peer review. Risk tier controls proof scope so low-risk work does not acquire unrelated ceremony and high-risk work cannot ship on a narrow smoke test.
 

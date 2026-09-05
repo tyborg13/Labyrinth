@@ -1,6 +1,6 @@
 ---
 name: scout-labyrinth-tasks
-description: Find, shape, and reviewer-gate high-value Escape the Umbra work items before they enter the autonomous task queue. Use when the user asks Codex to find good changes, propose fixes, identify improvements, create autonomous work, fill the task queue, or prepare work for parallel agents.
+description: Find and reviewer-gate concrete Escape the Umbra improvements for the autonomous task queue.
 ---
 
 # Scout Labyrinth Tasks
@@ -15,7 +15,7 @@ Do not enqueue a task as `ready` until a separate reviewer has signed off that i
 
 1. Gather current context.
    - Inspect the repo state and the user's latest priorities.
-   - Use `memento brief <paths>` when you expect to rely on durable repo memory for specific areas.
+   - Inspect relevant code, specification sections, and recent changes for the candidate area.
    - Prefer concrete signals: failing tests, TODOs, awkward workflows, visual rough edges, content gaps, balance notes, recent user comments, and nearby code patterns.
 
 2. Draft small, independently executable task briefs.

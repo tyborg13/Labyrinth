@@ -4,6 +4,8 @@
 
 This is the required acceptance rubric for creating, changing, or reviewing player-facing UI. It covers layout, copy, HUD state, cards, menus, tooltips, tutorials, input feedback, motion, accessibility, and visual effects used to communicate game state.
 
+Apply this rubric to the changed surface. Focused copy or local presentation edits need the relevant sections and affected gates; broad screen or shared interaction changes need the full rubric. Unchanged behavior need not be re-audited without a regression risk. Fresh visual proof remains required for visual changes.
+
 The rubric is not a mandate to replace clear text with obscure icons. Escape the Umbra is a tactical card game: exact rules text is often gameplay-critical. Keep that text precise, then use hierarchy and progressive disclosure so it does not compete with the immediate decision.
 
 ## Product anchors
@@ -15,7 +17,7 @@ The rubric is not a mandate to replace clear text with obscure icons. Escape the
 
 ## Required design statement
 
-Before implementation, write a compact design statement in the task notes or commentary:
+Before implementation, write a compact design statement in the task notes or commentary. For a focused edit, reuse established context and summarize only what changes in one short paragraph; a new screen or interaction needs all six points:
 
 1. **Surface:** combat HUD, card/inspection, reward, merchant, loadout, map/room choice, dialogue/tutorial, settings, confirmation, or another named surface.
 2. **Player question:** the one question the UI must answer now.
@@ -28,7 +30,7 @@ If these cannot be stated clearly, the screen is not ready to implement.
 
 ## Acceptance rubric
 
-Rate every row **Pass**, **Exception**, or **Fail**. A change is ready only when it has no Fail rows. An Exception must name the exact deviation and why it improves comprehension, precision, accessibility, or the requested experience.
+Rate each affected row **Pass**, **Exception**, or **Fail**; evaluate every row for broad screen or shared interaction changes. A change is ready only when it has no Fail rows. An Exception must name the exact deviation and why it improves comprehension, precision, accessibility, or the requested experience.
 
 | Gate | Pass condition | Common failure |
 | --- | --- | --- |
@@ -144,5 +146,5 @@ Report:
 - reused or extended shared components;
 - interaction and accessibility states checked;
 - probe commands plus screenshot paths, resolutions, and UI scales;
-- each rubric row as Pass or Exception, with reasons for every Exception;
+- each affected rubric row as Pass or Exception (all rows for broad changes), with reasons for every Exception;
 - remaining risks or pre-existing constraints.

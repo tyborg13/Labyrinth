@@ -1,36 +1,32 @@
 ---
 name: create-labyrinth-card
-description: Create, implement, rebalance, or review cards for Escape the Umbra. Use when Codex needs to add or modify entries in data/cards.json, generate or size card art in assets/art/cards, choose rarity or element visuals, arrange action icons, use the card balance heuristic, add a novel card keyword or action type, or update related combat, reward, analytics, upgrade, and test integration points.
+description: Create, balance, illustrate, or review Escape the Umbra cards and their mechanics.
 ---
 
 # Create Labyrinth Card
 
 ## Core Workflow
 
-1. Rebuild live repo context first. Read `AGENTS.md`, then run:
-   ```bash
-   memento brief data/cards.json spec/card_balance_heuristic.md tools/card_heuristic.py scripts/game_data.gd scripts/combat_engine.gd scripts/action_icon_library.gd scripts/card_widget.gd scripts/run_scene.gd assets/art/cards assets/art/icons assets/art/ui
-   ```
-2. Classify the request:
+1. Classify the request, then inspect only the relevant data, code, and reference sections:
    - **Existing-mechanic card**: usually touch `data/cards.json` and `assets/art/cards/<card_id>.png`.
    - **Visual-only card work**: load [Visual Production](references/visual-production.md).
    - **Balance-only card work**: load [Mechanics And Balance](references/mechanics-and-balance.md).
    - **Novel keyword or action type**: load [Novel Mechanics](references/novel-mechanics.md) before editing.
-3. Design mechanics against the current pool, then run the heuristic before and after edits:
+2. For new or changed mechanics, compare against the current pool and run the touched-card heuristic before and after edits. Run the full heuristic when comparing the pool or changing shared assumptions; skip scoring for art-only work:
    ```bash
    python3 tools/card_heuristic.py --card-id <card_id> --show-breakdown
    python3 tools/card_heuristic.py
    ```
-4. Implement the card data and art together when the card is new. Use the same snake_case stem for the card id and art file.
-5. For card art, action icons, or other raster visual assets, use the `imagegen` skill and current Labyrinth visual references. Do not substitute hand-drawn, code-drawn, SVG, canvas, PIL, or placeholder graphics for final card art or icons unless the user explicitly asks for a placeholder. For card art, also preserve the existing transparent ragged art-window treatment; a full-bleed opaque 16:9 rectangle is not acceptable even when the file is `256 x 144`.
-6. Validate the integration. At minimum run JSON parsing, the touched-card heuristic, and the full heuristic. Run Godot tests for any code or novel-mechanic change:
+3. Implement the card data and art together when the card is new. Use the same snake_case stem for the card id and art file.
+4. For card art, action icons, or other raster visual assets, use the `imagegen` skill and current Labyrinth visual references. Do not substitute hand-drawn, code-drawn, SVG, canvas, PIL, or placeholder graphics for final card art or icons unless the user explicitly asks for a placeholder. For card art, also preserve the existing transparent ragged art-window treatment; a full-bleed opaque 16:9 rectangle is not acceptable even when the file is `256 x 144`.
+5. Validate changed data with JSON parsing and changed rules with focused behavioral tests. Select integration/full-suite breadth from the task risk tier. For example, when data and shared runtime change:
    ```bash
    jq empty data/cards.json
-   godot --headless --path . --script tests/run_tests.gd
+   python3 tools/godot_task_runner.py --task-id <task-id> --stream -- godot --headless --path . --script tests/run_tests.gd
    ```
-7. Always create a `CardWidget` preview image for new or visually changed cards, including card art, icon, name, frame, rarity, or summary-row changes. Render the widget at an actual game card size: use the scene default `250 x 352` for standalone proof sheets, or the relevant live size from `RunScene._hand_card_size`, pile, reward, or upgrade surfaces when validating a specific UI context. Do not enlarge the `CardWidget` to make a prettier proof; if a larger preview is needed, render at the true card size first and scale the final bitmap uniformly.
-8. For new or visually changed card art, also verify the character-menu badge read. The Gear/Magic deck badges and Magic loadout tiles automatically use the card's `art_path` as a cropped horizontal background with a dark wash; do not create separate badge assets. Confirm the card still has a recognizable central cue and readable name in at least the compact deck badge or a full badge contact sheet.
-9. When showing visual proof screenshots, always save them with a fresh timestamped or versioned filename. Do not overwrite and relink a previously shown screenshot path, because Codex image previews may cache stale bitmap content.
+6. Always create a `CardWidget` preview image for new or visually changed cards, including card art, icon, name, frame, rarity, or summary-row changes. Render the widget at an actual game card size: use the scene default `250 x 352` for standalone proof sheets, or the relevant live size from `RunScene._hand_card_size`, pile, reward, or upgrade surfaces when validating a specific UI context. Do not enlarge the `CardWidget` to make a prettier proof; if a larger preview is needed, render at the true card size first and scale the final bitmap uniformly.
+7. For new or visually changed card art, also verify the character-menu badge read. The Gear/Magic deck badges and Magic loadout tiles automatically use the card's `art_path` as a cropped horizontal background with a dark wash; do not create separate badge assets. Confirm the card still has a recognizable central cue and readable name in at least the compact deck badge or a full badge contact sheet.
+8. When showing visual proof screenshots, always save them with a fresh timestamped or versioned filename. Do not overwrite and relink a previously shown screenshot path, because Codex image previews may cache stale bitmap content.
 
 ## Data Rules
 
@@ -50,7 +46,7 @@ description: Create, implement, rebalance, or review cards for Escape the Umbra.
 
 ## Review Notes
 
-When finishing card work, explicitly report:
+Report the following where affected by the task; art-only edits do not need a new balance rationale:
 
 - The card id, rarity, element, and intended role.
 - The chosen `time` cost and why it fits the card's power and pacing role.

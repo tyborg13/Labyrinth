@@ -1,32 +1,28 @@
 ---
 name: create-labyrinth-equipment
-description: Create, rebalance, review, or implement Escape the Umbra equipment. Use when Codex needs to add or modify data/equipment.json, equipment-provided cards, equipment drops, inventory/equip UI, rarity visuals, analytics, tests, or equipment icon/card art assets.
+description: Create, balance, illustrate, or review Escape the Umbra equipment and its cards.
 ---
 
 # Create Labyrinth Equipment
 
 ## Core Workflow
 
-1. Rebuild live repo context first. Read `AGENTS.md`, then run:
-   ```bash
-   memento brief data/equipment.json data/cards.json spec/card_balance_heuristic.md tools/card_heuristic.py scripts/game_data.gd scripts/run_engine.gd scripts/room_generator.gd scripts/combat_engine.gd scripts/combat_board_view.gd scripts/run_scene.gd tests/run_tests.gd assets/art/cards assets/art/relics
-   ```
-2. Classify the request:
+1. Classify the request, then inspect only the relevant data, code, and reference sections:
    - **Equipment data/content**: usually touch `data/equipment.json`, one or more equipment-only cards in `data/cards.json`, card art, and tests.
    - **Drop/ownership rules**: touch `scripts/run_engine.gd`, `scripts/room_generator.gd`, `scripts/combat_engine.gd`, and tests.
    - **Inventory/equip UI**: touch `scripts/run_scene.gd`, possibly `scripts/combat_board_view.gd`, and visual probes/tests.
    - **Novel card mechanic**: also use `$create-labyrinth-card` and load its novel-mechanics reference before changing combat semantics.
-3. Design equipment as deck-shaping gear. Each non-starter equipment item should have at least one signature equipment-only card that expresses the item, plus optional existing cards if needed for deck footprint and curve.
-4. Run the card heuristic for every new or changed equipment card and the full pool:
+2. Design equipment as deck-shaping gear. Each non-starter equipment item should have at least one signature equipment-only card that expresses the item, plus optional existing cards if needed for deck footprint and curve.
+3. Run the card heuristic when equipment-card mechanics change. Score touched cards; use the full pool for comparisons or changed global assumptions, not art-only edits:
    ```bash
    python3 tools/card_heuristic.py --card-id <card_id> --show-breakdown
    python3 tools/card_heuristic.py
    ```
-5. Implement data, visuals, UI/analytics hooks, and tests together. Equipment affects starting decks, card rewards, room drops, save migration, and character inventory, so isolated data-only changes are rare.
-6. Validate:
+4. Implement data, visuals, UI/analytics hooks, and tests together. Equipment affects starting decks, card rewards, room drops, save migration, and character inventory, so isolated data-only changes are rare.
+5. Validate changed data with JSON parsing and affected behavior with focused checks. Use risk-tier breadth for integration/full suites; these examples apply when data and shared runtime change:
    ```bash
    jq empty data/equipment.json data/cards.json
-   godot --headless --path . --script tests/run_tests.gd
+   python3 tools/godot_task_runner.py --task-id <task-id> --stream -- godot --headless --path . --script tests/run_tests.gd
    ```
 
 ## Equipment Data
@@ -62,7 +58,7 @@ description: Create, rebalance, review, or implement Escape the Umbra equipment.
 
 - Equipment icons should use the relic icon format unless a task explicitly changes the UI surface: `96x96` PNG, RGBA, transparent background, centered object, compact dark-fantasy pixel-painted style, high contrast, no text, no border frame.
 - Equipment card art follows `$create-labyrinth-card` rules: final card art lives under `assets/art/cards/<card_id>.png`, uses the transparent ragged art-window treatment, and needs fresh `CardWidget` visual proof for new or changed art.
-- Use the `imagegen` skill for final equipment icons or card art. Reusing existing relic/card art is acceptable only as a temporary placeholder and should be called out.
+- Use the `imagegen` skill for final equipment icons or card art. Every finished equipment identity needs a distinct purpose-built icon. Reuse is permitted only for a user-requested temporary prototype, never for finished handoff.
 
 ## UI And Analytics
 
@@ -72,6 +68,8 @@ description: Create, rebalance, review, or implement Escape the Umbra equipment.
 - Analytics should remain local-first and append-only. Prefer additive fields/events such as equipped equipment, inventory, collected equipment, and equipment-equipped actions over renaming existing card/reward events.
 
 ## Tests
+
+Select checks for affected behavior and the task risk tier. Do not add unrelated tests for art-only edits.
 
 Add or update focused tests for:
 

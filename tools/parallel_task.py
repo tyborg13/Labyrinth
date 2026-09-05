@@ -449,27 +449,6 @@ def stable_patch_id(repo: Path, base_ref: str, head_ref: str = "HEAD") -> str:
     return line[0].split()[0]
 
 
-def ensure_memento_merge_driver(root: Path) -> None:
-    attributes = root / ".gitattributes"
-    if not attributes.exists() or "merge=memento" not in attributes.read_text():
-        return
-    configured = run_git(root, ["config", "--local", "--get", "merge.memento.driver"], check=False)
-    if configured.returncode == 0 and configured.stdout.strip():
-        return
-    executable = shutil.which("memento")
-    if not executable:
-        raise CommandError("Memento merge attributes are present but the `memento` command is unavailable. Install Memento and run `memento configure-merge`.")
-    result = subprocess.run(
-        [executable, "configure-merge", "--repo", str(root)],
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if result.returncode != 0:
-        detail = result.stderr.strip() or result.stdout.strip()
-        raise CommandError("Could not configure the Memento merge driver: %s" % detail)
-
-
 def integrate_ref(root: Path, required_master: str) -> dict[str, Any]:
     branch = require_task_branch(root)
     status = run_git(root, ["status", "--short"]).stdout.strip()
@@ -487,7 +466,6 @@ def integrate_ref(root: Path, required_master: str) -> dict[str, Any]:
     before_base = run_git(root, ["merge-base", required_master, "HEAD"]).stdout.strip()
     before_patch_id = stable_patch_id(root, before_base)
     if not is_ancestor(root, required_master, "HEAD"):
-        ensure_memento_merge_driver(root)
         result = run_git(root, ["merge", "--no-edit", required_master], check=False)
         if result.returncode != 0:
             detail = result.stderr.strip() or result.stdout.strip()

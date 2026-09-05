@@ -1,6 +1,6 @@
 ---
 name: create-labyrinth-retrodiffusion-animation
-description: Generate, import, clean, validate, and wire Retro Diffusion animation sheets for Escape the Umbra. Use when Codex needs to use Retro Diffusion or retrodiffusion.ai via Chrome/Computer Use to create idle, death, combat, NPC, enemy, prop, or other animated raster sheets, then integrate them into Labyrinth assets, Godot metadata, tests, visual proof, and inspection fixtures.
+description: Generate and integrate Retro Diffusion animation sheets for Escape the Umbra.
 ---
 
 # Create Labyrinth Retrodiffusion Animation
@@ -8,10 +8,7 @@ description: Generate, import, clean, validate, and wire Retro Diffusion animati
 ## Core Workflow
 
 1. Use this with `$parallel-labyrinth-task` for substantive game/source/asset changes. Start or adopt an isolated task worktree before writing generated assets.
-2. Read `AGENTS.md`, then pull focused memory before edits:
-   ```bash
-   memento brief assets/art data/enemies.json data/npcs.json scripts/combat_board_view.gd scripts/run_scene.gd tests/run_tests.gd
-   ```
+2. Inspect the target animation metadata and relevant integration code before generating assets.
 3. If the animation is for an enemy or NPC, also use `$create-labyrinth-enemy` or the relevant content skill for Labyrinth data, balance, tests, and visual proof expectations.
 4. Audit the target's current art path and animation discovery path before opening Retro Diffusion. In Labyrinth, unit idle sheets are usually same-stem files such as `assets/art/enemies/cinder_ooze_idle.png` and are configured with JSON `idle_sheet_*` fields.
 5. Use Chrome for Retro Diffusion when the task depends on the user's logged-in session. Use Computer Use only when Chrome tooling cannot reach the needed UI.
@@ -73,7 +70,7 @@ For non-idle animations such as death, inspect the current renderer first and ad
   ```
 - Add focused tests for the asset contract: file exists, sheet size/grid are correct, frame count matches metadata, and the renderer loads the frames.
 - For generated unit sheets, verify silhouette shadows for every frame. The previous Retro Diffusion 255px frames exposed a shadow fallback bug when broad polygon simplification produced bounds but no drawable polygons.
-- Run the full suite through the task wrapper:
+- Run focused asset/renderer checks; run the full suite when shared runtime changes or the task risk tier requires it. Use the task wrapper:
   ```bash
   python3 tools/godot_task_runner.py --task-id <task-id> --timeout 300 --stream -- godot --headless --path . --script tests/run_tests.gd
   ```

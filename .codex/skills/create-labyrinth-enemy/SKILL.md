@@ -1,27 +1,23 @@
 ---
 name: create-labyrinth-enemy
-description: Create, rebalance, review, or implement Escape the Umbra enemies. Use when Codex needs to add or modify data/enemies.json, enemy intents, enemy sprites or idle sheets, encounter spawn pools, enemy mechanics, combat previews, balance assumptions, tests, visual probes, or enemy-related analytics.
+description: Create, balance, animate, or review Escape the Umbra enemies and encounter integration.
 ---
 
 # Create Labyrinth Enemy
 
 ## Core Workflow
 
-1. Rebuild live repo context first. Read `AGENTS.md`, then run:
-   ```bash
-   memento brief data/enemies.json scripts/game_data.gd scripts/room_generator.gd scripts/combat_engine.gd scripts/combat_board_view.gd scripts/run_scene.gd tests/run_tests.gd tests/ui_probe.gd spec/card_balance_heuristic.md tools/card_heuristic.py assets/placeholders/units assets/art
-   ```
-2. Classify the request:
+1. Classify the request, then inspect only the relevant data, code, and reference sections:
    - **Data-only enemy using existing verbs**: usually touch `data/enemies.json`, `scripts/room_generator.gd`, tests, and enemy art.
    - **New enemy mechanic**: touch `scripts/combat_engine.gd`, `scripts/combat_board_view.gd` or `scripts/run_scene.gd` if previews/presentation change, `tests/run_tests.gd`, and balance docs/tooling if enemy assumptions change.
    - **Spawn-pool tuning**: touch `scripts/room_generator.gd`, `spec/card_balance_heuristic.md`, `tools/card_heuristic.py`, and tests.
    - **Visual-only enemy work**: use the `imagegen` skill and current unit sprites as style references.
-3. Define the enemy's tactical job before editing: pressure pattern, counterplay, depth band, visual silhouette, and why this enemy earns a roster slot beside crawler, acolyte, harrier, warden, lightning wisp, and Zekarion.
-4. Implement data, mechanics, spawn integration, visuals, turn-clock presentation, previews, and tests together. A new normal enemy that never appears in encounter pools is unfinished unless the task explicitly asks for a staged prototype.
-5. Validate:
+2. Define the enemy's tactical job before editing: pressure pattern, counterplay, depth band, visual silhouette, and why this enemy earns a roster slot beside crawler, acolyte, harrier, warden, lightning wisp, and Zekarion.
+3. Implement data, mechanics, spawn integration, visuals, turn-clock presentation, previews, and tests together. A new normal enemy that never appears in encounter pools is unfinished unless the task explicitly asks for a staged prototype.
+4. Validate changed data with JSON parsing and affected behavior with focused checks. Use risk-tier breadth for integration/full suites; these examples apply when data and shared runtime change:
    ```bash
    jq empty data/enemies.json
-   godot --headless --path . --script tests/run_tests.gd
+   python3 tools/godot_task_runner.py --task-id <task-id> --stream -- godot --headless --path . --script tests/run_tests.gd
    ```
    In parallel task worktrees, run Godot through `tools/godot_task_runner.py`, and run visual probes through `tools/visual_probe_runner.py`.
 
@@ -73,6 +69,8 @@ description: Create, rebalance, review, or implement Escape the Umbra enemies. U
 
 ## Tests And Proof
 
+Select checks for affected behavior and the task risk tier; retain real-renderer proof for visual changes.
+
 Add focused coverage for the actual risk:
 
 - enemy schema: required fields, valid art paths, intent ids/names/times/weights, action verbs, and loaded textures
@@ -96,4 +94,4 @@ When finishing enemy work, report:
 - art path, idle sheet path if any, `art_scale`/offset choices, and whether `imagegen` was used
 - portrait path, turn-clock integration proof, visual proof paths, and inspection fixture launch command or not-applicable reason
 - tests/probes run
-- any `spec/card_balance_heuristic.md`, `tools/card_heuristic.py`, analytics, or memento updates
+- any `spec/card_balance_heuristic.md`, `tools/card_heuristic.py`, or analytics updates
