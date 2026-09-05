@@ -6,6 +6,7 @@ const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 
 
 static func run(expect: Callable) -> void:
+	_test_screen_popup_collision_layout(expect)
 	_test_damage_motion_curve(expect)
 	_test_effect_popup_motion_curve(expect)
 	_test_compound_popups_stagger_per_target(expect)
@@ -392,3 +393,31 @@ static func _test_impact_synchronizes_traps_and_terrain_destruction(expect: Call
 		"Trap-hit neighboring terrain should advance through its destruction sheet alongside the eruption instead of replaying later"
 	)
 	scene.free()
+
+
+static func _test_screen_popup_collision_layout(expect: Callable) -> void:
+	var bounds := Rect2(12, 16, 1896, 1036)
+	var cache: Dictionary = {}
+	var popups: Array[Dictionary] = []
+	for index: int in range(6):
+		popups.append({"key": str(index), "envelope": Rect2(Vector2(820 + (index / 2) * 84, 270 + (index % 2) * 42), Vector2(118, 108)), "layout_scale": 0.78})
+	var placed: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, bounds, cache)
+	for index: int in range(placed.size()):
+		var envelope: Rect2 = placed[index]["envelope"]
+		var offset: Vector2 = placed[index]["layout_offset"]
+		var rect := Rect2(envelope.position + offset, envelope.size)
+		expect.call(bounds.encloses(rect), "Simultaneous damage labels must remain inside the visible board canvas")
+		expect.call(absf(offset.x) <= FloatingCombatText.SCREEN_POPUP_MAX_SIDE_SHIFT, "Collision avoidance must retain each popup's horizontal actor association")
+		for other_index: int in range(index):
+			var other_envelope: Rect2 = placed[other_index]["envelope"]
+			var other := Rect2(other_envelope.position + (placed[other_index]["layout_offset"] as Vector2), other_envelope.size)
+			expect.call(not rect.grow(3.0).intersects(other), "Dense AoE damage and block-loss popups must have separate motion envelopes")
+	var original_offset: Vector2 = placed[1]["layout_offset"]
+	popups.reverse()
+	var repeated: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, bounds, cache)
+	for popup: Dictionary in repeated:
+		if str(popup["key"]) == "1":
+			expect.call((popup["layout_offset"] as Vector2).is_equal_approx(original_offset), "Existing popup lanes must not shuffle when batch ordering changes")
+	var empty: Array[Dictionary] = []
+	FloatingCombatText.place_screen_popups(empty, bounds, cache)
+	expect.call(cache.is_empty(), "Finished popup bursts must release their layout reservations")

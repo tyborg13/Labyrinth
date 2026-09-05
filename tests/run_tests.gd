@@ -15,6 +15,7 @@ const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suit
 const EnemyTacticalAiSuite = preload("res://tests/suites/enemy_tactical_ai_suite.gd")
 const EnemyIntentPreviewSuite = preload("res://tests/suites/enemy_intent_preview_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
+const CombatMotionTimingSuite = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
 const AudioRoutingSuite = preload("res://tests/suites/audio_routing_suite.gd")
@@ -33,6 +34,7 @@ const BalancePacingSuite = preload("res://tests/suites/balance_pacing_suite.gd")
 const LethalPreviewSuite = preload("res://tests/suites/lethal_preview_suite.gd")
 const FloatingCombatTextSuite = preload("res://tests/suites/floating_combat_text_suite.gd")
 const AttackFxSuite = preload("res://tests/suites/attack_fx_suite.gd")
+const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const AttackSfxSuite = preload("res://tests/suites/attack_sfx_suite.gd")
 const RunSfxSuite = preload("res://tests/suites/run_sfx_suite.gd")
 const CombatObjectiveSuite = preload("res://tests/suites/combat_objective_suite.gd")
@@ -210,7 +212,7 @@ func _initialize() -> void:
 	_test_close_aoe_hits_adjacent_targets()
 	_test_player_aoe_damages_incidental_terrain()
 	_test_rotated_line_aoe_uses_selected_orientation()
-	_test_combat_board_orders_line_aoe_preview_tiles()
+	_test_combat_board_aoe_footprint_timing()
 	_test_forced_movement_uses_selected_straight_line()
 	_test_enemy_phase_preserves_preview_cycle()
 	_test_elemental_room_rewards_follow_affinity(default_progression)
@@ -353,6 +355,7 @@ func _initialize() -> void:
 	await _test_main_scenes_instantiate()
 	_suppress_guided_tutorial_for_legacy_live_scene_tests()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
+	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
 	await RunSfxSuite.run(self, Callable(self, "_assert"))
 	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
@@ -727,9 +730,9 @@ func _test_music_library_routes_non_boss_combat_to_schubert() -> void:
 		_assert(str(merchant_entry.get("id", "")) == MusicLibrary.RELIC_ROOM_TRACK_ID, "%s rooms should use non-combat room music" % merchant_type.capitalize())
 
 func _audio_asset_loads(path: String) -> bool:
-	if path.get_extension().to_lower() == "wav":
-		return AudioStreamWAV.load_from_file(path) != null
-	return load(path) is AudioStream
+	# Exercise the production source-file fallback in clean task worktrees,
+	# where the editor's machine-local imported-audio cache is absent.
+	return AssetLoader.load_audio_stream(path) != null
 
 func _test_relic_data_rarity_and_offer_weights() -> void:
 	var valid_rarities: Dictionary = {
@@ -4083,20 +4086,22 @@ func _test_rotated_line_aoe_uses_selected_orientation() -> void:
 	_assert(int((east_enemies[1] as Dictionary).get("hp", 0)) == 20, "East-oriented line should not hit the northern enemy")
 	_assert(int((east_enemies[2] as Dictionary).get("hp", 0)) == 15, "East-oriented line should hit the eastern enemy")
 
-func _test_combat_board_orders_line_aoe_preview_tiles() -> void:
+func _test_combat_board_aoe_footprint_timing() -> void:
+	# AOE now uses shared highlighted tiles and a thin cast path. The old line
+	# sorting helper belonged to the deliberately removed line-pattern bolts;
+	# keep coverage on the visible footprint that replaced those graphics.
 	var board := CombatBoardView.new()
-	var east_tiles: Array = board.call("_ordered_aoe_line_tiles_for_effect", {
-		"tiles": [Vector2i(5, 4), Vector2i(4, 4), Vector2i(6, 4)]
-	})
-	_assert(east_tiles == [Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)], "Combat board should order horizontal AOE line tiles for the late-drawn guide")
-	var north_tiles: Array = board.call("_ordered_aoe_line_tiles_for_effect", {
-		"tiles": [Vector2i(4, 3), Vector2i(4, 2), Vector2i(4, 4)]
-	})
-	_assert(north_tiles == [Vector2i(4, 2), Vector2i(4, 3), Vector2i(4, 4)], "Combat board should order vertical AOE line tiles for the late-drawn guide")
-	var corner_tiles: Array = board.call("_ordered_aoe_line_tiles_for_effect", {
-		"tiles": [Vector2i(4, 4), Vector2i(5, 4), Vector2i(4, 5)]
-	})
-	_assert(corner_tiles.is_empty(), "Combat board should not connect non-line AOE patterns with a line guide")
+	for element_id: String in ElementData.all_elements():
+		var effect: Dictionary = {"kind": "aoe", "element": element_id}
+		var style: String = AttackFxLibrary.style_for_effect(effect)
+		var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+		var impact_middle: float = lerpf(travel_end, 1.0, 0.5)
+		board.presentation = {}
+		_assert(is_zero_approx(float(board.call("_aoe_resolution_footprint_visibility", effect, travel_end))), "AOE footprint should not appear before the spell reaches its target")
+		_assert(float(board.call("_aoe_resolution_footprint_visibility", effect, impact_middle)) > 0.95, "AOE footprint should clearly identify affected tiles during impact")
+		_assert(is_zero_approx(float(board.call("_aoe_resolution_footprint_visibility", effect, 1.0))), "AOE footprint should clear at the end of its impact")
+		board.presentation = {"reduced_motion": true}
+		_assert(is_equal_approx(float(board.call("_aoe_resolution_footprint_visibility", effect, 0.0)), float(board.call("_aoe_resolution_footprint_visibility", effect, 1.0))), "Reduced-motion AOE footprint should preserve a stable affected-area cue")
 	board.free()
 
 func _test_forced_movement_uses_selected_straight_line() -> void:

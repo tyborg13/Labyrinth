@@ -1166,9 +1166,9 @@ const RELIC_CHOICES_OPEN_SFX_ENTRY: Dictionary = {
 	"volume_db": 0.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
-const CARD_PLAY_SECONDS: float = 0.30
-const CARD_PLAY_HOLD_SECONDS: float = 0.11
-const CARD_PILE_SECONDS: float = 0.28
+const CARD_PLAY_SECONDS: float = 0.23
+const CARD_PLAY_HOLD_SECONDS: float = 0.04
+const CARD_PILE_SECONDS: float = 0.24
 const CARD_SNAPBACK_SECONDS: float = 0.16
 const CARD_DRAW_ARC_HEIGHT: float = 54.0
 const CARD_PLAY_ARC_HEIGHT: float = 58.0
@@ -1342,7 +1342,7 @@ const SKILL_TREE_DIALOG_SIZE: Vector2 = Vector2(1500.0, 900.0)
 const SKILL_TREE_DIALOG_MIN_SIZE: Vector2 = Vector2(1120.0, 620.0)
 const PROGRESSION_SUMMARY_COMPACT_VIEWPORT_WIDTH: float = 1200.0
 const CHARACTER_BODY_MIN_HEIGHT: float = 360.0
-const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(190.0, 104.0)
+const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(0.0, 92.0)
 const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 66.0)
 const EQUIPMENT_ICON_SIZE: Vector2 = Vector2(50.0, 50.0)
 const EQUIPMENT_DRAG_GHOST_SIZE: Vector2 = Vector2(78.0, 78.0)
@@ -15840,11 +15840,12 @@ func _play_post_combat_victory(board_state: Dictionary) -> void:
 	if board_state.is_empty() or _post_combat_victory_overlay == null:
 		return
 	_render_board_state(board_state, {})
-	var cue_seconds: float = _play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
+	# Let the musical resolution ring through reward selection. Input follows
+	# the visible victory beat instead of waiting for the audio reverb tail.
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
 	await PostCombatRewardSequence.play_victory(
 		_post_combat_victory_overlay,
-		_reduced_motion_enabled(),
-		cue_seconds
+		_reduced_motion_enabled()
 	)
 
 func _play_loaded_reward_intro() -> void:
@@ -21323,8 +21324,17 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	_play_card_play_sfx()
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
-	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
+	# The center beat confirms the committed card. Its flight to the pile is
+	# bookkeeping that can finish alongside the first visible board consequence.
+	var pile_completion: Dictionary = {"done": false}
+	_animate_card_to_pile_fx_and_complete(card_id, pile_kind, card_size, staged_card_proxy, pile_completion)
+	# Give the large card its first departure frames so it clears the target
+	# before the board consequence begins; the rest of its flight overlaps.
+	if not bool(pile_completion.get("done", false)):
+		await get_tree().create_timer(0.04 if _reduced_motion_enabled() else 0.08).timeout
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
+	while not bool(pile_completion.get("done", false)):
+		await get_tree().process_frame
 	_consume_pending_card_draw_sfx(committed_combat_state)
 	await _animate_enemy_loss_feedback_between_states(
 		pre_commit_combat_state,
@@ -21420,6 +21430,10 @@ func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vecto
 		return null
 	await get_tree().create_timer(CARD_PLAY_HOLD_SECONDS * (0.55 if reduced_motion else 1.0)).timeout
 	return proxy if _node_is_alive(proxy) else null
+
+func _animate_card_to_pile_fx_and_complete(card_id: String, pile_kind: String, size_hint: Vector2, staged_proxy, completion: Dictionary) -> void:
+	await _animate_card_to_pile_fx(card_id, pile_kind, size_hint, staged_proxy)
+	completion["done"] = true
 
 func _animate_card_to_pile_fx(card_id: String, pile_kind: String, size_hint: Vector2, staged_proxy = null) -> void:
 	if _card_fx_layer == null or card_id.is_empty():
@@ -21849,13 +21863,24 @@ func _animate_death_rewards(before_state: Dictionary, after_state: Dictionary) -
 	var gained_embers: int = EmberRewardFeedback.total_amount(rewards)
 	_ember_count_override = displayed_embers
 	_set_stats_label_text(displayed_embers)
+	var gained_card_plays: int = 0
 	for reward: Dictionary in rewards:
-		if int(reward.get("card_plays", 0)) > 0:
-			displayed_card_plays += int(reward.get("card_plays", 0))
-			await _animate_card_play_reward(displayed_card_plays)
+		gained_card_plays += maxi(0, int(reward.get("card_plays", 0)))
+	# One impact can defeat several enemies. Show its entire reward immediately
+	# and let the two independent counters answer together, with one pulse each.
+	var card_play_completion: Dictionary = {"done": true}
+	if gained_card_plays > 0:
+		card_play_completion["done"] = false
+		_animate_card_play_reward_and_complete(displayed_card_plays + gained_card_plays, card_play_completion)
 	if gained_embers > 0:
 		await _animate_ember_reward(Vector2i.ZERO, gained_embers, displayed_embers, displayed_embers + gained_embers)
+	while not bool(card_play_completion.get("done", false)):
+		await get_tree().process_frame
 	_ember_count_override = -1
+
+func _animate_death_rewards_and_complete(before_state: Dictionary, after_state: Dictionary, completion: Dictionary) -> void:
+	await _animate_death_rewards(before_state, after_state)
+	completion["done"] = true
 
 func _animate_card_play_reward(displayed_card_plays: int) -> void:
 	if _play_meter == null or _play_meter_count == null:
@@ -21871,15 +21896,18 @@ func _animate_card_play_reward(displayed_card_plays: int) -> void:
 	_refresh_card_play_meter()
 	_play_meter.pivot_offset = _play_meter.size * 0.5
 	_play_meter_count.add_theme_color_override("font_color", Color("ffe27a"))
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(_play_meter, "scale", Vector2(1.14, 1.14), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_play_meter, "modulate", Color(1.0, 0.84, 0.46, 1.0), 0.11)
+	var reduced_motion: bool = _reduced_motion_enabled()
+	var rise_seconds: float = 0.04 if reduced_motion else 0.08
+	var settle_seconds: float = 0.08 if reduced_motion else 0.14
+	var tween := create_tween().set_parallel(true)
+	if not reduced_motion:
+		tween.tween_property(_play_meter, "scale", Vector2(1.09, 1.09), rise_seconds).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_play_meter, "modulate", Color(1.0, 0.84, 0.46, 1.0), rise_seconds)
 	await tween.finished
-	var settle := create_tween()
-	settle.set_parallel(true)
-	settle.tween_property(_play_meter, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	settle.tween_property(_play_meter, "modulate", Color.WHITE, 0.18)
+	var settle := create_tween().set_parallel(true)
+	if not reduced_motion:
+		settle.tween_property(_play_meter, "scale", Vector2.ONE, settle_seconds).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	settle.tween_property(_play_meter, "modulate", Color.WHITE, settle_seconds)
 	await settle.finished
 	_play_meter_count.add_theme_color_override("font_color", Color("fff4dc"))
 
@@ -21895,15 +21923,18 @@ func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
 	content.pivot_offset = content.size * 0.5
 	label.add_theme_color_override("font_color", Color("fff4dc"))
 	var accent: Color = ElementData.accent(element_id).lightened(0.18)
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(content, "scale", Vector2(1.18, 1.18), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(content, "modulate", Color(accent.r, accent.g, accent.b, 1.0), 0.11)
+	var reduced_motion: bool = _reduced_motion_enabled()
+	var rise_seconds: float = 0.04 if reduced_motion else 0.08
+	var settle_seconds: float = 0.08 if reduced_motion else 0.14
+	var tween := create_tween().set_parallel(true)
+	if not reduced_motion:
+		tween.tween_property(content, "scale", Vector2(1.10, 1.10), rise_seconds).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(content, "modulate", Color(accent.r, accent.g, accent.b, 1.0), rise_seconds)
 	await tween.finished
-	var settle := create_tween()
-	settle.set_parallel(true)
-	settle.tween_property(content, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	settle.tween_property(content, "modulate", Color.WHITE, 0.20)
+	var settle := create_tween().set_parallel(true)
+	if not reduced_motion:
+		settle.tween_property(content, "scale", Vector2.ONE, settle_seconds).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	settle.tween_property(content, "modulate", Color.WHITE, settle_seconds)
 	await settle.finished
 	label.add_theme_color_override("font_color", Color("fff7df"))
 
@@ -22993,8 +23024,13 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		action_type in ["melee", "ranged", "aoe", "push", "pull"]
 		or not triggered_traps.is_empty()
 	)
+	# Defeat silhouettes and turn-clock cleanup already explain the kill. Reward
+	# counters can settle during that same beat without delaying the next action.
+	var death_reward_completion: Dictionary = {"done": false}
+	_animate_death_rewards_and_complete(before_state, after_state, death_reward_completion)
 	await _animate_turn_order_alongside_defeats(before_state, after_state, {}, terrain_destruction_presented_inline)
-	await _animate_death_rewards(before_state, after_state)
+	while not bool(death_reward_completion.get("done", false)):
+		await get_tree().process_frame
 	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
 	var hand_destination_indices: Dictionary = _pickup_hand_destination_indices(picked_loot, before_state, after_state)
 	for loot_var: Variant in picked_loot:
@@ -27892,11 +27928,10 @@ func _build_equipment_inventory_column() -> Control:
 	gear_label.add_theme_color_override("font_outline_color", Color("1d1510"))
 	gear_label.add_theme_constant_override("outline_size", 1)
 	sections.add_child(gear_label)
-	var gear_grid := HFlowContainer.new()
+	var gear_grid := VBoxContainer.new()
+	gear_grid.name = "EquipmentInventoryRows"
 	gear_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	gear_grid.alignment = FlowContainer.ALIGNMENT_BEGIN
-	gear_grid.add_theme_constant_override("h_separation", 8)
-	gear_grid.add_theme_constant_override("v_separation", 8)
+	gear_grid.add_theme_constant_override("separation", 8)
 	sections.add_child(gear_grid)
 	if inventory_ids.is_empty():
 		var empty := Label.new()
@@ -27929,11 +27964,10 @@ func _build_equipment_inventory_column() -> Control:
 	UiTypography.set_label_size(item_count, UiTypography.SIZE_CAPTION)
 	item_count.add_theme_color_override("font_color", Color("f0c978"))
 	item_title_row.add_child(item_count)
-	var item_grid := HFlowContainer.new()
+	var item_grid := VBoxContainer.new()
+	item_grid.name = "ItemInventoryRows"
 	item_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	item_grid.alignment = FlowContainer.ALIGNMENT_BEGIN
-	item_grid.add_theme_constant_override("h_separation", 8)
-	item_grid.add_theme_constant_override("v_separation", 8)
+	item_grid.add_theme_constant_override("separation", 8)
 	sections.add_child(item_grid)
 	_item_inventory_drop_panel = item_grid
 	var item_ids: Array = _item_inventory_ids()
@@ -28121,6 +28155,7 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	tile.equipment_id = equipment_id
 	tile.host = self
 	tile.custom_minimum_size = EQUIPMENT_TILE_SIZE
+	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.tooltip_text = "equipment:%s" % equipment_id
@@ -28142,25 +28177,26 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	row.add_child(_build_equipment_icon_chip(equipment_id, EQUIPMENT_ICON_SIZE, false))
 	var text_box := VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.add_theme_constant_override("separation", 1)
+	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	text_box.add_theme_constant_override("separation", 2)
 	row.add_child(text_box)
 	var name_label := Label.new()
 	name_label.text = str(item.get("name", equipment_id))
-	name_label.clip_text = true
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_CAPTION)
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_BODY)
 	name_label.add_theme_color_override("font_color", Color("fff0ce"))
 	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
 	name_label.add_theme_constant_override("outline_size", 1)
 	text_box.add_child(name_label)
 	var meta_label := Label.new()
 	meta_label.text = "%s | %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))]
-	meta_label.clip_text = true
+	meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.set_label_size(meta_label, UiTypography.SIZE_CAPTION)
 	meta_label.add_theme_color_override("font_color", Color("cdbca2"))
 	text_box.add_child(meta_label)
 	var card_label := Label.new()
 	card_label.text = _equipment_card_summary(equipment_id)
-	card_label.clip_text = true
+	card_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.set_label_size(card_label, UiTypography.SIZE_CAPTION)
 	card_label.add_theme_color_override("font_color", Color("d7c6aa"))
 	text_box.add_child(card_label)
@@ -28281,7 +28317,7 @@ func _build_item_card_tile(card_id: String, source_kind: String, index: int, til
 	if card_id.is_empty():
 		var empty := PanelContainer.new()
 		empty.custom_minimum_size = tile_size
-		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL if source_kind == "equipped" else Control.SIZE_SHRINK_CENTER
+		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		empty.add_theme_stylebox_override("panel", _equipment_panel_style(Color("4f453b"), _item_drag_can_drop_on({"source_kind": source_kind, "index": index})))
 		if source_kind == "equipped":
 			_item_equipped_tiles[index] = empty
@@ -28300,7 +28336,7 @@ func _build_item_card_tile(card_id: String, source_kind: String, index: int, til
 	tile.source_kind = source_kind
 	tile.item_index = index
 	tile.custom_minimum_size = tile_size
-	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL if source_kind == "equipped" else Control.SIZE_SHRINK_CENTER
+	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _item_overlay_can_change() else Control.CURSOR_ARROW
@@ -28341,8 +28377,7 @@ func _build_item_card_tile_body(card_id: String) -> Control:
 	row.add_child(text_box)
 	var name_label := Label.new()
 	name_label.text = str(card.get("name", card_id))
-	name_label.clip_text = true
-	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
 	name_label.add_theme_color_override("font_color", Color("fff0ce"))
 	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
@@ -28350,7 +28385,7 @@ func _build_item_card_tile_body(card_id: String) -> Control:
 	text_box.add_child(name_label)
 	var meta_label := Label.new()
 	meta_label.text = "%s item" % _equipment_rarity_label(str(card.get("rarity", "common")))
-	meta_label.clip_text = true
+	meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.set_label_size(meta_label, UiTypography.SIZE_CAPTION)
 	meta_label.add_theme_color_override("font_color", Color("cdbca2"))
 	text_box.add_child(meta_label)
@@ -29670,9 +29705,7 @@ func _equipment_card_summary(equipment_id: String) -> String:
 	var names: Array = []
 	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
 		names.append(str(GameData.card_def(str(card_id_var)).get("name", card_id_var)))
-	if names.size() <= 1:
-		return str(names[0]) if not names.is_empty() else ""
-	return "%s, +%d" % [str(names[0]), names.size() - 1]
+	return ", ".join(names)
 
 func _equipment_slot_label(slot: String) -> String:
 	match slot:

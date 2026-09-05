@@ -7,11 +7,10 @@ const GameDataScript = preload("res://scripts/game_data.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
 const CAPTURE_SEED: int = 126044
-const REWARD_CAPTURE_SIZE: Vector2i = Vector2i(2304, 1296)
-const REWARD_CAPTURE_RAISE: float = 220.0
 const SAFE_FRAME_SCALE: float = 0.82
 const CAPTURE_OUTPUT_SIZE: Vector2 = Vector2(1920.0, 1080.0)
 const INVALID_TILE: Vector2i = Vector2i(-1, -1)
@@ -25,7 +24,20 @@ var _safe_frame_capture: bool = false
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
+	# Movie output and the real UI share one authored canvas. A fullscreen
+	# desktop viewport otherwise clips the HUD when encoded at 1080p.
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	get_window().content_scale_size = Vector2i(1920, 1080)
 	get_window().size = Vector2i(1920, 1080)
+	SettingsStore.set_storage_path("user://steam_trailer_settings.json")
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = false
+	SettingsStore.save_settings(settings)
+	SettingsStore.apply_settings(settings, get_window(), false)
 	ProgressionStore.set_storage_path("user://steam_trailer_progression.json")
 	ProgressionStore.set_run_storage_path("user://steam_trailer_current_run.save")
 	ProgressionStore.clear_saved_run()
@@ -38,34 +50,27 @@ func _ready() -> void:
 	call_deferred("_capture_requested_clip")
 
 func _mount_run_scene_for_capture() -> void:
-	if _clip_id in ["relic", "spell"]:
-		# CanvasLayer content ignores parent Control transforms. Render the full
-		# production scene in a larger 16:9 viewport instead, then downsample its
-		# texture into the 1080p movie frame so lower reward controls are recorded.
-		var reward_viewport := SubViewport.new()
-		reward_viewport.name = "RewardCaptureViewport"
-		reward_viewport.size = REWARD_CAPTURE_SIZE
-		reward_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-		reward_viewport.gui_disable_input = true
-		add_child(reward_viewport)
-		reward_viewport.add_child(_run_scene)
-		_run_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		if _safe_frame_capture:
-			_apply_safe_frame_transform(Vector2(REWARD_CAPTURE_SIZE))
-
-		var reward_display := TextureRect.new()
-		reward_display.name = "RewardCaptureDisplay"
-		reward_display.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		reward_display.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		reward_display.stretch_mode = TextureRect.STRETCH_SCALE
-		reward_display.texture = reward_viewport.get_texture()
-		reward_display.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(reward_display)
-		return
-	add_child(_run_scene)
+	# A native1080 viewport owns production layout even on a Retina desktop.
+	# All layers remain together; no reward-only repositioning or HUD crop.
+	var capture_viewport := SubViewport.new()
+	capture_viewport.name = "GameplayCaptureViewport"
+	capture_viewport.size = Vector2i(1920, 1080)
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	capture_viewport.gui_disable_input = true
+	add_child(capture_viewport)
+	capture_viewport.add_child(_run_scene)
 	_run_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if _safe_frame_capture:
 		_apply_safe_frame_transform()
+	var display := TextureRect.new()
+	display.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	display.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	display.stretch_mode = TextureRect.STRETCH_SCALE
+	display.texture = capture_viewport.get_texture()
+	display.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(display)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	get_window().size = Vector2i(1920, 1080)
 
 
 func _configure_capture_cursor() -> void:
@@ -191,6 +196,9 @@ func _seed_known_grimoire_entries(progression: Dictionary) -> void:
 
 func _show_run_scene() -> void:
 	_run_scene.visible = true
+	# Capture runner physically trims everything before the populated scene,
+	# with two additional rendered frames for CanvasLayer/layout settlement.
+	print("STEAM_TRAILER_SAFE_START_FRAME=%d" % (Engine.get_frames_drawn() + 2))
 
 func _suppress_current_room_dialogue() -> void:
 	_run_scene.call("_close_dialogue")
@@ -555,7 +563,7 @@ func _capture_trap_combo() -> void:
 	_assert_capture((projected_state.get("traps", []) as Array).is_empty() and _live_enemy_count(projected_state) == 0, "Scaled Cleaver Hook setup must project a complete three-enemy trap kill")
 	_apply_combat_state(layout, state)
 	_show_run_scene()
-	await _settle(1.0)
+	await _settle(0.4)
 	await _play_showcase_card("cleaver_hook", primary_target, trap_tile)
 	var after_state: Dictionary = _capture_combat_result_state()
 	_assert_capture((after_state.get("traps", []) as Array).is_empty(), "Cleaver Hook must consume the fire trap")
@@ -588,7 +596,7 @@ func _capture_aoe_combo() -> void:
 	state["elemental_intensity"] = {"fire": 3, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
 	_apply_combat_state(layout, state)
 	_show_run_scene()
-	await _settle(1.0)
+	await _settle(0.4)
 	await _play_showcase_card("wildfire_halo", center)
 	var after_state: Dictionary = _capture_combat_result_state()
 	_assert_capture(_live_enemy_count(state) == 3, "Wildfire Halo showcase must begin with exactly three live enemies")
@@ -618,7 +626,7 @@ func _capture_umbra_reveal() -> void:
 	_assert_capture(visible_enemies_before == 1, "Lantern Shot setup must begin with one visible target and two enemies in real shadow")
 	_apply_combat_state(layout, state)
 	_show_run_scene()
-	await _settle(1.0)
+	await _settle(0.4)
 	await _play_showcase_card("lantern_shot", target)
 	var after_state: Dictionary = _run_scene.get("_combat_state") as Dictionary
 	var umbra: Dictionary = after_state.get("umbra", {}) as Dictionary
@@ -669,9 +677,8 @@ func _capture_merchant_purchase() -> void:
 	await _settle(0.9)
 
 func _capture_relic_claim() -> void:
-	_raise_reward_choices_for_capture(true)
 	_show_run_scene()
-	await _settle(0.75)
+	await _settle(1.55)
 	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
 	var relics: Array = (state.get("pending_relics", []) as Array).duplicate()
@@ -697,10 +704,9 @@ func _capture_relic_claim() -> void:
 		relic_id,
 		str(after_state.get("mode", ""))
 	])
-	await _settle(0.9)
+	await _settle(1.6)
 
 func _capture_spell_reward() -> void:
-	_raise_reward_choices_for_capture(false)
 	_show_run_scene()
 	await _settle(0.75)
 	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
@@ -729,15 +735,6 @@ func _capture_spell_reward() -> void:
 		str(after_state.get("mode", ""))
 	])
 	await _settle(0.9)
-
-func _raise_reward_choices_for_capture(relic_choices: bool) -> void:
-	var choice_control: Control = (
-		_run_scene.get("_relic_choice_host") as Control
-		if relic_choices
-		else _run_scene.get("bottom_stack") as Control
-	)
-	_assert_capture(choice_control != null, "Reward capture must find its production choice host")
-	choice_control.position.y -= REWARD_CAPTURE_RAISE
 
 func _control_fully_inside_capture(control: Control) -> bool:
 	if control == null:
@@ -928,7 +925,7 @@ func _apply_combat_state(layout: Dictionary, combat_state: Dictionary) -> void:
 	run_state["current_room_layout"] = layout.duplicate(true)
 	run_state["combat_state"] = combat_state
 	_run_scene.set("_run_state", run_state)
-	_run_scene.set("_combat_state", combat_state)
+	_run_scene.call("_sync_combat_state_from_run")
 	_run_scene.call("_reset_card_resolution")
 	_run_scene.set("_animation_lock", false)
 	_run_scene.set("_card_play_count_override", -1)
@@ -939,12 +936,16 @@ func _play_showcase_card(card_id: String, target: Vector2i, orientation_confirma
 	var hand: Array = (state_before.get("deck", {}) as Dictionary).get("hand", []) as Array
 	_assert_capture(not hand.is_empty() and str(hand[0]) == card_id, "Showcase card must occupy the first visible hand slot: %s" % card_id)
 	_run_scene.call("_on_card_hover_started", 0)
-	await _settle(0.8)
+	await _settle(0.5)
 	await _run_scene.call("_on_card_pressed", 0)
 	_assert_capture(int(_run_scene.get("_selected_card_index")) == 0, "Production card selection must enter target preview for %s" % card_id)
+	_assert_capture((_run_scene.get("_pending_target_tiles") as Array).has(target), "Showcase target must be offered by the current production card preview")
 	_run_scene.call("_on_board_tile_hovered", target)
-	await _settle(0.7)
-	print("STEAM_TRAILER_CARD_COMMIT card=%s target=%s hand_index=0 natural_play=true" % [card_id, str(target)])
+	var board: Control = _run_scene.get("board_view") as Control
+	var target_position: Vector2 = board.get_global_transform() * (board.call("world_position_for_tile", target) as Vector2)
+	_run_scene.call("_sync_click_targeting_arrow", target_position)
+	await _settle(0.45)
+	print("STEAM_TRAILER_CARD_COMMIT card=%s target=%s raw_frame=%d hand_index=0 natural_play=true" % [card_id, str(target), Engine.get_frames_drawn()])
 	await _run_scene.call("_on_board_tile_clicked", target)
 	if int(_run_scene.get("_selected_card_index")) == 0:
 		_assert_capture(orientation_confirmation != INVALID_TILE, "Natural play requires an orientation confirmation for %s" % card_id)

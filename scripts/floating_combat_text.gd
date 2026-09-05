@@ -27,6 +27,8 @@ const ARC_APEX_PROGRESS: float = 0.30
 const NORMAL_STACK_STEP_Y: float = 0.0
 const NORMAL_OVERLAP_STACK_STEP_Y: float = 20.0
 const REDUCED_STACK_STEP_Y: float = 36.0
+const SCREEN_POPUP_GAP: float = 8.0
+const SCREEN_POPUP_MAX_SIDE_SHIFT: float = 24.0
 
 const EFFECT_BASE_FONT_SIZE: int = 24
 const EFFECT_PEAK_FONT_SIZE: int = 48
@@ -87,6 +89,7 @@ static func animate_entries(base_entries: Array, elapsed_seconds: float, reduced
 		var local_elapsed: float = maxf(0.0, elapsed_seconds - delay_seconds)
 		var local_progress: float = clampf(local_elapsed / ANIMATION_DURATION_SECONDS, 0.0, 1.0)
 		var entry: Dictionary = animate_entry(base_entry, local_progress, reduced_motion)
+		entry["screen_layout_key"] = "%s|%s|%d" % [anchor_key, str(base_entry.get("text", "")), sequence_index]
 		entry["sequence_index"] = sequence_index
 		entry["sequence_delay_seconds"] = delay_seconds
 		var motion_offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
@@ -166,7 +169,10 @@ static func animate_timeline(groups: Array, elapsed_seconds: float, reduced_moti
 		var local_elapsed: float = elapsed_seconds - float(group.get("start_seconds", 0.0))
 		if local_elapsed < 0.0 or local_elapsed >= total_duration(entries):
 			continue
-		active_batches.append(animate_entries(entries, local_elapsed, reduced_motion))
+		var animated_batch: Array[Dictionary] = animate_entries(entries, local_elapsed, reduced_motion)
+		for entry: Dictionary in animated_batch:
+			entry["screen_layout_key"] = "%.6f|%s" % [float(group.get("start_seconds", 0.0)), str(entry.get("screen_layout_key", ""))]
+		active_batches.append(animated_batch)
 	_stack_timeline_batches(
 		active_batches,
 		REDUCED_STACK_STEP_Y if reduced_motion else NORMAL_OVERLAP_STACK_STEP_Y
@@ -215,6 +221,7 @@ static func animate_entry(base_entry: Dictionary, progress: float, reduced_motio
 	else:
 		entry = _animate_effect_entry(entry, t, reduced_motion)
 	entry["motion_offset"] = _motion_offset(entry, t, reduced_motion)
+	entry["animation_reduced_motion"] = reduced_motion
 	entry["animation_progress"] = t
 	return entry
 
@@ -332,3 +339,59 @@ static func _alpha_for_progress(progress: float, fade_start: float) -> float:
 	if progress <= fade_start:
 		return 1.0
 	return clampf(1.0 - ((progress - fade_start) / maxf(0.001, 1.0 - fade_start)), 0.0, 1.0)
+
+
+# Reserve peak glyph bounds, not today's shrinking glyph boxes. Existing
+# placements survive until the popup burst clears, so a new staggered label
+# never makes an older damage number jump to another lane.
+static func place_screen_popups(popups: Array[Dictionary], bounds: Rect2, cache: Dictionary, obstacles: Array = []) -> Array[Dictionary]:
+	if popups.is_empty():
+		cache.clear()
+		return popups
+	var occupied: Array[Rect2] = []
+	for obstacle: Variant in obstacles:
+		if typeof(obstacle) == TYPE_RECT2:
+			occupied.append(obstacle as Rect2)
+	for popup: Dictionary in popups:
+		var key: String = str(popup.get("key", ""))
+		if cache.has(key):
+			var placement: Dictionary = cache[key]
+			popup["layout_offset"] = placement.get("offset", Vector2.ZERO)
+			occupied.append(_offset_rect((popup.get("envelope", Rect2()) as Rect2).grow(SCREEN_POPUP_GAP * 0.5), popup["layout_offset"] as Vector2))
+	for popup: Dictionary in popups:
+		var key: String = str(popup.get("key", ""))
+		if cache.has(key):
+			continue
+		var envelope: Rect2 = popup.get("envelope", Rect2())
+		var offset: Vector2 = _nearest_clear_popup_offset(envelope, occupied, bounds)
+		popup["layout_offset"] = offset
+		cache[key] = {"offset": offset, "scale": float(popup.get("layout_scale", 1.0))}
+		occupied.append(_offset_rect(envelope, offset).grow(SCREEN_POPUP_GAP * 0.5))
+	return popups
+
+
+static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2], bounds: Rect2) -> Vector2:
+	var candidates_y: Array[float] = [0.0]
+	for rect: Rect2 in occupied:
+		candidates_y.append(rect.position.y - SCREEN_POPUP_GAP * 0.5 - envelope.end.y)
+		candidates_y.append(rect.end.y + SCREEN_POPUP_GAP * 0.5 - envelope.position.y)
+	var best_offset := Vector2.ZERO
+	var best_cost: float = INF
+	for dx: float in [0.0, -SCREEN_POPUP_MAX_SIDE_SHIFT * 0.5, SCREEN_POPUP_MAX_SIDE_SHIFT * 0.5, -SCREEN_POPUP_MAX_SIDE_SHIFT, SCREEN_POPUP_MAX_SIDE_SHIFT]:
+		for dy: float in candidates_y:
+			var offset := Vector2(dx, dy)
+			offset.x = clampf(offset.x, bounds.position.x - envelope.position.x, maxf(bounds.position.x - envelope.position.x, bounds.end.x - envelope.end.x))
+			offset.y = clampf(offset.y, bounds.position.y - envelope.position.y, maxf(bounds.position.y - envelope.position.y, bounds.end.y - envelope.end.y))
+			var candidate: Rect2 = _offset_rect(envelope, offset).grow(SCREEN_POPUP_GAP * 0.5)
+			var overlap_area: float = 0.0
+			for rect: Rect2 in occupied:
+				overlap_area += candidate.intersection(rect).get_area()
+			var cost: float = overlap_area * 10000.0 + absf(offset.y) + absf(offset.x) * 1.5
+			if cost < best_cost:
+				best_cost = cost
+				best_offset = offset
+	return best_offset
+
+
+static func _offset_rect(rect: Rect2, offset: Vector2) -> Rect2:
+	return Rect2(rect.position + offset, rect.size)

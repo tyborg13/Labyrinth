@@ -2,19 +2,37 @@ extends SceneTree
 
 const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
 const DOOR_OPENING_PROBE_DIR: String = "user://probes/door_opening"
 const DOOR_OPENING_PROBE_FRAMES: int = 8
 
+var _proof_viewport: SubViewport
+
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.size = Vector2i(1920, 1080)
+	SettingsStore.set_storage_path("user://wishlist_ui_probe_settings.json")
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = 1.0
+	SettingsStore.save_settings(settings)
+	SettingsStore.apply_settings(settings, root, false)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://probes"))
 	_clear_probe_output("user://probes")
 	ProgressionStore.set_storage_path("user://labyrinth_progression_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_probe.save")
 	ProgressionStore.clear_saved_run()
+	_proof_viewport = SubViewport.new()
+	_proof_viewport.size = Vector2i(1920, 1080)
+	_proof_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(_proof_viewport)
 	await _capture_scene("res://scenes/main_menu.tscn", "user://probes/main_menu.png")
 	await _capture_run_states()
 	print(ProjectSettings.globalize_path("user://probes"))
@@ -23,7 +41,7 @@ func _initialize() -> void:
 func _capture_scene(scene_path: String, output_path: String) -> void:
 	var packed: PackedScene = load(scene_path)
 	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+	_proof_viewport.add_child(instance)
 	await process_frame
 	await process_frame
 	await _save_root_screenshot(output_path)
@@ -46,7 +64,7 @@ func _capture_grimoire_snapshot(instance: Node, output_path: String, entry_id: S
 func _capture_run_states() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+	_proof_viewport.add_child(instance)
 	await process_frame
 	await process_frame
 	var probe_run_engine := RunEngine.new()
@@ -157,7 +175,7 @@ func _capture_run_states() -> void:
 				if tooltip != null and tooltip is Control:
 					var tooltip_control: Control = tooltip
 					tooltip_control.position = widget.global_position + Vector2(widget.size.x + 12.0, 8.0)
-					root.add_child(tooltip_control)
+					_proof_viewport.add_child(tooltip_control)
 					await process_frame
 					await process_frame
 					await _save_root_screenshot("user://probes/run_combat_damage_tooltip.png")
@@ -666,7 +684,8 @@ func _pass_preview_probe_is_damage_value(label: Label) -> bool:
 		"PassPreviewSafe",
 		"PassPreviewUmbraUnknown",
 		"PassPreviewDefeat",
-		"PassPreviewForecast"
+		"PassPreviewForecast",
+		"PassPreviewForecastLine"
 	].has(str(label.name))
 
 func _first_node_named(node: Node, node_name: String) -> Node:
@@ -764,7 +783,7 @@ func _capture_orientation_previews(instance: Node) -> void:
 	await process_frame
 
 func _save_root_screenshot(output_path: String) -> void:
-	var image: Image = root.get_viewport().get_texture().get_image()
+	var image: Image = _proof_viewport.get_texture().get_image()
 	image.save_png(output_path)
 
 func _clear_probe_output(output_dir: String) -> void:

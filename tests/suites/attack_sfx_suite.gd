@@ -288,6 +288,7 @@ static func _test_reward_flip_sequence(instance: Node, tree: SceneTree, expect: 
 	for index: int in range(3):
 		slots.append(_reward_flip_slot(host, index))
 	var generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
+	var reveal_started: int = Time.get_ticks_msec()
 	await PostCombatRewardSequence.play_reward_reveal(
 		host,
 		banner,
@@ -297,6 +298,9 @@ static func _test_reward_flip_sequence(instance: Node, tree: SceneTree, expect: 
 		false,
 		Callable(instance, "_play_reward_card_flip_sfx")
 	)
+	expect.call(Time.get_ticks_msec() - reveal_started < 1250, "Three reward cards should become readable together without a serialized flip queue")
+	for slot: Control in slots:
+		expect.call((slot.find_child("CardWidget", true, false) as Control).visible, "Every reward face must be visible before reveal completes")
 	var players: Array = instance.get("_sfx_players") as Array
 	expect.call(_sfx_generation_total(players) == generation_before + slots.size(), "An animated three-card reward reveal should play exactly one flip sound per card")
 	for player_var: Variant in players:

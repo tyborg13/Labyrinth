@@ -1,5 +1,6 @@
 extends SceneTree
 
+const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
@@ -101,8 +102,8 @@ func _capture_states() -> void:
 	# PNG readback/encoding deliberately stalls this visual probe's main thread.
 	# The headless live timing test owns the tight no-dead-space bound; here we
 	# only reject a visibly added timer beyond that known capture overhead.
-	_assert(captured_wall_seconds >= victory_cue_seconds - 0.06 and captured_wall_seconds <= victory_cue_seconds + 0.90, "Victory visual proof should not add a second linger after the cue")
-	_assert(victory_overlay != null and not victory_overlay.visible, "Victory overlay should clear immediately after the audio-backed sequence")
+	_assert(captured_wall_seconds >= PostCombatRewardSequence.victory_sequence_seconds(false) - 0.06 and captured_wall_seconds < victory_cue_seconds, "Victory visual proof should hand off while the musical tail continues")
+	_assert(victory_overlay != null and not victory_overlay.visible, "Victory overlay should clear after its visual beat")
 
 	instance.queue_free()
 	await process_frame

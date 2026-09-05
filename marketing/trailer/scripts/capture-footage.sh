@@ -28,11 +28,7 @@ for clip in "${CLIPS[@]}"; do
   raw_path="${FOOTAGE_DIR}/${clip}.avi"
   edit_path="${FOOTAGE_DIR}/${clip}.mp4"
 
-  case "${clip}" in
-    route) trim_frames=27 ;;
-    prebattle) trim_frames=56 ;;
-    *) trim_frames=30 ;;
-  esac
+  capture_log="$(mktemp "${TMPDIR:-/tmp}/umbra-${clip}.XXXXXX")"
 
   python3 "${REPO_ROOT}/tools/godot_task_runner.py" \
     --task-id "${TASK_ID}" \
@@ -49,18 +45,32 @@ for clip in "${CLIPS[@]}"; do
     --write-movie "${raw_path}" \
     "${REPO_ROOT}/tools/steam_trailer_capture.tscn" \
     -- \
-    "--clip=${clip}"
+    "--clip=${clip}" | tee "${capture_log}"
 
+  trim_frames="$(sed -n 's/^STEAM_TRAILER_SAFE_START_FRAME=//p' "${capture_log}" | tail -1)"
+  if [[ ! "${trim_frames}" =~ ^[0-9]+$ ]]; then
+    printf 'Missing measured safe first frame for %s (log: %s)\n' "${clip}" "${capture_log}" >&2
+    exit 1
+  fi
+  printf 'Trimming %s at measured frame %s (log: %s)\n' "${clip}" "${trim_frames}" "${capture_log}"
+
+  # Godot Movie Maker writes full-range JPEG/BT.601. Convert the samples as
+  # well as the tags so the compositor retains the original shadow detail.
   ffmpeg \
     -y \
     -loglevel error \
     -i "${raw_path}" \
     -an \
-    -vf "trim=start_frame=${trim_frames},setpts=PTS-STARTPTS" \
+    -vf "trim=start_frame=${trim_frames},setpts=PTS-STARTPTS,scale=1920:1080:flags=lanczos:in_range=pc:out_range=tv:in_color_matrix=bt601:out_color_matrix=bt709,format=yuv420p,setsar=1" \
     -c:v libx264 \
     -preset medium \
     -crf 15 \
     -pix_fmt yuv420p \
+    -color_range tv \
+    -colorspace bt709 \
+    -color_primaries bt709 \
+    -color_trc bt709 \
+    -bsf:v h264_metadata=video_full_range_flag=0:colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1 \
     -movflags +faststart \
     "${edit_path}"
 done
