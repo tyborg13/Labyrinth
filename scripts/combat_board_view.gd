@@ -9265,6 +9265,9 @@ func _enemy_threat_ranged_effect(threat: Dictionary) -> Dictionary:
 	}
 
 func _draw_ranged_target_preview_curve(effect: Dictionary, from_point: Vector2, to_point: Vector2) -> void:
+	# Every preview caller, including AOE, must respect the hand arrow's ownership.
+	if not _target_preview_curve_visible(effect):
+		return
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)

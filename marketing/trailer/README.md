@@ -1,6 +1,6 @@
 # Escape the Umbra — Steam gameplay trailer
 
-Revision 3 is a 40.6-second gameplay cut built around two coherent tactical turns. A push and movement set up an area attack; later, Earth reveals hidden targets and lightning jumps between them. Real card rewards, an animated shop purchase, a brief route, and a weapon/deck swap separate the fights. Large captions and a centered Steam wishlist end card remain legible on a phone.
+Revision 3 is a 40.6-second gameplay cut built around two coherent tactical turns. Its targeting follow-up removes the redundant board arc while the hand arrow owns player aim. Only the opening gameplay source was recaptured; the approved editor, timing, framing and sound mix remain unchanged. A push and movement set up an area attack; later, Earth reveals hidden targets and lightning jumps between them. Real card rewards, an animated shop purchase, a brief route, and a weapon/deck swap separate the fights. Large captions and a centered Steam wishlist end card remain legible on a phone.
 
 The edit is in `src/Trailer.tsx`. `SHOTS` owns trims, durations, native audio tails and camera framing; composition boundaries derive from it. Captured gameplay uses the production board, HUD, card targeting and effects. Only short editorial captions, their temporary scrims, and camera framing are added.
 

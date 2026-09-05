@@ -569,9 +569,9 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	expect.call(str(player_attack_effect.get("kind", "")) == "ranged" and not bool(player_attack_effect.get("target_curve_visible", true)), "Player ranged targeting should yield its curved trajectory to the card-origin arrow")
 	expect.call(not (player_attack_effect.get("damage_preview", {}) as Dictionary).is_empty(), "Suppressing the player trajectory must preserve projected damage evidence")
 	expect.call(not bool(cancel_board.call("_target_preview_curve_visible", player_attack_effect)), "The board renderer should honor the player preview's suppressed trajectory flag")
-	expect.call(bool(cancel_instance.call("_player_preview_target_curve_visible", "push")), "Push targeting should retain its distinct forced-movement trajectory cue")
-	expect.call(bool(cancel_instance.call("_player_preview_target_curve_visible", "pull")), "Pull targeting should retain its distinct forced-movement trajectory cue")
-	expect.call(bool(cancel_instance.call("_player_preview_target_curve_visible", "aoe")), "AOE targeting should retain its cast-path cue")
+	expect.call(not bool(cancel_instance.call("_player_preview_target_curve_visible", "push")), "Push targeting should yield its airborne aim curve to the card-origin arrow")
+	expect.call(not bool(cancel_instance.call("_player_preview_target_curve_visible", "pull")), "Pull targeting should yield its airborne aim curve to the card-origin arrow")
+	expect.call(not bool(cancel_instance.call("_player_preview_target_curve_visible", "aoe")), "AOE targeting should yield its cast-path aim curve to the card-origin arrow")
 	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
 		expect.call(bool(cursor_feedback.call("glyph_visibility_suppressed")), "Drag targeting should suppress the forged pointer while the shared arrow owns aiming")
 	cancel_instance.queue_free()

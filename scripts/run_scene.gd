@@ -8449,10 +8449,9 @@ func _sync_controller_card_targeting_arrow(candidate: Dictionary = {}) -> bool:
 	return true
 
 func _player_preview_target_curve_visible(action_type: String) -> bool:
-	# Only direct ranged attacks share the same attacker-to-target line language.
-	# Pointer and controller selection now share the card-origin arrow, while
-	# push/pull and AOE retain their distinct effect evidence.
-	return action_type != "ranged" or not _targeted_card_aiming_active()
+	# The hand arrow owns player aim for every airborne preview. AOE footprints
+	# and forced-movement destination markers remain independent floor evidence.
+	return action_type not in ["ranged", "push", "pull", "aoe"] or not _targeted_card_aiming_active()
 
 func _clicked_card_selection_pose_active() -> bool:
 	return (
@@ -19309,6 +19308,7 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 				"center": target_tile,
 				"tiles": _aoe_tiles_for_action(state, action, target_tile),
 				"preview": true,
+				"target_curve_visible": _player_preview_target_curve_visible(action_type),
 				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
 				"damage_preview": _preview_damage_for_action(state, action, target_tile)
 			}

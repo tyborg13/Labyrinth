@@ -2,8 +2,8 @@
   "clip": "push_bloom",
   "fps": 30,
   "safe_start_raw_frame": 29,
-  "frames": 505,
-  "duration_seconds": 16.833333,
+  "frames": 504,
+  "duration_seconds": 16.8,
   "width": 1920,
   "height": 1080,
   "audio": {
@@ -12,7 +12,7 @@
     "sample_rate": 48000,
     "trim_samples": 46400,
     "peak_dbfs": "-9.4",
-    "duration_seconds": 16.833,
+    "duration_seconds": 16.8,
     "channels": 2,
     "codec": "aac"
   },
@@ -23,7 +23,7 @@
       "raw_frame": 27,
       "seed": 126053,
       "source_frame": -2,
-      "wall_usec": 11346918
+      "wall_usec": 11316510
     },
     {
       "clip": "push_bloom",
@@ -74,7 +74,7 @@
         7,
         7
       ],
-      "wall_usec": 12470173
+      "wall_usec": 12450555
     },
     {
       "card": "updraft",
@@ -91,7 +91,7 @@
         7,
         4
       ],
-      "wall_usec": 12470221
+      "wall_usec": 12450609
     },
     {
       "card": "updraft",
@@ -108,7 +108,7 @@
         7,
         4
       ],
-      "wall_usec": 13069598
+      "wall_usec": 13033016
     },
     {
       "clip": "push_bloom",
@@ -130,7 +130,7 @@
         "from": "(7, 7)",
         "kind": "ranged",
         "preview": true,
-        "target_curve_visible": true,
+        "target_curve_visible": false,
         "to": "(7, 4)"
       },
       "kind": "effect_begin",
@@ -145,7 +145,7 @@
         7,
         4
       ],
-      "wall_usec": 13075433
+      "wall_usec": 13038647
     },
     {
       "card": "updraft",
@@ -162,7 +162,7 @@
         7,
         4
       ],
-      "wall_usec": 13648119
+      "wall_usec": 13614319
     },
     {
       "clip": "push_bloom",
@@ -195,7 +195,7 @@
         7,
         4
       ],
-      "wall_usec": 14223573
+      "wall_usec": 14203896
     },
     {
       "actors": [
@@ -206,7 +206,7 @@
       "raw_frame": 128,
       "seed": 126053,
       "source_frame": 99,
-      "wall_usec": 14379375
+      "wall_usec": 14356899
     },
     {
       "chain_index": -1,
@@ -216,7 +216,7 @@
       "raw_frame": 130,
       "seed": 126053,
       "source_frame": 101,
-      "wall_usec": 14444257
+      "wall_usec": 14422448
     },
     {
       "clip": "push_bloom",
@@ -224,7 +224,7 @@
       "raw_frame": 146,
       "seed": 126053,
       "source_frame": 117,
-      "wall_usec": 14958573
+      "wall_usec": 14929196
     },
     {
       "card": "updraft",
@@ -241,7 +241,7 @@
         7,
         4
       ],
-      "wall_usec": 15277478
+      "wall_usec": 15246953
     },
     {
       "clip": "push_bloom",
@@ -249,7 +249,7 @@
       "raw_frame": 156,
       "seed": 126053,
       "source_frame": 127,
-      "wall_usec": 15281225
+      "wall_usec": 15250872
     },
     {
       "clip": "push_bloom",
@@ -265,7 +265,7 @@
         7,
         5
       ],
-      "wall_usec": 15882718
+      "wall_usec": 15847597
     },
     {
       "clip": "push_bloom",
@@ -287,7 +287,7 @@
         7,
         5
       ],
-      "wall_usec": 15886055
+      "wall_usec": 15850888
     },
     {
       "clip": "push_bloom",
@@ -303,7 +303,7 @@
         7,
         5
       ],
-      "wall_usec": 16457842
+      "wall_usec": 16426970
     },
     {
       "clip": "push_bloom",
@@ -329,7 +329,7 @@
         7,
         5
       ],
-      "wall_usec": 17254549
+      "wall_usec": 17244647
     },
     {
       "card": "cinder_bloom",
@@ -346,7 +346,7 @@
         7,
         2
       ],
-      "wall_usec": 17881293
+      "wall_usec": 17865019
     },
     {
       "card": "cinder_bloom",
@@ -363,7 +363,7 @@
         7,
         2
       ],
-      "wall_usec": 18481177
+      "wall_usec": 18470201
     },
     {
       "clip": "push_bloom",
@@ -402,6 +402,7 @@
         "from": "(7, 5)",
         "kind": "aoe",
         "preview": true,
+        "target_curve_visible": false,
         "tiles": [
           "(7, 1)",
           "(6, 2)",
@@ -422,7 +423,7 @@
         7,
         2
       ],
-      "wall_usec": 18485770
+      "wall_usec": 18474654
     },
     {
       "card": "cinder_bloom",
@@ -439,7 +440,7 @@
         7,
         2
       ],
-      "wall_usec": 19058765
+      "wall_usec": 19053647
     },
     {
       "clip": "push_bloom",
@@ -472,7 +473,7 @@
         7,
         2
       ],
-      "wall_usec": 19672641
+      "wall_usec": 19669998
     },
     {
       "actors": [
@@ -485,74 +486,64 @@
       "raw_frame": 308,
       "seed": 126053,
       "source_frame": 279,
-      "wall_usec": 19865853
-    },
-    {
-      "chain_index": -1,
-      "clip": "push_bloom",
-      "effect_kind": "aoe",
-      "kind": "effect_finished",
-      "raw_frame": 324,
-      "seed": 126053,
-      "source_frame": 295,
-      "wall_usec": 20387003
+      "wall_usec": 19863806
     },
     {
       "clip": "push_bloom",
       "kind": "turn_order_begin",
-      "raw_frame": 325,
+      "raw_frame": 324,
       "seed": 126053,
-      "source_frame": 296,
-      "wall_usec": 20428603
+      "source_frame": 295,
+      "wall_usec": 20406223
     },
     {
       "clip": "push_bloom",
       "kind": "death_animation_begin",
-      "raw_frame": 327,
+      "raw_frame": 325,
       "seed": 126053,
-      "source_frame": 298,
-      "wall_usec": 20499135
+      "source_frame": 296,
+      "wall_usec": 20446737
     },
     {
       "clip": "push_bloom",
       "kind": "death_animation_complete",
-      "raw_frame": 355,
+      "raw_frame": 354,
       "seed": 126053,
-      "source_frame": 326,
-      "wall_usec": 21486456
+      "source_frame": 325,
+      "wall_usec": 21461311
     },
     {
       "clip": "push_bloom",
       "kind": "turn_order_complete",
-      "raw_frame": 357,
+      "raw_frame": 356,
       "seed": 126053,
-      "source_frame": 328,
-      "wall_usec": 21546992
+      "source_frame": 327,
+      "wall_usec": 21525900
     },
     {
       "clip": "push_bloom",
       "kind": "turn_order_begin",
-      "raw_frame": 359,
+      "raw_frame": 358,
       "seed": 126053,
-      "source_frame": 330,
-      "wall_usec": 21613292
+      "source_frame": 329,
+      "wall_usec": 21591315
     },
     {
       "card": "cinder_bloom",
       "clip": "push_bloom",
       "kind": "card_complete",
-      "raw_frame": 369,
+      "raw_frame": 368,
       "screen": [
         1383.1,
         459.5
       ],
       "seed": 126053,
-      "source_frame": 340,
+      "source_frame": 339,
       "tile": [
         7,
         2
       ],
-      "wall_usec": 21926115
+      "wall_usec": 21906184
     },
     {
       "clip": "push_bloom",
@@ -691,26 +682,26 @@
       },
       "kind": "tactical_payoff_complete",
       "natural_play": true,
-      "raw_frame": 369,
+      "raw_frame": 368,
       "screen": [
         1383.1,
         459.5
       ],
       "seed": 126053,
-      "source_frame": 340,
+      "source_frame": 339,
       "tile": [
         7,
         2
       ],
-      "wall_usec": 21926531
+      "wall_usec": 21906597
     },
     {
       "clip": "push_bloom",
       "kind": "turn_order_complete",
-      "raw_frame": 369,
+      "raw_frame": 368,
       "seed": 126053,
-      "source_frame": 340,
-      "wall_usec": 21930087
+      "source_frame": 339,
+      "wall_usec": 21910062
     }
   ]
 }

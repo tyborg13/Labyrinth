@@ -24,6 +24,10 @@ Sources retain the actual game SFX recorded by Godot; only music is muted during
 
 Wall-clock telemetry checks the movie capture against encoded frames. Final opening Bloom effect is 22 frames / 0.733s versus 0.714s observed wall time and 0.720s authored duration. Native timing quantization is small; the old multi-second dead time came from sequential game responses. Battlefield defeat and Turn Clock now animate concurrently.
 
+## Targeting follow-up
+
+The approved edit stays unchanged. Updraft and Cinder Bloom now show one hand-origin arrow; AOE footprints, forced-movement floor cues, actual projectiles and enemy intent arcs remain. Only `push_bloom` was recaptured. Every recognition, aim, commitment, movement and impact cue matches revision 3 exactly. Final input readiness is source339 instead of340, and the existing cut through351 still includes the settled result. The corrected encoded master remains1219frames /40.633seconds. Previous approved footage, cues, editor and master are archived in ignored proof before replacement.
+
 ## Review
 
 Inspect fresh source frames, all cut boundaries, consecutive impact frames, the complete master at normal speed, and phone-size copy. Check source bounds including audio tails, no frozen padding, complete menu panels, readable actor silhouettes and real acquisition results. Validate 1920×1080, 30fps, H.264 High/AAC stereo, limited-range Rec.709, black gaps and audio peaks. Record actual review limits: browser playback and sampled video frames are visual evidence; audio provenance and measured levels do not substitute for a subjective listening review.
