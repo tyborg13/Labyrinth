@@ -12,83 +12,64 @@ import {
 } from "remotion";
 
 const FPS = 30;
+// Uniform gain preserves the native SFX/music balance with measured peak headroom.
+const MASTER_GAIN = 1.5;
 const clamp = {
   extrapolateLeft: "clamp" as const,
   extrapolateRight: "clamp" as const,
 };
 const ease = Easing.bezier(0.22, 1, 0.36, 1);
 
-/** Cues refer to encoded source frames, after capture pre-roll removal. Later
- * combat beats trim repeated aiming lead-in; every play and result stays real.
- * `impact` locates the sound at the first authored effect, not necessarily HP
- * loss: Root Snare cracks begin65, travel68–72, and damage/light arrive73. */
-export const SHOTS = {
-  trap: {
-    clip: "trap_combo",
-    frames: 108,
-    sourceIn: 0,
-    rate: 1,
-    commit: 44,
-    impact: 65,
-  },
-  reward: { clip: "spell", frames: 126, sourceIn: 0, rate: 1, selection: 77 },
-  umbra: {
-    clip: "umbra",
-    frames: 102,
-    sourceIn: 0,
-    rate: 1,
-    commit: 44,
-    impact: 61,
-  },
-  route: { clip: "route", frames: 45, sourceIn: 12, rate: 1 },
-  shop: { clip: "merchant", frames: 114, sourceIn: 0, rate: 1, selection: 64 },
-  equipment: {
-    clip: "equipment",
-    frames: 66,
-    sourceIn: 108,
-    rate: 0.8,
-    selection: 126,
-  },
-  air: {
-    clip: "air",
-    frames: 81,
-    sourceIn: 18,
-    rate: 1,
-    commit: 44,
-    impact: 63,
-  },
-  earth: {
-    clip: "earth",
-    frames: 84,
-    sourceIn: 18,
-    rate: 1,
-    commit: 44,
-    impact: 65,
-  },
-  lightning: {
-    clip: "lightning",
-    frames: 85,
-    sourceIn: 18,
-    rate: 1,
-    commit: 44,
-    impact: 57,
-  },
-} as const;
-
-const ORDER = [
-  "trap",
+/** All cues are encoded-source frames, after measured capture pre-roll removal.
+ * Actions stay at natural speed. Camera keys change framing, never game timing. */
+export const ORDER = [
+  "setup",
   "reward",
-  "umbra",
   "route",
   "shop",
   "equipment",
-  "air",
-  "earth",
-  "lightning",
+  "storm",
 ] as const;
-const END_FADE = 12;
-const END_FRAMES = 132;
-type ShotKey = (typeof ORDER)[number];
+export type ShotKey = (typeof ORDER)[number];
+export type CameraKey = { frame: number; scale: number; x: number; y: number };
+export type Shot = {
+  clip: string;
+  frames: number;
+  sourceIn: number;
+  audioTail: number;
+  cues?: Readonly<Record<string, number>>;
+  camera?: readonly CameraKey[];
+};
+export const SHOTS: Record<ShotKey, Shot> = {
+  setup: { clip: "push_bloom", frames: 352, sourceIn: 0, audioTail: 0 },
+  reward: { clip: "spell", frames: 138, sourceIn: 0, audioTail: 90 },
+  route: { clip: "route", frames: 42, sourceIn: 8, audioTail: 0 },
+  shop: { clip: "merchant", frames: 126, sourceIn: 0, audioTail: 90 },
+  equipment: {
+    clip: "equipment",
+    frames: 93,
+    sourceIn: 97,
+    audioTail: 0,
+    camera: [
+      { frame: 97, scale: 1.08, x: 0, y: 0 },
+      { frame: 190, scale: 1.08, x: 0, y: 0 },
+    ],
+  },
+  storm: {
+    clip: "root_chain",
+    frames: 348,
+    sourceIn: 0,
+    audioTail: 15,
+    camera: [
+      { frame: 0, scale: 1, x: 0, y: 0 },
+      { frame: 244, scale: 1, x: 0, y: 0 },
+      { frame: 265, scale: 1.6, x: 0, y: 235 },
+      { frame: 348, scale: 1.6, x: 0, y: 235 },
+    ],
+  },
+};
+export const END_FADE = 12;
+export const END_FRAMES = 132;
 const shotStarts = (): Record<ShotKey | "final", number> => {
   const starts = {} as Record<ShotKey | "final", number>;
   let cursor = 0;
@@ -101,10 +82,6 @@ const shotStarts = (): Record<ShotKey | "final", number> => {
 };
 export const START = shotStarts();
 export const TRAILER_DURATION = START.final + END_FRAMES;
-
-type Shot = { clip: string; frames: number; sourceIn: number; rate: number };
-const sourceCue = (shot: Shot, sourceFrame: number): number =>
-  Math.round((sourceFrame - shot.sourceIn) / shot.rate);
 
 const TitleArt: React.FC<{
   slug: string;
@@ -157,23 +134,42 @@ const Caption: React.FC<{
   );
 };
 
-/** Keep the exact production frame: the native HUD has a ten-pixel edge margin. */
+/** The board stays stable while the player positions. A few authored camera
+ * keys can bring a decisive consequence closer after its card/target is clear. */
 const Gameplay: React.FC<{ shot: Shot; children?: React.ReactNode }> = ({
   shot,
   children,
-}) => (
-  <AbsoluteFill style={{ background: "#08060a", overflow: "hidden" }}>
-    <Video
-      src={staticFile(`footage/${shot.clip}.mp4`)}
-      trimBefore={shot.sourceIn}
-      playbackRate={shot.rate}
-      muted
-      objectFit="contain"
-      style={{ width: "100%", height: "100%" }}
-    />
-    {children}
-  </AbsoluteFill>
-);
+}) => {
+  const frame = useCurrentFrame() + shot.sourceIn;
+  const keys = shot.camera;
+  const cameraValue = (property: "scale" | "x" | "y", fallback: number) =>
+    keys && keys.length > 1
+      ? interpolate(
+          frame,
+          keys.map((key) => key.frame),
+          keys.map((key) => key[property]),
+          { ...clamp, easing: Easing.inOut(Easing.cubic) },
+        )
+      : fallback;
+  return (
+    <AbsoluteFill style={{ background: "#08060a", overflow: "hidden" }}>
+      <AbsoluteFill
+        style={{
+          transform: `translate(${cameraValue("x", 0)}px, ${cameraValue("y", 0)}px) scale(${cameraValue("scale", 1)})`,
+        }}
+      >
+        <Video
+          src={staticFile(`footage/${shot.clip}.mp4`)}
+          trimBefore={shot.sourceIn}
+          muted
+          objectFit="contain"
+          style={{ width: "100%", height: "100%" }}
+        />
+      </AbsoluteFill>
+      {children}
+    </AbsoluteFill>
+  );
+};
 
 const EndCard: React.FC = () => {
   const frame = useCurrentFrame();
@@ -225,89 +221,64 @@ const EndCard: React.FC = () => {
   );
 };
 
-const Effect: React.FC<{
-  from: number;
-  file: string;
-  volume: number;
-  frames?: number;
-}> = ({ from, file, volume, frames = 42 }) => (
-  <Sequence from={from} durationInFrames={frames} premountFor={FPS}>
+/** Native captured SFX share the video's exact source trim and clock. Only
+ * music was muted in capture. Short natural tails can continue over a cut;
+ * no attack, card or purchase sound is reconstructed from an asset table. */
+const SourceSound: React.FC<{ shot: Shot }> = ({ shot }) => {
+  const frame = useCurrentFrame();
+  const frames = shot.frames + shot.audioTail;
+  const volume = interpolate(
+    frame,
+    [0, 2, frames - 8, frames],
+    [0, MASTER_GAIN, MASTER_GAIN, 0],
+    clamp,
+  );
+  return (
     <Audio
-      src={staticFile(`game-assets/audio/sfx/${file}.wav`)}
+      src={staticFile(`footage/${shot.clip}.mp4`)}
+      trimBefore={shot.sourceIn}
       volume={volume}
     />
-  </Sequence>
-);
-
-const COMBAT_SOUNDS = [
-  ["trap", "elemental/fire_attack", 0.62],
-  ["umbra", "attack_ranged_bow", 0.5],
-  ["air", "elemental/air_attack", 0.59],
-  ["earth", "elemental/earth_attack", 0.66],
-  ["lightning", "elemental/lightning_attack", 0.63],
-] as const;
-
+  );
+};
 const Soundtrack: React.FC = () => (
   <>
     <Audio
       src={staticFile("game-assets/audio/music/zekarion_boss.wav")}
       trimBefore={FPS * 5}
       volume={(frame) =>
+        MASTER_GAIN *
         interpolate(
           frame,
-          [0, 6, TRAILER_DURATION - 24, TRAILER_DURATION],
-          [0.38, 0.46, 0.46, 0],
+          [0, 8, TRAILER_DURATION - 30, TRAILER_DURATION],
+          [0.32, 0.4, 0.4, 0],
           clamp,
         )
       }
     />
-    {COMBAT_SOUNDS.map(([key, sound, volume]) => (
-      <Sequence key={key} from={START[key]}>
-        <Effect
-          from={sourceCue(SHOTS[key], SHOTS[key].commit)}
-          file="card_play_take"
-          volume={0.45}
-          frames={24}
-        />
-        <Effect
-          from={sourceCue(SHOTS[key], SHOTS[key].impact)}
-          file={sound}
-          volume={volume}
-        />
+    {ORDER.map((key) => (
+      <Sequence
+        key={key}
+        from={START[key]}
+        durationInFrames={SHOTS[key].frames + SHOTS[key].audioTail}
+        premountFor={FPS}
+      >
+        <SourceSound shot={SHOTS[key]} />
       </Sequence>
     ))}
-    <Effect
-      from={START.reward + sourceCue(SHOTS.reward, SHOTS.reward.selection)}
-      file="reward_collect"
-      volume={0.28}
-      frames={30}
-    />
-    <Effect
-      from={START.shop + sourceCue(SHOTS.shop, SHOTS.shop.selection)}
-      file="reward_collect"
-      volume={0.24}
-      frames={30}
-    />
-    <Effect
-      from={
-        START.equipment + sourceCue(SHOTS.equipment, SHOTS.equipment.selection)
-      }
-      file="item_equip"
-      volume={0.26}
-      frames={30}
-    />
   </>
 );
 
 const shotCaption = (key: ShotKey): React.ReactNode => {
   switch (key) {
-    case "trap":
+    case "setup":
       return (
         <Caption
           lines={[
-            ["turn-the-room", "TURN THE ROOM"],
-            ["against-them", "AGAINST THEM"],
+            ["every-move", "EVERY MOVE"],
+            ["sets-up-the-next", "SETS UP THE NEXT"],
           ]}
+          exitAt={34}
         />
       );
     case "reward":
@@ -318,23 +289,24 @@ const shotCaption = (key: ShotKey): React.ReactNode => {
           exitAt={40}
         />
       );
-    case "umbra":
-      return <Caption lines={[["fight-the-dark", "FIGHT THE DARK"]]} />;
     case "shop":
       return (
         <Caption
           lines={[["shape-your-run", "SHAPE YOUR RUN"]]}
           menu
-          exitAt={22}
+          exitAt={26}
         />
+      );
+    case "storm":
+      return (
+        <Caption lines={[["fight-the-dark", "FIGHT THE DARK"]]} exitAt={34} />
       );
     default:
       return null;
   }
 };
 
-/** One tactical payoff leads to reward choice, darkness, and the shop. A quick
- * elemental run then shows push, earth, and chain attacks without inert tails. */
+/** Two continuous tactical stories surround the run-building decisions. */
 export const EscapeTheUmbraTrailer: React.FC = () => (
   <AbsoluteFill style={{ background: "#08060a" }}>
     <TransitionSeries>

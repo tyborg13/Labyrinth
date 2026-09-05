@@ -1,26 +1,29 @@
-# Wishlist cut — editorial contract
+# Wishlist cut — revision 3
 
-The promise is tactile card-driven tactics in an atmospheric labyrinth: turn the room into a weapon, choose new cards, illuminate danger, spend the run's earnings, and combine elemental attacks. The opening communicates a real card action and its outcome without sound. The revision makes the trailer copy large and centered, adds real card rewards and a shop purchase, and trades lingering combat aftermath for air, earth, and lightning mechanics.
+The promise is card-driven tactics with visible cause and effect. Two continuous turns frame the run's choices: push an enemy into a cross-shaped area attack, then in another room reveal enemies with Earth and connect them with lightning. Planning and movement stay wide; the second payoff receives one restrained camera move. Every action plays at its captured speed. The 40.6-second cut gives decisions time to register without adding inert post-action holds.
 
-Valve recommends predominantly gameplay from the player’s perspective, retaining useful HUD elements, and communicating quickly because a viewer may decide within ten seconds or watch muted. Steam’s microtrailers sample the first store video at multiple points, so meaningful game imagery should occupy most of the cut. Source: [Steamworks trailer guidance](https://partner.steamgames.com/doc/store/trailer).
+The reference study in [RESEARCH.md](RESEARCH.md) preceded implementation. It covers ten official Steam trailers across deckbuilders, 2D tactics and hybrids, and separates observed frames from inferred editorial techniques. It informed both production changes and the edit.
 
-The visual baseline is informed by official store media for [Shogun Showdown](https://store.steampowered.com/app/2084000/Shogun_Showdown/), [Alina of the Arena](https://store.steampowered.com/app/1668690/Alina_of_the_Arena/), and [Into the Breach](https://store.steampowered.com/app/590380/Into_the_Breach/). The useful comparison is clarity: strong actor silhouettes, an identifiable action control, and an outcome that remains readable at store-player size. This is an editorial assessment, not a claim of measured conversion or equal commercial quality.
+| Beat | Source / trim at 30 fps | Purpose |
+| --- | --- | --- |
+| Push, move, AOE | `push_bloom`, 0–351 | Updraft pushes a full-health crawler two tiles into a three-target cross. Two movement tiles bring Cinder Bloom into range. Fire intensity rises through the real card; the eight-damage attack kills the wounded crawler and burns the two survivors. The objective and Turn Clock settle together. |
+| Card reward | `spell`, 0–137 | Read three complete card faces, choose one, and see the production acquisition. Large copy sits above the cards. |
+| Route | `route`, 8–49 | A 1.4-second glimpse of the connected run, including the real transition. |
+| Shop | `merchant`, 0–125 | Browse actual stock and buy a spell. Currency and ownership update immediately while the new acquisition proxy lifts and travels toward the pack. |
+| Equipment | `equipment`, 97–189 | Swap Grave Greatsword for an owned Duelist Rapier, see its three deck cards and the displaced Greatsword in reserve. A fixed 1.08× frame keeps the complete panel visible. |
+| Earth, move, chain | `root_chain`, 0–347 | Root Snare damages and immobilizes a visible enemy, revealing two hidden neighbors. Reposition, then Chain Bolt reaches all three. Bolts and damage arrive in actual resolver order. One eased 1.60× framing move begins at the Chain Bolt commitment and settles before lightning contact. |
+| Title | Existing menu illustration | Twelve-frame dissolve, centered title and large Steam wishlist call to action. |
 
-| Beat | Source | Viewer should understand | Reading and action hold |
-| --- | --- | --- | --- |
-| Opening | `trap_combo` | A card moves an enemy into an environmental trap and clears the cluster. | Large centered two-line title clears by source f43; the real center-card commitment starts f44. Cut after the enemy collapse, without waiting on an empty room. |
-| Card rewards | `spell` | Choose one new spell from real card rewards. | A top-center headline leaves the live reveal and complete card faces visible; include the actual claim and learned-spell result. |
-| Darkness | `umbra` | A light attack reveals enemies hidden in the Umbra. | The centered title clears before commitment. Every actor and health bar stays in frame. Cut after the reveal and natural hand draw. |
-| Route | `route` | A run branches through connected rooms. | 1.5 seconds, with no editorial caption or extra reading burden. |
-| Shop | `merchant` | Spend embers on a stronger build. | Complete production stock and prices, actual purchase, and the changed balance. Top-center headline clears before the purchase. |
-| Gear | `equipment` | Equip the run's gear. | A motivated cut skips room waiting. The complete menu swap plays at 0.8× for readability. |
-| Air | `air` | Push an enemy across the board. | Trim repeated aiming lead-in and show the complete real displacement with a brief settled result. |
-| Earth | `earth` | Send earth spikes through the room to immobilize a distant enemy. | Keep the full traveling-spike animation, damage, and root outcome; trim repeated initial aiming lead-in and inert tail. |
-| Lightning | `lightning` | Chain an attack through multiple targets. | Keep the whole chain and its results. The title dissolve begins after the action has resolved. |
-| Title | Existing key art / title | Remember Escape the Umbra and wishlist it on Steam. | Centered game title and enlarged Steam CTA remain together for almost four seconds. |
+Exact durations and camera keys live in `SHOTS` in `src/Trailer.tsx`; `START` and composition length derive from that one table. Captures have adjacent `.cues.json` manifests containing source frames, actual engine state, audio provenance and timing markers. Both tactical scenes start at full native health with two card plays and two movement points. Capture setup validates passability, targeting, visibility, damage and native encounter intensity. Distinct legal rooms and positions replace the prior attack catalogue.
 
-Exact source trims, durations, playback rates, and sound cues live in `SHOTS` in `src/Trailer.tsx`; `START` is derived from the ordered shots and final twelve-frame dissolve. `sourceCue` maps a source event through its trim and playback speed to an edit frame. Recheck cues and final source bounds after recapture; do not infer effect timing solely from the engine's awaited completion marker. The `impact` field marks the sound/effect onset: Air path f63 (hit f68), Earth crack f65 (travel f68–72, damage/light f73), and Lightning chain f57 (damage f58).
+Headlines use the game's font rendered at 128px. Opening copy clears by frame 43, before the actual card commitment. Reward copy sits above the card faces; shop copy clears before purchase. Verify at 390px width as well as 1920×1080. The last tactical crop keeps every relevant actor, health bar and lightning hop in frame; full HUD and cards are visible during the preceding planning segment.
 
-Trailer headlines use the exact game font rendered at 128px, rather than small peripheral labels. Inspect the master at 390px wide as well as at 1080p. Headlines must remain immediately legible, and combat overlays must be fully gone when the played card takes center stage. The reward headline sits above the cards; the shop headline clears within its first second, leaving the browse and purchase unobscured.
+## Audio
 
-Review fresh source footage for complete HUD and shop bounds, card reveal/claim, legal combat effects, complete actor and health-bar framing, readable outcomes, and equipment destination. Inspect master frames at every action and on both sides of each cut, then review complete normal-speed playback and a muted phone-size pass. Confirm 1920×1080/30 fps, H.264/AAC stereo, no black gaps, no frozen padding, and no audio clipping. Record any limits of auditory review accurately in the proof.
+Sources retain the actual game SFX recorded by Godot; only music is muted during capture. The editor reads audio from the same MP4 and source trim as its video. Reward and purchase releases continue naturally across the next cut for 90 frames. The production boss score provides one continuous bed. There are no manually placed substitute attacks or acquisition cues. In particular the obsolete `reward_collect.wav` used in revision 2 is gone; production rewards and the shop use `run/reward_accepted.wav`.
+
+Wall-clock telemetry checks the movie capture against encoded frames. Final opening Bloom effect is 22 frames / 0.733s versus 0.714s observed wall time and 0.720s authored duration. Native timing quantization is small; the old multi-second dead time came from sequential game responses. Battlefield defeat and Turn Clock now animate concurrently.
+
+## Review
+
+Inspect fresh source frames, all cut boundaries, consecutive impact frames, the complete master at normal speed, and phone-size copy. Check source bounds including audio tails, no frozen padding, complete menu panels, readable actor silhouettes and real acquisition results. Validate 1920×1080, 30fps, H.264 High/AAC stereo, limited-range Rec.709, black gaps and audio peaks. Record actual review limits: browser playback and sampled video frames are visual evidence; audio provenance and measured levels do not substitute for a subjective listening review.

@@ -1396,8 +1396,8 @@ const TURN_ORDER_INSERT_OFFSET: Vector2 = Vector2(42.0, 6.0)
 const TURN_ORDER_UPDATE_SCALE: Vector2 = Vector2(1.055, 1.055)
 const TURN_ORDER_ACTIVATE_SCALE: Vector2 = Vector2(0.94, 0.94)
 const TURN_ORDER_UPDATE_TINT: Color = Color(1.15, 1.04, 0.76, 1.0)
-const TURN_ORDER_DEFEAT_ECHO_DELAY_SECONDS: float = 0.28
-const TURN_ORDER_DEFEAT_DISSOLVE_SECONDS: float = 0.96
+const TURN_ORDER_DEFEAT_ECHO_DELAY_SECONDS: float = 0.16
+const TURN_ORDER_DEFEAT_DISSOLVE_SECONDS: float = 0.56
 const TURN_ORDER_DEFEAT_SHADOW_TINT: Color = Color(0.12, 0.035, 0.19, 1.0)
 const TURN_ORDER_DEFEAT_EFFECT_MODULATE: Color = Color(1.18, 1.0, 1.26, 1.0)
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 100.0)
@@ -12304,7 +12304,7 @@ func _setup_combat_objective_hud() -> void:
 	ui_root.add_child(_combat_objective_hud)
 	_layout_combat_objective_hud()
 
-func _refresh_combat_objective_hud() -> void:
+func _refresh_combat_objective_hud(display_state: Dictionary = {}, board_presentation: Dictionary = {}) -> void:
 	if _combat_objective_hud == null:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
@@ -12312,7 +12312,15 @@ func _refresh_combat_objective_hud() -> void:
 		_combat_objective_hud.cancel_intro()
 		_combat_objective_hud.visible = false
 		return
-	if _combat_objective_hud.set_combat_state(_combat_objective_hud_state()) and not _combat_objective_hud.intro_active:
+	var hud_state: Dictionary = _combat_objective_hud_state() if display_state.is_empty() else display_state
+	if not display_state.is_empty() and int(board_presentation.get("umbra_radius", CombatEngineScript.UMBRA_UNLIMITED_RADIUS)) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+		# The board already computed visibility for this exact contact snapshot.
+		# Reuse it without another visibility scan or exposing concealed enemies.
+		hud_state = display_state.duplicate(false)
+		hud_state["visible_enemy_ids"] = board_presentation.get("visible_enemy_ids", [])
+	# The widget keeps a presentation signature; identical frames do not rebuild
+	# controls or layout. Foe counts change on contact with the displayed health.
+	if _combat_objective_hud.set_combat_state(hud_state) and not _combat_objective_hud.intro_active:
 		_layout_combat_objective_hud()
 
 func _combat_objective_hud_state() -> Dictionary:
@@ -13476,39 +13484,17 @@ func _animate_turn_order_alongside_defeats(
 	var after_order: Array[Dictionary] = _turn_order_entries_from_state(after_state)
 	var order_changed: bool = _turn_order_motion_signature(before_order) != _turn_order_motion_signature(after_order)
 	var defeated_actor_keys: Dictionary = _turn_order_defeated_actor_keys(before_state, after_state)
-	if _reduced_motion_enabled():
-		# Preserve the accessibility contract: the Turn Clock resolves immediately
-		# even though the board presentation may still perform its own reduced path.
-		if order_changed:
-			_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
-		await _animate_defeats_and_terrain_destruction(
-			before_state,
-			after_state,
-			base_presentation,
-			skip_terrain_destruction
-		)
-		return
-	if defeated_actor_keys.is_empty():
-		if order_changed:
-			_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
-		await _animate_defeats_and_terrain_destruction(
-			before_state,
-			after_state,
-			base_presentation,
-			skip_terrain_destruction
-		)
-	else:
-		# Complete the battlefield death before the Turn Clock reacts. The clock
-		# then preserves the recognizable portrait for one quiet beat and performs
-		# its own full dissolution, making the two removals read sequentially.
-		await _animate_defeats_and_terrain_destruction(
-			before_state,
-			after_state,
-			base_presentation,
-			skip_terrain_destruction
-		)
-		if order_changed:
-			_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
+	# Board and rail tell the same defeat together. The rail's short echo leaves
+	# the first beat to the actor, then both dissolves finish in parallel.
+	# Reduced motion settles the rail synchronously in the transition helper.
+	if order_changed:
+		_animate_turn_order_transition(before_order, after_order, defeated_actor_keys)
+	await _animate_defeats_and_terrain_destruction(
+		before_state,
+		after_state,
+		base_presentation,
+		skip_terrain_destruction
+	)
 	while order_changed and _turn_order_animating:
 		await get_tree().process_frame
 
@@ -22499,8 +22485,9 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 				target_tile = selected_targets[target_index]
 			target_index += 1
 		var before_state: Dictionary = animated_state.duplicate(true)
-		var after_state: Dictionary = _combat_engine.apply_player_action(animated_state, action, target_tile)
-		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile)
+		var resolution: Dictionary = _combat_engine.resolve_player_action_for_presentation(animated_state, action, target_tile)
+		var after_state: Dictionary = resolution.get("state", {})
+		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile, resolution.get("chain_hits", []))
 		animated_state = after_state
 	_set_action_step_resolution_index(actions.size())
 	await _finish_player_popup_timeline(animated_state)
@@ -22676,7 +22663,7 @@ func _animate_player_trap_result(after_state: Dictionary, before_state: Dictiona
 	presentation = _death_hold_presentation(before_state, after_state, presentation)
 	await _animate_floating_text_presentation(after_state, presentation)
 
-func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i) -> void:
+func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = []) -> void:
 	var action_type: String = str(action.get("type", ""))
 	if _combat_engine.player_action_needs_target(action) and target_tile.x < 0:
 		return
@@ -22825,94 +22812,97 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			}
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			_play_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
-			var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
-			var to_point: Vector2 = board_view.world_position_for_tile(effect_target_tile)
-			var attack_frame_count: int = AttackFxLibrary.animation_frame_count(effect, ATTACK_FRAMES, _reduced_motion_enabled())
-			var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
-			effect["triggered_traps"] = triggered_traps
-			var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(effect)
-			var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
-			if not trap_detonation_follows:
-				attack_floating_texts = _player_action_floating_texts(before_state, after_state)
-			var attack_impact_actor_keys: Array[String] = _player_action_impact_actor_keys(before_state, after_state)
-			var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
-			await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
-				var t: float = float(frame_number) / float(attack_frame_count)
-				var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
+			if chain_hits.size() > 1:
+				await preload("res://scripts/chain_attack_feedback.gd").play(self, before_state, after_state, effect, chain_hits, _reduced_motion_enabled())
+			else:
+				var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
+				var to_point: Vector2 = board_view.world_position_for_tile(effect_target_tile)
+				var attack_frame_count: int = AttackFxLibrary.animation_frame_count(effect, ATTACK_FRAMES, _reduced_motion_enabled())
+				var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+				effect["triggered_traps"] = triggered_traps
+				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(effect)
+				var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
+				if not trap_detonation_follows:
+					attack_floating_texts = _player_action_floating_texts(before_state, after_state)
+				var attack_impact_actor_keys: Array[String] = _player_action_impact_actor_keys(before_state, after_state)
+				var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
+				await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
+					var t: float = float(frame_number) / float(attack_frame_count)
+					var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
+						effect,
+						t,
+						attack_frame_count,
+						attack_frame_seconds,
+						_reduced_motion_enabled()
+					)
+					if trap_detonation_follows:
+						feedback_elapsed_seconds = -1.0
+					var presentation := {
+						"focus_actor_keys": ["player"],
+						"focus_actor_color": PLAYER_ATTACK_FOCUS,
+						"focus_tiles": focus_tiles,
+						"focus_color": Color(0.95, 0.62, 0.37, 0.22),
+						"effect": effect,
+						"effect_progress": t
+					}
+					if action_type == "melee":
+						presentation["unit_world_positions"] = {
+							"player": from_point.lerp(to_point, 0.10 + sin(t * PI) * 0.24)
+						}
+						presentation["unit_draw_tiles"] = {"player": effect_target_tile}
+					var effect_display_state: Dictionary = before_state
+					if feedback_elapsed_seconds >= 0.0:
+						presentation["impact_actor_keys"] = attack_impact_actor_keys
+						presentation["floating_texts"] = FloatingCombatText.animate_entries(
+							attack_floating_texts,
+							feedback_elapsed_seconds,
+							_reduced_motion_enabled()
+						)
+						effect_display_state = primary_display_state
+						presentation = _attack_feedback_death_hold_presentation(
+							before_state,
+							primary_display_state,
+							presentation,
+							_attack_terrain_destruction_progress(effect, t)
+						)
+						if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
+							presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
+								attack_destroyed_terrain,
+								_attack_terrain_destruction_progress(effect, t)
+							)
+					_render_board_state(effect_display_state, presentation, true)
+				)
+				var final_feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
 					effect,
-					t,
+					1.0,
 					attack_frame_count,
 					attack_frame_seconds,
 					_reduced_motion_enabled()
 				)
-				if trap_detonation_follows:
-					feedback_elapsed_seconds = -1.0
-				var presentation := {
+				var impact_presentation: Dictionary = {
 					"focus_actor_keys": ["player"],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
 					"focus_tiles": focus_tiles,
 					"focus_color": Color(0.95, 0.62, 0.37, 0.22),
-					"effect": effect,
-					"effect_progress": t
 				}
-				if action_type == "melee":
-					presentation["unit_world_positions"] = {
-						"player": from_point.lerp(to_point, 0.10 + sin(t * PI) * 0.24)
-					}
-					presentation["unit_draw_tiles"] = {"player": effect_target_tile}
-				var effect_display_state: Dictionary = before_state
-				if feedback_elapsed_seconds >= 0.0:
-					presentation["impact_actor_keys"] = attack_impact_actor_keys
-					presentation["floating_texts"] = FloatingCombatText.animate_entries(
-						attack_floating_texts,
-						feedback_elapsed_seconds,
-						_reduced_motion_enabled()
-					)
-					effect_display_state = primary_display_state
-					presentation = _attack_feedback_death_hold_presentation(
-						before_state,
+				if trap_detonation_follows:
+					await _animate_player_trap_result(after_state, before_state, triggered_traps, impact_presentation)
+				else:
+					impact_presentation["effect"] = effect
+					impact_presentation["effect_progress"] = 1.0
+					impact_presentation["impact_actor_keys"] = attack_impact_actor_keys
+					impact_presentation["floating_texts"] = attack_floating_texts
+					await _animate_floating_text_presentation(
 						primary_display_state,
-						presentation,
-						_attack_terrain_destruction_progress(effect, t)
+						_death_hold_presentation(
+							before_state,
+							primary_display_state,
+							_attack_impact_presentation(impact_presentation),
+							1.0
+						),
+						final_feedback_elapsed_seconds,
+						true
 					)
-					if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
-						presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
-							attack_destroyed_terrain,
-							_attack_terrain_destruction_progress(effect, t)
-						)
-				_render_board_state(effect_display_state, presentation, true)
-			)
-			var final_feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
-				effect,
-				1.0,
-				attack_frame_count,
-				attack_frame_seconds,
-				_reduced_motion_enabled()
-			)
-			var impact_presentation: Dictionary = {
-				"focus_actor_keys": ["player"],
-				"focus_actor_color": PLAYER_ATTACK_FOCUS,
-				"focus_tiles": focus_tiles,
-				"focus_color": Color(0.95, 0.62, 0.37, 0.22),
-			}
-			if trap_detonation_follows:
-				await _animate_player_trap_result(after_state, before_state, triggered_traps, impact_presentation)
-			else:
-				impact_presentation["effect"] = effect
-				impact_presentation["effect_progress"] = 1.0
-				impact_presentation["impact_actor_keys"] = attack_impact_actor_keys
-				impact_presentation["floating_texts"] = attack_floating_texts
-				await _animate_floating_text_presentation(
-					primary_display_state,
-					_death_hold_presentation(
-						before_state,
-						primary_display_state,
-						_attack_impact_presentation(impact_presentation),
-						1.0
-					),
-					final_feedback_elapsed_seconds,
-					true
-				)
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -24063,6 +24053,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		state_stable_since_last_submission
 	)
 	_refresh_boss_health_overlay(display_state, rendered_presentation)
+	_refresh_combat_objective_hud(display_state, rendered_presentation)
 
 func _objective_leader_tile(display_state: Dictionary, objective: Dictionary) -> Vector2i:
 	var leader_id: int = int(objective.get("leader_id", -1))
@@ -25605,6 +25596,9 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 	var before_embers: int = _run_engine.held_embers(_run_state)
 	var before_state: Dictionary = _run_state.duplicate(true)
 	var amount: int = _run_engine.merchant_buy_cost(merchant_kind, item_id)
+	var purchase_origin := Rect2()
+	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
+		purchase_origin = _scavenger_shop_view.purchase_origin(item_id, source_row)
 	_close_pinned_tooltip()
 	_run_state = _run_engine.buy_merchant_item(_run_state, merchant_kind, item_id)
 	if _run_state == before_state:
@@ -25620,8 +25614,12 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 		return
 	_persist_committed_boundary("merchant_buy")
 	_analytics_log_merchant_trade("buy", merchant_kind, item_id, amount, before_embers, after_embers)
-	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, true)
+	# Ownership, currency and persistence settle before presentation. Purchase
+	# fanfare has its own lifetime and never holds up another trade or Leave.
 	_refresh_ui()
+	_play_reward_collect_sfx()
+	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
+		_scavenger_shop_view.present_purchase(item_id, purchase_origin)
 	_merchant_trade_animation_active = false
 	call_deferred("_recover_controller_focus")
 

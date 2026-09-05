@@ -108,6 +108,7 @@ func _initialize() -> void:
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
 	AttackFxSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/chain_attack_suite.gd").run(Callable(self, "_assert"))
 	AttackSfxSuite.run(Callable(self, "_assert"))
 	RadiancePackageSuite.run(Callable(self, "_assert"))
 	ElementalIntensitySuite.run(Callable(self, "_assert"))

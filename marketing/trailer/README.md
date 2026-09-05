@@ -1,8 +1,8 @@
 # Escape the Umbra — Steam gameplay trailer
 
-A **31.0-second, gameplay-first cut** that moves from an environmental trap into card rewards, an attack that reveals enemies in the Umbra, a brief route, and a real shop purchase. A gear swap leads into air push, traveling earth spikes, and lightning chain attacks, followed by the game title and Steam wishlist call to action. Large centered headlines are designed to remain legible on a phone; combat copy clears before the real center-card play.
+Revision 3 is a 40.6-second gameplay cut built around two coherent tactical turns. A push and movement set up an area attack; later, Earth reveals hidden targets and lightning jumps between them. Real card rewards, an animated shop purchase, a brief route, and a weapon/deck swap separate the fights. Large captions and a centered Steam wishlist end card remain legible on a phone.
 
-The edit is in `src/Trailer.tsx`; `SHOTS` keeps encoded-source cue frames and durations together, and `START` derives composition boundaries. Captured gameplay remains the production UI and board. Temporary title scrims support trailer copy and clear before the action. Gameplay effects, damage, menus, and choices come from the running game.
+The edit is in `src/Trailer.tsx`. `SHOTS` owns trims, durations, native audio tails and camera framing; composition boundaries derive from it. Captured gameplay uses the production board, HUD, card targeting and effects. Only short editorial captions, their temporary scrims, and camera framing are added.
 
 ## Render
 
@@ -13,28 +13,20 @@ npm run lint
 npm run render
 ```
 
-Output: `marketing/trailer/out/escape-the-umbra-steam-trailer.mp4`. The master is 1920×1080, 30 fps, H.264/AAC stereo with limited-range Rec.709 color. Captures convert Godot’s full-range JPEG/BT.601 samples to Rec.709; PNG intermediates preserve their shadow detail. The render configuration targets this H.264 master and uses an H.264 metadata filter during final muxing to retain complete color tags. Remove or replace that filter before exporting another video codec. Review the encoded video, including normal-speed playback, before delivery.
+Output: `marketing/trailer/out/escape-the-umbra-steam-trailer.mp4`. The master is 1920×1080, 30 fps, H.264/AAC stereo with limited-range Rec.709 color. Capture conversion transforms Godot's full-range JPEG/BT.601 samples to Rec.709; PNG render intermediates preserve shadow detail. The render configuration targets H.264 and applies complete color metadata during final muxing. Replace that codec-specific filter before exporting another codec.
 
-The title and short captions use pre-rendered game typography. Regenerate finite copy with:
+Regenerate caption typography with `python3 scripts/render-title-cards.py`. The end card uses the existing menu illustration. Preserve the Steam wordmark source and attribution in `public/branding/README.md`.
 
-```sh
-python3 scripts/render-title-cards.py
-```
-
-## Refresh production captures
+## Refresh captures
 
 From the adopted task worktree root:
 
 ```sh
-LABYRINTH_TASK_ID=<task-id> marketing/trailer/scripts/capture-footage.sh trap_combo spell umbra route merchant equipment air earth lightning
+LABYRINTH_TASK_ID=<task-id> marketing/trailer/scripts/capture-footage.sh push_bloom spell route merchant equipment root_chain
 ```
 
-The source scenes use the game’s `RunEngine`, `CombatEngine`, and `RunScene`. Tactical cards follow normal hand selection, targeting, center play, and resolution. Progression includes a real card reward reveal and claim, merchant purchase, and equipment swap in a deeper run. Captures physically remove hidden setup frames before composition. Source timing must be rechecked after animation or layout changes; update `SHOTS` from freshly encoded clips and their logged cues, not estimated engine timers.
+The wrapper serializes native capture with the visual-probe GUI lease and launches Godot through the required task runner. It retains the movie's native gameplay sound, mutes only capture music, physically removes setup frames, and trims audio by the matching 48kHz sample count. Adjacent `.cues.json` files record source frames, game events, legality assertions, native audio metadata and available wall-clock timing. Review these after any animation change before updating edit cuts.
 
-Every source must include the complete visible action and enough real tail for the edit. Do not pad incomplete actions with frozen frames. All tactical shots and choices play at normal speed. Later combat cuts remove repeated aiming lead-in and end shortly after the real result. A motivated cut skips room waiting before the Gear menu; the complete menu swap plays at 0.8× for readability.
+The scenarios use `RunEngine`, `CombatEngine` and `RunScene`, real hand selection/targeting/commit paths, legal combat resources and native enemy health. Card rewards and purchases invoke production actions; the equipment scene swaps an owned reserve weapon and shows the resulting deck. Do not pad incomplete actions with frozen frames. All six shots use natural playback speed. Native SFX share each source's exact video trim, with short reward/purchase tails crossing cuts; the production boss track connects the scenes without reconstructed effect timing.
 
-## Editorial intent and proof
-
-See [EDIT.md](EDIT.md) for the shot contract, peer baseline, typography requirements, and review targets. The cut uses hard cuts between gameplay scenes and a twelve-frame dissolve into the end card. Each real card commitment and impact gets a synchronized production game sound, including the respective air, earth, and lightning attack cues. The boss score connects the scenes; reward, purchase, and equipment sounds accompany their real visible events.
-
-The shadow-dragon art is the existing menu illustration and appears only on the branded end card. It is not presented as gameplay. The Steam wordmark is the approved transparent inverse-white artwork; preserve the source and attribution in `public/branding/README.md`.
+[EDIT.md](EDIT.md) records the shot contract and verification targets; [RESEARCH.md](RESEARCH.md) records the peer study and the game/edit diagnosis. Inspect the final encoded master before delivery, including cut boundaries and phone-size playback.

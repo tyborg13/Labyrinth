@@ -12,6 +12,8 @@ OUTPUT_DIR = TRAILER_DIR / "public" / "title-cards"
 SCALE = 4
 
 CARDS = (
+    ("every-move", "EVERY MOVE", 128, "#fff0c8", 0.025),
+    ("sets-up-the-next", "SETS UP THE NEXT", 128, "#f19a3e", 0.025),
     ("turn-the-room", "TURN THE ROOM", 128, "#fff0c8", 0.025),
     ("against-them", "AGAINST THEM", 128, "#f19a3e", 0.025),
     ("fight-the-dark", "FIGHT THE DARK", 128, "#fff0c8", 0.025),

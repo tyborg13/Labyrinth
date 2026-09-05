@@ -1,0 +1,88 @@
+{
+  "clip": "equipment",
+  "fps": 30,
+  "safe_start_raw_frame": 29,
+  "frames": 190,
+  "duration_seconds": 6.333333,
+  "width": 1920,
+  "height": 1080,
+  "audio": {
+    "source": "native_gameplay",
+    "music_muted": true,
+    "sample_rate": 48000,
+    "trim_samples": 46400,
+    "peak_dbfs": "-13.6",
+    "duration_seconds": 6.333,
+    "channels": 2,
+    "codec": "aac"
+  },
+  "cues": [
+    {
+      "clip": "equipment",
+      "kind": "scene_visible",
+      "raw_frame": 27,
+      "seed": 126044,
+      "source_frame": -2,
+      "wall_usec": 6664548
+    },
+    {
+      "clip": "equipment",
+      "effect": {
+        "from": "(4, 7)",
+        "kind": "blink",
+        "to": "(2, 4)"
+      },
+      "kind": "effect_begin",
+      "raw_frame": 63,
+      "screen": [
+        790.8,
+        332.5
+      ],
+      "seed": 126044,
+      "source_frame": 34,
+      "tile": [
+        2,
+        4
+      ],
+      "wall_usec": 7748582
+    },
+    {
+      "chain_index": -1,
+      "clip": "equipment",
+      "effect_kind": "blink",
+      "kind": "effect_finished",
+      "raw_frame": 70,
+      "seed": 126044,
+      "source_frame": 41,
+      "wall_usec": 7961969
+    },
+    {
+      "clip": "equipment",
+      "kind": "equipment_open",
+      "raw_frame": 126,
+      "seed": 126044,
+      "source_frame": 97,
+      "wall_usec": 9649938
+    },
+    {
+      "clip": "equipment",
+      "item": "duelist_rapier",
+      "kind": "equipment_commit",
+      "raw_frame": 152,
+      "replaced": "grave_greatsword",
+      "seed": 126044,
+      "slot": "weapon",
+      "source_frame": 123,
+      "wall_usec": 10360822
+    },
+    {
+      "clip": "equipment",
+      "item": "duelist_rapier",
+      "kind": "equipment_complete",
+      "raw_frame": 162,
+      "seed": 126044,
+      "source_frame": 133,
+      "wall_usec": 10659125
+    }
+  ]
+}

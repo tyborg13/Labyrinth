@@ -3,6 +3,8 @@ extends Control
 const RunScene = preload("res://scenes/run_scene.tscn")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
+const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
+const CombatObjectiveRulesScript = preload("res://scripts/combat_objective_rules.gd")
 const GameDataScript = preload("res://scripts/game_data.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
@@ -20,7 +22,14 @@ var _run_scene: Control
 var _run_engine = RunEngineScript.new()
 var _combat_engine = CombatEngineScript.new()
 var _clip_id: String = "route"
+var _capture_seed: int = CAPTURE_SEED
 var _safe_frame_capture: bool = false
+var _safe_start_frame: int = -1
+var _observed_effect_key: String = ""
+var _observed_impact_key: String = ""
+var _last_effect_progress: float = -1.0
+var _observed_death_running: bool = false
+var _observed_turn_order_running: bool = false
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -36,6 +45,8 @@ func _ready() -> void:
 	var settings: Dictionary = SettingsStore.default_settings()
 	settings["ui_scale"] = 1.0
 	settings["reduced_motion"] = false
+	# Retain production SFX in Movie Maker audio; the trailer owns only music.
+	settings["music_volume"] = 0.0
 	SettingsStore.save_settings(settings)
 	SettingsStore.apply_settings(settings, get_window(), false)
 	ProgressionStore.set_storage_path("user://steam_trailer_progression.json")
@@ -110,6 +121,8 @@ func _capture_requested_clip() -> void:
 	_seed_showcase_run()
 	await _settle(0.45)
 	match _clip_id:
+		"push_bloom", "root_chain":
+			await _capture_tactical_sequence(_clip_id)
 		"route":
 			await _capture_route()
 		"prebattle":
@@ -147,10 +160,26 @@ func _seed_showcase_run() -> void:
 	_seed_known_grimoire_entries(progression)
 	if _clip_id in ["merchant", "relic", "spell", "magic_equip", "equipment"]:
 		progression["level"] = 7
-	var state: Dictionary = _run_engine.create_new_run(CAPTURE_SEED, progression)
+	var state: Dictionary = _run_engine.create_new_run(_capture_seed, progression)
+	if _clip_id in ["push_bloom", "root_chain"]:
+		var target_element: String = "fire" if _clip_id == "push_bloom" else "lightning"
+		var target_depth: int = 2 if _clip_id == "push_bloom" else 10
+		var found: bool = false
+		for seed_offset: int in range(64):
+			_capture_seed = CAPTURE_SEED + seed_offset
+			state = _run_engine.create_new_run(_capture_seed, progression)
+			if not _find_target_route(state, target_element, target_depth).is_empty():
+				found = true
+				break
+		_assert_capture(found, "A bounded seed search must find the authored tactical element/depth")
+		print("STEAM_TRAILER_TACTICAL_SEED clip=%s seed=%d element=%s depth=%d" % [_clip_id, _capture_seed, target_element, target_depth])
 	if _clip_id in ["merchant", "relic", "spell", "magic_equip", "equipment"]:
 		state = _seed_deep_showcase_loadout(state)
 	match _clip_id:
+		"push_bloom":
+			state = _build_target_room_state(state, "fire", 2)
+		"root_chain":
+			state = _build_target_room_state(state, "lightning", 10)
 		"route":
 			state = _build_deep_route_state(state)
 		"prebattle":
@@ -204,7 +233,9 @@ func _show_run_scene() -> void:
 	_run_scene.visible = true
 	# Capture runner physically trims everything before the populated scene,
 	# with two additional rendered frames for CanvasLayer/layout settlement.
-	print("STEAM_TRAILER_SAFE_START_FRAME=%d" % (Engine.get_frames_drawn() + 2))
+	_safe_start_frame = Engine.get_frames_drawn() + 2
+	print("STEAM_TRAILER_SAFE_START_FRAME=%d" % _safe_start_frame)
+	_cue("scene_visible")
 
 func _suppress_current_room_dialogue() -> void:
 	_run_scene.call("_close_dialogue")
@@ -223,6 +254,7 @@ func _capture_route() -> void:
 	_assert_capture(not choices.is_empty(), "Deep route capture must expose at least one legal next room")
 	var large_map_view: Control = _run_scene.get("_large_map_view") as Control
 	if large_map_view != null and not choices.is_empty():
+		_cue("map_travel_start")
 		large_map_view.call("begin_travel_animation", current, choices[0])
 	await _settle(2.0)
 	if large_map_view != null and not choices.is_empty():
@@ -288,7 +320,7 @@ func _find_target_route(initial_state: Dictionary, target: String, min_depth: in
 	queue.append({"state": initial, "path": [Vector2i.ZERO]})
 	var visited: Dictionary = {_room_key(Vector2i.ZERO): true}
 	var safety: int = 0
-	while not queue.is_empty() and safety < 96:
+	while not queue.is_empty() and safety < (320 if target in ["fire", "lightning"] else 96):
 		safety += 1
 		var entry: Dictionary = queue.pop_front() as Dictionary
 		var state: Dictionary = entry.get("state", {}) as Dictionary
@@ -297,10 +329,19 @@ func _find_target_route(initial_state: Dictionary, target: String, min_depth: in
 		for destination: Vector2i in moves:
 			var room: Dictionary = _run_engine.room_metadata(state, destination)
 			if _target_room_matches(room, target, min_depth):
+				if target in ["fire", "lightning"]:
+					var candidate: Dictionary = _run_engine.move_to_room(state, destination)
+					var candidate_layout: Dictionary = (candidate.get("current_room_layout", {}) as Dictionary).duplicate(true)
+					if _find_tactical_anchor(candidate_layout, _tactical_offsets(_clip_id)) == INVALID_TILE:
+						continue
 				var target_path: Array = path.duplicate()
 				target_path.append(destination)
 				return {"origin": state, "destination": destination, "path": target_path}
 		for destination: Vector2i in moves:
+			# The opening is an early-room tactic. Do not explore an entire deep run
+			# while looking for another native depth-two room in this seed.
+			if target == "fire" and int(_run_engine.room_metadata(state, destination).get("depth", 0)) > min_depth:
+				continue
 			var key: String = _room_key(destination)
 			if visited.has(key):
 				continue
@@ -337,7 +378,15 @@ func _target_room_matches(room: Dictionary, target: String, min_depth: int) -> b
 			return str(room.get("type", "")) == "treasure"
 		"spell", "equipment":
 			return str(room.get("type", "")) == "combat"
+		"fire", "lightning":
+			return str(room.get("type", "")) == "combat" and str(room.get("element", "")) == target and int(room.get("depth", 0)) == min_depth and _tactical_objective_is_suitable(room, target)
 	return false
+
+func _tactical_objective_is_suitable(room: Dictionary, element: String) -> bool:
+	var objective: String = str(CombatObjectiveRulesScript.build_for_room(_capture_seed, room, Vector2i.ZERO).get("type", ""))
+	# Leader rooms modify native health and can collapse surviving foes. Avoid
+	# that unrelated payoff; a deeper survive room remains a real legal setup.
+	return objective == "kill_all" if element == "fire" else objective != "kill_leader"
 
 func _victory_combat_state(combat_state: Dictionary) -> Dictionary:
 	var victory: Dictionary = combat_state.duplicate(true)
@@ -535,6 +584,214 @@ func _room_depth_for_state(state: Dictionary, coord: Vector2i) -> int:
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
+
+func _cue(kind: String, tile: Vector2i = INVALID_TILE, details: Dictionary = {}) -> void:
+	var entry: Dictionary = details.duplicate(true)
+	entry["clip"] = _clip_id
+	entry["seed"] = _capture_seed
+	entry["kind"] = kind
+	entry["raw_frame"] = Engine.get_frames_drawn()
+	entry["wall_usec"] = Time.get_ticks_usec()
+	entry["source_frame"] = Engine.get_frames_drawn() - _safe_start_frame if _safe_start_frame >= 0 else -1
+	if tile != INVALID_TILE and _run_scene != null:
+		var board: Control = _run_scene.get("board_view") as Control
+		if board != null:
+			var point: Vector2 = board.get_global_transform_with_canvas() * (board.call("world_position_for_tile", tile) as Vector2)
+			entry["tile"] = [tile.x, tile.y]
+			entry["screen"] = [snappedf(point.x, 0.1), snappedf(point.y, 0.1)]
+	print("STEAM_TRAILER_CUE " + JSON.stringify(entry))
+
+func _process(_delta: float) -> void:
+	if _safe_start_frame < 0 or _run_scene == null or not _run_scene.visible:
+		return
+	var board: Control = _run_scene.get("board_view") as Control
+	if board == null:
+		return
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	var death_running: bool = false
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		death_running = death_running or float(unit.get("death_progress", 0.0)) > 0.0
+	if death_running != _observed_death_running:
+		_cue("death_animation_begin" if death_running else "death_animation_complete")
+	_observed_death_running = death_running
+	var turn_order_running: bool = bool(_run_scene.get("_turn_order_animating"))
+	if turn_order_running != _observed_turn_order_running:
+		_cue("turn_order_begin" if turn_order_running else "turn_order_complete")
+	_observed_turn_order_running = turn_order_running
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	var effect_key: String = str(effect.get("kind", "")) + ":" + str(effect.get("element", "")) + ":" + str(effect.get("from", "")) + ":" + str(effect.get("to", "")) + ":" + str(effect.get("preview", false)) + ":" + str(effect.get("chain_index", -1))
+	var progress: float = float(presentation.get("effect_progress", 0.0))
+	if not effect.is_empty() and (effect_key != _observed_effect_key or progress < _last_effect_progress):
+		_cue("effect_begin", effect.get("to", INVALID_TILE) if typeof(effect.get("to")) == TYPE_VECTOR2I else INVALID_TILE, {"effect": effect})
+	if progress >= 1.0 and _last_effect_progress < 1.0 and not effect.is_empty() and not bool(effect.get("preview", false)):
+		_cue("effect_finished", INVALID_TILE, {"effect_kind": effect.get("kind", ""), "chain_index": effect.get("chain_index", -1)})
+	_observed_effect_key = effect_key
+	_last_effect_progress = progress
+	var impact_key: String = str(presentation.get("impact_actor_keys", []))
+	if impact_key != "[]" and impact_key != _observed_impact_key:
+		_cue("impact", INVALID_TILE, {"actors": presentation.get("impact_actor_keys", [])})
+	_observed_impact_key = impact_key
+
+func _capture_tactical_sequence(sequence: String) -> void:
+	var layout: Dictionary = _generated_combat_layout(sequence)
+	var offsets: Array = _tactical_offsets(sequence)
+	var hand: Array[String] = []
+	if sequence == "push_bloom":
+		hand = _string_array(["updraft", "cinder_bloom", "brace", "bone_dart", "lantern_shot"])
+	else:
+		hand = _string_array(["root_snare", "chain_bolt", "brace", "bone_dart", "lantern_shot"])
+	var anchor: Vector2i = _find_tactical_anchor(layout, offsets)
+	_assert_capture(anchor != INVALID_TILE, "Tactical sequence must fit a furnished generated room: " + sequence)
+	layout["player_start"] = anchor
+	var target: Vector2i = anchor + (_push_bloom_offset(Vector2i(3, 0)) if sequence == "push_bloom" else Vector2i(-2, -3))
+	var enemy_positions: Array = [target, anchor + _push_bloom_offset(Vector2i(5, -1)), anchor + _push_bloom_offset(Vector2i(6, 0))] if sequence == "push_bloom" else [target, anchor + Vector2i(-3, -3), anchor + Vector2i(-2, -4)]
+	var enemy_types: Array = ["crawler", "harrier", "acolyte"] if sequence == "push_bloom" else ["harrier", "crawler", "acolyte"]
+	var enemies: Array[Dictionary] = []
+	var generator = RoomGeneratorScript.new()
+	for index: int in range(enemy_types.size()):
+		var enemy: Dictionary = _enemy(index + 1, str(enemy_types[index]), enemy_positions[index])
+		var hp: int = generator.call("_scaled_enemy_max_hp", str(enemy_types[index]), int(layout.get("depth", 1)))
+		enemy["hp"] = hp
+		enemy["max_hp"] = hp
+		enemy["element"] = layout.get("element", "")
+		enemies.append(enemy)
+	layout["enemies"] = enemies
+	var state: Dictionary = _create_showcase_combat(layout, hand)
+	_assert_capture(int(state.get("cards_per_turn", 0)) == 2 and _combat_engine.player_movement_remaining(state) == 2, "Tactical sequence must retain standard two plays/two movement")
+	_assert_capture(int((state.get("elemental_intensity", {}) as Dictionary).get("fire" if sequence == "push_bloom" else "lightning", 0)) == 1, "Tactical room must start at its native intensity 1")
+	if sequence == "root_chain":
+		_assert_capture(_combat_engine.effective_umbra_radius(state) == 5 and _umbra_visible_enemy_count(state) == 1, "Earth-light setup must begin with one visible enemy and two hidden neighbors")
+	_apply_combat_state(layout, state)
+	_show_run_scene()
+	await _settle(1.2 if sequence == "push_bloom" else 0.8)
+	_assert_umbra_actor_framing(4 if sequence == "push_bloom" else 2)
+	_cue("tactical_setup", anchor, {"room": layout.get("coord"), "depth": layout.get("depth"), "enemies": enemies, "furnishing": _layout_furnishing_summary(layout)})
+	await _play_showcase_card(hand[0], target, target + (_push_bloom_offset(Vector2i(1, 0)) if sequence == "push_bloom" else Vector2i(1, 0)))
+	var after_setup: Dictionary = _capture_combat_result_state().duplicate(true)
+	var first_enemy: Dictionary = (after_setup.get("enemies", []) as Array)[0] as Dictionary
+	if sequence == "push_bloom":
+		_assert_capture(first_enemy.get("pos") == anchor + _push_bloom_offset(Vector2i(5, 0)), "Updraft must push the crawler two tiles into the cross")
+		_assert_capture(int(first_enemy.get("hp", 0)) == int(enemies[0].get("hp")) - 6, "Updraft must deal its printed six damage")
+		_assert_capture(_combat_engine.player_movement_remaining(after_setup) == 2, "Push must not spend the movement pool")
+	else:
+		_assert_capture(int(first_enemy.get("hp", 0)) == int(enemies[0].get("hp")) - 5 and int(first_enemy.get("immobilize", 0)) > 0, "Root Snare must hit and immobilize the visible enemy")
+		_assert_capture(_umbra_visible_enemy_count(after_setup) == 3, "Root Snare impact Light must reveal both neighbors")
+		_cue("light_reveal_complete", target, {"visible_enemies": 3})
+	await _settle(0.6)
+	_assert_umbra_actor_framing(4)
+	var destination: Vector2i = anchor + (_push_bloom_offset(Vector2i(2, 0)) if sequence == "push_bloom" else Vector2i(-1, 1))
+	await _move_showcase_player(destination)
+	await _settle(0.6)
+	_assert_umbra_actor_framing(4)
+	var before_payoff: Dictionary = _capture_combat_result_state().duplicate(true)
+	var payoff_target: Vector2i = anchor + _push_bloom_offset(Vector2i(5, 0)) if sequence == "push_bloom" else target
+	await _play_showcase_card(hand[1], payoff_target)
+	var after_payoff: Dictionary = _capture_combat_result_state().duplicate(true)
+	var before_enemies: Array = before_payoff.get("enemies", []) as Array
+	var after_enemies: Array = after_payoff.get("enemies", []) as Array
+	for index: int in range(3):
+		_assert_capture(int((after_enemies[index] as Dictionary).get("hp", 0)) == maxi(0, int((before_enemies[index] as Dictionary).get("hp", 0)) - (8 if sequence == "push_bloom" else 7)), "Payoff must deal its naturally enabled printed damage to all three enemies")
+	_assert_capture(_combat_engine.player_movement_remaining(before_payoff) == 0, "Two-tile walk must consume exactly the base movement pool")
+	_assert_umbra_actor_framing(_live_enemy_count(after_payoff) + 1)
+	_cue("tactical_payoff_complete", payoff_target, {"enemies": after_enemies, "intensity": after_payoff.get("elemental_intensity", {}), "natural_play": true})
+	# Give the editor the full native effect release while visual cuts use cues.
+	await _settle(5.0)
+
+func _tactical_offsets(sequence: String) -> Array:
+	if sequence == "push_bloom":
+		var result: Array = []
+		for offset: Vector2i in [Vector2i.ZERO, Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(4, 0), Vector2i(5, 0), Vector2i(6, 0), Vector2i(5, -1)]:
+			result.append(_push_bloom_offset(offset))
+		return result
+	return [Vector2i.ZERO, Vector2i(0, 1), Vector2i(-1, 1), Vector2i(-1, 0), Vector2i(-2, -3), Vector2i(-3, -3), Vector2i(-2, -4)]
+
+func _find_tactical_anchor(layout: Dictionary, offsets: Array) -> Vector2i:
+	# Keep the generated grid and all dressing outside the few required floor
+	# cells. Score the whole composition around the board center, not its caster.
+	var grid: Array = layout.get("grid", []) as Array
+	var board_center := Vector2(float((grid[0] as Array).size() - 1) * 0.5, float(grid.size() - 1) * 0.5)
+	var best := INVALID_TILE
+	var best_score: float = INF
+	for y: int in range(1, grid.size() - 1):
+		for x: int in range(1, (grid[y] as Array).size() - 1):
+			var anchor := Vector2i(x, y)
+			var valid: bool = true
+			var centroid := Vector2.ZERO
+			var blocked: Dictionary = {}
+			for offset_var: Variant in offsets:
+				var tile: Vector2i = anchor + (offset_var as Vector2i)
+				if tile.x < 1 or tile.y < 1 or tile.x + tile.y < 5 or tile.x >= (grid[0] as Array).size() - 1 or tile.y >= grid.size() - 1 or not PathUtils.is_passable(grid, tile):
+					valid = false
+					break
+				centroid += Vector2(tile)
+				blocked[tile] = true
+			if not valid:
+				continue
+			if _clip_id == "push_bloom":
+				for silhouette_tile: Vector2i in _push_bloom_silhouette_tiles(anchor):
+					if PathUtils.tile_id(grid, silhouette_tile) in ["pillar", "door"] or (silhouette_tile.x > 0 and silhouette_tile.y > 0 and silhouette_tile.x < (grid[0] as Array).size() - 1 and silhouette_tile.y < grid.size() - 1 and PathUtils.tile_id(grid, silhouette_tile) == "wall"):
+						valid = false
+						break
+				if not valid:
+					continue
+			if _clip_id == "root_chain":
+				var reveal_target: Vector2i = anchor + Vector2i(-2, -3)
+				if not PathUtils.has_line_of_sight(grid, anchor, reveal_target) or not PathUtils.has_line_of_sight(grid, anchor + Vector2i(-1, 1), reveal_target):
+					continue
+			centroid /= float(offsets.size())
+			var displaced_count: int = 0
+			for prop: Variant in layout.get("terrain", []):
+				if blocked.has((prop as Dictionary).get("pos")):
+					displaced_count += 1
+			var score: float = centroid.distance_squared_to(board_center) + displaced_count * 8.0
+			if score < best_score:
+				best_score = score
+				best = anchor
+	if best != INVALID_TILE:
+		var required: Dictionary = {}
+		for offset_var: Variant in offsets:
+			required[best + (offset_var as Vector2i)] = true
+		if _clip_id == "push_bloom":
+			for silhouette_tile: Vector2i in _push_bloom_silhouette_tiles(best):
+				required[silhouette_tile] = true
+		for collection: String in ["terrain", "loot"]:
+			var retained: Array = []
+			for prop: Variant in layout.get(collection, []):
+				if not required.has((prop as Dictionary).get("pos")):
+					retained.append(prop)
+			layout[collection] = retained
+	return best
+
+func _push_bloom_offset(offset: Vector2i) -> Vector2i:
+	return Vector2i(offset.y, -offset.x)
+
+func _push_bloom_silhouette_tiles(anchor: Vector2i) -> Array[Vector2i]:
+	# Isometric foreground pillars can hide a legal walk. Reserve the projected
+	# silhouette of the short hero path as well as the cells beneath its feet.
+	# Actual grid pillars reject this anchor; only loose dressing is relocated.
+	var result: Array[Vector2i] = []
+	for step: int in range(3):
+		for y: int in range(3):
+			for x: int in range(3):
+				if x + y > 0 and x + y <= 4 and absi(x - y) <= 1:
+					var tile := anchor + _push_bloom_offset(Vector2i(step, 0)) + Vector2i(x, y)
+					if not result.has(tile):
+						result.append(tile)
+	return result
+
+func _move_showcase_player(destination: Vector2i) -> void:
+	var before: Dictionary = _capture_combat_result_state().duplicate(true)
+	_assert_capture(_combat_engine.player_movement_targets(before).has(destination), "Walk destination must be legal using the ordinary movement pool")
+	_run_scene.call("_begin_player_movement_selection")
+	_run_scene.call("_on_board_tile_hovered", destination)
+	_cue("movement_aim", destination)
+	await _settle(0.6)
+	_cue("movement_commit", destination)
+	await _run_scene.call("_on_board_tile_clicked", destination)
+	var after: Dictionary = _capture_combat_result_state()
+	_assert_capture((after.get("player", {}) as Dictionary).get("pos") == destination, "Native movement must reach the selected tile")
+	_assert_capture(int(after.get("cards_played_this_turn", 0)) == int(before.get("cards_played_this_turn", 0)), "Walking must not spend a card play")
+	_cue("movement_complete", destination, {"movement": after.get("last_player_movement", {})})
 
 func _capture_trap_combo() -> void:
 	var layout: Dictionary = _generated_combat_layout("trap_combo")
@@ -744,19 +1001,32 @@ func _capture_merchant_purchase() -> void:
 	var offer_sources: Dictionary = shop.get("_offer_sources") as Dictionary
 	var source_row: Control = offer_sources.get("buy:%s" % item_id) as Control
 	_assert_capture(source_row != null, "Merchant capture must find the real selectable shop offer")
+	_cue("shop_browse", INVALID_TILE, {"item": item_id})
 	shop.call("_select_item", item_id, false, source_row)
 	print("STEAM_TRAILER_MERCHANT_BROWSE item=%s raw_frame=%d snapshot=%s" % [item_id, Engine.get_frames_drawn(), str(shop.call("semantic_snapshot"))])
 	await _settle(1.35)
 	var before_embers: int = _run_engine.held_embers(state)
 	print("STEAM_TRAILER_CHOICE_COMMIT clip=merchant item=%s raw_frame=%d" % [item_id, Engine.get_frames_drawn()])
+	_cue("shop_purchase_commit", INVALID_TILE, {"item": item_id})
 	await _run_scene.call("_on_merchant_buy_pressed", merchant_kind, item_id, source_row)
+	_cue("shop_purchase_committed", INVALID_TILE, {"item": item_id})
 	print("STEAM_TRAILER_CHOICE_COMPLETE clip=merchant item=%s raw_frame=%d" % [item_id, Engine.get_frames_drawn()])
 	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	var after_embers: int = _run_engine.held_embers(after_state)
 	_assert_capture(after_embers == before_embers - _run_engine.merchant_buy_cost(merchant_kind, item_id), "Merchant purchase must spend exactly the real item price")
 	_assert_capture((after_state.get("magic_inventory", []) as Array).has(item_id), "Purchased magic must enter the real reserve inventory")
 	print("STEAM_TRAILER_MERCHANT_RESULT room=%s depth=%d merchant=%s item=%s embers=%d->%d" % [str(current), _room_depth_for_state(after_state, current), merchant_kind, item_id, before_embers, after_embers])
-	await _settle(0.9)
+	# Purchase mutates immediately; its production fanfare continues concurrently.
+	var purchase_effects: Control = shop.get("_purchase_effects") as Control
+	_assert_capture(purchase_effects != null, "Shop must expose its production purchase presentation")
+	for _wait_frame: int in range(60):
+		if purchase_effects.get_child_count() == 0:
+			break
+		await get_tree().process_frame
+	_assert_capture(purchase_effects.get_child_count() == 0, "Shop acquisition must complete without blocking its purchase")
+	_cue("shop_purchase_complete", INVALID_TILE, {"item": item_id})
+	# Keep the real reward sound's release for the editor's audio overlap.
+	await _settle(4.5)
 
 func _capture_relic_claim() -> void:
 	_show_run_scene()
@@ -794,8 +1064,10 @@ func _capture_spell_reward() -> void:
 	_run_scene.call("_refresh_ui")
 	await _settle(0.2)
 	_show_run_scene()
+	_cue("reward_reveal_start")
 	print("STEAM_TRAILER_REWARD_REVEAL_START raw_frame=%d" % Engine.get_frames_drawn())
 	await _run_scene.call("_play_reward_reveal")
+	_cue("reward_reveal_complete")
 	print("STEAM_TRAILER_REWARD_REVEAL_COMPLETE raw_frame=%d" % Engine.get_frames_drawn())
 	await _settle(1.15)
 	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
@@ -818,7 +1090,9 @@ func _capture_spell_reward() -> void:
 		_assert_capture(offered_slot != null and _control_fully_inside_capture(offered_slot), "Every revealed card must fit the native capture")
 	await _settle(0.45)
 	print("STEAM_TRAILER_CHOICE_COMMIT clip=spell item=%s raw_frame=%d" % [card_id, Engine.get_frames_drawn()])
+	_cue("reward_claim_commit", INVALID_TILE, {"card": card_id})
 	await _run_scene.call("_on_reward_card_pressed", card_id, source_slot)
+	_cue("reward_claim_complete", INVALID_TILE, {"card": card_id})
 	print("STEAM_TRAILER_CHOICE_COMPLETE clip=spell item=%s raw_frame=%d" % [card_id, Engine.get_frames_drawn()])
 	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	_assert_capture((after_state.get("magic_inventory", []) as Array).has(card_id), "Spell reward must enter learned magic inventory")
@@ -828,7 +1102,8 @@ func _capture_spell_reward() -> void:
 		card_id,
 		str(after_state.get("mode", ""))
 	])
-	await _settle(0.9)
+	# Keep the native acquisition sound release beyond the short visual shot.
+	await _settle(5.0)
 
 func _control_fully_inside_capture(control: Control) -> bool:
 	if control == null:
@@ -913,20 +1188,28 @@ func _capture_equipment_pickup_and_equip() -> void:
 	_run_scene.call("_load_run_state", room_state)
 	_suppress_current_room_dialogue()
 	_run_scene.call("_open_character_overlay", "equipment")
-	await _settle(0.65)
+	_cue("equipment_open")
+	await _settle(0.8)
+	# A weapon swap visibly changes both the loadout and its contributed cards.
+	# The generated boots remain a real collected item in reserve.
+	equipment_id = "duelist_rapier"
+	_assert_capture((room_state.get("equipment_inventory", []) as Array).has(equipment_id), "The showcased weapon must already be owned in reserve")
 	var slot: String = GameDataScript.equipment_slot(equipment_id)
 	var source_rect: Rect2 = _run_scene.call("_equipment_inventory_icon_rect", equipment_id) as Rect2
 	var target_rect: Rect2 = _run_scene.call("_equipment_slot_icon_rect", slot) as Rect2
 	_assert_capture(source_rect.size.x > 0.0 and target_rect.size.x > 0.0, "Equipment capture must render inventory and target slot icons")
 	_run_scene.set("_equipment_drag_source_rect", source_rect)
+	_cue("equipment_commit", INVALID_TILE, {"item": equipment_id, "slot": slot, "replaced": (room_state.get("equipped_equipment", {}) as Dictionary).get(slot, "")})
 	await _run_scene.call("_equip_equipment_from_overlay", equipment_id, slot, target_rect)
+	_cue("equipment_complete", INVALID_TILE, {"item": equipment_id})
 	var equipped_state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	var equipped: Dictionary = equipped_state.get("equipped_equipment", {}) as Dictionary
-	_assert_capture(str(equipped.get(slot, "")) == equipment_id, "Production equipment swap must equip the collected item")
+	_assert_capture(str(equipped.get(slot, "")) == equipment_id and str((room_state.get("equipped_equipment", {}) as Dictionary).get(slot, "")) != equipment_id, "Production equipment swap must change the equipped weapon")
+	_assert_capture((equipped_state.get("equipment_inventory", []) as Array).has("grave_greatsword"), "The replaced weapon must move into reserve")
 	var inventory_after: Array = equipped_state.get("equipment_inventory", []) as Array
 	_assert_capture(inventory_after.size() >= 5, "Equipment overlay must retain multiple unequipped gear choices")
 	_assert_capture(_distinct_equipment_rarity_count(equipped) >= 2, "Equipped loadout must retain varied gear rarities after the swap")
-	print("STEAM_TRAILER_EQUIPMENT_RESULT room=%s depth=%d room_type=%s equipment=%s rarity=%s slot=%s collected=true equipped=true equipped_rarities=%s inventory_count=%d" % [
+	print("STEAM_TRAILER_EQUIPMENT_RESULT room=%s depth=%d room_type=%s equipment=%s rarity=%s slot=%s owned_in_reserve=true equipped=true equipped_rarities=%s inventory_count=%d" % [
 		str(current),
 		int(room.get("depth", 0)),
 		str(room.get("type", "")),
@@ -936,7 +1219,7 @@ func _capture_equipment_pickup_and_equip() -> void:
 		str(_equipment_rarities(equipped)),
 		inventory_after.size()
 	])
-	await _settle(1.0)
+	await _settle(1.4)
 
 func _equipment_rarities(equipped: Dictionary) -> Array:
 	var result: Array = []
@@ -988,14 +1271,14 @@ func _find_control_with_tooltip(root: Node, tooltip: String) -> Control:
 	return null
 
 func _create_showcase_combat(layout: Dictionary, hand: Array[String]) -> Dictionary:
-	var state: Dictionary = _combat_engine.create_combat(CAPTURE_SEED, layout, {
+	var state: Dictionary = _combat_engine.create_combat(_capture_seed, layout, {
 		"hp": 24,
 		"max_hp": 24,
 		"deck_cards": hand,
 		"relics": [],
 		"hand_size": hand.size(),
-		"cards_per_turn": 3,
-		"draw_per_turn": 3,
+		"cards_per_turn": 2,
+		"draw_per_turn": 2,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
@@ -1029,8 +1312,9 @@ func _play_showcase_card(card_id: String, target: Vector2i, orientation_confirma
 	var state_before: Dictionary = _run_scene.get("_combat_state") as Dictionary
 	var hand: Array = (state_before.get("deck", {}) as Dictionary).get("hand", []) as Array
 	_assert_capture(not hand.is_empty() and str(hand[0]) == card_id, "Showcase card must occupy the first visible hand slot: %s" % card_id)
+	_cue("card_recognition", target, {"card": card_id})
 	_run_scene.call("_on_card_hover_started", 0)
-	await _settle(0.5)
+	await _settle(0.6)
 	await _run_scene.call("_on_card_pressed", 0)
 	_assert_capture(int(_run_scene.get("_selected_card_index")) == 0, "Production card selection must enter target preview for %s" % card_id)
 	if bool(_run_scene.call("_pending_card_requires_confirmation")):
@@ -1038,6 +1322,7 @@ func _play_showcase_card(card_id: String, target: Vector2i, orientation_confirma
 		await _settle(0.45)
 		print("STEAM_TRAILER_CARD_COMMIT card=%s raw_frame=%d hand_index=0 natural_play=true targetless=true" % [card_id, Engine.get_frames_drawn()])
 		await _run_scene.call("_on_confirm_card_play_pressed")
+		_cue("card_complete", target, {"card": card_id})
 		print("STEAM_TRAILER_CARD_COMPLETE card=%s raw_frame=%d natural_play=true" % [card_id, Engine.get_frames_drawn()])
 		_assert_capture(not bool(_run_scene.get("_animation_lock")) and int(_run_scene.get("_selected_card_index")) == -1, "Production targetless card must finish cleanly")
 		return
@@ -1046,7 +1331,9 @@ func _play_showcase_card(card_id: String, target: Vector2i, orientation_confirma
 	var board: Control = _run_scene.get("board_view") as Control
 	var target_position: Vector2 = board.get_global_transform() * (board.call("world_position_for_tile", target) as Vector2)
 	_run_scene.call("_sync_click_targeting_arrow", target_position)
-	await _settle(0.45)
+	_cue("card_aim", target, {"card": card_id})
+	await _settle(0.6)
+	_cue("card_commit", target, {"card": card_id})
 	print("STEAM_TRAILER_CARD_COMMIT card=%s target=%s raw_frame=%d hand_index=0 natural_play=true" % [card_id, str(target), Engine.get_frames_drawn()])
 	await _run_scene.call("_on_board_tile_clicked", target)
 	if int(_run_scene.get("_selected_card_index")) == 0:
@@ -1054,8 +1341,10 @@ func _play_showcase_card(card_id: String, target: Vector2i, orientation_confirma
 		_assert_capture(_run_scene.get("_pending_orientation_target_tile") == target, "Production card flow must request direction confirmation for %s" % card_id)
 		_run_scene.call("_on_board_tile_hovered", orientation_confirmation)
 		await _settle(0.35)
+		_cue("card_orientation", target, {"card": card_id})
 		print("STEAM_TRAILER_CARD_ORIENTATION card=%s target=%s confirmation=%s natural_play=true" % [card_id, str(target), str(orientation_confirmation)])
 		await _run_scene.call("_on_board_tile_clicked", orientation_confirmation)
+	_cue("card_complete", target, {"card": card_id})
 	print("STEAM_TRAILER_CARD_COMPLETE card=%s raw_frame=%d natural_play=true" % [card_id, Engine.get_frames_drawn()])
 	_assert_capture(not bool(_run_scene.get("_animation_lock")), "Production card resolution must finish cleanly for %s" % card_id)
 	_assert_capture(int(_run_scene.get("_selected_card_index")) == -1, "Production card resolution must clear selection for %s" % card_id)

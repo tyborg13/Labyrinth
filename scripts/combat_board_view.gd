@@ -155,6 +155,7 @@ const ENEMY_HUD_SIDE_STICKY_OVERLAP_AREA: float = 1.0
 const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
+const FOREGROUND_ACTOR_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.26)
 const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
 const LOOT_DRAW_TILE_WIDTH_SCALE: float = 0.34
 const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
@@ -2045,6 +2046,7 @@ func _queue_presentation_change_redraws(
 			"effect", "effect_progress":
 				effects_changed = true
 				action_floor_changed = true
+				overlay_changed = true
 			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect":
 				effects_changed = true
 			"trap_effects":
@@ -2062,6 +2064,9 @@ func _queue_presentation_change_redraws(
 			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
 				unit_movement_changed = true
 				foreground_changed = true
+				# Large-target footprint extensions share the ground overlay layer.
+				# Visibility and geometry can change while the selected tiles stay fixed.
+				overlay_changed = overlay_changed or not attack_tiles.is_empty()
 				hud_changed = true
 			"focus_actor_color", "focus_actor_keys":
 				_queue_focus_actor_scene_redraws(previous_focus_actor_keys, next_focus_actor_keys, previous_unit_render_tiles)
@@ -2137,6 +2142,8 @@ func _queue_combat_state_change_redraws(
 	if units_changed:
 		_queue_moving_actor_redraws(moving_actor_keys, previous_unit_render_tiles, previous_unit_obstruction_entries)
 		_queue_render_layer_redraw(_foreground_render_layer)
+		if not attack_tiles.is_empty():
+			_queue_render_layer_redraw(_overlay_render_layer)
 		_queue_render_layer_redraw(_hud_render_layer)
 	if changed_keys.has("player_turn_restrictions"):
 		for player_source: Dictionary in [
@@ -2863,7 +2870,6 @@ func _draw_dynamic_board() -> void:
 		var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 		var units_to_draw: Array[Dictionary] = _visible_units()
 		_draw_scene_objects(grid, tiles, units_to_draw)
-		_draw_large_enemy_attack_highlights(units_to_draw)
 		_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
 		_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 		_draw_campfire_ember_motes()
@@ -2935,6 +2941,8 @@ func _draw_overlay_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
+	_draw_action_ground_markings()
+	_draw_large_enemy_attack_highlight_extensions(_visible_units())
 	_record_render_section_time("tile_overlays", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -3016,9 +3024,6 @@ func _draw_foreground_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	var units_to_draw: Array[Dictionary] = _visible_units()
-	_draw_large_enemy_attack_highlights(units_to_draw)
-	_record_render_section_time("foreground_attack_highlights", section_started_usec)
-	section_started_usec = Time.get_ticks_usec()
 	_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
 	_record_render_section_time("foreground_umbra_markers", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
@@ -5176,9 +5181,13 @@ func _large_enemy_attack_highlight_tiles(units_to_draw: Array[Dictionary]) -> Ar
 				result.append(tile)
 	return result
 
-func _draw_large_enemy_attack_highlights(units_to_draw: Array[Dictionary]) -> void:
+func _draw_large_enemy_attack_highlight_extensions(units_to_draw: Array[Dictionary]) -> void:
+	# A large actor exposes its full targetable footprint, but the floor must
+	# still pass behind its body and every prop. Do not repaint these diamonds
+	# on the foreground layer or double the ordinary target-tile opacity.
 	for tile: Vector2i in _large_enemy_attack_highlight_tiles(units_to_draw):
-		_draw_attack_tile_highlight(tile)
+		if not _attack_tiles_lookup_cache.has(tile):
+			_draw_attack_tile_highlight(tile)
 
 func _draw_exit_tile_pulse(tile: Vector2i) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -5729,6 +5738,7 @@ func _tile_renders_as_pillar(grid: Array, tile: Vector2i) -> bool:
 func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
 	if not _is_tall_obstructive_tile(tile_id):
 		return Color.WHITE
+	var tint: Color = Color.WHITE
 	for entry_var: Variant in obstruction_entries:
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
@@ -5742,8 +5752,13 @@ func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2,
 		if entry_rect == Rect2() and not entry.has("rect"):
 			entry_rect = _unit_draw_rect(entry)
 		if _foreground_overlap_coverage(prop_rect, entry_rect) >= FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD:
-			return FOREGROUND_OBSTRUCTION_TINT
-	return Color.WHITE
+			# Several translucent foreground props can still bury a character.
+			# Preserve more of the actor silhouette while keeping ordinary object
+			# obstruction at its established opacity and retaining board depth.
+			if not str(entry.get("actor_key", entry.get("key", ""))).is_empty():
+				return FOREGROUND_ACTOR_OBSTRUCTION_TINT
+			tint = FOREGROUND_OBSTRUCTION_TINT
+	return tint
 
 func _foreground_overlap_coverage(foreground_rect: Rect2, covered_rect: Rect2) -> float:
 	if foreground_rect.size.x <= 0.0 or foreground_rect.size.y <= 0.0:
@@ -8629,9 +8644,6 @@ func _draw_effect_overlay() -> void:
 				_draw_umbra_clipped_ranged_effect(effect, progress)
 			elif not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
 				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
-			for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
-				if _board_tile_is_visible_to_player(force_tile):
-					_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
 		"melee":
 			if to_tile.x < 0:
 				return
@@ -8649,7 +8661,10 @@ func _draw_effect_overlay() -> void:
 			else:
 				_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
-			_draw_aoe_effect(effect, progress, from_point, center_point)
+			_draw_aoe_cast_preview(effect, from_point, center_point)
+		"chain":
+			if from_tile.x >= 0 and to_tile.x >= 0:
+				preload("res://scripts/chain_attack_fx.gd").draw_hop(self, from_point, to_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
 		"lightning_strikes":
 			var strike_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
 			var bolt_alpha: float = 0.24 + progress * 0.34
@@ -9982,31 +9997,38 @@ func _blink_player_unit_snapshot() -> Dictionary:
 		"poison": player.get("poison", {}).duplicate(true)
 	}
 
-func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, center_point: Vector2) -> void:
-	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
-	if tiles.is_empty():
+func _draw_action_ground_markings() -> void:
+	# Tactical diamonds describe the floor, including while the attack resolves.
+	# Keep filled cells and outlines beside preview highlights, beneath trap
+	# sprites, loot, paths, Umbra and raised scenery. Light effects have their own
+	# later floor pass; they must not lift tactical diamonds above ground objects.
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	var kind: String = str(effect.get("kind", ""))
+	if kind == "aoe" and not bool(effect.get("preview", false)):
+		var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+		_draw_aoe_resolution_footprint(effect, progress)
+	elif kind == "ranged" and (effect.get("from", Vector2i(-1, -1)) as Vector2i).x >= 0 and (effect.get("to", Vector2i(-1, -1)) as Vector2i).x >= 0:
+		for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
+			if _board_tile_is_visible_to_player(force_tile):
+				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
+
+func _draw_aoe_cast_preview(effect: Dictionary, from_point: Vector2, center_point: Vector2) -> void:
+	if not bool(effect.get("preview", false)) or (effect.get("tiles", []) as Array).is_empty():
 		return
-	var preview: bool = bool(effect.get("preview", false))
-	if preview:
-		# Match direct ranged targeting: the affected area is already expressed by
-		# the shared focus-tile highlights, so only retain the familiar thin cast
-		# path. Extra rings, center reticles, and line-pattern bolts obscure that
-		# clean board language and can make a straight AOE read as lightning.
-		if (
-			from_point != Vector2.ZERO
-			and center_point != Vector2.ZERO
-			and from_point.distance_squared_to(center_point) > 1.0
-		):
-			_draw_ranged_target_preview_curve(effect, from_point, center_point)
-		return
-	var accent: Color = _aoe_effect_accent(effect)
+	# The shared floor highlights already express the affected area. Only the
+	# thin cast path belongs above the scene; resolution diamonds stay below it.
+	if from_point != Vector2.ZERO and center_point != Vector2.ZERO and from_point.distance_squared_to(center_point) > 1.0:
+		_draw_ranged_target_preview_curve(effect, from_point, center_point)
+
+func _draw_aoe_resolution_footprint(effect: Dictionary, progress: float) -> void:
 	var visibility: float = _aoe_resolution_footprint_visibility(effect, progress)
 	if visibility <= 0.0:
 		return
+	var accent: Color = _aoe_effect_accent(effect)
 	var edge_rgb: Color = accent.lightened(0.34)
 	var fill := Color(accent.r, accent.g, accent.b, 0.18 * visibility)
 	var edge := Color(edge_rgb.r, edge_rgb.g, edge_rgb.b, 0.78 * visibility)
-	for tile: Vector2i in tiles:
+	for tile: Vector2i in _vector2i_array(effect.get("tiles", [])):
 		_draw_aoe_footprint_tile(tile, fill, edge, 2.0)
 
 func _aoe_resolution_footprint_visibility(effect: Dictionary, progress: float) -> float:

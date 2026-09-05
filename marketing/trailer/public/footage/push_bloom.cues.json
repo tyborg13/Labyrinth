@@ -1,0 +1,716 @@
+{
+  "clip": "push_bloom",
+  "fps": 30,
+  "safe_start_raw_frame": 29,
+  "frames": 505,
+  "duration_seconds": 16.833333,
+  "width": 1920,
+  "height": 1080,
+  "audio": {
+    "source": "native_gameplay",
+    "music_muted": true,
+    "sample_rate": 48000,
+    "trim_samples": 46400,
+    "peak_dbfs": "-9.4",
+    "duration_seconds": 16.833,
+    "channels": 2,
+    "codec": "aac"
+  },
+  "cues": [
+    {
+      "clip": "push_bloom",
+      "kind": "scene_visible",
+      "raw_frame": 27,
+      "seed": 126053,
+      "source_frame": -2,
+      "wall_usec": 11346918
+    },
+    {
+      "clip": "push_bloom",
+      "depth": 2,
+      "enemies": [
+        {
+          "block": 0,
+          "element": "fire",
+          "hp": 14,
+          "id": 1,
+          "max_hp": 14,
+          "pos": "(7, 4)",
+          "stoneskin": 0,
+          "type": "crawler"
+        },
+        {
+          "block": 0,
+          "element": "fire",
+          "hp": 10,
+          "id": 2,
+          "max_hp": 10,
+          "pos": "(6, 2)",
+          "stoneskin": 0,
+          "type": "harrier"
+        },
+        {
+          "block": 0,
+          "element": "fire",
+          "hp": 12,
+          "id": 3,
+          "max_hp": 12,
+          "pos": "(7, 1)",
+          "stoneskin": 0,
+          "type": "acolyte"
+        }
+      ],
+      "furnishing": "terrain=7 interior_obstacles=4 moss=true loot=1",
+      "kind": "tactical_setup",
+      "raw_frame": 64,
+      "room": "(2, -1)",
+      "screen": [
+        960.0,
+        671.0
+      ],
+      "seed": 126053,
+      "source_frame": 35,
+      "tile": [
+        7,
+        7
+      ],
+      "wall_usec": 12470173
+    },
+    {
+      "card": "updraft",
+      "clip": "push_bloom",
+      "kind": "card_recognition",
+      "raw_frame": 64,
+      "screen": [
+        1213.9,
+        544.1
+      ],
+      "seed": 126053,
+      "source_frame": 35,
+      "tile": [
+        7,
+        4
+      ],
+      "wall_usec": 12470221
+    },
+    {
+      "card": "updraft",
+      "clip": "push_bloom",
+      "kind": "card_aim",
+      "raw_frame": 84,
+      "screen": [
+        1213.9,
+        544.1
+      ],
+      "seed": 126053,
+      "source_frame": 55,
+      "tile": [
+        7,
+        4
+      ],
+      "wall_usec": 13069598
+    },
+    {
+      "clip": "push_bloom",
+      "effect": {
+        "action_type": "push",
+        "damage_preview": {
+          "enemy_1": {
+            "block": 0,
+            "block_loss": 0,
+            "hp": 8,
+            "hp_loss": 6,
+            "lethal": false,
+            "stoneskin": 0,
+            "stoneskin_loss": 0
+          }
+        },
+        "element": "air",
+        "force_tiles": [],
+        "from": "(7, 7)",
+        "kind": "ranged",
+        "preview": true,
+        "target_curve_visible": true,
+        "to": "(7, 4)"
+      },
+      "kind": "effect_begin",
+      "raw_frame": 84,
+      "screen": [
+        1213.9,
+        544.1
+      ],
+      "seed": 126053,
+      "source_frame": 55,
+      "tile": [
+        7,
+        4
+      ],
+      "wall_usec": 13075433
+    },
+    {
+      "card": "updraft",
+      "clip": "push_bloom",
+      "kind": "card_commit",
+      "raw_frame": 104,
+      "screen": [
+        1213.9,
+        544.1
+      ],
+      "seed": 126053,
+      "source_frame": 75,
+      "tile": [
+        7,
+        4
+      ],
+      "wall_usec": 13648119
+    },
+    {
+      "clip": "push_bloom",
+      "effect": {
+        "action_type": "push",
+        "center": "(7, 4)",
+        "element": "air",
+        "force_tiles": [
+          "(7, 3)",
+          "(7, 2)"
+        ],
+        "from": "(7, 7)",
+        "kind": "ranged",
+        "range": 4,
+        "tiles": [
+          "(7, 4)"
+        ],
+        "to": "(7, 4)",
+        "triggered_traps": []
+      },
+      "kind": "effect_begin",
+      "raw_frame": 123,
+      "screen": [
+        1213.9,
+        544.1
+      ],
+      "seed": 126053,
+      "source_frame": 94,
+      "tile": [
+        7,
+        4
+      ],
+      "wall_usec": 14223573
+    },
+    {
+      "actors": [
+        "enemy_1"
+      ],
+      "clip": "push_bloom",
+      "kind": "impact",
+      "raw_frame": 128,
+      "seed": 126053,
+      "source_frame": 99,
+      "wall_usec": 14379375
+    },
+    {
+      "chain_index": -1,
+      "clip": "push_bloom",
+      "effect_kind": "ranged",
+      "kind": "effect_finished",
+      "raw_frame": 130,
+      "seed": 126053,
+      "source_frame": 101,
+      "wall_usec": 14444257
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "turn_order_begin",
+      "raw_frame": 146,
+      "seed": 126053,
+      "source_frame": 117,
+      "wall_usec": 14958573
+    },
+    {
+      "card": "updraft",
+      "clip": "push_bloom",
+      "kind": "card_complete",
+      "raw_frame": 156,
+      "screen": [
+        1213.9,
+        544.1
+      ],
+      "seed": 126053,
+      "source_frame": 127,
+      "tile": [
+        7,
+        4
+      ],
+      "wall_usec": 15277478
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "turn_order_complete",
+      "raw_frame": 156,
+      "seed": 126053,
+      "source_frame": 127,
+      "wall_usec": 15281225
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "movement_aim",
+      "raw_frame": 176,
+      "screen": [
+        1129.3,
+        586.4
+      ],
+      "seed": 126053,
+      "source_frame": 147,
+      "tile": [
+        7,
+        5
+      ],
+      "wall_usec": 15882718
+    },
+    {
+      "clip": "push_bloom",
+      "effect": {
+        "from": "(7, 7)",
+        "kind": "move",
+        "preview": true,
+        "to": "(7, 5)"
+      },
+      "kind": "effect_begin",
+      "raw_frame": 176,
+      "screen": [
+        1129.3,
+        586.4
+      ],
+      "seed": 126053,
+      "source_frame": 147,
+      "tile": [
+        7,
+        5
+      ],
+      "wall_usec": 15886055
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "movement_commit",
+      "raw_frame": 196,
+      "screen": [
+        1129.3,
+        586.4
+      ],
+      "seed": 126053,
+      "source_frame": 167,
+      "tile": [
+        7,
+        5
+      ],
+      "wall_usec": 16457842
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "movement_complete",
+      "movement": {
+        "action_type": "move",
+        "capacity": 2,
+        "destination": "(7, 5)",
+        "origin": "(7, 7)",
+        "remaining_after": 0,
+        "remaining_before": 2,
+        "spent": 2,
+        "target": "(7, 5)"
+      },
+      "raw_frame": 221,
+      "screen": [
+        1129.3,
+        586.4
+      ],
+      "seed": 126053,
+      "source_frame": 192,
+      "tile": [
+        7,
+        5
+      ],
+      "wall_usec": 17254549
+    },
+    {
+      "card": "cinder_bloom",
+      "clip": "push_bloom",
+      "kind": "card_recognition",
+      "raw_frame": 242,
+      "screen": [
+        1383.1,
+        459.5
+      ],
+      "seed": 126053,
+      "source_frame": 213,
+      "tile": [
+        7,
+        2
+      ],
+      "wall_usec": 17881293
+    },
+    {
+      "card": "cinder_bloom",
+      "clip": "push_bloom",
+      "kind": "card_aim",
+      "raw_frame": 262,
+      "screen": [
+        1383.1,
+        459.5
+      ],
+      "seed": 126053,
+      "source_frame": 233,
+      "tile": [
+        7,
+        2
+      ],
+      "wall_usec": 18481177
+    },
+    {
+      "clip": "push_bloom",
+      "effect": {
+        "center": "(7, 2)",
+        "damage_preview": {
+          "enemy_1": {
+            "block": 0,
+            "block_loss": 0,
+            "hp": 0,
+            "hp_loss": 8,
+            "lethal": true,
+            "stoneskin": 0,
+            "stoneskin_loss": 0
+          },
+          "enemy_2": {
+            "block": 0,
+            "block_loss": 0,
+            "hp": 2,
+            "hp_loss": 8,
+            "lethal": false,
+            "stoneskin": 0,
+            "stoneskin_loss": 0
+          },
+          "enemy_3": {
+            "block": 0,
+            "block_loss": 0,
+            "hp": 4,
+            "hp_loss": 8,
+            "lethal": false,
+            "stoneskin": 0,
+            "stoneskin_loss": 0
+          }
+        },
+        "element": "fire",
+        "from": "(7, 5)",
+        "kind": "aoe",
+        "preview": true,
+        "tiles": [
+          "(7, 1)",
+          "(6, 2)",
+          "(7, 2)",
+          "(7, 3)"
+        ],
+        "to": "(7, 2)"
+      },
+      "kind": "effect_begin",
+      "raw_frame": 262,
+      "screen": [
+        1383.1,
+        459.5
+      ],
+      "seed": 126053,
+      "source_frame": 233,
+      "tile": [
+        7,
+        2
+      ],
+      "wall_usec": 18485770
+    },
+    {
+      "card": "cinder_bloom",
+      "clip": "push_bloom",
+      "kind": "card_commit",
+      "raw_frame": 282,
+      "screen": [
+        1383.1,
+        459.5
+      ],
+      "seed": 126053,
+      "source_frame": 253,
+      "tile": [
+        7,
+        2
+      ],
+      "wall_usec": 19058765
+    },
+    {
+      "clip": "push_bloom",
+      "effect": {
+        "action_type": "aoe",
+        "center": "(7, 2)",
+        "element": "fire",
+        "force_tiles": [],
+        "from": "(7, 5)",
+        "kind": "aoe",
+        "range": 4,
+        "tiles": [
+          "(7, 1)",
+          "(6, 2)",
+          "(7, 2)",
+          "(7, 3)"
+        ],
+        "to": "(7, 2)",
+        "triggered_traps": []
+      },
+      "kind": "effect_begin",
+      "raw_frame": 302,
+      "screen": [
+        1383.1,
+        459.5
+      ],
+      "seed": 126053,
+      "source_frame": 273,
+      "tile": [
+        7,
+        2
+      ],
+      "wall_usec": 19672641
+    },
+    {
+      "actors": [
+        "enemy_1",
+        "enemy_2",
+        "enemy_3"
+      ],
+      "clip": "push_bloom",
+      "kind": "impact",
+      "raw_frame": 308,
+      "seed": 126053,
+      "source_frame": 279,
+      "wall_usec": 19865853
+    },
+    {
+      "chain_index": -1,
+      "clip": "push_bloom",
+      "effect_kind": "aoe",
+      "kind": "effect_finished",
+      "raw_frame": 324,
+      "seed": 126053,
+      "source_frame": 295,
+      "wall_usec": 20387003
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "turn_order_begin",
+      "raw_frame": 325,
+      "seed": 126053,
+      "source_frame": 296,
+      "wall_usec": 20428603
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "death_animation_begin",
+      "raw_frame": 327,
+      "seed": 126053,
+      "source_frame": 298,
+      "wall_usec": 20499135
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "death_animation_complete",
+      "raw_frame": 355,
+      "seed": 126053,
+      "source_frame": 326,
+      "wall_usec": 21486456
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "turn_order_complete",
+      "raw_frame": 357,
+      "seed": 126053,
+      "source_frame": 328,
+      "wall_usec": 21546992
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "turn_order_begin",
+      "raw_frame": 359,
+      "seed": 126053,
+      "source_frame": 330,
+      "wall_usec": 21613292
+    },
+    {
+      "card": "cinder_bloom",
+      "clip": "push_bloom",
+      "kind": "card_complete",
+      "raw_frame": 369,
+      "screen": [
+        1383.1,
+        459.5
+      ],
+      "seed": 126053,
+      "source_frame": 340,
+      "tile": [
+        7,
+        2
+      ],
+      "wall_usec": 21926115
+    },
+    {
+      "clip": "push_bloom",
+      "enemies": [
+        {
+          "bleed": 0,
+          "block": 0,
+          "burn": 0,
+          "element": "fire",
+          "expose": 0,
+          "footprint": "(1, 1)",
+          "freeze": 0,
+          "frost_armor": 0,
+          "hp": 0,
+          "id": 1,
+          "immobilize": false,
+          "intent": {
+            "actions": [
+              {
+                "intensity_bonus": {},
+                "range": 4.0,
+                "type": "move_toward"
+              },
+              {
+                "bleed": 1,
+                "damage": 6,
+                "intensity_bonus": {},
+                "range": 1.0,
+                "type": "melee"
+              }
+            ],
+            "id": "lunge",
+            "name": "Lunge",
+            "time": 6.0,
+            "weight": 2.0
+          },
+          "max_hp": 14,
+          "poison": {
+            "damage": 0,
+            "delay": 0
+          },
+          "pos": "(7, 2)",
+          "shock": 0,
+          "stoneskin": 0,
+          "type": "crawler"
+        },
+        {
+          "bleed": 0,
+          "block": 0,
+          "burn": 2,
+          "element": "fire",
+          "expose": 0,
+          "footprint": "(1, 1)",
+          "freeze": 0,
+          "frost_armor": 0,
+          "hp": 2,
+          "id": 2,
+          "immobilize": false,
+          "intent": {
+            "actions": [
+              {
+                "intensity_bonus": {},
+                "range": 2.0,
+                "type": "move_toward"
+              },
+              {
+                "damage": 4,
+                "intensity_bonus": {},
+                "range": 4.0,
+                "type": "ranged"
+              }
+            ],
+            "id": "darting_pelt",
+            "name": "Darting Pelt",
+            "time": 5.0,
+            "weight": 2.0
+          },
+          "max_hp": 10,
+          "poison": {
+            "damage": 0,
+            "delay": 0
+          },
+          "pos": "(6, 2)",
+          "shock": 0,
+          "stoneskin": 0,
+          "type": "harrier"
+        },
+        {
+          "bleed": 0,
+          "block": 0,
+          "burn": 2,
+          "element": "fire",
+          "expose": 0,
+          "footprint": "(1, 1)",
+          "freeze": 0,
+          "frost_armor": 0,
+          "hp": 4,
+          "id": 3,
+          "immobilize": false,
+          "intent": {
+            "actions": [
+              {
+                "intensity_bonus": {},
+                "range": 2.0,
+                "type": "move_toward"
+              },
+              {
+                "damage": 5,
+                "intensity_bonus": {},
+                "range": 5.0,
+                "type": "ranged"
+              }
+            ],
+            "id": "dust_bolt",
+            "name": "Dust Bolt",
+            "time": 4.0,
+            "weight": 4.0
+          },
+          "max_hp": 12,
+          "poison": {
+            "damage": 0,
+            "delay": 0
+          },
+          "pos": "(7, 1)",
+          "shock": 0,
+          "stoneskin": 0,
+          "type": "acolyte"
+        }
+      ],
+      "intensity": {
+        "air": 1,
+        "earth": 0,
+        "fire": 2,
+        "ice": 0,
+        "lightning": 0
+      },
+      "kind": "tactical_payoff_complete",
+      "natural_play": true,
+      "raw_frame": 369,
+      "screen": [
+        1383.1,
+        459.5
+      ],
+      "seed": 126053,
+      "source_frame": 340,
+      "tile": [
+        7,
+        2
+      ],
+      "wall_usec": 21926531
+    },
+    {
+      "clip": "push_bloom",
+      "kind": "turn_order_complete",
+      "raw_frame": 369,
+      "seed": 126053,
+      "source_frame": 340,
+      "wall_usec": 21930087
+    }
+  ]
+}
