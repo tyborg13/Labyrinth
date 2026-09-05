@@ -71,11 +71,12 @@ func _initialize() -> void:
 					var other: Dictionary = layouts[other_index]
 					var other_envelope: Rect2 = other["rendered_rect"]
 					var other_rect := Rect2(other_envelope.position + (other["layout_offset"] as Vector2), other_envelope.size)
-					_expect(not rect.intersects(other_rect), "Simultaneous damage and block-loss glyphs must not overlap")
+					_expect(not rect.intersects(other_rect), "Simultaneous damage and block-loss glyphs must not overlap at %s %.3f" % [str(reduced), elapsed])
 			await RenderingServer.frame_post_draw
 			var screenshot: Image = viewport.get_texture().get_image()
 			_expect(screenshot.get_size() == VIEWPORT_SIZE, "Proof must render at 1920x1080")
 			_expect(screenshot.save_png("%s/%s_%03d.png" % [OUTPUT_DIR, "reduced" if reduced else "normal", roundi(elapsed * 1000)]) == OK, "Screenshot must save")
+	await _probe_timeline_handoff(instance, board, viewport, settings)
 	for error: String in _errors:
 		push_error(error)
 	print("FLOATING TEXT COLLISION PROBE: %s" % ("PASS" if _errors.is_empty() else "FAIL"))
@@ -152,3 +153,74 @@ func _combat_grid() -> Array:
 		grid[tile.y][tile.x] = "pillar"
 	return grid
 
+
+func _probe_timeline_handoff(instance: Node, board: Control, viewport: SubViewport, settings: Dictionary) -> void:
+	var state: Dictionary = instance.get("_combat_state") as Dictionary
+	for reduced: bool in [false, true]:
+		settings["reduced_motion"] = reduced
+		instance.set("_settings", settings)
+		instance.set("_player_popup_timeline_active", false)
+		instance.call("_render_board_state", state, {"floating_texts": []})
+		await _settle()
+		var source: Array[Dictionary] = [FloatingCombatText.damage_entry(Vector2i(5, 3), "-5", Color("f39779"))]
+		var direct: Array[Dictionary] = FloatingCombatText.animate_entries(source, 0.18, reduced)
+		instance.call("_render_board_state", state, {"floating_texts": direct, "reduced_motion": reduced})
+		var previous: Dictionary = {}
+		await _capture_handoff_frame(board, viewport, reduced, "1_direct", previous, 1)
+		instance.call("_begin_player_popup_timeline")
+		instance.set("_player_popup_timeline_started_usec", Time.get_ticks_usec() - 1000000)
+		instance.call("_queue_player_popup_group", source.duplicate(true), 0.18)
+		var groups: Array = instance.get("_player_popup_timeline_groups") as Array
+		var start: float = float(groups[0]["start_seconds"])
+		_set_timeline_time(instance, start + 0.18)
+		instance.call("_render_board_state", state, {"reduced_motion": reduced})
+		await _capture_handoff_frame(board, viewport, reduced, "2_queued", previous, 1, true)
+		var repeated: Array[Dictionary] = [FloatingCombatText.damage_entry(Vector2i(5, 3), "-5", Color("f39779"))]
+		_set_timeline_time(instance, start + 0.21)
+		instance.call("_render_board_state", state, {"floating_texts": FloatingCombatText.animate_entries(repeated, 0.0, reduced), "reduced_motion": reduced})
+		await _capture_handoff_frame(board, viewport, reduced, "3_repeated_direct", previous, 2)
+		_set_timeline_time(instance, start + 0.21)
+		instance.call("_queue_player_popup_group", repeated.duplicate(true), 0.0)
+		_set_timeline_time(instance, float(groups[1]["start_seconds"]))
+		instance.call("_render_board_state", state, {"reduced_motion": reduced})
+		await _capture_handoff_frame(board, viewport, reduced, "4_repeated_queued", previous, 2, true)
+		_set_timeline_time(instance, start + 0.29)
+		instance.call("_render_board_state", state, {"reduced_motion": reduced})
+		await _capture_handoff_frame(board, viewport, reduced, "5_overlapping_tail", previous, 2)
+	instance.set("_player_popup_timeline_active", false)
+
+func _set_timeline_time(instance: Node, elapsed: float) -> void:
+	instance.set("_player_popup_timeline_started_usec", Time.get_ticks_usec() - roundi(elapsed * 1000000.0))
+
+func _capture_handoff_frame(board: Control, viewport: SubViewport, reduced: bool, stage: String, previous: Dictionary, count: int, same_elapsed: bool = false) -> void:
+	await _settle()
+	var layer: Control = board.get("_effects_render_layer") as Control
+	var layouts: Array = layer.get("_floating_text_last_layout") as Array
+	_expect(layouts.size() == count, "Both identical hits must remain independently visible across the production queue")
+	var seen: Dictionary = {}
+	var rects: Array[Rect2] = []
+	for popup: Dictionary in layouts:
+		var key: String = str(popup["key"])
+		_expect(not seen.has(key), "Overlapping identical hits must keep distinct screen identities")
+		seen[key] = true
+		var offset: Vector2 = popup["layout_offset"]
+		var origin: Vector2 = (popup["origin"] as Vector2) + offset
+		if previous.has(key):
+			var prior: Dictionary = previous[key]
+			_expect(offset.is_equal_approx(prior["offset"]), "Neither handoff nor a later hit may reallocate an existing lane")
+			if same_elapsed or reduced:
+				_expect(origin.distance_to(prior["origin"]) < 2.0, "Handoff frames must be visually continuous; reduced-motion popups must remain fixed")
+		elif same_elapsed:
+			_expect(false, "A handoff must preserve every visible popup identity")
+		previous[key] = {"offset": offset, "origin": origin}
+		var rendered: Rect2 = popup["rendered_rect"]
+		var rect := Rect2(rendered.position + offset, rendered.size)
+		for other: Rect2 in rects:
+			_expect(not rect.intersects(other), "Overlapping identical hits must occupy separate visible lanes at %s %s" % [str(reduced), stage])
+		for health_var: Variant in (layer.get("_hud_health_rects_cache") as Dictionary).values():
+			_expect(not rect.intersects(health_var as Rect2), "Handoff popups must not intersect health bars")
+		rects.append(rect)
+	await RenderingServer.frame_post_draw
+	var screenshot: Image = viewport.get_texture().get_image()
+	_expect(screenshot.get_size() == VIEWPORT_SIZE, "Handoff proof must render at 1920x1080")
+	_expect(screenshot.save_png("%s/handoff_%s_%s.png" % [OUTPUT_DIR, "reduced" if reduced else "normal", stage]) == OK, "Handoff screenshot must save")

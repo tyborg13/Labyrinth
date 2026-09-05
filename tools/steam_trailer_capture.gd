@@ -627,6 +627,7 @@ func _capture_umbra_reveal() -> void:
 	_apply_combat_state(layout, state)
 	_show_run_scene()
 	await _settle(0.4)
+	_assert_umbra_actor_framing(2)
 	await _play_showcase_card("lantern_shot", target)
 	var after_state: Dictionary = _run_scene.get("_combat_state") as Dictionary
 	var umbra: Dictionary = after_state.get("umbra", {}) as Dictionary
@@ -641,6 +642,7 @@ func _capture_umbra_reveal() -> void:
 		(umbra.get("light_sources", []) as Array).size()
 	])
 	await _settle(1.4)
+	_assert_umbra_actor_framing(4)
 
 func _capture_merchant_purchase() -> void:
 	_show_run_scene()
@@ -1012,13 +1014,30 @@ func _find_umbra_reveal_placement(layout: Dictionary) -> Dictionary:
 		return {}
 	var blocked: Dictionary = _layout_occupied_tiles(layout)
 	var open_tiles: Array[Vector2i] = []
+	var min_sum: int = 2147483647
+	var max_sum: int = -2147483648
 	for y: int in range(1, grid.size() - 1):
 		for x: int in range(1, (grid[y] as Array).size() - 1):
 			var tile: Vector2i = Vector2i(x, y)
 			if PathUtils.is_passable(grid, tile) and not blocked.has(tile):
 				open_tiles.append(tile)
+				min_sum = mini(min_sum, x + y)
+				max_sum = maxi(max_sum, x + y)
+	if open_tiles.is_empty():
+		return {}
+	# The backmost legal tile fits its floor but crops the player's overhead HP.
+	# Compose the real action in the room's interior, preserving the production
+	# camera and HUD anchors. The live bound checks below guard the final render.
+	var interior_min_sum: int = min_sum + 4
+	var middle_sum: float = float(min_sum + max_sum) * 0.5
+	var best: Dictionary = {}
+	var best_score: float = INF
 	for player: Vector2i in open_tiles:
+		if player.x + player.y < interior_min_sum:
+			continue
 		for target: Vector2i in open_tiles:
+			if target.x + target.y < interior_min_sum:
+				continue
 			if PathUtils.manhattan(player, target) != 6 or not PathUtils.has_line_of_sight(grid, player, target):
 				continue
 			var hidden_neighbors: Array[Vector2i] = []
@@ -1026,12 +1045,42 @@ func _find_umbra_reveal_placement(layout: Dictionary) -> Dictionary:
 				var neighbor: Vector2i = target + direction
 				if not open_tiles.has(neighbor) or PathUtils.manhattan(player, neighbor) <= 6:
 					continue
+				if neighbor.x + neighbor.y < interior_min_sum:
+					continue
 				hidden_neighbors.append(neighbor)
 			if hidden_neighbors.size() < 2:
 				continue
 			var enemies: Array[Vector2i] = _vector2i_array([target, hidden_neighbors[0], hidden_neighbors[1]])
-			return {"player": player, "target": target, "enemies": enemies}
-	return {}
+			var score: float = absf(float(player.x + player.y) - middle_sum)
+			for enemy_tile: Vector2i in enemies:
+				score += absf(float(enemy_tile.x + enemy_tile.y) - middle_sum)
+			if score < best_score:
+				best_score = score
+				best = {"player": player, "target": target, "enemies": enemies}
+	return best
+
+func _assert_umbra_actor_framing(expected_count: int) -> void:
+	var board: Control = _run_scene.get("board_view") as Control
+	_assert_capture(board != null, "Umbra capture must expose the production combat board")
+	if board == null:
+		return
+	board.call("_rebuild_hud_health_rects_cache")
+	var health_rects: Dictionary = board.get("_hud_health_rects_cache") as Dictionary
+	var safe_frame := Rect2(Vector2(12.0, 12.0), CAPTURE_OUTPUT_SIZE - Vector2(24.0, 24.0))
+	var actor_count: int = 0
+	var health_top: float = INF
+	for unit_var: Variant in board.call("_visible_units"):
+		var unit: Dictionary = unit_var as Dictionary
+		var actor_key: String = str(unit.get("key", ""))
+		var art_rect: Rect2 = board.call("_unit_draw_rect", unit)
+		var health_rect: Rect2 = health_rects.get(actor_key, Rect2()) as Rect2
+		_assert_capture(health_rect.has_area(), "Visible Umbra actor must retain its health bar: %s" % actor_key)
+		var actor_bounds: Rect2 = board.get_global_transform_with_canvas() * art_rect.merge(health_rect)
+		_assert_capture(safe_frame.encloses(actor_bounds), "Umbra actor and overhead HP must fit the native capture: %s %s" % [actor_key, str(actor_bounds)])
+		health_top = minf(health_top, (board.get_global_transform_with_canvas() * health_rect).position.y)
+		actor_count += 1
+	_assert_capture(actor_count == expected_count, "Umbra framing proof must include %d visible actors" % expected_count)
+	print("STEAM_TRAILER_UMBRA_FRAMING actors=%d health_top=%.2f output=1920x1080 ui_scale=1.00" % [actor_count, health_top])
 
 func _umbra_visible_enemy_count(combat_state: Dictionary) -> int:
 	var visible_tiles: Array[Vector2i] = _combat_engine.umbra_visible_tiles(combat_state)

@@ -10120,6 +10120,9 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 					break
 		var font_scale: float = clampf(float(entry.get("font_scale", 1.0)), 0.1, 2.0) * layout_scale
 		var motion: Vector2 = entry.get("motion_offset", Vector2.ZERO)
+		var motion_scale: float = layout_scale if is_equal_approx(layout_scale, 1.0) else layout_scale * 0.5
+		if not bool(popup["reduced_motion"]):
+			motion *= motion_scale
 		var anchor: Vector2 = _floating_text_local_origin(tile, label_width * layout_scale) if bool(popup["automatic_anchor"]) else _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), float(entry.get("anchor_y", -84.0)))
 		var origin: Vector2 = _floating_text_local_origin(tile, label_width * font_scale) if bool(popup["automatic_anchor"]) else anchor
 		if bool(popup["automatic_anchor"]):
@@ -10141,8 +10144,12 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		ascent = maxf(ascent, float(entry.get("icon_size", 0.0)))
 		var outline: float = float(entry.get("outline_size", 2))
 		var shadow: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
-		var peak_origin: Vector2 = anchor + motion + extra_offset
+		var peak_origin: Vector2 = anchor + (motion if bool(popup["reduced_motion"]) else Vector2(motion.x, 0.0)) + extra_offset
 		var envelope := Rect2(peak_origin + Vector2((glyph_inset - outline) * layout_scale, -(ascent + outline) * layout_scale), Vector2((glyph_width + outline * 2.0 + absf(shadow.x)) * layout_scale, (ascent + descent + outline * 2.0 + absf(shadow.y)) * layout_scale)).grow(3.0)
+		if not bool(popup["reduced_motion"]):
+			# Reserve the whole rise/fall, so later hits cannot enter an older
+			# popup's lane as their differently timed arcs converge.
+			envelope = envelope.grow_individual(0.0, FloatingCombatText.ARC_RISE_HEIGHT * motion_scale, 0.0, FloatingCombatText.ARC_END_DROP * motion_scale)
 		var rendered_rect := Rect2(origin + Vector2((glyph_inset - outline) * font_scale, -(ascent + outline) * font_scale), Vector2((glyph_width + outline * 2.0 + absf(shadow.x)) * font_scale, (ascent + descent + outline * 2.0 + absf(shadow.y)) * font_scale))
 		popup["rendered_rect"] = rendered_rect
 		popup["origin"] = origin

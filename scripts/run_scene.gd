@@ -22399,6 +22399,8 @@ func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_event
 	var floats: Array[Dictionary] = []
 	if fatigue_events.is_empty():
 		return floats
+	# These dictionaries are rebuilt each frame; the local event owns their IDs.
+	var popup_id: String = FloatingCombatText.ensure_screen_layout_id(fatigue_events[0])
 	var player_tile: Vector2i = (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var total_damage: int = 0
 	for event_var: Variant in fatigue_events:
@@ -22411,10 +22413,12 @@ func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_event
 			"-%d" % total_damage,
 			Color("f39779"),
 			{
-				"outline_color": Color("270806")
+				"outline_color": Color("270806"),
+				"screen_layout_id": popup_id + "/damage"
 			}
 		))
 	floats.append({
+		"screen_layout_id": popup_id + "/effect",
 		"tile": player_tile,
 		"text": "fatigue sets in",
 		"color": Color("ff695f"),
