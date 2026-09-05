@@ -12,9 +12,11 @@ OUTPUT_DIR = TRAILER_DIR / "public" / "title-cards"
 SCALE = 4
 
 CARDS = (
-    ("turn-the-room", "TURN THE ROOM", 46, "#fff0c8", 0.025),
-    ("against-them", "AGAINST THEM", 46, "#f19a3e", 0.025),
-    ("fight-the-dark", "FIGHT THE DARK", 46, "#fff0c8", 0.025),
+    ("turn-the-room", "TURN THE ROOM", 128, "#fff0c8", 0.025),
+    ("against-them", "AGAINST THEM", 128, "#f19a3e", 0.025),
+    ("fight-the-dark", "FIGHT THE DARK", 128, "#fff0c8", 0.025),
+    ("build-your-deck", "BUILD YOUR DECK", 128, "#fff0c8", 0.025),
+    ("shape-your-run", "SHAPE YOUR RUN", 128, "#fff0c8", 0.025),
     ("go-deeper", "GO DEEPER", 62, "#fff0c8", 0.025),
     ("this-prison", "THIS PRISON", 112, "#fff0c8", 0.035),
     ("has-no-exit", "HAS NO EXIT", 112, "#f19a3e", 0.035),

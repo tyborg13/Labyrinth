@@ -18,86 +18,88 @@ const clamp = {
 };
 const ease = Easing.bezier(0.22, 1, 0.36, 1);
 
-/** Source-frame cues are aligned to the encoded current-build captures, after pre-roll removal.
- * Keep source trims, playback speed, and sound cues together when recapturing. */
+/** Cues refer to encoded source frames, after capture pre-roll removal. Later
+ * combat beats trim repeated aiming lead-in; every play and result stays real.
+ * `impact` locates the sound at the first authored effect, not necessarily HP
+ * loss: Root Snare cracks begin65, travel68–72, and damage/light arrive73. */
 export const SHOTS = {
   trap: {
     clip: "trap_combo",
-    frames: 159,
+    frames: 108,
     sourceIn: 0,
     rate: 1,
     commit: 44,
     impact: 65,
   },
+  reward: { clip: "spell", frames: 126, sourceIn: 0, rate: 1, selection: 77 },
   umbra: {
     clip: "umbra",
-    frames: 150,
+    frames: 102,
     sourceIn: 0,
     rate: 1,
     commit: 44,
     impact: 61,
   },
-  route: { clip: "route", frames: 96, sourceIn: 0, rate: 1 },
-  relic: { clip: "relic", frames: 99, sourceIn: 0, rate: 1, selection: 60 },
-  pickup: { clip: "equipment", frames: 60, sourceIn: 18, rate: 1 },
+  route: { clip: "route", frames: 45, sourceIn: 12, rate: 1 },
+  shop: { clip: "merchant", frames: 114, sourceIn: 0, rate: 1, selection: 64 },
   equipment: {
     clip: "equipment",
-    frames: 81,
+    frames: 66,
     sourceIn: 108,
     rate: 0.8,
     selection: 126,
   },
-  aoe: {
-    clip: "aoe",
-    frames: 159,
-    sourceIn: 0,
+  air: {
+    clip: "air",
+    frames: 81,
+    sourceIn: 18,
     rate: 1,
     commit: 44,
-    impact: 61,
+    impact: 63,
+  },
+  earth: {
+    clip: "earth",
+    frames: 84,
+    sourceIn: 18,
+    rate: 1,
+    commit: 44,
+    impact: 65,
+  },
+  lightning: {
+    clip: "lightning",
+    frames: 85,
+    sourceIn: 18,
+    rate: 1,
+    commit: 44,
+    impact: 57,
   },
 } as const;
 
-const CHOICE_FADE = 6;
+const ORDER = [
+  "trap",
+  "reward",
+  "umbra",
+  "route",
+  "shop",
+  "equipment",
+  "air",
+  "earth",
+  "lightning",
+] as const;
 const END_FADE = 12;
-const END_FRAMES = 153;
-export const START = {
-  trap: 0,
-  umbra: SHOTS.trap.frames,
-  route: SHOTS.trap.frames + SHOTS.umbra.frames,
-  relic:
-    SHOTS.trap.frames + SHOTS.umbra.frames + SHOTS.route.frames - CHOICE_FADE,
-  pickup:
-    SHOTS.trap.frames +
-    SHOTS.umbra.frames +
-    SHOTS.route.frames -
-    CHOICE_FADE +
-    SHOTS.relic.frames,
-  equipment:
-    SHOTS.trap.frames +
-    SHOTS.umbra.frames +
-    SHOTS.route.frames -
-    CHOICE_FADE +
-    SHOTS.relic.frames +
-    SHOTS.pickup.frames,
-  aoe:
-    SHOTS.trap.frames +
-    SHOTS.umbra.frames +
-    SHOTS.route.frames -
-    CHOICE_FADE +
-    SHOTS.relic.frames +
-    SHOTS.pickup.frames +
-    SHOTS.equipment.frames,
-  final:
-    SHOTS.trap.frames +
-    SHOTS.umbra.frames +
-    SHOTS.route.frames -
-    CHOICE_FADE +
-    SHOTS.relic.frames +
-    SHOTS.pickup.frames +
-    SHOTS.equipment.frames +
-    SHOTS.aoe.frames -
-    END_FADE,
-} as const;
+const END_FRAMES = 132;
+type ShotKey = (typeof ORDER)[number];
+const shotStarts = (): Record<ShotKey | "final", number> => {
+  const starts = {} as Record<ShotKey | "final", number>;
+  let cursor = 0;
+  for (const key of ORDER) {
+    starts[key] = cursor;
+    cursor += SHOTS[key].frames;
+  }
+  starts.final = cursor - END_FADE;
+  return starts;
+};
+export const START = shotStarts();
 export const TRAILER_DURATION = START.final + END_FRAMES;
 
 type Shot = { clip: string; frames: number; sourceIn: number; rate: number };
@@ -117,41 +119,45 @@ const TitleArt: React.FC<{
       alt={alt}
       className={className}
       style={{
-        opacity: interpolate(frame, [enterAt, enterAt + 10], [0, 1], clamp),
-        transform: `translateY(${interpolate(frame, [enterAt, enterAt + 20], [12, 0], { ...clamp, easing: ease })}px)`,
+        opacity: interpolate(frame, [enterAt, enterAt + 5], [0, 1], clamp),
+        transform: `translateY(${interpolate(frame, [enterAt, enterAt + 14], [14, 0], { ...clamp, easing: ease })}px)`,
       }}
     />
   );
 };
 
+/** Large, horizontally centered copy is readable at a 390px phone width. The
+ * combat title clears before the real center-card play. The reward title sits
+ * above the cards; the shop title clears within its first second of browsing. */
 const Caption: React.FC<{
   lines: readonly [string, string][];
-  exitAt: number;
-  right?: boolean;
-}> = ({ lines, exitAt, right = false }) => {
+  exitAt?: number;
+  menu?: boolean;
+}> = ({ lines, exitAt = 34, menu = false }) => {
   const frame = useCurrentFrame();
+  const opacity = interpolate(frame, [exitAt, exitAt + 9], [1, 0], clamp);
   return (
-    <div
-      className={`shot-caption${right ? " shot-caption-right" : ""}`}
-      style={{
-        opacity: interpolate(frame, [exitAt, exitAt + 10], [1, 0], clamp),
-      }}
+    <AbsoluteFill
+      className={menu ? "caption-layer caption-layer-menu" : "caption-layer"}
+      style={{ opacity }}
     >
-      {lines.map(([slug, alt], index) => (
-        <TitleArt
-          key={slug}
-          slug={slug}
-          alt={alt}
-          className="shot-caption-line"
-          enterAt={3 + index * 3}
-        />
-      ))}
-    </div>
+      <div className="caption-scrim" />
+      <div className="shot-caption">
+        {lines.map(([slug, alt], index) => (
+          <TitleArt
+            key={slug}
+            slug={slug}
+            alt={alt}
+            className="shot-caption-line"
+            enterAt={index * 2}
+          />
+        ))}
+      </div>
+    </AbsoluteFill>
   );
 };
 
-/** The native HUD has a ten-pixel edge margin. Keep the exact production frame:
- * even a small global push crops room text and moves control edges out of view. */
+/** Keep the exact production frame: the native HUD has a ten-pixel edge margin. */
 const Gameplay: React.FC<{ shot: Shot; children?: React.ReactNode }> = ({
   shot,
   children,
@@ -177,13 +183,13 @@ const EndCard: React.FC = () => {
         src={staticFile("game-assets/art/ui/main_menu_umbra_dragon.png")}
         className="end-art"
         style={{
-          transform: `scale(${interpolate(frame, [0, END_FRAMES], [1.025, 1.055], clamp)})`,
+          transform: `scale(${interpolate(frame, [0, END_FRAMES], [1.025, 1.05], clamp)})`,
         }}
       />
       <AbsoluteFill
         style={{
           background:
-            "linear-gradient(90deg, rgba(6,4,9,.96) 0%, rgba(6,4,9,.85) 35%, rgba(6,4,9,.28) 64%, rgba(6,4,9,.02) 100%)",
+            "radial-gradient(ellipse at 50% 49%, rgba(6,4,9,.88) 0%, rgba(6,4,9,.65) 43%, rgba(6,4,9,.2) 100%)",
         }}
       />
       <div className="title-lockup">
@@ -191,18 +197,18 @@ const EndCard: React.FC = () => {
           slug="escape"
           alt="ESCAPE"
           className="title-escape-art"
-          enterAt={3}
+          enterAt={2}
         />
         <TitleArt
           slug="the-umbra"
           alt="THE UMBRA"
           className="title-umbra-art"
-          enterAt={6}
+          enterAt={4}
         />
       </div>
       <div
         className="steam-cta"
-        style={{ opacity: interpolate(frame, [14, 24], [0, 1], clamp) }}
+        style={{ opacity: interpolate(frame, [10, 18], [0, 1], clamp) }}
       >
         <Img
           src={staticFile("title-cards/wishlist-on.png")}
@@ -233,6 +239,14 @@ const Effect: React.FC<{
   </Sequence>
 );
 
+const COMBAT_SOUNDS = [
+  ["trap", "elemental/fire_attack", 0.62],
+  ["umbra", "attack_ranged_bow", 0.5],
+  ["air", "elemental/air_attack", 0.59],
+  ["earth", "elemental/earth_attack", 0.66],
+  ["lightning", "elemental/lightning_attack", 0.63],
+] as const;
+
 const Soundtrack: React.FC = () => (
   <>
     <Audio
@@ -247,27 +261,32 @@ const Soundtrack: React.FC = () => (
         )
       }
     />
+    {COMBAT_SOUNDS.map(([key, sound, volume]) => (
+      <Sequence key={key} from={START[key]}>
+        <Effect
+          from={sourceCue(SHOTS[key], SHOTS[key].commit)}
+          file="card_play_take"
+          volume={0.45}
+          frames={24}
+        />
+        <Effect
+          from={sourceCue(SHOTS[key], SHOTS[key].impact)}
+          file={sound}
+          volume={volume}
+        />
+      </Sequence>
+    ))}
     <Effect
-      from={START.trap + sourceCue(SHOTS.trap, SHOTS.trap.commit)}
-      file="card_play_take"
-      volume={0.5}
-      frames={24}
+      from={START.reward + sourceCue(SHOTS.reward, SHOTS.reward.selection)}
+      file="reward_collect"
+      volume={0.28}
+      frames={30}
     />
     <Effect
-      from={START.trap + sourceCue(SHOTS.trap, SHOTS.trap.impact)}
-      file="elemental/fire_attack"
-      volume={0.62}
-    />
-    <Effect
-      from={START.umbra + sourceCue(SHOTS.umbra, SHOTS.umbra.commit)}
-      file="card_play_take"
-      volume={0.42}
-      frames={24}
-    />
-    <Effect
-      from={START.umbra + sourceCue(SHOTS.umbra, SHOTS.umbra.impact)}
-      file="attack_ranged_bow"
-      volume={0.5}
+      from={START.shop + sourceCue(SHOTS.shop, SHOTS.shop.selection)}
+      file="reward_collect"
+      volume={0.24}
+      frames={30}
     />
     <Effect
       from={
@@ -277,83 +296,57 @@ const Soundtrack: React.FC = () => (
       volume={0.26}
       frames={30}
     />
-    <Effect
-      from={START.aoe + sourceCue(SHOTS.aoe, SHOTS.aoe.commit)}
-      file="card_play_take"
-      volume={0.45}
-      frames={24}
-    />
-    <Effect
-      from={START.aoe + sourceCue(SHOTS.aoe, SHOTS.aoe.impact)}
-      file="elemental/fire_attack"
-      volume={0.66}
-    />
   </>
 );
 
-/** A complete tactical payoff opens the trailer. Darkness, choices, and a bigger
- * payoff build on that promise; the title and wishlist remain legible together. */
+const shotCaption = (key: ShotKey): React.ReactNode => {
+  switch (key) {
+    case "trap":
+      return (
+        <Caption
+          lines={[
+            ["turn-the-room", "TURN THE ROOM"],
+            ["against-them", "AGAINST THEM"],
+          ]}
+        />
+      );
+    case "reward":
+      return (
+        <Caption
+          lines={[["build-your-deck", "BUILD YOUR DECK"]]}
+          menu
+          exitAt={40}
+        />
+      );
+    case "umbra":
+      return <Caption lines={[["fight-the-dark", "FIGHT THE DARK"]]} />;
+    case "shop":
+      return (
+        <Caption
+          lines={[["shape-your-run", "SHAPE YOUR RUN"]]}
+          menu
+          exitAt={22}
+        />
+      );
+    default:
+      return null;
+  }
+};
+
+/** One tactical payoff leads to reward choice, darkness, and the shop. A quick
+ * elemental run then shows push, earth, and chain attacks without inert tails. */
 export const EscapeTheUmbraTrailer: React.FC = () => (
   <AbsoluteFill style={{ background: "#08060a" }}>
     <TransitionSeries>
-      <TransitionSeries.Sequence
-        durationInFrames={SHOTS.trap.frames}
-        premountFor={FPS}
-      >
-        <Gameplay shot={SHOTS.trap}>
-          <Caption
-            lines={[
-              ["turn-the-room", "TURN THE ROOM"],
-              ["against-them", "AGAINST THEM"],
-            ]}
-            exitAt={40}
-          />
-        </Gameplay>
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence
-        durationInFrames={SHOTS.umbra.frames}
-        premountFor={FPS}
-      >
-        <Gameplay shot={SHOTS.umbra}>
-          <Caption lines={[["fight-the-dark", "FIGHT THE DARK"]]} exitAt={40} />
-        </Gameplay>
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence
-        durationInFrames={SHOTS.route.frames}
-        premountFor={FPS}
-      >
-        <Gameplay shot={SHOTS.route}>
-          <Caption lines={[["go-deeper", "GO DEEPER"]]} exitAt={76} right />
-        </Gameplay>
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={fade()}
-        timing={linearTiming({ durationInFrames: CHOICE_FADE })}
-      />
-      <TransitionSeries.Sequence
-        durationInFrames={SHOTS.relic.frames}
-        premountFor={FPS}
-      >
-        <Gameplay shot={SHOTS.relic} />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence
-        durationInFrames={SHOTS.pickup.frames}
-        premountFor={FPS}
-      >
-        <Gameplay shot={SHOTS.pickup} />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence
-        durationInFrames={SHOTS.equipment.frames}
-        premountFor={FPS}
-      >
-        <Gameplay shot={SHOTS.equipment} />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence
-        durationInFrames={SHOTS.aoe.frames}
-        premountFor={FPS}
-      >
-        <Gameplay shot={SHOTS.aoe} />
-      </TransitionSeries.Sequence>
+      {ORDER.map((key) => (
+        <TransitionSeries.Sequence
+          key={key}
+          durationInFrames={SHOTS[key].frames}
+          premountFor={FPS}
+        >
+          <Gameplay shot={SHOTS[key]}>{shotCaption(key)}</Gameplay>
+        </TransitionSeries.Sequence>
+      ))}
       <TransitionSeries.Transition
         presentation={fade()}
         timing={linearTiming({ durationInFrames: END_FADE })}

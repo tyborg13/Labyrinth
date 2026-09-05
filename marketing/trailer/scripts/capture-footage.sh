@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TASK_ID="${LABYRINTH_TASK_ID:-create-escape-the-umbra-steam-trailer-with-remotion}"
 FOOTAGE_DIR="${REPO_ROOT}/marketing/trailer/public/footage"
-ALL_CLIPS=(route prebattle trap_combo aoe umbra merchant relic spell magic_equip equipment)
+ALL_CLIPS=(route prebattle trap_combo aoe earth air lightning umbra merchant relic spell magic_equip equipment)
 if (( $# > 0 )); then
   CLIPS=("$@")
 else

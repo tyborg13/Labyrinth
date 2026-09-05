@@ -8,23 +8,47 @@ body {
   margin: 0;
   background: #08060a;
 }
+.caption-layer {
+  pointer-events: none;
+}
+.caption-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 30% at 50% 48%,
+    rgba(5, 3, 7, 0.9) 0%,
+    rgba(5, 3, 7, 0.64) 48%,
+    rgba(5, 3, 7, 0) 100%
+  );
+}
 .shot-caption {
   position: absolute;
-  left: 52px;
-  bottom: 22px;
-  width: 350px;
-  filter: drop-shadow(0 3px 0 #110b08) drop-shadow(0 6px 14px #000);
-}
-.shot-caption-right {
-  left: auto;
-  right: 108px;
-  width: 430px;
+  left: 50%;
+  top: 48%;
+  width: 1560px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  filter: drop-shadow(0 5px 0 #110b08) drop-shadow(0 8px 20px #000);
 }
 .shot-caption-line {
   display: block;
   max-width: 100%;
+  width: auto;
   height: auto;
-  margin-top: 8px;
+}
+.caption-layer-menu .shot-caption {
+  top: 20%;
+}
+.caption-layer-menu .caption-scrim {
+  background: radial-gradient(
+    ellipse 63% 19% at 50% 20%,
+    rgba(5, 3, 7, 0.84) 0%,
+    rgba(5, 3, 7, 0.47) 53%,
+    rgba(5, 3, 7, 0) 100%
+  );
 }
 .end-art {
   width: 100%;
@@ -33,9 +57,13 @@ body {
 }
 .title-lockup {
   position: absolute;
-  left: 116px;
-  top: 246px;
-  width: 980px;
+  left: 50%;
+  top: 250px;
+  width: 1100px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.7));
 }
 .title-escape-art,
@@ -49,20 +77,21 @@ body {
 }
 .steam-cta {
   position: absolute;
-  left: 121px;
-  top: 700px;
+  left: 50%;
+  top: 680px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 28px;
 }
 .steam-cta-copy {
   width: auto;
-  height: 75px;
+  height: 86px;
   object-fit: contain;
 }
 .steam-logo {
   display: block;
-  width: 320px;
+  width: 350px;
   height: auto;
   object-fit: contain;
 }

@@ -118,6 +118,8 @@ func _capture_requested_clip() -> void:
 			await _capture_trap_combo()
 		"aoe":
 			await _capture_aoe_combo()
+		"earth", "air", "lightning":
+			await _capture_elemental_action(_clip_id)
 		"umbra":
 			await _capture_umbra_reveal()
 		"merchant":
@@ -155,7 +157,7 @@ func _seed_showcase_run() -> void:
 			state = _build_prebattle_origin_state(state)
 		"trap_combo":
 			state = _build_target_room_state(state, "spell", 2)
-		"aoe":
+		"aoe", "earth", "air", "lightning":
 			state = _build_target_room_state(state, "spell", 3)
 		"umbra":
 			state = _build_target_room_state(state, "spell", 6)
@@ -176,6 +178,10 @@ func _seed_showcase_run() -> void:
 			state["held_embers"] = 11
 			state["unbanked_embers"] = 11
 	_run_scene.call("_load_run_state", state)
+	if _clip_id == "spell":
+		# Delay the loaded intro while hidden; the clip starts the same production
+		# reward reveal after the native capture is visible.
+		_run_scene.set("_reward_intro_in_progress", true)
 	_suppress_current_room_dialogue()
 
 
@@ -608,6 +614,78 @@ func _capture_aoe_combo() -> void:
 	])
 	await _settle(1.4)
 
+func _capture_elemental_action(element: String) -> void:
+	var layout: Dictionary = _generated_combat_layout(element)
+	var offsets: Array = []
+	var card_id: String = ""
+	var hand: Array[String] = []
+	match element:
+		"earth":
+			offsets = [Vector2i.ZERO, Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(0, 2)]
+			card_id = "root_snare"
+			hand = _string_array([card_id, "grave_mortar", "basalt_guard"])
+		"air":
+			offsets = [Vector2i.ZERO, Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(0, 2)]
+			card_id = "updraft"
+			hand = _string_array([card_id, "gust_step", "dawnstep"])
+		"lightning":
+			offsets = [Vector2i.ZERO, Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(3, 1), Vector2i(3, 2), Vector2i(2, 2)]
+			card_id = "storm_relay"
+			hand = _string_array([card_id, "static_lash", "volt_surge"])
+	var center: Vector2i = _find_clear_pattern_anchor(layout, offsets)
+	_assert_capture(center != INVALID_TILE, "Generated %s room must offer a clear legal action cluster" % element)
+	layout["player_start"] = center
+	var target: Vector2i = center
+	match element:
+		"earth":
+			target = center + Vector2i(3, 0)
+			layout["enemies"] = [_enemy(1, "crawler", target), _enemy(2, "acolyte", center + Vector2i(0, 2))]
+		"air":
+			target = center + Vector2i(1, 0)
+			layout["enemies"] = [_enemy(1, "crawler", target), _enemy(2, "acolyte", center + Vector2i(0, 2))]
+		"lightning":
+			target = center + Vector2i(3, 0)
+			layout["enemies"] = [_enemy(1, "crawler", target), _enemy(2, "harrier", center + Vector2i(3, 2)), _enemy(3, "acolyte", center + Vector2i(2, 2))]
+	layout["traps"] = []
+	var state: Dictionary = _create_showcase_combat(layout, hand)
+	state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 2 if element == "lightning" else 0, "air": 1 if element == "air" else 0, "earth": 0}
+	_apply_combat_state(layout, state)
+	_show_run_scene()
+	await _settle(0.4)
+	_assert_umbra_actor_framing((state.get("enemies", []) as Array).size() + 1)
+	await _play_showcase_card(card_id, target, target + Vector2i(1, 0))
+	var after_state: Dictionary = _capture_combat_result_state()
+	match element:
+		"earth":
+			var snared: Dictionary = (after_state.get("enemies", []) as Array)[0] as Dictionary
+			_assert_capture(int(snared.get("hp", 0)) > 0 and int(snared.get("hp", 0)) < int(((state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)), "Root Snare must damage its full-health target through the real ranged attack")
+			_assert_capture(bool(snared.get("immobilize", false)), "Root Snare must immobilize its real target")
+			var light_sources: Array = (after_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array
+			_assert_capture(not light_sources.is_empty(), "Root Snare must create its real impact Light")
+			print("STEAM_TRAILER_EARTH_SNARE target=%s hp=%d immobilized=true lights=%d" % [str(target), int(snared.get("hp", 0)), light_sources.size()])
+		"air":
+			var pushed: Dictionary = (after_state.get("enemies", []) as Array)[0] as Dictionary
+			_assert_capture(pushed.get("pos", INVALID_TILE) == target + Vector2i(2, 0), "Updraft must push its real target exactly two clear tiles")
+			_assert_capture(int(pushed.get("hp", 0)) > 0 and int(pushed.get("hp", 0)) < int(((state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)), "Updraft must damage and leave its full-health target alive")
+			print("STEAM_TRAILER_AIR_DISPLACEMENT from=%s to=%s hp=%d" % [str(target), str(pushed.get("pos")), int(pushed.get("hp", 0))])
+		"lightning":
+			var enemies_before: Array = state.get("enemies", []) as Array
+			var enemies_after: Array = after_state.get("enemies", []) as Array
+			_assert_capture(enemies_after.size() == 3, "Storm Relay must preserve its three real targets")
+			for index: int in range(enemies_after.size()):
+				var enemy: Dictionary = enemies_after[index] as Dictionary
+				_assert_capture(int(enemy.get("hp", 0)) < int((enemies_before[index] as Dictionary).get("hp", 0)), "Storm Relay must damage every linked target")
+				_assert_capture(int(enemy.get("shock", 0)) > 0, "Storm Relay must apply production shock to every linked target")
+	_assert_umbra_actor_framing(_live_enemy_count(after_state) + 1)
+	print("STEAM_TRAILER_ELEMENT_RESULT element=%s card=%s room=%s depth=%d furnished=%s natural_play=true full_health_targets=true raw_frame=%d" % [element, card_id, str(layout.get("coord", INVALID_ROOM)), int(layout.get("depth", 0)), str(_layout_furnishing_summary(layout)), Engine.get_frames_drawn()])
+	await _settle(0.75)
+
+func _string_array(values: Array) -> Array[String]:
+	var result: Array[String] = []
+	for value: Variant in values:
+		result.append(str(value))
+	return result
+
 func _capture_umbra_reveal() -> void:
 	var layout: Dictionary = _generated_combat_layout("umbra")
 	var placement: Dictionary = _find_umbra_reveal_placement(layout)
@@ -652,30 +730,32 @@ func _capture_merchant_purchase() -> void:
 	var merchant_kind: String = _run_engine.merchant_kind_for_current_room(state)
 	var offers: Array = _run_engine.merchant_offer_ids(state, merchant_kind)
 	_assert_capture(current != Vector2i.ZERO, "Merchant capture must not use the starting room")
-	_assert_capture(not merchant_kind.is_empty() and not offers.is_empty(), "Merchant capture must expose real stock")
+	_assert_capture(merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and not offers.is_empty(), "Merchant capture must expose the current real Scavenger shop")
+	var shop: Control = _run_scene.get("_scavenger_shop_view") as Control
+	_assert_capture(shop != null and shop.is_visible_in_tree(), "Merchant capture must show the full production shop")
+	var canvas: Control = shop.get("_canvas") as Control
+	_assert_capture(Rect2(Vector2.ZERO, CAPTURE_OUTPUT_SIZE).encloses(canvas.get_global_rect()), "Full native shop canvas must fit the capture")
 	var item_id: String = str(offers[0])
 	for offer_var: Variant in offers:
 		var candidate: String = str(offer_var)
-		if _run_engine.merchant_buy_cost(merchant_kind, candidate) < _run_engine.merchant_buy_cost(merchant_kind, item_id):
+		if _run_engine.merchant_item_kind(candidate) == "magic":
 			item_id = candidate
-	var tooltip_key: String = ("equipment:" if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH else "card:") + item_id
-	var source_row: Control = _find_control_with_tooltip(_run_scene, tooltip_key)
-	_assert_capture(source_row != null, "Merchant capture must find the production shop row")
+			break
+	var offer_sources: Dictionary = shop.get("_offer_sources") as Dictionary
+	var source_row: Control = offer_sources.get("buy:%s" % item_id) as Control
+	_assert_capture(source_row != null, "Merchant capture must find the real selectable shop offer")
+	shop.call("_select_item", item_id, false, source_row)
+	print("STEAM_TRAILER_MERCHANT_BROWSE item=%s raw_frame=%d snapshot=%s" % [item_id, Engine.get_frames_drawn(), str(shop.call("semantic_snapshot"))])
+	await _settle(1.35)
 	var before_embers: int = _run_engine.held_embers(state)
-	_run_scene.call("_on_merchant_row_mouse_entered", merchant_kind, item_id, source_row)
-	await _settle(0.55)
+	print("STEAM_TRAILER_CHOICE_COMMIT clip=merchant item=%s raw_frame=%d" % [item_id, Engine.get_frames_drawn()])
 	await _run_scene.call("_on_merchant_buy_pressed", merchant_kind, item_id, source_row)
+	print("STEAM_TRAILER_CHOICE_COMPLETE clip=merchant item=%s raw_frame=%d" % [item_id, Engine.get_frames_drawn()])
 	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	var after_embers: int = _run_engine.held_embers(after_state)
-	_assert_capture(after_embers < before_embers, "Merchant purchase must spend held embers")
-	print("STEAM_TRAILER_MERCHANT_RESULT room=%s depth=%d merchant=%s item=%s embers=%d->%d" % [
-		str(current),
-		_room_depth_for_state(after_state, current),
-		merchant_kind,
-		item_id,
-		before_embers,
-		after_embers
-	])
+	_assert_capture(after_embers == before_embers - _run_engine.merchant_buy_cost(merchant_kind, item_id), "Merchant purchase must spend exactly the real item price")
+	_assert_capture((after_state.get("magic_inventory", []) as Array).has(item_id), "Purchased magic must enter the real reserve inventory")
+	print("STEAM_TRAILER_MERCHANT_RESULT room=%s depth=%d merchant=%s item=%s embers=%d->%d" % [str(current), _room_depth_for_state(after_state, current), merchant_kind, item_id, before_embers, after_embers])
 	await _settle(0.9)
 
 func _capture_relic_claim() -> void:
@@ -709,8 +789,15 @@ func _capture_relic_claim() -> void:
 	await _settle(1.6)
 
 func _capture_spell_reward() -> void:
+	_run_scene.set("_reward_intro_suppressed", false)
+	_run_scene.set("_reward_reveal_pending", true)
+	_run_scene.call("_refresh_ui")
+	await _settle(0.2)
 	_show_run_scene()
-	await _settle(0.75)
+	print("STEAM_TRAILER_REWARD_REVEAL_START raw_frame=%d" % Engine.get_frames_drawn())
+	await _run_scene.call("_play_reward_reveal")
+	print("STEAM_TRAILER_REWARD_REVEAL_COMPLETE raw_frame=%d" % Engine.get_frames_drawn())
+	await _settle(1.15)
 	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
 	var cards: Array = ((state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array).duplicate()
@@ -726,8 +813,13 @@ func _capture_spell_reward() -> void:
 			str(source_slot.get_viewport_rect().size),
 		]
 	)
+	for offered_id: Variant in cards:
+		var offered_slot: Control = _find_control_with_meta(_run_scene, "reward_card_id", str(offered_id))
+		_assert_capture(offered_slot != null and _control_fully_inside_capture(offered_slot), "Every revealed card must fit the native capture")
 	await _settle(0.45)
+	print("STEAM_TRAILER_CHOICE_COMMIT clip=spell item=%s raw_frame=%d" % [card_id, Engine.get_frames_drawn()])
 	await _run_scene.call("_on_reward_card_pressed", card_id, source_slot)
+	print("STEAM_TRAILER_CHOICE_COMPLETE clip=spell item=%s raw_frame=%d" % [card_id, Engine.get_frames_drawn()])
 	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	_assert_capture((after_state.get("magic_inventory", []) as Array).has(card_id), "Spell reward must enter learned magic inventory")
 	print("STEAM_TRAILER_SPELL_RESULT room=%s depth=%d card=%s mode=%s" % [
@@ -941,6 +1033,14 @@ func _play_showcase_card(card_id: String, target: Vector2i, orientation_confirma
 	await _settle(0.5)
 	await _run_scene.call("_on_card_pressed", 0)
 	_assert_capture(int(_run_scene.get("_selected_card_index")) == 0, "Production card selection must enter target preview for %s" % card_id)
+	if bool(_run_scene.call("_pending_card_requires_confirmation")):
+		# Self-centered attacks use the real confirm action instead of a board target.
+		await _settle(0.45)
+		print("STEAM_TRAILER_CARD_COMMIT card=%s raw_frame=%d hand_index=0 natural_play=true targetless=true" % [card_id, Engine.get_frames_drawn()])
+		await _run_scene.call("_on_confirm_card_play_pressed")
+		print("STEAM_TRAILER_CARD_COMPLETE card=%s raw_frame=%d natural_play=true" % [card_id, Engine.get_frames_drawn()])
+		_assert_capture(not bool(_run_scene.get("_animation_lock")) and int(_run_scene.get("_selected_card_index")) == -1, "Production targetless card must finish cleanly")
+		return
 	_assert_capture((_run_scene.get("_pending_target_tiles") as Array).has(target), "Showcase target must be offered by the current production card preview")
 	_run_scene.call("_on_board_tile_hovered", target)
 	var board: Control = _run_scene.get("board_view") as Control
@@ -956,6 +1056,7 @@ func _play_showcase_card(card_id: String, target: Vector2i, orientation_confirma
 		await _settle(0.35)
 		print("STEAM_TRAILER_CARD_ORIENTATION card=%s target=%s confirmation=%s natural_play=true" % [card_id, str(target), str(orientation_confirmation)])
 		await _run_scene.call("_on_board_tile_clicked", orientation_confirmation)
+	print("STEAM_TRAILER_CARD_COMPLETE card=%s raw_frame=%d natural_play=true" % [card_id, Engine.get_frames_drawn()])
 	_assert_capture(not bool(_run_scene.get("_animation_lock")), "Production card resolution must finish cleanly for %s" % card_id)
 	_assert_capture(int(_run_scene.get("_selected_card_index")) == -1, "Production card resolution must clear selection for %s" % card_id)
 
