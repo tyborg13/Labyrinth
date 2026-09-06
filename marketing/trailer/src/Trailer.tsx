@@ -1,4 +1,5 @@
-import { Audio, Video } from "@remotion/media";
+import { Audio } from "@remotion/media";
+import { NativeGameplay, gameplayAudioPath } from "./NativeSource";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import {
@@ -158,13 +159,7 @@ const Gameplay: React.FC<{ shot: Shot; children?: React.ReactNode }> = ({
           transform: `translate(${cameraValue("x", 0)}px, ${cameraValue("y", 0)}px) scale(${cameraValue("scale", 1)})`,
         }}
       >
-        <Video
-          src={staticFile(`footage/${shot.clip}.mp4`)}
-          trimBefore={shot.sourceIn}
-          muted
-          objectFit="contain"
-          style={{ width: "100%", height: "100%" }}
-        />
+        <NativeGameplay clip={shot.clip} sourceIn={shot.sourceIn} />
       </AbsoluteFill>
       {children}
     </AbsoluteFill>
@@ -235,7 +230,7 @@ const SourceSound: React.FC<{ shot: Shot }> = ({ shot }) => {
   );
   return (
     <Audio
-      src={staticFile(`footage/${shot.clip}.mp4`)}
+      src={gameplayAudioPath(shot.clip)}
       trimBefore={shot.sourceIn}
       volume={volume}
     />

@@ -1,5 +1,6 @@
 extends Control
 
+const FrameSink = preload("res://tools/steam_trailer_frame_sink.gd")
 const RunScene = preload("res://scenes/run_scene.tscn")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
@@ -24,6 +25,13 @@ var _combat_engine = CombatEngineScript.new()
 var _clip_id: String = "route"
 var _capture_seed: int = CAPTURE_SEED
 var _safe_frame_capture: bool = false
+var _render_scale: int = 1
+var _capture_viewport: SubViewport
+var _frame_sink: RefCounted
+var _native_frame_directory: String = ""
+var _native_frames: int = 0
+var _native_frame_wall_usec: PackedInt64Array = PackedInt64Array()
+var _last_native_frame_usec: int = 0
 var _safe_start_frame: int = -1
 var _observed_effect_key: String = ""
 var _observed_impact_key: String = ""
@@ -33,6 +41,12 @@ var _observed_turn_order_running: bool = false
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--native-frame-dir="):
+			_native_frame_directory = argument.trim_prefix("--native-frame-dir=")
+		if argument.begins_with("--render-scale="):
+			_render_scale = int(argument.trim_prefix("--render-scale="))
+	_assert_capture(_render_scale in [1, 2], "Capture render scale must be native 1x or genuine 2x")
 	# Movie output and the real UI share one authored canvas. A fullscreen
 	# desktop viewport otherwise clips the HUD when encoded at 1080p.
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
@@ -58,14 +72,24 @@ func _ready() -> void:
 	_run_scene = RunScene.instantiate()
 	_mount_run_scene_for_capture()
 	_run_scene.visible = false
+	if not _native_frame_directory.is_empty():
+		_frame_sink = FrameSink.new()
+		_assert_capture(_frame_sink.start(_native_frame_directory) == OK, "Native frame spool must start")
+		RenderingServer.frame_post_draw.connect(_spool_native_frame)
 	call_deferred("_capture_requested_clip")
 
 func _mount_run_scene_for_capture() -> void:
 	# A native1080 viewport owns production layout even on a Retina desktop.
 	# All layers remain together; no reward-only repositioning or HUD crop.
 	var capture_viewport := SubViewport.new()
+	_capture_viewport = capture_viewport
 	capture_viewport.name = "GameplayCaptureViewport"
-	capture_viewport.size = Vector2i(1920, 1080)
+	# Draw at the selected raster resolution while preserving the authored UI
+	# coordinates. This is genuine renderer supersampling, never image upscaling.
+	capture_viewport.size = Vector2i(1920, 1080) * _render_scale
+	capture_viewport.size_2d_override = Vector2i(1920, 1080)
+	capture_viewport.size_2d_override_stretch = true
+	capture_viewport.msaa_2d = get_window().msaa_2d
 	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	capture_viewport.gui_disable_input = true
 	add_child(capture_viewport)
@@ -135,6 +159,8 @@ func _capture_requested_clip() -> void:
 			await _capture_elemental_action(_clip_id)
 		"umbra":
 			await _capture_umbra_reveal()
+		"campfire":
+			await _capture_campfire_choice()
 		"merchant":
 			await _capture_merchant_purchase()
 		"relic":
@@ -149,7 +175,8 @@ func _capture_requested_clip() -> void:
 			push_error("Unknown Steam trailer clip: %s" % _clip_id)
 			get_tree().quit(2)
 			return
-	await _settle(0.35)
+	await _settle(0.45)
+	_finish_native_frames()
 	get_tree().quit()
 
 func _seed_showcase_run() -> void:
@@ -190,6 +217,10 @@ func _seed_showcase_run() -> void:
 			state = _build_target_room_state(state, "spell", 3)
 		"umbra":
 			state = _build_target_room_state(state, "spell", 6)
+		"campfire":
+			state = _build_target_room_state(state, "campfire", 2)
+			state["player_hp"] = maxi(1, int(state["player_max_hp"]) - RunEngineScript.CAMPFIRE_LINGER_HEAL)
+			state = _run_engine.set_held_embers(state, 240)
 		"merchant":
 			state = _build_target_room_state(state, "merchant", 4)
 			state = _run_engine.set_held_embers(state, 900)
@@ -374,6 +405,8 @@ func _target_room_matches(room: Dictionary, target: String, min_depth: int) -> b
 	match target:
 		"merchant":
 			return not _run_engine.merchant_kind_for_room(room).is_empty()
+		"campfire":
+			return str(room.get("type", "")) == "campfire"
 		"relic":
 			return str(room.get("type", "")) == "treasure"
 		"spell", "equipment":
@@ -680,11 +713,13 @@ func _capture_tactical_sequence(sequence: String) -> void:
 	await _settle(0.6)
 	_assert_umbra_actor_framing(4)
 	var destination: Vector2i = anchor + (_push_bloom_offset(Vector2i(2, 0)) if sequence == "push_bloom" else Vector2i(-1, 1))
+	await _hold_approved_source_frame(147 if sequence == "push_bloom" else 138)
 	await _move_showcase_player(destination)
 	await _settle(0.6)
 	_assert_umbra_actor_framing(4)
 	var before_payoff: Dictionary = _capture_combat_result_state().duplicate(true)
 	var payoff_target: Vector2i = anchor + _push_bloom_offset(Vector2i(5, 0)) if sequence == "push_bloom" else target
+	await _hold_approved_source_frame(213 if sequence == "push_bloom" else 204)
 	await _play_showcase_card(hand[1], payoff_target)
 	var after_payoff: Dictionary = _capture_combat_result_state().duplicate(true)
 	var before_enemies: Array = before_payoff.get("enemies", []) as Array
@@ -978,6 +1013,33 @@ func _capture_umbra_reveal() -> void:
 	])
 	await _settle(1.4)
 	_assert_umbra_actor_framing(4)
+
+func _capture_campfire_choice() -> void:
+	var before: Dictionary = (_run_scene.get("_run_state") as Dictionary).duplicate(true)
+	_assert_capture(str(before.get("mode")) == "campfire", "Campfire must be entered through the generated run")
+	_show_run_scene()
+	await _settle(1.5)
+	var choices: Control = _run_scene.get("_relic_choice_bar") as Control
+	_assert_capture(choices != null and choices.get_child_count() == 3, "All three production campfire choices must be visible")
+	var linger: PanelContainer = choices.get_child(0) as PanelContainer
+	_assert_capture(linger != null and linger.is_visible_in_tree(), "Production Linger panel must be visible")
+	_cue("campfire_choices_readable", INVALID_TILE, {"hp": before["player_hp"], "max_hp": before["player_max_hp"], "held_embers": _run_engine.held_embers(before)})
+	await _settle(1.6)
+	var accent: Color = linger.get_meta("choice_accent") as Color
+	_run_scene.call("_set_campfire_choice_hovered", linger, accent, true)
+	_cue("campfire_linger_hover")
+	await _settle(0.9)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	_cue("campfire_choice_commit", INVALID_TILE, {"choice": "linger"})
+	await _run_scene.call("_on_campfire_choice_gui_input", click, "linger", linger, accent)
+	var after: Dictionary = _run_scene.get("_run_state") as Dictionary
+	_assert_capture(str(after.get("mode")) == "room", "Linger must resume the run")
+	_assert_capture(int(after["player_hp"]) == mini(int(before["player_max_hp"]), int(before["player_hp"]) + RunEngineScript.CAMPFIRE_LINGER_HEAL), "Linger must heal exactly the production amount")
+	_assert_capture(_run_engine.held_embers(after) == _run_engine.held_embers(before), "Linger must retain held embers")
+	_cue("campfire_choice_complete", INVALID_TILE, {"hp_before": before["player_hp"], "hp_after": after["player_hp"], "mode": after["mode"], "held_embers": _run_engine.held_embers(after)})
+	await _settle(1.8)
 
 func _capture_merchant_purchase() -> void:
 	_show_run_scene()
@@ -1556,3 +1618,52 @@ func _settle(seconds: float) -> void:
 		await get_tree().create_timer(seconds).timeout
 	await get_tree().process_frame
 	await get_tree().process_frame
+
+func _spool_native_frame() -> void:
+	if _safe_start_frame < 0 or Engine.get_frames_drawn() < _safe_start_frame:
+		return
+	var image: Image = _capture_viewport.get_texture().get_image()
+	_assert_capture(image.get_size() == Vector2i(1920, 1080) * _render_scale, "Native frame must have the requested genuine raster size")
+	_assert_capture(_frame_sink.append(_native_frames, image), "Native frame spool must keep up without delaying gameplay")
+	_native_frames += 1
+	# Movie Maker ignores --max-fps when its fixed simulation clock is active.
+	# Pace only the capture thread so production Time.get_ticks_usec effects,
+	# native PCM, and the30fps movie share the same real-time interval.
+	var now: int = Time.get_ticks_usec()
+	if _last_native_frame_usec > 0:
+		var remaining: int = 33333 - (now - _last_native_frame_usec)
+		if remaining > 0:
+			OS.delay_usec(remaining)
+	_last_native_frame_usec = Time.get_ticks_usec()
+	_native_frame_wall_usec.append(_last_native_frame_usec)
+
+func _finish_native_frames() -> void:
+	if _frame_sink == null:
+		return
+	RenderingServer.frame_post_draw.disconnect(_spool_native_frame)
+	var result: Dictionary = _frame_sink.finish()
+	result["source_frames"] = _native_frames
+	result["width"] = 1920 * _render_scale
+	result["height"] = 1080 * _render_scale
+	result["source_frame_offset"] = 0
+	result["frame_wall_usec"] = Array(_native_frame_wall_usec)
+	result["rendering_method"] = RenderingServer.get_current_rendering_method()
+	result["msaa_2d"] = _capture_viewport.msaa_2d
+	result["root_msaa_2d"] = get_window().msaa_2d
+	_assert_capture(_capture_viewport.msaa_2d == get_window().msaa_2d, "Capture must inherit production viewport MSAA")
+	_assert_capture(str(result["failure"]).is_empty() and int(result["written_frames"]) == _native_frames, "Native frame spool must finish without dropped frames")
+	print("STEAM_TRAILER_NATIVE_FRAMES " + JSON.stringify(result))
+	_frame_sink = null
+
+func _exit_tree() -> void:
+	if _frame_sink != null:
+		_finish_native_frames()
+
+func _hold_approved_source_frame(frame: int) -> void:
+	# A fresh take may settle a few frames earlier. Retain the approved idle
+	# recognition beat; never speed up, pause or stretch a production action.
+	var before: int = Engine.get_frames_drawn() - _safe_start_frame
+	_assert_capture(before <= frame, "Take must reach the approved recognition cue on time")
+	while Engine.get_frames_drawn() - _safe_start_frame < frame:
+		await get_tree().process_frame
+	_cue("approved_recognition_hold", INVALID_TILE, {"held_frames": frame - before, "approved_frame": frame})

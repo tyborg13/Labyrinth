@@ -11,7 +11,7 @@ Config.setPixelFormat("yuv420p");
 // primaries and transfer from the bitstream. Declare them during the final mux;
 // h264_metadata changes only headers, without re-encoding the picture samples.
 Config.overrideFfmpegCommand(({type, args}) => {
-  if (type !== "stitcher") return args;
+  if (type !== "stitcher" || !args[args.length - 1].endsWith(".mp4")) return args;
   return [
     ...args.slice(0, -1),
     "-bsf:v",

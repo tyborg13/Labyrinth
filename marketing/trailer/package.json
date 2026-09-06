@@ -26,8 +26,11 @@
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
-    "render": "remotion render EscapeTheUmbraTrailer out/escape-the-umbra-steam-trailer.mp4 --codec h264 --crf 14 --audio-codec aac --audio-bitrate 320k --concurrency=1 --timeout=60000",
-    "stills": "remotion still EscapeTheUmbraTrailer"
+    "render": "python3 scripts/export-quality.py",
+    "stills": "remotion still EscapeTheUmbraTrailer",
+    "render:preview": "remotion render EscapeTheUmbraTrailer out/escape-the-umbra-steam-trailer.mp4 --codec h264 --crf 14 --audio-codec aac --audio-bitrate 320k --concurrency=1 --timeout=60000"
   },
-  "sideEffects": ["*.css"]
+  "sideEffects": [
+    "*.css"
+  ]
 }
