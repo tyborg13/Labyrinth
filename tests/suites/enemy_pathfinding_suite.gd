@@ -13,7 +13,7 @@ static func run(expect: Callable) -> void:
 	_test_directional_aoe_uses_attack_enabling_endpoint(expect)
 	_test_retreat_preserves_followup_attack(expect)
 	_test_attackless_retreat_moves_away_without_projection(expect)
-	_test_shorter_trapped_attack_route_beats_longer_safe_route(expect)
+	_test_safe_attack_route_accounts_for_short_trap_cost(expect)
 	_test_safe_route_beats_equal_length_trap_route(expect)
 	_test_forced_choke_crosses_and_triggers_trap(expect)
 	_test_blocking_terrain_is_cleared(expect)
@@ -163,7 +163,7 @@ static func _test_attackless_retreat_moves_away_without_projection(expect: Calla
 	var advance_support_plan: Dictionary = combat.enemy_intent_plan(advance_support_state, 0)
 	expect.call(not bool(advance_support_plan.get("attack_available", true)) and _tiles(advance_support_plan.get("projected_attack", [])).is_empty(), "Attackless move_toward support intents should not report fallback melee as a real attack")
 
-static func _test_shorter_trapped_attack_route_beats_longer_safe_route(expect: Callable) -> void:
+static func _test_safe_attack_route_accounts_for_short_trap_cost(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var intent: Dictionary = {
 		"name": "Shortest Claw",
@@ -174,8 +174,11 @@ static func _test_shorter_trapped_attack_route_beats_longer_safe_route(expect: C
 	}
 	var traps: Array = [{"id": "trap_3_4", "pos": Vector2i(3, 4), "element": "fire", "damage": 2}]
 	var state: Dictionary = _state(combat, 242, Vector2i(2, 4), [_enemy(Vector2i(4, 4), intent)], [], traps)
-	var path: Array[Vector2i] = _tiles(combat.enemy_intent_plan(state, 0).get("path", []))
-	expect.call(path == _tiles([Vector2i(4, 4), Vector2i(3, 4)]), "Same-turn attacks should use the minimum-step route even when a longer safe route also reaches an attack tile")
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	var path: Array[Vector2i] = _tiles(plan.get("path", []))
+	expect.call(not path.has(Vector2i(3, 4)) and path.size() == 4 and bool(plan.get("attack_available", false)), "A slightly longer safe route should beat a damaging trap shortcut while preserving this turn's attack")
+	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
+	expect.call(int(resolved["enemies"][0]["hp"]) == int(state["enemies"][0]["hp"]) and int(resolved["player"]["hp"]) < int(state["player"]["hp"]), "The chosen detour should avoid the trap and actually deliver its melee attack")
 
 static func _test_safe_route_beats_equal_length_trap_route(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()

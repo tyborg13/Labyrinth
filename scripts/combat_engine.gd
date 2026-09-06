@@ -8086,6 +8086,7 @@ func _best_enemy_direct_attack_candidate(
 	protector_screening_context: Dictionary = {}
 ) -> Dictionary:
 	var best: Dictionary = {}
+	var route_predictions: Dictionary = {}
 	for target: Dictionary in _actor_targets(state):
 		for record: Dictionary in path_records:
 			var destination: Vector2i = record.get("tile", enemy.get("pos", Vector2i.ZERO))
@@ -8095,11 +8096,17 @@ func _best_enemy_direct_attack_candidate(
 			# They do not need a deep copy of the combat state at every anchor.
 			if not _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
 				continue
+			if not route_predictions.has(destination):
+				route_predictions[destination] = _enemy_attack_route_prediction(state, enemy, record)
+			var prediction: Dictionary = route_predictions[destination]
+			if prediction.get("destination", destination) != destination:
+				continue # A trap or new Rubble stopped the route before attack reach.
 			var candidate: Dictionary = {
 				"target": target,
 				"path": record.get("path", []),
 				"destination": destination,
-				"trap_cost": int(record.get("trap_cost", 0)),
+				"trap_cost": int(prediction.get("hazard_cost", 0)),
+				"route_survives": bool(prediction.get("survives", true)),
 				"steps": int(record.get("steps", 0)),
 				"target_distance": _enemy_distance_to_tile(enemy, target.get("pos", Vector2i.ZERO)),
 				"separation": _enemy_distance_to_tile(candidate_enemy, target.get("pos", Vector2i.ZERO)),
@@ -8111,13 +8118,34 @@ func _best_enemy_direct_attack_candidate(
 				),
 				"exit_block_score": _objective_exit_block_score(state, destination),
 				"protector_screen_score": int((protector_screening_context.get("score_by_tile", {}) as Dictionary).get(destination, 0)),
-				"cost": int(record.get("trap_cost", 0)) + int(record.get("steps", 0))
+				"cost": int(prediction.get("hazard_cost", 0)) + int(record.get("steps", 0))
 			}
 			if best.is_empty() or _enemy_direct_attack_candidate_precedes(candidate, best, movement_type):
 				best = candidate
 	return best
 
+func _enemy_attack_route_prediction(state: Dictionary, enemy: Dictionary, record: Dictionary) -> Dictionary:
+	var destination: Vector2i = record.get("tile", enemy.get("pos", INVALID_TILE))
+	if int(record.get("trap_cost", 0)) <= 0:
+		return {"destination": destination, "survives": int(enemy.get("hp", 0)) > 0, "hazard_cost": 0}
+	# Reuse real arrival rules only for hazardous attack routes. This accounts for
+	# defense, one Fire contact per newly entered footprint, and trap-created ground
+	# without copying/simulating every ordinary navigation node or mutating play.
+	var forecast: Dictionary = state.duplicate(true)
+	forecast["damage_context"] = {"actor_kind": "enemy", "player_card": false, "source_kind": "forecast"}
+	var context: Dictionary = {}
+	forecast = _move_enemy_along_planned_path(forecast, _enemy_index_for_id(forecast, int(enemy.get("id", -1))), _vector2i_values(record.get("path", [])), context, int(record.get("steps", 0)))
+	var arrived: Dictionary = _surface_actor(forecast, "enemy", int(enemy.get("id", -1)))
+	var health_lost: int = maxi(0, int(enemy.get("hp", 0)) - int(arrived.get("hp", 0)))
+	var defense_spent: int = maxi(0, int(enemy.get("block", 0)) + int(enemy.get("stoneskin", 0)) - int(arrived.get("block", 0)) - int(arrived.get("stoneskin", 0)))
+	var chill_cost: int = 1 if bool(arrived.get("chilled", false)) and not bool(enemy.get("chilled", false)) else 0
+	return {"destination": arrived.get("pos", destination), "survives": int(arrived.get("hp", 0)) > 0, "hazard_cost": health_lost * 3 + defense_spent + chill_cost, "health_lost": health_lost, "defense_spent": defense_spent}
+
 func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: Dictionary, movement_type: String) -> bool:
+	var candidate_survives: bool = bool(candidate.get("route_survives", true))
+	var incumbent_survives: bool = bool(incumbent.get("route_survives", true))
+	if candidate_survives != incumbent_survives:
+		return candidate_survives
 	if movement_type == "move_away":
 		var candidate_trap_cost: int = int(candidate.get("trap_cost", 0))
 		var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))
@@ -8143,6 +8171,12 @@ func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: D
 		if candidate_steps != incumbent_steps:
 			return candidate_steps < incumbent_steps
 	else:
+		# Hazards are finite costs, but a shorter route must not beat a route that
+		# reaches the same paid attack while keeping its actor alive.
+		var candidate_cost: int = int(candidate.get("cost", 0))
+		var incumbent_cost: int = int(incumbent.get("cost", 0))
+		if candidate_cost != incumbent_cost:
+			return candidate_cost < incumbent_cost
 		var candidate_steps: int = int(candidate.get("steps", 0))
 		var incumbent_steps: int = int(incumbent.get("steps", 0))
 		if candidate_steps != incumbent_steps:

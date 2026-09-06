@@ -16,6 +16,7 @@ static func run(expect: Callable) -> void:
 	_test_atomic_lethal_outcome(combat, expect)
 	_test_invalid_paid_technique(combat, expect)
 	_test_authored_specialist_shock_fuel(combat, expect)
+	_test_enemy_attack_route_survival(combat, expect)
 
 static func _test_large_ice_trap_arrival(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = Base.fixture(combat)
@@ -142,3 +143,57 @@ static func _test_authored_specialist_shock_fuel(combat: Combat, expect: Callabl
 			var denied: Dictionary = combat._surface_pay_enemy_fuel(state, state["enemies"][0], prepared)
 			state = combat._resolve_enemy_action(state, 0, denied["actions"][1])
 			expect.call(int(state["player"].get("shock", 0)) == 0 and int(state["player"]["hp"]) < 1000, "%s denied fuel retains its direct attack but loses all specialist Shock" % enemy_id)
+
+static func _pursuit_fixture(combat: Combat, hp: int = 1) -> Dictionary:
+	var state: Dictionary = Base.fixture(combat)
+	state["enemies"][0]["hp"] = hp
+	for intent: Dictionary in GameData.enemy_def("crawler")["intents"]:
+		if str(intent.get("id", "")) == "skitter_strike":
+			state["enemies"][0]["intent"] = intent
+	Ground.place(state, Vector2i(3, 3), "fire")
+	return state
+
+static func _test_enemy_attack_route_survival(combat: Combat, expect: Callable) -> void:
+	var state: Dictionary = _pursuit_fixture(combat)
+	var before: Dictionary = state.duplicate(true)
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	expect.call(not (plan["path"] as Array).has(Vector2i(3, 3)) and (plan["path"] as Array).size() == 4, "A one-HP crawler uses its safe three-step route to melee instead of the lethal one-step Fire route")
+	expect.call(state == before, "Hazard route prediction must not damage actors, consume traps or award rewards in the live state")
+	var after: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
+	expect.call(int(after["enemies"][0]["hp"]) == 1 and int(after["player"]["hp"]) < 1000, "The safe authored pursuit survives and resolves its melee attack")
+	for defense: String in ["block", "stoneskin"]:
+		state = _pursuit_fixture(combat)
+		state["enemies"][0][defense] = 1
+		plan = combat.enemy_intent_plan(state, 0)
+		expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)], "Current %s makes the direct Fire route survivable and cheaper than detouring" % defense)
+		# Block is deliberately tested within a live movement action: normal turn
+		# start expires old Block before making its plan. Stoneskin also persists.
+		var live_context: Dictionary = plan.duplicate(true)
+		live_context["action_index"] = int(plan["movement_action_index"])
+		after = combat._resolve_enemy_action(state, 0, {"type": "move_toward", "range": 3}, null, {}, [], live_context)
+		expect.call(int(after["enemies"][0]["hp"]) == 1 and int(after["enemies"][0][defense]) == 0, "The predicted %s absorption matches actual Fire entry" % defense)
+	# An unavoidable hazard stays a legal route, even when it is lethal.
+	for hp: int in [1, 2]:
+		state = _pursuit_fixture(combat, hp)
+		for y: int in range((state["grid"] as Array).size()):
+			if y != 3:
+				for x: int in range((state["grid"][y] as Array).size()):
+					state["grid"][y][x] = "wall"
+		plan = combat.enemy_intent_plan(state, 0)
+		expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)], "Unavoidable Fire never becomes an impassable AI wall")
+		after = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
+		expect.call(int(after["enemies"][0]["hp"]) == hp - 1, "An unavoidable route resolves its actual entry damage")
+	# A healthy actor can choose bounded damage over a substantially longer route.
+	state = _pursuit_fixture(combat, 10)
+	state["grid"][2][3] = "wall"
+	state["grid"][4][3] = "wall"
+	state["enemies"][0]["intent"]["actions"][0]["range"] = 7
+	plan = combat.enemy_intent_plan(state, 0)
+	expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)], "Finite hazard cost permits a healthy crawler's short damaging route over a long safe detour")
+	# Two newly entered burning footprint tiles still deal one contact packet.
+	state = _pursuit_fixture(combat, 2)
+	state["enemies"][0]["footprint"] = Vector2i(2, 2)
+	Ground.place(state, Vector2i(3, 4), "fire")
+	var record: Dictionary = {"tile": Vector2i(3, 3), "path": [Vector2i(4, 3), Vector2i(3, 3)], "steps": 1, "trap_cost": 3}
+	var prediction: Dictionary = combat._enemy_attack_route_prediction(state, state["enemies"][0], record)
+	expect.call(bool(prediction["survives"]) and int(prediction["health_lost"]) == 1, "Large-body route survival predicts one Fire contact per entry step, not one per burning footprint tile")

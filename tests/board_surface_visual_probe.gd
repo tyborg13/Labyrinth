@@ -74,12 +74,14 @@ func _initialize() -> void:
 	await _capture("02_prismatic_aim")
 	scene.call("_choose_surface_skill_kind", "ice")
 	assert(not (scene.get("_surface_skill_tiles") as Array).is_empty(), "Prismatic needs real legal targets")
-	scene.call("_cancel_surface_skill_selection")
+	await scene.call("_on_board_cancel_requested")
+	assert(not (scene.get("_surface_aim") as RefCounted).call("active"), "Board cancellation clears Prismatic targeting")
 	scene.call("_begin_surface_skill_selection", "confluence")
 	scene.call("_commit_surface_skill_tile", Vector2i(3, 4))
 	await _capture("03_confluence_destination")
 	assert((scene.get("_surface_aim") as RefCounted).get("origin") == Vector2i(3, 4))
-	scene.call("_cancel_surface_skill_selection")
+	await scene.call("_on_board_cancel_requested")
+	assert(not (scene.get("_surface_aim") as RefCounted).call("active"), "Board cancellation clears Confluence after source selection")
 	scene.call("_on_card_pressed", 2)
 	scene.set("_hovered_board_tile", Vector2i(5, 3))
 	scene.call("_refresh_stage_view")
@@ -156,6 +158,33 @@ func _initialize() -> void:
 			scene.call("_append_surface_action_preview", shown, scene.call("_active_card_preview"))
 			assert((shown.get("surface_preview_events", []) as Array).any(func(event: Dictionary) -> bool: return str(event.get("kind", "")) == "detonate"), "The first click previews its automatic prior-impact Detonate")
 			await _capture("07_crush_preview")
+	scene.call("_reset_card_resolution")
+	var bonus: Dictionary = state.duplicate(true)
+	(bonus["relics"] as Array).append("bloodglass_knife")
+	bonus["player"]["max_hp"] = 100
+	bonus["player"]["hp"] = 30
+	bonus["player"]["block"] = 0
+	bonus["player"]["stoneskin"] = 0
+	Ground.place(bonus, Vector2i(4, 4), "fire")
+	scene.set("_combat_state", bonus)
+	relic_run["combat_state"] = bonus
+	relic_run["relics"] = bonus["relics"]
+	scene.set("_run_state", relic_run)
+	scene.call("_mark_combat_preview_state_changed")
+	scene.call("_refresh_ui")
+	var boosted_display: Dictionary = scene.call("_card_widget_display", "rekindle_edge", bonus)
+	assert(str(boosted_display["summary_bbcode"]).contains("Detonate 15"), "Active Bloodglass modifies the displayed Detonate payoff")
+	await scene.call("_on_card_pressed", 3)
+	scene.set("_hovered_board_tile", Vector2i(4, 4))
+	scene.call("_refresh_stage_view")
+	await _capture("07_detonate_conditional_damage")
+	scene.call("_reset_card_resolution")
+	scene.set("_combat_state", state)
+	relic_run["combat_state"] = state
+	relic_run["relics"] = state["relics"]
+	scene.set("_run_state", relic_run)
+	scene.call("_mark_combat_preview_state_changed")
+	scene.call("_refresh_ui")
 	scene.call("_reset_card_resolution")
 	scene.call("_sync_click_targeting_arrow")
 	scene.set("_animation_lock", true)

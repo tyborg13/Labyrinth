@@ -139,6 +139,10 @@ def main(argv: list[str] | None = None) -> int:
     direct_launch_command = [
         "python3",
         "tools/godot_task_runner.py",
+        # Human inspection ends when the player closes the game. Generation and
+        # verification above retain the runner's bounded default timeout.
+        "--timeout",
+        "0",
         "--task-id",
         task_id,
         "--run-id",

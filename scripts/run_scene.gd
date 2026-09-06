@@ -18327,7 +18327,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		var action_type: String = str(action.get("type", ""))
 		var row: Array = []
 		match action_type:
-			"melee", "ranged", "aoe":
+			"melee", "ranged", "aoe", "detonate":
 				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
 				var attack_visible_modifiers: Array[Dictionary] = attack_damage_modifiers
@@ -20574,7 +20574,7 @@ func _on_board_cancel_requested() -> void:
 	# Right-click/B on the board is contextual cancellation, never a pause-menu
 	# shortcut. Escape and the dedicated menu action remain the explicit ways to
 	# open/close pause UI.
-	if _player_movement_selected or _drag_card_index >= 0 or _card_action_choice_index >= 0 or _selected_card_index >= 0:
+	if _surface_aim.active() or _player_movement_selected or _drag_card_index >= 0 or _card_action_choice_index >= 0 or _selected_card_index >= 0:
 		await _on_cancel_requested()
 
 func _on_cancel_requested() -> void:

@@ -30,9 +30,11 @@ func _initialize() -> void:
 	leaving_ice.assign([Vector2i.ONE, Vector2i(2, 1)])
 	assert(scene.call("_preview_path_hits_lookup", leaving_ice, {Vector2i.ONE: true}), "Leaving Ice must resolve Chill departure in previews")
 	var analytics = preload("res://scripts/analytics_store.gd")
+	var combat := preload("res://scripts/combat_engine.gd").new()
+	await _test_board_surface_cancel(combat)
+	_test_detonate_card_damage(scene, combat)
 	analytics.set_storage_dir("user://surface_presentation_analytics")
 	analytics.clear_storage()
-	var combat := preload("res://scripts/combat_engine.gd").new()
 	_test_rubble_stop_presentation(scene, combat)
 	var state: Dictionary = preload("res://tests/suites/chain_attack_suite.gd").fixture(combat)
 	state["analytics"] = {"combat_id": "surface_dedupe_proof"}
@@ -54,6 +56,46 @@ func _initialize() -> void:
 	resumed.free()
 	print("TEST RESULT: PASS board surface presentation")
 	quit()
+
+func _test_board_surface_cancel(combat: RefCounted) -> void:
+	var view := SubViewport.new()
+	view.size = Vector2i(1920, 1080)
+	root.add_child(view)
+	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
+	view.add_child(scene)
+	await create_timer(0.2).timeout
+	var state: Dictionary = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)
+	var run: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+	run["mode"] = "combat"
+	run["combat_state"] = state
+	scene.set("_run_state", run)
+	scene.set("_combat_state", state)
+	scene.call("_refresh_ui")
+	var before: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	var aim: RefCounted = scene.get("_surface_aim")
+	aim.call("begin", "prismatic_instinct", false)
+	await scene.call("_on_board_cancel_requested")
+	assert(not aim.call("active"), "Board right-click/B must cancel Prismatic targeting")
+	aim.call("begin", "confluence", true)
+	aim.set("origin", Vector2i(3, 4))
+	await scene.call("_on_board_cancel_requested")
+	assert(not aim.call("active") and aim.get("origin") == Vector2i(-1, -1), "Board right-click/B must discard Confluence's selected source")
+	assert(scene.get("_combat_state") == before, "Cancelling ground selection must not spend the ability or change the board")
+	view.queue_free()
+	await process_frame
+
+func _test_detonate_card_damage(scene: Node, combat: RefCounted) -> void:
+	var state: Dictionary = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)
+	state["relics"] = ["bloodglass_knife"]
+	state["player"]["max_hp"] = 100
+	state["player"]["block"] = 0
+	state["player"]["stoneskin"] = 0
+	var action: Dictionary = preload("res://scripts/game_data.gd").card_def("rekindle_edge")["actions"][1]
+	for health: int in [30, 100]:
+		state["player"]["hp"] = health
+		var display: Dictionary = scene.call("_card_widget_display", "rekindle_edge", state)
+		var expected: int = combat.final_damage_for_player_action(state, action)
+		assert((str(display["summary_bbcode"])).contains("Detonate %d" % expected), "Detonate card values must reflect active and inactive conditional damage bonuses")
 
 func _test_rubble_stop_presentation(scene: Node, combat: RefCounted) -> void:
 	var state: Dictionary = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)

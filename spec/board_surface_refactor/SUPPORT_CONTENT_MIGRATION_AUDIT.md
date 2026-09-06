@@ -130,4 +130,3 @@ All 30 definitions now have specific dispositions and interaction requirements i
 - Burn removal is confirmed, alongside Poison. Preserve top-level `burn: true` as Exhaust. Remove damaging-status fields, triggers, upgrade options, glossary entries and deprecated save status values; no specialist Burn exception remains.
 - Generated upgrades need surface-aware budgets: AOE expansion now expands persistent territory; damage upgrades should state whether they affect direct damage, Fire ticks or Detonate. No upgrade may add per-tile stacks, duration counters, Poison or intensity.
 - Review misleading neutral names/art (`ember_jab`, `cinderburst`, `ember_rain`, `cyclone_seal`) as identity work, not hidden mechanics. Retag/retheme deliberately if chosen; preserve stable IDs/save references and independently review changed art or names.
-

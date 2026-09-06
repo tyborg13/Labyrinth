@@ -205,4 +205,3 @@ Read-only design audit at `11a62f65e4070ae397d651778b550668bda0c854`. No card da
 | Card | Element / rarity | Proposed role and migration |
 |---|---|---|
 | Bone Dart (`bone_dart`) | neutral / common | **direct damage.** Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. This is the only inactive legacy card: keep excluded from normal rewards, preserve save compatibility or migrate old instances explicitly. |
-

@@ -15,6 +15,8 @@ The game rules, rewards, enemy responses and saved state are real; the opening l
 
 Run from the task worktree (use its absolute path in a handoff). This command recreates the opening, verifies persisted state in a second Godot process, then launches its isolated game. Select Continue if the title screen appears.
 
+Generation and verification have bounded timeouts. The interactive game stays open until you close it, so the inspection does not end after the task runner's usual five-minute limit.
+
 ```sh
 python3 tools/inspection_fixture.py --task-id board-surface-refactor --run-id board-surface-refactor-inspection --launch --scenario combat --seed 90626 --level 10 --skills quick_wits,discerning_eye,measured_breath,ghost_stride,rehearsed_escape,makeshift_tool,carry_the_guard,prismatic_instinct,confluence --hand updraft,cinder_bloom,frostbolt,chain_bolt,quarry_step,rekindle_edge,spark_dart --player-position 2:4 --enemy-types crawler,bile_bloomer,acolyte --enemy-positions 4:4,6:4,7:3 --surfaces fire@4:4,rubble@4:4,ice@5:4,electrified@6:4,electrified@7:4,electrified@7:3 --relics coalheart_crucible,updraft_bottle,briar_winch,basalt_calendar --umbra-stage clear --summary 'Shared ground, delayed Freeze, connected Lightning, consuming payoffs and terrain-shaping abilities.' --manifest output/board-surface-refactor/inspection-fixture.json
 ```
