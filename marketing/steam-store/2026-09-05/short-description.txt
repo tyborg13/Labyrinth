@@ -1,1 +1,1 @@
-A tactical roguelike deckbuilder where your position matters as much as your hand. Build your deck from weapons and spells, push enemies into elemental combos, and use light to reveal threats as the labyrinth grows darker.
+A roguelike deckbuilder with the positional combat of a turn-based tactics game. Shape your deck with weapons, spells and relics, use the battlefield to your advantage, and carry light into an ever-changing labyrinth.

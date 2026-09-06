@@ -1,14 +1,26 @@
 {
   "app_id": 4530510,
-  "source": "Steamworks uploaded asset cards and plain-editor asset insertion instructions",
+  "source": "Steamworks custom-asset cards and plain-editor insertion instructions; four refined banners and all five v2 loops uploaded with Success and observed groups September 6, 2026.",
   "mapping": {
-    "{{STEAM_IMAGE_URL_BANNER_TACTICS}}": "{STEAM_APP_IMAGE}/extras/01-set-up-the-next-strike",
-    "{{STEAM_IMAGE_URL_BANNER_EQUIPMENT}}": "{STEAM_APP_IMAGE}/extras/02-your-gear-builds-your-deck",
-    "{{STEAM_IMAGE_URL_BANNER_UMBRA}}": "{STEAM_APP_IMAGE}/extras/03-bring-light-into-the-umbra",
-    "{{STEAM_IMAGE_URL_BANNER_DESCENT}}": "{STEAM_APP_IMAGE}/extras/04-choose-how-far-to-go",
-    "{{STEAM_VIDEO_EMBED_LOOP_01_SET_UP_THE_STRIKE}}": "[img]{STEAM_APP_IMAGE}/extras/01-set-up-the-strike[/img]",
-    "{{STEAM_VIDEO_EMBED_LOOP_02_CHOOSE_YOUR_SPELL}}": "[img]{STEAM_APP_IMAGE}/extras/02-choose-your-spell[/img]",
-    "{{STEAM_VIDEO_EMBED_LOOP_03_SHOP_AND_GROW}}": "[img]{STEAM_APP_IMAGE}/extras/03-shop-and-grow[/img]",
-    "{{STEAM_VIDEO_EMBED_LOOP_04_REVEAL_AND_CHAIN}}": "[img]{STEAM_APP_IMAGE}/extras/04-reveal-and-chain[/img]"
+    "{{STEAM_IMAGE_URL_BANNER_TACTICS}}": "{STEAM_APP_IMAGE}/extras/01-set-up-the-next-strike-v2",
+    "{{STEAM_IMAGE_URL_BANNER_EQUIPMENT}}": "{STEAM_APP_IMAGE}/extras/02-your-gear-builds-your-deck-v2",
+    "{{STEAM_IMAGE_URL_BANNER_UMBRA}}": "{STEAM_APP_IMAGE}/extras/03-bring-light-into-the-umbra-v2",
+    "{{STEAM_IMAGE_URL_BANNER_DESCENT}}": "{STEAM_APP_IMAGE}/extras/04-choose-how-far-to-go-v2",
+    "{{STEAM_VIDEO_EMBED_LOOP_01_SET_UP_THE_STRIKE}}": "[img]{STEAM_APP_IMAGE}/extras/01-set-up-the-strike-v2[/img]",
+    "{{STEAM_VIDEO_EMBED_LOOP_02_CHOOSE_YOUR_SPELL}}": "[img]{STEAM_APP_IMAGE}/extras/02-choose-your-spell-v2[/img]",
+    "{{STEAM_VIDEO_EMBED_LOOP_03_SHOP_AND_GROW}}": "[img]{STEAM_APP_IMAGE}/extras/03-shop-and-grow-v2[/img]",
+    "{{STEAM_VIDEO_EMBED_LOOP_04_REVEAL_AND_CHAIN}}": "[img]{STEAM_APP_IMAGE}/extras/04-reveal-and-chain-v2[/img]",
+    "{{STEAM_VIDEO_EMBED_LOOP_05_CAMPFIRE_CHOICE}}": "[img]{STEAM_APP_IMAGE}/extras/05-campfire-choice-v2[/img]"
+  },
+  "uploaded_sha256": {
+    "{{STEAM_IMAGE_URL_BANNER_TACTICS}}": "d8e1cba9683822bbe9328469c244244d917eca35c06a5ab31d561f3b1cc5b903",
+    "{{STEAM_IMAGE_URL_BANNER_EQUIPMENT}}": "f33a831fc35683a67c63255311de79568be35d1ca706e0a492d7a2f6cc648bf5",
+    "{{STEAM_IMAGE_URL_BANNER_UMBRA}}": "b531063028fa9f50e305e78231c55f5c99c85972515ae5d8058338c459b9a3cd",
+    "{{STEAM_IMAGE_URL_BANNER_DESCENT}}": "8734df9aba16e47bdd2de9a49ccc42e8a4f6f44f604a08f7df6144d1ca9599f7",
+    "{{STEAM_VIDEO_EMBED_LOOP_01_SET_UP_THE_STRIKE}}": "d2918618a8516100fa07e18e8c0a5ff6935e70b990e7c10ff9a5cdbee148360a",
+    "{{STEAM_VIDEO_EMBED_LOOP_02_CHOOSE_YOUR_SPELL}}": "6891473b5f07a2af0b7cc10baab453de0edb7248ff8d57a539044897fed4fb7f",
+    "{{STEAM_VIDEO_EMBED_LOOP_03_SHOP_AND_GROW}}": "1a563cc8a9a855d66c0564e57c5603e63dcac440f32482eac0db814b2d746787",
+    "{{STEAM_VIDEO_EMBED_LOOP_04_REVEAL_AND_CHAIN}}": "a7c3ecc588317c58515a79a24c4139df4a115748d9bcde7820b64d7d714d8c91",
+    "{{STEAM_VIDEO_EMBED_LOOP_05_CAMPFIRE_CHOICE}}": "463476bba5487c1aacfcb4adbd62c17176340a121d21b438c2ff03440ecc3f1c"
   }
 }

@@ -2,6 +2,9 @@
   "font": "fonts/LabyrinthCrumble-Display.ttf",
   "font_sha256": "37839297d81d9d214759bce138f86209e9933a556d526e84fa86ce1f2c610d3b",
   "font_size": 56,
+  "color_space": "sRGB",
+  "png_color_metadata": "standard sRGB chunk, perceptual intent",
+  "motif_style": "original shaded vector miniatures with soft radial light",
   "svg_text": "outlined from source font",
   "outputs": [
     {
@@ -12,7 +15,7 @@
         176
       ],
       "text_right": 919.64,
-      "png_sha256": "879c64a4f66f3481f1c7688ee737d89b6e4799f53b7aeeb96e6e52a43a2c89c0"
+      "png_sha256": "d8e1cba9683822bbe9328469c244244d917eca35c06a5ab31d561f3b1cc5b903"
     },
     {
       "stem": "02-your-gear-builds-your-deck",
@@ -22,7 +25,7 @@
         176
       ],
       "text_right": 1093.96,
-      "png_sha256": "92403856e5178053c37dd382e7f53d0729923ff444eff4c1c18c0ce5cd216a03"
+      "png_sha256": "f33a831fc35683a67c63255311de79568be35d1ca706e0a492d7a2f6cc648bf5"
     },
     {
       "stem": "03-bring-light-into-the-umbra",
@@ -32,7 +35,7 @@
         176
       ],
       "text_right": 1079.28,
-      "png_sha256": "08f459c57c25627c90c372e01bdafb0ddfdb763f7e8fce7579ced5ea9d6deb90"
+      "png_sha256": "b531063028fa9f50e305e78231c55f5c99c85972515ae5d8058338c459b9a3cd"
     },
     {
       "stem": "04-choose-how-far-to-go",
@@ -42,7 +45,7 @@
         176
       ],
       "text_right": 904.69,
-      "png_sha256": "f335819e804f390b236ed546a63591d5f3c535b25a7ef9049622354f301b5524"
+      "png_sha256": "8734df9aba16e47bdd2de9a49ccc42e8a4f6f44f604a08f7df6144d1ca9599f7"
     }
   ]
 }

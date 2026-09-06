@@ -1,11 +1,11 @@
 {
-  "short_description": "A tactical roguelike deckbuilder where your position matters as much as your hand. Build your deck from weapons and spells, push enemies into elemental combos, and use light to reveal threats as the labyrinth grows darker.",
-  "intro": "Escape the Umbra brings roguelike deckbuilding to an isometric, turn-based battlefield. Your equipment supplies your cards. Positioning, timing and elemental combinations determine what you can do with them.",
+  "short_description": "A roguelike deckbuilder with the positional combat of a turn-based tactics game. Shape your deck with weapons, spells and relics, use the battlefield to your advantage, and carry light into an ever-changing labyrinth.",
+  "intro": "Escape the Umbra combines roguelike deckbuilding with turn-based combat on an isometric grid. Descend into a labyrinth of shifting rooms, build a loadout around the weapons and magic you discover, and fight your way through the darkness.",
   "sections": [
     {
       "id": "tactics",
       "heading": "SET UP THE NEXT STRIKE",
-      "body": "Push a crawler into a group, step into range, and catch all three enemies in a cross of fire. Combine card plays with movement to line up area attacks, exploit traps or get clear of danger. Raise elemental intensity for stronger card effects. Enemies and traps draw on that same power.",
+      "body": "Positioning matters as much as the cards you draw. Move into range, control enemy movement, and use terrain and traps to turn a difficult fight in your favor. Combine elemental attacks and build their intensity to unlock stronger effects. That power strengthens enemies and traps too.",
       "media": [
         "loops/01-set-up-the-strike.mp4"
       ]
@@ -13,7 +13,7 @@
     {
       "id": "equipment",
       "heading": "YOUR GEAR BUILDS YOUR DECK",
-      "body": "A weapon brings its own cards. Swap a greatsword for a rapier, choose which spells to carry, and change how your deck plays between fights. Pick a spell after combat, browse the Scavenger’s stock, and build around the equipment and relics you find.",
+      "body": "Every weapon brings its own cards. Choose your equipment and spells between battles to shape the deck you take into combat. Discover relics with powerful effects, combine their bonuses with your cards, and develop a different build each run.",
       "media": [
         "loops/02-choose-your-spell.mp4",
         "loops/03-shop-and-grow.mp4"
@@ -22,7 +22,7 @@
     {
       "id": "umbra",
       "heading": "BRING LIGHT INTO THE UMBRA",
-      "body": "The deeper you descend, the more of each room the Umbra conceals. Hidden enemies still take their turns. Light reveals them and opens new targets: pin a foe with Root Snare, illuminate its neighbors, then send Chain Bolt through the exposed group.",
+      "body": "The Umbra conceals more of the battlefield as you descend. Enemies hidden in the darkness still move and attack. Use light to reveal threats and open up new targets.",
       "media": [
         "loops/04-reveal-and-chain.mp4"
       ]
@@ -30,8 +30,10 @@
     {
       "id": "descent",
       "heading": "CHOOSE HOW FAR TO GO",
-      "body": "Choose your route through fights, shops and campfires. At a campfire, heal and continue, unlock permanent skills with your embers, or carry those embers out and end the run. Push on toward the dragons below when your build is ready.",
-      "media": []
+      "body": "Explore a new labyrinth each run, with different rooms, encounters and rewards. Choose your route through battles, shops and campfires as you prepare to face the dragons below. At a campfire, recover and continue, spend embers to unlock permanent skills, or end the run and carry your embers out.",
+      "media": [
+        "loops/05-campfire-choice.mp4"
+      ]
     }
   ]
 }

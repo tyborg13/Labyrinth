@@ -1,17 +1,17 @@
-Escape the Umbra brings roguelike deckbuilding to an isometric, turn-based battlefield. Your equipment supplies your cards. Positioning, timing and elemental combinations determine what you can do with them.
+Escape the Umbra combines roguelike deckbuilding with turn-based combat on an isometric grid. Descend into a labyrinth of shifting rooms, build a loadout around the weapons and magic you discover, and fight your way through the darkness.
 
 ## SET UP THE NEXT STRIKE
 
-Push a crawler into a group, step into range, and catch all three enemies in a cross of fire. Combine card plays with movement to line up area attacks, exploit traps or get clear of danger. Raise elemental intensity for stronger card effects. Enemies and traps draw on that same power.
+Positioning matters as much as the cards you draw. Move into range, control enemy movement, and use terrain and traps to turn a difficult fight in your favor. Combine elemental attacks and build their intensity to unlock stronger effects. That power strengthens enemies and traps too.
 
 ## YOUR GEAR BUILDS YOUR DECK
 
-A weapon brings its own cards. Swap a greatsword for a rapier, choose which spells to carry, and change how your deck plays between fights. Pick a spell after combat, browse the Scavenger’s stock, and build around the equipment and relics you find.
+Every weapon brings its own cards. Choose your equipment and spells between battles to shape the deck you take into combat. Discover relics with powerful effects, combine their bonuses with your cards, and develop a different build each run.
 
 ## BRING LIGHT INTO THE UMBRA
 
-The deeper you descend, the more of each room the Umbra conceals. Hidden enemies still take their turns. Light reveals them and opens new targets: pin a foe with Root Snare, illuminate its neighbors, then send Chain Bolt through the exposed group.
+The Umbra conceals more of the battlefield as you descend. Enemies hidden in the darkness still move and attack. Use light to reveal threats and open up new targets.
 
 ## CHOOSE HOW FAR TO GO
 
-Choose your route through fights, shops and campfires. At a campfire, heal and continue, unlock permanent skills with your embers, or carry those embers out and end the run. Push on toward the dragons below when your build is ready.
+Explore a new labyrinth each run, with different rooms, encounters and rewards. Choose your route through battles, shops and campfires as you prepare to face the dragons below. At a campfire, recover and continue, spend embers to unlock permanent skills, or end the run and carry your embers out.

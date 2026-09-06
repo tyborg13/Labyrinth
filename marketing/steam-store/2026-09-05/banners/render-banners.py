@@ -12,6 +12,7 @@ import math
 from xml.sax.saxutils import escape
 
 from PIL import Image, ImageDraw, ImageFont
+from PIL.PngImagePlugin import PngInfo
 from fontTools.ttLib import TTFont
 from fontTools.pens.svgPathPen import SVGPathPen
 
@@ -26,6 +27,10 @@ CMAP = FACE.getBestCmap()
 UNITS = FACE['head'].unitsPerEm
 RASTER_FONT = ImageFont.truetype(str(FONT_PATH), FONT_SIZE * AA)
 CREAM, GOLD, DIM_GOLD = '#efe1bd', '#c5a268', '#62523d'
+# Authored hex colors are sRGB. A standard PNG sRGB chunk is deterministic and
+# makes the intended display space explicit without machine-specific profiles.
+COLOR_METADATA = PngInfo()
+COLOR_METADATA.add(b'sRGB', bytes([0]))
 BANNERS = [
     ('01-set-up-the-next-strike', 'SET UP THE NEXT STRIKE', 'board'),
     ('02-your-gear-builds-your-deck', 'YOUR GEAR BUILDS YOUR DECK', 'gear'),
@@ -83,7 +88,7 @@ class Art:
         self.parts.append('</svg>')
         (HERE / f'{name}.svg').write_text('\n'.join(self.parts) + '\n')
         result = self.image.resize((WIDTH, HEIGHT), Image.Resampling.LANCZOS)
-        result.save(HERE / f'{name}.png', optimize=True)
+        result.save(HERE / f'{name}.png', optimize=True, pnginfo=COLOR_METADATA)
         return result
 
 
@@ -122,57 +127,8 @@ def frame(art, kind):
         art.poly([(43, 60), (73, 36), (137, 46), (163, 91), (140, 136), (65, 139), (33, 112)], '#292021')
 
 
-def board(art):
-    for x, y in [(82, 62), (119, 81), (45, 81), (82, 100), (119, 119)]:
-        art.poly(diamond(x+12, y+4, 29, 15), '#1b191e', '#74624e', 1.5)
-    art.poly(diamond(94, 104, 29, 15), '#5b3b30', '#d8af67', 2)
-    art.line([(57, 85), (94, 104), (131, 85)], '#e8cf91', 2.5)
-    art.poly([(119, 84), (132, 84), (130, 94)], '#e8cf91')
-    art.circle(57, 76, 7, '#d6bb83', '#f0deb5', 1.5)
-    art.line([(57, 84), (57, 90)], '#d6bb83', 2)
-    art.poly(diamond(131, 80, 6, 9), '#b09cce', '#e1d8ef', 1.5)
-
-
-def gear(art):
-    art.poly([(42, 65), (87, 56), (101, 121), (56, 130)], '#1c191d', '#726655', 1.5)
-    art.poly([(63, 52), (110, 52), (110, 125), (63, 125)], '#302527', '#b99b65', 2)
-    art.poly([(91, 50), (139, 61), (123, 133), (75, 122)], '#19181e', '#e2c992', 2)
-    art.line([(105, 69), (125, 74)], '#746650', 1.5)
-    art.line([(91, 115), (111, 120)], '#746650', 1.5)
-    # A simple forged silhouette unites the card fan with the equipment promise.
-    art.poly([(83, 107), (128, 42), (132, 34), (132, 46), (91, 112)], '#d1c7b1', '#eaddbd', 1)
-    art.poly([(87, 104), (128, 45), (89, 112)], '#8f8790')
-    art.line([(77, 102), (98, 117)], '#d7ae63', 4)
-    art.line([(85, 111), (73, 128)], '#a58a60', 5)
-    art.poly(diamond(72, 130, 5, 5), '#d3b575')
-
-
-def light(art):
-    art.poly([(95, 49), (127, 74), (120, 125), (92, 138), (62, 120), (59, 76)], '#353043')
-    art.poly([(94, 62), (113, 79), (110, 114), (94, 125), (77, 114), (76, 79)], '#655469')
-    art.circle(94, 43, 7, '#29232c', '#cab58b', 2)
-    art.line([(94, 50), (94, 59)], '#cab58b', 2)
-    art.poly([(78, 64), (111, 64), (119, 76), (70, 76)], '#8f7551', '#dfc390', 1.5)
-    art.poly([(74, 79), (115, 79), (110, 117), (80, 117)], '#27202b', '#d5bb8b', 2)
-    art.poly([(94, 83), (100, 97), (96, 110), (89, 109), (87, 99)], '#f2d28e')
-    art.line([(80, 119), (110, 119)], '#d5bb8b', 3)
-    art.line([(85, 126), (104, 126)], '#78624e', 2)
-    for a in (-160, -123, -57, -20, 22, 155):
-        r = math.radians(a)
-        art.line([(94+41*math.cos(r), 91+41*math.sin(r)), (94+53*math.cos(r), 91+53*math.sin(r))], '#a793c6', 2)
-
-
-def route(art):
-    art.line([(94, 136), (94, 105), (61, 80), (61, 50)], '#ac936c', 2.4)
-    art.line([(94, 105), (130, 79), (130, 50)], '#776987', 2.4)
-    art.poly(diamond(94, 136, 5, 6), '#d3ba81', '#efddb0', 1)
-    art.circle(61, 49, 7, '#211d22', '#dfc692', 2)
-    art.poly(diamond(130, 49, 7, 8), '#312838', '#9481b0', 2)
-    art.line([(45, 97), (73, 111)], '#bc9158', 3.4)
-    art.line([(45, 111), (73, 97)], '#bc9158', 3.4)
-    art.poly([(59, 63), (62, 78), (69, 74), (68, 88), (62, 98), (53, 98), (47, 89), (49, 80), (55, 85)], '#d19c60')
-    art.poly([(59, 80), (63, 89), (59, 97), (54, 92)], '#f1d19a')
-    art.line([(112, 109), (129, 97), (138, 104)], '#8c779e', 1.5)
+# Material and light rendering stays separate from the approved frame and type.
+from dimensional_motifs import board, gear, light, route
 
 
 def main():
@@ -197,8 +153,8 @@ def main():
         for i, img in enumerate(images):
             scaled = img.resize((width, height), Image.Resampling.LANCZOS)
             sheet.paste(scaled, (0, gap+i*(height+gap)), scaled)
-        sheet.save(HERE / f'preview-{width}.png', optimize=True)
-    (HERE / 'manifest.json').write_text(json.dumps({'font': 'fonts/LabyrinthCrumble-Display.ttf', 'font_sha256': hashlib.sha256(FONT_PATH.read_bytes()).hexdigest(), 'font_size': FONT_SIZE, 'svg_text': 'outlined from source font', 'outputs': outputs}, indent=2)+'\n')
+        sheet.save(HERE / f'preview-{width}.png', optimize=True, pnginfo=COLOR_METADATA)
+    (HERE / 'manifest.json').write_text(json.dumps({'font': 'fonts/LabyrinthCrumble-Display.ttf', 'font_sha256': hashlib.sha256(FONT_PATH.read_bytes()).hexdigest(), 'font_size': FONT_SIZE, 'color_space': 'sRGB', 'png_color_metadata': 'standard sRGB chunk, perceptual intent', 'motif_style': 'original shaded vector miniatures with soft radial light', 'svg_text': 'outlined from source font', 'outputs': outputs}, indent=2)+'\n')
     print(f'Rendered {len(images)} banners at {WIDTH}x{HEIGHT}; previews at 1170, 780, 390 pixels wide.')
 
 

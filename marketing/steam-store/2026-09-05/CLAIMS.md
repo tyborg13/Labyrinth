@@ -55,3 +55,14 @@ Peer-store structure references (official Steam pages, read 2026-09-05):
 - HELLCARD: https://store.steampowered.com/app/1201540/HELLCARD/ — positioning is explicitly identified as a differentiating mechanic.
 
 Our proposed structure pairs each claim with a real tactical sequence or build-choice scene. No peer wording or artwork is reused.
+
+## September 6 revision: feature-led copy
+
+The revised public copy describes repeatable systems instead of naming enemies or narrating the captured encounters. The tactical paragraph covers grid positioning, forced movement, terrain/traps, and shared elemental intensity. The equipment paragraph describes deck composition from equipment and attuned magic, with relics changing card interactions rather than directly adding cards. Visibility and campfire paragraphs retain the implementation-grounded claims above. No content counts or guaranteed run outcomes are promised.
+
+References for tone and structure, read September 6, 2026:
+
+- Slay the Spire: https://store.steampowered.com/app/646570/Slay_the_Spire/ — the user supplied its deckbuilding, changing routes, and relic feature paragraphs as examples.
+- Alina of the Arena: https://store.steampowered.com/app/1668690/Alina_of_the_Arena/ — describes each core system and the choices it enables.
+
+These references guide organization and level of detail only. The wording is original and the claims concern Escape the Umbra's implemented mechanics.
