@@ -28,6 +28,9 @@ def main() -> None:
     if source == destination:
         raise ValueError("Choose a separate archive or restoration destination")
     with source_lock(source), source_lock(destination):
+        source_manifest_path = source / "native-collection.json"
+        source_manifest = json.loads(source_manifest_path.read_text()) if source_manifest_path.exists() else {}
+        reviewed_source_head = args.reviewed_source_head or source_manifest.get("reviewed_source_head")
         paths: list[Path] = []
         origins: dict = {}
         repo = Path(__file__).resolve().parents[3]
@@ -36,9 +39,9 @@ def main() -> None:
             cue = json.loads(cue_path.read_text())
             clip = cue["clip"]
             origins[clip] = cue["capture_origin"]
-            if args.reviewed_source_head:
+            if reviewed_source_head:
                 for relative, expected in origins[clip]["captured_script_sha256"].items():
-                    data = subprocess.check_output(["git", "show", f"{args.reviewed_source_head}:{relative}"], cwd=repo)
+                    data = subprocess.check_output(["git", "show", f"{reviewed_source_head}:{relative}"], cwd=repo)
                     if hashlib.sha256(data).hexdigest() != expected:
                         raise RuntimeError(f"{clip}: captured {relative} differs from reviewed source HEAD")
             native = cue["lossless"]
@@ -74,7 +77,7 @@ def main() -> None:
         repo = Path(__file__).resolve().parents[3]
         head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
         dirty = bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=repo, text=True).strip())
-        manifest = {"collection_sha256": collection_hash, "clips": clips, "files_sha256": files, "capture_origins": origins, "reviewed_source_head": args.reviewed_source_head, "archive_tool_repository_head": head, "archive_tool_repository_dirty_at_copy": dirty, "restore": "Run this script with the archive as source and the next task's marketing/trailer/public/footage/lossless as destination, then run npm run render in marketing/trailer. All cue references are relative and remain byte-identical."}
+        manifest = {"collection_sha256": collection_hash, "clips": clips, "files_sha256": files, "capture_origins": origins, "reviewed_source_head": reviewed_source_head, "archive_tool_repository_head": head, "archive_tool_repository_dirty_at_copy": dirty, "restore": "Run this script with the archive as source and the next task's marketing/trailer/public/footage/lossless as destination, then run npm run render in marketing/trailer. All cue references are relative and remain byte-identical."}
         existing.write_text(json.dumps(manifest, indent=2) + "\n")
         print(json.dumps({"destination": str(destination), "clips": clips, "files": len(files), "collection_sha256": collection_hash, "copied_bytes_verified": True}, indent=2))
 

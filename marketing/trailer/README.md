@@ -61,7 +61,7 @@ python3 marketing/trailer/scripts/copy-native-sources.py \
 
 After the final source commit, add `--reviewed-source-head <commit>` to the copy command. The helper verifies every captured script against that commit and records the reviewed binding separately from the original capture-time HEAD/dirty state. It never relabels the capture history.
 
-Copying verifies all retained bytes and preserves relative cue references. A different existing destination bank is rejected; choose a new versioned folder. Keep the source archive as well as the completed movie: the completed movie alone cannot support a clean one-scene replacement.
+Copying verifies all retained bytes and preserves relative cue references. Restoring an existing archive also retains and verifies its reviewed source binding when no new override is supplied; the referenced commit must remain available in the repository. A different existing destination bank is rejected; choose a new versioned folder. Keep the source archive as well as the completed movie: the completed movie alone cannot support a clean one-scene replacement.
 
 ## Export and inspect
 
