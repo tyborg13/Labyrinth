@@ -1,74 +1,87 @@
-# Escape the Umbra — Steam gameplay trailer
+# Escape the Umbra — trailer workflow
 
-This folder contains the editable Remotion project and deterministic gameplay captures for the first Steam store trailer for **Escape the Umbra**.
+The approved edit is 1,219 frames at 1920×1080/30 fps (40.63 seconds). It tells two continuous tactical stories around card rewards, a purchase, a short map shot and a weapon/deck swap. `src/Trailer.tsx` owns `SHOTS`, captions, camera keys and audio tails. Preserve that edit when the request is only a visual fix. `EDIT.md` records its shot contract; `RESEARCH.md` preserves the original genre research.
 
-The current cut is intentionally gameplay-first after a short setting hook. Its sequence is:
+## Make a small edit
 
-1. The prison and the objective: the only way out is deeper.
-2. A deeper, engine-generated route with cleared history and legal next-room choices.
-3. Pre-battle threat and loadout inspection.
-4. A real Cleaver Hook card play forcing three enemies into an environmental fire-trap kill.
-5. A real Wildfire Halo card play landing a complete three-enemy AOE kill.
-6. A real Lantern Shot card play revealing enemies in the current-build Fringe Umbra.
-7. A run-building montage from a deeper run: buying from a Blacksmith, claiming a treasure-room relic, learning generated post-combat magic, attuning that new spell in the production Magic menu, and collecting then equipping a real combat drop among mixed-rarity loadouts.
-8. The choice to resist the shadow, the current title, and a compact "Wishlist on [Steam]" call to action.
+Work in the adopted task worktree and follow its contract/preflight/inspection workflow. Native Mac capture needs Godot, FFmpeg/ffprobe and Python3; editing needs Node/npm. Run `npm ci` once in `marketing/trailer`.
 
-The shadow-dragon illustration is existing main-menu key art and is used only for the narrative opening/end card. It is not presented as captured gameplay.
-
-## Render
-
-Node.js 26+ and npm are required.
+For a caption change, update the owning text in `scripts/render-title-cards.py`, regenerate it, and review the changed title PNG. For a cut or camera adjustment, edit the corresponding `SHOTS` entry in `src/Trailer.tsx`. If a trim or audio tail changes, also update `REQUIRED` in `scripts/export-quality.py` to each clip’s maximum `sourceIn + frames + audioTail`. If the total duration changes, update that exporter’s `FRAMES` to `sum(SHOTS frames) - END_FADE + END_FRAMES`, matching `TRAILER_DURATION`. Camera-only and caption changes leave those export bounds unchanged. Existing verified native footage is reused:
 
 ```sh
 cd marketing/trailer
-npm install
+python3 scripts/render-title-cards.py  # only when caption typography changed
 npm run lint
-npm run render
+npm run render -- --version v6
 ```
 
-The Steam master is written to:
+The default `npm run render` is the quality pipeline. `npm run render:preview` retains the older compressed-MP4 preview route. Use a new version label for a new reviewable delivery; it selects `out/quality-v6` and versioned filenames. Caption, trim, camera and mix changes require a fresh render. `--reuse-render` is only for re-encoding an already rendered, unchanged PNG/PCM edit; it rejects any changed source, editor, asset, cached PNG or cached WAV.
 
-```text
-marketing/trailer/out/escape-the-umbra-steam-trailer.mp4
-```
+## Replace one gameplay scene
 
-The render command produces 1920x1080, 30 fps, H.264 video with 48 kHz stereo AAC audio. The checked master is approximately 57.5 seconds.
-
-The production render intentionally uses one deterministic Chromium worker. Trailer text is committed as transparent title artwork generated from the exact game font, avoiding Chromium's unreliable runtime loading of this custom TTF during long renders. Each card also has a generated `-fill.png` layer: the title arrives with its small Crumble gaps filled, settles, and then sheds those pieces downward to reveal the native face.
-
-Regenerate that title artwork after changing the copy, size, color, or source font:
+From the worktree root, replace only the affected clip. This leaves the other native scenes intact:
 
 ```sh
-python3 scripts/render-title-cards.py
+python3 marketing/trailer/scripts/capture-movie.py push_bloom \
+  --task-id wishlist-visual-polish-and-steam-trailer \
+  --lossless --render-scale 1 \
+  --output-dir marketing/trailer/public/footage/lossless \
+  --archive-existing
 ```
 
-## Refresh gameplay footage
+Use the actual current task ID after moving to another worktree. Valid current edit clips are `push_bloom`, `root_chain`, `spell`, `merchant`, `route`, and `equipment`; `campfire` is the additional store-page loop. `--archive-existing` moves the prior clip's PNGs, PCM, cues, proof and proxies to `build/<task-id>/proof/trailer/native-history/` before recording. Without that flag, a nonempty native clip directory is rejected. A failed take stays unapproved; its archived predecessor remains recoverable. Capture and export lock the selected source collection so frames cannot change during a render.
 
-Run the capture script from the repository root inside an adopted Labyrinth task worktree:
+The scene contract fixes the actions and timing, while reward/shop offers come from the real generated run and current progression/loadout. The shop selects the first valid magic offer and records the purchased ID in its cues. Compare those IDs after a recapture; do not promise identical incidental stock across capture revisions. Reuse the archived clip when the request does not change that scene.
+
+The wrapper acquires the native GUI lease and runs Godot through `godot_task_runner.py`. It uses Metal/Mobile, inherits the production root viewport's 2D MSAA, fixes logical layout at 1920×1080/100% UI scale, and records real production actions. Only music is muted. A bounded eight-frame queue spools the actual gameplay SubViewport's RGB bytes; PNG compression happens after gameplay finishes. Native MovieMaker PCM is trimmed at exactly 1,600 samples per removed 30 fps pre-roll frame. The small MP4 beside a native collection is a review proxy.
+
+`--render-scale 2` renders genuine 3840×2160 with the same logical layout. It is useful for static gallery images. Motion takes must pass wall-clock timing review; the current approved trailer uses native 1080 because 2× capture exceeded the realtime budget. Capture-only frame pacing prevents fast fixed-clock recording from stretching production wall-clock effects. Recognition holds retain the approved idle selection cues; they never stretch an attack or movement animation.
+
+## Sources and provenance
+
+Each native collection contains `<clip>/frame00000000.png` onward, `<clip>.wav`, `<clip>.cues.json`, `<clip>.capture.log`, and `<clip>/native-rgb-framemd5.json`. The cue pattern and PCM references are relative to the collection root. Direct PNGs already omit pre-roll: `lossless.source_frame_offset=0`; `safe_start_raw_frame` applies to the original audio carrier only.
+
+The native proof records every original RGB frame digest, every explicitly-sRGB PNG byte hash, actual renderer/MSAA, queue bounds and wall timestamps. Export validates the current files against those records and checks the approved video/audio coverage. PNG sRGB metadata is inserted without changing IDAT samples. The final upload converts RGB to limited-range Rec.709 YCbCr and explicitly signals the native sRGB transfer; it does not apply an artistic gamma adjustment.
+
+The editable source bank must survive worktree cleanup. Copy it to the durable output folder with verification:
 
 ```sh
-marketing/trailer/scripts/capture-footage.sh
+python3 marketing/trailer/scripts/copy-native-sources.py \
+  marketing/trailer/public/footage/lossless \
+  /Users/borgerding/workspace/Labyrinth/output/steam-store-refresh-2026-09-06/source-archive/video
 ```
 
-It invokes the production Godot scene through the parallel-safe task runner, renders each clip at 1920x1080/30 fps, and transcodes the Movie Maker intermediates to H.264 edit clips in `public/footage/`.
-
-Available deterministic captures are `route`, `prebattle`, `trap_combo`, `aoe`, `umbra`, `merchant`, `relic`, `spell`, `magic_equip`, and `equipment`. The tactical and progression clips use production `RunEngine`, `CombatEngine`, and `RunScene` transitions rather than simulated compositing. Tactical clips preserve engine-generated non-start room layouts—including walls, doors, moss, terrain, and loot—and play their visible hand cards through the same select, target, center-stage card, discard, and resolution path as normal gameplay. Progression captures seed a plausible level-seven run, then use generated depth-five rooms and the production purchase, reward, drag, and equip paths. Relic and learned-magic captures render the real `RunScene` in a larger 16:9 reward viewport, position its production choice host before it becomes visible, assert that the selected control clears a bottom safety margin, and downsample the complete screen to 1080p. The capture scene remains hidden until the requested run state is loaded, and the transcode physically strips capture pre-roll so frame zero can never expose the starting room. Pass one or more clip ids to refresh only those captures, for example `marketing/trailer/scripts/capture-footage.sh route prebattle merchant relic magic_equip`.
-
-Set `LABYRINTH_TASK_ID` if the worktree uses a different task id:
+Restore that bank into a later adopted worktree by reversing source and destination:
 
 ```sh
-LABYRINTH_TASK_ID=my-task-id marketing/trailer/scripts/capture-footage.sh
+python3 marketing/trailer/scripts/copy-native-sources.py \
+  /Users/borgerding/workspace/Labyrinth/output/steam-store-refresh-2026-09-06/source-archive/video \
+  marketing/trailer/public/footage/lossless
 ```
 
-## Edit notes
+After the final source commit, add `--reviewed-source-head <commit>` to the copy command. The helper verifies every captured script against that commit and records the reviewed binding separately from the original capture-time HEAD/dirty state. It never relabels the capture history.
 
-- Composition id: `EscapeTheUmbraTrailer`
-- Source: `src/Trailer.tsx`
-- Output duration: 1724 frames at 30 fps
-- Promo typography in `public/title-cards/` is generated from the game's readable Labyrinth Crumble font; music, sound effects, and key art are linked through `public/game-assets`.
-- Promo copy uses that single game-native face at large sizes with no pixel-font labels, UI cards, frame counters, or secondary gameplay taglines.
-- Tactical shots visibly establish the hand card, zoom into its production center-stage play animation, then pan focus to the board resolution with impact zoom, brightness accents, and deterministic screen shake.
-- The `GROW STRONGER` montage crossfades among five legal non-start run states. Merchant, relic, and magic-reward beats use a single eased approach, a held choice view, a restrained selection impact, and one eased pullback; their source playback is slightly slowed so the lower options remain readable. The following menu cameras use one subtle zoom and one continuous action-led follow from the newly acquired spell or item toward its equipped destination, then gently pull back.
-- Progression clips are muted in the edit, so item and spell acquisitions do not trigger the old repeated collection sound; the score and tactical combat impacts remain.
-- The final CTA uses a transparent inverse-white derivative of Valve's approved Steam® logo artwork with clear space and no colored tile or compositing into the game mark. Preserve the legal attribution in `public/branding/README.md` when preparing distribution copy.
-- The old teaser is not an editorial or visual reference for this cut.
+Copying verifies all retained bytes and preserves relative cue references. Restoring an existing archive also retains and verifies its reviewed source binding when no new override is supplied; the referenced commits must remain available in the repository. `reviewed_source_head` binds the reviewed collection, while `reviewed_capture_heads` records the verified producing commit for each clip. After restoring and recapturing one scene, pass the new reviewed commit when copying again: the changed clip must match that commit, and unchanged clips may retain their older verified archive bindings. Never overwrite the original `capture_origin` records. A different existing destination bank is rejected; choose a new versioned folder. Keep the source archive as well as the completed movie: the completed movie alone cannot support a clean one-scene replacement.
+
+## Export and inspect
+
+`export-quality.py` renders the same edit from native PNGs and PCM, retaining the original gameplay sound and production soundtrack. It writes:
+
+- `escape-the-umbra-steam-trailer-v5.mp4`: H.264 High, 8-bit 4:2:0, veryslow/CRF1, AAC 320kbps. This is the compatible Steam/mobile delivery.
+- `escape-the-umbra-v5-lossless-rgb.mkv`: FFV1 RGB plus unchanged mixed PCM. Every decoded RGB frame and PCM sample is checked against the assembled PNG/WAV edit.
+- Render-input binding, source fingerprints, output hashes, ffprobe records, decode logs and audio loudness measurements in the same versioned output directory.
+
+The MP4 is an extremely high quality single-generation encode; 4:2:0 and AAC remain lossy. Steam transcodes uploaded trailers. Valve recommends the highest available resolution up to 1920×1080 and prefers H.264/AAC in supported containers: [official Steam trailer guidance](https://partner.steamgames.com/doc/store/trailer?l=english). Preserve native resolution and timing instead of upscaling an encoded movie.
+
+Before handoff, inspect changed source recognition/aim/commit/impact/settled frames and compare their cue times with `SHOTS`. The lightning close-up finishes at source 265, before first contact near 267. Ensure the source covers every visual trim and native audio tail. Watch the full encoded MP4 at natural speed, check cut boundaries, and inspect both native-size and phone-size framing. Compare matched native/source/master pixels for sharpness and managed-display color; a source-to-master comparison alone cannot detect earlier capture loss. Read the decode and loudness logs and preserve the exact reviewed hashes.
+
+Focused pipeline checks:
+
+```sh
+python3 marketing/trailer/scripts/test-quality-guards.py
+python3 marketing/trailer/scripts/test-native-source-archive.py
+python3 tools/godot_task_runner.py --task-id wishlist-visual-polish-and-steam-trailer --stream -- \
+  godot --headless --path . --script tools/test_steam_trailer_frame_sink.gd
+```
+
+The checks cover changed-native and stale-cache rejection, exact RGB thread draining, failed disk writes, and bounded queue behavior. Broaden game tests only when game code changes require them. Retain separate exact-HEAD peer review and user inspection/publication approval under the repository workflow.

@@ -1269,13 +1269,20 @@ func apply_planned_player_move(state: Dictionary, action: Dictionary, target_til
 func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = Vector2i(-1, -1)) -> Dictionary:
 	return _apply_player_action(state, action, target_tile, true)
 
+# Opt-in visual trace: actual hit order and intermediate snapshots never enter a
+# combat save, preview cache or analytics event. The ordinary resolver is shared.
+func resolve_player_action_for_presentation(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
+	var trace: Dictionary = {"chain_hits": []}
+	var result: Dictionary = _apply_player_action(state, action, target_tile, true, trace)
+	return {"state": result, "chain_hits": trace["chain_hits"]}
+
 func apply_prevalidated_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	# Preview callers obtain target_tile from valid_targets_for_player_action and
 	# may then resolve the same action repeatedly for damage feedback. Avoid doing
 	# a second full target scan while preserving the exact normal action resolver.
 	return _apply_player_action(state, action, target_tile, false)
 
-func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i, validate_target: bool) -> Dictionary:
+func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i, validate_target: bool, presentation_trace: Dictionary = {}) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
 	var performance_phase_started: int = _record_runtime_performance_phase("player_action_duplicate", performance_total_started)
@@ -1335,10 +1342,10 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
 			if target_is_valid:
-				next_state = _attack_target_on_tile(next_state, action, target_tile, "melee")
+				next_state = _attack_target_on_tile(next_state, action, target_tile, "melee", presentation_trace)
 		"ranged":
 			if target_is_valid:
-				next_state = _attack_target_on_tile(next_state, action, target_tile, "ranged")
+				next_state = _attack_target_on_tile(next_state, action, target_tile, "ranged", presentation_trace)
 		"aoe":
 			if target_is_valid:
 				next_state = _aoe_enemies(next_state, action, target_tile)
@@ -4020,7 +4027,7 @@ func _current_actor_target_for_plan(state: Dictionary, action_context: Dictionar
 			return target
 	return {}
 
-func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String) -> Dictionary:
+func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String, presentation_trace: Dictionary = {}) -> Dictionary:
 	# apply_player_action already owns a deep copy and validates the target once.
 	# Keeping this helper in-place avoids cloning the full combat snapshot twice
 	# more for every attack preview and committed attack.
@@ -4049,9 +4056,9 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 			next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
 			_log(next_state, "%s splinters terrain for %d." % [attack_kind.capitalize(), terrain_damage])
 		return next_state
-	return _attack_enemy_on_tile(next_state, action, target_tile, attack_kind)
+	return _attack_enemy_on_tile(next_state, action, target_tile, attack_kind, presentation_trace)
 
-func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String) -> Dictionary:
+func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String, presentation_trace: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
@@ -4072,7 +4079,9 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 			next_state = _consume_enemy_expose(next_state, enemy_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
 		var affected_enemy_indices: Array[int] = _int_values([enemy_index])
-		next_state = _apply_chain_from_enemy(next_state, enemy_index, resolved_action, damage, affected_enemy_indices)
+		if int(resolved_action.get("chain", 0)) > 0:
+			_append_chain_presentation_hit(presentation_trace, next_state, enemy_index, target_tile, target_tile)
+		next_state = _apply_chain_from_enemy(next_state, enemy_index, resolved_action, damage, affected_enemy_indices, presentation_trace)
 		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, affected_enemy_indices)
 		_mark_light_target_skill_trigger(next_state, resolved_action)
 		_log(next_state, "%s for %d." % [attack_kind.capitalize(), damage])
@@ -5771,7 +5780,7 @@ func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, sou
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("pull", 0)), false)
 	return next_state
 
-func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action: Dictionary, damage: int, affected_enemy_indices: Array[int]) -> Dictionary:
+func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action: Dictionary, damage: int, affected_enemy_indices: Array[int], presentation_trace: Dictionary = {}) -> Dictionary:
 	var max_distance: int = int(action.get("chain", 0))
 	if max_distance <= 0:
 		return state
@@ -5787,13 +5796,27 @@ func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action
 		visited[next_index] = true
 		if not affected_enemy_indices.has(next_index):
 			affected_enemy_indices.append(next_index)
+		var target_enemy: Dictionary = (next_state.get("enemies", []) as Array)[next_index] as Dictionary
+		var target_tile: Vector2i = target_enemy.get("pos", Vector2i.ZERO)
 		next_state = _sunder_enemy_defense(next_state, next_index, int(action.get("sunder", 0)))
 		next_state = _damage_enemy(next_state, next_index, damage, true, _action_pierces_defense(action))
 		if damage > 0:
 			next_state = _consume_enemy_expose(next_state, next_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, next_index, action, current_enemy.get("pos", Vector2i.ZERO))
+		_append_chain_presentation_hit(presentation_trace, next_state, next_index, current_enemy.get("pos", Vector2i.ZERO), target_tile)
 		current_index = next_index
 	return next_state
+
+func _append_chain_presentation_hit(trace: Dictionary, state: Dictionary, enemy_index: int, from_tile: Vector2i, to_tile: Vector2i) -> void:
+	if not trace.has("chain_hits"):
+		return
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index] as Dictionary
+	(trace["chain_hits"] as Array).append({
+		"enemy_id": int(enemy.get("id", -1)),
+		"from": from_tile,
+		"to": to_tile,
+		"state": state.duplicate(true),
+	})
 
 func _nearest_chain_target(state: Dictionary, from_tile: Vector2i, visited: Dictionary, max_distance: int) -> int:
 	var best_index: int = -1

@@ -96,6 +96,8 @@ It also includes the active magic loadout fields `attuned_magic_cards` and
 Consumable item loadout state is included as `equipped_items` and
 `item_inventory`.
 
+Chain attack presentation uses an opt-in resolver trace of hit order and intermediate snapshots. The trace is returned separately from combat state; it is not saved or logged. Damage, keyword resolution, card payment and analytics event boundaries remain the ordinary atomic action. The UI reveals each committed target outcome as its bolt arrives.
+
 ## Card Metrics Supported
 
 The current event stream is enough to derive:

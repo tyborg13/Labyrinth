@@ -21,7 +21,6 @@ const CARD_BACK_HOLD_SECONDS: float = 0.14
 const CARD_FLIP_CLOSE_SECONDS: float = 0.10
 const CARD_FLIP_OPEN_SECONDS: float = 0.13
 const CARD_SETTLE_SECONDS: float = 0.09
-const CARD_FLIP_STAGGER_SECONDS: float = 0.055
 const SECONDARY_ACTION_FADE_SECONDS: float = 0.18
 
 
@@ -92,22 +91,20 @@ static func hide_victory(overlay: Control) -> void:
 		label.rotation = 0.0
 
 
-static func victory_hold_seconds(minimum_visible_seconds: float, reduced_motion: bool) -> float:
-	var minimum_seconds: float = maxf(0.0, minimum_visible_seconds)
-	if reduced_motion:
-		return maxf(VICTORY_REDUCED_HOLD_SECONDS, minimum_seconds)
-	var animated_seconds: float = VICTORY_UNFURL_SECONDS + VICTORY_SETTLE_SECONDS + VICTORY_FADE_SECONDS
-	return maxf(VICTORY_HOLD_SECONDS, minimum_seconds - animated_seconds)
+# The musical resolution continues under the reward choices. Its reverb tail
+# must never become an input lock: celebrate the result, then let players choose.
+static func victory_hold_seconds(reduced_motion: bool) -> float:
+	return VICTORY_REDUCED_HOLD_SECONDS if reduced_motion else VICTORY_HOLD_SECONDS
 
 
-static func victory_sequence_seconds(minimum_visible_seconds: float, reduced_motion: bool) -> float:
-	var hold_seconds: float = victory_hold_seconds(minimum_visible_seconds, reduced_motion)
+static func victory_sequence_seconds(reduced_motion: bool) -> float:
+	var hold_seconds: float = victory_hold_seconds(reduced_motion)
 	if reduced_motion:
 		return hold_seconds
 	return VICTORY_UNFURL_SECONDS + VICTORY_SETTLE_SECONDS + hold_seconds + VICTORY_FADE_SECONDS
 
 
-static func play_victory(overlay: Control, reduced_motion: bool, minimum_visible_seconds: float = 0.0) -> void:
+static func play_victory(overlay: Control, reduced_motion: bool) -> void:
 	var label: Label = victory_label(overlay)
 	if overlay == null or label == null or not overlay.is_inside_tree():
 		return
@@ -115,7 +112,7 @@ static func play_victory(overlay: Control, reduced_motion: bool, minimum_visible
 	await overlay.get_tree().process_frame
 	label.pivot_offset = label.size * 0.5
 	if reduced_motion:
-		await overlay.get_tree().create_timer(victory_hold_seconds(minimum_visible_seconds, true)).timeout
+		await overlay.get_tree().create_timer(victory_hold_seconds(true)).timeout
 		hide_victory(overlay)
 		return
 
@@ -132,7 +129,7 @@ static func play_victory(overlay: Control, reduced_motion: bool, minimum_visible
 	settle.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	settle.tween_property(label, "scale", Vector2.ONE, VICTORY_SETTLE_SECONDS)
 	await settle.finished
-	await overlay.get_tree().create_timer(victory_hold_seconds(minimum_visible_seconds, false)).timeout
+	await overlay.get_tree().create_timer(victory_hold_seconds(false)).timeout
 	var fade: Tween = label.create_tween().set_parallel(true)
 	fade.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	fade.tween_property(label, "modulate:a", 0.0, VICTORY_FADE_SECONDS)
@@ -283,72 +280,75 @@ static func play_reward_reveal(
 		banner.pivot_offset = banner.size * 0.5
 	if title != null:
 		title.pivot_offset = title.size * 0.5
-	var banner_tween: Tween = sequence_host.create_tween().set_parallel(true)
-	banner_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# One timeline owns every reveal track. The banner and deal overlap, then
+	# faces turn in a short ripple instead of waiting for each card to settle.
+	# Interaction is restored once, after all faces and actions are readable.
+	var reveal: Tween = sequence_host.create_tween().set_parallel(true)
 	if banner != null:
-		banner_tween.tween_property(banner, "scale", Vector2.ONE, BANNER_UNFURL_SECONDS)
-		banner_tween.tween_property(banner, "modulate:a", 1.0, BANNER_UNFURL_SECONDS * 0.62)
+		reveal.tween_property(banner, "scale", Vector2.ONE, BANNER_UNFURL_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		reveal.tween_property(banner, "modulate:a", 1.0, BANNER_UNFURL_SECONDS * 0.62)
 	if title != null:
-		banner_tween.tween_property(title, "scale", Vector2.ONE, BANNER_UNFURL_SECONDS)
-		banner_tween.tween_property(title, "modulate:a", 1.0, BANNER_UNFURL_SECONDS * 0.72).set_delay(BANNER_UNFURL_SECONDS * 0.22)
-	await banner_tween.finished
+		reveal.tween_property(title, "scale", Vector2.ONE, BANNER_UNFURL_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		reveal.tween_property(title, "modulate:a", 1.0, BANNER_UNFURL_SECONDS * 0.72).set_delay(0.04)
 
+	var last_flip_end: float = BANNER_UNFURL_SECONDS
 	for index: int in range(card_slots.size()):
 		var slot: Control = card_slots[index]
 		var scaler: Control = _card_scaler(slot)
 		if scaler == null:
 			continue
 		var base_position: Vector2 = scaler.get_meta("reward_reveal_base_position", scaler.position) as Vector2
-		var entry: Tween = slot.create_tween().set_parallel(true)
-		entry.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		entry.tween_property(slot, "modulate:a", 1.0, CARD_BACK_ENTRY_SECONDS)
-		entry.tween_property(scaler, "position", base_position, CARD_BACK_ENTRY_SECONDS)
-		if index < card_slots.size() - 1:
-			await sequence_host.get_tree().create_timer(CARD_BACK_ENTRY_STAGGER_SECONDS).timeout
-	if not card_slots.is_empty():
-		await sequence_host.get_tree().create_timer(CARD_BACK_ENTRY_SECONDS).timeout
-	await sequence_host.get_tree().create_timer(CARD_BACK_HOLD_SECONDS).timeout
-
-	for index: int in range(card_slots.size()):
-		await _flip_card(card_slots[index], card_flip_cue)
-		if index < card_slots.size() - 1:
-			await sequence_host.get_tree().create_timer(CARD_FLIP_STAGGER_SECONDS).timeout
+		var entry_delay: float = 0.06 + float(index) * CARD_BACK_ENTRY_STAGGER_SECONDS
+		reveal.tween_property(slot, "modulate:a", 1.0, CARD_BACK_ENTRY_SECONDS).set_delay(entry_delay)
+		reveal.tween_property(scaler, "position", base_position, CARD_BACK_ENTRY_SECONDS).set_delay(entry_delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		var flip_delay: float = entry_delay + CARD_BACK_ENTRY_SECONDS + CARD_BACK_HOLD_SECONDS
+		_schedule_card_flip(reveal, slot, flip_delay, card_flip_cue)
+		last_flip_end = flip_delay + CARD_FLIP_CLOSE_SECONDS + CARD_FLIP_OPEN_SECONDS + CARD_SETTLE_SECONDS
 
 	if secondary_actions != null:
-		var actions_tween: Tween = secondary_actions.create_tween()
-		actions_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		actions_tween.tween_property(secondary_actions, "modulate:a", 1.0, SECONDARY_ACTION_FADE_SECONDS)
-		await actions_tween.finished
+		reveal.tween_property(secondary_actions, "modulate:a", 1.0, SECONDARY_ACTION_FADE_SECONDS).set_delay(maxf(0.0, last_flip_end - SECONDARY_ACTION_FADE_SECONDS)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	# Also supports an empty offer without constructing an empty Tween.
+	reveal.tween_interval(last_flip_end)
+	await reveal.finished
 	settle_reward(banner, title, card_slots, secondary_actions)
 
 
-static func _flip_card(slot: Control, card_flip_cue: Callable = Callable()) -> void:
+static func _schedule_card_flip(timeline: Tween, slot: Control, delay: float, card_flip_cue: Callable) -> void:
 	var scaler: Control = _card_scaler(slot)
 	if scaler == null:
 		return
 	var base_scale: Vector2 = scaler.get_meta("reward_reveal_base_scale", scaler.scale) as Vector2
 	var closed_scale := Vector2(maxf(0.01, base_scale.x * 0.045), base_scale.y * 1.025)
+	var open_scale := base_scale * 1.045
 	if card_flip_cue.is_valid():
-		card_flip_cue.call()
-	var close_tween: Tween = scaler.create_tween()
-	close_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	close_tween.tween_property(scaler, "scale", closed_scale, CARD_FLIP_CLOSE_SECONDS)
-	await close_tween.finished
+		timeline.tween_callback(card_flip_cue).set_delay(delay)
+	timeline.tween_property(scaler, "scale", closed_scale, CARD_FLIP_CLOSE_SECONDS).set_delay(delay).from(base_scale).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	var face_time: float = delay + CARD_FLIP_CLOSE_SECONDS
+	timeline.tween_callback(_show_flipped_face.bind(slot)).set_delay(face_time)
+	timeline.tween_property(scaler, "scale", open_scale, CARD_FLIP_OPEN_SECONDS).set_delay(face_time).from(closed_scale).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	timeline.tween_property(scaler, "scale", base_scale, CARD_SETTLE_SECONDS).set_delay(face_time + CARD_FLIP_OPEN_SECONDS).from(open_scale).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+static func _show_flipped_face(slot: Control) -> void:
+	if not is_instance_valid(slot):
+		return
+	var scaler: Control = _card_scaler(slot)
+	if scaler == null:
+		return
 	var back: TextureRect = scaler.get_node_or_null(CARD_BACK_NAME) as TextureRect
 	var widget: Control = slot.find_child("CardWidget", true, false) as Control
 	if back != null:
 		back.visible = false
 	if widget != null:
 		widget.visible = true
-	var open_scale := Vector2(base_scale.x * 1.075, base_scale.y * 1.075)
-	var open_tween: Tween = scaler.create_tween()
-	open_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	open_tween.tween_property(scaler, "scale", open_scale, CARD_FLIP_OPEN_SECONDS)
-	await open_tween.finished
-	var settle_tween: Tween = scaler.create_tween()
-	settle_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	settle_tween.tween_property(scaler, "scale", base_scale, CARD_SETTLE_SECONDS)
-	await settle_tween.finished
+
+
+static func _flip_card(slot: Control, card_flip_cue: Callable = Callable()) -> void:
+	if _card_scaler(slot) == null:
+		return
+	var flip: Tween = slot.create_tween().set_parallel(true)
+	_schedule_card_flip(flip, slot, 0.0, card_flip_cue)
+	await flip.finished
 
 
 static func _card_scaler(slot: Control) -> Control:

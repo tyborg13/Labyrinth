@@ -13,9 +13,10 @@ const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_voll
 const OFFERED_RELICS: Array[String] = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const OWNED_CARD_ID: String = "spark_dart"
 const NEW_CARD_ID: String = "frostbolt"
-const PROOF_VERSION: String = "v4"
+const PROOF_VERSION: String = "wishlist_v5"
 
 var _failed: bool = false
+var _proof_viewport: SubViewport
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -37,6 +38,10 @@ func _initialize() -> void:
 	quit(1 if _failed else 0)
 
 func _capture_configuration(resolution: Vector2i, ui_scale: float) -> void:
+	_proof_viewport = SubViewport.new()
+	_proof_viewport.size = resolution
+	_proof_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(_proof_viewport)
 	await _configure_window(resolution, ui_scale)
 	var output_dir: String = "%s/%dx%d_ui%d" % [
 		OUTPUT_DIR,
@@ -50,7 +55,7 @@ func _capture_configuration(resolution: Vector2i, ui_scale: float) -> void:
 		_fail("Run scene should load for reward composition proof")
 		return
 	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+	_proof_viewport.add_child(instance)
 	await _settle()
 
 	var injured_reward_state: Dictionary = _reward_state(false)
@@ -120,7 +125,7 @@ func _configure_window(resolution: Vector2i, ui_scale: float) -> void:
 	root.size = resolution
 	await _settle()
 	print("Reward proof viewport=%s window=%s target=%s ui=%d" % [
-		root.get_viewport().get_visible_rect().size,
+		_proof_viewport.get_visible_rect().size,
 		root.size,
 		resolution,
 		roundi(ui_scale * 100.0)
@@ -213,7 +218,7 @@ func _treasure_state() -> Dictionary:
 
 func _show_state(instance: Node, state: Dictionary) -> void:
 	root.gui_release_focus()
-	root.warp_mouse(root.get_viewport().get_visible_rect().size - Vector2(2.0, 2.0))
+	root.warp_mouse(_proof_viewport.get_visible_rect().size - Vector2(2.0, 2.0))
 	instance.call("_load_run_state", state)
 	await _settle()
 	var settled_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
@@ -286,20 +291,26 @@ func _capture_reward_sequence_states(
 	title = reveal_parts.get("title") as Label
 	secondary_actions = reveal_parts.get("secondary_actions") as Control
 	var flip_sfx_generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
-	await PostCombatRewardSequence.play_reward_reveal(
-		instance.get("stage_root") as Control,
-		banner,
-		title,
-		slots,
-		secondary_actions,
-		false,
-		Callable(instance, "_play_reward_card_flip_sfx")
-	)
+	var reveal_completion: Dictionary = {"done": false}
+	_track_reward_reveal(instance, banner, title, slots, secondary_actions, reveal_completion)
+	await create_timer(0.54).timeout
+	await RenderingServer.frame_post_draw
+	_proof_viewport.get_texture().get_image().save_png("%s/card_reward_live_ripple_%s.png" % [output_dir, PROOF_VERSION])
+	while not bool(reveal_completion["done"]):
+		await process_frame
+	await _save_root_screenshot("%s/card_reward_live_settled_%s.png" % [output_dir, PROOF_VERSION], resolution)
 	instance.set("_reward_reveal_pending", false)
 	_assert_reveal_faces(slots, slots.size(), "animated reveal completion")
 	_assert_reveal_transforms(slots, "animated reveal completion")
 	if _sfx_generation_total(instance.get("_sfx_players") as Array) != flip_sfx_generation_before + slots.size():
 		_fail("Animated reward reveal should play exactly one flip sound for each revealed card")
+
+func _track_reward_reveal(instance: Node, banner: TextureRect, title: Label, slots: Array[Control], actions: Control, completion: Dictionary) -> void:
+	await PostCombatRewardSequence.play_reward_reveal(
+		instance.get("stage_root") as Control, banner, title, slots, actions,
+		false, Callable(instance, "_play_reward_card_flip_sfx")
+	)
+	completion["done"] = true
 
 func _capture_reduced_motion_reward(
 	instance: Node,
@@ -464,7 +475,7 @@ func _assert_reward_layout(
 	var banner_rect: Rect2 = banner.get_global_rect()
 	var row_rect: Rect2 = card_row.get_global_rect()
 	var button_rect: Rect2 = recover_button.get_global_rect()
-	var viewport_rect := Rect2(Vector2.ZERO, root.get_viewport().get_visible_rect().size)
+	var viewport_rect := Rect2(Vector2.ZERO, _proof_viewport.get_visible_rect().size)
 	if title_rect.end.y > row_rect.position.y + 2.0:
 		_fail("%s selection title should sit above the card row" % label)
 	if button_rect.position.y < row_rect.end.y - 2.0:
@@ -561,7 +572,7 @@ func _assert_relic_layout(instance: Node, resolution: Vector2i, ui_scale: float)
 	var middle_choice: Control = bar.get_child(1) as Control
 	var last_choice: Control = bar.get_child(2) as Control
 	var row_rect: Rect2 = first_choice.get_global_rect().merge(last_choice.get_global_rect())
-	var viewport_rect := Rect2(Vector2.ZERO, root.get_viewport().get_visible_rect().size)
+	var viewport_rect := Rect2(Vector2.ZERO, _proof_viewport.get_visible_rect().size)
 	if title.get_global_rect().end.y > row_rect.position.y + 2.0:
 		_fail("%s treasure title should sit directly above the relic offer row" % label)
 	if not viewport_rect.encloses(row_rect):
@@ -656,7 +667,7 @@ func _save_root_screenshot(output_path: String, resolution: Vector2i) -> void:
 	await create_timer(0.10).timeout
 	await process_frame
 	RenderingServer.force_draw(true, 0.0)
-	var warm_image: Image = root.get_viewport().get_texture().get_image()
+	var warm_image: Image = _proof_viewport.get_texture().get_image()
 	if warm_image != null and not warm_image.is_empty():
 		if warm_image.get_size() != resolution:
 			warm_image.resize(resolution.x, resolution.y, Image.INTERPOLATE_LANCZOS)
@@ -664,7 +675,7 @@ func _save_root_screenshot(output_path: String, resolution: Vector2i) -> void:
 	await create_timer(0.35).timeout
 	await process_frame
 	RenderingServer.force_draw(true, 0.0)
-	var image: Image = root.get_viewport().get_texture().get_image()
+	var image: Image = _proof_viewport.get_texture().get_image()
 	if image == null or image.is_empty():
 		_fail("Failed to read renderer frame: %s" % output_path)
 		return

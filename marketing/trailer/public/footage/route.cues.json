@@ -1,0 +1,35 @@
+{
+  "clip": "route",
+  "fps": 30,
+  "safe_start_raw_frame": 66,
+  "frames": 165,
+  "duration_seconds": 5.5,
+  "width": 1920,
+  "height": 1080,
+  "audio": {
+    "source": "native_gameplay",
+    "music_muted": true,
+    "sample_rate": 48000,
+    "trim_samples": 105600,
+    "peak_dbfs": "-91.0",
+    "duration_seconds": 5.5,
+    "channels": 2,
+    "codec": "aac"
+  },
+  "cues": [
+    {
+      "clip": "route",
+      "kind": "scene_visible",
+      "raw_frame": 64,
+      "seed": 126044,
+      "source_frame": -2
+    },
+    {
+      "clip": "route",
+      "kind": "map_travel_start",
+      "raw_frame": 90,
+      "seed": 126044,
+      "source_frame": 24
+    }
+  ]
+}

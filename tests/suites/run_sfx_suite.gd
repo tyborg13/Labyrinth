@@ -49,11 +49,11 @@ static func _test_registry_and_trimmed_assets(expect: Callable) -> void:
 
 static func _test_victory_timing_contract(expect: Callable) -> void:
 	var cue_seconds: float = float(EXPECTED_DURATIONS[RunSfxLibrary.VICTORY_RESOLUTION_ID])
-	var animated_seconds: float = PostCombatRewardSequence.victory_sequence_seconds(cue_seconds, false)
-	var reduced_seconds: float = PostCombatRewardSequence.victory_sequence_seconds(cue_seconds, true)
-	expect.call(absf(animated_seconds - cue_seconds) <= 0.001, "Victory animation should end with the trimmed resolution cue instead of adding dead space")
-	expect.call(absf(reduced_seconds - cue_seconds) <= 0.001, "Reduced-motion Victory should retain the full audio-backed dwell")
-	expect.call(PostCombatRewardSequence.victory_sequence_seconds(0.0, false) >= 0.85, "Victory should retain its authored default cadence when no cue is available")
+	var animated_seconds: float = PostCombatRewardSequence.victory_sequence_seconds(false)
+	var reduced_seconds: float = PostCombatRewardSequence.victory_sequence_seconds(true)
+	expect.call(animated_seconds < 1.0 and animated_seconds < cue_seconds, "Victory should hand off within a second while the musical tail continues")
+	expect.call(reduced_seconds <= 0.25, "Reduced-motion Victory should hand off promptly without a musical input lock")
+	expect.call(PostCombatRewardSequence.victory_sequence_seconds(false) >= 0.85, "Victory should retain its authored default cadence when no cue is available")
 
 static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
 	var packed_scene: PackedScene = load("res://scenes/run_scene.tscn")
@@ -109,11 +109,11 @@ static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
 	var victory_started_msec: int = Time.get_ticks_msec()
 	await instance.call("_play_post_combat_victory", victory_board)
 	var victory_elapsed: float = float(Time.get_ticks_msec() - victory_started_msec) / 1000.0
-	var victory_seconds: float = float(EXPECTED_DURATIONS[RunSfxLibrary.VICTORY_RESOLUTION_ID])
-	expect.call(victory_elapsed >= victory_seconds - 0.06 and victory_elapsed <= victory_seconds + 0.35, "Victory text should linger for the cue and return without an added dead-space hold")
+	var victory_seconds: float = PostCombatRewardSequence.victory_sequence_seconds(false)
+	expect.call(victory_elapsed >= victory_seconds - 0.06 and victory_elapsed <= victory_seconds + 0.35, "Victory should finish its visual beat without waiting for the audio tail")
 	expect.call(_has_played_sfx(instance, RunSfxLibrary.VICTORY_RESOLUTION_ID), "Victory presentation should play the resolution cue")
 	var victory_overlay: Control = instance.get("_post_combat_victory_overlay") as Control
-	expect.call(victory_overlay != null and not victory_overlay.visible, "Victory overlay should hand off immediately after its audio-backed sequence")
+	expect.call(victory_overlay != null and not victory_overlay.visible, "Victory overlay should clear after its visual beat")
 
 	instance.queue_free()
 	await tree.process_frame

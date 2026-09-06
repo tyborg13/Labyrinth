@@ -6,6 +6,9 @@ const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 
 
 static func run(expect: Callable) -> void:
+	_test_screen_popup_collision_layout(expect)
+	_test_direct_to_timeline_popup_identity(expect)
+	_test_fatigue_popup_identity(expect)
 	_test_damage_motion_curve(expect)
 	_test_effect_popup_motion_curve(expect)
 	_test_compound_popups_stagger_per_target(expect)
@@ -220,11 +223,10 @@ static func _test_overlapping_effect_timeline(expect: Callable) -> void:
 		overlapping.size() == 2
 		and FloatingCombatText.rendered_font_size(overlapping[1]) > FloatingCombatText.rendered_font_size(overlapping[0])
 		and float(overlapping[0].get("alpha", 0.0)) >= 0.99
-		and absf(
-			(overlapping[0].get("motion_offset", Vector2.ZERO) as Vector2).y
-			- (overlapping[1].get("motion_offset", Vector2.ZERO) as Vector2).y
-		) >= 24.0,
-		"A new utility popup should arrive while the previous readable label has drifted clear"
+		and (overlapping[0].get("motion_offset", Vector2.ZERO) as Vector2).is_equal_approx(
+			FloatingCombatText.animate_entries([draw_entry], overlap_elapsed, false)[0]["motion_offset"]
+		),
+		"A new utility popup should arrive while the prior label follows its uninterrupted arc"
 	)
 	expect.call(
 		FloatingCombatText.timeline_duration(groups)
@@ -234,10 +236,9 @@ static func _test_overlapping_effect_timeline(expect: Callable) -> void:
 	var reduced_overlap: Array[Dictionary] = FloatingCombatText.animate_timeline(groups, overlap_elapsed, true)
 	expect.call(
 		reduced_overlap.size() == 2
-		and (reduced_overlap[0].get("motion_offset", Vector2.ZERO) as Vector2).y
-		<= -FloatingCombatText.REDUCED_STACK_STEP_Y
+		and (reduced_overlap[0].get("motion_offset", Vector2.INF) as Vector2).is_zero_approx()
 		and (reduced_overlap[1].get("motion_offset", Vector2.INF) as Vector2).is_zero_approx(),
-		"Reduced motion should keep overlapping utility feedback in a stable readable stack"
+		"Reduced motion should let screen layout place new feedback without moving an older popup"
 	)
 
 
@@ -391,4 +392,100 @@ static func _test_impact_synchronizes_traps_and_terrain_destruction(expect: Call
 		and int((terrain_units[0] as Dictionary).get("destruction_frame", -1)) == 8,
 		"Trap-hit neighboring terrain should advance through its destruction sheet alongside the eruption instead of replaying later"
 	)
+	scene.free()
+
+
+static func _test_screen_popup_collision_layout(expect: Callable) -> void:
+	var bounds := Rect2(12, 16, 1896, 1036)
+	var cache: Dictionary = {}
+	var popups: Array[Dictionary] = []
+	for index: int in range(6):
+		popups.append({"key": str(index), "envelope": Rect2(Vector2(820 + (index / 2) * 84, 270 + (index % 2) * 42), Vector2(118, 108)), "layout_scale": 0.78})
+	var placed: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, bounds, cache)
+	for index: int in range(placed.size()):
+		var envelope: Rect2 = placed[index]["envelope"]
+		var offset: Vector2 = placed[index]["layout_offset"]
+		var rect := Rect2(envelope.position + offset, envelope.size)
+		expect.call(bounds.encloses(rect), "Simultaneous damage labels must remain inside the visible board canvas")
+		expect.call(absf(offset.x) <= FloatingCombatText.SCREEN_POPUP_MAX_SIDE_SHIFT, "Collision avoidance must retain each popup's horizontal actor association")
+		for other_index: int in range(index):
+			var other_envelope: Rect2 = placed[other_index]["envelope"]
+			var other := Rect2(other_envelope.position + (placed[other_index]["layout_offset"] as Vector2), other_envelope.size)
+			expect.call(not rect.grow(3.0).intersects(other), "Dense AoE damage and block-loss popups must have separate motion envelopes")
+	var original_offset: Vector2 = placed[1]["layout_offset"]
+	popups.reverse()
+	var repeated: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, bounds, cache)
+	for popup: Dictionary in repeated:
+		if str(popup["key"]) == "1":
+			expect.call((popup["layout_offset"] as Vector2).is_equal_approx(original_offset), "Existing popup lanes must not shuffle when batch ordering changes")
+	var empty: Array[Dictionary] = []
+	FloatingCombatText.place_screen_popups(empty, bounds, cache)
+	expect.call(cache.is_empty(), "Finished popup bursts must release their layout reservations")
+
+
+static func _test_direct_to_timeline_popup_identity(expect: Callable) -> void:
+	var scene: Node = RunScene.new()
+	var bounds := Rect2(12, 16, 1896, 1036)
+	for reduced: bool in [false, true]:
+		var source: Array[Dictionary] = [FloatingCombatText.damage_entry(Vector2i(4, 3), "-5", Color("f39779"))]
+		var direct: Array[Dictionary] = FloatingCombatText.animate_entries(source, 0.18, reduced)
+		var key: String = direct[0]["screen_layout_key"]
+		var cache: Dictionary = {}
+		var popups: Array[Dictionary] = [{"key": key, "envelope": Rect2(850, 250, 120, 98)}]
+		var obstacles: Array[Rect2] = [Rect2(840, 232, 145, 105)]
+		var placed: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, bounds, cache, obstacles)
+		var original_offset: Vector2 = placed[0]["layout_offset"]
+		# Match RunScene: direct attack feedback, deep-copied presentation, then
+		# _animate_floating_text_presentation queues the remaining popup tail.
+		scene.call("_begin_player_popup_timeline")
+		scene.set("_player_popup_timeline_started_usec", Time.get_ticks_usec() - 1000000)
+		scene.call("_queue_player_popup_group", source.duplicate(true), 0.18)
+		var groups: Array = scene.get("_player_popup_timeline_groups")
+		var handoff_time: float = float(groups[0]["start_seconds"]) + 0.18
+		var queued: Array[Dictionary] = FloatingCombatText.animate_timeline(groups, handoff_time, reduced)
+		expect.call(queued.size() == 1 and str(queued[0]["screen_layout_key"]) == key,
+			"Direct attack feedback must retain its identity through the production timeline queue")
+		var queued_popups: Array[Dictionary] = [{"key": queued[0]["screen_layout_key"], "envelope": Rect2(850, 230, 120, 98)}]
+		placed = FloatingCombatText.place_screen_popups(queued_popups, bounds, cache, obstacles)
+		expect.call((placed[0]["layout_offset"] as Vector2).is_equal_approx(original_offset),
+			"Timeline handoff must reuse the already visible popup lane even when another lane becomes closer")
+		var repeated: Array[Dictionary] = [FloatingCombatText.damage_entry(Vector2i(4, 3), "-5", Color("f39779"))]
+		var arriving: Array[Dictionary] = FloatingCombatText.animate_entries(repeated, 0.0, reduced)
+		var arriving_key: String = arriving[0]["screen_layout_key"]
+		expect.call(arriving_key != key, "Independently created identical hits must have distinct presentation identities")
+		# Use the same start time deliberately: timestamps cannot identify a hit.
+		groups.append(FloatingCombatText.timeline_group(repeated.duplicate(true), float(groups[0]["start_seconds"])))
+		var overlapping: Array[Dictionary] = FloatingCombatText.animate_timeline(groups, handoff_time, reduced)
+		expect.call(overlapping.size() == 2 and str(overlapping[0]["screen_layout_key"]) != str(overlapping[1]["screen_layout_key"]),
+			"Identical hits queued at the same timestamp must not merge")
+		expect.call((overlapping[0]["motion_offset"] as Vector2).is_equal_approx(direct[0]["motion_offset"]),
+			"Queuing another same-target hit must not retroactively restack an existing normal or reduced-motion popup")
+		var overlapping_popups: Array[Dictionary] = [
+			{"key": overlapping[0]["screen_layout_key"], "envelope": Rect2(850, 230, 120, 98)},
+			{"key": overlapping[1]["screen_layout_key"], "envelope": Rect2(850, 230, 120, 98)},
+		]
+		placed = FloatingCombatText.place_screen_popups(overlapping_popups, bounds, cache, obstacles)
+		var old_rect := Rect2(Vector2(850, 230) + (placed[0]["layout_offset"] as Vector2), Vector2(120, 98))
+		var new_rect := Rect2(Vector2(850, 230) + (placed[1]["layout_offset"] as Vector2), Vector2(120, 98))
+		expect.call((placed[0]["layout_offset"] as Vector2).is_equal_approx(original_offset) and not old_rect.intersects(new_rect),
+			"Only the arriving identical hit must claim a new collision-free lane")
+	scene.free()
+
+
+static func _test_fatigue_popup_identity(expect: Callable) -> void:
+	var scene: Node = RunScene.new()
+	var state: Dictionary = {"player": {"pos": Vector2i(3, 3)}}
+	var before: Dictionary = state.duplicate(true)
+	var events: Array[Dictionary] = [{"cycle": 1, "amount": 2, "tile": Vector2i(3, 3)}]
+	var early: Dictionary = scene.call("_fatigue_damage_presentation_for_elapsed", state, events, 0.09)
+	var late: Dictionary = scene.call("_fatigue_damage_presentation_for_elapsed", state, events, 0.18)
+	var separate_events: Array[Dictionary] = [{"cycle": 1, "amount": 2, "tile": Vector2i(3, 3)}]
+	var separate: Dictionary = scene.call("_fatigue_damage_presentation_for_elapsed", state, separate_events, 0.09)
+	for index: int in range(2):
+		expect.call(early["floating_texts"][index]["screen_layout_key"] == late["floating_texts"][index]["screen_layout_key"],
+			"Rebuilt fatigue popups must retain the identity of their existing local presentation event")
+		expect.call(early["floating_texts"][index]["screen_layout_key"] != separate["floating_texts"][index]["screen_layout_key"],
+			"Separate fatigue events must keep separate popup identities")
+	expect.call(state == before and int(events[0]["amount"]) == 2 and int(events[0]["cycle"]) == 1,
+		"Popup identity must leave the saved combat state and fatigue rules unchanged")
 	scene.free()

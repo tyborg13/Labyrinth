@@ -1,0 +1,63 @@
+{
+  "clip": "spell",
+  "fps": 30,
+  "safe_start_raw_frame": 37,
+  "frames": 284,
+  "duration_seconds": 9.466667,
+  "width": 1920,
+  "height": 1080,
+  "audio": {
+    "source": "native_gameplay",
+    "music_muted": true,
+    "sample_rate": 48000,
+    "trim_samples": 59200,
+    "peak_dbfs": "-15.0",
+    "duration_seconds": 9.466,
+    "channels": 2,
+    "codec": "aac"
+  },
+  "cues": [
+    {
+      "clip": "spell",
+      "kind": "scene_visible",
+      "raw_frame": 35,
+      "seed": 126044,
+      "source_frame": -2,
+      "wall_usec": 6871472
+    },
+    {
+      "clip": "spell",
+      "kind": "reward_reveal_start",
+      "raw_frame": 35,
+      "seed": 126044,
+      "source_frame": -2,
+      "wall_usec": 6871489
+    },
+    {
+      "clip": "spell",
+      "kind": "reward_reveal_complete",
+      "raw_frame": 62,
+      "seed": 126044,
+      "source_frame": 25,
+      "wall_usec": 7642310
+    },
+    {
+      "card": "molten_reach",
+      "clip": "spell",
+      "kind": "reward_claim_commit",
+      "raw_frame": 114,
+      "seed": 126044,
+      "source_frame": 77,
+      "wall_usec": 9058405
+    },
+    {
+      "card": "molten_reach",
+      "clip": "spell",
+      "kind": "reward_claim_complete",
+      "raw_frame": 155,
+      "seed": 126044,
+      "source_frame": 118,
+      "wall_usec": 10191395
+    }
+  ]
+}

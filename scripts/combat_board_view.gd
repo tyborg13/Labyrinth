@@ -155,6 +155,7 @@ const ENEMY_HUD_SIDE_STICKY_OVERLAP_AREA: float = 1.0
 const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
+const FOREGROUND_ACTOR_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.26)
 const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
 const LOOT_DRAW_TILE_WIDTH_SCALE: float = 0.34
 const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
@@ -191,8 +192,8 @@ const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
 const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
 const OUTER_WALL_RENDERING_ENABLED: bool = false
 const TILE_DEPTH_HEIGHT_RATIO: float = 0.30
-const TILE_DEPTH_LEFT_FACE: Color = Color("241914")
-const TILE_DEPTH_RIGHT_FACE: Color = Color("33231b")
+const TILE_DEPTH_LEFT_FACE: Color = Color("292520")
+const TILE_DEPTH_RIGHT_FACE: Color = Color("383128")
 const TILE_DEPTH_EDGE: Color = Color("130e0c")
 const BOARD_SIDE_MARGIN: float = 36.0
 const BOARD_VERTICAL_MARGIN: float = 8.0
@@ -324,6 +325,8 @@ const COLUMN_TORCH_IDLE_COLUMNS: int = 4
 const COLUMN_TORCH_IDLE_ROWS: int = 4
 const COLUMN_TORCH_IDLE_FRAME_SECONDS: float = 0.1166667
 const COLUMN_TORCH_EMBER_MOTE_COUNT: int = 4
+const COLUMN_TORCH_FLOOR_LIGHT_COLOR: Color = Color(1.0, 0.57, 0.22, 0.25)
+const COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS: int = 2
 const COLUMN_TORCH_EMBER_MOTE_ALPHA: float = 0.90
 const COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE: float = 0.52
 const COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE: float = 0.020
@@ -462,6 +465,7 @@ var _prop_textures: Dictionary = {}
 var _scene_prop_textures: Dictionary = {}
 var _scene_prop_idle_frames: Dictionary = {}
 var _pillar_torch_idle_frames: Dictionary = {}
+var _pillar_torch_light_texture: GradientTexture2D = null
 var _effect_textures: Dictionary = {}
 var _effect_frames: Dictionary = {}
 var _projectile_atlas: Texture2D = null
@@ -645,6 +649,8 @@ var _scene_render_layers: Array = []
 var _foreground_render_layer: Control = null
 var _hud_render_layer: Control = null
 var _effects_render_layer: Control = null
+var _floating_text_layout_cache: Dictionary = {}
+var _floating_text_last_layout: Array[Dictionary] = []
 var _foreground_obstruction_entries_cache: Array[Dictionary]
 var _static_draw_count: int = 0
 var _dynamic_draw_count: int = 0
@@ -776,7 +782,7 @@ func _sync_static_render_cache() -> void:
 		"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
 		"_board_visual_framing_signature", "_board_layout_cache_visual_top_offset",
 		"_floor_variant_signature", "_moss_signature", "_tile_textures",
-		"_floor_texture_variants", "_element_overlay_texture_variants"
+		"_floor_texture_variants", "_element_overlay_texture_variants", "_pillar_torch_light_texture"
 	]:
 		_static_render_cache_layer.set(field, get(field))
 	# Layout depends on the real viewport and UI safe area. A SubViewport must
@@ -999,7 +1005,7 @@ func _sync_dynamic_render_assets() -> void:
 		for field: String in [
 			"_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants",
 			"_prop_textures", "_scene_prop_textures", "_scene_prop_idle_frames",
-			"_pillar_torch_idle_frames", "_effect_textures", "_effect_frames",
+			"_pillar_torch_idle_frames", "_pillar_torch_light_texture", "_effect_textures", "_effect_frames",
 			"_projectile_atlas", "_projectile_textures", "_ambient_particle_atlas",
 			"_ambient_particle_glow_atlas", "_ambient_fire_soft_atlas", "_ambient_air_wisp_atlas",
 			"_ambient_air_wisp_soft_atlas", "_ambient_air_wisp_glow_atlas",
@@ -2040,6 +2046,7 @@ func _queue_presentation_change_redraws(
 			"effect", "effect_progress":
 				effects_changed = true
 				action_floor_changed = true
+				overlay_changed = true
 			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect":
 				effects_changed = true
 			"trap_effects":
@@ -2057,6 +2064,9 @@ func _queue_presentation_change_redraws(
 			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
 				unit_movement_changed = true
 				foreground_changed = true
+				# Large-target footprint extensions share the ground overlay layer.
+				# Visibility and geometry can change while the selected tiles stay fixed.
+				overlay_changed = overlay_changed or not attack_tiles.is_empty()
 				hud_changed = true
 			"focus_actor_color", "focus_actor_keys":
 				_queue_focus_actor_scene_redraws(previous_focus_actor_keys, next_focus_actor_keys, previous_unit_render_tiles)
@@ -2132,6 +2142,8 @@ func _queue_combat_state_change_redraws(
 	if units_changed:
 		_queue_moving_actor_redraws(moving_actor_keys, previous_unit_render_tiles, previous_unit_obstruction_entries)
 		_queue_render_layer_redraw(_foreground_render_layer)
+		if not attack_tiles.is_empty():
+			_queue_render_layer_redraw(_overlay_render_layer)
 		_queue_render_layer_redraw(_hud_render_layer)
 	if changed_keys.has("player_turn_restrictions"):
 		for player_source: Dictionary in [
@@ -2858,7 +2870,6 @@ func _draw_dynamic_board() -> void:
 		var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 		var units_to_draw: Array[Dictionary] = _visible_units()
 		_draw_scene_objects(grid, tiles, units_to_draw)
-		_draw_large_enemy_attack_highlights(units_to_draw)
 		_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
 		_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 		_draw_campfire_ember_motes()
@@ -2930,6 +2941,8 @@ func _draw_overlay_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
+	_draw_action_ground_markings()
+	_draw_large_enemy_attack_highlight_extensions(_visible_units())
 	_record_render_section_time("tile_overlays", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -3011,9 +3024,6 @@ func _draw_foreground_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	var units_to_draw: Array[Dictionary] = _visible_units()
-	_draw_large_enemy_attack_highlights(units_to_draw)
-	_record_render_section_time("foreground_attack_highlights", section_started_usec)
-	section_started_usec = Time.get_ticks_usec()
 	_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
 	_record_render_section_time("foreground_umbra_markers", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
@@ -5004,15 +5014,41 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 		var rect := Rect2(_tile_center(tile) - Vector2(tile_width * 0.5, tile_height * 0.5), Vector2(tile_width, tile_height))
 		draw_texture_rect(texture, rect, false)
 	_draw_floor_moss_overlay(tile)
+	_draw_pillar_torch_floor_light(grid, tile, polygon)
 	draw_polyline(polygon, GRID_OUTLINE, 2.0, true)
+
+# Light is part of the retained stone surface: it never redraws the floor for
+# flame flicker, floats over a board edge, or covers targeting/actor silhouettes.
+func _draw_pillar_torch_floor_light(grid: Array, tile: Vector2i, polygon: PackedVector2Array) -> void:
+	if _pillar_torch_light_texture == null or not _tile_drawn_as_floor(grid, tile):
+		return
+	var light_size := Vector2(_tile_width() * 3.2, _tile_height() * 3.2)
+	for dy: int in range(-COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS, COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS + 1):
+		for dx: int in range(-COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS, COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS + 1):
+			var source_tile := tile + Vector2i(dx, dy)
+			if not _tile_renders_as_pillar(grid, source_tile):
+				continue
+			var light_center: Vector2 = _tile_center(source_tile) + Vector2(0.0, _tile_height() * 0.22)
+			var light_origin: Vector2 = light_center - light_size * 0.5
+			var uvs := PackedVector2Array()
+			for point: Vector2 in polygon:
+				uvs.append((point - light_origin) / light_size)
+			draw_polygon(polygon, PackedColorArray([COLUMN_TORCH_FLOOR_LIGHT_COLOR]), uvs, _pillar_torch_light_texture)
 
 func _draw_floor_tile_depth(tile: Vector2i) -> void:
 	var faces: Array[PackedVector2Array] = _tile_depth_faces(tile)
 	for face_index: int in range(faces.size()):
 		var face: PackedVector2Array = faces[face_index]
 		var face_color: Color = TILE_DEPTH_RIGHT_FACE if face_index == 0 else TILE_DEPTH_LEFT_FACE
-		draw_colored_polygon(face, face_color)
 		if face.size() >= 4:
+			# A lit stone lip and a shaded lower course give the slab thickness;
+			# use vertex shading so the cached floor needs no extra animation pass.
+			var upper_color: Color = face_color.lightened(0.14)
+			var lower_color: Color = face_color.darkened(0.34)
+			draw_polygon(face, PackedColorArray([upper_color, upper_color, lower_color, lower_color]))
+			var bevel_offset := Vector2(0.0, maxf(1.0, _tile_height() * 0.038))
+			draw_line(face[0] + bevel_offset, face[1] + bevel_offset, Color(0.52, 0.45, 0.34, 0.34), 1.0, true)
+			draw_line(face[0].lerp(face[3], 0.70), face[1].lerp(face[2], 0.70), Color(0.025, 0.021, 0.018, 0.35), 1.0, true)
 			draw_polyline(
 				PackedVector2Array([face[0], face[1], face[2], face[3], face[0]]),
 				TILE_DEPTH_EDGE,
@@ -5145,9 +5181,13 @@ func _large_enemy_attack_highlight_tiles(units_to_draw: Array[Dictionary]) -> Ar
 				result.append(tile)
 	return result
 
-func _draw_large_enemy_attack_highlights(units_to_draw: Array[Dictionary]) -> void:
+func _draw_large_enemy_attack_highlight_extensions(units_to_draw: Array[Dictionary]) -> void:
+	# A large actor exposes its full targetable footprint, but the floor must
+	# still pass behind its body and every prop. Do not repaint these diamonds
+	# on the foreground layer or double the ordinary target-tile opacity.
 	for tile: Vector2i in _large_enemy_attack_highlight_tiles(units_to_draw):
-		_draw_attack_tile_highlight(tile)
+		if not _attack_tiles_lookup_cache.has(tile):
+			_draw_attack_tile_highlight(tile)
 
 func _draw_exit_tile_pulse(tile: Vector2i) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -5547,9 +5587,26 @@ func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: R
 	var left_texture: Texture2D = _pillar_torch_texture("left")
 	var right_texture: Texture2D = _pillar_torch_texture("right")
 	if left_texture != null:
-		draw_texture_rect(left_texture, _pillar_torch_rect(pillar_rect, left_texture, -1.0), false, tint)
+		var torch_rect: Rect2 = _pillar_torch_rect(pillar_rect, left_texture, -1.0)
+		_draw_pillar_torch_flame_light(tile, torch_rect, -1.0, tint.a)
+		draw_texture_rect(left_texture, torch_rect, false, tint)
 	if right_texture != null:
-		draw_texture_rect(right_texture, _pillar_torch_rect(pillar_rect, right_texture, 1.0), false, tint)
+		var torch_rect: Rect2 = _pillar_torch_rect(pillar_rect, right_texture, 1.0)
+		_draw_pillar_torch_flame_light(tile, torch_rect, 1.0, tint.a)
+		draw_texture_rect(right_texture, torch_rect, false, tint)
+
+func _draw_pillar_torch_flame_light(tile: Vector2i, torch_rect: Rect2, side_sign: float, alpha: float) -> void:
+	if _pillar_torch_light_texture == null or alpha <= 0.0:
+		return
+	var flame_point: Vector2 = _pillar_torch_flame_point(torch_rect, side_sign)
+	var flicker: float = 1.0
+	if not bool(presentation.get("reduced_motion", false)):
+		var phase: float = float(tile.x * 17 + tile.y * 31) + side_sign * 1.7
+		flicker += sin(_idle_elapsed * 5.1 + phase) * 0.045 + sin(_idle_elapsed * 8.7 + phase) * 0.025
+	var halo_size := Vector2.ONE * torch_rect.size.x * 2.8
+	draw_texture_rect(_pillar_torch_light_texture, Rect2(flame_point - halo_size * 0.5, halo_size), false, Color(1.0, 0.43, 0.12, 0.38 * alpha * flicker))
+	var core_size: Vector2 = halo_size * 0.42
+	draw_texture_rect(_pillar_torch_light_texture, Rect2(flame_point - core_size * 0.5, core_size), false, Color(1.0, 0.76, 0.32, 0.28 * alpha * flicker))
 
 func _pillar_torch_texture(side_key: String) -> Texture2D:
 	var idle_frames: Array[Texture2D] = _pillar_torch_idle_frames_for_side(side_key)
@@ -5681,6 +5738,7 @@ func _tile_renders_as_pillar(grid: Array, tile: Vector2i) -> bool:
 func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
 	if not _is_tall_obstructive_tile(tile_id):
 		return Color.WHITE
+	var tint: Color = Color.WHITE
 	for entry_var: Variant in obstruction_entries:
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
@@ -5694,8 +5752,13 @@ func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2,
 		if entry_rect == Rect2() and not entry.has("rect"):
 			entry_rect = _unit_draw_rect(entry)
 		if _foreground_overlap_coverage(prop_rect, entry_rect) >= FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD:
-			return FOREGROUND_OBSTRUCTION_TINT
-	return Color.WHITE
+			# Several translucent foreground props can still bury a character.
+			# Preserve more of the actor silhouette while keeping ordinary object
+			# obstruction at its established opacity and retaining board depth.
+			if not str(entry.get("actor_key", entry.get("key", ""))).is_empty():
+				return FOREGROUND_ACTOR_OBSTRUCTION_TINT
+			tint = FOREGROUND_OBSTRUCTION_TINT
+	return tint
 
 func _foreground_overlap_coverage(foreground_rect: Rect2, covered_rect: Rect2) -> float:
 	if foreground_rect.size.x <= 0.0 or foreground_rect.size.y <= 0.0:
@@ -8581,9 +8644,6 @@ func _draw_effect_overlay() -> void:
 				_draw_umbra_clipped_ranged_effect(effect, progress)
 			elif not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
 				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
-			for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
-				if _board_tile_is_visible_to_player(force_tile):
-					_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
 		"melee":
 			if to_tile.x < 0:
 				return
@@ -8601,7 +8661,10 @@ func _draw_effect_overlay() -> void:
 			else:
 				_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
-			_draw_aoe_effect(effect, progress, from_point, center_point)
+			_draw_aoe_cast_preview(effect, from_point, center_point)
+		"chain":
+			if from_tile.x >= 0 and to_tile.x >= 0:
+				preload("res://scripts/chain_attack_fx.gd").draw_hop(self, from_point, to_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
 		"lightning_strikes":
 			var strike_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
 			var bolt_alpha: float = 0.24 + progress * 0.34
@@ -9202,6 +9265,9 @@ func _enemy_threat_ranged_effect(threat: Dictionary) -> Dictionary:
 	}
 
 func _draw_ranged_target_preview_curve(effect: Dictionary, from_point: Vector2, to_point: Vector2) -> void:
+	# Every preview caller, including AOE, must respect the hand arrow's ownership.
+	if not _target_preview_curve_visible(effect):
+		return
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)
@@ -9934,31 +10000,38 @@ func _blink_player_unit_snapshot() -> Dictionary:
 		"poison": player.get("poison", {}).duplicate(true)
 	}
 
-func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, center_point: Vector2) -> void:
-	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
-	if tiles.is_empty():
+func _draw_action_ground_markings() -> void:
+	# Tactical diamonds describe the floor, including while the attack resolves.
+	# Keep filled cells and outlines beside preview highlights, beneath trap
+	# sprites, loot, paths, Umbra and raised scenery. Light effects have their own
+	# later floor pass; they must not lift tactical diamonds above ground objects.
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	var kind: String = str(effect.get("kind", ""))
+	if kind == "aoe" and not bool(effect.get("preview", false)):
+		var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+		_draw_aoe_resolution_footprint(effect, progress)
+	elif kind == "ranged" and (effect.get("from", Vector2i(-1, -1)) as Vector2i).x >= 0 and (effect.get("to", Vector2i(-1, -1)) as Vector2i).x >= 0:
+		for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
+			if _board_tile_is_visible_to_player(force_tile):
+				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
+
+func _draw_aoe_cast_preview(effect: Dictionary, from_point: Vector2, center_point: Vector2) -> void:
+	if not bool(effect.get("preview", false)) or (effect.get("tiles", []) as Array).is_empty():
 		return
-	var preview: bool = bool(effect.get("preview", false))
-	if preview:
-		# Match direct ranged targeting: the affected area is already expressed by
-		# the shared focus-tile highlights, so only retain the familiar thin cast
-		# path. Extra rings, center reticles, and line-pattern bolts obscure that
-		# clean board language and can make a straight AOE read as lightning.
-		if (
-			from_point != Vector2.ZERO
-			and center_point != Vector2.ZERO
-			and from_point.distance_squared_to(center_point) > 1.0
-		):
-			_draw_ranged_target_preview_curve(effect, from_point, center_point)
-		return
-	var accent: Color = _aoe_effect_accent(effect)
+	# The shared floor highlights already express the affected area. Only the
+	# thin cast path belongs above the scene; resolution diamonds stay below it.
+	if from_point != Vector2.ZERO and center_point != Vector2.ZERO and from_point.distance_squared_to(center_point) > 1.0:
+		_draw_ranged_target_preview_curve(effect, from_point, center_point)
+
+func _draw_aoe_resolution_footprint(effect: Dictionary, progress: float) -> void:
 	var visibility: float = _aoe_resolution_footprint_visibility(effect, progress)
 	if visibility <= 0.0:
 		return
+	var accent: Color = _aoe_effect_accent(effect)
 	var edge_rgb: Color = accent.lightened(0.34)
 	var fill := Color(accent.r, accent.g, accent.b, 0.18 * visibility)
 	var edge := Color(edge_rgb.r, edge_rgb.g, edge_rgb.b, 0.78 * visibility)
-	for tile: Vector2i in tiles:
+	for tile: Vector2i in _vector2i_array(effect.get("tiles", [])):
 		_draw_aoe_footprint_tile(tile, fill, edge, 2.0)
 
 func _aoe_resolution_footprint_visibility(effect: Dictionary, progress: float) -> float:
@@ -9985,30 +10058,13 @@ func _draw_floating_texts() -> void:
 	var default_font: Font = get_theme_default_font()
 	if default_font == null:
 		return
-	for entry_var: Variant in presentation.get("floating_texts", []):
-		var entry: Dictionary = entry_var
-		var is_damage: bool = FloatingCombatText.is_damage_entry(entry)
-		var is_popup: bool = FloatingCombatText.is_popup_entry(entry)
-		var font: Font = UiTypography.body_font() if is_damage else default_font
-		if font == null:
-			font = default_font
-		var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
-		if tile.x < 0:
-			continue
-		var label_width: float = _floating_text_rendered_width(entry, font)
-		var font_scale: float = clampf(float(entry.get("font_scale", 1.0)), 0.1, 2.0)
-		var motion_offset: Vector2 = entry.get("motion_offset", Vector2.ZERO)
-		var text_pos: Vector2
-		if is_popup and bool(entry.get("automatic_anchor", false)):
-			motion_offset.x = absf(motion_offset.x)
-			text_pos = _floating_text_local_origin(tile, label_width * font_scale)
-		else:
-			var tile_center: Vector2 = _tile_center(tile)
-			text_pos = tile_center + Vector2(
-				float(entry.get("x_offset", -18.0)),
-				float(entry.get("anchor_y", -84.0))
-			)
-		text_pos += motion_offset + Vector2(0.0, float(entry.get("offset", 0.0)))
+	_floating_text_last_layout = _floating_text_screen_layout(default_font)
+	for popup: Dictionary in _floating_text_last_layout:
+		var entry: Dictionary = popup["entry"]
+		var font: Font = popup["font"] as Font
+		var label_width: float = float(popup["label_width"])
+		var font_scale: float = float(popup["font_scale"])
+		var text_pos: Vector2 = (popup["origin"] as Vector2) + (popup.get("layout_offset", Vector2.ZERO) as Vector2)
 		var color: Color = entry.get("color", Color("f8f0da"))
 		color.a *= clampf(float(entry.get("alpha", 1.0)), 0.0, 1.0)
 		var font_size: int = int(entry.get("font_size", 16))
@@ -10049,6 +10105,91 @@ func _draw_floating_texts() -> void:
 					draw_string(font, local_text_pos + Vector2(outline_x, outline_y), text, alignment, label_width, font_size, outline_color)
 		draw_string(font, local_text_pos, text, alignment, label_width, font_size, color)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
+	var popups: Array[Dictionary] = []
+	for entry_var: Variant in presentation.get("floating_texts", []):
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var
+		var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var font: Font = UiTypography.body_font() if FloatingCombatText.is_damage_entry(entry) else default_font
+		if font == null:
+			font = default_font
+		var label_width: float = _floating_text_rendered_width(entry, font)
+		var automatic_anchor: bool = FloatingCombatText.is_popup_entry(entry) and bool(entry.get("automatic_anchor", false))
+		var reduced_motion: bool = bool(entry.get("animation_reduced_motion", presentation.get("reduced_motion", false)))
+		var key: String = "%s|%s" % [str(reduced_motion), str(entry.get("screen_layout_key", "%s|%s|%d" % [tile, str(entry.get("text", "")), popups.size()]))]
+		var anchor: Vector2 = _floating_text_local_origin(tile, label_width) if automatic_anchor else _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), float(entry.get("anchor_y", -84.0)))
+		var font_size: int = int(entry.get("font_size", 16))
+		var natural_rect := Rect2(anchor - Vector2(0.0, font.get_ascent(font_size)), Vector2(label_width, font.get_height(font_size)))
+		popups.append({"entry": entry, "font": font, "key": key, "tile": tile, "label_width": label_width, "automatic_anchor": automatic_anchor, "reduced_motion": reduced_motion, "natural_rect": natural_rect})
+	for popup: Dictionary in popups:
+		var entry: Dictionary = popup["entry"]
+		var font: Font = popup["font"] as Font
+		var font_size: int = int(entry.get("font_size", 16))
+		var tile: Vector2i = popup["tile"]
+		var label_width: float = float(popup["label_width"])
+		var layout_scale: float = 1.0
+		var key: String = str(popup["key"])
+		if _floating_text_layout_cache.has(key):
+			layout_scale = float((_floating_text_layout_cache[key] as Dictionary).get("scale", 1.0))
+		elif bool(popup["automatic_anchor"]) and not bool(popup["reduced_motion"]):
+			for other: Dictionary in popups:
+				if other != popup and (popup["natural_rect"] as Rect2).grow(8.0).intersects(other["natural_rect"] as Rect2):
+					# Preserve the solo hit's punch; crowded volleys use a slightly
+					# smaller peak so every target's result has room to read.
+					layout_scale = 0.66
+					break
+		var font_scale: float = clampf(float(entry.get("font_scale", 1.0)), 0.1, 2.0) * layout_scale
+		var motion: Vector2 = entry.get("motion_offset", Vector2.ZERO)
+		var motion_scale: float = layout_scale if is_equal_approx(layout_scale, 1.0) else layout_scale * 0.5
+		if not bool(popup["reduced_motion"]):
+			motion *= motion_scale
+		var anchor: Vector2 = _floating_text_local_origin(tile, label_width * layout_scale) if bool(popup["automatic_anchor"]) else _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), float(entry.get("anchor_y", -84.0)))
+		var origin: Vector2 = _floating_text_local_origin(tile, label_width * font_scale) if bool(popup["automatic_anchor"]) else anchor
+		if bool(popup["automatic_anchor"]):
+			motion.x = absf(motion.x)
+		var extra_offset := Vector2(0.0, float(entry.get("offset", 0.0)))
+		origin += motion + extra_offset
+		var glyph_width: float = _floating_text_glyph_width(entry, font)
+		if not str(entry.get("icon", "")).is_empty():
+			glyph_width += float(entry.get("icon_size", 18.0)) + 4.0
+		var alignment: HorizontalAlignment = entry.get("alignment", HORIZONTAL_ALIGNMENT_LEFT)
+		var glyph_inset: float = maxf(0.0, label_width - glyph_width) * (0.5 if alignment == HORIZONTAL_ALIGNMENT_CENTER else (1.0 if alignment == HORIZONTAL_ALIGNMENT_RIGHT else 0.0))
+		# The 140px label width includes alignment padding. Collision space belongs
+		# to visible glyphs, otherwise adjacent actors push their results off-board.
+		var ascent: float = font.get_ascent(font_size)
+		var descent: float = font.get_descent(font_size)
+		if FloatingCombatText.is_damage_entry(entry):
+			ascent = float(font_size) * 0.80
+			descent = float(font_size) * 0.12
+		ascent = maxf(ascent, float(entry.get("icon_size", 0.0)))
+		var outline: float = float(entry.get("outline_size", 2))
+		var shadow: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
+		var peak_origin: Vector2 = anchor + (motion if bool(popup["reduced_motion"]) else Vector2(motion.x, 0.0)) + extra_offset
+		var envelope := Rect2(peak_origin + Vector2((glyph_inset - outline) * layout_scale, -(ascent + outline) * layout_scale), Vector2((glyph_width + outline * 2.0 + absf(shadow.x)) * layout_scale, (ascent + descent + outline * 2.0 + absf(shadow.y)) * layout_scale)).grow(3.0)
+		if not bool(popup["reduced_motion"]):
+			# Reserve the whole rise/fall, so later hits cannot enter an older
+			# popup's lane as their differently timed arcs converge.
+			envelope = envelope.grow_individual(0.0, FloatingCombatText.ARC_RISE_HEIGHT * motion_scale, 0.0, FloatingCombatText.ARC_END_DROP * motion_scale)
+		var rendered_rect := Rect2(origin + Vector2((glyph_inset - outline) * font_scale, -(ascent + outline) * font_scale), Vector2((glyph_width + outline * 2.0 + absf(shadow.x)) * font_scale, (ascent + descent + outline * 2.0 + absf(shadow.y)) * font_scale))
+		popup["rendered_rect"] = rendered_rect
+		popup["origin"] = origin
+		popup["font_scale"] = font_scale
+		popup["layout_scale"] = layout_scale
+		popup["envelope"] = envelope
+	var obstacles: Array[Rect2] = []
+	var rise_clearance: float = 0.0 if bool(presentation.get("reduced_motion", false)) else FloatingCombatText.ARC_RISE_HEIGHT
+	for rect_var: Variant in _hud_health_rects_cache.values():
+		if typeof(rect_var) != TYPE_RECT2:
+			continue
+		var rect: Rect2 = (rect_var as Rect2).grow(6.0)
+		rect.size.y += rise_clearance
+		obstacles.append(rect)
+	return FloatingCombatText.place_screen_popups(popups, Rect2(Vector2(12.0, 16.0), size - Vector2(24.0, 44.0)), _floating_text_layout_cache, obstacles)
 
 func _floating_text_rendered_width(entry: Dictionary, font: Font = null) -> float:
 	var resolved_font: Font = font
@@ -11438,6 +11579,17 @@ func _door_icon_texture(icon_id: String) -> Texture2D:
 	return _door_icon_textures.get(icon_id, null)
 
 func _load_assets(load_full_unit_roster: bool = true) -> void:
+	if _pillar_torch_light_texture == null:
+		var gradient := Gradient.new()
+		gradient.offsets = PackedFloat32Array([0.0, 0.20, 0.46, 0.74, 1.0])
+		gradient.colors = PackedColorArray([Color(1, 1, 1, 1), Color(1, 1, 1, 0.68), Color(1, 1, 1, 0.25), Color(1, 1, 1, 0.035), Color(1, 1, 1, 0)])
+		_pillar_torch_light_texture = GradientTexture2D.new()
+		_pillar_torch_light_texture.gradient = gradient
+		_pillar_torch_light_texture.width = 256
+		_pillar_torch_light_texture.height = 256
+		_pillar_torch_light_texture.fill = GradientTexture2D.FILL_RADIAL
+		_pillar_torch_light_texture.fill_from = Vector2(0.5, 0.5)
+		_pillar_torch_light_texture.fill_to = Vector2(1.0, 0.5)
 	# Status prompts can use display, UI, or text roles depending on room/combat
 	# mode. Resolve all three while the board is being prepared so the first
 	# player-visible prompt never pays font-resource decode during an action frame.

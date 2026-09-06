@@ -8,3 +8,6 @@ out
 
 # Godot Movie Maker intermediates; H.264 edit clips are kept.
 public/footage/*.avi
+
+# Native RGB source sequences and uncompressed gameplay sound are regenerated.
+public/footage/lossless/

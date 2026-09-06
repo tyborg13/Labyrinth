@@ -12,6 +12,7 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const MerchantAcquisitionEffect = preload("res://scripts/merchant_acquisition_effect.gd")
 
 const REFERENCE_SIZE := Vector2(1920.0, 1080.0)
 const BACKDROP_PATH := "res://assets/art/ui/scavenger_shop/stall_backdrop_v2.png"
@@ -79,6 +80,7 @@ var _sell_page: int = 0
 var _detail_card_ids: Array[String] = []
 var _detail_card_index: int = 0
 var _slot_tweens: Dictionary = {}
+var _purchase_effects: Control
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -95,6 +97,7 @@ func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bo
 	_reduced_motion = reduced_motion
 	var next_room: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
 	if next_room != _room_coord:
+		_clear_children(_purchase_effects)
 		_room_coord = next_room
 		_entry_played_for_room = false
 		_selected_item_id = ""
@@ -115,6 +118,60 @@ func present() -> void:
 
 func dismiss_immediately() -> void:
 	visible = false
+	# RunScene briefly dismisses and presents this same view while refreshing.
+	# Only a real close cancels fanfare; rebuilding stock preserves its lifetime.
+	call_deferred("_clear_purchase_effects_if_closed")
+
+func _clear_purchase_effects_if_closed() -> void:
+	if not visible:
+		_clear_children(_purchase_effects)
+
+func purchase_origin(item_id: String, source: Control) -> Rect2:
+	if not is_instance_valid(source) or not source.is_inside_tree():
+		return Rect2()
+	var global_rect: Rect2 = source.get_global_rect()
+	if str(_run_engine.call("merchant_item_kind", item_id)) == MAGIC:
+		var cards: Array[Node] = source.find_children("*", "CardWidget", true, false)
+		if not cards.is_empty():
+			global_rect = (cards[0] as Control).get_global_rect()
+	var inverse: Transform2D = _canvas.get_global_transform().affine_inverse()
+	return inverse * global_rect
+
+func present_purchase(item_id: String, origin: Rect2) -> void:
+	if not visible or _purchase_effects == null or origin.size.x <= 0.0:
+		return
+	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
+	var effect := MerchantAcquisitionEffect.new()
+	effect.name = "MerchantAcquisition_%s" % item_id
+	effect.size = REFERENCE_SIZE
+	effect.item_id = item_id
+	effect.reduced_motion = _reduced_motion
+	effect.origin = origin
+	# The pack is the shop's actual owned inventory surface, not the hidden HUD.
+	effect.destination = _sell_panel.position + Vector2(_sell_panel.size.x * 0.5, 42.0)
+	_purchase_effects.add_child(effect)
+	if kind == MAGIC:
+		# Card art/frame textures have transparent cut-outs. A lifted card needs
+		# its own solid body, otherwise the replacement stock bleeds through it.
+		var backing := Panel.new()
+		backing.position = Vector2(7.0, 9.0)
+		backing.size = origin.size - Vector2(14.0, 15.0)
+		var backing_style := StyleBoxFlat.new()
+		backing_style.bg_color = Color("251c10")
+		backing_style.set_corner_radius_all(10)
+		backing.add_theme_stylebox_override("panel", backing_style)
+		effect.proxy.add_child(backing)
+		_build_native_scaled_card(effect.proxy, item_id, origin.size, "PurchasedCard", false)
+	else:
+		var icon := TextureRect.new()
+		icon.texture = AssetLoader.load_texture(_icon_path(item_id))
+		icon.size = origin.size
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		effect.proxy.add_child(icon)
+	_make_mouse_passive(effect)
+
 
 func semantic_snapshot() -> Dictionary:
 	var categories := {MAGIC: 0, GEAR: 0, ITEM: 0}
@@ -265,6 +322,14 @@ func _build_static_scene() -> void:
 	_leave_button.tooltip_text = "Close the shop and return to the room's doors."
 	_leave_button.pressed.connect(func() -> void: leave_requested.emit())
 	_canvas.add_child(_leave_button)
+
+	_purchase_effects = Control.new()
+	_purchase_effects.name = "MerchantPurchaseEffects"
+	_purchase_effects.size = REFERENCE_SIZE
+	_purchase_effects.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Shelf focus and the native time badge both add their own depth.
+	_purchase_effects.z_index = 100
+	_canvas.add_child(_purchase_effects)
 
 func _build_category_group(label_text: String, rect: Rect2) -> Control:
 	var group := Control.new()

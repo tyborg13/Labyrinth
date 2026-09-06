@@ -107,19 +107,16 @@ func _initialize() -> void:
 	await process_frame
 	_assert_actor_waiting_for_shadow_echo(instance, defeated_actor_key)
 	await _save_root_screenshot("user://probes/turn_order_motion_v5_07_enemy_board_death_active.png")
-	await _wait_for_enemy_board_dissolve_to_finish(instance, defeated_actor_key)
-	await process_frame
-	_assert_actor_waiting_for_shadow_echo(instance, defeated_actor_key)
-	_assert_enemy_absent_from_board(instance, defeated_actor_key)
-	await _save_root_screenshot("user://probes/turn_order_motion_v5_08_enemy_post_death_linger.png")
 	await _wait_for_actor_shadow_progress(instance, defeated_actor_key, 0.42)
-	await process_frame
-	_assert_actor_shadow_dissolving(instance, defeated_actor_key, 0.38, 0.72)
-	await _save_root_screenshot("user://probes/turn_order_motion_v5_09_enemy_portrait_dissolve.png")
-	await create_timer(0.70).timeout
-	await process_frame
-	await _save_root_screenshot("user://probes/turn_order_motion_v5_10_enemy_death_collapse.png")
-	await create_timer(0.72).timeout
+	_assert_actor_shadow_dissolving(instance, defeated_actor_key, 0.38, 0.78)
+	_assert_enemy_board_dissolve_active(instance, defeated_actor_key)
+	_assert_active_player_persists(instance)
+	await _save_root_screenshot("user://probes/turn_order_motion_v6_08_enemy_overlapping_dissolve.png")
+	await _wait_for_enemy_board_dissolve_to_finish(instance, defeated_actor_key)
+	_assert_enemy_absent_from_board(instance, defeated_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v6_09_enemy_board_settled.png")
+	await _wait_for_turn_order_to_settle(instance)
+	await _save_root_screenshot("user://probes/turn_order_motion_v6_10_enemy_cleanup_settled.png")
 	await process_frame
 	_assert_actor_absent(instance, defeated_actor_key)
 	_assert_vertical_turn_order_geometry(instance)
@@ -153,16 +150,14 @@ func _initialize() -> void:
 	_assert_actor_waiting_for_shadow_echo(instance, burn_actor_key)
 	_assert_enemy_defeated_in_state(burn_after_state, burn_actor_key)
 	await _save_root_screenshot("user://probes/turn_order_motion_v5_13_burn_board_death_active.png")
-	await _wait_for_enemy_board_dissolve_to_finish(instance, burn_actor_key)
-	await process_frame
-	_assert_actor_waiting_for_shadow_echo(instance, burn_actor_key)
-	_assert_enemy_absent_from_board(instance, burn_actor_key)
-	await _save_root_screenshot("user://probes/turn_order_motion_v5_14_burn_post_death_linger.png")
 	await _wait_for_actor_shadow_progress(instance, burn_actor_key, 0.42)
-	await process_frame
-	_assert_actor_shadow_dissolving(instance, burn_actor_key, 0.38, 0.72)
-	await _save_root_screenshot("user://probes/turn_order_motion_v5_15_burn_portrait_dissolve.png")
-	await create_timer(1.35).timeout
+	_assert_actor_shadow_dissolving(instance, burn_actor_key, 0.38, 0.78)
+	_assert_enemy_board_dissolve_active(instance, burn_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v6_14_burn_overlapping_dissolve.png")
+	await _wait_for_enemy_board_dissolve_to_finish(instance, burn_actor_key)
+	_assert_enemy_absent_from_board(instance, burn_actor_key)
+	await _save_root_screenshot("user://probes/turn_order_motion_v6_15_burn_board_settled.png")
+	await _wait_for_turn_order_to_settle(instance)
 	await process_frame
 	_assert_actor_absent(instance, burn_actor_key)
 	_assert_vertical_turn_order_geometry(instance)
@@ -397,16 +392,32 @@ func _assert_actor_shadow_dissolving(
 		push_error("Every scheduled portrait for %s should share the delayed shadow dissolution (%d/%d dissolving)." % [actor_key, dissolving, matching])
 		quit(1)
 
+func _assert_enemy_board_dissolve_active(instance: Node, actor_key: String) -> void:
+	var board: Control = instance.get("board_view") as Control
+	var effects: Dictionary = board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary
+	var board_actor_key: String = actor_key.substr(6) if actor_key.begins_with("enemy:") else actor_key
+	if not effects.has(board_actor_key):
+		push_error("Turn Clock dissolution must overlap the battlefield death for %s." % actor_key)
+		quit(1)
+
+func _wait_for_turn_order_to_settle(instance: Node) -> void:
+	var deadline: int = Time.get_ticks_msec() + 1600
+	while bool(instance.get("_turn_order_animating")) and Time.get_ticks_msec() < deadline:
+		await process_frame
+	if bool(instance.get("_turn_order_animating")):
+		push_error("Overlapping defeat cleanup failed to settle within its bounded duration.")
+		quit(1)
+
 func _assert_enemy_absent_from_board(instance: Node, actor_key: String) -> void:
 	var board: Control = instance.get("board_view") as Control
 	if board == null:
-		push_error("Combat board missing while checking the post-death Turn Clock linger.")
+		push_error("Combat board missing while checking settled defeat cleanup.")
 		quit(1)
 		return
 	var effects: Dictionary = board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary
 	var board_actor_key: String = actor_key.substr(6) if actor_key.begins_with("enemy:") else actor_key
 	if effects.has(board_actor_key):
-		push_error("%s was still dissolving on the battlefield during the Turn Clock's post-death linger." % actor_key)
+		push_error("%s was still dissolving on the battlefield after its completion." % actor_key)
 		quit(1)
 
 func _wait_for_enemy_board_dissolve_to_finish(instance: Node, actor_key: String) -> void:
