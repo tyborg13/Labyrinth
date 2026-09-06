@@ -5,7 +5,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const INVALID: Vector2i = Vector2i(-999999, -999999)
-const CROSS: Array[Vector2i] = [Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
+const CROSS: Array = [Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
 
 # These are techniques on the existing paid action, not extra actions. Keeping
 # their choices on the action lets the ordinary preview execute the same rules.

@@ -1,6 +1,17 @@
 extends "res://tests/board_surface_dense_probe.gd"
 
 const Art = preload("res://scripts/board_surface_presentation.gd")
+const IceLayer = preload("res://scripts/board_surface_ice_layer.gd")
+
+class ObservedIce extends IceLayer:
+	var draw_count: int = 0
+	var drawn_width: float = -1.0
+	var drawn_seed: int = -1
+	func _draw() -> void:
+		super._draw()
+		draw_count += 1
+		drawn_width = _width
+		drawn_seed = _seed
 
 func _capture(name: String, _settle_frames: int = 8) -> void:
 	if name != "01_mixed_ground": return
@@ -23,7 +34,9 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 			var reference: Image
 			for cached: bool in [false, true]:
 				Art.retained_cache_enabled = cached
-				await _show(board, state, shown)
+				# Compare the actual next rendered frame, including uniform-only
+				# particles; extra settling must not hide stale presentation.
+				await _show(board, state, shown, 1)
 				var screenshot: Image = view.get_texture().get_image()
 				var image_name: String = "cache_%s_%s_%s.png" % ["reduced" if reduced else "normal", str(phase).replace(".", "_"), "cached" if cached else "reference"]
 				assert(screenshot.save_png(ProjectSettings.globalize_path(OUTPUT.path_join(image_name))) == OK)
@@ -32,8 +45,24 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 				else:
 					comparisons.append({"reduced_motion": reduced, "phase": phase, "difference": _difference(reference, screenshot)})
 	Art.retained_cache_enabled = true
+	# Reduced motion pins the phase. Geometry changes must still refresh both
+	# the retained plates and their independently drawn reflective shimmer.
+	var resized_ice := ObservedIce.new()
+	view.add_child(resized_ice)
+	resized_ice.configure(Vector2(150, 150), 100.0, 1009, 0.37)
+	await RenderingServer.frame_post_draw
+	var initial_draws: int = resized_ice.draw_count
+	resized_ice.configure(Vector2(150, 150), 130.0, 1009, 0.37)
+	await RenderingServer.frame_post_draw
+	assert(resized_ice.draw_count > initial_draws and resized_ice.drawn_width == 130.0, "Pinned-phase Ice width changes must redraw reflected glints")
+	var resized_draws: int = resized_ice.draw_count
+	resized_ice.configure(Vector2(150, 150), 130.0, 2018, 0.37)
+	await RenderingServer.frame_post_draw
+	assert(resized_ice.draw_count > resized_draws and resized_ice.drawn_seed == 2018, "Pinned-phase Ice seed changes must redraw reflected glints")
+	resized_ice.queue_free()
+	await RenderingServer.frame_post_draw
 	shown["reduced_motion"] = false
-	# A retained tongue must reach the same frame as its native sprite siblings.
+	# Procedural tongues must also reach the same frame as retained particles.
 	for frame: int in range(4):
 		shown["ambient_time_seconds"] = 14.0 + float(frame) / 60.0
 		board.call("set_combat_state", state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, shown.duplicate(true))
@@ -44,7 +73,7 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 			if fire == null or not fire.visible: continue
 			for pocket: Dictionary in fire.get("_pockets"):
 				var tongue: Node = pocket["tongue"]
-				assert(float(tongue.get("_drawn_phase")) == float(fire.get("_phase")), "Retained tongue and sprites must present the same phase in one rendered frame")
+				assert(float(tongue.get("_drawn_phase")) == float(fire.get("_phase")), "Retained tongue and particles must present the same phase in one rendered frame")
 	var original: Dictionary = state.duplicate(true)
 	var node_samples: Array[int]
 	for cycle: int in range(12):
@@ -63,6 +92,14 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 		assert(not (layer.get("_surface_rubble_layer") as CanvasItem).visible, "Consumed Rubble must disappear from the retained cache")
 		assert(not (layer.get("_surface_ice_layer") as CanvasItem).visible, "Replaced Ice must disappear from the retained cache")
 		assert((layer.get("_surface_fire_layer") as CanvasItem).visible)
+		assert((layer.get("_surface_electric_layer") as CanvasItem).visible, "Stormcoal Fire retains its conductive electrical treatment")
+		Ground.place(changed, Vector2i(3, 3), "electrified")
+		await _show(board, changed, shown)
+		assert(not (layer.get("_surface_fire_layer") as CanvasItem).visible)
+		assert((layer.get("_surface_electric_layer") as CanvasItem).visible)
+		Ground.remove(changed, Vector2i(3, 3), "electrified", "proof_discharge")
+		await _show(board, changed, shown)
+		assert(not (layer.get("_surface_electric_layer") as CanvasItem).visible, "Discharge removes retained Electricity on the same state refresh")
 		changed = changed.duplicate(true)
 		Ground.place(changed, Vector2i(3, 3), "ice")
 		Ground.place(changed, Vector2i(3, 3), "rubble")
@@ -70,6 +107,7 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 		hidden["umbra_visible_tiles"] = []
 		await _show(board, changed, hidden)
 		assert(not (layer.get("_surface_rubble_layer") as CanvasItem).visible and not (layer.get("_surface_ice_layer") as CanvasItem).visible, "Hidden cached ground must disappear")
+		assert(not (layer.get("_surface_electric_layer") as CanvasItem).visible)
 		var next_room: Dictionary = original.duplicate(true)
 		next_room["room_coord"] = Vector2i(9, 9)
 		next_room["surfaces"] = {}
@@ -77,7 +115,7 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 		next_room["enemies"] = []
 		await _show(board, next_room, shown)
 		for candidate: Node in (board.get("_scene_render_layers_by_tile") as Dictionary).values():
-			for field: String in ["_surface_rubble_layer", "_surface_ice_layer", "_surface_fire_layer"]:
+			for field: String in ["_surface_rubble_layer", "_surface_ice_layer", "_surface_fire_layer", "_surface_electric_layer"]:
 				var cached_layer: CanvasItem = candidate.get(field) as CanvasItem
 				assert(cached_layer == null or not cached_layer.visible, "A new room must not retain old visible ground")
 		await _show(board, original, shown)
@@ -89,11 +127,11 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 	print("BOARD SURFACE CACHE RESULT: " + JSON.stringify({"comparisons": comparisons, "node_counts": node_samples}))
 	print("BOARD SURFACE CACHE PROBE: PASS")
 
-func _show(board: Control, next_state: Dictionary, shown: Dictionary) -> void:
+func _show(board: Control, next_state: Dictionary, shown: Dictionary, settle_frames: int = 3) -> void:
 	board.call("set_combat_state", next_state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, shown.duplicate(true))
 	board.set("_idle_elapsed", 2.0)
 	board.call("_queue_dynamic_redraw")
-	for frame: int in range(3): await RenderingServer.frame_post_draw
+	for frame: int in range(settle_frames): await RenderingServer.frame_post_draw
 
 func _difference(a: Image, b: Image) -> Dictionary:
 	# Exact bytes are cheap to compare natively; channel-error analysis stays in

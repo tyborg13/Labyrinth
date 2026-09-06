@@ -5,12 +5,12 @@ const Surface = preload("res://scripts/board_surface_rules.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const VERSION_KEY: String = "surface_rules_version"
-const RETIRED_FIELDS: Array[String] = [
+const RETIRED_FIELDS: Array = [
 	"elemental_intensity", "intensity", "intensity_cost", "intensity_bonus",
 	"requires_intensity", "intensity_spent", "intensity_gained", "intensity_events",
 	"poison", "poison_immune", "burn_immune", "thawing", "card_upgrades", "card_mods",
 ]
-const HISTORY_FIELDS: Array[String] = ["analytics", "analytics_context", "analytics_events", "progression_analytics_outbox", "completed_run_results", "last_run_result", "log"]
+const HISTORY_FIELDS: Array = ["analytics", "analytics_context", "analytics_events", "progression_analytics_outbox", "completed_run_results", "last_run_result", "log"]
 
 # Migration keeps the saved action boundary. It never replays a paid card,
 # fabricates a pre-encounter snapshot, or changes HP, piles, clocks or ownership.

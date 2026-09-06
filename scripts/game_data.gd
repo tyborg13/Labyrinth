@@ -15,13 +15,13 @@ const PROGRESSION_LEVELS_PATH: String = "res://data/progression_levels.json"
 ## to reintroduce a second unit system.
 const FIXED_POINT_SCALE: int = 1
 const LEGACY_FIXED_POINT_SCALE: int = 10
-const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
-const FIXED_POINT_ATTACK_ACTION_TYPES: Array[String] = [
+const ATTACK_ACTION_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
+const FIXED_POINT_ATTACK_ACTION_TYPES: Array = [
 	"melee", "ranged", "aoe", "push", "pull", "lightning_strikes",
 	"terrain_burst", "detonate", "detonate_cinders", "gale_force", "umbra_eclipse"
 ]
-const STATUS_UPGRADE_FIELDS: Array[String] = ["bleed", "expose", "sunder"]
-const SURFACE_KINDS: Array[String] = ["fire", "ice", "electrified", "rubble"]
+const STATUS_UPGRADE_FIELDS: Array = ["bleed", "expose", "sunder"]
+const SURFACE_KINDS: Array = ["fire", "ice", "electrified", "rubble"]
 const LEGACY_PROGRESSION_STAT_IDS = [
 	"might",
 	"dexterity",

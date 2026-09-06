@@ -14,7 +14,7 @@ const ICONLESS_SKILLS: Array[String] = [
 	"salvager",
 ]
 
-const DEDICATED_ICON_TERM_PATTERNS: Array[Dictionary] = [
+const DEDICATED_ICON_TERM_PATTERNS: Array = [
 	{"label": "Fire", "pattern": "(?i)\\bfire\\b"},
 	{"label": "Ice", "pattern": "(?i)\\bice\\b"},
 	{"label": "Rubble", "pattern": "(?i)\\brubble\\b"},

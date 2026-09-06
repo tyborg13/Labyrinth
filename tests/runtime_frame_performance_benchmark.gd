@@ -11,7 +11,7 @@ const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
 const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v13"
-const HAND: Array[String] = [
+const HAND: Array = [
 	"threaded_path",
 	"sidestep_slash",
 	"pale_spark",
@@ -23,7 +23,7 @@ const HAND: Array[String] = [
 	"thunderline",
 	"cinder_fusillade",
 ]
-const EXECUTION_CARDS: Array[String] = HAND
+const EXECUTION_CARDS: Array = HAND
 const RELICS: Array[String] = [
 	"ember_lens",
 	"pilgrim_boots",
@@ -2454,7 +2454,8 @@ func _hand_index(instance: Node, card_id: String) -> int:
 	return (deck.get("hand", []) as Array).find(card_id)
 
 func _workload_hand() -> Array[String]:
-	var hand: Array[String] = HAND.duplicate()
+	var hand: Array[String]
+	hand.assign(HAND)
 	if OS.get_environment("LABYRINTH_RUNTIME_PERF_CAPPED_HAND") == "1":
 		# Preserve the five action types plus ordinary movement while matching the
 		# real hand cap. The original ten-card fan remains an explicitly labelled

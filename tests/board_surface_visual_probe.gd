@@ -178,6 +178,29 @@ func _initialize() -> void:
 	scene.set("_hovered_board_tile", Vector2i(4, 4))
 	scene.call("_refresh_stage_view")
 	await _capture("07_detonate_conditional_damage")
+	for exposure: String in ["defended", "lethal"]:
+		scene.call("_reset_card_resolution")
+		var friendly: Dictionary = bonus.duplicate(true)
+		friendly["player"]["hp"] = 30 if exposure == "defended" else 10
+		friendly["player"]["block"] = 8 if exposure == "defended" else 0
+		friendly["player"]["stoneskin"] = 10 if exposure == "defended" else 0
+		friendly["illusions"] = [{"id": 1, "pos": Vector2i(4, 3), "hp": 1, "max_hp": 1}]
+		scene.set("_combat_state", friendly)
+		relic_run["combat_state"] = friendly
+		scene.set("_run_state", relic_run)
+		scene.call("_mark_combat_preview_state_changed")
+		scene.call("_refresh_ui")
+		await scene.call("_on_card_pressed", 3)
+		scene.set("_hovered_board_tile", Vector2i(4, 4))
+		scene.call("_refresh_stage_view")
+		var shown: Dictionary = scene.call("_preview_presentation", scene.call("_active_card_preview"))
+		assert((shown.get("damage_preview", {}) as Dictionary).has("player") and (shown.get("damage_preview", {}) as Dictionary).has("illusion_1"))
+		assert(not (shown.get("friendly_damage_chips", []) as Array).is_empty())
+		await _capture("07_friendly_" + exposure)
+		await scene.call("_on_board_cancel_requested")
+		var board: Node = scene.get("board_view") as Node
+		assert((board.get("presentation") as Dictionary).get("friendly_damage_chips", []).is_empty(), "Cancellation clears friendly danger")
+	await _capture("07_friendly_cancelled")
 	scene.call("_reset_card_resolution")
 	scene.set("_combat_state", state)
 	relic_run["combat_state"] = state

@@ -1744,6 +1744,7 @@ var _action_step_resolution_card_id: String = ""
 var _action_step_resolution_actions: Array = []
 var _action_step_resolution_index: int = 0
 var _action_step_resolution_targets: Array[Vector2i] = []
+var _action_step_resolution_damage_options: Array = []
 var _turn_order_panel: PanelContainer
 var _turn_order_anchor: Control
 var _turn_order_bar: Control
@@ -13520,6 +13521,7 @@ func _refresh_action_step_tracker() -> void:
 	var skipped_indices: Dictionary = _action_step_skipped_target_indices_for(actions, selected_targets)
 	var statuses: Array = []
 	var action_types: Array = []
+	var damage_options: Array = _action_step_tracker_damage_options(tracker_state)
 	for index: int in range(0 if context_mode == "drag" else actions.size()):
 		var action: Dictionary = {}
 		if typeof(actions[index]) == TYPE_DICTIONARY:
@@ -13529,7 +13531,7 @@ func _refresh_action_step_tracker() -> void:
 		action_types.append(str(action.get("type", "")))
 		if index > 0:
 			_action_step_tracker_steps.add_child(CardActionContextArt.make_action_connector(status, index))
-		_action_step_tracker_steps.add_child(_build_action_step_chip(index, action, status))
+		_action_step_tracker_steps.add_child(_build_action_step_chip(index, action, status, damage_options[index]))
 	performance_phase_started = _record_runtime_performance_phase("tracker_chips", performance_phase_started)
 	_action_step_tracker.set_meta("step_statuses", statuses)
 	_action_step_tracker.set_meta("step_action_types", action_types)
@@ -13611,6 +13613,44 @@ func _action_step_skipped_target_indices_for(actions: Array, selected_targets: A
 				skipped[index] = true
 		target_cursor += 1
 	return skipped
+
+func _action_step_tracker_damage_options(tracker_state: Dictionary) -> Array:
+	if str(tracker_state.get("mode", "")) == "resolution":
+		return _action_step_resolution_damage_options
+	# Rebuild the selected prefix from committed, visible information. The full
+	# targeting state may already contain damage from an unseen movement trap.
+	return _action_step_damage_options(_combat_state, tracker_state.get("actions", []), tracker_state.get("selected_targets", []))
+
+func _action_step_damage_options(state: Dictionary, actions: Array, selected_targets: Array) -> Array:
+	var result: Array = []
+	var working: Dictionary = _surface_preview_information_state(state).duplicate(true)
+	var target_cursor: int = 0
+	var unresolved_target: bool = false
+	for action_var: Variant in actions:
+		var action: Dictionary = action_var as Dictionary
+		var options: Dictionary = {}
+		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
+			options["final_damage"] = _combat_engine.final_damage_for_player_action(working, action)
+		result.append(options)
+		var can_resolve: bool = _combat_engine.player_action_can_resolve(working, action)
+		var target: Vector2i = INVALID_TARGET_TILE
+		if _combat_engine.player_action_needs_target(action):
+			if target_cursor < selected_targets.size():
+				target = selected_targets[target_cursor]
+				target_cursor += 1
+				if target.x < 0:
+					continue
+			elif can_resolve:
+				unresolved_target = true
+		if not can_resolve:
+			continue
+		if unresolved_target:
+			# Later targets are undecided. Match the card's sequential modifier
+			# forecast without inventing hits, HP changes or ground consumption.
+			_consume_preview_damage_modifiers(working, action)
+		else:
+			working = _combat_engine.apply_player_action(working, action, target)
+	return result
 
 func _action_step_status_for_index(index: int, current_index: int, skipped_indices: Dictionary) -> String:
 	if bool(skipped_indices.get(index, false)):
@@ -14148,6 +14188,7 @@ func _begin_action_step_resolution_tracker(card_id: String, actions: Array, sele
 	_action_step_resolution_card_id = card_id
 	_action_step_resolution_actions = actions.duplicate(true)
 	_action_step_resolution_targets = _vector2i_array(selected_targets)
+	_action_step_resolution_damage_options = _action_step_damage_options(_combat_state, actions, selected_targets)
 	_action_step_resolution_index = 0
 	_action_step_resolution_active = _action_step_resolution_actions.size() > 1
 	_refresh_action_step_tracker()
@@ -14160,10 +14201,14 @@ func _lock_action_step_tracker_position_for_resolution() -> void:
 	_action_step_tracker_position_locked = true
 	_action_step_tracker.set_meta("position_locked", true)
 
-func _set_action_step_resolution_index(index: int) -> void:
+func _set_action_step_resolution_index(index: int, before_state: Dictionary = {}, remaining_targets: Array = []) -> void:
 	if not _action_step_resolution_active:
 		return
 	_action_step_resolution_index = clampi(index, 0, _action_step_resolution_actions.size())
+	if not before_state.is_empty():
+		var remaining_options: Array = _action_step_damage_options(before_state, _action_step_resolution_actions.slice(index), remaining_targets)
+		for offset: int in range(remaining_options.size()):
+			_action_step_resolution_damage_options[index + offset] = remaining_options[offset]
 	_refresh_action_step_tracker()
 
 func _clear_action_step_resolution_tracker() -> void:
@@ -14174,13 +14219,14 @@ func _clear_action_step_resolution_tracker() -> void:
 	_action_step_resolution_actions.clear()
 	_action_step_resolution_index = 0
 	_action_step_resolution_targets.clear()
+	_action_step_resolution_damage_options.clear()
 	if _action_step_tracker != null:
 		_action_step_tracker.set_meta("position_locked", false)
 		_action_step_tracker.visible = false
 	if _action_context_connector != null:
 		_action_context_connector.visible = false
 
-func _build_action_step_chip(index: int, action: Dictionary, status: String) -> Control:
+func _build_action_step_chip(index: int, action: Dictionary, status: String, display_options: Dictionary = {}) -> Control:
 	var chip := PanelContainer.new()
 	chip.name = "ActionStepChip%d" % (index + 1)
 	chip.custom_minimum_size = ACTION_STEP_CHIP_SIZE
@@ -14232,7 +14278,7 @@ func _build_action_step_chip(index: int, action: Dictionary, status: String) -> 
 
 	var value := Label.new()
 	value.name = "ActionValue"
-	value.text = _action_step_value_text(action, icon_key)
+	value.text = _action_step_value_text(action, icon_key, display_options)
 	value.position = Vector2(9.0, 46.0)
 	value.size = Vector2(26.0, 15.0)
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -14278,8 +14324,8 @@ func _build_action_step_chip(index: int, action: Dictionary, status: String) -> 
 	return chip
 
 
-func _action_step_value_text(action: Dictionary, icon_key: String) -> String:
-	for token_var: Variant in ActionIcons.tokens_for_action(action):
+func _action_step_value_text(action: Dictionary, icon_key: String, display_options: Dictionary = {}) -> String:
+	for token_var: Variant in ActionIcons.tokens_for_action(action, display_options):
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var as Dictionary
@@ -19109,7 +19155,32 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 	# event instead of resolving dense AOEs and their relic hooks twice.
 	if _selected_card_index >= 0 and not _orientation_pending():
 		_cache_hover_resolved_preview_state(after_state)
+	var known_state: Dictionary = _surface_preview_information_state(state)
+	if known_state != state:
+		var known_after: Dictionary = _combat_engine.apply_prevalidated_player_action(known_state, action, target_tile)
+		return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(known_state, known_after))
 	return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after_state))
+
+func _surface_preview_information_state(state: Dictionary) -> Dictionary:
+	if not _preview_umbra_is_limited(state): return state
+	var information: Dictionary = _preview_information_state(state)
+	var visible: Dictionary = _combat_engine.umbra_visible_tile_lookup(information)
+	var known: Dictionary = state.duplicate(true)
+	known["_preview_opaque_enemies"] = true
+	# Filter causes before resolving, not just destinations afterward. An unseen
+	# trap can hurt a known actor or paint a wake back into the visible board.
+	for collection: String in ["traps", "terrain", "enemies"]:
+		var entries: Array = []
+		for entry: Dictionary in state.get(collection, []):
+			var is_known: bool = _combat_engine.is_enemy_visible_to_player(information, entry, visible) if collection == "enemies" else _combat_engine.is_tile_visible_to_player(information, entry.get("pos", INVALID_TARGET_TILE), visible)
+			if is_known: entries.append(entry.duplicate(true))
+		known[collection] = entries
+	var ground: Dictionary = known.get("surfaces", {})
+	for tile: Vector2i in BoardSurfaceRules.tiles(state):
+		if not _combat_engine.is_tile_visible_to_player(information, tile, visible):
+			ground.erase(BoardSurfaceRules.tile_key(tile))
+	known["surfaces"] = ground
+	return known
 
 func _sanitize_damage_preview_for_umbra_information(state: Dictionary, source_preview: Dictionary) -> Dictionary:
 	if source_preview.is_empty() or not _preview_umbra_is_limited(state):
@@ -19133,36 +19204,26 @@ func _sanitize_damage_preview_for_umbra_information(state: Dictionary, source_pr
 	return preview
 
 func _damage_preview_between_states(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
-	var after_by_id: Dictionary = {}
-	for after_var: Variant in after_state.get("enemies", []):
-		if typeof(after_var) != TYPE_DICTIONARY:
-			continue
-		var after_enemy: Dictionary = after_var
-		after_by_id[int(after_enemy.get("id", -1))] = after_enemy
+	var before_units: Dictionary = _surface_preview_units_by_key(before_state)
+	var after_units: Dictionary = _surface_preview_units_by_key(after_state)
 	var preview: Dictionary = {}
-	for before_var: Variant in before_state.get("enemies", []):
-		if typeof(before_var) != TYPE_DICTIONARY:
+	for key: String in before_units:
+		var before_unit: Dictionary = before_units[key]
+		if int(before_unit.get("hp", 0)) <= 0:
 			continue
-		var before_enemy: Dictionary = before_var
-		var enemy_id: int = int(before_enemy.get("id", -1))
-		if int(before_enemy.get("hp", 0)) <= 0:
-			continue
-		var after_enemy: Dictionary = after_by_id.get(enemy_id, {}) as Dictionary
-		var after_hp: int = int(after_enemy.get("hp", 0))
-		var after_block: int = int(after_enemy.get("block", 0))
-		var after_stoneskin: int = int(after_enemy.get("stoneskin", 0))
-		var hp_loss: int = maxi(0, int(before_enemy.get("hp", 0)) - after_hp)
-		var block_loss: int = maxi(0, int(before_enemy.get("block", 0)) - after_block)
-		var stoneskin_loss: int = maxi(0, int(before_enemy.get("stoneskin", 0)) - after_stoneskin)
+		var after_unit: Dictionary = after_units.get(key, {}) as Dictionary
+		var after_hp: int = maxi(0, int(after_unit.get("hp", 0)))
+		var after_block: int = int(after_unit.get("block", 0))
+		var after_stoneskin: int = int(after_unit.get("stoneskin", 0))
+		var hp_loss: int = maxi(0, int(before_unit.get("hp", 0)) - after_hp)
+		var block_loss: int = maxi(0, int(before_unit.get("block", 0)) - after_block)
+		var stoneskin_loss: int = maxi(0, int(before_unit.get("stoneskin", 0)) - after_stoneskin)
 		if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0:
 			continue
-		preview[_enemy_key(before_enemy)] = {
-			"hp": after_hp,
-			"hp_loss": hp_loss,
-			"block": after_block,
-			"block_loss": block_loss,
-			"stoneskin": after_stoneskin,
-			"stoneskin_loss": stoneskin_loss,
+		preview[key] = {
+			"hp": after_hp, "hp_loss": hp_loss,
+			"block": after_block, "block_loss": block_loss,
+			"stoneskin": after_stoneskin, "stoneskin_loss": stoneskin_loss,
 			"lethal": after_hp <= 0
 		}
 	var after_terrain_by_id: Dictionary = {}
@@ -22239,15 +22300,16 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 	for action_index: int in range(actions.size()):
 		var action_var: Variant = actions[action_index]
 		var action: Dictionary = action_var
-		if not _combat_engine.player_action_can_resolve(animated_state, action):
-			_set_action_step_resolution_index(action_index + 1)
-			continue
-		_set_action_step_resolution_index(action_index)
+		var step_target_index: int = target_index
 		var target_tile: Vector2i = INVALID_TARGET_TILE
 		if _combat_engine.player_action_needs_target(action):
 			if target_index < selected_targets.size():
 				target_tile = selected_targets[target_index]
 			target_index += 1
+		if not _combat_engine.player_action_can_resolve(animated_state, action):
+			_set_action_step_resolution_index(action_index + 1)
+			continue
+		_set_action_step_resolution_index(action_index, animated_state, selected_targets.slice(step_target_index))
 		var before_state: Dictionary = animated_state.duplicate(true)
 		var resolution: Dictionary = _combat_engine.resolve_player_action_for_presentation(animated_state, action, target_tile)
 		var after_state: Dictionary = resolution.get("state", {})
@@ -31655,6 +31717,12 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		return
 	var state: Dictionary = preview.get("state", _combat_state) as Dictionary
 	var action: Dictionary = preview.get("action", {}) as Dictionary
+	# Match movement-risk privacy: resolving a walk in limited Umbra can reveal
+	# unseen traps, their wake on visible ground, or contacts beyond sight.
+	# Keep the route preview, but do not forecast its hidden consequences.
+	if str(action.get("type", "")) in ["move", "blink"] and _preview_umbra_is_limited(state):
+		return
+	state = _surface_preview_information_state(state)
 	var cache_key: String = "%d:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(action), str(tile)]
 	if _surface_preview_cache_key != cache_key:
 		_surface_preview_cache_key = cache_key
@@ -31683,6 +31751,9 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	if not losses.is_empty():
 		result["damage_preview"] = losses
 		if result.has("effect"): (result["effect"] as Dictionary)["damage_preview"] = losses
+	# Shared ground can hurt either side. Keep friendly costs beside their actors,
+	# including fully absorbed hits; movement already has its own player chips.
+	result["friendly_damage_chips"] = _friendly_damage_preview_chips(state, losses, str(action.get("type", "")) in ["move", "blink"])
 	for event: Dictionary in result.get("surface_preview_events", []):
 		if str(event.get("kind", "")) == "detonate":
 			var focus: Array[Vector2i] = _vector2i_array(result.get("focus_tiles", []))
@@ -31701,6 +31772,26 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		if bool(old.get("chilled", false)) != bool(current.get("chilled", false)) or int(old.get("freeze", 0)) != int(current.get("freeze", 0)):
 			status_previews[key] = {"chilled": bool(current.get("chilled", false)), "freeze": int(current.get("freeze", 0))}
 	result["surface_status_preview"] = status_previews
+
+func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movement: bool = false) -> Array:
+	var chips: Array = []
+	var units: Dictionary = _surface_preview_units_by_key(state)
+	for key: String in losses:
+		if key != "player" and not key.begins_with("illusion_"): continue
+		if key == "player" and movement: continue
+		var loss: Dictionary = losses[key]
+		var unit: Dictionary = units.get(key, {})
+		var tile: Vector2i = unit.get("pos", INVALID_TARGET_TILE)
+		var name: String = "You" if key == "player" else "Illusion"
+		if bool(loss.get("lethal", false)):
+			chips.append({"tile": tile, "actor_key": key, "label": "%s: Lethal" % name, "kind": "danger"})
+		elif int(loss.get("hp_loss", 0)) > 0:
+			chips.append({"tile": tile, "actor_key": key, "label": "%s: −%d HP" % [name, int(loss["hp_loss"])], "kind": "danger"})
+		for defense: String in ["block", "stoneskin"]:
+			if int(loss.get(defense + "_loss", 0)) > 0:
+				var label: String = "Block" if defense == "block" else "Guard"
+				chips.append({"tile": tile, "actor_key": key, "label": "%s: −%d %s" % [name, int(loss[defense + "_loss"]), label], "kind": "danger"})
+	return chips
 
 func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}) -> void:
 	var events: Array[Dictionary] = _surface_events_between(before, after)

@@ -66,7 +66,7 @@ const ENEMY_DAMAGE_DELTA_DEPTH_ONE: int = 0
 const ENEMY_DAMAGE_DELTA_DEPTH_THREE: int = 0
 const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -1
 const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
-const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
+const ATTACK_ACTION_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
 const BOSS_DAMAGE_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const BOSS_PATTERN_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = ["heal_ally", "guard_ally"]
@@ -2498,10 +2498,14 @@ func trap_damage(_state: Dictionary, trap: Dictionary) -> int:
 func combat_outcome(state: Dictionary) -> String:
 	if int((state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 		return "defeat"
+	# An information-only preview omits unseen opponents; absence is not victory.
+	var opaque_enemies: bool = bool(state.get("_preview_opaque_enemies", false))
 	if str(state.get("room_type", "")) == "boss":
 		for enemy: Dictionary in _live_enemies(state):
 			if bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
 				return ""
+		if opaque_enemies and not (state.get("enemies", []) as Array).any(func(enemy: Dictionary) -> bool: return bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false))):
+			return ""
 		return "victory"
 	var objective: Dictionary = state.get("objective", {}) as Dictionary
 	match str(objective.get("type", CombatObjectiveRules.KILL_ALL)):
@@ -2514,7 +2518,7 @@ func combat_outcome(state: Dictionary) -> String:
 						leader_index = index
 						break
 			if leader_index < 0:
-				return "victory" if _live_enemies(state).is_empty() else ""
+				return "victory" if not opaque_enemies and _live_enemies(state).is_empty() else ""
 			var leader: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[leader_index] as Dictionary)
 			return "victory" if int(leader.get("hp", 0)) <= 0 else ""
 		CombatObjectiveRules.SURVIVE:
@@ -2526,7 +2530,7 @@ func combat_outcome(state: Dictionary) -> String:
 			if CombatObjectiveRules.exit_target_tiles(objective).has(player_tile):
 				return "victory"
 			return ""
-	if _live_enemies(state).is_empty():
+	if not opaque_enemies and _live_enemies(state).is_empty():
 		return "victory"
 	return ""
 
@@ -7781,6 +7785,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		planning_attack,
 		actual_records,
 		movement_type,
+		move_range,
 		protector_screening_context
 	)
 	performance_phase_started = _record_runtime_performance_phase("enemy_plan_direct_candidate", performance_phase_started)
@@ -8083,6 +8088,7 @@ func _best_enemy_direct_attack_candidate(
 	attack_action: Dictionary,
 	path_records: Array[Dictionary],
 	movement_type: String,
+	movement_allowance: int,
 	protector_screening_context: Dictionary = {}
 ) -> Dictionary:
 	var best: Dictionary = {}
@@ -8097,7 +8103,7 @@ func _best_enemy_direct_attack_candidate(
 			if not _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
 				continue
 			if not route_predictions.has(destination):
-				route_predictions[destination] = _enemy_attack_route_prediction(state, enemy, record)
+				route_predictions[destination] = _enemy_attack_route_prediction(state, enemy, record, movement_allowance)
 			var prediction: Dictionary = route_predictions[destination]
 			if prediction.get("destination", destination) != destination:
 				continue # A trap or new Rubble stopped the route before attack reach.
@@ -8124,7 +8130,7 @@ func _best_enemy_direct_attack_candidate(
 				best = candidate
 	return best
 
-func _enemy_attack_route_prediction(state: Dictionary, enemy: Dictionary, record: Dictionary) -> Dictionary:
+func _enemy_attack_route_prediction(state: Dictionary, enemy: Dictionary, record: Dictionary, movement_allowance: int) -> Dictionary:
 	var destination: Vector2i = record.get("tile", enemy.get("pos", INVALID_TILE))
 	if int(record.get("trap_cost", 0)) <= 0:
 		return {"destination": destination, "survives": int(enemy.get("hp", 0)) > 0, "hazard_cost": 0}
@@ -8134,7 +8140,9 @@ func _enemy_attack_route_prediction(state: Dictionary, enemy: Dictionary, record
 	var forecast: Dictionary = state.duplicate(true)
 	forecast["damage_context"] = {"actor_kind": "enemy", "player_card": false, "source_kind": "forecast"}
 	var context: Dictionary = {}
-	forecast = _move_enemy_along_planned_path(forecast, _enemy_index_for_id(forecast, int(enemy.get("id", -1))), _vector2i_values(record.get("path", [])), context, int(record.get("steps", 0)))
+	# A trap can add Rubble after planning. Its extra cost may use the action's
+	# spare allowance; the route's original cost is not the movement budget.
+	forecast = _move_enemy_along_planned_path(forecast, _enemy_index_for_id(forecast, int(enemy.get("id", -1))), _vector2i_values(record.get("path", [])), context, movement_allowance)
 	var arrived: Dictionary = _surface_actor(forecast, "enemy", int(enemy.get("id", -1)))
 	var health_lost: int = maxi(0, int(enemy.get("hp", 0)) - int(arrived.get("hp", 0)))
 	var defense_spent: int = maxi(0, int(enemy.get("block", 0)) + int(enemy.get("stoneskin", 0)) - int(arrived.get("block", 0)) - int(arrived.get("stoneskin", 0)))

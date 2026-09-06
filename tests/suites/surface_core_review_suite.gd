@@ -17,6 +17,7 @@ static func run(expect: Callable) -> void:
 	_test_invalid_paid_technique(combat, expect)
 	_test_authored_specialist_shock_fuel(combat, expect)
 	_test_enemy_attack_route_survival(combat, expect)
+	_test_enemy_attack_route_dynamic_budget(combat, expect)
 
 static func _test_large_ice_trap_arrival(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = Base.fixture(combat)
@@ -195,5 +196,43 @@ static func _test_enemy_attack_route_survival(combat: Combat, expect: Callable) 
 	state["enemies"][0]["footprint"] = Vector2i(2, 2)
 	Ground.place(state, Vector2i(3, 4), "fire")
 	var record: Dictionary = {"tile": Vector2i(3, 3), "path": [Vector2i(4, 3), Vector2i(3, 3)], "steps": 1, "trap_cost": 3}
-	var prediction: Dictionary = combat._enemy_attack_route_prediction(state, state["enemies"][0], record)
+	var prediction: Dictionary = combat._enemy_attack_route_prediction(state, state["enemies"][0], record, 3)
 	expect.call(bool(prediction["survives"]) and int(prediction["health_lost"]) == 1, "Large-body route survival predicts one Fire contact per entry step, not one per burning footprint tile")
+
+static func _test_enemy_attack_route_dynamic_budget(combat: Combat, expect: Callable) -> void:
+	var state: Dictionary = Base.fixture(combat)
+	state["enemies"][0]["hp"] = 10
+	for intent: Dictionary in GameData.enemy_def("crawler")["intents"]:
+		if str(intent["id"]) == "lunge":
+			state["enemies"][0]["intent"] = intent.duplicate(true)
+	state["grid"][3][3] = "wall"
+	state["grid"][4][4] = "wall"
+	state["traps"] = [{"id": "earth_path", "pos": Vector2i(4, 2), "element": "earth", "damage": 2}]
+	var before: Dictionary = state.duplicate(true)
+	var record: Dictionary = {}
+	for candidate: Dictionary in combat._enemy_actual_path_records(state, state["enemies"][0], 4):
+		if candidate["tile"] == Vector2i(2, 2):
+			record = candidate
+	expect.call(not record.is_empty() and int(record.get("steps", 0)) == 3, "Dynamic Earth-trap route initially costs three movement")
+	if record.is_empty():
+		return
+	var path: Array[Vector2i]
+	path.assign(record["path"])
+	for allowance: int in [4, 3]:
+		var prediction: Dictionary = combat._enemy_attack_route_prediction(state, state["enemies"][0], record, allowance)
+		var context: Dictionary = {}
+		var after: Dictionary = combat._move_enemy_along_planned_path(state.duplicate(true), 0, path, context, allowance)
+		var expected: Vector2i = Vector2i(2, 2) if allowance == 4 else Vector2i(3, 2)
+		expect.call(prediction["destination"] == expected and after["enemies"][0]["pos"] == expected, "Forecast and execution honor the full Move %d budget after trap-created Rubble" % allowance)
+		expect.call(int(prediction["health_lost"]) == 2 and int(after["enemies"][0]["hp"]) == 8, "Dynamic route forecast matches actual trap damage at Move %d" % allowance)
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	expect.call(plan["path"] == path and bool(plan["attack_available"]), "Lunge uses its spare fourth movement point to retain the legal same-turn melee route")
+	expect.call(state == before, "Dynamic route forecasts preserve the input state")
+	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
+	expect.call(resolved["enemies"][0]["pos"] == Vector2i(2, 2) and int(resolved["enemies"][0]["hp"]) == 8 and int(resolved["player"]["hp"]) < int(state["player"]["hp"]), "The selected full-budget dynamic route arrives alive and resolves melee")
+	state = _pursuit_fixture(combat, 10)
+	state["enemies"][0]["intent"]["actions"][0]["range"] = 1
+	Ground.place(state, Vector2i(3, 3), "rubble")
+	plan = combat.enemy_intent_plan(state, 0)
+	resolved = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
+	expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)] and resolved["enemies"][0]["pos"] == Vector2i(3, 3) and int(resolved["enemies"][0]["hp"]) == 9, "A fresh Move 1 allowance still permits its first Rubble step and forecasts the accompanying Fire contact")

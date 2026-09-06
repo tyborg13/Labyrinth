@@ -2,7 +2,7 @@ extends RefCounted
 class_name BoardSurfaceRules
 
 const PathUtils = preload("res://scripts/path_utils.gd")
-const ELEMENTAL_KINDS: Array[String] = ["fire", "ice", "electrified"]
+const ELEMENTAL_KINDS: Array = ["fire", "ice", "electrified"]
 const RULES_VERSION: int = 4
 const EVENT_LIMIT: int = 256
 

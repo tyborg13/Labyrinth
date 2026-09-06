@@ -5,6 +5,8 @@ const SAMPLE_FRAMES: int = 180
 
 func _initialize() -> void:
 	preload("res://scripts/board_surface_presentation.gd").retained_cache_enabled = OS.get_environment("LABYRINTH_SURFACE_CACHE_BASE") != "1"
+	preload("res://scripts/board_surface_presentation.gd").retained_electric_enabled = OS.get_environment("LABYRINTH_SURFACE_ELECTRIC_BASE") != "1"
+	preload("res://scripts/board_surface_presentation.gd").retained_static_batch_enabled = OS.get_environment("LABYRINTH_SURFACE_STATIC_BASE") != "1"
 	ground_loop_only = true
 	await super._initialize()
 
@@ -54,6 +56,8 @@ func _capture(name: String, _settle_frames: int = 8) -> void:
 		await super._capture("dense_%s_24" % mode, 0)
 	var result: Dictionary = {
 		"retained_cache_enabled": preload("res://scripts/board_surface_presentation.gd").retained_cache_enabled,
+		"retained_electric_enabled": preload("res://scripts/board_surface_presentation.gd").retained_electric_enabled,
+		"retained_static_batch_enabled": preload("res://scripts/board_surface_presentation.gd").retained_static_batch_enabled,
 		"schema_version": 1, "workload_id": "dense_shared_surfaces_live_hud_v4",
 		"viewport": [1920, 1080], "ui_scale": 1.0,
 		"warmup_frames": WARMUP_FRAMES, "sample_frames": SAMPLE_FRAMES,

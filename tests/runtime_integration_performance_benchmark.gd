@@ -7,7 +7,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const UnitShadowCacheResourceScript = preload("res://scripts/unit_shadow_cache_resource.gd")
 
-const HAND: Array[String] = [
+const HAND: Array = [
 	"sidestep_slash",
 	"quick_stab",
 	"guarded_step",

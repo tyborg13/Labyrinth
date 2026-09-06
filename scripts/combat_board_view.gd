@@ -10,6 +10,7 @@ const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BoardSurfaceFireLayer = preload("res://scripts/board_surface_fire_layer.gd")
 const BoardSurfaceIceLayer = preload("res://scripts/board_surface_ice_layer.gd")
 const BoardSurfaceRubbleLayer = preload("res://scripts/board_surface_rubble_layer.gd")
+const BoardSurfaceElectricLayer = preload("res://scripts/board_surface_electric_layer.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
@@ -632,6 +633,7 @@ var _render_instrumentation_owner: Node = null
 var _surface_rubble_layer: Node2D
 var _surface_ice_layer: Node2D
 var _surface_fire_layer: Node2D
+var _surface_electric_layer: Node2D
 var _ambient_render_layer: Control = null
 var _overlay_render_layer: Control = null
 var _ground_render_layer: Control = null
@@ -3061,6 +3063,7 @@ func _draw_hud_render_layer() -> void:
 	# layer paint over the projected HP text during ranged targeting.
 	section_started_usec = Time.get_ticks_usec()
 	_draw_unit_damage_preview_overlays(units_to_draw)
+	_draw_friendly_damage_chips()
 	_record_render_section_time("damage_preview_overlays", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -6278,10 +6281,11 @@ func _build_visible_units() -> Array[Dictionary]:
 			"pos": illusion.get("pos", Vector2i.ZERO),
 			"hp": int(illusion.get("hp", 0)),
 			"max_hp": int(illusion.get("max_hp", illusion.get("hp", 1))),
-			"block": 0,
-			"stoneskin": 0,
+			"block": int(illusion.get("block", 0)),
+			"stoneskin": int(illusion.get("stoneskin", 0)),
 			"bleed": 0,
-			"freeze": 0,
+			"chilled": bool(illusion.get("chilled", false)),
+			"freeze": int(illusion.get("freeze", 0)),
 			"shock": 0,
 			"immobilize": false,
 		})
@@ -6938,16 +6942,16 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		_draw_health_damage_preview(unit, content_rect, preview)
 	if font != null and not defer_preview_overlay:
 		_draw_health_bar_text(unit, content_rect, preview, font)
-	var block_amount: int = int(unit.get("block", 0))
 	var defense_badge_x: float = rect.position.x + rect.size.x + 4.0
-	if block_amount > 0:
-		var block_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(36.0, 16.0))
-		_draw_icon_value_badge(block_rect, "block", block_amount, Color(0.07, 0.12, 0.16, 0.92), Color("90d9ff"), Color("d9f5ff"), font)
-		defense_badge_x += block_rect.size.x + 4.0
-	var stoneskin_amount: int = int(unit.get("stoneskin", 0))
-	if stoneskin_amount > 0:
-		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
-		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
+	for defense: String in ["block", "stoneskin"]:
+		var amount: int = int(preview.get(defense, unit.get(defense, 0)))
+		var spent: bool = int(preview.get(defense + "_loss", 0)) > 0
+		if amount <= 0 and not spent: continue
+		var badge_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(36.0 if defense == "block" else 40.0, 16.0))
+		var border: Color = Color("ef8b62") if spent else Color("90d9ff") if defense == "block" else ElementData.accent(ElementData.EARTH)
+		var fill: Color = Color(0.27, 0.08, 0.055, 0.94) if spent else Color(0.07, 0.12, 0.16, 0.92) if defense == "block" else Color(0.10, 0.14, 0.08, 0.92)
+		_draw_icon_value_badge(badge_rect, defense, amount, fill, border, Color("ffe5cf") if spent else Color("d9f5ff") if defense == "block" else Color("eff8d7"), font)
+		defense_badge_x += badge_rect.size.x + 4.0
 
 func _health_bar_defers_damage_preview(preview: Dictionary) -> bool:
 	# Unit health bars are only drawn during the HUD phase. Always defer a
@@ -11084,6 +11088,34 @@ func _path_gradient_color(offset: Vector2, radius: float, color: Color) -> Color
 	gradient_color.a = color.a * MOVE_PATH_BODY_ALPHA
 	return gradient_color
 
+func _draw_friendly_damage_chips() -> void:
+	var chips: Array = presentation.get("friendly_damage_chips", [])
+	if chips.is_empty(): return
+	var font: Font = get_theme_default_font()
+	if font == null: return
+	var occupied: Array[Rect2]
+	for value: Variant in _hud_health_rects_cache.values():
+		occupied.append((value as Rect2).grow(4.0))
+	for chip: Dictionary in chips:
+		var health: Rect2 = _hud_health_rects_cache.get(str(chip.get("actor_key", "")), Rect2())
+		if health.size.x <= 0.0: continue
+		var label: String = str(chip.get("label", ""))
+		var width: float = clampf(font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 12).x + 14.0, 38.0, 184.0)
+		var rect := Rect2(Vector2(health.get_center().x - width * 0.5, health.position.y - 28.0), Vector2(width, 22.0))
+		# Keep explicit self/friendly costs out of health bars and neighboring chips.
+		# Search above and below so a crowded top edge never sends warnings offscreen.
+		rect.position.y = clampf(rect.position.y, 4.0, maxf(4.0, size.y - rect.size.y - 4.0))
+		for attempt: int in range(24):
+			var candidate: Rect2 = rect
+			var offset: float = float(attempt / 2) * 25.0
+			candidate.position.y = health.position.y - 28.0 - offset if attempt % 2 == 0 else health.end.y + 6.0 + offset
+			if candidate.position.y < 4.0 or candidate.end.y > size.y - 4.0: continue
+			if occupied.any(func(other: Rect2) -> bool: return candidate.grow(2.0).intersects(other)): continue
+			rect = candidate
+			break
+		occupied.append(rect)
+		_draw_movement_risk_chip(font, rect.get_center(), label, "danger", 12, 22.0)
+
 func _draw_movement_risk_chips() -> void:
 	var chips: Array = presentation.get("movement_risk_chips", [])
 	if chips.is_empty():
@@ -11107,21 +11139,21 @@ func _draw_movement_risk_chips() -> void:
 		var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.92 - float(slot) * (MOVE_RISK_CHIP_HEIGHT + MOVE_RISK_CHIP_GAP))
 		_draw_movement_risk_chip(font, center, label, str(chip.get("kind", "")))
 
-func _draw_movement_risk_chip(font: Font, center: Vector2, label: String, kind: String) -> void:
+func _draw_movement_risk_chip(font: Font, center: Vector2, label: String, kind: String, font_size: int = MOVE_RISK_CHIP_FONT_SIZE, height: float = MOVE_RISK_CHIP_HEIGHT) -> void:
 	var colors: Dictionary = _movement_risk_chip_colors(kind)
-	var text_width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, MOVE_RISK_CHIP_FONT_SIZE).x
-	var chip_width: float = clampf(text_width + 14.0, 38.0, 104.0)
-	var rect := Rect2(center - Vector2(chip_width * 0.5, MOVE_RISK_CHIP_HEIGHT * 0.5), Vector2(chip_width, MOVE_RISK_CHIP_HEIGHT))
+	var text_width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	var chip_width: float = clampf(text_width + 14.0, 38.0, 184.0)
+	var rect := Rect2(center - Vector2(chip_width * 0.5, height * 0.5), Vector2(chip_width, height))
 	draw_rect(rect.grow(1.5), Color(0.0, 0.0, 0.0, 0.34), true)
 	draw_rect(rect, colors.get("fill", Color("241914")), true)
 	draw_rect(rect, colors.get("border", Color("d8b96f")), false, 1.4)
 	draw_string(
 		font,
-		rect.position + Vector2(0.0, 12.5),
+		rect.position + Vector2(0.0, height * 0.5 + float(font_size) * 0.35),
 		label,
 		HORIZONTAL_ALIGNMENT_CENTER,
 		rect.size.x,
-		MOVE_RISK_CHIP_FONT_SIZE,
+		font_size,
 		colors.get("text", Color("fff4dc"))
 	)
 
@@ -13807,6 +13839,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	if not visible_tile:
 		if _surface_ice_layer != null: _surface_ice_layer.visible = false
 		if _surface_fire_layer != null: _surface_fire_layer.visible = false
+		if _surface_electric_layer != null: _surface_electric_layer.visible = false
 		return
 	var time: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
 	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
@@ -13837,7 +13870,21 @@ func _draw_board_surface(tile: Vector2i) -> void:
 			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
 			_surface_fire_layer.configure(_tile_center(tile), _tile_width(), seed, phase, reduced_motion)
 			move_child(_surface_fire_layer, get_child_count() - 1)
-	BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire)
+	var retained_electric: bool = retained_rubble and BoardSurfacePresentation.retained_electric_enabled and BoardSurfaceRules.is_conductive(combat_state, tile)
+	if retained_electric and _surface_electric_layer == null:
+		_surface_electric_layer = BoardSurfaceElectricLayer.new()
+		_surface_electric_layer.name = "SurfaceElectric"
+		_surface_electric_layer.show_behind_parent = true
+		add_child(_surface_electric_layer)
+	if _surface_electric_layer != null:
+		_surface_electric_layer.visible = retained_electric
+		if retained_electric:
+			var seed: int = tile.x * 101 + tile.y * 307
+			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			var opacity: float = 0.75 if BoardSurfaceRules.element_at(combat_state, tile) == "fire" else 1.0
+			_surface_electric_layer.configure(_tile_center(tile), _tile_width(), seed, phase, opacity)
+			move_child(_surface_electric_layer, get_child_count() - 1)
+	BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire, not retained_electric)
 	BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
 	_draw_surface_connection_preview(tile)
 	_draw_surface_conduction_floor(tile)
